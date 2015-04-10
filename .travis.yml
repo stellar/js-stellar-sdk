@@ -1,0 +1,12 @@
+language: node_js
+node_js:
+- '0.10'
+script: gulp test
+before_install:
+- mkdir -p .npm
+- export DISPLAY=:99.0
+- sh -e /etc/init.d/xvfb start
+notifications:
+  slack:
+    secure: CgXxNEQrQ82EatyF/wSdF0P5rXcWPL+fFZ1lb1aBb8RbVt5gwddJ6xWVD/nYSr6tIJvIYHYhoYsIDPENwezIPsesG7kWXerQhydsEcA34JKxzsStd/TmU6Moxuwy6KTN7yzmL6586nSvoAw9TNPgvRkJFkH07asjGIc9Rlaq7/Y=
+
