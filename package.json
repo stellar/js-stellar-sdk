@@ -54,6 +54,7 @@
     "js-xdr": "0.0.1",
     "lodash": "^3.6.0",
     "sha.js": "^2.3.6",
+    "js-stellar-lib": "0.0.1",
     "tweetnacl": "^0.13.0"
   }
 }
