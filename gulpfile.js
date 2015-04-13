@@ -3,6 +3,7 @@
 var gulp        = require('gulp');
 var plugins     = require('gulp-load-plugins')();
 var runSequence = require('run-sequence');
+var server      = require('gulp-develop-server' );
 
 gulp.task('default', ['build']);
 
@@ -28,7 +29,7 @@ gulp.task('build', function(done) {
 });
 
 gulp.task('test', function(done) {
-  runSequence('clean', 'test:node', 'test:browser', done);
+  runSequence('clean', 'test:run-server', 'test:node', 'test:browser', 'test:kill-server', done);
 });
 
 
@@ -53,10 +54,10 @@ gulp.task('build:browser', ['lint:src'], function() {
         ]
       }
     }))
-    .pipe(plugins.rename('stellar-base.js'))
+    .pipe(plugins.rename('stellar-lib.js'))
     .pipe(gulp.dest('dist'))
     .pipe(plugins.uglify())
-    .pipe(plugins.rename('stellar-base.min.js'))
+    .pipe(plugins.rename('stellar-lib.min.js'))
     .pipe(gulp.dest('dist'));
 });
 
@@ -76,6 +77,14 @@ gulp.task('test:browser', ["build:browser"], function (done) {
   karma.start({ configFile: __dirname + '/karma.conf.js' },  function() {
         done();
     });
+});
+
+gulp.task('test:run-server', function() {
+    server.listen( { path: './test/server.js' } );
+});
+
+gulp.task('test:kill-server', function() {
+    server.kill();
 });
 
 gulp.task('clean', function () {
