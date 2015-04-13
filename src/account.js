@@ -1,4 +1,4 @@
-import {Keypair} from "js-stellar-base";
+import {Keypair} from "stellar-base";
 
 export class Account {
 
