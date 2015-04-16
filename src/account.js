@@ -22,7 +22,22 @@ export class Account {
         return new this(keypair);
     }
 
-    constructor(keypair) {
-        this._keypair = keypair;
+    /**
+    * Constructs a new Account given the master keypair.
+    * @param {Keypair} master - The master keypair for the account.
+    * @param {object} opts
+    * @param {number} opts.seqNum - The account sequence number
+    */
+    constructor(master, opts={}) {
+        this._masterKeypair = master;
+        this.seqNum = opts.seqNum || 1;
+    }
+
+    get masterKeypair() {
+        return this._masterKeypair;
+    }
+
+    set masterKeypair(keypair) {
+        throw new Error("cannot set the master keypair, construct a new account");
     }
 }
