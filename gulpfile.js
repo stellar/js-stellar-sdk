@@ -29,7 +29,10 @@ gulp.task('build', function(done) {
 });
 
 gulp.task('test', function(done) {
-  runSequence('clean', 'test:run-server', 'test:node', 'test:browser', 'test:kill-server', done);
+  runSequence('clean', 'test:run-server', 'test:node', 'test:browser', function (err) {
+    server.kill();
+    done();
+  });
 });
 
 
@@ -79,12 +82,8 @@ gulp.task('test:browser', ["build:browser"], function (done) {
     });
 });
 
-gulp.task('test:run-server', function() {
-    server.listen( { path: './test/server.js' } );
-});
-
-gulp.task('test:kill-server', function() {
-    server.kill();
+gulp.task('test:run-server', function(done) {
+  server.listen({ path: './test/server.js' }, done);
 });
 
 gulp.task('clean', function () {
