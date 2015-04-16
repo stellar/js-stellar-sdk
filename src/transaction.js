@@ -1,4 +1,4 @@
-import {xdr, Hyper} from "stellar-base";
+import {xdr, Hyper, hash} from "stellar-base";
 
 import {Account} from "./account";
 
@@ -27,7 +27,8 @@ export class Transaction {
         this.minLedger  = opts.minLedger || MIN_LEDGER;
         this.maxLedger  = opts.maxLedger || MAX_LEDGER;
 
-        this.signed = null;
+        // the signed hex form of the transaction to be sent to Horizon
+        this.blob = null;
     }
 
     /**
@@ -57,7 +58,7 @@ export class Transaction {
         let value                   = Hyper.fromString(String(amount));
         let sourcePublicKey         = opts.source ? opts.source.masterKeypair : null;
         let path                    = opts.path ? opts.path : [];
-        let sendMax                 = opts.sendMax ? opts.sendMax : Hyper.fromString(String(amount));
+        let sendMax                 = opts.sendMax ? Hyper.fromString(String(opts.sendMax)) : value;
         let sourceMemo              = null;
         let memo                    = null;
         if (opts.sourceMemo) {
@@ -78,31 +79,34 @@ export class Transaction {
           currency:    currencyXdr,
           path:        path,
           amount:      value,
-          sendMax:     Hyper.fromString("200000000"),
+          sendMax:     sendMax,
           sourceMemo:  sourceMemo,
           memo:        memo,
         });
 
         let op = new xdr.Operation({
-            sourceAccount:  sourcePublicKey,
-            body:           xdr.OperationBody.payment(payment)
+            body: xdr.OperationBody.payment(payment),
         });
-
         this._operations.push(op);
     }
 
-    serialize() {
-        var source = this._source;
-
+    sign() {
         let tx = new xdr.Transaction({
-            sourceAccount:  source.masterKeypair.publicKey(),
-            maxFee:         this.maxFee,
-            seqNum:         xdr.SequenceNumber.fromString(String(source.seqNum)),
-            minLedger:      this.minLedger,
-            maxLedger:      this.maxLedger
+          sourceAccount: this._source.masterKeypair.publicKey(),
+          maxFee:        this.maxFee,
+          seqNum:        xdr.SequenceNumber.fromString(String(this._source.seqNum)),
+          minLedger:     this.minLedger,
+          maxLedger:     this.maxLedger
         });
+
         tx.operations(this._operations);
 
-        return tx.toXDR();
+        let tx_raw = tx.toXDR();
+
+        let tx_hash    = hash(tx_raw);
+        let signatures = [this._source.masterKeypair.signDecorated(tx_hash)];
+        let envelope = new xdr.TransactionEnvelope({tx, signatures});
+
+        this.blob = envelope.toXDR("hex");
     }
 }
