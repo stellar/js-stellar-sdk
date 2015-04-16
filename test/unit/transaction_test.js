@@ -12,5 +12,9 @@ describe('Transaction.payment', function() {
         transaction.payment(destination, currency, amount);
         transaction.sign();
         console.log(transaction.blob);
+
+        let server = new StellarLib.Server();
+        // TODO this fails in the browser at xhr.open
+        server.sendTransaction(transaction);
     });
 });

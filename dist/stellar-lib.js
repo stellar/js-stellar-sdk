@@ -50,7 +50,7 @@ var StellarLib =
 	__webpack_require__(2);
 
 	module.exports = __webpack_require__(1);
-	module.exports.request = __webpack_require__(6);
+	module.exports.request = __webpack_require__(7);
 
 /***/ },
 /* 1 */
@@ -64,12 +64,13 @@ var StellarLib =
 	exports.Account = __webpack_require__(3).Account;
 	exports.Transaction = __webpack_require__(4).Transaction;
 	exports.Currency = __webpack_require__(5).Currency;
+	exports.Server = __webpack_require__(6).Server;
 
 /***/ },
 /* 2 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(7);
+	module.exports = __webpack_require__(8);
 
 
 /***/ },
@@ -86,7 +87,7 @@ var StellarLib =
 	    value: true
 	});
 
-	var Keypair = __webpack_require__(9).Keypair;
+	var Keypair = __webpack_require__(10).Keypair;
 
 	var Account = exports.Account = (function () {
 
@@ -159,7 +160,7 @@ var StellarLib =
 	    value: true
 	});
 
-	var _stellarBase = __webpack_require__(9);
+	var _stellarBase = __webpack_require__(10);
 
 	var xdr = _stellarBase.xdr;
 	var Hyper = _stellarBase.Hyper;
@@ -289,7 +290,7 @@ var StellarLib =
 
 	    return Transaction;
 	})();
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9).Buffer))
 
 /***/ },
 /* 5 */
@@ -307,7 +308,7 @@ var StellarLib =
 
 	var Account = __webpack_require__(3).Account;
 
-	var xdr = __webpack_require__(9).xdr;
+	var xdr = __webpack_require__(10).xdr;
 
 	var Currency = exports.Currency = (function () {
 
@@ -360,12 +361,62 @@ var StellarLib =
 /* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
+	"use strict";
+
+	var _createClass = (function () { function defineProperties(target, props) { for (var key in props) { var prop = props[key]; prop.configurable = true; if (prop.value) prop.writable = true; } Object.defineProperties(target, props); } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+	var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } };
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	/**
+	* Server handles a network connection to a Horizon instance and exposes an
+	* interface for requests to that instance.
+	*/
+
+	var Server = exports.Server = (function () {
+	    function Server() {
+	        var config = arguments[0] === undefined ? {} : arguments[0];
+
+	        _classCallCheck(this, Server);
+
+	        this.hostname = config.hostname || "localhost";
+	        this.port = config.port || 3000;
+	    }
+
+	    _createClass(Server, {
+	        sendTransaction: {
+	            value: function sendTransaction(transaction) {
+	                var re = request.post(this.hostname + ":" + this.port + "/transactions").type("json").send({
+	                    tx: transaction.blob
+	                });
+	                console.log(re);
+	                re.end(function (err, res) {
+	                    console.log(res);
+	                    if (err) {
+	                        console.error(err);
+	                    } else if (res.body.status === "fail") {} else if (res.body.status === "success") {} else {}
+	                });
+	            }
+	        }
+	    });
+
+	    return Server;
+	})();
+
+	// resolver.reject(new errors.UnknownError(JSON.stringify(res.body)));
+
+/***/ },
+/* 7 */
+/***/ function(module, exports, __webpack_require__) {
+
 	/**
 	 * Module dependencies.
 	 */
 
-	var Emitter = __webpack_require__(10);
-	var reduce = __webpack_require__(11);
+	var Emitter = __webpack_require__(11);
+	var reduce = __webpack_require__(12);
 
 	/**
 	 * Root reference for iframes.
@@ -1474,7 +1525,7 @@ var StellarLib =
 
 
 /***/ },
-/* 7 */
+/* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {"use strict";
@@ -1484,13 +1535,13 @@ var StellarLib =
 	}
 	global._babelPolyfill = true;
 
-	__webpack_require__(12);
-
 	__webpack_require__(13);
+
+	__webpack_require__(14);
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 8 */
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {/*!
@@ -1500,9 +1551,9 @@ var StellarLib =
 	 * @license  MIT
 	 */
 
-	var base64 = __webpack_require__(21)
-	var ieee754 = __webpack_require__(19)
-	var isArray = __webpack_require__(20)
+	var base64 = __webpack_require__(22)
+	var ieee754 = __webpack_require__(20)
+	var isArray = __webpack_require__(21)
 
 	exports.Buffer = Buffer
 	exports.SlowBuffer = SlowBuffer
@@ -2825,10 +2876,10 @@ var StellarLib =
 	  }
 	}
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9).Buffer))
 
 /***/ },
-/* 9 */
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -2843,26 +2894,26 @@ var StellarLib =
 	  value: true
 	});
 
-	var xdr = _interopRequire(__webpack_require__(14));
+	var xdr = _interopRequire(__webpack_require__(15));
 
 	exports.xdr = xdr;
-	exports.hash = __webpack_require__(15).hash;
+	exports.hash = __webpack_require__(16).hash;
 
-	var _signing = __webpack_require__(16);
+	var _signing = __webpack_require__(17);
 
 	exports.sign = _signing.sign;
 	exports.verify = _signing.verify;
-	exports.Keypair = __webpack_require__(17).Keypair;
+	exports.Keypair = __webpack_require__(18).Keypair;
 
-	var _jsXdr = __webpack_require__(22);
+	var _jsXdr = __webpack_require__(23);
 
 	exports.UnsignedHyper = _jsXdr.UnsignedHyper;
 	exports.Hyper = _jsXdr.Hyper;
 
-	_defaults(exports, _interopRequireWildcard(__webpack_require__(18)));
+	_defaults(exports, _interopRequireWildcard(__webpack_require__(19)));
 
 /***/ },
-/* 10 */
+/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
@@ -3032,7 +3083,7 @@ var StellarLib =
 
 
 /***/ },
-/* 11 */
+/* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
@@ -3061,7 +3112,7 @@ var StellarLib =
 	};
 
 /***/ },
-/* 12 */
+/* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -5044,7 +5095,7 @@ var StellarLib =
 	}(typeof self != 'undefined' && self.Math === Math ? self : Function('return this')(), true);
 
 /***/ },
-/* 13 */
+/* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/**
@@ -5588,7 +5639,7 @@ var StellarLib =
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 14 */
+/* 15 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -5601,7 +5652,7 @@ var StellarLib =
 	/* jshint maxstatements:2147483647  */
 	/* jshint esnext:true  */
 
-	var XDR = _interopRequireWildcard(__webpack_require__(22));
+	var XDR = _interopRequireWildcard(__webpack_require__(23));
 
 	var types = XDR.config(function (xdr) {
 
@@ -7240,7 +7291,7 @@ var StellarLib =
 	module.exports = types;
 
 /***/ },
-/* 15 */
+/* 16 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -7250,7 +7301,7 @@ var StellarLib =
 	  value: true
 	});
 
-	var sha256 = __webpack_require__(24).sha256;
+	var sha256 = __webpack_require__(25).sha256;
 
 	function hash(data) {
 	  var hasher = new sha256();
@@ -7259,7 +7310,7 @@ var StellarLib =
 	}
 
 /***/ },
-/* 16 */
+/* 17 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
@@ -7290,7 +7341,7 @@ var StellarLib =
 	  (function () {
 	    // NOTE: we use commonjs style require here because es6 imports
 	    // can only occur at the top level.  thanks, obama.
-	    var ed25519 = __webpack_require__(25);
+	    var ed25519 = __webpack_require__(26);
 
 	    actualMethods.sign = function (data, secretKey) {
 	      data = new Buffer(data);
@@ -7309,7 +7360,7 @@ var StellarLib =
 	} else {
 	  (function () {
 	    // fallback to tweetnacl.js if we're in the browser
-	    var nacl = __webpack_require__(27);
+	    var nacl = __webpack_require__(28);
 
 	    actualMethods.sign = function (data, secretKey) {
 	      data = new Buffer(data);
@@ -7331,10 +7382,10 @@ var StellarLib =
 	    };
 	  })();
 	}
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9).Buffer))
 
 /***/ },
-/* 17 */
+/* 18 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
@@ -7351,16 +7402,16 @@ var StellarLib =
 	  value: true
 	});
 
-	var _signing = __webpack_require__(16);
+	var _signing = __webpack_require__(17);
 
 	var sign = _signing.sign;
 	var verify = _signing.verify;
 
-	var base58 = _interopRequireWildcard(__webpack_require__(18));
+	var base58 = _interopRequireWildcard(__webpack_require__(19));
 
-	var xdr = _interopRequire(__webpack_require__(14));
+	var xdr = _interopRequire(__webpack_require__(15));
 
-	var nacl = __webpack_require__(27);
+	var nacl = __webpack_require__(28);
 
 	var Keypair = exports.Keypair = (function () {
 	  function Keypair(keysAndSeed) {
@@ -7470,10 +7521,10 @@ var StellarLib =
 
 	  return Keypair;
 	})();
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9).Buffer))
 
 /***/ },
-/* 18 */
+/* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
@@ -7488,16 +7539,16 @@ var StellarLib =
 	  value: true
 	});
 
-	var bs58 = _interopRequire(__webpack_require__(23));
+	var bs58 = _interopRequire(__webpack_require__(24));
 
-	var _lodash = __webpack_require__(26);
+	var _lodash = __webpack_require__(27);
 
 	var isUndefined = _lodash.isUndefined;
 	var isNull = _lodash.isNull;
 
-	var hash = __webpack_require__(15).hash;
+	var hash = __webpack_require__(16).hash;
 
-	var nacl = __webpack_require__(27);
+	var nacl = __webpack_require__(28);
 
 	var versionBytes = {
 	  accountId: 0, // decimal 0
@@ -7586,10 +7637,10 @@ var StellarLib =
 	  return true;
 	}
 	// decimal 33
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9).Buffer))
 
 /***/ },
-/* 19 */
+/* 20 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports.read = function(buffer, offset, isLE, mLen, nBytes) {
@@ -7679,7 +7730,7 @@ var StellarLib =
 
 
 /***/ },
-/* 20 */
+/* 21 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
@@ -7718,7 +7769,7 @@ var StellarLib =
 
 
 /***/ },
-/* 21 */
+/* 22 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
@@ -7848,7 +7899,7 @@ var StellarLib =
 
 
 /***/ },
-/* 22 */
+/* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -7861,16 +7912,16 @@ var StellarLib =
 	  value: true
 	});
 
-	_defaults(exports, _interopRequireWildcard(__webpack_require__(28)));
+	_defaults(exports, _interopRequireWildcard(__webpack_require__(29)));
 
-	var _config = __webpack_require__(29);
+	var _config = __webpack_require__(30);
 
 	_defaults(exports, _interopRequireWildcard(_config));
 
 	var config = _config.config;
 
 /***/ },
-/* 23 */
+/* 24 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// vendored from http://cryptocoinjs.com/modules/misc/bs58/
@@ -7969,7 +8020,7 @@ var StellarLib =
 	};
 
 /***/ },
-/* 24 */
+/* 25 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var exports = module.exports = function (alg) {
@@ -7979,22 +8030,22 @@ var StellarLib =
 	}
 
 
-	exports.sha = __webpack_require__(30)
-	exports.sha1 = __webpack_require__(31)
-	exports.sha224 = __webpack_require__(32)
-	exports.sha256 = __webpack_require__(33)
-	exports.sha384 = __webpack_require__(34)
-	exports.sha512 = __webpack_require__(35)
+	exports.sha = __webpack_require__(31)
+	exports.sha1 = __webpack_require__(32)
+	exports.sha224 = __webpack_require__(33)
+	exports.sha256 = __webpack_require__(34)
+	exports.sha384 = __webpack_require__(35)
+	exports.sha512 = __webpack_require__(36)
 
 
 /***/ },
-/* 25 */
+/* 26 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"./build/Release/native.node\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
 
 /***/ },
-/* 26 */
+/* 27 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(module, global) {/**
@@ -19801,10 +19852,10 @@ var StellarLib =
 	  }
 	}.call(this));
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(55)(module), (function() { return this; }())))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(56)(module), (function() { return this; }())))
 
 /***/ },
-/* 27 */
+/* 28 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {(function(nacl) {
@@ -22215,7 +22266,7 @@ var StellarLib =
 	    }
 	  } else if (true) {
 	    // Node.js.
-	    crypto = __webpack_require__(56);
+	    crypto = __webpack_require__(57);
 	    if (crypto) {
 	      nacl.setPRNG(function(x, n) {
 	        var i, v = crypto.randomBytes(n);
@@ -22228,10 +22279,10 @@ var StellarLib =
 
 	})(typeof module !== 'undefined' && module.exports ? module.exports : (window.nacl = window.nacl || {}));
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9).Buffer))
 
 /***/ },
-/* 28 */
+/* 29 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -22243,8 +22294,6 @@ var StellarLib =
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-
-	_defaults(exports, _interopRequireWildcard(__webpack_require__(37)));
 
 	_defaults(exports, _interopRequireWildcard(__webpack_require__(38)));
 
@@ -22280,8 +22329,10 @@ var StellarLib =
 
 	_defaults(exports, _interopRequireWildcard(__webpack_require__(54)));
 
+	_defaults(exports, _interopRequireWildcard(__webpack_require__(55)));
+
 /***/ },
-/* 29 */
+/* 30 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -22303,9 +22354,9 @@ var StellarLib =
 	  value: true
 	});
 
-	var XDR = _interopRequireWildcard(__webpack_require__(28));
+	var XDR = _interopRequireWildcard(__webpack_require__(29));
 
-	var _lodash = __webpack_require__(26);
+	var _lodash = __webpack_require__(27);
 
 	var isUndefined = _lodash.isUndefined;
 	var isPlainObject = _lodash.isPlainObject;
@@ -22314,7 +22365,7 @@ var StellarLib =
 	var map = _lodash.map;
 	var pick = _lodash.pick;
 
-	var sequencify = _interopRequire(__webpack_require__(58));
+	var sequencify = _interopRequire(__webpack_require__(59));
 
 	// types is the root
 	var types = {};
@@ -22663,7 +22714,7 @@ var StellarLib =
 	})();
 
 /***/ },
-/* 30 */
+/* 31 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {/*
@@ -22674,8 +22725,8 @@ var StellarLib =
 	 * operation was added.
 	 */
 
-	var inherits = __webpack_require__(65)
-	var Hash = __webpack_require__(57)
+	var inherits = __webpack_require__(66)
+	var Hash = __webpack_require__(58)
 
 	var W = new Array(80)
 
@@ -22766,10 +22817,10 @@ var StellarLib =
 	module.exports = Sha
 
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9).Buffer))
 
 /***/ },
-/* 31 */
+/* 32 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {/*
@@ -22781,8 +22832,8 @@ var StellarLib =
 	 * See http://pajhome.org.uk/crypt/md5 for details.
 	 */
 
-	var inherits = __webpack_require__(65)
-	var Hash = __webpack_require__(57)
+	var inherits = __webpack_require__(66)
+	var Hash = __webpack_require__(58)
 
 	var W = new Array(80)
 
@@ -22869,10 +22920,10 @@ var StellarLib =
 	module.exports = Sha1
 
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9).Buffer))
 
 /***/ },
-/* 32 */
+/* 33 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {/**
@@ -22883,9 +22934,9 @@ var StellarLib =
 	 *
 	 */
 
-	var inherits = __webpack_require__(65)
-	var SHA256 = __webpack_require__(33)
-	var Hash = __webpack_require__(57)
+	var inherits = __webpack_require__(66)
+	var SHA256 = __webpack_require__(34)
+	var Hash = __webpack_require__(58)
 
 	var W = new Array(64)
 
@@ -22928,10 +22979,10 @@ var StellarLib =
 
 	module.exports = Sha224
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9).Buffer))
 
 /***/ },
-/* 33 */
+/* 34 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {/**
@@ -22942,8 +22993,8 @@ var StellarLib =
 	 *
 	 */
 
-	var inherits = __webpack_require__(65)
-	var Hash = __webpack_require__(57)
+	var inherits = __webpack_require__(66)
+	var Hash = __webpack_require__(58)
 
 	var K = [
 	  0x428A2F98, 0x71374491, 0xB5C0FBCF, 0xE9B5DBA5,
@@ -23084,15 +23135,15 @@ var StellarLib =
 
 	module.exports = Sha256
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9).Buffer))
 
 /***/ },
-/* 34 */
+/* 35 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(Buffer) {var inherits = __webpack_require__(65)
-	var SHA512 = __webpack_require__(35);
-	var Hash = __webpack_require__(57)
+	/* WEBPACK VAR INJECTION */(function(Buffer) {var inherits = __webpack_require__(66)
+	var SHA512 = __webpack_require__(36);
+	var Hash = __webpack_require__(58)
 
 	var W = new Array(160)
 
@@ -23147,14 +23198,14 @@ var StellarLib =
 
 	module.exports = Sha384
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9).Buffer))
 
 /***/ },
-/* 35 */
+/* 36 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(Buffer) {var inherits = __webpack_require__(65)
-	var Hash = __webpack_require__(57)
+	/* WEBPACK VAR INJECTION */(function(Buffer) {var inherits = __webpack_require__(66)
+	var Hash = __webpack_require__(58)
 
 	var K = [
 	  0x428a2f98, 0xd728ae22, 0x71374491, 0x23ef65cd,
@@ -23399,11 +23450,11 @@ var StellarLib =
 
 	module.exports = Sha512
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9).Buffer))
 
 /***/ },
-/* 36 */,
-/* 37 */
+/* 37 */,
+/* 38 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -23414,9 +23465,9 @@ var StellarLib =
 	  value: true
 	});
 
-	var isNumber = __webpack_require__(26).isNumber;
+	var isNumber = __webpack_require__(27).isNumber;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(59));
+	var includeIoMixin = _interopRequire(__webpack_require__(60));
 
 	var Int = {
 
@@ -23454,7 +23505,7 @@ var StellarLib =
 	includeIoMixin(Int);
 
 /***/ },
-/* 38 */
+/* 39 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -23473,9 +23524,9 @@ var StellarLib =
 	  value: true
 	});
 
-	var Long = _interopRequire(__webpack_require__(66));
+	var Long = _interopRequire(__webpack_require__(67));
 
-	var includeIoMixin = _interopRequire(__webpack_require__(59));
+	var includeIoMixin = _interopRequire(__webpack_require__(60));
 
 	var Hyper = exports.Hyper = (function (_Long) {
 	  function Hyper(low, high) {
@@ -23532,7 +23583,7 @@ var StellarLib =
 	Hyper.MIN_VALUE = new Hyper(Long.MIN_VALUE.low, Long.MIN_VALUE.high);
 
 /***/ },
-/* 39 */
+/* 40 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -23543,9 +23594,9 @@ var StellarLib =
 	  value: true
 	});
 
-	var isNumber = __webpack_require__(26).isNumber;
+	var isNumber = __webpack_require__(27).isNumber;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(59));
+	var includeIoMixin = _interopRequire(__webpack_require__(60));
 
 	var UnsignedInt = {
 
@@ -23587,7 +23638,7 @@ var StellarLib =
 	includeIoMixin(UnsignedInt);
 
 /***/ },
-/* 40 */
+/* 41 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -23606,9 +23657,9 @@ var StellarLib =
 	  value: true
 	});
 
-	var Long = _interopRequire(__webpack_require__(66));
+	var Long = _interopRequire(__webpack_require__(67));
 
-	var includeIoMixin = _interopRequire(__webpack_require__(59));
+	var includeIoMixin = _interopRequire(__webpack_require__(60));
 
 	var UnsignedHyper = exports.UnsignedHyper = (function (_Long) {
 	  function UnsignedHyper(low, high) {
@@ -23666,7 +23717,7 @@ var StellarLib =
 	UnsignedHyper.MIN_VALUE = new UnsignedHyper(Long.MIN_VALUE.low, Long.MIN_VALUE.high);
 
 /***/ },
-/* 41 */
+/* 42 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -23677,9 +23728,9 @@ var StellarLib =
 	  value: true
 	});
 
-	var isNumber = __webpack_require__(26).isNumber;
+	var isNumber = __webpack_require__(27).isNumber;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(59));
+	var includeIoMixin = _interopRequire(__webpack_require__(60));
 
 	var Float = {
 
@@ -23703,7 +23754,7 @@ var StellarLib =
 	includeIoMixin(Float);
 
 /***/ },
-/* 42 */
+/* 43 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -23714,9 +23765,9 @@ var StellarLib =
 	  value: true
 	});
 
-	var isNumber = __webpack_require__(26).isNumber;
+	var isNumber = __webpack_require__(27).isNumber;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(59));
+	var includeIoMixin = _interopRequire(__webpack_require__(60));
 
 	var Double = {
 
@@ -23740,7 +23791,7 @@ var StellarLib =
 	includeIoMixin(Double);
 
 /***/ },
-/* 43 */
+/* 44 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -23751,7 +23802,7 @@ var StellarLib =
 	  value: true
 	});
 
-	var includeIoMixin = _interopRequire(__webpack_require__(59));
+	var includeIoMixin = _interopRequire(__webpack_require__(60));
 
 	var Quadruple = {
 	  /* jshint unused: false */
@@ -23772,7 +23823,7 @@ var StellarLib =
 	includeIoMixin(Quadruple);
 
 /***/ },
-/* 44 */
+/* 45 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -23783,11 +23834,11 @@ var StellarLib =
 	  value: true
 	});
 
-	var Int = __webpack_require__(37).Int;
+	var Int = __webpack_require__(38).Int;
 
-	var isBoolean = __webpack_require__(26).isBoolean;
+	var isBoolean = __webpack_require__(27).isBoolean;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(59));
+	var includeIoMixin = _interopRequire(__webpack_require__(60));
 
 	var Bool = {
 	  read: function read(io) {
@@ -23817,7 +23868,7 @@ var StellarLib =
 	includeIoMixin(Bool);
 
 /***/ },
-/* 45 */
+/* 46 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
@@ -23832,15 +23883,15 @@ var StellarLib =
 	  value: true
 	});
 
-	var Int = __webpack_require__(37).Int;
+	var Int = __webpack_require__(38).Int;
 
-	var UnsignedInt = __webpack_require__(39).UnsignedInt;
+	var UnsignedInt = __webpack_require__(40).UnsignedInt;
 
-	var calculatePadding = __webpack_require__(60).calculatePadding;
+	var calculatePadding = __webpack_require__(61).calculatePadding;
 
-	var isString = __webpack_require__(26).isString;
+	var isString = __webpack_require__(27).isString;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(59));
+	var includeIoMixin = _interopRequire(__webpack_require__(60));
 
 	var String = exports.String = (function () {
 	  function String() {
@@ -23891,10 +23942,10 @@ var StellarLib =
 	})();
 
 	includeIoMixin(String.prototype);
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9).Buffer))
 
 /***/ },
-/* 46 */
+/* 47 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
@@ -23909,9 +23960,9 @@ var StellarLib =
 	  value: true
 	});
 
-	var calculatePadding = __webpack_require__(60).calculatePadding;
+	var calculatePadding = __webpack_require__(61).calculatePadding;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(59));
+	var includeIoMixin = _interopRequire(__webpack_require__(60));
 
 	var Opaque = exports.Opaque = (function () {
 	  function Opaque(length) {
@@ -23949,10 +24000,10 @@ var StellarLib =
 	})();
 
 	includeIoMixin(Opaque.prototype);
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9).Buffer))
 
 /***/ },
-/* 47 */
+/* 48 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
@@ -23967,13 +24018,13 @@ var StellarLib =
 	  value: true
 	});
 
-	var Int = __webpack_require__(37).Int;
+	var Int = __webpack_require__(38).Int;
 
-	var UnsignedInt = __webpack_require__(39).UnsignedInt;
+	var UnsignedInt = __webpack_require__(40).UnsignedInt;
 
-	var calculatePadding = __webpack_require__(60).calculatePadding;
+	var calculatePadding = __webpack_require__(61).calculatePadding;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(59));
+	var includeIoMixin = _interopRequire(__webpack_require__(60));
 
 	var VarOpaque = exports.VarOpaque = (function () {
 	  function VarOpaque() {
@@ -24018,10 +24069,10 @@ var StellarLib =
 	})();
 
 	includeIoMixin(VarOpaque.prototype);
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9).Buffer))
 
 /***/ },
-/* 48 */
+/* 49 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -24036,14 +24087,14 @@ var StellarLib =
 	  value: true
 	});
 
-	var _lodash = __webpack_require__(26);
+	var _lodash = __webpack_require__(27);
 
 	var all = _lodash.all;
 	var each = _lodash.each;
 	var times = _lodash.times;
 	var isArray = _lodash.isArray;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(59));
+	var includeIoMixin = _interopRequire(__webpack_require__(60));
 
 	var Array = exports.Array = (function () {
 	  function Array(childType, length) {
@@ -24104,7 +24155,7 @@ var StellarLib =
 	includeIoMixin(Array.prototype);
 
 /***/ },
-/* 49 */
+/* 50 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -24119,18 +24170,18 @@ var StellarLib =
 	  value: true
 	});
 
-	var Int = __webpack_require__(37).Int;
+	var Int = __webpack_require__(38).Int;
 
-	var UnsignedInt = __webpack_require__(39).UnsignedInt;
+	var UnsignedInt = __webpack_require__(40).UnsignedInt;
 
-	var _lodash = __webpack_require__(26);
+	var _lodash = __webpack_require__(27);
 
 	var all = _lodash.all;
 	var each = _lodash.each;
 	var times = _lodash.times;
 	var isArray = _lodash.isArray;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(59));
+	var includeIoMixin = _interopRequire(__webpack_require__(60));
 
 	var VarArray = exports.VarArray = (function () {
 	  function VarArray(childType) {
@@ -24200,7 +24251,7 @@ var StellarLib =
 	includeIoMixin(VarArray.prototype);
 
 /***/ },
-/* 50 */
+/* 51 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -24215,14 +24266,14 @@ var StellarLib =
 	  value: true
 	});
 
-	var Bool = __webpack_require__(44).Bool;
+	var Bool = __webpack_require__(45).Bool;
 
-	var _lodash = __webpack_require__(26);
+	var _lodash = __webpack_require__(27);
 
 	var isNull = _lodash.isNull;
 	var isUndefined = _lodash.isUndefined;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(59));
+	var includeIoMixin = _interopRequire(__webpack_require__(60));
 
 	var Option = exports.Option = (function () {
 	  function Option(childType) {
@@ -24270,7 +24321,7 @@ var StellarLib =
 	includeIoMixin(Option.prototype);
 
 /***/ },
-/* 51 */
+/* 52 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -24281,9 +24332,9 @@ var StellarLib =
 	  value: true
 	});
 
-	var isUndefined = __webpack_require__(26).isUndefined;
+	var isUndefined = __webpack_require__(27).isUndefined;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(59));
+	var includeIoMixin = _interopRequire(__webpack_require__(60));
 
 	var Void = {
 	  /* jshint unused: false */
@@ -24306,7 +24357,7 @@ var StellarLib =
 	includeIoMixin(Void);
 
 /***/ },
-/* 52 */
+/* 53 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -24325,14 +24376,14 @@ var StellarLib =
 	  value: true
 	});
 
-	var Int = __webpack_require__(37).Int;
+	var Int = __webpack_require__(38).Int;
 
-	var _lodash = __webpack_require__(26);
+	var _lodash = __webpack_require__(27);
 
 	var each = _lodash.each;
 	var vals = _lodash.values;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(59));
+	var includeIoMixin = _interopRequire(__webpack_require__(60));
 
 	var Enum = exports.Enum = (function () {
 	  function Enum(name, value) {
@@ -24431,7 +24482,7 @@ var StellarLib =
 	includeIoMixin(Enum);
 
 /***/ },
-/* 53 */
+/* 54 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -24452,14 +24503,14 @@ var StellarLib =
 	  value: true
 	});
 
-	var _lodash = __webpack_require__(26);
+	var _lodash = __webpack_require__(27);
 
 	var each = _lodash.each;
 	var map = _lodash.map;
 	var isUndefined = _lodash.isUndefined;
 	var zipObject = _lodash.zipObject;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(59));
+	var includeIoMixin = _interopRequire(__webpack_require__(60));
 
 	var Struct = exports.Struct = (function () {
 	  function Struct(attributes) {
@@ -24556,7 +24607,7 @@ var StellarLib =
 	}
 
 /***/ },
-/* 54 */
+/* 55 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -24575,15 +24626,15 @@ var StellarLib =
 	  value: true
 	});
 
-	var _lodash = __webpack_require__(26);
+	var _lodash = __webpack_require__(27);
 
 	var each = _lodash.each;
 	var isUndefined = _lodash.isUndefined;
 	var cloneDeep = _lodash.cloneDeep;
 
-	var Void = __webpack_require__(51).Void;
+	var Void = __webpack_require__(52).Void;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(59));
+	var includeIoMixin = _interopRequire(__webpack_require__(60));
 
 	var Union = exports.Union = (function () {
 	  function Union(aSwitch, value) {
@@ -24743,7 +24794,7 @@ var StellarLib =
 	includeIoMixin(Union);
 
 /***/ },
-/* 55 */
+/* 56 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = function(module) {
@@ -24759,10 +24810,10 @@ var StellarLib =
 
 
 /***/ },
-/* 56 */
+/* 57 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(Buffer) {var rng = __webpack_require__(61)
+	/* WEBPACK VAR INJECTION */(function(Buffer) {var rng = __webpack_require__(62)
 
 	function error () {
 	  var m = [].slice.call(arguments).join(' ')
@@ -24773,9 +24824,9 @@ var StellarLib =
 	    ].join('\n'))
 	}
 
-	exports.createHash = __webpack_require__(62)
+	exports.createHash = __webpack_require__(63)
 
-	exports.createHmac = __webpack_require__(63)
+	exports.createHmac = __webpack_require__(64)
 
 	exports.randomBytes = function(size, callback) {
 	  if (callback && callback.call) {
@@ -24796,7 +24847,7 @@ var StellarLib =
 	  return ['sha1', 'sha256', 'sha512', 'md5', 'rmd160']
 	}
 
-	var p = __webpack_require__(64)(exports)
+	var p = __webpack_require__(65)(exports)
 	exports.pbkdf2 = p.pbkdf2
 	exports.pbkdf2Sync = p.pbkdf2Sync
 
@@ -24816,10 +24867,10 @@ var StellarLib =
 	  }
 	})
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9).Buffer))
 
 /***/ },
-/* 57 */
+/* 58 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {//prototype class for hash functions
@@ -24892,10 +24943,10 @@ var StellarLib =
 
 	module.exports = Hash
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9).Buffer))
 
 /***/ },
-/* 58 */
+/* 59 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*jshint node:true */
@@ -24947,16 +24998,16 @@ var StellarLib =
 
 
 /***/ },
-/* 59 */
+/* 60 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
 	module.exports = includeIoMixin;
 
-	var Cursor = __webpack_require__(67).Cursor;
+	var Cursor = __webpack_require__(69).Cursor;
 
-	var _lodash = __webpack_require__(26);
+	var _lodash = __webpack_require__(27);
 
 	var extend = _lodash.extend;
 	var isFunction = _lodash.isFunction;
@@ -25010,7 +25061,7 @@ var StellarLib =
 	}
 
 /***/ },
-/* 60 */
+/* 61 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -25034,7 +25085,7 @@ var StellarLib =
 	}
 
 /***/ },
-/* 61 */
+/* 62 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global, Buffer) {(function() {
@@ -25064,16 +25115,16 @@ var StellarLib =
 	  }
 	}())
 
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(8).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(9).Buffer))
 
 /***/ },
-/* 62 */
+/* 63 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(Buffer) {var createHash = __webpack_require__(71)
+	/* WEBPACK VAR INJECTION */(function(Buffer) {var createHash = __webpack_require__(72)
 
-	var md5 = toConstructor(__webpack_require__(69))
-	var rmd160 = toConstructor(__webpack_require__(73))
+	var md5 = toConstructor(__webpack_require__(70))
+	var rmd160 = toConstructor(__webpack_require__(74))
 
 	function toConstructor (fn) {
 	  return function () {
@@ -25101,13 +25152,13 @@ var StellarLib =
 	  return createHash(alg)
 	}
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9).Buffer))
 
 /***/ },
-/* 63 */
+/* 64 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(Buffer) {var createHash = __webpack_require__(62)
+	/* WEBPACK VAR INJECTION */(function(Buffer) {var createHash = __webpack_require__(63)
 
 	var zeroBuffer = new Buffer(128)
 	zeroBuffer.fill(0)
@@ -25151,13 +25202,13 @@ var StellarLib =
 	}
 
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9).Buffer))
 
 /***/ },
-/* 64 */
+/* 65 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var pbkdf2Export = __webpack_require__(72)
+	var pbkdf2Export = __webpack_require__(73)
 
 	module.exports = function (crypto, exports) {
 	  exports = exports || {}
@@ -25172,7 +25223,7 @@ var StellarLib =
 
 
 /***/ },
-/* 65 */
+/* 66 */
 /***/ function(module, exports, __webpack_require__) {
 
 	if (typeof Object.create === 'function') {
@@ -25201,7 +25252,7 @@ var StellarLib =
 
 
 /***/ },
-/* 66 */
+/* 67 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -25221,11 +25272,17 @@ var StellarLib =
 	 limitations under the License.
 	 */
 
-	module.exports = __webpack_require__(70);
+	module.exports = __webpack_require__(71);
 
 
 /***/ },
-/* 67 */
+/* 68 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* (ignored) */
+
+/***/ },
+/* 69 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
@@ -25242,9 +25299,9 @@ var StellarLib =
 	  value: true
 	});
 
-	var BaseCursor = _interopRequire(__webpack_require__(75));
+	var BaseCursor = _interopRequire(__webpack_require__(77));
 
-	var calculatePadding = __webpack_require__(60).calculatePadding;
+	var calculatePadding = __webpack_require__(61).calculatePadding;
 
 	var Cursor = exports.Cursor = (function (_BaseCursor) {
 	  function Cursor() {
@@ -25271,16 +25328,10 @@ var StellarLib =
 
 	  return Cursor;
 	})(BaseCursor);
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9).Buffer))
 
 /***/ },
-/* 68 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* (ignored) */
-
-/***/ },
-/* 69 */
+/* 70 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -25292,7 +25343,7 @@ var StellarLib =
 	 * See http://pajhome.org.uk/crypt/md5 for more info.
 	 */
 
-	var helpers = __webpack_require__(74);
+	var helpers = __webpack_require__(75);
 
 	/*
 	 * Calculate the MD5 of an array of little-endian words, and a bit length
@@ -25441,7 +25492,7 @@ var StellarLib =
 
 
 /***/ },
-/* 70 */
+/* 71 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(module) {/*
@@ -26387,10 +26438,10 @@ var StellarLib =
 
 	})(this);
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(55)(module)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(56)(module)))
 
 /***/ },
-/* 71 */
+/* 72 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var exports = module.exports = function (alg) {
@@ -26399,16 +26450,16 @@ var StellarLib =
 	  return new Alg()
 	}
 
-	var Buffer = __webpack_require__(8).Buffer
-	var Hash   = __webpack_require__(77)(Buffer)
+	var Buffer = __webpack_require__(9).Buffer
+	var Hash   = __webpack_require__(78)(Buffer)
 
-	exports.sha1 = __webpack_require__(78)(Buffer, Hash)
-	exports.sha256 = __webpack_require__(79)(Buffer, Hash)
-	exports.sha512 = __webpack_require__(80)(Buffer, Hash)
+	exports.sha1 = __webpack_require__(79)(Buffer, Hash)
+	exports.sha256 = __webpack_require__(80)(Buffer, Hash)
+	exports.sha512 = __webpack_require__(81)(Buffer, Hash)
 
 
 /***/ },
-/* 72 */
+/* 73 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {module.exports = function(crypto) {
@@ -26496,10 +26547,10 @@ var StellarLib =
 	  }
 	}
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9).Buffer))
 
 /***/ },
-/* 73 */
+/* 74 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {
@@ -26708,10 +26759,10 @@ var StellarLib =
 
 
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9).Buffer))
 
 /***/ },
-/* 74 */
+/* 75 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {var intSize = 4;
@@ -26749,10 +26800,17 @@ var StellarLib =
 
 	module.exports = { hash: hash };
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9).Buffer))
 
 /***/ },
-/* 75 */
+/* 76 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = function() { throw new Error("define cannot be used indirect"); };
+
+
+/***/ },
+/* 77 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {var Cursor = function(buffer)
@@ -26974,7 +27032,7 @@ var StellarLib =
 			parent.call(this, buffer);
 		};
 
-		__webpack_require__(81).inherits(C, parent);
+		__webpack_require__(82).inherits(C, parent);
 
 		C.extend = parent.extend;
 		C.define = parent.define;
@@ -27000,17 +27058,10 @@ var StellarLib =
 
 	module.exports = Cursor;
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9).Buffer))
 
 /***/ },
-/* 76 */
-/***/ function(module, exports, __webpack_require__) {
-
-	module.exports = function() { throw new Error("define cannot be used indirect"); };
-
-
-/***/ },
-/* 77 */
+/* 78 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = function (Buffer) {
@@ -27093,7 +27144,7 @@ var StellarLib =
 
 
 /***/ },
-/* 78 */
+/* 79 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -27105,7 +27156,7 @@ var StellarLib =
 	 * See http://pajhome.org.uk/crypt/md5 for details.
 	 */
 
-	var inherits = __webpack_require__(81).inherits
+	var inherits = __webpack_require__(82).inherits
 
 	module.exports = function (Buffer, Hash) {
 
@@ -27237,7 +27288,7 @@ var StellarLib =
 
 
 /***/ },
-/* 79 */
+/* 80 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
@@ -27249,7 +27300,7 @@ var StellarLib =
 	 *
 	 */
 
-	var inherits = __webpack_require__(81).inherits
+	var inherits = __webpack_require__(82).inherits
 
 	module.exports = function (Buffer, Hash) {
 
@@ -27390,10 +27441,10 @@ var StellarLib =
 
 
 /***/ },
-/* 80 */
+/* 81 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var inherits = __webpack_require__(81).inherits
+	var inherits = __webpack_require__(82).inherits
 
 	module.exports = function (Buffer, Hash) {
 	  var K = [
@@ -27640,7 +27691,7 @@ var StellarLib =
 
 
 /***/ },
-/* 81 */
+/* 82 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global, process) {// Copyright Joyent, Inc. and other Node contributors.
@@ -28168,7 +28219,7 @@ var StellarLib =
 	}
 	exports.isPrimitive = isPrimitive;
 
-	exports.isBuffer = __webpack_require__(82);
+	exports.isBuffer = __webpack_require__(83);
 
 	function objectToString(o) {
 	  return Object.prototype.toString.call(o);
@@ -28212,7 +28263,7 @@ var StellarLib =
 	 *     prototype.
 	 * @param {function} superCtor Constructor function to inherit prototype from.
 	 */
-	exports.inherits = __webpack_require__(84);
+	exports.inherits = __webpack_require__(85);
 
 	exports._extend = function(origin, add) {
 	  // Don't do anything if add isn't an object
@@ -28230,10 +28281,10 @@ var StellarLib =
 	  return Object.prototype.hasOwnProperty.call(obj, prop);
 	}
 
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(83)))
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(84)))
 
 /***/ },
-/* 82 */
+/* 83 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = function isBuffer(arg) {
@@ -28244,7 +28295,7 @@ var StellarLib =
 	}
 
 /***/ },
-/* 83 */
+/* 84 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// shim for using process in browser
@@ -28308,7 +28359,7 @@ var StellarLib =
 
 
 /***/ },
-/* 84 */
+/* 85 */
 /***/ function(module, exports, __webpack_require__) {
 
 	if (typeof Object.create === 'function') {
