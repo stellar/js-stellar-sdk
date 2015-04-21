@@ -13,7 +13,7 @@ describe('Account.fromSeed', function() {
     expect(account).to.be.instanceof(StellarLib.Account);
   });
 
-  it("throw an error if the arg isn't base58check encoded as a seed", function() {
+  it("throws an error if the arg isn't base58check encoded as a seed", function() {
 
     expect(() => StellarLib.Account.fromSeed("hel0")).to.throw()
     expect(() => StellarLib.Account.fromSeed("masterpassphrasemasterpassphrase")).to.throw()
@@ -29,7 +29,7 @@ describe('Account.fromAddress', function() {
     expect(account).to.be.instanceof(StellarLib.Account);
   });
 
-  it("throw an error if the arg isn't base58check encoded as a accountid", function() {
+  it("throws an error if the arg isn't base58check encoded as a accountid", function() {
 
     expect(() => StellarLib.Keypair.fromAddress("hel0")).to.throw()
     expect(() => StellarLib.Keypair.fromAddress("masterpassphrasemasterpassphrase")).to.throw()
