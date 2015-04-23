@@ -8,23 +8,26 @@ export class Server {
         this.port = config.port || 3000;
     }
 
-    sendTransaction(transaction) {
-        var re = request
-            .post(this.hostname + ":" + this.port +'/transactions')
-            .type('json')
-            .send({
-                tx: transaction.blob
-            });
-            console.log(re);
-            re.end(function(err, res) {
-                console.log(res);
-              if (err) {
-                console.error(err);
-              } else if (res.body.status === 'fail') {
-              } else if (res.body.status === 'success') {
-              } else {
-                // resolver.reject(new errors.UnknownError(JSON.stringify(res.body)));
-              }
-            });
+    /**
+    * Submits a transaction to the network.
+    * @param {Transaction} transaction - The transaction to submit.
+    */
+    submitTransaction(transaction) {
+        var self = this;
+        return new Promise(function (resolve, reject) {
+            request
+                .post("http://" + self.hostname + ":" + self.port + '/transactions')
+                .type('json')
+                .send({
+                    tx: transaction.toEnvelope().toXDR().toString("hex")
+                })
+                .end(function(err, res) {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(JSON.stringify(res.body));
+                    }
+                });
+        });
     }
 }
