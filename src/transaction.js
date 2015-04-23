@@ -1,12 +1,34 @@
-import {xdr, Hyper, hash} from "stellar-base";
+import {xdr, Hyper, hash, encodeBase58Check} from "stellar-base";
 
 import {Account} from "./account";
+import {Currency} from "./currency";
+import {Operation} from "./operation";
 
 let MAX_FEE      = 1000;
 let MIN_LEDGER   = 0;
 let MAX_LEDGER   = 0xFFFFFFFF; // max uint32
 
-export class Transaction {
+/**
+* Transaction builder helps constructs a new Transaction using the given account
+* as the transaction's "source account". The transaction will use the current sequence
+* number of the given account as its sequence number and increment the given account's
+* sequence number by one. The given source account must include a private key for signing
+* the transaction or an error will be thrown.
+*
+* Operations can be added to the transaction via their corresponding builder methods, and
+* each returns the TransactionBuilder object so they can be chained together. After adding
+* the desired operations, call the build() method on the TransactionBuilder to return a fully
+* constructed Transaction that can be signed. The returned transaction will contain the
+* sequence number of the source account and include the signature from the source account.
+*
+* The following code example creates a new transaction with two payment operations:
+*
+* var transaction = new TransactionBuilder(source)
+*   .payment(destinationA, amount, currency)
+*   .payment(destinationB, amount, currency)
+*   .build();
+*/
+export class TransactionBuilder {
 
     /**
     * @constructor
@@ -32,7 +54,7 @@ export class Transaction {
     }
 
     /**
-    * Adds a new payment operation to this transaction.
+    * Adds a payment operation to the transaction.
     * @param {Account}  destination         - The destination account for the payment.
     * @param {Currency} currency            - The currency to send
     * @param {string|number} amount         - The amount to send.
@@ -44,53 +66,19 @@ export class Transaction {
     * @param {string}   [opts.memo]         - The memo.
     */
     payment(destination, currency, amount, opts={}) {
-        if (!destination) {
-            throw new Error("Must provide a destination for a payment operation");
-        }
-        if (!currency) {
-            throw new Error("Must provide a currency for a payment operation");
-        }
-        if (!amount) {
-            throw new Error("Must provide an amount for a payment operation");
-        }
-        let destinationPublicKey    = destination.masterKeypair.publicKey();
-        let currencyXdr             = currency.toXdrObject();
-        let value                   = Hyper.fromString(String(amount));
-        let sourcePublicKey         = opts.source ? opts.source.masterKeypair : null;
-        let path                    = opts.path ? opts.path : [];
-        let sendMax                 = opts.sendMax ? Hyper.fromString(String(opts.sendMax)) : value;
-        let sourceMemo              = null;
-        let memo                    = null;
-        if (opts.sourceMemo) {
-            sourceMemo = opts.sourceMemo;
-        } else {
-            sourceMemo = new Buffer(32);
-            sourceMemo.fill(0);
-        }
-        if (opts.memo) {
-            memo = opts.memo;
-        } else {
-            memo = new Buffer(32);
-            memo.fill(0);
-        }
-
-        let payment = new xdr.PaymentOp({
-          destination: destinationPublicKey,
-          currency:    currencyXdr,
-          path:        path,
-          amount:      value,
-          sendMax:     sendMax,
-          sourceMemo:  sourceMemo,
-          memo:        memo,
-        });
-
-        let op = new xdr.Operation({
-            body: xdr.OperationBody.payment(payment),
-        });
-        this._operations.push(op);
+        opts.destination = destination;
+        opts.currency = currency;
+        opts.amount = amount;
+        let xdr = Operation.payment(opts);
+        this._operations.push(xdr);
+        return this;
     }
 
-    sign() {
+    /**
+    * This will build the transaction and sign it with the source account. It will
+    * also increment the source account's sequence number by 1.
+    */
+    build() {
         let tx = new xdr.Transaction({
           sourceAccount: this._source.masterKeypair.publicKey(),
           maxFee:        this.maxFee,
@@ -98,6 +86,8 @@ export class Transaction {
           minLedger:     this.minLedger,
           maxLedger:     this.maxLedger
         });
+
+        this._source.seqNum = this._source.seqNum + 1;
 
         tx.operations(this._operations);
 
@@ -107,6 +97,74 @@ export class Transaction {
         let signatures = [this._source.masterKeypair.signDecorated(tx_hash)];
         let envelope = new xdr.TransactionEnvelope({tx, signatures});
 
-        this.blob = envelope.toXDR("hex");
+        return new Transaction(envelope);
+    }
+}
+
+/**
+* A transaction contains a set of operations and signatures on one or more accounts.
+* It can not be mutated (ie no new operations can be added to the transaction), as
+* the signatures associated with this transaction have already signed the transaction.
+*/
+export class Transaction {
+
+    /**
+    * Constructs a new Transaction object from the given TransactionEnvelope object,
+    * or hex blob data.
+    * @constructor
+    * @param {string|xdr.TransactionEnvelope} envelope - The transaction envelope.
+    */
+    constructor(envelope) {
+        if (typeof envelope === "string") {
+            let buffer = new Buffer(envelope, "hex");
+            envelope = xdr.fromXdr(buffer);
+        }
+        // since this transaction is immutable, save the tx
+        this.tx = envelope._attributes.tx;
+        let address = encodeBase58Check("accountId", envelope._attributes.tx._attributes.sourceAccount);
+        this.source = Account.fromAddress(address);
+        this.maxFee = envelope._attributes.tx._attributes.maxFee;
+        this.seqNum = envelope._attributes.tx._attributes.seqNum.toString();
+        this.minLedger = envelope._attributes.tx._attributes.minLedger;
+        this.maxLedger = envelope._attributes.tx._attributes.maxLedger;
+        let operations = envelope._attributes.tx._attributes.operations;
+        this.operations = [];
+        for (let i = 0; i < operations.length; i++) {
+            this.operations[i] = Operation.operationToObject(operations[i]._attributes.body);
+        }
+        let signatures = envelope._attributes.signatures;
+        this.signatures = [];
+        for (let i = 0; i < signatures.length; i++) {
+            this.signatures[i] = signatures[i];
+        }
+    }
+
+    /**
+    * Adds a signature to this transaction.
+    * @param signature
+    */
+    addSignature(signature) {
+        this.signatures.push(signature);
+    }
+
+    /**
+    * Signs the transaction with the given account and returns the signature string.
+    */
+    sign(account) {
+        let tx_raw = this.tx.toXDR();
+        let tx_hash = hash(tx_raw);
+        return this._source.masterKeypair.signDecorated(tx_hash);
+    }
+
+    /**
+    * To envelope returns a xdr.TransactionEnvelope containing this transaction and signatures
+    * which can be submitted to the network.
+    */
+    toEnvelope() {
+        let tx = this.tx;
+        let signatures = this.signatures;
+        let envelope = new xdr.TransactionEnvelope({tx, signatures});
+
+        return envelope;
     }
 }

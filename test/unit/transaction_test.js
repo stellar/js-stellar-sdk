@@ -1,20 +1,44 @@
 var StellarBase = require("stellar-base");
 
-describe('Transaction.payment', function() {
+describe('TransactionBuilder', function() {
 
-    it("creates and signs a payment transaction", function() {
-        let source = StellarLib.Account.fromSeed("sft74k3MagHG6iF36yeSytQzCCLsJ2Fo9K4YJpQCECwgoUobc4v");
-        let destination = StellarLib.Account.fromSeed("sft74k3MagHG6iF36yeSytQzCCLsJ2Fo9K4YJpQCECwgoUobc4v");
-        let amount = "1000";
-        let currency = StellarLib.Currency.native();
+    describe("constructs a native payment transaction", function(done) {
+        var source;
+        var destination;
+        var amount;
+        var currency;
+        var transaction;
+        beforeEach(function () {
+            source = StellarLib.Account.fromSeed("sft74k3MagHG6iF36yeSytQzCCLsJ2Fo9K4YJpQCECwgoUobc4v");
+            destination = StellarLib.Account.fromSeed("sft74k3MagHG6iF36yeSytQzCCLsJ2Fo9K4YJpQCECwgoUobc4v");
+            amount = "1000";
+            currency = StellarLib.Currency.native();
 
-        let transaction = new StellarLib.Transaction(source);
-        transaction.payment(destination, currency, amount);
-        transaction.sign();
-        console.log(transaction.blob);
+            transaction = new StellarLib.TransactionBuilder(source)
+                .payment(destination, currency, amount)
+                .build();
+        });
 
-        let server = new StellarLib.Server();
-        // TODO this fails in the browser at xhr.open
-        server.sendTransaction(transaction);
+        it("should have the same source account", function (done) {
+            expect(transaction.source.masterKeypair.publicKey().toString("hex"))
+                .to.be.equal(source.masterKeypair.publicKey().toString("hex"));
+            done()
+        });
+
+        it("should have the account's sequence number", function (done) {
+            expect(transaction.seqNum).to.be.equal("1");
+            done();
+        });
+
+        it("should increment the account's sequence number", function (done) {
+            expect(source.seqNum).to.be.equal(2);
+            done();
+        });
+
+        it("should have one payment operation", function (done) {
+            expect(transaction.operations.length).to.be.equal(1);
+            expect(transaction.operations[0].type).to.be.equal("paymentOp");
+            done();
+        });
     });
 });
