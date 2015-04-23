@@ -30,4 +30,26 @@ export class Server {
                 });
         });
     }
+
+
+    /**
+    * Loads account details to the given account object.
+    * @param {Account} account - The account to load. Will modify this object with
+    */
+    loadAccount(account) {
+        var self = this;
+        return new Promise(function (resolve, reject) {
+            request
+                .get("http://" + self.hostname + ":" + self.port + '/accounts/' + account.address)
+                .end(function(err, res) {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        account.sequence = res.body.sequence;
+                        account.balances = res.body.balances;
+                        resolve();
+                    }
+                });
+        });
+    }
 }

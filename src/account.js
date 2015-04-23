@@ -1,5 +1,7 @@
 import {Keypair} from "stellar-base";
 
+import {Currency} from "./currency";
+
 export class Account {
 
     static random() {
@@ -30,7 +32,38 @@ export class Account {
     */
     constructor(master, opts={}) {
         this._masterKeypair = master;
-        this.seqNum = opts.seqNum || 1;
+        this.sequence = opts.sequence || 1;
+        this._balances = [];
+    }
+
+    /**
+    * Returns an array of the account's balances as {currency, balance} pairs, where
+    * currency is a Currency object and balance is an integer amount.
+    */
+    get balances() {
+        return this._balances;
+    }
+
+    /**
+    * Given the balances array returned from horizon, it will create currency objects
+    * for each balance and store each {currency, balance} in the account's local balance array.
+    */
+    set balances(balances) {
+        var balanceToObject = function (balance) {
+            let obj = {};
+            if (balance.currency.type === "native") {
+                obj.currency = Currency.native();
+            }
+            obj.balance = balance.balance;
+            return obj;
+        };
+        for (var i = 0; i < balances.length; i++) {
+            this._balances[i] = balanceToObject(balances[i]);
+        }
+    }
+
+    get address() {
+        return this._masterKeypair.address();
     }
 
     get masterKeypair() {

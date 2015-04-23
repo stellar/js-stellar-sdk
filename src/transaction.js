@@ -82,12 +82,12 @@ export class TransactionBuilder {
         let tx = new xdr.Transaction({
           sourceAccount: this._source.masterKeypair.publicKey(),
           maxFee:        this.maxFee,
-          seqNum:        xdr.SequenceNumber.fromString(String(this._source.seqNum)),
+          seqNum:        xdr.SequenceNumber.fromString(String(this._source.sequence)),
           minLedger:     this.minLedger,
           maxLedger:     this.maxLedger
         });
 
-        this._source.seqNum = this._source.seqNum + 1;
+        this._source.sequence = this._source.sequence + 1;
 
         tx.operations(this._operations);
 
@@ -124,7 +124,7 @@ export class Transaction {
         let address = encodeBase58Check("accountId", envelope._attributes.tx._attributes.sourceAccount);
         this.source = Account.fromAddress(address);
         this.maxFee = envelope._attributes.tx._attributes.maxFee;
-        this.seqNum = envelope._attributes.tx._attributes.seqNum.toString();
+        this.sequence = envelope._attributes.tx._attributes.seqNum.toString();
         this.minLedger = envelope._attributes.tx._attributes.minLedger;
         this.maxLedger = envelope._attributes.tx._attributes.maxLedger;
         let operations = envelope._attributes.tx._attributes.operations;

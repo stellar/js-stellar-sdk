@@ -26,12 +26,12 @@ describe('TransactionBuilder', function() {
         });
 
         it("should have the account's sequence number", function (done) {
-            expect(transaction.seqNum).to.be.equal("1");
+            expect(transaction.sequence).to.be.equal("1");
             done();
         });
 
         it("should increment the account's sequence number", function (done) {
-            expect(source.seqNum).to.be.equal(2);
+            expect(source.sequence).to.be.equal(2);
             done();
         });
 

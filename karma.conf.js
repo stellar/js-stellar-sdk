@@ -10,7 +10,8 @@ module.exports = function(config) {
     ],
 
     preprocessors: {
-      'test/unit/**/*.js': ['webpack']
+      'test/unit/**/*.js': ['webpack'],
+      'test/setup/fixtures.js': ['webpack']
     },
 
     webpack: {

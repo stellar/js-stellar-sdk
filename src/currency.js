@@ -33,4 +33,8 @@ export class Currency {
     isNative() {
         return this.type === "XLM";
     }
+
+    equals(currency) {
+        return this.type == currency.type && this.issuer == currency.issuer;
+    }
 }
