@@ -9,13 +9,20 @@ var allowCrossDomain = function(req, res, next) {
     next();
 }
 
+var fixtures = {};
+
 var app = express();
 
 app.use(bodyParser.json());
 app.use(allowCrossDomain);
 
-app.get('/', function(req, res) {
-  res.status(200).send("hi");
+app.post('/fixtures', function (req, res) {
+    fixtures[req.body.request] = req.body.response;
+});
+
+app.get('*', function(req, res) {
+    var response = fixtures[req.url];
+    res.status(response.status).send(response.body);
 });
 
 var server = app.listen(1337, function() {});
