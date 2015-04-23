@@ -47,10 +47,11 @@ var StellarLib =
 
 	"use strict";
 
-	__webpack_require__(2);
+	__webpack_require__(3);
 
 	module.exports = __webpack_require__(1);
-	module.exports.request = __webpack_require__(7);
+	module.exports.request = __webpack_require__(8);
+	module.exports.fixtures = __webpack_require__(2);
 
 /***/ },
 /* 1 */
@@ -61,20 +62,36 @@ var StellarLib =
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.Account = __webpack_require__(3).Account;
-	exports.Transaction = __webpack_require__(4).Transaction;
-	exports.Currency = __webpack_require__(5).Currency;
-	exports.Server = __webpack_require__(6).Server;
+	exports.Account = __webpack_require__(4).Account;
+
+	var _transaction = __webpack_require__(5);
+
+	exports.TransactionBuilder = _transaction.TransactionBuilder;
+	exports.Transaction = _transaction.Transaction;
+	exports.Currency = __webpack_require__(6).Currency;
+	exports.Server = __webpack_require__(7).Server;
 
 /***/ },
 /* 2 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(8);
+	"use strict";
 
+	module.exports = {
+	    ROOT_ACCOUNT: "gspbxqXqEUZkiCCEFFCN9Vu4FLucdjLLdLcsV6E82Qc1T7ehsTC",
+	    TEST_TRANSACTION_BLOB: "899b2840ed5636c56ddc5f14b23975f79f1ba2388d2694e4c56ecdddc960e5ef000003e8000000000000000100000000ffffffff000000010000000000000000899b2840ed5636c56ddc5f14b23975f79f1ba2388d2694e4c56ecdddc960e5ef0000000000000000000003e80000002000000000000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000000000000000000000000003e800000001899b28404b3c23b5b641c1954ce9d730cc1939ba769a8b31c1f084d70848927d738207ced13a979528c7eb582dbc81f87728a1ac991d019a63e4a599c1807c15c2221e09",
+	    TEST_TRANSACTION_HASH: "bc27b615d05727ce5702815454657c0c8f896ac6bb48bfa0862c44c180a73135"
+	};
 
 /***/ },
 /* 3 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = __webpack_require__(9);
+
+
+/***/ },
+/* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -87,7 +104,7 @@ var StellarLib =
 	    value: true
 	});
 
-	var Keypair = __webpack_require__(10).Keypair;
+	var Keypair = __webpack_require__(12).Keypair;
 
 	var Account = exports.Account = (function () {
 
@@ -147,7 +164,7 @@ var StellarLib =
 	})();
 
 /***/ },
-/* 4 */
+/* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
@@ -160,19 +177,45 @@ var StellarLib =
 	    value: true
 	});
 
-	var _stellarBase = __webpack_require__(10);
+	var _stellarBase = __webpack_require__(12);
 
 	var xdr = _stellarBase.xdr;
 	var Hyper = _stellarBase.Hyper;
 	var hash = _stellarBase.hash;
+	var encodeBase58Check = _stellarBase.encodeBase58Check;
 
-	var Account = __webpack_require__(3).Account;
+	var Account = __webpack_require__(4).Account;
+
+	var Currency = __webpack_require__(6).Currency;
+
+	var Operation = __webpack_require__(10).Operation;
 
 	var MAX_FEE = 1000;
 	var MIN_LEDGER = 0;
 	var MAX_LEDGER = 4294967295; // max uint32
 
-	var Transaction = exports.Transaction = (function () {
+	/**
+	* Transaction builder helps constructs a new Transaction using the given account
+	* as the transaction's "source account". The transaction will use the current sequence
+	* number of the given account as its sequence number and increment the given account's
+	* sequence number by one. The given source account must include a private key for signing
+	* the transaction or an error will be thrown.
+	*
+	* Operations can be added to the transaction via their corresponding builder methods, and
+	* each returns the TransactionBuilder object so they can be chained together. After adding
+	* the desired operations, call the build() method on the TransactionBuilder to return a fully
+	* constructed Transaction that can be signed. The returned transaction will contain the
+	* sequence number of the source account and include the signature from the source account.
+	*
+	* The following code example creates a new transaction with two payment operations:
+	*
+	* var transaction = new TransactionBuilder(source)
+	*   .payment(destinationA, amount, currency)
+	*   .payment(destinationB, amount, currency)
+	*   .build();
+	*/
+
+	var TransactionBuilder = exports.TransactionBuilder = (function () {
 
 	    /**
 	    * @constructor
@@ -183,10 +226,10 @@ var StellarLib =
 	    * @param {number} opts.maxLedger - The maximum ledger this transaction is valid in.
 	    */
 
-	    function Transaction(source) {
+	    function TransactionBuilder(source) {
 	        var opts = arguments[1] === undefined ? {} : arguments[1];
 
-	        _classCallCheck(this, Transaction);
+	        _classCallCheck(this, TransactionBuilder);
 
 	        if (!source) {
 	            throw new Error("must specify source account for the transaction");
@@ -202,11 +245,11 @@ var StellarLib =
 	        this.blob = null;
 	    }
 
-	    _createClass(Transaction, {
+	    _createClass(TransactionBuilder, {
 	        payment: {
 
 	            /**
-	            * Adds a new payment operation to this transaction.
+	            * Adds a payment operation to the transaction.
 	            * @param {Account}  destination         - The destination account for the payment.
 	            * @param {Currency} currency            - The currency to send
 	            * @param {string|number} amount         - The amount to send.
@@ -221,52 +264,22 @@ var StellarLib =
 	            value: function payment(destination, currency, amount) {
 	                var opts = arguments[3] === undefined ? {} : arguments[3];
 
-	                if (!destination) {
-	                    throw new Error("Must provide a destination for a payment operation");
-	                }
-	                if (!currency) {
-	                    throw new Error("Must provide a currency for a payment operation");
-	                }
-	                if (!amount) {
-	                    throw new Error("Must provide an amount for a payment operation");
-	                }
-	                var destinationPublicKey = destination.masterKeypair.publicKey();
-	                var currencyXdr = currency.toXdrObject();
-	                var value = Hyper.fromString(String(amount));
-	                var sourcePublicKey = opts.source ? opts.source.masterKeypair : null;
-	                var path = opts.path ? opts.path : [];
-	                var sendMax = opts.sendMax ? Hyper.fromString(String(opts.sendMax)) : value;
-	                var sourceMemo = null;
-	                var memo = null;
-	                if (opts.sourceMemo) {
-	                    sourceMemo = opts.sourceMemo;
-	                } else {
-	                    sourceMemo = new Buffer(32);
-	                    sourceMemo.fill(0);
-	                }
-	                if (opts.memo) {
-	                    memo = opts.memo;
-	                } else {
-	                    memo = new Buffer(32);
-	                    memo.fill(0);
-	                }
-
-	                var payment = new xdr.PaymentOp({
-	                    destination: destinationPublicKey,
-	                    currency: currencyXdr,
-	                    path: path,
-	                    amount: value,
-	                    sendMax: sendMax,
-	                    sourceMemo: sourceMemo,
-	                    memo: memo });
-
-	                var op = new xdr.Operation({
-	                    body: xdr.OperationBody.payment(payment) });
-	                this._operations.push(op);
+	                opts.destination = destination;
+	                opts.currency = currency;
+	                opts.amount = amount;
+	                var xdr = Operation.payment(opts);
+	                this._operations.push(xdr);
+	                return this;
 	            }
 	        },
-	        sign: {
-	            value: function sign() {
+	        build: {
+
+	            /**
+	            * This will build the transaction and sign it with the source account. It will
+	            * also increment the source account's sequence number by 1.
+	            */
+
+	            value: function build() {
 	                var tx = new xdr.Transaction({
 	                    sourceAccount: this._source.masterKeypair.publicKey(),
 	                    maxFee: this.maxFee,
@@ -274,6 +287,8 @@ var StellarLib =
 	                    minLedger: this.minLedger,
 	                    maxLedger: this.maxLedger
 	                });
+
+	                this._source.seqNum = this._source.seqNum + 1;
 
 	                tx.operations(this._operations);
 
@@ -283,17 +298,103 @@ var StellarLib =
 	                var signatures = [this._source.masterKeypair.signDecorated(tx_hash)];
 	                var envelope = new xdr.TransactionEnvelope({ tx: tx, signatures: signatures });
 
-	                this.blob = envelope.toXDR("hex");
+	                return new Transaction(envelope);
+	            }
+	        }
+	    });
+
+	    return TransactionBuilder;
+	})();
+
+	/**
+	* A transaction contains a set of operations and signatures on one or more accounts.
+	* It can not be mutated (ie no new operations can be added to the transaction), as
+	* the signatures associated with this transaction have already signed the transaction.
+	*/
+
+	var Transaction = exports.Transaction = (function () {
+
+	    /**
+	    * Constructs a new Transaction object from the given TransactionEnvelope object,
+	    * or hex blob data.
+	    * @constructor
+	    * @param {string|xdr.TransactionEnvelope} envelope - The transaction envelope.
+	    */
+
+	    function Transaction(envelope) {
+	        _classCallCheck(this, Transaction);
+
+	        if (typeof envelope === "string") {
+	            var buffer = new Buffer(envelope, "hex");
+	            envelope = xdr.fromXdr(buffer);
+	        }
+	        // since this transaction is immutable, save the tx
+	        this.tx = envelope._attributes.tx;
+	        var address = encodeBase58Check("accountId", envelope._attributes.tx._attributes.sourceAccount);
+	        this.source = Account.fromAddress(address);
+	        this.maxFee = envelope._attributes.tx._attributes.maxFee;
+	        this.seqNum = envelope._attributes.tx._attributes.seqNum.toString();
+	        this.minLedger = envelope._attributes.tx._attributes.minLedger;
+	        this.maxLedger = envelope._attributes.tx._attributes.maxLedger;
+	        var operations = envelope._attributes.tx._attributes.operations;
+	        this.operations = [];
+	        for (var i = 0; i < operations.length; i++) {
+	            this.operations[i] = Operation.operationToObject(operations[i]._attributes.body);
+	        }
+	        var signatures = envelope._attributes.signatures;
+	        this.signatures = [];
+	        for (var i = 0; i < signatures.length; i++) {
+	            this.signatures[i] = signatures[i];
+	        }
+	    }
+
+	    _createClass(Transaction, {
+	        addSignature: {
+
+	            /**
+	            * Adds a signature to this transaction.
+	            * @param signature
+	            */
+
+	            value: function addSignature(signature) {
+	                this.signatures.push(signature);
+	            }
+	        },
+	        sign: {
+
+	            /**
+	            * Signs the transaction with the given account and returns the signature string.
+	            */
+
+	            value: function sign(account) {
+	                var tx_raw = this.tx.toXDR();
+	                var tx_hash = hash(tx_raw);
+	                return this._source.masterKeypair.signDecorated(tx_hash);
+	            }
+	        },
+	        toEnvelope: {
+
+	            /**
+	            * To envelope returns a xdr.TransactionEnvelope containing this transaction and signatures
+	            * which can be submitted to the network.
+	            */
+
+	            value: function toEnvelope() {
+	                var tx = this.tx;
+	                var signatures = this.signatures;
+	                var envelope = new xdr.TransactionEnvelope({ tx: tx, signatures: signatures });
+
+	                return envelope;
 	            }
 	        }
 	    });
 
 	    return Transaction;
 	})();
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11).Buffer))
 
 /***/ },
-/* 5 */
+/* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -306,9 +407,9 @@ var StellarLib =
 	    value: true
 	});
 
-	var Account = __webpack_require__(3).Account;
+	var Account = __webpack_require__(4).Account;
 
-	var xdr = __webpack_require__(10).xdr;
+	var xdr = __webpack_require__(12).xdr;
 
 	var Currency = exports.Currency = (function () {
 
@@ -358,7 +459,7 @@ var StellarLib =
 	})();
 
 /***/ },
-/* 6 */
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -386,17 +487,25 @@ var StellarLib =
 	    }
 
 	    _createClass(Server, {
-	        sendTransaction: {
-	            value: function sendTransaction(transaction) {
-	                var re = request.post(this.hostname + ":" + this.port + "/transactions").type("json").send({
-	                    tx: transaction.blob
-	                });
-	                console.log(re);
-	                re.end(function (err, res) {
-	                    console.log(res);
-	                    if (err) {
-	                        console.error(err);
-	                    } else if (res.body.status === "fail") {} else if (res.body.status === "success") {} else {}
+	        submitTransaction: {
+
+	            /**
+	            * Submits a transaction to the network.
+	            * @param {Transaction} transaction - The transaction to submit.
+	            */
+
+	            value: function submitTransaction(transaction) {
+	                var self = this;
+	                return new Promise(function (resolve, reject) {
+	                    request.post("http://" + self.hostname + ":" + self.port + "/transactions").type("json").send({
+	                        tx: transaction.toEnvelope().toXDR().toString("hex")
+	                    }).end(function (err, res) {
+	                        if (err) {
+	                            reject(err);
+	                        } else {
+	                            resolve(JSON.stringify(res.body));
+	                        }
+	                    });
 	                });
 	            }
 	        }
@@ -405,25 +514,23 @@ var StellarLib =
 	    return Server;
 	})();
 
-	// resolver.reject(new errors.UnknownError(JSON.stringify(res.body)));
-
 /***/ },
-/* 7 */
+/* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
 	 * Module dependencies.
 	 */
 
-	var Emitter = __webpack_require__(11);
-	var reduce = __webpack_require__(12);
+	var Emitter = __webpack_require__(13);
+	var reduce = __webpack_require__(14);
 
 	/**
 	 * Root reference for iframes.
 	 */
 
 	var root = 'undefined' == typeof window
-	  ? this
+	  ? (this || self)
 	  : window;
 
 	/**
@@ -462,7 +569,8 @@ var StellarLib =
 
 	request.getXHR = function () {
 	  if (root.XMLHttpRequest
-	    && ('file:' != root.location.protocol || !root.ActiveXObject)) {
+	      && (!root.location || 'file:' != root.location.protocol
+	          || !root.ActiveXObject)) {
 	    return new XMLHttpRequest;
 	  } else {
 	    try { return new ActiveXObject('Microsoft.XMLHTTP'); } catch(e) {}
@@ -798,6 +906,11 @@ var StellarLib =
 	 */
 
 	Response.prototype.setStatusProperties = function(status){
+	  // handle IE9 bug: http://stackoverflow.com/questions/10046972/msie-returns-status-code-of-1223-for-ajax-request
+	  if (status === 1223) {
+	    status = 204;
+	  }
+
 	  var type = status / 100 | 0;
 
 	  // status / class
@@ -815,7 +928,7 @@ var StellarLib =
 
 	  // sugar
 	  this.accepted = 202 == status;
-	  this.noContent = 204 == status || 1223 == status;
+	  this.noContent = 204 == status;
 	  this.badRequest = 400 == status;
 	  this.unauthorized = 401 == status;
 	  this.notAcceptable = 406 == status;
@@ -1323,12 +1436,18 @@ var StellarLib =
 	  };
 
 	  // progress
+	  var handleProgress = function(e){
+	    if (e.total > 0) {
+	      e.percent = e.loaded / e.total * 100;
+	    }
+	    self.emit('progress', e);
+	  };
+	  if (this.hasListeners('progress')) {
+	    xhr.onprogress = handleProgress;
+	  }
 	  try {
 	    if (xhr.upload && this.hasListeners('progress')) {
-	      xhr.upload.onprogress = function(e){
-	        e.percent = e.loaded / e.total * 100;
-	        self.emit('progress', e);
-	      };
+	      xhr.upload.onprogress = handleProgress;
 	    }
 	  } catch(e) {
 	    // Accessing xhr.upload fails in IE from a web worker, so just pretend it doesn't exist.
@@ -1353,7 +1472,15 @@ var StellarLib =
 	  }
 
 	  // initiate request
-	  xhr.open(this.method, this.url, true);
+	  console.log(this.method);
+	  console.log(this.url);
+	  try {
+	    xhr.open(this.method, this.url, true);
+	  } catch (e) {
+	    console.error(e);
+	    throw new Error(e);
+	  }
+	  
 
 	  // CORS
 	  if (this._withCredentials) xhr.withCredentials = true;
@@ -1525,7 +1652,7 @@ var StellarLib =
 
 
 /***/ },
-/* 8 */
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {"use strict";
@@ -1535,13 +1662,142 @@ var StellarLib =
 	}
 	global._babelPolyfill = true;
 
-	__webpack_require__(13);
+	__webpack_require__(16);
 
-	__webpack_require__(14);
+	__webpack_require__(15);
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 9 */
+/* 10 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
+
+	var _createClass = (function () { function defineProperties(target, props) { for (var key in props) { var prop = props[key]; prop.configurable = true; if (prop.value) prop.writable = true; } Object.defineProperties(target, props); } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+	var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } };
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _stellarBase = __webpack_require__(12);
+
+	var xdr = _stellarBase.xdr;
+	var Hyper = _stellarBase.Hyper;
+	var hash = _stellarBase.hash;
+	var encodeBase58Check = _stellarBase.encodeBase58Check;
+
+	var Account = __webpack_require__(4).Account;
+
+	var Currency = __webpack_require__(6).Currency;
+
+	var Operation = exports.Operation = (function () {
+	    function Operation() {
+	        _classCallCheck(this, Operation);
+	    }
+
+	    _createClass(Operation, null, {
+	        payment: {
+	            /**
+	            * Returns a the xdr representation of a payment operation.
+	            * @param {object}   opts
+	            * @param {Account}  opts.destination    - The destination account for the payment.
+	            * @param {Currency} opts.currency       - The currency to send
+	            * @param {string|number} otps.amount    - The amount to send.
+	            * @param {Account}  [opts.source]       - The source account for the payment. Defaults to the transaction's source account.
+	            * @param {array}    [opts.path]         - An array of Currency objects to use as the path.
+	            * @param {string}   [opts.sendMax]      - The max amount of currency to send.
+	            * @param {string}   [opts.sourceMemo]   - The source memo.
+	            * @param {string}   [opts.memo]         - The memo.
+	            */
+
+	            value: function payment(opts) {
+	                if (!opts.destination) {
+	                    throw new Error("Must provide a destination for a payment operation");
+	                }
+	                if (!opts.currency) {
+	                    throw new Error("Must provide a currency for a payment operation");
+	                }
+	                if (!opts.amount) {
+	                    throw new Error("Must provide an amount for a payment operation");
+	                }
+	                var destinationPublicKey = opts.destination.masterKeypair.publicKey();
+	                var currencyXdr = opts.currency.toXdrObject();
+	                var value = Hyper.fromString(String(opts.amount));
+	                var sourcePublicKey = opts.source ? opts.source.masterKeypair : null;
+	                var path = opts.path ? opts.path : [];
+	                var sendMax = opts.sendMax ? Hyper.fromString(String(opts.sendMax)) : value;
+	                var sourceMemo = null;
+	                var memo = null;
+	                if (opts.sourceMemo) {
+	                    sourceMemo = opts.sourceMemo;
+	                } else {
+	                    sourceMemo = new Buffer(32);
+	                    sourceMemo.fill(0);
+	                }
+	                if (opts.memo) {
+	                    memo = opts.memo;
+	                } else {
+	                    memo = new Buffer(32);
+	                    memo.fill(0);
+	                }
+
+	                var payment = new xdr.PaymentOp({
+	                    destination: destinationPublicKey,
+	                    currency: currencyXdr,
+	                    path: path,
+	                    amount: value,
+	                    sendMax: sendMax,
+	                    sourceMemo: sourceMemo,
+	                    memo: memo });
+
+	                var op = new xdr.Operation({
+	                    body: xdr.OperationBody.payment(payment) });
+
+	                return op;
+	            }
+	        },
+	        operationToObject: {
+
+	            /**
+	            * Converts the xdr form of an operation to its object form.
+	            */
+
+	            value: function operationToObject(operation) {
+	                var obj = {};
+	                var attrs = operation._value._attributes;
+	                switch (operation._arm) {
+	                    case "paymentOp":
+	                        obj.type = "paymentOp";
+	                        obj.destination = Account.fromAddress(encodeBase58Check("accountId", attrs.destination));
+	                        obj.currency = attrs.currency._switch.name == "native" ? Currency.native() : null;
+	                        obj.path = attrs.path;
+	                        obj.amount = attrs.amount.toString();
+	                        obj.sendMax = attrs.sendMax.toString();
+	                        obj.sourceMemo = attrs.sourceMemo;
+	                        obj.memo = attrs.memo;
+	                        break;
+	                }
+	                return obj;
+	            }
+	        },
+	        objectToOperation: {
+	            value: function objectToOperation(obj) {
+	                switch (obj.type) {
+	                    case "paymentOp":
+	                        return Operation.payment(obj);
+	                }
+	            }
+	        }
+	    });
+
+	    return Operation;
+	})();
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11).Buffer))
+
+/***/ },
+/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {/*!
@@ -1551,9 +1807,9 @@ var StellarLib =
 	 * @license  MIT
 	 */
 
-	var base64 = __webpack_require__(22)
-	var ieee754 = __webpack_require__(20)
-	var isArray = __webpack_require__(21)
+	var base64 = __webpack_require__(24)
+	var ieee754 = __webpack_require__(22)
+	var isArray = __webpack_require__(23)
 
 	exports.Buffer = Buffer
 	exports.SlowBuffer = SlowBuffer
@@ -2876,10 +3132,10 @@ var StellarLib =
 	  }
 	}
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11).Buffer))
 
 /***/ },
-/* 10 */
+/* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -2894,26 +3150,26 @@ var StellarLib =
 	  value: true
 	});
 
-	var xdr = _interopRequire(__webpack_require__(15));
+	var xdr = _interopRequire(__webpack_require__(17));
 
 	exports.xdr = xdr;
-	exports.hash = __webpack_require__(16).hash;
+	exports.hash = __webpack_require__(18).hash;
 
-	var _signing = __webpack_require__(17);
+	var _signing = __webpack_require__(19);
 
 	exports.sign = _signing.sign;
 	exports.verify = _signing.verify;
-	exports.Keypair = __webpack_require__(18).Keypair;
+	exports.Keypair = __webpack_require__(20).Keypair;
 
-	var _jsXdr = __webpack_require__(23);
+	var _jsXdr = __webpack_require__(25);
 
 	exports.UnsignedHyper = _jsXdr.UnsignedHyper;
 	exports.Hyper = _jsXdr.Hyper;
 
-	_defaults(exports, _interopRequireWildcard(__webpack_require__(19)));
+	_defaults(exports, _interopRequireWildcard(__webpack_require__(21)));
 
 /***/ },
-/* 11 */
+/* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
@@ -3083,7 +3339,7 @@ var StellarLib =
 
 
 /***/ },
-/* 12 */
+/* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
@@ -3112,7 +3368,551 @@ var StellarLib =
 	};
 
 /***/ },
-/* 13 */
+/* 15 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(global) {/**
+	 * Copyright (c) 2014, Facebook, Inc.
+	 * All rights reserved.
+	 *
+	 * This source code is licensed under the BSD-style license found in the
+	 * https://raw.github.com/facebook/regenerator/master/LICENSE file. An
+	 * additional grant of patent rights can be found in the PATENTS file in
+	 * the same directory.
+	 */
+
+	!(function(global) {
+	  "use strict";
+
+	  var hasOwn = Object.prototype.hasOwnProperty;
+	  var undefined; // More compressible than void 0.
+	  var iteratorSymbol =
+	    typeof Symbol === "function" && Symbol.iterator || "@@iterator";
+
+	  var inModule = typeof module === "object";
+	  var runtime = global.regeneratorRuntime;
+	  if (runtime) {
+	    if (inModule) {
+	      // If regeneratorRuntime is defined globally and we're in a module,
+	      // make the exports object identical to regeneratorRuntime.
+	      module.exports = runtime;
+	    }
+	    // Don't bother evaluating the rest of this file if the runtime was
+	    // already defined globally.
+	    return;
+	  }
+
+	  // Define the runtime globally (as expected by generated code) as either
+	  // module.exports (if we're in a module) or a new, empty object.
+	  runtime = global.regeneratorRuntime = inModule ? module.exports : {};
+
+	  function wrap(innerFn, outerFn, self, tryLocsList) {
+	    return new Generator(innerFn, outerFn, self || null, tryLocsList || []);
+	  }
+	  runtime.wrap = wrap;
+
+	  // Try/catch helper to minimize deoptimizations. Returns a completion
+	  // record like context.tryEntries[i].completion. This interface could
+	  // have been (and was previously) designed to take a closure to be
+	  // invoked without arguments, but in all the cases we care about we
+	  // already have an existing method we want to call, so there's no need
+	  // to create a new function object. We can even get away with assuming
+	  // the method takes exactly one argument, since that happens to be true
+	  // in every case, so we don't have to touch the arguments object. The
+	  // only additional allocation required is the completion record, which
+	  // has a stable shape and so hopefully should be cheap to allocate.
+	  function tryCatch(fn, obj, arg) {
+	    try {
+	      return { type: "normal", arg: fn.call(obj, arg) };
+	    } catch (err) {
+	      return { type: "throw", arg: err };
+	    }
+	  }
+
+	  var GenStateSuspendedStart = "suspendedStart";
+	  var GenStateSuspendedYield = "suspendedYield";
+	  var GenStateExecuting = "executing";
+	  var GenStateCompleted = "completed";
+
+	  // Returning this object from the innerFn has the same effect as
+	  // breaking out of the dispatch switch statement.
+	  var ContinueSentinel = {};
+
+	  // Dummy constructor functions that we use as the .constructor and
+	  // .constructor.prototype properties for functions that return Generator
+	  // objects. For full spec compliance, you may wish to configure your
+	  // minifier not to mangle the names of these two functions.
+	  function GeneratorFunction() {}
+	  function GeneratorFunctionPrototype() {}
+
+	  var Gp = GeneratorFunctionPrototype.prototype = Generator.prototype;
+	  GeneratorFunction.prototype = Gp.constructor = GeneratorFunctionPrototype;
+	  GeneratorFunctionPrototype.constructor = GeneratorFunction;
+	  GeneratorFunction.displayName = "GeneratorFunction";
+
+	  runtime.isGeneratorFunction = function(genFun) {
+	    var ctor = typeof genFun === "function" && genFun.constructor;
+	    return ctor
+	      ? ctor === GeneratorFunction ||
+	        // For the native GeneratorFunction constructor, the best we can
+	        // do is to check its .name property.
+	        (ctor.displayName || ctor.name) === "GeneratorFunction"
+	      : false;
+	  };
+
+	  runtime.mark = function(genFun) {
+	    genFun.__proto__ = GeneratorFunctionPrototype;
+	    genFun.prototype = Object.create(Gp);
+	    return genFun;
+	  };
+
+	  runtime.async = function(innerFn, outerFn, self, tryLocsList) {
+	    return new Promise(function(resolve, reject) {
+	      var generator = wrap(innerFn, outerFn, self, tryLocsList);
+	      var callNext = step.bind(generator.next);
+	      var callThrow = step.bind(generator["throw"]);
+
+	      function step(arg) {
+	        var record = tryCatch(this, null, arg);
+	        if (record.type === "throw") {
+	          reject(record.arg);
+	          return;
+	        }
+
+	        var info = record.arg;
+	        if (info.done) {
+	          resolve(info.value);
+	        } else {
+	          Promise.resolve(info.value).then(callNext, callThrow);
+	        }
+	      }
+
+	      callNext();
+	    });
+	  };
+
+	  function Generator(innerFn, outerFn, self, tryLocsList) {
+	    var generator = outerFn ? Object.create(outerFn.prototype) : this;
+	    var context = new Context(tryLocsList);
+	    var state = GenStateSuspendedStart;
+
+	    function invoke(method, arg) {
+	      if (state === GenStateExecuting) {
+	        throw new Error("Generator is already running");
+	      }
+
+	      if (state === GenStateCompleted) {
+	        // Be forgiving, per 25.3.3.3.3 of the spec:
+	        // https://people.mozilla.org/~jorendorff/es6-draft.html#sec-generatorresume
+	        return doneResult();
+	      }
+
+	      while (true) {
+	        var delegate = context.delegate;
+	        if (delegate) {
+	          var record = tryCatch(
+	            delegate.iterator[method],
+	            delegate.iterator,
+	            arg
+	          );
+
+	          if (record.type === "throw") {
+	            context.delegate = null;
+
+	            // Like returning generator.throw(uncaught), but without the
+	            // overhead of an extra function call.
+	            method = "throw";
+	            arg = record.arg;
+
+	            continue;
+	          }
+
+	          // Delegate generator ran and handled its own exceptions so
+	          // regardless of what the method was, we continue as if it is
+	          // "next" with an undefined arg.
+	          method = "next";
+	          arg = undefined;
+
+	          var info = record.arg;
+	          if (info.done) {
+	            context[delegate.resultName] = info.value;
+	            context.next = delegate.nextLoc;
+	          } else {
+	            state = GenStateSuspendedYield;
+	            return info;
+	          }
+
+	          context.delegate = null;
+	        }
+
+	        if (method === "next") {
+	          if (state === GenStateSuspendedStart &&
+	              typeof arg !== "undefined") {
+	            // https://people.mozilla.org/~jorendorff/es6-draft.html#sec-generatorresume
+	            throw new TypeError(
+	              "attempt to send " + JSON.stringify(arg) + " to newborn generator"
+	            );
+	          }
+
+	          if (state === GenStateSuspendedYield) {
+	            context.sent = arg;
+	          } else {
+	            delete context.sent;
+	          }
+
+	        } else if (method === "throw") {
+	          if (state === GenStateSuspendedStart) {
+	            state = GenStateCompleted;
+	            throw arg;
+	          }
+
+	          if (context.dispatchException(arg)) {
+	            // If the dispatched exception was caught by a catch block,
+	            // then let that catch block handle the exception normally.
+	            method = "next";
+	            arg = undefined;
+	          }
+
+	        } else if (method === "return") {
+	          context.abrupt("return", arg);
+	        }
+
+	        state = GenStateExecuting;
+
+	        var record = tryCatch(innerFn, self, context);
+	        if (record.type === "normal") {
+	          // If an exception is thrown from innerFn, we leave state ===
+	          // GenStateExecuting and loop back for another invocation.
+	          state = context.done
+	            ? GenStateCompleted
+	            : GenStateSuspendedYield;
+
+	          var info = {
+	            value: record.arg,
+	            done: context.done
+	          };
+
+	          if (record.arg === ContinueSentinel) {
+	            if (context.delegate && method === "next") {
+	              // Deliberately forget the last sent value so that we don't
+	              // accidentally pass it on to the delegate.
+	              arg = undefined;
+	            }
+	          } else {
+	            return info;
+	          }
+
+	        } else if (record.type === "throw") {
+	          state = GenStateCompleted;
+
+	          if (method === "next") {
+	            context.dispatchException(record.arg);
+	          } else {
+	            arg = record.arg;
+	          }
+	        }
+	      }
+	    }
+
+	    generator.next = invoke.bind(generator, "next");
+	    generator["throw"] = invoke.bind(generator, "throw");
+	    generator["return"] = invoke.bind(generator, "return");
+
+	    return generator;
+	  }
+
+	  Gp[iteratorSymbol] = function() {
+	    return this;
+	  };
+
+	  Gp.toString = function() {
+	    return "[object Generator]";
+	  };
+
+	  function pushTryEntry(locs) {
+	    var entry = { tryLoc: locs[0] };
+
+	    if (1 in locs) {
+	      entry.catchLoc = locs[1];
+	    }
+
+	    if (2 in locs) {
+	      entry.finallyLoc = locs[2];
+	      entry.afterLoc = locs[3];
+	    }
+
+	    this.tryEntries.push(entry);
+	  }
+
+	  function resetTryEntry(entry) {
+	    var record = entry.completion || {};
+	    record.type = "normal";
+	    delete record.arg;
+	    entry.completion = record;
+	  }
+
+	  function Context(tryLocsList) {
+	    // The root entry object (effectively a try statement without a catch
+	    // or a finally block) gives us a place to store values thrown from
+	    // locations where there is no enclosing try statement.
+	    this.tryEntries = [{ tryLoc: "root" }];
+	    tryLocsList.forEach(pushTryEntry, this);
+	    this.reset();
+	  }
+
+	  runtime.keys = function(object) {
+	    var keys = [];
+	    for (var key in object) {
+	      keys.push(key);
+	    }
+	    keys.reverse();
+
+	    // Rather than returning an object with a next method, we keep
+	    // things simple and return the next function itself.
+	    return function next() {
+	      while (keys.length) {
+	        var key = keys.pop();
+	        if (key in object) {
+	          next.value = key;
+	          next.done = false;
+	          return next;
+	        }
+	      }
+
+	      // To avoid creating an additional object, we just hang the .value
+	      // and .done properties off the next function object itself. This
+	      // also ensures that the minifier will not anonymize the function.
+	      next.done = true;
+	      return next;
+	    };
+	  };
+
+	  function values(iterable) {
+	    if (iterable) {
+	      var iteratorMethod = iterable[iteratorSymbol];
+	      if (iteratorMethod) {
+	        return iteratorMethod.call(iterable);
+	      }
+
+	      if (typeof iterable.next === "function") {
+	        return iterable;
+	      }
+
+	      if (!isNaN(iterable.length)) {
+	        var i = -1, next = function next() {
+	          while (++i < iterable.length) {
+	            if (hasOwn.call(iterable, i)) {
+	              next.value = iterable[i];
+	              next.done = false;
+	              return next;
+	            }
+	          }
+
+	          next.value = undefined;
+	          next.done = true;
+
+	          return next;
+	        };
+
+	        return next.next = next;
+	      }
+	    }
+
+	    // Return an iterator with no values.
+	    return { next: doneResult };
+	  }
+	  runtime.values = values;
+
+	  function doneResult() {
+	    return { value: undefined, done: true };
+	  }
+
+	  Context.prototype = {
+	    constructor: Context,
+
+	    reset: function() {
+	      this.prev = 0;
+	      this.next = 0;
+	      this.sent = undefined;
+	      this.done = false;
+	      this.delegate = null;
+
+	      this.tryEntries.forEach(resetTryEntry);
+
+	      // Pre-initialize at least 20 temporary variables to enable hidden
+	      // class optimizations for simple generators.
+	      for (var tempIndex = 0, tempName;
+	           hasOwn.call(this, tempName = "t" + tempIndex) || tempIndex < 20;
+	           ++tempIndex) {
+	        this[tempName] = null;
+	      }
+	    },
+
+	    stop: function() {
+	      this.done = true;
+
+	      var rootEntry = this.tryEntries[0];
+	      var rootRecord = rootEntry.completion;
+	      if (rootRecord.type === "throw") {
+	        throw rootRecord.arg;
+	      }
+
+	      return this.rval;
+	    },
+
+	    dispatchException: function(exception) {
+	      if (this.done) {
+	        throw exception;
+	      }
+
+	      var context = this;
+	      function handle(loc, caught) {
+	        record.type = "throw";
+	        record.arg = exception;
+	        context.next = loc;
+	        return !!caught;
+	      }
+
+	      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+	        var entry = this.tryEntries[i];
+	        var record = entry.completion;
+
+	        if (entry.tryLoc === "root") {
+	          // Exception thrown outside of any try block that could handle
+	          // it, so set the completion value of the entire function to
+	          // throw the exception.
+	          return handle("end");
+	        }
+
+	        if (entry.tryLoc <= this.prev) {
+	          var hasCatch = hasOwn.call(entry, "catchLoc");
+	          var hasFinally = hasOwn.call(entry, "finallyLoc");
+
+	          if (hasCatch && hasFinally) {
+	            if (this.prev < entry.catchLoc) {
+	              return handle(entry.catchLoc, true);
+	            } else if (this.prev < entry.finallyLoc) {
+	              return handle(entry.finallyLoc);
+	            }
+
+	          } else if (hasCatch) {
+	            if (this.prev < entry.catchLoc) {
+	              return handle(entry.catchLoc, true);
+	            }
+
+	          } else if (hasFinally) {
+	            if (this.prev < entry.finallyLoc) {
+	              return handle(entry.finallyLoc);
+	            }
+
+	          } else {
+	            throw new Error("try statement without catch or finally");
+	          }
+	        }
+	      }
+	    },
+
+	    abrupt: function(type, arg) {
+	      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+	        var entry = this.tryEntries[i];
+	        if (entry.tryLoc <= this.prev &&
+	            hasOwn.call(entry, "finallyLoc") &&
+	            this.prev < entry.finallyLoc) {
+	          var finallyEntry = entry;
+	          break;
+	        }
+	      }
+
+	      if (finallyEntry &&
+	          (type === "break" ||
+	           type === "continue") &&
+	          finallyEntry.tryLoc <= arg &&
+	          arg < finallyEntry.finallyLoc) {
+	        // Ignore the finally entry if control is not jumping to a
+	        // location outside the try/catch block.
+	        finallyEntry = null;
+	      }
+
+	      var record = finallyEntry ? finallyEntry.completion : {};
+	      record.type = type;
+	      record.arg = arg;
+
+	      if (finallyEntry) {
+	        this.next = finallyEntry.finallyLoc;
+	      } else {
+	        this.complete(record);
+	      }
+
+	      return ContinueSentinel;
+	    },
+
+	    complete: function(record, afterLoc) {
+	      if (record.type === "throw") {
+	        throw record.arg;
+	      }
+
+	      if (record.type === "break" ||
+	          record.type === "continue") {
+	        this.next = record.arg;
+	      } else if (record.type === "return") {
+	        this.rval = record.arg;
+	        this.next = "end";
+	      } else if (record.type === "normal" && afterLoc) {
+	        this.next = afterLoc;
+	      }
+
+	      return ContinueSentinel;
+	    },
+
+	    finish: function(finallyLoc) {
+	      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+	        var entry = this.tryEntries[i];
+	        if (entry.finallyLoc === finallyLoc) {
+	          return this.complete(entry.completion, entry.afterLoc);
+	        }
+	      }
+	    },
+
+	    "catch": function(tryLoc) {
+	      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+	        var entry = this.tryEntries[i];
+	        if (entry.tryLoc === tryLoc) {
+	          var record = entry.completion;
+	          if (record.type === "throw") {
+	            var thrown = record.arg;
+	            resetTryEntry(entry);
+	          }
+	          return thrown;
+	        }
+	      }
+
+	      // The context.catch method must only be called with a location
+	      // argument that corresponds to a known catch block.
+	      throw new Error("illegal catch attempt");
+	    },
+
+	    delegateYield: function(iterable, resultName, nextLoc) {
+	      this.delegate = {
+	        iterator: values(iterable),
+	        resultName: resultName,
+	        nextLoc: nextLoc
+	      };
+
+	      return ContinueSentinel;
+	    }
+	  };
+	})(
+	  // Among the various tricks for obtaining a reference to the global
+	  // object, this seems to be the most reliable technique that does not
+	  // use indirect eval (which violates Content Security Policy).
+	  typeof global === "object" ? global :
+	  typeof window === "object" ? window : this
+	);
+
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
+
+/***/ },
+/* 16 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -5095,551 +5895,7 @@ var StellarLib =
 	}(typeof self != 'undefined' && self.Math === Math ? self : Function('return this')(), true);
 
 /***/ },
-/* 14 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(global) {/**
-	 * Copyright (c) 2014, Facebook, Inc.
-	 * All rights reserved.
-	 *
-	 * This source code is licensed under the BSD-style license found in the
-	 * https://raw.github.com/facebook/regenerator/master/LICENSE file. An
-	 * additional grant of patent rights can be found in the PATENTS file in
-	 * the same directory.
-	 */
-
-	!(function(global) {
-	  "use strict";
-
-	  var hasOwn = Object.prototype.hasOwnProperty;
-	  var undefined; // More compressible than void 0.
-	  var iteratorSymbol =
-	    typeof Symbol === "function" && Symbol.iterator || "@@iterator";
-
-	  var inModule = typeof module === "object";
-	  var runtime = global.regeneratorRuntime;
-	  if (runtime) {
-	    if (inModule) {
-	      // If regeneratorRuntime is defined globally and we're in a module,
-	      // make the exports object identical to regeneratorRuntime.
-	      module.exports = runtime;
-	    }
-	    // Don't bother evaluating the rest of this file if the runtime was
-	    // already defined globally.
-	    return;
-	  }
-
-	  // Define the runtime globally (as expected by generated code) as either
-	  // module.exports (if we're in a module) or a new, empty object.
-	  runtime = global.regeneratorRuntime = inModule ? module.exports : {};
-
-	  function wrap(innerFn, outerFn, self, tryLocsList) {
-	    return new Generator(innerFn, outerFn, self || null, tryLocsList || []);
-	  }
-	  runtime.wrap = wrap;
-
-	  // Try/catch helper to minimize deoptimizations. Returns a completion
-	  // record like context.tryEntries[i].completion. This interface could
-	  // have been (and was previously) designed to take a closure to be
-	  // invoked without arguments, but in all the cases we care about we
-	  // already have an existing method we want to call, so there's no need
-	  // to create a new function object. We can even get away with assuming
-	  // the method takes exactly one argument, since that happens to be true
-	  // in every case, so we don't have to touch the arguments object. The
-	  // only additional allocation required is the completion record, which
-	  // has a stable shape and so hopefully should be cheap to allocate.
-	  function tryCatch(fn, obj, arg) {
-	    try {
-	      return { type: "normal", arg: fn.call(obj, arg) };
-	    } catch (err) {
-	      return { type: "throw", arg: err };
-	    }
-	  }
-
-	  var GenStateSuspendedStart = "suspendedStart";
-	  var GenStateSuspendedYield = "suspendedYield";
-	  var GenStateExecuting = "executing";
-	  var GenStateCompleted = "completed";
-
-	  // Returning this object from the innerFn has the same effect as
-	  // breaking out of the dispatch switch statement.
-	  var ContinueSentinel = {};
-
-	  // Dummy constructor functions that we use as the .constructor and
-	  // .constructor.prototype properties for functions that return Generator
-	  // objects. For full spec compliance, you may wish to configure your
-	  // minifier not to mangle the names of these two functions.
-	  function GeneratorFunction() {}
-	  function GeneratorFunctionPrototype() {}
-
-	  var Gp = GeneratorFunctionPrototype.prototype = Generator.prototype;
-	  GeneratorFunction.prototype = Gp.constructor = GeneratorFunctionPrototype;
-	  GeneratorFunctionPrototype.constructor = GeneratorFunction;
-	  GeneratorFunction.displayName = "GeneratorFunction";
-
-	  runtime.isGeneratorFunction = function(genFun) {
-	    var ctor = typeof genFun === "function" && genFun.constructor;
-	    return ctor
-	      ? ctor === GeneratorFunction ||
-	        // For the native GeneratorFunction constructor, the best we can
-	        // do is to check its .name property.
-	        (ctor.displayName || ctor.name) === "GeneratorFunction"
-	      : false;
-	  };
-
-	  runtime.mark = function(genFun) {
-	    genFun.__proto__ = GeneratorFunctionPrototype;
-	    genFun.prototype = Object.create(Gp);
-	    return genFun;
-	  };
-
-	  runtime.async = function(innerFn, outerFn, self, tryLocsList) {
-	    return new Promise(function(resolve, reject) {
-	      var generator = wrap(innerFn, outerFn, self, tryLocsList);
-	      var callNext = step.bind(generator.next);
-	      var callThrow = step.bind(generator["throw"]);
-
-	      function step(arg) {
-	        var record = tryCatch(this, null, arg);
-	        if (record.type === "throw") {
-	          reject(record.arg);
-	          return;
-	        }
-
-	        var info = record.arg;
-	        if (info.done) {
-	          resolve(info.value);
-	        } else {
-	          Promise.resolve(info.value).then(callNext, callThrow);
-	        }
-	      }
-
-	      callNext();
-	    });
-	  };
-
-	  function Generator(innerFn, outerFn, self, tryLocsList) {
-	    var generator = outerFn ? Object.create(outerFn.prototype) : this;
-	    var context = new Context(tryLocsList);
-	    var state = GenStateSuspendedStart;
-
-	    function invoke(method, arg) {
-	      if (state === GenStateExecuting) {
-	        throw new Error("Generator is already running");
-	      }
-
-	      if (state === GenStateCompleted) {
-	        // Be forgiving, per 25.3.3.3.3 of the spec:
-	        // https://people.mozilla.org/~jorendorff/es6-draft.html#sec-generatorresume
-	        return doneResult();
-	      }
-
-	      while (true) {
-	        var delegate = context.delegate;
-	        if (delegate) {
-	          var record = tryCatch(
-	            delegate.iterator[method],
-	            delegate.iterator,
-	            arg
-	          );
-
-	          if (record.type === "throw") {
-	            context.delegate = null;
-
-	            // Like returning generator.throw(uncaught), but without the
-	            // overhead of an extra function call.
-	            method = "throw";
-	            arg = record.arg;
-
-	            continue;
-	          }
-
-	          // Delegate generator ran and handled its own exceptions so
-	          // regardless of what the method was, we continue as if it is
-	          // "next" with an undefined arg.
-	          method = "next";
-	          arg = undefined;
-
-	          var info = record.arg;
-	          if (info.done) {
-	            context[delegate.resultName] = info.value;
-	            context.next = delegate.nextLoc;
-	          } else {
-	            state = GenStateSuspendedYield;
-	            return info;
-	          }
-
-	          context.delegate = null;
-	        }
-
-	        if (method === "next") {
-	          if (state === GenStateSuspendedStart &&
-	              typeof arg !== "undefined") {
-	            // https://people.mozilla.org/~jorendorff/es6-draft.html#sec-generatorresume
-	            throw new TypeError(
-	              "attempt to send " + JSON.stringify(arg) + " to newborn generator"
-	            );
-	          }
-
-	          if (state === GenStateSuspendedYield) {
-	            context.sent = arg;
-	          } else {
-	            delete context.sent;
-	          }
-
-	        } else if (method === "throw") {
-	          if (state === GenStateSuspendedStart) {
-	            state = GenStateCompleted;
-	            throw arg;
-	          }
-
-	          if (context.dispatchException(arg)) {
-	            // If the dispatched exception was caught by a catch block,
-	            // then let that catch block handle the exception normally.
-	            method = "next";
-	            arg = undefined;
-	          }
-
-	        } else if (method === "return") {
-	          context.abrupt("return", arg);
-	        }
-
-	        state = GenStateExecuting;
-
-	        var record = tryCatch(innerFn, self, context);
-	        if (record.type === "normal") {
-	          // If an exception is thrown from innerFn, we leave state ===
-	          // GenStateExecuting and loop back for another invocation.
-	          state = context.done
-	            ? GenStateCompleted
-	            : GenStateSuspendedYield;
-
-	          var info = {
-	            value: record.arg,
-	            done: context.done
-	          };
-
-	          if (record.arg === ContinueSentinel) {
-	            if (context.delegate && method === "next") {
-	              // Deliberately forget the last sent value so that we don't
-	              // accidentally pass it on to the delegate.
-	              arg = undefined;
-	            }
-	          } else {
-	            return info;
-	          }
-
-	        } else if (record.type === "throw") {
-	          state = GenStateCompleted;
-
-	          if (method === "next") {
-	            context.dispatchException(record.arg);
-	          } else {
-	            arg = record.arg;
-	          }
-	        }
-	      }
-	    }
-
-	    generator.next = invoke.bind(generator, "next");
-	    generator["throw"] = invoke.bind(generator, "throw");
-	    generator["return"] = invoke.bind(generator, "return");
-
-	    return generator;
-	  }
-
-	  Gp[iteratorSymbol] = function() {
-	    return this;
-	  };
-
-	  Gp.toString = function() {
-	    return "[object Generator]";
-	  };
-
-	  function pushTryEntry(locs) {
-	    var entry = { tryLoc: locs[0] };
-
-	    if (1 in locs) {
-	      entry.catchLoc = locs[1];
-	    }
-
-	    if (2 in locs) {
-	      entry.finallyLoc = locs[2];
-	      entry.afterLoc = locs[3];
-	    }
-
-	    this.tryEntries.push(entry);
-	  }
-
-	  function resetTryEntry(entry) {
-	    var record = entry.completion || {};
-	    record.type = "normal";
-	    delete record.arg;
-	    entry.completion = record;
-	  }
-
-	  function Context(tryLocsList) {
-	    // The root entry object (effectively a try statement without a catch
-	    // or a finally block) gives us a place to store values thrown from
-	    // locations where there is no enclosing try statement.
-	    this.tryEntries = [{ tryLoc: "root" }];
-	    tryLocsList.forEach(pushTryEntry, this);
-	    this.reset();
-	  }
-
-	  runtime.keys = function(object) {
-	    var keys = [];
-	    for (var key in object) {
-	      keys.push(key);
-	    }
-	    keys.reverse();
-
-	    // Rather than returning an object with a next method, we keep
-	    // things simple and return the next function itself.
-	    return function next() {
-	      while (keys.length) {
-	        var key = keys.pop();
-	        if (key in object) {
-	          next.value = key;
-	          next.done = false;
-	          return next;
-	        }
-	      }
-
-	      // To avoid creating an additional object, we just hang the .value
-	      // and .done properties off the next function object itself. This
-	      // also ensures that the minifier will not anonymize the function.
-	      next.done = true;
-	      return next;
-	    };
-	  };
-
-	  function values(iterable) {
-	    if (iterable) {
-	      var iteratorMethod = iterable[iteratorSymbol];
-	      if (iteratorMethod) {
-	        return iteratorMethod.call(iterable);
-	      }
-
-	      if (typeof iterable.next === "function") {
-	        return iterable;
-	      }
-
-	      if (!isNaN(iterable.length)) {
-	        var i = -1, next = function next() {
-	          while (++i < iterable.length) {
-	            if (hasOwn.call(iterable, i)) {
-	              next.value = iterable[i];
-	              next.done = false;
-	              return next;
-	            }
-	          }
-
-	          next.value = undefined;
-	          next.done = true;
-
-	          return next;
-	        };
-
-	        return next.next = next;
-	      }
-	    }
-
-	    // Return an iterator with no values.
-	    return { next: doneResult };
-	  }
-	  runtime.values = values;
-
-	  function doneResult() {
-	    return { value: undefined, done: true };
-	  }
-
-	  Context.prototype = {
-	    constructor: Context,
-
-	    reset: function() {
-	      this.prev = 0;
-	      this.next = 0;
-	      this.sent = undefined;
-	      this.done = false;
-	      this.delegate = null;
-
-	      this.tryEntries.forEach(resetTryEntry);
-
-	      // Pre-initialize at least 20 temporary variables to enable hidden
-	      // class optimizations for simple generators.
-	      for (var tempIndex = 0, tempName;
-	           hasOwn.call(this, tempName = "t" + tempIndex) || tempIndex < 20;
-	           ++tempIndex) {
-	        this[tempName] = null;
-	      }
-	    },
-
-	    stop: function() {
-	      this.done = true;
-
-	      var rootEntry = this.tryEntries[0];
-	      var rootRecord = rootEntry.completion;
-	      if (rootRecord.type === "throw") {
-	        throw rootRecord.arg;
-	      }
-
-	      return this.rval;
-	    },
-
-	    dispatchException: function(exception) {
-	      if (this.done) {
-	        throw exception;
-	      }
-
-	      var context = this;
-	      function handle(loc, caught) {
-	        record.type = "throw";
-	        record.arg = exception;
-	        context.next = loc;
-	        return !!caught;
-	      }
-
-	      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-	        var entry = this.tryEntries[i];
-	        var record = entry.completion;
-
-	        if (entry.tryLoc === "root") {
-	          // Exception thrown outside of any try block that could handle
-	          // it, so set the completion value of the entire function to
-	          // throw the exception.
-	          return handle("end");
-	        }
-
-	        if (entry.tryLoc <= this.prev) {
-	          var hasCatch = hasOwn.call(entry, "catchLoc");
-	          var hasFinally = hasOwn.call(entry, "finallyLoc");
-
-	          if (hasCatch && hasFinally) {
-	            if (this.prev < entry.catchLoc) {
-	              return handle(entry.catchLoc, true);
-	            } else if (this.prev < entry.finallyLoc) {
-	              return handle(entry.finallyLoc);
-	            }
-
-	          } else if (hasCatch) {
-	            if (this.prev < entry.catchLoc) {
-	              return handle(entry.catchLoc, true);
-	            }
-
-	          } else if (hasFinally) {
-	            if (this.prev < entry.finallyLoc) {
-	              return handle(entry.finallyLoc);
-	            }
-
-	          } else {
-	            throw new Error("try statement without catch or finally");
-	          }
-	        }
-	      }
-	    },
-
-	    abrupt: function(type, arg) {
-	      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-	        var entry = this.tryEntries[i];
-	        if (entry.tryLoc <= this.prev &&
-	            hasOwn.call(entry, "finallyLoc") &&
-	            this.prev < entry.finallyLoc) {
-	          var finallyEntry = entry;
-	          break;
-	        }
-	      }
-
-	      if (finallyEntry &&
-	          (type === "break" ||
-	           type === "continue") &&
-	          finallyEntry.tryLoc <= arg &&
-	          arg < finallyEntry.finallyLoc) {
-	        // Ignore the finally entry if control is not jumping to a
-	        // location outside the try/catch block.
-	        finallyEntry = null;
-	      }
-
-	      var record = finallyEntry ? finallyEntry.completion : {};
-	      record.type = type;
-	      record.arg = arg;
-
-	      if (finallyEntry) {
-	        this.next = finallyEntry.finallyLoc;
-	      } else {
-	        this.complete(record);
-	      }
-
-	      return ContinueSentinel;
-	    },
-
-	    complete: function(record, afterLoc) {
-	      if (record.type === "throw") {
-	        throw record.arg;
-	      }
-
-	      if (record.type === "break" ||
-	          record.type === "continue") {
-	        this.next = record.arg;
-	      } else if (record.type === "return") {
-	        this.rval = record.arg;
-	        this.next = "end";
-	      } else if (record.type === "normal" && afterLoc) {
-	        this.next = afterLoc;
-	      }
-
-	      return ContinueSentinel;
-	    },
-
-	    finish: function(finallyLoc) {
-	      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-	        var entry = this.tryEntries[i];
-	        if (entry.finallyLoc === finallyLoc) {
-	          return this.complete(entry.completion, entry.afterLoc);
-	        }
-	      }
-	    },
-
-	    "catch": function(tryLoc) {
-	      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-	        var entry = this.tryEntries[i];
-	        if (entry.tryLoc === tryLoc) {
-	          var record = entry.completion;
-	          if (record.type === "throw") {
-	            var thrown = record.arg;
-	            resetTryEntry(entry);
-	          }
-	          return thrown;
-	        }
-	      }
-
-	      // The context.catch method must only be called with a location
-	      // argument that corresponds to a known catch block.
-	      throw new Error("illegal catch attempt");
-	    },
-
-	    delegateYield: function(iterable, resultName, nextLoc) {
-	      this.delegate = {
-	        iterator: values(iterable),
-	        resultName: resultName,
-	        nextLoc: nextLoc
-	      };
-
-	      return ContinueSentinel;
-	    }
-	  };
-	})(
-	  // Among the various tricks for obtaining a reference to the global
-	  // object, this seems to be the most reliable technique that does not
-	  // use indirect eval (which violates Content Security Policy).
-	  typeof global === "object" ? global :
-	  typeof window === "object" ? window : this
-	);
-
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
-
-/***/ },
-/* 15 */
+/* 17 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -5652,7 +5908,7 @@ var StellarLib =
 	/* jshint maxstatements:2147483647  */
 	/* jshint esnext:true  */
 
-	var XDR = _interopRequireWildcard(__webpack_require__(23));
+	var XDR = _interopRequireWildcard(__webpack_require__(25));
 
 	var types = XDR.config(function (xdr) {
 
@@ -7291,7 +7547,7 @@ var StellarLib =
 	module.exports = types;
 
 /***/ },
-/* 16 */
+/* 18 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -7301,7 +7557,7 @@ var StellarLib =
 	  value: true
 	});
 
-	var sha256 = __webpack_require__(25).sha256;
+	var sha256 = __webpack_require__(27).sha256;
 
 	function hash(data) {
 	  var hasher = new sha256();
@@ -7310,7 +7566,7 @@ var StellarLib =
 	}
 
 /***/ },
-/* 17 */
+/* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
@@ -7341,7 +7597,7 @@ var StellarLib =
 	  (function () {
 	    // NOTE: we use commonjs style require here because es6 imports
 	    // can only occur at the top level.  thanks, obama.
-	    var ed25519 = __webpack_require__(26);
+	    var ed25519 = __webpack_require__(28);
 
 	    actualMethods.sign = function (data, secretKey) {
 	      data = new Buffer(data);
@@ -7360,7 +7616,7 @@ var StellarLib =
 	} else {
 	  (function () {
 	    // fallback to tweetnacl.js if we're in the browser
-	    var nacl = __webpack_require__(28);
+	    var nacl = __webpack_require__(30);
 
 	    actualMethods.sign = function (data, secretKey) {
 	      data = new Buffer(data);
@@ -7382,10 +7638,10 @@ var StellarLib =
 	    };
 	  })();
 	}
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11).Buffer))
 
 /***/ },
-/* 18 */
+/* 20 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
@@ -7402,16 +7658,16 @@ var StellarLib =
 	  value: true
 	});
 
-	var _signing = __webpack_require__(17);
+	var _signing = __webpack_require__(19);
 
 	var sign = _signing.sign;
 	var verify = _signing.verify;
 
-	var base58 = _interopRequireWildcard(__webpack_require__(19));
+	var base58 = _interopRequireWildcard(__webpack_require__(21));
 
-	var xdr = _interopRequire(__webpack_require__(15));
+	var xdr = _interopRequire(__webpack_require__(17));
 
-	var nacl = __webpack_require__(28);
+	var nacl = __webpack_require__(30);
 
 	var Keypair = exports.Keypair = (function () {
 	  function Keypair(keysAndSeed) {
@@ -7521,10 +7777,10 @@ var StellarLib =
 
 	  return Keypair;
 	})();
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11).Buffer))
 
 /***/ },
-/* 19 */
+/* 21 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
@@ -7539,16 +7795,16 @@ var StellarLib =
 	  value: true
 	});
 
-	var bs58 = _interopRequire(__webpack_require__(24));
+	var bs58 = _interopRequire(__webpack_require__(26));
 
-	var _lodash = __webpack_require__(27);
+	var _lodash = __webpack_require__(29);
 
 	var isUndefined = _lodash.isUndefined;
 	var isNull = _lodash.isNull;
 
-	var hash = __webpack_require__(16).hash;
+	var hash = __webpack_require__(18).hash;
 
-	var nacl = __webpack_require__(28);
+	var nacl = __webpack_require__(30);
 
 	var versionBytes = {
 	  accountId: 0, // decimal 0
@@ -7637,10 +7893,10 @@ var StellarLib =
 	  return true;
 	}
 	// decimal 33
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11).Buffer))
 
 /***/ },
-/* 20 */
+/* 22 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports.read = function(buffer, offset, isLE, mLen, nBytes) {
@@ -7730,7 +7986,7 @@ var StellarLib =
 
 
 /***/ },
-/* 21 */
+/* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
@@ -7769,7 +8025,7 @@ var StellarLib =
 
 
 /***/ },
-/* 22 */
+/* 24 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
@@ -7899,7 +8155,7 @@ var StellarLib =
 
 
 /***/ },
-/* 23 */
+/* 25 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -7912,16 +8168,16 @@ var StellarLib =
 	  value: true
 	});
 
-	_defaults(exports, _interopRequireWildcard(__webpack_require__(29)));
+	_defaults(exports, _interopRequireWildcard(__webpack_require__(31)));
 
-	var _config = __webpack_require__(30);
+	var _config = __webpack_require__(32);
 
 	_defaults(exports, _interopRequireWildcard(_config));
 
 	var config = _config.config;
 
 /***/ },
-/* 24 */
+/* 26 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// vendored from http://cryptocoinjs.com/modules/misc/bs58/
@@ -8020,7 +8276,7 @@ var StellarLib =
 	};
 
 /***/ },
-/* 25 */
+/* 27 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var exports = module.exports = function (alg) {
@@ -8030,30 +8286,30 @@ var StellarLib =
 	}
 
 
-	exports.sha = __webpack_require__(31)
-	exports.sha1 = __webpack_require__(32)
-	exports.sha224 = __webpack_require__(33)
-	exports.sha256 = __webpack_require__(34)
-	exports.sha384 = __webpack_require__(35)
-	exports.sha512 = __webpack_require__(36)
+	exports.sha = __webpack_require__(33)
+	exports.sha1 = __webpack_require__(34)
+	exports.sha224 = __webpack_require__(35)
+	exports.sha256 = __webpack_require__(36)
+	exports.sha384 = __webpack_require__(37)
+	exports.sha512 = __webpack_require__(38)
 
 
 /***/ },
-/* 26 */
+/* 28 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"./build/Release/native.node\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
 
 /***/ },
-/* 27 */
+/* 29 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(module, global) {/**
 	 * @license
-	 * lodash 3.6.0 (Custom Build) <https://lodash.com/>
+	 * lodash 3.7.0 (Custom Build) <https://lodash.com/>
 	 * Build: `lodash modern -d -o ./index.js`
 	 * Copyright 2012-2015 The Dojo Foundation <http://dojofoundation.org/>
-	 * Based on Underscore.js 1.8.2 <http://underscorejs.org/LICENSE>
+	 * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
 	 * Copyright 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 	 * Available under MIT license <https://lodash.com/license>
 	 */
@@ -8063,7 +8319,7 @@ var StellarLib =
 	  var undefined;
 
 	  /** Used as the semantic version number. */
-	  var VERSION = '3.6.0';
+	  var VERSION = '3.7.0';
 
 	  /** Used to compose bitmasks for wrapper metadata. */
 	  var BIND_FLAG = 1,
@@ -8137,30 +8393,10 @@ var StellarLib =
 	      reEvaluate = /<%([\s\S]+?)%>/g,
 	      reInterpolate = /<%=([\s\S]+?)%>/g;
 
-	  /**
-	   * Used to match [combining diacritical marks](https://en.wikipedia.org/wiki/Combining_Diacritical_Marks).
-	   */
-	  var reComboMarks = /[\u0300-\u036f\ufe20-\ufe23]/g;
-
-	  /**
-	   * Used to match [ES template delimiters](https://people.mozilla.org/~jorendorff/es6-draft.html#sec-template-literal-lexical-components).
-	   */
-	  var reEsTemplate = /\$\{([^\\}]*(?:\\.[^\\}]*)*)\}/g;
-
-	  /** Used to match `RegExp` flags from their coerced string values. */
-	  var reFlags = /\w*$/;
-
-	  /** Used to detect hexadecimal string values. */
-	  var reHexPrefix = /^0[xX]/;
-
-	  /** Used to detect host constructors (Safari > 5). */
-	  var reHostCtor = /^\[object .+?Constructor\]$/;
-
-	  /** Used to match latin-1 supplementary letters (excluding mathematical operators). */
-	  var reLatin1 = /[\xc0-\xd6\xd8-\xde\xdf-\xf6\xf8-\xff]/g;
-
-	  /** Used to ensure capturing order of template delimiters. */
-	  var reNoMatch = /($^)/;
+	  /** Used to match property names within property paths. */
+	  var reIsDeepProp = /\.|\[(?:[^[\]]+|(["'])(?:(?!\1)[^\n\\]|\\.)*?)\1\]/,
+	      reIsPlainProp = /^\w*$/,
+	      rePropName = /[^.[\]]+|\[(?:(-?\d+(?:\.\d+)?)|(["'])((?:(?!\2)[^\n\\]|\\.)*?)\2)\]/g;
 
 	  /**
 	   * Used to match `RegExp` [special characters](http://www.regular-expressions.info/characters.html#special).
@@ -8169,6 +8405,30 @@ var StellarLib =
 	   */
 	  var reRegExpChars = /[.*+?^${}()|[\]\/\\]/g,
 	      reHasRegExpChars = RegExp(reRegExpChars.source);
+
+	  /** Used to match [combining diacritical marks](https://en.wikipedia.org/wiki/Combining_Diacritical_Marks). */
+	  var reComboMark = /[\u0300-\u036f\ufe20-\ufe23]/g;
+
+	  /** Used to match backslashes in property paths. */
+	  var reEscapeChar = /\\(\\)?/g;
+
+	  /** Used to match [ES template delimiters](https://people.mozilla.org/~jorendorff/es6-draft.html#sec-template-literal-lexical-components). */
+	  var reEsTemplate = /\$\{([^\\}]*(?:\\.[^\\}]*)*)\}/g;
+
+	  /** Used to match `RegExp` flags from their coerced string values. */
+	  var reFlags = /\w*$/;
+
+	  /** Used to detect hexadecimal string values. */
+	  var reHasHexPrefix = /^0[xX]/;
+
+	  /** Used to detect host constructors (Safari > 5). */
+	  var reIsHostCtor = /^\[object .+?Constructor\]$/;
+
+	  /** Used to match latin-1 supplementary letters (excluding mathematical operators). */
+	  var reLatin1 = /[\xc0-\xd6\xd8-\xde\xdf-\xf6\xf8-\xff]/g;
+
+	  /** Used to ensure capturing order of template delimiters. */
+	  var reNoMatch = /($^)/;
 
 	  /** Used to match unescaped characters in compiled string literals. */
 	  var reUnescapedString = /['\n\r\u2028\u2029\\]/g;
@@ -8307,7 +8567,7 @@ var StellarLib =
 	  var freeModule = objectTypes[typeof module] && module && !module.nodeType && module;
 
 	  /** Detect free variable `global` from Node.js. */
-	  var freeGlobal = freeExports && freeModule && typeof global == 'object' && global;
+	  var freeGlobal = freeExports && freeModule && typeof global == 'object' && global && global.Object && global;
 
 	  /** Detect free variable `self`. */
 	  var freeSelf = objectTypes[typeof self] && self && self.Object && self;
@@ -8342,10 +8602,10 @@ var StellarLib =
 	      var valIsReflexive = value === value,
 	          othIsReflexive = other === other;
 
-	      if (value > other || !valIsReflexive || (typeof value == 'undefined' && othIsReflexive)) {
+	      if (value > other || !valIsReflexive || (value === undefined && othIsReflexive)) {
 	        return 1;
 	      }
-	      if (value < other || !othIsReflexive || (typeof other == 'undefined' && valIsReflexive)) {
+	      if (value < other || !othIsReflexive || (other === undefined && valIsReflexive)) {
 	        return -1;
 	      }
 	    }
@@ -8488,7 +8748,7 @@ var StellarLib =
 	   * Used by `_.sortByOrder` to compare multiple properties of each element
 	   * in a collection and stable sort them in the following order:
 	   *
-	   * If orders is unspecified, sort in ascending order for all properties.
+	   * If `orders` is unspecified, sort in ascending order for all properties.
 	   * Otherwise, for each property, sort in ascending order if its corresponding value in
 	   * orders is true, and descending order if false.
 	   *
@@ -8765,9 +9025,6 @@ var StellarLib =
 	    /** Used to resolve the decompiled source of functions. */
 	    var fnToString = Function.prototype.toString;
 
-	    /** Used to the length of n-tuples for `_.unzip`. */
-	    var getLength = baseProperty('length');
-
 	    /** Used to check objects for own properties. */
 	    var hasOwnProperty = objectProto.hasOwnProperty;
 
@@ -8784,7 +9041,7 @@ var StellarLib =
 	    var oldDash = context._;
 
 	    /** Used to detect if a method is native. */
-	    var reNative = RegExp('^' +
+	    var reIsNative = RegExp('^' +
 	      escapeRegExp(objToString)
 	      .replace(/toString|(function).*?(?=\\\()| for .+?(?=\\\])/g, '$1.*?') + '$'
 	    );
@@ -8795,8 +9052,10 @@ var StellarLib =
 	        ceil = Math.ceil,
 	        clearTimeout = context.clearTimeout,
 	        floor = Math.floor,
+	        getOwnPropertySymbols = isNative(getOwnPropertySymbols = Object.getOwnPropertySymbols) && getOwnPropertySymbols,
 	        getPrototypeOf = isNative(getPrototypeOf = Object.getPrototypeOf) && getPrototypeOf,
 	        push = arrayProto.push,
+	        preventExtensions = isNative(Object.preventExtensions = Object.preventExtensions) && preventExtensions,
 	        propertyIsEnumerable = objectProto.propertyIsEnumerable,
 	        Set = isNative(Set = context.Set) && Set,
 	        setTimeout = context.setTimeout,
@@ -8814,6 +9073,22 @@ var StellarLib =
 	            result = new func(new ArrayBuffer(10), 0, 1) && func;
 	      } catch(e) {}
 	      return result;
+	    }());
+
+	    /** Used as `baseAssign`. */
+	    var nativeAssign = (function() {
+	      // Avoid `Object.assign` in Firefox 34-37 which have an early implementation
+	      // with a now defunct try/catch behavior. See https://bugzilla.mozilla.org/show_bug.cgi?id=1103344
+	      // for more details.
+	      //
+	      // Use `Object.preventExtensions` on a plain object instead of simply using
+	      // `Object('x')` because Chrome and IE fail to throw an error when attempting
+	      // to assign values to readonly indexes of strings in strict mode.
+	      var object = { '1': 0 },
+	          func = preventExtensions && isNative(func = Object.assign) && func;
+
+	      try { func(preventExtensions(object), 'xo'); } catch(e) {}
+	      return !object[1] && func;
 	    }());
 
 	    /* Native method references for those with the same name as other `lodash` methods. */
@@ -8893,8 +9168,8 @@ var StellarLib =
 	     * `filter`, `flatten`, `flattenDeep`, `flow`, `flowRight`, `forEach`,
 	     * `forEachRight`, `forIn`, `forInRight`, `forOwn`, `forOwnRight`, `functions`,
 	     * `groupBy`, `indexBy`, `initial`, `intersection`, `invert`, `invoke`, `keys`,
-	     * `keysIn`, `map`, `mapValues`, `matches`, `matchesProperty`, `memoize`, `merge`,
-	     * `mixin`, `negate`, `noop`, `omit`, `once`, `pairs`, `partial`, `partialRight`,
+	     * `keysIn`, `map`, `mapValues`, `matches`, `matchesProperty`, `memoize`,
+	     * `merge`, `mixin`, `negate`, `omit`, `once`, `pairs`, `partial`, `partialRight`,
 	     * `partition`, `pick`, `plant`, `pluck`, `property`, `propertyOf`, `pull`,
 	     * `pullAt`, `push`, `range`, `rearg`, `reject`, `remove`, `rest`, `reverse`,
 	     * `shuffle`, `slice`, `sort`, `sortBy`, `sortByAll`, `sortByOrder`, `splice`,
@@ -8908,15 +9183,15 @@ var StellarLib =
 	     * `endsWith`, `escape`, `escapeRegExp`, `every`, `find`, `findIndex`, `findKey`,
 	     * `findLast`, `findLastIndex`, `findLastKey`, `findWhere`, `first`, `has`,
 	     * `identity`, `includes`, `indexOf`, `inRange`, `isArguments`, `isArray`,
-	     * `isBoolean`, `isDate`, `isElement`, `isEmpty`, `isEqual`, `isError`,
-	     * `isFinite`,`isFunction`, `isMatch`, `isNative`, `isNaN`, `isNull`, `isNumber`,
-	     * `isObject`, `isPlainObject`, `isRegExp`, `isString`, `isUndefined`,
-	     * `isTypedArray`, `join`, `kebabCase`, `last`, `lastIndexOf`, `max`, `min`,
-	     * `noConflict`, `now`, `pad`, `padLeft`, `padRight`, `parseInt`, `pop`,
-	     * `random`, `reduce`, `reduceRight`, `repeat`, `result`, `runInContext`,
-	     * `shift`, `size`, `snakeCase`, `some`, `sortedIndex`, `sortedLastIndex`,
-	     * `startCase`, `startsWith`, `sum`, `template`, `trim`, `trimLeft`,
-	     * `trimRight`, `trunc`, `unescape`, `uniqueId`, `value`, and `words`
+	     * `isBoolean`, `isDate`, `isElement`, `isEmpty`, `isEqual`, `isError`, `isFinite`
+	     * `isFunction`, `isMatch`, `isNative`, `isNaN`, `isNull`, `isNumber`, `isObject`,
+	     * `isPlainObject`, `isRegExp`, `isString`, `isUndefined`, `isTypedArray`,
+	     * `join`, `kebabCase`, `last`, `lastIndexOf`, `max`, `min`, `noConflict`,
+	     * `noop`, `now`, `pad`, `padLeft`, `padRight`, `parseInt`, `pop`, `random`,
+	     * `reduce`, `reduceRight`, `repeat`, `result`, `runInContext`, `shift`, `size`,
+	     * `snakeCase`, `some`, `sortedIndex`, `sortedLastIndex`, `startCase`, `startsWith`,
+	     * `sum`, `template`, `trim`, `trimLeft`, `trimRight`, `trunc`, `unescape`,
+	     * `uniqueId`, `value`, and `words`
 	     *
 	     * The wrapper method `sample` will return a wrapped value when `n` is provided,
 	     * otherwise an unwrapped value is returned.
@@ -8931,8 +9206,8 @@ var StellarLib =
 	     * var wrapped = _([1, 2, 3]);
 	     *
 	     * // returns an unwrapped value
-	     * wrapped.reduce(function(sum, n) {
-	     *   return sum + n;
+	     * wrapped.reduce(function(total, n) {
+	     *   return total + n;
 	     * });
 	     * // => 6
 	     *
@@ -8992,6 +9267,12 @@ var StellarLib =
 	    var support = lodash.support = {};
 
 	    (function(x) {
+	      var Ctor = function() { this.x = x; },
+	          object = { '0': x, 'length': x },
+	          props = [];
+
+	      Ctor.prototype = { 'valueOf': x, 'y': x };
+	      for (var key in new Ctor) { props.push(key); }
 
 	      /**
 	       * Detect if functions can be decompiled by `Function#toString`
@@ -9029,8 +9310,8 @@ var StellarLib =
 	       * In Firefox < 4, IE < 9, PhantomJS, and Safari < 5.1 `arguments` object
 	       * indexes are non-enumerable. Chrome < 25 and Node.js < 0.11.0 treat
 	       * `arguments` object indexes as non-enumerable and fail `hasOwnProperty`
-	       * checks for indexes that exceed their function's formal parameters with
-	       * associated values of `0`.
+	       * checks for indexes that exceed the number of function parameters and
+	       * whose associated argument values are `0`.
 	       *
 	       * @memberOf _.support
 	       * @type boolean
@@ -9040,7 +9321,7 @@ var StellarLib =
 	      } catch(e) {
 	        support.nonEnumArgs = true;
 	      }
-	    }(0, 0));
+	    }(1, 0));
 
 	    /**
 	     * By default, the template delimiters used by lodash are like those in
@@ -9287,7 +9568,7 @@ var StellarLib =
 	    }
 
 	    /**
-	     * Adds `value` to `key` of the cache.
+	     * Sets `value` to `key` of the cache.
 	     *
 	     * @private
 	     * @name set
@@ -9620,13 +9901,13 @@ var StellarLib =
 	     * @returns {*} Returns the value to assign to the destination object.
 	     */
 	    function assignDefaults(objectValue, sourceValue) {
-	      return typeof objectValue == 'undefined' ? sourceValue : objectValue;
+	      return objectValue === undefined ? sourceValue : objectValue;
 	    }
 
 	    /**
 	     * Used by `_.template` to customize its `_.assign` use.
 	     *
-	     * **Note:** This method is like `assignDefaults` except that it ignores
+	     * **Note:** This function is like `assignDefaults` except that it ignores
 	     * inherited property values when checking if a property is `undefined`.
 	     *
 	     * @private
@@ -9637,26 +9918,26 @@ var StellarLib =
 	     * @returns {*} Returns the value to assign to the destination object.
 	     */
 	    function assignOwnDefaults(objectValue, sourceValue, key, object) {
-	      return (typeof objectValue == 'undefined' || !hasOwnProperty.call(object, key))
+	      return (objectValue === undefined || !hasOwnProperty.call(object, key))
 	        ? sourceValue
 	        : objectValue;
 	    }
 
 	    /**
-	     * The base implementation of `_.assign` without support for argument juggling,
-	     * multiple sources, and `this` binding `customizer` functions.
+	     * A specialized version of `_.assign` for customizing assigned values without
+	     * support for argument juggling, multiple sources, and `this` binding `customizer`
+	     * functions.
 	     *
 	     * @private
 	     * @param {Object} object The destination object.
 	     * @param {Object} source The source object.
-	     * @param {Function} [customizer] The function to customize assigning values.
-	     * @returns {Object} Returns the destination object.
+	     * @param {Function} customizer The function to customize assigned values.
+	     * @returns {Object} Returns `object`.
 	     */
-	    function baseAssign(object, source, customizer) {
+	    function assignWith(object, source, customizer) {
 	      var props = keys(source);
-	      if (!customizer) {
-	        return baseCopy(source, object, props);
-	      }
+	      push.apply(props, getSymbols(source));
+
 	      var index = -1,
 	          length = props.length;
 
@@ -9666,7 +9947,7 @@ var StellarLib =
 	            result = customizer(value, source[key], key, object, source);
 
 	        if ((result === result ? (result !== value) : (value === value)) ||
-	            (typeof value == 'undefined' && !(key in object))) {
+	            (value === undefined && !(key in object))) {
 	          object[key] = result;
 	        }
 	      }
@@ -9674,12 +9955,27 @@ var StellarLib =
 	    }
 
 	    /**
-	     * The base implementation of `_.at` without support for strings and individual
-	     * key arguments.
+	     * The base implementation of `_.assign` without support for argument juggling,
+	     * multiple sources, and `customizer` functions.
+	     *
+	     * @private
+	     * @param {Object} object The destination object.
+	     * @param {Object} source The source object.
+	     * @returns {Object} Returns `object`.
+	     */
+	    var baseAssign = nativeAssign || function(object, source) {
+	      return source == null
+	        ? object
+	        : baseCopy(source, getSymbols(source), baseCopy(source, keys(source), object));
+	    };
+
+	    /**
+	     * The base implementation of `_.at` without support for string collections
+	     * and individual key arguments.
 	     *
 	     * @private
 	     * @param {Array|Object} collection The collection to iterate over.
-	     * @param {number[]|string[]} [props] The property names or indexes of elements to pick.
+	     * @param {number[]|string[]} props The property names or indexes of elements to pick.
 	     * @returns {Array} Returns the new array of picked elements.
 	     */
 	    function baseAt(collection, props) {
@@ -9692,7 +9988,6 @@ var StellarLib =
 	      while(++index < propsLength) {
 	        var key = props[index];
 	        if (isArr) {
-	          key = parseFloat(key);
 	          result[index] = isIndex(key, length) ? collection[key] : undefined;
 	        } else {
 	          result[index] = collection[key];
@@ -9702,19 +9997,17 @@ var StellarLib =
 	    }
 
 	    /**
-	     * Copies the properties of `source` to `object`.
+	     * Copies properties of `source` to `object`.
 	     *
 	     * @private
 	     * @param {Object} source The object to copy properties from.
-	     * @param {Object} [object={}] The object to copy properties to.
 	     * @param {Array} props The property names to copy.
+	     * @param {Object} [object={}] The object to copy properties to.
 	     * @returns {Object} Returns `object`.
 	     */
-	    function baseCopy(source, object, props) {
-	      if (!props) {
-	        props = object;
-	        object = {};
-	      }
+	    function baseCopy(source, props, object) {
+	      object || (object = {});
+
 	      var index = -1,
 	          length = props.length;
 
@@ -9738,7 +10031,7 @@ var StellarLib =
 	    function baseCallback(func, thisArg, argCount) {
 	      var type = typeof func;
 	      if (type == 'function') {
-	        return typeof thisArg == 'undefined'
+	        return thisArg === undefined
 	          ? func
 	          : bindCallback(func, thisArg, argCount);
 	      }
@@ -9748,9 +10041,9 @@ var StellarLib =
 	      if (type == 'object') {
 	        return baseMatches(func);
 	      }
-	      return typeof thisArg == 'undefined'
-	        ? baseProperty(func + '')
-	        : baseMatchesProperty(func + '', thisArg);
+	      return thisArg === undefined
+	        ? property(func)
+	        : baseMatchesProperty(func, thisArg);
 	    }
 
 	    /**
@@ -9772,7 +10065,7 @@ var StellarLib =
 	      if (customizer) {
 	        result = object ? customizer(value, key, object) : customizer(value);
 	      }
-	      if (typeof result != 'undefined') {
+	      if (result !== undefined) {
 	        return result;
 	      }
 	      if (!isObject(value)) {
@@ -9791,7 +10084,7 @@ var StellarLib =
 	        if (tag == objectTag || tag == argsTag || (isFunc && !object)) {
 	          result = initCloneObject(isFunc ? {} : value);
 	          if (!isDeep) {
-	            return baseCopy(value, result, keys(value));
+	            return baseAssign(result, value);
 	          }
 	        } else {
 	          return cloneableTags[tag]
@@ -9962,7 +10255,7 @@ var StellarLib =
 	      if (start < 0) {
 	        start = -start > length ? 0 : (length + start);
 	      }
-	      end = (typeof end == 'undefined' || end > length) ? length : (+end || 0);
+	      end = (end === undefined || end > length) ? length : (+end || 0);
 	      if (end < 0) {
 	        end += length;
 	      }
@@ -10059,7 +10352,7 @@ var StellarLib =
 	    /**
 	     * The base implementation of `baseForIn` and `baseForOwn` which iterates
 	     * over `object` properties returned by `keysFunc` invoking `iteratee` for
-	     * each property. Iterator functions may exit iteration early by explicitly
+	     * each property. Iteratee functions may exit iteration early by explicitly
 	     * returning `false`.
 	     *
 	     * @private
@@ -10146,6 +10439,32 @@ var StellarLib =
 	    }
 
 	    /**
+	     * The base implementation of `get` without support for string paths
+	     * and default values.
+	     *
+	     * @private
+	     * @param {Object} object The object to query.
+	     * @param {Array} path The path of the property to get.
+	     * @param {string} [pathKey] The key representation of path.
+	     * @returns {*} Returns the resolved value.
+	     */
+	    function baseGet(object, path, pathKey) {
+	      if (object == null) {
+	        return;
+	      }
+	      if (pathKey !== undefined && pathKey in toObject(object)) {
+	        path = [pathKey];
+	      }
+	      var index = -1,
+	          length = path.length;
+
+	      while (object != null && ++index < length) {
+	        var result = object = object[path[index]];
+	      }
+	      return result;
+	    }
+
+	    /**
 	     * The base implementation of `_.isEqual` without support for `this` binding
 	     * `customizer` functions.
 	     *
@@ -10213,27 +10532,23 @@ var StellarLib =
 	          othIsArr = isTypedArray(other);
 	        }
 	      }
-	      var objIsObj = (objTag == objectTag || (isLoose && objTag == funcTag)),
-	          othIsObj = (othTag == objectTag || (isLoose && othTag == funcTag)),
+	      var objIsObj = objTag == objectTag,
+	          othIsObj = othTag == objectTag,
 	          isSameTag = objTag == othTag;
 
 	      if (isSameTag && !(objIsArr || objIsObj)) {
 	        return equalByTag(object, other, objTag);
 	      }
-	      if (isLoose) {
-	        if (!isSameTag && !(objIsObj && othIsObj)) {
-	          return false;
-	        }
-	      } else {
+	      if (!isLoose) {
 	        var valWrapped = objIsObj && hasOwnProperty.call(object, '__wrapped__'),
 	            othWrapped = othIsObj && hasOwnProperty.call(other, '__wrapped__');
 
 	        if (valWrapped || othWrapped) {
 	          return equalFunc(valWrapped ? object.value() : object, othWrapped ? other.value() : other, customizer, isLoose, stackA, stackB);
 	        }
-	        if (!isSameTag) {
-	          return false;
-	        }
+	      }
+	      if (!isSameTag) {
+	        return false;
 	      }
 	      // Assume cyclic values are equal.
 	      // For more information on detecting circular references see https://es5.github.io/#JO.
@@ -10290,10 +10605,10 @@ var StellarLib =
 	            srcValue = values[index];
 
 	        if (noCustomizer && strictCompareFlags[index]) {
-	          var result = typeof objValue != 'undefined' || (key in object);
+	          var result = objValue !== undefined || (key in object);
 	        } else {
 	          result = customizer ? customizer(objValue, srcValue, key) : undefined;
-	          if (typeof result == 'undefined') {
+	          if (result === undefined) {
 	            result = baseIsEqual(srcValue, objValue, customizer, true);
 	          }
 	        }
@@ -10314,9 +10629,12 @@ var StellarLib =
 	     * @returns {Array} Returns the new mapped array.
 	     */
 	    function baseMap(collection, iteratee) {
-	      var result = [];
+	      var index = -1,
+	          length = getLength(collection),
+	          result = isLength(length) ? Array(length) : [];
+
 	      baseEach(collection, function(value, key, collection) {
-	        result.push(iteratee(value, key, collection));
+	        result[++index] = iteratee(value, key, collection);
 	      });
 	      return result;
 	    }
@@ -10341,8 +10659,10 @@ var StellarLib =
 
 	        if (isStrictComparable(value)) {
 	          return function(object) {
-	            return object != null && object[key] === value &&
-	              (typeof value != 'undefined' || (key in toObject(object)));
+	            if (object == null) {
+	              return false;
+	            }
+	            return object[key] === value && (value !== undefined || (key in toObject(object)));
 	          };
 	        }
 	      }
@@ -10360,23 +10680,37 @@ var StellarLib =
 	    }
 
 	    /**
-	     * The base implementation of `_.matchesProperty` which does not coerce `key`
-	     * to a string.
+	     * The base implementation of `_.matchesProperty` which does not which does
+	     * not clone `value`.
 	     *
 	     * @private
-	     * @param {string} key The key of the property to get.
+	     * @param {string} path The path of the property to get.
 	     * @param {*} value The value to compare.
 	     * @returns {Function} Returns the new function.
 	     */
-	    function baseMatchesProperty(key, value) {
-	      if (isStrictComparable(value)) {
-	        return function(object) {
-	          return object != null && object[key] === value &&
-	            (typeof value != 'undefined' || (key in toObject(object)));
-	        };
-	      }
+	    function baseMatchesProperty(path, value) {
+	      var isArr = isArray(path),
+	          isCommon = isKey(path) && isStrictComparable(value),
+	          pathKey = (path + '');
+
+	      path = toPath(path);
 	      return function(object) {
-	        return object != null && baseIsEqual(value, object[key], null, true);
+	        if (object == null) {
+	          return false;
+	        }
+	        var key = pathKey;
+	        object = toObject(object);
+	        if ((isArr || !isCommon) && !(key in object)) {
+	          object = path.length == 1 ? object : baseGet(object, baseSlice(path, 0, -1));
+	          if (object == null) {
+	            return false;
+	          }
+	          key = last(path);
+	          object = toObject(object);
+	        }
+	        return object[key] === value
+	          ? (value !== undefined || (key in object))
+	          : baseIsEqual(value, object[key], null, true);
 	      };
 	    }
 
@@ -10390,29 +10724,39 @@ var StellarLib =
 	     * @param {Function} [customizer] The function to customize merging properties.
 	     * @param {Array} [stackA=[]] Tracks traversed source objects.
 	     * @param {Array} [stackB=[]] Associates values with source counterparts.
-	     * @returns {Object} Returns the destination object.
+	     * @returns {Object} Returns `object`.
 	     */
 	    function baseMerge(object, source, customizer, stackA, stackB) {
 	      if (!isObject(object)) {
 	        return object;
 	      }
 	      var isSrcArr = isLength(source.length) && (isArray(source) || isTypedArray(source));
-	      (isSrcArr ? arrayEach : baseForOwn)(source, function(srcValue, key, source) {
+	      if (!isSrcArr) {
+	        var props = keys(source);
+	        push.apply(props, getSymbols(source));
+	      }
+	      arrayEach(props || source, function(srcValue, key) {
+	        if (props) {
+	          key = srcValue;
+	          srcValue = source[key];
+	        }
 	        if (isObjectLike(srcValue)) {
 	          stackA || (stackA = []);
 	          stackB || (stackB = []);
-	          return baseMergeDeep(object, source, key, baseMerge, customizer, stackA, stackB);
+	          baseMergeDeep(object, source, key, baseMerge, customizer, stackA, stackB);
 	        }
-	        var value = object[key],
-	            result = customizer ? customizer(value, srcValue, key, object, source) : undefined,
-	            isCommon = typeof result == 'undefined';
+	        else {
+	          var value = object[key],
+	              result = customizer ? customizer(value, srcValue, key, object, source) : undefined,
+	              isCommon = result === undefined;
 
-	        if (isCommon) {
-	          result = srcValue;
-	        }
-	        if ((isSrcArr || typeof result != 'undefined') &&
-	            (isCommon || (result === result ? (result !== value) : (value === value)))) {
-	          object[key] = result;
+	          if (isCommon) {
+	            result = srcValue;
+	          }
+	          if ((isSrcArr || result !== undefined) &&
+	              (isCommon || (result === result ? (result !== value) : (value === value)))) {
+	            object[key] = result;
+	          }
 	        }
 	      });
 	      return object;
@@ -10445,14 +10789,14 @@ var StellarLib =
 	      }
 	      var value = object[key],
 	          result = customizer ? customizer(value, srcValue, key, object, source) : undefined,
-	          isCommon = typeof result == 'undefined';
+	          isCommon = result === undefined;
 
 	      if (isCommon) {
 	        result = srcValue;
 	        if (isLength(srcValue.length) && (isArray(srcValue) || isTypedArray(srcValue))) {
 	          result = isArray(value)
 	            ? value
-	            : ((value && value.length) ? arrayCopy(value) : []);
+	            : (getLength(value) ? arrayCopy(value) : []);
 	        }
 	        else if (isPlainObject(srcValue) || isArguments(srcValue)) {
 	          result = isArguments(value)
@@ -10477,7 +10821,7 @@ var StellarLib =
 	    }
 
 	    /**
-	     * The base implementation of `_.property` which does not coerce `key` to a string.
+	     * The base implementation of `_.property` without support for deep paths.
 	     *
 	     * @private
 	     * @param {string} key The key of the property to get.
@@ -10487,6 +10831,42 @@ var StellarLib =
 	      return function(object) {
 	        return object == null ? undefined : object[key];
 	      };
+	    }
+
+	    /**
+	     * A specialized version of `baseProperty` which supports deep paths.
+	     *
+	     * @private
+	     * @param {Array|string} path The path of the property to get.
+	     * @returns {Function} Returns the new function.
+	     */
+	    function basePropertyDeep(path) {
+	      var pathKey = (path + '');
+	      path = toPath(path);
+	      return function(object) {
+	        return baseGet(object, path, pathKey);
+	      };
+	    }
+
+	    /**
+	     * The base implementation of `_.pullAt` without support for individual
+	     * index arguments and capturing the removed elements.
+	     *
+	     * @private
+	     * @param {Array} array The array to modify.
+	     * @param {number[]} indexes The indexes of elements to remove.
+	     * @returns {Array} Returns `array`.
+	     */
+	    function basePullAt(array, indexes) {
+	      var length = indexes.length;
+	      while (length--) {
+	        var index = parseFloat(indexes[length]);
+	        if (index != previous && isIndex(index)) {
+	          var previous = index;
+	          splice.call(array, index, 1);
+	        }
+	      }
+	      return array;
 	    }
 
 	    /**
@@ -10555,7 +10935,7 @@ var StellarLib =
 	      if (start < 0) {
 	        start = -start > length ? 0 : (length + start);
 	      }
-	      end = (typeof end == 'undefined' || end > length) ? length : (+end || 0);
+	      end = (end === undefined || end > length) ? length : (+end || 0);
 	      if (end < 0) {
 	        end += length;
 	      }
@@ -10614,23 +10994,19 @@ var StellarLib =
 	     *
 	     * @private
 	     * @param {Array|Object|string} collection The collection to iterate over.
-	     * @param {string[]} props The property names to sort by.
-	     * @param {boolean[]} orders The sort orders of `props`.
+	     * @param {Function[]|Object[]|string[]} iteratees The iteratees to sort by.
+	     * @param {boolean[]} orders The sort orders of `iteratees`.
 	     * @returns {Array} Returns the new sorted array.
 	     */
-	    function baseSortByOrder(collection, props, orders) {
-	      var index = -1,
-	          length = collection.length,
-	          result = isLength(length) ? Array(length) : [];
+	    function baseSortByOrder(collection, iteratees, orders) {
+	      var callback = getCallback(),
+	          index = -1;
 
-	      baseEach(collection, function(value) {
-	        var length = props.length,
-	            criteria = Array(length);
+	      iteratees = arrayMap(iteratees, function(iteratee) { return callback(iteratee); });
 
-	        while (length--) {
-	          criteria[length] = value == null ? undefined : value[props[length]];
-	        }
-	        result[++index] = { 'criteria': criteria, 'index': index, 'value': value };
+	      var result = baseMap(collection, function(value) {
+	        var criteria = arrayMap(iteratees, function(iteratee) { return iteratee(value); });
+	        return { 'criteria': criteria, 'index': ++index, 'value': value };
 	      });
 
 	      return baseSortBy(result, function(object, other) {
@@ -10710,7 +11086,7 @@ var StellarLib =
 	    /**
 	     * The base implementation of `_.values` and `_.valuesIn` which creates an
 	     * array of `object` property values corresponding to the property names
-	     * returned by `keysFunc`.
+	     * of `props`.
 	     *
 	     * @private
 	     * @param {Object} object The object to query.
@@ -10827,7 +11203,7 @@ var StellarLib =
 	      var low = 0,
 	          high = array ? array.length : 0,
 	          valIsNaN = value !== value,
-	          valIsUndef = typeof value == 'undefined';
+	          valIsUndef = value === undefined;
 
 	      while (low < high) {
 	        var mid = floor((low + high) / 2),
@@ -10837,7 +11213,7 @@ var StellarLib =
 	        if (valIsNaN) {
 	          var setLow = isReflexive || retHighest;
 	        } else if (valIsUndef) {
-	          setLow = isReflexive && (retHighest || typeof computed != 'undefined');
+	          setLow = isReflexive && (retHighest || computed !== undefined);
 	        } else {
 	          setLow = retHighest ? (computed <= value) : (computed < value);
 	        }
@@ -10864,7 +11240,7 @@ var StellarLib =
 	      if (typeof func != 'function') {
 	        return identity;
 	      }
-	      if (typeof thisArg == 'undefined') {
+	      if (thisArg === undefined) {
 	        return func;
 	      }
 	      switch (argCount) {
@@ -11024,38 +11400,32 @@ var StellarLib =
 	     * @returns {Function} Returns the new assigner function.
 	     */
 	    function createAssigner(assigner) {
-	      return function() {
-	        var args = arguments,
-	            length = args.length,
-	            object = args[0];
+	      return restParam(function(object, sources) {
+	        var index = -1,
+	            length = object == null ? 0 : sources.length,
+	            customizer = length > 2 && sources[length - 2],
+	            guard = length > 2 && sources[2],
+	            thisArg = length > 1 && sources[length - 1];
 
-	        if (length < 2 || object == null) {
-	          return object;
-	        }
-	        var customizer = args[length - 2],
-	            thisArg = args[length - 1],
-	            guard = args[3];
-
-	        if (length > 3 && typeof customizer == 'function') {
+	        if (typeof customizer == 'function') {
 	          customizer = bindCallback(customizer, thisArg, 5);
 	          length -= 2;
 	        } else {
-	          customizer = (length > 2 && typeof thisArg == 'function') ? thisArg : null;
+	          customizer = typeof thisArg == 'function' ? thisArg : null;
 	          length -= (customizer ? 1 : 0);
 	        }
-	        if (guard && isIterateeCall(args[1], args[2], guard)) {
-	          customizer = length == 3 ? null : customizer;
-	          length = 2;
+	        if (guard && isIterateeCall(sources[0], sources[1], guard)) {
+	          customizer = length < 3 ? null : customizer;
+	          length = 1;
 	        }
-	        var index = 0;
 	        while (++index < length) {
-	          var source = args[index];
+	          var source = sources[index];
 	          if (source) {
 	            assigner(object, source, customizer);
 	          }
 	        }
 	        return object;
-	      };
+	      });
 	    }
 
 	    /**
@@ -11068,7 +11438,7 @@ var StellarLib =
 	     */
 	    function createBaseEach(eachFunc, fromRight) {
 	      return function(collection, iteratee) {
-	        var length = collection ? collection.length : 0;
+	        var length = collection ? getLength(collection) : 0;
 	        if (!isLength(length)) {
 	          return eachFunc(collection, iteratee);
 	        }
@@ -11345,7 +11715,7 @@ var StellarLib =
 	     */
 	    function createForEach(arrayFunc, eachFunc) {
 	      return function(collection, iteratee, thisArg) {
-	        return (typeof iteratee == 'function' && typeof thisArg == 'undefined' && isArray(collection))
+	        return (typeof iteratee == 'function' && thisArg === undefined && isArray(collection))
 	          ? arrayFunc(collection, iteratee)
 	          : eachFunc(collection, bindCallback(iteratee, thisArg, 3));
 	      };
@@ -11360,7 +11730,7 @@ var StellarLib =
 	     */
 	    function createForIn(objectFunc) {
 	      return function(object, iteratee, thisArg) {
-	        if (typeof iteratee != 'function' || typeof thisArg != 'undefined') {
+	        if (typeof iteratee != 'function' || thisArg !== undefined) {
 	          iteratee = bindCallback(iteratee, thisArg, 3);
 	        }
 	        return objectFunc(object, iteratee, keysIn);
@@ -11376,7 +11746,7 @@ var StellarLib =
 	     */
 	    function createForOwn(objectFunc) {
 	      return function(object, iteratee, thisArg) {
-	        if (typeof iteratee != 'function' || typeof thisArg != 'undefined') {
+	        if (typeof iteratee != 'function' || thisArg !== undefined) {
 	          iteratee = bindCallback(iteratee, thisArg, 3);
 	        }
 	        return objectFunc(object, iteratee);
@@ -11423,7 +11793,7 @@ var StellarLib =
 	    function createReduce(arrayFunc, eachFunc) {
 	      return function(collection, iteratee, accumulator, thisArg) {
 	        var initFromArray = arguments.length < 3;
-	        return (typeof iteratee == 'function' && typeof thisArg == 'undefined' && isArray(collection))
+	        return (typeof iteratee == 'function' && thisArg === undefined && isArray(collection))
 	          ? arrayFunc(collection, iteratee, accumulator, initFromArray)
 	          : baseReduce(collection, getCallback(iteratee, thisArg, 4), accumulator, initFromArray, eachFunc);
 	      };
@@ -11692,7 +12062,7 @@ var StellarLib =
 	            ? customizer(othValue, arrValue, index)
 	            : customizer(arrValue, othValue, index);
 	        }
-	        if (typeof result == 'undefined') {
+	        if (result === undefined) {
 	          // Recursively compare arrays (susceptible to call stack limits).
 	          if (isLoose) {
 	            var othIndex = othLength;
@@ -11791,7 +12161,7 @@ var StellarLib =
 	              ? customizer(othValue, objValue, key)
 	              : customizer(objValue, othValue, key);
 	          }
-	          if (typeof result == 'undefined') {
+	          if (result === undefined) {
 	            // Recursively compare objects (susceptible to call stack limits).
 	            result = (objValue && objValue === othValue) || equalFunc(objValue, othValue, customizer, isLoose, stackA, stackB);
 	          }
@@ -11917,6 +12287,29 @@ var StellarLib =
 	    }
 
 	    /**
+	     * Gets the "length" property value of `object`.
+	     *
+	     * **Note:** This function is used to avoid a [JIT bug](https://bugs.webkit.org/show_bug.cgi?id=142792)
+	     * in Safari on iOS 8.1 ARM64.
+	     *
+	     * @private
+	     * @param {Object} object The object to query.
+	     * @returns {*} Returns the "length" value.
+	     */
+	    var getLength = baseProperty('length');
+
+	    /**
+	     * Creates an array of the own symbols of `object`.
+	     *
+	     * @private
+	     * @param {Object} object The object to query.
+	     * @returns {Array} Returns the array of symbols.
+	     */
+	    var getSymbols = !getOwnPropertySymbols ? constant([]) : function(object) {
+	      return getOwnPropertySymbols(toObject(object));
+	    };
+
+	    /**
 	     * Gets the view, applying any `transforms` to the `start` and `end` positions.
 	     *
 	     * @private
@@ -11984,7 +12377,6 @@ var StellarLib =
 	     * **Note:** This function only supports cloning values with tags of
 	     * `Boolean`, `Date`, `Error`, `Number`, `RegExp`, or `String`.
 	     *
-	     *
 	     * @private
 	     * @param {Object} object The object to clone.
 	     * @param {string} tag The `toStringTag` of the object to clone.
@@ -12019,6 +12411,25 @@ var StellarLib =
 	    }
 
 	    /**
+	     * Invokes the method at `path` on `object`.
+	     *
+	     * @private
+	     * @param {Object} object The object to query.
+	     * @param {Array|string} path The path of the method to invoke.
+	     * @param {Array} args The arguments to invoke the method with.
+	     * @returns {*} Returns the result of the invoked method.
+	     */
+	    function invokePath(object, path, args) {
+	      if (object != null && !isKey(path, object)) {
+	        path = toPath(path);
+	        object = path.length == 1 ? object : baseGet(object, baseSlice(path, 0, -1));
+	        path = last(path);
+	      }
+	      var func = object == null ? object : object[path];
+	      return func == null ? undefined : func.apply(object, args);
+	    }
+
+	    /**
 	     * Checks if `value` is a valid array-like index.
 	     *
 	     * @private
@@ -12047,7 +12458,7 @@ var StellarLib =
 	      }
 	      var type = typeof index;
 	      if (type == 'number') {
-	        var length = object.length,
+	        var length = getLength(object),
 	            prereq = isLength(length) && isIndex(index, length);
 	      } else {
 	        prereq = type == 'string' && index in object;
@@ -12057,6 +12468,26 @@ var StellarLib =
 	        return value === value ? (value === other) : (other !== other);
 	      }
 	      return false;
+	    }
+
+	    /**
+	     * Checks if `value` is a property name and not a property path.
+	     *
+	     * @private
+	     * @param {*} value The value to check.
+	     * @param {Object} [object] The object to query keys on.
+	     * @returns {boolean} Returns `true` if `value` is a property name, else `false`.
+	     */
+	    function isKey(value, object) {
+	      var type = typeof value;
+	      if ((type == 'string' && reIsPlainProp.test(value)) || type == 'number') {
+	        return true;
+	      }
+	      if (isArray(value)) {
+	        return false;
+	      }
+	      var result = !reIsDeepProp.test(value);
+	      return result || (object != null && value in toObject(object));
 	    }
 
 	    /**
@@ -12168,7 +12599,7 @@ var StellarLib =
 
 	    /**
 	     * A specialized version of `_.pick` that picks `object` properties specified
-	     * by the `props` array.
+	     * by `props`.
 	     *
 	     * @private
 	     * @param {Object} object The source object.
@@ -12294,7 +12725,7 @@ var StellarLib =
 	      baseForIn(value, function(subValue, key) {
 	        result = key;
 	      });
-	      return typeof result == 'undefined' || hasOwnProperty.call(value, result);
+	      return result === undefined || hasOwnProperty.call(value, result);
 	    }
 
 	    /**
@@ -12302,7 +12733,7 @@ var StellarLib =
 	     * own enumerable property names of `object`.
 	     *
 	     * @private
-	     * @param {Object} object The object to inspect.
+	     * @param {Object} object The object to query.
 	     * @returns {Array} Returns the array of property names.
 	     */
 	    function shimKeys(object) {
@@ -12337,7 +12768,7 @@ var StellarLib =
 	      if (value == null) {
 	        return [];
 	      }
-	      if (!isLength(value.length)) {
+	      if (!isLength(getLength(value))) {
 	        return values(value);
 	      }
 	      return isObject(value) ? value : Object(value);
@@ -12352,6 +12783,24 @@ var StellarLib =
 	     */
 	    function toObject(value) {
 	      return isObject(value) ? value : Object(value);
+	    }
+
+	    /**
+	     * Converts `value` to property path array if it is not one.
+	     *
+	     * @private
+	     * @param {*} value The value to process.
+	     * @returns {Array} Returns the property path array.
+	     */
+	    function toPath(value) {
+	      if (isArray(value)) {
+	        return value;
+	      }
+	      var result = [];
+	      baseToString(value).replace(rePropName, function(match, number, quote, string) {
+	        result.push(quote ? string.replace(reEscapeChar, '$1') : (number || match));
+	      });
+	      return result;
 	    }
 
 	    /**
@@ -12938,7 +13387,8 @@ var StellarLib =
 	          argsLength = arguments.length,
 	          caches = [],
 	          indexOf = getIndexOf(),
-	          isCommon = indexOf == baseIndexOf;
+	          isCommon = indexOf == baseIndexOf,
+	          result = [];
 
 	      while (++argsIndex < argsLength) {
 	        var value = arguments[argsIndex];
@@ -12948,10 +13398,12 @@ var StellarLib =
 	        }
 	      }
 	      argsLength = args.length;
+	      if (argsLength < 2) {
+	        return result;
+	      }
 	      var array = args[0],
 	          index = -1,
 	          length = array ? array.length : 0,
-	          result = [],
 	          seen = caches[0];
 
 	      outer:
@@ -13119,17 +13571,8 @@ var StellarLib =
 	      array || (array = []);
 	      indexes = baseFlatten(indexes);
 
-	      var length = indexes.length,
-	          result = baseAt(array, indexes);
-
-	      indexes.sort(baseCompareAscending);
-	      while (length--) {
-	        var index = parseFloat(indexes[length]);
-	        if (index != previous && isIndex(index)) {
-	          var previous = index;
-	          splice.call(array, index, 1);
-	        }
-	      }
+	      var result = baseAt(array, indexes);
+	      basePullAt(array, indexes.sort(baseCompareAscending));
 	      return result;
 	    });
 
@@ -13173,19 +13616,23 @@ var StellarLib =
 	     * // => [2, 4]
 	     */
 	    function remove(array, predicate, thisArg) {
+	      var result = [];
+	      if (!(array && array.length)) {
+	        return result;
+	      }
 	      var index = -1,
-	          length = array ? array.length : 0,
-	          result = [];
+	          indexes = [],
+	          length = array.length;
 
 	      predicate = getCallback(predicate, thisArg, 3);
 	      while (++index < length) {
 	        var value = array[index];
 	        if (predicate(value, index, array)) {
 	          result.push(value);
-	          splice.call(array, index--, 1);
-	          length--;
+	          indexes.push(index);
 	        }
 	      }
+	      basePullAt(array, indexes);
 	      return result;
 	    }
 
@@ -13210,7 +13657,7 @@ var StellarLib =
 	    /**
 	     * Creates a slice of `array` from `start` up to, but not including, `end`.
 	     *
-	     * **Note:** This function is used instead of `Array#slice` to support node
+	     * **Note:** This method is used instead of `Array#slice` to support node
 	     * lists in IE < 9 and to ensure dense arrays are returned.
 	     *
 	     * @static
@@ -13509,12 +13956,13 @@ var StellarLib =
 	    });
 
 	    /**
-	     * Creates a duplicate-value-free version of an array using `SameValueZero`
-	     * for equality comparisons. Providing `true` for `isSorted` performs a faster
-	     * search algorithm for sorted arrays. If an iteratee function is provided it
-	     * is invoked for each value in the array to generate the criterion by which
-	     * uniqueness is computed. The `iteratee` is bound to `thisArg` and invoked
-	     * with three arguments: (value, index, array).
+	     * Creates a duplicate-free version of an array, using `SameValueZero` for
+	     * equality comparisons, in which only the first occurence of each element
+	     * is kept. Providing `true` for `isSorted` performs a faster search algorithm
+	     * for sorted arrays. If an iteratee function is provided it is invoked for
+	     * each element in the array to generate the criterion by which uniqueness
+	     * is computed. The `iteratee` is bound to `thisArg` and invoked with three
+	     * arguments: (value, index, array).
 	     *
 	     * If a property name is provided for `iteratee` the created `_.property`
 	     * style callback returns the property value of the given element.
@@ -13542,8 +13990,8 @@ var StellarLib =
 	     * @returns {Array} Returns the new duplicate-value-free array.
 	     * @example
 	     *
-	     * _.uniq([1, 2, 1]);
-	     * // => [1, 2]
+	     * _.uniq([2, 1, 2]);
+	     * // => [2, 1]
 	     *
 	     * // using `isSorted`
 	     * _.uniq([1, 1, 2], true);
@@ -13993,7 +14441,7 @@ var StellarLib =
 	     * // => ['barney', 'pebbles']
 	     */
 	    var at = restParam(function(collection, props) {
-	      var length = collection ? collection.length : 0;
+	      var length = collection ? getLength(collection) : 0;
 	      if (isLength(length)) {
 	        collection = toIterable(collection);
 	      }
@@ -14098,7 +14546,7 @@ var StellarLib =
 	      if (thisArg && isIterateeCall(collection, predicate, thisArg)) {
 	        predicate = null;
 	      }
-	      if (typeof predicate != 'function' || typeof thisArg != 'undefined') {
+	      if (typeof predicate != 'function' || thisArg !== undefined) {
 	        predicate = getCallback(predicate, thisArg, 3);
 	      }
 	      return func(collection, predicate);
@@ -14268,10 +14716,10 @@ var StellarLib =
 	    /**
 	     * Iterates over elements of `collection` invoking `iteratee` for each element.
 	     * The `iteratee` is bound to `thisArg` and invoked with three arguments:
-	     * (value, index|key, collection). Iterator functions may exit iteration early
+	     * (value, index|key, collection). Iteratee functions may exit iteration early
 	     * by explicitly returning `false`.
 	     *
-	     * **Note:** As with other "Collections" methods, objects with a `length` property
+	     * **Note:** As with other "Collections" methods, objects with a "length" property
 	     * are iterated like arrays. To avoid this behavior `_.forIn` or `_.forOwn`
 	     * may be used for object iteration.
 	     *
@@ -14401,7 +14849,7 @@ var StellarLib =
 	     * // => true
 	     */
 	    function includes(collection, target, fromIndex, guard) {
-	      var length = collection ? collection.length : 0;
+	      var length = collection ? getLength(collection) : 0;
 	      if (!isLength(length)) {
 	        collection = values(collection);
 	        length = collection.length;
@@ -14470,16 +14918,16 @@ var StellarLib =
 	    });
 
 	    /**
-	     * Invokes the method named by `methodName` on each element in `collection`,
-	     * returning an array of the results of each invoked method. Any additional
-	     * arguments are provided to each invoked method. If `methodName` is a function
-	     * it is invoked for, and `this` bound to, each element in `collection`.
+	     * Invokes the method at `path` on each element in `collection`, returning
+	     * an array of the results of each invoked method. Any additional arguments
+	     * are provided to each invoked method. If `methodName` is a function it is
+	     * invoked for, and `this` bound to, each element in `collection`.
 	     *
 	     * @static
 	     * @memberOf _
 	     * @category Collection
 	     * @param {Array|Object|string} collection The collection to iterate over.
-	     * @param {Function|string} methodName The name of the method to invoke or
+	     * @param {Array|Function|string} path The path of the method to invoke or
 	     *  the function invoked per iteration.
 	     * @param {...*} [args] The arguments to invoke the method with.
 	     * @returns {Array} Returns the array of results.
@@ -14491,15 +14939,16 @@ var StellarLib =
 	     * _.invoke([123, 456], String.prototype.split, '');
 	     * // => [['1', '2', '3'], ['4', '5', '6']]
 	     */
-	    var invoke = restParam(function(collection, methodName, args) {
+	    var invoke = restParam(function(collection, path, args) {
 	      var index = -1,
-	          isFunc = typeof methodName == 'function',
-	          length = collection ? collection.length : 0,
+	          isFunc = typeof path == 'function',
+	          isProp = isKey(path),
+	          length = getLength(collection),
 	          result = isLength(length) ? Array(length) : [];
 
 	      baseEach(collection, function(value) {
-	        var func = isFunc ? methodName : (value != null && value[methodName]);
-	        result[++index] = func ? func.apply(value, args) : undefined;
+	        var func = isFunc ? path : (isProp && value != null && value[path]);
+	        result[++index] = func ? func.apply(value, args) : invokePath(value, path, args);
 	      });
 	      return result;
 	    });
@@ -14536,7 +14985,6 @@ var StellarLib =
 	     * @param {Array|Object|string} collection The collection to iterate over.
 	     * @param {Function|Object|string} [iteratee=_.identity] The function invoked
 	     *  per iteration.
-	     *  create a `_.property` or `_.matches` style callback respectively.
 	     * @param {*} [thisArg] The `this` binding of `iteratee`.
 	     * @returns {Array} Returns the new mapped array.
 	     * @example
@@ -14630,13 +15078,13 @@ var StellarLib =
 	    }, function() { return [[], []]; });
 
 	    /**
-	     * Gets the value of `key` from all elements in `collection`.
+	     * Gets the property value of `path` from all elements in `collection`.
 	     *
 	     * @static
 	     * @memberOf _
 	     * @category Collection
 	     * @param {Array|Object|string} collection The collection to iterate over.
-	     * @param {string} key The key of the property to pluck.
+	     * @param {Array|string} path The path of the property to pluck.
 	     * @returns {Array} Returns the property values.
 	     * @example
 	     *
@@ -14652,8 +15100,8 @@ var StellarLib =
 	     * _.pluck(userIndex, 'age');
 	     * // => [36, 40] (iteration order is not guaranteed)
 	     */
-	    function pluck(collection, key) {
-	      return map(collection, baseProperty(key));
+	    function pluck(collection, path) {
+	      return map(collection, property(path));
 	    }
 
 	    /**
@@ -14681,8 +15129,8 @@ var StellarLib =
 	     * @returns {*} Returns the accumulated value.
 	     * @example
 	     *
-	     * _.reduce([1, 2], function(sum, n) {
-	     *   return sum + n;
+	     * _.reduce([1, 2], function(total, n) {
+	     *   return total + n;
 	     * });
 	     * // => 3
 	     *
@@ -14854,7 +15302,7 @@ var StellarLib =
 	     * // => 7
 	     */
 	    function size(collection) {
-	      var length = collection ? collection.length : 0;
+	      var length = collection ? getLength(collection) : 0;
 	      return isLength(length) ? length : keys(collection).length;
 	    }
 
@@ -14912,7 +15360,7 @@ var StellarLib =
 	      if (thisArg && isIterateeCall(collection, predicate, thisArg)) {
 	        predicate = null;
 	      }
-	      if (typeof predicate != 'function' || typeof thisArg != 'undefined') {
+	      if (typeof predicate != 'function' || thisArg !== undefined) {
 	        predicate = getCallback(predicate, thisArg, 3);
 	      }
 	      return func(collection, predicate);
@@ -14940,9 +15388,8 @@ var StellarLib =
 	     * @memberOf _
 	     * @category Collection
 	     * @param {Array|Object|string} collection The collection to iterate over.
-	     * @param {Array|Function|Object|string} [iteratee=_.identity] The function
-	     *  invoked per iteration. If a property name or an object is provided it is
-	     *  used to create a `_.property` or `_.matches` style callback respectively.
+	     * @param {Function|Object|string} [iteratee=_.identity] The function invoked
+	     *  per iteration.
 	     * @param {*} [thisArg] The `this` binding of `iteratee`.
 	     * @returns {Array} Returns the new sorted array.
 	     * @example
@@ -14971,104 +15418,112 @@ var StellarLib =
 	      if (collection == null) {
 	        return [];
 	      }
-	      var index = -1,
-	          length = collection.length,
-	          result = isLength(length) ? Array(length) : [];
-
 	      if (thisArg && isIterateeCall(collection, iteratee, thisArg)) {
 	        iteratee = null;
 	      }
+	      var index = -1;
 	      iteratee = getCallback(iteratee, thisArg, 3);
-	      baseEach(collection, function(value, key, collection) {
-	        result[++index] = { 'criteria': iteratee(value, key, collection), 'index': index, 'value': value };
+
+	      var result = baseMap(collection, function(value, key, collection) {
+	        return { 'criteria': iteratee(value, key, collection), 'index': ++index, 'value': value };
 	      });
 	      return baseSortBy(result, compareAscending);
 	    }
 
 	    /**
-	     * This method is like `_.sortBy` except that it sorts by property names
-	     * instead of an iteratee function.
+	     * This method is like `_.sortBy` except that it can sort by multiple iteratees
+	     * or property names.
+	     *
+	     * If a property name is provided for an iteratee the created `_.property`
+	     * style callback returns the property value of the given element.
+	     *
+	     * If an object is provided for an iteratee the created `_.matches` style
+	     * callback returns `true` for elements that have the properties of the given
+	     * object, else `false`.
 	     *
 	     * @static
 	     * @memberOf _
 	     * @category Collection
 	     * @param {Array|Object|string} collection The collection to iterate over.
-	     * @param {...(string|string[])} props The property names to sort by,
-	     *  specified as individual property names or arrays of property names.
+	     * @param {...(Function|Function[]|Object|Object[]|string|string[])} iteratees
+	     *  The iteratees to sort by, specified as individual values or arrays of values.
 	     * @returns {Array} Returns the new sorted array.
 	     * @example
 	     *
 	     * var users = [
+	     *   { 'user': 'fred',   'age': 48 },
 	     *   { 'user': 'barney', 'age': 36 },
-	     *   { 'user': 'fred',   'age': 40 },
-	     *   { 'user': 'barney', 'age': 26 },
-	     *   { 'user': 'fred',   'age': 30 }
+	     *   { 'user': 'fred',   'age': 42 },
+	     *   { 'user': 'barney', 'age': 34 }
 	     * ];
 	     *
 	     * _.map(_.sortByAll(users, ['user', 'age']), _.values);
-	     * // => [['barney', 26], ['barney', 36], ['fred', 30], ['fred', 40]]
+	     * // => [['barney', 34], ['barney', 36], ['fred', 42], ['fred', 48]]
+	     *
+	     * _.map(_.sortByAll(users, 'user', function(chr) {
+	     *   return Math.floor(chr.age / 10);
+	     * }), _.values);
+	     * // => [['barney', 36], ['barney', 34], ['fred', 48], ['fred', 42]]
 	     */
-	    function sortByAll() {
-	      var args = arguments,
-	          collection = args[0],
-	          guard = args[3],
-	          index = 0,
-	          length = args.length - 1;
-
+	    var sortByAll = restParam(function(collection, iteratees) {
 	      if (collection == null) {
 	        return [];
 	      }
-	      var props = Array(length);
-	      while (index < length) {
-	        props[index] = args[++index];
+	      var guard = iteratees[2];
+	      if (guard && isIterateeCall(iteratees[0], iteratees[1], guard)) {
+	        iteratees.length = 1;
 	      }
-	      if (guard && isIterateeCall(args[1], args[2], guard)) {
-	        props = args[1];
-	      }
-	      return baseSortByOrder(collection, baseFlatten(props), []);
-	    }
+	      return baseSortByOrder(collection, baseFlatten(iteratees), []);
+	    });
 
 	    /**
 	     * This method is like `_.sortByAll` except that it allows specifying the
-	     * sort orders of the property names to sort by. A truthy value in `orders`
-	     * will sort the corresponding property name in ascending order while a
-	     * falsey value will sort it in descending order.
+	     * sort orders of the iteratees to sort by. A truthy value in `orders` will
+	     * sort the corresponding property name in ascending order while a falsey
+	     * value will sort it in descending order.
+	     *
+	     * If a property name is provided for an iteratee the created `_.property`
+	     * style callback returns the property value of the given element.
+	     *
+	     * If an object is provided for an iteratee the created `_.matches` style
+	     * callback returns `true` for elements that have the properties of the given
+	     * object, else `false`.
 	     *
 	     * @static
 	     * @memberOf _
 	     * @category Collection
 	     * @param {Array|Object|string} collection The collection to iterate over.
-	     * @param {string[]} props The property names to sort by.
-	     * @param {boolean[]} orders The sort orders of `props`.
+	     * @param {Function[]|Object[]|string[]} iteratees The iteratees to sort by.
+	     * @param {boolean[]} orders The sort orders of `iteratees`.
 	     * @param- {Object} [guard] Enables use as a callback for functions like `_.reduce`.
 	     * @returns {Array} Returns the new sorted array.
 	     * @example
 	     *
 	     * var users = [
-	     *   { 'user': 'barney', 'age': 26 },
-	     *   { 'user': 'fred',   'age': 40 },
-	     *   { 'user': 'barney', 'age': 36 },
-	     *   { 'user': 'fred',   'age': 30 }
+	     *   { 'user': 'fred',   'age': 48 },
+	     *   { 'user': 'barney', 'age': 34 },
+	     *   { 'user': 'fred',   'age': 42 },
+	     *   { 'user': 'barney', 'age': 36 }
 	     * ];
 	     *
 	     * // sort by `user` in ascending order and by `age` in descending order
 	     * _.map(_.sortByOrder(users, ['user', 'age'], [true, false]), _.values);
-	     * // => [['barney', 36], ['barney', 26], ['fred', 40], ['fred', 30]]
+	     * // => [['barney', 36], ['barney', 34], ['fred', 48], ['fred', 42]]
 	     */
-	    function sortByOrder(collection, props, orders, guard) {
+	    function sortByOrder(collection, iteratees, orders, guard) {
 	      if (collection == null) {
 	        return [];
 	      }
-	      if (guard && isIterateeCall(props, orders, guard)) {
+	      if (guard && isIterateeCall(iteratees, orders, guard)) {
 	        orders = null;
 	      }
-	      if (!isArray(props)) {
-	        props = props == null ? [] : [props];
+	      if (!isArray(iteratees)) {
+	        iteratees = iteratees == null ? [] : [iteratees];
 	      }
 	      if (!isArray(orders)) {
 	        orders = orders == null ? [] : [orders];
 	      }
-	      return baseSortByOrder(collection, props, orders);
+	      return baseSortByOrder(collection, iteratees, orders);
 	    }
 
 	    /**
@@ -15221,7 +15676,8 @@ var StellarLib =
 	      return function() {
 	        if (--n > 0) {
 	          result = func.apply(this, arguments);
-	        } else {
+	        }
+	        if (n <= 1) {
 	          func = null;
 	        }
 	        return result;
@@ -15236,7 +15692,7 @@ var StellarLib =
 	     * The `_.bind.placeholder` value, which defaults to `_` in monolithic builds,
 	     * may be used as a placeholder for partially applied arguments.
 	     *
-	     * **Note:** Unlike native `Function#bind` this method does not set the `length`
+	     * **Note:** Unlike native `Function#bind` this method does not set the "length"
 	     * property of bound functions.
 	     *
 	     * @static
@@ -15278,7 +15734,7 @@ var StellarLib =
 	     * of method names. If no method names are provided all enumerable function
 	     * properties, own and inherited, of `object` are bound.
 	     *
-	     * **Note:** This method does not set the `length` property of bound functions.
+	     * **Note:** This method does not set the "length" property of bound functions.
 	     *
 	     * @static
 	     * @memberOf _
@@ -15319,7 +15775,7 @@ var StellarLib =
 	     *
 	     * This method differs from `_.bind` by allowing bound functions to reference
 	     * methods that may be redefined or don't yet exist.
-	     * See [Peter Michaux's article](http://michaux.ca/articles/lazy-function-definition-pattern)
+	     * See [Peter Michaux's article](http://peter.michaux.ca/articles/lazy-function-definition-pattern)
 	     * for more details.
 	     *
 	     * The `_.bindKey.placeholder` value, which defaults to `_` in monolithic
@@ -15376,7 +15832,7 @@ var StellarLib =
 	     * The `_.curry.placeholder` value, which defaults to `_` in monolithic builds,
 	     * may be used as a placeholder for provided arguments.
 	     *
-	     * **Note:** This method does not set the `length` property of curried functions.
+	     * **Note:** This method does not set the "length" property of curried functions.
 	     *
 	     * @static
 	     * @memberOf _
@@ -15415,7 +15871,7 @@ var StellarLib =
 	     * The `_.curryRight.placeholder` value, which defaults to `_` in monolithic
 	     * builds, may be used as a placeholder for provided arguments.
 	     *
-	     * **Note:** This method does not set the `length` property of curried functions.
+	     * **Note:** This method does not set the "length" property of curried functions.
 	     *
 	     * @static
 	     * @memberOf _
@@ -15827,7 +16283,7 @@ var StellarLib =
 	     * // `initialize` invokes `createApplication` once
 	     */
 	    function once(func) {
-	      return before(func, 2);
+	      return before(2, func);
 	    }
 
 	    /**
@@ -15838,7 +16294,7 @@ var StellarLib =
 	     * The `_.partial.placeholder` value, which defaults to `_` in monolithic
 	     * builds, may be used as a placeholder for partially applied arguments.
 	     *
-	     * **Note:** This method does not set the `length` property of partially
+	     * **Note:** This method does not set the "length" property of partially
 	     * applied functions.
 	     *
 	     * @static
@@ -15871,7 +16327,7 @@ var StellarLib =
 	     * The `_.partialRight.placeholder` value, which defaults to `_` in monolithic
 	     * builds, may be used as a placeholder for partially applied arguments.
 	     *
-	     * **Note:** This method does not set the `length` property of partially
+	     * **Note:** This method does not set the "length" property of partially
 	     * applied functions.
 	     *
 	     * @static
@@ -15955,7 +16411,7 @@ var StellarLib =
 	      if (typeof func != 'function') {
 	        throw new TypeError(FUNC_ERROR_TEXT);
 	      }
-	      start = nativeMax(typeof start == 'undefined' ? (func.length - 1) : (+start || 0), 0);
+	      start = nativeMax(start === undefined ? (func.length - 1) : (+start || 0), 0);
 	      return function() {
 	        var args = arguments,
 	            index = -1,
@@ -16359,7 +16815,7 @@ var StellarLib =
 	      if (value == null) {
 	        return true;
 	      }
-	      var length = value.length;
+	      var length = getLength(value);
 	      if (isLength(length) && (isArray(value) || isString(value) || isArguments(value) ||
 	          (isObjectLike(value) && isFunction(value.splice)))) {
 	        return !length;
@@ -16385,7 +16841,7 @@ var StellarLib =
 	     * @category Lang
 	     * @param {*} value The value to compare.
 	     * @param {*} other The other value to compare.
-	     * @param {Function} [customizer] The function to customize comparing values.
+	     * @param {Function} [customizer] The function to customize value comparisons.
 	     * @param {*} [thisArg] The `this` binding of `customizer`.
 	     * @returns {boolean} Returns `true` if the values are equivalent, else `false`.
 	     * @example
@@ -16416,7 +16872,7 @@ var StellarLib =
 	        return value === other;
 	      }
 	      var result = customizer ? customizer(value, other) : undefined;
-	      return typeof result == 'undefined' ? baseIsEqual(value, other, customizer) : !!result;
+	      return result === undefined ? baseIsEqual(value, other, customizer) : !!result;
 	    }
 
 	    /**
@@ -16538,7 +16994,7 @@ var StellarLib =
 	     * @category Lang
 	     * @param {Object} object The object to inspect.
 	     * @param {Object} source The object of property values to match.
-	     * @param {Function} [customizer] The function to customize comparing values.
+	     * @param {Function} [customizer] The function to customize value comparisons.
 	     * @param {*} [thisArg] The `this` binding of `customizer`.
 	     * @returns {boolean} Returns `true` if `object` is a match, else `false`.
 	     * @example
@@ -16571,12 +17027,13 @@ var StellarLib =
 	        return false;
 	      }
 	      customizer = typeof customizer == 'function' && bindCallback(customizer, thisArg, 3);
+	      object = toObject(object);
 	      if (!customizer && length == 1) {
 	        var key = props[0],
 	            value = source[key];
 
 	        if (isStrictComparable(value)) {
-	          return value === object[key] && (typeof value != 'undefined' || (key in toObject(object)));
+	          return value === object[key] && (value !== undefined || (key in object));
 	        }
 	      }
 	      var values = Array(length),
@@ -16586,7 +17043,7 @@ var StellarLib =
 	        value = values[length] = source[props[length]];
 	        strictCompareFlags[length] = isStrictComparable(value);
 	      }
-	      return baseIsMatch(toObject(object), props, values, strictCompareFlags, customizer);
+	      return baseIsMatch(object, props, values, strictCompareFlags, customizer);
 	    }
 
 	    /**
@@ -16641,9 +17098,9 @@ var StellarLib =
 	        return false;
 	      }
 	      if (objToString.call(value) == funcTag) {
-	        return reNative.test(fnToString.call(value));
+	        return reIsNative.test(fnToString.call(value));
 	      }
-	      return isObjectLike(value) && reHostCtor.test(value);
+	      return isObjectLike(value) && reIsHostCtor.test(value);
 	    }
 
 	    /**
@@ -16811,7 +17268,7 @@ var StellarLib =
 	     * // => false
 	     */
 	    function isUndefined(value) {
-	      return typeof value == 'undefined';
+	      return value === undefined;
 	    }
 
 	    /**
@@ -16830,7 +17287,7 @@ var StellarLib =
 	     * // => [2, 3]
 	     */
 	    function toArray(value) {
-	      var length = value ? value.length : 0;
+	      var length = value ? getLength(value) : 0;
 	      if (!isLength(length)) {
 	        return values(value);
 	      }
@@ -16876,13 +17333,17 @@ var StellarLib =
 	     * The `customizer` is bound to `thisArg` and invoked with five arguments:
 	     * (objectValue, sourceValue, key, object, source).
 	     *
+	     * **Note:** This method mutates `object` and is based on
+	     * [`Object.assign`](https://people.mozilla.org/~jorendorff/es6-draft.html#sec-object.assign).
+	     *
+	     *
 	     * @static
 	     * @memberOf _
 	     * @alias extend
 	     * @category Object
 	     * @param {Object} object The destination object.
 	     * @param {...Object} [sources] The source objects.
-	     * @param {Function} [customizer] The function to customize assigning values.
+	     * @param {Function} [customizer] The function to customize assigned values.
 	     * @param {*} [thisArg] The `this` binding of `customizer`.
 	     * @returns {Object} Returns `object`.
 	     * @example
@@ -16892,13 +17353,17 @@ var StellarLib =
 	     *
 	     * // using a customizer callback
 	     * var defaults = _.partialRight(_.assign, function(value, other) {
-	     *   return typeof value == 'undefined' ? other : value;
+	     *   return _.isUndefined(value) ? other : value;
 	     * });
 	     *
 	     * defaults({ 'user': 'barney' }, { 'age': 36 }, { 'user': 'fred' });
 	     * // => { 'user': 'barney', 'age': 36 }
 	     */
-	    var assign = createAssigner(baseAssign);
+	    var assign = createAssigner(function(object, source, customizer) {
+	      return customizer
+	        ? assignWith(object, source, customizer)
+	        : baseAssign(object, source);
+	    });
 
 	    /**
 	     * Creates an object that inherits from the given `prototype` object. If a
@@ -16939,13 +17404,15 @@ var StellarLib =
 	      if (guard && isIterateeCall(prototype, properties, guard)) {
 	        properties = null;
 	      }
-	      return properties ? baseCopy(properties, result, keys(properties)) : result;
+	      return properties ? baseAssign(result, properties) : result;
 	    }
 
 	    /**
 	     * Assigns own enumerable properties of source object(s) to the destination
 	     * object for all destination properties that resolve to `undefined`. Once a
 	     * property is set, additional values of the same property are ignored.
+	     *
+	     * **Note:** This method mutates `object`.
 	     *
 	     * @static
 	     * @memberOf _
@@ -17070,7 +17537,7 @@ var StellarLib =
 	    /**
 	     * Iterates over own and inherited enumerable properties of an object invoking
 	     * `iteratee` for each property. The `iteratee` is bound to `thisArg` and invoked
-	     * with three arguments: (value, key, object). Iterator functions may exit
+	     * with three arguments: (value, key, object). Iteratee functions may exit
 	     * iteration early by explicitly returning `false`.
 	     *
 	     * @static
@@ -17126,7 +17593,7 @@ var StellarLib =
 	    /**
 	     * Iterates over own enumerable properties of an object invoking `iteratee`
 	     * for each property. The `iteratee` is bound to `thisArg` and invoked with
-	     * three arguments: (value, key, object). Iterator functions may exit iteration
+	     * three arguments: (value, key, object). Iteratee functions may exit iteration
 	     * early by explicitly returning `false`.
 	     *
 	     * @static
@@ -17199,24 +17666,68 @@ var StellarLib =
 	    }
 
 	    /**
-	     * Checks if `key` exists as a direct property of `object` instead of an
-	     * inherited property.
+	     * Gets the property value of `path` on `object`. If the resolved value is
+	     * `undefined` the `defaultValue` is used in its place.
 	     *
 	     * @static
 	     * @memberOf _
 	     * @category Object
-	     * @param {Object} object The object to inspect.
-	     * @param {string} key The key to check.
-	     * @returns {boolean} Returns `true` if `key` is a direct property, else `false`.
+	     * @param {Object} object The object to query.
+	     * @param {Array|string} path The path of the property to get.
+	     * @param {*} [defaultValue] The value returned if the resolved value is `undefined`.
+	     * @returns {*} Returns the resolved value.
 	     * @example
 	     *
-	     * var object = { 'a': 1, 'b': 2, 'c': 3 };
+	     * var object = { 'a': [{ 'b': { 'c': 3 } }] };
 	     *
-	     * _.has(object, 'b');
+	     * _.get(object, 'a[0].b.c');
+	     * // => 3
+	     *
+	     * _.get(object, ['a', '0', 'b', 'c']);
+	     * // => 3
+	     *
+	     * _.get(object, 'a.b.c', 'default');
+	     * // => 'default'
+	     */
+	    function get(object, path, defaultValue) {
+	      var result = object == null ? undefined : baseGet(object, toPath(path), path + '');
+	      return result === undefined ? defaultValue : result;
+	    }
+
+	    /**
+	     * Checks if `path` is a direct property.
+	     *
+	     * @static
+	     * @memberOf _
+	     * @category Object
+	     * @param {Object} object The object to query.
+	     * @param {Array|string} path The path to check.
+	     * @returns {boolean} Returns `true` if `path` is a direct property, else `false`.
+	     * @example
+	     *
+	     * var object = { 'a': { 'b': { 'c': 3 } } };
+	     *
+	     * _.has(object, 'a');
+	     * // => true
+	     *
+	     * _.has(object, 'a.b.c');
+	     * // => true
+	     *
+	     * _.has(object, ['a', 'b', 'c']);
 	     * // => true
 	     */
-	    function has(object, key) {
-	      return object ? hasOwnProperty.call(object, key) : false;
+	    function has(object, path) {
+	      if (object == null) {
+	        return false;
+	      }
+	      var result = hasOwnProperty.call(object, path);
+	      if (!result && !isKey(path)) {
+	        path = toPath(path);
+	        object = path.length == 1 ? object : baseGet(object, baseSlice(path, 0, -1));
+	        path = last(path);
+	        result = object != null && hasOwnProperty.call(object, path);
+	      }
+	      return result;
 	    }
 
 	    /**
@@ -17279,7 +17790,7 @@ var StellarLib =
 	     * @static
 	     * @memberOf _
 	     * @category Object
-	     * @param {Object} object The object to inspect.
+	     * @param {Object} object The object to query.
 	     * @returns {Array} Returns the array of property names.
 	     * @example
 	     *
@@ -17302,7 +17813,7 @@ var StellarLib =
 	            length = object.length;
 	      }
 	      if ((typeof Ctor == 'function' && Ctor.prototype === object) ||
-	          (typeof object != 'function' && (length && isLength(length)))) {
+	          (typeof object != 'function' && isLength(length))) {
 	        return shimKeys(object);
 	      }
 	      return isObject(object) ? nativeKeys(object) : [];
@@ -17316,7 +17827,7 @@ var StellarLib =
 	     * @static
 	     * @memberOf _
 	     * @category Object
-	     * @param {Object} object The object to inspect.
+	     * @param {Object} object The object to query.
 	     * @returns {Array} Returns the array of property names.
 	     * @example
 	     *
@@ -17424,7 +17935,7 @@ var StellarLib =
 	     * @category Object
 	     * @param {Object} object The destination object.
 	     * @param {...Object} [sources] The source objects.
-	     * @param {Function} [customizer] The function to customize merging properties.
+	     * @param {Function} [customizer] The function to customize assigned values.
 	     * @param {*} [thisArg] The `this` binding of `customizer`.
 	     * @returns {Object} Returns `object`.
 	     * @example
@@ -17509,7 +18020,7 @@ var StellarLib =
 	     * @static
 	     * @memberOf _
 	     * @category Object
-	     * @param {Object} object The object to inspect.
+	     * @param {Object} object The object to query.
 	     * @returns {Array} Returns the new array of key-value pairs.
 	     * @example
 	     *
@@ -17565,41 +18076,93 @@ var StellarLib =
 	    });
 
 	    /**
-	     * Resolves the value of property `key` on `object`. If the value of `key` is
-	     * a function it is invoked with the `this` binding of `object` and its result
-	     * is returned, else the property value is returned. If the property value is
-	     * `undefined` the `defaultValue` is used in its place.
+	     * This method is like `_.get` except that if the resolved value is a function
+	     * it is invoked with the `this` binding of its parent object and its result
+	     * is returned.
 	     *
 	     * @static
 	     * @memberOf _
 	     * @category Object
 	     * @param {Object} object The object to query.
-	     * @param {string} key The key of the property to resolve.
-	     * @param {*} [defaultValue] The value returned if the property value
-	     *  resolves to `undefined`.
+	     * @param {Array|string} path The path of the property to resolve.
+	     * @param {*} [defaultValue] The value returned if the resolved value is `undefined`.
 	     * @returns {*} Returns the resolved value.
 	     * @example
 	     *
-	     * var object = { 'user': 'fred', 'age': _.constant(40) };
+	     * var object = { 'a': [{ 'b': { 'c1': 3, 'c2': _.constant(4) } }] };
 	     *
-	     * _.result(object, 'user');
-	     * // => 'fred'
+	     * _.result(object, 'a[0].b.c1');
+	     * // => 3
 	     *
-	     * _.result(object, 'age');
-	     * // => 40
+	     * _.result(object, 'a[0].b.c2');
+	     * // => 4
 	     *
-	     * _.result(object, 'status', 'busy');
-	     * // => 'busy'
+	     * _.result(object, 'a.b.c', 'default');
+	     * // => 'default'
 	     *
-	     * _.result(object, 'status', _.constant('busy'));
-	     * // => 'busy'
+	     * _.result(object, 'a.b.c', _.constant('default'));
+	     * // => 'default'
 	     */
-	    function result(object, key, defaultValue) {
-	      var value = object == null ? undefined : object[key];
-	      if (typeof value == 'undefined') {
-	        value = defaultValue;
+	    function result(object, path, defaultValue) {
+	      var result = object == null ? undefined : object[path];
+	      if (result === undefined) {
+	        if (object != null && !isKey(path, object)) {
+	          path = toPath(path);
+	          object = path.length == 1 ? object : baseGet(object, baseSlice(path, 0, -1));
+	          result = object == null ? undefined : object[last(path)];
+	        }
+	        result = result === undefined ? defaultValue : result;
 	      }
-	      return isFunction(value) ? value.call(object) : value;
+	      return isFunction(result) ? result.call(object) : result;
+	    }
+
+	    /**
+	     * Sets the property value of `path` on `object`. If a portion of `path`
+	     * does not exist it is created.
+	     *
+	     * @static
+	     * @memberOf _
+	     * @category Object
+	     * @param {Object} object The object to augment.
+	     * @param {Array|string} path The path of the property to set.
+	     * @param {*} value The value to set.
+	     * @returns {Object} Returns `object`.
+	     * @example
+	     *
+	     * var object = { 'a': [{ 'b': { 'c': 3 } }] };
+	     *
+	     * _.set(object, 'a[0].b.c', 4);
+	     * console.log(object.a[0].b.c);
+	     * // => 4
+	     *
+	     * _.set(object, 'x[0].y.z', 5);
+	     * console.log(object.x[0].y.z);
+	     * // => 5
+	     */
+	    function set(object, path, value) {
+	      if (object == null) {
+	        return object;
+	      }
+	      var pathKey = (path + '');
+	      path = (object[pathKey] != null || isKey(path, object)) ? [pathKey] : toPath(path);
+
+	      var index = -1,
+	          length = path.length,
+	          endIndex = length - 1,
+	          nested = object;
+
+	      while (nested != null && ++index < length) {
+	        var key = path[index];
+	        if (isObject(nested)) {
+	          if (index == endIndex) {
+	            nested[key] = value;
+	          } else if (nested[key] == null) {
+	            nested[key] = isIndex(path[index + 1]) ? [] : {};
+	          }
+	        }
+	        nested = nested[key];
+	      }
+	      return object;
 	    }
 
 	    /**
@@ -17607,7 +18170,7 @@ var StellarLib =
 	     * `accumulator` object which is the result of running each of its own enumerable
 	     * properties through `iteratee`, with each invocation potentially mutating
 	     * the `accumulator` object. The `iteratee` is bound to `thisArg` and invoked
-	     * with four arguments: (accumulator, value, key, object). Iterator functions
+	     * with four arguments: (accumulator, value, key, object). Iteratee functions
 	     * may exit iteration early by explicitly returning `false`.
 	     *
 	     * @static
@@ -17750,7 +18313,7 @@ var StellarLib =
 	      } else {
 	        end = +end || 0;
 	      }
-	      return value >= start && value < end;
+	      return value >= nativeMin(start, end) && value < nativeMax(start, end);
 	    }
 
 	    /**
@@ -17875,7 +18438,7 @@ var StellarLib =
 	     */
 	    function deburr(string) {
 	      string = baseToString(string);
-	      return string && string.replace(reLatin1, deburrLetter).replace(reComboMarks, '');
+	      return string && string.replace(reLatin1, deburrLetter).replace(reComboMark, '');
 	    }
 
 	    /**
@@ -17904,7 +18467,7 @@ var StellarLib =
 	      target = (target + '');
 
 	      var length = string.length;
-	      position = typeof position == 'undefined'
+	      position = position === undefined
 	        ? length
 	        : nativeMin(position < 0 ? 0 : (+position || 0), length);
 
@@ -17926,9 +18489,10 @@ var StellarLib =
 	     * (under "semi-related fun fact") for more details.
 	     *
 	     * Backticks are escaped because in Internet Explorer < 9, they can break out
-	     * of attribute values or HTML comments. See [#102](https://html5sec.org/#102),
-	     * [#108](https://html5sec.org/#108), and [#133](https://html5sec.org/#133) of
-	     * the [HTML5 Security Cheatsheet](https://html5sec.org/) for more details.
+	     * of attribute values or HTML comments. See [#59](https://html5sec.org/#59),
+	     * [#102](https://html5sec.org/#102), [#108](https://html5sec.org/#108), and
+	     * [#133](https://html5sec.org/#133) of the [HTML5 Security Cheatsheet](https://html5sec.org/)
+	     * for more details.
 	     *
 	     * When working with HTML you should always [quote attribute values](http://wonko.com/post/html-escaping)
 	     * to reduce XSS vectors.
@@ -18122,7 +18686,7 @@ var StellarLib =
 	          radix = +radix;
 	        }
 	        string = trim(string);
-	        return nativeParseInt(string, radix || (reHexPrefix.test(string) ? 16 : 10));
+	        return nativeParseInt(string, radix || (reHasHexPrefix.test(string) ? 16 : 10));
 	      };
 	    }
 
@@ -18347,9 +18911,9 @@ var StellarLib =
 	        options = otherOptions = null;
 	      }
 	      string = baseToString(string);
-	      options = baseAssign(baseAssign({}, otherOptions || options), settings, assignOwnDefaults);
+	      options = assignWith(baseAssign({}, otherOptions || options), settings, assignOwnDefaults);
 
-	      var imports = baseAssign(baseAssign({}, options.imports), settings.imports, assignOwnDefaults),
+	      var imports = assignWith(baseAssign({}, options.imports), settings.imports, assignOwnDefaults),
 	          importsKeys = keys(imports),
 	          importsValues = baseValues(imports, importsKeys);
 
@@ -18753,9 +19317,7 @@ var StellarLib =
 	      if (guard && isIterateeCall(func, thisArg, guard)) {
 	        thisArg = null;
 	      }
-	      return isObjectLike(func)
-	        ? matches(func)
-	        : baseCallback(func, thisArg);
+	      return baseCallback(func, thisArg);
 	    }
 
 	    /**
@@ -18829,7 +19391,7 @@ var StellarLib =
 	    }
 
 	    /**
-	     * Creates a function which compares the property value of `key` on a given
+	     * Creates a function which compares the property value of `path` on a given
 	     * object to `value`.
 	     *
 	     * **Note:** This method supports comparing arrays, booleans, `Date` objects,
@@ -18839,7 +19401,7 @@ var StellarLib =
 	     * @static
 	     * @memberOf _
 	     * @category Utility
-	     * @param {string} key The key of the property to get.
+	     * @param {Array|string} path The path of the property to get.
 	     * @param {*} value The value to compare.
 	     * @returns {Function} Returns the new function.
 	     * @example
@@ -18852,22 +19414,75 @@ var StellarLib =
 	     * _.find(users, _.matchesProperty('user', 'fred'));
 	     * // => { 'user': 'fred' }
 	     */
-	    function matchesProperty(key, value) {
-	      return baseMatchesProperty(key + '', baseClone(value, true));
+	    function matchesProperty(path, value) {
+	      return baseMatchesProperty(path, baseClone(value, true));
 	    }
+
+	    /**
+	     * Creates a function which invokes the method at `path` on a given object.
+	     *
+	     * @static
+	     * @memberOf _
+	     * @category Utility
+	     * @param {Array|string} path The path of the method to invoke.
+	     * @returns {Function} Returns the new function.
+	     * @example
+	     *
+	     * var objects = [
+	     *   { 'a': { 'b': { 'c': _.constant(2) } } },
+	     *   { 'a': { 'b': { 'c': _.constant(1) } } }
+	     * ];
+	     *
+	     * _.map(objects, _.method('a.b.c'));
+	     * // => [2, 1]
+	     *
+	     * _.invoke(_.sortBy(objects, _.method(['a', 'b', 'c'])), 'a.b.c');
+	     * // => [1, 2]
+	     */
+	    var method = restParam(function(path, args) {
+	      return function(object) {
+	        return invokePath(object, path, args);
+	      }
+	    });
+
+	    /**
+	     * The opposite of `_.method`; this method creates a function which invokes
+	     * the method at a given path on `object`.
+	     *
+	     * @static
+	     * @memberOf _
+	     * @category Utility
+	     * @param {Object} object The object to query.
+	     * @returns {Function} Returns the new function.
+	     * @example
+	     *
+	     * var array = _.times(3, _.constant),
+	     *     object = { 'a': array, 'b': array, 'c': array };
+	     *
+	     * _.map(['a[2]', 'c[0]'], _.methodOf(object));
+	     * // => [2, 0]
+	     *
+	     * _.map([['a', '2'], ['c', '0']], _.methodOf(object));
+	     * // => [2, 0]
+	     */
+	    var methodOf = restParam(function(object, args) {
+	      return function(path) {
+	        return invokePath(object, path, args);
+	      };
+	    });
 
 	    /**
 	     * Adds all own enumerable function properties of a source object to the
 	     * destination object. If `object` is a function then methods are added to
 	     * its prototype as well.
 	     *
-	     * **Note:** Use `_.runInContext` to create a pristine `lodash` function
-	     * for mixins to avoid conflicts caused by modifying the original.
+	     * **Note:** Use `_.runInContext` to create a pristine `lodash` function to
+	     * avoid conflicts caused by modifying the original.
 	     *
 	     * @static
 	     * @memberOf _
 	     * @category Utility
-	     * @param {Function|Object} [object=this] object The destination object.
+	     * @param {Function|Object} [object=lodash] The destination object.
 	     * @param {Object} source The object of functions to add.
 	     * @param {Object} [options] The options object.
 	     * @param {boolean} [options.chain=true] Specify whether the functions added
@@ -18984,61 +19599,61 @@ var StellarLib =
 	    }
 
 	    /**
-	     * Creates a function which returns the property value of `key` on a given object.
+	     * Creates a function which returns the property value at `path` on a
+	     * given object.
 	     *
 	     * @static
 	     * @memberOf _
 	     * @category Utility
-	     * @param {string} key The key of the property to get.
+	     * @param {Array|string} path The path of the property to get.
 	     * @returns {Function} Returns the new function.
 	     * @example
 	     *
-	     * var users = [
-	     *   { 'user': 'fred' },
-	     *   { 'user': 'barney' }
+	     * var objects = [
+	     *   { 'a': { 'b': { 'c': 2 } } },
+	     *   { 'a': { 'b': { 'c': 1 } } }
 	     * ];
 	     *
-	     * var getName = _.property('user');
+	     * _.map(objects, _.property('a.b.c'));
+	     * // => [2, 1]
 	     *
-	     * _.map(users, getName);
-	     * // => ['fred', 'barney']
-	     *
-	     * _.pluck(_.sortBy(users, getName), 'user');
-	     * // => ['barney', 'fred']
+	     * _.pluck(_.sortBy(objects, _.property(['a', 'b', 'c'])), 'a.b.c');
+	     * // => [1, 2]
 	     */
-	    function property(key) {
-	      return baseProperty(key + '');
+	    function property(path) {
+	      return isKey(path) ? baseProperty(path) : basePropertyDeep(path);
 	    }
 
 	    /**
 	     * The opposite of `_.property`; this method creates a function which returns
-	     * the property value of a given key on `object`.
+	     * the property value at a given path on `object`.
 	     *
 	     * @static
 	     * @memberOf _
 	     * @category Utility
-	     * @param {Object} object The object to inspect.
+	     * @param {Object} object The object to query.
 	     * @returns {Function} Returns the new function.
 	     * @example
 	     *
-	     * var object = { 'a': 3, 'b': 1, 'c': 2 };
+	     * var array = [0, 1, 2],
+	     *     object = { 'a': array, 'b': array, 'c': array };
 	     *
-	     * _.map(['a', 'c'], _.propertyOf(object));
-	     * // => [3, 2]
+	     * _.map(['a[2]', 'c[0]'], _.propertyOf(object));
+	     * // => [2, 0]
 	     *
-	     * _.sortBy(['a', 'b', 'c'], _.propertyOf(object));
-	     * // => ['b', 'c', 'a']
+	     * _.map([['a', '2'], ['c', '0']], _.propertyOf(object));
+	     * // => [2, 0]
 	     */
 	    function propertyOf(object) {
-	      return function(key) {
-	        return object == null ? undefined : object[key];
+	      return function(path) {
+	        return baseGet(object, toPath(path), path + '');
 	      };
 	    }
 
 	    /**
 	     * Creates an array of numbers (positive and/or negative) progressing from
 	     * `start` up to, but not including, `end`. If `end` is not specified it is
-	     * set to `start` with `start` then set to `0`. If `start` is less than `end`
+	     * set to `start` with `start` then set to `0`. If `end` is less than `start`
 	     * a zero-length range is created unless a negative `step` is specified.
 	     *
 	     * @static
@@ -19114,7 +19729,7 @@ var StellarLib =
 	     * _.times(3, function(n) {
 	     *   mage.castSpell(n);
 	     * });
-	     * // => invokes `mage.castSpell(n)` three times with `n` of `0`, `1`, and `2` respectively
+	     * // => invokes `mage.castSpell(n)` three times with `n` of `0`, `1`, and `2`
 	     *
 	     * _.times(3, function(n) {
 	     *   this.cast(n);
@@ -19122,7 +19737,7 @@ var StellarLib =
 	     * // => also invokes `mage.castSpell(n)` three times
 	     */
 	    function times(n, iteratee, thisArg) {
-	      n = +n;
+	      n = floor(n);
 
 	      // Exit early to avoid a JSC JIT bug in Safari 8
 	      // where `Array(0)` is treated as `Array(1)`.
@@ -19181,7 +19796,7 @@ var StellarLib =
 	     * // => 10
 	     */
 	    function add(augend, addend) {
-	      return augend + addend;
+	      return (+augend || 0) + (+addend || 0);
 	    }
 
 	    /**
@@ -19407,6 +20022,8 @@ var StellarLib =
 	    lodash.matchesProperty = matchesProperty;
 	    lodash.memoize = memoize;
 	    lodash.merge = merge;
+	    lodash.method = method;
+	    lodash.methodOf = methodOf;
 	    lodash.mixin = mixin;
 	    lodash.negate = negate;
 	    lodash.omit = omit;
@@ -19427,6 +20044,7 @@ var StellarLib =
 	    lodash.remove = remove;
 	    lodash.rest = rest;
 	    lodash.restParam = restParam;
+	    lodash.set = set;
 	    lodash.shuffle = shuffle;
 	    lodash.slice = slice;
 	    lodash.sortBy = sortBy;
@@ -19495,6 +20113,7 @@ var StellarLib =
 	    lodash.findLastKey = findLastKey;
 	    lodash.findWhere = findWhere;
 	    lodash.first = first;
+	    lodash.get = get;
 	    lodash.has = has;
 	    lodash.identity = identity;
 	    lodash.includes = includes;
@@ -19683,7 +20302,7 @@ var StellarLib =
 	    // Add `LazyWrapper` methods for `_.pluck` and `_.where`.
 	    arrayEach(['pluck', 'where'], function(methodName, index) {
 	      var operationName = index ? 'filter' : 'map',
-	          createCallback = index ? baseMatches : baseProperty;
+	          createCallback = index ? baseMatches : property;
 
 	      LazyWrapper.prototype[methodName] = function(value) {
 	        return this[operationName](createCallback(value));
@@ -19705,7 +20324,7 @@ var StellarLib =
 	      start = start == null ? 0 : (+start || 0);
 	      var result = start < 0 ? this.takeRight(-start) : this.drop(start);
 
-	      if (typeof end != 'undefined') {
+	      if (end !== undefined) {
 	        end = (+end || 0);
 	        result = end < 0 ? result.dropRight(-end) : result.take(end - start);
 	      }
@@ -19736,7 +20355,7 @@ var StellarLib =
 	            useLazy = isLazy || isArray(value);
 
 	        if (useLazy && checkIteratee && typeof iteratee == 'function' && iteratee.length != 1) {
-	          // avoid lazy use if the iteratee has a `length` other than `1`
+	          // avoid lazy use if the iteratee has a "length" value other than `1`
 	          isLazy = useLazy = false;
 	        }
 	        var onlyLazy = isLazy && !isHybrid;
@@ -19852,10 +20471,10 @@ var StellarLib =
 	  }
 	}.call(this));
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(56)(module), (function() { return this; }())))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(59)(module), (function() { return this; }())))
 
 /***/ },
-/* 28 */
+/* 30 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {(function(nacl) {
@@ -22266,7 +22885,7 @@ var StellarLib =
 	    }
 	  } else if (true) {
 	    // Node.js.
-	    crypto = __webpack_require__(57);
+	    crypto = __webpack_require__(39);
 	    if (crypto) {
 	      nacl.setPRNG(function(x, n) {
 	        var i, v = crypto.randomBytes(n);
@@ -22279,10 +22898,10 @@ var StellarLib =
 
 	})(typeof module !== 'undefined' && module.exports ? module.exports : (window.nacl = window.nacl || {}));
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11).Buffer))
 
 /***/ },
-/* 29 */
+/* 31 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -22294,12 +22913,6 @@ var StellarLib =
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-
-	_defaults(exports, _interopRequireWildcard(__webpack_require__(38)));
-
-	_defaults(exports, _interopRequireWildcard(__webpack_require__(39)));
-
-	_defaults(exports, _interopRequireWildcard(__webpack_require__(40)));
 
 	_defaults(exports, _interopRequireWildcard(__webpack_require__(41)));
 
@@ -22331,8 +22944,14 @@ var StellarLib =
 
 	_defaults(exports, _interopRequireWildcard(__webpack_require__(55)));
 
+	_defaults(exports, _interopRequireWildcard(__webpack_require__(56)));
+
+	_defaults(exports, _interopRequireWildcard(__webpack_require__(57)));
+
+	_defaults(exports, _interopRequireWildcard(__webpack_require__(58)));
+
 /***/ },
-/* 30 */
+/* 32 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -22354,9 +22973,9 @@ var StellarLib =
 	  value: true
 	});
 
-	var XDR = _interopRequireWildcard(__webpack_require__(29));
+	var XDR = _interopRequireWildcard(__webpack_require__(31));
 
-	var _lodash = __webpack_require__(27);
+	var _lodash = __webpack_require__(29);
 
 	var isUndefined = _lodash.isUndefined;
 	var isPlainObject = _lodash.isPlainObject;
@@ -22365,7 +22984,7 @@ var StellarLib =
 	var map = _lodash.map;
 	var pick = _lodash.pick;
 
-	var sequencify = _interopRequire(__webpack_require__(59));
+	var sequencify = _interopRequire(__webpack_require__(61));
 
 	// types is the root
 	var types = {};
@@ -22714,7 +23333,7 @@ var StellarLib =
 	})();
 
 /***/ },
-/* 31 */
+/* 33 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {/*
@@ -22725,8 +23344,8 @@ var StellarLib =
 	 * operation was added.
 	 */
 
-	var inherits = __webpack_require__(66)
-	var Hash = __webpack_require__(58)
+	var inherits = __webpack_require__(64)
+	var Hash = __webpack_require__(60)
 
 	var W = new Array(80)
 
@@ -22817,10 +23436,10 @@ var StellarLib =
 	module.exports = Sha
 
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11).Buffer))
 
 /***/ },
-/* 32 */
+/* 34 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {/*
@@ -22832,8 +23451,8 @@ var StellarLib =
 	 * See http://pajhome.org.uk/crypt/md5 for details.
 	 */
 
-	var inherits = __webpack_require__(66)
-	var Hash = __webpack_require__(58)
+	var inherits = __webpack_require__(64)
+	var Hash = __webpack_require__(60)
 
 	var W = new Array(80)
 
@@ -22920,10 +23539,10 @@ var StellarLib =
 	module.exports = Sha1
 
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11).Buffer))
 
 /***/ },
-/* 33 */
+/* 35 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {/**
@@ -22934,9 +23553,9 @@ var StellarLib =
 	 *
 	 */
 
-	var inherits = __webpack_require__(66)
-	var SHA256 = __webpack_require__(34)
-	var Hash = __webpack_require__(58)
+	var inherits = __webpack_require__(64)
+	var SHA256 = __webpack_require__(36)
+	var Hash = __webpack_require__(60)
 
 	var W = new Array(64)
 
@@ -22979,10 +23598,10 @@ var StellarLib =
 
 	module.exports = Sha224
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11).Buffer))
 
 /***/ },
-/* 34 */
+/* 36 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {/**
@@ -22993,8 +23612,8 @@ var StellarLib =
 	 *
 	 */
 
-	var inherits = __webpack_require__(66)
-	var Hash = __webpack_require__(58)
+	var inherits = __webpack_require__(64)
+	var Hash = __webpack_require__(60)
 
 	var K = [
 	  0x428A2F98, 0x71374491, 0xB5C0FBCF, 0xE9B5DBA5,
@@ -23135,15 +23754,15 @@ var StellarLib =
 
 	module.exports = Sha256
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11).Buffer))
 
 /***/ },
-/* 35 */
+/* 37 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(Buffer) {var inherits = __webpack_require__(66)
-	var SHA512 = __webpack_require__(36);
-	var Hash = __webpack_require__(58)
+	/* WEBPACK VAR INJECTION */(function(Buffer) {var inherits = __webpack_require__(64)
+	var SHA512 = __webpack_require__(38);
+	var Hash = __webpack_require__(60)
 
 	var W = new Array(160)
 
@@ -23198,14 +23817,14 @@ var StellarLib =
 
 	module.exports = Sha384
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11).Buffer))
 
 /***/ },
-/* 36 */
+/* 38 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(Buffer) {var inherits = __webpack_require__(66)
-	var Hash = __webpack_require__(58)
+	/* WEBPACK VAR INJECTION */(function(Buffer) {var inherits = __webpack_require__(64)
+	var Hash = __webpack_require__(60)
 
 	var K = [
 	  0x428a2f98, 0xd728ae22, 0x71374491, 0x23ef65cd,
@@ -23450,11 +24069,17 @@ var StellarLib =
 
 	module.exports = Sha512
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11).Buffer))
 
 /***/ },
-/* 37 */,
-/* 38 */
+/* 39 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* (ignored) */
+
+/***/ },
+/* 40 */,
+/* 41 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -23465,9 +24090,9 @@ var StellarLib =
 	  value: true
 	});
 
-	var isNumber = __webpack_require__(27).isNumber;
+	var isNumber = __webpack_require__(29).isNumber;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(60));
+	var includeIoMixin = _interopRequire(__webpack_require__(62));
 
 	var Int = {
 
@@ -23505,7 +24130,7 @@ var StellarLib =
 	includeIoMixin(Int);
 
 /***/ },
-/* 39 */
+/* 42 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -23524,9 +24149,9 @@ var StellarLib =
 	  value: true
 	});
 
-	var Long = _interopRequire(__webpack_require__(67));
+	var Long = _interopRequire(__webpack_require__(65));
 
-	var includeIoMixin = _interopRequire(__webpack_require__(60));
+	var includeIoMixin = _interopRequire(__webpack_require__(62));
 
 	var Hyper = exports.Hyper = (function (_Long) {
 	  function Hyper(low, high) {
@@ -23583,7 +24208,7 @@ var StellarLib =
 	Hyper.MIN_VALUE = new Hyper(Long.MIN_VALUE.low, Long.MIN_VALUE.high);
 
 /***/ },
-/* 40 */
+/* 43 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -23594,9 +24219,9 @@ var StellarLib =
 	  value: true
 	});
 
-	var isNumber = __webpack_require__(27).isNumber;
+	var isNumber = __webpack_require__(29).isNumber;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(60));
+	var includeIoMixin = _interopRequire(__webpack_require__(62));
 
 	var UnsignedInt = {
 
@@ -23638,7 +24263,7 @@ var StellarLib =
 	includeIoMixin(UnsignedInt);
 
 /***/ },
-/* 41 */
+/* 44 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -23657,9 +24282,9 @@ var StellarLib =
 	  value: true
 	});
 
-	var Long = _interopRequire(__webpack_require__(67));
+	var Long = _interopRequire(__webpack_require__(65));
 
-	var includeIoMixin = _interopRequire(__webpack_require__(60));
+	var includeIoMixin = _interopRequire(__webpack_require__(62));
 
 	var UnsignedHyper = exports.UnsignedHyper = (function (_Long) {
 	  function UnsignedHyper(low, high) {
@@ -23717,7 +24342,7 @@ var StellarLib =
 	UnsignedHyper.MIN_VALUE = new UnsignedHyper(Long.MIN_VALUE.low, Long.MIN_VALUE.high);
 
 /***/ },
-/* 42 */
+/* 45 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -23728,9 +24353,9 @@ var StellarLib =
 	  value: true
 	});
 
-	var isNumber = __webpack_require__(27).isNumber;
+	var isNumber = __webpack_require__(29).isNumber;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(60));
+	var includeIoMixin = _interopRequire(__webpack_require__(62));
 
 	var Float = {
 
@@ -23754,7 +24379,7 @@ var StellarLib =
 	includeIoMixin(Float);
 
 /***/ },
-/* 43 */
+/* 46 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -23765,9 +24390,9 @@ var StellarLib =
 	  value: true
 	});
 
-	var isNumber = __webpack_require__(27).isNumber;
+	var isNumber = __webpack_require__(29).isNumber;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(60));
+	var includeIoMixin = _interopRequire(__webpack_require__(62));
 
 	var Double = {
 
@@ -23791,7 +24416,7 @@ var StellarLib =
 	includeIoMixin(Double);
 
 /***/ },
-/* 44 */
+/* 47 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -23802,7 +24427,7 @@ var StellarLib =
 	  value: true
 	});
 
-	var includeIoMixin = _interopRequire(__webpack_require__(60));
+	var includeIoMixin = _interopRequire(__webpack_require__(62));
 
 	var Quadruple = {
 	  /* jshint unused: false */
@@ -23823,7 +24448,7 @@ var StellarLib =
 	includeIoMixin(Quadruple);
 
 /***/ },
-/* 45 */
+/* 48 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -23834,11 +24459,11 @@ var StellarLib =
 	  value: true
 	});
 
-	var Int = __webpack_require__(38).Int;
+	var Int = __webpack_require__(41).Int;
 
-	var isBoolean = __webpack_require__(27).isBoolean;
+	var isBoolean = __webpack_require__(29).isBoolean;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(60));
+	var includeIoMixin = _interopRequire(__webpack_require__(62));
 
 	var Bool = {
 	  read: function read(io) {
@@ -23868,7 +24493,7 @@ var StellarLib =
 	includeIoMixin(Bool);
 
 /***/ },
-/* 46 */
+/* 49 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
@@ -23883,15 +24508,15 @@ var StellarLib =
 	  value: true
 	});
 
-	var Int = __webpack_require__(38).Int;
+	var Int = __webpack_require__(41).Int;
 
-	var UnsignedInt = __webpack_require__(40).UnsignedInt;
+	var UnsignedInt = __webpack_require__(43).UnsignedInt;
 
-	var calculatePadding = __webpack_require__(61).calculatePadding;
+	var calculatePadding = __webpack_require__(63).calculatePadding;
 
-	var isString = __webpack_require__(27).isString;
+	var isString = __webpack_require__(29).isString;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(60));
+	var includeIoMixin = _interopRequire(__webpack_require__(62));
 
 	var String = exports.String = (function () {
 	  function String() {
@@ -23942,10 +24567,10 @@ var StellarLib =
 	})();
 
 	includeIoMixin(String.prototype);
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11).Buffer))
 
 /***/ },
-/* 47 */
+/* 50 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
@@ -23960,9 +24585,9 @@ var StellarLib =
 	  value: true
 	});
 
-	var calculatePadding = __webpack_require__(61).calculatePadding;
+	var calculatePadding = __webpack_require__(63).calculatePadding;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(60));
+	var includeIoMixin = _interopRequire(__webpack_require__(62));
 
 	var Opaque = exports.Opaque = (function () {
 	  function Opaque(length) {
@@ -24000,10 +24625,10 @@ var StellarLib =
 	})();
 
 	includeIoMixin(Opaque.prototype);
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11).Buffer))
 
 /***/ },
-/* 48 */
+/* 51 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
@@ -24018,13 +24643,13 @@ var StellarLib =
 	  value: true
 	});
 
-	var Int = __webpack_require__(38).Int;
+	var Int = __webpack_require__(41).Int;
 
-	var UnsignedInt = __webpack_require__(40).UnsignedInt;
+	var UnsignedInt = __webpack_require__(43).UnsignedInt;
 
-	var calculatePadding = __webpack_require__(61).calculatePadding;
+	var calculatePadding = __webpack_require__(63).calculatePadding;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(60));
+	var includeIoMixin = _interopRequire(__webpack_require__(62));
 
 	var VarOpaque = exports.VarOpaque = (function () {
 	  function VarOpaque() {
@@ -24069,10 +24694,10 @@ var StellarLib =
 	})();
 
 	includeIoMixin(VarOpaque.prototype);
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11).Buffer))
 
 /***/ },
-/* 49 */
+/* 52 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -24087,14 +24712,14 @@ var StellarLib =
 	  value: true
 	});
 
-	var _lodash = __webpack_require__(27);
+	var _lodash = __webpack_require__(29);
 
 	var all = _lodash.all;
 	var each = _lodash.each;
 	var times = _lodash.times;
 	var isArray = _lodash.isArray;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(60));
+	var includeIoMixin = _interopRequire(__webpack_require__(62));
 
 	var Array = exports.Array = (function () {
 	  function Array(childType, length) {
@@ -24155,7 +24780,7 @@ var StellarLib =
 	includeIoMixin(Array.prototype);
 
 /***/ },
-/* 50 */
+/* 53 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -24170,18 +24795,18 @@ var StellarLib =
 	  value: true
 	});
 
-	var Int = __webpack_require__(38).Int;
+	var Int = __webpack_require__(41).Int;
 
-	var UnsignedInt = __webpack_require__(40).UnsignedInt;
+	var UnsignedInt = __webpack_require__(43).UnsignedInt;
 
-	var _lodash = __webpack_require__(27);
+	var _lodash = __webpack_require__(29);
 
 	var all = _lodash.all;
 	var each = _lodash.each;
 	var times = _lodash.times;
 	var isArray = _lodash.isArray;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(60));
+	var includeIoMixin = _interopRequire(__webpack_require__(62));
 
 	var VarArray = exports.VarArray = (function () {
 	  function VarArray(childType) {
@@ -24251,7 +24876,7 @@ var StellarLib =
 	includeIoMixin(VarArray.prototype);
 
 /***/ },
-/* 51 */
+/* 54 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -24266,14 +24891,14 @@ var StellarLib =
 	  value: true
 	});
 
-	var Bool = __webpack_require__(45).Bool;
+	var Bool = __webpack_require__(48).Bool;
 
-	var _lodash = __webpack_require__(27);
+	var _lodash = __webpack_require__(29);
 
 	var isNull = _lodash.isNull;
 	var isUndefined = _lodash.isUndefined;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(60));
+	var includeIoMixin = _interopRequire(__webpack_require__(62));
 
 	var Option = exports.Option = (function () {
 	  function Option(childType) {
@@ -24321,7 +24946,7 @@ var StellarLib =
 	includeIoMixin(Option.prototype);
 
 /***/ },
-/* 52 */
+/* 55 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -24332,9 +24957,9 @@ var StellarLib =
 	  value: true
 	});
 
-	var isUndefined = __webpack_require__(27).isUndefined;
+	var isUndefined = __webpack_require__(29).isUndefined;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(60));
+	var includeIoMixin = _interopRequire(__webpack_require__(62));
 
 	var Void = {
 	  /* jshint unused: false */
@@ -24357,7 +24982,7 @@ var StellarLib =
 	includeIoMixin(Void);
 
 /***/ },
-/* 53 */
+/* 56 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -24376,14 +25001,14 @@ var StellarLib =
 	  value: true
 	});
 
-	var Int = __webpack_require__(38).Int;
+	var Int = __webpack_require__(41).Int;
 
-	var _lodash = __webpack_require__(27);
+	var _lodash = __webpack_require__(29);
 
 	var each = _lodash.each;
 	var vals = _lodash.values;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(60));
+	var includeIoMixin = _interopRequire(__webpack_require__(62));
 
 	var Enum = exports.Enum = (function () {
 	  function Enum(name, value) {
@@ -24482,7 +25107,7 @@ var StellarLib =
 	includeIoMixin(Enum);
 
 /***/ },
-/* 54 */
+/* 57 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -24503,14 +25128,14 @@ var StellarLib =
 	  value: true
 	});
 
-	var _lodash = __webpack_require__(27);
+	var _lodash = __webpack_require__(29);
 
 	var each = _lodash.each;
 	var map = _lodash.map;
 	var isUndefined = _lodash.isUndefined;
 	var zipObject = _lodash.zipObject;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(60));
+	var includeIoMixin = _interopRequire(__webpack_require__(62));
 
 	var Struct = exports.Struct = (function () {
 	  function Struct(attributes) {
@@ -24607,7 +25232,7 @@ var StellarLib =
 	}
 
 /***/ },
-/* 55 */
+/* 58 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -24626,15 +25251,15 @@ var StellarLib =
 	  value: true
 	});
 
-	var _lodash = __webpack_require__(27);
+	var _lodash = __webpack_require__(29);
 
 	var each = _lodash.each;
 	var isUndefined = _lodash.isUndefined;
 	var cloneDeep = _lodash.cloneDeep;
 
-	var Void = __webpack_require__(52).Void;
+	var Void = __webpack_require__(55).Void;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(60));
+	var includeIoMixin = _interopRequire(__webpack_require__(62));
 
 	var Union = exports.Union = (function () {
 	  function Union(aSwitch, value) {
@@ -24794,7 +25419,7 @@ var StellarLib =
 	includeIoMixin(Union);
 
 /***/ },
-/* 56 */
+/* 59 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = function(module) {
@@ -24810,67 +25435,7 @@ var StellarLib =
 
 
 /***/ },
-/* 57 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(Buffer) {var rng = __webpack_require__(62)
-
-	function error () {
-	  var m = [].slice.call(arguments).join(' ')
-	  throw new Error([
-	    m,
-	    'we accept pull requests',
-	    'http://github.com/dominictarr/crypto-browserify'
-	    ].join('\n'))
-	}
-
-	exports.createHash = __webpack_require__(63)
-
-	exports.createHmac = __webpack_require__(64)
-
-	exports.randomBytes = function(size, callback) {
-	  if (callback && callback.call) {
-	    try {
-	      callback.call(this, undefined, new Buffer(rng(size)))
-	    } catch (err) { callback(err) }
-	  } else {
-	    return new Buffer(rng(size))
-	  }
-	}
-
-	function each(a, f) {
-	  for(var i in a)
-	    f(a[i], i)
-	}
-
-	exports.getHashes = function () {
-	  return ['sha1', 'sha256', 'sha512', 'md5', 'rmd160']
-	}
-
-	var p = __webpack_require__(65)(exports)
-	exports.pbkdf2 = p.pbkdf2
-	exports.pbkdf2Sync = p.pbkdf2Sync
-
-
-	// the least I can do is make error messages for the rest of the node.js/crypto api.
-	each(['createCredentials'
-	, 'createCipher'
-	, 'createCipheriv'
-	, 'createDecipher'
-	, 'createDecipheriv'
-	, 'createSign'
-	, 'createVerify'
-	, 'createDiffieHellman'
-	], function (name) {
-	  exports[name] = function () {
-	    error('sorry,', name, 'is not implemented yet')
-	  }
-	})
-
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9).Buffer))
-
-/***/ },
-/* 58 */
+/* 60 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {//prototype class for hash functions
@@ -24943,10 +25508,10 @@ var StellarLib =
 
 	module.exports = Hash
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11).Buffer))
 
 /***/ },
-/* 59 */
+/* 61 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*jshint node:true */
@@ -24998,16 +25563,16 @@ var StellarLib =
 
 
 /***/ },
-/* 60 */
+/* 62 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
 	module.exports = includeIoMixin;
 
-	var Cursor = __webpack_require__(69).Cursor;
+	var Cursor = __webpack_require__(66).Cursor;
 
-	var _lodash = __webpack_require__(27);
+	var _lodash = __webpack_require__(29);
 
 	var extend = _lodash.extend;
 	var isFunction = _lodash.isFunction;
@@ -25061,7 +25626,7 @@ var StellarLib =
 	}
 
 /***/ },
-/* 61 */
+/* 63 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -25085,145 +25650,7 @@ var StellarLib =
 	}
 
 /***/ },
-/* 62 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(global, Buffer) {(function() {
-	  var g = ('undefined' === typeof window ? global : window) || {}
-	  _crypto = (
-	    g.crypto || g.msCrypto || __webpack_require__(68)
-	  )
-	  module.exports = function(size) {
-	    // Modern Browsers
-	    if(_crypto.getRandomValues) {
-	      var bytes = new Buffer(size); //in browserify, this is an extended Uint8Array
-	      /* This will not work in older browsers.
-	       * See https://developer.mozilla.org/en-US/docs/Web/API/window.crypto.getRandomValues
-	       */
-	    
-	      _crypto.getRandomValues(bytes);
-	      return bytes;
-	    }
-	    else if (_crypto.randomBytes) {
-	      return _crypto.randomBytes(size)
-	    }
-	    else
-	      throw new Error(
-	        'secure random number generation not supported by this browser\n'+
-	        'use chrome, FireFox or Internet Explorer 11'
-	      )
-	  }
-	}())
-
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(9).Buffer))
-
-/***/ },
-/* 63 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(Buffer) {var createHash = __webpack_require__(72)
-
-	var md5 = toConstructor(__webpack_require__(70))
-	var rmd160 = toConstructor(__webpack_require__(74))
-
-	function toConstructor (fn) {
-	  return function () {
-	    var buffers = []
-	    var m= {
-	      update: function (data, enc) {
-	        if(!Buffer.isBuffer(data)) data = new Buffer(data, enc)
-	        buffers.push(data)
-	        return this
-	      },
-	      digest: function (enc) {
-	        var buf = Buffer.concat(buffers)
-	        var r = fn(buf)
-	        buffers = null
-	        return enc ? r.toString(enc) : r
-	      }
-	    }
-	    return m
-	  }
-	}
-
-	module.exports = function (alg) {
-	  if('md5' === alg) return new md5()
-	  if('rmd160' === alg) return new rmd160()
-	  return createHash(alg)
-	}
-
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9).Buffer))
-
-/***/ },
 /* 64 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(Buffer) {var createHash = __webpack_require__(63)
-
-	var zeroBuffer = new Buffer(128)
-	zeroBuffer.fill(0)
-
-	module.exports = Hmac
-
-	function Hmac (alg, key) {
-	  if(!(this instanceof Hmac)) return new Hmac(alg, key)
-	  this._opad = opad
-	  this._alg = alg
-
-	  var blocksize = (alg === 'sha512') ? 128 : 64
-
-	  key = this._key = !Buffer.isBuffer(key) ? new Buffer(key) : key
-
-	  if(key.length > blocksize) {
-	    key = createHash(alg).update(key).digest()
-	  } else if(key.length < blocksize) {
-	    key = Buffer.concat([key, zeroBuffer], blocksize)
-	  }
-
-	  var ipad = this._ipad = new Buffer(blocksize)
-	  var opad = this._opad = new Buffer(blocksize)
-
-	  for(var i = 0; i < blocksize; i++) {
-	    ipad[i] = key[i] ^ 0x36
-	    opad[i] = key[i] ^ 0x5C
-	  }
-
-	  this._hash = createHash(alg).update(ipad)
-	}
-
-	Hmac.prototype.update = function (data, enc) {
-	  this._hash.update(data, enc)
-	  return this
-	}
-
-	Hmac.prototype.digest = function (enc) {
-	  var h = this._hash.digest()
-	  return createHash(this._alg).update(this._opad).update(h).digest(enc)
-	}
-
-
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9).Buffer))
-
-/***/ },
-/* 65 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var pbkdf2Export = __webpack_require__(73)
-
-	module.exports = function (crypto, exports) {
-	  exports = exports || {}
-
-	  var exported = pbkdf2Export(crypto)
-
-	  exports.pbkdf2 = exported.pbkdf2
-	  exports.pbkdf2Sync = exported.pbkdf2Sync
-
-	  return exports
-	}
-
-
-/***/ },
-/* 66 */
 /***/ function(module, exports, __webpack_require__) {
 
 	if (typeof Object.create === 'function') {
@@ -25252,7 +25679,7 @@ var StellarLib =
 
 
 /***/ },
-/* 67 */
+/* 65 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -25272,17 +25699,11 @@ var StellarLib =
 	 limitations under the License.
 	 */
 
-	module.exports = __webpack_require__(71);
+	module.exports = __webpack_require__(67);
 
 
 /***/ },
-/* 68 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* (ignored) */
-
-/***/ },
-/* 69 */
+/* 66 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
@@ -25299,9 +25720,9 @@ var StellarLib =
 	  value: true
 	});
 
-	var BaseCursor = _interopRequire(__webpack_require__(77));
+	var BaseCursor = _interopRequire(__webpack_require__(68));
 
-	var calculatePadding = __webpack_require__(61).calculatePadding;
+	var calculatePadding = __webpack_require__(63).calculatePadding;
 
 	var Cursor = exports.Cursor = (function (_BaseCursor) {
 	  function Cursor() {
@@ -25328,171 +25749,10 @@ var StellarLib =
 
 	  return Cursor;
 	})(BaseCursor);
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11).Buffer))
 
 /***/ },
-/* 70 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/*
-	 * A JavaScript implementation of the RSA Data Security, Inc. MD5 Message
-	 * Digest Algorithm, as defined in RFC 1321.
-	 * Version 2.1 Copyright (C) Paul Johnston 1999 - 2002.
-	 * Other contributors: Greg Holt, Andrew Kepert, Ydnar, Lostinet
-	 * Distributed under the BSD License
-	 * See http://pajhome.org.uk/crypt/md5 for more info.
-	 */
-
-	var helpers = __webpack_require__(75);
-
-	/*
-	 * Calculate the MD5 of an array of little-endian words, and a bit length
-	 */
-	function core_md5(x, len)
-	{
-	  /* append padding */
-	  x[len >> 5] |= 0x80 << ((len) % 32);
-	  x[(((len + 64) >>> 9) << 4) + 14] = len;
-
-	  var a =  1732584193;
-	  var b = -271733879;
-	  var c = -1732584194;
-	  var d =  271733878;
-
-	  for(var i = 0; i < x.length; i += 16)
-	  {
-	    var olda = a;
-	    var oldb = b;
-	    var oldc = c;
-	    var oldd = d;
-
-	    a = md5_ff(a, b, c, d, x[i+ 0], 7 , -680876936);
-	    d = md5_ff(d, a, b, c, x[i+ 1], 12, -389564586);
-	    c = md5_ff(c, d, a, b, x[i+ 2], 17,  606105819);
-	    b = md5_ff(b, c, d, a, x[i+ 3], 22, -1044525330);
-	    a = md5_ff(a, b, c, d, x[i+ 4], 7 , -176418897);
-	    d = md5_ff(d, a, b, c, x[i+ 5], 12,  1200080426);
-	    c = md5_ff(c, d, a, b, x[i+ 6], 17, -1473231341);
-	    b = md5_ff(b, c, d, a, x[i+ 7], 22, -45705983);
-	    a = md5_ff(a, b, c, d, x[i+ 8], 7 ,  1770035416);
-	    d = md5_ff(d, a, b, c, x[i+ 9], 12, -1958414417);
-	    c = md5_ff(c, d, a, b, x[i+10], 17, -42063);
-	    b = md5_ff(b, c, d, a, x[i+11], 22, -1990404162);
-	    a = md5_ff(a, b, c, d, x[i+12], 7 ,  1804603682);
-	    d = md5_ff(d, a, b, c, x[i+13], 12, -40341101);
-	    c = md5_ff(c, d, a, b, x[i+14], 17, -1502002290);
-	    b = md5_ff(b, c, d, a, x[i+15], 22,  1236535329);
-
-	    a = md5_gg(a, b, c, d, x[i+ 1], 5 , -165796510);
-	    d = md5_gg(d, a, b, c, x[i+ 6], 9 , -1069501632);
-	    c = md5_gg(c, d, a, b, x[i+11], 14,  643717713);
-	    b = md5_gg(b, c, d, a, x[i+ 0], 20, -373897302);
-	    a = md5_gg(a, b, c, d, x[i+ 5], 5 , -701558691);
-	    d = md5_gg(d, a, b, c, x[i+10], 9 ,  38016083);
-	    c = md5_gg(c, d, a, b, x[i+15], 14, -660478335);
-	    b = md5_gg(b, c, d, a, x[i+ 4], 20, -405537848);
-	    a = md5_gg(a, b, c, d, x[i+ 9], 5 ,  568446438);
-	    d = md5_gg(d, a, b, c, x[i+14], 9 , -1019803690);
-	    c = md5_gg(c, d, a, b, x[i+ 3], 14, -187363961);
-	    b = md5_gg(b, c, d, a, x[i+ 8], 20,  1163531501);
-	    a = md5_gg(a, b, c, d, x[i+13], 5 , -1444681467);
-	    d = md5_gg(d, a, b, c, x[i+ 2], 9 , -51403784);
-	    c = md5_gg(c, d, a, b, x[i+ 7], 14,  1735328473);
-	    b = md5_gg(b, c, d, a, x[i+12], 20, -1926607734);
-
-	    a = md5_hh(a, b, c, d, x[i+ 5], 4 , -378558);
-	    d = md5_hh(d, a, b, c, x[i+ 8], 11, -2022574463);
-	    c = md5_hh(c, d, a, b, x[i+11], 16,  1839030562);
-	    b = md5_hh(b, c, d, a, x[i+14], 23, -35309556);
-	    a = md5_hh(a, b, c, d, x[i+ 1], 4 , -1530992060);
-	    d = md5_hh(d, a, b, c, x[i+ 4], 11,  1272893353);
-	    c = md5_hh(c, d, a, b, x[i+ 7], 16, -155497632);
-	    b = md5_hh(b, c, d, a, x[i+10], 23, -1094730640);
-	    a = md5_hh(a, b, c, d, x[i+13], 4 ,  681279174);
-	    d = md5_hh(d, a, b, c, x[i+ 0], 11, -358537222);
-	    c = md5_hh(c, d, a, b, x[i+ 3], 16, -722521979);
-	    b = md5_hh(b, c, d, a, x[i+ 6], 23,  76029189);
-	    a = md5_hh(a, b, c, d, x[i+ 9], 4 , -640364487);
-	    d = md5_hh(d, a, b, c, x[i+12], 11, -421815835);
-	    c = md5_hh(c, d, a, b, x[i+15], 16,  530742520);
-	    b = md5_hh(b, c, d, a, x[i+ 2], 23, -995338651);
-
-	    a = md5_ii(a, b, c, d, x[i+ 0], 6 , -198630844);
-	    d = md5_ii(d, a, b, c, x[i+ 7], 10,  1126891415);
-	    c = md5_ii(c, d, a, b, x[i+14], 15, -1416354905);
-	    b = md5_ii(b, c, d, a, x[i+ 5], 21, -57434055);
-	    a = md5_ii(a, b, c, d, x[i+12], 6 ,  1700485571);
-	    d = md5_ii(d, a, b, c, x[i+ 3], 10, -1894986606);
-	    c = md5_ii(c, d, a, b, x[i+10], 15, -1051523);
-	    b = md5_ii(b, c, d, a, x[i+ 1], 21, -2054922799);
-	    a = md5_ii(a, b, c, d, x[i+ 8], 6 ,  1873313359);
-	    d = md5_ii(d, a, b, c, x[i+15], 10, -30611744);
-	    c = md5_ii(c, d, a, b, x[i+ 6], 15, -1560198380);
-	    b = md5_ii(b, c, d, a, x[i+13], 21,  1309151649);
-	    a = md5_ii(a, b, c, d, x[i+ 4], 6 , -145523070);
-	    d = md5_ii(d, a, b, c, x[i+11], 10, -1120210379);
-	    c = md5_ii(c, d, a, b, x[i+ 2], 15,  718787259);
-	    b = md5_ii(b, c, d, a, x[i+ 9], 21, -343485551);
-
-	    a = safe_add(a, olda);
-	    b = safe_add(b, oldb);
-	    c = safe_add(c, oldc);
-	    d = safe_add(d, oldd);
-	  }
-	  return Array(a, b, c, d);
-
-	}
-
-	/*
-	 * These functions implement the four basic operations the algorithm uses.
-	 */
-	function md5_cmn(q, a, b, x, s, t)
-	{
-	  return safe_add(bit_rol(safe_add(safe_add(a, q), safe_add(x, t)), s),b);
-	}
-	function md5_ff(a, b, c, d, x, s, t)
-	{
-	  return md5_cmn((b & c) | ((~b) & d), a, b, x, s, t);
-	}
-	function md5_gg(a, b, c, d, x, s, t)
-	{
-	  return md5_cmn((b & d) | (c & (~d)), a, b, x, s, t);
-	}
-	function md5_hh(a, b, c, d, x, s, t)
-	{
-	  return md5_cmn(b ^ c ^ d, a, b, x, s, t);
-	}
-	function md5_ii(a, b, c, d, x, s, t)
-	{
-	  return md5_cmn(c ^ (b | (~d)), a, b, x, s, t);
-	}
-
-	/*
-	 * Add integers, wrapping at 2^32. This uses 16-bit operations internally
-	 * to work around bugs in some JS interpreters.
-	 */
-	function safe_add(x, y)
-	{
-	  var lsw = (x & 0xFFFF) + (y & 0xFFFF);
-	  var msw = (x >> 16) + (y >> 16) + (lsw >> 16);
-	  return (msw << 16) | (lsw & 0xFFFF);
-	}
-
-	/*
-	 * Bitwise rotate a 32-bit number to the left.
-	 */
-	function bit_rol(num, cnt)
-	{
-	  return (num << cnt) | (num >>> (32 - cnt));
-	}
-
-	module.exports = function md5(buf) {
-	  return helpers.hash(buf, core_md5, 16);
-	};
-
-
-/***/ },
-/* 71 */
+/* 67 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(module) {/*
@@ -26431,386 +26691,17 @@ var StellarLib =
 
 	    /* CommonJS */ if ("function" === 'function' && typeof module === 'object' && module && typeof exports === 'object' && exports)
 	        module["exports"] = Long;
-	    /* AMD */ else if ("function" === 'function' && __webpack_require__(76)["amd"])
+	    /* AMD */ else if ("function" === 'function' && __webpack_require__(69)["amd"])
 	        !(__WEBPACK_AMD_DEFINE_RESULT__ = function() { return Long; }.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 	    /* Global */ else
 	        (global["dcodeIO"] = global["dcodeIO"] || {})["Long"] = Long;
 
 	})(this);
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(56)(module)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(59)(module)))
 
 /***/ },
-/* 72 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var exports = module.exports = function (alg) {
-	  var Alg = exports[alg]
-	  if(!Alg) throw new Error(alg + ' is not supported (we accept pull requests)')
-	  return new Alg()
-	}
-
-	var Buffer = __webpack_require__(9).Buffer
-	var Hash   = __webpack_require__(78)(Buffer)
-
-	exports.sha1 = __webpack_require__(79)(Buffer, Hash)
-	exports.sha256 = __webpack_require__(80)(Buffer, Hash)
-	exports.sha512 = __webpack_require__(81)(Buffer, Hash)
-
-
-/***/ },
-/* 73 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(Buffer) {module.exports = function(crypto) {
-	  function pbkdf2(password, salt, iterations, keylen, digest, callback) {
-	    if ('function' === typeof digest) {
-	      callback = digest
-	      digest = undefined
-	    }
-
-	    if ('function' !== typeof callback)
-	      throw new Error('No callback provided to pbkdf2')
-
-	    setTimeout(function() {
-	      var result
-
-	      try {
-	        result = pbkdf2Sync(password, salt, iterations, keylen, digest)
-	      } catch (e) {
-	        return callback(e)
-	      }
-
-	      callback(undefined, result)
-	    })
-	  }
-
-	  function pbkdf2Sync(password, salt, iterations, keylen, digest) {
-	    if ('number' !== typeof iterations)
-	      throw new TypeError('Iterations not a number')
-
-	    if (iterations < 0)
-	      throw new TypeError('Bad iterations')
-
-	    if ('number' !== typeof keylen)
-	      throw new TypeError('Key length not a number')
-
-	    if (keylen < 0)
-	      throw new TypeError('Bad key length')
-
-	    digest = digest || 'sha1'
-
-	    if (!Buffer.isBuffer(password)) password = new Buffer(password)
-	    if (!Buffer.isBuffer(salt)) salt = new Buffer(salt)
-
-	    var hLen, l = 1, r, T
-	    var DK = new Buffer(keylen)
-	    var block1 = new Buffer(salt.length + 4)
-	    salt.copy(block1, 0, 0, salt.length)
-
-	    for (var i = 1; i <= l; i++) {
-	      block1.writeUInt32BE(i, salt.length)
-
-	      var U = crypto.createHmac(digest, password).update(block1).digest()
-
-	      if (!hLen) {
-	        hLen = U.length
-	        T = new Buffer(hLen)
-	        l = Math.ceil(keylen / hLen)
-	        r = keylen - (l - 1) * hLen
-
-	        if (keylen > (Math.pow(2, 32) - 1) * hLen)
-	          throw new TypeError('keylen exceeds maximum length')
-	      }
-
-	      U.copy(T, 0, 0, hLen)
-
-	      for (var j = 1; j < iterations; j++) {
-	        U = crypto.createHmac(digest, password).update(U).digest()
-
-	        for (var k = 0; k < hLen; k++) {
-	          T[k] ^= U[k]
-	        }
-	      }
-
-	      var destPos = (i - 1) * hLen
-	      var len = (i == l ? r : hLen)
-	      T.copy(DK, destPos, 0, len)
-	    }
-
-	    return DK
-	  }
-
-	  return {
-	    pbkdf2: pbkdf2,
-	    pbkdf2Sync: pbkdf2Sync
-	  }
-	}
-
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9).Buffer))
-
-/***/ },
-/* 74 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(Buffer) {
-	module.exports = ripemd160
-
-
-
-	/*
-	CryptoJS v3.1.2
-	code.google.com/p/crypto-js
-	(c) 2009-2013 by Jeff Mott. All rights reserved.
-	code.google.com/p/crypto-js/wiki/License
-	*/
-	/** @preserve
-	(c) 2012 by Cédric Mesnil. All rights reserved.
-
-	Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-
-	    - Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-	    - Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
-
-	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-	*/
-
-	// Constants table
-	var zl = [
-	    0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15,
-	    7,  4, 13,  1, 10,  6, 15,  3, 12,  0,  9,  5,  2, 14, 11,  8,
-	    3, 10, 14,  4,  9, 15,  8,  1,  2,  7,  0,  6, 13, 11,  5, 12,
-	    1,  9, 11, 10,  0,  8, 12,  4, 13,  3,  7, 15, 14,  5,  6,  2,
-	    4,  0,  5,  9,  7, 12,  2, 10, 14,  1,  3,  8, 11,  6, 15, 13];
-	var zr = [
-	    5, 14,  7,  0,  9,  2, 11,  4, 13,  6, 15,  8,  1, 10,  3, 12,
-	    6, 11,  3,  7,  0, 13,  5, 10, 14, 15,  8, 12,  4,  9,  1,  2,
-	    15,  5,  1,  3,  7, 14,  6,  9, 11,  8, 12,  2, 10,  0,  4, 13,
-	    8,  6,  4,  1,  3, 11, 15,  0,  5, 12,  2, 13,  9,  7, 10, 14,
-	    12, 15, 10,  4,  1,  5,  8,  7,  6,  2, 13, 14,  0,  3,  9, 11];
-	var sl = [
-	     11, 14, 15, 12,  5,  8,  7,  9, 11, 13, 14, 15,  6,  7,  9,  8,
-	    7, 6,   8, 13, 11,  9,  7, 15,  7, 12, 15,  9, 11,  7, 13, 12,
-	    11, 13,  6,  7, 14,  9, 13, 15, 14,  8, 13,  6,  5, 12,  7,  5,
-	      11, 12, 14, 15, 14, 15,  9,  8,  9, 14,  5,  6,  8,  6,  5, 12,
-	    9, 15,  5, 11,  6,  8, 13, 12,  5, 12, 13, 14, 11,  8,  5,  6 ];
-	var sr = [
-	    8,  9,  9, 11, 13, 15, 15,  5,  7,  7,  8, 11, 14, 14, 12,  6,
-	    9, 13, 15,  7, 12,  8,  9, 11,  7,  7, 12,  7,  6, 15, 13, 11,
-	    9,  7, 15, 11,  8,  6,  6, 14, 12, 13,  5, 14, 13, 13,  7,  5,
-	    15,  5,  8, 11, 14, 14,  6, 14,  6,  9, 12,  9, 12,  5, 15,  8,
-	    8,  5, 12,  9, 12,  5, 14,  6,  8, 13,  6,  5, 15, 13, 11, 11 ];
-
-	var hl =  [ 0x00000000, 0x5A827999, 0x6ED9EBA1, 0x8F1BBCDC, 0xA953FD4E];
-	var hr =  [ 0x50A28BE6, 0x5C4DD124, 0x6D703EF3, 0x7A6D76E9, 0x00000000];
-
-	var bytesToWords = function (bytes) {
-	  var words = [];
-	  for (var i = 0, b = 0; i < bytes.length; i++, b += 8) {
-	    words[b >>> 5] |= bytes[i] << (24 - b % 32);
-	  }
-	  return words;
-	};
-
-	var wordsToBytes = function (words) {
-	  var bytes = [];
-	  for (var b = 0; b < words.length * 32; b += 8) {
-	    bytes.push((words[b >>> 5] >>> (24 - b % 32)) & 0xFF);
-	  }
-	  return bytes;
-	};
-
-	var processBlock = function (H, M, offset) {
-
-	  // Swap endian
-	  for (var i = 0; i < 16; i++) {
-	    var offset_i = offset + i;
-	    var M_offset_i = M[offset_i];
-
-	    // Swap
-	    M[offset_i] = (
-	        (((M_offset_i << 8)  | (M_offset_i >>> 24)) & 0x00ff00ff) |
-	        (((M_offset_i << 24) | (M_offset_i >>> 8))  & 0xff00ff00)
-	    );
-	  }
-
-	  // Working variables
-	  var al, bl, cl, dl, el;
-	  var ar, br, cr, dr, er;
-
-	  ar = al = H[0];
-	  br = bl = H[1];
-	  cr = cl = H[2];
-	  dr = dl = H[3];
-	  er = el = H[4];
-	  // Computation
-	  var t;
-	  for (var i = 0; i < 80; i += 1) {
-	    t = (al +  M[offset+zl[i]])|0;
-	    if (i<16){
-	        t +=  f1(bl,cl,dl) + hl[0];
-	    } else if (i<32) {
-	        t +=  f2(bl,cl,dl) + hl[1];
-	    } else if (i<48) {
-	        t +=  f3(bl,cl,dl) + hl[2];
-	    } else if (i<64) {
-	        t +=  f4(bl,cl,dl) + hl[3];
-	    } else {// if (i<80) {
-	        t +=  f5(bl,cl,dl) + hl[4];
-	    }
-	    t = t|0;
-	    t =  rotl(t,sl[i]);
-	    t = (t+el)|0;
-	    al = el;
-	    el = dl;
-	    dl = rotl(cl, 10);
-	    cl = bl;
-	    bl = t;
-
-	    t = (ar + M[offset+zr[i]])|0;
-	    if (i<16){
-	        t +=  f5(br,cr,dr) + hr[0];
-	    } else if (i<32) {
-	        t +=  f4(br,cr,dr) + hr[1];
-	    } else if (i<48) {
-	        t +=  f3(br,cr,dr) + hr[2];
-	    } else if (i<64) {
-	        t +=  f2(br,cr,dr) + hr[3];
-	    } else {// if (i<80) {
-	        t +=  f1(br,cr,dr) + hr[4];
-	    }
-	    t = t|0;
-	    t =  rotl(t,sr[i]) ;
-	    t = (t+er)|0;
-	    ar = er;
-	    er = dr;
-	    dr = rotl(cr, 10);
-	    cr = br;
-	    br = t;
-	  }
-	  // Intermediate hash value
-	  t    = (H[1] + cl + dr)|0;
-	  H[1] = (H[2] + dl + er)|0;
-	  H[2] = (H[3] + el + ar)|0;
-	  H[3] = (H[4] + al + br)|0;
-	  H[4] = (H[0] + bl + cr)|0;
-	  H[0] =  t;
-	};
-
-	function f1(x, y, z) {
-	  return ((x) ^ (y) ^ (z));
-	}
-
-	function f2(x, y, z) {
-	  return (((x)&(y)) | ((~x)&(z)));
-	}
-
-	function f3(x, y, z) {
-	  return (((x) | (~(y))) ^ (z));
-	}
-
-	function f4(x, y, z) {
-	  return (((x) & (z)) | ((y)&(~(z))));
-	}
-
-	function f5(x, y, z) {
-	  return ((x) ^ ((y) |(~(z))));
-	}
-
-	function rotl(x,n) {
-	  return (x<<n) | (x>>>(32-n));
-	}
-
-	function ripemd160(message) {
-	  var H = [0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0xC3D2E1F0];
-
-	  if (typeof message == 'string')
-	    message = new Buffer(message, 'utf8');
-
-	  var m = bytesToWords(message);
-
-	  var nBitsLeft = message.length * 8;
-	  var nBitsTotal = message.length * 8;
-
-	  // Add padding
-	  m[nBitsLeft >>> 5] |= 0x80 << (24 - nBitsLeft % 32);
-	  m[(((nBitsLeft + 64) >>> 9) << 4) + 14] = (
-	      (((nBitsTotal << 8)  | (nBitsTotal >>> 24)) & 0x00ff00ff) |
-	      (((nBitsTotal << 24) | (nBitsTotal >>> 8))  & 0xff00ff00)
-	  );
-
-	  for (var i=0 ; i<m.length; i += 16) {
-	    processBlock(H, m, i);
-	  }
-
-	  // Swap endian
-	  for (var i = 0; i < 5; i++) {
-	      // Shortcut
-	    var H_i = H[i];
-
-	    // Swap
-	    H[i] = (((H_i << 8)  | (H_i >>> 24)) & 0x00ff00ff) |
-	          (((H_i << 24) | (H_i >>> 8))  & 0xff00ff00);
-	  }
-
-	  var digestbytes = wordsToBytes(H);
-	  return new Buffer(digestbytes);
-	}
-
-
-
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9).Buffer))
-
-/***/ },
-/* 75 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(Buffer) {var intSize = 4;
-	var zeroBuffer = new Buffer(intSize); zeroBuffer.fill(0);
-	var chrsz = 8;
-
-	function toArray(buf, bigEndian) {
-	  if ((buf.length % intSize) !== 0) {
-	    var len = buf.length + (intSize - (buf.length % intSize));
-	    buf = Buffer.concat([buf, zeroBuffer], len);
-	  }
-
-	  var arr = [];
-	  var fn = bigEndian ? buf.readInt32BE : buf.readInt32LE;
-	  for (var i = 0; i < buf.length; i += intSize) {
-	    arr.push(fn.call(buf, i));
-	  }
-	  return arr;
-	}
-
-	function toBuffer(arr, size, bigEndian) {
-	  var buf = new Buffer(size);
-	  var fn = bigEndian ? buf.writeInt32BE : buf.writeInt32LE;
-	  for (var i = 0; i < arr.length; i++) {
-	    fn.call(buf, arr[i], i * 4, true);
-	  }
-	  return buf;
-	}
-
-	function hash(buf, fn, hashSize, bigEndian) {
-	  if (!Buffer.isBuffer(buf)) buf = new Buffer(buf);
-	  var arr = fn(toArray(buf, bigEndian), buf.length * chrsz);
-	  return toBuffer(arr, hashSize, bigEndian);
-	}
-
-	module.exports = { hash: hash };
-
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9).Buffer))
-
-/***/ },
-/* 76 */
-/***/ function(module, exports, __webpack_require__) {
-
-	module.exports = function() { throw new Error("define cannot be used indirect"); };
-
-
-/***/ },
-/* 77 */
+/* 68 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {var Cursor = function(buffer)
@@ -27032,7 +26923,7 @@ var StellarLib =
 			parent.call(this, buffer);
 		};
 
-		__webpack_require__(82).inherits(C, parent);
+		__webpack_require__(70).inherits(C, parent);
 
 		C.extend = parent.extend;
 		C.define = parent.define;
@@ -27058,640 +26949,17 @@ var StellarLib =
 
 	module.exports = Cursor;
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11).Buffer))
 
 /***/ },
-/* 78 */
+/* 69 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = function (Buffer) {
-
-	  //prototype class for hash functions
-	  function Hash (blockSize, finalSize) {
-	    this._block = new Buffer(blockSize) //new Uint32Array(blockSize/4)
-	    this._finalSize = finalSize
-	    this._blockSize = blockSize
-	    this._len = 0
-	    this._s = 0
-	  }
-
-	  Hash.prototype.init = function () {
-	    this._s = 0
-	    this._len = 0
-	  }
-
-	  Hash.prototype.update = function (data, enc) {
-	    if ("string" === typeof data) {
-	      enc = enc || "utf8"
-	      data = new Buffer(data, enc)
-	    }
-
-	    var l = this._len += data.length
-	    var s = this._s = (this._s || 0)
-	    var f = 0
-	    var buffer = this._block
-
-	    while (s < l) {
-	      var t = Math.min(data.length, f + this._blockSize - (s % this._blockSize))
-	      var ch = (t - f)
-
-	      for (var i = 0; i < ch; i++) {
-	        buffer[(s % this._blockSize) + i] = data[i + f]
-	      }
-
-	      s += ch
-	      f += ch
-
-	      if ((s % this._blockSize) === 0) {
-	        this._update(buffer)
-	      }
-	    }
-	    this._s = s
-
-	    return this
-	  }
-
-	  Hash.prototype.digest = function (enc) {
-	    // Suppose the length of the message M, in bits, is l
-	    var l = this._len * 8
-
-	    // Append the bit 1 to the end of the message
-	    this._block[this._len % this._blockSize] = 0x80
-
-	    // and then k zero bits, where k is the smallest non-negative solution to the equation (l + 1 + k) === finalSize mod blockSize
-	    this._block.fill(0, this._len % this._blockSize + 1)
-
-	    if (l % (this._blockSize * 8) >= this._finalSize * 8) {
-	      this._update(this._block)
-	      this._block.fill(0)
-	    }
-
-	    // to this append the block which is equal to the number l written in binary
-	    // TODO: handle case where l is > Math.pow(2, 29)
-	    this._block.writeInt32BE(l, this._blockSize - 4)
-
-	    var hash = this._update(this._block) || this._hash()
-
-	    return enc ? hash.toString(enc) : hash
-	  }
-
-	  Hash.prototype._update = function () {
-	    throw new Error('_update must be implemented by subclass')
-	  }
-
-	  return Hash
-	}
+	module.exports = function() { throw new Error("define cannot be used indirect"); };
 
 
 /***/ },
-/* 79 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/*
-	 * A JavaScript implementation of the Secure Hash Algorithm, SHA-1, as defined
-	 * in FIPS PUB 180-1
-	 * Version 2.1a Copyright Paul Johnston 2000 - 2002.
-	 * Other contributors: Greg Holt, Andrew Kepert, Ydnar, Lostinet
-	 * Distributed under the BSD License
-	 * See http://pajhome.org.uk/crypt/md5 for details.
-	 */
-
-	var inherits = __webpack_require__(82).inherits
-
-	module.exports = function (Buffer, Hash) {
-
-	  var A = 0|0
-	  var B = 4|0
-	  var C = 8|0
-	  var D = 12|0
-	  var E = 16|0
-
-	  var W = new (typeof Int32Array === 'undefined' ? Array : Int32Array)(80)
-
-	  var POOL = []
-
-	  function Sha1 () {
-	    if(POOL.length)
-	      return POOL.pop().init()
-
-	    if(!(this instanceof Sha1)) return new Sha1()
-	    this._w = W
-	    Hash.call(this, 16*4, 14*4)
-
-	    this._h = null
-	    this.init()
-	  }
-
-	  inherits(Sha1, Hash)
-
-	  Sha1.prototype.init = function () {
-	    this._a = 0x67452301
-	    this._b = 0xefcdab89
-	    this._c = 0x98badcfe
-	    this._d = 0x10325476
-	    this._e = 0xc3d2e1f0
-
-	    Hash.prototype.init.call(this)
-	    return this
-	  }
-
-	  Sha1.prototype._POOL = POOL
-	  Sha1.prototype._update = function (X) {
-
-	    var a, b, c, d, e, _a, _b, _c, _d, _e
-
-	    a = _a = this._a
-	    b = _b = this._b
-	    c = _c = this._c
-	    d = _d = this._d
-	    e = _e = this._e
-
-	    var w = this._w
-
-	    for(var j = 0; j < 80; j++) {
-	      var W = w[j] = j < 16 ? X.readInt32BE(j*4)
-	        : rol(w[j - 3] ^ w[j -  8] ^ w[j - 14] ^ w[j - 16], 1)
-
-	      var t = add(
-	        add(rol(a, 5), sha1_ft(j, b, c, d)),
-	        add(add(e, W), sha1_kt(j))
-	      )
-
-	      e = d
-	      d = c
-	      c = rol(b, 30)
-	      b = a
-	      a = t
-	    }
-
-	    this._a = add(a, _a)
-	    this._b = add(b, _b)
-	    this._c = add(c, _c)
-	    this._d = add(d, _d)
-	    this._e = add(e, _e)
-	  }
-
-	  Sha1.prototype._hash = function () {
-	    if(POOL.length < 100) POOL.push(this)
-	    var H = new Buffer(20)
-	    //console.log(this._a|0, this._b|0, this._c|0, this._d|0, this._e|0)
-	    H.writeInt32BE(this._a|0, A)
-	    H.writeInt32BE(this._b|0, B)
-	    H.writeInt32BE(this._c|0, C)
-	    H.writeInt32BE(this._d|0, D)
-	    H.writeInt32BE(this._e|0, E)
-	    return H
-	  }
-
-	  /*
-	   * Perform the appropriate triplet combination function for the current
-	   * iteration
-	   */
-	  function sha1_ft(t, b, c, d) {
-	    if(t < 20) return (b & c) | ((~b) & d);
-	    if(t < 40) return b ^ c ^ d;
-	    if(t < 60) return (b & c) | (b & d) | (c & d);
-	    return b ^ c ^ d;
-	  }
-
-	  /*
-	   * Determine the appropriate additive constant for the current iteration
-	   */
-	  function sha1_kt(t) {
-	    return (t < 20) ?  1518500249 : (t < 40) ?  1859775393 :
-	           (t < 60) ? -1894007588 : -899497514;
-	  }
-
-	  /*
-	   * Add integers, wrapping at 2^32. This uses 16-bit operations internally
-	   * to work around bugs in some JS interpreters.
-	   * //dominictarr: this is 10 years old, so maybe this can be dropped?)
-	   *
-	   */
-	  function add(x, y) {
-	    return (x + y ) | 0
-	  //lets see how this goes on testling.
-	  //  var lsw = (x & 0xFFFF) + (y & 0xFFFF);
-	  //  var msw = (x >> 16) + (y >> 16) + (lsw >> 16);
-	  //  return (msw << 16) | (lsw & 0xFFFF);
-	  }
-
-	  /*
-	   * Bitwise rotate a 32-bit number to the left.
-	   */
-	  function rol(num, cnt) {
-	    return (num << cnt) | (num >>> (32 - cnt));
-	  }
-
-	  return Sha1
-	}
-
-
-/***/ },
-/* 80 */
-/***/ function(module, exports, __webpack_require__) {
-
-	
-	/**
-	 * A JavaScript implementation of the Secure Hash Algorithm, SHA-256, as defined
-	 * in FIPS 180-2
-	 * Version 2.2-beta Copyright Angel Marin, Paul Johnston 2000 - 2009.
-	 * Other contributors: Greg Holt, Andrew Kepert, Ydnar, Lostinet
-	 *
-	 */
-
-	var inherits = __webpack_require__(82).inherits
-
-	module.exports = function (Buffer, Hash) {
-
-	  var K = [
-	      0x428A2F98, 0x71374491, 0xB5C0FBCF, 0xE9B5DBA5,
-	      0x3956C25B, 0x59F111F1, 0x923F82A4, 0xAB1C5ED5,
-	      0xD807AA98, 0x12835B01, 0x243185BE, 0x550C7DC3,
-	      0x72BE5D74, 0x80DEB1FE, 0x9BDC06A7, 0xC19BF174,
-	      0xE49B69C1, 0xEFBE4786, 0x0FC19DC6, 0x240CA1CC,
-	      0x2DE92C6F, 0x4A7484AA, 0x5CB0A9DC, 0x76F988DA,
-	      0x983E5152, 0xA831C66D, 0xB00327C8, 0xBF597FC7,
-	      0xC6E00BF3, 0xD5A79147, 0x06CA6351, 0x14292967,
-	      0x27B70A85, 0x2E1B2138, 0x4D2C6DFC, 0x53380D13,
-	      0x650A7354, 0x766A0ABB, 0x81C2C92E, 0x92722C85,
-	      0xA2BFE8A1, 0xA81A664B, 0xC24B8B70, 0xC76C51A3,
-	      0xD192E819, 0xD6990624, 0xF40E3585, 0x106AA070,
-	      0x19A4C116, 0x1E376C08, 0x2748774C, 0x34B0BCB5,
-	      0x391C0CB3, 0x4ED8AA4A, 0x5B9CCA4F, 0x682E6FF3,
-	      0x748F82EE, 0x78A5636F, 0x84C87814, 0x8CC70208,
-	      0x90BEFFFA, 0xA4506CEB, 0xBEF9A3F7, 0xC67178F2
-	    ]
-
-	  var W = new Array(64)
-
-	  function Sha256() {
-	    this.init()
-
-	    this._w = W //new Array(64)
-
-	    Hash.call(this, 16*4, 14*4)
-	  }
-
-	  inherits(Sha256, Hash)
-
-	  Sha256.prototype.init = function () {
-
-	    this._a = 0x6a09e667|0
-	    this._b = 0xbb67ae85|0
-	    this._c = 0x3c6ef372|0
-	    this._d = 0xa54ff53a|0
-	    this._e = 0x510e527f|0
-	    this._f = 0x9b05688c|0
-	    this._g = 0x1f83d9ab|0
-	    this._h = 0x5be0cd19|0
-
-	    this._len = this._s = 0
-
-	    return this
-	  }
-
-	  function S (X, n) {
-	    return (X >>> n) | (X << (32 - n));
-	  }
-
-	  function R (X, n) {
-	    return (X >>> n);
-	  }
-
-	  function Ch (x, y, z) {
-	    return ((x & y) ^ ((~x) & z));
-	  }
-
-	  function Maj (x, y, z) {
-	    return ((x & y) ^ (x & z) ^ (y & z));
-	  }
-
-	  function Sigma0256 (x) {
-	    return (S(x, 2) ^ S(x, 13) ^ S(x, 22));
-	  }
-
-	  function Sigma1256 (x) {
-	    return (S(x, 6) ^ S(x, 11) ^ S(x, 25));
-	  }
-
-	  function Gamma0256 (x) {
-	    return (S(x, 7) ^ S(x, 18) ^ R(x, 3));
-	  }
-
-	  function Gamma1256 (x) {
-	    return (S(x, 17) ^ S(x, 19) ^ R(x, 10));
-	  }
-
-	  Sha256.prototype._update = function(M) {
-
-	    var W = this._w
-	    var a, b, c, d, e, f, g, h
-	    var T1, T2
-
-	    a = this._a | 0
-	    b = this._b | 0
-	    c = this._c | 0
-	    d = this._d | 0
-	    e = this._e | 0
-	    f = this._f | 0
-	    g = this._g | 0
-	    h = this._h | 0
-
-	    for (var j = 0; j < 64; j++) {
-	      var w = W[j] = j < 16
-	        ? M.readInt32BE(j * 4)
-	        : Gamma1256(W[j - 2]) + W[j - 7] + Gamma0256(W[j - 15]) + W[j - 16]
-
-	      T1 = h + Sigma1256(e) + Ch(e, f, g) + K[j] + w
-
-	      T2 = Sigma0256(a) + Maj(a, b, c);
-	      h = g; g = f; f = e; e = d + T1; d = c; c = b; b = a; a = T1 + T2;
-	    }
-
-	    this._a = (a + this._a) | 0
-	    this._b = (b + this._b) | 0
-	    this._c = (c + this._c) | 0
-	    this._d = (d + this._d) | 0
-	    this._e = (e + this._e) | 0
-	    this._f = (f + this._f) | 0
-	    this._g = (g + this._g) | 0
-	    this._h = (h + this._h) | 0
-
-	  };
-
-	  Sha256.prototype._hash = function () {
-	    var H = new Buffer(32)
-
-	    H.writeInt32BE(this._a,  0)
-	    H.writeInt32BE(this._b,  4)
-	    H.writeInt32BE(this._c,  8)
-	    H.writeInt32BE(this._d, 12)
-	    H.writeInt32BE(this._e, 16)
-	    H.writeInt32BE(this._f, 20)
-	    H.writeInt32BE(this._g, 24)
-	    H.writeInt32BE(this._h, 28)
-
-	    return H
-	  }
-
-	  return Sha256
-
-	}
-
-
-/***/ },
-/* 81 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var inherits = __webpack_require__(82).inherits
-
-	module.exports = function (Buffer, Hash) {
-	  var K = [
-	    0x428a2f98, 0xd728ae22, 0x71374491, 0x23ef65cd,
-	    0xb5c0fbcf, 0xec4d3b2f, 0xe9b5dba5, 0x8189dbbc,
-	    0x3956c25b, 0xf348b538, 0x59f111f1, 0xb605d019,
-	    0x923f82a4, 0xaf194f9b, 0xab1c5ed5, 0xda6d8118,
-	    0xd807aa98, 0xa3030242, 0x12835b01, 0x45706fbe,
-	    0x243185be, 0x4ee4b28c, 0x550c7dc3, 0xd5ffb4e2,
-	    0x72be5d74, 0xf27b896f, 0x80deb1fe, 0x3b1696b1,
-	    0x9bdc06a7, 0x25c71235, 0xc19bf174, 0xcf692694,
-	    0xe49b69c1, 0x9ef14ad2, 0xefbe4786, 0x384f25e3,
-	    0x0fc19dc6, 0x8b8cd5b5, 0x240ca1cc, 0x77ac9c65,
-	    0x2de92c6f, 0x592b0275, 0x4a7484aa, 0x6ea6e483,
-	    0x5cb0a9dc, 0xbd41fbd4, 0x76f988da, 0x831153b5,
-	    0x983e5152, 0xee66dfab, 0xa831c66d, 0x2db43210,
-	    0xb00327c8, 0x98fb213f, 0xbf597fc7, 0xbeef0ee4,
-	    0xc6e00bf3, 0x3da88fc2, 0xd5a79147, 0x930aa725,
-	    0x06ca6351, 0xe003826f, 0x14292967, 0x0a0e6e70,
-	    0x27b70a85, 0x46d22ffc, 0x2e1b2138, 0x5c26c926,
-	    0x4d2c6dfc, 0x5ac42aed, 0x53380d13, 0x9d95b3df,
-	    0x650a7354, 0x8baf63de, 0x766a0abb, 0x3c77b2a8,
-	    0x81c2c92e, 0x47edaee6, 0x92722c85, 0x1482353b,
-	    0xa2bfe8a1, 0x4cf10364, 0xa81a664b, 0xbc423001,
-	    0xc24b8b70, 0xd0f89791, 0xc76c51a3, 0x0654be30,
-	    0xd192e819, 0xd6ef5218, 0xd6990624, 0x5565a910,
-	    0xf40e3585, 0x5771202a, 0x106aa070, 0x32bbd1b8,
-	    0x19a4c116, 0xb8d2d0c8, 0x1e376c08, 0x5141ab53,
-	    0x2748774c, 0xdf8eeb99, 0x34b0bcb5, 0xe19b48a8,
-	    0x391c0cb3, 0xc5c95a63, 0x4ed8aa4a, 0xe3418acb,
-	    0x5b9cca4f, 0x7763e373, 0x682e6ff3, 0xd6b2b8a3,
-	    0x748f82ee, 0x5defb2fc, 0x78a5636f, 0x43172f60,
-	    0x84c87814, 0xa1f0ab72, 0x8cc70208, 0x1a6439ec,
-	    0x90befffa, 0x23631e28, 0xa4506ceb, 0xde82bde9,
-	    0xbef9a3f7, 0xb2c67915, 0xc67178f2, 0xe372532b,
-	    0xca273ece, 0xea26619c, 0xd186b8c7, 0x21c0c207,
-	    0xeada7dd6, 0xcde0eb1e, 0xf57d4f7f, 0xee6ed178,
-	    0x06f067aa, 0x72176fba, 0x0a637dc5, 0xa2c898a6,
-	    0x113f9804, 0xbef90dae, 0x1b710b35, 0x131c471b,
-	    0x28db77f5, 0x23047d84, 0x32caab7b, 0x40c72493,
-	    0x3c9ebe0a, 0x15c9bebc, 0x431d67c4, 0x9c100d4c,
-	    0x4cc5d4be, 0xcb3e42b6, 0x597f299c, 0xfc657e2a,
-	    0x5fcb6fab, 0x3ad6faec, 0x6c44198c, 0x4a475817
-	  ]
-
-	  var W = new Array(160)
-
-	  function Sha512() {
-	    this.init()
-	    this._w = W
-
-	    Hash.call(this, 128, 112)
-	  }
-
-	  inherits(Sha512, Hash)
-
-	  Sha512.prototype.init = function () {
-
-	    this._a = 0x6a09e667|0
-	    this._b = 0xbb67ae85|0
-	    this._c = 0x3c6ef372|0
-	    this._d = 0xa54ff53a|0
-	    this._e = 0x510e527f|0
-	    this._f = 0x9b05688c|0
-	    this._g = 0x1f83d9ab|0
-	    this._h = 0x5be0cd19|0
-
-	    this._al = 0xf3bcc908|0
-	    this._bl = 0x84caa73b|0
-	    this._cl = 0xfe94f82b|0
-	    this._dl = 0x5f1d36f1|0
-	    this._el = 0xade682d1|0
-	    this._fl = 0x2b3e6c1f|0
-	    this._gl = 0xfb41bd6b|0
-	    this._hl = 0x137e2179|0
-
-	    this._len = this._s = 0
-
-	    return this
-	  }
-
-	  function S (X, Xl, n) {
-	    return (X >>> n) | (Xl << (32 - n))
-	  }
-
-	  function Ch (x, y, z) {
-	    return ((x & y) ^ ((~x) & z));
-	  }
-
-	  function Maj (x, y, z) {
-	    return ((x & y) ^ (x & z) ^ (y & z));
-	  }
-
-	  Sha512.prototype._update = function(M) {
-
-	    var W = this._w
-	    var a, b, c, d, e, f, g, h
-	    var al, bl, cl, dl, el, fl, gl, hl
-
-	    a = this._a | 0
-	    b = this._b | 0
-	    c = this._c | 0
-	    d = this._d | 0
-	    e = this._e | 0
-	    f = this._f | 0
-	    g = this._g | 0
-	    h = this._h | 0
-
-	    al = this._al | 0
-	    bl = this._bl | 0
-	    cl = this._cl | 0
-	    dl = this._dl | 0
-	    el = this._el | 0
-	    fl = this._fl | 0
-	    gl = this._gl | 0
-	    hl = this._hl | 0
-
-	    for (var i = 0; i < 80; i++) {
-	      var j = i * 2
-
-	      var Wi, Wil
-
-	      if (i < 16) {
-	        Wi = W[j] = M.readInt32BE(j * 4)
-	        Wil = W[j + 1] = M.readInt32BE(j * 4 + 4)
-
-	      } else {
-	        var x  = W[j - 15*2]
-	        var xl = W[j - 15*2 + 1]
-	        var gamma0  = S(x, xl, 1) ^ S(x, xl, 8) ^ (x >>> 7)
-	        var gamma0l = S(xl, x, 1) ^ S(xl, x, 8) ^ S(xl, x, 7)
-
-	        x  = W[j - 2*2]
-	        xl = W[j - 2*2 + 1]
-	        var gamma1  = S(x, xl, 19) ^ S(xl, x, 29) ^ (x >>> 6)
-	        var gamma1l = S(xl, x, 19) ^ S(x, xl, 29) ^ S(xl, x, 6)
-
-	        // W[i] = gamma0 + W[i - 7] + gamma1 + W[i - 16]
-	        var Wi7  = W[j - 7*2]
-	        var Wi7l = W[j - 7*2 + 1]
-
-	        var Wi16  = W[j - 16*2]
-	        var Wi16l = W[j - 16*2 + 1]
-
-	        Wil = gamma0l + Wi7l
-	        Wi  = gamma0  + Wi7 + ((Wil >>> 0) < (gamma0l >>> 0) ? 1 : 0)
-	        Wil = Wil + gamma1l
-	        Wi  = Wi  + gamma1  + ((Wil >>> 0) < (gamma1l >>> 0) ? 1 : 0)
-	        Wil = Wil + Wi16l
-	        Wi  = Wi  + Wi16 + ((Wil >>> 0) < (Wi16l >>> 0) ? 1 : 0)
-
-	        W[j] = Wi
-	        W[j + 1] = Wil
-	      }
-
-	      var maj = Maj(a, b, c)
-	      var majl = Maj(al, bl, cl)
-
-	      var sigma0h = S(a, al, 28) ^ S(al, a, 2) ^ S(al, a, 7)
-	      var sigma0l = S(al, a, 28) ^ S(a, al, 2) ^ S(a, al, 7)
-	      var sigma1h = S(e, el, 14) ^ S(e, el, 18) ^ S(el, e, 9)
-	      var sigma1l = S(el, e, 14) ^ S(el, e, 18) ^ S(e, el, 9)
-
-	      // t1 = h + sigma1 + ch + K[i] + W[i]
-	      var Ki = K[j]
-	      var Kil = K[j + 1]
-
-	      var ch = Ch(e, f, g)
-	      var chl = Ch(el, fl, gl)
-
-	      var t1l = hl + sigma1l
-	      var t1 = h + sigma1h + ((t1l >>> 0) < (hl >>> 0) ? 1 : 0)
-	      t1l = t1l + chl
-	      t1 = t1 + ch + ((t1l >>> 0) < (chl >>> 0) ? 1 : 0)
-	      t1l = t1l + Kil
-	      t1 = t1 + Ki + ((t1l >>> 0) < (Kil >>> 0) ? 1 : 0)
-	      t1l = t1l + Wil
-	      t1 = t1 + Wi + ((t1l >>> 0) < (Wil >>> 0) ? 1 : 0)
-
-	      // t2 = sigma0 + maj
-	      var t2l = sigma0l + majl
-	      var t2 = sigma0h + maj + ((t2l >>> 0) < (sigma0l >>> 0) ? 1 : 0)
-
-	      h  = g
-	      hl = gl
-	      g  = f
-	      gl = fl
-	      f  = e
-	      fl = el
-	      el = (dl + t1l) | 0
-	      e  = (d + t1 + ((el >>> 0) < (dl >>> 0) ? 1 : 0)) | 0
-	      d  = c
-	      dl = cl
-	      c  = b
-	      cl = bl
-	      b  = a
-	      bl = al
-	      al = (t1l + t2l) | 0
-	      a  = (t1 + t2 + ((al >>> 0) < (t1l >>> 0) ? 1 : 0)) | 0
-	    }
-
-	    this._al = (this._al + al) | 0
-	    this._bl = (this._bl + bl) | 0
-	    this._cl = (this._cl + cl) | 0
-	    this._dl = (this._dl + dl) | 0
-	    this._el = (this._el + el) | 0
-	    this._fl = (this._fl + fl) | 0
-	    this._gl = (this._gl + gl) | 0
-	    this._hl = (this._hl + hl) | 0
-
-	    this._a = (this._a + a + ((this._al >>> 0) < (al >>> 0) ? 1 : 0)) | 0
-	    this._b = (this._b + b + ((this._bl >>> 0) < (bl >>> 0) ? 1 : 0)) | 0
-	    this._c = (this._c + c + ((this._cl >>> 0) < (cl >>> 0) ? 1 : 0)) | 0
-	    this._d = (this._d + d + ((this._dl >>> 0) < (dl >>> 0) ? 1 : 0)) | 0
-	    this._e = (this._e + e + ((this._el >>> 0) < (el >>> 0) ? 1 : 0)) | 0
-	    this._f = (this._f + f + ((this._fl >>> 0) < (fl >>> 0) ? 1 : 0)) | 0
-	    this._g = (this._g + g + ((this._gl >>> 0) < (gl >>> 0) ? 1 : 0)) | 0
-	    this._h = (this._h + h + ((this._hl >>> 0) < (hl >>> 0) ? 1 : 0)) | 0
-	  }
-
-	  Sha512.prototype._hash = function () {
-	    var H = new Buffer(64)
-
-	    function writeInt64BE(h, l, offset) {
-	      H.writeInt32BE(h, offset)
-	      H.writeInt32BE(l, offset + 4)
-	    }
-
-	    writeInt64BE(this._a, this._al, 0)
-	    writeInt64BE(this._b, this._bl, 8)
-	    writeInt64BE(this._c, this._cl, 16)
-	    writeInt64BE(this._d, this._dl, 24)
-	    writeInt64BE(this._e, this._el, 32)
-	    writeInt64BE(this._f, this._fl, 40)
-	    writeInt64BE(this._g, this._gl, 48)
-	    writeInt64BE(this._h, this._hl, 56)
-
-	    return H
-	  }
-
-	  return Sha512
-
-	}
-
-
-/***/ },
-/* 82 */
+/* 70 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global, process) {// Copyright Joyent, Inc. and other Node contributors.
@@ -28219,7 +27487,7 @@ var StellarLib =
 	}
 	exports.isPrimitive = isPrimitive;
 
-	exports.isBuffer = __webpack_require__(83);
+	exports.isBuffer = __webpack_require__(71);
 
 	function objectToString(o) {
 	  return Object.prototype.toString.call(o);
@@ -28263,7 +27531,7 @@ var StellarLib =
 	 *     prototype.
 	 * @param {function} superCtor Constructor function to inherit prototype from.
 	 */
-	exports.inherits = __webpack_require__(85);
+	exports.inherits = __webpack_require__(73);
 
 	exports._extend = function(origin, add) {
 	  // Don't do anything if add isn't an object
@@ -28281,10 +27549,10 @@ var StellarLib =
 	  return Object.prototype.hasOwnProperty.call(obj, prop);
 	}
 
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(84)))
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(72)))
 
 /***/ },
-/* 83 */
+/* 71 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = function isBuffer(arg) {
@@ -28295,7 +27563,7 @@ var StellarLib =
 	}
 
 /***/ },
-/* 84 */
+/* 72 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// shim for using process in browser
@@ -28359,7 +27627,7 @@ var StellarLib =
 
 
 /***/ },
-/* 85 */
+/* 73 */
 /***/ function(module, exports, __webpack_require__) {
 
 	if (typeof Object.create === 'function') {
