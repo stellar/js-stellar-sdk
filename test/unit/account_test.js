@@ -45,3 +45,16 @@ describe('Account.master', function() {
     expect(account).to.be.instanceof(StellarLib.Account);
   });
 });
+
+describe('Account.isValidAddress', function() {
+
+  it("returns true for valid address", function() {
+    let check = StellarLib.Account.isValidAddress('gdefPxJzrTtVxvMxBptUHHXbAJJjFAJ7RZttf4x1w51WsykwAB');
+    expect(check).to.be.true;
+  });
+
+  it("returns false for invalid address", function() {
+    let check = StellarLib.Account.isValidAddress('gdefPxJzrTtVxvMxBptUHHXbAJJjFAJ7RZttf4x1w51WsykwAC');
+    expect(check).to.be.false;
+  });
+});
