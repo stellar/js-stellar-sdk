@@ -1,5 +1,4 @@
 # js-stellar-lib
-=======
 
 A client side Stellar Javascript Library for building and signing Stellar transactions, and communicating with a remote Stellar Horizon Server.
 
@@ -15,7 +14,62 @@ npm install js-stellar-lib
 
 ## Documentation
 
+See [Documentation](https://github.com/stellar/js-stellar-lib/blob/master/DOCUMENTATION.md).
 
+## Examples
+
+### Loading an account
+
+An account is created using one of the static methods on the account class, such as Account.random() or Account.fromSeed(someSeed). In this example, we'll create an account using a seed, and then load its current sequence number and balances from the network.
+
+```javascript
+// first create the server connection object
+var server = new StellarLib.Server({port: 3000});
+// create an Account from a seed
+var source = StellarLib.Account.fromSeed("sft74k3MagHG6iF36yeSytQzCCLsJ2Fo9K4YJpQCECwgoUobc4v");
+// load the account, which will modify the Account object we just created
+server.loadAccount(source)
+    .then(function () {
+        // now our source account will have its sequence number and balances loaded
+        console.log(source);
+    })
+    .catch(function (err) {
+        console.error(err);
+    })
+```
+
+### Building a Transaction
+
+Once we've created an Account object that has a private key, as in the example above, we can now use that account to create a transaction. In this example, we'll create a simple payment transaction that sends a payment from a source account to a destination account.
+
+```javascript
+// create the server connection object
+var server = new StellarLib.Server({port: 3000});
+// create our source account from seed
+var source = StellarLib.Account.fromSeed("sft74k3MagHG6iF36yeSytQzCCLsJ2Fo9K4YJpQCECwgoUobc4v");
+// our destination only needs to be the address
+var destination = "gspbxqXqEUZkiCCEFFCN9Vu4FLucdjLLdLcsV6E82Qc1T7ehsTC";
+// the currency we want to send
+var currency = StellarLib.Currency.native();
+// the amount of the currency you want to send
+var amount = "1000";
+// build the transaction
+var transaction = new StellarLib.TransactionBuilder(source)
+    .payment(destination, currency, amount)
+    .build();
+// load the account's current details from the server
+server.loadAccount(source)
+    .then(function () {
+        // submit the transaction to the server
+        return server.submitTransaction(transaction)
+            .then(function (res) {
+                console.log(res);
+            })
+            .catch(function (err) {
+                console.error(err);
+            })
+    });
+```
 
 ## Building the Browser Bundle
 
@@ -49,4 +103,4 @@ For information on how to contribute, please refer to our [CONTRIBUTING](https:/
 
 ## License
 
-Code released under [the Apache 2 license](https://github.com/stellar/js-stellar-lib/blob/master/LICENSE.txt).
+Code released under [the Apache 2 license](https://github.com/stellar/js-stellar-lib/blob/master/LICENSE).

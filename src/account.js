@@ -1,4 +1,4 @@
-import {Keypair} from "stellar-base";
+import {Keypair, decodeBase58Check} from "stellar-base";
 
 import {Currency} from "./currency";
 
@@ -22,6 +22,15 @@ export class Account {
     static fromMaster() {
         let keypair = Keypair.master();
         return new this(keypair);
+    }
+
+    static isValidAddress(address) {
+        try {
+            decodeBase58Check("accountId", address);
+        } catch(err) {
+            return false;
+        }
+        return true;
     }
 
     /**
