@@ -1,3 +1,5 @@
+import {TransactionPage} from "./transaction_page";
+
 /**
 * Server handles a network connection to a Horizon instance and exposes an
 * interface for requests to that instance.
@@ -45,11 +47,77 @@ export class Server {
                     if (err) {
                         reject(err);
                     } else {
-                        account.sequence = res.body.sequence;
+                        account.sequence = res.body.sequence + 1;
                         account.balances = res.body.balances;
                         resolve();
                     }
                 });
         });
     }
+
+    /**
+    * Returns a TransactionPage for the transactions on the given address.
+    * Transaction results will be ordered in descending order. The returned
+    * TransactionPage can be passed to Server.getNextTransactions() or
+    * Server.getPreviousTransactions() for the next page of transactions.
+    * @param {string} address - The address of the account to retrieve txns from.
+    * @param {object} [opts]
+    * @param {number} [opts.limit] - The max amount of transactions to return in
+    *                                this page. Default is 100.
+    */
+    getAccountTransactions(address, opts={}) {
+        var self = this;
+        var limit = opts.limit ? opts.limit : 100;
+        return new Promise(function (resolve, reject) {
+            request
+                .get("http://" + self.hostname + ":" + self.port +
+                    '/accounts/' + address + '/transactions' +
+                    '?limit=' + limit)
+                .end(function(err, res) {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(new TransactionPage(res.body));
+                    }
+                });
+        });
+    }
+
+    /**
+    * Given a TransactionPage, this will return a new transaction page with
+    * the "next" transactions in the collection.
+    * @param {TransactionPage} page
+    * @param {object} [opts]
+    * @param {number} [opts.limit] - The max amount of transactions to return in
+    *                                this page. Default is 100.
+    */
+    getNextTransactions(page, opts) {
+        return new Promise(function (resolve, reject) {
+            request
+                .get(page.next)
+                .end(function (err, res) {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(new TransactionPage(res.body));
+                    }
+                });
+        });
+    }
+
+    /* TODO: implement once previous is supported in horizon
+    getPreviousTransactions(page, opts) {
+        return new Promise(function (resolve, reject) {
+            request
+                .get(page.next)
+                .end(function (err, res) {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(res.body);
+                    }
+                });
+        });
+    }
+    */
 }
