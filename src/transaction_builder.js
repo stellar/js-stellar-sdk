@@ -54,7 +54,7 @@ export class TransactionBuilder {
 
     /**
     * Adds a payment operation to the transaction.
-    * @param {Account}  destination         - The destination account for the payment.
+    * @param {string}  destination          - The destination address for the payment.
     * @param {Currency} currency            - The currency to send
     * @param {string|number} amount         - The amount to send.
     * @param {object}   opts

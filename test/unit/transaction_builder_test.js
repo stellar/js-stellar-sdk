@@ -10,7 +10,7 @@ describe('TransactionBuilder', function() {
         var transaction;
         beforeEach(function () {
             source = StellarLib.Account.fromSeed("sft74k3MagHG6iF36yeSytQzCCLsJ2Fo9K4YJpQCECwgoUobc4v");
-            destination = StellarLib.Account.fromSeed("sft74k3MagHG6iF36yeSytQzCCLsJ2Fo9K4YJpQCECwgoUobc4v");
+            destination = "gsbkQ1tG4fEqk1sApdeQYZG9r19yVm28m2Zz72gRGjoDKTHi7UL";
             amount = "1000";
             currency = StellarLib.Currency.native();
 

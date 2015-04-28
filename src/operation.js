@@ -1,4 +1,4 @@
-import {xdr, Hyper, hash, encodeBase58Check} from "stellar-base";
+import {xdr, Keypair, Hyper, hash, encodeBase58Check} from "stellar-base";
 
 import {Account} from "./account";
 import {Currency} from "./currency";
@@ -26,7 +26,7 @@ export class Operation {
         if (!opts.amount) {
             throw new Error("Must provide an amount for a payment operation");
         }
-        let destinationPublicKey    = opts.destination.masterKeypair.publicKey();
+        let destinationPublicKey    = Keypair.fromAddress(opts.destination).publicKey();
         let currencyXdr             = opts.currency.toXdrObject();
         let value                   = Hyper.fromString(String(opts.amount));
         let sourcePublicKey         = opts.source ? opts.source.masterKeypair : null;
