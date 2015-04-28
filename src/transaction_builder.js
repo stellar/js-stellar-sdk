@@ -74,6 +74,21 @@ export class TransactionBuilder {
     }
 
     /**
+    * Adds a Change Trust operation to the transaction.
+    * @param {Currency} currency - The currency for the trust line.
+    * @param {object} opts
+    * @param {string} [opts.limit] - The limit for the currency, defaults to max int64.
+    *                                If the limit is set to 0 it deletes the trustline.
+    * @param {string} [opts.source] - The source account (defaults to transaction source).
+    */
+    changeTrust(currency, opts={}) {
+        opts.currency = currency;
+        let xdr = Operation.changeTrust(opts);
+        this._operations.push(xdr);
+        return this;
+    }
+
+    /**
     * This will build the transaction and sign it with the source account. It will
     * also increment the source account's sequence number by 1.
     */

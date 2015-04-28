@@ -35,7 +35,7 @@ server.loadAccount(source)
     })
 ```
 
-### Building a Transaction
+### Building a Payment Transaction
 
 Once we've created an Account object that has a private key, as in the example above, we can now use that account to create a transaction. In this example, we'll create a simple payment transaction that sends a payment from a source account to a destination account.
 
@@ -53,6 +53,40 @@ var amount = "1000";
 // build the transaction
 var transaction = new StellarLib.TransactionBuilder(source)
     .payment(destination, currency, amount)
+    .build();
+// load the account's current details from the server
+server.loadAccount(source)
+    .then(function () {
+        // submit the transaction to the server
+        return server.submitTransaction(transaction)
+            .then(function (res) {
+                console.log(res);
+            })
+            .catch(function (err) {
+                console.error(err);
+            })
+    });
+```
+
+### Building a set trustline transaction
+
+To set a trustline from one account to another, you create a transaction with a
+"change trust" operation. In this example, we'll have our root account ("source")
+set a trust line to another account for USD. (Both accounts have to be funded for
+this transaction to work).
+
+```javascript
+// create the server connection object
+var server = new StellarLib.Server({port: 3000});
+// create our source account from seed
+var source = StellarLib.Account.fromSeed("sft74k3MagHG6iF36yeSytQzCCLsJ2Fo9K4YJpQCECwgoUobc4v");
+// The account the source is trusting (the "issuer")
+var destination = "gsZRJCfkv69PBw1Cz8qJfb9k4i3EXiJenxdrYKCog3mWbk5thPb";
+// the currency we're trusting the account for
+var currency = new StellarLib.Currency("USD", "gsZRJCfkv69PBw1Cz8qJfb9k4i3EXiJenxdrYKCog3mWbk5thPb");
+// build the transaction
+var transaction = new StellarLib.TransactionBuilder(source)
+    .changeTrust(currency)
     .build();
 // load the account's current details from the server
 server.loadAccount(source)
