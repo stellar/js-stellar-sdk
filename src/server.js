@@ -56,6 +56,25 @@ export class Server {
     }
 
     /**
+    * Returns the json transaction record of the given transaction hash.
+    * @param {string} hash - The hash of the transaction.
+    */
+    getTransaction(hash) {
+        var self = this;
+        return new Promise(function (resolve, reject) {
+            request
+                .get("http://" + self.hostname + ":" + self.port + '/transactions/' + hash)
+                .end(function(err, res) {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(res.body);
+                    }
+                });
+        });
+    }
+
+    /**
     * Returns a TransactionPage for the latest transactions in the network.
     * Transaction results will be ordered in descending order. The returned
     * TransactionPage can be passed to Server.getNextTransactions() or
