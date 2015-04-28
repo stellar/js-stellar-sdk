@@ -68,6 +68,37 @@ describe("server.js tests", function () {
     });
   });
 
+  describe("Server.getTransactions", function () {
+
+    describe("with default options", function () {
+
+      beforeEach(function () {
+        // instruct the dev server to return the appropriate json for this test case
+        request
+          .post(global.fixtures.DEV_SERVER_ENDPOINT)
+          .type('json')
+          .send({
+            request: global.fixtures.TEST_GET_TRANSACTIONS.DEFAULT.REQUEST,
+            response: global.fixtures.TEST_GET_TRANSACTIONS.DEFAULT.RESPONSE
+          })
+          .end(function(err, res) {
+            done();
+          });
+      });
+
+      it("should return a transaction page with records and next link", function (done) {
+        server.getTransactions()
+          .then(function (res) {
+            expect(res.next).to.be.equal(global.fixtures.TEST_GET_TRANSACTIONS.DEFAULT.RESPONSE.body._links.next.href);
+            done();
+          })
+          .catch(function (err) {
+            done(err);
+          })
+      });
+    });
+  });
+
   describe("Server.getAccountTransactions", function () {
 
     describe("with default options", function () {

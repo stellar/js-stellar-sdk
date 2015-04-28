@@ -49,6 +49,48 @@ export default {
     }
   },
 
+  TEST_GET_TRANSACTIONS: {
+    DEFAULT: {
+      REQUEST: "/transactions?limit=100",
+      RESPONSE: {
+        body:
+        {
+          "_links": {
+            "next": {
+              "href": "http://localhost:1337/transactions?after=36323a31&limit=10&order=asc"
+            }
+          },
+          "_embedded": {
+            "records": [
+              {
+                "_links": {
+                  "self": {
+                    "href": "http://localhost:1337/transactions/86c251613f8ac1e4fe713bff1939cdefe46dd2877ddd34671506ad5dbc7e9bb5"
+                  },
+                  "account": {
+                    "href": "http://localhost:1337/accounts/gspbxqXqEUZkiCCEFFCN9Vu4FLucdjLLdLcsV6E82Qc1T7ehsTC"
+                  }
+                },
+                "hash": "86c251613f8ac1e4fe713bff1939cdefe46dd2877ddd34671506ad5dbc7e9bb5",
+                "ledger": 55,
+                "application_order": [
+                  55,
+                  1
+                ],
+                "account": "gspbxqXqEUZkiCCEFFCN9Vu4FLucdjLLdLcsV6E82Qc1T7ehsTC",
+                "account_sequence": 1,
+                "max_fee": 1000,
+                "fee_paid": 10,
+                "operation_count": 1
+              }
+            ]
+          }
+        },
+        status: 200
+      }
+    }
+  },
+
   TEST_GET_ACCOUNT_TRANSACTIONS: {
     DEFAULT: {
       REQUEST: "/accounts/gspbxqXqEUZkiCCEFFCN9Vu4FLucdjLLdLcsV6E82Qc1T7ehsTC/transactions?limit=100",

@@ -56,6 +56,32 @@ export class Server {
     }
 
     /**
+    * Returns a TransactionPage for the latest transactions in the network.
+    * Transaction results will be ordered in descending order. The returned
+    * TransactionPage can be passed to Server.getNextTransactions() or
+    * Server.getPreviousTransactions() for the next page of transactions.
+    * @param {object} [opts]
+    * @param {number} [opts.limit] - The max amount of transactions to return in
+    *                                this page. Default is 100.
+    */
+    getTransactions(opts={}) {
+        var self = this;
+        var limit = opts.limit ? opts.limit : 100;
+        return new Promise(function (resolve, reject) {
+            request
+                .get("http://" + self.hostname + ":" + self.port +
+                    '/transactions' + '?limit=' + limit)
+                .end(function(err, res) {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(new TransactionPage(res.body));
+                    }
+                });
+        });
+    }
+
+    /**
     * Returns a TransactionPage for the transactions on the given address.
     * Transaction results will be ordered in descending order. The returned
     * TransactionPage can be passed to Server.getNextTransactions() or
