@@ -1,5 +1,7 @@
 import {TransactionPage} from "./transaction_page";
 
+let request = require("superagent");
+
 /**
 * Server handles a network connection to a Horizon instance and exposes an
 * interface for requests to that instance.

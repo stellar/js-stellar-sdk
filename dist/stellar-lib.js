@@ -675,7 +675,8 @@ var StellarLib =
 	    * A currency type describes a currency and issuer pair. In the case of the native
 	    * currency XLM, the issuer will be null.
 	    * @constructor
-	    * @type {string} The currency code
+	    * @param {string} type - The currency code.
+	    * @param {string} issuer - The address of the issuer.
 	    */
 
 	    function Currency(type, issuer) {
@@ -736,6 +737,8 @@ var StellarLib =
 	});
 
 	var TransactionPage = __webpack_require__(12).TransactionPage;
+
+	var request = __webpack_require__(9);
 
 	/**
 	* Server handles a network connection to a Horizon instance and exposes an
