@@ -22,7 +22,12 @@ app.post('/fixtures', function (req, res) {
 
 app.get('*', function(req, res) {
     var response = fixtures[req.url];
-    res.status(response.status).send(response.body);
+    if (!response) {
+        res.status(404).send("expected request url not received");
+    } else {
+        res.status(response.status).send(response.body);
+    }
+
 });
 
 var server = app.listen(1337, function() {});
