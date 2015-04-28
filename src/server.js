@@ -7,7 +7,15 @@ let request = require("superagent");
 * interface for requests to that instance.
 */
 export class Server {
+    /**
+    * @param {object}   [config] - The server configuration.
+    * @param {boolean}  [config.secure] - Use https, defaults false.
+    * @param {string}   [config.hostname] - The hostname of the Hoirzon server.
+    *                                       defaults to "localhost".
+    * @param {number}   [config.port] - Horizon port, defaults to 3000.
+    */
     constructor(config={}) {
+        this.protocol = config.secure ? "https://" : "http://";
         this.hostname = config.hostname || "localhost";
         this.port = config.port || 3000;
     }
@@ -20,7 +28,7 @@ export class Server {
         var self = this;
         return new Promise(function (resolve, reject) {
             request
-                .post("http://" + self.hostname + ":" + self.port + '/transactions')
+                .post(self.protocol + self.hostname + ":" + self.port + '/transactions')
                 .type('json')
                 .send({
                     tx: transaction.toEnvelope().toXDR().toString("hex")
@@ -44,7 +52,7 @@ export class Server {
         var self = this;
         return new Promise(function (resolve, reject) {
             request
-                .get("http://" + self.hostname + ":" + self.port + '/accounts/' + account.address)
+                .get(self.protocol + self.hostname + ":" + self.port + '/accounts/' + account.address)
                 .end(function(err, res) {
                     if (err) {
                         reject(err);
@@ -65,7 +73,7 @@ export class Server {
         var self = this;
         return new Promise(function (resolve, reject) {
             request
-                .get("http://" + self.hostname + ":" + self.port + '/transactions/' + hash)
+                .get(self.protocol + self.hostname + ":" + self.port + '/transactions/' + hash)
                 .end(function(err, res) {
                     if (err) {
                         reject(err);
@@ -90,7 +98,7 @@ export class Server {
         var limit = opts.limit ? opts.limit : 100;
         return new Promise(function (resolve, reject) {
             request
-                .get("http://" + self.hostname + ":" + self.port +
+                .get(self.protocol + self.hostname + ":" + self.port +
                     '/transactions' + '?limit=' + limit)
                 .end(function(err, res) {
                     if (err) {
@@ -117,7 +125,7 @@ export class Server {
         var limit = opts.limit ? opts.limit : 100;
         return new Promise(function (resolve, reject) {
             request
-                .get("http://" + self.hostname + ":" + self.port +
+                .get(self.protocol + self.hostname + ":" + self.port +
                     '/accounts/' + address + '/transactions' +
                     '?limit=' + limit)
                 .end(function(err, res) {
