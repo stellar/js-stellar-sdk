@@ -559,7 +559,7 @@ var StellarLib =
 
 	            /**
 	            * Adds a payment operation to the transaction.
-	            * @param {Account}  destination         - The destination account for the payment.
+	            * @param {string}  destination          - The destination address for the payment.
 	            * @param {Currency} currency            - The currency to send
 	            * @param {string|number} amount         - The amount to send.
 	            * @param {object}   opts
@@ -761,6 +761,34 @@ var StellarLib =
 	                });
 	            }
 	        },
+	        getTransactions: {
+
+	            /**
+	            * Returns a TransactionPage for the latest transactions in the network.
+	            * Transaction results will be ordered in descending order. The returned
+	            * TransactionPage can be passed to Server.getNextTransactions() or
+	            * Server.getPreviousTransactions() for the next page of transactions.
+	            * @param {object} [opts]
+	            * @param {number} [opts.limit] - The max amount of transactions to return in
+	            *                                this page. Default is 100.
+	            */
+
+	            value: function getTransactions() {
+	                var opts = arguments[0] === undefined ? {} : arguments[0];
+
+	                var self = this;
+	                var limit = opts.limit ? opts.limit : 100;
+	                return new Promise(function (resolve, reject) {
+	                    request.get("http://" + self.hostname + ":" + self.port + "/transactions" + "?limit=" + limit).end(function (err, res) {
+	                        if (err) {
+	                            reject(err);
+	                        } else {
+	                            resolve(new TransactionPage(res.body));
+	                        }
+	                    });
+	                });
+	            }
+	        },
 	        getAccountTransactions: {
 
 	            /**
@@ -791,6 +819,16 @@ var StellarLib =
 	            }
 	        },
 	        getNextTransactions: {
+
+	            /**
+	            * Given a TransactionPage, this will return a new transaction page with
+	            * the "next" transactions in the collection.
+	            * @param {TransactionPage} page
+	            * @param {object} [opts]
+	            * @param {number} [opts.limit] - The max amount of transactions to return in
+	            *                                this page. Default is 100.
+	            */
+
 	            value: function getNextTransactions(page, opts) {
 	                return new Promise(function (resolve, reject) {
 	                    request.get(page.next).end(function (err, res) {
@@ -1995,6 +2033,7 @@ var StellarLib =
 	var _stellarBase = __webpack_require__(14);
 
 	var xdr = _stellarBase.xdr;
+	var Keypair = _stellarBase.Keypair;
 	var Hyper = _stellarBase.Hyper;
 	var hash = _stellarBase.hash;
 	var encodeBase58Check = _stellarBase.encodeBase58Check;
@@ -2033,7 +2072,7 @@ var StellarLib =
 	                if (!opts.amount) {
 	                    throw new Error("Must provide an amount for a payment operation");
 	                }
-	                var destinationPublicKey = opts.destination.masterKeypair.publicKey();
+	                var destinationPublicKey = Keypair.fromAddress(opts.destination).publicKey();
 	                var currencyXdr = opts.currency.toXdrObject();
 	                var value = Hyper.fromString(String(opts.amount));
 	                var sourcePublicKey = opts.source ? opts.source.masterKeypair : null;
@@ -2154,7 +2193,7 @@ var StellarLib =
 	 * @license  MIT
 	 */
 
-	var base64 = __webpack_require__(28)
+	var base64 = __webpack_require__(26)
 	var ieee754 = __webpack_require__(24)
 	var isArray = __webpack_require__(25)
 
@@ -3508,7 +3547,7 @@ var StellarLib =
 	exports.verify = _signing.verify;
 	exports.Keypair = __webpack_require__(22).Keypair;
 
-	var _jsXdr = __webpack_require__(26);
+	var _jsXdr = __webpack_require__(27);
 
 	exports.UnsignedHyper = _jsXdr.UnsignedHyper;
 	exports.Hyper = _jsXdr.Hyper;
@@ -6255,7 +6294,7 @@ var StellarLib =
 	/* jshint maxstatements:2147483647  */
 	/* jshint esnext:true  */
 
-	var XDR = _interopRequireWildcard(__webpack_require__(26));
+	var XDR = _interopRequireWildcard(__webpack_require__(27));
 
 	var types = XDR.config(function (xdr) {
 
@@ -8142,7 +8181,7 @@ var StellarLib =
 	  value: true
 	});
 
-	var bs58 = _interopRequire(__webpack_require__(27));
+	var bs58 = _interopRequire(__webpack_require__(28));
 
 	var _lodash = __webpack_require__(31);
 
@@ -8375,127 +8414,6 @@ var StellarLib =
 /* 26 */
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
-
-	var _interopRequireWildcard = function (obj) { return obj && obj.__esModule ? obj : { "default": obj }; };
-
-	var _defaults = function (obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; };
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	_defaults(exports, _interopRequireWildcard(__webpack_require__(33)));
-
-	var _config = __webpack_require__(34);
-
-	_defaults(exports, _interopRequireWildcard(_config));
-
-	var config = _config.config;
-
-/***/ },
-/* 27 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// vendored from http://cryptocoinjs.com/modules/misc/bs58/
-
-	// Base58 encoding/decoding
-	// Originally written by Mike Hearn for BitcoinJ
-	// Copyright (c) 2011 Google Inc
-	// Ported to JavaScript by Stefan Thomas
-	// Merged Buffer refactorings from base58-native by Stephen Pair
-	// Copyright (c) 2013 BitPay Inc
-
-	"use strict";
-
-	var ALPHABET = "gsphnaf39wBUDNEGHJKLM4PQRST7VWXYZ2bcdeCr65jkm8oFqi1tuvAxyz";
-	var ALPHABET_MAP = {};
-	for (var i = 0; i < ALPHABET.length; ++i) {
-	  ALPHABET_MAP[ALPHABET.charAt(i)] = i;
-	}
-	var BASE = 58;
-
-	function encode(buffer) {
-	  if (buffer.length === 0) {
-	    return "";
-	  }var i,
-	      j,
-	      digits = [0];
-	  for (i = 0; i < buffer.length; ++i) {
-	    for (j = 0; j < digits.length; ++j) digits[j] <<= 8;
-
-	    digits[0] += buffer[i];
-
-	    var carry = 0;
-	    for (j = 0; j < digits.length; ++j) {
-	      digits[j] += carry;
-
-	      carry = digits[j] / BASE | 0;
-	      digits[j] %= BASE;
-	    }
-
-	    while (carry) {
-	      digits.push(carry % BASE);
-
-	      carry = carry / BASE | 0;
-	    }
-	  }
-
-	  // deal with leading zeros
-	  for (i = 0; buffer[i] === 0 && i < buffer.length - 1; ++i) digits.push(0);
-
-	  // convert digits to a string
-	  var str = "";
-	  for (i = digits.length - 1; i >= 0; --i) {
-	    str += ALPHABET[digits[i]];
-	  }
-
-	  return str;
-	}
-
-	function decode(string) {
-	  if (string.length === 0) {
-	    return [];
-	  }var i,
-	      j,
-	      bytes = [0];
-	  for (i = 0; i < string.length; ++i) {
-	    var c = string[i];
-	    if (!(c in ALPHABET_MAP)) throw new Error("Non-base58 character");
-
-	    for (j = 0; j < bytes.length; ++j) bytes[j] *= BASE;
-	    bytes[0] += ALPHABET_MAP[c];
-
-	    var carry = 0;
-	    for (j = 0; j < bytes.length; ++j) {
-	      bytes[j] += carry;
-
-	      carry = bytes[j] >> 8;
-	      bytes[j] &= 255;
-	    }
-
-	    while (carry) {
-	      bytes.push(carry & 255);
-
-	      carry >>= 8;
-	    }
-	  }
-
-	  // deal with leading zeros
-	  for (i = 0; string[i] === "g" && i < string.length - 1; ++i) bytes.push(0);
-
-	  return bytes.reverse();
-	}
-
-	module.exports = {
-	  encode: encode,
-	  decode: decode
-	};
-
-/***/ },
-/* 28 */
-/***/ function(module, exports, __webpack_require__) {
-
 	var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
 	;(function (exports) {
@@ -8623,6 +8541,127 @@ var StellarLib =
 
 
 /***/ },
+/* 27 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _interopRequireWildcard = function (obj) { return obj && obj.__esModule ? obj : { "default": obj }; };
+
+	var _defaults = function (obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; };
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	_defaults(exports, _interopRequireWildcard(__webpack_require__(33)));
+
+	var _config = __webpack_require__(34);
+
+	_defaults(exports, _interopRequireWildcard(_config));
+
+	var config = _config.config;
+
+/***/ },
+/* 28 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// vendored from http://cryptocoinjs.com/modules/misc/bs58/
+
+	// Base58 encoding/decoding
+	// Originally written by Mike Hearn for BitcoinJ
+	// Copyright (c) 2011 Google Inc
+	// Ported to JavaScript by Stefan Thomas
+	// Merged Buffer refactorings from base58-native by Stephen Pair
+	// Copyright (c) 2013 BitPay Inc
+
+	"use strict";
+
+	var ALPHABET = "gsphnaf39wBUDNEGHJKLM4PQRST7VWXYZ2bcdeCr65jkm8oFqi1tuvAxyz";
+	var ALPHABET_MAP = {};
+	for (var i = 0; i < ALPHABET.length; ++i) {
+	  ALPHABET_MAP[ALPHABET.charAt(i)] = i;
+	}
+	var BASE = 58;
+
+	function encode(buffer) {
+	  if (buffer.length === 0) {
+	    return "";
+	  }var i,
+	      j,
+	      digits = [0];
+	  for (i = 0; i < buffer.length; ++i) {
+	    for (j = 0; j < digits.length; ++j) digits[j] <<= 8;
+
+	    digits[0] += buffer[i];
+
+	    var carry = 0;
+	    for (j = 0; j < digits.length; ++j) {
+	      digits[j] += carry;
+
+	      carry = digits[j] / BASE | 0;
+	      digits[j] %= BASE;
+	    }
+
+	    while (carry) {
+	      digits.push(carry % BASE);
+
+	      carry = carry / BASE | 0;
+	    }
+	  }
+
+	  // deal with leading zeros
+	  for (i = 0; buffer[i] === 0 && i < buffer.length - 1; ++i) digits.push(0);
+
+	  // convert digits to a string
+	  var str = "";
+	  for (i = digits.length - 1; i >= 0; --i) {
+	    str += ALPHABET[digits[i]];
+	  }
+
+	  return str;
+	}
+
+	function decode(string) {
+	  if (string.length === 0) {
+	    return [];
+	  }var i,
+	      j,
+	      bytes = [0];
+	  for (i = 0; i < string.length; ++i) {
+	    var c = string[i];
+	    if (!(c in ALPHABET_MAP)) throw new Error("Non-base58 character");
+
+	    for (j = 0; j < bytes.length; ++j) bytes[j] *= BASE;
+	    bytes[0] += ALPHABET_MAP[c];
+
+	    var carry = 0;
+	    for (j = 0; j < bytes.length; ++j) {
+	      bytes[j] += carry;
+
+	      carry = bytes[j] >> 8;
+	      bytes[j] &= 255;
+	    }
+
+	    while (carry) {
+	      bytes.push(carry & 255);
+
+	      carry >>= 8;
+	    }
+	  }
+
+	  // deal with leading zeros
+	  for (i = 0; string[i] === "g" && i < string.length - 1; ++i) bytes.push(0);
+
+	  return bytes.reverse();
+	}
+
+	module.exports = {
+	  encode: encode,
+	  decode: decode
+	};
+
+/***/ },
 /* 29 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -8633,12 +8672,12 @@ var StellarLib =
 	}
 
 
-	exports.sha = __webpack_require__(36)
-	exports.sha1 = __webpack_require__(37)
-	exports.sha224 = __webpack_require__(38)
-	exports.sha256 = __webpack_require__(39)
-	exports.sha384 = __webpack_require__(40)
-	exports.sha512 = __webpack_require__(41)
+	exports.sha = __webpack_require__(35)
+	exports.sha1 = __webpack_require__(36)
+	exports.sha224 = __webpack_require__(37)
+	exports.sha256 = __webpack_require__(38)
+	exports.sha384 = __webpack_require__(39)
+	exports.sha512 = __webpack_require__(40)
 
 
 /***/ },
@@ -23232,7 +23271,7 @@ var StellarLib =
 	    }
 	  } else if (true) {
 	    // Node.js.
-	    crypto = __webpack_require__(35);
+	    crypto = __webpack_require__(41);
 	    if (crypto) {
 	      nacl.setPRNG(function(x, n) {
 	        var i, v = crypto.randomBytes(n);
@@ -23683,12 +23722,6 @@ var StellarLib =
 /* 35 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* (ignored) */
-
-/***/ },
-/* 36 */
-/***/ function(module, exports, __webpack_require__) {
-
 	/* WEBPACK VAR INJECTION */(function(Buffer) {/*
 	 * A JavaScript implementation of the Secure Hash Algorithm, SHA-0, as defined
 	 * in FIPS PUB 180-1
@@ -23792,7 +23825,7 @@ var StellarLib =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13).Buffer))
 
 /***/ },
-/* 37 */
+/* 36 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {/*
@@ -23895,7 +23928,7 @@ var StellarLib =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13).Buffer))
 
 /***/ },
-/* 38 */
+/* 37 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {/**
@@ -23907,7 +23940,7 @@ var StellarLib =
 	 */
 
 	var inherits = __webpack_require__(66)
-	var SHA256 = __webpack_require__(39)
+	var SHA256 = __webpack_require__(38)
 	var Hash = __webpack_require__(62)
 
 	var W = new Array(64)
@@ -23954,7 +23987,7 @@ var StellarLib =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13).Buffer))
 
 /***/ },
-/* 39 */
+/* 38 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {/**
@@ -24110,11 +24143,11 @@ var StellarLib =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13).Buffer))
 
 /***/ },
-/* 40 */
+/* 39 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {var inherits = __webpack_require__(66)
-	var SHA512 = __webpack_require__(41);
+	var SHA512 = __webpack_require__(40);
 	var Hash = __webpack_require__(62)
 
 	var W = new Array(160)
@@ -24173,7 +24206,7 @@ var StellarLib =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13).Buffer))
 
 /***/ },
-/* 41 */
+/* 40 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {var inherits = __webpack_require__(66)
@@ -24423,6 +24456,12 @@ var StellarLib =
 	module.exports = Sha512
 
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13).Buffer))
+
+/***/ },
+/* 41 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* (ignored) */
 
 /***/ },
 /* 42 */,
@@ -26067,7 +26106,7 @@ var StellarLib =
 	  value: true
 	});
 
-	var BaseCursor = _interopRequire(__webpack_require__(70));
+	var BaseCursor = _interopRequire(__webpack_require__(71));
 
 	var calculatePadding = __webpack_require__(65).calculatePadding;
 
@@ -27038,7 +27077,7 @@ var StellarLib =
 
 	    /* CommonJS */ if ("function" === 'function' && typeof module === 'object' && module && typeof exports === 'object' && exports)
 	        module["exports"] = Long;
-	    /* AMD */ else if ("function" === 'function' && __webpack_require__(71)["amd"])
+	    /* AMD */ else if ("function" === 'function' && __webpack_require__(70)["amd"])
 	        !(__WEBPACK_AMD_DEFINE_RESULT__ = function() { return Long; }.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 	    /* Global */ else
 	        (global["dcodeIO"] = global["dcodeIO"] || {})["Long"] = Long;
@@ -27049,6 +27088,13 @@ var StellarLib =
 
 /***/ },
 /* 70 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = function() { throw new Error("define cannot be used indirect"); };
+
+
+/***/ },
+/* 71 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {var Cursor = function(buffer)
@@ -27297,13 +27343,6 @@ var StellarLib =
 	module.exports = Cursor;
 
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13).Buffer))
-
-/***/ },
-/* 71 */
-/***/ function(module, exports, __webpack_require__) {
-
-	module.exports = function() { throw new Error("define cannot be used indirect"); };
-
 
 /***/ },
 /* 72 */
