@@ -12,9 +12,6 @@ js-stellar-lib is a client side Javascript library for building client side Stel
 npm install js-stellar-lib
 ```
 
-## Documentation
-
-See [Documentation](https://github.com/stellar/js-stellar-lib/blob/master/DOCUMENTATION.md).
 
 ## Examples
 
@@ -69,6 +66,36 @@ server.loadAccount(source)
                 console.error(err);
             })
     });
+```
+
+### Loading transaction history
+
+To load an account's transaction history, call server.getAccountTransactions()
+with the account's address. It will return a TransactionPage object with the
+"records" (each a transaction json object) and a "next" field. You can then
+pass the TransactionPage to server.getNextTransactions() which will load the next
+transactions in sequence and return a new TransactionPage.
+
+```javascript
+var address = "gspbxqXqEUZkiCCEFFCN9Vu4FLucdjLLdLcsV6E82Qc1T7ehsTC";
+    var server = new StellarLib.Server({port: 3000});
+    // first load the initial transactions, limit 1
+    server.getAccountTransactions(address, {limit: 1})
+        .then(function (page) {
+            // next, load the next results (implicilty limit 1)
+            return server.getNextTransactions(page)
+                .then(function (page) {
+                    // this page will hold the second transaction
+                    console.log(page);
+                    done()
+                })
+                .catch(function (err) {
+                    done(err);
+                })
+        })
+        .catch(function (err) {
+            done(err);
+        });
 ```
 
 ## Building the Browser Bundle
