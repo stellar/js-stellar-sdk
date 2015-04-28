@@ -65,7 +65,37 @@ export class Operation {
     }
 
     /**
-    * Converts the xdr form of an operation to its object form.
+    * Returns the XDR object for a ChangeTrustOp.
+    * @param {object} opts
+    * @param {Currency} opts.currency - The currency for the trust line.
+    * @param {string} [opts.limit] - The limit for the currency, defaults to max int64.
+    *                                If the limit is set to 0 it deletes the trustline.
+    * @param {string} [opts.source] - The source account (defaults to transaction source).
+    */
+    static changeTrust(opts) {
+        let currency = opts.currency.toXdrObject();
+        let limit = limit ? limit : "9223372036854775807";
+        limit = Hyper.fromString(limit);
+        let source = opts.source ? opts.source : null;
+
+        let attributes = {
+            line: currency,
+            limit: limit
+        };
+        if (source) {
+            attributes.source = source;
+        }
+        let changeTrustOP = new xdr.ChangeTrustOp(attributes);
+
+        let op = new xdr.Operation({
+            body: xdr.OperationBody.changeTrust(changeTrustOP),
+        });
+
+        return op;
+    }
+
+    /**
+    * Converts the xdr wire form of an operation to its "object" form.
     */
     static operationToObject(operation) {
         let obj = {};
@@ -83,12 +113,5 @@ export class Operation {
                 break;
         }
         return obj;
-    }
-
-    static objectToOperation(obj) {
-        switch (obj.type) {
-            case "paymentOp":
-                return Operation.payment(obj);
-        }
     }
 }
