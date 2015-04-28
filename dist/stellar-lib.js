@@ -797,6 +797,26 @@ var StellarLib =
 	                });
 	            }
 	        },
+	        getTransaction: {
+
+	            /**
+	            * Returns the json transaction record of the given transaction hash.
+	            * @param {string} hash - The hash of the transaction.
+	            */
+
+	            value: function getTransaction(hash) {
+	                var self = this;
+	                return new Promise(function (resolve, reject) {
+	                    request.get("http://" + self.hostname + ":" + self.port + "/transactions/" + hash).end(function (err, res) {
+	                        if (err) {
+	                            reject(err);
+	                        } else {
+	                            resolve(res.body);
+	                        }
+	                    });
+	                });
+	            }
+	        },
 	        getTransactions: {
 
 	            /**
@@ -3583,7 +3603,7 @@ var StellarLib =
 	exports.verify = _signing.verify;
 	exports.Keypair = __webpack_require__(22).Keypair;
 
-	var _jsXdr = __webpack_require__(28);
+	var _jsXdr = __webpack_require__(27);
 
 	exports.UnsignedHyper = _jsXdr.UnsignedHyper;
 	exports.Hyper = _jsXdr.Hyper;
@@ -6330,7 +6350,7 @@ var StellarLib =
 	/* jshint maxstatements:2147483647  */
 	/* jshint esnext:true  */
 
-	var XDR = _interopRequireWildcard(__webpack_require__(28));
+	var XDR = _interopRequireWildcard(__webpack_require__(27));
 
 	var types = XDR.config(function (xdr) {
 
@@ -8217,7 +8237,7 @@ var StellarLib =
 	  value: true
 	});
 
-	var bs58 = _interopRequire(__webpack_require__(27));
+	var bs58 = _interopRequire(__webpack_require__(28));
 
 	var _lodash = __webpack_require__(31);
 
@@ -8580,6 +8600,28 @@ var StellarLib =
 /* 27 */
 /***/ function(module, exports, __webpack_require__) {
 
+	"use strict";
+
+	var _interopRequireWildcard = function (obj) { return obj && obj.__esModule ? obj : { "default": obj }; };
+
+	var _defaults = function (obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; };
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	_defaults(exports, _interopRequireWildcard(__webpack_require__(33)));
+
+	var _config = __webpack_require__(34);
+
+	_defaults(exports, _interopRequireWildcard(_config));
+
+	var config = _config.config;
+
+/***/ },
+/* 28 */
+/***/ function(module, exports, __webpack_require__) {
+
 	// vendored from http://cryptocoinjs.com/modules/misc/bs58/
 
 	// Base58 encoding/decoding
@@ -8676,28 +8718,6 @@ var StellarLib =
 	};
 
 /***/ },
-/* 28 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _interopRequireWildcard = function (obj) { return obj && obj.__esModule ? obj : { "default": obj }; };
-
-	var _defaults = function (obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; };
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	_defaults(exports, _interopRequireWildcard(__webpack_require__(33)));
-
-	var _config = __webpack_require__(34);
-
-	_defaults(exports, _interopRequireWildcard(_config));
-
-	var config = _config.config;
-
-/***/ },
 /* 29 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -8708,12 +8728,12 @@ var StellarLib =
 	}
 
 
-	exports.sha = __webpack_require__(36)
-	exports.sha1 = __webpack_require__(37)
-	exports.sha224 = __webpack_require__(38)
-	exports.sha256 = __webpack_require__(39)
-	exports.sha384 = __webpack_require__(40)
-	exports.sha512 = __webpack_require__(41)
+	exports.sha = __webpack_require__(35)
+	exports.sha1 = __webpack_require__(36)
+	exports.sha224 = __webpack_require__(37)
+	exports.sha256 = __webpack_require__(38)
+	exports.sha384 = __webpack_require__(39)
+	exports.sha512 = __webpack_require__(40)
 
 
 /***/ },
@@ -23307,7 +23327,7 @@ var StellarLib =
 	    }
 	  } else if (true) {
 	    // Node.js.
-	    crypto = __webpack_require__(35);
+	    crypto = __webpack_require__(41);
 	    if (crypto) {
 	      nacl.setPRNG(function(x, n) {
 	        var i, v = crypto.randomBytes(n);
@@ -23758,12 +23778,6 @@ var StellarLib =
 /* 35 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* (ignored) */
-
-/***/ },
-/* 36 */
-/***/ function(module, exports, __webpack_require__) {
-
 	/* WEBPACK VAR INJECTION */(function(Buffer) {/*
 	 * A JavaScript implementation of the Secure Hash Algorithm, SHA-0, as defined
 	 * in FIPS PUB 180-1
@@ -23867,7 +23881,7 @@ var StellarLib =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13).Buffer))
 
 /***/ },
-/* 37 */
+/* 36 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {/*
@@ -23970,7 +23984,7 @@ var StellarLib =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13).Buffer))
 
 /***/ },
-/* 38 */
+/* 37 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {/**
@@ -23982,7 +23996,7 @@ var StellarLib =
 	 */
 
 	var inherits = __webpack_require__(66)
-	var SHA256 = __webpack_require__(39)
+	var SHA256 = __webpack_require__(38)
 	var Hash = __webpack_require__(62)
 
 	var W = new Array(64)
@@ -24029,7 +24043,7 @@ var StellarLib =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13).Buffer))
 
 /***/ },
-/* 39 */
+/* 38 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {/**
@@ -24185,11 +24199,11 @@ var StellarLib =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13).Buffer))
 
 /***/ },
-/* 40 */
+/* 39 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {var inherits = __webpack_require__(66)
-	var SHA512 = __webpack_require__(41);
+	var SHA512 = __webpack_require__(40);
 	var Hash = __webpack_require__(62)
 
 	var W = new Array(160)
@@ -24248,7 +24262,7 @@ var StellarLib =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13).Buffer))
 
 /***/ },
-/* 41 */
+/* 40 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {var inherits = __webpack_require__(66)
@@ -24498,6 +24512,12 @@ var StellarLib =
 	module.exports = Sha512
 
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13).Buffer))
+
+/***/ },
+/* 41 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* (ignored) */
 
 /***/ },
 /* 42 */,
