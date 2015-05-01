@@ -52,8 +52,8 @@
     "webpack": "^1.7.3"
   },
   "dependencies": {
-    "stellar-base": "^0.0.3",
     "lodash": "^3.6.0",
+    "stellar-base": "stellar/js-stellar-base#master",
     "superagent": "^1.1.0"
   }
 }
