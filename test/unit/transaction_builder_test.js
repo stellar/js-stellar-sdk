@@ -20,8 +20,8 @@ describe('TransactionBuilder', function() {
         });
 
         it("should have the same source account", function (done) {
-            expect(transaction.source.masterKeypair.publicKey().toString("hex"))
-                .to.be.equal(source.masterKeypair.publicKey().toString("hex"));
+            expect(transaction.source)
+                .to.be.equal(source.address);
             done()
         });
 
