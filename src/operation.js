@@ -26,41 +26,33 @@ export class Operation {
         if (!opts.amount) {
             throw new Error("Must provide an amount for a payment operation");
         }
-        let destinationPublicKey    = Keypair.fromAddress(opts.destination).publicKey();
-        let currencyXdr             = opts.currency.toXdrObject();
-        let value                   = Hyper.fromString(String(opts.amount));
-        let sourcePublicKey         = opts.source ? opts.source.masterKeypair : null;
-        let path                    = opts.path ? opts.path : [];
-        let sendMax                 = opts.sendMax ? Hyper.fromString(String(opts.sendMax)) : value;
-        let sourceMemo              = null;
-        let memo                    = null;
+
+        let attributes = {};
+        attributes.destination  = Keypair.fromAddress(opts.destination).publicKey();
+        attributes.currency     = opts.currency.toXdrObject();
+        attributes.amount       = Hyper.fromString(String(opts.amount));
+        attributes.sendMax      = opts.sendMax ? Hyper.fromString(String(opts.sendMax)) : attributes.amount;
+        attributes.path         = opts.path ? opts.path : [];
         if (opts.sourceMemo) {
-            sourceMemo = opts.sourceMemo;
+            attributes.sourceMemo = opts.sourceMemo;
         } else {
-            sourceMemo = new Buffer(32);
-            sourceMemo.fill(0);
+            attributes.sourceMemo = new Buffer(32);
+            attributes.sourceMemo.fill(0);
         }
         if (opts.memo) {
-            memo = opts.memo;
+            attributes.memo = opts.memo;
         } else {
-            memo = new Buffer(32);
-            memo.fill(0);
+            attributes.memo = new Buffer(32);
+            attributes.memo.fill(0);
         }
+        let payment = new xdr.PaymentOp(attributes);
 
-        let payment = new xdr.PaymentOp({
-          destination: destinationPublicKey,
-          currency:    currencyXdr,
-          path:        path,
-          amount:      value,
-          sendMax:     sendMax,
-          sourceMemo:  sourceMemo,
-          memo:        memo,
-        });
-
-        let op = new xdr.Operation({
-            body: xdr.OperationBody.payment(payment),
-        });
-
+        let opAttributes = {};
+        opAttributes.body = xdr.OperationBody.payment(payment);
+        if (opts.source) {
+            opAttributes.sourceAccount = Keypair.fromAddress(opts.source).publicKey();
+        }
+        let op = new xdr.Operation(opAttributes);
         return op;
     }
 
@@ -73,24 +65,21 @@ export class Operation {
     * @param {string} [opts.source] - The source account (defaults to transaction source).
     */
     static changeTrust(opts) {
-        let currency = opts.currency.toXdrObject();
-        let limit = limit ? limit : "9223372036854775807";
-        limit = Hyper.fromString(limit);
-        let source = opts.source ? opts.source : null;
-
-        let attributes = {
-            line: currency,
-            limit: limit
-        };
-        if (source) {
-            attributes.source = source;
+        let attributes      = {};
+        attributes.line     = opts.currency.toXdrObject();
+        let limit           = opts.limit ? limit : "9223372036854775807";
+        attributes.limit    = Hyper.fromString(limit);
+        if (opts.source) {
+            attributes.source   = opts.source ? opts.source.masterKeypair : null;
         }
         let changeTrustOP = new xdr.ChangeTrustOp(attributes);
 
-        let op = new xdr.Operation({
-            body: xdr.OperationBody.changeTrust(changeTrustOP),
-        });
-
+        let opAttributes = {};
+        opAttributes.body = xdr.OperationBody.changeTrust(changeTrustOP);
+        if (opts.source) {
+            opAttributes.sourceAccount = Keypair.fromAddress(opts.source).publicKey();
+        }
+        let op = new xdr.Operation(opAttributes);
         return op;
     }
 
@@ -104,13 +93,16 @@ export class Operation {
             case "paymentOp":
                 obj.type = "paymentOp";
                 obj.destination = Account.fromAddress(encodeBase58Check("accountId", attrs.destination));
-                obj.currency = attrs.currency._switch.name == "native" ? Currency.native() : null;
+                obj.currency = Currency.fromOperation(attrs.currency);
                 obj.path = attrs.path;
                 obj.amount = attrs.amount.toString();
                 obj.sendMax = attrs.sendMax.toString();
                 obj.sourceMemo = attrs.sourceMemo;
                 obj.memo = attrs.memo;
                 break;
+            case "changeTrustOp":
+                obj.type = "changeTrustOp";
+                obj.line = Currency.fromOperation(attrs.line);
         }
         return obj;
     }
