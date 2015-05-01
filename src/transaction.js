@@ -27,8 +27,7 @@ export class Transaction {
         }
         // since this transaction is immutable, save the tx
         this.tx = envelope._attributes.tx;
-        let address = encodeBase58Check("accountId", envelope._attributes.tx._attributes.sourceAccount);
-        this.source = Account.fromAddress(address);
+        this.source = encodeBase58Check("accountId", envelope._attributes.tx._attributes.sourceAccount);
         this.maxFee = envelope._attributes.tx._attributes.maxFee;
         this.sequence = envelope._attributes.tx._attributes.seqNum.toString();
         this.minLedger = envelope._attributes.tx._attributes.minLedger;
@@ -59,7 +58,7 @@ export class Transaction {
     sign(account) {
         let tx_raw = this.tx.toXDR();
         let tx_hash = hash(tx_raw);
-        return this._source.masterKeypair.signDecorated(tx_hash);
+        return account.masterKeypair.signDecorated(tx_hash);
     }
 
     /**
