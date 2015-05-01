@@ -35,70 +35,75 @@ server.loadAccount(source)
     })
 ```
 
-### Building a Payment Transaction
+### Building Multi-operation/Multi-signature Transactions
 
-Once we've created an Account object that has a private key, as in the example above, we can now use that account to create a transaction. In this example, we'll create a simple payment transaction that sends a payment from a source account to a destination account.
+Transactions are used to change the state of accounts on the network. This includes
+sending payments, making account configuration changes, etc. Each unit of change that
+can be made on an account is called an "operation". Transactions are made up of one or
+more operations. Each operation will be applied in the order it is added to the tranasction. In js-stellar-lib, that order is chronologically as operations are added. Each operation is described below:
+
+* **Payment** - Send an amount to a destination account, optionally through a path.
+    XLM payments create the destination account if it does not exist
+* **Create Offer** - Creates, updates, or deletes an offer for the account.
+* **Set Options** - Set or clear Account flags, set inflation destination, or add new signers.
+* **Change Trust** - Add or remove a trust line from one account to another.
+* **Allow Trust** - Authorize another account to hold your credits.
+* **Account Merge** - Merge your account's balance into another account, deleting it.
+
+A transaction contains a source account which will use up a sequence number and be charged a fee for the transaction. Additionally, each operation has a source account,
+which will be the transaction's source account if unspecified in the operation. For
+each source account on the transaction and the operations, a corresponding signature
+or signatures adding up to that operation's threshold must be added to the transaction before submitting to the network. See more on signatures and thresholds [here](https://github.com/stellar/stellar-core/tree/dc8a9adb494b0584fda9500fb1a465d175efdfd4/src/transactions#thresholds).
+
+To create a transaction using js-stellar-lib, use [TransactionBuilder](https://github.com/stellar/js-stellar-lib/blob/master/src/transaction_builder.js). This class provides
+a builder like interface which allows you to add operations to a transaction via chaining.
+
+
 
 ```javascript
-// create the server connection object
-var server = new StellarLib.Server({port: 3000});
-// create our source account from seed
+/**
+* In this example, we'll create a transaction that funds a new account from the
+* master account, adds a trustline from the master account to that new account for
+* USD, and then that new account sends a payment of USD to the master account. While
+* these operations would probably be seperate transactions normally, this shows the power of
+* multiple operations in a transaction.
+*/
+
+// first, create our source account from seed and load its details
 var source = StellarLib.Account.fromSeed("sft74k3MagHG6iF36yeSytQzCCLsJ2Fo9K4YJpQCECwgoUobc4v");
-// our destination only needs to be the address
-var destination = "gspbxqXqEUZkiCCEFFCN9Vu4FLucdjLLdLcsV6E82Qc1T7ehsTC";
-// the currency we want to send
-var currency = StellarLib.Currency.native();
-// the amount of the currency you want to send
-var amount = "1000";
-// build the transaction
-var transaction = new StellarLib.TransactionBuilder(source)
-    .payment(destination, currency, amount)
-    .build();
 // load the account's current details from the server
 server.loadAccount(source)
     .then(function () {
+        // create the server connection object
+        var server = new StellarLib.Server({port: 3000});
+        // our usdGateway account
+        var usdGateway = StellarLib.Account.fromSeed("s3AGbirRDMV69YF4AtgDoiPaqG3YGcChnkFWtiewVScywmXeJQL");
+        // the USD curreny we'll be sending
+        var usdCurrency = new StellarLib.Currency("USD", usdGateway);
+        // build the transaction
+        var transaction = new StellarLib.TransactionBuilder(source)
+            // this operation funds the USD Gateway account
+            .payment(usdGateway, StellarLib.Currency.native(), 20000000)
+            // this operation sets a trustline from the source account to the usdGateway account for "USD"
+            .changeTrust(usdCurrency)
+            // this operation sends 10 USD to the source account from the usdGateway
+            .payment(source, usdCurrency, 10, {source: usdGateway})
+            .build();
+        return transaction;
+    })
+    .then(function (transaction) {
+        // this transaction already includes the source account's signature, now
+        // we need to add the usdGateway account's signature
+        var signature = transaction.sign(usdGateway);
+        transaction.addSignature(signature);
         // submit the transaction to the server
-        return server.submitTransaction(transaction)
-            .then(function (res) {
-                console.log(res);
-            })
-            .catch(function (err) {
-                console.error(err);
-            })
-    });
-```
-
-### Building a set trustline transaction
-
-To set a trustline from one account to another, you create a transaction with a
-"change trust" operation. In this example, we'll have our root account ("source")
-set a trust line to another account for USD. (Both accounts have to be funded for
-this transaction to work).
-
-```javascript
-// create the server connection object
-var server = new StellarLib.Server({port: 3000});
-// create our source account from seed
-var source = StellarLib.Account.fromSeed("sft74k3MagHG6iF36yeSytQzCCLsJ2Fo9K4YJpQCECwgoUobc4v");
-// The account the source is trusting (the "issuer")
-var destination = "gsZRJCfkv69PBw1Cz8qJfb9k4i3EXiJenxdrYKCog3mWbk5thPb";
-// the currency we're trusting the account for
-var currency = new StellarLib.Currency("USD", "gsZRJCfkv69PBw1Cz8qJfb9k4i3EXiJenxdrYKCog3mWbk5thPb");
-// build the transaction
-var transaction = new StellarLib.TransactionBuilder(source)
-    .changeTrust(currency)
-    .build();
-// load the account's current details from the server
-server.loadAccount(source)
-    .then(function () {
-        // submit the transaction to the server
-        return server.submitTransaction(transaction)
-            .then(function (res) {
-                console.log(res);
-            })
-            .catch(function (err) {
-                console.error(err);
-            })
+        return server.submitTransaction(transaction);
+    })
+    .then(function (transactionResult) {
+        console.log(transactionResult);
+    })
+    .catch(function (err) {
+        console.error(err);
     });
 ```
 

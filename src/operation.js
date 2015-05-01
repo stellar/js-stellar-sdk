@@ -5,7 +5,9 @@ import {Currency} from "./currency";
 
 export class Operation {
     /**
-    * Returns a the xdr representation of a payment operation.
+    * Returns a XDR PaymentOp. A "payment" operation send the specified amount to the
+    * destination account, optionally through a path. XLM payments create the destination
+    * account if it does not exist.
     * @param {object}   opts
     * @param {Account}  opts.destination    - The destination account for the payment.
     * @param {Currency} opts.currency       - The currency to send
@@ -15,6 +17,7 @@ export class Operation {
     * @param {string}   [opts.sendMax]      - The max amount of currency to send.
     * @param {string}   [opts.sourceMemo]   - The source memo.
     * @param {string}   [opts.memo]         - The memo.
+    * @returns {xdr.PaymentOp}
     */
     static payment(opts) {
         if (!opts.destination) {
@@ -57,12 +60,15 @@ export class Operation {
     }
 
     /**
-    * Returns the XDR object for a ChangeTrustOp.
+    * Returns an XDR ChangeTrustOp. A "change trust" operation adds, removes, or updates a
+    * trust line for a given currency from the source account to another. The issuer being
+    * trusted and the currency code are in the given Currency object.
     * @param {object} opts
     * @param {Currency} opts.currency - The currency for the trust line.
     * @param {string} [opts.limit] - The limit for the currency, defaults to max int64.
     *                                If the limit is set to 0 it deletes the trustline.
     * @param {string} [opts.source] - The source account (defaults to transaction source).
+    * @returns {xdr.ChangeTrustOp}
     */
     static changeTrust(opts) {
         let attributes      = {};
@@ -84,7 +90,43 @@ export class Operation {
     }
 
     /**
-    * Converts the xdr wire form of an operation to its "object" form.
+    * Returns an XDR AllowTrustOp. An "allow trust" operation authorizes another
+    * account to hold your account's credit for a given currency.
+    * TODO: implement
+    * @param {object} opts
+    * @returns {xdr.AllowTrustOp}
+    */
+    static allowTrust(opts) {
+
+    }
+
+    /**
+    * Returns an XDR SetOptionsOp. A "set options" operations set or clear account flags,
+    * set the account's inflation destination, and/or add new signers to the account.
+    * TODO: implement
+    * @param {object} opts
+    * @returns {xdr.SetOptionsOp}
+    */
+    static setOptions(opts) {
+
+    }
+
+    /**
+    * Returns a XDR CreateOfferOp. A "create offer" operation creates, updates, or
+    * deletes an offer for the account.
+    * TODO: implement
+    * @param {object} opts
+    * @returns {xdr.CreateOfferOp}
+    */
+    static createOffer(opts) {
+
+    }
+
+    /**
+    * Converts the XDR Operation object to the opts object used to create the XDR
+    * operation.
+    * @param {xdr.Operation} operation - An XDR Operation.
+    * @return {Operation}
     */
     static operationToObject(operation) {
         let obj = {};

@@ -1,13 +1,13 @@
 import {TransactionPage} from "./transaction_page";
+import {xdr} from "stellar-base";
 
 let request = require("superagent");
 
-/**
-* Server handles a network connection to a Horizon instance and exposes an
-* interface for requests to that instance.
-*/
 export class Server {
     /**
+    * Server handles a network connection to a Horizon instance and exposes an
+    * interface for requests to that instance.
+    * @constructor
     * @param {object}   [config] - The server configuration.
     * @param {boolean}  [config.secure] - Use https, defaults false.
     * @param {string}   [config.hostname] - The hostname of the Hoirzon server.
@@ -34,10 +34,17 @@ export class Server {
                     tx: transaction.toEnvelope().toXDR().toString("hex")
                 })
                 .end(function(err, res) {
-                    if (err) {
-                        reject(err);
+                    if (!err) {
+                        console.log(res);
+                        let result = xdr.TransactionResult.fromXDR(new Buffer(res.body.submission_result, "hex"));
+                        resolve(result);
+                    } else if (res && res.body) {
+                        console.log(res);
+                        let result = xdr.TransactionResult.fromXDR(new Buffer(res.body.submission_result, "hex"));
+                        console.log(result._attributes.result);
+                        resolve(result);
                     } else {
-                        resolve(JSON.stringify(res.body));
+                        console.log(err);
                     }
                 });
         });

@@ -4,7 +4,8 @@
   "description": "js-stellar-lib is a library for working with the Stellar Horizon server.",
   "main": "lib/index.js",
   "scripts": {
-    "test": "gulp test"
+    "test": "gulp test",
+    "docs": "./node_modules/.bin/jsdoc ./src/ -d docs/"
   },
   "keywords": [
     "stellar"
@@ -52,6 +53,7 @@
     "webpack": "^1.7.3"
   },
   "dependencies": {
+    "jsdoc": "jsdoc3/jsdoc#master",
     "lodash": "^3.6.0",
     "stellar-base": "stellar/js-stellar-base#master",
     "superagent": "^1.1.0"

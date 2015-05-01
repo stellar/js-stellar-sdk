@@ -7,35 +7,38 @@ let MAX_FEE      = 1000;
 let MIN_LEDGER   = 0;
 let MAX_LEDGER   = 0xFFFFFFFF; // max uint32
 
-/**
-* Transaction builder helps constructs a new Transaction using the given account
-* as the transaction's "source account". The transaction will use the current sequence
-* number of the given account as its sequence number and increment the given account's
-* sequence number by one. The given source account must include a private key for signing
-* the transaction or an error will be thrown.
-*
-* Operations can be added to the transaction via their corresponding builder methods, and
-* each returns the TransactionBuilder object so they can be chained together. After adding
-* the desired operations, call the build() method on the TransactionBuilder to return a fully
-* constructed Transaction that can be signed. The returned transaction will contain the
-* sequence number of the source account and include the signature from the source account.
-*
-* The following code example creates a new transaction with two payment operations:
-*
-* var transaction = new TransactionBuilder(source)
-*   .payment(destinationA, amount, currency)
-*   .payment(destinationB, amount, currency)
-*   .build();
-*/
 export class TransactionBuilder {
 
     /**
+    * Transaction builder helps constructs a new Transaction using the given account
+    * as the transaction's "source account". The transaction will use the current sequence
+    * number of the given account as its sequence number and increment the given account's
+    * sequence number by one. The given source account must include a private key for signing
+    * the transaction or an error will be thrown.
+    *
+    * Operations can be added to the transaction via their corresponding builder methods, and
+    * each returns the TransactionBuilder object so they can be chained together. After adding
+    * the desired operations, call the build() method on the TransactionBuilder to return a fully
+    * constructed Transaction that can be signed. The returned transaction will contain the
+    * sequence number of the source account and include the signature from the source account.
+    *
+    * The following code example creates a new transaction with two payment operations
+    * and a changeTrust operation. The Transaction's source account first funds destinationA,
+    * then extends a trust line to destination A for a currency, then destinationA sends the
+    * source account an amount of that currency. The built transaction would need to be signed by
+    * both the source acccount and the destinationA account for it to be valid.
+    *
+    * var transaction = new TransactionBuilder(source)
+    *   .payment(destinationA, 20000000, Currency.native()) // <- funds and creates destinationA
+    *   .changeTrust(new Currency("USD", destinationA.address)) // <- source sets trust to destA for USD
+    *   .payment(destinationB, 10, currency, {source: destinationA}) // <- destA sends source 10 USD
+    *   .build();
     * @constructor
     * @param {Account} sourceAccount - The source account for this transaction.
-    * @param {object} opts
-    * @param {number} opts.maxFee - The max fee willing to pay for this transaction.
-    * @param {number} opts.minLedger - The minimum ledger this transaction is valid in.
-    * @param {number} opts.maxLedger - The maximum ledger this transaction is valid in.
+    * @param {object} [opts]
+    * @param {number} [opts.maxFee] - The max fee willing to pay for this transaction.
+    * @param {number} [opts.minLedger] - The minimum ledger this transaction is valid in.
+    * @param {number} [opts.maxLedger] - The maximum ledger this transaction is valid in.
     */
     constructor(source, opts={}) {
         if (!source) {
@@ -57,12 +60,13 @@ export class TransactionBuilder {
     * @param {string}  destination          - The destination address for the payment.
     * @param {Currency} currency            - The currency to send
     * @param {string|number} amount         - The amount to send.
-    * @param {object}   opts
+    * @param {object}   [opts]
     * @param {Account}  [opts.source]       - The source account for the payment. Defaults to the transaction's source account.
     * @param {array}    [opts.path]         - An array of Currency objects to use as the path.
     * @param {string}   [opts.sendMax]      - The max amount of currency to send.
     * @param {string}   [opts.sourceMemo]   - The source memo.
     * @param {string}   [opts.memo]         - The memo.
+    * @returns {TransactionBuilder} Returns this TransactionBuilder object, for chaining.
     */
     payment(destination, currency, amount, opts={}) {
         opts.destination = destination;
@@ -76,10 +80,11 @@ export class TransactionBuilder {
     /**
     * Adds a Change Trust operation to the transaction.
     * @param {Currency} currency - The currency for the trust line.
-    * @param {object} opts
+    * @param {object} [opts]
     * @param {string} [opts.limit] - The limit for the currency, defaults to max int64.
     *                                If the limit is set to 0 it deletes the trustline.
     * @param {string} [opts.source] - The source account (defaults to transaction source).
+    * @returns {TransactionBuilder} Returns this TransactionBuilder object, for chaining.
     */
     changeTrust(currency, opts={}) {
         opts.currency = currency;
@@ -91,6 +96,7 @@ export class TransactionBuilder {
     /**
     * This will build the transaction and sign it with the source account. It will
     * also increment the source account's sequence number by 1.
+    * @returns {Transaction} will return the built Transaction.
     */
     build() {
         let tx = new xdr.Transaction({
