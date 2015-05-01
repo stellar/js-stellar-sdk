@@ -66,8 +66,8 @@ a builder like interface which allows you to add operations to a transaction via
 ```javascript
 /**
 * In this example, we'll create a transaction that funds a new account from the
-* master account, adds a trustline from the master account to that new account for
-* USD, and then that new account sends a payment of USD to the master account. While
+* root account, adds a trustline from the root account to that new account for
+* USD, and then that new account sends a payment of USD to the root account. While
 * these operations would probably be seperate transactions normally, this shows the power of
 * multiple operations in a transaction.
 */

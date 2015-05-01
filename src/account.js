@@ -29,9 +29,9 @@ export class Account {
     }
 
     /**
-    * Return the a new Account from the master keypair.
+    * Return the a new Account from the root keypair.
     */
-    static fromMaster() {
+    static fromRoot() {
         let keypair = Keypair.master();
         return new this(keypair);
     }
