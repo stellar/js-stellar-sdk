@@ -4,26 +4,41 @@ import {Currency} from "./currency";
 
 export class Account {
 
+    /**
+    * Return a new account from a random keypair.
+    */
     static random() {
         let keypair =  Keypair.random();
         return new this(keypair);
     }
 
+    /**
+    * Return a new Account from the given seed.
+    */
     static fromSeed(seed) {
         let keypair = Keypair.fromSeed(seed);
         return new this(keypair);
     }
 
+    /**
+    * Return a new Account from an address.
+    */
     static fromAddress(address) {
         let keypair = Keypair.fromAddress(address);
         return new this(keypair);
     }
 
+    /**
+    * Return the a new Account from the master keypair.
+    */
     static fromMaster() {
         let keypair = Keypair.master();
         return new this(keypair);
     }
 
+    /**
+    * Returns true if the given address is a valid Stellar address.
+    */
     static isValidAddress(address) {
         try {
             decodeBase58Check("accountId", address);
@@ -34,7 +49,9 @@ export class Account {
     }
 
     /**
-    * Constructs a new Account given the master keypair.
+    * Account class has a "masterkeypair" which is the master keypair for the account,
+    * and can hold various other signer keypairs as well. If passed to Server.loadAccount(),
+    * it will store the account's sequence number and balances.
     * @param {Keypair} master - The master keypair for the account.
     * @param {object} opts
     * @param {number} opts.seqNum - The account sequence number
@@ -48,6 +65,7 @@ export class Account {
     /**
     * Returns an array of the account's balances as {currency, balance} pairs, where
     * currency is a Currency object and balance is an integer amount.
+    * @returns {array}
     */
     get balances() {
         return this._balances;
@@ -71,14 +89,25 @@ export class Account {
         }
     }
 
+    /**
+    * Returns the account's address as a string.
+    * @returns {string}
+    */
     get address() {
         return this._masterKeypair.address();
     }
 
+    /**
+    * Returns the masterkeypair.
+    */
     get masterKeypair() {
         return this._masterKeypair;
     }
 
+    /**
+    * Cannot set the master keypair of an account.
+    * @throws {Error} Will always throw an error.
+    */
     set masterKeypair(keypair) {
         throw new Error("cannot set the master keypair, construct a new account");
     }

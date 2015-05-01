@@ -7,16 +7,13 @@ let MAX_FEE      = 1000;
 let MIN_LEDGER   = 0;
 let MAX_LEDGER   = 0xFFFFFFFF; // max uint32
 
-/**
-* A transaction contains a set of operations and signatures on one or more accounts.
-* It can not be mutated (ie no new operations can be added to the transaction), as
-* the signatures associated with this transaction have already signed the transaction.
-*/
 export class Transaction {
 
     /**
-    * Constructs a new Transaction object from the given TransactionEnvelope object,
-    * or hex blob data.
+    * A new Transaction object is created from a transaction envelope (or via TransactionBuilder).
+    * One a Transaction has been created from an envelope, its attributes and operations
+    * should not be changed. You should only add signers to a Transaction object before
+    * submitting to the network or forwarding on to additional signers.
     * @constructor
     * @param {string|xdr.TransactionEnvelope} envelope - The transaction envelope.
     */
@@ -53,7 +50,9 @@ export class Transaction {
     }
 
     /**
-    * Signs the transaction with the given account and returns the signature string.
+    * Signs the transaction with the given account's master key and returns the
+    * signature string, which can then be added to the transaction via addSignature()
+    * or forwarded on.
     */
     sign(account) {
         let tx_raw = this.tx.toXDR();
@@ -62,8 +61,7 @@ export class Transaction {
     }
 
     /**
-    * To envelope returns a xdr.TransactionEnvelope containing this transaction and signatures
-    * which can be submitted to the network.
+    * To envelope returns a xdr.TransactionEnvelope which can be submitted to the network.
     */
     toEnvelope() {
         let tx = this.tx;
