@@ -12,6 +12,9 @@ js-stellar-lib is a client side Javascript library for building client side Stel
 npm install js-stellar-lib
 ```
 
+## API Documentation
+
+Check out the API Documentation [here](http://stellar.github.io/js-stellar-lib).
 
 ## Examples
 
