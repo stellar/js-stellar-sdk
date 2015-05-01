@@ -38,10 +38,10 @@ describe('Account.fromAddress', function() {
   });
 });
 
-describe('Account.master', function() {
+describe('Account.root', function() {
 
   it("creates an account correctly", function() {
-    let account = StellarLib.Account.fromMaster();
+    let account = StellarLib.Account.fromRoot();
     expect(account).to.be.instanceof(StellarLib.Account);
   });
 });
