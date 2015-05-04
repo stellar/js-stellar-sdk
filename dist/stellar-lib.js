@@ -289,7 +289,7 @@ var StellarLib =
 	    value: true
 	});
 
-	var _stellarBase = __webpack_require__(14);
+	var _stellarBase = __webpack_require__(15);
 
 	var Keypair = _stellarBase.Keypair;
 	var decodeBase58Check = _stellarBase.decodeBase58Check;
@@ -456,7 +456,7 @@ var StellarLib =
 	    value: true
 	});
 
-	var _stellarBase = __webpack_require__(14);
+	var _stellarBase = __webpack_require__(15);
 
 	var xdr = _stellarBase.xdr;
 	var hash = _stellarBase.hash;
@@ -551,7 +551,7 @@ var StellarLib =
 
 	    return Transaction;
 	})();
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
 
 /***/ },
 /* 6 */
@@ -567,7 +567,7 @@ var StellarLib =
 	    value: true
 	});
 
-	var _stellarBase = __webpack_require__(14);
+	var _stellarBase = __webpack_require__(15);
 
 	var xdr = _stellarBase.xdr;
 	var hash = _stellarBase.hash;
@@ -733,7 +733,7 @@ var StellarLib =
 
 	var Account = __webpack_require__(4).Account;
 
-	var _stellarBase = __webpack_require__(14);
+	var _stellarBase = __webpack_require__(15);
 
 	var xdr = _stellarBase.xdr;
 	var Keypair = _stellarBase.Keypair;
@@ -860,7 +860,9 @@ var StellarLib =
 
 	var TransactionPage = __webpack_require__(12).TransactionPage;
 
-	var xdr = __webpack_require__(14).xdr;
+	var TransactionResult = __webpack_require__(13).TransactionResult;
+
+	var xdr = __webpack_require__(15).xdr;
 
 	var request = __webpack_require__(10);
 
@@ -900,17 +902,12 @@ var StellarLib =
 	                    request.post(self.protocol + self.hostname + ":" + self.port + "/transactions").type("json").send({
 	                        tx: transaction.toEnvelope().toXDR().toString("hex")
 	                    }).end(function (err, res) {
-	                        if (!err) {
-	                            console.log(res);
+	                        if (res && res.body && res.body.submission_result) {
 	                            var result = xdr.TransactionResult.fromXDR(new Buffer(res.body.submission_result, "hex"));
-	                            resolve(result);
-	                        } else if (res && res.body) {
-	                            console.log(res);
-	                            var result = xdr.TransactionResult.fromXDR(new Buffer(res.body.submission_result, "hex"));
-	                            console.log(result._attributes.result);
-	                            resolve(result);
+	                            resolve(new TransactionResult(result));
 	                        } else {
 	                            console.log(err);
+	                            reject(err);
 	                        }
 	                    });
 	                });
@@ -1059,7 +1056,7 @@ var StellarLib =
 
 	    return Server;
 	})();
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
 
 /***/ },
 /* 9 */
@@ -1075,7 +1072,7 @@ var StellarLib =
 	    value: true
 	});
 
-	var _stellarBase = __webpack_require__(14);
+	var _stellarBase = __webpack_require__(15);
 
 	var xdr = _stellarBase.xdr;
 	var Keypair = _stellarBase.Keypair;
@@ -1253,7 +1250,7 @@ var StellarLib =
 
 	    return Operation;
 	})();
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
 
 /***/ },
 /* 10 */
@@ -1263,8 +1260,8 @@ var StellarLib =
 	 * Module dependencies.
 	 */
 
-	var Emitter = __webpack_require__(15);
-	var reduce = __webpack_require__(16);
+	var Emitter = __webpack_require__(16);
+	var reduce = __webpack_require__(17);
 
 	/**
 	 * Root reference for iframes.
@@ -2405,7 +2402,7 @@ var StellarLib =
 
 	__webpack_require__(18);
 
-	__webpack_require__(17);
+	__webpack_require__(19);
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
@@ -2443,6 +2440,70 @@ var StellarLib =
 /* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
+	"use strict";
+
+	var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } };
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var TransactionResult = exports.TransactionResult =
+
+	/**
+	* A TransactionResult contains the results for a submitted transaction to the server.
+	* {
+	*   // the fee charged for the transaction
+	*   feeCharged:
+	*   // the TransactionResultCode
+	*   result: {name, value}
+	*   operationResults: [
+	*       {
+	*           // the OperationType
+	*           type: {name, value}
+	*           // OperationResultCode
+	*           result: {name, value}
+	*           // the OperationResultTr result, null unless OperationResultCode == opInner
+	*           value: {name, value}
+	*       }
+	*   ]
+	* }
+	* @constructor
+	* @param {string} json - Response JSON from server.
+	*/
+	function TransactionResult(json) {
+	    _classCallCheck(this, TransactionResult);
+
+	    this.feeCharged = json._attributes.feeCharged.toString();
+	    this.result = {
+	        name: json._attributes.result._switch.name,
+	        value: json._attributes.result._switch.value
+	    };
+	    this.operationResults = [];
+	    var opResults = json._attributes.result._value;
+	    for (var i = 0; opResults && i < opResults.length; i++) {
+	        var result = {};
+	        var opResult = opResults[i];
+	        result.type = {
+	            name: opResult._value._switch.name,
+	            value: opResult._value._switch.value
+	        };
+	        result.result = {
+	            name: opResult._switch.name,
+	            value: opResult._switch.value
+	        };
+	        result.value = {
+	            name: opResult._value._value._switch.name,
+	            value: opResult._value._value._switch.value
+	        };
+	        this.operationResults[i] = result;
+	    }
+	};
+
+/***/ },
+/* 14 */
+/***/ function(module, exports, __webpack_require__) {
+
 	/* WEBPACK VAR INJECTION */(function(Buffer) {/*!
 	 * The buffer module from node.js, for the browser.
 	 *
@@ -2450,9 +2511,9 @@ var StellarLib =
 	 * @license  MIT
 	 */
 
-	var base64 = __webpack_require__(26)
-	var ieee754 = __webpack_require__(24)
-	var isArray = __webpack_require__(25)
+	var base64 = __webpack_require__(27)
+	var ieee754 = __webpack_require__(25)
+	var isArray = __webpack_require__(26)
 
 	exports.Buffer = Buffer
 	exports.SlowBuffer = SlowBuffer
@@ -3775,10 +3836,10 @@ var StellarLib =
 	  }
 	}
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
 
 /***/ },
-/* 14 */
+/* 15 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -3793,26 +3854,26 @@ var StellarLib =
 	  value: true
 	});
 
-	var xdr = _interopRequire(__webpack_require__(19));
+	var xdr = _interopRequire(__webpack_require__(20));
 
 	exports.xdr = xdr;
-	exports.hash = __webpack_require__(20).hash;
+	exports.hash = __webpack_require__(21).hash;
 
-	var _signing = __webpack_require__(21);
+	var _signing = __webpack_require__(22);
 
 	exports.sign = _signing.sign;
 	exports.verify = _signing.verify;
-	exports.Keypair = __webpack_require__(22).Keypair;
+	exports.Keypair = __webpack_require__(23).Keypair;
 
-	var _jsXdr = __webpack_require__(27);
+	var _jsXdr = __webpack_require__(31);
 
 	exports.UnsignedHyper = _jsXdr.UnsignedHyper;
 	exports.Hyper = _jsXdr.Hyper;
 
-	_defaults(exports, _interopRequireWildcard(__webpack_require__(23)));
+	_defaults(exports, _interopRequireWildcard(__webpack_require__(24)));
 
 /***/ },
-/* 15 */
+/* 16 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
@@ -3982,7 +4043,7 @@ var StellarLib =
 
 
 /***/ },
-/* 16 */
+/* 17 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
@@ -4009,550 +4070,6 @@ var StellarLib =
 	  
 	  return curr;
 	};
-
-/***/ },
-/* 17 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(global) {/**
-	 * Copyright (c) 2014, Facebook, Inc.
-	 * All rights reserved.
-	 *
-	 * This source code is licensed under the BSD-style license found in the
-	 * https://raw.github.com/facebook/regenerator/master/LICENSE file. An
-	 * additional grant of patent rights can be found in the PATENTS file in
-	 * the same directory.
-	 */
-
-	!(function(global) {
-	  "use strict";
-
-	  var hasOwn = Object.prototype.hasOwnProperty;
-	  var undefined; // More compressible than void 0.
-	  var iteratorSymbol =
-	    typeof Symbol === "function" && Symbol.iterator || "@@iterator";
-
-	  var inModule = typeof module === "object";
-	  var runtime = global.regeneratorRuntime;
-	  if (runtime) {
-	    if (inModule) {
-	      // If regeneratorRuntime is defined globally and we're in a module,
-	      // make the exports object identical to regeneratorRuntime.
-	      module.exports = runtime;
-	    }
-	    // Don't bother evaluating the rest of this file if the runtime was
-	    // already defined globally.
-	    return;
-	  }
-
-	  // Define the runtime globally (as expected by generated code) as either
-	  // module.exports (if we're in a module) or a new, empty object.
-	  runtime = global.regeneratorRuntime = inModule ? module.exports : {};
-
-	  function wrap(innerFn, outerFn, self, tryLocsList) {
-	    return new Generator(innerFn, outerFn, self || null, tryLocsList || []);
-	  }
-	  runtime.wrap = wrap;
-
-	  // Try/catch helper to minimize deoptimizations. Returns a completion
-	  // record like context.tryEntries[i].completion. This interface could
-	  // have been (and was previously) designed to take a closure to be
-	  // invoked without arguments, but in all the cases we care about we
-	  // already have an existing method we want to call, so there's no need
-	  // to create a new function object. We can even get away with assuming
-	  // the method takes exactly one argument, since that happens to be true
-	  // in every case, so we don't have to touch the arguments object. The
-	  // only additional allocation required is the completion record, which
-	  // has a stable shape and so hopefully should be cheap to allocate.
-	  function tryCatch(fn, obj, arg) {
-	    try {
-	      return { type: "normal", arg: fn.call(obj, arg) };
-	    } catch (err) {
-	      return { type: "throw", arg: err };
-	    }
-	  }
-
-	  var GenStateSuspendedStart = "suspendedStart";
-	  var GenStateSuspendedYield = "suspendedYield";
-	  var GenStateExecuting = "executing";
-	  var GenStateCompleted = "completed";
-
-	  // Returning this object from the innerFn has the same effect as
-	  // breaking out of the dispatch switch statement.
-	  var ContinueSentinel = {};
-
-	  // Dummy constructor functions that we use as the .constructor and
-	  // .constructor.prototype properties for functions that return Generator
-	  // objects. For full spec compliance, you may wish to configure your
-	  // minifier not to mangle the names of these two functions.
-	  function GeneratorFunction() {}
-	  function GeneratorFunctionPrototype() {}
-
-	  var Gp = GeneratorFunctionPrototype.prototype = Generator.prototype;
-	  GeneratorFunction.prototype = Gp.constructor = GeneratorFunctionPrototype;
-	  GeneratorFunctionPrototype.constructor = GeneratorFunction;
-	  GeneratorFunction.displayName = "GeneratorFunction";
-
-	  runtime.isGeneratorFunction = function(genFun) {
-	    var ctor = typeof genFun === "function" && genFun.constructor;
-	    return ctor
-	      ? ctor === GeneratorFunction ||
-	        // For the native GeneratorFunction constructor, the best we can
-	        // do is to check its .name property.
-	        (ctor.displayName || ctor.name) === "GeneratorFunction"
-	      : false;
-	  };
-
-	  runtime.mark = function(genFun) {
-	    genFun.__proto__ = GeneratorFunctionPrototype;
-	    genFun.prototype = Object.create(Gp);
-	    return genFun;
-	  };
-
-	  runtime.async = function(innerFn, outerFn, self, tryLocsList) {
-	    return new Promise(function(resolve, reject) {
-	      var generator = wrap(innerFn, outerFn, self, tryLocsList);
-	      var callNext = step.bind(generator.next);
-	      var callThrow = step.bind(generator["throw"]);
-
-	      function step(arg) {
-	        var record = tryCatch(this, null, arg);
-	        if (record.type === "throw") {
-	          reject(record.arg);
-	          return;
-	        }
-
-	        var info = record.arg;
-	        if (info.done) {
-	          resolve(info.value);
-	        } else {
-	          Promise.resolve(info.value).then(callNext, callThrow);
-	        }
-	      }
-
-	      callNext();
-	    });
-	  };
-
-	  function Generator(innerFn, outerFn, self, tryLocsList) {
-	    var generator = outerFn ? Object.create(outerFn.prototype) : this;
-	    var context = new Context(tryLocsList);
-	    var state = GenStateSuspendedStart;
-
-	    function invoke(method, arg) {
-	      if (state === GenStateExecuting) {
-	        throw new Error("Generator is already running");
-	      }
-
-	      if (state === GenStateCompleted) {
-	        // Be forgiving, per 25.3.3.3.3 of the spec:
-	        // https://people.mozilla.org/~jorendorff/es6-draft.html#sec-generatorresume
-	        return doneResult();
-	      }
-
-	      while (true) {
-	        var delegate = context.delegate;
-	        if (delegate) {
-	          var record = tryCatch(
-	            delegate.iterator[method],
-	            delegate.iterator,
-	            arg
-	          );
-
-	          if (record.type === "throw") {
-	            context.delegate = null;
-
-	            // Like returning generator.throw(uncaught), but without the
-	            // overhead of an extra function call.
-	            method = "throw";
-	            arg = record.arg;
-
-	            continue;
-	          }
-
-	          // Delegate generator ran and handled its own exceptions so
-	          // regardless of what the method was, we continue as if it is
-	          // "next" with an undefined arg.
-	          method = "next";
-	          arg = undefined;
-
-	          var info = record.arg;
-	          if (info.done) {
-	            context[delegate.resultName] = info.value;
-	            context.next = delegate.nextLoc;
-	          } else {
-	            state = GenStateSuspendedYield;
-	            return info;
-	          }
-
-	          context.delegate = null;
-	        }
-
-	        if (method === "next") {
-	          if (state === GenStateSuspendedStart &&
-	              typeof arg !== "undefined") {
-	            // https://people.mozilla.org/~jorendorff/es6-draft.html#sec-generatorresume
-	            throw new TypeError(
-	              "attempt to send " + JSON.stringify(arg) + " to newborn generator"
-	            );
-	          }
-
-	          if (state === GenStateSuspendedYield) {
-	            context.sent = arg;
-	          } else {
-	            delete context.sent;
-	          }
-
-	        } else if (method === "throw") {
-	          if (state === GenStateSuspendedStart) {
-	            state = GenStateCompleted;
-	            throw arg;
-	          }
-
-	          if (context.dispatchException(arg)) {
-	            // If the dispatched exception was caught by a catch block,
-	            // then let that catch block handle the exception normally.
-	            method = "next";
-	            arg = undefined;
-	          }
-
-	        } else if (method === "return") {
-	          context.abrupt("return", arg);
-	        }
-
-	        state = GenStateExecuting;
-
-	        var record = tryCatch(innerFn, self, context);
-	        if (record.type === "normal") {
-	          // If an exception is thrown from innerFn, we leave state ===
-	          // GenStateExecuting and loop back for another invocation.
-	          state = context.done
-	            ? GenStateCompleted
-	            : GenStateSuspendedYield;
-
-	          var info = {
-	            value: record.arg,
-	            done: context.done
-	          };
-
-	          if (record.arg === ContinueSentinel) {
-	            if (context.delegate && method === "next") {
-	              // Deliberately forget the last sent value so that we don't
-	              // accidentally pass it on to the delegate.
-	              arg = undefined;
-	            }
-	          } else {
-	            return info;
-	          }
-
-	        } else if (record.type === "throw") {
-	          state = GenStateCompleted;
-
-	          if (method === "next") {
-	            context.dispatchException(record.arg);
-	          } else {
-	            arg = record.arg;
-	          }
-	        }
-	      }
-	    }
-
-	    generator.next = invoke.bind(generator, "next");
-	    generator["throw"] = invoke.bind(generator, "throw");
-	    generator["return"] = invoke.bind(generator, "return");
-
-	    return generator;
-	  }
-
-	  Gp[iteratorSymbol] = function() {
-	    return this;
-	  };
-
-	  Gp.toString = function() {
-	    return "[object Generator]";
-	  };
-
-	  function pushTryEntry(locs) {
-	    var entry = { tryLoc: locs[0] };
-
-	    if (1 in locs) {
-	      entry.catchLoc = locs[1];
-	    }
-
-	    if (2 in locs) {
-	      entry.finallyLoc = locs[2];
-	      entry.afterLoc = locs[3];
-	    }
-
-	    this.tryEntries.push(entry);
-	  }
-
-	  function resetTryEntry(entry) {
-	    var record = entry.completion || {};
-	    record.type = "normal";
-	    delete record.arg;
-	    entry.completion = record;
-	  }
-
-	  function Context(tryLocsList) {
-	    // The root entry object (effectively a try statement without a catch
-	    // or a finally block) gives us a place to store values thrown from
-	    // locations where there is no enclosing try statement.
-	    this.tryEntries = [{ tryLoc: "root" }];
-	    tryLocsList.forEach(pushTryEntry, this);
-	    this.reset();
-	  }
-
-	  runtime.keys = function(object) {
-	    var keys = [];
-	    for (var key in object) {
-	      keys.push(key);
-	    }
-	    keys.reverse();
-
-	    // Rather than returning an object with a next method, we keep
-	    // things simple and return the next function itself.
-	    return function next() {
-	      while (keys.length) {
-	        var key = keys.pop();
-	        if (key in object) {
-	          next.value = key;
-	          next.done = false;
-	          return next;
-	        }
-	      }
-
-	      // To avoid creating an additional object, we just hang the .value
-	      // and .done properties off the next function object itself. This
-	      // also ensures that the minifier will not anonymize the function.
-	      next.done = true;
-	      return next;
-	    };
-	  };
-
-	  function values(iterable) {
-	    if (iterable) {
-	      var iteratorMethod = iterable[iteratorSymbol];
-	      if (iteratorMethod) {
-	        return iteratorMethod.call(iterable);
-	      }
-
-	      if (typeof iterable.next === "function") {
-	        return iterable;
-	      }
-
-	      if (!isNaN(iterable.length)) {
-	        var i = -1, next = function next() {
-	          while (++i < iterable.length) {
-	            if (hasOwn.call(iterable, i)) {
-	              next.value = iterable[i];
-	              next.done = false;
-	              return next;
-	            }
-	          }
-
-	          next.value = undefined;
-	          next.done = true;
-
-	          return next;
-	        };
-
-	        return next.next = next;
-	      }
-	    }
-
-	    // Return an iterator with no values.
-	    return { next: doneResult };
-	  }
-	  runtime.values = values;
-
-	  function doneResult() {
-	    return { value: undefined, done: true };
-	  }
-
-	  Context.prototype = {
-	    constructor: Context,
-
-	    reset: function() {
-	      this.prev = 0;
-	      this.next = 0;
-	      this.sent = undefined;
-	      this.done = false;
-	      this.delegate = null;
-
-	      this.tryEntries.forEach(resetTryEntry);
-
-	      // Pre-initialize at least 20 temporary variables to enable hidden
-	      // class optimizations for simple generators.
-	      for (var tempIndex = 0, tempName;
-	           hasOwn.call(this, tempName = "t" + tempIndex) || tempIndex < 20;
-	           ++tempIndex) {
-	        this[tempName] = null;
-	      }
-	    },
-
-	    stop: function() {
-	      this.done = true;
-
-	      var rootEntry = this.tryEntries[0];
-	      var rootRecord = rootEntry.completion;
-	      if (rootRecord.type === "throw") {
-	        throw rootRecord.arg;
-	      }
-
-	      return this.rval;
-	    },
-
-	    dispatchException: function(exception) {
-	      if (this.done) {
-	        throw exception;
-	      }
-
-	      var context = this;
-	      function handle(loc, caught) {
-	        record.type = "throw";
-	        record.arg = exception;
-	        context.next = loc;
-	        return !!caught;
-	      }
-
-	      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-	        var entry = this.tryEntries[i];
-	        var record = entry.completion;
-
-	        if (entry.tryLoc === "root") {
-	          // Exception thrown outside of any try block that could handle
-	          // it, so set the completion value of the entire function to
-	          // throw the exception.
-	          return handle("end");
-	        }
-
-	        if (entry.tryLoc <= this.prev) {
-	          var hasCatch = hasOwn.call(entry, "catchLoc");
-	          var hasFinally = hasOwn.call(entry, "finallyLoc");
-
-	          if (hasCatch && hasFinally) {
-	            if (this.prev < entry.catchLoc) {
-	              return handle(entry.catchLoc, true);
-	            } else if (this.prev < entry.finallyLoc) {
-	              return handle(entry.finallyLoc);
-	            }
-
-	          } else if (hasCatch) {
-	            if (this.prev < entry.catchLoc) {
-	              return handle(entry.catchLoc, true);
-	            }
-
-	          } else if (hasFinally) {
-	            if (this.prev < entry.finallyLoc) {
-	              return handle(entry.finallyLoc);
-	            }
-
-	          } else {
-	            throw new Error("try statement without catch or finally");
-	          }
-	        }
-	      }
-	    },
-
-	    abrupt: function(type, arg) {
-	      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-	        var entry = this.tryEntries[i];
-	        if (entry.tryLoc <= this.prev &&
-	            hasOwn.call(entry, "finallyLoc") &&
-	            this.prev < entry.finallyLoc) {
-	          var finallyEntry = entry;
-	          break;
-	        }
-	      }
-
-	      if (finallyEntry &&
-	          (type === "break" ||
-	           type === "continue") &&
-	          finallyEntry.tryLoc <= arg &&
-	          arg < finallyEntry.finallyLoc) {
-	        // Ignore the finally entry if control is not jumping to a
-	        // location outside the try/catch block.
-	        finallyEntry = null;
-	      }
-
-	      var record = finallyEntry ? finallyEntry.completion : {};
-	      record.type = type;
-	      record.arg = arg;
-
-	      if (finallyEntry) {
-	        this.next = finallyEntry.finallyLoc;
-	      } else {
-	        this.complete(record);
-	      }
-
-	      return ContinueSentinel;
-	    },
-
-	    complete: function(record, afterLoc) {
-	      if (record.type === "throw") {
-	        throw record.arg;
-	      }
-
-	      if (record.type === "break" ||
-	          record.type === "continue") {
-	        this.next = record.arg;
-	      } else if (record.type === "return") {
-	        this.rval = record.arg;
-	        this.next = "end";
-	      } else if (record.type === "normal" && afterLoc) {
-	        this.next = afterLoc;
-	      }
-
-	      return ContinueSentinel;
-	    },
-
-	    finish: function(finallyLoc) {
-	      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-	        var entry = this.tryEntries[i];
-	        if (entry.finallyLoc === finallyLoc) {
-	          return this.complete(entry.completion, entry.afterLoc);
-	        }
-	      }
-	    },
-
-	    "catch": function(tryLoc) {
-	      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-	        var entry = this.tryEntries[i];
-	        if (entry.tryLoc === tryLoc) {
-	          var record = entry.completion;
-	          if (record.type === "throw") {
-	            var thrown = record.arg;
-	            resetTryEntry(entry);
-	          }
-	          return thrown;
-	        }
-	      }
-
-	      // The context.catch method must only be called with a location
-	      // argument that corresponds to a known catch block.
-	      throw new Error("illegal catch attempt");
-	    },
-
-	    delegateYield: function(iterable, resultName, nextLoc) {
-	      this.delegate = {
-	        iterator: values(iterable),
-	        resultName: resultName,
-	        nextLoc: nextLoc
-	      };
-
-	      return ContinueSentinel;
-	    }
-	  };
-	})(
-	  // Among the various tricks for obtaining a reference to the global
-	  // object, this seems to be the most reliable technique that does not
-	  // use indirect eval (which violates Content Security Policy).
-	  typeof global === "object" ? global :
-	  typeof window === "object" ? window : this
-	);
-
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
 /* 18 */
@@ -6541,6 +6058,550 @@ var StellarLib =
 /* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
+	/* WEBPACK VAR INJECTION */(function(global) {/**
+	 * Copyright (c) 2014, Facebook, Inc.
+	 * All rights reserved.
+	 *
+	 * This source code is licensed under the BSD-style license found in the
+	 * https://raw.github.com/facebook/regenerator/master/LICENSE file. An
+	 * additional grant of patent rights can be found in the PATENTS file in
+	 * the same directory.
+	 */
+
+	!(function(global) {
+	  "use strict";
+
+	  var hasOwn = Object.prototype.hasOwnProperty;
+	  var undefined; // More compressible than void 0.
+	  var iteratorSymbol =
+	    typeof Symbol === "function" && Symbol.iterator || "@@iterator";
+
+	  var inModule = typeof module === "object";
+	  var runtime = global.regeneratorRuntime;
+	  if (runtime) {
+	    if (inModule) {
+	      // If regeneratorRuntime is defined globally and we're in a module,
+	      // make the exports object identical to regeneratorRuntime.
+	      module.exports = runtime;
+	    }
+	    // Don't bother evaluating the rest of this file if the runtime was
+	    // already defined globally.
+	    return;
+	  }
+
+	  // Define the runtime globally (as expected by generated code) as either
+	  // module.exports (if we're in a module) or a new, empty object.
+	  runtime = global.regeneratorRuntime = inModule ? module.exports : {};
+
+	  function wrap(innerFn, outerFn, self, tryLocsList) {
+	    return new Generator(innerFn, outerFn, self || null, tryLocsList || []);
+	  }
+	  runtime.wrap = wrap;
+
+	  // Try/catch helper to minimize deoptimizations. Returns a completion
+	  // record like context.tryEntries[i].completion. This interface could
+	  // have been (and was previously) designed to take a closure to be
+	  // invoked without arguments, but in all the cases we care about we
+	  // already have an existing method we want to call, so there's no need
+	  // to create a new function object. We can even get away with assuming
+	  // the method takes exactly one argument, since that happens to be true
+	  // in every case, so we don't have to touch the arguments object. The
+	  // only additional allocation required is the completion record, which
+	  // has a stable shape and so hopefully should be cheap to allocate.
+	  function tryCatch(fn, obj, arg) {
+	    try {
+	      return { type: "normal", arg: fn.call(obj, arg) };
+	    } catch (err) {
+	      return { type: "throw", arg: err };
+	    }
+	  }
+
+	  var GenStateSuspendedStart = "suspendedStart";
+	  var GenStateSuspendedYield = "suspendedYield";
+	  var GenStateExecuting = "executing";
+	  var GenStateCompleted = "completed";
+
+	  // Returning this object from the innerFn has the same effect as
+	  // breaking out of the dispatch switch statement.
+	  var ContinueSentinel = {};
+
+	  // Dummy constructor functions that we use as the .constructor and
+	  // .constructor.prototype properties for functions that return Generator
+	  // objects. For full spec compliance, you may wish to configure your
+	  // minifier not to mangle the names of these two functions.
+	  function GeneratorFunction() {}
+	  function GeneratorFunctionPrototype() {}
+
+	  var Gp = GeneratorFunctionPrototype.prototype = Generator.prototype;
+	  GeneratorFunction.prototype = Gp.constructor = GeneratorFunctionPrototype;
+	  GeneratorFunctionPrototype.constructor = GeneratorFunction;
+	  GeneratorFunction.displayName = "GeneratorFunction";
+
+	  runtime.isGeneratorFunction = function(genFun) {
+	    var ctor = typeof genFun === "function" && genFun.constructor;
+	    return ctor
+	      ? ctor === GeneratorFunction ||
+	        // For the native GeneratorFunction constructor, the best we can
+	        // do is to check its .name property.
+	        (ctor.displayName || ctor.name) === "GeneratorFunction"
+	      : false;
+	  };
+
+	  runtime.mark = function(genFun) {
+	    genFun.__proto__ = GeneratorFunctionPrototype;
+	    genFun.prototype = Object.create(Gp);
+	    return genFun;
+	  };
+
+	  runtime.async = function(innerFn, outerFn, self, tryLocsList) {
+	    return new Promise(function(resolve, reject) {
+	      var generator = wrap(innerFn, outerFn, self, tryLocsList);
+	      var callNext = step.bind(generator.next);
+	      var callThrow = step.bind(generator["throw"]);
+
+	      function step(arg) {
+	        var record = tryCatch(this, null, arg);
+	        if (record.type === "throw") {
+	          reject(record.arg);
+	          return;
+	        }
+
+	        var info = record.arg;
+	        if (info.done) {
+	          resolve(info.value);
+	        } else {
+	          Promise.resolve(info.value).then(callNext, callThrow);
+	        }
+	      }
+
+	      callNext();
+	    });
+	  };
+
+	  function Generator(innerFn, outerFn, self, tryLocsList) {
+	    var generator = outerFn ? Object.create(outerFn.prototype) : this;
+	    var context = new Context(tryLocsList);
+	    var state = GenStateSuspendedStart;
+
+	    function invoke(method, arg) {
+	      if (state === GenStateExecuting) {
+	        throw new Error("Generator is already running");
+	      }
+
+	      if (state === GenStateCompleted) {
+	        // Be forgiving, per 25.3.3.3.3 of the spec:
+	        // https://people.mozilla.org/~jorendorff/es6-draft.html#sec-generatorresume
+	        return doneResult();
+	      }
+
+	      while (true) {
+	        var delegate = context.delegate;
+	        if (delegate) {
+	          var record = tryCatch(
+	            delegate.iterator[method],
+	            delegate.iterator,
+	            arg
+	          );
+
+	          if (record.type === "throw") {
+	            context.delegate = null;
+
+	            // Like returning generator.throw(uncaught), but without the
+	            // overhead of an extra function call.
+	            method = "throw";
+	            arg = record.arg;
+
+	            continue;
+	          }
+
+	          // Delegate generator ran and handled its own exceptions so
+	          // regardless of what the method was, we continue as if it is
+	          // "next" with an undefined arg.
+	          method = "next";
+	          arg = undefined;
+
+	          var info = record.arg;
+	          if (info.done) {
+	            context[delegate.resultName] = info.value;
+	            context.next = delegate.nextLoc;
+	          } else {
+	            state = GenStateSuspendedYield;
+	            return info;
+	          }
+
+	          context.delegate = null;
+	        }
+
+	        if (method === "next") {
+	          if (state === GenStateSuspendedStart &&
+	              typeof arg !== "undefined") {
+	            // https://people.mozilla.org/~jorendorff/es6-draft.html#sec-generatorresume
+	            throw new TypeError(
+	              "attempt to send " + JSON.stringify(arg) + " to newborn generator"
+	            );
+	          }
+
+	          if (state === GenStateSuspendedYield) {
+	            context.sent = arg;
+	          } else {
+	            delete context.sent;
+	          }
+
+	        } else if (method === "throw") {
+	          if (state === GenStateSuspendedStart) {
+	            state = GenStateCompleted;
+	            throw arg;
+	          }
+
+	          if (context.dispatchException(arg)) {
+	            // If the dispatched exception was caught by a catch block,
+	            // then let that catch block handle the exception normally.
+	            method = "next";
+	            arg = undefined;
+	          }
+
+	        } else if (method === "return") {
+	          context.abrupt("return", arg);
+	        }
+
+	        state = GenStateExecuting;
+
+	        var record = tryCatch(innerFn, self, context);
+	        if (record.type === "normal") {
+	          // If an exception is thrown from innerFn, we leave state ===
+	          // GenStateExecuting and loop back for another invocation.
+	          state = context.done
+	            ? GenStateCompleted
+	            : GenStateSuspendedYield;
+
+	          var info = {
+	            value: record.arg,
+	            done: context.done
+	          };
+
+	          if (record.arg === ContinueSentinel) {
+	            if (context.delegate && method === "next") {
+	              // Deliberately forget the last sent value so that we don't
+	              // accidentally pass it on to the delegate.
+	              arg = undefined;
+	            }
+	          } else {
+	            return info;
+	          }
+
+	        } else if (record.type === "throw") {
+	          state = GenStateCompleted;
+
+	          if (method === "next") {
+	            context.dispatchException(record.arg);
+	          } else {
+	            arg = record.arg;
+	          }
+	        }
+	      }
+	    }
+
+	    generator.next = invoke.bind(generator, "next");
+	    generator["throw"] = invoke.bind(generator, "throw");
+	    generator["return"] = invoke.bind(generator, "return");
+
+	    return generator;
+	  }
+
+	  Gp[iteratorSymbol] = function() {
+	    return this;
+	  };
+
+	  Gp.toString = function() {
+	    return "[object Generator]";
+	  };
+
+	  function pushTryEntry(locs) {
+	    var entry = { tryLoc: locs[0] };
+
+	    if (1 in locs) {
+	      entry.catchLoc = locs[1];
+	    }
+
+	    if (2 in locs) {
+	      entry.finallyLoc = locs[2];
+	      entry.afterLoc = locs[3];
+	    }
+
+	    this.tryEntries.push(entry);
+	  }
+
+	  function resetTryEntry(entry) {
+	    var record = entry.completion || {};
+	    record.type = "normal";
+	    delete record.arg;
+	    entry.completion = record;
+	  }
+
+	  function Context(tryLocsList) {
+	    // The root entry object (effectively a try statement without a catch
+	    // or a finally block) gives us a place to store values thrown from
+	    // locations where there is no enclosing try statement.
+	    this.tryEntries = [{ tryLoc: "root" }];
+	    tryLocsList.forEach(pushTryEntry, this);
+	    this.reset();
+	  }
+
+	  runtime.keys = function(object) {
+	    var keys = [];
+	    for (var key in object) {
+	      keys.push(key);
+	    }
+	    keys.reverse();
+
+	    // Rather than returning an object with a next method, we keep
+	    // things simple and return the next function itself.
+	    return function next() {
+	      while (keys.length) {
+	        var key = keys.pop();
+	        if (key in object) {
+	          next.value = key;
+	          next.done = false;
+	          return next;
+	        }
+	      }
+
+	      // To avoid creating an additional object, we just hang the .value
+	      // and .done properties off the next function object itself. This
+	      // also ensures that the minifier will not anonymize the function.
+	      next.done = true;
+	      return next;
+	    };
+	  };
+
+	  function values(iterable) {
+	    if (iterable) {
+	      var iteratorMethod = iterable[iteratorSymbol];
+	      if (iteratorMethod) {
+	        return iteratorMethod.call(iterable);
+	      }
+
+	      if (typeof iterable.next === "function") {
+	        return iterable;
+	      }
+
+	      if (!isNaN(iterable.length)) {
+	        var i = -1, next = function next() {
+	          while (++i < iterable.length) {
+	            if (hasOwn.call(iterable, i)) {
+	              next.value = iterable[i];
+	              next.done = false;
+	              return next;
+	            }
+	          }
+
+	          next.value = undefined;
+	          next.done = true;
+
+	          return next;
+	        };
+
+	        return next.next = next;
+	      }
+	    }
+
+	    // Return an iterator with no values.
+	    return { next: doneResult };
+	  }
+	  runtime.values = values;
+
+	  function doneResult() {
+	    return { value: undefined, done: true };
+	  }
+
+	  Context.prototype = {
+	    constructor: Context,
+
+	    reset: function() {
+	      this.prev = 0;
+	      this.next = 0;
+	      this.sent = undefined;
+	      this.done = false;
+	      this.delegate = null;
+
+	      this.tryEntries.forEach(resetTryEntry);
+
+	      // Pre-initialize at least 20 temporary variables to enable hidden
+	      // class optimizations for simple generators.
+	      for (var tempIndex = 0, tempName;
+	           hasOwn.call(this, tempName = "t" + tempIndex) || tempIndex < 20;
+	           ++tempIndex) {
+	        this[tempName] = null;
+	      }
+	    },
+
+	    stop: function() {
+	      this.done = true;
+
+	      var rootEntry = this.tryEntries[0];
+	      var rootRecord = rootEntry.completion;
+	      if (rootRecord.type === "throw") {
+	        throw rootRecord.arg;
+	      }
+
+	      return this.rval;
+	    },
+
+	    dispatchException: function(exception) {
+	      if (this.done) {
+	        throw exception;
+	      }
+
+	      var context = this;
+	      function handle(loc, caught) {
+	        record.type = "throw";
+	        record.arg = exception;
+	        context.next = loc;
+	        return !!caught;
+	      }
+
+	      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+	        var entry = this.tryEntries[i];
+	        var record = entry.completion;
+
+	        if (entry.tryLoc === "root") {
+	          // Exception thrown outside of any try block that could handle
+	          // it, so set the completion value of the entire function to
+	          // throw the exception.
+	          return handle("end");
+	        }
+
+	        if (entry.tryLoc <= this.prev) {
+	          var hasCatch = hasOwn.call(entry, "catchLoc");
+	          var hasFinally = hasOwn.call(entry, "finallyLoc");
+
+	          if (hasCatch && hasFinally) {
+	            if (this.prev < entry.catchLoc) {
+	              return handle(entry.catchLoc, true);
+	            } else if (this.prev < entry.finallyLoc) {
+	              return handle(entry.finallyLoc);
+	            }
+
+	          } else if (hasCatch) {
+	            if (this.prev < entry.catchLoc) {
+	              return handle(entry.catchLoc, true);
+	            }
+
+	          } else if (hasFinally) {
+	            if (this.prev < entry.finallyLoc) {
+	              return handle(entry.finallyLoc);
+	            }
+
+	          } else {
+	            throw new Error("try statement without catch or finally");
+	          }
+	        }
+	      }
+	    },
+
+	    abrupt: function(type, arg) {
+	      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+	        var entry = this.tryEntries[i];
+	        if (entry.tryLoc <= this.prev &&
+	            hasOwn.call(entry, "finallyLoc") &&
+	            this.prev < entry.finallyLoc) {
+	          var finallyEntry = entry;
+	          break;
+	        }
+	      }
+
+	      if (finallyEntry &&
+	          (type === "break" ||
+	           type === "continue") &&
+	          finallyEntry.tryLoc <= arg &&
+	          arg < finallyEntry.finallyLoc) {
+	        // Ignore the finally entry if control is not jumping to a
+	        // location outside the try/catch block.
+	        finallyEntry = null;
+	      }
+
+	      var record = finallyEntry ? finallyEntry.completion : {};
+	      record.type = type;
+	      record.arg = arg;
+
+	      if (finallyEntry) {
+	        this.next = finallyEntry.finallyLoc;
+	      } else {
+	        this.complete(record);
+	      }
+
+	      return ContinueSentinel;
+	    },
+
+	    complete: function(record, afterLoc) {
+	      if (record.type === "throw") {
+	        throw record.arg;
+	      }
+
+	      if (record.type === "break" ||
+	          record.type === "continue") {
+	        this.next = record.arg;
+	      } else if (record.type === "return") {
+	        this.rval = record.arg;
+	        this.next = "end";
+	      } else if (record.type === "normal" && afterLoc) {
+	        this.next = afterLoc;
+	      }
+
+	      return ContinueSentinel;
+	    },
+
+	    finish: function(finallyLoc) {
+	      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+	        var entry = this.tryEntries[i];
+	        if (entry.finallyLoc === finallyLoc) {
+	          return this.complete(entry.completion, entry.afterLoc);
+	        }
+	      }
+	    },
+
+	    "catch": function(tryLoc) {
+	      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+	        var entry = this.tryEntries[i];
+	        if (entry.tryLoc === tryLoc) {
+	          var record = entry.completion;
+	          if (record.type === "throw") {
+	            var thrown = record.arg;
+	            resetTryEntry(entry);
+	          }
+	          return thrown;
+	        }
+	      }
+
+	      // The context.catch method must only be called with a location
+	      // argument that corresponds to a known catch block.
+	      throw new Error("illegal catch attempt");
+	    },
+
+	    delegateYield: function(iterable, resultName, nextLoc) {
+	      this.delegate = {
+	        iterator: values(iterable),
+	        resultName: resultName,
+	        nextLoc: nextLoc
+	      };
+
+	      return ContinueSentinel;
+	    }
+	  };
+	})(
+	  // Among the various tricks for obtaining a reference to the global
+	  // object, this seems to be the most reliable technique that does not
+	  // use indirect eval (which violates Content Security Policy).
+	  typeof global === "object" ? global :
+	  typeof window === "object" ? window : this
+	);
+
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
+
+/***/ },
+/* 20 */
+/***/ function(module, exports, __webpack_require__) {
+
 	// Automatically generated on 2015-04-29T13:04:21-07:00
 	// DO NOT EDIT or your changes may be overwritten
 
@@ -6551,7 +6612,7 @@ var StellarLib =
 
 	var _interopRequireWildcard = __webpack_require__(30)["default"];
 
-	var XDR = _interopRequireWildcard(__webpack_require__(27));
+	var XDR = _interopRequireWildcard(__webpack_require__(31));
 
 	var types = XDR.config(function (xdr) {
 
@@ -8195,7 +8256,7 @@ var StellarLib =
 	module.exports = types;
 
 /***/ },
-/* 20 */
+/* 21 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -8205,7 +8266,7 @@ var StellarLib =
 	  value: true
 	});
 
-	var sha256 = __webpack_require__(34).sha256;
+	var sha256 = __webpack_require__(35).sha256;
 
 	function hash(data) {
 	  var hasher = new sha256();
@@ -8214,7 +8275,7 @@ var StellarLib =
 	}
 
 /***/ },
-/* 21 */
+/* 22 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
@@ -8245,7 +8306,7 @@ var StellarLib =
 	  (function () {
 	    // NOTE: we use commonjs style require here because es6 imports
 	    // can only occur at the top level.  thanks, obama.
-	    var ed25519 = __webpack_require__(35);
+	    var ed25519 = __webpack_require__(36);
 
 	    actualMethods.sign = function (data, secretKey) {
 	      data = new Buffer(data);
@@ -8264,7 +8325,7 @@ var StellarLib =
 	} else {
 	  (function () {
 	    // fallback to tweetnacl.js if we're in the browser
-	    var nacl = __webpack_require__(37);
+	    var nacl = __webpack_require__(38);
 
 	    actualMethods.sign = function (data, secretKey) {
 	      data = new Buffer(data);
@@ -8286,17 +8347,17 @@ var StellarLib =
 	    };
 	  })();
 	}
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
 
 /***/ },
-/* 22 */
+/* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
 
-	var _classCallCheck = __webpack_require__(31)["default"];
+	var _classCallCheck = __webpack_require__(32)["default"];
 
-	var _createClass = __webpack_require__(32)["default"];
+	var _createClass = __webpack_require__(33)["default"];
 
 	var _interopRequireWildcard = __webpack_require__(30)["default"];
 
@@ -8306,16 +8367,16 @@ var StellarLib =
 	  value: true
 	});
 
-	var _signing = __webpack_require__(21);
+	var _signing = __webpack_require__(22);
 
 	var sign = _signing.sign;
 	var verify = _signing.verify;
 
-	var base58 = _interopRequireWildcard(__webpack_require__(23));
+	var base58 = _interopRequireWildcard(__webpack_require__(24));
 
-	var xdr = _interopRequire(__webpack_require__(19));
+	var xdr = _interopRequire(__webpack_require__(20));
 
-	var nacl = __webpack_require__(37);
+	var nacl = __webpack_require__(38);
 
 	var Keypair = exports.Keypair = (function () {
 	  function Keypair(keysAndSeed) {
@@ -8425,10 +8486,10 @@ var StellarLib =
 
 	  return Keypair;
 	})();
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
 
 /***/ },
-/* 23 */
+/* 24 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
@@ -8443,16 +8504,16 @@ var StellarLib =
 	  value: true
 	});
 
-	var bs58 = _interopRequire(__webpack_require__(33));
+	var bs58 = _interopRequire(__webpack_require__(34));
 
-	var _lodash = __webpack_require__(36);
+	var _lodash = __webpack_require__(37);
 
 	var isUndefined = _lodash.isUndefined;
 	var isNull = _lodash.isNull;
 
-	var hash = __webpack_require__(20).hash;
+	var hash = __webpack_require__(21).hash;
 
-	var nacl = __webpack_require__(37);
+	var nacl = __webpack_require__(38);
 
 	var versionBytes = {
 	  accountId: 0, // decimal 0
@@ -8541,10 +8602,10 @@ var StellarLib =
 	  return true;
 	}
 	// decimal 33
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
 
 /***/ },
-/* 24 */
+/* 25 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports.read = function(buffer, offset, isLE, mLen, nBytes) {
@@ -8634,7 +8695,7 @@ var StellarLib =
 
 
 /***/ },
-/* 25 */
+/* 26 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
@@ -8673,7 +8734,7 @@ var StellarLib =
 
 
 /***/ },
-/* 26 */
+/* 27 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
@@ -8803,28 +8864,6 @@ var StellarLib =
 
 
 /***/ },
-/* 27 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _defaults = __webpack_require__(29)["default"];
-
-	var _interopRequireWildcard = __webpack_require__(30)["default"];
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	_defaults(exports, _interopRequireWildcard(__webpack_require__(38)));
-
-	var _config = __webpack_require__(39);
-
-	_defaults(exports, _interopRequireWildcard(_config));
-
-	var config = _config.config;
-
-/***/ },
 /* 28 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -8842,7 +8881,7 @@ var StellarLib =
 
 	"use strict";
 
-	var _core = __webpack_require__(40)["default"];
+	var _core = __webpack_require__(39)["default"];
 
 	exports["default"] = function (obj, defaults) {
 	  var keys = _core.Object.getOwnPropertyNames(defaults);
@@ -8882,6 +8921,28 @@ var StellarLib =
 
 	"use strict";
 
+	var _defaults = __webpack_require__(29)["default"];
+
+	var _interopRequireWildcard = __webpack_require__(30)["default"];
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	_defaults(exports, _interopRequireWildcard(__webpack_require__(40)));
+
+	var _config = __webpack_require__(41);
+
+	_defaults(exports, _interopRequireWildcard(_config));
+
+	var config = _config.config;
+
+/***/ },
+/* 32 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
 	exports["default"] = function (instance, Constructor) {
 	  if (!(instance instanceof Constructor)) {
 	    throw new TypeError("Cannot call a class as a function");
@@ -8891,7 +8952,7 @@ var StellarLib =
 	exports.__esModule = true;
 
 /***/ },
-/* 32 */
+/* 33 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -8917,7 +8978,7 @@ var StellarLib =
 	exports.__esModule = true;
 
 /***/ },
-/* 33 */
+/* 34 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// vendored from http://cryptocoinjs.com/modules/misc/bs58/
@@ -9016,7 +9077,7 @@ var StellarLib =
 	};
 
 /***/ },
-/* 34 */
+/* 35 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var exports = module.exports = function (alg) {
@@ -9026,22 +9087,22 @@ var StellarLib =
 	}
 
 
-	exports.sha = __webpack_require__(41)
-	exports.sha1 = __webpack_require__(42)
-	exports.sha224 = __webpack_require__(43)
-	exports.sha256 = __webpack_require__(44)
-	exports.sha384 = __webpack_require__(45)
-	exports.sha512 = __webpack_require__(46)
+	exports.sha = __webpack_require__(42)
+	exports.sha1 = __webpack_require__(43)
+	exports.sha224 = __webpack_require__(44)
+	exports.sha256 = __webpack_require__(45)
+	exports.sha384 = __webpack_require__(46)
+	exports.sha512 = __webpack_require__(47)
 
 
 /***/ },
-/* 35 */
+/* 36 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"./build/Release/native.node\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
 
 /***/ },
-/* 36 */
+/* 37 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(module, global) {/**
@@ -21211,10 +21272,10 @@ var StellarLib =
 	  }
 	}.call(this));
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(69)(module), (function() { return this; }())))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(70)(module), (function() { return this; }())))
 
 /***/ },
-/* 37 */
+/* 38 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {(function(nacl) {
@@ -23625,7 +23686,7 @@ var StellarLib =
 	    }
 	  } else if (true) {
 	    // Node.js.
-	    crypto = __webpack_require__(47);
+	    crypto = __webpack_require__(48);
 	    if (crypto) {
 	      nacl.setPRNG(function(x, n) {
 	        var i, v = crypto.randomBytes(n);
@@ -23638,442 +23699,10 @@ var StellarLib =
 
 	})(typeof module !== 'undefined' && module.exports ? module.exports : (window.nacl = window.nacl || {}));
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13).Buffer))
-
-/***/ },
-/* 38 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _defaults = __webpack_require__(29)["default"];
-
-	var _interopRequireWildcard = __webpack_require__(30)["default"];
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	_defaults(exports, _interopRequireWildcard(__webpack_require__(49)));
-
-	_defaults(exports, _interopRequireWildcard(__webpack_require__(50)));
-
-	_defaults(exports, _interopRequireWildcard(__webpack_require__(51)));
-
-	_defaults(exports, _interopRequireWildcard(__webpack_require__(52)));
-
-	_defaults(exports, _interopRequireWildcard(__webpack_require__(53)));
-
-	_defaults(exports, _interopRequireWildcard(__webpack_require__(54)));
-
-	_defaults(exports, _interopRequireWildcard(__webpack_require__(55)));
-
-	_defaults(exports, _interopRequireWildcard(__webpack_require__(56)));
-
-	_defaults(exports, _interopRequireWildcard(__webpack_require__(57)));
-
-	_defaults(exports, _interopRequireWildcard(__webpack_require__(58)));
-
-	_defaults(exports, _interopRequireWildcard(__webpack_require__(59)));
-
-	_defaults(exports, _interopRequireWildcard(__webpack_require__(60)));
-
-	_defaults(exports, _interopRequireWildcard(__webpack_require__(61)));
-
-	_defaults(exports, _interopRequireWildcard(__webpack_require__(62)));
-
-	_defaults(exports, _interopRequireWildcard(__webpack_require__(63)));
-
-	_defaults(exports, _interopRequireWildcard(__webpack_require__(64)));
-
-	_defaults(exports, _interopRequireWildcard(__webpack_require__(65)));
-
-	_defaults(exports, _interopRequireWildcard(__webpack_require__(66)));
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
 
 /***/ },
 /* 39 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _classCallCheck = __webpack_require__(31)["default"];
-
-	var _createClass = __webpack_require__(32)["default"];
-
-	var _inherits = __webpack_require__(67)["default"];
-
-	var _toConsumableArray = __webpack_require__(68)["default"];
-
-	var _interopRequireWildcard = __webpack_require__(30)["default"];
-
-	var _interopRequire = __webpack_require__(28)["default"];
-
-	exports.config = config;
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var XDR = _interopRequireWildcard(__webpack_require__(38));
-
-	var _lodash = __webpack_require__(36);
-
-	var isUndefined = _lodash.isUndefined;
-	var isPlainObject = _lodash.isPlainObject;
-	var isArray = _lodash.isArray;
-	var each = _lodash.each;
-	var map = _lodash.map;
-	var pick = _lodash.pick;
-
-	var sequencify = _interopRequire(__webpack_require__(70));
-
-	// types is the root
-	var types = {};
-
-	function config(fn) {
-	  if (fn) {
-	    var builder = new TypeBuilder(types);
-	    fn(builder);
-	    builder.resolve();
-	  }
-
-	  return types;
-	}
-
-	var Reference = (function () {
-	  function Reference() {
-	    _classCallCheck(this, Reference);
-	  }
-
-	  _createClass(Reference, {
-	    resolve: {
-	      /* jshint unused: false */
-
-	      value: function resolve(definitions) {
-	        throw new Error("implement resolve in child class");
-	      }
-	    }
-	  });
-
-	  return Reference;
-	})();
-
-	var SimpleReference = (function (_Reference) {
-	  function SimpleReference(name) {
-	    _classCallCheck(this, SimpleReference);
-
-	    this.name = name;
-	  }
-
-	  _inherits(SimpleReference, _Reference);
-
-	  _createClass(SimpleReference, {
-	    resolve: {
-	      value: function resolve(definitions) {
-	        return definitions[this.name];
-	      }
-	    }
-	  });
-
-	  return SimpleReference;
-	})(Reference);
-
-	var ArrayReference = (function (_Reference2) {
-	  function ArrayReference(childReference, length) {
-	    var variable = arguments[2] === undefined ? false : arguments[2];
-
-	    _classCallCheck(this, ArrayReference);
-
-	    this.childReference = childReference;
-	    this.length = length;
-	    this.variable = variable;
-	    this.name = childReference.name;
-	  }
-
-	  _inherits(ArrayReference, _Reference2);
-
-	  _createClass(ArrayReference, {
-	    resolve: {
-	      value: function resolve(definitions) {
-	        var resolvedChild = this.childReference.resolve(definitions);
-	        if (this.variable) {
-	          return new XDR.VarArray(resolvedChild, this.length);
-	        } else {
-	          return new XDR.Array(resolvedChild, this.length);
-	        }
-	      }
-	    }
-	  });
-
-	  return ArrayReference;
-	})(Reference);
-
-	var OptionReference = (function (_Reference3) {
-	  function OptionReference(childReference) {
-	    _classCallCheck(this, OptionReference);
-
-	    this.childReference = childReference;
-	    this.name = childReference.name;
-	  }
-
-	  _inherits(OptionReference, _Reference3);
-
-	  _createClass(OptionReference, {
-	    resolve: {
-	      value: function resolve(definitions) {
-	        var resolvedChild = this.childReference.resolve(definitions);
-	        return new XDR.Option(resolvedChild);
-	      }
-	    }
-	  });
-
-	  return OptionReference;
-	})(Reference);
-
-	var Definition = (function () {
-	  function Definition(constructor, name) {
-	    var _this = this;
-
-	    for (var _len = arguments.length, config = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
-	      config[_key - 2] = arguments[_key];
-	    }
-
-	    _classCallCheck(this, Definition);
-
-	    this.constructor = constructor;
-	    this.name = name;
-	    this.config = config;
-	    this.dep = [];
-
-	    // walk the defintion config for Reference objects, push their names onto
-	    // this.deps so we can use sequencify to order our resolutions
-	    this._walkConfig(this.config, function (value) {
-	      if (value instanceof Reference) {
-	        _this.dep.push(value.name);
-	      }
-	    });
-	  }
-
-	  _createClass(Definition, {
-	    create: {
-	      value: function create(deps) {
-	        this._walkConfig(this.config, function (value, key, parent) {
-	          if (!(value instanceof Reference)) {
-	            return;
-	          }
-
-	          var dep = value.resolve(deps);
-
-	          if (!dep) {
-	            // throw if the reference couldn't be resolved
-	            throw new Error("XDR Error:" + value.name + " could not be resolved.");
-	          } else {
-	            // overwrite the reference with the concrete value
-	            parent[key] = dep;
-	          }
-	        });
-
-	        // actually create the concrete definition
-	        return this.constructor.apply(this, [this.name].concat(_toConsumableArray(this.config)));
-	      }
-	    },
-	    _walkConfig: {
-	      value: function _walkConfig(current, fn) {
-	        var _this = this;
-
-	        each(current, function (value, key) {
-	          fn(value, key, current);
-
-	          // recurse if the value is a nested object
-	          if (isPlainObject(value) || isArray(value)) {
-	            _this._walkConfig(value, fn);
-	          }
-	        });
-	      }
-	    }
-	  });
-
-	  return Definition;
-	})();
-
-	var TypeBuilder = (function () {
-	  function TypeBuilder(destination) {
-	    _classCallCheck(this, TypeBuilder);
-
-	    this._destination = destination;
-	    this._definitions = {};
-	  }
-
-	  _createClass(TypeBuilder, {
-	    "enum": {
-	      value: function _enum(name, members) {
-	        var result = new Definition(XDR.Enum.create, name, members);
-	        this.define(name, result);
-	      }
-	    },
-	    struct: {
-	      value: function struct(name, members) {
-	        var result = new Definition(XDR.Struct.create, name, members);
-	        this.define(name, result);
-	      }
-	    },
-	    union: {
-	      value: function union(name, config) {
-	        var result = new Definition(XDR.Union.create, name, config);
-	        this.define(name, result);
-	      }
-	    },
-	    typedef: {
-	      value: function typedef(name, config) {
-	        // let the reference resoltion system do it's thing
-	        // the "constructor" for a typedef just returns the resolved value
-	        var createTypedef = function (name, args) {
-	          return args;
-	        };
-
-	        var result = new Definition(createTypedef, name, config);
-	        this.define(name, result);
-	      }
-	    },
-	    "const": {
-	      value: function _const(name, config) {
-	        var createConst = function (name, args) {
-	          return args;
-	        };
-	        var result = new Definition(createConst, name, config);
-	        this.define(name, result);
-	      }
-	    },
-	    "void": {
-	      value: function _void() {
-	        return XDR.Void;
-	      }
-	    },
-	    bool: {
-	      value: function bool() {
-	        return XDR.Bool;
-	      }
-	    },
-	    int: {
-	      value: function int() {
-	        return XDR.Int;
-	      }
-	    },
-	    hyper: {
-	      value: function hyper() {
-	        return XDR.Hyper;
-	      }
-	    },
-	    uint: {
-	      value: function uint() {
-	        return XDR.UnsignedInt;
-	      }
-	    },
-	    uhyper: {
-	      value: function uhyper() {
-	        return XDR.UnsignedHyper;
-	      }
-	    },
-	    float: {
-	      value: function float() {
-	        return XDR.Float;
-	      }
-	    },
-	    double: {
-	      value: function double() {
-	        return XDR.Double;
-	      }
-	    },
-	    quadruple: {
-	      value: function quadruple() {
-	        return XDR.Quadruple;
-	      }
-	    },
-	    string: {
-	      value: function string(length) {
-	        return new XDR.String(length);
-	      }
-	    },
-	    opaque: {
-	      value: function opaque(length) {
-	        return new XDR.Opaque(length);
-	      }
-	    },
-	    varOpaque: {
-	      value: function varOpaque(length) {
-	        return new XDR.VarOpaque(length);
-	      }
-	    },
-	    array: {
-	      value: function array(childType, length) {
-	        if (childType instanceof Reference) {
-	          return new ArrayReference(childType, length);
-	        } else {
-	          return new XDR.Array(childType, length);
-	        }
-	      }
-	    },
-	    varArray: {
-	      value: function varArray(childType, maxLength) {
-	        if (childType instanceof Reference) {
-	          return new ArrayReference(childType, maxLength, true);
-	        } else {
-	          return new XDR.VarArray(childType, maxLength);
-	        }
-	      }
-	    },
-	    option: {
-	      value: function option(childType) {
-	        if (childType instanceof Reference) {
-	          return new OptionReference(childType);
-	        } else {
-	          return new XDR.Option(childType);
-	        }
-	      }
-	    },
-	    define: {
-	      value: function define(name, definition) {
-	        if (isUndefined(this._destination[name])) {
-	          this._definitions[name] = definition;
-	        } else {
-	          throw new Error("XDR Error:" + name + " is already defined");
-	        }
-	      }
-	    },
-	    lookup: {
-	      value: function lookup(name) {
-	        return new SimpleReference(name);
-	      }
-	    },
-	    resolve: {
-	      value: function resolve() {
-	        var _this = this;
-
-	        var sequence = [];
-	        sequencify(this._definitions, map(this._definitions, function (d) {
-	          return d.name;
-	        }), sequence);
-
-	        each(sequence, function (name) {
-	          var defn = _this._definitions[name];
-	          var deps = pick.apply(undefined, [_this._destination].concat(_toConsumableArray(defn.dep)));
-	          var result = defn.create(deps);
-
-	          //Ensure we aren't redefining a name
-	          if (!isUndefined(_this._destination[name])) {
-	            throw new Error("XDR Error:" + name + " is already defined");
-	          }
-
-	          _this._destination[name] = result;
-	        });
-	      }
-	    }
-	  });
-
-	  return TypeBuilder;
-	})();
-
-/***/ },
-/* 40 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -26419,7 +26048,439 @@ var StellarLib =
 
 
 /***/ },
+/* 40 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _defaults = __webpack_require__(29)["default"];
+
+	var _interopRequireWildcard = __webpack_require__(30)["default"];
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	_defaults(exports, _interopRequireWildcard(__webpack_require__(50)));
+
+	_defaults(exports, _interopRequireWildcard(__webpack_require__(51)));
+
+	_defaults(exports, _interopRequireWildcard(__webpack_require__(52)));
+
+	_defaults(exports, _interopRequireWildcard(__webpack_require__(53)));
+
+	_defaults(exports, _interopRequireWildcard(__webpack_require__(54)));
+
+	_defaults(exports, _interopRequireWildcard(__webpack_require__(55)));
+
+	_defaults(exports, _interopRequireWildcard(__webpack_require__(56)));
+
+	_defaults(exports, _interopRequireWildcard(__webpack_require__(57)));
+
+	_defaults(exports, _interopRequireWildcard(__webpack_require__(58)));
+
+	_defaults(exports, _interopRequireWildcard(__webpack_require__(59)));
+
+	_defaults(exports, _interopRequireWildcard(__webpack_require__(60)));
+
+	_defaults(exports, _interopRequireWildcard(__webpack_require__(61)));
+
+	_defaults(exports, _interopRequireWildcard(__webpack_require__(62)));
+
+	_defaults(exports, _interopRequireWildcard(__webpack_require__(63)));
+
+	_defaults(exports, _interopRequireWildcard(__webpack_require__(64)));
+
+	_defaults(exports, _interopRequireWildcard(__webpack_require__(65)));
+
+	_defaults(exports, _interopRequireWildcard(__webpack_require__(66)));
+
+	_defaults(exports, _interopRequireWildcard(__webpack_require__(67)));
+
+/***/ },
 /* 41 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _classCallCheck = __webpack_require__(32)["default"];
+
+	var _createClass = __webpack_require__(33)["default"];
+
+	var _inherits = __webpack_require__(68)["default"];
+
+	var _toConsumableArray = __webpack_require__(69)["default"];
+
+	var _interopRequireWildcard = __webpack_require__(30)["default"];
+
+	var _interopRequire = __webpack_require__(28)["default"];
+
+	exports.config = config;
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var XDR = _interopRequireWildcard(__webpack_require__(40));
+
+	var _lodash = __webpack_require__(37);
+
+	var isUndefined = _lodash.isUndefined;
+	var isPlainObject = _lodash.isPlainObject;
+	var isArray = _lodash.isArray;
+	var each = _lodash.each;
+	var map = _lodash.map;
+	var pick = _lodash.pick;
+
+	var sequencify = _interopRequire(__webpack_require__(71));
+
+	// types is the root
+	var types = {};
+
+	function config(fn) {
+	  if (fn) {
+	    var builder = new TypeBuilder(types);
+	    fn(builder);
+	    builder.resolve();
+	  }
+
+	  return types;
+	}
+
+	var Reference = (function () {
+	  function Reference() {
+	    _classCallCheck(this, Reference);
+	  }
+
+	  _createClass(Reference, {
+	    resolve: {
+	      /* jshint unused: false */
+
+	      value: function resolve(definitions) {
+	        throw new Error("implement resolve in child class");
+	      }
+	    }
+	  });
+
+	  return Reference;
+	})();
+
+	var SimpleReference = (function (_Reference) {
+	  function SimpleReference(name) {
+	    _classCallCheck(this, SimpleReference);
+
+	    this.name = name;
+	  }
+
+	  _inherits(SimpleReference, _Reference);
+
+	  _createClass(SimpleReference, {
+	    resolve: {
+	      value: function resolve(definitions) {
+	        return definitions[this.name];
+	      }
+	    }
+	  });
+
+	  return SimpleReference;
+	})(Reference);
+
+	var ArrayReference = (function (_Reference2) {
+	  function ArrayReference(childReference, length) {
+	    var variable = arguments[2] === undefined ? false : arguments[2];
+
+	    _classCallCheck(this, ArrayReference);
+
+	    this.childReference = childReference;
+	    this.length = length;
+	    this.variable = variable;
+	    this.name = childReference.name;
+	  }
+
+	  _inherits(ArrayReference, _Reference2);
+
+	  _createClass(ArrayReference, {
+	    resolve: {
+	      value: function resolve(definitions) {
+	        var resolvedChild = this.childReference.resolve(definitions);
+	        if (this.variable) {
+	          return new XDR.VarArray(resolvedChild, this.length);
+	        } else {
+	          return new XDR.Array(resolvedChild, this.length);
+	        }
+	      }
+	    }
+	  });
+
+	  return ArrayReference;
+	})(Reference);
+
+	var OptionReference = (function (_Reference3) {
+	  function OptionReference(childReference) {
+	    _classCallCheck(this, OptionReference);
+
+	    this.childReference = childReference;
+	    this.name = childReference.name;
+	  }
+
+	  _inherits(OptionReference, _Reference3);
+
+	  _createClass(OptionReference, {
+	    resolve: {
+	      value: function resolve(definitions) {
+	        var resolvedChild = this.childReference.resolve(definitions);
+	        return new XDR.Option(resolvedChild);
+	      }
+	    }
+	  });
+
+	  return OptionReference;
+	})(Reference);
+
+	var Definition = (function () {
+	  function Definition(constructor, name) {
+	    var _this = this;
+
+	    for (var _len = arguments.length, config = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
+	      config[_key - 2] = arguments[_key];
+	    }
+
+	    _classCallCheck(this, Definition);
+
+	    this.constructor = constructor;
+	    this.name = name;
+	    this.config = config;
+	    this.dep = [];
+
+	    // walk the defintion config for Reference objects, push their names onto
+	    // this.deps so we can use sequencify to order our resolutions
+	    this._walkConfig(this.config, function (value) {
+	      if (value instanceof Reference) {
+	        _this.dep.push(value.name);
+	      }
+	    });
+	  }
+
+	  _createClass(Definition, {
+	    create: {
+	      value: function create(deps) {
+	        this._walkConfig(this.config, function (value, key, parent) {
+	          if (!(value instanceof Reference)) {
+	            return;
+	          }
+
+	          var dep = value.resolve(deps);
+
+	          if (!dep) {
+	            // throw if the reference couldn't be resolved
+	            throw new Error("XDR Error:" + value.name + " could not be resolved.");
+	          } else {
+	            // overwrite the reference with the concrete value
+	            parent[key] = dep;
+	          }
+	        });
+
+	        // actually create the concrete definition
+	        return this.constructor.apply(this, [this.name].concat(_toConsumableArray(this.config)));
+	      }
+	    },
+	    _walkConfig: {
+	      value: function _walkConfig(current, fn) {
+	        var _this = this;
+
+	        each(current, function (value, key) {
+	          fn(value, key, current);
+
+	          // recurse if the value is a nested object
+	          if (isPlainObject(value) || isArray(value)) {
+	            _this._walkConfig(value, fn);
+	          }
+	        });
+	      }
+	    }
+	  });
+
+	  return Definition;
+	})();
+
+	var TypeBuilder = (function () {
+	  function TypeBuilder(destination) {
+	    _classCallCheck(this, TypeBuilder);
+
+	    this._destination = destination;
+	    this._definitions = {};
+	  }
+
+	  _createClass(TypeBuilder, {
+	    "enum": {
+	      value: function _enum(name, members) {
+	        var result = new Definition(XDR.Enum.create, name, members);
+	        this.define(name, result);
+	      }
+	    },
+	    struct: {
+	      value: function struct(name, members) {
+	        var result = new Definition(XDR.Struct.create, name, members);
+	        this.define(name, result);
+	      }
+	    },
+	    union: {
+	      value: function union(name, config) {
+	        var result = new Definition(XDR.Union.create, name, config);
+	        this.define(name, result);
+	      }
+	    },
+	    typedef: {
+	      value: function typedef(name, config) {
+	        // let the reference resoltion system do it's thing
+	        // the "constructor" for a typedef just returns the resolved value
+	        var createTypedef = function (name, args) {
+	          return args;
+	        };
+
+	        var result = new Definition(createTypedef, name, config);
+	        this.define(name, result);
+	      }
+	    },
+	    "const": {
+	      value: function _const(name, config) {
+	        var createConst = function (name, args) {
+	          return args;
+	        };
+	        var result = new Definition(createConst, name, config);
+	        this.define(name, result);
+	      }
+	    },
+	    "void": {
+	      value: function _void() {
+	        return XDR.Void;
+	      }
+	    },
+	    bool: {
+	      value: function bool() {
+	        return XDR.Bool;
+	      }
+	    },
+	    int: {
+	      value: function int() {
+	        return XDR.Int;
+	      }
+	    },
+	    hyper: {
+	      value: function hyper() {
+	        return XDR.Hyper;
+	      }
+	    },
+	    uint: {
+	      value: function uint() {
+	        return XDR.UnsignedInt;
+	      }
+	    },
+	    uhyper: {
+	      value: function uhyper() {
+	        return XDR.UnsignedHyper;
+	      }
+	    },
+	    float: {
+	      value: function float() {
+	        return XDR.Float;
+	      }
+	    },
+	    double: {
+	      value: function double() {
+	        return XDR.Double;
+	      }
+	    },
+	    quadruple: {
+	      value: function quadruple() {
+	        return XDR.Quadruple;
+	      }
+	    },
+	    string: {
+	      value: function string(length) {
+	        return new XDR.String(length);
+	      }
+	    },
+	    opaque: {
+	      value: function opaque(length) {
+	        return new XDR.Opaque(length);
+	      }
+	    },
+	    varOpaque: {
+	      value: function varOpaque(length) {
+	        return new XDR.VarOpaque(length);
+	      }
+	    },
+	    array: {
+	      value: function array(childType, length) {
+	        if (childType instanceof Reference) {
+	          return new ArrayReference(childType, length);
+	        } else {
+	          return new XDR.Array(childType, length);
+	        }
+	      }
+	    },
+	    varArray: {
+	      value: function varArray(childType, maxLength) {
+	        if (childType instanceof Reference) {
+	          return new ArrayReference(childType, maxLength, true);
+	        } else {
+	          return new XDR.VarArray(childType, maxLength);
+	        }
+	      }
+	    },
+	    option: {
+	      value: function option(childType) {
+	        if (childType instanceof Reference) {
+	          return new OptionReference(childType);
+	        } else {
+	          return new XDR.Option(childType);
+	        }
+	      }
+	    },
+	    define: {
+	      value: function define(name, definition) {
+	        if (isUndefined(this._destination[name])) {
+	          this._definitions[name] = definition;
+	        } else {
+	          throw new Error("XDR Error:" + name + " is already defined");
+	        }
+	      }
+	    },
+	    lookup: {
+	      value: function lookup(name) {
+	        return new SimpleReference(name);
+	      }
+	    },
+	    resolve: {
+	      value: function resolve() {
+	        var _this = this;
+
+	        var sequence = [];
+	        sequencify(this._definitions, map(this._definitions, function (d) {
+	          return d.name;
+	        }), sequence);
+
+	        each(sequence, function (name) {
+	          var defn = _this._definitions[name];
+	          var deps = pick.apply(undefined, [_this._destination].concat(_toConsumableArray(defn.dep)));
+	          var result = defn.create(deps);
+
+	          //Ensure we aren't redefining a name
+	          if (!isUndefined(_this._destination[name])) {
+	            throw new Error("XDR Error:" + name + " is already defined");
+	          }
+
+	          _this._destination[name] = result;
+	        });
+	      }
+	    }
+	  });
+
+	  return TypeBuilder;
+	})();
+
+/***/ },
+/* 42 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {/*
@@ -26430,8 +26491,8 @@ var StellarLib =
 	 * operation was added.
 	 */
 
-	var inherits = __webpack_require__(77)
-	var Hash = __webpack_require__(71)
+	var inherits = __webpack_require__(78)
+	var Hash = __webpack_require__(72)
 
 	var W = new Array(80)
 
@@ -26522,10 +26583,10 @@ var StellarLib =
 	module.exports = Sha
 
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
 
 /***/ },
-/* 42 */
+/* 43 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {/*
@@ -26537,8 +26598,8 @@ var StellarLib =
 	 * See http://pajhome.org.uk/crypt/md5 for details.
 	 */
 
-	var inherits = __webpack_require__(77)
-	var Hash = __webpack_require__(71)
+	var inherits = __webpack_require__(78)
+	var Hash = __webpack_require__(72)
 
 	var W = new Array(80)
 
@@ -26625,10 +26686,10 @@ var StellarLib =
 	module.exports = Sha1
 
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
 
 /***/ },
-/* 43 */
+/* 44 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {/**
@@ -26639,9 +26700,9 @@ var StellarLib =
 	 *
 	 */
 
-	var inherits = __webpack_require__(77)
-	var SHA256 = __webpack_require__(44)
-	var Hash = __webpack_require__(71)
+	var inherits = __webpack_require__(78)
+	var SHA256 = __webpack_require__(45)
+	var Hash = __webpack_require__(72)
 
 	var W = new Array(64)
 
@@ -26684,10 +26745,10 @@ var StellarLib =
 
 	module.exports = Sha224
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
 
 /***/ },
-/* 44 */
+/* 45 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {/**
@@ -26698,8 +26759,8 @@ var StellarLib =
 	 *
 	 */
 
-	var inherits = __webpack_require__(77)
-	var Hash = __webpack_require__(71)
+	var inherits = __webpack_require__(78)
+	var Hash = __webpack_require__(72)
 
 	var K = [
 	  0x428A2F98, 0x71374491, 0xB5C0FBCF, 0xE9B5DBA5,
@@ -26840,15 +26901,15 @@ var StellarLib =
 
 	module.exports = Sha256
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
 
 /***/ },
-/* 45 */
+/* 46 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(Buffer) {var inherits = __webpack_require__(77)
-	var SHA512 = __webpack_require__(46);
-	var Hash = __webpack_require__(71)
+	/* WEBPACK VAR INJECTION */(function(Buffer) {var inherits = __webpack_require__(78)
+	var SHA512 = __webpack_require__(47);
+	var Hash = __webpack_require__(72)
 
 	var W = new Array(160)
 
@@ -26903,14 +26964,14 @@ var StellarLib =
 
 	module.exports = Sha384
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
 
 /***/ },
-/* 46 */
+/* 47 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(Buffer) {var inherits = __webpack_require__(77)
-	var Hash = __webpack_require__(71)
+	/* WEBPACK VAR INJECTION */(function(Buffer) {var inherits = __webpack_require__(78)
+	var Hash = __webpack_require__(72)
 
 	var K = [
 	  0x428a2f98, 0xd728ae22, 0x71374491, 0x23ef65cd,
@@ -27155,17 +27216,17 @@ var StellarLib =
 
 	module.exports = Sha512
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
 
 /***/ },
-/* 47 */
+/* 48 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* (ignored) */
 
 /***/ },
-/* 48 */,
-/* 49 */
+/* 49 */,
+/* 50 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -27176,9 +27237,9 @@ var StellarLib =
 	  value: true
 	});
 
-	var isNumber = __webpack_require__(36).isNumber;
+	var isNumber = __webpack_require__(37).isNumber;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(72));
+	var includeIoMixin = _interopRequire(__webpack_require__(73));
 
 	var Int = {
 
@@ -27216,20 +27277,20 @@ var StellarLib =
 	includeIoMixin(Int);
 
 /***/ },
-/* 50 */
+/* 51 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
-	var _classCallCheck = __webpack_require__(31)["default"];
+	var _classCallCheck = __webpack_require__(32)["default"];
 
-	var _inherits = __webpack_require__(67)["default"];
+	var _inherits = __webpack_require__(68)["default"];
 
-	var _get = __webpack_require__(73)["default"];
+	var _get = __webpack_require__(74)["default"];
 
-	var _createClass = __webpack_require__(32)["default"];
+	var _createClass = __webpack_require__(33)["default"];
 
-	var _core = __webpack_require__(40)["default"];
+	var _core = __webpack_require__(39)["default"];
 
 	var _interopRequire = __webpack_require__(28)["default"];
 
@@ -27237,9 +27298,9 @@ var StellarLib =
 	  value: true
 	});
 
-	var Long = _interopRequire(__webpack_require__(76));
+	var Long = _interopRequire(__webpack_require__(77));
 
-	var includeIoMixin = _interopRequire(__webpack_require__(72));
+	var includeIoMixin = _interopRequire(__webpack_require__(73));
 
 	var Hyper = exports.Hyper = (function (_Long) {
 	  function Hyper(low, high) {
@@ -27296,7 +27357,7 @@ var StellarLib =
 	Hyper.MIN_VALUE = new Hyper(Long.MIN_VALUE.low, Long.MIN_VALUE.high);
 
 /***/ },
-/* 51 */
+/* 52 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -27307,9 +27368,9 @@ var StellarLib =
 	  value: true
 	});
 
-	var isNumber = __webpack_require__(36).isNumber;
+	var isNumber = __webpack_require__(37).isNumber;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(72));
+	var includeIoMixin = _interopRequire(__webpack_require__(73));
 
 	var UnsignedInt = {
 
@@ -27351,20 +27412,20 @@ var StellarLib =
 	includeIoMixin(UnsignedInt);
 
 /***/ },
-/* 52 */
+/* 53 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
-	var _classCallCheck = __webpack_require__(31)["default"];
+	var _classCallCheck = __webpack_require__(32)["default"];
 
-	var _inherits = __webpack_require__(67)["default"];
+	var _inherits = __webpack_require__(68)["default"];
 
-	var _get = __webpack_require__(73)["default"];
+	var _get = __webpack_require__(74)["default"];
 
-	var _createClass = __webpack_require__(32)["default"];
+	var _createClass = __webpack_require__(33)["default"];
 
-	var _core = __webpack_require__(40)["default"];
+	var _core = __webpack_require__(39)["default"];
 
 	var _interopRequire = __webpack_require__(28)["default"];
 
@@ -27372,9 +27433,9 @@ var StellarLib =
 	  value: true
 	});
 
-	var Long = _interopRequire(__webpack_require__(76));
+	var Long = _interopRequire(__webpack_require__(77));
 
-	var includeIoMixin = _interopRequire(__webpack_require__(72));
+	var includeIoMixin = _interopRequire(__webpack_require__(73));
 
 	var UnsignedHyper = exports.UnsignedHyper = (function (_Long) {
 	  function UnsignedHyper(low, high) {
@@ -27432,7 +27493,7 @@ var StellarLib =
 	UnsignedHyper.MIN_VALUE = new UnsignedHyper(Long.MIN_VALUE.low, Long.MIN_VALUE.high);
 
 /***/ },
-/* 53 */
+/* 54 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -27443,9 +27504,9 @@ var StellarLib =
 	  value: true
 	});
 
-	var isNumber = __webpack_require__(36).isNumber;
+	var isNumber = __webpack_require__(37).isNumber;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(72));
+	var includeIoMixin = _interopRequire(__webpack_require__(73));
 
 	var Float = {
 
@@ -27469,7 +27530,7 @@ var StellarLib =
 	includeIoMixin(Float);
 
 /***/ },
-/* 54 */
+/* 55 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -27480,9 +27541,9 @@ var StellarLib =
 	  value: true
 	});
 
-	var isNumber = __webpack_require__(36).isNumber;
+	var isNumber = __webpack_require__(37).isNumber;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(72));
+	var includeIoMixin = _interopRequire(__webpack_require__(73));
 
 	var Double = {
 
@@ -27506,7 +27567,7 @@ var StellarLib =
 	includeIoMixin(Double);
 
 /***/ },
-/* 55 */
+/* 56 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -27517,7 +27578,7 @@ var StellarLib =
 	  value: true
 	});
 
-	var includeIoMixin = _interopRequire(__webpack_require__(72));
+	var includeIoMixin = _interopRequire(__webpack_require__(73));
 
 	var Quadruple = {
 	  /* jshint unused: false */
@@ -27538,7 +27599,7 @@ var StellarLib =
 	includeIoMixin(Quadruple);
 
 /***/ },
-/* 56 */
+/* 57 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -27549,11 +27610,11 @@ var StellarLib =
 	  value: true
 	});
 
-	var Int = __webpack_require__(49).Int;
+	var Int = __webpack_require__(50).Int;
 
-	var isBoolean = __webpack_require__(36).isBoolean;
+	var isBoolean = __webpack_require__(37).isBoolean;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(72));
+	var includeIoMixin = _interopRequire(__webpack_require__(73));
 
 	var Bool = {
 	  read: function read(io) {
@@ -27583,14 +27644,14 @@ var StellarLib =
 	includeIoMixin(Bool);
 
 /***/ },
-/* 57 */
+/* 58 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
 
-	var _classCallCheck = __webpack_require__(31)["default"];
+	var _classCallCheck = __webpack_require__(32)["default"];
 
-	var _createClass = __webpack_require__(32)["default"];
+	var _createClass = __webpack_require__(33)["default"];
 
 	var _interopRequire = __webpack_require__(28)["default"];
 
@@ -27598,15 +27659,15 @@ var StellarLib =
 	  value: true
 	});
 
-	var Int = __webpack_require__(49).Int;
+	var Int = __webpack_require__(50).Int;
 
-	var UnsignedInt = __webpack_require__(51).UnsignedInt;
+	var UnsignedInt = __webpack_require__(52).UnsignedInt;
 
-	var calculatePadding = __webpack_require__(74).calculatePadding;
+	var calculatePadding = __webpack_require__(75).calculatePadding;
 
-	var isString = __webpack_require__(36).isString;
+	var isString = __webpack_require__(37).isString;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(72));
+	var includeIoMixin = _interopRequire(__webpack_require__(73));
 
 	var String = exports.String = (function () {
 	  function String() {
@@ -27657,17 +27718,17 @@ var StellarLib =
 	})();
 
 	includeIoMixin(String.prototype);
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
 
 /***/ },
-/* 58 */
+/* 59 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
 
-	var _classCallCheck = __webpack_require__(31)["default"];
+	var _classCallCheck = __webpack_require__(32)["default"];
 
-	var _createClass = __webpack_require__(32)["default"];
+	var _createClass = __webpack_require__(33)["default"];
 
 	var _interopRequire = __webpack_require__(28)["default"];
 
@@ -27675,9 +27736,9 @@ var StellarLib =
 	  value: true
 	});
 
-	var calculatePadding = __webpack_require__(74).calculatePadding;
+	var calculatePadding = __webpack_require__(75).calculatePadding;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(72));
+	var includeIoMixin = _interopRequire(__webpack_require__(73));
 
 	var Opaque = exports.Opaque = (function () {
 	  function Opaque(length) {
@@ -27715,17 +27776,17 @@ var StellarLib =
 	})();
 
 	includeIoMixin(Opaque.prototype);
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
 
 /***/ },
-/* 59 */
+/* 60 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
 
-	var _classCallCheck = __webpack_require__(31)["default"];
+	var _classCallCheck = __webpack_require__(32)["default"];
 
-	var _createClass = __webpack_require__(32)["default"];
+	var _createClass = __webpack_require__(33)["default"];
 
 	var _interopRequire = __webpack_require__(28)["default"];
 
@@ -27733,13 +27794,13 @@ var StellarLib =
 	  value: true
 	});
 
-	var Int = __webpack_require__(49).Int;
+	var Int = __webpack_require__(50).Int;
 
-	var UnsignedInt = __webpack_require__(51).UnsignedInt;
+	var UnsignedInt = __webpack_require__(52).UnsignedInt;
 
-	var calculatePadding = __webpack_require__(74).calculatePadding;
+	var calculatePadding = __webpack_require__(75).calculatePadding;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(72));
+	var includeIoMixin = _interopRequire(__webpack_require__(73));
 
 	var VarOpaque = exports.VarOpaque = (function () {
 	  function VarOpaque() {
@@ -27784,17 +27845,17 @@ var StellarLib =
 	})();
 
 	includeIoMixin(VarOpaque.prototype);
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
 
 /***/ },
-/* 60 */
+/* 61 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
-	var _classCallCheck = __webpack_require__(31)["default"];
+	var _classCallCheck = __webpack_require__(32)["default"];
 
-	var _createClass = __webpack_require__(32)["default"];
+	var _createClass = __webpack_require__(33)["default"];
 
 	var _interopRequire = __webpack_require__(28)["default"];
 
@@ -27802,14 +27863,14 @@ var StellarLib =
 	  value: true
 	});
 
-	var _lodash = __webpack_require__(36);
+	var _lodash = __webpack_require__(37);
 
 	var all = _lodash.all;
 	var each = _lodash.each;
 	var times = _lodash.times;
 	var isArray = _lodash.isArray;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(72));
+	var includeIoMixin = _interopRequire(__webpack_require__(73));
 
 	var Array = exports.Array = (function () {
 	  function Array(childType, length) {
@@ -27870,14 +27931,14 @@ var StellarLib =
 	includeIoMixin(Array.prototype);
 
 /***/ },
-/* 61 */
+/* 62 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
-	var _classCallCheck = __webpack_require__(31)["default"];
+	var _classCallCheck = __webpack_require__(32)["default"];
 
-	var _createClass = __webpack_require__(32)["default"];
+	var _createClass = __webpack_require__(33)["default"];
 
 	var _interopRequire = __webpack_require__(28)["default"];
 
@@ -27885,18 +27946,18 @@ var StellarLib =
 	  value: true
 	});
 
-	var Int = __webpack_require__(49).Int;
+	var Int = __webpack_require__(50).Int;
 
-	var UnsignedInt = __webpack_require__(51).UnsignedInt;
+	var UnsignedInt = __webpack_require__(52).UnsignedInt;
 
-	var _lodash = __webpack_require__(36);
+	var _lodash = __webpack_require__(37);
 
 	var all = _lodash.all;
 	var each = _lodash.each;
 	var times = _lodash.times;
 	var isArray = _lodash.isArray;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(72));
+	var includeIoMixin = _interopRequire(__webpack_require__(73));
 
 	var VarArray = exports.VarArray = (function () {
 	  function VarArray(childType) {
@@ -27966,14 +28027,14 @@ var StellarLib =
 	includeIoMixin(VarArray.prototype);
 
 /***/ },
-/* 62 */
+/* 63 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
-	var _classCallCheck = __webpack_require__(31)["default"];
+	var _classCallCheck = __webpack_require__(32)["default"];
 
-	var _createClass = __webpack_require__(32)["default"];
+	var _createClass = __webpack_require__(33)["default"];
 
 	var _interopRequire = __webpack_require__(28)["default"];
 
@@ -27981,14 +28042,14 @@ var StellarLib =
 	  value: true
 	});
 
-	var Bool = __webpack_require__(56).Bool;
+	var Bool = __webpack_require__(57).Bool;
 
-	var _lodash = __webpack_require__(36);
+	var _lodash = __webpack_require__(37);
 
 	var isNull = _lodash.isNull;
 	var isUndefined = _lodash.isUndefined;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(72));
+	var includeIoMixin = _interopRequire(__webpack_require__(73));
 
 	var Option = exports.Option = (function () {
 	  function Option(childType) {
@@ -28036,7 +28097,7 @@ var StellarLib =
 	includeIoMixin(Option.prototype);
 
 /***/ },
-/* 63 */
+/* 64 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -28047,9 +28108,9 @@ var StellarLib =
 	  value: true
 	});
 
-	var isUndefined = __webpack_require__(36).isUndefined;
+	var isUndefined = __webpack_require__(37).isUndefined;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(72));
+	var includeIoMixin = _interopRequire(__webpack_require__(73));
 
 	var Void = {
 	  /* jshint unused: false */
@@ -28072,20 +28133,20 @@ var StellarLib =
 	includeIoMixin(Void);
 
 /***/ },
-/* 64 */
+/* 65 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
-	var _classCallCheck = __webpack_require__(31)["default"];
+	var _classCallCheck = __webpack_require__(32)["default"];
 
-	var _createClass = __webpack_require__(32)["default"];
+	var _createClass = __webpack_require__(33)["default"];
 
-	var _inherits = __webpack_require__(67)["default"];
+	var _inherits = __webpack_require__(68)["default"];
 
-	var _get = __webpack_require__(73)["default"];
+	var _get = __webpack_require__(74)["default"];
 
-	var _core = __webpack_require__(40)["default"];
+	var _core = __webpack_require__(39)["default"];
 
 	var _interopRequire = __webpack_require__(28)["default"];
 
@@ -28093,14 +28154,14 @@ var StellarLib =
 	  value: true
 	});
 
-	var Int = __webpack_require__(49).Int;
+	var Int = __webpack_require__(50).Int;
 
-	var _lodash = __webpack_require__(36);
+	var _lodash = __webpack_require__(37);
 
 	var each = _lodash.each;
 	var vals = _lodash.values;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(72));
+	var includeIoMixin = _interopRequire(__webpack_require__(73));
 
 	var Enum = exports.Enum = (function () {
 	  function Enum(name, value) {
@@ -28199,22 +28260,22 @@ var StellarLib =
 	includeIoMixin(Enum);
 
 /***/ },
-/* 65 */
+/* 66 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
-	var _classCallCheck = __webpack_require__(31)["default"];
+	var _classCallCheck = __webpack_require__(32)["default"];
 
-	var _createClass = __webpack_require__(32)["default"];
+	var _createClass = __webpack_require__(33)["default"];
 
-	var _inherits = __webpack_require__(67)["default"];
+	var _inherits = __webpack_require__(68)["default"];
 
-	var _get = __webpack_require__(73)["default"];
+	var _get = __webpack_require__(74)["default"];
 
-	var _slicedToArray = __webpack_require__(75)["default"];
+	var _slicedToArray = __webpack_require__(76)["default"];
 
-	var _core = __webpack_require__(40)["default"];
+	var _core = __webpack_require__(39)["default"];
 
 	var _interopRequire = __webpack_require__(28)["default"];
 
@@ -28222,14 +28283,14 @@ var StellarLib =
 	  value: true
 	});
 
-	var _lodash = __webpack_require__(36);
+	var _lodash = __webpack_require__(37);
 
 	var each = _lodash.each;
 	var map = _lodash.map;
 	var isUndefined = _lodash.isUndefined;
 	var zipObject = _lodash.zipObject;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(72));
+	var includeIoMixin = _interopRequire(__webpack_require__(73));
 
 	var Struct = exports.Struct = (function () {
 	  function Struct(attributes) {
@@ -28326,20 +28387,20 @@ var StellarLib =
 	}
 
 /***/ },
-/* 66 */
+/* 67 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
-	var _classCallCheck = __webpack_require__(31)["default"];
+	var _classCallCheck = __webpack_require__(32)["default"];
 
-	var _createClass = __webpack_require__(32)["default"];
+	var _createClass = __webpack_require__(33)["default"];
 
-	var _inherits = __webpack_require__(67)["default"];
+	var _inherits = __webpack_require__(68)["default"];
 
-	var _get = __webpack_require__(73)["default"];
+	var _get = __webpack_require__(74)["default"];
 
-	var _core = __webpack_require__(40)["default"];
+	var _core = __webpack_require__(39)["default"];
 
 	var _interopRequire = __webpack_require__(28)["default"];
 
@@ -28347,15 +28408,14 @@ var StellarLib =
 	  value: true
 	});
 
-	var _lodash = __webpack_require__(36);
+	var _lodash = __webpack_require__(37);
 
 	var each = _lodash.each;
 	var isUndefined = _lodash.isUndefined;
-	var cloneDeep = _lodash.cloneDeep;
 
-	var Void = __webpack_require__(63).Void;
+	var Void = __webpack_require__(64).Void;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(72));
+	var includeIoMixin = _interopRequire(__webpack_require__(73));
 
 	var Union = exports.Union = (function () {
 	  function Union(aSwitch, value) {
@@ -28422,7 +28482,6 @@ var StellarLib =
 	    },
 	    armTypeForArm: {
 	      value: function armTypeForArm(arm) {
-	        console.log("arm: " + arm);
 	        if (arm === Void) {
 	          return Void;
 	        } else {
@@ -28433,10 +28492,8 @@ var StellarLib =
 	    read: {
 	      value: function read(io) {
 	        var aSwitch = this._switchOn.read(io);
-	        console.log(aSwitch);
 	        var arm = this.armForSwitch(aSwitch);
 	        var armType = this.armTypeForArm(arm);
-	        console.log(armType);
 	        var value = armType.read(io);
 	        return new this(aSwitch, value);
 	      }
@@ -28477,7 +28534,7 @@ var StellarLib =
 	        ChildUnion.unionName = name;
 	        ChildUnion._switchOn = config.switchOn;
 	        ChildUnion._switches = new _core.Map();
-	        ChildUnion._arms = cloneDeep(config.arms);
+	        ChildUnion._arms = config.arms;
 
 	        each(ChildUnion._switchOn.values(), function (aSwitch) {
 
@@ -28518,7 +28575,7 @@ var StellarLib =
 	includeIoMixin(Union);
 
 /***/ },
-/* 67 */
+/* 68 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -28542,12 +28599,12 @@ var StellarLib =
 	exports.__esModule = true;
 
 /***/ },
-/* 68 */
+/* 69 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
-	var _core = __webpack_require__(40)["default"];
+	var _core = __webpack_require__(39)["default"];
 
 	exports["default"] = function (arr) {
 	  if (Array.isArray(arr)) {
@@ -28562,7 +28619,7 @@ var StellarLib =
 	exports.__esModule = true;
 
 /***/ },
-/* 69 */
+/* 70 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = function(module) {
@@ -28578,7 +28635,7 @@ var StellarLib =
 
 
 /***/ },
-/* 70 */
+/* 71 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*jshint node:true */
@@ -28630,7 +28687,7 @@ var StellarLib =
 
 
 /***/ },
-/* 71 */
+/* 72 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {//prototype class for hash functions
@@ -28703,19 +28760,19 @@ var StellarLib =
 
 	module.exports = Hash
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
 
 /***/ },
-/* 72 */
+/* 73 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
 	module.exports = includeIoMixin;
 
-	var Cursor = __webpack_require__(78).Cursor;
+	var Cursor = __webpack_require__(79).Cursor;
 
-	var _lodash = __webpack_require__(36);
+	var _lodash = __webpack_require__(37);
 
 	var extend = _lodash.extend;
 	var isFunction = _lodash.isFunction;
@@ -28769,12 +28826,12 @@ var StellarLib =
 	}
 
 /***/ },
-/* 73 */
+/* 74 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
-	var _core = __webpack_require__(40)["default"];
+	var _core = __webpack_require__(39)["default"];
 
 	exports["default"] = function get(_x, _x2, _x3) {
 	  var _again = true;
@@ -28817,7 +28874,7 @@ var StellarLib =
 	exports.__esModule = true;
 
 /***/ },
-/* 74 */
+/* 75 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -28841,12 +28898,12 @@ var StellarLib =
 	}
 
 /***/ },
-/* 75 */
+/* 76 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
-	var _core = __webpack_require__(40)["default"];
+	var _core = __webpack_require__(39)["default"];
 
 	exports["default"] = function (arr, i) {
 	  if (Array.isArray(arr)) {
@@ -28869,7 +28926,7 @@ var StellarLib =
 	exports.__esModule = true;
 
 /***/ },
-/* 76 */
+/* 77 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -28889,11 +28946,11 @@ var StellarLib =
 	 limitations under the License.
 	 */
 
-	module.exports = __webpack_require__(79);
+	module.exports = __webpack_require__(80);
 
 
 /***/ },
-/* 77 */
+/* 78 */
 /***/ function(module, exports, __webpack_require__) {
 
 	if (typeof Object.create === 'function') {
@@ -28922,16 +28979,16 @@ var StellarLib =
 
 
 /***/ },
-/* 78 */
+/* 79 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
 
-	var _classCallCheck = __webpack_require__(31)["default"];
+	var _classCallCheck = __webpack_require__(32)["default"];
 
-	var _inherits = __webpack_require__(67)["default"];
+	var _inherits = __webpack_require__(68)["default"];
 
-	var _createClass = __webpack_require__(32)["default"];
+	var _createClass = __webpack_require__(33)["default"];
 
 	var _interopRequire = __webpack_require__(28)["default"];
 
@@ -28939,9 +28996,9 @@ var StellarLib =
 	  value: true
 	});
 
-	var BaseCursor = _interopRequire(__webpack_require__(80));
+	var BaseCursor = _interopRequire(__webpack_require__(81));
 
-	var calculatePadding = __webpack_require__(74).calculatePadding;
+	var calculatePadding = __webpack_require__(75).calculatePadding;
 
 	var Cursor = exports.Cursor = (function (_BaseCursor) {
 	  function Cursor() {
@@ -28968,10 +29025,10 @@ var StellarLib =
 
 	  return Cursor;
 	})(BaseCursor);
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
 
 /***/ },
-/* 79 */
+/* 80 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(module) {/*
@@ -29910,17 +29967,17 @@ var StellarLib =
 
 	    /* CommonJS */ if ("function" === 'function' && typeof module === 'object' && module && typeof exports === 'object' && exports)
 	        module["exports"] = Long;
-	    /* AMD */ else if ("function" === 'function' && __webpack_require__(81)["amd"])
+	    /* AMD */ else if ("function" === 'function' && __webpack_require__(82)["amd"])
 	        !(__WEBPACK_AMD_DEFINE_RESULT__ = function() { return Long; }.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 	    /* Global */ else
 	        (global["dcodeIO"] = global["dcodeIO"] || {})["Long"] = Long;
 
 	})(this);
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(69)(module)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(70)(module)))
 
 /***/ },
-/* 80 */
+/* 81 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {var Cursor = function(buffer)
@@ -30142,7 +30199,7 @@ var StellarLib =
 			parent.call(this, buffer);
 		};
 
-		__webpack_require__(82).inherits(C, parent);
+		__webpack_require__(83).inherits(C, parent);
 
 		C.extend = parent.extend;
 		C.define = parent.define;
@@ -30168,17 +30225,17 @@ var StellarLib =
 
 	module.exports = Cursor;
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
 
 /***/ },
-/* 81 */
+/* 82 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = function() { throw new Error("define cannot be used indirect"); };
 
 
 /***/ },
-/* 82 */
+/* 83 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global, process) {// Copyright Joyent, Inc. and other Node contributors.
@@ -30706,7 +30763,7 @@ var StellarLib =
 	}
 	exports.isPrimitive = isPrimitive;
 
-	exports.isBuffer = __webpack_require__(83);
+	exports.isBuffer = __webpack_require__(84);
 
 	function objectToString(o) {
 	  return Object.prototype.toString.call(o);
@@ -30750,7 +30807,7 @@ var StellarLib =
 	 *     prototype.
 	 * @param {function} superCtor Constructor function to inherit prototype from.
 	 */
-	exports.inherits = __webpack_require__(85);
+	exports.inherits = __webpack_require__(86);
 
 	exports._extend = function(origin, add) {
 	  // Don't do anything if add isn't an object
@@ -30768,10 +30825,10 @@ var StellarLib =
 	  return Object.prototype.hasOwnProperty.call(obj, prop);
 	}
 
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(84)))
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(85)))
 
 /***/ },
-/* 83 */
+/* 84 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = function isBuffer(arg) {
@@ -30782,7 +30839,7 @@ var StellarLib =
 	}
 
 /***/ },
-/* 84 */
+/* 85 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// shim for using process in browser
@@ -30846,7 +30903,7 @@ var StellarLib =
 
 
 /***/ },
-/* 85 */
+/* 86 */
 /***/ function(module, exports, __webpack_require__) {
 
 	if (typeof Object.create === 'function') {
