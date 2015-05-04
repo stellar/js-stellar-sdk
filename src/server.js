@@ -1,4 +1,5 @@
 import {TransactionPage} from "./transaction_page";
+import {TransactionResult} from "./transaction_result";
 import {xdr} from "stellar-base";
 
 let request = require("superagent");
@@ -34,17 +35,12 @@ export class Server {
                     tx: transaction.toEnvelope().toXDR().toString("hex")
                 })
                 .end(function(err, res) {
-                    if (!err) {
-                        console.log(res);
+                    if (res && res.body && res.body.submission_result) {
                         let result = xdr.TransactionResult.fromXDR(new Buffer(res.body.submission_result, "hex"));
-                        resolve(result);
-                    } else if (res && res.body) {
-                        console.log(res);
-                        let result = xdr.TransactionResult.fromXDR(new Buffer(res.body.submission_result, "hex"));
-                        console.log(result._attributes.result);
-                        resolve(result);
+                        resolve(new TransactionResult(result));
                     } else {
                         console.log(err);
+                        reject(err);
                     }
                 });
         });
