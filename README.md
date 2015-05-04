@@ -38,7 +38,7 @@ server.loadAccount(source)
     })
 ```
 
-### Building Multi-operation/Multi-signature Transactions
+### Building Transactions
 
 Transactions are used to change the state of accounts on the network. This includes
 sending payments, making account configuration changes, etc. Each unit of change that
@@ -66,39 +66,29 @@ a builder like interface which allows you to add operations to a transaction via
 ```javascript
 /**
 * In this example, we'll create a transaction that funds a new account from the
-* root account, adds a trustline from the root account to that new account for
-* USD, and then that new account sends a payment of USD to the root account. While
-* these operations would probably be seperate transactions normally, this shows the power of
-* multiple operations in a transaction.
+* root account.
 */
 
 // first, create our source account from seed and load its details
 var source = StellarLib.Account.fromSeed("sft74k3MagHG6iF36yeSytQzCCLsJ2Fo9K4YJpQCECwgoUobc4v");
-// load the account's current details from the server
+// the new account we'll fund
+var newAccount = "givyhJUjmGZGAR2BWjpqpV6q52siiaspmSWx7v5wvhYLW4XAFw";
+// the USD curreny we'll be sending
+var usdCurrency = new StellarLib.Currency("USD", usdGateway);
+// create the server connection object
+var server = new StellarLib.Server({port: 3000});
+
+// load the source account's current details from the server
 server.loadAccount(source)
     .then(function () {
-        // create the server connection object
-        var server = new StellarLib.Server({port: 3000});
-        // our usdGateway account
-        var usdGateway = StellarLib.Account.fromSeed("s3AGbirRDMV69YF4AtgDoiPaqG3YGcChnkFWtiewVScywmXeJQL");
-        // the USD curreny we'll be sending
-        var usdCurrency = new StellarLib.Currency("USD", usdGateway);
         // build the transaction
         var transaction = new StellarLib.TransactionBuilder(source)
-            // this operation funds the USD Gateway account
+            // this operation funds the new account with XLM
             .payment(usdGateway, StellarLib.Currency.native(), 20000000)
-            // this operation sets a trustline from the source account to the usdGateway account for "USD"
-            .changeTrust(usdCurrency)
-            // this operation sends 10 USD to the source account from the usdGateway
-            .payment(source, usdCurrency, 10, {source: usdGateway})
             .build();
         return transaction;
     })
     .then(function (transaction) {
-        // this transaction already includes the source account's signature, now
-        // we need to add the usdGateway account's signature
-        var signature = transaction.sign(usdGateway);
-        transaction.addSignature(signature);
         // submit the transaction to the server
         return server.submitTransaction(transaction);
     })
