@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Class: </title>
+    <title>JSDoc: Class: TransactionResult</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Class: </h1>
+    <h1 class="page-title">Class: TransactionResult</h1>
 
     
 
@@ -29,11 +29,8 @@
 <header>
     
         <h2>
-        
+        TransactionResult
         </h2>
-        
-            <div class="class-description">Currency class represents a currency, either the native currency ("XLM")
-or a currency code / issuer address pair.</div>
         
     
 </header>
@@ -44,21 +41,88 @@ or a currency code / issuer address pair.</div>
         
 
     
-    <h2>Constructor</h2>
-    
 
-    <h4 class="name" id=""><span class="type-signature"></span>new <span class="signature">()</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="TransactionResult"><span class="type-signature"></span>new TransactionResult<span class="signature">(json)</span><span class="type-signature"></span></h4>
 
     
 
 
 
+<div class="description">
+    A TransactionResult contains the results for a submitted transaction to the server.
+{
+  // the fee charged for the transaction
+  feeCharged:
+  // the TransactionResultCode
+  result: {name, value}
+  operationResults: [
+      {
+          // the OperationType
+          type: {name, value}
+          // OperationResultCode
+          result: {name, value}
+          // the OperationResultTr result, null unless OperationResultCode == opInner
+          value: {name, value}
+      }
+  ]
+}
+</div>
 
 
 
 
 
 
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>json</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Response JSON from server.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
 
 
 
@@ -94,7 +158,7 @@ or a currency code / issuer address pair.</div>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="currency.js.html">currency.js</a>, <a href="currency.js.html#line8">line 8</a>
+        <a href="transaction_result.js.html">transaction_result.js</a>, <a href="transaction_result.js.html#line25">line 25</a>
     </li></ul></dd>
     
 

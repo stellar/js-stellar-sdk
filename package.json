@@ -5,7 +5,7 @@
   "main": "lib/index.js",
   "scripts": {
     "test": "gulp test",
-    "docs": "./node_modules/.bin/jsdoc ./src/ -d docs/"
+    "docs": "./node_modules/.bin/jsdoc ./src/ -d docs/ -r ./README.md"
   },
   "keywords": [
     "stellar"

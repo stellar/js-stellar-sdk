@@ -42,6 +42,108 @@
 
 
 
+    <section>
+        <article><h1>js-stellar-lib</h1><p>A client side Stellar Javascript Library for building and signing Stellar transactions, and communicating with a remote Stellar Horizon Server.</p>
+<h2>Overview</h2><p>js-stellar-lib is a client side Javascript library for building client side Stellar apps. These can be either node apps or in the browser. The library provides facillities for building and signing transactions, and communicating with a Stellar Horizon instance, for submitting transactions or querying network history.</p>
+<h2>Get Started</h2><pre class="prettyprint source"><code>npm install js-stellar-lib</code></pre><h2>API Documentation</h2><p>Check out the API Documentation <a href="http://stellar.github.io/js-stellar-lib">here</a>.</p>
+<h2>Examples</h2><h3>Loading an account</h3><p>An account is created using one of the static methods on the account class, such as Account.random() or Account.fromSeed(someSeed). In this example, we'll create an account using a seed, and then load its current sequence number and balances from the network.</p>
+<pre class="prettyprint source lang-javascript"><code>// first create the server connection object
+var server = new StellarLib.Server({port: 3000});
+// create an Account from a seed
+var source = StellarLib.Account.fromSeed(&quot;sft74k3MagHG6iF36yeSytQzCCLsJ2Fo9K4YJpQCECwgoUobc4v&quot;);
+// load the account, which will modify the Account object we just created
+server.loadAccount(source)
+    .then(function () {
+        // now our source account will have its sequence number and balances loaded
+        console.log(source);
+    })
+    .catch(function (err) {
+        console.error(err);
+    })</code></pre><h3>Building Transactions</h3><p>Transactions are used to change the state of accounts on the network. This includes
+sending payments, making account configuration changes, etc. Each unit of change that
+can be made on an account is called an &quot;operation&quot;. Transactions are made up of one or
+more operations. Each operation will be applied in the order it is added to the tranasction. In js-stellar-lib, that order is chronologically as operations are added. Each operation is described below:</p>
+<ul>
+<li><strong>Payment</strong> - Send an amount to a destination account, optionally through a path.
+  XLM payments create the destination account if it does not exist</li>
+<li><strong>Create Offer</strong> - Creates, updates, or deletes an offer for the account.</li>
+<li><strong>Set Options</strong> - Set or clear Account flags, set inflation destination, or add new signers.</li>
+<li><strong>Change Trust</strong> - Add or remove a trust line from one account to another.</li>
+<li><strong>Allow Trust</strong> - Authorize another account to hold your credits.</li>
+<li><strong>Account Merge</strong> - Merge your account's balance into another account, deleting it.</li>
+</ul>
+<p>A transaction contains a source account which will use up a sequence number and be charged a fee for the transaction. Additionally, each operation has a source account,
+which will be the transaction's source account if unspecified in the operation. For
+each source account on the transaction and the operations, a corresponding signature
+or signatures adding up to that operation's threshold must be added to the transaction before submitting to the network. See more on signatures and thresholds <a href="https://github.com/stellar/stellar-core/tree/dc8a9adb494b0584fda9500fb1a465d175efdfd4/src/transactions#thresholds">here</a>.</p>
+<p>To create a transaction using js-stellar-lib, use <a href="https://github.com/stellar/js-stellar-lib/blob/master/src/transaction_builder.js">TransactionBuilder</a>. This class provides
+a builder like interface which allows you to add operations to a transaction via chaining.</p>
+<pre class="prettyprint source lang-javascript"><code>/**
+* In this example, we'll create a transaction that funds a new account from the
+* root account.
+*/
+
+// first, create our source account from seed and load its details
+var source = StellarLib.Account.fromSeed(&quot;sft74k3MagHG6iF36yeSytQzCCLsJ2Fo9K4YJpQCECwgoUobc4v&quot;);
+// the new account we'll fund
+var newAccount = &quot;givyhJUjmGZGAR2BWjpqpV6q52siiaspmSWx7v5wvhYLW4XAFw&quot;;
+// the USD curreny we'll be sending
+var usdCurrency = new StellarLib.Currency(&quot;USD&quot;, usdGateway);
+// create the server connection object
+var server = new StellarLib.Server({port: 3000});
+
+// load the source account's current details from the server
+server.loadAccount(source)
+    .then(function () {
+        // build the transaction
+        var transaction = new StellarLib.TransactionBuilder(source)
+            // this operation funds the new account with XLM
+            .payment(usdGateway, StellarLib.Currency.native(), 20000000)
+            .build();
+        return transaction;
+    })
+    .then(function (transaction) {
+        // submit the transaction to the server
+        return server.submitTransaction(transaction);
+    })
+    .then(function (transactionResult) {
+        console.log(transactionResult);
+    })
+    .catch(function (err) {
+        console.error(err);
+    });</code></pre><h3>Loading transaction history</h3><p>To load an account's transaction history, call server.getAccountTransactions()
+with the account's address. It will return a TransactionPage object with the
+&quot;records&quot; (each a transaction json object) and a &quot;next&quot; field. You can then
+pass the TransactionPage to server.getNextTransactions() which will load the next
+transactions in sequence and return a new TransactionPage.</p>
+<pre class="prettyprint source lang-javascript"><code>var address = &quot;gspbxqXqEUZkiCCEFFCN9Vu4FLucdjLLdLcsV6E82Qc1T7ehsTC&quot;;
+    var server = new StellarLib.Server({port: 3000});
+    // first load the initial transactions, limit 1
+    server.getAccountTransactions(address, {limit: 1})
+        .then(function (page) {
+            // next, load the next results (implicilty limit 1)
+            return server.getNextTransactions(page)
+                .then(function (page) {
+                    // this page will hold the second transaction
+                    console.log(page);
+                    done()
+                })
+                .catch(function (err) {
+                    done(err);
+                })
+        })
+        .catch(function (err) {
+            done(err);
+        });</code></pre><h2>Building the Browser Bundle</h2><p>To build the js-stellar-lib browser bundle:</p>
+<pre class="prettyprint source lang-sh"><code>gulp build:browser</code></pre><p>This will generate files named <code>js-stellar-lib.js</code> and <code>js-stellar-lib.min.js</code>.</p>
+<h2>Tests</h2><p>Run all the tests:</p>
+<pre class="prettyprint source lang-sh"><code>gulp test</code></pre><p>Just the browser or node tests:</p>
+<pre class="prettyprint source lang-sh"><code>gulp test:node
+gulp test:browser</code></pre><p>Create a coverage report:</p>
+<pre class="prettyprint source lang-sh"><code>gulp coverage</code></pre><h2>Contributing</h2><p>For information on how to contribute, please refer to our <a href="https://github.com/stellar/js-stellar-lib/blob/master/CONTRIBUTING.md">CONTRIBUTING</a> file.</p>
+<h2>License</h2><p>Code released under <a href="https://github.com/stellar/js-stellar-lib/blob/master/LICENSE">the Apache 2 license</a>.</p></article>
+    </section>
+
 
 
 
@@ -50,13 +152,13 @@
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="-_.html"></a></li><li><a href="Account.html">Account</a></li><li><a href="Currency.html">Currency</a></li><li><a href="Server.html">Server</a></li><li><a href="Transaction.html">Transaction</a></li><li><a href="TransactionBuilder.html">TransactionBuilder</a></li><li><a href="TransactionPage.html">TransactionPage</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="-_.html"></a></li><li><a href="Account.html">Account</a></li><li><a href="Currency.html">Currency</a></li><li><a href="Server.html">Server</a></li><li><a href="Transaction.html">Transaction</a></li><li><a href="TransactionBuilder.html">TransactionBuilder</a></li><li><a href="TransactionPage.html">TransactionPage</a></li><li><a href="TransactionResult.html">TransactionResult</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0-dev</a> on Fri May 01 2015 13:06:48 GMT-0700 (PDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0-dev</a> on Mon May 04 2015 15:43:49 GMT-0700 (PDT)
 </footer>
 
 <script> prettyPrint(); </script>
