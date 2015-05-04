@@ -2,6 +2,7 @@
 export class TransactionResult {
 
     /**
+    * <pre>
     * A TransactionResult contains the results for a submitted transaction to the server.
     * {
     *   // the fee charged for the transaction
@@ -19,6 +20,7 @@ export class TransactionResult {
     *       }
     *   ]
     * }
+    * </pre>
     * @constructor
     * @param {string} json - Response JSON from server.
     */
