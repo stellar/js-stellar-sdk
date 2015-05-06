@@ -31,6 +31,7 @@ import {TransactionResult} from "./transaction_result";
 import {xdr} from "stellar-base";
 
 let request = require("superagent");
+var EventSource = (typeof window === 'undefined') ? require('eventsource') : EventSource;
 
 export class Server {
     /**
@@ -74,9 +75,140 @@ export class Server {
         });
     }
 
+    /**
+    * &lt;p>Requests a specific account, a collection of accounts, or resources associated with
+    * an account from the server.&lt;/p>
+    * Depending on the parameters given, this function will return different account related
+    * items:
+    * &lt;ul>
+    * &lt;li>If there are no arguments provided, or if only the 'opts' configuration object
+    * is provided, this call will be return a collection of all accounts.&lt;/li>
+    * &lt;li>If a string is provided as the first argument, it will be interpreted as the
+    * 'address' parameter. If the second argument is not a valid sub-resource type, this
+    * request will simply return the account's information (the second argument can also be
+    * the 'opts' config obejct.&lt;/li>
+    * &lt;li>If the second argument after the address is a valid sub-resource type, this request
+    * will return a collection of that sub-resource associated with the given account's address.&lt;/li>
+    * &lt;/ul>
+    * &lt;p>Any request that returns a collection can be made into a streaming request by
+    * passing callback functions for the 'opts.onmessage' and 'opts.onerror' handlers.&lt;/p>
+    * @param {string} [address] - Returns the given account.
+    * @param {string} [resource] - Return a specific resource associated with an account. Can be
+    *                              {"transactions", "operations", "effects"}.
+    * @param {object} [opts] - Optional configuration for the request.
+    * @param {string} [opts.after] - Return only resources after the given paging token.
+    * @param {number} [opts.limit] - Limit the number of returned resources to the given amount.
+    * @param {string} [opts.order] - Order the returned collection in "asc" or "desc" order.
+    * @param {object} [opts.streaming] - Streaming handlers. If not null, will turn this request
+    *                                    into a streaming request.
+    * @param {function} [opts.streaming.onmessage] - If given an onmessage handler, turns this query
+    *                                                into a streaming query.
+    * @param {function} [opts.streaming.onerror] - If this query is a streaming query, will use the
+    *                                              given handler for error messages.
+    * @returns {Promise|EventSource} If this is a normal request (non streaming) will return a promise
+    *                                that will fulfill when the request completes. Otherwise, it will
+    *                                return the EventSource object.
+    */
+    accounts(address, resource, opts) {
+        if (!address || typeof address === "object") {
+            return this._sendResourceRequest("accounts", null, null, address);
+        }
+        if (!resource || typeof resource === "object") {
+            return this._sendResourceRequest("accounts", address, null, resource);
+        }
+        return this._sendResourceRequest("accounts", address, resource, opts);
+    }
 
     /**
-    * Loads account details to the given account object.
+    * &lt;p>Requests a specific ledger, a collection of ledgers, or resources associated with
+    * a ledger from the server.&lt;/p>
+    * Depending on the parameters given, this function will return different ledger related
+    * items:
+    * &lt;ul>
+    * &lt;li>If there are no arguments provided, or if only the 'opts' configuration object
+    * is provided, this call will be return a collection of all ledgers.&lt;/li>
+    * &lt;li>If a number is provided as the first argument, it will be interpreted as the
+    * ledger 'sequence' parameter. If the second argument is not a valid sub-resource type, this
+    * request will simply return the account's information (the second argument can also be
+    * the 'opts' config obejct.&lt;/li>
+    * &lt;li>If the second argument after the id is a valid sub-resource type, this request
+    * will return a collection of that sub-resource associated with the given ledgers's sequence.&lt;/li>
+    * &lt;/ul>
+    * &lt;p>Any request that returns a collection can be made into a streaming request by
+    * passing callback functions for the 'opts.onmessage' and 'opts.onerror' handlers.&lt;/p>
+    * @param {number} [sequence] - Returns the given ledger.
+    * @param {string} [resource] - Return a specific resource associated with a ledger. Can be
+    *                              {"transactions", "operations", "effects"}.
+    * @param {object} [opts] - Optional configuration for the request.
+    * @param {string} [opts.after] - Return only resources after the given paging token.
+    * @param {number} [opts.limit] - Limit the number of returned resources to the given amount.
+    * @param {string} [opts.order] - Order the returned collection in "asc" or "desc" order.
+    * @param {object} [opts.streaming] - Streaming handlers. If not null, will turn this request
+    *                                    into a streaming request.
+    * @param {function} [opts.streaming.onmessage] - If given an onmessage handler, turns this query
+    *                                                into a streaming query.
+    * @param {function} [opts.streaming.onerror] - If this query is a streaming query, will use the
+    *                                              given handler for error messages.
+    * @returns {Promise|EventSource} If this is a normal request (non streaming) will return a promise
+    *                                that will fulfill when the request completes. Otherwise, it will
+    *                                return the EventSource object.
+    */
+    ledgers(sequence, resource, opts) {
+        if (!sequence || typeof sequence === "object") {
+            return this._sendResourceRequest("ledgers", null, null, sequence);
+        }
+        if (!resource || typeof resource === "object") {
+            return this._sendResourceRequest("ledgers", sequence, null, resource);
+        }
+        return this._sendResourceRequest("ledgers", sequence, resource, opts);
+    }
+
+    /**
+    * &lt;p>Requests a specific transaction, a collection of transactions, or resources
+    * associated with a transaction from the server.&lt;/p>
+    * Depending on the parameters given, this function will return different transaction related
+    * items:
+    * &lt;ul>
+    * &lt;li>If there are no arguments provided, or if only the 'opts' configuration object
+    * is provided, this call will be return a collection of all transactions.&lt;/li>
+    * &lt;li>If a string is provided as the first argument, it will be interpreted as the
+    * transaction 'hash' parameter. If the second argument is not a valid sub-resource type, this
+    * request will simply return the transactions's information (the second argument can also be
+    * the 'opts' config obejct.&lt;/li>
+    * &lt;li>If the second argument after the id is a valid sub-resource type, this request
+    * will return a collection of that sub-resource associated with the given transaction hash.&lt;/li>
+    * &lt;/ul>
+    * &lt;p>Any request that returns a collection can be made into a streaming request by
+    * passing callback functions for the 'opts.onmessage' and 'opts.onerror' handlers.&lt;/p>
+    * @param {string} [hash] - Returns the given transaction.
+    * @param {string} [resource] - Return a specific resource associated with a transaction. Can be
+    *                              {"operations", "effects"}.
+    * @param {object} [opts] - Optional configuration for the request.
+    * @param {string} [opts.after] - Return only resources after the given paging token.
+    * @param {number} [opts.limit] - Limit the number of returned resources to the given amount.
+    * @param {string} [opts.order] - Order the returned collection in "asc" or "desc" order.
+    * @param {object} [opts.streaming] - Streaming handlers. If not null, will turn this request
+    *                                    into a streaming request.
+    * @param {function} [opts.streaming.onmessage] - If given an onmessage handler, turns this query
+    *                                                into a streaming query.
+    * @param {function} [opts.streaming.onerror] - If this query is a streaming query, will use the
+    *                                              given handler for error messages.
+    * @returns {Promise|EventSource} If this is a normal request (non streaming) will return a promise
+    *                                that will fulfill when the request completes. Otherwise, it will
+    *                                return the EventSource object.
+    */
+    transactions(hash, resource, opts) {
+        if (!hash || typeof hash === "object") {
+            return this._sendResourceRequest("transactions", null, null, hash);
+        }
+        if (!resource || typeof resource === "object") {
+            return this._sendResourceRequest("transactions", hash, null, resource);
+        }
+        return this._sendResourceRequest("transactions", hash, resource, opts);
+    }
+
+    /**
+    * @deprecated Use the {@link Server#accounts} API instead
     * @param {Account} account - The account to load. Will modify this object with
     */
     loadAccount(account) {
@@ -97,6 +229,7 @@ export class Server {
     }
 
     /**
+    * @deprecated Use the {@link Server#transactions} API instead
     * Returns the json transaction record of the given transaction hash.
     * @param {string} hash - The hash of the transaction.
     */
@@ -116,6 +249,7 @@ export class Server {
     }
 
     /**
+    * @deprecated Use the {@link Server#transactions} API instead
     * Returns a TransactionPage for the latest transactions in the network.
     * Transaction results will be ordered in descending order. The returned
     * TransactionPage can be passed to Server.getNextTransactions() or
@@ -142,6 +276,7 @@ export class Server {
     }
 
     /**
+    * @deprecated Use the {@link Server#accounts} API instead
     * Returns a TransactionPage for the transactions on the given address.
     * Transaction results will be ordered in descending order. The returned
     * TransactionPage can be passed to Server.getNextTransactions() or
@@ -170,6 +305,7 @@ export class Server {
     }
 
     /**
+    * @deprecated Use the {@link Server#transactions} API instead
     * Given a TransactionPage, this will return a new transaction page with
     * the "next" transactions in the collection.
     * @param {TransactionPage} page
@@ -191,11 +327,29 @@ export class Server {
         });
     }
 
-    /* TODO: implement once previous is supported in horizon
-    getPreviousTransactions(page, opts) {
+    _sendResourceRequest(type, id, subType, opts) {
+        let endpoint = "/" + type;
+        if (id) {
+            endpoint += "/" + id;
+        }
+        if (subType) {
+            endpoint += "/" +subType;
+        }
+        if (opts) {
+            endpoint = this._appendResourceCollectionConfiguration(endpoint, opts);
+        }
+        if (opts &amp;&amp; opts.streaming) {
+            return this._sendStreamingResourceRequest(endpoint, opts.streaming);
+        } else {
+            return this._sendNormalResourceRequest(endpoint);
+        }
+    }
+
+    _sendNormalResourceRequest(endpoint, handler) {
+        var self = this;
         return new Promise(function (resolve, reject) {
             request
-                .get(page.next)
+                .get(self.protocol + self.hostname + ":" + self.port + endpoint)
                 .end(function (err, res) {
                     if (err) {
                         reject(err);
@@ -205,7 +359,27 @@ export class Server {
                 });
         });
     }
-    */
+
+    _sendStreamingResourceRequest(endpoint, streaming) {
+        var es = new EventSource(this.protocol + this.hostname + ":" + this.port + endpoint);
+        es.onmessage = streaming.onmessage;
+        es.onerror = streaming.onerror;
+        return es;
+    }
+
+    _appendResourceCollectionConfiguration(endpoint, opts) {
+        endpoint = endpoint + "?";
+        if (opts.after) {
+            endpoint += "after=" + opts.after;
+        }
+        if (opts.limit) {
+            endpoint += "&amp;limit=" + opts.limit;
+        }
+        if (opts.order) {
+            endpoint += "&amp;order=" + opts.order;
+        }
+        return endpoint;
+    }
 }</code></pre>
         </article>
     </section>
@@ -222,7 +396,7 @@ export class Server {
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0-dev</a> on Mon May 04 2015 15:46:46 GMT-0700 (PDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0-dev</a> on Tue May 05 2015 20:20:41 GMT-0700 (PDT)
 </footer>
 
 <script> prettyPrint(); </script>

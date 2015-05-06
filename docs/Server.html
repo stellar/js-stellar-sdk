@@ -283,7 +283,7 @@ interface for requests to that instance.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="server.js.html">server.js</a>, <a href="server.js.html#line18">line 18</a>
+        <a href="server.js.html">server.js</a>, <a href="server.js.html#line19">line 19</a>
     </li></ul></dd>
     
 
@@ -332,18 +332,520 @@ interface for requests to that instance.
 
     
 
-    <h4 class="name" id="getAccountTransactions"><span class="type-signature"></span>getAccountTransactions<span class="signature">(address, opts<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="accounts"><span class="type-signature"></span>accounts<span class="signature">(address<span class="signature-attributes">opt</span>, resource<span class="signature-attributes">opt</span>, opts<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise|EventSource}</span></h4>
 
     
 
 
 
 <div class="description">
-    Returns a TransactionPage for the transactions on the given address.
-Transaction results will be ordered in descending order. The returned
-TransactionPage can be passed to Server.getNextTransactions() or
-Server.getPreviousTransactions() for the next page of transactions.
+    <p>Requests a specific account, a collection of accounts, or resources associated with
+an account from the server.</p>
+Depending on the parameters given, this function will return different account related
+items:
+<ul>
+<li>If there are no arguments provided, or if only the 'opts' configuration object
+is provided, this call will be return a collection of all accounts.</li>
+<li>If a string is provided as the first argument, it will be interpreted as the
+'address' parameter. If the second argument is not a valid sub-resource type, this
+request will simply return the account's information (the second argument can also be
+the 'opts' config obejct.</li>
+<li>If the second argument after the address is a valid sub-resource type, this request
+will return a collection of that sub-resource associated with the given account's address.</li>
+</ul>
+<p>Any request that returns a collection can be made into a streaming request by
+passing callback functions for the 'opts.onmessage' and 'opts.onerror' handlers.</p>
 </div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>address</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Returns the given account.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>resource</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Return a specific resource associated with an account. Can be
+                             {"transactions", "operations", "effects"}.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>opts</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Optional configuration for the request.
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>after</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Return only resources after the given paging token.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>limit</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Limit the number of returned resources to the given amount.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>order</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Order the returned collection in "asc" or "desc" order.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>streaming</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Streaming handlers. If not null, will turn this request
+                                   into a streaming request.
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>onmessage</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">If given an onmessage handler, turns this query
+                                               into a streaming query.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>onerror</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">If this query is a streaming query, will use the
+                                             given handler for error messages.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="server.js.html">server.js</a>, <a href="server.js.html#line84">line 84</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    If this is a normal request (non streaming) will return a promise
+                               that will fulfill when the request completes. Otherwise, it will
+                               return the EventSource object.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise</span>
+|
+
+<span class="param-type">EventSource</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="getAccountTransactions"><span class="type-signature"></span>getAccountTransactions<span class="signature">(address, opts<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+
+    
+
+
 
 
 
@@ -528,6 +1030,12 @@ Server.getPreviousTransactions() for the next page of transactions.
     
 
     
+        <dt class="important tag-deprecated">Deprecated:</dt><dd><ul class="dummy"><li>Use the <a href="Server.html#accounts">Server#accounts</a> API instead
+Returns a TransactionPage for the transactions on the given address.
+Transaction results will be ordered in descending order. The returned
+TransactionPage can be passed to Server.getNextTransactions() or
+Server.getPreviousTransactions() for the next page of transactions.</li></ul></dd>
+    
 
     
 
@@ -540,7 +1048,7 @@ Server.getPreviousTransactions() for the next page of transactions.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="server.js.html">server.js</a>, <a href="server.js.html#line126">line 126</a>
+        <a href="server.js.html">server.js</a>, <a href="server.js.html#line261">line 261</a>
     </li></ul></dd>
     
 
@@ -576,11 +1084,6 @@ Server.getPreviousTransactions() for the next page of transactions.
     
 
 
-
-<div class="description">
-    Given a TransactionPage, this will return a new transaction page with
-the "next" transactions in the collection.
-</div>
 
 
 
@@ -765,6 +1268,10 @@ the "next" transactions in the collection.
     
 
     
+        <dt class="important tag-deprecated">Deprecated:</dt><dd><ul class="dummy"><li>Use the <a href="Server.html#transactions">Server#transactions</a> API instead
+Given a TransactionPage, this will return a new transaction page with
+the "next" transactions in the collection.</li></ul></dd>
+    
 
     
 
@@ -777,7 +1284,7 @@ the "next" transactions in the collection.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="server.js.html">server.js</a>, <a href="server.js.html#line152">line 152</a>
+        <a href="server.js.html">server.js</a>, <a href="server.js.html#line288">line 288</a>
     </li></ul></dd>
     
 
@@ -813,10 +1320,6 @@ the "next" transactions in the collection.
     
 
 
-
-<div class="description">
-    Returns the json transaction record of the given transaction hash.
-</div>
 
 
 
@@ -896,6 +1399,9 @@ the "next" transactions in the collection.
     
 
     
+        <dt class="important tag-deprecated">Deprecated:</dt><dd><ul class="dummy"><li>Use the <a href="Server.html#transactions">Server#transactions</a> API instead
+Returns the json transaction record of the given transaction hash.</li></ul></dd>
+    
 
     
 
@@ -908,7 +1414,7 @@ the "next" transactions in the collection.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="server.js.html">server.js</a>, <a href="server.js.html#line75">line 75</a>
+        <a href="server.js.html">server.js</a>, <a href="server.js.html#line208">line 208</a>
     </li></ul></dd>
     
 
@@ -944,13 +1450,6 @@ the "next" transactions in the collection.
     
 
 
-
-<div class="description">
-    Returns a TransactionPage for the latest transactions in the network.
-Transaction results will be ordered in descending order. The returned
-TransactionPage can be passed to Server.getNextTransactions() or
-Server.getPreviousTransactions() for the next page of transactions.
-</div>
 
 
 
@@ -1104,6 +1603,12 @@ Server.getPreviousTransactions() for the next page of transactions.
     
 
     
+        <dt class="important tag-deprecated">Deprecated:</dt><dd><ul class="dummy"><li>Use the <a href="Server.html#transactions">Server#transactions</a> API instead
+Returns a TransactionPage for the latest transactions in the network.
+Transaction results will be ordered in descending order. The returned
+TransactionPage can be passed to Server.getNextTransactions() or
+Server.getPreviousTransactions() for the next page of transactions.</li></ul></dd>
+    
 
     
 
@@ -1116,7 +1621,7 @@ Server.getPreviousTransactions() for the next page of transactions.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="server.js.html">server.js</a>, <a href="server.js.html#line99">line 99</a>
+        <a href="server.js.html">server.js</a>, <a href="server.js.html#line233">line 233</a>
     </li></ul></dd>
     
 
@@ -1147,15 +1652,520 @@ Server.getPreviousTransactions() for the next page of transactions.
 
     
 
-    <h4 class="name" id="loadAccount"><span class="type-signature"></span>loadAccount<span class="signature">(account)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="ledgers"><span class="type-signature"></span>ledgers<span class="signature">(sequence<span class="signature-attributes">opt</span>, resource<span class="signature-attributes">opt</span>, opts<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise|EventSource}</span></h4>
 
     
 
 
 
 <div class="description">
-    Loads account details to the given account object.
+    <p>Requests a specific ledger, a collection of ledgers, or resources associated with
+a ledger from the server.</p>
+Depending on the parameters given, this function will return different ledger related
+items:
+<ul>
+<li>If there are no arguments provided, or if only the 'opts' configuration object
+is provided, this call will be return a collection of all ledgers.</li>
+<li>If a number is provided as the first argument, it will be interpreted as the
+ledger 'sequence' parameter. If the second argument is not a valid sub-resource type, this
+request will simply return the account's information (the second argument can also be
+the 'opts' config obejct.</li>
+<li>If the second argument after the id is a valid sub-resource type, this request
+will return a collection of that sub-resource associated with the given ledgers's sequence.</li>
+</ul>
+<p>Any request that returns a collection can be made into a streaming request by
+passing callback functions for the 'opts.onmessage' and 'opts.onerror' handlers.</p>
 </div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>sequence</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Returns the given ledger.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>resource</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Return a specific resource associated with a ledger. Can be
+                             {"transactions", "operations", "effects"}.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>opts</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Optional configuration for the request.
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>after</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Return only resources after the given paging token.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>limit</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Limit the number of returned resources to the given amount.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>order</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Order the returned collection in "asc" or "desc" order.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>streaming</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Streaming handlers. If not null, will turn this request
+                                   into a streaming request.
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>onmessage</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">If given an onmessage handler, turns this query
+                                               into a streaming query.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>onerror</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">If this query is a streaming query, will use the
+                                             given handler for error messages.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="server.js.html">server.js</a>, <a href="server.js.html#line128">line 128</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    If this is a normal request (non streaming) will return a promise
+                               that will fulfill when the request completes. Otherwise, it will
+                               return the EventSource object.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise</span>
+|
+
+<span class="param-type">EventSource</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="loadAccount"><span class="type-signature"></span>loadAccount<span class="signature">(account)</span><span class="type-signature"></span></h4>
+
+    
+
+
 
 
 
@@ -1235,6 +2245,8 @@ Server.getPreviousTransactions() for the next page of transactions.
     
 
     
+        <dt class="important tag-deprecated">Deprecated:</dt><dd><ul class="dummy"><li>Use the <a href="Server.html#accounts">Server#accounts</a> API instead</li></ul></dd>
+    
 
     
 
@@ -1247,7 +2259,7 @@ Server.getPreviousTransactions() for the next page of transactions.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="server.js.html">server.js</a>, <a href="server.js.html#line54">line 54</a>
+        <a href="server.js.html">server.js</a>, <a href="server.js.html#line186">line 186</a>
     </li></ul></dd>
     
 
@@ -1378,7 +2390,7 @@ Server.getPreviousTransactions() for the next page of transactions.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="server.js.html">server.js</a>, <a href="server.js.html#line28">line 28</a>
+        <a href="server.js.html">server.js</a>, <a href="server.js.html#line29">line 29</a>
     </li></ul></dd>
     
 
@@ -1405,6 +2417,515 @@ Server.getPreviousTransactions() for the next page of transactions.
 
 
         
+            
+
+    
+
+    <h4 class="name" id="transactions"><span class="type-signature"></span>transactions<span class="signature">(hash<span class="signature-attributes">opt</span>, resource<span class="signature-attributes">opt</span>, opts<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise|EventSource}</span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Requests a specific transaction, a collection of transactions, or resources
+associated with a transaction from the server.</p>
+Depending on the parameters given, this function will return different transaction related
+items:
+<ul>
+<li>If there are no arguments provided, or if only the 'opts' configuration object
+is provided, this call will be return a collection of all transactions.</li>
+<li>If a string is provided as the first argument, it will be interpreted as the
+transaction 'hash' parameter. If the second argument is not a valid sub-resource type, this
+request will simply return the transactions's information (the second argument can also be
+the 'opts' config obejct.</li>
+<li>If the second argument after the id is a valid sub-resource type, this request
+will return a collection of that sub-resource associated with the given transaction hash.</li>
+</ul>
+<p>Any request that returns a collection can be made into a streaming request by
+passing callback functions for the 'opts.onmessage' and 'opts.onerror' handlers.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>hash</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Returns the given transaction.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>resource</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Return a specific resource associated with a transaction. Can be
+                             {"operations", "effects"}.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>opts</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Optional configuration for the request.
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>after</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Return only resources after the given paging token.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>limit</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Limit the number of returned resources to the given amount.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>order</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Order the returned collection in "asc" or "desc" order.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>streaming</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Streaming handlers. If not null, will turn this request
+                                   into a streaming request.
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>onmessage</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">If given an onmessage handler, turns this query
+                                               into a streaming query.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>onerror</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">If this query is a streaming query, will use the
+                                             given handler for error messages.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="server.js.html">server.js</a>, <a href="server.js.html#line172">line 172</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    If this is a normal request (non streaming) will return a promise
+                               that will fulfill when the request completes. Otherwise, it will
+                               return the EventSource object.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise</span>
+|
+
+<span class="param-type">EventSource</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
     
 
     
@@ -1426,7 +2947,7 @@ Server.getPreviousTransactions() for the next page of transactions.
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0-dev</a> on Mon May 04 2015 15:46:46 GMT-0700 (PDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0-dev</a> on Tue May 05 2015 20:20:41 GMT-0700 (PDT)
 </footer>
 
 <script> prettyPrint(); </script>
