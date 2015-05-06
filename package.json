@@ -53,6 +53,7 @@
     "webpack": "^1.7.3"
   },
   "dependencies": {
+    "eventsource": "^0.1.6",
     "jsdoc": "jsdoc3/jsdoc#master",
     "lodash": "^3.6.0",
     "stellar-base": "stellar/js-stellar-base#master",
