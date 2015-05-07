@@ -51,14 +51,13 @@ export class Transaction {
     }
 
     /**
-    * Signs the transaction with the given account's master key and returns the
-    * signature string, which can then be added to the transaction via addSignature()
-    * or forwarded on.
+    * Signs the transaction with the given Keypair.
+    * @param {Keypair} keypair
     */
-    sign(account) {
+    sign(keypair) {
         let tx_raw = this.tx.toXDR();
         let tx_hash = hash(tx_raw);
-        return account.masterKeypair.signDecorated(tx_hash);
+        return keypair.signDecorated(tx_hash);
     }
 
     /**
