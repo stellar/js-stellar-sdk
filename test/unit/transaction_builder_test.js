@@ -15,7 +15,11 @@ describe('TransactionBuilder', function() {
             currency = StellarLib.Currency.native();
 
             transaction = new StellarLib.TransactionBuilder(source)
-                .payment(destination, currency, amount)
+                .addOperation(StellarLib.Operation.payment({
+                    destination: destination,
+                    currency: currency,
+                    amount: amount
+                }))
                 .build();
         });
 
@@ -37,7 +41,7 @@ describe('TransactionBuilder', function() {
 
         it("should have one payment operation", function (done) {
             expect(transaction.operations.length).to.be.equal(1);
-            expect(transaction.operations[0].type).to.be.equal("paymentOp");
+            expect(transaction.operations[0].type).to.be.equal("payment");
             done();
         });
     });

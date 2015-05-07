@@ -29,10 +29,13 @@ export class TransactionBuilder {
     * both the source acccount and the destinationA account for it to be valid.</p>
     *
     * <pre>var transaction = new TransactionBuilder(source)
-    *   .payment(destinationA, 20000000, Currency.native()) // <- funds and creates destinationA
-    *   .changeTrust(new Currency("USD", destinationA.address)) // <- source sets trust to destA for USD
-    *   .payment(destinationB, 10, currency, {source: destinationA}) // <- destA sends source 10 USD
-    *   .build();</pre>
+    *   .addOperation(Operation.payment({
+            destination: destinationA,
+            amount: "20000000",
+            currency: Currency.native()
+        }) // <- funds and creates destinationA
+    *   .build();
+    * </pre>
     * @constructor
     * @param {Account} sourceAccount - The source account for this transaction.
     * @param {object} [opts]
@@ -56,40 +59,11 @@ export class TransactionBuilder {
     }
 
     /**
-    * Adds a payment operation to the transaction.
-    * @param {string}  destination          - The destination address for the payment.
-    * @param {Currency} currency            - The currency to send
-    * @param {string|number} amount         - The amount to send.
-    * @param {object}   [opts]
-    * @param {Account}  [opts.source]       - The source account for the payment. Defaults to the transaction's source account.
-    * @param {array}    [opts.path]         - An array of Currency objects to use as the path.
-    * @param {string}   [opts.sendMax]      - The max amount of currency to send.
-    * @param {string}   [opts.sourceMemo]   - The source memo.
-    * @param {string}   [opts.memo]         - The memo.
-    * @returns {TransactionBuilder} Returns this TransactionBuilder object, for chaining.
+    * Adds an operation to the transaction.
+    * @param {xdr.Operation} The xdr operation object, use {@link Operation} static methods.
     */
-    payment(destination, currency, amount, opts={}) {
-        opts.destination = destination;
-        opts.currency = currency;
-        opts.amount = amount;
-        let xdr = Operation.payment(opts);
-        this._operations.push(xdr);
-        return this;
-    }
-
-    /**
-    * Adds a Change Trust operation to the transaction.
-    * @param {Currency} currency - The currency for the trust line.
-    * @param {object} [opts]
-    * @param {string} [opts.limit] - The limit for the currency, defaults to max int64.
-    *                                If the limit is set to 0 it deletes the trustline.
-    * @param {string} [opts.source] - The source account (defaults to transaction source).
-    * @returns {TransactionBuilder} Returns this TransactionBuilder object, for chaining.
-    */
-    changeTrust(currency, opts={}) {
-        opts.currency = currency;
-        let xdr = Operation.changeTrust(opts);
-        this._operations.push(xdr);
+    addOperation(operation) {
+        this._operations.push(operation);
         return this;
     }
 

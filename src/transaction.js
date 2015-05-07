@@ -15,7 +15,8 @@ export class Transaction {
     * should not be changed. You should only add signers to a Transaction object before
     * submitting to the network or forwarding on to additional signers.
     * @constructor
-    * @param {string|xdr.TransactionEnvelope} envelope - The transaction envelope.
+    * @param {string|xdr.TransactionEnvelope} envelope - The transaction envelope object or
+    *                                                    hex encoded string.
     */
     constructor(envelope) {
         if (typeof envelope === "string") {
@@ -32,7 +33,7 @@ export class Transaction {
         let operations = envelope._attributes.tx._attributes.operations;
         this.operations = [];
         for (let i = 0; i < operations.length; i++) {
-            this.operations[i] = Operation.operationToObject(operations[i]._attributes.body);
+            this.operations[i] = Operation.operationToObject(operations[i]._attributes);
         }
         let signatures = envelope._attributes.signatures;
         this.signatures = [];

@@ -60,7 +60,8 @@ or signatures adding up to that operation's threshold must be added to the trans
 
 To create a transaction using js-stellar-lib, use [TransactionBuilder](https://github.com/stellar/js-stellar-lib/blob/master/src/transaction_builder.js). This class provides
 a builder like interface which allows you to add operations to a transaction via chaining.
-
+Simply construct a new TransactionBuilder, call addOperation(), passing it the Operation
+you'd like to add. Use the static methods in the Operation class to easily create operations.
 
 
 ```javascript
@@ -73,18 +74,21 @@ a builder like interface which allows you to add operations to a transaction via
 var source = StellarLib.Account.fromSeed("sft74k3MagHG6iF36yeSytQzCCLsJ2Fo9K4YJpQCECwgoUobc4v");
 // the new account we'll fund
 var newAccount = "givyhJUjmGZGAR2BWjpqpV6q52siiaspmSWx7v5wvhYLW4XAFw";
-// the USD curreny we'll be sending
-var usdCurrency = new StellarLib.Currency("USD", usdGateway);
 // create the server connection object
 var server = new StellarLib.Server({port: 3000});
 
 // load the source account's current details from the server
 server.loadAccount(source)
     .then(function () {
-        // build the transaction
+        // build the transaction, incrementing the source account sequence number by 1
         var transaction = new StellarLib.TransactionBuilder(source)
             // this operation funds the new account with XLM
-            .payment(usdGateway, StellarLib.Currency.native(), 20000000)
+            .addOperation(Operation.payment({
+                destination: newAccount,
+                currency: Currency.native(),
+                amount: "20000000"
+            }))
+            // signs the transaction with the source account
             .build();
         return transaction;
     })
