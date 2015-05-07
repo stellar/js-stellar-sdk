@@ -26,7 +26,7 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import {xdr, Keypair, Hyper, hash, encodeBase58Check} from "stellar-base";
+            <pre class="prettyprint source linenums"><code>import {xdr, Keypair, Hyper, UnsignedHyper, hash, encodeBase58Check} from "stellar-base";
 
 import {Account} from "./account";
 import {Currency} from "./currency";
@@ -120,12 +120,28 @@ export class Operation {
     /**
     * Returns an XDR AllowTrustOp. An "allow trust" operation authorizes another
     * account to hold your account's credit for a given currency.
-    * TODO: implement
     * @param {object} opts
+    * @param {string} opts.trustor - The trusting account (the one being authorized)
+    * @param {string} opts.currencyCode - The currency code being authorized.
+    * @param {boolean} opts.authorize - True to authorize the line, false to deauthorize.
+    * @param {string} [opts.source] - The source account (defaults to transaction source).
     * @returns {xdr.AllowTrustOp}
     */
     static allowTrust(opts) {
+        let attributes = {};
+        attributes.trustor = Keypair.fromAddress(opts.trustor).publicKey();
+        let code = opts.currencyCode.length == 3 ? opts.currencyCode + "\0" : opts.currencyCode;
+        attributes.currency = xdr.AllowTrustOpCurrency.iso4217(code);
+        attributes.authorize = opts.authorize;
+        let allowTrustOp = new xdr.AllowTrustOp(attributes);
 
+        let opAttributes = {};
+        opAttributes.body = xdr.OperationBody.allowTrust(allowTrustOp);
+        if (opts.source) {
+            opAttributes.sourceAccount = Keypair.fromAddress(opts.source).publicKey();
+        }
+        let op = new xdr.Operation(opAttributes);
+        return op;
     }
 
     /**
@@ -133,36 +149,131 @@ export class Operation {
     * set the account's inflation destination, and/or add new signers to the account.
     * TODO: implement
     * @param {object} opts
+    * @param {string} [opts.inflationDest] - Set this address as the account's inflation destination.
+    * @param {number} [opts.clearFlags] - Bitmap integer for which flags to clear.
+    * @param {number} [opts.setFlags] - Bitmap integer for which flags to set.
+    * @param {array} [opts.thresholds] - Sets the weight of the master key and the threshold
+    *                                    for each level low, medium, and high. Array of uint8.
+    *                                    For now, see the stellar-core docs.
+    * @param {object} [opts.signer] - Add or remove a signer from the account. The signer is
+    *                                 deleted if the weight is 0.
+    * @param {string} [opts.signer.pubKey] - The address of the new signer.
+    * @param {number} [opts.signer.weight] - The weight of the new signer (0 to delete or 1-255)
     * @returns {xdr.SetOptionsOp}
     */
     static setOptions(opts) {
-
+        let attributes = {};
+        if (opts.inflationDest) {
+            attributes.inflationDest = Keypair.fromAddress(opts.inflationDest).publicKey();
+        }
+        if (opts.clearFlags) {
+            attributes.clearFlags = opts.clearFlags;
+        }
+        if (opts.setFlags) {
+            attributes.setFlags = opts.setFlags;
+        }
+        if (opts.thresholds) {
+            attributes.thresholds = opts.thresholds;
+        }
+        if (opts.signer) {
+            let signer = new xdr.Signer({
+                pubKey: Keypair.fromAddress(opts.signer.pubKey).publicKey(),
+                weight: opts.signer.weight
+            });
+            attributes.signer = signer;
+        }
+        let setOptionsOp = new xdr.SetOptionsOp(attributes);
+        let opAttributes = {};
+        opAttributes.body = xdr.OperationBody.setOption(setOptionsOp);
+        if (opts.source) {
+            opAttributes.sourceAccount = Keypair.fromAddress(opts.source).publicKey();
+        }
+        let op = new xdr.Operation(opAttributes);
+        return op;
     }
 
     /**
     * Returns a XDR CreateOfferOp. A "create offer" operation creates, updates, or
     * deletes an offer for the account.
-    * TODO: implement
     * @param {object} opts
+    * @param {Currency} takerGets - What you're selling.
+    * @param {Currency} takerPays - What you're buying.
+    * @param {string} amount - The total amount you're selling. If 0, deletes the offer.
+    * @param {object} price - The exchange rate ratio.
+    * @param {number} price.takerPaysAmount - How much the taker will pay.
+    * @param {number} price.takerGetsAmount - How much the taker will get.
+    * @param {string} offerID - If 0, will create a new offer. Otherwise, edits an exisiting offer.
     * @returns {xdr.CreateOfferOp}
     */
     static createOffer(opts) {
+        let attributes = {};
+        attributes.takerGets = opts.takerGets.toXdrObject();
+        attributes.takerPays = opts.takerPays.toXdrObject();
+        attributes.amount = Hyper.fromString(String(opts.amount));
+        attributes.price = new xdr.Price({
+            n: opts.price.takerPaysAmount,
+            d: opts.price.takerGetsAmount
+        });
+        attributes.offerID = UnsignedHyper.fromString(String(opts.offerID));
+        let createOfferOp = new xdr.CreateOfferOp(attributes);
 
+        let opAttributes = {};
+        opAttributes.body = xdr.OperationBody.createOffer(createOfferOp);
+        if (opts.source) {
+            opAttributes.sourceAccount = Keypair.fromAddress(opts.source).publicKey();
+        }
+        let op = new xdr.Operation(opAttributes);
+        return op;
+    }
+
+    /**
+    * Transfers native balance to destination account.
+    * @param {object} opts
+    * @param {string} opts.address - Address to merge the source account into.
+
+    * @returns {xdr.AccountMergeOp}
+    */
+    static accountMerge(opts) {
+        let opAttributes = {};
+        opAttributes.body = xdr.OperationBody.accountMerge(
+            Keypair.fromAddress(opts.address).publicKey()
+        );
+        if (opts.source) {
+            opAttributes.sourceAccount = Keypair.fromAddress(opts.source).publicKey();
+        }
+        let op = new xdr.Operation(opAttributes);
+        return op;
+    }
+
+    /**
+    * This operation generates the inflation.
+    * @param {object} opts
+    * @param {number} opts.sequence - The inflation sequence number.
+    * @returns {xdr.AccountMergeOp}
+    */
+    static inflation(opts) {
+        let opAttributes = {};
+        opAttributes.body = xdr.OperationBody.accountMerge(opts.sequence);
+        if (opts.source) {
+            opAttributes.sourceAccount = Keypair.fromAddress(opts.source).publicKey();
+        }
+        let op = new xdr.Operation(opAttributes);
+        return op;
     }
 
     /**
     * Converts the XDR Operation object to the opts object used to create the XDR
     * operation.
     * @param {xdr.Operation} operation - An XDR Operation.
-    * @return {Operation}
+    * @return {object}
     */
     static operationToObject(operation) {
         let obj = {};
-        let attrs = operation._value._attributes;
-        switch (operation._arm) {
-            case "paymentOp":
-                obj.type = "paymentOp";
-                obj.destination = Account.fromAddress(encodeBase58Check("accountId", attrs.destination));
+        let attrs = operation.body._value._attributes;
+        switch (operation.body._switch.name) {
+            case "payment":
+                obj.type = "payment";
+                obj.destination = encodeBase58Check("accountId", attrs.destination);
                 obj.currency = Currency.fromOperation(attrs.currency);
                 obj.path = attrs.path;
                 obj.amount = attrs.amount.toString();
@@ -170,9 +281,58 @@ export class Operation {
                 obj.sourceMemo = attrs.sourceMemo;
                 obj.memo = attrs.memo;
                 break;
-            case "changeTrustOp":
-                obj.type = "changeTrustOp";
+            case "changeTrust":
+                obj.type = "changeTrust";
                 obj.line = Currency.fromOperation(attrs.line);
+                break;
+            case "allowTrust":
+                obj.type = "allowTrust";
+                obj.trustor = encodeBase58Check("accountId", attrs.trustor);
+                obj.currencyCode = attrs.currency._value;
+                obj.authorize = attrs.authorize;
+                break;
+            case "setOptions":
+                obj.type = "setOptions";
+                if (attrs.inflationDest) {
+                    obj.inflationDest = encodeBase58Check("accountId", attrs.inflationDest);
+                }
+                if (attrs.clearFlags) {
+                    obj.clearFlags = attrs.clearFlags;
+                }
+                if (attrs.setFlags) {
+                    obj.setFlags = attrs.setFlags;
+                }
+                if (attrs.thresholds) {
+                    obj.thresholds = attrs.thresholds;
+                }
+                if (attrs.signer) {
+                    let signer = {};
+                    signer.address = encodeBase58Check("accountId", attrs.signer._attributes.pubKey);
+                    signer.weight = attrs.signer._attributes.weight;
+                    obj.signer = signer;
+                }
+                break;
+            case "createOffer":
+                obj.type = "createOffer";
+                obj.takerGets = Currency.fromOperation(attrs.takerGets);
+                obj.takerPays = Currency.fromOperation(attrs.takerPays);
+                obj.amount = attrs.amount.toString();
+                obj.price = {
+                    n: attrs.price._attributes.n,
+                    d: attrs.price._attributes.d
+                };
+                obj.offerID = attrs.offerID.toString();
+                break;
+            case "accountMerge":
+                obj.type = "accountMerge";
+                obj.destination = operation.body._value;
+                break;
+            case "inflation":
+                obj.type = "inflation";
+                obj.sequence = operation.body._value;
+                break;
+            default:
+                throw new Error("Unknown operation");
         }
         return obj;
     }
@@ -192,7 +352,7 @@ export class Operation {
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0-dev</a> on Tue May 05 2015 20:20:41 GMT-0700 (PDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0-dev</a> on Wed May 06 2015 22:15:13 GMT-0700 (PDT)
 </footer>
 
 <script> prettyPrint(); </script>

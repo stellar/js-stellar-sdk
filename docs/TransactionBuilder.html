@@ -68,10 +68,13 @@ source account an amount of that currency. The built transaction would need to b
 both the source acccount and the destinationA account for it to be valid.</p>
 
 <pre>var transaction = new TransactionBuilder(source)
-  .payment(destinationA, 20000000, Currency.native()) // <- funds and creates destinationA
-  .changeTrust(new Currency("USD", destinationA.address)) // <- source sets trust to destA for USD
-  .payment(destinationB, 10, currency, {source: destinationA}) // <- destA sends source 10 USD
-  .build();</pre>
+  .addOperation(Operation.payment({
+            destination: destinationA,
+            amount: "20000000",
+            currency: Currency.native()
+        }) // <- funds and creates destinationA
+  .build();
+</pre>
 </div>
 
 
@@ -334,7 +337,7 @@ both the source acccount and the destinationA account for it to be valid.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="transaction_builder.js.html">transaction_builder.js</a>, <a href="transaction_builder.js.html#line43">line 43</a>
+        <a href="transaction_builder.js.html">transaction_builder.js</a>, <a href="transaction_builder.js.html#line46">line 46</a>
     </li></ul></dd>
     
 
@@ -377,6 +380,137 @@ both the source acccount and the destinationA account for it to be valid.</p>
 
     
         <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    <h4 class="name" id="addOperation"><span class="type-signature"></span>addOperation<span class="signature">(The)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    Adds an operation to the transaction.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>The</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">xdr.Operation</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">xdr operation object, use <a href="Operation.html">Operation</a> static methods.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="transaction_builder.js.html">transaction_builder.js</a>, <a href="transaction_builder.js.html#line65">line 65</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         
             
@@ -435,7 +569,7 @@ also increment the source account's sequence number by 1.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="transaction_builder.js.html">transaction_builder.js</a>, <a href="transaction_builder.js.html#line101">line 101</a>
+        <a href="transaction_builder.js.html">transaction_builder.js</a>, <a href="transaction_builder.js.html#line75">line 75</a>
     </li></ul></dd>
     
 
@@ -484,751 +618,6 @@ also increment the source account's sequence number by 1.
 
 
         
-            
-
-    
-
-    <h4 class="name" id="changeTrust"><span class="type-signature"></span>changeTrust<span class="signature">(currency, opts<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {<a href="TransactionBuilder.html">TransactionBuilder</a>}</span></h4>
-
-    
-
-
-
-<div class="description">
-    Adds a Change Trust operation to the transaction.
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>currency</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="Currency.html">Currency</a></span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">The currency for the trust line.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>opts</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">
-                <h6>Properties</h6>
-                
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>limit</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">The limit for the currency, defaults to max int64.
-                               If the limit is set to 0 it deletes the trustline.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>source</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">The source account (defaults to transaction source).</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-            </td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="transaction_builder.js.html">transaction_builder.js</a>, <a href="transaction_builder.js.html#line89">line 89</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    Returns this TransactionBuilder object, for chaining.
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type"><a href="TransactionBuilder.html">TransactionBuilder</a></span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="payment"><span class="type-signature"></span>payment<span class="signature">(destination, currency, amount, opts<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {<a href="TransactionBuilder.html">TransactionBuilder</a>}</span></h4>
-
-    
-
-
-
-<div class="description">
-    Adds a payment operation to the transaction.
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>destination</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">The destination address for the payment.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>currency</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="Currency.html">Currency</a></span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">The currency to send</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>amount</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-|
-
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">The amount to send.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>opts</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">
-                <h6>Properties</h6>
-                
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>source</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="Account.html">Account</a></span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">The source account for the payment. Defaults to the transaction's source account.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>path</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">array</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">An array of Currency objects to use as the path.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>sendMax</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">The max amount of currency to send.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>sourceMemo</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">The source memo.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>memo</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">The memo.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-            </td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="transaction_builder.js.html">transaction_builder.js</a>, <a href="transaction_builder.js.html#line71">line 71</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    Returns this TransactionBuilder object, for chaining.
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type"><a href="TransactionBuilder.html">TransactionBuilder</a></span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-        
     
 
     
@@ -1250,7 +639,7 @@ also increment the source account's sequence number by 1.
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0-dev</a> on Tue May 05 2015 20:20:41 GMT-0700 (PDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0-dev</a> on Wed May 06 2015 22:15:13 GMT-0700 (PDT)
 </footer>
 
 <script> prettyPrint(); </script>
