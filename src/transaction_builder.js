@@ -2,6 +2,7 @@ import {xdr, hash} from "stellar-base";
 
 import {Operation} from "./operation";
 import {Transaction} from "./transaction";
+import {Memo} from "./memo";
 
 let MAX_FEE      = 1000;
 let MIN_LEDGER   = 0;
@@ -42,6 +43,8 @@ export class TransactionBuilder {
     * @param {number} [opts.maxFee] - The max fee willing to pay for this transaction.
     * @param {number} [opts.minLedger] - The minimum ledger this transaction is valid in.
     * @param {number} [opts.maxLedger] - The maximum ledger this transaction is valid in.
+    * @param {Memo} [opts.memo] - The memo for the transaction
+    * @param {}
     */
     constructor(source, opts={}) {
         if (!source) {
@@ -53,6 +56,8 @@ export class TransactionBuilder {
         this.maxFee     = opts.maxFee || MAX_FEE;
         this.minLedger  = opts.minLedger || MIN_LEDGER;
         this.maxLedger  = opts.maxLedger || MAX_LEDGER;
+
+        this.memo       = opts.memo || Memo.none();
 
         // the signed hex form of the transaction to be sent to Horizon
         this.blob = null;
@@ -78,7 +83,8 @@ export class TransactionBuilder {
           maxFee:        this.maxFee,
           seqNum:        xdr.SequenceNumber.fromString(String(this._source.sequence)),
           minLedger:     this.minLedger,
-          maxLedger:     this.maxLedger
+          maxLedger:     this.maxLedger,
+          memo:          this.memo
         });
 
         this._source.sequence = this._source.sequence + 1;

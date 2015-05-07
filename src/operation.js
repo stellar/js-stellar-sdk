@@ -131,6 +131,7 @@ export class Operation {
     *                                 deleted if the weight is 0.
     * @param {string} [opts.signer.pubKey] - The address of the new signer.
     * @param {number} [opts.signer.weight] - The weight of the new signer (0 to delete or 1-255)
+    * @param {string} [opts.homeDomain] - sets the home domain used for reverse federation lookup.
     * @returns {xdr.SetOptionsOp}
     */
     static setOptions(opts) {
@@ -153,6 +154,9 @@ export class Operation {
                 weight: opts.signer.weight
             });
             attributes.signer = signer;
+        }
+        if (opts.homeDomain) {
+            attributes.homeDomain = opts.homeDomain;
         }
         let setOptionsOp = new xdr.SetOptionsOp(attributes);
         let opAttributes = {};
@@ -219,13 +223,13 @@ export class Operation {
 
     /**
     * This operation generates the inflation.
-    * @param {object} opts
-    * @param {number} opts.sequence - The inflation sequence number.
+    * @param {object} [opts]
+    * @param {string} [opts.source] - The optional source account.
     * @returns {xdr.AccountMergeOp}
     */
-    static inflation(opts) {
+    static inflation(opts={}) {
         let opAttributes = {};
-        opAttributes.body = xdr.OperationBody.accountMerge(opts.sequence);
+        opAttributes.body = xdr.OperationBody.inflation();
         if (opts.source) {
             opAttributes.sourceAccount = Keypair.fromAddress(opts.source).publicKey();
         }
@@ -241,7 +245,7 @@ export class Operation {
     */
     static operationToObject(operation) {
         let obj = {};
-        let attrs = operation.body._value._attributes;
+        let attrs = operation.body._value && operation.body._value._attributes;
         switch (operation.body._switch.name) {
             case "payment":
                 obj.type = "payment";
@@ -301,7 +305,6 @@ export class Operation {
                 break;
             case "inflation":
                 obj.type = "inflation";
-                obj.sequence = operation.body._value;
                 break;
             default:
                 throw new Error("Unknown operation");
