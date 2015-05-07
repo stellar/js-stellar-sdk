@@ -68,6 +68,7 @@ var StellarLib =
 	exports.Currency = __webpack_require__(7).Currency;
 	exports.Server = __webpack_require__(8).Server;
 	exports.Operation = __webpack_require__(9).Operation;
+	exports.Keypair = __webpack_require__(12).Keypair;
 
 /***/ },
 /* 2 */
@@ -290,7 +291,7 @@ var StellarLib =
 	    value: true
 	});
 
-	var _stellarBase = __webpack_require__(15);
+	var _stellarBase = __webpack_require__(12);
 
 	var Keypair = _stellarBase.Keypair;
 	var decodeBase58Check = _stellarBase.decodeBase58Check;
@@ -457,7 +458,7 @@ var StellarLib =
 	    value: true
 	});
 
-	var _stellarBase = __webpack_require__(15);
+	var _stellarBase = __webpack_require__(12);
 
 	var xdr = _stellarBase.xdr;
 	var hash = _stellarBase.hash;
@@ -479,7 +480,8 @@ var StellarLib =
 	    * should not be changed. You should only add signers to a Transaction object before
 	    * submitting to the network or forwarding on to additional signers.
 	    * @constructor
-	    * @param {string|xdr.TransactionEnvelope} envelope - The transaction envelope.
+	    * @param {string|xdr.TransactionEnvelope} envelope - The transaction envelope object or
+	    *                                                    hex encoded string.
 	    */
 
 	    function Transaction(envelope) {
@@ -499,7 +501,7 @@ var StellarLib =
 	        var operations = envelope._attributes.tx._attributes.operations;
 	        this.operations = [];
 	        for (var i = 0; i < operations.length; i++) {
-	            this.operations[i] = Operation.operationToObject(operations[i]._attributes.body);
+	            this.operations[i] = Operation.operationToObject(operations[i]._attributes);
 	        }
 	        var signatures = envelope._attributes.signatures;
 	        this.signatures = [];
@@ -523,15 +525,14 @@ var StellarLib =
 	        sign: {
 
 	            /**
-	            * Signs the transaction with the given account's master key and returns the
-	            * signature string, which can then be added to the transaction via addSignature()
-	            * or forwarded on.
+	            * Signs the transaction with the given Keypair.
+	            * @param {Keypair} keypair
 	            */
 
-	            value: function sign(account) {
+	            value: function sign(keypair) {
 	                var tx_raw = this.tx.toXDR();
 	                var tx_hash = hash(tx_raw);
-	                return account.masterKeypair.signDecorated(tx_hash);
+	                return keypair.signDecorated(tx_hash);
 	            }
 	        },
 	        toEnvelope: {
@@ -552,7 +553,7 @@ var StellarLib =
 
 	    return Transaction;
 	})();
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15).Buffer))
 
 /***/ },
 /* 6 */
@@ -568,7 +569,7 @@ var StellarLib =
 	    value: true
 	});
 
-	var _stellarBase = __webpack_require__(15);
+	var _stellarBase = __webpack_require__(12);
 
 	var xdr = _stellarBase.xdr;
 	var hash = _stellarBase.hash;
@@ -603,10 +604,13 @@ var StellarLib =
 	    * both the source acccount and the destinationA account for it to be valid.</p>
 	    *
 	    * <pre>var transaction = new TransactionBuilder(source)
-	    *   .payment(destinationA, 20000000, Currency.native()) // <- funds and creates destinationA
-	    *   .changeTrust(new Currency("USD", destinationA.address)) // <- source sets trust to destA for USD
-	    *   .payment(destinationB, 10, currency, {source: destinationA}) // <- destA sends source 10 USD
-	    *   .build();</pre>
+	    *   .addOperation(Operation.payment({
+	            destination: destinationA,
+	            amount: "20000000",
+	            currency: Currency.native()
+	        }) // <- funds and creates destinationA
+	    *   .build();
+	    * </pre>
 	    * @constructor
 	    * @param {Account} sourceAccount - The source account for this transaction.
 	    * @param {object} [opts]
@@ -635,51 +639,15 @@ var StellarLib =
 	    }
 
 	    _createClass(TransactionBuilder, {
-	        payment: {
+	        addOperation: {
 
 	            /**
-	            * Adds a payment operation to the transaction.
-	            * @param {string}  destination          - The destination address for the payment.
-	            * @param {Currency} currency            - The currency to send
-	            * @param {string|number} amount         - The amount to send.
-	            * @param {object}   [opts]
-	            * @param {Account}  [opts.source]       - The source account for the payment. Defaults to the transaction's source account.
-	            * @param {array}    [opts.path]         - An array of Currency objects to use as the path.
-	            * @param {string}   [opts.sendMax]      - The max amount of currency to send.
-	            * @param {string}   [opts.sourceMemo]   - The source memo.
-	            * @param {string}   [opts.memo]         - The memo.
-	            * @returns {TransactionBuilder} Returns this TransactionBuilder object, for chaining.
+	            * Adds an operation to the transaction.
+	            * @param {xdr.Operation} The xdr operation object, use {@link Operation} static methods.
 	            */
 
-	            value: function payment(destination, currency, amount) {
-	                var opts = arguments[3] === undefined ? {} : arguments[3];
-
-	                opts.destination = destination;
-	                opts.currency = currency;
-	                opts.amount = amount;
-	                var xdr = Operation.payment(opts);
-	                this._operations.push(xdr);
-	                return this;
-	            }
-	        },
-	        changeTrust: {
-
-	            /**
-	            * Adds a Change Trust operation to the transaction.
-	            * @param {Currency} currency - The currency for the trust line.
-	            * @param {object} [opts]
-	            * @param {string} [opts.limit] - The limit for the currency, defaults to max int64.
-	            *                                If the limit is set to 0 it deletes the trustline.
-	            * @param {string} [opts.source] - The source account (defaults to transaction source).
-	            * @returns {TransactionBuilder} Returns this TransactionBuilder object, for chaining.
-	            */
-
-	            value: function changeTrust(currency) {
-	                var opts = arguments[1] === undefined ? {} : arguments[1];
-
-	                opts.currency = currency;
-	                var xdr = Operation.changeTrust(opts);
-	                this._operations.push(xdr);
+	            value: function addOperation(operation) {
+	                this._operations.push(operation);
 	                return this;
 	            }
 	        },
@@ -734,7 +702,7 @@ var StellarLib =
 
 	var Account = __webpack_require__(4).Account;
 
-	var _stellarBase = __webpack_require__(15);
+	var _stellarBase = __webpack_require__(12);
 
 	var xdr = _stellarBase.xdr;
 	var Keypair = _stellarBase.Keypair;
@@ -859,11 +827,11 @@ var StellarLib =
 	    value: true
 	});
 
-	var TransactionPage = __webpack_require__(12).TransactionPage;
+	var TransactionPage = __webpack_require__(13).TransactionPage;
 
-	var TransactionResult = __webpack_require__(13).TransactionResult;
+	var TransactionResult = __webpack_require__(14).TransactionResult;
 
-	var xdr = __webpack_require__(15).xdr;
+	var xdr = __webpack_require__(12).xdr;
 
 	var request = __webpack_require__(10);
 	var EventSource = typeof window === "undefined" ? __webpack_require__(16) : EventSource;
@@ -1242,7 +1210,7 @@ var StellarLib =
 
 	    return Server;
 	})();
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15).Buffer))
 
 /***/ },
 /* 9 */
@@ -1258,11 +1226,12 @@ var StellarLib =
 	    value: true
 	});
 
-	var _stellarBase = __webpack_require__(15);
+	var _stellarBase = __webpack_require__(12);
 
 	var xdr = _stellarBase.xdr;
 	var Keypair = _stellarBase.Keypair;
 	var Hyper = _stellarBase.Hyper;
+	var UnsignedHyper = _stellarBase.UnsignedHyper;
 	var hash = _stellarBase.hash;
 	var encodeBase58Check = _stellarBase.encodeBase58Check;
 
@@ -1371,12 +1340,30 @@ var StellarLib =
 	            /**
 	            * Returns an XDR AllowTrustOp. An "allow trust" operation authorizes another
 	            * account to hold your account's credit for a given currency.
-	            * TODO: implement
 	            * @param {object} opts
+	            * @param {string} opts.trustor - The trusting account (the one being authorized)
+	            * @param {string} opts.currencyCode - The currency code being authorized.
+	            * @param {boolean} opts.authorize - True to authorize the line, false to deauthorize.
+	            * @param {string} [opts.source] - The source account (defaults to transaction source).
 	            * @returns {xdr.AllowTrustOp}
 	            */
 
-	            value: function allowTrust(opts) {}
+	            value: function allowTrust(opts) {
+	                var attributes = {};
+	                attributes.trustor = Keypair.fromAddress(opts.trustor).publicKey();
+	                var code = opts.currencyCode.length == 3 ? opts.currencyCode + "\u0000" : opts.currencyCode;
+	                attributes.currency = xdr.AllowTrustOpCurrency.iso4217(code);
+	                attributes.authorize = opts.authorize;
+	                var allowTrustOp = new xdr.AllowTrustOp(attributes);
+
+	                var opAttributes = {};
+	                opAttributes.body = xdr.OperationBody.allowTrust(allowTrustOp);
+	                if (opts.source) {
+	                    opAttributes.sourceAccount = Keypair.fromAddress(opts.source).publicKey();
+	                }
+	                var op = new xdr.Operation(opAttributes);
+	                return op;
+	            }
 	        },
 	        setOptions: {
 
@@ -1385,22 +1372,124 @@ var StellarLib =
 	            * set the account's inflation destination, and/or add new signers to the account.
 	            * TODO: implement
 	            * @param {object} opts
+	            * @param {string} [opts.inflationDest] - Set this address as the account's inflation destination.
+	            * @param {number} [opts.clearFlags] - Bitmap integer for which flags to clear.
+	            * @param {number} [opts.setFlags] - Bitmap integer for which flags to set.
+	            * @param {array} [opts.thresholds] - Sets the weight of the master key and the threshold
+	            *                                    for each level low, medium, and high. Array of uint8.
+	            *                                    For now, see the stellar-core docs.
+	            * @param {object} [opts.signer] - Add or remove a signer from the account. The signer is
+	            *                                 deleted if the weight is 0.
+	            * @param {string} [opts.signer.pubKey] - The address of the new signer.
+	            * @param {number} [opts.signer.weight] - The weight of the new signer (0 to delete or 1-255)
 	            * @returns {xdr.SetOptionsOp}
 	            */
 
-	            value: function setOptions(opts) {}
+	            value: function setOptions(opts) {
+	                var attributes = {};
+	                if (opts.inflationDest) {
+	                    attributes.inflationDest = Keypair.fromAddress(opts.inflationDest).publicKey();
+	                }
+	                if (opts.clearFlags) {
+	                    attributes.clearFlags = opts.clearFlags;
+	                }
+	                if (opts.setFlags) {
+	                    attributes.setFlags = opts.setFlags;
+	                }
+	                if (opts.thresholds) {
+	                    attributes.thresholds = opts.thresholds;
+	                }
+	                if (opts.signer) {
+	                    var signer = new xdr.Signer({
+	                        pubKey: Keypair.fromAddress(opts.signer.pubKey).publicKey(),
+	                        weight: opts.signer.weight
+	                    });
+	                    attributes.signer = signer;
+	                }
+	                var setOptionsOp = new xdr.SetOptionsOp(attributes);
+	                var opAttributes = {};
+	                opAttributes.body = xdr.OperationBody.setOption(setOptionsOp);
+	                if (opts.source) {
+	                    opAttributes.sourceAccount = Keypair.fromAddress(opts.source).publicKey();
+	                }
+	                var op = new xdr.Operation(opAttributes);
+	                return op;
+	            }
 	        },
 	        createOffer: {
 
 	            /**
 	            * Returns a XDR CreateOfferOp. A "create offer" operation creates, updates, or
 	            * deletes an offer for the account.
-	            * TODO: implement
 	            * @param {object} opts
+	            * @param {Currency} takerGets - What you're selling.
+	            * @param {Currency} takerPays - What you're buying.
+	            * @param {string} amount - The total amount you're selling. If 0, deletes the offer.
+	            * @param {object} price - The exchange rate ratio.
+	            * @param {number} price.takerPaysAmount - How much the taker will pay.
+	            * @param {number} price.takerGetsAmount - How much the taker will get.
+	            * @param {string} offerID - If 0, will create a new offer. Otherwise, edits an exisiting offer.
 	            * @returns {xdr.CreateOfferOp}
 	            */
 
-	            value: function createOffer(opts) {}
+	            value: function createOffer(opts) {
+	                var attributes = {};
+	                attributes.takerGets = opts.takerGets.toXdrObject();
+	                attributes.takerPays = opts.takerPays.toXdrObject();
+	                attributes.amount = Hyper.fromString(String(opts.amount));
+	                attributes.price = new xdr.Price({
+	                    n: opts.price.takerPaysAmount,
+	                    d: opts.price.takerGetsAmount
+	                });
+	                attributes.offerID = UnsignedHyper.fromString(String(opts.offerID));
+	                var createOfferOp = new xdr.CreateOfferOp(attributes);
+
+	                var opAttributes = {};
+	                opAttributes.body = xdr.OperationBody.createOffer(createOfferOp);
+	                if (opts.source) {
+	                    opAttributes.sourceAccount = Keypair.fromAddress(opts.source).publicKey();
+	                }
+	                var op = new xdr.Operation(opAttributes);
+	                return op;
+	            }
+	        },
+	        accountMerge: {
+
+	            /**
+	            * Transfers native balance to destination account.
+	            * @param {object} opts
+	            * @param {string} opts.address - Address to merge the source account into.
+	             * @returns {xdr.AccountMergeOp}
+	            */
+
+	            value: function accountMerge(opts) {
+	                var opAttributes = {};
+	                opAttributes.body = xdr.OperationBody.accountMerge(Keypair.fromAddress(opts.address).publicKey());
+	                if (opts.source) {
+	                    opAttributes.sourceAccount = Keypair.fromAddress(opts.source).publicKey();
+	                }
+	                var op = new xdr.Operation(opAttributes);
+	                return op;
+	            }
+	        },
+	        inflation: {
+
+	            /**
+	            * This operation generates the inflation.
+	            * @param {object} opts
+	            * @param {number} opts.sequence - The inflation sequence number.
+	            * @returns {xdr.AccountMergeOp}
+	            */
+
+	            value: function inflation(opts) {
+	                var opAttributes = {};
+	                opAttributes.body = xdr.OperationBody.accountMerge(opts.sequence);
+	                if (opts.source) {
+	                    opAttributes.sourceAccount = Keypair.fromAddress(opts.source).publicKey();
+	                }
+	                var op = new xdr.Operation(opAttributes);
+	                return op;
+	            }
 	        },
 	        operationToObject: {
 
@@ -1408,16 +1497,16 @@ var StellarLib =
 	            * Converts the XDR Operation object to the opts object used to create the XDR
 	            * operation.
 	            * @param {xdr.Operation} operation - An XDR Operation.
-	            * @return {Operation}
+	            * @return {object}
 	            */
 
 	            value: function operationToObject(operation) {
 	                var obj = {};
-	                var attrs = operation._value._attributes;
-	                switch (operation._arm) {
-	                    case "paymentOp":
-	                        obj.type = "paymentOp";
-	                        obj.destination = Account.fromAddress(encodeBase58Check("accountId", attrs.destination));
+	                var attrs = operation.body._value._attributes;
+	                switch (operation.body._switch.name) {
+	                    case "payment":
+	                        obj.type = "payment";
+	                        obj.destination = encodeBase58Check("accountId", attrs.destination);
 	                        obj.currency = Currency.fromOperation(attrs.currency);
 	                        obj.path = attrs.path;
 	                        obj.amount = attrs.amount.toString();
@@ -1425,9 +1514,58 @@ var StellarLib =
 	                        obj.sourceMemo = attrs.sourceMemo;
 	                        obj.memo = attrs.memo;
 	                        break;
-	                    case "changeTrustOp":
-	                        obj.type = "changeTrustOp";
+	                    case "changeTrust":
+	                        obj.type = "changeTrust";
 	                        obj.line = Currency.fromOperation(attrs.line);
+	                        break;
+	                    case "allowTrust":
+	                        obj.type = "allowTrust";
+	                        obj.trustor = encodeBase58Check("accountId", attrs.trustor);
+	                        obj.currencyCode = attrs.currency._value;
+	                        obj.authorize = attrs.authorize;
+	                        break;
+	                    case "setOptions":
+	                        obj.type = "setOptions";
+	                        if (attrs.inflationDest) {
+	                            obj.inflationDest = encodeBase58Check("accountId", attrs.inflationDest);
+	                        }
+	                        if (attrs.clearFlags) {
+	                            obj.clearFlags = attrs.clearFlags;
+	                        }
+	                        if (attrs.setFlags) {
+	                            obj.setFlags = attrs.setFlags;
+	                        }
+	                        if (attrs.thresholds) {
+	                            obj.thresholds = attrs.thresholds;
+	                        }
+	                        if (attrs.signer) {
+	                            var signer = {};
+	                            signer.address = encodeBase58Check("accountId", attrs.signer._attributes.pubKey);
+	                            signer.weight = attrs.signer._attributes.weight;
+	                            obj.signer = signer;
+	                        }
+	                        break;
+	                    case "createOffer":
+	                        obj.type = "createOffer";
+	                        obj.takerGets = Currency.fromOperation(attrs.takerGets);
+	                        obj.takerPays = Currency.fromOperation(attrs.takerPays);
+	                        obj.amount = attrs.amount.toString();
+	                        obj.price = {
+	                            n: attrs.price._attributes.n,
+	                            d: attrs.price._attributes.d
+	                        };
+	                        obj.offerID = attrs.offerID.toString();
+	                        break;
+	                    case "accountMerge":
+	                        obj.type = "accountMerge";
+	                        obj.destination = operation.body._value;
+	                        break;
+	                    case "inflation":
+	                        obj.type = "inflation";
+	                        obj.sequence = operation.body._value;
+	                        break;
+	                    default:
+	                        throw new Error("Unknown operation");
 	                }
 	                return obj;
 	            }
@@ -1436,7 +1574,7 @@ var StellarLib =
 
 	    return Operation;
 	})();
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15).Buffer))
 
 /***/ },
 /* 10 */
@@ -1446,8 +1584,8 @@ var StellarLib =
 	 * Module dependencies.
 	 */
 
-	var Emitter = __webpack_require__(18);
-	var reduce = __webpack_require__(17);
+	var Emitter = __webpack_require__(22);
+	var reduce = __webpack_require__(23);
 
 	/**
 	 * Root reference for iframes.
@@ -2586,13 +2724,47 @@ var StellarLib =
 	}
 	global._babelPolyfill = true;
 
-	__webpack_require__(20);
+	__webpack_require__(24);
 
-	__webpack_require__(19);
+	__webpack_require__(25);
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
 /* 12 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _interopRequire = __webpack_require__(26)["default"];
+
+	var _defaults = __webpack_require__(27)["default"];
+
+	var _interopRequireWildcard = __webpack_require__(28)["default"];
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var xdr = _interopRequire(__webpack_require__(17));
+
+	exports.xdr = xdr;
+	exports.hash = __webpack_require__(18).hash;
+
+	var _signing = __webpack_require__(19);
+
+	exports.sign = _signing.sign;
+	exports.verify = _signing.verify;
+	exports.Keypair = __webpack_require__(20).Keypair;
+
+	var _jsXdr = __webpack_require__(29);
+
+	exports.UnsignedHyper = _jsXdr.UnsignedHyper;
+	exports.Hyper = _jsXdr.Hyper;
+
+	_defaults(exports, _interopRequireWildcard(__webpack_require__(21)));
+
+/***/ },
+/* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -2623,7 +2795,7 @@ var StellarLib =
 	};
 
 /***/ },
-/* 13 */
+/* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -2689,7 +2861,7 @@ var StellarLib =
 	};
 
 /***/ },
-/* 14 */
+/* 15 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {/*!
@@ -2699,9 +2871,9 @@ var StellarLib =
 	 * @license  MIT
 	 */
 
-	var base64 = __webpack_require__(35)
-	var ieee754 = __webpack_require__(26)
-	var isArray = __webpack_require__(27)
+	var base64 = __webpack_require__(45)
+	var ieee754 = __webpack_require__(33)
+	var isArray = __webpack_require__(34)
 
 	exports.Buffer = Buffer
 	exports.SlowBuffer = SlowBuffer
@@ -4024,52 +4196,18 @@ var StellarLib =
 	  }
 	}
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
-
-/***/ },
-/* 15 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _interopRequire = __webpack_require__(36)["default"];
-
-	var _defaults = __webpack_require__(37)["default"];
-
-	var _interopRequireWildcard = __webpack_require__(38)["default"];
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var xdr = _interopRequire(__webpack_require__(21));
-
-	exports.xdr = xdr;
-	exports.hash = __webpack_require__(22).hash;
-
-	var _signing = __webpack_require__(23);
-
-	exports.sign = _signing.sign;
-	exports.verify = _signing.verify;
-	exports.Keypair = __webpack_require__(24).Keypair;
-
-	var _jsXdr = __webpack_require__(39);
-
-	exports.UnsignedHyper = _jsXdr.UnsignedHyper;
-	exports.Hyper = _jsXdr.Hyper;
-
-	_defaults(exports, _interopRequireWildcard(__webpack_require__(25)));
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15).Buffer))
 
 /***/ },
 /* 16 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(process) {var original = __webpack_require__(34)
-	  , parse = __webpack_require__(28).parse
-	  , events = __webpack_require__(30)
-	  , https = __webpack_require__(29)
-	  , http = __webpack_require__(31)
-	  , util = __webpack_require__(32);
+	/* WEBPACK VAR INJECTION */(function(process) {var original = __webpack_require__(44)
+	  , parse = __webpack_require__(35).parse
+	  , events = __webpack_require__(36)
+	  , https = __webpack_require__(37)
+	  , http = __webpack_require__(38)
+	  , util = __webpack_require__(39);
 
 	function isPlainObject(obj) {
 	  return Object.getPrototypeOf(obj) === Object.prototype;
@@ -4377,39 +4515,2016 @@ var StellarLib =
 	  }
 	}
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(33)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(40)))
 
 /***/ },
 /* 17 */
 /***/ function(module, exports, __webpack_require__) {
 
-	
-	/**
-	 * Reduce `arr` with `fn`.
-	 *
-	 * @param {Array} arr
-	 * @param {Function} fn
-	 * @param {Mixed} initial
-	 *
-	 * TODO: combatible error handling?
-	 */
+	// Automatically generated on 2015-04-29T13:04:21-07:00
+	// DO NOT EDIT or your changes may be overwritten
 
-	module.exports = function(arr, fn, initial){  
-	  var idx = 0;
-	  var len = arr.length;
-	  var curr = arguments.length == 3
-	    ? initial
-	    : arr[idx++];
+	/* jshint maxstatements:2147483647  */
+	/* jshint esnext:true  */
 
-	  while (idx < len) {
-	    curr = fn.call(null, curr, arr[idx], ++idx, arr);
-	  }
-	  
-	  return curr;
-	};
+	"use strict";
+
+	var _interopRequireWildcard = __webpack_require__(28)["default"];
+
+	var XDR = _interopRequireWildcard(__webpack_require__(29));
+
+	var types = XDR.config(function (xdr) {
+
+	  // === xdr source ============================================================
+	  //
+	  //   typedef opaque Signature[64];
+	  //
+	  // ===========================================================================
+	  xdr.typedef("Signature", xdr.opaque(64));
+
+	  // === xdr source ============================================================
+	  //
+	  //   typedef opaque Hash[32];
+	  //
+	  // ===========================================================================
+	  xdr.typedef("Hash", xdr.opaque(32));
+
+	  // === xdr source ============================================================
+	  //
+	  //   typedef opaque uint256[32];
+	  //
+	  // ===========================================================================
+	  xdr.typedef("Uint256", xdr.opaque(32));
+
+	  // === xdr source ============================================================
+	  //
+	  //   typedef unsigned int uint32;
+	  //
+	  // ===========================================================================
+	  xdr.typedef("Uint32", xdr.uint());
+
+	  // === xdr source ============================================================
+	  //
+	  //   typedef unsigned hyper uint64;
+	  //
+	  // ===========================================================================
+	  xdr.typedef("Uint64", xdr.uhyper());
+
+	  // === xdr source ============================================================
+	  //
+	  //   typedef opaque Value<>;
+	  //
+	  // ===========================================================================
+	  xdr.typedef("Value", xdr.varOpaque());
+
+	  // === xdr source ============================================================
+	  //
+	  //   typedef opaque Evidence<>;
+	  //
+	  // ===========================================================================
+	  xdr.typedef("Evidence", xdr.varOpaque());
+
+	  // === xdr source ============================================================
+	  //
+	  //   struct SCPBallot
+	  //   {
+	  //       uint32 counter; // n
+	  //       Value value;    // x
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.struct("ScpBallot", [["counter", xdr.lookup("Uint32")], ["value", xdr.lookup("Value")]]);
+
+	  // === xdr source ============================================================
+	  //
+	  //   enum SCPStatementType
+	  //   {
+	  //       PREPARING = 0,
+	  //       PREPARED = 1,
+	  //       COMMITTING = 2,
+	  //       COMMITTED = 3
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr["enum"]("ScpStatementType", {
+	    preparing: 0,
+	    prepared: 1,
+	    committing: 2,
+	    committed: 3 });
+
+	  // === xdr source ============================================================
+	  //
+	  //   struct
+	  //           {
+	  //               SCPBallot excepted<>; // B_c
+	  //               SCPBallot* prepared;  // p
+	  //           }
+	  //
+	  // ===========================================================================
+	  xdr.struct("ScpStatementPrepare", [["excepted", xdr.varArray(xdr.lookup("ScpBallot"), 2147483647)], ["prepared", xdr.option(xdr.lookup("ScpBallot"))]]);
+
+	  // === xdr source ============================================================
+	  //
+	  //   union switch (SCPStatementType type)
+	  //       {
+	  //       case PREPARING:
+	  //           struct
+	  //           {
+	  //               SCPBallot excepted<>; // B_c
+	  //               SCPBallot* prepared;  // p
+	  //           } prepare;
+	  //       case PREPARED:
+	  //       case COMMITTING:
+	  //       case COMMITTED:
+	  //           void;
+	  //       }
+	  //
+	  // ===========================================================================
+	  xdr.union("ScpStatementPledges", {
+	    switchOn: xdr.lookup("ScpStatementType"),
+	    switchName: "type",
+	    switches: {
+	      preparing: "prepare",
+	      prepared: xdr["void"](),
+	      committing: xdr["void"](),
+	      committed: xdr["void"]() },
+	    arms: {
+	      prepare: xdr.lookup("ScpStatementPrepare") } });
+
+	  // === xdr source ============================================================
+	  //
+	  //   struct SCPStatement
+	  //   {
+	  //       uint64 slotIndex;   // i
+	  //       SCPBallot ballot;   // b
+	  //       Hash quorumSetHash; // D
+	  //  
+	  //       union switch (SCPStatementType type)
+	  //       {
+	  //       case PREPARING:
+	  //           struct
+	  //           {
+	  //               SCPBallot excepted<>; // B_c
+	  //               SCPBallot* prepared;  // p
+	  //           } prepare;
+	  //       case PREPARED:
+	  //       case COMMITTING:
+	  //       case COMMITTED:
+	  //           void;
+	  //       }
+	  //       pledges;
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.struct("ScpStatement", [["slotIndex", xdr.lookup("Uint64")], ["ballot", xdr.lookup("ScpBallot")], ["quorumSetHash", xdr.lookup("Hash")], ["pledges", xdr.lookup("ScpStatementPledges")]]);
+
+	  // === xdr source ============================================================
+	  //
+	  //   struct SCPEnvelope
+	  //   {
+	  //       uint256 nodeID; // v
+	  //       SCPStatement statement;
+	  //       Signature signature;
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.struct("ScpEnvelope", [["nodeId", xdr.lookup("Uint256")], ["statement", xdr.lookup("ScpStatement")], ["signature", xdr.lookup("Signature")]]);
+
+	  // === xdr source ============================================================
+	  //
+	  //   struct SCPQuorumSet
+	  //   {
+	  //       uint32 threshold;
+	  //       Hash validators<>;
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.struct("ScpQuorumSet", [["threshold", xdr.lookup("Uint32")], ["validators", xdr.varArray(xdr.lookup("Hash"), 2147483647)]]);
+
+	  // === xdr source ============================================================
+	  //
+	  //   enum LedgerEntryType
+	  //   {
+	  //       ACCOUNT = 0,
+	  //       TRUSTLINE = 1,
+	  //       OFFER = 2
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr["enum"]("LedgerEntryType", {
+	    account: 0,
+	    trustline: 1,
+	    offer: 2 });
+
+	  // === xdr source ============================================================
+	  //
+	  //   struct Signer
+	  //   {
+	  //       uint256 pubKey;
+	  //       uint32 weight; // really only need 1byte
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.struct("Signer", [["pubKey", xdr.lookup("Uint256")], ["weight", xdr.lookup("Uint32")]]);
+
+	  // === xdr source ============================================================
+	  //
+	  //   enum AccountFlags
+	  //   { // masks for each flag
+	  //       AUTH_REQUIRED_FLAG = 0x1
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr["enum"]("AccountFlags", {
+	    authRequiredFlag: 1 });
+
+	  // === xdr source ============================================================
+	  //
+	  //   struct AccountEntry
+	  //   {
+	  //       AccountID accountID;      // master public key for this account
+	  //       int64 balance;            // in stroops
+	  //       SequenceNumber seqNum;    // last sequence number used for this account
+	  //       uint32 numSubEntries;     // number of sub-entries this account has
+	  //                                 // drives the reserve
+	  //       AccountID* inflationDest; // Account to vote during inflation
+	  //       uint32 flags;             // see AccountFlags
+	  //  
+	  //       // fields used for signatures
+	  //       // thresholds stores unsigned bytes: [weight of master|low|medium|high]
+	  //       Thresholds thresholds;
+	  //  
+	  //       Signer signers<20>; // possible signers for this account
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.struct("AccountEntry", [["accountId", xdr.lookup("AccountId")], ["balance", xdr.lookup("Int64")], ["seqNum", xdr.lookup("SequenceNumber")], ["numSubEntries", xdr.lookup("Uint32")], ["inflationDest", xdr.option(xdr.lookup("AccountId"))], ["flags", xdr.lookup("Uint32")], ["thresholds", xdr.lookup("Thresholds")], ["signers", xdr.varArray(xdr.lookup("Signer"), 20)]]);
+
+	  // === xdr source ============================================================
+	  //
+	  //   struct TrustLineEntry
+	  //   {
+	  //       AccountID accountID; // account this trustline belongs to
+	  //       Currency currency;   // currency (with issuer)
+	  //       int64 balance;       // how much of this currency the user has.
+	  //                            // Currency defines the unit for this;
+	  //  
+	  //       int64 limit;     // balance cannot be above this
+	  //       bool authorized; // issuer has authorized account to hold its credit
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.struct("TrustLineEntry", [["accountId", xdr.lookup("AccountId")], ["currency", xdr.lookup("Currency")], ["balance", xdr.lookup("Int64")], ["limit", xdr.lookup("Int64")], ["authorized", xdr.bool()]]);
+
+	  // === xdr source ============================================================
+	  //
+	  //   struct OfferEntry
+	  //   {
+	  //       AccountID accountID;
+	  //       uint64 offerID;
+	  //       Currency takerGets; // A
+	  //       Currency takerPays; // B
+	  //       int64 amount;       // amount of A
+	  //  
+	  //       /* price for this offer:
+	  //           price of A in terms of B
+	  //           price=AmountB/AmountA=priceNumerator/priceDenominator
+	  //           price is after fees
+	  //       */
+	  //       Price price;
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.struct("OfferEntry", [["accountId", xdr.lookup("AccountId")], ["offerId", xdr.lookup("Uint64")], ["takerGets", xdr.lookup("Currency")], ["takerPays", xdr.lookup("Currency")], ["amount", xdr.lookup("Int64")], ["price", xdr.lookup("Price")]]);
+
+	  // === xdr source ============================================================
+	  //
+	  //   union LedgerEntry switch (LedgerEntryType type)
+	  //   {
+	  //   case ACCOUNT:
+	  //       AccountEntry account;
+	  //  
+	  //   case TRUSTLINE:
+	  //       TrustLineEntry trustLine;
+	  //  
+	  //   case OFFER:
+	  //       OfferEntry offer;
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.union("LedgerEntry", {
+	    switchOn: xdr.lookup("LedgerEntryType"),
+	    switchName: "type",
+	    switches: {
+	      account: "account",
+	      trustline: "trustLine",
+	      offer: "offer" },
+	    arms: {
+	      account: xdr.lookup("AccountEntry"),
+	      trustLine: xdr.lookup("TrustLineEntry"),
+	      offer: xdr.lookup("OfferEntry") } });
+
+	  // === xdr source ============================================================
+	  //
+	  //   struct LedgerHeader
+	  //   {
+	  //       Hash previousLedgerHash; // hash of the previous ledger header
+	  //       Hash txSetHash;          // the tx set that was SCP confirmed
+	  //       Hash txSetResultHash;    // the TransactionResultSet that led to this ledger
+	  //       Hash bucketListHash;     // hash of the ledger state
+	  //  
+	  //       uint32 ledgerSeq; // sequence number of this ledger
+	  //       uint64 closeTime; // network close time
+	  //  
+	  //       int64 totalCoins; // total number of stroops in existence
+	  //  
+	  //       int64 feePool;       // fees burned since last inflation run
+	  //       uint32 inflationSeq; // inflation sequence number
+	  //  
+	  //       uint64 idPool; // last used global ID, used for generating objects
+	  //  
+	  //       int32 baseFee;     // base fee per operation in stroops
+	  //       int32 baseReserve; // account base reserve in stroops
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.struct("LedgerHeader", [["previousLedgerHash", xdr.lookup("Hash")], ["txSetHash", xdr.lookup("Hash")], ["txSetResultHash", xdr.lookup("Hash")], ["bucketListHash", xdr.lookup("Hash")], ["ledgerSeq", xdr.lookup("Uint32")], ["closeTime", xdr.lookup("Uint64")], ["totalCoins", xdr.lookup("Int64")], ["feePool", xdr.lookup("Int64")], ["inflationSeq", xdr.lookup("Uint32")], ["idPool", xdr.lookup("Uint64")], ["baseFee", xdr.lookup("Int32")], ["baseReserve", xdr.lookup("Int32")]]);
+
+	  // === xdr source ============================================================
+	  //
+	  //   struct
+	  //       {
+	  //           AccountID accountID;
+	  //       }
+	  //
+	  // ===========================================================================
+	  xdr.struct("LedgerKeyAccount", [["accountId", xdr.lookup("AccountId")]]);
+
+	  // === xdr source ============================================================
+	  //
+	  //   struct
+	  //       {
+	  //           AccountID accountID;
+	  //           Currency currency;
+	  //       }
+	  //
+	  // ===========================================================================
+	  xdr.struct("LedgerKeyTrustLine", [["accountId", xdr.lookup("AccountId")], ["currency", xdr.lookup("Currency")]]);
+
+	  // === xdr source ============================================================
+	  //
+	  //   struct
+	  //       {
+	  //           AccountID accountID;
+	  //           uint64 offerID;
+	  //       }
+	  //
+	  // ===========================================================================
+	  xdr.struct("LedgerKeyOffer", [["accountId", xdr.lookup("AccountId")], ["offerId", xdr.lookup("Uint64")]]);
+
+	  // === xdr source ============================================================
+	  //
+	  //   union LedgerKey switch (LedgerEntryType type)
+	  //   {
+	  //   case ACCOUNT:
+	  //       struct
+	  //       {
+	  //           AccountID accountID;
+	  //       } account;
+	  //  
+	  //   case TRUSTLINE:
+	  //       struct
+	  //       {
+	  //           AccountID accountID;
+	  //           Currency currency;
+	  //       } trustLine;
+	  //  
+	  //   case OFFER:
+	  //       struct
+	  //       {
+	  //           AccountID accountID;
+	  //           uint64 offerID;
+	  //       } offer;
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.union("LedgerKey", {
+	    switchOn: xdr.lookup("LedgerEntryType"),
+	    switchName: "type",
+	    switches: {
+	      account: "account",
+	      trustline: "trustLine",
+	      offer: "offer" },
+	    arms: {
+	      account: xdr.lookup("LedgerKeyAccount"),
+	      trustLine: xdr.lookup("LedgerKeyTrustLine"),
+	      offer: xdr.lookup("LedgerKeyOffer") } });
+
+	  // === xdr source ============================================================
+	  //
+	  //   enum BucketEntryType
+	  //   {
+	  //       LIVEENTRY = 0,
+	  //       DEADENTRY = 1
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr["enum"]("BucketEntryType", {
+	    liveentry: 0,
+	    deadentry: 1 });
+
+	  // === xdr source ============================================================
+	  //
+	  //   union BucketEntry switch (BucketEntryType type)
+	  //   {
+	  //   case LIVEENTRY:
+	  //       LedgerEntry liveEntry;
+	  //  
+	  //   case DEADENTRY:
+	  //       LedgerKey deadEntry;
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.union("BucketEntry", {
+	    switchOn: xdr.lookup("BucketEntryType"),
+	    switchName: "type",
+	    switches: {
+	      liveentry: "liveEntry",
+	      deadentry: "deadEntry" },
+	    arms: {
+	      liveEntry: xdr.lookup("LedgerEntry"),
+	      deadEntry: xdr.lookup("LedgerKey") } });
+
+	  // === xdr source ============================================================
+	  //
+	  //   struct TransactionSet
+	  //   {
+	  //       Hash previousLedgerHash;
+	  //       TransactionEnvelope txs<5000>;
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.struct("TransactionSet", [["previousLedgerHash", xdr.lookup("Hash")], ["txes", xdr.varArray(xdr.lookup("TransactionEnvelope"), 5000)]]);
+
+	  // === xdr source ============================================================
+	  //
+	  //   struct TransactionResultPair
+	  //   {
+	  //       Hash transactionHash;
+	  //       TransactionResult result; // result for the transaction
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.struct("TransactionResultPair", [["transactionHash", xdr.lookup("Hash")], ["result", xdr.lookup("TransactionResult")]]);
+
+	  // === xdr source ============================================================
+	  //
+	  //   struct TransactionResultSet
+	  //   {
+	  //       TransactionResultPair results<5000>;
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.struct("TransactionResultSet", [["results", xdr.varArray(xdr.lookup("TransactionResultPair"), 5000)]]);
+
+	  // === xdr source ============================================================
+	  //
+	  //   struct TransactionMeta
+	  //   {
+	  //       BucketEntry entries<>;
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.struct("TransactionMeta", [["entries", xdr.varArray(xdr.lookup("BucketEntry"), 2147483647)]]);
+
+	  // === xdr source ============================================================
+	  //
+	  //   struct TransactionHistoryEntry
+	  //   {
+	  //       uint32 ledgerSeq;
+	  //       TransactionSet txSet;
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.struct("TransactionHistoryEntry", [["ledgerSeq", xdr.lookup("Uint32")], ["txSet", xdr.lookup("TransactionSet")]]);
+
+	  // === xdr source ============================================================
+	  //
+	  //   struct TransactionHistoryResultEntry
+	  //   {
+	  //       uint32 ledgerSeq;
+	  //       TransactionResultSet txResultSet;
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.struct("TransactionHistoryResultEntry", [["ledgerSeq", xdr.lookup("Uint32")], ["txResultSet", xdr.lookup("TransactionResultSet")]]);
+
+	  // === xdr source ============================================================
+	  //
+	  //   struct LedgerHeaderHistoryEntry
+	  //   {
+	  //       Hash hash;
+	  //       LedgerHeader header;
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.struct("LedgerHeaderHistoryEntry", [["hash", xdr.lookup("Hash")], ["header", xdr.lookup("LedgerHeader")]]);
+
+	  // === xdr source ============================================================
+	  //
+	  //   struct StellarBallotValue
+	  //   {
+	  //       Hash txSetHash;
+	  //       uint64 closeTime;
+	  //       uint32 baseFee;
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.struct("StellarBallotValue", [["txSetHash", xdr.lookup("Hash")], ["closeTime", xdr.lookup("Uint64")], ["baseFee", xdr.lookup("Uint32")]]);
+
+	  // === xdr source ============================================================
+	  //
+	  //   struct StellarBallot
+	  //   {
+	  //       uint256 nodeID;
+	  //       Signature signature;
+	  //       StellarBallotValue value;
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.struct("StellarBallot", [["nodeId", xdr.lookup("Uint256")], ["signature", xdr.lookup("Signature")], ["value", xdr.lookup("StellarBallotValue")]]);
+
+	  // === xdr source ============================================================
+	  //
+	  //   struct Error
+	  //   {
+	  //       int code;
+	  //       string msg<100>;
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.struct("Error", [["code", xdr.int()], ["msg", xdr.string(100)]]);
+
+	  // === xdr source ============================================================
+	  //
+	  //   struct Hello
+	  //   {
+	  //       int protocolVersion;
+	  //       string versionStr<100>;
+	  //       int listeningPort;
+	  //       opaque peerID[32];
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.struct("Hello", [["protocolVersion", xdr.int()], ["versionStr", xdr.string(100)], ["listeningPort", xdr.int()], ["peerId", xdr.opaque(32)]]);
+
+	  // === xdr source ============================================================
+	  //
+	  //   struct PeerAddress
+	  //   {
+	  //       opaque ip[4];
+	  //       uint32 port;
+	  //       uint32 numFailures;
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.struct("PeerAddress", [["ip", xdr.opaque(4)], ["port", xdr.lookup("Uint32")], ["numFailures", xdr.lookup("Uint32")]]);
+
+	  // === xdr source ============================================================
+	  //
+	  //   enum MessageType
+	  //   {
+	  //       ERROR_MSG = 0,
+	  //       HELLO = 1,
+	  //       DONT_HAVE = 2,
+	  //  
+	  //       GET_PEERS = 3, // gets a list of peers this guy knows about
+	  //       PEERS = 4,
+	  //  
+	  //       GET_TX_SET = 5, // gets a particular txset by hash
+	  //       TX_SET = 6,
+	  //  
+	  //       TRANSACTION = 7, // pass on a tx you have heard about
+	  //  
+	  //       // SCP
+	  //       GET_SCP_QUORUMSET = 8,
+	  //       SCP_QUORUMSET = 9,
+	  //       SCP_MESSAGE = 10
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr["enum"]("MessageType", {
+	    errorMsg: 0,
+	    hello: 1,
+	    dontHave: 2,
+	    getPeer: 3,
+	    peer: 4,
+	    getTxSet: 5,
+	    txSet: 6,
+	    transaction: 7,
+	    getScpQuorumset: 8,
+	    scpQuorumset: 9,
+	    scpMessage: 10 });
+
+	  // === xdr source ============================================================
+	  //
+	  //   struct DontHave
+	  //   {
+	  //       MessageType type;
+	  //       uint256 reqHash;
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.struct("DontHave", [["type", xdr.lookup("MessageType")], ["reqHash", xdr.lookup("Uint256")]]);
+
+	  // === xdr source ============================================================
+	  //
+	  //   union StellarMessage switch (MessageType type)
+	  //   {
+	  //   case ERROR_MSG:
+	  //       Error error;
+	  //   case HELLO:
+	  //       Hello hello;
+	  //   case DONT_HAVE:
+	  //       DontHave dontHave;
+	  //   case GET_PEERS:
+	  //       void;
+	  //   case PEERS:
+	  //       PeerAddress peers<>;
+	  //  
+	  //   case GET_TX_SET:
+	  //       uint256 txSetHash;
+	  //   case TX_SET:
+	  //       TransactionSet txSet;
+	  //  
+	  //   case TRANSACTION:
+	  //       TransactionEnvelope transaction;
+	  //  
+	  //   // SCP
+	  //   case GET_SCP_QUORUMSET:
+	  //       uint256 qSetHash;
+	  //   case SCP_QUORUMSET:
+	  //       SCPQuorumSet qSet;
+	  //   case SCP_MESSAGE:
+	  //       SCPEnvelope envelope;
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.union("StellarMessage", {
+	    switchOn: xdr.lookup("MessageType"),
+	    switchName: "type",
+	    switches: {
+	      errorMsg: "error",
+	      hello: "hello",
+	      dontHave: "dontHave",
+	      getPeer: xdr["void"](),
+	      peer: "peers",
+	      getTxSet: "txSetHash",
+	      txSet: "txSet",
+	      transaction: "transaction",
+	      getScpQuorumset: "qSetHash",
+	      scpQuorumset: "qSet",
+	      scpMessage: "envelope" },
+	    arms: {
+	      error: xdr.lookup("Error"),
+	      hello: xdr.lookup("Hello"),
+	      dontHave: xdr.lookup("DontHave"),
+	      peers: xdr.varArray(xdr.lookup("PeerAddress"), 2147483647),
+	      txSetHash: xdr.lookup("Uint256"),
+	      txSet: xdr.lookup("TransactionSet"),
+	      transaction: xdr.lookup("TransactionEnvelope"),
+	      qSetHash: xdr.lookup("Uint256"),
+	      qSet: xdr.lookup("ScpQuorumSet"),
+	      envelope: xdr.lookup("ScpEnvelope") } });
+
+	  // === xdr source ============================================================
+	  //
+	  //   struct DecoratedSignature
+	  //   {
+	  //       opaque hint[4];    // first 4 bytes of the public key, used as a hint
+	  //       uint512 signature; // actual signature
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.struct("DecoratedSignature", [["hint", xdr.opaque(4)], ["signature", xdr.lookup("Uint512")]]);
+
+	  // === xdr source ============================================================
+	  //
+	  //   enum OperationType
+	  //   {
+	  //       PAYMENT = 0,
+	  //       CREATE_OFFER = 1,
+	  //       SET_OPTIONS = 2,
+	  //       CHANGE_TRUST = 3,
+	  //       ALLOW_TRUST = 4,
+	  //       ACCOUNT_MERGE = 5,
+	  //       INFLATION = 6
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr["enum"]("OperationType", {
+	    payment: 0,
+	    createOffer: 1,
+	    setOption: 2,
+	    changeTrust: 3,
+	    allowTrust: 4,
+	    accountMerge: 5,
+	    inflation: 6 });
+
+	  // === xdr source ============================================================
+	  //
+	  //   struct PaymentOp
+	  //   {
+	  //       AccountID destination; // recipient of the payment
+	  //       Currency currency;     // what they end up with
+	  //       int64 amount;          // amount they end up with
+	  //  
+	  //       opaque memo<32>;
+	  //       opaque sourceMemo<32>; // used to return a payment
+	  //  
+	  //       // payment over path
+	  //       Currency path<5>; // what hops it must go through to get there
+	  //       int64 sendMax; // the maximum amount of the source currency (==path[0]) to
+	  //                      // send (excluding fees).
+	  //                      // The operation will fail if can't be met
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.struct("PaymentOp", [["destination", xdr.lookup("AccountId")], ["currency", xdr.lookup("Currency")], ["amount", xdr.lookup("Int64")], ["memo", xdr.varOpaque(32)], ["sourceMemo", xdr.varOpaque(32)], ["path", xdr.varArray(xdr.lookup("Currency"), 5)], ["sendMax", xdr.lookup("Int64")]]);
+
+	  // === xdr source ============================================================
+	  //
+	  //   struct CreateOfferOp
+	  //   {
+	  //       Currency takerGets;
+	  //       Currency takerPays;
+	  //       int64 amount; // amount taker gets. if set to 0, delete the offer
+	  //       Price price;  // =takerPaysAmount/takerGetsAmount
+	  //  
+	  //       // 0=create a new offer, otherwise edit an existing offer
+	  //       uint64 offerID;
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.struct("CreateOfferOp", [["takerGets", xdr.lookup("Currency")], ["takerPays", xdr.lookup("Currency")], ["amount", xdr.lookup("Int64")], ["price", xdr.lookup("Price")], ["offerId", xdr.lookup("Uint64")]]);
+
+	  // === xdr source ============================================================
+	  //
+	  //   struct SetOptionsOp
+	  //   {
+	  //       AccountID* inflationDest; // sets the inflation destination
+	  //  
+	  //       uint32* clearFlags; // which flags to clear
+	  //       uint32* setFlags;   // which flags to set
+	  //  
+	  //       Thresholds* thresholds; // update the thresholds for the account
+	  //  
+	  //       // Add, update or remove a signer for the account
+	  //       // signer is deleted if the weight is 0
+	  //       Signer* signer;
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.struct("SetOptionsOp", [["inflationDest", xdr.option(xdr.lookup("AccountId"))], ["clearFlags", xdr.option(xdr.lookup("Uint32"))], ["setFlags", xdr.option(xdr.lookup("Uint32"))], ["thresholds", xdr.option(xdr.lookup("Thresholds"))], ["signer", xdr.option(xdr.lookup("Signer"))]]);
+
+	  // === xdr source ============================================================
+	  //
+	  //   struct ChangeTrustOp
+	  //   {
+	  //       Currency line;
+	  //  
+	  //       // if limit is set to 0, deletes the trust line
+	  //       int64 limit;
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.struct("ChangeTrustOp", [["line", xdr.lookup("Currency")], ["limit", xdr.lookup("Int64")]]);
+
+	  // === xdr source ============================================================
+	  //
+	  //   union switch (CurrencyType type)
+	  //       {
+	  //       // NATIVE is not allowed
+	  //       case ISO4217:
+	  //           opaque currencyCode[4];
+	  //  
+	  //           // add other currency types here in the future
+	  //       }
+	  //
+	  // ===========================================================================
+	  xdr.union("AllowTrustOpCurrency", {
+	    switchOn: xdr.lookup("CurrencyType"),
+	    switchName: "type",
+	    switches: {
+	      iso4217: "currencyCode" },
+	    arms: {
+	      currencyCode: xdr.opaque(4) } });
+
+	  // === xdr source ============================================================
+	  //
+	  //   struct AllowTrustOp
+	  //   {
+	  //       AccountID trustor;
+	  //       union switch (CurrencyType type)
+	  //       {
+	  //       // NATIVE is not allowed
+	  //       case ISO4217:
+	  //           opaque currencyCode[4];
+	  //  
+	  //           // add other currency types here in the future
+	  //       }
+	  //       currency;
+	  //  
+	  //       bool authorize;
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.struct("AllowTrustOp", [["trustor", xdr.lookup("AccountId")], ["currency", xdr.lookup("AllowTrustOpCurrency")], ["authorize", xdr.bool()]]);
+
+	  // === xdr source ============================================================
+	  //
+	  //   union switch (OperationType type)
+	  //       {
+	  //       case PAYMENT:
+	  //           PaymentOp paymentOp;
+	  //       case CREATE_OFFER:
+	  //           CreateOfferOp createOfferOp;
+	  //       case SET_OPTIONS:
+	  //           SetOptionsOp setOptionsOp;
+	  //       case CHANGE_TRUST:
+	  //           ChangeTrustOp changeTrustOp;
+	  //       case ALLOW_TRUST:
+	  //           AllowTrustOp allowTrustOp;
+	  //       case ACCOUNT_MERGE:
+	  //           uint256 destination;
+	  //       case INFLATION:
+	  //           uint32 inflationSeq;
+	  //       }
+	  //
+	  // ===========================================================================
+	  xdr.union("OperationBody", {
+	    switchOn: xdr.lookup("OperationType"),
+	    switchName: "type",
+	    switches: {
+	      payment: "paymentOp",
+	      createOffer: "createOfferOp",
+	      setOption: "setOptionsOp",
+	      changeTrust: "changeTrustOp",
+	      allowTrust: "allowTrustOp",
+	      accountMerge: "destination",
+	      inflation: "inflationSeq" },
+	    arms: {
+	      paymentOp: xdr.lookup("PaymentOp"),
+	      createOfferOp: xdr.lookup("CreateOfferOp"),
+	      setOptionsOp: xdr.lookup("SetOptionsOp"),
+	      changeTrustOp: xdr.lookup("ChangeTrustOp"),
+	      allowTrustOp: xdr.lookup("AllowTrustOp"),
+	      destination: xdr.lookup("Uint256"),
+	      inflationSeq: xdr.lookup("Uint32") } });
+
+	  // === xdr source ============================================================
+	  //
+	  //   struct Operation
+	  //   {
+	  //       // sourceAccount is the account used to run the operation
+	  //       // if not set, the runtime defaults to "account" specified at
+	  //       // the transaction level
+	  //       AccountID* sourceAccount;
+	  //  
+	  //       union switch (OperationType type)
+	  //       {
+	  //       case PAYMENT:
+	  //           PaymentOp paymentOp;
+	  //       case CREATE_OFFER:
+	  //           CreateOfferOp createOfferOp;
+	  //       case SET_OPTIONS:
+	  //           SetOptionsOp setOptionsOp;
+	  //       case CHANGE_TRUST:
+	  //           ChangeTrustOp changeTrustOp;
+	  //       case ALLOW_TRUST:
+	  //           AllowTrustOp allowTrustOp;
+	  //       case ACCOUNT_MERGE:
+	  //           uint256 destination;
+	  //       case INFLATION:
+	  //           uint32 inflationSeq;
+	  //       }
+	  //       body;
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.struct("Operation", [["sourceAccount", xdr.option(xdr.lookup("AccountId"))], ["body", xdr.lookup("OperationBody")]]);
+
+	  // === xdr source ============================================================
+	  //
+	  //   struct Transaction
+	  //   {
+	  //       // account used to run the transaction
+	  //       AccountID sourceAccount;
+	  //  
+	  //       // maximum fee this transaction can collect
+	  //       // the transaction is aborted if the fee is higher
+	  //       int32 maxFee;
+	  //  
+	  //       // sequence number to consume in the account
+	  //       SequenceNumber seqNum;
+	  //  
+	  //       // validity range (inclusive) for the ledger sequence number
+	  //       uint32 minLedger;
+	  //       uint32 maxLedger;
+	  //  
+	  //       Operation operations<100>;
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.struct("Transaction", [["sourceAccount", xdr.lookup("AccountId")], ["maxFee", xdr.lookup("Int32")], ["seqNum", xdr.lookup("SequenceNumber")], ["minLedger", xdr.lookup("Uint32")], ["maxLedger", xdr.lookup("Uint32")], ["operations", xdr.varArray(xdr.lookup("Operation"), 100)]]);
+
+	  // === xdr source ============================================================
+	  //
+	  //   struct TransactionEnvelope
+	  //   {
+	  //       Transaction tx;
+	  //       DecoratedSignature signatures<20>;
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.struct("TransactionEnvelope", [["tx", xdr.lookup("Transaction")], ["signatures", xdr.varArray(xdr.lookup("DecoratedSignature"), 20)]]);
+
+	  // === xdr source ============================================================
+	  //
+	  //   struct ClaimOfferAtom
+	  //   {
+	  //       // emited to identify the offer
+	  //       AccountID offerOwner; // Account that owns the offer
+	  //       uint64 offerID;
+	  //  
+	  //       // amount and currency taken from the owner
+	  //       Currency currencyClaimed;
+	  //       int64 amountClaimed;
+	  //  
+	  //       // should we also include the amount that the owner gets in return?
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.struct("ClaimOfferAtom", [["offerOwner", xdr.lookup("AccountId")], ["offerId", xdr.lookup("Uint64")], ["currencyClaimed", xdr.lookup("Currency")], ["amountClaimed", xdr.lookup("Int64")]]);
+
+	  // === xdr source ============================================================
+	  //
+	  //   enum PaymentResultCode
+	  //   {
+	  //       // codes considered as "success" for the operation
+	  //       PAYMENT_SUCCESS = 0,       // simple payment success
+	  //       PAYMENT_SUCCESS_MULTI = 1, // multi-path payment success
+	  //  
+	  //       // codes considered as "failure" for the operation
+	  //       PAYMENT_MALFORMED = -1,      // bad input
+	  //       PAYMENT_UNDERFUNDED = -2,    // not enough funds in source account
+	  //       PAYMENT_NO_DESTINATION = -3, // destination account does not exist
+	  //       PAYMENT_NO_TRUST = -4, // destination missing a trust line for currency
+	  //       PAYMENT_NOT_AUTHORIZED = -5, // destination not authorized to hold currency
+	  //       PAYMENT_LINE_FULL = -6,      // destination would go above their limit
+	  //       PAYMENT_TOO_FEW_OFFERS = -7, // not enough offers to satisfy path payment
+	  //       PAYMENT_OVER_SENDMAX = -8,   // multi-path payment could not satisfy sendmax
+	  //       PAYMENT_LOW_RESERVE = -9 // would create an account below the min reserve
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr["enum"]("PaymentResultCode", {
+	    paymentSuccess: 0,
+	    paymentSuccessMulti: 1,
+	    paymentMalformed: -1,
+	    paymentUnderfunded: -2,
+	    paymentNoDestination: -3,
+	    paymentNoTrust: -4,
+	    paymentNotAuthorized: -5,
+	    paymentLineFull: -6,
+	    paymentTooFewOffer: -7,
+	    paymentOverSendmax: -8,
+	    paymentLowReserve: -9 });
+
+	  // === xdr source ============================================================
+	  //
+	  //   struct SimplePaymentResult
+	  //   {
+	  //       AccountID destination;
+	  //       Currency currency;
+	  //       int64 amount;
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.struct("SimplePaymentResult", [["destination", xdr.lookup("AccountId")], ["currency", xdr.lookup("Currency")], ["amount", xdr.lookup("Int64")]]);
+
+	  // === xdr source ============================================================
+	  //
+	  //   struct PaymentSuccessMultiResult
+	  //   {
+	  //       ClaimOfferAtom offers<>;
+	  //       SimplePaymentResult last;
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.struct("PaymentSuccessMultiResult", [["offers", xdr.varArray(xdr.lookup("ClaimOfferAtom"), 2147483647)], ["last", xdr.lookup("SimplePaymentResult")]]);
+
+	  // === xdr source ============================================================
+	  //
+	  //   union PaymentResult switch (PaymentResultCode code)
+	  //   {
+	  //   case PAYMENT_SUCCESS:
+	  //       void;
+	  //   case PAYMENT_SUCCESS_MULTI:
+	  //       PaymentSuccessMultiResult multi;
+	  //   default:
+	  //       void;
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.union("PaymentResult", {
+	    switchOn: xdr.lookup("PaymentResultCode"),
+	    switchName: "code",
+	    switches: {
+	      paymentSuccess: xdr["void"](),
+	      paymentSuccessMulti: "multi" },
+	    arms: {
+	      multi: xdr.lookup("PaymentSuccessMultiResult") },
+	    defaultArm: xdr["void"]() });
+
+	  // === xdr source ============================================================
+	  //
+	  //   enum CreateOfferResultCode
+	  //   {
+	  //       // codes considered as "success" for the operation
+	  //       CREATE_OFFER_SUCCESS = 0,
+	  //  
+	  //       // codes considered as "failure" for the operation
+	  //       CREATE_OFFER_MALFORMED = -1,      // generated offer would be invalid
+	  //       CREATE_OFFER_NO_TRUST = -2,       // can't hold what it's buying
+	  //       CREATE_OFFER_NOT_AUTHORIZED = -3, // not authorized to hold what it's buying
+	  //       CREATE_OFFER_LINE_FULL = -4,      // can't receive more of what it's buying
+	  //       CREATE_OFFER_UNDERFUNDED = -5,    // doesn't hold what it's trying to sell
+	  //       CREATE_OFFER_CROSS_SELF = -6,     // would cross an offer from the same user
+	  //  
+	  //       // update errors
+	  //       CREATE_OFFER_NOT_FOUND = -7, // offerID does not match an existing offer
+	  //       CREATE_OFFER_MISMATCH = -8,  // currencies don't match offer
+	  //  
+	  //       CREATE_OFFER_LOW_RESERVE = -9 // not enough funds to create a new Offer
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr["enum"]("CreateOfferResultCode", {
+	    createOfferSuccess: 0,
+	    createOfferMalformed: -1,
+	    createOfferNoTrust: -2,
+	    createOfferNotAuthorized: -3,
+	    createOfferLineFull: -4,
+	    createOfferUnderfunded: -5,
+	    createOfferCrossSelf: -6,
+	    createOfferNotFound: -7,
+	    createOfferMismatch: -8,
+	    createOfferLowReserve: -9 });
+
+	  // === xdr source ============================================================
+	  //
+	  //   enum CreateOfferEffect
+	  //   {
+	  //       CREATE_OFFER_CREATED = 0,
+	  //       CREATE_OFFER_UPDATED = 1,
+	  //       CREATE_OFFER_DELETED = 2
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr["enum"]("CreateOfferEffect", {
+	    createOfferCreated: 0,
+	    createOfferUpdated: 1,
+	    createOfferDeleted: 2 });
+
+	  // === xdr source ============================================================
+	  //
+	  //   union switch (CreateOfferEffect effect)
+	  //       {
+	  //       case CREATE_OFFER_CREATED:
+	  //       case CREATE_OFFER_UPDATED:
+	  //           OfferEntry offer;
+	  //       default:
+	  //           void;
+	  //       }
+	  //
+	  // ===========================================================================
+	  xdr.union("CreateOfferSuccessResultOffer", {
+	    switchOn: xdr.lookup("CreateOfferEffect"),
+	    switchName: "effect",
+	    switches: {
+	      createOfferCreated: "offer",
+	      createOfferUpdated: "offer" },
+	    arms: {
+	      offer: xdr.lookup("OfferEntry") },
+	    defaultArm: xdr["void"]() });
+
+	  // === xdr source ============================================================
+	  //
+	  //   struct CreateOfferSuccessResult
+	  //   {
+	  //       // offers that got claimed while creating this offer
+	  //       ClaimOfferAtom offersClaimed<>;
+	  //  
+	  //       union switch (CreateOfferEffect effect)
+	  //       {
+	  //       case CREATE_OFFER_CREATED:
+	  //       case CREATE_OFFER_UPDATED:
+	  //           OfferEntry offer;
+	  //       default:
+	  //           void;
+	  //       }
+	  //       offer;
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.struct("CreateOfferSuccessResult", [["offersClaimed", xdr.varArray(xdr.lookup("ClaimOfferAtom"), 2147483647)], ["offer", xdr.lookup("CreateOfferSuccessResultOffer")]]);
+
+	  // === xdr source ============================================================
+	  //
+	  //   union CreateOfferResult switch (CreateOfferResultCode code)
+	  //   {
+	  //   case CREATE_OFFER_SUCCESS:
+	  //       CreateOfferSuccessResult success;
+	  //   default:
+	  //       void;
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.union("CreateOfferResult", {
+	    switchOn: xdr.lookup("CreateOfferResultCode"),
+	    switchName: "code",
+	    switches: {
+	      createOfferSuccess: "success" },
+	    arms: {
+	      success: xdr.lookup("CreateOfferSuccessResult") },
+	    defaultArm: xdr["void"]() });
+
+	  // === xdr source ============================================================
+	  //
+	  //   enum SetOptionsResultCode
+	  //   {
+	  //       // codes considered as "success" for the operation
+	  //       SET_OPTIONS_SUCCESS = 0,
+	  //       // codes considered as "failure" for the operation
+	  //       SET_OPTIONS_LOW_RESERVE = -1,      // not enough funds to add a signer
+	  //       SET_OPTIONS_TOO_MANY_SIGNERS = -2, // max number of signers already reached
+	  //       SET_OPTIONS_BAD_FLAGS = -3,        // invalid combination of clear/set flags
+	  //       SET_OPTIONS_INVALID_INFLATION = -4 // inflation account does not exist
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr["enum"]("SetOptionsResultCode", {
+	    setOptionsSuccess: 0,
+	    setOptionsLowReserve: -1,
+	    setOptionsTooManySigner: -2,
+	    setOptionsBadFlag: -3,
+	    setOptionsInvalidInflation: -4 });
+
+	  // === xdr source ============================================================
+	  //
+	  //   union SetOptionsResult switch (SetOptionsResultCode code)
+	  //   {
+	  //   case SET_OPTIONS_SUCCESS:
+	  //       void;
+	  //   default:
+	  //       void;
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.union("SetOptionsResult", {
+	    switchOn: xdr.lookup("SetOptionsResultCode"),
+	    switchName: "code",
+	    switches: {
+	      setOptionsSuccess: xdr["void"]() },
+	    arms: {},
+	    defaultArm: xdr["void"]() });
+
+	  // === xdr source ============================================================
+	  //
+	  //   enum ChangeTrustResultCode
+	  //   {
+	  //       // codes considered as "success" for the operation
+	  //       CHANGE_TRUST_SUCCESS = 0,
+	  //       // codes considered as "failure" for the operation
+	  //       CHANGE_TRUST_MALFORMED = -1,     // bad input
+	  //       CHANGE_TRUST_NO_ISSUER = -2,     // could not find issuer
+	  //       CHANGE_TRUST_INVALID_LIMIT = -3, // cannot drop limit below balance
+	  //       CHANGE_TRUST_LOW_RESERVE = -4 // not enough funds to create a new trust line
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr["enum"]("ChangeTrustResultCode", {
+	    changeTrustSuccess: 0,
+	    changeTrustMalformed: -1,
+	    changeTrustNoIssuer: -2,
+	    changeTrustInvalidLimit: -3,
+	    changeTrustLowReserve: -4 });
+
+	  // === xdr source ============================================================
+	  //
+	  //   union ChangeTrustResult switch (ChangeTrustResultCode code)
+	  //   {
+	  //   case CHANGE_TRUST_SUCCESS:
+	  //       void;
+	  //   default:
+	  //       void;
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.union("ChangeTrustResult", {
+	    switchOn: xdr.lookup("ChangeTrustResultCode"),
+	    switchName: "code",
+	    switches: {
+	      changeTrustSuccess: xdr["void"]() },
+	    arms: {},
+	    defaultArm: xdr["void"]() });
+
+	  // === xdr source ============================================================
+	  //
+	  //   enum AllowTrustResultCode
+	  //   {
+	  //       // codes considered as "success" for the operation
+	  //       ALLOW_TRUST_SUCCESS = 0,
+	  //       // codes considered as "failure" for the operation
+	  //       ALLOW_TRUST_MALFORMED = -1,         // currency is not ISO4217
+	  //       ALLOW_TRUST_NO_TRUST_LINE = -2,     // trustor does not have a trustline
+	  //       ALLOW_TRUST_TRUST_NOT_REQUIRED = -3 // source account does not require trust
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr["enum"]("AllowTrustResultCode", {
+	    allowTrustSuccess: 0,
+	    allowTrustMalformed: -1,
+	    allowTrustNoTrustLine: -2,
+	    allowTrustTrustNotRequired: -3 });
+
+	  // === xdr source ============================================================
+	  //
+	  //   union AllowTrustResult switch (AllowTrustResultCode code)
+	  //   {
+	  //   case ALLOW_TRUST_SUCCESS:
+	  //       void;
+	  //   default:
+	  //       void;
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.union("AllowTrustResult", {
+	    switchOn: xdr.lookup("AllowTrustResultCode"),
+	    switchName: "code",
+	    switches: {
+	      allowTrustSuccess: xdr["void"]() },
+	    arms: {},
+	    defaultArm: xdr["void"]() });
+
+	  // === xdr source ============================================================
+	  //
+	  //   enum AccountMergeResultCode
+	  //   {
+	  //       // codes considered as "success" for the operation
+	  //       ACCOUNT_MERGE_SUCCESS = 0,
+	  //       // codes considered as "failure" for the operation
+	  //       ACCOUNT_MERGE_MALFORMED = -1,  // can't merge onto itself
+	  //       ACCOUNT_MERGE_NO_ACCOUNT = -2, // destination does not exist
+	  //       ACCOUNT_MERGE_HAS_CREDIT = -3, // account has active trust lines
+	  //       ACCOUNT_MERGE_CREDIT_HELD = -4 // an issuer cannot be merged if used
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr["enum"]("AccountMergeResultCode", {
+	    accountMergeSuccess: 0,
+	    accountMergeMalformed: -1,
+	    accountMergeNoAccount: -2,
+	    accountMergeHasCredit: -3,
+	    accountMergeCreditHeld: -4 });
+
+	  // === xdr source ============================================================
+	  //
+	  //   union AccountMergeResult switch (AccountMergeResultCode code)
+	  //   {
+	  //   case ACCOUNT_MERGE_SUCCESS:
+	  //       void;
+	  //   default:
+	  //       void;
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.union("AccountMergeResult", {
+	    switchOn: xdr.lookup("AccountMergeResultCode"),
+	    switchName: "code",
+	    switches: {
+	      accountMergeSuccess: xdr["void"]() },
+	    arms: {},
+	    defaultArm: xdr["void"]() });
+
+	  // === xdr source ============================================================
+	  //
+	  //   enum InflationResultCode
+	  //   {
+	  //       // codes considered as "success" for the operation
+	  //       INFLATION_SUCCESS = 0,
+	  //       // codes considered as "failure" for the operation
+	  //       INFLATION_NOT_TIME = -1
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr["enum"]("InflationResultCode", {
+	    inflationSuccess: 0,
+	    inflationNotTime: -1 });
+
+	  // === xdr source ============================================================
+	  //
+	  //   struct inflationPayout // or use PaymentResultAtom to limit types?
+	  //   {
+	  //       AccountID destination;
+	  //       int64 amount;
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.struct("InflationPayout", [["destination", xdr.lookup("AccountId")], ["amount", xdr.lookup("Int64")]]);
+
+	  // === xdr source ============================================================
+	  //
+	  //   union InflationResult switch (InflationResultCode code)
+	  //   {
+	  //   case INFLATION_SUCCESS:
+	  //       inflationPayout payouts<>;
+	  //   default:
+	  //       void;
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.union("InflationResult", {
+	    switchOn: xdr.lookup("InflationResultCode"),
+	    switchName: "code",
+	    switches: {
+	      inflationSuccess: "payouts" },
+	    arms: {
+	      payouts: xdr.varArray(xdr.lookup("InflationPayout"), 2147483647) },
+	    defaultArm: xdr["void"]() });
+
+	  // === xdr source ============================================================
+	  //
+	  //   enum OperationResultCode
+	  //   {
+	  //       opINNER = 0, // inner object result is valid
+	  //  
+	  //       opBAD_AUTH = -1,  // not enough signatures to perform operation
+	  //       opNO_ACCOUNT = -2 // source account was not found
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr["enum"]("OperationResultCode", {
+	    opInner: 0,
+	    opBadAuth: -1,
+	    opNoAccount: -2 });
+
+	  // === xdr source ============================================================
+	  //
+	  //   union switch (OperationType type)
+	  //       {
+	  //       case PAYMENT:
+	  //           PaymentResult paymentResult;
+	  //       case CREATE_OFFER:
+	  //           CreateOfferResult createOfferResult;
+	  //       case SET_OPTIONS:
+	  //           SetOptionsResult setOptionsResult;
+	  //       case CHANGE_TRUST:
+	  //           ChangeTrustResult changeTrustResult;
+	  //       case ALLOW_TRUST:
+	  //           AllowTrustResult allowTrustResult;
+	  //       case ACCOUNT_MERGE:
+	  //           AccountMergeResult accountMergeResult;
+	  //       case INFLATION:
+	  //           InflationResult inflationResult;
+	  //       }
+	  //
+	  // ===========================================================================
+	  xdr.union("OperationResultTr", {
+	    switchOn: xdr.lookup("OperationType"),
+	    switchName: "type",
+	    switches: {
+	      payment: "paymentResult",
+	      createOffer: "createOfferResult",
+	      setOption: "setOptionsResult",
+	      changeTrust: "changeTrustResult",
+	      allowTrust: "allowTrustResult",
+	      accountMerge: "accountMergeResult",
+	      inflation: "inflationResult" },
+	    arms: {
+	      paymentResult: xdr.lookup("PaymentResult"),
+	      createOfferResult: xdr.lookup("CreateOfferResult"),
+	      setOptionsResult: xdr.lookup("SetOptionsResult"),
+	      changeTrustResult: xdr.lookup("ChangeTrustResult"),
+	      allowTrustResult: xdr.lookup("AllowTrustResult"),
+	      accountMergeResult: xdr.lookup("AccountMergeResult"),
+	      inflationResult: xdr.lookup("InflationResult") } });
+
+	  // === xdr source ============================================================
+	  //
+	  //   union OperationResult switch (OperationResultCode code)
+	  //   {
+	  //   case opINNER:
+	  //       union switch (OperationType type)
+	  //       {
+	  //       case PAYMENT:
+	  //           PaymentResult paymentResult;
+	  //       case CREATE_OFFER:
+	  //           CreateOfferResult createOfferResult;
+	  //       case SET_OPTIONS:
+	  //           SetOptionsResult setOptionsResult;
+	  //       case CHANGE_TRUST:
+	  //           ChangeTrustResult changeTrustResult;
+	  //       case ALLOW_TRUST:
+	  //           AllowTrustResult allowTrustResult;
+	  //       case ACCOUNT_MERGE:
+	  //           AccountMergeResult accountMergeResult;
+	  //       case INFLATION:
+	  //           InflationResult inflationResult;
+	  //       }
+	  //       tr;
+	  //   default:
+	  //       void;
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.union("OperationResult", {
+	    switchOn: xdr.lookup("OperationResultCode"),
+	    switchName: "code",
+	    switches: {
+	      opInner: "tr" },
+	    arms: {
+	      tr: xdr.lookup("OperationResultTr") },
+	    defaultArm: xdr["void"]() });
+
+	  // === xdr source ============================================================
+	  //
+	  //   enum TransactionResultCode
+	  //   {
+	  //       txSUCCESS = 0, // all operations succeeded
+	  //  
+	  //       txDUPLICATE = -1, // transaction was already submited
+	  //  
+	  //       txFAILED = -2, // one of the operations failed (but none were applied)
+	  //  
+	  //       txBAD_LEDGER = -3,        // ledger is not in range [minLeder; maxLedger]
+	  //       txMISSING_OPERATION = -4, // no operation was specified
+	  //       txBAD_SEQ = -5,           // sequence number does not match source account
+	  //  
+	  //       txBAD_AUTH = -6,             // not enough signatures to perform transaction
+	  //       txINSUFFICIENT_BALANCE = -7, // fee would bring account below reserve
+	  //       txNO_ACCOUNT = -8,           // source account not found
+	  //       txINSUFFICIENT_FEE = -9,     // max fee is too small
+	  //       txBAD_AUTH_EXTRA = -10,      // too many signatures on transaction
+	  //       txINTERNAL_ERROR = -11       // an unknown error occured
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr["enum"]("TransactionResultCode", {
+	    txSuccess: 0,
+	    txDuplicate: -1,
+	    txFailed: -2,
+	    txBadLedger: -3,
+	    txMissingOperation: -4,
+	    txBadSeq: -5,
+	    txBadAuth: -6,
+	    txInsufficientBalance: -7,
+	    txNoAccount: -8,
+	    txInsufficientFee: -9,
+	    txBadAuthExtra: -10,
+	    txInternalError: -11 });
+
+	  // === xdr source ============================================================
+	  //
+	  //   union switch (TransactionResultCode code)
+	  //       {
+	  //       case txSUCCESS:
+	  //       case txFAILED:
+	  //           OperationResult results<>;
+	  //       default:
+	  //           void;
+	  //       }
+	  //
+	  // ===========================================================================
+	  xdr.union("TransactionResultResult", {
+	    switchOn: xdr.lookup("TransactionResultCode"),
+	    switchName: "code",
+	    switches: {
+	      txSuccess: "results",
+	      txFailed: "results" },
+	    arms: {
+	      results: xdr.varArray(xdr.lookup("OperationResult"), 2147483647) },
+	    defaultArm: xdr["void"]() });
+
+	  // === xdr source ============================================================
+	  //
+	  //   struct TransactionResult
+	  //   {
+	  //       int64 feeCharged; // actual fee charged for the transaction
+	  //  
+	  //       union switch (TransactionResultCode code)
+	  //       {
+	  //       case txSUCCESS:
+	  //       case txFAILED:
+	  //           OperationResult results<>;
+	  //       default:
+	  //           void;
+	  //       }
+	  //       result;
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.struct("TransactionResult", [["feeCharged", xdr.lookup("Int64")], ["result", xdr.lookup("TransactionResultResult")]]);
+
+	  // === xdr source ============================================================
+	  //
+	  //   typedef opaque uint512[64];
+	  //
+	  // ===========================================================================
+	  xdr.typedef("Uint512", xdr.opaque(64));
+
+	  // === xdr source ============================================================
+	  //
+	  //   typedef opaque uint256[32];
+	  //
+	  // ===========================================================================
+	  xdr.typedef("Uint256", xdr.opaque(32));
+
+	  // === xdr source ============================================================
+	  //
+	  //   typedef unsigned hyper uint64;
+	  //
+	  // ===========================================================================
+	  xdr.typedef("Uint64", xdr.uhyper());
+
+	  // === xdr source ============================================================
+	  //
+	  //   typedef hyper int64;
+	  //
+	  // ===========================================================================
+	  xdr.typedef("Int64", xdr.hyper());
+
+	  // === xdr source ============================================================
+	  //
+	  //   typedef unsigned int uint32;
+	  //
+	  // ===========================================================================
+	  xdr.typedef("Uint32", xdr.uint());
+
+	  // === xdr source ============================================================
+	  //
+	  //   typedef int int32;
+	  //
+	  // ===========================================================================
+	  xdr.typedef("Int32", xdr.int());
+
+	  // === xdr source ============================================================
+	  //
+	  //   typedef opaque AccountID[32];
+	  //
+	  // ===========================================================================
+	  xdr.typedef("AccountId", xdr.opaque(32));
+
+	  // === xdr source ============================================================
+	  //
+	  //   typedef opaque Signature[64];
+	  //
+	  // ===========================================================================
+	  xdr.typedef("Signature", xdr.opaque(64));
+
+	  // === xdr source ============================================================
+	  //
+	  //   typedef opaque Hash[32];
+	  //
+	  // ===========================================================================
+	  xdr.typedef("Hash", xdr.opaque(32));
+
+	  // === xdr source ============================================================
+	  //
+	  //   typedef opaque Thresholds[4];
+	  //
+	  // ===========================================================================
+	  xdr.typedef("Thresholds", xdr.opaque(4));
+
+	  // === xdr source ============================================================
+	  //
+	  //   typedef uint64 SequenceNumber;
+	  //
+	  // ===========================================================================
+	  xdr.typedef("SequenceNumber", xdr.lookup("Uint64"));
+
+	  // === xdr source ============================================================
+	  //
+	  //   enum CurrencyType
+	  //   {
+	  //       NATIVE = 0,
+	  //       ISO4217 = 1
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr["enum"]("CurrencyType", {
+	    native: 0,
+	    iso4217: 1 });
+
+	  // === xdr source ============================================================
+	  //
+	  //   struct ISOCurrencyIssuer
+	  //   {
+	  //       opaque currencyCode[4];
+	  //       AccountID issuer;
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.struct("IsoCurrencyIssuer", [["currencyCode", xdr.opaque(4)], ["issuer", xdr.lookup("AccountId")]]);
+
+	  // === xdr source ============================================================
+	  //
+	  //   union Currency switch (CurrencyType type)
+	  //   {
+	  //   case NATIVE:
+	  //       void;
+	  //  
+	  //   case ISO4217:
+	  //       ISOCurrencyIssuer isoCI;
+	  //  
+	  //       // add other currency types here in the future
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.union("Currency", {
+	    switchOn: xdr.lookup("CurrencyType"),
+	    switchName: "type",
+	    switches: {
+	      native: xdr["void"](),
+	      iso4217: "isoCi" },
+	    arms: {
+	      isoCi: xdr.lookup("IsoCurrencyIssuer") } });
+
+	  // === xdr source ============================================================
+	  //
+	  //   struct Price
+	  //   {
+	  //       int32 n; // numerator
+	  //       int32 d; // denominator
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.struct("Price", [["n", xdr.lookup("Int32")], ["d", xdr.lookup("Int32")]]);
+	});
+	module.exports = types;
 
 /***/ },
 /* 18 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	exports.hash = hash;
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var sha256 = __webpack_require__(42).sha256;
+
+	function hash(data) {
+	  var hasher = new sha256();
+	  hasher.update(data, "utf8");
+	  return hasher.digest();
+	}
+
+/***/ },
+/* 19 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
+
+	exports.sign = sign;
+	exports.verify = verify;
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	//  This module provides the signing functionality used by the stellar network
+	//  The code below may look a little strange... this is because we try to provide
+	//  the most efficient signing method possible.  First, we try to load the
+	//  native ed25519 package for node.js environments, and if that fails we
+	//  fallback to tweetnacl.js
+
+	var actualMethods = {};
+
+	function sign(data, secretKey) {
+	  return actualMethods.sign(data, secretKey);
+	}
+
+	function verify(data, signature, publicKey) {
+	  return actualMethods.verify(data, signature, publicKey);
+	}
+
+	// if in node
+	if (typeof window === "undefined") {
+	  (function () {
+	    // NOTE: we use commonjs style require here because es6 imports
+	    // can only occur at the top level.  thanks, obama.
+	    var ed25519 = __webpack_require__(41);
+
+	    actualMethods.sign = function (data, secretKey) {
+	      data = new Buffer(data);
+	      return ed25519.Sign(data, secretKey);
+	    };
+
+	    actualMethods.verify = function (data, signature, publicKey) {
+	      data = new Buffer(data);
+	      try {
+	        return ed25519.Verify(data, signature, publicKey);
+	      } catch (e) {
+	        return false;
+	      }
+	    };
+	  })();
+	} else {
+	  (function () {
+	    // fallback to tweetnacl.js if we're in the browser
+	    var nacl = __webpack_require__(46);
+
+	    actualMethods.sign = function (data, secretKey) {
+	      data = new Buffer(data);
+	      data = new Uint8Array(data.toJSON().data);
+	      secretKey = new Uint8Array(secretKey.toJSON().data);
+
+	      var signature = nacl.sign.detached(data, secretKey);
+
+	      return new Buffer(signature);
+	    };
+
+	    actualMethods.verify = function (data, signature, publicKey) {
+	      data = new Buffer(data);
+	      data = new Uint8Array(data.toJSON().data);
+	      signature = new Uint8Array(signature.toJSON().data);
+	      publicKey = new Uint8Array(publicKey.toJSON().data);
+
+	      return nacl.sign.detached.verify(data, signature, publicKey);
+	    };
+	  })();
+	}
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15).Buffer))
+
+/***/ },
+/* 20 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
+
+	var _classCallCheck = __webpack_require__(30)["default"];
+
+	var _createClass = __webpack_require__(31)["default"];
+
+	var _interopRequireWildcard = __webpack_require__(28)["default"];
+
+	var _interopRequire = __webpack_require__(26)["default"];
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _signing = __webpack_require__(19);
+
+	var sign = _signing.sign;
+	var verify = _signing.verify;
+
+	var base58 = _interopRequireWildcard(__webpack_require__(21));
+
+	var xdr = _interopRequire(__webpack_require__(17));
+
+	var nacl = __webpack_require__(46);
+
+	var Keypair = exports.Keypair = (function () {
+	  function Keypair(keysAndSeed) {
+	    _classCallCheck(this, Keypair);
+
+	    this._publicKey = new Buffer(keysAndSeed.publicKey);
+
+	    if (keysAndSeed.secretSeed) {
+	      this._secretSeed = new Buffer(keysAndSeed.secretSeed);
+	      this._secretKey = new Buffer(keysAndSeed.secretKey);
+	    }
+	  }
+
+	  _createClass(Keypair, {
+	    publicKey: {
+	      value: function publicKey() {
+	        return this._publicKey;
+	      }
+	    },
+	    publicKeyHint: {
+	      value: function publicKeyHint() {
+	        return this._publicKey.slice(0, 4);
+	      }
+	    },
+	    address: {
+	      value: function address() {
+	        return base58.encodeBase58Check("accountId", this._publicKey);
+	      }
+	    },
+	    seed: {
+	      value: function seed() {
+	        return base58.encodeBase58Check("seed", this._secretSeed);
+	      }
+	    },
+	    rawSeed: {
+	      value: function rawSeed() {
+	        return this._secretSeed;
+	      }
+	    },
+	    canSign: {
+	      value: function canSign() {
+	        return !!this._secretKey;
+	      }
+	    },
+	    sign: {
+	      value: (function (_sign) {
+	        var _signWrapper = function sign(_x) {
+	          return _sign.apply(this, arguments);
+	        };
+
+	        _signWrapper.toString = function () {
+	          return _sign.toString();
+	        };
+
+	        return _signWrapper;
+	      })(function (data) {
+	        if (!this.canSign()) {
+	          throw new Error("cannot sign: no secret key available");
+	        }
+
+	        return sign(data, this._secretKey);
+	      })
+	    },
+	    signDecorated: {
+	      value: function signDecorated(data) {
+	        var signature = this.sign(data);
+	        var hint = this.publicKeyHint();
+
+	        return new xdr.DecoratedSignature({ hint: hint, signature: signature });
+	      }
+	    }
+	  }, {
+	    fromSeed: {
+	      value: function fromSeed(seed) {
+	        var rawSeed = base58.decodeBase58Check("seed", seed);
+	        return this.fromRawSeed(rawSeed);
+	      }
+	    },
+	    fromRawSeed: {
+	      value: function fromRawSeed(rawSeed) {
+	        rawSeed = new Buffer(rawSeed);
+	        var rawSeedU8 = new Uint8Array(rawSeed);
+	        var keys = nacl.sign.keyPair.fromSeed(rawSeedU8);
+	        keys.secretSeed = rawSeed;
+
+	        return new this(keys);
+	      }
+	    },
+	    master: {
+	      value: function master() {
+	        return this.fromRawSeed("allmylifemyhearthasbeensearching");
+	      }
+	    },
+	    fromAddress: {
+	      value: function fromAddress(address) {
+	        var publicKey = base58.decodeBase58Check("accountId", address);
+	        return new this({ publicKey: publicKey });
+	      }
+	    },
+	    random: {
+	      value: function random() {
+	        var seed = nacl.randomBytes(32);
+	        return this.fromRawSeed(seed);
+	      }
+	    }
+	  });
+
+	  return Keypair;
+	})();
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15).Buffer))
+
+/***/ },
+/* 21 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
+
+	var _interopRequire = __webpack_require__(26)["default"];
+
+	exports.decodeBase58 = decodeBase58;
+	exports.decodeBase58Check = decodeBase58Check;
+	exports.encodeBase58 = encodeBase58;
+	exports.encodeBase58Check = encodeBase58Check;
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var bs58 = _interopRequire(__webpack_require__(32));
+
+	var _lodash = __webpack_require__(43);
+
+	var isUndefined = _lodash.isUndefined;
+	var isNull = _lodash.isNull;
+
+	var hash = __webpack_require__(18).hash;
+
+	var nacl = __webpack_require__(46);
+
+	var versionBytes = {
+	  accountId: 0, // decimal 0
+	  none: 1, // decimal 1
+	  seed: 33 };
+
+	function decodeBase58(encoded) {
+	  return new Buffer(bs58.decode(encoded));
+	}
+
+	function decodeBase58Check(versionByteName, encoded) {
+	  var decoded = bs58.decode(encoded);
+	  var versionByte = decoded[0];
+	  var payload = decoded.slice(0, decoded.length - 4);
+	  var data = payload.slice(1);
+	  var checksum = decoded.slice(decoded.length - 4);
+
+	  var expectedVersion = versionBytes[versionByteName];
+
+	  if (isUndefined(expectedVersion)) {
+	    throw new Error("" + versionByteName + " is not a valid version byte name.  expected one of \"accountId\", \"seed\", or \"none\"");
+	  }
+
+	  if (versionByte !== expectedVersion) {
+	    throw new Error("invalid version byte.  expected " + expectedVersion + ", got " + versionByte);
+	  }
+
+	  var expectedChecksum = calculateChecksum(payload);
+
+	  if (!verifyChecksum(expectedChecksum, checksum)) {
+	    throw new Error("invalid checksum");
+	  }
+
+	  return new Buffer(data);
+	}
+
+	function encodeBase58(data) {
+	  if (isNull(data) || isUndefined(data)) {
+	    throw new Error("cannot encode null data");
+	  }
+
+	  return bs58.encode(data);
+	}
+
+	function encodeBase58Check(versionByteName, data) {
+	  if (isNull(data) || isUndefined(data)) {
+	    throw new Error("cannot encode null data");
+	  }
+
+	  var versionByte = versionBytes[versionByteName];
+
+	  if (isUndefined(versionByte)) {
+	    throw new Error("" + versionByteName + " is not a valid version byte name.  expected one of \"accountId\", \"seed\", or \"none\"");
+	  }
+
+	  data = new Buffer(data);
+	  var versionBuffer = new Buffer([versionByte]);
+	  var payload = Buffer.concat([versionBuffer, data]);
+	  var checksum = calculateChecksum(payload);
+	  var unencoded = Buffer.concat([payload, checksum]);
+
+	  return encodeBase58(unencoded);
+	}
+
+	function calculateChecksum(payload) {
+	  var inner = hash(payload);
+	  var outer = hash(inner);
+	  return outer.slice(0, 4);
+	}
+
+	function verifyChecksum(expected, actual) {
+	  if (expected.length !== actual.length) {
+	    return false;
+	  }
+
+	  if (expected.length === 0) {
+	    return true;
+	  }
+
+	  for (var i = 0; i < expected.length; i++) {
+	    if (expected[i] !== actual[i]) {
+	      return false;
+	    }
+	  }
+
+	  return true;
+	}
+	// decimal 33
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15).Buffer))
+
+/***/ },
+/* 22 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
@@ -4579,551 +6694,36 @@ var StellarLib =
 
 
 /***/ },
-/* 19 */
+/* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(global) {/**
-	 * Copyright (c) 2014, Facebook, Inc.
-	 * All rights reserved.
+	
+	/**
+	 * Reduce `arr` with `fn`.
 	 *
-	 * This source code is licensed under the BSD-style license found in the
-	 * https://raw.github.com/facebook/regenerator/master/LICENSE file. An
-	 * additional grant of patent rights can be found in the PATENTS file in
-	 * the same directory.
+	 * @param {Array} arr
+	 * @param {Function} fn
+	 * @param {Mixed} initial
+	 *
+	 * TODO: combatible error handling?
 	 */
 
-	!(function(global) {
-	  "use strict";
+	module.exports = function(arr, fn, initial){  
+	  var idx = 0;
+	  var len = arr.length;
+	  var curr = arguments.length == 3
+	    ? initial
+	    : arr[idx++];
 
-	  var hasOwn = Object.prototype.hasOwnProperty;
-	  var undefined; // More compressible than void 0.
-	  var iteratorSymbol =
-	    typeof Symbol === "function" && Symbol.iterator || "@@iterator";
-
-	  var inModule = typeof module === "object";
-	  var runtime = global.regeneratorRuntime;
-	  if (runtime) {
-	    if (inModule) {
-	      // If regeneratorRuntime is defined globally and we're in a module,
-	      // make the exports object identical to regeneratorRuntime.
-	      module.exports = runtime;
-	    }
-	    // Don't bother evaluating the rest of this file if the runtime was
-	    // already defined globally.
-	    return;
+	  while (idx < len) {
+	    curr = fn.call(null, curr, arr[idx], ++idx, arr);
 	  }
-
-	  // Define the runtime globally (as expected by generated code) as either
-	  // module.exports (if we're in a module) or a new, empty object.
-	  runtime = global.regeneratorRuntime = inModule ? module.exports : {};
-
-	  function wrap(innerFn, outerFn, self, tryLocsList) {
-	    return new Generator(innerFn, outerFn, self || null, tryLocsList || []);
-	  }
-	  runtime.wrap = wrap;
-
-	  // Try/catch helper to minimize deoptimizations. Returns a completion
-	  // record like context.tryEntries[i].completion. This interface could
-	  // have been (and was previously) designed to take a closure to be
-	  // invoked without arguments, but in all the cases we care about we
-	  // already have an existing method we want to call, so there's no need
-	  // to create a new function object. We can even get away with assuming
-	  // the method takes exactly one argument, since that happens to be true
-	  // in every case, so we don't have to touch the arguments object. The
-	  // only additional allocation required is the completion record, which
-	  // has a stable shape and so hopefully should be cheap to allocate.
-	  function tryCatch(fn, obj, arg) {
-	    try {
-	      return { type: "normal", arg: fn.call(obj, arg) };
-	    } catch (err) {
-	      return { type: "throw", arg: err };
-	    }
-	  }
-
-	  var GenStateSuspendedStart = "suspendedStart";
-	  var GenStateSuspendedYield = "suspendedYield";
-	  var GenStateExecuting = "executing";
-	  var GenStateCompleted = "completed";
-
-	  // Returning this object from the innerFn has the same effect as
-	  // breaking out of the dispatch switch statement.
-	  var ContinueSentinel = {};
-
-	  // Dummy constructor functions that we use as the .constructor and
-	  // .constructor.prototype properties for functions that return Generator
-	  // objects. For full spec compliance, you may wish to configure your
-	  // minifier not to mangle the names of these two functions.
-	  function GeneratorFunction() {}
-	  function GeneratorFunctionPrototype() {}
-
-	  var Gp = GeneratorFunctionPrototype.prototype = Generator.prototype;
-	  GeneratorFunction.prototype = Gp.constructor = GeneratorFunctionPrototype;
-	  GeneratorFunctionPrototype.constructor = GeneratorFunction;
-	  GeneratorFunction.displayName = "GeneratorFunction";
-
-	  runtime.isGeneratorFunction = function(genFun) {
-	    var ctor = typeof genFun === "function" && genFun.constructor;
-	    return ctor
-	      ? ctor === GeneratorFunction ||
-	        // For the native GeneratorFunction constructor, the best we can
-	        // do is to check its .name property.
-	        (ctor.displayName || ctor.name) === "GeneratorFunction"
-	      : false;
-	  };
-
-	  runtime.mark = function(genFun) {
-	    genFun.__proto__ = GeneratorFunctionPrototype;
-	    genFun.prototype = Object.create(Gp);
-	    return genFun;
-	  };
-
-	  runtime.async = function(innerFn, outerFn, self, tryLocsList) {
-	    return new Promise(function(resolve, reject) {
-	      var generator = wrap(innerFn, outerFn, self, tryLocsList);
-	      var callNext = step.bind(generator.next);
-	      var callThrow = step.bind(generator["throw"]);
-
-	      function step(arg) {
-	        var record = tryCatch(this, null, arg);
-	        if (record.type === "throw") {
-	          reject(record.arg);
-	          return;
-	        }
-
-	        var info = record.arg;
-	        if (info.done) {
-	          resolve(info.value);
-	        } else {
-	          Promise.resolve(info.value).then(callNext, callThrow);
-	        }
-	      }
-
-	      callNext();
-	    });
-	  };
-
-	  function Generator(innerFn, outerFn, self, tryLocsList) {
-	    var generator = outerFn ? Object.create(outerFn.prototype) : this;
-	    var context = new Context(tryLocsList);
-	    var state = GenStateSuspendedStart;
-
-	    function invoke(method, arg) {
-	      if (state === GenStateExecuting) {
-	        throw new Error("Generator is already running");
-	      }
-
-	      if (state === GenStateCompleted) {
-	        // Be forgiving, per 25.3.3.3.3 of the spec:
-	        // https://people.mozilla.org/~jorendorff/es6-draft.html#sec-generatorresume
-	        return doneResult();
-	      }
-
-	      while (true) {
-	        var delegate = context.delegate;
-	        if (delegate) {
-	          var record = tryCatch(
-	            delegate.iterator[method],
-	            delegate.iterator,
-	            arg
-	          );
-
-	          if (record.type === "throw") {
-	            context.delegate = null;
-
-	            // Like returning generator.throw(uncaught), but without the
-	            // overhead of an extra function call.
-	            method = "throw";
-	            arg = record.arg;
-
-	            continue;
-	          }
-
-	          // Delegate generator ran and handled its own exceptions so
-	          // regardless of what the method was, we continue as if it is
-	          // "next" with an undefined arg.
-	          method = "next";
-	          arg = undefined;
-
-	          var info = record.arg;
-	          if (info.done) {
-	            context[delegate.resultName] = info.value;
-	            context.next = delegate.nextLoc;
-	          } else {
-	            state = GenStateSuspendedYield;
-	            return info;
-	          }
-
-	          context.delegate = null;
-	        }
-
-	        if (method === "next") {
-	          if (state === GenStateSuspendedStart &&
-	              typeof arg !== "undefined") {
-	            // https://people.mozilla.org/~jorendorff/es6-draft.html#sec-generatorresume
-	            throw new TypeError(
-	              "attempt to send " + JSON.stringify(arg) + " to newborn generator"
-	            );
-	          }
-
-	          if (state === GenStateSuspendedYield) {
-	            context.sent = arg;
-	          } else {
-	            delete context.sent;
-	          }
-
-	        } else if (method === "throw") {
-	          if (state === GenStateSuspendedStart) {
-	            state = GenStateCompleted;
-	            throw arg;
-	          }
-
-	          if (context.dispatchException(arg)) {
-	            // If the dispatched exception was caught by a catch block,
-	            // then let that catch block handle the exception normally.
-	            method = "next";
-	            arg = undefined;
-	          }
-
-	        } else if (method === "return") {
-	          context.abrupt("return", arg);
-	        }
-
-	        state = GenStateExecuting;
-
-	        var record = tryCatch(innerFn, self, context);
-	        if (record.type === "normal") {
-	          // If an exception is thrown from innerFn, we leave state ===
-	          // GenStateExecuting and loop back for another invocation.
-	          state = context.done
-	            ? GenStateCompleted
-	            : GenStateSuspendedYield;
-
-	          var info = {
-	            value: record.arg,
-	            done: context.done
-	          };
-
-	          if (record.arg === ContinueSentinel) {
-	            if (context.delegate && method === "next") {
-	              // Deliberately forget the last sent value so that we don't
-	              // accidentally pass it on to the delegate.
-	              arg = undefined;
-	            }
-	          } else {
-	            return info;
-	          }
-
-	        } else if (record.type === "throw") {
-	          state = GenStateCompleted;
-
-	          if (method === "next") {
-	            context.dispatchException(record.arg);
-	          } else {
-	            arg = record.arg;
-	          }
-	        }
-	      }
-	    }
-
-	    generator.next = invoke.bind(generator, "next");
-	    generator["throw"] = invoke.bind(generator, "throw");
-	    generator["return"] = invoke.bind(generator, "return");
-
-	    return generator;
-	  }
-
-	  Gp[iteratorSymbol] = function() {
-	    return this;
-	  };
-
-	  Gp.toString = function() {
-	    return "[object Generator]";
-	  };
-
-	  function pushTryEntry(locs) {
-	    var entry = { tryLoc: locs[0] };
-
-	    if (1 in locs) {
-	      entry.catchLoc = locs[1];
-	    }
-
-	    if (2 in locs) {
-	      entry.finallyLoc = locs[2];
-	      entry.afterLoc = locs[3];
-	    }
-
-	    this.tryEntries.push(entry);
-	  }
-
-	  function resetTryEntry(entry) {
-	    var record = entry.completion || {};
-	    record.type = "normal";
-	    delete record.arg;
-	    entry.completion = record;
-	  }
-
-	  function Context(tryLocsList) {
-	    // The root entry object (effectively a try statement without a catch
-	    // or a finally block) gives us a place to store values thrown from
-	    // locations where there is no enclosing try statement.
-	    this.tryEntries = [{ tryLoc: "root" }];
-	    tryLocsList.forEach(pushTryEntry, this);
-	    this.reset();
-	  }
-
-	  runtime.keys = function(object) {
-	    var keys = [];
-	    for (var key in object) {
-	      keys.push(key);
-	    }
-	    keys.reverse();
-
-	    // Rather than returning an object with a next method, we keep
-	    // things simple and return the next function itself.
-	    return function next() {
-	      while (keys.length) {
-	        var key = keys.pop();
-	        if (key in object) {
-	          next.value = key;
-	          next.done = false;
-	          return next;
-	        }
-	      }
-
-	      // To avoid creating an additional object, we just hang the .value
-	      // and .done properties off the next function object itself. This
-	      // also ensures that the minifier will not anonymize the function.
-	      next.done = true;
-	      return next;
-	    };
-	  };
-
-	  function values(iterable) {
-	    if (iterable) {
-	      var iteratorMethod = iterable[iteratorSymbol];
-	      if (iteratorMethod) {
-	        return iteratorMethod.call(iterable);
-	      }
-
-	      if (typeof iterable.next === "function") {
-	        return iterable;
-	      }
-
-	      if (!isNaN(iterable.length)) {
-	        var i = -1, next = function next() {
-	          while (++i < iterable.length) {
-	            if (hasOwn.call(iterable, i)) {
-	              next.value = iterable[i];
-	              next.done = false;
-	              return next;
-	            }
-	          }
-
-	          next.value = undefined;
-	          next.done = true;
-
-	          return next;
-	        };
-
-	        return next.next = next;
-	      }
-	    }
-
-	    // Return an iterator with no values.
-	    return { next: doneResult };
-	  }
-	  runtime.values = values;
-
-	  function doneResult() {
-	    return { value: undefined, done: true };
-	  }
-
-	  Context.prototype = {
-	    constructor: Context,
-
-	    reset: function() {
-	      this.prev = 0;
-	      this.next = 0;
-	      this.sent = undefined;
-	      this.done = false;
-	      this.delegate = null;
-
-	      this.tryEntries.forEach(resetTryEntry);
-
-	      // Pre-initialize at least 20 temporary variables to enable hidden
-	      // class optimizations for simple generators.
-	      for (var tempIndex = 0, tempName;
-	           hasOwn.call(this, tempName = "t" + tempIndex) || tempIndex < 20;
-	           ++tempIndex) {
-	        this[tempName] = null;
-	      }
-	    },
-
-	    stop: function() {
-	      this.done = true;
-
-	      var rootEntry = this.tryEntries[0];
-	      var rootRecord = rootEntry.completion;
-	      if (rootRecord.type === "throw") {
-	        throw rootRecord.arg;
-	      }
-
-	      return this.rval;
-	    },
-
-	    dispatchException: function(exception) {
-	      if (this.done) {
-	        throw exception;
-	      }
-
-	      var context = this;
-	      function handle(loc, caught) {
-	        record.type = "throw";
-	        record.arg = exception;
-	        context.next = loc;
-	        return !!caught;
-	      }
-
-	      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-	        var entry = this.tryEntries[i];
-	        var record = entry.completion;
-
-	        if (entry.tryLoc === "root") {
-	          // Exception thrown outside of any try block that could handle
-	          // it, so set the completion value of the entire function to
-	          // throw the exception.
-	          return handle("end");
-	        }
-
-	        if (entry.tryLoc <= this.prev) {
-	          var hasCatch = hasOwn.call(entry, "catchLoc");
-	          var hasFinally = hasOwn.call(entry, "finallyLoc");
-
-	          if (hasCatch && hasFinally) {
-	            if (this.prev < entry.catchLoc) {
-	              return handle(entry.catchLoc, true);
-	            } else if (this.prev < entry.finallyLoc) {
-	              return handle(entry.finallyLoc);
-	            }
-
-	          } else if (hasCatch) {
-	            if (this.prev < entry.catchLoc) {
-	              return handle(entry.catchLoc, true);
-	            }
-
-	          } else if (hasFinally) {
-	            if (this.prev < entry.finallyLoc) {
-	              return handle(entry.finallyLoc);
-	            }
-
-	          } else {
-	            throw new Error("try statement without catch or finally");
-	          }
-	        }
-	      }
-	    },
-
-	    abrupt: function(type, arg) {
-	      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-	        var entry = this.tryEntries[i];
-	        if (entry.tryLoc <= this.prev &&
-	            hasOwn.call(entry, "finallyLoc") &&
-	            this.prev < entry.finallyLoc) {
-	          var finallyEntry = entry;
-	          break;
-	        }
-	      }
-
-	      if (finallyEntry &&
-	          (type === "break" ||
-	           type === "continue") &&
-	          finallyEntry.tryLoc <= arg &&
-	          arg < finallyEntry.finallyLoc) {
-	        // Ignore the finally entry if control is not jumping to a
-	        // location outside the try/catch block.
-	        finallyEntry = null;
-	      }
-
-	      var record = finallyEntry ? finallyEntry.completion : {};
-	      record.type = type;
-	      record.arg = arg;
-
-	      if (finallyEntry) {
-	        this.next = finallyEntry.finallyLoc;
-	      } else {
-	        this.complete(record);
-	      }
-
-	      return ContinueSentinel;
-	    },
-
-	    complete: function(record, afterLoc) {
-	      if (record.type === "throw") {
-	        throw record.arg;
-	      }
-
-	      if (record.type === "break" ||
-	          record.type === "continue") {
-	        this.next = record.arg;
-	      } else if (record.type === "return") {
-	        this.rval = record.arg;
-	        this.next = "end";
-	      } else if (record.type === "normal" && afterLoc) {
-	        this.next = afterLoc;
-	      }
-
-	      return ContinueSentinel;
-	    },
-
-	    finish: function(finallyLoc) {
-	      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-	        var entry = this.tryEntries[i];
-	        if (entry.finallyLoc === finallyLoc) {
-	          return this.complete(entry.completion, entry.afterLoc);
-	        }
-	      }
-	    },
-
-	    "catch": function(tryLoc) {
-	      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-	        var entry = this.tryEntries[i];
-	        if (entry.tryLoc === tryLoc) {
-	          var record = entry.completion;
-	          if (record.type === "throw") {
-	            var thrown = record.arg;
-	            resetTryEntry(entry);
-	          }
-	          return thrown;
-	        }
-	      }
-
-	      // The context.catch method must only be called with a location
-	      // argument that corresponds to a known catch block.
-	      throw new Error("illegal catch attempt");
-	    },
-
-	    delegateYield: function(iterable, resultName, nextLoc) {
-	      this.delegate = {
-	        iterator: values(iterable),
-	        resultName: resultName,
-	        nextLoc: nextLoc
-	      };
-
-	      return ContinueSentinel;
-	    }
-	  };
-	})(
-	  // Among the various tricks for obtaining a reference to the global
-	  // object, this seems to be the most reliable technique that does not
-	  // use indirect eval (which violates Content Security Policy).
-	  typeof global === "object" ? global :
-	  typeof window === "object" ? window : this
-	);
-
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
+	  
+	  return curr;
+	};
 
 /***/ },
-/* 20 */
+/* 24 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -7106,2013 +8706,764 @@ var StellarLib =
 	}(typeof self != 'undefined' && self.Math === Math ? self : Function('return this')(), true);
 
 /***/ },
-/* 21 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// Automatically generated on 2015-04-29T13:04:21-07:00
-	// DO NOT EDIT or your changes may be overwritten
-
-	/* jshint maxstatements:2147483647  */
-	/* jshint esnext:true  */
-
-	"use strict";
-
-	var _interopRequireWildcard = __webpack_require__(38)["default"];
-
-	var XDR = _interopRequireWildcard(__webpack_require__(39));
-
-	var types = XDR.config(function (xdr) {
-
-	  // === xdr source ============================================================
-	  //
-	  //   typedef opaque Signature[64];
-	  //
-	  // ===========================================================================
-	  xdr.typedef("Signature", xdr.opaque(64));
-
-	  // === xdr source ============================================================
-	  //
-	  //   typedef opaque Hash[32];
-	  //
-	  // ===========================================================================
-	  xdr.typedef("Hash", xdr.opaque(32));
-
-	  // === xdr source ============================================================
-	  //
-	  //   typedef opaque uint256[32];
-	  //
-	  // ===========================================================================
-	  xdr.typedef("Uint256", xdr.opaque(32));
-
-	  // === xdr source ============================================================
-	  //
-	  //   typedef unsigned int uint32;
-	  //
-	  // ===========================================================================
-	  xdr.typedef("Uint32", xdr.uint());
-
-	  // === xdr source ============================================================
-	  //
-	  //   typedef unsigned hyper uint64;
-	  //
-	  // ===========================================================================
-	  xdr.typedef("Uint64", xdr.uhyper());
-
-	  // === xdr source ============================================================
-	  //
-	  //   typedef opaque Value<>;
-	  //
-	  // ===========================================================================
-	  xdr.typedef("Value", xdr.varOpaque());
-
-	  // === xdr source ============================================================
-	  //
-	  //   typedef opaque Evidence<>;
-	  //
-	  // ===========================================================================
-	  xdr.typedef("Evidence", xdr.varOpaque());
-
-	  // === xdr source ============================================================
-	  //
-	  //   struct SCPBallot
-	  //   {
-	  //       uint32 counter; // n
-	  //       Value value;    // x
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr.struct("ScpBallot", [["counter", xdr.lookup("Uint32")], ["value", xdr.lookup("Value")]]);
-
-	  // === xdr source ============================================================
-	  //
-	  //   enum SCPStatementType
-	  //   {
-	  //       PREPARING = 0,
-	  //       PREPARED = 1,
-	  //       COMMITTING = 2,
-	  //       COMMITTED = 3
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr["enum"]("ScpStatementType", {
-	    preparing: 0,
-	    prepared: 1,
-	    committing: 2,
-	    committed: 3 });
-
-	  // === xdr source ============================================================
-	  //
-	  //   struct
-	  //           {
-	  //               SCPBallot excepted<>; // B_c
-	  //               SCPBallot* prepared;  // p
-	  //           }
-	  //
-	  // ===========================================================================
-	  xdr.struct("ScpStatementPrepare", [["excepted", xdr.varArray(xdr.lookup("ScpBallot"), 2147483647)], ["prepared", xdr.option(xdr.lookup("ScpBallot"))]]);
-
-	  // === xdr source ============================================================
-	  //
-	  //   union switch (SCPStatementType type)
-	  //       {
-	  //       case PREPARING:
-	  //           struct
-	  //           {
-	  //               SCPBallot excepted<>; // B_c
-	  //               SCPBallot* prepared;  // p
-	  //           } prepare;
-	  //       case PREPARED:
-	  //       case COMMITTING:
-	  //       case COMMITTED:
-	  //           void;
-	  //       }
-	  //
-	  // ===========================================================================
-	  xdr.union("ScpStatementPledges", {
-	    switchOn: xdr.lookup("ScpStatementType"),
-	    switchName: "type",
-	    switches: {
-	      preparing: "prepare",
-	      prepared: xdr["void"](),
-	      committing: xdr["void"](),
-	      committed: xdr["void"]() },
-	    arms: {
-	      prepare: xdr.lookup("ScpStatementPrepare") } });
-
-	  // === xdr source ============================================================
-	  //
-	  //   struct SCPStatement
-	  //   {
-	  //       uint64 slotIndex;   // i
-	  //       SCPBallot ballot;   // b
-	  //       Hash quorumSetHash; // D
-	  //  
-	  //       union switch (SCPStatementType type)
-	  //       {
-	  //       case PREPARING:
-	  //           struct
-	  //           {
-	  //               SCPBallot excepted<>; // B_c
-	  //               SCPBallot* prepared;  // p
-	  //           } prepare;
-	  //       case PREPARED:
-	  //       case COMMITTING:
-	  //       case COMMITTED:
-	  //           void;
-	  //       }
-	  //       pledges;
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr.struct("ScpStatement", [["slotIndex", xdr.lookup("Uint64")], ["ballot", xdr.lookup("ScpBallot")], ["quorumSetHash", xdr.lookup("Hash")], ["pledges", xdr.lookup("ScpStatementPledges")]]);
-
-	  // === xdr source ============================================================
-	  //
-	  //   struct SCPEnvelope
-	  //   {
-	  //       uint256 nodeID; // v
-	  //       SCPStatement statement;
-	  //       Signature signature;
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr.struct("ScpEnvelope", [["nodeId", xdr.lookup("Uint256")], ["statement", xdr.lookup("ScpStatement")], ["signature", xdr.lookup("Signature")]]);
-
-	  // === xdr source ============================================================
-	  //
-	  //   struct SCPQuorumSet
-	  //   {
-	  //       uint32 threshold;
-	  //       Hash validators<>;
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr.struct("ScpQuorumSet", [["threshold", xdr.lookup("Uint32")], ["validators", xdr.varArray(xdr.lookup("Hash"), 2147483647)]]);
-
-	  // === xdr source ============================================================
-	  //
-	  //   enum LedgerEntryType
-	  //   {
-	  //       ACCOUNT = 0,
-	  //       TRUSTLINE = 1,
-	  //       OFFER = 2
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr["enum"]("LedgerEntryType", {
-	    account: 0,
-	    trustline: 1,
-	    offer: 2 });
-
-	  // === xdr source ============================================================
-	  //
-	  //   struct Signer
-	  //   {
-	  //       uint256 pubKey;
-	  //       uint32 weight; // really only need 1byte
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr.struct("Signer", [["pubKey", xdr.lookup("Uint256")], ["weight", xdr.lookup("Uint32")]]);
-
-	  // === xdr source ============================================================
-	  //
-	  //   enum AccountFlags
-	  //   { // masks for each flag
-	  //       AUTH_REQUIRED_FLAG = 0x1
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr["enum"]("AccountFlags", {
-	    authRequiredFlag: 1 });
-
-	  // === xdr source ============================================================
-	  //
-	  //   struct AccountEntry
-	  //   {
-	  //       AccountID accountID;      // master public key for this account
-	  //       int64 balance;            // in stroops
-	  //       SequenceNumber seqNum;    // last sequence number used for this account
-	  //       uint32 numSubEntries;     // number of sub-entries this account has
-	  //                                 // drives the reserve
-	  //       AccountID* inflationDest; // Account to vote during inflation
-	  //       uint32 flags;             // see AccountFlags
-	  //  
-	  //       // fields used for signatures
-	  //       // thresholds stores unsigned bytes: [weight of master|low|medium|high]
-	  //       Thresholds thresholds;
-	  //  
-	  //       Signer signers<20>; // possible signers for this account
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr.struct("AccountEntry", [["accountId", xdr.lookup("AccountId")], ["balance", xdr.lookup("Int64")], ["seqNum", xdr.lookup("SequenceNumber")], ["numSubEntries", xdr.lookup("Uint32")], ["inflationDest", xdr.option(xdr.lookup("AccountId"))], ["flags", xdr.lookup("Uint32")], ["thresholds", xdr.lookup("Thresholds")], ["signers", xdr.varArray(xdr.lookup("Signer"), 20)]]);
-
-	  // === xdr source ============================================================
-	  //
-	  //   struct TrustLineEntry
-	  //   {
-	  //       AccountID accountID; // account this trustline belongs to
-	  //       Currency currency;   // currency (with issuer)
-	  //       int64 balance;       // how much of this currency the user has.
-	  //                            // Currency defines the unit for this;
-	  //  
-	  //       int64 limit;     // balance cannot be above this
-	  //       bool authorized; // issuer has authorized account to hold its credit
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr.struct("TrustLineEntry", [["accountId", xdr.lookup("AccountId")], ["currency", xdr.lookup("Currency")], ["balance", xdr.lookup("Int64")], ["limit", xdr.lookup("Int64")], ["authorized", xdr.bool()]]);
-
-	  // === xdr source ============================================================
-	  //
-	  //   struct OfferEntry
-	  //   {
-	  //       AccountID accountID;
-	  //       uint64 offerID;
-	  //       Currency takerGets; // A
-	  //       Currency takerPays; // B
-	  //       int64 amount;       // amount of A
-	  //  
-	  //       /* price for this offer:
-	  //           price of A in terms of B
-	  //           price=AmountB/AmountA=priceNumerator/priceDenominator
-	  //           price is after fees
-	  //       */
-	  //       Price price;
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr.struct("OfferEntry", [["accountId", xdr.lookup("AccountId")], ["offerId", xdr.lookup("Uint64")], ["takerGets", xdr.lookup("Currency")], ["takerPays", xdr.lookup("Currency")], ["amount", xdr.lookup("Int64")], ["price", xdr.lookup("Price")]]);
-
-	  // === xdr source ============================================================
-	  //
-	  //   union LedgerEntry switch (LedgerEntryType type)
-	  //   {
-	  //   case ACCOUNT:
-	  //       AccountEntry account;
-	  //  
-	  //   case TRUSTLINE:
-	  //       TrustLineEntry trustLine;
-	  //  
-	  //   case OFFER:
-	  //       OfferEntry offer;
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr.union("LedgerEntry", {
-	    switchOn: xdr.lookup("LedgerEntryType"),
-	    switchName: "type",
-	    switches: {
-	      account: "account",
-	      trustline: "trustLine",
-	      offer: "offer" },
-	    arms: {
-	      account: xdr.lookup("AccountEntry"),
-	      trustLine: xdr.lookup("TrustLineEntry"),
-	      offer: xdr.lookup("OfferEntry") } });
-
-	  // === xdr source ============================================================
-	  //
-	  //   struct LedgerHeader
-	  //   {
-	  //       Hash previousLedgerHash; // hash of the previous ledger header
-	  //       Hash txSetHash;          // the tx set that was SCP confirmed
-	  //       Hash txSetResultHash;    // the TransactionResultSet that led to this ledger
-	  //       Hash bucketListHash;     // hash of the ledger state
-	  //  
-	  //       uint32 ledgerSeq; // sequence number of this ledger
-	  //       uint64 closeTime; // network close time
-	  //  
-	  //       int64 totalCoins; // total number of stroops in existence
-	  //  
-	  //       int64 feePool;       // fees burned since last inflation run
-	  //       uint32 inflationSeq; // inflation sequence number
-	  //  
-	  //       uint64 idPool; // last used global ID, used for generating objects
-	  //  
-	  //       int32 baseFee;     // base fee per operation in stroops
-	  //       int32 baseReserve; // account base reserve in stroops
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr.struct("LedgerHeader", [["previousLedgerHash", xdr.lookup("Hash")], ["txSetHash", xdr.lookup("Hash")], ["txSetResultHash", xdr.lookup("Hash")], ["bucketListHash", xdr.lookup("Hash")], ["ledgerSeq", xdr.lookup("Uint32")], ["closeTime", xdr.lookup("Uint64")], ["totalCoins", xdr.lookup("Int64")], ["feePool", xdr.lookup("Int64")], ["inflationSeq", xdr.lookup("Uint32")], ["idPool", xdr.lookup("Uint64")], ["baseFee", xdr.lookup("Int32")], ["baseReserve", xdr.lookup("Int32")]]);
-
-	  // === xdr source ============================================================
-	  //
-	  //   struct
-	  //       {
-	  //           AccountID accountID;
-	  //       }
-	  //
-	  // ===========================================================================
-	  xdr.struct("LedgerKeyAccount", [["accountId", xdr.lookup("AccountId")]]);
-
-	  // === xdr source ============================================================
-	  //
-	  //   struct
-	  //       {
-	  //           AccountID accountID;
-	  //           Currency currency;
-	  //       }
-	  //
-	  // ===========================================================================
-	  xdr.struct("LedgerKeyTrustLine", [["accountId", xdr.lookup("AccountId")], ["currency", xdr.lookup("Currency")]]);
-
-	  // === xdr source ============================================================
-	  //
-	  //   struct
-	  //       {
-	  //           AccountID accountID;
-	  //           uint64 offerID;
-	  //       }
-	  //
-	  // ===========================================================================
-	  xdr.struct("LedgerKeyOffer", [["accountId", xdr.lookup("AccountId")], ["offerId", xdr.lookup("Uint64")]]);
-
-	  // === xdr source ============================================================
-	  //
-	  //   union LedgerKey switch (LedgerEntryType type)
-	  //   {
-	  //   case ACCOUNT:
-	  //       struct
-	  //       {
-	  //           AccountID accountID;
-	  //       } account;
-	  //  
-	  //   case TRUSTLINE:
-	  //       struct
-	  //       {
-	  //           AccountID accountID;
-	  //           Currency currency;
-	  //       } trustLine;
-	  //  
-	  //   case OFFER:
-	  //       struct
-	  //       {
-	  //           AccountID accountID;
-	  //           uint64 offerID;
-	  //       } offer;
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr.union("LedgerKey", {
-	    switchOn: xdr.lookup("LedgerEntryType"),
-	    switchName: "type",
-	    switches: {
-	      account: "account",
-	      trustline: "trustLine",
-	      offer: "offer" },
-	    arms: {
-	      account: xdr.lookup("LedgerKeyAccount"),
-	      trustLine: xdr.lookup("LedgerKeyTrustLine"),
-	      offer: xdr.lookup("LedgerKeyOffer") } });
-
-	  // === xdr source ============================================================
-	  //
-	  //   enum BucketEntryType
-	  //   {
-	  //       LIVEENTRY = 0,
-	  //       DEADENTRY = 1
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr["enum"]("BucketEntryType", {
-	    liveentry: 0,
-	    deadentry: 1 });
-
-	  // === xdr source ============================================================
-	  //
-	  //   union BucketEntry switch (BucketEntryType type)
-	  //   {
-	  //   case LIVEENTRY:
-	  //       LedgerEntry liveEntry;
-	  //  
-	  //   case DEADENTRY:
-	  //       LedgerKey deadEntry;
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr.union("BucketEntry", {
-	    switchOn: xdr.lookup("BucketEntryType"),
-	    switchName: "type",
-	    switches: {
-	      liveentry: "liveEntry",
-	      deadentry: "deadEntry" },
-	    arms: {
-	      liveEntry: xdr.lookup("LedgerEntry"),
-	      deadEntry: xdr.lookup("LedgerKey") } });
-
-	  // === xdr source ============================================================
-	  //
-	  //   struct TransactionSet
-	  //   {
-	  //       Hash previousLedgerHash;
-	  //       TransactionEnvelope txs<5000>;
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr.struct("TransactionSet", [["previousLedgerHash", xdr.lookup("Hash")], ["txes", xdr.varArray(xdr.lookup("TransactionEnvelope"), 5000)]]);
-
-	  // === xdr source ============================================================
-	  //
-	  //   struct TransactionResultPair
-	  //   {
-	  //       Hash transactionHash;
-	  //       TransactionResult result; // result for the transaction
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr.struct("TransactionResultPair", [["transactionHash", xdr.lookup("Hash")], ["result", xdr.lookup("TransactionResult")]]);
-
-	  // === xdr source ============================================================
-	  //
-	  //   struct TransactionResultSet
-	  //   {
-	  //       TransactionResultPair results<5000>;
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr.struct("TransactionResultSet", [["results", xdr.varArray(xdr.lookup("TransactionResultPair"), 5000)]]);
-
-	  // === xdr source ============================================================
-	  //
-	  //   struct TransactionMeta
-	  //   {
-	  //       BucketEntry entries<>;
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr.struct("TransactionMeta", [["entries", xdr.varArray(xdr.lookup("BucketEntry"), 2147483647)]]);
-
-	  // === xdr source ============================================================
-	  //
-	  //   struct TransactionHistoryEntry
-	  //   {
-	  //       uint32 ledgerSeq;
-	  //       TransactionSet txSet;
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr.struct("TransactionHistoryEntry", [["ledgerSeq", xdr.lookup("Uint32")], ["txSet", xdr.lookup("TransactionSet")]]);
-
-	  // === xdr source ============================================================
-	  //
-	  //   struct TransactionHistoryResultEntry
-	  //   {
-	  //       uint32 ledgerSeq;
-	  //       TransactionResultSet txResultSet;
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr.struct("TransactionHistoryResultEntry", [["ledgerSeq", xdr.lookup("Uint32")], ["txResultSet", xdr.lookup("TransactionResultSet")]]);
-
-	  // === xdr source ============================================================
-	  //
-	  //   struct LedgerHeaderHistoryEntry
-	  //   {
-	  //       Hash hash;
-	  //       LedgerHeader header;
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr.struct("LedgerHeaderHistoryEntry", [["hash", xdr.lookup("Hash")], ["header", xdr.lookup("LedgerHeader")]]);
-
-	  // === xdr source ============================================================
-	  //
-	  //   struct StellarBallotValue
-	  //   {
-	  //       Hash txSetHash;
-	  //       uint64 closeTime;
-	  //       uint32 baseFee;
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr.struct("StellarBallotValue", [["txSetHash", xdr.lookup("Hash")], ["closeTime", xdr.lookup("Uint64")], ["baseFee", xdr.lookup("Uint32")]]);
-
-	  // === xdr source ============================================================
-	  //
-	  //   struct StellarBallot
-	  //   {
-	  //       uint256 nodeID;
-	  //       Signature signature;
-	  //       StellarBallotValue value;
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr.struct("StellarBallot", [["nodeId", xdr.lookup("Uint256")], ["signature", xdr.lookup("Signature")], ["value", xdr.lookup("StellarBallotValue")]]);
-
-	  // === xdr source ============================================================
-	  //
-	  //   struct Error
-	  //   {
-	  //       int code;
-	  //       string msg<100>;
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr.struct("Error", [["code", xdr.int()], ["msg", xdr.string(100)]]);
-
-	  // === xdr source ============================================================
-	  //
-	  //   struct Hello
-	  //   {
-	  //       int protocolVersion;
-	  //       string versionStr<100>;
-	  //       int listeningPort;
-	  //       opaque peerID[32];
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr.struct("Hello", [["protocolVersion", xdr.int()], ["versionStr", xdr.string(100)], ["listeningPort", xdr.int()], ["peerId", xdr.opaque(32)]]);
-
-	  // === xdr source ============================================================
-	  //
-	  //   struct PeerAddress
-	  //   {
-	  //       opaque ip[4];
-	  //       uint32 port;
-	  //       uint32 numFailures;
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr.struct("PeerAddress", [["ip", xdr.opaque(4)], ["port", xdr.lookup("Uint32")], ["numFailures", xdr.lookup("Uint32")]]);
-
-	  // === xdr source ============================================================
-	  //
-	  //   enum MessageType
-	  //   {
-	  //       ERROR_MSG = 0,
-	  //       HELLO = 1,
-	  //       DONT_HAVE = 2,
-	  //  
-	  //       GET_PEERS = 3, // gets a list of peers this guy knows about
-	  //       PEERS = 4,
-	  //  
-	  //       GET_TX_SET = 5, // gets a particular txset by hash
-	  //       TX_SET = 6,
-	  //  
-	  //       TRANSACTION = 7, // pass on a tx you have heard about
-	  //  
-	  //       // SCP
-	  //       GET_SCP_QUORUMSET = 8,
-	  //       SCP_QUORUMSET = 9,
-	  //       SCP_MESSAGE = 10
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr["enum"]("MessageType", {
-	    errorMsg: 0,
-	    hello: 1,
-	    dontHave: 2,
-	    getPeer: 3,
-	    peer: 4,
-	    getTxSet: 5,
-	    txSet: 6,
-	    transaction: 7,
-	    getScpQuorumset: 8,
-	    scpQuorumset: 9,
-	    scpMessage: 10 });
-
-	  // === xdr source ============================================================
-	  //
-	  //   struct DontHave
-	  //   {
-	  //       MessageType type;
-	  //       uint256 reqHash;
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr.struct("DontHave", [["type", xdr.lookup("MessageType")], ["reqHash", xdr.lookup("Uint256")]]);
-
-	  // === xdr source ============================================================
-	  //
-	  //   union StellarMessage switch (MessageType type)
-	  //   {
-	  //   case ERROR_MSG:
-	  //       Error error;
-	  //   case HELLO:
-	  //       Hello hello;
-	  //   case DONT_HAVE:
-	  //       DontHave dontHave;
-	  //   case GET_PEERS:
-	  //       void;
-	  //   case PEERS:
-	  //       PeerAddress peers<>;
-	  //  
-	  //   case GET_TX_SET:
-	  //       uint256 txSetHash;
-	  //   case TX_SET:
-	  //       TransactionSet txSet;
-	  //  
-	  //   case TRANSACTION:
-	  //       TransactionEnvelope transaction;
-	  //  
-	  //   // SCP
-	  //   case GET_SCP_QUORUMSET:
-	  //       uint256 qSetHash;
-	  //   case SCP_QUORUMSET:
-	  //       SCPQuorumSet qSet;
-	  //   case SCP_MESSAGE:
-	  //       SCPEnvelope envelope;
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr.union("StellarMessage", {
-	    switchOn: xdr.lookup("MessageType"),
-	    switchName: "type",
-	    switches: {
-	      errorMsg: "error",
-	      hello: "hello",
-	      dontHave: "dontHave",
-	      getPeer: xdr["void"](),
-	      peer: "peers",
-	      getTxSet: "txSetHash",
-	      txSet: "txSet",
-	      transaction: "transaction",
-	      getScpQuorumset: "qSetHash",
-	      scpQuorumset: "qSet",
-	      scpMessage: "envelope" },
-	    arms: {
-	      error: xdr.lookup("Error"),
-	      hello: xdr.lookup("Hello"),
-	      dontHave: xdr.lookup("DontHave"),
-	      peers: xdr.varArray(xdr.lookup("PeerAddress"), 2147483647),
-	      txSetHash: xdr.lookup("Uint256"),
-	      txSet: xdr.lookup("TransactionSet"),
-	      transaction: xdr.lookup("TransactionEnvelope"),
-	      qSetHash: xdr.lookup("Uint256"),
-	      qSet: xdr.lookup("ScpQuorumSet"),
-	      envelope: xdr.lookup("ScpEnvelope") } });
-
-	  // === xdr source ============================================================
-	  //
-	  //   struct DecoratedSignature
-	  //   {
-	  //       opaque hint[4];    // first 4 bytes of the public key, used as a hint
-	  //       uint512 signature; // actual signature
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr.struct("DecoratedSignature", [["hint", xdr.opaque(4)], ["signature", xdr.lookup("Uint512")]]);
-
-	  // === xdr source ============================================================
-	  //
-	  //   enum OperationType
-	  //   {
-	  //       PAYMENT = 0,
-	  //       CREATE_OFFER = 1,
-	  //       SET_OPTIONS = 2,
-	  //       CHANGE_TRUST = 3,
-	  //       ALLOW_TRUST = 4,
-	  //       ACCOUNT_MERGE = 5,
-	  //       INFLATION = 6
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr["enum"]("OperationType", {
-	    payment: 0,
-	    createOffer: 1,
-	    setOption: 2,
-	    changeTrust: 3,
-	    allowTrust: 4,
-	    accountMerge: 5,
-	    inflation: 6 });
-
-	  // === xdr source ============================================================
-	  //
-	  //   struct PaymentOp
-	  //   {
-	  //       AccountID destination; // recipient of the payment
-	  //       Currency currency;     // what they end up with
-	  //       int64 amount;          // amount they end up with
-	  //  
-	  //       opaque memo<32>;
-	  //       opaque sourceMemo<32>; // used to return a payment
-	  //  
-	  //       // payment over path
-	  //       Currency path<5>; // what hops it must go through to get there
-	  //       int64 sendMax; // the maximum amount of the source currency (==path[0]) to
-	  //                      // send (excluding fees).
-	  //                      // The operation will fail if can't be met
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr.struct("PaymentOp", [["destination", xdr.lookup("AccountId")], ["currency", xdr.lookup("Currency")], ["amount", xdr.lookup("Int64")], ["memo", xdr.varOpaque(32)], ["sourceMemo", xdr.varOpaque(32)], ["path", xdr.varArray(xdr.lookup("Currency"), 5)], ["sendMax", xdr.lookup("Int64")]]);
-
-	  // === xdr source ============================================================
-	  //
-	  //   struct CreateOfferOp
-	  //   {
-	  //       Currency takerGets;
-	  //       Currency takerPays;
-	  //       int64 amount; // amount taker gets. if set to 0, delete the offer
-	  //       Price price;  // =takerPaysAmount/takerGetsAmount
-	  //  
-	  //       // 0=create a new offer, otherwise edit an existing offer
-	  //       uint64 offerID;
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr.struct("CreateOfferOp", [["takerGets", xdr.lookup("Currency")], ["takerPays", xdr.lookup("Currency")], ["amount", xdr.lookup("Int64")], ["price", xdr.lookup("Price")], ["offerId", xdr.lookup("Uint64")]]);
-
-	  // === xdr source ============================================================
-	  //
-	  //   struct SetOptionsOp
-	  //   {
-	  //       AccountID* inflationDest; // sets the inflation destination
-	  //  
-	  //       uint32* clearFlags; // which flags to clear
-	  //       uint32* setFlags;   // which flags to set
-	  //  
-	  //       Thresholds* thresholds; // update the thresholds for the account
-	  //  
-	  //       // Add, update or remove a signer for the account
-	  //       // signer is deleted if the weight is 0
-	  //       Signer* signer;
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr.struct("SetOptionsOp", [["inflationDest", xdr.option(xdr.lookup("AccountId"))], ["clearFlags", xdr.option(xdr.lookup("Uint32"))], ["setFlags", xdr.option(xdr.lookup("Uint32"))], ["thresholds", xdr.option(xdr.lookup("Thresholds"))], ["signer", xdr.option(xdr.lookup("Signer"))]]);
-
-	  // === xdr source ============================================================
-	  //
-	  //   struct ChangeTrustOp
-	  //   {
-	  //       Currency line;
-	  //  
-	  //       // if limit is set to 0, deletes the trust line
-	  //       int64 limit;
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr.struct("ChangeTrustOp", [["line", xdr.lookup("Currency")], ["limit", xdr.lookup("Int64")]]);
-
-	  // === xdr source ============================================================
-	  //
-	  //   union switch (CurrencyType type)
-	  //       {
-	  //       // NATIVE is not allowed
-	  //       case ISO4217:
-	  //           opaque currencyCode[4];
-	  //  
-	  //           // add other currency types here in the future
-	  //       }
-	  //
-	  // ===========================================================================
-	  xdr.union("AllowTrustOpCurrency", {
-	    switchOn: xdr.lookup("CurrencyType"),
-	    switchName: "type",
-	    switches: {
-	      iso4217: "currencyCode" },
-	    arms: {
-	      currencyCode: xdr.opaque(4) } });
-
-	  // === xdr source ============================================================
-	  //
-	  //   struct AllowTrustOp
-	  //   {
-	  //       AccountID trustor;
-	  //       union switch (CurrencyType type)
-	  //       {
-	  //       // NATIVE is not allowed
-	  //       case ISO4217:
-	  //           opaque currencyCode[4];
-	  //  
-	  //           // add other currency types here in the future
-	  //       }
-	  //       currency;
-	  //  
-	  //       bool authorize;
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr.struct("AllowTrustOp", [["trustor", xdr.lookup("AccountId")], ["currency", xdr.lookup("AllowTrustOpCurrency")], ["authorize", xdr.bool()]]);
-
-	  // === xdr source ============================================================
-	  //
-	  //   union switch (OperationType type)
-	  //       {
-	  //       case PAYMENT:
-	  //           PaymentOp paymentOp;
-	  //       case CREATE_OFFER:
-	  //           CreateOfferOp createOfferOp;
-	  //       case SET_OPTIONS:
-	  //           SetOptionsOp setOptionsOp;
-	  //       case CHANGE_TRUST:
-	  //           ChangeTrustOp changeTrustOp;
-	  //       case ALLOW_TRUST:
-	  //           AllowTrustOp allowTrustOp;
-	  //       case ACCOUNT_MERGE:
-	  //           uint256 destination;
-	  //       case INFLATION:
-	  //           uint32 inflationSeq;
-	  //       }
-	  //
-	  // ===========================================================================
-	  xdr.union("OperationBody", {
-	    switchOn: xdr.lookup("OperationType"),
-	    switchName: "type",
-	    switches: {
-	      payment: "paymentOp",
-	      createOffer: "createOfferOp",
-	      setOption: "setOptionsOp",
-	      changeTrust: "changeTrustOp",
-	      allowTrust: "allowTrustOp",
-	      accountMerge: "destination",
-	      inflation: "inflationSeq" },
-	    arms: {
-	      paymentOp: xdr.lookup("PaymentOp"),
-	      createOfferOp: xdr.lookup("CreateOfferOp"),
-	      setOptionsOp: xdr.lookup("SetOptionsOp"),
-	      changeTrustOp: xdr.lookup("ChangeTrustOp"),
-	      allowTrustOp: xdr.lookup("AllowTrustOp"),
-	      destination: xdr.lookup("Uint256"),
-	      inflationSeq: xdr.lookup("Uint32") } });
-
-	  // === xdr source ============================================================
-	  //
-	  //   struct Operation
-	  //   {
-	  //       // sourceAccount is the account used to run the operation
-	  //       // if not set, the runtime defaults to "account" specified at
-	  //       // the transaction level
-	  //       AccountID* sourceAccount;
-	  //  
-	  //       union switch (OperationType type)
-	  //       {
-	  //       case PAYMENT:
-	  //           PaymentOp paymentOp;
-	  //       case CREATE_OFFER:
-	  //           CreateOfferOp createOfferOp;
-	  //       case SET_OPTIONS:
-	  //           SetOptionsOp setOptionsOp;
-	  //       case CHANGE_TRUST:
-	  //           ChangeTrustOp changeTrustOp;
-	  //       case ALLOW_TRUST:
-	  //           AllowTrustOp allowTrustOp;
-	  //       case ACCOUNT_MERGE:
-	  //           uint256 destination;
-	  //       case INFLATION:
-	  //           uint32 inflationSeq;
-	  //       }
-	  //       body;
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr.struct("Operation", [["sourceAccount", xdr.option(xdr.lookup("AccountId"))], ["body", xdr.lookup("OperationBody")]]);
-
-	  // === xdr source ============================================================
-	  //
-	  //   struct Transaction
-	  //   {
-	  //       // account used to run the transaction
-	  //       AccountID sourceAccount;
-	  //  
-	  //       // maximum fee this transaction can collect
-	  //       // the transaction is aborted if the fee is higher
-	  //       int32 maxFee;
-	  //  
-	  //       // sequence number to consume in the account
-	  //       SequenceNumber seqNum;
-	  //  
-	  //       // validity range (inclusive) for the ledger sequence number
-	  //       uint32 minLedger;
-	  //       uint32 maxLedger;
-	  //  
-	  //       Operation operations<100>;
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr.struct("Transaction", [["sourceAccount", xdr.lookup("AccountId")], ["maxFee", xdr.lookup("Int32")], ["seqNum", xdr.lookup("SequenceNumber")], ["minLedger", xdr.lookup("Uint32")], ["maxLedger", xdr.lookup("Uint32")], ["operations", xdr.varArray(xdr.lookup("Operation"), 100)]]);
-
-	  // === xdr source ============================================================
-	  //
-	  //   struct TransactionEnvelope
-	  //   {
-	  //       Transaction tx;
-	  //       DecoratedSignature signatures<20>;
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr.struct("TransactionEnvelope", [["tx", xdr.lookup("Transaction")], ["signatures", xdr.varArray(xdr.lookup("DecoratedSignature"), 20)]]);
-
-	  // === xdr source ============================================================
-	  //
-	  //   struct ClaimOfferAtom
-	  //   {
-	  //       // emited to identify the offer
-	  //       AccountID offerOwner; // Account that owns the offer
-	  //       uint64 offerID;
-	  //  
-	  //       // amount and currency taken from the owner
-	  //       Currency currencyClaimed;
-	  //       int64 amountClaimed;
-	  //  
-	  //       // should we also include the amount that the owner gets in return?
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr.struct("ClaimOfferAtom", [["offerOwner", xdr.lookup("AccountId")], ["offerId", xdr.lookup("Uint64")], ["currencyClaimed", xdr.lookup("Currency")], ["amountClaimed", xdr.lookup("Int64")]]);
-
-	  // === xdr source ============================================================
-	  //
-	  //   enum PaymentResultCode
-	  //   {
-	  //       // codes considered as "success" for the operation
-	  //       PAYMENT_SUCCESS = 0,       // simple payment success
-	  //       PAYMENT_SUCCESS_MULTI = 1, // multi-path payment success
-	  //  
-	  //       // codes considered as "failure" for the operation
-	  //       PAYMENT_MALFORMED = -1,      // bad input
-	  //       PAYMENT_UNDERFUNDED = -2,    // not enough funds in source account
-	  //       PAYMENT_NO_DESTINATION = -3, // destination account does not exist
-	  //       PAYMENT_NO_TRUST = -4, // destination missing a trust line for currency
-	  //       PAYMENT_NOT_AUTHORIZED = -5, // destination not authorized to hold currency
-	  //       PAYMENT_LINE_FULL = -6,      // destination would go above their limit
-	  //       PAYMENT_TOO_FEW_OFFERS = -7, // not enough offers to satisfy path payment
-	  //       PAYMENT_OVER_SENDMAX = -8,   // multi-path payment could not satisfy sendmax
-	  //       PAYMENT_LOW_RESERVE = -9 // would create an account below the min reserve
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr["enum"]("PaymentResultCode", {
-	    paymentSuccess: 0,
-	    paymentSuccessMulti: 1,
-	    paymentMalformed: -1,
-	    paymentUnderfunded: -2,
-	    paymentNoDestination: -3,
-	    paymentNoTrust: -4,
-	    paymentNotAuthorized: -5,
-	    paymentLineFull: -6,
-	    paymentTooFewOffer: -7,
-	    paymentOverSendmax: -8,
-	    paymentLowReserve: -9 });
-
-	  // === xdr source ============================================================
-	  //
-	  //   struct SimplePaymentResult
-	  //   {
-	  //       AccountID destination;
-	  //       Currency currency;
-	  //       int64 amount;
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr.struct("SimplePaymentResult", [["destination", xdr.lookup("AccountId")], ["currency", xdr.lookup("Currency")], ["amount", xdr.lookup("Int64")]]);
-
-	  // === xdr source ============================================================
-	  //
-	  //   struct PaymentSuccessMultiResult
-	  //   {
-	  //       ClaimOfferAtom offers<>;
-	  //       SimplePaymentResult last;
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr.struct("PaymentSuccessMultiResult", [["offers", xdr.varArray(xdr.lookup("ClaimOfferAtom"), 2147483647)], ["last", xdr.lookup("SimplePaymentResult")]]);
-
-	  // === xdr source ============================================================
-	  //
-	  //   union PaymentResult switch (PaymentResultCode code)
-	  //   {
-	  //   case PAYMENT_SUCCESS:
-	  //       void;
-	  //   case PAYMENT_SUCCESS_MULTI:
-	  //       PaymentSuccessMultiResult multi;
-	  //   default:
-	  //       void;
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr.union("PaymentResult", {
-	    switchOn: xdr.lookup("PaymentResultCode"),
-	    switchName: "code",
-	    switches: {
-	      paymentSuccess: xdr["void"](),
-	      paymentSuccessMulti: "multi" },
-	    arms: {
-	      multi: xdr.lookup("PaymentSuccessMultiResult") },
-	    defaultArm: xdr["void"]() });
-
-	  // === xdr source ============================================================
-	  //
-	  //   enum CreateOfferResultCode
-	  //   {
-	  //       // codes considered as "success" for the operation
-	  //       CREATE_OFFER_SUCCESS = 0,
-	  //  
-	  //       // codes considered as "failure" for the operation
-	  //       CREATE_OFFER_MALFORMED = -1,      // generated offer would be invalid
-	  //       CREATE_OFFER_NO_TRUST = -2,       // can't hold what it's buying
-	  //       CREATE_OFFER_NOT_AUTHORIZED = -3, // not authorized to hold what it's buying
-	  //       CREATE_OFFER_LINE_FULL = -4,      // can't receive more of what it's buying
-	  //       CREATE_OFFER_UNDERFUNDED = -5,    // doesn't hold what it's trying to sell
-	  //       CREATE_OFFER_CROSS_SELF = -6,     // would cross an offer from the same user
-	  //  
-	  //       // update errors
-	  //       CREATE_OFFER_NOT_FOUND = -7, // offerID does not match an existing offer
-	  //       CREATE_OFFER_MISMATCH = -8,  // currencies don't match offer
-	  //  
-	  //       CREATE_OFFER_LOW_RESERVE = -9 // not enough funds to create a new Offer
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr["enum"]("CreateOfferResultCode", {
-	    createOfferSuccess: 0,
-	    createOfferMalformed: -1,
-	    createOfferNoTrust: -2,
-	    createOfferNotAuthorized: -3,
-	    createOfferLineFull: -4,
-	    createOfferUnderfunded: -5,
-	    createOfferCrossSelf: -6,
-	    createOfferNotFound: -7,
-	    createOfferMismatch: -8,
-	    createOfferLowReserve: -9 });
-
-	  // === xdr source ============================================================
-	  //
-	  //   enum CreateOfferEffect
-	  //   {
-	  //       CREATE_OFFER_CREATED = 0,
-	  //       CREATE_OFFER_UPDATED = 1,
-	  //       CREATE_OFFER_DELETED = 2
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr["enum"]("CreateOfferEffect", {
-	    createOfferCreated: 0,
-	    createOfferUpdated: 1,
-	    createOfferDeleted: 2 });
-
-	  // === xdr source ============================================================
-	  //
-	  //   union switch (CreateOfferEffect effect)
-	  //       {
-	  //       case CREATE_OFFER_CREATED:
-	  //       case CREATE_OFFER_UPDATED:
-	  //           OfferEntry offer;
-	  //       default:
-	  //           void;
-	  //       }
-	  //
-	  // ===========================================================================
-	  xdr.union("CreateOfferSuccessResultOffer", {
-	    switchOn: xdr.lookup("CreateOfferEffect"),
-	    switchName: "effect",
-	    switches: {
-	      createOfferCreated: "offer",
-	      createOfferUpdated: "offer" },
-	    arms: {
-	      offer: xdr.lookup("OfferEntry") },
-	    defaultArm: xdr["void"]() });
-
-	  // === xdr source ============================================================
-	  //
-	  //   struct CreateOfferSuccessResult
-	  //   {
-	  //       // offers that got claimed while creating this offer
-	  //       ClaimOfferAtom offersClaimed<>;
-	  //  
-	  //       union switch (CreateOfferEffect effect)
-	  //       {
-	  //       case CREATE_OFFER_CREATED:
-	  //       case CREATE_OFFER_UPDATED:
-	  //           OfferEntry offer;
-	  //       default:
-	  //           void;
-	  //       }
-	  //       offer;
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr.struct("CreateOfferSuccessResult", [["offersClaimed", xdr.varArray(xdr.lookup("ClaimOfferAtom"), 2147483647)], ["offer", xdr.lookup("CreateOfferSuccessResultOffer")]]);
-
-	  // === xdr source ============================================================
-	  //
-	  //   union CreateOfferResult switch (CreateOfferResultCode code)
-	  //   {
-	  //   case CREATE_OFFER_SUCCESS:
-	  //       CreateOfferSuccessResult success;
-	  //   default:
-	  //       void;
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr.union("CreateOfferResult", {
-	    switchOn: xdr.lookup("CreateOfferResultCode"),
-	    switchName: "code",
-	    switches: {
-	      createOfferSuccess: "success" },
-	    arms: {
-	      success: xdr.lookup("CreateOfferSuccessResult") },
-	    defaultArm: xdr["void"]() });
-
-	  // === xdr source ============================================================
-	  //
-	  //   enum SetOptionsResultCode
-	  //   {
-	  //       // codes considered as "success" for the operation
-	  //       SET_OPTIONS_SUCCESS = 0,
-	  //       // codes considered as "failure" for the operation
-	  //       SET_OPTIONS_LOW_RESERVE = -1,      // not enough funds to add a signer
-	  //       SET_OPTIONS_TOO_MANY_SIGNERS = -2, // max number of signers already reached
-	  //       SET_OPTIONS_BAD_FLAGS = -3,        // invalid combination of clear/set flags
-	  //       SET_OPTIONS_INVALID_INFLATION = -4 // inflation account does not exist
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr["enum"]("SetOptionsResultCode", {
-	    setOptionsSuccess: 0,
-	    setOptionsLowReserve: -1,
-	    setOptionsTooManySigner: -2,
-	    setOptionsBadFlag: -3,
-	    setOptionsInvalidInflation: -4 });
-
-	  // === xdr source ============================================================
-	  //
-	  //   union SetOptionsResult switch (SetOptionsResultCode code)
-	  //   {
-	  //   case SET_OPTIONS_SUCCESS:
-	  //       void;
-	  //   default:
-	  //       void;
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr.union("SetOptionsResult", {
-	    switchOn: xdr.lookup("SetOptionsResultCode"),
-	    switchName: "code",
-	    switches: {
-	      setOptionsSuccess: xdr["void"]() },
-	    arms: {},
-	    defaultArm: xdr["void"]() });
-
-	  // === xdr source ============================================================
-	  //
-	  //   enum ChangeTrustResultCode
-	  //   {
-	  //       // codes considered as "success" for the operation
-	  //       CHANGE_TRUST_SUCCESS = 0,
-	  //       // codes considered as "failure" for the operation
-	  //       CHANGE_TRUST_MALFORMED = -1,     // bad input
-	  //       CHANGE_TRUST_NO_ISSUER = -2,     // could not find issuer
-	  //       CHANGE_TRUST_INVALID_LIMIT = -3, // cannot drop limit below balance
-	  //       CHANGE_TRUST_LOW_RESERVE = -4 // not enough funds to create a new trust line
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr["enum"]("ChangeTrustResultCode", {
-	    changeTrustSuccess: 0,
-	    changeTrustMalformed: -1,
-	    changeTrustNoIssuer: -2,
-	    changeTrustInvalidLimit: -3,
-	    changeTrustLowReserve: -4 });
-
-	  // === xdr source ============================================================
-	  //
-	  //   union ChangeTrustResult switch (ChangeTrustResultCode code)
-	  //   {
-	  //   case CHANGE_TRUST_SUCCESS:
-	  //       void;
-	  //   default:
-	  //       void;
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr.union("ChangeTrustResult", {
-	    switchOn: xdr.lookup("ChangeTrustResultCode"),
-	    switchName: "code",
-	    switches: {
-	      changeTrustSuccess: xdr["void"]() },
-	    arms: {},
-	    defaultArm: xdr["void"]() });
-
-	  // === xdr source ============================================================
-	  //
-	  //   enum AllowTrustResultCode
-	  //   {
-	  //       // codes considered as "success" for the operation
-	  //       ALLOW_TRUST_SUCCESS = 0,
-	  //       // codes considered as "failure" for the operation
-	  //       ALLOW_TRUST_MALFORMED = -1,         // currency is not ISO4217
-	  //       ALLOW_TRUST_NO_TRUST_LINE = -2,     // trustor does not have a trustline
-	  //       ALLOW_TRUST_TRUST_NOT_REQUIRED = -3 // source account does not require trust
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr["enum"]("AllowTrustResultCode", {
-	    allowTrustSuccess: 0,
-	    allowTrustMalformed: -1,
-	    allowTrustNoTrustLine: -2,
-	    allowTrustTrustNotRequired: -3 });
-
-	  // === xdr source ============================================================
-	  //
-	  //   union AllowTrustResult switch (AllowTrustResultCode code)
-	  //   {
-	  //   case ALLOW_TRUST_SUCCESS:
-	  //       void;
-	  //   default:
-	  //       void;
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr.union("AllowTrustResult", {
-	    switchOn: xdr.lookup("AllowTrustResultCode"),
-	    switchName: "code",
-	    switches: {
-	      allowTrustSuccess: xdr["void"]() },
-	    arms: {},
-	    defaultArm: xdr["void"]() });
-
-	  // === xdr source ============================================================
-	  //
-	  //   enum AccountMergeResultCode
-	  //   {
-	  //       // codes considered as "success" for the operation
-	  //       ACCOUNT_MERGE_SUCCESS = 0,
-	  //       // codes considered as "failure" for the operation
-	  //       ACCOUNT_MERGE_MALFORMED = -1,  // can't merge onto itself
-	  //       ACCOUNT_MERGE_NO_ACCOUNT = -2, // destination does not exist
-	  //       ACCOUNT_MERGE_HAS_CREDIT = -3, // account has active trust lines
-	  //       ACCOUNT_MERGE_CREDIT_HELD = -4 // an issuer cannot be merged if used
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr["enum"]("AccountMergeResultCode", {
-	    accountMergeSuccess: 0,
-	    accountMergeMalformed: -1,
-	    accountMergeNoAccount: -2,
-	    accountMergeHasCredit: -3,
-	    accountMergeCreditHeld: -4 });
-
-	  // === xdr source ============================================================
-	  //
-	  //   union AccountMergeResult switch (AccountMergeResultCode code)
-	  //   {
-	  //   case ACCOUNT_MERGE_SUCCESS:
-	  //       void;
-	  //   default:
-	  //       void;
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr.union("AccountMergeResult", {
-	    switchOn: xdr.lookup("AccountMergeResultCode"),
-	    switchName: "code",
-	    switches: {
-	      accountMergeSuccess: xdr["void"]() },
-	    arms: {},
-	    defaultArm: xdr["void"]() });
-
-	  // === xdr source ============================================================
-	  //
-	  //   enum InflationResultCode
-	  //   {
-	  //       // codes considered as "success" for the operation
-	  //       INFLATION_SUCCESS = 0,
-	  //       // codes considered as "failure" for the operation
-	  //       INFLATION_NOT_TIME = -1
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr["enum"]("InflationResultCode", {
-	    inflationSuccess: 0,
-	    inflationNotTime: -1 });
-
-	  // === xdr source ============================================================
-	  //
-	  //   struct inflationPayout // or use PaymentResultAtom to limit types?
-	  //   {
-	  //       AccountID destination;
-	  //       int64 amount;
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr.struct("InflationPayout", [["destination", xdr.lookup("AccountId")], ["amount", xdr.lookup("Int64")]]);
-
-	  // === xdr source ============================================================
-	  //
-	  //   union InflationResult switch (InflationResultCode code)
-	  //   {
-	  //   case INFLATION_SUCCESS:
-	  //       inflationPayout payouts<>;
-	  //   default:
-	  //       void;
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr.union("InflationResult", {
-	    switchOn: xdr.lookup("InflationResultCode"),
-	    switchName: "code",
-	    switches: {
-	      inflationSuccess: "payouts" },
-	    arms: {
-	      payouts: xdr.varArray(xdr.lookup("InflationPayout"), 2147483647) },
-	    defaultArm: xdr["void"]() });
-
-	  // === xdr source ============================================================
-	  //
-	  //   enum OperationResultCode
-	  //   {
-	  //       opINNER = 0, // inner object result is valid
-	  //  
-	  //       opBAD_AUTH = -1,  // not enough signatures to perform operation
-	  //       opNO_ACCOUNT = -2 // source account was not found
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr["enum"]("OperationResultCode", {
-	    opInner: 0,
-	    opBadAuth: -1,
-	    opNoAccount: -2 });
-
-	  // === xdr source ============================================================
-	  //
-	  //   union switch (OperationType type)
-	  //       {
-	  //       case PAYMENT:
-	  //           PaymentResult paymentResult;
-	  //       case CREATE_OFFER:
-	  //           CreateOfferResult createOfferResult;
-	  //       case SET_OPTIONS:
-	  //           SetOptionsResult setOptionsResult;
-	  //       case CHANGE_TRUST:
-	  //           ChangeTrustResult changeTrustResult;
-	  //       case ALLOW_TRUST:
-	  //           AllowTrustResult allowTrustResult;
-	  //       case ACCOUNT_MERGE:
-	  //           AccountMergeResult accountMergeResult;
-	  //       case INFLATION:
-	  //           InflationResult inflationResult;
-	  //       }
-	  //
-	  // ===========================================================================
-	  xdr.union("OperationResultTr", {
-	    switchOn: xdr.lookup("OperationType"),
-	    switchName: "type",
-	    switches: {
-	      payment: "paymentResult",
-	      createOffer: "createOfferResult",
-	      setOption: "setOptionsResult",
-	      changeTrust: "changeTrustResult",
-	      allowTrust: "allowTrustResult",
-	      accountMerge: "accountMergeResult",
-	      inflation: "inflationResult" },
-	    arms: {
-	      paymentResult: xdr.lookup("PaymentResult"),
-	      createOfferResult: xdr.lookup("CreateOfferResult"),
-	      setOptionsResult: xdr.lookup("SetOptionsResult"),
-	      changeTrustResult: xdr.lookup("ChangeTrustResult"),
-	      allowTrustResult: xdr.lookup("AllowTrustResult"),
-	      accountMergeResult: xdr.lookup("AccountMergeResult"),
-	      inflationResult: xdr.lookup("InflationResult") } });
-
-	  // === xdr source ============================================================
-	  //
-	  //   union OperationResult switch (OperationResultCode code)
-	  //   {
-	  //   case opINNER:
-	  //       union switch (OperationType type)
-	  //       {
-	  //       case PAYMENT:
-	  //           PaymentResult paymentResult;
-	  //       case CREATE_OFFER:
-	  //           CreateOfferResult createOfferResult;
-	  //       case SET_OPTIONS:
-	  //           SetOptionsResult setOptionsResult;
-	  //       case CHANGE_TRUST:
-	  //           ChangeTrustResult changeTrustResult;
-	  //       case ALLOW_TRUST:
-	  //           AllowTrustResult allowTrustResult;
-	  //       case ACCOUNT_MERGE:
-	  //           AccountMergeResult accountMergeResult;
-	  //       case INFLATION:
-	  //           InflationResult inflationResult;
-	  //       }
-	  //       tr;
-	  //   default:
-	  //       void;
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr.union("OperationResult", {
-	    switchOn: xdr.lookup("OperationResultCode"),
-	    switchName: "code",
-	    switches: {
-	      opInner: "tr" },
-	    arms: {
-	      tr: xdr.lookup("OperationResultTr") },
-	    defaultArm: xdr["void"]() });
-
-	  // === xdr source ============================================================
-	  //
-	  //   enum TransactionResultCode
-	  //   {
-	  //       txSUCCESS = 0, // all operations succeeded
-	  //  
-	  //       txDUPLICATE = -1, // transaction was already submited
-	  //  
-	  //       txFAILED = -2, // one of the operations failed (but none were applied)
-	  //  
-	  //       txBAD_LEDGER = -3,        // ledger is not in range [minLeder; maxLedger]
-	  //       txMISSING_OPERATION = -4, // no operation was specified
-	  //       txBAD_SEQ = -5,           // sequence number does not match source account
-	  //  
-	  //       txBAD_AUTH = -6,             // not enough signatures to perform transaction
-	  //       txINSUFFICIENT_BALANCE = -7, // fee would bring account below reserve
-	  //       txNO_ACCOUNT = -8,           // source account not found
-	  //       txINSUFFICIENT_FEE = -9,     // max fee is too small
-	  //       txBAD_AUTH_EXTRA = -10,      // too many signatures on transaction
-	  //       txINTERNAL_ERROR = -11       // an unknown error occured
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr["enum"]("TransactionResultCode", {
-	    txSuccess: 0,
-	    txDuplicate: -1,
-	    txFailed: -2,
-	    txBadLedger: -3,
-	    txMissingOperation: -4,
-	    txBadSeq: -5,
-	    txBadAuth: -6,
-	    txInsufficientBalance: -7,
-	    txNoAccount: -8,
-	    txInsufficientFee: -9,
-	    txBadAuthExtra: -10,
-	    txInternalError: -11 });
-
-	  // === xdr source ============================================================
-	  //
-	  //   union switch (TransactionResultCode code)
-	  //       {
-	  //       case txSUCCESS:
-	  //       case txFAILED:
-	  //           OperationResult results<>;
-	  //       default:
-	  //           void;
-	  //       }
-	  //
-	  // ===========================================================================
-	  xdr.union("TransactionResultResult", {
-	    switchOn: xdr.lookup("TransactionResultCode"),
-	    switchName: "code",
-	    switches: {
-	      txSuccess: "results",
-	      txFailed: "results" },
-	    arms: {
-	      results: xdr.varArray(xdr.lookup("OperationResult"), 2147483647) },
-	    defaultArm: xdr["void"]() });
-
-	  // === xdr source ============================================================
-	  //
-	  //   struct TransactionResult
-	  //   {
-	  //       int64 feeCharged; // actual fee charged for the transaction
-	  //  
-	  //       union switch (TransactionResultCode code)
-	  //       {
-	  //       case txSUCCESS:
-	  //       case txFAILED:
-	  //           OperationResult results<>;
-	  //       default:
-	  //           void;
-	  //       }
-	  //       result;
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr.struct("TransactionResult", [["feeCharged", xdr.lookup("Int64")], ["result", xdr.lookup("TransactionResultResult")]]);
-
-	  // === xdr source ============================================================
-	  //
-	  //   typedef opaque uint512[64];
-	  //
-	  // ===========================================================================
-	  xdr.typedef("Uint512", xdr.opaque(64));
-
-	  // === xdr source ============================================================
-	  //
-	  //   typedef opaque uint256[32];
-	  //
-	  // ===========================================================================
-	  xdr.typedef("Uint256", xdr.opaque(32));
-
-	  // === xdr source ============================================================
-	  //
-	  //   typedef unsigned hyper uint64;
-	  //
-	  // ===========================================================================
-	  xdr.typedef("Uint64", xdr.uhyper());
-
-	  // === xdr source ============================================================
-	  //
-	  //   typedef hyper int64;
-	  //
-	  // ===========================================================================
-	  xdr.typedef("Int64", xdr.hyper());
-
-	  // === xdr source ============================================================
-	  //
-	  //   typedef unsigned int uint32;
-	  //
-	  // ===========================================================================
-	  xdr.typedef("Uint32", xdr.uint());
-
-	  // === xdr source ============================================================
-	  //
-	  //   typedef int int32;
-	  //
-	  // ===========================================================================
-	  xdr.typedef("Int32", xdr.int());
-
-	  // === xdr source ============================================================
-	  //
-	  //   typedef opaque AccountID[32];
-	  //
-	  // ===========================================================================
-	  xdr.typedef("AccountId", xdr.opaque(32));
-
-	  // === xdr source ============================================================
-	  //
-	  //   typedef opaque Signature[64];
-	  //
-	  // ===========================================================================
-	  xdr.typedef("Signature", xdr.opaque(64));
-
-	  // === xdr source ============================================================
-	  //
-	  //   typedef opaque Hash[32];
-	  //
-	  // ===========================================================================
-	  xdr.typedef("Hash", xdr.opaque(32));
-
-	  // === xdr source ============================================================
-	  //
-	  //   typedef opaque Thresholds[4];
-	  //
-	  // ===========================================================================
-	  xdr.typedef("Thresholds", xdr.opaque(4));
-
-	  // === xdr source ============================================================
-	  //
-	  //   typedef uint64 SequenceNumber;
-	  //
-	  // ===========================================================================
-	  xdr.typedef("SequenceNumber", xdr.lookup("Uint64"));
-
-	  // === xdr source ============================================================
-	  //
-	  //   enum CurrencyType
-	  //   {
-	  //       NATIVE = 0,
-	  //       ISO4217 = 1
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr["enum"]("CurrencyType", {
-	    native: 0,
-	    iso4217: 1 });
-
-	  // === xdr source ============================================================
-	  //
-	  //   struct ISOCurrencyIssuer
-	  //   {
-	  //       opaque currencyCode[4];
-	  //       AccountID issuer;
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr.struct("IsoCurrencyIssuer", [["currencyCode", xdr.opaque(4)], ["issuer", xdr.lookup("AccountId")]]);
-
-	  // === xdr source ============================================================
-	  //
-	  //   union Currency switch (CurrencyType type)
-	  //   {
-	  //   case NATIVE:
-	  //       void;
-	  //  
-	  //   case ISO4217:
-	  //       ISOCurrencyIssuer isoCI;
-	  //  
-	  //       // add other currency types here in the future
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr.union("Currency", {
-	    switchOn: xdr.lookup("CurrencyType"),
-	    switchName: "type",
-	    switches: {
-	      native: xdr["void"](),
-	      iso4217: "isoCi" },
-	    arms: {
-	      isoCi: xdr.lookup("IsoCurrencyIssuer") } });
-
-	  // === xdr source ============================================================
-	  //
-	  //   struct Price
-	  //   {
-	  //       int32 n; // numerator
-	  //       int32 d; // denominator
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr.struct("Price", [["n", xdr.lookup("Int32")], ["d", xdr.lookup("Int32")]]);
-	});
-	module.exports = types;
-
-/***/ },
-/* 22 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	exports.hash = hash;
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var sha256 = __webpack_require__(43).sha256;
-
-	function hash(data) {
-	  var hasher = new sha256();
-	  hasher.update(data, "utf8");
-	  return hasher.digest();
-	}
-
-/***/ },
-/* 23 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
-
-	exports.sign = sign;
-	exports.verify = verify;
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	//  This module provides the signing functionality used by the stellar network
-	//  The code below may look a little strange... this is because we try to provide
-	//  the most efficient signing method possible.  First, we try to load the
-	//  native ed25519 package for node.js environments, and if that fails we
-	//  fallback to tweetnacl.js
-
-	var actualMethods = {};
-
-	function sign(data, secretKey) {
-	  return actualMethods.sign(data, secretKey);
-	}
-
-	function verify(data, signature, publicKey) {
-	  return actualMethods.verify(data, signature, publicKey);
-	}
-
-	// if in node
-	if (typeof window === "undefined") {
-	  (function () {
-	    // NOTE: we use commonjs style require here because es6 imports
-	    // can only occur at the top level.  thanks, obama.
-	    var ed25519 = __webpack_require__(44);
-
-	    actualMethods.sign = function (data, secretKey) {
-	      data = new Buffer(data);
-	      return ed25519.Sign(data, secretKey);
-	    };
-
-	    actualMethods.verify = function (data, signature, publicKey) {
-	      data = new Buffer(data);
-	      try {
-	        return ed25519.Verify(data, signature, publicKey);
-	      } catch (e) {
-	        return false;
-	      }
-	    };
-	  })();
-	} else {
-	  (function () {
-	    // fallback to tweetnacl.js if we're in the browser
-	    var nacl = __webpack_require__(47);
-
-	    actualMethods.sign = function (data, secretKey) {
-	      data = new Buffer(data);
-	      data = new Uint8Array(data.toJSON().data);
-	      secretKey = new Uint8Array(secretKey.toJSON().data);
-
-	      var signature = nacl.sign.detached(data, secretKey);
-
-	      return new Buffer(signature);
-	    };
-
-	    actualMethods.verify = function (data, signature, publicKey) {
-	      data = new Buffer(data);
-	      data = new Uint8Array(data.toJSON().data);
-	      signature = new Uint8Array(signature.toJSON().data);
-	      publicKey = new Uint8Array(publicKey.toJSON().data);
-
-	      return nacl.sign.detached.verify(data, signature, publicKey);
-	    };
-	  })();
-	}
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
-
-/***/ },
-/* 24 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
-
-	var _classCallCheck = __webpack_require__(40)["default"];
-
-	var _createClass = __webpack_require__(41)["default"];
-
-	var _interopRequireWildcard = __webpack_require__(38)["default"];
-
-	var _interopRequire = __webpack_require__(36)["default"];
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _signing = __webpack_require__(23);
-
-	var sign = _signing.sign;
-	var verify = _signing.verify;
-
-	var base58 = _interopRequireWildcard(__webpack_require__(25));
-
-	var xdr = _interopRequire(__webpack_require__(21));
-
-	var nacl = __webpack_require__(47);
-
-	var Keypair = exports.Keypair = (function () {
-	  function Keypair(keysAndSeed) {
-	    _classCallCheck(this, Keypair);
-
-	    this._publicKey = new Buffer(keysAndSeed.publicKey);
-
-	    if (keysAndSeed.secretSeed) {
-	      this._secretSeed = new Buffer(keysAndSeed.secretSeed);
-	      this._secretKey = new Buffer(keysAndSeed.secretKey);
-	    }
-	  }
-
-	  _createClass(Keypair, {
-	    publicKey: {
-	      value: function publicKey() {
-	        return this._publicKey;
-	      }
-	    },
-	    publicKeyHint: {
-	      value: function publicKeyHint() {
-	        return this._publicKey.slice(0, 4);
-	      }
-	    },
-	    address: {
-	      value: function address() {
-	        return base58.encodeBase58Check("accountId", this._publicKey);
-	      }
-	    },
-	    seed: {
-	      value: function seed() {
-	        return base58.encodeBase58Check("seed", this._secretSeed);
-	      }
-	    },
-	    rawSeed: {
-	      value: function rawSeed() {
-	        return this._secretSeed;
-	      }
-	    },
-	    canSign: {
-	      value: function canSign() {
-	        return !!this._secretKey;
-	      }
-	    },
-	    sign: {
-	      value: (function (_sign) {
-	        var _signWrapper = function sign(_x) {
-	          return _sign.apply(this, arguments);
-	        };
-
-	        _signWrapper.toString = function () {
-	          return _sign.toString();
-	        };
-
-	        return _signWrapper;
-	      })(function (data) {
-	        if (!this.canSign()) {
-	          throw new Error("cannot sign: no secret key available");
-	        }
-
-	        return sign(data, this._secretKey);
-	      })
-	    },
-	    signDecorated: {
-	      value: function signDecorated(data) {
-	        var signature = this.sign(data);
-	        var hint = this.publicKeyHint();
-
-	        return new xdr.DecoratedSignature({ hint: hint, signature: signature });
-	      }
-	    }
-	  }, {
-	    fromSeed: {
-	      value: function fromSeed(seed) {
-	        var rawSeed = base58.decodeBase58Check("seed", seed);
-	        return this.fromRawSeed(rawSeed);
-	      }
-	    },
-	    fromRawSeed: {
-	      value: function fromRawSeed(rawSeed) {
-	        rawSeed = new Buffer(rawSeed);
-	        var rawSeedU8 = new Uint8Array(rawSeed);
-	        var keys = nacl.sign.keyPair.fromSeed(rawSeedU8);
-	        keys.secretSeed = rawSeed;
-
-	        return new this(keys);
-	      }
-	    },
-	    master: {
-	      value: function master() {
-	        return this.fromRawSeed("allmylifemyhearthasbeensearching");
-	      }
-	    },
-	    fromAddress: {
-	      value: function fromAddress(address) {
-	        var publicKey = base58.decodeBase58Check("accountId", address);
-	        return new this({ publicKey: publicKey });
-	      }
-	    },
-	    random: {
-	      value: function random() {
-	        var seed = nacl.randomBytes(32);
-	        return this.fromRawSeed(seed);
-	      }
-	    }
-	  });
-
-	  return Keypair;
-	})();
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
-
-/***/ },
 /* 25 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
+	/* WEBPACK VAR INJECTION */(function(global) {/**
+	 * Copyright (c) 2014, Facebook, Inc.
+	 * All rights reserved.
+	 *
+	 * This source code is licensed under the BSD-style license found in the
+	 * https://raw.github.com/facebook/regenerator/master/LICENSE file. An
+	 * additional grant of patent rights can be found in the PATENTS file in
+	 * the same directory.
+	 */
 
-	var _interopRequire = __webpack_require__(36)["default"];
+	!(function(global) {
+	  "use strict";
 
-	exports.decodeBase58 = decodeBase58;
-	exports.decodeBase58Check = decodeBase58Check;
-	exports.encodeBase58 = encodeBase58;
-	exports.encodeBase58Check = encodeBase58Check;
+	  var hasOwn = Object.prototype.hasOwnProperty;
+	  var undefined; // More compressible than void 0.
+	  var iteratorSymbol =
+	    typeof Symbol === "function" && Symbol.iterator || "@@iterator";
+
+	  var inModule = typeof module === "object";
+	  var runtime = global.regeneratorRuntime;
+	  if (runtime) {
+	    if (inModule) {
+	      // If regeneratorRuntime is defined globally and we're in a module,
+	      // make the exports object identical to regeneratorRuntime.
+	      module.exports = runtime;
+	    }
+	    // Don't bother evaluating the rest of this file if the runtime was
+	    // already defined globally.
+	    return;
+	  }
+
+	  // Define the runtime globally (as expected by generated code) as either
+	  // module.exports (if we're in a module) or a new, empty object.
+	  runtime = global.regeneratorRuntime = inModule ? module.exports : {};
+
+	  function wrap(innerFn, outerFn, self, tryLocsList) {
+	    return new Generator(innerFn, outerFn, self || null, tryLocsList || []);
+	  }
+	  runtime.wrap = wrap;
+
+	  // Try/catch helper to minimize deoptimizations. Returns a completion
+	  // record like context.tryEntries[i].completion. This interface could
+	  // have been (and was previously) designed to take a closure to be
+	  // invoked without arguments, but in all the cases we care about we
+	  // already have an existing method we want to call, so there's no need
+	  // to create a new function object. We can even get away with assuming
+	  // the method takes exactly one argument, since that happens to be true
+	  // in every case, so we don't have to touch the arguments object. The
+	  // only additional allocation required is the completion record, which
+	  // has a stable shape and so hopefully should be cheap to allocate.
+	  function tryCatch(fn, obj, arg) {
+	    try {
+	      return { type: "normal", arg: fn.call(obj, arg) };
+	    } catch (err) {
+	      return { type: "throw", arg: err };
+	    }
+	  }
+
+	  var GenStateSuspendedStart = "suspendedStart";
+	  var GenStateSuspendedYield = "suspendedYield";
+	  var GenStateExecuting = "executing";
+	  var GenStateCompleted = "completed";
+
+	  // Returning this object from the innerFn has the same effect as
+	  // breaking out of the dispatch switch statement.
+	  var ContinueSentinel = {};
+
+	  // Dummy constructor functions that we use as the .constructor and
+	  // .constructor.prototype properties for functions that return Generator
+	  // objects. For full spec compliance, you may wish to configure your
+	  // minifier not to mangle the names of these two functions.
+	  function GeneratorFunction() {}
+	  function GeneratorFunctionPrototype() {}
+
+	  var Gp = GeneratorFunctionPrototype.prototype = Generator.prototype;
+	  GeneratorFunction.prototype = Gp.constructor = GeneratorFunctionPrototype;
+	  GeneratorFunctionPrototype.constructor = GeneratorFunction;
+	  GeneratorFunction.displayName = "GeneratorFunction";
+
+	  runtime.isGeneratorFunction = function(genFun) {
+	    var ctor = typeof genFun === "function" && genFun.constructor;
+	    return ctor
+	      ? ctor === GeneratorFunction ||
+	        // For the native GeneratorFunction constructor, the best we can
+	        // do is to check its .name property.
+	        (ctor.displayName || ctor.name) === "GeneratorFunction"
+	      : false;
+	  };
+
+	  runtime.mark = function(genFun) {
+	    genFun.__proto__ = GeneratorFunctionPrototype;
+	    genFun.prototype = Object.create(Gp);
+	    return genFun;
+	  };
+
+	  runtime.async = function(innerFn, outerFn, self, tryLocsList) {
+	    return new Promise(function(resolve, reject) {
+	      var generator = wrap(innerFn, outerFn, self, tryLocsList);
+	      var callNext = step.bind(generator.next);
+	      var callThrow = step.bind(generator["throw"]);
+
+	      function step(arg) {
+	        var record = tryCatch(this, null, arg);
+	        if (record.type === "throw") {
+	          reject(record.arg);
+	          return;
+	        }
+
+	        var info = record.arg;
+	        if (info.done) {
+	          resolve(info.value);
+	        } else {
+	          Promise.resolve(info.value).then(callNext, callThrow);
+	        }
+	      }
+
+	      callNext();
+	    });
+	  };
+
+	  function Generator(innerFn, outerFn, self, tryLocsList) {
+	    var generator = outerFn ? Object.create(outerFn.prototype) : this;
+	    var context = new Context(tryLocsList);
+	    var state = GenStateSuspendedStart;
+
+	    function invoke(method, arg) {
+	      if (state === GenStateExecuting) {
+	        throw new Error("Generator is already running");
+	      }
+
+	      if (state === GenStateCompleted) {
+	        // Be forgiving, per 25.3.3.3.3 of the spec:
+	        // https://people.mozilla.org/~jorendorff/es6-draft.html#sec-generatorresume
+	        return doneResult();
+	      }
+
+	      while (true) {
+	        var delegate = context.delegate;
+	        if (delegate) {
+	          var record = tryCatch(
+	            delegate.iterator[method],
+	            delegate.iterator,
+	            arg
+	          );
+
+	          if (record.type === "throw") {
+	            context.delegate = null;
+
+	            // Like returning generator.throw(uncaught), but without the
+	            // overhead of an extra function call.
+	            method = "throw";
+	            arg = record.arg;
+
+	            continue;
+	          }
+
+	          // Delegate generator ran and handled its own exceptions so
+	          // regardless of what the method was, we continue as if it is
+	          // "next" with an undefined arg.
+	          method = "next";
+	          arg = undefined;
+
+	          var info = record.arg;
+	          if (info.done) {
+	            context[delegate.resultName] = info.value;
+	            context.next = delegate.nextLoc;
+	          } else {
+	            state = GenStateSuspendedYield;
+	            return info;
+	          }
+
+	          context.delegate = null;
+	        }
+
+	        if (method === "next") {
+	          if (state === GenStateSuspendedStart &&
+	              typeof arg !== "undefined") {
+	            // https://people.mozilla.org/~jorendorff/es6-draft.html#sec-generatorresume
+	            throw new TypeError(
+	              "attempt to send " + JSON.stringify(arg) + " to newborn generator"
+	            );
+	          }
+
+	          if (state === GenStateSuspendedYield) {
+	            context.sent = arg;
+	          } else {
+	            delete context.sent;
+	          }
+
+	        } else if (method === "throw") {
+	          if (state === GenStateSuspendedStart) {
+	            state = GenStateCompleted;
+	            throw arg;
+	          }
+
+	          if (context.dispatchException(arg)) {
+	            // If the dispatched exception was caught by a catch block,
+	            // then let that catch block handle the exception normally.
+	            method = "next";
+	            arg = undefined;
+	          }
+
+	        } else if (method === "return") {
+	          context.abrupt("return", arg);
+	        }
+
+	        state = GenStateExecuting;
+
+	        var record = tryCatch(innerFn, self, context);
+	        if (record.type === "normal") {
+	          // If an exception is thrown from innerFn, we leave state ===
+	          // GenStateExecuting and loop back for another invocation.
+	          state = context.done
+	            ? GenStateCompleted
+	            : GenStateSuspendedYield;
+
+	          var info = {
+	            value: record.arg,
+	            done: context.done
+	          };
+
+	          if (record.arg === ContinueSentinel) {
+	            if (context.delegate && method === "next") {
+	              // Deliberately forget the last sent value so that we don't
+	              // accidentally pass it on to the delegate.
+	              arg = undefined;
+	            }
+	          } else {
+	            return info;
+	          }
+
+	        } else if (record.type === "throw") {
+	          state = GenStateCompleted;
+
+	          if (method === "next") {
+	            context.dispatchException(record.arg);
+	          } else {
+	            arg = record.arg;
+	          }
+	        }
+	      }
+	    }
+
+	    generator.next = invoke.bind(generator, "next");
+	    generator["throw"] = invoke.bind(generator, "throw");
+	    generator["return"] = invoke.bind(generator, "return");
+
+	    return generator;
+	  }
+
+	  Gp[iteratorSymbol] = function() {
+	    return this;
+	  };
+
+	  Gp.toString = function() {
+	    return "[object Generator]";
+	  };
+
+	  function pushTryEntry(locs) {
+	    var entry = { tryLoc: locs[0] };
+
+	    if (1 in locs) {
+	      entry.catchLoc = locs[1];
+	    }
+
+	    if (2 in locs) {
+	      entry.finallyLoc = locs[2];
+	      entry.afterLoc = locs[3];
+	    }
+
+	    this.tryEntries.push(entry);
+	  }
+
+	  function resetTryEntry(entry) {
+	    var record = entry.completion || {};
+	    record.type = "normal";
+	    delete record.arg;
+	    entry.completion = record;
+	  }
+
+	  function Context(tryLocsList) {
+	    // The root entry object (effectively a try statement without a catch
+	    // or a finally block) gives us a place to store values thrown from
+	    // locations where there is no enclosing try statement.
+	    this.tryEntries = [{ tryLoc: "root" }];
+	    tryLocsList.forEach(pushTryEntry, this);
+	    this.reset();
+	  }
+
+	  runtime.keys = function(object) {
+	    var keys = [];
+	    for (var key in object) {
+	      keys.push(key);
+	    }
+	    keys.reverse();
+
+	    // Rather than returning an object with a next method, we keep
+	    // things simple and return the next function itself.
+	    return function next() {
+	      while (keys.length) {
+	        var key = keys.pop();
+	        if (key in object) {
+	          next.value = key;
+	          next.done = false;
+	          return next;
+	        }
+	      }
+
+	      // To avoid creating an additional object, we just hang the .value
+	      // and .done properties off the next function object itself. This
+	      // also ensures that the minifier will not anonymize the function.
+	      next.done = true;
+	      return next;
+	    };
+	  };
+
+	  function values(iterable) {
+	    if (iterable) {
+	      var iteratorMethod = iterable[iteratorSymbol];
+	      if (iteratorMethod) {
+	        return iteratorMethod.call(iterable);
+	      }
+
+	      if (typeof iterable.next === "function") {
+	        return iterable;
+	      }
+
+	      if (!isNaN(iterable.length)) {
+	        var i = -1, next = function next() {
+	          while (++i < iterable.length) {
+	            if (hasOwn.call(iterable, i)) {
+	              next.value = iterable[i];
+	              next.done = false;
+	              return next;
+	            }
+	          }
+
+	          next.value = undefined;
+	          next.done = true;
+
+	          return next;
+	        };
+
+	        return next.next = next;
+	      }
+	    }
+
+	    // Return an iterator with no values.
+	    return { next: doneResult };
+	  }
+	  runtime.values = values;
+
+	  function doneResult() {
+	    return { value: undefined, done: true };
+	  }
+
+	  Context.prototype = {
+	    constructor: Context,
+
+	    reset: function() {
+	      this.prev = 0;
+	      this.next = 0;
+	      this.sent = undefined;
+	      this.done = false;
+	      this.delegate = null;
+
+	      this.tryEntries.forEach(resetTryEntry);
+
+	      // Pre-initialize at least 20 temporary variables to enable hidden
+	      // class optimizations for simple generators.
+	      for (var tempIndex = 0, tempName;
+	           hasOwn.call(this, tempName = "t" + tempIndex) || tempIndex < 20;
+	           ++tempIndex) {
+	        this[tempName] = null;
+	      }
+	    },
+
+	    stop: function() {
+	      this.done = true;
+
+	      var rootEntry = this.tryEntries[0];
+	      var rootRecord = rootEntry.completion;
+	      if (rootRecord.type === "throw") {
+	        throw rootRecord.arg;
+	      }
+
+	      return this.rval;
+	    },
+
+	    dispatchException: function(exception) {
+	      if (this.done) {
+	        throw exception;
+	      }
+
+	      var context = this;
+	      function handle(loc, caught) {
+	        record.type = "throw";
+	        record.arg = exception;
+	        context.next = loc;
+	        return !!caught;
+	      }
+
+	      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+	        var entry = this.tryEntries[i];
+	        var record = entry.completion;
+
+	        if (entry.tryLoc === "root") {
+	          // Exception thrown outside of any try block that could handle
+	          // it, so set the completion value of the entire function to
+	          // throw the exception.
+	          return handle("end");
+	        }
+
+	        if (entry.tryLoc <= this.prev) {
+	          var hasCatch = hasOwn.call(entry, "catchLoc");
+	          var hasFinally = hasOwn.call(entry, "finallyLoc");
+
+	          if (hasCatch && hasFinally) {
+	            if (this.prev < entry.catchLoc) {
+	              return handle(entry.catchLoc, true);
+	            } else if (this.prev < entry.finallyLoc) {
+	              return handle(entry.finallyLoc);
+	            }
+
+	          } else if (hasCatch) {
+	            if (this.prev < entry.catchLoc) {
+	              return handle(entry.catchLoc, true);
+	            }
+
+	          } else if (hasFinally) {
+	            if (this.prev < entry.finallyLoc) {
+	              return handle(entry.finallyLoc);
+	            }
+
+	          } else {
+	            throw new Error("try statement without catch or finally");
+	          }
+	        }
+	      }
+	    },
+
+	    abrupt: function(type, arg) {
+	      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+	        var entry = this.tryEntries[i];
+	        if (entry.tryLoc <= this.prev &&
+	            hasOwn.call(entry, "finallyLoc") &&
+	            this.prev < entry.finallyLoc) {
+	          var finallyEntry = entry;
+	          break;
+	        }
+	      }
+
+	      if (finallyEntry &&
+	          (type === "break" ||
+	           type === "continue") &&
+	          finallyEntry.tryLoc <= arg &&
+	          arg < finallyEntry.finallyLoc) {
+	        // Ignore the finally entry if control is not jumping to a
+	        // location outside the try/catch block.
+	        finallyEntry = null;
+	      }
+
+	      var record = finallyEntry ? finallyEntry.completion : {};
+	      record.type = type;
+	      record.arg = arg;
+
+	      if (finallyEntry) {
+	        this.next = finallyEntry.finallyLoc;
+	      } else {
+	        this.complete(record);
+	      }
+
+	      return ContinueSentinel;
+	    },
+
+	    complete: function(record, afterLoc) {
+	      if (record.type === "throw") {
+	        throw record.arg;
+	      }
+
+	      if (record.type === "break" ||
+	          record.type === "continue") {
+	        this.next = record.arg;
+	      } else if (record.type === "return") {
+	        this.rval = record.arg;
+	        this.next = "end";
+	      } else if (record.type === "normal" && afterLoc) {
+	        this.next = afterLoc;
+	      }
+
+	      return ContinueSentinel;
+	    },
+
+	    finish: function(finallyLoc) {
+	      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+	        var entry = this.tryEntries[i];
+	        if (entry.finallyLoc === finallyLoc) {
+	          return this.complete(entry.completion, entry.afterLoc);
+	        }
+	      }
+	    },
+
+	    "catch": function(tryLoc) {
+	      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+	        var entry = this.tryEntries[i];
+	        if (entry.tryLoc === tryLoc) {
+	          var record = entry.completion;
+	          if (record.type === "throw") {
+	            var thrown = record.arg;
+	            resetTryEntry(entry);
+	          }
+	          return thrown;
+	        }
+	      }
+
+	      // The context.catch method must only be called with a location
+	      // argument that corresponds to a known catch block.
+	      throw new Error("illegal catch attempt");
+	    },
+
+	    delegateYield: function(iterable, resultName, nextLoc) {
+	      this.delegate = {
+	        iterator: values(iterable),
+	        resultName: resultName,
+	        nextLoc: nextLoc
+	      };
+
+	      return ContinueSentinel;
+	    }
+	  };
+	})(
+	  // Among the various tricks for obtaining a reference to the global
+	  // object, this seems to be the most reliable technique that does not
+	  // use indirect eval (which violates Content Security Policy).
+	  typeof global === "object" ? global :
+	  typeof window === "object" ? window : this
+	);
+
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
+
+/***/ },
+/* 26 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	exports["default"] = function (obj) {
+	  return obj && obj.__esModule ? obj["default"] : obj;
+	};
+
+	exports.__esModule = true;
+
+/***/ },
+/* 27 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _core = __webpack_require__(47)["default"];
+
+	exports["default"] = function (obj, defaults) {
+	  var keys = _core.Object.getOwnPropertyNames(defaults);
+
+	  for (var i = 0; i < keys.length; i++) {
+	    var key = keys[i];
+
+	    var value = _core.Object.getOwnPropertyDescriptor(defaults, key);
+
+	    if (value && value.configurable && obj[key] === undefined) {
+	      Object.defineProperty(obj, key, value);
+	    }
+	  }
+
+	  return obj;
+	};
+
+	exports.__esModule = true;
+
+/***/ },
+/* 28 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	exports["default"] = function (obj) {
+	  return obj && obj.__esModule ? obj : {
+	    "default": obj
+	  };
+	};
+
+	exports.__esModule = true;
+
+/***/ },
+/* 29 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _defaults = __webpack_require__(27)["default"];
+
+	var _interopRequireWildcard = __webpack_require__(28)["default"];
+
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
 
-	var bs58 = _interopRequire(__webpack_require__(42));
+	_defaults(exports, _interopRequireWildcard(__webpack_require__(48)));
 
-	var _lodash = __webpack_require__(45);
+	var _config = __webpack_require__(49);
 
-	var isUndefined = _lodash.isUndefined;
-	var isNull = _lodash.isNull;
+	_defaults(exports, _interopRequireWildcard(_config));
 
-	var hash = __webpack_require__(22).hash;
+	var config = _config.config;
 
-	var nacl = __webpack_require__(47);
+/***/ },
+/* 30 */
+/***/ function(module, exports, __webpack_require__) {
 
-	var versionBytes = {
-	  accountId: 0, // decimal 0
-	  none: 1, // decimal 1
-	  seed: 33 };
+	"use strict";
 
-	function decodeBase58(encoded) {
-	  return new Buffer(bs58.decode(encoded));
+	exports["default"] = function (instance, Constructor) {
+	  if (!(instance instanceof Constructor)) {
+	    throw new TypeError("Cannot call a class as a function");
+	  }
+	};
+
+	exports.__esModule = true;
+
+/***/ },
+/* 31 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	exports["default"] = (function () {
+	  function defineProperties(target, props) {
+	    for (var key in props) {
+	      var prop = props[key];
+	      prop.configurable = true;
+	      if (prop.value) prop.writable = true;
+	    }
+
+	    Object.defineProperties(target, props);
+	  }
+
+	  return function (Constructor, protoProps, staticProps) {
+	    if (protoProps) defineProperties(Constructor.prototype, protoProps);
+	    if (staticProps) defineProperties(Constructor, staticProps);
+	    return Constructor;
+	  };
+	})();
+
+	exports.__esModule = true;
+
+/***/ },
+/* 32 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// vendored from http://cryptocoinjs.com/modules/misc/bs58/
+
+	// Base58 encoding/decoding
+	// Originally written by Mike Hearn for BitcoinJ
+	// Copyright (c) 2011 Google Inc
+	// Ported to JavaScript by Stefan Thomas
+	// Merged Buffer refactorings from base58-native by Stephen Pair
+	// Copyright (c) 2013 BitPay Inc
+
+	"use strict";
+
+	var ALPHABET = "gsphnaf39wBUDNEGHJKLM4PQRST7VWXYZ2bcdeCr65jkm8oFqi1tuvAxyz";
+	var ALPHABET_MAP = {};
+	for (var i = 0; i < ALPHABET.length; ++i) {
+	  ALPHABET_MAP[ALPHABET.charAt(i)] = i;
 	}
+	var BASE = 58;
 
-	function decodeBase58Check(versionByteName, encoded) {
-	  var decoded = bs58.decode(encoded);
-	  var versionByte = decoded[0];
-	  var payload = decoded.slice(0, decoded.length - 4);
-	  var data = payload.slice(1);
-	  var checksum = decoded.slice(decoded.length - 4);
+	function encode(buffer) {
+	  if (buffer.length === 0) {
+	    return "";
+	  }var i,
+	      j,
+	      digits = [0];
+	  for (i = 0; i < buffer.length; ++i) {
+	    for (j = 0; j < digits.length; ++j) digits[j] <<= 8;
 
-	  var expectedVersion = versionBytes[versionByteName];
+	    digits[0] += buffer[i];
 
-	  if (isUndefined(expectedVersion)) {
-	    throw new Error("" + versionByteName + " is not a valid version byte name.  expected one of \"accountId\", \"seed\", or \"none\"");
-	  }
+	    var carry = 0;
+	    for (j = 0; j < digits.length; ++j) {
+	      digits[j] += carry;
 
-	  if (versionByte !== expectedVersion) {
-	    throw new Error("invalid version byte.  expected " + expectedVersion + ", got " + versionByte);
-	  }
+	      carry = digits[j] / BASE | 0;
+	      digits[j] %= BASE;
+	    }
 
-	  var expectedChecksum = calculateChecksum(payload);
+	    while (carry) {
+	      digits.push(carry % BASE);
 
-	  if (!verifyChecksum(expectedChecksum, checksum)) {
-	    throw new Error("invalid checksum");
-	  }
-
-	  return new Buffer(data);
-	}
-
-	function encodeBase58(data) {
-	  if (isNull(data) || isUndefined(data)) {
-	    throw new Error("cannot encode null data");
-	  }
-
-	  return bs58.encode(data);
-	}
-
-	function encodeBase58Check(versionByteName, data) {
-	  if (isNull(data) || isUndefined(data)) {
-	    throw new Error("cannot encode null data");
-	  }
-
-	  var versionByte = versionBytes[versionByteName];
-
-	  if (isUndefined(versionByte)) {
-	    throw new Error("" + versionByteName + " is not a valid version byte name.  expected one of \"accountId\", \"seed\", or \"none\"");
-	  }
-
-	  data = new Buffer(data);
-	  var versionBuffer = new Buffer([versionByte]);
-	  var payload = Buffer.concat([versionBuffer, data]);
-	  var checksum = calculateChecksum(payload);
-	  var unencoded = Buffer.concat([payload, checksum]);
-
-	  return encodeBase58(unencoded);
-	}
-
-	function calculateChecksum(payload) {
-	  var inner = hash(payload);
-	  var outer = hash(inner);
-	  return outer.slice(0, 4);
-	}
-
-	function verifyChecksum(expected, actual) {
-	  if (expected.length !== actual.length) {
-	    return false;
-	  }
-
-	  if (expected.length === 0) {
-	    return true;
-	  }
-
-	  for (var i = 0; i < expected.length; i++) {
-	    if (expected[i] !== actual[i]) {
-	      return false;
+	      carry = carry / BASE | 0;
 	    }
 	  }
 
-	  return true;
+	  // deal with leading zeros
+	  for (i = 0; buffer[i] === 0 && i < buffer.length - 1; ++i) digits.push(0);
+
+	  // convert digits to a string
+	  var str = "";
+	  for (i = digits.length - 1; i >= 0; --i) {
+	    str += ALPHABET[digits[i]];
+	  }
+
+	  return str;
 	}
-	// decimal 33
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
+
+	function decode(string) {
+	  if (string.length === 0) {
+	    return [];
+	  }var i,
+	      j,
+	      bytes = [0];
+	  for (i = 0; i < string.length; ++i) {
+	    var c = string[i];
+	    if (!(c in ALPHABET_MAP)) throw new Error("Non-base58 character");
+
+	    for (j = 0; j < bytes.length; ++j) bytes[j] *= BASE;
+	    bytes[0] += ALPHABET_MAP[c];
+
+	    var carry = 0;
+	    for (j = 0; j < bytes.length; ++j) {
+	      bytes[j] += carry;
+
+	      carry = bytes[j] >> 8;
+	      bytes[j] &= 255;
+	    }
+
+	    while (carry) {
+	      bytes.push(carry & 255);
+
+	      carry >>= 8;
+	    }
+	  }
+
+	  // deal with leading zeros
+	  for (i = 0; string[i] === "g" && i < string.length - 1; ++i) bytes.push(0);
+
+	  return bytes.reverse();
+	}
+
+	module.exports = {
+	  encode: encode,
+	  decode: decode
+	};
 
 /***/ },
-/* 26 */
+/* 33 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports.read = function(buffer, offset, isLE, mLen, nBytes) {
@@ -9202,7 +9553,7 @@ var StellarLib =
 
 
 /***/ },
-/* 27 */
+/* 34 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
@@ -9241,7 +9592,7 @@ var StellarLib =
 
 
 /***/ },
-/* 28 */
+/* 35 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// Copyright Joyent, Inc. and other Node contributors.
@@ -9265,7 +9616,7 @@ var StellarLib =
 	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 	// USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-	var punycode = __webpack_require__(52);
+	var punycode = __webpack_require__(60);
 
 	exports.parse = urlParse;
 	exports.resolve = urlResolve;
@@ -9337,7 +9688,7 @@ var StellarLib =
 	      'gopher:': true,
 	      'file:': true
 	    },
-	    querystring = __webpack_require__(53);
+	    querystring = __webpack_require__(81);
 
 	function urlParse(url, parseQueryString, slashesDenoteHost) {
 	  if (url && isObject(url) && url instanceof Url) return url;
@@ -9954,26 +10305,7 @@ var StellarLib =
 
 
 /***/ },
-/* 29 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var http = __webpack_require__(31);
-
-	var https = module.exports;
-
-	for (var key in http) {
-	    if (http.hasOwnProperty(key)) https[key] = http[key];
-	};
-
-	https.request = function (params, cb) {
-	    if (!params) params = {};
-	    params.scheme = 'https';
-	    return http.request.call(this, params, cb);
-	}
-
-
-/***/ },
-/* 30 */
+/* 36 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// Copyright Joyent, Inc. and other Node contributors.
@@ -10280,13 +10612,32 @@ var StellarLib =
 
 
 /***/ },
-/* 31 */
+/* 37 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var http = __webpack_require__(38);
+
+	var https = module.exports;
+
+	for (var key in http) {
+	    if (http.hasOwnProperty(key)) https[key] = http[key];
+	};
+
+	https.request = function (params, cb) {
+	    if (!params) params = {};
+	    params.scheme = 'https';
+	    return http.request.call(this, params, cb);
+	}
+
+
+/***/ },
+/* 38 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var http = module.exports;
-	var EventEmitter = __webpack_require__(30).EventEmitter;
-	var Request = __webpack_require__(46);
-	var url = __webpack_require__(28)
+	var EventEmitter = __webpack_require__(36).EventEmitter;
+	var Request = __webpack_require__(50);
+	var url = __webpack_require__(35)
 
 	http.request = function (params, cb) {
 	    if (typeof params === 'string') {
@@ -10430,7 +10781,7 @@ var StellarLib =
 	};
 
 /***/ },
-/* 32 */
+/* 39 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global, process) {// Copyright Joyent, Inc. and other Node contributors.
@@ -10958,7 +11309,7 @@ var StellarLib =
 	}
 	exports.isPrimitive = isPrimitive;
 
-	exports.isBuffer = __webpack_require__(49);
+	exports.isBuffer = __webpack_require__(59);
 
 	function objectToString(o) {
 	  return Object.prototype.toString.call(o);
@@ -11002,7 +11353,7 @@ var StellarLib =
 	 *     prototype.
 	 * @param {function} superCtor Constructor function to inherit prototype from.
 	 */
-	exports.inherits = __webpack_require__(63);
+	exports.inherits = __webpack_require__(85);
 
 	exports._extend = function(origin, add) {
 	  // Don't do anything if add isn't an object
@@ -11020,10 +11371,10 @@ var StellarLib =
 	  return Object.prototype.hasOwnProperty.call(obj, prop);
 	}
 
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(33)))
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(40)))
 
 /***/ },
-/* 33 */
+/* 40 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// shim for using process in browser
@@ -11087,416 +11438,13 @@ var StellarLib =
 
 
 /***/ },
-/* 34 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var parse = __webpack_require__(54);
-
-	/**
-	 * Transform an URL to a valid origin value.
-	 *
-	 * @param {String|Object} url URL to transform to it's origin.
-	 * @returns {String} The origin.
-	 * @api public
-	 */
-	function origin(url) {
-	  if ('string' === typeof url) {
-	    //
-	    // In order to correctly parse an URL it needs to be prefixed with
-	    // a protocol or the parsers will all assume that the information we've
-	    // given is a pathname instead of an URL. So we need to do a sanity check
-	    // before parsing.
-	    //
-	    if (!/^(http|ws|file|blob)s?:/i.test(url)) url = 'http://'+ url;
-	    url = parse(url.toLowerCase());
-	  }
-
-	  //
-	  // 6.2.  ASCII Serialization of an Origin
-	  // http://tools.ietf.org/html/rfc6454#section-6.2
-	  //
-	  // @TODO If we cannot generate a proper origin from the URL because
-	  // origin/host/port information is missing we should return the string `null`
-	  //
-
-	  var protocol = url.protocol
-	    , port = url.port && +url.port;
-
-	  //
-	  // 4. Origin of a URI
-	  // http://tools.ietf.org/html/rfc6454#section-4
-	  //
-	  // States that url.scheme, host should be converted to lower case. This also
-	  // makes it easier to match origins as everything is just lower case.
-	  //
-	  return (url.protocol +'//'+ url.hostname + (!port ? '' : ':'+ port)).toLowerCase();
-	}
-
-	/**
-	 * Check if the origins are the same.
-	 *
-	 * @param {String} a URL or origin of a.
-	 * @param {String} b URL or origin of b.
-	 * @returns {Boolean}
-	 * @api public
-	 */
-	origin.same = function same(a, b) {
-	  return origin(a) === origin(b);
-	};
-
-	//
-	// Expose the origin
-	//
-	module.exports = origin;
-
-
-/***/ },
-/* 35 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
-
-	;(function (exports) {
-		'use strict';
-
-	  var Arr = (typeof Uint8Array !== 'undefined')
-	    ? Uint8Array
-	    : Array
-
-		var PLUS   = '+'.charCodeAt(0)
-		var SLASH  = '/'.charCodeAt(0)
-		var NUMBER = '0'.charCodeAt(0)
-		var LOWER  = 'a'.charCodeAt(0)
-		var UPPER  = 'A'.charCodeAt(0)
-		var PLUS_URL_SAFE = '-'.charCodeAt(0)
-		var SLASH_URL_SAFE = '_'.charCodeAt(0)
-
-		function decode (elt) {
-			var code = elt.charCodeAt(0)
-			if (code === PLUS ||
-			    code === PLUS_URL_SAFE)
-				return 62 // '+'
-			if (code === SLASH ||
-			    code === SLASH_URL_SAFE)
-				return 63 // '/'
-			if (code < NUMBER)
-				return -1 //no match
-			if (code < NUMBER + 10)
-				return code - NUMBER + 26 + 26
-			if (code < UPPER + 26)
-				return code - UPPER
-			if (code < LOWER + 26)
-				return code - LOWER + 26
-		}
-
-		function b64ToByteArray (b64) {
-			var i, j, l, tmp, placeHolders, arr
-
-			if (b64.length % 4 > 0) {
-				throw new Error('Invalid string. Length must be a multiple of 4')
-			}
-
-			// the number of equal signs (place holders)
-			// if there are two placeholders, than the two characters before it
-			// represent one byte
-			// if there is only one, then the three characters before it represent 2 bytes
-			// this is just a cheap hack to not do indexOf twice
-			var len = b64.length
-			placeHolders = '=' === b64.charAt(len - 2) ? 2 : '=' === b64.charAt(len - 1) ? 1 : 0
-
-			// base64 is 4/3 + up to two characters of the original data
-			arr = new Arr(b64.length * 3 / 4 - placeHolders)
-
-			// if there are placeholders, only get up to the last complete 4 chars
-			l = placeHolders > 0 ? b64.length - 4 : b64.length
-
-			var L = 0
-
-			function push (v) {
-				arr[L++] = v
-			}
-
-			for (i = 0, j = 0; i < l; i += 4, j += 3) {
-				tmp = (decode(b64.charAt(i)) << 18) | (decode(b64.charAt(i + 1)) << 12) | (decode(b64.charAt(i + 2)) << 6) | decode(b64.charAt(i + 3))
-				push((tmp & 0xFF0000) >> 16)
-				push((tmp & 0xFF00) >> 8)
-				push(tmp & 0xFF)
-			}
-
-			if (placeHolders === 2) {
-				tmp = (decode(b64.charAt(i)) << 2) | (decode(b64.charAt(i + 1)) >> 4)
-				push(tmp & 0xFF)
-			} else if (placeHolders === 1) {
-				tmp = (decode(b64.charAt(i)) << 10) | (decode(b64.charAt(i + 1)) << 4) | (decode(b64.charAt(i + 2)) >> 2)
-				push((tmp >> 8) & 0xFF)
-				push(tmp & 0xFF)
-			}
-
-			return arr
-		}
-
-		function uint8ToBase64 (uint8) {
-			var i,
-				extraBytes = uint8.length % 3, // if we have 1 byte left, pad 2 bytes
-				output = "",
-				temp, length
-
-			function encode (num) {
-				return lookup.charAt(num)
-			}
-
-			function tripletToBase64 (num) {
-				return encode(num >> 18 & 0x3F) + encode(num >> 12 & 0x3F) + encode(num >> 6 & 0x3F) + encode(num & 0x3F)
-			}
-
-			// go through the array every three bytes, we'll deal with trailing stuff later
-			for (i = 0, length = uint8.length - extraBytes; i < length; i += 3) {
-				temp = (uint8[i] << 16) + (uint8[i + 1] << 8) + (uint8[i + 2])
-				output += tripletToBase64(temp)
-			}
-
-			// pad the end with zeros, but make sure to not forget the extra bytes
-			switch (extraBytes) {
-				case 1:
-					temp = uint8[uint8.length - 1]
-					output += encode(temp >> 2)
-					output += encode((temp << 4) & 0x3F)
-					output += '=='
-					break
-				case 2:
-					temp = (uint8[uint8.length - 2] << 8) + (uint8[uint8.length - 1])
-					output += encode(temp >> 10)
-					output += encode((temp >> 4) & 0x3F)
-					output += encode((temp << 2) & 0x3F)
-					output += '='
-					break
-			}
-
-			return output
-		}
-
-		exports.toByteArray = b64ToByteArray
-		exports.fromByteArray = uint8ToBase64
-	}(false ? (this.base64js = {}) : exports))
-
-
-/***/ },
-/* 36 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	exports["default"] = function (obj) {
-	  return obj && obj.__esModule ? obj["default"] : obj;
-	};
-
-	exports.__esModule = true;
-
-/***/ },
-/* 37 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _core = __webpack_require__(48)["default"];
-
-	exports["default"] = function (obj, defaults) {
-	  var keys = _core.Object.getOwnPropertyNames(defaults);
-
-	  for (var i = 0; i < keys.length; i++) {
-	    var key = keys[i];
-
-	    var value = _core.Object.getOwnPropertyDescriptor(defaults, key);
-
-	    if (value && value.configurable && obj[key] === undefined) {
-	      Object.defineProperty(obj, key, value);
-	    }
-	  }
-
-	  return obj;
-	};
-
-	exports.__esModule = true;
-
-/***/ },
-/* 38 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	exports["default"] = function (obj) {
-	  return obj && obj.__esModule ? obj : {
-	    "default": obj
-	  };
-	};
-
-	exports.__esModule = true;
-
-/***/ },
-/* 39 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _defaults = __webpack_require__(37)["default"];
-
-	var _interopRequireWildcard = __webpack_require__(38)["default"];
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	_defaults(exports, _interopRequireWildcard(__webpack_require__(50)));
-
-	var _config = __webpack_require__(51);
-
-	_defaults(exports, _interopRequireWildcard(_config));
-
-	var config = _config.config;
-
-/***/ },
-/* 40 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	exports["default"] = function (instance, Constructor) {
-	  if (!(instance instanceof Constructor)) {
-	    throw new TypeError("Cannot call a class as a function");
-	  }
-	};
-
-	exports.__esModule = true;
-
-/***/ },
 /* 41 */
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
-
-	exports["default"] = (function () {
-	  function defineProperties(target, props) {
-	    for (var key in props) {
-	      var prop = props[key];
-	      prop.configurable = true;
-	      if (prop.value) prop.writable = true;
-	    }
-
-	    Object.defineProperties(target, props);
-	  }
-
-	  return function (Constructor, protoProps, staticProps) {
-	    if (protoProps) defineProperties(Constructor.prototype, protoProps);
-	    if (staticProps) defineProperties(Constructor, staticProps);
-	    return Constructor;
-	  };
-	})();
-
-	exports.__esModule = true;
+	module.exports = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"./build/Release/native.node\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
 
 /***/ },
 /* 42 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// vendored from http://cryptocoinjs.com/modules/misc/bs58/
-
-	// Base58 encoding/decoding
-	// Originally written by Mike Hearn for BitcoinJ
-	// Copyright (c) 2011 Google Inc
-	// Ported to JavaScript by Stefan Thomas
-	// Merged Buffer refactorings from base58-native by Stephen Pair
-	// Copyright (c) 2013 BitPay Inc
-
-	"use strict";
-
-	var ALPHABET = "gsphnaf39wBUDNEGHJKLM4PQRST7VWXYZ2bcdeCr65jkm8oFqi1tuvAxyz";
-	var ALPHABET_MAP = {};
-	for (var i = 0; i < ALPHABET.length; ++i) {
-	  ALPHABET_MAP[ALPHABET.charAt(i)] = i;
-	}
-	var BASE = 58;
-
-	function encode(buffer) {
-	  if (buffer.length === 0) {
-	    return "";
-	  }var i,
-	      j,
-	      digits = [0];
-	  for (i = 0; i < buffer.length; ++i) {
-	    for (j = 0; j < digits.length; ++j) digits[j] <<= 8;
-
-	    digits[0] += buffer[i];
-
-	    var carry = 0;
-	    for (j = 0; j < digits.length; ++j) {
-	      digits[j] += carry;
-
-	      carry = digits[j] / BASE | 0;
-	      digits[j] %= BASE;
-	    }
-
-	    while (carry) {
-	      digits.push(carry % BASE);
-
-	      carry = carry / BASE | 0;
-	    }
-	  }
-
-	  // deal with leading zeros
-	  for (i = 0; buffer[i] === 0 && i < buffer.length - 1; ++i) digits.push(0);
-
-	  // convert digits to a string
-	  var str = "";
-	  for (i = digits.length - 1; i >= 0; --i) {
-	    str += ALPHABET[digits[i]];
-	  }
-
-	  return str;
-	}
-
-	function decode(string) {
-	  if (string.length === 0) {
-	    return [];
-	  }var i,
-	      j,
-	      bytes = [0];
-	  for (i = 0; i < string.length; ++i) {
-	    var c = string[i];
-	    if (!(c in ALPHABET_MAP)) throw new Error("Non-base58 character");
-
-	    for (j = 0; j < bytes.length; ++j) bytes[j] *= BASE;
-	    bytes[0] += ALPHABET_MAP[c];
-
-	    var carry = 0;
-	    for (j = 0; j < bytes.length; ++j) {
-	      bytes[j] += carry;
-
-	      carry = bytes[j] >> 8;
-	      bytes[j] &= 255;
-	    }
-
-	    while (carry) {
-	      bytes.push(carry & 255);
-
-	      carry >>= 8;
-	    }
-	  }
-
-	  // deal with leading zeros
-	  for (i = 0; string[i] === "g" && i < string.length - 1; ++i) bytes.push(0);
-
-	  return bytes.reverse();
-	}
-
-	module.exports = {
-	  encode: encode,
-	  decode: decode
-	};
-
-/***/ },
-/* 43 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var exports = module.exports = function (alg) {
@@ -11506,22 +11454,16 @@ var StellarLib =
 	}
 
 
-	exports.sha = __webpack_require__(55)
-	exports.sha1 = __webpack_require__(56)
-	exports.sha224 = __webpack_require__(57)
-	exports.sha256 = __webpack_require__(58)
-	exports.sha384 = __webpack_require__(59)
-	exports.sha512 = __webpack_require__(60)
+	exports.sha = __webpack_require__(51)
+	exports.sha1 = __webpack_require__(52)
+	exports.sha224 = __webpack_require__(53)
+	exports.sha256 = __webpack_require__(54)
+	exports.sha384 = __webpack_require__(55)
+	exports.sha512 = __webpack_require__(56)
 
 
 /***/ },
-/* 44 */
-/***/ function(module, exports, __webpack_require__) {
-
-	module.exports = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"./build/Release/native.node\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
-
-/***/ },
-/* 45 */
+/* 43 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(module, global) {/**
@@ -23691,225 +23633,206 @@ var StellarLib =
 	  }
 	}.call(this));
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(86)(module), (function() { return this; }())))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(83)(module), (function() { return this; }())))
+
+/***/ },
+/* 44 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var parse = __webpack_require__(82);
+
+	/**
+	 * Transform an URL to a valid origin value.
+	 *
+	 * @param {String|Object} url URL to transform to it's origin.
+	 * @returns {String} The origin.
+	 * @api public
+	 */
+	function origin(url) {
+	  if ('string' === typeof url) {
+	    //
+	    // In order to correctly parse an URL it needs to be prefixed with
+	    // a protocol or the parsers will all assume that the information we've
+	    // given is a pathname instead of an URL. So we need to do a sanity check
+	    // before parsing.
+	    //
+	    if (!/^(http|ws|file|blob)s?:/i.test(url)) url = 'http://'+ url;
+	    url = parse(url.toLowerCase());
+	  }
+
+	  //
+	  // 6.2.  ASCII Serialization of an Origin
+	  // http://tools.ietf.org/html/rfc6454#section-6.2
+	  //
+	  // @TODO If we cannot generate a proper origin from the URL because
+	  // origin/host/port information is missing we should return the string `null`
+	  //
+
+	  var protocol = url.protocol
+	    , port = url.port && +url.port;
+
+	  //
+	  // 4. Origin of a URI
+	  // http://tools.ietf.org/html/rfc6454#section-4
+	  //
+	  // States that url.scheme, host should be converted to lower case. This also
+	  // makes it easier to match origins as everything is just lower case.
+	  //
+	  return (url.protocol +'//'+ url.hostname + (!port ? '' : ':'+ port)).toLowerCase();
+	}
+
+	/**
+	 * Check if the origins are the same.
+	 *
+	 * @param {String} a URL or origin of a.
+	 * @param {String} b URL or origin of b.
+	 * @returns {Boolean}
+	 * @api public
+	 */
+	origin.same = function same(a, b) {
+	  return origin(a) === origin(b);
+	};
+
+	//
+	// Expose the origin
+	//
+	module.exports = origin;
+
+
+/***/ },
+/* 45 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+
+	;(function (exports) {
+		'use strict';
+
+	  var Arr = (typeof Uint8Array !== 'undefined')
+	    ? Uint8Array
+	    : Array
+
+		var PLUS   = '+'.charCodeAt(0)
+		var SLASH  = '/'.charCodeAt(0)
+		var NUMBER = '0'.charCodeAt(0)
+		var LOWER  = 'a'.charCodeAt(0)
+		var UPPER  = 'A'.charCodeAt(0)
+		var PLUS_URL_SAFE = '-'.charCodeAt(0)
+		var SLASH_URL_SAFE = '_'.charCodeAt(0)
+
+		function decode (elt) {
+			var code = elt.charCodeAt(0)
+			if (code === PLUS ||
+			    code === PLUS_URL_SAFE)
+				return 62 // '+'
+			if (code === SLASH ||
+			    code === SLASH_URL_SAFE)
+				return 63 // '/'
+			if (code < NUMBER)
+				return -1 //no match
+			if (code < NUMBER + 10)
+				return code - NUMBER + 26 + 26
+			if (code < UPPER + 26)
+				return code - UPPER
+			if (code < LOWER + 26)
+				return code - LOWER + 26
+		}
+
+		function b64ToByteArray (b64) {
+			var i, j, l, tmp, placeHolders, arr
+
+			if (b64.length % 4 > 0) {
+				throw new Error('Invalid string. Length must be a multiple of 4')
+			}
+
+			// the number of equal signs (place holders)
+			// if there are two placeholders, than the two characters before it
+			// represent one byte
+			// if there is only one, then the three characters before it represent 2 bytes
+			// this is just a cheap hack to not do indexOf twice
+			var len = b64.length
+			placeHolders = '=' === b64.charAt(len - 2) ? 2 : '=' === b64.charAt(len - 1) ? 1 : 0
+
+			// base64 is 4/3 + up to two characters of the original data
+			arr = new Arr(b64.length * 3 / 4 - placeHolders)
+
+			// if there are placeholders, only get up to the last complete 4 chars
+			l = placeHolders > 0 ? b64.length - 4 : b64.length
+
+			var L = 0
+
+			function push (v) {
+				arr[L++] = v
+			}
+
+			for (i = 0, j = 0; i < l; i += 4, j += 3) {
+				tmp = (decode(b64.charAt(i)) << 18) | (decode(b64.charAt(i + 1)) << 12) | (decode(b64.charAt(i + 2)) << 6) | decode(b64.charAt(i + 3))
+				push((tmp & 0xFF0000) >> 16)
+				push((tmp & 0xFF00) >> 8)
+				push(tmp & 0xFF)
+			}
+
+			if (placeHolders === 2) {
+				tmp = (decode(b64.charAt(i)) << 2) | (decode(b64.charAt(i + 1)) >> 4)
+				push(tmp & 0xFF)
+			} else if (placeHolders === 1) {
+				tmp = (decode(b64.charAt(i)) << 10) | (decode(b64.charAt(i + 1)) << 4) | (decode(b64.charAt(i + 2)) >> 2)
+				push((tmp >> 8) & 0xFF)
+				push(tmp & 0xFF)
+			}
+
+			return arr
+		}
+
+		function uint8ToBase64 (uint8) {
+			var i,
+				extraBytes = uint8.length % 3, // if we have 1 byte left, pad 2 bytes
+				output = "",
+				temp, length
+
+			function encode (num) {
+				return lookup.charAt(num)
+			}
+
+			function tripletToBase64 (num) {
+				return encode(num >> 18 & 0x3F) + encode(num >> 12 & 0x3F) + encode(num >> 6 & 0x3F) + encode(num & 0x3F)
+			}
+
+			// go through the array every three bytes, we'll deal with trailing stuff later
+			for (i = 0, length = uint8.length - extraBytes; i < length; i += 3) {
+				temp = (uint8[i] << 16) + (uint8[i + 1] << 8) + (uint8[i + 2])
+				output += tripletToBase64(temp)
+			}
+
+			// pad the end with zeros, but make sure to not forget the extra bytes
+			switch (extraBytes) {
+				case 1:
+					temp = uint8[uint8.length - 1]
+					output += encode(temp >> 2)
+					output += encode((temp << 4) & 0x3F)
+					output += '=='
+					break
+				case 2:
+					temp = (uint8[uint8.length - 2] << 8) + (uint8[uint8.length - 1])
+					output += encode(temp >> 10)
+					output += encode((temp >> 4) & 0x3F)
+					output += encode((temp << 2) & 0x3F)
+					output += '='
+					break
+			}
+
+			return output
+		}
+
+		exports.toByteArray = b64ToByteArray
+		exports.fromByteArray = uint8ToBase64
+	}(false ? (this.base64js = {}) : exports))
+
 
 /***/ },
 /* 46 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var Stream = __webpack_require__(85);
-	var Response = __webpack_require__(62);
-	var Base64 = __webpack_require__(90);
-	var inherits = __webpack_require__(91);
-
-	var Request = module.exports = function (xhr, params) {
-	    var self = this;
-	    self.writable = true;
-	    self.xhr = xhr;
-	    self.body = [];
-	    
-	    self.uri = (params.protocol || 'http:') + '//'
-	        + params.host
-	        + (params.port ? ':' + params.port : '')
-	        + (params.path || '/')
-	    ;
-	    
-	    if (typeof params.withCredentials === 'undefined') {
-	        params.withCredentials = true;
-	    }
-
-	    try { xhr.withCredentials = params.withCredentials }
-	    catch (e) {}
-	    
-	    if (params.responseType) try { xhr.responseType = params.responseType }
-	    catch (e) {}
-	    
-	    xhr.open(
-	        params.method || 'GET',
-	        self.uri,
-	        true
-	    );
-
-	    xhr.onerror = function(event) {
-	        self.emit('error', new Error('Network error'));
-	    };
-
-	    self._headers = {};
-	    
-	    if (params.headers) {
-	        var keys = objectKeys(params.headers);
-	        for (var i = 0; i < keys.length; i++) {
-	            var key = keys[i];
-	            if (!self.isSafeRequestHeader(key)) continue;
-	            var value = params.headers[key];
-	            self.setHeader(key, value);
-	        }
-	    }
-	    
-	    if (params.auth) {
-	        //basic auth
-	        this.setHeader('Authorization', 'Basic ' + Base64.btoa(params.auth));
-	    }
-
-	    var res = new Response;
-	    res.on('close', function () {
-	        self.emit('close');
-	    });
-	    
-	    res.on('ready', function () {
-	        self.emit('response', res);
-	    });
-
-	    res.on('error', function (err) {
-	        self.emit('error', err);
-	    });
-	    
-	    xhr.onreadystatechange = function () {
-	        // Fix for IE9 bug
-	        // SCRIPT575: Could not complete the operation due to error c00c023f
-	        // It happens when a request is aborted, calling the success callback anyway with readyState === 4
-	        if (xhr.__aborted) return;
-	        res.handle(xhr);
-	    };
-	};
-
-	inherits(Request, Stream);
-
-	Request.prototype.setHeader = function (key, value) {
-	    this._headers[key.toLowerCase()] = value
-	};
-
-	Request.prototype.getHeader = function (key) {
-	    return this._headers[key.toLowerCase()]
-	};
-
-	Request.prototype.removeHeader = function (key) {
-	    delete this._headers[key.toLowerCase()]
-	};
-
-	Request.prototype.write = function (s) {
-	    this.body.push(s);
-	};
-
-	Request.prototype.destroy = function (s) {
-	    this.xhr.__aborted = true;
-	    this.xhr.abort();
-	    this.emit('close');
-	};
-
-	Request.prototype.end = function (s) {
-	    if (s !== undefined) this.body.push(s);
-
-	    var keys = objectKeys(this._headers);
-	    for (var i = 0; i < keys.length; i++) {
-	        var key = keys[i];
-	        var value = this._headers[key];
-	        if (isArray(value)) {
-	            for (var j = 0; j < value.length; j++) {
-	                this.xhr.setRequestHeader(key, value[j]);
-	            }
-	        }
-	        else this.xhr.setRequestHeader(key, value)
-	    }
-
-	    if (this.body.length === 0) {
-	        this.xhr.send('');
-	    }
-	    else if (typeof this.body[0] === 'string') {
-	        this.xhr.send(this.body.join(''));
-	    }
-	    else if (isArray(this.body[0])) {
-	        var body = [];
-	        for (var i = 0; i < this.body.length; i++) {
-	            body.push.apply(body, this.body[i]);
-	        }
-	        this.xhr.send(body);
-	    }
-	    else if (/Array/.test(Object.prototype.toString.call(this.body[0]))) {
-	        var len = 0;
-	        for (var i = 0; i < this.body.length; i++) {
-	            len += this.body[i].length;
-	        }
-	        var body = new(this.body[0].constructor)(len);
-	        var k = 0;
-	        
-	        for (var i = 0; i < this.body.length; i++) {
-	            var b = this.body[i];
-	            for (var j = 0; j < b.length; j++) {
-	                body[k++] = b[j];
-	            }
-	        }
-	        this.xhr.send(body);
-	    }
-	    else if (isXHR2Compatible(this.body[0])) {
-	        this.xhr.send(this.body[0]);
-	    }
-	    else {
-	        var body = '';
-	        for (var i = 0; i < this.body.length; i++) {
-	            body += this.body[i].toString();
-	        }
-	        this.xhr.send(body);
-	    }
-	};
-
-	// Taken from http://dxr.mozilla.org/mozilla/mozilla-central/content/base/src/nsXMLHttpRequest.cpp.html
-	Request.unsafeHeaders = [
-	    "accept-charset",
-	    "accept-encoding",
-	    "access-control-request-headers",
-	    "access-control-request-method",
-	    "connection",
-	    "content-length",
-	    "cookie",
-	    "cookie2",
-	    "content-transfer-encoding",
-	    "date",
-	    "expect",
-	    "host",
-	    "keep-alive",
-	    "origin",
-	    "referer",
-	    "te",
-	    "trailer",
-	    "transfer-encoding",
-	    "upgrade",
-	    "user-agent",
-	    "via"
-	];
-
-	Request.prototype.isSafeRequestHeader = function (headerName) {
-	    if (!headerName) return false;
-	    return indexOf(Request.unsafeHeaders, headerName.toLowerCase()) === -1;
-	};
-
-	var objectKeys = Object.keys || function (obj) {
-	    var keys = [];
-	    for (var key in obj) keys.push(key);
-	    return keys;
-	};
-
-	var isArray = Array.isArray || function (xs) {
-	    return Object.prototype.toString.call(xs) === '[object Array]';
-	};
-
-	var indexOf = function (xs, x) {
-	    if (xs.indexOf) return xs.indexOf(x);
-	    for (var i = 0; i < xs.length; i++) {
-	        if (xs[i] === x) return i;
-	    }
-	    return -1;
-	};
-
-	var isXHR2Compatible = function (obj) {
-	    if (typeof Blob !== 'undefined' && obj instanceof Blob) return true;
-	    if (typeof ArrayBuffer !== 'undefined' && obj instanceof ArrayBuffer) return true;
-	    if (typeof FormData !== 'undefined' && obj instanceof FormData) return true;
-	};
-
-
-/***/ },
-/* 47 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {(function(nacl) {
@@ -26320,7 +26243,7 @@ var StellarLib =
 	    }
 	  } else if (true) {
 	    // Node.js.
-	    crypto = __webpack_require__(61);
+	    crypto = __webpack_require__(57);
 	    if (crypto) {
 	      nacl.setPRNG(function(x, n) {
 	        var i, v = crypto.randomBytes(n);
@@ -26333,10 +26256,10 @@ var StellarLib =
 
 	})(typeof module !== 'undefined' && module.exports ? module.exports : (window.nacl = window.nacl || {}));
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15).Buffer))
 
 /***/ },
-/* 48 */
+/* 47 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -28682,29 +28605,26 @@ var StellarLib =
 
 
 /***/ },
-/* 49 */
-/***/ function(module, exports, __webpack_require__) {
-
-	module.exports = function isBuffer(arg) {
-	  return arg && typeof arg === 'object'
-	    && typeof arg.copy === 'function'
-	    && typeof arg.fill === 'function'
-	    && typeof arg.readUInt8 === 'function';
-	}
-
-/***/ },
-/* 50 */
+/* 48 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
-	var _defaults = __webpack_require__(37)["default"];
+	var _defaults = __webpack_require__(27)["default"];
 
-	var _interopRequireWildcard = __webpack_require__(38)["default"];
+	var _interopRequireWildcard = __webpack_require__(28)["default"];
 
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
+
+	_defaults(exports, _interopRequireWildcard(__webpack_require__(61)));
+
+	_defaults(exports, _interopRequireWildcard(__webpack_require__(62)));
+
+	_defaults(exports, _interopRequireWildcard(__webpack_require__(63)));
+
+	_defaults(exports, _interopRequireWildcard(__webpack_require__(64)));
 
 	_defaults(exports, _interopRequireWildcard(__webpack_require__(65)));
 
@@ -28734,40 +28654,32 @@ var StellarLib =
 
 	_defaults(exports, _interopRequireWildcard(__webpack_require__(78)));
 
-	_defaults(exports, _interopRequireWildcard(__webpack_require__(79)));
-
-	_defaults(exports, _interopRequireWildcard(__webpack_require__(80)));
-
-	_defaults(exports, _interopRequireWildcard(__webpack_require__(81)));
-
-	_defaults(exports, _interopRequireWildcard(__webpack_require__(82)));
-
 /***/ },
-/* 51 */
+/* 49 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
-	var _classCallCheck = __webpack_require__(40)["default"];
+	var _classCallCheck = __webpack_require__(30)["default"];
 
-	var _createClass = __webpack_require__(41)["default"];
+	var _createClass = __webpack_require__(31)["default"];
 
-	var _inherits = __webpack_require__(83)["default"];
+	var _inherits = __webpack_require__(79)["default"];
 
-	var _toConsumableArray = __webpack_require__(84)["default"];
+	var _toConsumableArray = __webpack_require__(80)["default"];
 
-	var _interopRequireWildcard = __webpack_require__(38)["default"];
+	var _interopRequireWildcard = __webpack_require__(28)["default"];
 
-	var _interopRequire = __webpack_require__(36)["default"];
+	var _interopRequire = __webpack_require__(26)["default"];
 
 	exports.config = config;
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
 
-	var XDR = _interopRequireWildcard(__webpack_require__(50));
+	var XDR = _interopRequireWildcard(__webpack_require__(48));
 
-	var _lodash = __webpack_require__(45);
+	var _lodash = __webpack_require__(43);
 
 	var isUndefined = _lodash.isUndefined;
 	var isPlainObject = _lodash.isPlainObject;
@@ -28776,7 +28688,7 @@ var StellarLib =
 	var map = _lodash.map;
 	var pick = _lodash.pick;
 
-	var sequencify = _interopRequire(__webpack_require__(92));
+	var sequencify = _interopRequire(__webpack_require__(86));
 
 	// types is the root
 	var types = {};
@@ -29125,7 +29037,979 @@ var StellarLib =
 	})();
 
 /***/ },
+/* 50 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var Stream = __webpack_require__(88);
+	var Response = __webpack_require__(84);
+	var Base64 = __webpack_require__(96);
+	var inherits = __webpack_require__(97);
+
+	var Request = module.exports = function (xhr, params) {
+	    var self = this;
+	    self.writable = true;
+	    self.xhr = xhr;
+	    self.body = [];
+	    
+	    self.uri = (params.protocol || 'http:') + '//'
+	        + params.host
+	        + (params.port ? ':' + params.port : '')
+	        + (params.path || '/')
+	    ;
+	    
+	    if (typeof params.withCredentials === 'undefined') {
+	        params.withCredentials = true;
+	    }
+
+	    try { xhr.withCredentials = params.withCredentials }
+	    catch (e) {}
+	    
+	    if (params.responseType) try { xhr.responseType = params.responseType }
+	    catch (e) {}
+	    
+	    xhr.open(
+	        params.method || 'GET',
+	        self.uri,
+	        true
+	    );
+
+	    xhr.onerror = function(event) {
+	        self.emit('error', new Error('Network error'));
+	    };
+
+	    self._headers = {};
+	    
+	    if (params.headers) {
+	        var keys = objectKeys(params.headers);
+	        for (var i = 0; i < keys.length; i++) {
+	            var key = keys[i];
+	            if (!self.isSafeRequestHeader(key)) continue;
+	            var value = params.headers[key];
+	            self.setHeader(key, value);
+	        }
+	    }
+	    
+	    if (params.auth) {
+	        //basic auth
+	        this.setHeader('Authorization', 'Basic ' + Base64.btoa(params.auth));
+	    }
+
+	    var res = new Response;
+	    res.on('close', function () {
+	        self.emit('close');
+	    });
+	    
+	    res.on('ready', function () {
+	        self.emit('response', res);
+	    });
+
+	    res.on('error', function (err) {
+	        self.emit('error', err);
+	    });
+	    
+	    xhr.onreadystatechange = function () {
+	        // Fix for IE9 bug
+	        // SCRIPT575: Could not complete the operation due to error c00c023f
+	        // It happens when a request is aborted, calling the success callback anyway with readyState === 4
+	        if (xhr.__aborted) return;
+	        res.handle(xhr);
+	    };
+	};
+
+	inherits(Request, Stream);
+
+	Request.prototype.setHeader = function (key, value) {
+	    this._headers[key.toLowerCase()] = value
+	};
+
+	Request.prototype.getHeader = function (key) {
+	    return this._headers[key.toLowerCase()]
+	};
+
+	Request.prototype.removeHeader = function (key) {
+	    delete this._headers[key.toLowerCase()]
+	};
+
+	Request.prototype.write = function (s) {
+	    this.body.push(s);
+	};
+
+	Request.prototype.destroy = function (s) {
+	    this.xhr.__aborted = true;
+	    this.xhr.abort();
+	    this.emit('close');
+	};
+
+	Request.prototype.end = function (s) {
+	    if (s !== undefined) this.body.push(s);
+
+	    var keys = objectKeys(this._headers);
+	    for (var i = 0; i < keys.length; i++) {
+	        var key = keys[i];
+	        var value = this._headers[key];
+	        if (isArray(value)) {
+	            for (var j = 0; j < value.length; j++) {
+	                this.xhr.setRequestHeader(key, value[j]);
+	            }
+	        }
+	        else this.xhr.setRequestHeader(key, value)
+	    }
+
+	    if (this.body.length === 0) {
+	        this.xhr.send('');
+	    }
+	    else if (typeof this.body[0] === 'string') {
+	        this.xhr.send(this.body.join(''));
+	    }
+	    else if (isArray(this.body[0])) {
+	        var body = [];
+	        for (var i = 0; i < this.body.length; i++) {
+	            body.push.apply(body, this.body[i]);
+	        }
+	        this.xhr.send(body);
+	    }
+	    else if (/Array/.test(Object.prototype.toString.call(this.body[0]))) {
+	        var len = 0;
+	        for (var i = 0; i < this.body.length; i++) {
+	            len += this.body[i].length;
+	        }
+	        var body = new(this.body[0].constructor)(len);
+	        var k = 0;
+	        
+	        for (var i = 0; i < this.body.length; i++) {
+	            var b = this.body[i];
+	            for (var j = 0; j < b.length; j++) {
+	                body[k++] = b[j];
+	            }
+	        }
+	        this.xhr.send(body);
+	    }
+	    else if (isXHR2Compatible(this.body[0])) {
+	        this.xhr.send(this.body[0]);
+	    }
+	    else {
+	        var body = '';
+	        for (var i = 0; i < this.body.length; i++) {
+	            body += this.body[i].toString();
+	        }
+	        this.xhr.send(body);
+	    }
+	};
+
+	// Taken from http://dxr.mozilla.org/mozilla/mozilla-central/content/base/src/nsXMLHttpRequest.cpp.html
+	Request.unsafeHeaders = [
+	    "accept-charset",
+	    "accept-encoding",
+	    "access-control-request-headers",
+	    "access-control-request-method",
+	    "connection",
+	    "content-length",
+	    "cookie",
+	    "cookie2",
+	    "content-transfer-encoding",
+	    "date",
+	    "expect",
+	    "host",
+	    "keep-alive",
+	    "origin",
+	    "referer",
+	    "te",
+	    "trailer",
+	    "transfer-encoding",
+	    "upgrade",
+	    "user-agent",
+	    "via"
+	];
+
+	Request.prototype.isSafeRequestHeader = function (headerName) {
+	    if (!headerName) return false;
+	    return indexOf(Request.unsafeHeaders, headerName.toLowerCase()) === -1;
+	};
+
+	var objectKeys = Object.keys || function (obj) {
+	    var keys = [];
+	    for (var key in obj) keys.push(key);
+	    return keys;
+	};
+
+	var isArray = Array.isArray || function (xs) {
+	    return Object.prototype.toString.call(xs) === '[object Array]';
+	};
+
+	var indexOf = function (xs, x) {
+	    if (xs.indexOf) return xs.indexOf(x);
+	    for (var i = 0; i < xs.length; i++) {
+	        if (xs[i] === x) return i;
+	    }
+	    return -1;
+	};
+
+	var isXHR2Compatible = function (obj) {
+	    if (typeof Blob !== 'undefined' && obj instanceof Blob) return true;
+	    if (typeof ArrayBuffer !== 'undefined' && obj instanceof ArrayBuffer) return true;
+	    if (typeof FormData !== 'undefined' && obj instanceof FormData) return true;
+	};
+
+
+/***/ },
+/* 51 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(Buffer) {/*
+	 * A JavaScript implementation of the Secure Hash Algorithm, SHA-0, as defined
+	 * in FIPS PUB 180-1
+	 * This source code is derived from sha1.js of the same repository.
+	 * The difference between SHA-0 and SHA-1 is just a bitwise rotate left
+	 * operation was added.
+	 */
+
+	var inherits = __webpack_require__(99)
+	var Hash = __webpack_require__(87)
+
+	var W = new Array(80)
+
+	function Sha() {
+	  this.init()
+	  this._w = W
+
+	  Hash.call(this, 64, 56)
+	}
+
+	inherits(Sha, Hash)
+
+	Sha.prototype.init = function () {
+	  this._a = 0x67452301
+	  this._b = 0xefcdab89
+	  this._c = 0x98badcfe
+	  this._d = 0x10325476
+	  this._e = 0xc3d2e1f0
+
+	  return this
+	}
+
+	/*
+	 * Bitwise rotate a 32-bit number to the left.
+	 */
+	function rol(num, cnt) {
+	  return (num << cnt) | (num >>> (32 - cnt));
+	}
+
+	Sha.prototype._update = function (M) {
+	  var W = this._w
+
+	  var a = this._a
+	  var b = this._b
+	  var c = this._c
+	  var d = this._d
+	  var e = this._e
+
+	  var j = 0, k
+
+	  /*
+	   * SHA-1 has a bitwise rotate left operation. But, SHA is not
+	   * function calcW() { return rol(W[j - 3] ^ W[j -  8] ^ W[j - 14] ^ W[j - 16], 1) }
+	   */
+	  function calcW() { return W[j - 3] ^ W[j -  8] ^ W[j - 14] ^ W[j - 16] }
+	  function loop(w, f) {
+	    W[j] = w
+
+	    var t = rol(a, 5) + f + e + w + k
+
+	    e = d
+	    d = c
+	    c = rol(b, 30)
+	    b = a
+	    a = t
+	    j++
+	  }
+
+	  k = 1518500249
+	  while (j < 16) loop(M.readInt32BE(j * 4), (b & c) | ((~b) & d))
+	  while (j < 20) loop(calcW(), (b & c) | ((~b) & d))
+	  k = 1859775393
+	  while (j < 40) loop(calcW(), b ^ c ^ d)
+	  k = -1894007588
+	  while (j < 60) loop(calcW(), (b & c) | (b & d) | (c & d))
+	  k = -899497514
+	  while (j < 80) loop(calcW(), b ^ c ^ d)
+
+	  this._a = (a + this._a) | 0
+	  this._b = (b + this._b) | 0
+	  this._c = (c + this._c) | 0
+	  this._d = (d + this._d) | 0
+	  this._e = (e + this._e) | 0
+	}
+
+	Sha.prototype._hash = function () {
+	  var H = new Buffer(20)
+
+	  H.writeInt32BE(this._a|0, 0)
+	  H.writeInt32BE(this._b|0, 4)
+	  H.writeInt32BE(this._c|0, 8)
+	  H.writeInt32BE(this._d|0, 12)
+	  H.writeInt32BE(this._e|0, 16)
+
+	  return H
+	}
+
+	module.exports = Sha
+
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15).Buffer))
+
+/***/ },
 /* 52 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(Buffer) {/*
+	 * A JavaScript implementation of the Secure Hash Algorithm, SHA-1, as defined
+	 * in FIPS PUB 180-1
+	 * Version 2.1a Copyright Paul Johnston 2000 - 2002.
+	 * Other contributors: Greg Holt, Andrew Kepert, Ydnar, Lostinet
+	 * Distributed under the BSD License
+	 * See http://pajhome.org.uk/crypt/md5 for details.
+	 */
+
+	var inherits = __webpack_require__(99)
+	var Hash = __webpack_require__(87)
+
+	var W = new Array(80)
+
+	function Sha1() {
+	  this.init()
+	  this._w = W
+
+	  Hash.call(this, 64, 56)
+	}
+
+	inherits(Sha1, Hash)
+
+	Sha1.prototype.init = function () {
+	  this._a = 0x67452301
+	  this._b = 0xefcdab89
+	  this._c = 0x98badcfe
+	  this._d = 0x10325476
+	  this._e = 0xc3d2e1f0
+
+	  return this
+	}
+
+	/*
+	 * Bitwise rotate a 32-bit number to the left.
+	 */
+	function rol(num, cnt) {
+	  return (num << cnt) | (num >>> (32 - cnt));
+	}
+
+	Sha1.prototype._update = function (M) {
+	  var W = this._w
+
+	  var a = this._a
+	  var b = this._b
+	  var c = this._c
+	  var d = this._d
+	  var e = this._e
+
+	  var j = 0, k
+
+	  function calcW() { return rol(W[j - 3] ^ W[j -  8] ^ W[j - 14] ^ W[j - 16], 1) }
+	  function loop(w, f) {
+	    W[j] = w
+
+	    var t = rol(a, 5) + f + e + w + k
+
+	    e = d
+	    d = c
+	    c = rol(b, 30)
+	    b = a
+	    a = t
+	    j++
+	  }
+
+	  k = 1518500249
+	  while (j < 16) loop(M.readInt32BE(j * 4), (b & c) | ((~b) & d))
+	  while (j < 20) loop(calcW(), (b & c) | ((~b) & d))
+	  k = 1859775393
+	  while (j < 40) loop(calcW(), b ^ c ^ d)
+	  k = -1894007588
+	  while (j < 60) loop(calcW(), (b & c) | (b & d) | (c & d))
+	  k = -899497514
+	  while (j < 80) loop(calcW(), b ^ c ^ d)
+
+	  this._a = (a + this._a) | 0
+	  this._b = (b + this._b) | 0
+	  this._c = (c + this._c) | 0
+	  this._d = (d + this._d) | 0
+	  this._e = (e + this._e) | 0
+	}
+
+	Sha1.prototype._hash = function () {
+	  var H = new Buffer(20)
+
+	  H.writeInt32BE(this._a|0, 0)
+	  H.writeInt32BE(this._b|0, 4)
+	  H.writeInt32BE(this._c|0, 8)
+	  H.writeInt32BE(this._d|0, 12)
+	  H.writeInt32BE(this._e|0, 16)
+
+	  return H
+	}
+
+	module.exports = Sha1
+
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15).Buffer))
+
+/***/ },
+/* 53 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(Buffer) {/**
+	 * A JavaScript implementation of the Secure Hash Algorithm, SHA-256, as defined
+	 * in FIPS 180-2
+	 * Version 2.2-beta Copyright Angel Marin, Paul Johnston 2000 - 2009.
+	 * Other contributors: Greg Holt, Andrew Kepert, Ydnar, Lostinet
+	 *
+	 */
+
+	var inherits = __webpack_require__(99)
+	var SHA256 = __webpack_require__(54)
+	var Hash = __webpack_require__(87)
+
+	var W = new Array(64)
+
+	function Sha224() {
+	  this.init()
+
+	  this._w = W // new Array(64)
+
+	  Hash.call(this, 64, 56)
+	}
+
+	inherits(Sha224, SHA256)
+
+	Sha224.prototype.init = function () {
+	  this._a = 0xc1059ed8|0
+	  this._b = 0x367cd507|0
+	  this._c = 0x3070dd17|0
+	  this._d = 0xf70e5939|0
+	  this._e = 0xffc00b31|0
+	  this._f = 0x68581511|0
+	  this._g = 0x64f98fa7|0
+	  this._h = 0xbefa4fa4|0
+
+	  return this
+	}
+
+	Sha224.prototype._hash = function () {
+	  var H = new Buffer(28)
+
+	  H.writeInt32BE(this._a,  0)
+	  H.writeInt32BE(this._b,  4)
+	  H.writeInt32BE(this._c,  8)
+	  H.writeInt32BE(this._d, 12)
+	  H.writeInt32BE(this._e, 16)
+	  H.writeInt32BE(this._f, 20)
+	  H.writeInt32BE(this._g, 24)
+
+	  return H
+	}
+
+	module.exports = Sha224
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15).Buffer))
+
+/***/ },
+/* 54 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(Buffer) {/**
+	 * A JavaScript implementation of the Secure Hash Algorithm, SHA-256, as defined
+	 * in FIPS 180-2
+	 * Version 2.2-beta Copyright Angel Marin, Paul Johnston 2000 - 2009.
+	 * Other contributors: Greg Holt, Andrew Kepert, Ydnar, Lostinet
+	 *
+	 */
+
+	var inherits = __webpack_require__(99)
+	var Hash = __webpack_require__(87)
+
+	var K = [
+	  0x428A2F98, 0x71374491, 0xB5C0FBCF, 0xE9B5DBA5,
+	  0x3956C25B, 0x59F111F1, 0x923F82A4, 0xAB1C5ED5,
+	  0xD807AA98, 0x12835B01, 0x243185BE, 0x550C7DC3,
+	  0x72BE5D74, 0x80DEB1FE, 0x9BDC06A7, 0xC19BF174,
+	  0xE49B69C1, 0xEFBE4786, 0x0FC19DC6, 0x240CA1CC,
+	  0x2DE92C6F, 0x4A7484AA, 0x5CB0A9DC, 0x76F988DA,
+	  0x983E5152, 0xA831C66D, 0xB00327C8, 0xBF597FC7,
+	  0xC6E00BF3, 0xD5A79147, 0x06CA6351, 0x14292967,
+	  0x27B70A85, 0x2E1B2138, 0x4D2C6DFC, 0x53380D13,
+	  0x650A7354, 0x766A0ABB, 0x81C2C92E, 0x92722C85,
+	  0xA2BFE8A1, 0xA81A664B, 0xC24B8B70, 0xC76C51A3,
+	  0xD192E819, 0xD6990624, 0xF40E3585, 0x106AA070,
+	  0x19A4C116, 0x1E376C08, 0x2748774C, 0x34B0BCB5,
+	  0x391C0CB3, 0x4ED8AA4A, 0x5B9CCA4F, 0x682E6FF3,
+	  0x748F82EE, 0x78A5636F, 0x84C87814, 0x8CC70208,
+	  0x90BEFFFA, 0xA4506CEB, 0xBEF9A3F7, 0xC67178F2
+	]
+
+	var W = new Array(64)
+
+	function Sha256() {
+	  this.init()
+
+	  this._w = W // new Array(64)
+
+	  Hash.call(this, 64, 56)
+	}
+
+	inherits(Sha256, Hash)
+
+	Sha256.prototype.init = function () {
+	  this._a = 0x6a09e667|0
+	  this._b = 0xbb67ae85|0
+	  this._c = 0x3c6ef372|0
+	  this._d = 0xa54ff53a|0
+	  this._e = 0x510e527f|0
+	  this._f = 0x9b05688c|0
+	  this._g = 0x1f83d9ab|0
+	  this._h = 0x5be0cd19|0
+
+	  return this
+	}
+
+	function S (X, n) {
+	  return (X >>> n) | (X << (32 - n));
+	}
+
+	function R (X, n) {
+	  return (X >>> n);
+	}
+
+	function Ch (x, y, z) {
+	  return ((x & y) ^ ((~x) & z));
+	}
+
+	function Maj (x, y, z) {
+	  return ((x & y) ^ (x & z) ^ (y & z));
+	}
+
+	function Sigma0256 (x) {
+	  return (S(x, 2) ^ S(x, 13) ^ S(x, 22));
+	}
+
+	function Sigma1256 (x) {
+	  return (S(x, 6) ^ S(x, 11) ^ S(x, 25));
+	}
+
+	function Gamma0256 (x) {
+	  return (S(x, 7) ^ S(x, 18) ^ R(x, 3));
+	}
+
+	function Gamma1256 (x) {
+	  return (S(x, 17) ^ S(x, 19) ^ R(x, 10));
+	}
+
+	Sha256.prototype._update = function(M) {
+	  var W = this._w
+
+	  var a = this._a | 0
+	  var b = this._b | 0
+	  var c = this._c | 0
+	  var d = this._d | 0
+	  var e = this._e | 0
+	  var f = this._f | 0
+	  var g = this._g | 0
+	  var h = this._h | 0
+
+	  var j = 0
+
+	  function calcW() { return Gamma1256(W[j - 2]) + W[j - 7] + Gamma0256(W[j - 15]) + W[j - 16] }
+	  function loop(w) {
+	    W[j] = w
+
+	    var T1 = h + Sigma1256(e) + Ch(e, f, g) + K[j] + w
+	    var T2 = Sigma0256(a) + Maj(a, b, c);
+
+	    h = g;
+	    g = f;
+	    f = e;
+	    e = d + T1;
+	    d = c;
+	    c = b;
+	    b = a;
+	    a = T1 + T2;
+
+	    j++
+	  }
+
+	  while (j < 16) loop(M.readInt32BE(j * 4))
+	  while (j < 64) loop(calcW())
+
+	  this._a = (a + this._a) | 0
+	  this._b = (b + this._b) | 0
+	  this._c = (c + this._c) | 0
+	  this._d = (d + this._d) | 0
+	  this._e = (e + this._e) | 0
+	  this._f = (f + this._f) | 0
+	  this._g = (g + this._g) | 0
+	  this._h = (h + this._h) | 0
+	};
+
+	Sha256.prototype._hash = function () {
+	  var H = new Buffer(32)
+
+	  H.writeInt32BE(this._a,  0)
+	  H.writeInt32BE(this._b,  4)
+	  H.writeInt32BE(this._c,  8)
+	  H.writeInt32BE(this._d, 12)
+	  H.writeInt32BE(this._e, 16)
+	  H.writeInt32BE(this._f, 20)
+	  H.writeInt32BE(this._g, 24)
+	  H.writeInt32BE(this._h, 28)
+
+	  return H
+	}
+
+	module.exports = Sha256
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15).Buffer))
+
+/***/ },
+/* 55 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(Buffer) {var inherits = __webpack_require__(99)
+	var SHA512 = __webpack_require__(56);
+	var Hash = __webpack_require__(87)
+
+	var W = new Array(160)
+
+	function Sha384() {
+	  this.init()
+	  this._w = W
+
+	  Hash.call(this, 128, 112)
+	}
+
+	inherits(Sha384, SHA512)
+
+	Sha384.prototype.init = function () {
+	  this._a = 0xcbbb9d5d|0
+	  this._b = 0x629a292a|0
+	  this._c = 0x9159015a|0
+	  this._d = 0x152fecd8|0
+	  this._e = 0x67332667|0
+	  this._f = 0x8eb44a87|0
+	  this._g = 0xdb0c2e0d|0
+	  this._h = 0x47b5481d|0
+
+	  this._al = 0xc1059ed8|0
+	  this._bl = 0x367cd507|0
+	  this._cl = 0x3070dd17|0
+	  this._dl = 0xf70e5939|0
+	  this._el = 0xffc00b31|0
+	  this._fl = 0x68581511|0
+	  this._gl = 0x64f98fa7|0
+	  this._hl = 0xbefa4fa4|0
+
+	  return this
+	}
+
+	Sha384.prototype._hash = function () {
+	  var H = new Buffer(48)
+
+	  function writeInt64BE(h, l, offset) {
+	    H.writeInt32BE(h, offset)
+	    H.writeInt32BE(l, offset + 4)
+	  }
+
+	  writeInt64BE(this._a, this._al, 0)
+	  writeInt64BE(this._b, this._bl, 8)
+	  writeInt64BE(this._c, this._cl, 16)
+	  writeInt64BE(this._d, this._dl, 24)
+	  writeInt64BE(this._e, this._el, 32)
+	  writeInt64BE(this._f, this._fl, 40)
+
+	  return H
+	}
+
+	module.exports = Sha384
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15).Buffer))
+
+/***/ },
+/* 56 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(Buffer) {var inherits = __webpack_require__(99)
+	var Hash = __webpack_require__(87)
+
+	var K = [
+	  0x428a2f98, 0xd728ae22, 0x71374491, 0x23ef65cd,
+	  0xb5c0fbcf, 0xec4d3b2f, 0xe9b5dba5, 0x8189dbbc,
+	  0x3956c25b, 0xf348b538, 0x59f111f1, 0xb605d019,
+	  0x923f82a4, 0xaf194f9b, 0xab1c5ed5, 0xda6d8118,
+	  0xd807aa98, 0xa3030242, 0x12835b01, 0x45706fbe,
+	  0x243185be, 0x4ee4b28c, 0x550c7dc3, 0xd5ffb4e2,
+	  0x72be5d74, 0xf27b896f, 0x80deb1fe, 0x3b1696b1,
+	  0x9bdc06a7, 0x25c71235, 0xc19bf174, 0xcf692694,
+	  0xe49b69c1, 0x9ef14ad2, 0xefbe4786, 0x384f25e3,
+	  0x0fc19dc6, 0x8b8cd5b5, 0x240ca1cc, 0x77ac9c65,
+	  0x2de92c6f, 0x592b0275, 0x4a7484aa, 0x6ea6e483,
+	  0x5cb0a9dc, 0xbd41fbd4, 0x76f988da, 0x831153b5,
+	  0x983e5152, 0xee66dfab, 0xa831c66d, 0x2db43210,
+	  0xb00327c8, 0x98fb213f, 0xbf597fc7, 0xbeef0ee4,
+	  0xc6e00bf3, 0x3da88fc2, 0xd5a79147, 0x930aa725,
+	  0x06ca6351, 0xe003826f, 0x14292967, 0x0a0e6e70,
+	  0x27b70a85, 0x46d22ffc, 0x2e1b2138, 0x5c26c926,
+	  0x4d2c6dfc, 0x5ac42aed, 0x53380d13, 0x9d95b3df,
+	  0x650a7354, 0x8baf63de, 0x766a0abb, 0x3c77b2a8,
+	  0x81c2c92e, 0x47edaee6, 0x92722c85, 0x1482353b,
+	  0xa2bfe8a1, 0x4cf10364, 0xa81a664b, 0xbc423001,
+	  0xc24b8b70, 0xd0f89791, 0xc76c51a3, 0x0654be30,
+	  0xd192e819, 0xd6ef5218, 0xd6990624, 0x5565a910,
+	  0xf40e3585, 0x5771202a, 0x106aa070, 0x32bbd1b8,
+	  0x19a4c116, 0xb8d2d0c8, 0x1e376c08, 0x5141ab53,
+	  0x2748774c, 0xdf8eeb99, 0x34b0bcb5, 0xe19b48a8,
+	  0x391c0cb3, 0xc5c95a63, 0x4ed8aa4a, 0xe3418acb,
+	  0x5b9cca4f, 0x7763e373, 0x682e6ff3, 0xd6b2b8a3,
+	  0x748f82ee, 0x5defb2fc, 0x78a5636f, 0x43172f60,
+	  0x84c87814, 0xa1f0ab72, 0x8cc70208, 0x1a6439ec,
+	  0x90befffa, 0x23631e28, 0xa4506ceb, 0xde82bde9,
+	  0xbef9a3f7, 0xb2c67915, 0xc67178f2, 0xe372532b,
+	  0xca273ece, 0xea26619c, 0xd186b8c7, 0x21c0c207,
+	  0xeada7dd6, 0xcde0eb1e, 0xf57d4f7f, 0xee6ed178,
+	  0x06f067aa, 0x72176fba, 0x0a637dc5, 0xa2c898a6,
+	  0x113f9804, 0xbef90dae, 0x1b710b35, 0x131c471b,
+	  0x28db77f5, 0x23047d84, 0x32caab7b, 0x40c72493,
+	  0x3c9ebe0a, 0x15c9bebc, 0x431d67c4, 0x9c100d4c,
+	  0x4cc5d4be, 0xcb3e42b6, 0x597f299c, 0xfc657e2a,
+	  0x5fcb6fab, 0x3ad6faec, 0x6c44198c, 0x4a475817
+	]
+
+	var W = new Array(160)
+
+	function Sha512() {
+	  this.init()
+	  this._w = W
+
+	  Hash.call(this, 128, 112)
+	}
+
+	inherits(Sha512, Hash)
+
+	Sha512.prototype.init = function () {
+	  this._a = 0x6a09e667|0
+	  this._b = 0xbb67ae85|0
+	  this._c = 0x3c6ef372|0
+	  this._d = 0xa54ff53a|0
+	  this._e = 0x510e527f|0
+	  this._f = 0x9b05688c|0
+	  this._g = 0x1f83d9ab|0
+	  this._h = 0x5be0cd19|0
+
+	  this._al = 0xf3bcc908|0
+	  this._bl = 0x84caa73b|0
+	  this._cl = 0xfe94f82b|0
+	  this._dl = 0x5f1d36f1|0
+	  this._el = 0xade682d1|0
+	  this._fl = 0x2b3e6c1f|0
+	  this._gl = 0xfb41bd6b|0
+	  this._hl = 0x137e2179|0
+
+	  return this
+	}
+
+	function S (X, Xl, n) {
+	  return (X >>> n) | (Xl << (32 - n))
+	}
+
+	function Ch (x, y, z) {
+	  return ((x & y) ^ ((~x) & z));
+	}
+
+	function Maj (x, y, z) {
+	  return ((x & y) ^ (x & z) ^ (y & z));
+	}
+
+	Sha512.prototype._update = function(M) {
+	  var W = this._w
+
+	  var a = this._a | 0
+	  var b = this._b | 0
+	  var c = this._c | 0
+	  var d = this._d | 0
+	  var e = this._e | 0
+	  var f = this._f | 0
+	  var g = this._g | 0
+	  var h = this._h | 0
+
+	  var al = this._al | 0
+	  var bl = this._bl | 0
+	  var cl = this._cl | 0
+	  var dl = this._dl | 0
+	  var el = this._el | 0
+	  var fl = this._fl | 0
+	  var gl = this._gl | 0
+	  var hl = this._hl | 0
+
+	  var i = 0, j = 0
+	  var Wi, Wil
+	  function calcW() {
+	    var x  = W[j - 15*2]
+	    var xl = W[j - 15*2 + 1]
+	    var gamma0  = S(x, xl, 1) ^ S(x, xl, 8) ^ (x >>> 7)
+	    var gamma0l = S(xl, x, 1) ^ S(xl, x, 8) ^ S(xl, x, 7)
+
+	    x  = W[j - 2*2]
+	    xl = W[j - 2*2 + 1]
+	    var gamma1  = S(x, xl, 19) ^ S(xl, x, 29) ^ (x >>> 6)
+	    var gamma1l = S(xl, x, 19) ^ S(x, xl, 29) ^ S(xl, x, 6)
+
+	    // W[i] = gamma0 + W[i - 7] + gamma1 + W[i - 16]
+	    var Wi7  = W[j - 7*2]
+	    var Wi7l = W[j - 7*2 + 1]
+
+	    var Wi16  = W[j - 16*2]
+	    var Wi16l = W[j - 16*2 + 1]
+
+	    Wil = gamma0l + Wi7l
+	    Wi  = gamma0  + Wi7 + ((Wil >>> 0) < (gamma0l >>> 0) ? 1 : 0)
+	    Wil = Wil + gamma1l
+	    Wi  = Wi  + gamma1  + ((Wil >>> 0) < (gamma1l >>> 0) ? 1 : 0)
+	    Wil = Wil + Wi16l
+	    Wi  = Wi  + Wi16 + ((Wil >>> 0) < (Wi16l >>> 0) ? 1 : 0)
+	  }
+
+	  function loop() {
+	    W[j] = Wi
+	    W[j + 1] = Wil
+
+	    var maj = Maj(a, b, c)
+	    var majl = Maj(al, bl, cl)
+
+	    var sigma0h = S(a, al, 28) ^ S(al, a, 2) ^ S(al, a, 7)
+	    var sigma0l = S(al, a, 28) ^ S(a, al, 2) ^ S(a, al, 7)
+	    var sigma1h = S(e, el, 14) ^ S(e, el, 18) ^ S(el, e, 9)
+	    var sigma1l = S(el, e, 14) ^ S(el, e, 18) ^ S(e, el, 9)
+
+	    // t1 = h + sigma1 + ch + K[i] + W[i]
+	    var Ki = K[j]
+	    var Kil = K[j + 1]
+
+	    var ch = Ch(e, f, g)
+	    var chl = Ch(el, fl, gl)
+
+	    var t1l = hl + sigma1l
+	    var t1 = h + sigma1h + ((t1l >>> 0) < (hl >>> 0) ? 1 : 0)
+	    t1l = t1l + chl
+	    t1 = t1 + ch + ((t1l >>> 0) < (chl >>> 0) ? 1 : 0)
+	    t1l = t1l + Kil
+	    t1 = t1 + Ki + ((t1l >>> 0) < (Kil >>> 0) ? 1 : 0)
+	    t1l = t1l + Wil
+	    t1 = t1 + Wi + ((t1l >>> 0) < (Wil >>> 0) ? 1 : 0)
+
+	    // t2 = sigma0 + maj
+	    var t2l = sigma0l + majl
+	    var t2 = sigma0h + maj + ((t2l >>> 0) < (sigma0l >>> 0) ? 1 : 0)
+
+	    h  = g
+	    hl = gl
+	    g  = f
+	    gl = fl
+	    f  = e
+	    fl = el
+	    el = (dl + t1l) | 0
+	    e  = (d + t1 + ((el >>> 0) < (dl >>> 0) ? 1 : 0)) | 0
+	    d  = c
+	    dl = cl
+	    c  = b
+	    cl = bl
+	    b  = a
+	    bl = al
+	    al = (t1l + t2l) | 0
+	    a  = (t1 + t2 + ((al >>> 0) < (t1l >>> 0) ? 1 : 0)) | 0
+
+	    i++
+	    j += 2
+	  }
+
+	  while (i < 16) {
+	    Wi = M.readInt32BE(j * 4)
+	    Wil = M.readInt32BE(j * 4 + 4)
+
+	    loop()
+	  }
+
+	  while (i < 80) {
+	    calcW()
+	    loop()
+	  }
+
+	  this._al = (this._al + al) | 0
+	  this._bl = (this._bl + bl) | 0
+	  this._cl = (this._cl + cl) | 0
+	  this._dl = (this._dl + dl) | 0
+	  this._el = (this._el + el) | 0
+	  this._fl = (this._fl + fl) | 0
+	  this._gl = (this._gl + gl) | 0
+	  this._hl = (this._hl + hl) | 0
+
+	  this._a = (this._a + a + ((this._al >>> 0) < (al >>> 0) ? 1 : 0)) | 0
+	  this._b = (this._b + b + ((this._bl >>> 0) < (bl >>> 0) ? 1 : 0)) | 0
+	  this._c = (this._c + c + ((this._cl >>> 0) < (cl >>> 0) ? 1 : 0)) | 0
+	  this._d = (this._d + d + ((this._dl >>> 0) < (dl >>> 0) ? 1 : 0)) | 0
+	  this._e = (this._e + e + ((this._el >>> 0) < (el >>> 0) ? 1 : 0)) | 0
+	  this._f = (this._f + f + ((this._fl >>> 0) < (fl >>> 0) ? 1 : 0)) | 0
+	  this._g = (this._g + g + ((this._gl >>> 0) < (gl >>> 0) ? 1 : 0)) | 0
+	  this._h = (this._h + h + ((this._hl >>> 0) < (hl >>> 0) ? 1 : 0)) | 0
+	}
+
+	Sha512.prototype._hash = function () {
+	  var H = new Buffer(64)
+
+	  function writeInt64BE(h, l, offset) {
+	    H.writeInt32BE(h, offset)
+	    H.writeInt32BE(l, offset + 4)
+	  }
+
+	  writeInt64BE(this._a, this._al, 0)
+	  writeInt64BE(this._b, this._bl, 8)
+	  writeInt64BE(this._c, this._cl, 16)
+	  writeInt64BE(this._d, this._dl, 24)
+	  writeInt64BE(this._e, this._el, 32)
+	  writeInt64BE(this._f, this._fl, 40)
+	  writeInt64BE(this._g, this._gl, 48)
+	  writeInt64BE(this._h, this._hl, 56)
+
+	  return H
+	}
+
+	module.exports = Sha512
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15).Buffer))
+
+/***/ },
+/* 57 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* (ignored) */
+
+/***/ },
+/* 58 */,
+/* 59 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = function isBuffer(arg) {
+	  return arg && typeof arg === 'object'
+	    && typeof arg.copy === 'function'
+	    && typeof arg.fill === 'function'
+	    && typeof arg.readUInt8 === 'function';
+	}
+
+/***/ },
+/* 60 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(module, global) {/*! https://mths.be/punycode v1.3.2 by @mathias */
@@ -29657,27 +30541,1420 @@ var StellarLib =
 
 	}(this));
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(86)(module), (function() { return this; }())))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(83)(module), (function() { return this; }())))
 
 /***/ },
-/* 53 */
+/* 61 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _interopRequire = __webpack_require__(26)["default"];
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var isNumber = __webpack_require__(43).isNumber;
+
+	var includeIoMixin = _interopRequire(__webpack_require__(89));
+
+	var Int = {
+
+	  read: function read(io) {
+	    return io.readInt32BE();
+	  },
+
+	  write: function write(value, io) {
+	    if (!isNumber(value)) {
+	      throw new Error("XDR Write Error: not a number");
+	    }
+
+	    if (Math.floor(value) !== value) {
+	      throw new Error("XDR Write Error: not an integer");
+	    }
+
+	    io.writeInt32BE(value);
+	  },
+
+	  isValid: function isValid(value) {
+	    if (!isNumber(value)) {
+	      return false;
+	    }
+	    if (Math.floor(value) !== value) {
+	      return false;
+	    }
+
+	    return value >= Int.MIN_VALUE && value <= Int.MAX_VALUE;
+	  } };
+
+	exports.Int = Int;
+	Int.MAX_VALUE = Math.pow(2, 31) - 1;
+	Int.MIN_VALUE = -Math.pow(2, 31);
+
+	includeIoMixin(Int);
+
+/***/ },
+/* 62 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _classCallCheck = __webpack_require__(30)["default"];
+
+	var _inherits = __webpack_require__(79)["default"];
+
+	var _get = __webpack_require__(90)["default"];
+
+	var _createClass = __webpack_require__(31)["default"];
+
+	var _core = __webpack_require__(47)["default"];
+
+	var _interopRequire = __webpack_require__(26)["default"];
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var Long = _interopRequire(__webpack_require__(98));
+
+	var includeIoMixin = _interopRequire(__webpack_require__(89));
+
+	var Hyper = exports.Hyper = (function (_Long) {
+	  function Hyper(low, high) {
+	    _classCallCheck(this, Hyper);
+
+	    _get(_core.Object.getPrototypeOf(Hyper.prototype), "constructor", this).call(this, low, high, false);
+	  }
+
+	  _inherits(Hyper, _Long);
+
+	  _createClass(Hyper, null, {
+	    read: {
+	      value: function read(io) {
+	        var high = io.readInt32BE();
+	        var low = io.readInt32BE();
+	        return this.fromBits(low, high);
+	      }
+	    },
+	    write: {
+	      value: function write(value, io) {
+	        if (!(value instanceof this)) {
+	          throw new Error("XDR Write Error: " + value + " is not a Hyper");
+	        }
+
+	        io.writeInt32BE(value.high);
+	        io.writeInt32BE(value.low);
+	      }
+	    },
+	    fromString: {
+	      value: function fromString(string) {
+	        var result = _get(_core.Object.getPrototypeOf(Hyper), "fromString", this).call(this, string, false);
+	        return new this(result.low, result.high);
+	      }
+	    },
+	    fromBits: {
+	      value: function fromBits(low, high) {
+	        var result = _get(_core.Object.getPrototypeOf(Hyper), "fromBits", this).call(this, low, high, false);
+	        return new this(result.low, result.high);
+	      }
+	    },
+	    isValid: {
+	      value: function isValid(value) {
+	        return value instanceof this;
+	      }
+	    }
+	  });
+
+	  return Hyper;
+	})(Long);
+
+	includeIoMixin(Hyper);
+
+	Hyper.MAX_VALUE = new Hyper(Long.MAX_VALUE.low, Long.MAX_VALUE.high);
+	Hyper.MIN_VALUE = new Hyper(Long.MIN_VALUE.low, Long.MIN_VALUE.high);
+
+/***/ },
+/* 63 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _interopRequire = __webpack_require__(26)["default"];
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var isNumber = __webpack_require__(43).isNumber;
+
+	var includeIoMixin = _interopRequire(__webpack_require__(89));
+
+	var UnsignedInt = {
+
+	  read: function read(io) {
+	    return io.readUInt32BE();
+	  },
+
+	  write: function write(value, io) {
+	    if (!isNumber(value)) {
+	      throw new Error("XDR Write Error: not a number");
+	    }
+
+	    if (Math.floor(value) !== value) {
+	      throw new Error("XDR Write Error: not an integer");
+	    }
+
+	    if (value < 0) {
+	      throw new Error("XDR Write Error: negative number " + value);
+	    }
+
+	    io.writeUInt32BE(value);
+	  },
+
+	  isValid: function isValid(value) {
+	    if (!isNumber(value)) {
+	      return false;
+	    }
+	    if (Math.floor(value) !== value) {
+	      return false;
+	    }
+
+	    return value >= UnsignedInt.MIN_VALUE && value <= UnsignedInt.MAX_VALUE;
+	  } };
+
+	exports.UnsignedInt = UnsignedInt;
+	UnsignedInt.MAX_VALUE = Math.pow(2, 32) - 1;
+	UnsignedInt.MIN_VALUE = 0;
+
+	includeIoMixin(UnsignedInt);
+
+/***/ },
+/* 64 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _classCallCheck = __webpack_require__(30)["default"];
+
+	var _inherits = __webpack_require__(79)["default"];
+
+	var _get = __webpack_require__(90)["default"];
+
+	var _createClass = __webpack_require__(31)["default"];
+
+	var _core = __webpack_require__(47)["default"];
+
+	var _interopRequire = __webpack_require__(26)["default"];
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var Long = _interopRequire(__webpack_require__(98));
+
+	var includeIoMixin = _interopRequire(__webpack_require__(89));
+
+	var UnsignedHyper = exports.UnsignedHyper = (function (_Long) {
+	  function UnsignedHyper(low, high) {
+	    _classCallCheck(this, UnsignedHyper);
+
+	    _get(_core.Object.getPrototypeOf(UnsignedHyper.prototype), "constructor", this).call(this, low, high, false);
+	  }
+
+	  _inherits(UnsignedHyper, _Long);
+
+	  _createClass(UnsignedHyper, null, {
+	    read: {
+	      value: function read(io) {
+	        var high = io.readInt32BE();
+	        var low = io.readInt32BE();
+	        return this.fromBits(low, high);
+	      }
+	    },
+	    write: {
+	      value: function write(value, io) {
+	        if (!(value instanceof this)) {
+	          throw new Error("XDR Write Error: " + value + " is not an UnsignedHyper");
+	        }
+
+	        io.writeInt32BE(value.high);
+	        io.writeInt32BE(value.low);
+	      }
+	    },
+	    fromString: {
+	      value: function fromString(string) {
+	        var result = _get(_core.Object.getPrototypeOf(UnsignedHyper), "fromString", this).call(this, string, true);
+	        return new this(result.low, result.high);
+	      }
+	    },
+	    fromBits: {
+	      value: function fromBits(low, high) {
+	        var result = _get(_core.Object.getPrototypeOf(UnsignedHyper), "fromBits", this).call(this, low, high, true);
+	        return new this(result.low, result.high);
+	      }
+	    },
+	    isValid: {
+	      value: function isValid(value) {
+	        return value instanceof this;
+	      }
+	    }
+	  });
+
+	  return UnsignedHyper;
+	})(Long);
+
+	includeIoMixin(UnsignedHyper);
+
+	UnsignedHyper.MAX_VALUE = new UnsignedHyper(Long.MAX_UNSIGNED_VALUE.low, Long.MAX_UNSIGNED_VALUE.high);
+
+	UnsignedHyper.MIN_VALUE = new UnsignedHyper(Long.MIN_VALUE.low, Long.MIN_VALUE.high);
+
+/***/ },
+/* 65 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _interopRequire = __webpack_require__(26)["default"];
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var isNumber = __webpack_require__(43).isNumber;
+
+	var includeIoMixin = _interopRequire(__webpack_require__(89));
+
+	var Float = {
+
+	  read: function read(io) {
+	    return io.readFloatBE();
+	  },
+
+	  write: function write(value, io) {
+	    if (!isNumber(value)) {
+	      throw new Error("XDR Write Error: not a number");
+	    }
+
+	    io.writeFloatBE(value);
+	  },
+
+	  isValid: function isValid(value) {
+	    return isNumber(value);
+	  } };
+
+	exports.Float = Float;
+	includeIoMixin(Float);
+
+/***/ },
+/* 66 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _interopRequire = __webpack_require__(26)["default"];
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var isNumber = __webpack_require__(43).isNumber;
+
+	var includeIoMixin = _interopRequire(__webpack_require__(89));
+
+	var Double = {
+
+	  read: function read(io) {
+	    return io.readDoubleBE();
+	  },
+
+	  write: function write(value, io) {
+	    if (!isNumber(value)) {
+	      throw new Error("XDR Write Error: not a number");
+	    }
+
+	    io.writeDoubleBE(value);
+	  },
+
+	  isValid: function isValid(value) {
+	    return isNumber(value);
+	  } };
+
+	exports.Double = Double;
+	includeIoMixin(Double);
+
+/***/ },
+/* 67 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _interopRequire = __webpack_require__(26)["default"];
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var includeIoMixin = _interopRequire(__webpack_require__(89));
+
+	var Quadruple = {
+	  /* jshint unused: false */
+
+	  read: function read(io) {
+	    throw new Error("XDR Read Error: quadruple not supported");
+	  },
+
+	  write: function write(value, io) {
+	    throw new Error("XDR Write Error: quadruple not supported");
+	  },
+
+	  isValid: function isValid(value) {
+	    return false;
+	  } };
+
+	exports.Quadruple = Quadruple;
+	includeIoMixin(Quadruple);
+
+/***/ },
+/* 68 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _interopRequire = __webpack_require__(26)["default"];
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var Int = __webpack_require__(61).Int;
+
+	var isBoolean = __webpack_require__(43).isBoolean;
+
+	var includeIoMixin = _interopRequire(__webpack_require__(89));
+
+	var Bool = {
+	  read: function read(io) {
+	    var value = Int.read(io);
+
+	    switch (value) {
+	      case 0:
+	        return false;
+	      case 1:
+	        return true;
+	      default:
+	        throw new Error("XDR Read Error: Got " + value + " when trying to read a bool");
+	    }
+	  },
+
+	  write: function write(value, io) {
+	    var intVal = value ? 1 : 0;
+	    return Int.write(intVal, io);
+	  },
+
+	  isValid: function isValid(value) {
+	    return isBoolean(value);
+	  }
+	};
+
+	exports.Bool = Bool;
+	includeIoMixin(Bool);
+
+/***/ },
+/* 69 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
+
+	var _classCallCheck = __webpack_require__(30)["default"];
+
+	var _createClass = __webpack_require__(31)["default"];
+
+	var _interopRequire = __webpack_require__(26)["default"];
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var Int = __webpack_require__(61).Int;
+
+	var UnsignedInt = __webpack_require__(63).UnsignedInt;
+
+	var calculatePadding = __webpack_require__(91).calculatePadding;
+
+	var isString = __webpack_require__(43).isString;
+
+	var includeIoMixin = _interopRequire(__webpack_require__(89));
+
+	var String = exports.String = (function () {
+	  function String() {
+	    var maxLength = arguments[0] === undefined ? UnsignedInt.MAX_VALUE : arguments[0];
+
+	    _classCallCheck(this, String);
+
+	    this._maxLength = maxLength;
+	  }
+
+	  _createClass(String, {
+	    read: {
+	      value: function read(io) {
+	        var length = Int.read(io);
+
+	        if (length > this._maxLength) {
+	          throw new Error("XDR Read Error: Saw " + length + " length String," + ("max allowed is " + this._maxLength));
+	        }
+	        var padding = calculatePadding(length);
+	        var result = io.slice(length);
+	        io.slice(padding); //consume padding
+	        return result.buffer().toString("ascii");
+	      }
+	    },
+	    write: {
+	      value: function write(value, io) {
+	        if (value.length > this._maxLength) {
+	          throw new Error("XDR Write Error: Got " + value.length + " bytes," + ("max allows is " + this._maxLength));
+	        }
+
+	        if (!isString(value)) {
+	          throw new Error("XDR Write Error: " + value + " is not a string,");
+	        }
+	        var buffer = new Buffer(value, "ascii");
+
+	        Int.write(value.length, io);
+	        io.writeBufferPadded(buffer);
+	      }
+	    },
+	    isValid: {
+	      value: function isValid(value) {
+	        return isString(value) && value.length <= this._maxLength;
+	      }
+	    }
+	  });
+
+	  return String;
+	})();
+
+	includeIoMixin(String.prototype);
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15).Buffer))
+
+/***/ },
+/* 70 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
+
+	var _classCallCheck = __webpack_require__(30)["default"];
+
+	var _createClass = __webpack_require__(31)["default"];
+
+	var _interopRequire = __webpack_require__(26)["default"];
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var calculatePadding = __webpack_require__(91).calculatePadding;
+
+	var includeIoMixin = _interopRequire(__webpack_require__(89));
+
+	var Opaque = exports.Opaque = (function () {
+	  function Opaque(length) {
+	    _classCallCheck(this, Opaque);
+
+	    this._length = length;
+	    this._padding = calculatePadding(length);
+	  }
+
+	  _createClass(Opaque, {
+	    read: {
+	      value: function read(io) {
+	        var result = io.slice(this._length);
+	        io.slice(this._padding); //consume padding
+	        return result.buffer();
+	      }
+	    },
+	    write: {
+	      value: function write(value, io) {
+	        if (value.length !== this._length) {
+	          throw new Error("XDR Write Error: Got " + value.length + " bytes, expected " + this._length);
+	        }
+
+	        io.writeBufferPadded(value);
+	      }
+	    },
+	    isValid: {
+	      value: function isValid(value) {
+	        return Buffer.isBuffer(value) && value.length === this._length;
+	      }
+	    }
+	  });
+
+	  return Opaque;
+	})();
+
+	includeIoMixin(Opaque.prototype);
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15).Buffer))
+
+/***/ },
+/* 71 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
+
+	var _classCallCheck = __webpack_require__(30)["default"];
+
+	var _createClass = __webpack_require__(31)["default"];
+
+	var _interopRequire = __webpack_require__(26)["default"];
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var Int = __webpack_require__(61).Int;
+
+	var UnsignedInt = __webpack_require__(63).UnsignedInt;
+
+	var calculatePadding = __webpack_require__(91).calculatePadding;
+
+	var includeIoMixin = _interopRequire(__webpack_require__(89));
+
+	var VarOpaque = exports.VarOpaque = (function () {
+	  function VarOpaque() {
+	    var maxLength = arguments[0] === undefined ? UnsignedInt.MAX_VALUE : arguments[0];
+
+	    _classCallCheck(this, VarOpaque);
+
+	    this._maxLength = maxLength;
+	  }
+
+	  _createClass(VarOpaque, {
+	    read: {
+	      value: function read(io) {
+	        var length = Int.read(io);
+
+	        if (length > this._maxLength) {
+	          throw new Error("XDR Read Error: Saw " + length + " length VarOpaque," + ("max allowed is " + this._maxLength));
+	        }
+	        var padding = calculatePadding(length);
+	        var result = io.slice(length);
+	        io.slice(padding); //consume padding
+	        return result.buffer();
+	      }
+	    },
+	    write: {
+	      value: function write(value, io) {
+	        if (value.length > this._maxLength) {
+	          throw new Error("XDR Write Error: Got " + value.length + " bytes," + ("max allows is " + this._maxLength));
+	        }
+	        Int.write(value.length, io);
+	        io.writeBufferPadded(value);
+	      }
+	    },
+	    isValid: {
+	      value: function isValid(value) {
+	        return Buffer.isBuffer(value) && value.length <= this._maxLength;
+	      }
+	    }
+	  });
+
+	  return VarOpaque;
+	})();
+
+	includeIoMixin(VarOpaque.prototype);
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15).Buffer))
+
+/***/ },
+/* 72 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _classCallCheck = __webpack_require__(30)["default"];
+
+	var _createClass = __webpack_require__(31)["default"];
+
+	var _interopRequire = __webpack_require__(26)["default"];
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _lodash = __webpack_require__(43);
+
+	var all = _lodash.all;
+	var each = _lodash.each;
+	var times = _lodash.times;
+	var isArray = _lodash.isArray;
+
+	var includeIoMixin = _interopRequire(__webpack_require__(89));
+
+	var Array = exports.Array = (function () {
+	  function Array(childType, length) {
+	    _classCallCheck(this, Array);
+
+	    this._childType = childType;
+	    this._length = length;
+	  }
+
+	  _createClass(Array, {
+	    read: {
+	      value: function read(io) {
+	        var _this = this;
+
+	        return times(this._length, function () {
+	          return _this._childType.read(io);
+	        });
+	      }
+	    },
+	    write: {
+	      value: function write(value, io) {
+	        var _this = this;
+
+	        if (!isArray(value)) {
+	          throw new Error("XDR Write Error: value is not array");
+	        }
+
+	        if (value.length !== this._length) {
+	          throw new Error("XDR Write Error: Got array of size " + value.length + "," + ("expected " + this._length));
+	        }
+
+	        each(value, function (child) {
+	          return _this._childType.write(child, io);
+	        });
+	      }
+	    },
+	    isValid: {
+	      value: function isValid(value) {
+	        var _this = this;
+
+	        if (!isArray(value)) {
+	          return false;
+	        }
+	        if (value.length !== this._length) {
+	          return false;
+	        }
+
+	        return all(value, function (child) {
+	          return _this._childType.isValid(child);
+	        });
+	      }
+	    }
+	  });
+
+	  return Array;
+	})();
+
+	includeIoMixin(Array.prototype);
+
+/***/ },
+/* 73 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _classCallCheck = __webpack_require__(30)["default"];
+
+	var _createClass = __webpack_require__(31)["default"];
+
+	var _interopRequire = __webpack_require__(26)["default"];
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var Int = __webpack_require__(61).Int;
+
+	var UnsignedInt = __webpack_require__(63).UnsignedInt;
+
+	var _lodash = __webpack_require__(43);
+
+	var all = _lodash.all;
+	var each = _lodash.each;
+	var times = _lodash.times;
+	var isArray = _lodash.isArray;
+
+	var includeIoMixin = _interopRequire(__webpack_require__(89));
+
+	var VarArray = exports.VarArray = (function () {
+	  function VarArray(childType) {
+	    var maxLength = arguments[1] === undefined ? UnsignedInt.MAX_VALUE : arguments[1];
+
+	    _classCallCheck(this, VarArray);
+
+	    this._childType = childType;
+	    this._maxLength = maxLength;
+	  }
+
+	  _createClass(VarArray, {
+	    read: {
+	      value: function read(io) {
+	        var _this = this;
+
+	        var length = Int.read(io);
+
+	        if (length > this._maxLength) {
+	          throw new Error("XDR Read Error: Saw " + length + " length VarArray," + ("max allowed is " + this._maxLength));
+	        }
+
+	        return times(length, function () {
+	          return _this._childType.read(io);
+	        });
+	      }
+	    },
+	    write: {
+	      value: function write(value, io) {
+	        var _this = this;
+
+	        if (!isArray(value)) {
+	          throw new Error("XDR Write Error: value is not array");
+	        }
+
+	        if (value.length > this._maxLength) {
+	          throw new Error("XDR Write Error: Got array of size " + value.length + "," + ("max allowed is " + this._maxLength));
+	        }
+
+	        Int.write(value.length, io);
+	        each(value, function (child) {
+	          return _this._childType.write(child, io);
+	        });
+	      }
+	    },
+	    isValid: {
+	      value: function isValid(value) {
+	        var _this = this;
+
+	        if (!isArray(value)) {
+	          return false;
+	        }
+	        if (value.length > this._maxLength) {
+	          return false;
+	        }
+
+	        return all(value, function (child) {
+	          return _this._childType.isValid(child);
+	        });
+	      }
+	    }
+	  });
+
+	  return VarArray;
+	})();
+
+	includeIoMixin(VarArray.prototype);
+
+/***/ },
+/* 74 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _classCallCheck = __webpack_require__(30)["default"];
+
+	var _createClass = __webpack_require__(31)["default"];
+
+	var _interopRequire = __webpack_require__(26)["default"];
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var Bool = __webpack_require__(68).Bool;
+
+	var _lodash = __webpack_require__(43);
+
+	var isNull = _lodash.isNull;
+	var isUndefined = _lodash.isUndefined;
+
+	var includeIoMixin = _interopRequire(__webpack_require__(89));
+
+	var Option = exports.Option = (function () {
+	  function Option(childType) {
+	    _classCallCheck(this, Option);
+
+	    this._childType = childType;
+	  }
+
+	  _createClass(Option, {
+	    read: {
+	      value: function read(io) {
+	        if (Bool.read(io)) {
+	          return this._childType.read(io);
+	        }
+	      }
+	    },
+	    write: {
+	      value: function write(value, io) {
+	        var isPresent = !(isNull(value) || isUndefined(value));
+
+	        Bool.write(isPresent, io);
+
+	        if (isPresent) {
+	          this._childType.write(value, io);
+	        }
+	      }
+	    },
+	    isValid: {
+	      value: function isValid(value) {
+	        if (isNull(value)) {
+	          return true;
+	        }
+	        if (isUndefined(value)) {
+	          return true;
+	        }
+
+	        return this._childType.isValid(value);
+	      }
+	    }
+	  });
+
+	  return Option;
+	})();
+
+	includeIoMixin(Option.prototype);
+
+/***/ },
+/* 75 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _interopRequire = __webpack_require__(26)["default"];
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var isUndefined = __webpack_require__(43).isUndefined;
+
+	var includeIoMixin = _interopRequire(__webpack_require__(89));
+
+	var Void = {
+	  /* jshint unused: false */
+
+	  read: function read(io) {
+	    return undefined;
+	  },
+
+	  write: function write(value, io) {
+	    if (!isUndefined(value)) {
+	      throw new Error("XDR Write Error: trying to write value to a void slot");
+	    }
+	  },
+
+	  isValid: function isValid(value) {
+	    return isUndefined(value);
+	  } };
+
+	exports.Void = Void;
+	includeIoMixin(Void);
+
+/***/ },
+/* 76 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _classCallCheck = __webpack_require__(30)["default"];
+
+	var _createClass = __webpack_require__(31)["default"];
+
+	var _inherits = __webpack_require__(79)["default"];
+
+	var _get = __webpack_require__(90)["default"];
+
+	var _core = __webpack_require__(47)["default"];
+
+	var _interopRequire = __webpack_require__(26)["default"];
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var Int = __webpack_require__(61).Int;
+
+	var _lodash = __webpack_require__(43);
+
+	var each = _lodash.each;
+	var vals = _lodash.values;
+
+	var includeIoMixin = _interopRequire(__webpack_require__(89));
+
+	var Enum = exports.Enum = (function () {
+	  function Enum(name, value) {
+	    _classCallCheck(this, Enum);
+
+	    this.name = name;
+	    this.value = value;
+	  }
+
+	  _createClass(Enum, null, {
+	    read: {
+	      value: function read(io) {
+	        var intVal = Int.read(io);
+
+	        if (!this._byValue.has(intVal)) {
+	          throw new Error("XDR Read Error: Unknown " + this.enumName + " member for value " + intVal);
+	        }
+
+	        return this._byValue.get(intVal);
+	      }
+	    },
+	    write: {
+	      value: function write(value, io) {
+	        if (!(value instanceof this)) {
+	          throw new Error("XDR Write Error: Unknown " + value + " is not a " + this.enumName);
+	        }
+
+	        Int.write(value.value, io);
+	      }
+	    },
+	    isValid: {
+	      value: function isValid(value) {
+	        return value instanceof this;
+	      }
+	    },
+	    members: {
+	      value: function members() {
+	        return this._members;
+	      }
+	    },
+	    values: {
+	      value: function values() {
+	        return vals(this._members);
+	      }
+	    },
+	    fromName: {
+	      value: function fromName(name) {
+	        var result = this._members[name];
+
+	        if (!result) {
+	          throw new Error("" + name + " is not a member of " + this.enumName);
+	        }
+
+	        return result;
+	      }
+	    },
+	    create: {
+	      value: function create(name, members) {
+	        var ChildEnum = (function (_Enum) {
+	          var _class = function ChildEnum() {
+	            for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+	              args[_key] = arguments[_key];
+	            }
+
+	            _classCallCheck(this, _class);
+
+	            _get(_core.Object.getPrototypeOf(_class.prototype), "constructor", this).apply(this, args);
+	          };
+
+	          _inherits(_class, _Enum);
+
+	          return _class;
+	        })(Enum);
+
+	        ChildEnum.enumName = name;
+	        ChildEnum._members = {};
+	        ChildEnum._byValue = new _core.Map();
+
+	        each(members, function (value, key) {
+	          var inst = new ChildEnum(key, value);
+	          ChildEnum._members[key] = inst;
+	          ChildEnum._byValue.set(value, inst);
+	          ChildEnum[key] = function () {
+	            return inst;
+	          };
+	        });
+
+	        return ChildEnum;
+	      }
+	    }
+	  });
+
+	  return Enum;
+	})();
+
+	includeIoMixin(Enum);
+
+/***/ },
+/* 77 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _classCallCheck = __webpack_require__(30)["default"];
+
+	var _createClass = __webpack_require__(31)["default"];
+
+	var _inherits = __webpack_require__(79)["default"];
+
+	var _get = __webpack_require__(90)["default"];
+
+	var _slicedToArray = __webpack_require__(92)["default"];
+
+	var _core = __webpack_require__(47)["default"];
+
+	var _interopRequire = __webpack_require__(26)["default"];
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _lodash = __webpack_require__(43);
+
+	var each = _lodash.each;
+	var map = _lodash.map;
+	var isUndefined = _lodash.isUndefined;
+	var zipObject = _lodash.zipObject;
+
+	var includeIoMixin = _interopRequire(__webpack_require__(89));
+
+	var Struct = exports.Struct = (function () {
+	  function Struct(attributes) {
+	    _classCallCheck(this, Struct);
+
+	    this._attributes = attributes || {};
+	  }
+
+	  _createClass(Struct, null, {
+	    read: {
+	      value: function read(io) {
+	        var fields = map(this._fields, function (field) {
+	          var _field = _slicedToArray(field, 2);
+
+	          var name = _field[0];
+	          var type = _field[1];
+
+	          var value = type.read(io);
+	          return [name, value];
+	        });
+
+	        return new this(zipObject(fields));
+	      }
+	    },
+	    write: {
+	      value: function write(value, io) {
+	        if (!(value instanceof this)) {
+	          throw new Error("XDR Write Error: " + value + " is not a " + this.structName);
+	        }
+	        each(this._fields, function (field) {
+	          var _field = _slicedToArray(field, 2);
+
+	          var name = _field[0];
+	          var type = _field[1];
+
+	          var attribute = value._attributes[name];
+	          type.write(attribute, io);
+	        });
+	      }
+	    },
+	    isValid: {
+	      value: function isValid(value) {
+	        return value instanceof this;
+	      }
+	    },
+	    create: {
+	      value: function create(name, fields) {
+	        var ChildStruct = (function (_Struct) {
+	          var _class = function ChildStruct() {
+	            for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+	              args[_key] = arguments[_key];
+	            }
+
+	            _classCallCheck(this, _class);
+
+	            _get(_core.Object.getPrototypeOf(_class.prototype), "constructor", this).apply(this, args);
+	          };
+
+	          _inherits(_class, _Struct);
+
+	          return _class;
+	        })(Struct);
+
+	        ChildStruct.structName = name;
+
+	        ChildStruct._fields = fields;
+
+	        each(fields, function (field) {
+	          var _field = _slicedToArray(field, 1);
+
+	          var fieldName = _field[0];
+
+	          ChildStruct.prototype[fieldName] = readOrWriteAttribute(fieldName);
+	        });
+
+	        return ChildStruct;
+	      }
+	    }
+	  });
+
+	  return Struct;
+	})();
+
+	includeIoMixin(Struct);
+
+	function readOrWriteAttribute(name) {
+	  return function (value) {
+	    if (!isUndefined(value)) {
+	      this._attributes[name] = value;
+	    }
+
+	    return this._attributes[name];
+	  };
+	}
+
+/***/ },
+/* 78 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _classCallCheck = __webpack_require__(30)["default"];
+
+	var _createClass = __webpack_require__(31)["default"];
+
+	var _inherits = __webpack_require__(79)["default"];
+
+	var _get = __webpack_require__(90)["default"];
+
+	var _core = __webpack_require__(47)["default"];
+
+	var _interopRequire = __webpack_require__(26)["default"];
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _lodash = __webpack_require__(43);
+
+	var each = _lodash.each;
+	var isUndefined = _lodash.isUndefined;
+
+	var Void = __webpack_require__(75).Void;
+
+	var includeIoMixin = _interopRequire(__webpack_require__(89));
+
+	var Union = exports.Union = (function () {
+	  function Union(aSwitch, value) {
+	    _classCallCheck(this, Union);
+
+	    this.set(aSwitch, value);
+	  }
+
+	  _createClass(Union, {
+	    set: {
+	      value: function set(aSwitch, value) {
+	        if (!(aSwitch instanceof this.constructor._switchOn)) {
+	          aSwitch = this.constructor._switchOn.fromName(aSwitch);
+	        }
+
+	        this._switch = aSwitch;
+	        this._arm = this.constructor.armForSwitch(this._switch);
+	        this._armType = this.constructor.armTypeForArm(this._arm);
+	        this._value = value;
+	      }
+	    },
+	    get: {
+	      value: function get() {
+	        var armName = arguments[0] === undefined ? this._arm : arguments[0];
+
+	        if (this._arm !== Void && this._arm !== armName) {
+	          throw new Error("" + armName + " not set");
+	        }
+	        return this._value;
+	      }
+	    },
+	    "switch": {
+	      value: function _switch() {
+	        return this._switch;
+	      }
+	    },
+	    arm: {
+	      value: function arm() {
+	        return this._arm;
+	      }
+	    },
+	    armType: {
+	      value: function armType() {
+	        return this._armType;
+	      }
+	    },
+	    value: {
+	      value: function value() {
+	        return this._value;
+	      }
+	    }
+	  }, {
+	    armForSwitch: {
+	      value: function armForSwitch(aSwitch) {
+
+	        var arm = this._switches.get(aSwitch);
+
+	        if (isUndefined(arm)) {
+	          throw new Error("Bad union switch: " + aSwitch);
+	        }
+
+	        return arm;
+	      }
+	    },
+	    armTypeForArm: {
+	      value: function armTypeForArm(arm) {
+	        if (arm === Void) {
+	          return Void;
+	        } else {
+	          return this._arms[arm];
+	        }
+	      }
+	    },
+	    read: {
+	      value: function read(io) {
+	        var aSwitch = this._switchOn.read(io);
+	        var arm = this.armForSwitch(aSwitch);
+	        var armType = this.armTypeForArm(arm);
+	        var value = armType.read(io);
+	        return new this(aSwitch, value);
+	      }
+	    },
+	    write: {
+	      value: function write(value, io) {
+	        if (!(value instanceof this)) {
+	          throw new Error("XDR Write Error: " + value + " is not a " + this.unionName);
+	        }
+
+	        this._switchOn.write(value["switch"](), io);
+	        value.armType().write(value.value(), io);
+	      }
+	    },
+	    isValid: {
+	      value: function isValid(value) {
+	        return value instanceof this;
+	      }
+	    },
+	    create: {
+	      value: function create(name, config) {
+	        var ChildUnion = (function (_Union) {
+	          var _class = function ChildUnion() {
+	            for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+	              args[_key] = arguments[_key];
+	            }
+
+	            _classCallCheck(this, _class);
+
+	            _get(_core.Object.getPrototypeOf(_class.prototype), "constructor", this).apply(this, args);
+	          };
+
+	          _inherits(_class, _Union);
+
+	          return _class;
+	        })(Union);
+
+	        ChildUnion.unionName = name;
+	        ChildUnion._switchOn = config.switchOn;
+	        ChildUnion._switches = new _core.Map();
+	        ChildUnion._arms = config.arms;
+
+	        each(ChildUnion._switchOn.values(), function (aSwitch) {
+
+	          // build the enum => arm map
+	          var arm = config.switches[aSwitch.name] || config.defaultArm;
+	          ChildUnion._switches.set(aSwitch, arm);
+
+	          // Add enum-based constrocutors
+	          ChildUnion[aSwitch.name] = function (value) {
+	            return new ChildUnion(aSwitch, value);
+	          };
+
+	          // Add enum-based "set" helpers
+	          ChildUnion.prototype[aSwitch.name] = function (value) {
+	            return this.set(aSwitch, value);
+	          };
+	        });
+
+	        // Add arm accessor helpers
+	        each(ChildUnion._arms, function (type, name) {
+	          if (type === Void) {
+	            return;
+	          }
+
+	          ChildUnion.prototype[name] = function () {
+	            return this.get(name);
+	          };
+	        });
+
+	        return ChildUnion;
+	      }
+	    }
+	  });
+
+	  return Union;
+	})();
+
+	includeIoMixin(Union);
+
+/***/ },
+/* 79 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	exports["default"] = function (subClass, superClass) {
+	  if (typeof superClass !== "function" && superClass !== null) {
+	    throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+	  }
+
+	  subClass.prototype = Object.create(superClass && superClass.prototype, {
+	    constructor: {
+	      value: subClass,
+	      enumerable: false,
+	      writable: true,
+	      configurable: true
+	    }
+	  });
+	  if (superClass) subClass.__proto__ = superClass;
+	};
+
+	exports.__esModule = true;
+
+/***/ },
+/* 80 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _core = __webpack_require__(47)["default"];
+
+	exports["default"] = function (arr) {
+	  if (Array.isArray(arr)) {
+	    for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i];
+
+	    return arr2;
+	  } else {
+	    return _core.Array.from(arr);
+	  }
+	};
+
+	exports.__esModule = true;
+
+/***/ },
+/* 81 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	exports.decode = exports.parse = __webpack_require__(87);
-	exports.encode = exports.stringify = __webpack_require__(88);
+	exports.decode = exports.parse = __webpack_require__(93);
+	exports.encode = exports.stringify = __webpack_require__(94);
 
 
 /***/ },
-/* 54 */
+/* 82 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var required = __webpack_require__(98)
-	  , lolcation = __webpack_require__(89)
-	  , qs = __webpack_require__(99);
+	var required = __webpack_require__(100)
+	  , lolcation = __webpack_require__(95)
+	  , qs = __webpack_require__(101);
 
 	var keys = ',,protocol,username,password,host,hostname,port,pathname,query,hash'.split(',')
 	  , inherit = { protocol: 1, host: 1, hostname: 1 }
@@ -29887,756 +32164,27 @@ var StellarLib =
 
 
 /***/ },
-/* 55 */
+/* 83 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(Buffer) {/*
-	 * A JavaScript implementation of the Secure Hash Algorithm, SHA-0, as defined
-	 * in FIPS PUB 180-1
-	 * This source code is derived from sha1.js of the same repository.
-	 * The difference between SHA-0 and SHA-1 is just a bitwise rotate left
-	 * operation was added.
-	 */
-
-	var inherits = __webpack_require__(101)
-	var Hash = __webpack_require__(93)
-
-	var W = new Array(80)
-
-	function Sha() {
-	  this.init()
-	  this._w = W
-
-	  Hash.call(this, 64, 56)
+	module.exports = function(module) {
+		if(!module.webpackPolyfill) {
+			module.deprecate = function() {};
+			module.paths = [];
+			// module.parent = undefined by default
+			module.children = [];
+			module.webpackPolyfill = 1;
+		}
+		return module;
 	}
 
-	inherits(Sha, Hash)
-
-	Sha.prototype.init = function () {
-	  this._a = 0x67452301
-	  this._b = 0xefcdab89
-	  this._c = 0x98badcfe
-	  this._d = 0x10325476
-	  this._e = 0xc3d2e1f0
-
-	  return this
-	}
-
-	/*
-	 * Bitwise rotate a 32-bit number to the left.
-	 */
-	function rol(num, cnt) {
-	  return (num << cnt) | (num >>> (32 - cnt));
-	}
-
-	Sha.prototype._update = function (M) {
-	  var W = this._w
-
-	  var a = this._a
-	  var b = this._b
-	  var c = this._c
-	  var d = this._d
-	  var e = this._e
-
-	  var j = 0, k
-
-	  /*
-	   * SHA-1 has a bitwise rotate left operation. But, SHA is not
-	   * function calcW() { return rol(W[j - 3] ^ W[j -  8] ^ W[j - 14] ^ W[j - 16], 1) }
-	   */
-	  function calcW() { return W[j - 3] ^ W[j -  8] ^ W[j - 14] ^ W[j - 16] }
-	  function loop(w, f) {
-	    W[j] = w
-
-	    var t = rol(a, 5) + f + e + w + k
-
-	    e = d
-	    d = c
-	    c = rol(b, 30)
-	    b = a
-	    a = t
-	    j++
-	  }
-
-	  k = 1518500249
-	  while (j < 16) loop(M.readInt32BE(j * 4), (b & c) | ((~b) & d))
-	  while (j < 20) loop(calcW(), (b & c) | ((~b) & d))
-	  k = 1859775393
-	  while (j < 40) loop(calcW(), b ^ c ^ d)
-	  k = -1894007588
-	  while (j < 60) loop(calcW(), (b & c) | (b & d) | (c & d))
-	  k = -899497514
-	  while (j < 80) loop(calcW(), b ^ c ^ d)
-
-	  this._a = (a + this._a) | 0
-	  this._b = (b + this._b) | 0
-	  this._c = (c + this._c) | 0
-	  this._d = (d + this._d) | 0
-	  this._e = (e + this._e) | 0
-	}
-
-	Sha.prototype._hash = function () {
-	  var H = new Buffer(20)
-
-	  H.writeInt32BE(this._a|0, 0)
-	  H.writeInt32BE(this._b|0, 4)
-	  H.writeInt32BE(this._c|0, 8)
-	  H.writeInt32BE(this._d|0, 12)
-	  H.writeInt32BE(this._e|0, 16)
-
-	  return H
-	}
-
-	module.exports = Sha
-
-
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
 
 /***/ },
-/* 56 */
+/* 84 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(Buffer) {/*
-	 * A JavaScript implementation of the Secure Hash Algorithm, SHA-1, as defined
-	 * in FIPS PUB 180-1
-	 * Version 2.1a Copyright Paul Johnston 2000 - 2002.
-	 * Other contributors: Greg Holt, Andrew Kepert, Ydnar, Lostinet
-	 * Distributed under the BSD License
-	 * See http://pajhome.org.uk/crypt/md5 for details.
-	 */
-
-	var inherits = __webpack_require__(101)
-	var Hash = __webpack_require__(93)
-
-	var W = new Array(80)
-
-	function Sha1() {
-	  this.init()
-	  this._w = W
-
-	  Hash.call(this, 64, 56)
-	}
-
-	inherits(Sha1, Hash)
-
-	Sha1.prototype.init = function () {
-	  this._a = 0x67452301
-	  this._b = 0xefcdab89
-	  this._c = 0x98badcfe
-	  this._d = 0x10325476
-	  this._e = 0xc3d2e1f0
-
-	  return this
-	}
-
-	/*
-	 * Bitwise rotate a 32-bit number to the left.
-	 */
-	function rol(num, cnt) {
-	  return (num << cnt) | (num >>> (32 - cnt));
-	}
-
-	Sha1.prototype._update = function (M) {
-	  var W = this._w
-
-	  var a = this._a
-	  var b = this._b
-	  var c = this._c
-	  var d = this._d
-	  var e = this._e
-
-	  var j = 0, k
-
-	  function calcW() { return rol(W[j - 3] ^ W[j -  8] ^ W[j - 14] ^ W[j - 16], 1) }
-	  function loop(w, f) {
-	    W[j] = w
-
-	    var t = rol(a, 5) + f + e + w + k
-
-	    e = d
-	    d = c
-	    c = rol(b, 30)
-	    b = a
-	    a = t
-	    j++
-	  }
-
-	  k = 1518500249
-	  while (j < 16) loop(M.readInt32BE(j * 4), (b & c) | ((~b) & d))
-	  while (j < 20) loop(calcW(), (b & c) | ((~b) & d))
-	  k = 1859775393
-	  while (j < 40) loop(calcW(), b ^ c ^ d)
-	  k = -1894007588
-	  while (j < 60) loop(calcW(), (b & c) | (b & d) | (c & d))
-	  k = -899497514
-	  while (j < 80) loop(calcW(), b ^ c ^ d)
-
-	  this._a = (a + this._a) | 0
-	  this._b = (b + this._b) | 0
-	  this._c = (c + this._c) | 0
-	  this._d = (d + this._d) | 0
-	  this._e = (e + this._e) | 0
-	}
-
-	Sha1.prototype._hash = function () {
-	  var H = new Buffer(20)
-
-	  H.writeInt32BE(this._a|0, 0)
-	  H.writeInt32BE(this._b|0, 4)
-	  H.writeInt32BE(this._c|0, 8)
-	  H.writeInt32BE(this._d|0, 12)
-	  H.writeInt32BE(this._e|0, 16)
-
-	  return H
-	}
-
-	module.exports = Sha1
-
-
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
-
-/***/ },
-/* 57 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(Buffer) {/**
-	 * A JavaScript implementation of the Secure Hash Algorithm, SHA-256, as defined
-	 * in FIPS 180-2
-	 * Version 2.2-beta Copyright Angel Marin, Paul Johnston 2000 - 2009.
-	 * Other contributors: Greg Holt, Andrew Kepert, Ydnar, Lostinet
-	 *
-	 */
-
-	var inherits = __webpack_require__(101)
-	var SHA256 = __webpack_require__(58)
-	var Hash = __webpack_require__(93)
-
-	var W = new Array(64)
-
-	function Sha224() {
-	  this.init()
-
-	  this._w = W // new Array(64)
-
-	  Hash.call(this, 64, 56)
-	}
-
-	inherits(Sha224, SHA256)
-
-	Sha224.prototype.init = function () {
-	  this._a = 0xc1059ed8|0
-	  this._b = 0x367cd507|0
-	  this._c = 0x3070dd17|0
-	  this._d = 0xf70e5939|0
-	  this._e = 0xffc00b31|0
-	  this._f = 0x68581511|0
-	  this._g = 0x64f98fa7|0
-	  this._h = 0xbefa4fa4|0
-
-	  return this
-	}
-
-	Sha224.prototype._hash = function () {
-	  var H = new Buffer(28)
-
-	  H.writeInt32BE(this._a,  0)
-	  H.writeInt32BE(this._b,  4)
-	  H.writeInt32BE(this._c,  8)
-	  H.writeInt32BE(this._d, 12)
-	  H.writeInt32BE(this._e, 16)
-	  H.writeInt32BE(this._f, 20)
-	  H.writeInt32BE(this._g, 24)
-
-	  return H
-	}
-
-	module.exports = Sha224
-
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
-
-/***/ },
-/* 58 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(Buffer) {/**
-	 * A JavaScript implementation of the Secure Hash Algorithm, SHA-256, as defined
-	 * in FIPS 180-2
-	 * Version 2.2-beta Copyright Angel Marin, Paul Johnston 2000 - 2009.
-	 * Other contributors: Greg Holt, Andrew Kepert, Ydnar, Lostinet
-	 *
-	 */
-
-	var inherits = __webpack_require__(101)
-	var Hash = __webpack_require__(93)
-
-	var K = [
-	  0x428A2F98, 0x71374491, 0xB5C0FBCF, 0xE9B5DBA5,
-	  0x3956C25B, 0x59F111F1, 0x923F82A4, 0xAB1C5ED5,
-	  0xD807AA98, 0x12835B01, 0x243185BE, 0x550C7DC3,
-	  0x72BE5D74, 0x80DEB1FE, 0x9BDC06A7, 0xC19BF174,
-	  0xE49B69C1, 0xEFBE4786, 0x0FC19DC6, 0x240CA1CC,
-	  0x2DE92C6F, 0x4A7484AA, 0x5CB0A9DC, 0x76F988DA,
-	  0x983E5152, 0xA831C66D, 0xB00327C8, 0xBF597FC7,
-	  0xC6E00BF3, 0xD5A79147, 0x06CA6351, 0x14292967,
-	  0x27B70A85, 0x2E1B2138, 0x4D2C6DFC, 0x53380D13,
-	  0x650A7354, 0x766A0ABB, 0x81C2C92E, 0x92722C85,
-	  0xA2BFE8A1, 0xA81A664B, 0xC24B8B70, 0xC76C51A3,
-	  0xD192E819, 0xD6990624, 0xF40E3585, 0x106AA070,
-	  0x19A4C116, 0x1E376C08, 0x2748774C, 0x34B0BCB5,
-	  0x391C0CB3, 0x4ED8AA4A, 0x5B9CCA4F, 0x682E6FF3,
-	  0x748F82EE, 0x78A5636F, 0x84C87814, 0x8CC70208,
-	  0x90BEFFFA, 0xA4506CEB, 0xBEF9A3F7, 0xC67178F2
-	]
-
-	var W = new Array(64)
-
-	function Sha256() {
-	  this.init()
-
-	  this._w = W // new Array(64)
-
-	  Hash.call(this, 64, 56)
-	}
-
-	inherits(Sha256, Hash)
-
-	Sha256.prototype.init = function () {
-	  this._a = 0x6a09e667|0
-	  this._b = 0xbb67ae85|0
-	  this._c = 0x3c6ef372|0
-	  this._d = 0xa54ff53a|0
-	  this._e = 0x510e527f|0
-	  this._f = 0x9b05688c|0
-	  this._g = 0x1f83d9ab|0
-	  this._h = 0x5be0cd19|0
-
-	  return this
-	}
-
-	function S (X, n) {
-	  return (X >>> n) | (X << (32 - n));
-	}
-
-	function R (X, n) {
-	  return (X >>> n);
-	}
-
-	function Ch (x, y, z) {
-	  return ((x & y) ^ ((~x) & z));
-	}
-
-	function Maj (x, y, z) {
-	  return ((x & y) ^ (x & z) ^ (y & z));
-	}
-
-	function Sigma0256 (x) {
-	  return (S(x, 2) ^ S(x, 13) ^ S(x, 22));
-	}
-
-	function Sigma1256 (x) {
-	  return (S(x, 6) ^ S(x, 11) ^ S(x, 25));
-	}
-
-	function Gamma0256 (x) {
-	  return (S(x, 7) ^ S(x, 18) ^ R(x, 3));
-	}
-
-	function Gamma1256 (x) {
-	  return (S(x, 17) ^ S(x, 19) ^ R(x, 10));
-	}
-
-	Sha256.prototype._update = function(M) {
-	  var W = this._w
-
-	  var a = this._a | 0
-	  var b = this._b | 0
-	  var c = this._c | 0
-	  var d = this._d | 0
-	  var e = this._e | 0
-	  var f = this._f | 0
-	  var g = this._g | 0
-	  var h = this._h | 0
-
-	  var j = 0
-
-	  function calcW() { return Gamma1256(W[j - 2]) + W[j - 7] + Gamma0256(W[j - 15]) + W[j - 16] }
-	  function loop(w) {
-	    W[j] = w
-
-	    var T1 = h + Sigma1256(e) + Ch(e, f, g) + K[j] + w
-	    var T2 = Sigma0256(a) + Maj(a, b, c);
-
-	    h = g;
-	    g = f;
-	    f = e;
-	    e = d + T1;
-	    d = c;
-	    c = b;
-	    b = a;
-	    a = T1 + T2;
-
-	    j++
-	  }
-
-	  while (j < 16) loop(M.readInt32BE(j * 4))
-	  while (j < 64) loop(calcW())
-
-	  this._a = (a + this._a) | 0
-	  this._b = (b + this._b) | 0
-	  this._c = (c + this._c) | 0
-	  this._d = (d + this._d) | 0
-	  this._e = (e + this._e) | 0
-	  this._f = (f + this._f) | 0
-	  this._g = (g + this._g) | 0
-	  this._h = (h + this._h) | 0
-	};
-
-	Sha256.prototype._hash = function () {
-	  var H = new Buffer(32)
-
-	  H.writeInt32BE(this._a,  0)
-	  H.writeInt32BE(this._b,  4)
-	  H.writeInt32BE(this._c,  8)
-	  H.writeInt32BE(this._d, 12)
-	  H.writeInt32BE(this._e, 16)
-	  H.writeInt32BE(this._f, 20)
-	  H.writeInt32BE(this._g, 24)
-	  H.writeInt32BE(this._h, 28)
-
-	  return H
-	}
-
-	module.exports = Sha256
-
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
-
-/***/ },
-/* 59 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(Buffer) {var inherits = __webpack_require__(101)
-	var SHA512 = __webpack_require__(60);
-	var Hash = __webpack_require__(93)
-
-	var W = new Array(160)
-
-	function Sha384() {
-	  this.init()
-	  this._w = W
-
-	  Hash.call(this, 128, 112)
-	}
-
-	inherits(Sha384, SHA512)
-
-	Sha384.prototype.init = function () {
-	  this._a = 0xcbbb9d5d|0
-	  this._b = 0x629a292a|0
-	  this._c = 0x9159015a|0
-	  this._d = 0x152fecd8|0
-	  this._e = 0x67332667|0
-	  this._f = 0x8eb44a87|0
-	  this._g = 0xdb0c2e0d|0
-	  this._h = 0x47b5481d|0
-
-	  this._al = 0xc1059ed8|0
-	  this._bl = 0x367cd507|0
-	  this._cl = 0x3070dd17|0
-	  this._dl = 0xf70e5939|0
-	  this._el = 0xffc00b31|0
-	  this._fl = 0x68581511|0
-	  this._gl = 0x64f98fa7|0
-	  this._hl = 0xbefa4fa4|0
-
-	  return this
-	}
-
-	Sha384.prototype._hash = function () {
-	  var H = new Buffer(48)
-
-	  function writeInt64BE(h, l, offset) {
-	    H.writeInt32BE(h, offset)
-	    H.writeInt32BE(l, offset + 4)
-	  }
-
-	  writeInt64BE(this._a, this._al, 0)
-	  writeInt64BE(this._b, this._bl, 8)
-	  writeInt64BE(this._c, this._cl, 16)
-	  writeInt64BE(this._d, this._dl, 24)
-	  writeInt64BE(this._e, this._el, 32)
-	  writeInt64BE(this._f, this._fl, 40)
-
-	  return H
-	}
-
-	module.exports = Sha384
-
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
-
-/***/ },
-/* 60 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(Buffer) {var inherits = __webpack_require__(101)
-	var Hash = __webpack_require__(93)
-
-	var K = [
-	  0x428a2f98, 0xd728ae22, 0x71374491, 0x23ef65cd,
-	  0xb5c0fbcf, 0xec4d3b2f, 0xe9b5dba5, 0x8189dbbc,
-	  0x3956c25b, 0xf348b538, 0x59f111f1, 0xb605d019,
-	  0x923f82a4, 0xaf194f9b, 0xab1c5ed5, 0xda6d8118,
-	  0xd807aa98, 0xa3030242, 0x12835b01, 0x45706fbe,
-	  0x243185be, 0x4ee4b28c, 0x550c7dc3, 0xd5ffb4e2,
-	  0x72be5d74, 0xf27b896f, 0x80deb1fe, 0x3b1696b1,
-	  0x9bdc06a7, 0x25c71235, 0xc19bf174, 0xcf692694,
-	  0xe49b69c1, 0x9ef14ad2, 0xefbe4786, 0x384f25e3,
-	  0x0fc19dc6, 0x8b8cd5b5, 0x240ca1cc, 0x77ac9c65,
-	  0x2de92c6f, 0x592b0275, 0x4a7484aa, 0x6ea6e483,
-	  0x5cb0a9dc, 0xbd41fbd4, 0x76f988da, 0x831153b5,
-	  0x983e5152, 0xee66dfab, 0xa831c66d, 0x2db43210,
-	  0xb00327c8, 0x98fb213f, 0xbf597fc7, 0xbeef0ee4,
-	  0xc6e00bf3, 0x3da88fc2, 0xd5a79147, 0x930aa725,
-	  0x06ca6351, 0xe003826f, 0x14292967, 0x0a0e6e70,
-	  0x27b70a85, 0x46d22ffc, 0x2e1b2138, 0x5c26c926,
-	  0x4d2c6dfc, 0x5ac42aed, 0x53380d13, 0x9d95b3df,
-	  0x650a7354, 0x8baf63de, 0x766a0abb, 0x3c77b2a8,
-	  0x81c2c92e, 0x47edaee6, 0x92722c85, 0x1482353b,
-	  0xa2bfe8a1, 0x4cf10364, 0xa81a664b, 0xbc423001,
-	  0xc24b8b70, 0xd0f89791, 0xc76c51a3, 0x0654be30,
-	  0xd192e819, 0xd6ef5218, 0xd6990624, 0x5565a910,
-	  0xf40e3585, 0x5771202a, 0x106aa070, 0x32bbd1b8,
-	  0x19a4c116, 0xb8d2d0c8, 0x1e376c08, 0x5141ab53,
-	  0x2748774c, 0xdf8eeb99, 0x34b0bcb5, 0xe19b48a8,
-	  0x391c0cb3, 0xc5c95a63, 0x4ed8aa4a, 0xe3418acb,
-	  0x5b9cca4f, 0x7763e373, 0x682e6ff3, 0xd6b2b8a3,
-	  0x748f82ee, 0x5defb2fc, 0x78a5636f, 0x43172f60,
-	  0x84c87814, 0xa1f0ab72, 0x8cc70208, 0x1a6439ec,
-	  0x90befffa, 0x23631e28, 0xa4506ceb, 0xde82bde9,
-	  0xbef9a3f7, 0xb2c67915, 0xc67178f2, 0xe372532b,
-	  0xca273ece, 0xea26619c, 0xd186b8c7, 0x21c0c207,
-	  0xeada7dd6, 0xcde0eb1e, 0xf57d4f7f, 0xee6ed178,
-	  0x06f067aa, 0x72176fba, 0x0a637dc5, 0xa2c898a6,
-	  0x113f9804, 0xbef90dae, 0x1b710b35, 0x131c471b,
-	  0x28db77f5, 0x23047d84, 0x32caab7b, 0x40c72493,
-	  0x3c9ebe0a, 0x15c9bebc, 0x431d67c4, 0x9c100d4c,
-	  0x4cc5d4be, 0xcb3e42b6, 0x597f299c, 0xfc657e2a,
-	  0x5fcb6fab, 0x3ad6faec, 0x6c44198c, 0x4a475817
-	]
-
-	var W = new Array(160)
-
-	function Sha512() {
-	  this.init()
-	  this._w = W
-
-	  Hash.call(this, 128, 112)
-	}
-
-	inherits(Sha512, Hash)
-
-	Sha512.prototype.init = function () {
-	  this._a = 0x6a09e667|0
-	  this._b = 0xbb67ae85|0
-	  this._c = 0x3c6ef372|0
-	  this._d = 0xa54ff53a|0
-	  this._e = 0x510e527f|0
-	  this._f = 0x9b05688c|0
-	  this._g = 0x1f83d9ab|0
-	  this._h = 0x5be0cd19|0
-
-	  this._al = 0xf3bcc908|0
-	  this._bl = 0x84caa73b|0
-	  this._cl = 0xfe94f82b|0
-	  this._dl = 0x5f1d36f1|0
-	  this._el = 0xade682d1|0
-	  this._fl = 0x2b3e6c1f|0
-	  this._gl = 0xfb41bd6b|0
-	  this._hl = 0x137e2179|0
-
-	  return this
-	}
-
-	function S (X, Xl, n) {
-	  return (X >>> n) | (Xl << (32 - n))
-	}
-
-	function Ch (x, y, z) {
-	  return ((x & y) ^ ((~x) & z));
-	}
-
-	function Maj (x, y, z) {
-	  return ((x & y) ^ (x & z) ^ (y & z));
-	}
-
-	Sha512.prototype._update = function(M) {
-	  var W = this._w
-
-	  var a = this._a | 0
-	  var b = this._b | 0
-	  var c = this._c | 0
-	  var d = this._d | 0
-	  var e = this._e | 0
-	  var f = this._f | 0
-	  var g = this._g | 0
-	  var h = this._h | 0
-
-	  var al = this._al | 0
-	  var bl = this._bl | 0
-	  var cl = this._cl | 0
-	  var dl = this._dl | 0
-	  var el = this._el | 0
-	  var fl = this._fl | 0
-	  var gl = this._gl | 0
-	  var hl = this._hl | 0
-
-	  var i = 0, j = 0
-	  var Wi, Wil
-	  function calcW() {
-	    var x  = W[j - 15*2]
-	    var xl = W[j - 15*2 + 1]
-	    var gamma0  = S(x, xl, 1) ^ S(x, xl, 8) ^ (x >>> 7)
-	    var gamma0l = S(xl, x, 1) ^ S(xl, x, 8) ^ S(xl, x, 7)
-
-	    x  = W[j - 2*2]
-	    xl = W[j - 2*2 + 1]
-	    var gamma1  = S(x, xl, 19) ^ S(xl, x, 29) ^ (x >>> 6)
-	    var gamma1l = S(xl, x, 19) ^ S(x, xl, 29) ^ S(xl, x, 6)
-
-	    // W[i] = gamma0 + W[i - 7] + gamma1 + W[i - 16]
-	    var Wi7  = W[j - 7*2]
-	    var Wi7l = W[j - 7*2 + 1]
-
-	    var Wi16  = W[j - 16*2]
-	    var Wi16l = W[j - 16*2 + 1]
-
-	    Wil = gamma0l + Wi7l
-	    Wi  = gamma0  + Wi7 + ((Wil >>> 0) < (gamma0l >>> 0) ? 1 : 0)
-	    Wil = Wil + gamma1l
-	    Wi  = Wi  + gamma1  + ((Wil >>> 0) < (gamma1l >>> 0) ? 1 : 0)
-	    Wil = Wil + Wi16l
-	    Wi  = Wi  + Wi16 + ((Wil >>> 0) < (Wi16l >>> 0) ? 1 : 0)
-	  }
-
-	  function loop() {
-	    W[j] = Wi
-	    W[j + 1] = Wil
-
-	    var maj = Maj(a, b, c)
-	    var majl = Maj(al, bl, cl)
-
-	    var sigma0h = S(a, al, 28) ^ S(al, a, 2) ^ S(al, a, 7)
-	    var sigma0l = S(al, a, 28) ^ S(a, al, 2) ^ S(a, al, 7)
-	    var sigma1h = S(e, el, 14) ^ S(e, el, 18) ^ S(el, e, 9)
-	    var sigma1l = S(el, e, 14) ^ S(el, e, 18) ^ S(e, el, 9)
-
-	    // t1 = h + sigma1 + ch + K[i] + W[i]
-	    var Ki = K[j]
-	    var Kil = K[j + 1]
-
-	    var ch = Ch(e, f, g)
-	    var chl = Ch(el, fl, gl)
-
-	    var t1l = hl + sigma1l
-	    var t1 = h + sigma1h + ((t1l >>> 0) < (hl >>> 0) ? 1 : 0)
-	    t1l = t1l + chl
-	    t1 = t1 + ch + ((t1l >>> 0) < (chl >>> 0) ? 1 : 0)
-	    t1l = t1l + Kil
-	    t1 = t1 + Ki + ((t1l >>> 0) < (Kil >>> 0) ? 1 : 0)
-	    t1l = t1l + Wil
-	    t1 = t1 + Wi + ((t1l >>> 0) < (Wil >>> 0) ? 1 : 0)
-
-	    // t2 = sigma0 + maj
-	    var t2l = sigma0l + majl
-	    var t2 = sigma0h + maj + ((t2l >>> 0) < (sigma0l >>> 0) ? 1 : 0)
-
-	    h  = g
-	    hl = gl
-	    g  = f
-	    gl = fl
-	    f  = e
-	    fl = el
-	    el = (dl + t1l) | 0
-	    e  = (d + t1 + ((el >>> 0) < (dl >>> 0) ? 1 : 0)) | 0
-	    d  = c
-	    dl = cl
-	    c  = b
-	    cl = bl
-	    b  = a
-	    bl = al
-	    al = (t1l + t2l) | 0
-	    a  = (t1 + t2 + ((al >>> 0) < (t1l >>> 0) ? 1 : 0)) | 0
-
-	    i++
-	    j += 2
-	  }
-
-	  while (i < 16) {
-	    Wi = M.readInt32BE(j * 4)
-	    Wil = M.readInt32BE(j * 4 + 4)
-
-	    loop()
-	  }
-
-	  while (i < 80) {
-	    calcW()
-	    loop()
-	  }
-
-	  this._al = (this._al + al) | 0
-	  this._bl = (this._bl + bl) | 0
-	  this._cl = (this._cl + cl) | 0
-	  this._dl = (this._dl + dl) | 0
-	  this._el = (this._el + el) | 0
-	  this._fl = (this._fl + fl) | 0
-	  this._gl = (this._gl + gl) | 0
-	  this._hl = (this._hl + hl) | 0
-
-	  this._a = (this._a + a + ((this._al >>> 0) < (al >>> 0) ? 1 : 0)) | 0
-	  this._b = (this._b + b + ((this._bl >>> 0) < (bl >>> 0) ? 1 : 0)) | 0
-	  this._c = (this._c + c + ((this._cl >>> 0) < (cl >>> 0) ? 1 : 0)) | 0
-	  this._d = (this._d + d + ((this._dl >>> 0) < (dl >>> 0) ? 1 : 0)) | 0
-	  this._e = (this._e + e + ((this._el >>> 0) < (el >>> 0) ? 1 : 0)) | 0
-	  this._f = (this._f + f + ((this._fl >>> 0) < (fl >>> 0) ? 1 : 0)) | 0
-	  this._g = (this._g + g + ((this._gl >>> 0) < (gl >>> 0) ? 1 : 0)) | 0
-	  this._h = (this._h + h + ((this._hl >>> 0) < (hl >>> 0) ? 1 : 0)) | 0
-	}
-
-	Sha512.prototype._hash = function () {
-	  var H = new Buffer(64)
-
-	  function writeInt64BE(h, l, offset) {
-	    H.writeInt32BE(h, offset)
-	    H.writeInt32BE(l, offset + 4)
-	  }
-
-	  writeInt64BE(this._a, this._al, 0)
-	  writeInt64BE(this._b, this._bl, 8)
-	  writeInt64BE(this._c, this._cl, 16)
-	  writeInt64BE(this._d, this._dl, 24)
-	  writeInt64BE(this._e, this._el, 32)
-	  writeInt64BE(this._f, this._fl, 40)
-	  writeInt64BE(this._g, this._gl, 48)
-	  writeInt64BE(this._h, this._hl, 56)
-
-	  return H
-	}
-
-	module.exports = Sha512
-
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
-
-/***/ },
-/* 61 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* (ignored) */
-
-/***/ },
-/* 62 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var Stream = __webpack_require__(85);
-	var util = __webpack_require__(32);
+	var Stream = __webpack_require__(88);
+	var util = __webpack_require__(39);
 
 	var Response = module.exports = function (res) {
 	    this.offset = 0;
@@ -30758,7 +32306,7 @@ var StellarLib =
 
 
 /***/ },
-/* 63 */
+/* 85 */
 /***/ function(module, exports, __webpack_require__) {
 
 	if (typeof Object.create === 'function') {
@@ -30787,1401 +32335,135 @@ var StellarLib =
 
 
 /***/ },
-/* 64 */,
-/* 65 */
+/* 86 */
 /***/ function(module, exports, __webpack_require__) {
+
+	/*jshint node:true */
 
 	"use strict";
 
-	var _interopRequire = __webpack_require__(36)["default"];
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var isNumber = __webpack_require__(45).isNumber;
-
-	var includeIoMixin = _interopRequire(__webpack_require__(94));
-
-	var Int = {
-
-	  read: function read(io) {
-	    return io.readInt32BE();
-	  },
-
-	  write: function write(value, io) {
-	    if (!isNumber(value)) {
-	      throw new Error("XDR Write Error: not a number");
-	    }
-
-	    if (Math.floor(value) !== value) {
-	      throw new Error("XDR Write Error: not an integer");
-	    }
-
-	    io.writeInt32BE(value);
-	  },
-
-	  isValid: function isValid(value) {
-	    if (!isNumber(value)) {
-	      return false;
-	    }
-	    if (Math.floor(value) !== value) {
-	      return false;
-	    }
-
-	    return value >= Int.MIN_VALUE && value <= Int.MAX_VALUE;
-	  } };
-
-	exports.Int = Int;
-	Int.MAX_VALUE = Math.pow(2, 31) - 1;
-	Int.MIN_VALUE = -Math.pow(2, 31);
-
-	includeIoMixin(Int);
-
-/***/ },
-/* 66 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _classCallCheck = __webpack_require__(40)["default"];
-
-	var _inherits = __webpack_require__(83)["default"];
-
-	var _get = __webpack_require__(95)["default"];
-
-	var _createClass = __webpack_require__(41)["default"];
-
-	var _core = __webpack_require__(48)["default"];
-
-	var _interopRequire = __webpack_require__(36)["default"];
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var Long = _interopRequire(__webpack_require__(100));
-
-	var includeIoMixin = _interopRequire(__webpack_require__(94));
-
-	var Hyper = exports.Hyper = (function (_Long) {
-	  function Hyper(low, high) {
-	    _classCallCheck(this, Hyper);
-
-	    _get(_core.Object.getPrototypeOf(Hyper.prototype), "constructor", this).call(this, low, high, false);
-	  }
-
-	  _inherits(Hyper, _Long);
-
-	  _createClass(Hyper, null, {
-	    read: {
-	      value: function read(io) {
-	        var high = io.readInt32BE();
-	        var low = io.readInt32BE();
-	        return this.fromBits(low, high);
-	      }
-	    },
-	    write: {
-	      value: function write(value, io) {
-	        if (!(value instanceof this)) {
-	          throw new Error("XDR Write Error: " + value + " is not a Hyper");
-	        }
-
-	        io.writeInt32BE(value.high);
-	        io.writeInt32BE(value.low);
-	      }
-	    },
-	    fromString: {
-	      value: function fromString(string) {
-	        var result = _get(_core.Object.getPrototypeOf(Hyper), "fromString", this).call(this, string, false);
-	        return new this(result.low, result.high);
-	      }
-	    },
-	    fromBits: {
-	      value: function fromBits(low, high) {
-	        var result = _get(_core.Object.getPrototypeOf(Hyper), "fromBits", this).call(this, low, high, false);
-	        return new this(result.low, result.high);
-	      }
-	    },
-	    isValid: {
-	      value: function isValid(value) {
-	        return value instanceof this;
-	      }
-	    }
-	  });
-
-	  return Hyper;
-	})(Long);
-
-	includeIoMixin(Hyper);
-
-	Hyper.MAX_VALUE = new Hyper(Long.MAX_VALUE.low, Long.MAX_VALUE.high);
-	Hyper.MIN_VALUE = new Hyper(Long.MIN_VALUE.low, Long.MIN_VALUE.high);
-
-/***/ },
-/* 67 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _interopRequire = __webpack_require__(36)["default"];
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var isNumber = __webpack_require__(45).isNumber;
-
-	var includeIoMixin = _interopRequire(__webpack_require__(94));
-
-	var UnsignedInt = {
-
-	  read: function read(io) {
-	    return io.readUInt32BE();
-	  },
-
-	  write: function write(value, io) {
-	    if (!isNumber(value)) {
-	      throw new Error("XDR Write Error: not a number");
-	    }
-
-	    if (Math.floor(value) !== value) {
-	      throw new Error("XDR Write Error: not an integer");
-	    }
-
-	    if (value < 0) {
-	      throw new Error("XDR Write Error: negative number " + value);
-	    }
-
-	    io.writeUInt32BE(value);
-	  },
-
-	  isValid: function isValid(value) {
-	    if (!isNumber(value)) {
-	      return false;
-	    }
-	    if (Math.floor(value) !== value) {
-	      return false;
-	    }
-
-	    return value >= UnsignedInt.MIN_VALUE && value <= UnsignedInt.MAX_VALUE;
-	  } };
-
-	exports.UnsignedInt = UnsignedInt;
-	UnsignedInt.MAX_VALUE = Math.pow(2, 32) - 1;
-	UnsignedInt.MIN_VALUE = 0;
-
-	includeIoMixin(UnsignedInt);
-
-/***/ },
-/* 68 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _classCallCheck = __webpack_require__(40)["default"];
-
-	var _inherits = __webpack_require__(83)["default"];
-
-	var _get = __webpack_require__(95)["default"];
-
-	var _createClass = __webpack_require__(41)["default"];
-
-	var _core = __webpack_require__(48)["default"];
-
-	var _interopRequire = __webpack_require__(36)["default"];
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var Long = _interopRequire(__webpack_require__(100));
-
-	var includeIoMixin = _interopRequire(__webpack_require__(94));
-
-	var UnsignedHyper = exports.UnsignedHyper = (function (_Long) {
-	  function UnsignedHyper(low, high) {
-	    _classCallCheck(this, UnsignedHyper);
-
-	    _get(_core.Object.getPrototypeOf(UnsignedHyper.prototype), "constructor", this).call(this, low, high, false);
-	  }
-
-	  _inherits(UnsignedHyper, _Long);
-
-	  _createClass(UnsignedHyper, null, {
-	    read: {
-	      value: function read(io) {
-	        var high = io.readInt32BE();
-	        var low = io.readInt32BE();
-	        return this.fromBits(low, high);
-	      }
-	    },
-	    write: {
-	      value: function write(value, io) {
-	        if (!(value instanceof this)) {
-	          throw new Error("XDR Write Error: " + value + " is not an UnsignedHyper");
-	        }
-
-	        io.writeInt32BE(value.high);
-	        io.writeInt32BE(value.low);
-	      }
-	    },
-	    fromString: {
-	      value: function fromString(string) {
-	        var result = _get(_core.Object.getPrototypeOf(UnsignedHyper), "fromString", this).call(this, string, true);
-	        return new this(result.low, result.high);
-	      }
-	    },
-	    fromBits: {
-	      value: function fromBits(low, high) {
-	        var result = _get(_core.Object.getPrototypeOf(UnsignedHyper), "fromBits", this).call(this, low, high, true);
-	        return new this(result.low, result.high);
-	      }
-	    },
-	    isValid: {
-	      value: function isValid(value) {
-	        return value instanceof this;
-	      }
-	    }
-	  });
-
-	  return UnsignedHyper;
-	})(Long);
-
-	includeIoMixin(UnsignedHyper);
-
-	UnsignedHyper.MAX_VALUE = new UnsignedHyper(Long.MAX_UNSIGNED_VALUE.low, Long.MAX_UNSIGNED_VALUE.high);
-
-	UnsignedHyper.MIN_VALUE = new UnsignedHyper(Long.MIN_VALUE.low, Long.MIN_VALUE.high);
-
-/***/ },
-/* 69 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _interopRequire = __webpack_require__(36)["default"];
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var isNumber = __webpack_require__(45).isNumber;
-
-	var includeIoMixin = _interopRequire(__webpack_require__(94));
-
-	var Float = {
-
-	  read: function read(io) {
-	    return io.readFloatBE();
-	  },
-
-	  write: function write(value, io) {
-	    if (!isNumber(value)) {
-	      throw new Error("XDR Write Error: not a number");
-	    }
-
-	    io.writeFloatBE(value);
-	  },
-
-	  isValid: function isValid(value) {
-	    return isNumber(value);
-	  } };
-
-	exports.Float = Float;
-	includeIoMixin(Float);
-
-/***/ },
-/* 70 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _interopRequire = __webpack_require__(36)["default"];
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var isNumber = __webpack_require__(45).isNumber;
-
-	var includeIoMixin = _interopRequire(__webpack_require__(94));
-
-	var Double = {
-
-	  read: function read(io) {
-	    return io.readDoubleBE();
-	  },
-
-	  write: function write(value, io) {
-	    if (!isNumber(value)) {
-	      throw new Error("XDR Write Error: not a number");
-	    }
-
-	    io.writeDoubleBE(value);
-	  },
-
-	  isValid: function isValid(value) {
-	    return isNumber(value);
-	  } };
-
-	exports.Double = Double;
-	includeIoMixin(Double);
-
-/***/ },
-/* 71 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _interopRequire = __webpack_require__(36)["default"];
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var includeIoMixin = _interopRequire(__webpack_require__(94));
-
-	var Quadruple = {
-	  /* jshint unused: false */
-
-	  read: function read(io) {
-	    throw new Error("XDR Read Error: quadruple not supported");
-	  },
-
-	  write: function write(value, io) {
-	    throw new Error("XDR Write Error: quadruple not supported");
-	  },
-
-	  isValid: function isValid(value) {
-	    return false;
-	  } };
-
-	exports.Quadruple = Quadruple;
-	includeIoMixin(Quadruple);
-
-/***/ },
-/* 72 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _interopRequire = __webpack_require__(36)["default"];
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var Int = __webpack_require__(65).Int;
-
-	var isBoolean = __webpack_require__(45).isBoolean;
-
-	var includeIoMixin = _interopRequire(__webpack_require__(94));
-
-	var Bool = {
-	  read: function read(io) {
-	    var value = Int.read(io);
-
-	    switch (value) {
-	      case 0:
-	        return false;
-	      case 1:
-	        return true;
-	      default:
-	        throw new Error("XDR Read Error: Got " + value + " when trying to read a bool");
-	    }
-	  },
-
-	  write: function write(value, io) {
-	    var intVal = value ? 1 : 0;
-	    return Int.write(intVal, io);
-	  },
-
-	  isValid: function isValid(value) {
-	    return isBoolean(value);
-	  }
+	var sequence = function (tasks, names, results, nest) {
+		var i, name, node, e, j;
+		nest = nest || [];
+		for (i = 0; i < names.length; i++) {
+			name = names[i];
+			// de-dup results
+			if (results.indexOf(name) === -1) {
+				node = tasks[name];
+				if (!node) {
+					e = new Error('task "'+name+'" is not defined');
+					e.missingTask = name;
+					e.taskList = [];
+					for (j in tasks) {
+						if (tasks.hasOwnProperty(j)) {
+							e.taskList.push(tasks[j].name);
+						}
+					}
+					throw e;
+				}
+				if (nest.indexOf(name) > -1) {
+					nest.push(name);
+					e = new Error('Recursive dependencies detected: '+nest.join(' -> '));
+					e.recursiveTasks = nest;
+					e.taskList = [];
+					for (j in tasks) {
+						if (tasks.hasOwnProperty(j)) {
+							e.taskList.push(tasks[j].name);
+						}
+					}
+					throw e;
+				}
+				if (node.dep.length) {
+					nest.push(name);
+					sequence(tasks, node.dep, results, nest); // recurse
+					nest.pop(name);
+				}
+				results.push(name);
+			}
+		}
 	};
 
-	exports.Bool = Bool;
-	includeIoMixin(Bool);
+	module.exports = sequence;
+
 
 /***/ },
-/* 73 */
+/* 87 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
-
-	var _classCallCheck = __webpack_require__(40)["default"];
-
-	var _createClass = __webpack_require__(41)["default"];
-
-	var _interopRequire = __webpack_require__(36)["default"];
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var Int = __webpack_require__(65).Int;
-
-	var UnsignedInt = __webpack_require__(67).UnsignedInt;
-
-	var calculatePadding = __webpack_require__(96).calculatePadding;
-
-	var isString = __webpack_require__(45).isString;
-
-	var includeIoMixin = _interopRequire(__webpack_require__(94));
-
-	var String = exports.String = (function () {
-	  function String() {
-	    var maxLength = arguments[0] === undefined ? UnsignedInt.MAX_VALUE : arguments[0];
-
-	    _classCallCheck(this, String);
-
-	    this._maxLength = maxLength;
-	  }
-
-	  _createClass(String, {
-	    read: {
-	      value: function read(io) {
-	        var length = Int.read(io);
-
-	        if (length > this._maxLength) {
-	          throw new Error("XDR Read Error: Saw " + length + " length String," + ("max allowed is " + this._maxLength));
-	        }
-	        var padding = calculatePadding(length);
-	        var result = io.slice(length);
-	        io.slice(padding); //consume padding
-	        return result.buffer().toString("ascii");
-	      }
-	    },
-	    write: {
-	      value: function write(value, io) {
-	        if (value.length > this._maxLength) {
-	          throw new Error("XDR Write Error: Got " + value.length + " bytes," + ("max allows is " + this._maxLength));
-	        }
-
-	        if (!isString(value)) {
-	          throw new Error("XDR Write Error: " + value + " is not a string,");
-	        }
-	        var buffer = new Buffer(value, "ascii");
-
-	        Int.write(value.length, io);
-	        io.writeBufferPadded(buffer);
-	      }
-	    },
-	    isValid: {
-	      value: function isValid(value) {
-	        return isString(value) && value.length <= this._maxLength;
-	      }
-	    }
-	  });
-
-	  return String;
-	})();
-
-	includeIoMixin(String.prototype);
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
-
-/***/ },
-/* 74 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
-
-	var _classCallCheck = __webpack_require__(40)["default"];
-
-	var _createClass = __webpack_require__(41)["default"];
-
-	var _interopRequire = __webpack_require__(36)["default"];
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var calculatePadding = __webpack_require__(96).calculatePadding;
-
-	var includeIoMixin = _interopRequire(__webpack_require__(94));
-
-	var Opaque = exports.Opaque = (function () {
-	  function Opaque(length) {
-	    _classCallCheck(this, Opaque);
-
-	    this._length = length;
-	    this._padding = calculatePadding(length);
-	  }
-
-	  _createClass(Opaque, {
-	    read: {
-	      value: function read(io) {
-	        var result = io.slice(this._length);
-	        io.slice(this._padding); //consume padding
-	        return result.buffer();
-	      }
-	    },
-	    write: {
-	      value: function write(value, io) {
-	        if (value.length !== this._length) {
-	          throw new Error("XDR Write Error: Got " + value.length + " bytes, expected " + this._length);
-	        }
-
-	        io.writeBufferPadded(value);
-	      }
-	    },
-	    isValid: {
-	      value: function isValid(value) {
-	        return Buffer.isBuffer(value) && value.length === this._length;
-	      }
-	    }
-	  });
-
-	  return Opaque;
-	})();
-
-	includeIoMixin(Opaque.prototype);
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
-
-/***/ },
-/* 75 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
-
-	var _classCallCheck = __webpack_require__(40)["default"];
-
-	var _createClass = __webpack_require__(41)["default"];
-
-	var _interopRequire = __webpack_require__(36)["default"];
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var Int = __webpack_require__(65).Int;
-
-	var UnsignedInt = __webpack_require__(67).UnsignedInt;
-
-	var calculatePadding = __webpack_require__(96).calculatePadding;
-
-	var includeIoMixin = _interopRequire(__webpack_require__(94));
-
-	var VarOpaque = exports.VarOpaque = (function () {
-	  function VarOpaque() {
-	    var maxLength = arguments[0] === undefined ? UnsignedInt.MAX_VALUE : arguments[0];
-
-	    _classCallCheck(this, VarOpaque);
-
-	    this._maxLength = maxLength;
-	  }
-
-	  _createClass(VarOpaque, {
-	    read: {
-	      value: function read(io) {
-	        var length = Int.read(io);
-
-	        if (length > this._maxLength) {
-	          throw new Error("XDR Read Error: Saw " + length + " length VarOpaque," + ("max allowed is " + this._maxLength));
-	        }
-	        var padding = calculatePadding(length);
-	        var result = io.slice(length);
-	        io.slice(padding); //consume padding
-	        return result.buffer();
-	      }
-	    },
-	    write: {
-	      value: function write(value, io) {
-	        if (value.length > this._maxLength) {
-	          throw new Error("XDR Write Error: Got " + value.length + " bytes," + ("max allows is " + this._maxLength));
-	        }
-	        Int.write(value.length, io);
-	        io.writeBufferPadded(value);
-	      }
-	    },
-	    isValid: {
-	      value: function isValid(value) {
-	        return Buffer.isBuffer(value) && value.length <= this._maxLength;
-	      }
-	    }
-	  });
-
-	  return VarOpaque;
-	})();
-
-	includeIoMixin(VarOpaque.prototype);
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
-
-/***/ },
-/* 76 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _classCallCheck = __webpack_require__(40)["default"];
-
-	var _createClass = __webpack_require__(41)["default"];
-
-	var _interopRequire = __webpack_require__(36)["default"];
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _lodash = __webpack_require__(45);
-
-	var all = _lodash.all;
-	var each = _lodash.each;
-	var times = _lodash.times;
-	var isArray = _lodash.isArray;
-
-	var includeIoMixin = _interopRequire(__webpack_require__(94));
-
-	var Array = exports.Array = (function () {
-	  function Array(childType, length) {
-	    _classCallCheck(this, Array);
-
-	    this._childType = childType;
-	    this._length = length;
-	  }
-
-	  _createClass(Array, {
-	    read: {
-	      value: function read(io) {
-	        var _this = this;
-
-	        return times(this._length, function () {
-	          return _this._childType.read(io);
-	        });
-	      }
-	    },
-	    write: {
-	      value: function write(value, io) {
-	        var _this = this;
-
-	        if (!isArray(value)) {
-	          throw new Error("XDR Write Error: value is not array");
-	        }
-
-	        if (value.length !== this._length) {
-	          throw new Error("XDR Write Error: Got array of size " + value.length + "," + ("expected " + this._length));
-	        }
-
-	        each(value, function (child) {
-	          return _this._childType.write(child, io);
-	        });
-	      }
-	    },
-	    isValid: {
-	      value: function isValid(value) {
-	        var _this = this;
-
-	        if (!isArray(value)) {
-	          return false;
-	        }
-	        if (value.length !== this._length) {
-	          return false;
-	        }
-
-	        return all(value, function (child) {
-	          return _this._childType.isValid(child);
-	        });
-	      }
-	    }
-	  });
-
-	  return Array;
-	})();
-
-	includeIoMixin(Array.prototype);
-
-/***/ },
-/* 77 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _classCallCheck = __webpack_require__(40)["default"];
-
-	var _createClass = __webpack_require__(41)["default"];
-
-	var _interopRequire = __webpack_require__(36)["default"];
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var Int = __webpack_require__(65).Int;
-
-	var UnsignedInt = __webpack_require__(67).UnsignedInt;
-
-	var _lodash = __webpack_require__(45);
-
-	var all = _lodash.all;
-	var each = _lodash.each;
-	var times = _lodash.times;
-	var isArray = _lodash.isArray;
-
-	var includeIoMixin = _interopRequire(__webpack_require__(94));
-
-	var VarArray = exports.VarArray = (function () {
-	  function VarArray(childType) {
-	    var maxLength = arguments[1] === undefined ? UnsignedInt.MAX_VALUE : arguments[1];
-
-	    _classCallCheck(this, VarArray);
-
-	    this._childType = childType;
-	    this._maxLength = maxLength;
-	  }
-
-	  _createClass(VarArray, {
-	    read: {
-	      value: function read(io) {
-	        var _this = this;
-
-	        var length = Int.read(io);
-
-	        if (length > this._maxLength) {
-	          throw new Error("XDR Read Error: Saw " + length + " length VarArray," + ("max allowed is " + this._maxLength));
-	        }
-
-	        return times(length, function () {
-	          return _this._childType.read(io);
-	        });
-	      }
-	    },
-	    write: {
-	      value: function write(value, io) {
-	        var _this = this;
-
-	        if (!isArray(value)) {
-	          throw new Error("XDR Write Error: value is not array");
-	        }
-
-	        if (value.length > this._maxLength) {
-	          throw new Error("XDR Write Error: Got array of size " + value.length + "," + ("max allowed is " + this._maxLength));
-	        }
-
-	        Int.write(value.length, io);
-	        each(value, function (child) {
-	          return _this._childType.write(child, io);
-	        });
-	      }
-	    },
-	    isValid: {
-	      value: function isValid(value) {
-	        var _this = this;
-
-	        if (!isArray(value)) {
-	          return false;
-	        }
-	        if (value.length > this._maxLength) {
-	          return false;
-	        }
-
-	        return all(value, function (child) {
-	          return _this._childType.isValid(child);
-	        });
-	      }
-	    }
-	  });
-
-	  return VarArray;
-	})();
-
-	includeIoMixin(VarArray.prototype);
-
-/***/ },
-/* 78 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _classCallCheck = __webpack_require__(40)["default"];
-
-	var _createClass = __webpack_require__(41)["default"];
-
-	var _interopRequire = __webpack_require__(36)["default"];
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var Bool = __webpack_require__(72).Bool;
-
-	var _lodash = __webpack_require__(45);
-
-	var isNull = _lodash.isNull;
-	var isUndefined = _lodash.isUndefined;
-
-	var includeIoMixin = _interopRequire(__webpack_require__(94));
-
-	var Option = exports.Option = (function () {
-	  function Option(childType) {
-	    _classCallCheck(this, Option);
-
-	    this._childType = childType;
-	  }
-
-	  _createClass(Option, {
-	    read: {
-	      value: function read(io) {
-	        if (Bool.read(io)) {
-	          return this._childType.read(io);
-	        }
-	      }
-	    },
-	    write: {
-	      value: function write(value, io) {
-	        var isPresent = !(isNull(value) || isUndefined(value));
-
-	        Bool.write(isPresent, io);
-
-	        if (isPresent) {
-	          this._childType.write(value, io);
-	        }
-	      }
-	    },
-	    isValid: {
-	      value: function isValid(value) {
-	        if (isNull(value)) {
-	          return true;
-	        }
-	        if (isUndefined(value)) {
-	          return true;
-	        }
-
-	        return this._childType.isValid(value);
-	      }
-	    }
-	  });
-
-	  return Option;
-	})();
-
-	includeIoMixin(Option.prototype);
-
-/***/ },
-/* 79 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _interopRequire = __webpack_require__(36)["default"];
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var isUndefined = __webpack_require__(45).isUndefined;
-
-	var includeIoMixin = _interopRequire(__webpack_require__(94));
-
-	var Void = {
-	  /* jshint unused: false */
-
-	  read: function read(io) {
-	    return undefined;
-	  },
-
-	  write: function write(value, io) {
-	    if (!isUndefined(value)) {
-	      throw new Error("XDR Write Error: trying to write value to a void slot");
-	    }
-	  },
-
-	  isValid: function isValid(value) {
-	    return isUndefined(value);
-	  } };
-
-	exports.Void = Void;
-	includeIoMixin(Void);
-
-/***/ },
-/* 80 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _classCallCheck = __webpack_require__(40)["default"];
-
-	var _createClass = __webpack_require__(41)["default"];
-
-	var _inherits = __webpack_require__(83)["default"];
-
-	var _get = __webpack_require__(95)["default"];
-
-	var _core = __webpack_require__(48)["default"];
-
-	var _interopRequire = __webpack_require__(36)["default"];
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var Int = __webpack_require__(65).Int;
-
-	var _lodash = __webpack_require__(45);
-
-	var each = _lodash.each;
-	var vals = _lodash.values;
-
-	var includeIoMixin = _interopRequire(__webpack_require__(94));
-
-	var Enum = exports.Enum = (function () {
-	  function Enum(name, value) {
-	    _classCallCheck(this, Enum);
-
-	    this.name = name;
-	    this.value = value;
-	  }
-
-	  _createClass(Enum, null, {
-	    read: {
-	      value: function read(io) {
-	        var intVal = Int.read(io);
-
-	        if (!this._byValue.has(intVal)) {
-	          throw new Error("XDR Read Error: Unknown " + this.enumName + " member for value " + intVal);
-	        }
-
-	        return this._byValue.get(intVal);
-	      }
-	    },
-	    write: {
-	      value: function write(value, io) {
-	        if (!(value instanceof this)) {
-	          throw new Error("XDR Write Error: Unknown " + value + " is not a " + this.enumName);
-	        }
-
-	        Int.write(value.value, io);
-	      }
-	    },
-	    isValid: {
-	      value: function isValid(value) {
-	        return value instanceof this;
-	      }
-	    },
-	    members: {
-	      value: function members() {
-	        return this._members;
-	      }
-	    },
-	    values: {
-	      value: function values() {
-	        return vals(this._members);
-	      }
-	    },
-	    fromName: {
-	      value: function fromName(name) {
-	        var result = this._members[name];
-
-	        if (!result) {
-	          throw new Error("" + name + " is not a member of " + this.enumName);
-	        }
-
-	        return result;
-	      }
-	    },
-	    create: {
-	      value: function create(name, members) {
-	        var ChildEnum = (function (_Enum) {
-	          var _class = function ChildEnum() {
-	            for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-	              args[_key] = arguments[_key];
-	            }
-
-	            _classCallCheck(this, _class);
-
-	            _get(_core.Object.getPrototypeOf(_class.prototype), "constructor", this).apply(this, args);
-	          };
-
-	          _inherits(_class, _Enum);
-
-	          return _class;
-	        })(Enum);
-
-	        ChildEnum.enumName = name;
-	        ChildEnum._members = {};
-	        ChildEnum._byValue = new _core.Map();
-
-	        each(members, function (value, key) {
-	          var inst = new ChildEnum(key, value);
-	          ChildEnum._members[key] = inst;
-	          ChildEnum._byValue.set(value, inst);
-	          ChildEnum[key] = function () {
-	            return inst;
-	          };
-	        });
-
-	        return ChildEnum;
-	      }
-	    }
-	  });
-
-	  return Enum;
-	})();
-
-	includeIoMixin(Enum);
-
-/***/ },
-/* 81 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _classCallCheck = __webpack_require__(40)["default"];
-
-	var _createClass = __webpack_require__(41)["default"];
-
-	var _inherits = __webpack_require__(83)["default"];
-
-	var _get = __webpack_require__(95)["default"];
-
-	var _slicedToArray = __webpack_require__(97)["default"];
-
-	var _core = __webpack_require__(48)["default"];
-
-	var _interopRequire = __webpack_require__(36)["default"];
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _lodash = __webpack_require__(45);
-
-	var each = _lodash.each;
-	var map = _lodash.map;
-	var isUndefined = _lodash.isUndefined;
-	var zipObject = _lodash.zipObject;
-
-	var includeIoMixin = _interopRequire(__webpack_require__(94));
-
-	var Struct = exports.Struct = (function () {
-	  function Struct(attributes) {
-	    _classCallCheck(this, Struct);
-
-	    this._attributes = attributes || {};
-	  }
-
-	  _createClass(Struct, null, {
-	    read: {
-	      value: function read(io) {
-	        var fields = map(this._fields, function (field) {
-	          var _field = _slicedToArray(field, 2);
-
-	          var name = _field[0];
-	          var type = _field[1];
-
-	          var value = type.read(io);
-	          return [name, value];
-	        });
-
-	        return new this(zipObject(fields));
-	      }
-	    },
-	    write: {
-	      value: function write(value, io) {
-	        if (!(value instanceof this)) {
-	          throw new Error("XDR Write Error: " + value + " is not a " + this.structName);
-	        }
-	        each(this._fields, function (field) {
-	          var _field = _slicedToArray(field, 2);
-
-	          var name = _field[0];
-	          var type = _field[1];
-
-	          var attribute = value._attributes[name];
-	          type.write(attribute, io);
-	        });
-	      }
-	    },
-	    isValid: {
-	      value: function isValid(value) {
-	        return value instanceof this;
-	      }
-	    },
-	    create: {
-	      value: function create(name, fields) {
-	        var ChildStruct = (function (_Struct) {
-	          var _class = function ChildStruct() {
-	            for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-	              args[_key] = arguments[_key];
-	            }
-
-	            _classCallCheck(this, _class);
-
-	            _get(_core.Object.getPrototypeOf(_class.prototype), "constructor", this).apply(this, args);
-	          };
-
-	          _inherits(_class, _Struct);
-
-	          return _class;
-	        })(Struct);
-
-	        ChildStruct.structName = name;
-
-	        ChildStruct._fields = fields;
-
-	        each(fields, function (field) {
-	          var _field = _slicedToArray(field, 1);
-
-	          var fieldName = _field[0];
-
-	          ChildStruct.prototype[fieldName] = readOrWriteAttribute(fieldName);
-	        });
-
-	        return ChildStruct;
-	      }
-	    }
-	  });
-
-	  return Struct;
-	})();
-
-	includeIoMixin(Struct);
-
-	function readOrWriteAttribute(name) {
-	  return function (value) {
-	    if (!isUndefined(value)) {
-	      this._attributes[name] = value;
-	    }
-
-	    return this._attributes[name];
-	  };
+	/* WEBPACK VAR INJECTION */(function(Buffer) {//prototype class for hash functions
+	function Hash (blockSize, finalSize) {
+	  this._block = new Buffer(blockSize) //new Uint32Array(blockSize/4)
+	  this._finalSize = finalSize
+	  this._blockSize = blockSize
+	  this._len = 0
+	  this._s = 0
 	}
 
-/***/ },
-/* 82 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _classCallCheck = __webpack_require__(40)["default"];
-
-	var _createClass = __webpack_require__(41)["default"];
-
-	var _inherits = __webpack_require__(83)["default"];
-
-	var _get = __webpack_require__(95)["default"];
-
-	var _core = __webpack_require__(48)["default"];
-
-	var _interopRequire = __webpack_require__(36)["default"];
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _lodash = __webpack_require__(45);
-
-	var each = _lodash.each;
-	var isUndefined = _lodash.isUndefined;
-
-	var Void = __webpack_require__(79).Void;
-
-	var includeIoMixin = _interopRequire(__webpack_require__(94));
-
-	var Union = exports.Union = (function () {
-	  function Union(aSwitch, value) {
-	    _classCallCheck(this, Union);
-
-	    this.set(aSwitch, value);
+	Hash.prototype.update = function (data, enc) {
+	  if ("string" === typeof data) {
+	    enc = enc || "utf8"
+	    data = new Buffer(data, enc)
 	  }
 
-	  _createClass(Union, {
-	    set: {
-	      value: function set(aSwitch, value) {
-	        if (!(aSwitch instanceof this.constructor._switchOn)) {
-	          aSwitch = this.constructor._switchOn.fromName(aSwitch);
-	        }
+	  var l = this._len += data.length
+	  var s = this._s || 0
+	  var f = 0
+	  var buffer = this._block
 
-	        this._switch = aSwitch;
-	        this._arm = this.constructor.armForSwitch(this._switch);
-	        this._armType = this.constructor.armTypeForArm(this._arm);
-	        this._value = value;
-	      }
-	    },
-	    get: {
-	      value: function get() {
-	        var armName = arguments[0] === undefined ? this._arm : arguments[0];
+	  while (s < l) {
+	    var t = Math.min(data.length, f + this._blockSize - (s % this._blockSize))
+	    var ch = (t - f)
 
-	        if (this._arm !== Void && this._arm !== armName) {
-	          throw new Error("" + armName + " not set");
-	        }
-	        return this._value;
-	      }
-	    },
-	    "switch": {
-	      value: function _switch() {
-	        return this._switch;
-	      }
-	    },
-	    arm: {
-	      value: function arm() {
-	        return this._arm;
-	      }
-	    },
-	    armType: {
-	      value: function armType() {
-	        return this._armType;
-	      }
-	    },
-	    value: {
-	      value: function value() {
-	        return this._value;
-	      }
+	    for (var i = 0; i < ch; i++) {
+	      buffer[(s % this._blockSize) + i] = data[i + f]
 	    }
-	  }, {
-	    armForSwitch: {
-	      value: function armForSwitch(aSwitch) {
 
-	        var arm = this._switches.get(aSwitch);
+	    s += ch
+	    f += ch
 
-	        if (isUndefined(arm)) {
-	          throw new Error("Bad union switch: " + aSwitch);
-	        }
-
-	        return arm;
-	      }
-	    },
-	    armTypeForArm: {
-	      value: function armTypeForArm(arm) {
-	        if (arm === Void) {
-	          return Void;
-	        } else {
-	          return this._arms[arm];
-	        }
-	      }
-	    },
-	    read: {
-	      value: function read(io) {
-	        var aSwitch = this._switchOn.read(io);
-	        var arm = this.armForSwitch(aSwitch);
-	        var armType = this.armTypeForArm(arm);
-	        var value = armType.read(io);
-	        return new this(aSwitch, value);
-	      }
-	    },
-	    write: {
-	      value: function write(value, io) {
-	        if (!(value instanceof this)) {
-	          throw new Error("XDR Write Error: " + value + " is not a " + this.unionName);
-	        }
-
-	        this._switchOn.write(value["switch"](), io);
-	        value.armType().write(value.value(), io);
-	      }
-	    },
-	    isValid: {
-	      value: function isValid(value) {
-	        return value instanceof this;
-	      }
-	    },
-	    create: {
-	      value: function create(name, config) {
-	        var ChildUnion = (function (_Union) {
-	          var _class = function ChildUnion() {
-	            for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-	              args[_key] = arguments[_key];
-	            }
-
-	            _classCallCheck(this, _class);
-
-	            _get(_core.Object.getPrototypeOf(_class.prototype), "constructor", this).apply(this, args);
-	          };
-
-	          _inherits(_class, _Union);
-
-	          return _class;
-	        })(Union);
-
-	        ChildUnion.unionName = name;
-	        ChildUnion._switchOn = config.switchOn;
-	        ChildUnion._switches = new _core.Map();
-	        ChildUnion._arms = config.arms;
-
-	        each(ChildUnion._switchOn.values(), function (aSwitch) {
-
-	          // build the enum => arm map
-	          var arm = config.switches[aSwitch.name] || config.defaultArm;
-	          ChildUnion._switches.set(aSwitch, arm);
-
-	          // Add enum-based constrocutors
-	          ChildUnion[aSwitch.name] = function (value) {
-	            return new ChildUnion(aSwitch, value);
-	          };
-
-	          // Add enum-based "set" helpers
-	          ChildUnion.prototype[aSwitch.name] = function (value) {
-	            return this.set(aSwitch, value);
-	          };
-	        });
-
-	        // Add arm accessor helpers
-	        each(ChildUnion._arms, function (type, name) {
-	          if (type === Void) {
-	            return;
-	          }
-
-	          ChildUnion.prototype[name] = function () {
-	            return this.get(name);
-	          };
-	        });
-
-	        return ChildUnion;
-	      }
+	    if ((s % this._blockSize) === 0) {
+	      this._update(buffer)
 	    }
-	  });
+	  }
+	  this._s = s
 
-	  return Union;
-	})();
+	  return this
+	}
 
-	includeIoMixin(Union);
+	Hash.prototype.digest = function (enc) {
+	  // Suppose the length of the message M, in bits, is l
+	  var l = this._len * 8
 
-/***/ },
-/* 83 */
-/***/ function(module, exports, __webpack_require__) {
+	  // Append the bit 1 to the end of the message
+	  this._block[this._len % this._blockSize] = 0x80
 
-	"use strict";
+	  // and then k zero bits, where k is the smallest non-negative solution to the equation (l + 1 + k) === finalSize mod blockSize
+	  this._block.fill(0, this._len % this._blockSize + 1)
 
-	exports["default"] = function (subClass, superClass) {
-	  if (typeof superClass !== "function" && superClass !== null) {
-	    throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+	  if (l % (this._blockSize * 8) >= this._finalSize * 8) {
+	    this._update(this._block)
+	    this._block.fill(0)
 	  }
 
-	  subClass.prototype = Object.create(superClass && superClass.prototype, {
-	    constructor: {
-	      value: subClass,
-	      enumerable: false,
-	      writable: true,
-	      configurable: true
-	    }
-	  });
-	  if (superClass) subClass.__proto__ = superClass;
-	};
+	  // to this append the block which is equal to the number l written in binary
+	  // TODO: handle case where l is > Math.pow(2, 29)
+	  this._block.writeInt32BE(l, this._blockSize - 4)
 
-	exports.__esModule = true;
+	  var hash = this._update(this._block) || this._hash()
 
-/***/ },
-/* 84 */
-/***/ function(module, exports, __webpack_require__) {
+	  return enc ? hash.toString(enc) : hash
+	}
 
-	"use strict";
+	Hash.prototype._update = function () {
+	  throw new Error('_update must be implemented by subclass')
+	}
 
-	var _core = __webpack_require__(48)["default"];
+	module.exports = Hash
 
-	exports["default"] = function (arr) {
-	  if (Array.isArray(arr)) {
-	    for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i];
-
-	    return arr2;
-	  } else {
-	    return _core.Array.from(arr);
-	  }
-	};
-
-	exports.__esModule = true;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15).Buffer))
 
 /***/ },
-/* 85 */
+/* 88 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// Copyright Joyent, Inc. and other Node contributors.
@@ -32207,15 +32489,15 @@ var StellarLib =
 
 	module.exports = Stream;
 
-	var EE = __webpack_require__(30).EventEmitter;
-	var inherits = __webpack_require__(108);
+	var EE = __webpack_require__(36).EventEmitter;
+	var inherits = __webpack_require__(109);
 
 	inherits(Stream, EE);
-	Stream.Readable = __webpack_require__(102);
-	Stream.Writable = __webpack_require__(103);
-	Stream.Duplex = __webpack_require__(104);
-	Stream.Transform = __webpack_require__(105);
-	Stream.PassThrough = __webpack_require__(106);
+	Stream.Readable = __webpack_require__(104);
+	Stream.Writable = __webpack_require__(105);
+	Stream.Duplex = __webpack_require__(106);
+	Stream.Transform = __webpack_require__(107);
+	Stream.PassThrough = __webpack_require__(108);
 
 	// Backwards-compat with node 0.4.x
 	Stream.Stream = Stream;
@@ -32314,23 +32596,170 @@ var StellarLib =
 
 
 /***/ },
-/* 86 */
+/* 89 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = function(module) {
-		if(!module.webpackPolyfill) {
-			module.deprecate = function() {};
-			module.paths = [];
-			// module.parent = undefined by default
-			module.children = [];
-			module.webpackPolyfill = 1;
-		}
-		return module;
+	"use strict";
+
+	module.exports = includeIoMixin;
+
+	var Cursor = __webpack_require__(102).Cursor;
+
+	var _lodash = __webpack_require__(43);
+
+	var extend = _lodash.extend;
+	var isFunction = _lodash.isFunction;
+
+	//TODO: build a system to grow a buffer as we write to it
+	var BUFFER_SIZE = Math.pow(2, 16);
+
+	var staticMethods = {
+	  toXDR: function toXDR(val) {
+	    var cursor = new Cursor(BUFFER_SIZE);
+	    this.write(val, cursor);
+	    var bytesWritten = cursor.tell();
+	    cursor.rewind();
+
+	    return cursor.slice(bytesWritten).buffer();
+	  },
+
+	  fromXDR: function fromXDR(buffer) {
+	    var cursor = new Cursor(buffer);
+	    var result = this.read(cursor);
+
+	    //TODO: error out if the entire buffer isn't consumed
+
+	    return result;
+	  } };
+
+	var instanceMethods = {
+	  toXDR: function toXDR() {
+	    var format = arguments[0] === undefined ? "raw" : arguments[0];
+
+	    var buffer = this.constructor.toXDR(this);
+	    switch (format) {
+	      case "raw":
+	        return buffer;
+	      case "hex":
+	        return buffer.toString("hex");
+	      case "base64":
+	        return buffer.toString("base64");
+	      default:
+	        throw new Error("Invalid format " + format + ", must be \"raw\", \"hex\", \"base64\"");
+	    }
+	  }
+	};
+
+	function includeIoMixin(obj) {
+	  extend(obj, staticMethods);
+
+	  if (isFunction(obj)) {
+	    extend(obj.prototype, instanceMethods);
+	  }
 	}
 
+/***/ },
+/* 90 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _core = __webpack_require__(47)["default"];
+
+	exports["default"] = function get(_x, _x2, _x3) {
+	  var _again = true;
+
+	  _function: while (_again) {
+	    _again = false;
+	    var object = _x,
+	        property = _x2,
+	        receiver = _x3;
+	    desc = parent = getter = undefined;
+
+	    var desc = _core.Object.getOwnPropertyDescriptor(object, property);
+
+	    if (desc === undefined) {
+	      var parent = _core.Object.getPrototypeOf(object);
+
+	      if (parent === null) {
+	        return undefined;
+	      } else {
+	        _x = parent;
+	        _x2 = property;
+	        _x3 = receiver;
+	        _again = true;
+	        continue _function;
+	      }
+	    } else if ("value" in desc && desc.writable) {
+	      return desc.value;
+	    } else {
+	      var getter = desc.get;
+
+	      if (getter === undefined) {
+	        return undefined;
+	      }
+
+	      return getter.call(receiver);
+	    }
+	  }
+	};
+
+	exports.__esModule = true;
 
 /***/ },
-/* 87 */
+/* 91 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	exports.calculatePadding = calculatePadding;
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	function calculatePadding(length) {
+	    switch (length % 4) {
+	        case 0:
+	            return 0;
+	        case 1:
+	            return 3;
+	        case 2:
+	            return 2;
+	        case 3:
+	            return 1;
+	    }
+	}
+
+/***/ },
+/* 92 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _core = __webpack_require__(47)["default"];
+
+	exports["default"] = function (arr, i) {
+	  if (Array.isArray(arr)) {
+	    return arr;
+	  } else if (_core.$for.isIterable(Object(arr))) {
+	    var _arr = [];
+
+	    for (var _iterator = _core.$for.getIterator(arr), _step; !(_step = _iterator.next()).done;) {
+	      _arr.push(_step.value);
+
+	      if (i && _arr.length === i) break;
+	    }
+
+	    return _arr;
+	  } else {
+	    throw new TypeError("Invalid attempt to destructure non-iterable instance");
+	  }
+	};
+
+	exports.__esModule = true;
+
+/***/ },
+/* 93 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// Copyright Joyent, Inc. and other Node contributors.
@@ -32416,7 +32845,7 @@ var StellarLib =
 
 
 /***/ },
-/* 88 */
+/* 94 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// Copyright Joyent, Inc. and other Node contributors.
@@ -32486,7 +32915,7 @@ var StellarLib =
 
 
 /***/ },
-/* 89 */
+/* 95 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {'use strict';
@@ -32516,7 +32945,7 @@ var StellarLib =
 	 */
 	module.exports = function lolcation(loc) {
 	  loc = loc || global.location || {};
-	  URL = URL || __webpack_require__(54);
+	  URL = URL || __webpack_require__(82);
 
 	  var finaldestination = {}
 	    , type = typeof loc
@@ -32538,7 +32967,7 @@ var StellarLib =
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 90 */
+/* 96 */
 /***/ function(module, exports, __webpack_require__) {
 
 	;(function () {
@@ -32604,7 +33033,7 @@ var StellarLib =
 
 
 /***/ },
-/* 91 */
+/* 97 */
 /***/ function(module, exports, __webpack_require__) {
 
 	if (typeof Object.create === 'function') {
@@ -32633,298 +33062,60 @@ var StellarLib =
 
 
 /***/ },
-/* 92 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/*jshint node:true */
-
-	"use strict";
-
-	var sequence = function (tasks, names, results, nest) {
-		var i, name, node, e, j;
-		nest = nest || [];
-		for (i = 0; i < names.length; i++) {
-			name = names[i];
-			// de-dup results
-			if (results.indexOf(name) === -1) {
-				node = tasks[name];
-				if (!node) {
-					e = new Error('task "'+name+'" is not defined');
-					e.missingTask = name;
-					e.taskList = [];
-					for (j in tasks) {
-						if (tasks.hasOwnProperty(j)) {
-							e.taskList.push(tasks[j].name);
-						}
-					}
-					throw e;
-				}
-				if (nest.indexOf(name) > -1) {
-					nest.push(name);
-					e = new Error('Recursive dependencies detected: '+nest.join(' -> '));
-					e.recursiveTasks = nest;
-					e.taskList = [];
-					for (j in tasks) {
-						if (tasks.hasOwnProperty(j)) {
-							e.taskList.push(tasks[j].name);
-						}
-					}
-					throw e;
-				}
-				if (node.dep.length) {
-					nest.push(name);
-					sequence(tasks, node.dep, results, nest); // recurse
-					nest.pop(name);
-				}
-				results.push(name);
-			}
-		}
-	};
-
-	module.exports = sequence;
-
-
-/***/ },
-/* 93 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(Buffer) {//prototype class for hash functions
-	function Hash (blockSize, finalSize) {
-	  this._block = new Buffer(blockSize) //new Uint32Array(blockSize/4)
-	  this._finalSize = finalSize
-	  this._blockSize = blockSize
-	  this._len = 0
-	  this._s = 0
-	}
-
-	Hash.prototype.update = function (data, enc) {
-	  if ("string" === typeof data) {
-	    enc = enc || "utf8"
-	    data = new Buffer(data, enc)
-	  }
-
-	  var l = this._len += data.length
-	  var s = this._s || 0
-	  var f = 0
-	  var buffer = this._block
-
-	  while (s < l) {
-	    var t = Math.min(data.length, f + this._blockSize - (s % this._blockSize))
-	    var ch = (t - f)
-
-	    for (var i = 0; i < ch; i++) {
-	      buffer[(s % this._blockSize) + i] = data[i + f]
-	    }
-
-	    s += ch
-	    f += ch
-
-	    if ((s % this._blockSize) === 0) {
-	      this._update(buffer)
-	    }
-	  }
-	  this._s = s
-
-	  return this
-	}
-
-	Hash.prototype.digest = function (enc) {
-	  // Suppose the length of the message M, in bits, is l
-	  var l = this._len * 8
-
-	  // Append the bit 1 to the end of the message
-	  this._block[this._len % this._blockSize] = 0x80
-
-	  // and then k zero bits, where k is the smallest non-negative solution to the equation (l + 1 + k) === finalSize mod blockSize
-	  this._block.fill(0, this._len % this._blockSize + 1)
-
-	  if (l % (this._blockSize * 8) >= this._finalSize * 8) {
-	    this._update(this._block)
-	    this._block.fill(0)
-	  }
-
-	  // to this append the block which is equal to the number l written in binary
-	  // TODO: handle case where l is > Math.pow(2, 29)
-	  this._block.writeInt32BE(l, this._blockSize - 4)
-
-	  var hash = this._update(this._block) || this._hash()
-
-	  return enc ? hash.toString(enc) : hash
-	}
-
-	Hash.prototype._update = function () {
-	  throw new Error('_update must be implemented by subclass')
-	}
-
-	module.exports = Hash
-
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
-
-/***/ },
-/* 94 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	module.exports = includeIoMixin;
-
-	var Cursor = __webpack_require__(107).Cursor;
-
-	var _lodash = __webpack_require__(45);
-
-	var extend = _lodash.extend;
-	var isFunction = _lodash.isFunction;
-
-	//TODO: build a system to grow a buffer as we write to it
-	var BUFFER_SIZE = Math.pow(2, 16);
-
-	var staticMethods = {
-	  toXDR: function toXDR(val) {
-	    var cursor = new Cursor(BUFFER_SIZE);
-	    this.write(val, cursor);
-	    var bytesWritten = cursor.tell();
-	    cursor.rewind();
-
-	    return cursor.slice(bytesWritten).buffer();
-	  },
-
-	  fromXDR: function fromXDR(buffer) {
-	    var cursor = new Cursor(buffer);
-	    var result = this.read(cursor);
-
-	    //TODO: error out if the entire buffer isn't consumed
-
-	    return result;
-	  } };
-
-	var instanceMethods = {
-	  toXDR: function toXDR() {
-	    var format = arguments[0] === undefined ? "raw" : arguments[0];
-
-	    var buffer = this.constructor.toXDR(this);
-	    switch (format) {
-	      case "raw":
-	        return buffer;
-	      case "hex":
-	        return buffer.toString("hex");
-	      case "base64":
-	        return buffer.toString("base64");
-	      default:
-	        throw new Error("Invalid format " + format + ", must be \"raw\", \"hex\", \"base64\"");
-	    }
-	  }
-	};
-
-	function includeIoMixin(obj) {
-	  extend(obj, staticMethods);
-
-	  if (isFunction(obj)) {
-	    extend(obj.prototype, instanceMethods);
-	  }
-	}
-
-/***/ },
-/* 95 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _core = __webpack_require__(48)["default"];
-
-	exports["default"] = function get(_x, _x2, _x3) {
-	  var _again = true;
-
-	  _function: while (_again) {
-	    _again = false;
-	    var object = _x,
-	        property = _x2,
-	        receiver = _x3;
-	    desc = parent = getter = undefined;
-
-	    var desc = _core.Object.getOwnPropertyDescriptor(object, property);
-
-	    if (desc === undefined) {
-	      var parent = _core.Object.getPrototypeOf(object);
-
-	      if (parent === null) {
-	        return undefined;
-	      } else {
-	        _x = parent;
-	        _x2 = property;
-	        _x3 = receiver;
-	        _again = true;
-	        continue _function;
-	      }
-	    } else if ("value" in desc && desc.writable) {
-	      return desc.value;
-	    } else {
-	      var getter = desc.get;
-
-	      if (getter === undefined) {
-	        return undefined;
-	      }
-
-	      return getter.call(receiver);
-	    }
-	  }
-	};
-
-	exports.__esModule = true;
-
-/***/ },
-/* 96 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	exports.calculatePadding = calculatePadding;
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-
-	function calculatePadding(length) {
-	    switch (length % 4) {
-	        case 0:
-	            return 0;
-	        case 1:
-	            return 3;
-	        case 2:
-	            return 2;
-	        case 3:
-	            return 1;
-	    }
-	}
-
-/***/ },
-/* 97 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _core = __webpack_require__(48)["default"];
-
-	exports["default"] = function (arr, i) {
-	  if (Array.isArray(arr)) {
-	    return arr;
-	  } else if (_core.$for.isIterable(Object(arr))) {
-	    var _arr = [];
-
-	    for (var _iterator = _core.$for.getIterator(arr), _step; !(_step = _iterator.next()).done;) {
-	      _arr.push(_step.value);
-
-	      if (i && _arr.length === i) break;
-	    }
-
-	    return _arr;
-	  } else {
-	    throw new TypeError("Invalid attempt to destructure non-iterable instance");
-	  }
-	};
-
-	exports.__esModule = true;
-
-/***/ },
 /* 98 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/*
+	 Copyright 2013 Daniel Wirtz <dcode@dcode.io>
+	 Copyright 2009 The Closure Library Authors. All Rights Reserved.
+
+	 Licensed under the Apache License, Version 2.0 (the "License");
+	 you may not use this file except in compliance with the License.
+	 You may obtain a copy of the License at
+
+	 http://www.apache.org/licenses/LICENSE-2.0
+
+	 Unless required by applicable law or agreed to in writing, software
+	 distributed under the License is distributed on an "AS-IS" BASIS,
+	 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	 See the License for the specific language governing permissions and
+	 limitations under the License.
+	 */
+
+	module.exports = __webpack_require__(103);
+
+
+/***/ },
+/* 99 */
+/***/ function(module, exports, __webpack_require__) {
+
+	if (typeof Object.create === 'function') {
+	  // implementation from standard node.js 'util' module
+	  module.exports = function inherits(ctor, superCtor) {
+	    ctor.super_ = superCtor
+	    ctor.prototype = Object.create(superCtor.prototype, {
+	      constructor: {
+	        value: ctor,
+	        enumerable: false,
+	        writable: true,
+	        configurable: true
+	      }
+	    });
+	  };
+	} else {
+	  // old school shim for old browsers
+	  module.exports = function inherits(ctor, superCtor) {
+	    ctor.super_ = superCtor
+	    var TempCtor = function () {}
+	    TempCtor.prototype = superCtor.prototype
+	    ctor.prototype = new TempCtor()
+	    ctor.prototype.constructor = ctor
+	  }
+	}
+
+
+/***/ },
+/* 100 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -32968,7 +33159,7 @@ var StellarLib =
 
 
 /***/ },
-/* 99 */
+/* 101 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -33035,120 +33226,26 @@ var StellarLib =
 
 
 /***/ },
-/* 100 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/*
-	 Copyright 2013 Daniel Wirtz <dcode@dcode.io>
-	 Copyright 2009 The Closure Library Authors. All Rights Reserved.
-
-	 Licensed under the Apache License, Version 2.0 (the "License");
-	 you may not use this file except in compliance with the License.
-	 You may obtain a copy of the License at
-
-	 http://www.apache.org/licenses/LICENSE-2.0
-
-	 Unless required by applicable law or agreed to in writing, software
-	 distributed under the License is distributed on an "AS-IS" BASIS,
-	 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-	 See the License for the specific language governing permissions and
-	 limitations under the License.
-	 */
-
-	module.exports = __webpack_require__(109);
-
-
-/***/ },
-/* 101 */
-/***/ function(module, exports, __webpack_require__) {
-
-	if (typeof Object.create === 'function') {
-	  // implementation from standard node.js 'util' module
-	  module.exports = function inherits(ctor, superCtor) {
-	    ctor.super_ = superCtor
-	    ctor.prototype = Object.create(superCtor.prototype, {
-	      constructor: {
-	        value: ctor,
-	        enumerable: false,
-	        writable: true,
-	        configurable: true
-	      }
-	    });
-	  };
-	} else {
-	  // old school shim for old browsers
-	  module.exports = function inherits(ctor, superCtor) {
-	    ctor.super_ = superCtor
-	    var TempCtor = function () {}
-	    TempCtor.prototype = superCtor.prototype
-	    ctor.prototype = new TempCtor()
-	    ctor.prototype.constructor = ctor
-	  }
-	}
-
-
-/***/ },
 /* 102 */
-/***/ function(module, exports, __webpack_require__) {
-
-	exports = module.exports = __webpack_require__(110);
-	exports.Stream = __webpack_require__(85);
-	exports.Readable = exports;
-	exports.Writable = __webpack_require__(111);
-	exports.Duplex = __webpack_require__(112);
-	exports.Transform = __webpack_require__(113);
-	exports.PassThrough = __webpack_require__(114);
-
-
-/***/ },
-/* 103 */
-/***/ function(module, exports, __webpack_require__) {
-
-	module.exports = __webpack_require__(111)
-
-
-/***/ },
-/* 104 */
-/***/ function(module, exports, __webpack_require__) {
-
-	module.exports = __webpack_require__(112)
-
-
-/***/ },
-/* 105 */
-/***/ function(module, exports, __webpack_require__) {
-
-	module.exports = __webpack_require__(113)
-
-
-/***/ },
-/* 106 */
-/***/ function(module, exports, __webpack_require__) {
-
-	module.exports = __webpack_require__(114)
-
-
-/***/ },
-/* 107 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
 
-	var _classCallCheck = __webpack_require__(40)["default"];
+	var _classCallCheck = __webpack_require__(30)["default"];
 
-	var _inherits = __webpack_require__(83)["default"];
+	var _inherits = __webpack_require__(79)["default"];
 
-	var _createClass = __webpack_require__(41)["default"];
+	var _createClass = __webpack_require__(31)["default"];
 
-	var _interopRequire = __webpack_require__(36)["default"];
+	var _interopRequire = __webpack_require__(26)["default"];
 
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
 
-	var BaseCursor = _interopRequire(__webpack_require__(115));
+	var BaseCursor = _interopRequire(__webpack_require__(111));
 
-	var calculatePadding = __webpack_require__(96).calculatePadding;
+	var calculatePadding = __webpack_require__(91).calculatePadding;
 
 	var Cursor = exports.Cursor = (function (_BaseCursor) {
 	  function Cursor() {
@@ -33175,39 +33272,10 @@ var StellarLib =
 
 	  return Cursor;
 	})(BaseCursor);
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15).Buffer))
 
 /***/ },
-/* 108 */
-/***/ function(module, exports, __webpack_require__) {
-
-	if (typeof Object.create === 'function') {
-	  // implementation from standard node.js 'util' module
-	  module.exports = function inherits(ctor, superCtor) {
-	    ctor.super_ = superCtor
-	    ctor.prototype = Object.create(superCtor.prototype, {
-	      constructor: {
-	        value: ctor,
-	        enumerable: false,
-	        writable: true,
-	        configurable: true
-	      }
-	    });
-	  };
-	} else {
-	  // old school shim for old browsers
-	  module.exports = function inherits(ctor, superCtor) {
-	    ctor.super_ = superCtor
-	    var TempCtor = function () {}
-	    TempCtor.prototype = superCtor.prototype
-	    ctor.prototype = new TempCtor()
-	    ctor.prototype.constructor = ctor
-	  }
-	}
-
-
-/***/ },
-/* 109 */
+/* 103 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(module) {/*
@@ -34146,17 +34214,345 @@ var StellarLib =
 
 	    /* CommonJS */ if ("function" === 'function' && typeof module === 'object' && module && typeof exports === 'object' && exports)
 	        module["exports"] = Long;
-	    /* AMD */ else if ("function" === 'function' && __webpack_require__(117)["amd"])
+	    /* AMD */ else if ("function" === 'function' && __webpack_require__(110)["amd"])
 	        !(__WEBPACK_AMD_DEFINE_RESULT__ = function() { return Long; }.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 	    /* Global */ else
 	        (global["dcodeIO"] = global["dcodeIO"] || {})["Long"] = Long;
 
 	})(this);
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(86)(module)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(83)(module)))
+
+/***/ },
+/* 104 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(112);
+	exports.Stream = __webpack_require__(88);
+	exports.Readable = exports;
+	exports.Writable = __webpack_require__(113);
+	exports.Duplex = __webpack_require__(114);
+	exports.Transform = __webpack_require__(115);
+	exports.PassThrough = __webpack_require__(116);
+
+
+/***/ },
+/* 105 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = __webpack_require__(113)
+
+
+/***/ },
+/* 106 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = __webpack_require__(114)
+
+
+/***/ },
+/* 107 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = __webpack_require__(115)
+
+
+/***/ },
+/* 108 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = __webpack_require__(116)
+
+
+/***/ },
+/* 109 */
+/***/ function(module, exports, __webpack_require__) {
+
+	if (typeof Object.create === 'function') {
+	  // implementation from standard node.js 'util' module
+	  module.exports = function inherits(ctor, superCtor) {
+	    ctor.super_ = superCtor
+	    ctor.prototype = Object.create(superCtor.prototype, {
+	      constructor: {
+	        value: ctor,
+	        enumerable: false,
+	        writable: true,
+	        configurable: true
+	      }
+	    });
+	  };
+	} else {
+	  // old school shim for old browsers
+	  module.exports = function inherits(ctor, superCtor) {
+	    ctor.super_ = superCtor
+	    var TempCtor = function () {}
+	    TempCtor.prototype = superCtor.prototype
+	    ctor.prototype = new TempCtor()
+	    ctor.prototype.constructor = ctor
+	  }
+	}
+
 
 /***/ },
 /* 110 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = function() { throw new Error("define cannot be used indirect"); };
+
+
+/***/ },
+/* 111 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(Buffer) {var Cursor = function(buffer)
+	{
+		if (!(this instanceof Cursor))
+		{
+			return new Cursor(buffer);
+		}
+
+		if (!(buffer instanceof Buffer))
+		{
+			buffer = new Buffer(buffer);
+		}
+
+		this._setBuffer(buffer);
+		this.rewind();
+	};
+
+	Cursor.prototype._setBuffer = function(buffer)
+	{
+		this._buffer = buffer;
+		this.length = buffer.length;
+	};
+
+	Cursor.prototype.buffer = function()
+	{
+		return this._buffer;
+	};
+
+	Cursor.prototype.tap = function(cb)
+	{
+		cb(this);
+		return this;
+	};
+
+	Cursor.prototype.clone = function(newIndex)
+	{
+		var c = new this.constructor(this.buffer());
+		c.seek(arguments.length === 0 ? this.tell() : newIndex);
+
+		return c;
+	};
+
+	Cursor.prototype.tell = function()
+	{
+		return this._index;
+	};
+
+	Cursor.prototype.seek = function(op, index)
+	{
+		if (arguments.length == 1)
+		{
+			index = op;
+			op = '=';
+		}
+
+		if (op == '+')
+		{
+			this._index += index;
+		}
+		else if (op == '-')
+		{
+			this._index -= index;
+		}
+		else
+		{
+			this._index = index;
+		}
+
+		return this;
+	};
+
+	Cursor.prototype.rewind = function()
+	{
+		return this.seek(0);
+	};
+
+	Cursor.prototype.eof = function()
+	{
+		return this.tell() == this.buffer().length;
+	};
+
+	Cursor.prototype.write = function(string, length, encoding)
+	{
+		return this.seek('+', this.buffer().write(string, this.tell(), length, encoding));
+	};
+
+	Cursor.prototype.fill = function(value, length)
+	{
+		if (arguments.length == 1)
+		{
+			length = this.buffer().length - this.tell();
+		}
+		
+		this.buffer().fill(value, this.tell(), this.tell() + length);
+		this.seek('+', length);
+
+		return this;
+	};
+
+	Cursor.prototype.slice = function(length)
+	{
+		if (arguments.length === 0)
+		{
+			length = this.length - this.tell();
+		}
+
+		var c = new this.constructor(this.buffer().slice(this.tell(), this.tell() + length));
+		this.seek('+', length);
+
+		return c;
+	};
+
+	Cursor.prototype.copyFrom = function(source)
+	{
+		var buf = source instanceof Buffer ? source: source.buffer();
+		buf.copy(this.buffer(), this.tell(), 0, buf.length);
+		this.seek('+', buf.length);
+
+		return this;
+	};
+
+	Cursor.prototype.concat = function(list)
+	{
+		for (var i in list)
+		{
+			if (list[i] instanceof Cursor)
+			{
+				list[i] = list[i].buffer();
+			}
+		}
+
+		list.unshift(this.buffer());
+
+		var b = Buffer.concat(list);
+		this._setBuffer(b);
+
+		return this;
+	};
+
+	Cursor.prototype.toString = function(encoding, length)
+	{
+		if (arguments.length === 0)
+		{
+			encoding = 'utf8';
+			length = this.buffer().length - this.tell();
+		}
+		else if (arguments.length === 1)
+		{
+			length = this.buffer().length - this.tell();
+		}
+
+		var val = this.buffer().toString(encoding, this.tell(), this.tell() + length);
+		this.seek('+', length);
+
+		return val;
+	};
+
+	[
+		[1, ['readInt8', 'readUInt8']],
+		[2, ['readInt16BE', 'readInt16LE', 'readUInt16BE', 'readUInt16LE']],
+		[4, ['readInt32BE', 'readInt32LE', 'readUInt32BE', 'readUInt32LE', 'readFloatBE', 'readFloatLE']],
+		[8, ['readDoubleBE', 'readDoubleLE']]
+	].forEach(function(arr)
+	{
+		arr[1].forEach(function(method)
+		{
+			Cursor.prototype[method] = function()
+			{
+				var val = this.buffer()[method](this.tell());
+				this.seek('+', arr[0]);
+
+				return val;
+			};
+		});
+	});
+
+	[
+		[1, ['writeInt8', 'writeUInt8']],
+		[2, ['writeInt16BE', 'writeInt16LE', 'writeUInt16BE', 'writeUInt16LE']],
+		[4, ['writeInt32BE', 'writeInt32LE', 'writeUInt32BE', 'writeUInt32LE', 'writeFloatBE', 'writeFloatLE']],
+		[8, ['writeDoubleBE', 'writeDoubleLE']]
+	].forEach(function(arr)
+	{
+		arr[1].forEach(function(method)
+		{
+			Cursor.prototype[method] = function(val)
+			{
+				val = this.buffer()[method](val, this.tell());
+				this.seek('+', arr[0]);
+
+				return this;
+			};
+		});
+	});
+
+	//basic extend functionality to facilitate
+	//writing your own cursor while still providing
+	//access to low level r/w functionality
+	Cursor.extend = function(C, proto)
+	{
+		var parent = this;
+
+		if (arguments.length === 1)
+		{
+			proto = C;
+			C = null;
+		}
+
+		proto = proto || {};
+
+		C = C || function ctor(buffer)
+		{
+			if (!(this instanceof C))
+			{
+				return new C(buffer);
+			}
+
+			parent.call(this, buffer);
+		};
+
+		__webpack_require__(39).inherits(C, parent);
+
+		C.extend = parent.extend;
+		C.define = parent.define;
+
+		for (var i in proto)
+		{
+			C.define(i, proto[i]);
+		}
+
+		return C;
+	};
+
+	Cursor.define = function(name, fn)
+	{
+		var proto = this.prototype[name];
+
+		this.prototype[name] = proto && function()
+		{
+			this.__super = proto;
+			return fn.apply(this, arguments);
+		} || fn;
+	};
+
+	module.exports = Cursor;
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15).Buffer))
+
+/***/ },
+/* 112 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {// Copyright Joyent, Inc. and other Node contributors.
@@ -34183,17 +34579,17 @@ var StellarLib =
 	module.exports = Readable;
 
 	/*<replacement>*/
-	var isArray = __webpack_require__(119);
+	var isArray = __webpack_require__(118);
 	/*</replacement>*/
 
 
 	/*<replacement>*/
-	var Buffer = __webpack_require__(14).Buffer;
+	var Buffer = __webpack_require__(15).Buffer;
 	/*</replacement>*/
 
 	Readable.ReadableState = ReadableState;
 
-	var EE = __webpack_require__(30).EventEmitter;
+	var EE = __webpack_require__(36).EventEmitter;
 
 	/*<replacement>*/
 	if (!EE.listenerCount) EE.listenerCount = function(emitter, type) {
@@ -34201,18 +34597,18 @@ var StellarLib =
 	};
 	/*</replacement>*/
 
-	var Stream = __webpack_require__(85);
+	var Stream = __webpack_require__(88);
 
 	/*<replacement>*/
-	var util = __webpack_require__(121);
-	util.inherits = __webpack_require__(120);
+	var util = __webpack_require__(120);
+	util.inherits = __webpack_require__(121);
 	/*</replacement>*/
 
 	var StringDecoder;
 
 
 	/*<replacement>*/
-	var debug = __webpack_require__(116);
+	var debug = __webpack_require__(117);
 	if (debug && debug.debuglog) {
 	  debug = debug.debuglog('stream');
 	} else {
@@ -34224,7 +34620,7 @@ var StellarLib =
 	util.inherits(Readable, Stream);
 
 	function ReadableState(options, stream) {
-	  var Duplex = __webpack_require__(112);
+	  var Duplex = __webpack_require__(114);
 
 	  options = options || {};
 
@@ -34285,14 +34681,14 @@ var StellarLib =
 	  this.encoding = null;
 	  if (options.encoding) {
 	    if (!StringDecoder)
-	      StringDecoder = __webpack_require__(118).StringDecoder;
+	      StringDecoder = __webpack_require__(119).StringDecoder;
 	    this.decoder = new StringDecoder(options.encoding);
 	    this.encoding = options.encoding;
 	  }
 	}
 
 	function Readable(options) {
-	  var Duplex = __webpack_require__(112);
+	  var Duplex = __webpack_require__(114);
 
 	  if (!(this instanceof Readable))
 	    return new Readable(options);
@@ -34395,7 +34791,7 @@ var StellarLib =
 	// backwards compatibility.
 	Readable.prototype.setEncoding = function(enc) {
 	  if (!StringDecoder)
-	    StringDecoder = __webpack_require__(118).StringDecoder;
+	    StringDecoder = __webpack_require__(119).StringDecoder;
 	  this._readableState.decoder = new StringDecoder(enc);
 	  this._readableState.encoding = enc;
 	  return this;
@@ -35111,10 +35507,10 @@ var StellarLib =
 	  return -1;
 	}
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(33)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(40)))
 
 /***/ },
-/* 111 */
+/* 113 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {// Copyright Joyent, Inc. and other Node contributors.
@@ -35145,18 +35541,18 @@ var StellarLib =
 	module.exports = Writable;
 
 	/*<replacement>*/
-	var Buffer = __webpack_require__(14).Buffer;
+	var Buffer = __webpack_require__(15).Buffer;
 	/*</replacement>*/
 
 	Writable.WritableState = WritableState;
 
 
 	/*<replacement>*/
-	var util = __webpack_require__(121);
-	util.inherits = __webpack_require__(120);
+	var util = __webpack_require__(120);
+	util.inherits = __webpack_require__(121);
 	/*</replacement>*/
 
-	var Stream = __webpack_require__(85);
+	var Stream = __webpack_require__(88);
 
 	util.inherits(Writable, Stream);
 
@@ -35167,7 +35563,7 @@ var StellarLib =
 	}
 
 	function WritableState(options, stream) {
-	  var Duplex = __webpack_require__(112);
+	  var Duplex = __webpack_require__(114);
 
 	  options = options || {};
 
@@ -35255,7 +35651,7 @@ var StellarLib =
 	}
 
 	function Writable(options) {
-	  var Duplex = __webpack_require__(112);
+	  var Duplex = __webpack_require__(114);
 
 	  // Writable ctor is applied to Duplexes, though they're not
 	  // instanceof Writable, they're instanceof Readable.
@@ -35595,10 +35991,10 @@ var StellarLib =
 	  state.ended = true;
 	}
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(33)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(40)))
 
 /***/ },
-/* 112 */
+/* 114 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {// Copyright Joyent, Inc. and other Node contributors.
@@ -35639,12 +36035,12 @@ var StellarLib =
 
 
 	/*<replacement>*/
-	var util = __webpack_require__(121);
-	util.inherits = __webpack_require__(120);
+	var util = __webpack_require__(120);
+	util.inherits = __webpack_require__(121);
 	/*</replacement>*/
 
-	var Readable = __webpack_require__(110);
-	var Writable = __webpack_require__(111);
+	var Readable = __webpack_require__(112);
+	var Writable = __webpack_require__(113);
 
 	util.inherits(Duplex, Readable);
 
@@ -35691,10 +36087,10 @@ var StellarLib =
 	  }
 	}
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(33)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(40)))
 
 /***/ },
-/* 113 */
+/* 115 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// Copyright Joyent, Inc. and other Node contributors.
@@ -35763,11 +36159,11 @@ var StellarLib =
 
 	module.exports = Transform;
 
-	var Duplex = __webpack_require__(112);
+	var Duplex = __webpack_require__(114);
 
 	/*<replacement>*/
-	var util = __webpack_require__(121);
-	util.inherits = __webpack_require__(120);
+	var util = __webpack_require__(120);
+	util.inherits = __webpack_require__(121);
 	/*</replacement>*/
 
 	util.inherits(Transform, Duplex);
@@ -35909,7 +36305,7 @@ var StellarLib =
 
 
 /***/ },
-/* 114 */
+/* 116 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// Copyright Joyent, Inc. and other Node contributors.
@@ -35939,11 +36335,11 @@ var StellarLib =
 
 	module.exports = PassThrough;
 
-	var Transform = __webpack_require__(113);
+	var Transform = __webpack_require__(115);
 
 	/*<replacement>*/
-	var util = __webpack_require__(121);
-	util.inherits = __webpack_require__(120);
+	var util = __webpack_require__(120);
+	util.inherits = __webpack_require__(121);
 	/*</replacement>*/
 
 	util.inherits(PassThrough, Transform);
@@ -35961,271 +36357,22 @@ var StellarLib =
 
 
 /***/ },
-/* 115 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(Buffer) {var Cursor = function(buffer)
-	{
-		if (!(this instanceof Cursor))
-		{
-			return new Cursor(buffer);
-		}
-
-		if (!(buffer instanceof Buffer))
-		{
-			buffer = new Buffer(buffer);
-		}
-
-		this._setBuffer(buffer);
-		this.rewind();
-	};
-
-	Cursor.prototype._setBuffer = function(buffer)
-	{
-		this._buffer = buffer;
-		this.length = buffer.length;
-	};
-
-	Cursor.prototype.buffer = function()
-	{
-		return this._buffer;
-	};
-
-	Cursor.prototype.tap = function(cb)
-	{
-		cb(this);
-		return this;
-	};
-
-	Cursor.prototype.clone = function(newIndex)
-	{
-		var c = new this.constructor(this.buffer());
-		c.seek(arguments.length === 0 ? this.tell() : newIndex);
-
-		return c;
-	};
-
-	Cursor.prototype.tell = function()
-	{
-		return this._index;
-	};
-
-	Cursor.prototype.seek = function(op, index)
-	{
-		if (arguments.length == 1)
-		{
-			index = op;
-			op = '=';
-		}
-
-		if (op == '+')
-		{
-			this._index += index;
-		}
-		else if (op == '-')
-		{
-			this._index -= index;
-		}
-		else
-		{
-			this._index = index;
-		}
-
-		return this;
-	};
-
-	Cursor.prototype.rewind = function()
-	{
-		return this.seek(0);
-	};
-
-	Cursor.prototype.eof = function()
-	{
-		return this.tell() == this.buffer().length;
-	};
-
-	Cursor.prototype.write = function(string, length, encoding)
-	{
-		return this.seek('+', this.buffer().write(string, this.tell(), length, encoding));
-	};
-
-	Cursor.prototype.fill = function(value, length)
-	{
-		if (arguments.length == 1)
-		{
-			length = this.buffer().length - this.tell();
-		}
-		
-		this.buffer().fill(value, this.tell(), this.tell() + length);
-		this.seek('+', length);
-
-		return this;
-	};
-
-	Cursor.prototype.slice = function(length)
-	{
-		if (arguments.length === 0)
-		{
-			length = this.length - this.tell();
-		}
-
-		var c = new this.constructor(this.buffer().slice(this.tell(), this.tell() + length));
-		this.seek('+', length);
-
-		return c;
-	};
-
-	Cursor.prototype.copyFrom = function(source)
-	{
-		var buf = source instanceof Buffer ? source: source.buffer();
-		buf.copy(this.buffer(), this.tell(), 0, buf.length);
-		this.seek('+', buf.length);
-
-		return this;
-	};
-
-	Cursor.prototype.concat = function(list)
-	{
-		for (var i in list)
-		{
-			if (list[i] instanceof Cursor)
-			{
-				list[i] = list[i].buffer();
-			}
-		}
-
-		list.unshift(this.buffer());
-
-		var b = Buffer.concat(list);
-		this._setBuffer(b);
-
-		return this;
-	};
-
-	Cursor.prototype.toString = function(encoding, length)
-	{
-		if (arguments.length === 0)
-		{
-			encoding = 'utf8';
-			length = this.buffer().length - this.tell();
-		}
-		else if (arguments.length === 1)
-		{
-			length = this.buffer().length - this.tell();
-		}
-
-		var val = this.buffer().toString(encoding, this.tell(), this.tell() + length);
-		this.seek('+', length);
-
-		return val;
-	};
-
-	[
-		[1, ['readInt8', 'readUInt8']],
-		[2, ['readInt16BE', 'readInt16LE', 'readUInt16BE', 'readUInt16LE']],
-		[4, ['readInt32BE', 'readInt32LE', 'readUInt32BE', 'readUInt32LE', 'readFloatBE', 'readFloatLE']],
-		[8, ['readDoubleBE', 'readDoubleLE']]
-	].forEach(function(arr)
-	{
-		arr[1].forEach(function(method)
-		{
-			Cursor.prototype[method] = function()
-			{
-				var val = this.buffer()[method](this.tell());
-				this.seek('+', arr[0]);
-
-				return val;
-			};
-		});
-	});
-
-	[
-		[1, ['writeInt8', 'writeUInt8']],
-		[2, ['writeInt16BE', 'writeInt16LE', 'writeUInt16BE', 'writeUInt16LE']],
-		[4, ['writeInt32BE', 'writeInt32LE', 'writeUInt32BE', 'writeUInt32LE', 'writeFloatBE', 'writeFloatLE']],
-		[8, ['writeDoubleBE', 'writeDoubleLE']]
-	].forEach(function(arr)
-	{
-		arr[1].forEach(function(method)
-		{
-			Cursor.prototype[method] = function(val)
-			{
-				val = this.buffer()[method](val, this.tell());
-				this.seek('+', arr[0]);
-
-				return this;
-			};
-		});
-	});
-
-	//basic extend functionality to facilitate
-	//writing your own cursor while still providing
-	//access to low level r/w functionality
-	Cursor.extend = function(C, proto)
-	{
-		var parent = this;
-
-		if (arguments.length === 1)
-		{
-			proto = C;
-			C = null;
-		}
-
-		proto = proto || {};
-
-		C = C || function ctor(buffer)
-		{
-			if (!(this instanceof C))
-			{
-				return new C(buffer);
-			}
-
-			parent.call(this, buffer);
-		};
-
-		__webpack_require__(32).inherits(C, parent);
-
-		C.extend = parent.extend;
-		C.define = parent.define;
-
-		for (var i in proto)
-		{
-			C.define(i, proto[i]);
-		}
-
-		return C;
-	};
-
-	Cursor.define = function(name, fn)
-	{
-		var proto = this.prototype[name];
-
-		this.prototype[name] = proto && function()
-		{
-			this.__super = proto;
-			return fn.apply(this, arguments);
-		} || fn;
-	};
-
-	module.exports = Cursor;
-
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
-
-/***/ },
-/* 116 */
+/* 117 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* (ignored) */
 
 /***/ },
-/* 117 */
+/* 118 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = function() { throw new Error("define cannot be used indirect"); };
+	module.exports = Array.isArray || function (arr) {
+	  return Object.prototype.toString.call(arr) == '[object Array]';
+	};
 
 
 /***/ },
-/* 118 */
+/* 119 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// Copyright Joyent, Inc. and other Node contributors.
@@ -36249,7 +36396,7 @@ var StellarLib =
 	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 	// USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-	var Buffer = __webpack_require__(14).Buffer;
+	var Buffer = __webpack_require__(15).Buffer;
 
 	var isBufferEncoding = Buffer.isEncoding
 	  || function(encoding) {
@@ -36452,45 +36599,7 @@ var StellarLib =
 
 
 /***/ },
-/* 119 */
-/***/ function(module, exports, __webpack_require__) {
-
-	module.exports = Array.isArray || function (arr) {
-	  return Object.prototype.toString.call(arr) == '[object Array]';
-	};
-
-
-/***/ },
 /* 120 */
-/***/ function(module, exports, __webpack_require__) {
-
-	if (typeof Object.create === 'function') {
-	  // implementation from standard node.js 'util' module
-	  module.exports = function inherits(ctor, superCtor) {
-	    ctor.super_ = superCtor
-	    ctor.prototype = Object.create(superCtor.prototype, {
-	      constructor: {
-	        value: ctor,
-	        enumerable: false,
-	        writable: true,
-	        configurable: true
-	      }
-	    });
-	  };
-	} else {
-	  // old school shim for old browsers
-	  module.exports = function inherits(ctor, superCtor) {
-	    ctor.super_ = superCtor
-	    var TempCtor = function () {}
-	    TempCtor.prototype = superCtor.prototype
-	    ctor.prototype = new TempCtor()
-	    ctor.prototype.constructor = ctor
-	  }
-	}
-
-
-/***/ },
-/* 121 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {// Copyright Joyent, Inc. and other Node contributors.
@@ -36600,7 +36709,36 @@ var StellarLib =
 	function objectToString(o) {
 	  return Object.prototype.toString.call(o);
 	}
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15).Buffer))
+
+/***/ },
+/* 121 */
+/***/ function(module, exports, __webpack_require__) {
+
+	if (typeof Object.create === 'function') {
+	  // implementation from standard node.js 'util' module
+	  module.exports = function inherits(ctor, superCtor) {
+	    ctor.super_ = superCtor
+	    ctor.prototype = Object.create(superCtor.prototype, {
+	      constructor: {
+	        value: ctor,
+	        enumerable: false,
+	        writable: true,
+	        configurable: true
+	      }
+	    });
+	  };
+	} else {
+	  // old school shim for old browsers
+	  module.exports = function inherits(ctor, superCtor) {
+	    ctor.super_ = superCtor
+	    var TempCtor = function () {}
+	    TempCtor.prototype = superCtor.prototype
+	    ctor.prototype = new TempCtor()
+	    ctor.prototype.constructor = ctor
+	  }
+	}
+
 
 /***/ }
 /******/ ]);
