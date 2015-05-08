@@ -43,7 +43,22 @@
 
 
     <section>
-        <article><h2>Overview</h2><h3>Transactions</h3><p>Transactions are used to change the state of accounts on the network. This includes
+        <article><p>JS Stellar Lib facilitates Stellar transaction submission and client integration
+with the <a href="https://github.com/stellar/go-horizon">Stellar Horizon API Server</a>.</p>
+<ul>
+<li><a href="#overview">Overview</a><ul>
+<li><a href="#transactions">Transactions</a></li>
+</ul>
+</li>
+<li><a href="#examples">Examples</a><ul>
+<li><a href="#creating-a-simple-payment-transaction">Creating a simple payment transaction</a></li>
+<li><a href="#loading-an-account-transaction-history">Loading an account's transaction history</a></li>
+<li><a href="#streaming-an-accounts-transaction-history">Streaming an accounts transaction history</a></li>
+<li><a href="#creating-a-multi-signature-account">Creating a multi-signature account</a></li>
+</ul>
+</li>
+</ul>
+<h2>Overview</h2><h3>Transactions</h3><p>Transactions are used to change the state of accounts on the network. This includes
 sending payments, making account configuration changes, etc. Each unit of change that
 can be made on an account is called an &quot;operation&quot;. Transactions are made up of one or
 more operations. Each operation will be applied in the order it is added to the tranasction. In js-stellar-lib, that order is chronologically as operations are added. Each operation is described below:</p>
@@ -88,8 +103,6 @@ server.loadAccount(&quot;gspbxqXqEUZkiCCEFFCN9Vu4FLucdjLLdLcsV6E82Qc1T7ehsTC&quo
         var keypair = StellarLib.Keypair.fromSeed(&quot;sft74k3MagHG6iF36yeSytQzCCLsJ2Fo9K4YJpQCECwgoUobc4v&quot;);
         var signature = transaction.sign(keypair);
         transaction.addSignature(signature);
-        console.log(transaction.toEnvelope().toXDR().toString(&quot;hex&quot;))
-        // submit the transaction to the server
         return server.submitTransaction(transaction);
     })
     .then(function (transactionResult) {
@@ -97,7 +110,7 @@ server.loadAccount(&quot;gspbxqXqEUZkiCCEFFCN9Vu4FLucdjLLdLcsV6E82Qc1T7ehsTC&quo
     })
     .catch(function (err) {
         console.error(err.stack);
-    });</code></pre><h3>Loading an account's transaction history</h3><pre class="prettyprint source lang-javascript"><code>var server = new StellarLib.Server({port: 3000});
+    });</code></pre><h3>Loading an account transaction history</h3><pre class="prettyprint source lang-javascript"><code>var server = new StellarLib.Server({port: 3000});
 server.accounts(&quot;gspbxqXqEUZkiCCEFFCN9Vu4FLucdjLLdLcsV6E82Qc1T7ehsTC&quot;, &quot;transactions&quot;)
     .then(function (page) {
         // page 1
@@ -107,6 +120,25 @@ server.accounts(&quot;gspbxqXqEUZkiCCEFFCN9Vu4FLucdjLLdLcsV6E82Qc1T7ehsTC&quot;,
     .then(function (page) {
         // page 2
         console.log(page.records);
+    })
+    .catch(function (err) {
+        done(err);
+    });</code></pre><h3>Streaming an accounts transaction history</h3><p>JS-Stellar-Lib provides streaming support for Horizon endpoints out of the box, and
+it's easy! Simply pass a streaming onmessage handler to an account's transaction lookup
+call like so:</p>
+<pre class="prettyprint source lang-javascript"><code>var streamingMessageHandler = function (message) {
+    console.log(message);
+};
+
+var server = new StellarLib.Server({port: 3000});
+server.accounts(&quot;gspbxqXqEUZkiCCEFFCN9Vu4FLucdjLLdLcsV6E82Qc1T7ehsTC&quot;, &quot;transactions&quot;,
+    {
+        streaming: {
+            onmessage: streamingMessageHandler
+        }
+    })
+    .then(function (es) {
+        // returns the EventSource object for you to close()
     })
     .catch(function (err) {
         done(err);
@@ -122,12 +154,126 @@ You want to send a payment operation, which has threshold level 2. Your master k
 Additionally, you have a secondary key associated with your account which has threshold
 level 1. Now, the transaction you submit for this payment must include both signatures of
 your master key and secondary key.</p>
-<p>In this example, we'll</p>
+<p>In this example, we will:</p>
 <ul>
+<li>Add a second signer to the account</li>
 <li>Set our account's masterkey weight and threshold levels</li>
-<li>Add a secondary account and set its weight</li>
 <li>Create a multi signature transaction that sends a payment</li>
-</ul></article>
+</ul>
+<p>In each example, we'll use the root account.</p>
+<h4>Add a secondary key to the account</h4><pre class="prettyprint source lang-javascript"><code>var server = new StellarLib.Server({port: 3000});
+var rootKeypair = StellarLib.Keypair.fromSeed(&quot;sft74k3MagHG6iF36yeSytQzCCLsJ2Fo9K4YJpQCECwgoUobc4v&quot;);
+var secondaryAddress = &quot;gsRzkw9ss6BwoUFCsadDDskqaCm9vh9gy3cNbbCVtdvawuTm2pD&quot;;
+server.loadAccount(rootKeypair.address())
+    .then(function (account) {
+        // build the transaction
+        var transaction = new StellarLib.TransactionBuilder(account)
+            // this operation funds the new account with XLM
+            .addOperation(StellarLib.Operation.setOptions({
+                signer: {
+                    address: secondaryAddress,
+                    weight: 1
+                }
+            }))
+            .build();
+        var signature = transaction.sign(rootKeypair);
+        transaction.addSignature(signature);
+        return server.submitTransaction(transaction);
+    })
+    .then(function (transactionResult) {
+        console.log(transactionResult);
+    })
+    .catch(function (err) {
+        done(err);
+    });</code></pre><h4>Set Master key weight and threshold weights</h4><pre class="prettyprint source lang-javascript"><code>var server = new StellarLib.Server({port: 3000});
+var rootKeypair = StellarLib.Keypair.fromSeed(&quot;sft74k3MagHG6iF36yeSytQzCCLsJ2Fo9K4YJpQCECwgoUobc4v&quot;);
+server.loadAccount(rootKeypair.address())
+    .then(function (account) {
+        // build the transaction
+        var transaction = new StellarLib.TransactionBuilder(account)
+            // this operation funds the new account with XLM
+            .addOperation(StellarLib.Operation.setOptions({
+                thresholds: {
+                    weight: 1, // master key weight
+                    low: 1,
+                    medium: 2, // a payment is medium threshold
+                    high: 2 // make sure to have enough weight to add up to the high threshold!
+                }
+            }))
+            .build();
+        var signature = transaction.sign(rootKeypair);
+        transaction.addSignature(signature);
+        return server.submitTransaction(transaction);
+    })
+    .then(function (transactionResult) {
+        console.log(transactionResult);
+    })
+    .catch(function (err) {
+        done(err);
+    });</code></pre><h4>Create a multi-sig payment transaction</h4><pre class="prettyprint source lang-javascript"><code>
+// create the server connection object
+var server = new StellarLib.Server({port: 3000});
+
+var rootKeypair = StellarLib.Keypair.fromSeed(&quot;sft74k3MagHG6iF36yeSytQzCCLsJ2Fo9K4YJpQCECwgoUobc4v&quot;);
+var secondKeypair = StellarLib.Keypair.fromSeed(&quot;sfLq8Ua5ynNXo8nYzkGrTWckwQpxuzZ2wh5YzE73mrciWn7gpUQ&quot;);
+
+// load the root account's current details from the server
+server.loadAccount(&quot;gspbxqXqEUZkiCCEFFCN9Vu4FLucdjLLdLcsV6E82Qc1T7ehsTC&quot;)
+    .then(function (account) {
+        // build the transaction
+        var transaction = new StellarLib.TransactionBuilder(account)
+            // this operation funds the new account with XLM
+            .addOperation(StellarLib.Operation.payment({
+                destination: &quot;g8WyiYoaMmCPsv86xgPRBhHSpBs7bmNMKAB1n93x1BhFkaczjW&quot;,
+                currency: StellarLib.Currency.native(),
+                amount: &quot;20000000&quot;
+            }))
+            .build();
+        // now we need to sign the transaction with the source (root) account
+        transaction.addSignature(transaction.sign(rootKeypair));
+        transaction.addSignature(transaction.sign(secondKeypair));
+        return server.submitTransaction(transaction);
+    })
+    .then(function (transactionResult) {
+        console.log(transactionResult);
+    })
+    .catch(function (err) {
+        console.error(err.stack);
+    });</code></pre><h4>Multi-sig RPC</h4><p>Note: If the second keypair was controlled by an external process such as a seperate process or a remote network device, the transaction envelope could be sent to that external process
+and it could return a signature, like so:</p>
+<pre class="prettyprint source lang-javascript"><code>var fakeRPCSigner = function(transactionEnvelope) {
+    var RPCKeypair = StellarLib.Keypair.fromSeed(&quot;sfLq8Ua5ynNXo8nYzkGrTWckwQpxuzZ2wh5YzE73mrciWn7gpUQ&quot;);
+    var transaction = new StellarLib.Transaction(transactionEnvelope);
+    // if needed, check the operations in the transaction for risk analysis here
+    // we'll check to make sure there's only one payment operation under a limit
+    if (transaction.operations.length > 1) {
+        throw new Error(&quot;Only can sign one payment operation&quot;);
+    }
+    var operation = transaction.operations[0];
+    if (operation.type != &quot;payment&quot; || operation.amount > 1000000) {
+        throw new Error(&quot;Payment type not payment or amount too high&quot;);
+    }
+    var signature = transaction.sign(RPCKeypair);
+    return signature;
+}
+
+// build the transaction
+var transaction = new StellarLib.TransactionBuilder(account)
+    // this operation funds the new account with XLM
+    .addOperation(StellarLib.Operation.payment({
+        destination: &quot;g8WyiYoaMmCPsv86xgPRBhHSpBs7bmNMKAB1n93x1BhFkaczjW&quot;,
+        currency: StellarLib.Currency.native(),
+        amount: &quot;20000000&quot;
+    }))
+    .build();
+transaction.addSignature(transaction.sign(rootKeypair));
+try {
+    var RPCSignature = fakeRPCSigner(transaction.toEnvelope().toString(&quot;hex&quot;));
+    transaction.addSignature(RPCSignature);
+    return server.submitTransaction(transaction);
+} else {
+    throw new Error(&quot;Unable to authorize transaction&quot;);
+}</code></pre></article>
     </section>
 
 
@@ -144,7 +290,7 @@ your master key and secondary key.</p>
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0-dev</a> on Fri May 08 2015 10:55:00 GMT-0700 (PDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0-dev</a> on Fri May 08 2015 13:42:07 GMT-0700 (PDT)
 </footer>
 
 <script> prettyPrint(); </script>

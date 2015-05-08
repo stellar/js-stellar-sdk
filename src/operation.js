@@ -130,9 +130,13 @@ export class Operation {
     * @param {array} [opts.thresholds] - Sets the weight of the master key and the threshold
     *                                    for each level low, medium, and high. Array of uint8.
     *                                    For now, see the stellar-core docs.
+    * @param {number} [opts.thresholds.weight] - The master key weight.
+    * @param {number} [opts.thresholds.low] - The sum weight for the low threshold.
+    * @param {number} [opts.thresholds.medium] - The sum weight for the medium threshold.
+    * @param {number} [opts.thresholds.high] - The sum weight for the high threshold.
     * @param {object} [opts.signer] - Add or remove a signer from the account. The signer is
     *                                 deleted if the weight is 0.
-    * @param {string} [opts.signer.pubKey] - The address of the new signer.
+    * @param {string} [opts.signer.address] - The address of the new signer.
     * @param {number} [opts.signer.weight] - The weight of the new signer (0 to delete or 1-255)
     * @param {string} [opts.homeDomain] - sets the home domain used for reverse federation lookup.
     * @returns {xdr.SetOptionsOp}
@@ -149,11 +153,16 @@ export class Operation {
             attributes.setFlags = opts.setFlags;
         }
         if (opts.thresholds) {
-            attributes.thresholds = opts.thresholds;
+            var thresholds = [];
+            thresholds[0] = 0xFF & opts.thresholds.weight;
+            thresholds[1] = 0xFF & opts.thresholds.low;
+            thresholds[2] = 0xFF & opts.thresholds.medium;
+            thresholds[3] = 0xFF & opts.thresholds.high;
+            attributes.thresholds = thresholds;
         }
         if (opts.signer) {
             let signer = new xdr.Signer({
-                pubKey: Keypair.fromAddress(opts.signer.pubKey).publicKey(),
+                address: Keypair.fromAddress(opts.signer.address).publicKey(),
                 weight: opts.signer.weight
             });
             attributes.signer = signer;
