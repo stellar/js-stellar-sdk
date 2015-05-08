@@ -66,7 +66,7 @@ server.loadAccount("gspbxqXqEUZkiCCEFFCN9Vu4FLucdjLLdLcsV6E82Qc1T7ehsTC")
     });
 ```
 
-### Loading transaction history
+### Loading an account's transaction history
 
 
 ```javascript
