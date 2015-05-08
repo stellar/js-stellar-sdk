@@ -8,6 +8,9 @@ let MAX_FEE      = 1000;
 let MIN_LEDGER   = 0;
 let MAX_LEDGER   = 0xFFFFFFFF; // max uint32
 
+/**
+* @class TransactionBuilder
+*/
 export class TransactionBuilder {
 
     /**

@@ -5,6 +5,9 @@ import {Account} from "./account";
 let request = require("superagent");
 var EventSource = (typeof window === 'undefined') ? require('eventsource') : EventSource;
 
+/**
+* @class Server
+*/
 export class Server {
     /**
     * Server handles a network connection to a Horizon instance and exposes an

@@ -1,5 +1,8 @@
 import {decodeBase58Check} from "stellar-base";
 
+/**
+* @class Account
+*/
 export class Account {
 
     /**

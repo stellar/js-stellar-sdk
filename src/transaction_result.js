@@ -1,4 +1,7 @@
 
+/**
+* @class TransactionResult
+*/
 export class TransactionResult {
 
     /**

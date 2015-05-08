@@ -4,6 +4,7 @@ import {xdr, Keypair, encodeBase58Check} from "stellar-base";
 /**
 * Currency class represents a currency, either the native currency ("XLM")
 * or a currency code / issuer address pair.
+* @class Currency
 */
 export class Currency {
 

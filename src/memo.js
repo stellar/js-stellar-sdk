@@ -1,5 +1,8 @@
 import {xdr} from "stellar-base";
 
+/**
+* @class Memo
+*/
 export class Memo {
 
     /**

@@ -3,6 +3,9 @@ import {xdr, Keypair, Hyper, UnsignedHyper, hash, encodeBase58Check} from "stell
 import {Account} from "./account";
 import {Currency} from "./currency";
 
+/**
+* @class Operation
+*/
 export class Operation {
     /**
     * Returns a XDR PaymentOp. A "payment" operation send the specified amount to the
