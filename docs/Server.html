@@ -383,7 +383,7 @@ interface for requests to that instance.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="server.js.html">server.js</a>, <a href="server.js.html#line260">line 260</a>
+        <a href="server.js.html">server.js</a>, <a href="server.js.html#line228">line 228</a>
     </li></ul></dd>
     
 
@@ -517,7 +517,7 @@ will return the EventSource object.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="server.js.html">server.js</a>, <a href="server.js.html#line213">line 213</a>
+        <a href="server.js.html">server.js</a>, <a href="server.js.html#line181">line 181</a>
     </li></ul></dd>
     
 
@@ -548,29 +548,19 @@ will return the EventSource object.
 
     
 
-    <h4 class="name" id="accounts"><span class="type-signature"></span>accounts<span class="signature">(address<span class="signature-attributes">opt</span>, resource<span class="signature-attributes">opt</span>, opts<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise|EventSource}</span></h4>
+    <h4 class="name" id="accounts"><span class="type-signature"></span>accounts<span class="signature">(resource<span class="signature-attributes">opt</span>, opts<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise|EventSource}</span></h4>
 
     
 
 
 
 <div class="description">
-    <p>Requests a specific account, a collection of accounts, or resources associated with
-an account from the server.</p>
-Depending on the parameters given, this function will return different account related
-items:
-<ul>
-<li>If there are no arguments provided, or if only the 'opts' configuration object
-is provided, this call will be return a collection of all accounts.</li>
-<li>If a string is provided as the first argument, it will be interpreted as the
-'address' parameter. If the second argument is not a valid sub-resource type, this
-request will simply return the account's information (the second argument can also be
-the 'opts' config obejct.</li>
-<li>If the second argument after the address is a valid sub-resource type, this request
-will return a collection of that sub-resource associated with the given account's address.</li>
-</ul>
-<p>Any request that returns a collection can be made into a streaming request by
-passing callback functions for the 'opts.onmessage' and 'opts.onerror' handlers.</p>
+    <p>Returns account resources. For a list of all accounts, don't pass an address
+or resource parameters. For a specific transaction, pass only an address. For a list of
+account sub resources, pass the account address and the type of sub resources.</p>
+
+<p>A configuration object can be passed to each call. Calls that return a collection
+can be streamed by passing a streaming object in the config object.</p>@param {string} [address] - Returns the given account.
 </div>
 
 
@@ -604,39 +594,6 @@ passing callback functions for the 'opts.onmessage' and 'opts.onerror' handlers.
     </thead>
 
     <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>address</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">Returns the given account.</td>
-        </tr>
-
     
 
         <tr>
@@ -999,7 +956,7 @@ passing callback functions for the 'opts.onmessage' and 'opts.onerror' handlers.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="server.js.html">server.js</a>, <a href="server.js.html#line87">line 87</a>
+        <a href="server.js.html">server.js</a>, <a href="server.js.html#line76">line 76</a>
     </li></ul></dd>
     
 
@@ -1057,29 +1014,19 @@ passing callback functions for the 'opts.onmessage' and 'opts.onerror' handlers.
 
     
 
-    <h4 class="name" id="ledgers"><span class="type-signature"></span>ledgers<span class="signature">(sequence<span class="signature-attributes">opt</span>, resource<span class="signature-attributes">opt</span>, opts<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise|EventSource}</span></h4>
+    <h4 class="name" id="ledgers"><span class="type-signature"></span>ledgers<span class="signature">(resource<span class="signature-attributes">opt</span>, opts<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise|EventSource}</span></h4>
 
     
 
 
 
 <div class="description">
-    <p>Requests a specific ledger, a collection of ledgers, or resources associated with
-a ledger from the server.</p>
-Depending on the parameters given, this function will return different ledger related
-items:
-<ul>
-<li>If there are no arguments provided, or if only the 'opts' configuration object
-is provided, this call will be return a collection of all ledgers.</li>
-<li>If a number is provided as the first argument, it will be interpreted as the
-ledger 'sequence' parameter. If the second argument is not a valid sub-resource type, this
-request will simply return the account's information (the second argument can also be
-the 'opts' config obejct.</li>
-<li>If the second argument after the id is a valid sub-resource type, this request
-will return a collection of that sub-resource associated with the given ledgers's sequence.</li>
-</ul>
-<p>Any request that returns a collection can be made into a streaming request by
-passing callback functions for the 'opts.onmessage' and 'opts.onerror' handlers.</p>
+    <p>Returns ledger resources. For a list of all ledgers, don't pass sequence
+or resource parameters. For a specific transaction, pass only a sequence. For a list of
+ledger sub resources, pass the sequence and the type of sub resources.</p>
+
+<p>A configuration object can be passed to each call. Calls that return a collection
+can be streamed by passing a streaming object in the config object.</p>@param {number} [sequence] - Returns the given ledger.
 </div>
 
 
@@ -1113,39 +1060,6 @@ passing callback functions for the 'opts.onmessage' and 'opts.onerror' handlers.
     </thead>
 
     <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>sequence</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">Returns the given ledger.</td>
-        </tr>
-
     
 
         <tr>
@@ -1508,7 +1422,7 @@ passing callback functions for the 'opts.onmessage' and 'opts.onerror' handlers.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="server.js.html">server.js</a>, <a href="server.js.html#line133">line 133</a>
+        <a href="server.js.html">server.js</a>, <a href="server.js.html#line111">line 111</a>
     </li></ul></dd>
     
 
@@ -1667,7 +1581,7 @@ an Account object.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="server.js.html">server.js</a>, <a href="server.js.html#line198">line 198</a>
+        <a href="server.js.html">server.js</a>, <a href="server.js.html#line166">line 166</a>
     </li></ul></dd>
     
 
@@ -1859,22 +1773,12 @@ an Account object.
 
 
 <div class="description">
-    <p>Requests a specific transaction, a collection of transactions, or resources
-associated with a transaction from the server.</p>
-Depending on the parameters given, this function will return different transaction related
-items:
-<ul>
-<li>If there are no arguments provided, or if only the 'opts' configuration object
-is provided, this call will be return a collection of all transactions.</li>
-<li>If a string is provided as the first argument, it will be interpreted as the
-transaction 'hash' parameter. If the second argument is not a valid sub-resource type, this
-request will simply return the transactions's information (the second argument can also be
-the 'opts' config obejct.</li>
-<li>If the second argument after the id is a valid sub-resource type, this request
-will return a collection of that sub-resource associated with the given transaction hash.</li>
-</ul>
-<p>Any request that returns a collection can be made into a streaming request by
-passing callback functions for the 'opts.onmessage' and 'opts.onerror' handlers.</p>
+    <p>Returns transaction resources. For a list of all transactions, don't pass hash
+or resource parameters. For a specific transaction, pass a hash. For a list of
+transaction sub resources, pass the transaction hash and the type of sub resources.</p>
+
+<p>A configuration object can be passed to each call. Calls that return a collection
+can be streamed by passing a streaming object in the config object.</p>
 </div>
 
 
@@ -2303,7 +2207,7 @@ passing callback functions for the 'opts.onmessage' and 'opts.onerror' handlers.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="server.js.html">server.js</a>, <a href="server.js.html#line179">line 179</a>
+        <a href="server.js.html">server.js</a>, <a href="server.js.html#line147">line 147</a>
     </li></ul></dd>
     
 
@@ -2537,7 +2441,7 @@ passing callback functions for the 'opts.onmessage' and 'opts.onerror' handlers.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="server.js.html">server.js</a>, <a href="server.js.html#line260">line 260</a>
+        <a href="server.js.html">server.js</a>, <a href="server.js.html#line228">line 228</a>
     </li></ul></dd>
     
 
@@ -2671,7 +2575,7 @@ will return the EventSource object.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="server.js.html">server.js</a>, <a href="server.js.html#line213">line 213</a>
+        <a href="server.js.html">server.js</a>, <a href="server.js.html#line181">line 181</a>
     </li></ul></dd>
     
 
@@ -2702,29 +2606,19 @@ will return the EventSource object.
 
     
 
-    <h4 class="name" id="accounts"><span class="type-signature"></span>accounts<span class="signature">(address<span class="signature-attributes">opt</span>, resource<span class="signature-attributes">opt</span>, opts<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise|EventSource}</span></h4>
+    <h4 class="name" id="accounts"><span class="type-signature"></span>accounts<span class="signature">(resource<span class="signature-attributes">opt</span>, opts<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise|EventSource}</span></h4>
 
     
 
 
 
 <div class="description">
-    <p>Requests a specific account, a collection of accounts, or resources associated with
-an account from the server.</p>
-Depending on the parameters given, this function will return different account related
-items:
-<ul>
-<li>If there are no arguments provided, or if only the 'opts' configuration object
-is provided, this call will be return a collection of all accounts.</li>
-<li>If a string is provided as the first argument, it will be interpreted as the
-'address' parameter. If the second argument is not a valid sub-resource type, this
-request will simply return the account's information (the second argument can also be
-the 'opts' config obejct.</li>
-<li>If the second argument after the address is a valid sub-resource type, this request
-will return a collection of that sub-resource associated with the given account's address.</li>
-</ul>
-<p>Any request that returns a collection can be made into a streaming request by
-passing callback functions for the 'opts.onmessage' and 'opts.onerror' handlers.</p>
+    <p>Returns account resources. For a list of all accounts, don't pass an address
+or resource parameters. For a specific transaction, pass only an address. For a list of
+account sub resources, pass the account address and the type of sub resources.</p>
+
+<p>A configuration object can be passed to each call. Calls that return a collection
+can be streamed by passing a streaming object in the config object.</p>@param {string} [address] - Returns the given account.
 </div>
 
 
@@ -2758,39 +2652,6 @@ passing callback functions for the 'opts.onmessage' and 'opts.onerror' handlers.
     </thead>
 
     <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>address</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">Returns the given account.</td>
-        </tr>
-
     
 
         <tr>
@@ -3153,7 +3014,7 @@ passing callback functions for the 'opts.onmessage' and 'opts.onerror' handlers.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="server.js.html">server.js</a>, <a href="server.js.html#line87">line 87</a>
+        <a href="server.js.html">server.js</a>, <a href="server.js.html#line76">line 76</a>
     </li></ul></dd>
     
 
@@ -3211,29 +3072,19 @@ passing callback functions for the 'opts.onmessage' and 'opts.onerror' handlers.
 
     
 
-    <h4 class="name" id="ledgers"><span class="type-signature"></span>ledgers<span class="signature">(sequence<span class="signature-attributes">opt</span>, resource<span class="signature-attributes">opt</span>, opts<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise|EventSource}</span></h4>
+    <h4 class="name" id="ledgers"><span class="type-signature"></span>ledgers<span class="signature">(resource<span class="signature-attributes">opt</span>, opts<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise|EventSource}</span></h4>
 
     
 
 
 
 <div class="description">
-    <p>Requests a specific ledger, a collection of ledgers, or resources associated with
-a ledger from the server.</p>
-Depending on the parameters given, this function will return different ledger related
-items:
-<ul>
-<li>If there are no arguments provided, or if only the 'opts' configuration object
-is provided, this call will be return a collection of all ledgers.</li>
-<li>If a number is provided as the first argument, it will be interpreted as the
-ledger 'sequence' parameter. If the second argument is not a valid sub-resource type, this
-request will simply return the account's information (the second argument can also be
-the 'opts' config obejct.</li>
-<li>If the second argument after the id is a valid sub-resource type, this request
-will return a collection of that sub-resource associated with the given ledgers's sequence.</li>
-</ul>
-<p>Any request that returns a collection can be made into a streaming request by
-passing callback functions for the 'opts.onmessage' and 'opts.onerror' handlers.</p>
+    <p>Returns ledger resources. For a list of all ledgers, don't pass sequence
+or resource parameters. For a specific transaction, pass only a sequence. For a list of
+ledger sub resources, pass the sequence and the type of sub resources.</p>
+
+<p>A configuration object can be passed to each call. Calls that return a collection
+can be streamed by passing a streaming object in the config object.</p>@param {number} [sequence] - Returns the given ledger.
 </div>
 
 
@@ -3267,39 +3118,6 @@ passing callback functions for the 'opts.onmessage' and 'opts.onerror' handlers.
     </thead>
 
     <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>sequence</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">Returns the given ledger.</td>
-        </tr>
-
     
 
         <tr>
@@ -3662,7 +3480,7 @@ passing callback functions for the 'opts.onmessage' and 'opts.onerror' handlers.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="server.js.html">server.js</a>, <a href="server.js.html#line133">line 133</a>
+        <a href="server.js.html">server.js</a>, <a href="server.js.html#line111">line 111</a>
     </li></ul></dd>
     
 
@@ -3821,7 +3639,7 @@ an Account object.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="server.js.html">server.js</a>, <a href="server.js.html#line198">line 198</a>
+        <a href="server.js.html">server.js</a>, <a href="server.js.html#line166">line 166</a>
     </li></ul></dd>
     
 
@@ -4013,22 +3831,12 @@ an Account object.
 
 
 <div class="description">
-    <p>Requests a specific transaction, a collection of transactions, or resources
-associated with a transaction from the server.</p>
-Depending on the parameters given, this function will return different transaction related
-items:
-<ul>
-<li>If there are no arguments provided, or if only the 'opts' configuration object
-is provided, this call will be return a collection of all transactions.</li>
-<li>If a string is provided as the first argument, it will be interpreted as the
-transaction 'hash' parameter. If the second argument is not a valid sub-resource type, this
-request will simply return the transactions's information (the second argument can also be
-the 'opts' config obejct.</li>
-<li>If the second argument after the id is a valid sub-resource type, this request
-will return a collection of that sub-resource associated with the given transaction hash.</li>
-</ul>
-<p>Any request that returns a collection can be made into a streaming request by
-passing callback functions for the 'opts.onmessage' and 'opts.onerror' handlers.</p>
+    <p>Returns transaction resources. For a list of all transactions, don't pass hash
+or resource parameters. For a specific transaction, pass a hash. For a list of
+transaction sub resources, pass the transaction hash and the type of sub resources.</p>
+
+<p>A configuration object can be passed to each call. Calls that return a collection
+can be streamed by passing a streaming object in the config object.</p>
 </div>
 
 
@@ -4457,7 +4265,7 @@ passing callback functions for the 'opts.onmessage' and 'opts.onerror' handlers.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="server.js.html">server.js</a>, <a href="server.js.html#line179">line 179</a>
+        <a href="server.js.html">server.js</a>, <a href="server.js.html#line147">line 147</a>
     </li></ul></dd>
     
 
@@ -4532,7 +4340,7 @@ passing callback functions for the 'opts.onmessage' and 'opts.onerror' handlers.
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0-dev</a> on Fri May 08 2015 09:20:49 GMT-0700 (PDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0-dev</a> on Fri May 08 2015 10:55:00 GMT-0700 (PDT)
 </footer>
 
 <script> prettyPrint(); </script>

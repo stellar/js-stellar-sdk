@@ -51,23 +51,12 @@ export class Server {
     }
 
     /**
-    * <p>Requests a specific account, a collection of accounts, or resources associated with
-    * an account from the server.</p>
-    * Depending on the parameters given, this function will return different account related
-    * items:
-    * <ul>
-    * <li>If there are no arguments provided, or if only the 'opts' configuration object
-    * is provided, this call will be return a collection of all accounts.</li>
-    * <li>If a string is provided as the first argument, it will be interpreted as the
-    * 'address' parameter. If the second argument is not a valid sub-resource type, this
-    * request will simply return the account's information (the second argument can also be
-    * the 'opts' config obejct.</li>
-    * <li>If the second argument after the address is a valid sub-resource type, this request
-    * will return a collection of that sub-resource associated with the given account's address.</li>
-    * </ul>
-    * <p>Any request that returns a collection can be made into a streaming request by
-    * passing callback functions for the 'opts.onmessage' and 'opts.onerror' handlers.</p>
-    * @param {string} [address] - Returns the given account.
+    * <p>Returns account resources. For a list of all accounts, don't pass an address
+    * or resource parameters. For a specific transaction, pass only an address. For a list of
+    * account sub resources, pass the account address and the type of sub resources.</p>
+    *
+    * <p>A configuration object can be passed to each call. Calls that return a collection
+    * can be streamed by passing a streaming object in the config object.</p>@param {string} [address] - Returns the given account.
     * @param {string} [resource] - Return a specific resource associated with an account. Can be
     *                              {"transactions", "operations", "effects"}.
     * @param {object} [opts] - Optional configuration for the request.
@@ -97,23 +86,12 @@ export class Server {
     }
 
     /**
-    * <p>Requests a specific ledger, a collection of ledgers, or resources associated with
-    * a ledger from the server.</p>
-    * Depending on the parameters given, this function will return different ledger related
-    * items:
-    * <ul>
-    * <li>If there are no arguments provided, or if only the 'opts' configuration object
-    * is provided, this call will be return a collection of all ledgers.</li>
-    * <li>If a number is provided as the first argument, it will be interpreted as the
-    * ledger 'sequence' parameter. If the second argument is not a valid sub-resource type, this
-    * request will simply return the account's information (the second argument can also be
-    * the 'opts' config obejct.</li>
-    * <li>If the second argument after the id is a valid sub-resource type, this request
-    * will return a collection of that sub-resource associated with the given ledgers's sequence.</li>
-    * </ul>
-    * <p>Any request that returns a collection can be made into a streaming request by
-    * passing callback functions for the 'opts.onmessage' and 'opts.onerror' handlers.</p>
-    * @param {number} [sequence] - Returns the given ledger.
+    * <p>Returns ledger resources. For a list of all ledgers, don't pass sequence
+    * or resource parameters. For a specific transaction, pass only a sequence. For a list of
+    * ledger sub resources, pass the sequence and the type of sub resources.</p>
+    *
+    * <p>A configuration object can be passed to each call. Calls that return a collection
+    * can be streamed by passing a streaming object in the config object.</p>@param {number} [sequence] - Returns the given ledger.
     * @param {string} [resource] - Return a specific resource associated with a ledger. Can be
     *                              {"transactions", "operations", "effects"}.
     * @param {object} [opts] - Optional configuration for the request.
@@ -143,22 +121,12 @@ export class Server {
     }
 
     /**
-    * <p>Requests a specific transaction, a collection of transactions, or resources
-    * associated with a transaction from the server.</p>
-    * Depending on the parameters given, this function will return different transaction related
-    * items:
-    * <ul>
-    * <li>If there are no arguments provided, or if only the 'opts' configuration object
-    * is provided, this call will be return a collection of all transactions.</li>
-    * <li>If a string is provided as the first argument, it will be interpreted as the
-    * transaction 'hash' parameter. If the second argument is not a valid sub-resource type, this
-    * request will simply return the transactions's information (the second argument can also be
-    * the 'opts' config obejct.</li>
-    * <li>If the second argument after the id is a valid sub-resource type, this request
-    * will return a collection of that sub-resource associated with the given transaction hash.</li>
-    * </ul>
-    * <p>Any request that returns a collection can be made into a streaming request by
-    * passing callback functions for the 'opts.onmessage' and 'opts.onerror' handlers.</p>
+    * <p>Returns transaction resources. For a list of all transactions, don't pass hash
+    * or resource parameters. For a specific transaction, pass a hash. For a list of
+    * transaction sub resources, pass the transaction hash and the type of sub resources.</p>
+    *
+    * <p>A configuration object can be passed to each call. Calls that return a collection
+    * can be streamed by passing a streaming object in the config object.</p>
     * @param {string} [hash] - Returns the given transaction.
     * @param {string} [resource] - Return a specific resource associated with a transaction. Can be
     *                              {"operations", "effects"}.
