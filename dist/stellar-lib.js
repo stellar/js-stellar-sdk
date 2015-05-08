@@ -51,7 +51,6 @@ var StellarLib =
 
 	module.exports = __webpack_require__(1);
 	module.exports.request = __webpack_require__(9);
-	module.exports.fixtures = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"../test/setup/fixtures\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
 
 /***/ },
 /* 1 */
@@ -68,13 +67,13 @@ var StellarLib =
 	exports.Currency = __webpack_require__(6).Currency;
 	exports.Server = __webpack_require__(7).Server;
 	exports.Operation = __webpack_require__(8).Operation;
-	exports.Keypair = __webpack_require__(11).Keypair;
+	exports.Keypair = __webpack_require__(12).Keypair;
 
 /***/ },
 /* 2 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(10);
+	module.exports = __webpack_require__(13);
 
 
 /***/ },
@@ -91,7 +90,11 @@ var StellarLib =
 	    value: true
 	});
 
-	var decodeBase58Check = __webpack_require__(11).decodeBase58Check;
+	var decodeBase58Check = __webpack_require__(12).decodeBase58Check;
+
+	/**
+	* @class Account
+	*/
 
 	var Account = exports.Account = (function () {
 
@@ -143,7 +146,7 @@ var StellarLib =
 	    value: true
 	});
 
-	var _stellarBase = __webpack_require__(11);
+	var _stellarBase = __webpack_require__(12);
 
 	var xdr = _stellarBase.xdr;
 	var hash = _stellarBase.hash;
@@ -254,7 +257,7 @@ var StellarLib =
 	    value: true
 	});
 
-	var _stellarBase = __webpack_require__(11);
+	var _stellarBase = __webpack_require__(12);
 
 	var xdr = _stellarBase.xdr;
 	var hash = _stellarBase.hash;
@@ -264,11 +267,15 @@ var StellarLib =
 
 	var Transaction = __webpack_require__(4).Transaction;
 
-	var Memo = __webpack_require__(12).Memo;
+	var Memo = __webpack_require__(10).Memo;
 
 	var MAX_FEE = 1000;
 	var MIN_LEDGER = 0;
 	var MAX_LEDGER = 4294967295; // max uint32
+
+	/**
+	* @class TransactionBuilder
+	*/
 
 	var TransactionBuilder = exports.TransactionBuilder = (function () {
 
@@ -395,7 +402,7 @@ var StellarLib =
 
 	var Account = __webpack_require__(3).Account;
 
-	var _stellarBase = __webpack_require__(11);
+	var _stellarBase = __webpack_require__(12);
 
 	var xdr = _stellarBase.xdr;
 	var Keypair = _stellarBase.Keypair;
@@ -404,6 +411,7 @@ var StellarLib =
 	/**
 	* Currency class represents a currency, either the native currency ("XLM")
 	* or a currency code / issuer address pair.
+	* @class Currency
 	*/
 
 	var Currency = exports.Currency = (function () {
@@ -520,14 +528,18 @@ var StellarLib =
 	    value: true
 	});
 
-	var TransactionResult = __webpack_require__(13).TransactionResult;
+	var TransactionResult = __webpack_require__(11).TransactionResult;
 
-	var xdr = __webpack_require__(11).xdr;
+	var xdr = __webpack_require__(12).xdr;
 
 	var Account = __webpack_require__(3).Account;
 
 	var request = __webpack_require__(9);
-	var EventSource = typeof window === "undefined" ? __webpack_require__(15) : EventSource;
+	var EventSource = typeof window === "undefined" ? __webpack_require__(20) : window.EventSource;
+
+	/**
+	* @class Server
+	*/
 
 	var Server = exports.Server = (function () {
 	    /**
@@ -579,23 +591,12 @@ var StellarLib =
 	        accounts: {
 
 	            /**
-	            * <p>Requests a specific account, a collection of accounts, or resources associated with
-	            * an account from the server.</p>
-	            * Depending on the parameters given, this function will return different account related
-	            * items:
-	            * <ul>
-	            * <li>If there are no arguments provided, or if only the 'opts' configuration object
-	            * is provided, this call will be return a collection of all accounts.</li>
-	            * <li>If a string is provided as the first argument, it will be interpreted as the
-	            * 'address' parameter. If the second argument is not a valid sub-resource type, this
-	            * request will simply return the account's information (the second argument can also be
-	            * the 'opts' config obejct.</li>
-	            * <li>If the second argument after the address is a valid sub-resource type, this request
-	            * will return a collection of that sub-resource associated with the given account's address.</li>
-	            * </ul>
-	            * <p>Any request that returns a collection can be made into a streaming request by
-	            * passing callback functions for the 'opts.onmessage' and 'opts.onerror' handlers.</p>
-	            * @param {string} [address] - Returns the given account.
+	            * <p>Returns account resources. For a list of all accounts, don't pass an address
+	            * or resource parameters. For a specific transaction, pass only an address. For a list of
+	            * account sub resources, pass the account address and the type of sub resources.</p>
+	            *
+	            * <p>A configuration object can be passed to each call. Calls that return a collection
+	            * can be streamed by passing a streaming object in the config object.</p>@param {string} [address] - Returns the given account.
 	            * @param {string} [resource] - Return a specific resource associated with an account. Can be
 	            *                              {"transactions", "operations", "effects"}.
 	            * @param {object} [opts] - Optional configuration for the request.
@@ -628,23 +629,12 @@ var StellarLib =
 	        ledgers: {
 
 	            /**
-	            * <p>Requests a specific ledger, a collection of ledgers, or resources associated with
-	            * a ledger from the server.</p>
-	            * Depending on the parameters given, this function will return different ledger related
-	            * items:
-	            * <ul>
-	            * <li>If there are no arguments provided, or if only the 'opts' configuration object
-	            * is provided, this call will be return a collection of all ledgers.</li>
-	            * <li>If a number is provided as the first argument, it will be interpreted as the
-	            * ledger 'sequence' parameter. If the second argument is not a valid sub-resource type, this
-	            * request will simply return the account's information (the second argument can also be
-	            * the 'opts' config obejct.</li>
-	            * <li>If the second argument after the id is a valid sub-resource type, this request
-	            * will return a collection of that sub-resource associated with the given ledgers's sequence.</li>
-	            * </ul>
-	            * <p>Any request that returns a collection can be made into a streaming request by
-	            * passing callback functions for the 'opts.onmessage' and 'opts.onerror' handlers.</p>
-	            * @param {number} [sequence] - Returns the given ledger.
+	            * <p>Returns ledger resources. For a list of all ledgers, don't pass sequence
+	            * or resource parameters. For a specific transaction, pass only a sequence. For a list of
+	            * ledger sub resources, pass the sequence and the type of sub resources.</p>
+	            *
+	            * <p>A configuration object can be passed to each call. Calls that return a collection
+	            * can be streamed by passing a streaming object in the config object.</p>@param {number} [sequence] - Returns the given ledger.
 	            * @param {string} [resource] - Return a specific resource associated with a ledger. Can be
 	            *                              {"transactions", "operations", "effects"}.
 	            * @param {object} [opts] - Optional configuration for the request.
@@ -677,22 +667,12 @@ var StellarLib =
 	        transactions: {
 
 	            /**
-	            * <p>Requests a specific transaction, a collection of transactions, or resources
-	            * associated with a transaction from the server.</p>
-	            * Depending on the parameters given, this function will return different transaction related
-	            * items:
-	            * <ul>
-	            * <li>If there are no arguments provided, or if only the 'opts' configuration object
-	            * is provided, this call will be return a collection of all transactions.</li>
-	            * <li>If a string is provided as the first argument, it will be interpreted as the
-	            * transaction 'hash' parameter. If the second argument is not a valid sub-resource type, this
-	            * request will simply return the transactions's information (the second argument can also be
-	            * the 'opts' config obejct.</li>
-	            * <li>If the second argument after the id is a valid sub-resource type, this request
-	            * will return a collection of that sub-resource associated with the given transaction hash.</li>
-	            * </ul>
-	            * <p>Any request that returns a collection can be made into a streaming request by
-	            * passing callback functions for the 'opts.onmessage' and 'opts.onerror' handlers.</p>
+	            * <p>Returns transaction resources. For a list of all transactions, don't pass hash
+	            * or resource parameters. For a specific transaction, pass a hash. For a list of
+	            * transaction sub resources, pass the transaction hash and the type of sub resources.</p>
+	            *
+	            * <p>A configuration object can be passed to each call. Calls that return a collection
+	            * can be streamed by passing a streaming object in the config object.</p>
 	            * @param {string} [hash] - Returns the given transaction.
 	            * @param {string} [resource] - Return a specific resource associated with a transaction. Can be
 	            *                              {"operations", "effects"}.
@@ -839,7 +819,6 @@ var StellarLib =
 	        _toCollectionPage: {
 	            value: function _toCollectionPage(json) {
 	                var self = this;
-	                console.log(json._links.next.href);
 	                return {
 	                    records: json._embedded.records,
 	                    next: function next() {
@@ -871,7 +850,7 @@ var StellarLib =
 	    value: true
 	});
 
-	var _stellarBase = __webpack_require__(11);
+	var _stellarBase = __webpack_require__(12);
 
 	var xdr = _stellarBase.xdr;
 	var Keypair = _stellarBase.Keypair;
@@ -883,6 +862,10 @@ var StellarLib =
 	var Account = __webpack_require__(3).Account;
 
 	var Currency = __webpack_require__(6).Currency;
+
+	/**
+	* @class Operation
+	*/
 
 	var Operation = exports.Operation = (function () {
 	    function Operation() {
@@ -1234,8 +1217,8 @@ var StellarLib =
 	 * Module dependencies.
 	 */
 
-	var Emitter = __webpack_require__(21);
-	var reduce = __webpack_require__(22);
+	var Emitter = __webpack_require__(22);
+	var reduce = __webpack_require__(21);
 
 	/**
 	 * Root reference for iframes.
@@ -2367,56 +2350,6 @@ var StellarLib =
 /* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(global) {"use strict";
-
-	if (global._babelPolyfill) {
-	  throw new Error("only one instance of babel/polyfill is allowed");
-	}
-	global._babelPolyfill = true;
-
-	__webpack_require__(23);
-
-	__webpack_require__(24);
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
-
-/***/ },
-/* 11 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _interopRequire = __webpack_require__(25)["default"];
-
-	var _defaults = __webpack_require__(26)["default"];
-
-	var _interopRequireWildcard = __webpack_require__(27)["default"];
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var xdr = _interopRequire(__webpack_require__(16));
-
-	exports.xdr = xdr;
-	exports.hash = __webpack_require__(17).hash;
-
-	var _signing = __webpack_require__(18);
-
-	exports.sign = _signing.sign;
-	exports.verify = _signing.verify;
-	exports.Keypair = __webpack_require__(19).Keypair;
-
-	var _jsXdr = __webpack_require__(28);
-
-	exports.UnsignedHyper = _jsXdr.UnsignedHyper;
-	exports.Hyper = _jsXdr.Hyper;
-
-	_defaults(exports, _interopRequireWildcard(__webpack_require__(20)));
-
-/***/ },
-/* 12 */
-/***/ function(module, exports, __webpack_require__) {
-
 	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
 
 	var _createClass = (function () { function defineProperties(target, props) { for (var key in props) { var prop = props[key]; prop.configurable = true; if (prop.value) prop.writable = true; } Object.defineProperties(target, props); } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -2427,7 +2360,11 @@ var StellarLib =
 	    value: true
 	});
 
-	var xdr = __webpack_require__(11).xdr;
+	var xdr = __webpack_require__(12).xdr;
+
+	/**
+	* @class Memo
+	*/
 
 	var Memo = exports.Memo = (function () {
 	    function Memo() {
@@ -2543,7 +2480,7 @@ var StellarLib =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
 
 /***/ },
-/* 13 */
+/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -2553,6 +2490,10 @@ var StellarLib =
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
+
+	/**
+	* @class TransactionResult
+	*/
 
 	var TransactionResult = exports.TransactionResult =
 
@@ -2609,6 +2550,56 @@ var StellarLib =
 	};
 
 /***/ },
+/* 12 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _interopRequire = __webpack_require__(27)["default"];
+
+	var _defaults = __webpack_require__(28)["default"];
+
+	var _interopRequireWildcard = __webpack_require__(29)["default"];
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var xdr = _interopRequire(__webpack_require__(15));
+
+	exports.xdr = xdr;
+	exports.hash = __webpack_require__(16).hash;
+
+	var _signing = __webpack_require__(17);
+
+	exports.sign = _signing.sign;
+	exports.verify = _signing.verify;
+	exports.Keypair = __webpack_require__(18).Keypair;
+
+	var _jsXdr = __webpack_require__(30);
+
+	exports.UnsignedHyper = _jsXdr.UnsignedHyper;
+	exports.Hyper = _jsXdr.Hyper;
+
+	_defaults(exports, _interopRequireWildcard(__webpack_require__(19)));
+
+/***/ },
+/* 13 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(global) {"use strict";
+
+	if (global._babelPolyfill) {
+	  throw new Error("only one instance of babel/polyfill is allowed");
+	}
+	global._babelPolyfill = true;
+
+	__webpack_require__(23);
+
+	__webpack_require__(24);
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
+
+/***/ },
 /* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -2619,9 +2610,9 @@ var StellarLib =
 	 * @license  MIT
 	 */
 
-	var base64 = __webpack_require__(43)
-	var ieee754 = __webpack_require__(32)
-	var isArray = __webpack_require__(33)
+	var base64 = __webpack_require__(34)
+	var ieee754 = __webpack_require__(25)
+	var isArray = __webpack_require__(26)
 
 	exports.Buffer = Buffer
 	exports.SlowBuffer = SlowBuffer
@@ -3950,325 +3941,6 @@ var StellarLib =
 /* 15 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(process) {var original = __webpack_require__(44)
-	  , parse = __webpack_require__(34).parse
-	  , events = __webpack_require__(36)
-	  , https = __webpack_require__(37)
-	  , http = __webpack_require__(35)
-	  , util = __webpack_require__(39);
-
-	function isPlainObject(obj) {
-	  return Object.getPrototypeOf(obj) === Object.prototype;
-	}
-
-	/**
-	 * Creates a new EventSource object
-	 *
-	 * @param {String} url the URL to which to connect
-	 * @param {Object} eventSourceInitDict extra init params. See README for details.
-	 * @api public
-	 **/
-	function EventSource(url, eventSourceInitDict) {
-	  var readyState = EventSource.CONNECTING;
-	  Object.defineProperty(this, 'readyState', {
-	    get: function () {
-	      return readyState;
-	    }
-	  });
-
-	  Object.defineProperty(this, 'url', {
-	    get: function () {
-	      return url;
-	    }
-	  });
-
-	  var self = this;
-	  self.reconnectInterval = 1000;
-	  var connectPending = false;
-
-	  function onConnectionClosed() {
-	    if (connectPending || readyState === EventSource.CLOSED) return;
-	    connectPending = true;
-	    readyState = EventSource.CONNECTING;
-	    _emit('error', new Event('error'));
-
-	    // The url may have been changed by a temporary
-	    // redirect. If that's the case, revert it now.
-	    if (reconnectUrl) {
-	      url = reconnectUrl;
-	      reconnectUrl = null;
-	    }
-	    setTimeout(function () {
-	      if (readyState !== EventSource.CONNECTING) {
-	        return;
-	      }
-	      connect();
-	    }, self.reconnectInterval);
-	  }
-
-	  var req;
-	  var lastEventId = '';
-	  if (eventSourceInitDict && eventSourceInitDict.headers && isPlainObject(eventSourceInitDict.headers) && eventSourceInitDict.headers['Last-Event-ID']) {
-	    lastEventId = eventSourceInitDict.headers['Last-Event-ID'];
-	    delete eventSourceInitDict.headers['Last-Event-ID'];
-	  }
-
-	  var discardTrailingNewline = false
-	    , data = ''
-	    , eventName = '';
-
-	  var reconnectUrl = null;
-
-	  function connect() {
-	    connectPending = false;
-
-	    var options = parse(url);
-	    var isSecure = options.protocol == 'https:';
-	    options.headers = { 'Cache-Control': 'no-cache', 'Accept': 'text/event-stream' };
-	    if (lastEventId) options.headers['Last-Event-ID'] = lastEventId;
-	    if (eventSourceInitDict && eventSourceInitDict.headers && isPlainObject(eventSourceInitDict.headers)) {
-	      for (var i in eventSourceInitDict.headers) {
-	        var header = eventSourceInitDict.headers[i];
-	        if (header) {
-	          options.headers[i] = header;
-	        }
-	      }
-	    }
-
-	    options.rejectUnauthorized = !(eventSourceInitDict && eventSourceInitDict.rejectUnauthorized == false);
-
-	    req = (isSecure ? https : http).request(options, function (res) {
-	      // Handle HTTP redirects
-	      if (res.statusCode == 301 || res.statusCode == 307) {
-	        if (!res.headers.location) {
-	          // Server sent redirect response without Location header.
-	          _emit('error', new Event('error', {status: res.statusCode}));
-	          return;
-	        }
-	        if (res.statusCode == 307) reconnectUrl = url;
-	        url = res.headers.location;
-	        process.nextTick(connect);
-	        return;
-	      }
-
-	      if (res.statusCode !== 200) {
-	        _emit('error', new Event('error', {status: res.statusCode}));
-	        return self.close();
-	      }
-
-	      readyState = EventSource.OPEN;
-	      res.on('close', onConnectionClosed);
-	      res.on('end', onConnectionClosed);
-	      _emit('open', new Event('open'));
-
-	      // text/event-stream parser adapted from webkit's
-	      // Source/WebCore/page/EventSource.cpp
-	      var buf = '';
-	      res.on('data', function (chunk) {
-	        buf += chunk;
-
-	        var pos = 0
-	          , length = buf.length;
-	        while (pos < length) {
-	          if (discardTrailingNewline) {
-	            if (buf[pos] === '\n') {
-	              ++pos;
-	            }
-	            discardTrailingNewline = false;
-	          }
-
-	          var lineLength = -1
-	            , fieldLength = -1
-	            , c;
-
-	          for (var i = pos; lineLength < 0 && i < length; ++i) {
-	            c = buf[i];
-	            if (c === ':') {
-	              if (fieldLength < 0) {
-	                fieldLength = i - pos;
-	              }
-	            } else if (c === '\r') {
-	              discardTrailingNewline = true;
-	              lineLength = i - pos;
-	            } else if (c === '\n') {
-	              lineLength = i - pos;
-	            }
-	          }
-
-	          if (lineLength < 0) {
-	            break;
-	          }
-
-	          parseEventStreamLine(buf, pos, fieldLength, lineLength);
-
-	          pos += lineLength + 1;
-	        }
-
-	        if (pos === length) {
-	          buf = '';
-	        } else if (pos > 0) {
-	          buf = buf.slice(pos);
-	        }
-	      });
-	    });
-
-	    req.on('error', onConnectionClosed);
-	    req.setNoDelay(true);
-	    req.end();
-	  }
-
-	  connect();
-
-	  function _emit() {
-	    if (self.listeners(arguments[0]).length > 0) {
-	      self.emit.apply(self, arguments);
-	    }
-	  }
-
-	  this.close = function () {
-	    if (readyState == EventSource.CLOSED) return;
-	    readyState = EventSource.CLOSED;
-	    req.abort();
-	  };
-
-	  function parseEventStreamLine(buf, pos, fieldLength, lineLength) {
-	    if (lineLength === 0) {
-	      if (data.length > 0) {
-	        var type = eventName || 'message';
-	        _emit(type, new MessageEvent(type, {
-	          data: data.slice(0, -1), // remove trailing newline
-	          lastEventId: lastEventId,
-	          origin: original(url)
-	        }));
-	        data = '';
-	      }
-	      eventName = void 0;
-	    } else if (fieldLength > 0) {
-	      var noValue = fieldLength < 0
-	        , step = 0
-	        , field = buf.slice(pos, pos + (noValue ? lineLength : fieldLength));
-
-	      if (noValue) {
-	        step = lineLength;
-	      } else if (buf[pos + fieldLength + 1] !== ' ') {
-	        step = fieldLength + 1;
-	      } else {
-	        step = fieldLength + 2;
-	      }
-	      pos += step;
-	      var valueLength = lineLength - step
-	        , value = buf.slice(pos, pos + valueLength);
-
-	      if (field === 'data') {
-	        data += value + '\n';
-	      } else if (field === 'event') {
-	        eventName = value;
-	      } else if (field === 'id') {
-	        lastEventId = value;
-	      } else if (field === 'retry') {
-	        var retry = parseInt(value, 10);
-	        if (!Number.isNaN(retry)) {
-	          self.reconnectInterval = retry;
-	        }
-	      }
-	    }
-	  }
-	}
-
-	module.exports = EventSource;
-
-	util.inherits(EventSource, events.EventEmitter);
-	EventSource.prototype.constructor = EventSource; // make stacktraces readable
-
-	['open', 'error', 'message'].forEach(function (method) {
-	  Object.defineProperty(EventSource.prototype, 'on' + method, {
-	    /**
-	     * Returns the current listener
-	     *
-	     * @return {Mixed} the set function or undefined
-	     * @api private
-	     */
-	    get: function get() {
-	      var listener = this.listeners(method)[0];
-	      return listener ? (listener._listener ? listener._listener : listener) : undefined;
-	    },
-
-	    /**
-	     * Start listening for events
-	     *
-	     * @param {Function} listener the listener
-	     * @return {Mixed} the set function or undefined
-	     * @api private
-	     */
-	    set: function set(listener) {
-	      this.removeAllListeners(method);
-	      this.addEventListener(method, listener);
-	    }
-	  });
-	});
-
-	/**
-	 * Ready states
-	 */
-	Object.defineProperty(EventSource, 'CONNECTING', { enumerable: true, value: 0});
-	Object.defineProperty(EventSource, 'OPEN', { enumerable: true, value: 1});
-	Object.defineProperty(EventSource, 'CLOSED', { enumerable: true, value: 2});
-
-	/**
-	 * Emulates the W3C Browser based WebSocket interface using addEventListener.
-	 *
-	 * @param {String} method Listen for an event
-	 * @param {Function} listener callback
-	 * @see https://developer.mozilla.org/en/DOM/element.addEventListener
-	 * @see http://dev.w3.org/html5/websockets/#the-websocket-interface
-	 * @api public
-	 */
-	EventSource.prototype.addEventListener = function addEventListener(method, listener) {
-	  if (typeof listener === 'function') {
-	    // store a reference so we can return the original function again
-	    listener._listener = listener;
-	    this.on(method, listener);
-	  }
-	};
-
-	/**
-	 * W3C Event
-	 *
-	 * @see http://www.w3.org/TR/DOM-Level-3-Events/#interface-Event
-	 * @api private
-	 */
-	function Event(type, optionalProperties) {
-	  Object.defineProperty(this, 'type', { writable: false, value: type, enumerable: true });
-	  if (optionalProperties) {
-	    for (var f in optionalProperties) {
-	      if (optionalProperties.hasOwnProperty(f)) {
-	        Object.defineProperty(this, f, { writable: false, value: optionalProperties[f], enumerable: true });
-	      }
-	    }
-	  }
-	}
-
-	/**
-	 * W3C MessageEvent
-	 *
-	 * @see http://www.w3.org/TR/webmessaging/#event-definitions
-	 * @api private
-	 */
-	function MessageEvent(type, eventInitDict) {
-	  Object.defineProperty(this, 'type', { writable: false, value: type, enumerable: true });
-	  for (var f in eventInitDict) {
-	    if (eventInitDict.hasOwnProperty(f)) {
-	      Object.defineProperty(this, f, { writable: false, value: eventInitDict[f], enumerable: true });
-	    }
-	  }
-	}
-
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(38)))
-
-/***/ },
-/* 16 */
-/***/ function(module, exports, __webpack_require__) {
-
 	// Automatically generated on 2015-05-07T08:05:18-07:00
 	// DO NOT EDIT or your changes may be overwritten
 
@@ -4277,9 +3949,9 @@ var StellarLib =
 
 	"use strict";
 
-	var _interopRequireWildcard = __webpack_require__(27)["default"];
+	var _interopRequireWildcard = __webpack_require__(29)["default"];
 
-	var XDR = _interopRequireWildcard(__webpack_require__(28));
+	var XDR = _interopRequireWildcard(__webpack_require__(30));
 
 	var types = XDR.config(function (xdr) {
 
@@ -5992,7 +5664,7 @@ var StellarLib =
 	module.exports = types;
 
 /***/ },
-/* 17 */
+/* 16 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -6002,7 +5674,7 @@ var StellarLib =
 	  value: true
 	});
 
-	var sha256 = __webpack_require__(40).sha256;
+	var sha256 = __webpack_require__(35).sha256;
 
 	function hash(data) {
 	  var hasher = new sha256();
@@ -6011,7 +5683,7 @@ var StellarLib =
 	}
 
 /***/ },
-/* 18 */
+/* 17 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
@@ -6042,7 +5714,7 @@ var StellarLib =
 	  (function () {
 	    // NOTE: we use commonjs style require here because es6 imports
 	    // can only occur at the top level.  thanks, obama.
-	    var ed25519 = __webpack_require__(41);
+	    var ed25519 = __webpack_require__(36);
 
 	    actualMethods.sign = function (data, secretKey) {
 	      data = new Buffer(data);
@@ -6086,31 +5758,31 @@ var StellarLib =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
 
 /***/ },
-/* 19 */
+/* 18 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
 
-	var _classCallCheck = __webpack_require__(29)["default"];
+	var _classCallCheck = __webpack_require__(31)["default"];
 
-	var _createClass = __webpack_require__(30)["default"];
+	var _createClass = __webpack_require__(32)["default"];
 
-	var _interopRequireWildcard = __webpack_require__(27)["default"];
+	var _interopRequireWildcard = __webpack_require__(29)["default"];
 
-	var _interopRequire = __webpack_require__(25)["default"];
+	var _interopRequire = __webpack_require__(27)["default"];
 
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
 
-	var _signing = __webpack_require__(18);
+	var _signing = __webpack_require__(17);
 
 	var sign = _signing.sign;
 	var verify = _signing.verify;
 
-	var base58 = _interopRequireWildcard(__webpack_require__(20));
+	var base58 = _interopRequireWildcard(__webpack_require__(19));
 
-	var xdr = _interopRequire(__webpack_require__(16));
+	var xdr = _interopRequire(__webpack_require__(15));
 
 	var nacl = __webpack_require__(45);
 
@@ -6225,12 +5897,12 @@ var StellarLib =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
 
 /***/ },
-/* 20 */
+/* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
 
-	var _interopRequire = __webpack_require__(25)["default"];
+	var _interopRequire = __webpack_require__(27)["default"];
 
 	exports.decodeBase58 = decodeBase58;
 	exports.decodeBase58Check = decodeBase58Check;
@@ -6240,14 +5912,14 @@ var StellarLib =
 	  value: true
 	});
 
-	var bs58 = _interopRequire(__webpack_require__(31));
+	var bs58 = _interopRequire(__webpack_require__(33));
 
-	var _lodash = __webpack_require__(42);
+	var _lodash = __webpack_require__(37);
 
 	var isUndefined = _lodash.isUndefined;
 	var isNull = _lodash.isNull;
 
-	var hash = __webpack_require__(17).hash;
+	var hash = __webpack_require__(16).hash;
 
 	var nacl = __webpack_require__(45);
 
@@ -6341,7 +6013,355 @@ var StellarLib =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
 
 /***/ },
+/* 20 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(process) {var original = __webpack_require__(44)
+	  , parse = __webpack_require__(38).parse
+	  , events = __webpack_require__(39)
+	  , https = __webpack_require__(40)
+	  , http = __webpack_require__(41)
+	  , util = __webpack_require__(42);
+
+	function isPlainObject(obj) {
+	  return Object.getPrototypeOf(obj) === Object.prototype;
+	}
+
+	/**
+	 * Creates a new EventSource object
+	 *
+	 * @param {String} url the URL to which to connect
+	 * @param {Object} eventSourceInitDict extra init params. See README for details.
+	 * @api public
+	 **/
+	function EventSource(url, eventSourceInitDict) {
+	  var readyState = EventSource.CONNECTING;
+	  Object.defineProperty(this, 'readyState', {
+	    get: function () {
+	      return readyState;
+	    }
+	  });
+
+	  Object.defineProperty(this, 'url', {
+	    get: function () {
+	      return url;
+	    }
+	  });
+
+	  var self = this;
+	  self.reconnectInterval = 1000;
+	  var connectPending = false;
+
+	  function onConnectionClosed() {
+	    if (connectPending || readyState === EventSource.CLOSED) return;
+	    connectPending = true;
+	    readyState = EventSource.CONNECTING;
+	    _emit('error', new Event('error'));
+
+	    // The url may have been changed by a temporary
+	    // redirect. If that's the case, revert it now.
+	    if (reconnectUrl) {
+	      url = reconnectUrl;
+	      reconnectUrl = null;
+	    }
+	    setTimeout(function () {
+	      if (readyState !== EventSource.CONNECTING) {
+	        return;
+	      }
+	      connect();
+	    }, self.reconnectInterval);
+	  }
+
+	  var req;
+	  var lastEventId = '';
+	  if (eventSourceInitDict && eventSourceInitDict.headers && isPlainObject(eventSourceInitDict.headers) && eventSourceInitDict.headers['Last-Event-ID']) {
+	    lastEventId = eventSourceInitDict.headers['Last-Event-ID'];
+	    delete eventSourceInitDict.headers['Last-Event-ID'];
+	  }
+
+	  var discardTrailingNewline = false
+	    , data = ''
+	    , eventName = '';
+
+	  var reconnectUrl = null;
+
+	  function connect() {
+	    connectPending = false;
+
+	    var options = parse(url);
+	    var isSecure = options.protocol == 'https:';
+	    options.headers = { 'Cache-Control': 'no-cache', 'Accept': 'text/event-stream' };
+	    if (lastEventId) options.headers['Last-Event-ID'] = lastEventId;
+	    if (eventSourceInitDict && eventSourceInitDict.headers && isPlainObject(eventSourceInitDict.headers)) {
+	      for (var i in eventSourceInitDict.headers) {
+	        var header = eventSourceInitDict.headers[i];
+	        if (header) {
+	          options.headers[i] = header;
+	        }
+	      }
+	    }
+
+	    options.rejectUnauthorized = !(eventSourceInitDict && eventSourceInitDict.rejectUnauthorized == false);
+
+	    req = (isSecure ? https : http).request(options, function (res) {
+	      // Handle HTTP redirects
+	      if (res.statusCode == 301 || res.statusCode == 307) {
+	        if (!res.headers.location) {
+	          // Server sent redirect response without Location header.
+	          _emit('error', new Event('error', {status: res.statusCode}));
+	          return;
+	        }
+	        if (res.statusCode == 307) reconnectUrl = url;
+	        url = res.headers.location;
+	        process.nextTick(connect);
+	        return;
+	      }
+
+	      if (res.statusCode !== 200) {
+	        _emit('error', new Event('error', {status: res.statusCode}));
+	        return self.close();
+	      }
+
+	      readyState = EventSource.OPEN;
+	      res.on('close', onConnectionClosed);
+	      res.on('end', onConnectionClosed);
+	      _emit('open', new Event('open'));
+
+	      // text/event-stream parser adapted from webkit's
+	      // Source/WebCore/page/EventSource.cpp
+	      var buf = '';
+	      res.on('data', function (chunk) {
+	        buf += chunk;
+
+	        var pos = 0
+	          , length = buf.length;
+	        while (pos < length) {
+	          if (discardTrailingNewline) {
+	            if (buf[pos] === '\n') {
+	              ++pos;
+	            }
+	            discardTrailingNewline = false;
+	          }
+
+	          var lineLength = -1
+	            , fieldLength = -1
+	            , c;
+
+	          for (var i = pos; lineLength < 0 && i < length; ++i) {
+	            c = buf[i];
+	            if (c === ':') {
+	              if (fieldLength < 0) {
+	                fieldLength = i - pos;
+	              }
+	            } else if (c === '\r') {
+	              discardTrailingNewline = true;
+	              lineLength = i - pos;
+	            } else if (c === '\n') {
+	              lineLength = i - pos;
+	            }
+	          }
+
+	          if (lineLength < 0) {
+	            break;
+	          }
+
+	          parseEventStreamLine(buf, pos, fieldLength, lineLength);
+
+	          pos += lineLength + 1;
+	        }
+
+	        if (pos === length) {
+	          buf = '';
+	        } else if (pos > 0) {
+	          buf = buf.slice(pos);
+	        }
+	      });
+	    });
+
+	    req.on('error', onConnectionClosed);
+	    req.setNoDelay(true);
+	    req.end();
+	  }
+
+	  connect();
+
+	  function _emit() {
+	    if (self.listeners(arguments[0]).length > 0) {
+	      self.emit.apply(self, arguments);
+	    }
+	  }
+
+	  this.close = function () {
+	    if (readyState == EventSource.CLOSED) return;
+	    readyState = EventSource.CLOSED;
+	    req.abort();
+	  };
+
+	  function parseEventStreamLine(buf, pos, fieldLength, lineLength) {
+	    if (lineLength === 0) {
+	      if (data.length > 0) {
+	        var type = eventName || 'message';
+	        _emit(type, new MessageEvent(type, {
+	          data: data.slice(0, -1), // remove trailing newline
+	          lastEventId: lastEventId,
+	          origin: original(url)
+	        }));
+	        data = '';
+	      }
+	      eventName = void 0;
+	    } else if (fieldLength > 0) {
+	      var noValue = fieldLength < 0
+	        , step = 0
+	        , field = buf.slice(pos, pos + (noValue ? lineLength : fieldLength));
+
+	      if (noValue) {
+	        step = lineLength;
+	      } else if (buf[pos + fieldLength + 1] !== ' ') {
+	        step = fieldLength + 1;
+	      } else {
+	        step = fieldLength + 2;
+	      }
+	      pos += step;
+	      var valueLength = lineLength - step
+	        , value = buf.slice(pos, pos + valueLength);
+
+	      if (field === 'data') {
+	        data += value + '\n';
+	      } else if (field === 'event') {
+	        eventName = value;
+	      } else if (field === 'id') {
+	        lastEventId = value;
+	      } else if (field === 'retry') {
+	        var retry = parseInt(value, 10);
+	        if (!Number.isNaN(retry)) {
+	          self.reconnectInterval = retry;
+	        }
+	      }
+	    }
+	  }
+	}
+
+	module.exports = EventSource;
+
+	util.inherits(EventSource, events.EventEmitter);
+	EventSource.prototype.constructor = EventSource; // make stacktraces readable
+
+	['open', 'error', 'message'].forEach(function (method) {
+	  Object.defineProperty(EventSource.prototype, 'on' + method, {
+	    /**
+	     * Returns the current listener
+	     *
+	     * @return {Mixed} the set function or undefined
+	     * @api private
+	     */
+	    get: function get() {
+	      var listener = this.listeners(method)[0];
+	      return listener ? (listener._listener ? listener._listener : listener) : undefined;
+	    },
+
+	    /**
+	     * Start listening for events
+	     *
+	     * @param {Function} listener the listener
+	     * @return {Mixed} the set function or undefined
+	     * @api private
+	     */
+	    set: function set(listener) {
+	      this.removeAllListeners(method);
+	      this.addEventListener(method, listener);
+	    }
+	  });
+	});
+
+	/**
+	 * Ready states
+	 */
+	Object.defineProperty(EventSource, 'CONNECTING', { enumerable: true, value: 0});
+	Object.defineProperty(EventSource, 'OPEN', { enumerable: true, value: 1});
+	Object.defineProperty(EventSource, 'CLOSED', { enumerable: true, value: 2});
+
+	/**
+	 * Emulates the W3C Browser based WebSocket interface using addEventListener.
+	 *
+	 * @param {String} method Listen for an event
+	 * @param {Function} listener callback
+	 * @see https://developer.mozilla.org/en/DOM/element.addEventListener
+	 * @see http://dev.w3.org/html5/websockets/#the-websocket-interface
+	 * @api public
+	 */
+	EventSource.prototype.addEventListener = function addEventListener(method, listener) {
+	  if (typeof listener === 'function') {
+	    // store a reference so we can return the original function again
+	    listener._listener = listener;
+	    this.on(method, listener);
+	  }
+	};
+
+	/**
+	 * W3C Event
+	 *
+	 * @see http://www.w3.org/TR/DOM-Level-3-Events/#interface-Event
+	 * @api private
+	 */
+	function Event(type, optionalProperties) {
+	  Object.defineProperty(this, 'type', { writable: false, value: type, enumerable: true });
+	  if (optionalProperties) {
+	    for (var f in optionalProperties) {
+	      if (optionalProperties.hasOwnProperty(f)) {
+	        Object.defineProperty(this, f, { writable: false, value: optionalProperties[f], enumerable: true });
+	      }
+	    }
+	  }
+	}
+
+	/**
+	 * W3C MessageEvent
+	 *
+	 * @see http://www.w3.org/TR/webmessaging/#event-definitions
+	 * @api private
+	 */
+	function MessageEvent(type, eventInitDict) {
+	  Object.defineProperty(this, 'type', { writable: false, value: type, enumerable: true });
+	  for (var f in eventInitDict) {
+	    if (eventInitDict.hasOwnProperty(f)) {
+	      Object.defineProperty(this, f, { writable: false, value: eventInitDict[f], enumerable: true });
+	    }
+	  }
+	}
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(43)))
+
+/***/ },
 /* 21 */
+/***/ function(module, exports, __webpack_require__) {
+
+	
+	/**
+	 * Reduce `arr` with `fn`.
+	 *
+	 * @param {Array} arr
+	 * @param {Function} fn
+	 * @param {Mixed} initial
+	 *
+	 * TODO: combatible error handling?
+	 */
+
+	module.exports = function(arr, fn, initial){  
+	  var idx = 0;
+	  var len = arr.length;
+	  var curr = arguments.length == 3
+	    ? initial
+	    : arr[idx++];
+
+	  while (idx < len) {
+	    curr = fn.call(null, curr, arr[idx], ++idx, arr);
+	  }
+	  
+	  return curr;
+	};
+
+/***/ },
+/* 22 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
@@ -6509,35 +6529,6 @@ var StellarLib =
 	  return !! this.listeners(event).length;
 	};
 
-
-/***/ },
-/* 22 */
-/***/ function(module, exports, __webpack_require__) {
-
-	
-	/**
-	 * Reduce `arr` with `fn`.
-	 *
-	 * @param {Array} arr
-	 * @param {Function} fn
-	 * @param {Mixed} initial
-	 *
-	 * TODO: combatible error handling?
-	 */
-
-	module.exports = function(arr, fn, initial){  
-	  var idx = 0;
-	  var len = arr.length;
-	  var curr = arguments.length == 3
-	    ? initial
-	    : arr[idx++];
-
-	  while (idx < len) {
-	    curr = fn.call(null, curr, arr[idx], ++idx, arr);
-	  }
-	  
-	  return curr;
-	};
 
 /***/ },
 /* 23 */
@@ -9070,6 +9061,135 @@ var StellarLib =
 /* 25 */
 /***/ function(module, exports, __webpack_require__) {
 
+	exports.read = function(buffer, offset, isLE, mLen, nBytes) {
+	  var e, m,
+	      eLen = nBytes * 8 - mLen - 1,
+	      eMax = (1 << eLen) - 1,
+	      eBias = eMax >> 1,
+	      nBits = -7,
+	      i = isLE ? (nBytes - 1) : 0,
+	      d = isLE ? -1 : 1,
+	      s = buffer[offset + i];
+
+	  i += d;
+
+	  e = s & ((1 << (-nBits)) - 1);
+	  s >>= (-nBits);
+	  nBits += eLen;
+	  for (; nBits > 0; e = e * 256 + buffer[offset + i], i += d, nBits -= 8);
+
+	  m = e & ((1 << (-nBits)) - 1);
+	  e >>= (-nBits);
+	  nBits += mLen;
+	  for (; nBits > 0; m = m * 256 + buffer[offset + i], i += d, nBits -= 8);
+
+	  if (e === 0) {
+	    e = 1 - eBias;
+	  } else if (e === eMax) {
+	    return m ? NaN : ((s ? -1 : 1) * Infinity);
+	  } else {
+	    m = m + Math.pow(2, mLen);
+	    e = e - eBias;
+	  }
+	  return (s ? -1 : 1) * m * Math.pow(2, e - mLen);
+	};
+
+	exports.write = function(buffer, value, offset, isLE, mLen, nBytes) {
+	  var e, m, c,
+	      eLen = nBytes * 8 - mLen - 1,
+	      eMax = (1 << eLen) - 1,
+	      eBias = eMax >> 1,
+	      rt = (mLen === 23 ? Math.pow(2, -24) - Math.pow(2, -77) : 0),
+	      i = isLE ? 0 : (nBytes - 1),
+	      d = isLE ? 1 : -1,
+	      s = value < 0 || (value === 0 && 1 / value < 0) ? 1 : 0;
+
+	  value = Math.abs(value);
+
+	  if (isNaN(value) || value === Infinity) {
+	    m = isNaN(value) ? 1 : 0;
+	    e = eMax;
+	  } else {
+	    e = Math.floor(Math.log(value) / Math.LN2);
+	    if (value * (c = Math.pow(2, -e)) < 1) {
+	      e--;
+	      c *= 2;
+	    }
+	    if (e + eBias >= 1) {
+	      value += rt / c;
+	    } else {
+	      value += rt * Math.pow(2, 1 - eBias);
+	    }
+	    if (value * c >= 2) {
+	      e++;
+	      c /= 2;
+	    }
+
+	    if (e + eBias >= eMax) {
+	      m = 0;
+	      e = eMax;
+	    } else if (e + eBias >= 1) {
+	      m = (value * c - 1) * Math.pow(2, mLen);
+	      e = e + eBias;
+	    } else {
+	      m = value * Math.pow(2, eBias - 1) * Math.pow(2, mLen);
+	      e = 0;
+	    }
+	  }
+
+	  for (; mLen >= 8; buffer[offset + i] = m & 0xff, i += d, m /= 256, mLen -= 8);
+
+	  e = (e << mLen) | m;
+	  eLen += mLen;
+	  for (; eLen > 0; buffer[offset + i] = e & 0xff, i += d, e /= 256, eLen -= 8);
+
+	  buffer[offset + i - d] |= s * 128;
+	};
+
+
+/***/ },
+/* 26 */
+/***/ function(module, exports, __webpack_require__) {
+
+	
+	/**
+	 * isArray
+	 */
+
+	var isArray = Array.isArray;
+
+	/**
+	 * toString
+	 */
+
+	var str = Object.prototype.toString;
+
+	/**
+	 * Whether or not the given `val`
+	 * is an array.
+	 *
+	 * example:
+	 *
+	 *        isArray([]);
+	 *        // > true
+	 *        isArray(arguments);
+	 *        // > false
+	 *        isArray('');
+	 *        // > false
+	 *
+	 * @param {mixed} val
+	 * @return {bool}
+	 */
+
+	module.exports = isArray || function (val) {
+	  return !! val && '[object Array]' == str.call(val);
+	};
+
+
+/***/ },
+/* 27 */
+/***/ function(module, exports, __webpack_require__) {
+
 	"use strict";
 
 	exports["default"] = function (obj) {
@@ -9079,7 +9199,7 @@ var StellarLib =
 	exports.__esModule = true;
 
 /***/ },
-/* 26 */
+/* 28 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -9105,7 +9225,7 @@ var StellarLib =
 	exports.__esModule = true;
 
 /***/ },
-/* 27 */
+/* 29 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -9119,14 +9239,14 @@ var StellarLib =
 	exports.__esModule = true;
 
 /***/ },
-/* 28 */
+/* 30 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
-	var _defaults = __webpack_require__(26)["default"];
+	var _defaults = __webpack_require__(28)["default"];
 
-	var _interopRequireWildcard = __webpack_require__(27)["default"];
+	var _interopRequireWildcard = __webpack_require__(29)["default"];
 
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
@@ -9141,7 +9261,7 @@ var StellarLib =
 	var config = _config.config;
 
 /***/ },
-/* 29 */
+/* 31 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -9155,7 +9275,7 @@ var StellarLib =
 	exports.__esModule = true;
 
 /***/ },
-/* 30 */
+/* 32 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -9181,7 +9301,7 @@ var StellarLib =
 	exports.__esModule = true;
 
 /***/ },
-/* 31 */
+/* 33 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// vendored from http://cryptocoinjs.com/modules/misc/bs58/
@@ -9280,1982 +9400,137 @@ var StellarLib =
 	};
 
 /***/ },
-/* 32 */
-/***/ function(module, exports, __webpack_require__) {
-
-	exports.read = function(buffer, offset, isLE, mLen, nBytes) {
-	  var e, m,
-	      eLen = nBytes * 8 - mLen - 1,
-	      eMax = (1 << eLen) - 1,
-	      eBias = eMax >> 1,
-	      nBits = -7,
-	      i = isLE ? (nBytes - 1) : 0,
-	      d = isLE ? -1 : 1,
-	      s = buffer[offset + i];
-
-	  i += d;
-
-	  e = s & ((1 << (-nBits)) - 1);
-	  s >>= (-nBits);
-	  nBits += eLen;
-	  for (; nBits > 0; e = e * 256 + buffer[offset + i], i += d, nBits -= 8);
-
-	  m = e & ((1 << (-nBits)) - 1);
-	  e >>= (-nBits);
-	  nBits += mLen;
-	  for (; nBits > 0; m = m * 256 + buffer[offset + i], i += d, nBits -= 8);
-
-	  if (e === 0) {
-	    e = 1 - eBias;
-	  } else if (e === eMax) {
-	    return m ? NaN : ((s ? -1 : 1) * Infinity);
-	  } else {
-	    m = m + Math.pow(2, mLen);
-	    e = e - eBias;
-	  }
-	  return (s ? -1 : 1) * m * Math.pow(2, e - mLen);
-	};
-
-	exports.write = function(buffer, value, offset, isLE, mLen, nBytes) {
-	  var e, m, c,
-	      eLen = nBytes * 8 - mLen - 1,
-	      eMax = (1 << eLen) - 1,
-	      eBias = eMax >> 1,
-	      rt = (mLen === 23 ? Math.pow(2, -24) - Math.pow(2, -77) : 0),
-	      i = isLE ? 0 : (nBytes - 1),
-	      d = isLE ? 1 : -1,
-	      s = value < 0 || (value === 0 && 1 / value < 0) ? 1 : 0;
-
-	  value = Math.abs(value);
-
-	  if (isNaN(value) || value === Infinity) {
-	    m = isNaN(value) ? 1 : 0;
-	    e = eMax;
-	  } else {
-	    e = Math.floor(Math.log(value) / Math.LN2);
-	    if (value * (c = Math.pow(2, -e)) < 1) {
-	      e--;
-	      c *= 2;
-	    }
-	    if (e + eBias >= 1) {
-	      value += rt / c;
-	    } else {
-	      value += rt * Math.pow(2, 1 - eBias);
-	    }
-	    if (value * c >= 2) {
-	      e++;
-	      c /= 2;
-	    }
-
-	    if (e + eBias >= eMax) {
-	      m = 0;
-	      e = eMax;
-	    } else if (e + eBias >= 1) {
-	      m = (value * c - 1) * Math.pow(2, mLen);
-	      e = e + eBias;
-	    } else {
-	      m = value * Math.pow(2, eBias - 1) * Math.pow(2, mLen);
-	      e = 0;
-	    }
-	  }
-
-	  for (; mLen >= 8; buffer[offset + i] = m & 0xff, i += d, m /= 256, mLen -= 8);
-
-	  e = (e << mLen) | m;
-	  eLen += mLen;
-	  for (; eLen > 0; buffer[offset + i] = e & 0xff, i += d, e /= 256, eLen -= 8);
-
-	  buffer[offset + i - d] |= s * 128;
-	};
-
-
-/***/ },
-/* 33 */
-/***/ function(module, exports, __webpack_require__) {
-
-	
-	/**
-	 * isArray
-	 */
-
-	var isArray = Array.isArray;
-
-	/**
-	 * toString
-	 */
-
-	var str = Object.prototype.toString;
-
-	/**
-	 * Whether or not the given `val`
-	 * is an array.
-	 *
-	 * example:
-	 *
-	 *        isArray([]);
-	 *        // > true
-	 *        isArray(arguments);
-	 *        // > false
-	 *        isArray('');
-	 *        // > false
-	 *
-	 * @param {mixed} val
-	 * @return {bool}
-	 */
-
-	module.exports = isArray || function (val) {
-	  return !! val && '[object Array]' == str.call(val);
-	};
-
-
-/***/ },
 /* 34 */
 /***/ function(module, exports, __webpack_require__) {
 
-	// Copyright Joyent, Inc. and other Node contributors.
-	//
-	// Permission is hereby granted, free of charge, to any person obtaining a
-	// copy of this software and associated documentation files (the
-	// "Software"), to deal in the Software without restriction, including
-	// without limitation the rights to use, copy, modify, merge, publish,
-	// distribute, sublicense, and/or sell copies of the Software, and to permit
-	// persons to whom the Software is furnished to do so, subject to the
-	// following conditions:
-	//
-	// The above copyright notice and this permission notice shall be included
-	// in all copies or substantial portions of the Software.
-	//
-	// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-	// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-	// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-	// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-	// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-	// USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-	var punycode = __webpack_require__(59);
-
-	exports.parse = urlParse;
-	exports.resolve = urlResolve;
-	exports.resolveObject = urlResolveObject;
-	exports.format = urlFormat;
-
-	exports.Url = Url;
-
-	function Url() {
-	  this.protocol = null;
-	  this.slashes = null;
-	  this.auth = null;
-	  this.host = null;
-	  this.port = null;
-	  this.hostname = null;
-	  this.hash = null;
-	  this.search = null;
-	  this.query = null;
-	  this.pathname = null;
-	  this.path = null;
-	  this.href = null;
-	}
-
-	// Reference: RFC 3986, RFC 1808, RFC 2396
-
-	// define these here so at least they only have to be
-	// compiled once on the first module load.
-	var protocolPattern = /^([a-z0-9.+-]+:)/i,
-	    portPattern = /:[0-9]*$/,
-
-	    // RFC 2396: characters reserved for delimiting URLs.
-	    // We actually just auto-escape these.
-	    delims = ['<', '>', '"', '`', ' ', '\r', '\n', '\t'],
-
-	    // RFC 2396: characters not allowed for various reasons.
-	    unwise = ['{', '}', '|', '\\', '^', '`'].concat(delims),
-
-	    // Allowed by RFCs, but cause of XSS attacks.  Always escape these.
-	    autoEscape = ['\''].concat(unwise),
-	    // Characters that are never ever allowed in a hostname.
-	    // Note that any invalid chars are also handled, but these
-	    // are the ones that are *expected* to be seen, so we fast-path
-	    // them.
-	    nonHostChars = ['%', '/', '?', ';', '#'].concat(autoEscape),
-	    hostEndingChars = ['/', '?', '#'],
-	    hostnameMaxLen = 255,
-	    hostnamePartPattern = /^[a-z0-9A-Z_-]{0,63}$/,
-	    hostnamePartStart = /^([a-z0-9A-Z_-]{0,63})(.*)$/,
-	    // protocols that can allow "unsafe" and "unwise" chars.
-	    unsafeProtocol = {
-	      'javascript': true,
-	      'javascript:': true
-	    },
-	    // protocols that never have a hostname.
-	    hostlessProtocol = {
-	      'javascript': true,
-	      'javascript:': true
-	    },
-	    // protocols that always contain a // bit.
-	    slashedProtocol = {
-	      'http': true,
-	      'https': true,
-	      'ftp': true,
-	      'gopher': true,
-	      'file': true,
-	      'http:': true,
-	      'https:': true,
-	      'ftp:': true,
-	      'gopher:': true,
-	      'file:': true
-	    },
-	    querystring = __webpack_require__(80);
-
-	function urlParse(url, parseQueryString, slashesDenoteHost) {
-	  if (url && isObject(url) && url instanceof Url) return url;
-
-	  var u = new Url;
-	  u.parse(url, parseQueryString, slashesDenoteHost);
-	  return u;
-	}
-
-	Url.prototype.parse = function(url, parseQueryString, slashesDenoteHost) {
-	  if (!isString(url)) {
-	    throw new TypeError("Parameter 'url' must be a string, not " + typeof url);
-	  }
-
-	  var rest = url;
-
-	  // trim before proceeding.
-	  // This is to support parse stuff like "  http://foo.com  \n"
-	  rest = rest.trim();
-
-	  var proto = protocolPattern.exec(rest);
-	  if (proto) {
-	    proto = proto[0];
-	    var lowerProto = proto.toLowerCase();
-	    this.protocol = lowerProto;
-	    rest = rest.substr(proto.length);
-	  }
-
-	  // figure out if it's got a host
-	  // user@server is *always* interpreted as a hostname, and url
-	  // resolution will treat //foo/bar as host=foo,path=bar because that's
-	  // how the browser resolves relative URLs.
-	  if (slashesDenoteHost || proto || rest.match(/^\/\/[^@\/]+@[^@\/]+/)) {
-	    var slashes = rest.substr(0, 2) === '//';
-	    if (slashes && !(proto && hostlessProtocol[proto])) {
-	      rest = rest.substr(2);
-	      this.slashes = true;
-	    }
-	  }
-
-	  if (!hostlessProtocol[proto] &&
-	      (slashes || (proto && !slashedProtocol[proto]))) {
-
-	    // there's a hostname.
-	    // the first instance of /, ?, ;, or # ends the host.
-	    //
-	    // If there is an @ in the hostname, then non-host chars *are* allowed
-	    // to the left of the last @ sign, unless some host-ending character
-	    // comes *before* the @-sign.
-	    // URLs are obnoxious.
-	    //
-	    // ex:
-	    // http://a@b@c/ => user:a@b host:c
-	    // http://a@b?@c => user:a host:c path:/?@c
-
-	    // v0.12 TODO(isaacs): This is not quite how Chrome does things.
-	    // Review our test case against browsers more comprehensively.
-
-	    // find the first instance of any hostEndingChars
-	    var hostEnd = -1;
-	    for (var i = 0; i < hostEndingChars.length; i++) {
-	      var hec = rest.indexOf(hostEndingChars[i]);
-	      if (hec !== -1 && (hostEnd === -1 || hec < hostEnd))
-	        hostEnd = hec;
-	    }
-
-	    // at this point, either we have an explicit point where the
-	    // auth portion cannot go past, or the last @ char is the decider.
-	    var auth, atSign;
-	    if (hostEnd === -1) {
-	      // atSign can be anywhere.
-	      atSign = rest.lastIndexOf('@');
-	    } else {
-	      // atSign must be in auth portion.
-	      // http://a@b/c@d => host:b auth:a path:/c@d
-	      atSign = rest.lastIndexOf('@', hostEnd);
-	    }
-
-	    // Now we have a portion which is definitely the auth.
-	    // Pull that off.
-	    if (atSign !== -1) {
-	      auth = rest.slice(0, atSign);
-	      rest = rest.slice(atSign + 1);
-	      this.auth = decodeURIComponent(auth);
-	    }
-
-	    // the host is the remaining to the left of the first non-host char
-	    hostEnd = -1;
-	    for (var i = 0; i < nonHostChars.length; i++) {
-	      var hec = rest.indexOf(nonHostChars[i]);
-	      if (hec !== -1 && (hostEnd === -1 || hec < hostEnd))
-	        hostEnd = hec;
-	    }
-	    // if we still have not hit it, then the entire thing is a host.
-	    if (hostEnd === -1)
-	      hostEnd = rest.length;
-
-	    this.host = rest.slice(0, hostEnd);
-	    rest = rest.slice(hostEnd);
-
-	    // pull out port.
-	    this.parseHost();
-
-	    // we've indicated that there is a hostname,
-	    // so even if it's empty, it has to be present.
-	    this.hostname = this.hostname || '';
-
-	    // if hostname begins with [ and ends with ]
-	    // assume that it's an IPv6 address.
-	    var ipv6Hostname = this.hostname[0] === '[' &&
-	        this.hostname[this.hostname.length - 1] === ']';
-
-	    // validate a little.
-	    if (!ipv6Hostname) {
-	      var hostparts = this.hostname.split(/\./);
-	      for (var i = 0, l = hostparts.length; i < l; i++) {
-	        var part = hostparts[i];
-	        if (!part) continue;
-	        if (!part.match(hostnamePartPattern)) {
-	          var newpart = '';
-	          for (var j = 0, k = part.length; j < k; j++) {
-	            if (part.charCodeAt(j) > 127) {
-	              // we replace non-ASCII char with a temporary placeholder
-	              // we need this to make sure size of hostname is not
-	              // broken by replacing non-ASCII by nothing
-	              newpart += 'x';
-	            } else {
-	              newpart += part[j];
-	            }
-	          }
-	          // we test again with ASCII char only
-	          if (!newpart.match(hostnamePartPattern)) {
-	            var validParts = hostparts.slice(0, i);
-	            var notHost = hostparts.slice(i + 1);
-	            var bit = part.match(hostnamePartStart);
-	            if (bit) {
-	              validParts.push(bit[1]);
-	              notHost.unshift(bit[2]);
-	            }
-	            if (notHost.length) {
-	              rest = '/' + notHost.join('.') + rest;
-	            }
-	            this.hostname = validParts.join('.');
-	            break;
-	          }
-	        }
-	      }
-	    }
-
-	    if (this.hostname.length > hostnameMaxLen) {
-	      this.hostname = '';
-	    } else {
-	      // hostnames are always lower case.
-	      this.hostname = this.hostname.toLowerCase();
-	    }
-
-	    if (!ipv6Hostname) {
-	      // IDNA Support: Returns a puny coded representation of "domain".
-	      // It only converts the part of the domain name that
-	      // has non ASCII characters. I.e. it dosent matter if
-	      // you call it with a domain that already is in ASCII.
-	      var domainArray = this.hostname.split('.');
-	      var newOut = [];
-	      for (var i = 0; i < domainArray.length; ++i) {
-	        var s = domainArray[i];
-	        newOut.push(s.match(/[^A-Za-z0-9_-]/) ?
-	            'xn--' + punycode.encode(s) : s);
-	      }
-	      this.hostname = newOut.join('.');
-	    }
-
-	    var p = this.port ? ':' + this.port : '';
-	    var h = this.hostname || '';
-	    this.host = h + p;
-	    this.href += this.host;
-
-	    // strip [ and ] from the hostname
-	    // the host field still retains them, though
-	    if (ipv6Hostname) {
-	      this.hostname = this.hostname.substr(1, this.hostname.length - 2);
-	      if (rest[0] !== '/') {
-	        rest = '/' + rest;
-	      }
-	    }
-	  }
-
-	  // now rest is set to the post-host stuff.
-	  // chop off any delim chars.
-	  if (!unsafeProtocol[lowerProto]) {
-
-	    // First, make 100% sure that any "autoEscape" chars get
-	    // escaped, even if encodeURIComponent doesn't think they
-	    // need to be.
-	    for (var i = 0, l = autoEscape.length; i < l; i++) {
-	      var ae = autoEscape[i];
-	      var esc = encodeURIComponent(ae);
-	      if (esc === ae) {
-	        esc = escape(ae);
-	      }
-	      rest = rest.split(ae).join(esc);
-	    }
-	  }
-
-
-	  // chop off from the tail first.
-	  var hash = rest.indexOf('#');
-	  if (hash !== -1) {
-	    // got a fragment string.
-	    this.hash = rest.substr(hash);
-	    rest = rest.slice(0, hash);
-	  }
-	  var qm = rest.indexOf('?');
-	  if (qm !== -1) {
-	    this.search = rest.substr(qm);
-	    this.query = rest.substr(qm + 1);
-	    if (parseQueryString) {
-	      this.query = querystring.parse(this.query);
-	    }
-	    rest = rest.slice(0, qm);
-	  } else if (parseQueryString) {
-	    // no query string, but parseQueryString still requested
-	    this.search = '';
-	    this.query = {};
-	  }
-	  if (rest) this.pathname = rest;
-	  if (slashedProtocol[lowerProto] &&
-	      this.hostname && !this.pathname) {
-	    this.pathname = '/';
-	  }
-
-	  //to support http.request
-	  if (this.pathname || this.search) {
-	    var p = this.pathname || '';
-	    var s = this.search || '';
-	    this.path = p + s;
-	  }
-
-	  // finally, reconstruct the href based on what has been validated.
-	  this.href = this.format();
-	  return this;
-	};
-
-	// format a parsed object into a url string
-	function urlFormat(obj) {
-	  // ensure it's an object, and not a string url.
-	  // If it's an obj, this is a no-op.
-	  // this way, you can call url_format() on strings
-	  // to clean up potentially wonky urls.
-	  if (isString(obj)) obj = urlParse(obj);
-	  if (!(obj instanceof Url)) return Url.prototype.format.call(obj);
-	  return obj.format();
-	}
-
-	Url.prototype.format = function() {
-	  var auth = this.auth || '';
-	  if (auth) {
-	    auth = encodeURIComponent(auth);
-	    auth = auth.replace(/%3A/i, ':');
-	    auth += '@';
-	  }
-
-	  var protocol = this.protocol || '',
-	      pathname = this.pathname || '',
-	      hash = this.hash || '',
-	      host = false,
-	      query = '';
-
-	  if (this.host) {
-	    host = auth + this.host;
-	  } else if (this.hostname) {
-	    host = auth + (this.hostname.indexOf(':') === -1 ?
-	        this.hostname :
-	        '[' + this.hostname + ']');
-	    if (this.port) {
-	      host += ':' + this.port;
-	    }
-	  }
-
-	  if (this.query &&
-	      isObject(this.query) &&
-	      Object.keys(this.query).length) {
-	    query = querystring.stringify(this.query);
-	  }
-
-	  var search = this.search || (query && ('?' + query)) || '';
-
-	  if (protocol && protocol.substr(-1) !== ':') protocol += ':';
-
-	  // only the slashedProtocols get the //.  Not mailto:, xmpp:, etc.
-	  // unless they had them to begin with.
-	  if (this.slashes ||
-	      (!protocol || slashedProtocol[protocol]) && host !== false) {
-	    host = '//' + (host || '');
-	    if (pathname && pathname.charAt(0) !== '/') pathname = '/' + pathname;
-	  } else if (!host) {
-	    host = '';
-	  }
-
-	  if (hash && hash.charAt(0) !== '#') hash = '#' + hash;
-	  if (search && search.charAt(0) !== '?') search = '?' + search;
-
-	  pathname = pathname.replace(/[?#]/g, function(match) {
-	    return encodeURIComponent(match);
-	  });
-	  search = search.replace('#', '%23');
-
-	  return protocol + host + pathname + search + hash;
-	};
-
-	function urlResolve(source, relative) {
-	  return urlParse(source, false, true).resolve(relative);
-	}
-
-	Url.prototype.resolve = function(relative) {
-	  return this.resolveObject(urlParse(relative, false, true)).format();
-	};
-
-	function urlResolveObject(source, relative) {
-	  if (!source) return relative;
-	  return urlParse(source, false, true).resolveObject(relative);
-	}
-
-	Url.prototype.resolveObject = function(relative) {
-	  if (isString(relative)) {
-	    var rel = new Url();
-	    rel.parse(relative, false, true);
-	    relative = rel;
-	  }
-
-	  var result = new Url();
-	  Object.keys(this).forEach(function(k) {
-	    result[k] = this[k];
-	  }, this);
-
-	  // hash is always overridden, no matter what.
-	  // even href="" will remove it.
-	  result.hash = relative.hash;
-
-	  // if the relative url is empty, then there's nothing left to do here.
-	  if (relative.href === '') {
-	    result.href = result.format();
-	    return result;
-	  }
-
-	  // hrefs like //foo/bar always cut to the protocol.
-	  if (relative.slashes && !relative.protocol) {
-	    // take everything except the protocol from relative
-	    Object.keys(relative).forEach(function(k) {
-	      if (k !== 'protocol')
-	        result[k] = relative[k];
-	    });
-
-	    //urlParse appends trailing / to urls like http://www.example.com
-	    if (slashedProtocol[result.protocol] &&
-	        result.hostname && !result.pathname) {
-	      result.path = result.pathname = '/';
-	    }
-
-	    result.href = result.format();
-	    return result;
-	  }
-
-	  if (relative.protocol && relative.protocol !== result.protocol) {
-	    // if it's a known url protocol, then changing
-	    // the protocol does weird things
-	    // first, if it's not file:, then we MUST have a host,
-	    // and if there was a path
-	    // to begin with, then we MUST have a path.
-	    // if it is file:, then the host is dropped,
-	    // because that's known to be hostless.
-	    // anything else is assumed to be absolute.
-	    if (!slashedProtocol[relative.protocol]) {
-	      Object.keys(relative).forEach(function(k) {
-	        result[k] = relative[k];
-	      });
-	      result.href = result.format();
-	      return result;
-	    }
-
-	    result.protocol = relative.protocol;
-	    if (!relative.host && !hostlessProtocol[relative.protocol]) {
-	      var relPath = (relative.pathname || '').split('/');
-	      while (relPath.length && !(relative.host = relPath.shift()));
-	      if (!relative.host) relative.host = '';
-	      if (!relative.hostname) relative.hostname = '';
-	      if (relPath[0] !== '') relPath.unshift('');
-	      if (relPath.length < 2) relPath.unshift('');
-	      result.pathname = relPath.join('/');
-	    } else {
-	      result.pathname = relative.pathname;
-	    }
-	    result.search = relative.search;
-	    result.query = relative.query;
-	    result.host = relative.host || '';
-	    result.auth = relative.auth;
-	    result.hostname = relative.hostname || relative.host;
-	    result.port = relative.port;
-	    // to support http.request
-	    if (result.pathname || result.search) {
-	      var p = result.pathname || '';
-	      var s = result.search || '';
-	      result.path = p + s;
-	    }
-	    result.slashes = result.slashes || relative.slashes;
-	    result.href = result.format();
-	    return result;
-	  }
-
-	  var isSourceAbs = (result.pathname && result.pathname.charAt(0) === '/'),
-	      isRelAbs = (
-	          relative.host ||
-	          relative.pathname && relative.pathname.charAt(0) === '/'
-	      ),
-	      mustEndAbs = (isRelAbs || isSourceAbs ||
-	                    (result.host && relative.pathname)),
-	      removeAllDots = mustEndAbs,
-	      srcPath = result.pathname && result.pathname.split('/') || [],
-	      relPath = relative.pathname && relative.pathname.split('/') || [],
-	      psychotic = result.protocol && !slashedProtocol[result.protocol];
-
-	  // if the url is a non-slashed url, then relative
-	  // links like ../.. should be able
-	  // to crawl up to the hostname, as well.  This is strange.
-	  // result.protocol has already been set by now.
-	  // Later on, put the first path part into the host field.
-	  if (psychotic) {
-	    result.hostname = '';
-	    result.port = null;
-	    if (result.host) {
-	      if (srcPath[0] === '') srcPath[0] = result.host;
-	      else srcPath.unshift(result.host);
-	    }
-	    result.host = '';
-	    if (relative.protocol) {
-	      relative.hostname = null;
-	      relative.port = null;
-	      if (relative.host) {
-	        if (relPath[0] === '') relPath[0] = relative.host;
-	        else relPath.unshift(relative.host);
-	      }
-	      relative.host = null;
-	    }
-	    mustEndAbs = mustEndAbs && (relPath[0] === '' || srcPath[0] === '');
-	  }
-
-	  if (isRelAbs) {
-	    // it's absolute.
-	    result.host = (relative.host || relative.host === '') ?
-	                  relative.host : result.host;
-	    result.hostname = (relative.hostname || relative.hostname === '') ?
-	                      relative.hostname : result.hostname;
-	    result.search = relative.search;
-	    result.query = relative.query;
-	    srcPath = relPath;
-	    // fall through to the dot-handling below.
-	  } else if (relPath.length) {
-	    // it's relative
-	    // throw away the existing file, and take the new path instead.
-	    if (!srcPath) srcPath = [];
-	    srcPath.pop();
-	    srcPath = srcPath.concat(relPath);
-	    result.search = relative.search;
-	    result.query = relative.query;
-	  } else if (!isNullOrUndefined(relative.search)) {
-	    // just pull out the search.
-	    // like href='?foo'.
-	    // Put this after the other two cases because it simplifies the booleans
-	    if (psychotic) {
-	      result.hostname = result.host = srcPath.shift();
-	      //occationaly the auth can get stuck only in host
-	      //this especialy happens in cases like
-	      //url.resolveObject('mailto:local1@domain1', 'local2@domain2')
-	      var authInHost = result.host && result.host.indexOf('@') > 0 ?
-	                       result.host.split('@') : false;
-	      if (authInHost) {
-	        result.auth = authInHost.shift();
-	        result.host = result.hostname = authInHost.shift();
-	      }
-	    }
-	    result.search = relative.search;
-	    result.query = relative.query;
-	    //to support http.request
-	    if (!isNull(result.pathname) || !isNull(result.search)) {
-	      result.path = (result.pathname ? result.pathname : '') +
-	                    (result.search ? result.search : '');
-	    }
-	    result.href = result.format();
-	    return result;
-	  }
-
-	  if (!srcPath.length) {
-	    // no path at all.  easy.
-	    // we've already handled the other stuff above.
-	    result.pathname = null;
-	    //to support http.request
-	    if (result.search) {
-	      result.path = '/' + result.search;
-	    } else {
-	      result.path = null;
-	    }
-	    result.href = result.format();
-	    return result;
-	  }
-
-	  // if a url ENDs in . or .., then it must get a trailing slash.
-	  // however, if it ends in anything else non-slashy,
-	  // then it must NOT get a trailing slash.
-	  var last = srcPath.slice(-1)[0];
-	  var hasTrailingSlash = (
-	      (result.host || relative.host) && (last === '.' || last === '..') ||
-	      last === '');
-
-	  // strip single dots, resolve double dots to parent dir
-	  // if the path tries to go above the root, `up` ends up > 0
-	  var up = 0;
-	  for (var i = srcPath.length; i >= 0; i--) {
-	    last = srcPath[i];
-	    if (last == '.') {
-	      srcPath.splice(i, 1);
-	    } else if (last === '..') {
-	      srcPath.splice(i, 1);
-	      up++;
-	    } else if (up) {
-	      srcPath.splice(i, 1);
-	      up--;
-	    }
-	  }
-
-	  // if the path is allowed to go above the root, restore leading ..s
-	  if (!mustEndAbs && !removeAllDots) {
-	    for (; up--; up) {
-	      srcPath.unshift('..');
-	    }
-	  }
-
-	  if (mustEndAbs && srcPath[0] !== '' &&
-	      (!srcPath[0] || srcPath[0].charAt(0) !== '/')) {
-	    srcPath.unshift('');
-	  }
-
-	  if (hasTrailingSlash && (srcPath.join('/').substr(-1) !== '/')) {
-	    srcPath.push('');
-	  }
-
-	  var isAbsolute = srcPath[0] === '' ||
-	      (srcPath[0] && srcPath[0].charAt(0) === '/');
-
-	  // put the host back
-	  if (psychotic) {
-	    result.hostname = result.host = isAbsolute ? '' :
-	                                    srcPath.length ? srcPath.shift() : '';
-	    //occationaly the auth can get stuck only in host
-	    //this especialy happens in cases like
-	    //url.resolveObject('mailto:local1@domain1', 'local2@domain2')
-	    var authInHost = result.host && result.host.indexOf('@') > 0 ?
-	                     result.host.split('@') : false;
-	    if (authInHost) {
-	      result.auth = authInHost.shift();
-	      result.host = result.hostname = authInHost.shift();
-	    }
-	  }
-
-	  mustEndAbs = mustEndAbs || (result.host && srcPath.length);
-
-	  if (mustEndAbs && !isAbsolute) {
-	    srcPath.unshift('');
-	  }
-
-	  if (!srcPath.length) {
-	    result.pathname = null;
-	    result.path = null;
-	  } else {
-	    result.pathname = srcPath.join('/');
-	  }
-
-	  //to support request.http
-	  if (!isNull(result.pathname) || !isNull(result.search)) {
-	    result.path = (result.pathname ? result.pathname : '') +
-	                  (result.search ? result.search : '');
-	  }
-	  result.auth = relative.auth || result.auth;
-	  result.slashes = result.slashes || relative.slashes;
-	  result.href = result.format();
-	  return result;
-	};
-
-	Url.prototype.parseHost = function() {
-	  var host = this.host;
-	  var port = portPattern.exec(host);
-	  if (port) {
-	    port = port[0];
-	    if (port !== ':') {
-	      this.port = port.substr(1);
-	    }
-	    host = host.substr(0, host.length - port.length);
-	  }
-	  if (host) this.hostname = host;
-	};
-
-	function isString(arg) {
-	  return typeof arg === "string";
-	}
-
-	function isObject(arg) {
-	  return typeof arg === 'object' && arg !== null;
-	}
-
-	function isNull(arg) {
-	  return arg === null;
-	}
-	function isNullOrUndefined(arg) {
-	  return  arg == null;
-	}
+	var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+
+	;(function (exports) {
+		'use strict';
+
+	  var Arr = (typeof Uint8Array !== 'undefined')
+	    ? Uint8Array
+	    : Array
+
+		var PLUS   = '+'.charCodeAt(0)
+		var SLASH  = '/'.charCodeAt(0)
+		var NUMBER = '0'.charCodeAt(0)
+		var LOWER  = 'a'.charCodeAt(0)
+		var UPPER  = 'A'.charCodeAt(0)
+		var PLUS_URL_SAFE = '-'.charCodeAt(0)
+		var SLASH_URL_SAFE = '_'.charCodeAt(0)
+
+		function decode (elt) {
+			var code = elt.charCodeAt(0)
+			if (code === PLUS ||
+			    code === PLUS_URL_SAFE)
+				return 62 // '+'
+			if (code === SLASH ||
+			    code === SLASH_URL_SAFE)
+				return 63 // '/'
+			if (code < NUMBER)
+				return -1 //no match
+			if (code < NUMBER + 10)
+				return code - NUMBER + 26 + 26
+			if (code < UPPER + 26)
+				return code - UPPER
+			if (code < LOWER + 26)
+				return code - LOWER + 26
+		}
+
+		function b64ToByteArray (b64) {
+			var i, j, l, tmp, placeHolders, arr
+
+			if (b64.length % 4 > 0) {
+				throw new Error('Invalid string. Length must be a multiple of 4')
+			}
+
+			// the number of equal signs (place holders)
+			// if there are two placeholders, than the two characters before it
+			// represent one byte
+			// if there is only one, then the three characters before it represent 2 bytes
+			// this is just a cheap hack to not do indexOf twice
+			var len = b64.length
+			placeHolders = '=' === b64.charAt(len - 2) ? 2 : '=' === b64.charAt(len - 1) ? 1 : 0
+
+			// base64 is 4/3 + up to two characters of the original data
+			arr = new Arr(b64.length * 3 / 4 - placeHolders)
+
+			// if there are placeholders, only get up to the last complete 4 chars
+			l = placeHolders > 0 ? b64.length - 4 : b64.length
+
+			var L = 0
+
+			function push (v) {
+				arr[L++] = v
+			}
+
+			for (i = 0, j = 0; i < l; i += 4, j += 3) {
+				tmp = (decode(b64.charAt(i)) << 18) | (decode(b64.charAt(i + 1)) << 12) | (decode(b64.charAt(i + 2)) << 6) | decode(b64.charAt(i + 3))
+				push((tmp & 0xFF0000) >> 16)
+				push((tmp & 0xFF00) >> 8)
+				push(tmp & 0xFF)
+			}
+
+			if (placeHolders === 2) {
+				tmp = (decode(b64.charAt(i)) << 2) | (decode(b64.charAt(i + 1)) >> 4)
+				push(tmp & 0xFF)
+			} else if (placeHolders === 1) {
+				tmp = (decode(b64.charAt(i)) << 10) | (decode(b64.charAt(i + 1)) << 4) | (decode(b64.charAt(i + 2)) >> 2)
+				push((tmp >> 8) & 0xFF)
+				push(tmp & 0xFF)
+			}
+
+			return arr
+		}
+
+		function uint8ToBase64 (uint8) {
+			var i,
+				extraBytes = uint8.length % 3, // if we have 1 byte left, pad 2 bytes
+				output = "",
+				temp, length
+
+			function encode (num) {
+				return lookup.charAt(num)
+			}
+
+			function tripletToBase64 (num) {
+				return encode(num >> 18 & 0x3F) + encode(num >> 12 & 0x3F) + encode(num >> 6 & 0x3F) + encode(num & 0x3F)
+			}
+
+			// go through the array every three bytes, we'll deal with trailing stuff later
+			for (i = 0, length = uint8.length - extraBytes; i < length; i += 3) {
+				temp = (uint8[i] << 16) + (uint8[i + 1] << 8) + (uint8[i + 2])
+				output += tripletToBase64(temp)
+			}
+
+			// pad the end with zeros, but make sure to not forget the extra bytes
+			switch (extraBytes) {
+				case 1:
+					temp = uint8[uint8.length - 1]
+					output += encode(temp >> 2)
+					output += encode((temp << 4) & 0x3F)
+					output += '=='
+					break
+				case 2:
+					temp = (uint8[uint8.length - 2] << 8) + (uint8[uint8.length - 1])
+					output += encode(temp >> 10)
+					output += encode((temp >> 4) & 0x3F)
+					output += encode((temp << 2) & 0x3F)
+					output += '='
+					break
+			}
+
+			return output
+		}
+
+		exports.toByteArray = b64ToByteArray
+		exports.fromByteArray = uint8ToBase64
+	}(false ? (this.base64js = {}) : exports))
 
 
 /***/ },
 /* 35 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var http = module.exports;
-	var EventEmitter = __webpack_require__(36).EventEmitter;
-	var Request = __webpack_require__(49);
-	var url = __webpack_require__(34)
-
-	http.request = function (params, cb) {
-	    if (typeof params === 'string') {
-	        params = url.parse(params)
-	    }
-	    if (!params) params = {};
-	    if (!params.host && !params.port) {
-	        params.port = parseInt(window.location.port, 10);
-	    }
-	    if (!params.host && params.hostname) {
-	        params.host = params.hostname;
-	    }
-
-	    if (!params.protocol) {
-	        if (params.scheme) {
-	            params.protocol = params.scheme + ':';
-	        } else {
-	            params.protocol = window.location.protocol;
-	        }
-	    }
-
-	    if (!params.host) {
-	        params.host = window.location.hostname || window.location.host;
-	    }
-	    if (/:/.test(params.host)) {
-	        if (!params.port) {
-	            params.port = params.host.split(':')[1];
-	        }
-	        params.host = params.host.split(':')[0];
-	    }
-	    if (!params.port) params.port = params.protocol == 'https:' ? 443 : 80;
-	    
-	    var req = new Request(new xhrHttp, params);
-	    if (cb) req.on('response', cb);
-	    return req;
-	};
-
-	http.get = function (params, cb) {
-	    params.method = 'GET';
-	    var req = http.request(params, cb);
-	    req.end();
-	    return req;
-	};
-
-	http.Agent = function () {};
-	http.Agent.defaultMaxSockets = 4;
-
-	var xhrHttp = (function () {
-	    if (typeof window === 'undefined') {
-	        throw new Error('no window object present');
-	    }
-	    else if (window.XMLHttpRequest) {
-	        return window.XMLHttpRequest;
-	    }
-	    else if (window.ActiveXObject) {
-	        var axs = [
-	            'Msxml2.XMLHTTP.6.0',
-	            'Msxml2.XMLHTTP.3.0',
-	            'Microsoft.XMLHTTP'
-	        ];
-	        for (var i = 0; i < axs.length; i++) {
-	            try {
-	                var ax = new(window.ActiveXObject)(axs[i]);
-	                return function () {
-	                    if (ax) {
-	                        var ax_ = ax;
-	                        ax = null;
-	                        return ax_;
-	                    }
-	                    else {
-	                        return new(window.ActiveXObject)(axs[i]);
-	                    }
-	                };
-	            }
-	            catch (e) {}
-	        }
-	        throw new Error('ajax not supported in this browser')
-	    }
-	    else {
-	        throw new Error('ajax not supported in this browser');
-	    }
-	})();
-
-	http.STATUS_CODES = {
-	    100 : 'Continue',
-	    101 : 'Switching Protocols',
-	    102 : 'Processing',                 // RFC 2518, obsoleted by RFC 4918
-	    200 : 'OK',
-	    201 : 'Created',
-	    202 : 'Accepted',
-	    203 : 'Non-Authoritative Information',
-	    204 : 'No Content',
-	    205 : 'Reset Content',
-	    206 : 'Partial Content',
-	    207 : 'Multi-Status',               // RFC 4918
-	    300 : 'Multiple Choices',
-	    301 : 'Moved Permanently',
-	    302 : 'Moved Temporarily',
-	    303 : 'See Other',
-	    304 : 'Not Modified',
-	    305 : 'Use Proxy',
-	    307 : 'Temporary Redirect',
-	    400 : 'Bad Request',
-	    401 : 'Unauthorized',
-	    402 : 'Payment Required',
-	    403 : 'Forbidden',
-	    404 : 'Not Found',
-	    405 : 'Method Not Allowed',
-	    406 : 'Not Acceptable',
-	    407 : 'Proxy Authentication Required',
-	    408 : 'Request Time-out',
-	    409 : 'Conflict',
-	    410 : 'Gone',
-	    411 : 'Length Required',
-	    412 : 'Precondition Failed',
-	    413 : 'Request Entity Too Large',
-	    414 : 'Request-URI Too Large',
-	    415 : 'Unsupported Media Type',
-	    416 : 'Requested Range Not Satisfiable',
-	    417 : 'Expectation Failed',
-	    418 : 'I\'m a teapot',              // RFC 2324
-	    422 : 'Unprocessable Entity',       // RFC 4918
-	    423 : 'Locked',                     // RFC 4918
-	    424 : 'Failed Dependency',          // RFC 4918
-	    425 : 'Unordered Collection',       // RFC 4918
-	    426 : 'Upgrade Required',           // RFC 2817
-	    428 : 'Precondition Required',      // RFC 6585
-	    429 : 'Too Many Requests',          // RFC 6585
-	    431 : 'Request Header Fields Too Large',// RFC 6585
-	    500 : 'Internal Server Error',
-	    501 : 'Not Implemented',
-	    502 : 'Bad Gateway',
-	    503 : 'Service Unavailable',
-	    504 : 'Gateway Time-out',
-	    505 : 'HTTP Version Not Supported',
-	    506 : 'Variant Also Negotiates',    // RFC 2295
-	    507 : 'Insufficient Storage',       // RFC 4918
-	    509 : 'Bandwidth Limit Exceeded',
-	    510 : 'Not Extended',               // RFC 2774
-	    511 : 'Network Authentication Required' // RFC 6585
-	};
-
-/***/ },
-/* 36 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// Copyright Joyent, Inc. and other Node contributors.
-	//
-	// Permission is hereby granted, free of charge, to any person obtaining a
-	// copy of this software and associated documentation files (the
-	// "Software"), to deal in the Software without restriction, including
-	// without limitation the rights to use, copy, modify, merge, publish,
-	// distribute, sublicense, and/or sell copies of the Software, and to permit
-	// persons to whom the Software is furnished to do so, subject to the
-	// following conditions:
-	//
-	// The above copyright notice and this permission notice shall be included
-	// in all copies or substantial portions of the Software.
-	//
-	// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-	// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-	// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-	// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-	// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-	// USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-	function EventEmitter() {
-	  this._events = this._events || {};
-	  this._maxListeners = this._maxListeners || undefined;
-	}
-	module.exports = EventEmitter;
-
-	// Backwards-compat with node 0.10.x
-	EventEmitter.EventEmitter = EventEmitter;
-
-	EventEmitter.prototype._events = undefined;
-	EventEmitter.prototype._maxListeners = undefined;
-
-	// By default EventEmitters will print a warning if more than 10 listeners are
-	// added to it. This is a useful default which helps finding memory leaks.
-	EventEmitter.defaultMaxListeners = 10;
-
-	// Obviously not all Emitters should be limited to 10. This function allows
-	// that to be increased. Set to zero for unlimited.
-	EventEmitter.prototype.setMaxListeners = function(n) {
-	  if (!isNumber(n) || n < 0 || isNaN(n))
-	    throw TypeError('n must be a positive number');
-	  this._maxListeners = n;
-	  return this;
-	};
-
-	EventEmitter.prototype.emit = function(type) {
-	  var er, handler, len, args, i, listeners;
-
-	  if (!this._events)
-	    this._events = {};
-
-	  // If there is no 'error' event listener then throw.
-	  if (type === 'error') {
-	    if (!this._events.error ||
-	        (isObject(this._events.error) && !this._events.error.length)) {
-	      er = arguments[1];
-	      if (er instanceof Error) {
-	        throw er; // Unhandled 'error' event
-	      }
-	      throw TypeError('Uncaught, unspecified "error" event.');
-	    }
-	  }
-
-	  handler = this._events[type];
-
-	  if (isUndefined(handler))
-	    return false;
-
-	  if (isFunction(handler)) {
-	    switch (arguments.length) {
-	      // fast cases
-	      case 1:
-	        handler.call(this);
-	        break;
-	      case 2:
-	        handler.call(this, arguments[1]);
-	        break;
-	      case 3:
-	        handler.call(this, arguments[1], arguments[2]);
-	        break;
-	      // slower
-	      default:
-	        len = arguments.length;
-	        args = new Array(len - 1);
-	        for (i = 1; i < len; i++)
-	          args[i - 1] = arguments[i];
-	        handler.apply(this, args);
-	    }
-	  } else if (isObject(handler)) {
-	    len = arguments.length;
-	    args = new Array(len - 1);
-	    for (i = 1; i < len; i++)
-	      args[i - 1] = arguments[i];
-
-	    listeners = handler.slice();
-	    len = listeners.length;
-	    for (i = 0; i < len; i++)
-	      listeners[i].apply(this, args);
-	  }
-
-	  return true;
-	};
-
-	EventEmitter.prototype.addListener = function(type, listener) {
-	  var m;
-
-	  if (!isFunction(listener))
-	    throw TypeError('listener must be a function');
-
-	  if (!this._events)
-	    this._events = {};
-
-	  // To avoid recursion in the case that type === "newListener"! Before
-	  // adding it to the listeners, first emit "newListener".
-	  if (this._events.newListener)
-	    this.emit('newListener', type,
-	              isFunction(listener.listener) ?
-	              listener.listener : listener);
-
-	  if (!this._events[type])
-	    // Optimize the case of one listener. Don't need the extra array object.
-	    this._events[type] = listener;
-	  else if (isObject(this._events[type]))
-	    // If we've already got an array, just append.
-	    this._events[type].push(listener);
-	  else
-	    // Adding the second element, need to change to array.
-	    this._events[type] = [this._events[type], listener];
-
-	  // Check for listener leak
-	  if (isObject(this._events[type]) && !this._events[type].warned) {
-	    var m;
-	    if (!isUndefined(this._maxListeners)) {
-	      m = this._maxListeners;
-	    } else {
-	      m = EventEmitter.defaultMaxListeners;
-	    }
-
-	    if (m && m > 0 && this._events[type].length > m) {
-	      this._events[type].warned = true;
-	      console.error('(node) warning: possible EventEmitter memory ' +
-	                    'leak detected. %d listeners added. ' +
-	                    'Use emitter.setMaxListeners() to increase limit.',
-	                    this._events[type].length);
-	      if (typeof console.trace === 'function') {
-	        // not supported in IE 10
-	        console.trace();
-	      }
-	    }
-	  }
-
-	  return this;
-	};
-
-	EventEmitter.prototype.on = EventEmitter.prototype.addListener;
-
-	EventEmitter.prototype.once = function(type, listener) {
-	  if (!isFunction(listener))
-	    throw TypeError('listener must be a function');
-
-	  var fired = false;
-
-	  function g() {
-	    this.removeListener(type, g);
-
-	    if (!fired) {
-	      fired = true;
-	      listener.apply(this, arguments);
-	    }
-	  }
-
-	  g.listener = listener;
-	  this.on(type, g);
-
-	  return this;
-	};
-
-	// emits a 'removeListener' event iff the listener was removed
-	EventEmitter.prototype.removeListener = function(type, listener) {
-	  var list, position, length, i;
-
-	  if (!isFunction(listener))
-	    throw TypeError('listener must be a function');
-
-	  if (!this._events || !this._events[type])
-	    return this;
-
-	  list = this._events[type];
-	  length = list.length;
-	  position = -1;
-
-	  if (list === listener ||
-	      (isFunction(list.listener) && list.listener === listener)) {
-	    delete this._events[type];
-	    if (this._events.removeListener)
-	      this.emit('removeListener', type, listener);
-
-	  } else if (isObject(list)) {
-	    for (i = length; i-- > 0;) {
-	      if (list[i] === listener ||
-	          (list[i].listener && list[i].listener === listener)) {
-	        position = i;
-	        break;
-	      }
-	    }
-
-	    if (position < 0)
-	      return this;
-
-	    if (list.length === 1) {
-	      list.length = 0;
-	      delete this._events[type];
-	    } else {
-	      list.splice(position, 1);
-	    }
-
-	    if (this._events.removeListener)
-	      this.emit('removeListener', type, listener);
-	  }
-
-	  return this;
-	};
-
-	EventEmitter.prototype.removeAllListeners = function(type) {
-	  var key, listeners;
-
-	  if (!this._events)
-	    return this;
-
-	  // not listening for removeListener, no need to emit
-	  if (!this._events.removeListener) {
-	    if (arguments.length === 0)
-	      this._events = {};
-	    else if (this._events[type])
-	      delete this._events[type];
-	    return this;
-	  }
-
-	  // emit removeListener for all listeners on all events
-	  if (arguments.length === 0) {
-	    for (key in this._events) {
-	      if (key === 'removeListener') continue;
-	      this.removeAllListeners(key);
-	    }
-	    this.removeAllListeners('removeListener');
-	    this._events = {};
-	    return this;
-	  }
-
-	  listeners = this._events[type];
-
-	  if (isFunction(listeners)) {
-	    this.removeListener(type, listeners);
-	  } else {
-	    // LIFO order
-	    while (listeners.length)
-	      this.removeListener(type, listeners[listeners.length - 1]);
-	  }
-	  delete this._events[type];
-
-	  return this;
-	};
-
-	EventEmitter.prototype.listeners = function(type) {
-	  var ret;
-	  if (!this._events || !this._events[type])
-	    ret = [];
-	  else if (isFunction(this._events[type]))
-	    ret = [this._events[type]];
-	  else
-	    ret = this._events[type].slice();
-	  return ret;
-	};
-
-	EventEmitter.listenerCount = function(emitter, type) {
-	  var ret;
-	  if (!emitter._events || !emitter._events[type])
-	    ret = 0;
-	  else if (isFunction(emitter._events[type]))
-	    ret = 1;
-	  else
-	    ret = emitter._events[type].length;
-	  return ret;
-	};
-
-	function isFunction(arg) {
-	  return typeof arg === 'function';
-	}
-
-	function isNumber(arg) {
-	  return typeof arg === 'number';
-	}
-
-	function isObject(arg) {
-	  return typeof arg === 'object' && arg !== null;
-	}
-
-	function isUndefined(arg) {
-	  return arg === void 0;
-	}
-
-
-/***/ },
-/* 37 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var http = __webpack_require__(35);
-
-	var https = module.exports;
-
-	for (var key in http) {
-	    if (http.hasOwnProperty(key)) https[key] = http[key];
-	};
-
-	https.request = function (params, cb) {
-	    if (!params) params = {};
-	    params.scheme = 'https';
-	    return http.request.call(this, params, cb);
-	}
-
-
-/***/ },
-/* 38 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// shim for using process in browser
-
-	var process = module.exports = {};
-	var queue = [];
-	var draining = false;
-
-	function drainQueue() {
-	    if (draining) {
-	        return;
-	    }
-	    draining = true;
-	    var currentQueue;
-	    var len = queue.length;
-	    while(len) {
-	        currentQueue = queue;
-	        queue = [];
-	        var i = -1;
-	        while (++i < len) {
-	            currentQueue[i]();
-	        }
-	        len = queue.length;
-	    }
-	    draining = false;
-	}
-	process.nextTick = function (fun) {
-	    queue.push(fun);
-	    if (!draining) {
-	        setTimeout(drainQueue, 0);
-	    }
-	};
-
-	process.title = 'browser';
-	process.browser = true;
-	process.env = {};
-	process.argv = [];
-	process.version = ''; // empty string to avoid regexp issues
-	process.versions = {};
-
-	function noop() {}
-
-	process.on = noop;
-	process.addListener = noop;
-	process.once = noop;
-	process.off = noop;
-	process.removeListener = noop;
-	process.removeAllListeners = noop;
-	process.emit = noop;
-
-	process.binding = function (name) {
-	    throw new Error('process.binding is not supported');
-	};
-
-	// TODO(shtylman)
-	process.cwd = function () { return '/' };
-	process.chdir = function (dir) {
-	    throw new Error('process.chdir is not supported');
-	};
-	process.umask = function() { return 0; };
-
-
-/***/ },
-/* 39 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(global, process) {// Copyright Joyent, Inc. and other Node contributors.
-	//
-	// Permission is hereby granted, free of charge, to any person obtaining a
-	// copy of this software and associated documentation files (the
-	// "Software"), to deal in the Software without restriction, including
-	// without limitation the rights to use, copy, modify, merge, publish,
-	// distribute, sublicense, and/or sell copies of the Software, and to permit
-	// persons to whom the Software is furnished to do so, subject to the
-	// following conditions:
-	//
-	// The above copyright notice and this permission notice shall be included
-	// in all copies or substantial portions of the Software.
-	//
-	// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-	// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-	// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-	// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-	// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-	// USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-	var formatRegExp = /%[sdj%]/g;
-	exports.format = function(f) {
-	  if (!isString(f)) {
-	    var objects = [];
-	    for (var i = 0; i < arguments.length; i++) {
-	      objects.push(inspect(arguments[i]));
-	    }
-	    return objects.join(' ');
-	  }
-
-	  var i = 1;
-	  var args = arguments;
-	  var len = args.length;
-	  var str = String(f).replace(formatRegExp, function(x) {
-	    if (x === '%%') return '%';
-	    if (i >= len) return x;
-	    switch (x) {
-	      case '%s': return String(args[i++]);
-	      case '%d': return Number(args[i++]);
-	      case '%j':
-	        try {
-	          return JSON.stringify(args[i++]);
-	        } catch (_) {
-	          return '[Circular]';
-	        }
-	      default:
-	        return x;
-	    }
-	  });
-	  for (var x = args[i]; i < len; x = args[++i]) {
-	    if (isNull(x) || !isObject(x)) {
-	      str += ' ' + x;
-	    } else {
-	      str += ' ' + inspect(x);
-	    }
-	  }
-	  return str;
-	};
-
-
-	// Mark that a method should not be used.
-	// Returns a modified function which warns once by default.
-	// If --no-deprecation is set, then it is a no-op.
-	exports.deprecate = function(fn, msg) {
-	  // Allow for deprecating things in the process of starting up.
-	  if (isUndefined(global.process)) {
-	    return function() {
-	      return exports.deprecate(fn, msg).apply(this, arguments);
-	    };
-	  }
-
-	  if (process.noDeprecation === true) {
-	    return fn;
-	  }
-
-	  var warned = false;
-	  function deprecated() {
-	    if (!warned) {
-	      if (process.throwDeprecation) {
-	        throw new Error(msg);
-	      } else if (process.traceDeprecation) {
-	        console.trace(msg);
-	      } else {
-	        console.error(msg);
-	      }
-	      warned = true;
-	    }
-	    return fn.apply(this, arguments);
-	  }
-
-	  return deprecated;
-	};
-
-
-	var debugs = {};
-	var debugEnviron;
-	exports.debuglog = function(set) {
-	  if (isUndefined(debugEnviron))
-	    debugEnviron = process.env.NODE_DEBUG || '';
-	  set = set.toUpperCase();
-	  if (!debugs[set]) {
-	    if (new RegExp('\\b' + set + '\\b', 'i').test(debugEnviron)) {
-	      var pid = process.pid;
-	      debugs[set] = function() {
-	        var msg = exports.format.apply(exports, arguments);
-	        console.error('%s %d: %s', set, pid, msg);
-	      };
-	    } else {
-	      debugs[set] = function() {};
-	    }
-	  }
-	  return debugs[set];
-	};
-
-
-	/**
-	 * Echos the value of a value. Trys to print the value out
-	 * in the best way possible given the different types.
-	 *
-	 * @param {Object} obj The object to print out.
-	 * @param {Object} opts Optional options object that alters the output.
-	 */
-	/* legacy: obj, showHidden, depth, colors*/
-	function inspect(obj, opts) {
-	  // default options
-	  var ctx = {
-	    seen: [],
-	    stylize: stylizeNoColor
-	  };
-	  // legacy...
-	  if (arguments.length >= 3) ctx.depth = arguments[2];
-	  if (arguments.length >= 4) ctx.colors = arguments[3];
-	  if (isBoolean(opts)) {
-	    // legacy...
-	    ctx.showHidden = opts;
-	  } else if (opts) {
-	    // got an "options" object
-	    exports._extend(ctx, opts);
-	  }
-	  // set default options
-	  if (isUndefined(ctx.showHidden)) ctx.showHidden = false;
-	  if (isUndefined(ctx.depth)) ctx.depth = 2;
-	  if (isUndefined(ctx.colors)) ctx.colors = false;
-	  if (isUndefined(ctx.customInspect)) ctx.customInspect = true;
-	  if (ctx.colors) ctx.stylize = stylizeWithColor;
-	  return formatValue(ctx, obj, ctx.depth);
-	}
-	exports.inspect = inspect;
-
-
-	// http://en.wikipedia.org/wiki/ANSI_escape_code#graphics
-	inspect.colors = {
-	  'bold' : [1, 22],
-	  'italic' : [3, 23],
-	  'underline' : [4, 24],
-	  'inverse' : [7, 27],
-	  'white' : [37, 39],
-	  'grey' : [90, 39],
-	  'black' : [30, 39],
-	  'blue' : [34, 39],
-	  'cyan' : [36, 39],
-	  'green' : [32, 39],
-	  'magenta' : [35, 39],
-	  'red' : [31, 39],
-	  'yellow' : [33, 39]
-	};
-
-	// Don't use 'blue' not visible on cmd.exe
-	inspect.styles = {
-	  'special': 'cyan',
-	  'number': 'yellow',
-	  'boolean': 'yellow',
-	  'undefined': 'grey',
-	  'null': 'bold',
-	  'string': 'green',
-	  'date': 'magenta',
-	  // "name": intentionally not styling
-	  'regexp': 'red'
-	};
-
-
-	function stylizeWithColor(str, styleType) {
-	  var style = inspect.styles[styleType];
-
-	  if (style) {
-	    return '\u001b[' + inspect.colors[style][0] + 'm' + str +
-	           '\u001b[' + inspect.colors[style][1] + 'm';
-	  } else {
-	    return str;
-	  }
-	}
-
-
-	function stylizeNoColor(str, styleType) {
-	  return str;
-	}
-
-
-	function arrayToHash(array) {
-	  var hash = {};
-
-	  array.forEach(function(val, idx) {
-	    hash[val] = true;
-	  });
-
-	  return hash;
-	}
-
-
-	function formatValue(ctx, value, recurseTimes) {
-	  // Provide a hook for user-specified inspect functions.
-	  // Check that value is an object with an inspect function on it
-	  if (ctx.customInspect &&
-	      value &&
-	      isFunction(value.inspect) &&
-	      // Filter out the util module, it's inspect function is special
-	      value.inspect !== exports.inspect &&
-	      // Also filter out any prototype objects using the circular check.
-	      !(value.constructor && value.constructor.prototype === value)) {
-	    var ret = value.inspect(recurseTimes, ctx);
-	    if (!isString(ret)) {
-	      ret = formatValue(ctx, ret, recurseTimes);
-	    }
-	    return ret;
-	  }
-
-	  // Primitive types cannot have properties
-	  var primitive = formatPrimitive(ctx, value);
-	  if (primitive) {
-	    return primitive;
-	  }
-
-	  // Look up the keys of the object.
-	  var keys = Object.keys(value);
-	  var visibleKeys = arrayToHash(keys);
-
-	  if (ctx.showHidden) {
-	    keys = Object.getOwnPropertyNames(value);
-	  }
-
-	  // IE doesn't make error fields non-enumerable
-	  // http://msdn.microsoft.com/en-us/library/ie/dww52sbt(v=vs.94).aspx
-	  if (isError(value)
-	      && (keys.indexOf('message') >= 0 || keys.indexOf('description') >= 0)) {
-	    return formatError(value);
-	  }
-
-	  // Some type of object without properties can be shortcutted.
-	  if (keys.length === 0) {
-	    if (isFunction(value)) {
-	      var name = value.name ? ': ' + value.name : '';
-	      return ctx.stylize('[Function' + name + ']', 'special');
-	    }
-	    if (isRegExp(value)) {
-	      return ctx.stylize(RegExp.prototype.toString.call(value), 'regexp');
-	    }
-	    if (isDate(value)) {
-	      return ctx.stylize(Date.prototype.toString.call(value), 'date');
-	    }
-	    if (isError(value)) {
-	      return formatError(value);
-	    }
-	  }
-
-	  var base = '', array = false, braces = ['{', '}'];
-
-	  // Make Array say that they are Array
-	  if (isArray(value)) {
-	    array = true;
-	    braces = ['[', ']'];
-	  }
-
-	  // Make functions say that they are functions
-	  if (isFunction(value)) {
-	    var n = value.name ? ': ' + value.name : '';
-	    base = ' [Function' + n + ']';
-	  }
-
-	  // Make RegExps say that they are RegExps
-	  if (isRegExp(value)) {
-	    base = ' ' + RegExp.prototype.toString.call(value);
-	  }
-
-	  // Make dates with properties first say the date
-	  if (isDate(value)) {
-	    base = ' ' + Date.prototype.toUTCString.call(value);
-	  }
-
-	  // Make error with message first say the error
-	  if (isError(value)) {
-	    base = ' ' + formatError(value);
-	  }
-
-	  if (keys.length === 0 && (!array || value.length == 0)) {
-	    return braces[0] + base + braces[1];
-	  }
-
-	  if (recurseTimes < 0) {
-	    if (isRegExp(value)) {
-	      return ctx.stylize(RegExp.prototype.toString.call(value), 'regexp');
-	    } else {
-	      return ctx.stylize('[Object]', 'special');
-	    }
-	  }
-
-	  ctx.seen.push(value);
-
-	  var output;
-	  if (array) {
-	    output = formatArray(ctx, value, recurseTimes, visibleKeys, keys);
-	  } else {
-	    output = keys.map(function(key) {
-	      return formatProperty(ctx, value, recurseTimes, visibleKeys, key, array);
-	    });
-	  }
-
-	  ctx.seen.pop();
-
-	  return reduceToSingleString(output, base, braces);
-	}
-
-
-	function formatPrimitive(ctx, value) {
-	  if (isUndefined(value))
-	    return ctx.stylize('undefined', 'undefined');
-	  if (isString(value)) {
-	    var simple = '\'' + JSON.stringify(value).replace(/^"|"$/g, '')
-	                                             .replace(/'/g, "\\'")
-	                                             .replace(/\\"/g, '"') + '\'';
-	    return ctx.stylize(simple, 'string');
-	  }
-	  if (isNumber(value))
-	    return ctx.stylize('' + value, 'number');
-	  if (isBoolean(value))
-	    return ctx.stylize('' + value, 'boolean');
-	  // For some reason typeof null is "object", so special case here.
-	  if (isNull(value))
-	    return ctx.stylize('null', 'null');
-	}
-
-
-	function formatError(value) {
-	  return '[' + Error.prototype.toString.call(value) + ']';
-	}
-
-
-	function formatArray(ctx, value, recurseTimes, visibleKeys, keys) {
-	  var output = [];
-	  for (var i = 0, l = value.length; i < l; ++i) {
-	    if (hasOwnProperty(value, String(i))) {
-	      output.push(formatProperty(ctx, value, recurseTimes, visibleKeys,
-	          String(i), true));
-	    } else {
-	      output.push('');
-	    }
-	  }
-	  keys.forEach(function(key) {
-	    if (!key.match(/^\d+$/)) {
-	      output.push(formatProperty(ctx, value, recurseTimes, visibleKeys,
-	          key, true));
-	    }
-	  });
-	  return output;
-	}
-
-
-	function formatProperty(ctx, value, recurseTimes, visibleKeys, key, array) {
-	  var name, str, desc;
-	  desc = Object.getOwnPropertyDescriptor(value, key) || { value: value[key] };
-	  if (desc.get) {
-	    if (desc.set) {
-	      str = ctx.stylize('[Getter/Setter]', 'special');
-	    } else {
-	      str = ctx.stylize('[Getter]', 'special');
-	    }
-	  } else {
-	    if (desc.set) {
-	      str = ctx.stylize('[Setter]', 'special');
-	    }
-	  }
-	  if (!hasOwnProperty(visibleKeys, key)) {
-	    name = '[' + key + ']';
-	  }
-	  if (!str) {
-	    if (ctx.seen.indexOf(desc.value) < 0) {
-	      if (isNull(recurseTimes)) {
-	        str = formatValue(ctx, desc.value, null);
-	      } else {
-	        str = formatValue(ctx, desc.value, recurseTimes - 1);
-	      }
-	      if (str.indexOf('\n') > -1) {
-	        if (array) {
-	          str = str.split('\n').map(function(line) {
-	            return '  ' + line;
-	          }).join('\n').substr(2);
-	        } else {
-	          str = '\n' + str.split('\n').map(function(line) {
-	            return '   ' + line;
-	          }).join('\n');
-	        }
-	      }
-	    } else {
-	      str = ctx.stylize('[Circular]', 'special');
-	    }
-	  }
-	  if (isUndefined(name)) {
-	    if (array && key.match(/^\d+$/)) {
-	      return str;
-	    }
-	    name = JSON.stringify('' + key);
-	    if (name.match(/^"([a-zA-Z_][a-zA-Z_0-9]*)"$/)) {
-	      name = name.substr(1, name.length - 2);
-	      name = ctx.stylize(name, 'name');
-	    } else {
-	      name = name.replace(/'/g, "\\'")
-	                 .replace(/\\"/g, '"')
-	                 .replace(/(^"|"$)/g, "'");
-	      name = ctx.stylize(name, 'string');
-	    }
-	  }
-
-	  return name + ': ' + str;
-	}
-
-
-	function reduceToSingleString(output, base, braces) {
-	  var numLinesEst = 0;
-	  var length = output.reduce(function(prev, cur) {
-	    numLinesEst++;
-	    if (cur.indexOf('\n') >= 0) numLinesEst++;
-	    return prev + cur.replace(/\u001b\[\d\d?m/g, '').length + 1;
-	  }, 0);
-
-	  if (length > 60) {
-	    return braces[0] +
-	           (base === '' ? '' : base + '\n ') +
-	           ' ' +
-	           output.join(',\n  ') +
-	           ' ' +
-	           braces[1];
-	  }
-
-	  return braces[0] + base + ' ' + output.join(', ') + ' ' + braces[1];
-	}
-
-
-	// NOTE: These type checking functions intentionally don't use `instanceof`
-	// because it is fragile and can be easily faked with `Object.create()`.
-	function isArray(ar) {
-	  return Array.isArray(ar);
-	}
-	exports.isArray = isArray;
-
-	function isBoolean(arg) {
-	  return typeof arg === 'boolean';
-	}
-	exports.isBoolean = isBoolean;
-
-	function isNull(arg) {
-	  return arg === null;
-	}
-	exports.isNull = isNull;
-
-	function isNullOrUndefined(arg) {
-	  return arg == null;
-	}
-	exports.isNullOrUndefined = isNullOrUndefined;
-
-	function isNumber(arg) {
-	  return typeof arg === 'number';
-	}
-	exports.isNumber = isNumber;
-
-	function isString(arg) {
-	  return typeof arg === 'string';
-	}
-	exports.isString = isString;
-
-	function isSymbol(arg) {
-	  return typeof arg === 'symbol';
-	}
-	exports.isSymbol = isSymbol;
-
-	function isUndefined(arg) {
-	  return arg === void 0;
-	}
-	exports.isUndefined = isUndefined;
-
-	function isRegExp(re) {
-	  return isObject(re) && objectToString(re) === '[object RegExp]';
-	}
-	exports.isRegExp = isRegExp;
-
-	function isObject(arg) {
-	  return typeof arg === 'object' && arg !== null;
-	}
-	exports.isObject = isObject;
-
-	function isDate(d) {
-	  return isObject(d) && objectToString(d) === '[object Date]';
-	}
-	exports.isDate = isDate;
-
-	function isError(e) {
-	  return isObject(e) &&
-	      (objectToString(e) === '[object Error]' || e instanceof Error);
-	}
-	exports.isError = isError;
-
-	function isFunction(arg) {
-	  return typeof arg === 'function';
-	}
-	exports.isFunction = isFunction;
-
-	function isPrimitive(arg) {
-	  return arg === null ||
-	         typeof arg === 'boolean' ||
-	         typeof arg === 'number' ||
-	         typeof arg === 'string' ||
-	         typeof arg === 'symbol' ||  // ES6 symbol
-	         typeof arg === 'undefined';
-	}
-	exports.isPrimitive = isPrimitive;
-
-	exports.isBuffer = __webpack_require__(58);
-
-	function objectToString(o) {
-	  return Object.prototype.toString.call(o);
-	}
-
-
-	function pad(n) {
-	  return n < 10 ? '0' + n.toString(10) : n.toString(10);
-	}
-
-
-	var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep',
-	              'Oct', 'Nov', 'Dec'];
-
-	// 26 Feb 16:19:34
-	function timestamp() {
-	  var d = new Date();
-	  var time = [pad(d.getHours()),
-	              pad(d.getMinutes()),
-	              pad(d.getSeconds())].join(':');
-	  return [d.getDate(), months[d.getMonth()], time].join(' ');
-	}
-
-
-	// log is just a thin wrapper to console.log that prepends a timestamp
-	exports.log = function() {
-	  console.log('%s - %s', timestamp(), exports.format.apply(exports, arguments));
-	};
-
-
-	/**
-	 * Inherit the prototype methods from one constructor into another.
-	 *
-	 * The Function.prototype.inherits from lang.js rewritten as a standalone
-	 * function (not on Function.prototype). NOTE: If this file is to be loaded
-	 * during bootstrapping this function needs to be rewritten using some native
-	 * functions as prototype setup using normal JavaScript does not work as
-	 * expected during bootstrapping (see mirror.js in r114903).
-	 *
-	 * @param {function} ctor Constructor function which needs to inherit the
-	 *     prototype.
-	 * @param {function} superCtor Constructor function to inherit prototype from.
-	 */
-	exports.inherits = __webpack_require__(84);
-
-	exports._extend = function(origin, add) {
-	  // Don't do anything if add isn't an object
-	  if (!add || !isObject(add)) return origin;
-
-	  var keys = Object.keys(add);
-	  var i = keys.length;
-	  while (i--) {
-	    origin[keys[i]] = add[keys[i]];
-	  }
-	  return origin;
-	};
-
-	function hasOwnProperty(obj, prop) {
-	  return Object.prototype.hasOwnProperty.call(obj, prop);
-	}
-
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(38)))
-
-/***/ },
-/* 40 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var exports = module.exports = function (alg) {
@@ -11265,22 +9540,22 @@ var StellarLib =
 	}
 
 
-	exports.sha = __webpack_require__(50)
-	exports.sha1 = __webpack_require__(51)
-	exports.sha224 = __webpack_require__(52)
-	exports.sha256 = __webpack_require__(53)
-	exports.sha384 = __webpack_require__(54)
-	exports.sha512 = __webpack_require__(55)
+	exports.sha = __webpack_require__(49)
+	exports.sha1 = __webpack_require__(50)
+	exports.sha224 = __webpack_require__(51)
+	exports.sha256 = __webpack_require__(52)
+	exports.sha384 = __webpack_require__(53)
+	exports.sha512 = __webpack_require__(54)
 
 
 /***/ },
-/* 41 */
+/* 36 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"./build/Release/native.node\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
 
 /***/ },
-/* 42 */
+/* 37 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(module, global) {/**
@@ -23450,136 +21725,1852 @@ var StellarLib =
 	  }
 	}.call(this));
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(81)(module), (function() { return this; }())))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(80)(module), (function() { return this; }())))
+
+/***/ },
+/* 38 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// Copyright Joyent, Inc. and other Node contributors.
+	//
+	// Permission is hereby granted, free of charge, to any person obtaining a
+	// copy of this software and associated documentation files (the
+	// "Software"), to deal in the Software without restriction, including
+	// without limitation the rights to use, copy, modify, merge, publish,
+	// distribute, sublicense, and/or sell copies of the Software, and to permit
+	// persons to whom the Software is furnished to do so, subject to the
+	// following conditions:
+	//
+	// The above copyright notice and this permission notice shall be included
+	// in all copies or substantial portions of the Software.
+	//
+	// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+	// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+	// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+	// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+	// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+	// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+	var punycode = __webpack_require__(79);
+
+	exports.parse = urlParse;
+	exports.resolve = urlResolve;
+	exports.resolveObject = urlResolveObject;
+	exports.format = urlFormat;
+
+	exports.Url = Url;
+
+	function Url() {
+	  this.protocol = null;
+	  this.slashes = null;
+	  this.auth = null;
+	  this.host = null;
+	  this.port = null;
+	  this.hostname = null;
+	  this.hash = null;
+	  this.search = null;
+	  this.query = null;
+	  this.pathname = null;
+	  this.path = null;
+	  this.href = null;
+	}
+
+	// Reference: RFC 3986, RFC 1808, RFC 2396
+
+	// define these here so at least they only have to be
+	// compiled once on the first module load.
+	var protocolPattern = /^([a-z0-9.+-]+:)/i,
+	    portPattern = /:[0-9]*$/,
+
+	    // RFC 2396: characters reserved for delimiting URLs.
+	    // We actually just auto-escape these.
+	    delims = ['<', '>', '"', '`', ' ', '\r', '\n', '\t'],
+
+	    // RFC 2396: characters not allowed for various reasons.
+	    unwise = ['{', '}', '|', '\\', '^', '`'].concat(delims),
+
+	    // Allowed by RFCs, but cause of XSS attacks.  Always escape these.
+	    autoEscape = ['\''].concat(unwise),
+	    // Characters that are never ever allowed in a hostname.
+	    // Note that any invalid chars are also handled, but these
+	    // are the ones that are *expected* to be seen, so we fast-path
+	    // them.
+	    nonHostChars = ['%', '/', '?', ';', '#'].concat(autoEscape),
+	    hostEndingChars = ['/', '?', '#'],
+	    hostnameMaxLen = 255,
+	    hostnamePartPattern = /^[a-z0-9A-Z_-]{0,63}$/,
+	    hostnamePartStart = /^([a-z0-9A-Z_-]{0,63})(.*)$/,
+	    // protocols that can allow "unsafe" and "unwise" chars.
+	    unsafeProtocol = {
+	      'javascript': true,
+	      'javascript:': true
+	    },
+	    // protocols that never have a hostname.
+	    hostlessProtocol = {
+	      'javascript': true,
+	      'javascript:': true
+	    },
+	    // protocols that always contain a // bit.
+	    slashedProtocol = {
+	      'http': true,
+	      'https': true,
+	      'ftp': true,
+	      'gopher': true,
+	      'file': true,
+	      'http:': true,
+	      'https:': true,
+	      'ftp:': true,
+	      'gopher:': true,
+	      'file:': true
+	    },
+	    querystring = __webpack_require__(81);
+
+	function urlParse(url, parseQueryString, slashesDenoteHost) {
+	  if (url && isObject(url) && url instanceof Url) return url;
+
+	  var u = new Url;
+	  u.parse(url, parseQueryString, slashesDenoteHost);
+	  return u;
+	}
+
+	Url.prototype.parse = function(url, parseQueryString, slashesDenoteHost) {
+	  if (!isString(url)) {
+	    throw new TypeError("Parameter 'url' must be a string, not " + typeof url);
+	  }
+
+	  var rest = url;
+
+	  // trim before proceeding.
+	  // This is to support parse stuff like "  http://foo.com  \n"
+	  rest = rest.trim();
+
+	  var proto = protocolPattern.exec(rest);
+	  if (proto) {
+	    proto = proto[0];
+	    var lowerProto = proto.toLowerCase();
+	    this.protocol = lowerProto;
+	    rest = rest.substr(proto.length);
+	  }
+
+	  // figure out if it's got a host
+	  // user@server is *always* interpreted as a hostname, and url
+	  // resolution will treat //foo/bar as host=foo,path=bar because that's
+	  // how the browser resolves relative URLs.
+	  if (slashesDenoteHost || proto || rest.match(/^\/\/[^@\/]+@[^@\/]+/)) {
+	    var slashes = rest.substr(0, 2) === '//';
+	    if (slashes && !(proto && hostlessProtocol[proto])) {
+	      rest = rest.substr(2);
+	      this.slashes = true;
+	    }
+	  }
+
+	  if (!hostlessProtocol[proto] &&
+	      (slashes || (proto && !slashedProtocol[proto]))) {
+
+	    // there's a hostname.
+	    // the first instance of /, ?, ;, or # ends the host.
+	    //
+	    // If there is an @ in the hostname, then non-host chars *are* allowed
+	    // to the left of the last @ sign, unless some host-ending character
+	    // comes *before* the @-sign.
+	    // URLs are obnoxious.
+	    //
+	    // ex:
+	    // http://a@b@c/ => user:a@b host:c
+	    // http://a@b?@c => user:a host:c path:/?@c
+
+	    // v0.12 TODO(isaacs): This is not quite how Chrome does things.
+	    // Review our test case against browsers more comprehensively.
+
+	    // find the first instance of any hostEndingChars
+	    var hostEnd = -1;
+	    for (var i = 0; i < hostEndingChars.length; i++) {
+	      var hec = rest.indexOf(hostEndingChars[i]);
+	      if (hec !== -1 && (hostEnd === -1 || hec < hostEnd))
+	        hostEnd = hec;
+	    }
+
+	    // at this point, either we have an explicit point where the
+	    // auth portion cannot go past, or the last @ char is the decider.
+	    var auth, atSign;
+	    if (hostEnd === -1) {
+	      // atSign can be anywhere.
+	      atSign = rest.lastIndexOf('@');
+	    } else {
+	      // atSign must be in auth portion.
+	      // http://a@b/c@d => host:b auth:a path:/c@d
+	      atSign = rest.lastIndexOf('@', hostEnd);
+	    }
+
+	    // Now we have a portion which is definitely the auth.
+	    // Pull that off.
+	    if (atSign !== -1) {
+	      auth = rest.slice(0, atSign);
+	      rest = rest.slice(atSign + 1);
+	      this.auth = decodeURIComponent(auth);
+	    }
+
+	    // the host is the remaining to the left of the first non-host char
+	    hostEnd = -1;
+	    for (var i = 0; i < nonHostChars.length; i++) {
+	      var hec = rest.indexOf(nonHostChars[i]);
+	      if (hec !== -1 && (hostEnd === -1 || hec < hostEnd))
+	        hostEnd = hec;
+	    }
+	    // if we still have not hit it, then the entire thing is a host.
+	    if (hostEnd === -1)
+	      hostEnd = rest.length;
+
+	    this.host = rest.slice(0, hostEnd);
+	    rest = rest.slice(hostEnd);
+
+	    // pull out port.
+	    this.parseHost();
+
+	    // we've indicated that there is a hostname,
+	    // so even if it's empty, it has to be present.
+	    this.hostname = this.hostname || '';
+
+	    // if hostname begins with [ and ends with ]
+	    // assume that it's an IPv6 address.
+	    var ipv6Hostname = this.hostname[0] === '[' &&
+	        this.hostname[this.hostname.length - 1] === ']';
+
+	    // validate a little.
+	    if (!ipv6Hostname) {
+	      var hostparts = this.hostname.split(/\./);
+	      for (var i = 0, l = hostparts.length; i < l; i++) {
+	        var part = hostparts[i];
+	        if (!part) continue;
+	        if (!part.match(hostnamePartPattern)) {
+	          var newpart = '';
+	          for (var j = 0, k = part.length; j < k; j++) {
+	            if (part.charCodeAt(j) > 127) {
+	              // we replace non-ASCII char with a temporary placeholder
+	              // we need this to make sure size of hostname is not
+	              // broken by replacing non-ASCII by nothing
+	              newpart += 'x';
+	            } else {
+	              newpart += part[j];
+	            }
+	          }
+	          // we test again with ASCII char only
+	          if (!newpart.match(hostnamePartPattern)) {
+	            var validParts = hostparts.slice(0, i);
+	            var notHost = hostparts.slice(i + 1);
+	            var bit = part.match(hostnamePartStart);
+	            if (bit) {
+	              validParts.push(bit[1]);
+	              notHost.unshift(bit[2]);
+	            }
+	            if (notHost.length) {
+	              rest = '/' + notHost.join('.') + rest;
+	            }
+	            this.hostname = validParts.join('.');
+	            break;
+	          }
+	        }
+	      }
+	    }
+
+	    if (this.hostname.length > hostnameMaxLen) {
+	      this.hostname = '';
+	    } else {
+	      // hostnames are always lower case.
+	      this.hostname = this.hostname.toLowerCase();
+	    }
+
+	    if (!ipv6Hostname) {
+	      // IDNA Support: Returns a puny coded representation of "domain".
+	      // It only converts the part of the domain name that
+	      // has non ASCII characters. I.e. it dosent matter if
+	      // you call it with a domain that already is in ASCII.
+	      var domainArray = this.hostname.split('.');
+	      var newOut = [];
+	      for (var i = 0; i < domainArray.length; ++i) {
+	        var s = domainArray[i];
+	        newOut.push(s.match(/[^A-Za-z0-9_-]/) ?
+	            'xn--' + punycode.encode(s) : s);
+	      }
+	      this.hostname = newOut.join('.');
+	    }
+
+	    var p = this.port ? ':' + this.port : '';
+	    var h = this.hostname || '';
+	    this.host = h + p;
+	    this.href += this.host;
+
+	    // strip [ and ] from the hostname
+	    // the host field still retains them, though
+	    if (ipv6Hostname) {
+	      this.hostname = this.hostname.substr(1, this.hostname.length - 2);
+	      if (rest[0] !== '/') {
+	        rest = '/' + rest;
+	      }
+	    }
+	  }
+
+	  // now rest is set to the post-host stuff.
+	  // chop off any delim chars.
+	  if (!unsafeProtocol[lowerProto]) {
+
+	    // First, make 100% sure that any "autoEscape" chars get
+	    // escaped, even if encodeURIComponent doesn't think they
+	    // need to be.
+	    for (var i = 0, l = autoEscape.length; i < l; i++) {
+	      var ae = autoEscape[i];
+	      var esc = encodeURIComponent(ae);
+	      if (esc === ae) {
+	        esc = escape(ae);
+	      }
+	      rest = rest.split(ae).join(esc);
+	    }
+	  }
+
+
+	  // chop off from the tail first.
+	  var hash = rest.indexOf('#');
+	  if (hash !== -1) {
+	    // got a fragment string.
+	    this.hash = rest.substr(hash);
+	    rest = rest.slice(0, hash);
+	  }
+	  var qm = rest.indexOf('?');
+	  if (qm !== -1) {
+	    this.search = rest.substr(qm);
+	    this.query = rest.substr(qm + 1);
+	    if (parseQueryString) {
+	      this.query = querystring.parse(this.query);
+	    }
+	    rest = rest.slice(0, qm);
+	  } else if (parseQueryString) {
+	    // no query string, but parseQueryString still requested
+	    this.search = '';
+	    this.query = {};
+	  }
+	  if (rest) this.pathname = rest;
+	  if (slashedProtocol[lowerProto] &&
+	      this.hostname && !this.pathname) {
+	    this.pathname = '/';
+	  }
+
+	  //to support http.request
+	  if (this.pathname || this.search) {
+	    var p = this.pathname || '';
+	    var s = this.search || '';
+	    this.path = p + s;
+	  }
+
+	  // finally, reconstruct the href based on what has been validated.
+	  this.href = this.format();
+	  return this;
+	};
+
+	// format a parsed object into a url string
+	function urlFormat(obj) {
+	  // ensure it's an object, and not a string url.
+	  // If it's an obj, this is a no-op.
+	  // this way, you can call url_format() on strings
+	  // to clean up potentially wonky urls.
+	  if (isString(obj)) obj = urlParse(obj);
+	  if (!(obj instanceof Url)) return Url.prototype.format.call(obj);
+	  return obj.format();
+	}
+
+	Url.prototype.format = function() {
+	  var auth = this.auth || '';
+	  if (auth) {
+	    auth = encodeURIComponent(auth);
+	    auth = auth.replace(/%3A/i, ':');
+	    auth += '@';
+	  }
+
+	  var protocol = this.protocol || '',
+	      pathname = this.pathname || '',
+	      hash = this.hash || '',
+	      host = false,
+	      query = '';
+
+	  if (this.host) {
+	    host = auth + this.host;
+	  } else if (this.hostname) {
+	    host = auth + (this.hostname.indexOf(':') === -1 ?
+	        this.hostname :
+	        '[' + this.hostname + ']');
+	    if (this.port) {
+	      host += ':' + this.port;
+	    }
+	  }
+
+	  if (this.query &&
+	      isObject(this.query) &&
+	      Object.keys(this.query).length) {
+	    query = querystring.stringify(this.query);
+	  }
+
+	  var search = this.search || (query && ('?' + query)) || '';
+
+	  if (protocol && protocol.substr(-1) !== ':') protocol += ':';
+
+	  // only the slashedProtocols get the //.  Not mailto:, xmpp:, etc.
+	  // unless they had them to begin with.
+	  if (this.slashes ||
+	      (!protocol || slashedProtocol[protocol]) && host !== false) {
+	    host = '//' + (host || '');
+	    if (pathname && pathname.charAt(0) !== '/') pathname = '/' + pathname;
+	  } else if (!host) {
+	    host = '';
+	  }
+
+	  if (hash && hash.charAt(0) !== '#') hash = '#' + hash;
+	  if (search && search.charAt(0) !== '?') search = '?' + search;
+
+	  pathname = pathname.replace(/[?#]/g, function(match) {
+	    return encodeURIComponent(match);
+	  });
+	  search = search.replace('#', '%23');
+
+	  return protocol + host + pathname + search + hash;
+	};
+
+	function urlResolve(source, relative) {
+	  return urlParse(source, false, true).resolve(relative);
+	}
+
+	Url.prototype.resolve = function(relative) {
+	  return this.resolveObject(urlParse(relative, false, true)).format();
+	};
+
+	function urlResolveObject(source, relative) {
+	  if (!source) return relative;
+	  return urlParse(source, false, true).resolveObject(relative);
+	}
+
+	Url.prototype.resolveObject = function(relative) {
+	  if (isString(relative)) {
+	    var rel = new Url();
+	    rel.parse(relative, false, true);
+	    relative = rel;
+	  }
+
+	  var result = new Url();
+	  Object.keys(this).forEach(function(k) {
+	    result[k] = this[k];
+	  }, this);
+
+	  // hash is always overridden, no matter what.
+	  // even href="" will remove it.
+	  result.hash = relative.hash;
+
+	  // if the relative url is empty, then there's nothing left to do here.
+	  if (relative.href === '') {
+	    result.href = result.format();
+	    return result;
+	  }
+
+	  // hrefs like //foo/bar always cut to the protocol.
+	  if (relative.slashes && !relative.protocol) {
+	    // take everything except the protocol from relative
+	    Object.keys(relative).forEach(function(k) {
+	      if (k !== 'protocol')
+	        result[k] = relative[k];
+	    });
+
+	    //urlParse appends trailing / to urls like http://www.example.com
+	    if (slashedProtocol[result.protocol] &&
+	        result.hostname && !result.pathname) {
+	      result.path = result.pathname = '/';
+	    }
+
+	    result.href = result.format();
+	    return result;
+	  }
+
+	  if (relative.protocol && relative.protocol !== result.protocol) {
+	    // if it's a known url protocol, then changing
+	    // the protocol does weird things
+	    // first, if it's not file:, then we MUST have a host,
+	    // and if there was a path
+	    // to begin with, then we MUST have a path.
+	    // if it is file:, then the host is dropped,
+	    // because that's known to be hostless.
+	    // anything else is assumed to be absolute.
+	    if (!slashedProtocol[relative.protocol]) {
+	      Object.keys(relative).forEach(function(k) {
+	        result[k] = relative[k];
+	      });
+	      result.href = result.format();
+	      return result;
+	    }
+
+	    result.protocol = relative.protocol;
+	    if (!relative.host && !hostlessProtocol[relative.protocol]) {
+	      var relPath = (relative.pathname || '').split('/');
+	      while (relPath.length && !(relative.host = relPath.shift()));
+	      if (!relative.host) relative.host = '';
+	      if (!relative.hostname) relative.hostname = '';
+	      if (relPath[0] !== '') relPath.unshift('');
+	      if (relPath.length < 2) relPath.unshift('');
+	      result.pathname = relPath.join('/');
+	    } else {
+	      result.pathname = relative.pathname;
+	    }
+	    result.search = relative.search;
+	    result.query = relative.query;
+	    result.host = relative.host || '';
+	    result.auth = relative.auth;
+	    result.hostname = relative.hostname || relative.host;
+	    result.port = relative.port;
+	    // to support http.request
+	    if (result.pathname || result.search) {
+	      var p = result.pathname || '';
+	      var s = result.search || '';
+	      result.path = p + s;
+	    }
+	    result.slashes = result.slashes || relative.slashes;
+	    result.href = result.format();
+	    return result;
+	  }
+
+	  var isSourceAbs = (result.pathname && result.pathname.charAt(0) === '/'),
+	      isRelAbs = (
+	          relative.host ||
+	          relative.pathname && relative.pathname.charAt(0) === '/'
+	      ),
+	      mustEndAbs = (isRelAbs || isSourceAbs ||
+	                    (result.host && relative.pathname)),
+	      removeAllDots = mustEndAbs,
+	      srcPath = result.pathname && result.pathname.split('/') || [],
+	      relPath = relative.pathname && relative.pathname.split('/') || [],
+	      psychotic = result.protocol && !slashedProtocol[result.protocol];
+
+	  // if the url is a non-slashed url, then relative
+	  // links like ../.. should be able
+	  // to crawl up to the hostname, as well.  This is strange.
+	  // result.protocol has already been set by now.
+	  // Later on, put the first path part into the host field.
+	  if (psychotic) {
+	    result.hostname = '';
+	    result.port = null;
+	    if (result.host) {
+	      if (srcPath[0] === '') srcPath[0] = result.host;
+	      else srcPath.unshift(result.host);
+	    }
+	    result.host = '';
+	    if (relative.protocol) {
+	      relative.hostname = null;
+	      relative.port = null;
+	      if (relative.host) {
+	        if (relPath[0] === '') relPath[0] = relative.host;
+	        else relPath.unshift(relative.host);
+	      }
+	      relative.host = null;
+	    }
+	    mustEndAbs = mustEndAbs && (relPath[0] === '' || srcPath[0] === '');
+	  }
+
+	  if (isRelAbs) {
+	    // it's absolute.
+	    result.host = (relative.host || relative.host === '') ?
+	                  relative.host : result.host;
+	    result.hostname = (relative.hostname || relative.hostname === '') ?
+	                      relative.hostname : result.hostname;
+	    result.search = relative.search;
+	    result.query = relative.query;
+	    srcPath = relPath;
+	    // fall through to the dot-handling below.
+	  } else if (relPath.length) {
+	    // it's relative
+	    // throw away the existing file, and take the new path instead.
+	    if (!srcPath) srcPath = [];
+	    srcPath.pop();
+	    srcPath = srcPath.concat(relPath);
+	    result.search = relative.search;
+	    result.query = relative.query;
+	  } else if (!isNullOrUndefined(relative.search)) {
+	    // just pull out the search.
+	    // like href='?foo'.
+	    // Put this after the other two cases because it simplifies the booleans
+	    if (psychotic) {
+	      result.hostname = result.host = srcPath.shift();
+	      //occationaly the auth can get stuck only in host
+	      //this especialy happens in cases like
+	      //url.resolveObject('mailto:local1@domain1', 'local2@domain2')
+	      var authInHost = result.host && result.host.indexOf('@') > 0 ?
+	                       result.host.split('@') : false;
+	      if (authInHost) {
+	        result.auth = authInHost.shift();
+	        result.host = result.hostname = authInHost.shift();
+	      }
+	    }
+	    result.search = relative.search;
+	    result.query = relative.query;
+	    //to support http.request
+	    if (!isNull(result.pathname) || !isNull(result.search)) {
+	      result.path = (result.pathname ? result.pathname : '') +
+	                    (result.search ? result.search : '');
+	    }
+	    result.href = result.format();
+	    return result;
+	  }
+
+	  if (!srcPath.length) {
+	    // no path at all.  easy.
+	    // we've already handled the other stuff above.
+	    result.pathname = null;
+	    //to support http.request
+	    if (result.search) {
+	      result.path = '/' + result.search;
+	    } else {
+	      result.path = null;
+	    }
+	    result.href = result.format();
+	    return result;
+	  }
+
+	  // if a url ENDs in . or .., then it must get a trailing slash.
+	  // however, if it ends in anything else non-slashy,
+	  // then it must NOT get a trailing slash.
+	  var last = srcPath.slice(-1)[0];
+	  var hasTrailingSlash = (
+	      (result.host || relative.host) && (last === '.' || last === '..') ||
+	      last === '');
+
+	  // strip single dots, resolve double dots to parent dir
+	  // if the path tries to go above the root, `up` ends up > 0
+	  var up = 0;
+	  for (var i = srcPath.length; i >= 0; i--) {
+	    last = srcPath[i];
+	    if (last == '.') {
+	      srcPath.splice(i, 1);
+	    } else if (last === '..') {
+	      srcPath.splice(i, 1);
+	      up++;
+	    } else if (up) {
+	      srcPath.splice(i, 1);
+	      up--;
+	    }
+	  }
+
+	  // if the path is allowed to go above the root, restore leading ..s
+	  if (!mustEndAbs && !removeAllDots) {
+	    for (; up--; up) {
+	      srcPath.unshift('..');
+	    }
+	  }
+
+	  if (mustEndAbs && srcPath[0] !== '' &&
+	      (!srcPath[0] || srcPath[0].charAt(0) !== '/')) {
+	    srcPath.unshift('');
+	  }
+
+	  if (hasTrailingSlash && (srcPath.join('/').substr(-1) !== '/')) {
+	    srcPath.push('');
+	  }
+
+	  var isAbsolute = srcPath[0] === '' ||
+	      (srcPath[0] && srcPath[0].charAt(0) === '/');
+
+	  // put the host back
+	  if (psychotic) {
+	    result.hostname = result.host = isAbsolute ? '' :
+	                                    srcPath.length ? srcPath.shift() : '';
+	    //occationaly the auth can get stuck only in host
+	    //this especialy happens in cases like
+	    //url.resolveObject('mailto:local1@domain1', 'local2@domain2')
+	    var authInHost = result.host && result.host.indexOf('@') > 0 ?
+	                     result.host.split('@') : false;
+	    if (authInHost) {
+	      result.auth = authInHost.shift();
+	      result.host = result.hostname = authInHost.shift();
+	    }
+	  }
+
+	  mustEndAbs = mustEndAbs || (result.host && srcPath.length);
+
+	  if (mustEndAbs && !isAbsolute) {
+	    srcPath.unshift('');
+	  }
+
+	  if (!srcPath.length) {
+	    result.pathname = null;
+	    result.path = null;
+	  } else {
+	    result.pathname = srcPath.join('/');
+	  }
+
+	  //to support request.http
+	  if (!isNull(result.pathname) || !isNull(result.search)) {
+	    result.path = (result.pathname ? result.pathname : '') +
+	                  (result.search ? result.search : '');
+	  }
+	  result.auth = relative.auth || result.auth;
+	  result.slashes = result.slashes || relative.slashes;
+	  result.href = result.format();
+	  return result;
+	};
+
+	Url.prototype.parseHost = function() {
+	  var host = this.host;
+	  var port = portPattern.exec(host);
+	  if (port) {
+	    port = port[0];
+	    if (port !== ':') {
+	      this.port = port.substr(1);
+	    }
+	    host = host.substr(0, host.length - port.length);
+	  }
+	  if (host) this.hostname = host;
+	};
+
+	function isString(arg) {
+	  return typeof arg === "string";
+	}
+
+	function isObject(arg) {
+	  return typeof arg === 'object' && arg !== null;
+	}
+
+	function isNull(arg) {
+	  return arg === null;
+	}
+	function isNullOrUndefined(arg) {
+	  return  arg == null;
+	}
+
+
+/***/ },
+/* 39 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// Copyright Joyent, Inc. and other Node contributors.
+	//
+	// Permission is hereby granted, free of charge, to any person obtaining a
+	// copy of this software and associated documentation files (the
+	// "Software"), to deal in the Software without restriction, including
+	// without limitation the rights to use, copy, modify, merge, publish,
+	// distribute, sublicense, and/or sell copies of the Software, and to permit
+	// persons to whom the Software is furnished to do so, subject to the
+	// following conditions:
+	//
+	// The above copyright notice and this permission notice shall be included
+	// in all copies or substantial portions of the Software.
+	//
+	// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+	// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+	// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+	// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+	// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+	// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+	function EventEmitter() {
+	  this._events = this._events || {};
+	  this._maxListeners = this._maxListeners || undefined;
+	}
+	module.exports = EventEmitter;
+
+	// Backwards-compat with node 0.10.x
+	EventEmitter.EventEmitter = EventEmitter;
+
+	EventEmitter.prototype._events = undefined;
+	EventEmitter.prototype._maxListeners = undefined;
+
+	// By default EventEmitters will print a warning if more than 10 listeners are
+	// added to it. This is a useful default which helps finding memory leaks.
+	EventEmitter.defaultMaxListeners = 10;
+
+	// Obviously not all Emitters should be limited to 10. This function allows
+	// that to be increased. Set to zero for unlimited.
+	EventEmitter.prototype.setMaxListeners = function(n) {
+	  if (!isNumber(n) || n < 0 || isNaN(n))
+	    throw TypeError('n must be a positive number');
+	  this._maxListeners = n;
+	  return this;
+	};
+
+	EventEmitter.prototype.emit = function(type) {
+	  var er, handler, len, args, i, listeners;
+
+	  if (!this._events)
+	    this._events = {};
+
+	  // If there is no 'error' event listener then throw.
+	  if (type === 'error') {
+	    if (!this._events.error ||
+	        (isObject(this._events.error) && !this._events.error.length)) {
+	      er = arguments[1];
+	      if (er instanceof Error) {
+	        throw er; // Unhandled 'error' event
+	      }
+	      throw TypeError('Uncaught, unspecified "error" event.');
+	    }
+	  }
+
+	  handler = this._events[type];
+
+	  if (isUndefined(handler))
+	    return false;
+
+	  if (isFunction(handler)) {
+	    switch (arguments.length) {
+	      // fast cases
+	      case 1:
+	        handler.call(this);
+	        break;
+	      case 2:
+	        handler.call(this, arguments[1]);
+	        break;
+	      case 3:
+	        handler.call(this, arguments[1], arguments[2]);
+	        break;
+	      // slower
+	      default:
+	        len = arguments.length;
+	        args = new Array(len - 1);
+	        for (i = 1; i < len; i++)
+	          args[i - 1] = arguments[i];
+	        handler.apply(this, args);
+	    }
+	  } else if (isObject(handler)) {
+	    len = arguments.length;
+	    args = new Array(len - 1);
+	    for (i = 1; i < len; i++)
+	      args[i - 1] = arguments[i];
+
+	    listeners = handler.slice();
+	    len = listeners.length;
+	    for (i = 0; i < len; i++)
+	      listeners[i].apply(this, args);
+	  }
+
+	  return true;
+	};
+
+	EventEmitter.prototype.addListener = function(type, listener) {
+	  var m;
+
+	  if (!isFunction(listener))
+	    throw TypeError('listener must be a function');
+
+	  if (!this._events)
+	    this._events = {};
+
+	  // To avoid recursion in the case that type === "newListener"! Before
+	  // adding it to the listeners, first emit "newListener".
+	  if (this._events.newListener)
+	    this.emit('newListener', type,
+	              isFunction(listener.listener) ?
+	              listener.listener : listener);
+
+	  if (!this._events[type])
+	    // Optimize the case of one listener. Don't need the extra array object.
+	    this._events[type] = listener;
+	  else if (isObject(this._events[type]))
+	    // If we've already got an array, just append.
+	    this._events[type].push(listener);
+	  else
+	    // Adding the second element, need to change to array.
+	    this._events[type] = [this._events[type], listener];
+
+	  // Check for listener leak
+	  if (isObject(this._events[type]) && !this._events[type].warned) {
+	    var m;
+	    if (!isUndefined(this._maxListeners)) {
+	      m = this._maxListeners;
+	    } else {
+	      m = EventEmitter.defaultMaxListeners;
+	    }
+
+	    if (m && m > 0 && this._events[type].length > m) {
+	      this._events[type].warned = true;
+	      console.error('(node) warning: possible EventEmitter memory ' +
+	                    'leak detected. %d listeners added. ' +
+	                    'Use emitter.setMaxListeners() to increase limit.',
+	                    this._events[type].length);
+	      if (typeof console.trace === 'function') {
+	        // not supported in IE 10
+	        console.trace();
+	      }
+	    }
+	  }
+
+	  return this;
+	};
+
+	EventEmitter.prototype.on = EventEmitter.prototype.addListener;
+
+	EventEmitter.prototype.once = function(type, listener) {
+	  if (!isFunction(listener))
+	    throw TypeError('listener must be a function');
+
+	  var fired = false;
+
+	  function g() {
+	    this.removeListener(type, g);
+
+	    if (!fired) {
+	      fired = true;
+	      listener.apply(this, arguments);
+	    }
+	  }
+
+	  g.listener = listener;
+	  this.on(type, g);
+
+	  return this;
+	};
+
+	// emits a 'removeListener' event iff the listener was removed
+	EventEmitter.prototype.removeListener = function(type, listener) {
+	  var list, position, length, i;
+
+	  if (!isFunction(listener))
+	    throw TypeError('listener must be a function');
+
+	  if (!this._events || !this._events[type])
+	    return this;
+
+	  list = this._events[type];
+	  length = list.length;
+	  position = -1;
+
+	  if (list === listener ||
+	      (isFunction(list.listener) && list.listener === listener)) {
+	    delete this._events[type];
+	    if (this._events.removeListener)
+	      this.emit('removeListener', type, listener);
+
+	  } else if (isObject(list)) {
+	    for (i = length; i-- > 0;) {
+	      if (list[i] === listener ||
+	          (list[i].listener && list[i].listener === listener)) {
+	        position = i;
+	        break;
+	      }
+	    }
+
+	    if (position < 0)
+	      return this;
+
+	    if (list.length === 1) {
+	      list.length = 0;
+	      delete this._events[type];
+	    } else {
+	      list.splice(position, 1);
+	    }
+
+	    if (this._events.removeListener)
+	      this.emit('removeListener', type, listener);
+	  }
+
+	  return this;
+	};
+
+	EventEmitter.prototype.removeAllListeners = function(type) {
+	  var key, listeners;
+
+	  if (!this._events)
+	    return this;
+
+	  // not listening for removeListener, no need to emit
+	  if (!this._events.removeListener) {
+	    if (arguments.length === 0)
+	      this._events = {};
+	    else if (this._events[type])
+	      delete this._events[type];
+	    return this;
+	  }
+
+	  // emit removeListener for all listeners on all events
+	  if (arguments.length === 0) {
+	    for (key in this._events) {
+	      if (key === 'removeListener') continue;
+	      this.removeAllListeners(key);
+	    }
+	    this.removeAllListeners('removeListener');
+	    this._events = {};
+	    return this;
+	  }
+
+	  listeners = this._events[type];
+
+	  if (isFunction(listeners)) {
+	    this.removeListener(type, listeners);
+	  } else {
+	    // LIFO order
+	    while (listeners.length)
+	      this.removeListener(type, listeners[listeners.length - 1]);
+	  }
+	  delete this._events[type];
+
+	  return this;
+	};
+
+	EventEmitter.prototype.listeners = function(type) {
+	  var ret;
+	  if (!this._events || !this._events[type])
+	    ret = [];
+	  else if (isFunction(this._events[type]))
+	    ret = [this._events[type]];
+	  else
+	    ret = this._events[type].slice();
+	  return ret;
+	};
+
+	EventEmitter.listenerCount = function(emitter, type) {
+	  var ret;
+	  if (!emitter._events || !emitter._events[type])
+	    ret = 0;
+	  else if (isFunction(emitter._events[type]))
+	    ret = 1;
+	  else
+	    ret = emitter._events[type].length;
+	  return ret;
+	};
+
+	function isFunction(arg) {
+	  return typeof arg === 'function';
+	}
+
+	function isNumber(arg) {
+	  return typeof arg === 'number';
+	}
+
+	function isObject(arg) {
+	  return typeof arg === 'object' && arg !== null;
+	}
+
+	function isUndefined(arg) {
+	  return arg === void 0;
+	}
+
+
+/***/ },
+/* 40 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var http = __webpack_require__(41);
+
+	var https = module.exports;
+
+	for (var key in http) {
+	    if (http.hasOwnProperty(key)) https[key] = http[key];
+	};
+
+	https.request = function (params, cb) {
+	    if (!params) params = {};
+	    params.scheme = 'https';
+	    return http.request.call(this, params, cb);
+	}
+
+
+/***/ },
+/* 41 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var http = module.exports;
+	var EventEmitter = __webpack_require__(39).EventEmitter;
+	var Request = __webpack_require__(56);
+	var url = __webpack_require__(38)
+
+	http.request = function (params, cb) {
+	    if (typeof params === 'string') {
+	        params = url.parse(params)
+	    }
+	    if (!params) params = {};
+	    if (!params.host && !params.port) {
+	        params.port = parseInt(window.location.port, 10);
+	    }
+	    if (!params.host && params.hostname) {
+	        params.host = params.hostname;
+	    }
+
+	    if (!params.protocol) {
+	        if (params.scheme) {
+	            params.protocol = params.scheme + ':';
+	        } else {
+	            params.protocol = window.location.protocol;
+	        }
+	    }
+
+	    if (!params.host) {
+	        params.host = window.location.hostname || window.location.host;
+	    }
+	    if (/:/.test(params.host)) {
+	        if (!params.port) {
+	            params.port = params.host.split(':')[1];
+	        }
+	        params.host = params.host.split(':')[0];
+	    }
+	    if (!params.port) params.port = params.protocol == 'https:' ? 443 : 80;
+	    
+	    var req = new Request(new xhrHttp, params);
+	    if (cb) req.on('response', cb);
+	    return req;
+	};
+
+	http.get = function (params, cb) {
+	    params.method = 'GET';
+	    var req = http.request(params, cb);
+	    req.end();
+	    return req;
+	};
+
+	http.Agent = function () {};
+	http.Agent.defaultMaxSockets = 4;
+
+	var xhrHttp = (function () {
+	    if (typeof window === 'undefined') {
+	        throw new Error('no window object present');
+	    }
+	    else if (window.XMLHttpRequest) {
+	        return window.XMLHttpRequest;
+	    }
+	    else if (window.ActiveXObject) {
+	        var axs = [
+	            'Msxml2.XMLHTTP.6.0',
+	            'Msxml2.XMLHTTP.3.0',
+	            'Microsoft.XMLHTTP'
+	        ];
+	        for (var i = 0; i < axs.length; i++) {
+	            try {
+	                var ax = new(window.ActiveXObject)(axs[i]);
+	                return function () {
+	                    if (ax) {
+	                        var ax_ = ax;
+	                        ax = null;
+	                        return ax_;
+	                    }
+	                    else {
+	                        return new(window.ActiveXObject)(axs[i]);
+	                    }
+	                };
+	            }
+	            catch (e) {}
+	        }
+	        throw new Error('ajax not supported in this browser')
+	    }
+	    else {
+	        throw new Error('ajax not supported in this browser');
+	    }
+	})();
+
+	http.STATUS_CODES = {
+	    100 : 'Continue',
+	    101 : 'Switching Protocols',
+	    102 : 'Processing',                 // RFC 2518, obsoleted by RFC 4918
+	    200 : 'OK',
+	    201 : 'Created',
+	    202 : 'Accepted',
+	    203 : 'Non-Authoritative Information',
+	    204 : 'No Content',
+	    205 : 'Reset Content',
+	    206 : 'Partial Content',
+	    207 : 'Multi-Status',               // RFC 4918
+	    300 : 'Multiple Choices',
+	    301 : 'Moved Permanently',
+	    302 : 'Moved Temporarily',
+	    303 : 'See Other',
+	    304 : 'Not Modified',
+	    305 : 'Use Proxy',
+	    307 : 'Temporary Redirect',
+	    400 : 'Bad Request',
+	    401 : 'Unauthorized',
+	    402 : 'Payment Required',
+	    403 : 'Forbidden',
+	    404 : 'Not Found',
+	    405 : 'Method Not Allowed',
+	    406 : 'Not Acceptable',
+	    407 : 'Proxy Authentication Required',
+	    408 : 'Request Time-out',
+	    409 : 'Conflict',
+	    410 : 'Gone',
+	    411 : 'Length Required',
+	    412 : 'Precondition Failed',
+	    413 : 'Request Entity Too Large',
+	    414 : 'Request-URI Too Large',
+	    415 : 'Unsupported Media Type',
+	    416 : 'Requested Range Not Satisfiable',
+	    417 : 'Expectation Failed',
+	    418 : 'I\'m a teapot',              // RFC 2324
+	    422 : 'Unprocessable Entity',       // RFC 4918
+	    423 : 'Locked',                     // RFC 4918
+	    424 : 'Failed Dependency',          // RFC 4918
+	    425 : 'Unordered Collection',       // RFC 4918
+	    426 : 'Upgrade Required',           // RFC 2817
+	    428 : 'Precondition Required',      // RFC 6585
+	    429 : 'Too Many Requests',          // RFC 6585
+	    431 : 'Request Header Fields Too Large',// RFC 6585
+	    500 : 'Internal Server Error',
+	    501 : 'Not Implemented',
+	    502 : 'Bad Gateway',
+	    503 : 'Service Unavailable',
+	    504 : 'Gateway Time-out',
+	    505 : 'HTTP Version Not Supported',
+	    506 : 'Variant Also Negotiates',    // RFC 2295
+	    507 : 'Insufficient Storage',       // RFC 4918
+	    509 : 'Bandwidth Limit Exceeded',
+	    510 : 'Not Extended',               // RFC 2774
+	    511 : 'Network Authentication Required' // RFC 6585
+	};
+
+/***/ },
+/* 42 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(global, process) {// Copyright Joyent, Inc. and other Node contributors.
+	//
+	// Permission is hereby granted, free of charge, to any person obtaining a
+	// copy of this software and associated documentation files (the
+	// "Software"), to deal in the Software without restriction, including
+	// without limitation the rights to use, copy, modify, merge, publish,
+	// distribute, sublicense, and/or sell copies of the Software, and to permit
+	// persons to whom the Software is furnished to do so, subject to the
+	// following conditions:
+	//
+	// The above copyright notice and this permission notice shall be included
+	// in all copies or substantial portions of the Software.
+	//
+	// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+	// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+	// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+	// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+	// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+	// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+	var formatRegExp = /%[sdj%]/g;
+	exports.format = function(f) {
+	  if (!isString(f)) {
+	    var objects = [];
+	    for (var i = 0; i < arguments.length; i++) {
+	      objects.push(inspect(arguments[i]));
+	    }
+	    return objects.join(' ');
+	  }
+
+	  var i = 1;
+	  var args = arguments;
+	  var len = args.length;
+	  var str = String(f).replace(formatRegExp, function(x) {
+	    if (x === '%%') return '%';
+	    if (i >= len) return x;
+	    switch (x) {
+	      case '%s': return String(args[i++]);
+	      case '%d': return Number(args[i++]);
+	      case '%j':
+	        try {
+	          return JSON.stringify(args[i++]);
+	        } catch (_) {
+	          return '[Circular]';
+	        }
+	      default:
+	        return x;
+	    }
+	  });
+	  for (var x = args[i]; i < len; x = args[++i]) {
+	    if (isNull(x) || !isObject(x)) {
+	      str += ' ' + x;
+	    } else {
+	      str += ' ' + inspect(x);
+	    }
+	  }
+	  return str;
+	};
+
+
+	// Mark that a method should not be used.
+	// Returns a modified function which warns once by default.
+	// If --no-deprecation is set, then it is a no-op.
+	exports.deprecate = function(fn, msg) {
+	  // Allow for deprecating things in the process of starting up.
+	  if (isUndefined(global.process)) {
+	    return function() {
+	      return exports.deprecate(fn, msg).apply(this, arguments);
+	    };
+	  }
+
+	  if (process.noDeprecation === true) {
+	    return fn;
+	  }
+
+	  var warned = false;
+	  function deprecated() {
+	    if (!warned) {
+	      if (process.throwDeprecation) {
+	        throw new Error(msg);
+	      } else if (process.traceDeprecation) {
+	        console.trace(msg);
+	      } else {
+	        console.error(msg);
+	      }
+	      warned = true;
+	    }
+	    return fn.apply(this, arguments);
+	  }
+
+	  return deprecated;
+	};
+
+
+	var debugs = {};
+	var debugEnviron;
+	exports.debuglog = function(set) {
+	  if (isUndefined(debugEnviron))
+	    debugEnviron = process.env.NODE_DEBUG || '';
+	  set = set.toUpperCase();
+	  if (!debugs[set]) {
+	    if (new RegExp('\\b' + set + '\\b', 'i').test(debugEnviron)) {
+	      var pid = process.pid;
+	      debugs[set] = function() {
+	        var msg = exports.format.apply(exports, arguments);
+	        console.error('%s %d: %s', set, pid, msg);
+	      };
+	    } else {
+	      debugs[set] = function() {};
+	    }
+	  }
+	  return debugs[set];
+	};
+
+
+	/**
+	 * Echos the value of a value. Trys to print the value out
+	 * in the best way possible given the different types.
+	 *
+	 * @param {Object} obj The object to print out.
+	 * @param {Object} opts Optional options object that alters the output.
+	 */
+	/* legacy: obj, showHidden, depth, colors*/
+	function inspect(obj, opts) {
+	  // default options
+	  var ctx = {
+	    seen: [],
+	    stylize: stylizeNoColor
+	  };
+	  // legacy...
+	  if (arguments.length >= 3) ctx.depth = arguments[2];
+	  if (arguments.length >= 4) ctx.colors = arguments[3];
+	  if (isBoolean(opts)) {
+	    // legacy...
+	    ctx.showHidden = opts;
+	  } else if (opts) {
+	    // got an "options" object
+	    exports._extend(ctx, opts);
+	  }
+	  // set default options
+	  if (isUndefined(ctx.showHidden)) ctx.showHidden = false;
+	  if (isUndefined(ctx.depth)) ctx.depth = 2;
+	  if (isUndefined(ctx.colors)) ctx.colors = false;
+	  if (isUndefined(ctx.customInspect)) ctx.customInspect = true;
+	  if (ctx.colors) ctx.stylize = stylizeWithColor;
+	  return formatValue(ctx, obj, ctx.depth);
+	}
+	exports.inspect = inspect;
+
+
+	// http://en.wikipedia.org/wiki/ANSI_escape_code#graphics
+	inspect.colors = {
+	  'bold' : [1, 22],
+	  'italic' : [3, 23],
+	  'underline' : [4, 24],
+	  'inverse' : [7, 27],
+	  'white' : [37, 39],
+	  'grey' : [90, 39],
+	  'black' : [30, 39],
+	  'blue' : [34, 39],
+	  'cyan' : [36, 39],
+	  'green' : [32, 39],
+	  'magenta' : [35, 39],
+	  'red' : [31, 39],
+	  'yellow' : [33, 39]
+	};
+
+	// Don't use 'blue' not visible on cmd.exe
+	inspect.styles = {
+	  'special': 'cyan',
+	  'number': 'yellow',
+	  'boolean': 'yellow',
+	  'undefined': 'grey',
+	  'null': 'bold',
+	  'string': 'green',
+	  'date': 'magenta',
+	  // "name": intentionally not styling
+	  'regexp': 'red'
+	};
+
+
+	function stylizeWithColor(str, styleType) {
+	  var style = inspect.styles[styleType];
+
+	  if (style) {
+	    return '\u001b[' + inspect.colors[style][0] + 'm' + str +
+	           '\u001b[' + inspect.colors[style][1] + 'm';
+	  } else {
+	    return str;
+	  }
+	}
+
+
+	function stylizeNoColor(str, styleType) {
+	  return str;
+	}
+
+
+	function arrayToHash(array) {
+	  var hash = {};
+
+	  array.forEach(function(val, idx) {
+	    hash[val] = true;
+	  });
+
+	  return hash;
+	}
+
+
+	function formatValue(ctx, value, recurseTimes) {
+	  // Provide a hook for user-specified inspect functions.
+	  // Check that value is an object with an inspect function on it
+	  if (ctx.customInspect &&
+	      value &&
+	      isFunction(value.inspect) &&
+	      // Filter out the util module, it's inspect function is special
+	      value.inspect !== exports.inspect &&
+	      // Also filter out any prototype objects using the circular check.
+	      !(value.constructor && value.constructor.prototype === value)) {
+	    var ret = value.inspect(recurseTimes, ctx);
+	    if (!isString(ret)) {
+	      ret = formatValue(ctx, ret, recurseTimes);
+	    }
+	    return ret;
+	  }
+
+	  // Primitive types cannot have properties
+	  var primitive = formatPrimitive(ctx, value);
+	  if (primitive) {
+	    return primitive;
+	  }
+
+	  // Look up the keys of the object.
+	  var keys = Object.keys(value);
+	  var visibleKeys = arrayToHash(keys);
+
+	  if (ctx.showHidden) {
+	    keys = Object.getOwnPropertyNames(value);
+	  }
+
+	  // IE doesn't make error fields non-enumerable
+	  // http://msdn.microsoft.com/en-us/library/ie/dww52sbt(v=vs.94).aspx
+	  if (isError(value)
+	      && (keys.indexOf('message') >= 0 || keys.indexOf('description') >= 0)) {
+	    return formatError(value);
+	  }
+
+	  // Some type of object without properties can be shortcutted.
+	  if (keys.length === 0) {
+	    if (isFunction(value)) {
+	      var name = value.name ? ': ' + value.name : '';
+	      return ctx.stylize('[Function' + name + ']', 'special');
+	    }
+	    if (isRegExp(value)) {
+	      return ctx.stylize(RegExp.prototype.toString.call(value), 'regexp');
+	    }
+	    if (isDate(value)) {
+	      return ctx.stylize(Date.prototype.toString.call(value), 'date');
+	    }
+	    if (isError(value)) {
+	      return formatError(value);
+	    }
+	  }
+
+	  var base = '', array = false, braces = ['{', '}'];
+
+	  // Make Array say that they are Array
+	  if (isArray(value)) {
+	    array = true;
+	    braces = ['[', ']'];
+	  }
+
+	  // Make functions say that they are functions
+	  if (isFunction(value)) {
+	    var n = value.name ? ': ' + value.name : '';
+	    base = ' [Function' + n + ']';
+	  }
+
+	  // Make RegExps say that they are RegExps
+	  if (isRegExp(value)) {
+	    base = ' ' + RegExp.prototype.toString.call(value);
+	  }
+
+	  // Make dates with properties first say the date
+	  if (isDate(value)) {
+	    base = ' ' + Date.prototype.toUTCString.call(value);
+	  }
+
+	  // Make error with message first say the error
+	  if (isError(value)) {
+	    base = ' ' + formatError(value);
+	  }
+
+	  if (keys.length === 0 && (!array || value.length == 0)) {
+	    return braces[0] + base + braces[1];
+	  }
+
+	  if (recurseTimes < 0) {
+	    if (isRegExp(value)) {
+	      return ctx.stylize(RegExp.prototype.toString.call(value), 'regexp');
+	    } else {
+	      return ctx.stylize('[Object]', 'special');
+	    }
+	  }
+
+	  ctx.seen.push(value);
+
+	  var output;
+	  if (array) {
+	    output = formatArray(ctx, value, recurseTimes, visibleKeys, keys);
+	  } else {
+	    output = keys.map(function(key) {
+	      return formatProperty(ctx, value, recurseTimes, visibleKeys, key, array);
+	    });
+	  }
+
+	  ctx.seen.pop();
+
+	  return reduceToSingleString(output, base, braces);
+	}
+
+
+	function formatPrimitive(ctx, value) {
+	  if (isUndefined(value))
+	    return ctx.stylize('undefined', 'undefined');
+	  if (isString(value)) {
+	    var simple = '\'' + JSON.stringify(value).replace(/^"|"$/g, '')
+	                                             .replace(/'/g, "\\'")
+	                                             .replace(/\\"/g, '"') + '\'';
+	    return ctx.stylize(simple, 'string');
+	  }
+	  if (isNumber(value))
+	    return ctx.stylize('' + value, 'number');
+	  if (isBoolean(value))
+	    return ctx.stylize('' + value, 'boolean');
+	  // For some reason typeof null is "object", so special case here.
+	  if (isNull(value))
+	    return ctx.stylize('null', 'null');
+	}
+
+
+	function formatError(value) {
+	  return '[' + Error.prototype.toString.call(value) + ']';
+	}
+
+
+	function formatArray(ctx, value, recurseTimes, visibleKeys, keys) {
+	  var output = [];
+	  for (var i = 0, l = value.length; i < l; ++i) {
+	    if (hasOwnProperty(value, String(i))) {
+	      output.push(formatProperty(ctx, value, recurseTimes, visibleKeys,
+	          String(i), true));
+	    } else {
+	      output.push('');
+	    }
+	  }
+	  keys.forEach(function(key) {
+	    if (!key.match(/^\d+$/)) {
+	      output.push(formatProperty(ctx, value, recurseTimes, visibleKeys,
+	          key, true));
+	    }
+	  });
+	  return output;
+	}
+
+
+	function formatProperty(ctx, value, recurseTimes, visibleKeys, key, array) {
+	  var name, str, desc;
+	  desc = Object.getOwnPropertyDescriptor(value, key) || { value: value[key] };
+	  if (desc.get) {
+	    if (desc.set) {
+	      str = ctx.stylize('[Getter/Setter]', 'special');
+	    } else {
+	      str = ctx.stylize('[Getter]', 'special');
+	    }
+	  } else {
+	    if (desc.set) {
+	      str = ctx.stylize('[Setter]', 'special');
+	    }
+	  }
+	  if (!hasOwnProperty(visibleKeys, key)) {
+	    name = '[' + key + ']';
+	  }
+	  if (!str) {
+	    if (ctx.seen.indexOf(desc.value) < 0) {
+	      if (isNull(recurseTimes)) {
+	        str = formatValue(ctx, desc.value, null);
+	      } else {
+	        str = formatValue(ctx, desc.value, recurseTimes - 1);
+	      }
+	      if (str.indexOf('\n') > -1) {
+	        if (array) {
+	          str = str.split('\n').map(function(line) {
+	            return '  ' + line;
+	          }).join('\n').substr(2);
+	        } else {
+	          str = '\n' + str.split('\n').map(function(line) {
+	            return '   ' + line;
+	          }).join('\n');
+	        }
+	      }
+	    } else {
+	      str = ctx.stylize('[Circular]', 'special');
+	    }
+	  }
+	  if (isUndefined(name)) {
+	    if (array && key.match(/^\d+$/)) {
+	      return str;
+	    }
+	    name = JSON.stringify('' + key);
+	    if (name.match(/^"([a-zA-Z_][a-zA-Z_0-9]*)"$/)) {
+	      name = name.substr(1, name.length - 2);
+	      name = ctx.stylize(name, 'name');
+	    } else {
+	      name = name.replace(/'/g, "\\'")
+	                 .replace(/\\"/g, '"')
+	                 .replace(/(^"|"$)/g, "'");
+	      name = ctx.stylize(name, 'string');
+	    }
+	  }
+
+	  return name + ': ' + str;
+	}
+
+
+	function reduceToSingleString(output, base, braces) {
+	  var numLinesEst = 0;
+	  var length = output.reduce(function(prev, cur) {
+	    numLinesEst++;
+	    if (cur.indexOf('\n') >= 0) numLinesEst++;
+	    return prev + cur.replace(/\u001b\[\d\d?m/g, '').length + 1;
+	  }, 0);
+
+	  if (length > 60) {
+	    return braces[0] +
+	           (base === '' ? '' : base + '\n ') +
+	           ' ' +
+	           output.join(',\n  ') +
+	           ' ' +
+	           braces[1];
+	  }
+
+	  return braces[0] + base + ' ' + output.join(', ') + ' ' + braces[1];
+	}
+
+
+	// NOTE: These type checking functions intentionally don't use `instanceof`
+	// because it is fragile and can be easily faked with `Object.create()`.
+	function isArray(ar) {
+	  return Array.isArray(ar);
+	}
+	exports.isArray = isArray;
+
+	function isBoolean(arg) {
+	  return typeof arg === 'boolean';
+	}
+	exports.isBoolean = isBoolean;
+
+	function isNull(arg) {
+	  return arg === null;
+	}
+	exports.isNull = isNull;
+
+	function isNullOrUndefined(arg) {
+	  return arg == null;
+	}
+	exports.isNullOrUndefined = isNullOrUndefined;
+
+	function isNumber(arg) {
+	  return typeof arg === 'number';
+	}
+	exports.isNumber = isNumber;
+
+	function isString(arg) {
+	  return typeof arg === 'string';
+	}
+	exports.isString = isString;
+
+	function isSymbol(arg) {
+	  return typeof arg === 'symbol';
+	}
+	exports.isSymbol = isSymbol;
+
+	function isUndefined(arg) {
+	  return arg === void 0;
+	}
+	exports.isUndefined = isUndefined;
+
+	function isRegExp(re) {
+	  return isObject(re) && objectToString(re) === '[object RegExp]';
+	}
+	exports.isRegExp = isRegExp;
+
+	function isObject(arg) {
+	  return typeof arg === 'object' && arg !== null;
+	}
+	exports.isObject = isObject;
+
+	function isDate(d) {
+	  return isObject(d) && objectToString(d) === '[object Date]';
+	}
+	exports.isDate = isDate;
+
+	function isError(e) {
+	  return isObject(e) &&
+	      (objectToString(e) === '[object Error]' || e instanceof Error);
+	}
+	exports.isError = isError;
+
+	function isFunction(arg) {
+	  return typeof arg === 'function';
+	}
+	exports.isFunction = isFunction;
+
+	function isPrimitive(arg) {
+	  return arg === null ||
+	         typeof arg === 'boolean' ||
+	         typeof arg === 'number' ||
+	         typeof arg === 'string' ||
+	         typeof arg === 'symbol' ||  // ES6 symbol
+	         typeof arg === 'undefined';
+	}
+	exports.isPrimitive = isPrimitive;
+
+	exports.isBuffer = __webpack_require__(58);
+
+	function objectToString(o) {
+	  return Object.prototype.toString.call(o);
+	}
+
+
+	function pad(n) {
+	  return n < 10 ? '0' + n.toString(10) : n.toString(10);
+	}
+
+
+	var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep',
+	              'Oct', 'Nov', 'Dec'];
+
+	// 26 Feb 16:19:34
+	function timestamp() {
+	  var d = new Date();
+	  var time = [pad(d.getHours()),
+	              pad(d.getMinutes()),
+	              pad(d.getSeconds())].join(':');
+	  return [d.getDate(), months[d.getMonth()], time].join(' ');
+	}
+
+
+	// log is just a thin wrapper to console.log that prepends a timestamp
+	exports.log = function() {
+	  console.log('%s - %s', timestamp(), exports.format.apply(exports, arguments));
+	};
+
+
+	/**
+	 * Inherit the prototype methods from one constructor into another.
+	 *
+	 * The Function.prototype.inherits from lang.js rewritten as a standalone
+	 * function (not on Function.prototype). NOTE: If this file is to be loaded
+	 * during bootstrapping this function needs to be rewritten using some native
+	 * functions as prototype setup using normal JavaScript does not work as
+	 * expected during bootstrapping (see mirror.js in r114903).
+	 *
+	 * @param {function} ctor Constructor function which needs to inherit the
+	 *     prototype.
+	 * @param {function} superCtor Constructor function to inherit prototype from.
+	 */
+	exports.inherits = __webpack_require__(85);
+
+	exports._extend = function(origin, add) {
+	  // Don't do anything if add isn't an object
+	  if (!add || !isObject(add)) return origin;
+
+	  var keys = Object.keys(add);
+	  var i = keys.length;
+	  while (i--) {
+	    origin[keys[i]] = add[keys[i]];
+	  }
+	  return origin;
+	};
+
+	function hasOwnProperty(obj, prop) {
+	  return Object.prototype.hasOwnProperty.call(obj, prop);
+	}
+
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(43)))
 
 /***/ },
 /* 43 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+	// shim for using process in browser
 
-	;(function (exports) {
-		'use strict';
+	var process = module.exports = {};
+	var queue = [];
+	var draining = false;
 
-	  var Arr = (typeof Uint8Array !== 'undefined')
-	    ? Uint8Array
-	    : Array
+	function drainQueue() {
+	    if (draining) {
+	        return;
+	    }
+	    draining = true;
+	    var currentQueue;
+	    var len = queue.length;
+	    while(len) {
+	        currentQueue = queue;
+	        queue = [];
+	        var i = -1;
+	        while (++i < len) {
+	            currentQueue[i]();
+	        }
+	        len = queue.length;
+	    }
+	    draining = false;
+	}
+	process.nextTick = function (fun) {
+	    queue.push(fun);
+	    if (!draining) {
+	        setTimeout(drainQueue, 0);
+	    }
+	};
 
-		var PLUS   = '+'.charCodeAt(0)
-		var SLASH  = '/'.charCodeAt(0)
-		var NUMBER = '0'.charCodeAt(0)
-		var LOWER  = 'a'.charCodeAt(0)
-		var UPPER  = 'A'.charCodeAt(0)
-		var PLUS_URL_SAFE = '-'.charCodeAt(0)
-		var SLASH_URL_SAFE = '_'.charCodeAt(0)
+	process.title = 'browser';
+	process.browser = true;
+	process.env = {};
+	process.argv = [];
+	process.version = ''; // empty string to avoid regexp issues
+	process.versions = {};
 
-		function decode (elt) {
-			var code = elt.charCodeAt(0)
-			if (code === PLUS ||
-			    code === PLUS_URL_SAFE)
-				return 62 // '+'
-			if (code === SLASH ||
-			    code === SLASH_URL_SAFE)
-				return 63 // '/'
-			if (code < NUMBER)
-				return -1 //no match
-			if (code < NUMBER + 10)
-				return code - NUMBER + 26 + 26
-			if (code < UPPER + 26)
-				return code - UPPER
-			if (code < LOWER + 26)
-				return code - LOWER + 26
-		}
+	function noop() {}
 
-		function b64ToByteArray (b64) {
-			var i, j, l, tmp, placeHolders, arr
+	process.on = noop;
+	process.addListener = noop;
+	process.once = noop;
+	process.off = noop;
+	process.removeListener = noop;
+	process.removeAllListeners = noop;
+	process.emit = noop;
 
-			if (b64.length % 4 > 0) {
-				throw new Error('Invalid string. Length must be a multiple of 4')
-			}
+	process.binding = function (name) {
+	    throw new Error('process.binding is not supported');
+	};
 
-			// the number of equal signs (place holders)
-			// if there are two placeholders, than the two characters before it
-			// represent one byte
-			// if there is only one, then the three characters before it represent 2 bytes
-			// this is just a cheap hack to not do indexOf twice
-			var len = b64.length
-			placeHolders = '=' === b64.charAt(len - 2) ? 2 : '=' === b64.charAt(len - 1) ? 1 : 0
-
-			// base64 is 4/3 + up to two characters of the original data
-			arr = new Arr(b64.length * 3 / 4 - placeHolders)
-
-			// if there are placeholders, only get up to the last complete 4 chars
-			l = placeHolders > 0 ? b64.length - 4 : b64.length
-
-			var L = 0
-
-			function push (v) {
-				arr[L++] = v
-			}
-
-			for (i = 0, j = 0; i < l; i += 4, j += 3) {
-				tmp = (decode(b64.charAt(i)) << 18) | (decode(b64.charAt(i + 1)) << 12) | (decode(b64.charAt(i + 2)) << 6) | decode(b64.charAt(i + 3))
-				push((tmp & 0xFF0000) >> 16)
-				push((tmp & 0xFF00) >> 8)
-				push(tmp & 0xFF)
-			}
-
-			if (placeHolders === 2) {
-				tmp = (decode(b64.charAt(i)) << 2) | (decode(b64.charAt(i + 1)) >> 4)
-				push(tmp & 0xFF)
-			} else if (placeHolders === 1) {
-				tmp = (decode(b64.charAt(i)) << 10) | (decode(b64.charAt(i + 1)) << 4) | (decode(b64.charAt(i + 2)) >> 2)
-				push((tmp >> 8) & 0xFF)
-				push(tmp & 0xFF)
-			}
-
-			return arr
-		}
-
-		function uint8ToBase64 (uint8) {
-			var i,
-				extraBytes = uint8.length % 3, // if we have 1 byte left, pad 2 bytes
-				output = "",
-				temp, length
-
-			function encode (num) {
-				return lookup.charAt(num)
-			}
-
-			function tripletToBase64 (num) {
-				return encode(num >> 18 & 0x3F) + encode(num >> 12 & 0x3F) + encode(num >> 6 & 0x3F) + encode(num & 0x3F)
-			}
-
-			// go through the array every three bytes, we'll deal with trailing stuff later
-			for (i = 0, length = uint8.length - extraBytes; i < length; i += 3) {
-				temp = (uint8[i] << 16) + (uint8[i + 1] << 8) + (uint8[i + 2])
-				output += tripletToBase64(temp)
-			}
-
-			// pad the end with zeros, but make sure to not forget the extra bytes
-			switch (extraBytes) {
-				case 1:
-					temp = uint8[uint8.length - 1]
-					output += encode(temp >> 2)
-					output += encode((temp << 4) & 0x3F)
-					output += '=='
-					break
-				case 2:
-					temp = (uint8[uint8.length - 2] << 8) + (uint8[uint8.length - 1])
-					output += encode(temp >> 10)
-					output += encode((temp >> 4) & 0x3F)
-					output += encode((temp << 2) & 0x3F)
-					output += '='
-					break
-			}
-
-			return output
-		}
-
-		exports.toByteArray = b64ToByteArray
-		exports.fromByteArray = uint8ToBase64
-	}(false ? (this.base64js = {}) : exports))
+	// TODO(shtylman)
+	process.cwd = function () { return '/' };
+	process.chdir = function (dir) {
+	    throw new Error('process.chdir is not supported');
+	};
+	process.umask = function() { return 0; };
 
 
 /***/ },
@@ -26060,7 +26051,7 @@ var StellarLib =
 	    }
 	  } else if (true) {
 	    // Node.js.
-	    crypto = __webpack_require__(56);
+	    crypto = __webpack_require__(55);
 	    if (crypto) {
 	      nacl.setPRNG(function(x, n) {
 	        var i, v = crypto.randomBytes(n);
@@ -28427,15 +28418,17 @@ var StellarLib =
 
 	"use strict";
 
-	var _defaults = __webpack_require__(26)["default"];
+	var _defaults = __webpack_require__(28)["default"];
 
-	var _interopRequireWildcard = __webpack_require__(27)["default"];
+	var _interopRequireWildcard = __webpack_require__(29)["default"];
 
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
 
 	_defaults(exports, _interopRequireWildcard(__webpack_require__(60)));
+
+	_defaults(exports, _interopRequireWildcard(__webpack_require__(59)));
 
 	_defaults(exports, _interopRequireWildcard(__webpack_require__(61)));
 
@@ -28469,25 +28462,23 @@ var StellarLib =
 
 	_defaults(exports, _interopRequireWildcard(__webpack_require__(76)));
 
-	_defaults(exports, _interopRequireWildcard(__webpack_require__(77)));
-
 /***/ },
 /* 48 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
-	var _classCallCheck = __webpack_require__(29)["default"];
+	var _classCallCheck = __webpack_require__(31)["default"];
 
-	var _createClass = __webpack_require__(30)["default"];
+	var _createClass = __webpack_require__(32)["default"];
 
-	var _inherits = __webpack_require__(78)["default"];
+	var _inherits = __webpack_require__(77)["default"];
 
-	var _toConsumableArray = __webpack_require__(79)["default"];
+	var _toConsumableArray = __webpack_require__(78)["default"];
 
-	var _interopRequireWildcard = __webpack_require__(27)["default"];
+	var _interopRequireWildcard = __webpack_require__(29)["default"];
 
-	var _interopRequire = __webpack_require__(25)["default"];
+	var _interopRequire = __webpack_require__(27)["default"];
 
 	exports.config = config;
 	Object.defineProperty(exports, "__esModule", {
@@ -28496,7 +28487,7 @@ var StellarLib =
 
 	var XDR = _interopRequireWildcard(__webpack_require__(47));
 
-	var _lodash = __webpack_require__(42);
+	var _lodash = __webpack_require__(37);
 
 	var isUndefined = _lodash.isUndefined;
 	var isPlainObject = _lodash.isPlainObject;
@@ -28505,7 +28496,7 @@ var StellarLib =
 	var map = _lodash.map;
 	var pick = _lodash.pick;
 
-	var sequencify = _interopRequire(__webpack_require__(85));
+	var sequencify = _interopRequire(__webpack_require__(84));
 
 	// types is the root
 	var types = {};
@@ -28857,221 +28848,6 @@ var StellarLib =
 /* 49 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Stream = __webpack_require__(87);
-	var Response = __webpack_require__(83);
-	var Base64 = __webpack_require__(95);
-	var inherits = __webpack_require__(96);
-
-	var Request = module.exports = function (xhr, params) {
-	    var self = this;
-	    self.writable = true;
-	    self.xhr = xhr;
-	    self.body = [];
-	    
-	    self.uri = (params.protocol || 'http:') + '//'
-	        + params.host
-	        + (params.port ? ':' + params.port : '')
-	        + (params.path || '/')
-	    ;
-	    
-	    if (typeof params.withCredentials === 'undefined') {
-	        params.withCredentials = true;
-	    }
-
-	    try { xhr.withCredentials = params.withCredentials }
-	    catch (e) {}
-	    
-	    if (params.responseType) try { xhr.responseType = params.responseType }
-	    catch (e) {}
-	    
-	    xhr.open(
-	        params.method || 'GET',
-	        self.uri,
-	        true
-	    );
-
-	    xhr.onerror = function(event) {
-	        self.emit('error', new Error('Network error'));
-	    };
-
-	    self._headers = {};
-	    
-	    if (params.headers) {
-	        var keys = objectKeys(params.headers);
-	        for (var i = 0; i < keys.length; i++) {
-	            var key = keys[i];
-	            if (!self.isSafeRequestHeader(key)) continue;
-	            var value = params.headers[key];
-	            self.setHeader(key, value);
-	        }
-	    }
-	    
-	    if (params.auth) {
-	        //basic auth
-	        this.setHeader('Authorization', 'Basic ' + Base64.btoa(params.auth));
-	    }
-
-	    var res = new Response;
-	    res.on('close', function () {
-	        self.emit('close');
-	    });
-	    
-	    res.on('ready', function () {
-	        self.emit('response', res);
-	    });
-
-	    res.on('error', function (err) {
-	        self.emit('error', err);
-	    });
-	    
-	    xhr.onreadystatechange = function () {
-	        // Fix for IE9 bug
-	        // SCRIPT575: Could not complete the operation due to error c00c023f
-	        // It happens when a request is aborted, calling the success callback anyway with readyState === 4
-	        if (xhr.__aborted) return;
-	        res.handle(xhr);
-	    };
-	};
-
-	inherits(Request, Stream);
-
-	Request.prototype.setHeader = function (key, value) {
-	    this._headers[key.toLowerCase()] = value
-	};
-
-	Request.prototype.getHeader = function (key) {
-	    return this._headers[key.toLowerCase()]
-	};
-
-	Request.prototype.removeHeader = function (key) {
-	    delete this._headers[key.toLowerCase()]
-	};
-
-	Request.prototype.write = function (s) {
-	    this.body.push(s);
-	};
-
-	Request.prototype.destroy = function (s) {
-	    this.xhr.__aborted = true;
-	    this.xhr.abort();
-	    this.emit('close');
-	};
-
-	Request.prototype.end = function (s) {
-	    if (s !== undefined) this.body.push(s);
-
-	    var keys = objectKeys(this._headers);
-	    for (var i = 0; i < keys.length; i++) {
-	        var key = keys[i];
-	        var value = this._headers[key];
-	        if (isArray(value)) {
-	            for (var j = 0; j < value.length; j++) {
-	                this.xhr.setRequestHeader(key, value[j]);
-	            }
-	        }
-	        else this.xhr.setRequestHeader(key, value)
-	    }
-
-	    if (this.body.length === 0) {
-	        this.xhr.send('');
-	    }
-	    else if (typeof this.body[0] === 'string') {
-	        this.xhr.send(this.body.join(''));
-	    }
-	    else if (isArray(this.body[0])) {
-	        var body = [];
-	        for (var i = 0; i < this.body.length; i++) {
-	            body.push.apply(body, this.body[i]);
-	        }
-	        this.xhr.send(body);
-	    }
-	    else if (/Array/.test(Object.prototype.toString.call(this.body[0]))) {
-	        var len = 0;
-	        for (var i = 0; i < this.body.length; i++) {
-	            len += this.body[i].length;
-	        }
-	        var body = new(this.body[0].constructor)(len);
-	        var k = 0;
-	        
-	        for (var i = 0; i < this.body.length; i++) {
-	            var b = this.body[i];
-	            for (var j = 0; j < b.length; j++) {
-	                body[k++] = b[j];
-	            }
-	        }
-	        this.xhr.send(body);
-	    }
-	    else if (isXHR2Compatible(this.body[0])) {
-	        this.xhr.send(this.body[0]);
-	    }
-	    else {
-	        var body = '';
-	        for (var i = 0; i < this.body.length; i++) {
-	            body += this.body[i].toString();
-	        }
-	        this.xhr.send(body);
-	    }
-	};
-
-	// Taken from http://dxr.mozilla.org/mozilla/mozilla-central/content/base/src/nsXMLHttpRequest.cpp.html
-	Request.unsafeHeaders = [
-	    "accept-charset",
-	    "accept-encoding",
-	    "access-control-request-headers",
-	    "access-control-request-method",
-	    "connection",
-	    "content-length",
-	    "cookie",
-	    "cookie2",
-	    "content-transfer-encoding",
-	    "date",
-	    "expect",
-	    "host",
-	    "keep-alive",
-	    "origin",
-	    "referer",
-	    "te",
-	    "trailer",
-	    "transfer-encoding",
-	    "upgrade",
-	    "user-agent",
-	    "via"
-	];
-
-	Request.prototype.isSafeRequestHeader = function (headerName) {
-	    if (!headerName) return false;
-	    return indexOf(Request.unsafeHeaders, headerName.toLowerCase()) === -1;
-	};
-
-	var objectKeys = Object.keys || function (obj) {
-	    var keys = [];
-	    for (var key in obj) keys.push(key);
-	    return keys;
-	};
-
-	var isArray = Array.isArray || function (xs) {
-	    return Object.prototype.toString.call(xs) === '[object Array]';
-	};
-
-	var indexOf = function (xs, x) {
-	    if (xs.indexOf) return xs.indexOf(x);
-	    for (var i = 0; i < xs.length; i++) {
-	        if (xs[i] === x) return i;
-	    }
-	    return -1;
-	};
-
-	var isXHR2Compatible = function (obj) {
-	    if (typeof Blob !== 'undefined' && obj instanceof Blob) return true;
-	    if (typeof ArrayBuffer !== 'undefined' && obj instanceof ArrayBuffer) return true;
-	    if (typeof FormData !== 'undefined' && obj instanceof FormData) return true;
-	};
-
-
-/***/ },
-/* 50 */
-/***/ function(module, exports, __webpack_require__) {
-
 	/* WEBPACK VAR INJECTION */(function(Buffer) {/*
 	 * A JavaScript implementation of the Secure Hash Algorithm, SHA-0, as defined
 	 * in FIPS PUB 180-1
@@ -29080,8 +28856,8 @@ var StellarLib =
 	 * operation was added.
 	 */
 
-	var inherits = __webpack_require__(98)
-	var Hash = __webpack_require__(86)
+	var inherits = __webpack_require__(96)
+	var Hash = __webpack_require__(83)
 
 	var W = new Array(80)
 
@@ -29175,7 +28951,7 @@ var StellarLib =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
 
 /***/ },
-/* 51 */
+/* 50 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {/*
@@ -29187,8 +28963,8 @@ var StellarLib =
 	 * See http://pajhome.org.uk/crypt/md5 for details.
 	 */
 
-	var inherits = __webpack_require__(98)
-	var Hash = __webpack_require__(86)
+	var inherits = __webpack_require__(96)
+	var Hash = __webpack_require__(83)
 
 	var W = new Array(80)
 
@@ -29278,7 +29054,7 @@ var StellarLib =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
 
 /***/ },
-/* 52 */
+/* 51 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {/**
@@ -29289,9 +29065,9 @@ var StellarLib =
 	 *
 	 */
 
-	var inherits = __webpack_require__(98)
-	var SHA256 = __webpack_require__(53)
-	var Hash = __webpack_require__(86)
+	var inherits = __webpack_require__(96)
+	var SHA256 = __webpack_require__(52)
+	var Hash = __webpack_require__(83)
 
 	var W = new Array(64)
 
@@ -29337,7 +29113,7 @@ var StellarLib =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
 
 /***/ },
-/* 53 */
+/* 52 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {/**
@@ -29348,8 +29124,8 @@ var StellarLib =
 	 *
 	 */
 
-	var inherits = __webpack_require__(98)
-	var Hash = __webpack_require__(86)
+	var inherits = __webpack_require__(96)
+	var Hash = __webpack_require__(83)
 
 	var K = [
 	  0x428A2F98, 0x71374491, 0xB5C0FBCF, 0xE9B5DBA5,
@@ -29493,12 +29269,12 @@ var StellarLib =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
 
 /***/ },
-/* 54 */
+/* 53 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(Buffer) {var inherits = __webpack_require__(98)
-	var SHA512 = __webpack_require__(55);
-	var Hash = __webpack_require__(86)
+	/* WEBPACK VAR INJECTION */(function(Buffer) {var inherits = __webpack_require__(96)
+	var SHA512 = __webpack_require__(54);
+	var Hash = __webpack_require__(83)
 
 	var W = new Array(160)
 
@@ -29556,11 +29332,11 @@ var StellarLib =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
 
 /***/ },
-/* 55 */
+/* 54 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(Buffer) {var inherits = __webpack_require__(98)
-	var Hash = __webpack_require__(86)
+	/* WEBPACK VAR INJECTION */(function(Buffer) {var inherits = __webpack_require__(96)
+	var Hash = __webpack_require__(83)
 
 	var K = [
 	  0x428a2f98, 0xd728ae22, 0x71374491, 0x23ef65cd,
@@ -29808,10 +29584,225 @@ var StellarLib =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
 
 /***/ },
-/* 56 */
+/* 55 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* (ignored) */
+
+/***/ },
+/* 56 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var Stream = __webpack_require__(91);
+	var Response = __webpack_require__(86);
+	var Base64 = __webpack_require__(95);
+	var inherits = __webpack_require__(94);
+
+	var Request = module.exports = function (xhr, params) {
+	    var self = this;
+	    self.writable = true;
+	    self.xhr = xhr;
+	    self.body = [];
+	    
+	    self.uri = (params.protocol || 'http:') + '//'
+	        + params.host
+	        + (params.port ? ':' + params.port : '')
+	        + (params.path || '/')
+	    ;
+	    
+	    if (typeof params.withCredentials === 'undefined') {
+	        params.withCredentials = true;
+	    }
+
+	    try { xhr.withCredentials = params.withCredentials }
+	    catch (e) {}
+	    
+	    if (params.responseType) try { xhr.responseType = params.responseType }
+	    catch (e) {}
+	    
+	    xhr.open(
+	        params.method || 'GET',
+	        self.uri,
+	        true
+	    );
+
+	    xhr.onerror = function(event) {
+	        self.emit('error', new Error('Network error'));
+	    };
+
+	    self._headers = {};
+	    
+	    if (params.headers) {
+	        var keys = objectKeys(params.headers);
+	        for (var i = 0; i < keys.length; i++) {
+	            var key = keys[i];
+	            if (!self.isSafeRequestHeader(key)) continue;
+	            var value = params.headers[key];
+	            self.setHeader(key, value);
+	        }
+	    }
+	    
+	    if (params.auth) {
+	        //basic auth
+	        this.setHeader('Authorization', 'Basic ' + Base64.btoa(params.auth));
+	    }
+
+	    var res = new Response;
+	    res.on('close', function () {
+	        self.emit('close');
+	    });
+	    
+	    res.on('ready', function () {
+	        self.emit('response', res);
+	    });
+
+	    res.on('error', function (err) {
+	        self.emit('error', err);
+	    });
+	    
+	    xhr.onreadystatechange = function () {
+	        // Fix for IE9 bug
+	        // SCRIPT575: Could not complete the operation due to error c00c023f
+	        // It happens when a request is aborted, calling the success callback anyway with readyState === 4
+	        if (xhr.__aborted) return;
+	        res.handle(xhr);
+	    };
+	};
+
+	inherits(Request, Stream);
+
+	Request.prototype.setHeader = function (key, value) {
+	    this._headers[key.toLowerCase()] = value
+	};
+
+	Request.prototype.getHeader = function (key) {
+	    return this._headers[key.toLowerCase()]
+	};
+
+	Request.prototype.removeHeader = function (key) {
+	    delete this._headers[key.toLowerCase()]
+	};
+
+	Request.prototype.write = function (s) {
+	    this.body.push(s);
+	};
+
+	Request.prototype.destroy = function (s) {
+	    this.xhr.__aborted = true;
+	    this.xhr.abort();
+	    this.emit('close');
+	};
+
+	Request.prototype.end = function (s) {
+	    if (s !== undefined) this.body.push(s);
+
+	    var keys = objectKeys(this._headers);
+	    for (var i = 0; i < keys.length; i++) {
+	        var key = keys[i];
+	        var value = this._headers[key];
+	        if (isArray(value)) {
+	            for (var j = 0; j < value.length; j++) {
+	                this.xhr.setRequestHeader(key, value[j]);
+	            }
+	        }
+	        else this.xhr.setRequestHeader(key, value)
+	    }
+
+	    if (this.body.length === 0) {
+	        this.xhr.send('');
+	    }
+	    else if (typeof this.body[0] === 'string') {
+	        this.xhr.send(this.body.join(''));
+	    }
+	    else if (isArray(this.body[0])) {
+	        var body = [];
+	        for (var i = 0; i < this.body.length; i++) {
+	            body.push.apply(body, this.body[i]);
+	        }
+	        this.xhr.send(body);
+	    }
+	    else if (/Array/.test(Object.prototype.toString.call(this.body[0]))) {
+	        var len = 0;
+	        for (var i = 0; i < this.body.length; i++) {
+	            len += this.body[i].length;
+	        }
+	        var body = new(this.body[0].constructor)(len);
+	        var k = 0;
+	        
+	        for (var i = 0; i < this.body.length; i++) {
+	            var b = this.body[i];
+	            for (var j = 0; j < b.length; j++) {
+	                body[k++] = b[j];
+	            }
+	        }
+	        this.xhr.send(body);
+	    }
+	    else if (isXHR2Compatible(this.body[0])) {
+	        this.xhr.send(this.body[0]);
+	    }
+	    else {
+	        var body = '';
+	        for (var i = 0; i < this.body.length; i++) {
+	            body += this.body[i].toString();
+	        }
+	        this.xhr.send(body);
+	    }
+	};
+
+	// Taken from http://dxr.mozilla.org/mozilla/mozilla-central/content/base/src/nsXMLHttpRequest.cpp.html
+	Request.unsafeHeaders = [
+	    "accept-charset",
+	    "accept-encoding",
+	    "access-control-request-headers",
+	    "access-control-request-method",
+	    "connection",
+	    "content-length",
+	    "cookie",
+	    "cookie2",
+	    "content-transfer-encoding",
+	    "date",
+	    "expect",
+	    "host",
+	    "keep-alive",
+	    "origin",
+	    "referer",
+	    "te",
+	    "trailer",
+	    "transfer-encoding",
+	    "upgrade",
+	    "user-agent",
+	    "via"
+	];
+
+	Request.prototype.isSafeRequestHeader = function (headerName) {
+	    if (!headerName) return false;
+	    return indexOf(Request.unsafeHeaders, headerName.toLowerCase()) === -1;
+	};
+
+	var objectKeys = Object.keys || function (obj) {
+	    var keys = [];
+	    for (var key in obj) keys.push(key);
+	    return keys;
+	};
+
+	var isArray = Array.isArray || function (xs) {
+	    return Object.prototype.toString.call(xs) === '[object Array]';
+	};
+
+	var indexOf = function (xs, x) {
+	    if (xs.indexOf) return xs.indexOf(x);
+	    for (var i = 0; i < xs.length; i++) {
+	        if (xs[i] === x) return i;
+	    }
+	    return -1;
+	};
+
+	var isXHR2Compatible = function (obj) {
+	    if (typeof Blob !== 'undefined' && obj instanceof Blob) return true;
+	    if (typeof ArrayBuffer !== 'undefined' && obj instanceof ArrayBuffer) return true;
+	    if (typeof FormData !== 'undefined' && obj instanceof FormData) return true;
+	};
+
 
 /***/ },
 /* 57 */,
@@ -29827,6 +29818,1399 @@ var StellarLib =
 
 /***/ },
 /* 59 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _classCallCheck = __webpack_require__(31)["default"];
+
+	var _inherits = __webpack_require__(77)["default"];
+
+	var _get = __webpack_require__(88)["default"];
+
+	var _createClass = __webpack_require__(32)["default"];
+
+	var _core = __webpack_require__(46)["default"];
+
+	var _interopRequire = __webpack_require__(27)["default"];
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var Long = _interopRequire(__webpack_require__(98));
+
+	var includeIoMixin = _interopRequire(__webpack_require__(87));
+
+	var Hyper = exports.Hyper = (function (_Long) {
+	  function Hyper(low, high) {
+	    _classCallCheck(this, Hyper);
+
+	    _get(_core.Object.getPrototypeOf(Hyper.prototype), "constructor", this).call(this, low, high, false);
+	  }
+
+	  _inherits(Hyper, _Long);
+
+	  _createClass(Hyper, null, {
+	    read: {
+	      value: function read(io) {
+	        var high = io.readInt32BE();
+	        var low = io.readInt32BE();
+	        return this.fromBits(low, high);
+	      }
+	    },
+	    write: {
+	      value: function write(value, io) {
+	        if (!(value instanceof this)) {
+	          throw new Error("XDR Write Error: " + value + " is not a Hyper");
+	        }
+
+	        io.writeInt32BE(value.high);
+	        io.writeInt32BE(value.low);
+	      }
+	    },
+	    fromString: {
+	      value: function fromString(string) {
+	        var result = _get(_core.Object.getPrototypeOf(Hyper), "fromString", this).call(this, string, false);
+	        return new this(result.low, result.high);
+	      }
+	    },
+	    fromBits: {
+	      value: function fromBits(low, high) {
+	        var result = _get(_core.Object.getPrototypeOf(Hyper), "fromBits", this).call(this, low, high, false);
+	        return new this(result.low, result.high);
+	      }
+	    },
+	    isValid: {
+	      value: function isValid(value) {
+	        return value instanceof this;
+	      }
+	    }
+	  });
+
+	  return Hyper;
+	})(Long);
+
+	includeIoMixin(Hyper);
+
+	Hyper.MAX_VALUE = new Hyper(Long.MAX_VALUE.low, Long.MAX_VALUE.high);
+	Hyper.MIN_VALUE = new Hyper(Long.MIN_VALUE.low, Long.MIN_VALUE.high);
+
+/***/ },
+/* 60 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _interopRequire = __webpack_require__(27)["default"];
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var isNumber = __webpack_require__(37).isNumber;
+
+	var includeIoMixin = _interopRequire(__webpack_require__(87));
+
+	var Int = {
+
+	  read: function read(io) {
+	    return io.readInt32BE();
+	  },
+
+	  write: function write(value, io) {
+	    if (!isNumber(value)) {
+	      throw new Error("XDR Write Error: not a number");
+	    }
+
+	    if (Math.floor(value) !== value) {
+	      throw new Error("XDR Write Error: not an integer");
+	    }
+
+	    io.writeInt32BE(value);
+	  },
+
+	  isValid: function isValid(value) {
+	    if (!isNumber(value)) {
+	      return false;
+	    }
+	    if (Math.floor(value) !== value) {
+	      return false;
+	    }
+
+	    return value >= Int.MIN_VALUE && value <= Int.MAX_VALUE;
+	  } };
+
+	exports.Int = Int;
+	Int.MAX_VALUE = Math.pow(2, 31) - 1;
+	Int.MIN_VALUE = -Math.pow(2, 31);
+
+	includeIoMixin(Int);
+
+/***/ },
+/* 61 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _interopRequire = __webpack_require__(27)["default"];
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var isNumber = __webpack_require__(37).isNumber;
+
+	var includeIoMixin = _interopRequire(__webpack_require__(87));
+
+	var UnsignedInt = {
+
+	  read: function read(io) {
+	    return io.readUInt32BE();
+	  },
+
+	  write: function write(value, io) {
+	    if (!isNumber(value)) {
+	      throw new Error("XDR Write Error: not a number");
+	    }
+
+	    if (Math.floor(value) !== value) {
+	      throw new Error("XDR Write Error: not an integer");
+	    }
+
+	    if (value < 0) {
+	      throw new Error("XDR Write Error: negative number " + value);
+	    }
+
+	    io.writeUInt32BE(value);
+	  },
+
+	  isValid: function isValid(value) {
+	    if (!isNumber(value)) {
+	      return false;
+	    }
+	    if (Math.floor(value) !== value) {
+	      return false;
+	    }
+
+	    return value >= UnsignedInt.MIN_VALUE && value <= UnsignedInt.MAX_VALUE;
+	  } };
+
+	exports.UnsignedInt = UnsignedInt;
+	UnsignedInt.MAX_VALUE = Math.pow(2, 32) - 1;
+	UnsignedInt.MIN_VALUE = 0;
+
+	includeIoMixin(UnsignedInt);
+
+/***/ },
+/* 62 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _classCallCheck = __webpack_require__(31)["default"];
+
+	var _inherits = __webpack_require__(77)["default"];
+
+	var _get = __webpack_require__(88)["default"];
+
+	var _createClass = __webpack_require__(32)["default"];
+
+	var _core = __webpack_require__(46)["default"];
+
+	var _interopRequire = __webpack_require__(27)["default"];
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var Long = _interopRequire(__webpack_require__(98));
+
+	var includeIoMixin = _interopRequire(__webpack_require__(87));
+
+	var UnsignedHyper = exports.UnsignedHyper = (function (_Long) {
+	  function UnsignedHyper(low, high) {
+	    _classCallCheck(this, UnsignedHyper);
+
+	    _get(_core.Object.getPrototypeOf(UnsignedHyper.prototype), "constructor", this).call(this, low, high, false);
+	  }
+
+	  _inherits(UnsignedHyper, _Long);
+
+	  _createClass(UnsignedHyper, null, {
+	    read: {
+	      value: function read(io) {
+	        var high = io.readInt32BE();
+	        var low = io.readInt32BE();
+	        return this.fromBits(low, high);
+	      }
+	    },
+	    write: {
+	      value: function write(value, io) {
+	        if (!(value instanceof this)) {
+	          throw new Error("XDR Write Error: " + value + " is not an UnsignedHyper");
+	        }
+
+	        io.writeInt32BE(value.high);
+	        io.writeInt32BE(value.low);
+	      }
+	    },
+	    fromString: {
+	      value: function fromString(string) {
+	        var result = _get(_core.Object.getPrototypeOf(UnsignedHyper), "fromString", this).call(this, string, true);
+	        return new this(result.low, result.high);
+	      }
+	    },
+	    fromBits: {
+	      value: function fromBits(low, high) {
+	        var result = _get(_core.Object.getPrototypeOf(UnsignedHyper), "fromBits", this).call(this, low, high, true);
+	        return new this(result.low, result.high);
+	      }
+	    },
+	    isValid: {
+	      value: function isValid(value) {
+	        return value instanceof this;
+	      }
+	    }
+	  });
+
+	  return UnsignedHyper;
+	})(Long);
+
+	includeIoMixin(UnsignedHyper);
+
+	UnsignedHyper.MAX_VALUE = new UnsignedHyper(Long.MAX_UNSIGNED_VALUE.low, Long.MAX_UNSIGNED_VALUE.high);
+
+	UnsignedHyper.MIN_VALUE = new UnsignedHyper(Long.MIN_VALUE.low, Long.MIN_VALUE.high);
+
+/***/ },
+/* 63 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _interopRequire = __webpack_require__(27)["default"];
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var isNumber = __webpack_require__(37).isNumber;
+
+	var includeIoMixin = _interopRequire(__webpack_require__(87));
+
+	var Float = {
+
+	  read: function read(io) {
+	    return io.readFloatBE();
+	  },
+
+	  write: function write(value, io) {
+	    if (!isNumber(value)) {
+	      throw new Error("XDR Write Error: not a number");
+	    }
+
+	    io.writeFloatBE(value);
+	  },
+
+	  isValid: function isValid(value) {
+	    return isNumber(value);
+	  } };
+
+	exports.Float = Float;
+	includeIoMixin(Float);
+
+/***/ },
+/* 64 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _interopRequire = __webpack_require__(27)["default"];
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var isNumber = __webpack_require__(37).isNumber;
+
+	var includeIoMixin = _interopRequire(__webpack_require__(87));
+
+	var Double = {
+
+	  read: function read(io) {
+	    return io.readDoubleBE();
+	  },
+
+	  write: function write(value, io) {
+	    if (!isNumber(value)) {
+	      throw new Error("XDR Write Error: not a number");
+	    }
+
+	    io.writeDoubleBE(value);
+	  },
+
+	  isValid: function isValid(value) {
+	    return isNumber(value);
+	  } };
+
+	exports.Double = Double;
+	includeIoMixin(Double);
+
+/***/ },
+/* 65 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _interopRequire = __webpack_require__(27)["default"];
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var includeIoMixin = _interopRequire(__webpack_require__(87));
+
+	var Quadruple = {
+	  /* jshint unused: false */
+
+	  read: function read(io) {
+	    throw new Error("XDR Read Error: quadruple not supported");
+	  },
+
+	  write: function write(value, io) {
+	    throw new Error("XDR Write Error: quadruple not supported");
+	  },
+
+	  isValid: function isValid(value) {
+	    return false;
+	  } };
+
+	exports.Quadruple = Quadruple;
+	includeIoMixin(Quadruple);
+
+/***/ },
+/* 66 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _interopRequire = __webpack_require__(27)["default"];
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var Int = __webpack_require__(60).Int;
+
+	var isBoolean = __webpack_require__(37).isBoolean;
+
+	var includeIoMixin = _interopRequire(__webpack_require__(87));
+
+	var Bool = {
+	  read: function read(io) {
+	    var value = Int.read(io);
+
+	    switch (value) {
+	      case 0:
+	        return false;
+	      case 1:
+	        return true;
+	      default:
+	        throw new Error("XDR Read Error: Got " + value + " when trying to read a bool");
+	    }
+	  },
+
+	  write: function write(value, io) {
+	    var intVal = value ? 1 : 0;
+	    return Int.write(intVal, io);
+	  },
+
+	  isValid: function isValid(value) {
+	    return isBoolean(value);
+	  }
+	};
+
+	exports.Bool = Bool;
+	includeIoMixin(Bool);
+
+/***/ },
+/* 67 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
+
+	var _classCallCheck = __webpack_require__(31)["default"];
+
+	var _createClass = __webpack_require__(32)["default"];
+
+	var _interopRequire = __webpack_require__(27)["default"];
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var Int = __webpack_require__(60).Int;
+
+	var UnsignedInt = __webpack_require__(61).UnsignedInt;
+
+	var calculatePadding = __webpack_require__(89).calculatePadding;
+
+	var isString = __webpack_require__(37).isString;
+
+	var includeIoMixin = _interopRequire(__webpack_require__(87));
+
+	var String = exports.String = (function () {
+	  function String() {
+	    var maxLength = arguments[0] === undefined ? UnsignedInt.MAX_VALUE : arguments[0];
+
+	    _classCallCheck(this, String);
+
+	    this._maxLength = maxLength;
+	  }
+
+	  _createClass(String, {
+	    read: {
+	      value: function read(io) {
+	        var length = Int.read(io);
+
+	        if (length > this._maxLength) {
+	          throw new Error("XDR Read Error: Saw " + length + " length String," + ("max allowed is " + this._maxLength));
+	        }
+	        var padding = calculatePadding(length);
+	        var result = io.slice(length);
+	        io.slice(padding); //consume padding
+	        return result.buffer().toString("ascii");
+	      }
+	    },
+	    write: {
+	      value: function write(value, io) {
+	        if (value.length > this._maxLength) {
+	          throw new Error("XDR Write Error: Got " + value.length + " bytes," + ("max allows is " + this._maxLength));
+	        }
+
+	        if (!isString(value)) {
+	          throw new Error("XDR Write Error: " + value + " is not a string,");
+	        }
+	        var buffer = new Buffer(value, "ascii");
+
+	        Int.write(value.length, io);
+	        io.writeBufferPadded(buffer);
+	      }
+	    },
+	    isValid: {
+	      value: function isValid(value) {
+	        return isString(value) && value.length <= this._maxLength;
+	      }
+	    }
+	  });
+
+	  return String;
+	})();
+
+	includeIoMixin(String.prototype);
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
+
+/***/ },
+/* 68 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
+
+	var _classCallCheck = __webpack_require__(31)["default"];
+
+	var _createClass = __webpack_require__(32)["default"];
+
+	var _interopRequire = __webpack_require__(27)["default"];
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var calculatePadding = __webpack_require__(89).calculatePadding;
+
+	var includeIoMixin = _interopRequire(__webpack_require__(87));
+
+	var Opaque = exports.Opaque = (function () {
+	  function Opaque(length) {
+	    _classCallCheck(this, Opaque);
+
+	    this._length = length;
+	    this._padding = calculatePadding(length);
+	  }
+
+	  _createClass(Opaque, {
+	    read: {
+	      value: function read(io) {
+	        var result = io.slice(this._length);
+	        io.slice(this._padding); //consume padding
+	        return result.buffer();
+	      }
+	    },
+	    write: {
+	      value: function write(value, io) {
+	        if (value.length !== this._length) {
+	          throw new Error("XDR Write Error: Got " + value.length + " bytes, expected " + this._length);
+	        }
+
+	        io.writeBufferPadded(value);
+	      }
+	    },
+	    isValid: {
+	      value: function isValid(value) {
+	        return Buffer.isBuffer(value) && value.length === this._length;
+	      }
+	    }
+	  });
+
+	  return Opaque;
+	})();
+
+	includeIoMixin(Opaque.prototype);
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
+
+/***/ },
+/* 69 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
+
+	var _classCallCheck = __webpack_require__(31)["default"];
+
+	var _createClass = __webpack_require__(32)["default"];
+
+	var _interopRequire = __webpack_require__(27)["default"];
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var Int = __webpack_require__(60).Int;
+
+	var UnsignedInt = __webpack_require__(61).UnsignedInt;
+
+	var calculatePadding = __webpack_require__(89).calculatePadding;
+
+	var includeIoMixin = _interopRequire(__webpack_require__(87));
+
+	var VarOpaque = exports.VarOpaque = (function () {
+	  function VarOpaque() {
+	    var maxLength = arguments[0] === undefined ? UnsignedInt.MAX_VALUE : arguments[0];
+
+	    _classCallCheck(this, VarOpaque);
+
+	    this._maxLength = maxLength;
+	  }
+
+	  _createClass(VarOpaque, {
+	    read: {
+	      value: function read(io) {
+	        var length = Int.read(io);
+
+	        if (length > this._maxLength) {
+	          throw new Error("XDR Read Error: Saw " + length + " length VarOpaque," + ("max allowed is " + this._maxLength));
+	        }
+	        var padding = calculatePadding(length);
+	        var result = io.slice(length);
+	        io.slice(padding); //consume padding
+	        return result.buffer();
+	      }
+	    },
+	    write: {
+	      value: function write(value, io) {
+	        if (value.length > this._maxLength) {
+	          throw new Error("XDR Write Error: Got " + value.length + " bytes," + ("max allows is " + this._maxLength));
+	        }
+	        Int.write(value.length, io);
+	        io.writeBufferPadded(value);
+	      }
+	    },
+	    isValid: {
+	      value: function isValid(value) {
+	        return Buffer.isBuffer(value) && value.length <= this._maxLength;
+	      }
+	    }
+	  });
+
+	  return VarOpaque;
+	})();
+
+	includeIoMixin(VarOpaque.prototype);
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
+
+/***/ },
+/* 70 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _classCallCheck = __webpack_require__(31)["default"];
+
+	var _createClass = __webpack_require__(32)["default"];
+
+	var _interopRequire = __webpack_require__(27)["default"];
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _lodash = __webpack_require__(37);
+
+	var all = _lodash.all;
+	var each = _lodash.each;
+	var times = _lodash.times;
+	var isArray = _lodash.isArray;
+
+	var includeIoMixin = _interopRequire(__webpack_require__(87));
+
+	var Array = exports.Array = (function () {
+	  function Array(childType, length) {
+	    _classCallCheck(this, Array);
+
+	    this._childType = childType;
+	    this._length = length;
+	  }
+
+	  _createClass(Array, {
+	    read: {
+	      value: function read(io) {
+	        var _this = this;
+
+	        return times(this._length, function () {
+	          return _this._childType.read(io);
+	        });
+	      }
+	    },
+	    write: {
+	      value: function write(value, io) {
+	        var _this = this;
+
+	        if (!isArray(value)) {
+	          throw new Error("XDR Write Error: value is not array");
+	        }
+
+	        if (value.length !== this._length) {
+	          throw new Error("XDR Write Error: Got array of size " + value.length + "," + ("expected " + this._length));
+	        }
+
+	        each(value, function (child) {
+	          return _this._childType.write(child, io);
+	        });
+	      }
+	    },
+	    isValid: {
+	      value: function isValid(value) {
+	        var _this = this;
+
+	        if (!isArray(value)) {
+	          return false;
+	        }
+	        if (value.length !== this._length) {
+	          return false;
+	        }
+
+	        return all(value, function (child) {
+	          return _this._childType.isValid(child);
+	        });
+	      }
+	    }
+	  });
+
+	  return Array;
+	})();
+
+	includeIoMixin(Array.prototype);
+
+/***/ },
+/* 71 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _classCallCheck = __webpack_require__(31)["default"];
+
+	var _createClass = __webpack_require__(32)["default"];
+
+	var _interopRequire = __webpack_require__(27)["default"];
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var Int = __webpack_require__(60).Int;
+
+	var UnsignedInt = __webpack_require__(61).UnsignedInt;
+
+	var _lodash = __webpack_require__(37);
+
+	var all = _lodash.all;
+	var each = _lodash.each;
+	var times = _lodash.times;
+	var isArray = _lodash.isArray;
+
+	var includeIoMixin = _interopRequire(__webpack_require__(87));
+
+	var VarArray = exports.VarArray = (function () {
+	  function VarArray(childType) {
+	    var maxLength = arguments[1] === undefined ? UnsignedInt.MAX_VALUE : arguments[1];
+
+	    _classCallCheck(this, VarArray);
+
+	    this._childType = childType;
+	    this._maxLength = maxLength;
+	  }
+
+	  _createClass(VarArray, {
+	    read: {
+	      value: function read(io) {
+	        var _this = this;
+
+	        var length = Int.read(io);
+
+	        if (length > this._maxLength) {
+	          throw new Error("XDR Read Error: Saw " + length + " length VarArray," + ("max allowed is " + this._maxLength));
+	        }
+
+	        return times(length, function () {
+	          return _this._childType.read(io);
+	        });
+	      }
+	    },
+	    write: {
+	      value: function write(value, io) {
+	        var _this = this;
+
+	        if (!isArray(value)) {
+	          throw new Error("XDR Write Error: value is not array");
+	        }
+
+	        if (value.length > this._maxLength) {
+	          throw new Error("XDR Write Error: Got array of size " + value.length + "," + ("max allowed is " + this._maxLength));
+	        }
+
+	        Int.write(value.length, io);
+	        each(value, function (child) {
+	          return _this._childType.write(child, io);
+	        });
+	      }
+	    },
+	    isValid: {
+	      value: function isValid(value) {
+	        var _this = this;
+
+	        if (!isArray(value)) {
+	          return false;
+	        }
+	        if (value.length > this._maxLength) {
+	          return false;
+	        }
+
+	        return all(value, function (child) {
+	          return _this._childType.isValid(child);
+	        });
+	      }
+	    }
+	  });
+
+	  return VarArray;
+	})();
+
+	includeIoMixin(VarArray.prototype);
+
+/***/ },
+/* 72 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _classCallCheck = __webpack_require__(31)["default"];
+
+	var _createClass = __webpack_require__(32)["default"];
+
+	var _interopRequire = __webpack_require__(27)["default"];
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var Bool = __webpack_require__(66).Bool;
+
+	var _lodash = __webpack_require__(37);
+
+	var isNull = _lodash.isNull;
+	var isUndefined = _lodash.isUndefined;
+
+	var includeIoMixin = _interopRequire(__webpack_require__(87));
+
+	var Option = exports.Option = (function () {
+	  function Option(childType) {
+	    _classCallCheck(this, Option);
+
+	    this._childType = childType;
+	  }
+
+	  _createClass(Option, {
+	    read: {
+	      value: function read(io) {
+	        if (Bool.read(io)) {
+	          return this._childType.read(io);
+	        }
+	      }
+	    },
+	    write: {
+	      value: function write(value, io) {
+	        var isPresent = !(isNull(value) || isUndefined(value));
+
+	        Bool.write(isPresent, io);
+
+	        if (isPresent) {
+	          this._childType.write(value, io);
+	        }
+	      }
+	    },
+	    isValid: {
+	      value: function isValid(value) {
+	        if (isNull(value)) {
+	          return true;
+	        }
+	        if (isUndefined(value)) {
+	          return true;
+	        }
+
+	        return this._childType.isValid(value);
+	      }
+	    }
+	  });
+
+	  return Option;
+	})();
+
+	includeIoMixin(Option.prototype);
+
+/***/ },
+/* 73 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _interopRequire = __webpack_require__(27)["default"];
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var isUndefined = __webpack_require__(37).isUndefined;
+
+	var includeIoMixin = _interopRequire(__webpack_require__(87));
+
+	var Void = {
+	  /* jshint unused: false */
+
+	  read: function read(io) {
+	    return undefined;
+	  },
+
+	  write: function write(value, io) {
+	    if (!isUndefined(value)) {
+	      throw new Error("XDR Write Error: trying to write value to a void slot");
+	    }
+	  },
+
+	  isValid: function isValid(value) {
+	    return isUndefined(value);
+	  } };
+
+	exports.Void = Void;
+	includeIoMixin(Void);
+
+/***/ },
+/* 74 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _classCallCheck = __webpack_require__(31)["default"];
+
+	var _createClass = __webpack_require__(32)["default"];
+
+	var _inherits = __webpack_require__(77)["default"];
+
+	var _get = __webpack_require__(88)["default"];
+
+	var _core = __webpack_require__(46)["default"];
+
+	var _interopRequire = __webpack_require__(27)["default"];
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var Int = __webpack_require__(60).Int;
+
+	var _lodash = __webpack_require__(37);
+
+	var each = _lodash.each;
+	var vals = _lodash.values;
+
+	var includeIoMixin = _interopRequire(__webpack_require__(87));
+
+	var Enum = exports.Enum = (function () {
+	  function Enum(name, value) {
+	    _classCallCheck(this, Enum);
+
+	    this.name = name;
+	    this.value = value;
+	  }
+
+	  _createClass(Enum, null, {
+	    read: {
+	      value: function read(io) {
+	        var intVal = Int.read(io);
+
+	        if (!this._byValue.has(intVal)) {
+	          throw new Error("XDR Read Error: Unknown " + this.enumName + " member for value " + intVal);
+	        }
+
+	        return this._byValue.get(intVal);
+	      }
+	    },
+	    write: {
+	      value: function write(value, io) {
+	        if (!(value instanceof this)) {
+	          throw new Error("XDR Write Error: Unknown " + value + " is not a " + this.enumName);
+	        }
+
+	        Int.write(value.value, io);
+	      }
+	    },
+	    isValid: {
+	      value: function isValid(value) {
+	        return value instanceof this;
+	      }
+	    },
+	    members: {
+	      value: function members() {
+	        return this._members;
+	      }
+	    },
+	    values: {
+	      value: function values() {
+	        return vals(this._members);
+	      }
+	    },
+	    fromName: {
+	      value: function fromName(name) {
+	        var result = this._members[name];
+
+	        if (!result) {
+	          throw new Error("" + name + " is not a member of " + this.enumName);
+	        }
+
+	        return result;
+	      }
+	    },
+	    create: {
+	      value: function create(name, members) {
+	        var ChildEnum = (function (_Enum) {
+	          var _class = function ChildEnum() {
+	            for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+	              args[_key] = arguments[_key];
+	            }
+
+	            _classCallCheck(this, _class);
+
+	            _get(_core.Object.getPrototypeOf(_class.prototype), "constructor", this).apply(this, args);
+	          };
+
+	          _inherits(_class, _Enum);
+
+	          return _class;
+	        })(Enum);
+
+	        ChildEnum.enumName = name;
+	        ChildEnum._members = {};
+	        ChildEnum._byValue = new _core.Map();
+
+	        each(members, function (value, key) {
+	          var inst = new ChildEnum(key, value);
+	          ChildEnum._members[key] = inst;
+	          ChildEnum._byValue.set(value, inst);
+	          ChildEnum[key] = function () {
+	            return inst;
+	          };
+	        });
+
+	        return ChildEnum;
+	      }
+	    }
+	  });
+
+	  return Enum;
+	})();
+
+	includeIoMixin(Enum);
+
+/***/ },
+/* 75 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _classCallCheck = __webpack_require__(31)["default"];
+
+	var _createClass = __webpack_require__(32)["default"];
+
+	var _inherits = __webpack_require__(77)["default"];
+
+	var _get = __webpack_require__(88)["default"];
+
+	var _slicedToArray = __webpack_require__(90)["default"];
+
+	var _core = __webpack_require__(46)["default"];
+
+	var _interopRequire = __webpack_require__(27)["default"];
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _lodash = __webpack_require__(37);
+
+	var each = _lodash.each;
+	var map = _lodash.map;
+	var isUndefined = _lodash.isUndefined;
+	var zipObject = _lodash.zipObject;
+
+	var includeIoMixin = _interopRequire(__webpack_require__(87));
+
+	var Struct = exports.Struct = (function () {
+	  function Struct(attributes) {
+	    _classCallCheck(this, Struct);
+
+	    this._attributes = attributes || {};
+	  }
+
+	  _createClass(Struct, null, {
+	    read: {
+	      value: function read(io) {
+	        var fields = map(this._fields, function (field) {
+	          var _field = _slicedToArray(field, 2);
+
+	          var name = _field[0];
+	          var type = _field[1];
+
+	          var value = type.read(io);
+	          return [name, value];
+	        });
+
+	        return new this(zipObject(fields));
+	      }
+	    },
+	    write: {
+	      value: function write(value, io) {
+	        if (!(value instanceof this)) {
+	          throw new Error("XDR Write Error: " + value + " is not a " + this.structName);
+	        }
+	        each(this._fields, function (field) {
+	          var _field = _slicedToArray(field, 2);
+
+	          var name = _field[0];
+	          var type = _field[1];
+
+	          var attribute = value._attributes[name];
+	          type.write(attribute, io);
+	        });
+	      }
+	    },
+	    isValid: {
+	      value: function isValid(value) {
+	        return value instanceof this;
+	      }
+	    },
+	    create: {
+	      value: function create(name, fields) {
+	        var ChildStruct = (function (_Struct) {
+	          var _class = function ChildStruct() {
+	            for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+	              args[_key] = arguments[_key];
+	            }
+
+	            _classCallCheck(this, _class);
+
+	            _get(_core.Object.getPrototypeOf(_class.prototype), "constructor", this).apply(this, args);
+	          };
+
+	          _inherits(_class, _Struct);
+
+	          return _class;
+	        })(Struct);
+
+	        ChildStruct.structName = name;
+
+	        ChildStruct._fields = fields;
+
+	        each(fields, function (field) {
+	          var _field = _slicedToArray(field, 1);
+
+	          var fieldName = _field[0];
+
+	          ChildStruct.prototype[fieldName] = readOrWriteAttribute(fieldName);
+	        });
+
+	        return ChildStruct;
+	      }
+	    }
+	  });
+
+	  return Struct;
+	})();
+
+	includeIoMixin(Struct);
+
+	function readOrWriteAttribute(name) {
+	  return function (value) {
+	    if (!isUndefined(value)) {
+	      this._attributes[name] = value;
+	    }
+
+	    return this._attributes[name];
+	  };
+	}
+
+/***/ },
+/* 76 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _classCallCheck = __webpack_require__(31)["default"];
+
+	var _createClass = __webpack_require__(32)["default"];
+
+	var _inherits = __webpack_require__(77)["default"];
+
+	var _get = __webpack_require__(88)["default"];
+
+	var _core = __webpack_require__(46)["default"];
+
+	var _interopRequire = __webpack_require__(27)["default"];
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _lodash = __webpack_require__(37);
+
+	var each = _lodash.each;
+	var isUndefined = _lodash.isUndefined;
+
+	var Void = __webpack_require__(73).Void;
+
+	var includeIoMixin = _interopRequire(__webpack_require__(87));
+
+	var Union = exports.Union = (function () {
+	  function Union(aSwitch, value) {
+	    _classCallCheck(this, Union);
+
+	    this.set(aSwitch, value);
+	  }
+
+	  _createClass(Union, {
+	    set: {
+	      value: function set(aSwitch, value) {
+	        if (!(aSwitch instanceof this.constructor._switchOn)) {
+	          aSwitch = this.constructor._switchOn.fromName(aSwitch);
+	        }
+
+	        this._switch = aSwitch;
+	        this._arm = this.constructor.armForSwitch(this._switch);
+	        this._armType = this.constructor.armTypeForArm(this._arm);
+	        this._value = value;
+	      }
+	    },
+	    get: {
+	      value: function get() {
+	        var armName = arguments[0] === undefined ? this._arm : arguments[0];
+
+	        if (this._arm !== Void && this._arm !== armName) {
+	          throw new Error("" + armName + " not set");
+	        }
+	        return this._value;
+	      }
+	    },
+	    "switch": {
+	      value: function _switch() {
+	        return this._switch;
+	      }
+	    },
+	    arm: {
+	      value: function arm() {
+	        return this._arm;
+	      }
+	    },
+	    armType: {
+	      value: function armType() {
+	        return this._armType;
+	      }
+	    },
+	    value: {
+	      value: function value() {
+	        return this._value;
+	      }
+	    }
+	  }, {
+	    armForSwitch: {
+	      value: function armForSwitch(aSwitch) {
+
+	        var arm = this._switches.get(aSwitch);
+
+	        if (isUndefined(arm)) {
+	          throw new Error("Bad union switch: " + aSwitch);
+	        }
+
+	        return arm;
+	      }
+	    },
+	    armTypeForArm: {
+	      value: function armTypeForArm(arm) {
+	        if (arm === Void) {
+	          return Void;
+	        } else {
+	          return this._arms[arm];
+	        }
+	      }
+	    },
+	    read: {
+	      value: function read(io) {
+	        var aSwitch = this._switchOn.read(io);
+	        var arm = this.armForSwitch(aSwitch);
+	        var armType = this.armTypeForArm(arm);
+	        var value = armType.read(io);
+	        return new this(aSwitch, value);
+	      }
+	    },
+	    write: {
+	      value: function write(value, io) {
+	        if (!(value instanceof this)) {
+	          throw new Error("XDR Write Error: " + value + " is not a " + this.unionName);
+	        }
+
+	        this._switchOn.write(value["switch"](), io);
+	        value.armType().write(value.value(), io);
+	      }
+	    },
+	    isValid: {
+	      value: function isValid(value) {
+	        return value instanceof this;
+	      }
+	    },
+	    create: {
+	      value: function create(name, config) {
+	        var ChildUnion = (function (_Union) {
+	          var _class = function ChildUnion() {
+	            for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+	              args[_key] = arguments[_key];
+	            }
+
+	            _classCallCheck(this, _class);
+
+	            _get(_core.Object.getPrototypeOf(_class.prototype), "constructor", this).apply(this, args);
+	          };
+
+	          _inherits(_class, _Union);
+
+	          return _class;
+	        })(Union);
+
+	        ChildUnion.unionName = name;
+	        ChildUnion._switchOn = config.switchOn;
+	        ChildUnion._switches = new _core.Map();
+	        ChildUnion._arms = config.arms;
+
+	        each(ChildUnion._switchOn.values(), function (aSwitch) {
+
+	          // build the enum => arm map
+	          var arm = config.switches[aSwitch.name] || config.defaultArm;
+	          ChildUnion._switches.set(aSwitch, arm);
+
+	          // Add enum-based constrocutors
+	          ChildUnion[aSwitch.name] = function (value) {
+	            return new ChildUnion(aSwitch, value);
+	          };
+
+	          // Add enum-based "set" helpers
+	          ChildUnion.prototype[aSwitch.name] = function (value) {
+	            return this.set(aSwitch, value);
+	          };
+	        });
+
+	        // Add arm accessor helpers
+	        each(ChildUnion._arms, function (type, name) {
+	          if (type === Void) {
+	            return;
+	          }
+
+	          ChildUnion.prototype[name] = function () {
+	            return this.get(name);
+	          };
+	        });
+
+	        return ChildUnion;
+	      }
+	    }
+	  });
+
+	  return Union;
+	})();
+
+	includeIoMixin(Union);
+
+/***/ },
+/* 77 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	exports["default"] = function (subClass, superClass) {
+	  if (typeof superClass !== "function" && superClass !== null) {
+	    throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+	  }
+
+	  subClass.prototype = Object.create(superClass && superClass.prototype, {
+	    constructor: {
+	      value: subClass,
+	      enumerable: false,
+	      writable: true,
+	      configurable: true
+	    }
+	  });
+	  if (superClass) subClass.__proto__ = superClass;
+	};
+
+	exports.__esModule = true;
+
+/***/ },
+/* 78 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _core = __webpack_require__(46)["default"];
+
+	exports["default"] = function (arr) {
+	  if (Array.isArray(arr)) {
+	    for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i];
+
+	    return arr2;
+	  } else {
+	    return _core.Array.from(arr);
+	  }
+	};
+
+	exports.__esModule = true;
+
+/***/ },
+/* 79 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(module, global) {/*! https://mths.be/punycode v1.3.2 by @mathias */
@@ -30358,1413 +31742,10 @@ var StellarLib =
 
 	}(this));
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(81)(module), (function() { return this; }())))
-
-/***/ },
-/* 60 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _interopRequire = __webpack_require__(25)["default"];
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var isNumber = __webpack_require__(42).isNumber;
-
-	var includeIoMixin = _interopRequire(__webpack_require__(88));
-
-	var Int = {
-
-	  read: function read(io) {
-	    return io.readInt32BE();
-	  },
-
-	  write: function write(value, io) {
-	    if (!isNumber(value)) {
-	      throw new Error("XDR Write Error: not a number");
-	    }
-
-	    if (Math.floor(value) !== value) {
-	      throw new Error("XDR Write Error: not an integer");
-	    }
-
-	    io.writeInt32BE(value);
-	  },
-
-	  isValid: function isValid(value) {
-	    if (!isNumber(value)) {
-	      return false;
-	    }
-	    if (Math.floor(value) !== value) {
-	      return false;
-	    }
-
-	    return value >= Int.MIN_VALUE && value <= Int.MAX_VALUE;
-	  } };
-
-	exports.Int = Int;
-	Int.MAX_VALUE = Math.pow(2, 31) - 1;
-	Int.MIN_VALUE = -Math.pow(2, 31);
-
-	includeIoMixin(Int);
-
-/***/ },
-/* 61 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _classCallCheck = __webpack_require__(29)["default"];
-
-	var _inherits = __webpack_require__(78)["default"];
-
-	var _get = __webpack_require__(89)["default"];
-
-	var _createClass = __webpack_require__(30)["default"];
-
-	var _core = __webpack_require__(46)["default"];
-
-	var _interopRequire = __webpack_require__(25)["default"];
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var Long = _interopRequire(__webpack_require__(97));
-
-	var includeIoMixin = _interopRequire(__webpack_require__(88));
-
-	var Hyper = exports.Hyper = (function (_Long) {
-	  function Hyper(low, high) {
-	    _classCallCheck(this, Hyper);
-
-	    _get(_core.Object.getPrototypeOf(Hyper.prototype), "constructor", this).call(this, low, high, false);
-	  }
-
-	  _inherits(Hyper, _Long);
-
-	  _createClass(Hyper, null, {
-	    read: {
-	      value: function read(io) {
-	        var high = io.readInt32BE();
-	        var low = io.readInt32BE();
-	        return this.fromBits(low, high);
-	      }
-	    },
-	    write: {
-	      value: function write(value, io) {
-	        if (!(value instanceof this)) {
-	          throw new Error("XDR Write Error: " + value + " is not a Hyper");
-	        }
-
-	        io.writeInt32BE(value.high);
-	        io.writeInt32BE(value.low);
-	      }
-	    },
-	    fromString: {
-	      value: function fromString(string) {
-	        var result = _get(_core.Object.getPrototypeOf(Hyper), "fromString", this).call(this, string, false);
-	        return new this(result.low, result.high);
-	      }
-	    },
-	    fromBits: {
-	      value: function fromBits(low, high) {
-	        var result = _get(_core.Object.getPrototypeOf(Hyper), "fromBits", this).call(this, low, high, false);
-	        return new this(result.low, result.high);
-	      }
-	    },
-	    isValid: {
-	      value: function isValid(value) {
-	        return value instanceof this;
-	      }
-	    }
-	  });
-
-	  return Hyper;
-	})(Long);
-
-	includeIoMixin(Hyper);
-
-	Hyper.MAX_VALUE = new Hyper(Long.MAX_VALUE.low, Long.MAX_VALUE.high);
-	Hyper.MIN_VALUE = new Hyper(Long.MIN_VALUE.low, Long.MIN_VALUE.high);
-
-/***/ },
-/* 62 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _interopRequire = __webpack_require__(25)["default"];
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var isNumber = __webpack_require__(42).isNumber;
-
-	var includeIoMixin = _interopRequire(__webpack_require__(88));
-
-	var UnsignedInt = {
-
-	  read: function read(io) {
-	    return io.readUInt32BE();
-	  },
-
-	  write: function write(value, io) {
-	    if (!isNumber(value)) {
-	      throw new Error("XDR Write Error: not a number");
-	    }
-
-	    if (Math.floor(value) !== value) {
-	      throw new Error("XDR Write Error: not an integer");
-	    }
-
-	    if (value < 0) {
-	      throw new Error("XDR Write Error: negative number " + value);
-	    }
-
-	    io.writeUInt32BE(value);
-	  },
-
-	  isValid: function isValid(value) {
-	    if (!isNumber(value)) {
-	      return false;
-	    }
-	    if (Math.floor(value) !== value) {
-	      return false;
-	    }
-
-	    return value >= UnsignedInt.MIN_VALUE && value <= UnsignedInt.MAX_VALUE;
-	  } };
-
-	exports.UnsignedInt = UnsignedInt;
-	UnsignedInt.MAX_VALUE = Math.pow(2, 32) - 1;
-	UnsignedInt.MIN_VALUE = 0;
-
-	includeIoMixin(UnsignedInt);
-
-/***/ },
-/* 63 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _classCallCheck = __webpack_require__(29)["default"];
-
-	var _inherits = __webpack_require__(78)["default"];
-
-	var _get = __webpack_require__(89)["default"];
-
-	var _createClass = __webpack_require__(30)["default"];
-
-	var _core = __webpack_require__(46)["default"];
-
-	var _interopRequire = __webpack_require__(25)["default"];
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var Long = _interopRequire(__webpack_require__(97));
-
-	var includeIoMixin = _interopRequire(__webpack_require__(88));
-
-	var UnsignedHyper = exports.UnsignedHyper = (function (_Long) {
-	  function UnsignedHyper(low, high) {
-	    _classCallCheck(this, UnsignedHyper);
-
-	    _get(_core.Object.getPrototypeOf(UnsignedHyper.prototype), "constructor", this).call(this, low, high, false);
-	  }
-
-	  _inherits(UnsignedHyper, _Long);
-
-	  _createClass(UnsignedHyper, null, {
-	    read: {
-	      value: function read(io) {
-	        var high = io.readInt32BE();
-	        var low = io.readInt32BE();
-	        return this.fromBits(low, high);
-	      }
-	    },
-	    write: {
-	      value: function write(value, io) {
-	        if (!(value instanceof this)) {
-	          throw new Error("XDR Write Error: " + value + " is not an UnsignedHyper");
-	        }
-
-	        io.writeInt32BE(value.high);
-	        io.writeInt32BE(value.low);
-	      }
-	    },
-	    fromString: {
-	      value: function fromString(string) {
-	        var result = _get(_core.Object.getPrototypeOf(UnsignedHyper), "fromString", this).call(this, string, true);
-	        return new this(result.low, result.high);
-	      }
-	    },
-	    fromBits: {
-	      value: function fromBits(low, high) {
-	        var result = _get(_core.Object.getPrototypeOf(UnsignedHyper), "fromBits", this).call(this, low, high, true);
-	        return new this(result.low, result.high);
-	      }
-	    },
-	    isValid: {
-	      value: function isValid(value) {
-	        return value instanceof this;
-	      }
-	    }
-	  });
-
-	  return UnsignedHyper;
-	})(Long);
-
-	includeIoMixin(UnsignedHyper);
-
-	UnsignedHyper.MAX_VALUE = new UnsignedHyper(Long.MAX_UNSIGNED_VALUE.low, Long.MAX_UNSIGNED_VALUE.high);
-
-	UnsignedHyper.MIN_VALUE = new UnsignedHyper(Long.MIN_VALUE.low, Long.MIN_VALUE.high);
-
-/***/ },
-/* 64 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _interopRequire = __webpack_require__(25)["default"];
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var isNumber = __webpack_require__(42).isNumber;
-
-	var includeIoMixin = _interopRequire(__webpack_require__(88));
-
-	var Float = {
-
-	  read: function read(io) {
-	    return io.readFloatBE();
-	  },
-
-	  write: function write(value, io) {
-	    if (!isNumber(value)) {
-	      throw new Error("XDR Write Error: not a number");
-	    }
-
-	    io.writeFloatBE(value);
-	  },
-
-	  isValid: function isValid(value) {
-	    return isNumber(value);
-	  } };
-
-	exports.Float = Float;
-	includeIoMixin(Float);
-
-/***/ },
-/* 65 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _interopRequire = __webpack_require__(25)["default"];
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var isNumber = __webpack_require__(42).isNumber;
-
-	var includeIoMixin = _interopRequire(__webpack_require__(88));
-
-	var Double = {
-
-	  read: function read(io) {
-	    return io.readDoubleBE();
-	  },
-
-	  write: function write(value, io) {
-	    if (!isNumber(value)) {
-	      throw new Error("XDR Write Error: not a number");
-	    }
-
-	    io.writeDoubleBE(value);
-	  },
-
-	  isValid: function isValid(value) {
-	    return isNumber(value);
-	  } };
-
-	exports.Double = Double;
-	includeIoMixin(Double);
-
-/***/ },
-/* 66 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _interopRequire = __webpack_require__(25)["default"];
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var includeIoMixin = _interopRequire(__webpack_require__(88));
-
-	var Quadruple = {
-	  /* jshint unused: false */
-
-	  read: function read(io) {
-	    throw new Error("XDR Read Error: quadruple not supported");
-	  },
-
-	  write: function write(value, io) {
-	    throw new Error("XDR Write Error: quadruple not supported");
-	  },
-
-	  isValid: function isValid(value) {
-	    return false;
-	  } };
-
-	exports.Quadruple = Quadruple;
-	includeIoMixin(Quadruple);
-
-/***/ },
-/* 67 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _interopRequire = __webpack_require__(25)["default"];
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var Int = __webpack_require__(60).Int;
-
-	var isBoolean = __webpack_require__(42).isBoolean;
-
-	var includeIoMixin = _interopRequire(__webpack_require__(88));
-
-	var Bool = {
-	  read: function read(io) {
-	    var value = Int.read(io);
-
-	    switch (value) {
-	      case 0:
-	        return false;
-	      case 1:
-	        return true;
-	      default:
-	        throw new Error("XDR Read Error: Got " + value + " when trying to read a bool");
-	    }
-	  },
-
-	  write: function write(value, io) {
-	    var intVal = value ? 1 : 0;
-	    return Int.write(intVal, io);
-	  },
-
-	  isValid: function isValid(value) {
-	    return isBoolean(value);
-	  }
-	};
-
-	exports.Bool = Bool;
-	includeIoMixin(Bool);
-
-/***/ },
-/* 68 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
-
-	var _classCallCheck = __webpack_require__(29)["default"];
-
-	var _createClass = __webpack_require__(30)["default"];
-
-	var _interopRequire = __webpack_require__(25)["default"];
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var Int = __webpack_require__(60).Int;
-
-	var UnsignedInt = __webpack_require__(62).UnsignedInt;
-
-	var calculatePadding = __webpack_require__(90).calculatePadding;
-
-	var isString = __webpack_require__(42).isString;
-
-	var includeIoMixin = _interopRequire(__webpack_require__(88));
-
-	var String = exports.String = (function () {
-	  function String() {
-	    var maxLength = arguments[0] === undefined ? UnsignedInt.MAX_VALUE : arguments[0];
-
-	    _classCallCheck(this, String);
-
-	    this._maxLength = maxLength;
-	  }
-
-	  _createClass(String, {
-	    read: {
-	      value: function read(io) {
-	        var length = Int.read(io);
-
-	        if (length > this._maxLength) {
-	          throw new Error("XDR Read Error: Saw " + length + " length String," + ("max allowed is " + this._maxLength));
-	        }
-	        var padding = calculatePadding(length);
-	        var result = io.slice(length);
-	        io.slice(padding); //consume padding
-	        return result.buffer().toString("ascii");
-	      }
-	    },
-	    write: {
-	      value: function write(value, io) {
-	        if (value.length > this._maxLength) {
-	          throw new Error("XDR Write Error: Got " + value.length + " bytes," + ("max allows is " + this._maxLength));
-	        }
-
-	        if (!isString(value)) {
-	          throw new Error("XDR Write Error: " + value + " is not a string,");
-	        }
-	        var buffer = new Buffer(value, "ascii");
-
-	        Int.write(value.length, io);
-	        io.writeBufferPadded(buffer);
-	      }
-	    },
-	    isValid: {
-	      value: function isValid(value) {
-	        return isString(value) && value.length <= this._maxLength;
-	      }
-	    }
-	  });
-
-	  return String;
-	})();
-
-	includeIoMixin(String.prototype);
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
-
-/***/ },
-/* 69 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
-
-	var _classCallCheck = __webpack_require__(29)["default"];
-
-	var _createClass = __webpack_require__(30)["default"];
-
-	var _interopRequire = __webpack_require__(25)["default"];
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var calculatePadding = __webpack_require__(90).calculatePadding;
-
-	var includeIoMixin = _interopRequire(__webpack_require__(88));
-
-	var Opaque = exports.Opaque = (function () {
-	  function Opaque(length) {
-	    _classCallCheck(this, Opaque);
-
-	    this._length = length;
-	    this._padding = calculatePadding(length);
-	  }
-
-	  _createClass(Opaque, {
-	    read: {
-	      value: function read(io) {
-	        var result = io.slice(this._length);
-	        io.slice(this._padding); //consume padding
-	        return result.buffer();
-	      }
-	    },
-	    write: {
-	      value: function write(value, io) {
-	        if (value.length !== this._length) {
-	          throw new Error("XDR Write Error: Got " + value.length + " bytes, expected " + this._length);
-	        }
-
-	        io.writeBufferPadded(value);
-	      }
-	    },
-	    isValid: {
-	      value: function isValid(value) {
-	        return Buffer.isBuffer(value) && value.length === this._length;
-	      }
-	    }
-	  });
-
-	  return Opaque;
-	})();
-
-	includeIoMixin(Opaque.prototype);
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
-
-/***/ },
-/* 70 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
-
-	var _classCallCheck = __webpack_require__(29)["default"];
-
-	var _createClass = __webpack_require__(30)["default"];
-
-	var _interopRequire = __webpack_require__(25)["default"];
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var Int = __webpack_require__(60).Int;
-
-	var UnsignedInt = __webpack_require__(62).UnsignedInt;
-
-	var calculatePadding = __webpack_require__(90).calculatePadding;
-
-	var includeIoMixin = _interopRequire(__webpack_require__(88));
-
-	var VarOpaque = exports.VarOpaque = (function () {
-	  function VarOpaque() {
-	    var maxLength = arguments[0] === undefined ? UnsignedInt.MAX_VALUE : arguments[0];
-
-	    _classCallCheck(this, VarOpaque);
-
-	    this._maxLength = maxLength;
-	  }
-
-	  _createClass(VarOpaque, {
-	    read: {
-	      value: function read(io) {
-	        var length = Int.read(io);
-
-	        if (length > this._maxLength) {
-	          throw new Error("XDR Read Error: Saw " + length + " length VarOpaque," + ("max allowed is " + this._maxLength));
-	        }
-	        var padding = calculatePadding(length);
-	        var result = io.slice(length);
-	        io.slice(padding); //consume padding
-	        return result.buffer();
-	      }
-	    },
-	    write: {
-	      value: function write(value, io) {
-	        if (value.length > this._maxLength) {
-	          throw new Error("XDR Write Error: Got " + value.length + " bytes," + ("max allows is " + this._maxLength));
-	        }
-	        Int.write(value.length, io);
-	        io.writeBufferPadded(value);
-	      }
-	    },
-	    isValid: {
-	      value: function isValid(value) {
-	        return Buffer.isBuffer(value) && value.length <= this._maxLength;
-	      }
-	    }
-	  });
-
-	  return VarOpaque;
-	})();
-
-	includeIoMixin(VarOpaque.prototype);
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
-
-/***/ },
-/* 71 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _classCallCheck = __webpack_require__(29)["default"];
-
-	var _createClass = __webpack_require__(30)["default"];
-
-	var _interopRequire = __webpack_require__(25)["default"];
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _lodash = __webpack_require__(42);
-
-	var all = _lodash.all;
-	var each = _lodash.each;
-	var times = _lodash.times;
-	var isArray = _lodash.isArray;
-
-	var includeIoMixin = _interopRequire(__webpack_require__(88));
-
-	var Array = exports.Array = (function () {
-	  function Array(childType, length) {
-	    _classCallCheck(this, Array);
-
-	    this._childType = childType;
-	    this._length = length;
-	  }
-
-	  _createClass(Array, {
-	    read: {
-	      value: function read(io) {
-	        var _this = this;
-
-	        return times(this._length, function () {
-	          return _this._childType.read(io);
-	        });
-	      }
-	    },
-	    write: {
-	      value: function write(value, io) {
-	        var _this = this;
-
-	        if (!isArray(value)) {
-	          throw new Error("XDR Write Error: value is not array");
-	        }
-
-	        if (value.length !== this._length) {
-	          throw new Error("XDR Write Error: Got array of size " + value.length + "," + ("expected " + this._length));
-	        }
-
-	        each(value, function (child) {
-	          return _this._childType.write(child, io);
-	        });
-	      }
-	    },
-	    isValid: {
-	      value: function isValid(value) {
-	        var _this = this;
-
-	        if (!isArray(value)) {
-	          return false;
-	        }
-	        if (value.length !== this._length) {
-	          return false;
-	        }
-
-	        return all(value, function (child) {
-	          return _this._childType.isValid(child);
-	        });
-	      }
-	    }
-	  });
-
-	  return Array;
-	})();
-
-	includeIoMixin(Array.prototype);
-
-/***/ },
-/* 72 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _classCallCheck = __webpack_require__(29)["default"];
-
-	var _createClass = __webpack_require__(30)["default"];
-
-	var _interopRequire = __webpack_require__(25)["default"];
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var Int = __webpack_require__(60).Int;
-
-	var UnsignedInt = __webpack_require__(62).UnsignedInt;
-
-	var _lodash = __webpack_require__(42);
-
-	var all = _lodash.all;
-	var each = _lodash.each;
-	var times = _lodash.times;
-	var isArray = _lodash.isArray;
-
-	var includeIoMixin = _interopRequire(__webpack_require__(88));
-
-	var VarArray = exports.VarArray = (function () {
-	  function VarArray(childType) {
-	    var maxLength = arguments[1] === undefined ? UnsignedInt.MAX_VALUE : arguments[1];
-
-	    _classCallCheck(this, VarArray);
-
-	    this._childType = childType;
-	    this._maxLength = maxLength;
-	  }
-
-	  _createClass(VarArray, {
-	    read: {
-	      value: function read(io) {
-	        var _this = this;
-
-	        var length = Int.read(io);
-
-	        if (length > this._maxLength) {
-	          throw new Error("XDR Read Error: Saw " + length + " length VarArray," + ("max allowed is " + this._maxLength));
-	        }
-
-	        return times(length, function () {
-	          return _this._childType.read(io);
-	        });
-	      }
-	    },
-	    write: {
-	      value: function write(value, io) {
-	        var _this = this;
-
-	        if (!isArray(value)) {
-	          throw new Error("XDR Write Error: value is not array");
-	        }
-
-	        if (value.length > this._maxLength) {
-	          throw new Error("XDR Write Error: Got array of size " + value.length + "," + ("max allowed is " + this._maxLength));
-	        }
-
-	        Int.write(value.length, io);
-	        each(value, function (child) {
-	          return _this._childType.write(child, io);
-	        });
-	      }
-	    },
-	    isValid: {
-	      value: function isValid(value) {
-	        var _this = this;
-
-	        if (!isArray(value)) {
-	          return false;
-	        }
-	        if (value.length > this._maxLength) {
-	          return false;
-	        }
-
-	        return all(value, function (child) {
-	          return _this._childType.isValid(child);
-	        });
-	      }
-	    }
-	  });
-
-	  return VarArray;
-	})();
-
-	includeIoMixin(VarArray.prototype);
-
-/***/ },
-/* 73 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _classCallCheck = __webpack_require__(29)["default"];
-
-	var _createClass = __webpack_require__(30)["default"];
-
-	var _interopRequire = __webpack_require__(25)["default"];
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var Bool = __webpack_require__(67).Bool;
-
-	var _lodash = __webpack_require__(42);
-
-	var isNull = _lodash.isNull;
-	var isUndefined = _lodash.isUndefined;
-
-	var includeIoMixin = _interopRequire(__webpack_require__(88));
-
-	var Option = exports.Option = (function () {
-	  function Option(childType) {
-	    _classCallCheck(this, Option);
-
-	    this._childType = childType;
-	  }
-
-	  _createClass(Option, {
-	    read: {
-	      value: function read(io) {
-	        if (Bool.read(io)) {
-	          return this._childType.read(io);
-	        }
-	      }
-	    },
-	    write: {
-	      value: function write(value, io) {
-	        var isPresent = !(isNull(value) || isUndefined(value));
-
-	        Bool.write(isPresent, io);
-
-	        if (isPresent) {
-	          this._childType.write(value, io);
-	        }
-	      }
-	    },
-	    isValid: {
-	      value: function isValid(value) {
-	        if (isNull(value)) {
-	          return true;
-	        }
-	        if (isUndefined(value)) {
-	          return true;
-	        }
-
-	        return this._childType.isValid(value);
-	      }
-	    }
-	  });
-
-	  return Option;
-	})();
-
-	includeIoMixin(Option.prototype);
-
-/***/ },
-/* 74 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _interopRequire = __webpack_require__(25)["default"];
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var isUndefined = __webpack_require__(42).isUndefined;
-
-	var includeIoMixin = _interopRequire(__webpack_require__(88));
-
-	var Void = {
-	  /* jshint unused: false */
-
-	  read: function read(io) {
-	    return undefined;
-	  },
-
-	  write: function write(value, io) {
-	    if (!isUndefined(value)) {
-	      throw new Error("XDR Write Error: trying to write value to a void slot");
-	    }
-	  },
-
-	  isValid: function isValid(value) {
-	    return isUndefined(value);
-	  } };
-
-	exports.Void = Void;
-	includeIoMixin(Void);
-
-/***/ },
-/* 75 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _classCallCheck = __webpack_require__(29)["default"];
-
-	var _createClass = __webpack_require__(30)["default"];
-
-	var _inherits = __webpack_require__(78)["default"];
-
-	var _get = __webpack_require__(89)["default"];
-
-	var _core = __webpack_require__(46)["default"];
-
-	var _interopRequire = __webpack_require__(25)["default"];
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var Int = __webpack_require__(60).Int;
-
-	var _lodash = __webpack_require__(42);
-
-	var each = _lodash.each;
-	var vals = _lodash.values;
-
-	var includeIoMixin = _interopRequire(__webpack_require__(88));
-
-	var Enum = exports.Enum = (function () {
-	  function Enum(name, value) {
-	    _classCallCheck(this, Enum);
-
-	    this.name = name;
-	    this.value = value;
-	  }
-
-	  _createClass(Enum, null, {
-	    read: {
-	      value: function read(io) {
-	        var intVal = Int.read(io);
-
-	        if (!this._byValue.has(intVal)) {
-	          throw new Error("XDR Read Error: Unknown " + this.enumName + " member for value " + intVal);
-	        }
-
-	        return this._byValue.get(intVal);
-	      }
-	    },
-	    write: {
-	      value: function write(value, io) {
-	        if (!(value instanceof this)) {
-	          throw new Error("XDR Write Error: Unknown " + value + " is not a " + this.enumName);
-	        }
-
-	        Int.write(value.value, io);
-	      }
-	    },
-	    isValid: {
-	      value: function isValid(value) {
-	        return value instanceof this;
-	      }
-	    },
-	    members: {
-	      value: function members() {
-	        return this._members;
-	      }
-	    },
-	    values: {
-	      value: function values() {
-	        return vals(this._members);
-	      }
-	    },
-	    fromName: {
-	      value: function fromName(name) {
-	        var result = this._members[name];
-
-	        if (!result) {
-	          throw new Error("" + name + " is not a member of " + this.enumName);
-	        }
-
-	        return result;
-	      }
-	    },
-	    create: {
-	      value: function create(name, members) {
-	        var ChildEnum = (function (_Enum) {
-	          var _class = function ChildEnum() {
-	            for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-	              args[_key] = arguments[_key];
-	            }
-
-	            _classCallCheck(this, _class);
-
-	            _get(_core.Object.getPrototypeOf(_class.prototype), "constructor", this).apply(this, args);
-	          };
-
-	          _inherits(_class, _Enum);
-
-	          return _class;
-	        })(Enum);
-
-	        ChildEnum.enumName = name;
-	        ChildEnum._members = {};
-	        ChildEnum._byValue = new _core.Map();
-
-	        each(members, function (value, key) {
-	          var inst = new ChildEnum(key, value);
-	          ChildEnum._members[key] = inst;
-	          ChildEnum._byValue.set(value, inst);
-	          ChildEnum[key] = function () {
-	            return inst;
-	          };
-	        });
-
-	        return ChildEnum;
-	      }
-	    }
-	  });
-
-	  return Enum;
-	})();
-
-	includeIoMixin(Enum);
-
-/***/ },
-/* 76 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _classCallCheck = __webpack_require__(29)["default"];
-
-	var _createClass = __webpack_require__(30)["default"];
-
-	var _inherits = __webpack_require__(78)["default"];
-
-	var _get = __webpack_require__(89)["default"];
-
-	var _slicedToArray = __webpack_require__(91)["default"];
-
-	var _core = __webpack_require__(46)["default"];
-
-	var _interopRequire = __webpack_require__(25)["default"];
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _lodash = __webpack_require__(42);
-
-	var each = _lodash.each;
-	var map = _lodash.map;
-	var isUndefined = _lodash.isUndefined;
-	var zipObject = _lodash.zipObject;
-
-	var includeIoMixin = _interopRequire(__webpack_require__(88));
-
-	var Struct = exports.Struct = (function () {
-	  function Struct(attributes) {
-	    _classCallCheck(this, Struct);
-
-	    this._attributes = attributes || {};
-	  }
-
-	  _createClass(Struct, null, {
-	    read: {
-	      value: function read(io) {
-	        var fields = map(this._fields, function (field) {
-	          var _field = _slicedToArray(field, 2);
-
-	          var name = _field[0];
-	          var type = _field[1];
-
-	          var value = type.read(io);
-	          return [name, value];
-	        });
-
-	        return new this(zipObject(fields));
-	      }
-	    },
-	    write: {
-	      value: function write(value, io) {
-	        if (!(value instanceof this)) {
-	          throw new Error("XDR Write Error: " + value + " is not a " + this.structName);
-	        }
-	        each(this._fields, function (field) {
-	          var _field = _slicedToArray(field, 2);
-
-	          var name = _field[0];
-	          var type = _field[1];
-
-	          var attribute = value._attributes[name];
-	          type.write(attribute, io);
-	        });
-	      }
-	    },
-	    isValid: {
-	      value: function isValid(value) {
-	        return value instanceof this;
-	      }
-	    },
-	    create: {
-	      value: function create(name, fields) {
-	        var ChildStruct = (function (_Struct) {
-	          var _class = function ChildStruct() {
-	            for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-	              args[_key] = arguments[_key];
-	            }
-
-	            _classCallCheck(this, _class);
-
-	            _get(_core.Object.getPrototypeOf(_class.prototype), "constructor", this).apply(this, args);
-	          };
-
-	          _inherits(_class, _Struct);
-
-	          return _class;
-	        })(Struct);
-
-	        ChildStruct.structName = name;
-
-	        ChildStruct._fields = fields;
-
-	        each(fields, function (field) {
-	          var _field = _slicedToArray(field, 1);
-
-	          var fieldName = _field[0];
-
-	          ChildStruct.prototype[fieldName] = readOrWriteAttribute(fieldName);
-	        });
-
-	        return ChildStruct;
-	      }
-	    }
-	  });
-
-	  return Struct;
-	})();
-
-	includeIoMixin(Struct);
-
-	function readOrWriteAttribute(name) {
-	  return function (value) {
-	    if (!isUndefined(value)) {
-	      this._attributes[name] = value;
-	    }
-
-	    return this._attributes[name];
-	  };
-	}
-
-/***/ },
-/* 77 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _classCallCheck = __webpack_require__(29)["default"];
-
-	var _createClass = __webpack_require__(30)["default"];
-
-	var _inherits = __webpack_require__(78)["default"];
-
-	var _get = __webpack_require__(89)["default"];
-
-	var _core = __webpack_require__(46)["default"];
-
-	var _interopRequire = __webpack_require__(25)["default"];
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _lodash = __webpack_require__(42);
-
-	var each = _lodash.each;
-	var isUndefined = _lodash.isUndefined;
-
-	var Void = __webpack_require__(74).Void;
-
-	var includeIoMixin = _interopRequire(__webpack_require__(88));
-
-	var Union = exports.Union = (function () {
-	  function Union(aSwitch, value) {
-	    _classCallCheck(this, Union);
-
-	    this.set(aSwitch, value);
-	  }
-
-	  _createClass(Union, {
-	    set: {
-	      value: function set(aSwitch, value) {
-	        if (!(aSwitch instanceof this.constructor._switchOn)) {
-	          aSwitch = this.constructor._switchOn.fromName(aSwitch);
-	        }
-
-	        this._switch = aSwitch;
-	        this._arm = this.constructor.armForSwitch(this._switch);
-	        this._armType = this.constructor.armTypeForArm(this._arm);
-	        this._value = value;
-	      }
-	    },
-	    get: {
-	      value: function get() {
-	        var armName = arguments[0] === undefined ? this._arm : arguments[0];
-
-	        if (this._arm !== Void && this._arm !== armName) {
-	          throw new Error("" + armName + " not set");
-	        }
-	        return this._value;
-	      }
-	    },
-	    "switch": {
-	      value: function _switch() {
-	        return this._switch;
-	      }
-	    },
-	    arm: {
-	      value: function arm() {
-	        return this._arm;
-	      }
-	    },
-	    armType: {
-	      value: function armType() {
-	        return this._armType;
-	      }
-	    },
-	    value: {
-	      value: function value() {
-	        return this._value;
-	      }
-	    }
-	  }, {
-	    armForSwitch: {
-	      value: function armForSwitch(aSwitch) {
-
-	        var arm = this._switches.get(aSwitch);
-
-	        if (isUndefined(arm)) {
-	          throw new Error("Bad union switch: " + aSwitch);
-	        }
-
-	        return arm;
-	      }
-	    },
-	    armTypeForArm: {
-	      value: function armTypeForArm(arm) {
-	        if (arm === Void) {
-	          return Void;
-	        } else {
-	          return this._arms[arm];
-	        }
-	      }
-	    },
-	    read: {
-	      value: function read(io) {
-	        var aSwitch = this._switchOn.read(io);
-	        var arm = this.armForSwitch(aSwitch);
-	        var armType = this.armTypeForArm(arm);
-	        var value = armType.read(io);
-	        return new this(aSwitch, value);
-	      }
-	    },
-	    write: {
-	      value: function write(value, io) {
-	        if (!(value instanceof this)) {
-	          throw new Error("XDR Write Error: " + value + " is not a " + this.unionName);
-	        }
-
-	        this._switchOn.write(value["switch"](), io);
-	        value.armType().write(value.value(), io);
-	      }
-	    },
-	    isValid: {
-	      value: function isValid(value) {
-	        return value instanceof this;
-	      }
-	    },
-	    create: {
-	      value: function create(name, config) {
-	        var ChildUnion = (function (_Union) {
-	          var _class = function ChildUnion() {
-	            for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-	              args[_key] = arguments[_key];
-	            }
-
-	            _classCallCheck(this, _class);
-
-	            _get(_core.Object.getPrototypeOf(_class.prototype), "constructor", this).apply(this, args);
-	          };
-
-	          _inherits(_class, _Union);
-
-	          return _class;
-	        })(Union);
-
-	        ChildUnion.unionName = name;
-	        ChildUnion._switchOn = config.switchOn;
-	        ChildUnion._switches = new _core.Map();
-	        ChildUnion._arms = config.arms;
-
-	        each(ChildUnion._switchOn.values(), function (aSwitch) {
-
-	          // build the enum => arm map
-	          var arm = config.switches[aSwitch.name] || config.defaultArm;
-	          ChildUnion._switches.set(aSwitch, arm);
-
-	          // Add enum-based constrocutors
-	          ChildUnion[aSwitch.name] = function (value) {
-	            return new ChildUnion(aSwitch, value);
-	          };
-
-	          // Add enum-based "set" helpers
-	          ChildUnion.prototype[aSwitch.name] = function (value) {
-	            return this.set(aSwitch, value);
-	          };
-	        });
-
-	        // Add arm accessor helpers
-	        each(ChildUnion._arms, function (type, name) {
-	          if (type === Void) {
-	            return;
-	          }
-
-	          ChildUnion.prototype[name] = function () {
-	            return this.get(name);
-	          };
-	        });
-
-	        return ChildUnion;
-	      }
-	    }
-	  });
-
-	  return Union;
-	})();
-
-	includeIoMixin(Union);
-
-/***/ },
-/* 78 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	exports["default"] = function (subClass, superClass) {
-	  if (typeof superClass !== "function" && superClass !== null) {
-	    throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
-	  }
-
-	  subClass.prototype = Object.create(superClass && superClass.prototype, {
-	    constructor: {
-	      value: subClass,
-	      enumerable: false,
-	      writable: true,
-	      configurable: true
-	    }
-	  });
-	  if (superClass) subClass.__proto__ = superClass;
-	};
-
-	exports.__esModule = true;
-
-/***/ },
-/* 79 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _core = __webpack_require__(46)["default"];
-
-	exports["default"] = function (arr) {
-	  if (Array.isArray(arr)) {
-	    for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i];
-
-	    return arr2;
-	  } else {
-	    return _core.Array.from(arr);
-	  }
-	};
-
-	exports.__esModule = true;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(80)(module), (function() { return this; }())))
 
 /***/ },
 /* 80 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	exports.decode = exports.parse = __webpack_require__(92);
-	exports.encode = exports.stringify = __webpack_require__(93);
-
-
-/***/ },
-/* 81 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = function(module) {
@@ -31780,14 +31761,24 @@ var StellarLib =
 
 
 /***/ },
+/* 81 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	exports.decode = exports.parse = __webpack_require__(92);
+	exports.encode = exports.stringify = __webpack_require__(93);
+
+
+/***/ },
 /* 82 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var required = __webpack_require__(99)
-	  , lolcation = __webpack_require__(94)
-	  , qs = __webpack_require__(100);
+	var required = __webpack_require__(100)
+	  , lolcation = __webpack_require__(97)
+	  , qs = __webpack_require__(101);
 
 	var keys = ',,protocol,username,password,host,hostname,port,pathname,query,hash'.split(',')
 	  , inherit = { protocol: 1, host: 1, hostname: 1 }
@@ -32000,8 +31991,165 @@ var StellarLib =
 /* 83 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Stream = __webpack_require__(87);
-	var util = __webpack_require__(39);
+	/* WEBPACK VAR INJECTION */(function(Buffer) {//prototype class for hash functions
+	function Hash (blockSize, finalSize) {
+	  this._block = new Buffer(blockSize) //new Uint32Array(blockSize/4)
+	  this._finalSize = finalSize
+	  this._blockSize = blockSize
+	  this._len = 0
+	  this._s = 0
+	}
+
+	Hash.prototype.update = function (data, enc) {
+	  if ("string" === typeof data) {
+	    enc = enc || "utf8"
+	    data = new Buffer(data, enc)
+	  }
+
+	  var l = this._len += data.length
+	  var s = this._s || 0
+	  var f = 0
+	  var buffer = this._block
+
+	  while (s < l) {
+	    var t = Math.min(data.length, f + this._blockSize - (s % this._blockSize))
+	    var ch = (t - f)
+
+	    for (var i = 0; i < ch; i++) {
+	      buffer[(s % this._blockSize) + i] = data[i + f]
+	    }
+
+	    s += ch
+	    f += ch
+
+	    if ((s % this._blockSize) === 0) {
+	      this._update(buffer)
+	    }
+	  }
+	  this._s = s
+
+	  return this
+	}
+
+	Hash.prototype.digest = function (enc) {
+	  // Suppose the length of the message M, in bits, is l
+	  var l = this._len * 8
+
+	  // Append the bit 1 to the end of the message
+	  this._block[this._len % this._blockSize] = 0x80
+
+	  // and then k zero bits, where k is the smallest non-negative solution to the equation (l + 1 + k) === finalSize mod blockSize
+	  this._block.fill(0, this._len % this._blockSize + 1)
+
+	  if (l % (this._blockSize * 8) >= this._finalSize * 8) {
+	    this._update(this._block)
+	    this._block.fill(0)
+	  }
+
+	  // to this append the block which is equal to the number l written in binary
+	  // TODO: handle case where l is > Math.pow(2, 29)
+	  this._block.writeInt32BE(l, this._blockSize - 4)
+
+	  var hash = this._update(this._block) || this._hash()
+
+	  return enc ? hash.toString(enc) : hash
+	}
+
+	Hash.prototype._update = function () {
+	  throw new Error('_update must be implemented by subclass')
+	}
+
+	module.exports = Hash
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
+
+/***/ },
+/* 84 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/*jshint node:true */
+
+	"use strict";
+
+	var sequence = function (tasks, names, results, nest) {
+		var i, name, node, e, j;
+		nest = nest || [];
+		for (i = 0; i < names.length; i++) {
+			name = names[i];
+			// de-dup results
+			if (results.indexOf(name) === -1) {
+				node = tasks[name];
+				if (!node) {
+					e = new Error('task "'+name+'" is not defined');
+					e.missingTask = name;
+					e.taskList = [];
+					for (j in tasks) {
+						if (tasks.hasOwnProperty(j)) {
+							e.taskList.push(tasks[j].name);
+						}
+					}
+					throw e;
+				}
+				if (nest.indexOf(name) > -1) {
+					nest.push(name);
+					e = new Error('Recursive dependencies detected: '+nest.join(' -> '));
+					e.recursiveTasks = nest;
+					e.taskList = [];
+					for (j in tasks) {
+						if (tasks.hasOwnProperty(j)) {
+							e.taskList.push(tasks[j].name);
+						}
+					}
+					throw e;
+				}
+				if (node.dep.length) {
+					nest.push(name);
+					sequence(tasks, node.dep, results, nest); // recurse
+					nest.pop(name);
+				}
+				results.push(name);
+			}
+		}
+	};
+
+	module.exports = sequence;
+
+
+/***/ },
+/* 85 */
+/***/ function(module, exports, __webpack_require__) {
+
+	if (typeof Object.create === 'function') {
+	  // implementation from standard node.js 'util' module
+	  module.exports = function inherits(ctor, superCtor) {
+	    ctor.super_ = superCtor
+	    ctor.prototype = Object.create(superCtor.prototype, {
+	      constructor: {
+	        value: ctor,
+	        enumerable: false,
+	        writable: true,
+	        configurable: true
+	      }
+	    });
+	  };
+	} else {
+	  // old school shim for old browsers
+	  module.exports = function inherits(ctor, superCtor) {
+	    ctor.super_ = superCtor
+	    var TempCtor = function () {}
+	    TempCtor.prototype = superCtor.prototype
+	    ctor.prototype = new TempCtor()
+	    ctor.prototype.constructor = ctor
+	  }
+	}
+
+
+/***/ },
+/* 86 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var Stream = __webpack_require__(91);
+	var util = __webpack_require__(42);
 
 	var Response = module.exports = function (res) {
 	    this.offset = 0;
@@ -32123,164 +32271,170 @@ var StellarLib =
 
 
 /***/ },
-/* 84 */
+/* 87 */
 /***/ function(module, exports, __webpack_require__) {
-
-	if (typeof Object.create === 'function') {
-	  // implementation from standard node.js 'util' module
-	  module.exports = function inherits(ctor, superCtor) {
-	    ctor.super_ = superCtor
-	    ctor.prototype = Object.create(superCtor.prototype, {
-	      constructor: {
-	        value: ctor,
-	        enumerable: false,
-	        writable: true,
-	        configurable: true
-	      }
-	    });
-	  };
-	} else {
-	  // old school shim for old browsers
-	  module.exports = function inherits(ctor, superCtor) {
-	    ctor.super_ = superCtor
-	    var TempCtor = function () {}
-	    TempCtor.prototype = superCtor.prototype
-	    ctor.prototype = new TempCtor()
-	    ctor.prototype.constructor = ctor
-	  }
-	}
-
-
-/***/ },
-/* 85 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/*jshint node:true */
 
 	"use strict";
 
-	var sequence = function (tasks, names, results, nest) {
-		var i, name, node, e, j;
-		nest = nest || [];
-		for (i = 0; i < names.length; i++) {
-			name = names[i];
-			// de-dup results
-			if (results.indexOf(name) === -1) {
-				node = tasks[name];
-				if (!node) {
-					e = new Error('task "'+name+'" is not defined');
-					e.missingTask = name;
-					e.taskList = [];
-					for (j in tasks) {
-						if (tasks.hasOwnProperty(j)) {
-							e.taskList.push(tasks[j].name);
-						}
-					}
-					throw e;
-				}
-				if (nest.indexOf(name) > -1) {
-					nest.push(name);
-					e = new Error('Recursive dependencies detected: '+nest.join(' -> '));
-					e.recursiveTasks = nest;
-					e.taskList = [];
-					for (j in tasks) {
-						if (tasks.hasOwnProperty(j)) {
-							e.taskList.push(tasks[j].name);
-						}
-					}
-					throw e;
-				}
-				if (node.dep.length) {
-					nest.push(name);
-					sequence(tasks, node.dep, results, nest); // recurse
-					nest.pop(name);
-				}
-				results.push(name);
-			}
-		}
+	module.exports = includeIoMixin;
+
+	var Cursor = __webpack_require__(99).Cursor;
+
+	var _lodash = __webpack_require__(37);
+
+	var extend = _lodash.extend;
+	var isFunction = _lodash.isFunction;
+
+	//TODO: build a system to grow a buffer as we write to it
+	var BUFFER_SIZE = Math.pow(2, 16);
+
+	var staticMethods = {
+	  toXDR: function toXDR(val) {
+	    var cursor = new Cursor(BUFFER_SIZE);
+	    this.write(val, cursor);
+	    var bytesWritten = cursor.tell();
+	    cursor.rewind();
+
+	    return cursor.slice(bytesWritten).buffer();
+	  },
+
+	  fromXDR: function fromXDR(buffer) {
+	    var cursor = new Cursor(buffer);
+	    var result = this.read(cursor);
+
+	    //TODO: error out if the entire buffer isn't consumed
+
+	    return result;
+	  } };
+
+	var instanceMethods = {
+	  toXDR: function toXDR() {
+	    var format = arguments[0] === undefined ? "raw" : arguments[0];
+
+	    var buffer = this.constructor.toXDR(this);
+	    switch (format) {
+	      case "raw":
+	        return buffer;
+	      case "hex":
+	        return buffer.toString("hex");
+	      case "base64":
+	        return buffer.toString("base64");
+	      default:
+	        throw new Error("Invalid format " + format + ", must be \"raw\", \"hex\", \"base64\"");
+	    }
+	  }
 	};
 
-	module.exports = sequence;
+	function includeIoMixin(obj) {
+	  extend(obj, staticMethods);
 
+	  if (isFunction(obj)) {
+	    extend(obj.prototype, instanceMethods);
+	  }
+	}
 
 /***/ },
-/* 86 */
+/* 88 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(Buffer) {//prototype class for hash functions
-	function Hash (blockSize, finalSize) {
-	  this._block = new Buffer(blockSize) //new Uint32Array(blockSize/4)
-	  this._finalSize = finalSize
-	  this._blockSize = blockSize
-	  this._len = 0
-	  this._s = 0
-	}
+	"use strict";
 
-	Hash.prototype.update = function (data, enc) {
-	  if ("string" === typeof data) {
-	    enc = enc || "utf8"
-	    data = new Buffer(data, enc)
-	  }
+	var _core = __webpack_require__(46)["default"];
 
-	  var l = this._len += data.length
-	  var s = this._s || 0
-	  var f = 0
-	  var buffer = this._block
+	exports["default"] = function get(_x, _x2, _x3) {
+	  var _again = true;
 
-	  while (s < l) {
-	    var t = Math.min(data.length, f + this._blockSize - (s % this._blockSize))
-	    var ch = (t - f)
+	  _function: while (_again) {
+	    _again = false;
+	    var object = _x,
+	        property = _x2,
+	        receiver = _x3;
+	    desc = parent = getter = undefined;
 
-	    for (var i = 0; i < ch; i++) {
-	      buffer[(s % this._blockSize) + i] = data[i + f]
+	    var desc = _core.Object.getOwnPropertyDescriptor(object, property);
+
+	    if (desc === undefined) {
+	      var parent = _core.Object.getPrototypeOf(object);
+
+	      if (parent === null) {
+	        return undefined;
+	      } else {
+	        _x = parent;
+	        _x2 = property;
+	        _x3 = receiver;
+	        _again = true;
+	        continue _function;
+	      }
+	    } else if ("value" in desc && desc.writable) {
+	      return desc.value;
+	    } else {
+	      var getter = desc.get;
+
+	      if (getter === undefined) {
+	        return undefined;
+	      }
+
+	      return getter.call(receiver);
 	    }
-
-	    s += ch
-	    f += ch
-
-	    if ((s % this._blockSize) === 0) {
-	      this._update(buffer)
-	    }
 	  }
-	  this._s = s
+	};
 
-	  return this
-	}
-
-	Hash.prototype.digest = function (enc) {
-	  // Suppose the length of the message M, in bits, is l
-	  var l = this._len * 8
-
-	  // Append the bit 1 to the end of the message
-	  this._block[this._len % this._blockSize] = 0x80
-
-	  // and then k zero bits, where k is the smallest non-negative solution to the equation (l + 1 + k) === finalSize mod blockSize
-	  this._block.fill(0, this._len % this._blockSize + 1)
-
-	  if (l % (this._blockSize * 8) >= this._finalSize * 8) {
-	    this._update(this._block)
-	    this._block.fill(0)
-	  }
-
-	  // to this append the block which is equal to the number l written in binary
-	  // TODO: handle case where l is > Math.pow(2, 29)
-	  this._block.writeInt32BE(l, this._blockSize - 4)
-
-	  var hash = this._update(this._block) || this._hash()
-
-	  return enc ? hash.toString(enc) : hash
-	}
-
-	Hash.prototype._update = function () {
-	  throw new Error('_update must be implemented by subclass')
-	}
-
-	module.exports = Hash
-
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
+	exports.__esModule = true;
 
 /***/ },
-/* 87 */
+/* 89 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	exports.calculatePadding = calculatePadding;
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	function calculatePadding(length) {
+	    switch (length % 4) {
+	        case 0:
+	            return 0;
+	        case 1:
+	            return 3;
+	        case 2:
+	            return 2;
+	        case 3:
+	            return 1;
+	    }
+	}
+
+/***/ },
+/* 90 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _core = __webpack_require__(46)["default"];
+
+	exports["default"] = function (arr, i) {
+	  if (Array.isArray(arr)) {
+	    return arr;
+	  } else if (_core.$for.isIterable(Object(arr))) {
+	    var _arr = [];
+
+	    for (var _iterator = _core.$for.getIterator(arr), _step; !(_step = _iterator.next()).done;) {
+	      _arr.push(_step.value);
+
+	      if (i && _arr.length === i) break;
+	    }
+
+	    return _arr;
+	  } else {
+	    throw new TypeError("Invalid attempt to destructure non-iterable instance");
+	  }
+	};
+
+	exports.__esModule = true;
+
+/***/ },
+/* 91 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// Copyright Joyent, Inc. and other Node contributors.
@@ -32306,7 +32460,7 @@ var StellarLib =
 
 	module.exports = Stream;
 
-	var EE = __webpack_require__(36).EventEmitter;
+	var EE = __webpack_require__(39).EventEmitter;
 	var inherits = __webpack_require__(108);
 
 	inherits(Stream, EE);
@@ -32411,169 +32565,6 @@ var StellarLib =
 	  return dest;
 	};
 
-
-/***/ },
-/* 88 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	module.exports = includeIoMixin;
-
-	var Cursor = __webpack_require__(101).Cursor;
-
-	var _lodash = __webpack_require__(42);
-
-	var extend = _lodash.extend;
-	var isFunction = _lodash.isFunction;
-
-	//TODO: build a system to grow a buffer as we write to it
-	var BUFFER_SIZE = Math.pow(2, 16);
-
-	var staticMethods = {
-	  toXDR: function toXDR(val) {
-	    var cursor = new Cursor(BUFFER_SIZE);
-	    this.write(val, cursor);
-	    var bytesWritten = cursor.tell();
-	    cursor.rewind();
-
-	    return cursor.slice(bytesWritten).buffer();
-	  },
-
-	  fromXDR: function fromXDR(buffer) {
-	    var cursor = new Cursor(buffer);
-	    var result = this.read(cursor);
-
-	    //TODO: error out if the entire buffer isn't consumed
-
-	    return result;
-	  } };
-
-	var instanceMethods = {
-	  toXDR: function toXDR() {
-	    var format = arguments[0] === undefined ? "raw" : arguments[0];
-
-	    var buffer = this.constructor.toXDR(this);
-	    switch (format) {
-	      case "raw":
-	        return buffer;
-	      case "hex":
-	        return buffer.toString("hex");
-	      case "base64":
-	        return buffer.toString("base64");
-	      default:
-	        throw new Error("Invalid format " + format + ", must be \"raw\", \"hex\", \"base64\"");
-	    }
-	  }
-	};
-
-	function includeIoMixin(obj) {
-	  extend(obj, staticMethods);
-
-	  if (isFunction(obj)) {
-	    extend(obj.prototype, instanceMethods);
-	  }
-	}
-
-/***/ },
-/* 89 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _core = __webpack_require__(46)["default"];
-
-	exports["default"] = function get(_x, _x2, _x3) {
-	  var _again = true;
-
-	  _function: while (_again) {
-	    _again = false;
-	    var object = _x,
-	        property = _x2,
-	        receiver = _x3;
-	    desc = parent = getter = undefined;
-
-	    var desc = _core.Object.getOwnPropertyDescriptor(object, property);
-
-	    if (desc === undefined) {
-	      var parent = _core.Object.getPrototypeOf(object);
-
-	      if (parent === null) {
-	        return undefined;
-	      } else {
-	        _x = parent;
-	        _x2 = property;
-	        _x3 = receiver;
-	        _again = true;
-	        continue _function;
-	      }
-	    } else if ("value" in desc && desc.writable) {
-	      return desc.value;
-	    } else {
-	      var getter = desc.get;
-
-	      if (getter === undefined) {
-	        return undefined;
-	      }
-
-	      return getter.call(receiver);
-	    }
-	  }
-	};
-
-	exports.__esModule = true;
-
-/***/ },
-/* 90 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	exports.calculatePadding = calculatePadding;
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-
-	function calculatePadding(length) {
-	    switch (length % 4) {
-	        case 0:
-	            return 0;
-	        case 1:
-	            return 3;
-	        case 2:
-	            return 2;
-	        case 3:
-	            return 1;
-	    }
-	}
-
-/***/ },
-/* 91 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _core = __webpack_require__(46)["default"];
-
-	exports["default"] = function (arr, i) {
-	  if (Array.isArray(arr)) {
-	    return arr;
-	  } else if (_core.$for.isIterable(Object(arr))) {
-	    var _arr = [];
-
-	    for (var _iterator = _core.$for.getIterator(arr), _step; !(_step = _iterator.next()).done;) {
-	      _arr.push(_step.value);
-
-	      if (i && _arr.length === i) break;
-	    }
-
-	    return _arr;
-	  } else {
-	    throw new TypeError("Invalid attempt to destructure non-iterable instance");
-	  }
-	};
-
-	exports.__esModule = true;
 
 /***/ },
 /* 92 */
@@ -32735,53 +32726,30 @@ var StellarLib =
 /* 94 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(global) {'use strict';
-
-	/**
-	 * These properties should not be copied or inherited from. This is only needed
-	 * for all non blob URL's as the a blob URL does not include a hash, only the
-	 * origin.
-	 *
-	 * @type {Object}
-	 * @private
-	 */
-	var ignore = { hash: 1, query: 1 }
-	  , URL;
-
-	/**
-	 * The location object differs when your code is loaded through a normal page,
-	 * Worker or through a worker using a blob. And with the blobble begins the
-	 * trouble as the location object will contain the URL of the blob, not the
-	 * location of the page where our code is loaded in. The actual origin is
-	 * encoded in the `pathname` so we can thankfully generate a good "default"
-	 * location from it so we can generate proper relative URL's again.
-	 *
-	 * @param {Object} loc Optional default location object.
-	 * @returns {Object} lolcation object.
-	 * @api public
-	 */
-	module.exports = function lolcation(loc) {
-	  loc = loc || global.location || {};
-	  URL = URL || __webpack_require__(82);
-
-	  var finaldestination = {}
-	    , type = typeof loc
-	    , key;
-
-	  if ('blob:' === loc.protocol) {
-	    finaldestination = new URL(unescape(loc.pathname), {});
-	  } else if ('string' === type) {
-	    finaldestination = new URL(loc, {});
-	    for (key in ignore) delete finaldestination[key];
-	  } else if ('object' === type) for (key in loc) {
-	    if (key in ignore) continue;
-	    finaldestination[key] = loc[key];
+	if (typeof Object.create === 'function') {
+	  // implementation from standard node.js 'util' module
+	  module.exports = function inherits(ctor, superCtor) {
+	    ctor.super_ = superCtor
+	    ctor.prototype = Object.create(superCtor.prototype, {
+	      constructor: {
+	        value: ctor,
+	        enumerable: false,
+	        writable: true,
+	        configurable: true
+	      }
+	    });
+	  };
+	} else {
+	  // old school shim for old browsers
+	  module.exports = function inherits(ctor, superCtor) {
+	    ctor.super_ = superCtor
+	    var TempCtor = function () {}
+	    TempCtor.prototype = superCtor.prototype
+	    ctor.prototype = new TempCtor()
+	    ctor.prototype.constructor = ctor
 	  }
+	}
 
-	  return finaldestination;
-	};
-
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
 /* 95 */
@@ -32882,6 +32850,58 @@ var StellarLib =
 /* 97 */
 /***/ function(module, exports, __webpack_require__) {
 
+	/* WEBPACK VAR INJECTION */(function(global) {'use strict';
+
+	/**
+	 * These properties should not be copied or inherited from. This is only needed
+	 * for all non blob URL's as the a blob URL does not include a hash, only the
+	 * origin.
+	 *
+	 * @type {Object}
+	 * @private
+	 */
+	var ignore = { hash: 1, query: 1 }
+	  , URL;
+
+	/**
+	 * The location object differs when your code is loaded through a normal page,
+	 * Worker or through a worker using a blob. And with the blobble begins the
+	 * trouble as the location object will contain the URL of the blob, not the
+	 * location of the page where our code is loaded in. The actual origin is
+	 * encoded in the `pathname` so we can thankfully generate a good "default"
+	 * location from it so we can generate proper relative URL's again.
+	 *
+	 * @param {Object} loc Optional default location object.
+	 * @returns {Object} lolcation object.
+	 * @api public
+	 */
+	module.exports = function lolcation(loc) {
+	  loc = loc || global.location || {};
+	  URL = URL || __webpack_require__(82);
+
+	  var finaldestination = {}
+	    , type = typeof loc
+	    , key;
+
+	  if ('blob:' === loc.protocol) {
+	    finaldestination = new URL(unescape(loc.pathname), {});
+	  } else if ('string' === type) {
+	    finaldestination = new URL(loc, {});
+	    for (key in ignore) delete finaldestination[key];
+	  } else if ('object' === type) for (key in loc) {
+	    if (key in ignore) continue;
+	    finaldestination[key] = loc[key];
+	  }
+
+	  return finaldestination;
+	};
+
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
+
+/***/ },
+/* 98 */
+/***/ function(module, exports, __webpack_require__) {
+
 	/*
 	 Copyright 2013 Daniel Wirtz <dcode@dcode.io>
 	 Copyright 2009 The Closure Library Authors. All Rights Reserved.
@@ -32903,36 +32923,56 @@ var StellarLib =
 
 
 /***/ },
-/* 98 */
+/* 99 */
 /***/ function(module, exports, __webpack_require__) {
 
-	if (typeof Object.create === 'function') {
-	  // implementation from standard node.js 'util' module
-	  module.exports = function inherits(ctor, superCtor) {
-	    ctor.super_ = superCtor
-	    ctor.prototype = Object.create(superCtor.prototype, {
-	      constructor: {
-	        value: ctor,
-	        enumerable: false,
-	        writable: true,
-	        configurable: true
-	      }
-	    });
-	  };
-	} else {
-	  // old school shim for old browsers
-	  module.exports = function inherits(ctor, superCtor) {
-	    ctor.super_ = superCtor
-	    var TempCtor = function () {}
-	    TempCtor.prototype = superCtor.prototype
-	    ctor.prototype = new TempCtor()
-	    ctor.prototype.constructor = ctor
-	  }
-	}
+	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
 
+	var _classCallCheck = __webpack_require__(31)["default"];
+
+	var _inherits = __webpack_require__(77)["default"];
+
+	var _createClass = __webpack_require__(32)["default"];
+
+	var _interopRequire = __webpack_require__(27)["default"];
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var BaseCursor = _interopRequire(__webpack_require__(109));
+
+	var calculatePadding = __webpack_require__(89).calculatePadding;
+
+	var Cursor = exports.Cursor = (function (_BaseCursor) {
+	  function Cursor() {
+	    _classCallCheck(this, Cursor);
+
+	    if (_BaseCursor != null) {
+	      _BaseCursor.apply(this, arguments);
+	    }
+	  }
+
+	  _inherits(Cursor, _BaseCursor);
+
+	  _createClass(Cursor, {
+	    writeBufferPadded: {
+	      value: function writeBufferPadded(buffer) {
+	        var padding = calculatePadding(buffer.length);
+	        var paddingBuffer = new Buffer(padding);
+	        paddingBuffer.fill(0);
+
+	        return this.copyFrom(new Cursor(buffer)).copyFrom(new Cursor(paddingBuffer));
+	      }
+	    }
+	  });
+
+	  return Cursor;
+	})(BaseCursor);
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
 
 /***/ },
-/* 99 */
+/* 100 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -32976,7 +33016,7 @@ var StellarLib =
 
 
 /***/ },
-/* 100 */
+/* 101 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -33041,55 +33081,6 @@ var StellarLib =
 	exports.stringify = querystringify;
 	exports.parse = querystring;
 
-
-/***/ },
-/* 101 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
-
-	var _classCallCheck = __webpack_require__(29)["default"];
-
-	var _inherits = __webpack_require__(78)["default"];
-
-	var _createClass = __webpack_require__(30)["default"];
-
-	var _interopRequire = __webpack_require__(25)["default"];
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var BaseCursor = _interopRequire(__webpack_require__(109));
-
-	var calculatePadding = __webpack_require__(90).calculatePadding;
-
-	var Cursor = exports.Cursor = (function (_BaseCursor) {
-	  function Cursor() {
-	    _classCallCheck(this, Cursor);
-
-	    if (_BaseCursor != null) {
-	      _BaseCursor.apply(this, arguments);
-	    }
-	  }
-
-	  _inherits(Cursor, _BaseCursor);
-
-	  _createClass(Cursor, {
-	    writeBufferPadded: {
-	      value: function writeBufferPadded(buffer) {
-	        var padding = calculatePadding(buffer.length);
-	        var paddingBuffer = new Buffer(padding);
-	        paddingBuffer.fill(0);
-
-	        return this.copyFrom(new Cursor(buffer)).copyFrom(new Cursor(paddingBuffer));
-	      }
-	    }
-	  });
-
-	  return Cursor;
-	})(BaseCursor);
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
 
 /***/ },
 /* 102 */
@@ -34038,18 +34029,18 @@ var StellarLib =
 
 	})(this);
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(81)(module)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(80)(module)))
 
 /***/ },
 /* 103 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(111);
-	exports.Stream = __webpack_require__(87);
+	exports = module.exports = __webpack_require__(112);
+	exports.Stream = __webpack_require__(91);
 	exports.Readable = exports;
-	exports.Writable = __webpack_require__(112);
-	exports.Duplex = __webpack_require__(113);
-	exports.Transform = __webpack_require__(114);
+	exports.Writable = __webpack_require__(113);
+	exports.Duplex = __webpack_require__(114);
+	exports.Transform = __webpack_require__(111);
 	exports.PassThrough = __webpack_require__(115);
 
 
@@ -34057,21 +34048,21 @@ var StellarLib =
 /* 104 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(112)
+	module.exports = __webpack_require__(113)
 
 
 /***/ },
 /* 105 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(113)
+	module.exports = __webpack_require__(114)
 
 
 /***/ },
 /* 106 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(114)
+	module.exports = __webpack_require__(111)
 
 
 /***/ },
@@ -34333,7 +34324,7 @@ var StellarLib =
 			parent.call(this, buffer);
 		};
 
-		__webpack_require__(39).inherits(C, parent);
+		__webpack_require__(42).inherits(C, parent);
 
 		C.extend = parent.extend;
 		C.define = parent.define;
@@ -34372,6 +34363,221 @@ var StellarLib =
 /* 111 */
 /***/ function(module, exports, __webpack_require__) {
 
+	// Copyright Joyent, Inc. and other Node contributors.
+	//
+	// Permission is hereby granted, free of charge, to any person obtaining a
+	// copy of this software and associated documentation files (the
+	// "Software"), to deal in the Software without restriction, including
+	// without limitation the rights to use, copy, modify, merge, publish,
+	// distribute, sublicense, and/or sell copies of the Software, and to permit
+	// persons to whom the Software is furnished to do so, subject to the
+	// following conditions:
+	//
+	// The above copyright notice and this permission notice shall be included
+	// in all copies or substantial portions of the Software.
+	//
+	// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+	// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+	// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+	// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+	// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+	// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+	// a transform stream is a readable/writable stream where you do
+	// something with the data.  Sometimes it's called a "filter",
+	// but that's not a great name for it, since that implies a thing where
+	// some bits pass through, and others are simply ignored.  (That would
+	// be a valid example of a transform, of course.)
+	//
+	// While the output is causally related to the input, it's not a
+	// necessarily symmetric or synchronous transformation.  For example,
+	// a zlib stream might take multiple plain-text writes(), and then
+	// emit a single compressed chunk some time in the future.
+	//
+	// Here's how this works:
+	//
+	// The Transform stream has all the aspects of the readable and writable
+	// stream classes.  When you write(chunk), that calls _write(chunk,cb)
+	// internally, and returns false if there's a lot of pending writes
+	// buffered up.  When you call read(), that calls _read(n) until
+	// there's enough pending readable data buffered up.
+	//
+	// In a transform stream, the written data is placed in a buffer.  When
+	// _read(n) is called, it transforms the queued up data, calling the
+	// buffered _write cb's as it consumes chunks.  If consuming a single
+	// written chunk would result in multiple output chunks, then the first
+	// outputted bit calls the readcb, and subsequent chunks just go into
+	// the read buffer, and will cause it to emit 'readable' if necessary.
+	//
+	// This way, back-pressure is actually determined by the reading side,
+	// since _read has to be called to start processing a new chunk.  However,
+	// a pathological inflate type of transform can cause excessive buffering
+	// here.  For example, imagine a stream where every byte of input is
+	// interpreted as an integer from 0-255, and then results in that many
+	// bytes of output.  Writing the 4 bytes {ff,ff,ff,ff} would result in
+	// 1kb of data being output.  In this case, you could write a very small
+	// amount of input, and end up with a very large amount of output.  In
+	// such a pathological inflating mechanism, there'd be no way to tell
+	// the system to stop doing the transform.  A single 4MB write could
+	// cause the system to run out of memory.
+	//
+	// However, even in such a pathological case, only a single written chunk
+	// would be consumed, and then the rest would wait (un-transformed) until
+	// the results of the previous transformed chunk were consumed.
+
+	module.exports = Transform;
+
+	var Duplex = __webpack_require__(114);
+
+	/*<replacement>*/
+	var util = __webpack_require__(120);
+	util.inherits = __webpack_require__(119);
+	/*</replacement>*/
+
+	util.inherits(Transform, Duplex);
+
+
+	function TransformState(options, stream) {
+	  this.afterTransform = function(er, data) {
+	    return afterTransform(stream, er, data);
+	  };
+
+	  this.needTransform = false;
+	  this.transforming = false;
+	  this.writecb = null;
+	  this.writechunk = null;
+	}
+
+	function afterTransform(stream, er, data) {
+	  var ts = stream._transformState;
+	  ts.transforming = false;
+
+	  var cb = ts.writecb;
+
+	  if (!cb)
+	    return stream.emit('error', new Error('no writecb in Transform class'));
+
+	  ts.writechunk = null;
+	  ts.writecb = null;
+
+	  if (!util.isNullOrUndefined(data))
+	    stream.push(data);
+
+	  if (cb)
+	    cb(er);
+
+	  var rs = stream._readableState;
+	  rs.reading = false;
+	  if (rs.needReadable || rs.length < rs.highWaterMark) {
+	    stream._read(rs.highWaterMark);
+	  }
+	}
+
+
+	function Transform(options) {
+	  if (!(this instanceof Transform))
+	    return new Transform(options);
+
+	  Duplex.call(this, options);
+
+	  this._transformState = new TransformState(options, this);
+
+	  // when the writable side finishes, then flush out anything remaining.
+	  var stream = this;
+
+	  // start out asking for a readable event once data is transformed.
+	  this._readableState.needReadable = true;
+
+	  // we have implemented the _read method, and done the other things
+	  // that Readable wants before the first _read call, so unset the
+	  // sync guard flag.
+	  this._readableState.sync = false;
+
+	  this.once('prefinish', function() {
+	    if (util.isFunction(this._flush))
+	      this._flush(function(er) {
+	        done(stream, er);
+	      });
+	    else
+	      done(stream);
+	  });
+	}
+
+	Transform.prototype.push = function(chunk, encoding) {
+	  this._transformState.needTransform = false;
+	  return Duplex.prototype.push.call(this, chunk, encoding);
+	};
+
+	// This is the part where you do stuff!
+	// override this function in implementation classes.
+	// 'chunk' is an input chunk.
+	//
+	// Call `push(newChunk)` to pass along transformed output
+	// to the readable side.  You may call 'push' zero or more times.
+	//
+	// Call `cb(err)` when you are done with this chunk.  If you pass
+	// an error, then that'll put the hurt on the whole operation.  If you
+	// never call cb(), then you'll never get another chunk.
+	Transform.prototype._transform = function(chunk, encoding, cb) {
+	  throw new Error('not implemented');
+	};
+
+	Transform.prototype._write = function(chunk, encoding, cb) {
+	  var ts = this._transformState;
+	  ts.writecb = cb;
+	  ts.writechunk = chunk;
+	  ts.writeencoding = encoding;
+	  if (!ts.transforming) {
+	    var rs = this._readableState;
+	    if (ts.needTransform ||
+	        rs.needReadable ||
+	        rs.length < rs.highWaterMark)
+	      this._read(rs.highWaterMark);
+	  }
+	};
+
+	// Doesn't matter what the args are here.
+	// _transform does all the work.
+	// That we got here means that the readable side wants more data.
+	Transform.prototype._read = function(n) {
+	  var ts = this._transformState;
+
+	  if (!util.isNull(ts.writechunk) && ts.writecb && !ts.transforming) {
+	    ts.transforming = true;
+	    this._transform(ts.writechunk, ts.writeencoding, ts.afterTransform);
+	  } else {
+	    // mark that we need a transform, so that any data that comes in
+	    // will get processed, now that we've asked for it.
+	    ts.needTransform = true;
+	  }
+	};
+
+
+	function done(stream, er) {
+	  if (er)
+	    return stream.emit('error', er);
+
+	  // if there's nothing in the write buffer, then that means
+	  // that nothing more will ever be provided
+	  var ws = stream._writableState;
+	  var ts = stream._transformState;
+
+	  if (ws.length)
+	    throw new Error('calling transform done when ws.length != 0');
+
+	  if (ts.transforming)
+	    throw new Error('calling transform done when still transforming');
+
+	  return stream.push(null);
+	}
+
+
+/***/ },
+/* 112 */
+/***/ function(module, exports, __webpack_require__) {
+
 	/* WEBPACK VAR INJECTION */(function(process) {// Copyright Joyent, Inc. and other Node contributors.
 	//
 	// Permission is hereby granted, free of charge, to any person obtaining a
@@ -34406,7 +34612,7 @@ var StellarLib =
 
 	Readable.ReadableState = ReadableState;
 
-	var EE = __webpack_require__(36).EventEmitter;
+	var EE = __webpack_require__(39).EventEmitter;
 
 	/*<replacement>*/
 	if (!EE.listenerCount) EE.listenerCount = function(emitter, type) {
@@ -34414,11 +34620,11 @@ var StellarLib =
 	};
 	/*</replacement>*/
 
-	var Stream = __webpack_require__(87);
+	var Stream = __webpack_require__(91);
 
 	/*<replacement>*/
-	var util = __webpack_require__(119);
-	util.inherits = __webpack_require__(120);
+	var util = __webpack_require__(120);
+	util.inherits = __webpack_require__(119);
 	/*</replacement>*/
 
 	var StringDecoder;
@@ -34437,7 +34643,7 @@ var StellarLib =
 	util.inherits(Readable, Stream);
 
 	function ReadableState(options, stream) {
-	  var Duplex = __webpack_require__(113);
+	  var Duplex = __webpack_require__(114);
 
 	  options = options || {};
 
@@ -34505,7 +34711,7 @@ var StellarLib =
 	}
 
 	function Readable(options) {
-	  var Duplex = __webpack_require__(113);
+	  var Duplex = __webpack_require__(114);
 
 	  if (!(this instanceof Readable))
 	    return new Readable(options);
@@ -35324,10 +35530,10 @@ var StellarLib =
 	  return -1;
 	}
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(38)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(43)))
 
 /***/ },
-/* 112 */
+/* 113 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {// Copyright Joyent, Inc. and other Node contributors.
@@ -35365,11 +35571,11 @@ var StellarLib =
 
 
 	/*<replacement>*/
-	var util = __webpack_require__(119);
-	util.inherits = __webpack_require__(120);
+	var util = __webpack_require__(120);
+	util.inherits = __webpack_require__(119);
 	/*</replacement>*/
 
-	var Stream = __webpack_require__(87);
+	var Stream = __webpack_require__(91);
 
 	util.inherits(Writable, Stream);
 
@@ -35380,7 +35586,7 @@ var StellarLib =
 	}
 
 	function WritableState(options, stream) {
-	  var Duplex = __webpack_require__(113);
+	  var Duplex = __webpack_require__(114);
 
 	  options = options || {};
 
@@ -35468,7 +35674,7 @@ var StellarLib =
 	}
 
 	function Writable(options) {
-	  var Duplex = __webpack_require__(113);
+	  var Duplex = __webpack_require__(114);
 
 	  // Writable ctor is applied to Duplexes, though they're not
 	  // instanceof Writable, they're instanceof Readable.
@@ -35808,10 +36014,10 @@ var StellarLib =
 	  state.ended = true;
 	}
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(38)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(43)))
 
 /***/ },
-/* 113 */
+/* 114 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {// Copyright Joyent, Inc. and other Node contributors.
@@ -35852,12 +36058,12 @@ var StellarLib =
 
 
 	/*<replacement>*/
-	var util = __webpack_require__(119);
-	util.inherits = __webpack_require__(120);
+	var util = __webpack_require__(120);
+	util.inherits = __webpack_require__(119);
 	/*</replacement>*/
 
-	var Readable = __webpack_require__(111);
-	var Writable = __webpack_require__(112);
+	var Readable = __webpack_require__(112);
+	var Writable = __webpack_require__(113);
 
 	util.inherits(Duplex, Readable);
 
@@ -35904,222 +36110,7 @@ var StellarLib =
 	  }
 	}
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(38)))
-
-/***/ },
-/* 114 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// Copyright Joyent, Inc. and other Node contributors.
-	//
-	// Permission is hereby granted, free of charge, to any person obtaining a
-	// copy of this software and associated documentation files (the
-	// "Software"), to deal in the Software without restriction, including
-	// without limitation the rights to use, copy, modify, merge, publish,
-	// distribute, sublicense, and/or sell copies of the Software, and to permit
-	// persons to whom the Software is furnished to do so, subject to the
-	// following conditions:
-	//
-	// The above copyright notice and this permission notice shall be included
-	// in all copies or substantial portions of the Software.
-	//
-	// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-	// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-	// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-	// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-	// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-	// USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-
-	// a transform stream is a readable/writable stream where you do
-	// something with the data.  Sometimes it's called a "filter",
-	// but that's not a great name for it, since that implies a thing where
-	// some bits pass through, and others are simply ignored.  (That would
-	// be a valid example of a transform, of course.)
-	//
-	// While the output is causally related to the input, it's not a
-	// necessarily symmetric or synchronous transformation.  For example,
-	// a zlib stream might take multiple plain-text writes(), and then
-	// emit a single compressed chunk some time in the future.
-	//
-	// Here's how this works:
-	//
-	// The Transform stream has all the aspects of the readable and writable
-	// stream classes.  When you write(chunk), that calls _write(chunk,cb)
-	// internally, and returns false if there's a lot of pending writes
-	// buffered up.  When you call read(), that calls _read(n) until
-	// there's enough pending readable data buffered up.
-	//
-	// In a transform stream, the written data is placed in a buffer.  When
-	// _read(n) is called, it transforms the queued up data, calling the
-	// buffered _write cb's as it consumes chunks.  If consuming a single
-	// written chunk would result in multiple output chunks, then the first
-	// outputted bit calls the readcb, and subsequent chunks just go into
-	// the read buffer, and will cause it to emit 'readable' if necessary.
-	//
-	// This way, back-pressure is actually determined by the reading side,
-	// since _read has to be called to start processing a new chunk.  However,
-	// a pathological inflate type of transform can cause excessive buffering
-	// here.  For example, imagine a stream where every byte of input is
-	// interpreted as an integer from 0-255, and then results in that many
-	// bytes of output.  Writing the 4 bytes {ff,ff,ff,ff} would result in
-	// 1kb of data being output.  In this case, you could write a very small
-	// amount of input, and end up with a very large amount of output.  In
-	// such a pathological inflating mechanism, there'd be no way to tell
-	// the system to stop doing the transform.  A single 4MB write could
-	// cause the system to run out of memory.
-	//
-	// However, even in such a pathological case, only a single written chunk
-	// would be consumed, and then the rest would wait (un-transformed) until
-	// the results of the previous transformed chunk were consumed.
-
-	module.exports = Transform;
-
-	var Duplex = __webpack_require__(113);
-
-	/*<replacement>*/
-	var util = __webpack_require__(119);
-	util.inherits = __webpack_require__(120);
-	/*</replacement>*/
-
-	util.inherits(Transform, Duplex);
-
-
-	function TransformState(options, stream) {
-	  this.afterTransform = function(er, data) {
-	    return afterTransform(stream, er, data);
-	  };
-
-	  this.needTransform = false;
-	  this.transforming = false;
-	  this.writecb = null;
-	  this.writechunk = null;
-	}
-
-	function afterTransform(stream, er, data) {
-	  var ts = stream._transformState;
-	  ts.transforming = false;
-
-	  var cb = ts.writecb;
-
-	  if (!cb)
-	    return stream.emit('error', new Error('no writecb in Transform class'));
-
-	  ts.writechunk = null;
-	  ts.writecb = null;
-
-	  if (!util.isNullOrUndefined(data))
-	    stream.push(data);
-
-	  if (cb)
-	    cb(er);
-
-	  var rs = stream._readableState;
-	  rs.reading = false;
-	  if (rs.needReadable || rs.length < rs.highWaterMark) {
-	    stream._read(rs.highWaterMark);
-	  }
-	}
-
-
-	function Transform(options) {
-	  if (!(this instanceof Transform))
-	    return new Transform(options);
-
-	  Duplex.call(this, options);
-
-	  this._transformState = new TransformState(options, this);
-
-	  // when the writable side finishes, then flush out anything remaining.
-	  var stream = this;
-
-	  // start out asking for a readable event once data is transformed.
-	  this._readableState.needReadable = true;
-
-	  // we have implemented the _read method, and done the other things
-	  // that Readable wants before the first _read call, so unset the
-	  // sync guard flag.
-	  this._readableState.sync = false;
-
-	  this.once('prefinish', function() {
-	    if (util.isFunction(this._flush))
-	      this._flush(function(er) {
-	        done(stream, er);
-	      });
-	    else
-	      done(stream);
-	  });
-	}
-
-	Transform.prototype.push = function(chunk, encoding) {
-	  this._transformState.needTransform = false;
-	  return Duplex.prototype.push.call(this, chunk, encoding);
-	};
-
-	// This is the part where you do stuff!
-	// override this function in implementation classes.
-	// 'chunk' is an input chunk.
-	//
-	// Call `push(newChunk)` to pass along transformed output
-	// to the readable side.  You may call 'push' zero or more times.
-	//
-	// Call `cb(err)` when you are done with this chunk.  If you pass
-	// an error, then that'll put the hurt on the whole operation.  If you
-	// never call cb(), then you'll never get another chunk.
-	Transform.prototype._transform = function(chunk, encoding, cb) {
-	  throw new Error('not implemented');
-	};
-
-	Transform.prototype._write = function(chunk, encoding, cb) {
-	  var ts = this._transformState;
-	  ts.writecb = cb;
-	  ts.writechunk = chunk;
-	  ts.writeencoding = encoding;
-	  if (!ts.transforming) {
-	    var rs = this._readableState;
-	    if (ts.needTransform ||
-	        rs.needReadable ||
-	        rs.length < rs.highWaterMark)
-	      this._read(rs.highWaterMark);
-	  }
-	};
-
-	// Doesn't matter what the args are here.
-	// _transform does all the work.
-	// That we got here means that the readable side wants more data.
-	Transform.prototype._read = function(n) {
-	  var ts = this._transformState;
-
-	  if (!util.isNull(ts.writechunk) && ts.writecb && !ts.transforming) {
-	    ts.transforming = true;
-	    this._transform(ts.writechunk, ts.writeencoding, ts.afterTransform);
-	  } else {
-	    // mark that we need a transform, so that any data that comes in
-	    // will get processed, now that we've asked for it.
-	    ts.needTransform = true;
-	  }
-	};
-
-
-	function done(stream, er) {
-	  if (er)
-	    return stream.emit('error', er);
-
-	  // if there's nothing in the write buffer, then that means
-	  // that nothing more will ever be provided
-	  var ws = stream._writableState;
-	  var ts = stream._transformState;
-
-	  if (ws.length)
-	    throw new Error('calling transform done when ws.length != 0');
-
-	  if (ts.transforming)
-	    throw new Error('calling transform done when still transforming');
-
-	  return stream.push(null);
-	}
-
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(43)))
 
 /***/ },
 /* 115 */
@@ -36152,11 +36143,11 @@ var StellarLib =
 
 	module.exports = PassThrough;
 
-	var Transform = __webpack_require__(114);
+	var Transform = __webpack_require__(111);
 
 	/*<replacement>*/
-	var util = __webpack_require__(119);
-	util.inherits = __webpack_require__(120);
+	var util = __webpack_require__(120);
+	util.inherits = __webpack_require__(119);
 	/*</replacement>*/
 
 	util.inherits(PassThrough, Transform);
@@ -36419,6 +36410,35 @@ var StellarLib =
 /* 119 */
 /***/ function(module, exports, __webpack_require__) {
 
+	if (typeof Object.create === 'function') {
+	  // implementation from standard node.js 'util' module
+	  module.exports = function inherits(ctor, superCtor) {
+	    ctor.super_ = superCtor
+	    ctor.prototype = Object.create(superCtor.prototype, {
+	      constructor: {
+	        value: ctor,
+	        enumerable: false,
+	        writable: true,
+	        configurable: true
+	      }
+	    });
+	  };
+	} else {
+	  // old school shim for old browsers
+	  module.exports = function inherits(ctor, superCtor) {
+	    ctor.super_ = superCtor
+	    var TempCtor = function () {}
+	    TempCtor.prototype = superCtor.prototype
+	    ctor.prototype = new TempCtor()
+	    ctor.prototype.constructor = ctor
+	  }
+	}
+
+
+/***/ },
+/* 120 */
+/***/ function(module, exports, __webpack_require__) {
+
 	/* WEBPACK VAR INJECTION */(function(Buffer) {// Copyright Joyent, Inc. and other Node contributors.
 	//
 	// Permission is hereby granted, free of charge, to any person obtaining a
@@ -36527,35 +36547,6 @@ var StellarLib =
 	  return Object.prototype.toString.call(o);
 	}
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14).Buffer))
-
-/***/ },
-/* 120 */
-/***/ function(module, exports, __webpack_require__) {
-
-	if (typeof Object.create === 'function') {
-	  // implementation from standard node.js 'util' module
-	  module.exports = function inherits(ctor, superCtor) {
-	    ctor.super_ = superCtor
-	    ctor.prototype = Object.create(superCtor.prototype, {
-	      constructor: {
-	        value: ctor,
-	        enumerable: false,
-	        writable: true,
-	        configurable: true
-	      }
-	    });
-	  };
-	} else {
-	  // old school shim for old browsers
-	  module.exports = function inherits(ctor, superCtor) {
-	    ctor.super_ = superCtor
-	    var TempCtor = function () {}
-	    TempCtor.prototype = superCtor.prototype
-	    ctor.prototype = new TempCtor()
-	    ctor.prototype.constructor = ctor
-	  }
-	}
-
 
 /***/ }
 /******/ ]);
