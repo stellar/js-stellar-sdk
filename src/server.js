@@ -1,6 +1,6 @@
-import {TransactionPage} from "./transaction_page";
 import {TransactionResult} from "./transaction_result";
 import {xdr} from "stellar-base";
+import {Account} from "./account";
 
 let request = require("superagent");
 var EventSource = (typeof window === 'undefined') ? require('eventsource') : EventSource;
@@ -190,7 +190,7 @@ export class Server {
         var self = this;
         return this.accounts(address)
             .then(function (res) {
-                return new Account(address, res.body.sequence);
+                return new Account(address, res.sequence);
             });
     }
 
@@ -305,13 +305,13 @@ export class Server {
             endpoint = this._appendResourceCollectionConfiguration(endpoint, opts);
         }
         if (opts && opts.streaming) {
-            return this._sendStreamingResourceRequest(endpoint, opts.streaming);
+            return this._sendStreamingRequest(endpoint, opts.streaming);
         } else {
-            return this._sendNormalResourceRequest(endpoint);
+            return this._sendNormalRequest(endpoint);
         }
     }
 
-    _sendNormalResourceRequest(endpoint, handler) {
+    _sendNormalRequest(endpoint, handler) {
         var self = this;
         return new Promise(function (resolve, reject) {
             request
@@ -326,7 +326,7 @@ export class Server {
         });
     }
 
-    _sendStreamingResourceRequest(endpoint, streaming) {
+    _sendStreamingRequest(endpoint, streaming) {
         var es = new EventSource(this.protocol + this.hostname + ":" + this.port + endpoint);
         es.onmessage = streaming.onmessage;
         es.onerror = streaming.onerror;
@@ -345,5 +345,17 @@ export class Server {
             endpoint += "&order=" + opts.order;
         }
         return endpoint;
+    }
+
+    _toResourcePage(json) {
+        return {
+            records: json._embedded.records,
+            next: function () {
+                return _sendNormalRequest(json._links.next.href);
+            },
+            prev: function () {
+                return _sendNormalRequest(json._links.prev.href);
+            }
+        };
     }
 }
