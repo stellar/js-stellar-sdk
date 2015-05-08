@@ -9,7 +9,7 @@ describe('TransactionBuilder', function() {
         var currency;
         var transaction;
         beforeEach(function () {
-            source = StellarLib.Account.fromSeed("sft74k3MagHG6iF36yeSytQzCCLsJ2Fo9K4YJpQCECwgoUobc4v");
+            source = new StellarLib.Account("gspbxqXqEUZkiCCEFFCN9Vu4FLucdjLLdLcsV6E82Qc1T7ehsTC", 0);
             destination = "gsbkQ1tG4fEqk1sApdeQYZG9r19yVm28m2Zz72gRGjoDKTHi7UL";
             amount = "1000";
             currency = StellarLib.Currency.native();
@@ -29,13 +29,13 @@ describe('TransactionBuilder', function() {
             done()
         });
 
-        it("should have the account's sequence number", function (done) {
+        it("should have the incremented sequence number", function (done) {
             expect(transaction.sequence).to.be.equal("1");
             done();
         });
 
         it("should increment the account's sequence number", function (done) {
-            expect(source.sequence).to.be.equal(2);
+            expect(source.sequence).to.be.equal(1);
             done();
         });
 

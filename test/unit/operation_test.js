@@ -2,7 +2,6 @@ describe('Operation', function() {
 
     describe(".payment()", function () {
         it("creates a paymentOp", function () {
-            var source = StellarLib.Account.fromSeed("s3LcxtSCx4dzQML2gB4VXgVXQr1RS1g6sESrjUdkViyzGLa7CKc");
             var destination = "gspbxqXqEUZkiCCEFFCN9Vu4FLucdjLLdLcsV6E82Qc1T7ehsTC";
             var amount = 1000;
             var currency = new StellarLib.Currency("USD", "gsZRJCfkv69PBw1Cz8qJfb9k4i3EXiJenxdrYKCog3mWbk5thPb");

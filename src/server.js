@@ -180,24 +180,18 @@ export class Server {
     }
 
     /**
-    * @deprecated Use the {@link Server#accounts} API instead
-    * @param {Account} account - The account to load. Will modify this object with
+    * Fetches an account's most current state in the ledger and then creates and returns
+    * an Account object.
+    * @param {string} address - The account to load.
+    * @returns {Account} Returns the given address's account with populated sequence number
+    *                    and balance information.
     */
-    loadAccount(account) {
+    loadAccount(address) {
         var self = this;
-        return new Promise(function (resolve, reject) {
-            request
-                .get(self.protocol + self.hostname + ":" + self.port + '/accounts/' + account.address)
-                .end(function(err, res) {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        account.sequence = res.body.sequence + 1;
-                        account.balances = res.body.balances;
-                        resolve();
-                    }
-                });
-        });
+        return this.accounts(address)
+            .then(function (res) {
+                return new Account(address, res.body.sequence);
+            });
     }
 
     /**

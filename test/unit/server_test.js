@@ -1,5 +1,8 @@
 describe("server.js tests", function () {
 
+  var DEV_SERVER_FIXTURES_ENDPOINT = "http://localhost:1337/fixtures";
+  var DEV_SERVER_CLEAR_FIXTURES_ENDPOINT = "http://localhost:1337/clear";
+
   var server;
 
   beforeEach(function () {
@@ -8,7 +11,7 @@ describe("server.js tests", function () {
     this.setFixtures = function (fixtures, done) {
       // instruct the dev server to except the correct request
       request
-        .post(global.fixtures.DEV_SERVER_FIXTURES_ENDPOINT)
+        .post(DEV_SERVER_FIXTURES_ENDPOINT)
         .type('json')
         .send(fixtures)
         .end(function(err, res) {
@@ -19,9 +22,8 @@ describe("server.js tests", function () {
 
   afterEach(function (done) {
     request
-      .post(global.fixtures.DEV_SERVER_CLEAR_FIXTURES_ENDPOINT)
+      .post(DEV_SERVER_CLEAR_FIXTURES_ENDPOINT)
       .type('json')
-      .send(fixtures)
       .end(function(err, res) {
         done();
       });
@@ -549,138 +551,5 @@ describe("server.js tests", function () {
           done(err);
         })
     });*/
-  });
-
-  describe('Server.loadAccount', function() {
-    describe("success", function () {
-      beforeEach(function (done) {
-        this.setFixtures({
-          request: global.fixtures.TEST_LOAD_ACCOUNT.SUCCESS.REQUEST,
-          response: global.fixtures.TEST_LOAD_ACCOUNT.SUCCESS.RESPONSE
-        }, done);
-      });
-
-      it("sets the sequence number", function(done) {
-        var account = global.fixtures.TEST_LOAD_ACCOUNT.SUCCESS.ACCOUNT;
-        var result = global.fixtures.TEST_LOAD_ACCOUNT.SUCCESS.RESULT_ACCOUNT;
-        server.loadAccount(account)
-          .then(function (res) {
-            expect(account.sequence).to.be.equal(result.sequence);
-            done();
-          })
-          .catch(function (err) {
-            done(err);
-          })
-      });
-
-      it("sets the balances", function(done) {
-        var account = global.fixtures.TEST_LOAD_ACCOUNT.SUCCESS.ACCOUNT;
-        var result = global.fixtures.TEST_LOAD_ACCOUNT.SUCCESS.RESULT_ACCOUNT;
-        server.loadAccount(account)
-          .then(function (res) {
-            for (var i = 0; i < result.balances; i++) {
-              let accountBalance = account.balances[i];
-              let resultBalance = result.balances[i];
-              let sameCurrency = accountBalance.currency.equals(resultBalance.currency);
-              expect(sameCurrency).to.be.true;
-              expect(accountBalance.balance).to.be.equal(resultBalance.balance);
-            }
-            done();
-          })
-          .catch(function (err) {
-            done(err);
-          })
-      });
-    });
-  });
-
-  describe("Server.getTransactions", function () {
-
-    describe("with default options", function () {
-
-      beforeEach(function (done) {
-        this.setFixtures({
-          request: global.fixtures.TEST_GET_TRANSACTIONS.DEFAULT.REQUEST,
-          response: global.fixtures.TEST_GET_TRANSACTIONS.DEFAULT.RESPONSE
-        }, done);
-      });
-
-      it("should return a transaction page with records and next link", function (done) {
-        server.getTransactions()
-          .then(function (res) {
-            expect(res.next).to.be.equal(global.fixtures.TEST_GET_TRANSACTIONS.DEFAULT.RESPONSE.body._links.next.href);
-            done();
-          })
-          .catch(function (err) {
-            done(err);
-          })
-      });
-    });
-  });
-
-  describe("Server.getAccountTransactions", function () {
-
-    describe("with default options", function () {
-      var TransactionPage;
-      beforeEach(function (done) {
-        this.setFixtures({
-          request: global.fixtures.TEST_GET_ACCOUNT_TRANSACTIONS.DEFAULT.REQUEST,
-          response: global.fixtures.TEST_GET_ACCOUNT_TRANSACTIONS.DEFAULT.RESPONSE
-        }, done);
-      });
-
-      it("should return a transaction page with records and next link", function (done) {
-        var address = global.fixtures.ROOT_ACCOUNT;
-        server.getAccountTransactions(address)
-          .then(function (res) {
-            expect(res.next).to.be.equal(global.fixtures.TEST_GET_ACCOUNT_TRANSACTIONS.DEFAULT.RESPONSE.body._links.next.href);
-            done();
-          })
-          .catch(function (err) {
-            done(err);
-          })
-      });
-    });
-    describe("with limit = 1", function () {
-      var TransactionPage;
-      beforeEach(function (done) {
-        this.setFixtures({
-          request: global.fixtures.TEST_GET_ACCOUNT_TRANSACTIONS.WITH_LIMIT.REQUEST,
-          response: global.fixtures.TEST_GET_ACCOUNT_TRANSACTIONS.WITH_LIMIT.RESPONSE
-        }, done);
-      });
-
-      it("should call server with limit query param 1", function (done) {
-        var address = global.fixtures.ROOT_ACCOUNT;
-        server.getAccountTransactions(address, {limit: 1})
-          .then(function (res) {
-            expect(res.next).to.be.equal(global.fixtures.TEST_GET_ACCOUNT_TRANSACTIONS.WITH_LIMIT.RESPONSE.body._links.next.href);
-            done();
-          })
-          .catch(function (err) {
-            done(err);
-          })
-      });
-    });
-  });
-
-  describe("Server.getNextTransactions", function () {
-    beforeEach(function (done) {
-      this.setFixtures({
-        request: global.fixtures.TEST_GET_NEXT_TRANSACTIONS.REQUEST,
-        response: global.fixtures.TEST_GET_NEXT_TRANSACTIONS.RESPONSE
-      }, done);
-    });
-    it("should call server with the next value in the TransactionPage", function (done) {
-      var page = global.fixtures.TEST_GET_NEXT_TRANSACTIONS.TRANSACTION_PAGE;
-      server.getNextTransactions(page)
-        .then(function (res) {
-          expect(res.next).to.be.equal(global.fixtures.TEST_GET_NEXT_TRANSACTIONS.RESPONSE.body._links.next.href);
-          done();
-        })
-        .catch(function (err) {
-          done(err);
-        })
-    });
   });
 });

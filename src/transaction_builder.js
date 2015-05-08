@@ -1,4 +1,4 @@
-import {xdr, hash} from "stellar-base";
+import {xdr, hash, Keypair} from "stellar-base";
 
 import {Operation} from "./operation";
 import {Transaction} from "./transaction";
@@ -50,8 +50,8 @@ export class TransactionBuilder {
         if (!source) {
             throw new Error("must specify source account for the transaction");
         }
-        this._source        = source;
-        this._operations    = [];
+        this.source        = source;
+        this.operations    = [];
 
         this.maxFee     = opts.maxFee || MAX_FEE;
         this.minLedger  = opts.minLedger || MIN_LEDGER;
@@ -68,7 +68,7 @@ export class TransactionBuilder {
     * @param {xdr.Operation} The xdr operation object, use {@link Operation} static methods.
     */
     addOperation(operation) {
-        this._operations.push(operation);
+        this.operations.push(operation);
         return this;
     }
 
@@ -79,22 +79,22 @@ export class TransactionBuilder {
     */
     build() {
         let tx = new xdr.Transaction({
-          sourceAccount: this._source.masterKeypair.publicKey(),
+          sourceAccount: Keypair.fromAddress(this.source.address).publicKey(),
           maxFee:        this.maxFee,
-          seqNum:        xdr.SequenceNumber.fromString(String(this._source.sequence)),
+          seqNum:        xdr.SequenceNumber.fromString(String(this.source.sequence + 1)),
           minLedger:     this.minLedger,
           maxLedger:     this.maxLedger,
           memo:          this.memo
         });
 
-        this._source.sequence = this._source.sequence + 1;
+        this.source.sequence = this.source.sequence + 1;
 
-        tx.operations(this._operations);
+        tx.operations(this.operations);
 
         let tx_raw = tx.toXDR();
 
         let tx_hash    = hash(tx_raw);
-        let signatures = [this._source.masterKeypair.signDecorated(tx_hash)];
+        let signatures = [];
         let envelope = new xdr.TransactionEnvelope({tx, signatures});
 
         return new Transaction(envelope);
