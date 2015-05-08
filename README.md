@@ -1,5 +1,6 @@
 # js-stellar-lib
-### Note: This library is still under development and subject to breaking changes. __Target Pre-production Alpha Release Date: 5/12/15__
+[![Build Status](https://travis-ci.org/stellar/js-stellar-lib.svg?branch=master)](https://travis-ci.org/stellar/js-stellar-lib)
+### Note: This library is still under development and subject to breaking changes.
 
 js-stellar-lib is a client side Stellar Javascript Library for communicating with a [Stellar Horizon Server](https://github.com/stellar/go-horizon). It provides a networking layer API for Horizon endpoints.
 
