@@ -3,7 +3,7 @@ import {xdr} from "stellar-base";
 import {Account} from "./account";
 
 let request = require("superagent");
-var EventSource = (typeof window === 'undefined') ? require('eventsource') : EventSource;
+var EventSource = (typeof window === 'undefined') ? require('eventsource') : window.EventSource;
 
 /**
 * @class Server
@@ -295,7 +295,6 @@ export class Server {
 
     _toCollectionPage(json) {
         var self = this;
-                console.log(json._links.next.href);
         return {
             records: json._embedded.records,
             next: function () {
