@@ -58,8 +58,6 @@ app.get('*', function(req, res) {
             }
         }
     }
-    var sent = 0;
-    var id = 0;
     if (response.stream) {
         if (req.headers.accept != "text/event-stream") {
             res.status(404).send("expected a event stream request");

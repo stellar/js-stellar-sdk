@@ -82,11 +82,13 @@ export class Server {
     *                                return the EventSource object.
     */
     accounts(address, resource, opts) {
-        if (!address || typeof address === "object") {
-            return this._sendResourceRequest("accounts", null, null, address);
-        }
-        if (!resource || typeof resource === "object") {
-            return this._sendResourceRequest("accounts", address, null, resource);
+        if (!address || typeof(address) === "object") {
+            opts = address;
+            address = null;
+            resource = null;
+        } else if (!resource || typeof resource === "object") {
+            opts = resource;
+            resource = null;
         }
         return this._sendResourceRequest("accounts", address, resource, opts);
     }
@@ -126,11 +128,13 @@ export class Server {
     *                                return the EventSource object.
     */
     ledgers(sequence, resource, opts) {
-        if (!sequence || typeof sequence === "object") {
-            return this._sendResourceRequest("ledgers", null, null, sequence);
-        }
-        if (!resource || typeof resource === "object") {
-            return this._sendResourceRequest("ledgers", sequence, null, resource);
+        if (!sequence || typeof(sequence) === "object") {
+            opts = sequence;
+            sequence = null;
+            resource = null;
+        } else if (!resource || typeof resource === "object") {
+            opts = resource;
+            resource = null;
         }
         return this._sendResourceRequest("ledgers", sequence, resource, opts);
     }
@@ -170,11 +174,13 @@ export class Server {
     *                                return the EventSource object.
     */
     transactions(hash, resource, opts) {
-        if (!hash || typeof hash === "object") {
-            return this._sendResourceRequest("transactions", null, null, hash);
-        }
-        if (!resource || typeof resource === "object") {
-            return this._sendResourceRequest("transactions", hash, null, resource);
+        if (!hash || typeof(hash) === object) {
+            opts = hash;
+            hash = null;
+            resource = null;
+        } else if (!resource || typeof resource === "object") {
+            opts = resource;
+            resource = null;
         }
         return this._sendResourceRequest("transactions", hash, resource, opts);
     }
@@ -195,105 +201,28 @@ export class Server {
     }
 
     /**
-    * @deprecated Use the {@link Server#transactions} API instead
-    * Returns the json transaction record of the given transaction hash.
-    * @param {string} hash - The hash of the transaction.
+    * Sends a request for a resource or collection of resources. For a non streaming
+    * request, will return a promise. This will be fulfilled either with the specific
+    * resource response, or a collection of responses. Otherwise, for a streaming request,
+    * will return the EventSource object.
+    * @param {string} type - {"accounts", "ledgers", "transactions"}
     */
-    getTransaction(hash) {
-        var self = this;
-        return new Promise(function (resolve, reject) {
-            request
-                .get(self.protocol + self.hostname + ":" + self.port + '/transactions/' + hash)
-                .end(function(err, res) {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        resolve(res.body);
-                    }
-                });
-        });
+    _sendResourceRequest(type, id, resource, opts) {
+        // we're not requesting a collection if they specify the id and no sub resource
+        var single = id && !resource;
+        var endpoint = this._buildEndpointPath(type, id, resource, opts);
+        if (opts && opts.streaming) {
+            return this._sendStreamingRequest(endpoint, opts.streaming);
+        } else {
+            var promise = this._sendNormalRequest(endpoint);
+            if (!single) {
+                promise = promise.then(this._toCollectionPage.bind(this));
+            }
+            return promise;
+        }
     }
 
-    /**
-    * @deprecated Use the {@link Server#transactions} API instead
-    * Returns a TransactionPage for the latest transactions in the network.
-    * Transaction results will be ordered in descending order. The returned
-    * TransactionPage can be passed to Server.getNextTransactions() or
-    * Server.getPreviousTransactions() for the next page of transactions.
-    * @param {object} [opts]
-    * @param {number} [opts.limit] - The max amount of transactions to return in
-    *                                this page. Default is 100.
-    */
-    getTransactions(opts={}) {
-        var self = this;
-        var limit = opts.limit ? opts.limit : 100;
-        return new Promise(function (resolve, reject) {
-            request
-                .get(self.protocol + self.hostname + ":" + self.port +
-                    '/transactions' + '?limit=' + limit)
-                .end(function(err, res) {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        resolve(new TransactionPage(res.body));
-                    }
-                });
-        });
-    }
-
-    /**
-    * @deprecated Use the {@link Server#accounts} API instead
-    * Returns a TransactionPage for the transactions on the given address.
-    * Transaction results will be ordered in descending order. The returned
-    * TransactionPage can be passed to Server.getNextTransactions() or
-    * Server.getPreviousTransactions() for the next page of transactions.
-    * @param {string} address - The address of the account to retrieve txns from.
-    * @param {object} [opts]
-    * @param {number} [opts.limit] - The max amount of transactions to return in
-    *                                this page. Default is 100.
-    */
-    getAccountTransactions(address, opts={}) {
-        var self = this;
-        var limit = opts.limit ? opts.limit : 100;
-        return new Promise(function (resolve, reject) {
-            request
-                .get(self.protocol + self.hostname + ":" + self.port +
-                    '/accounts/' + address + '/transactions' +
-                    '?limit=' + limit)
-                .end(function(err, res) {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        resolve(new TransactionPage(res.body));
-                    }
-                });
-        });
-    }
-
-    /**
-    * @deprecated Use the {@link Server#transactions} API instead
-    * Given a TransactionPage, this will return a new transaction page with
-    * the "next" transactions in the collection.
-    * @param {TransactionPage} page
-    * @param {object} [opts]
-    * @param {number} [opts.limit] - The max amount of transactions to return in
-    *                                this page. Default is 100.
-    */
-    getNextTransactions(page, opts) {
-        return new Promise(function (resolve, reject) {
-            request
-                .get(page.next)
-                .end(function (err, res) {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        resolve(new TransactionPage(res.body));
-                    }
-                });
-        });
-    }
-
-    _sendResourceRequest(type, id, subType, opts) {
+    _buildEndpointPath(type, id, subType, opts) {
         let endpoint = "/" + type;
         if (id) {
             endpoint += "/" + id;
@@ -304,18 +233,32 @@ export class Server {
         if (opts) {
             endpoint = this._appendResourceCollectionConfiguration(endpoint, opts);
         }
-        if (opts && opts.streaming) {
-            return this._sendStreamingRequest(endpoint, opts.streaming);
-        } else {
-            return this._sendNormalRequest(endpoint);
-        }
+        return endpoint;
     }
 
-    _sendNormalRequest(endpoint, handler) {
+    _sendNormalRequest(endpoint) {
         var self = this;
         return new Promise(function (resolve, reject) {
             request
                 .get(self.protocol + self.hostname + ":" + self.port + endpoint)
+                .end(function (err, res) {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(res.body);
+                    }
+                });
+        });
+    }
+
+    /**
+    * For those pesky _link.href full URLs we get back from Horizon.
+    */
+    _sendLinkRequest(href) {
+        var self = this;
+        return new Promise(function (resolve, reject) {
+            request
+                .get(href)
                 .end(function (err, res) {
                     if (err) {
                         reject(err);
@@ -347,14 +290,18 @@ export class Server {
         return endpoint;
     }
 
-    _toResourcePage(json) {
+    _toCollectionPage(json) {
+        var self = this;
+                console.log(json._links.next.href);
         return {
             records: json._embedded.records,
             next: function () {
-                return _sendNormalRequest(json._links.next.href);
+                return self._sendLinkRequest(json._links.next.href)
+                    .then(self._toCollectionPage.bind(self));
             },
             prev: function () {
-                return _sendNormalRequest(json._links.prev.href);
+                return self._sendLinkRequest(json._links.prev.href)
+                    .then(self._toCollectionPage.bind(self));
             }
         };
     }
