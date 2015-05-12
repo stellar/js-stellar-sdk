@@ -2,6 +2,7 @@ import {xdr, Keypair, Hyper, UnsignedHyper, hash, encodeBase58Check} from "stell
 
 import {Account} from "./account";
 import {Currency} from "./currency";
+import {best_r} from "./util/continued_fraction";
 
 /**
 * @class Operation
@@ -187,9 +188,7 @@ export class Operation {
     * @param {Currency} takerGets - What you're selling.
     * @param {Currency} takerPays - What you're buying.
     * @param {string} amount - The total amount you're selling. If 0, deletes the offer.
-    * @param {object} price - The exchange rate ratio.
-    * @param {number} price.takerPaysAmount - How much the taker will pay.
-    * @param {number} price.takerGetsAmount - How much the taker will get.
+    * @param {number} price - The exchange rate ratio (takerpay / takerget)
     * @param {string} offerID - If 0, will create a new offer. Otherwise, edits an exisiting offer.
     * @returns {xdr.CreateOfferOp}
     */
@@ -198,11 +197,12 @@ export class Operation {
         attributes.takerGets = opts.takerGets.toXdrObject();
         attributes.takerPays = opts.takerPays.toXdrObject();
         attributes.amount = Hyper.fromString(String(opts.amount));
+        let approx = best_r(opts.price);
         attributes.price = new xdr.Price({
-            n: opts.price.takerPaysAmount,
-            d: opts.price.takerGetsAmount
+            n: approx[0],
+            d: approx[1]
         });
-        attributes.offerID = UnsignedHyper.fromString(String(opts.offerID));
+        attributes.offerId = UnsignedHyper.fromString(String(opts.offerID));
         let createOfferOp = new xdr.CreateOfferOp(attributes);
 
         let opAttributes = {};
@@ -309,7 +309,7 @@ export class Operation {
                     n: attrs.price._attributes.n,
                     d: attrs.price._attributes.d
                 };
-                obj.offerID = attrs.offerID.toString();
+                obj.offerID = attrs.offerId.toString();
                 break;
             case "accountMerge":
                 obj.type = "accountMerge";
