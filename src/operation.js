@@ -39,11 +39,6 @@ export class Operation {
         attributes.amount       = Hyper.fromString(String(opts.amount));
         attributes.sendMax      = opts.sendMax ? Hyper.fromString(String(opts.sendMax)) : attributes.amount;
         attributes.path         = opts.path ? opts.path : [];
-        // TODO: operation memos to be removed
-        attributes.sourceMemo = new Buffer(32);
-        attributes.sourceMemo.fill(0);
-        attributes.memo = new Buffer(32);
-        attributes.memo.fill(0);
         let payment = new xdr.PaymentOp(attributes);
 
         let opAttributes = {};
@@ -258,8 +253,6 @@ export class Operation {
                 obj.path = attrs.path;
                 obj.amount = attrs.amount.toString();
                 obj.sendMax = attrs.sendMax.toString();
-                obj.sourceMemo = attrs.sourceMemo;
-                obj.memo = attrs.memo;
                 break;
             case "changeTrust":
                 obj.type = "changeTrust";
