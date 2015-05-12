@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: account.js</title>
+    <title>JSDoc: Source: util/continued_fraction.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: account.js</h1>
+    <h1 class="page-title">Source: util/continued_fraction.js</h1>
 
     
 
@@ -26,36 +26,37 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import {decodeBase58Check} from "stellar-base";
+            <pre class="prettyprint source linenums"><code>var MAX_INT = (1 &lt;&lt; 31 >>> 0) - 1;
 
 /**
-* @class Account
+* Calculats and returns the best rational approximation of the given real number.
+* @returns {array} first element is n, second element is d
 */
-export class Account {
-
-    /**
-    * Returns true if the given address is a valid Stellar address.
-    */
-    static isValidAddress(address) {
-        try {
-            decodeBase58Check("accountId", address);
-        } catch(err) {
-            return false;
+export function best_r(number) {
+    var a = Math.floor(number);
+    var f;
+    var fractions = [[0,1],[1,0]];
+    var i = 2;
+    while (true) {
+        if (number > MAX_INT) {
+            break;
         }
-        return true;
+        a = Math.floor(number);
+        f = number - a;
+        var h = a * fractions[i - 1][0] + fractions[i - 2][0];
+        var k = a * fractions[i - 1][1] + fractions[i - 2][1];
+        if (h > MAX_INT || k > MAX_INT) {
+            break;
+        }
+        fractions.push([h, k]);
+        if (f === 0) {
+            break;
+        }
+        number = 1 / f;
+        i = i + 1;
     }
-
-    /**
-    * Create a new Account object.
-    * @param {string} address
-    * @param {number} sequence
-    */
-    constructor(address, sequence) {
-        this.address = address;
-        this.sequence = sequence;
-    }
-}
-</code></pre>
+    return fractions[fractions.length - 1];
+}</code></pre>
         </article>
     </section>
 
