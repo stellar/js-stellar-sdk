@@ -26,7 +26,7 @@ export class Transaction {
         // since this transaction is immutable, save the tx
         this.tx = envelope._attributes.tx;
         this.source = encodeBase58Check("accountId", envelope._attributes.tx._attributes.sourceAccount);
-        this.maxFee = envelope._attributes.tx._attributes.maxFee;
+        this.fee = envelope._attributes.tx._attributes.fee;
         this.sequence = envelope._attributes.tx._attributes.seqNum.toString();
         this.minLedger = envelope._attributes.tx._attributes.minLedger;
         this.maxLedger = envelope._attributes.tx._attributes.maxLedger;

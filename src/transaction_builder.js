@@ -93,7 +93,7 @@ export class TransactionBuilder {
         let tx = new xdr.Transaction({
           sourceAccount: Keypair.fromAddress(this.source.address).publicKey(),
           fee:           this.fee,
-          seqNum:        xdr.SequenceNumber.fromString(String(this.source.sequence + 1)),
+          seqNum:        xdr.SequenceNumber.fromString(String(Number(this.source.sequence) + 1)),
           minLedger:     this.minLedger,
           maxLedger:     this.maxLedger,
           memo:          this.memo
