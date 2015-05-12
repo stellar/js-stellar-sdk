@@ -188,7 +188,7 @@ var StellarLib =
 	        // since this transaction is immutable, save the tx
 	        this.tx = envelope._attributes.tx;
 	        this.source = encodeBase58Check("accountId", envelope._attributes.tx._attributes.sourceAccount);
-	        this.maxFee = envelope._attributes.tx._attributes.maxFee;
+	        this.fee = envelope._attributes.tx._attributes.fee;
 	        this.sequence = envelope._attributes.tx._attributes.seqNum.toString();
 	        this.minLedger = envelope._attributes.tx._attributes.minLedger;
 	        this.maxLedger = envelope._attributes.tx._attributes.maxLedger;
@@ -380,7 +380,7 @@ var StellarLib =
 	                var tx = new xdr.Transaction({
 	                    sourceAccount: Keypair.fromAddress(this.source.address).publicKey(),
 	                    fee: this.fee,
-	                    seqNum: xdr.SequenceNumber.fromString(String(this.source.sequence + 1)),
+	                    seqNum: xdr.SequenceNumber.fromString(String(Number(this.source.sequence) + 1)),
 	                    minLedger: this.minLedger,
 	                    maxLedger: this.maxLedger,
 	                    memo: this.memo
@@ -868,7 +868,7 @@ var StellarLib =
 /* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
+	"use strict";
 
 	var _createClass = (function () { function defineProperties(target, props) { for (var key in props) { var prop = props[key]; prop.configurable = true; if (prop.value) prop.writable = true; } Object.defineProperties(target, props); } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
@@ -936,11 +936,6 @@ var StellarLib =
 	                attributes.amount = Hyper.fromString(String(opts.amount));
 	                attributes.sendMax = opts.sendMax ? Hyper.fromString(String(opts.sendMax)) : attributes.amount;
 	                attributes.path = opts.path ? opts.path : [];
-	                // TODO: operation memos to be removed
-	                attributes.sourceMemo = new Buffer(32);
-	                attributes.sourceMemo.fill(0);
-	                attributes.memo = new Buffer(32);
-	                attributes.memo.fill(0);
 	                var payment = new xdr.PaymentOp(attributes);
 
 	                var opAttributes = {};
@@ -1175,8 +1170,6 @@ var StellarLib =
 	                        obj.path = attrs.path;
 	                        obj.amount = attrs.amount.toString();
 	                        obj.sendMax = attrs.sendMax.toString();
-	                        obj.sourceMemo = attrs.sourceMemo;
-	                        obj.memo = attrs.memo;
 	                        break;
 	                    case "changeTrust":
 	                        obj.type = "changeTrust";
@@ -1244,7 +1237,6 @@ var StellarLib =
 
 	    return Operation;
 	})();
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15).Buffer))
 
 /***/ },
 /* 9 */
@@ -28126,7 +28118,7 @@ var StellarLib =
 	    }
 	  } else if (true) {
 	    // Node.js.
-	    crypto = __webpack_require__(68);
+	    crypto = __webpack_require__(91);
 	    if (crypto) {
 	      nacl.setPRNG(function(x, n) {
 	        var i, v = crypto.randomBytes(n);
@@ -28421,6 +28413,8 @@ var StellarLib =
 	  value: true
 	});
 
+	_defaults(exports, _interopRequireWildcard(__webpack_require__(68)));
+
 	_defaults(exports, _interopRequireWildcard(__webpack_require__(69)));
 
 	_defaults(exports, _interopRequireWildcard(__webpack_require__(70)));
@@ -28455,25 +28449,23 @@ var StellarLib =
 
 	_defaults(exports, _interopRequireWildcard(__webpack_require__(85)));
 
-	_defaults(exports, _interopRequireWildcard(__webpack_require__(86)));
-
 /***/ },
 /* 53 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
-	var _classCallCheck = __webpack_require__(87)["default"];
+	var _classCallCheck = __webpack_require__(86)["default"];
 
-	var _createClass = __webpack_require__(88)["default"];
+	var _createClass = __webpack_require__(87)["default"];
 
-	var _inherits = __webpack_require__(89)["default"];
+	var _inherits = __webpack_require__(88)["default"];
 
-	var _toConsumableArray = __webpack_require__(90)["default"];
+	var _toConsumableArray = __webpack_require__(89)["default"];
 
 	var _interopRequireWildcard = __webpack_require__(50)["default"];
 
-	var _interopRequire = __webpack_require__(91)["default"];
+	var _interopRequire = __webpack_require__(90)["default"];
 
 	exports.config = config;
 	Object.defineProperty(exports, "__esModule", {
@@ -32862,69 +32854,9 @@ var StellarLib =
 /* 68 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(Buffer) {var rng = __webpack_require__(101)
-
-	function error () {
-	  var m = [].slice.call(arguments).join(' ')
-	  throw new Error([
-	    m,
-	    'we accept pull requests',
-	    'http://github.com/dominictarr/crypto-browserify'
-	    ].join('\n'))
-	}
-
-	exports.createHash = __webpack_require__(102)
-
-	exports.createHmac = __webpack_require__(103)
-
-	exports.randomBytes = function(size, callback) {
-	  if (callback && callback.call) {
-	    try {
-	      callback.call(this, undefined, new Buffer(rng(size)))
-	    } catch (err) { callback(err) }
-	  } else {
-	    return new Buffer(rng(size))
-	  }
-	}
-
-	function each(a, f) {
-	  for(var i in a)
-	    f(a[i], i)
-	}
-
-	exports.getHashes = function () {
-	  return ['sha1', 'sha256', 'sha512', 'md5', 'rmd160']
-	}
-
-	var p = __webpack_require__(104)(exports)
-	exports.pbkdf2 = p.pbkdf2
-	exports.pbkdf2Sync = p.pbkdf2Sync
-
-
-	// the least I can do is make error messages for the rest of the node.js/crypto api.
-	each(['createCredentials'
-	, 'createCipher'
-	, 'createCipheriv'
-	, 'createDecipher'
-	, 'createDecipheriv'
-	, 'createSign'
-	, 'createVerify'
-	, 'createDiffieHellman'
-	], function (name) {
-	  exports[name] = function () {
-	    error('sorry,', name, 'is not implemented yet')
-	  }
-	})
-
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15).Buffer))
-
-/***/ },
-/* 69 */
-/***/ function(module, exports, __webpack_require__) {
-
 	"use strict";
 
-	var _interopRequire = __webpack_require__(91)["default"];
+	var _interopRequire = __webpack_require__(90)["default"];
 
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
@@ -32932,7 +32864,7 @@ var StellarLib =
 
 	var isNumber = __webpack_require__(99).isNumber;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(106));
+	var includeIoMixin = _interopRequire(__webpack_require__(101));
 
 	var Int = {
 
@@ -32970,22 +32902,22 @@ var StellarLib =
 	includeIoMixin(Int);
 
 /***/ },
-/* 70 */
+/* 69 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
-	var _classCallCheck = __webpack_require__(87)["default"];
+	var _classCallCheck = __webpack_require__(86)["default"];
 
-	var _inherits = __webpack_require__(89)["default"];
+	var _inherits = __webpack_require__(88)["default"];
 
-	var _get = __webpack_require__(105)["default"];
+	var _get = __webpack_require__(102)["default"];
 
-	var _createClass = __webpack_require__(88)["default"];
+	var _createClass = __webpack_require__(87)["default"];
 
 	var _core = __webpack_require__(66)["default"];
 
-	var _interopRequire = __webpack_require__(91)["default"];
+	var _interopRequire = __webpack_require__(90)["default"];
 
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
@@ -32993,7 +32925,7 @@ var StellarLib =
 
 	var Long = _interopRequire(__webpack_require__(112));
 
-	var includeIoMixin = _interopRequire(__webpack_require__(106));
+	var includeIoMixin = _interopRequire(__webpack_require__(101));
 
 	var Hyper = exports.Hyper = (function (_Long) {
 	  function Hyper(low, high) {
@@ -33050,12 +32982,12 @@ var StellarLib =
 	Hyper.MIN_VALUE = new Hyper(Long.MIN_VALUE.low, Long.MIN_VALUE.high);
 
 /***/ },
-/* 71 */
+/* 70 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
-	var _interopRequire = __webpack_require__(91)["default"];
+	var _interopRequire = __webpack_require__(90)["default"];
 
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
@@ -33063,7 +32995,7 @@ var StellarLib =
 
 	var isNumber = __webpack_require__(99).isNumber;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(106));
+	var includeIoMixin = _interopRequire(__webpack_require__(101));
 
 	var UnsignedInt = {
 
@@ -33105,22 +33037,22 @@ var StellarLib =
 	includeIoMixin(UnsignedInt);
 
 /***/ },
-/* 72 */
+/* 71 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
-	var _classCallCheck = __webpack_require__(87)["default"];
+	var _classCallCheck = __webpack_require__(86)["default"];
 
-	var _inherits = __webpack_require__(89)["default"];
+	var _inherits = __webpack_require__(88)["default"];
 
-	var _get = __webpack_require__(105)["default"];
+	var _get = __webpack_require__(102)["default"];
 
-	var _createClass = __webpack_require__(88)["default"];
+	var _createClass = __webpack_require__(87)["default"];
 
 	var _core = __webpack_require__(66)["default"];
 
-	var _interopRequire = __webpack_require__(91)["default"];
+	var _interopRequire = __webpack_require__(90)["default"];
 
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
@@ -33128,7 +33060,7 @@ var StellarLib =
 
 	var Long = _interopRequire(__webpack_require__(112));
 
-	var includeIoMixin = _interopRequire(__webpack_require__(106));
+	var includeIoMixin = _interopRequire(__webpack_require__(101));
 
 	var UnsignedHyper = exports.UnsignedHyper = (function (_Long) {
 	  function UnsignedHyper(low, high) {
@@ -33188,12 +33120,12 @@ var StellarLib =
 	UnsignedHyper.MIN_VALUE = new UnsignedHyper(Long.MIN_VALUE.low, Long.MIN_VALUE.high);
 
 /***/ },
-/* 73 */
+/* 72 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
-	var _interopRequire = __webpack_require__(91)["default"];
+	var _interopRequire = __webpack_require__(90)["default"];
 
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
@@ -33201,7 +33133,7 @@ var StellarLib =
 
 	var isNumber = __webpack_require__(99).isNumber;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(106));
+	var includeIoMixin = _interopRequire(__webpack_require__(101));
 
 	var Float = {
 
@@ -33225,12 +33157,12 @@ var StellarLib =
 	includeIoMixin(Float);
 
 /***/ },
-/* 74 */
+/* 73 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
-	var _interopRequire = __webpack_require__(91)["default"];
+	var _interopRequire = __webpack_require__(90)["default"];
 
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
@@ -33238,7 +33170,7 @@ var StellarLib =
 
 	var isNumber = __webpack_require__(99).isNumber;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(106));
+	var includeIoMixin = _interopRequire(__webpack_require__(101));
 
 	var Double = {
 
@@ -33262,18 +33194,18 @@ var StellarLib =
 	includeIoMixin(Double);
 
 /***/ },
-/* 75 */
+/* 74 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
-	var _interopRequire = __webpack_require__(91)["default"];
+	var _interopRequire = __webpack_require__(90)["default"];
 
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
 
-	var includeIoMixin = _interopRequire(__webpack_require__(106));
+	var includeIoMixin = _interopRequire(__webpack_require__(101));
 
 	var Quadruple = {
 	  /* jshint unused: false */
@@ -33294,22 +33226,22 @@ var StellarLib =
 	includeIoMixin(Quadruple);
 
 /***/ },
-/* 76 */
+/* 75 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
-	var _interopRequire = __webpack_require__(91)["default"];
+	var _interopRequire = __webpack_require__(90)["default"];
 
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
 
-	var Int = __webpack_require__(69).Int;
+	var Int = __webpack_require__(68).Int;
 
 	var isBoolean = __webpack_require__(99).isBoolean;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(106));
+	var includeIoMixin = _interopRequire(__webpack_require__(101));
 
 	var Bool = {
 	  read: function read(io) {
@@ -33339,30 +33271,30 @@ var StellarLib =
 	includeIoMixin(Bool);
 
 /***/ },
-/* 77 */
+/* 76 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
 
-	var _classCallCheck = __webpack_require__(87)["default"];
+	var _classCallCheck = __webpack_require__(86)["default"];
 
-	var _createClass = __webpack_require__(88)["default"];
+	var _createClass = __webpack_require__(87)["default"];
 
-	var _interopRequire = __webpack_require__(91)["default"];
+	var _interopRequire = __webpack_require__(90)["default"];
 
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
 
-	var Int = __webpack_require__(69).Int;
+	var Int = __webpack_require__(68).Int;
 
-	var UnsignedInt = __webpack_require__(71).UnsignedInt;
+	var UnsignedInt = __webpack_require__(70).UnsignedInt;
 
-	var calculatePadding = __webpack_require__(107).calculatePadding;
+	var calculatePadding = __webpack_require__(103).calculatePadding;
 
 	var isString = __webpack_require__(99).isString;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(106));
+	var includeIoMixin = _interopRequire(__webpack_require__(101));
 
 	var String = exports.String = (function () {
 	  function String() {
@@ -33416,24 +33348,24 @@ var StellarLib =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15).Buffer))
 
 /***/ },
-/* 78 */
+/* 77 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
 
-	var _classCallCheck = __webpack_require__(87)["default"];
+	var _classCallCheck = __webpack_require__(86)["default"];
 
-	var _createClass = __webpack_require__(88)["default"];
+	var _createClass = __webpack_require__(87)["default"];
 
-	var _interopRequire = __webpack_require__(91)["default"];
+	var _interopRequire = __webpack_require__(90)["default"];
 
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
 
-	var calculatePadding = __webpack_require__(107).calculatePadding;
+	var calculatePadding = __webpack_require__(103).calculatePadding;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(106));
+	var includeIoMixin = _interopRequire(__webpack_require__(101));
 
 	var Opaque = exports.Opaque = (function () {
 	  function Opaque(length) {
@@ -33474,28 +33406,28 @@ var StellarLib =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15).Buffer))
 
 /***/ },
-/* 79 */
+/* 78 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
 
-	var _classCallCheck = __webpack_require__(87)["default"];
+	var _classCallCheck = __webpack_require__(86)["default"];
 
-	var _createClass = __webpack_require__(88)["default"];
+	var _createClass = __webpack_require__(87)["default"];
 
-	var _interopRequire = __webpack_require__(91)["default"];
+	var _interopRequire = __webpack_require__(90)["default"];
 
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
 
-	var Int = __webpack_require__(69).Int;
+	var Int = __webpack_require__(68).Int;
 
-	var UnsignedInt = __webpack_require__(71).UnsignedInt;
+	var UnsignedInt = __webpack_require__(70).UnsignedInt;
 
-	var calculatePadding = __webpack_require__(107).calculatePadding;
+	var calculatePadding = __webpack_require__(103).calculatePadding;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(106));
+	var includeIoMixin = _interopRequire(__webpack_require__(101));
 
 	var VarOpaque = exports.VarOpaque = (function () {
 	  function VarOpaque() {
@@ -33543,16 +33475,16 @@ var StellarLib =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15).Buffer))
 
 /***/ },
-/* 80 */
+/* 79 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
-	var _classCallCheck = __webpack_require__(87)["default"];
+	var _classCallCheck = __webpack_require__(86)["default"];
 
-	var _createClass = __webpack_require__(88)["default"];
+	var _createClass = __webpack_require__(87)["default"];
 
-	var _interopRequire = __webpack_require__(91)["default"];
+	var _interopRequire = __webpack_require__(90)["default"];
 
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
@@ -33565,7 +33497,7 @@ var StellarLib =
 	var times = _lodash.times;
 	var isArray = _lodash.isArray;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(106));
+	var includeIoMixin = _interopRequire(__webpack_require__(101));
 
 	var Array = exports.Array = (function () {
 	  function Array(childType, length) {
@@ -33626,24 +33558,24 @@ var StellarLib =
 	includeIoMixin(Array.prototype);
 
 /***/ },
-/* 81 */
+/* 80 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
-	var _classCallCheck = __webpack_require__(87)["default"];
+	var _classCallCheck = __webpack_require__(86)["default"];
 
-	var _createClass = __webpack_require__(88)["default"];
+	var _createClass = __webpack_require__(87)["default"];
 
-	var _interopRequire = __webpack_require__(91)["default"];
+	var _interopRequire = __webpack_require__(90)["default"];
 
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
 
-	var Int = __webpack_require__(69).Int;
+	var Int = __webpack_require__(68).Int;
 
-	var UnsignedInt = __webpack_require__(71).UnsignedInt;
+	var UnsignedInt = __webpack_require__(70).UnsignedInt;
 
 	var _lodash = __webpack_require__(99);
 
@@ -33652,7 +33584,7 @@ var StellarLib =
 	var times = _lodash.times;
 	var isArray = _lodash.isArray;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(106));
+	var includeIoMixin = _interopRequire(__webpack_require__(101));
 
 	var VarArray = exports.VarArray = (function () {
 	  function VarArray(childType) {
@@ -33722,29 +33654,29 @@ var StellarLib =
 	includeIoMixin(VarArray.prototype);
 
 /***/ },
-/* 82 */
+/* 81 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
-	var _classCallCheck = __webpack_require__(87)["default"];
+	var _classCallCheck = __webpack_require__(86)["default"];
 
-	var _createClass = __webpack_require__(88)["default"];
+	var _createClass = __webpack_require__(87)["default"];
 
-	var _interopRequire = __webpack_require__(91)["default"];
+	var _interopRequire = __webpack_require__(90)["default"];
 
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
 
-	var Bool = __webpack_require__(76).Bool;
+	var Bool = __webpack_require__(75).Bool;
 
 	var _lodash = __webpack_require__(99);
 
 	var isNull = _lodash.isNull;
 	var isUndefined = _lodash.isUndefined;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(106));
+	var includeIoMixin = _interopRequire(__webpack_require__(101));
 
 	var Option = exports.Option = (function () {
 	  function Option(childType) {
@@ -33792,12 +33724,12 @@ var StellarLib =
 	includeIoMixin(Option.prototype);
 
 /***/ },
-/* 83 */
+/* 82 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
-	var _interopRequire = __webpack_require__(91)["default"];
+	var _interopRequire = __webpack_require__(90)["default"];
 
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
@@ -33805,7 +33737,7 @@ var StellarLib =
 
 	var isUndefined = __webpack_require__(99).isUndefined;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(106));
+	var includeIoMixin = _interopRequire(__webpack_require__(101));
 
 	var Void = {
 	  /* jshint unused: false */
@@ -33828,35 +33760,35 @@ var StellarLib =
 	includeIoMixin(Void);
 
 /***/ },
-/* 84 */
+/* 83 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
-	var _classCallCheck = __webpack_require__(87)["default"];
+	var _classCallCheck = __webpack_require__(86)["default"];
 
-	var _createClass = __webpack_require__(88)["default"];
+	var _createClass = __webpack_require__(87)["default"];
 
-	var _inherits = __webpack_require__(89)["default"];
+	var _inherits = __webpack_require__(88)["default"];
 
-	var _get = __webpack_require__(105)["default"];
+	var _get = __webpack_require__(102)["default"];
 
 	var _core = __webpack_require__(66)["default"];
 
-	var _interopRequire = __webpack_require__(91)["default"];
+	var _interopRequire = __webpack_require__(90)["default"];
 
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
 
-	var Int = __webpack_require__(69).Int;
+	var Int = __webpack_require__(68).Int;
 
 	var _lodash = __webpack_require__(99);
 
 	var each = _lodash.each;
 	var vals = _lodash.values;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(106));
+	var includeIoMixin = _interopRequire(__webpack_require__(101));
 
 	var Enum = exports.Enum = (function () {
 	  function Enum(name, value) {
@@ -33955,24 +33887,24 @@ var StellarLib =
 	includeIoMixin(Enum);
 
 /***/ },
-/* 85 */
+/* 84 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
-	var _classCallCheck = __webpack_require__(87)["default"];
+	var _classCallCheck = __webpack_require__(86)["default"];
 
-	var _createClass = __webpack_require__(88)["default"];
+	var _createClass = __webpack_require__(87)["default"];
 
-	var _inherits = __webpack_require__(89)["default"];
+	var _inherits = __webpack_require__(88)["default"];
 
-	var _get = __webpack_require__(105)["default"];
+	var _get = __webpack_require__(102)["default"];
 
-	var _slicedToArray = __webpack_require__(108)["default"];
+	var _slicedToArray = __webpack_require__(104)["default"];
 
 	var _core = __webpack_require__(66)["default"];
 
-	var _interopRequire = __webpack_require__(91)["default"];
+	var _interopRequire = __webpack_require__(90)["default"];
 
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
@@ -33985,7 +33917,7 @@ var StellarLib =
 	var isUndefined = _lodash.isUndefined;
 	var zipObject = _lodash.zipObject;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(106));
+	var includeIoMixin = _interopRequire(__webpack_require__(101));
 
 	var Struct = exports.Struct = (function () {
 	  function Struct(attributes) {
@@ -34082,22 +34014,22 @@ var StellarLib =
 	}
 
 /***/ },
-/* 86 */
+/* 85 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
-	var _classCallCheck = __webpack_require__(87)["default"];
+	var _classCallCheck = __webpack_require__(86)["default"];
 
-	var _createClass = __webpack_require__(88)["default"];
+	var _createClass = __webpack_require__(87)["default"];
 
-	var _inherits = __webpack_require__(89)["default"];
+	var _inherits = __webpack_require__(88)["default"];
 
-	var _get = __webpack_require__(105)["default"];
+	var _get = __webpack_require__(102)["default"];
 
 	var _core = __webpack_require__(66)["default"];
 
-	var _interopRequire = __webpack_require__(91)["default"];
+	var _interopRequire = __webpack_require__(90)["default"];
 
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
@@ -34108,9 +34040,9 @@ var StellarLib =
 	var each = _lodash.each;
 	var isUndefined = _lodash.isUndefined;
 
-	var Void = __webpack_require__(83).Void;
+	var Void = __webpack_require__(82).Void;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(106));
+	var includeIoMixin = _interopRequire(__webpack_require__(101));
 
 	var Union = exports.Union = (function () {
 	  function Union(aSwitch, value) {
@@ -34270,7 +34202,7 @@ var StellarLib =
 	includeIoMixin(Union);
 
 /***/ },
-/* 87 */
+/* 86 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -34284,7 +34216,7 @@ var StellarLib =
 	exports.__esModule = true;
 
 /***/ },
-/* 88 */
+/* 87 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -34310,7 +34242,7 @@ var StellarLib =
 	exports.__esModule = true;
 
 /***/ },
-/* 89 */
+/* 88 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -34334,7 +34266,7 @@ var StellarLib =
 	exports.__esModule = true;
 
 /***/ },
-/* 90 */
+/* 89 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -34354,7 +34286,7 @@ var StellarLib =
 	exports.__esModule = true;
 
 /***/ },
-/* 91 */
+/* 90 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -34364,6 +34296,66 @@ var StellarLib =
 	};
 
 	exports.__esModule = true;
+
+/***/ },
+/* 91 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(Buffer) {var rng = __webpack_require__(105)
+
+	function error () {
+	  var m = [].slice.call(arguments).join(' ')
+	  throw new Error([
+	    m,
+	    'we accept pull requests',
+	    'http://github.com/dominictarr/crypto-browserify'
+	    ].join('\n'))
+	}
+
+	exports.createHash = __webpack_require__(106)
+
+	exports.createHmac = __webpack_require__(107)
+
+	exports.randomBytes = function(size, callback) {
+	  if (callback && callback.call) {
+	    try {
+	      callback.call(this, undefined, new Buffer(rng(size)))
+	    } catch (err) { callback(err) }
+	  } else {
+	    return new Buffer(rng(size))
+	  }
+	}
+
+	function each(a, f) {
+	  for(var i in a)
+	    f(a[i], i)
+	}
+
+	exports.getHashes = function () {
+	  return ['sha1', 'sha256', 'sha512', 'md5', 'rmd160']
+	}
+
+	var p = __webpack_require__(108)(exports)
+	exports.pbkdf2 = p.pbkdf2
+	exports.pbkdf2Sync = p.pbkdf2Sync
+
+
+	// the least I can do is make error messages for the rest of the node.js/crypto api.
+	each(['createCredentials'
+	, 'createCipher'
+	, 'createCipheriv'
+	, 'createDecipher'
+	, 'createDecipheriv'
+	, 'createSign'
+	, 'createVerify'
+	, 'createDiffieHellman'
+	], function (name) {
+	  exports[name] = function () {
+	    error('sorry,', name, 'is not implemented yet')
+	  }
+	})
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15).Buffer))
 
 /***/ },
 /* 92 */
@@ -47142,197 +47134,11 @@ var StellarLib =
 /* 101 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(global, Buffer) {(function() {
-	  var g = ('undefined' === typeof window ? global : window) || {}
-	  _crypto = (
-	    g.crypto || g.msCrypto || __webpack_require__(113)
-	  )
-	  module.exports = function(size) {
-	    // Modern Browsers
-	    if(_crypto.getRandomValues) {
-	      var bytes = new Buffer(size); //in browserify, this is an extended Uint8Array
-	      /* This will not work in older browsers.
-	       * See https://developer.mozilla.org/en-US/docs/Web/API/window.crypto.getRandomValues
-	       */
-	    
-	      _crypto.getRandomValues(bytes);
-	      return bytes;
-	    }
-	    else if (_crypto.randomBytes) {
-	      return _crypto.randomBytes(size)
-	    }
-	    else
-	      throw new Error(
-	        'secure random number generation not supported by this browser\n'+
-	        'use chrome, FireFox or Internet Explorer 11'
-	      )
-	  }
-	}())
-
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(15).Buffer))
-
-/***/ },
-/* 102 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(Buffer) {var createHash = __webpack_require__(123)
-
-	var md5 = toConstructor(__webpack_require__(119))
-	var rmd160 = toConstructor(__webpack_require__(130))
-
-	function toConstructor (fn) {
-	  return function () {
-	    var buffers = []
-	    var m= {
-	      update: function (data, enc) {
-	        if(!Buffer.isBuffer(data)) data = new Buffer(data, enc)
-	        buffers.push(data)
-	        return this
-	      },
-	      digest: function (enc) {
-	        var buf = Buffer.concat(buffers)
-	        var r = fn(buf)
-	        buffers = null
-	        return enc ? r.toString(enc) : r
-	      }
-	    }
-	    return m
-	  }
-	}
-
-	module.exports = function (alg) {
-	  if('md5' === alg) return new md5()
-	  if('rmd160' === alg) return new rmd160()
-	  return createHash(alg)
-	}
-
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15).Buffer))
-
-/***/ },
-/* 103 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(Buffer) {var createHash = __webpack_require__(102)
-
-	var zeroBuffer = new Buffer(128)
-	zeroBuffer.fill(0)
-
-	module.exports = Hmac
-
-	function Hmac (alg, key) {
-	  if(!(this instanceof Hmac)) return new Hmac(alg, key)
-	  this._opad = opad
-	  this._alg = alg
-
-	  var blocksize = (alg === 'sha512') ? 128 : 64
-
-	  key = this._key = !Buffer.isBuffer(key) ? new Buffer(key) : key
-
-	  if(key.length > blocksize) {
-	    key = createHash(alg).update(key).digest()
-	  } else if(key.length < blocksize) {
-	    key = Buffer.concat([key, zeroBuffer], blocksize)
-	  }
-
-	  var ipad = this._ipad = new Buffer(blocksize)
-	  var opad = this._opad = new Buffer(blocksize)
-
-	  for(var i = 0; i < blocksize; i++) {
-	    ipad[i] = key[i] ^ 0x36
-	    opad[i] = key[i] ^ 0x5C
-	  }
-
-	  this._hash = createHash(alg).update(ipad)
-	}
-
-	Hmac.prototype.update = function (data, enc) {
-	  this._hash.update(data, enc)
-	  return this
-	}
-
-	Hmac.prototype.digest = function (enc) {
-	  var h = this._hash.digest()
-	  return createHash(this._alg).update(this._opad).update(h).digest(enc)
-	}
-
-
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15).Buffer))
-
-/***/ },
-/* 104 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var pbkdf2Export = __webpack_require__(129)
-
-	module.exports = function (crypto, exports) {
-	  exports = exports || {}
-
-	  var exported = pbkdf2Export(crypto)
-
-	  exports.pbkdf2 = exported.pbkdf2
-	  exports.pbkdf2Sync = exported.pbkdf2Sync
-
-	  return exports
-	}
-
-
-/***/ },
-/* 105 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _core = __webpack_require__(66)["default"];
-
-	exports["default"] = function get(_x, _x2, _x3) {
-	  var _again = true;
-
-	  _function: while (_again) {
-	    _again = false;
-	    var object = _x,
-	        property = _x2,
-	        receiver = _x3;
-	    desc = parent = getter = undefined;
-
-	    var desc = _core.Object.getOwnPropertyDescriptor(object, property);
-
-	    if (desc === undefined) {
-	      var parent = _core.Object.getPrototypeOf(object);
-
-	      if (parent === null) {
-	        return undefined;
-	      } else {
-	        _x = parent;
-	        _x2 = property;
-	        _x3 = receiver;
-	        _again = true;
-	        continue _function;
-	      }
-	    } else if ("value" in desc && desc.writable) {
-	      return desc.value;
-	    } else {
-	      var getter = desc.get;
-
-	      if (getter === undefined) {
-	        return undefined;
-	      }
-
-	      return getter.call(receiver);
-	    }
-	  }
-	};
-
-	exports.__esModule = true;
-
-/***/ },
-/* 106 */
-/***/ function(module, exports, __webpack_require__) {
-
 	"use strict";
 
 	module.exports = includeIoMixin;
 
-	var Cursor = __webpack_require__(120).Cursor;
+	var Cursor = __webpack_require__(119).Cursor;
 
 	var _lodash = __webpack_require__(99);
 
@@ -47388,7 +47194,55 @@ var StellarLib =
 	}
 
 /***/ },
-/* 107 */
+/* 102 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _core = __webpack_require__(66)["default"];
+
+	exports["default"] = function get(_x, _x2, _x3) {
+	  var _again = true;
+
+	  _function: while (_again) {
+	    _again = false;
+	    var object = _x,
+	        property = _x2,
+	        receiver = _x3;
+	    desc = parent = getter = undefined;
+
+	    var desc = _core.Object.getOwnPropertyDescriptor(object, property);
+
+	    if (desc === undefined) {
+	      var parent = _core.Object.getPrototypeOf(object);
+
+	      if (parent === null) {
+	        return undefined;
+	      } else {
+	        _x = parent;
+	        _x2 = property;
+	        _x3 = receiver;
+	        _again = true;
+	        continue _function;
+	      }
+	    } else if ("value" in desc && desc.writable) {
+	      return desc.value;
+	    } else {
+	      var getter = desc.get;
+
+	      if (getter === undefined) {
+	        return undefined;
+	      }
+
+	      return getter.call(receiver);
+	    }
+	  }
+	};
+
+	exports.__esModule = true;
+
+/***/ },
+/* 103 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -47412,7 +47266,7 @@ var StellarLib =
 	}
 
 /***/ },
-/* 108 */
+/* 104 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -47438,6 +47292,144 @@ var StellarLib =
 	};
 
 	exports.__esModule = true;
+
+/***/ },
+/* 105 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(global, Buffer) {(function() {
+	  var g = ('undefined' === typeof window ? global : window) || {}
+	  _crypto = (
+	    g.crypto || g.msCrypto || __webpack_require__(113)
+	  )
+	  module.exports = function(size) {
+	    // Modern Browsers
+	    if(_crypto.getRandomValues) {
+	      var bytes = new Buffer(size); //in browserify, this is an extended Uint8Array
+	      /* This will not work in older browsers.
+	       * See https://developer.mozilla.org/en-US/docs/Web/API/window.crypto.getRandomValues
+	       */
+	    
+	      _crypto.getRandomValues(bytes);
+	      return bytes;
+	    }
+	    else if (_crypto.randomBytes) {
+	      return _crypto.randomBytes(size)
+	    }
+	    else
+	      throw new Error(
+	        'secure random number generation not supported by this browser\n'+
+	        'use chrome, FireFox or Internet Explorer 11'
+	      )
+	  }
+	}())
+
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(15).Buffer))
+
+/***/ },
+/* 106 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(Buffer) {var createHash = __webpack_require__(123)
+
+	var md5 = toConstructor(__webpack_require__(120))
+	var rmd160 = toConstructor(__webpack_require__(130))
+
+	function toConstructor (fn) {
+	  return function () {
+	    var buffers = []
+	    var m= {
+	      update: function (data, enc) {
+	        if(!Buffer.isBuffer(data)) data = new Buffer(data, enc)
+	        buffers.push(data)
+	        return this
+	      },
+	      digest: function (enc) {
+	        var buf = Buffer.concat(buffers)
+	        var r = fn(buf)
+	        buffers = null
+	        return enc ? r.toString(enc) : r
+	      }
+	    }
+	    return m
+	  }
+	}
+
+	module.exports = function (alg) {
+	  if('md5' === alg) return new md5()
+	  if('rmd160' === alg) return new rmd160()
+	  return createHash(alg)
+	}
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15).Buffer))
+
+/***/ },
+/* 107 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(Buffer) {var createHash = __webpack_require__(106)
+
+	var zeroBuffer = new Buffer(128)
+	zeroBuffer.fill(0)
+
+	module.exports = Hmac
+
+	function Hmac (alg, key) {
+	  if(!(this instanceof Hmac)) return new Hmac(alg, key)
+	  this._opad = opad
+	  this._alg = alg
+
+	  var blocksize = (alg === 'sha512') ? 128 : 64
+
+	  key = this._key = !Buffer.isBuffer(key) ? new Buffer(key) : key
+
+	  if(key.length > blocksize) {
+	    key = createHash(alg).update(key).digest()
+	  } else if(key.length < blocksize) {
+	    key = Buffer.concat([key, zeroBuffer], blocksize)
+	  }
+
+	  var ipad = this._ipad = new Buffer(blocksize)
+	  var opad = this._opad = new Buffer(blocksize)
+
+	  for(var i = 0; i < blocksize; i++) {
+	    ipad[i] = key[i] ^ 0x36
+	    opad[i] = key[i] ^ 0x5C
+	  }
+
+	  this._hash = createHash(alg).update(ipad)
+	}
+
+	Hmac.prototype.update = function (data, enc) {
+	  this._hash.update(data, enc)
+	  return this
+	}
+
+	Hmac.prototype.digest = function (enc) {
+	  var h = this._hash.digest()
+	  return createHash(this._alg).update(this._opad).update(h).digest(enc)
+	}
+
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15).Buffer))
+
+/***/ },
+/* 108 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var pbkdf2Export = __webpack_require__(129)
+
+	module.exports = function (crypto, exports) {
+	  exports = exports || {}
+
+	  var exported = pbkdf2Export(crypto)
+
+	  exports.pbkdf2 = exported.pbkdf2
+	  exports.pbkdf2Sync = exported.pbkdf2Sync
+
+	  return exports
+	}
+
 
 /***/ },
 /* 109 */
@@ -47654,6 +47646,55 @@ var StellarLib =
 /* 119 */
 /***/ function(module, exports, __webpack_require__) {
 
+	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
+
+	var _classCallCheck = __webpack_require__(86)["default"];
+
+	var _inherits = __webpack_require__(88)["default"];
+
+	var _createClass = __webpack_require__(87)["default"];
+
+	var _interopRequire = __webpack_require__(90)["default"];
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var BaseCursor = _interopRequire(__webpack_require__(133));
+
+	var calculatePadding = __webpack_require__(103).calculatePadding;
+
+	var Cursor = exports.Cursor = (function (_BaseCursor) {
+	  function Cursor() {
+	    _classCallCheck(this, Cursor);
+
+	    if (_BaseCursor != null) {
+	      _BaseCursor.apply(this, arguments);
+	    }
+	  }
+
+	  _inherits(Cursor, _BaseCursor);
+
+	  _createClass(Cursor, {
+	    writeBufferPadded: {
+	      value: function writeBufferPadded(buffer) {
+	        var padding = calculatePadding(buffer.length);
+	        var paddingBuffer = new Buffer(padding);
+	        paddingBuffer.fill(0);
+
+	        return this.copyFrom(new Cursor(buffer)).copyFrom(new Cursor(paddingBuffer));
+	      }
+	    }
+	  });
+
+	  return Cursor;
+	})(BaseCursor);
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15).Buffer))
+
+/***/ },
+/* 120 */
+/***/ function(module, exports, __webpack_require__) {
+
 	/*
 	 * A JavaScript implementation of the RSA Data Security, Inc. MD5 Message
 	 * Digest Algorithm, as defined in RFC 1321.
@@ -47810,55 +47851,6 @@ var StellarLib =
 	  return helpers.hash(buf, core_md5, 16);
 	};
 
-
-/***/ },
-/* 120 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
-
-	var _classCallCheck = __webpack_require__(87)["default"];
-
-	var _inherits = __webpack_require__(89)["default"];
-
-	var _createClass = __webpack_require__(88)["default"];
-
-	var _interopRequire = __webpack_require__(91)["default"];
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var BaseCursor = _interopRequire(__webpack_require__(134));
-
-	var calculatePadding = __webpack_require__(107).calculatePadding;
-
-	var Cursor = exports.Cursor = (function (_BaseCursor) {
-	  function Cursor() {
-	    _classCallCheck(this, Cursor);
-
-	    if (_BaseCursor != null) {
-	      _BaseCursor.apply(this, arguments);
-	    }
-	  }
-
-	  _inherits(Cursor, _BaseCursor);
-
-	  _createClass(Cursor, {
-	    writeBufferPadded: {
-	      value: function writeBufferPadded(buffer) {
-	        var padding = calculatePadding(buffer.length);
-	        var paddingBuffer = new Buffer(padding);
-	        paddingBuffer.fill(0);
-
-	        return this.copyFrom(new Cursor(buffer)).copyFrom(new Cursor(paddingBuffer));
-	      }
-	    }
-	  });
-
-	  return Cursor;
-	})(BaseCursor);
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15).Buffer))
 
 /***/ },
 /* 121 */
@@ -48829,7 +48821,7 @@ var StellarLib =
 
 	    /* CommonJS */ if ("function" === 'function' && typeof module === 'object' && module && typeof exports === 'object' && exports)
 	        module["exports"] = Long;
-	    /* AMD */ else if ("function" === 'function' && __webpack_require__(133)["amd"])
+	    /* AMD */ else if ("function" === 'function' && __webpack_require__(134)["amd"])
 	        !(__WEBPACK_AMD_DEFINE_RESULT__ = function() { return Long; }.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 	    /* Global */ else
 	        (global["dcodeIO"] = global["dcodeIO"] || {})["Long"] = Long;
@@ -51015,13 +51007,6 @@ var StellarLib =
 /* 133 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = function() { throw new Error("define cannot be used indirect"); };
-
-
-/***/ },
-/* 134 */
-/***/ function(module, exports, __webpack_require__) {
-
 	/* WEBPACK VAR INJECTION */(function(Buffer) {var Cursor = function(buffer)
 	{
 		if (!(this instanceof Cursor))
@@ -51268,6 +51253,13 @@ var StellarLib =
 	module.exports = Cursor;
 
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15).Buffer))
+
+/***/ },
+/* 134 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = function() { throw new Error("define cannot be used indirect"); };
+
 
 /***/ },
 /* 135 */
