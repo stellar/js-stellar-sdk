@@ -5,3 +5,5 @@ export {Currency} from "./currency";
 export {Server} from "./server";
 export {Operation} from "./operation";
 export {Keypair} from "stellar-base";
+export {Memo} from "./memo";
+export {xdr} from "stellar-base";

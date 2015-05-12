@@ -43,8 +43,15 @@ export class Server {
                         let result = xdr.TransactionResult.fromXDR(new Buffer(res.body.submission_result, "hex"));
                         resolve(new TransactionResult(result));
                     } else {
-                        console.log(err);
-                        reject(err);
+                        if (res && res.body && res.body.result) {
+                            reject({
+                                hash: res.body.hash,
+                                result: res.body.result
+                            });
+                        } else {
+                            console.log(err);
+                            reject(err);
+                        }
                     }
                 });
         });

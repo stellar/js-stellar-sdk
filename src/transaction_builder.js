@@ -4,7 +4,7 @@ import {Operation} from "./operation";
 import {Transaction} from "./transaction";
 import {Memo} from "./memo";
 
-let MAX_FEE      = 1000;
+let FEE      = 1000;
 let MIN_LEDGER   = 0;
 let MAX_LEDGER   = 0xFFFFFFFF; // max uint32
 
@@ -43,7 +43,7 @@ export class TransactionBuilder {
     * @constructor
     * @param {Account} sourceAccount - The source account for this transaction.
     * @param {object} [opts]
-    * @param {number} [opts.maxFee] - The max fee willing to pay for this transaction.
+    * @param {number} [opts.fee] - The max fee willing to pay for this transaction.
     * @param {number} [opts.minLedger] - The minimum ledger this transaction is valid in.
     * @param {number} [opts.maxLedger] - The maximum ledger this transaction is valid in.
     * @param {Memo} [opts.memo] - The memo for the transaction
@@ -55,8 +55,9 @@ export class TransactionBuilder {
         }
         this.source        = source;
         this.operations    = [];
+        this.signers       = [];
 
-        this.maxFee     = opts.maxFee || MAX_FEE;
+        this.fee        = opts.fee || FEE;
         this.minLedger  = opts.minLedger || MIN_LEDGER;
         this.maxLedger  = opts.maxLedger || MAX_LEDGER;
 
@@ -76,6 +77,14 @@ export class TransactionBuilder {
     }
 
     /**
+    * Adds the given signer's signature to the transaction.
+    */
+    addSigner(keypair) {
+        this.signers.push(keypair);
+        return this;
+    }
+
+    /**
     * This will build the transaction and sign it with the source account. It will
     * also increment the source account's sequence number by 1.
     * @returns {Transaction} will return the built Transaction.
@@ -83,7 +92,7 @@ export class TransactionBuilder {
     build() {
         let tx = new xdr.Transaction({
           sourceAccount: Keypair.fromAddress(this.source.address).publicKey(),
-          maxFee:        this.maxFee,
+          fee:           this.fee,
           seqNum:        xdr.SequenceNumber.fromString(String(this.source.sequence + 1)),
           minLedger:     this.minLedger,
           maxLedger:     this.maxLedger,
@@ -98,6 +107,9 @@ export class TransactionBuilder {
 
         let tx_hash    = hash(tx_raw);
         let signatures = [];
+        for (var i = 0; i < this.signers.length; i++) {
+            signatures.push(this.signers[i].signDecorated(tx_hash));
+        }
         let envelope = new xdr.TransactionEnvelope({tx, signatures});
 
         return new Transaction(envelope);

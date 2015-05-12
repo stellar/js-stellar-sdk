@@ -12,6 +12,7 @@ export class Operation {
     * Returns a XDR PaymentOp. A "payment" operation send the specified amount to the
     * destination account, optionally through a path. XLM payments create the destination
     * account if it does not exist.
+    * NOTE: Payment operation to change in next protocol update
     * @param {object}   opts
     * @param {Account}  opts.destination    - The destination account for the payment.
     * @param {Currency} opts.currency       - The currency to send
@@ -19,8 +20,6 @@ export class Operation {
     * @param {Account}  [opts.source]       - The source account for the payment. Defaults to the transaction's source account.
     * @param {array}    [opts.path]         - An array of Currency objects to use as the path.
     * @param {string}   [opts.sendMax]      - The max amount of currency to send.
-    * @param {string}   [opts.sourceMemo]   - The source memo.
-    * @param {string}   [opts.memo]         - The memo.
     * @returns {xdr.PaymentOp}
     */
     static payment(opts) {
@@ -40,18 +39,11 @@ export class Operation {
         attributes.amount       = Hyper.fromString(String(opts.amount));
         attributes.sendMax      = opts.sendMax ? Hyper.fromString(String(opts.sendMax)) : attributes.amount;
         attributes.path         = opts.path ? opts.path : [];
-        if (opts.sourceMemo) {
-            attributes.sourceMemo = opts.sourceMemo;
-        } else {
-            attributes.sourceMemo = new Buffer(32);
-            attributes.sourceMemo.fill(0);
-        }
-        if (opts.memo) {
-            attributes.memo = opts.memo;
-        } else {
-            attributes.memo = new Buffer(32);
-            attributes.memo.fill(0);
-        }
+        // TODO: operation memos to be removed
+        attributes.sourceMemo = new Buffer(32);
+        attributes.sourceMemo.fill(0);
+        attributes.memo = new Buffer(32);
+        attributes.memo.fill(0);
         let payment = new xdr.PaymentOp(attributes);
 
         let opAttributes = {};
@@ -107,7 +99,7 @@ export class Operation {
         let attributes = {};
         attributes.trustor = Keypair.fromAddress(opts.trustor).publicKey();
         let code = opts.currencyCode.length == 3 ? opts.currencyCode + "\0" : opts.currencyCode;
-        attributes.currency = xdr.AllowTrustOpCurrency.iso4217(code);
+        attributes.currency = xdr.AllowTrustOpCurrency.currencyTypeAlphanum(code);
         attributes.authorize = opts.authorize;
         let allowTrustOp = new xdr.AllowTrustOp(attributes);
 
@@ -163,7 +155,7 @@ export class Operation {
         }
         if (opts.signer) {
             let signer = new xdr.Signer({
-                address: Keypair.fromAddress(opts.signer.address).publicKey(),
+                pubKey: Keypair.fromAddress(opts.signer.address).publicKey(),
                 weight: opts.signer.weight
             });
             attributes.signer = signer;
@@ -189,7 +181,7 @@ export class Operation {
     * @param {Currency} takerPays - What you're buying.
     * @param {string} amount - The total amount you're selling. If 0, deletes the offer.
     * @param {number} price - The exchange rate ratio (takerpay / takerget)
-    * @param {string} offerID - If 0, will create a new offer. Otherwise, edits an exisiting offer.
+    * @param {string} offerId - If 0, will create a new offer. Otherwise, edits an exisiting offer.
     * @returns {xdr.CreateOfferOp}
     */
     static createOffer(opts) {
@@ -202,7 +194,7 @@ export class Operation {
             n: approx[0],
             d: approx[1]
         });
-        attributes.offerId = UnsignedHyper.fromString(String(opts.offerID));
+        attributes.offerId = UnsignedHyper.fromString(String(opts.offerId));
         let createOfferOp = new xdr.CreateOfferOp(attributes);
 
         let opAttributes = {};
@@ -217,14 +209,14 @@ export class Operation {
     /**
     * Transfers native balance to destination account.
     * @param {object} opts
-    * @param {string} opts.address - Address to merge the source account into.
+    * @param {string} opts.destination - Destination to merge the source account into.
 
     * @returns {xdr.AccountMergeOp}
     */
     static accountMerge(opts) {
         let opAttributes = {};
         opAttributes.body = xdr.OperationBody.accountMerge(
-            Keypair.fromAddress(opts.address).publicKey()
+            Keypair.fromAddress(opts.destination).publicKey()
         );
         if (opts.source) {
             opAttributes.sourceAccount = Keypair.fromAddress(opts.source).publicKey();
@@ -276,10 +268,13 @@ export class Operation {
             case "allowTrust":
                 obj.type = "allowTrust";
                 obj.trustor = encodeBase58Check("accountId", attrs.trustor);
-                obj.currencyCode = attrs.currency._value;
+                obj.currencyCode = attrs.currency._value.toString();
+                if (obj.currencyCode[3] === "\0") {
+                    obj.currencyCode = obj.currencyCode.slice(0,3);
+                }
                 obj.authorize = attrs.authorize;
                 break;
-            case "setOptions":
+            case "setOption":
                 obj.type = "setOptions";
                 if (attrs.inflationDest) {
                     obj.inflationDest = encodeBase58Check("accountId", attrs.inflationDest);
@@ -291,7 +286,12 @@ export class Operation {
                     obj.setFlags = attrs.setFlags;
                 }
                 if (attrs.thresholds) {
-                    obj.thresholds = attrs.thresholds;
+                    obj.thresholds = {
+                        weight: Number(attrs.thresholds[0]),
+                        low: Number(attrs.thresholds[1]),
+                        medium: Number(attrs.thresholds[2]),
+                        high: Number(attrs.thresholds[3]),
+                    };
                 }
                 if (attrs.signer) {
                     let signer = {};
@@ -299,21 +299,21 @@ export class Operation {
                     signer.weight = attrs.signer._attributes.weight;
                     obj.signer = signer;
                 }
+                if (attrs.homeDomain) {
+                    obj.homeDomain = attrs.homeDomain;
+                }
                 break;
             case "createOffer":
                 obj.type = "createOffer";
                 obj.takerGets = Currency.fromOperation(attrs.takerGets);
                 obj.takerPays = Currency.fromOperation(attrs.takerPays);
                 obj.amount = attrs.amount.toString();
-                obj.price = {
-                    n: attrs.price._attributes.n,
-                    d: attrs.price._attributes.d
-                };
-                obj.offerID = attrs.offerId.toString();
+                obj.price = attrs.price._attributes.n / attrs.price._attributes.d;
+                obj.offerId = attrs.offerId.toString();
                 break;
             case "accountMerge":
                 obj.type = "accountMerge";
-                obj.destination = operation.body._value;
+                obj.destination = encodeBase58Check("accountId", operation.body._value);
                 break;
             case "inflation":
                 obj.type = "inflation";

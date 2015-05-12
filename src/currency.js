@@ -20,7 +20,7 @@ export class Currency {
     * @param {xdr.Currency.iso4217} xdr - The currency xdr object.
     */
     static fromOperation(xdr) {
-        if (xdr._switch.name == "native") {
+        if (xdr._switch.name == "currencyTypeNative") {
             return this.native();
         } else {
             let code = xdr._value._attributes.currencyCode;
@@ -53,15 +53,15 @@ export class Currency {
     */
     toXdrObject() {
         if (this.isNative()) {
-            return xdr.Currency.native();
+            return xdr.Currency.currencyTypeNative();
         } else {
             // need to pad the currency code with the null byte
-            var isoCurrencyIssuer = new xdr.IsoCurrencyIssuer({
+            var currencyType = new xdr.CurrencyAlphaNum({
                 currencyCode: this.code,
                 issuer: Keypair.fromAddress(this.issuer).publicKey()
             });
-            var currency = xdr.Currency.iso4217();
-            currency.set("iso4217", isoCurrencyIssuer);
+            var currency = xdr.Currency.currencyTypeAlphanum();
+            currency.set("currencyTypeAlphanum", currencyType);
 
             return currency;
         }
