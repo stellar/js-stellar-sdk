@@ -152,7 +152,7 @@ export class Server {
     *                                return the EventSource object.
     */
     transactions(hash, resource, opts) {
-        if (!hash || typeof(hash) === object) {
+        if (!hash || typeof(hash) === "object") {
             opts = hash;
             hash = null;
             resource = null;
@@ -223,7 +223,7 @@ export class Server {
                     if (err) {
                         reject(err);
                     } else {
-                        resolve(res.body);
+                        resolve(JSON.parse(res.text));
                     }
                 });
         });
@@ -241,7 +241,7 @@ export class Server {
                     if (err) {
                         reject(err);
                     } else {
-                        resolve(res.body);
+                        resolve(JSON.parse(res.text));
                     }
                 });
         });
@@ -249,7 +249,9 @@ export class Server {
 
     _sendStreamingRequest(endpoint, streaming) {
         var es = new EventSource(this.protocol + this.hostname + ":" + this.port + endpoint);
-        es.onmessage = streaming.onmessage;
+        es.onmessage = function (message) {
+            streaming.onmessage(JSON.parse(message.data));
+        };
         es.onerror = streaming.onerror;
         return es;
     }
