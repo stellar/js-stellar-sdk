@@ -1,5 +1,22 @@
 describe('Operation', function() {
 
+    describe(".createAccount()", function () {
+        it("creates a createAccountOp", function () {
+            var destination = "gspbxqXqEUZkiCCEFFCN9Vu4FLucdjLLdLcsV6E82Qc1T7ehsTC";
+            var startingBalance = 1000;
+            let op = StellarLib.Operation.createAccount({
+                destination: destination,
+                startingBalance: startingBalance
+            });
+            var xdr = op.toXDR("hex");
+            var operation = StellarLib.xdr.Operation.fromXDR(new Buffer(xdr, "hex"));
+            var obj = StellarLib.Operation.operationToObject(operation._attributes);
+            expect(obj.type).to.be.equal("createAccount");
+            expect(obj.destination).to.be.equal(destination);
+            expect(Number(obj.startingBalance)).to.be.equal(startingBalance);
+        });
+    });
+
     describe(".payment()", function () {
         it("creates a paymentOp", function () {
             var destination = "gspbxqXqEUZkiCCEFFCN9Vu4FLucdjLLdLcsV6E82Qc1T7ehsTC";
@@ -17,6 +34,32 @@ describe('Operation', function() {
             expect(obj.destination).to.be.equal(destination);
             expect(Number(obj.amount)).to.be.equal(amount);
             expect(obj.currency.equals(currency)).to.be.true;
+        });
+    });
+
+    describe(".pathPayment()", function () {
+        it("creates a pathPaymentOp", function() {
+            var sendCurrency = new StellarLib.Currency("USD", "gsZRJCfkv69PBw1Cz8qJfb9k4i3EXiJenxdrYKCog3mWbk5thPb");
+            var sendMax = 1000;
+            var destination = "gspbxqXqEUZkiCCEFFCN9Vu4FLucdjLLdLcsV6E82Qc1T7ehsTC";
+            var destCurrency = new StellarLib.Currency("USD", "gsZRJCfkv69PBw1Cz8qJfb9k4i3EXiJenxdrYKCog3mWbk5thPb");
+            var destAmount = 1000;
+            let op = StellarLib.Operation.pathPayment({
+                sendCurrency: sendCurrency,
+                sendMax: sendMax,
+                destination: destination,
+                destCurrency: destCurrency,
+                destAmount: destAmount
+            });
+            var xdr = op.toXDR("hex");
+            var operation = StellarLib.xdr.Operation.fromXDR(new Buffer(xdr, "hex"));
+            var obj = StellarLib.Operation.operationToObject(operation._attributes);
+            expect(obj.type).to.be.equal("pathPayment");
+            expect(obj.sendCurrency.equals(sendCurrency)).to.be.true;
+            expect(Number(obj.sendMax)).to.be.equal(sendMax);
+            expect(obj.destination).to.be.equal(destination);
+            expect(obj.destCurrency.equals(destCurrency)).to.be.true;
+            expect(Number(obj.destAmount)).to.be.equal(destAmount);
         });
     });
 

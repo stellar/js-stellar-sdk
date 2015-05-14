@@ -9,7 +9,7 @@ export class Memo {
     * Returns an empty memo.
     */
     static none() {
-        return xdr.Memo.memoTypeNone();
+        return xdr.Memo.memoNone();
     }
 
     /**
@@ -24,7 +24,7 @@ export class Memo {
         if (Buffer.byteLength(text, "ascii") > 32) {
             throw new Error("Text should be < 32 bytes (ascii encoded). Got " + Buffer.byteLength(text, "ascii"));
         }
-        return xdr.Memo.memoTypeText(text);
+        return xdr.Memo.memoText(text);
     }
 
     /**
@@ -36,7 +36,7 @@ export class Memo {
         if (Number(id) === "NaN") {
             throw new Error("Expects a int64 as a string. Got " + id);
         }
-        return xdr.Memo.memoTypeId(id);
+        return xdr.Memo.memoId(id);
     }
 
     /**
@@ -47,7 +47,7 @@ export class Memo {
         if (typeof hash === "string" && Buffer.byteLength(hash) != 32) {
             throw new Error("Expects a 32 byte hash value. Got " + Buffer.byteLength(hash) + " bytes instead");
         }
-        return xdr.Memo.memoTypeHash(hash);
+        return xdr.Memo.memoHash(hash);
     }
 
     /**
@@ -58,6 +58,6 @@ export class Memo {
         if (typeof hash === "string" && Buffer.byteLength(hash) != 32) {
             throw new Error("Expects a 32 byte hash value. Got " + Buffer.byteLength(hash) + " bytes instead");
         }
-        return xdr.Memo.memoTypeReturn(hash);
+        return xdr.Memo.memoReturn(hash);
     }
 }
