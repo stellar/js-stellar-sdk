@@ -79,7 +79,7 @@ var StellarLib =
 /* 2 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(17);
+	module.exports = __webpack_require__(12);
 
 
 /***/ },
@@ -98,23 +98,23 @@ var StellarLib =
 	  value: true
 	});
 
-	var xdr = _interopRequire(__webpack_require__(12));
+	var xdr = _interopRequire(__webpack_require__(13));
 
 	exports.xdr = xdr;
-	exports.hash = __webpack_require__(13).hash;
+	exports.hash = __webpack_require__(14).hash;
 
-	var _signing = __webpack_require__(14);
+	var _signing = __webpack_require__(15);
 
 	exports.sign = _signing.sign;
 	exports.verify = _signing.verify;
-	exports.Keypair = __webpack_require__(15).Keypair;
+	exports.Keypair = __webpack_require__(16).Keypair;
 
 	var _jsXdr = __webpack_require__(24);
 
 	exports.UnsignedHyper = _jsXdr.UnsignedHyper;
 	exports.Hyper = _jsXdr.Hyper;
 
-	_defaults(exports, _interopRequireWildcard(__webpack_require__(16)));
+	_defaults(exports, _interopRequireWildcard(__webpack_require__(17)));
 
 /***/ },
 /* 4 */
@@ -937,19 +937,48 @@ var StellarLib =
 	    }
 
 	    _createClass(Operation, null, {
-	        payment: {
+	        createAccount: {
+
 	            /**
-	            * Returns a XDR PaymentOp. A "payment" operation send the specified amount to the
-	            * destination account, optionally through a path. XLM payments create the destination
-	            * account if it does not exist.
-	            * NOTE: Payment operation to change in next protocol update
-	            * @param {object}   opts
-	            * @param {Account}  opts.destination    - The destination account for the payment.
-	            * @param {Currency} opts.currency       - The currency to send
-	            * @param {string|number} otps.amount    - The amount to send.
-	            * @param {Account}  [opts.source]       - The source account for the payment. Defaults to the transaction's source account.
-	            * @param {array}    [opts.path]         - An array of Currency objects to use as the path.
-	            * @param {string}   [opts.sendMax]      - The max amount of currency to send.
+	            * Create and fund a non existent account.
+	            * @param {object} opts
+	            * @param {string} opts.destination - Destination address to create an account for.
+	            * @param {string} opts.startingBalance - Amount the account should be funded. Must be greater
+	            *                                   than the reserve balance amount.
+	            * @param {string} [opts.source] - The source account for the payment. Defaults to the transaction's source account.
+	            * @returns {xdr.CreateAccountOp}
+	            */
+
+	            value: function createAccount(opts) {
+	                if (!opts.destination) {
+	                    throw new Error("Must provide a destination for a payment operation");
+	                }
+	                if (!opts.startingBalance) {
+	                    throw new Error("Must provide a starting balance");
+	                }
+	                var attributes = {};
+	                attributes.destination = Keypair.fromAddress(opts.destination).publicKey();
+	                attributes.startingBalance = Hyper.fromString(String(opts.startingBalance));
+	                var createAccount = new xdr.CreateAccountOp(attributes);
+
+	                var opAttributes = {};
+	                opAttributes.body = xdr.OperationBody.createAccount(createAccount);
+	                if (opts.source) {
+	                    opAttributes.sourceAccount = Keypair.fromAddress(opts.source).publicKey();
+	                }
+	                var op = new xdr.Operation(opAttributes);
+	                return op;
+	            }
+	        },
+	        payment: {
+
+	            /**
+	            * Create a payment operation.
+	            * @param {object} opts
+	            * @param {string} opts.destination - The destination address.
+	            * @param {Currency} opts.currency - The currency to send.
+	            * @param {string} opts.amount - The amount to send.
+	            * @param {string} [opts.source] - The source account for the payment. Defaults to the transaction's source account.
 	            * @returns {xdr.PaymentOp}
 	            */
 
@@ -968,12 +997,62 @@ var StellarLib =
 	                attributes.destination = Keypair.fromAddress(opts.destination).publicKey();
 	                attributes.currency = opts.currency.toXdrObject();
 	                attributes.amount = Hyper.fromString(String(opts.amount));
-	                attributes.sendMax = opts.sendMax ? Hyper.fromString(String(opts.sendMax)) : attributes.amount;
-	                attributes.path = opts.path ? opts.path : [];
 	                var payment = new xdr.PaymentOp(attributes);
 
 	                var opAttributes = {};
 	                opAttributes.body = xdr.OperationBody.payment(payment);
+	                if (opts.source) {
+	                    opAttributes.sourceAccount = Keypair.fromAddress(opts.source).publicKey();
+	                }
+	                var op = new xdr.Operation(opAttributes);
+	                return op;
+	            }
+	        },
+	        pathPayment: {
+
+	            /**
+	            * Returns a XDR PaymentOp. A "payment" operation send the specified amount to the
+	            * destination account, optionally through a path. XLM payments create the destination
+	            * account if it does not exist.
+	            * @param {object} opts
+	            * @param {Currency} opts.sendCurrency - The currency to pay with.
+	            * @param {string} opts.sendMax - The maximum amount of sendCurrency to send.
+	            * @param {string} opts.destination - The destination account to send to.
+	            * @param {Currency} opts.destCurrency - The currency the destination will receive.
+	            * @param {string|number} otps.destAmount - The amount the destination receives.
+	            * @param {array} [opts.path] - An array of Currency objects to use as the path.
+	            * @param {string} [opts.source] - The source account for the payment. Defaults to the transaction's source account.
+	            * @returns {xdr.PathPaymentOp}
+	            */
+
+	            value: function pathPayment(opts) {
+	                if (!opts.sendCurrency) {
+	                    throw new Error("Must specify a send currency");
+	                }
+	                if (!opts.sendMax) {
+	                    throw new Error("Must specify a send max");
+	                }
+	                if (!opts.destination) {
+	                    throw new Error("Must provide a destination for a payment operation");
+	                }
+	                if (!opts.destCurrency) {
+	                    throw new Error("Must provide a destCurrency for a payment operation");
+	                }
+	                if (!opts.destAmount) {
+	                    throw new Error("Must provide an destAmount for a payment operation");
+	                }
+
+	                var attributes = {};
+	                attributes.sendCurrency = opts.sendCurrency.toXdrObject();
+	                attributes.sendMax = Hyper.fromString(String(opts.sendMax));
+	                attributes.destination = Keypair.fromAddress(opts.destination).publicKey();
+	                attributes.destCurrency = opts.destCurrency.toXdrObject();
+	                attributes.destAmount = Hyper.fromString(String(opts.destAmount));
+	                attributes.path = opts.path ? opts.path : [];
+	                var payment = new xdr.PathPaymentOp(attributes);
+
+	                var opAttributes = {};
+	                opAttributes.body = xdr.OperationBody.pathPayment(payment);
 	                if (opts.source) {
 	                    opAttributes.sourceAccount = Keypair.fromAddress(opts.source).publicKey();
 	                }
@@ -1197,13 +1276,25 @@ var StellarLib =
 	                var obj = {};
 	                var attrs = operation.body._value && operation.body._value._attributes;
 	                switch (operation.body._switch.name) {
+	                    case "createAccount":
+	                        obj.type = "createAccount";
+	                        obj.destination = encodeBase58Check("accountId", attrs.destination);
+	                        obj.startingBalance = attrs.startingBalance.toString();
+	                        break;
 	                    case "payment":
 	                        obj.type = "payment";
 	                        obj.destination = encodeBase58Check("accountId", attrs.destination);
 	                        obj.currency = Currency.fromOperation(attrs.currency);
-	                        obj.path = attrs.path;
 	                        obj.amount = attrs.amount.toString();
+	                        break;
+	                    case "pathPayment":
+	                        obj.type = "pathPayment";
+	                        obj.sendCurrency = Currency.fromOperation(attrs.sendCurrency);
 	                        obj.sendMax = attrs.sendMax.toString();
+	                        obj.destination = encodeBase58Check("accountId", attrs.destination);
+	                        obj.destCurrency = Currency.fromOperation(attrs.destCurrency);
+	                        obj.destAmount = attrs.destAmount.toString();
+	                        obj.path = attrs.path;
 	                        break;
 	                    case "changeTrust":
 	                        obj.type = "changeTrust";
@@ -1305,7 +1396,7 @@ var StellarLib =
 	            */
 
 	            value: function none() {
-	                return xdr.Memo.memoTypeNone();
+	                return xdr.Memo.memoNone();
 	            }
 	        },
 	        text: {
@@ -1333,7 +1424,7 @@ var StellarLib =
 	                if (Buffer.byteLength(text, "ascii") > 32) {
 	                    throw new Error("Text should be < 32 bytes (ascii encoded). Got " + Buffer.byteLength(text, "ascii"));
 	                }
-	                return xdr.Memo.memoTypeText(text);
+	                return xdr.Memo.memoText(text);
 	            })
 	        },
 	        id: {
@@ -1358,7 +1449,7 @@ var StellarLib =
 	                if (Number(id) === "NaN") {
 	                    throw new Error("Expects a int64 as a string. Got " + id);
 	                }
-	                return xdr.Memo.memoTypeId(id);
+	                return xdr.Memo.memoId(id);
 	            })
 	        },
 	        hash: {
@@ -1382,7 +1473,7 @@ var StellarLib =
 	                if (typeof hash === "string" && Buffer.byteLength(hash) != 32) {
 	                    throw new Error("Expects a 32 byte hash value. Got " + Buffer.byteLength(hash) + " bytes instead");
 	                }
-	                return xdr.Memo.memoTypeHash(hash);
+	                return xdr.Memo.memoHash(hash);
 	            })
 	        },
 	        returnHash: {
@@ -1396,7 +1487,7 @@ var StellarLib =
 	                if (typeof hash === "string" && Buffer.byteLength(hash) != 32) {
 	                    throw new Error("Expects a 32 byte hash value. Got " + Buffer.byteLength(hash) + " bytes instead");
 	                }
-	                return xdr.Memo.memoTypeReturn(hash);
+	                return xdr.Memo.memoReturn(hash);
 	            }
 	        }
 	    });
@@ -2546,7 +2637,23 @@ var StellarLib =
 /* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
-	// Automatically generated on 2015-05-12T11:11:27-07:00
+	/* WEBPACK VAR INJECTION */(function(global) {"use strict";
+
+	if (global._babelPolyfill) {
+	  throw new Error("only one instance of babel/polyfill is allowed");
+	}
+	global._babelPolyfill = true;
+
+	__webpack_require__(34);
+
+	__webpack_require__(35);
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
+
+/***/ },
+/* 13 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// Automatically generated on 2015-05-13T18:26:47-07:00
 	// DO NOT EDIT or your changes may be overwritten
 
 	/* jshint maxstatements:2147483647  */
@@ -3252,24 +3359,39 @@ var StellarLib =
 	  //
 	  //   enum OperationType
 	  //   {
-	  //       PAYMENT = 0,
-	  //       CREATE_OFFER = 1,
-	  //       SET_OPTIONS = 2,
-	  //       CHANGE_TRUST = 3,
-	  //       ALLOW_TRUST = 4,
-	  //       ACCOUNT_MERGE = 5,
-	  //       INFLATION = 6
+	  //       CREATE_ACCOUNT = 0,
+	  //       PAYMENT = 1,
+	  //       PATH_PAYMENT = 2,
+	  //       CREATE_OFFER = 3,
+	  //       SET_OPTIONS = 4,
+	  //       CHANGE_TRUST = 5,
+	  //       ALLOW_TRUST = 6,
+	  //       ACCOUNT_MERGE = 7,
+	  //       INFLATION = 8
 	  //   };
 	  //
 	  // ===========================================================================
 	  xdr["enum"]("OperationType", {
-	    payment: 0,
-	    createOffer: 1,
-	    setOption: 2,
-	    changeTrust: 3,
-	    allowTrust: 4,
-	    accountMerge: 5,
-	    inflation: 6 });
+	    createAccount: 0,
+	    payment: 1,
+	    pathPayment: 2,
+	    createOffer: 3,
+	    setOption: 4,
+	    changeTrust: 5,
+	    allowTrust: 6,
+	    accountMerge: 7,
+	    inflation: 8 });
+
+	  // === xdr source ============================================================
+	  //
+	  //   struct CreateAccountOp
+	  //   {
+	  //       AccountID destination; // account to create
+	  //       int64 startingBalance; // amount they end up with
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.struct("CreateAccountOp", [["destination", xdr.lookup("AccountId")], ["startingBalance", xdr.lookup("Int64")]]);
 
 	  // === xdr source ============================================================
 	  //
@@ -3278,16 +3400,29 @@ var StellarLib =
 	  //       AccountID destination; // recipient of the payment
 	  //       Currency currency;     // what they end up with
 	  //       int64 amount;          // amount they end up with
-	  //  
-	  //       // payment over path
-	  //       Currency path<5>; // what hops it must go through to get there
-	  //       int64 sendMax; // the maximum amount of the source currency (==path[0]) to
-	  //                      // send (excluding fees).
-	  //                      // The operation will fail if can't be met
 	  //   };
 	  //
 	  // ===========================================================================
-	  xdr.struct("PaymentOp", [["destination", xdr.lookup("AccountId")], ["currency", xdr.lookup("Currency")], ["amount", xdr.lookup("Int64")], ["path", xdr.varArray(xdr.lookup("Currency"), 5)], ["sendMax", xdr.lookup("Int64")]]);
+	  xdr.struct("PaymentOp", [["destination", xdr.lookup("AccountId")], ["currency", xdr.lookup("Currency")], ["amount", xdr.lookup("Int64")]]);
+
+	  // === xdr source ============================================================
+	  //
+	  //   struct PathPaymentOp
+	  //   {
+	  //       Currency sendCurrency; // currency we pay with
+	  //       int64 sendMax;         // the maximum amount of sendCurrency to
+	  //                              // send (excluding fees).
+	  //                              // The operation will fail if can't be met
+	  //  
+	  //       AccountID destination; // recipient of the payment
+	  //       Currency destCurrency; // what they end up with
+	  //       int64 destAmount;      // amount they end up with
+	  //  
+	  //       Currency path<5>; // additional hops it must go through to get there
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.struct("PathPaymentOp", [["sendCurrency", xdr.lookup("Currency")], ["sendMax", xdr.lookup("Int64")], ["destination", xdr.lookup("AccountId")], ["destCurrency", xdr.lookup("Currency")], ["destAmount", xdr.lookup("Int64")], ["path", xdr.varArray(xdr.lookup("Currency"), 5)]]);
 
 	  // === xdr source ============================================================
 	  //
@@ -3384,8 +3519,12 @@ var StellarLib =
 	  //
 	  //   union switch (OperationType type)
 	  //       {
+	  //       case CREATE_ACCOUNT:
+	  //           CreateAccountOp createAccountOp;
 	  //       case PAYMENT:
 	  //           PaymentOp paymentOp;
+	  //       case PATH_PAYMENT:
+	  //           PathPaymentOp pathPaymentOp;
 	  //       case CREATE_OFFER:
 	  //           CreateOfferOp createOfferOp;
 	  //       case SET_OPTIONS:
@@ -3405,7 +3544,9 @@ var StellarLib =
 	    switchOn: xdr.lookup("OperationType"),
 	    switchName: "type",
 	    switches: {
+	      createAccount: "createAccountOp",
 	      payment: "paymentOp",
+	      pathPayment: "pathPaymentOp",
 	      createOffer: "createOfferOp",
 	      setOption: "setOptionsOp",
 	      changeTrust: "changeTrustOp",
@@ -3413,7 +3554,9 @@ var StellarLib =
 	      accountMerge: "destination",
 	      inflation: xdr["void"]() },
 	    arms: {
+	      createAccountOp: xdr.lookup("CreateAccountOp"),
 	      paymentOp: xdr.lookup("PaymentOp"),
+	      pathPaymentOp: xdr.lookup("PathPaymentOp"),
 	      createOfferOp: xdr.lookup("CreateOfferOp"),
 	      setOptionsOp: xdr.lookup("SetOptionsOp"),
 	      changeTrustOp: xdr.lookup("ChangeTrustOp"),
@@ -3431,8 +3574,12 @@ var StellarLib =
 	  //  
 	  //       union switch (OperationType type)
 	  //       {
+	  //       case CREATE_ACCOUNT:
+	  //           CreateAccountOp createAccountOp;
 	  //       case PAYMENT:
 	  //           PaymentOp paymentOp;
+	  //       case PATH_PAYMENT:
+	  //           PathPaymentOp pathPaymentOp;
 	  //       case CREATE_OFFER:
 	  //           CreateOfferOp createOfferOp;
 	  //       case SET_OPTIONS:
@@ -3456,34 +3603,34 @@ var StellarLib =
 	  //
 	  //   enum MemoType
 	  //   {
-	  //       MEMO_TYPE_NONE = 0,
-	  //       MEMO_TYPE_TEXT = 1,
-	  //       MEMO_TYPE_ID = 2,
-	  //       MEMO_TYPE_HASH = 3,
-	  //       MEMO_TYPE_RETURN = 4
+	  //       MEMO_NONE = 0,
+	  //       MEMO_TEXT = 1,
+	  //       MEMO_ID = 2,
+	  //       MEMO_HASH = 3,
+	  //       MEMO_RETURN = 4
 	  //   };
 	  //
 	  // ===========================================================================
 	  xdr["enum"]("MemoType", {
-	    memoTypeNone: 0,
-	    memoTypeText: 1,
-	    memoTypeId: 2,
-	    memoTypeHash: 3,
-	    memoTypeReturn: 4 });
+	    memoNone: 0,
+	    memoText: 1,
+	    memoId: 2,
+	    memoHash: 3,
+	    memoReturn: 4 });
 
 	  // === xdr source ============================================================
 	  //
 	  //   union Memo switch (MemoType type)
 	  //   {
-	  //   case MEMO_TYPE_NONE:
+	  //   case MEMO_NONE:
 	  //       void;
-	  //   case MEMO_TYPE_TEXT:
+	  //   case MEMO_TEXT:
 	  //       string text<28>;
-	  //   case MEMO_TYPE_ID:
+	  //   case MEMO_ID:
 	  //       uint64 id;
-	  //   case MEMO_TYPE_HASH:
+	  //   case MEMO_HASH:
 	  //       Hash hash; // the hash of what to pull from the content server
-	  //   case MEMO_TYPE_RETURN:
+	  //   case MEMO_RETURN:
 	  //       Hash retHash; // the hash of the tx you are rejecting
 	  //   };
 	  //
@@ -3492,16 +3639,27 @@ var StellarLib =
 	    switchOn: xdr.lookup("MemoType"),
 	    switchName: "type",
 	    switches: {
-	      memoTypeNone: xdr["void"](),
-	      memoTypeText: "text",
-	      memoTypeId: "id",
-	      memoTypeHash: "hash",
-	      memoTypeReturn: "retHash" },
+	      memoNone: xdr["void"](),
+	      memoText: "text",
+	      memoId: "id",
+	      memoHash: "hash",
+	      memoReturn: "retHash" },
 	    arms: {
 	      text: xdr.string(28),
 	      id: xdr.lookup("Uint64"),
 	      hash: xdr.lookup("Hash"),
 	      retHash: xdr.lookup("Hash") } });
+
+	  // === xdr source ============================================================
+	  //
+	  //   struct TimeBounds
+	  //   {
+	  //       uint64 minTime;
+	  //       uint64 maxTime;
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.struct("TimeBounds", [["minTime", xdr.lookup("Uint64")], ["maxTime", xdr.lookup("Uint64")]]);
 
 	  // === xdr source ============================================================
 	  //
@@ -3516,9 +3674,8 @@ var StellarLib =
 	  //       // sequence number to consume in the account
 	  //       SequenceNumber seqNum;
 	  //  
-	  //       // validity range (inclusive) for the ledger sequence number
-	  //       uint32 minLedger;
-	  //       uint32 maxLedger;
+	  //       // validity range (inclusive) for the last ledger close time
+	  //       TimeBounds* timeBounds;
 	  //  
 	  //       Memo memo;
 	  //  
@@ -3526,7 +3683,7 @@ var StellarLib =
 	  //   };
 	  //
 	  // ===========================================================================
-	  xdr.struct("Transaction", [["sourceAccount", xdr.lookup("AccountId")], ["fee", xdr.lookup("Int32")], ["seqNum", xdr.lookup("SequenceNumber")], ["minLedger", xdr.lookup("Uint32")], ["maxLedger", xdr.lookup("Uint32")], ["memo", xdr.lookup("Memo")], ["operations", xdr.varArray(xdr.lookup("Operation"), 100)]]);
+	  xdr.struct("Transaction", [["sourceAccount", xdr.lookup("AccountId")], ["fee", xdr.lookup("Int32")], ["seqNum", xdr.lookup("SequenceNumber")], ["timeBounds", xdr.option(xdr.lookup("TimeBounds"))], ["memo", xdr.lookup("Memo")], ["operations", xdr.varArray(xdr.lookup("Operation"), 100)]]);
 
 	  // === xdr source ============================================================
 	  //
@@ -3559,11 +3716,52 @@ var StellarLib =
 
 	  // === xdr source ============================================================
 	  //
+	  //   enum CreateAccountResultCode
+	  //   {
+	  //       // codes considered as "success" for the operation
+	  //       CREATE_ACCOUNT_SUCCESS = 0, // account was created
+	  //  
+	  //       // codes considered as "failure" for the operation
+	  //       CREATE_ACCOUNT_MALFORMED = 1,   // invalid destination
+	  //       CREATE_ACCOUNT_UNDERFUNDED = 2, // not enough funds in source account
+	  //       CREATE_ACCOUNT_LOW_RESERVE =
+	  //           3, // would create an account below the min reserve
+	  //       CREATE_ACCOUNT_ALREADY_EXIST = 4 // account already exists
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr["enum"]("CreateAccountResultCode", {
+	    createAccountSuccess: 0,
+	    createAccountMalformed: 1,
+	    createAccountUnderfunded: 2,
+	    createAccountLowReserve: 3,
+	    createAccountAlreadyExist: 4 });
+
+	  // === xdr source ============================================================
+	  //
+	  //   union CreateAccountResult switch (CreateAccountResultCode code)
+	  //   {
+	  //   case CREATE_ACCOUNT_SUCCESS:
+	  //       void;
+	  //   default:
+	  //       void;
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.union("CreateAccountResult", {
+	    switchOn: xdr.lookup("CreateAccountResultCode"),
+	    switchName: "code",
+	    switches: {
+	      createAccountSuccess: xdr["void"]() },
+	    arms: {},
+	    defaultArm: xdr["void"]() });
+
+	  // === xdr source ============================================================
+	  //
 	  //   enum PaymentResultCode
 	  //   {
 	  //       // codes considered as "success" for the operation
-	  //       PAYMENT_SUCCESS = 0,       // simple payment success
-	  //       PAYMENT_SUCCESS_MULTI = 1, // multi-path payment success
+	  //       PAYMENT_SUCCESS = 0, // payment successfuly completed
 	  //  
 	  //       // codes considered as "failure" for the operation
 	  //       PAYMENT_MALFORMED = -1,      // bad input
@@ -3571,25 +3769,68 @@ var StellarLib =
 	  //       PAYMENT_NO_DESTINATION = -3, // destination account does not exist
 	  //       PAYMENT_NO_TRUST = -4, // destination missing a trust line for currency
 	  //       PAYMENT_NOT_AUTHORIZED = -5, // destination not authorized to hold currency
-	  //       PAYMENT_LINE_FULL = -6,      // destination would go above their limit
-	  //       PAYMENT_TOO_FEW_OFFERS = -7, // not enough offers to satisfy path payment
-	  //       PAYMENT_OVER_SENDMAX = -8,   // multi-path payment could not satisfy sendmax
-	  //       PAYMENT_LOW_RESERVE = -9 // would create an account below the min reserve
+	  //       PAYMENT_LINE_FULL = -6       // destination would go above their limit
 	  //   };
 	  //
 	  // ===========================================================================
 	  xdr["enum"]("PaymentResultCode", {
 	    paymentSuccess: 0,
-	    paymentSuccessMulti: 1,
 	    paymentMalformed: -1,
 	    paymentUnderfunded: -2,
 	    paymentNoDestination: -3,
 	    paymentNoTrust: -4,
 	    paymentNotAuthorized: -5,
-	    paymentLineFull: -6,
-	    paymentTooFewOffer: -7,
-	    paymentOverSendmax: -8,
-	    paymentLowReserve: -9 });
+	    paymentLineFull: -6 });
+
+	  // === xdr source ============================================================
+	  //
+	  //   union PaymentResult switch (PaymentResultCode code)
+	  //   {
+	  //   case PAYMENT_SUCCESS:
+	  //       void;
+	  //   default:
+	  //       void;
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.union("PaymentResult", {
+	    switchOn: xdr.lookup("PaymentResultCode"),
+	    switchName: "code",
+	    switches: {
+	      paymentSuccess: xdr["void"]() },
+	    arms: {},
+	    defaultArm: xdr["void"]() });
+
+	  // === xdr source ============================================================
+	  //
+	  //   enum PathPaymentResultCode
+	  //   {
+	  //       // codes considered as "success" for the operation
+	  //       PATH_PAYMENT_SUCCESS = 0, // success
+	  //  
+	  //       // codes considered as "failure" for the operation
+	  //       PATH_PAYMENT_MALFORMED = -1,      // bad input
+	  //       PATH_PAYMENT_UNDERFUNDED = -2,    // not enough funds in source account
+	  //       PATH_PAYMENT_NO_DESTINATION = -3, // destination account does not exist
+	  //       PATH_PAYMENT_NO_TRUST = -4, // destination missing a trust line for currency
+	  //       PATH_PAYMENT_NOT_AUTHORIZED =
+	  //           -5,                      // destination not authorized to hold currency
+	  //       PATH_PAYMENT_LINE_FULL = -6, // destination would go above their limit
+	  //       PATH_PAYMENT_TOO_FEW_OFFERS = -7, // not enough offers to satisfy path
+	  //       PATH_PAYMENT_OVER_SENDMAX = -8    // could not satisfy sendmax
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr["enum"]("PathPaymentResultCode", {
+	    pathPaymentSuccess: 0,
+	    pathPaymentMalformed: -1,
+	    pathPaymentUnderfunded: -2,
+	    pathPaymentNoDestination: -3,
+	    pathPaymentNoTrust: -4,
+	    pathPaymentNotAuthorized: -5,
+	    pathPaymentLineFull: -6,
+	    pathPaymentTooFewOffer: -7,
+	    pathPaymentOverSendmax: -8 });
 
 	  // === xdr source ============================================================
 	  //
@@ -3605,36 +3846,37 @@ var StellarLib =
 
 	  // === xdr source ============================================================
 	  //
-	  //   struct PaymentSuccessMultiResult
-	  //   {
-	  //       ClaimOfferAtom offers<>;
-	  //       SimplePaymentResult last;
-	  //   };
+	  //   struct
+	  //       {
+	  //           ClaimOfferAtom offers<>;
+	  //           SimplePaymentResult last;
+	  //       }
 	  //
 	  // ===========================================================================
-	  xdr.struct("PaymentSuccessMultiResult", [["offers", xdr.varArray(xdr.lookup("ClaimOfferAtom"), 2147483647)], ["last", xdr.lookup("SimplePaymentResult")]]);
+	  xdr.struct("PathPaymentResultSuccess", [["offers", xdr.varArray(xdr.lookup("ClaimOfferAtom"), 2147483647)], ["last", xdr.lookup("SimplePaymentResult")]]);
 
 	  // === xdr source ============================================================
 	  //
-	  //   union PaymentResult switch (PaymentResultCode code)
+	  //   union PathPaymentResult switch (PathPaymentResultCode code)
 	  //   {
-	  //   case PAYMENT_SUCCESS:
-	  //       void;
-	  //   case PAYMENT_SUCCESS_MULTI:
-	  //       PaymentSuccessMultiResult multi;
+	  //   case PATH_PAYMENT_SUCCESS:
+	  //       struct
+	  //       {
+	  //           ClaimOfferAtom offers<>;
+	  //           SimplePaymentResult last;
+	  //       } success;
 	  //   default:
 	  //       void;
 	  //   };
 	  //
 	  // ===========================================================================
-	  xdr.union("PaymentResult", {
-	    switchOn: xdr.lookup("PaymentResultCode"),
+	  xdr.union("PathPaymentResult", {
+	    switchOn: xdr.lookup("PathPaymentResultCode"),
 	    switchName: "code",
 	    switches: {
-	      paymentSuccess: xdr["void"](),
-	      paymentSuccessMulti: "multi" },
+	      pathPaymentSuccess: "success" },
 	    arms: {
-	      multi: xdr.lookup("PaymentSuccessMultiResult") },
+	      success: xdr.lookup("PathPaymentResultSuccess") },
 	    defaultArm: xdr["void"]() });
 
 	  // === xdr source ============================================================
@@ -3979,8 +4221,12 @@ var StellarLib =
 	  //
 	  //   union switch (OperationType type)
 	  //       {
+	  //       case CREATE_ACCOUNT:
+	  //           CreateAccountResult createAccountResult;
 	  //       case PAYMENT:
 	  //           PaymentResult paymentResult;
+	  //       case PATH_PAYMENT:
+	  //           PathPaymentResult pathPaymentResult;
 	  //       case CREATE_OFFER:
 	  //           CreateOfferResult createOfferResult;
 	  //       case SET_OPTIONS:
@@ -4000,7 +4246,9 @@ var StellarLib =
 	    switchOn: xdr.lookup("OperationType"),
 	    switchName: "type",
 	    switches: {
+	      createAccount: "createAccountResult",
 	      payment: "paymentResult",
+	      pathPayment: "pathPaymentResult",
 	      createOffer: "createOfferResult",
 	      setOption: "setOptionsResult",
 	      changeTrust: "changeTrustResult",
@@ -4008,7 +4256,9 @@ var StellarLib =
 	      accountMerge: "accountMergeResult",
 	      inflation: "inflationResult" },
 	    arms: {
+	      createAccountResult: xdr.lookup("CreateAccountResult"),
 	      paymentResult: xdr.lookup("PaymentResult"),
+	      pathPaymentResult: xdr.lookup("PathPaymentResult"),
 	      createOfferResult: xdr.lookup("CreateOfferResult"),
 	      setOptionsResult: xdr.lookup("SetOptionsResult"),
 	      changeTrustResult: xdr.lookup("ChangeTrustResult"),
@@ -4023,8 +4273,12 @@ var StellarLib =
 	  //   case opINNER:
 	  //       union switch (OperationType type)
 	  //       {
+	  //       case CREATE_ACCOUNT:
+	  //           CreateAccountResult createAccountResult;
 	  //       case PAYMENT:
 	  //           PaymentResult paymentResult;
+	  //       case PATH_PAYMENT:
+	  //           PathPaymentResult pathPaymentResult;
 	  //       case CREATE_OFFER:
 	  //           CreateOfferResult createOfferResult;
 	  //       case SET_OPTIONS:
@@ -4063,16 +4317,17 @@ var StellarLib =
 	  //  
 	  //       txFAILED = -2, // one of the operations failed (but none were applied)
 	  //  
-	  //       txBAD_LEDGER = -3,        // ledger is not in range [minLeder; maxLedger]
-	  //       txMISSING_OPERATION = -4, // no operation was specified
-	  //       txBAD_SEQ = -5,           // sequence number does not match source account
+	  //       txTOO_EARLY = -3,         // ledger closeTime before minTime
+	  //       txTOO_LATE = -4,          // ledger closeTime after maxTime
+	  //       txMISSING_OPERATION = -5, // no operation was specified
+	  //       txBAD_SEQ = -6,           // sequence number does not match source account
 	  //  
-	  //       txBAD_AUTH = -6,             // not enough signatures to perform transaction
-	  //       txINSUFFICIENT_BALANCE = -7, // fee would bring account below reserve
-	  //       txNO_ACCOUNT = -8,           // source account not found
-	  //       txINSUFFICIENT_FEE = -9,     // max fee is too small
-	  //       txBAD_AUTH_EXTRA = -10,      // too many signatures on transaction
-	  //       txINTERNAL_ERROR = -11       // an unknown error occured
+	  //       txBAD_AUTH = -7,             // not enough signatures to perform transaction
+	  //       txINSUFFICIENT_BALANCE = -8, // fee would bring account below reserve
+	  //       txNO_ACCOUNT = -9,           // source account not found
+	  //       txINSUFFICIENT_FEE = -10,    // fee is too small
+	  //       txBAD_AUTH_EXTRA = -11,      // too many signatures on transaction
+	  //       txINTERNAL_ERROR = -12       // an unknown error occured
 	  //   };
 	  //
 	  // ===========================================================================
@@ -4080,15 +4335,16 @@ var StellarLib =
 	    txSuccess: 0,
 	    txDuplicate: -1,
 	    txFailed: -2,
-	    txBadLedger: -3,
-	    txMissingOperation: -4,
-	    txBadSeq: -5,
-	    txBadAuth: -6,
-	    txInsufficientBalance: -7,
-	    txNoAccount: -8,
-	    txInsufficientFee: -9,
-	    txBadAuthExtra: -10,
-	    txInternalError: -11 });
+	    txTooEarly: -3,
+	    txTooLate: -4,
+	    txMissingOperation: -5,
+	    txBadSeq: -6,
+	    txBadAuth: -7,
+	    txInsufficientBalance: -8,
+	    txNoAccount: -9,
+	    txInsufficientFee: -10,
+	    txBadAuthExtra: -11,
+	    txInternalError: -12 });
 
 	  // === xdr source ============================================================
 	  //
@@ -4281,7 +4537,7 @@ var StellarLib =
 	module.exports = types;
 
 /***/ },
-/* 13 */
+/* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -4300,7 +4556,7 @@ var StellarLib =
 	}
 
 /***/ },
-/* 14 */
+/* 15 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
@@ -4350,7 +4606,7 @@ var StellarLib =
 	} else {
 	  (function () {
 	    // fallback to tweetnacl.js if we're in the browser
-	    var nacl = __webpack_require__(34);
+	    var nacl = __webpack_require__(36);
 
 	    actualMethods.sign = function (data, secretKey) {
 	      data = new Buffer(data);
@@ -4375,7 +4631,7 @@ var StellarLib =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(20).Buffer))
 
 /***/ },
-/* 15 */
+/* 16 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
@@ -4392,16 +4648,16 @@ var StellarLib =
 	  value: true
 	});
 
-	var _signing = __webpack_require__(14);
+	var _signing = __webpack_require__(15);
 
 	var sign = _signing.sign;
 	var verify = _signing.verify;
 
-	var base58 = _interopRequireWildcard(__webpack_require__(16));
+	var base58 = _interopRequireWildcard(__webpack_require__(17));
 
-	var xdr = _interopRequire(__webpack_require__(12));
+	var xdr = _interopRequire(__webpack_require__(13));
 
-	var nacl = __webpack_require__(34);
+	var nacl = __webpack_require__(36);
 
 	var Keypair = exports.Keypair = (function () {
 	  function Keypair(keysAndSeed) {
@@ -4514,7 +4770,7 @@ var StellarLib =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(20).Buffer))
 
 /***/ },
-/* 16 */
+/* 17 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
@@ -4536,9 +4792,9 @@ var StellarLib =
 	var isUndefined = _lodash.isUndefined;
 	var isNull = _lodash.isNull;
 
-	var hash = __webpack_require__(13).hash;
+	var hash = __webpack_require__(14).hash;
 
-	var nacl = __webpack_require__(34);
+	var nacl = __webpack_require__(36);
 
 	var versionBytes = {
 	  accountId: 0, // decimal 0
@@ -4628,22 +4884,6 @@ var StellarLib =
 	}
 	// decimal 33
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(20).Buffer))
-
-/***/ },
-/* 17 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(global) {"use strict";
-
-	if (global._babelPolyfill) {
-	  throw new Error("only one instance of babel/polyfill is allowed");
-	}
-	global._babelPolyfill = true;
-
-	__webpack_require__(35);
-
-	__webpack_require__(36);
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
 /* 18 */
@@ -19029,6 +19269,2533 @@ var StellarLib =
 /* 34 */
 /***/ function(module, exports, __webpack_require__) {
 
+	/**
+	 * Core.js 0.6.1
+	 * https://github.com/zloirock/core-js
+	 * License: http://rock.mit-license.org
+	 * © 2015 Denis Pushkarev
+	 */
+	!function(global, framework, undefined){
+	'use strict';
+
+	/******************************************************************************
+	 * Module : common                                                            *
+	 ******************************************************************************/
+
+	  // Shortcuts for [[Class]] & property names
+	var OBJECT          = 'Object'
+	  , FUNCTION        = 'Function'
+	  , ARRAY           = 'Array'
+	  , STRING          = 'String'
+	  , NUMBER          = 'Number'
+	  , REGEXP          = 'RegExp'
+	  , DATE            = 'Date'
+	  , MAP             = 'Map'
+	  , SET             = 'Set'
+	  , WEAKMAP         = 'WeakMap'
+	  , WEAKSET         = 'WeakSet'
+	  , SYMBOL          = 'Symbol'
+	  , PROMISE         = 'Promise'
+	  , MATH            = 'Math'
+	  , ARGUMENTS       = 'Arguments'
+	  , PROTOTYPE       = 'prototype'
+	  , CONSTRUCTOR     = 'constructor'
+	  , TO_STRING       = 'toString'
+	  , TO_STRING_TAG   = TO_STRING + 'Tag'
+	  , TO_LOCALE       = 'toLocaleString'
+	  , HAS_OWN         = 'hasOwnProperty'
+	  , FOR_EACH        = 'forEach'
+	  , ITERATOR        = 'iterator'
+	  , FF_ITERATOR     = '@@' + ITERATOR
+	  , PROCESS         = 'process'
+	  , CREATE_ELEMENT  = 'createElement'
+	  // Aliases global objects and prototypes
+	  , Function        = global[FUNCTION]
+	  , Object          = global[OBJECT]
+	  , Array           = global[ARRAY]
+	  , String          = global[STRING]
+	  , Number          = global[NUMBER]
+	  , RegExp          = global[REGEXP]
+	  , Date            = global[DATE]
+	  , Map             = global[MAP]
+	  , Set             = global[SET]
+	  , WeakMap         = global[WEAKMAP]
+	  , WeakSet         = global[WEAKSET]
+	  , Symbol          = global[SYMBOL]
+	  , Math            = global[MATH]
+	  , TypeError       = global.TypeError
+	  , RangeError      = global.RangeError
+	  , setTimeout      = global.setTimeout
+	  , setImmediate    = global.setImmediate
+	  , clearImmediate  = global.clearImmediate
+	  , parseInt        = global.parseInt
+	  , isFinite        = global.isFinite
+	  , process         = global[PROCESS]
+	  , nextTick        = process && process.nextTick
+	  , document        = global.document
+	  , html            = document && document.documentElement
+	  , navigator       = global.navigator
+	  , define          = global.define
+	  , console         = global.console || {}
+	  , ArrayProto      = Array[PROTOTYPE]
+	  , ObjectProto     = Object[PROTOTYPE]
+	  , FunctionProto   = Function[PROTOTYPE]
+	  , Infinity        = 1 / 0
+	  , DOT             = '.';
+
+	// http://jsperf.com/core-js-isobject
+	function isObject(it){
+	  return it !== null && (typeof it == 'object' || typeof it == 'function');
+	}
+	function isFunction(it){
+	  return typeof it == 'function';
+	}
+	// Native function?
+	var isNative = ctx(/./.test, /\[native code\]\s*\}\s*$/, 1);
+
+	// Object internal [[Class]] or toStringTag
+	// http://people.mozilla.org/~jorendorff/es6-draft.html#sec-object.prototype.tostring
+	var toString = ObjectProto[TO_STRING];
+	function setToStringTag(it, tag, stat){
+	  if(it && !has(it = stat ? it : it[PROTOTYPE], SYMBOL_TAG))hidden(it, SYMBOL_TAG, tag);
+	}
+	function cof(it){
+	  return toString.call(it).slice(8, -1);
+	}
+	function classof(it){
+	  var O, T;
+	  return it == undefined ? it === undefined ? 'Undefined' : 'Null'
+	    : typeof (T = (O = Object(it))[SYMBOL_TAG]) == 'string' ? T : cof(O);
+	}
+
+	// Function
+	var call  = FunctionProto.call
+	  , apply = FunctionProto.apply
+	  , REFERENCE_GET;
+	// Partial apply
+	function part(/* ...args */){
+	  var fn     = assertFunction(this)
+	    , length = arguments.length
+	    , args   = Array(length)
+	    , i      = 0
+	    , _      = path._
+	    , holder = false;
+	  while(length > i)if((args[i] = arguments[i++]) === _)holder = true;
+	  return function(/* ...args */){
+	    var that    = this
+	      , _length = arguments.length
+	      , i = 0, j = 0, _args;
+	    if(!holder && !_length)return invoke(fn, args, that);
+	    _args = args.slice();
+	    if(holder)for(;length > i; i++)if(_args[i] === _)_args[i] = arguments[j++];
+	    while(_length > j)_args.push(arguments[j++]);
+	    return invoke(fn, _args, that);
+	  }
+	}
+	// Optional / simple context binding
+	function ctx(fn, that, length){
+	  assertFunction(fn);
+	  if(~length && that === undefined)return fn;
+	  switch(length){
+	    case 1: return function(a){
+	      return fn.call(that, a);
+	    }
+	    case 2: return function(a, b){
+	      return fn.call(that, a, b);
+	    }
+	    case 3: return function(a, b, c){
+	      return fn.call(that, a, b, c);
+	    }
+	  } return function(/* ...args */){
+	      return fn.apply(that, arguments);
+	  }
+	}
+	// Fast apply
+	// http://jsperf.lnkit.com/fast-apply/5
+	function invoke(fn, args, that){
+	  var un = that === undefined;
+	  switch(args.length | 0){
+	    case 0: return un ? fn()
+	                      : fn.call(that);
+	    case 1: return un ? fn(args[0])
+	                      : fn.call(that, args[0]);
+	    case 2: return un ? fn(args[0], args[1])
+	                      : fn.call(that, args[0], args[1]);
+	    case 3: return un ? fn(args[0], args[1], args[2])
+	                      : fn.call(that, args[0], args[1], args[2]);
+	    case 4: return un ? fn(args[0], args[1], args[2], args[3])
+	                      : fn.call(that, args[0], args[1], args[2], args[3]);
+	    case 5: return un ? fn(args[0], args[1], args[2], args[3], args[4])
+	                      : fn.call(that, args[0], args[1], args[2], args[3], args[4]);
+	  } return              fn.apply(that, args);
+	}
+
+	// Object:
+	var create           = Object.create
+	  , getPrototypeOf   = Object.getPrototypeOf
+	  , setPrototypeOf   = Object.setPrototypeOf
+	  , defineProperty   = Object.defineProperty
+	  , defineProperties = Object.defineProperties
+	  , getOwnDescriptor = Object.getOwnPropertyDescriptor
+	  , getKeys          = Object.keys
+	  , getNames         = Object.getOwnPropertyNames
+	  , getSymbols       = Object.getOwnPropertySymbols
+	  , isFrozen         = Object.isFrozen
+	  , has              = ctx(call, ObjectProto[HAS_OWN], 2)
+	  // Dummy, fix for not array-like ES3 string in es5 module
+	  , ES5Object        = Object
+	  , Dict;
+	function toObject(it){
+	  return ES5Object(assertDefined(it));
+	}
+	function returnIt(it){
+	  return it;
+	}
+	function returnThis(){
+	  return this;
+	}
+	function get(object, key){
+	  if(has(object, key))return object[key];
+	}
+	function ownKeys(it){
+	  assertObject(it);
+	  return getSymbols ? getNames(it).concat(getSymbols(it)) : getNames(it);
+	}
+	// 19.1.2.1 Object.assign(target, source, ...)
+	var assign = Object.assign || function(target, source){
+	  var T = Object(assertDefined(target))
+	    , l = arguments.length
+	    , i = 1;
+	  while(l > i){
+	    var S      = ES5Object(arguments[i++])
+	      , keys   = getKeys(S)
+	      , length = keys.length
+	      , j      = 0
+	      , key;
+	    while(length > j)T[key = keys[j++]] = S[key];
+	  }
+	  return T;
+	}
+	function keyOf(object, el){
+	  var O      = toObject(object)
+	    , keys   = getKeys(O)
+	    , length = keys.length
+	    , index  = 0
+	    , key;
+	  while(length > index)if(O[key = keys[index++]] === el)return key;
+	}
+
+	// Array
+	// array('str1,str2,str3') => ['str1', 'str2', 'str3']
+	function array(it){
+	  return String(it).split(',');
+	}
+	var push    = ArrayProto.push
+	  , unshift = ArrayProto.unshift
+	  , slice   = ArrayProto.slice
+	  , splice  = ArrayProto.splice
+	  , indexOf = ArrayProto.indexOf
+	  , forEach = ArrayProto[FOR_EACH];
+	/*
+	 * 0 -> forEach
+	 * 1 -> map
+	 * 2 -> filter
+	 * 3 -> some
+	 * 4 -> every
+	 * 5 -> find
+	 * 6 -> findIndex
+	 */
+	function createArrayMethod(type){
+	  var isMap       = type == 1
+	    , isFilter    = type == 2
+	    , isSome      = type == 3
+	    , isEvery     = type == 4
+	    , isFindIndex = type == 6
+	    , noholes     = type == 5 || isFindIndex;
+	  return function(callbackfn/*, that = undefined */){
+	    var O      = Object(assertDefined(this))
+	      , that   = arguments[1]
+	      , self   = ES5Object(O)
+	      , f      = ctx(callbackfn, that, 3)
+	      , length = toLength(self.length)
+	      , index  = 0
+	      , result = isMap ? Array(length) : isFilter ? [] : undefined
+	      , val, res;
+	    for(;length > index; index++)if(noholes || index in self){
+	      val = self[index];
+	      res = f(val, index, O);
+	      if(type){
+	        if(isMap)result[index] = res;             // map
+	        else if(res)switch(type){
+	          case 3: return true;                    // some
+	          case 5: return val;                     // find
+	          case 6: return index;                   // findIndex
+	          case 2: result.push(val);               // filter
+	        } else if(isEvery)return false;           // every
+	      }
+	    }
+	    return isFindIndex ? -1 : isSome || isEvery ? isEvery : result;
+	  }
+	}
+	function createArrayContains(isContains){
+	  return function(el /*, fromIndex = 0 */){
+	    var O      = toObject(this)
+	      , length = toLength(O.length)
+	      , index  = toIndex(arguments[1], length);
+	    if(isContains && el != el){
+	      for(;length > index; index++)if(sameNaN(O[index]))return isContains || index;
+	    } else for(;length > index; index++)if(isContains || index in O){
+	      if(O[index] === el)return isContains || index;
+	    } return !isContains && -1;
+	  }
+	}
+	function generic(A, B){
+	  // strange IE quirks mode bug -> use typeof vs isFunction
+	  return typeof A == 'function' ? A : B;
+	}
+
+	// Math
+	var MAX_SAFE_INTEGER = 0x1fffffffffffff // pow(2, 53) - 1 == 9007199254740991
+	  , pow    = Math.pow
+	  , abs    = Math.abs
+	  , ceil   = Math.ceil
+	  , floor  = Math.floor
+	  , max    = Math.max
+	  , min    = Math.min
+	  , random = Math.random
+	  , trunc  = Math.trunc || function(it){
+	      return (it > 0 ? floor : ceil)(it);
+	    }
+	// 20.1.2.4 Number.isNaN(number)
+	function sameNaN(number){
+	  return number != number;
+	}
+	// 7.1.4 ToInteger
+	function toInteger(it){
+	  return isNaN(it) ? 0 : trunc(it);
+	}
+	// 7.1.15 ToLength
+	function toLength(it){
+	  return it > 0 ? min(toInteger(it), MAX_SAFE_INTEGER) : 0;
+	}
+	function toIndex(index, length){
+	  var index = toInteger(index);
+	  return index < 0 ? max(index + length, 0) : min(index, length);
+	}
+	function lz(num){
+	  return num > 9 ? num : '0' + num;
+	}
+
+	function createReplacer(regExp, replace, isStatic){
+	  var replacer = isObject(replace) ? function(part){
+	    return replace[part];
+	  } : replace;
+	  return function(it){
+	    return String(isStatic ? it : this).replace(regExp, replacer);
+	  }
+	}
+	function createPointAt(toString){
+	  return function(pos){
+	    var s = String(assertDefined(this))
+	      , i = toInteger(pos)
+	      , l = s.length
+	      , a, b;
+	    if(i < 0 || i >= l)return toString ? '' : undefined;
+	    a = s.charCodeAt(i);
+	    return a < 0xd800 || a > 0xdbff || i + 1 === l || (b = s.charCodeAt(i + 1)) < 0xdc00 || b > 0xdfff
+	      ? toString ? s.charAt(i) : a
+	      : toString ? s.slice(i, i + 2) : (a - 0xd800 << 10) + (b - 0xdc00) + 0x10000;
+	  }
+	}
+
+	// Assertion & errors
+	var REDUCE_ERROR = 'Reduce of empty object with no initial value';
+	function assert(condition, msg1, msg2){
+	  if(!condition)throw TypeError(msg2 ? msg1 + msg2 : msg1);
+	}
+	function assertDefined(it){
+	  if(it == undefined)throw TypeError('Function called on null or undefined');
+	  return it;
+	}
+	function assertFunction(it){
+	  assert(isFunction(it), it, ' is not a function!');
+	  return it;
+	}
+	function assertObject(it){
+	  assert(isObject(it), it, ' is not an object!');
+	  return it;
+	}
+	function assertInstance(it, Constructor, name){
+	  assert(it instanceof Constructor, name, ": use the 'new' operator!");
+	}
+
+	// Property descriptors & Symbol
+	function descriptor(bitmap, value){
+	  return {
+	    enumerable  : !(bitmap & 1),
+	    configurable: !(bitmap & 2),
+	    writable    : !(bitmap & 4),
+	    value       : value
+	  }
+	}
+	function simpleSet(object, key, value){
+	  object[key] = value;
+	  return object;
+	}
+	function createDefiner(bitmap){
+	  return DESC ? function(object, key, value){
+	    return defineProperty(object, key, descriptor(bitmap, value));
+	  } : simpleSet;
+	}
+	function uid(key){
+	  return SYMBOL + '(' + key + ')_' + (++sid + random())[TO_STRING](36);
+	}
+	function getWellKnownSymbol(name, setter){
+	  return (Symbol && Symbol[name]) || (setter ? Symbol : safeSymbol)(SYMBOL + DOT + name);
+	}
+	// The engine works fine with descriptors? Thank's IE8 for his funny defineProperty.
+	var DESC = !!function(){
+	      try {
+	        return defineProperty({}, 'a', {get: function(){ return 2 }}).a == 2;
+	      } catch(e){}
+	    }()
+	  , sid    = 0
+	  , hidden = createDefiner(1)
+	  , set    = Symbol ? simpleSet : hidden
+	  , safeSymbol = Symbol || uid;
+	function assignHidden(target, src){
+	  for(var key in src)hidden(target, key, src[key]);
+	  return target;
+	}
+
+	var SYMBOL_UNSCOPABLES = getWellKnownSymbol('unscopables')
+	  , ArrayUnscopables   = ArrayProto[SYMBOL_UNSCOPABLES] || {}
+	  , SYMBOL_TAG         = getWellKnownSymbol(TO_STRING_TAG)
+	  , SYMBOL_SPECIES     = getWellKnownSymbol('species')
+	  , SYMBOL_ITERATOR;
+	function setSpecies(C){
+	  if(DESC && (framework || !isNative(C)))defineProperty(C, SYMBOL_SPECIES, {
+	    configurable: true,
+	    get: returnThis
+	  });
+	}
+
+	/******************************************************************************
+	 * Module : common.export                                                     *
+	 ******************************************************************************/
+
+	var NODE = cof(process) == PROCESS
+	  , core = {}
+	  , path = framework ? global : core
+	  , old  = global.core
+	  , exportGlobal
+	  // type bitmap
+	  , FORCED = 1
+	  , GLOBAL = 2
+	  , STATIC = 4
+	  , PROTO  = 8
+	  , BIND   = 16
+	  , WRAP   = 32;
+	function $define(type, name, source){
+	  var key, own, out, exp
+	    , isGlobal = type & GLOBAL
+	    , target   = isGlobal ? global : (type & STATIC)
+	        ? global[name] : (global[name] || ObjectProto)[PROTOTYPE]
+	    , exports  = isGlobal ? core : core[name] || (core[name] = {});
+	  if(isGlobal)source = name;
+	  for(key in source){
+	    // there is a similar native
+	    own = !(type & FORCED) && target && key in target
+	      && (!isFunction(target[key]) || isNative(target[key]));
+	    // export native or passed
+	    out = (own ? target : source)[key];
+	    // prevent global pollution for namespaces
+	    if(!framework && isGlobal && !isFunction(target[key]))exp = source[key];
+	    // bind timers to global for call from export context
+	    else if(type & BIND && own)exp = ctx(out, global);
+	    // wrap global constructors for prevent change them in library
+	    else if(type & WRAP && !framework && target[key] == out){
+	      exp = function(param){
+	        return this instanceof out ? new out(param) : out(param);
+	      }
+	      exp[PROTOTYPE] = out[PROTOTYPE];
+	    } else exp = type & PROTO && isFunction(out) ? ctx(call, out) : out;
+	    // extend global
+	    if(framework && target && !own){
+	      if(isGlobal)target[key] = out;
+	      else delete target[key] && hidden(target, key, out);
+	    }
+	    // export
+	    if(exports[key] != out)hidden(exports, key, exp);
+	  }
+	}
+	// CommonJS export
+	if(typeof module != 'undefined' && module.exports)module.exports = core;
+	// RequireJS export
+	else if(isFunction(define) && define.amd)define(function(){return core});
+	// Export to global object
+	else exportGlobal = true;
+	if(exportGlobal || framework){
+	  core.noConflict = function(){
+	    global.core = old;
+	    return core;
+	  }
+	  global.core = core;
+	}
+
+	/******************************************************************************
+	 * Module : common.iterators                                                  *
+	 ******************************************************************************/
+
+	SYMBOL_ITERATOR = getWellKnownSymbol(ITERATOR);
+	var ITER  = safeSymbol('iter')
+	  , KEY   = 1
+	  , VALUE = 2
+	  , Iterators = {}
+	  , IteratorPrototype = {}
+	    // Safari has byggy iterators w/o `next`
+	  , BUGGY_ITERATORS = 'keys' in ArrayProto && !('next' in [].keys());
+	// 25.1.2.1.1 %IteratorPrototype%[@@iterator]()
+	setIterator(IteratorPrototype, returnThis);
+	function setIterator(O, value){
+	  hidden(O, SYMBOL_ITERATOR, value);
+	  // Add iterator for FF iterator protocol
+	  FF_ITERATOR in ArrayProto && hidden(O, FF_ITERATOR, value);
+	}
+	function createIterator(Constructor, NAME, next, proto){
+	  Constructor[PROTOTYPE] = create(proto || IteratorPrototype, {next: descriptor(1, next)});
+	  setToStringTag(Constructor, NAME + ' Iterator');
+	}
+	function defineIterator(Constructor, NAME, value, DEFAULT){
+	  var proto = Constructor[PROTOTYPE]
+	    , iter  = get(proto, SYMBOL_ITERATOR) || get(proto, FF_ITERATOR) || (DEFAULT && get(proto, DEFAULT)) || value;
+	  if(framework){
+	    // Define iterator
+	    setIterator(proto, iter);
+	    if(iter !== value){
+	      var iterProto = getPrototypeOf(iter.call(new Constructor));
+	      // Set @@toStringTag to native iterators
+	      setToStringTag(iterProto, NAME + ' Iterator', true);
+	      // FF fix
+	      has(proto, FF_ITERATOR) && setIterator(iterProto, returnThis);
+	    }
+	  }
+	  // Plug for library
+	  Iterators[NAME] = iter;
+	  // FF & v8 fix
+	  Iterators[NAME + ' Iterator'] = returnThis;
+	  return iter;
+	}
+	function defineStdIterators(Base, NAME, Constructor, next, DEFAULT, IS_SET){
+	  function createIter(kind){
+	    return function(){
+	      return new Constructor(this, kind);
+	    }
+	  }
+	  createIterator(Constructor, NAME, next);
+	  var entries = createIter(KEY+VALUE)
+	    , values  = createIter(VALUE);
+	  if(DEFAULT == VALUE)values = defineIterator(Base, NAME, values, 'values');
+	  else entries = defineIterator(Base, NAME, entries, 'entries');
+	  if(DEFAULT){
+	    $define(PROTO + FORCED * BUGGY_ITERATORS, NAME, {
+	      entries: entries,
+	      keys: IS_SET ? values : createIter(KEY),
+	      values: values
+	    });
+	  }
+	}
+	function iterResult(done, value){
+	  return {value: value, done: !!done};
+	}
+	function isIterable(it){
+	  var O      = Object(it)
+	    , Symbol = global[SYMBOL]
+	    , hasExt = (Symbol && Symbol[ITERATOR] || FF_ITERATOR) in O;
+	  return hasExt || SYMBOL_ITERATOR in O || has(Iterators, classof(O));
+	}
+	function getIterator(it){
+	  var Symbol  = global[SYMBOL]
+	    , ext     = it[Symbol && Symbol[ITERATOR] || FF_ITERATOR]
+	    , getIter = ext || it[SYMBOL_ITERATOR] || Iterators[classof(it)];
+	  return assertObject(getIter.call(it));
+	}
+	function stepCall(fn, value, entries){
+	  return entries ? invoke(fn, value) : fn(value);
+	}
+	function checkDangerIterClosing(fn){
+	  var danger = true;
+	  var O = {
+	    next: function(){ throw 1 },
+	    'return': function(){ danger = false }
+	  };
+	  O[SYMBOL_ITERATOR] = returnThis;
+	  try {
+	    fn(O);
+	  } catch(e){}
+	  return danger;
+	}
+	function closeIterator(iterator){
+	  var ret = iterator['return'];
+	  if(ret !== undefined)ret.call(iterator);
+	}
+	function safeIterClose(exec, iterator){
+	  try {
+	    exec(iterator);
+	  } catch(e){
+	    closeIterator(iterator);
+	    throw e;
+	  }
+	}
+	function forOf(iterable, entries, fn, that){
+	  safeIterClose(function(iterator){
+	    var f = ctx(fn, that, entries ? 2 : 1)
+	      , step;
+	    while(!(step = iterator.next()).done)if(stepCall(f, step.value, entries) === false){
+	      return closeIterator(iterator);
+	    }
+	  }, getIterator(iterable));
+	}
+
+	/******************************************************************************
+	 * Module : es6.symbol                                                        *
+	 ******************************************************************************/
+
+	// ECMAScript 6 symbols shim
+	!function(TAG, SymbolRegistry, AllSymbols, setter){
+	  // 19.4.1.1 Symbol([description])
+	  if(!isNative(Symbol)){
+	    Symbol = function(description){
+	      assert(!(this instanceof Symbol), SYMBOL + ' is not a ' + CONSTRUCTOR);
+	      var tag = uid(description)
+	        , sym = set(create(Symbol[PROTOTYPE]), TAG, tag);
+	      AllSymbols[tag] = sym;
+	      DESC && setter && defineProperty(ObjectProto, tag, {
+	        configurable: true,
+	        set: function(value){
+	          hidden(this, tag, value);
+	        }
+	      });
+	      return sym;
+	    }
+	    hidden(Symbol[PROTOTYPE], TO_STRING, function(){
+	      return this[TAG];
+	    });
+	  }
+	  $define(GLOBAL + WRAP, {Symbol: Symbol});
+	  
+	  var symbolStatics = {
+	    // 19.4.2.1 Symbol.for(key)
+	    'for': function(key){
+	      return has(SymbolRegistry, key += '')
+	        ? SymbolRegistry[key]
+	        : SymbolRegistry[key] = Symbol(key);
+	    },
+	    // 19.4.2.4 Symbol.iterator
+	    iterator: SYMBOL_ITERATOR || getWellKnownSymbol(ITERATOR),
+	    // 19.4.2.5 Symbol.keyFor(sym)
+	    keyFor: part.call(keyOf, SymbolRegistry),
+	    // 19.4.2.10 Symbol.species
+	    species: SYMBOL_SPECIES,
+	    // 19.4.2.13 Symbol.toStringTag
+	    toStringTag: SYMBOL_TAG = getWellKnownSymbol(TO_STRING_TAG, true),
+	    // 19.4.2.14 Symbol.unscopables
+	    unscopables: SYMBOL_UNSCOPABLES,
+	    pure: safeSymbol,
+	    set: set,
+	    useSetter: function(){setter = true},
+	    useSimple: function(){setter = false}
+	  };
+	  // 19.4.2.2 Symbol.hasInstance
+	  // 19.4.2.3 Symbol.isConcatSpreadable
+	  // 19.4.2.6 Symbol.match
+	  // 19.4.2.8 Symbol.replace
+	  // 19.4.2.9 Symbol.search
+	  // 19.4.2.11 Symbol.split
+	  // 19.4.2.12 Symbol.toPrimitive
+	  forEach.call(array('hasInstance,isConcatSpreadable,match,replace,search,split,toPrimitive'),
+	    function(it){
+	      symbolStatics[it] = getWellKnownSymbol(it);
+	    }
+	  );
+	  $define(STATIC, SYMBOL, symbolStatics);
+	  
+	  setToStringTag(Symbol, SYMBOL);
+	  
+	  $define(STATIC + FORCED * !isNative(Symbol), OBJECT, {
+	    // 19.1.2.7 Object.getOwnPropertyNames(O)
+	    getOwnPropertyNames: function(it){
+	      var names = getNames(toObject(it)), result = [], key, i = 0;
+	      while(names.length > i)has(AllSymbols, key = names[i++]) || result.push(key);
+	      return result;
+	    },
+	    // 19.1.2.8 Object.getOwnPropertySymbols(O)
+	    getOwnPropertySymbols: function(it){
+	      var names = getNames(toObject(it)), result = [], key, i = 0;
+	      while(names.length > i)has(AllSymbols, key = names[i++]) && result.push(AllSymbols[key]);
+	      return result;
+	    }
+	  });
+	  
+	  // 20.2.1.9 Math[@@toStringTag]
+	  setToStringTag(Math, MATH, true);
+	  // 24.3.3 JSON[@@toStringTag]
+	  setToStringTag(global.JSON, 'JSON', true);
+	}(safeSymbol('tag'), {}, {}, true);
+
+	/******************************************************************************
+	 * Module : es6.object.statics                                                *
+	 ******************************************************************************/
+
+	!function(){
+	  var objectStatic = {
+	    // 19.1.3.1 Object.assign(target, source)
+	    assign: assign,
+	    // 19.1.3.10 Object.is(value1, value2)
+	    is: function(x, y){
+	      return x === y ? x !== 0 || 1 / x === 1 / y : x != x && y != y;
+	    }
+	  };
+	  // 19.1.3.19 Object.setPrototypeOf(O, proto)
+	  // Works with __proto__ only. Old v8 can't works with null proto objects.
+	  '__proto__' in ObjectProto && function(buggy, set){
+	    try {
+	      set = ctx(call, getOwnDescriptor(ObjectProto, '__proto__').set, 2);
+	      set({}, ArrayProto);
+	    } catch(e){ buggy = true }
+	    objectStatic.setPrototypeOf = setPrototypeOf = setPrototypeOf || function(O, proto){
+	      assertObject(O);
+	      assert(proto === null || isObject(proto), proto, ": can't set as prototype!");
+	      if(buggy)O.__proto__ = proto;
+	      else set(O, proto);
+	      return O;
+	    }
+	  }();
+	  $define(STATIC, OBJECT, objectStatic);
+	}();
+
+	/******************************************************************************
+	 * Module : es6.object.prototype                                              *
+	 ******************************************************************************/
+
+	!function(tmp){
+	  // 19.1.3.6 Object.prototype.toString()
+	  tmp[SYMBOL_TAG] = DOT;
+	  if(cof(tmp) != DOT)hidden(ObjectProto, TO_STRING, function(){
+	    return '[object ' + classof(this) + ']';
+	  });
+	}({});
+
+	/******************************************************************************
+	 * Module : es6.object.statics-accept-primitives                              *
+	 ******************************************************************************/
+
+	!function(){
+	  // Object static methods accept primitives
+	  function wrapObjectMethod(key, MODE){
+	    var fn  = Object[key]
+	      , exp = core[OBJECT][key]
+	      , f   = 0
+	      , o   = {};
+	    if(!exp || isNative(exp)){
+	      o[key] = MODE == 1 ? function(it){
+	        return isObject(it) ? fn(it) : it;
+	      } : MODE == 2 ? function(it){
+	        return isObject(it) ? fn(it) : true;
+	      } : MODE == 3 ? function(it){
+	        return isObject(it) ? fn(it) : false;
+	      } : MODE == 4 ? function(it, key){
+	        return fn(toObject(it), key);
+	      } : function(it){
+	        return fn(toObject(it));
+	      };
+	      try { fn(DOT) }
+	      catch(e){ f = 1 }
+	      $define(STATIC + FORCED * f, OBJECT, o);
+	    }
+	  }
+	  wrapObjectMethod('freeze', 1);
+	  wrapObjectMethod('seal', 1);
+	  wrapObjectMethod('preventExtensions', 1);
+	  wrapObjectMethod('isFrozen', 2);
+	  wrapObjectMethod('isSealed', 2);
+	  wrapObjectMethod('isExtensible', 3);
+	  wrapObjectMethod('getOwnPropertyDescriptor', 4);
+	  wrapObjectMethod('getPrototypeOf');
+	  wrapObjectMethod('keys');
+	  wrapObjectMethod('getOwnPropertyNames');
+	}();
+
+	/******************************************************************************
+	 * Module : es6.function                                                      *
+	 ******************************************************************************/
+
+	!function(NAME){
+	  // 19.2.4.2 name
+	  NAME in FunctionProto || (DESC && defineProperty(FunctionProto, NAME, {
+	    configurable: true,
+	    get: function(){
+	      var match = String(this).match(/^\s*function ([^ (]*)/)
+	        , name  = match ? match[1] : '';
+	      has(this, NAME) || defineProperty(this, NAME, descriptor(5, name));
+	      return name;
+	    },
+	    set: function(value){
+	      has(this, NAME) || defineProperty(this, NAME, descriptor(0, value));
+	    }
+	  }));
+	}('name');
+
+	/******************************************************************************
+	 * Module : es6.number.constructor                                            *
+	 ******************************************************************************/
+
+	Number('0o1') && Number('0b1') || function(_Number, NumberProto){
+	  function toNumber(it){
+	    if(isObject(it))it = toPrimitive(it);
+	    if(typeof it == 'string' && it.length > 2 && it.charCodeAt(0) == 48){
+	      var binary = false;
+	      switch(it.charCodeAt(1)){
+	        case 66 : case 98  : binary = true;
+	        case 79 : case 111 : return parseInt(it.slice(2), binary ? 2 : 8);
+	      }
+	    } return +it;
+	  }
+	  function toPrimitive(it){
+	    var fn, val;
+	    if(isFunction(fn = it.valueOf) && !isObject(val = fn.call(it)))return val;
+	    if(isFunction(fn = it[TO_STRING]) && !isObject(val = fn.call(it)))return val;
+	    throw TypeError("Can't convert object to number");
+	  }
+	  Number = function Number(it){
+	    return this instanceof Number ? new _Number(toNumber(it)) : toNumber(it);
+	  }
+	  forEach.call(DESC ? getNames(_Number)
+	  : array('MAX_VALUE,MIN_VALUE,NaN,NEGATIVE_INFINITY,POSITIVE_INFINITY'), function(key){
+	    key in Number || defineProperty(Number, key, getOwnDescriptor(_Number, key));
+	  });
+	  Number[PROTOTYPE] = NumberProto;
+	  NumberProto[CONSTRUCTOR] = Number;
+	  hidden(global, NUMBER, Number);
+	}(Number, Number[PROTOTYPE]);
+
+	/******************************************************************************
+	 * Module : es6.number.statics                                                *
+	 ******************************************************************************/
+
+	!function(isInteger){
+	  $define(STATIC, NUMBER, {
+	    // 20.1.2.1 Number.EPSILON
+	    EPSILON: pow(2, -52),
+	    // 20.1.2.2 Number.isFinite(number)
+	    isFinite: function(it){
+	      return typeof it == 'number' && isFinite(it);
+	    },
+	    // 20.1.2.3 Number.isInteger(number)
+	    isInteger: isInteger,
+	    // 20.1.2.4 Number.isNaN(number)
+	    isNaN: sameNaN,
+	    // 20.1.2.5 Number.isSafeInteger(number)
+	    isSafeInteger: function(number){
+	      return isInteger(number) && abs(number) <= MAX_SAFE_INTEGER;
+	    },
+	    // 20.1.2.6 Number.MAX_SAFE_INTEGER
+	    MAX_SAFE_INTEGER: MAX_SAFE_INTEGER,
+	    // 20.1.2.10 Number.MIN_SAFE_INTEGER
+	    MIN_SAFE_INTEGER: -MAX_SAFE_INTEGER,
+	    // 20.1.2.12 Number.parseFloat(string)
+	    parseFloat: parseFloat,
+	    // 20.1.2.13 Number.parseInt(string, radix)
+	    parseInt: parseInt
+	  });
+	// 20.1.2.3 Number.isInteger(number)
+	}(Number.isInteger || function(it){
+	  return !isObject(it) && isFinite(it) && floor(it) === it;
+	});
+
+	/******************************************************************************
+	 * Module : es6.math                                                          *
+	 ******************************************************************************/
+
+	// ECMAScript 6 shim
+	!function(){
+	  // 20.2.2.28 Math.sign(x)
+	  var E    = Math.E
+	    , exp  = Math.exp
+	    , log  = Math.log
+	    , sqrt = Math.sqrt
+	    , sign = Math.sign || function(x){
+	        return (x = +x) == 0 || x != x ? x : x < 0 ? -1 : 1;
+	      };
+	  
+	  // 20.2.2.5 Math.asinh(x)
+	  function asinh(x){
+	    return !isFinite(x = +x) || x == 0 ? x : x < 0 ? -asinh(-x) : log(x + sqrt(x * x + 1));
+	  }
+	  // 20.2.2.14 Math.expm1(x)
+	  function expm1(x){
+	    return (x = +x) == 0 ? x : x > -1e-6 && x < 1e-6 ? x + x * x / 2 : exp(x) - 1;
+	  }
+	    
+	  $define(STATIC, MATH, {
+	    // 20.2.2.3 Math.acosh(x)
+	    acosh: function(x){
+	      return (x = +x) < 1 ? NaN : isFinite(x) ? log(x / E + sqrt(x + 1) * sqrt(x - 1) / E) + 1 : x;
+	    },
+	    // 20.2.2.5 Math.asinh(x)
+	    asinh: asinh,
+	    // 20.2.2.7 Math.atanh(x)
+	    atanh: function(x){
+	      return (x = +x) == 0 ? x : log((1 + x) / (1 - x)) / 2;
+	    },
+	    // 20.2.2.9 Math.cbrt(x)
+	    cbrt: function(x){
+	      return sign(x = +x) * pow(abs(x), 1 / 3);
+	    },
+	    // 20.2.2.11 Math.clz32(x)
+	    clz32: function(x){
+	      return (x >>>= 0) ? 32 - x[TO_STRING](2).length : 32;
+	    },
+	    // 20.2.2.12 Math.cosh(x)
+	    cosh: function(x){
+	      return (exp(x = +x) + exp(-x)) / 2;
+	    },
+	    // 20.2.2.14 Math.expm1(x)
+	    expm1: expm1,
+	    // 20.2.2.16 Math.fround(x)
+	    // TODO: fallback for IE9-
+	    fround: function(x){
+	      return new Float32Array([x])[0];
+	    },
+	    // 20.2.2.17 Math.hypot([value1[, value2[, … ]]])
+	    hypot: function(value1, value2){
+	      var sum  = 0
+	        , len1 = arguments.length
+	        , len2 = len1
+	        , args = Array(len1)
+	        , larg = -Infinity
+	        , arg;
+	      while(len1--){
+	        arg = args[len1] = +arguments[len1];
+	        if(arg == Infinity || arg == -Infinity)return Infinity;
+	        if(arg > larg)larg = arg;
+	      }
+	      larg = arg || 1;
+	      while(len2--)sum += pow(args[len2] / larg, 2);
+	      return larg * sqrt(sum);
+	    },
+	    // 20.2.2.18 Math.imul(x, y)
+	    imul: function(x, y){
+	      var UInt16 = 0xffff
+	        , xn = +x
+	        , yn = +y
+	        , xl = UInt16 & xn
+	        , yl = UInt16 & yn;
+	      return 0 | xl * yl + ((UInt16 & xn >>> 16) * yl + xl * (UInt16 & yn >>> 16) << 16 >>> 0);
+	    },
+	    // 20.2.2.20 Math.log1p(x)
+	    log1p: function(x){
+	      return (x = +x) > -1e-8 && x < 1e-8 ? x - x * x / 2 : log(1 + x);
+	    },
+	    // 20.2.2.21 Math.log10(x)
+	    log10: function(x){
+	      return log(x) / Math.LN10;
+	    },
+	    // 20.2.2.22 Math.log2(x)
+	    log2: function(x){
+	      return log(x) / Math.LN2;
+	    },
+	    // 20.2.2.28 Math.sign(x)
+	    sign: sign,
+	    // 20.2.2.30 Math.sinh(x)
+	    sinh: function(x){
+	      return (abs(x = +x) < 1) ? (expm1(x) - expm1(-x)) / 2 : (exp(x - 1) - exp(-x - 1)) * (E / 2);
+	    },
+	    // 20.2.2.33 Math.tanh(x)
+	    tanh: function(x){
+	      var a = expm1(x = +x)
+	        , b = expm1(-x);
+	      return a == Infinity ? 1 : b == Infinity ? -1 : (a - b) / (exp(x) + exp(-x));
+	    },
+	    // 20.2.2.34 Math.trunc(x)
+	    trunc: trunc
+	  });
+	}();
+
+	/******************************************************************************
+	 * Module : es6.string                                                        *
+	 ******************************************************************************/
+
+	!function(fromCharCode){
+	  function assertNotRegExp(it){
+	    if(cof(it) == REGEXP)throw TypeError();
+	  }
+	  
+	  $define(STATIC, STRING, {
+	    // 21.1.2.2 String.fromCodePoint(...codePoints)
+	    fromCodePoint: function(x){
+	      var res = []
+	        , len = arguments.length
+	        , i   = 0
+	        , code
+	      while(len > i){
+	        code = +arguments[i++];
+	        if(toIndex(code, 0x10ffff) !== code)throw RangeError(code + ' is not a valid code point');
+	        res.push(code < 0x10000
+	          ? fromCharCode(code)
+	          : fromCharCode(((code -= 0x10000) >> 10) + 0xd800, code % 0x400 + 0xdc00)
+	        );
+	      } return res.join('');
+	    },
+	    // 21.1.2.4 String.raw(callSite, ...substitutions)
+	    raw: function(callSite){
+	      var raw = toObject(callSite.raw)
+	        , len = toLength(raw.length)
+	        , sln = arguments.length
+	        , res = []
+	        , i   = 0;
+	      while(len > i){
+	        res.push(String(raw[i++]));
+	        if(i < sln)res.push(String(arguments[i]));
+	      } return res.join('');
+	    }
+	  });
+	  
+	  $define(PROTO, STRING, {
+	    // 21.1.3.3 String.prototype.codePointAt(pos)
+	    codePointAt: createPointAt(false),
+	    // 21.1.3.6 String.prototype.endsWith(searchString [, endPosition])
+	    endsWith: function(searchString /*, endPosition = @length */){
+	      assertNotRegExp(searchString);
+	      var that = String(assertDefined(this))
+	        , endPosition = arguments[1]
+	        , len = toLength(that.length)
+	        , end = endPosition === undefined ? len : min(toLength(endPosition), len);
+	      searchString += '';
+	      return that.slice(end - searchString.length, end) === searchString;
+	    },
+	    // 21.1.3.7 String.prototype.includes(searchString, position = 0)
+	    includes: function(searchString /*, position = 0 */){
+	      assertNotRegExp(searchString);
+	      return !!~String(assertDefined(this)).indexOf(searchString, arguments[1]);
+	    },
+	    // 21.1.3.13 String.prototype.repeat(count)
+	    repeat: function(count){
+	      var str = String(assertDefined(this))
+	        , res = ''
+	        , n   = toInteger(count);
+	      if(0 > n || n == Infinity)throw RangeError("Count can't be negative");
+	      for(;n > 0; (n >>>= 1) && (str += str))if(n & 1)res += str;
+	      return res;
+	    },
+	    // 21.1.3.18 String.prototype.startsWith(searchString [, position ])
+	    startsWith: function(searchString /*, position = 0 */){
+	      assertNotRegExp(searchString);
+	      var that  = String(assertDefined(this))
+	        , index = toLength(min(arguments[1], that.length));
+	      searchString += '';
+	      return that.slice(index, index + searchString.length) === searchString;
+	    }
+	  });
+	}(String.fromCharCode);
+
+	/******************************************************************************
+	 * Module : es6.array.statics                                                 *
+	 ******************************************************************************/
+
+	!function(){
+	  $define(STATIC + FORCED * checkDangerIterClosing(Array.from), ARRAY, {
+	    // 22.1.2.1 Array.from(arrayLike, mapfn = undefined, thisArg = undefined)
+	    from: function(arrayLike/*, mapfn = undefined, thisArg = undefined*/){
+	      var O       = Object(assertDefined(arrayLike))
+	        , mapfn   = arguments[1]
+	        , mapping = mapfn !== undefined
+	        , f       = mapping ? ctx(mapfn, arguments[2], 2) : undefined
+	        , index   = 0
+	        , length, result, step;
+	      if(isIterable(O)){
+	        result = new (generic(this, Array));
+	        safeIterClose(function(iterator){
+	          for(; !(step = iterator.next()).done; index++){
+	            result[index] = mapping ? f(step.value, index) : step.value;
+	          }
+	        }, getIterator(O));
+	      } else {
+	        result = new (generic(this, Array))(length = toLength(O.length));
+	        for(; length > index; index++){
+	          result[index] = mapping ? f(O[index], index) : O[index];
+	        }
+	      }
+	      result.length = index;
+	      return result;
+	    }
+	  });
+	  
+	  $define(STATIC, ARRAY, {
+	    // 22.1.2.3 Array.of( ...items)
+	    of: function(/* ...args */){
+	      var index  = 0
+	        , length = arguments.length
+	        , result = new (generic(this, Array))(length);
+	      while(length > index)result[index] = arguments[index++];
+	      result.length = length;
+	      return result;
+	    }
+	  });
+	  
+	  setSpecies(Array);
+	}();
+
+	/******************************************************************************
+	 * Module : es6.array.prototype                                               *
+	 ******************************************************************************/
+
+	!function(){
+	  $define(PROTO, ARRAY, {
+	    // 22.1.3.3 Array.prototype.copyWithin(target, start, end = this.length)
+	    copyWithin: function(target /* = 0 */, start /* = 0, end = @length */){
+	      var O     = Object(assertDefined(this))
+	        , len   = toLength(O.length)
+	        , to    = toIndex(target, len)
+	        , from  = toIndex(start, len)
+	        , end   = arguments[2]
+	        , fin   = end === undefined ? len : toIndex(end, len)
+	        , count = min(fin - from, len - to)
+	        , inc   = 1;
+	      if(from < to && to < from + count){
+	        inc  = -1;
+	        from = from + count - 1;
+	        to   = to + count - 1;
+	      }
+	      while(count-- > 0){
+	        if(from in O)O[to] = O[from];
+	        else delete O[to];
+	        to += inc;
+	        from += inc;
+	      } return O;
+	    },
+	    // 22.1.3.6 Array.prototype.fill(value, start = 0, end = this.length)
+	    fill: function(value /*, start = 0, end = @length */){
+	      var O      = Object(assertDefined(this))
+	        , length = toLength(O.length)
+	        , index  = toIndex(arguments[1], length)
+	        , end    = arguments[2]
+	        , endPos = end === undefined ? length : toIndex(end, length);
+	      while(endPos > index)O[index++] = value;
+	      return O;
+	    },
+	    // 22.1.3.8 Array.prototype.find(predicate, thisArg = undefined)
+	    find: createArrayMethod(5),
+	    // 22.1.3.9 Array.prototype.findIndex(predicate, thisArg = undefined)
+	    findIndex: createArrayMethod(6)
+	  });
+	  
+	  if(framework){
+	    // 22.1.3.31 Array.prototype[@@unscopables]
+	    forEach.call(array('find,findIndex,fill,copyWithin,entries,keys,values'), function(it){
+	      ArrayUnscopables[it] = true;
+	    });
+	    SYMBOL_UNSCOPABLES in ArrayProto || hidden(ArrayProto, SYMBOL_UNSCOPABLES, ArrayUnscopables);
+	  }
+	}();
+
+	/******************************************************************************
+	 * Module : es6.iterators                                                     *
+	 ******************************************************************************/
+
+	!function(at){
+	  // 22.1.3.4 Array.prototype.entries()
+	  // 22.1.3.13 Array.prototype.keys()
+	  // 22.1.3.29 Array.prototype.values()
+	  // 22.1.3.30 Array.prototype[@@iterator]()
+	  defineStdIterators(Array, ARRAY, function(iterated, kind){
+	    set(this, ITER, {o: toObject(iterated), i: 0, k: kind});
+	  // 22.1.5.2.1 %ArrayIteratorPrototype%.next()
+	  }, function(){
+	    var iter  = this[ITER]
+	      , O     = iter.o
+	      , kind  = iter.k
+	      , index = iter.i++;
+	    if(!O || index >= O.length){
+	      iter.o = undefined;
+	      return iterResult(1);
+	    }
+	    if(kind == KEY)  return iterResult(0, index);
+	    if(kind == VALUE)return iterResult(0, O[index]);
+	                     return iterResult(0, [index, O[index]]);
+	  }, VALUE);
+	  
+	  // argumentsList[@@iterator] is %ArrayProto_values% (9.4.4.6, 9.4.4.7)
+	  Iterators[ARGUMENTS] = Iterators[ARRAY];
+	  
+	  // 21.1.3.27 String.prototype[@@iterator]()
+	  defineStdIterators(String, STRING, function(iterated){
+	    set(this, ITER, {o: String(iterated), i: 0});
+	  // 21.1.5.2.1 %StringIteratorPrototype%.next()
+	  }, function(){
+	    var iter  = this[ITER]
+	      , O     = iter.o
+	      , index = iter.i
+	      , point;
+	    if(index >= O.length)return iterResult(1);
+	    point = at.call(O, index);
+	    iter.i += point.length;
+	    return iterResult(0, point);
+	  });
+	}(createPointAt(true));
+
+	/******************************************************************************
+	 * Module : es6.regexp                                                        *
+	 ******************************************************************************/
+
+	DESC && !function(RegExpProto, _RegExp){  
+	  // RegExp allows a regex with flags as the pattern
+	  if(!function(){try{return RegExp(/a/g, 'i') == '/a/i'}catch(e){}}()){
+	    RegExp = function RegExp(pattern, flags){
+	      return new _RegExp(cof(pattern) == REGEXP && flags !== undefined
+	        ? pattern.source : pattern, flags);
+	    }
+	    forEach.call(getNames(_RegExp), function(key){
+	      key in RegExp || defineProperty(RegExp, key, {
+	        configurable: true,
+	        get: function(){ return _RegExp[key] },
+	        set: function(it){ _RegExp[key] = it }
+	      });
+	    });
+	    RegExpProto[CONSTRUCTOR] = RegExp;
+	    RegExp[PROTOTYPE] = RegExpProto;
+	    hidden(global, REGEXP, RegExp);
+	  }
+	  
+	  // 21.2.5.3 get RegExp.prototype.flags()
+	  if(/./g.flags != 'g')defineProperty(RegExpProto, 'flags', {
+	    configurable: true,
+	    get: createReplacer(/^.*\/(\w*)$/, '$1')
+	  });
+	  
+	  setSpecies(RegExp);
+	}(RegExp[PROTOTYPE], RegExp);
+
+	/******************************************************************************
+	 * Module : web.immediate                                                     *
+	 ******************************************************************************/
+
+	// setImmediate shim
+	// Node.js 0.9+ & IE10+ has setImmediate, else:
+	isFunction(setImmediate) && isFunction(clearImmediate) || function(ONREADYSTATECHANGE){
+	  var postMessage      = global.postMessage
+	    , addEventListener = global.addEventListener
+	    , MessageChannel   = global.MessageChannel
+	    , counter          = 0
+	    , queue            = {}
+	    , defer, channel, port;
+	  setImmediate = function(fn){
+	    var args = [], i = 1;
+	    while(arguments.length > i)args.push(arguments[i++]);
+	    queue[++counter] = function(){
+	      invoke(isFunction(fn) ? fn : Function(fn), args);
+	    }
+	    defer(counter);
+	    return counter;
+	  }
+	  clearImmediate = function(id){
+	    delete queue[id];
+	  }
+	  function run(id){
+	    if(has(queue, id)){
+	      var fn = queue[id];
+	      delete queue[id];
+	      fn();
+	    }
+	  }
+	  function listner(event){
+	    run(event.data);
+	  }
+	  // Node.js 0.8-
+	  if(NODE){
+	    defer = function(id){
+	      nextTick(part.call(run, id));
+	    }
+	  // Modern browsers, skip implementation for WebWorkers
+	  // IE8 has postMessage, but it's sync & typeof its postMessage is object
+	  } else if(addEventListener && isFunction(postMessage) && !global.importScripts){
+	    defer = function(id){
+	      postMessage(id, '*');
+	    }
+	    addEventListener('message', listner, false);
+	  // WebWorkers
+	  } else if(isFunction(MessageChannel)){
+	    channel = new MessageChannel;
+	    port    = channel.port2;
+	    channel.port1.onmessage = listner;
+	    defer = ctx(port.postMessage, port, 1);
+	  // IE8-
+	  } else if(document && ONREADYSTATECHANGE in document[CREATE_ELEMENT]('script')){
+	    defer = function(id){
+	      html.appendChild(document[CREATE_ELEMENT]('script'))[ONREADYSTATECHANGE] = function(){
+	        html.removeChild(this);
+	        run(id);
+	      }
+	    }
+	  // Rest old browsers
+	  } else {
+	    defer = function(id){
+	      setTimeout(run, 0, id);
+	    }
+	  }
+	}('onreadystatechange');
+	$define(GLOBAL + BIND, {
+	  setImmediate:   setImmediate,
+	  clearImmediate: clearImmediate
+	});
+
+	/******************************************************************************
+	 * Module : es6.promise                                                       *
+	 ******************************************************************************/
+
+	// ES6 promises shim
+	// Based on https://github.com/getify/native-promise-only/
+	!function(Promise, test){
+	  isFunction(Promise) && isFunction(Promise.resolve)
+	  && Promise.resolve(test = new Promise(function(){})) == test
+	  || function(asap, RECORD){
+	    function isThenable(it){
+	      var then;
+	      if(isObject(it))then = it.then;
+	      return isFunction(then) ? then : false;
+	    }
+	    function handledRejectionOrHasOnRejected(promise){
+	      var record = promise[RECORD]
+	        , chain  = record.c
+	        , i      = 0
+	        , react;
+	      if(record.h)return true;
+	      while(chain.length > i){
+	        react = chain[i++];
+	        if(react.fail || handledRejectionOrHasOnRejected(react.P))return true;
+	      }
+	    }
+	    function notify(record, reject){
+	      var chain = record.c;
+	      if(reject || chain.length)asap(function(){
+	        var promise = record.p
+	          , value   = record.v
+	          , ok      = record.s == 1
+	          , i       = 0;
+	        if(reject && !handledRejectionOrHasOnRejected(promise)){
+	          setTimeout(function(){
+	            if(!handledRejectionOrHasOnRejected(promise)){
+	              if(NODE){
+	                if(!process.emit('unhandledRejection', value, promise)){
+	                  // default node.js behavior
+	                }
+	              } else if(isFunction(console.error)){
+	                console.error('Unhandled promise rejection', value);
+	              }
+	            }
+	          }, 1e3);
+	        } else while(chain.length > i)!function(react){
+	          var cb = ok ? react.ok : react.fail
+	            , ret, then;
+	          try {
+	            if(cb){
+	              if(!ok)record.h = true;
+	              ret = cb === true ? value : cb(value);
+	              if(ret === react.P){
+	                react.rej(TypeError(PROMISE + '-chain cycle'));
+	              } else if(then = isThenable(ret)){
+	                then.call(ret, react.res, react.rej);
+	              } else react.res(ret);
+	            } else react.rej(value);
+	          } catch(err){
+	            react.rej(err);
+	          }
+	        }(chain[i++]);
+	        chain.length = 0;
+	      });
+	    }
+	    function resolve(value){
+	      var record = this
+	        , then, wrapper;
+	      if(record.d)return;
+	      record.d = true;
+	      record = record.r || record; // unwrap
+	      try {
+	        if(then = isThenable(value)){
+	          wrapper = {r: record, d: false}; // wrap
+	          then.call(value, ctx(resolve, wrapper, 1), ctx(reject, wrapper, 1));
+	        } else {
+	          record.v = value;
+	          record.s = 1;
+	          notify(record);
+	        }
+	      } catch(err){
+	        reject.call(wrapper || {r: record, d: false}, err); // wrap
+	      }
+	    }
+	    function reject(value){
+	      var record = this;
+	      if(record.d)return;
+	      record.d = true;
+	      record = record.r || record; // unwrap
+	      record.v = value;
+	      record.s = 2;
+	      notify(record, true);
+	    }
+	    function getConstructor(C){
+	      var S = assertObject(C)[SYMBOL_SPECIES];
+	      return S != undefined ? S : C;
+	    }
+	    // 25.4.3.1 Promise(executor)
+	    Promise = function(executor){
+	      assertFunction(executor);
+	      assertInstance(this, Promise, PROMISE);
+	      var record = {
+	        p: this,      // promise
+	        c: [],        // chain
+	        s: 0,         // state
+	        d: false,     // done
+	        v: undefined, // value
+	        h: false      // handled rejection
+	      };
+	      hidden(this, RECORD, record);
+	      try {
+	        executor(ctx(resolve, record, 1), ctx(reject, record, 1));
+	      } catch(err){
+	        reject.call(record, err);
+	      }
+	    }
+	    assignHidden(Promise[PROTOTYPE], {
+	      // 25.4.5.3 Promise.prototype.then(onFulfilled, onRejected)
+	      then: function(onFulfilled, onRejected){
+	        var S = assertObject(assertObject(this)[CONSTRUCTOR])[SYMBOL_SPECIES];
+	        var react = {
+	          ok:   isFunction(onFulfilled) ? onFulfilled : true,
+	          fail: isFunction(onRejected)  ? onRejected  : false
+	        } , P = react.P = new (S != undefined ? S : Promise)(function(resolve, reject){
+	          react.res = assertFunction(resolve);
+	          react.rej = assertFunction(reject);
+	        }), record = this[RECORD];
+	        record.c.push(react);
+	        record.s && notify(record);
+	        return P;
+	      },
+	      // 25.4.5.1 Promise.prototype.catch(onRejected)
+	      'catch': function(onRejected){
+	        return this.then(undefined, onRejected);
+	      }
+	    });
+	    assignHidden(Promise, {
+	      // 25.4.4.1 Promise.all(iterable)
+	      all: function(iterable){
+	        var Promise = getConstructor(this)
+	          , values  = [];
+	        return new Promise(function(resolve, reject){
+	          forOf(iterable, false, push, values);
+	          var remaining = values.length
+	            , results   = Array(remaining);
+	          if(remaining)forEach.call(values, function(promise, index){
+	            Promise.resolve(promise).then(function(value){
+	              results[index] = value;
+	              --remaining || resolve(results);
+	            }, reject);
+	          });
+	          else resolve(results);
+	        });
+	      },
+	      // 25.4.4.4 Promise.race(iterable)
+	      race: function(iterable){
+	        var Promise = getConstructor(this);
+	        return new Promise(function(resolve, reject){
+	          forOf(iterable, false, function(promise){
+	            Promise.resolve(promise).then(resolve, reject);
+	          });
+	        });
+	      },
+	      // 25.4.4.5 Promise.reject(r)
+	      reject: function(r){
+	        return new (getConstructor(this))(function(resolve, reject){
+	          reject(r);
+	        });
+	      },
+	      // 25.4.4.6 Promise.resolve(x)
+	      resolve: function(x){
+	        return isObject(x) && RECORD in x && getPrototypeOf(x) === this[PROTOTYPE]
+	          ? x : new (getConstructor(this))(function(resolve, reject){
+	            resolve(x);
+	          });
+	      }
+	    });
+	  }(nextTick || setImmediate, safeSymbol('record'));
+	  setToStringTag(Promise, PROMISE);
+	  setSpecies(Promise);
+	  $define(GLOBAL + FORCED * !isNative(Promise), {Promise: Promise});
+	}(global[PROMISE]);
+
+	/******************************************************************************
+	 * Module : es6.collections                                                   *
+	 ******************************************************************************/
+
+	// ECMAScript 6 collections shim
+	!function(){
+	  var UID   = safeSymbol('uid')
+	    , O1    = safeSymbol('O1')
+	    , WEAK  = safeSymbol('weak')
+	    , LEAK  = safeSymbol('leak')
+	    , LAST  = safeSymbol('last')
+	    , FIRST = safeSymbol('first')
+	    , SIZE  = DESC ? safeSymbol('size') : 'size'
+	    , uid   = 0
+	    , tmp   = {};
+	  
+	  function getCollection(C, NAME, methods, commonMethods, isMap, isWeak){
+	    var ADDER = isMap ? 'set' : 'add'
+	      , proto = C && C[PROTOTYPE]
+	      , O     = {};
+	    function initFromIterable(that, iterable){
+	      if(iterable != undefined)forOf(iterable, isMap, that[ADDER], that);
+	      return that;
+	    }
+	    function fixSVZ(key, chain){
+	      var method = proto[key];
+	      if(framework)proto[key] = function(a, b){
+	        var result = method.call(this, a === 0 ? 0 : a, b);
+	        return chain ? this : result;
+	      };
+	    }
+	    if(!isNative(C) || !(isWeak || (!BUGGY_ITERATORS && has(proto, FOR_EACH) && has(proto, 'entries')))){
+	      // create collection constructor
+	      C = isWeak
+	        ? function(iterable){
+	            assertInstance(this, C, NAME);
+	            set(this, UID, uid++);
+	            initFromIterable(this, iterable);
+	          }
+	        : function(iterable){
+	            var that = this;
+	            assertInstance(that, C, NAME);
+	            set(that, O1, create(null));
+	            set(that, SIZE, 0);
+	            set(that, LAST, undefined);
+	            set(that, FIRST, undefined);
+	            initFromIterable(that, iterable);
+	          };
+	      assignHidden(assignHidden(C[PROTOTYPE], methods), commonMethods);
+	      isWeak || !DESC || defineProperty(C[PROTOTYPE], 'size', {get: function(){
+	        return assertDefined(this[SIZE]);
+	      }});
+	    } else {
+	      var Native = C
+	        , inst   = new C
+	        , chain  = inst[ADDER](isWeak ? {} : -0, 1)
+	        , buggyZero;
+	      // wrap to init collections from iterable
+	      if(checkDangerIterClosing(function(O){ new C(O) })){
+	        C = function(iterable){
+	          assertInstance(this, C, NAME);
+	          return initFromIterable(new Native, iterable);
+	        }
+	        C[PROTOTYPE] = proto;
+	        if(framework)proto[CONSTRUCTOR] = C;
+	      }
+	      isWeak || inst[FOR_EACH](function(val, key){
+	        buggyZero = 1 / key === -Infinity;
+	      });
+	      // fix converting -0 key to +0
+	      if(buggyZero){
+	        fixSVZ('delete');
+	        fixSVZ('has');
+	        isMap && fixSVZ('get');
+	      }
+	      // + fix .add & .set for chaining
+	      if(buggyZero || chain !== inst)fixSVZ(ADDER, true);
+	    }
+	    setToStringTag(C, NAME);
+	    setSpecies(C);
+	    
+	    O[NAME] = C;
+	    $define(GLOBAL + WRAP + FORCED * !isNative(C), O);
+	    
+	    // add .keys, .values, .entries, [@@iterator]
+	    // 23.1.3.4, 23.1.3.8, 23.1.3.11, 23.1.3.12, 23.2.3.5, 23.2.3.8, 23.2.3.10, 23.2.3.11
+	    isWeak || defineStdIterators(C, NAME, function(iterated, kind){
+	      set(this, ITER, {o: iterated, k: kind});
+	    }, function(){
+	      var iter  = this[ITER]
+	        , kind  = iter.k
+	        , entry = iter.l;
+	      // revert to the last existing entry
+	      while(entry && entry.r)entry = entry.p;
+	      // get next entry
+	      if(!iter.o || !(iter.l = entry = entry ? entry.n : iter.o[FIRST])){
+	        // or finish the iteration
+	        iter.o = undefined;
+	        return iterResult(1);
+	      }
+	      // return step by kind
+	      if(kind == KEY)  return iterResult(0, entry.k);
+	      if(kind == VALUE)return iterResult(0, entry.v);
+	                       return iterResult(0, [entry.k, entry.v]);   
+	    }, isMap ? KEY+VALUE : VALUE, !isMap);
+	    
+	    return C;
+	  }
+	  
+	  function fastKey(it, create){
+	    // return primitive with prefix
+	    if(!isObject(it))return (typeof it == 'string' ? 'S' : 'P') + it;
+	    // can't set id to frozen object
+	    if(isFrozen(it))return 'F';
+	    if(!has(it, UID)){
+	      // not necessary to add id
+	      if(!create)return 'E';
+	      // add missing object id
+	      hidden(it, UID, ++uid);
+	    // return object id with prefix
+	    } return 'O' + it[UID];
+	  }
+	  function getEntry(that, key){
+	    // fast case
+	    var index = fastKey(key), entry;
+	    if(index != 'F')return that[O1][index];
+	    // frozen object case
+	    for(entry = that[FIRST]; entry; entry = entry.n){
+	      if(entry.k == key)return entry;
+	    }
+	  }
+	  function def(that, key, value){
+	    var entry = getEntry(that, key)
+	      , prev, index;
+	    // change existing entry
+	    if(entry)entry.v = value;
+	    // create new entry
+	    else {
+	      that[LAST] = entry = {
+	        i: index = fastKey(key, true), // <- index
+	        k: key,                        // <- key
+	        v: value,                      // <- value
+	        p: prev = that[LAST],          // <- previous entry
+	        n: undefined,                  // <- next entry
+	        r: false                       // <- removed
+	      };
+	      if(!that[FIRST])that[FIRST] = entry;
+	      if(prev)prev.n = entry;
+	      that[SIZE]++;
+	      // add to index
+	      if(index != 'F')that[O1][index] = entry;
+	    } return that;
+	  }
+
+	  var collectionMethods = {
+	    // 23.1.3.1 Map.prototype.clear()
+	    // 23.2.3.2 Set.prototype.clear()
+	    clear: function(){
+	      for(var that = this, data = that[O1], entry = that[FIRST]; entry; entry = entry.n){
+	        entry.r = true;
+	        if(entry.p)entry.p = entry.p.n = undefined;
+	        delete data[entry.i];
+	      }
+	      that[FIRST] = that[LAST] = undefined;
+	      that[SIZE] = 0;
+	    },
+	    // 23.1.3.3 Map.prototype.delete(key)
+	    // 23.2.3.4 Set.prototype.delete(value)
+	    'delete': function(key){
+	      var that  = this
+	        , entry = getEntry(that, key);
+	      if(entry){
+	        var next = entry.n
+	          , prev = entry.p;
+	        delete that[O1][entry.i];
+	        entry.r = true;
+	        if(prev)prev.n = next;
+	        if(next)next.p = prev;
+	        if(that[FIRST] == entry)that[FIRST] = next;
+	        if(that[LAST] == entry)that[LAST] = prev;
+	        that[SIZE]--;
+	      } return !!entry;
+	    },
+	    // 23.2.3.6 Set.prototype.forEach(callbackfn, thisArg = undefined)
+	    // 23.1.3.5 Map.prototype.forEach(callbackfn, thisArg = undefined)
+	    forEach: function(callbackfn /*, that = undefined */){
+	      var f = ctx(callbackfn, arguments[1], 3)
+	        , entry;
+	      while(entry = entry ? entry.n : this[FIRST]){
+	        f(entry.v, entry.k, this);
+	        // revert to the last existing entry
+	        while(entry && entry.r)entry = entry.p;
+	      }
+	    },
+	    // 23.1.3.7 Map.prototype.has(key)
+	    // 23.2.3.7 Set.prototype.has(value)
+	    has: function(key){
+	      return !!getEntry(this, key);
+	    }
+	  }
+	  
+	  // 23.1 Map Objects
+	  Map = getCollection(Map, MAP, {
+	    // 23.1.3.6 Map.prototype.get(key)
+	    get: function(key){
+	      var entry = getEntry(this, key);
+	      return entry && entry.v;
+	    },
+	    // 23.1.3.9 Map.prototype.set(key, value)
+	    set: function(key, value){
+	      return def(this, key === 0 ? 0 : key, value);
+	    }
+	  }, collectionMethods, true);
+	  
+	  // 23.2 Set Objects
+	  Set = getCollection(Set, SET, {
+	    // 23.2.3.1 Set.prototype.add(value)
+	    add: function(value){
+	      return def(this, value = value === 0 ? 0 : value, value);
+	    }
+	  }, collectionMethods);
+	  
+	  function defWeak(that, key, value){
+	    if(isFrozen(assertObject(key)))leakStore(that).set(key, value);
+	    else {
+	      has(key, WEAK) || hidden(key, WEAK, {});
+	      key[WEAK][that[UID]] = value;
+	    } return that;
+	  }
+	  function leakStore(that){
+	    return that[LEAK] || hidden(that, LEAK, new Map)[LEAK];
+	  }
+	  
+	  var weakMethods = {
+	    // 23.3.3.2 WeakMap.prototype.delete(key)
+	    // 23.4.3.3 WeakSet.prototype.delete(value)
+	    'delete': function(key){
+	      if(!isObject(key))return false;
+	      if(isFrozen(key))return leakStore(this)['delete'](key);
+	      return has(key, WEAK) && has(key[WEAK], this[UID]) && delete key[WEAK][this[UID]];
+	    },
+	    // 23.3.3.4 WeakMap.prototype.has(key)
+	    // 23.4.3.4 WeakSet.prototype.has(value)
+	    has: function(key){
+	      if(!isObject(key))return false;
+	      if(isFrozen(key))return leakStore(this).has(key);
+	      return has(key, WEAK) && has(key[WEAK], this[UID]);
+	    }
+	  };
+	  
+	  // 23.3 WeakMap Objects
+	  WeakMap = getCollection(WeakMap, WEAKMAP, {
+	    // 23.3.3.3 WeakMap.prototype.get(key)
+	    get: function(key){
+	      if(isObject(key)){
+	        if(isFrozen(key))return leakStore(this).get(key);
+	        if(has(key, WEAK))return key[WEAK][this[UID]];
+	      }
+	    },
+	    // 23.3.3.5 WeakMap.prototype.set(key, value)
+	    set: function(key, value){
+	      return defWeak(this, key, value);
+	    }
+	  }, weakMethods, true, true);
+	  
+	  // IE11 WeakMap frozen keys fix
+	  if(framework && new WeakMap().set(Object.freeze(tmp), 7).get(tmp) != 7){
+	    forEach.call(array('delete,has,get,set'), function(key){
+	      var method = WeakMap[PROTOTYPE][key];
+	      WeakMap[PROTOTYPE][key] = function(a, b){
+	        // store frozen objects on leaky map
+	        if(isObject(a) && isFrozen(a)){
+	          var result = leakStore(this)[key](a, b);
+	          return key == 'set' ? this : result;
+	        // store all the rest on native weakmap
+	        } return method.call(this, a, b);
+	      };
+	    });
+	  }
+	  
+	  // 23.4 WeakSet Objects
+	  WeakSet = getCollection(WeakSet, WEAKSET, {
+	    // 23.4.3.1 WeakSet.prototype.add(value)
+	    add: function(value){
+	      return defWeak(this, value, true);
+	    }
+	  }, weakMethods, false, true);
+	}();
+
+	/******************************************************************************
+	 * Module : es6.reflect                                                       *
+	 ******************************************************************************/
+
+	!function(){
+	  function Enumerate(iterated){
+	    var keys = [], key;
+	    for(key in iterated)keys.push(key);
+	    set(this, ITER, {o: iterated, a: keys, i: 0});
+	  }
+	  createIterator(Enumerate, OBJECT, function(){
+	    var iter = this[ITER]
+	      , keys = iter.a
+	      , key;
+	    do {
+	      if(iter.i >= keys.length)return iterResult(1);
+	    } while(!((key = keys[iter.i++]) in iter.o));
+	    return iterResult(0, key);
+	  });
+	  
+	  function wrap(fn){
+	    return function(it){
+	      assertObject(it);
+	      try {
+	        return fn.apply(undefined, arguments), true;
+	      } catch(e){
+	        return false;
+	      }
+	    }
+	  }
+	  
+	  function reflectGet(target, propertyKey/*, receiver*/){
+	    var receiver = arguments.length < 3 ? target : arguments[2]
+	      , desc = getOwnDescriptor(assertObject(target), propertyKey), proto;
+	    if(desc)return has(desc, 'value')
+	      ? desc.value
+	      : desc.get === undefined
+	        ? undefined
+	        : desc.get.call(receiver);
+	    return isObject(proto = getPrototypeOf(target))
+	      ? reflectGet(proto, propertyKey, receiver)
+	      : undefined;
+	  }
+	  function reflectSet(target, propertyKey, V/*, receiver*/){
+	    var receiver = arguments.length < 4 ? target : arguments[3]
+	      , ownDesc  = getOwnDescriptor(assertObject(target), propertyKey)
+	      , existingDescriptor, proto;
+	    if(!ownDesc){
+	      if(isObject(proto = getPrototypeOf(target))){
+	        return reflectSet(proto, propertyKey, V, receiver);
+	      }
+	      ownDesc = descriptor(0);
+	    }
+	    if(has(ownDesc, 'value')){
+	      if(ownDesc.writable === false || !isObject(receiver))return false;
+	      existingDescriptor = getOwnDescriptor(receiver, propertyKey) || descriptor(0);
+	      existingDescriptor.value = V;
+	      return defineProperty(receiver, propertyKey, existingDescriptor), true;
+	    }
+	    return ownDesc.set === undefined
+	      ? false
+	      : (ownDesc.set.call(receiver, V), true);
+	  }
+	  var isExtensible = Object.isExtensible || returnIt;
+	  
+	  var reflect = {
+	    // 26.1.1 Reflect.apply(target, thisArgument, argumentsList)
+	    apply: ctx(call, apply, 3),
+	    // 26.1.2 Reflect.construct(target, argumentsList [, newTarget])
+	    construct: function(target, argumentsList /*, newTarget*/){
+	      var proto    = assertFunction(arguments.length < 3 ? target : arguments[2])[PROTOTYPE]
+	        , instance = create(isObject(proto) ? proto : ObjectProto)
+	        , result   = apply.call(target, instance, argumentsList);
+	      return isObject(result) ? result : instance;
+	    },
+	    // 26.1.3 Reflect.defineProperty(target, propertyKey, attributes)
+	    defineProperty: wrap(defineProperty),
+	    // 26.1.4 Reflect.deleteProperty(target, propertyKey)
+	    deleteProperty: function(target, propertyKey){
+	      var desc = getOwnDescriptor(assertObject(target), propertyKey);
+	      return desc && !desc.configurable ? false : delete target[propertyKey];
+	    },
+	    // 26.1.5 Reflect.enumerate(target)
+	    enumerate: function(target){
+	      return new Enumerate(assertObject(target));
+	    },
+	    // 26.1.6 Reflect.get(target, propertyKey [, receiver])
+	    get: reflectGet,
+	    // 26.1.7 Reflect.getOwnPropertyDescriptor(target, propertyKey)
+	    getOwnPropertyDescriptor: function(target, propertyKey){
+	      return getOwnDescriptor(assertObject(target), propertyKey);
+	    },
+	    // 26.1.8 Reflect.getPrototypeOf(target)
+	    getPrototypeOf: function(target){
+	      return getPrototypeOf(assertObject(target));
+	    },
+	    // 26.1.9 Reflect.has(target, propertyKey)
+	    has: function(target, propertyKey){
+	      return propertyKey in target;
+	    },
+	    // 26.1.10 Reflect.isExtensible(target)
+	    isExtensible: function(target){
+	      return !!isExtensible(assertObject(target));
+	    },
+	    // 26.1.11 Reflect.ownKeys(target)
+	    ownKeys: ownKeys,
+	    // 26.1.12 Reflect.preventExtensions(target)
+	    preventExtensions: wrap(Object.preventExtensions || returnIt),
+	    // 26.1.13 Reflect.set(target, propertyKey, V [, receiver])
+	    set: reflectSet
+	  }
+	  // 26.1.14 Reflect.setPrototypeOf(target, proto)
+	  if(setPrototypeOf)reflect.setPrototypeOf = function(target, proto){
+	    return setPrototypeOf(assertObject(target), proto), true;
+	  };
+	  
+	  $define(GLOBAL, {Reflect: {}});
+	  $define(STATIC, 'Reflect', reflect);
+	}();
+
+	/******************************************************************************
+	 * Module : es7.proposals                                                     *
+	 ******************************************************************************/
+
+	!function(){
+	  $define(PROTO, ARRAY, {
+	    // https://github.com/domenic/Array.prototype.includes
+	    includes: createArrayContains(true)
+	  });
+	  $define(PROTO, STRING, {
+	    // https://github.com/mathiasbynens/String.prototype.at
+	    at: createPointAt(true)
+	  });
+	  
+	  function createObjectToArray(isEntries){
+	    return function(object){
+	      var O      = toObject(object)
+	        , keys   = getKeys(object)
+	        , length = keys.length
+	        , i      = 0
+	        , result = Array(length)
+	        , key;
+	      if(isEntries)while(length > i)result[i] = [key = keys[i++], O[key]];
+	      else while(length > i)result[i] = O[keys[i++]];
+	      return result;
+	    }
+	  }
+	  $define(STATIC, OBJECT, {
+	    // https://gist.github.com/WebReflection/9353781
+	    getOwnPropertyDescriptors: function(object){
+	      var O      = toObject(object)
+	        , result = {};
+	      forEach.call(ownKeys(O), function(key){
+	        defineProperty(result, key, descriptor(0, getOwnDescriptor(O, key)));
+	      });
+	      return result;
+	    },
+	    // https://github.com/rwaldron/tc39-notes/blob/master/es6/2014-04/apr-9.md#51-objectentries-objectvalues
+	    values:  createObjectToArray(false),
+	    entries: createObjectToArray(true)
+	  });
+	  $define(STATIC, REGEXP, {
+	    // https://gist.github.com/kangax/9698100
+	    escape: createReplacer(/([\\\-[\]{}()*+?.,^$|])/g, '\\$1', true)
+	  });
+	}();
+
+	/******************************************************************************
+	 * Module : es7.abstract-refs                                                 *
+	 ******************************************************************************/
+
+	// https://github.com/zenparsing/es-abstract-refs
+	!function(REFERENCE){
+	  REFERENCE_GET = getWellKnownSymbol(REFERENCE+'Get', true);
+	  var REFERENCE_SET = getWellKnownSymbol(REFERENCE+SET, true)
+	    , REFERENCE_DELETE = getWellKnownSymbol(REFERENCE+'Delete', true);
+	  
+	  $define(STATIC, SYMBOL, {
+	    referenceGet: REFERENCE_GET,
+	    referenceSet: REFERENCE_SET,
+	    referenceDelete: REFERENCE_DELETE
+	  });
+	  
+	  hidden(FunctionProto, REFERENCE_GET, returnThis);
+	  
+	  function setMapMethods(Constructor){
+	    if(Constructor){
+	      var MapProto = Constructor[PROTOTYPE];
+	      hidden(MapProto, REFERENCE_GET, MapProto.get);
+	      hidden(MapProto, REFERENCE_SET, MapProto.set);
+	      hidden(MapProto, REFERENCE_DELETE, MapProto['delete']);
+	    }
+	  }
+	  setMapMethods(Map);
+	  setMapMethods(WeakMap);
+	}('reference');
+
+	/******************************************************************************
+	 * Module : js.array.statics                                                  *
+	 ******************************************************************************/
+
+	// JavaScript 1.6 / Strawman array statics shim
+	!function(arrayStatics){
+	  function setArrayStatics(keys, length){
+	    forEach.call(array(keys), function(key){
+	      if(key in ArrayProto)arrayStatics[key] = ctx(call, ArrayProto[key], length);
+	    });
+	  }
+	  setArrayStatics('pop,reverse,shift,keys,values,entries', 1);
+	  setArrayStatics('indexOf,every,some,forEach,map,filter,find,findIndex,includes', 3);
+	  setArrayStatics('join,slice,concat,push,splice,unshift,sort,lastIndexOf,' +
+	                  'reduce,reduceRight,copyWithin,fill,turn');
+	  $define(STATIC, ARRAY, arrayStatics);
+	}({});
+
+	/******************************************************************************
+	 * Module : web.dom.itarable                                                  *
+	 ******************************************************************************/
+
+	!function(NodeList){
+	  if(framework && NodeList && !(SYMBOL_ITERATOR in NodeList[PROTOTYPE])){
+	    hidden(NodeList[PROTOTYPE], SYMBOL_ITERATOR, Iterators[ARRAY]);
+	  }
+	  Iterators.NodeList = Iterators[ARRAY];
+	}(global.NodeList);
+	}(typeof self != 'undefined' && self.Math === Math ? self : Function('return this')(), true);
+
+/***/ },
+/* 35 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(global) {/**
+	 * Copyright (c) 2014, Facebook, Inc.
+	 * All rights reserved.
+	 *
+	 * This source code is licensed under the BSD-style license found in the
+	 * https://raw.github.com/facebook/regenerator/master/LICENSE file. An
+	 * additional grant of patent rights can be found in the PATENTS file in
+	 * the same directory.
+	 */
+
+	!(function(global) {
+	  "use strict";
+
+	  var hasOwn = Object.prototype.hasOwnProperty;
+	  var undefined; // More compressible than void 0.
+	  var iteratorSymbol =
+	    typeof Symbol === "function" && Symbol.iterator || "@@iterator";
+
+	  var inModule = typeof module === "object";
+	  var runtime = global.regeneratorRuntime;
+	  if (runtime) {
+	    if (inModule) {
+	      // If regeneratorRuntime is defined globally and we're in a module,
+	      // make the exports object identical to regeneratorRuntime.
+	      module.exports = runtime;
+	    }
+	    // Don't bother evaluating the rest of this file if the runtime was
+	    // already defined globally.
+	    return;
+	  }
+
+	  // Define the runtime globally (as expected by generated code) as either
+	  // module.exports (if we're in a module) or a new, empty object.
+	  runtime = global.regeneratorRuntime = inModule ? module.exports : {};
+
+	  function wrap(innerFn, outerFn, self, tryLocsList) {
+	    return new Generator(innerFn, outerFn, self || null, tryLocsList || []);
+	  }
+	  runtime.wrap = wrap;
+
+	  // Try/catch helper to minimize deoptimizations. Returns a completion
+	  // record like context.tryEntries[i].completion. This interface could
+	  // have been (and was previously) designed to take a closure to be
+	  // invoked without arguments, but in all the cases we care about we
+	  // already have an existing method we want to call, so there's no need
+	  // to create a new function object. We can even get away with assuming
+	  // the method takes exactly one argument, since that happens to be true
+	  // in every case, so we don't have to touch the arguments object. The
+	  // only additional allocation required is the completion record, which
+	  // has a stable shape and so hopefully should be cheap to allocate.
+	  function tryCatch(fn, obj, arg) {
+	    try {
+	      return { type: "normal", arg: fn.call(obj, arg) };
+	    } catch (err) {
+	      return { type: "throw", arg: err };
+	    }
+	  }
+
+	  var GenStateSuspendedStart = "suspendedStart";
+	  var GenStateSuspendedYield = "suspendedYield";
+	  var GenStateExecuting = "executing";
+	  var GenStateCompleted = "completed";
+
+	  // Returning this object from the innerFn has the same effect as
+	  // breaking out of the dispatch switch statement.
+	  var ContinueSentinel = {};
+
+	  // Dummy constructor functions that we use as the .constructor and
+	  // .constructor.prototype properties for functions that return Generator
+	  // objects. For full spec compliance, you may wish to configure your
+	  // minifier not to mangle the names of these two functions.
+	  function GeneratorFunction() {}
+	  function GeneratorFunctionPrototype() {}
+
+	  var Gp = GeneratorFunctionPrototype.prototype = Generator.prototype;
+	  GeneratorFunction.prototype = Gp.constructor = GeneratorFunctionPrototype;
+	  GeneratorFunctionPrototype.constructor = GeneratorFunction;
+	  GeneratorFunction.displayName = "GeneratorFunction";
+
+	  runtime.isGeneratorFunction = function(genFun) {
+	    var ctor = typeof genFun === "function" && genFun.constructor;
+	    return ctor
+	      ? ctor === GeneratorFunction ||
+	        // For the native GeneratorFunction constructor, the best we can
+	        // do is to check its .name property.
+	        (ctor.displayName || ctor.name) === "GeneratorFunction"
+	      : false;
+	  };
+
+	  runtime.mark = function(genFun) {
+	    genFun.__proto__ = GeneratorFunctionPrototype;
+	    genFun.prototype = Object.create(Gp);
+	    return genFun;
+	  };
+
+	  runtime.async = function(innerFn, outerFn, self, tryLocsList) {
+	    return new Promise(function(resolve, reject) {
+	      var generator = wrap(innerFn, outerFn, self, tryLocsList);
+	      var callNext = step.bind(generator.next);
+	      var callThrow = step.bind(generator["throw"]);
+
+	      function step(arg) {
+	        var record = tryCatch(this, null, arg);
+	        if (record.type === "throw") {
+	          reject(record.arg);
+	          return;
+	        }
+
+	        var info = record.arg;
+	        if (info.done) {
+	          resolve(info.value);
+	        } else {
+	          Promise.resolve(info.value).then(callNext, callThrow);
+	        }
+	      }
+
+	      callNext();
+	    });
+	  };
+
+	  function Generator(innerFn, outerFn, self, tryLocsList) {
+	    var generator = outerFn ? Object.create(outerFn.prototype) : this;
+	    var context = new Context(tryLocsList);
+	    var state = GenStateSuspendedStart;
+
+	    function invoke(method, arg) {
+	      if (state === GenStateExecuting) {
+	        throw new Error("Generator is already running");
+	      }
+
+	      if (state === GenStateCompleted) {
+	        // Be forgiving, per 25.3.3.3.3 of the spec:
+	        // https://people.mozilla.org/~jorendorff/es6-draft.html#sec-generatorresume
+	        return doneResult();
+	      }
+
+	      while (true) {
+	        var delegate = context.delegate;
+	        if (delegate) {
+	          var record = tryCatch(
+	            delegate.iterator[method],
+	            delegate.iterator,
+	            arg
+	          );
+
+	          if (record.type === "throw") {
+	            context.delegate = null;
+
+	            // Like returning generator.throw(uncaught), but without the
+	            // overhead of an extra function call.
+	            method = "throw";
+	            arg = record.arg;
+
+	            continue;
+	          }
+
+	          // Delegate generator ran and handled its own exceptions so
+	          // regardless of what the method was, we continue as if it is
+	          // "next" with an undefined arg.
+	          method = "next";
+	          arg = undefined;
+
+	          var info = record.arg;
+	          if (info.done) {
+	            context[delegate.resultName] = info.value;
+	            context.next = delegate.nextLoc;
+	          } else {
+	            state = GenStateSuspendedYield;
+	            return info;
+	          }
+
+	          context.delegate = null;
+	        }
+
+	        if (method === "next") {
+	          if (state === GenStateSuspendedStart &&
+	              typeof arg !== "undefined") {
+	            // https://people.mozilla.org/~jorendorff/es6-draft.html#sec-generatorresume
+	            throw new TypeError(
+	              "attempt to send " + JSON.stringify(arg) + " to newborn generator"
+	            );
+	          }
+
+	          if (state === GenStateSuspendedYield) {
+	            context.sent = arg;
+	          } else {
+	            delete context.sent;
+	          }
+
+	        } else if (method === "throw") {
+	          if (state === GenStateSuspendedStart) {
+	            state = GenStateCompleted;
+	            throw arg;
+	          }
+
+	          if (context.dispatchException(arg)) {
+	            // If the dispatched exception was caught by a catch block,
+	            // then let that catch block handle the exception normally.
+	            method = "next";
+	            arg = undefined;
+	          }
+
+	        } else if (method === "return") {
+	          context.abrupt("return", arg);
+	        }
+
+	        state = GenStateExecuting;
+
+	        var record = tryCatch(innerFn, self, context);
+	        if (record.type === "normal") {
+	          // If an exception is thrown from innerFn, we leave state ===
+	          // GenStateExecuting and loop back for another invocation.
+	          state = context.done
+	            ? GenStateCompleted
+	            : GenStateSuspendedYield;
+
+	          var info = {
+	            value: record.arg,
+	            done: context.done
+	          };
+
+	          if (record.arg === ContinueSentinel) {
+	            if (context.delegate && method === "next") {
+	              // Deliberately forget the last sent value so that we don't
+	              // accidentally pass it on to the delegate.
+	              arg = undefined;
+	            }
+	          } else {
+	            return info;
+	          }
+
+	        } else if (record.type === "throw") {
+	          state = GenStateCompleted;
+
+	          if (method === "next") {
+	            context.dispatchException(record.arg);
+	          } else {
+	            arg = record.arg;
+	          }
+	        }
+	      }
+	    }
+
+	    generator.next = invoke.bind(generator, "next");
+	    generator["throw"] = invoke.bind(generator, "throw");
+	    generator["return"] = invoke.bind(generator, "return");
+
+	    return generator;
+	  }
+
+	  Gp[iteratorSymbol] = function() {
+	    return this;
+	  };
+
+	  Gp.toString = function() {
+	    return "[object Generator]";
+	  };
+
+	  function pushTryEntry(locs) {
+	    var entry = { tryLoc: locs[0] };
+
+	    if (1 in locs) {
+	      entry.catchLoc = locs[1];
+	    }
+
+	    if (2 in locs) {
+	      entry.finallyLoc = locs[2];
+	      entry.afterLoc = locs[3];
+	    }
+
+	    this.tryEntries.push(entry);
+	  }
+
+	  function resetTryEntry(entry) {
+	    var record = entry.completion || {};
+	    record.type = "normal";
+	    delete record.arg;
+	    entry.completion = record;
+	  }
+
+	  function Context(tryLocsList) {
+	    // The root entry object (effectively a try statement without a catch
+	    // or a finally block) gives us a place to store values thrown from
+	    // locations where there is no enclosing try statement.
+	    this.tryEntries = [{ tryLoc: "root" }];
+	    tryLocsList.forEach(pushTryEntry, this);
+	    this.reset();
+	  }
+
+	  runtime.keys = function(object) {
+	    var keys = [];
+	    for (var key in object) {
+	      keys.push(key);
+	    }
+	    keys.reverse();
+
+	    // Rather than returning an object with a next method, we keep
+	    // things simple and return the next function itself.
+	    return function next() {
+	      while (keys.length) {
+	        var key = keys.pop();
+	        if (key in object) {
+	          next.value = key;
+	          next.done = false;
+	          return next;
+	        }
+	      }
+
+	      // To avoid creating an additional object, we just hang the .value
+	      // and .done properties off the next function object itself. This
+	      // also ensures that the minifier will not anonymize the function.
+	      next.done = true;
+	      return next;
+	    };
+	  };
+
+	  function values(iterable) {
+	    if (iterable) {
+	      var iteratorMethod = iterable[iteratorSymbol];
+	      if (iteratorMethod) {
+	        return iteratorMethod.call(iterable);
+	      }
+
+	      if (typeof iterable.next === "function") {
+	        return iterable;
+	      }
+
+	      if (!isNaN(iterable.length)) {
+	        var i = -1, next = function next() {
+	          while (++i < iterable.length) {
+	            if (hasOwn.call(iterable, i)) {
+	              next.value = iterable[i];
+	              next.done = false;
+	              return next;
+	            }
+	          }
+
+	          next.value = undefined;
+	          next.done = true;
+
+	          return next;
+	        };
+
+	        return next.next = next;
+	      }
+	    }
+
+	    // Return an iterator with no values.
+	    return { next: doneResult };
+	  }
+	  runtime.values = values;
+
+	  function doneResult() {
+	    return { value: undefined, done: true };
+	  }
+
+	  Context.prototype = {
+	    constructor: Context,
+
+	    reset: function() {
+	      this.prev = 0;
+	      this.next = 0;
+	      this.sent = undefined;
+	      this.done = false;
+	      this.delegate = null;
+
+	      this.tryEntries.forEach(resetTryEntry);
+
+	      // Pre-initialize at least 20 temporary variables to enable hidden
+	      // class optimizations for simple generators.
+	      for (var tempIndex = 0, tempName;
+	           hasOwn.call(this, tempName = "t" + tempIndex) || tempIndex < 20;
+	           ++tempIndex) {
+	        this[tempName] = null;
+	      }
+	    },
+
+	    stop: function() {
+	      this.done = true;
+
+	      var rootEntry = this.tryEntries[0];
+	      var rootRecord = rootEntry.completion;
+	      if (rootRecord.type === "throw") {
+	        throw rootRecord.arg;
+	      }
+
+	      return this.rval;
+	    },
+
+	    dispatchException: function(exception) {
+	      if (this.done) {
+	        throw exception;
+	      }
+
+	      var context = this;
+	      function handle(loc, caught) {
+	        record.type = "throw";
+	        record.arg = exception;
+	        context.next = loc;
+	        return !!caught;
+	      }
+
+	      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+	        var entry = this.tryEntries[i];
+	        var record = entry.completion;
+
+	        if (entry.tryLoc === "root") {
+	          // Exception thrown outside of any try block that could handle
+	          // it, so set the completion value of the entire function to
+	          // throw the exception.
+	          return handle("end");
+	        }
+
+	        if (entry.tryLoc <= this.prev) {
+	          var hasCatch = hasOwn.call(entry, "catchLoc");
+	          var hasFinally = hasOwn.call(entry, "finallyLoc");
+
+	          if (hasCatch && hasFinally) {
+	            if (this.prev < entry.catchLoc) {
+	              return handle(entry.catchLoc, true);
+	            } else if (this.prev < entry.finallyLoc) {
+	              return handle(entry.finallyLoc);
+	            }
+
+	          } else if (hasCatch) {
+	            if (this.prev < entry.catchLoc) {
+	              return handle(entry.catchLoc, true);
+	            }
+
+	          } else if (hasFinally) {
+	            if (this.prev < entry.finallyLoc) {
+	              return handle(entry.finallyLoc);
+	            }
+
+	          } else {
+	            throw new Error("try statement without catch or finally");
+	          }
+	        }
+	      }
+	    },
+
+	    abrupt: function(type, arg) {
+	      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+	        var entry = this.tryEntries[i];
+	        if (entry.tryLoc <= this.prev &&
+	            hasOwn.call(entry, "finallyLoc") &&
+	            this.prev < entry.finallyLoc) {
+	          var finallyEntry = entry;
+	          break;
+	        }
+	      }
+
+	      if (finallyEntry &&
+	          (type === "break" ||
+	           type === "continue") &&
+	          finallyEntry.tryLoc <= arg &&
+	          arg < finallyEntry.finallyLoc) {
+	        // Ignore the finally entry if control is not jumping to a
+	        // location outside the try/catch block.
+	        finallyEntry = null;
+	      }
+
+	      var record = finallyEntry ? finallyEntry.completion : {};
+	      record.type = type;
+	      record.arg = arg;
+
+	      if (finallyEntry) {
+	        this.next = finallyEntry.finallyLoc;
+	      } else {
+	        this.complete(record);
+	      }
+
+	      return ContinueSentinel;
+	    },
+
+	    complete: function(record, afterLoc) {
+	      if (record.type === "throw") {
+	        throw record.arg;
+	      }
+
+	      if (record.type === "break" ||
+	          record.type === "continue") {
+	        this.next = record.arg;
+	      } else if (record.type === "return") {
+	        this.rval = record.arg;
+	        this.next = "end";
+	      } else if (record.type === "normal" && afterLoc) {
+	        this.next = afterLoc;
+	      }
+
+	      return ContinueSentinel;
+	    },
+
+	    finish: function(finallyLoc) {
+	      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+	        var entry = this.tryEntries[i];
+	        if (entry.finallyLoc === finallyLoc) {
+	          return this.complete(entry.completion, entry.afterLoc);
+	        }
+	      }
+	    },
+
+	    "catch": function(tryLoc) {
+	      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+	        var entry = this.tryEntries[i];
+	        if (entry.tryLoc === tryLoc) {
+	          var record = entry.completion;
+	          if (record.type === "throw") {
+	            var thrown = record.arg;
+	            resetTryEntry(entry);
+	          }
+	          return thrown;
+	        }
+	      }
+
+	      // The context.catch method must only be called with a location
+	      // argument that corresponds to a known catch block.
+	      throw new Error("illegal catch attempt");
+	    },
+
+	    delegateYield: function(iterable, resultName, nextLoc) {
+	      this.delegate = {
+	        iterator: values(iterable),
+	        resultName: resultName,
+	        nextLoc: nextLoc
+	      };
+
+	      return ContinueSentinel;
+	    }
+	  };
+	})(
+	  // Among the various tricks for obtaining a reference to the global
+	  // object, this seems to be the most reliable technique that does not
+	  // use indirect eval (which violates Content Security Policy).
+	  typeof global === "object" ? global :
+	  typeof window === "object" ? window : this
+	);
+
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
+
+/***/ },
+/* 36 */
+/***/ function(module, exports, __webpack_require__) {
+
 	/* WEBPACK VAR INJECTION */(function(Buffer) {(function(nacl) {
 	'use strict';
 
@@ -21451,2533 +24218,6 @@ var StellarLib =
 	})(typeof module !== 'undefined' && module.exports ? module.exports : (window.nacl = window.nacl || {}));
 
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(20).Buffer))
-
-/***/ },
-/* 35 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * Core.js 0.6.1
-	 * https://github.com/zloirock/core-js
-	 * License: http://rock.mit-license.org
-	 * © 2015 Denis Pushkarev
-	 */
-	!function(global, framework, undefined){
-	'use strict';
-
-	/******************************************************************************
-	 * Module : common                                                            *
-	 ******************************************************************************/
-
-	  // Shortcuts for [[Class]] & property names
-	var OBJECT          = 'Object'
-	  , FUNCTION        = 'Function'
-	  , ARRAY           = 'Array'
-	  , STRING          = 'String'
-	  , NUMBER          = 'Number'
-	  , REGEXP          = 'RegExp'
-	  , DATE            = 'Date'
-	  , MAP             = 'Map'
-	  , SET             = 'Set'
-	  , WEAKMAP         = 'WeakMap'
-	  , WEAKSET         = 'WeakSet'
-	  , SYMBOL          = 'Symbol'
-	  , PROMISE         = 'Promise'
-	  , MATH            = 'Math'
-	  , ARGUMENTS       = 'Arguments'
-	  , PROTOTYPE       = 'prototype'
-	  , CONSTRUCTOR     = 'constructor'
-	  , TO_STRING       = 'toString'
-	  , TO_STRING_TAG   = TO_STRING + 'Tag'
-	  , TO_LOCALE       = 'toLocaleString'
-	  , HAS_OWN         = 'hasOwnProperty'
-	  , FOR_EACH        = 'forEach'
-	  , ITERATOR        = 'iterator'
-	  , FF_ITERATOR     = '@@' + ITERATOR
-	  , PROCESS         = 'process'
-	  , CREATE_ELEMENT  = 'createElement'
-	  // Aliases global objects and prototypes
-	  , Function        = global[FUNCTION]
-	  , Object          = global[OBJECT]
-	  , Array           = global[ARRAY]
-	  , String          = global[STRING]
-	  , Number          = global[NUMBER]
-	  , RegExp          = global[REGEXP]
-	  , Date            = global[DATE]
-	  , Map             = global[MAP]
-	  , Set             = global[SET]
-	  , WeakMap         = global[WEAKMAP]
-	  , WeakSet         = global[WEAKSET]
-	  , Symbol          = global[SYMBOL]
-	  , Math            = global[MATH]
-	  , TypeError       = global.TypeError
-	  , RangeError      = global.RangeError
-	  , setTimeout      = global.setTimeout
-	  , setImmediate    = global.setImmediate
-	  , clearImmediate  = global.clearImmediate
-	  , parseInt        = global.parseInt
-	  , isFinite        = global.isFinite
-	  , process         = global[PROCESS]
-	  , nextTick        = process && process.nextTick
-	  , document        = global.document
-	  , html            = document && document.documentElement
-	  , navigator       = global.navigator
-	  , define          = global.define
-	  , console         = global.console || {}
-	  , ArrayProto      = Array[PROTOTYPE]
-	  , ObjectProto     = Object[PROTOTYPE]
-	  , FunctionProto   = Function[PROTOTYPE]
-	  , Infinity        = 1 / 0
-	  , DOT             = '.';
-
-	// http://jsperf.com/core-js-isobject
-	function isObject(it){
-	  return it !== null && (typeof it == 'object' || typeof it == 'function');
-	}
-	function isFunction(it){
-	  return typeof it == 'function';
-	}
-	// Native function?
-	var isNative = ctx(/./.test, /\[native code\]\s*\}\s*$/, 1);
-
-	// Object internal [[Class]] or toStringTag
-	// http://people.mozilla.org/~jorendorff/es6-draft.html#sec-object.prototype.tostring
-	var toString = ObjectProto[TO_STRING];
-	function setToStringTag(it, tag, stat){
-	  if(it && !has(it = stat ? it : it[PROTOTYPE], SYMBOL_TAG))hidden(it, SYMBOL_TAG, tag);
-	}
-	function cof(it){
-	  return toString.call(it).slice(8, -1);
-	}
-	function classof(it){
-	  var O, T;
-	  return it == undefined ? it === undefined ? 'Undefined' : 'Null'
-	    : typeof (T = (O = Object(it))[SYMBOL_TAG]) == 'string' ? T : cof(O);
-	}
-
-	// Function
-	var call  = FunctionProto.call
-	  , apply = FunctionProto.apply
-	  , REFERENCE_GET;
-	// Partial apply
-	function part(/* ...args */){
-	  var fn     = assertFunction(this)
-	    , length = arguments.length
-	    , args   = Array(length)
-	    , i      = 0
-	    , _      = path._
-	    , holder = false;
-	  while(length > i)if((args[i] = arguments[i++]) === _)holder = true;
-	  return function(/* ...args */){
-	    var that    = this
-	      , _length = arguments.length
-	      , i = 0, j = 0, _args;
-	    if(!holder && !_length)return invoke(fn, args, that);
-	    _args = args.slice();
-	    if(holder)for(;length > i; i++)if(_args[i] === _)_args[i] = arguments[j++];
-	    while(_length > j)_args.push(arguments[j++]);
-	    return invoke(fn, _args, that);
-	  }
-	}
-	// Optional / simple context binding
-	function ctx(fn, that, length){
-	  assertFunction(fn);
-	  if(~length && that === undefined)return fn;
-	  switch(length){
-	    case 1: return function(a){
-	      return fn.call(that, a);
-	    }
-	    case 2: return function(a, b){
-	      return fn.call(that, a, b);
-	    }
-	    case 3: return function(a, b, c){
-	      return fn.call(that, a, b, c);
-	    }
-	  } return function(/* ...args */){
-	      return fn.apply(that, arguments);
-	  }
-	}
-	// Fast apply
-	// http://jsperf.lnkit.com/fast-apply/5
-	function invoke(fn, args, that){
-	  var un = that === undefined;
-	  switch(args.length | 0){
-	    case 0: return un ? fn()
-	                      : fn.call(that);
-	    case 1: return un ? fn(args[0])
-	                      : fn.call(that, args[0]);
-	    case 2: return un ? fn(args[0], args[1])
-	                      : fn.call(that, args[0], args[1]);
-	    case 3: return un ? fn(args[0], args[1], args[2])
-	                      : fn.call(that, args[0], args[1], args[2]);
-	    case 4: return un ? fn(args[0], args[1], args[2], args[3])
-	                      : fn.call(that, args[0], args[1], args[2], args[3]);
-	    case 5: return un ? fn(args[0], args[1], args[2], args[3], args[4])
-	                      : fn.call(that, args[0], args[1], args[2], args[3], args[4]);
-	  } return              fn.apply(that, args);
-	}
-
-	// Object:
-	var create           = Object.create
-	  , getPrototypeOf   = Object.getPrototypeOf
-	  , setPrototypeOf   = Object.setPrototypeOf
-	  , defineProperty   = Object.defineProperty
-	  , defineProperties = Object.defineProperties
-	  , getOwnDescriptor = Object.getOwnPropertyDescriptor
-	  , getKeys          = Object.keys
-	  , getNames         = Object.getOwnPropertyNames
-	  , getSymbols       = Object.getOwnPropertySymbols
-	  , isFrozen         = Object.isFrozen
-	  , has              = ctx(call, ObjectProto[HAS_OWN], 2)
-	  // Dummy, fix for not array-like ES3 string in es5 module
-	  , ES5Object        = Object
-	  , Dict;
-	function toObject(it){
-	  return ES5Object(assertDefined(it));
-	}
-	function returnIt(it){
-	  return it;
-	}
-	function returnThis(){
-	  return this;
-	}
-	function get(object, key){
-	  if(has(object, key))return object[key];
-	}
-	function ownKeys(it){
-	  assertObject(it);
-	  return getSymbols ? getNames(it).concat(getSymbols(it)) : getNames(it);
-	}
-	// 19.1.2.1 Object.assign(target, source, ...)
-	var assign = Object.assign || function(target, source){
-	  var T = Object(assertDefined(target))
-	    , l = arguments.length
-	    , i = 1;
-	  while(l > i){
-	    var S      = ES5Object(arguments[i++])
-	      , keys   = getKeys(S)
-	      , length = keys.length
-	      , j      = 0
-	      , key;
-	    while(length > j)T[key = keys[j++]] = S[key];
-	  }
-	  return T;
-	}
-	function keyOf(object, el){
-	  var O      = toObject(object)
-	    , keys   = getKeys(O)
-	    , length = keys.length
-	    , index  = 0
-	    , key;
-	  while(length > index)if(O[key = keys[index++]] === el)return key;
-	}
-
-	// Array
-	// array('str1,str2,str3') => ['str1', 'str2', 'str3']
-	function array(it){
-	  return String(it).split(',');
-	}
-	var push    = ArrayProto.push
-	  , unshift = ArrayProto.unshift
-	  , slice   = ArrayProto.slice
-	  , splice  = ArrayProto.splice
-	  , indexOf = ArrayProto.indexOf
-	  , forEach = ArrayProto[FOR_EACH];
-	/*
-	 * 0 -> forEach
-	 * 1 -> map
-	 * 2 -> filter
-	 * 3 -> some
-	 * 4 -> every
-	 * 5 -> find
-	 * 6 -> findIndex
-	 */
-	function createArrayMethod(type){
-	  var isMap       = type == 1
-	    , isFilter    = type == 2
-	    , isSome      = type == 3
-	    , isEvery     = type == 4
-	    , isFindIndex = type == 6
-	    , noholes     = type == 5 || isFindIndex;
-	  return function(callbackfn/*, that = undefined */){
-	    var O      = Object(assertDefined(this))
-	      , that   = arguments[1]
-	      , self   = ES5Object(O)
-	      , f      = ctx(callbackfn, that, 3)
-	      , length = toLength(self.length)
-	      , index  = 0
-	      , result = isMap ? Array(length) : isFilter ? [] : undefined
-	      , val, res;
-	    for(;length > index; index++)if(noholes || index in self){
-	      val = self[index];
-	      res = f(val, index, O);
-	      if(type){
-	        if(isMap)result[index] = res;             // map
-	        else if(res)switch(type){
-	          case 3: return true;                    // some
-	          case 5: return val;                     // find
-	          case 6: return index;                   // findIndex
-	          case 2: result.push(val);               // filter
-	        } else if(isEvery)return false;           // every
-	      }
-	    }
-	    return isFindIndex ? -1 : isSome || isEvery ? isEvery : result;
-	  }
-	}
-	function createArrayContains(isContains){
-	  return function(el /*, fromIndex = 0 */){
-	    var O      = toObject(this)
-	      , length = toLength(O.length)
-	      , index  = toIndex(arguments[1], length);
-	    if(isContains && el != el){
-	      for(;length > index; index++)if(sameNaN(O[index]))return isContains || index;
-	    } else for(;length > index; index++)if(isContains || index in O){
-	      if(O[index] === el)return isContains || index;
-	    } return !isContains && -1;
-	  }
-	}
-	function generic(A, B){
-	  // strange IE quirks mode bug -> use typeof vs isFunction
-	  return typeof A == 'function' ? A : B;
-	}
-
-	// Math
-	var MAX_SAFE_INTEGER = 0x1fffffffffffff // pow(2, 53) - 1 == 9007199254740991
-	  , pow    = Math.pow
-	  , abs    = Math.abs
-	  , ceil   = Math.ceil
-	  , floor  = Math.floor
-	  , max    = Math.max
-	  , min    = Math.min
-	  , random = Math.random
-	  , trunc  = Math.trunc || function(it){
-	      return (it > 0 ? floor : ceil)(it);
-	    }
-	// 20.1.2.4 Number.isNaN(number)
-	function sameNaN(number){
-	  return number != number;
-	}
-	// 7.1.4 ToInteger
-	function toInteger(it){
-	  return isNaN(it) ? 0 : trunc(it);
-	}
-	// 7.1.15 ToLength
-	function toLength(it){
-	  return it > 0 ? min(toInteger(it), MAX_SAFE_INTEGER) : 0;
-	}
-	function toIndex(index, length){
-	  var index = toInteger(index);
-	  return index < 0 ? max(index + length, 0) : min(index, length);
-	}
-	function lz(num){
-	  return num > 9 ? num : '0' + num;
-	}
-
-	function createReplacer(regExp, replace, isStatic){
-	  var replacer = isObject(replace) ? function(part){
-	    return replace[part];
-	  } : replace;
-	  return function(it){
-	    return String(isStatic ? it : this).replace(regExp, replacer);
-	  }
-	}
-	function createPointAt(toString){
-	  return function(pos){
-	    var s = String(assertDefined(this))
-	      , i = toInteger(pos)
-	      , l = s.length
-	      , a, b;
-	    if(i < 0 || i >= l)return toString ? '' : undefined;
-	    a = s.charCodeAt(i);
-	    return a < 0xd800 || a > 0xdbff || i + 1 === l || (b = s.charCodeAt(i + 1)) < 0xdc00 || b > 0xdfff
-	      ? toString ? s.charAt(i) : a
-	      : toString ? s.slice(i, i + 2) : (a - 0xd800 << 10) + (b - 0xdc00) + 0x10000;
-	  }
-	}
-
-	// Assertion & errors
-	var REDUCE_ERROR = 'Reduce of empty object with no initial value';
-	function assert(condition, msg1, msg2){
-	  if(!condition)throw TypeError(msg2 ? msg1 + msg2 : msg1);
-	}
-	function assertDefined(it){
-	  if(it == undefined)throw TypeError('Function called on null or undefined');
-	  return it;
-	}
-	function assertFunction(it){
-	  assert(isFunction(it), it, ' is not a function!');
-	  return it;
-	}
-	function assertObject(it){
-	  assert(isObject(it), it, ' is not an object!');
-	  return it;
-	}
-	function assertInstance(it, Constructor, name){
-	  assert(it instanceof Constructor, name, ": use the 'new' operator!");
-	}
-
-	// Property descriptors & Symbol
-	function descriptor(bitmap, value){
-	  return {
-	    enumerable  : !(bitmap & 1),
-	    configurable: !(bitmap & 2),
-	    writable    : !(bitmap & 4),
-	    value       : value
-	  }
-	}
-	function simpleSet(object, key, value){
-	  object[key] = value;
-	  return object;
-	}
-	function createDefiner(bitmap){
-	  return DESC ? function(object, key, value){
-	    return defineProperty(object, key, descriptor(bitmap, value));
-	  } : simpleSet;
-	}
-	function uid(key){
-	  return SYMBOL + '(' + key + ')_' + (++sid + random())[TO_STRING](36);
-	}
-	function getWellKnownSymbol(name, setter){
-	  return (Symbol && Symbol[name]) || (setter ? Symbol : safeSymbol)(SYMBOL + DOT + name);
-	}
-	// The engine works fine with descriptors? Thank's IE8 for his funny defineProperty.
-	var DESC = !!function(){
-	      try {
-	        return defineProperty({}, 'a', {get: function(){ return 2 }}).a == 2;
-	      } catch(e){}
-	    }()
-	  , sid    = 0
-	  , hidden = createDefiner(1)
-	  , set    = Symbol ? simpleSet : hidden
-	  , safeSymbol = Symbol || uid;
-	function assignHidden(target, src){
-	  for(var key in src)hidden(target, key, src[key]);
-	  return target;
-	}
-
-	var SYMBOL_UNSCOPABLES = getWellKnownSymbol('unscopables')
-	  , ArrayUnscopables   = ArrayProto[SYMBOL_UNSCOPABLES] || {}
-	  , SYMBOL_TAG         = getWellKnownSymbol(TO_STRING_TAG)
-	  , SYMBOL_SPECIES     = getWellKnownSymbol('species')
-	  , SYMBOL_ITERATOR;
-	function setSpecies(C){
-	  if(DESC && (framework || !isNative(C)))defineProperty(C, SYMBOL_SPECIES, {
-	    configurable: true,
-	    get: returnThis
-	  });
-	}
-
-	/******************************************************************************
-	 * Module : common.export                                                     *
-	 ******************************************************************************/
-
-	var NODE = cof(process) == PROCESS
-	  , core = {}
-	  , path = framework ? global : core
-	  , old  = global.core
-	  , exportGlobal
-	  // type bitmap
-	  , FORCED = 1
-	  , GLOBAL = 2
-	  , STATIC = 4
-	  , PROTO  = 8
-	  , BIND   = 16
-	  , WRAP   = 32;
-	function $define(type, name, source){
-	  var key, own, out, exp
-	    , isGlobal = type & GLOBAL
-	    , target   = isGlobal ? global : (type & STATIC)
-	        ? global[name] : (global[name] || ObjectProto)[PROTOTYPE]
-	    , exports  = isGlobal ? core : core[name] || (core[name] = {});
-	  if(isGlobal)source = name;
-	  for(key in source){
-	    // there is a similar native
-	    own = !(type & FORCED) && target && key in target
-	      && (!isFunction(target[key]) || isNative(target[key]));
-	    // export native or passed
-	    out = (own ? target : source)[key];
-	    // prevent global pollution for namespaces
-	    if(!framework && isGlobal && !isFunction(target[key]))exp = source[key];
-	    // bind timers to global for call from export context
-	    else if(type & BIND && own)exp = ctx(out, global);
-	    // wrap global constructors for prevent change them in library
-	    else if(type & WRAP && !framework && target[key] == out){
-	      exp = function(param){
-	        return this instanceof out ? new out(param) : out(param);
-	      }
-	      exp[PROTOTYPE] = out[PROTOTYPE];
-	    } else exp = type & PROTO && isFunction(out) ? ctx(call, out) : out;
-	    // extend global
-	    if(framework && target && !own){
-	      if(isGlobal)target[key] = out;
-	      else delete target[key] && hidden(target, key, out);
-	    }
-	    // export
-	    if(exports[key] != out)hidden(exports, key, exp);
-	  }
-	}
-	// CommonJS export
-	if(typeof module != 'undefined' && module.exports)module.exports = core;
-	// RequireJS export
-	else if(isFunction(define) && define.amd)define(function(){return core});
-	// Export to global object
-	else exportGlobal = true;
-	if(exportGlobal || framework){
-	  core.noConflict = function(){
-	    global.core = old;
-	    return core;
-	  }
-	  global.core = core;
-	}
-
-	/******************************************************************************
-	 * Module : common.iterators                                                  *
-	 ******************************************************************************/
-
-	SYMBOL_ITERATOR = getWellKnownSymbol(ITERATOR);
-	var ITER  = safeSymbol('iter')
-	  , KEY   = 1
-	  , VALUE = 2
-	  , Iterators = {}
-	  , IteratorPrototype = {}
-	    // Safari has byggy iterators w/o `next`
-	  , BUGGY_ITERATORS = 'keys' in ArrayProto && !('next' in [].keys());
-	// 25.1.2.1.1 %IteratorPrototype%[@@iterator]()
-	setIterator(IteratorPrototype, returnThis);
-	function setIterator(O, value){
-	  hidden(O, SYMBOL_ITERATOR, value);
-	  // Add iterator for FF iterator protocol
-	  FF_ITERATOR in ArrayProto && hidden(O, FF_ITERATOR, value);
-	}
-	function createIterator(Constructor, NAME, next, proto){
-	  Constructor[PROTOTYPE] = create(proto || IteratorPrototype, {next: descriptor(1, next)});
-	  setToStringTag(Constructor, NAME + ' Iterator');
-	}
-	function defineIterator(Constructor, NAME, value, DEFAULT){
-	  var proto = Constructor[PROTOTYPE]
-	    , iter  = get(proto, SYMBOL_ITERATOR) || get(proto, FF_ITERATOR) || (DEFAULT && get(proto, DEFAULT)) || value;
-	  if(framework){
-	    // Define iterator
-	    setIterator(proto, iter);
-	    if(iter !== value){
-	      var iterProto = getPrototypeOf(iter.call(new Constructor));
-	      // Set @@toStringTag to native iterators
-	      setToStringTag(iterProto, NAME + ' Iterator', true);
-	      // FF fix
-	      has(proto, FF_ITERATOR) && setIterator(iterProto, returnThis);
-	    }
-	  }
-	  // Plug for library
-	  Iterators[NAME] = iter;
-	  // FF & v8 fix
-	  Iterators[NAME + ' Iterator'] = returnThis;
-	  return iter;
-	}
-	function defineStdIterators(Base, NAME, Constructor, next, DEFAULT, IS_SET){
-	  function createIter(kind){
-	    return function(){
-	      return new Constructor(this, kind);
-	    }
-	  }
-	  createIterator(Constructor, NAME, next);
-	  var entries = createIter(KEY+VALUE)
-	    , values  = createIter(VALUE);
-	  if(DEFAULT == VALUE)values = defineIterator(Base, NAME, values, 'values');
-	  else entries = defineIterator(Base, NAME, entries, 'entries');
-	  if(DEFAULT){
-	    $define(PROTO + FORCED * BUGGY_ITERATORS, NAME, {
-	      entries: entries,
-	      keys: IS_SET ? values : createIter(KEY),
-	      values: values
-	    });
-	  }
-	}
-	function iterResult(done, value){
-	  return {value: value, done: !!done};
-	}
-	function isIterable(it){
-	  var O      = Object(it)
-	    , Symbol = global[SYMBOL]
-	    , hasExt = (Symbol && Symbol[ITERATOR] || FF_ITERATOR) in O;
-	  return hasExt || SYMBOL_ITERATOR in O || has(Iterators, classof(O));
-	}
-	function getIterator(it){
-	  var Symbol  = global[SYMBOL]
-	    , ext     = it[Symbol && Symbol[ITERATOR] || FF_ITERATOR]
-	    , getIter = ext || it[SYMBOL_ITERATOR] || Iterators[classof(it)];
-	  return assertObject(getIter.call(it));
-	}
-	function stepCall(fn, value, entries){
-	  return entries ? invoke(fn, value) : fn(value);
-	}
-	function checkDangerIterClosing(fn){
-	  var danger = true;
-	  var O = {
-	    next: function(){ throw 1 },
-	    'return': function(){ danger = false }
-	  };
-	  O[SYMBOL_ITERATOR] = returnThis;
-	  try {
-	    fn(O);
-	  } catch(e){}
-	  return danger;
-	}
-	function closeIterator(iterator){
-	  var ret = iterator['return'];
-	  if(ret !== undefined)ret.call(iterator);
-	}
-	function safeIterClose(exec, iterator){
-	  try {
-	    exec(iterator);
-	  } catch(e){
-	    closeIterator(iterator);
-	    throw e;
-	  }
-	}
-	function forOf(iterable, entries, fn, that){
-	  safeIterClose(function(iterator){
-	    var f = ctx(fn, that, entries ? 2 : 1)
-	      , step;
-	    while(!(step = iterator.next()).done)if(stepCall(f, step.value, entries) === false){
-	      return closeIterator(iterator);
-	    }
-	  }, getIterator(iterable));
-	}
-
-	/******************************************************************************
-	 * Module : es6.symbol                                                        *
-	 ******************************************************************************/
-
-	// ECMAScript 6 symbols shim
-	!function(TAG, SymbolRegistry, AllSymbols, setter){
-	  // 19.4.1.1 Symbol([description])
-	  if(!isNative(Symbol)){
-	    Symbol = function(description){
-	      assert(!(this instanceof Symbol), SYMBOL + ' is not a ' + CONSTRUCTOR);
-	      var tag = uid(description)
-	        , sym = set(create(Symbol[PROTOTYPE]), TAG, tag);
-	      AllSymbols[tag] = sym;
-	      DESC && setter && defineProperty(ObjectProto, tag, {
-	        configurable: true,
-	        set: function(value){
-	          hidden(this, tag, value);
-	        }
-	      });
-	      return sym;
-	    }
-	    hidden(Symbol[PROTOTYPE], TO_STRING, function(){
-	      return this[TAG];
-	    });
-	  }
-	  $define(GLOBAL + WRAP, {Symbol: Symbol});
-	  
-	  var symbolStatics = {
-	    // 19.4.2.1 Symbol.for(key)
-	    'for': function(key){
-	      return has(SymbolRegistry, key += '')
-	        ? SymbolRegistry[key]
-	        : SymbolRegistry[key] = Symbol(key);
-	    },
-	    // 19.4.2.4 Symbol.iterator
-	    iterator: SYMBOL_ITERATOR || getWellKnownSymbol(ITERATOR),
-	    // 19.4.2.5 Symbol.keyFor(sym)
-	    keyFor: part.call(keyOf, SymbolRegistry),
-	    // 19.4.2.10 Symbol.species
-	    species: SYMBOL_SPECIES,
-	    // 19.4.2.13 Symbol.toStringTag
-	    toStringTag: SYMBOL_TAG = getWellKnownSymbol(TO_STRING_TAG, true),
-	    // 19.4.2.14 Symbol.unscopables
-	    unscopables: SYMBOL_UNSCOPABLES,
-	    pure: safeSymbol,
-	    set: set,
-	    useSetter: function(){setter = true},
-	    useSimple: function(){setter = false}
-	  };
-	  // 19.4.2.2 Symbol.hasInstance
-	  // 19.4.2.3 Symbol.isConcatSpreadable
-	  // 19.4.2.6 Symbol.match
-	  // 19.4.2.8 Symbol.replace
-	  // 19.4.2.9 Symbol.search
-	  // 19.4.2.11 Symbol.split
-	  // 19.4.2.12 Symbol.toPrimitive
-	  forEach.call(array('hasInstance,isConcatSpreadable,match,replace,search,split,toPrimitive'),
-	    function(it){
-	      symbolStatics[it] = getWellKnownSymbol(it);
-	    }
-	  );
-	  $define(STATIC, SYMBOL, symbolStatics);
-	  
-	  setToStringTag(Symbol, SYMBOL);
-	  
-	  $define(STATIC + FORCED * !isNative(Symbol), OBJECT, {
-	    // 19.1.2.7 Object.getOwnPropertyNames(O)
-	    getOwnPropertyNames: function(it){
-	      var names = getNames(toObject(it)), result = [], key, i = 0;
-	      while(names.length > i)has(AllSymbols, key = names[i++]) || result.push(key);
-	      return result;
-	    },
-	    // 19.1.2.8 Object.getOwnPropertySymbols(O)
-	    getOwnPropertySymbols: function(it){
-	      var names = getNames(toObject(it)), result = [], key, i = 0;
-	      while(names.length > i)has(AllSymbols, key = names[i++]) && result.push(AllSymbols[key]);
-	      return result;
-	    }
-	  });
-	  
-	  // 20.2.1.9 Math[@@toStringTag]
-	  setToStringTag(Math, MATH, true);
-	  // 24.3.3 JSON[@@toStringTag]
-	  setToStringTag(global.JSON, 'JSON', true);
-	}(safeSymbol('tag'), {}, {}, true);
-
-	/******************************************************************************
-	 * Module : es6.object.statics                                                *
-	 ******************************************************************************/
-
-	!function(){
-	  var objectStatic = {
-	    // 19.1.3.1 Object.assign(target, source)
-	    assign: assign,
-	    // 19.1.3.10 Object.is(value1, value2)
-	    is: function(x, y){
-	      return x === y ? x !== 0 || 1 / x === 1 / y : x != x && y != y;
-	    }
-	  };
-	  // 19.1.3.19 Object.setPrototypeOf(O, proto)
-	  // Works with __proto__ only. Old v8 can't works with null proto objects.
-	  '__proto__' in ObjectProto && function(buggy, set){
-	    try {
-	      set = ctx(call, getOwnDescriptor(ObjectProto, '__proto__').set, 2);
-	      set({}, ArrayProto);
-	    } catch(e){ buggy = true }
-	    objectStatic.setPrototypeOf = setPrototypeOf = setPrototypeOf || function(O, proto){
-	      assertObject(O);
-	      assert(proto === null || isObject(proto), proto, ": can't set as prototype!");
-	      if(buggy)O.__proto__ = proto;
-	      else set(O, proto);
-	      return O;
-	    }
-	  }();
-	  $define(STATIC, OBJECT, objectStatic);
-	}();
-
-	/******************************************************************************
-	 * Module : es6.object.prototype                                              *
-	 ******************************************************************************/
-
-	!function(tmp){
-	  // 19.1.3.6 Object.prototype.toString()
-	  tmp[SYMBOL_TAG] = DOT;
-	  if(cof(tmp) != DOT)hidden(ObjectProto, TO_STRING, function(){
-	    return '[object ' + classof(this) + ']';
-	  });
-	}({});
-
-	/******************************************************************************
-	 * Module : es6.object.statics-accept-primitives                              *
-	 ******************************************************************************/
-
-	!function(){
-	  // Object static methods accept primitives
-	  function wrapObjectMethod(key, MODE){
-	    var fn  = Object[key]
-	      , exp = core[OBJECT][key]
-	      , f   = 0
-	      , o   = {};
-	    if(!exp || isNative(exp)){
-	      o[key] = MODE == 1 ? function(it){
-	        return isObject(it) ? fn(it) : it;
-	      } : MODE == 2 ? function(it){
-	        return isObject(it) ? fn(it) : true;
-	      } : MODE == 3 ? function(it){
-	        return isObject(it) ? fn(it) : false;
-	      } : MODE == 4 ? function(it, key){
-	        return fn(toObject(it), key);
-	      } : function(it){
-	        return fn(toObject(it));
-	      };
-	      try { fn(DOT) }
-	      catch(e){ f = 1 }
-	      $define(STATIC + FORCED * f, OBJECT, o);
-	    }
-	  }
-	  wrapObjectMethod('freeze', 1);
-	  wrapObjectMethod('seal', 1);
-	  wrapObjectMethod('preventExtensions', 1);
-	  wrapObjectMethod('isFrozen', 2);
-	  wrapObjectMethod('isSealed', 2);
-	  wrapObjectMethod('isExtensible', 3);
-	  wrapObjectMethod('getOwnPropertyDescriptor', 4);
-	  wrapObjectMethod('getPrototypeOf');
-	  wrapObjectMethod('keys');
-	  wrapObjectMethod('getOwnPropertyNames');
-	}();
-
-	/******************************************************************************
-	 * Module : es6.function                                                      *
-	 ******************************************************************************/
-
-	!function(NAME){
-	  // 19.2.4.2 name
-	  NAME in FunctionProto || (DESC && defineProperty(FunctionProto, NAME, {
-	    configurable: true,
-	    get: function(){
-	      var match = String(this).match(/^\s*function ([^ (]*)/)
-	        , name  = match ? match[1] : '';
-	      has(this, NAME) || defineProperty(this, NAME, descriptor(5, name));
-	      return name;
-	    },
-	    set: function(value){
-	      has(this, NAME) || defineProperty(this, NAME, descriptor(0, value));
-	    }
-	  }));
-	}('name');
-
-	/******************************************************************************
-	 * Module : es6.number.constructor                                            *
-	 ******************************************************************************/
-
-	Number('0o1') && Number('0b1') || function(_Number, NumberProto){
-	  function toNumber(it){
-	    if(isObject(it))it = toPrimitive(it);
-	    if(typeof it == 'string' && it.length > 2 && it.charCodeAt(0) == 48){
-	      var binary = false;
-	      switch(it.charCodeAt(1)){
-	        case 66 : case 98  : binary = true;
-	        case 79 : case 111 : return parseInt(it.slice(2), binary ? 2 : 8);
-	      }
-	    } return +it;
-	  }
-	  function toPrimitive(it){
-	    var fn, val;
-	    if(isFunction(fn = it.valueOf) && !isObject(val = fn.call(it)))return val;
-	    if(isFunction(fn = it[TO_STRING]) && !isObject(val = fn.call(it)))return val;
-	    throw TypeError("Can't convert object to number");
-	  }
-	  Number = function Number(it){
-	    return this instanceof Number ? new _Number(toNumber(it)) : toNumber(it);
-	  }
-	  forEach.call(DESC ? getNames(_Number)
-	  : array('MAX_VALUE,MIN_VALUE,NaN,NEGATIVE_INFINITY,POSITIVE_INFINITY'), function(key){
-	    key in Number || defineProperty(Number, key, getOwnDescriptor(_Number, key));
-	  });
-	  Number[PROTOTYPE] = NumberProto;
-	  NumberProto[CONSTRUCTOR] = Number;
-	  hidden(global, NUMBER, Number);
-	}(Number, Number[PROTOTYPE]);
-
-	/******************************************************************************
-	 * Module : es6.number.statics                                                *
-	 ******************************************************************************/
-
-	!function(isInteger){
-	  $define(STATIC, NUMBER, {
-	    // 20.1.2.1 Number.EPSILON
-	    EPSILON: pow(2, -52),
-	    // 20.1.2.2 Number.isFinite(number)
-	    isFinite: function(it){
-	      return typeof it == 'number' && isFinite(it);
-	    },
-	    // 20.1.2.3 Number.isInteger(number)
-	    isInteger: isInteger,
-	    // 20.1.2.4 Number.isNaN(number)
-	    isNaN: sameNaN,
-	    // 20.1.2.5 Number.isSafeInteger(number)
-	    isSafeInteger: function(number){
-	      return isInteger(number) && abs(number) <= MAX_SAFE_INTEGER;
-	    },
-	    // 20.1.2.6 Number.MAX_SAFE_INTEGER
-	    MAX_SAFE_INTEGER: MAX_SAFE_INTEGER,
-	    // 20.1.2.10 Number.MIN_SAFE_INTEGER
-	    MIN_SAFE_INTEGER: -MAX_SAFE_INTEGER,
-	    // 20.1.2.12 Number.parseFloat(string)
-	    parseFloat: parseFloat,
-	    // 20.1.2.13 Number.parseInt(string, radix)
-	    parseInt: parseInt
-	  });
-	// 20.1.2.3 Number.isInteger(number)
-	}(Number.isInteger || function(it){
-	  return !isObject(it) && isFinite(it) && floor(it) === it;
-	});
-
-	/******************************************************************************
-	 * Module : es6.math                                                          *
-	 ******************************************************************************/
-
-	// ECMAScript 6 shim
-	!function(){
-	  // 20.2.2.28 Math.sign(x)
-	  var E    = Math.E
-	    , exp  = Math.exp
-	    , log  = Math.log
-	    , sqrt = Math.sqrt
-	    , sign = Math.sign || function(x){
-	        return (x = +x) == 0 || x != x ? x : x < 0 ? -1 : 1;
-	      };
-	  
-	  // 20.2.2.5 Math.asinh(x)
-	  function asinh(x){
-	    return !isFinite(x = +x) || x == 0 ? x : x < 0 ? -asinh(-x) : log(x + sqrt(x * x + 1));
-	  }
-	  // 20.2.2.14 Math.expm1(x)
-	  function expm1(x){
-	    return (x = +x) == 0 ? x : x > -1e-6 && x < 1e-6 ? x + x * x / 2 : exp(x) - 1;
-	  }
-	    
-	  $define(STATIC, MATH, {
-	    // 20.2.2.3 Math.acosh(x)
-	    acosh: function(x){
-	      return (x = +x) < 1 ? NaN : isFinite(x) ? log(x / E + sqrt(x + 1) * sqrt(x - 1) / E) + 1 : x;
-	    },
-	    // 20.2.2.5 Math.asinh(x)
-	    asinh: asinh,
-	    // 20.2.2.7 Math.atanh(x)
-	    atanh: function(x){
-	      return (x = +x) == 0 ? x : log((1 + x) / (1 - x)) / 2;
-	    },
-	    // 20.2.2.9 Math.cbrt(x)
-	    cbrt: function(x){
-	      return sign(x = +x) * pow(abs(x), 1 / 3);
-	    },
-	    // 20.2.2.11 Math.clz32(x)
-	    clz32: function(x){
-	      return (x >>>= 0) ? 32 - x[TO_STRING](2).length : 32;
-	    },
-	    // 20.2.2.12 Math.cosh(x)
-	    cosh: function(x){
-	      return (exp(x = +x) + exp(-x)) / 2;
-	    },
-	    // 20.2.2.14 Math.expm1(x)
-	    expm1: expm1,
-	    // 20.2.2.16 Math.fround(x)
-	    // TODO: fallback for IE9-
-	    fround: function(x){
-	      return new Float32Array([x])[0];
-	    },
-	    // 20.2.2.17 Math.hypot([value1[, value2[, … ]]])
-	    hypot: function(value1, value2){
-	      var sum  = 0
-	        , len1 = arguments.length
-	        , len2 = len1
-	        , args = Array(len1)
-	        , larg = -Infinity
-	        , arg;
-	      while(len1--){
-	        arg = args[len1] = +arguments[len1];
-	        if(arg == Infinity || arg == -Infinity)return Infinity;
-	        if(arg > larg)larg = arg;
-	      }
-	      larg = arg || 1;
-	      while(len2--)sum += pow(args[len2] / larg, 2);
-	      return larg * sqrt(sum);
-	    },
-	    // 20.2.2.18 Math.imul(x, y)
-	    imul: function(x, y){
-	      var UInt16 = 0xffff
-	        , xn = +x
-	        , yn = +y
-	        , xl = UInt16 & xn
-	        , yl = UInt16 & yn;
-	      return 0 | xl * yl + ((UInt16 & xn >>> 16) * yl + xl * (UInt16 & yn >>> 16) << 16 >>> 0);
-	    },
-	    // 20.2.2.20 Math.log1p(x)
-	    log1p: function(x){
-	      return (x = +x) > -1e-8 && x < 1e-8 ? x - x * x / 2 : log(1 + x);
-	    },
-	    // 20.2.2.21 Math.log10(x)
-	    log10: function(x){
-	      return log(x) / Math.LN10;
-	    },
-	    // 20.2.2.22 Math.log2(x)
-	    log2: function(x){
-	      return log(x) / Math.LN2;
-	    },
-	    // 20.2.2.28 Math.sign(x)
-	    sign: sign,
-	    // 20.2.2.30 Math.sinh(x)
-	    sinh: function(x){
-	      return (abs(x = +x) < 1) ? (expm1(x) - expm1(-x)) / 2 : (exp(x - 1) - exp(-x - 1)) * (E / 2);
-	    },
-	    // 20.2.2.33 Math.tanh(x)
-	    tanh: function(x){
-	      var a = expm1(x = +x)
-	        , b = expm1(-x);
-	      return a == Infinity ? 1 : b == Infinity ? -1 : (a - b) / (exp(x) + exp(-x));
-	    },
-	    // 20.2.2.34 Math.trunc(x)
-	    trunc: trunc
-	  });
-	}();
-
-	/******************************************************************************
-	 * Module : es6.string                                                        *
-	 ******************************************************************************/
-
-	!function(fromCharCode){
-	  function assertNotRegExp(it){
-	    if(cof(it) == REGEXP)throw TypeError();
-	  }
-	  
-	  $define(STATIC, STRING, {
-	    // 21.1.2.2 String.fromCodePoint(...codePoints)
-	    fromCodePoint: function(x){
-	      var res = []
-	        , len = arguments.length
-	        , i   = 0
-	        , code
-	      while(len > i){
-	        code = +arguments[i++];
-	        if(toIndex(code, 0x10ffff) !== code)throw RangeError(code + ' is not a valid code point');
-	        res.push(code < 0x10000
-	          ? fromCharCode(code)
-	          : fromCharCode(((code -= 0x10000) >> 10) + 0xd800, code % 0x400 + 0xdc00)
-	        );
-	      } return res.join('');
-	    },
-	    // 21.1.2.4 String.raw(callSite, ...substitutions)
-	    raw: function(callSite){
-	      var raw = toObject(callSite.raw)
-	        , len = toLength(raw.length)
-	        , sln = arguments.length
-	        , res = []
-	        , i   = 0;
-	      while(len > i){
-	        res.push(String(raw[i++]));
-	        if(i < sln)res.push(String(arguments[i]));
-	      } return res.join('');
-	    }
-	  });
-	  
-	  $define(PROTO, STRING, {
-	    // 21.1.3.3 String.prototype.codePointAt(pos)
-	    codePointAt: createPointAt(false),
-	    // 21.1.3.6 String.prototype.endsWith(searchString [, endPosition])
-	    endsWith: function(searchString /*, endPosition = @length */){
-	      assertNotRegExp(searchString);
-	      var that = String(assertDefined(this))
-	        , endPosition = arguments[1]
-	        , len = toLength(that.length)
-	        , end = endPosition === undefined ? len : min(toLength(endPosition), len);
-	      searchString += '';
-	      return that.slice(end - searchString.length, end) === searchString;
-	    },
-	    // 21.1.3.7 String.prototype.includes(searchString, position = 0)
-	    includes: function(searchString /*, position = 0 */){
-	      assertNotRegExp(searchString);
-	      return !!~String(assertDefined(this)).indexOf(searchString, arguments[1]);
-	    },
-	    // 21.1.3.13 String.prototype.repeat(count)
-	    repeat: function(count){
-	      var str = String(assertDefined(this))
-	        , res = ''
-	        , n   = toInteger(count);
-	      if(0 > n || n == Infinity)throw RangeError("Count can't be negative");
-	      for(;n > 0; (n >>>= 1) && (str += str))if(n & 1)res += str;
-	      return res;
-	    },
-	    // 21.1.3.18 String.prototype.startsWith(searchString [, position ])
-	    startsWith: function(searchString /*, position = 0 */){
-	      assertNotRegExp(searchString);
-	      var that  = String(assertDefined(this))
-	        , index = toLength(min(arguments[1], that.length));
-	      searchString += '';
-	      return that.slice(index, index + searchString.length) === searchString;
-	    }
-	  });
-	}(String.fromCharCode);
-
-	/******************************************************************************
-	 * Module : es6.array.statics                                                 *
-	 ******************************************************************************/
-
-	!function(){
-	  $define(STATIC + FORCED * checkDangerIterClosing(Array.from), ARRAY, {
-	    // 22.1.2.1 Array.from(arrayLike, mapfn = undefined, thisArg = undefined)
-	    from: function(arrayLike/*, mapfn = undefined, thisArg = undefined*/){
-	      var O       = Object(assertDefined(arrayLike))
-	        , mapfn   = arguments[1]
-	        , mapping = mapfn !== undefined
-	        , f       = mapping ? ctx(mapfn, arguments[2], 2) : undefined
-	        , index   = 0
-	        , length, result, step;
-	      if(isIterable(O)){
-	        result = new (generic(this, Array));
-	        safeIterClose(function(iterator){
-	          for(; !(step = iterator.next()).done; index++){
-	            result[index] = mapping ? f(step.value, index) : step.value;
-	          }
-	        }, getIterator(O));
-	      } else {
-	        result = new (generic(this, Array))(length = toLength(O.length));
-	        for(; length > index; index++){
-	          result[index] = mapping ? f(O[index], index) : O[index];
-	        }
-	      }
-	      result.length = index;
-	      return result;
-	    }
-	  });
-	  
-	  $define(STATIC, ARRAY, {
-	    // 22.1.2.3 Array.of( ...items)
-	    of: function(/* ...args */){
-	      var index  = 0
-	        , length = arguments.length
-	        , result = new (generic(this, Array))(length);
-	      while(length > index)result[index] = arguments[index++];
-	      result.length = length;
-	      return result;
-	    }
-	  });
-	  
-	  setSpecies(Array);
-	}();
-
-	/******************************************************************************
-	 * Module : es6.array.prototype                                               *
-	 ******************************************************************************/
-
-	!function(){
-	  $define(PROTO, ARRAY, {
-	    // 22.1.3.3 Array.prototype.copyWithin(target, start, end = this.length)
-	    copyWithin: function(target /* = 0 */, start /* = 0, end = @length */){
-	      var O     = Object(assertDefined(this))
-	        , len   = toLength(O.length)
-	        , to    = toIndex(target, len)
-	        , from  = toIndex(start, len)
-	        , end   = arguments[2]
-	        , fin   = end === undefined ? len : toIndex(end, len)
-	        , count = min(fin - from, len - to)
-	        , inc   = 1;
-	      if(from < to && to < from + count){
-	        inc  = -1;
-	        from = from + count - 1;
-	        to   = to + count - 1;
-	      }
-	      while(count-- > 0){
-	        if(from in O)O[to] = O[from];
-	        else delete O[to];
-	        to += inc;
-	        from += inc;
-	      } return O;
-	    },
-	    // 22.1.3.6 Array.prototype.fill(value, start = 0, end = this.length)
-	    fill: function(value /*, start = 0, end = @length */){
-	      var O      = Object(assertDefined(this))
-	        , length = toLength(O.length)
-	        , index  = toIndex(arguments[1], length)
-	        , end    = arguments[2]
-	        , endPos = end === undefined ? length : toIndex(end, length);
-	      while(endPos > index)O[index++] = value;
-	      return O;
-	    },
-	    // 22.1.3.8 Array.prototype.find(predicate, thisArg = undefined)
-	    find: createArrayMethod(5),
-	    // 22.1.3.9 Array.prototype.findIndex(predicate, thisArg = undefined)
-	    findIndex: createArrayMethod(6)
-	  });
-	  
-	  if(framework){
-	    // 22.1.3.31 Array.prototype[@@unscopables]
-	    forEach.call(array('find,findIndex,fill,copyWithin,entries,keys,values'), function(it){
-	      ArrayUnscopables[it] = true;
-	    });
-	    SYMBOL_UNSCOPABLES in ArrayProto || hidden(ArrayProto, SYMBOL_UNSCOPABLES, ArrayUnscopables);
-	  }
-	}();
-
-	/******************************************************************************
-	 * Module : es6.iterators                                                     *
-	 ******************************************************************************/
-
-	!function(at){
-	  // 22.1.3.4 Array.prototype.entries()
-	  // 22.1.3.13 Array.prototype.keys()
-	  // 22.1.3.29 Array.prototype.values()
-	  // 22.1.3.30 Array.prototype[@@iterator]()
-	  defineStdIterators(Array, ARRAY, function(iterated, kind){
-	    set(this, ITER, {o: toObject(iterated), i: 0, k: kind});
-	  // 22.1.5.2.1 %ArrayIteratorPrototype%.next()
-	  }, function(){
-	    var iter  = this[ITER]
-	      , O     = iter.o
-	      , kind  = iter.k
-	      , index = iter.i++;
-	    if(!O || index >= O.length){
-	      iter.o = undefined;
-	      return iterResult(1);
-	    }
-	    if(kind == KEY)  return iterResult(0, index);
-	    if(kind == VALUE)return iterResult(0, O[index]);
-	                     return iterResult(0, [index, O[index]]);
-	  }, VALUE);
-	  
-	  // argumentsList[@@iterator] is %ArrayProto_values% (9.4.4.6, 9.4.4.7)
-	  Iterators[ARGUMENTS] = Iterators[ARRAY];
-	  
-	  // 21.1.3.27 String.prototype[@@iterator]()
-	  defineStdIterators(String, STRING, function(iterated){
-	    set(this, ITER, {o: String(iterated), i: 0});
-	  // 21.1.5.2.1 %StringIteratorPrototype%.next()
-	  }, function(){
-	    var iter  = this[ITER]
-	      , O     = iter.o
-	      , index = iter.i
-	      , point;
-	    if(index >= O.length)return iterResult(1);
-	    point = at.call(O, index);
-	    iter.i += point.length;
-	    return iterResult(0, point);
-	  });
-	}(createPointAt(true));
-
-	/******************************************************************************
-	 * Module : es6.regexp                                                        *
-	 ******************************************************************************/
-
-	DESC && !function(RegExpProto, _RegExp){  
-	  // RegExp allows a regex with flags as the pattern
-	  if(!function(){try{return RegExp(/a/g, 'i') == '/a/i'}catch(e){}}()){
-	    RegExp = function RegExp(pattern, flags){
-	      return new _RegExp(cof(pattern) == REGEXP && flags !== undefined
-	        ? pattern.source : pattern, flags);
-	    }
-	    forEach.call(getNames(_RegExp), function(key){
-	      key in RegExp || defineProperty(RegExp, key, {
-	        configurable: true,
-	        get: function(){ return _RegExp[key] },
-	        set: function(it){ _RegExp[key] = it }
-	      });
-	    });
-	    RegExpProto[CONSTRUCTOR] = RegExp;
-	    RegExp[PROTOTYPE] = RegExpProto;
-	    hidden(global, REGEXP, RegExp);
-	  }
-	  
-	  // 21.2.5.3 get RegExp.prototype.flags()
-	  if(/./g.flags != 'g')defineProperty(RegExpProto, 'flags', {
-	    configurable: true,
-	    get: createReplacer(/^.*\/(\w*)$/, '$1')
-	  });
-	  
-	  setSpecies(RegExp);
-	}(RegExp[PROTOTYPE], RegExp);
-
-	/******************************************************************************
-	 * Module : web.immediate                                                     *
-	 ******************************************************************************/
-
-	// setImmediate shim
-	// Node.js 0.9+ & IE10+ has setImmediate, else:
-	isFunction(setImmediate) && isFunction(clearImmediate) || function(ONREADYSTATECHANGE){
-	  var postMessage      = global.postMessage
-	    , addEventListener = global.addEventListener
-	    , MessageChannel   = global.MessageChannel
-	    , counter          = 0
-	    , queue            = {}
-	    , defer, channel, port;
-	  setImmediate = function(fn){
-	    var args = [], i = 1;
-	    while(arguments.length > i)args.push(arguments[i++]);
-	    queue[++counter] = function(){
-	      invoke(isFunction(fn) ? fn : Function(fn), args);
-	    }
-	    defer(counter);
-	    return counter;
-	  }
-	  clearImmediate = function(id){
-	    delete queue[id];
-	  }
-	  function run(id){
-	    if(has(queue, id)){
-	      var fn = queue[id];
-	      delete queue[id];
-	      fn();
-	    }
-	  }
-	  function listner(event){
-	    run(event.data);
-	  }
-	  // Node.js 0.8-
-	  if(NODE){
-	    defer = function(id){
-	      nextTick(part.call(run, id));
-	    }
-	  // Modern browsers, skip implementation for WebWorkers
-	  // IE8 has postMessage, but it's sync & typeof its postMessage is object
-	  } else if(addEventListener && isFunction(postMessage) && !global.importScripts){
-	    defer = function(id){
-	      postMessage(id, '*');
-	    }
-	    addEventListener('message', listner, false);
-	  // WebWorkers
-	  } else if(isFunction(MessageChannel)){
-	    channel = new MessageChannel;
-	    port    = channel.port2;
-	    channel.port1.onmessage = listner;
-	    defer = ctx(port.postMessage, port, 1);
-	  // IE8-
-	  } else if(document && ONREADYSTATECHANGE in document[CREATE_ELEMENT]('script')){
-	    defer = function(id){
-	      html.appendChild(document[CREATE_ELEMENT]('script'))[ONREADYSTATECHANGE] = function(){
-	        html.removeChild(this);
-	        run(id);
-	      }
-	    }
-	  // Rest old browsers
-	  } else {
-	    defer = function(id){
-	      setTimeout(run, 0, id);
-	    }
-	  }
-	}('onreadystatechange');
-	$define(GLOBAL + BIND, {
-	  setImmediate:   setImmediate,
-	  clearImmediate: clearImmediate
-	});
-
-	/******************************************************************************
-	 * Module : es6.promise                                                       *
-	 ******************************************************************************/
-
-	// ES6 promises shim
-	// Based on https://github.com/getify/native-promise-only/
-	!function(Promise, test){
-	  isFunction(Promise) && isFunction(Promise.resolve)
-	  && Promise.resolve(test = new Promise(function(){})) == test
-	  || function(asap, RECORD){
-	    function isThenable(it){
-	      var then;
-	      if(isObject(it))then = it.then;
-	      return isFunction(then) ? then : false;
-	    }
-	    function handledRejectionOrHasOnRejected(promise){
-	      var record = promise[RECORD]
-	        , chain  = record.c
-	        , i      = 0
-	        , react;
-	      if(record.h)return true;
-	      while(chain.length > i){
-	        react = chain[i++];
-	        if(react.fail || handledRejectionOrHasOnRejected(react.P))return true;
-	      }
-	    }
-	    function notify(record, reject){
-	      var chain = record.c;
-	      if(reject || chain.length)asap(function(){
-	        var promise = record.p
-	          , value   = record.v
-	          , ok      = record.s == 1
-	          , i       = 0;
-	        if(reject && !handledRejectionOrHasOnRejected(promise)){
-	          setTimeout(function(){
-	            if(!handledRejectionOrHasOnRejected(promise)){
-	              if(NODE){
-	                if(!process.emit('unhandledRejection', value, promise)){
-	                  // default node.js behavior
-	                }
-	              } else if(isFunction(console.error)){
-	                console.error('Unhandled promise rejection', value);
-	              }
-	            }
-	          }, 1e3);
-	        } else while(chain.length > i)!function(react){
-	          var cb = ok ? react.ok : react.fail
-	            , ret, then;
-	          try {
-	            if(cb){
-	              if(!ok)record.h = true;
-	              ret = cb === true ? value : cb(value);
-	              if(ret === react.P){
-	                react.rej(TypeError(PROMISE + '-chain cycle'));
-	              } else if(then = isThenable(ret)){
-	                then.call(ret, react.res, react.rej);
-	              } else react.res(ret);
-	            } else react.rej(value);
-	          } catch(err){
-	            react.rej(err);
-	          }
-	        }(chain[i++]);
-	        chain.length = 0;
-	      });
-	    }
-	    function resolve(value){
-	      var record = this
-	        , then, wrapper;
-	      if(record.d)return;
-	      record.d = true;
-	      record = record.r || record; // unwrap
-	      try {
-	        if(then = isThenable(value)){
-	          wrapper = {r: record, d: false}; // wrap
-	          then.call(value, ctx(resolve, wrapper, 1), ctx(reject, wrapper, 1));
-	        } else {
-	          record.v = value;
-	          record.s = 1;
-	          notify(record);
-	        }
-	      } catch(err){
-	        reject.call(wrapper || {r: record, d: false}, err); // wrap
-	      }
-	    }
-	    function reject(value){
-	      var record = this;
-	      if(record.d)return;
-	      record.d = true;
-	      record = record.r || record; // unwrap
-	      record.v = value;
-	      record.s = 2;
-	      notify(record, true);
-	    }
-	    function getConstructor(C){
-	      var S = assertObject(C)[SYMBOL_SPECIES];
-	      return S != undefined ? S : C;
-	    }
-	    // 25.4.3.1 Promise(executor)
-	    Promise = function(executor){
-	      assertFunction(executor);
-	      assertInstance(this, Promise, PROMISE);
-	      var record = {
-	        p: this,      // promise
-	        c: [],        // chain
-	        s: 0,         // state
-	        d: false,     // done
-	        v: undefined, // value
-	        h: false      // handled rejection
-	      };
-	      hidden(this, RECORD, record);
-	      try {
-	        executor(ctx(resolve, record, 1), ctx(reject, record, 1));
-	      } catch(err){
-	        reject.call(record, err);
-	      }
-	    }
-	    assignHidden(Promise[PROTOTYPE], {
-	      // 25.4.5.3 Promise.prototype.then(onFulfilled, onRejected)
-	      then: function(onFulfilled, onRejected){
-	        var S = assertObject(assertObject(this)[CONSTRUCTOR])[SYMBOL_SPECIES];
-	        var react = {
-	          ok:   isFunction(onFulfilled) ? onFulfilled : true,
-	          fail: isFunction(onRejected)  ? onRejected  : false
-	        } , P = react.P = new (S != undefined ? S : Promise)(function(resolve, reject){
-	          react.res = assertFunction(resolve);
-	          react.rej = assertFunction(reject);
-	        }), record = this[RECORD];
-	        record.c.push(react);
-	        record.s && notify(record);
-	        return P;
-	      },
-	      // 25.4.5.1 Promise.prototype.catch(onRejected)
-	      'catch': function(onRejected){
-	        return this.then(undefined, onRejected);
-	      }
-	    });
-	    assignHidden(Promise, {
-	      // 25.4.4.1 Promise.all(iterable)
-	      all: function(iterable){
-	        var Promise = getConstructor(this)
-	          , values  = [];
-	        return new Promise(function(resolve, reject){
-	          forOf(iterable, false, push, values);
-	          var remaining = values.length
-	            , results   = Array(remaining);
-	          if(remaining)forEach.call(values, function(promise, index){
-	            Promise.resolve(promise).then(function(value){
-	              results[index] = value;
-	              --remaining || resolve(results);
-	            }, reject);
-	          });
-	          else resolve(results);
-	        });
-	      },
-	      // 25.4.4.4 Promise.race(iterable)
-	      race: function(iterable){
-	        var Promise = getConstructor(this);
-	        return new Promise(function(resolve, reject){
-	          forOf(iterable, false, function(promise){
-	            Promise.resolve(promise).then(resolve, reject);
-	          });
-	        });
-	      },
-	      // 25.4.4.5 Promise.reject(r)
-	      reject: function(r){
-	        return new (getConstructor(this))(function(resolve, reject){
-	          reject(r);
-	        });
-	      },
-	      // 25.4.4.6 Promise.resolve(x)
-	      resolve: function(x){
-	        return isObject(x) && RECORD in x && getPrototypeOf(x) === this[PROTOTYPE]
-	          ? x : new (getConstructor(this))(function(resolve, reject){
-	            resolve(x);
-	          });
-	      }
-	    });
-	  }(nextTick || setImmediate, safeSymbol('record'));
-	  setToStringTag(Promise, PROMISE);
-	  setSpecies(Promise);
-	  $define(GLOBAL + FORCED * !isNative(Promise), {Promise: Promise});
-	}(global[PROMISE]);
-
-	/******************************************************************************
-	 * Module : es6.collections                                                   *
-	 ******************************************************************************/
-
-	// ECMAScript 6 collections shim
-	!function(){
-	  var UID   = safeSymbol('uid')
-	    , O1    = safeSymbol('O1')
-	    , WEAK  = safeSymbol('weak')
-	    , LEAK  = safeSymbol('leak')
-	    , LAST  = safeSymbol('last')
-	    , FIRST = safeSymbol('first')
-	    , SIZE  = DESC ? safeSymbol('size') : 'size'
-	    , uid   = 0
-	    , tmp   = {};
-	  
-	  function getCollection(C, NAME, methods, commonMethods, isMap, isWeak){
-	    var ADDER = isMap ? 'set' : 'add'
-	      , proto = C && C[PROTOTYPE]
-	      , O     = {};
-	    function initFromIterable(that, iterable){
-	      if(iterable != undefined)forOf(iterable, isMap, that[ADDER], that);
-	      return that;
-	    }
-	    function fixSVZ(key, chain){
-	      var method = proto[key];
-	      if(framework)proto[key] = function(a, b){
-	        var result = method.call(this, a === 0 ? 0 : a, b);
-	        return chain ? this : result;
-	      };
-	    }
-	    if(!isNative(C) || !(isWeak || (!BUGGY_ITERATORS && has(proto, FOR_EACH) && has(proto, 'entries')))){
-	      // create collection constructor
-	      C = isWeak
-	        ? function(iterable){
-	            assertInstance(this, C, NAME);
-	            set(this, UID, uid++);
-	            initFromIterable(this, iterable);
-	          }
-	        : function(iterable){
-	            var that = this;
-	            assertInstance(that, C, NAME);
-	            set(that, O1, create(null));
-	            set(that, SIZE, 0);
-	            set(that, LAST, undefined);
-	            set(that, FIRST, undefined);
-	            initFromIterable(that, iterable);
-	          };
-	      assignHidden(assignHidden(C[PROTOTYPE], methods), commonMethods);
-	      isWeak || !DESC || defineProperty(C[PROTOTYPE], 'size', {get: function(){
-	        return assertDefined(this[SIZE]);
-	      }});
-	    } else {
-	      var Native = C
-	        , inst   = new C
-	        , chain  = inst[ADDER](isWeak ? {} : -0, 1)
-	        , buggyZero;
-	      // wrap to init collections from iterable
-	      if(checkDangerIterClosing(function(O){ new C(O) })){
-	        C = function(iterable){
-	          assertInstance(this, C, NAME);
-	          return initFromIterable(new Native, iterable);
-	        }
-	        C[PROTOTYPE] = proto;
-	        if(framework)proto[CONSTRUCTOR] = C;
-	      }
-	      isWeak || inst[FOR_EACH](function(val, key){
-	        buggyZero = 1 / key === -Infinity;
-	      });
-	      // fix converting -0 key to +0
-	      if(buggyZero){
-	        fixSVZ('delete');
-	        fixSVZ('has');
-	        isMap && fixSVZ('get');
-	      }
-	      // + fix .add & .set for chaining
-	      if(buggyZero || chain !== inst)fixSVZ(ADDER, true);
-	    }
-	    setToStringTag(C, NAME);
-	    setSpecies(C);
-	    
-	    O[NAME] = C;
-	    $define(GLOBAL + WRAP + FORCED * !isNative(C), O);
-	    
-	    // add .keys, .values, .entries, [@@iterator]
-	    // 23.1.3.4, 23.1.3.8, 23.1.3.11, 23.1.3.12, 23.2.3.5, 23.2.3.8, 23.2.3.10, 23.2.3.11
-	    isWeak || defineStdIterators(C, NAME, function(iterated, kind){
-	      set(this, ITER, {o: iterated, k: kind});
-	    }, function(){
-	      var iter  = this[ITER]
-	        , kind  = iter.k
-	        , entry = iter.l;
-	      // revert to the last existing entry
-	      while(entry && entry.r)entry = entry.p;
-	      // get next entry
-	      if(!iter.o || !(iter.l = entry = entry ? entry.n : iter.o[FIRST])){
-	        // or finish the iteration
-	        iter.o = undefined;
-	        return iterResult(1);
-	      }
-	      // return step by kind
-	      if(kind == KEY)  return iterResult(0, entry.k);
-	      if(kind == VALUE)return iterResult(0, entry.v);
-	                       return iterResult(0, [entry.k, entry.v]);   
-	    }, isMap ? KEY+VALUE : VALUE, !isMap);
-	    
-	    return C;
-	  }
-	  
-	  function fastKey(it, create){
-	    // return primitive with prefix
-	    if(!isObject(it))return (typeof it == 'string' ? 'S' : 'P') + it;
-	    // can't set id to frozen object
-	    if(isFrozen(it))return 'F';
-	    if(!has(it, UID)){
-	      // not necessary to add id
-	      if(!create)return 'E';
-	      // add missing object id
-	      hidden(it, UID, ++uid);
-	    // return object id with prefix
-	    } return 'O' + it[UID];
-	  }
-	  function getEntry(that, key){
-	    // fast case
-	    var index = fastKey(key), entry;
-	    if(index != 'F')return that[O1][index];
-	    // frozen object case
-	    for(entry = that[FIRST]; entry; entry = entry.n){
-	      if(entry.k == key)return entry;
-	    }
-	  }
-	  function def(that, key, value){
-	    var entry = getEntry(that, key)
-	      , prev, index;
-	    // change existing entry
-	    if(entry)entry.v = value;
-	    // create new entry
-	    else {
-	      that[LAST] = entry = {
-	        i: index = fastKey(key, true), // <- index
-	        k: key,                        // <- key
-	        v: value,                      // <- value
-	        p: prev = that[LAST],          // <- previous entry
-	        n: undefined,                  // <- next entry
-	        r: false                       // <- removed
-	      };
-	      if(!that[FIRST])that[FIRST] = entry;
-	      if(prev)prev.n = entry;
-	      that[SIZE]++;
-	      // add to index
-	      if(index != 'F')that[O1][index] = entry;
-	    } return that;
-	  }
-
-	  var collectionMethods = {
-	    // 23.1.3.1 Map.prototype.clear()
-	    // 23.2.3.2 Set.prototype.clear()
-	    clear: function(){
-	      for(var that = this, data = that[O1], entry = that[FIRST]; entry; entry = entry.n){
-	        entry.r = true;
-	        if(entry.p)entry.p = entry.p.n = undefined;
-	        delete data[entry.i];
-	      }
-	      that[FIRST] = that[LAST] = undefined;
-	      that[SIZE] = 0;
-	    },
-	    // 23.1.3.3 Map.prototype.delete(key)
-	    // 23.2.3.4 Set.prototype.delete(value)
-	    'delete': function(key){
-	      var that  = this
-	        , entry = getEntry(that, key);
-	      if(entry){
-	        var next = entry.n
-	          , prev = entry.p;
-	        delete that[O1][entry.i];
-	        entry.r = true;
-	        if(prev)prev.n = next;
-	        if(next)next.p = prev;
-	        if(that[FIRST] == entry)that[FIRST] = next;
-	        if(that[LAST] == entry)that[LAST] = prev;
-	        that[SIZE]--;
-	      } return !!entry;
-	    },
-	    // 23.2.3.6 Set.prototype.forEach(callbackfn, thisArg = undefined)
-	    // 23.1.3.5 Map.prototype.forEach(callbackfn, thisArg = undefined)
-	    forEach: function(callbackfn /*, that = undefined */){
-	      var f = ctx(callbackfn, arguments[1], 3)
-	        , entry;
-	      while(entry = entry ? entry.n : this[FIRST]){
-	        f(entry.v, entry.k, this);
-	        // revert to the last existing entry
-	        while(entry && entry.r)entry = entry.p;
-	      }
-	    },
-	    // 23.1.3.7 Map.prototype.has(key)
-	    // 23.2.3.7 Set.prototype.has(value)
-	    has: function(key){
-	      return !!getEntry(this, key);
-	    }
-	  }
-	  
-	  // 23.1 Map Objects
-	  Map = getCollection(Map, MAP, {
-	    // 23.1.3.6 Map.prototype.get(key)
-	    get: function(key){
-	      var entry = getEntry(this, key);
-	      return entry && entry.v;
-	    },
-	    // 23.1.3.9 Map.prototype.set(key, value)
-	    set: function(key, value){
-	      return def(this, key === 0 ? 0 : key, value);
-	    }
-	  }, collectionMethods, true);
-	  
-	  // 23.2 Set Objects
-	  Set = getCollection(Set, SET, {
-	    // 23.2.3.1 Set.prototype.add(value)
-	    add: function(value){
-	      return def(this, value = value === 0 ? 0 : value, value);
-	    }
-	  }, collectionMethods);
-	  
-	  function defWeak(that, key, value){
-	    if(isFrozen(assertObject(key)))leakStore(that).set(key, value);
-	    else {
-	      has(key, WEAK) || hidden(key, WEAK, {});
-	      key[WEAK][that[UID]] = value;
-	    } return that;
-	  }
-	  function leakStore(that){
-	    return that[LEAK] || hidden(that, LEAK, new Map)[LEAK];
-	  }
-	  
-	  var weakMethods = {
-	    // 23.3.3.2 WeakMap.prototype.delete(key)
-	    // 23.4.3.3 WeakSet.prototype.delete(value)
-	    'delete': function(key){
-	      if(!isObject(key))return false;
-	      if(isFrozen(key))return leakStore(this)['delete'](key);
-	      return has(key, WEAK) && has(key[WEAK], this[UID]) && delete key[WEAK][this[UID]];
-	    },
-	    // 23.3.3.4 WeakMap.prototype.has(key)
-	    // 23.4.3.4 WeakSet.prototype.has(value)
-	    has: function(key){
-	      if(!isObject(key))return false;
-	      if(isFrozen(key))return leakStore(this).has(key);
-	      return has(key, WEAK) && has(key[WEAK], this[UID]);
-	    }
-	  };
-	  
-	  // 23.3 WeakMap Objects
-	  WeakMap = getCollection(WeakMap, WEAKMAP, {
-	    // 23.3.3.3 WeakMap.prototype.get(key)
-	    get: function(key){
-	      if(isObject(key)){
-	        if(isFrozen(key))return leakStore(this).get(key);
-	        if(has(key, WEAK))return key[WEAK][this[UID]];
-	      }
-	    },
-	    // 23.3.3.5 WeakMap.prototype.set(key, value)
-	    set: function(key, value){
-	      return defWeak(this, key, value);
-	    }
-	  }, weakMethods, true, true);
-	  
-	  // IE11 WeakMap frozen keys fix
-	  if(framework && new WeakMap().set(Object.freeze(tmp), 7).get(tmp) != 7){
-	    forEach.call(array('delete,has,get,set'), function(key){
-	      var method = WeakMap[PROTOTYPE][key];
-	      WeakMap[PROTOTYPE][key] = function(a, b){
-	        // store frozen objects on leaky map
-	        if(isObject(a) && isFrozen(a)){
-	          var result = leakStore(this)[key](a, b);
-	          return key == 'set' ? this : result;
-	        // store all the rest on native weakmap
-	        } return method.call(this, a, b);
-	      };
-	    });
-	  }
-	  
-	  // 23.4 WeakSet Objects
-	  WeakSet = getCollection(WeakSet, WEAKSET, {
-	    // 23.4.3.1 WeakSet.prototype.add(value)
-	    add: function(value){
-	      return defWeak(this, value, true);
-	    }
-	  }, weakMethods, false, true);
-	}();
-
-	/******************************************************************************
-	 * Module : es6.reflect                                                       *
-	 ******************************************************************************/
-
-	!function(){
-	  function Enumerate(iterated){
-	    var keys = [], key;
-	    for(key in iterated)keys.push(key);
-	    set(this, ITER, {o: iterated, a: keys, i: 0});
-	  }
-	  createIterator(Enumerate, OBJECT, function(){
-	    var iter = this[ITER]
-	      , keys = iter.a
-	      , key;
-	    do {
-	      if(iter.i >= keys.length)return iterResult(1);
-	    } while(!((key = keys[iter.i++]) in iter.o));
-	    return iterResult(0, key);
-	  });
-	  
-	  function wrap(fn){
-	    return function(it){
-	      assertObject(it);
-	      try {
-	        return fn.apply(undefined, arguments), true;
-	      } catch(e){
-	        return false;
-	      }
-	    }
-	  }
-	  
-	  function reflectGet(target, propertyKey/*, receiver*/){
-	    var receiver = arguments.length < 3 ? target : arguments[2]
-	      , desc = getOwnDescriptor(assertObject(target), propertyKey), proto;
-	    if(desc)return has(desc, 'value')
-	      ? desc.value
-	      : desc.get === undefined
-	        ? undefined
-	        : desc.get.call(receiver);
-	    return isObject(proto = getPrototypeOf(target))
-	      ? reflectGet(proto, propertyKey, receiver)
-	      : undefined;
-	  }
-	  function reflectSet(target, propertyKey, V/*, receiver*/){
-	    var receiver = arguments.length < 4 ? target : arguments[3]
-	      , ownDesc  = getOwnDescriptor(assertObject(target), propertyKey)
-	      , existingDescriptor, proto;
-	    if(!ownDesc){
-	      if(isObject(proto = getPrototypeOf(target))){
-	        return reflectSet(proto, propertyKey, V, receiver);
-	      }
-	      ownDesc = descriptor(0);
-	    }
-	    if(has(ownDesc, 'value')){
-	      if(ownDesc.writable === false || !isObject(receiver))return false;
-	      existingDescriptor = getOwnDescriptor(receiver, propertyKey) || descriptor(0);
-	      existingDescriptor.value = V;
-	      return defineProperty(receiver, propertyKey, existingDescriptor), true;
-	    }
-	    return ownDesc.set === undefined
-	      ? false
-	      : (ownDesc.set.call(receiver, V), true);
-	  }
-	  var isExtensible = Object.isExtensible || returnIt;
-	  
-	  var reflect = {
-	    // 26.1.1 Reflect.apply(target, thisArgument, argumentsList)
-	    apply: ctx(call, apply, 3),
-	    // 26.1.2 Reflect.construct(target, argumentsList [, newTarget])
-	    construct: function(target, argumentsList /*, newTarget*/){
-	      var proto    = assertFunction(arguments.length < 3 ? target : arguments[2])[PROTOTYPE]
-	        , instance = create(isObject(proto) ? proto : ObjectProto)
-	        , result   = apply.call(target, instance, argumentsList);
-	      return isObject(result) ? result : instance;
-	    },
-	    // 26.1.3 Reflect.defineProperty(target, propertyKey, attributes)
-	    defineProperty: wrap(defineProperty),
-	    // 26.1.4 Reflect.deleteProperty(target, propertyKey)
-	    deleteProperty: function(target, propertyKey){
-	      var desc = getOwnDescriptor(assertObject(target), propertyKey);
-	      return desc && !desc.configurable ? false : delete target[propertyKey];
-	    },
-	    // 26.1.5 Reflect.enumerate(target)
-	    enumerate: function(target){
-	      return new Enumerate(assertObject(target));
-	    },
-	    // 26.1.6 Reflect.get(target, propertyKey [, receiver])
-	    get: reflectGet,
-	    // 26.1.7 Reflect.getOwnPropertyDescriptor(target, propertyKey)
-	    getOwnPropertyDescriptor: function(target, propertyKey){
-	      return getOwnDescriptor(assertObject(target), propertyKey);
-	    },
-	    // 26.1.8 Reflect.getPrototypeOf(target)
-	    getPrototypeOf: function(target){
-	      return getPrototypeOf(assertObject(target));
-	    },
-	    // 26.1.9 Reflect.has(target, propertyKey)
-	    has: function(target, propertyKey){
-	      return propertyKey in target;
-	    },
-	    // 26.1.10 Reflect.isExtensible(target)
-	    isExtensible: function(target){
-	      return !!isExtensible(assertObject(target));
-	    },
-	    // 26.1.11 Reflect.ownKeys(target)
-	    ownKeys: ownKeys,
-	    // 26.1.12 Reflect.preventExtensions(target)
-	    preventExtensions: wrap(Object.preventExtensions || returnIt),
-	    // 26.1.13 Reflect.set(target, propertyKey, V [, receiver])
-	    set: reflectSet
-	  }
-	  // 26.1.14 Reflect.setPrototypeOf(target, proto)
-	  if(setPrototypeOf)reflect.setPrototypeOf = function(target, proto){
-	    return setPrototypeOf(assertObject(target), proto), true;
-	  };
-	  
-	  $define(GLOBAL, {Reflect: {}});
-	  $define(STATIC, 'Reflect', reflect);
-	}();
-
-	/******************************************************************************
-	 * Module : es7.proposals                                                     *
-	 ******************************************************************************/
-
-	!function(){
-	  $define(PROTO, ARRAY, {
-	    // https://github.com/domenic/Array.prototype.includes
-	    includes: createArrayContains(true)
-	  });
-	  $define(PROTO, STRING, {
-	    // https://github.com/mathiasbynens/String.prototype.at
-	    at: createPointAt(true)
-	  });
-	  
-	  function createObjectToArray(isEntries){
-	    return function(object){
-	      var O      = toObject(object)
-	        , keys   = getKeys(object)
-	        , length = keys.length
-	        , i      = 0
-	        , result = Array(length)
-	        , key;
-	      if(isEntries)while(length > i)result[i] = [key = keys[i++], O[key]];
-	      else while(length > i)result[i] = O[keys[i++]];
-	      return result;
-	    }
-	  }
-	  $define(STATIC, OBJECT, {
-	    // https://gist.github.com/WebReflection/9353781
-	    getOwnPropertyDescriptors: function(object){
-	      var O      = toObject(object)
-	        , result = {};
-	      forEach.call(ownKeys(O), function(key){
-	        defineProperty(result, key, descriptor(0, getOwnDescriptor(O, key)));
-	      });
-	      return result;
-	    },
-	    // https://github.com/rwaldron/tc39-notes/blob/master/es6/2014-04/apr-9.md#51-objectentries-objectvalues
-	    values:  createObjectToArray(false),
-	    entries: createObjectToArray(true)
-	  });
-	  $define(STATIC, REGEXP, {
-	    // https://gist.github.com/kangax/9698100
-	    escape: createReplacer(/([\\\-[\]{}()*+?.,^$|])/g, '\\$1', true)
-	  });
-	}();
-
-	/******************************************************************************
-	 * Module : es7.abstract-refs                                                 *
-	 ******************************************************************************/
-
-	// https://github.com/zenparsing/es-abstract-refs
-	!function(REFERENCE){
-	  REFERENCE_GET = getWellKnownSymbol(REFERENCE+'Get', true);
-	  var REFERENCE_SET = getWellKnownSymbol(REFERENCE+SET, true)
-	    , REFERENCE_DELETE = getWellKnownSymbol(REFERENCE+'Delete', true);
-	  
-	  $define(STATIC, SYMBOL, {
-	    referenceGet: REFERENCE_GET,
-	    referenceSet: REFERENCE_SET,
-	    referenceDelete: REFERENCE_DELETE
-	  });
-	  
-	  hidden(FunctionProto, REFERENCE_GET, returnThis);
-	  
-	  function setMapMethods(Constructor){
-	    if(Constructor){
-	      var MapProto = Constructor[PROTOTYPE];
-	      hidden(MapProto, REFERENCE_GET, MapProto.get);
-	      hidden(MapProto, REFERENCE_SET, MapProto.set);
-	      hidden(MapProto, REFERENCE_DELETE, MapProto['delete']);
-	    }
-	  }
-	  setMapMethods(Map);
-	  setMapMethods(WeakMap);
-	}('reference');
-
-	/******************************************************************************
-	 * Module : js.array.statics                                                  *
-	 ******************************************************************************/
-
-	// JavaScript 1.6 / Strawman array statics shim
-	!function(arrayStatics){
-	  function setArrayStatics(keys, length){
-	    forEach.call(array(keys), function(key){
-	      if(key in ArrayProto)arrayStatics[key] = ctx(call, ArrayProto[key], length);
-	    });
-	  }
-	  setArrayStatics('pop,reverse,shift,keys,values,entries', 1);
-	  setArrayStatics('indexOf,every,some,forEach,map,filter,find,findIndex,includes', 3);
-	  setArrayStatics('join,slice,concat,push,splice,unshift,sort,lastIndexOf,' +
-	                  'reduce,reduceRight,copyWithin,fill,turn');
-	  $define(STATIC, ARRAY, arrayStatics);
-	}({});
-
-	/******************************************************************************
-	 * Module : web.dom.itarable                                                  *
-	 ******************************************************************************/
-
-	!function(NodeList){
-	  if(framework && NodeList && !(SYMBOL_ITERATOR in NodeList[PROTOTYPE])){
-	    hidden(NodeList[PROTOTYPE], SYMBOL_ITERATOR, Iterators[ARRAY]);
-	  }
-	  Iterators.NodeList = Iterators[ARRAY];
-	}(global.NodeList);
-	}(typeof self != 'undefined' && self.Math === Math ? self : Function('return this')(), true);
-
-/***/ },
-/* 36 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(global) {/**
-	 * Copyright (c) 2014, Facebook, Inc.
-	 * All rights reserved.
-	 *
-	 * This source code is licensed under the BSD-style license found in the
-	 * https://raw.github.com/facebook/regenerator/master/LICENSE file. An
-	 * additional grant of patent rights can be found in the PATENTS file in
-	 * the same directory.
-	 */
-
-	!(function(global) {
-	  "use strict";
-
-	  var hasOwn = Object.prototype.hasOwnProperty;
-	  var undefined; // More compressible than void 0.
-	  var iteratorSymbol =
-	    typeof Symbol === "function" && Symbol.iterator || "@@iterator";
-
-	  var inModule = typeof module === "object";
-	  var runtime = global.regeneratorRuntime;
-	  if (runtime) {
-	    if (inModule) {
-	      // If regeneratorRuntime is defined globally and we're in a module,
-	      // make the exports object identical to regeneratorRuntime.
-	      module.exports = runtime;
-	    }
-	    // Don't bother evaluating the rest of this file if the runtime was
-	    // already defined globally.
-	    return;
-	  }
-
-	  // Define the runtime globally (as expected by generated code) as either
-	  // module.exports (if we're in a module) or a new, empty object.
-	  runtime = global.regeneratorRuntime = inModule ? module.exports : {};
-
-	  function wrap(innerFn, outerFn, self, tryLocsList) {
-	    return new Generator(innerFn, outerFn, self || null, tryLocsList || []);
-	  }
-	  runtime.wrap = wrap;
-
-	  // Try/catch helper to minimize deoptimizations. Returns a completion
-	  // record like context.tryEntries[i].completion. This interface could
-	  // have been (and was previously) designed to take a closure to be
-	  // invoked without arguments, but in all the cases we care about we
-	  // already have an existing method we want to call, so there's no need
-	  // to create a new function object. We can even get away with assuming
-	  // the method takes exactly one argument, since that happens to be true
-	  // in every case, so we don't have to touch the arguments object. The
-	  // only additional allocation required is the completion record, which
-	  // has a stable shape and so hopefully should be cheap to allocate.
-	  function tryCatch(fn, obj, arg) {
-	    try {
-	      return { type: "normal", arg: fn.call(obj, arg) };
-	    } catch (err) {
-	      return { type: "throw", arg: err };
-	    }
-	  }
-
-	  var GenStateSuspendedStart = "suspendedStart";
-	  var GenStateSuspendedYield = "suspendedYield";
-	  var GenStateExecuting = "executing";
-	  var GenStateCompleted = "completed";
-
-	  // Returning this object from the innerFn has the same effect as
-	  // breaking out of the dispatch switch statement.
-	  var ContinueSentinel = {};
-
-	  // Dummy constructor functions that we use as the .constructor and
-	  // .constructor.prototype properties for functions that return Generator
-	  // objects. For full spec compliance, you may wish to configure your
-	  // minifier not to mangle the names of these two functions.
-	  function GeneratorFunction() {}
-	  function GeneratorFunctionPrototype() {}
-
-	  var Gp = GeneratorFunctionPrototype.prototype = Generator.prototype;
-	  GeneratorFunction.prototype = Gp.constructor = GeneratorFunctionPrototype;
-	  GeneratorFunctionPrototype.constructor = GeneratorFunction;
-	  GeneratorFunction.displayName = "GeneratorFunction";
-
-	  runtime.isGeneratorFunction = function(genFun) {
-	    var ctor = typeof genFun === "function" && genFun.constructor;
-	    return ctor
-	      ? ctor === GeneratorFunction ||
-	        // For the native GeneratorFunction constructor, the best we can
-	        // do is to check its .name property.
-	        (ctor.displayName || ctor.name) === "GeneratorFunction"
-	      : false;
-	  };
-
-	  runtime.mark = function(genFun) {
-	    genFun.__proto__ = GeneratorFunctionPrototype;
-	    genFun.prototype = Object.create(Gp);
-	    return genFun;
-	  };
-
-	  runtime.async = function(innerFn, outerFn, self, tryLocsList) {
-	    return new Promise(function(resolve, reject) {
-	      var generator = wrap(innerFn, outerFn, self, tryLocsList);
-	      var callNext = step.bind(generator.next);
-	      var callThrow = step.bind(generator["throw"]);
-
-	      function step(arg) {
-	        var record = tryCatch(this, null, arg);
-	        if (record.type === "throw") {
-	          reject(record.arg);
-	          return;
-	        }
-
-	        var info = record.arg;
-	        if (info.done) {
-	          resolve(info.value);
-	        } else {
-	          Promise.resolve(info.value).then(callNext, callThrow);
-	        }
-	      }
-
-	      callNext();
-	    });
-	  };
-
-	  function Generator(innerFn, outerFn, self, tryLocsList) {
-	    var generator = outerFn ? Object.create(outerFn.prototype) : this;
-	    var context = new Context(tryLocsList);
-	    var state = GenStateSuspendedStart;
-
-	    function invoke(method, arg) {
-	      if (state === GenStateExecuting) {
-	        throw new Error("Generator is already running");
-	      }
-
-	      if (state === GenStateCompleted) {
-	        // Be forgiving, per 25.3.3.3.3 of the spec:
-	        // https://people.mozilla.org/~jorendorff/es6-draft.html#sec-generatorresume
-	        return doneResult();
-	      }
-
-	      while (true) {
-	        var delegate = context.delegate;
-	        if (delegate) {
-	          var record = tryCatch(
-	            delegate.iterator[method],
-	            delegate.iterator,
-	            arg
-	          );
-
-	          if (record.type === "throw") {
-	            context.delegate = null;
-
-	            // Like returning generator.throw(uncaught), but without the
-	            // overhead of an extra function call.
-	            method = "throw";
-	            arg = record.arg;
-
-	            continue;
-	          }
-
-	          // Delegate generator ran and handled its own exceptions so
-	          // regardless of what the method was, we continue as if it is
-	          // "next" with an undefined arg.
-	          method = "next";
-	          arg = undefined;
-
-	          var info = record.arg;
-	          if (info.done) {
-	            context[delegate.resultName] = info.value;
-	            context.next = delegate.nextLoc;
-	          } else {
-	            state = GenStateSuspendedYield;
-	            return info;
-	          }
-
-	          context.delegate = null;
-	        }
-
-	        if (method === "next") {
-	          if (state === GenStateSuspendedStart &&
-	              typeof arg !== "undefined") {
-	            // https://people.mozilla.org/~jorendorff/es6-draft.html#sec-generatorresume
-	            throw new TypeError(
-	              "attempt to send " + JSON.stringify(arg) + " to newborn generator"
-	            );
-	          }
-
-	          if (state === GenStateSuspendedYield) {
-	            context.sent = arg;
-	          } else {
-	            delete context.sent;
-	          }
-
-	        } else if (method === "throw") {
-	          if (state === GenStateSuspendedStart) {
-	            state = GenStateCompleted;
-	            throw arg;
-	          }
-
-	          if (context.dispatchException(arg)) {
-	            // If the dispatched exception was caught by a catch block,
-	            // then let that catch block handle the exception normally.
-	            method = "next";
-	            arg = undefined;
-	          }
-
-	        } else if (method === "return") {
-	          context.abrupt("return", arg);
-	        }
-
-	        state = GenStateExecuting;
-
-	        var record = tryCatch(innerFn, self, context);
-	        if (record.type === "normal") {
-	          // If an exception is thrown from innerFn, we leave state ===
-	          // GenStateExecuting and loop back for another invocation.
-	          state = context.done
-	            ? GenStateCompleted
-	            : GenStateSuspendedYield;
-
-	          var info = {
-	            value: record.arg,
-	            done: context.done
-	          };
-
-	          if (record.arg === ContinueSentinel) {
-	            if (context.delegate && method === "next") {
-	              // Deliberately forget the last sent value so that we don't
-	              // accidentally pass it on to the delegate.
-	              arg = undefined;
-	            }
-	          } else {
-	            return info;
-	          }
-
-	        } else if (record.type === "throw") {
-	          state = GenStateCompleted;
-
-	          if (method === "next") {
-	            context.dispatchException(record.arg);
-	          } else {
-	            arg = record.arg;
-	          }
-	        }
-	      }
-	    }
-
-	    generator.next = invoke.bind(generator, "next");
-	    generator["throw"] = invoke.bind(generator, "throw");
-	    generator["return"] = invoke.bind(generator, "return");
-
-	    return generator;
-	  }
-
-	  Gp[iteratorSymbol] = function() {
-	    return this;
-	  };
-
-	  Gp.toString = function() {
-	    return "[object Generator]";
-	  };
-
-	  function pushTryEntry(locs) {
-	    var entry = { tryLoc: locs[0] };
-
-	    if (1 in locs) {
-	      entry.catchLoc = locs[1];
-	    }
-
-	    if (2 in locs) {
-	      entry.finallyLoc = locs[2];
-	      entry.afterLoc = locs[3];
-	    }
-
-	    this.tryEntries.push(entry);
-	  }
-
-	  function resetTryEntry(entry) {
-	    var record = entry.completion || {};
-	    record.type = "normal";
-	    delete record.arg;
-	    entry.completion = record;
-	  }
-
-	  function Context(tryLocsList) {
-	    // The root entry object (effectively a try statement without a catch
-	    // or a finally block) gives us a place to store values thrown from
-	    // locations where there is no enclosing try statement.
-	    this.tryEntries = [{ tryLoc: "root" }];
-	    tryLocsList.forEach(pushTryEntry, this);
-	    this.reset();
-	  }
-
-	  runtime.keys = function(object) {
-	    var keys = [];
-	    for (var key in object) {
-	      keys.push(key);
-	    }
-	    keys.reverse();
-
-	    // Rather than returning an object with a next method, we keep
-	    // things simple and return the next function itself.
-	    return function next() {
-	      while (keys.length) {
-	        var key = keys.pop();
-	        if (key in object) {
-	          next.value = key;
-	          next.done = false;
-	          return next;
-	        }
-	      }
-
-	      // To avoid creating an additional object, we just hang the .value
-	      // and .done properties off the next function object itself. This
-	      // also ensures that the minifier will not anonymize the function.
-	      next.done = true;
-	      return next;
-	    };
-	  };
-
-	  function values(iterable) {
-	    if (iterable) {
-	      var iteratorMethod = iterable[iteratorSymbol];
-	      if (iteratorMethod) {
-	        return iteratorMethod.call(iterable);
-	      }
-
-	      if (typeof iterable.next === "function") {
-	        return iterable;
-	      }
-
-	      if (!isNaN(iterable.length)) {
-	        var i = -1, next = function next() {
-	          while (++i < iterable.length) {
-	            if (hasOwn.call(iterable, i)) {
-	              next.value = iterable[i];
-	              next.done = false;
-	              return next;
-	            }
-	          }
-
-	          next.value = undefined;
-	          next.done = true;
-
-	          return next;
-	        };
-
-	        return next.next = next;
-	      }
-	    }
-
-	    // Return an iterator with no values.
-	    return { next: doneResult };
-	  }
-	  runtime.values = values;
-
-	  function doneResult() {
-	    return { value: undefined, done: true };
-	  }
-
-	  Context.prototype = {
-	    constructor: Context,
-
-	    reset: function() {
-	      this.prev = 0;
-	      this.next = 0;
-	      this.sent = undefined;
-	      this.done = false;
-	      this.delegate = null;
-
-	      this.tryEntries.forEach(resetTryEntry);
-
-	      // Pre-initialize at least 20 temporary variables to enable hidden
-	      // class optimizations for simple generators.
-	      for (var tempIndex = 0, tempName;
-	           hasOwn.call(this, tempName = "t" + tempIndex) || tempIndex < 20;
-	           ++tempIndex) {
-	        this[tempName] = null;
-	      }
-	    },
-
-	    stop: function() {
-	      this.done = true;
-
-	      var rootEntry = this.tryEntries[0];
-	      var rootRecord = rootEntry.completion;
-	      if (rootRecord.type === "throw") {
-	        throw rootRecord.arg;
-	      }
-
-	      return this.rval;
-	    },
-
-	    dispatchException: function(exception) {
-	      if (this.done) {
-	        throw exception;
-	      }
-
-	      var context = this;
-	      function handle(loc, caught) {
-	        record.type = "throw";
-	        record.arg = exception;
-	        context.next = loc;
-	        return !!caught;
-	      }
-
-	      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-	        var entry = this.tryEntries[i];
-	        var record = entry.completion;
-
-	        if (entry.tryLoc === "root") {
-	          // Exception thrown outside of any try block that could handle
-	          // it, so set the completion value of the entire function to
-	          // throw the exception.
-	          return handle("end");
-	        }
-
-	        if (entry.tryLoc <= this.prev) {
-	          var hasCatch = hasOwn.call(entry, "catchLoc");
-	          var hasFinally = hasOwn.call(entry, "finallyLoc");
-
-	          if (hasCatch && hasFinally) {
-	            if (this.prev < entry.catchLoc) {
-	              return handle(entry.catchLoc, true);
-	            } else if (this.prev < entry.finallyLoc) {
-	              return handle(entry.finallyLoc);
-	            }
-
-	          } else if (hasCatch) {
-	            if (this.prev < entry.catchLoc) {
-	              return handle(entry.catchLoc, true);
-	            }
-
-	          } else if (hasFinally) {
-	            if (this.prev < entry.finallyLoc) {
-	              return handle(entry.finallyLoc);
-	            }
-
-	          } else {
-	            throw new Error("try statement without catch or finally");
-	          }
-	        }
-	      }
-	    },
-
-	    abrupt: function(type, arg) {
-	      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-	        var entry = this.tryEntries[i];
-	        if (entry.tryLoc <= this.prev &&
-	            hasOwn.call(entry, "finallyLoc") &&
-	            this.prev < entry.finallyLoc) {
-	          var finallyEntry = entry;
-	          break;
-	        }
-	      }
-
-	      if (finallyEntry &&
-	          (type === "break" ||
-	           type === "continue") &&
-	          finallyEntry.tryLoc <= arg &&
-	          arg < finallyEntry.finallyLoc) {
-	        // Ignore the finally entry if control is not jumping to a
-	        // location outside the try/catch block.
-	        finallyEntry = null;
-	      }
-
-	      var record = finallyEntry ? finallyEntry.completion : {};
-	      record.type = type;
-	      record.arg = arg;
-
-	      if (finallyEntry) {
-	        this.next = finallyEntry.finallyLoc;
-	      } else {
-	        this.complete(record);
-	      }
-
-	      return ContinueSentinel;
-	    },
-
-	    complete: function(record, afterLoc) {
-	      if (record.type === "throw") {
-	        throw record.arg;
-	      }
-
-	      if (record.type === "break" ||
-	          record.type === "continue") {
-	        this.next = record.arg;
-	      } else if (record.type === "return") {
-	        this.rval = record.arg;
-	        this.next = "end";
-	      } else if (record.type === "normal" && afterLoc) {
-	        this.next = afterLoc;
-	      }
-
-	      return ContinueSentinel;
-	    },
-
-	    finish: function(finallyLoc) {
-	      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-	        var entry = this.tryEntries[i];
-	        if (entry.finallyLoc === finallyLoc) {
-	          return this.complete(entry.completion, entry.afterLoc);
-	        }
-	      }
-	    },
-
-	    "catch": function(tryLoc) {
-	      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-	        var entry = this.tryEntries[i];
-	        if (entry.tryLoc === tryLoc) {
-	          var record = entry.completion;
-	          if (record.type === "throw") {
-	            var thrown = record.arg;
-	            resetTryEntry(entry);
-	          }
-	          return thrown;
-	        }
-	      }
-
-	      // The context.catch method must only be called with a location
-	      // argument that corresponds to a known catch block.
-	      throw new Error("illegal catch attempt");
-	    },
-
-	    delegateYield: function(iterable, resultName, nextLoc) {
-	      this.delegate = {
-	        iterator: values(iterable),
-	        resultName: resultName,
-	        nextLoc: nextLoc
-	      };
-
-	      return ContinueSentinel;
-	    }
-	  };
-	})(
-	  // Among the various tricks for obtaining a reference to the global
-	  // object, this seems to be the most reliable technique that does not
-	  // use indirect eval (which violates Content Security Policy).
-	  typeof global === "object" ? global :
-	  typeof window === "object" ? window : this
-	);
-
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
 /* 37 */
@@ -29349,7 +29589,7 @@ var StellarLib =
 	}
 	exports.isPrimitive = isPrimitive;
 
-	exports.isBuffer = __webpack_require__(86);
+	exports.isBuffer = __webpack_require__(82);
 
 	function objectToString(o) {
 	  return Object.prototype.toString.call(o);
@@ -29614,7 +29854,7 @@ var StellarLib =
 
 	'use strict';
 
-	var parse = __webpack_require__(90);
+	var parse = __webpack_require__(89);
 
 	/**
 	 * Transform an URL to a valid origin value.
@@ -29688,7 +29928,7 @@ var StellarLib =
 
 	var isNumber = __webpack_require__(33).isNumber;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(82));
+	var includeIoMixin = _interopRequire(__webpack_require__(83));
 
 	var Int = {
 
@@ -29735,7 +29975,7 @@ var StellarLib =
 
 	var _inherits = __webpack_require__(76)["default"];
 
-	var _get = __webpack_require__(83)["default"];
+	var _get = __webpack_require__(84)["default"];
 
 	var _createClass = __webpack_require__(26)["default"];
 
@@ -29747,9 +29987,9 @@ var StellarLib =
 	  value: true
 	});
 
-	var Long = _interopRequire(__webpack_require__(89));
+	var Long = _interopRequire(__webpack_require__(90));
 
-	var includeIoMixin = _interopRequire(__webpack_require__(82));
+	var includeIoMixin = _interopRequire(__webpack_require__(83));
 
 	var Hyper = exports.Hyper = (function (_Long) {
 	  function Hyper(low, high) {
@@ -29819,7 +30059,7 @@ var StellarLib =
 
 	var isNumber = __webpack_require__(33).isNumber;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(82));
+	var includeIoMixin = _interopRequire(__webpack_require__(83));
 
 	var UnsignedInt = {
 
@@ -29870,7 +30110,7 @@ var StellarLib =
 
 	var _inherits = __webpack_require__(76)["default"];
 
-	var _get = __webpack_require__(83)["default"];
+	var _get = __webpack_require__(84)["default"];
 
 	var _createClass = __webpack_require__(26)["default"];
 
@@ -29882,9 +30122,9 @@ var StellarLib =
 	  value: true
 	});
 
-	var Long = _interopRequire(__webpack_require__(89));
+	var Long = _interopRequire(__webpack_require__(90));
 
-	var includeIoMixin = _interopRequire(__webpack_require__(82));
+	var includeIoMixin = _interopRequire(__webpack_require__(83));
 
 	var UnsignedHyper = exports.UnsignedHyper = (function (_Long) {
 	  function UnsignedHyper(low, high) {
@@ -29955,7 +30195,7 @@ var StellarLib =
 
 	var isNumber = __webpack_require__(33).isNumber;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(82));
+	var includeIoMixin = _interopRequire(__webpack_require__(83));
 
 	var Float = {
 
@@ -29992,7 +30232,7 @@ var StellarLib =
 
 	var isNumber = __webpack_require__(33).isNumber;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(82));
+	var includeIoMixin = _interopRequire(__webpack_require__(83));
 
 	var Double = {
 
@@ -30027,7 +30267,7 @@ var StellarLib =
 	  value: true
 	});
 
-	var includeIoMixin = _interopRequire(__webpack_require__(82));
+	var includeIoMixin = _interopRequire(__webpack_require__(83));
 
 	var Quadruple = {
 	  /* jshint unused: false */
@@ -30063,7 +30303,7 @@ var StellarLib =
 
 	var isBoolean = __webpack_require__(33).isBoolean;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(82));
+	var includeIoMixin = _interopRequire(__webpack_require__(83));
 
 	var Bool = {
 	  read: function read(io) {
@@ -30112,11 +30352,11 @@ var StellarLib =
 
 	var UnsignedInt = __webpack_require__(60).UnsignedInt;
 
-	var calculatePadding = __webpack_require__(84).calculatePadding;
+	var calculatePadding = __webpack_require__(85).calculatePadding;
 
 	var isString = __webpack_require__(33).isString;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(82));
+	var includeIoMixin = _interopRequire(__webpack_require__(83));
 
 	var String = exports.String = (function () {
 	  function String() {
@@ -30185,9 +30425,9 @@ var StellarLib =
 	  value: true
 	});
 
-	var calculatePadding = __webpack_require__(84).calculatePadding;
+	var calculatePadding = __webpack_require__(85).calculatePadding;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(82));
+	var includeIoMixin = _interopRequire(__webpack_require__(83));
 
 	var Opaque = exports.Opaque = (function () {
 	  function Opaque(length) {
@@ -30247,9 +30487,9 @@ var StellarLib =
 
 	var UnsignedInt = __webpack_require__(60).UnsignedInt;
 
-	var calculatePadding = __webpack_require__(84).calculatePadding;
+	var calculatePadding = __webpack_require__(85).calculatePadding;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(82));
+	var includeIoMixin = _interopRequire(__webpack_require__(83));
 
 	var VarOpaque = exports.VarOpaque = (function () {
 	  function VarOpaque() {
@@ -30319,7 +30559,7 @@ var StellarLib =
 	var times = _lodash.times;
 	var isArray = _lodash.isArray;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(82));
+	var includeIoMixin = _interopRequire(__webpack_require__(83));
 
 	var Array = exports.Array = (function () {
 	  function Array(childType, length) {
@@ -30406,7 +30646,7 @@ var StellarLib =
 	var times = _lodash.times;
 	var isArray = _lodash.isArray;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(82));
+	var includeIoMixin = _interopRequire(__webpack_require__(83));
 
 	var VarArray = exports.VarArray = (function () {
 	  function VarArray(childType) {
@@ -30498,7 +30738,7 @@ var StellarLib =
 	var isNull = _lodash.isNull;
 	var isUndefined = _lodash.isUndefined;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(82));
+	var includeIoMixin = _interopRequire(__webpack_require__(83));
 
 	var Option = exports.Option = (function () {
 	  function Option(childType) {
@@ -30559,7 +30799,7 @@ var StellarLib =
 
 	var isUndefined = __webpack_require__(33).isUndefined;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(82));
+	var includeIoMixin = _interopRequire(__webpack_require__(83));
 
 	var Void = {
 	  /* jshint unused: false */
@@ -30593,7 +30833,7 @@ var StellarLib =
 
 	var _inherits = __webpack_require__(76)["default"];
 
-	var _get = __webpack_require__(83)["default"];
+	var _get = __webpack_require__(84)["default"];
 
 	var _core = __webpack_require__(37)["default"];
 
@@ -30610,7 +30850,7 @@ var StellarLib =
 	var each = _lodash.each;
 	var vals = _lodash.values;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(82));
+	var includeIoMixin = _interopRequire(__webpack_require__(83));
 
 	var Enum = exports.Enum = (function () {
 	  function Enum(name, value) {
@@ -30720,9 +30960,9 @@ var StellarLib =
 
 	var _inherits = __webpack_require__(76)["default"];
 
-	var _get = __webpack_require__(83)["default"];
+	var _get = __webpack_require__(84)["default"];
 
-	var _slicedToArray = __webpack_require__(85)["default"];
+	var _slicedToArray = __webpack_require__(86)["default"];
 
 	var _core = __webpack_require__(37)["default"];
 
@@ -30739,7 +30979,7 @@ var StellarLib =
 	var isUndefined = _lodash.isUndefined;
 	var zipObject = _lodash.zipObject;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(82));
+	var includeIoMixin = _interopRequire(__webpack_require__(83));
 
 	var Struct = exports.Struct = (function () {
 	  function Struct(attributes) {
@@ -30847,7 +31087,7 @@ var StellarLib =
 
 	var _inherits = __webpack_require__(76)["default"];
 
-	var _get = __webpack_require__(83)["default"];
+	var _get = __webpack_require__(84)["default"];
 
 	var _core = __webpack_require__(37)["default"];
 
@@ -30864,7 +31104,7 @@ var StellarLib =
 
 	var Void = __webpack_require__(72).Void;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(82));
+	var includeIoMixin = _interopRequire(__webpack_require__(83));
 
 	var Union = exports.Union = (function () {
 	  function Union(aSwitch, value) {
@@ -31217,8 +31457,8 @@ var StellarLib =
 
 	var Stream = __webpack_require__(95);
 	var Response = __webpack_require__(92);
-	var Base64 = __webpack_require__(100);
-	var inherits = __webpack_require__(101);
+	var Base64 = __webpack_require__(99);
+	var inherits = __webpack_require__(100);
 
 	var Request = module.exports = function (xhr, params) {
 	    var self = this;
@@ -31430,6 +31670,17 @@ var StellarLib =
 /* 82 */
 /***/ function(module, exports, __webpack_require__) {
 
+	module.exports = function isBuffer(arg) {
+	  return arg && typeof arg === 'object'
+	    && typeof arg.copy === 'function'
+	    && typeof arg.fill === 'function'
+	    && typeof arg.readUInt8 === 'function';
+	}
+
+/***/ },
+/* 83 */
+/***/ function(module, exports, __webpack_require__) {
+
 	"use strict";
 
 	module.exports = includeIoMixin;
@@ -31490,7 +31741,7 @@ var StellarLib =
 	}
 
 /***/ },
-/* 83 */
+/* 84 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -31538,7 +31789,7 @@ var StellarLib =
 	exports.__esModule = true;
 
 /***/ },
-/* 84 */
+/* 85 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -31562,7 +31813,7 @@ var StellarLib =
 	}
 
 /***/ },
-/* 85 */
+/* 86 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -31588,17 +31839,6 @@ var StellarLib =
 	};
 
 	exports.__esModule = true;
-
-/***/ },
-/* 86 */
-/***/ function(module, exports, __webpack_require__) {
-
-	module.exports = function isBuffer(arg) {
-	  return arg && typeof arg === 'object'
-	    && typeof arg.copy === 'function'
-	    && typeof arg.fill === 'function'
-	    && typeof arg.readUInt8 === 'function';
-	}
 
 /***/ },
 /* 87 */
@@ -32149,35 +32389,11 @@ var StellarLib =
 /* 89 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/*
-	 Copyright 2013 Daniel Wirtz <dcode@dcode.io>
-	 Copyright 2009 The Closure Library Authors. All Rights Reserved.
-
-	 Licensed under the Apache License, Version 2.0 (the "License");
-	 you may not use this file except in compliance with the License.
-	 You may obtain a copy of the License at
-
-	 http://www.apache.org/licenses/LICENSE-2.0
-
-	 Unless required by applicable law or agreed to in writing, software
-	 distributed under the License is distributed on an "AS-IS" BASIS,
-	 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-	 See the License for the specific language governing permissions and
-	 limitations under the License.
-	 */
-
-	module.exports = __webpack_require__(98);
-
-
-/***/ },
-/* 90 */
-/***/ function(module, exports, __webpack_require__) {
-
 	'use strict';
 
-	var required = __webpack_require__(102)
-	  , lolcation = __webpack_require__(99)
-	  , qs = __webpack_require__(103);
+	var required = __webpack_require__(103)
+	  , lolcation = __webpack_require__(98)
+	  , qs = __webpack_require__(102);
 
 	var keys = ',,protocol,username,password,host,hostname,port,pathname,query,hash'.split(',')
 	  , inherit = { protocol: 1, host: 1, hostname: 1 }
@@ -32387,6 +32603,30 @@ var StellarLib =
 
 
 /***/ },
+/* 90 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/*
+	 Copyright 2013 Daniel Wirtz <dcode@dcode.io>
+	 Copyright 2009 The Closure Library Authors. All Rights Reserved.
+
+	 Licensed under the Apache License, Version 2.0 (the "License");
+	 you may not use this file except in compliance with the License.
+	 You may obtain a copy of the License at
+
+	 http://www.apache.org/licenses/LICENSE-2.0
+
+	 Unless required by applicable law or agreed to in writing, software
+	 distributed under the License is distributed on an "AS-IS" BASIS,
+	 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	 See the License for the specific language governing permissions and
+	 limitations under the License.
+	 */
+
+	module.exports = __webpack_require__(101);
+
+
+/***/ },
 /* 91 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -32590,7 +32830,7 @@ var StellarLib =
 
 	var BaseCursor = _interopRequire(__webpack_require__(104));
 
-	var calculatePadding = __webpack_require__(84).calculatePadding;
+	var calculatePadding = __webpack_require__(85).calculatePadding;
 
 	var Cursor = exports.Cursor = (function (_BaseCursor) {
 	  function Cursor() {
@@ -32910,6 +33150,153 @@ var StellarLib =
 
 /***/ },
 /* 98 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(global) {'use strict';
+
+	/**
+	 * These properties should not be copied or inherited from. This is only needed
+	 * for all non blob URL's as the a blob URL does not include a hash, only the
+	 * origin.
+	 *
+	 * @type {Object}
+	 * @private
+	 */
+	var ignore = { hash: 1, query: 1 }
+	  , URL;
+
+	/**
+	 * The location object differs when your code is loaded through a normal page,
+	 * Worker or through a worker using a blob. And with the blobble begins the
+	 * trouble as the location object will contain the URL of the blob, not the
+	 * location of the page where our code is loaded in. The actual origin is
+	 * encoded in the `pathname` so we can thankfully generate a good "default"
+	 * location from it so we can generate proper relative URL's again.
+	 *
+	 * @param {Object} loc Optional default location object.
+	 * @returns {Object} lolcation object.
+	 * @api public
+	 */
+	module.exports = function lolcation(loc) {
+	  loc = loc || global.location || {};
+	  URL = URL || __webpack_require__(89);
+
+	  var finaldestination = {}
+	    , type = typeof loc
+	    , key;
+
+	  if ('blob:' === loc.protocol) {
+	    finaldestination = new URL(unescape(loc.pathname), {});
+	  } else if ('string' === type) {
+	    finaldestination = new URL(loc, {});
+	    for (key in ignore) delete finaldestination[key];
+	  } else if ('object' === type) for (key in loc) {
+	    if (key in ignore) continue;
+	    finaldestination[key] = loc[key];
+	  }
+
+	  return finaldestination;
+	};
+
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
+
+/***/ },
+/* 99 */
+/***/ function(module, exports, __webpack_require__) {
+
+	;(function () {
+
+	  var object = true ? exports : this; // #8: web workers
+	  var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+
+	  function InvalidCharacterError(message) {
+	    this.message = message;
+	  }
+	  InvalidCharacterError.prototype = new Error;
+	  InvalidCharacterError.prototype.name = 'InvalidCharacterError';
+
+	  // encoder
+	  // [https://gist.github.com/999166] by [https://github.com/nignag]
+	  object.btoa || (
+	  object.btoa = function (input) {
+	    for (
+	      // initialize result and counter
+	      var block, charCode, idx = 0, map = chars, output = '';
+	      // if the next input index does not exist:
+	      //   change the mapping table to "="
+	      //   check if d has no fractional digits
+	      input.charAt(idx | 0) || (map = '=', idx % 1);
+	      // "8 - idx % 1 * 8" generates the sequence 2, 4, 6, 8
+	      output += map.charAt(63 & block >> 8 - idx % 1 * 8)
+	    ) {
+	      charCode = input.charCodeAt(idx += 3/4);
+	      if (charCode > 0xFF) {
+	        throw new InvalidCharacterError("'btoa' failed: The string to be encoded contains characters outside of the Latin1 range.");
+	      }
+	      block = block << 8 | charCode;
+	    }
+	    return output;
+	  });
+
+	  // decoder
+	  // [https://gist.github.com/1020396] by [https://github.com/atk]
+	  object.atob || (
+	  object.atob = function (input) {
+	    input = input.replace(/=+$/, '');
+	    if (input.length % 4 == 1) {
+	      throw new InvalidCharacterError("'atob' failed: The string to be decoded is not correctly encoded.");
+	    }
+	    for (
+	      // initialize result and counters
+	      var bc = 0, bs, buffer, idx = 0, output = '';
+	      // get next character
+	      buffer = input.charAt(idx++);
+	      // character found in table? initialize bit storage and add its ascii value;
+	      ~buffer && (bs = bc % 4 ? bs * 64 + buffer : buffer,
+	        // and if not first of each 4 characters,
+	        // convert the first 8 bits to one ascii character
+	        bc++ % 4) ? output += String.fromCharCode(255 & bs >> (-2 * bc & 6)) : 0
+	    ) {
+	      // try to find character in table (0-63, not found => -1)
+	      buffer = chars.indexOf(buffer);
+	    }
+	    return output;
+	  });
+
+	}());
+
+
+/***/ },
+/* 100 */
+/***/ function(module, exports, __webpack_require__) {
+
+	if (typeof Object.create === 'function') {
+	  // implementation from standard node.js 'util' module
+	  module.exports = function inherits(ctor, superCtor) {
+	    ctor.super_ = superCtor
+	    ctor.prototype = Object.create(superCtor.prototype, {
+	      constructor: {
+	        value: ctor,
+	        enumerable: false,
+	        writable: true,
+	        configurable: true
+	      }
+	    });
+	  };
+	} else {
+	  // old school shim for old browsers
+	  module.exports = function inherits(ctor, superCtor) {
+	    ctor.super_ = superCtor
+	    var TempCtor = function () {}
+	    TempCtor.prototype = superCtor.prototype
+	    ctor.prototype = new TempCtor()
+	    ctor.prototype.constructor = ctor
+	  }
+	}
+
+
+/***/ },
+/* 101 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(module) {/*
@@ -33858,198 +34245,7 @@ var StellarLib =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(78)(module)))
 
 /***/ },
-/* 99 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(global) {'use strict';
-
-	/**
-	 * These properties should not be copied or inherited from. This is only needed
-	 * for all non blob URL's as the a blob URL does not include a hash, only the
-	 * origin.
-	 *
-	 * @type {Object}
-	 * @private
-	 */
-	var ignore = { hash: 1, query: 1 }
-	  , URL;
-
-	/**
-	 * The location object differs when your code is loaded through a normal page,
-	 * Worker or through a worker using a blob. And with the blobble begins the
-	 * trouble as the location object will contain the URL of the blob, not the
-	 * location of the page where our code is loaded in. The actual origin is
-	 * encoded in the `pathname` so we can thankfully generate a good "default"
-	 * location from it so we can generate proper relative URL's again.
-	 *
-	 * @param {Object} loc Optional default location object.
-	 * @returns {Object} lolcation object.
-	 * @api public
-	 */
-	module.exports = function lolcation(loc) {
-	  loc = loc || global.location || {};
-	  URL = URL || __webpack_require__(90);
-
-	  var finaldestination = {}
-	    , type = typeof loc
-	    , key;
-
-	  if ('blob:' === loc.protocol) {
-	    finaldestination = new URL(unescape(loc.pathname), {});
-	  } else if ('string' === type) {
-	    finaldestination = new URL(loc, {});
-	    for (key in ignore) delete finaldestination[key];
-	  } else if ('object' === type) for (key in loc) {
-	    if (key in ignore) continue;
-	    finaldestination[key] = loc[key];
-	  }
-
-	  return finaldestination;
-	};
-
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
-
-/***/ },
-/* 100 */
-/***/ function(module, exports, __webpack_require__) {
-
-	;(function () {
-
-	  var object = true ? exports : this; // #8: web workers
-	  var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
-
-	  function InvalidCharacterError(message) {
-	    this.message = message;
-	  }
-	  InvalidCharacterError.prototype = new Error;
-	  InvalidCharacterError.prototype.name = 'InvalidCharacterError';
-
-	  // encoder
-	  // [https://gist.github.com/999166] by [https://github.com/nignag]
-	  object.btoa || (
-	  object.btoa = function (input) {
-	    for (
-	      // initialize result and counter
-	      var block, charCode, idx = 0, map = chars, output = '';
-	      // if the next input index does not exist:
-	      //   change the mapping table to "="
-	      //   check if d has no fractional digits
-	      input.charAt(idx | 0) || (map = '=', idx % 1);
-	      // "8 - idx % 1 * 8" generates the sequence 2, 4, 6, 8
-	      output += map.charAt(63 & block >> 8 - idx % 1 * 8)
-	    ) {
-	      charCode = input.charCodeAt(idx += 3/4);
-	      if (charCode > 0xFF) {
-	        throw new InvalidCharacterError("'btoa' failed: The string to be encoded contains characters outside of the Latin1 range.");
-	      }
-	      block = block << 8 | charCode;
-	    }
-	    return output;
-	  });
-
-	  // decoder
-	  // [https://gist.github.com/1020396] by [https://github.com/atk]
-	  object.atob || (
-	  object.atob = function (input) {
-	    input = input.replace(/=+$/, '');
-	    if (input.length % 4 == 1) {
-	      throw new InvalidCharacterError("'atob' failed: The string to be decoded is not correctly encoded.");
-	    }
-	    for (
-	      // initialize result and counters
-	      var bc = 0, bs, buffer, idx = 0, output = '';
-	      // get next character
-	      buffer = input.charAt(idx++);
-	      // character found in table? initialize bit storage and add its ascii value;
-	      ~buffer && (bs = bc % 4 ? bs * 64 + buffer : buffer,
-	        // and if not first of each 4 characters,
-	        // convert the first 8 bits to one ascii character
-	        bc++ % 4) ? output += String.fromCharCode(255 & bs >> (-2 * bc & 6)) : 0
-	    ) {
-	      // try to find character in table (0-63, not found => -1)
-	      buffer = chars.indexOf(buffer);
-	    }
-	    return output;
-	  });
-
-	}());
-
-
-/***/ },
-/* 101 */
-/***/ function(module, exports, __webpack_require__) {
-
-	if (typeof Object.create === 'function') {
-	  // implementation from standard node.js 'util' module
-	  module.exports = function inherits(ctor, superCtor) {
-	    ctor.super_ = superCtor
-	    ctor.prototype = Object.create(superCtor.prototype, {
-	      constructor: {
-	        value: ctor,
-	        enumerable: false,
-	        writable: true,
-	        configurable: true
-	      }
-	    });
-	  };
-	} else {
-	  // old school shim for old browsers
-	  module.exports = function inherits(ctor, superCtor) {
-	    ctor.super_ = superCtor
-	    var TempCtor = function () {}
-	    TempCtor.prototype = superCtor.prototype
-	    ctor.prototype = new TempCtor()
-	    ctor.prototype.constructor = ctor
-	  }
-	}
-
-
-/***/ },
 /* 102 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	/**
-	 * Check if we're required to add a port number.
-	 *
-	 * @see https://url.spec.whatwg.org/#default-port
-	 * @param {Number|String} port Port number we need to check
-	 * @param {String} protocol Protocol we need to check against.
-	 * @returns {Boolean} Is it a default port for the given protocol
-	 * @api private
-	 */
-	module.exports = function required(port, protocol) {
-	  protocol = protocol.split(':')[0];
-	  port = +port;
-
-	  if (!port) return false;
-
-	  switch (protocol) {
-	    case 'http':
-	    case 'ws':
-	    return port !== 80;
-
-	    case 'https':
-	    case 'wss':
-	    return port !== 443;
-
-	    case 'ftp':
-	    return port !== 22;
-
-	    case 'gopher':
-	    return port !== 70;
-
-	    case 'file':
-	    return false;
-	  }
-
-	  return port !== 0;
-	};
-
-
-/***/ },
-/* 103 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -34113,6 +34309,50 @@ var StellarLib =
 	//
 	exports.stringify = querystringify;
 	exports.parse = querystring;
+
+
+/***/ },
+/* 103 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	/**
+	 * Check if we're required to add a port number.
+	 *
+	 * @see https://url.spec.whatwg.org/#default-port
+	 * @param {Number|String} port Port number we need to check
+	 * @param {String} protocol Protocol we need to check against.
+	 * @returns {Boolean} Is it a default port for the given protocol
+	 * @api private
+	 */
+	module.exports = function required(port, protocol) {
+	  protocol = protocol.split(':')[0];
+	  port = +port;
+
+	  if (!port) return false;
+
+	  switch (protocol) {
+	    case 'http':
+	    case 'ws':
+	    return port !== 80;
+
+	    case 'https':
+	    case 'wss':
+	    return port !== 443;
+
+	    case 'ftp':
+	    return port !== 22;
+
+	    case 'gopher':
+	    return port !== 70;
+
+	    case 'file':
+	    return false;
+	  }
+
+	  return port !== 0;
+	};
 
 
 /***/ },
@@ -34377,12 +34617,12 @@ var StellarLib =
 /* 106 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(115);
+	exports = module.exports = __webpack_require__(112);
 	exports.Stream = __webpack_require__(95);
 	exports.Readable = exports;
-	exports.Writable = __webpack_require__(114);
-	exports.Duplex = __webpack_require__(113);
-	exports.Transform = __webpack_require__(112);
+	exports.Writable = __webpack_require__(113);
+	exports.Duplex = __webpack_require__(114);
+	exports.Transform = __webpack_require__(115);
 	exports.PassThrough = __webpack_require__(116);
 
 
@@ -34390,21 +34630,21 @@ var StellarLib =
 /* 107 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(114)
+	module.exports = __webpack_require__(113)
 
 
 /***/ },
 /* 108 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(113)
+	module.exports = __webpack_require__(114)
 
 
 /***/ },
 /* 109 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(112)
+	module.exports = __webpack_require__(115)
 
 
 /***/ },
@@ -34445,801 +34685,6 @@ var StellarLib =
 
 /***/ },
 /* 112 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// Copyright Joyent, Inc. and other Node contributors.
-	//
-	// Permission is hereby granted, free of charge, to any person obtaining a
-	// copy of this software and associated documentation files (the
-	// "Software"), to deal in the Software without restriction, including
-	// without limitation the rights to use, copy, modify, merge, publish,
-	// distribute, sublicense, and/or sell copies of the Software, and to permit
-	// persons to whom the Software is furnished to do so, subject to the
-	// following conditions:
-	//
-	// The above copyright notice and this permission notice shall be included
-	// in all copies or substantial portions of the Software.
-	//
-	// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-	// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-	// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-	// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-	// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-	// USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-
-	// a transform stream is a readable/writable stream where you do
-	// something with the data.  Sometimes it's called a "filter",
-	// but that's not a great name for it, since that implies a thing where
-	// some bits pass through, and others are simply ignored.  (That would
-	// be a valid example of a transform, of course.)
-	//
-	// While the output is causally related to the input, it's not a
-	// necessarily symmetric or synchronous transformation.  For example,
-	// a zlib stream might take multiple plain-text writes(), and then
-	// emit a single compressed chunk some time in the future.
-	//
-	// Here's how this works:
-	//
-	// The Transform stream has all the aspects of the readable and writable
-	// stream classes.  When you write(chunk), that calls _write(chunk,cb)
-	// internally, and returns false if there's a lot of pending writes
-	// buffered up.  When you call read(), that calls _read(n) until
-	// there's enough pending readable data buffered up.
-	//
-	// In a transform stream, the written data is placed in a buffer.  When
-	// _read(n) is called, it transforms the queued up data, calling the
-	// buffered _write cb's as it consumes chunks.  If consuming a single
-	// written chunk would result in multiple output chunks, then the first
-	// outputted bit calls the readcb, and subsequent chunks just go into
-	// the read buffer, and will cause it to emit 'readable' if necessary.
-	//
-	// This way, back-pressure is actually determined by the reading side,
-	// since _read has to be called to start processing a new chunk.  However,
-	// a pathological inflate type of transform can cause excessive buffering
-	// here.  For example, imagine a stream where every byte of input is
-	// interpreted as an integer from 0-255, and then results in that many
-	// bytes of output.  Writing the 4 bytes {ff,ff,ff,ff} would result in
-	// 1kb of data being output.  In this case, you could write a very small
-	// amount of input, and end up with a very large amount of output.  In
-	// such a pathological inflating mechanism, there'd be no way to tell
-	// the system to stop doing the transform.  A single 4MB write could
-	// cause the system to run out of memory.
-	//
-	// However, even in such a pathological case, only a single written chunk
-	// would be consumed, and then the rest would wait (un-transformed) until
-	// the results of the previous transformed chunk were consumed.
-
-	module.exports = Transform;
-
-	var Duplex = __webpack_require__(113);
-
-	/*<replacement>*/
-	var util = __webpack_require__(120);
-	util.inherits = __webpack_require__(121);
-	/*</replacement>*/
-
-	util.inherits(Transform, Duplex);
-
-
-	function TransformState(options, stream) {
-	  this.afterTransform = function(er, data) {
-	    return afterTransform(stream, er, data);
-	  };
-
-	  this.needTransform = false;
-	  this.transforming = false;
-	  this.writecb = null;
-	  this.writechunk = null;
-	}
-
-	function afterTransform(stream, er, data) {
-	  var ts = stream._transformState;
-	  ts.transforming = false;
-
-	  var cb = ts.writecb;
-
-	  if (!cb)
-	    return stream.emit('error', new Error('no writecb in Transform class'));
-
-	  ts.writechunk = null;
-	  ts.writecb = null;
-
-	  if (!util.isNullOrUndefined(data))
-	    stream.push(data);
-
-	  if (cb)
-	    cb(er);
-
-	  var rs = stream._readableState;
-	  rs.reading = false;
-	  if (rs.needReadable || rs.length < rs.highWaterMark) {
-	    stream._read(rs.highWaterMark);
-	  }
-	}
-
-
-	function Transform(options) {
-	  if (!(this instanceof Transform))
-	    return new Transform(options);
-
-	  Duplex.call(this, options);
-
-	  this._transformState = new TransformState(options, this);
-
-	  // when the writable side finishes, then flush out anything remaining.
-	  var stream = this;
-
-	  // start out asking for a readable event once data is transformed.
-	  this._readableState.needReadable = true;
-
-	  // we have implemented the _read method, and done the other things
-	  // that Readable wants before the first _read call, so unset the
-	  // sync guard flag.
-	  this._readableState.sync = false;
-
-	  this.once('prefinish', function() {
-	    if (util.isFunction(this._flush))
-	      this._flush(function(er) {
-	        done(stream, er);
-	      });
-	    else
-	      done(stream);
-	  });
-	}
-
-	Transform.prototype.push = function(chunk, encoding) {
-	  this._transformState.needTransform = false;
-	  return Duplex.prototype.push.call(this, chunk, encoding);
-	};
-
-	// This is the part where you do stuff!
-	// override this function in implementation classes.
-	// 'chunk' is an input chunk.
-	//
-	// Call `push(newChunk)` to pass along transformed output
-	// to the readable side.  You may call 'push' zero or more times.
-	//
-	// Call `cb(err)` when you are done with this chunk.  If you pass
-	// an error, then that'll put the hurt on the whole operation.  If you
-	// never call cb(), then you'll never get another chunk.
-	Transform.prototype._transform = function(chunk, encoding, cb) {
-	  throw new Error('not implemented');
-	};
-
-	Transform.prototype._write = function(chunk, encoding, cb) {
-	  var ts = this._transformState;
-	  ts.writecb = cb;
-	  ts.writechunk = chunk;
-	  ts.writeencoding = encoding;
-	  if (!ts.transforming) {
-	    var rs = this._readableState;
-	    if (ts.needTransform ||
-	        rs.needReadable ||
-	        rs.length < rs.highWaterMark)
-	      this._read(rs.highWaterMark);
-	  }
-	};
-
-	// Doesn't matter what the args are here.
-	// _transform does all the work.
-	// That we got here means that the readable side wants more data.
-	Transform.prototype._read = function(n) {
-	  var ts = this._transformState;
-
-	  if (!util.isNull(ts.writechunk) && ts.writecb && !ts.transforming) {
-	    ts.transforming = true;
-	    this._transform(ts.writechunk, ts.writeencoding, ts.afterTransform);
-	  } else {
-	    // mark that we need a transform, so that any data that comes in
-	    // will get processed, now that we've asked for it.
-	    ts.needTransform = true;
-	  }
-	};
-
-
-	function done(stream, er) {
-	  if (er)
-	    return stream.emit('error', er);
-
-	  // if there's nothing in the write buffer, then that means
-	  // that nothing more will ever be provided
-	  var ws = stream._writableState;
-	  var ts = stream._transformState;
-
-	  if (ws.length)
-	    throw new Error('calling transform done when ws.length != 0');
-
-	  if (ts.transforming)
-	    throw new Error('calling transform done when still transforming');
-
-	  return stream.push(null);
-	}
-
-
-/***/ },
-/* 113 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(process) {// Copyright Joyent, Inc. and other Node contributors.
-	//
-	// Permission is hereby granted, free of charge, to any person obtaining a
-	// copy of this software and associated documentation files (the
-	// "Software"), to deal in the Software without restriction, including
-	// without limitation the rights to use, copy, modify, merge, publish,
-	// distribute, sublicense, and/or sell copies of the Software, and to permit
-	// persons to whom the Software is furnished to do so, subject to the
-	// following conditions:
-	//
-	// The above copyright notice and this permission notice shall be included
-	// in all copies or substantial portions of the Software.
-	//
-	// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-	// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-	// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-	// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-	// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-	// USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-	// a duplex stream is just a stream that is both readable and writable.
-	// Since JS doesn't have multiple prototypal inheritance, this class
-	// prototypally inherits from Readable, and then parasitically from
-	// Writable.
-
-	module.exports = Duplex;
-
-	/*<replacement>*/
-	var objectKeys = Object.keys || function (obj) {
-	  var keys = [];
-	  for (var key in obj) keys.push(key);
-	  return keys;
-	}
-	/*</replacement>*/
-
-
-	/*<replacement>*/
-	var util = __webpack_require__(120);
-	util.inherits = __webpack_require__(121);
-	/*</replacement>*/
-
-	var Readable = __webpack_require__(115);
-	var Writable = __webpack_require__(114);
-
-	util.inherits(Duplex, Readable);
-
-	forEach(objectKeys(Writable.prototype), function(method) {
-	  if (!Duplex.prototype[method])
-	    Duplex.prototype[method] = Writable.prototype[method];
-	});
-
-	function Duplex(options) {
-	  if (!(this instanceof Duplex))
-	    return new Duplex(options);
-
-	  Readable.call(this, options);
-	  Writable.call(this, options);
-
-	  if (options && options.readable === false)
-	    this.readable = false;
-
-	  if (options && options.writable === false)
-	    this.writable = false;
-
-	  this.allowHalfOpen = true;
-	  if (options && options.allowHalfOpen === false)
-	    this.allowHalfOpen = false;
-
-	  this.once('end', onend);
-	}
-
-	// the no-half-open enforcer
-	function onend() {
-	  // if we allow half-open state, or if the writable side ended,
-	  // then we're ok.
-	  if (this.allowHalfOpen || this._writableState.ended)
-	    return;
-
-	  // no more data can be written.
-	  // But allow more writes to happen in this tick.
-	  process.nextTick(this.end.bind(this));
-	}
-
-	function forEach (xs, f) {
-	  for (var i = 0, l = xs.length; i < l; i++) {
-	    f(xs[i], i);
-	  }
-	}
-
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(54)))
-
-/***/ },
-/* 114 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(process) {// Copyright Joyent, Inc. and other Node contributors.
-	//
-	// Permission is hereby granted, free of charge, to any person obtaining a
-	// copy of this software and associated documentation files (the
-	// "Software"), to deal in the Software without restriction, including
-	// without limitation the rights to use, copy, modify, merge, publish,
-	// distribute, sublicense, and/or sell copies of the Software, and to permit
-	// persons to whom the Software is furnished to do so, subject to the
-	// following conditions:
-	//
-	// The above copyright notice and this permission notice shall be included
-	// in all copies or substantial portions of the Software.
-	//
-	// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-	// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-	// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-	// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-	// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-	// USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-	// A bit simpler than readable streams.
-	// Implement an async ._write(chunk, cb), and it'll handle all
-	// the drain event emission and buffering.
-
-	module.exports = Writable;
-
-	/*<replacement>*/
-	var Buffer = __webpack_require__(20).Buffer;
-	/*</replacement>*/
-
-	Writable.WritableState = WritableState;
-
-
-	/*<replacement>*/
-	var util = __webpack_require__(120);
-	util.inherits = __webpack_require__(121);
-	/*</replacement>*/
-
-	var Stream = __webpack_require__(95);
-
-	util.inherits(Writable, Stream);
-
-	function WriteReq(chunk, encoding, cb) {
-	  this.chunk = chunk;
-	  this.encoding = encoding;
-	  this.callback = cb;
-	}
-
-	function WritableState(options, stream) {
-	  var Duplex = __webpack_require__(113);
-
-	  options = options || {};
-
-	  // the point at which write() starts returning false
-	  // Note: 0 is a valid value, means that we always return false if
-	  // the entire buffer is not flushed immediately on write()
-	  var hwm = options.highWaterMark;
-	  var defaultHwm = options.objectMode ? 16 : 16 * 1024;
-	  this.highWaterMark = (hwm || hwm === 0) ? hwm : defaultHwm;
-
-	  // object stream flag to indicate whether or not this stream
-	  // contains buffers or objects.
-	  this.objectMode = !!options.objectMode;
-
-	  if (stream instanceof Duplex)
-	    this.objectMode = this.objectMode || !!options.writableObjectMode;
-
-	  // cast to ints.
-	  this.highWaterMark = ~~this.highWaterMark;
-
-	  this.needDrain = false;
-	  // at the start of calling end()
-	  this.ending = false;
-	  // when end() has been called, and returned
-	  this.ended = false;
-	  // when 'finish' is emitted
-	  this.finished = false;
-
-	  // should we decode strings into buffers before passing to _write?
-	  // this is here so that some node-core streams can optimize string
-	  // handling at a lower level.
-	  var noDecode = options.decodeStrings === false;
-	  this.decodeStrings = !noDecode;
-
-	  // Crypto is kind of old and crusty.  Historically, its default string
-	  // encoding is 'binary' so we have to make this configurable.
-	  // Everything else in the universe uses 'utf8', though.
-	  this.defaultEncoding = options.defaultEncoding || 'utf8';
-
-	  // not an actual buffer we keep track of, but a measurement
-	  // of how much we're waiting to get pushed to some underlying
-	  // socket or file.
-	  this.length = 0;
-
-	  // a flag to see when we're in the middle of a write.
-	  this.writing = false;
-
-	  // when true all writes will be buffered until .uncork() call
-	  this.corked = 0;
-
-	  // a flag to be able to tell if the onwrite cb is called immediately,
-	  // or on a later tick.  We set this to true at first, because any
-	  // actions that shouldn't happen until "later" should generally also
-	  // not happen before the first write call.
-	  this.sync = true;
-
-	  // a flag to know if we're processing previously buffered items, which
-	  // may call the _write() callback in the same tick, so that we don't
-	  // end up in an overlapped onwrite situation.
-	  this.bufferProcessing = false;
-
-	  // the callback that's passed to _write(chunk,cb)
-	  this.onwrite = function(er) {
-	    onwrite(stream, er);
-	  };
-
-	  // the callback that the user supplies to write(chunk,encoding,cb)
-	  this.writecb = null;
-
-	  // the amount that is being written when _write is called.
-	  this.writelen = 0;
-
-	  this.buffer = [];
-
-	  // number of pending user-supplied write callbacks
-	  // this must be 0 before 'finish' can be emitted
-	  this.pendingcb = 0;
-
-	  // emit prefinish if the only thing we're waiting for is _write cbs
-	  // This is relevant for synchronous Transform streams
-	  this.prefinished = false;
-
-	  // True if the error was already emitted and should not be thrown again
-	  this.errorEmitted = false;
-	}
-
-	function Writable(options) {
-	  var Duplex = __webpack_require__(113);
-
-	  // Writable ctor is applied to Duplexes, though they're not
-	  // instanceof Writable, they're instanceof Readable.
-	  if (!(this instanceof Writable) && !(this instanceof Duplex))
-	    return new Writable(options);
-
-	  this._writableState = new WritableState(options, this);
-
-	  // legacy.
-	  this.writable = true;
-
-	  Stream.call(this);
-	}
-
-	// Otherwise people can pipe Writable streams, which is just wrong.
-	Writable.prototype.pipe = function() {
-	  this.emit('error', new Error('Cannot pipe. Not readable.'));
-	};
-
-
-	function writeAfterEnd(stream, state, cb) {
-	  var er = new Error('write after end');
-	  // TODO: defer error events consistently everywhere, not just the cb
-	  stream.emit('error', er);
-	  process.nextTick(function() {
-	    cb(er);
-	  });
-	}
-
-	// If we get something that is not a buffer, string, null, or undefined,
-	// and we're not in objectMode, then that's an error.
-	// Otherwise stream chunks are all considered to be of length=1, and the
-	// watermarks determine how many objects to keep in the buffer, rather than
-	// how many bytes or characters.
-	function validChunk(stream, state, chunk, cb) {
-	  var valid = true;
-	  if (!util.isBuffer(chunk) &&
-	      !util.isString(chunk) &&
-	      !util.isNullOrUndefined(chunk) &&
-	      !state.objectMode) {
-	    var er = new TypeError('Invalid non-string/buffer chunk');
-	    stream.emit('error', er);
-	    process.nextTick(function() {
-	      cb(er);
-	    });
-	    valid = false;
-	  }
-	  return valid;
-	}
-
-	Writable.prototype.write = function(chunk, encoding, cb) {
-	  var state = this._writableState;
-	  var ret = false;
-
-	  if (util.isFunction(encoding)) {
-	    cb = encoding;
-	    encoding = null;
-	  }
-
-	  if (util.isBuffer(chunk))
-	    encoding = 'buffer';
-	  else if (!encoding)
-	    encoding = state.defaultEncoding;
-
-	  if (!util.isFunction(cb))
-	    cb = function() {};
-
-	  if (state.ended)
-	    writeAfterEnd(this, state, cb);
-	  else if (validChunk(this, state, chunk, cb)) {
-	    state.pendingcb++;
-	    ret = writeOrBuffer(this, state, chunk, encoding, cb);
-	  }
-
-	  return ret;
-	};
-
-	Writable.prototype.cork = function() {
-	  var state = this._writableState;
-
-	  state.corked++;
-	};
-
-	Writable.prototype.uncork = function() {
-	  var state = this._writableState;
-
-	  if (state.corked) {
-	    state.corked--;
-
-	    if (!state.writing &&
-	        !state.corked &&
-	        !state.finished &&
-	        !state.bufferProcessing &&
-	        state.buffer.length)
-	      clearBuffer(this, state);
-	  }
-	};
-
-	function decodeChunk(state, chunk, encoding) {
-	  if (!state.objectMode &&
-	      state.decodeStrings !== false &&
-	      util.isString(chunk)) {
-	    chunk = new Buffer(chunk, encoding);
-	  }
-	  return chunk;
-	}
-
-	// if we're already writing something, then just put this
-	// in the queue, and wait our turn.  Otherwise, call _write
-	// If we return false, then we need a drain event, so set that flag.
-	function writeOrBuffer(stream, state, chunk, encoding, cb) {
-	  chunk = decodeChunk(state, chunk, encoding);
-	  if (util.isBuffer(chunk))
-	    encoding = 'buffer';
-	  var len = state.objectMode ? 1 : chunk.length;
-
-	  state.length += len;
-
-	  var ret = state.length < state.highWaterMark;
-	  // we must ensure that previous needDrain will not be reset to false.
-	  if (!ret)
-	    state.needDrain = true;
-
-	  if (state.writing || state.corked)
-	    state.buffer.push(new WriteReq(chunk, encoding, cb));
-	  else
-	    doWrite(stream, state, false, len, chunk, encoding, cb);
-
-	  return ret;
-	}
-
-	function doWrite(stream, state, writev, len, chunk, encoding, cb) {
-	  state.writelen = len;
-	  state.writecb = cb;
-	  state.writing = true;
-	  state.sync = true;
-	  if (writev)
-	    stream._writev(chunk, state.onwrite);
-	  else
-	    stream._write(chunk, encoding, state.onwrite);
-	  state.sync = false;
-	}
-
-	function onwriteError(stream, state, sync, er, cb) {
-	  if (sync)
-	    process.nextTick(function() {
-	      state.pendingcb--;
-	      cb(er);
-	    });
-	  else {
-	    state.pendingcb--;
-	    cb(er);
-	  }
-
-	  stream._writableState.errorEmitted = true;
-	  stream.emit('error', er);
-	}
-
-	function onwriteStateUpdate(state) {
-	  state.writing = false;
-	  state.writecb = null;
-	  state.length -= state.writelen;
-	  state.writelen = 0;
-	}
-
-	function onwrite(stream, er) {
-	  var state = stream._writableState;
-	  var sync = state.sync;
-	  var cb = state.writecb;
-
-	  onwriteStateUpdate(state);
-
-	  if (er)
-	    onwriteError(stream, state, sync, er, cb);
-	  else {
-	    // Check if we're actually ready to finish, but don't emit yet
-	    var finished = needFinish(stream, state);
-
-	    if (!finished &&
-	        !state.corked &&
-	        !state.bufferProcessing &&
-	        state.buffer.length) {
-	      clearBuffer(stream, state);
-	    }
-
-	    if (sync) {
-	      process.nextTick(function() {
-	        afterWrite(stream, state, finished, cb);
-	      });
-	    } else {
-	      afterWrite(stream, state, finished, cb);
-	    }
-	  }
-	}
-
-	function afterWrite(stream, state, finished, cb) {
-	  if (!finished)
-	    onwriteDrain(stream, state);
-	  state.pendingcb--;
-	  cb();
-	  finishMaybe(stream, state);
-	}
-
-	// Must force callback to be called on nextTick, so that we don't
-	// emit 'drain' before the write() consumer gets the 'false' return
-	// value, and has a chance to attach a 'drain' listener.
-	function onwriteDrain(stream, state) {
-	  if (state.length === 0 && state.needDrain) {
-	    state.needDrain = false;
-	    stream.emit('drain');
-	  }
-	}
-
-
-	// if there's something in the buffer waiting, then process it
-	function clearBuffer(stream, state) {
-	  state.bufferProcessing = true;
-
-	  if (stream._writev && state.buffer.length > 1) {
-	    // Fast case, write everything using _writev()
-	    var cbs = [];
-	    for (var c = 0; c < state.buffer.length; c++)
-	      cbs.push(state.buffer[c].callback);
-
-	    // count the one we are adding, as well.
-	    // TODO(isaacs) clean this up
-	    state.pendingcb++;
-	    doWrite(stream, state, true, state.length, state.buffer, '', function(err) {
-	      for (var i = 0; i < cbs.length; i++) {
-	        state.pendingcb--;
-	        cbs[i](err);
-	      }
-	    });
-
-	    // Clear buffer
-	    state.buffer = [];
-	  } else {
-	    // Slow case, write chunks one-by-one
-	    for (var c = 0; c < state.buffer.length; c++) {
-	      var entry = state.buffer[c];
-	      var chunk = entry.chunk;
-	      var encoding = entry.encoding;
-	      var cb = entry.callback;
-	      var len = state.objectMode ? 1 : chunk.length;
-
-	      doWrite(stream, state, false, len, chunk, encoding, cb);
-
-	      // if we didn't call the onwrite immediately, then
-	      // it means that we need to wait until it does.
-	      // also, that means that the chunk and cb are currently
-	      // being processed, so move the buffer counter past them.
-	      if (state.writing) {
-	        c++;
-	        break;
-	      }
-	    }
-
-	    if (c < state.buffer.length)
-	      state.buffer = state.buffer.slice(c);
-	    else
-	      state.buffer.length = 0;
-	  }
-
-	  state.bufferProcessing = false;
-	}
-
-	Writable.prototype._write = function(chunk, encoding, cb) {
-	  cb(new Error('not implemented'));
-
-	};
-
-	Writable.prototype._writev = null;
-
-	Writable.prototype.end = function(chunk, encoding, cb) {
-	  var state = this._writableState;
-
-	  if (util.isFunction(chunk)) {
-	    cb = chunk;
-	    chunk = null;
-	    encoding = null;
-	  } else if (util.isFunction(encoding)) {
-	    cb = encoding;
-	    encoding = null;
-	  }
-
-	  if (!util.isNullOrUndefined(chunk))
-	    this.write(chunk, encoding);
-
-	  // .end() fully uncorks
-	  if (state.corked) {
-	    state.corked = 1;
-	    this.uncork();
-	  }
-
-	  // ignore unnecessary end() calls.
-	  if (!state.ending && !state.finished)
-	    endWritable(this, state, cb);
-	};
-
-
-	function needFinish(stream, state) {
-	  return (state.ending &&
-	          state.length === 0 &&
-	          !state.finished &&
-	          !state.writing);
-	}
-
-	function prefinish(stream, state) {
-	  if (!state.prefinished) {
-	    state.prefinished = true;
-	    stream.emit('prefinish');
-	  }
-	}
-
-	function finishMaybe(stream, state) {
-	  var need = needFinish(stream, state);
-	  if (need) {
-	    if (state.pendingcb === 0) {
-	      prefinish(stream, state);
-	      state.finished = true;
-	      stream.emit('finish');
-	    } else
-	      prefinish(stream, state);
-	  }
-	  return need;
-	}
-
-	function endWritable(stream, state, cb) {
-	  state.ending = true;
-	  finishMaybe(stream, state);
-	  if (cb) {
-	    if (state.finished)
-	      process.nextTick(cb);
-	    else
-	      stream.once('finish', cb);
-	  }
-	  state.ended = true;
-	}
-
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(54)))
-
-/***/ },
-/* 115 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {// Copyright Joyent, Inc. and other Node contributors.
@@ -35287,8 +34732,8 @@ var StellarLib =
 	var Stream = __webpack_require__(95);
 
 	/*<replacement>*/
-	var util = __webpack_require__(120);
-	util.inherits = __webpack_require__(121);
+	var util = __webpack_require__(121);
+	util.inherits = __webpack_require__(120);
 	/*</replacement>*/
 
 	var StringDecoder;
@@ -35307,7 +34752,7 @@ var StellarLib =
 	util.inherits(Readable, Stream);
 
 	function ReadableState(options, stream) {
-	  var Duplex = __webpack_require__(113);
+	  var Duplex = __webpack_require__(114);
 
 	  options = options || {};
 
@@ -35375,7 +34820,7 @@ var StellarLib =
 	}
 
 	function Readable(options) {
-	  var Duplex = __webpack_require__(113);
+	  var Duplex = __webpack_require__(114);
 
 	  if (!(this instanceof Readable))
 	    return new Readable(options);
@@ -36197,6 +35642,801 @@ var StellarLib =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(54)))
 
 /***/ },
+/* 113 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(process) {// Copyright Joyent, Inc. and other Node contributors.
+	//
+	// Permission is hereby granted, free of charge, to any person obtaining a
+	// copy of this software and associated documentation files (the
+	// "Software"), to deal in the Software without restriction, including
+	// without limitation the rights to use, copy, modify, merge, publish,
+	// distribute, sublicense, and/or sell copies of the Software, and to permit
+	// persons to whom the Software is furnished to do so, subject to the
+	// following conditions:
+	//
+	// The above copyright notice and this permission notice shall be included
+	// in all copies or substantial portions of the Software.
+	//
+	// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+	// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+	// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+	// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+	// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+	// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+	// A bit simpler than readable streams.
+	// Implement an async ._write(chunk, cb), and it'll handle all
+	// the drain event emission and buffering.
+
+	module.exports = Writable;
+
+	/*<replacement>*/
+	var Buffer = __webpack_require__(20).Buffer;
+	/*</replacement>*/
+
+	Writable.WritableState = WritableState;
+
+
+	/*<replacement>*/
+	var util = __webpack_require__(121);
+	util.inherits = __webpack_require__(120);
+	/*</replacement>*/
+
+	var Stream = __webpack_require__(95);
+
+	util.inherits(Writable, Stream);
+
+	function WriteReq(chunk, encoding, cb) {
+	  this.chunk = chunk;
+	  this.encoding = encoding;
+	  this.callback = cb;
+	}
+
+	function WritableState(options, stream) {
+	  var Duplex = __webpack_require__(114);
+
+	  options = options || {};
+
+	  // the point at which write() starts returning false
+	  // Note: 0 is a valid value, means that we always return false if
+	  // the entire buffer is not flushed immediately on write()
+	  var hwm = options.highWaterMark;
+	  var defaultHwm = options.objectMode ? 16 : 16 * 1024;
+	  this.highWaterMark = (hwm || hwm === 0) ? hwm : defaultHwm;
+
+	  // object stream flag to indicate whether or not this stream
+	  // contains buffers or objects.
+	  this.objectMode = !!options.objectMode;
+
+	  if (stream instanceof Duplex)
+	    this.objectMode = this.objectMode || !!options.writableObjectMode;
+
+	  // cast to ints.
+	  this.highWaterMark = ~~this.highWaterMark;
+
+	  this.needDrain = false;
+	  // at the start of calling end()
+	  this.ending = false;
+	  // when end() has been called, and returned
+	  this.ended = false;
+	  // when 'finish' is emitted
+	  this.finished = false;
+
+	  // should we decode strings into buffers before passing to _write?
+	  // this is here so that some node-core streams can optimize string
+	  // handling at a lower level.
+	  var noDecode = options.decodeStrings === false;
+	  this.decodeStrings = !noDecode;
+
+	  // Crypto is kind of old and crusty.  Historically, its default string
+	  // encoding is 'binary' so we have to make this configurable.
+	  // Everything else in the universe uses 'utf8', though.
+	  this.defaultEncoding = options.defaultEncoding || 'utf8';
+
+	  // not an actual buffer we keep track of, but a measurement
+	  // of how much we're waiting to get pushed to some underlying
+	  // socket or file.
+	  this.length = 0;
+
+	  // a flag to see when we're in the middle of a write.
+	  this.writing = false;
+
+	  // when true all writes will be buffered until .uncork() call
+	  this.corked = 0;
+
+	  // a flag to be able to tell if the onwrite cb is called immediately,
+	  // or on a later tick.  We set this to true at first, because any
+	  // actions that shouldn't happen until "later" should generally also
+	  // not happen before the first write call.
+	  this.sync = true;
+
+	  // a flag to know if we're processing previously buffered items, which
+	  // may call the _write() callback in the same tick, so that we don't
+	  // end up in an overlapped onwrite situation.
+	  this.bufferProcessing = false;
+
+	  // the callback that's passed to _write(chunk,cb)
+	  this.onwrite = function(er) {
+	    onwrite(stream, er);
+	  };
+
+	  // the callback that the user supplies to write(chunk,encoding,cb)
+	  this.writecb = null;
+
+	  // the amount that is being written when _write is called.
+	  this.writelen = 0;
+
+	  this.buffer = [];
+
+	  // number of pending user-supplied write callbacks
+	  // this must be 0 before 'finish' can be emitted
+	  this.pendingcb = 0;
+
+	  // emit prefinish if the only thing we're waiting for is _write cbs
+	  // This is relevant for synchronous Transform streams
+	  this.prefinished = false;
+
+	  // True if the error was already emitted and should not be thrown again
+	  this.errorEmitted = false;
+	}
+
+	function Writable(options) {
+	  var Duplex = __webpack_require__(114);
+
+	  // Writable ctor is applied to Duplexes, though they're not
+	  // instanceof Writable, they're instanceof Readable.
+	  if (!(this instanceof Writable) && !(this instanceof Duplex))
+	    return new Writable(options);
+
+	  this._writableState = new WritableState(options, this);
+
+	  // legacy.
+	  this.writable = true;
+
+	  Stream.call(this);
+	}
+
+	// Otherwise people can pipe Writable streams, which is just wrong.
+	Writable.prototype.pipe = function() {
+	  this.emit('error', new Error('Cannot pipe. Not readable.'));
+	};
+
+
+	function writeAfterEnd(stream, state, cb) {
+	  var er = new Error('write after end');
+	  // TODO: defer error events consistently everywhere, not just the cb
+	  stream.emit('error', er);
+	  process.nextTick(function() {
+	    cb(er);
+	  });
+	}
+
+	// If we get something that is not a buffer, string, null, or undefined,
+	// and we're not in objectMode, then that's an error.
+	// Otherwise stream chunks are all considered to be of length=1, and the
+	// watermarks determine how many objects to keep in the buffer, rather than
+	// how many bytes or characters.
+	function validChunk(stream, state, chunk, cb) {
+	  var valid = true;
+	  if (!util.isBuffer(chunk) &&
+	      !util.isString(chunk) &&
+	      !util.isNullOrUndefined(chunk) &&
+	      !state.objectMode) {
+	    var er = new TypeError('Invalid non-string/buffer chunk');
+	    stream.emit('error', er);
+	    process.nextTick(function() {
+	      cb(er);
+	    });
+	    valid = false;
+	  }
+	  return valid;
+	}
+
+	Writable.prototype.write = function(chunk, encoding, cb) {
+	  var state = this._writableState;
+	  var ret = false;
+
+	  if (util.isFunction(encoding)) {
+	    cb = encoding;
+	    encoding = null;
+	  }
+
+	  if (util.isBuffer(chunk))
+	    encoding = 'buffer';
+	  else if (!encoding)
+	    encoding = state.defaultEncoding;
+
+	  if (!util.isFunction(cb))
+	    cb = function() {};
+
+	  if (state.ended)
+	    writeAfterEnd(this, state, cb);
+	  else if (validChunk(this, state, chunk, cb)) {
+	    state.pendingcb++;
+	    ret = writeOrBuffer(this, state, chunk, encoding, cb);
+	  }
+
+	  return ret;
+	};
+
+	Writable.prototype.cork = function() {
+	  var state = this._writableState;
+
+	  state.corked++;
+	};
+
+	Writable.prototype.uncork = function() {
+	  var state = this._writableState;
+
+	  if (state.corked) {
+	    state.corked--;
+
+	    if (!state.writing &&
+	        !state.corked &&
+	        !state.finished &&
+	        !state.bufferProcessing &&
+	        state.buffer.length)
+	      clearBuffer(this, state);
+	  }
+	};
+
+	function decodeChunk(state, chunk, encoding) {
+	  if (!state.objectMode &&
+	      state.decodeStrings !== false &&
+	      util.isString(chunk)) {
+	    chunk = new Buffer(chunk, encoding);
+	  }
+	  return chunk;
+	}
+
+	// if we're already writing something, then just put this
+	// in the queue, and wait our turn.  Otherwise, call _write
+	// If we return false, then we need a drain event, so set that flag.
+	function writeOrBuffer(stream, state, chunk, encoding, cb) {
+	  chunk = decodeChunk(state, chunk, encoding);
+	  if (util.isBuffer(chunk))
+	    encoding = 'buffer';
+	  var len = state.objectMode ? 1 : chunk.length;
+
+	  state.length += len;
+
+	  var ret = state.length < state.highWaterMark;
+	  // we must ensure that previous needDrain will not be reset to false.
+	  if (!ret)
+	    state.needDrain = true;
+
+	  if (state.writing || state.corked)
+	    state.buffer.push(new WriteReq(chunk, encoding, cb));
+	  else
+	    doWrite(stream, state, false, len, chunk, encoding, cb);
+
+	  return ret;
+	}
+
+	function doWrite(stream, state, writev, len, chunk, encoding, cb) {
+	  state.writelen = len;
+	  state.writecb = cb;
+	  state.writing = true;
+	  state.sync = true;
+	  if (writev)
+	    stream._writev(chunk, state.onwrite);
+	  else
+	    stream._write(chunk, encoding, state.onwrite);
+	  state.sync = false;
+	}
+
+	function onwriteError(stream, state, sync, er, cb) {
+	  if (sync)
+	    process.nextTick(function() {
+	      state.pendingcb--;
+	      cb(er);
+	    });
+	  else {
+	    state.pendingcb--;
+	    cb(er);
+	  }
+
+	  stream._writableState.errorEmitted = true;
+	  stream.emit('error', er);
+	}
+
+	function onwriteStateUpdate(state) {
+	  state.writing = false;
+	  state.writecb = null;
+	  state.length -= state.writelen;
+	  state.writelen = 0;
+	}
+
+	function onwrite(stream, er) {
+	  var state = stream._writableState;
+	  var sync = state.sync;
+	  var cb = state.writecb;
+
+	  onwriteStateUpdate(state);
+
+	  if (er)
+	    onwriteError(stream, state, sync, er, cb);
+	  else {
+	    // Check if we're actually ready to finish, but don't emit yet
+	    var finished = needFinish(stream, state);
+
+	    if (!finished &&
+	        !state.corked &&
+	        !state.bufferProcessing &&
+	        state.buffer.length) {
+	      clearBuffer(stream, state);
+	    }
+
+	    if (sync) {
+	      process.nextTick(function() {
+	        afterWrite(stream, state, finished, cb);
+	      });
+	    } else {
+	      afterWrite(stream, state, finished, cb);
+	    }
+	  }
+	}
+
+	function afterWrite(stream, state, finished, cb) {
+	  if (!finished)
+	    onwriteDrain(stream, state);
+	  state.pendingcb--;
+	  cb();
+	  finishMaybe(stream, state);
+	}
+
+	// Must force callback to be called on nextTick, so that we don't
+	// emit 'drain' before the write() consumer gets the 'false' return
+	// value, and has a chance to attach a 'drain' listener.
+	function onwriteDrain(stream, state) {
+	  if (state.length === 0 && state.needDrain) {
+	    state.needDrain = false;
+	    stream.emit('drain');
+	  }
+	}
+
+
+	// if there's something in the buffer waiting, then process it
+	function clearBuffer(stream, state) {
+	  state.bufferProcessing = true;
+
+	  if (stream._writev && state.buffer.length > 1) {
+	    // Fast case, write everything using _writev()
+	    var cbs = [];
+	    for (var c = 0; c < state.buffer.length; c++)
+	      cbs.push(state.buffer[c].callback);
+
+	    // count the one we are adding, as well.
+	    // TODO(isaacs) clean this up
+	    state.pendingcb++;
+	    doWrite(stream, state, true, state.length, state.buffer, '', function(err) {
+	      for (var i = 0; i < cbs.length; i++) {
+	        state.pendingcb--;
+	        cbs[i](err);
+	      }
+	    });
+
+	    // Clear buffer
+	    state.buffer = [];
+	  } else {
+	    // Slow case, write chunks one-by-one
+	    for (var c = 0; c < state.buffer.length; c++) {
+	      var entry = state.buffer[c];
+	      var chunk = entry.chunk;
+	      var encoding = entry.encoding;
+	      var cb = entry.callback;
+	      var len = state.objectMode ? 1 : chunk.length;
+
+	      doWrite(stream, state, false, len, chunk, encoding, cb);
+
+	      // if we didn't call the onwrite immediately, then
+	      // it means that we need to wait until it does.
+	      // also, that means that the chunk and cb are currently
+	      // being processed, so move the buffer counter past them.
+	      if (state.writing) {
+	        c++;
+	        break;
+	      }
+	    }
+
+	    if (c < state.buffer.length)
+	      state.buffer = state.buffer.slice(c);
+	    else
+	      state.buffer.length = 0;
+	  }
+
+	  state.bufferProcessing = false;
+	}
+
+	Writable.prototype._write = function(chunk, encoding, cb) {
+	  cb(new Error('not implemented'));
+
+	};
+
+	Writable.prototype._writev = null;
+
+	Writable.prototype.end = function(chunk, encoding, cb) {
+	  var state = this._writableState;
+
+	  if (util.isFunction(chunk)) {
+	    cb = chunk;
+	    chunk = null;
+	    encoding = null;
+	  } else if (util.isFunction(encoding)) {
+	    cb = encoding;
+	    encoding = null;
+	  }
+
+	  if (!util.isNullOrUndefined(chunk))
+	    this.write(chunk, encoding);
+
+	  // .end() fully uncorks
+	  if (state.corked) {
+	    state.corked = 1;
+	    this.uncork();
+	  }
+
+	  // ignore unnecessary end() calls.
+	  if (!state.ending && !state.finished)
+	    endWritable(this, state, cb);
+	};
+
+
+	function needFinish(stream, state) {
+	  return (state.ending &&
+	          state.length === 0 &&
+	          !state.finished &&
+	          !state.writing);
+	}
+
+	function prefinish(stream, state) {
+	  if (!state.prefinished) {
+	    state.prefinished = true;
+	    stream.emit('prefinish');
+	  }
+	}
+
+	function finishMaybe(stream, state) {
+	  var need = needFinish(stream, state);
+	  if (need) {
+	    if (state.pendingcb === 0) {
+	      prefinish(stream, state);
+	      state.finished = true;
+	      stream.emit('finish');
+	    } else
+	      prefinish(stream, state);
+	  }
+	  return need;
+	}
+
+	function endWritable(stream, state, cb) {
+	  state.ending = true;
+	  finishMaybe(stream, state);
+	  if (cb) {
+	    if (state.finished)
+	      process.nextTick(cb);
+	    else
+	      stream.once('finish', cb);
+	  }
+	  state.ended = true;
+	}
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(54)))
+
+/***/ },
+/* 114 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(process) {// Copyright Joyent, Inc. and other Node contributors.
+	//
+	// Permission is hereby granted, free of charge, to any person obtaining a
+	// copy of this software and associated documentation files (the
+	// "Software"), to deal in the Software without restriction, including
+	// without limitation the rights to use, copy, modify, merge, publish,
+	// distribute, sublicense, and/or sell copies of the Software, and to permit
+	// persons to whom the Software is furnished to do so, subject to the
+	// following conditions:
+	//
+	// The above copyright notice and this permission notice shall be included
+	// in all copies or substantial portions of the Software.
+	//
+	// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+	// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+	// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+	// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+	// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+	// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+	// a duplex stream is just a stream that is both readable and writable.
+	// Since JS doesn't have multiple prototypal inheritance, this class
+	// prototypally inherits from Readable, and then parasitically from
+	// Writable.
+
+	module.exports = Duplex;
+
+	/*<replacement>*/
+	var objectKeys = Object.keys || function (obj) {
+	  var keys = [];
+	  for (var key in obj) keys.push(key);
+	  return keys;
+	}
+	/*</replacement>*/
+
+
+	/*<replacement>*/
+	var util = __webpack_require__(121);
+	util.inherits = __webpack_require__(120);
+	/*</replacement>*/
+
+	var Readable = __webpack_require__(112);
+	var Writable = __webpack_require__(113);
+
+	util.inherits(Duplex, Readable);
+
+	forEach(objectKeys(Writable.prototype), function(method) {
+	  if (!Duplex.prototype[method])
+	    Duplex.prototype[method] = Writable.prototype[method];
+	});
+
+	function Duplex(options) {
+	  if (!(this instanceof Duplex))
+	    return new Duplex(options);
+
+	  Readable.call(this, options);
+	  Writable.call(this, options);
+
+	  if (options && options.readable === false)
+	    this.readable = false;
+
+	  if (options && options.writable === false)
+	    this.writable = false;
+
+	  this.allowHalfOpen = true;
+	  if (options && options.allowHalfOpen === false)
+	    this.allowHalfOpen = false;
+
+	  this.once('end', onend);
+	}
+
+	// the no-half-open enforcer
+	function onend() {
+	  // if we allow half-open state, or if the writable side ended,
+	  // then we're ok.
+	  if (this.allowHalfOpen || this._writableState.ended)
+	    return;
+
+	  // no more data can be written.
+	  // But allow more writes to happen in this tick.
+	  process.nextTick(this.end.bind(this));
+	}
+
+	function forEach (xs, f) {
+	  for (var i = 0, l = xs.length; i < l; i++) {
+	    f(xs[i], i);
+	  }
+	}
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(54)))
+
+/***/ },
+/* 115 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// Copyright Joyent, Inc. and other Node contributors.
+	//
+	// Permission is hereby granted, free of charge, to any person obtaining a
+	// copy of this software and associated documentation files (the
+	// "Software"), to deal in the Software without restriction, including
+	// without limitation the rights to use, copy, modify, merge, publish,
+	// distribute, sublicense, and/or sell copies of the Software, and to permit
+	// persons to whom the Software is furnished to do so, subject to the
+	// following conditions:
+	//
+	// The above copyright notice and this permission notice shall be included
+	// in all copies or substantial portions of the Software.
+	//
+	// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+	// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+	// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+	// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+	// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+	// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+	// a transform stream is a readable/writable stream where you do
+	// something with the data.  Sometimes it's called a "filter",
+	// but that's not a great name for it, since that implies a thing where
+	// some bits pass through, and others are simply ignored.  (That would
+	// be a valid example of a transform, of course.)
+	//
+	// While the output is causally related to the input, it's not a
+	// necessarily symmetric or synchronous transformation.  For example,
+	// a zlib stream might take multiple plain-text writes(), and then
+	// emit a single compressed chunk some time in the future.
+	//
+	// Here's how this works:
+	//
+	// The Transform stream has all the aspects of the readable and writable
+	// stream classes.  When you write(chunk), that calls _write(chunk,cb)
+	// internally, and returns false if there's a lot of pending writes
+	// buffered up.  When you call read(), that calls _read(n) until
+	// there's enough pending readable data buffered up.
+	//
+	// In a transform stream, the written data is placed in a buffer.  When
+	// _read(n) is called, it transforms the queued up data, calling the
+	// buffered _write cb's as it consumes chunks.  If consuming a single
+	// written chunk would result in multiple output chunks, then the first
+	// outputted bit calls the readcb, and subsequent chunks just go into
+	// the read buffer, and will cause it to emit 'readable' if necessary.
+	//
+	// This way, back-pressure is actually determined by the reading side,
+	// since _read has to be called to start processing a new chunk.  However,
+	// a pathological inflate type of transform can cause excessive buffering
+	// here.  For example, imagine a stream where every byte of input is
+	// interpreted as an integer from 0-255, and then results in that many
+	// bytes of output.  Writing the 4 bytes {ff,ff,ff,ff} would result in
+	// 1kb of data being output.  In this case, you could write a very small
+	// amount of input, and end up with a very large amount of output.  In
+	// such a pathological inflating mechanism, there'd be no way to tell
+	// the system to stop doing the transform.  A single 4MB write could
+	// cause the system to run out of memory.
+	//
+	// However, even in such a pathological case, only a single written chunk
+	// would be consumed, and then the rest would wait (un-transformed) until
+	// the results of the previous transformed chunk were consumed.
+
+	module.exports = Transform;
+
+	var Duplex = __webpack_require__(114);
+
+	/*<replacement>*/
+	var util = __webpack_require__(121);
+	util.inherits = __webpack_require__(120);
+	/*</replacement>*/
+
+	util.inherits(Transform, Duplex);
+
+
+	function TransformState(options, stream) {
+	  this.afterTransform = function(er, data) {
+	    return afterTransform(stream, er, data);
+	  };
+
+	  this.needTransform = false;
+	  this.transforming = false;
+	  this.writecb = null;
+	  this.writechunk = null;
+	}
+
+	function afterTransform(stream, er, data) {
+	  var ts = stream._transformState;
+	  ts.transforming = false;
+
+	  var cb = ts.writecb;
+
+	  if (!cb)
+	    return stream.emit('error', new Error('no writecb in Transform class'));
+
+	  ts.writechunk = null;
+	  ts.writecb = null;
+
+	  if (!util.isNullOrUndefined(data))
+	    stream.push(data);
+
+	  if (cb)
+	    cb(er);
+
+	  var rs = stream._readableState;
+	  rs.reading = false;
+	  if (rs.needReadable || rs.length < rs.highWaterMark) {
+	    stream._read(rs.highWaterMark);
+	  }
+	}
+
+
+	function Transform(options) {
+	  if (!(this instanceof Transform))
+	    return new Transform(options);
+
+	  Duplex.call(this, options);
+
+	  this._transformState = new TransformState(options, this);
+
+	  // when the writable side finishes, then flush out anything remaining.
+	  var stream = this;
+
+	  // start out asking for a readable event once data is transformed.
+	  this._readableState.needReadable = true;
+
+	  // we have implemented the _read method, and done the other things
+	  // that Readable wants before the first _read call, so unset the
+	  // sync guard flag.
+	  this._readableState.sync = false;
+
+	  this.once('prefinish', function() {
+	    if (util.isFunction(this._flush))
+	      this._flush(function(er) {
+	        done(stream, er);
+	      });
+	    else
+	      done(stream);
+	  });
+	}
+
+	Transform.prototype.push = function(chunk, encoding) {
+	  this._transformState.needTransform = false;
+	  return Duplex.prototype.push.call(this, chunk, encoding);
+	};
+
+	// This is the part where you do stuff!
+	// override this function in implementation classes.
+	// 'chunk' is an input chunk.
+	//
+	// Call `push(newChunk)` to pass along transformed output
+	// to the readable side.  You may call 'push' zero or more times.
+	//
+	// Call `cb(err)` when you are done with this chunk.  If you pass
+	// an error, then that'll put the hurt on the whole operation.  If you
+	// never call cb(), then you'll never get another chunk.
+	Transform.prototype._transform = function(chunk, encoding, cb) {
+	  throw new Error('not implemented');
+	};
+
+	Transform.prototype._write = function(chunk, encoding, cb) {
+	  var ts = this._transformState;
+	  ts.writecb = cb;
+	  ts.writechunk = chunk;
+	  ts.writeencoding = encoding;
+	  if (!ts.transforming) {
+	    var rs = this._readableState;
+	    if (ts.needTransform ||
+	        rs.needReadable ||
+	        rs.length < rs.highWaterMark)
+	      this._read(rs.highWaterMark);
+	  }
+	};
+
+	// Doesn't matter what the args are here.
+	// _transform does all the work.
+	// That we got here means that the readable side wants more data.
+	Transform.prototype._read = function(n) {
+	  var ts = this._transformState;
+
+	  if (!util.isNull(ts.writechunk) && ts.writecb && !ts.transforming) {
+	    ts.transforming = true;
+	    this._transform(ts.writechunk, ts.writeencoding, ts.afterTransform);
+	  } else {
+	    // mark that we need a transform, so that any data that comes in
+	    // will get processed, now that we've asked for it.
+	    ts.needTransform = true;
+	  }
+	};
+
+
+	function done(stream, er) {
+	  if (er)
+	    return stream.emit('error', er);
+
+	  // if there's nothing in the write buffer, then that means
+	  // that nothing more will ever be provided
+	  var ws = stream._writableState;
+	  var ts = stream._transformState;
+
+	  if (ws.length)
+	    throw new Error('calling transform done when ws.length != 0');
+
+	  if (ts.transforming)
+	    throw new Error('calling transform done when still transforming');
+
+	  return stream.push(null);
+	}
+
+
+/***/ },
 /* 116 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -36227,11 +36467,11 @@ var StellarLib =
 
 	module.exports = PassThrough;
 
-	var Transform = __webpack_require__(112);
+	var Transform = __webpack_require__(115);
 
 	/*<replacement>*/
-	var util = __webpack_require__(120);
-	util.inherits = __webpack_require__(121);
+	var util = __webpack_require__(121);
+	util.inherits = __webpack_require__(120);
 	/*</replacement>*/
 
 	util.inherits(PassThrough, Transform);
@@ -36494,6 +36734,35 @@ var StellarLib =
 /* 120 */
 /***/ function(module, exports, __webpack_require__) {
 
+	if (typeof Object.create === 'function') {
+	  // implementation from standard node.js 'util' module
+	  module.exports = function inherits(ctor, superCtor) {
+	    ctor.super_ = superCtor
+	    ctor.prototype = Object.create(superCtor.prototype, {
+	      constructor: {
+	        value: ctor,
+	        enumerable: false,
+	        writable: true,
+	        configurable: true
+	      }
+	    });
+	  };
+	} else {
+	  // old school shim for old browsers
+	  module.exports = function inherits(ctor, superCtor) {
+	    ctor.super_ = superCtor
+	    var TempCtor = function () {}
+	    TempCtor.prototype = superCtor.prototype
+	    ctor.prototype = new TempCtor()
+	    ctor.prototype.constructor = ctor
+	  }
+	}
+
+
+/***/ },
+/* 121 */
+/***/ function(module, exports, __webpack_require__) {
+
 	/* WEBPACK VAR INJECTION */(function(Buffer) {// Copyright Joyent, Inc. and other Node contributors.
 	//
 	// Permission is hereby granted, free of charge, to any person obtaining a
@@ -36602,35 +36871,6 @@ var StellarLib =
 	  return Object.prototype.toString.call(o);
 	}
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(20).Buffer))
-
-/***/ },
-/* 121 */
-/***/ function(module, exports, __webpack_require__) {
-
-	if (typeof Object.create === 'function') {
-	  // implementation from standard node.js 'util' module
-	  module.exports = function inherits(ctor, superCtor) {
-	    ctor.super_ = superCtor
-	    ctor.prototype = Object.create(superCtor.prototype, {
-	      constructor: {
-	        value: ctor,
-	        enumerable: false,
-	        writable: true,
-	        configurable: true
-	      }
-	    });
-	  };
-	} else {
-	  // old school shim for old browsers
-	  module.exports = function inherits(ctor, superCtor) {
-	    ctor.super_ = superCtor
-	    var TempCtor = function () {}
-	    TempCtor.prototype = superCtor.prototype
-	    ctor.prototype = new TempCtor()
-	    ctor.prototype.constructor = ctor
-	  }
-	}
-
 
 /***/ }
 /******/ ]);
