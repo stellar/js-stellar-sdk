@@ -1,8 +1,11 @@
 import {TransactionResult} from "./transaction_result";
 import {xdr} from "stellar-base";
 import {Account} from "./account";
+import {NotFoundError, NetworkError} from "./errors";
 
-let request = require("superagent");
+let axios = require("axios");
+let toBluebird = require("bluebird").resolve;
+
 var EventSource = (typeof window === 'undefined') ? require('eventsource') : window.EventSource;
 
 /**
@@ -30,31 +33,24 @@ export class Server {
     * @param {Transaction} transaction - The transaction to submit.
     */
     submitTransaction(transaction) {
-        var self = this;
-        return new Promise(function (resolve, reject) {
-            request
-                .post(self.protocol + self.hostname + ":" + self.port + '/transactions')
-                .type('json')
-                .send({
-                    tx: transaction.toEnvelope().toXDR().toString("hex")
-                })
-                .end(function(err, res) {
-                    if (res && res.body && res.body.submission_result) {
-                        let result = xdr.TransactionResult.fromXDR(new Buffer(res.body.submission_result, "hex"));
-                        resolve(new TransactionResult(result));
-                    } else {
-                        if (res && res.body && res.body.result) {
-                            reject({
-                                hash: res.body.hash,
-                                result: res.body.result
-                            });
-                        } else {
-                            console.log(err);
-                            reject(err);
-                        }
-                    }
-                });
-        });
+        var promise = axios.post(this.protocol + this.hostname + ":" + this.port + '/transactions', {
+                tx: transaction.toEnvelope().toXDR().toString("hex")
+            })
+            .then(function(response) {
+                let result = xdr.TransactionResult.fromXDR(new Buffer(res.data.submission_result, "hex"));
+                return new TransactionResult(result);
+            })
+            .catch(function (response) {
+                if (response instanceof Error) {
+                    return Promise.reject(err);
+                } else {
+                    return Promise.reject({
+                        hash: res.body.hash,
+                        result: res.body.result
+                    });
+                }
+            });
+        return toBluebird(promise);
     }
 
     /**
@@ -220,37 +216,37 @@ export class Server {
     }
 
     _sendNormalRequest(endpoint) {
-        var self = this;
-        return new Promise(function (resolve, reject) {
-            request
-                .get(self.protocol + self.hostname + ":" + self.port + endpoint)
-                .end(function (err, res) {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        resolve(JSON.parse(res.text));
-                    }
-                });
-        });
+        var promise = axios.get(this.protocol + this.hostname + ":" + this.port + endpoint)
+            .then(function (response) {
+                return response.data;
+            })
+            .catch(this._handleNetworkError);
+        return toBluebird(promise);
     }
 
     /**
     * For those pesky _link.href full URLs we get back from Horizon.
     */
     _sendLinkRequest(href) {
-        var self = this;
-        return new Promise(function (resolve, reject) {
-            request
-                .get(href)
-                .end(function (err, res) {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        var result = res.text ? JSON.parse(res.text) : res;
-                        resolve(result);
-                    }
-                });
-        });
+        var promise = axios.get(href)
+            .then(function (response) {
+                return response.data;
+            })
+            .catch(this._handleNetworkError);
+        return toBluebird(promise);
+    }
+
+    _handleNetworkError(response) {
+        if (response instanceof Error) {
+            return Promise.reject(response);
+        } else {
+            switch (response.status) {
+                case 404:
+                    return Promise.reject(new NotFoundError(response.data, response));
+                default:
+                    return Promise.reject(new NetworkError(response.status, response));
+            }
+        }
     }
 
     _sendStreamingRequest(endpoint, streaming) {

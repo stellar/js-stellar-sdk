@@ -2,7 +2,8 @@ global.StellarLib = require('../../src/index');
 global.chai = require('chai');
 global.sinon = require('sinon');
 global.chai.use(require('sinon-chai'));
-global.request = require("superagent");
+global.axios = require("axios");
+global.bluebird = require("bluebird");
 global.dev_server = {hostname: "localhost", port: 1337};
 
 global.expect = global.chai.expect;

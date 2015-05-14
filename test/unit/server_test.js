@@ -3,6 +3,8 @@ describe("server.js tests", function () {
   var DEV_SERVER_FIXTURES_ENDPOINT = "http://localhost:1337/fixtures";
   var DEV_SERVER_CLEAR_FIXTURES_ENDPOINT = "http://localhost:1337/clear";
 
+  var toBluebird = bluebird.resolve;
+
   var FAKE_COLLECTION_RESPONSE = {
     _links: {
       next: {
@@ -21,23 +23,13 @@ describe("server.js tests", function () {
     // sets the request the dev server should expect and the response it should send
     this.setFixtures = function (fixtures, done) {
       // instruct the dev server to except the correct request
-      request
-        .post(DEV_SERVER_FIXTURES_ENDPOINT)
-        .type('json')
-        .send(fixtures)
-        .end(function(err, res) {
-          done();
-        });
+      return axios.post(DEV_SERVER_FIXTURES_ENDPOINT, fixtures);
     }
   });
 
   afterEach(function (done) {
-    request
-      .post(DEV_SERVER_CLEAR_FIXTURES_ENDPOINT)
-      .type('json')
-      .end(function(err, res) {
-        done();
-      });
+    return toBluebird(axios.post(DEV_SERVER_CLEAR_FIXTURES_ENDPOINT))
+      .then(function () { done() });
   })
 
   describe('Server._sendResourceRequest', function () {
@@ -45,10 +37,10 @@ describe("server.js tests", function () {
       describe("without options", function () {
         beforeEach(function (done) {
           // instruct the dev server to except the correct request
-          this.setFixtures({
+          return this.setFixtures({
             request: "/ledgers",
             response: {status: 200, body: FAKE_COLLECTION_RESPONSE}
-          }, done);
+          }).then(function () { done() });
         });
 
         it("requests the correct endpoint", function (done) {
@@ -65,31 +57,25 @@ describe("server.js tests", function () {
       describe("with options", function () {
         beforeEach(function (done) {
           // instruct the dev server to except the correct request
-          this.setFixtures({
+          return this.setFixtures({
             request: "/ledgers?limit=1&after=b&order=asc",
             response: {status: 200, body: FAKE_COLLECTION_RESPONSE}
-          }, done);
+          }).then(function () { done() });
         });
 
-        it("requests the correct endpoint", function (done) {
-          server.ledgers({limit: 1, after: "b", order: "asc"})
-            .then(function () {
-              done();
-            })
-            .catch(function (err) {
-              done(err);
-            })
+        it("requests the correct endpoint", function () {
+          return server.ledgers({limit: 1, after: "b", order: "asc"});
         })
       });
 
       describe("as stream", function () {
         beforeEach(function (done) {
           // instruct the dev server to except the correct request
-          this.setFixtures({
+          return this.setFixtures({
             request: "/ledgers",
             response: {status: 200, body: "{\"test\":\"body\"}"},
             stream: true
-          }, done);
+          }).then(function () { done() });
         });
 
         it("attaches onmessage handler to an EventSource", function (done) {
@@ -106,13 +92,35 @@ describe("server.js tests", function () {
     });
 
     describe("requests a single ledger", function () {
+      describe("for a non existent ledger", function () {
+        beforeEach(function (done) {
+          // instruct the dev server to except the correct request
+          return this.setFixtures({
+            request: "/ledgers/1",
+            response: {status: 404, body: "{\"test\":\"body\"}"}
+          }).then(function () { done() });
+        });
+
+        it("throws a NotFoundError", function (done) {
+          server.ledgers(1)
+            .then(function () {
+              done("didn't throw an error");
+            })
+            .catch(StellarLib.NotFoundError, function (err) {
+              done();
+            })
+            .catch(function (err) {
+              done(err);
+            })
+        })
+      });
       describe("without options", function () {
         beforeEach(function (done) {
           // instruct the dev server to except the correct request
-          this.setFixtures({
+          return this.setFixtures({
             request: "/ledgers/1",
-            response: {status: 200, body: "{\"test\":\"body\"}"}
-          }, done);
+            response: {status: 200, body: "{\"best\":\"body\"}"}
+          }).then(function () { done() });
         });
 
         it("requests the correct endpoint", function (done) {
@@ -128,10 +136,10 @@ describe("server.js tests", function () {
       describe("with options", function () {
         beforeEach(function (done) {
           // instruct the dev server to except the correct request
-          this.setFixtures({
+          return this.setFixtures({
             request: "/ledgers/1?limit=1&after=b&order=asc",
             response: {status: 200, body: "{\"test\":\"body\"}"}
-          }, done);
+          }).then(function () { done() });
         });
 
         it("requests the correct endpoint", function (done) {
@@ -150,10 +158,10 @@ describe("server.js tests", function () {
       describe("without options", function () {
         beforeEach(function (done) {
           // instruct the dev server to except the correct request
-          this.setFixtures({
+          return this.setFixtures({
             request: "/ledgers/1/transactions",
             response: {status: 200, body: FAKE_COLLECTION_RESPONSE}
-          }, done);
+          }).then(function () { done() });
         });
 
         it("requests the correct endpoint", function (done) {
@@ -169,10 +177,10 @@ describe("server.js tests", function () {
       describe("with options", function () {
         beforeEach(function (done) {
           // instruct the dev server to except the correct request
-          this.setFixtures({
+          return this.setFixtures({
             request: "/ledgers/1/transactions?limit=1&after=b&order=asc",
             response: {status: 200, body: FAKE_COLLECTION_RESPONSE}
-          }, done);
+          }).then(function () { done() });
         });
 
         it("requests the correct endpoint", function (done) {
@@ -188,11 +196,11 @@ describe("server.js tests", function () {
       describe("as stream", function () {
         beforeEach(function (done) {
           // instruct the dev server to except the correct request
-          this.setFixtures({
+          return this.setFixtures({
             request: "/ledgers/1/transactions",
             response: {status: 200, body: "{\"test\":\"body\"}"},
             stream: true
-          }, done);
+          }).then(function () { done() });
         });
 
         it("attaches onmessage handler to an EventSource", function (done) {

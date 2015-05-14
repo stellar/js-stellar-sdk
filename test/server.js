@@ -46,14 +46,14 @@ app.post('/fixtures', function (req, res) {
 app.get('*', function(req, res) {
     var response = fixtures[req._parsedUrl.pathname];
     if (!response) {
-        res.status(404).send("expected request url path not received");
+        res.status(404).send("unexpected request url path: " + req._parsedUrl.pathname);
         return;
     }
     if (response.query) {
         var keys = Object.keys(response.query);
         for (var i = 0; i < keys.length; i++) {
             if (req.query[keys[i]] !== response.query[keys[i]]) {
-                res.status(404).send("expected query parameter " + keys[i] + " not received");
+                res.status(404).send("query parameter \"" + keys[i] + "\" was: " + req.query[keys[i]] + "; expected: " + response.query[keys[i]]);
                 return;
             }
         }
