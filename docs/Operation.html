@@ -287,7 +287,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="operation.js.html">operation.js</a>, <a href="operation.js.html#line216">line 216</a>
+        <a href="operation.js.html">operation.js</a>, <a href="operation.js.html#line285">line 285</a>
     </li></ul></dd>
     
 
@@ -591,7 +591,7 @@ account to hold your account's credit for a given currency.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="operation.js.html">operation.js</a>, <a href="operation.js.html#line98">line 98</a>
+        <a href="operation.js.html">operation.js</a>, <a href="operation.js.html#line167">line 167</a>
     </li></ul></dd>
     
 
@@ -868,7 +868,7 @@ trusted and the currency code are in the given Currency object.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="operation.js.html">operation.js</a>, <a href="operation.js.html#line69">line 69</a>
+        <a href="operation.js.html">operation.js</a>, <a href="operation.js.html#line138">line 138</a>
     </li></ul></dd>
     
 
@@ -903,6 +903,279 @@ trusted and the currency code are in the given Currency object.
     <dd>
         
 <span class="param-type">xdr.ChangeTrustOp</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".createAccount"><span class="type-signature">(static) </span>createAccount<span class="signature">(opts)</span><span class="type-signature"> &rarr; {xdr.CreateAccountOp}</span></h4>
+
+    
+
+
+
+<div class="description">
+    Create and fund a non existent account.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>opts</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>destination</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Destination address to create an account for.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>startingBalance</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Amount the account should be funded. Must be greater
+                                  than the reserve balance amount.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>source</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">The source account for the payment. Defaults to the transaction's source account.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="operation.js.html">operation.js</a>, <a href="operation.js.html#line21">line 21</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">xdr.CreateAccountOp</span>
 
 
     </dd>
@@ -1133,7 +1406,7 @@ deletes an offer for the account.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="operation.js.html">operation.js</a>, <a href="operation.js.html#line187">line 187</a>
+        <a href="operation.js.html">operation.js</a>, <a href="operation.js.html#line256">line 256</a>
     </li></ul></dd>
     
 
@@ -1355,7 +1628,7 @@ deletes an offer for the account.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="operation.js.html">operation.js</a>, <a href="operation.js.html#line234">line 234</a>
+        <a href="operation.js.html">operation.js</a>, <a href="operation.js.html#line303">line 303</a>
     </li></ul></dd>
     
 
@@ -1505,7 +1778,7 @@ operation.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="operation.js.html">operation.js</a>, <a href="operation.js.html#line250">line 250</a>
+        <a href="operation.js.html">operation.js</a>, <a href="operation.js.html#line319">line 319</a>
     </li></ul></dd>
     
 
@@ -1554,7 +1827,7 @@ operation.
 
     
 
-    <h4 class="name" id=".payment"><span class="type-signature">(static) </span>payment<span class="signature">(opts)</span><span class="type-signature"> &rarr; {xdr.PaymentOp}</span></h4>
+    <h4 class="name" id=".pathPayment"><span class="type-signature">(static) </span>pathPayment<span class="signature">(opts)</span><span class="type-signature"> &rarr; {xdr.PathPaymentOp}</span></h4>
 
     
 
@@ -1564,7 +1837,6 @@ operation.
     Returns a XDR PaymentOp. A "payment" operation send the specified amount to the
 destination account, optionally through a path. XLM payments create the destination
 account if it does not exist.
-NOTE: Payment operation to change in next protocol update
 </div>
 
 
@@ -1652,30 +1924,7 @@ NOTE: Payment operation to change in next protocol update
 
         <tr>
             
-                <td class="name"><code>destination</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="Account.html">Account</a></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The destination account for the payment.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>currency</code></td>
+                <td class="name"><code>sendCurrency</code></td>
             
 
             <td class="type">
@@ -1691,7 +1940,76 @@ NOTE: Payment operation to change in next protocol update
 
             
 
-            <td class="description last">The currency to send</td>
+            <td class="description last">The currency to pay with.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>sendMax</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The maximum amount of sendCurrency to send.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>destination</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The destination account to send to.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>destCurrency</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Currency.html">Currency</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The currency the destination will receive.</td>
         </tr>
 
     
@@ -1705,7 +2023,7 @@ NOTE: Payment operation to change in next protocol update
 
         <tr>
             
-                <td class="name"><code>otps.amount</code></td>
+                <td class="name"><code>otps.destAmount</code></td>
             
 
             <td class="type">
@@ -1732,40 +2050,7 @@ NOTE: Payment operation to change in next protocol update
 
             
 
-            <td class="description last">The amount to send.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>opts.source</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="Account.html">Account</a></span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">The source account for the payment. Defaults to the transaction's source account.</td>
+            <td class="description last">The amount the destination receives.</td>
         </tr>
 
     
@@ -1805,7 +2090,7 @@ NOTE: Payment operation to change in next protocol update
 
         <tr>
             
-                <td class="name"><code>opts.sendMax</code></td>
+                <td class="name"><code>opts.source</code></td>
             
 
             <td class="type">
@@ -1831,7 +2116,7 @@ NOTE: Payment operation to change in next protocol update
 
             
 
-            <td class="description last">The max amount of currency to send.</td>
+            <td class="description last">The source account for the payment. Defaults to the transaction's source account.</td>
         </tr>
 
     
@@ -1872,7 +2157,310 @@ NOTE: Payment operation to change in next protocol update
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="operation.js.html">operation.js</a>, <a href="operation.js.html#line25">line 25</a>
+        <a href="operation.js.html">operation.js</a>, <a href="operation.js.html#line91">line 91</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">xdr.PathPaymentOp</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".payment"><span class="type-signature">(static) </span>payment<span class="signature">(opts)</span><span class="type-signature"> &rarr; {xdr.PaymentOp}</span></h4>
+
+    
+
+
+
+<div class="description">
+    Create a payment operation.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>opts</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>destination</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">The destination address.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>currency</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Currency.html">Currency</a></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">The currency to send.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>amount</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">The amount to send.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>source</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">The source account for the payment. Defaults to the transaction's source account.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="operation.js.html">operation.js</a>, <a href="operation.js.html#line51">line 51</a>
     </li></ul></dd>
     
 
@@ -2506,7 +3094,7 @@ TODO: implement
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="operation.js.html">operation.js</a>, <a href="operation.js.html#line137">line 137</a>
+        <a href="operation.js.html">operation.js</a>, <a href="operation.js.html#line206">line 206</a>
     </li></ul></dd>
     
 
@@ -2572,7 +3160,7 @@ TODO: implement
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0-dev</a> on Tue May 12 2015 14:27:55 GMT-0700 (PDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0-dev</a> on Wed May 13 2015 18:58:41 GMT-0700 (PDT)
 </footer>
 
 <script> prettyPrint(); </script>
