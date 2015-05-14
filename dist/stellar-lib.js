@@ -855,7 +855,8 @@ var StellarLib =
 	                        if (err) {
 	                            reject(err);
 	                        } else {
-	                            resolve(JSON.parse(res.text));
+	                            var result = res.text ? JSON.parse(res.text) : res;
+	                            resolve(result);
 	                        }
 	                    });
 	                });
@@ -865,7 +866,8 @@ var StellarLib =
 	            value: function _sendStreamingRequest(endpoint, streaming) {
 	                var es = new EventSource(this.protocol + this.hostname + ":" + this.port + endpoint);
 	                es.onmessage = function (message) {
-	                    streaming.onmessage(JSON.parse(message.data));
+	                    var result = message.data ? JSON.parse(message.data) : message;
+	                    streaming.onmessage(result);
 	                };
 	                es.onerror = streaming.onerror;
 	                return es;
@@ -6564,8 +6566,8 @@ var StellarLib =
 	/* WEBPACK VAR INJECTION */(function(process) {var original = __webpack_require__(57)
 	  , parse = __webpack_require__(49).parse
 	  , events = __webpack_require__(50)
-	  , https = __webpack_require__(52)
-	  , http = __webpack_require__(51)
+	  , https = __webpack_require__(51)
+	  , http = __webpack_require__(52)
 	  , util = __webpack_require__(53);
 
 	function isPlainObject(obj) {
@@ -28903,6 +28905,25 @@ var StellarLib =
 /* 51 */
 /***/ function(module, exports, __webpack_require__) {
 
+	var http = __webpack_require__(52);
+
+	var https = module.exports;
+
+	for (var key in http) {
+	    if (http.hasOwnProperty(key)) https[key] = http[key];
+	};
+
+	https.request = function (params, cb) {
+	    if (!params) params = {};
+	    params.scheme = 'https';
+	    return http.request.call(this, params, cb);
+	}
+
+
+/***/ },
+/* 52 */
+/***/ function(module, exports, __webpack_require__) {
+
 	var http = module.exports;
 	var EventEmitter = __webpack_require__(50).EventEmitter;
 	var Request = __webpack_require__(81);
@@ -29048,25 +29069,6 @@ var StellarLib =
 	    510 : 'Not Extended',               // RFC 2774
 	    511 : 'Network Authentication Required' // RFC 6585
 	};
-
-/***/ },
-/* 52 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var http = __webpack_require__(51);
-
-	var https = module.exports;
-
-	for (var key in http) {
-	    if (http.hasOwnProperty(key)) https[key] = http[key];
-	};
-
-	https.request = function (params, cb) {
-	    if (!params) params = {};
-	    params.scheme = 'https';
-	    return http.request.call(this, params, cb);
-	}
-
 
 /***/ },
 /* 53 */
@@ -34740,8 +34742,8 @@ var StellarLib =
 	var Stream = __webpack_require__(95);
 
 	/*<replacement>*/
-	var util = __webpack_require__(120);
-	util.inherits = __webpack_require__(121);
+	var util = __webpack_require__(121);
+	util.inherits = __webpack_require__(120);
 	/*</replacement>*/
 
 	var StringDecoder;
@@ -35688,8 +35690,8 @@ var StellarLib =
 
 
 	/*<replacement>*/
-	var util = __webpack_require__(120);
-	util.inherits = __webpack_require__(121);
+	var util = __webpack_require__(121);
+	util.inherits = __webpack_require__(120);
 	/*</replacement>*/
 
 	var Stream = __webpack_require__(95);
@@ -36175,8 +36177,8 @@ var StellarLib =
 
 
 	/*<replacement>*/
-	var util = __webpack_require__(120);
-	util.inherits = __webpack_require__(121);
+	var util = __webpack_require__(121);
+	util.inherits = __webpack_require__(120);
 	/*</replacement>*/
 
 	var Readable = __webpack_require__(112);
@@ -36302,8 +36304,8 @@ var StellarLib =
 	var Duplex = __webpack_require__(114);
 
 	/*<replacement>*/
-	var util = __webpack_require__(120);
-	util.inherits = __webpack_require__(121);
+	var util = __webpack_require__(121);
+	util.inherits = __webpack_require__(120);
 	/*</replacement>*/
 
 	util.inherits(Transform, Duplex);
@@ -36478,8 +36480,8 @@ var StellarLib =
 	var Transform = __webpack_require__(115);
 
 	/*<replacement>*/
-	var util = __webpack_require__(120);
-	util.inherits = __webpack_require__(121);
+	var util = __webpack_require__(121);
+	util.inherits = __webpack_require__(120);
 	/*</replacement>*/
 
 	util.inherits(PassThrough, Transform);
@@ -36742,6 +36744,35 @@ var StellarLib =
 /* 120 */
 /***/ function(module, exports, __webpack_require__) {
 
+	if (typeof Object.create === 'function') {
+	  // implementation from standard node.js 'util' module
+	  module.exports = function inherits(ctor, superCtor) {
+	    ctor.super_ = superCtor
+	    ctor.prototype = Object.create(superCtor.prototype, {
+	      constructor: {
+	        value: ctor,
+	        enumerable: false,
+	        writable: true,
+	        configurable: true
+	      }
+	    });
+	  };
+	} else {
+	  // old school shim for old browsers
+	  module.exports = function inherits(ctor, superCtor) {
+	    ctor.super_ = superCtor
+	    var TempCtor = function () {}
+	    TempCtor.prototype = superCtor.prototype
+	    ctor.prototype = new TempCtor()
+	    ctor.prototype.constructor = ctor
+	  }
+	}
+
+
+/***/ },
+/* 121 */
+/***/ function(module, exports, __webpack_require__) {
+
 	/* WEBPACK VAR INJECTION */(function(Buffer) {// Copyright Joyent, Inc. and other Node contributors.
 	//
 	// Permission is hereby granted, free of charge, to any person obtaining a
@@ -36850,35 +36881,6 @@ var StellarLib =
 	  return Object.prototype.toString.call(o);
 	}
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(20).Buffer))
-
-/***/ },
-/* 121 */
-/***/ function(module, exports, __webpack_require__) {
-
-	if (typeof Object.create === 'function') {
-	  // implementation from standard node.js 'util' module
-	  module.exports = function inherits(ctor, superCtor) {
-	    ctor.super_ = superCtor
-	    ctor.prototype = Object.create(superCtor.prototype, {
-	      constructor: {
-	        value: ctor,
-	        enumerable: false,
-	        writable: true,
-	        configurable: true
-	      }
-	    });
-	  };
-	} else {
-	  // old school shim for old browsers
-	  module.exports = function inherits(ctor, superCtor) {
-	    ctor.super_ = superCtor
-	    var TempCtor = function () {}
-	    TempCtor.prototype = superCtor.prototype
-	    ctor.prototype = new TempCtor()
-	    ctor.prototype.constructor = ctor
-	  }
-	}
-
 
 /***/ }
 /******/ ]);

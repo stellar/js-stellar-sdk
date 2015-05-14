@@ -246,7 +246,8 @@ export class Server {
                     if (err) {
                         reject(err);
                     } else {
-                        resolve(JSON.parse(res.text));
+                        var result = res.text ? JSON.parse(res.text) : res;
+                        resolve(result);
                     }
                 });
         });
@@ -255,7 +256,8 @@ export class Server {
     _sendStreamingRequest(endpoint, streaming) {
         var es = new EventSource(this.protocol + this.hostname + ":" + this.port + endpoint);
         es.onmessage = function (message) {
-            streaming.onmessage(JSON.parse(message.data));
+            var result = message.data ? JSON.parse(message.data) : message;
+            streaming.onmessage(result);
         };
         es.onerror = streaming.onerror;
         return es;

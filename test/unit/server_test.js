@@ -87,7 +87,7 @@ describe("server.js tests", function () {
           // instruct the dev server to except the correct request
           this.setFixtures({
             request: "/ledgers",
-            response: {status: 200, body: "body"},
+            response: {status: 200, body: "{\"test\":\"body\"}"},
             stream: true
           }, done);
         });
@@ -96,7 +96,7 @@ describe("server.js tests", function () {
           var es = server.ledgers({
             streaming: {
               onmessage: function (res) {
-                expect(res.data).to.be.equal("body");
+                expect(res.test).to.be.equal("body");
                 done();
               }
             }
@@ -111,7 +111,7 @@ describe("server.js tests", function () {
           // instruct the dev server to except the correct request
           this.setFixtures({
             request: "/ledgers/1",
-            response: {status: 200, body: "doesnt matter"}
+            response: {status: 200, body: "{\"test\":\"body\"}"}
           }, done);
         });
 
@@ -130,7 +130,7 @@ describe("server.js tests", function () {
           // instruct the dev server to except the correct request
           this.setFixtures({
             request: "/ledgers/1?limit=1&after=b&order=asc",
-            response: {status: 200, body: "doesnt matter"}
+            response: {status: 200, body: "{\"test\":\"body\"}"}
           }, done);
         });
 
@@ -190,7 +190,7 @@ describe("server.js tests", function () {
           // instruct the dev server to except the correct request
           this.setFixtures({
             request: "/ledgers/1/transactions",
-            response: {status: 200, body: "body"},
+            response: {status: 200, body: "{\"test\":\"body\"}"},
             stream: true
           }, done);
         });
@@ -199,7 +199,7 @@ describe("server.js tests", function () {
           var es = server.ledgers(1, "transactions", {
             streaming: {
               onmessage: function (res) {
-                expect(res.data).to.be.equal("body");
+                expect(res.test).to.be.equal("body");
                 es.close();
                 done();
               }

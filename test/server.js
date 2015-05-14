@@ -36,7 +36,7 @@ app.post('/fixtures', function (req, res) {
         req.body.response.stream = true;
     }
     fixtures[pathname] = req.body.response;
-    res.status(200).send();
+    res.status(200).send({"test": "test"});
 });
 
 /**
