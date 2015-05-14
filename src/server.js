@@ -178,6 +178,11 @@ export class Server {
             });
     }
 
+    friendbot(address) {
+        var endpoint = "/friendbot?addr=" + address;
+        return this._sendNormalRequest(endpoint);
+    }
+
     /**
     * Sends a request for a resource or collection of resources. For a non streaming
     * request, will return a promise. This will be fulfilled either with the specific
