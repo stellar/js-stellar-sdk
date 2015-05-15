@@ -37,7 +37,7 @@ export class Server {
                 tx: transaction.toEnvelope().toXDR().toString("hex")
             })
             .then(function(response) {
-                let result = xdr.TransactionResult.fromXDR(new Buffer(res.data.submission_result, "hex"));
+                let result = xdr.TransactionResult.fromXDR(new Buffer(response.data.submission_result, "hex"));
                 return new TransactionResult(result);
             })
             .catch(function (response) {
@@ -75,6 +75,8 @@ export class Server {
     * @returns {Promise|EventSource} If this is a normal request (non streaming) will return a promise
     *                                that will fulfill when the request completes. Otherwise, it will
     *                                return the EventSource object.
+    * @throws {NotFoundError} - If the account does not exist.
+    * @throws {NetworkError} - For any other errors thrown by horizon
     */
     accounts(address, resource, opts) {
         if (!address || typeof(address) === "object") {
@@ -110,6 +112,8 @@ export class Server {
     * @returns {Promise|EventSource} If this is a normal request (non streaming) will return a promise
     *                                that will fulfill when the request completes. Otherwise, it will
     *                                return the EventSource object.
+    * @throws {NotFoundError} - If the ledger does not exist.
+    * @throws {NetworkError} - For any other errors thrown by horizon
     */
     ledgers(sequence, resource, opts) {
         if (!sequence || typeof(sequence) === "object") {
@@ -146,6 +150,8 @@ export class Server {
     * @returns {Promise|EventSource} If this is a normal request (non streaming) will return a promise
     *                                that will fulfill when the request completes. Otherwise, it will
     *                                return the EventSource object.
+    * @throws {NotFoundError} - If the transaction does not exist.
+    * @throws {NetworkError} - For any other errors thrown by horizon
     */
     transactions(hash, resource, opts) {
         if (!hash || typeof(hash) === "object") {

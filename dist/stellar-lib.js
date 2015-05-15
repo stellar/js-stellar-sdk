@@ -5230,7 +5230,7 @@ var StellarLib =
 
 	},{}]},{},[4])(4)
 	});                    ;if (typeof window !== 'undefined' && window !== null) {                               window.P = window.Promise;                                                     } else if (typeof self !== 'undefined' && self !== null) {                             self.P = self.Promise;                                                         }
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(29), (function() { return this; }()), __webpack_require__(30).setImmediate))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(31), (function() { return this; }()), __webpack_require__(30).setImmediate))
 
 /***/ },
 /* 6 */
@@ -5397,7 +5397,7 @@ var StellarLib =
 
 	    return Transaction;
 	})();
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(31).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(23).Buffer))
 
 /***/ },
 /* 8 */
@@ -5753,7 +5753,7 @@ var StellarLib =
 	                var promise = axios.post(this.protocol + this.hostname + ":" + this.port + "/transactions", {
 	                    tx: transaction.toEnvelope().toXDR().toString("hex")
 	                }).then(function (response) {
-	                    var result = xdr.TransactionResult.fromXDR(new Buffer(res.data.submission_result, "hex"));
+	                    var result = xdr.TransactionResult.fromXDR(new Buffer(response.data.submission_result, "hex"));
 	                    return new TransactionResult(result);
 	                })["catch"](function (response) {
 	                    if (response instanceof Error) {
@@ -5792,6 +5792,8 @@ var StellarLib =
 	            * @returns {Promise|EventSource} If this is a normal request (non streaming) will return a promise
 	            *                                that will fulfill when the request completes. Otherwise, it will
 	            *                                return the EventSource object.
+	            * @throws {NotFoundError} - If the account does not exist.
+	            * @throws {NetworkError} - For any other errors thrown by horizon
 	            */
 
 	            value: function accounts(address, resource, opts) {
@@ -5830,6 +5832,8 @@ var StellarLib =
 	            * @returns {Promise|EventSource} If this is a normal request (non streaming) will return a promise
 	            *                                that will fulfill when the request completes. Otherwise, it will
 	            *                                return the EventSource object.
+	            * @throws {NotFoundError} - If the ledger does not exist.
+	            * @throws {NetworkError} - For any other errors thrown by horizon
 	            */
 
 	            value: function ledgers(sequence, resource, opts) {
@@ -5869,6 +5873,8 @@ var StellarLib =
 	            * @returns {Promise|EventSource} If this is a normal request (non streaming) will return a promise
 	            *                                that will fulfill when the request completes. Otherwise, it will
 	            *                                return the EventSource object.
+	            * @throws {NotFoundError} - If the transaction does not exist.
+	            * @throws {NetworkError} - For any other errors thrown by horizon
 	            */
 
 	            value: function transactions(hash, resource, opts) {
@@ -6025,7 +6031,7 @@ var StellarLib =
 
 	    return Server;
 	})();
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(31).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(23).Buffer))
 
 /***/ },
 /* 11 */
@@ -6623,7 +6629,7 @@ var StellarLib =
 
 	    return Memo;
 	})();
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(31).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(23).Buffer))
 
 /***/ },
 /* 13 */
@@ -6684,17 +6690,17 @@ var StellarLib =
 
 	'use strict';
 
-	var defaults = __webpack_require__(23);
-	var utils = __webpack_require__(24);
-	var deprecatedMethod = __webpack_require__(25);
-	var dispatchRequest = __webpack_require__(26);
-	var InterceptorManager = __webpack_require__(27);
+	var defaults = __webpack_require__(24);
+	var utils = __webpack_require__(25);
+	var deprecatedMethod = __webpack_require__(26);
+	var dispatchRequest = __webpack_require__(27);
+	var InterceptorManager = __webpack_require__(28);
 
 	// Polyfill ES6 Promise if needed
 	(function () {
 	  // webpack is being used to set es6-promise to the native Promise
 	  // for the standalone build. It's necessary to make sure polyfill exists.
-	  var P = __webpack_require__(44);
+	  var P = __webpack_require__(45);
 	  if (P && typeof P.polyfill === 'function') {
 	    P.polyfill();
 	  }
@@ -6757,7 +6763,7 @@ var StellarLib =
 	axios.all = function (promises) {
 	  return Promise.all(promises);
 	};
-	axios.spread = __webpack_require__(28);
+	axios.spread = __webpack_require__(29);
 
 	// Expose interceptors
 	axios.interceptors = {
@@ -6806,7 +6812,7 @@ var StellarLib =
 	}
 	global._babelPolyfill = true;
 
-	__webpack_require__(45);
+	__webpack_require__(44);
 
 	__webpack_require__(46);
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
@@ -8749,7 +8755,7 @@ var StellarLib =
 	  (function () {
 	    // NOTE: we use commonjs style require here because es6 imports
 	    // can only occur at the top level.  thanks, obama.
-	    var ed25519 = __webpack_require__(41);
+	    var ed25519 = __webpack_require__(42);
 
 	    actualMethods.sign = function (data, secretKey) {
 	      data = new Buffer(data);
@@ -8790,7 +8796,7 @@ var StellarLib =
 	    };
 	  })();
 	}
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(31).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(23).Buffer))
 
 /***/ },
 /* 19 */
@@ -8929,7 +8935,7 @@ var StellarLib =
 
 	  return Keypair;
 	})();
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(31).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(23).Buffer))
 
 /***/ },
 /* 20 */
@@ -8949,7 +8955,7 @@ var StellarLib =
 
 	var bs58 = _interopRequire(__webpack_require__(38));
 
-	var _lodash = __webpack_require__(42);
+	var _lodash = __webpack_require__(41);
 
 	var isUndefined = _lodash.isUndefined;
 	var isNull = _lodash.isNull;
@@ -9045,7 +9051,7 @@ var StellarLib =
 	  return true;
 	}
 	// decimal 33
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(31).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(23).Buffer))
 
 /***/ },
 /* 21 */
@@ -9164,585 +9170,6 @@ var StellarLib =
 /* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
-	'use strict';
-
-	var utils = __webpack_require__(24);
-
-	var PROTECTION_PREFIX = /^\)\]\}',?\n/;
-	var DEFAULT_CONTENT_TYPE = {
-	  'Content-Type': 'application/x-www-form-urlencoded'
-	};
-
-	module.exports = {
-	  transformRequest: [function (data, headers) {
-	    if(utils.isFormData(data)) {
-	      return data;
-	    }
-	    if (utils.isArrayBuffer(data)) {
-	      return data;
-	    }
-	    if (utils.isArrayBufferView(data)) {
-	      return data.buffer;
-	    }
-	    if (utils.isObject(data) && !utils.isFile(data) && !utils.isBlob(data)) {
-	      // Set application/json if no Content-Type has been specified
-	      if (!utils.isUndefined(headers) && utils.isUndefined(headers['Content-Type'])) {
-	        headers['Content-Type'] = 'application/json;charset=utf-8';
-	      }
-	      return JSON.stringify(data);
-	    }
-	    return data;
-	  }],
-
-	  transformResponse: [function (data) {
-	    if (typeof data === 'string') {
-	      data = data.replace(PROTECTION_PREFIX, '');
-	      try {
-	        data = JSON.parse(data);
-	      } catch (e) {}
-	    }
-	    return data;
-	  }],
-
-	  headers: {
-	    common: {
-	      'Accept': 'application/json, text/plain, */*'
-	    },
-	    patch: utils.merge(DEFAULT_CONTENT_TYPE),
-	    post: utils.merge(DEFAULT_CONTENT_TYPE),
-	    put: utils.merge(DEFAULT_CONTENT_TYPE)
-	  },
-
-	  xsrfCookieName: 'XSRF-TOKEN',
-	  xsrfHeaderName: 'X-XSRF-TOKEN'
-	};
-
-
-/***/ },
-/* 24 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	/*global toString:true*/
-
-	// utils is a library of generic helper functions non-specific to axios
-
-	var toString = Object.prototype.toString;
-
-	/**
-	 * Determine if a value is an Array
-	 *
-	 * @param {Object} val The value to test
-	 * @returns {boolean} True if value is an Array, otherwise false
-	 */
-	function isArray(val) {
-	  return toString.call(val) === '[object Array]';
-	}
-
-	/**
-	 * Determine if a value is an ArrayBuffer
-	 *
-	 * @param {Object} val The value to test
-	 * @returns {boolean} True if value is an ArrayBuffer, otherwise false
-	 */
-	function isArrayBuffer(val) {
-	  return toString.call(val) === '[object ArrayBuffer]';
-	}
-
-	/**
-	 * Determine if a value is a FormData
-	 *
-	 * @param {Object} val The value to test
-	 * @returns {boolean} True if value is an FormData, otherwise false
-	 */
-	function isFormData(val) {
-	  return toString.call(val) === '[object FormData]';
-	}
-
-	/**
-	 * Determine if a value is a view on an ArrayBuffer
-	 *
-	 * @param {Object} val The value to test
-	 * @returns {boolean} True if value is a view on an ArrayBuffer, otherwise false
-	 */
-	function isArrayBufferView(val) {
-	  if ((typeof ArrayBuffer !== 'undefined') && (ArrayBuffer.isView)) {
-	    return ArrayBuffer.isView(val);
-	  } else {
-	    return (val) && (val.buffer) && (val.buffer instanceof ArrayBuffer);
-	  }
-	}
-
-	/**
-	 * Determine if a value is a String
-	 *
-	 * @param {Object} val The value to test
-	 * @returns {boolean} True if value is a String, otherwise false
-	 */
-	function isString(val) {
-	  return typeof val === 'string';
-	}
-
-	/**
-	 * Determine if a value is a Number
-	 *
-	 * @param {Object} val The value to test
-	 * @returns {boolean} True if value is a Number, otherwise false
-	 */
-	function isNumber(val) {
-	  return typeof val === 'number';
-	}
-
-	/**
-	 * Determine if a value is undefined
-	 *
-	 * @param {Object} val The value to test
-	 * @returns {boolean} True if the value is undefined, otherwise false
-	 */
-	function isUndefined(val) {
-	  return typeof val === 'undefined';
-	}
-
-	/**
-	 * Determine if a value is an Object
-	 *
-	 * @param {Object} val The value to test
-	 * @returns {boolean} True if value is an Object, otherwise false
-	 */
-	function isObject(val) {
-	  return val !== null && typeof val === 'object';
-	}
-
-	/**
-	 * Determine if a value is a Date
-	 *
-	 * @param {Object} val The value to test
-	 * @returns {boolean} True if value is a Date, otherwise false
-	 */
-	function isDate(val) {
-	  return toString.call(val) === '[object Date]';
-	}
-
-	/**
-	 * Determine if a value is a File
-	 *
-	 * @param {Object} val The value to test
-	 * @returns {boolean} True if value is a File, otherwise false
-	 */
-	function isFile(val) {
-	  return toString.call(val) === '[object File]';
-	}
-
-	/**
-	 * Determine if a value is a Blob
-	 *
-	 * @param {Object} val The value to test
-	 * @returns {boolean} True if value is a Blob, otherwise false
-	 */
-	function isBlob(val) {
-	  return toString.call(val) === '[object Blob]';
-	}
-
-	/**
-	 * Trim excess whitespace off the beginning and end of a string
-	 *
-	 * @param {String} str The String to trim
-	 * @returns {String} The String freed of excess whitespace
-	 */
-	function trim(str) {
-	  return str.replace(/^\s*/, '').replace(/\s*$/, '');
-	}
-
-	/**
-	 * Iterate over an Array or an Object invoking a function for each item.
-	 *
-	 * If `obj` is an Array or arguments callback will be called passing
-	 * the value, index, and complete array for each item.
-	 *
-	 * If 'obj' is an Object callback will be called passing
-	 * the value, key, and complete object for each property.
-	 *
-	 * @param {Object|Array} obj The object to iterate
-	 * @param {Function} fn The callback to invoke for each item
-	 */
-	function forEach(obj, fn) {
-	  // Don't bother if no value provided
-	  if (obj === null || typeof obj === 'undefined') {
-	    return;
-	  }
-
-	  // Check if obj is array-like
-	  var isArrayLike = isArray(obj) || (typeof obj === 'object' && !isNaN(obj.length));
-
-	  // Force an array if not already something iterable
-	  if (typeof obj !== 'object' && !isArrayLike) {
-	    obj = [obj];
-	  }
-
-	  // Iterate over array values
-	  if (isArrayLike) {
-	    for (var i = 0, l = obj.length; i < l; i++) {
-	      fn.call(null, obj[i], i, obj);
-	    }
-	  }
-	  // Iterate over object keys
-	  else {
-	    for (var key in obj) {
-	      if (obj.hasOwnProperty(key)) {
-	        fn.call(null, obj[key], key, obj);
-	      }
-	    }
-	  }
-	}
-
-	/**
-	 * Accepts varargs expecting each argument to be an object, then
-	 * immutably merges the properties of each object and returns result.
-	 *
-	 * When multiple objects contain the same key the later object in
-	 * the arguments list will take precedence.
-	 *
-	 * Example:
-	 *
-	 * ```js
-	 * var result = merge({foo: 123}, {foo: 456});
-	 * console.log(result.foo); // outputs 456
-	 * ```
-	 *
-	 * @param {Object} obj1 Object to merge
-	 * @returns {Object} Result of all merge properties
-	 */
-	function merge(/*obj1, obj2, obj3, ...*/) {
-	  var result = {};
-	  forEach(arguments, function (obj) {
-	    forEach(obj, function (val, key) {
-	      result[key] = val;
-	    });
-	  });
-	  return result;
-	}
-
-	module.exports = {
-	  isArray: isArray,
-	  isArrayBuffer: isArrayBuffer,
-	  isFormData: isFormData,
-	  isArrayBufferView: isArrayBufferView,
-	  isString: isString,
-	  isNumber: isNumber,
-	  isObject: isObject,
-	  isUndefined: isUndefined,
-	  isDate: isDate,
-	  isFile: isFile,
-	  isBlob: isBlob,
-	  forEach: forEach,
-	  merge: merge,
-	  trim: trim
-	};
-
-
-/***/ },
-/* 25 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	/**
-	 * Supply a warning to the developer that a method they are using
-	 * has been deprecated.
-	 *
-	 * @param {string} method The name of the deprecated method
-	 * @param {string} [instead] The alternate method to use if applicable
-	 * @param {string} [docs] The documentation URL to get further details
-	 */
-	module.exports = function deprecatedMethod(method, instead, docs) {
-	  try {
-	    console.warn(
-	      'DEPRECATED method `' + method + '`.' +
-	      (instead ? ' Use `' + instead + '` instead.' : '') +
-	      ' This method will be removed in a future release.');
-
-	    if (docs) {
-	      console.warn('For more information about usage see ' + docs);
-	    }
-	  } catch (e) {}
-	};
-
-
-/***/ },
-/* 26 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
-
-	/**
-	 * Dispatch a request to the server using whichever adapter
-	 * is supported by the current environment.
-	 *
-	 * @param {object} config The config that is to be used for the request
-	 * @returns {Promise} The Promise to be fulfilled
-	 */
-	module.exports = function dispatchRequest(config) {
-	  return new Promise(function (resolve, reject) {
-	    try {
-	      // For browsers use XHR adapter
-	      if (typeof window !== 'undefined') {
-	        __webpack_require__(43)(resolve, reject, config);
-	      }
-	      // For node use HTTP adapter
-	      else if (typeof process !== 'undefined') {
-	        __webpack_require__(43)(resolve, reject, config);
-	      }
-	    } catch (e) {
-	      reject(e);
-	    }
-	  });
-	};
-
-
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(29)))
-
-/***/ },
-/* 27 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var utils = __webpack_require__(24);
-
-	function InterceptorManager() {
-	  this.handlers = [];
-	}
-
-	/**
-	 * Add a new interceptor to the stack
-	 *
-	 * @param {Function} fulfilled The function to handle `then` for a `Promise`
-	 * @param {Function} rejected The function to handle `reject` for a `Promise`
-	 *
-	 * @return {Number} An ID used to remove interceptor later
-	 */
-	InterceptorManager.prototype.use = function (fulfilled, rejected) {
-	  this.handlers.push({
-	    fulfilled: fulfilled,
-	    rejected: rejected
-	  });
-	  return this.handlers.length - 1;
-	};
-
-	/**
-	 * Remove an interceptor from the stack
-	 *
-	 * @param {Number} id The ID that was returned by `use`
-	 */
-	InterceptorManager.prototype.eject = function (id) {
-	  if (this.handlers[id]) {
-	    this.handlers[id] = null;
-	  }
-	};
-
-	/**
-	 * Iterate over all the registered interceptors
-	 *
-	 * This method is particularly useful for skipping over any
-	 * interceptors that may have become `null` calling `remove`.
-	 *
-	 * @param {Function} fn The function to call for each interceptor
-	 */
-	InterceptorManager.prototype.forEach = function (fn) {
-	  utils.forEach(this.handlers, function (h) {
-	    if (h !== null) {
-	      fn(h);
-	    }
-	  });
-	};
-
-	module.exports = InterceptorManager;
-
-
-/***/ },
-/* 28 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	/**
-	 * Syntactic sugar for invoking a function and expanding an array for arguments.
-	 *
-	 * Common use case would be to use `Function.prototype.apply`.
-	 *
-	 *  ```js
-	 *  function f(x, y, z) {}
-	 *  var args = [1, 2, 3];
-	 *  f.apply(null, args);
-	 *  ```
-	 *
-	 * With `spread` this example can be re-written.
-	 *
-	 *  ```js
-	 *  spread(function(x, y, z) {})([1, 2, 3]);
-	 *  ```
-	 *
-	 * @param {Function} callback
-	 * @returns {Function}
-	 */
-	module.exports = function spread(callback) {
-	  return function (arr) {
-	    callback.apply(null, arr);
-	  };
-	};
-
-
-/***/ },
-/* 29 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// shim for using process in browser
-
-	var process = module.exports = {};
-	var queue = [];
-	var draining = false;
-
-	function drainQueue() {
-	    if (draining) {
-	        return;
-	    }
-	    draining = true;
-	    var currentQueue;
-	    var len = queue.length;
-	    while(len) {
-	        currentQueue = queue;
-	        queue = [];
-	        var i = -1;
-	        while (++i < len) {
-	            currentQueue[i]();
-	        }
-	        len = queue.length;
-	    }
-	    draining = false;
-	}
-	process.nextTick = function (fun) {
-	    queue.push(fun);
-	    if (!draining) {
-	        setTimeout(drainQueue, 0);
-	    }
-	};
-
-	process.title = 'browser';
-	process.browser = true;
-	process.env = {};
-	process.argv = [];
-	process.version = ''; // empty string to avoid regexp issues
-	process.versions = {};
-
-	function noop() {}
-
-	process.on = noop;
-	process.addListener = noop;
-	process.once = noop;
-	process.off = noop;
-	process.removeListener = noop;
-	process.removeAllListeners = noop;
-	process.emit = noop;
-
-	process.binding = function (name) {
-	    throw new Error('process.binding is not supported');
-	};
-
-	// TODO(shtylman)
-	process.cwd = function () { return '/' };
-	process.chdir = function (dir) {
-	    throw new Error('process.chdir is not supported');
-	};
-	process.umask = function() { return 0; };
-
-
-/***/ },
-/* 30 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(setImmediate, clearImmediate) {var nextTick = __webpack_require__(29).nextTick;
-	var apply = Function.prototype.apply;
-	var slice = Array.prototype.slice;
-	var immediateIds = {};
-	var nextImmediateId = 0;
-
-	// DOM APIs, for completeness
-
-	exports.setTimeout = function() {
-	  return new Timeout(apply.call(setTimeout, window, arguments), clearTimeout);
-	};
-	exports.setInterval = function() {
-	  return new Timeout(apply.call(setInterval, window, arguments), clearInterval);
-	};
-	exports.clearTimeout =
-	exports.clearInterval = function(timeout) { timeout.close(); };
-
-	function Timeout(id, clearFn) {
-	  this._id = id;
-	  this._clearFn = clearFn;
-	}
-	Timeout.prototype.unref = Timeout.prototype.ref = function() {};
-	Timeout.prototype.close = function() {
-	  this._clearFn.call(window, this._id);
-	};
-
-	// Does not start the time, just sets up the members needed.
-	exports.enroll = function(item, msecs) {
-	  clearTimeout(item._idleTimeoutId);
-	  item._idleTimeout = msecs;
-	};
-
-	exports.unenroll = function(item) {
-	  clearTimeout(item._idleTimeoutId);
-	  item._idleTimeout = -1;
-	};
-
-	exports._unrefActive = exports.active = function(item) {
-	  clearTimeout(item._idleTimeoutId);
-
-	  var msecs = item._idleTimeout;
-	  if (msecs >= 0) {
-	    item._idleTimeoutId = setTimeout(function onTimeout() {
-	      if (item._onTimeout)
-	        item._onTimeout();
-	    }, msecs);
-	  }
-	};
-
-	// That's not how node.js implements it but the exposed api is the same.
-	exports.setImmediate = typeof setImmediate === "function" ? setImmediate : function(fn) {
-	  var id = nextImmediateId++;
-	  var args = arguments.length < 2 ? false : slice.call(arguments, 1);
-
-	  immediateIds[id] = true;
-
-	  nextTick(function onNextTick() {
-	    if (immediateIds[id]) {
-	      // fn.call() is faster so we optimize for the common use-case
-	      // @see http://jsperf.com/call-apply-segu
-	      if (args) {
-	        fn.apply(null, args);
-	      } else {
-	        fn.call(null);
-	      }
-	      // Prevent ids from leaking
-	      exports.clearImmediate(id);
-	    }
-	  });
-
-	  return id;
-	};
-
-	exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate : function(id) {
-	  delete immediateIds[id];
-	};
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(30).setImmediate, __webpack_require__(30).clearImmediate))
-
-/***/ },
-/* 31 */
-/***/ function(module, exports, __webpack_require__) {
-
 	/* WEBPACK VAR INJECTION */(function(Buffer) {/*!
 	 * The buffer module from node.js, for the browser.
 	 *
@@ -9750,9 +9177,9 @@ var StellarLib =
 	 * @license  MIT
 	 */
 
-	var base64 = __webpack_require__(72)
-	var ieee754 = __webpack_require__(52)
-	var isArray = __webpack_require__(53)
+	var base64 = __webpack_require__(62)
+	var ieee754 = __webpack_require__(51)
+	var isArray = __webpack_require__(52)
 
 	exports.Buffer = Buffer
 	exports.SlowBuffer = SlowBuffer
@@ -11075,7 +10502,586 @@ var StellarLib =
 	  }
 	}
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(31).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(23).Buffer))
+
+/***/ },
+/* 24 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var utils = __webpack_require__(25);
+
+	var PROTECTION_PREFIX = /^\)\]\}',?\n/;
+	var DEFAULT_CONTENT_TYPE = {
+	  'Content-Type': 'application/x-www-form-urlencoded'
+	};
+
+	module.exports = {
+	  transformRequest: [function (data, headers) {
+	    if(utils.isFormData(data)) {
+	      return data;
+	    }
+	    if (utils.isArrayBuffer(data)) {
+	      return data;
+	    }
+	    if (utils.isArrayBufferView(data)) {
+	      return data.buffer;
+	    }
+	    if (utils.isObject(data) && !utils.isFile(data) && !utils.isBlob(data)) {
+	      // Set application/json if no Content-Type has been specified
+	      if (!utils.isUndefined(headers) && utils.isUndefined(headers['Content-Type'])) {
+	        headers['Content-Type'] = 'application/json;charset=utf-8';
+	      }
+	      return JSON.stringify(data);
+	    }
+	    return data;
+	  }],
+
+	  transformResponse: [function (data) {
+	    if (typeof data === 'string') {
+	      data = data.replace(PROTECTION_PREFIX, '');
+	      try {
+	        data = JSON.parse(data);
+	      } catch (e) {}
+	    }
+	    return data;
+	  }],
+
+	  headers: {
+	    common: {
+	      'Accept': 'application/json, text/plain, */*'
+	    },
+	    patch: utils.merge(DEFAULT_CONTENT_TYPE),
+	    post: utils.merge(DEFAULT_CONTENT_TYPE),
+	    put: utils.merge(DEFAULT_CONTENT_TYPE)
+	  },
+
+	  xsrfCookieName: 'XSRF-TOKEN',
+	  xsrfHeaderName: 'X-XSRF-TOKEN'
+	};
+
+
+/***/ },
+/* 25 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	/*global toString:true*/
+
+	// utils is a library of generic helper functions non-specific to axios
+
+	var toString = Object.prototype.toString;
+
+	/**
+	 * Determine if a value is an Array
+	 *
+	 * @param {Object} val The value to test
+	 * @returns {boolean} True if value is an Array, otherwise false
+	 */
+	function isArray(val) {
+	  return toString.call(val) === '[object Array]';
+	}
+
+	/**
+	 * Determine if a value is an ArrayBuffer
+	 *
+	 * @param {Object} val The value to test
+	 * @returns {boolean} True if value is an ArrayBuffer, otherwise false
+	 */
+	function isArrayBuffer(val) {
+	  return toString.call(val) === '[object ArrayBuffer]';
+	}
+
+	/**
+	 * Determine if a value is a FormData
+	 *
+	 * @param {Object} val The value to test
+	 * @returns {boolean} True if value is an FormData, otherwise false
+	 */
+	function isFormData(val) {
+	  return toString.call(val) === '[object FormData]';
+	}
+
+	/**
+	 * Determine if a value is a view on an ArrayBuffer
+	 *
+	 * @param {Object} val The value to test
+	 * @returns {boolean} True if value is a view on an ArrayBuffer, otherwise false
+	 */
+	function isArrayBufferView(val) {
+	  if ((typeof ArrayBuffer !== 'undefined') && (ArrayBuffer.isView)) {
+	    return ArrayBuffer.isView(val);
+	  } else {
+	    return (val) && (val.buffer) && (val.buffer instanceof ArrayBuffer);
+	  }
+	}
+
+	/**
+	 * Determine if a value is a String
+	 *
+	 * @param {Object} val The value to test
+	 * @returns {boolean} True if value is a String, otherwise false
+	 */
+	function isString(val) {
+	  return typeof val === 'string';
+	}
+
+	/**
+	 * Determine if a value is a Number
+	 *
+	 * @param {Object} val The value to test
+	 * @returns {boolean} True if value is a Number, otherwise false
+	 */
+	function isNumber(val) {
+	  return typeof val === 'number';
+	}
+
+	/**
+	 * Determine if a value is undefined
+	 *
+	 * @param {Object} val The value to test
+	 * @returns {boolean} True if the value is undefined, otherwise false
+	 */
+	function isUndefined(val) {
+	  return typeof val === 'undefined';
+	}
+
+	/**
+	 * Determine if a value is an Object
+	 *
+	 * @param {Object} val The value to test
+	 * @returns {boolean} True if value is an Object, otherwise false
+	 */
+	function isObject(val) {
+	  return val !== null && typeof val === 'object';
+	}
+
+	/**
+	 * Determine if a value is a Date
+	 *
+	 * @param {Object} val The value to test
+	 * @returns {boolean} True if value is a Date, otherwise false
+	 */
+	function isDate(val) {
+	  return toString.call(val) === '[object Date]';
+	}
+
+	/**
+	 * Determine if a value is a File
+	 *
+	 * @param {Object} val The value to test
+	 * @returns {boolean} True if value is a File, otherwise false
+	 */
+	function isFile(val) {
+	  return toString.call(val) === '[object File]';
+	}
+
+	/**
+	 * Determine if a value is a Blob
+	 *
+	 * @param {Object} val The value to test
+	 * @returns {boolean} True if value is a Blob, otherwise false
+	 */
+	function isBlob(val) {
+	  return toString.call(val) === '[object Blob]';
+	}
+
+	/**
+	 * Trim excess whitespace off the beginning and end of a string
+	 *
+	 * @param {String} str The String to trim
+	 * @returns {String} The String freed of excess whitespace
+	 */
+	function trim(str) {
+	  return str.replace(/^\s*/, '').replace(/\s*$/, '');
+	}
+
+	/**
+	 * Iterate over an Array or an Object invoking a function for each item.
+	 *
+	 * If `obj` is an Array or arguments callback will be called passing
+	 * the value, index, and complete array for each item.
+	 *
+	 * If 'obj' is an Object callback will be called passing
+	 * the value, key, and complete object for each property.
+	 *
+	 * @param {Object|Array} obj The object to iterate
+	 * @param {Function} fn The callback to invoke for each item
+	 */
+	function forEach(obj, fn) {
+	  // Don't bother if no value provided
+	  if (obj === null || typeof obj === 'undefined') {
+	    return;
+	  }
+
+	  // Check if obj is array-like
+	  var isArrayLike = isArray(obj) || (typeof obj === 'object' && !isNaN(obj.length));
+
+	  // Force an array if not already something iterable
+	  if (typeof obj !== 'object' && !isArrayLike) {
+	    obj = [obj];
+	  }
+
+	  // Iterate over array values
+	  if (isArrayLike) {
+	    for (var i = 0, l = obj.length; i < l; i++) {
+	      fn.call(null, obj[i], i, obj);
+	    }
+	  }
+	  // Iterate over object keys
+	  else {
+	    for (var key in obj) {
+	      if (obj.hasOwnProperty(key)) {
+	        fn.call(null, obj[key], key, obj);
+	      }
+	    }
+	  }
+	}
+
+	/**
+	 * Accepts varargs expecting each argument to be an object, then
+	 * immutably merges the properties of each object and returns result.
+	 *
+	 * When multiple objects contain the same key the later object in
+	 * the arguments list will take precedence.
+	 *
+	 * Example:
+	 *
+	 * ```js
+	 * var result = merge({foo: 123}, {foo: 456});
+	 * console.log(result.foo); // outputs 456
+	 * ```
+	 *
+	 * @param {Object} obj1 Object to merge
+	 * @returns {Object} Result of all merge properties
+	 */
+	function merge(/*obj1, obj2, obj3, ...*/) {
+	  var result = {};
+	  forEach(arguments, function (obj) {
+	    forEach(obj, function (val, key) {
+	      result[key] = val;
+	    });
+	  });
+	  return result;
+	}
+
+	module.exports = {
+	  isArray: isArray,
+	  isArrayBuffer: isArrayBuffer,
+	  isFormData: isFormData,
+	  isArrayBufferView: isArrayBufferView,
+	  isString: isString,
+	  isNumber: isNumber,
+	  isObject: isObject,
+	  isUndefined: isUndefined,
+	  isDate: isDate,
+	  isFile: isFile,
+	  isBlob: isBlob,
+	  forEach: forEach,
+	  merge: merge,
+	  trim: trim
+	};
+
+
+/***/ },
+/* 26 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	/**
+	 * Supply a warning to the developer that a method they are using
+	 * has been deprecated.
+	 *
+	 * @param {string} method The name of the deprecated method
+	 * @param {string} [instead] The alternate method to use if applicable
+	 * @param {string} [docs] The documentation URL to get further details
+	 */
+	module.exports = function deprecatedMethod(method, instead, docs) {
+	  try {
+	    console.warn(
+	      'DEPRECATED method `' + method + '`.' +
+	      (instead ? ' Use `' + instead + '` instead.' : '') +
+	      ' This method will be removed in a future release.');
+
+	    if (docs) {
+	      console.warn('For more information about usage see ' + docs);
+	    }
+	  } catch (e) {}
+	};
+
+
+/***/ },
+/* 27 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
+
+	/**
+	 * Dispatch a request to the server using whichever adapter
+	 * is supported by the current environment.
+	 *
+	 * @param {object} config The config that is to be used for the request
+	 * @returns {Promise} The Promise to be fulfilled
+	 */
+	module.exports = function dispatchRequest(config) {
+	  return new Promise(function (resolve, reject) {
+	    try {
+	      // For browsers use XHR adapter
+	      if (typeof window !== 'undefined') {
+	        __webpack_require__(43)(resolve, reject, config);
+	      }
+	      // For node use HTTP adapter
+	      else if (typeof process !== 'undefined') {
+	        __webpack_require__(43)(resolve, reject, config);
+	      }
+	    } catch (e) {
+	      reject(e);
+	    }
+	  });
+	};
+
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(31)))
+
+/***/ },
+/* 28 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var utils = __webpack_require__(25);
+
+	function InterceptorManager() {
+	  this.handlers = [];
+	}
+
+	/**
+	 * Add a new interceptor to the stack
+	 *
+	 * @param {Function} fulfilled The function to handle `then` for a `Promise`
+	 * @param {Function} rejected The function to handle `reject` for a `Promise`
+	 *
+	 * @return {Number} An ID used to remove interceptor later
+	 */
+	InterceptorManager.prototype.use = function (fulfilled, rejected) {
+	  this.handlers.push({
+	    fulfilled: fulfilled,
+	    rejected: rejected
+	  });
+	  return this.handlers.length - 1;
+	};
+
+	/**
+	 * Remove an interceptor from the stack
+	 *
+	 * @param {Number} id The ID that was returned by `use`
+	 */
+	InterceptorManager.prototype.eject = function (id) {
+	  if (this.handlers[id]) {
+	    this.handlers[id] = null;
+	  }
+	};
+
+	/**
+	 * Iterate over all the registered interceptors
+	 *
+	 * This method is particularly useful for skipping over any
+	 * interceptors that may have become `null` calling `remove`.
+	 *
+	 * @param {Function} fn The function to call for each interceptor
+	 */
+	InterceptorManager.prototype.forEach = function (fn) {
+	  utils.forEach(this.handlers, function (h) {
+	    if (h !== null) {
+	      fn(h);
+	    }
+	  });
+	};
+
+	module.exports = InterceptorManager;
+
+
+/***/ },
+/* 29 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	/**
+	 * Syntactic sugar for invoking a function and expanding an array for arguments.
+	 *
+	 * Common use case would be to use `Function.prototype.apply`.
+	 *
+	 *  ```js
+	 *  function f(x, y, z) {}
+	 *  var args = [1, 2, 3];
+	 *  f.apply(null, args);
+	 *  ```
+	 *
+	 * With `spread` this example can be re-written.
+	 *
+	 *  ```js
+	 *  spread(function(x, y, z) {})([1, 2, 3]);
+	 *  ```
+	 *
+	 * @param {Function} callback
+	 * @returns {Function}
+	 */
+	module.exports = function spread(callback) {
+	  return function (arr) {
+	    callback.apply(null, arr);
+	  };
+	};
+
+
+/***/ },
+/* 30 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(setImmediate, clearImmediate) {var nextTick = __webpack_require__(31).nextTick;
+	var apply = Function.prototype.apply;
+	var slice = Array.prototype.slice;
+	var immediateIds = {};
+	var nextImmediateId = 0;
+
+	// DOM APIs, for completeness
+
+	exports.setTimeout = function() {
+	  return new Timeout(apply.call(setTimeout, window, arguments), clearTimeout);
+	};
+	exports.setInterval = function() {
+	  return new Timeout(apply.call(setInterval, window, arguments), clearInterval);
+	};
+	exports.clearTimeout =
+	exports.clearInterval = function(timeout) { timeout.close(); };
+
+	function Timeout(id, clearFn) {
+	  this._id = id;
+	  this._clearFn = clearFn;
+	}
+	Timeout.prototype.unref = Timeout.prototype.ref = function() {};
+	Timeout.prototype.close = function() {
+	  this._clearFn.call(window, this._id);
+	};
+
+	// Does not start the time, just sets up the members needed.
+	exports.enroll = function(item, msecs) {
+	  clearTimeout(item._idleTimeoutId);
+	  item._idleTimeout = msecs;
+	};
+
+	exports.unenroll = function(item) {
+	  clearTimeout(item._idleTimeoutId);
+	  item._idleTimeout = -1;
+	};
+
+	exports._unrefActive = exports.active = function(item) {
+	  clearTimeout(item._idleTimeoutId);
+
+	  var msecs = item._idleTimeout;
+	  if (msecs >= 0) {
+	    item._idleTimeoutId = setTimeout(function onTimeout() {
+	      if (item._onTimeout)
+	        item._onTimeout();
+	    }, msecs);
+	  }
+	};
+
+	// That's not how node.js implements it but the exposed api is the same.
+	exports.setImmediate = typeof setImmediate === "function" ? setImmediate : function(fn) {
+	  var id = nextImmediateId++;
+	  var args = arguments.length < 2 ? false : slice.call(arguments, 1);
+
+	  immediateIds[id] = true;
+
+	  nextTick(function onNextTick() {
+	    if (immediateIds[id]) {
+	      // fn.call() is faster so we optimize for the common use-case
+	      // @see http://jsperf.com/call-apply-segu
+	      if (args) {
+	        fn.apply(null, args);
+	      } else {
+	        fn.call(null);
+	      }
+	      // Prevent ids from leaking
+	      exports.clearImmediate(id);
+	    }
+	  });
+
+	  return id;
+	};
+
+	exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate : function(id) {
+	  delete immediateIds[id];
+	};
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(30).setImmediate, __webpack_require__(30).clearImmediate))
+
+/***/ },
+/* 31 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// shim for using process in browser
+
+	var process = module.exports = {};
+	var queue = [];
+	var draining = false;
+
+	function drainQueue() {
+	    if (draining) {
+	        return;
+	    }
+	    draining = true;
+	    var currentQueue;
+	    var len = queue.length;
+	    while(len) {
+	        currentQueue = queue;
+	        queue = [];
+	        var i = -1;
+	        while (++i < len) {
+	            currentQueue[i]();
+	        }
+	        len = queue.length;
+	    }
+	    draining = false;
+	}
+	process.nextTick = function (fun) {
+	    queue.push(fun);
+	    if (!draining) {
+	        setTimeout(drainQueue, 0);
+	    }
+	};
+
+	process.title = 'browser';
+	process.browser = true;
+	process.env = {};
+	process.argv = [];
+	process.version = ''; // empty string to avoid regexp issues
+	process.versions = {};
+
+	function noop() {}
+
+	process.on = noop;
+	process.addListener = noop;
+	process.once = noop;
+	process.off = noop;
+	process.removeListener = noop;
+	process.removeAllListeners = noop;
+	process.emit = noop;
+
+	process.binding = function (name) {
+	    throw new Error('process.binding is not supported');
+	};
+
+	// TODO(shtylman)
+	process.cwd = function () { return '/' };
+	process.chdir = function (dir) {
+	    throw new Error('process.chdir is not supported');
+	};
+	process.umask = function() { return 0; };
+
 
 /***/ },
 /* 32 */
@@ -11095,7 +11101,7 @@ var StellarLib =
 
 	"use strict";
 
-	var _core = __webpack_require__(48)["default"];
+	var _core = __webpack_require__(50)["default"];
 
 	exports["default"] = function (obj, defaults) {
 	  var keys = _core.Object.getOwnPropertyNames(defaults);
@@ -11143,9 +11149,9 @@ var StellarLib =
 	  value: true
 	});
 
-	_defaults(exports, _interopRequireWildcard(__webpack_require__(49)));
+	_defaults(exports, _interopRequireWildcard(__webpack_require__(48)));
 
-	var _config = __webpack_require__(50);
+	var _config = __webpack_require__(49);
 
 	_defaults(exports, _interopRequireWildcard(_config));
 
@@ -11295,11 +11301,11 @@ var StellarLib =
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {var original = __webpack_require__(73)
-	  , parse = __webpack_require__(61).parse
-	  , events = __webpack_require__(62)
-	  , https = __webpack_require__(63)
-	  , http = __webpack_require__(64)
-	  , util = __webpack_require__(65);
+	  , parse = __webpack_require__(63).parse
+	  , events = __webpack_require__(64)
+	  , https = __webpack_require__(65)
+	  , http = __webpack_require__(66)
+	  , util = __webpack_require__(67);
 
 	function isPlainObject(obj) {
 	  return Object.getPrototypeOf(obj) === Object.prototype;
@@ -11607,7 +11613,7 @@ var StellarLib =
 	  }
 	}
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(29)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(31)))
 
 /***/ },
 /* 40 */
@@ -11630,12 +11636,6 @@ var StellarLib =
 
 /***/ },
 /* 41 */
-/***/ function(module, exports, __webpack_require__) {
-
-	module.exports = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"./build/Release/native.node\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
-
-/***/ },
-/* 42 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(module, global) {/**
@@ -23808,6 +23808,12 @@ var StellarLib =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(94)(module), (function() { return this; }())))
 
 /***/ },
+/* 42 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"./build/Release/native.node\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
+
+/***/ },
 /* 43 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -23815,13 +23821,13 @@ var StellarLib =
 
 	/*global ActiveXObject:true*/
 
-	var defaults = __webpack_require__(23);
-	var utils = __webpack_require__(24);
-	var buildUrl = __webpack_require__(66);
-	var cookies = __webpack_require__(67);
-	var parseHeaders = __webpack_require__(68);
-	var transformData = __webpack_require__(69);
-	var urlIsSameOrigin = __webpack_require__(70);
+	var defaults = __webpack_require__(24);
+	var utils = __webpack_require__(25);
+	var buildUrl = __webpack_require__(68);
+	var cookies = __webpack_require__(69);
+	var parseHeaders = __webpack_require__(70);
+	var transformData = __webpack_require__(71);
+	var urlIsSameOrigin = __webpack_require__(72);
 
 	module.exports = function xhrAdapter(resolve, reject, config) {
 	  // Transform request data
@@ -23921,970 +23927,6 @@ var StellarLib =
 
 /***/ },
 /* 44 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var require;var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(process, setImmediate, global, module) {/*!
-	 * @overview es6-promise - a tiny implementation of Promises/A+.
-	 * @copyright Copyright (c) 2014 Yehuda Katz, Tom Dale, Stefan Penner and contributors (Conversion to ES6 API by Jake Archibald)
-	 * @license   Licensed under MIT license
-	 *            See https://raw.githubusercontent.com/jakearchibald/es6-promise/master/LICENSE
-	 * @version   2.1.1
-	 */
-
-	(function() {
-	    "use strict";
-	    function lib$es6$promise$utils$$objectOrFunction(x) {
-	      return typeof x === 'function' || (typeof x === 'object' && x !== null);
-	    }
-
-	    function lib$es6$promise$utils$$isFunction(x) {
-	      return typeof x === 'function';
-	    }
-
-	    function lib$es6$promise$utils$$isMaybeThenable(x) {
-	      return typeof x === 'object' && x !== null;
-	    }
-
-	    var lib$es6$promise$utils$$_isArray;
-	    if (!Array.isArray) {
-	      lib$es6$promise$utils$$_isArray = function (x) {
-	        return Object.prototype.toString.call(x) === '[object Array]';
-	      };
-	    } else {
-	      lib$es6$promise$utils$$_isArray = Array.isArray;
-	    }
-
-	    var lib$es6$promise$utils$$isArray = lib$es6$promise$utils$$_isArray;
-	    var lib$es6$promise$asap$$len = 0;
-	    var lib$es6$promise$asap$$toString = {}.toString;
-	    var lib$es6$promise$asap$$vertxNext;
-	    function lib$es6$promise$asap$$asap(callback, arg) {
-	      lib$es6$promise$asap$$queue[lib$es6$promise$asap$$len] = callback;
-	      lib$es6$promise$asap$$queue[lib$es6$promise$asap$$len + 1] = arg;
-	      lib$es6$promise$asap$$len += 2;
-	      if (lib$es6$promise$asap$$len === 2) {
-	        // If len is 2, that means that we need to schedule an async flush.
-	        // If additional callbacks are queued before the queue is flushed, they
-	        // will be processed by this flush that we are scheduling.
-	        lib$es6$promise$asap$$scheduleFlush();
-	      }
-	    }
-
-	    var lib$es6$promise$asap$$default = lib$es6$promise$asap$$asap;
-
-	    var lib$es6$promise$asap$$browserWindow = (typeof window !== 'undefined') ? window : undefined;
-	    var lib$es6$promise$asap$$browserGlobal = lib$es6$promise$asap$$browserWindow || {};
-	    var lib$es6$promise$asap$$BrowserMutationObserver = lib$es6$promise$asap$$browserGlobal.MutationObserver || lib$es6$promise$asap$$browserGlobal.WebKitMutationObserver;
-	    var lib$es6$promise$asap$$isNode = typeof process !== 'undefined' && {}.toString.call(process) === '[object process]';
-
-	    // test for web worker but not in IE10
-	    var lib$es6$promise$asap$$isWorker = typeof Uint8ClampedArray !== 'undefined' &&
-	      typeof importScripts !== 'undefined' &&
-	      typeof MessageChannel !== 'undefined';
-
-	    // node
-	    function lib$es6$promise$asap$$useNextTick() {
-	      var nextTick = process.nextTick;
-	      // node version 0.10.x displays a deprecation warning when nextTick is used recursively
-	      // setImmediate should be used instead instead
-	      var version = process.versions.node.match(/^(?:(\d+)\.)?(?:(\d+)\.)?(\*|\d+)$/);
-	      if (Array.isArray(version) && version[1] === '0' && version[2] === '10') {
-	        nextTick = setImmediate;
-	      }
-	      return function() {
-	        nextTick(lib$es6$promise$asap$$flush);
-	      };
-	    }
-
-	    // vertx
-	    function lib$es6$promise$asap$$useVertxTimer() {
-	      return function() {
-	        lib$es6$promise$asap$$vertxNext(lib$es6$promise$asap$$flush);
-	      };
-	    }
-
-	    function lib$es6$promise$asap$$useMutationObserver() {
-	      var iterations = 0;
-	      var observer = new lib$es6$promise$asap$$BrowserMutationObserver(lib$es6$promise$asap$$flush);
-	      var node = document.createTextNode('');
-	      observer.observe(node, { characterData: true });
-
-	      return function() {
-	        node.data = (iterations = ++iterations % 2);
-	      };
-	    }
-
-	    // web worker
-	    function lib$es6$promise$asap$$useMessageChannel() {
-	      var channel = new MessageChannel();
-	      channel.port1.onmessage = lib$es6$promise$asap$$flush;
-	      return function () {
-	        channel.port2.postMessage(0);
-	      };
-	    }
-
-	    function lib$es6$promise$asap$$useSetTimeout() {
-	      return function() {
-	        setTimeout(lib$es6$promise$asap$$flush, 1);
-	      };
-	    }
-
-	    var lib$es6$promise$asap$$queue = new Array(1000);
-	    function lib$es6$promise$asap$$flush() {
-	      for (var i = 0; i < lib$es6$promise$asap$$len; i+=2) {
-	        var callback = lib$es6$promise$asap$$queue[i];
-	        var arg = lib$es6$promise$asap$$queue[i+1];
-
-	        callback(arg);
-
-	        lib$es6$promise$asap$$queue[i] = undefined;
-	        lib$es6$promise$asap$$queue[i+1] = undefined;
-	      }
-
-	      lib$es6$promise$asap$$len = 0;
-	    }
-
-	    function lib$es6$promise$asap$$attemptVertex() {
-	      try {
-	        var r = require;
-	        var vertx = __webpack_require__(51);
-	        lib$es6$promise$asap$$vertxNext = vertx.runOnLoop || vertx.runOnContext;
-	        return lib$es6$promise$asap$$useVertxTimer();
-	      } catch(e) {
-	        return lib$es6$promise$asap$$useSetTimeout();
-	      }
-	    }
-
-	    var lib$es6$promise$asap$$scheduleFlush;
-	    // Decide what async method to use to triggering processing of queued callbacks:
-	    if (lib$es6$promise$asap$$isNode) {
-	      lib$es6$promise$asap$$scheduleFlush = lib$es6$promise$asap$$useNextTick();
-	    } else if (lib$es6$promise$asap$$BrowserMutationObserver) {
-	      lib$es6$promise$asap$$scheduleFlush = lib$es6$promise$asap$$useMutationObserver();
-	    } else if (lib$es6$promise$asap$$isWorker) {
-	      lib$es6$promise$asap$$scheduleFlush = lib$es6$promise$asap$$useMessageChannel();
-	    } else if (lib$es6$promise$asap$$browserWindow === undefined && "function" === 'function') {
-	      lib$es6$promise$asap$$scheduleFlush = lib$es6$promise$asap$$attemptVertex();
-	    } else {
-	      lib$es6$promise$asap$$scheduleFlush = lib$es6$promise$asap$$useSetTimeout();
-	    }
-
-	    function lib$es6$promise$$internal$$noop() {}
-
-	    var lib$es6$promise$$internal$$PENDING   = void 0;
-	    var lib$es6$promise$$internal$$FULFILLED = 1;
-	    var lib$es6$promise$$internal$$REJECTED  = 2;
-
-	    var lib$es6$promise$$internal$$GET_THEN_ERROR = new lib$es6$promise$$internal$$ErrorObject();
-
-	    function lib$es6$promise$$internal$$selfFullfillment() {
-	      return new TypeError("You cannot resolve a promise with itself");
-	    }
-
-	    function lib$es6$promise$$internal$$cannotReturnOwn() {
-	      return new TypeError('A promises callback cannot return that same promise.');
-	    }
-
-	    function lib$es6$promise$$internal$$getThen(promise) {
-	      try {
-	        return promise.then;
-	      } catch(error) {
-	        lib$es6$promise$$internal$$GET_THEN_ERROR.error = error;
-	        return lib$es6$promise$$internal$$GET_THEN_ERROR;
-	      }
-	    }
-
-	    function lib$es6$promise$$internal$$tryThen(then, value, fulfillmentHandler, rejectionHandler) {
-	      try {
-	        then.call(value, fulfillmentHandler, rejectionHandler);
-	      } catch(e) {
-	        return e;
-	      }
-	    }
-
-	    function lib$es6$promise$$internal$$handleForeignThenable(promise, thenable, then) {
-	       lib$es6$promise$asap$$default(function(promise) {
-	        var sealed = false;
-	        var error = lib$es6$promise$$internal$$tryThen(then, thenable, function(value) {
-	          if (sealed) { return; }
-	          sealed = true;
-	          if (thenable !== value) {
-	            lib$es6$promise$$internal$$resolve(promise, value);
-	          } else {
-	            lib$es6$promise$$internal$$fulfill(promise, value);
-	          }
-	        }, function(reason) {
-	          if (sealed) { return; }
-	          sealed = true;
-
-	          lib$es6$promise$$internal$$reject(promise, reason);
-	        }, 'Settle: ' + (promise._label || ' unknown promise'));
-
-	        if (!sealed && error) {
-	          sealed = true;
-	          lib$es6$promise$$internal$$reject(promise, error);
-	        }
-	      }, promise);
-	    }
-
-	    function lib$es6$promise$$internal$$handleOwnThenable(promise, thenable) {
-	      if (thenable._state === lib$es6$promise$$internal$$FULFILLED) {
-	        lib$es6$promise$$internal$$fulfill(promise, thenable._result);
-	      } else if (thenable._state === lib$es6$promise$$internal$$REJECTED) {
-	        lib$es6$promise$$internal$$reject(promise, thenable._result);
-	      } else {
-	        lib$es6$promise$$internal$$subscribe(thenable, undefined, function(value) {
-	          lib$es6$promise$$internal$$resolve(promise, value);
-	        }, function(reason) {
-	          lib$es6$promise$$internal$$reject(promise, reason);
-	        });
-	      }
-	    }
-
-	    function lib$es6$promise$$internal$$handleMaybeThenable(promise, maybeThenable) {
-	      if (maybeThenable.constructor === promise.constructor) {
-	        lib$es6$promise$$internal$$handleOwnThenable(promise, maybeThenable);
-	      } else {
-	        var then = lib$es6$promise$$internal$$getThen(maybeThenable);
-
-	        if (then === lib$es6$promise$$internal$$GET_THEN_ERROR) {
-	          lib$es6$promise$$internal$$reject(promise, lib$es6$promise$$internal$$GET_THEN_ERROR.error);
-	        } else if (then === undefined) {
-	          lib$es6$promise$$internal$$fulfill(promise, maybeThenable);
-	        } else if (lib$es6$promise$utils$$isFunction(then)) {
-	          lib$es6$promise$$internal$$handleForeignThenable(promise, maybeThenable, then);
-	        } else {
-	          lib$es6$promise$$internal$$fulfill(promise, maybeThenable);
-	        }
-	      }
-	    }
-
-	    function lib$es6$promise$$internal$$resolve(promise, value) {
-	      if (promise === value) {
-	        lib$es6$promise$$internal$$reject(promise, lib$es6$promise$$internal$$selfFullfillment());
-	      } else if (lib$es6$promise$utils$$objectOrFunction(value)) {
-	        lib$es6$promise$$internal$$handleMaybeThenable(promise, value);
-	      } else {
-	        lib$es6$promise$$internal$$fulfill(promise, value);
-	      }
-	    }
-
-	    function lib$es6$promise$$internal$$publishRejection(promise) {
-	      if (promise._onerror) {
-	        promise._onerror(promise._result);
-	      }
-
-	      lib$es6$promise$$internal$$publish(promise);
-	    }
-
-	    function lib$es6$promise$$internal$$fulfill(promise, value) {
-	      if (promise._state !== lib$es6$promise$$internal$$PENDING) { return; }
-
-	      promise._result = value;
-	      promise._state = lib$es6$promise$$internal$$FULFILLED;
-
-	      if (promise._subscribers.length !== 0) {
-	        lib$es6$promise$asap$$default(lib$es6$promise$$internal$$publish, promise);
-	      }
-	    }
-
-	    function lib$es6$promise$$internal$$reject(promise, reason) {
-	      if (promise._state !== lib$es6$promise$$internal$$PENDING) { return; }
-	      promise._state = lib$es6$promise$$internal$$REJECTED;
-	      promise._result = reason;
-
-	      lib$es6$promise$asap$$default(lib$es6$promise$$internal$$publishRejection, promise);
-	    }
-
-	    function lib$es6$promise$$internal$$subscribe(parent, child, onFulfillment, onRejection) {
-	      var subscribers = parent._subscribers;
-	      var length = subscribers.length;
-
-	      parent._onerror = null;
-
-	      subscribers[length] = child;
-	      subscribers[length + lib$es6$promise$$internal$$FULFILLED] = onFulfillment;
-	      subscribers[length + lib$es6$promise$$internal$$REJECTED]  = onRejection;
-
-	      if (length === 0 && parent._state) {
-	        lib$es6$promise$asap$$default(lib$es6$promise$$internal$$publish, parent);
-	      }
-	    }
-
-	    function lib$es6$promise$$internal$$publish(promise) {
-	      var subscribers = promise._subscribers;
-	      var settled = promise._state;
-
-	      if (subscribers.length === 0) { return; }
-
-	      var child, callback, detail = promise._result;
-
-	      for (var i = 0; i < subscribers.length; i += 3) {
-	        child = subscribers[i];
-	        callback = subscribers[i + settled];
-
-	        if (child) {
-	          lib$es6$promise$$internal$$invokeCallback(settled, child, callback, detail);
-	        } else {
-	          callback(detail);
-	        }
-	      }
-
-	      promise._subscribers.length = 0;
-	    }
-
-	    function lib$es6$promise$$internal$$ErrorObject() {
-	      this.error = null;
-	    }
-
-	    var lib$es6$promise$$internal$$TRY_CATCH_ERROR = new lib$es6$promise$$internal$$ErrorObject();
-
-	    function lib$es6$promise$$internal$$tryCatch(callback, detail) {
-	      try {
-	        return callback(detail);
-	      } catch(e) {
-	        lib$es6$promise$$internal$$TRY_CATCH_ERROR.error = e;
-	        return lib$es6$promise$$internal$$TRY_CATCH_ERROR;
-	      }
-	    }
-
-	    function lib$es6$promise$$internal$$invokeCallback(settled, promise, callback, detail) {
-	      var hasCallback = lib$es6$promise$utils$$isFunction(callback),
-	          value, error, succeeded, failed;
-
-	      if (hasCallback) {
-	        value = lib$es6$promise$$internal$$tryCatch(callback, detail);
-
-	        if (value === lib$es6$promise$$internal$$TRY_CATCH_ERROR) {
-	          failed = true;
-	          error = value.error;
-	          value = null;
-	        } else {
-	          succeeded = true;
-	        }
-
-	        if (promise === value) {
-	          lib$es6$promise$$internal$$reject(promise, lib$es6$promise$$internal$$cannotReturnOwn());
-	          return;
-	        }
-
-	      } else {
-	        value = detail;
-	        succeeded = true;
-	      }
-
-	      if (promise._state !== lib$es6$promise$$internal$$PENDING) {
-	        // noop
-	      } else if (hasCallback && succeeded) {
-	        lib$es6$promise$$internal$$resolve(promise, value);
-	      } else if (failed) {
-	        lib$es6$promise$$internal$$reject(promise, error);
-	      } else if (settled === lib$es6$promise$$internal$$FULFILLED) {
-	        lib$es6$promise$$internal$$fulfill(promise, value);
-	      } else if (settled === lib$es6$promise$$internal$$REJECTED) {
-	        lib$es6$promise$$internal$$reject(promise, value);
-	      }
-	    }
-
-	    function lib$es6$promise$$internal$$initializePromise(promise, resolver) {
-	      try {
-	        resolver(function resolvePromise(value){
-	          lib$es6$promise$$internal$$resolve(promise, value);
-	        }, function rejectPromise(reason) {
-	          lib$es6$promise$$internal$$reject(promise, reason);
-	        });
-	      } catch(e) {
-	        lib$es6$promise$$internal$$reject(promise, e);
-	      }
-	    }
-
-	    function lib$es6$promise$enumerator$$Enumerator(Constructor, input) {
-	      var enumerator = this;
-
-	      enumerator._instanceConstructor = Constructor;
-	      enumerator.promise = new Constructor(lib$es6$promise$$internal$$noop);
-
-	      if (enumerator._validateInput(input)) {
-	        enumerator._input     = input;
-	        enumerator.length     = input.length;
-	        enumerator._remaining = input.length;
-
-	        enumerator._init();
-
-	        if (enumerator.length === 0) {
-	          lib$es6$promise$$internal$$fulfill(enumerator.promise, enumerator._result);
-	        } else {
-	          enumerator.length = enumerator.length || 0;
-	          enumerator._enumerate();
-	          if (enumerator._remaining === 0) {
-	            lib$es6$promise$$internal$$fulfill(enumerator.promise, enumerator._result);
-	          }
-	        }
-	      } else {
-	        lib$es6$promise$$internal$$reject(enumerator.promise, enumerator._validationError());
-	      }
-	    }
-
-	    lib$es6$promise$enumerator$$Enumerator.prototype._validateInput = function(input) {
-	      return lib$es6$promise$utils$$isArray(input);
-	    };
-
-	    lib$es6$promise$enumerator$$Enumerator.prototype._validationError = function() {
-	      return new Error('Array Methods must be provided an Array');
-	    };
-
-	    lib$es6$promise$enumerator$$Enumerator.prototype._init = function() {
-	      this._result = new Array(this.length);
-	    };
-
-	    var lib$es6$promise$enumerator$$default = lib$es6$promise$enumerator$$Enumerator;
-
-	    lib$es6$promise$enumerator$$Enumerator.prototype._enumerate = function() {
-	      var enumerator = this;
-
-	      var length  = enumerator.length;
-	      var promise = enumerator.promise;
-	      var input   = enumerator._input;
-
-	      for (var i = 0; promise._state === lib$es6$promise$$internal$$PENDING && i < length; i++) {
-	        enumerator._eachEntry(input[i], i);
-	      }
-	    };
-
-	    lib$es6$promise$enumerator$$Enumerator.prototype._eachEntry = function(entry, i) {
-	      var enumerator = this;
-	      var c = enumerator._instanceConstructor;
-
-	      if (lib$es6$promise$utils$$isMaybeThenable(entry)) {
-	        if (entry.constructor === c && entry._state !== lib$es6$promise$$internal$$PENDING) {
-	          entry._onerror = null;
-	          enumerator._settledAt(entry._state, i, entry._result);
-	        } else {
-	          enumerator._willSettleAt(c.resolve(entry), i);
-	        }
-	      } else {
-	        enumerator._remaining--;
-	        enumerator._result[i] = entry;
-	      }
-	    };
-
-	    lib$es6$promise$enumerator$$Enumerator.prototype._settledAt = function(state, i, value) {
-	      var enumerator = this;
-	      var promise = enumerator.promise;
-
-	      if (promise._state === lib$es6$promise$$internal$$PENDING) {
-	        enumerator._remaining--;
-
-	        if (state === lib$es6$promise$$internal$$REJECTED) {
-	          lib$es6$promise$$internal$$reject(promise, value);
-	        } else {
-	          enumerator._result[i] = value;
-	        }
-	      }
-
-	      if (enumerator._remaining === 0) {
-	        lib$es6$promise$$internal$$fulfill(promise, enumerator._result);
-	      }
-	    };
-
-	    lib$es6$promise$enumerator$$Enumerator.prototype._willSettleAt = function(promise, i) {
-	      var enumerator = this;
-
-	      lib$es6$promise$$internal$$subscribe(promise, undefined, function(value) {
-	        enumerator._settledAt(lib$es6$promise$$internal$$FULFILLED, i, value);
-	      }, function(reason) {
-	        enumerator._settledAt(lib$es6$promise$$internal$$REJECTED, i, reason);
-	      });
-	    };
-	    function lib$es6$promise$promise$all$$all(entries) {
-	      return new lib$es6$promise$enumerator$$default(this, entries).promise;
-	    }
-	    var lib$es6$promise$promise$all$$default = lib$es6$promise$promise$all$$all;
-	    function lib$es6$promise$promise$race$$race(entries) {
-	      /*jshint validthis:true */
-	      var Constructor = this;
-
-	      var promise = new Constructor(lib$es6$promise$$internal$$noop);
-
-	      if (!lib$es6$promise$utils$$isArray(entries)) {
-	        lib$es6$promise$$internal$$reject(promise, new TypeError('You must pass an array to race.'));
-	        return promise;
-	      }
-
-	      var length = entries.length;
-
-	      function onFulfillment(value) {
-	        lib$es6$promise$$internal$$resolve(promise, value);
-	      }
-
-	      function onRejection(reason) {
-	        lib$es6$promise$$internal$$reject(promise, reason);
-	      }
-
-	      for (var i = 0; promise._state === lib$es6$promise$$internal$$PENDING && i < length; i++) {
-	        lib$es6$promise$$internal$$subscribe(Constructor.resolve(entries[i]), undefined, onFulfillment, onRejection);
-	      }
-
-	      return promise;
-	    }
-	    var lib$es6$promise$promise$race$$default = lib$es6$promise$promise$race$$race;
-	    function lib$es6$promise$promise$resolve$$resolve(object) {
-	      /*jshint validthis:true */
-	      var Constructor = this;
-
-	      if (object && typeof object === 'object' && object.constructor === Constructor) {
-	        return object;
-	      }
-
-	      var promise = new Constructor(lib$es6$promise$$internal$$noop);
-	      lib$es6$promise$$internal$$resolve(promise, object);
-	      return promise;
-	    }
-	    var lib$es6$promise$promise$resolve$$default = lib$es6$promise$promise$resolve$$resolve;
-	    function lib$es6$promise$promise$reject$$reject(reason) {
-	      /*jshint validthis:true */
-	      var Constructor = this;
-	      var promise = new Constructor(lib$es6$promise$$internal$$noop);
-	      lib$es6$promise$$internal$$reject(promise, reason);
-	      return promise;
-	    }
-	    var lib$es6$promise$promise$reject$$default = lib$es6$promise$promise$reject$$reject;
-
-	    var lib$es6$promise$promise$$counter = 0;
-
-	    function lib$es6$promise$promise$$needsResolver() {
-	      throw new TypeError('You must pass a resolver function as the first argument to the promise constructor');
-	    }
-
-	    function lib$es6$promise$promise$$needsNew() {
-	      throw new TypeError("Failed to construct 'Promise': Please use the 'new' operator, this object constructor cannot be called as a function.");
-	    }
-
-	    var lib$es6$promise$promise$$default = lib$es6$promise$promise$$Promise;
-	    /**
-	      Promise objects represent the eventual result of an asynchronous operation. The
-	      primary way of interacting with a promise is through its `then` method, which
-	      registers callbacks to receive either a promise’s eventual value or the reason
-	      why the promise cannot be fulfilled.
-
-	      Terminology
-	      -----------
-
-	      - `promise` is an object or function with a `then` method whose behavior conforms to this specification.
-	      - `thenable` is an object or function that defines a `then` method.
-	      - `value` is any legal JavaScript value (including undefined, a thenable, or a promise).
-	      - `exception` is a value that is thrown using the throw statement.
-	      - `reason` is a value that indicates why a promise was rejected.
-	      - `settled` the final resting state of a promise, fulfilled or rejected.
-
-	      A promise can be in one of three states: pending, fulfilled, or rejected.
-
-	      Promises that are fulfilled have a fulfillment value and are in the fulfilled
-	      state.  Promises that are rejected have a rejection reason and are in the
-	      rejected state.  A fulfillment value is never a thenable.
-
-	      Promises can also be said to *resolve* a value.  If this value is also a
-	      promise, then the original promise's settled state will match the value's
-	      settled state.  So a promise that *resolves* a promise that rejects will
-	      itself reject, and a promise that *resolves* a promise that fulfills will
-	      itself fulfill.
-
-
-	      Basic Usage:
-	      ------------
-
-	      ```js
-	      var promise = new Promise(function(resolve, reject) {
-	        // on success
-	        resolve(value);
-
-	        // on failure
-	        reject(reason);
-	      });
-
-	      promise.then(function(value) {
-	        // on fulfillment
-	      }, function(reason) {
-	        // on rejection
-	      });
-	      ```
-
-	      Advanced Usage:
-	      ---------------
-
-	      Promises shine when abstracting away asynchronous interactions such as
-	      `XMLHttpRequest`s.
-
-	      ```js
-	      function getJSON(url) {
-	        return new Promise(function(resolve, reject){
-	          var xhr = new XMLHttpRequest();
-
-	          xhr.open('GET', url);
-	          xhr.onreadystatechange = handler;
-	          xhr.responseType = 'json';
-	          xhr.setRequestHeader('Accept', 'application/json');
-	          xhr.send();
-
-	          function handler() {
-	            if (this.readyState === this.DONE) {
-	              if (this.status === 200) {
-	                resolve(this.response);
-	              } else {
-	                reject(new Error('getJSON: `' + url + '` failed with status: [' + this.status + ']'));
-	              }
-	            }
-	          };
-	        });
-	      }
-
-	      getJSON('/posts.json').then(function(json) {
-	        // on fulfillment
-	      }, function(reason) {
-	        // on rejection
-	      });
-	      ```
-
-	      Unlike callbacks, promises are great composable primitives.
-
-	      ```js
-	      Promise.all([
-	        getJSON('/posts'),
-	        getJSON('/comments')
-	      ]).then(function(values){
-	        values[0] // => postsJSON
-	        values[1] // => commentsJSON
-
-	        return values;
-	      });
-	      ```
-
-	      @class Promise
-	      @param {function} resolver
-	      Useful for tooling.
-	      @constructor
-	    */
-	    function lib$es6$promise$promise$$Promise(resolver) {
-	      this._id = lib$es6$promise$promise$$counter++;
-	      this._state = undefined;
-	      this._result = undefined;
-	      this._subscribers = [];
-
-	      if (lib$es6$promise$$internal$$noop !== resolver) {
-	        if (!lib$es6$promise$utils$$isFunction(resolver)) {
-	          lib$es6$promise$promise$$needsResolver();
-	        }
-
-	        if (!(this instanceof lib$es6$promise$promise$$Promise)) {
-	          lib$es6$promise$promise$$needsNew();
-	        }
-
-	        lib$es6$promise$$internal$$initializePromise(this, resolver);
-	      }
-	    }
-
-	    lib$es6$promise$promise$$Promise.all = lib$es6$promise$promise$all$$default;
-	    lib$es6$promise$promise$$Promise.race = lib$es6$promise$promise$race$$default;
-	    lib$es6$promise$promise$$Promise.resolve = lib$es6$promise$promise$resolve$$default;
-	    lib$es6$promise$promise$$Promise.reject = lib$es6$promise$promise$reject$$default;
-
-	    lib$es6$promise$promise$$Promise.prototype = {
-	      constructor: lib$es6$promise$promise$$Promise,
-
-	    /**
-	      The primary way of interacting with a promise is through its `then` method,
-	      which registers callbacks to receive either a promise's eventual value or the
-	      reason why the promise cannot be fulfilled.
-
-	      ```js
-	      findUser().then(function(user){
-	        // user is available
-	      }, function(reason){
-	        // user is unavailable, and you are given the reason why
-	      });
-	      ```
-
-	      Chaining
-	      --------
-
-	      The return value of `then` is itself a promise.  This second, 'downstream'
-	      promise is resolved with the return value of the first promise's fulfillment
-	      or rejection handler, or rejected if the handler throws an exception.
-
-	      ```js
-	      findUser().then(function (user) {
-	        return user.name;
-	      }, function (reason) {
-	        return 'default name';
-	      }).then(function (userName) {
-	        // If `findUser` fulfilled, `userName` will be the user's name, otherwise it
-	        // will be `'default name'`
-	      });
-
-	      findUser().then(function (user) {
-	        throw new Error('Found user, but still unhappy');
-	      }, function (reason) {
-	        throw new Error('`findUser` rejected and we're unhappy');
-	      }).then(function (value) {
-	        // never reached
-	      }, function (reason) {
-	        // if `findUser` fulfilled, `reason` will be 'Found user, but still unhappy'.
-	        // If `findUser` rejected, `reason` will be '`findUser` rejected and we're unhappy'.
-	      });
-	      ```
-	      If the downstream promise does not specify a rejection handler, rejection reasons will be propagated further downstream.
-
-	      ```js
-	      findUser().then(function (user) {
-	        throw new PedagogicalException('Upstream error');
-	      }).then(function (value) {
-	        // never reached
-	      }).then(function (value) {
-	        // never reached
-	      }, function (reason) {
-	        // The `PedgagocialException` is propagated all the way down to here
-	      });
-	      ```
-
-	      Assimilation
-	      ------------
-
-	      Sometimes the value you want to propagate to a downstream promise can only be
-	      retrieved asynchronously. This can be achieved by returning a promise in the
-	      fulfillment or rejection handler. The downstream promise will then be pending
-	      until the returned promise is settled. This is called *assimilation*.
-
-	      ```js
-	      findUser().then(function (user) {
-	        return findCommentsByAuthor(user);
-	      }).then(function (comments) {
-	        // The user's comments are now available
-	      });
-	      ```
-
-	      If the assimliated promise rejects, then the downstream promise will also reject.
-
-	      ```js
-	      findUser().then(function (user) {
-	        return findCommentsByAuthor(user);
-	      }).then(function (comments) {
-	        // If `findCommentsByAuthor` fulfills, we'll have the value here
-	      }, function (reason) {
-	        // If `findCommentsByAuthor` rejects, we'll have the reason here
-	      });
-	      ```
-
-	      Simple Example
-	      --------------
-
-	      Synchronous Example
-
-	      ```javascript
-	      var result;
-
-	      try {
-	        result = findResult();
-	        // success
-	      } catch(reason) {
-	        // failure
-	      }
-	      ```
-
-	      Errback Example
-
-	      ```js
-	      findResult(function(result, err){
-	        if (err) {
-	          // failure
-	        } else {
-	          // success
-	        }
-	      });
-	      ```
-
-	      Promise Example;
-
-	      ```javascript
-	      findResult().then(function(result){
-	        // success
-	      }, function(reason){
-	        // failure
-	      });
-	      ```
-
-	      Advanced Example
-	      --------------
-
-	      Synchronous Example
-
-	      ```javascript
-	      var author, books;
-
-	      try {
-	        author = findAuthor();
-	        books  = findBooksByAuthor(author);
-	        // success
-	      } catch(reason) {
-	        // failure
-	      }
-	      ```
-
-	      Errback Example
-
-	      ```js
-
-	      function foundBooks(books) {
-
-	      }
-
-	      function failure(reason) {
-
-	      }
-
-	      findAuthor(function(author, err){
-	        if (err) {
-	          failure(err);
-	          // failure
-	        } else {
-	          try {
-	            findBoooksByAuthor(author, function(books, err) {
-	              if (err) {
-	                failure(err);
-	              } else {
-	                try {
-	                  foundBooks(books);
-	                } catch(reason) {
-	                  failure(reason);
-	                }
-	              }
-	            });
-	          } catch(error) {
-	            failure(err);
-	          }
-	          // success
-	        }
-	      });
-	      ```
-
-	      Promise Example;
-
-	      ```javascript
-	      findAuthor().
-	        then(findBooksByAuthor).
-	        then(function(books){
-	          // found books
-	      }).catch(function(reason){
-	        // something went wrong
-	      });
-	      ```
-
-	      @method then
-	      @param {Function} onFulfilled
-	      @param {Function} onRejected
-	      Useful for tooling.
-	      @return {Promise}
-	    */
-	      then: function(onFulfillment, onRejection) {
-	        var parent = this;
-	        var state = parent._state;
-
-	        if (state === lib$es6$promise$$internal$$FULFILLED && !onFulfillment || state === lib$es6$promise$$internal$$REJECTED && !onRejection) {
-	          return this;
-	        }
-
-	        var child = new this.constructor(lib$es6$promise$$internal$$noop);
-	        var result = parent._result;
-
-	        if (state) {
-	          var callback = arguments[state - 1];
-	          lib$es6$promise$asap$$default(function(){
-	            lib$es6$promise$$internal$$invokeCallback(state, child, callback, result);
-	          });
-	        } else {
-	          lib$es6$promise$$internal$$subscribe(parent, child, onFulfillment, onRejection);
-	        }
-
-	        return child;
-	      },
-
-	    /**
-	      `catch` is simply sugar for `then(undefined, onRejection)` which makes it the same
-	      as the catch block of a try/catch statement.
-
-	      ```js
-	      function findAuthor(){
-	        throw new Error('couldn't find that author');
-	      }
-
-	      // synchronous
-	      try {
-	        findAuthor();
-	      } catch(reason) {
-	        // something went wrong
-	      }
-
-	      // async with promises
-	      findAuthor().catch(function(reason){
-	        // something went wrong
-	      });
-	      ```
-
-	      @method catch
-	      @param {Function} onRejection
-	      Useful for tooling.
-	      @return {Promise}
-	    */
-	      'catch': function(onRejection) {
-	        return this.then(null, onRejection);
-	      }
-	    };
-	    function lib$es6$promise$polyfill$$polyfill() {
-	      var local;
-
-	      if (typeof global !== 'undefined') {
-	          local = global;
-	      } else if (typeof self !== 'undefined') {
-	          local = self;
-	      } else {
-	          try {
-	              local = Function('return this')();
-	          } catch (e) {
-	              throw new Error('polyfill failed because global object is unavailable in this environment');
-	          }
-	      }
-
-	      var P = local.Promise;
-
-	      if (P && Object.prototype.toString.call(P.resolve()) === '[object Promise]' && !P.cast) {
-	        return;
-	      }
-
-	      local.Promise = lib$es6$promise$promise$$default;
-	    }
-	    var lib$es6$promise$polyfill$$default = lib$es6$promise$polyfill$$polyfill;
-
-	    var lib$es6$promise$umd$$ES6Promise = {
-	      'Promise': lib$es6$promise$promise$$default,
-	      'polyfill': lib$es6$promise$polyfill$$default
-	    };
-
-	    /* global define:true module:true window: true */
-	    if ("function" === 'function' && __webpack_require__(95)['amd']) {
-	      !(__WEBPACK_AMD_DEFINE_RESULT__ = function() { return lib$es6$promise$umd$$ES6Promise; }.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-	    } else if (typeof module !== 'undefined' && module['exports']) {
-	      module['exports'] = lib$es6$promise$umd$$ES6Promise;
-	    } else if (typeof this !== 'undefined') {
-	      this['ES6Promise'] = lib$es6$promise$umd$$ES6Promise;
-	    }
-
-	    lib$es6$promise$polyfill$$default();
-	}).call(this);
-
-
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(29), __webpack_require__(30).setImmediate, (function() { return this; }()), __webpack_require__(94)(module)))
-
-/***/ },
-/* 45 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -26865,6 +25907,970 @@ var StellarLib =
 	  Iterators.NodeList = Iterators[ARRAY];
 	}(global.NodeList);
 	}(typeof self != 'undefined' && self.Math === Math ? self : Function('return this')(), true);
+
+/***/ },
+/* 45 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var require;var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(process, setImmediate, global, module) {/*!
+	 * @overview es6-promise - a tiny implementation of Promises/A+.
+	 * @copyright Copyright (c) 2014 Yehuda Katz, Tom Dale, Stefan Penner and contributors (Conversion to ES6 API by Jake Archibald)
+	 * @license   Licensed under MIT license
+	 *            See https://raw.githubusercontent.com/jakearchibald/es6-promise/master/LICENSE
+	 * @version   2.1.1
+	 */
+
+	(function() {
+	    "use strict";
+	    function lib$es6$promise$utils$$objectOrFunction(x) {
+	      return typeof x === 'function' || (typeof x === 'object' && x !== null);
+	    }
+
+	    function lib$es6$promise$utils$$isFunction(x) {
+	      return typeof x === 'function';
+	    }
+
+	    function lib$es6$promise$utils$$isMaybeThenable(x) {
+	      return typeof x === 'object' && x !== null;
+	    }
+
+	    var lib$es6$promise$utils$$_isArray;
+	    if (!Array.isArray) {
+	      lib$es6$promise$utils$$_isArray = function (x) {
+	        return Object.prototype.toString.call(x) === '[object Array]';
+	      };
+	    } else {
+	      lib$es6$promise$utils$$_isArray = Array.isArray;
+	    }
+
+	    var lib$es6$promise$utils$$isArray = lib$es6$promise$utils$$_isArray;
+	    var lib$es6$promise$asap$$len = 0;
+	    var lib$es6$promise$asap$$toString = {}.toString;
+	    var lib$es6$promise$asap$$vertxNext;
+	    function lib$es6$promise$asap$$asap(callback, arg) {
+	      lib$es6$promise$asap$$queue[lib$es6$promise$asap$$len] = callback;
+	      lib$es6$promise$asap$$queue[lib$es6$promise$asap$$len + 1] = arg;
+	      lib$es6$promise$asap$$len += 2;
+	      if (lib$es6$promise$asap$$len === 2) {
+	        // If len is 2, that means that we need to schedule an async flush.
+	        // If additional callbacks are queued before the queue is flushed, they
+	        // will be processed by this flush that we are scheduling.
+	        lib$es6$promise$asap$$scheduleFlush();
+	      }
+	    }
+
+	    var lib$es6$promise$asap$$default = lib$es6$promise$asap$$asap;
+
+	    var lib$es6$promise$asap$$browserWindow = (typeof window !== 'undefined') ? window : undefined;
+	    var lib$es6$promise$asap$$browserGlobal = lib$es6$promise$asap$$browserWindow || {};
+	    var lib$es6$promise$asap$$BrowserMutationObserver = lib$es6$promise$asap$$browserGlobal.MutationObserver || lib$es6$promise$asap$$browserGlobal.WebKitMutationObserver;
+	    var lib$es6$promise$asap$$isNode = typeof process !== 'undefined' && {}.toString.call(process) === '[object process]';
+
+	    // test for web worker but not in IE10
+	    var lib$es6$promise$asap$$isWorker = typeof Uint8ClampedArray !== 'undefined' &&
+	      typeof importScripts !== 'undefined' &&
+	      typeof MessageChannel !== 'undefined';
+
+	    // node
+	    function lib$es6$promise$asap$$useNextTick() {
+	      var nextTick = process.nextTick;
+	      // node version 0.10.x displays a deprecation warning when nextTick is used recursively
+	      // setImmediate should be used instead instead
+	      var version = process.versions.node.match(/^(?:(\d+)\.)?(?:(\d+)\.)?(\*|\d+)$/);
+	      if (Array.isArray(version) && version[1] === '0' && version[2] === '10') {
+	        nextTick = setImmediate;
+	      }
+	      return function() {
+	        nextTick(lib$es6$promise$asap$$flush);
+	      };
+	    }
+
+	    // vertx
+	    function lib$es6$promise$asap$$useVertxTimer() {
+	      return function() {
+	        lib$es6$promise$asap$$vertxNext(lib$es6$promise$asap$$flush);
+	      };
+	    }
+
+	    function lib$es6$promise$asap$$useMutationObserver() {
+	      var iterations = 0;
+	      var observer = new lib$es6$promise$asap$$BrowserMutationObserver(lib$es6$promise$asap$$flush);
+	      var node = document.createTextNode('');
+	      observer.observe(node, { characterData: true });
+
+	      return function() {
+	        node.data = (iterations = ++iterations % 2);
+	      };
+	    }
+
+	    // web worker
+	    function lib$es6$promise$asap$$useMessageChannel() {
+	      var channel = new MessageChannel();
+	      channel.port1.onmessage = lib$es6$promise$asap$$flush;
+	      return function () {
+	        channel.port2.postMessage(0);
+	      };
+	    }
+
+	    function lib$es6$promise$asap$$useSetTimeout() {
+	      return function() {
+	        setTimeout(lib$es6$promise$asap$$flush, 1);
+	      };
+	    }
+
+	    var lib$es6$promise$asap$$queue = new Array(1000);
+	    function lib$es6$promise$asap$$flush() {
+	      for (var i = 0; i < lib$es6$promise$asap$$len; i+=2) {
+	        var callback = lib$es6$promise$asap$$queue[i];
+	        var arg = lib$es6$promise$asap$$queue[i+1];
+
+	        callback(arg);
+
+	        lib$es6$promise$asap$$queue[i] = undefined;
+	        lib$es6$promise$asap$$queue[i+1] = undefined;
+	      }
+
+	      lib$es6$promise$asap$$len = 0;
+	    }
+
+	    function lib$es6$promise$asap$$attemptVertex() {
+	      try {
+	        var r = require;
+	        var vertx = __webpack_require__(53);
+	        lib$es6$promise$asap$$vertxNext = vertx.runOnLoop || vertx.runOnContext;
+	        return lib$es6$promise$asap$$useVertxTimer();
+	      } catch(e) {
+	        return lib$es6$promise$asap$$useSetTimeout();
+	      }
+	    }
+
+	    var lib$es6$promise$asap$$scheduleFlush;
+	    // Decide what async method to use to triggering processing of queued callbacks:
+	    if (lib$es6$promise$asap$$isNode) {
+	      lib$es6$promise$asap$$scheduleFlush = lib$es6$promise$asap$$useNextTick();
+	    } else if (lib$es6$promise$asap$$BrowserMutationObserver) {
+	      lib$es6$promise$asap$$scheduleFlush = lib$es6$promise$asap$$useMutationObserver();
+	    } else if (lib$es6$promise$asap$$isWorker) {
+	      lib$es6$promise$asap$$scheduleFlush = lib$es6$promise$asap$$useMessageChannel();
+	    } else if (lib$es6$promise$asap$$browserWindow === undefined && "function" === 'function') {
+	      lib$es6$promise$asap$$scheduleFlush = lib$es6$promise$asap$$attemptVertex();
+	    } else {
+	      lib$es6$promise$asap$$scheduleFlush = lib$es6$promise$asap$$useSetTimeout();
+	    }
+
+	    function lib$es6$promise$$internal$$noop() {}
+
+	    var lib$es6$promise$$internal$$PENDING   = void 0;
+	    var lib$es6$promise$$internal$$FULFILLED = 1;
+	    var lib$es6$promise$$internal$$REJECTED  = 2;
+
+	    var lib$es6$promise$$internal$$GET_THEN_ERROR = new lib$es6$promise$$internal$$ErrorObject();
+
+	    function lib$es6$promise$$internal$$selfFullfillment() {
+	      return new TypeError("You cannot resolve a promise with itself");
+	    }
+
+	    function lib$es6$promise$$internal$$cannotReturnOwn() {
+	      return new TypeError('A promises callback cannot return that same promise.');
+	    }
+
+	    function lib$es6$promise$$internal$$getThen(promise) {
+	      try {
+	        return promise.then;
+	      } catch(error) {
+	        lib$es6$promise$$internal$$GET_THEN_ERROR.error = error;
+	        return lib$es6$promise$$internal$$GET_THEN_ERROR;
+	      }
+	    }
+
+	    function lib$es6$promise$$internal$$tryThen(then, value, fulfillmentHandler, rejectionHandler) {
+	      try {
+	        then.call(value, fulfillmentHandler, rejectionHandler);
+	      } catch(e) {
+	        return e;
+	      }
+	    }
+
+	    function lib$es6$promise$$internal$$handleForeignThenable(promise, thenable, then) {
+	       lib$es6$promise$asap$$default(function(promise) {
+	        var sealed = false;
+	        var error = lib$es6$promise$$internal$$tryThen(then, thenable, function(value) {
+	          if (sealed) { return; }
+	          sealed = true;
+	          if (thenable !== value) {
+	            lib$es6$promise$$internal$$resolve(promise, value);
+	          } else {
+	            lib$es6$promise$$internal$$fulfill(promise, value);
+	          }
+	        }, function(reason) {
+	          if (sealed) { return; }
+	          sealed = true;
+
+	          lib$es6$promise$$internal$$reject(promise, reason);
+	        }, 'Settle: ' + (promise._label || ' unknown promise'));
+
+	        if (!sealed && error) {
+	          sealed = true;
+	          lib$es6$promise$$internal$$reject(promise, error);
+	        }
+	      }, promise);
+	    }
+
+	    function lib$es6$promise$$internal$$handleOwnThenable(promise, thenable) {
+	      if (thenable._state === lib$es6$promise$$internal$$FULFILLED) {
+	        lib$es6$promise$$internal$$fulfill(promise, thenable._result);
+	      } else if (thenable._state === lib$es6$promise$$internal$$REJECTED) {
+	        lib$es6$promise$$internal$$reject(promise, thenable._result);
+	      } else {
+	        lib$es6$promise$$internal$$subscribe(thenable, undefined, function(value) {
+	          lib$es6$promise$$internal$$resolve(promise, value);
+	        }, function(reason) {
+	          lib$es6$promise$$internal$$reject(promise, reason);
+	        });
+	      }
+	    }
+
+	    function lib$es6$promise$$internal$$handleMaybeThenable(promise, maybeThenable) {
+	      if (maybeThenable.constructor === promise.constructor) {
+	        lib$es6$promise$$internal$$handleOwnThenable(promise, maybeThenable);
+	      } else {
+	        var then = lib$es6$promise$$internal$$getThen(maybeThenable);
+
+	        if (then === lib$es6$promise$$internal$$GET_THEN_ERROR) {
+	          lib$es6$promise$$internal$$reject(promise, lib$es6$promise$$internal$$GET_THEN_ERROR.error);
+	        } else if (then === undefined) {
+	          lib$es6$promise$$internal$$fulfill(promise, maybeThenable);
+	        } else if (lib$es6$promise$utils$$isFunction(then)) {
+	          lib$es6$promise$$internal$$handleForeignThenable(promise, maybeThenable, then);
+	        } else {
+	          lib$es6$promise$$internal$$fulfill(promise, maybeThenable);
+	        }
+	      }
+	    }
+
+	    function lib$es6$promise$$internal$$resolve(promise, value) {
+	      if (promise === value) {
+	        lib$es6$promise$$internal$$reject(promise, lib$es6$promise$$internal$$selfFullfillment());
+	      } else if (lib$es6$promise$utils$$objectOrFunction(value)) {
+	        lib$es6$promise$$internal$$handleMaybeThenable(promise, value);
+	      } else {
+	        lib$es6$promise$$internal$$fulfill(promise, value);
+	      }
+	    }
+
+	    function lib$es6$promise$$internal$$publishRejection(promise) {
+	      if (promise._onerror) {
+	        promise._onerror(promise._result);
+	      }
+
+	      lib$es6$promise$$internal$$publish(promise);
+	    }
+
+	    function lib$es6$promise$$internal$$fulfill(promise, value) {
+	      if (promise._state !== lib$es6$promise$$internal$$PENDING) { return; }
+
+	      promise._result = value;
+	      promise._state = lib$es6$promise$$internal$$FULFILLED;
+
+	      if (promise._subscribers.length !== 0) {
+	        lib$es6$promise$asap$$default(lib$es6$promise$$internal$$publish, promise);
+	      }
+	    }
+
+	    function lib$es6$promise$$internal$$reject(promise, reason) {
+	      if (promise._state !== lib$es6$promise$$internal$$PENDING) { return; }
+	      promise._state = lib$es6$promise$$internal$$REJECTED;
+	      promise._result = reason;
+
+	      lib$es6$promise$asap$$default(lib$es6$promise$$internal$$publishRejection, promise);
+	    }
+
+	    function lib$es6$promise$$internal$$subscribe(parent, child, onFulfillment, onRejection) {
+	      var subscribers = parent._subscribers;
+	      var length = subscribers.length;
+
+	      parent._onerror = null;
+
+	      subscribers[length] = child;
+	      subscribers[length + lib$es6$promise$$internal$$FULFILLED] = onFulfillment;
+	      subscribers[length + lib$es6$promise$$internal$$REJECTED]  = onRejection;
+
+	      if (length === 0 && parent._state) {
+	        lib$es6$promise$asap$$default(lib$es6$promise$$internal$$publish, parent);
+	      }
+	    }
+
+	    function lib$es6$promise$$internal$$publish(promise) {
+	      var subscribers = promise._subscribers;
+	      var settled = promise._state;
+
+	      if (subscribers.length === 0) { return; }
+
+	      var child, callback, detail = promise._result;
+
+	      for (var i = 0; i < subscribers.length; i += 3) {
+	        child = subscribers[i];
+	        callback = subscribers[i + settled];
+
+	        if (child) {
+	          lib$es6$promise$$internal$$invokeCallback(settled, child, callback, detail);
+	        } else {
+	          callback(detail);
+	        }
+	      }
+
+	      promise._subscribers.length = 0;
+	    }
+
+	    function lib$es6$promise$$internal$$ErrorObject() {
+	      this.error = null;
+	    }
+
+	    var lib$es6$promise$$internal$$TRY_CATCH_ERROR = new lib$es6$promise$$internal$$ErrorObject();
+
+	    function lib$es6$promise$$internal$$tryCatch(callback, detail) {
+	      try {
+	        return callback(detail);
+	      } catch(e) {
+	        lib$es6$promise$$internal$$TRY_CATCH_ERROR.error = e;
+	        return lib$es6$promise$$internal$$TRY_CATCH_ERROR;
+	      }
+	    }
+
+	    function lib$es6$promise$$internal$$invokeCallback(settled, promise, callback, detail) {
+	      var hasCallback = lib$es6$promise$utils$$isFunction(callback),
+	          value, error, succeeded, failed;
+
+	      if (hasCallback) {
+	        value = lib$es6$promise$$internal$$tryCatch(callback, detail);
+
+	        if (value === lib$es6$promise$$internal$$TRY_CATCH_ERROR) {
+	          failed = true;
+	          error = value.error;
+	          value = null;
+	        } else {
+	          succeeded = true;
+	        }
+
+	        if (promise === value) {
+	          lib$es6$promise$$internal$$reject(promise, lib$es6$promise$$internal$$cannotReturnOwn());
+	          return;
+	        }
+
+	      } else {
+	        value = detail;
+	        succeeded = true;
+	      }
+
+	      if (promise._state !== lib$es6$promise$$internal$$PENDING) {
+	        // noop
+	      } else if (hasCallback && succeeded) {
+	        lib$es6$promise$$internal$$resolve(promise, value);
+	      } else if (failed) {
+	        lib$es6$promise$$internal$$reject(promise, error);
+	      } else if (settled === lib$es6$promise$$internal$$FULFILLED) {
+	        lib$es6$promise$$internal$$fulfill(promise, value);
+	      } else if (settled === lib$es6$promise$$internal$$REJECTED) {
+	        lib$es6$promise$$internal$$reject(promise, value);
+	      }
+	    }
+
+	    function lib$es6$promise$$internal$$initializePromise(promise, resolver) {
+	      try {
+	        resolver(function resolvePromise(value){
+	          lib$es6$promise$$internal$$resolve(promise, value);
+	        }, function rejectPromise(reason) {
+	          lib$es6$promise$$internal$$reject(promise, reason);
+	        });
+	      } catch(e) {
+	        lib$es6$promise$$internal$$reject(promise, e);
+	      }
+	    }
+
+	    function lib$es6$promise$enumerator$$Enumerator(Constructor, input) {
+	      var enumerator = this;
+
+	      enumerator._instanceConstructor = Constructor;
+	      enumerator.promise = new Constructor(lib$es6$promise$$internal$$noop);
+
+	      if (enumerator._validateInput(input)) {
+	        enumerator._input     = input;
+	        enumerator.length     = input.length;
+	        enumerator._remaining = input.length;
+
+	        enumerator._init();
+
+	        if (enumerator.length === 0) {
+	          lib$es6$promise$$internal$$fulfill(enumerator.promise, enumerator._result);
+	        } else {
+	          enumerator.length = enumerator.length || 0;
+	          enumerator._enumerate();
+	          if (enumerator._remaining === 0) {
+	            lib$es6$promise$$internal$$fulfill(enumerator.promise, enumerator._result);
+	          }
+	        }
+	      } else {
+	        lib$es6$promise$$internal$$reject(enumerator.promise, enumerator._validationError());
+	      }
+	    }
+
+	    lib$es6$promise$enumerator$$Enumerator.prototype._validateInput = function(input) {
+	      return lib$es6$promise$utils$$isArray(input);
+	    };
+
+	    lib$es6$promise$enumerator$$Enumerator.prototype._validationError = function() {
+	      return new Error('Array Methods must be provided an Array');
+	    };
+
+	    lib$es6$promise$enumerator$$Enumerator.prototype._init = function() {
+	      this._result = new Array(this.length);
+	    };
+
+	    var lib$es6$promise$enumerator$$default = lib$es6$promise$enumerator$$Enumerator;
+
+	    lib$es6$promise$enumerator$$Enumerator.prototype._enumerate = function() {
+	      var enumerator = this;
+
+	      var length  = enumerator.length;
+	      var promise = enumerator.promise;
+	      var input   = enumerator._input;
+
+	      for (var i = 0; promise._state === lib$es6$promise$$internal$$PENDING && i < length; i++) {
+	        enumerator._eachEntry(input[i], i);
+	      }
+	    };
+
+	    lib$es6$promise$enumerator$$Enumerator.prototype._eachEntry = function(entry, i) {
+	      var enumerator = this;
+	      var c = enumerator._instanceConstructor;
+
+	      if (lib$es6$promise$utils$$isMaybeThenable(entry)) {
+	        if (entry.constructor === c && entry._state !== lib$es6$promise$$internal$$PENDING) {
+	          entry._onerror = null;
+	          enumerator._settledAt(entry._state, i, entry._result);
+	        } else {
+	          enumerator._willSettleAt(c.resolve(entry), i);
+	        }
+	      } else {
+	        enumerator._remaining--;
+	        enumerator._result[i] = entry;
+	      }
+	    };
+
+	    lib$es6$promise$enumerator$$Enumerator.prototype._settledAt = function(state, i, value) {
+	      var enumerator = this;
+	      var promise = enumerator.promise;
+
+	      if (promise._state === lib$es6$promise$$internal$$PENDING) {
+	        enumerator._remaining--;
+
+	        if (state === lib$es6$promise$$internal$$REJECTED) {
+	          lib$es6$promise$$internal$$reject(promise, value);
+	        } else {
+	          enumerator._result[i] = value;
+	        }
+	      }
+
+	      if (enumerator._remaining === 0) {
+	        lib$es6$promise$$internal$$fulfill(promise, enumerator._result);
+	      }
+	    };
+
+	    lib$es6$promise$enumerator$$Enumerator.prototype._willSettleAt = function(promise, i) {
+	      var enumerator = this;
+
+	      lib$es6$promise$$internal$$subscribe(promise, undefined, function(value) {
+	        enumerator._settledAt(lib$es6$promise$$internal$$FULFILLED, i, value);
+	      }, function(reason) {
+	        enumerator._settledAt(lib$es6$promise$$internal$$REJECTED, i, reason);
+	      });
+	    };
+	    function lib$es6$promise$promise$all$$all(entries) {
+	      return new lib$es6$promise$enumerator$$default(this, entries).promise;
+	    }
+	    var lib$es6$promise$promise$all$$default = lib$es6$promise$promise$all$$all;
+	    function lib$es6$promise$promise$race$$race(entries) {
+	      /*jshint validthis:true */
+	      var Constructor = this;
+
+	      var promise = new Constructor(lib$es6$promise$$internal$$noop);
+
+	      if (!lib$es6$promise$utils$$isArray(entries)) {
+	        lib$es6$promise$$internal$$reject(promise, new TypeError('You must pass an array to race.'));
+	        return promise;
+	      }
+
+	      var length = entries.length;
+
+	      function onFulfillment(value) {
+	        lib$es6$promise$$internal$$resolve(promise, value);
+	      }
+
+	      function onRejection(reason) {
+	        lib$es6$promise$$internal$$reject(promise, reason);
+	      }
+
+	      for (var i = 0; promise._state === lib$es6$promise$$internal$$PENDING && i < length; i++) {
+	        lib$es6$promise$$internal$$subscribe(Constructor.resolve(entries[i]), undefined, onFulfillment, onRejection);
+	      }
+
+	      return promise;
+	    }
+	    var lib$es6$promise$promise$race$$default = lib$es6$promise$promise$race$$race;
+	    function lib$es6$promise$promise$resolve$$resolve(object) {
+	      /*jshint validthis:true */
+	      var Constructor = this;
+
+	      if (object && typeof object === 'object' && object.constructor === Constructor) {
+	        return object;
+	      }
+
+	      var promise = new Constructor(lib$es6$promise$$internal$$noop);
+	      lib$es6$promise$$internal$$resolve(promise, object);
+	      return promise;
+	    }
+	    var lib$es6$promise$promise$resolve$$default = lib$es6$promise$promise$resolve$$resolve;
+	    function lib$es6$promise$promise$reject$$reject(reason) {
+	      /*jshint validthis:true */
+	      var Constructor = this;
+	      var promise = new Constructor(lib$es6$promise$$internal$$noop);
+	      lib$es6$promise$$internal$$reject(promise, reason);
+	      return promise;
+	    }
+	    var lib$es6$promise$promise$reject$$default = lib$es6$promise$promise$reject$$reject;
+
+	    var lib$es6$promise$promise$$counter = 0;
+
+	    function lib$es6$promise$promise$$needsResolver() {
+	      throw new TypeError('You must pass a resolver function as the first argument to the promise constructor');
+	    }
+
+	    function lib$es6$promise$promise$$needsNew() {
+	      throw new TypeError("Failed to construct 'Promise': Please use the 'new' operator, this object constructor cannot be called as a function.");
+	    }
+
+	    var lib$es6$promise$promise$$default = lib$es6$promise$promise$$Promise;
+	    /**
+	      Promise objects represent the eventual result of an asynchronous operation. The
+	      primary way of interacting with a promise is through its `then` method, which
+	      registers callbacks to receive either a promise’s eventual value or the reason
+	      why the promise cannot be fulfilled.
+
+	      Terminology
+	      -----------
+
+	      - `promise` is an object or function with a `then` method whose behavior conforms to this specification.
+	      - `thenable` is an object or function that defines a `then` method.
+	      - `value` is any legal JavaScript value (including undefined, a thenable, or a promise).
+	      - `exception` is a value that is thrown using the throw statement.
+	      - `reason` is a value that indicates why a promise was rejected.
+	      - `settled` the final resting state of a promise, fulfilled or rejected.
+
+	      A promise can be in one of three states: pending, fulfilled, or rejected.
+
+	      Promises that are fulfilled have a fulfillment value and are in the fulfilled
+	      state.  Promises that are rejected have a rejection reason and are in the
+	      rejected state.  A fulfillment value is never a thenable.
+
+	      Promises can also be said to *resolve* a value.  If this value is also a
+	      promise, then the original promise's settled state will match the value's
+	      settled state.  So a promise that *resolves* a promise that rejects will
+	      itself reject, and a promise that *resolves* a promise that fulfills will
+	      itself fulfill.
+
+
+	      Basic Usage:
+	      ------------
+
+	      ```js
+	      var promise = new Promise(function(resolve, reject) {
+	        // on success
+	        resolve(value);
+
+	        // on failure
+	        reject(reason);
+	      });
+
+	      promise.then(function(value) {
+	        // on fulfillment
+	      }, function(reason) {
+	        // on rejection
+	      });
+	      ```
+
+	      Advanced Usage:
+	      ---------------
+
+	      Promises shine when abstracting away asynchronous interactions such as
+	      `XMLHttpRequest`s.
+
+	      ```js
+	      function getJSON(url) {
+	        return new Promise(function(resolve, reject){
+	          var xhr = new XMLHttpRequest();
+
+	          xhr.open('GET', url);
+	          xhr.onreadystatechange = handler;
+	          xhr.responseType = 'json';
+	          xhr.setRequestHeader('Accept', 'application/json');
+	          xhr.send();
+
+	          function handler() {
+	            if (this.readyState === this.DONE) {
+	              if (this.status === 200) {
+	                resolve(this.response);
+	              } else {
+	                reject(new Error('getJSON: `' + url + '` failed with status: [' + this.status + ']'));
+	              }
+	            }
+	          };
+	        });
+	      }
+
+	      getJSON('/posts.json').then(function(json) {
+	        // on fulfillment
+	      }, function(reason) {
+	        // on rejection
+	      });
+	      ```
+
+	      Unlike callbacks, promises are great composable primitives.
+
+	      ```js
+	      Promise.all([
+	        getJSON('/posts'),
+	        getJSON('/comments')
+	      ]).then(function(values){
+	        values[0] // => postsJSON
+	        values[1] // => commentsJSON
+
+	        return values;
+	      });
+	      ```
+
+	      @class Promise
+	      @param {function} resolver
+	      Useful for tooling.
+	      @constructor
+	    */
+	    function lib$es6$promise$promise$$Promise(resolver) {
+	      this._id = lib$es6$promise$promise$$counter++;
+	      this._state = undefined;
+	      this._result = undefined;
+	      this._subscribers = [];
+
+	      if (lib$es6$promise$$internal$$noop !== resolver) {
+	        if (!lib$es6$promise$utils$$isFunction(resolver)) {
+	          lib$es6$promise$promise$$needsResolver();
+	        }
+
+	        if (!(this instanceof lib$es6$promise$promise$$Promise)) {
+	          lib$es6$promise$promise$$needsNew();
+	        }
+
+	        lib$es6$promise$$internal$$initializePromise(this, resolver);
+	      }
+	    }
+
+	    lib$es6$promise$promise$$Promise.all = lib$es6$promise$promise$all$$default;
+	    lib$es6$promise$promise$$Promise.race = lib$es6$promise$promise$race$$default;
+	    lib$es6$promise$promise$$Promise.resolve = lib$es6$promise$promise$resolve$$default;
+	    lib$es6$promise$promise$$Promise.reject = lib$es6$promise$promise$reject$$default;
+
+	    lib$es6$promise$promise$$Promise.prototype = {
+	      constructor: lib$es6$promise$promise$$Promise,
+
+	    /**
+	      The primary way of interacting with a promise is through its `then` method,
+	      which registers callbacks to receive either a promise's eventual value or the
+	      reason why the promise cannot be fulfilled.
+
+	      ```js
+	      findUser().then(function(user){
+	        // user is available
+	      }, function(reason){
+	        // user is unavailable, and you are given the reason why
+	      });
+	      ```
+
+	      Chaining
+	      --------
+
+	      The return value of `then` is itself a promise.  This second, 'downstream'
+	      promise is resolved with the return value of the first promise's fulfillment
+	      or rejection handler, or rejected if the handler throws an exception.
+
+	      ```js
+	      findUser().then(function (user) {
+	        return user.name;
+	      }, function (reason) {
+	        return 'default name';
+	      }).then(function (userName) {
+	        // If `findUser` fulfilled, `userName` will be the user's name, otherwise it
+	        // will be `'default name'`
+	      });
+
+	      findUser().then(function (user) {
+	        throw new Error('Found user, but still unhappy');
+	      }, function (reason) {
+	        throw new Error('`findUser` rejected and we're unhappy');
+	      }).then(function (value) {
+	        // never reached
+	      }, function (reason) {
+	        // if `findUser` fulfilled, `reason` will be 'Found user, but still unhappy'.
+	        // If `findUser` rejected, `reason` will be '`findUser` rejected and we're unhappy'.
+	      });
+	      ```
+	      If the downstream promise does not specify a rejection handler, rejection reasons will be propagated further downstream.
+
+	      ```js
+	      findUser().then(function (user) {
+	        throw new PedagogicalException('Upstream error');
+	      }).then(function (value) {
+	        // never reached
+	      }).then(function (value) {
+	        // never reached
+	      }, function (reason) {
+	        // The `PedgagocialException` is propagated all the way down to here
+	      });
+	      ```
+
+	      Assimilation
+	      ------------
+
+	      Sometimes the value you want to propagate to a downstream promise can only be
+	      retrieved asynchronously. This can be achieved by returning a promise in the
+	      fulfillment or rejection handler. The downstream promise will then be pending
+	      until the returned promise is settled. This is called *assimilation*.
+
+	      ```js
+	      findUser().then(function (user) {
+	        return findCommentsByAuthor(user);
+	      }).then(function (comments) {
+	        // The user's comments are now available
+	      });
+	      ```
+
+	      If the assimliated promise rejects, then the downstream promise will also reject.
+
+	      ```js
+	      findUser().then(function (user) {
+	        return findCommentsByAuthor(user);
+	      }).then(function (comments) {
+	        // If `findCommentsByAuthor` fulfills, we'll have the value here
+	      }, function (reason) {
+	        // If `findCommentsByAuthor` rejects, we'll have the reason here
+	      });
+	      ```
+
+	      Simple Example
+	      --------------
+
+	      Synchronous Example
+
+	      ```javascript
+	      var result;
+
+	      try {
+	        result = findResult();
+	        // success
+	      } catch(reason) {
+	        // failure
+	      }
+	      ```
+
+	      Errback Example
+
+	      ```js
+	      findResult(function(result, err){
+	        if (err) {
+	          // failure
+	        } else {
+	          // success
+	        }
+	      });
+	      ```
+
+	      Promise Example;
+
+	      ```javascript
+	      findResult().then(function(result){
+	        // success
+	      }, function(reason){
+	        // failure
+	      });
+	      ```
+
+	      Advanced Example
+	      --------------
+
+	      Synchronous Example
+
+	      ```javascript
+	      var author, books;
+
+	      try {
+	        author = findAuthor();
+	        books  = findBooksByAuthor(author);
+	        // success
+	      } catch(reason) {
+	        // failure
+	      }
+	      ```
+
+	      Errback Example
+
+	      ```js
+
+	      function foundBooks(books) {
+
+	      }
+
+	      function failure(reason) {
+
+	      }
+
+	      findAuthor(function(author, err){
+	        if (err) {
+	          failure(err);
+	          // failure
+	        } else {
+	          try {
+	            findBoooksByAuthor(author, function(books, err) {
+	              if (err) {
+	                failure(err);
+	              } else {
+	                try {
+	                  foundBooks(books);
+	                } catch(reason) {
+	                  failure(reason);
+	                }
+	              }
+	            });
+	          } catch(error) {
+	            failure(err);
+	          }
+	          // success
+	        }
+	      });
+	      ```
+
+	      Promise Example;
+
+	      ```javascript
+	      findAuthor().
+	        then(findBooksByAuthor).
+	        then(function(books){
+	          // found books
+	      }).catch(function(reason){
+	        // something went wrong
+	      });
+	      ```
+
+	      @method then
+	      @param {Function} onFulfilled
+	      @param {Function} onRejected
+	      Useful for tooling.
+	      @return {Promise}
+	    */
+	      then: function(onFulfillment, onRejection) {
+	        var parent = this;
+	        var state = parent._state;
+
+	        if (state === lib$es6$promise$$internal$$FULFILLED && !onFulfillment || state === lib$es6$promise$$internal$$REJECTED && !onRejection) {
+	          return this;
+	        }
+
+	        var child = new this.constructor(lib$es6$promise$$internal$$noop);
+	        var result = parent._result;
+
+	        if (state) {
+	          var callback = arguments[state - 1];
+	          lib$es6$promise$asap$$default(function(){
+	            lib$es6$promise$$internal$$invokeCallback(state, child, callback, result);
+	          });
+	        } else {
+	          lib$es6$promise$$internal$$subscribe(parent, child, onFulfillment, onRejection);
+	        }
+
+	        return child;
+	      },
+
+	    /**
+	      `catch` is simply sugar for `then(undefined, onRejection)` which makes it the same
+	      as the catch block of a try/catch statement.
+
+	      ```js
+	      function findAuthor(){
+	        throw new Error('couldn't find that author');
+	      }
+
+	      // synchronous
+	      try {
+	        findAuthor();
+	      } catch(reason) {
+	        // something went wrong
+	      }
+
+	      // async with promises
+	      findAuthor().catch(function(reason){
+	        // something went wrong
+	      });
+	      ```
+
+	      @method catch
+	      @param {Function} onRejection
+	      Useful for tooling.
+	      @return {Promise}
+	    */
+	      'catch': function(onRejection) {
+	        return this.then(null, onRejection);
+	      }
+	    };
+	    function lib$es6$promise$polyfill$$polyfill() {
+	      var local;
+
+	      if (typeof global !== 'undefined') {
+	          local = global;
+	      } else if (typeof self !== 'undefined') {
+	          local = self;
+	      } else {
+	          try {
+	              local = Function('return this')();
+	          } catch (e) {
+	              throw new Error('polyfill failed because global object is unavailable in this environment');
+	          }
+	      }
+
+	      var P = local.Promise;
+
+	      if (P && Object.prototype.toString.call(P.resolve()) === '[object Promise]' && !P.cast) {
+	        return;
+	      }
+
+	      local.Promise = lib$es6$promise$promise$$default;
+	    }
+	    var lib$es6$promise$polyfill$$default = lib$es6$promise$polyfill$$polyfill;
+
+	    var lib$es6$promise$umd$$ES6Promise = {
+	      'Promise': lib$es6$promise$promise$$default,
+	      'polyfill': lib$es6$promise$polyfill$$default
+	    };
+
+	    /* global define:true module:true window: true */
+	    if ("function" === 'function' && __webpack_require__(95)['amd']) {
+	      !(__WEBPACK_AMD_DEFINE_RESULT__ = function() { return lib$es6$promise$umd$$ES6Promise; }.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+	    } else if (typeof module !== 'undefined' && module['exports']) {
+	      module['exports'] = lib$es6$promise$umd$$ES6Promise;
+	    } else if (typeof this !== 'undefined') {
+	      this['ES6Promise'] = lib$es6$promise$umd$$ES6Promise;
+	    }
+
+	    lib$es6$promise$polyfill$$default();
+	}).call(this);
+
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(31), __webpack_require__(30).setImmediate, (function() { return this; }()), __webpack_require__(94)(module)))
 
 /***/ },
 /* 46 */
@@ -29835,10 +29841,442 @@ var StellarLib =
 
 	})(typeof module !== 'undefined' && module.exports ? module.exports : (window.nacl = window.nacl || {}));
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(31).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(23).Buffer))
 
 /***/ },
 /* 48 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _defaults = __webpack_require__(33)["default"];
+
+	var _interopRequireWildcard = __webpack_require__(34)["default"];
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	_defaults(exports, _interopRequireWildcard(__webpack_require__(74)));
+
+	_defaults(exports, _interopRequireWildcard(__webpack_require__(75)));
+
+	_defaults(exports, _interopRequireWildcard(__webpack_require__(76)));
+
+	_defaults(exports, _interopRequireWildcard(__webpack_require__(77)));
+
+	_defaults(exports, _interopRequireWildcard(__webpack_require__(78)));
+
+	_defaults(exports, _interopRequireWildcard(__webpack_require__(79)));
+
+	_defaults(exports, _interopRequireWildcard(__webpack_require__(80)));
+
+	_defaults(exports, _interopRequireWildcard(__webpack_require__(81)));
+
+	_defaults(exports, _interopRequireWildcard(__webpack_require__(82)));
+
+	_defaults(exports, _interopRequireWildcard(__webpack_require__(83)));
+
+	_defaults(exports, _interopRequireWildcard(__webpack_require__(84)));
+
+	_defaults(exports, _interopRequireWildcard(__webpack_require__(85)));
+
+	_defaults(exports, _interopRequireWildcard(__webpack_require__(86)));
+
+	_defaults(exports, _interopRequireWildcard(__webpack_require__(87)));
+
+	_defaults(exports, _interopRequireWildcard(__webpack_require__(88)));
+
+	_defaults(exports, _interopRequireWildcard(__webpack_require__(89)));
+
+	_defaults(exports, _interopRequireWildcard(__webpack_require__(90)));
+
+	_defaults(exports, _interopRequireWildcard(__webpack_require__(91)));
+
+/***/ },
+/* 49 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _classCallCheck = __webpack_require__(36)["default"];
+
+	var _createClass = __webpack_require__(37)["default"];
+
+	var _inherits = __webpack_require__(92)["default"];
+
+	var _toConsumableArray = __webpack_require__(93)["default"];
+
+	var _interopRequireWildcard = __webpack_require__(34)["default"];
+
+	var _interopRequire = __webpack_require__(32)["default"];
+
+	exports.config = config;
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var XDR = _interopRequireWildcard(__webpack_require__(48));
+
+	var _lodash = __webpack_require__(41);
+
+	var isUndefined = _lodash.isUndefined;
+	var isPlainObject = _lodash.isPlainObject;
+	var isArray = _lodash.isArray;
+	var each = _lodash.each;
+	var map = _lodash.map;
+	var pick = _lodash.pick;
+
+	var sequencify = _interopRequire(__webpack_require__(96));
+
+	// types is the root
+	var types = {};
+
+	function config(fn) {
+	  if (fn) {
+	    var builder = new TypeBuilder(types);
+	    fn(builder);
+	    builder.resolve();
+	  }
+
+	  return types;
+	}
+
+	var Reference = (function () {
+	  function Reference() {
+	    _classCallCheck(this, Reference);
+	  }
+
+	  _createClass(Reference, {
+	    resolve: {
+	      /* jshint unused: false */
+
+	      value: function resolve(definitions) {
+	        throw new Error("implement resolve in child class");
+	      }
+	    }
+	  });
+
+	  return Reference;
+	})();
+
+	var SimpleReference = (function (_Reference) {
+	  function SimpleReference(name) {
+	    _classCallCheck(this, SimpleReference);
+
+	    this.name = name;
+	  }
+
+	  _inherits(SimpleReference, _Reference);
+
+	  _createClass(SimpleReference, {
+	    resolve: {
+	      value: function resolve(definitions) {
+	        return definitions[this.name];
+	      }
+	    }
+	  });
+
+	  return SimpleReference;
+	})(Reference);
+
+	var ArrayReference = (function (_Reference2) {
+	  function ArrayReference(childReference, length) {
+	    var variable = arguments[2] === undefined ? false : arguments[2];
+
+	    _classCallCheck(this, ArrayReference);
+
+	    this.childReference = childReference;
+	    this.length = length;
+	    this.variable = variable;
+	    this.name = childReference.name;
+	  }
+
+	  _inherits(ArrayReference, _Reference2);
+
+	  _createClass(ArrayReference, {
+	    resolve: {
+	      value: function resolve(definitions) {
+	        var resolvedChild = this.childReference.resolve(definitions);
+	        if (this.variable) {
+	          return new XDR.VarArray(resolvedChild, this.length);
+	        } else {
+	          return new XDR.Array(resolvedChild, this.length);
+	        }
+	      }
+	    }
+	  });
+
+	  return ArrayReference;
+	})(Reference);
+
+	var OptionReference = (function (_Reference3) {
+	  function OptionReference(childReference) {
+	    _classCallCheck(this, OptionReference);
+
+	    this.childReference = childReference;
+	    this.name = childReference.name;
+	  }
+
+	  _inherits(OptionReference, _Reference3);
+
+	  _createClass(OptionReference, {
+	    resolve: {
+	      value: function resolve(definitions) {
+	        var resolvedChild = this.childReference.resolve(definitions);
+	        return new XDR.Option(resolvedChild);
+	      }
+	    }
+	  });
+
+	  return OptionReference;
+	})(Reference);
+
+	var Definition = (function () {
+	  function Definition(constructor, name) {
+	    var _this = this;
+
+	    for (var _len = arguments.length, config = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
+	      config[_key - 2] = arguments[_key];
+	    }
+
+	    _classCallCheck(this, Definition);
+
+	    this.constructor = constructor;
+	    this.name = name;
+	    this.config = config;
+	    this.dep = [];
+
+	    // walk the defintion config for Reference objects, push their names onto
+	    // this.deps so we can use sequencify to order our resolutions
+	    this._walkConfig(this.config, function (value) {
+	      if (value instanceof Reference) {
+	        _this.dep.push(value.name);
+	      }
+	    });
+	  }
+
+	  _createClass(Definition, {
+	    create: {
+	      value: function create(deps) {
+	        this._walkConfig(this.config, function (value, key, parent) {
+	          if (!(value instanceof Reference)) {
+	            return;
+	          }
+
+	          var dep = value.resolve(deps);
+
+	          if (!dep) {
+	            // throw if the reference couldn't be resolved
+	            throw new Error("XDR Error:" + value.name + " could not be resolved.");
+	          } else {
+	            // overwrite the reference with the concrete value
+	            parent[key] = dep;
+	          }
+	        });
+
+	        // actually create the concrete definition
+	        return this.constructor.apply(this, [this.name].concat(_toConsumableArray(this.config)));
+	      }
+	    },
+	    _walkConfig: {
+	      value: function _walkConfig(current, fn) {
+	        var _this = this;
+
+	        each(current, function (value, key) {
+	          fn(value, key, current);
+
+	          // recurse if the value is a nested object
+	          if (isPlainObject(value) || isArray(value)) {
+	            _this._walkConfig(value, fn);
+	          }
+	        });
+	      }
+	    }
+	  });
+
+	  return Definition;
+	})();
+
+	var TypeBuilder = (function () {
+	  function TypeBuilder(destination) {
+	    _classCallCheck(this, TypeBuilder);
+
+	    this._destination = destination;
+	    this._definitions = {};
+	  }
+
+	  _createClass(TypeBuilder, {
+	    "enum": {
+	      value: function _enum(name, members) {
+	        var result = new Definition(XDR.Enum.create, name, members);
+	        this.define(name, result);
+	      }
+	    },
+	    struct: {
+	      value: function struct(name, members) {
+	        var result = new Definition(XDR.Struct.create, name, members);
+	        this.define(name, result);
+	      }
+	    },
+	    union: {
+	      value: function union(name, config) {
+	        var result = new Definition(XDR.Union.create, name, config);
+	        this.define(name, result);
+	      }
+	    },
+	    typedef: {
+	      value: function typedef(name, config) {
+	        // let the reference resoltion system do it's thing
+	        // the "constructor" for a typedef just returns the resolved value
+	        var createTypedef = function (name, args) {
+	          return args;
+	        };
+
+	        var result = new Definition(createTypedef, name, config);
+	        this.define(name, result);
+	      }
+	    },
+	    "const": {
+	      value: function _const(name, config) {
+	        var createConst = function (name, args) {
+	          return args;
+	        };
+	        var result = new Definition(createConst, name, config);
+	        this.define(name, result);
+	      }
+	    },
+	    "void": {
+	      value: function _void() {
+	        return XDR.Void;
+	      }
+	    },
+	    bool: {
+	      value: function bool() {
+	        return XDR.Bool;
+	      }
+	    },
+	    int: {
+	      value: function int() {
+	        return XDR.Int;
+	      }
+	    },
+	    hyper: {
+	      value: function hyper() {
+	        return XDR.Hyper;
+	      }
+	    },
+	    uint: {
+	      value: function uint() {
+	        return XDR.UnsignedInt;
+	      }
+	    },
+	    uhyper: {
+	      value: function uhyper() {
+	        return XDR.UnsignedHyper;
+	      }
+	    },
+	    float: {
+	      value: function float() {
+	        return XDR.Float;
+	      }
+	    },
+	    double: {
+	      value: function double() {
+	        return XDR.Double;
+	      }
+	    },
+	    quadruple: {
+	      value: function quadruple() {
+	        return XDR.Quadruple;
+	      }
+	    },
+	    string: {
+	      value: function string(length) {
+	        return new XDR.String(length);
+	      }
+	    },
+	    opaque: {
+	      value: function opaque(length) {
+	        return new XDR.Opaque(length);
+	      }
+	    },
+	    varOpaque: {
+	      value: function varOpaque(length) {
+	        return new XDR.VarOpaque(length);
+	      }
+	    },
+	    array: {
+	      value: function array(childType, length) {
+	        if (childType instanceof Reference) {
+	          return new ArrayReference(childType, length);
+	        } else {
+	          return new XDR.Array(childType, length);
+	        }
+	      }
+	    },
+	    varArray: {
+	      value: function varArray(childType, maxLength) {
+	        if (childType instanceof Reference) {
+	          return new ArrayReference(childType, maxLength, true);
+	        } else {
+	          return new XDR.VarArray(childType, maxLength);
+	        }
+	      }
+	    },
+	    option: {
+	      value: function option(childType) {
+	        if (childType instanceof Reference) {
+	          return new OptionReference(childType);
+	        } else {
+	          return new XDR.Option(childType);
+	        }
+	      }
+	    },
+	    define: {
+	      value: function define(name, definition) {
+	        if (isUndefined(this._destination[name])) {
+	          this._definitions[name] = definition;
+	        } else {
+	          throw new Error("XDR Error:" + name + " is already defined");
+	        }
+	      }
+	    },
+	    lookup: {
+	      value: function lookup(name) {
+	        return new SimpleReference(name);
+	      }
+	    },
+	    resolve: {
+	      value: function resolve() {
+	        var _this = this;
+
+	        var sequence = [];
+	        sequencify(this._definitions, map(this._definitions, function (d) {
+	          return d.name;
+	        }), sequence);
+
+	        each(sequence, function (name) {
+	          var defn = _this._definitions[name];
+	          var deps = pick.apply(undefined, [_this._destination].concat(_toConsumableArray(defn.dep)));
+	          var result = defn.create(deps);
+
+	          //Ensure we aren't redefining a name
+	          if (!isUndefined(_this._destination[name])) {
+	            throw new Error("XDR Error:" + name + " is already defined");
+	          }
+
+	          _this._destination[name] = result;
+	        });
+	      }
+	    }
+	  });
+
+	  return TypeBuilder;
+	})();
+
+/***/ },
+/* 50 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -32184,445 +32622,7 @@ var StellarLib =
 
 
 /***/ },
-/* 49 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _defaults = __webpack_require__(33)["default"];
-
-	var _interopRequireWildcard = __webpack_require__(34)["default"];
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	_defaults(exports, _interopRequireWildcard(__webpack_require__(74)));
-
-	_defaults(exports, _interopRequireWildcard(__webpack_require__(75)));
-
-	_defaults(exports, _interopRequireWildcard(__webpack_require__(76)));
-
-	_defaults(exports, _interopRequireWildcard(__webpack_require__(77)));
-
-	_defaults(exports, _interopRequireWildcard(__webpack_require__(78)));
-
-	_defaults(exports, _interopRequireWildcard(__webpack_require__(79)));
-
-	_defaults(exports, _interopRequireWildcard(__webpack_require__(80)));
-
-	_defaults(exports, _interopRequireWildcard(__webpack_require__(81)));
-
-	_defaults(exports, _interopRequireWildcard(__webpack_require__(82)));
-
-	_defaults(exports, _interopRequireWildcard(__webpack_require__(83)));
-
-	_defaults(exports, _interopRequireWildcard(__webpack_require__(84)));
-
-	_defaults(exports, _interopRequireWildcard(__webpack_require__(85)));
-
-	_defaults(exports, _interopRequireWildcard(__webpack_require__(86)));
-
-	_defaults(exports, _interopRequireWildcard(__webpack_require__(87)));
-
-	_defaults(exports, _interopRequireWildcard(__webpack_require__(88)));
-
-	_defaults(exports, _interopRequireWildcard(__webpack_require__(89)));
-
-	_defaults(exports, _interopRequireWildcard(__webpack_require__(90)));
-
-	_defaults(exports, _interopRequireWildcard(__webpack_require__(91)));
-
-/***/ },
-/* 50 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _classCallCheck = __webpack_require__(36)["default"];
-
-	var _createClass = __webpack_require__(37)["default"];
-
-	var _inherits = __webpack_require__(92)["default"];
-
-	var _toConsumableArray = __webpack_require__(93)["default"];
-
-	var _interopRequireWildcard = __webpack_require__(34)["default"];
-
-	var _interopRequire = __webpack_require__(32)["default"];
-
-	exports.config = config;
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var XDR = _interopRequireWildcard(__webpack_require__(49));
-
-	var _lodash = __webpack_require__(42);
-
-	var isUndefined = _lodash.isUndefined;
-	var isPlainObject = _lodash.isPlainObject;
-	var isArray = _lodash.isArray;
-	var each = _lodash.each;
-	var map = _lodash.map;
-	var pick = _lodash.pick;
-
-	var sequencify = _interopRequire(__webpack_require__(96));
-
-	// types is the root
-	var types = {};
-
-	function config(fn) {
-	  if (fn) {
-	    var builder = new TypeBuilder(types);
-	    fn(builder);
-	    builder.resolve();
-	  }
-
-	  return types;
-	}
-
-	var Reference = (function () {
-	  function Reference() {
-	    _classCallCheck(this, Reference);
-	  }
-
-	  _createClass(Reference, {
-	    resolve: {
-	      /* jshint unused: false */
-
-	      value: function resolve(definitions) {
-	        throw new Error("implement resolve in child class");
-	      }
-	    }
-	  });
-
-	  return Reference;
-	})();
-
-	var SimpleReference = (function (_Reference) {
-	  function SimpleReference(name) {
-	    _classCallCheck(this, SimpleReference);
-
-	    this.name = name;
-	  }
-
-	  _inherits(SimpleReference, _Reference);
-
-	  _createClass(SimpleReference, {
-	    resolve: {
-	      value: function resolve(definitions) {
-	        return definitions[this.name];
-	      }
-	    }
-	  });
-
-	  return SimpleReference;
-	})(Reference);
-
-	var ArrayReference = (function (_Reference2) {
-	  function ArrayReference(childReference, length) {
-	    var variable = arguments[2] === undefined ? false : arguments[2];
-
-	    _classCallCheck(this, ArrayReference);
-
-	    this.childReference = childReference;
-	    this.length = length;
-	    this.variable = variable;
-	    this.name = childReference.name;
-	  }
-
-	  _inherits(ArrayReference, _Reference2);
-
-	  _createClass(ArrayReference, {
-	    resolve: {
-	      value: function resolve(definitions) {
-	        var resolvedChild = this.childReference.resolve(definitions);
-	        if (this.variable) {
-	          return new XDR.VarArray(resolvedChild, this.length);
-	        } else {
-	          return new XDR.Array(resolvedChild, this.length);
-	        }
-	      }
-	    }
-	  });
-
-	  return ArrayReference;
-	})(Reference);
-
-	var OptionReference = (function (_Reference3) {
-	  function OptionReference(childReference) {
-	    _classCallCheck(this, OptionReference);
-
-	    this.childReference = childReference;
-	    this.name = childReference.name;
-	  }
-
-	  _inherits(OptionReference, _Reference3);
-
-	  _createClass(OptionReference, {
-	    resolve: {
-	      value: function resolve(definitions) {
-	        var resolvedChild = this.childReference.resolve(definitions);
-	        return new XDR.Option(resolvedChild);
-	      }
-	    }
-	  });
-
-	  return OptionReference;
-	})(Reference);
-
-	var Definition = (function () {
-	  function Definition(constructor, name) {
-	    var _this = this;
-
-	    for (var _len = arguments.length, config = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
-	      config[_key - 2] = arguments[_key];
-	    }
-
-	    _classCallCheck(this, Definition);
-
-	    this.constructor = constructor;
-	    this.name = name;
-	    this.config = config;
-	    this.dep = [];
-
-	    // walk the defintion config for Reference objects, push their names onto
-	    // this.deps so we can use sequencify to order our resolutions
-	    this._walkConfig(this.config, function (value) {
-	      if (value instanceof Reference) {
-	        _this.dep.push(value.name);
-	      }
-	    });
-	  }
-
-	  _createClass(Definition, {
-	    create: {
-	      value: function create(deps) {
-	        this._walkConfig(this.config, function (value, key, parent) {
-	          if (!(value instanceof Reference)) {
-	            return;
-	          }
-
-	          var dep = value.resolve(deps);
-
-	          if (!dep) {
-	            // throw if the reference couldn't be resolved
-	            throw new Error("XDR Error:" + value.name + " could not be resolved.");
-	          } else {
-	            // overwrite the reference with the concrete value
-	            parent[key] = dep;
-	          }
-	        });
-
-	        // actually create the concrete definition
-	        return this.constructor.apply(this, [this.name].concat(_toConsumableArray(this.config)));
-	      }
-	    },
-	    _walkConfig: {
-	      value: function _walkConfig(current, fn) {
-	        var _this = this;
-
-	        each(current, function (value, key) {
-	          fn(value, key, current);
-
-	          // recurse if the value is a nested object
-	          if (isPlainObject(value) || isArray(value)) {
-	            _this._walkConfig(value, fn);
-	          }
-	        });
-	      }
-	    }
-	  });
-
-	  return Definition;
-	})();
-
-	var TypeBuilder = (function () {
-	  function TypeBuilder(destination) {
-	    _classCallCheck(this, TypeBuilder);
-
-	    this._destination = destination;
-	    this._definitions = {};
-	  }
-
-	  _createClass(TypeBuilder, {
-	    "enum": {
-	      value: function _enum(name, members) {
-	        var result = new Definition(XDR.Enum.create, name, members);
-	        this.define(name, result);
-	      }
-	    },
-	    struct: {
-	      value: function struct(name, members) {
-	        var result = new Definition(XDR.Struct.create, name, members);
-	        this.define(name, result);
-	      }
-	    },
-	    union: {
-	      value: function union(name, config) {
-	        var result = new Definition(XDR.Union.create, name, config);
-	        this.define(name, result);
-	      }
-	    },
-	    typedef: {
-	      value: function typedef(name, config) {
-	        // let the reference resoltion system do it's thing
-	        // the "constructor" for a typedef just returns the resolved value
-	        var createTypedef = function (name, args) {
-	          return args;
-	        };
-
-	        var result = new Definition(createTypedef, name, config);
-	        this.define(name, result);
-	      }
-	    },
-	    "const": {
-	      value: function _const(name, config) {
-	        var createConst = function (name, args) {
-	          return args;
-	        };
-	        var result = new Definition(createConst, name, config);
-	        this.define(name, result);
-	      }
-	    },
-	    "void": {
-	      value: function _void() {
-	        return XDR.Void;
-	      }
-	    },
-	    bool: {
-	      value: function bool() {
-	        return XDR.Bool;
-	      }
-	    },
-	    int: {
-	      value: function int() {
-	        return XDR.Int;
-	      }
-	    },
-	    hyper: {
-	      value: function hyper() {
-	        return XDR.Hyper;
-	      }
-	    },
-	    uint: {
-	      value: function uint() {
-	        return XDR.UnsignedInt;
-	      }
-	    },
-	    uhyper: {
-	      value: function uhyper() {
-	        return XDR.UnsignedHyper;
-	      }
-	    },
-	    float: {
-	      value: function float() {
-	        return XDR.Float;
-	      }
-	    },
-	    double: {
-	      value: function double() {
-	        return XDR.Double;
-	      }
-	    },
-	    quadruple: {
-	      value: function quadruple() {
-	        return XDR.Quadruple;
-	      }
-	    },
-	    string: {
-	      value: function string(length) {
-	        return new XDR.String(length);
-	      }
-	    },
-	    opaque: {
-	      value: function opaque(length) {
-	        return new XDR.Opaque(length);
-	      }
-	    },
-	    varOpaque: {
-	      value: function varOpaque(length) {
-	        return new XDR.VarOpaque(length);
-	      }
-	    },
-	    array: {
-	      value: function array(childType, length) {
-	        if (childType instanceof Reference) {
-	          return new ArrayReference(childType, length);
-	        } else {
-	          return new XDR.Array(childType, length);
-	        }
-	      }
-	    },
-	    varArray: {
-	      value: function varArray(childType, maxLength) {
-	        if (childType instanceof Reference) {
-	          return new ArrayReference(childType, maxLength, true);
-	        } else {
-	          return new XDR.VarArray(childType, maxLength);
-	        }
-	      }
-	    },
-	    option: {
-	      value: function option(childType) {
-	        if (childType instanceof Reference) {
-	          return new OptionReference(childType);
-	        } else {
-	          return new XDR.Option(childType);
-	        }
-	      }
-	    },
-	    define: {
-	      value: function define(name, definition) {
-	        if (isUndefined(this._destination[name])) {
-	          this._definitions[name] = definition;
-	        } else {
-	          throw new Error("XDR Error:" + name + " is already defined");
-	        }
-	      }
-	    },
-	    lookup: {
-	      value: function lookup(name) {
-	        return new SimpleReference(name);
-	      }
-	    },
-	    resolve: {
-	      value: function resolve() {
-	        var _this = this;
-
-	        var sequence = [];
-	        sequencify(this._definitions, map(this._definitions, function (d) {
-	          return d.name;
-	        }), sequence);
-
-	        each(sequence, function (name) {
-	          var defn = _this._definitions[name];
-	          var deps = pick.apply(undefined, [_this._destination].concat(_toConsumableArray(defn.dep)));
-	          var result = defn.create(deps);
-
-	          //Ensure we aren't redefining a name
-	          if (!isUndefined(_this._destination[name])) {
-	            throw new Error("XDR Error:" + name + " is already defined");
-	          }
-
-	          _this._destination[name] = result;
-	        });
-	      }
-	    }
-	  });
-
-	  return TypeBuilder;
-	})();
-
-/***/ },
 /* 51 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* (ignored) */
-
-/***/ },
-/* 52 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports.read = function(buffer, offset, isLE, mLen, nBytes) {
@@ -32712,7 +32712,7 @@ var StellarLib =
 
 
 /***/ },
-/* 53 */
+/* 52 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
@@ -32751,6 +32751,12 @@ var StellarLib =
 
 
 /***/ },
+/* 53 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* (ignored) */
+
+/***/ },
 /* 54 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -32762,7 +32768,7 @@ var StellarLib =
 	 * operation was added.
 	 */
 
-	var inherits = __webpack_require__(108)
+	var inherits = __webpack_require__(107)
 	var Hash = __webpack_require__(97)
 
 	var W = new Array(80)
@@ -32854,7 +32860,7 @@ var StellarLib =
 	module.exports = Sha
 
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(31).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(23).Buffer))
 
 /***/ },
 /* 55 */
@@ -32869,7 +32875,7 @@ var StellarLib =
 	 * See http://pajhome.org.uk/crypt/md5 for details.
 	 */
 
-	var inherits = __webpack_require__(108)
+	var inherits = __webpack_require__(107)
 	var Hash = __webpack_require__(97)
 
 	var W = new Array(80)
@@ -32957,7 +32963,7 @@ var StellarLib =
 	module.exports = Sha1
 
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(31).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(23).Buffer))
 
 /***/ },
 /* 56 */
@@ -32971,7 +32977,7 @@ var StellarLib =
 	 *
 	 */
 
-	var inherits = __webpack_require__(108)
+	var inherits = __webpack_require__(107)
 	var SHA256 = __webpack_require__(57)
 	var Hash = __webpack_require__(97)
 
@@ -33016,7 +33022,7 @@ var StellarLib =
 
 	module.exports = Sha224
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(31).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(23).Buffer))
 
 /***/ },
 /* 57 */
@@ -33030,7 +33036,7 @@ var StellarLib =
 	 *
 	 */
 
-	var inherits = __webpack_require__(108)
+	var inherits = __webpack_require__(107)
 	var Hash = __webpack_require__(97)
 
 	var K = [
@@ -33172,13 +33178,13 @@ var StellarLib =
 
 	module.exports = Sha256
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(31).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(23).Buffer))
 
 /***/ },
 /* 58 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(Buffer) {var inherits = __webpack_require__(108)
+	/* WEBPACK VAR INJECTION */(function(Buffer) {var inherits = __webpack_require__(107)
 	var SHA512 = __webpack_require__(59);
 	var Hash = __webpack_require__(97)
 
@@ -33235,13 +33241,13 @@ var StellarLib =
 
 	module.exports = Sha384
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(31).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(23).Buffer))
 
 /***/ },
 /* 59 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(Buffer) {var inherits = __webpack_require__(108)
+	/* WEBPACK VAR INJECTION */(function(Buffer) {var inherits = __webpack_require__(107)
 	var Hash = __webpack_require__(97)
 
 	var K = [
@@ -33487,7 +33493,7 @@ var StellarLib =
 
 	module.exports = Sha512
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(31).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(23).Buffer))
 
 /***/ },
 /* 60 */
@@ -33496,7 +33502,138 @@ var StellarLib =
 	/* (ignored) */
 
 /***/ },
-/* 61 */
+/* 61 */,
+/* 62 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+
+	;(function (exports) {
+		'use strict';
+
+	  var Arr = (typeof Uint8Array !== 'undefined')
+	    ? Uint8Array
+	    : Array
+
+		var PLUS   = '+'.charCodeAt(0)
+		var SLASH  = '/'.charCodeAt(0)
+		var NUMBER = '0'.charCodeAt(0)
+		var LOWER  = 'a'.charCodeAt(0)
+		var UPPER  = 'A'.charCodeAt(0)
+		var PLUS_URL_SAFE = '-'.charCodeAt(0)
+		var SLASH_URL_SAFE = '_'.charCodeAt(0)
+
+		function decode (elt) {
+			var code = elt.charCodeAt(0)
+			if (code === PLUS ||
+			    code === PLUS_URL_SAFE)
+				return 62 // '+'
+			if (code === SLASH ||
+			    code === SLASH_URL_SAFE)
+				return 63 // '/'
+			if (code < NUMBER)
+				return -1 //no match
+			if (code < NUMBER + 10)
+				return code - NUMBER + 26 + 26
+			if (code < UPPER + 26)
+				return code - UPPER
+			if (code < LOWER + 26)
+				return code - LOWER + 26
+		}
+
+		function b64ToByteArray (b64) {
+			var i, j, l, tmp, placeHolders, arr
+
+			if (b64.length % 4 > 0) {
+				throw new Error('Invalid string. Length must be a multiple of 4')
+			}
+
+			// the number of equal signs (place holders)
+			// if there are two placeholders, than the two characters before it
+			// represent one byte
+			// if there is only one, then the three characters before it represent 2 bytes
+			// this is just a cheap hack to not do indexOf twice
+			var len = b64.length
+			placeHolders = '=' === b64.charAt(len - 2) ? 2 : '=' === b64.charAt(len - 1) ? 1 : 0
+
+			// base64 is 4/3 + up to two characters of the original data
+			arr = new Arr(b64.length * 3 / 4 - placeHolders)
+
+			// if there are placeholders, only get up to the last complete 4 chars
+			l = placeHolders > 0 ? b64.length - 4 : b64.length
+
+			var L = 0
+
+			function push (v) {
+				arr[L++] = v
+			}
+
+			for (i = 0, j = 0; i < l; i += 4, j += 3) {
+				tmp = (decode(b64.charAt(i)) << 18) | (decode(b64.charAt(i + 1)) << 12) | (decode(b64.charAt(i + 2)) << 6) | decode(b64.charAt(i + 3))
+				push((tmp & 0xFF0000) >> 16)
+				push((tmp & 0xFF00) >> 8)
+				push(tmp & 0xFF)
+			}
+
+			if (placeHolders === 2) {
+				tmp = (decode(b64.charAt(i)) << 2) | (decode(b64.charAt(i + 1)) >> 4)
+				push(tmp & 0xFF)
+			} else if (placeHolders === 1) {
+				tmp = (decode(b64.charAt(i)) << 10) | (decode(b64.charAt(i + 1)) << 4) | (decode(b64.charAt(i + 2)) >> 2)
+				push((tmp >> 8) & 0xFF)
+				push(tmp & 0xFF)
+			}
+
+			return arr
+		}
+
+		function uint8ToBase64 (uint8) {
+			var i,
+				extraBytes = uint8.length % 3, // if we have 1 byte left, pad 2 bytes
+				output = "",
+				temp, length
+
+			function encode (num) {
+				return lookup.charAt(num)
+			}
+
+			function tripletToBase64 (num) {
+				return encode(num >> 18 & 0x3F) + encode(num >> 12 & 0x3F) + encode(num >> 6 & 0x3F) + encode(num & 0x3F)
+			}
+
+			// go through the array every three bytes, we'll deal with trailing stuff later
+			for (i = 0, length = uint8.length - extraBytes; i < length; i += 3) {
+				temp = (uint8[i] << 16) + (uint8[i + 1] << 8) + (uint8[i + 2])
+				output += tripletToBase64(temp)
+			}
+
+			// pad the end with zeros, but make sure to not forget the extra bytes
+			switch (extraBytes) {
+				case 1:
+					temp = uint8[uint8.length - 1]
+					output += encode(temp >> 2)
+					output += encode((temp << 4) & 0x3F)
+					output += '=='
+					break
+				case 2:
+					temp = (uint8[uint8.length - 2] << 8) + (uint8[uint8.length - 1])
+					output += encode(temp >> 10)
+					output += encode((temp >> 4) & 0x3F)
+					output += encode((temp << 2) & 0x3F)
+					output += '='
+					break
+			}
+
+			return output
+		}
+
+		exports.toByteArray = b64ToByteArray
+		exports.fromByteArray = uint8ToBase64
+	}(false ? (this.base64js = {}) : exports))
+
+
+/***/ },
+/* 63 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// Copyright Joyent, Inc. and other Node contributors.
@@ -34209,7 +34346,7 @@ var StellarLib =
 
 
 /***/ },
-/* 62 */
+/* 64 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// Copyright Joyent, Inc. and other Node contributors.
@@ -34516,10 +34653,10 @@ var StellarLib =
 
 
 /***/ },
-/* 63 */
+/* 65 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var http = __webpack_require__(64);
+	var http = __webpack_require__(66);
 
 	var https = module.exports;
 
@@ -34535,13 +34672,13 @@ var StellarLib =
 
 
 /***/ },
-/* 64 */
+/* 66 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var http = module.exports;
-	var EventEmitter = __webpack_require__(62).EventEmitter;
+	var EventEmitter = __webpack_require__(64).EventEmitter;
 	var Request = __webpack_require__(98);
-	var url = __webpack_require__(61)
+	var url = __webpack_require__(63)
 
 	http.request = function (params, cb) {
 	    if (typeof params === 'string') {
@@ -34685,7 +34822,7 @@ var StellarLib =
 	};
 
 /***/ },
-/* 65 */
+/* 67 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global, process) {// Copyright Joyent, Inc. and other Node contributors.
@@ -35213,7 +35350,7 @@ var StellarLib =
 	}
 	exports.isPrimitive = isPrimitive;
 
-	exports.isBuffer = __webpack_require__(99);
+	exports.isBuffer = __webpack_require__(103);
 
 	function objectToString(o) {
 	  return Object.prototype.toString.call(o);
@@ -35275,15 +35412,15 @@ var StellarLib =
 	  return Object.prototype.hasOwnProperty.call(obj, prop);
 	}
 
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(29)))
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(31)))
 
 /***/ },
-/* 66 */
+/* 68 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var utils = __webpack_require__(24);
+	var utils = __webpack_require__(25);
 
 	function encode(val) {
 	  return encodeURIComponent(val).
@@ -35336,12 +35473,12 @@ var StellarLib =
 
 
 /***/ },
-/* 67 */
+/* 69 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var utils = __webpack_require__(24);
+	var utils = __webpack_require__(25);
 
 	module.exports = {
 	  write: function write(name, value, expires, path, domain, secure) {
@@ -35379,12 +35516,12 @@ var StellarLib =
 
 
 /***/ },
-/* 68 */
+/* 70 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var utils = __webpack_require__(24);
+	var utils = __webpack_require__(25);
 
 	/**
 	 * Parse headers into an object
@@ -35419,12 +35556,12 @@ var StellarLib =
 
 
 /***/ },
-/* 69 */
+/* 71 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var utils = __webpack_require__(24);
+	var utils = __webpack_require__(25);
 
 	/**
 	 * Transform the data for a request or a response
@@ -35444,12 +35581,12 @@ var StellarLib =
 
 
 /***/ },
-/* 70 */
+/* 72 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var utils = __webpack_require__(24);
+	var utils = __webpack_require__(25);
 	var msie = /(msie|trident)/i.test(navigator.userAgent);
 	var urlParsingNode = document.createElement('a');
 	var originUrl;
@@ -35502,143 +35639,12 @@ var StellarLib =
 
 
 /***/ },
-/* 71 */,
-/* 72 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
-
-	;(function (exports) {
-		'use strict';
-
-	  var Arr = (typeof Uint8Array !== 'undefined')
-	    ? Uint8Array
-	    : Array
-
-		var PLUS   = '+'.charCodeAt(0)
-		var SLASH  = '/'.charCodeAt(0)
-		var NUMBER = '0'.charCodeAt(0)
-		var LOWER  = 'a'.charCodeAt(0)
-		var UPPER  = 'A'.charCodeAt(0)
-		var PLUS_URL_SAFE = '-'.charCodeAt(0)
-		var SLASH_URL_SAFE = '_'.charCodeAt(0)
-
-		function decode (elt) {
-			var code = elt.charCodeAt(0)
-			if (code === PLUS ||
-			    code === PLUS_URL_SAFE)
-				return 62 // '+'
-			if (code === SLASH ||
-			    code === SLASH_URL_SAFE)
-				return 63 // '/'
-			if (code < NUMBER)
-				return -1 //no match
-			if (code < NUMBER + 10)
-				return code - NUMBER + 26 + 26
-			if (code < UPPER + 26)
-				return code - UPPER
-			if (code < LOWER + 26)
-				return code - LOWER + 26
-		}
-
-		function b64ToByteArray (b64) {
-			var i, j, l, tmp, placeHolders, arr
-
-			if (b64.length % 4 > 0) {
-				throw new Error('Invalid string. Length must be a multiple of 4')
-			}
-
-			// the number of equal signs (place holders)
-			// if there are two placeholders, than the two characters before it
-			// represent one byte
-			// if there is only one, then the three characters before it represent 2 bytes
-			// this is just a cheap hack to not do indexOf twice
-			var len = b64.length
-			placeHolders = '=' === b64.charAt(len - 2) ? 2 : '=' === b64.charAt(len - 1) ? 1 : 0
-
-			// base64 is 4/3 + up to two characters of the original data
-			arr = new Arr(b64.length * 3 / 4 - placeHolders)
-
-			// if there are placeholders, only get up to the last complete 4 chars
-			l = placeHolders > 0 ? b64.length - 4 : b64.length
-
-			var L = 0
-
-			function push (v) {
-				arr[L++] = v
-			}
-
-			for (i = 0, j = 0; i < l; i += 4, j += 3) {
-				tmp = (decode(b64.charAt(i)) << 18) | (decode(b64.charAt(i + 1)) << 12) | (decode(b64.charAt(i + 2)) << 6) | decode(b64.charAt(i + 3))
-				push((tmp & 0xFF0000) >> 16)
-				push((tmp & 0xFF00) >> 8)
-				push(tmp & 0xFF)
-			}
-
-			if (placeHolders === 2) {
-				tmp = (decode(b64.charAt(i)) << 2) | (decode(b64.charAt(i + 1)) >> 4)
-				push(tmp & 0xFF)
-			} else if (placeHolders === 1) {
-				tmp = (decode(b64.charAt(i)) << 10) | (decode(b64.charAt(i + 1)) << 4) | (decode(b64.charAt(i + 2)) >> 2)
-				push((tmp >> 8) & 0xFF)
-				push(tmp & 0xFF)
-			}
-
-			return arr
-		}
-
-		function uint8ToBase64 (uint8) {
-			var i,
-				extraBytes = uint8.length % 3, // if we have 1 byte left, pad 2 bytes
-				output = "",
-				temp, length
-
-			function encode (num) {
-				return lookup.charAt(num)
-			}
-
-			function tripletToBase64 (num) {
-				return encode(num >> 18 & 0x3F) + encode(num >> 12 & 0x3F) + encode(num >> 6 & 0x3F) + encode(num & 0x3F)
-			}
-
-			// go through the array every three bytes, we'll deal with trailing stuff later
-			for (i = 0, length = uint8.length - extraBytes; i < length; i += 3) {
-				temp = (uint8[i] << 16) + (uint8[i + 1] << 8) + (uint8[i + 2])
-				output += tripletToBase64(temp)
-			}
-
-			// pad the end with zeros, but make sure to not forget the extra bytes
-			switch (extraBytes) {
-				case 1:
-					temp = uint8[uint8.length - 1]
-					output += encode(temp >> 2)
-					output += encode((temp << 4) & 0x3F)
-					output += '=='
-					break
-				case 2:
-					temp = (uint8[uint8.length - 2] << 8) + (uint8[uint8.length - 1])
-					output += encode(temp >> 10)
-					output += encode((temp >> 4) & 0x3F)
-					output += encode((temp << 2) & 0x3F)
-					output += '='
-					break
-			}
-
-			return output
-		}
-
-		exports.toByteArray = b64ToByteArray
-		exports.fromByteArray = uint8ToBase64
-	}(false ? (this.base64js = {}) : exports))
-
-
-/***/ },
 /* 73 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var parse = __webpack_require__(106);
+	var parse = __webpack_require__(108);
 
 	/**
 	 * Transform an URL to a valid origin value.
@@ -35710,9 +35716,9 @@ var StellarLib =
 	  value: true
 	});
 
-	var isNumber = __webpack_require__(42).isNumber;
+	var isNumber = __webpack_require__(41).isNumber;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(100));
+	var includeIoMixin = _interopRequire(__webpack_require__(99));
 
 	var Int = {
 
@@ -35759,11 +35765,11 @@ var StellarLib =
 
 	var _inherits = __webpack_require__(92)["default"];
 
-	var _get = __webpack_require__(101)["default"];
+	var _get = __webpack_require__(100)["default"];
 
 	var _createClass = __webpack_require__(37)["default"];
 
-	var _core = __webpack_require__(48)["default"];
+	var _core = __webpack_require__(50)["default"];
 
 	var _interopRequire = __webpack_require__(32)["default"];
 
@@ -35771,9 +35777,9 @@ var StellarLib =
 	  value: true
 	});
 
-	var Long = _interopRequire(__webpack_require__(107));
+	var Long = _interopRequire(__webpack_require__(106));
 
-	var includeIoMixin = _interopRequire(__webpack_require__(100));
+	var includeIoMixin = _interopRequire(__webpack_require__(99));
 
 	var Hyper = exports.Hyper = (function (_Long) {
 	  function Hyper(low, high) {
@@ -35841,9 +35847,9 @@ var StellarLib =
 	  value: true
 	});
 
-	var isNumber = __webpack_require__(42).isNumber;
+	var isNumber = __webpack_require__(41).isNumber;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(100));
+	var includeIoMixin = _interopRequire(__webpack_require__(99));
 
 	var UnsignedInt = {
 
@@ -35894,11 +35900,11 @@ var StellarLib =
 
 	var _inherits = __webpack_require__(92)["default"];
 
-	var _get = __webpack_require__(101)["default"];
+	var _get = __webpack_require__(100)["default"];
 
 	var _createClass = __webpack_require__(37)["default"];
 
-	var _core = __webpack_require__(48)["default"];
+	var _core = __webpack_require__(50)["default"];
 
 	var _interopRequire = __webpack_require__(32)["default"];
 
@@ -35906,9 +35912,9 @@ var StellarLib =
 	  value: true
 	});
 
-	var Long = _interopRequire(__webpack_require__(107));
+	var Long = _interopRequire(__webpack_require__(106));
 
-	var includeIoMixin = _interopRequire(__webpack_require__(100));
+	var includeIoMixin = _interopRequire(__webpack_require__(99));
 
 	var UnsignedHyper = exports.UnsignedHyper = (function (_Long) {
 	  function UnsignedHyper(low, high) {
@@ -35977,9 +35983,9 @@ var StellarLib =
 	  value: true
 	});
 
-	var isNumber = __webpack_require__(42).isNumber;
+	var isNumber = __webpack_require__(41).isNumber;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(100));
+	var includeIoMixin = _interopRequire(__webpack_require__(99));
 
 	var Float = {
 
@@ -36014,9 +36020,9 @@ var StellarLib =
 	  value: true
 	});
 
-	var isNumber = __webpack_require__(42).isNumber;
+	var isNumber = __webpack_require__(41).isNumber;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(100));
+	var includeIoMixin = _interopRequire(__webpack_require__(99));
 
 	var Double = {
 
@@ -36051,7 +36057,7 @@ var StellarLib =
 	  value: true
 	});
 
-	var includeIoMixin = _interopRequire(__webpack_require__(100));
+	var includeIoMixin = _interopRequire(__webpack_require__(99));
 
 	var Quadruple = {
 	  /* jshint unused: false */
@@ -36085,9 +36091,9 @@ var StellarLib =
 
 	var Int = __webpack_require__(74).Int;
 
-	var isBoolean = __webpack_require__(42).isBoolean;
+	var isBoolean = __webpack_require__(41).isBoolean;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(100));
+	var includeIoMixin = _interopRequire(__webpack_require__(99));
 
 	var Bool = {
 	  read: function read(io) {
@@ -36136,11 +36142,11 @@ var StellarLib =
 
 	var UnsignedInt = __webpack_require__(76).UnsignedInt;
 
-	var calculatePadding = __webpack_require__(102).calculatePadding;
+	var calculatePadding = __webpack_require__(101).calculatePadding;
 
-	var isString = __webpack_require__(42).isString;
+	var isString = __webpack_require__(41).isString;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(100));
+	var includeIoMixin = _interopRequire(__webpack_require__(99));
 
 	var String = exports.String = (function () {
 	  function String() {
@@ -36191,7 +36197,7 @@ var StellarLib =
 	})();
 
 	includeIoMixin(String.prototype);
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(31).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(23).Buffer))
 
 /***/ },
 /* 83 */
@@ -36209,9 +36215,9 @@ var StellarLib =
 	  value: true
 	});
 
-	var calculatePadding = __webpack_require__(102).calculatePadding;
+	var calculatePadding = __webpack_require__(101).calculatePadding;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(100));
+	var includeIoMixin = _interopRequire(__webpack_require__(99));
 
 	var Opaque = exports.Opaque = (function () {
 	  function Opaque(length) {
@@ -36249,7 +36255,7 @@ var StellarLib =
 	})();
 
 	includeIoMixin(Opaque.prototype);
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(31).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(23).Buffer))
 
 /***/ },
 /* 84 */
@@ -36271,9 +36277,9 @@ var StellarLib =
 
 	var UnsignedInt = __webpack_require__(76).UnsignedInt;
 
-	var calculatePadding = __webpack_require__(102).calculatePadding;
+	var calculatePadding = __webpack_require__(101).calculatePadding;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(100));
+	var includeIoMixin = _interopRequire(__webpack_require__(99));
 
 	var VarOpaque = exports.VarOpaque = (function () {
 	  function VarOpaque() {
@@ -36318,7 +36324,7 @@ var StellarLib =
 	})();
 
 	includeIoMixin(VarOpaque.prototype);
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(31).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(23).Buffer))
 
 /***/ },
 /* 85 */
@@ -36336,14 +36342,14 @@ var StellarLib =
 	  value: true
 	});
 
-	var _lodash = __webpack_require__(42);
+	var _lodash = __webpack_require__(41);
 
 	var all = _lodash.all;
 	var each = _lodash.each;
 	var times = _lodash.times;
 	var isArray = _lodash.isArray;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(100));
+	var includeIoMixin = _interopRequire(__webpack_require__(99));
 
 	var Array = exports.Array = (function () {
 	  function Array(childType, length) {
@@ -36423,14 +36429,14 @@ var StellarLib =
 
 	var UnsignedInt = __webpack_require__(76).UnsignedInt;
 
-	var _lodash = __webpack_require__(42);
+	var _lodash = __webpack_require__(41);
 
 	var all = _lodash.all;
 	var each = _lodash.each;
 	var times = _lodash.times;
 	var isArray = _lodash.isArray;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(100));
+	var includeIoMixin = _interopRequire(__webpack_require__(99));
 
 	var VarArray = exports.VarArray = (function () {
 	  function VarArray(childType) {
@@ -36517,12 +36523,12 @@ var StellarLib =
 
 	var Bool = __webpack_require__(81).Bool;
 
-	var _lodash = __webpack_require__(42);
+	var _lodash = __webpack_require__(41);
 
 	var isNull = _lodash.isNull;
 	var isUndefined = _lodash.isUndefined;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(100));
+	var includeIoMixin = _interopRequire(__webpack_require__(99));
 
 	var Option = exports.Option = (function () {
 	  function Option(childType) {
@@ -36581,9 +36587,9 @@ var StellarLib =
 	  value: true
 	});
 
-	var isUndefined = __webpack_require__(42).isUndefined;
+	var isUndefined = __webpack_require__(41).isUndefined;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(100));
+	var includeIoMixin = _interopRequire(__webpack_require__(99));
 
 	var Void = {
 	  /* jshint unused: false */
@@ -36617,9 +36623,9 @@ var StellarLib =
 
 	var _inherits = __webpack_require__(92)["default"];
 
-	var _get = __webpack_require__(101)["default"];
+	var _get = __webpack_require__(100)["default"];
 
-	var _core = __webpack_require__(48)["default"];
+	var _core = __webpack_require__(50)["default"];
 
 	var _interopRequire = __webpack_require__(32)["default"];
 
@@ -36629,12 +36635,12 @@ var StellarLib =
 
 	var Int = __webpack_require__(74).Int;
 
-	var _lodash = __webpack_require__(42);
+	var _lodash = __webpack_require__(41);
 
 	var each = _lodash.each;
 	var vals = _lodash.values;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(100));
+	var includeIoMixin = _interopRequire(__webpack_require__(99));
 
 	var Enum = exports.Enum = (function () {
 	  function Enum(name, value) {
@@ -36744,11 +36750,11 @@ var StellarLib =
 
 	var _inherits = __webpack_require__(92)["default"];
 
-	var _get = __webpack_require__(101)["default"];
+	var _get = __webpack_require__(100)["default"];
 
-	var _slicedToArray = __webpack_require__(103)["default"];
+	var _slicedToArray = __webpack_require__(102)["default"];
 
-	var _core = __webpack_require__(48)["default"];
+	var _core = __webpack_require__(50)["default"];
 
 	var _interopRequire = __webpack_require__(32)["default"];
 
@@ -36756,14 +36762,14 @@ var StellarLib =
 	  value: true
 	});
 
-	var _lodash = __webpack_require__(42);
+	var _lodash = __webpack_require__(41);
 
 	var each = _lodash.each;
 	var map = _lodash.map;
 	var isUndefined = _lodash.isUndefined;
 	var zipObject = _lodash.zipObject;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(100));
+	var includeIoMixin = _interopRequire(__webpack_require__(99));
 
 	var Struct = exports.Struct = (function () {
 	  function Struct(attributes) {
@@ -36871,9 +36877,9 @@ var StellarLib =
 
 	var _inherits = __webpack_require__(92)["default"];
 
-	var _get = __webpack_require__(101)["default"];
+	var _get = __webpack_require__(100)["default"];
 
-	var _core = __webpack_require__(48)["default"];
+	var _core = __webpack_require__(50)["default"];
 
 	var _interopRequire = __webpack_require__(32)["default"];
 
@@ -36881,14 +36887,14 @@ var StellarLib =
 	  value: true
 	});
 
-	var _lodash = __webpack_require__(42);
+	var _lodash = __webpack_require__(41);
 
 	var each = _lodash.each;
 	var isUndefined = _lodash.isUndefined;
 
 	var Void = __webpack_require__(88).Void;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(100));
+	var includeIoMixin = _interopRequire(__webpack_require__(99));
 
 	var Union = exports.Union = (function () {
 	  function Union(aSwitch, value) {
@@ -37077,7 +37083,7 @@ var StellarLib =
 
 	"use strict";
 
-	var _core = __webpack_require__(48)["default"];
+	var _core = __webpack_require__(50)["default"];
 
 	exports["default"] = function (arr) {
 	  if (Array.isArray(arr)) {
@@ -37240,7 +37246,7 @@ var StellarLib =
 
 	module.exports = Hash
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(31).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(23).Buffer))
 
 /***/ },
 /* 98 */
@@ -37248,8 +37254,8 @@ var StellarLib =
 
 	var Stream = __webpack_require__(112);
 	var Response = __webpack_require__(109);
-	var Base64 = __webpack_require__(116);
-	var inherits = __webpack_require__(117);
+	var Base64 = __webpack_require__(117);
+	var inherits = __webpack_require__(116);
 
 	var Request = module.exports = function (xhr, params) {
 	    var self = this;
@@ -37461,24 +37467,13 @@ var StellarLib =
 /* 99 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = function isBuffer(arg) {
-	  return arg && typeof arg === 'object'
-	    && typeof arg.copy === 'function'
-	    && typeof arg.fill === 'function'
-	    && typeof arg.readUInt8 === 'function';
-	}
-
-/***/ },
-/* 100 */
-/***/ function(module, exports, __webpack_require__) {
-
 	"use strict";
 
 	module.exports = includeIoMixin;
 
 	var Cursor = __webpack_require__(111).Cursor;
 
-	var _lodash = __webpack_require__(42);
+	var _lodash = __webpack_require__(41);
 
 	var extend = _lodash.extend;
 	var isFunction = _lodash.isFunction;
@@ -37532,12 +37527,12 @@ var StellarLib =
 	}
 
 /***/ },
-/* 101 */
+/* 100 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
-	var _core = __webpack_require__(48)["default"];
+	var _core = __webpack_require__(50)["default"];
 
 	exports["default"] = function get(_x, _x2, _x3) {
 	  var _again = true;
@@ -37580,7 +37575,7 @@ var StellarLib =
 	exports.__esModule = true;
 
 /***/ },
-/* 102 */
+/* 101 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -37604,12 +37599,12 @@ var StellarLib =
 	}
 
 /***/ },
-/* 103 */
+/* 102 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
-	var _core = __webpack_require__(48)["default"];
+	var _core = __webpack_require__(50)["default"];
 
 	exports["default"] = function (arr, i) {
 	  if (Array.isArray(arr)) {
@@ -37630,6 +37625,17 @@ var StellarLib =
 	};
 
 	exports.__esModule = true;
+
+/***/ },
+/* 103 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = function isBuffer(arg) {
+	  return arg && typeof arg === 'object'
+	    && typeof arg.copy === 'function'
+	    && typeof arg.fill === 'function'
+	    && typeof arg.readUInt8 === 'function';
+	}
 
 /***/ },
 /* 104 */
@@ -38180,10 +38186,63 @@ var StellarLib =
 /* 106 */
 /***/ function(module, exports, __webpack_require__) {
 
+	/*
+	 Copyright 2013 Daniel Wirtz <dcode@dcode.io>
+	 Copyright 2009 The Closure Library Authors. All Rights Reserved.
+
+	 Licensed under the Apache License, Version 2.0 (the "License");
+	 you may not use this file except in compliance with the License.
+	 You may obtain a copy of the License at
+
+	 http://www.apache.org/licenses/LICENSE-2.0
+
+	 Unless required by applicable law or agreed to in writing, software
+	 distributed under the License is distributed on an "AS-IS" BASIS,
+	 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	 See the License for the specific language governing permissions and
+	 limitations under the License.
+	 */
+
+	module.exports = __webpack_require__(115);
+
+
+/***/ },
+/* 107 */
+/***/ function(module, exports, __webpack_require__) {
+
+	if (typeof Object.create === 'function') {
+	  // implementation from standard node.js 'util' module
+	  module.exports = function inherits(ctor, superCtor) {
+	    ctor.super_ = superCtor
+	    ctor.prototype = Object.create(superCtor.prototype, {
+	      constructor: {
+	        value: ctor,
+	        enumerable: false,
+	        writable: true,
+	        configurable: true
+	      }
+	    });
+	  };
+	} else {
+	  // old school shim for old browsers
+	  module.exports = function inherits(ctor, superCtor) {
+	    ctor.super_ = superCtor
+	    var TempCtor = function () {}
+	    TempCtor.prototype = superCtor.prototype
+	    ctor.prototype = new TempCtor()
+	    ctor.prototype.constructor = ctor
+	  }
+	}
+
+
+/***/ },
+/* 108 */
+/***/ function(module, exports, __webpack_require__) {
+
 	'use strict';
 
 	var required = __webpack_require__(119)
-	  , lolcation = __webpack_require__(115)
+	  , lolcation = __webpack_require__(118)
 	  , qs = __webpack_require__(120);
 
 	var keys = ',,protocol,username,password,host,hostname,port,pathname,query,hash'.split(',')
@@ -38394,64 +38453,11 @@ var StellarLib =
 
 
 /***/ },
-/* 107 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/*
-	 Copyright 2013 Daniel Wirtz <dcode@dcode.io>
-	 Copyright 2009 The Closure Library Authors. All Rights Reserved.
-
-	 Licensed under the Apache License, Version 2.0 (the "License");
-	 you may not use this file except in compliance with the License.
-	 You may obtain a copy of the License at
-
-	 http://www.apache.org/licenses/LICENSE-2.0
-
-	 Unless required by applicable law or agreed to in writing, software
-	 distributed under the License is distributed on an "AS-IS" BASIS,
-	 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-	 See the License for the specific language governing permissions and
-	 limitations under the License.
-	 */
-
-	module.exports = __webpack_require__(118);
-
-
-/***/ },
-/* 108 */
-/***/ function(module, exports, __webpack_require__) {
-
-	if (typeof Object.create === 'function') {
-	  // implementation from standard node.js 'util' module
-	  module.exports = function inherits(ctor, superCtor) {
-	    ctor.super_ = superCtor
-	    ctor.prototype = Object.create(superCtor.prototype, {
-	      constructor: {
-	        value: ctor,
-	        enumerable: false,
-	        writable: true,
-	        configurable: true
-	      }
-	    });
-	  };
-	} else {
-	  // old school shim for old browsers
-	  module.exports = function inherits(ctor, superCtor) {
-	    ctor.super_ = superCtor
-	    var TempCtor = function () {}
-	    TempCtor.prototype = superCtor.prototype
-	    ctor.prototype = new TempCtor()
-	    ctor.prototype.constructor = ctor
-	  }
-	}
-
-
-/***/ },
 /* 109 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var Stream = __webpack_require__(112);
-	var util = __webpack_require__(65);
+	var util = __webpack_require__(67);
 
 	var Response = module.exports = function (res) {
 	    this.offset = 0;
@@ -38621,7 +38627,7 @@ var StellarLib =
 
 	var BaseCursor = _interopRequire(__webpack_require__(121));
 
-	var calculatePadding = __webpack_require__(102).calculatePadding;
+	var calculatePadding = __webpack_require__(101).calculatePadding;
 
 	var Cursor = exports.Cursor = (function (_BaseCursor) {
 	  function Cursor() {
@@ -38648,7 +38654,7 @@ var StellarLib =
 
 	  return Cursor;
 	})(BaseCursor);
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(31).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(23).Buffer))
 
 /***/ },
 /* 112 */
@@ -38677,7 +38683,7 @@ var StellarLib =
 
 	module.exports = Stream;
 
-	var EE = __webpack_require__(62).EventEmitter;
+	var EE = __webpack_require__(64).EventEmitter;
 	var inherits = __webpack_require__(127);
 
 	inherits(Stream, EE);
@@ -38941,153 +38947,6 @@ var StellarLib =
 
 /***/ },
 /* 115 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(global) {'use strict';
-
-	/**
-	 * These properties should not be copied or inherited from. This is only needed
-	 * for all non blob URL's as the a blob URL does not include a hash, only the
-	 * origin.
-	 *
-	 * @type {Object}
-	 * @private
-	 */
-	var ignore = { hash: 1, query: 1 }
-	  , URL;
-
-	/**
-	 * The location object differs when your code is loaded through a normal page,
-	 * Worker or through a worker using a blob. And with the blobble begins the
-	 * trouble as the location object will contain the URL of the blob, not the
-	 * location of the page where our code is loaded in. The actual origin is
-	 * encoded in the `pathname` so we can thankfully generate a good "default"
-	 * location from it so we can generate proper relative URL's again.
-	 *
-	 * @param {Object} loc Optional default location object.
-	 * @returns {Object} lolcation object.
-	 * @api public
-	 */
-	module.exports = function lolcation(loc) {
-	  loc = loc || global.location || {};
-	  URL = URL || __webpack_require__(106);
-
-	  var finaldestination = {}
-	    , type = typeof loc
-	    , key;
-
-	  if ('blob:' === loc.protocol) {
-	    finaldestination = new URL(unescape(loc.pathname), {});
-	  } else if ('string' === type) {
-	    finaldestination = new URL(loc, {});
-	    for (key in ignore) delete finaldestination[key];
-	  } else if ('object' === type) for (key in loc) {
-	    if (key in ignore) continue;
-	    finaldestination[key] = loc[key];
-	  }
-
-	  return finaldestination;
-	};
-
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
-
-/***/ },
-/* 116 */
-/***/ function(module, exports, __webpack_require__) {
-
-	;(function () {
-
-	  var object = true ? exports : this; // #8: web workers
-	  var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
-
-	  function InvalidCharacterError(message) {
-	    this.message = message;
-	  }
-	  InvalidCharacterError.prototype = new Error;
-	  InvalidCharacterError.prototype.name = 'InvalidCharacterError';
-
-	  // encoder
-	  // [https://gist.github.com/999166] by [https://github.com/nignag]
-	  object.btoa || (
-	  object.btoa = function (input) {
-	    for (
-	      // initialize result and counter
-	      var block, charCode, idx = 0, map = chars, output = '';
-	      // if the next input index does not exist:
-	      //   change the mapping table to "="
-	      //   check if d has no fractional digits
-	      input.charAt(idx | 0) || (map = '=', idx % 1);
-	      // "8 - idx % 1 * 8" generates the sequence 2, 4, 6, 8
-	      output += map.charAt(63 & block >> 8 - idx % 1 * 8)
-	    ) {
-	      charCode = input.charCodeAt(idx += 3/4);
-	      if (charCode > 0xFF) {
-	        throw new InvalidCharacterError("'btoa' failed: The string to be encoded contains characters outside of the Latin1 range.");
-	      }
-	      block = block << 8 | charCode;
-	    }
-	    return output;
-	  });
-
-	  // decoder
-	  // [https://gist.github.com/1020396] by [https://github.com/atk]
-	  object.atob || (
-	  object.atob = function (input) {
-	    input = input.replace(/=+$/, '');
-	    if (input.length % 4 == 1) {
-	      throw new InvalidCharacterError("'atob' failed: The string to be decoded is not correctly encoded.");
-	    }
-	    for (
-	      // initialize result and counters
-	      var bc = 0, bs, buffer, idx = 0, output = '';
-	      // get next character
-	      buffer = input.charAt(idx++);
-	      // character found in table? initialize bit storage and add its ascii value;
-	      ~buffer && (bs = bc % 4 ? bs * 64 + buffer : buffer,
-	        // and if not first of each 4 characters,
-	        // convert the first 8 bits to one ascii character
-	        bc++ % 4) ? output += String.fromCharCode(255 & bs >> (-2 * bc & 6)) : 0
-	    ) {
-	      // try to find character in table (0-63, not found => -1)
-	      buffer = chars.indexOf(buffer);
-	    }
-	    return output;
-	  });
-
-	}());
-
-
-/***/ },
-/* 117 */
-/***/ function(module, exports, __webpack_require__) {
-
-	if (typeof Object.create === 'function') {
-	  // implementation from standard node.js 'util' module
-	  module.exports = function inherits(ctor, superCtor) {
-	    ctor.super_ = superCtor
-	    ctor.prototype = Object.create(superCtor.prototype, {
-	      constructor: {
-	        value: ctor,
-	        enumerable: false,
-	        writable: true,
-	        configurable: true
-	      }
-	    });
-	  };
-	} else {
-	  // old school shim for old browsers
-	  module.exports = function inherits(ctor, superCtor) {
-	    ctor.super_ = superCtor
-	    var TempCtor = function () {}
-	    TempCtor.prototype = superCtor.prototype
-	    ctor.prototype = new TempCtor()
-	    ctor.prototype.constructor = ctor
-	  }
-	}
-
-
-/***/ },
-/* 118 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(module) {/*
@@ -40036,6 +39895,153 @@ var StellarLib =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(94)(module)))
 
 /***/ },
+/* 116 */
+/***/ function(module, exports, __webpack_require__) {
+
+	if (typeof Object.create === 'function') {
+	  // implementation from standard node.js 'util' module
+	  module.exports = function inherits(ctor, superCtor) {
+	    ctor.super_ = superCtor
+	    ctor.prototype = Object.create(superCtor.prototype, {
+	      constructor: {
+	        value: ctor,
+	        enumerable: false,
+	        writable: true,
+	        configurable: true
+	      }
+	    });
+	  };
+	} else {
+	  // old school shim for old browsers
+	  module.exports = function inherits(ctor, superCtor) {
+	    ctor.super_ = superCtor
+	    var TempCtor = function () {}
+	    TempCtor.prototype = superCtor.prototype
+	    ctor.prototype = new TempCtor()
+	    ctor.prototype.constructor = ctor
+	  }
+	}
+
+
+/***/ },
+/* 117 */
+/***/ function(module, exports, __webpack_require__) {
+
+	;(function () {
+
+	  var object = true ? exports : this; // #8: web workers
+	  var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+
+	  function InvalidCharacterError(message) {
+	    this.message = message;
+	  }
+	  InvalidCharacterError.prototype = new Error;
+	  InvalidCharacterError.prototype.name = 'InvalidCharacterError';
+
+	  // encoder
+	  // [https://gist.github.com/999166] by [https://github.com/nignag]
+	  object.btoa || (
+	  object.btoa = function (input) {
+	    for (
+	      // initialize result and counter
+	      var block, charCode, idx = 0, map = chars, output = '';
+	      // if the next input index does not exist:
+	      //   change the mapping table to "="
+	      //   check if d has no fractional digits
+	      input.charAt(idx | 0) || (map = '=', idx % 1);
+	      // "8 - idx % 1 * 8" generates the sequence 2, 4, 6, 8
+	      output += map.charAt(63 & block >> 8 - idx % 1 * 8)
+	    ) {
+	      charCode = input.charCodeAt(idx += 3/4);
+	      if (charCode > 0xFF) {
+	        throw new InvalidCharacterError("'btoa' failed: The string to be encoded contains characters outside of the Latin1 range.");
+	      }
+	      block = block << 8 | charCode;
+	    }
+	    return output;
+	  });
+
+	  // decoder
+	  // [https://gist.github.com/1020396] by [https://github.com/atk]
+	  object.atob || (
+	  object.atob = function (input) {
+	    input = input.replace(/=+$/, '');
+	    if (input.length % 4 == 1) {
+	      throw new InvalidCharacterError("'atob' failed: The string to be decoded is not correctly encoded.");
+	    }
+	    for (
+	      // initialize result and counters
+	      var bc = 0, bs, buffer, idx = 0, output = '';
+	      // get next character
+	      buffer = input.charAt(idx++);
+	      // character found in table? initialize bit storage and add its ascii value;
+	      ~buffer && (bs = bc % 4 ? bs * 64 + buffer : buffer,
+	        // and if not first of each 4 characters,
+	        // convert the first 8 bits to one ascii character
+	        bc++ % 4) ? output += String.fromCharCode(255 & bs >> (-2 * bc & 6)) : 0
+	    ) {
+	      // try to find character in table (0-63, not found => -1)
+	      buffer = chars.indexOf(buffer);
+	    }
+	    return output;
+	  });
+
+	}());
+
+
+/***/ },
+/* 118 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(global) {'use strict';
+
+	/**
+	 * These properties should not be copied or inherited from. This is only needed
+	 * for all non blob URL's as the a blob URL does not include a hash, only the
+	 * origin.
+	 *
+	 * @type {Object}
+	 * @private
+	 */
+	var ignore = { hash: 1, query: 1 }
+	  , URL;
+
+	/**
+	 * The location object differs when your code is loaded through a normal page,
+	 * Worker or through a worker using a blob. And with the blobble begins the
+	 * trouble as the location object will contain the URL of the blob, not the
+	 * location of the page where our code is loaded in. The actual origin is
+	 * encoded in the `pathname` so we can thankfully generate a good "default"
+	 * location from it so we can generate proper relative URL's again.
+	 *
+	 * @param {Object} loc Optional default location object.
+	 * @returns {Object} lolcation object.
+	 * @api public
+	 */
+	module.exports = function lolcation(loc) {
+	  loc = loc || global.location || {};
+	  URL = URL || __webpack_require__(108);
+
+	  var finaldestination = {}
+	    , type = typeof loc
+	    , key;
+
+	  if ('blob:' === loc.protocol) {
+	    finaldestination = new URL(unescape(loc.pathname), {});
+	  } else if ('string' === type) {
+	    finaldestination = new URL(loc, {});
+	    for (key in ignore) delete finaldestination[key];
+	  } else if ('object' === type) for (key in loc) {
+	    if (key in ignore) continue;
+	    finaldestination[key] = loc[key];
+	  }
+
+	  return finaldestination;
+	};
+
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
+
+/***/ },
 /* 119 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -40369,7 +40375,7 @@ var StellarLib =
 			parent.call(this, buffer);
 		};
 
-		__webpack_require__(65).inherits(C, parent);
+		__webpack_require__(67).inherits(C, parent);
 
 		C.extend = parent.extend;
 		C.define = parent.define;
@@ -40395,18 +40401,18 @@ var StellarLib =
 
 	module.exports = Cursor;
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(31).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(23).Buffer))
 
 /***/ },
 /* 122 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(128);
+	exports = module.exports = __webpack_require__(130);
 	exports.Stream = __webpack_require__(112);
 	exports.Readable = exports;
-	exports.Writable = __webpack_require__(129);
-	exports.Duplex = __webpack_require__(130);
-	exports.Transform = __webpack_require__(131);
+	exports.Writable = __webpack_require__(131);
+	exports.Duplex = __webpack_require__(128);
+	exports.Transform = __webpack_require__(129);
 	exports.PassThrough = __webpack_require__(132);
 
 
@@ -40414,21 +40420,21 @@ var StellarLib =
 /* 123 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(129)
+	module.exports = __webpack_require__(131)
 
 
 /***/ },
 /* 124 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(130)
+	module.exports = __webpack_require__(128)
 
 
 /***/ },
 /* 125 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(131)
+	module.exports = __webpack_require__(129)
 
 
 /***/ },
@@ -40492,20 +40498,331 @@ var StellarLib =
 	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 	// USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-	module.exports = Readable;
+	// a duplex stream is just a stream that is both readable and writable.
+	// Since JS doesn't have multiple prototypal inheritance, this class
+	// prototypally inherits from Readable, and then parasitically from
+	// Writable.
+
+	module.exports = Duplex;
 
 	/*<replacement>*/
-	var isArray = __webpack_require__(134);
+	var objectKeys = Object.keys || function (obj) {
+	  var keys = [];
+	  for (var key in obj) keys.push(key);
+	  return keys;
+	}
 	/*</replacement>*/
 
 
 	/*<replacement>*/
-	var Buffer = __webpack_require__(31).Buffer;
+	var util = __webpack_require__(136);
+	util.inherits = __webpack_require__(137);
+	/*</replacement>*/
+
+	var Readable = __webpack_require__(130);
+	var Writable = __webpack_require__(131);
+
+	util.inherits(Duplex, Readable);
+
+	forEach(objectKeys(Writable.prototype), function(method) {
+	  if (!Duplex.prototype[method])
+	    Duplex.prototype[method] = Writable.prototype[method];
+	});
+
+	function Duplex(options) {
+	  if (!(this instanceof Duplex))
+	    return new Duplex(options);
+
+	  Readable.call(this, options);
+	  Writable.call(this, options);
+
+	  if (options && options.readable === false)
+	    this.readable = false;
+
+	  if (options && options.writable === false)
+	    this.writable = false;
+
+	  this.allowHalfOpen = true;
+	  if (options && options.allowHalfOpen === false)
+	    this.allowHalfOpen = false;
+
+	  this.once('end', onend);
+	}
+
+	// the no-half-open enforcer
+	function onend() {
+	  // if we allow half-open state, or if the writable side ended,
+	  // then we're ok.
+	  if (this.allowHalfOpen || this._writableState.ended)
+	    return;
+
+	  // no more data can be written.
+	  // But allow more writes to happen in this tick.
+	  process.nextTick(this.end.bind(this));
+	}
+
+	function forEach (xs, f) {
+	  for (var i = 0, l = xs.length; i < l; i++) {
+	    f(xs[i], i);
+	  }
+	}
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(31)))
+
+/***/ },
+/* 129 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// Copyright Joyent, Inc. and other Node contributors.
+	//
+	// Permission is hereby granted, free of charge, to any person obtaining a
+	// copy of this software and associated documentation files (the
+	// "Software"), to deal in the Software without restriction, including
+	// without limitation the rights to use, copy, modify, merge, publish,
+	// distribute, sublicense, and/or sell copies of the Software, and to permit
+	// persons to whom the Software is furnished to do so, subject to the
+	// following conditions:
+	//
+	// The above copyright notice and this permission notice shall be included
+	// in all copies or substantial portions of the Software.
+	//
+	// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+	// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+	// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+	// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+	// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+	// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+	// a transform stream is a readable/writable stream where you do
+	// something with the data.  Sometimes it's called a "filter",
+	// but that's not a great name for it, since that implies a thing where
+	// some bits pass through, and others are simply ignored.  (That would
+	// be a valid example of a transform, of course.)
+	//
+	// While the output is causally related to the input, it's not a
+	// necessarily symmetric or synchronous transformation.  For example,
+	// a zlib stream might take multiple plain-text writes(), and then
+	// emit a single compressed chunk some time in the future.
+	//
+	// Here's how this works:
+	//
+	// The Transform stream has all the aspects of the readable and writable
+	// stream classes.  When you write(chunk), that calls _write(chunk,cb)
+	// internally, and returns false if there's a lot of pending writes
+	// buffered up.  When you call read(), that calls _read(n) until
+	// there's enough pending readable data buffered up.
+	//
+	// In a transform stream, the written data is placed in a buffer.  When
+	// _read(n) is called, it transforms the queued up data, calling the
+	// buffered _write cb's as it consumes chunks.  If consuming a single
+	// written chunk would result in multiple output chunks, then the first
+	// outputted bit calls the readcb, and subsequent chunks just go into
+	// the read buffer, and will cause it to emit 'readable' if necessary.
+	//
+	// This way, back-pressure is actually determined by the reading side,
+	// since _read has to be called to start processing a new chunk.  However,
+	// a pathological inflate type of transform can cause excessive buffering
+	// here.  For example, imagine a stream where every byte of input is
+	// interpreted as an integer from 0-255, and then results in that many
+	// bytes of output.  Writing the 4 bytes {ff,ff,ff,ff} would result in
+	// 1kb of data being output.  In this case, you could write a very small
+	// amount of input, and end up with a very large amount of output.  In
+	// such a pathological inflating mechanism, there'd be no way to tell
+	// the system to stop doing the transform.  A single 4MB write could
+	// cause the system to run out of memory.
+	//
+	// However, even in such a pathological case, only a single written chunk
+	// would be consumed, and then the rest would wait (un-transformed) until
+	// the results of the previous transformed chunk were consumed.
+
+	module.exports = Transform;
+
+	var Duplex = __webpack_require__(128);
+
+	/*<replacement>*/
+	var util = __webpack_require__(136);
+	util.inherits = __webpack_require__(137);
+	/*</replacement>*/
+
+	util.inherits(Transform, Duplex);
+
+
+	function TransformState(options, stream) {
+	  this.afterTransform = function(er, data) {
+	    return afterTransform(stream, er, data);
+	  };
+
+	  this.needTransform = false;
+	  this.transforming = false;
+	  this.writecb = null;
+	  this.writechunk = null;
+	}
+
+	function afterTransform(stream, er, data) {
+	  var ts = stream._transformState;
+	  ts.transforming = false;
+
+	  var cb = ts.writecb;
+
+	  if (!cb)
+	    return stream.emit('error', new Error('no writecb in Transform class'));
+
+	  ts.writechunk = null;
+	  ts.writecb = null;
+
+	  if (!util.isNullOrUndefined(data))
+	    stream.push(data);
+
+	  if (cb)
+	    cb(er);
+
+	  var rs = stream._readableState;
+	  rs.reading = false;
+	  if (rs.needReadable || rs.length < rs.highWaterMark) {
+	    stream._read(rs.highWaterMark);
+	  }
+	}
+
+
+	function Transform(options) {
+	  if (!(this instanceof Transform))
+	    return new Transform(options);
+
+	  Duplex.call(this, options);
+
+	  this._transformState = new TransformState(options, this);
+
+	  // when the writable side finishes, then flush out anything remaining.
+	  var stream = this;
+
+	  // start out asking for a readable event once data is transformed.
+	  this._readableState.needReadable = true;
+
+	  // we have implemented the _read method, and done the other things
+	  // that Readable wants before the first _read call, so unset the
+	  // sync guard flag.
+	  this._readableState.sync = false;
+
+	  this.once('prefinish', function() {
+	    if (util.isFunction(this._flush))
+	      this._flush(function(er) {
+	        done(stream, er);
+	      });
+	    else
+	      done(stream);
+	  });
+	}
+
+	Transform.prototype.push = function(chunk, encoding) {
+	  this._transformState.needTransform = false;
+	  return Duplex.prototype.push.call(this, chunk, encoding);
+	};
+
+	// This is the part where you do stuff!
+	// override this function in implementation classes.
+	// 'chunk' is an input chunk.
+	//
+	// Call `push(newChunk)` to pass along transformed output
+	// to the readable side.  You may call 'push' zero or more times.
+	//
+	// Call `cb(err)` when you are done with this chunk.  If you pass
+	// an error, then that'll put the hurt on the whole operation.  If you
+	// never call cb(), then you'll never get another chunk.
+	Transform.prototype._transform = function(chunk, encoding, cb) {
+	  throw new Error('not implemented');
+	};
+
+	Transform.prototype._write = function(chunk, encoding, cb) {
+	  var ts = this._transformState;
+	  ts.writecb = cb;
+	  ts.writechunk = chunk;
+	  ts.writeencoding = encoding;
+	  if (!ts.transforming) {
+	    var rs = this._readableState;
+	    if (ts.needTransform ||
+	        rs.needReadable ||
+	        rs.length < rs.highWaterMark)
+	      this._read(rs.highWaterMark);
+	  }
+	};
+
+	// Doesn't matter what the args are here.
+	// _transform does all the work.
+	// That we got here means that the readable side wants more data.
+	Transform.prototype._read = function(n) {
+	  var ts = this._transformState;
+
+	  if (!util.isNull(ts.writechunk) && ts.writecb && !ts.transforming) {
+	    ts.transforming = true;
+	    this._transform(ts.writechunk, ts.writeencoding, ts.afterTransform);
+	  } else {
+	    // mark that we need a transform, so that any data that comes in
+	    // will get processed, now that we've asked for it.
+	    ts.needTransform = true;
+	  }
+	};
+
+
+	function done(stream, er) {
+	  if (er)
+	    return stream.emit('error', er);
+
+	  // if there's nothing in the write buffer, then that means
+	  // that nothing more will ever be provided
+	  var ws = stream._writableState;
+	  var ts = stream._transformState;
+
+	  if (ws.length)
+	    throw new Error('calling transform done when ws.length != 0');
+
+	  if (ts.transforming)
+	    throw new Error('calling transform done when still transforming');
+
+	  return stream.push(null);
+	}
+
+
+/***/ },
+/* 130 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(process) {// Copyright Joyent, Inc. and other Node contributors.
+	//
+	// Permission is hereby granted, free of charge, to any person obtaining a
+	// copy of this software and associated documentation files (the
+	// "Software"), to deal in the Software without restriction, including
+	// without limitation the rights to use, copy, modify, merge, publish,
+	// distribute, sublicense, and/or sell copies of the Software, and to permit
+	// persons to whom the Software is furnished to do so, subject to the
+	// following conditions:
+	//
+	// The above copyright notice and this permission notice shall be included
+	// in all copies or substantial portions of the Software.
+	//
+	// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+	// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+	// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+	// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+	// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+	// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+	module.exports = Readable;
+
+	/*<replacement>*/
+	var isArray = __webpack_require__(135);
+	/*</replacement>*/
+
+
+	/*<replacement>*/
+	var Buffer = __webpack_require__(23).Buffer;
 	/*</replacement>*/
 
 	Readable.ReadableState = ReadableState;
 
-	var EE = __webpack_require__(62).EventEmitter;
+	var EE = __webpack_require__(64).EventEmitter;
 
 	/*<replacement>*/
 	if (!EE.listenerCount) EE.listenerCount = function(emitter, type) {
@@ -40536,7 +40853,7 @@ var StellarLib =
 	util.inherits(Readable, Stream);
 
 	function ReadableState(options, stream) {
-	  var Duplex = __webpack_require__(130);
+	  var Duplex = __webpack_require__(128);
 
 	  options = options || {};
 
@@ -40597,14 +40914,14 @@ var StellarLib =
 	  this.encoding = null;
 	  if (options.encoding) {
 	    if (!StringDecoder)
-	      StringDecoder = __webpack_require__(135).StringDecoder;
+	      StringDecoder = __webpack_require__(134).StringDecoder;
 	    this.decoder = new StringDecoder(options.encoding);
 	    this.encoding = options.encoding;
 	  }
 	}
 
 	function Readable(options) {
-	  var Duplex = __webpack_require__(130);
+	  var Duplex = __webpack_require__(128);
 
 	  if (!(this instanceof Readable))
 	    return new Readable(options);
@@ -40707,7 +41024,7 @@ var StellarLib =
 	// backwards compatibility.
 	Readable.prototype.setEncoding = function(enc) {
 	  if (!StringDecoder)
-	    StringDecoder = __webpack_require__(135).StringDecoder;
+	    StringDecoder = __webpack_require__(134).StringDecoder;
 	  this._readableState.decoder = new StringDecoder(enc);
 	  this._readableState.encoding = enc;
 	  return this;
@@ -41423,10 +41740,10 @@ var StellarLib =
 	  return -1;
 	}
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(29)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(31)))
 
 /***/ },
-/* 129 */
+/* 131 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {// Copyright Joyent, Inc. and other Node contributors.
@@ -41457,7 +41774,7 @@ var StellarLib =
 	module.exports = Writable;
 
 	/*<replacement>*/
-	var Buffer = __webpack_require__(31).Buffer;
+	var Buffer = __webpack_require__(23).Buffer;
 	/*</replacement>*/
 
 	Writable.WritableState = WritableState;
@@ -41479,7 +41796,7 @@ var StellarLib =
 	}
 
 	function WritableState(options, stream) {
-	  var Duplex = __webpack_require__(130);
+	  var Duplex = __webpack_require__(128);
 
 	  options = options || {};
 
@@ -41567,7 +41884,7 @@ var StellarLib =
 	}
 
 	function Writable(options) {
-	  var Duplex = __webpack_require__(130);
+	  var Duplex = __webpack_require__(128);
 
 	  // Writable ctor is applied to Duplexes, though they're not
 	  // instanceof Writable, they're instanceof Readable.
@@ -41907,318 +42224,7 @@ var StellarLib =
 	  state.ended = true;
 	}
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(29)))
-
-/***/ },
-/* 130 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(process) {// Copyright Joyent, Inc. and other Node contributors.
-	//
-	// Permission is hereby granted, free of charge, to any person obtaining a
-	// copy of this software and associated documentation files (the
-	// "Software"), to deal in the Software without restriction, including
-	// without limitation the rights to use, copy, modify, merge, publish,
-	// distribute, sublicense, and/or sell copies of the Software, and to permit
-	// persons to whom the Software is furnished to do so, subject to the
-	// following conditions:
-	//
-	// The above copyright notice and this permission notice shall be included
-	// in all copies or substantial portions of the Software.
-	//
-	// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-	// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-	// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-	// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-	// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-	// USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-	// a duplex stream is just a stream that is both readable and writable.
-	// Since JS doesn't have multiple prototypal inheritance, this class
-	// prototypally inherits from Readable, and then parasitically from
-	// Writable.
-
-	module.exports = Duplex;
-
-	/*<replacement>*/
-	var objectKeys = Object.keys || function (obj) {
-	  var keys = [];
-	  for (var key in obj) keys.push(key);
-	  return keys;
-	}
-	/*</replacement>*/
-
-
-	/*<replacement>*/
-	var util = __webpack_require__(136);
-	util.inherits = __webpack_require__(137);
-	/*</replacement>*/
-
-	var Readable = __webpack_require__(128);
-	var Writable = __webpack_require__(129);
-
-	util.inherits(Duplex, Readable);
-
-	forEach(objectKeys(Writable.prototype), function(method) {
-	  if (!Duplex.prototype[method])
-	    Duplex.prototype[method] = Writable.prototype[method];
-	});
-
-	function Duplex(options) {
-	  if (!(this instanceof Duplex))
-	    return new Duplex(options);
-
-	  Readable.call(this, options);
-	  Writable.call(this, options);
-
-	  if (options && options.readable === false)
-	    this.readable = false;
-
-	  if (options && options.writable === false)
-	    this.writable = false;
-
-	  this.allowHalfOpen = true;
-	  if (options && options.allowHalfOpen === false)
-	    this.allowHalfOpen = false;
-
-	  this.once('end', onend);
-	}
-
-	// the no-half-open enforcer
-	function onend() {
-	  // if we allow half-open state, or if the writable side ended,
-	  // then we're ok.
-	  if (this.allowHalfOpen || this._writableState.ended)
-	    return;
-
-	  // no more data can be written.
-	  // But allow more writes to happen in this tick.
-	  process.nextTick(this.end.bind(this));
-	}
-
-	function forEach (xs, f) {
-	  for (var i = 0, l = xs.length; i < l; i++) {
-	    f(xs[i], i);
-	  }
-	}
-
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(29)))
-
-/***/ },
-/* 131 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// Copyright Joyent, Inc. and other Node contributors.
-	//
-	// Permission is hereby granted, free of charge, to any person obtaining a
-	// copy of this software and associated documentation files (the
-	// "Software"), to deal in the Software without restriction, including
-	// without limitation the rights to use, copy, modify, merge, publish,
-	// distribute, sublicense, and/or sell copies of the Software, and to permit
-	// persons to whom the Software is furnished to do so, subject to the
-	// following conditions:
-	//
-	// The above copyright notice and this permission notice shall be included
-	// in all copies or substantial portions of the Software.
-	//
-	// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-	// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-	// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-	// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-	// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-	// USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-
-	// a transform stream is a readable/writable stream where you do
-	// something with the data.  Sometimes it's called a "filter",
-	// but that's not a great name for it, since that implies a thing where
-	// some bits pass through, and others are simply ignored.  (That would
-	// be a valid example of a transform, of course.)
-	//
-	// While the output is causally related to the input, it's not a
-	// necessarily symmetric or synchronous transformation.  For example,
-	// a zlib stream might take multiple plain-text writes(), and then
-	// emit a single compressed chunk some time in the future.
-	//
-	// Here's how this works:
-	//
-	// The Transform stream has all the aspects of the readable and writable
-	// stream classes.  When you write(chunk), that calls _write(chunk,cb)
-	// internally, and returns false if there's a lot of pending writes
-	// buffered up.  When you call read(), that calls _read(n) until
-	// there's enough pending readable data buffered up.
-	//
-	// In a transform stream, the written data is placed in a buffer.  When
-	// _read(n) is called, it transforms the queued up data, calling the
-	// buffered _write cb's as it consumes chunks.  If consuming a single
-	// written chunk would result in multiple output chunks, then the first
-	// outputted bit calls the readcb, and subsequent chunks just go into
-	// the read buffer, and will cause it to emit 'readable' if necessary.
-	//
-	// This way, back-pressure is actually determined by the reading side,
-	// since _read has to be called to start processing a new chunk.  However,
-	// a pathological inflate type of transform can cause excessive buffering
-	// here.  For example, imagine a stream where every byte of input is
-	// interpreted as an integer from 0-255, and then results in that many
-	// bytes of output.  Writing the 4 bytes {ff,ff,ff,ff} would result in
-	// 1kb of data being output.  In this case, you could write a very small
-	// amount of input, and end up with a very large amount of output.  In
-	// such a pathological inflating mechanism, there'd be no way to tell
-	// the system to stop doing the transform.  A single 4MB write could
-	// cause the system to run out of memory.
-	//
-	// However, even in such a pathological case, only a single written chunk
-	// would be consumed, and then the rest would wait (un-transformed) until
-	// the results of the previous transformed chunk were consumed.
-
-	module.exports = Transform;
-
-	var Duplex = __webpack_require__(130);
-
-	/*<replacement>*/
-	var util = __webpack_require__(136);
-	util.inherits = __webpack_require__(137);
-	/*</replacement>*/
-
-	util.inherits(Transform, Duplex);
-
-
-	function TransformState(options, stream) {
-	  this.afterTransform = function(er, data) {
-	    return afterTransform(stream, er, data);
-	  };
-
-	  this.needTransform = false;
-	  this.transforming = false;
-	  this.writecb = null;
-	  this.writechunk = null;
-	}
-
-	function afterTransform(stream, er, data) {
-	  var ts = stream._transformState;
-	  ts.transforming = false;
-
-	  var cb = ts.writecb;
-
-	  if (!cb)
-	    return stream.emit('error', new Error('no writecb in Transform class'));
-
-	  ts.writechunk = null;
-	  ts.writecb = null;
-
-	  if (!util.isNullOrUndefined(data))
-	    stream.push(data);
-
-	  if (cb)
-	    cb(er);
-
-	  var rs = stream._readableState;
-	  rs.reading = false;
-	  if (rs.needReadable || rs.length < rs.highWaterMark) {
-	    stream._read(rs.highWaterMark);
-	  }
-	}
-
-
-	function Transform(options) {
-	  if (!(this instanceof Transform))
-	    return new Transform(options);
-
-	  Duplex.call(this, options);
-
-	  this._transformState = new TransformState(options, this);
-
-	  // when the writable side finishes, then flush out anything remaining.
-	  var stream = this;
-
-	  // start out asking for a readable event once data is transformed.
-	  this._readableState.needReadable = true;
-
-	  // we have implemented the _read method, and done the other things
-	  // that Readable wants before the first _read call, so unset the
-	  // sync guard flag.
-	  this._readableState.sync = false;
-
-	  this.once('prefinish', function() {
-	    if (util.isFunction(this._flush))
-	      this._flush(function(er) {
-	        done(stream, er);
-	      });
-	    else
-	      done(stream);
-	  });
-	}
-
-	Transform.prototype.push = function(chunk, encoding) {
-	  this._transformState.needTransform = false;
-	  return Duplex.prototype.push.call(this, chunk, encoding);
-	};
-
-	// This is the part where you do stuff!
-	// override this function in implementation classes.
-	// 'chunk' is an input chunk.
-	//
-	// Call `push(newChunk)` to pass along transformed output
-	// to the readable side.  You may call 'push' zero or more times.
-	//
-	// Call `cb(err)` when you are done with this chunk.  If you pass
-	// an error, then that'll put the hurt on the whole operation.  If you
-	// never call cb(), then you'll never get another chunk.
-	Transform.prototype._transform = function(chunk, encoding, cb) {
-	  throw new Error('not implemented');
-	};
-
-	Transform.prototype._write = function(chunk, encoding, cb) {
-	  var ts = this._transformState;
-	  ts.writecb = cb;
-	  ts.writechunk = chunk;
-	  ts.writeencoding = encoding;
-	  if (!ts.transforming) {
-	    var rs = this._readableState;
-	    if (ts.needTransform ||
-	        rs.needReadable ||
-	        rs.length < rs.highWaterMark)
-	      this._read(rs.highWaterMark);
-	  }
-	};
-
-	// Doesn't matter what the args are here.
-	// _transform does all the work.
-	// That we got here means that the readable side wants more data.
-	Transform.prototype._read = function(n) {
-	  var ts = this._transformState;
-
-	  if (!util.isNull(ts.writechunk) && ts.writecb && !ts.transforming) {
-	    ts.transforming = true;
-	    this._transform(ts.writechunk, ts.writeencoding, ts.afterTransform);
-	  } else {
-	    // mark that we need a transform, so that any data that comes in
-	    // will get processed, now that we've asked for it.
-	    ts.needTransform = true;
-	  }
-	};
-
-
-	function done(stream, er) {
-	  if (er)
-	    return stream.emit('error', er);
-
-	  // if there's nothing in the write buffer, then that means
-	  // that nothing more will ever be provided
-	  var ws = stream._writableState;
-	  var ts = stream._transformState;
-
-	  if (ws.length)
-	    throw new Error('calling transform done when ws.length != 0');
-
-	  if (ts.transforming)
-	    throw new Error('calling transform done when still transforming');
-
-	  return stream.push(null);
-	}
-
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(31)))
 
 /***/ },
 /* 132 */
@@ -42251,7 +42257,7 @@ var StellarLib =
 
 	module.exports = PassThrough;
 
-	var Transform = __webpack_require__(131);
+	var Transform = __webpack_require__(129);
 
 	/*<replacement>*/
 	var util = __webpack_require__(136);
@@ -42282,15 +42288,6 @@ var StellarLib =
 /* 134 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = Array.isArray || function (arr) {
-	  return Object.prototype.toString.call(arr) == '[object Array]';
-	};
-
-
-/***/ },
-/* 135 */
-/***/ function(module, exports, __webpack_require__) {
-
 	// Copyright Joyent, Inc. and other Node contributors.
 	//
 	// Permission is hereby granted, free of charge, to any person obtaining a
@@ -42312,7 +42309,7 @@ var StellarLib =
 	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 	// USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-	var Buffer = __webpack_require__(31).Buffer;
+	var Buffer = __webpack_require__(23).Buffer;
 
 	var isBufferEncoding = Buffer.isEncoding
 	  || function(encoding) {
@@ -42515,6 +42512,15 @@ var StellarLib =
 
 
 /***/ },
+/* 135 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = Array.isArray || function (arr) {
+	  return Object.prototype.toString.call(arr) == '[object Array]';
+	};
+
+
+/***/ },
 /* 136 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -42625,7 +42631,7 @@ var StellarLib =
 	function objectToString(o) {
 	  return Object.prototype.toString.call(o);
 	}
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(31).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(23).Buffer))
 
 /***/ },
 /* 137 */
