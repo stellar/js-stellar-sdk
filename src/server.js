@@ -45,8 +45,8 @@ export class Server {
                     return Promise.reject(err);
                 } else {
                     return Promise.reject({
-                        hash: res.body.hash,
-                        result: res.body.result
+                        hash: response.body.hash,
+                        result: response.body.result
                     });
                 }
             });

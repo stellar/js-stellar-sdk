@@ -5230,7 +5230,7 @@ var StellarLib =
 
 	},{}]},{},[4])(4)
 	});                    ;if (typeof window !== 'undefined' && window !== null) {                               window.P = window.Promise;                                                     } else if (typeof self !== 'undefined' && self !== null) {                             self.P = self.Promise;                                                         }
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(30), (function() { return this; }()), __webpack_require__(31).setImmediate))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(29), (function() { return this; }()), __webpack_require__(30).setImmediate))
 
 /***/ },
 /* 6 */
@@ -5397,7 +5397,7 @@ var StellarLib =
 
 	    return Transaction;
 	})();
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(29).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(31).Buffer))
 
 /***/ },
 /* 8 */
@@ -5760,8 +5760,8 @@ var StellarLib =
 	                        return Promise.reject(err);
 	                    } else {
 	                        return Promise.reject({
-	                            hash: res.body.hash,
-	                            result: res.body.result
+	                            hash: response.body.hash,
+	                            result: response.body.result
 	                        });
 	                    }
 	                });
@@ -6031,7 +6031,7 @@ var StellarLib =
 
 	    return Server;
 	})();
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(29).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(31).Buffer))
 
 /***/ },
 /* 11 */
@@ -6629,7 +6629,7 @@ var StellarLib =
 
 	    return Memo;
 	})();
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(29).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(31).Buffer))
 
 /***/ },
 /* 13 */
@@ -6700,7 +6700,7 @@ var StellarLib =
 	(function () {
 	  // webpack is being used to set es6-promise to the native Promise
 	  // for the standalone build. It's necessary to make sure polyfill exists.
-	  var P = __webpack_require__(43);
+	  var P = __webpack_require__(44);
 	  if (P && typeof P.polyfill === 'function') {
 	    P.polyfill();
 	  }
@@ -8833,7 +8833,7 @@ var StellarLib =
 	    };
 	  })();
 	}
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(29).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(31).Buffer))
 
 /***/ },
 /* 19 */
@@ -8972,7 +8972,7 @@ var StellarLib =
 
 	  return Keypair;
 	})();
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(29).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(31).Buffer))
 
 /***/ },
 /* 20 */
@@ -9088,7 +9088,7 @@ var StellarLib =
 	  return true;
 	}
 	// decimal 33
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(29).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(31).Buffer))
 
 /***/ },
 /* 21 */
@@ -9530,11 +9530,11 @@ var StellarLib =
 	    try {
 	      // For browsers use XHR adapter
 	      if (typeof window !== 'undefined') {
-	        __webpack_require__(44)(resolve, reject, config);
+	        __webpack_require__(43)(resolve, reject, config);
 	      }
 	      // For node use HTTP adapter
 	      else if (typeof process !== 'undefined') {
-	        __webpack_require__(44)(resolve, reject, config);
+	        __webpack_require__(43)(resolve, reject, config);
 	      }
 	    } catch (e) {
 	      reject(e);
@@ -9543,7 +9543,7 @@ var StellarLib =
 	};
 
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(30)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(29)))
 
 /***/ },
 /* 27 */
@@ -9640,6 +9640,152 @@ var StellarLib =
 /* 29 */
 /***/ function(module, exports, __webpack_require__) {
 
+	// shim for using process in browser
+
+	var process = module.exports = {};
+	var queue = [];
+	var draining = false;
+
+	function drainQueue() {
+	    if (draining) {
+	        return;
+	    }
+	    draining = true;
+	    var currentQueue;
+	    var len = queue.length;
+	    while(len) {
+	        currentQueue = queue;
+	        queue = [];
+	        var i = -1;
+	        while (++i < len) {
+	            currentQueue[i]();
+	        }
+	        len = queue.length;
+	    }
+	    draining = false;
+	}
+	process.nextTick = function (fun) {
+	    queue.push(fun);
+	    if (!draining) {
+	        setTimeout(drainQueue, 0);
+	    }
+	};
+
+	process.title = 'browser';
+	process.browser = true;
+	process.env = {};
+	process.argv = [];
+	process.version = ''; // empty string to avoid regexp issues
+	process.versions = {};
+
+	function noop() {}
+
+	process.on = noop;
+	process.addListener = noop;
+	process.once = noop;
+	process.off = noop;
+	process.removeListener = noop;
+	process.removeAllListeners = noop;
+	process.emit = noop;
+
+	process.binding = function (name) {
+	    throw new Error('process.binding is not supported');
+	};
+
+	// TODO(shtylman)
+	process.cwd = function () { return '/' };
+	process.chdir = function (dir) {
+	    throw new Error('process.chdir is not supported');
+	};
+	process.umask = function() { return 0; };
+
+
+/***/ },
+/* 30 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(setImmediate, clearImmediate) {var nextTick = __webpack_require__(29).nextTick;
+	var apply = Function.prototype.apply;
+	var slice = Array.prototype.slice;
+	var immediateIds = {};
+	var nextImmediateId = 0;
+
+	// DOM APIs, for completeness
+
+	exports.setTimeout = function() {
+	  return new Timeout(apply.call(setTimeout, window, arguments), clearTimeout);
+	};
+	exports.setInterval = function() {
+	  return new Timeout(apply.call(setInterval, window, arguments), clearInterval);
+	};
+	exports.clearTimeout =
+	exports.clearInterval = function(timeout) { timeout.close(); };
+
+	function Timeout(id, clearFn) {
+	  this._id = id;
+	  this._clearFn = clearFn;
+	}
+	Timeout.prototype.unref = Timeout.prototype.ref = function() {};
+	Timeout.prototype.close = function() {
+	  this._clearFn.call(window, this._id);
+	};
+
+	// Does not start the time, just sets up the members needed.
+	exports.enroll = function(item, msecs) {
+	  clearTimeout(item._idleTimeoutId);
+	  item._idleTimeout = msecs;
+	};
+
+	exports.unenroll = function(item) {
+	  clearTimeout(item._idleTimeoutId);
+	  item._idleTimeout = -1;
+	};
+
+	exports._unrefActive = exports.active = function(item) {
+	  clearTimeout(item._idleTimeoutId);
+
+	  var msecs = item._idleTimeout;
+	  if (msecs >= 0) {
+	    item._idleTimeoutId = setTimeout(function onTimeout() {
+	      if (item._onTimeout)
+	        item._onTimeout();
+	    }, msecs);
+	  }
+	};
+
+	// That's not how node.js implements it but the exposed api is the same.
+	exports.setImmediate = typeof setImmediate === "function" ? setImmediate : function(fn) {
+	  var id = nextImmediateId++;
+	  var args = arguments.length < 2 ? false : slice.call(arguments, 1);
+
+	  immediateIds[id] = true;
+
+	  nextTick(function onNextTick() {
+	    if (immediateIds[id]) {
+	      // fn.call() is faster so we optimize for the common use-case
+	      // @see http://jsperf.com/call-apply-segu
+	      if (args) {
+	        fn.apply(null, args);
+	      } else {
+	        fn.call(null);
+	      }
+	      // Prevent ids from leaking
+	      exports.clearImmediate(id);
+	    }
+	  });
+
+	  return id;
+	};
+
+	exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate : function(id) {
+	  delete immediateIds[id];
+	};
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(30).setImmediate, __webpack_require__(30).clearImmediate))
+
+/***/ },
+/* 31 */
+/***/ function(module, exports, __webpack_require__) {
+
 	/* WEBPACK VAR INJECTION */(function(Buffer) {/*!
 	 * The buffer module from node.js, for the browser.
 	 *
@@ -9647,9 +9793,9 @@ var StellarLib =
 	 * @license  MIT
 	 */
 
-	var base64 = __webpack_require__(67)
-	var ieee754 = __webpack_require__(51)
-	var isArray = __webpack_require__(52)
+	var base64 = __webpack_require__(72)
+	var ieee754 = __webpack_require__(52)
+	var isArray = __webpack_require__(53)
 
 	exports.Buffer = Buffer
 	exports.SlowBuffer = SlowBuffer
@@ -10972,153 +11118,7 @@ var StellarLib =
 	  }
 	}
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(29).Buffer))
-
-/***/ },
-/* 30 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// shim for using process in browser
-
-	var process = module.exports = {};
-	var queue = [];
-	var draining = false;
-
-	function drainQueue() {
-	    if (draining) {
-	        return;
-	    }
-	    draining = true;
-	    var currentQueue;
-	    var len = queue.length;
-	    while(len) {
-	        currentQueue = queue;
-	        queue = [];
-	        var i = -1;
-	        while (++i < len) {
-	            currentQueue[i]();
-	        }
-	        len = queue.length;
-	    }
-	    draining = false;
-	}
-	process.nextTick = function (fun) {
-	    queue.push(fun);
-	    if (!draining) {
-	        setTimeout(drainQueue, 0);
-	    }
-	};
-
-	process.title = 'browser';
-	process.browser = true;
-	process.env = {};
-	process.argv = [];
-	process.version = ''; // empty string to avoid regexp issues
-	process.versions = {};
-
-	function noop() {}
-
-	process.on = noop;
-	process.addListener = noop;
-	process.once = noop;
-	process.off = noop;
-	process.removeListener = noop;
-	process.removeAllListeners = noop;
-	process.emit = noop;
-
-	process.binding = function (name) {
-	    throw new Error('process.binding is not supported');
-	};
-
-	// TODO(shtylman)
-	process.cwd = function () { return '/' };
-	process.chdir = function (dir) {
-	    throw new Error('process.chdir is not supported');
-	};
-	process.umask = function() { return 0; };
-
-
-/***/ },
-/* 31 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(setImmediate, clearImmediate) {var nextTick = __webpack_require__(30).nextTick;
-	var apply = Function.prototype.apply;
-	var slice = Array.prototype.slice;
-	var immediateIds = {};
-	var nextImmediateId = 0;
-
-	// DOM APIs, for completeness
-
-	exports.setTimeout = function() {
-	  return new Timeout(apply.call(setTimeout, window, arguments), clearTimeout);
-	};
-	exports.setInterval = function() {
-	  return new Timeout(apply.call(setInterval, window, arguments), clearInterval);
-	};
-	exports.clearTimeout =
-	exports.clearInterval = function(timeout) { timeout.close(); };
-
-	function Timeout(id, clearFn) {
-	  this._id = id;
-	  this._clearFn = clearFn;
-	}
-	Timeout.prototype.unref = Timeout.prototype.ref = function() {};
-	Timeout.prototype.close = function() {
-	  this._clearFn.call(window, this._id);
-	};
-
-	// Does not start the time, just sets up the members needed.
-	exports.enroll = function(item, msecs) {
-	  clearTimeout(item._idleTimeoutId);
-	  item._idleTimeout = msecs;
-	};
-
-	exports.unenroll = function(item) {
-	  clearTimeout(item._idleTimeoutId);
-	  item._idleTimeout = -1;
-	};
-
-	exports._unrefActive = exports.active = function(item) {
-	  clearTimeout(item._idleTimeoutId);
-
-	  var msecs = item._idleTimeout;
-	  if (msecs >= 0) {
-	    item._idleTimeoutId = setTimeout(function onTimeout() {
-	      if (item._onTimeout)
-	        item._onTimeout();
-	    }, msecs);
-	  }
-	};
-
-	// That's not how node.js implements it but the exposed api is the same.
-	exports.setImmediate = typeof setImmediate === "function" ? setImmediate : function(fn) {
-	  var id = nextImmediateId++;
-	  var args = arguments.length < 2 ? false : slice.call(arguments, 1);
-
-	  immediateIds[id] = true;
-
-	  nextTick(function onNextTick() {
-	    if (immediateIds[id]) {
-	      // fn.call() is faster so we optimize for the common use-case
-	      // @see http://jsperf.com/call-apply-segu
-	      if (args) {
-	        fn.apply(null, args);
-	      } else {
-	        fn.call(null);
-	      }
-	      // Prevent ids from leaking
-	      exports.clearImmediate(id);
-	    }
-	  });
-
-	  return id;
-	};
-
-	exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate : function(id) {
-	  delete immediateIds[id];
-	};
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(31).setImmediate, __webpack_require__(31).clearImmediate))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(31).Buffer))
 
 /***/ },
 /* 32 */
@@ -11340,8 +11340,8 @@ var StellarLib =
 	/* WEBPACK VAR INJECTION */(function(process) {var original = __webpack_require__(73)
 	  , parse = __webpack_require__(61).parse
 	  , events = __webpack_require__(62)
-	  , https = __webpack_require__(64)
-	  , http = __webpack_require__(63)
+	  , https = __webpack_require__(63)
+	  , http = __webpack_require__(64)
 	  , util = __webpack_require__(65);
 
 	function isPlainObject(obj) {
@@ -11650,7 +11650,7 @@ var StellarLib =
 	  }
 	}
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(30)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(29)))
 
 /***/ },
 /* 40 */
@@ -23854,6 +23854,118 @@ var StellarLib =
 /* 43 */
 /***/ function(module, exports, __webpack_require__) {
 
+	'use strict';
+
+	/*global ActiveXObject:true*/
+
+	var defaults = __webpack_require__(23);
+	var utils = __webpack_require__(24);
+	var buildUrl = __webpack_require__(66);
+	var cookies = __webpack_require__(67);
+	var parseHeaders = __webpack_require__(68);
+	var transformData = __webpack_require__(69);
+	var urlIsSameOrigin = __webpack_require__(70);
+
+	module.exports = function xhrAdapter(resolve, reject, config) {
+	  // Transform request data
+	  var data = transformData(
+	    config.data,
+	    config.headers,
+	    config.transformRequest
+	  );
+
+	  // Merge headers
+	  var requestHeaders = utils.merge(
+	    defaults.headers.common,
+	    defaults.headers[config.method] || {},
+	    config.headers || {}
+	  );
+
+	  if (utils.isFormData(data)) {
+	    delete requestHeaders['Content-Type']; // Let the browser set it
+	  }
+
+	  // Create the request
+	  var request = new (XMLHttpRequest || ActiveXObject)('Microsoft.XMLHTTP');
+	  request.open(config.method.toUpperCase(), buildUrl(config.url, config.params), true);
+
+	  // Listen for ready state
+	  request.onreadystatechange = function () {
+	    if (request && request.readyState === 4) {
+	      // Prepare the response
+	      var responseHeaders = parseHeaders(request.getAllResponseHeaders());
+	      var responseData = ['text', ''].indexOf(config.responseType || '') !== -1 ? request.responseText : request.response;
+	      var response = {
+	        data: transformData(
+	          responseData,
+	          responseHeaders,
+	          config.transformResponse
+	        ),
+	        status: request.status,
+	        statusText: request.statusText,
+	        headers: responseHeaders,
+	        config: config
+	      };
+
+	      // Resolve or reject the Promise based on the status
+	      (request.status >= 200 && request.status < 300 ?
+	        resolve :
+	        reject)(response);
+
+	      // Clean up request
+	      request = null;
+	    }
+	  };
+
+	  // Add xsrf header
+	  var xsrfValue = urlIsSameOrigin(config.url) ?
+	      cookies.read(config.xsrfCookieName || defaults.xsrfCookieName) :
+	      undefined;
+	  if (xsrfValue) {
+	    requestHeaders[config.xsrfHeaderName || defaults.xsrfHeaderName] = xsrfValue;
+	  }
+
+	  // Add headers to the request
+	  utils.forEach(requestHeaders, function (val, key) {
+	    // Remove Content-Type if data is undefined
+	    if (!data && key.toLowerCase() === 'content-type') {
+	      delete requestHeaders[key];
+	    }
+	    // Otherwise add header to the request
+	    else {
+	      request.setRequestHeader(key, val);
+	    }
+	  });
+
+	  // Add withCredentials to request if needed
+	  if (config.withCredentials) {
+	    request.withCredentials = true;
+	  }
+
+	  // Add responseType to request if needed
+	  if (config.responseType) {
+	    try {
+	      request.responseType = config.responseType;
+	    } catch (e) {
+	      if (request.responseType !== 'json') {
+	        throw e;
+	      }
+	    }
+	  }
+
+	  if (utils.isArrayBuffer(data)) {
+	    data = new DataView(data);
+	  }
+
+	  // Send the request
+	  request.send(data);
+	};
+
+
+/***/ },
+/* 44 */
+/***/ function(module, exports, __webpack_require__) {
+
 	var require;var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(process, setImmediate, global, module) {/*!
 	 * @overview es6-promise - a tiny implementation of Promises/A+.
 	 * @copyright Copyright (c) 2014 Yehuda Katz, Tom Dale, Stefan Penner and contributors (Conversion to ES6 API by Jake Archibald)
@@ -23978,7 +24090,7 @@ var StellarLib =
 	    function lib$es6$promise$asap$$attemptVertex() {
 	      try {
 	        var r = require;
-	        var vertx = __webpack_require__(53);
+	        var vertx = __webpack_require__(51);
 	        lib$es6$promise$asap$$vertxNext = vertx.runOnLoop || vertx.runOnContext;
 	        return lib$es6$promise$asap$$useVertxTimer();
 	      } catch(e) {
@@ -24812,119 +24924,7 @@ var StellarLib =
 	}).call(this);
 
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(30), __webpack_require__(31).setImmediate, (function() { return this; }()), __webpack_require__(94)(module)))
-
-/***/ },
-/* 44 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	/*global ActiveXObject:true*/
-
-	var defaults = __webpack_require__(23);
-	var utils = __webpack_require__(24);
-	var buildUrl = __webpack_require__(68);
-	var cookies = __webpack_require__(69);
-	var parseHeaders = __webpack_require__(70);
-	var transformData = __webpack_require__(71);
-	var urlIsSameOrigin = __webpack_require__(72);
-
-	module.exports = function xhrAdapter(resolve, reject, config) {
-	  // Transform request data
-	  var data = transformData(
-	    config.data,
-	    config.headers,
-	    config.transformRequest
-	  );
-
-	  // Merge headers
-	  var requestHeaders = utils.merge(
-	    defaults.headers.common,
-	    defaults.headers[config.method] || {},
-	    config.headers || {}
-	  );
-
-	  if (utils.isFormData(data)) {
-	    delete requestHeaders['Content-Type']; // Let the browser set it
-	  }
-
-	  // Create the request
-	  var request = new (XMLHttpRequest || ActiveXObject)('Microsoft.XMLHTTP');
-	  request.open(config.method.toUpperCase(), buildUrl(config.url, config.params), true);
-
-	  // Listen for ready state
-	  request.onreadystatechange = function () {
-	    if (request && request.readyState === 4) {
-	      // Prepare the response
-	      var responseHeaders = parseHeaders(request.getAllResponseHeaders());
-	      var responseData = ['text', ''].indexOf(config.responseType || '') !== -1 ? request.responseText : request.response;
-	      var response = {
-	        data: transformData(
-	          responseData,
-	          responseHeaders,
-	          config.transformResponse
-	        ),
-	        status: request.status,
-	        statusText: request.statusText,
-	        headers: responseHeaders,
-	        config: config
-	      };
-
-	      // Resolve or reject the Promise based on the status
-	      (request.status >= 200 && request.status < 300 ?
-	        resolve :
-	        reject)(response);
-
-	      // Clean up request
-	      request = null;
-	    }
-	  };
-
-	  // Add xsrf header
-	  var xsrfValue = urlIsSameOrigin(config.url) ?
-	      cookies.read(config.xsrfCookieName || defaults.xsrfCookieName) :
-	      undefined;
-	  if (xsrfValue) {
-	    requestHeaders[config.xsrfHeaderName || defaults.xsrfHeaderName] = xsrfValue;
-	  }
-
-	  // Add headers to the request
-	  utils.forEach(requestHeaders, function (val, key) {
-	    // Remove Content-Type if data is undefined
-	    if (!data && key.toLowerCase() === 'content-type') {
-	      delete requestHeaders[key];
-	    }
-	    // Otherwise add header to the request
-	    else {
-	      request.setRequestHeader(key, val);
-	    }
-	  });
-
-	  // Add withCredentials to request if needed
-	  if (config.withCredentials) {
-	    request.withCredentials = true;
-	  }
-
-	  // Add responseType to request if needed
-	  if (config.responseType) {
-	    try {
-	      request.responseType = config.responseType;
-	    } catch (e) {
-	      if (request.responseType !== 'json') {
-	        throw e;
-	      }
-	    }
-	  }
-
-	  if (utils.isArrayBuffer(data)) {
-	    data = new DataView(data);
-	  }
-
-	  // Send the request
-	  request.send(data);
-	};
-
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(29), __webpack_require__(30).setImmediate, (function() { return this; }()), __webpack_require__(94)(module)))
 
 /***/ },
 /* 45 */
@@ -29878,7 +29878,7 @@ var StellarLib =
 
 	})(typeof module !== 'undefined' && module.exports ? module.exports : (window.nacl = window.nacl || {}));
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(29).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(31).Buffer))
 
 /***/ },
 /* 48 */
@@ -32662,6 +32662,12 @@ var StellarLib =
 /* 51 */
 /***/ function(module, exports, __webpack_require__) {
 
+	/* (ignored) */
+
+/***/ },
+/* 52 */
+/***/ function(module, exports, __webpack_require__) {
+
 	exports.read = function(buffer, offset, isLE, mLen, nBytes) {
 	  var e, m,
 	      eLen = nBytes * 8 - mLen - 1,
@@ -32749,7 +32755,7 @@ var StellarLib =
 
 
 /***/ },
-/* 52 */
+/* 53 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
@@ -32786,12 +32792,6 @@ var StellarLib =
 	  return !! val && '[object Array]' == str.call(val);
 	};
 
-
-/***/ },
-/* 53 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* (ignored) */
 
 /***/ },
 /* 54 */
@@ -32897,7 +32897,7 @@ var StellarLib =
 	module.exports = Sha
 
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(29).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(31).Buffer))
 
 /***/ },
 /* 55 */
@@ -33000,7 +33000,7 @@ var StellarLib =
 	module.exports = Sha1
 
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(29).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(31).Buffer))
 
 /***/ },
 /* 56 */
@@ -33059,7 +33059,7 @@ var StellarLib =
 
 	module.exports = Sha224
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(29).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(31).Buffer))
 
 /***/ },
 /* 57 */
@@ -33215,7 +33215,7 @@ var StellarLib =
 
 	module.exports = Sha256
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(29).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(31).Buffer))
 
 /***/ },
 /* 58 */
@@ -33278,7 +33278,7 @@ var StellarLib =
 
 	module.exports = Sha384
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(29).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(31).Buffer))
 
 /***/ },
 /* 59 */
@@ -33530,7 +33530,7 @@ var StellarLib =
 
 	module.exports = Sha512
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(29).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(31).Buffer))
 
 /***/ },
 /* 60 */
@@ -34562,6 +34562,25 @@ var StellarLib =
 /* 63 */
 /***/ function(module, exports, __webpack_require__) {
 
+	var http = __webpack_require__(64);
+
+	var https = module.exports;
+
+	for (var key in http) {
+	    if (http.hasOwnProperty(key)) https[key] = http[key];
+	};
+
+	https.request = function (params, cb) {
+	    if (!params) params = {};
+	    params.scheme = 'https';
+	    return http.request.call(this, params, cb);
+	}
+
+
+/***/ },
+/* 64 */
+/***/ function(module, exports, __webpack_require__) {
+
 	var http = module.exports;
 	var EventEmitter = __webpack_require__(62).EventEmitter;
 	var Request = __webpack_require__(98);
@@ -34707,25 +34726,6 @@ var StellarLib =
 	    510 : 'Not Extended',               // RFC 2774
 	    511 : 'Network Authentication Required' // RFC 6585
 	};
-
-/***/ },
-/* 64 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var http = __webpack_require__(63);
-
-	var https = module.exports;
-
-	for (var key in http) {
-	    if (http.hasOwnProperty(key)) https[key] = http[key];
-	};
-
-	https.request = function (params, cb) {
-	    if (!params) params = {};
-	    params.scheme = 'https';
-	    return http.request.call(this, params, cb);
-	}
-
 
 /***/ },
 /* 65 */
@@ -35256,7 +35256,7 @@ var StellarLib =
 	}
 	exports.isPrimitive = isPrimitive;
 
-	exports.isBuffer = __webpack_require__(103);
+	exports.isBuffer = __webpack_require__(99);
 
 	function objectToString(o) {
 	  return Object.prototype.toString.call(o);
@@ -35318,11 +35318,235 @@ var StellarLib =
 	  return Object.prototype.hasOwnProperty.call(obj, prop);
 	}
 
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(30)))
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(29)))
 
 /***/ },
-/* 66 */,
+/* 66 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var utils = __webpack_require__(24);
+
+	function encode(val) {
+	  return encodeURIComponent(val).
+	    replace(/%40/gi, '@').
+	    replace(/%3A/gi, ':').
+	    replace(/%24/g, '$').
+	    replace(/%2C/gi, ',').
+	    replace(/%20/g, '+');
+	}
+
+	/**
+	 * Build a URL by appending params to the end
+	 *
+	 * @param {string} url The base of the url (e.g., http://www.google.com)
+	 * @param {object} [params] The params to be appended
+	 * @returns {string} The formatted url
+	 */
+	module.exports = function buildUrl(url, params) {
+	  if (!params) {
+	    return url;
+	  }
+
+	  var parts = [];
+
+	  utils.forEach(params, function (val, key) {
+	    if (val === null || typeof val === 'undefined') {
+	      return;
+	    }
+	    if (!utils.isArray(val)) {
+	      val = [val];
+	    }
+
+	    utils.forEach(val, function (v) {
+	      if (utils.isDate(v)) {
+	        v = v.toISOString();
+	      }
+	      else if (utils.isObject(v)) {
+	        v = JSON.stringify(v);
+	      }
+	      parts.push(encode(key) + '=' + encode(v));
+	    });
+	  });
+
+	  if (parts.length > 0) {
+	    url += (url.indexOf('?') === -1 ? '?' : '&') + parts.join('&');
+	  }
+
+	  return url;
+	};
+
+
+/***/ },
 /* 67 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var utils = __webpack_require__(24);
+
+	module.exports = {
+	  write: function write(name, value, expires, path, domain, secure) {
+	    var cookie = [];
+	    cookie.push(name + '=' + encodeURIComponent(value));
+
+	    if (utils.isNumber(expires)) {
+	      cookie.push('expires=' + new Date(expires).toGMTString());
+	    }
+
+	    if (utils.isString(path)) {
+	      cookie.push('path=' + path);
+	    }
+
+	    if (utils.isString(domain)) {
+	      cookie.push('domain=' + domain);
+	    }
+
+	    if (secure === true) {
+	      cookie.push('secure');
+	    }
+
+	    document.cookie = cookie.join('; ');
+	  },
+
+	  read: function read(name) {
+	    var match = document.cookie.match(new RegExp('(^|;\\s*)(' + name + ')=([^;]*)'));
+	    return (match ? decodeURIComponent(match[3]) : null);
+	  },
+
+	  remove: function remove(name) {
+	    this.write(name, '', Date.now() - 86400000);
+	  }
+	};
+
+
+/***/ },
+/* 68 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var utils = __webpack_require__(24);
+
+	/**
+	 * Parse headers into an object
+	 *
+	 * ```
+	 * Date: Wed, 27 Aug 2014 08:58:49 GMT
+	 * Content-Type: application/json
+	 * Connection: keep-alive
+	 * Transfer-Encoding: chunked
+	 * ```
+	 *
+	 * @param {String} headers Headers needing to be parsed
+	 * @returns {Object} Headers parsed into an object
+	 */
+	module.exports = function parseHeaders(headers) {
+	  var parsed = {}, key, val, i;
+
+	  if (!headers) { return parsed; }
+
+	  utils.forEach(headers.split('\n'), function(line) {
+	    i = line.indexOf(':');
+	    key = utils.trim(line.substr(0, i)).toLowerCase();
+	    val = utils.trim(line.substr(i + 1));
+
+	    if (key) {
+	      parsed[key] = parsed[key] ? parsed[key] + ', ' + val : val;
+	    }
+	  });
+
+	  return parsed;
+	};
+
+
+/***/ },
+/* 69 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var utils = __webpack_require__(24);
+
+	/**
+	 * Transform the data for a request or a response
+	 *
+	 * @param {Object|String} data The data to be transformed
+	 * @param {Array} headers The headers for the request or response
+	 * @param {Array|Function} fns A single function or Array of functions
+	 * @returns {*} The resulting transformed data
+	 */
+	module.exports = function transformData(data, headers, fns) {
+	  utils.forEach(fns, function (fn) {
+	    data = fn(data, headers);
+	  });
+
+	  return data;
+	};
+
+
+/***/ },
+/* 70 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var utils = __webpack_require__(24);
+	var msie = /(msie|trident)/i.test(navigator.userAgent);
+	var urlParsingNode = document.createElement('a');
+	var originUrl;
+
+	/**
+	 * Parse a URL to discover it's components
+	 *
+	 * @param {String} url The URL to be parsed
+	 * @returns {Object}
+	 */
+	function urlResolve(url) {
+	  var href = url;
+
+	  if (msie) {
+	    // IE needs attribute set twice to normalize properties
+	    urlParsingNode.setAttribute('href', href);
+	    href = urlParsingNode.href;
+	  }
+
+	  urlParsingNode.setAttribute('href', href);
+
+	  // urlParsingNode provides the UrlUtils interface - http://url.spec.whatwg.org/#urlutils
+	  return {
+	    href: urlParsingNode.href,
+	    protocol: urlParsingNode.protocol ? urlParsingNode.protocol.replace(/:$/, '') : '',
+	    host: urlParsingNode.host,
+	    search: urlParsingNode.search ? urlParsingNode.search.replace(/^\?/, '') : '',
+	    hash: urlParsingNode.hash ? urlParsingNode.hash.replace(/^#/, '') : '',
+	    hostname: urlParsingNode.hostname,
+	    port: urlParsingNode.port,
+	    pathname: (urlParsingNode.pathname.charAt(0) === '/') ?
+	              urlParsingNode.pathname :
+	              '/' + urlParsingNode.pathname
+	  };
+	}
+
+	originUrl = urlResolve(window.location.href);
+
+	/**
+	 * Determine if a URL shares the same origin as the current location
+	 *
+	 * @param {String} requestUrl The URL to test
+	 * @returns {boolean} True if URL shares the same origin, otherwise false
+	 */
+	module.exports = function urlIsSameOrigin(requestUrl) {
+	  var parsed = (utils.isString(requestUrl)) ? urlResolve(requestUrl) : requestUrl;
+	  return (parsed.protocol === originUrl.protocol &&
+	        parsed.host === originUrl.host);
+	};
+
+
+/***/ },
+/* 71 */,
+/* 72 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
@@ -35452,236 +35676,12 @@ var StellarLib =
 
 
 /***/ },
-/* 68 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var utils = __webpack_require__(24);
-
-	function encode(val) {
-	  return encodeURIComponent(val).
-	    replace(/%40/gi, '@').
-	    replace(/%3A/gi, ':').
-	    replace(/%24/g, '$').
-	    replace(/%2C/gi, ',').
-	    replace(/%20/g, '+');
-	}
-
-	/**
-	 * Build a URL by appending params to the end
-	 *
-	 * @param {string} url The base of the url (e.g., http://www.google.com)
-	 * @param {object} [params] The params to be appended
-	 * @returns {string} The formatted url
-	 */
-	module.exports = function buildUrl(url, params) {
-	  if (!params) {
-	    return url;
-	  }
-
-	  var parts = [];
-
-	  utils.forEach(params, function (val, key) {
-	    if (val === null || typeof val === 'undefined') {
-	      return;
-	    }
-	    if (!utils.isArray(val)) {
-	      val = [val];
-	    }
-
-	    utils.forEach(val, function (v) {
-	      if (utils.isDate(v)) {
-	        v = v.toISOString();
-	      }
-	      else if (utils.isObject(v)) {
-	        v = JSON.stringify(v);
-	      }
-	      parts.push(encode(key) + '=' + encode(v));
-	    });
-	  });
-
-	  if (parts.length > 0) {
-	    url += (url.indexOf('?') === -1 ? '?' : '&') + parts.join('&');
-	  }
-
-	  return url;
-	};
-
-
-/***/ },
-/* 69 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var utils = __webpack_require__(24);
-
-	module.exports = {
-	  write: function write(name, value, expires, path, domain, secure) {
-	    var cookie = [];
-	    cookie.push(name + '=' + encodeURIComponent(value));
-
-	    if (utils.isNumber(expires)) {
-	      cookie.push('expires=' + new Date(expires).toGMTString());
-	    }
-
-	    if (utils.isString(path)) {
-	      cookie.push('path=' + path);
-	    }
-
-	    if (utils.isString(domain)) {
-	      cookie.push('domain=' + domain);
-	    }
-
-	    if (secure === true) {
-	      cookie.push('secure');
-	    }
-
-	    document.cookie = cookie.join('; ');
-	  },
-
-	  read: function read(name) {
-	    var match = document.cookie.match(new RegExp('(^|;\\s*)(' + name + ')=([^;]*)'));
-	    return (match ? decodeURIComponent(match[3]) : null);
-	  },
-
-	  remove: function remove(name) {
-	    this.write(name, '', Date.now() - 86400000);
-	  }
-	};
-
-
-/***/ },
-/* 70 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var utils = __webpack_require__(24);
-
-	/**
-	 * Parse headers into an object
-	 *
-	 * ```
-	 * Date: Wed, 27 Aug 2014 08:58:49 GMT
-	 * Content-Type: application/json
-	 * Connection: keep-alive
-	 * Transfer-Encoding: chunked
-	 * ```
-	 *
-	 * @param {String} headers Headers needing to be parsed
-	 * @returns {Object} Headers parsed into an object
-	 */
-	module.exports = function parseHeaders(headers) {
-	  var parsed = {}, key, val, i;
-
-	  if (!headers) { return parsed; }
-
-	  utils.forEach(headers.split('\n'), function(line) {
-	    i = line.indexOf(':');
-	    key = utils.trim(line.substr(0, i)).toLowerCase();
-	    val = utils.trim(line.substr(i + 1));
-
-	    if (key) {
-	      parsed[key] = parsed[key] ? parsed[key] + ', ' + val : val;
-	    }
-	  });
-
-	  return parsed;
-	};
-
-
-/***/ },
-/* 71 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var utils = __webpack_require__(24);
-
-	/**
-	 * Transform the data for a request or a response
-	 *
-	 * @param {Object|String} data The data to be transformed
-	 * @param {Array} headers The headers for the request or response
-	 * @param {Array|Function} fns A single function or Array of functions
-	 * @returns {*} The resulting transformed data
-	 */
-	module.exports = function transformData(data, headers, fns) {
-	  utils.forEach(fns, function (fn) {
-	    data = fn(data, headers);
-	  });
-
-	  return data;
-	};
-
-
-/***/ },
-/* 72 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var utils = __webpack_require__(24);
-	var msie = /(msie|trident)/i.test(navigator.userAgent);
-	var urlParsingNode = document.createElement('a');
-	var originUrl;
-
-	/**
-	 * Parse a URL to discover it's components
-	 *
-	 * @param {String} url The URL to be parsed
-	 * @returns {Object}
-	 */
-	function urlResolve(url) {
-	  var href = url;
-
-	  if (msie) {
-	    // IE needs attribute set twice to normalize properties
-	    urlParsingNode.setAttribute('href', href);
-	    href = urlParsingNode.href;
-	  }
-
-	  urlParsingNode.setAttribute('href', href);
-
-	  // urlParsingNode provides the UrlUtils interface - http://url.spec.whatwg.org/#urlutils
-	  return {
-	    href: urlParsingNode.href,
-	    protocol: urlParsingNode.protocol ? urlParsingNode.protocol.replace(/:$/, '') : '',
-	    host: urlParsingNode.host,
-	    search: urlParsingNode.search ? urlParsingNode.search.replace(/^\?/, '') : '',
-	    hash: urlParsingNode.hash ? urlParsingNode.hash.replace(/^#/, '') : '',
-	    hostname: urlParsingNode.hostname,
-	    port: urlParsingNode.port,
-	    pathname: (urlParsingNode.pathname.charAt(0) === '/') ?
-	              urlParsingNode.pathname :
-	              '/' + urlParsingNode.pathname
-	  };
-	}
-
-	originUrl = urlResolve(window.location.href);
-
-	/**
-	 * Determine if a URL shares the same origin as the current location
-	 *
-	 * @param {String} requestUrl The URL to test
-	 * @returns {boolean} True if URL shares the same origin, otherwise false
-	 */
-	module.exports = function urlIsSameOrigin(requestUrl) {
-	  var parsed = (utils.isString(requestUrl)) ? urlResolve(requestUrl) : requestUrl;
-	  return (parsed.protocol === originUrl.protocol &&
-	        parsed.host === originUrl.host);
-	};
-
-
-/***/ },
 /* 73 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var parse = __webpack_require__(107);
+	var parse = __webpack_require__(106);
 
 	/**
 	 * Transform an URL to a valid origin value.
@@ -35802,7 +35802,7 @@ var StellarLib =
 
 	var _inherits = __webpack_require__(92)["default"];
 
-	var _get = __webpack_require__(99)["default"];
+	var _get = __webpack_require__(101)["default"];
 
 	var _createClass = __webpack_require__(37)["default"];
 
@@ -35814,7 +35814,7 @@ var StellarLib =
 	  value: true
 	});
 
-	var Long = _interopRequire(__webpack_require__(106));
+	var Long = _interopRequire(__webpack_require__(107));
 
 	var includeIoMixin = _interopRequire(__webpack_require__(100));
 
@@ -35937,7 +35937,7 @@ var StellarLib =
 
 	var _inherits = __webpack_require__(92)["default"];
 
-	var _get = __webpack_require__(99)["default"];
+	var _get = __webpack_require__(101)["default"];
 
 	var _createClass = __webpack_require__(37)["default"];
 
@@ -35949,7 +35949,7 @@ var StellarLib =
 	  value: true
 	});
 
-	var Long = _interopRequire(__webpack_require__(106));
+	var Long = _interopRequire(__webpack_require__(107));
 
 	var includeIoMixin = _interopRequire(__webpack_require__(100));
 
@@ -36179,7 +36179,7 @@ var StellarLib =
 
 	var UnsignedInt = __webpack_require__(76).UnsignedInt;
 
-	var calculatePadding = __webpack_require__(101).calculatePadding;
+	var calculatePadding = __webpack_require__(102).calculatePadding;
 
 	var isString = __webpack_require__(42).isString;
 
@@ -36234,7 +36234,7 @@ var StellarLib =
 	})();
 
 	includeIoMixin(String.prototype);
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(29).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(31).Buffer))
 
 /***/ },
 /* 83 */
@@ -36252,7 +36252,7 @@ var StellarLib =
 	  value: true
 	});
 
-	var calculatePadding = __webpack_require__(101).calculatePadding;
+	var calculatePadding = __webpack_require__(102).calculatePadding;
 
 	var includeIoMixin = _interopRequire(__webpack_require__(100));
 
@@ -36292,7 +36292,7 @@ var StellarLib =
 	})();
 
 	includeIoMixin(Opaque.prototype);
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(29).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(31).Buffer))
 
 /***/ },
 /* 84 */
@@ -36314,7 +36314,7 @@ var StellarLib =
 
 	var UnsignedInt = __webpack_require__(76).UnsignedInt;
 
-	var calculatePadding = __webpack_require__(101).calculatePadding;
+	var calculatePadding = __webpack_require__(102).calculatePadding;
 
 	var includeIoMixin = _interopRequire(__webpack_require__(100));
 
@@ -36361,7 +36361,7 @@ var StellarLib =
 	})();
 
 	includeIoMixin(VarOpaque.prototype);
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(29).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(31).Buffer))
 
 /***/ },
 /* 85 */
@@ -36660,7 +36660,7 @@ var StellarLib =
 
 	var _inherits = __webpack_require__(92)["default"];
 
-	var _get = __webpack_require__(99)["default"];
+	var _get = __webpack_require__(101)["default"];
 
 	var _core = __webpack_require__(48)["default"];
 
@@ -36787,9 +36787,9 @@ var StellarLib =
 
 	var _inherits = __webpack_require__(92)["default"];
 
-	var _get = __webpack_require__(99)["default"];
+	var _get = __webpack_require__(101)["default"];
 
-	var _slicedToArray = __webpack_require__(102)["default"];
+	var _slicedToArray = __webpack_require__(103)["default"];
 
 	var _core = __webpack_require__(48)["default"];
 
@@ -36914,7 +36914,7 @@ var StellarLib =
 
 	var _inherits = __webpack_require__(92)["default"];
 
-	var _get = __webpack_require__(99)["default"];
+	var _get = __webpack_require__(101)["default"];
 
 	var _core = __webpack_require__(48)["default"];
 
@@ -37283,7 +37283,7 @@ var StellarLib =
 
 	module.exports = Hash
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(29).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(31).Buffer))
 
 /***/ },
 /* 98 */
@@ -37291,8 +37291,8 @@ var StellarLib =
 
 	var Stream = __webpack_require__(112);
 	var Response = __webpack_require__(109);
-	var Base64 = __webpack_require__(117);
-	var inherits = __webpack_require__(118);
+	var Base64 = __webpack_require__(116);
+	var inherits = __webpack_require__(117);
 
 	var Request = module.exports = function (xhr, params) {
 	    var self = this;
@@ -37504,49 +37504,12 @@ var StellarLib =
 /* 99 */
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
-
-	var _core = __webpack_require__(48)["default"];
-
-	exports["default"] = function get(_x, _x2, _x3) {
-	  var _again = true;
-
-	  _function: while (_again) {
-	    _again = false;
-	    var object = _x,
-	        property = _x2,
-	        receiver = _x3;
-	    desc = parent = getter = undefined;
-
-	    var desc = _core.Object.getOwnPropertyDescriptor(object, property);
-
-	    if (desc === undefined) {
-	      var parent = _core.Object.getPrototypeOf(object);
-
-	      if (parent === null) {
-	        return undefined;
-	      } else {
-	        _x = parent;
-	        _x2 = property;
-	        _x3 = receiver;
-	        _again = true;
-	        continue _function;
-	      }
-	    } else if ("value" in desc && desc.writable) {
-	      return desc.value;
-	    } else {
-	      var getter = desc.get;
-
-	      if (getter === undefined) {
-	        return undefined;
-	      }
-
-	      return getter.call(receiver);
-	    }
-	  }
-	};
-
-	exports.__esModule = true;
+	module.exports = function isBuffer(arg) {
+	  return arg && typeof arg === 'object'
+	    && typeof arg.copy === 'function'
+	    && typeof arg.fill === 'function'
+	    && typeof arg.readUInt8 === 'function';
+	}
 
 /***/ },
 /* 100 */
@@ -37617,6 +37580,54 @@ var StellarLib =
 
 	"use strict";
 
+	var _core = __webpack_require__(48)["default"];
+
+	exports["default"] = function get(_x, _x2, _x3) {
+	  var _again = true;
+
+	  _function: while (_again) {
+	    _again = false;
+	    var object = _x,
+	        property = _x2,
+	        receiver = _x3;
+	    desc = parent = getter = undefined;
+
+	    var desc = _core.Object.getOwnPropertyDescriptor(object, property);
+
+	    if (desc === undefined) {
+	      var parent = _core.Object.getPrototypeOf(object);
+
+	      if (parent === null) {
+	        return undefined;
+	      } else {
+	        _x = parent;
+	        _x2 = property;
+	        _x3 = receiver;
+	        _again = true;
+	        continue _function;
+	      }
+	    } else if ("value" in desc && desc.writable) {
+	      return desc.value;
+	    } else {
+	      var getter = desc.get;
+
+	      if (getter === undefined) {
+	        return undefined;
+	      }
+
+	      return getter.call(receiver);
+	    }
+	  }
+	};
+
+	exports.__esModule = true;
+
+/***/ },
+/* 102 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
 	exports.calculatePadding = calculatePadding;
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
@@ -37636,7 +37647,7 @@ var StellarLib =
 	}
 
 /***/ },
-/* 102 */
+/* 103 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -37662,17 +37673,6 @@ var StellarLib =
 	};
 
 	exports.__esModule = true;
-
-/***/ },
-/* 103 */
-/***/ function(module, exports, __webpack_require__) {
-
-	module.exports = function isBuffer(arg) {
-	  return arg && typeof arg === 'object'
-	    && typeof arg.copy === 'function'
-	    && typeof arg.fill === 'function'
-	    && typeof arg.readUInt8 === 'function';
-	}
 
 /***/ },
 /* 104 */
@@ -38223,34 +38223,10 @@ var StellarLib =
 /* 106 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/*
-	 Copyright 2013 Daniel Wirtz <dcode@dcode.io>
-	 Copyright 2009 The Closure Library Authors. All Rights Reserved.
-
-	 Licensed under the Apache License, Version 2.0 (the "License");
-	 you may not use this file except in compliance with the License.
-	 You may obtain a copy of the License at
-
-	 http://www.apache.org/licenses/LICENSE-2.0
-
-	 Unless required by applicable law or agreed to in writing, software
-	 distributed under the License is distributed on an "AS-IS" BASIS,
-	 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-	 See the License for the specific language governing permissions and
-	 limitations under the License.
-	 */
-
-	module.exports = __webpack_require__(115);
-
-
-/***/ },
-/* 107 */
-/***/ function(module, exports, __webpack_require__) {
-
 	'use strict';
 
 	var required = __webpack_require__(119)
-	  , lolcation = __webpack_require__(116)
+	  , lolcation = __webpack_require__(115)
 	  , qs = __webpack_require__(120);
 
 	var keys = ',,protocol,username,password,host,hostname,port,pathname,query,hash'.split(',')
@@ -38461,6 +38437,30 @@ var StellarLib =
 
 
 /***/ },
+/* 107 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/*
+	 Copyright 2013 Daniel Wirtz <dcode@dcode.io>
+	 Copyright 2009 The Closure Library Authors. All Rights Reserved.
+
+	 Licensed under the Apache License, Version 2.0 (the "License");
+	 you may not use this file except in compliance with the License.
+	 You may obtain a copy of the License at
+
+	 http://www.apache.org/licenses/LICENSE-2.0
+
+	 Unless required by applicable law or agreed to in writing, software
+	 distributed under the License is distributed on an "AS-IS" BASIS,
+	 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	 See the License for the specific language governing permissions and
+	 limitations under the License.
+	 */
+
+	module.exports = __webpack_require__(118);
+
+
+/***/ },
 /* 108 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -38664,7 +38664,7 @@ var StellarLib =
 
 	var BaseCursor = _interopRequire(__webpack_require__(121));
 
-	var calculatePadding = __webpack_require__(101).calculatePadding;
+	var calculatePadding = __webpack_require__(102).calculatePadding;
 
 	var Cursor = exports.Cursor = (function (_BaseCursor) {
 	  function Cursor() {
@@ -38691,7 +38691,7 @@ var StellarLib =
 
 	  return Cursor;
 	})(BaseCursor);
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(29).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(31).Buffer))
 
 /***/ },
 /* 112 */
@@ -38984,6 +38984,153 @@ var StellarLib =
 
 /***/ },
 /* 115 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(global) {'use strict';
+
+	/**
+	 * These properties should not be copied or inherited from. This is only needed
+	 * for all non blob URL's as the a blob URL does not include a hash, only the
+	 * origin.
+	 *
+	 * @type {Object}
+	 * @private
+	 */
+	var ignore = { hash: 1, query: 1 }
+	  , URL;
+
+	/**
+	 * The location object differs when your code is loaded through a normal page,
+	 * Worker or through a worker using a blob. And with the blobble begins the
+	 * trouble as the location object will contain the URL of the blob, not the
+	 * location of the page where our code is loaded in. The actual origin is
+	 * encoded in the `pathname` so we can thankfully generate a good "default"
+	 * location from it so we can generate proper relative URL's again.
+	 *
+	 * @param {Object} loc Optional default location object.
+	 * @returns {Object} lolcation object.
+	 * @api public
+	 */
+	module.exports = function lolcation(loc) {
+	  loc = loc || global.location || {};
+	  URL = URL || __webpack_require__(106);
+
+	  var finaldestination = {}
+	    , type = typeof loc
+	    , key;
+
+	  if ('blob:' === loc.protocol) {
+	    finaldestination = new URL(unescape(loc.pathname), {});
+	  } else if ('string' === type) {
+	    finaldestination = new URL(loc, {});
+	    for (key in ignore) delete finaldestination[key];
+	  } else if ('object' === type) for (key in loc) {
+	    if (key in ignore) continue;
+	    finaldestination[key] = loc[key];
+	  }
+
+	  return finaldestination;
+	};
+
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
+
+/***/ },
+/* 116 */
+/***/ function(module, exports, __webpack_require__) {
+
+	;(function () {
+
+	  var object = true ? exports : this; // #8: web workers
+	  var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+
+	  function InvalidCharacterError(message) {
+	    this.message = message;
+	  }
+	  InvalidCharacterError.prototype = new Error;
+	  InvalidCharacterError.prototype.name = 'InvalidCharacterError';
+
+	  // encoder
+	  // [https://gist.github.com/999166] by [https://github.com/nignag]
+	  object.btoa || (
+	  object.btoa = function (input) {
+	    for (
+	      // initialize result and counter
+	      var block, charCode, idx = 0, map = chars, output = '';
+	      // if the next input index does not exist:
+	      //   change the mapping table to "="
+	      //   check if d has no fractional digits
+	      input.charAt(idx | 0) || (map = '=', idx % 1);
+	      // "8 - idx % 1 * 8" generates the sequence 2, 4, 6, 8
+	      output += map.charAt(63 & block >> 8 - idx % 1 * 8)
+	    ) {
+	      charCode = input.charCodeAt(idx += 3/4);
+	      if (charCode > 0xFF) {
+	        throw new InvalidCharacterError("'btoa' failed: The string to be encoded contains characters outside of the Latin1 range.");
+	      }
+	      block = block << 8 | charCode;
+	    }
+	    return output;
+	  });
+
+	  // decoder
+	  // [https://gist.github.com/1020396] by [https://github.com/atk]
+	  object.atob || (
+	  object.atob = function (input) {
+	    input = input.replace(/=+$/, '');
+	    if (input.length % 4 == 1) {
+	      throw new InvalidCharacterError("'atob' failed: The string to be decoded is not correctly encoded.");
+	    }
+	    for (
+	      // initialize result and counters
+	      var bc = 0, bs, buffer, idx = 0, output = '';
+	      // get next character
+	      buffer = input.charAt(idx++);
+	      // character found in table? initialize bit storage and add its ascii value;
+	      ~buffer && (bs = bc % 4 ? bs * 64 + buffer : buffer,
+	        // and if not first of each 4 characters,
+	        // convert the first 8 bits to one ascii character
+	        bc++ % 4) ? output += String.fromCharCode(255 & bs >> (-2 * bc & 6)) : 0
+	    ) {
+	      // try to find character in table (0-63, not found => -1)
+	      buffer = chars.indexOf(buffer);
+	    }
+	    return output;
+	  });
+
+	}());
+
+
+/***/ },
+/* 117 */
+/***/ function(module, exports, __webpack_require__) {
+
+	if (typeof Object.create === 'function') {
+	  // implementation from standard node.js 'util' module
+	  module.exports = function inherits(ctor, superCtor) {
+	    ctor.super_ = superCtor
+	    ctor.prototype = Object.create(superCtor.prototype, {
+	      constructor: {
+	        value: ctor,
+	        enumerable: false,
+	        writable: true,
+	        configurable: true
+	      }
+	    });
+	  };
+	} else {
+	  // old school shim for old browsers
+	  module.exports = function inherits(ctor, superCtor) {
+	    ctor.super_ = superCtor
+	    var TempCtor = function () {}
+	    TempCtor.prototype = superCtor.prototype
+	    ctor.prototype = new TempCtor()
+	    ctor.prototype.constructor = ctor
+	  }
+	}
+
+
+/***/ },
+/* 118 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(module) {/*
@@ -39932,153 +40079,6 @@ var StellarLib =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(94)(module)))
 
 /***/ },
-/* 116 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(global) {'use strict';
-
-	/**
-	 * These properties should not be copied or inherited from. This is only needed
-	 * for all non blob URL's as the a blob URL does not include a hash, only the
-	 * origin.
-	 *
-	 * @type {Object}
-	 * @private
-	 */
-	var ignore = { hash: 1, query: 1 }
-	  , URL;
-
-	/**
-	 * The location object differs when your code is loaded through a normal page,
-	 * Worker or through a worker using a blob. And with the blobble begins the
-	 * trouble as the location object will contain the URL of the blob, not the
-	 * location of the page where our code is loaded in. The actual origin is
-	 * encoded in the `pathname` so we can thankfully generate a good "default"
-	 * location from it so we can generate proper relative URL's again.
-	 *
-	 * @param {Object} loc Optional default location object.
-	 * @returns {Object} lolcation object.
-	 * @api public
-	 */
-	module.exports = function lolcation(loc) {
-	  loc = loc || global.location || {};
-	  URL = URL || __webpack_require__(107);
-
-	  var finaldestination = {}
-	    , type = typeof loc
-	    , key;
-
-	  if ('blob:' === loc.protocol) {
-	    finaldestination = new URL(unescape(loc.pathname), {});
-	  } else if ('string' === type) {
-	    finaldestination = new URL(loc, {});
-	    for (key in ignore) delete finaldestination[key];
-	  } else if ('object' === type) for (key in loc) {
-	    if (key in ignore) continue;
-	    finaldestination[key] = loc[key];
-	  }
-
-	  return finaldestination;
-	};
-
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
-
-/***/ },
-/* 117 */
-/***/ function(module, exports, __webpack_require__) {
-
-	;(function () {
-
-	  var object = true ? exports : this; // #8: web workers
-	  var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
-
-	  function InvalidCharacterError(message) {
-	    this.message = message;
-	  }
-	  InvalidCharacterError.prototype = new Error;
-	  InvalidCharacterError.prototype.name = 'InvalidCharacterError';
-
-	  // encoder
-	  // [https://gist.github.com/999166] by [https://github.com/nignag]
-	  object.btoa || (
-	  object.btoa = function (input) {
-	    for (
-	      // initialize result and counter
-	      var block, charCode, idx = 0, map = chars, output = '';
-	      // if the next input index does not exist:
-	      //   change the mapping table to "="
-	      //   check if d has no fractional digits
-	      input.charAt(idx | 0) || (map = '=', idx % 1);
-	      // "8 - idx % 1 * 8" generates the sequence 2, 4, 6, 8
-	      output += map.charAt(63 & block >> 8 - idx % 1 * 8)
-	    ) {
-	      charCode = input.charCodeAt(idx += 3/4);
-	      if (charCode > 0xFF) {
-	        throw new InvalidCharacterError("'btoa' failed: The string to be encoded contains characters outside of the Latin1 range.");
-	      }
-	      block = block << 8 | charCode;
-	    }
-	    return output;
-	  });
-
-	  // decoder
-	  // [https://gist.github.com/1020396] by [https://github.com/atk]
-	  object.atob || (
-	  object.atob = function (input) {
-	    input = input.replace(/=+$/, '');
-	    if (input.length % 4 == 1) {
-	      throw new InvalidCharacterError("'atob' failed: The string to be decoded is not correctly encoded.");
-	    }
-	    for (
-	      // initialize result and counters
-	      var bc = 0, bs, buffer, idx = 0, output = '';
-	      // get next character
-	      buffer = input.charAt(idx++);
-	      // character found in table? initialize bit storage and add its ascii value;
-	      ~buffer && (bs = bc % 4 ? bs * 64 + buffer : buffer,
-	        // and if not first of each 4 characters,
-	        // convert the first 8 bits to one ascii character
-	        bc++ % 4) ? output += String.fromCharCode(255 & bs >> (-2 * bc & 6)) : 0
-	    ) {
-	      // try to find character in table (0-63, not found => -1)
-	      buffer = chars.indexOf(buffer);
-	    }
-	    return output;
-	  });
-
-	}());
-
-
-/***/ },
-/* 118 */
-/***/ function(module, exports, __webpack_require__) {
-
-	if (typeof Object.create === 'function') {
-	  // implementation from standard node.js 'util' module
-	  module.exports = function inherits(ctor, superCtor) {
-	    ctor.super_ = superCtor
-	    ctor.prototype = Object.create(superCtor.prototype, {
-	      constructor: {
-	        value: ctor,
-	        enumerable: false,
-	        writable: true,
-	        configurable: true
-	      }
-	    });
-	  };
-	} else {
-	  // old school shim for old browsers
-	  module.exports = function inherits(ctor, superCtor) {
-	    ctor.super_ = superCtor
-	    var TempCtor = function () {}
-	    TempCtor.prototype = superCtor.prototype
-	    ctor.prototype = new TempCtor()
-	    ctor.prototype.constructor = ctor
-	  }
-	}
-
-
-/***/ },
 /* 119 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -40438,7 +40438,7 @@ var StellarLib =
 
 	module.exports = Cursor;
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(29).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(31).Buffer))
 
 /***/ },
 /* 122 */
@@ -40543,7 +40543,7 @@ var StellarLib =
 
 
 	/*<replacement>*/
-	var Buffer = __webpack_require__(29).Buffer;
+	var Buffer = __webpack_require__(31).Buffer;
 	/*</replacement>*/
 
 	Readable.ReadableState = ReadableState;
@@ -40559,8 +40559,8 @@ var StellarLib =
 	var Stream = __webpack_require__(112);
 
 	/*<replacement>*/
-	var util = __webpack_require__(137);
-	util.inherits = __webpack_require__(136);
+	var util = __webpack_require__(136);
+	util.inherits = __webpack_require__(137);
 	/*</replacement>*/
 
 	var StringDecoder;
@@ -41466,7 +41466,7 @@ var StellarLib =
 	  return -1;
 	}
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(30)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(29)))
 
 /***/ },
 /* 129 */
@@ -41500,15 +41500,15 @@ var StellarLib =
 	module.exports = Writable;
 
 	/*<replacement>*/
-	var Buffer = __webpack_require__(29).Buffer;
+	var Buffer = __webpack_require__(31).Buffer;
 	/*</replacement>*/
 
 	Writable.WritableState = WritableState;
 
 
 	/*<replacement>*/
-	var util = __webpack_require__(137);
-	util.inherits = __webpack_require__(136);
+	var util = __webpack_require__(136);
+	util.inherits = __webpack_require__(137);
 	/*</replacement>*/
 
 	var Stream = __webpack_require__(112);
@@ -41950,7 +41950,7 @@ var StellarLib =
 	  state.ended = true;
 	}
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(30)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(29)))
 
 /***/ },
 /* 130 */
@@ -41994,8 +41994,8 @@ var StellarLib =
 
 
 	/*<replacement>*/
-	var util = __webpack_require__(137);
-	util.inherits = __webpack_require__(136);
+	var util = __webpack_require__(136);
+	util.inherits = __webpack_require__(137);
 	/*</replacement>*/
 
 	var Readable = __webpack_require__(128);
@@ -42046,7 +42046,7 @@ var StellarLib =
 	  }
 	}
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(30)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(29)))
 
 /***/ },
 /* 131 */
@@ -42121,8 +42121,8 @@ var StellarLib =
 	var Duplex = __webpack_require__(130);
 
 	/*<replacement>*/
-	var util = __webpack_require__(137);
-	util.inherits = __webpack_require__(136);
+	var util = __webpack_require__(136);
+	util.inherits = __webpack_require__(137);
 	/*</replacement>*/
 
 	util.inherits(Transform, Duplex);
@@ -42297,8 +42297,8 @@ var StellarLib =
 	var Transform = __webpack_require__(131);
 
 	/*<replacement>*/
-	var util = __webpack_require__(137);
-	util.inherits = __webpack_require__(136);
+	var util = __webpack_require__(136);
+	util.inherits = __webpack_require__(137);
 	/*</replacement>*/
 
 	util.inherits(PassThrough, Transform);
@@ -42355,7 +42355,7 @@ var StellarLib =
 	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 	// USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-	var Buffer = __webpack_require__(29).Buffer;
+	var Buffer = __webpack_require__(31).Buffer;
 
 	var isBufferEncoding = Buffer.isEncoding
 	  || function(encoding) {
@@ -42561,35 +42561,6 @@ var StellarLib =
 /* 136 */
 /***/ function(module, exports, __webpack_require__) {
 
-	if (typeof Object.create === 'function') {
-	  // implementation from standard node.js 'util' module
-	  module.exports = function inherits(ctor, superCtor) {
-	    ctor.super_ = superCtor
-	    ctor.prototype = Object.create(superCtor.prototype, {
-	      constructor: {
-	        value: ctor,
-	        enumerable: false,
-	        writable: true,
-	        configurable: true
-	      }
-	    });
-	  };
-	} else {
-	  // old school shim for old browsers
-	  module.exports = function inherits(ctor, superCtor) {
-	    ctor.super_ = superCtor
-	    var TempCtor = function () {}
-	    TempCtor.prototype = superCtor.prototype
-	    ctor.prototype = new TempCtor()
-	    ctor.prototype.constructor = ctor
-	  }
-	}
-
-
-/***/ },
-/* 137 */
-/***/ function(module, exports, __webpack_require__) {
-
 	/* WEBPACK VAR INJECTION */(function(Buffer) {// Copyright Joyent, Inc. and other Node contributors.
 	//
 	// Permission is hereby granted, free of charge, to any person obtaining a
@@ -42697,7 +42668,36 @@ var StellarLib =
 	function objectToString(o) {
 	  return Object.prototype.toString.call(o);
 	}
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(29).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(31).Buffer))
+
+/***/ },
+/* 137 */
+/***/ function(module, exports, __webpack_require__) {
+
+	if (typeof Object.create === 'function') {
+	  // implementation from standard node.js 'util' module
+	  module.exports = function inherits(ctor, superCtor) {
+	    ctor.super_ = superCtor
+	    ctor.prototype = Object.create(superCtor.prototype, {
+	      constructor: {
+	        value: ctor,
+	        enumerable: false,
+	        writable: true,
+	        configurable: true
+	      }
+	    });
+	  };
+	} else {
+	  // old school shim for old browsers
+	  module.exports = function inherits(ctor, superCtor) {
+	    ctor.super_ = superCtor
+	    var TempCtor = function () {}
+	    TempCtor.prototype = superCtor.prototype
+	    ctor.prototype = new TempCtor()
+	    ctor.prototype.constructor = ctor
+	  }
+	}
+
 
 /***/ }
 /******/ ]);
