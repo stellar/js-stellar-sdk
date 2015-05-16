@@ -5230,7 +5230,7 @@ var StellarLib =
 
 	},{}]},{},[4])(4)
 	});                    ;if (typeof window !== 'undefined' && window !== null) {                               window.P = window.Promise;                                                     } else if (typeof self !== 'undefined' && self !== null) {                             self.P = self.Promise;                                                         }
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(29), (function() { return this; }()), __webpack_require__(30).setImmediate))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(23), (function() { return this; }()), __webpack_require__(30).setImmediate))
 
 /***/ },
 /* 6 */
@@ -5601,7 +5601,7 @@ var StellarLib =
 	        if (code.length != 3 && code.length != 4) {
 	            throw new Error("Currency code must be 3 or 4 characters");
 	        }
-	        if (code !== "XLM" && !issuer) {
+	        if (code.toLowerCase() !== "xlm" && !issuer) {
 	            throw new Error("Issuer cannot be null");
 	        }
 	        // pad code with null byte if necessary
@@ -5639,7 +5639,7 @@ var StellarLib =
 	            */
 
 	            value: function isNative() {
-	                return this.code === "XLM\u0000";
+	                return !this.issuer;
 	            }
 	        },
 	        equals: {
@@ -5902,6 +5902,7 @@ var StellarLib =
 	            value: function loadAccount(address) {
 	                var self = this;
 	                return this.accounts(address).then(function (res) {
+	                    console.log(res);
 	                    return new Account(address, res.sequence);
 	                });
 	            }
@@ -6690,11 +6691,11 @@ var StellarLib =
 
 	'use strict';
 
-	var defaults = __webpack_require__(23);
-	var utils = __webpack_require__(24);
-	var deprecatedMethod = __webpack_require__(25);
-	var dispatchRequest = __webpack_require__(26);
-	var InterceptorManager = __webpack_require__(27);
+	var defaults = __webpack_require__(24);
+	var utils = __webpack_require__(25);
+	var deprecatedMethod = __webpack_require__(26);
+	var dispatchRequest = __webpack_require__(27);
+	var InterceptorManager = __webpack_require__(28);
 
 	// Polyfill ES6 Promise if needed
 	(function () {
@@ -6763,7 +6764,7 @@ var StellarLib =
 	axios.all = function (promises) {
 	  return Promise.all(promises);
 	};
-	axios.spread = __webpack_require__(28);
+	axios.spread = __webpack_require__(29);
 
 	// Expose interceptors
 	axios.interceptors = {
@@ -9207,9 +9208,73 @@ var StellarLib =
 /* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
+	// shim for using process in browser
+
+	var process = module.exports = {};
+	var queue = [];
+	var draining = false;
+
+	function drainQueue() {
+	    if (draining) {
+	        return;
+	    }
+	    draining = true;
+	    var currentQueue;
+	    var len = queue.length;
+	    while(len) {
+	        currentQueue = queue;
+	        queue = [];
+	        var i = -1;
+	        while (++i < len) {
+	            currentQueue[i]();
+	        }
+	        len = queue.length;
+	    }
+	    draining = false;
+	}
+	process.nextTick = function (fun) {
+	    queue.push(fun);
+	    if (!draining) {
+	        setTimeout(drainQueue, 0);
+	    }
+	};
+
+	process.title = 'browser';
+	process.browser = true;
+	process.env = {};
+	process.argv = [];
+	process.version = ''; // empty string to avoid regexp issues
+	process.versions = {};
+
+	function noop() {}
+
+	process.on = noop;
+	process.addListener = noop;
+	process.once = noop;
+	process.off = noop;
+	process.removeListener = noop;
+	process.removeAllListeners = noop;
+	process.emit = noop;
+
+	process.binding = function (name) {
+	    throw new Error('process.binding is not supported');
+	};
+
+	// TODO(shtylman)
+	process.cwd = function () { return '/' };
+	process.chdir = function (dir) {
+	    throw new Error('process.chdir is not supported');
+	};
+	process.umask = function() { return 0; };
+
+
+/***/ },
+/* 24 */
+/***/ function(module, exports, __webpack_require__) {
+
 	'use strict';
 
-	var utils = __webpack_require__(24);
+	var utils = __webpack_require__(25);
 
 	var PROTECTION_PREFIX = /^\)\]\}',?\n/;
 	var DEFAULT_CONTENT_TYPE = {
@@ -9262,7 +9327,7 @@ var StellarLib =
 
 
 /***/ },
-/* 24 */
+/* 25 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -9485,7 +9550,7 @@ var StellarLib =
 
 
 /***/ },
-/* 25 */
+/* 26 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -9513,7 +9578,7 @@ var StellarLib =
 
 
 /***/ },
-/* 26 */
+/* 27 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -9543,15 +9608,15 @@ var StellarLib =
 	};
 
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(29)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(23)))
 
 /***/ },
-/* 27 */
+/* 28 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var utils = __webpack_require__(24);
+	var utils = __webpack_require__(25);
 
 	function InterceptorManager() {
 	  this.handlers = [];
@@ -9604,7 +9669,7 @@ var StellarLib =
 
 
 /***/ },
-/* 28 */
+/* 29 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -9637,74 +9702,10 @@ var StellarLib =
 
 
 /***/ },
-/* 29 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// shim for using process in browser
-
-	var process = module.exports = {};
-	var queue = [];
-	var draining = false;
-
-	function drainQueue() {
-	    if (draining) {
-	        return;
-	    }
-	    draining = true;
-	    var currentQueue;
-	    var len = queue.length;
-	    while(len) {
-	        currentQueue = queue;
-	        queue = [];
-	        var i = -1;
-	        while (++i < len) {
-	            currentQueue[i]();
-	        }
-	        len = queue.length;
-	    }
-	    draining = false;
-	}
-	process.nextTick = function (fun) {
-	    queue.push(fun);
-	    if (!draining) {
-	        setTimeout(drainQueue, 0);
-	    }
-	};
-
-	process.title = 'browser';
-	process.browser = true;
-	process.env = {};
-	process.argv = [];
-	process.version = ''; // empty string to avoid regexp issues
-	process.versions = {};
-
-	function noop() {}
-
-	process.on = noop;
-	process.addListener = noop;
-	process.once = noop;
-	process.off = noop;
-	process.removeListener = noop;
-	process.removeAllListeners = noop;
-	process.emit = noop;
-
-	process.binding = function (name) {
-	    throw new Error('process.binding is not supported');
-	};
-
-	// TODO(shtylman)
-	process.cwd = function () { return '/' };
-	process.chdir = function (dir) {
-	    throw new Error('process.chdir is not supported');
-	};
-	process.umask = function() { return 0; };
-
-
-/***/ },
 /* 30 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(setImmediate, clearImmediate) {var nextTick = __webpack_require__(29).nextTick;
+	/* WEBPACK VAR INJECTION */(function(setImmediate, clearImmediate) {var nextTick = __webpack_require__(23).nextTick;
 	var apply = Function.prototype.apply;
 	var slice = Array.prototype.slice;
 	var immediateIds = {};
@@ -9793,7 +9794,7 @@ var StellarLib =
 	 * @license  MIT
 	 */
 
-	var base64 = __webpack_require__(72)
+	var base64 = __webpack_require__(73)
 	var ieee754 = __webpack_require__(52)
 	var isArray = __webpack_require__(53)
 
@@ -11337,11 +11338,11 @@ var StellarLib =
 /* 39 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(process) {var original = __webpack_require__(73)
+	/* WEBPACK VAR INJECTION */(function(process) {var original = __webpack_require__(72)
 	  , parse = __webpack_require__(61).parse
 	  , events = __webpack_require__(62)
-	  , https = __webpack_require__(63)
-	  , http = __webpack_require__(64)
+	  , https = __webpack_require__(64)
+	  , http = __webpack_require__(63)
 	  , util = __webpack_require__(65);
 
 	function isPlainObject(obj) {
@@ -11650,7 +11651,7 @@ var StellarLib =
 	  }
 	}
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(29)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(23)))
 
 /***/ },
 /* 40 */
@@ -23858,8 +23859,8 @@ var StellarLib =
 
 	/*global ActiveXObject:true*/
 
-	var defaults = __webpack_require__(23);
-	var utils = __webpack_require__(24);
+	var defaults = __webpack_require__(24);
+	var utils = __webpack_require__(25);
 	var buildUrl = __webpack_require__(66);
 	var cookies = __webpack_require__(67);
 	var parseHeaders = __webpack_require__(68);
@@ -24924,7 +24925,7 @@ var StellarLib =
 	}).call(this);
 
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(29), __webpack_require__(30).setImmediate, (function() { return this; }()), __webpack_require__(94)(module)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(23), __webpack_require__(30).setImmediate, (function() { return this; }()), __webpack_require__(94)(module)))
 
 /***/ },
 /* 45 */
@@ -34562,25 +34563,6 @@ var StellarLib =
 /* 63 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var http = __webpack_require__(64);
-
-	var https = module.exports;
-
-	for (var key in http) {
-	    if (http.hasOwnProperty(key)) https[key] = http[key];
-	};
-
-	https.request = function (params, cb) {
-	    if (!params) params = {};
-	    params.scheme = 'https';
-	    return http.request.call(this, params, cb);
-	}
-
-
-/***/ },
-/* 64 */
-/***/ function(module, exports, __webpack_require__) {
-
 	var http = module.exports;
 	var EventEmitter = __webpack_require__(62).EventEmitter;
 	var Request = __webpack_require__(98);
@@ -34726,6 +34708,25 @@ var StellarLib =
 	    510 : 'Not Extended',               // RFC 2774
 	    511 : 'Network Authentication Required' // RFC 6585
 	};
+
+/***/ },
+/* 64 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var http = __webpack_require__(63);
+
+	var https = module.exports;
+
+	for (var key in http) {
+	    if (http.hasOwnProperty(key)) https[key] = http[key];
+	};
+
+	https.request = function (params, cb) {
+	    if (!params) params = {};
+	    params.scheme = 'https';
+	    return http.request.call(this, params, cb);
+	}
+
 
 /***/ },
 /* 65 */
@@ -35318,7 +35319,7 @@ var StellarLib =
 	  return Object.prototype.hasOwnProperty.call(obj, prop);
 	}
 
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(29)))
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(23)))
 
 /***/ },
 /* 66 */
@@ -35326,7 +35327,7 @@ var StellarLib =
 
 	'use strict';
 
-	var utils = __webpack_require__(24);
+	var utils = __webpack_require__(25);
 
 	function encode(val) {
 	  return encodeURIComponent(val).
@@ -35384,7 +35385,7 @@ var StellarLib =
 
 	'use strict';
 
-	var utils = __webpack_require__(24);
+	var utils = __webpack_require__(25);
 
 	module.exports = {
 	  write: function write(name, value, expires, path, domain, secure) {
@@ -35427,7 +35428,7 @@ var StellarLib =
 
 	'use strict';
 
-	var utils = __webpack_require__(24);
+	var utils = __webpack_require__(25);
 
 	/**
 	 * Parse headers into an object
@@ -35467,7 +35468,7 @@ var StellarLib =
 
 	'use strict';
 
-	var utils = __webpack_require__(24);
+	var utils = __webpack_require__(25);
 
 	/**
 	 * Transform the data for a request or a response
@@ -35492,7 +35493,7 @@ var StellarLib =
 
 	'use strict';
 
-	var utils = __webpack_require__(24);
+	var utils = __webpack_require__(25);
 	var msie = /(msie|trident)/i.test(navigator.userAgent);
 	var urlParsingNode = document.createElement('a');
 	var originUrl;
@@ -35547,6 +35548,72 @@ var StellarLib =
 /***/ },
 /* 71 */,
 /* 72 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var parse = __webpack_require__(106);
+
+	/**
+	 * Transform an URL to a valid origin value.
+	 *
+	 * @param {String|Object} url URL to transform to it's origin.
+	 * @returns {String} The origin.
+	 * @api public
+	 */
+	function origin(url) {
+	  if ('string' === typeof url) {
+	    //
+	    // In order to correctly parse an URL it needs to be prefixed with
+	    // a protocol or the parsers will all assume that the information we've
+	    // given is a pathname instead of an URL. So we need to do a sanity check
+	    // before parsing.
+	    //
+	    if (!/^(http|ws|file|blob)s?:/i.test(url)) url = 'http://'+ url;
+	    url = parse(url.toLowerCase());
+	  }
+
+	  //
+	  // 6.2.  ASCII Serialization of an Origin
+	  // http://tools.ietf.org/html/rfc6454#section-6.2
+	  //
+	  // @TODO If we cannot generate a proper origin from the URL because
+	  // origin/host/port information is missing we should return the string `null`
+	  //
+
+	  var protocol = url.protocol
+	    , port = url.port && +url.port;
+
+	  //
+	  // 4. Origin of a URI
+	  // http://tools.ietf.org/html/rfc6454#section-4
+	  //
+	  // States that url.scheme, host should be converted to lower case. This also
+	  // makes it easier to match origins as everything is just lower case.
+	  //
+	  return (url.protocol +'//'+ url.hostname + (!port ? '' : ':'+ port)).toLowerCase();
+	}
+
+	/**
+	 * Check if the origins are the same.
+	 *
+	 * @param {String} a URL or origin of a.
+	 * @param {String} b URL or origin of b.
+	 * @returns {Boolean}
+	 * @api public
+	 */
+	origin.same = function same(a, b) {
+	  return origin(a) === origin(b);
+	};
+
+	//
+	// Expose the origin
+	//
+	module.exports = origin;
+
+
+/***/ },
+/* 73 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
@@ -35673,72 +35740,6 @@ var StellarLib =
 		exports.toByteArray = b64ToByteArray
 		exports.fromByteArray = uint8ToBase64
 	}(false ? (this.base64js = {}) : exports))
-
-
-/***/ },
-/* 73 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var parse = __webpack_require__(106);
-
-	/**
-	 * Transform an URL to a valid origin value.
-	 *
-	 * @param {String|Object} url URL to transform to it's origin.
-	 * @returns {String} The origin.
-	 * @api public
-	 */
-	function origin(url) {
-	  if ('string' === typeof url) {
-	    //
-	    // In order to correctly parse an URL it needs to be prefixed with
-	    // a protocol or the parsers will all assume that the information we've
-	    // given is a pathname instead of an URL. So we need to do a sanity check
-	    // before parsing.
-	    //
-	    if (!/^(http|ws|file|blob)s?:/i.test(url)) url = 'http://'+ url;
-	    url = parse(url.toLowerCase());
-	  }
-
-	  //
-	  // 6.2.  ASCII Serialization of an Origin
-	  // http://tools.ietf.org/html/rfc6454#section-6.2
-	  //
-	  // @TODO If we cannot generate a proper origin from the URL because
-	  // origin/host/port information is missing we should return the string `null`
-	  //
-
-	  var protocol = url.protocol
-	    , port = url.port && +url.port;
-
-	  //
-	  // 4. Origin of a URI
-	  // http://tools.ietf.org/html/rfc6454#section-4
-	  //
-	  // States that url.scheme, host should be converted to lower case. This also
-	  // makes it easier to match origins as everything is just lower case.
-	  //
-	  return (url.protocol +'//'+ url.hostname + (!port ? '' : ':'+ port)).toLowerCase();
-	}
-
-	/**
-	 * Check if the origins are the same.
-	 *
-	 * @param {String} a URL or origin of a.
-	 * @param {String} b URL or origin of b.
-	 * @returns {Boolean}
-	 * @api public
-	 */
-	origin.same = function same(a, b) {
-	  return origin(a) === origin(b);
-	};
-
-	//
-	// Expose the origin
-	//
-	module.exports = origin;
 
 
 /***/ },
@@ -41466,7 +41467,7 @@ var StellarLib =
 	  return -1;
 	}
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(29)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(23)))
 
 /***/ },
 /* 129 */
@@ -41950,7 +41951,7 @@ var StellarLib =
 	  state.ended = true;
 	}
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(29)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(23)))
 
 /***/ },
 /* 130 */
@@ -42046,7 +42047,7 @@ var StellarLib =
 	  }
 	}
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(29)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(23)))
 
 /***/ },
 /* 131 */
