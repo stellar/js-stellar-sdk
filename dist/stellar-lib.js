@@ -5230,7 +5230,7 @@ var StellarLib =
 
 	},{}]},{},[4])(4)
 	});                    ;if (typeof window !== 'undefined' && window !== null) {                               window.P = window.Promise;                                                     } else if (typeof self !== 'undefined' && self !== null) {                             self.P = self.Promise;                                                         }
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(23), (function() { return this; }()), __webpack_require__(30).setImmediate))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(30), (function() { return this; }()), __webpack_require__(29).setImmediate))
 
 /***/ },
 /* 6 */
@@ -5601,7 +5601,7 @@ var StellarLib =
 	        if (code.length != 3 && code.length != 4) {
 	            throw new Error("Currency code must be 3 or 4 characters");
 	        }
-	        if (code.toLowerCase() !== "xlm" && !issuer) {
+	        if (String(code).toLowerCase() !== "xlm" && !issuer) {
 	            throw new Error("Issuer cannot be null");
 	        }
 	        // pad code with null byte if necessary
@@ -5902,7 +5902,6 @@ var StellarLib =
 	            value: function loadAccount(address) {
 	                var self = this;
 	                return this.accounts(address).then(function (res) {
-	                    console.log(res);
 	                    return new Account(address, res.sequence);
 	                });
 	            }
@@ -6691,11 +6690,11 @@ var StellarLib =
 
 	'use strict';
 
-	var defaults = __webpack_require__(24);
-	var utils = __webpack_require__(25);
-	var deprecatedMethod = __webpack_require__(26);
-	var dispatchRequest = __webpack_require__(27);
-	var InterceptorManager = __webpack_require__(28);
+	var defaults = __webpack_require__(23);
+	var utils = __webpack_require__(24);
+	var deprecatedMethod = __webpack_require__(25);
+	var dispatchRequest = __webpack_require__(26);
+	var InterceptorManager = __webpack_require__(27);
 
 	// Polyfill ES6 Promise if needed
 	(function () {
@@ -6764,7 +6763,7 @@ var StellarLib =
 	axios.all = function (promises) {
 	  return Promise.all(promises);
 	};
-	axios.spread = __webpack_require__(29);
+	axios.spread = __webpack_require__(28);
 
 	// Expose interceptors
 	axios.interceptors = {
@@ -8753,7 +8752,7 @@ var StellarLib =
 	  value: true
 	});
 
-	var sha256 = __webpack_require__(40).sha256;
+	var sha256 = __webpack_require__(41).sha256;
 
 	function hash(data) {
 	  var hasher = new sha256();
@@ -8793,7 +8792,7 @@ var StellarLib =
 	  (function () {
 	    // NOTE: we use commonjs style require here because es6 imports
 	    // can only occur at the top level.  thanks, obama.
-	    var ed25519 = __webpack_require__(41);
+	    var ed25519 = __webpack_require__(40);
 
 	    actualMethods.sign = function (data, secretKey) {
 	      data = new Buffer(data);
@@ -9208,73 +9207,9 @@ var StellarLib =
 /* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
-	// shim for using process in browser
-
-	var process = module.exports = {};
-	var queue = [];
-	var draining = false;
-
-	function drainQueue() {
-	    if (draining) {
-	        return;
-	    }
-	    draining = true;
-	    var currentQueue;
-	    var len = queue.length;
-	    while(len) {
-	        currentQueue = queue;
-	        queue = [];
-	        var i = -1;
-	        while (++i < len) {
-	            currentQueue[i]();
-	        }
-	        len = queue.length;
-	    }
-	    draining = false;
-	}
-	process.nextTick = function (fun) {
-	    queue.push(fun);
-	    if (!draining) {
-	        setTimeout(drainQueue, 0);
-	    }
-	};
-
-	process.title = 'browser';
-	process.browser = true;
-	process.env = {};
-	process.argv = [];
-	process.version = ''; // empty string to avoid regexp issues
-	process.versions = {};
-
-	function noop() {}
-
-	process.on = noop;
-	process.addListener = noop;
-	process.once = noop;
-	process.off = noop;
-	process.removeListener = noop;
-	process.removeAllListeners = noop;
-	process.emit = noop;
-
-	process.binding = function (name) {
-	    throw new Error('process.binding is not supported');
-	};
-
-	// TODO(shtylman)
-	process.cwd = function () { return '/' };
-	process.chdir = function (dir) {
-	    throw new Error('process.chdir is not supported');
-	};
-	process.umask = function() { return 0; };
-
-
-/***/ },
-/* 24 */
-/***/ function(module, exports, __webpack_require__) {
-
 	'use strict';
 
-	var utils = __webpack_require__(25);
+	var utils = __webpack_require__(24);
 
 	var PROTECTION_PREFIX = /^\)\]\}',?\n/;
 	var DEFAULT_CONTENT_TYPE = {
@@ -9327,7 +9262,7 @@ var StellarLib =
 
 
 /***/ },
-/* 25 */
+/* 24 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -9550,7 +9485,7 @@ var StellarLib =
 
 
 /***/ },
-/* 26 */
+/* 25 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -9578,7 +9513,7 @@ var StellarLib =
 
 
 /***/ },
-/* 27 */
+/* 26 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -9608,15 +9543,15 @@ var StellarLib =
 	};
 
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(23)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(30)))
 
 /***/ },
-/* 28 */
+/* 27 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var utils = __webpack_require__(25);
+	var utils = __webpack_require__(24);
 
 	function InterceptorManager() {
 	  this.handlers = [];
@@ -9669,7 +9604,7 @@ var StellarLib =
 
 
 /***/ },
-/* 29 */
+/* 28 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -9702,10 +9637,10 @@ var StellarLib =
 
 
 /***/ },
-/* 30 */
+/* 29 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(setImmediate, clearImmediate) {var nextTick = __webpack_require__(23).nextTick;
+	/* WEBPACK VAR INJECTION */(function(setImmediate, clearImmediate) {var nextTick = __webpack_require__(30).nextTick;
 	var apply = Function.prototype.apply;
 	var slice = Array.prototype.slice;
 	var immediateIds = {};
@@ -9781,7 +9716,71 @@ var StellarLib =
 	exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate : function(id) {
 	  delete immediateIds[id];
 	};
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(30).setImmediate, __webpack_require__(30).clearImmediate))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(29).setImmediate, __webpack_require__(29).clearImmediate))
+
+/***/ },
+/* 30 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// shim for using process in browser
+
+	var process = module.exports = {};
+	var queue = [];
+	var draining = false;
+
+	function drainQueue() {
+	    if (draining) {
+	        return;
+	    }
+	    draining = true;
+	    var currentQueue;
+	    var len = queue.length;
+	    while(len) {
+	        currentQueue = queue;
+	        queue = [];
+	        var i = -1;
+	        while (++i < len) {
+	            currentQueue[i]();
+	        }
+	        len = queue.length;
+	    }
+	    draining = false;
+	}
+	process.nextTick = function (fun) {
+	    queue.push(fun);
+	    if (!draining) {
+	        setTimeout(drainQueue, 0);
+	    }
+	};
+
+	process.title = 'browser';
+	process.browser = true;
+	process.env = {};
+	process.argv = [];
+	process.version = ''; // empty string to avoid regexp issues
+	process.versions = {};
+
+	function noop() {}
+
+	process.on = noop;
+	process.addListener = noop;
+	process.once = noop;
+	process.off = noop;
+	process.removeListener = noop;
+	process.removeAllListeners = noop;
+	process.emit = noop;
+
+	process.binding = function (name) {
+	    throw new Error('process.binding is not supported');
+	};
+
+	// TODO(shtylman)
+	process.cwd = function () { return '/' };
+	process.chdir = function (dir) {
+	    throw new Error('process.chdir is not supported');
+	};
+	process.umask = function() { return 0; };
+
 
 /***/ },
 /* 31 */
@@ -11341,8 +11340,8 @@ var StellarLib =
 	/* WEBPACK VAR INJECTION */(function(process) {var original = __webpack_require__(72)
 	  , parse = __webpack_require__(61).parse
 	  , events = __webpack_require__(62)
-	  , https = __webpack_require__(64)
-	  , http = __webpack_require__(63)
+	  , https = __webpack_require__(63)
+	  , http = __webpack_require__(64)
 	  , util = __webpack_require__(65);
 
 	function isPlainObject(obj) {
@@ -11651,10 +11650,16 @@ var StellarLib =
 	  }
 	}
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(23)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(30)))
 
 /***/ },
 /* 40 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"./build/Release/native.node\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
+
+/***/ },
+/* 41 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var exports = module.exports = function (alg) {
@@ -11671,12 +11676,6 @@ var StellarLib =
 	exports.sha384 = __webpack_require__(58)
 	exports.sha512 = __webpack_require__(59)
 
-
-/***/ },
-/* 41 */
-/***/ function(module, exports, __webpack_require__) {
-
-	module.exports = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"./build/Release/native.node\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
 
 /***/ },
 /* 42 */
@@ -23859,8 +23858,8 @@ var StellarLib =
 
 	/*global ActiveXObject:true*/
 
-	var defaults = __webpack_require__(24);
-	var utils = __webpack_require__(25);
+	var defaults = __webpack_require__(23);
+	var utils = __webpack_require__(24);
 	var buildUrl = __webpack_require__(66);
 	var cookies = __webpack_require__(67);
 	var parseHeaders = __webpack_require__(68);
@@ -24925,7 +24924,7 @@ var StellarLib =
 	}).call(this);
 
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(23), __webpack_require__(30).setImmediate, (function() { return this; }()), __webpack_require__(94)(module)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(30), __webpack_require__(29).setImmediate, (function() { return this; }()), __webpack_require__(94)(module)))
 
 /***/ },
 /* 45 */
@@ -34563,6 +34562,25 @@ var StellarLib =
 /* 63 */
 /***/ function(module, exports, __webpack_require__) {
 
+	var http = __webpack_require__(64);
+
+	var https = module.exports;
+
+	for (var key in http) {
+	    if (http.hasOwnProperty(key)) https[key] = http[key];
+	};
+
+	https.request = function (params, cb) {
+	    if (!params) params = {};
+	    params.scheme = 'https';
+	    return http.request.call(this, params, cb);
+	}
+
+
+/***/ },
+/* 64 */
+/***/ function(module, exports, __webpack_require__) {
+
 	var http = module.exports;
 	var EventEmitter = __webpack_require__(62).EventEmitter;
 	var Request = __webpack_require__(98);
@@ -34708,25 +34726,6 @@ var StellarLib =
 	    510 : 'Not Extended',               // RFC 2774
 	    511 : 'Network Authentication Required' // RFC 6585
 	};
-
-/***/ },
-/* 64 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var http = __webpack_require__(63);
-
-	var https = module.exports;
-
-	for (var key in http) {
-	    if (http.hasOwnProperty(key)) https[key] = http[key];
-	};
-
-	https.request = function (params, cb) {
-	    if (!params) params = {};
-	    params.scheme = 'https';
-	    return http.request.call(this, params, cb);
-	}
-
 
 /***/ },
 /* 65 */
@@ -35319,7 +35318,7 @@ var StellarLib =
 	  return Object.prototype.hasOwnProperty.call(obj, prop);
 	}
 
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(23)))
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(30)))
 
 /***/ },
 /* 66 */
@@ -35327,7 +35326,7 @@ var StellarLib =
 
 	'use strict';
 
-	var utils = __webpack_require__(25);
+	var utils = __webpack_require__(24);
 
 	function encode(val) {
 	  return encodeURIComponent(val).
@@ -35385,7 +35384,7 @@ var StellarLib =
 
 	'use strict';
 
-	var utils = __webpack_require__(25);
+	var utils = __webpack_require__(24);
 
 	module.exports = {
 	  write: function write(name, value, expires, path, domain, secure) {
@@ -35428,7 +35427,7 @@ var StellarLib =
 
 	'use strict';
 
-	var utils = __webpack_require__(25);
+	var utils = __webpack_require__(24);
 
 	/**
 	 * Parse headers into an object
@@ -35468,7 +35467,7 @@ var StellarLib =
 
 	'use strict';
 
-	var utils = __webpack_require__(25);
+	var utils = __webpack_require__(24);
 
 	/**
 	 * Transform the data for a request or a response
@@ -35493,7 +35492,7 @@ var StellarLib =
 
 	'use strict';
 
-	var utils = __webpack_require__(25);
+	var utils = __webpack_require__(24);
 	var msie = /(msie|trident)/i.test(navigator.userAgent);
 	var urlParsingNode = document.createElement('a');
 	var originUrl;
@@ -41467,7 +41466,7 @@ var StellarLib =
 	  return -1;
 	}
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(23)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(30)))
 
 /***/ },
 /* 129 */
@@ -41951,7 +41950,7 @@ var StellarLib =
 	  state.ended = true;
 	}
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(23)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(30)))
 
 /***/ },
 /* 130 */
@@ -42047,7 +42046,7 @@ var StellarLib =
 	  }
 	}
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(23)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(30)))
 
 /***/ },
 /* 131 */

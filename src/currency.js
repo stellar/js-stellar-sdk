@@ -40,7 +40,7 @@ export class Currency {
         if (code.length != 3 && code.length != 4) {
             throw new Error("Currency code must be 3 or 4 characters");
         }
-        if (code.toLowerCase() !== "xlm" && !issuer) {
+        if (String(code).toLowerCase() !== "xlm" && !issuer) {
             throw new Error("Issuer cannot be null");
         }
         // pad code with null byte if necessary
