@@ -40,7 +40,7 @@ export class Currency {
         if (code.length != 3 && code.length != 4) {
             throw new Error("Currency code must be 3 or 4 characters");
         }
-        if (code !== "XLM" && !issuer) {
+        if (code.toLowerCase() !== "xlm" && !issuer) {
             throw new Error("Issuer cannot be null");
         }
         // pad code with null byte if necessary
@@ -71,7 +71,7 @@ export class Currency {
     * Returns true if this currency object is the native currency.
     */
     isNative() {
-        return this.code === "XLM\0";
+        return !this.issuer;
     }
 
     /**
