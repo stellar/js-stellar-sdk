@@ -37,17 +37,13 @@ export class Server {
                 tx: transaction.toEnvelope().toXDR().toString("hex")
             })
             .then(function(response) {
-                let result = xdr.TransactionResult.fromXDR(new Buffer(response.data.submission_result, "hex"));
-                return new TransactionResult(result);
+                return response.data;
             })
             .catch(function (response) {
                 if (response instanceof Error) {
-                    return Promise.reject(err);
+                    return Promise.reject(response);
                 } else {
-                    return Promise.reject({
-                        hash: response.body.hash,
-                        result: response.body.result
-                    });
+                    return Promise.reject(response.data);
                 }
             });
         return toBluebird(promise);
