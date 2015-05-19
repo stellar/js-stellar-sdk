@@ -57,7 +57,7 @@ export class Server {
     * <p>A configuration object can be passed to each call. Calls that return a collection
     * can be streamed by passing a streaming object in the config object.</p>@param {string} [address] - Returns the given account.
     * @param {string} [resource] - Return a specific resource associated with an account. Can be
-    *                              {"transactions", "operations", "effects"}.
+    *                              {"transactions", "operations", "effects", "payments"}.
     * @param {object} [opts] - Optional configuration for the request.
     * @param {string} [opts.after] - Return only resources after the given paging token.
     * @param {number} [opts.limit] - Limit the number of returned resources to the given amount.
@@ -94,7 +94,7 @@ export class Server {
     * <p>A configuration object can be passed to each call. Calls that return a collection
     * can be streamed by passing a streaming object in the config object.</p>@param {number} [sequence] - Returns the given ledger.
     * @param {string} [resource] - Return a specific resource associated with a ledger. Can be
-    *                              {"transactions", "operations", "effects"}.
+    *                              {"transactions", "operations", "effects", "payments"}.
     * @param {object} [opts] - Optional configuration for the request.
     * @param {string} [opts.after] - Return only resources after the given paging token.
     * @param {number} [opts.limit] - Limit the number of returned resources to the given amount.
@@ -132,7 +132,7 @@ export class Server {
     * can be streamed by passing a streaming object in the config object.</p>
     * @param {string} [hash] - Returns the given transaction.
     * @param {string} [resource] - Return a specific resource associated with a transaction. Can be
-    *                              {"operations", "effects"}.
+    *                              {"operations", "effects", "payments"}.
     * @param {object} [opts] - Optional configuration for the request.
     * @param {string} [opts.after] - Return only resources after the given paging token.
     * @param {number} [opts.limit] - Limit the number of returned resources to the given amount.
@@ -159,6 +159,30 @@ export class Server {
             resource = null;
         }
         return this._sendResourceRequest("transactions", hash, resource, opts);
+    }
+
+    /**
+    * Operation's firehose.
+    * TODO: support for operation/:id [blocked on horizon]
+    * TODO: support for operation/:id/effects [blocked on horizon]
+    */
+    operations(id, resource, opts) {
+        if (!id || typeof(id) === "object") {
+            opts = id;
+            id = null;
+            resource = null;
+        } else if (!resource || typeof resource === "object") {
+            opts = resource;
+            resource = null;
+        }
+        return this._sendResourceRequest("operations", id, resource, opts);
+    }
+
+    /**
+    * Payments firehose.
+    */
+    payments(opts) {
+        return this._sendResourceRequest("payments", null, null, opts);
     }
 
     /**
