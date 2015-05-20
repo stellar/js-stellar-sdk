@@ -58,7 +58,7 @@ export class Server {
     * <p>A configuration object can be passed to each call. Calls that return a collection
     * can be streamed by passing a streaming object in the config object.</p>@param {string} [address] - Returns the given account.
     * @param {string} [resource] - Return a specific resource associated with an account. Can be
-    *                              {"transactions", "operations", "effects", "payments"}.
+    *                              {"transactions", "operations", "effects", "payments", "offers"}.
     * @param {object} [opts] - Optional configuration for the request.
     * @param {string} [opts.after] - Return only resources after the given paging token.
     * @param {number} [opts.limit] - Limit the number of returned resources to the given amount.
