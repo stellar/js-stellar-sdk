@@ -238,20 +238,11 @@ export class Server {
         return endpoint;
     }
 
-    _sendNormalRequest(endpoint) {
-        var promise = axios.get(this.protocol + this.hostname + ":" + this.port + endpoint)
-            .then(function (response) {
-                return response.data;
-            })
-            .catch(this._handleNetworkError);
-        return toBluebird(promise);
-    }
-
-    /**
-    * For those pesky _link.href full URLs we get back from Horizon.
-    */
-    _sendLinkRequest(href) {
-        var promise = axios.get(href)
+    _sendNormalRequest(url) {
+        if (url.slice(0,4) != "http") {
+            url = this.protocol + this.hostname + ":" + this.port + url;
+        }
+        var promise = axios.get(url)
             .then(function (response) {
                 return response.data;
             })
@@ -334,7 +325,7 @@ export class Server {
             return function (opts) {
                 if (link.template) {
                     let template = UriTemplate(link.href);
-                    href = self._sendNormalRequest(_template.expand(opts));
+                    return self._sendNormalRequest(_template.expand(opts));
                 } else {
                     return self._sendNormalRequest(link.href);
                 }
