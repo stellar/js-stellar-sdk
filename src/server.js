@@ -5,6 +5,7 @@ import {NotFoundError, NetworkError} from "./errors";
 
 let axios = require("axios");
 let toBluebird = require("bluebird").resolve;
+let UriTemplate = require("uritemplate");
 
 var EventSource = (typeof window === 'undefined') ? require('eventsource') : window.EventSource;
 
@@ -213,16 +214,12 @@ export class Server {
     * @param {string} type - {"accounts", "ledgers", "transactions"}
     */
     _sendResourceRequest(type, id, resource, opts) {
-        // we're not requesting a collection if they specify the id and no sub resource
-        var single = id && !resource;
         var endpoint = this._buildEndpointPath(type, id, resource, opts);
         if (opts && opts.streaming) {
             return this._sendStreamingRequest(endpoint, opts.streaming);
         } else {
-            var promise = this._sendNormalRequest(endpoint);
-            if (!single) {
-                promise = promise.then(this._toCollectionPage.bind(this));
-            }
+            var promise = this._sendNormalRequest(endpoint)
+                .then(this._parseResponse.bind(this));
             return promise;
         }
     }
@@ -299,8 +296,19 @@ export class Server {
         return endpoint;
     }
 
+    _parseResponse(json) {
+        if (json._embedded && json._embedded.records) {
+            return this._toCollectionPage(json);
+        } else {
+            return this._parseRecord(json);
+        }
+    }
+
     _toCollectionPage(json) {
         var self = this;
+        for (var i = 0; i < json._embedded.records.length; i++) {
+            json._embedded.records[i] = this._parseRecord(json._embedded.records[i]);
+        }
         return {
             records: json._embedded.records,
             next: function () {
@@ -312,5 +320,30 @@ export class Server {
                     .then(self._toCollectionPage.bind(self));
             }
         };
+    }
+
+    /**
+    * Convert each link into a function on the response object.
+    */
+    _parseRecord(json) {
+        if (!json._links) {
+            return json;
+        }
+        var self = this;
+        var linkFn = function (link) {
+            return function (opts) {
+                if (link.template) {
+                    let template = UriTemplate(link.href);
+                    href = self._sendNormalRequest(_template.expand(opts));
+                } else {
+                    return self._sendNormalRequest(link.href);
+                }
+            };
+        };
+        Object.keys(json._links).map(function(value, index) {
+            var link = json._links[value];
+            json[value] = linkFn(link);
+        });
+        return json;
     }
 }

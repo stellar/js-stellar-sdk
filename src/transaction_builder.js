@@ -44,8 +44,9 @@ export class TransactionBuilder {
     * @param {Account} sourceAccount - The source account for this transaction.
     * @param {object} [opts]
     * @param {number} [opts.fee] - The max fee willing to pay for this transaction.
-    * @param {number} [opts.minLedger] - The minimum ledger this transaction is valid in.
-    * @param {number} [opts.maxLedger] - The maximum ledger this transaction is valid in.
+    * @param {object} [opts.timebounds] - The timebounds for the validity of this transaction.
+    * @param {string} [opts.timebounds.minTime] - 64 bit unix timestamp
+    * @param {string} [opts.timebounds.maxTime] - 64 bit unix timestamp
     * @param {Memo} [opts.memo] - The memo for the transaction
     * @param {}
     */
@@ -58,8 +59,7 @@ export class TransactionBuilder {
         this.signers       = [];
 
         this.fee        = opts.fee || FEE;
-        this.minLedger  = opts.minLedger || MIN_LEDGER;
-        this.maxLedger  = opts.maxLedger || MAX_LEDGER;
+        this.timebounds = opts.timebounds;
 
         this.memo       = opts.memo || Memo.none();
 
@@ -90,14 +90,16 @@ export class TransactionBuilder {
     * @returns {Transaction} will return the built Transaction.
     */
     build() {
-        let tx = new xdr.Transaction({
+        var attrs = {
           sourceAccount: Keypair.fromAddress(this.source.address).publicKey(),
           fee:           this.fee,
           seqNum:        xdr.SequenceNumber.fromString(String(Number(this.source.sequence) + 1)),
-          minLedger:     this.minLedger,
-          maxLedger:     this.maxLedger,
           memo:          this.memo
-        });
+        };
+        if (this.timebounds) {
+            attrs.timeBounds = new xdr.TimeBounds(this.timebounds);
+        }
+        let tx = new xdr.Transaction(attrs);
 
         this.source.sequence = this.source.sequence + 1;
 

@@ -229,4 +229,17 @@ describe("server.js tests", function () {
         })
     });*/
   });
+
+  describe("Server._parseResult", function () {
+    it("creates link functions", function () {
+      var json = server._parseResponse({
+        "_links": {
+          "test": function () {
+            return "hi";
+          }
+        }
+      });
+      expect(typeof json.test).to.be.equal("function");
+    });
+  });
 });

@@ -59,6 +59,7 @@
     "jsdoc": "jsdoc3/jsdoc#master",
     "lodash": "^3.6.0",
     "stellar-base": "0.0.11",
-    "superagent": "^1.1.0"
+    "superagent": "^1.1.0",
+    "uritemplate": "^0.3.4"
   }
 }
