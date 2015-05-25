@@ -89,7 +89,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="server.js.html">server.js</a>, <a href="server.js.html#line8">line 8</a>
+        <a href="server.js.html">server.js</a>, <a href="server.js.html#line12">line 12</a>
     </li></ul></dd>
     
 
@@ -138,14 +138,14 @@
 
     
 
-    <h4 class="name" id="_sendLinkRequest"><span class="type-signature"></span>_sendLinkRequest<span class="signature">()</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="_parseRecord"><span class="type-signature"></span>_parseRecord<span class="signature">()</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    For those pesky _link.href full URLs we get back from Horizon.
+    Convert each link into a function on the response object.
 </div>
 
 
@@ -189,7 +189,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="server.js.html">server.js</a>, <a href="server.js.html#line235">line 235</a>
+        <a href="server.js.html">server.js</a>, <a href="server.js.html#line319">line 319</a>
     </li></ul></dd>
     
 
@@ -323,7 +323,7 @@ will return the EventSource object.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="server.js.html">server.js</a>, <a href="server.js.html#line188">line 188</a>
+        <a href="server.js.html">server.js</a>, <a href="server.js.html#line216">line 216</a>
     </li></ul></dd>
     
 
@@ -431,7 +431,7 @@ can be streamed by passing a streaming object in the config object.</p>@param {s
             
 
             <td class="description last">Return a specific resource associated with an account. Can be
-                             {"transactions", "operations", "effects"}.</td>
+                             {"transactions", "operations", "effects", "payments", "offers"}.</td>
         </tr>
 
     
@@ -762,7 +762,7 @@ can be streamed by passing a streaming object in the config object.</p>@param {s
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="server.js.html">server.js</a>, <a href="server.js.html#line83">line 83</a>
+        <a href="server.js.html">server.js</a>, <a href="server.js.html#line78">line 78</a>
     </li></ul></dd>
     
 
@@ -783,6 +783,62 @@ can be streamed by passing a streaming object in the config object.</p>@param {s
 
 
 
+<h5>Throws:</h5>
+<ul>
+        <li>
+
+<dl>
+    <dt>
+        <div class="param-desc">
+        - If the account does not exist.
+        </div>
+    </dt>
+    <dd></dd>
+    <dt>
+        <dl>
+            <dt>
+                Type
+            </dt>
+            <dd>
+                
+<span class="param-type">NotFoundError</span>
+
+
+            </dd>
+        </dl>
+    </dt>
+    <dd></dd>
+</dl>
+
+</li>
+    
+        <li>
+
+<dl>
+    <dt>
+        <div class="param-desc">
+        - For any other errors thrown by horizon
+        </div>
+    </dt>
+    <dd></dd>
+    <dt>
+        <dl>
+            <dt>
+                Type
+            </dt>
+            <dd>
+                
+<span class="param-type">NetworkError</span>
+
+
+            </dd>
+        </dl>
+    </dt>
+    <dd></dd>
+</dl>
+
+</li>
+    </ul>
 
 
 <h5>Returns:</h5>
@@ -897,7 +953,7 @@ can be streamed by passing a streaming object in the config object.</p>@param {n
             
 
             <td class="description last">Return a specific resource associated with a ledger. Can be
-                             {"transactions", "operations", "effects"}.</td>
+                             {"transactions", "operations", "effects", "payments"}.</td>
         </tr>
 
     
@@ -1228,7 +1284,7 @@ can be streamed by passing a streaming object in the config object.</p>@param {n
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="server.js.html">server.js</a>, <a href="server.js.html#line118">line 118</a>
+        <a href="server.js.html">server.js</a>, <a href="server.js.html#line115">line 115</a>
     </li></ul></dd>
     
 
@@ -1249,6 +1305,62 @@ can be streamed by passing a streaming object in the config object.</p>@param {n
 
 
 
+<h5>Throws:</h5>
+<ul>
+        <li>
+
+<dl>
+    <dt>
+        <div class="param-desc">
+        - If the ledger does not exist.
+        </div>
+    </dt>
+    <dd></dd>
+    <dt>
+        <dl>
+            <dt>
+                Type
+            </dt>
+            <dd>
+                
+<span class="param-type">NotFoundError</span>
+
+
+            </dd>
+        </dl>
+    </dt>
+    <dd></dd>
+</dl>
+
+</li>
+    
+        <li>
+
+<dl>
+    <dt>
+        <div class="param-desc">
+        - For any other errors thrown by horizon
+        </div>
+    </dt>
+    <dd></dd>
+    <dt>
+        <dl>
+            <dt>
+                Type
+            </dt>
+            <dd>
+                
+<span class="param-type">NetworkError</span>
+
+
+            </dd>
+        </dl>
+    </dt>
+    <dd></dd>
+</dl>
+
+</li>
+    </ul>
 
 
 <h5>Returns:</h5>
@@ -1387,7 +1499,7 @@ an Account object.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="server.js.html">server.js</a>, <a href="server.js.html#line173">line 173</a>
+        <a href="server.js.html">server.js</a>, <a href="server.js.html#line196">line 196</a>
     </li></ul></dd>
     
 
@@ -1433,6 +1545,172 @@ an Account object.
 </dl>
 
     
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="operations"><span class="type-signature"></span>operations<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    Operation's firehose.
+TODO: support for operation/:id [blocked on horizon]
+TODO: support for operation/:id/effects [blocked on horizon]
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="server.js.html">server.js</a>, <a href="server.js.html#line170">line 170</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="payments"><span class="type-signature"></span>payments<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    Payments firehose.
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="server.js.html">server.js</a>, <a href="server.js.html#line185">line 185</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1541,7 +1819,7 @@ an Account object.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="server.js.html">server.js</a>, <a href="server.js.html#line32">line 32</a>
+        <a href="server.js.html">server.js</a>, <a href="server.js.html#line36">line 36</a>
     </li></ul></dd>
     
 
@@ -1682,7 +1960,7 @@ can be streamed by passing a streaming object in the config object.</p>
             
 
             <td class="description last">Return a specific resource associated with a transaction. Can be
-                             {"operations", "effects"}.</td>
+                             {"operations", "effects", "payments"}.</td>
         </tr>
 
     
@@ -2013,7 +2291,7 @@ can be streamed by passing a streaming object in the config object.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="server.js.html">server.js</a>, <a href="server.js.html#line154">line 154</a>
+        <a href="server.js.html">server.js</a>, <a href="server.js.html#line153">line 153</a>
     </li></ul></dd>
     
 
@@ -2034,6 +2312,62 @@ can be streamed by passing a streaming object in the config object.</p>
 
 
 
+<h5>Throws:</h5>
+<ul>
+        <li>
+
+<dl>
+    <dt>
+        <div class="param-desc">
+        - If the transaction does not exist.
+        </div>
+    </dt>
+    <dd></dd>
+    <dt>
+        <dl>
+            <dt>
+                Type
+            </dt>
+            <dd>
+                
+<span class="param-type">NotFoundError</span>
+
+
+            </dd>
+        </dl>
+    </dt>
+    <dd></dd>
+</dl>
+
+</li>
+    
+        <li>
+
+<dl>
+    <dt>
+        <div class="param-desc">
+        - For any other errors thrown by horizon
+        </div>
+    </dt>
+    <dd></dd>
+    <dt>
+        <dl>
+            <dt>
+                Type
+            </dt>
+            <dd>
+                
+<span class="param-type">NetworkError</span>
+
+
+            </dd>
+        </dl>
+    </dt>
+    <dd></dd>
+</dl>
+
+</li>
+    </ul>
 
 
 <h5>Returns:</h5>
@@ -2341,7 +2675,7 @@ interface for requests to that instance.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="server.js.html">server.js</a>, <a href="server.js.html#line22">line 22</a>
+        <a href="server.js.html">server.js</a>, <a href="server.js.html#line26">line 26</a>
     </li></ul></dd>
     
 
@@ -2390,14 +2724,14 @@ interface for requests to that instance.
 
     
 
-    <h4 class="name" id="_sendLinkRequest"><span class="type-signature"></span>_sendLinkRequest<span class="signature">()</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="_parseRecord"><span class="type-signature"></span>_parseRecord<span class="signature">()</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    For those pesky _link.href full URLs we get back from Horizon.
+    Convert each link into a function on the response object.
 </div>
 
 
@@ -2441,7 +2775,7 @@ interface for requests to that instance.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="server.js.html">server.js</a>, <a href="server.js.html#line235">line 235</a>
+        <a href="server.js.html">server.js</a>, <a href="server.js.html#line319">line 319</a>
     </li></ul></dd>
     
 
@@ -2575,7 +2909,7 @@ will return the EventSource object.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="server.js.html">server.js</a>, <a href="server.js.html#line188">line 188</a>
+        <a href="server.js.html">server.js</a>, <a href="server.js.html#line216">line 216</a>
     </li></ul></dd>
     
 
@@ -2683,7 +3017,7 @@ can be streamed by passing a streaming object in the config object.</p>@param {s
             
 
             <td class="description last">Return a specific resource associated with an account. Can be
-                             {"transactions", "operations", "effects"}.</td>
+                             {"transactions", "operations", "effects", "payments", "offers"}.</td>
         </tr>
 
     
@@ -3014,7 +3348,7 @@ can be streamed by passing a streaming object in the config object.</p>@param {s
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="server.js.html">server.js</a>, <a href="server.js.html#line83">line 83</a>
+        <a href="server.js.html">server.js</a>, <a href="server.js.html#line78">line 78</a>
     </li></ul></dd>
     
 
@@ -3035,6 +3369,62 @@ can be streamed by passing a streaming object in the config object.</p>@param {s
 
 
 
+<h5>Throws:</h5>
+<ul>
+        <li>
+
+<dl>
+    <dt>
+        <div class="param-desc">
+        - If the account does not exist.
+        </div>
+    </dt>
+    <dd></dd>
+    <dt>
+        <dl>
+            <dt>
+                Type
+            </dt>
+            <dd>
+                
+<span class="param-type">NotFoundError</span>
+
+
+            </dd>
+        </dl>
+    </dt>
+    <dd></dd>
+</dl>
+
+</li>
+    
+        <li>
+
+<dl>
+    <dt>
+        <div class="param-desc">
+        - For any other errors thrown by horizon
+        </div>
+    </dt>
+    <dd></dd>
+    <dt>
+        <dl>
+            <dt>
+                Type
+            </dt>
+            <dd>
+                
+<span class="param-type">NetworkError</span>
+
+
+            </dd>
+        </dl>
+    </dt>
+    <dd></dd>
+</dl>
+
+</li>
+    </ul>
 
 
 <h5>Returns:</h5>
@@ -3149,7 +3539,7 @@ can be streamed by passing a streaming object in the config object.</p>@param {n
             
 
             <td class="description last">Return a specific resource associated with a ledger. Can be
-                             {"transactions", "operations", "effects"}.</td>
+                             {"transactions", "operations", "effects", "payments"}.</td>
         </tr>
 
     
@@ -3480,7 +3870,7 @@ can be streamed by passing a streaming object in the config object.</p>@param {n
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="server.js.html">server.js</a>, <a href="server.js.html#line118">line 118</a>
+        <a href="server.js.html">server.js</a>, <a href="server.js.html#line115">line 115</a>
     </li></ul></dd>
     
 
@@ -3501,6 +3891,62 @@ can be streamed by passing a streaming object in the config object.</p>@param {n
 
 
 
+<h5>Throws:</h5>
+<ul>
+        <li>
+
+<dl>
+    <dt>
+        <div class="param-desc">
+        - If the ledger does not exist.
+        </div>
+    </dt>
+    <dd></dd>
+    <dt>
+        <dl>
+            <dt>
+                Type
+            </dt>
+            <dd>
+                
+<span class="param-type">NotFoundError</span>
+
+
+            </dd>
+        </dl>
+    </dt>
+    <dd></dd>
+</dl>
+
+</li>
+    
+        <li>
+
+<dl>
+    <dt>
+        <div class="param-desc">
+        - For any other errors thrown by horizon
+        </div>
+    </dt>
+    <dd></dd>
+    <dt>
+        <dl>
+            <dt>
+                Type
+            </dt>
+            <dd>
+                
+<span class="param-type">NetworkError</span>
+
+
+            </dd>
+        </dl>
+    </dt>
+    <dd></dd>
+</dl>
+
+</li>
+    </ul>
 
 
 <h5>Returns:</h5>
@@ -3639,7 +4085,7 @@ an Account object.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="server.js.html">server.js</a>, <a href="server.js.html#line173">line 173</a>
+        <a href="server.js.html">server.js</a>, <a href="server.js.html#line196">line 196</a>
     </li></ul></dd>
     
 
@@ -3685,6 +4131,172 @@ an Account object.
 </dl>
 
     
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="operations"><span class="type-signature"></span>operations<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    Operation's firehose.
+TODO: support for operation/:id [blocked on horizon]
+TODO: support for operation/:id/effects [blocked on horizon]
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="server.js.html">server.js</a>, <a href="server.js.html#line170">line 170</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="payments"><span class="type-signature"></span>payments<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    Payments firehose.
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="server.js.html">server.js</a>, <a href="server.js.html#line185">line 185</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3793,7 +4405,7 @@ an Account object.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="server.js.html">server.js</a>, <a href="server.js.html#line32">line 32</a>
+        <a href="server.js.html">server.js</a>, <a href="server.js.html#line36">line 36</a>
     </li></ul></dd>
     
 
@@ -3934,7 +4546,7 @@ can be streamed by passing a streaming object in the config object.</p>
             
 
             <td class="description last">Return a specific resource associated with a transaction. Can be
-                             {"operations", "effects"}.</td>
+                             {"operations", "effects", "payments"}.</td>
         </tr>
 
     
@@ -4265,7 +4877,7 @@ can be streamed by passing a streaming object in the config object.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="server.js.html">server.js</a>, <a href="server.js.html#line154">line 154</a>
+        <a href="server.js.html">server.js</a>, <a href="server.js.html#line153">line 153</a>
     </li></ul></dd>
     
 
@@ -4286,6 +4898,62 @@ can be streamed by passing a streaming object in the config object.</p>
 
 
 
+<h5>Throws:</h5>
+<ul>
+        <li>
+
+<dl>
+    <dt>
+        <div class="param-desc">
+        - If the transaction does not exist.
+        </div>
+    </dt>
+    <dd></dd>
+    <dt>
+        <dl>
+            <dt>
+                Type
+            </dt>
+            <dd>
+                
+<span class="param-type">NotFoundError</span>
+
+
+            </dd>
+        </dl>
+    </dt>
+    <dd></dd>
+</dl>
+
+</li>
+    
+        <li>
+
+<dl>
+    <dt>
+        <div class="param-desc">
+        - For any other errors thrown by horizon
+        </div>
+    </dt>
+    <dd></dd>
+    <dt>
+        <dl>
+            <dt>
+                Type
+            </dt>
+            <dd>
+                
+<span class="param-type">NetworkError</span>
+
+
+            </dd>
+        </dl>
+    </dt>
+    <dd></dd>
+</dl>
+
+</li>
+    </ul>
 
 
 <h5>Returns:</h5>
@@ -4334,13 +5002,13 @@ can be streamed by passing a streaming object in the config object.</p>
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Account.html">Account</a></li><li><a href="Currency.html">Currency</a></li><li><a href="Memo.html">Memo</a></li><li><a href="Operation.html">Operation</a></li><li><a href="Server.html">Server</a></li><li><a href="Transaction.html">Transaction</a></li><li><a href="TransactionBuilder.html">TransactionBuilder</a></li><li><a href="TransactionResult.html">TransactionResult</a></li></ul><h3>Global</h3><ul><li><a href="global.html#best_r">best_r</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Account.html">Account</a></li><li><a href="Currency.html">Currency</a></li><li><a href="Memo.html">Memo</a></li><li><a href="Operation.html">Operation</a></li><li><a href="Server.html">Server</a></li><li><a href="Transaction.html">Transaction</a></li><li><a href="TransactionBuilder.html">TransactionBuilder</a></li><li><a href="TransactionResult.html">TransactionResult</a></li></ul><h3>Global</h3><ul><li><a href="global.html#best_r">best_r</a></li><li><a href="global.html#inherits">inherits</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0-dev</a> on Wed May 13 2015 18:58:41 GMT-0700 (PDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0-dev</a> on Mon May 25 2015 13:35:34 GMT-0700 (PDT)
 </footer>
 
 <script> prettyPrint(); </script>

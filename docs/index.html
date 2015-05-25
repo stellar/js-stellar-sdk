@@ -48,9 +48,11 @@ with the <a href="https://github.com/stellar/go-horizon">Stellar Horizon API Ser
 <ul>
 <li><a href="#overview">Overview</a><ul>
 <li><a href="#transactions">Transactions</a></li>
+<li><a href="#sequence-numbers">Sequence Numbers</a></li>
 </ul>
 </li>
 <li><a href="#examples">Examples</a><ul>
+<li><a href="https://github.com/stellar/stellar-tutorials/tree/master/client">Stellar Client Tutorial</a></li>
 <li><a href="#creating-a-simple-payment-transaction">Creating a simple payment transaction</a></li>
 <li><a href="#loading-an-account-transaction-history">Loading an account's transaction history</a></li>
 <li><a href="#streaming-an-accounts-transaction-history">Streaming an accounts transaction history</a></li>
@@ -63,8 +65,9 @@ sending payments, making account configuration changes, etc. Each unit of change
 can be made on an account is called an &quot;operation&quot;. Transactions are made up of one or
 more operations. Each operation will be applied in the order it is added to the tranasction. In js-stellar-lib, that order is chronologically as operations are added. Each operation is described below:</p>
 <ul>
-<li><strong>Payment</strong> - Send an amount to a destination account, optionally through a path.
-  XLM payments create the destination account if it does not exist</li>
+<li><strong>Create Account</strong> - Create an account with a given amount.</li>
+<li><strong>Payment</strong> - Send an payment of a given currency to an existing destination account, optionally through a path.</li>
+<li><strong>Path Payment</strong> - Sends a currency to a destination with using a different source currency.</li>
 <li><strong>Create Offer</strong> - Creates, updates, or deletes an offer for the account.</li>
 <li><strong>Set Options</strong> - Set or clear Account flags, set inflation destination, or add new signers.</li>
 <li><strong>Change Trust</strong> - Add or remove a trust line from one account to another.</li>
@@ -75,6 +78,8 @@ more operations. Each operation will be applied in the order it is added to the 
 the transaction's source account. For a transaction to be valid, it must include signatures
 that meet the low threshold for the transaction's source account, and for each operation's
 source account threshold for each operation. See more on signatures and thresholds <a href="https://github.com/stellar/stellar-core/tree/dc8a9adb494b0584fda9500fb1a465d175efdfd4/src/transactions#thresholds">here</a>.</p>
+<h3>Sequence Numbers</h3><p>The transaction's &quot;outer&quot; source account uses up a sequence number on transaction submission. The sequence number must be 1 greater than whatever the account's sequence number currently says in the ledger. There are two ways to accomplish this: 1) get sequence number before every transaction or 2) manage locally. Managing the sequence number locally is a must for robust applications as transaction submission is asynchronous, and fetching the sequence number from the network each time you need to sign a transaction may not return what will be the correct sequence number. The js client tool fetches the sequence number from the network each time but this is simply a conveience factor.</p>
+<p>You can get the latest sequence number from the network by calling Server.loadAccount() with the account's address. This will return an Account object that can be passed to TransactionBuilder when building a transaction. When build() is called on a TransactionBuilder object, the account's sequence number will be incremented by 1.</p>
 <h2>Examples</h2><h3>Creating a simple payment transaction</h3><p>To create a transaction using js-stellar-lib, use <a href="https://github.com/stellar/js-stellar-lib/blob/master/src/transaction_builder.js">TransactionBuilder</a>. This class provides
 a builder like interface which allows you to add operations to a transaction via chaining.
 Simply construct a new TransactionBuilder, call addOperation(), passing it the Operation
@@ -284,13 +289,13 @@ try {
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Account.html">Account</a></li><li><a href="Currency.html">Currency</a></li><li><a href="Memo.html">Memo</a></li><li><a href="Operation.html">Operation</a></li><li><a href="Server.html">Server</a></li><li><a href="Transaction.html">Transaction</a></li><li><a href="TransactionBuilder.html">TransactionBuilder</a></li><li><a href="TransactionResult.html">TransactionResult</a></li></ul><h3>Global</h3><ul><li><a href="global.html#best_r">best_r</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Account.html">Account</a></li><li><a href="Currency.html">Currency</a></li><li><a href="Memo.html">Memo</a></li><li><a href="Operation.html">Operation</a></li><li><a href="Server.html">Server</a></li><li><a href="Transaction.html">Transaction</a></li><li><a href="TransactionBuilder.html">TransactionBuilder</a></li><li><a href="TransactionResult.html">TransactionResult</a></li></ul><h3>Global</h3><ul><li><a href="global.html#best_r">best_r</a></li><li><a href="global.html#inherits">inherits</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0-dev</a> on Wed May 13 2015 18:58:41 GMT-0700 (PDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0-dev</a> on Mon May 25 2015 13:35:33 GMT-0700 (PDT)
 </footer>
 
 <script> prettyPrint(); </script>

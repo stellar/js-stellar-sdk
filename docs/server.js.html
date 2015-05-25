@@ -29,8 +29,12 @@
             <pre class="prettyprint source linenums"><code>import {TransactionResult} from "./transaction_result";
 import {xdr} from "stellar-base";
 import {Account} from "./account";
+import {NotFoundError, NetworkError} from "./errors";
 
-let request = require("superagent");
+let axios = require("axios");
+let toBluebird = require("bluebird").resolve;
+let UriTemplate = require("uritemplate");
+
 var EventSource = (typeof window === 'undefined') ? require('eventsource') : window.EventSource;
 
 /**
@@ -58,31 +62,20 @@ export class Server {
     * @param {Transaction} transaction - The transaction to submit.
     */
     submitTransaction(transaction) {
-        var self = this;
-        return new Promise(function (resolve, reject) {
-            request
-                .post(self.protocol + self.hostname + ":" + self.port + '/transactions')
-                .type('json')
-                .send({
-                    tx: transaction.toEnvelope().toXDR().toString("hex")
-                })
-                .end(function(err, res) {
-                    if (res &amp;&amp; res.body &amp;&amp; res.body.submission_result) {
-                        let result = xdr.TransactionResult.fromXDR(new Buffer(res.body.submission_result, "hex"));
-                        resolve(new TransactionResult(result));
-                    } else {
-                        if (res &amp;&amp; res.body &amp;&amp; res.body.result) {
-                            reject({
-                                hash: res.body.hash,
-                                result: res.body.result
-                            });
-                        } else {
-                            console.log(err);
-                            reject(err);
-                        }
-                    }
-                });
-        });
+        var promise = axios.post(this.protocol + this.hostname + ":" + this.port + '/transactions', {
+                tx: transaction.toEnvelope().toXDR().toString("hex")
+            })
+            .then(function(response) {
+                return response.data;
+            })
+            .catch(function (response) {
+                if (response instanceof Error) {
+                    return Promise.reject(response);
+                } else {
+                    return Promise.reject(response.data);
+                }
+            });
+        return toBluebird(promise);
     }
 
     /**
@@ -93,7 +86,7 @@ export class Server {
     * &lt;p>A configuration object can be passed to each call. Calls that return a collection
     * can be streamed by passing a streaming object in the config object.&lt;/p>@param {string} [address] - Returns the given account.
     * @param {string} [resource] - Return a specific resource associated with an account. Can be
-    *                              {"transactions", "operations", "effects"}.
+    *                              {"transactions", "operations", "effects", "payments", "offers"}.
     * @param {object} [opts] - Optional configuration for the request.
     * @param {string} [opts.after] - Return only resources after the given paging token.
     * @param {number} [opts.limit] - Limit the number of returned resources to the given amount.
@@ -107,6 +100,8 @@ export class Server {
     * @returns {Promise|EventSource} If this is a normal request (non streaming) will return a promise
     *                                that will fulfill when the request completes. Otherwise, it will
     *                                return the EventSource object.
+    * @throws {NotFoundError} - If the account does not exist.
+    * @throws {NetworkError} - For any other errors thrown by horizon
     */
     accounts(address, resource, opts) {
         if (!address || typeof(address) === "object") {
@@ -128,7 +123,7 @@ export class Server {
     * &lt;p>A configuration object can be passed to each call. Calls that return a collection
     * can be streamed by passing a streaming object in the config object.&lt;/p>@param {number} [sequence] - Returns the given ledger.
     * @param {string} [resource] - Return a specific resource associated with a ledger. Can be
-    *                              {"transactions", "operations", "effects"}.
+    *                              {"transactions", "operations", "effects", "payments"}.
     * @param {object} [opts] - Optional configuration for the request.
     * @param {string} [opts.after] - Return only resources after the given paging token.
     * @param {number} [opts.limit] - Limit the number of returned resources to the given amount.
@@ -142,6 +137,8 @@ export class Server {
     * @returns {Promise|EventSource} If this is a normal request (non streaming) will return a promise
     *                                that will fulfill when the request completes. Otherwise, it will
     *                                return the EventSource object.
+    * @throws {NotFoundError} - If the ledger does not exist.
+    * @throws {NetworkError} - For any other errors thrown by horizon
     */
     ledgers(sequence, resource, opts) {
         if (!sequence || typeof(sequence) === "object") {
@@ -164,7 +161,7 @@ export class Server {
     * can be streamed by passing a streaming object in the config object.&lt;/p>
     * @param {string} [hash] - Returns the given transaction.
     * @param {string} [resource] - Return a specific resource associated with a transaction. Can be
-    *                              {"operations", "effects"}.
+    *                              {"operations", "effects", "payments"}.
     * @param {object} [opts] - Optional configuration for the request.
     * @param {string} [opts.after] - Return only resources after the given paging token.
     * @param {number} [opts.limit] - Limit the number of returned resources to the given amount.
@@ -178,9 +175,11 @@ export class Server {
     * @returns {Promise|EventSource} If this is a normal request (non streaming) will return a promise
     *                                that will fulfill when the request completes. Otherwise, it will
     *                                return the EventSource object.
+    * @throws {NotFoundError} - If the transaction does not exist.
+    * @throws {NetworkError} - For any other errors thrown by horizon
     */
     transactions(hash, resource, opts) {
-        if (!hash || typeof(hash) === object) {
+        if (!hash || typeof(hash) === "object") {
             opts = hash;
             hash = null;
             resource = null;
@@ -189,6 +188,30 @@ export class Server {
             resource = null;
         }
         return this._sendResourceRequest("transactions", hash, resource, opts);
+    }
+
+    /**
+    * Operation's firehose.
+    * TODO: support for operation/:id [blocked on horizon]
+    * TODO: support for operation/:id/effects [blocked on horizon]
+    */
+    operations(id, resource, opts) {
+        if (!id || typeof(id) === "object") {
+            opts = id;
+            id = null;
+            resource = null;
+        } else if (!resource || typeof resource === "object") {
+            opts = resource;
+            resource = null;
+        }
+        return this._sendResourceRequest("operations", id, resource, opts);
+    }
+
+    /**
+    * Payments firehose.
+    */
+    payments(opts) {
+        return this._sendResourceRequest("payments", null, null, opts);
     }
 
     /**
@@ -206,6 +229,11 @@ export class Server {
             });
     }
 
+    friendbot(address) {
+        var endpoint = "/friendbot?addr=" + address;
+        return this._sendNormalRequest(endpoint);
+    }
+
     /**
     * Sends a request for a resource or collection of resources. For a non streaming
     * request, will return a promise. This will be fulfilled either with the specific
@@ -214,16 +242,12 @@ export class Server {
     * @param {string} type - {"accounts", "ledgers", "transactions"}
     */
     _sendResourceRequest(type, id, resource, opts) {
-        // we're not requesting a collection if they specify the id and no sub resource
-        var single = id &amp;&amp; !resource;
         var endpoint = this._buildEndpointPath(type, id, resource, opts);
         if (opts &amp;&amp; opts.streaming) {
             return this._sendStreamingRequest(endpoint, opts.streaming);
         } else {
-            var promise = this._sendNormalRequest(endpoint);
-            if (!single) {
-                promise = promise.then(this._toCollectionPage.bind(this));
-            }
+            var promise = this._sendNormalRequest(endpoint)
+                .then(this._parseResponse.bind(this));
             return promise;
         }
     }
@@ -242,42 +266,37 @@ export class Server {
         return endpoint;
     }
 
-    _sendNormalRequest(endpoint) {
-        var self = this;
-        return new Promise(function (resolve, reject) {
-            request
-                .get(self.protocol + self.hostname + ":" + self.port + endpoint)
-                .end(function (err, res) {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        resolve(res.body);
-                    }
-                });
-        });
+    _sendNormalRequest(url) {
+        if (url.slice(0,4) != "http") {
+            url = this.protocol + this.hostname + ":" + this.port + url;
+        }
+        var promise = axios.get(url)
+            .then(function (response) {
+                return response.data;
+            })
+            .catch(this._handleNetworkError);
+        return toBluebird(promise);
     }
 
-    /**
-    * For those pesky _link.href full URLs we get back from Horizon.
-    */
-    _sendLinkRequest(href) {
-        var self = this;
-        return new Promise(function (resolve, reject) {
-            request
-                .get(href)
-                .end(function (err, res) {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        resolve(res.body);
-                    }
-                });
-        });
+    _handleNetworkError(response) {
+        if (response instanceof Error) {
+            return Promise.reject(response);
+        } else {
+            switch (response.status) {
+                case 404:
+                    return Promise.reject(new NotFoundError(response.data, response));
+                default:
+                    return Promise.reject(new NetworkError(response.status, response));
+            }
+        }
     }
 
     _sendStreamingRequest(endpoint, streaming) {
         var es = new EventSource(this.protocol + this.hostname + ":" + this.port + endpoint);
-        es.onmessage = streaming.onmessage;
+        es.onmessage = function (message) {
+            var result = message.data ? JSON.parse(message.data) : message;
+            streaming.onmessage(result);
+        };
         es.onerror = streaming.onerror;
         return es;
     }
@@ -296,8 +315,19 @@ export class Server {
         return endpoint;
     }
 
+    _parseResponse(json) {
+        if (json._embedded &amp;&amp; json._embedded.records) {
+            return this._toCollectionPage(json);
+        } else {
+            return this._parseRecord(json);
+        }
+    }
+
     _toCollectionPage(json) {
         var self = this;
+        for (var i = 0; i &lt; json._embedded.records.length; i++) {
+            json._embedded.records[i] = this._parseRecord(json._embedded.records[i]);
+        }
         return {
             records: json._embedded.records,
             next: function () {
@@ -310,6 +340,31 @@ export class Server {
             }
         };
     }
+
+    /**
+    * Convert each link into a function on the response object.
+    */
+    _parseRecord(json) {
+        if (!json._links) {
+            return json;
+        }
+        var self = this;
+        var linkFn = function (link) {
+            return function (opts) {
+                if (link.template) {
+                    let template = UriTemplate(link.href);
+                    return self._sendNormalRequest(_template.expand(opts));
+                } else {
+                    return self._sendNormalRequest(link.href);
+                }
+            };
+        };
+        Object.keys(json._links).map(function(value, index) {
+            var link = json._links[value];
+            json[value] = linkFn(link);
+        });
+        return json;
+    }
 }</code></pre>
         </article>
     </section>
@@ -320,13 +375,13 @@ export class Server {
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Account.html">Account</a></li><li><a href="Currency.html">Currency</a></li><li><a href="Memo.html">Memo</a></li><li><a href="Operation.html">Operation</a></li><li><a href="Server.html">Server</a></li><li><a href="Transaction.html">Transaction</a></li><li><a href="TransactionBuilder.html">TransactionBuilder</a></li><li><a href="TransactionResult.html">TransactionResult</a></li></ul><h3>Global</h3><ul><li><a href="global.html#best_r">best_r</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Account.html">Account</a></li><li><a href="Currency.html">Currency</a></li><li><a href="Memo.html">Memo</a></li><li><a href="Operation.html">Operation</a></li><li><a href="Server.html">Server</a></li><li><a href="Transaction.html">Transaction</a></li><li><a href="TransactionBuilder.html">TransactionBuilder</a></li><li><a href="TransactionResult.html">TransactionResult</a></li></ul><h3>Global</h3><ul><li><a href="global.html#best_r">best_r</a></li><li><a href="global.html#inherits">inherits</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0-dev</a> on Wed May 13 2015 18:58:41 GMT-0700 (PDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0-dev</a> on Mon May 25 2015 13:35:33 GMT-0700 (PDT)
 </footer>
 
 <script> prettyPrint(); </script>

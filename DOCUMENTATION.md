@@ -3,7 +3,9 @@ with the [Stellar Horizon API Server](https://github.com/stellar/go-horizon).
 
 - [Overview](#overview)
     - [Transactions](#transactions)
+    - [Sequence Numbers](#sequence-numbers)
 - [Examples](#examples)
+    - [Stellar Client Tutorial](https://github.com/stellar/stellar-tutorials/tree/master/client)
     - [Creating a simple payment transaction](#creating-a-simple-payment-transaction)
     - [Loading an account's transaction history](#loading-an-account-transaction-history)
     - [Streaming an accounts transaction history](#streaming-an-accounts-transaction-history)
@@ -18,8 +20,9 @@ sending payments, making account configuration changes, etc. Each unit of change
 can be made on an account is called an "operation". Transactions are made up of one or
 more operations. Each operation will be applied in the order it is added to the tranasction. In js-stellar-lib, that order is chronologically as operations are added. Each operation is described below:
 
-* **Payment** - Send an amount to a destination account, optionally through a path.
-    XLM payments create the destination account if it does not exist
+* **Create Account** - Create an account with a given amount.
+* **Payment** - Send an payment of a given currency to an existing destination account, optionally through a path.
+* **Path Payment** - Sends a currency to a destination with using a different source currency.
 * **Create Offer** - Creates, updates, or deletes an offer for the account.
 * **Set Options** - Set or clear Account flags, set inflation destination, or add new signers.
 * **Change Trust** - Add or remove a trust line from one account to another.
@@ -30,6 +33,13 @@ A transaction contains a source account which will use up a sequence number and 
 the transaction's source account. For a transaction to be valid, it must include signatures
 that meet the low threshold for the transaction's source account, and for each operation's
 source account threshold for each operation. See more on signatures and thresholds [here](https://github.com/stellar/stellar-core/tree/dc8a9adb494b0584fda9500fb1a465d175efdfd4/src/transactions#thresholds).
+
+
+### Sequence Numbers
+
+The transaction's "outer" source account uses up a sequence number on transaction submission. The sequence number must be 1 greater than whatever the account's sequence number currently says in the ledger. There are two ways to accomplish this: 1) get sequence number before every transaction or 2) manage locally. Managing the sequence number locally is a must for robust applications as transaction submission is asynchronous, and fetching the sequence number from the network each time you need to sign a transaction may not return what will be the correct sequence number. The js client tool fetches the sequence number from the network each time but this is simply a conveience factor.
+
+You can get the latest sequence number from the network by calling Server.loadAccount() with the account's address. This will return an Account object that can be passed to TransactionBuilder when building a transaction. When build() is called on a TransactionBuilder object, the account's sequence number will be incremented by 1.
 
 ## Examples
 
