@@ -1,6 +1,6 @@
 {
   "name": "js-stellar-lib",
-  "version": "0.0.7",
+  "version": "0.1.0",
   "description": "js-stellar-lib is a library for working with the Stellar Horizon server.",
   "main": "lib/index.js",
   "scripts": {
@@ -58,7 +58,7 @@
     "eventsource": "^0.1.6",
     "jsdoc": "jsdoc3/jsdoc#master",
     "lodash": "^3.6.0",
-    "stellar-base": "0.0.11",
+    "stellar-base": "0.1.0",
     "superagent": "^1.1.0",
     "uritemplate": "^0.3.4"
   }
