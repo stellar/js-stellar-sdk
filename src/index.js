@@ -1,10 +1,13 @@
-export {Account} from "./account";
-export {Transaction} from "./transaction";
-export {TransactionBuilder} from "./transaction_builder";
-export {Currency} from "./currency";
-export {Server} from "./server";
-export {Operation} from "./operation";
-export {Keypair} from "stellar-base";
-export {Memo} from "./memo";
-export {xdr} from "stellar-base";
+// stellar-lib classes to expose
 export * from "./errors";
+export {Server} from "./server";
+
+// expose classes from stellar-base
+export {Account} from "stellar-base";
+export {Transaction} from "stellar-base";
+export {TransactionBuilder} from "stellar-base";
+export {Currency} from "stellar-base";
+export {Operation} from "stellar-base";
+export {Keypair} from "stellar-base";
+export {Memo} from "stellar-base";
+export {xdr} from "stellar-base";

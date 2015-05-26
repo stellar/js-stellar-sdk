@@ -1,7 +1,7 @@
 import {TransactionResult} from "./transaction_result";
-import {xdr} from "stellar-base";
-import {Account} from "./account";
 import {NotFoundError, NetworkError} from "./errors";
+
+import {xdr, Account} from "stellar-base";
 
 let axios = require("axios");
 let toBluebird = require("bluebird").resolve;
