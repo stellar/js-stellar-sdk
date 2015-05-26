@@ -10,23 +10,24 @@ js-stellar-lib is a client side Javascript library for building client side Stel
 
 ## Get Started
 
+### Install via npm
+
 ```
 npm install js-stellar-lib
 ```
 
-## API Documentation
-
-Check out the API Documentation [here](http://stellar.github.io/js-stellar-lib).
-
-## Building the Browser Bundle
-
-To build the js-stellar-lib browser bundle:
+### Building the Browser Bundle
 
 ```sh
 gulp build:browser
 ```
 
 This will generate files named `js-stellar-lib.js` and `js-stellar-lib.min.js`.
+
+## API Documentation
+
+Check out the API Documentation [here](http://stellar.github.io/js-stellar-lib).
+
 ## Tests
 
 Run all the tests:
