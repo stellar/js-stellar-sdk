@@ -2,9 +2,12 @@ language: node_js
 node_js:
 - '0.10'
 before_install:
-- mkdir -p .npm
-- export DISPLAY=:99.0
-- sh -e /etc/init.d/xvfb start
+- |
+    if [ "$TEST_TYPE" != build_website ]; then
+      mkdir -p .npm
+      export DISPLAY=:99.0
+      sh -e /etc/init.d/xvfb start
+    fi
 script:
 - |
   if [ "$TEST_TYPE" = build_website ]; then

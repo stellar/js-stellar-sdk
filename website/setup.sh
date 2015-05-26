@@ -2,7 +2,7 @@
 
 cd ../../
 if [ "$TRAVIS" ]; then
-  git clone "https://stellar-bot@github.com/stellar/js-stellar-lib.git" js-stellar-lib-gh-pages
+  git clone "https://stellar-jenkins@github.com/stellar/js-stellar-lib.git" js-stellar-lib-gh-pages
 else
   git clone git://github.com/stellar/js-stellar-lib.git js-stellar-lib-gh-pages
 fi
