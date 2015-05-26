@@ -28,6 +28,11 @@ This will generate files named `js-stellar-lib.js` and `js-stellar-lib.min.js`.
 
 Check out the API Documentation [here](http://stellar.github.io/js-stellar-lib).
 
+## js-stellar-lib vs js-stellar-base
+
+This library (js-stellar-lib) is a "high level" library that serves as an API for various Stellar services (currently just Horizon). This library makes extensive use of the "lower level" library [js-stellar-base](https://github.com/stellar/js-stellar-base) and exposes js-stellar-base classes via its export object. Many examples will use js-stellar-base classes (such as TransactionBuilder, Operation, etc) that are exposed through this library. This is to make it easier for developers who don't want to have to pull in js-stellar-base as a dependency. However, js-stellar-base can be used as a standlone library for creating Stellar primitive constructs via XDR helpers and wrappers.
+
+
 ## Tests
 
 Run all the tests:
