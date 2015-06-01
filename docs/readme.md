@@ -1,3 +1,8 @@
+---
+id: readme
+title: Getting Started
+category: Getting Started
+---
 JS Stellar Lib facilitates Stellar transaction submission and client integration
 with the [Stellar Horizon API Server](https://github.com/stellar/go-horizon).
 
