@@ -5323,9 +5323,9 @@ var StellarLib =
 
 	var axios = __webpack_require__(2);
 	var toBluebird = __webpack_require__(5).resolve;
-	var UriTemplate = __webpack_require__(38);
+	var UriTemplate = __webpack_require__(39);
 
-	var EventSource = typeof window === "undefined" ? __webpack_require__(39) : window.EventSource;
+	var EventSource = typeof window === "undefined" ? __webpack_require__(38) : window.EventSource;
 
 	/**
 	* @class Server
@@ -5823,16 +5823,16 @@ var StellarLib =
 	}
 	global._babelPolyfill = true;
 
-	__webpack_require__(47);
-
 	__webpack_require__(46);
+
+	__webpack_require__(47);
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
 /* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
-	// Automatically generated on 2015-06-08T13:36:19-07:00
+	// Automatically generated on 2015-06-24T16:04:11-07:00
 	// DO NOT EDIT or your changes may be overwritten
 
 	/* jshint maxstatements:2147483647  */
@@ -5845,173 +5845,6 @@ var StellarLib =
 	var XDR = _interopRequireWildcard(__webpack_require__(33));
 
 	var types = XDR.config(function (xdr) {
-
-	  // === xdr source ============================================================
-	  //
-	  //   typedef opaque Signature[64];
-	  //
-	  // ===========================================================================
-	  xdr.typedef("Signature", xdr.opaque(64));
-
-	  // === xdr source ============================================================
-	  //
-	  //   typedef opaque Hash[32];
-	  //
-	  // ===========================================================================
-	  xdr.typedef("Hash", xdr.opaque(32));
-
-	  // === xdr source ============================================================
-	  //
-	  //   typedef opaque uint256[32];
-	  //
-	  // ===========================================================================
-	  xdr.typedef("Uint256", xdr.opaque(32));
-
-	  // === xdr source ============================================================
-	  //
-	  //   typedef unsigned int uint32;
-	  //
-	  // ===========================================================================
-	  xdr.typedef("Uint32", xdr.uint());
-
-	  // === xdr source ============================================================
-	  //
-	  //   typedef unsigned hyper uint64;
-	  //
-	  // ===========================================================================
-	  xdr.typedef("Uint64", xdr.uhyper());
-
-	  // === xdr source ============================================================
-	  //
-	  //   typedef opaque Value<>;
-	  //
-	  // ===========================================================================
-	  xdr.typedef("Value", xdr.varOpaque());
-
-	  // === xdr source ============================================================
-	  //
-	  //   typedef opaque Evidence<>;
-	  //
-	  // ===========================================================================
-	  xdr.typedef("Evidence", xdr.varOpaque());
-
-	  // === xdr source ============================================================
-	  //
-	  //   struct SCPBallot
-	  //   {
-	  //       uint32 counter; // n
-	  //       Value value;    // x
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr.struct("ScpBallot", [["counter", xdr.lookup("Uint32")], ["value", xdr.lookup("Value")]]);
-
-	  // === xdr source ============================================================
-	  //
-	  //   enum SCPStatementType
-	  //   {
-	  //       PREPARING = 0,
-	  //       PREPARED = 1,
-	  //       COMMITTING = 2,
-	  //       COMMITTED = 3
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr["enum"]("ScpStatementType", {
-	    preparing: 0,
-	    prepared: 1,
-	    committing: 2,
-	    committed: 3 });
-
-	  // === xdr source ============================================================
-	  //
-	  //   struct
-	  //           {
-	  //               SCPBallot excepted<>; // B_c
-	  //               SCPBallot* prepared;  // p
-	  //           }
-	  //
-	  // ===========================================================================
-	  xdr.struct("ScpStatementPrepare", [["excepted", xdr.varArray(xdr.lookup("ScpBallot"), 2147483647)], ["prepared", xdr.option(xdr.lookup("ScpBallot"))]]);
-
-	  // === xdr source ============================================================
-	  //
-	  //   union switch (SCPStatementType type)
-	  //       {
-	  //       case PREPARING:
-	  //           struct
-	  //           {
-	  //               SCPBallot excepted<>; // B_c
-	  //               SCPBallot* prepared;  // p
-	  //           } prepare;
-	  //       case PREPARED:
-	  //       case COMMITTING:
-	  //       case COMMITTED:
-	  //           void;
-	  //       }
-	  //
-	  // ===========================================================================
-	  xdr.union("ScpStatementPledges", {
-	    switchOn: xdr.lookup("ScpStatementType"),
-	    switchName: "type",
-	    switches: {
-	      preparing: "prepare",
-	      prepared: xdr["void"](),
-	      committing: xdr["void"](),
-	      committed: xdr["void"]() },
-	    arms: {
-	      prepare: xdr.lookup("ScpStatementPrepare") } });
-
-	  // === xdr source ============================================================
-	  //
-	  //   struct SCPStatement
-	  //   {
-	  //       uint64 slotIndex;   // i
-	  //       SCPBallot ballot;   // b
-	  //       Hash quorumSetHash; // D
-	  //
-	  //       union switch (SCPStatementType type)
-	  //       {
-	  //       case PREPARING:
-	  //           struct
-	  //           {
-	  //               SCPBallot excepted<>; // B_c
-	  //               SCPBallot* prepared;  // p
-	  //           } prepare;
-	  //       case PREPARED:
-	  //       case COMMITTING:
-	  //       case COMMITTED:
-	  //           void;
-	  //       }
-	  //       pledges;
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr.struct("ScpStatement", [["slotIndex", xdr.lookup("Uint64")], ["ballot", xdr.lookup("ScpBallot")], ["quorumSetHash", xdr.lookup("Hash")], ["pledges", xdr.lookup("ScpStatementPledges")]]);
-
-	  // === xdr source ============================================================
-	  //
-	  //   struct SCPEnvelope
-	  //   {
-	  //       uint256 nodeID; // v
-	  //       SCPStatement statement;
-	  //       Signature signature;
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr.struct("ScpEnvelope", [["nodeId", xdr.lookup("Uint256")], ["statement", xdr.lookup("ScpStatement")], ["signature", xdr.lookup("Signature")]]);
-
-	  // === xdr source ============================================================
-	  //
-	  //   struct SCPQuorumSet
-	  //   {
-	  //       uint32 threshold;
-	  //   	Hash validators<>;
-	  //       SCPQuorumSet innerSets<>;
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr.struct("ScpQuorumSet", [["threshold", xdr.lookup("Uint32")], ["validators", xdr.varArray(xdr.lookup("Hash"), 2147483647)]]);
 
 	  // === xdr source ============================================================
 	  //
@@ -6043,7 +5876,7 @@ var StellarLib =
 	  //
 	  //   enum AccountFlags
 	  //   { // masks for each flag
-	  //
+	  //  
 	  //       // if set, TrustLines are created with authorized set to "false"
 	  //       // requiring the issuer to set it for each TrustLine
 	  //       AUTH_REQUIRED_FLAG = 0x1,
@@ -6068,13 +5901,13 @@ var StellarLib =
 	  //                                 // drives the reserve
 	  //       AccountID* inflationDest; // Account to vote during inflation
 	  //       uint32 flags;             // see AccountFlags
-	  //
+	  //  
 	  //       // fields used for signatures
 	  //       // thresholds stores unsigned bytes: [weight of master|low|medium|high]
 	  //       Thresholds thresholds;
-	  //
+	  //  
 	  //       string32 homeDomain; // can be used for reverse federation and memo lookup
-	  //
+	  //  
 	  //       Signer signers<20>; // possible signers for this account
 	  //   };
 	  //
@@ -6101,7 +5934,7 @@ var StellarLib =
 	  //       Currency currency;   // currency (with issuer)
 	  //       int64 balance;       // how much of this currency the user has.
 	  //                            // Currency defines the unit for this;
-	  //
+	  //  
 	  //       int64 limit;  // balance cannot be above this
 	  //       uint32 flags; // see TrustLineFlags
 	  //   };
@@ -6130,7 +5963,7 @@ var StellarLib =
 	  //       Currency takerGets; // A
 	  //       Currency takerPays; // B
 	  //       int64 amount;       // amount of A
-	  //
+	  //  
 	  //       /* price for this offer:
 	  //           price of A in terms of B
 	  //           price=AmountB/AmountA=priceNumerator/priceDenominator
@@ -6149,10 +5982,10 @@ var StellarLib =
 	  //   {
 	  //   case ACCOUNT:
 	  //       AccountEntry account;
-	  //
+	  //  
 	  //   case TRUSTLINE:
 	  //       TrustLineEntry trustLine;
-	  //
+	  //  
 	  //   case OFFER:
 	  //       OfferEntry offer;
 	  //   };
@@ -6174,30 +6007,31 @@ var StellarLib =
 	  //
 	  //   struct LedgerHeader
 	  //   {
+	  //       uint32 ledgerVersion;
 	  //       Hash previousLedgerHash; // hash of the previous ledger header
 	  //       Hash txSetHash;          // the tx set that was SCP confirmed
 	  //       Hash txSetResultHash;    // the TransactionResultSet that led to this ledger
 	  //       Hash bucketListHash;     // hash of the ledger state
-	  //
+	  //  
 	  //       uint32 ledgerSeq; // sequence number of this ledger
 	  //       uint64 closeTime; // network close time
-	  //
+	  //  
 	  //       int64 totalCoins; // total number of stroops in existence
-	  //
+	  //  
 	  //       int64 feePool;       // fees burned since last inflation run
 	  //       uint32 inflationSeq; // inflation sequence number
-	  //
+	  //  
 	  //       uint64 idPool; // last used global ID, used for generating objects
-	  //
+	  //  
 	  //       int32 baseFee;     // base fee per operation in stroops
 	  //       int32 baseReserve; // account base reserve in stroops
-	  //
-	  //       Hash skipList[4];  // hashes of ledgers in the past. allows you to jump back
-	  //                          // in time without walking the chain back ledger by ledger
+	  //  
+	  //       Hash skipList[4]; // hashes of ledgers in the past. allows you to jump back
+	  //                         // in time without walking the chain back ledger by ledger
 	  //   };
 	  //
 	  // ===========================================================================
-	  xdr.struct("LedgerHeader", [["previousLedgerHash", xdr.lookup("Hash")], ["txSetHash", xdr.lookup("Hash")], ["txSetResultHash", xdr.lookup("Hash")], ["bucketListHash", xdr.lookup("Hash")], ["ledgerSeq", xdr.lookup("Uint32")], ["closeTime", xdr.lookup("Uint64")], ["totalCoins", xdr.lookup("Int64")], ["feePool", xdr.lookup("Int64")], ["inflationSeq", xdr.lookup("Uint32")], ["idPool", xdr.lookup("Uint64")], ["baseFee", xdr.lookup("Int32")], ["baseReserve", xdr.lookup("Int32")], ["skipList", xdr.array(xdr.lookup("Hash"), 4)]]);
+	  xdr.struct("LedgerHeader", [["ledgerVersion", xdr.lookup("Uint32")], ["previousLedgerHash", xdr.lookup("Hash")], ["txSetHash", xdr.lookup("Hash")], ["txSetResultHash", xdr.lookup("Hash")], ["bucketListHash", xdr.lookup("Hash")], ["ledgerSeq", xdr.lookup("Uint32")], ["closeTime", xdr.lookup("Uint64")], ["totalCoins", xdr.lookup("Int64")], ["feePool", xdr.lookup("Int64")], ["inflationSeq", xdr.lookup("Uint32")], ["idPool", xdr.lookup("Uint64")], ["baseFee", xdr.lookup("Int32")], ["baseReserve", xdr.lookup("Int32")], ["skipList", xdr.array(xdr.lookup("Hash"), 4)]]);
 
 	  // === xdr source ============================================================
 	  //
@@ -6240,14 +6074,14 @@ var StellarLib =
 	  //       {
 	  //           AccountID accountID;
 	  //       } account;
-	  //
+	  //  
 	  //   case TRUSTLINE:
 	  //       struct
 	  //       {
 	  //           AccountID accountID;
 	  //           Currency currency;
 	  //       } trustLine;
-	  //
+	  //  
 	  //   case OFFER:
 	  //       struct
 	  //       {
@@ -6288,7 +6122,7 @@ var StellarLib =
 	  //   {
 	  //   case LIVEENTRY:
 	  //       LedgerEntry liveEntry;
-	  //
+	  //  
 	  //   case DEADENTRY:
 	  //       LedgerKey deadEntry;
 	  //   };
@@ -6421,27 +6255,16 @@ var StellarLib =
 
 	  // === xdr source ============================================================
 	  //
-	  //   struct StellarBallotValue
+	  //   struct StellarValue
 	  //   {
+	  //       uint32 ledgerVersion;
 	  //       Hash txSetHash;
 	  //       uint64 closeTime;
 	  //       uint32 baseFee;
 	  //   };
 	  //
 	  // ===========================================================================
-	  xdr.struct("StellarBallotValue", [["txSetHash", xdr.lookup("Hash")], ["closeTime", xdr.lookup("Uint64")], ["baseFee", xdr.lookup("Uint32")]]);
-
-	  // === xdr source ============================================================
-	  //
-	  //   struct StellarBallot
-	  //   {
-	  //       uint256 nodeID;
-	  //       Signature signature;
-	  //       StellarBallotValue value;
-	  //   };
-	  //
-	  // ===========================================================================
-	  xdr.struct("StellarBallot", [["nodeId", xdr.lookup("Uint256")], ["signature", xdr.lookup("Signature")], ["value", xdr.lookup("StellarBallotValue")]]);
+	  xdr.struct("StellarValue", [["ledgerVersion", xdr.lookup("Uint32")], ["txSetHash", xdr.lookup("Hash")], ["closeTime", xdr.lookup("Uint64")], ["baseFee", xdr.lookup("Uint32")]]);
 
 	  // === xdr source ============================================================
 	  //
@@ -6458,14 +6281,15 @@ var StellarLib =
 	  //
 	  //   struct Hello
 	  //   {
-	  //       int protocolVersion;
+	  //       uint32 ledgerVersion;
+	  //       uint32 overlayVersion;
 	  //       string versionStr<100>;
 	  //       int listeningPort;
-	  //       opaque peerID[32];
+	  //       NodeID peerID;
 	  //   };
 	  //
 	  // ===========================================================================
-	  xdr.struct("Hello", [["protocolVersion", xdr.int()], ["versionStr", xdr.string(100)], ["listeningPort", xdr.int()], ["peerId", xdr.opaque(32)]]);
+	  xdr.struct("Hello", [["ledgerVersion", xdr.lookup("Uint32")], ["overlayVersion", xdr.lookup("Uint32")], ["versionStr", xdr.string(100)], ["listeningPort", xdr.int()], ["peerId", xdr.lookup("NodeId")]]);
 
 	  // === xdr source ============================================================
 	  //
@@ -6486,15 +6310,15 @@ var StellarLib =
 	  //       ERROR_MSG = 0,
 	  //       HELLO = 1,
 	  //       DONT_HAVE = 2,
-	  //
+	  //  
 	  //       GET_PEERS = 3, // gets a list of peers this guy knows about
 	  //       PEERS = 4,
-	  //
+	  //  
 	  //       GET_TX_SET = 5, // gets a particular txset by hash
 	  //       TX_SET = 6,
-	  //
+	  //  
 	  //       TRANSACTION = 7, // pass on a tx you have heard about
-	  //
+	  //  
 	  //       // SCP
 	  //       GET_SCP_QUORUMSET = 8,
 	  //       SCP_QUORUMSET = 9,
@@ -6540,15 +6364,15 @@ var StellarLib =
 	  //       void;
 	  //   case PEERS:
 	  //       PeerAddress peers<>;
-	  //
+	  //  
 	  //   case GET_TX_SET:
 	  //       uint256 txSetHash;
 	  //   case TX_SET:
 	  //       TransactionSet txSet;
-	  //
+	  //  
 	  //   case TRANSACTION:
 	  //       TransactionEnvelope transaction;
-	  //
+	  //  
 	  //   // SCP
 	  //   case GET_SCP_QUORUMSET:
 	  //       uint256 qSetHash;
@@ -6588,6 +6412,255 @@ var StellarLib =
 
 	  // === xdr source ============================================================
 	  //
+	  //   typedef opaque Signature[64];
+	  //
+	  // ===========================================================================
+	  xdr.typedef("Signature", xdr.opaque(64));
+
+	  // === xdr source ============================================================
+	  //
+	  //   typedef opaque Hash[32];
+	  //
+	  // ===========================================================================
+	  xdr.typedef("Hash", xdr.opaque(32));
+
+	  // === xdr source ============================================================
+	  //
+	  //   typedef opaque uint256[32];
+	  //
+	  // ===========================================================================
+	  xdr.typedef("Uint256", xdr.opaque(32));
+
+	  // === xdr source ============================================================
+	  //
+	  //   typedef unsigned int uint32;
+	  //
+	  // ===========================================================================
+	  xdr.typedef("Uint32", xdr.uint());
+
+	  // === xdr source ============================================================
+	  //
+	  //   typedef unsigned hyper uint64;
+	  //
+	  // ===========================================================================
+	  xdr.typedef("Uint64", xdr.uhyper());
+
+	  // === xdr source ============================================================
+	  //
+	  //   typedef opaque Value<>;
+	  //
+	  // ===========================================================================
+	  xdr.typedef("Value", xdr.varOpaque());
+
+	  // === xdr source ============================================================
+	  //
+	  //   typedef opaque NodeID[32];
+	  //
+	  // ===========================================================================
+	  xdr.typedef("NodeId", xdr.opaque(32));
+
+	  // === xdr source ============================================================
+	  //
+	  //   struct SCPBallot
+	  //   {
+	  //       uint32 counter; // n
+	  //       Value value;    // x
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.struct("ScpBallot", [["counter", xdr.lookup("Uint32")], ["value", xdr.lookup("Value")]]);
+
+	  // === xdr source ============================================================
+	  //
+	  //   enum SCPStatementType
+	  //   {
+	  //       SCP_ST_PREPARE = 0,
+	  //       SCP_ST_CONFIRM = 1,
+	  //       SCP_ST_EXTERNALIZE = 2,
+	  //       SCP_ST_NOMINATE = 3
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr["enum"]("ScpStatementType", {
+	    scpStPrepare: 0,
+	    scpStConfirm: 1,
+	    scpStExternalize: 2,
+	    scpStNominate: 3 });
+
+	  // === xdr source ============================================================
+	  //
+	  //   struct SCPNomination
+	  //   {
+	  //       Hash quorumSetHash; // D
+	  //       Value votes<>;      // X
+	  //       Value accepted<>;   // Y
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.struct("ScpNomination", [["quorumSetHash", xdr.lookup("Hash")], ["votes", xdr.varArray(xdr.lookup("Value"), 2147483647)], ["accepted", xdr.varArray(xdr.lookup("Value"), 2147483647)]]);
+
+	  // === xdr source ============================================================
+	  //
+	  //   struct
+	  //           {
+	  //               Hash quorumSetHash;       // D
+	  //               SCPBallot ballot;         // b
+	  //               SCPBallot* prepared;      // p
+	  //               SCPBallot* preparedPrime; // p'
+	  //               uint32 nC;                // n_c
+	  //               uint32 nP;                // n_P
+	  //           }
+	  //
+	  // ===========================================================================
+	  xdr.struct("ScpStatementPrepare", [["quorumSetHash", xdr.lookup("Hash")], ["ballot", xdr.lookup("ScpBallot")], ["prepared", xdr.option(xdr.lookup("ScpBallot"))], ["preparedPrime", xdr.option(xdr.lookup("ScpBallot"))], ["nC", xdr.lookup("Uint32")], ["nP", xdr.lookup("Uint32")]]);
+
+	  // === xdr source ============================================================
+	  //
+	  //   struct
+	  //           {
+	  //               Hash quorumSetHash; // D
+	  //               uint32 nPrepared;   // n_p
+	  //               SCPBallot commit;   // c
+	  //               uint32 nP;          // n_P
+	  //           }
+	  //
+	  // ===========================================================================
+	  xdr.struct("ScpStatementConfirm", [["quorumSetHash", xdr.lookup("Hash")], ["nPrepared", xdr.lookup("Uint32")], ["commit", xdr.lookup("ScpBallot")], ["nP", xdr.lookup("Uint32")]]);
+
+	  // === xdr source ============================================================
+	  //
+	  //   struct
+	  //           {
+	  //               SCPBallot commit; // c
+	  //               uint32 nP;        // n_P
+	  //               // not from the paper, but useful to build tooling to
+	  //               // traverse the graph based off only the latest statement
+	  //               Hash commitQuorumSetHash; // D used before EXTERNALIZE
+	  //           }
+	  //
+	  // ===========================================================================
+	  xdr.struct("ScpStatementExternalize", [["commit", xdr.lookup("ScpBallot")], ["nP", xdr.lookup("Uint32")], ["commitQuorumSetHash", xdr.lookup("Hash")]]);
+
+	  // === xdr source ============================================================
+	  //
+	  //   union switch (SCPStatementType type)
+	  //       {
+	  //       case SCP_ST_PREPARE:
+	  //           struct
+	  //           {
+	  //               Hash quorumSetHash;       // D
+	  //               SCPBallot ballot;         // b
+	  //               SCPBallot* prepared;      // p
+	  //               SCPBallot* preparedPrime; // p'
+	  //               uint32 nC;                // n_c
+	  //               uint32 nP;                // n_P
+	  //           } prepare;
+	  //       case SCP_ST_CONFIRM:
+	  //           struct
+	  //           {
+	  //               Hash quorumSetHash; // D
+	  //               uint32 nPrepared;   // n_p
+	  //               SCPBallot commit;   // c
+	  //               uint32 nP;          // n_P
+	  //           } confirm;
+	  //       case SCP_ST_EXTERNALIZE:
+	  //           struct
+	  //           {
+	  //               SCPBallot commit; // c
+	  //               uint32 nP;        // n_P
+	  //               // not from the paper, but useful to build tooling to
+	  //               // traverse the graph based off only the latest statement
+	  //               Hash commitQuorumSetHash; // D used before EXTERNALIZE
+	  //           } externalize;
+	  //       case SCP_ST_NOMINATE:
+	  //           SCPNomination nominate;
+	  //       }
+	  //
+	  // ===========================================================================
+	  xdr.union("ScpStatementPledges", {
+	    switchOn: xdr.lookup("ScpStatementType"),
+	    switchName: "type",
+	    switches: {
+	      scpStPrepare: "prepare",
+	      scpStConfirm: "confirm",
+	      scpStExternalize: "externalize",
+	      scpStNominate: "nominate" },
+	    arms: {
+	      prepare: xdr.lookup("ScpStatementPrepare"),
+	      confirm: xdr.lookup("ScpStatementConfirm"),
+	      externalize: xdr.lookup("ScpStatementExternalize"),
+	      nominate: xdr.lookup("ScpNomination") } });
+
+	  // === xdr source ============================================================
+	  //
+	  //   struct SCPStatement
+	  //   {
+	  //       NodeID nodeID;    // v
+	  //       uint64 slotIndex; // i
+	  //  
+	  //       union switch (SCPStatementType type)
+	  //       {
+	  //       case SCP_ST_PREPARE:
+	  //           struct
+	  //           {
+	  //               Hash quorumSetHash;       // D
+	  //               SCPBallot ballot;         // b
+	  //               SCPBallot* prepared;      // p
+	  //               SCPBallot* preparedPrime; // p'
+	  //               uint32 nC;                // n_c
+	  //               uint32 nP;                // n_P
+	  //           } prepare;
+	  //       case SCP_ST_CONFIRM:
+	  //           struct
+	  //           {
+	  //               Hash quorumSetHash; // D
+	  //               uint32 nPrepared;   // n_p
+	  //               SCPBallot commit;   // c
+	  //               uint32 nP;          // n_P
+	  //           } confirm;
+	  //       case SCP_ST_EXTERNALIZE:
+	  //           struct
+	  //           {
+	  //               SCPBallot commit; // c
+	  //               uint32 nP;        // n_P
+	  //               // not from the paper, but useful to build tooling to
+	  //               // traverse the graph based off only the latest statement
+	  //               Hash commitQuorumSetHash; // D used before EXTERNALIZE
+	  //           } externalize;
+	  //       case SCP_ST_NOMINATE:
+	  //           SCPNomination nominate;
+	  //       }
+	  //       pledges;
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.struct("ScpStatement", [["nodeId", xdr.lookup("NodeId")], ["slotIndex", xdr.lookup("Uint64")], ["pledges", xdr.lookup("ScpStatementPledges")]]);
+
+	  // === xdr source ============================================================
+	  //
+	  //   struct SCPEnvelope
+	  //   {
+	  //       SCPStatement statement;
+	  //       Signature signature;
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.struct("ScpEnvelope", [["statement", xdr.lookup("ScpStatement")], ["signature", xdr.lookup("Signature")]]);
+
+	  // === xdr source ============================================================
+	  //
+	  //   struct SCPQuorumSet
+	  //   {
+	  //       uint32 threshold;
+	  //       Hash validators<>;
+	  //       SCPQuorumSet innerSets<>;
+	  //   };
+	  //
+	  // ===========================================================================
+	  xdr.struct("ScpQuorumSet", [["threshold", xdr.lookup("Uint32")], ["validators", xdr.varArray(xdr.lookup("Hash"), 2147483647)], ["innerSets", xdr.varArray(xdr.lookup("ScpQuorumSet"), 2147483647)]]);
+
+	  // === xdr source ============================================================
+	  //
 	  //   struct DecoratedSignature
 	  //   {
 	  //       opaque hint[4];    // first 4 bytes of the public key, used as a hint
@@ -6605,7 +6678,7 @@ var StellarLib =
 	  //       PAYMENT = 1,
 	  //       PATH_PAYMENT = 2,
 	  //       MANAGE_OFFER = 3,
-	  //   	CREATE_PASSIVE_OFFER = 4,
+	  //       CREATE_PASSIVE_OFFER = 4,
 	  //       SET_OPTIONS = 5,
 	  //       CHANGE_TRUST = 6,
 	  //       ALLOW_TRUST = 7,
@@ -6657,11 +6730,11 @@ var StellarLib =
 	  //       int64 sendMax;         // the maximum amount of sendCurrency to
 	  //                              // send (excluding fees).
 	  //                              // The operation will fail if can't be met
-	  //
+	  //  
 	  //       AccountID destination; // recipient of the payment
 	  //       Currency destCurrency; // what they end up with
 	  //       int64 destAmount;      // amount they end up with
-	  //
+	  //  
 	  //       Currency path<5>; // additional hops it must go through to get there
 	  //   };
 	  //
@@ -6676,7 +6749,7 @@ var StellarLib =
 	  //       Currency takerPays;
 	  //       int64 amount; // amount taker gets. if set to 0, delete the offer
 	  //       Price price;  // =takerPaysAmount/takerGetsAmount
-	  //
+	  //  
 	  //       // 0=create a new offer, otherwise edit an existing offer
 	  //       uint64 offerID;
 	  //   };
@@ -6702,14 +6775,14 @@ var StellarLib =
 	  //   struct SetOptionsOp
 	  //   {
 	  //       AccountID* inflationDest; // sets the inflation destination
-	  //
+	  //  
 	  //       uint32* clearFlags; // which flags to clear
 	  //       uint32* setFlags;   // which flags to set
-	  //
+	  //  
 	  //       Thresholds* thresholds; // update the thresholds for the account
-	  //
+	  //  
 	  //       string32* homeDomain; // sets the home domain
-	  //
+	  //  
 	  //       // Add, update or remove a signer for the account
 	  //       // signer is deleted if the weight is 0
 	  //       Signer* signer;
@@ -6723,7 +6796,7 @@ var StellarLib =
 	  //   struct ChangeTrustOp
 	  //   {
 	  //       Currency line;
-	  //
+	  //  
 	  //       // if limit is set to 0, deletes the trust line
 	  //       int64 limit;
 	  //   };
@@ -6738,7 +6811,7 @@ var StellarLib =
 	  //       // CURRENCY_TYPE_NATIVE is not allowed
 	  //       case CURRENCY_TYPE_ALPHANUM:
 	  //           opaque currencyCode[4];
-	  //
+	  //  
 	  //           // add other currency types here in the future
 	  //       }
 	  //
@@ -6761,11 +6834,11 @@ var StellarLib =
 	  //       // CURRENCY_TYPE_NATIVE is not allowed
 	  //       case CURRENCY_TYPE_ALPHANUM:
 	  //           opaque currencyCode[4];
-	  //
+	  //  
 	  //           // add other currency types here in the future
 	  //       }
 	  //       currency;
-	  //
+	  //  
 	  //       bool authorize;
 	  //   };
 	  //
@@ -6784,7 +6857,7 @@ var StellarLib =
 	  //           PathPaymentOp pathPaymentOp;
 	  //       case MANAGE_OFFER:
 	  //           ManageOfferOp manageOfferOp;
-	  //   	case CREATE_PASSIVE_OFFER:
+	  //       case CREATE_PASSIVE_OFFER:
 	  //           CreatePassiveOfferOp createPassiveOfferOp;
 	  //       case SET_OPTIONS:
 	  //           SetOptionsOp setOptionsOp;
@@ -6793,7 +6866,7 @@ var StellarLib =
 	  //       case ALLOW_TRUST:
 	  //           AllowTrustOp allowTrustOp;
 	  //       case ACCOUNT_MERGE:
-	  //           uint256 destination;
+	  //           AccountID destination;
 	  //       case INFLATION:
 	  //           void;
 	  //       }
@@ -6822,7 +6895,7 @@ var StellarLib =
 	      setOptionsOp: xdr.lookup("SetOptionsOp"),
 	      changeTrustOp: xdr.lookup("ChangeTrustOp"),
 	      allowTrustOp: xdr.lookup("AllowTrustOp"),
-	      destination: xdr.lookup("Uint256") } });
+	      destination: xdr.lookup("AccountId") } });
 
 	  // === xdr source ============================================================
 	  //
@@ -6832,7 +6905,7 @@ var StellarLib =
 	  //       // if not set, the runtime defaults to "account" specified at
 	  //       // the transaction level
 	  //       AccountID* sourceAccount;
-	  //
+	  //  
 	  //       union switch (OperationType type)
 	  //       {
 	  //       case CREATE_ACCOUNT:
@@ -6843,7 +6916,7 @@ var StellarLib =
 	  //           PathPaymentOp pathPaymentOp;
 	  //       case MANAGE_OFFER:
 	  //           ManageOfferOp manageOfferOp;
-	  //   	case CREATE_PASSIVE_OFFER:
+	  //       case CREATE_PASSIVE_OFFER:
 	  //           CreatePassiveOfferOp createPassiveOfferOp;
 	  //       case SET_OPTIONS:
 	  //           SetOptionsOp setOptionsOp;
@@ -6852,7 +6925,7 @@ var StellarLib =
 	  //       case ALLOW_TRUST:
 	  //           AllowTrustOp allowTrustOp;
 	  //       case ACCOUNT_MERGE:
-	  //           uint256 destination;
+	  //           AccountID destination;
 	  //       case INFLATION:
 	  //           void;
 	  //       }
@@ -6930,18 +7003,18 @@ var StellarLib =
 	  //   {
 	  //       // account used to run the transaction
 	  //       AccountID sourceAccount;
-	  //
+	  //  
 	  //       // the fee the sourceAccount will pay
 	  //       int32 fee;
-	  //
+	  //  
 	  //       // sequence number to consume in the account
 	  //       SequenceNumber seqNum;
-	  //
+	  //  
 	  //       // validity range (inclusive) for the last ledger close time
 	  //       TimeBounds* timeBounds;
-	  //
+	  //  
 	  //       Memo memo;
-	  //
+	  //  
 	  //       Operation operations<100>;
 	  //   };
 	  //
@@ -6966,16 +7039,18 @@ var StellarLib =
 	  //       // emited to identify the offer
 	  //       AccountID offerOwner; // Account that owns the offer
 	  //       uint64 offerID;
-	  //
+	  //  
 	  //       // amount and currency taken from the owner
 	  //       Currency currencyClaimed;
 	  //       int64 amountClaimed;
-	  //
-	  //       // should we also include the amount that the owner gets in return?
+	  //  
+	  //       // amount and currencysent to the owner
+	  //       Currency currencySend;
+	  //       int64 amountSend;
 	  //   };
 	  //
 	  // ===========================================================================
-	  xdr.struct("ClaimOfferAtom", [["offerOwner", xdr.lookup("AccountId")], ["offerId", xdr.lookup("Uint64")], ["currencyClaimed", xdr.lookup("Currency")], ["amountClaimed", xdr.lookup("Int64")]]);
+	  xdr.struct("ClaimOfferAtom", [["offerOwner", xdr.lookup("AccountId")], ["offerId", xdr.lookup("Uint64")], ["currencyClaimed", xdr.lookup("Currency")], ["amountClaimed", xdr.lookup("Int64")], ["currencySend", xdr.lookup("Currency")], ["amountSend", xdr.lookup("Int64")]]);
 
 	  // === xdr source ============================================================
 	  //
@@ -6983,7 +7058,7 @@ var StellarLib =
 	  //   {
 	  //       // codes considered as "success" for the operation
 	  //       CREATE_ACCOUNT_SUCCESS = 0, // account was created
-	  //
+	  //  
 	  //       // codes considered as "failure" for the operation
 	  //       CREATE_ACCOUNT_MALFORMED = 1,   // invalid destination
 	  //       CREATE_ACCOUNT_UNDERFUNDED = 2, // not enough funds in source account
@@ -7025,7 +7100,7 @@ var StellarLib =
 	  //   {
 	  //       // codes considered as "success" for the operation
 	  //       PAYMENT_SUCCESS = 0, // payment successfuly completed
-	  //
+	  //  
 	  //       // codes considered as "failure" for the operation
 	  //       PAYMENT_MALFORMED = -1,      // bad input
 	  //       PAYMENT_UNDERFUNDED = -2,    // not enough funds in source account
@@ -7070,7 +7145,7 @@ var StellarLib =
 	  //   {
 	  //       // codes considered as "success" for the operation
 	  //       PATH_PAYMENT_SUCCESS = 0, // success
-	  //
+	  //  
 	  //       // codes considered as "failure" for the operation
 	  //       PATH_PAYMENT_MALFORMED = -1,      // bad input
 	  //       PATH_PAYMENT_UNDERFUNDED = -2,    // not enough funds in source account
@@ -7148,7 +7223,7 @@ var StellarLib =
 	  //   {
 	  //       // codes considered as "success" for the operation
 	  //       MANAGE_OFFER_SUCCESS = 0,
-	  //
+	  //  
 	  //       // codes considered as "failure" for the operation
 	  //       MANAGE_OFFER_MALFORMED = -1,      // generated offer would be invalid
 	  //       MANAGE_OFFER_NO_TRUST = -2,       // can't hold what it's buying
@@ -7156,11 +7231,11 @@ var StellarLib =
 	  //       MANAGE_OFFER_LINE_FULL = -4,      // can't receive more of what it's buying
 	  //       MANAGE_OFFER_UNDERFUNDED = -5,    // doesn't hold what it's trying to sell
 	  //       MANAGE_OFFER_CROSS_SELF = -6,     // would cross an offer from the same user
-	  //
+	  //  
 	  //       // update errors
 	  //       MANAGE_OFFER_NOT_FOUND = -7, // offerID does not match an existing offer
 	  //       MANAGE_OFFER_MISMATCH = -8,  // currencies don't match offer
-	  //
+	  //  
 	  //       MANAGE_OFFER_LOW_RESERVE = -9 // not enough funds to create a new Offer
 	  //   };
 	  //
@@ -7220,7 +7295,7 @@ var StellarLib =
 	  //   {
 	  //       // offers that got claimed while creating this offer
 	  //       ClaimOfferAtom offersClaimed<>;
-	  //
+	  //  
 	  //       union switch (ManageOfferEffect effect)
 	  //       {
 	  //       case MANAGE_OFFER_CREATED:
@@ -7267,7 +7342,7 @@ var StellarLib =
 	  //       SET_OPTIONS_BAD_FLAGS = -3,        // invalid combination of clear/set flags
 	  //       SET_OPTIONS_INVALID_INFLATION = -4, // inflation account does not exist
 	  //       SET_OPTIONS_CANT_CHANGE = -5,       // can no longer change this option
-	  //       SET_OPTIONS_UNKNOWN_FLAG = -6		// can't set an unknown flag
+	  //       SET_OPTIONS_UNKNOWN_FLAG = -6       // can't set an unknown flag
 	  //   };
 	  //
 	  // ===========================================================================
@@ -7348,9 +7423,9 @@ var StellarLib =
 	  //       // codes considered as "failure" for the operation
 	  //       ALLOW_TRUST_MALFORMED = -1,     // currency is not CURRENCY_TYPE_ALPHANUM
 	  //       ALLOW_TRUST_NO_TRUST_LINE = -2, // trustor does not have a trustline
-	  //   									// source account does not require trust
+	  //                                       // source account does not require trust
 	  //       ALLOW_TRUST_TRUST_NOT_REQUIRED = -3,
-	  //       ALLOW_TRUST_CANT_REVOKE = -4    // source account can't revoke trust
+	  //       ALLOW_TRUST_CANT_REVOKE = -4 // source account can't revoke trust
 	  //   };
 	  //
 	  // ===========================================================================
@@ -7471,7 +7546,7 @@ var StellarLib =
 	  //   enum OperationResultCode
 	  //   {
 	  //       opINNER = 0, // inner object result is valid
-	  //
+	  //  
 	  //       opBAD_AUTH = -1,  // not enough signatures to perform operation
 	  //       opNO_ACCOUNT = -2 // source account was not found
 	  //   };
@@ -7583,14 +7658,14 @@ var StellarLib =
 	  //   enum TransactionResultCode
 	  //   {
 	  //       txSUCCESS = 0, // all operations succeeded
-	  //
+	  //  
 	  //       txFAILED = -1, // one of the operations failed (but none were applied)
-	  //
+	  //  
 	  //       txTOO_EARLY = -2,         // ledger closeTime before minTime
 	  //       txTOO_LATE = -3,          // ledger closeTime after maxTime
 	  //       txMISSING_OPERATION = -4, // no operation was specified
 	  //       txBAD_SEQ = -5,           // sequence number does not match source account
-	  //
+	  //  
 	  //       txBAD_AUTH = -6,             // not enough signatures to perform transaction
 	  //       txINSUFFICIENT_BALANCE = -7, // fee would bring account below reserve
 	  //       txNO_ACCOUNT = -8,           // source account not found
@@ -7641,7 +7716,7 @@ var StellarLib =
 	  //   struct TransactionResult
 	  //   {
 	  //       int64 feeCharged; // actual fee charged for the transaction
-	  //
+	  //  
 	  //       union switch (TransactionResultCode code)
 	  //       {
 	  //       case txSUCCESS:
@@ -7735,14 +7810,14 @@ var StellarLib =
 	  //   {
 	  //   case CURRENCY_TYPE_NATIVE:
 	  //       void;
-	  //
+	  //  
 	  //   case CURRENCY_TYPE_ALPHANUM:
 	  //       struct
 	  //       {
 	  //           opaque currencyCode[4];
 	  //           AccountID issuer;
 	  //       } alphaNum;
-	  //
+	  //  
 	  //       // add other currency types here in the future
 	  //   };
 	  //
@@ -7768,9 +7843,6 @@ var StellarLib =
 	  xdr.struct("Price", [["n", xdr.lookup("Int32")], ["d", xdr.lookup("Int32")]]);
 	});
 	module.exports = types;
-
-	// commenting below until recursive lookups are supported
-	//["innerSets", xdr.varArray(xdr.lookup("ScpQuorumSet"), 2147483647)],
 
 /***/ },
 /* 11 */
@@ -8049,7 +8121,7 @@ var StellarLib =
 
 	        if (typeof envelope === "string") {
 	            var buffer = new Buffer(envelope, "hex");
-	            envelope = xdr.TransactionEnvelope.fromXdr(buffer);
+	            envelope = xdr.TransactionEnvelope.fromXDR(buffer);
 	        }
 	        // since this transaction is immutable, save the tx
 	        this.tx = envelope._attributes.tx;
@@ -8652,6 +8724,7 @@ var StellarLib =
 	            * @param {string} [opts.signer.address] - The address of the new signer.
 	            * @param {number} [opts.signer.weight] - The weight of the new signer (0 to delete or 1-255)
 	            * @param {string} [opts.homeDomain] - sets the home domain used for reverse federation lookup.
+	            * @param {string} [opts.source] - The source account (defaults to transaction source).
 	            * @returns {xdr.SetOptionsOp}
 	            */
 
@@ -8705,6 +8778,7 @@ var StellarLib =
 	            * @param {string} amount - The total amount you're selling. If 0, deletes the offer.
 	            * @param {number} price - The exchange rate ratio (takerpay / takerget)
 	            * @param {string} offerId - If 0, will create a new offer. Otherwise, edits an exisiting offer.
+	            * @param {string} [opts.source] - The source account (defaults to transaction source).
 	            * @returns {xdr.ManageOfferOp}
 	            */
 
@@ -8742,6 +8816,7 @@ var StellarLib =
 	            * @param {Currency} takerPays - What you're buying.
 	            * @param {string} amount - The total amount you're selling. If 0, deletes the offer.
 	            * @param {number} price - The exchange rate ratio (takerpay / takerget)
+	            * @param {string} [opts.source] - The source account (defaults to transaction source).
 	            * @returns {xdr.CreatePassiveOfferOp}
 	            */
 
@@ -8772,7 +8847,8 @@ var StellarLib =
 	            * Transfers native balance to destination account.
 	            * @param {object} opts
 	            * @param {string} opts.destination - Destination to merge the source account into.
-	             * @returns {xdr.AccountMergeOp}
+	            * @param {string} [opts.source] - The source account (defaults to transaction source).
+	            * @returns {xdr.AccountMergeOp}
 	            */
 
 	            value: function accountMerge(opts) {
@@ -10131,6 +10207,325 @@ var StellarLib =
 /* 38 */
 /***/ function(module, exports, __webpack_require__) {
 
+	/* WEBPACK VAR INJECTION */(function(process) {var original = __webpack_require__(71)
+	  , parse = __webpack_require__(60).parse
+	  , events = __webpack_require__(62)
+	  , https = __webpack_require__(61)
+	  , http = __webpack_require__(63)
+	  , util = __webpack_require__(64);
+
+	function isPlainObject(obj) {
+	  return Object.getPrototypeOf(obj) === Object.prototype;
+	}
+
+	/**
+	 * Creates a new EventSource object
+	 *
+	 * @param {String} url the URL to which to connect
+	 * @param {Object} eventSourceInitDict extra init params. See README for details.
+	 * @api public
+	 **/
+	function EventSource(url, eventSourceInitDict) {
+	  var readyState = EventSource.CONNECTING;
+	  Object.defineProperty(this, 'readyState', {
+	    get: function () {
+	      return readyState;
+	    }
+	  });
+
+	  Object.defineProperty(this, 'url', {
+	    get: function () {
+	      return url;
+	    }
+	  });
+
+	  var self = this;
+	  self.reconnectInterval = 1000;
+	  var connectPending = false;
+
+	  function onConnectionClosed() {
+	    if (connectPending || readyState === EventSource.CLOSED) return;
+	    connectPending = true;
+	    readyState = EventSource.CONNECTING;
+	    _emit('error', new Event('error'));
+
+	    // The url may have been changed by a temporary
+	    // redirect. If that's the case, revert it now.
+	    if (reconnectUrl) {
+	      url = reconnectUrl;
+	      reconnectUrl = null;
+	    }
+	    setTimeout(function () {
+	      if (readyState !== EventSource.CONNECTING) {
+	        return;
+	      }
+	      connect();
+	    }, self.reconnectInterval);
+	  }
+
+	  var req;
+	  var lastEventId = '';
+	  if (eventSourceInitDict && eventSourceInitDict.headers && isPlainObject(eventSourceInitDict.headers) && eventSourceInitDict.headers['Last-Event-ID']) {
+	    lastEventId = eventSourceInitDict.headers['Last-Event-ID'];
+	    delete eventSourceInitDict.headers['Last-Event-ID'];
+	  }
+
+	  var discardTrailingNewline = false
+	    , data = ''
+	    , eventName = '';
+
+	  var reconnectUrl = null;
+
+	  function connect() {
+	    connectPending = false;
+
+	    var options = parse(url);
+	    var isSecure = options.protocol == 'https:';
+	    options.headers = { 'Cache-Control': 'no-cache', 'Accept': 'text/event-stream' };
+	    if (lastEventId) options.headers['Last-Event-ID'] = lastEventId;
+	    if (eventSourceInitDict && eventSourceInitDict.headers && isPlainObject(eventSourceInitDict.headers)) {
+	      for (var i in eventSourceInitDict.headers) {
+	        var header = eventSourceInitDict.headers[i];
+	        if (header) {
+	          options.headers[i] = header;
+	        }
+	      }
+	    }
+
+	    options.rejectUnauthorized = !(eventSourceInitDict && eventSourceInitDict.rejectUnauthorized == false);
+
+	    req = (isSecure ? https : http).request(options, function (res) {
+	      // Handle HTTP redirects
+	      if (res.statusCode == 301 || res.statusCode == 307) {
+	        if (!res.headers.location) {
+	          // Server sent redirect response without Location header.
+	          _emit('error', new Event('error', {status: res.statusCode}));
+	          return;
+	        }
+	        if (res.statusCode == 307) reconnectUrl = url;
+	        url = res.headers.location;
+	        process.nextTick(connect);
+	        return;
+	      }
+
+	      if (res.statusCode !== 200) {
+	        _emit('error', new Event('error', {status: res.statusCode}));
+	        return self.close();
+	      }
+
+	      readyState = EventSource.OPEN;
+	      res.on('close', onConnectionClosed);
+	      res.on('end', onConnectionClosed);
+	      _emit('open', new Event('open'));
+
+	      // text/event-stream parser adapted from webkit's
+	      // Source/WebCore/page/EventSource.cpp
+	      var buf = '';
+	      res.on('data', function (chunk) {
+	        buf += chunk;
+
+	        var pos = 0
+	          , length = buf.length;
+	        while (pos < length) {
+	          if (discardTrailingNewline) {
+	            if (buf[pos] === '\n') {
+	              ++pos;
+	            }
+	            discardTrailingNewline = false;
+	          }
+
+	          var lineLength = -1
+	            , fieldLength = -1
+	            , c;
+
+	          for (var i = pos; lineLength < 0 && i < length; ++i) {
+	            c = buf[i];
+	            if (c === ':') {
+	              if (fieldLength < 0) {
+	                fieldLength = i - pos;
+	              }
+	            } else if (c === '\r') {
+	              discardTrailingNewline = true;
+	              lineLength = i - pos;
+	            } else if (c === '\n') {
+	              lineLength = i - pos;
+	            }
+	          }
+
+	          if (lineLength < 0) {
+	            break;
+	          }
+
+	          parseEventStreamLine(buf, pos, fieldLength, lineLength);
+
+	          pos += lineLength + 1;
+	        }
+
+	        if (pos === length) {
+	          buf = '';
+	        } else if (pos > 0) {
+	          buf = buf.slice(pos);
+	        }
+	      });
+	    });
+
+	    req.on('error', onConnectionClosed);
+	    req.setNoDelay(true);
+	    req.end();
+	  }
+
+	  connect();
+
+	  function _emit() {
+	    if (self.listeners(arguments[0]).length > 0) {
+	      self.emit.apply(self, arguments);
+	    }
+	  }
+
+	  this.close = function () {
+	    if (readyState == EventSource.CLOSED) return;
+	    readyState = EventSource.CLOSED;
+	    req.abort();
+	  };
+
+	  function parseEventStreamLine(buf, pos, fieldLength, lineLength) {
+	    if (lineLength === 0) {
+	      if (data.length > 0) {
+	        var type = eventName || 'message';
+	        _emit(type, new MessageEvent(type, {
+	          data: data.slice(0, -1), // remove trailing newline
+	          lastEventId: lastEventId,
+	          origin: original(url)
+	        }));
+	        data = '';
+	      }
+	      eventName = void 0;
+	    } else if (fieldLength > 0) {
+	      var noValue = fieldLength < 0
+	        , step = 0
+	        , field = buf.slice(pos, pos + (noValue ? lineLength : fieldLength));
+
+	      if (noValue) {
+	        step = lineLength;
+	      } else if (buf[pos + fieldLength + 1] !== ' ') {
+	        step = fieldLength + 1;
+	      } else {
+	        step = fieldLength + 2;
+	      }
+	      pos += step;
+	      var valueLength = lineLength - step
+	        , value = buf.slice(pos, pos + valueLength);
+
+	      if (field === 'data') {
+	        data += value + '\n';
+	      } else if (field === 'event') {
+	        eventName = value;
+	      } else if (field === 'id') {
+	        lastEventId = value;
+	      } else if (field === 'retry') {
+	        var retry = parseInt(value, 10);
+	        if (!Number.isNaN(retry)) {
+	          self.reconnectInterval = retry;
+	        }
+	      }
+	    }
+	  }
+	}
+
+	module.exports = EventSource;
+
+	util.inherits(EventSource, events.EventEmitter);
+	EventSource.prototype.constructor = EventSource; // make stacktraces readable
+
+	['open', 'error', 'message'].forEach(function (method) {
+	  Object.defineProperty(EventSource.prototype, 'on' + method, {
+	    /**
+	     * Returns the current listener
+	     *
+	     * @return {Mixed} the set function or undefined
+	     * @api private
+	     */
+	    get: function get() {
+	      var listener = this.listeners(method)[0];
+	      return listener ? (listener._listener ? listener._listener : listener) : undefined;
+	    },
+
+	    /**
+	     * Start listening for events
+	     *
+	     * @param {Function} listener the listener
+	     * @return {Mixed} the set function or undefined
+	     * @api private
+	     */
+	    set: function set(listener) {
+	      this.removeAllListeners(method);
+	      this.addEventListener(method, listener);
+	    }
+	  });
+	});
+
+	/**
+	 * Ready states
+	 */
+	Object.defineProperty(EventSource, 'CONNECTING', { enumerable: true, value: 0});
+	Object.defineProperty(EventSource, 'OPEN', { enumerable: true, value: 1});
+	Object.defineProperty(EventSource, 'CLOSED', { enumerable: true, value: 2});
+
+	/**
+	 * Emulates the W3C Browser based WebSocket interface using addEventListener.
+	 *
+	 * @param {String} method Listen for an event
+	 * @param {Function} listener callback
+	 * @see https://developer.mozilla.org/en/DOM/element.addEventListener
+	 * @see http://dev.w3.org/html5/websockets/#the-websocket-interface
+	 * @api public
+	 */
+	EventSource.prototype.addEventListener = function addEventListener(method, listener) {
+	  if (typeof listener === 'function') {
+	    // store a reference so we can return the original function again
+	    listener._listener = listener;
+	    this.on(method, listener);
+	  }
+	};
+
+	/**
+	 * W3C Event
+	 *
+	 * @see http://www.w3.org/TR/DOM-Level-3-Events/#interface-Event
+	 * @api private
+	 */
+	function Event(type, optionalProperties) {
+	  Object.defineProperty(this, 'type', { writable: false, value: type, enumerable: true });
+	  if (optionalProperties) {
+	    for (var f in optionalProperties) {
+	      if (optionalProperties.hasOwnProperty(f)) {
+	        Object.defineProperty(this, f, { writable: false, value: optionalProperties[f], enumerable: true });
+	      }
+	    }
+	  }
+	}
+
+	/**
+	 * W3C MessageEvent
+	 *
+	 * @see http://www.w3.org/TR/webmessaging/#event-definitions
+	 * @api private
+	 */
+	function MessageEvent(type, eventInitDict) {
+	  Object.defineProperty(this, 'type', { writable: false, value: type, enumerable: true });
+	  for (var f in eventInitDict) {
+	    if (eventInitDict.hasOwnProperty(f)) {
+	      Object.defineProperty(this, f, { writable: false, value: eventInitDict[f], enumerable: true });
+	    }
+	  }
+	}
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(28)))
+
+/***/ },
+/* 39 */
+/***/ function(module, exports, __webpack_require__) {
+
 	/*global unescape, module, define, window, global*/
 
 	/*
@@ -11019,325 +11414,6 @@ var StellarLib =
 
 
 /***/ },
-/* 39 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(process) {var original = __webpack_require__(71)
-	  , parse = __webpack_require__(60).parse
-	  , events = __webpack_require__(61)
-	  , https = __webpack_require__(62)
-	  , http = __webpack_require__(64)
-	  , util = __webpack_require__(63);
-
-	function isPlainObject(obj) {
-	  return Object.getPrototypeOf(obj) === Object.prototype;
-	}
-
-	/**
-	 * Creates a new EventSource object
-	 *
-	 * @param {String} url the URL to which to connect
-	 * @param {Object} eventSourceInitDict extra init params. See README for details.
-	 * @api public
-	 **/
-	function EventSource(url, eventSourceInitDict) {
-	  var readyState = EventSource.CONNECTING;
-	  Object.defineProperty(this, 'readyState', {
-	    get: function () {
-	      return readyState;
-	    }
-	  });
-
-	  Object.defineProperty(this, 'url', {
-	    get: function () {
-	      return url;
-	    }
-	  });
-
-	  var self = this;
-	  self.reconnectInterval = 1000;
-	  var connectPending = false;
-
-	  function onConnectionClosed() {
-	    if (connectPending || readyState === EventSource.CLOSED) return;
-	    connectPending = true;
-	    readyState = EventSource.CONNECTING;
-	    _emit('error', new Event('error'));
-
-	    // The url may have been changed by a temporary
-	    // redirect. If that's the case, revert it now.
-	    if (reconnectUrl) {
-	      url = reconnectUrl;
-	      reconnectUrl = null;
-	    }
-	    setTimeout(function () {
-	      if (readyState !== EventSource.CONNECTING) {
-	        return;
-	      }
-	      connect();
-	    }, self.reconnectInterval);
-	  }
-
-	  var req;
-	  var lastEventId = '';
-	  if (eventSourceInitDict && eventSourceInitDict.headers && isPlainObject(eventSourceInitDict.headers) && eventSourceInitDict.headers['Last-Event-ID']) {
-	    lastEventId = eventSourceInitDict.headers['Last-Event-ID'];
-	    delete eventSourceInitDict.headers['Last-Event-ID'];
-	  }
-
-	  var discardTrailingNewline = false
-	    , data = ''
-	    , eventName = '';
-
-	  var reconnectUrl = null;
-
-	  function connect() {
-	    connectPending = false;
-
-	    var options = parse(url);
-	    var isSecure = options.protocol == 'https:';
-	    options.headers = { 'Cache-Control': 'no-cache', 'Accept': 'text/event-stream' };
-	    if (lastEventId) options.headers['Last-Event-ID'] = lastEventId;
-	    if (eventSourceInitDict && eventSourceInitDict.headers && isPlainObject(eventSourceInitDict.headers)) {
-	      for (var i in eventSourceInitDict.headers) {
-	        var header = eventSourceInitDict.headers[i];
-	        if (header) {
-	          options.headers[i] = header;
-	        }
-	      }
-	    }
-
-	    options.rejectUnauthorized = !(eventSourceInitDict && eventSourceInitDict.rejectUnauthorized == false);
-
-	    req = (isSecure ? https : http).request(options, function (res) {
-	      // Handle HTTP redirects
-	      if (res.statusCode == 301 || res.statusCode == 307) {
-	        if (!res.headers.location) {
-	          // Server sent redirect response without Location header.
-	          _emit('error', new Event('error', {status: res.statusCode}));
-	          return;
-	        }
-	        if (res.statusCode == 307) reconnectUrl = url;
-	        url = res.headers.location;
-	        process.nextTick(connect);
-	        return;
-	      }
-
-	      if (res.statusCode !== 200) {
-	        _emit('error', new Event('error', {status: res.statusCode}));
-	        return self.close();
-	      }
-
-	      readyState = EventSource.OPEN;
-	      res.on('close', onConnectionClosed);
-	      res.on('end', onConnectionClosed);
-	      _emit('open', new Event('open'));
-
-	      // text/event-stream parser adapted from webkit's
-	      // Source/WebCore/page/EventSource.cpp
-	      var buf = '';
-	      res.on('data', function (chunk) {
-	        buf += chunk;
-
-	        var pos = 0
-	          , length = buf.length;
-	        while (pos < length) {
-	          if (discardTrailingNewline) {
-	            if (buf[pos] === '\n') {
-	              ++pos;
-	            }
-	            discardTrailingNewline = false;
-	          }
-
-	          var lineLength = -1
-	            , fieldLength = -1
-	            , c;
-
-	          for (var i = pos; lineLength < 0 && i < length; ++i) {
-	            c = buf[i];
-	            if (c === ':') {
-	              if (fieldLength < 0) {
-	                fieldLength = i - pos;
-	              }
-	            } else if (c === '\r') {
-	              discardTrailingNewline = true;
-	              lineLength = i - pos;
-	            } else if (c === '\n') {
-	              lineLength = i - pos;
-	            }
-	          }
-
-	          if (lineLength < 0) {
-	            break;
-	          }
-
-	          parseEventStreamLine(buf, pos, fieldLength, lineLength);
-
-	          pos += lineLength + 1;
-	        }
-
-	        if (pos === length) {
-	          buf = '';
-	        } else if (pos > 0) {
-	          buf = buf.slice(pos);
-	        }
-	      });
-	    });
-
-	    req.on('error', onConnectionClosed);
-	    req.setNoDelay(true);
-	    req.end();
-	  }
-
-	  connect();
-
-	  function _emit() {
-	    if (self.listeners(arguments[0]).length > 0) {
-	      self.emit.apply(self, arguments);
-	    }
-	  }
-
-	  this.close = function () {
-	    if (readyState == EventSource.CLOSED) return;
-	    readyState = EventSource.CLOSED;
-	    req.abort();
-	  };
-
-	  function parseEventStreamLine(buf, pos, fieldLength, lineLength) {
-	    if (lineLength === 0) {
-	      if (data.length > 0) {
-	        var type = eventName || 'message';
-	        _emit(type, new MessageEvent(type, {
-	          data: data.slice(0, -1), // remove trailing newline
-	          lastEventId: lastEventId,
-	          origin: original(url)
-	        }));
-	        data = '';
-	      }
-	      eventName = void 0;
-	    } else if (fieldLength > 0) {
-	      var noValue = fieldLength < 0
-	        , step = 0
-	        , field = buf.slice(pos, pos + (noValue ? lineLength : fieldLength));
-
-	      if (noValue) {
-	        step = lineLength;
-	      } else if (buf[pos + fieldLength + 1] !== ' ') {
-	        step = fieldLength + 1;
-	      } else {
-	        step = fieldLength + 2;
-	      }
-	      pos += step;
-	      var valueLength = lineLength - step
-	        , value = buf.slice(pos, pos + valueLength);
-
-	      if (field === 'data') {
-	        data += value + '\n';
-	      } else if (field === 'event') {
-	        eventName = value;
-	      } else if (field === 'id') {
-	        lastEventId = value;
-	      } else if (field === 'retry') {
-	        var retry = parseInt(value, 10);
-	        if (!Number.isNaN(retry)) {
-	          self.reconnectInterval = retry;
-	        }
-	      }
-	    }
-	  }
-	}
-
-	module.exports = EventSource;
-
-	util.inherits(EventSource, events.EventEmitter);
-	EventSource.prototype.constructor = EventSource; // make stacktraces readable
-
-	['open', 'error', 'message'].forEach(function (method) {
-	  Object.defineProperty(EventSource.prototype, 'on' + method, {
-	    /**
-	     * Returns the current listener
-	     *
-	     * @return {Mixed} the set function or undefined
-	     * @api private
-	     */
-	    get: function get() {
-	      var listener = this.listeners(method)[0];
-	      return listener ? (listener._listener ? listener._listener : listener) : undefined;
-	    },
-
-	    /**
-	     * Start listening for events
-	     *
-	     * @param {Function} listener the listener
-	     * @return {Mixed} the set function or undefined
-	     * @api private
-	     */
-	    set: function set(listener) {
-	      this.removeAllListeners(method);
-	      this.addEventListener(method, listener);
-	    }
-	  });
-	});
-
-	/**
-	 * Ready states
-	 */
-	Object.defineProperty(EventSource, 'CONNECTING', { enumerable: true, value: 0});
-	Object.defineProperty(EventSource, 'OPEN', { enumerable: true, value: 1});
-	Object.defineProperty(EventSource, 'CLOSED', { enumerable: true, value: 2});
-
-	/**
-	 * Emulates the W3C Browser based WebSocket interface using addEventListener.
-	 *
-	 * @param {String} method Listen for an event
-	 * @param {Function} listener callback
-	 * @see https://developer.mozilla.org/en/DOM/element.addEventListener
-	 * @see http://dev.w3.org/html5/websockets/#the-websocket-interface
-	 * @api public
-	 */
-	EventSource.prototype.addEventListener = function addEventListener(method, listener) {
-	  if (typeof listener === 'function') {
-	    // store a reference so we can return the original function again
-	    listener._listener = listener;
-	    this.on(method, listener);
-	  }
-	};
-
-	/**
-	 * W3C Event
-	 *
-	 * @see http://www.w3.org/TR/DOM-Level-3-Events/#interface-Event
-	 * @api private
-	 */
-	function Event(type, optionalProperties) {
-	  Object.defineProperty(this, 'type', { writable: false, value: type, enumerable: true });
-	  if (optionalProperties) {
-	    for (var f in optionalProperties) {
-	      if (optionalProperties.hasOwnProperty(f)) {
-	        Object.defineProperty(this, f, { writable: false, value: optionalProperties[f], enumerable: true });
-	      }
-	    }
-	  }
-	}
-
-	/**
-	 * W3C MessageEvent
-	 *
-	 * @see http://www.w3.org/TR/webmessaging/#event-definitions
-	 * @api private
-	 */
-	function MessageEvent(type, eventInitDict) {
-	  Object.defineProperty(this, 'type', { writable: false, value: type, enumerable: true });
-	  for (var f in eventInitDict) {
-	    if (eventInitDict.hasOwnProperty(f)) {
-	      Object.defineProperty(this, f, { writable: false, value: eventInitDict[f], enumerable: true });
-	    }
-	  }
-	}
-
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(28)))
-
-/***/ },
 /* 40 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -11375,9 +11451,9 @@ var StellarLib =
 	 * @license  MIT
 	 */
 
-	var base64 = __webpack_require__(98)
-	var ieee754 = __webpack_require__(92)
-	var isArray = __webpack_require__(93)
+	var base64 = __webpack_require__(97)
+	var ieee754 = __webpack_require__(91)
+	var isArray = __webpack_require__(92)
 
 	exports.Buffer = Buffer
 	exports.SlowBuffer = SlowBuffer
@@ -24873,7 +24949,7 @@ var StellarLib =
 	  }
 	}.call(this));
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(94)(module), (function() { return this; }())))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(93)(module), (function() { return this; }())))
 
 /***/ },
 /* 44 */
@@ -25937,7 +26013,7 @@ var StellarLib =
 	    };
 
 	    /* global define:true module:true window: true */
-	    if ("function" === 'function' && __webpack_require__(95)['amd']) {
+	    if ("function" === 'function' && __webpack_require__(94)['amd']) {
 	      !(__WEBPACK_AMD_DEFINE_RESULT__ = function() { return lib$es6$promise$umd$$ES6Promise; }.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 	    } else if (typeof module !== 'undefined' && module['exports']) {
 	      module['exports'] = lib$es6$promise$umd$$ES6Promise;
@@ -25949,554 +26025,10 @@ var StellarLib =
 	}).call(this);
 
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(28), __webpack_require__(29).setImmediate, (function() { return this; }()), __webpack_require__(94)(module)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(28), __webpack_require__(29).setImmediate, (function() { return this; }()), __webpack_require__(93)(module)))
 
 /***/ },
 /* 46 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(global) {/**
-	 * Copyright (c) 2014, Facebook, Inc.
-	 * All rights reserved.
-	 *
-	 * This source code is licensed under the BSD-style license found in the
-	 * https://raw.github.com/facebook/regenerator/master/LICENSE file. An
-	 * additional grant of patent rights can be found in the PATENTS file in
-	 * the same directory.
-	 */
-
-	!(function(global) {
-	  "use strict";
-
-	  var hasOwn = Object.prototype.hasOwnProperty;
-	  var undefined; // More compressible than void 0.
-	  var iteratorSymbol =
-	    typeof Symbol === "function" && Symbol.iterator || "@@iterator";
-
-	  var inModule = typeof module === "object";
-	  var runtime = global.regeneratorRuntime;
-	  if (runtime) {
-	    if (inModule) {
-	      // If regeneratorRuntime is defined globally and we're in a module,
-	      // make the exports object identical to regeneratorRuntime.
-	      module.exports = runtime;
-	    }
-	    // Don't bother evaluating the rest of this file if the runtime was
-	    // already defined globally.
-	    return;
-	  }
-
-	  // Define the runtime globally (as expected by generated code) as either
-	  // module.exports (if we're in a module) or a new, empty object.
-	  runtime = global.regeneratorRuntime = inModule ? module.exports : {};
-
-	  function wrap(innerFn, outerFn, self, tryLocsList) {
-	    return new Generator(innerFn, outerFn, self || null, tryLocsList || []);
-	  }
-	  runtime.wrap = wrap;
-
-	  // Try/catch helper to minimize deoptimizations. Returns a completion
-	  // record like context.tryEntries[i].completion. This interface could
-	  // have been (and was previously) designed to take a closure to be
-	  // invoked without arguments, but in all the cases we care about we
-	  // already have an existing method we want to call, so there's no need
-	  // to create a new function object. We can even get away with assuming
-	  // the method takes exactly one argument, since that happens to be true
-	  // in every case, so we don't have to touch the arguments object. The
-	  // only additional allocation required is the completion record, which
-	  // has a stable shape and so hopefully should be cheap to allocate.
-	  function tryCatch(fn, obj, arg) {
-	    try {
-	      return { type: "normal", arg: fn.call(obj, arg) };
-	    } catch (err) {
-	      return { type: "throw", arg: err };
-	    }
-	  }
-
-	  var GenStateSuspendedStart = "suspendedStart";
-	  var GenStateSuspendedYield = "suspendedYield";
-	  var GenStateExecuting = "executing";
-	  var GenStateCompleted = "completed";
-
-	  // Returning this object from the innerFn has the same effect as
-	  // breaking out of the dispatch switch statement.
-	  var ContinueSentinel = {};
-
-	  // Dummy constructor functions that we use as the .constructor and
-	  // .constructor.prototype properties for functions that return Generator
-	  // objects. For full spec compliance, you may wish to configure your
-	  // minifier not to mangle the names of these two functions.
-	  function GeneratorFunction() {}
-	  function GeneratorFunctionPrototype() {}
-
-	  var Gp = GeneratorFunctionPrototype.prototype = Generator.prototype;
-	  GeneratorFunction.prototype = Gp.constructor = GeneratorFunctionPrototype;
-	  GeneratorFunctionPrototype.constructor = GeneratorFunction;
-	  GeneratorFunction.displayName = "GeneratorFunction";
-
-	  runtime.isGeneratorFunction = function(genFun) {
-	    var ctor = typeof genFun === "function" && genFun.constructor;
-	    return ctor
-	      ? ctor === GeneratorFunction ||
-	        // For the native GeneratorFunction constructor, the best we can
-	        // do is to check its .name property.
-	        (ctor.displayName || ctor.name) === "GeneratorFunction"
-	      : false;
-	  };
-
-	  runtime.mark = function(genFun) {
-	    genFun.__proto__ = GeneratorFunctionPrototype;
-	    genFun.prototype = Object.create(Gp);
-	    return genFun;
-	  };
-
-	  runtime.async = function(innerFn, outerFn, self, tryLocsList) {
-	    return new Promise(function(resolve, reject) {
-	      var generator = wrap(innerFn, outerFn, self, tryLocsList);
-	      var callNext = step.bind(generator.next);
-	      var callThrow = step.bind(generator["throw"]);
-
-	      function step(arg) {
-	        var record = tryCatch(this, null, arg);
-	        if (record.type === "throw") {
-	          reject(record.arg);
-	          return;
-	        }
-
-	        var info = record.arg;
-	        if (info.done) {
-	          resolve(info.value);
-	        } else {
-	          Promise.resolve(info.value).then(callNext, callThrow);
-	        }
-	      }
-
-	      callNext();
-	    });
-	  };
-
-	  function Generator(innerFn, outerFn, self, tryLocsList) {
-	    var generator = outerFn ? Object.create(outerFn.prototype) : this;
-	    var context = new Context(tryLocsList);
-	    var state = GenStateSuspendedStart;
-
-	    function invoke(method, arg) {
-	      if (state === GenStateExecuting) {
-	        throw new Error("Generator is already running");
-	      }
-
-	      if (state === GenStateCompleted) {
-	        // Be forgiving, per 25.3.3.3.3 of the spec:
-	        // https://people.mozilla.org/~jorendorff/es6-draft.html#sec-generatorresume
-	        return doneResult();
-	      }
-
-	      while (true) {
-	        var delegate = context.delegate;
-	        if (delegate) {
-	          var record = tryCatch(
-	            delegate.iterator[method],
-	            delegate.iterator,
-	            arg
-	          );
-
-	          if (record.type === "throw") {
-	            context.delegate = null;
-
-	            // Like returning generator.throw(uncaught), but without the
-	            // overhead of an extra function call.
-	            method = "throw";
-	            arg = record.arg;
-
-	            continue;
-	          }
-
-	          // Delegate generator ran and handled its own exceptions so
-	          // regardless of what the method was, we continue as if it is
-	          // "next" with an undefined arg.
-	          method = "next";
-	          arg = undefined;
-
-	          var info = record.arg;
-	          if (info.done) {
-	            context[delegate.resultName] = info.value;
-	            context.next = delegate.nextLoc;
-	          } else {
-	            state = GenStateSuspendedYield;
-	            return info;
-	          }
-
-	          context.delegate = null;
-	        }
-
-	        if (method === "next") {
-	          if (state === GenStateSuspendedStart &&
-	              typeof arg !== "undefined") {
-	            // https://people.mozilla.org/~jorendorff/es6-draft.html#sec-generatorresume
-	            throw new TypeError(
-	              "attempt to send " + JSON.stringify(arg) + " to newborn generator"
-	            );
-	          }
-
-	          if (state === GenStateSuspendedYield) {
-	            context.sent = arg;
-	          } else {
-	            delete context.sent;
-	          }
-
-	        } else if (method === "throw") {
-	          if (state === GenStateSuspendedStart) {
-	            state = GenStateCompleted;
-	            throw arg;
-	          }
-
-	          if (context.dispatchException(arg)) {
-	            // If the dispatched exception was caught by a catch block,
-	            // then let that catch block handle the exception normally.
-	            method = "next";
-	            arg = undefined;
-	          }
-
-	        } else if (method === "return") {
-	          context.abrupt("return", arg);
-	        }
-
-	        state = GenStateExecuting;
-
-	        var record = tryCatch(innerFn, self, context);
-	        if (record.type === "normal") {
-	          // If an exception is thrown from innerFn, we leave state ===
-	          // GenStateExecuting and loop back for another invocation.
-	          state = context.done
-	            ? GenStateCompleted
-	            : GenStateSuspendedYield;
-
-	          var info = {
-	            value: record.arg,
-	            done: context.done
-	          };
-
-	          if (record.arg === ContinueSentinel) {
-	            if (context.delegate && method === "next") {
-	              // Deliberately forget the last sent value so that we don't
-	              // accidentally pass it on to the delegate.
-	              arg = undefined;
-	            }
-	          } else {
-	            return info;
-	          }
-
-	        } else if (record.type === "throw") {
-	          state = GenStateCompleted;
-
-	          if (method === "next") {
-	            context.dispatchException(record.arg);
-	          } else {
-	            arg = record.arg;
-	          }
-	        }
-	      }
-	    }
-
-	    generator.next = invoke.bind(generator, "next");
-	    generator["throw"] = invoke.bind(generator, "throw");
-	    generator["return"] = invoke.bind(generator, "return");
-
-	    return generator;
-	  }
-
-	  Gp[iteratorSymbol] = function() {
-	    return this;
-	  };
-
-	  Gp.toString = function() {
-	    return "[object Generator]";
-	  };
-
-	  function pushTryEntry(locs) {
-	    var entry = { tryLoc: locs[0] };
-
-	    if (1 in locs) {
-	      entry.catchLoc = locs[1];
-	    }
-
-	    if (2 in locs) {
-	      entry.finallyLoc = locs[2];
-	      entry.afterLoc = locs[3];
-	    }
-
-	    this.tryEntries.push(entry);
-	  }
-
-	  function resetTryEntry(entry) {
-	    var record = entry.completion || {};
-	    record.type = "normal";
-	    delete record.arg;
-	    entry.completion = record;
-	  }
-
-	  function Context(tryLocsList) {
-	    // The root entry object (effectively a try statement without a catch
-	    // or a finally block) gives us a place to store values thrown from
-	    // locations where there is no enclosing try statement.
-	    this.tryEntries = [{ tryLoc: "root" }];
-	    tryLocsList.forEach(pushTryEntry, this);
-	    this.reset();
-	  }
-
-	  runtime.keys = function(object) {
-	    var keys = [];
-	    for (var key in object) {
-	      keys.push(key);
-	    }
-	    keys.reverse();
-
-	    // Rather than returning an object with a next method, we keep
-	    // things simple and return the next function itself.
-	    return function next() {
-	      while (keys.length) {
-	        var key = keys.pop();
-	        if (key in object) {
-	          next.value = key;
-	          next.done = false;
-	          return next;
-	        }
-	      }
-
-	      // To avoid creating an additional object, we just hang the .value
-	      // and .done properties off the next function object itself. This
-	      // also ensures that the minifier will not anonymize the function.
-	      next.done = true;
-	      return next;
-	    };
-	  };
-
-	  function values(iterable) {
-	    if (iterable) {
-	      var iteratorMethod = iterable[iteratorSymbol];
-	      if (iteratorMethod) {
-	        return iteratorMethod.call(iterable);
-	      }
-
-	      if (typeof iterable.next === "function") {
-	        return iterable;
-	      }
-
-	      if (!isNaN(iterable.length)) {
-	        var i = -1, next = function next() {
-	          while (++i < iterable.length) {
-	            if (hasOwn.call(iterable, i)) {
-	              next.value = iterable[i];
-	              next.done = false;
-	              return next;
-	            }
-	          }
-
-	          next.value = undefined;
-	          next.done = true;
-
-	          return next;
-	        };
-
-	        return next.next = next;
-	      }
-	    }
-
-	    // Return an iterator with no values.
-	    return { next: doneResult };
-	  }
-	  runtime.values = values;
-
-	  function doneResult() {
-	    return { value: undefined, done: true };
-	  }
-
-	  Context.prototype = {
-	    constructor: Context,
-
-	    reset: function() {
-	      this.prev = 0;
-	      this.next = 0;
-	      this.sent = undefined;
-	      this.done = false;
-	      this.delegate = null;
-
-	      this.tryEntries.forEach(resetTryEntry);
-
-	      // Pre-initialize at least 20 temporary variables to enable hidden
-	      // class optimizations for simple generators.
-	      for (var tempIndex = 0, tempName;
-	           hasOwn.call(this, tempName = "t" + tempIndex) || tempIndex < 20;
-	           ++tempIndex) {
-	        this[tempName] = null;
-	      }
-	    },
-
-	    stop: function() {
-	      this.done = true;
-
-	      var rootEntry = this.tryEntries[0];
-	      var rootRecord = rootEntry.completion;
-	      if (rootRecord.type === "throw") {
-	        throw rootRecord.arg;
-	      }
-
-	      return this.rval;
-	    },
-
-	    dispatchException: function(exception) {
-	      if (this.done) {
-	        throw exception;
-	      }
-
-	      var context = this;
-	      function handle(loc, caught) {
-	        record.type = "throw";
-	        record.arg = exception;
-	        context.next = loc;
-	        return !!caught;
-	      }
-
-	      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-	        var entry = this.tryEntries[i];
-	        var record = entry.completion;
-
-	        if (entry.tryLoc === "root") {
-	          // Exception thrown outside of any try block that could handle
-	          // it, so set the completion value of the entire function to
-	          // throw the exception.
-	          return handle("end");
-	        }
-
-	        if (entry.tryLoc <= this.prev) {
-	          var hasCatch = hasOwn.call(entry, "catchLoc");
-	          var hasFinally = hasOwn.call(entry, "finallyLoc");
-
-	          if (hasCatch && hasFinally) {
-	            if (this.prev < entry.catchLoc) {
-	              return handle(entry.catchLoc, true);
-	            } else if (this.prev < entry.finallyLoc) {
-	              return handle(entry.finallyLoc);
-	            }
-
-	          } else if (hasCatch) {
-	            if (this.prev < entry.catchLoc) {
-	              return handle(entry.catchLoc, true);
-	            }
-
-	          } else if (hasFinally) {
-	            if (this.prev < entry.finallyLoc) {
-	              return handle(entry.finallyLoc);
-	            }
-
-	          } else {
-	            throw new Error("try statement without catch or finally");
-	          }
-	        }
-	      }
-	    },
-
-	    abrupt: function(type, arg) {
-	      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-	        var entry = this.tryEntries[i];
-	        if (entry.tryLoc <= this.prev &&
-	            hasOwn.call(entry, "finallyLoc") &&
-	            this.prev < entry.finallyLoc) {
-	          var finallyEntry = entry;
-	          break;
-	        }
-	      }
-
-	      if (finallyEntry &&
-	          (type === "break" ||
-	           type === "continue") &&
-	          finallyEntry.tryLoc <= arg &&
-	          arg < finallyEntry.finallyLoc) {
-	        // Ignore the finally entry if control is not jumping to a
-	        // location outside the try/catch block.
-	        finallyEntry = null;
-	      }
-
-	      var record = finallyEntry ? finallyEntry.completion : {};
-	      record.type = type;
-	      record.arg = arg;
-
-	      if (finallyEntry) {
-	        this.next = finallyEntry.finallyLoc;
-	      } else {
-	        this.complete(record);
-	      }
-
-	      return ContinueSentinel;
-	    },
-
-	    complete: function(record, afterLoc) {
-	      if (record.type === "throw") {
-	        throw record.arg;
-	      }
-
-	      if (record.type === "break" ||
-	          record.type === "continue") {
-	        this.next = record.arg;
-	      } else if (record.type === "return") {
-	        this.rval = record.arg;
-	        this.next = "end";
-	      } else if (record.type === "normal" && afterLoc) {
-	        this.next = afterLoc;
-	      }
-
-	      return ContinueSentinel;
-	    },
-
-	    finish: function(finallyLoc) {
-	      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-	        var entry = this.tryEntries[i];
-	        if (entry.finallyLoc === finallyLoc) {
-	          return this.complete(entry.completion, entry.afterLoc);
-	        }
-	      }
-	    },
-
-	    "catch": function(tryLoc) {
-	      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-	        var entry = this.tryEntries[i];
-	        if (entry.tryLoc === tryLoc) {
-	          var record = entry.completion;
-	          if (record.type === "throw") {
-	            var thrown = record.arg;
-	            resetTryEntry(entry);
-	          }
-	          return thrown;
-	        }
-	      }
-
-	      // The context.catch method must only be called with a location
-	      // argument that corresponds to a known catch block.
-	      throw new Error("illegal catch attempt");
-	    },
-
-	    delegateYield: function(iterable, resultName, nextLoc) {
-	      this.delegate = {
-	        iterator: values(iterable),
-	        resultName: resultName,
-	        nextLoc: nextLoc
-	      };
-
-	      return ContinueSentinel;
-	    }
-	  };
-	})(
-	  // Among the various tricks for obtaining a reference to the global
-	  // object, this seems to be the most reliable technique that does not
-	  // use indirect eval (which violates Content Security Policy).
-	  typeof global === "object" ? global :
-	  typeof window === "object" ? window : this
-	);
-
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
-
-/***/ },
-/* 47 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -28477,6 +28009,550 @@ var StellarLib =
 	  Iterators.NodeList = Iterators[ARRAY];
 	}(global.NodeList);
 	}(typeof self != 'undefined' && self.Math === Math ? self : Function('return this')(), true);
+
+/***/ },
+/* 47 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(global) {/**
+	 * Copyright (c) 2014, Facebook, Inc.
+	 * All rights reserved.
+	 *
+	 * This source code is licensed under the BSD-style license found in the
+	 * https://raw.github.com/facebook/regenerator/master/LICENSE file. An
+	 * additional grant of patent rights can be found in the PATENTS file in
+	 * the same directory.
+	 */
+
+	!(function(global) {
+	  "use strict";
+
+	  var hasOwn = Object.prototype.hasOwnProperty;
+	  var undefined; // More compressible than void 0.
+	  var iteratorSymbol =
+	    typeof Symbol === "function" && Symbol.iterator || "@@iterator";
+
+	  var inModule = typeof module === "object";
+	  var runtime = global.regeneratorRuntime;
+	  if (runtime) {
+	    if (inModule) {
+	      // If regeneratorRuntime is defined globally and we're in a module,
+	      // make the exports object identical to regeneratorRuntime.
+	      module.exports = runtime;
+	    }
+	    // Don't bother evaluating the rest of this file if the runtime was
+	    // already defined globally.
+	    return;
+	  }
+
+	  // Define the runtime globally (as expected by generated code) as either
+	  // module.exports (if we're in a module) or a new, empty object.
+	  runtime = global.regeneratorRuntime = inModule ? module.exports : {};
+
+	  function wrap(innerFn, outerFn, self, tryLocsList) {
+	    return new Generator(innerFn, outerFn, self || null, tryLocsList || []);
+	  }
+	  runtime.wrap = wrap;
+
+	  // Try/catch helper to minimize deoptimizations. Returns a completion
+	  // record like context.tryEntries[i].completion. This interface could
+	  // have been (and was previously) designed to take a closure to be
+	  // invoked without arguments, but in all the cases we care about we
+	  // already have an existing method we want to call, so there's no need
+	  // to create a new function object. We can even get away with assuming
+	  // the method takes exactly one argument, since that happens to be true
+	  // in every case, so we don't have to touch the arguments object. The
+	  // only additional allocation required is the completion record, which
+	  // has a stable shape and so hopefully should be cheap to allocate.
+	  function tryCatch(fn, obj, arg) {
+	    try {
+	      return { type: "normal", arg: fn.call(obj, arg) };
+	    } catch (err) {
+	      return { type: "throw", arg: err };
+	    }
+	  }
+
+	  var GenStateSuspendedStart = "suspendedStart";
+	  var GenStateSuspendedYield = "suspendedYield";
+	  var GenStateExecuting = "executing";
+	  var GenStateCompleted = "completed";
+
+	  // Returning this object from the innerFn has the same effect as
+	  // breaking out of the dispatch switch statement.
+	  var ContinueSentinel = {};
+
+	  // Dummy constructor functions that we use as the .constructor and
+	  // .constructor.prototype properties for functions that return Generator
+	  // objects. For full spec compliance, you may wish to configure your
+	  // minifier not to mangle the names of these two functions.
+	  function GeneratorFunction() {}
+	  function GeneratorFunctionPrototype() {}
+
+	  var Gp = GeneratorFunctionPrototype.prototype = Generator.prototype;
+	  GeneratorFunction.prototype = Gp.constructor = GeneratorFunctionPrototype;
+	  GeneratorFunctionPrototype.constructor = GeneratorFunction;
+	  GeneratorFunction.displayName = "GeneratorFunction";
+
+	  runtime.isGeneratorFunction = function(genFun) {
+	    var ctor = typeof genFun === "function" && genFun.constructor;
+	    return ctor
+	      ? ctor === GeneratorFunction ||
+	        // For the native GeneratorFunction constructor, the best we can
+	        // do is to check its .name property.
+	        (ctor.displayName || ctor.name) === "GeneratorFunction"
+	      : false;
+	  };
+
+	  runtime.mark = function(genFun) {
+	    genFun.__proto__ = GeneratorFunctionPrototype;
+	    genFun.prototype = Object.create(Gp);
+	    return genFun;
+	  };
+
+	  runtime.async = function(innerFn, outerFn, self, tryLocsList) {
+	    return new Promise(function(resolve, reject) {
+	      var generator = wrap(innerFn, outerFn, self, tryLocsList);
+	      var callNext = step.bind(generator.next);
+	      var callThrow = step.bind(generator["throw"]);
+
+	      function step(arg) {
+	        var record = tryCatch(this, null, arg);
+	        if (record.type === "throw") {
+	          reject(record.arg);
+	          return;
+	        }
+
+	        var info = record.arg;
+	        if (info.done) {
+	          resolve(info.value);
+	        } else {
+	          Promise.resolve(info.value).then(callNext, callThrow);
+	        }
+	      }
+
+	      callNext();
+	    });
+	  };
+
+	  function Generator(innerFn, outerFn, self, tryLocsList) {
+	    var generator = outerFn ? Object.create(outerFn.prototype) : this;
+	    var context = new Context(tryLocsList);
+	    var state = GenStateSuspendedStart;
+
+	    function invoke(method, arg) {
+	      if (state === GenStateExecuting) {
+	        throw new Error("Generator is already running");
+	      }
+
+	      if (state === GenStateCompleted) {
+	        // Be forgiving, per 25.3.3.3.3 of the spec:
+	        // https://people.mozilla.org/~jorendorff/es6-draft.html#sec-generatorresume
+	        return doneResult();
+	      }
+
+	      while (true) {
+	        var delegate = context.delegate;
+	        if (delegate) {
+	          var record = tryCatch(
+	            delegate.iterator[method],
+	            delegate.iterator,
+	            arg
+	          );
+
+	          if (record.type === "throw") {
+	            context.delegate = null;
+
+	            // Like returning generator.throw(uncaught), but without the
+	            // overhead of an extra function call.
+	            method = "throw";
+	            arg = record.arg;
+
+	            continue;
+	          }
+
+	          // Delegate generator ran and handled its own exceptions so
+	          // regardless of what the method was, we continue as if it is
+	          // "next" with an undefined arg.
+	          method = "next";
+	          arg = undefined;
+
+	          var info = record.arg;
+	          if (info.done) {
+	            context[delegate.resultName] = info.value;
+	            context.next = delegate.nextLoc;
+	          } else {
+	            state = GenStateSuspendedYield;
+	            return info;
+	          }
+
+	          context.delegate = null;
+	        }
+
+	        if (method === "next") {
+	          if (state === GenStateSuspendedStart &&
+	              typeof arg !== "undefined") {
+	            // https://people.mozilla.org/~jorendorff/es6-draft.html#sec-generatorresume
+	            throw new TypeError(
+	              "attempt to send " + JSON.stringify(arg) + " to newborn generator"
+	            );
+	          }
+
+	          if (state === GenStateSuspendedYield) {
+	            context.sent = arg;
+	          } else {
+	            delete context.sent;
+	          }
+
+	        } else if (method === "throw") {
+	          if (state === GenStateSuspendedStart) {
+	            state = GenStateCompleted;
+	            throw arg;
+	          }
+
+	          if (context.dispatchException(arg)) {
+	            // If the dispatched exception was caught by a catch block,
+	            // then let that catch block handle the exception normally.
+	            method = "next";
+	            arg = undefined;
+	          }
+
+	        } else if (method === "return") {
+	          context.abrupt("return", arg);
+	        }
+
+	        state = GenStateExecuting;
+
+	        var record = tryCatch(innerFn, self, context);
+	        if (record.type === "normal") {
+	          // If an exception is thrown from innerFn, we leave state ===
+	          // GenStateExecuting and loop back for another invocation.
+	          state = context.done
+	            ? GenStateCompleted
+	            : GenStateSuspendedYield;
+
+	          var info = {
+	            value: record.arg,
+	            done: context.done
+	          };
+
+	          if (record.arg === ContinueSentinel) {
+	            if (context.delegate && method === "next") {
+	              // Deliberately forget the last sent value so that we don't
+	              // accidentally pass it on to the delegate.
+	              arg = undefined;
+	            }
+	          } else {
+	            return info;
+	          }
+
+	        } else if (record.type === "throw") {
+	          state = GenStateCompleted;
+
+	          if (method === "next") {
+	            context.dispatchException(record.arg);
+	          } else {
+	            arg = record.arg;
+	          }
+	        }
+	      }
+	    }
+
+	    generator.next = invoke.bind(generator, "next");
+	    generator["throw"] = invoke.bind(generator, "throw");
+	    generator["return"] = invoke.bind(generator, "return");
+
+	    return generator;
+	  }
+
+	  Gp[iteratorSymbol] = function() {
+	    return this;
+	  };
+
+	  Gp.toString = function() {
+	    return "[object Generator]";
+	  };
+
+	  function pushTryEntry(locs) {
+	    var entry = { tryLoc: locs[0] };
+
+	    if (1 in locs) {
+	      entry.catchLoc = locs[1];
+	    }
+
+	    if (2 in locs) {
+	      entry.finallyLoc = locs[2];
+	      entry.afterLoc = locs[3];
+	    }
+
+	    this.tryEntries.push(entry);
+	  }
+
+	  function resetTryEntry(entry) {
+	    var record = entry.completion || {};
+	    record.type = "normal";
+	    delete record.arg;
+	    entry.completion = record;
+	  }
+
+	  function Context(tryLocsList) {
+	    // The root entry object (effectively a try statement without a catch
+	    // or a finally block) gives us a place to store values thrown from
+	    // locations where there is no enclosing try statement.
+	    this.tryEntries = [{ tryLoc: "root" }];
+	    tryLocsList.forEach(pushTryEntry, this);
+	    this.reset();
+	  }
+
+	  runtime.keys = function(object) {
+	    var keys = [];
+	    for (var key in object) {
+	      keys.push(key);
+	    }
+	    keys.reverse();
+
+	    // Rather than returning an object with a next method, we keep
+	    // things simple and return the next function itself.
+	    return function next() {
+	      while (keys.length) {
+	        var key = keys.pop();
+	        if (key in object) {
+	          next.value = key;
+	          next.done = false;
+	          return next;
+	        }
+	      }
+
+	      // To avoid creating an additional object, we just hang the .value
+	      // and .done properties off the next function object itself. This
+	      // also ensures that the minifier will not anonymize the function.
+	      next.done = true;
+	      return next;
+	    };
+	  };
+
+	  function values(iterable) {
+	    if (iterable) {
+	      var iteratorMethod = iterable[iteratorSymbol];
+	      if (iteratorMethod) {
+	        return iteratorMethod.call(iterable);
+	      }
+
+	      if (typeof iterable.next === "function") {
+	        return iterable;
+	      }
+
+	      if (!isNaN(iterable.length)) {
+	        var i = -1, next = function next() {
+	          while (++i < iterable.length) {
+	            if (hasOwn.call(iterable, i)) {
+	              next.value = iterable[i];
+	              next.done = false;
+	              return next;
+	            }
+	          }
+
+	          next.value = undefined;
+	          next.done = true;
+
+	          return next;
+	        };
+
+	        return next.next = next;
+	      }
+	    }
+
+	    // Return an iterator with no values.
+	    return { next: doneResult };
+	  }
+	  runtime.values = values;
+
+	  function doneResult() {
+	    return { value: undefined, done: true };
+	  }
+
+	  Context.prototype = {
+	    constructor: Context,
+
+	    reset: function() {
+	      this.prev = 0;
+	      this.next = 0;
+	      this.sent = undefined;
+	      this.done = false;
+	      this.delegate = null;
+
+	      this.tryEntries.forEach(resetTryEntry);
+
+	      // Pre-initialize at least 20 temporary variables to enable hidden
+	      // class optimizations for simple generators.
+	      for (var tempIndex = 0, tempName;
+	           hasOwn.call(this, tempName = "t" + tempIndex) || tempIndex < 20;
+	           ++tempIndex) {
+	        this[tempName] = null;
+	      }
+	    },
+
+	    stop: function() {
+	      this.done = true;
+
+	      var rootEntry = this.tryEntries[0];
+	      var rootRecord = rootEntry.completion;
+	      if (rootRecord.type === "throw") {
+	        throw rootRecord.arg;
+	      }
+
+	      return this.rval;
+	    },
+
+	    dispatchException: function(exception) {
+	      if (this.done) {
+	        throw exception;
+	      }
+
+	      var context = this;
+	      function handle(loc, caught) {
+	        record.type = "throw";
+	        record.arg = exception;
+	        context.next = loc;
+	        return !!caught;
+	      }
+
+	      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+	        var entry = this.tryEntries[i];
+	        var record = entry.completion;
+
+	        if (entry.tryLoc === "root") {
+	          // Exception thrown outside of any try block that could handle
+	          // it, so set the completion value of the entire function to
+	          // throw the exception.
+	          return handle("end");
+	        }
+
+	        if (entry.tryLoc <= this.prev) {
+	          var hasCatch = hasOwn.call(entry, "catchLoc");
+	          var hasFinally = hasOwn.call(entry, "finallyLoc");
+
+	          if (hasCatch && hasFinally) {
+	            if (this.prev < entry.catchLoc) {
+	              return handle(entry.catchLoc, true);
+	            } else if (this.prev < entry.finallyLoc) {
+	              return handle(entry.finallyLoc);
+	            }
+
+	          } else if (hasCatch) {
+	            if (this.prev < entry.catchLoc) {
+	              return handle(entry.catchLoc, true);
+	            }
+
+	          } else if (hasFinally) {
+	            if (this.prev < entry.finallyLoc) {
+	              return handle(entry.finallyLoc);
+	            }
+
+	          } else {
+	            throw new Error("try statement without catch or finally");
+	          }
+	        }
+	      }
+	    },
+
+	    abrupt: function(type, arg) {
+	      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+	        var entry = this.tryEntries[i];
+	        if (entry.tryLoc <= this.prev &&
+	            hasOwn.call(entry, "finallyLoc") &&
+	            this.prev < entry.finallyLoc) {
+	          var finallyEntry = entry;
+	          break;
+	        }
+	      }
+
+	      if (finallyEntry &&
+	          (type === "break" ||
+	           type === "continue") &&
+	          finallyEntry.tryLoc <= arg &&
+	          arg < finallyEntry.finallyLoc) {
+	        // Ignore the finally entry if control is not jumping to a
+	        // location outside the try/catch block.
+	        finallyEntry = null;
+	      }
+
+	      var record = finallyEntry ? finallyEntry.completion : {};
+	      record.type = type;
+	      record.arg = arg;
+
+	      if (finallyEntry) {
+	        this.next = finallyEntry.finallyLoc;
+	      } else {
+	        this.complete(record);
+	      }
+
+	      return ContinueSentinel;
+	    },
+
+	    complete: function(record, afterLoc) {
+	      if (record.type === "throw") {
+	        throw record.arg;
+	      }
+
+	      if (record.type === "break" ||
+	          record.type === "continue") {
+	        this.next = record.arg;
+	      } else if (record.type === "return") {
+	        this.rval = record.arg;
+	        this.next = "end";
+	      } else if (record.type === "normal" && afterLoc) {
+	        this.next = afterLoc;
+	      }
+
+	      return ContinueSentinel;
+	    },
+
+	    finish: function(finallyLoc) {
+	      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+	        var entry = this.tryEntries[i];
+	        if (entry.finallyLoc === finallyLoc) {
+	          return this.complete(entry.completion, entry.afterLoc);
+	        }
+	      }
+	    },
+
+	    "catch": function(tryLoc) {
+	      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+	        var entry = this.tryEntries[i];
+	        if (entry.tryLoc === tryLoc) {
+	          var record = entry.completion;
+	          if (record.type === "throw") {
+	            var thrown = record.arg;
+	            resetTryEntry(entry);
+	          }
+	          return thrown;
+	        }
+	      }
+
+	      // The context.catch method must only be called with a location
+	      // argument that corresponds to a known catch block.
+	      throw new Error("illegal catch attempt");
+	    },
+
+	    delegateYield: function(iterable, resultName, nextLoc) {
+	      this.delegate = {
+	        iterator: values(iterable),
+	        resultName: resultName,
+	        nextLoc: nextLoc
+	      };
+
+	      return ContinueSentinel;
+	    }
+	  };
+	})(
+	  // Among the various tricks for obtaining a reference to the global
+	  // object, this seems to be the most reliable technique that does not
+	  // use indirect eval (which violates Content Security Policy).
+	  typeof global === "object" ? global :
+	  typeof window === "object" ? window : this
+	);
+
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
 /* 48 */
@@ -33313,8 +33389,6 @@ var StellarLib =
 
 	var _inherits = __webpack_require__(90)["default"];
 
-	var _toConsumableArray = __webpack_require__(91)["default"];
-
 	var _interopRequireWildcard = __webpack_require__(32)["default"];
 
 	var _interopRequire = __webpack_require__(30)["default"];
@@ -33335,7 +33409,7 @@ var StellarLib =
 	var map = _lodash.map;
 	var pick = _lodash.pick;
 
-	var sequencify = _interopRequire(__webpack_require__(96));
+	var sequencify = _interopRequire(__webpack_require__(95));
 
 	// types is the root
 	var types = {};
@@ -33350,7 +33424,7 @@ var StellarLib =
 	  return types;
 	}
 
-	var Reference = (function () {
+	var Reference = exports.Reference = (function () {
 	  function Reference() {
 	    _classCallCheck(this, Reference);
 	  }
@@ -33359,7 +33433,7 @@ var StellarLib =
 	    resolve: {
 	      /* jshint unused: false */
 
-	      value: function resolve(definitions) {
+	      value: function resolve(context) {
 	        throw new Error("implement resolve in child class");
 	      }
 	    }
@@ -33379,8 +33453,9 @@ var StellarLib =
 
 	  _createClass(SimpleReference, {
 	    resolve: {
-	      value: function resolve(definitions) {
-	        return definitions[this.name];
+	      value: function resolve(context) {
+	        var defn = context.definitions[this.name];
+	        return defn.resolve(context);
 	      }
 	    }
 	  });
@@ -33404,8 +33479,8 @@ var StellarLib =
 
 	  _createClass(ArrayReference, {
 	    resolve: {
-	      value: function resolve(definitions) {
-	        var resolvedChild = this.childReference.resolve(definitions);
+	      value: function resolve(context) {
+	        var resolvedChild = this.childReference.resolve(context);
 	        if (this.variable) {
 	          return new XDR.VarArray(resolvedChild, this.length);
 	        } else {
@@ -33430,8 +33505,8 @@ var StellarLib =
 
 	  _createClass(OptionReference, {
 	    resolve: {
-	      value: function resolve(definitions) {
-	        var resolvedChild = this.childReference.resolve(definitions);
+	      value: function resolve(context) {
+	        var resolvedChild = this.childReference.resolve(context);
 	        return new XDR.Option(resolvedChild);
 	      }
 	    }
@@ -33441,64 +33516,28 @@ var StellarLib =
 	})(Reference);
 
 	var Definition = (function () {
-	  function Definition(constructor, name) {
-	    var _this = this;
-
-	    for (var _len = arguments.length, config = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
-	      config[_key - 2] = arguments[_key];
-	    }
-
+	  function Definition(constructor, name, config) {
 	    _classCallCheck(this, Definition);
 
 	    this.constructor = constructor;
 	    this.name = name;
 	    this.config = config;
-	    this.dep = [];
-
-	    // walk the defintion config for Reference objects, push their names onto
-	    // this.deps so we can use sequencify to order our resolutions
-	    this._walkConfig(this.config, function (value) {
-	      if (value instanceof Reference) {
-	        _this.dep.push(value.name);
-	      }
-	    });
 	  }
 
 	  _createClass(Definition, {
-	    create: {
-	      value: function create(deps) {
-	        this._walkConfig(this.config, function (value, key, parent) {
-	          if (!(value instanceof Reference)) {
-	            return;
-	          }
+	    resolve: {
 
-	          var dep = value.resolve(deps);
+	      // resolve calls the constructor of this definition with the provided context
+	      // and this definitions config values.  The definitions constructor should
+	      // populate the final type on `context.results`, and may refer to other
+	      // definitions through `context.definitions`
 
-	          if (!dep) {
-	            // throw if the reference couldn't be resolved
-	            throw new Error("XDR Error:" + value.name + " could not be resolved.");
-	          } else {
-	            // overwrite the reference with the concrete value
-	            parent[key] = dep;
-	          }
-	        });
+	      value: function resolve(context) {
+	        if (this.name in context.results) {
+	          return context.results[this.name];
+	        }
 
-	        // actually create the concrete definition
-	        return this.constructor.apply(this, [this.name].concat(_toConsumableArray(this.config)));
-	      }
-	    },
-	    _walkConfig: {
-	      value: function _walkConfig(current, fn) {
-	        var _this = this;
-
-	        each(current, function (value, key) {
-	          fn(value, key, current);
-
-	          // recurse if the value is a nested object
-	          if (isPlainObject(value) || isArray(value)) {
-	            _this._walkConfig(value, fn);
-	          }
-	        });
+	        return this.constructor(context, this.name, this.config);
 	      }
 	    }
 	  });
@@ -33537,8 +33576,12 @@ var StellarLib =
 	      value: function typedef(name, config) {
 	        // let the reference resoltion system do it's thing
 	        // the "constructor" for a typedef just returns the resolved value
-	        var createTypedef = function (name, args) {
-	          return args;
+	        var createTypedef = function (context, name, value) {
+	          if (value instanceof Reference) {
+	            value = value.resolve(context);
+	          }
+	          context.results[name] = value;
+	          return value;
 	        };
 
 	        var result = new Definition(createTypedef, name, config);
@@ -33547,9 +33590,11 @@ var StellarLib =
 	    },
 	    "const": {
 	      value: function _const(name, config) {
-	        var createConst = function (name, args) {
-	          return args;
+	        var createConst = function (context, name, value) {
+	          context.results[name] = value;
+	          return value;
 	        };
+
 	        var result = new Definition(createConst, name, config);
 	        this.define(name, result);
 	      }
@@ -33659,22 +33704,11 @@ var StellarLib =
 	      value: function resolve() {
 	        var _this = this;
 
-	        var sequence = [];
-	        sequencify(this._definitions, map(this._definitions, function (d) {
-	          return d.name;
-	        }), sequence);
-
-	        each(sequence, function (name) {
-	          var defn = _this._definitions[name];
-	          var deps = pick.apply(undefined, [_this._destination].concat(_toConsumableArray(defn.dep)));
-	          var result = defn.create(deps);
-
-	          //Ensure we aren't redefining a name
-	          if (!isUndefined(_this._destination[name])) {
-	            throw new Error("XDR Error:" + name + " is already defined");
-	          }
-
-	          _this._destination[name] = result;
+	        each(this._definitions, function (defn, name) {
+	          defn.resolve({
+	            definitions: _this._definitions,
+	            results: _this._destination
+	          });
 	        });
 	      }
 	    }
@@ -33701,8 +33735,8 @@ var StellarLib =
 	 * operation was added.
 	 */
 
-	var inherits = __webpack_require__(108)
-	var Hash = __webpack_require__(97)
+	var inherits = __webpack_require__(107)
+	var Hash = __webpack_require__(96)
 
 	var W = new Array(80)
 
@@ -33808,8 +33842,8 @@ var StellarLib =
 	 * See http://pajhome.org.uk/crypt/md5 for details.
 	 */
 
-	var inherits = __webpack_require__(108)
-	var Hash = __webpack_require__(97)
+	var inherits = __webpack_require__(107)
+	var Hash = __webpack_require__(96)
 
 	var W = new Array(80)
 
@@ -33909,9 +33943,9 @@ var StellarLib =
 	 *
 	 */
 
-	var inherits = __webpack_require__(108)
+	var inherits = __webpack_require__(107)
 	var Sha256 = __webpack_require__(56)
-	var Hash = __webpack_require__(97)
+	var Hash = __webpack_require__(96)
 
 	var W = new Array(64)
 
@@ -33968,8 +34002,8 @@ var StellarLib =
 	 *
 	 */
 
-	var inherits = __webpack_require__(108)
-	var Hash = __webpack_require__(97)
+	var inherits = __webpack_require__(107)
+	var Hash = __webpack_require__(96)
 
 	var K = [
 	  0x428A2F98, 0x71374491, 0xB5C0FBCF, 0xE9B5DBA5,
@@ -34116,9 +34150,9 @@ var StellarLib =
 /* 57 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(Buffer) {var inherits = __webpack_require__(108)
+	/* WEBPACK VAR INJECTION */(function(Buffer) {var inherits = __webpack_require__(107)
 	var SHA512 = __webpack_require__(58)
-	var Hash = __webpack_require__(97)
+	var Hash = __webpack_require__(96)
 
 	var W = new Array(160)
 
@@ -34179,8 +34213,8 @@ var StellarLib =
 /* 58 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(Buffer) {var inherits = __webpack_require__(108)
-	var Hash = __webpack_require__(97)
+	/* WEBPACK VAR INJECTION */(function(Buffer) {var inherits = __webpack_require__(107)
+	var Hash = __webpack_require__(96)
 
 	var K = [
 	  0x428a2f98, 0xd728ae22, 0x71374491, 0x23ef65cd,
@@ -34458,7 +34492,7 @@ var StellarLib =
 	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 	// USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-	var punycode = __webpack_require__(105);
+	var punycode = __webpack_require__(104);
 
 	exports.parse = urlParse;
 	exports.resolve = urlResolve;
@@ -34530,7 +34564,7 @@ var StellarLib =
 	      'gopher:': true,
 	      'file:': true
 	    },
-	    querystring = __webpack_require__(106);
+	    querystring = __webpack_require__(105);
 
 	function urlParse(url, parseQueryString, slashesDenoteHost) {
 	  if (url && isObject(url) && url instanceof Url) return url;
@@ -35150,6 +35184,25 @@ var StellarLib =
 /* 61 */
 /***/ function(module, exports, __webpack_require__) {
 
+	var http = __webpack_require__(63);
+
+	var https = module.exports;
+
+	for (var key in http) {
+	    if (http.hasOwnProperty(key)) https[key] = http[key];
+	};
+
+	https.request = function (params, cb) {
+	    if (!params) params = {};
+	    params.scheme = 'https';
+	    return http.request.call(this, params, cb);
+	}
+
+
+/***/ },
+/* 62 */
+/***/ function(module, exports, __webpack_require__) {
+
 	// Copyright Joyent, Inc. and other Node contributors.
 	//
 	// Permission is hereby granted, free of charge, to any person obtaining a
@@ -35454,26 +35507,157 @@ var StellarLib =
 
 
 /***/ },
-/* 62 */
+/* 63 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var http = __webpack_require__(64);
+	var http = module.exports;
+	var EventEmitter = __webpack_require__(62).EventEmitter;
+	var Request = __webpack_require__(98);
+	var url = __webpack_require__(60)
 
-	var https = module.exports;
+	http.request = function (params, cb) {
+	    if (typeof params === 'string') {
+	        params = url.parse(params)
+	    }
+	    if (!params) params = {};
+	    if (!params.host && !params.port) {
+	        params.port = parseInt(window.location.port, 10);
+	    }
+	    if (!params.host && params.hostname) {
+	        params.host = params.hostname;
+	    }
 
-	for (var key in http) {
-	    if (http.hasOwnProperty(key)) https[key] = http[key];
+	    if (!params.protocol) {
+	        if (params.scheme) {
+	            params.protocol = params.scheme + ':';
+	        } else {
+	            params.protocol = window.location.protocol;
+	        }
+	    }
+
+	    if (!params.host) {
+	        params.host = window.location.hostname || window.location.host;
+	    }
+	    if (/:/.test(params.host)) {
+	        if (!params.port) {
+	            params.port = params.host.split(':')[1];
+	        }
+	        params.host = params.host.split(':')[0];
+	    }
+	    if (!params.port) params.port = params.protocol == 'https:' ? 443 : 80;
+	    
+	    var req = new Request(new xhrHttp, params);
+	    if (cb) req.on('response', cb);
+	    return req;
 	};
 
-	https.request = function (params, cb) {
-	    if (!params) params = {};
-	    params.scheme = 'https';
-	    return http.request.call(this, params, cb);
-	}
+	http.get = function (params, cb) {
+	    params.method = 'GET';
+	    var req = http.request(params, cb);
+	    req.end();
+	    return req;
+	};
 
+	http.Agent = function () {};
+	http.Agent.defaultMaxSockets = 4;
+
+	var xhrHttp = (function () {
+	    if (typeof window === 'undefined') {
+	        throw new Error('no window object present');
+	    }
+	    else if (window.XMLHttpRequest) {
+	        return window.XMLHttpRequest;
+	    }
+	    else if (window.ActiveXObject) {
+	        var axs = [
+	            'Msxml2.XMLHTTP.6.0',
+	            'Msxml2.XMLHTTP.3.0',
+	            'Microsoft.XMLHTTP'
+	        ];
+	        for (var i = 0; i < axs.length; i++) {
+	            try {
+	                var ax = new(window.ActiveXObject)(axs[i]);
+	                return function () {
+	                    if (ax) {
+	                        var ax_ = ax;
+	                        ax = null;
+	                        return ax_;
+	                    }
+	                    else {
+	                        return new(window.ActiveXObject)(axs[i]);
+	                    }
+	                };
+	            }
+	            catch (e) {}
+	        }
+	        throw new Error('ajax not supported in this browser')
+	    }
+	    else {
+	        throw new Error('ajax not supported in this browser');
+	    }
+	})();
+
+	http.STATUS_CODES = {
+	    100 : 'Continue',
+	    101 : 'Switching Protocols',
+	    102 : 'Processing',                 // RFC 2518, obsoleted by RFC 4918
+	    200 : 'OK',
+	    201 : 'Created',
+	    202 : 'Accepted',
+	    203 : 'Non-Authoritative Information',
+	    204 : 'No Content',
+	    205 : 'Reset Content',
+	    206 : 'Partial Content',
+	    207 : 'Multi-Status',               // RFC 4918
+	    300 : 'Multiple Choices',
+	    301 : 'Moved Permanently',
+	    302 : 'Moved Temporarily',
+	    303 : 'See Other',
+	    304 : 'Not Modified',
+	    305 : 'Use Proxy',
+	    307 : 'Temporary Redirect',
+	    400 : 'Bad Request',
+	    401 : 'Unauthorized',
+	    402 : 'Payment Required',
+	    403 : 'Forbidden',
+	    404 : 'Not Found',
+	    405 : 'Method Not Allowed',
+	    406 : 'Not Acceptable',
+	    407 : 'Proxy Authentication Required',
+	    408 : 'Request Time-out',
+	    409 : 'Conflict',
+	    410 : 'Gone',
+	    411 : 'Length Required',
+	    412 : 'Precondition Failed',
+	    413 : 'Request Entity Too Large',
+	    414 : 'Request-URI Too Large',
+	    415 : 'Unsupported Media Type',
+	    416 : 'Requested Range Not Satisfiable',
+	    417 : 'Expectation Failed',
+	    418 : 'I\'m a teapot',              // RFC 2324
+	    422 : 'Unprocessable Entity',       // RFC 4918
+	    423 : 'Locked',                     // RFC 4918
+	    424 : 'Failed Dependency',          // RFC 4918
+	    425 : 'Unordered Collection',       // RFC 4918
+	    426 : 'Upgrade Required',           // RFC 2817
+	    428 : 'Precondition Required',      // RFC 6585
+	    429 : 'Too Many Requests',          // RFC 6585
+	    431 : 'Request Header Fields Too Large',// RFC 6585
+	    500 : 'Internal Server Error',
+	    501 : 'Not Implemented',
+	    502 : 'Bad Gateway',
+	    503 : 'Service Unavailable',
+	    504 : 'Gateway Time-out',
+	    505 : 'HTTP Version Not Supported',
+	    506 : 'Variant Also Negotiates',    // RFC 2295
+	    507 : 'Insufficient Storage',       // RFC 4918
+	    509 : 'Bandwidth Limit Exceeded',
+	    510 : 'Not Extended',               // RFC 2774
+	    511 : 'Network Authentication Required' // RFC 6585
+	};
 
 /***/ },
-/* 63 */
+/* 64 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global, process) {// Copyright Joyent, Inc. and other Node contributors.
@@ -36001,7 +36185,7 @@ var StellarLib =
 	}
 	exports.isPrimitive = isPrimitive;
 
-	exports.isBuffer = __webpack_require__(100);
+	exports.isBuffer = __webpack_require__(99);
 
 	function objectToString(o) {
 	  return Object.prototype.toString.call(o);
@@ -36064,156 +36248,6 @@ var StellarLib =
 	}
 
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(28)))
-
-/***/ },
-/* 64 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var http = module.exports;
-	var EventEmitter = __webpack_require__(61).EventEmitter;
-	var Request = __webpack_require__(99);
-	var url = __webpack_require__(60)
-
-	http.request = function (params, cb) {
-	    if (typeof params === 'string') {
-	        params = url.parse(params)
-	    }
-	    if (!params) params = {};
-	    if (!params.host && !params.port) {
-	        params.port = parseInt(window.location.port, 10);
-	    }
-	    if (!params.host && params.hostname) {
-	        params.host = params.hostname;
-	    }
-
-	    if (!params.protocol) {
-	        if (params.scheme) {
-	            params.protocol = params.scheme + ':';
-	        } else {
-	            params.protocol = window.location.protocol;
-	        }
-	    }
-
-	    if (!params.host) {
-	        params.host = window.location.hostname || window.location.host;
-	    }
-	    if (/:/.test(params.host)) {
-	        if (!params.port) {
-	            params.port = params.host.split(':')[1];
-	        }
-	        params.host = params.host.split(':')[0];
-	    }
-	    if (!params.port) params.port = params.protocol == 'https:' ? 443 : 80;
-	    
-	    var req = new Request(new xhrHttp, params);
-	    if (cb) req.on('response', cb);
-	    return req;
-	};
-
-	http.get = function (params, cb) {
-	    params.method = 'GET';
-	    var req = http.request(params, cb);
-	    req.end();
-	    return req;
-	};
-
-	http.Agent = function () {};
-	http.Agent.defaultMaxSockets = 4;
-
-	var xhrHttp = (function () {
-	    if (typeof window === 'undefined') {
-	        throw new Error('no window object present');
-	    }
-	    else if (window.XMLHttpRequest) {
-	        return window.XMLHttpRequest;
-	    }
-	    else if (window.ActiveXObject) {
-	        var axs = [
-	            'Msxml2.XMLHTTP.6.0',
-	            'Msxml2.XMLHTTP.3.0',
-	            'Microsoft.XMLHTTP'
-	        ];
-	        for (var i = 0; i < axs.length; i++) {
-	            try {
-	                var ax = new(window.ActiveXObject)(axs[i]);
-	                return function () {
-	                    if (ax) {
-	                        var ax_ = ax;
-	                        ax = null;
-	                        return ax_;
-	                    }
-	                    else {
-	                        return new(window.ActiveXObject)(axs[i]);
-	                    }
-	                };
-	            }
-	            catch (e) {}
-	        }
-	        throw new Error('ajax not supported in this browser')
-	    }
-	    else {
-	        throw new Error('ajax not supported in this browser');
-	    }
-	})();
-
-	http.STATUS_CODES = {
-	    100 : 'Continue',
-	    101 : 'Switching Protocols',
-	    102 : 'Processing',                 // RFC 2518, obsoleted by RFC 4918
-	    200 : 'OK',
-	    201 : 'Created',
-	    202 : 'Accepted',
-	    203 : 'Non-Authoritative Information',
-	    204 : 'No Content',
-	    205 : 'Reset Content',
-	    206 : 'Partial Content',
-	    207 : 'Multi-Status',               // RFC 4918
-	    300 : 'Multiple Choices',
-	    301 : 'Moved Permanently',
-	    302 : 'Moved Temporarily',
-	    303 : 'See Other',
-	    304 : 'Not Modified',
-	    305 : 'Use Proxy',
-	    307 : 'Temporary Redirect',
-	    400 : 'Bad Request',
-	    401 : 'Unauthorized',
-	    402 : 'Payment Required',
-	    403 : 'Forbidden',
-	    404 : 'Not Found',
-	    405 : 'Method Not Allowed',
-	    406 : 'Not Acceptable',
-	    407 : 'Proxy Authentication Required',
-	    408 : 'Request Time-out',
-	    409 : 'Conflict',
-	    410 : 'Gone',
-	    411 : 'Length Required',
-	    412 : 'Precondition Failed',
-	    413 : 'Request Entity Too Large',
-	    414 : 'Request-URI Too Large',
-	    415 : 'Unsupported Media Type',
-	    416 : 'Requested Range Not Satisfiable',
-	    417 : 'Expectation Failed',
-	    418 : 'I\'m a teapot',              // RFC 2324
-	    422 : 'Unprocessable Entity',       // RFC 4918
-	    423 : 'Locked',                     // RFC 4918
-	    424 : 'Failed Dependency',          // RFC 4918
-	    425 : 'Unordered Collection',       // RFC 4918
-	    426 : 'Upgrade Required',           // RFC 2817
-	    428 : 'Precondition Required',      // RFC 6585
-	    429 : 'Too Many Requests',          // RFC 6585
-	    431 : 'Request Header Fields Too Large',// RFC 6585
-	    500 : 'Internal Server Error',
-	    501 : 'Not Implemented',
-	    502 : 'Bad Gateway',
-	    503 : 'Service Unavailable',
-	    504 : 'Gateway Time-out',
-	    505 : 'HTTP Version Not Supported',
-	    506 : 'Variant Also Negotiates',    // RFC 2295
-	    507 : 'Insufficient Storage',       // RFC 4918
-	    509 : 'Bandwidth Limit Exceeded',
-	    510 : 'Not Extended',               // RFC 2774
-	    511 : 'Network Authentication Required' // RFC 6585
-	};
 
 /***/ },
 /* 65 */
@@ -36446,7 +36480,7 @@ var StellarLib =
 
 	'use strict';
 
-	var parse = __webpack_require__(107);
+	var parse = __webpack_require__(106);
 
 	/**
 	 * Transform an URL to a valid origin value.
@@ -36520,7 +36554,7 @@ var StellarLib =
 
 	var isNumber = __webpack_require__(43).isNumber;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(101));
+	var includeIoMixin = _interopRequire(__webpack_require__(100));
 
 	var Int = {
 
@@ -36567,7 +36601,7 @@ var StellarLib =
 
 	var _inherits = __webpack_require__(90)["default"];
 
-	var _get = __webpack_require__(102)["default"];
+	var _get = __webpack_require__(101)["default"];
 
 	var _createClass = __webpack_require__(35)["default"];
 
@@ -36579,9 +36613,9 @@ var StellarLib =
 	  value: true
 	});
 
-	var Long = _interopRequire(__webpack_require__(111));
+	var Long = _interopRequire(__webpack_require__(110));
 
-	var includeIoMixin = _interopRequire(__webpack_require__(101));
+	var includeIoMixin = _interopRequire(__webpack_require__(100));
 
 	var Hyper = exports.Hyper = (function (_Long) {
 	  function Hyper(low, high) {
@@ -36651,7 +36685,7 @@ var StellarLib =
 
 	var isNumber = __webpack_require__(43).isNumber;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(101));
+	var includeIoMixin = _interopRequire(__webpack_require__(100));
 
 	var UnsignedInt = {
 
@@ -36702,7 +36736,7 @@ var StellarLib =
 
 	var _inherits = __webpack_require__(90)["default"];
 
-	var _get = __webpack_require__(102)["default"];
+	var _get = __webpack_require__(101)["default"];
 
 	var _createClass = __webpack_require__(35)["default"];
 
@@ -36714,9 +36748,9 @@ var StellarLib =
 	  value: true
 	});
 
-	var Long = _interopRequire(__webpack_require__(111));
+	var Long = _interopRequire(__webpack_require__(110));
 
-	var includeIoMixin = _interopRequire(__webpack_require__(101));
+	var includeIoMixin = _interopRequire(__webpack_require__(100));
 
 	var UnsignedHyper = exports.UnsignedHyper = (function (_Long) {
 	  function UnsignedHyper(low, high) {
@@ -36787,7 +36821,7 @@ var StellarLib =
 
 	var isNumber = __webpack_require__(43).isNumber;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(101));
+	var includeIoMixin = _interopRequire(__webpack_require__(100));
 
 	var Float = {
 
@@ -36824,7 +36858,7 @@ var StellarLib =
 
 	var isNumber = __webpack_require__(43).isNumber;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(101));
+	var includeIoMixin = _interopRequire(__webpack_require__(100));
 
 	var Double = {
 
@@ -36859,7 +36893,7 @@ var StellarLib =
 	  value: true
 	});
 
-	var includeIoMixin = _interopRequire(__webpack_require__(101));
+	var includeIoMixin = _interopRequire(__webpack_require__(100));
 
 	var Quadruple = {
 	  /* jshint unused: false */
@@ -36895,7 +36929,7 @@ var StellarLib =
 
 	var isBoolean = __webpack_require__(43).isBoolean;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(101));
+	var includeIoMixin = _interopRequire(__webpack_require__(100));
 
 	var Bool = {
 	  read: function read(io) {
@@ -36944,11 +36978,11 @@ var StellarLib =
 
 	var UnsignedInt = __webpack_require__(74).UnsignedInt;
 
-	var calculatePadding = __webpack_require__(103).calculatePadding;
+	var calculatePadding = __webpack_require__(102).calculatePadding;
 
 	var isString = __webpack_require__(43).isString;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(101));
+	var includeIoMixin = _interopRequire(__webpack_require__(100));
 
 	var String = exports.String = (function () {
 	  function String() {
@@ -37017,9 +37051,9 @@ var StellarLib =
 	  value: true
 	});
 
-	var calculatePadding = __webpack_require__(103).calculatePadding;
+	var calculatePadding = __webpack_require__(102).calculatePadding;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(101));
+	var includeIoMixin = _interopRequire(__webpack_require__(100));
 
 	var Opaque = exports.Opaque = (function () {
 	  function Opaque(length) {
@@ -37079,9 +37113,9 @@ var StellarLib =
 
 	var UnsignedInt = __webpack_require__(74).UnsignedInt;
 
-	var calculatePadding = __webpack_require__(103).calculatePadding;
+	var calculatePadding = __webpack_require__(102).calculatePadding;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(101));
+	var includeIoMixin = _interopRequire(__webpack_require__(100));
 
 	var VarOpaque = exports.VarOpaque = (function () {
 	  function VarOpaque() {
@@ -37151,7 +37185,7 @@ var StellarLib =
 	var times = _lodash.times;
 	var isArray = _lodash.isArray;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(101));
+	var includeIoMixin = _interopRequire(__webpack_require__(100));
 
 	var Array = exports.Array = (function () {
 	  function Array(childType, length) {
@@ -37238,7 +37272,7 @@ var StellarLib =
 	var times = _lodash.times;
 	var isArray = _lodash.isArray;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(101));
+	var includeIoMixin = _interopRequire(__webpack_require__(100));
 
 	var VarArray = exports.VarArray = (function () {
 	  function VarArray(childType) {
@@ -37330,7 +37364,7 @@ var StellarLib =
 	var isNull = _lodash.isNull;
 	var isUndefined = _lodash.isUndefined;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(101));
+	var includeIoMixin = _interopRequire(__webpack_require__(100));
 
 	var Option = exports.Option = (function () {
 	  function Option(childType) {
@@ -37391,7 +37425,7 @@ var StellarLib =
 
 	var isUndefined = __webpack_require__(43).isUndefined;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(101));
+	var includeIoMixin = _interopRequire(__webpack_require__(100));
 
 	var Void = {
 	  /* jshint unused: false */
@@ -37425,7 +37459,7 @@ var StellarLib =
 
 	var _inherits = __webpack_require__(90)["default"];
 
-	var _get = __webpack_require__(102)["default"];
+	var _get = __webpack_require__(101)["default"];
 
 	var _core = __webpack_require__(49)["default"];
 
@@ -37442,7 +37476,7 @@ var StellarLib =
 	var each = _lodash.each;
 	var vals = _lodash.values;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(101));
+	var includeIoMixin = _interopRequire(__webpack_require__(100));
 
 	var Enum = exports.Enum = (function () {
 	  function Enum(name, value) {
@@ -37500,7 +37534,7 @@ var StellarLib =
 	      }
 	    },
 	    create: {
-	      value: function create(name, members) {
+	      value: function create(context, name, members) {
 	        var ChildEnum = (function (_Enum) {
 	          var _class = function ChildEnum() {
 	            for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
@@ -37518,6 +37552,8 @@ var StellarLib =
 	        })(Enum);
 
 	        ChildEnum.enumName = name;
+	        context.results[name] = ChildEnum;
+
 	        ChildEnum._members = {};
 	        ChildEnum._byValue = new _core.Map();
 
@@ -37552,9 +37588,9 @@ var StellarLib =
 
 	var _inherits = __webpack_require__(90)["default"];
 
-	var _get = __webpack_require__(102)["default"];
+	var _get = __webpack_require__(101)["default"];
 
-	var _slicedToArray = __webpack_require__(104)["default"];
+	var _slicedToArray = __webpack_require__(103)["default"];
 
 	var _core = __webpack_require__(49)["default"];
 
@@ -37571,7 +37607,9 @@ var StellarLib =
 	var isUndefined = _lodash.isUndefined;
 	var zipObject = _lodash.zipObject;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(101));
+	var Reference = __webpack_require__(51).Reference;
+
+	var includeIoMixin = _interopRequire(__webpack_require__(100));
 
 	var Struct = exports.Struct = (function () {
 	  function Struct(attributes) {
@@ -37618,7 +37656,7 @@ var StellarLib =
 	      }
 	    },
 	    create: {
-	      value: function create(name, fields) {
+	      value: function create(context, name, fields) {
 	        var ChildStruct = (function (_Struct) {
 	          var _class = function ChildStruct() {
 	            for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
@@ -37637,9 +37675,22 @@ var StellarLib =
 
 	        ChildStruct.structName = name;
 
-	        ChildStruct._fields = fields;
+	        context.results[name] = ChildStruct;
 
-	        each(fields, function (field) {
+	        ChildStruct._fields = fields.map(function (_ref) {
+	          var _ref2 = _slicedToArray(_ref, 2);
+
+	          var name = _ref2[0];
+	          var field = _ref2[1];
+
+	          if (field instanceof Reference) {
+	            field = field.resolve(context);
+	          }
+
+	          return [name, field];
+	        });
+
+	        each(ChildStruct._fields, function (field) {
 	          var _field = _slicedToArray(field, 1);
 
 	          var fieldName = _field[0];
@@ -37679,7 +37730,7 @@ var StellarLib =
 
 	var _inherits = __webpack_require__(90)["default"];
 
-	var _get = __webpack_require__(102)["default"];
+	var _get = __webpack_require__(101)["default"];
 
 	var _core = __webpack_require__(49)["default"];
 
@@ -37696,7 +37747,9 @@ var StellarLib =
 
 	var Void = __webpack_require__(86).Void;
 
-	var includeIoMixin = _interopRequire(__webpack_require__(101));
+	var Reference = __webpack_require__(51).Reference;
+
+	var includeIoMixin = _interopRequire(__webpack_require__(100));
 
 	var Union = exports.Union = (function () {
 	  function Union(aSwitch, value) {
@@ -37795,7 +37848,7 @@ var StellarLib =
 	      }
 	    },
 	    create: {
-	      value: function create(name, config) {
+	      value: function create(context, name, config) {
 	        var ChildUnion = (function (_Union) {
 	          var _class = function ChildUnion() {
 	            for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
@@ -37813,14 +37866,35 @@ var StellarLib =
 	        })(Union);
 
 	        ChildUnion.unionName = name;
-	        ChildUnion._switchOn = config.switchOn;
+	        context.results[name] = ChildUnion;
+
+	        if (config.switchOn instanceof Reference) {
+	          ChildUnion._switchOn = config.switchOn.resolve(context);
+	        } else {
+	          ChildUnion._switchOn = config.switchOn;
+	        }
+
 	        ChildUnion._switches = new _core.Map();
-	        ChildUnion._arms = config.arms;
+	        ChildUnion._arms = {};
+
+	        each(config.arms, function (value, name) {
+	          if (value instanceof Reference) {
+	            value = value.resolve(context);
+	          }
+
+	          ChildUnion._arms[name] = value;
+	        });
+
+	        // resolve default arm
+	        var defaultArm = config.defaultArm;
+	        if (defaultArm instanceof Reference) {
+	          defaultArm = defaultArm.resolve(context);
+	        }
 
 	        each(ChildUnion._switchOn.values(), function (aSwitch) {
 
 	          // build the enum => arm map
-	          var arm = config.switches[aSwitch.name] || config.defaultArm;
+	          var arm = config.switches[aSwitch.name] || defaultArm;
 	          ChildUnion._switches.set(aSwitch, arm);
 
 	          // Add enum-based constrocutors
@@ -37881,26 +37955,6 @@ var StellarLib =
 
 /***/ },
 /* 91 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _core = __webpack_require__(49)["default"];
-
-	exports["default"] = function (arr) {
-	  if (Array.isArray(arr)) {
-	    for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i];
-
-	    return arr2;
-	  } else {
-	    return _core.Array.from(arr);
-	  }
-	};
-
-	exports.__esModule = true;
-
-/***/ },
-/* 92 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports.read = function(buffer, offset, isLE, mLen, nBytes) {
@@ -37990,7 +38044,7 @@ var StellarLib =
 
 
 /***/ },
-/* 93 */
+/* 92 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
@@ -38029,7 +38083,7 @@ var StellarLib =
 
 
 /***/ },
-/* 94 */
+/* 93 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = function(module) {
@@ -38045,14 +38099,14 @@ var StellarLib =
 
 
 /***/ },
-/* 95 */
+/* 94 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = function() { throw new Error("define cannot be used indirect"); };
 
 
 /***/ },
-/* 96 */
+/* 95 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*jshint node:true */
@@ -38104,7 +38158,7 @@ var StellarLib =
 
 
 /***/ },
-/* 97 */
+/* 96 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {// prototype class for hash functions
@@ -38180,7 +38234,7 @@ var StellarLib =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(42).Buffer))
 
 /***/ },
-/* 98 */
+/* 97 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
@@ -38310,13 +38364,13 @@ var StellarLib =
 
 
 /***/ },
-/* 99 */
+/* 98 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Stream = __webpack_require__(113);
-	var Response = __webpack_require__(110);
-	var Base64 = __webpack_require__(117);
-	var inherits = __webpack_require__(118);
+	var Stream = __webpack_require__(112);
+	var Response = __webpack_require__(108);
+	var Base64 = __webpack_require__(116);
+	var inherits = __webpack_require__(117);
 
 	var Request = module.exports = function (xhr, params) {
 	    var self = this;
@@ -38525,7 +38579,7 @@ var StellarLib =
 
 
 /***/ },
-/* 100 */
+/* 99 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = function isBuffer(arg) {
@@ -38536,14 +38590,14 @@ var StellarLib =
 	}
 
 /***/ },
-/* 101 */
+/* 100 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
 	module.exports = includeIoMixin;
 
-	var Cursor = __webpack_require__(112).Cursor;
+	var Cursor = __webpack_require__(111).Cursor;
 
 	var _lodash = __webpack_require__(43);
 
@@ -38599,7 +38653,7 @@ var StellarLib =
 	}
 
 /***/ },
-/* 102 */
+/* 101 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -38647,7 +38701,7 @@ var StellarLib =
 	exports.__esModule = true;
 
 /***/ },
-/* 103 */
+/* 102 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -38671,7 +38725,7 @@ var StellarLib =
 	}
 
 /***/ },
-/* 104 */
+/* 103 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -38699,7 +38753,7 @@ var StellarLib =
 	exports.__esModule = true;
 
 /***/ },
-/* 105 */
+/* 104 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(module, global) {/*! https://mths.be/punycode v1.3.2 by @mathias */
@@ -39231,7 +39285,17 @@ var StellarLib =
 
 	}(this));
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(94)(module), (function() { return this; }())))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(93)(module), (function() { return this; }())))
+
+/***/ },
+/* 105 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	exports.decode = exports.parse = __webpack_require__(113);
+	exports.encode = exports.stringify = __webpack_require__(114);
+
 
 /***/ },
 /* 106 */
@@ -39239,19 +39303,9 @@ var StellarLib =
 
 	'use strict';
 
-	exports.decode = exports.parse = __webpack_require__(114);
-	exports.encode = exports.stringify = __webpack_require__(115);
-
-
-/***/ },
-/* 107 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var required = __webpack_require__(119)
-	  , lolcation = __webpack_require__(116)
-	  , qs = __webpack_require__(120);
+	var required = __webpack_require__(118)
+	  , lolcation = __webpack_require__(115)
+	  , qs = __webpack_require__(119);
 
 	var keys = ',,protocol,username,password,host,hostname,port,pathname,query,hash'.split(',')
 	  , inherit = { protocol: 1, host: 1, hostname: 1 }
@@ -39461,69 +39515,40 @@ var StellarLib =
 
 
 /***/ },
+/* 107 */
+/***/ function(module, exports, __webpack_require__) {
+
+	if (typeof Object.create === 'function') {
+	  // implementation from standard node.js 'util' module
+	  module.exports = function inherits(ctor, superCtor) {
+	    ctor.super_ = superCtor
+	    ctor.prototype = Object.create(superCtor.prototype, {
+	      constructor: {
+	        value: ctor,
+	        enumerable: false,
+	        writable: true,
+	        configurable: true
+	      }
+	    });
+	  };
+	} else {
+	  // old school shim for old browsers
+	  module.exports = function inherits(ctor, superCtor) {
+	    ctor.super_ = superCtor
+	    var TempCtor = function () {}
+	    TempCtor.prototype = superCtor.prototype
+	    ctor.prototype = new TempCtor()
+	    ctor.prototype.constructor = ctor
+	  }
+	}
+
+
+/***/ },
 /* 108 */
 /***/ function(module, exports, __webpack_require__) {
 
-	if (typeof Object.create === 'function') {
-	  // implementation from standard node.js 'util' module
-	  module.exports = function inherits(ctor, superCtor) {
-	    ctor.super_ = superCtor
-	    ctor.prototype = Object.create(superCtor.prototype, {
-	      constructor: {
-	        value: ctor,
-	        enumerable: false,
-	        writable: true,
-	        configurable: true
-	      }
-	    });
-	  };
-	} else {
-	  // old school shim for old browsers
-	  module.exports = function inherits(ctor, superCtor) {
-	    ctor.super_ = superCtor
-	    var TempCtor = function () {}
-	    TempCtor.prototype = superCtor.prototype
-	    ctor.prototype = new TempCtor()
-	    ctor.prototype.constructor = ctor
-	  }
-	}
-
-
-/***/ },
-/* 109 */
-/***/ function(module, exports, __webpack_require__) {
-
-	if (typeof Object.create === 'function') {
-	  // implementation from standard node.js 'util' module
-	  module.exports = function inherits(ctor, superCtor) {
-	    ctor.super_ = superCtor
-	    ctor.prototype = Object.create(superCtor.prototype, {
-	      constructor: {
-	        value: ctor,
-	        enumerable: false,
-	        writable: true,
-	        configurable: true
-	      }
-	    });
-	  };
-	} else {
-	  // old school shim for old browsers
-	  module.exports = function inherits(ctor, superCtor) {
-	    ctor.super_ = superCtor
-	    var TempCtor = function () {}
-	    TempCtor.prototype = superCtor.prototype
-	    ctor.prototype = new TempCtor()
-	    ctor.prototype.constructor = ctor
-	  }
-	}
-
-
-/***/ },
-/* 110 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var Stream = __webpack_require__(113);
-	var util = __webpack_require__(63);
+	var Stream = __webpack_require__(112);
+	var util = __webpack_require__(64);
 
 	var Response = module.exports = function (res) {
 	    this.offset = 0;
@@ -39645,7 +39670,36 @@ var StellarLib =
 
 
 /***/ },
-/* 111 */
+/* 109 */
+/***/ function(module, exports, __webpack_require__) {
+
+	if (typeof Object.create === 'function') {
+	  // implementation from standard node.js 'util' module
+	  module.exports = function inherits(ctor, superCtor) {
+	    ctor.super_ = superCtor
+	    ctor.prototype = Object.create(superCtor.prototype, {
+	      constructor: {
+	        value: ctor,
+	        enumerable: false,
+	        writable: true,
+	        configurable: true
+	      }
+	    });
+	  };
+	} else {
+	  // old school shim for old browsers
+	  module.exports = function inherits(ctor, superCtor) {
+	    ctor.super_ = superCtor
+	    var TempCtor = function () {}
+	    TempCtor.prototype = superCtor.prototype
+	    ctor.prototype = new TempCtor()
+	    ctor.prototype.constructor = ctor
+	  }
+	}
+
+
+/***/ },
+/* 110 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(module) {/*
@@ -40214,6 +40268,8 @@ var StellarLib =
 	     * @expose
 	     */
 	    Long.prototype.greaterThanOrEqual = function(other) {
+	        if (!Long.isLong(other))
+	            other = Long.fromValue(other);
 	        return this.compare(other) >= 0;
 	    };
 
@@ -40584,17 +40640,17 @@ var StellarLib =
 
 	    /* CommonJS */ if ("function" === 'function' && typeof module === 'object' && module && typeof exports === 'object' && exports)
 	        module["exports"] = Long;
-	    /* AMD */ else if ("function" === 'function' && __webpack_require__(95)["amd"])
+	    /* AMD */ else if ("function" === 'function' && __webpack_require__(94)["amd"])
 	        !(__WEBPACK_AMD_DEFINE_RESULT__ = function() { return Long; }.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 	    /* Global */ else
 	        (global["dcodeIO"] = global["dcodeIO"] || {})["Long"] = Long;
 
 	})(this);
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(94)(module)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(93)(module)))
 
 /***/ },
-/* 112 */
+/* 111 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {"use strict";
@@ -40611,9 +40667,9 @@ var StellarLib =
 	  value: true
 	});
 
-	var BaseCursor = _interopRequire(__webpack_require__(121));
+	var BaseCursor = _interopRequire(__webpack_require__(120));
 
-	var calculatePadding = __webpack_require__(103).calculatePadding;
+	var calculatePadding = __webpack_require__(102).calculatePadding;
 
 	var Cursor = exports.Cursor = (function (_BaseCursor) {
 	  function Cursor() {
@@ -40643,7 +40699,7 @@ var StellarLib =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(42).Buffer))
 
 /***/ },
-/* 113 */
+/* 112 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// Copyright Joyent, Inc. and other Node contributors.
@@ -40669,15 +40725,15 @@ var StellarLib =
 
 	module.exports = Stream;
 
-	var EE = __webpack_require__(61).EventEmitter;
-	var inherits = __webpack_require__(127);
+	var EE = __webpack_require__(62).EventEmitter;
+	var inherits = __webpack_require__(126);
 
 	inherits(Stream, EE);
-	Stream.Readable = __webpack_require__(122);
-	Stream.Writable = __webpack_require__(123);
-	Stream.Duplex = __webpack_require__(124);
-	Stream.Transform = __webpack_require__(125);
-	Stream.PassThrough = __webpack_require__(126);
+	Stream.Readable = __webpack_require__(121);
+	Stream.Writable = __webpack_require__(122);
+	Stream.Duplex = __webpack_require__(123);
+	Stream.Transform = __webpack_require__(124);
+	Stream.PassThrough = __webpack_require__(125);
 
 	// Backwards-compat with node 0.4.x
 	Stream.Stream = Stream;
@@ -40776,7 +40832,7 @@ var StellarLib =
 
 
 /***/ },
-/* 114 */
+/* 113 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// Copyright Joyent, Inc. and other Node contributors.
@@ -40862,7 +40918,7 @@ var StellarLib =
 
 
 /***/ },
-/* 115 */
+/* 114 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// Copyright Joyent, Inc. and other Node contributors.
@@ -40932,7 +40988,7 @@ var StellarLib =
 
 
 /***/ },
-/* 116 */
+/* 115 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {'use strict';
@@ -40962,7 +41018,7 @@ var StellarLib =
 	 */
 	module.exports = function lolcation(loc) {
 	  loc = loc || global.location || {};
-	  URL = URL || __webpack_require__(107);
+	  URL = URL || __webpack_require__(106);
 
 	  var finaldestination = {}
 	    , type = typeof loc
@@ -40984,7 +41040,7 @@ var StellarLib =
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 117 */
+/* 116 */
 /***/ function(module, exports, __webpack_require__) {
 
 	;(function () {
@@ -41050,7 +41106,7 @@ var StellarLib =
 
 
 /***/ },
-/* 118 */
+/* 117 */
 /***/ function(module, exports, __webpack_require__) {
 
 	if (typeof Object.create === 'function') {
@@ -41079,7 +41135,7 @@ var StellarLib =
 
 
 /***/ },
-/* 119 */
+/* 118 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -41123,7 +41179,7 @@ var StellarLib =
 
 
 /***/ },
-/* 120 */
+/* 119 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -41190,7 +41246,7 @@ var StellarLib =
 
 
 /***/ },
-/* 121 */
+/* 120 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {var Cursor = function(buffer)
@@ -41412,7 +41468,7 @@ var StellarLib =
 			parent.call(this, buffer);
 		};
 
-		__webpack_require__(63).inherits(C, parent);
+		__webpack_require__(64).inherits(C, parent);
 
 		C.extend = parent.extend;
 		C.define = parent.define;
@@ -41441,16 +41497,23 @@ var StellarLib =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(42).Buffer))
 
 /***/ },
+/* 121 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(127);
+	exports.Stream = __webpack_require__(112);
+	exports.Readable = exports;
+	exports.Writable = __webpack_require__(128);
+	exports.Duplex = __webpack_require__(129);
+	exports.Transform = __webpack_require__(130);
+	exports.PassThrough = __webpack_require__(131);
+
+
+/***/ },
 /* 122 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(128);
-	exports.Stream = __webpack_require__(113);
-	exports.Readable = exports;
-	exports.Writable = __webpack_require__(129);
-	exports.Duplex = __webpack_require__(130);
-	exports.Transform = __webpack_require__(131);
-	exports.PassThrough = __webpack_require__(132);
+	module.exports = __webpack_require__(128)
 
 
 /***/ },
@@ -41476,13 +41539,6 @@ var StellarLib =
 
 /***/ },
 /* 126 */
-/***/ function(module, exports, __webpack_require__) {
-
-	module.exports = __webpack_require__(132)
-
-
-/***/ },
-/* 127 */
 /***/ function(module, exports, __webpack_require__) {
 
 	if (typeof Object.create === 'function') {
@@ -41511,7 +41567,7 @@ var StellarLib =
 
 
 /***/ },
-/* 128 */
+/* 127 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {// Copyright Joyent, Inc. and other Node contributors.
@@ -41538,7 +41594,7 @@ var StellarLib =
 	module.exports = Readable;
 
 	/*<replacement>*/
-	var isArray = __webpack_require__(134);
+	var isArray = __webpack_require__(133);
 	/*</replacement>*/
 
 
@@ -41548,7 +41604,7 @@ var StellarLib =
 
 	Readable.ReadableState = ReadableState;
 
-	var EE = __webpack_require__(61).EventEmitter;
+	var EE = __webpack_require__(62).EventEmitter;
 
 	/*<replacement>*/
 	if (!EE.listenerCount) EE.listenerCount = function(emitter, type) {
@@ -41556,18 +41612,18 @@ var StellarLib =
 	};
 	/*</replacement>*/
 
-	var Stream = __webpack_require__(113);
+	var Stream = __webpack_require__(112);
 
 	/*<replacement>*/
-	var util = __webpack_require__(136);
-	util.inherits = __webpack_require__(137);
+	var util = __webpack_require__(135);
+	util.inherits = __webpack_require__(136);
 	/*</replacement>*/
 
 	var StringDecoder;
 
 
 	/*<replacement>*/
-	var debug = __webpack_require__(133);
+	var debug = __webpack_require__(132);
 	if (debug && debug.debuglog) {
 	  debug = debug.debuglog('stream');
 	} else {
@@ -41579,7 +41635,7 @@ var StellarLib =
 	util.inherits(Readable, Stream);
 
 	function ReadableState(options, stream) {
-	  var Duplex = __webpack_require__(130);
+	  var Duplex = __webpack_require__(129);
 
 	  options = options || {};
 
@@ -41640,14 +41696,14 @@ var StellarLib =
 	  this.encoding = null;
 	  if (options.encoding) {
 	    if (!StringDecoder)
-	      StringDecoder = __webpack_require__(135).StringDecoder;
+	      StringDecoder = __webpack_require__(134).StringDecoder;
 	    this.decoder = new StringDecoder(options.encoding);
 	    this.encoding = options.encoding;
 	  }
 	}
 
 	function Readable(options) {
-	  var Duplex = __webpack_require__(130);
+	  var Duplex = __webpack_require__(129);
 
 	  if (!(this instanceof Readable))
 	    return new Readable(options);
@@ -41750,7 +41806,7 @@ var StellarLib =
 	// backwards compatibility.
 	Readable.prototype.setEncoding = function(enc) {
 	  if (!StringDecoder)
-	    StringDecoder = __webpack_require__(135).StringDecoder;
+	    StringDecoder = __webpack_require__(134).StringDecoder;
 	  this._readableState.decoder = new StringDecoder(enc);
 	  this._readableState.encoding = enc;
 	  return this;
@@ -42469,7 +42525,7 @@ var StellarLib =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(28)))
 
 /***/ },
-/* 129 */
+/* 128 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {// Copyright Joyent, Inc. and other Node contributors.
@@ -42507,11 +42563,11 @@ var StellarLib =
 
 
 	/*<replacement>*/
-	var util = __webpack_require__(136);
-	util.inherits = __webpack_require__(137);
+	var util = __webpack_require__(135);
+	util.inherits = __webpack_require__(136);
 	/*</replacement>*/
 
-	var Stream = __webpack_require__(113);
+	var Stream = __webpack_require__(112);
 
 	util.inherits(Writable, Stream);
 
@@ -42522,7 +42578,7 @@ var StellarLib =
 	}
 
 	function WritableState(options, stream) {
-	  var Duplex = __webpack_require__(130);
+	  var Duplex = __webpack_require__(129);
 
 	  options = options || {};
 
@@ -42610,7 +42666,7 @@ var StellarLib =
 	}
 
 	function Writable(options) {
-	  var Duplex = __webpack_require__(130);
+	  var Duplex = __webpack_require__(129);
 
 	  // Writable ctor is applied to Duplexes, though they're not
 	  // instanceof Writable, they're instanceof Readable.
@@ -42953,7 +43009,7 @@ var StellarLib =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(28)))
 
 /***/ },
-/* 130 */
+/* 129 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {// Copyright Joyent, Inc. and other Node contributors.
@@ -42994,12 +43050,12 @@ var StellarLib =
 
 
 	/*<replacement>*/
-	var util = __webpack_require__(136);
-	util.inherits = __webpack_require__(137);
+	var util = __webpack_require__(135);
+	util.inherits = __webpack_require__(136);
 	/*</replacement>*/
 
-	var Readable = __webpack_require__(128);
-	var Writable = __webpack_require__(129);
+	var Readable = __webpack_require__(127);
+	var Writable = __webpack_require__(128);
 
 	util.inherits(Duplex, Readable);
 
@@ -43049,7 +43105,7 @@ var StellarLib =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(28)))
 
 /***/ },
-/* 131 */
+/* 130 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// Copyright Joyent, Inc. and other Node contributors.
@@ -43118,11 +43174,11 @@ var StellarLib =
 
 	module.exports = Transform;
 
-	var Duplex = __webpack_require__(130);
+	var Duplex = __webpack_require__(129);
 
 	/*<replacement>*/
-	var util = __webpack_require__(136);
-	util.inherits = __webpack_require__(137);
+	var util = __webpack_require__(135);
+	util.inherits = __webpack_require__(136);
 	/*</replacement>*/
 
 	util.inherits(Transform, Duplex);
@@ -43264,7 +43320,7 @@ var StellarLib =
 
 
 /***/ },
-/* 132 */
+/* 131 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// Copyright Joyent, Inc. and other Node contributors.
@@ -43294,11 +43350,11 @@ var StellarLib =
 
 	module.exports = PassThrough;
 
-	var Transform = __webpack_require__(131);
+	var Transform = __webpack_require__(130);
 
 	/*<replacement>*/
-	var util = __webpack_require__(136);
-	util.inherits = __webpack_require__(137);
+	var util = __webpack_require__(135);
+	util.inherits = __webpack_require__(136);
 	/*</replacement>*/
 
 	util.inherits(PassThrough, Transform);
@@ -43316,13 +43372,13 @@ var StellarLib =
 
 
 /***/ },
-/* 133 */
+/* 132 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* (ignored) */
 
 /***/ },
-/* 134 */
+/* 133 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = Array.isArray || function (arr) {
@@ -43331,7 +43387,7 @@ var StellarLib =
 
 
 /***/ },
-/* 135 */
+/* 134 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// Copyright Joyent, Inc. and other Node contributors.
@@ -43558,7 +43614,7 @@ var StellarLib =
 
 
 /***/ },
-/* 136 */
+/* 135 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {// Copyright Joyent, Inc. and other Node contributors.
@@ -43671,7 +43727,7 @@ var StellarLib =
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(42).Buffer))
 
 /***/ },
-/* 137 */
+/* 136 */
 /***/ function(module, exports, __webpack_require__) {
 
 	if (typeof Object.create === 'function') {
