@@ -1,3 +1,9 @@
+var StellarBase = require('stellar-base');
+var errors = require('../../src/errors');
+require('it-each')({ testPerIteration: true });
+
+var setFixtures;
+
 describe("server.js tests", function () {
 
   var DEV_SERVER_FIXTURES_ENDPOINT = "http://localhost:1337/fixtures";
@@ -21,7 +27,7 @@ describe("server.js tests", function () {
   beforeEach(function () {
     server = new StellarLib.Server({port: 1337});
     // sets the request the dev server should expect and the response it should send
-    this.setFixtures = function (fixtures, done) {
+    setFixtures = this.setFixtures = function (fixtures, done) {
       // instruct the dev server to except the correct request
       return axios.post(DEV_SERVER_FIXTURES_ENDPOINT, fixtures);
     }
@@ -219,15 +225,50 @@ describe("server.js tests", function () {
   });
 
   describe('Server.sendTransaction', function() {
-    /*it("sends a transaction", function() {
-      server.submitTransaction({blob: global.fixtures.TEST_TRANSACTION_BLOB})
-        .then(function (res) {
-          done();
+    var transaction = new StellarBase.Transaction('42cf0559790f6c3b64de15120df0bb25caab7dc2db4fb4a18a35e881bf323af7000003e800016f000000000200000000000000000000000100000000000000010783a8ac8f5319f8f9f6602a67309364d4f4c7385f9de41a265ed57581cd2ec50000000000000000009896800000000142cf0559a4a1c357d32b0f7a88e2c0982e9e9b3c4db0482ad993a11fb8f245c1f7ddb576b932488c6b840aa45c9ef7b34c3aec8ee173765ebeb41384b3dd05f25da0be0e');
+
+    it("sends a transaction successfully", function(done) {
+      var response = {status: 200, body: {"result":"received"}};
+      this.setFixtures({
+          request: "/transactions",
+          response: response
         })
-        .catch(function (err) {
-          done(err);
+        .then(function () {
+          server.submitTransaction(transaction)
+            .then(function(r) {
+              expect(r).to.be.deep.equal(response.body);
+              done();
+            });
+        });
+    });
+
+    var errors = [
+      {error: 'TransactionFailedError', hex: '0000000000000000fffffff1'},
+      {error: 'TransactionTooEarlyError', hex: '0000000000000000fffffff2'},
+      {error: 'TransactionTooLateError', hex: '0000000000000000fffffff3'},
+      {error: 'MissingOperationError', hex: '0000000000000000fffffff4'},
+      {error: 'BadSequenceError', hex: '0000000000000000fffffff5'},
+      {error: 'NotEnoughSignaturesError', hex: '0000000000000000fffffff6'},
+      {error: 'InsufficientBalanceError', hex: '0000000000000000fffffff7'},
+      {error: 'NotFoundError', hex: '0000000000000000fffffff8'},
+      {error: 'InsufficientBalanceError', hex: '0000000000000000fffffff9'},
+      {error: 'txNoAccount', hex: '0000000000000000fffffffa'},
+      {error: 'txInsufficientFee', hex: '0000000000000000fffffffb'},
+      {error: 'txBadAuthExtra', hex: '0000000000000000fffffffc'},
+      {error: 'txInternalError', hex: '0000000000000000fffffffd'}
+    ];
+
+    it.each(errors, "throws %s", ['error'], function(element, done) {
+      var response = {status: 500, body: {"result":"failed","submission_result":element.hex}};
+      setFixtures({
+          request: "/transactions",
+          response: response
         })
-    });*/
+        .then(function () {
+          server.submitTransaction(transaction)
+            .should.be.rejectedWith(errors[element.error]).and.notify(done);
+        });
+    });
   });
 
   describe("Server._parseResult", function () {

@@ -1,7 +1,8 @@
 import {TransactionResult} from "./transaction_result";
-import {NotFoundError, NetworkError} from "./errors";
+import * as errors from "./errors";
 
 import {xdr, Account} from "stellar-base";
+import _ from 'lodash';
 
 let axios = require("axios");
 let toBluebird = require("bluebird").resolve;
@@ -44,7 +45,39 @@ export class Server {
                 if (response instanceof Error) {
                     return Promise.reject(response);
                 } else {
-                    return Promise.reject(response.data);
+                    if (response.data.submission_result) {
+                        let transactionResult = xdr.TransactionResult.fromXDR(new Buffer(response.data.submission_result, 'hex'));
+                        // Is there a better way to do it?
+                        let result = transactionResult.result();
+                        switch (result._switch.name) {
+                            case 'txFailed':
+                                throw new errors.TransactionFailedError();
+                            case 'txTooEarly':
+                                throw new errors.TransactionTooEarlyError();
+                            case 'txTooLate':
+                                throw new errors.TransactionTooLateError();
+                            case 'txMissingOperation':
+                                throw new errors.MissingOperationError();
+                            case 'txBadSeq':
+                                throw new errors.BadSequenceError();
+                            case 'txBadAuth':
+                                throw new errors.NotEnoughSignaturesError();
+                            case 'txInsufficientBalance':
+                                throw new errors.InsufficientBalanceError();
+                            case 'txNoAccount':
+                                throw new errors.NotFoundError();
+                            case 'txInsufficientFee':
+                                throw new errors.InsufficientFeeError();
+                            case 'txBadAuthExtra':
+                                throw new errors.TooManySignaturesError();
+                            case 'txInternalError':
+                                throw new errors.InternalError();
+                            default:
+                                return Promise.reject(response.data);
+                        }
+                    } else {
+                        return Promise.reject(response.data);
+                    }
                 }
             });
         return toBluebird(promise);
@@ -256,9 +289,9 @@ export class Server {
         } else {
             switch (response.status) {
                 case 404:
-                    return Promise.reject(new NotFoundError(response.data, response));
+                    return Promise.reject(new errors.NotFoundError(response.data, response));
                 default:
-                    return Promise.reject(new NetworkError(response.status, response));
+                    return Promise.reject(new errors.NetworkError(response.status, response));
             }
         }
     }

@@ -12,7 +12,17 @@ Error.subclass = function(errorName) {
 };
 
 export var NetworkError = Error.subclass("NetworkError");
-export var NotFoundError = NetworkError.subclass("NotFoundError");
+export var TransactionFailedError = NetworkError.subclass("TransactionFailedError");     // -1
+export var TransactionTooEarlyError = NetworkError.subclass("TransactionTooEarlyError"); // -2
+export var TransactionTooLateError = NetworkError.subclass("TransactionTooLateError");   // -2
+export var MissingOperationError = NetworkError.subclass("MissingOperationError");       // -4
+export var BadSequenceError = NetworkError.subclass("BadSequenceError");                 // -5
+export var NotEnoughSignaturesError = NetworkError.subclass("NotEnoughSignaturesError"); // -6
+export var InsufficientBalanceError = NetworkError.subclass("InsufficientBalanceError"); // -7
+export var NotFoundError = NetworkError.subclass("NotFoundError");                       // -8
+export var InsufficientFeeError = NetworkError.subclass("InsufficientFeeError");         // -9
+export var TooManySignaturesError = NetworkError.subclass("TooManySignaturesError");     // -10
+export var InternalError = NetworkError.subclass("InternalError");                       // -11
 
 /**
  * From: https://github.com/joyent/node/blob/master/lib/util.js
