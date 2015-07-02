@@ -43,7 +43,7 @@ app.post('/fixtures', function (req, res) {
 * Will check that the given request path matches an expected request path in the fixtures map.
 * If it matches, will also check that any query parameters that were expected are also passed.
 */
-app.get('*', function(req, res) {
+app.all('*', function(req, res) {
     var response = fixtures[req._parsedUrl.pathname];
     if (!response) {
         res.status(404).send("unexpected request url path: " + req._parsedUrl.pathname);
