@@ -303,11 +303,11 @@ export class Server {
         return {
             records: json._embedded.records,
             next: function () {
-                return self._sendLinkRequest(json._links.next.href)
+                return self._sendNormalRequest(json._links.next.href)
                     .then(self._toCollectionPage.bind(self));
             },
             prev: function () {
-                return self._sendLinkRequest(json._links.prev.href)
+                return self._sendNormalRequest(json._links.prev.href)
                     .then(self._toCollectionPage.bind(self));
             }
         };

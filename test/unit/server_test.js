@@ -5,16 +5,18 @@ describe("server.js tests", function () {
 
   var toBluebird = bluebird.resolve;
 
-  var FAKE_COLLECTION_RESPONSE = {
-    _links: {
-      next: {
-        href: 'http://localhost:3000/accounts/gspbxqXqEUZkiCCEFFCN9Vu4FLucdjLLdLcsV6E82Qc1T7ehsTC/transactions?after=55834578944&limit=1&order=asc'
-      }
-    },
-    _embedded: {
-      records: []
+  var makeFakePage = function(nextUrl) {
+    return {
+      _links: {
+        next: { href: nextUrl },
+      },
+      _embedded: {
+        records: []
+      },
     }
   }
+
+  var FAKE_COLLECTION_RESPONSE = makeFakePage('http://localhost:3000/accounts/gspbxqXqEUZkiCCEFFCN9Vu4FLucdjLLdLcsV6E82Qc1T7ehsTC/transactions?after=55834578944&limit=1&order=asc');
 
   var server;
 
@@ -33,8 +35,10 @@ describe("server.js tests", function () {
   })
 
   describe('Server._sendResourceRequest', function () {
+
     describe("requests all ledgers", function () {
       describe("without options", function () {
+
         beforeEach(function (done) {
           // instruct the dev server to except the correct request
           return this.setFixtures({
@@ -56,16 +60,25 @@ describe("server.js tests", function () {
 
       describe("with options", function () {
         beforeEach(function (done) {
+          var url = "/ledgers?limit=1&after=b&order=asc"
           // instruct the dev server to except the correct request
           return this.setFixtures({
-            request: "/ledgers?limit=1&after=b&order=asc",
-            response: {status: 200, body: FAKE_COLLECTION_RESPONSE}
-          }).then(function () { done() });
+            request: url,
+            response: {status: 200, body: makeFakePage(url)}
+          }).then(function () { done(); });
         });
 
         it("requests the correct endpoint", function () {
           return server.ledgers({limit: 1, after: "b", order: "asc"});
-        })
+        });
+
+        it("can call .next() on the result to retrieve the next page", function () {
+          return server
+            .ledgers({limit: 1, after: "b", order: "asc"})
+            .then(function(page) {
+              return page.next()
+            });
+        });
       });
 
       describe("as stream", function () {
