@@ -38,7 +38,7 @@ export class Server {
     * @param {Transaction} transaction - The transaction to submit.
     */
     submitTransaction(transaction) {
-        var promise = axios.post(this.serverURL.path('transactions'), {
+        var promise = axios.post(URI(this.serverURL).path('transactions').toString(), {
                 tx: transaction.toEnvelope().toXDR().toString("hex")
             })
             .then(function(response) {
@@ -206,7 +206,7 @@ export class Server {
     }
 
     friendbot(address) {
-        var url = this.serverURL.path("friendbot").addQuery("addr", address);
+        var url = URI(this.serverURL).path("friendbot").addQuery("addr", address);
         return this._sendNormalRequest(url);
     }
 
@@ -233,7 +233,7 @@ export class Server {
             id = id.toString();
         }
         let argArray = [type, id, resource].filter(function(x) { return x !== null; });
-        let url = this.serverURL.segment(argArray);
+        let url = URI(this.serverURL).segment(argArray);
         if (opts) {
             url = this._appendResourceCollectionConfiguration(url, opts);
         }
@@ -301,11 +301,11 @@ export class Server {
         return {
             records: json._embedded.records,
             next: function () {
-                return self._sendNormalRequest(json._links.next.href)
+                return self._sendNormalRequest(URI(json._links.next.href))
                     .then(self._toCollectionPage.bind(self));
             },
             prev: function () {
-                return self._sendNormalRequest(json._links.prev.href)
+                return self._sendNormalRequest(URI(json._links.prev.href))
                     .then(self._toCollectionPage.bind(self));
             }
         };
@@ -323,9 +323,9 @@ export class Server {
             return function (opts) {
                 if (link.template) {
                     let template = URITemplate(link.href);
-                    return self._sendNormalRequest(template.expand(opts));
+                    return self._sendNormalRequest(URI(template.expand(opts)));
                 } else {
-                    return self._sendNormalRequest(link.href);
+                    return self._sendNormalRequest(URI(link.href));
                 }
             };
         };
