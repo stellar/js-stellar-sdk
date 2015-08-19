@@ -64,7 +64,7 @@ describe("server.js tests", function () {
           // instruct the dev server to except the correct request
           return this.setFixtures({
             request: url,
-            response: {status: 200, body: makeFakePage(url)}
+            response: {status: 200, body: makeFakePage('http://localhost:1337' + url)}
           }).then(function () { done(); });
         });
 

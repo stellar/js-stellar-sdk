@@ -53,13 +53,13 @@
     "webpack": "^1.7.3"
   },
   "dependencies": {
+    "URIjs": "^1.16.0",
     "axios": "^0.5.4",
     "bluebird": "^2.9.25",
     "eventsource": "^0.1.6",
     "jsdoc": "jsdoc3/jsdoc#master",
     "lodash": "^3.6.0",
     "stellar-base": "0.3.1",
-    "superagent": "^1.1.0",
-    "uritemplate": "^0.3.4"
+    "superagent": "^1.1.0"
   }
 }

@@ -5,7 +5,8 @@ import {xdr, Account} from "stellar-base";
 
 let axios = require("axios");
 let toBluebird = require("bluebird").resolve;
-let UriTemplate = require("uritemplate");
+let URI = require("URIjs");
+let URITemplate = require('URIjs/src/URITemplate');
 
 var EventSource = (typeof window === 'undefined') ? require('eventsource') : window.EventSource;
 
@@ -24,9 +25,12 @@ export class Server {
     * @param {number}   [config.port] - Horizon port, defaults to 3000.
     */
     constructor(config={}) {
-        this.protocol = config.secure ? "https://" : "http://";
+        this.protocol = config.secure ? "https" : "http";
         this.hostname = config.hostname || "localhost";
         this.port = config.port || 3000;
+        this.serverURL = URI({ protocol: this.protocol, 
+                             hostname: this.hostname,
+                             port: this.port });
     }
 
     /**
@@ -34,7 +38,7 @@ export class Server {
     * @param {Transaction} transaction - The transaction to submit.
     */
     submitTransaction(transaction) {
-        var promise = axios.post(this.protocol + this.hostname + ":" + this.port + '/transactions', {
+        var promise = axios.post(URI(this.serverURL).path('transactions').toString(), {
                 tx: transaction.toEnvelope().toXDR().toString("hex")
             })
             .then(function(response) {
@@ -202,8 +206,8 @@ export class Server {
     }
 
     friendbot(address) {
-        var endpoint = "/friendbot?addr=" + address;
-        return this._sendNormalRequest(endpoint);
+        var url = URI(this.serverURL).path("friendbot").addQuery("addr", address);
+        return this._sendNormalRequest(url);
     }
 
     /**
@@ -214,35 +218,30 @@ export class Server {
     * @param {string} type - {"accounts", "ledgers", "transactions"}
     */
     _sendResourceRequest(type, id, resource, opts) {
-        var endpoint = this._buildEndpointPath(type, id, resource, opts);
+        var url = this._buildEndpointPath(type, id, resource, opts);
         if (opts && opts.streaming) {
-            return this._sendStreamingRequest(endpoint, opts.streaming);
+            return this._sendStreamingRequest(url, opts.streaming);
         } else {
-            var promise = this._sendNormalRequest(endpoint)
+            var promise = this._sendNormalRequest(url)
                 .then(this._parseResponse.bind(this));
             return promise;
         }
     }
 
-    _buildEndpointPath(type, id, subType, opts) {
-        let endpoint = "/" + type;
-        if (id) {
-            endpoint += "/" + id;
+    _buildEndpointPath(type, id, resource, opts) {
+        if (id && typeof id !== 'string') {
+            id = id.toString();
         }
-        if (subType) {
-            endpoint += "/" +subType;
-        }
+        let argArray = [type, id, resource].filter(function(x) { return x !== null; });
+        let url = URI(this.serverURL).segment(argArray);
         if (opts) {
-            endpoint = this._appendResourceCollectionConfiguration(endpoint, opts);
+            url = this._appendResourceCollectionConfiguration(url, opts);
         }
-        return endpoint;
+        return url;
     }
 
     _sendNormalRequest(url) {
-        if (url.slice(0,4) != "http") {
-            url = this.protocol + this.hostname + ":" + this.port + url;
-        }
-        var promise = axios.get(url)
+        var promise = axios.get(url.toString())
             .then(function (response) {
                 return response.data;
             })
@@ -263,8 +262,8 @@ export class Server {
         }
     }
 
-    _sendStreamingRequest(endpoint, streaming) {
-        var es = new EventSource(this.protocol + this.hostname + ":" + this.port + endpoint);
+    _sendStreamingRequest(url, streaming) {
+        var es = new EventSource(url.toString());
         es.onmessage = function (message) {
             var result = message.data ? JSON.parse(message.data) : message;
             streaming.onmessage(result);
@@ -273,18 +272,17 @@ export class Server {
         return es;
     }
 
-    _appendResourceCollectionConfiguration(endpoint, opts) {
-        endpoint = endpoint + "?";
+    _appendResourceCollectionConfiguration(url, opts) {
         if (opts.after) {
-            endpoint += "after=" + opts.after;
+            url.addQuery("after", opts.after); 
         }
         if (opts.limit) {
-            endpoint += "&limit=" + opts.limit;
+            url.addQuery("limit", opts.limit);
         }
         if (opts.order) {
-            endpoint += "&order=" + opts.order;
+            url.addQuery("order", opts.order);
         }
-        return endpoint;
+        return url;
     }
 
     _parseResponse(json) {
@@ -303,11 +301,11 @@ export class Server {
         return {
             records: json._embedded.records,
             next: function () {
-                return self._sendNormalRequest(json._links.next.href)
+                return self._sendNormalRequest(URI(json._links.next.href))
                     .then(self._toCollectionPage.bind(self));
             },
             prev: function () {
-                return self._sendNormalRequest(json._links.prev.href)
+                return self._sendNormalRequest(URI(json._links.prev.href))
                     .then(self._toCollectionPage.bind(self));
             }
         };
@@ -324,10 +322,10 @@ export class Server {
         var linkFn = function (link) {
             return function (opts) {
                 if (link.template) {
-                    let template = UriTemplate(link.href);
-                    return self._sendNormalRequest(_template.expand(opts));
+                    let template = URITemplate(link.href);
+                    return self._sendNormalRequest(URI(template.expand(opts)));
                 } else {
-                    return self._sendNormalRequest(link.href);
+                    return self._sendNormalRequest(URI(link.href));
                 }
             };
         };
