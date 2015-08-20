@@ -6,7 +6,7 @@ export {Server} from "./server";
 export {Account} from "stellar-base";
 export {Transaction} from "stellar-base";
 export {TransactionBuilder} from "stellar-base";
-export {Currency} from "stellar-base";
+export {Asset} from "stellar-base";
 export {Operation} from "stellar-base";
 export {Keypair} from "stellar-base";
 export {Memo} from "stellar-base";
