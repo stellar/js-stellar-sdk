@@ -6,7 +6,8 @@
   "scripts": {
     "test": "gulp test",
     "docs": "./node_modules/.bin/jsdoc ./src/ -d docs/ -r ./docs/readme.md",
-    "preversion": "gulp build && gulp test && git add ./lib ./dist",
+    "preversion": "gulp test",
+    "version": "gulp build && git add lib/ dist/",
     "postversion": "git push && git push --tags"
   },
   "keywords": [

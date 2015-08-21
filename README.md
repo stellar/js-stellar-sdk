@@ -88,6 +88,14 @@ Documentation for this repo lives inside the [docs folder](./docs).
 ## Contributing
 For information on how to contribute, please refer to our [CONTRIBUTING](./CONTRIBUTING.md) file.
 
+## Publishing to npm
+```
+npm version [<newversion> | major | minor | patch | premajor | preminor | prepatch | prerelease]
+npm publish
+```
+npm >=2.13.0 required.
+Read more about [npm version](https://docs.npmjs.com/cli/version).
+
 ## License
 js-stellar-lib is licensed under an Apache-2.0 license. See the [LICENSE](./LICENSE) file for details.
 
