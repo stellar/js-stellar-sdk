@@ -2761,7 +2761,7 @@ var StellarLib =
 
 	            value: function submitTransaction(transaction) {
 	                var promise = axios.post(URI(this.serverURL).path("transactions").toString(), {
-	                    tx: transaction.toEnvelope().toXDR().toString("hex")
+	                    tx: transaction.toEnvelope().toXDR().toString("base64")
 	                }).then(function (response) {
 	                    return response.data;
 	                })["catch"](function (response) {
