@@ -7,7 +7,7 @@
     "test": "gulp test",
     "docs": "./node_modules/.bin/jsdoc ./src/ -d docs/ -r ./docs/readme.md",
     "preversion": "gulp test",
-    "version": "gulp build && git add lib/ dist/",
+    "version": "gulp build",
     "postversion": "git push && git push --tags"
   },
   "keywords": [

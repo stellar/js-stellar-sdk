@@ -2,6 +2,7 @@ language: node_js
 node_js:
 - '0.10'
 before_install:
+- npm install -g npm@'>=2.13.5'
 - |
     if [ "$TEST_TYPE" != build_website ]; then
       mkdir -p .npm
@@ -10,6 +11,10 @@ before_install:
     fi
 script:
 - |
+  echo "machine github.com login stellar-jenkins password $GITHUB_TOKEN" >~/.netrc
+  git config --global user.name "Travis CI"
+  git config --global user.email "accounts+github@stellar.org"
+
   if [ "$TEST_TYPE" = build_website ]; then
     if [ "$TRAVIS_BRANCH" = "master" ] && [ "$TRAVIS_PULL_REQUEST" = false ]; then
       set -e
@@ -17,21 +22,34 @@ script:
       cd website
       npm install
       ./setup.sh
-      echo "machine github.com login stellar-jenkins password $GITHUB_TOKEN" >~/.netrc
-      git config --global user.name "Travis CI"
-      git config --global user.email "accounts+github@stellar.org"
       ./publish.sh
     fi
   else
-    gulp $TEST_TYPE
+    gulp test
+    gulp build
   fi
 env:
-  matrix:
-  - TEST_TYPE=test
-  - TEST_TYPE=build_website
+#  matrix:
+#  - TEST_TYPE=test
+#  - TEST_TYPE=build_website
   global:
     # GITHUB_TOKEN
     secure: Pc3DwkXywnOGAhUdBZiUCKjyljzrQzPoqm9EEr+UL2BaeaDniFLCLEkuU+ViiuJBo8oPyOIl7I+d86Mi5q06fQx55+xH7DmiW/aj4qKVB2U6Ghn6A3QWkQuvRB1o8SP7iTYRCX480ULZs6AGrMd9y1PFRx/L93fBrO+J/bOtEmg=
 notifications:
   slack:
     secure: CgXxNEQrQ82EatyF/wSdF0P5rXcWPL+fFZ1lb1aBb8RbVt5gwddJ6xWVD/nYSr6tIJvIYHYhoYsIDPENwezIPsesG7kWXerQhydsEcA34JKxzsStd/TmU6Moxuwy6KTN7yzmL6586nSvoAw9TNPgvRkJFkH07asjGIc9Rlaq7/Y=
+deploy:
+  - provider: npm
+    email: npm@stellar.org
+    api_key:
+      secure: Vhs69f1et3b+U0tMAdViua2G4+dLapfMcMnAWn6EMSbzafgdBvObOIUP1Fo/NCp5jD236/zB/eV9Bs2y4tbgDLkSg+qUaKZnX2QIQ9CDCCEF8BMtLDLJTiDWBNrw5WJc/84f6tvEfFuMohnWkMBaGZ7dOgUL9ud2Ci/kDx1hoBY=
+    skip_cleanup: true
+    on:
+      tags: true
+      repo: stellar/js-stellar-lib
+  - provider: script
+    script: ./bower_publish.sh
+    skip_cleanup: true
+    on:
+      tags: true
+      repo: stellar/js-stellar-lib
