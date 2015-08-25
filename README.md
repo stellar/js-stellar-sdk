@@ -20,13 +20,14 @@ Using npm to include js-stellar-lib in your own project:
 npm install --save stellar-lib
 ```
 
-For browsers, use the webpacked version in the [dist folder](dist). It exports a
+For browsers, [use Bower to install it](#to-use-in-the-browser). It exports a
 variable `StellarLib`. The example below assumes you have `stellar-lib.js`
 relative to your html file.
 
 ```html
 <script src="stellar-lib.js"></script>
 <script>console.log(StellarLib);</script>
+
 ```
 
 ## Install
@@ -46,12 +47,20 @@ Node.js version 0.10 is required. If you don't have version 0.10, use
   ```
 
 ### To use in the browser
-1. Save the `stellar-lib.js` or `stellar-lib.min.js` accessible to your html file
+1. Install it using [bower](http://bower.io):
+
+  ```shell
+  bower install js-stellar-lib
+  ```
+
 2. Include it in the browser:
+
   ```html
-  <script src="./path/to/stellar-lib.js"></script>
+  <script src="./bower_components/js-stellar-lib/stellar-lib.js"></script>
   <script>console.log(StellarLib);</script>
   ```
+
+Note that you can also copy built JS files from [bower-js-stellar-lib repo](https://github.com/stellar/bower-js-stellar-lib) if you don't want to use Bower.
 
 ### To develop and test js-stellar-lib itself
 1. Clone the repo

@@ -4,11 +4,11 @@ node_js:
 before_install:
 - npm install -g npm@'>=2.13.5'
 - |
-    if [ "$TEST_TYPE" != build_website ]; then
-      mkdir -p .npm
-      export DISPLAY=:99.0
-      sh -e /etc/init.d/xvfb start
-    fi
+  if [ "$TEST_TYPE" != build_website ]; then
+    mkdir -p .npm
+    export DISPLAY=:99.0
+    sh -e /etc/init.d/xvfb start
+  fi
 script:
 - |
   echo "machine github.com login stellar-jenkins password $GITHUB_TOKEN" >~/.netrc
@@ -42,7 +42,7 @@ deploy:
   - provider: npm
     email: npm@stellar.org
     api_key:
-      secure: Vhs69f1et3b+U0tMAdViua2G4+dLapfMcMnAWn6EMSbzafgdBvObOIUP1Fo/NCp5jD236/zB/eV9Bs2y4tbgDLkSg+qUaKZnX2QIQ9CDCCEF8BMtLDLJTiDWBNrw5WJc/84f6tvEfFuMohnWkMBaGZ7dOgUL9ud2Ci/kDx1hoBY=
+      secure: rQ9OjPbd/6yAgjILpYI4cdrPYPEUvEv/aJF1KrT42KlukLn5jrSGVzuhdVCtv2riNOvxkLFQEzv/Q/DhsB2tJ0nhiad/S21IIaqGmvWZjIUKOHUz91ncEcMDqAMKR1tBGjmtA3J25xbbyPBNFwDRsyNbhjWV2F4iS0Xc9f4abyY=
     skip_cleanup: true
     on:
       tags: true
