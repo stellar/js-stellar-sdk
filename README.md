@@ -100,8 +100,9 @@ For information on how to contribute, please refer to our [CONTRIBUTING](./CONTR
 ## Publishing to npm
 ```
 npm version [<newversion> | major | minor | patch | premajor | preminor | prepatch | prerelease]
-npm publish
 ```
+A new version will be published to npm **and** Bower by Travis CI.
+
 npm >=2.13.0 required.
 Read more about [npm version](https://docs.npmjs.com/cli/version).
 
