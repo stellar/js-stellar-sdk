@@ -1,6 +1,6 @@
 {
   "name": "js-stellar-lib",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "js-stellar-lib is a library for working with the Stellar Horizon server.",
   "main": "lib/index.js",
   "scripts": {
