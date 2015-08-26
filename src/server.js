@@ -232,7 +232,7 @@ export class Server {
         if (id && typeof id !== 'string') {
             id = id.toString();
         }
-        let argArray = [type, id, resource].filter(function(x) { return x !== null; });
+        let argArray = [type, id, resource].filter(x => x !== null);
         let url = URI(this.serverURL).segment(argArray);
         if (opts) {
             url = this._appendResourceCollectionConfiguration(url, opts);
@@ -241,10 +241,10 @@ export class Server {
     }
 
     _sendNormalRequest(url) {
+        // To fix:  #15 Connection Stalled when making multiple requests to the same resource
+        url.addQuery('c', Math.random());
         var promise = axios.get(url.toString())
-            .then(function (response) {
-                return response.data;
-            })
+            .then(response => response.data)
             .catch(this._handleNetworkError);
         return toBluebird(promise);
     }
