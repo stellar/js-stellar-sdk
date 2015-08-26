@@ -4,6 +4,7 @@ var gulp        = require('gulp');
 var plugins     = require('gulp-load-plugins')();
 var runSequence = require('run-sequence');
 var server      = require('gulp-develop-server' );
+var webpack     = require("webpack");
 
 gulp.task('default', ['build']);
 
@@ -55,7 +56,11 @@ gulp.task('build:browser', ['lint:src'], function() {
         loaders: [
           { test: /\.js$/, exclude: /node_modules/, loader: 'babel-loader'}
         ]
-      }
+      },
+      plugins: [
+        // Ignore native modules (ex. ed25519)
+        new webpack.IgnorePlugin(/\.node/)
+      ]
     }))
     .pipe(plugins.rename('stellar-lib.js'))
     .pipe(gulp.dest('dist'))
