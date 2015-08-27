@@ -1,32 +1,32 @@
-# js-stellar-lib
-[![Build Status](https://travis-ci.org/stellar/js-stellar-lib.svg?branch=master)](https://travis-ci.org/stellar/js-stellar-lib)
+# js-stellar-sdk
+[![Build Status](https://travis-ci.org/stellar/js-stellar-sdk.svg?branch=master)](https://travis-ci.org/stellar/js-stellar-sdk)
 ### Note: This library is still under development and subject to breaking changes.
 
-js-stellar-lib is a client side Stellar Javascript Library for communicating with a [Stellar Horizon Server](https://github.com/stellar/go-horizon). It is used for building Stellar apps either on Node.js or in the browser.
+js-stellar-sdk is a client side Stellar Javascript Library for communicating with a [Stellar Horizon Server](https://github.com/stellar/go-horizon). It is used for building Stellar apps either on Node.js or in the browser.
 
 It provides:
 - a networking layer API for Horizon endpoints
 - facilities for building and signing transactions, and communicating with a Stellar Horizon instance, for submitting transactions or querying network history.
 
-### js-stellar-lib vs js-stellar-base
+### js-stellar-sdk vs js-stellar-base
 
-This library (js-stellar-lib) is a "high level" library that serves as an API for various Stellar services (currently just Horizon). This library makes extensive use of the "lower level" library [js-stellar-base](https://github.com/stellar/js-stellar-base) and exposes js-stellar-base classes via its export object. Many examples will use js-stellar-base classes (such as TransactionBuilder, Operation, etc) that are exposed through this library. This is to make it easier for developers who don't want to have to pull both js-stellar-base and js-stellar-lib as dependencies. However, js-stellar-base can be used as a standalone library for creating Stellar primitive constructs via XDR helpers and wrappers.
+This library (js-stellar-sdk) is a "high level" library that serves as an API for various Stellar services (currently just Horizon). This library makes extensive use of the "lower level" library [js-stellar-base](https://github.com/stellar/js-stellar-base) and exposes js-stellar-base classes via its export object. Many examples will use js-stellar-base classes (such as TransactionBuilder, Operation, etc) that are exposed through this library. This is to make it easier for developers who don't want to have to pull both js-stellar-base and js-stellar-sdk as dependencies. However, js-stellar-base can be used as a standalone library for creating Stellar primitive constructs via XDR helpers and wrappers.
 
 
 ## Quick start
 
-Using npm to include js-stellar-lib in your own project:
+Using npm to include js-stellar-sdk in your own project:
 ```shell
-npm install --save stellar-lib
+npm install --save stellar-sdk
 ```
 
 For browsers, [use Bower to install it](#to-use-in-the-browser). It exports a
-variable `StellarLib`. The example below assumes you have `stellar-lib.js`
+variable `StellarSdk`. The example below assumes you have `stellar-sdk.js`
 relative to your html file.
 
 ```html
-<script src="stellar-lib.js"></script>
-<script>console.log(StellarLib);</script>
+<script src="stellar-sdk.js"></script>
+<script>console.log(StellarSdk);</script>
 
 ```
 
@@ -38,46 +38,46 @@ Node.js version 0.10 is required. If you don't have version 0.10, use
 ### To use as a module in a Node.js project
 1. Install it using npm:
   ```shell
-  npm install --save stellar-lib
+  npm install --save stellar-sdk
   ```
 
 2. require/import it in your JavaScript:
   ```js
-  var StellarLib = require('stellar-lib');
+  var StellarLib = require('stellar-sdk');
   ```
 
 ### To use in the browser
 1. Install it using [bower](http://bower.io):
 
   ```shell
-  bower install js-stellar-lib
+  bower install js-stellar-sdk
   ```
 
 2. Include it in the browser:
 
   ```html
-  <script src="./bower_components/js-stellar-lib/stellar-lib.js"></script>
-  <script>console.log(StellarLib);</script>
+  <script src="./bower_components/js-stellar-sdk/stellar-sdk.js"></script>
+  <script>console.log(StellarSdk);</script>
   ```
 
-Note that you can also copy built JS files from [bower-js-stellar-lib repo](https://github.com/stellar/bower-js-stellar-lib) if you don't want to use Bower.
+Note that you can also copy built JS files from [bower-js-stellar-sdk repo](https://github.com/stellar/bower-js-stellar-sdk) if you don't want to use Bower.
 
-### To develop and test js-stellar-lib itself
+### To develop and test js-stellar-sdk itself
 1. Clone the repo
   ```shell
-  git clone https://github.com/stellar/js-stellar-lib.git
+  git clone https://github.com/stellar/js-stellar-sdk.git
   ```
 
-2. Install dependencies inside js-stellar-lib folder
+2. Install dependencies inside js-stellar-sdk folder
   ```shell
-  cd js-stellar-lib
+  cd js-stellar-sdk
   npm install
   ```
 
 ## Usage
-For information on how to use js-stellar-lib, take a look at the docs in the [docs folder](./docs).
+For information on how to use js-stellar-sdk, take a look at the docs in the [docs folder](./docs).
 
-There is also API Documentation [here](http://stellar.github.io/js-stellar-lib).
+There is also API Documentation [here](http://stellar.github.io/js-stellar-sdk).
 
 ## Testing
 To run all tests:
