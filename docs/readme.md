@@ -62,22 +62,22 @@ you'd like to add. Use the static methods in the Operation class to easily creat
 */
 
 // create the server connection object
-var server = new StellarLib.Server({port: 3000});
+var server = new StellarSdk.Server({port: 3000});
 
 // load the root account's current details from the server
 server.loadAccount("gspbxqXqEUZkiCCEFFCN9Vu4FLucdjLLdLcsV6E82Qc1T7ehsTC")
     .then(function (account) {
         // build the transaction
-        var transaction = new StellarLib.TransactionBuilder(account)
+        var transaction = new StellarSdk.TransactionBuilder(account)
             // this operation funds the new account with XLM
-            .addOperation(StellarLib.Operation.payment({
+            .addOperation(StellarSdk.Operation.payment({
                 destination: "g8WyiYoaMmCPsv86xgPRBhHSpBs7bmNMKAB1n93x1BhFkaczjW",
-                currency: StellarLib.Currency.native(),
+                currency: StellarSdk.Currency.native(),
                 amount: "20000000"
             }))
             .build();
         // now we need to sign the transaction with the source (root) account
-        var keypair = StellarLib.Keypair.fromSeed("sft74k3MagHG6iF36yeSytQzCCLsJ2Fo9K4YJpQCECwgoUobc4v");
+        var keypair = StellarSdk.Keypair.fromSeed("sft74k3MagHG6iF36yeSytQzCCLsJ2Fo9K4YJpQCECwgoUobc4v");
         var signature = transaction.sign(keypair);
         transaction.addSignature(signature);
         return server.submitTransaction(transaction);
@@ -94,7 +94,7 @@ server.loadAccount("gspbxqXqEUZkiCCEFFCN9Vu4FLucdjLLdLcsV6E82Qc1T7ehsTC")
 
 
 ```javascript
-var server = new StellarLib.Server({port: 3000});
+var server = new StellarSdk.Server({port: 3000});
 server.accounts("gspbxqXqEUZkiCCEFFCN9Vu4FLucdjLLdLcsV6E82Qc1T7ehsTC", "transactions")
     .then(function (page) {
         // page 1
@@ -120,7 +120,7 @@ var streamingMessageHandler = function (message) {
     console.log(message);
 };
 
-var server = new StellarLib.Server({port: 3000});
+var server = new StellarSdk.Server({port: 3000});
 server.accounts("gspbxqXqEUZkiCCEFFCN9Vu4FLucdjLLdLcsV6E82Qc1T7ehsTC", "transactions",
     {
         streaming: {
@@ -162,15 +162,15 @@ In each example, we'll use the root account.
 
 #### Add a secondary key to the account
 ```javascript
-var server = new StellarLib.Server({port: 3000});
-var rootKeypair = StellarLib.Keypair.fromSeed("sft74k3MagHG6iF36yeSytQzCCLsJ2Fo9K4YJpQCECwgoUobc4v");
+var server = new StellarSdk.Server({port: 3000});
+var rootKeypair = StellarSdk.Keypair.fromSeed("sft74k3MagHG6iF36yeSytQzCCLsJ2Fo9K4YJpQCECwgoUobc4v");
 var secondaryAddress = "gsRzkw9ss6BwoUFCsadDDskqaCm9vh9gy3cNbbCVtdvawuTm2pD";
 server.loadAccount(rootKeypair.address())
     .then(function (account) {
         // build the transaction
-        var transaction = new StellarLib.TransactionBuilder(account)
+        var transaction = new StellarSdk.TransactionBuilder(account)
             // this operation funds the new account with XLM
-            .addOperation(StellarLib.Operation.setOptions({
+            .addOperation(StellarSdk.Operation.setOptions({
                 signer: {
                     address: secondaryAddress,
                     weight: 1
@@ -191,14 +191,14 @@ server.loadAccount(rootKeypair.address())
 
 #### Set Master key weight and threshold weights
 ```javascript
-var server = new StellarLib.Server({port: 3000});
-var rootKeypair = StellarLib.Keypair.fromSeed("sft74k3MagHG6iF36yeSytQzCCLsJ2Fo9K4YJpQCECwgoUobc4v");
+var server = new StellarSdk.Server({port: 3000});
+var rootKeypair = StellarSdk.Keypair.fromSeed("sft74k3MagHG6iF36yeSytQzCCLsJ2Fo9K4YJpQCECwgoUobc4v");
 server.loadAccount(rootKeypair.address())
     .then(function (account) {
         // build the transaction
-        var transaction = new StellarLib.TransactionBuilder(account)
+        var transaction = new StellarSdk.TransactionBuilder(account)
             // this operation funds the new account with XLM
-            .addOperation(StellarLib.Operation.setOptions({
+            .addOperation(StellarSdk.Operation.setOptions({
                 thresholds: {
                     weight: 1, // master key weight
                     low: 1,
@@ -223,20 +223,20 @@ server.loadAccount(rootKeypair.address())
 ```javascript
 
 // create the server connection object
-var server = new StellarLib.Server({port: 3000});
+var server = new StellarSdk.Server({port: 3000});
 
-var rootKeypair = StellarLib.Keypair.fromSeed("sft74k3MagHG6iF36yeSytQzCCLsJ2Fo9K4YJpQCECwgoUobc4v");
-var secondKeypair = StellarLib.Keypair.fromSeed("sfLq8Ua5ynNXo8nYzkGrTWckwQpxuzZ2wh5YzE73mrciWn7gpUQ");
+var rootKeypair = StellarSdk.Keypair.fromSeed("sft74k3MagHG6iF36yeSytQzCCLsJ2Fo9K4YJpQCECwgoUobc4v");
+var secondKeypair = StellarSdk.Keypair.fromSeed("sfLq8Ua5ynNXo8nYzkGrTWckwQpxuzZ2wh5YzE73mrciWn7gpUQ");
 
 // load the root account's current details from the server
 server.loadAccount("gspbxqXqEUZkiCCEFFCN9Vu4FLucdjLLdLcsV6E82Qc1T7ehsTC")
     .then(function (account) {
         // build the transaction
-        var transaction = new StellarLib.TransactionBuilder(account)
+        var transaction = new StellarSdk.TransactionBuilder(account)
             // this operation funds the new account with XLM
-            .addOperation(StellarLib.Operation.payment({
+            .addOperation(StellarSdk.Operation.payment({
                 destination: "g8WyiYoaMmCPsv86xgPRBhHSpBs7bmNMKAB1n93x1BhFkaczjW",
-                currency: StellarLib.Currency.native(),
+                currency: StellarSdk.Currency.native(),
                 amount: "20000000"
             }))
             .build();
@@ -259,8 +259,8 @@ and it could return a signature, like so:
 
 ```javascript
 var fakeRPCSigner = function(transactionEnvelope) {
-    var RPCKeypair = StellarLib.Keypair.fromSeed("sfLq8Ua5ynNXo8nYzkGrTWckwQpxuzZ2wh5YzE73mrciWn7gpUQ");
-    var transaction = new StellarLib.Transaction(transactionEnvelope);
+    var RPCKeypair = StellarSdk.Keypair.fromSeed("sfLq8Ua5ynNXo8nYzkGrTWckwQpxuzZ2wh5YzE73mrciWn7gpUQ");
+    var transaction = new StellarSdk.Transaction(transactionEnvelope);
     // if needed, check the operations in the transaction for risk analysis here
     // we'll check to make sure there's only one payment operation under a limit
     if (transaction.operations.length > 1) {
@@ -275,11 +275,11 @@ var fakeRPCSigner = function(transactionEnvelope) {
 }
 
 // build the transaction
-var transaction = new StellarLib.TransactionBuilder(account)
+var transaction = new StellarSdk.TransactionBuilder(account)
     // this operation funds the new account with XLM
-    .addOperation(StellarLib.Operation.payment({
+    .addOperation(StellarSdk.Operation.payment({
         destination: "g8WyiYoaMmCPsv86xgPRBhHSpBs7bmNMKAB1n93x1BhFkaczjW",
-        currency: StellarLib.Currency.native(),
+        currency: StellarSdk.Currency.native(),
         amount: "20000000"
     }))
     .build();

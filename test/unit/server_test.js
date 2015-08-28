@@ -21,7 +21,7 @@ describe("server.js tests", function () {
   var server;
 
   beforeEach(function () {
-    server = new StellarLib.Server({port: 1337});
+    server = new StellarSdk.Server({port: 1337});
     // sets the request the dev server should expect and the response it should send
     this.setFixtures = function (fixtures, done) {
       // instruct the dev server to except the correct request
@@ -119,7 +119,7 @@ describe("server.js tests", function () {
             .then(function () {
               done("didn't throw an error");
             })
-            .catch(StellarLib.NotFoundError, function (err) {
+            .catch(StellarSdk.NotFoundError, function (err) {
               done();
             })
             .catch(function (err) {

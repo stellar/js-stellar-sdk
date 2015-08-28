@@ -43,7 +43,7 @@ Node.js version 0.10 is required. If you don't have version 0.10, use
 
 2. require/import it in your JavaScript:
   ```js
-  var StellarLib = require('stellar-sdk');
+  var StellarSdk = require('stellar-sdk');
   ```
 
 ### To use in the browser
