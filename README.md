@@ -50,13 +50,13 @@ Node.js version 0.10 is required. If you don't have version 0.10, use
 1. Install it using [bower](http://bower.io):
 
   ```shell
-  bower install js-stellar-sdk
+  bower install stellar-sdk
   ```
 
 2. Include it in the browser:
 
   ```html
-  <script src="./bower_components/js-stellar-sdk/stellar-sdk.js"></script>
+  <script src="./bower_components/stellar-sdk/stellar-sdk.js"></script>
   <script>console.log(StellarSdk);</script>
   ```
 
