@@ -4,7 +4,7 @@ module.exports = function(config) {
     browsers : ["Firefox"],
 
     files: [
-      'dist/stellar-lib.js',
+      'dist/stellar-sdk.js',
       'test/setup/browser.js',
       'test/unit/**/*.js'
     ],

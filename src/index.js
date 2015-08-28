@@ -1,4 +1,4 @@
-// stellar-lib classes to expose
+// stellar-sdk classes to expose
 export * from "./errors";
 export {Server} from "./server";
 

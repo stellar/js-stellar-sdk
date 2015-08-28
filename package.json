@@ -1,7 +1,7 @@
 {
-  "name": "js-stellar-lib",
+  "name": "stellar-sdk",
   "version": "0.1.8",
-  "description": "js-stellar-lib is a library for working with the Stellar Horizon server.",
+  "description": "stellar-sdk is a library for working with the Stellar Horizon server.",
   "main": "lib/index.js",
   "scripts": {
     "test": "gulp test",
@@ -16,9 +16,9 @@
   "author": "Andrew Rogers <andrew@stellar.org>",
   "license": "Apache 2.0",
   "bugs": {
-    "url": "https://github.com/stellar/js-stellar-lib/issues"
+    "url": "https://github.com/stellar/js-stellar-sdk/issues"
   },
-  "homepage": "https://github.com/stellar/js-stellar-lib",
+  "homepage": "https://github.com/stellar/js-stellar-sdk",
   "devDependencies": {
     "babel": "^4.7.16",
     "babel-core": "^4.7.16",

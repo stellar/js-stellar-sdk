@@ -62,10 +62,10 @@ gulp.task('build:browser', ['lint:src'], function() {
         new webpack.IgnorePlugin(/\.node/)
       ]
     }))
-    .pipe(plugins.rename('stellar-lib.js'))
+    .pipe(plugins.rename('stellar-sdk.js'))
     .pipe(gulp.dest('dist'))
     .pipe(plugins.uglify())
-    .pipe(plugins.rename('stellar-lib.min.js'))
+    .pipe(plugins.rename('stellar-sdk.min.js'))
     .pipe(gulp.dest('dist'));
 });
 

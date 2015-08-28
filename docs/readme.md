@@ -23,7 +23,7 @@ with the [Stellar Horizon API Server](https://github.com/stellar/go-horizon).
 Transactions are used to change the state of accounts on the network. This includes
 sending payments, making account configuration changes, etc. Each unit of change that
 can be made on an account is called an "operation". Transactions are made up of one or
-more operations. Each operation will be applied in the order it is added to the tranasction. In js-stellar-lib, that order is chronologically as operations are added. Each operation is described below:
+more operations. Each operation will be applied in the order it is added to the tranasction. In js-stellar-sdk, that order is chronologically as operations are added. Each operation is described below:
 
 * **Create Account** - Create an account with a given amount.
 * **Payment** - Send an payment of a given currency to an existing destination account, optionally through a path.
@@ -49,7 +49,7 @@ You can get the latest sequence number from the network by calling Server.loadAc
 ## Examples
 
 ### Creating a simple payment transaction
-To create a transaction using js-stellar-lib, use [TransactionBuilder](https://github.com/stellar/js-stellar-lib/blob/master/src/transaction_builder.js). This class provides
+To create a transaction using js-stellar-sdk, use [TransactionBuilder](https://github.com/stellar/js-stellar-sdk/blob/master/src/transaction_builder.js). This class provides
 a builder like interface which allows you to add operations to a transaction via chaining.
 Simply construct a new TransactionBuilder, call addOperation(), passing it the Operation
 you'd like to add. Use the static methods in the Operation class to easily create operations.
@@ -111,7 +111,7 @@ server.accounts("gspbxqXqEUZkiCCEFFCN9Vu4FLucdjLLdLcsV6E82Qc1T7ehsTC", "transact
 ```
 ### Streaming an accounts transaction history
 
-JS-Stellar-Lib provides streaming support for Horizon endpoints out of the box, and
+js-stellar-sdk provides streaming support for Horizon endpoints out of the box, and
 it's easy! Simply pass a streaming onmessage handler to an account's transaction lookup
 call like so:
 

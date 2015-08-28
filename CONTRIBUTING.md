@@ -34,7 +34,7 @@ business days. We may suggest some changes or improvements or alternatives.
 
 # Additional Resources
 
-* [Bug tracker (Github)](https://github.com/stellar/js-stellar-lib/issues)
+* [Bug tracker (Github)](https://github.com/stellar/js-stellar-sdk/issues)
 * <a href="https://docs.google.com/forms/d/1g7EF6PERciwn7zfmfke5Sir2n10yddGGSXyZsq98tVY/viewform?usp=send_form">Contributor License Agreement</a>
 * #stellar-dev IRC channel on freenode.org and Slack chat on stellar-public.slack.com
 

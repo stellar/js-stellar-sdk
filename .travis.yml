@@ -46,10 +46,10 @@ deploy:
     skip_cleanup: true
     on:
       tags: true
-      repo: stellar/js-stellar-lib
+      repo: stellar/js-stellar-sdk
   - provider: script
     script: ./bower_publish.sh
     skip_cleanup: true
     on:
       tags: true
-      repo: stellar/js-stellar-lib
+      repo: stellar/js-stellar-sdk

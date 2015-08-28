@@ -107,7 +107,7 @@ npm >=2.13.0 required.
 Read more about [npm version](https://docs.npmjs.com/cli/version).
 
 ## License
-js-stellar-lib is licensed under an Apache-2.0 license. See the [LICENSE](./LICENSE) file for details.
+js-stellar-sdk is licensed under an Apache-2.0 license. See the [LICENSE](./LICENSE) file for details.
 
 
 
