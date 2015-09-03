@@ -2,15 +2,15 @@
 [![Build Status](https://travis-ci.org/stellar/js-stellar-sdk.svg?branch=master)](https://travis-ci.org/stellar/js-stellar-sdk)
 ### Note: This library is still under development and subject to breaking changes.
 
-js-stellar-sdk is a client side Stellar Javascript Library for communicating with a [Stellar Horizon Server](https://github.com/stellar/go-horizon). It is used for building Stellar apps either on Node.js or in the browser.
+js-stellar-sdk is a client-side Stellar Javascript library for communicating with a [Stellar Horizon server](https://github.com/stellar/go-horizon). It is used for building Stellar apps either on Node.js or in the browser.
 
 It provides:
-- a networking layer API for Horizon endpoints
-- facilities for building and signing transactions, and communicating with a Stellar Horizon instance, for submitting transactions or querying network history.
+- a networking layer API for Horizon endpoints.
+- facilities for building and signing transactions, for communicating with a Stellar Horizon instance, and for submitting transactions or querying network history.
 
 ### js-stellar-sdk vs js-stellar-base
 
-This library (js-stellar-sdk) is a "high level" library that serves as an API for various Stellar services (currently just Horizon). This library makes extensive use of the "lower level" library [js-stellar-base](https://github.com/stellar/js-stellar-base) and exposes js-stellar-base classes via its export object. Many examples will use js-stellar-base classes (such as TransactionBuilder, Operation, etc) that are exposed through this library. This is to make it easier for developers who don't want to have to pull both js-stellar-base and js-stellar-sdk as dependencies. However, js-stellar-base can be used as a standalone library for creating Stellar primitive constructs via XDR helpers and wrappers.
+This library (js-stellar-sdk) is a high-level library that serves as an API for various Stellar services (currently only Horizon). This library makes extensive use of the lower-level library [js-stellar-base](https://github.com/stellar/js-stellar-base) and exposes js-stellar-base classes via its export object. To make it easier for developers who don't want to have to pull both js-stellar-base and js-stellar-sdk as dependencies, many examples will use js-stellar-base classes (such as TransactionBuilder and Operation) that are exposed through this library. However, js-stellar-base can be used as a standalone library for creating Stellar primitive constructs via XDR helpers and wrappers.
 
 
 ## Quick start
@@ -20,7 +20,7 @@ Using npm to include js-stellar-sdk in your own project:
 npm install --save stellar-sdk
 ```
 
-For browsers, [use Bower to install it](#to-use-in-the-browser). It exports a
+For browsers, [use Bower to install js-stellar-sdk](#to-use-in-the-browser). It exports a
 variable `StellarSdk`. The example below assumes you have `stellar-sdk.js`
 relative to your html file.
 
@@ -60,22 +60,22 @@ Node.js version 0.10 is required. If you don't have version 0.10, use
   <script>console.log(StellarSdk);</script>
   ```
 
-Note that you can also copy built JS files from [bower-js-stellar-sdk repo](https://github.com/stellar/bower-js-stellar-sdk) if you don't want to use Bower.
+Note that, if you don't want to use Bower, you can also copy built JS files from [bower-js-stellar-sdk repo](https://github.com/stellar/bower-js-stellar-sdk).
 
 ### To develop and test js-stellar-sdk itself
-1. Clone the repo
+1. Clone the repo:
   ```shell
   git clone https://github.com/stellar/js-stellar-sdk.git
   ```
 
-2. Install dependencies inside js-stellar-sdk folder
+2. Install dependencies inside js-stellar-sdk folder:
   ```shell
   cd js-stellar-sdk
   npm install
   ```
 
 ## Usage
-For information on how to use js-stellar-sdk, take a look at the docs in the [docs folder](./docs).
+For information on how to use js-stellar-sdk, take a look at the [docs folder](./docs).
 
 There is also API Documentation [here](http://stellar.github.io/js-stellar-sdk).
 
@@ -95,7 +95,7 @@ gulp test:browser
 Documentation for this repo lives inside the [docs folder](./docs).
 
 ## Contributing
-For information on how to contribute, please refer to our [CONTRIBUTING](./CONTRIBUTING.md) file.
+For information on how to contribute, please refer to our [contribution guide](./CONTRIBUTING.md).
 
 ## Publishing to npm
 ```
