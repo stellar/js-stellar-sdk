@@ -266,8 +266,8 @@ server.loadAccount(firstAccountAddress)
 ```
 #### Multi-sig RPC
 
-Note: If the second keypair was controlled by an external process such as a seperate process or a remote network device, the transaction envelope could be sent to that external process
-and it could return a signature, like so:
+Let's say you are a second signer on an account and don't want to share your keypair with the source account.  Instead, you want to control your keypair on a remote server or separate process.  If the source account can send you the envelope of the transaction it wants to submit, you can sign the envelope remotely like so:
+
 
 ```javascript
 var StellarLib = require('js-stellar-lib')
