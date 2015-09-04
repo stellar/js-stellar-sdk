@@ -78,6 +78,7 @@ js-stellar-sdk exposes the [`TransactionBuilder`](https://github.com/stellar/js-
 */
 
 var StellarSdk = require('js-stellar-sdk')
+
 // create the server connection object
 var server = new StellarSdk.Server({hostname:'example-horizon-server.com', secure: true, port: 443});
 
@@ -138,6 +139,7 @@ Let's say you want to look at an account's transaction history.  You can use the
 var StellarSdk = require('js-stellar-sdk')
 var server = new StellarSdk.Server({hostname:'example-horizon-server.com', secure: true, port: 443});
 
+
 server.transactions()
     .forAccount(accountAddress)
     .call()
@@ -184,7 +186,6 @@ In this example, we will:
 
 #### Add a secondary key to the account
 ```javascript
-
 var StellarSdk = require('js-stellar-sdk')
 var server = new StellarSdk.Server({hostname:'example-horizon-server.com', secure: true, port: 443});
 
