@@ -1,13 +1,13 @@
 ---
 id: readme
-title: Getting Started with js-stellar-lib
+title: Getting Started with js-stellar-sdk
 category: Getting Started
 ---
-js-stellar-lib facilitates Stellar transaction submission and client integration
-with the [Stellar Horizon API Server](https://github.com/stellar/go-horizon).
+js-stellar-sdk facilitates Stellar transaction submission and client integration
+with the [Stellar Horizon API Server](https://github.com/stellar/horizon).
 
 - [Building and Installing]()
-- [Using JS-Stellar-Lib]()
+- [Using JS-Stellar-SDK]()
     - [Transactions](#transactions)
     - [Sequence Numbers](#sequence-numbers)
     - [Multisig](#multisig)
@@ -20,15 +20,15 @@ with the [Stellar Horizon API Server](https://github.com/stellar/go-horizon).
 
 ## Building and Installing
 
-Please refer to the project-level [README](../README.md) for information on how to build and install JS-Stellar-Lib.
+Please refer to the project-level [README](../README.md) for information on how to build and install JS-Stellar-SDK.
 
-## Using js-stellar-lib
+## Using js-stellar-sdk
 
 ### Transactions
 
 Transactions are the commands that modify the network.  They include sending payments, making account configuration changes, etc.  
 
-Transactions are made up of one or more operations. In js-stellar-lib, operations are added chronologically and applied in that order. Each operation is described below:
+Transactions are made up of one or more operations. In js-stellar-sdk, operations are added chronologically and applied in that order. Each operation is described below:
 
 * **Create Account** - Create an account with a given starting balance.
 * **Payment** - Send an payment of a given currency to an existing destination account, optionally through a path.
@@ -69,7 +69,7 @@ Every operation has a threshold level of either low, medium, or high.  Let's say
 
 ### Creating a simple payment transaction
 
-js-stellar-lib exposes the [`TransactionBuilder`](https://github.com/stellar/js-stellar-base/blob/master/src/transaction_builder.js) class from js-stellar-base.  This class allows you to add operations to a transaction via chaining.  You can construct a new `TransactionBuilder`, call `addOperation`, call `addSigner`, and `build()` yourself transaction.  Below are two examples, reflecting the two ways of dealing with the [sequence number](#sequence-number).
+js-stellar-sdk exposes the [`TransactionBuilder`](https://github.com/stellar/js-stellar-base/blob/master/src/transaction_builder.js) class from js-stellar-base.  This class allows you to add operations to a transaction via chaining.  You can construct a new `TransactionBuilder`, call `addOperation`, call `addSigner`, and `build()` yourself transaction.  Below are two examples, reflecting the two ways of dealing with the [sequence number](#sequence-number).
 
 ```javascript
 /**
@@ -77,7 +77,7 @@ js-stellar-lib exposes the [`TransactionBuilder`](https://github.com/stellar/js-
 * locally managed sequence number.
 */
 
-var StellarLib = require('js-stellar-lib')
+var StellarLib = require('js-stellar-sdk')
 // create the server connection object
 var server = new StellarLib.Server({hostname:'example-horizon-server.com', secure: true, port: 443});
 
@@ -105,7 +105,7 @@ server.submitTransaction(transaction)
 * In this example, we'll create and submit a payment, but we'll read the
 * sequence number from the server.
 */
-var StellarLib = require('js-stellar-lib')
+var StellarLib = require('js-stellar-sdk')
 var server = new StellarLib.Server({hostname:'example-horizon-server.com', secure: true, port: 443});
 
 server.loadAccount("GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ")
@@ -135,7 +135,7 @@ server.loadAccount("GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ")
 Let's say you want to look at an account's transaction history.  You can use the `accounts()` command and pass in `transactions` as the resource you're interested in.
 
 ```javascript
-var StellarLib = require('js-stellar-lib')
+var StellarLib = require('js-stellar-sdk')
 var server = new StellarLib.Server({hostname:'example-horizon-server.com', secure: true, port: 443});
 
 server.accounts("GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ", "transactions")
@@ -157,7 +157,7 @@ server.accounts("GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ", "tra
 js-stellar-lib provides streaming support for Horizon endpoints using `EventSource`.  For example, pass a streaming `onmessage` handler to an account's transaction call:
 
 ```javascript
-var StellarLib = require('js-stellar-lib')
+var StellarLib = require('js-stellar-sdk')
 var server = new StellarLib.Server({hostname:'example-horizon-server.com', secure: true, port: 443});
 
 var streamingMessageHandler = function (message) {
@@ -172,7 +172,7 @@ var es = server.accounts("GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674
     })
 ```
 
-For more on streaming events, please check out [our guide](https://github.com/stellar/docs-go-horizon/blob/master/docs/guide/responses.md) and this [guide to server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events).
+For more on streaming events, please check out [our guide](https://github.com/stellar/horizon/blob/master/docs/guide/responses.md) and this [guide to server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events).
 
 ### Creating a multi-signature account
 
@@ -184,7 +184,7 @@ In this example, we will:
 #### Add a secondary key to the account
 ```javascript
 
-var StellarLib = require('js-stellar-lib')
+var StellarLib = require('js-stellar-sdk')
 var server = new StellarLib.Server({hostname:'example-horizon-server.com', secure: true, port: 443});
 
 server.loadAccount(firstAccountAddress)
@@ -211,7 +211,7 @@ server.loadAccount(firstAccountAddress)
 
 #### Set Master key weight and threshold weights
 ```javascript
-var StellarLib = require('js-stellar-lib')
+var StellarLib = require('js-stellar-sdk')
 var server = new StellarLib.Server({hostname:'example-horizon-server.com', secure: true, port: 443});
 
 server.loadAccount(firstAccountAddress)
@@ -239,7 +239,7 @@ server.loadAccount(firstAccountAddress)
 
 #### Create a multi-sig payment transaction
 ```javascript
-var StellarLib = require('js-stellar-lib')
+var StellarLib = require('js-stellar-sdk')
 var server = new StellarLib.Server({hostname:'example-horizon-server.com', secure: true, port: 443});
 
 server.loadAccount(firstAccountAddress)
@@ -270,7 +270,7 @@ Let's say you are a second signer on an account and don't want to share your key
 
 
 ```javascript
-var StellarLib = require('js-stellar-lib')
+var StellarLib = require('js-stellar-sdk')
 var server = new StellarLib.Server({hostname:'example-horizon-server.com', secure: true, port: 443});
 
 // Let's say this function exists on the remote server
