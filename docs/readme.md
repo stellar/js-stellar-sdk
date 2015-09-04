@@ -26,7 +26,7 @@ Please refer to the project-level [README](../README.md) for information on how 
 
 ### Transactions
 
-Transactions are the commands that modify the network.  They include sending payments, making account configuration changes, etc.  
+[Transactions](https://github.com/stellar/docs/blob/master/concepts/transactions.md) are the commands that modify the network.  They include sending payments, making account configuration changes, etc.  
 
 Transactions are made up of one or more operations. In js-stellar-sdk, operations are added chronologically and applied in that order. Each operation is described below:
 
@@ -39,11 +39,11 @@ Transactions are made up of one or more operations. In js-stellar-sdk, operation
 * **Allow Trust** - Authorize another account to hold your credits.
 * **Account Merge** - Merge your account's balance into another account, deleting it.
 
-For more, please refer to the [operations documentation]().
+For more, please refer to the [operations documentation](https://github.com/stellar/docs/blob/master/concepts/operations.md).
 
 Transactions are performed by source accounts that will use up a sequence number and be charged a fee for the transaction.  Each operation also has a source account, which defaults to the transaction's source account. 
 
-For a transaction to be valid, it must be signed by at least one public key -- generally, the source account's public key.  That key must meet the thresholds for the operations in the transaction.  For more on signatures and thresholds, please see the [multisig documentation]().
+For a transaction to be valid, it must be signed by at least one public key -- generally, the source account's public key.  That key must meet the thresholds for the operations in the transaction.  For more on signatures and thresholds, please see the [multi-sig documentation](https://github.com/stellar/docs/blob/master/concepts/multi-sig.md).
 
 
 ### Sequence Numbers
@@ -60,7 +60,7 @@ Robust applications should use the second method.  During periods of high transa
 
 ### Multi-sig
 
-Transactions require signatures for authorization, and generally they only require one.  However, you can exercise more control over authorization and set up complex schemes by increasing the number of signatures a transaction requires.  For more, please consult the [multi-sig documentation]().  A summary of the documentation follows:
+Transactions require signatures for authorization, and generally they only require one.  However, you can exercise more control over authorization and set up complex schemes by increasing the number of signatures a transaction requires.  For more, please consult the [multi-sig documentation](https://github.com/stellar/docs/blob/master/concepts/multi-sig.md).  A summary of the documentation follows:
 
 Every operation has a threshold level of either low, medium, or high.  Let's say that you want to send a payment, a medium threshold operation.  You can set, using the operation `setOptions`, the exact threshold value every medium operation stemming from your account will have.  For example, if your medium threshold level is 3, the payment you send to your friend Zoe will have a threshold level of 3.  The weights of every key that signs the transaction must add up to at least 3.  So, if your signing key only has a weight of 2, you need an additional signer to authorize the payment.
 
