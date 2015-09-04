@@ -154,7 +154,7 @@ server.accounts("GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ", "tra
 ```
 ### Streaming an accounts transaction history
 
-js-stellar-lib provides streaming support for Horizon endpoints using `EventSource`.  For example, pass a streaming `onmessage` handler to an account's transaction call:
+js-stellar-sdk provides streaming support for Horizon endpoints using `EventSource`.  For example, pass a streaming `onmessage` handler to an account's transaction call:
 
 ```javascript
 var StellarLib = require('js-stellar-sdk')
