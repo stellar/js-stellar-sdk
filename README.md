@@ -2,7 +2,7 @@
 [![Build Status](https://travis-ci.org/stellar/js-stellar-sdk.svg?branch=master)](https://travis-ci.org/stellar/js-stellar-sdk)
 ### Note: This library is still under development and subject to breaking changes.
 
-js-stellar-sdk is a client-side Stellar Javascript library for communicating with a [Stellar Horizon server](https://github.com/stellar/go-horizon). It is used for building Stellar apps either on Node.js or in the browser.
+js-stellar-sdk is a client-side Stellar Javascript library for communicating with a [Stellar Horizon server](https://github.com/stellar/horizon). It is used for building Stellar apps either on Node.js or in the browser.
 
 It provides:
 - a networking layer API for Horizon endpoints.
@@ -77,7 +77,7 @@ Note that, if you don't want to use Bower, you can also copy built JS files from
 ## Usage
 For information on how to use js-stellar-sdk, take a look at the [docs folder](./docs).
 
-There is also API Documentation [here](http://stellar.github.io/js-stellar-sdk).
+There is also API Documentation [here](https://github.com/stellar/horizon/blob/master/docs/Readme.md).
 
 ## Testing
 To run all tests:
