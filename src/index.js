@@ -10,4 +10,5 @@ export {Asset} from "stellar-base";
 export {Operation} from "stellar-base";
 export {Keypair} from "stellar-base";
 export {Memo} from "stellar-base";
+export {Network} from "stellar-base";
 export {xdr} from "stellar-base";
