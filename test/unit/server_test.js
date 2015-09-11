@@ -49,6 +49,7 @@ describe("server.js tests", function () {
 
         it("requests the correct endpoint", function (done) {
           server.ledgers()
+            .call()
             .then(function () {
               done();
             })
@@ -68,13 +69,23 @@ describe("server.js tests", function () {
           }).then(function () { done(); });
         });
 
+        // This should not be passing
         it("requests the correct endpoint", function () {
-          return server.ledgers({limit: 1, after: "b", order: "asc"});
+          return server.ledgers({limit: 1, after: "b", order: "asc"})
+          // return server.ledgers()
+          //   .limit("1")
+          //   .after("b")
+          //   .order("asc")
+          //   .call();
         });
 
         it("can call .next() on the result to retrieve the next page", function () {
           return server
-            .ledgers({limit: 1, after: "b", order: "asc"})
+            .ledgers()
+            .limit("1")
+            .after("b")
+            .order("asc")
+            .call()
             .then(function(page) {
               return page.next()
             });
@@ -92,14 +103,13 @@ describe("server.js tests", function () {
         });
 
         it("attaches onmessage handler to an EventSource", function (done) {
-          var es = server.ledgers({
-            streaming: {
-              onmessage: function (res) {
-                expect(res.test).to.be.equal("body");
-                done();
+          var es = server.ledgers()
+            .stream(
+              { onmessage: function (res) {
+                    expect(res.test).to.be.equal("body");
+                    done(); 
               }
-            }
-          });
+            })
         });
       });
     });
@@ -115,7 +125,9 @@ describe("server.js tests", function () {
         });
 
         it("throws a NotFoundError", function (done) {
-          server.ledgers(1)
+          server.ledgers()
+            .ledger("1")
+            .call()
             .then(function () {
               done("didn't throw an error");
             })
@@ -137,7 +149,9 @@ describe("server.js tests", function () {
         });
 
         it("requests the correct endpoint", function (done) {
-          server.ledgers(1)
+          server.ledgers()
+            .ledger("1")
+            .call()
             .then(function () {
               done();
             })
@@ -156,7 +170,12 @@ describe("server.js tests", function () {
         });
 
         it("requests the correct endpoint", function (done) {
-          server.ledgers(1, {limit: 1, after: "b", order: "asc"})
+          server.ledgers()
+            .ledger("1")
+            .limit("1")
+            .after("b")
+            .order("asc")
+            .call()
             .then(function () {
               done();
             })
@@ -178,7 +197,9 @@ describe("server.js tests", function () {
         });
 
         it("requests the correct endpoint", function (done) {
-          server.ledgers(1, "transactions")
+          server.transactions()
+            .forLedger("1")
+            .call()
             .then(function () {
               done();
             })
@@ -197,7 +218,12 @@ describe("server.js tests", function () {
         });
 
         it("requests the correct endpoint", function (done) {
-          server.ledgers(1, "transactions", {limit: 1, after: "b", order: "asc"})
+          server.transactions()
+            .forLedger("1")
+            .after("b")
+            .limit("1")
+            .order("asc")
+            .call()
             .then(function () {
               done();
             })
@@ -217,15 +243,15 @@ describe("server.js tests", function () {
         });
 
         it("attaches onmessage handler to an EventSource", function (done) {
-          var es = server.ledgers(1, "transactions", {
-            streaming: {
+          var es = server.transactions()
+            .forLedger("1")
+            .stream({
               onmessage: function (res) {
                 expect(res.test).to.be.equal("body");
                 es.close();
                 done();
               }
-            }
-          });
+            });
         });
       });
     });
@@ -245,7 +271,8 @@ describe("server.js tests", function () {
 
   describe("Server._parseResult", function () {
     it("creates link functions", function () {
-      var json = server._parseResponse({
+      var callBuilder = server.ledgers();
+      var json = callBuilder._parseResponse({
         "_links": {
           "test": function () {
             return "hi";

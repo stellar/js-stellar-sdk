@@ -1,6 +1,14 @@
 import {TransactionResult} from "./transaction_result";
-import {NotFoundError, NetworkError} from "./errors";
+import {NotFoundError, NetworkError, BadArgument} from "./errors";
 
+import {AccountCallBuilder} from "./accountCallBuilder";
+import {LedgerCallBuilder} from "./ledgerCallBuilder";
+import {TransactionCallBuilder} from "./transactionCallBuilder";
+import {OperationCallBuilder} from "./operationCallBuilder";
+import {OfferCallBuilder} from "./offerCallBuilder";
+import {OrderbookCallBuilder} from "./orderbookCallBuilder";
+import {PaymentCallBuilder} from "./paymentCallBuilder";
+import {EffectCallBuilder} from "./effectCallBuilder";
 import {xdr, Account} from "stellar-base";
 
 let axios = require("axios");
@@ -67,11 +75,11 @@ export class Server {
     * @param {string} [opts.after] - Return only resources after the given paging token.
     * @param {number} [opts.limit] - Limit the number of returned resources to the given amount.
     * @param {string} [opts.order] - Order the returned collection in "asc" or "desc" order.
-    * @param {object} [opts.streaming] - Streaming handlers. If not null, will turn this request
+    * @param {object} [streaming] - Streaming handlers. If not null, will turn this request
     *                                    into a streaming request.
-    * @param {function} [opts.streaming.onmessage] - If given an onmessage handler, turns this query
+    * @param {function} [streaming.onmessage] - If given an onmessage handler, turns this query
     *                                                into a streaming query.
-    * @param {function} [opts.streaming.onerror] - If this query is a streaming query, will use the
+    * @param {function} [streaming.onerror] - If this query is a streaming query, will use the
     *                                              given handler for error messages.
     * @returns {Promise|EventSource} If this is a normal request (non streaming) will return a promise
     *                                that will fulfill when the request completes. Otherwise, it will
@@ -79,115 +87,38 @@ export class Server {
     * @throws {NotFoundError} - If the account does not exist.
     * @throws {NetworkError} - For any other errors thrown by horizon
     */
-    accounts(address, resource, opts) {
-        if (!address || typeof(address) === "object") {
-            opts = address;
-            address = null;
-            resource = null;
-        } else if (!resource || typeof resource === "object") {
-            opts = resource;
-            resource = null;
-        }
-        return this._sendResourceRequest("accounts", address, resource, opts);
+    accounts() {
+        return new AccountCallBuilder(URI(this.serverURL));
     }
 
-    /**
-    * <p>Returns ledger resources. For a list of all ledgers, don't pass sequence
-    * or resource parameters. For a specific transaction, pass only a sequence. For a list of
-    * ledger sub resources, pass the sequence and the type of sub resources.</p>
-    *
-    * <p>A configuration object can be passed to each call. Calls that return a collection
-    * can be streamed by passing a streaming object in the config object.</p>@param {number} [sequence] - Returns the given ledger.
-    * @param {string} [resource] - Return a specific resource associated with a ledger. Can be
-    *                              {"transactions", "operations", "effects", "payments"}.
-    * @param {object} [opts] - Optional configuration for the request.
-    * @param {string} [opts.after] - Return only resources after the given paging token.
-    * @param {number} [opts.limit] - Limit the number of returned resources to the given amount.
-    * @param {string} [opts.order] - Order the returned collection in "asc" or "desc" order.
-    * @param {object} [opts.streaming] - Streaming handlers. If not null, will turn this request
-    *                                    into a streaming request.
-    * @param {function} [opts.streaming.onmessage] - If given an onmessage handler, turns this query
-    *                                                into a streaming query.
-    * @param {function} [opts.streaming.onerror] - If this query is a streaming query, will use the
-    *                                              given handler for error messages.
-    * @returns {Promise|EventSource} If this is a normal request (non streaming) will return a promise
-    *                                that will fulfill when the request completes. Otherwise, it will
-    *                                return the EventSource object.
-    * @throws {NotFoundError} - If the ledger does not exist.
-    * @throws {NetworkError} - For any other errors thrown by horizon
-    */
-    ledgers(sequence, resource, opts) {
-        if (!sequence || typeof(sequence) === "object") {
-            opts = sequence;
-            sequence = null;
-            resource = null;
-        } else if (!resource || typeof resource === "object") {
-            opts = resource;
-            resource = null;
-        }
-        return this._sendResourceRequest("ledgers", sequence, resource, opts);
+   
+    ledgers() {
+        return new LedgerCallBuilder(URI(this.serverURL));
     }
 
-    /**
-    * <p>Returns transaction resources. For a list of all transactions, don't pass hash
-    * or resource parameters. For a specific transaction, pass a hash. For a list of
-    * transaction sub resources, pass the transaction hash and the type of sub resources.</p>
-    *
-    * <p>A configuration object can be passed to each call. Calls that return a collection
-    * can be streamed by passing a streaming object in the config object.</p>
-    * @param {string} [hash] - Returns the given transaction.
-    * @param {string} [resource] - Return a specific resource associated with a transaction. Can be
-    *                              {"operations", "effects", "payments"}.
-    * @param {object} [opts] - Optional configuration for the request.
-    * @param {string} [opts.after] - Return only resources after the given paging token.
-    * @param {number} [opts.limit] - Limit the number of returned resources to the given amount.
-    * @param {string} [opts.order] - Order the returned collection in "asc" or "desc" order.
-    * @param {object} [opts.streaming] - Streaming handlers. If not null, will turn this request
-    *                                    into a streaming request.
-    * @param {function} [opts.streaming.onmessage] - If given an onmessage handler, turns this query
-    *                                                into a streaming query.
-    * @param {function} [opts.streaming.onerror] - If this query is a streaming query, will use the
-    *                                              given handler for error messages.
-    * @returns {Promise|EventSource} If this is a normal request (non streaming) will return a promise
-    *                                that will fulfill when the request completes. Otherwise, it will
-    *                                return the EventSource object.
-    * @throws {NotFoundError} - If the transaction does not exist.
-    * @throws {NetworkError} - For any other errors thrown by horizon
-    */
-    transactions(hash, resource, opts) {
-        if (!hash || typeof(hash) === "object") {
-            opts = hash;
-            hash = null;
-            resource = null;
-        } else if (!resource || typeof resource === "object") {
-            opts = resource;
-            resource = null;
-        }
-        return this._sendResourceRequest("transactions", hash, resource, opts);
+    transactions() {
+        return new TransactionCallBuilder(URI(this.serverURL));
     }
 
-    /**
-    * Operation's firehose.
-    * TODO: support for operation/:id [blocked on horizon]
-    * TODO: support for operation/:id/effects [blocked on horizon]
-    */
-    operations(id, resource, opts) {
-        if (!id || typeof(id) === "object") {
-            opts = id;
-            id = null;
-            resource = null;
-        } else if (!resource || typeof resource === "object") {
-            opts = resource;
-            resource = null;
-        }
-        return this._sendResourceRequest("operations", id, resource, opts);
+    // TODO: idk man, idk
+    offers(resource, resourceParams) {
+        return new OfferCallBuilder(URI(this.serverURL), resource, resourceParams);
     }
 
-    /**
-    * Payments firehose.
-    */
-    payments(opts) {
-        return this._sendResourceRequest("payments", null, null, opts);
+    orderbook(selling, buying) {
+        return new OrderbookCallBuilder(URI(this.serverURL), selling, buying);
+    }
+
+    operations() {
+        return new OperationCallBuilder(URI(this.serverURL));
+    }
+
+    payments() {
+        return new PaymentCallBuilder(URI(this.serverURL));
+    }
+
+    effects() {
+        return new EffectCallBuilder(URI(this.serverURL));
     }
 
     /**
@@ -210,36 +141,6 @@ export class Server {
         return this._sendNormalRequest(url);
     }
 
-    /**
-    * Sends a request for a resource or collection of resources. For a non streaming
-    * request, will return a promise. This will be fulfilled either with the specific
-    * resource response, or a collection of responses. Otherwise, for a streaming request,
-    * will return the EventSource object.
-    * @param {string} type - {"accounts", "ledgers", "transactions"}
-    */
-    _sendResourceRequest(type, id, resource, opts) {
-        var url = this._buildEndpointPath(type, id, resource, opts);
-        if (opts && opts.streaming) {
-            return this._sendStreamingRequest(url, opts.streaming);
-        } else {
-            var promise = this._sendNormalRequest(url)
-                .then(this._parseResponse.bind(this));
-            return promise;
-        }
-    }
-
-    _buildEndpointPath(type, id, resource, opts) {
-        if (id && typeof id !== 'string') {
-            id = id.toString();
-        }
-        let argArray = [type, id, resource].filter(x => x !== null);
-        let url = URI(this.serverURL).segment(argArray);
-        if (opts) {
-            url = this._appendResourceCollectionConfiguration(url, opts);
-        }
-        return url;
-    }
-
     _sendNormalRequest(url) {
         // To fix:  #15 Connection Stalled when making multiple requests to the same resource
         url.addQuery('c', Math.random());
@@ -248,91 +149,6 @@ export class Server {
             .catch(this._handleNetworkError);
         return toBluebird(promise);
     }
-
-    _handleNetworkError(response) {
-        if (response instanceof Error) {
-            return Promise.reject(response);
-        } else {
-            switch (response.status) {
-                case 404:
-                    return Promise.reject(new NotFoundError(response.data, response));
-                default:
-                    return Promise.reject(new NetworkError(response.status, response));
-            }
-        }
-    }
-
-    _sendStreamingRequest(url, streaming) {
-        var es = new EventSource(url.toString());
-        es.onmessage = function (message) {
-            var result = message.data ? JSON.parse(message.data) : message;
-            streaming.onmessage(result);
-        };
-        es.onerror = streaming.onerror;
-        return es;
-    }
-
-    _appendResourceCollectionConfiguration(url, opts) {
-        if (opts.after) {
-            url.addQuery("after", opts.after); 
-        }
-        if (opts.limit) {
-            url.addQuery("limit", opts.limit);
-        }
-        if (opts.order) {
-            url.addQuery("order", opts.order);
-        }
-        return url;
-    }
-
-    _parseResponse(json) {
-        if (json._embedded && json._embedded.records) {
-            return this._toCollectionPage(json);
-        } else {
-            return this._parseRecord(json);
-        }
-    }
-
-    _toCollectionPage(json) {
-        var self = this;
-        for (var i = 0; i < json._embedded.records.length; i++) {
-            json._embedded.records[i] = this._parseRecord(json._embedded.records[i]);
-        }
-        return {
-            records: json._embedded.records,
-            next: function () {
-                return self._sendNormalRequest(URI(json._links.next.href))
-                    .then(self._toCollectionPage.bind(self));
-            },
-            prev: function () {
-                return self._sendNormalRequest(URI(json._links.prev.href))
-                    .then(self._toCollectionPage.bind(self));
-            }
-        };
-    }
-
-    /**
-    * Convert each link into a function on the response object.
-    */
-    _parseRecord(json) {
-        if (!json._links) {
-            return json;
-        }
-        var self = this;
-        var linkFn = function (link) {
-            return function (opts) {
-                if (link.template) {
-                    let template = URITemplate(link.href);
-                    return self._sendNormalRequest(URI(template.expand(opts)));
-                } else {
-                    return self._sendNormalRequest(URI(link.href));
-                }
-            };
-        };
-        Object.keys(json._links).map(function(value, index) {
-            var link = json._links[value];
-            json[value] = linkFn(link);
-        });
-        return json;
-    }
 }
+
+ 
