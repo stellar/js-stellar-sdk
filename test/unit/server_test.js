@@ -71,12 +71,11 @@ describe("server.js tests", function () {
 
         // This should not be passing
         it("requests the correct endpoint", function () {
-          return server.ledgers({limit: 1, after: "b", order: "asc"})
-          // return server.ledgers()
-          //   .limit("1")
-          //   .after("b")
-          //   .order("asc")
-          //   .call();
+          return server.ledgers()
+            .limit("1")
+            .after("b")
+            .order("asc")
+            .call();
         });
 
         it("can call .next() on the result to retrieve the next page", function () {
