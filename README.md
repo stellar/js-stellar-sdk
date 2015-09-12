@@ -82,7 +82,7 @@ There is also API Documentation [here](https://github.com/stellar/horizon/blob/m
 ## Testing
 To run all tests:
 ```shell
-./node_modules/.bin/gulp test
+gulp test
 ```
 
 To run a specific set of tests:
