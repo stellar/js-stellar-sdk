@@ -100,9 +100,12 @@ export class Server {
         return new TransactionCallBuilder(URI(this.serverURL));
     }
 
-    // TODO: idk man, idk
-    offers(resource, resourceParams) {
-        return new OfferCallBuilder(URI(this.serverURL), resource, resourceParams);
+    /* 
+    * Should be
+    * offers('accounts', accountID) or
+    */
+    offers(resource, ...resourceParams) {
+        return new OfferCallBuilder(URI(this.serverURL), resource, ...resourceParams);
     }
 
     orderbook(selling, buying) {

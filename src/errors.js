@@ -13,7 +13,7 @@ Error.subclass = function(errorName) {
 
 export var NetworkError = Error.subclass("NetworkError");
 export var NotFoundError = NetworkError.subclass("NotFoundError");
-export var BadArgument = Error.subclass("BadArgument");
+export var BadRequest = Error.subclass("BadRequest");
 
 /**
  * From: https://github.com/joyent/node/blob/master/lib/util.js
