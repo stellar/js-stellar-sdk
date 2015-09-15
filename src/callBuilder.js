@@ -1,4 +1,4 @@
-import {NotFoundError, NetworkError, BadArgument} from "./errors";
+import {NotFoundError, NetworkError, BadRequest} from "./errors";
 
 let URI = require("URIjs");
 let URITemplate = require('URIjs/src/URITemplate');
@@ -19,9 +19,16 @@ export class CallBuilder {
     */
     constructor(url) {
         this.url = url;
+        this.filter = [];
     }
 
     call() {
+        if (this.filter.length >= 2) {
+            return Promise.reject(new BadRequest("Too many filters.", null));
+        } 
+        if (this.filter.length === 1) {
+            this.url.segment(this.filter[0]);
+        }
         var promise = this._sendNormalRequest(this.url)
             .then(this._parseResponse.bind(this));
         return promise;
@@ -116,6 +123,12 @@ export class CallBuilder {
     }
 
     stream(options) {
+        if (this.filter.length >= 2) {
+            return Promise.reject(new BadRequest("Too many filters.", null));
+        } 
+        if (this.filter.length === 1) {
+            this.url.segment(this.filter[0]);
+        }
         var es = new EventSource(this.url.toString());
         es.onmessage = function (message) {
             var result = message.data ? JSON.parse(message.data) : message;

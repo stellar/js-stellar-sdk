@@ -13,22 +13,22 @@ export class OperationCallBuilder extends CallBuilder {
     }
 
     operation(operationID) {
-        this.url.segment(['operations', operationID]);
+        this.filter.push(['operations', operationID]);
         return this;
     }
 
     forAccount(accountAddress) {
-        this.url.segment(['accounts', accountAddress, 'operations']);
+        this.filter.push(['accounts', accountAddress, 'operations']);
         return this;
     }
 
     forLedger(ledgerSeq) {
-        this.url.segment(['ledgers', ledgerSeq, 'operations']);
+        this.filter.push(['ledgers', ledgerSeq, 'operations']);
         return this;
     }
 
     forTransaction(transactionID) {
-        this.url.segment(['transactions', transactionID, 'operations']);
+        this.filter.push(['transactions', transactionID, 'operations']);
         return this;
     }
 }

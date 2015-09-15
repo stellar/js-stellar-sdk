@@ -13,17 +13,17 @@ export class PaymentCallBuilder extends CallBuilder {
     }
 
     forAccount(accountAddress) {
-        this.url.segment(['accounts', accountAddress, 'payments']);
+        this.filter.push(['accounts', accountAddress, 'payments']);
         return this;
     }
 
     forLedger(ledgerSeq) {
-        this.url.segment(['ledgers', ledgerSeq, 'payments']);
+        this.filter.push(['ledgers', ledgerSeq, 'payments']);
         return this;
     }
 
     forTransaction(transactionID) {
-        this.url.segment(['transactions', transactionID, 'payments']);
+        this.filter.push(['transactions', transactionID, 'payments']);
         return this;
     }
 }

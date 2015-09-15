@@ -13,22 +13,22 @@ export class EffectCallBuilder extends CallBuilder {
     }
 
     forAccount(accountAddress) {
-        this.url.segment(['accounts', accountAddress, 'effects']);
+        this.filter.push(['accounts', accountAddress, 'effects']);
         return this;
     }
 
     forLedger(ledgerSeq) {
-        this.url.segment(['ledgers', ledgerSeq, 'effects']);
+        this.filter.push(['ledgers', ledgerSeq, 'effects']);
         return this;
     }
 
     forTransaction(transactionID) {
-        this.url.segment(['transactions', transactionID, 'effects']);
+        this.filter.push(['transactions', transactionID, 'effects']);
         return this;
     }
 
     forOperation(operationID) {
-        this.url.segment(['operations', operationID, 'effects']);
+        this.filter.push(['operations', operationID, 'effects']);
         return this;
     }
 }

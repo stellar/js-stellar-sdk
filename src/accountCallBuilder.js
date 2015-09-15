@@ -15,7 +15,7 @@ export class AccountCallBuilder extends CallBuilder {
 
 
     address(accountAddress) {
-        this.url.segment(['accounts', accountAddress]);
+        this.filter.push(['accounts', accountAddress]);
         return this;
     }
 

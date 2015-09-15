@@ -13,7 +13,7 @@ export class LedgerCallBuilder extends CallBuilder {
     }
 
     ledger(ledgerSeq) {
-        this.url.segment(['ledgers', ledgerSeq]);
+        this.filter.push(['ledgers', ledgerSeq]);
         return this;
     }
 
