@@ -69,7 +69,6 @@ describe("server.js tests", function () {
           }).then(function () { done(); });
         });
 
-        // This should not be passing
         it("requests the correct endpoint", function () {
           return server.ledgers()
             .limit("1")
@@ -281,4 +280,148 @@ describe("server.js tests", function () {
       expect(typeof json.test).to.be.equal("function");
     });
   });
+
+  describe("Smoke tests for the rest of the builders", function() {
+    describe("AccountCallBuilder", function() {
+      beforeEach(function (done) {
+        // instruct the dev server to except the correct request
+        return this.setFixtures({
+          request: "/accounts/GSDEF?limit=4",
+          response: {status: 200, body: FAKE_COLLECTION_RESPONSE}
+        }).then(function () { done() });
+      });
+
+      it("requests the correct endpoint", function (done) {
+        server.accounts()
+          .address("GSDEF")
+          .limit("4")
+          .call()
+          .then(function () {
+            done();
+          })
+          .catch(function (err) {
+            done(err);
+          })
+      });
+    });
+
+    describe("OfferCallBuilder", function() {
+      beforeEach(function (done) {
+        // instruct the dev server to except the correct request
+        return this.setFixtures({
+          request: "/accounts/GSDEF/offers?order=asc",
+          response: {status: 200, body: FAKE_COLLECTION_RESPONSE}
+        }).then(function () { done() });
+      });
+
+      it("requests the correct endpoint", function (done) {
+        server.offers('accounts', "GSDEF")
+          .order("asc")
+          .call()
+          .then(function () {
+            done();
+          })
+          .catch(function (err) {
+            done(err);
+          })
+      });
+
+      it("rejects the wrong resource", function(done) {
+        expect(() => server.offers('ledgers', '123').call()).to.throw(/Bad resource specified/);
+        done();
+      });
+    });
+
+    describe("OrderbookCallBuilder", function() {
+      beforeEach(function (done) {
+        // instruct the dev server to except the correct request
+        return this.setFixtures({
+          request: "/order_book?selling_asset_type=native&buying_asset_type=credit_alphanum4&buying_asset_code=USD&buying_asset_issuer=GSEDF",
+          response: {status: 200, body: FAKE_COLLECTION_RESPONSE}
+        }).then(function () { done() });
+      });
+
+      it("requests the correct endpoint", function (done) {
+        server.orderbook(new StellarSdk.Asset.native(), new StellarSdk.Asset('USD', "GSEDF"))
+          .call()
+          .then(function () {
+            done();
+          })
+          .catch(function (err) {
+            done(err);
+          })
+      });
+    });
+
+    describe("EffectCallBuilder", function() {
+      beforeEach(function (done) {
+        // instruct the dev server to except the correct request
+        return this.setFixtures({
+          request: "/effects?after=b",
+          response: {status: 200, body: FAKE_COLLECTION_RESPONSE}
+        }).then(function () { done() });
+      });
+
+      it("requests the correct endpoint", function (done) {
+        server.effects()
+          .after("b")
+          .call()
+          .then(function () {
+            done();
+          })
+          .catch(function (err) {
+            done(err);
+          })
+        });
+
+      it("rejects two filters", function (done) {
+        expect(() => server.effects().forOperation("blah").forLedger('234').call()).to.throw(/Too many filters/);
+        done();
+      });
+    })
+
+    describe("OperationCallBuilder", function() {
+      beforeEach(function (done) {
+        // instruct the dev server to except the correct request
+        return this.setFixtures({
+          request: "/transactions/blah/operations",
+          response: {status: 200, body: FAKE_COLLECTION_RESPONSE}
+        }).then(function () { done() });
+      });
+
+      it("requests the correct endpoint", function (done) {
+        server.operations()
+          .forTransaction("blah")
+          .call()
+          .then(function () {
+            done();
+          })
+          .catch(function (err) {
+            done(err);
+          })
+      });
+    });
+
+    describe("PaymentCallBuilder", function() {
+      beforeEach(function (done) {
+        // instruct the dev server to except the correct request
+        return this.setFixtures({
+          request: "/accounts/GDEFS/payments",
+          response: {status: 200, body: FAKE_COLLECTION_RESPONSE}
+        }).then(function () { done() });
+      });
+
+      it("requests the correct endpoint", function (done) {
+        server.payments()
+          .forAccount("GDEFS")
+          .call()
+          .then(function () {
+            done();
+          })
+          .catch(function (err) {
+            done(err);
+          })
+      });
+    });
+  })  
 });
