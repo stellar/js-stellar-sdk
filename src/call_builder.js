@@ -100,7 +100,6 @@ export class CallBuilder {
         for (var i = 0; i < json._embedded.records.length; i++) {
             json._embedded.records[i] = this._parseRecord(json._embedded.records[i]);
         }
-        console.log(this);
         return {
             records: json._embedded.records,
             next: () => {
