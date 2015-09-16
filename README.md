@@ -10,7 +10,7 @@ It provides:
 
 ### js-stellar-sdk vs js-stellar-base
 
-This library (js-stellar-sdk) is a high-level library that serves as an API for various Stellar services (currently only Horizon). This library makes extensive use of the lower-level library [js-stellar-base](https://github.com/stellar/js-stellar-base) and exposes js-stellar-base classes via its export object. To make it easier for developers who don't want to have to pull both js-stellar-base and js-stellar-sdk as dependencies, many examples will use js-stellar-base classes (such as TransactionBuilder and Operation) that are exposed through this library. However, js-stellar-base can be used as a standalone library for creating Stellar primitive constructs via XDR helpers and wrappers.
+js-stellar-sdk is a high-level library that serves as client side API for [Horizon](https://github.com/stellar/horizon). This library makes extensive use of the lower-level [js-stellar-base](https://github.com/stellar/js-stellar-base) and exposes js-stellar-base classes via its export object.  js-stellar-base can be used as a standalone library for creating Stellar primitive constructs via XDR helpers and wrappers. js-stellar-base doesn't depend on connecting to Horizon. 
 
 
 ## Quick start
@@ -82,7 +82,7 @@ There is also API Documentation [here](https://github.com/stellar/horizon/blob/m
 ## Testing
 To run all tests:
 ```shell
-./node_modules/.bin/gulp test
+gulp test
 ```
 
 To run a specific set of tests:

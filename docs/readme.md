@@ -77,20 +77,20 @@ js-stellar-sdk exposes the [`TransactionBuilder`](https://github.com/stellar/js-
 * locally managed sequence number.
 */
 
-var StellarLib = require('js-stellar-sdk')
+var StellarSdk = require('js-stellar-sdk')
 // create the server connection object
-var server = new StellarLib.Server({hostname:'example-horizon-server.com', secure: true, port: 443});
+var server = new StellarSdk.Server({hostname:'example-horizon-server.com', secure: true, port: 443});
 
 // create Account object using locally tracked sequence number
-var an_account = new StellarLib.Account("GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ", localSequence);
+var an_account = new StellarSdk.Account("GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ", localSequence);
 
-var transaction = new StellarLib.TransactionBuilder(an_account)
-    .addOperation(StellarLib.Operation.payment({
+var transaction = new StellarSdk.TransactionBuilder(an_account)
+    .addOperation(StellarSdk.Operation.payment({
       destination: "GASOCNHNNLYFNMDJYQ3XFMI7BYHIOCFW3GJEOWRPEGK2TDPGTG2E5EDW",
-      asset: StellarLib.Asset.native(),
+      asset: StellarSdk.Asset.native(),
       amount: "20000000"
     }))
-    .addSigner(StellarLib.Keypair.fromSeed(seedString)) // sign the transaction
+    .addSigner(StellarSdk.Keypair.fromSeed(seedString)) // sign the transaction
     .build();
 
 server.submitTransaction(transaction)
@@ -105,20 +105,20 @@ server.submitTransaction(transaction)
 * In this example, we'll create and submit a payment, but we'll read the
 * sequence number from the server.
 */
-var StellarLib = require('js-stellar-sdk')
-var server = new StellarLib.Server({hostname:'example-horizon-server.com', secure: true, port: 443});
+var StellarSdk = require('js-stellar-sdk')
+var server = new StellarSdk.Server({hostname:'example-horizon-server.com', secure: true, port: 443});
 
 server.loadAccount("GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ")
     .then(function (account) {
         // build the transaction
-        var transaction = new StellarLib.TransactionBuilder(account)
+        var transaction = new StellarSdk.TransactionBuilder(account)
             // this operation funds the new account with XLM
-            .addOperation(StellarLib.Operation.payment({
+            .addOperation(StellarSdk.Operation.payment({
                 destination: "GASOCNHNNLYFNMDJYQ3XFMI7BYHIOCFW3GJEOWRPEGK2TDPGTG2E5EDW",
-                asset: StellarLib.Asset.native(),
+                asset: StellarSdk.Asset.native(),
                 amount: "20000000"
             }))
-            .addSigner(StellarLib.Keypair.fromSeed(seedString)) // sign the transaction
+            .addSigner(StellarSdk.Keypair.fromSeed(seedString)) // sign the transaction
             .build();
         return server.submitTransaction(transaction);
     })
@@ -135,8 +135,8 @@ server.loadAccount("GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ")
 Let's say you want to look at an account's transaction history.  You can use the `accounts()` command and pass in `transactions` as the resource you're interested in.
 
 ```javascript
-var StellarLib = require('js-stellar-sdk')
-var server = new StellarLib.Server({hostname:'example-horizon-server.com', secure: true, port: 443});
+var StellarSdk = require('js-stellar-sdk')
+var server = new StellarSdk.Server({hostname:'example-horizon-server.com', secure: true, port: 443});
 
 server.accounts("GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ", "transactions")
     .then(function (page) {
@@ -157,8 +157,8 @@ server.accounts("GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ", "tra
 js-stellar-sdk provides streaming support for Horizon endpoints using `EventSource`.  For example, pass a streaming `onmessage` handler to an account's transaction call:
 
 ```javascript
-var StellarLib = require('js-stellar-sdk')
-var server = new StellarLib.Server({hostname:'example-horizon-server.com', secure: true, port: 443});
+var StellarSdk = require('js-stellar-sdk')
+var server = new StellarSdk.Server({hostname:'example-horizon-server.com', secure: true, port: 443});
 
 var streamingMessageHandler = function (message) {
     console.log(message);
@@ -184,20 +184,20 @@ In this example, we will:
 #### Add a secondary key to the account
 ```javascript
 
-var StellarLib = require('js-stellar-sdk')
-var server = new StellarLib.Server({hostname:'example-horizon-server.com', secure: true, port: 443});
+var StellarSdk = require('js-stellar-sdk')
+var server = new StellarSdk.Server({hostname:'example-horizon-server.com', secure: true, port: 443});
 
 server.loadAccount(firstAccountAddress)
     .then(function (account) {
         // build the transaction
-        var transaction = new StellarLib.TransactionBuilder(account)
-            .addOperation(StellarLib.Operation.setOptions({
+        var transaction = new StellarSdk.TransactionBuilder(account)
+            .addOperation(StellarSdk.Operation.setOptions({
                 signer: {
                     address: secondAccountAddress,
                     weight: 1
                 }
             }))
-            .addSigner(StellarLib.Keypair.fromSeed(firstAccountSeedString))
+            .addSigner(StellarSdk.Keypair.fromSeed(firstAccountSeedString))
             .build();
         return server.submitTransaction(transaction);
     })
@@ -211,21 +211,21 @@ server.loadAccount(firstAccountAddress)
 
 #### Set Master key weight and threshold weights
 ```javascript
-var StellarLib = require('js-stellar-sdk')
-var server = new StellarLib.Server({hostname:'example-horizon-server.com', secure: true, port: 443});
+var StellarSdk = require('js-stellar-sdk')
+var server = new StellarSdk.Server({hostname:'example-horizon-server.com', secure: true, port: 443});
 
 server.loadAccount(firstAccountAddress)
     .then(function (account) {
         // build the transaction
-        var transaction = new StellarLib.TransactionBuilder(account)
+        var transaction = new StellarSdk.TransactionBuilder(account)
             // this operation funds the new account with XLM
-                .addOperation(StellarLib.Operation.setOptions({
+                .addOperation(StellarSdk.Operation.setOptions({
                     masterWeight : 1,
                     lowThreshold: 1,
                     medThreshold: 2,
                     highThreshold: 1
                 }))
-            .addSigner(StellarLib.Keypair.fromSeed(firstAccountSeedString))
+            .addSigner(StellarSdk.Keypair.fromSeed(firstAccountSeedString))
             .build();
         return server.submitTransaction(transaction);
     })
@@ -239,21 +239,21 @@ server.loadAccount(firstAccountAddress)
 
 #### Create a multi-sig payment transaction
 ```javascript
-var StellarLib = require('js-stellar-sdk')
-var server = new StellarLib.Server({hostname:'example-horizon-server.com', secure: true, port: 443});
+var StellarSdk = require('js-stellar-sdk')
+var server = new StellarSdk.Server({hostname:'example-horizon-server.com', secure: true, port: 443});
 
 server.loadAccount(firstAccountAddress)
     .then(function (account) {
         // build the transaction
-        var transaction = new StellarLib.TransactionBuilder(account)
+        var transaction = new StellarSdk.TransactionBuilder(account)
             // this operation funds the new account with XLM
-            .addOperation(StellarLib.Operation.payment({
+            .addOperation(StellarSdk.Operation.payment({
                 destination: destinationAccount,  // can be any destination account
-                asset: StellarLib.Asset.native(),
+                asset: StellarSdk.Asset.native(),
                 amount: "20000000"
             }))
-            .addSigner(StellarLib.Keypair.fromSeed(firstAccountSeedString))
-            .addSigner(StellarLib.Keypair.fromSeed(secondAccountSeedString))
+            .addSigner(StellarSdk.Keypair.fromSeed(firstAccountSeedString))
+            .addSigner(StellarSdk.Keypair.fromSeed(secondAccountSeedString))
             .build();
         return server.submitTransaction(transaction);
     })
@@ -270,13 +270,13 @@ Let's say you are a second signer on an account and don't want to share your key
 
 
 ```javascript
-var StellarLib = require('js-stellar-sdk')
-var server = new StellarLib.Server({hostname:'example-horizon-server.com', secure: true, port: 443});
+var StellarSdk = require('js-stellar-sdk')
+var server = new StellarSdk.Server({hostname:'example-horizon-server.com', secure: true, port: 443});
 
 // Let's say this function exists on the remote server
 var fakeRPCSigner = function(transactionEnvelope) {
-    var RPCKeypair = StellarLib.Keypair.fromSeed(secondAccountSeedString);
-    var transaction = new StellarLib.Transaction(transactionEnvelope);
+    var RPCKeypair = StellarSdk.Keypair.fromSeed(secondAccountSeedString);
+    var transaction = new StellarSdk.Transaction(transactionEnvelope);
     // If needed, the remote server can check the transaction 
     // for whatever requirements before signing.  For example, 
     // let's check to make sure the transaction is only submitting one operation
@@ -294,18 +294,18 @@ var fakeRPCSigner = function(transactionEnvelope) {
 };
 
 // Build the transation on the local server
-var transaction = new StellarLib.TransactionBuilder(rootAccount)
+var transaction = new StellarSdk.TransactionBuilder(rootAccount)
     // this operation funds the new account with XLM
-    .addOperation(StellarLib.Operation.payment({
+    .addOperation(StellarSdk.Operation.payment({
         destination: destAccountAddress,
-        asset: StellarLib.Asset.native(),
+        asset: StellarSdk.Asset.native(),
         amount: "20000000"
     }))
-    .addSigner(StellarLib.Keypair.fromSeed(rootAccountSeedString))
+    .addSigner(StellarSdk.Keypair.fromSeed(rootAccountSeedString))
     .build();
 try {
     var RPCSignedTransactionEnvelope = fakeRPCSigner(transaction.toEnvelope());
-    server.submitTransaction(new StellarLib.Transaction(RPCSignedTransactionEnvelope))
+    server.submitTransaction(new StellarSdk.Transaction(RPCSignedTransactionEnvelope))
         .catch(function (err) {
             console.log(err);
         });
