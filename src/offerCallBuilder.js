@@ -1,5 +1,6 @@
 import {CallBuilder} from "./callBuilder";
 import {OrderbookCallBuilder} from "./orderbookCallBuilder";
+import {BadRequestError} from "./errors";
 let URI = require("URIjs");
 
 /**
@@ -19,7 +20,7 @@ export class OfferCallBuilder extends CallBuilder {
         //     this.url = URI(orderbook_caller.url.segment(['orderbook', 'offers']));
         // }
         else {
-            return Promise.reject(new BadRequest("Invalid resource filter for offers.", null));
+            throw new BadRequestError("Bad resource specified for offer:", resource);
         }
     }
 

@@ -1,5 +1,5 @@
 import {TransactionResult} from "./transaction_result";
-import {NotFoundError, NetworkError, BadArgument} from "./errors";
+import {NotFoundError, NetworkError, BadRequestError} from "./errors";
 
 import {AccountCallBuilder} from "./accountCallBuilder";
 import {LedgerCallBuilder} from "./ledgerCallBuilder";
@@ -133,7 +133,9 @@ export class Server {
     */
     loadAccount(address) {
         var self = this;
-        return this.accounts(address)
+        return this.accounts()
+            .address(address)
+            .call()
             .then(function (res) {
                 return new Account(address, res.sequence);
             });
