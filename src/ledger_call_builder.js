@@ -1,4 +1,4 @@
-import {CallBuilder} from "./callBuilder";
+import {CallBuilder} from "./call_builder";
 
 /**
 * @class LedgerCallBuilder
