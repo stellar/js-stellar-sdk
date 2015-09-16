@@ -1,8 +1,7 @@
 import {NotFoundError, NetworkError, BadRequestError} from "./errors";
 
 let URI = require("URIjs");
-let URITemplate = require('URIjs/src/URITemplate');
-
+let URITemplate = require("URIjs").URITemplate;
 
 let axios = require("axios");
 var EventSource = (typeof window === 'undefined') ? require('eventsource') : window.EventSource;
@@ -30,11 +29,30 @@ export class CallBuilder {
         }        
     }
 
+    /*
+    * Triggers a HTTP request using this builder's current configuration.
+    * Returns a Promise that resolves to the server's response.
+    */
     call() {
         this.checkFilter();
         var promise = this._sendNormalRequest(this.url)
-            .then(this._parseResponse.bind(this));
+            .then(r => this._parseResponse(r));
         return promise;
+    }
+
+    /*
+    * Creates an Eventsource that listens for incoming messages from the server.
+    * URL based on builder's current configuration.
+    */
+    stream(options) {
+        this.checkFilter();
+        var es = new EventSource(this.url.toString());
+        es.onmessage = function (message) {
+            var result = message.data ? JSON.parse(message.data) : message;
+            options.onmessage(result);
+        };
+        es.onerror = options.onerror;
+        return es;
     }
 
     /**
@@ -63,7 +81,6 @@ export class CallBuilder {
     }
     
     _sendNormalRequest(url) {
-        // To fix:  #15 Connection Stalled when making multiple requests to the same resource
         url.addQuery('c', Math.random());
         var promise = axios.get(url.toString())
             .then(response => response.data)
@@ -80,19 +97,20 @@ export class CallBuilder {
     }
 
     _toCollectionPage(json) {
-        var self = this;
         for (var i = 0; i < json._embedded.records.length; i++) {
             json._embedded.records[i] = this._parseRecord(json._embedded.records[i]);
         }
+        console.log(this);
         return {
             records: json._embedded.records,
-            next: function () {
-                return self._sendNormalRequest(URI(json._links.next.href))
-                    .then(self._toCollectionPage.bind(self));
+            next: () => {
+                console.log(this);
+                return this._sendNormalRequest(URI(json._links.next.href))
+                    .then(r => this._toCollectionPage(r));
             },
-            prev: function () {
-                return self._sendNormalRequest(URI(json._links.prev.href))
-                    .then(self._toCollectionPage.bind(self));
+            prev: () => {
+                return this._sendNormalRequest(URI(json._links.prev.href))
+                    .then(r => this._toCollectionPage(r));
             }
         };
     }
@@ -125,15 +143,6 @@ export class CallBuilder {
         return this;
     }
 
-    stream(options) {
-        this.checkFilter();
-        var es = new EventSource(this.url.toString());
-        es.onmessage = function (message) {
-            var result = message.data ? JSON.parse(message.data) : message;
-            options.onmessage(result);
-        };
-        es.onerror = options.onerror;
-        return es;
-    }
+
 
 }

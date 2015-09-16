@@ -14,7 +14,7 @@ import {xdr, Account} from "stellar-base";
 let axios = require("axios");
 let toBluebird = require("bluebird").resolve;
 let URI = require("URIjs");
-let URITemplate = require('URIjs/src/URITemplate');
+let URITemplate = require("URIjs").URITemplate;
 
 var EventSource = (typeof window === 'undefined') ? require('eventsource') : window.EventSource;
 
