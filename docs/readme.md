@@ -78,6 +78,7 @@ js-stellar-sdk exposes the [`TransactionBuilder`](https://github.com/stellar/js-
 */
 
 var StellarSdk = require('js-stellar-sdk')
+
 // create the server connection object
 var server = new StellarSdk.Server({hostname:'example-horizon-server.com', secure: true, port: 443});
 
@@ -132,13 +133,15 @@ server.loadAccount("GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ")
 
 ### Loading an account transaction history
 
-Let's say you want to look at an account's transaction history.  You can use the `accounts()` command and pass in `transactions` as the resource you're interested in.
+Let's say you want to look at an account's transaction history.  You can use the `transactions()` command and pass in the account address to `forAccount` as the resource you're interested in.
 
 ```javascript
 var StellarSdk = require('js-stellar-sdk')
 var server = new StellarSdk.Server({hostname:'example-horizon-server.com', secure: true, port: 443});
 
-server.accounts("GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ", "transactions")
+server.transactions()
+    .forAccount(accountAddress)
+    .call()
     .then(function (page) {
         // page 1
         console.log(page.records);
@@ -164,11 +167,10 @@ var streamingMessageHandler = function (message) {
     console.log(message);
 };
 
-var es = server.accounts("GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ", "transactions",
-    {
-        streaming: {
-            onmessage: streamingMessageHandler
-        }
+var es = server.transactions()
+    .forAccount(accountAddress)
+    .stream({
+        onmessage: streamingMessageHandler
     })
 ```
 

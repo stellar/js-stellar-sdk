@@ -49,6 +49,7 @@ describe("server.js tests", function () {
 
         it("requests the correct endpoint", function (done) {
           server.ledgers()
+            .call()
             .then(function () {
               done();
             })
@@ -69,12 +70,20 @@ describe("server.js tests", function () {
         });
 
         it("requests the correct endpoint", function () {
-          return server.ledgers({limit: 1, after: "b", order: "asc"});
+          return server.ledgers()
+            .limit("1")
+            .after("b")
+            .order("asc")
+            .call();
         });
 
         it("can call .next() on the result to retrieve the next page", function () {
           return server
-            .ledgers({limit: 1, after: "b", order: "asc"})
+            .ledgers()
+            .limit("1")
+            .after("b")
+            .order("asc")
+            .call()
             .then(function(page) {
               return page.next()
             });
@@ -92,14 +101,13 @@ describe("server.js tests", function () {
         });
 
         it("attaches onmessage handler to an EventSource", function (done) {
-          var es = server.ledgers({
-            streaming: {
-              onmessage: function (res) {
-                expect(res.test).to.be.equal("body");
-                done();
+          var es = server.ledgers()
+            .stream(
+              { onmessage: function (res) {
+                    expect(res.test).to.be.equal("body");
+                    done(); 
               }
-            }
-          });
+            })
         });
       });
     });
@@ -115,7 +123,9 @@ describe("server.js tests", function () {
         });
 
         it("throws a NotFoundError", function (done) {
-          server.ledgers(1)
+          server.ledgers()
+            .ledger("1")
+            .call()
             .then(function () {
               done("didn't throw an error");
             })
@@ -137,7 +147,9 @@ describe("server.js tests", function () {
         });
 
         it("requests the correct endpoint", function (done) {
-          server.ledgers(1)
+          server.ledgers()
+            .ledger("1")
+            .call()
             .then(function () {
               done();
             })
@@ -156,7 +168,12 @@ describe("server.js tests", function () {
         });
 
         it("requests the correct endpoint", function (done) {
-          server.ledgers(1, {limit: 1, after: "b", order: "asc"})
+          server.ledgers()
+            .ledger("1")
+            .limit("1")
+            .after("b")
+            .order("asc")
+            .call()
             .then(function () {
               done();
             })
@@ -178,7 +195,9 @@ describe("server.js tests", function () {
         });
 
         it("requests the correct endpoint", function (done) {
-          server.ledgers(1, "transactions")
+          server.transactions()
+            .forLedger("1")
+            .call()
             .then(function () {
               done();
             })
@@ -197,7 +216,12 @@ describe("server.js tests", function () {
         });
 
         it("requests the correct endpoint", function (done) {
-          server.ledgers(1, "transactions", {limit: 1, after: "b", order: "asc"})
+          server.transactions()
+            .forLedger("1")
+            .after("b")
+            .limit("1")
+            .order("asc")
+            .call()
             .then(function () {
               done();
             })
@@ -217,15 +241,15 @@ describe("server.js tests", function () {
         });
 
         it("attaches onmessage handler to an EventSource", function (done) {
-          var es = server.ledgers(1, "transactions", {
-            streaming: {
+          var es = server.transactions()
+            .forLedger("1")
+            .stream({
               onmessage: function (res) {
                 expect(res.test).to.be.equal("body");
                 es.close();
                 done();
               }
-            }
-          });
+            });
         });
       });
     });
@@ -245,7 +269,8 @@ describe("server.js tests", function () {
 
   describe("Server._parseResult", function () {
     it("creates link functions", function () {
-      var json = server._parseResponse({
+      var callBuilder = server.ledgers();
+      var json = callBuilder._parseResponse({
         "_links": {
           "test": function () {
             return "hi";
@@ -255,4 +280,148 @@ describe("server.js tests", function () {
       expect(typeof json.test).to.be.equal("function");
     });
   });
+
+  describe("Smoke tests for the rest of the builders", function() {
+    describe("AccountCallBuilder", function() {
+      beforeEach(function (done) {
+        // instruct the dev server to except the correct request
+        return this.setFixtures({
+          request: "/accounts/GSDEF?limit=4",
+          response: {status: 200, body: FAKE_COLLECTION_RESPONSE}
+        }).then(function () { done() });
+      });
+
+      it("requests the correct endpoint", function (done) {
+        server.accounts()
+          .address("GSDEF")
+          .limit("4")
+          .call()
+          .then(function () {
+            done();
+          })
+          .catch(function (err) {
+            done(err);
+          })
+      });
+    });
+
+    describe("OfferCallBuilder", function() {
+      beforeEach(function (done) {
+        // instruct the dev server to except the correct request
+        return this.setFixtures({
+          request: "/accounts/GSDEF/offers?order=asc",
+          response: {status: 200, body: FAKE_COLLECTION_RESPONSE}
+        }).then(function () { done() });
+      });
+
+      it("requests the correct endpoint", function (done) {
+        server.offers('accounts', "GSDEF")
+          .order("asc")
+          .call()
+          .then(function () {
+            done();
+          })
+          .catch(function (err) {
+            done(err);
+          })
+      });
+
+      it("rejects the wrong resource", function(done) {
+        expect(() => server.offers('ledgers', '123').call()).to.throw(/Bad resource specified/);
+        done();
+      });
+    });
+
+    describe("OrderbookCallBuilder", function() {
+      beforeEach(function (done) {
+        // instruct the dev server to except the correct request
+        return this.setFixtures({
+          request: "/order_book?selling_asset_type=native&buying_asset_type=credit_alphanum4&buying_asset_code=USD&buying_asset_issuer=GSEDF",
+          response: {status: 200, body: FAKE_COLLECTION_RESPONSE}
+        }).then(function () { done() });
+      });
+
+      it("requests the correct endpoint", function (done) {
+        server.orderbook(new StellarSdk.Asset.native(), new StellarSdk.Asset('USD', "GSEDF"))
+          .call()
+          .then(function () {
+            done();
+          })
+          .catch(function (err) {
+            done(err);
+          })
+      });
+    });
+
+    describe("EffectCallBuilder", function() {
+      beforeEach(function (done) {
+        // instruct the dev server to except the correct request
+        return this.setFixtures({
+          request: "/effects?after=b",
+          response: {status: 200, body: FAKE_COLLECTION_RESPONSE}
+        }).then(function () { done() });
+      });
+
+      it("requests the correct endpoint", function (done) {
+        server.effects()
+          .after("b")
+          .call()
+          .then(function () {
+            done();
+          })
+          .catch(function (err) {
+            done(err);
+          })
+        });
+
+      it("rejects two filters", function (done) {
+        expect(() => server.effects().forOperation("blah").forLedger('234').call()).to.throw(/Too many filters/);
+        done();
+      });
+    })
+
+    describe("OperationCallBuilder", function() {
+      beforeEach(function (done) {
+        // instruct the dev server to except the correct request
+        return this.setFixtures({
+          request: "/transactions/blah/operations",
+          response: {status: 200, body: FAKE_COLLECTION_RESPONSE}
+        }).then(function () { done() });
+      });
+
+      it("requests the correct endpoint", function (done) {
+        server.operations()
+          .forTransaction("blah")
+          .call()
+          .then(function () {
+            done();
+          })
+          .catch(function (err) {
+            done(err);
+          })
+      });
+    });
+
+    describe("PaymentCallBuilder", function() {
+      beforeEach(function (done) {
+        // instruct the dev server to except the correct request
+        return this.setFixtures({
+          request: "/accounts/GDEFS/payments",
+          response: {status: 200, body: FAKE_COLLECTION_RESPONSE}
+        }).then(function () { done() });
+      });
+
+      it("requests the correct endpoint", function (done) {
+        server.payments()
+          .forAccount("GDEFS")
+          .call()
+          .then(function () {
+            done();
+          })
+          .catch(function (err) {
+            done(err);
+          })
+      });
+    });
+  })  
 });
