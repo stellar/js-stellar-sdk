@@ -62,31 +62,6 @@ export class Server {
         return toBluebird(promise);
     }
 
-    /**
-    * <p>Returns account resources. For a list of all accounts, don't pass an address
-    * or resource parameters. For a specific transaction, pass only an address. For a list of
-    * account sub resources, pass the account address and the type of sub resources.</p>
-    *
-    * <p>A configuration object can be passed to each call. Calls that return a collection
-    * can be streamed by passing a streaming object in the config object.</p>@param {string} [address] - Returns the given account.
-    * @param {string} [resource] - Return a specific resource associated with an account. Can be
-    *                              {"transactions", "operations", "effects", "payments", "offers"}.
-    * @param {object} [opts] - Optional configuration for the request.
-    * @param {string} [opts.after] - Return only resources after the given paging token.
-    * @param {number} [opts.limit] - Limit the number of returned resources to the given amount.
-    * @param {string} [opts.order] - Order the returned collection in "asc" or "desc" order.
-    * @param {object} [streaming] - Streaming handlers. If not null, will turn this request
-    *                                    into a streaming request.
-    * @param {function} [streaming.onmessage] - If given an onmessage handler, turns this query
-    *                                                into a streaming query.
-    * @param {function} [streaming.onerror] - If this query is a streaming query, will use the
-    *                                              given handler for error messages.
-    * @returns {Promise|EventSource} If this is a normal request (non streaming) will return a promise
-    *                                that will fulfill when the request completes. Otherwise, it will
-    *                                return the EventSource object.
-    * @throws {NotFoundError} - If the account does not exist.
-    * @throws {NetworkError} - For any other errors thrown by horizon
-    */
     accounts() {
         return new AccountCallBuilder(URI(this.serverURL));
     }
