@@ -1,4 +1,4 @@
-# Transactions
+# Payments
 
 ## Overview
 

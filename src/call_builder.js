@@ -103,7 +103,6 @@ export class CallBuilder {
         return {
             records: json._embedded.records,
             next: () => {
-                console.log(this);
                 return this._sendNormalRequest(URI(json._links.next.href))
                     .then(r => this._toCollectionPage(r));
             },
