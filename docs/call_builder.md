@@ -8,13 +8,14 @@
 
 ## Options
 
-| Method | Params | Description |
+| Method | Param Type | Description |
 | --- | --- | --- |
-| `call()` | None | Triggers a HTTP Request to the Horizon server based on the builder's current configuration.  Returns a `Promise` that resolves to the server's response.  For more on `Promise`s, see []().|
-| `stream(options)` | object containing the optional functions `onmessage` and `onerror` | Creates an `Eventsource` that listens for incoming messages from the server.  URL based on builder's current configuration.  For more on `Eventsource`s, see []() |
-| `limit("limit")` | `string` | |
-| `cursor("token")` | `string` | |
-| `order({"asc" or "desc"})` | `string` | |
+| `limit(limit)` | `integer` | Limits the number of returned resources to the given `limit`.|
+| `cursor("token")` | `string` | Return only resources after the given paging token. |
+| `order({"asc" or "desc"})` | `string` |  Order the returned collection in "asc" or "desc" order. |
+| `call()` | | Triggers a HTTP Request to the Horizon server based on the builder's current configuration.  Returns a `Promise` that resolves to the server's response.  For more on `Promise`, see [these docs](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise).|
+| `stream({options})` | object of [properties](https://developer.mozilla.org/en-US/docs/Web/API/EventSource#Properties) | Creates an `EventSource` that listens for incoming messages from the server.  URL based on builder's current configuration.  For more on `EventSource`, see [these docs](https://developer.mozilla.org/en-US/docs/Web/API/EventSource). |
+
 
 
 ## Examples

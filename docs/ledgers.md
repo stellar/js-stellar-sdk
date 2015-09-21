@@ -1,23 +1,22 @@
-# Accounts
+# Transactions
 
 ## Overview
 
-In order to read information about accounts from a Horizon server, the [`server`](./server.md) object provides the `accounts()` function. `accounts()` returns an `AccountCallBuilder` class, an extension of the [`CallBuilder`](./call_builder.md) class.
+In order to read information about ledgers from a Horizon server, the [`server`](./server.md) object provides the `ledgers()` function. `ledgers()` returns an `TransactionCallBuilder` class, an extension of the [`CallBuilder`](./call_builder.md) class.
 
-By default, `accounts()` provides access to the [`accounts_all`](https://github.com/stellar/horizon/blob/master/docs/reference/accounts-all.md) Horizon endpoint.  By chaining an account address to it, you can reach the [`accounts_single`](https://github.com/stellar/horizon/blob/master/docs/reference/accounts-single.md) endpoint.
+By default, `ledgers()` provides access to the [`ledgers_all`](https://github.com/stellar/horizon/blob/master/docs/reference/ledgers-all.md) Horizon endpoint.  By chaining other methods to it, you can reach other transaction endpoints.
 
 ## Methods
 
 | Method | Horizon Endpoint | Param Type | Description |
 | --- | --- | --- | --- |
-| `accounts()` | [`accounts_all`](https://github.com/stellar/horizon/blob/master/docs/reference/accounts-all.md) | | Access all accounts. | 
-| `.address("address")` | [`accounts_single`](https://github.com/stellar/horizon/blob/master/docs/reference/accounts-single.md) | `string` | Pass in the address of the account you're interested in to reach its details.|
+| `ledgers()` | [`ledgers_all`](https://github.com/stellar/horizon/blob/master/docs/reference/ledgers-all.md) |  | Access all ledgers. |
+| `.ledger(ledgerSeq)` | [`ledgers_single`](https://github.com/stellar/horizon/blob/master/docs/reference/ledgers-single.md) | `string` | Pass in the sequence of the ledger you're interested in to access its details. |
 | `.limit(limit)` | | `integer` | Limits the number of returned resources to the given `limit`.|
 | `.cursor("token")` | | `string` | Return only resources after the given paging token. |
 | `.order({"asc" or "desc"})` | | `string` |  Order the returned collection in "asc" or "desc" order. |
 | `.call()` | | | Triggers a HTTP Request to the Horizon server based on the builder's current configuration.  Returns a `Promise` that resolves to the server's response.  For more on `Promise`, see [these docs](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise).|
 | `.stream({options})` | | object of [properties](https://developer.mozilla.org/en-US/docs/Web/API/EventSource#Properties) | Creates an `EventSource` that listens for incoming messages from the server.  URL based on builder's current configuration.  For more on `EventSource`, see [these docs](https://developer.mozilla.org/en-US/docs/Web/API/EventSource). |
-
 
 ## Examples
 
@@ -25,11 +24,12 @@ By default, `accounts()` provides access to the [`accounts_all`](https://github.
 var StellarSdk = require('stellar-sdk');
 var server = new StellarSdk.Server({hostname:'horizon-testnet.stellar.org', secure:true, port:443});
 
-server.accounts()
-  .address("GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ")
+server.ledgers()
+  .limit(15)
+  .order("desc")
   .call()
-  .then(function (accountResult) {
-    console.log(accountResult);
+  .then(function (ledgerResult) {
+    console.log(ledgerResult);
   })
   .catch(function (err) {
     console.error(err);
