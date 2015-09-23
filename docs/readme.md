@@ -13,7 +13,8 @@ with the [Stellar Horizon API Server](https://github.com/stellar/horizon). It ha
 js-stellar-sdk gives you access to all the endpoints exposed by Horizon.
 
 ## Building the Requests
-js-stellar-sdk uses the [Builder Pattern](https://en.wikipedia.org/wiki/Builder_pattern) to create the requests to send to Horizon. Starting with a [server](./server.md) object, you can chain methods together to generate a query.
+js-stellar-sdk uses the [Builder Pattern](https://en.wikipedia.org/wiki/Builder_pattern) to create the requests to send
+to Horizon. Starting with a [server](./server.md) object, you can chain methods together to generate a query.
 See the reference documentation for what methods are possible.
 ```js
 var StellarSdk = require('js-stellar-sdk')
@@ -29,7 +30,8 @@ server.transactions()
     .call().then(function(r){ console.log(r); });
 ```
 
-Once the request is built, it can be invoked with `.call()` or with `.stream()`. `call()` will return a promise to the response given by Horizon.
+Once the request is built, it can be invoked with `.call()` or with `.stream()`. `call()` will return a
+[promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) to the response given by Horizon.
 
 ## Streaming Request
 Many requests can be invoked with `stream()`. Instead of returning a promise like `call()` does, `.stream()` will return an `EventSource`.
