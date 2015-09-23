@@ -9,7 +9,7 @@ import {OfferCallBuilder} from "./offer_call_builder";
 import {OrderbookCallBuilder} from "./orderbook_call_builder";
 import {PaymentCallBuilder} from "./payment_call_builder";
 import {EffectCallBuilder} from "./effect_call_builder";
-import {FriendbotBuilder} from "/.friendbot_builder";
+import {FriendbotBuilder} from "./friendbot_builder";
 import {xdr, Account} from "stellar-base";
 
 let axios = require("axios");
