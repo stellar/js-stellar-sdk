@@ -9,6 +9,7 @@ import {OfferCallBuilder} from "./offer_call_builder";
 import {OrderbookCallBuilder} from "./orderbook_call_builder";
 import {PaymentCallBuilder} from "./payment_call_builder";
 import {EffectCallBuilder} from "./effect_call_builder";
+import {FriendbotBuilder} from "/.friendbot_builder";
 import {xdr, Account} from "stellar-base";
 
 let axios = require("axios");
@@ -77,7 +78,7 @@ export class Server {
 
     /* 
     * Should be
-    * offers('accounts', accountID) or
+    * offers('accounts', accountID)
     */
     offers(resource, ...resourceParams) {
         return new OfferCallBuilder(URI(this.serverURL), resource, ...resourceParams);
@@ -99,6 +100,10 @@ export class Server {
         return new EffectCallBuilder(URI(this.serverURL));
     }
 
+    friendbot(address) {
+        return new FriendbotBuilder(URI(this.serverURL), address);
+    }
+
     /**
     * Fetches an account's most current state in the ledger and then creates and returns
     * an Account object.
@@ -116,19 +121,6 @@ export class Server {
             });
     }
 
-    friendbot(address) {
-        var url = URI(this.serverURL).path("friendbot").addQuery("addr", address);
-        return this._sendNormalRequest(url);
-    }
-
-    _sendNormalRequest(url) {
-        // To fix:  #15 Connection Stalled when making multiple requests to the same resource
-        url.addQuery('c', Math.random());
-        var promise = axios.get(url.toString())
-            .then(response => response.data)
-            .catch(this._handleNetworkError);
-        return toBluebird(promise);
-    }
 }
 
  

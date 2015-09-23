@@ -3,6 +3,7 @@ id: readme
 title: Getting Started with js-stellar-sdk
 category: Getting Started
 ---
+
 js-stellar-sdk facilitates Stellar transaction submission and client integration
 with the [Stellar Horizon API Server](https://github.com/stellar/horizon).
 
@@ -11,6 +12,7 @@ with the [Stellar Horizon API Server](https://github.com/stellar/horizon).
     - [Transactions](#transactions)
     - [Sequence Numbers](#sequence-numbers)
     - [Multisig](#multisig)
+    - [Notes](#notes)
 - [Examples](#examples)
    - [Creating a simple payment transaction](#creating-a-simple-payment-transaction)
    - [Loading an account's transaction history](#loading-an-account-transaction-history)
@@ -64,6 +66,13 @@ Transactions require signatures for authorization, and generally they only requi
 
 Every operation has a threshold level of either low, medium, or high.  Let's say that you want to send a payment, a medium threshold operation.  You can set, using the operation `setOptions`, the exact threshold value every medium operation stemming from your account will have.  For example, if your medium threshold level is 3, the payment you send to your friend Zoe will have a threshold level of 3.  The weights of every key that signs the transaction must add up to at least 3.  So, if your signing key only has a weight of 2, you need an additional signer to authorize the payment.
 
+### Notes
+
+In js-stellar-sdk, responses from the server are represented either as `Promise` or `EventSource` objects. (Each is chosen by invoking `.call()` or `.stream()` on [CallBuilders](./call_builder.md).)  
+
+For more on `Promise` objects, please refer to [Mozilla's `Promise` documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise).
+
+For more on `EventSource` objects, please refer to [Mozilla's `EventSource` documentation](https://developer.mozilla.org/en-US/docs/Web/API/EventSource).
 
 ## Examples
 
