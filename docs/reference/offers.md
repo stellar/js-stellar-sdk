@@ -4,19 +4,18 @@
 
 In order to read information about offers from a Horizon server, the [`server`](./server.md) object provides the `offers()` function. `offers()` returns an `OfferCallBuilder` class, an extension of the [`CallBuilder`](./call_builder.md) class.
 
-By default, `accounts()` provides access to the `accounts_all` Horizon endpoint.  By chaining an account address to it, you can reach the `accounts_single` endpoint.
+`offers()` must take parameters to be valid. By passing it "accounts" and an account `address`, the only valid input, `offers()` gives you access to the [`offers_for_account`](https://stellar.org/developers/reference/horizon/offers-for-account/) endpoint.
 
 ## Methods
 
 | Method | Horizon Endpoint | Param Type | Description |
 | --- | --- | --- | --- |
-| `accounts()` | `accounts_all` | None | 
-| `.address(accountAddress)` | `accounts_single` | `string` | The `string` of the address of the account you're interested in.  Please refer to the [`accounts_single`]() reference documentation. |
-| `.limit("limit")` | |`string` | |
-| `.cursor("token")` | |`string` | |
-| `.order({"asc" or "desc"})` | | `string` | |
-| `.call()` |  | | Triggers a HTTP Request to the Horizon server based on the builder's current configuration.  Returns a `Promise` that resolves to the server's response.  For more on `Promise`, see []().|
-| `.stream(options)` | | object containing the optional functions `onmessage` and `onerror` | Creates an `Eventsource` that listens for incoming messages from the server.  URL based on builder's current configuration.  For more on `Eventsource`, see []() |
+| `offers("accounts", address)` | [`offers_for_account`](https://stellar.org/developers/reference/horizon/offers-for-account/) | `string`, `string` | Access all offers for a given `address`. |
+| `.limit(limit)` | | `integer` | Limits the number of returned resources to the given `limit`.|
+| `.cursor("token")` | | `string` | Return only resources after the given paging token. |
+| `.order({"asc" or "desc"})` | | `string` |  Order the returned collection in "asc" or "desc" order. |
+| `.call()` | | | Triggers a HTTP Request to the Horizon server based on the builder's current configuration.  Returns a `Promise` that resolves to the server's response.  For more on `Promise`, see [these docs](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise).|
+| `.stream({options})` | | object of [properties](https://developer.mozilla.org/en-US/docs/Web/API/EventSource#Properties) | Creates an `EventSource` that listens for incoming messages from the server.  URL based on builder's current configuration.  For more on `EventSource`, see [these docs](https://developer.mozilla.org/en-US/docs/Web/API/EventSource). |
 
 ## Examples
 
@@ -24,11 +23,10 @@ By default, `accounts()` provides access to the `accounts_all` Horizon endpoint.
 var StellarSdk = require('stellar-sdk');
 var server = new StellarSdk.Server({hostname:'horizon-testnet.stellar.org', secure:true, port:443});
 
-server.accounts()
-  .address("GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ")
+server.offers("accounts", "GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ")
   .call()
-  .then(function (accountResult) {
-    console.log(accountResult);
+  .then(function (offerResult) {
+    console.log(offerResult);
   })
   .catch(function (err) {
     console.error(err);
