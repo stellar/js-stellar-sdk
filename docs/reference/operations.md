@@ -4,17 +4,17 @@
 
 In order to read information about operations from a Horizon server, the [`server`](./server.md) object provides the `operations()` function. `operations()` returns an `TransactionCallBuilder` class, an extension of the [`CallBuilder`](./call_builder.md) class.
 
-By default, `operations()` provides access to the [`operations_all`](https://stellar.org/developers/reference/horizon/operations-all.md) Horizon endpoint.  By chaining other methods to it, you can reach other operation endpoints.
+By default, `operations()` provides access to the [`operations_all`](https://stellar.org/developers/reference/horizon/operations-all/) Horizon endpoint.  By chaining other methods to it, you can reach other operation endpoints.
 
 ## Methods
 
 | Method | Horizon Endpoint | Param Type | Description |
 | --- | --- | --- | --- |
-| `operations()` | [`operations_all`](https://stellar.org/developers/reference/horizon/operations-all.md) | | Access all operations. | 
-| `.operation("operationID")` | [`operations_single`](https://stellar.org/developers/reference/horizon/operations-single.md) | `string` | Pass in the ID of a particular operation to access its details. |
-| `.forAccount("address")` | [`operations_for_account`](https://stellar.org/developers/reference/horizon/operations-for-account.md) | `string` | Pass in the address of a particular account to access its operations.|
-| `.forLedger("ledgerSeq")` | [`operation_for_ledger`](https://stellar.org/developers/reference/horizon/operation-for-ledger.md) | `string` | Pass in the sequence of a particular ledger to access its operations. |
-| `.forTransaction("transactionHash")` | [`operations_for_transaction`](https://stellar.org/developers/reference/horizon/operations-for-transaction.md) | `string` |  Pass in the hash of a particular transaction to access its operations. |
+| `operations()` | [`operations_all`](https://stellar.org/developers/reference/horizon/operations-all/) | | Access all operations. | 
+| `.operation("operationID")` | [`operations_single`](https://stellar.org/developers/reference/horizon/operations-single/) | `string` | Pass in the ID of a particular operation to access its details. |
+| `.forAccount("address")` | [`operations_for_account`](https://stellar.org/developers/reference/horizon/operations-for-account/) | `string` | Pass in the address of a particular account to access its operations.|
+| `.forLedger("ledgerSeq")` | [`operation_for_ledger`](https://stellar.org/developers/reference/horizon/operation-for-ledger/) | `string` | Pass in the sequence of a particular ledger to access its operations. |
+| `.forTransaction("transactionHash")` | [`operations_for_transaction`](https://stellar.org/developers/reference/horizon/operations-for-transaction/) | `string` |  Pass in the hash of a particular transaction to access its operations. |
 | `.limit(limit)` | | `integer` | Limits the number of returned resources to the given `limit`.|
 | `.cursor("token")` | | `string` | Return only resources after the given paging token. |
 | `.order({"asc" or "desc"})` | | `string` |  Order the returned collection in "asc" or "desc" order. |

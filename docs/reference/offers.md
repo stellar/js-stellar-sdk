@@ -2,7 +2,7 @@
 
 ## Overview
 
-In order to read information about accounts from a Horizon server, the [`server`](./server.md) object provides the `accounts()` function. `accounts()` returns an `AccountCallBuilder` class, an extension of the [`CallBuilder`](./call_builder.md) class.
+In order to read information about offers from a Horizon server, the [`server`](./server.md) object provides the `offers()` function. `offers()` returns an `OfferCallBuilder` class, an extension of the [`CallBuilder`](./call_builder.md) class.
 
 By default, `accounts()` provides access to the `accounts_all` Horizon endpoint.  By chaining an account address to it, you can reach the `accounts_single` endpoint.
 
