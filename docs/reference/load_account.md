@@ -1,4 +1,6 @@
-# loadAccount
+---
+title: loadAccount()
+---
 
 ## Overview
 

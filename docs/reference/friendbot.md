@@ -1,4 +1,6 @@
-# Friendbot
+---
+title: friendbot()
+---
 
 ## Overview
 

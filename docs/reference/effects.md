@@ -1,4 +1,6 @@
-# Effects
+---
+title: effects()
+---
 
 ## Overview
 

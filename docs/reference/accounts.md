@@ -1,4 +1,6 @@
-# Accounts
+---
+title: accounts()
+---
 
 ## Overview
 

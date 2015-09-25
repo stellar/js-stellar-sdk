@@ -1,4 +1,6 @@
-# Payments
+---
+title: payments()
+---
 
 ## Overview
 

@@ -1,4 +1,6 @@
-# submitTransaction
+---
+title: submitTransaction()
+---
 
 ## Overview
 

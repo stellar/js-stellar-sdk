@@ -1,4 +1,6 @@
-# Offers
+---
+title: offers()
+---
 
 ## Overview
 
