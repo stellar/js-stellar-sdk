@@ -26,5 +26,10 @@ export class OrderbookCallBuilder extends CallBuilder {
         }
     }
 
+    trades() {
+        this.filter.push(['order_book', 'trades']);
+        return this;
+    }
+
 }
 
