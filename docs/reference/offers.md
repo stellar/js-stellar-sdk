@@ -6,13 +6,13 @@ title: offers()
 
 In order to read information about offers from a Horizon server, the [`server`](./server.md) object provides the `offers()` function. `offers()` returns an `OfferCallBuilder` class, an extension of the [`CallBuilder`](./call_builder.md) class.
 
-`offers()` must take parameters to be valid. By passing it "accounts" and an account `address`, the only valid input, `offers()` gives you access to the [`offers_for_account`](https://stellar.org/developers/horizon/reference/offers-for-account/) endpoint.
+`offers()` must take parameters to be valid. By passing it "accounts" and an account `address`, the only valid input, `offers()` gives you access to the [`offers_for_account`](https://stellar.org/developers/horizon/reference/offers-for-account.html) endpoint.
 
 ## Methods
 
 | Method | Horizon Endpoint | Param Type | Description |
 | --- | --- | --- | --- |
-| `offers("accounts", address)` | [`offers_for_account`](https://stellar.org/developers/horizon/reference/offers-for-account/) | `string`, `string` | Access all offers for a given `address`. |
+| `offers("accounts", address)` | [`offers_for_account`](https://stellar.org/developers/horizon/reference/offers-for-account.html) | `string`, `string` | Access all offers for a given `address`. |
 | `.limit(limit)` | | `integer` | Limits the number of returned resources to the given `limit`.|
 | `.cursor("token")` | | `string` | Return only resources after the given paging token. |
 | `.order({"asc" or "desc"})` | | `string` |  Order the returned collection in "asc" or "desc" order. |
