@@ -16,7 +16,7 @@ describe("server.js tests", function () {
     }
   }
 
-  var FAKE_COLLECTION_RESPONSE = makeFakePage('http://localhost:3000/accounts/gspbxqXqEUZkiCCEFFCN9Vu4FLucdjLLdLcsV6E82Qc1T7ehsTC/transactions?after=55834578944&limit=1&order=asc');
+  var FAKE_COLLECTION_RESPONSE = makeFakePage('accounts/gspbxqXqEUZkiCCEFFCN9Vu4FLucdjLLdLcsV6E82Qc1T7ehsTC/transactions?after=55834578944&limit=1&order=asc');
 
   var server;
 
@@ -65,7 +65,7 @@ describe("server.js tests", function () {
           // instruct the dev server to except the correct request
           return this.setFixtures({
             request: url,
-            response: {status: 200, body: makeFakePage('http://localhost:1337' + url)}
+            response: {status: 200, body: makeFakePage(url)}
           }).then(function () { done(); });
         });
 
@@ -142,7 +142,7 @@ describe("server.js tests", function () {
           // instruct the dev server to except the correct request
           return this.setFixtures({
             request: "/ledgers/1",
-            response: {status: 200, body: "{\"best\":\"body\"}"}
+            response: {status: 200, body: "{\"test\":\"body\"}"}
           }).then(function () { done() });
         });
 

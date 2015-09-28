@@ -67,9 +67,15 @@ export class CallBuilder {
             return function (opts) {
                 if (link.template) {
                     let template = URITemplate(link.href);
-                    return self._sendNormalRequest(URI(template.expand(opts)));
+                    return self._sendNormalRequest(URI(template.expand(opts))
+                        .authority(self.url.authority())
+                        .protocol(self.url.protocol())
+                        );
                 } else {
-                    return self._sendNormalRequest(URI(link.href));
+                    return self._sendNormalRequest(URI(link.href)
+                        .authority(self.url.authority())
+                        .protocol(self.url.protocol())
+                        );
                 }
             };
         };
@@ -103,11 +109,17 @@ export class CallBuilder {
         return {
             records: json._embedded.records,
             next: () => {
-                return this._sendNormalRequest(URI(json._links.next.href))
+                return this._sendNormalRequest(URI(json._links.next.href)
+                    .authority(this.url.authority())
+                    .protocol(this.url.protocol())
+                    )
                     .then(r => this._toCollectionPage(r));
             },
             prev: () => {
-                return this._sendNormalRequest(URI(json._links.prev.href))
+                return this._sendNormalRequest(URI(json._links.prev.href)
+                    .authority(this.url.authority())
+                    .protocol(this.url.protocol())
+                    )
                     .then(r => this._toCollectionPage(r));
             }
         };
