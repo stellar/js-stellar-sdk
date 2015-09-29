@@ -1,8 +1,8 @@
 ---
 title: Getting Started
 ---
-js-stellar-sdk facilitates Stellar transaction submission and client integration
-with the [Stellar Horizon API Server](https://github.com/stellar/horizon). It has two main uses, [querying Horizon](#querying-horizon) and [building, signing, and submitting transactions](#building-transactions) to the Stellar network.
+The JavaScript Stellar SDK facilitates client integration
+with the [Stellar Horizon API server](https://github.com/stellar/horizon) and submission of Stellar transactions. It has two main uses: [querying Horizon](#querying-horizon) and [building, signing, and submitting transactions to the Stellar network](#building-transactions).
 
 [Building and installing js-stellar-sdk](../../README.md)<br>
 [Examples of using js-stellar-sdk](./examples.md)
@@ -10,10 +10,10 @@ with the [Stellar Horizon API Server](https://github.com/stellar/horizon). It ha
 # Querying Horizon
 js-stellar-sdk gives you access to all the endpoints exposed by Horizon.
 
-## Building the Requests
-js-stellar-sdk uses the [Builder Pattern](https://en.wikipedia.org/wiki/Builder_pattern) to create the requests to send
+## Building requests
+js-stellar-sdk uses the [Builder pattern](https://en.wikipedia.org/wiki/Builder_pattern) to create the requests to send
 to Horizon. Starting with a [server](./server.md) object, you can chain methods together to generate a query.
-See the reference documentation for what methods are possible.
+(See the [Horizon reference](https://stellar.org/developers/horizon/reference/) documentation for what methods are possible.)
 ```js
 var StellarSdk = require('js-stellar-sdk')
 var server = new StellarSdk.Server({hostname:'horizon-testnet.stellar.org', secure: true, port: 443});
@@ -31,11 +31,12 @@ server.transactions()
 Once the request is built, it can be invoked with `.call()` or with `.stream()`. `call()` will return a
 [promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) to the response given by Horizon.
 
-## Streaming Request
+## Streaming requests
 Many requests can be invoked with `stream()`. Instead of returning a promise like `call()` does, `.stream()` will return an `EventSource`.
 Horizon will start sending responses from either the beginning of time or from the point specified with `.cursor()`.
-See the [Horizon reference](https://stellar.org/developers/horizon/reference/) documentation for which endpoints support streaming.
-For example, to log anytime a particular account makes a transaction:
+(See the [Horizon reference](https://stellar.org/developers/horizon/reference/) documentation to learn which endpoints support streaming.)
+
+For example, to log instances of transactions from a particular account:
 
 ```javascript
 var StellarSdk = require('js-stellar-sdk')
@@ -54,13 +55,13 @@ var es = server.transactions()
     })
 ```
 
-## Handling Responses
+## Handling responses
 
 ### XDR
 The transaction endpoints will return some fields in raw [XDR](https://stellar.org/developers/horizon/learn/xdr/)
 form. You can convert this XDR to JSON using the `.fromXDR()` method.
 
-Here is an example re-writing the txHandler from above to print the XDR fields as JSON.
+An example of re-writing the txHandler from above to print the XDR fields as JSON:
 
 ```javascript
 var txHandler = function (txResponse) {
@@ -74,7 +75,7 @@ var txHandler = function (txResponse) {
 
 ### Following links
 The links returned with the Horizon response are converted into functions you can call on the returned object.
-This is allows you to just use `.next()` to page through results.  It also makes fetching additional info like in the following example easy:
+This allows you to simply use `.next()` to page through results. It also makes fetching additional info, as in the following example, easy:
 
 ```js
 server.payments()
@@ -89,13 +90,13 @@ server.payments()
 ```
 
 
-# Building Transactions
+# Building transactions
 
 See the [Building Transactions](https://stellar.org/developers/js-stellar/learn/building-transactions/) guide for information about assembling a transaction.
 
 
 ## Submitting
-Once you have built your transaction you can submit it to the Stellar network with `Server.submitTransaction()`.
+Once you have built your transaction, you can submit it to the Stellar network with `Server.submitTransaction()`.
 ```js
 var StellarSdk = require('js-stellar-sdk')
 var server = new StellarSdk.Server({hostname:'horizon-testnet.stellar.org', secure: true, port: 443});
