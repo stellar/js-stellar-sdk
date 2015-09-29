@@ -5,7 +5,8 @@ var plugins     = require('gulp-load-plugins')();
 var runSequence = require('run-sequence');
 var server      = require('gulp-develop-server' );
 var webpack     = require("webpack");
-
+var coveralls   = require('gulp-coveralls');
+ 
 gulp.task('default', ['build']);
 
 gulp.task('lint:src', function() {
