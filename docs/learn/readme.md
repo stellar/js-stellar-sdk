@@ -1,5 +1,5 @@
 ---
-title: Getting Started with js-stellar-sdk
+title: Getting Started
 ---
 js-stellar-sdk facilitates Stellar transaction submission and client integration
 with the [Stellar Horizon API Server](https://github.com/stellar/horizon). It has two main uses, [querying Horizon](#querying-horizon) and [building, signing, and submitting transactions](#building-transactions) to the Stellar network.
