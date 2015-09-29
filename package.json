@@ -8,7 +8,8 @@
     "docs": "./node_modules/.bin/jsdoc ./src/ -d docs/ -r ./docs/readme.md",
     "preversion": "gulp test",
     "version": "gulp build",
-    "postversion": "git push && git push --tags"
+    "postversion": "git push && git push --tags",
+    "coverage": "babel-istanbul cover ./node_modules/mocha/bin/_mocha -- --recursive --bail --reporter spec && opn coverage/lcov-report/index.html"
   },
   "keywords": [
     "stellar"
@@ -25,10 +26,10 @@
   "devDependencies": {
     "babel": "~5.8.23",
     "babel-core": "~5.8.25",
+    "babel-istanbul": "^0.3.20",
     "babel-loader": "~5.3.2",
     "body-parser": "^1.12.2",
     "chai": "^2.2.0",
-    "coveralls": "^2.11.4",
     "express": "^4.9.8",
     "ghooks": "^0.3.0",
     "gulp": "^3.8.11",
@@ -54,7 +55,6 @@
     "karma-sinon-chai": "^0.3.0",
     "karma-webpack": "^1.7.0",
     "mocha": "~1.17.1",
-    "mocha-lcov-reporter": "^1.0.0",
     "run-sequence": "^1.0.2",
     "sinon": "^1.14.1",
     "sinon-chai": "^2.7.0",
