@@ -90,12 +90,13 @@ server.payments()
 ```
 
 
-# Building transactions
+# Transactions
+
+## Building transactions
 
 See the [Building Transactions](https://stellar.org/developers/js-stellar/learn/building-transactions/) guide for information about assembling a transaction.
 
-
-## Submitting
+## Submitting transactions
 Once you have built your transaction, you can submit it to the Stellar network with `Server.submitTransaction()`.
 ```js
 var StellarSdk = require('js-stellar-sdk')
