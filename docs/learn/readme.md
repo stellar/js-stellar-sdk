@@ -4,7 +4,7 @@ title: Getting Started
 The JavaScript Stellar SDK facilitates client integration
 with the [Stellar Horizon API server](https://github.com/stellar/horizon) and submission of Stellar transactions. It has two main uses: [querying Horizon](#querying-horizon) and [building, signing, and submitting transactions to the Stellar network](#building-transactions).
 
-[Building and installing js-stellar-sdk](../../README.md)<br>
+[Building and installing js-stellar-sdk](https://github.com/stellar/js-stellar-sdk)<br>
 [Examples of using js-stellar-sdk](./examples.md)
 
 # Querying Horizon
@@ -12,7 +12,7 @@ js-stellar-sdk gives you access to all the endpoints exposed by Horizon.
 
 ## Building requests
 js-stellar-sdk uses the [Builder pattern](https://en.wikipedia.org/wiki/Builder_pattern) to create the requests to send
-to Horizon. Starting with a [server](./server.md) object, you can chain methods together to generate a query.
+to Horizon. Starting with a [server](../reference/server.md) object, you can chain methods together to generate a query.
 (See the [Horizon reference](https://stellar.org/developers/horizon/reference/) documentation for what methods are possible.)
 ```js
 var StellarSdk = require('js-stellar-sdk')
@@ -120,8 +120,3 @@ server.submitTransaction(transaction)
         console.error(err);
     });
 ```
-
-
-
-
-
