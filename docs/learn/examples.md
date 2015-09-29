@@ -1,4 +1,6 @@
-## Examples
+---
+Title: Examples
+---
 
 ### Creating a simple payment transaction
 
