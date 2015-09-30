@@ -5,7 +5,9 @@ var plugins     = require('gulp-load-plugins')();
 var runSequence = require('run-sequence');
 var server      = require('gulp-develop-server' );
 var webpack     = require("webpack");
-
+var coveralls   = require('coveralls');
+var exec        = require('child_process').exec;
+ 
 gulp.task('default', ['build']);
 
 gulp.task('lint:src', function() {
@@ -100,8 +102,9 @@ gulp.task('watch', ['build'], function() {
   gulp.watch('lib/**/*', ['build']);
 });
 
-gulp.task('submit-coverage', function(cb) {
-  return gulp
-      .src("./coverage/**/lcov.info")
-      .pipe(plugins.coveralls());
+gulp.task('submit-coverage', function(done) {
+  var child = exec('node ./node_modules/coveralls/bin/coveralls.js < ./coverage/lcov.info', 
+    function(err, stdout, stderr) {
+      done(err);
+    });
 });

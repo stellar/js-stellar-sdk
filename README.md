@@ -1,5 +1,7 @@
 # js-stellar-sdk
 [![Build Status](https://travis-ci.org/stellar/js-stellar-sdk.svg?branch=master)](https://travis-ci.org/stellar/js-stellar-sdk)
+[![Coverage Status](https://coveralls.io/repos/stellar/js-stellar-sdk/badge.svg?branch=master&service=github)](https://coveralls.io/github/stellar/js-stellar-sdk?branch=master)
+
 ### Note: This library is still under development and subject to breaking changes.
 
 js-stellar-sdk is a client-side Stellar Javascript library for communicating with a [Stellar Horizon server](https://github.com/stellar/horizon). It is used for building Stellar apps either on Node.js or in the browser.
