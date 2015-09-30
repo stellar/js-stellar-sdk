@@ -65,7 +65,7 @@
     "eventsource": "^0.1.6",
     "jsdoc": "jsdoc3/jsdoc#master",
     "lodash": "^3.6.0",
-    "stellar-base": "^0.4.1",
+    "stellar-base": "^0.4.5",
     "superagent": "^1.1.0"
   }
 }
