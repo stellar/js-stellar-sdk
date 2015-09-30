@@ -336,13 +336,13 @@ describe("server.js tests", function () {
       beforeEach(function (done) {
         // instruct the dev server to except the correct request
         return this.setFixtures({
-          request: "/order_book?selling_asset_type=native&buying_asset_type=credit_alphanum4&buying_asset_code=USD&buying_asset_issuer=GSEDF",
+          request: "/order_book?selling_asset_type=native&buying_asset_type=credit_alphanum4&buying_asset_code=USD&buying_asset_issuer=GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG",
           response: {status: 200, body: FAKE_COLLECTION_RESPONSE}
         }).then(function () { done() });
       });
 
       it("requests the correct endpoint", function (done) {
-        server.orderbook(new StellarSdk.Asset.native(), new StellarSdk.Asset('USD', "GSEDF"))
+        server.orderbook(new StellarSdk.Asset.native(), new StellarSdk.Asset('USD', "GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG"))
           .call()
           .then(function () {
             done();
