@@ -1,17 +1,16 @@
 module.exports = function(config) {
   config.set({
-    frameworks: ['mocha', 'sinon-chai'],
+    frameworks: ['mocha', 'chai', 'sinon'],
     browsers : ["Firefox"],
 
     files: [
       'dist/stellar-sdk.js',
-      'test/setup/browser.js',
+      'test/test-helper.js',
       'test/unit/**/*.js'
     ],
 
     preprocessors: {
-      'test/unit/**/*.js': ['webpack'],
-      'test/setup/fixtures.js': ['webpack']
+      'test/**/*.js': ['webpack']
     },
 
     webpack: {
@@ -28,6 +27,6 @@ module.exports = function(config) {
 
     singleRun: true,
 
-    reporters: ['dots'],
+    reporters: ['dots']
   });
 };
