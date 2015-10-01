@@ -32,7 +32,7 @@ gulp.task('build', function(done) {
 });
 
 gulp.task('test', function(done) {
-  runSequence('clean', 'test:run-server', 'test:node', 'test:browser', function (err) {
+  runSequence('clean', 'test:node', 'test:browser', function (err) {
     server.kill();
     done();
   });
