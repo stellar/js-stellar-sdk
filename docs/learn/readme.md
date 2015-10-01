@@ -13,7 +13,7 @@ js-stellar-sdk gives you access to all the endpoints exposed by Horizon.
 ## Building requests
 js-stellar-sdk uses the [Builder pattern](https://en.wikipedia.org/wiki/Builder_pattern) to create the requests to send
 to Horizon. Starting with a [server](../reference/server.md) object, you can chain methods together to generate a query.
-(See the [Horizon reference](https://stellar.org/developers/horizon/reference/) documentation for what methods are possible.)
+(See the [Horizon reference](https://www.stellar.org/developers/reference/) documentation for what methods are possible.)
 ```js
 var StellarSdk = require('js-stellar-sdk')
 var server = new StellarSdk.Server({hostname:'horizon-testnet.stellar.org', secure: true, port: 443});
@@ -34,7 +34,7 @@ Once the request is built, it can be invoked with `.call()` or with `.stream()`.
 ## Streaming requests
 Many requests can be invoked with `stream()`. Instead of returning a promise like `call()` does, `.stream()` will return an `EventSource`.
 Horizon will start sending responses from either the beginning of time or from the point specified with `.cursor()`.
-(See the [Horizon reference](https://stellar.org/developers/horizon/reference/) documentation to learn which endpoints support streaming.)
+(See the [Horizon reference](https://www.stellar.org/developers/reference/) documentation to learn which endpoints support streaming.)
 
 For example, to log instances of transactions from a particular account:
 
@@ -58,7 +58,7 @@ var es = server.transactions()
 ## Handling responses
 
 ### XDR
-The transaction endpoints will return some fields in raw [XDR](https://stellar.org/developers/horizon/learn/xdr/)
+The transaction endpoints will return some fields in raw [XDR](https://www.stellar.org/developers/horizon/learn/xdr.html)
 form. You can convert this XDR to JSON using the `.fromXDR()` method.
 
 An example of re-writing the txHandler from above to print the XDR fields as JSON:
@@ -94,7 +94,7 @@ server.payments()
 
 ## Building transactions
 
-See the [Building Transactions](https://stellar.org/developers/js-stellar/learn/building-transactions/) guide for information about assembling a transaction.
+See the [Building Transactions](https://www.stellar.org/developers/js-stellar-base/learn/building-transactions.html) guide for information about assembling a transaction.
 
 ## Submitting transactions
 Once you have built your transaction, you can submit it to the Stellar network with `Server.submitTransaction()`.
