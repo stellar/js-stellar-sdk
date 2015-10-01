@@ -1,22 +1,29 @@
 language: node_js
 sudo: required # to install newer g++ :(
-node_js:
-- "4.0.0"
-- "0.12"
-- "0.11"
-- "0.10"
+matrix:
+  include:
+    - node_js: "4.0.0"
+      env: SAUCE=false
+    - node_js: "0.12"
+      env: SAUCE=false
+    - node_js: "0.11"
+      env: SAUCE=false
+    - node_js: "0.10"
+      env: SAUCE=false
+    - node_js: "0.12"
+      env: SAUCE=true
 before_install:
 - npm install -g npm@'>=2.13.5'
-- |
-  mkdir -p .npm
-  export DISPLAY=:99.0
-  sh -e /etc/init.d/xvfb start
 script:
 - |
   echo "machine github.com login stellar-jenkins password $GITHUB_TOKEN" >~/.netrc
   git config --global user.name "Travis CI"
-  git config --global user.email "accounts+github@stellar.org"
-  gulp test && gulp build
+  git config --global user.email "travis@stellar.org"
+  if [ "${SAUCE}" = "true" ]; then
+    gulp test:sauce
+  else
+    gulp test:node
+  fi
 env:
   global:
     # GITHUB_TOKEN
@@ -32,6 +39,7 @@ addons:
 notifications:
   slack:
     secure: CgXxNEQrQ82EatyF/wSdF0P5rXcWPL+fFZ1lb1aBb8RbVt5gwddJ6xWVD/nYSr6tIJvIYHYhoYsIDPENwezIPsesG7kWXerQhydsEcA34JKxzsStd/TmU6Moxuwy6KTN7yzmL6586nSvoAw9TNPgvRkJFkH07asjGIc9Rlaq7/Y=
+before_deploy: gulp build
 deploy:
   - provider: npm
     email: npm@stellar.org
@@ -42,6 +50,7 @@ deploy:
       tags: true
       repo: stellar/js-stellar-sdk
       node: "0.12" # Deploy only once, no matter which node
+      condition: $SAUCE = false
   - provider: script
     script: ./bower_publish.sh
     skip_cleanup: true
@@ -49,3 +58,4 @@ deploy:
       tags: true
       repo: stellar/js-stellar-sdk
       node: "0.12" # Deploy only once, no matter which node
+      condition: $SAUCE = false
