@@ -215,8 +215,8 @@ var server = new StellarSdk.Server({hostname:'horizon-testnet.stellar.org', secu
 var fakeRPCSigner = function(transactionEnvelope) {
     var RPCKeypair = StellarSdk.Keypair.fromSeed(secondAccountSeedString);
     var transaction = new StellarSdk.Transaction(transactionEnvelope);
-    // If needed, the remote server can check the transaction 
-    // for whatever requirements before signing.  For example, 
+    // If needed, the remote server can check the transaction
+    // for whatever requirements before signing.  For example,
     // let's check to make sure the transaction is only submitting one operation
     if (transaction.operations.length > 1) {
         throw new Error("Only can sign one payment operation");
