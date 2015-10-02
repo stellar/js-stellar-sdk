@@ -7,6 +7,7 @@ var server      = require('gulp-develop-server' );
 var webpack     = require("webpack");
 var coveralls   = require('coveralls');
 var exec        = require('child_process').exec;
+var fs          = require("fs");
  
 gulp.task('default', ['build']);
 
