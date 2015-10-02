@@ -1,5 +1,5 @@
 ---
-Title: Examples
+title: Examples
 ---
 
 ### Creating a simple payment transaction
