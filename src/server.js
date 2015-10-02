@@ -17,8 +17,6 @@ let toBluebird = require("bluebird").resolve;
 let URI = require("URIjs");
 let URITemplate = require("URIjs").URITemplate;
 
-var EventSource = (typeof window === 'undefined') ? require('eventsource') : window.EventSource;
-
 /**
 * @class Server
 */

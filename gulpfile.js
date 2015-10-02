@@ -64,6 +64,8 @@ gulp.task('build:browser', ['lint:src'], function() {
         new webpack.IgnorePlugin(/ed25519/)
       ]
     }))
+    // Add EventSource polyfill for IE11
+    .pipe(plugins.insert.prepend(fs.readFileSync('./node_modules/event-source-polyfill/eventsource.js')))
     .pipe(plugins.rename('stellar-sdk.js'))
     .pipe(gulp.dest('dist'))
     .pipe(plugins.uglify())

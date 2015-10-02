@@ -10,12 +10,11 @@ module.exports = function(config) {
       browserName: 'firefox',
       version: '39'
     },
-    // TODO Will uncomment after finding a reason of strange errors in IE
-    //sl_ie_11: {
-    //  base: 'SauceLabs',
-    //  browserName: 'internet explorer',
-    //  version: '11'
-    //}
+    sl_ie_11: {
+      base: 'SauceLabs',
+      browserName: 'internet explorer',
+      version: '11'
+    }
   };
 
   config.set({
