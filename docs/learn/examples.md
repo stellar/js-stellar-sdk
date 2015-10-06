@@ -12,7 +12,7 @@ js-stellar-sdk exposes the [`TransactionBuilder`](https://github.com/stellar/js-
 * locally managed sequence number.
 */
 
-var StellarSdk = require('js-stellar-sdk')
+var StellarSdk = require('stellar-sdk')
 
 // create the server connection object
 var server = new StellarSdk.Server({hostname:'horizon-testnet.stellar.org', secure: true, port: 443});
@@ -41,7 +41,7 @@ server.submitTransaction(transaction)
 * In this example, we'll create and submit a payment, but we'll read the
 * sequence number from the server.
 */
-var StellarSdk = require('js-stellar-sdk')
+var StellarSdk = require('stellar-sdk')
 var server = new StellarSdk.Server({hostname:'horizon-testnet.stellar.org', secure: true, port: 443});
 
 server.loadAccount("GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ")
@@ -71,7 +71,7 @@ server.loadAccount("GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ")
 Let's say you want to look at an account's transaction history.  You can use the `transactions()` command and pass in the account address to `forAccount` as the resource you're interested in.
 
 ```javascript
-var StellarSdk = require('js-stellar-sdk')
+var StellarSdk = require('stellar-sdk')
 var server = new StellarSdk.Server({hostname:'horizon-testnet.stellar.org', secure: true, port: 443});
 
 server.transactions()
@@ -95,7 +95,7 @@ server.transactions()
 js-stellar-sdk provides streaming support for Horizon endpoints using `EventSource`.  For example, pass a streaming `onmessage` handler to an account's transaction call:
 
 ```javascript
-var StellarSdk = require('js-stellar-sdk')
+var StellarSdk = require('stellar-sdk')
 var server = new StellarSdk.Server({hostname:'horizon-testnet.stellar.org', secure: true, port: 443});
 
 var streamingMessageHandler = function (message) {
@@ -121,7 +121,7 @@ In this example, we will:
 #### Add a secondary key to the account
 ```javascript
 
-var StellarSdk = require('js-stellar-sdk')
+var StellarSdk = require('stellar-sdk')
 var server = new StellarSdk.Server({hostname:'horizon-testnet.stellar.org', secure: true, port: 443});
 
 server.loadAccount(firstAccountAddress)
@@ -148,7 +148,7 @@ server.loadAccount(firstAccountAddress)
 
 #### Set Master key weight and threshold weights
 ```javascript
-var StellarSdk = require('js-stellar-sdk')
+var StellarSdk = require('stellar-sdk')
 var server = new StellarSdk.Server({hostname:'horizon-testnet.stellar.org', secure: true, port: 443});
 
 server.loadAccount(firstAccountAddress)
@@ -176,7 +176,7 @@ server.loadAccount(firstAccountAddress)
 
 #### Create a multi-sig payment transaction
 ```javascript
-var StellarSdk = require('js-stellar-sdk')
+var StellarSdk = require('stellar-sdk')
 var server = new StellarSdk.Server({hostname:'horizon-testnet.stellar.org', secure: true, port: 443});
 
 server.loadAccount(firstAccountAddress)
@@ -208,7 +208,7 @@ you want to control your keypair on a remote server or separate process.  If the
 
 
 ```javascript
-var StellarSdk = require('js-stellar-sdk')
+var StellarSdk = require('stellar-sdk')
 var server = new StellarSdk.Server({hostname:'horizon-testnet.stellar.org', secure: true, port: 443});
 
 // Let's say this function exists on the remote server
