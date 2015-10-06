@@ -47,8 +47,8 @@ export class CallBuilder {
     stream(options) {
         this.checkFilter();
         var es = new EventSource(this.url.toString());
-        es.onmessage = function (message) {
-            var result = message.data ? JSON.parse(message.data) : message;
+        es.onmessage = (message) => {
+            var result = message.data ? this._parseRecord(JSON.parse(message.data)) : message;
             options.onmessage(result);
         };
         es.onerror = options.onerror;
@@ -138,8 +138,8 @@ export class CallBuilder {
         }
     }
 
-    after(token) {
-        this.url.addQuery("after", token);
+    cursor(token) {
+        this.url.addQuery("cursor", token);
         return this;
     }
 
