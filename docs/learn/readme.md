@@ -15,7 +15,7 @@ js-stellar-sdk uses the [Builder pattern](https://en.wikipedia.org/wiki/Builder_
 to Horizon. Starting with a [server](../reference/server.md) object, you can chain methods together to generate a query.
 (See the [Horizon reference](https://www.stellar.org/developers/reference/) documentation for what methods are possible.)
 ```js
-var StellarSdk = require('js-stellar-sdk')
+var StellarSdk = require('stellar-sdk')
 var server = new StellarSdk.Server({hostname:'horizon-testnet.stellar.org', secure: true, port: 443});
 // get a list of transactions that occurred in ledger 1400
 server.transactions()
@@ -39,7 +39,7 @@ Horizon will start sending responses from either the beginning of time or from t
 For example, to log instances of transactions from a particular account:
 
 ```javascript
-var StellarSdk = require('js-stellar-sdk')
+var StellarSdk = require('stellar-sdk')
 var server = new StellarSdk.Server({hostname:'horizon-testnet.stellar.org', secure: true, port: 443});
 var lastCursor=0; // or load where you left off
 
@@ -99,7 +99,7 @@ See the [Building Transactions](https://www.stellar.org/developers/js-stellar-ba
 ## Submitting transactions
 Once you have built your transaction, you can submit it to the Stellar network with `Server.submitTransaction()`.
 ```js
-var StellarSdk = require('js-stellar-sdk')
+var StellarSdk = require('stellar-sdk')
 var server = new StellarSdk.Server({hostname:'horizon-testnet.stellar.org', secure: true, port: 443});
 
 var transaction = new StellarSdk.TransactionBuilder(account)
