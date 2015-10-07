@@ -105,8 +105,8 @@ export class Server {
     * Fetches an account's most current state in the ledger and then creates and returns
     * an Account object.
     * @param {string} address - The account to load.
-    * @returns {Account} Returns the given address's account with populated sequence number
-    *                    and balance information.
+    * Returns a promisse to the given address's account with populated sequence number
+    *        and balance information.
     */
     loadAccount(address) {
         var self = this;
