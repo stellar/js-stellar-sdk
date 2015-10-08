@@ -79,14 +79,14 @@ describe("server.js tests", function () {
       describe("with options", function () {
         beforeEach(function() {
           this.axiosMock.expects('get')
-            .withArgs(sinon.match('https://horizon-live.stellar.org:1337/ledgers?limit=1&after=b&order=asc'))
+            .withArgs(sinon.match('https://horizon-live.stellar.org:1337/ledgers?limit=1&cursor=b&order=asc'))
             .returns(Promise.resolve({data: ledgersResponse}));
         });
 
         it("requests the correct endpoint", function (done) {
           this.server.ledgers()
             .limit("1")
-            .after("b")
+            .cursor("b")
             .order("asc")
             .call()
             .then(response => {
@@ -105,7 +105,7 @@ describe("server.js tests", function () {
           this.server
             .ledgers()
             .limit("1")
-            .after("b")
+            .cursor("b")
             .order("asc")
             .call()
             .then(function(page) {
@@ -205,13 +205,13 @@ describe("server.js tests", function () {
       describe("with options", function () {
         it("requests the correct endpoint", function (done) {
           this.axiosMock.expects('get')
-            .withArgs(sinon.match('https://horizon-live.stellar.org:1337/ledgers/1?limit=1&after=b&order=asc'))
+            .withArgs(sinon.match('https://horizon-live.stellar.org:1337/ledgers/1?limit=1&cursor=b&order=asc'))
             .returns(Promise.resolve({data: singleLedgerResponse}));
 
           this.server.ledgers()
             .ledger("1")
             .limit("1")
-            .after("b")
+            .cursor("b")
             .order("asc")
             .call()
             .then(function (response) {
@@ -309,12 +309,12 @@ describe("server.js tests", function () {
       describe("with options", function () {
         it("requests the correct endpoint", function (done) {
           this.axiosMock.expects('get')
-            .withArgs(sinon.match('https://horizon-live.stellar.org:1337/ledgers/1/transactions?after=b&limit=1&order=asc'))
+            .withArgs(sinon.match('https://horizon-live.stellar.org:1337/ledgers/1/transactions?cursor=b&limit=1&order=asc'))
             .returns(Promise.resolve({data: transactionsResponse}));
 
           this.server.transactions()
             .forLedger("1")
-            .after("b")
+            .cursor("b")
             .limit("1")
             .order("asc")
             .call()
@@ -576,11 +576,11 @@ describe("server.js tests", function () {
 
       it("requests the correct endpoint", function (done) {
         this.axiosMock.expects('get')
-          .withArgs(sinon.match('https://horizon-live.stellar.org:1337/effects?after=b'))
+          .withArgs(sinon.match('https://horizon-live.stellar.org:1337/effects?cursor=b'))
           .returns(Promise.resolve({data: effectsResponse}));
 
         this.server.effects()
-          .after("b")
+          .cursor("b")
           .call()
           .then(function (response) {
             expect(response.records).to.be.deep.equal(effectsResponse._embedded.records);
