@@ -80,7 +80,7 @@ export class CallBuilder {
     if (!json._links) {
       return json;
     }
-    _.mapKeys(json._links, (val, key) => {json[key] = this._requestFnForLink(val);});
+    _.forEach(json._links, (n, key) => {json[key] = this._requestFnForLink(n);});
     return json;
   }
   
