@@ -58,6 +58,7 @@
     "karma-sinon": "^1.0.4",
     "karma-sinon-chai": "^0.3.0",
     "karma-webpack": "^1.7.0",
+    "lodash": "^3.10.1",
     "mocha": "~1.17.1",
     "run-sequence": "^1.0.2",
     "sinon": "^1.14.1",
