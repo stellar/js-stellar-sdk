@@ -22,7 +22,14 @@ script:
   if [ "${SAUCE}" = "true" ]; then
     gulp test:sauce
   else
-    gulp test:node
+    # Ugly but it's the only way to make istanbul generate coverage report
+    babel-node ./node_modules/gulp/bin/gulp.js test:node
+  fi
+after_success:
+- |
+  # Send report to coveralls but only once
+  if [ "${SAUCE}" = "false" ] && [ "${TRAVIS_NODE_VERSION}" = "0.12" ] && [ "${TRAVIS_BRANCH}" = "master" ] ; then
+    gulp submit-coverage
   fi
 env:
   global:
