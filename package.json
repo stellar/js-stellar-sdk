@@ -69,7 +69,7 @@
   },
   "dependencies": {
     "URIjs": "^1.16.0",
-    "axios": "^0.5.4",
+    "axios": "^0.6.0",
     "bluebird": "^2.9.25",
     "event-source-polyfill": "0.0.6",
     "eventsource": "^0.1.6",

@@ -17,6 +17,8 @@ let toBluebird = require("bluebird").resolve;
 let URI = require("URIjs");
 let URITemplate = require("URIjs").URITemplate;
 
+export const SUBMIT_TRANSACTION_TIMEOUT = 20*1000;
+
 /**
 * @class Server
 */
@@ -46,7 +48,11 @@ export class Server {
     */
     submitTransaction(transaction) {
         let tx = encodeURIComponent(transaction.toEnvelope().toXDR().toString("base64"));
-        var promise = axios.post(URI(this.serverURL).path('transactions').toString(), `tx=${tx}`)
+        var promise = axios.post(
+              URI(this.serverURL).path('transactions').toString(),
+              `tx=${tx}`,
+              {timeout: SUBMIT_TRANSACTION_TIMEOUT}
+            )
             .then(function(response) {
                 return response.data;
             })
