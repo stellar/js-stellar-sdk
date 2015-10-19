@@ -8,5 +8,5 @@ if (typeof window === 'undefined') {
   global.expect = global.chai.expect;
 } else {
   window.axios = StellarSdk.axios;
-  window.bluebird = StellarSdk.bluebird;
+  window.Promise = window.bluebird = StellarSdk.bluebird;
 }
