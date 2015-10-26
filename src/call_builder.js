@@ -60,15 +60,17 @@ export class CallBuilder {
     return opts => {
       if (link.template) {
         let template = URITemplate(link.href);
-        return self._sendNormalRequest(URI(template.expand(opts))
-          .authority(self.url.authority())
-          .protocol(self.url.protocol())
-          );
+        return this._sendNormalRequest(
+          URI(template.expand(opts))
+            .authority(this.url.authority())
+            .protocol(this.url.protocol())
+        );
       } else {
-        return self._sendNormalRequest(URI(link.href)
-          .authority(self.url.authority())
-          .protocol(self.url.protocol())
-          );
+        return this._sendNormalRequest(
+          URI(link.href)
+            .authority(this.url.authority())
+            .protocol(this.url.protocol())
+        );
       }
     };
   } 
