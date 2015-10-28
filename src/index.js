@@ -1,3 +1,5 @@
+require('es6-promise').polyfill();
+
 // stellar-sdk classes to expose
 export * from "./errors";
 export {Server} from "./server";
