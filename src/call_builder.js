@@ -58,20 +58,20 @@ export class CallBuilder {
 
   _requestFnForLink(link) {
     return opts => {
+      let uri;
+
       if (link.template) {
         let template = URITemplate(link.href);
-        return this._sendNormalRequest(
-          URI(template.expand(opts))
-            .authority(this.url.authority())
-            .protocol(this.url.protocol())
-        );
+        uri = URI(template.expand(opts));
       } else {
-        return this._sendNormalRequest(
-          URI(link.href)
-            .authority(this.url.authority())
-            .protocol(this.url.protocol())
-        );
+        uri = URI(link.href);
       }
+
+      uri = uri
+        .authority(this.url.authority())
+        .protocol(this.url.protocol());
+
+      return this._sendNormalRequest(uri).then(r => this._parseRecord(r));
     };
   } 
 
