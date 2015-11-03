@@ -13,6 +13,7 @@ js-stellar-sdk exposes the [`TransactionBuilder`](https://github.com/stellar/js-
 */
 
 var StellarSdk = require('stellar-sdk')
+// StellarSdk.Network.usePublicNetwork(); // uncomment if for the live network
 
 // create the server connection object
 var server = new StellarSdk.Server({hostname:'horizon-testnet.stellar.org', secure: true, port: 443});
