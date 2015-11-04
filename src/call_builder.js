@@ -47,13 +47,20 @@ export class CallBuilder {
   */
   stream(options) {
     this.checkFilter();
-    var es = new EventSource(this.url.toString());
-    es.onmessage = (message) => {
-      var result = message.data ? this._parseRecord(JSON.parse(message.data)) : message;
-      options.onmessage(result);
-    };
-    es.onerror = options.onerror;
-    return es;
+    try {
+      var es = new EventSource(this.url.toString());
+      es.onmessage = (message) => {
+        var result = message.data ? this._parseRecord(JSON.parse(message.data)) : message;
+        options.onmessage(result);
+      };
+      es.onerror = options.onerror;
+      return es;
+    } catch (err) {
+      if (options.onerror) {
+        options.onerror('EventSource not supported');
+      }
+      return false;
+    }
   }
 
   _requestFnForLink(link) {
