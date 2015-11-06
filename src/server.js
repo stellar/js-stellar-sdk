@@ -7,6 +7,7 @@ import {TransactionCallBuilder} from "./transaction_call_builder";
 import {OperationCallBuilder} from "./operation_call_builder";
 import {OfferCallBuilder} from "./offer_call_builder";
 import {OrderbookCallBuilder} from "./orderbook_call_builder";
+import {PathCallBuilder} from "./path_call_builder";
 import {PaymentCallBuilder} from "./payment_call_builder";
 import {EffectCallBuilder} from "./effect_call_builder";
 import {FriendbotBuilder} from "./friendbot_builder";
@@ -93,6 +94,10 @@ export class Server {
 
     operations() {
         return new OperationCallBuilder(URI(this.serverURL));
+    }
+
+    paths(source, destination, destination_type, destination_amount) {
+        return new PathCallBuilder(URI(this.serverURL), source, destination, destination_type, destination_amount);
     }
 
     payments() {
