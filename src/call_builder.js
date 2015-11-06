@@ -90,13 +90,13 @@ export class CallBuilder {
   }
   
   _sendNormalRequest(url) {
-		if (url.authority() === '') {
-			url = url.authority(this.url.authority());
-		}
+    if (url.authority() === '') {
+      url = url.authority(this.url.authority());
+    }
 
-		if (url.protocol() === '') {
-			url = url.protocol(this.url.protocol());
-		}
+    if (url.protocol() === '') {
+      url = url.protocol(this.url.protocol());
+    }
 
     url.addQuery('c', Math.random());
     var promise = axios.get(url.toString())
