@@ -74,10 +74,6 @@ export class CallBuilder {
         uri = URI(link.href);
       }
 
-      uri = uri
-        .authority(this.url.authority())
-        .protocol(this.url.protocol());
-
       return this._sendNormalRequest(uri).then(r => this._parseRecord(r));
     };
   } 
@@ -94,6 +90,14 @@ export class CallBuilder {
   }
   
   _sendNormalRequest(url) {
+    if (url.authority() === '') {
+      url = url.authority(this.url.authority());
+    }
+
+    if (url.protocol() === '') {
+      url = url.protocol(this.url.protocol());
+    }
+
     url.addQuery('c', Math.random());
     var promise = axios.get(url.toString())
       .then(response => response.data)
@@ -116,17 +120,11 @@ export class CallBuilder {
     return {
       records: json._embedded.records,
       next: () => {
-        return this._sendNormalRequest(URI(json._links.next.href)
-          .authority(this.url.authority())
-          .protocol(this.url.protocol())
-          )
+        return this._sendNormalRequest(URI(json._links.next.href))
           .then(r => this._toCollectionPage(r));
       },
       prev: () => {
-        return this._sendNormalRequest(URI(json._links.prev.href)
-          .authority(this.url.authority())
-          .protocol(this.url.protocol())
-          )
+        return this._sendNormalRequest(URI(json._links.prev.href))
           .then(r => this._toCollectionPage(r));
       }
     };
