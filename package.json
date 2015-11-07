@@ -1,6 +1,6 @@
 {
   "name": "stellar-sdk",
-  "version": "0.2.17",
+  "version": "0.2.18",
   "description": "stellar-sdk is a library for working with the Stellar Horizon server.",
   "main": "lib/index.js",
   "scripts": {
