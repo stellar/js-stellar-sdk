@@ -2,7 +2,7 @@ language: node_js
 sudo: required # to install newer g++ :(
 matrix:
   include:
-    - node_js: "4.0.0"
+    - node_js: "4.2" # LTS
       env: SAUCE=false
     - node_js: "0.12"
       env: SAUCE=false
