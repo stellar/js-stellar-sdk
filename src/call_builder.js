@@ -8,8 +8,6 @@ var EventSource = (typeof window === 'undefined') ? require('eventsource') : win
 let toBluebird = require("bluebird").resolve;
 let _ = require('lodash');
 
-export const TIMEOUT = 5*1000;
-
 /**
 * @class Builder
 */
@@ -101,7 +99,7 @@ export class CallBuilder {
     }
 
     url.addQuery('c', Math.random());
-    var promise = axios.get(url.toString(), {timeout: TIMEOUT})
+    var promise = axios.get(url.toString())
       .then(response => response.data)
       .catch(this._handleNetworkError);
     return toBluebird(promise);
