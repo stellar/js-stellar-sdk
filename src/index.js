@@ -6,3 +6,5 @@ export {Server} from "./server";
 
 // expose classes and functions from stellar-base
 export * from "stellar-base";
+
+export default module.exports;
