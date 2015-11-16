@@ -98,6 +98,7 @@ export class CallBuilder {
       url = url.protocol(this.url.protocol());
     }
 
+    // Temp fix for: https://github.com/stellar/js-stellar-sdk/issues/15
     url.addQuery('c', Math.random());
     var promise = axios.get(url.toString())
       .then(response => response.data)
