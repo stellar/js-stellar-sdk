@@ -33,9 +33,6 @@ relative to your html file.
 ```
 
 ## Install
-### Node.js prerequisite
-Node.js version 0.10 is required. If you don't have version 0.10, use
-[nvm](https://github.com/creationix/nvm) to easily switch between versions.
 
 ### To use as a module in a Node.js project
 1. Install it using npm:
