@@ -1,0 +1,15 @@
+{
+  "source": {
+    "include": ["src", "node_modules/stellar-base/src"],
+    "exclude": "node_modules/stellar-base/src/generated"
+  },
+  "opts": {
+    "destination": "./jsdoc/",
+    "recurse": true,
+    "template": "node_modules/minami",
+    "readme": "./README.md"
+  },
+  "plugins": [
+    "plugins/markdown"
+  ]
+}

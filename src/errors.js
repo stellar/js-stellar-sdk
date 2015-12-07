@@ -28,6 +28,7 @@ export var BadRequestError = Error.subclass("BadRequestError");
  * @param {function} ctor Constructor function which needs to inherit the
  *     prototype.
  * @param {function} superCtor Constructor function to inherit prototype from.
+ * @private
  */
 function inherits(ctor, superCtor) {
   ctor.super_ = superCtor;

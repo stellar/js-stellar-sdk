@@ -1,7 +1,6 @@
-
 /**
-* @class TransactionResult
-*/
+ * @private
+ */
 export class TransactionResult {
 
     /**
@@ -25,6 +24,7 @@ export class TransactionResult {
     * }
     * </pre>
     * @constructor
+    * @private
     * @param {string} json - Response JSON from server.
     */
     constructor(json) {

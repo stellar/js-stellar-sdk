@@ -9,18 +9,21 @@ let toBluebird = require("bluebird").resolve;
 let _ = require('lodash');
 
 /**
-* @class Builder
-*/
+ * Creates a new {@link CallBuilder} pointed to server defined by serverUrl.
+ *
+ * This is an **abstract** class. Do not create this object directly, use {@link Server} class.
+ * @param {string} serverUrl
+ * @class CallBuilder
+ */
 export class CallBuilder {
-
-  /*
-  * @constructor
-  */
-  constructor(url) {
-    this.url = url;
+  constructor(serverUrl) {
+    this.url = serverUrl;
     this.filter = [];
   }
 
+  /**
+   * @private
+   */
   checkFilter() {
     if (this.filter.length >= 2) {
       throw new BadRequestError("Too many filters specified", this.filter);
@@ -30,21 +33,26 @@ export class CallBuilder {
     }        
   }
 
-  /*
-  * Triggers a HTTP request using this builder's current configuration.
-  * Returns a Promise that resolves to the server's response.
-  */
+  /**
+   * Triggers a HTTP request using this builder's current configuration.
+   * Returns a Promise that resolves to the server's response.
+   * @returns {Promise}
+   */
   call() {
     this.checkFilter();
-    var promise = this._sendNormalRequest(this.url)
+    return this._sendNormalRequest(this.url)
       .then(r => this._parseResponse(r));
-    return promise;
   }
 
-  /*
-  * Creates an Eventsource that listens for incoming messages from the server.
-  * URL based on builder's current configuration.
-  */
+  /**
+   * Creates an EventSource that listens for incoming messages from the server.
+   * @see [Horizon Response Format](https://www.stellar.org/developers/horizon/learn/responses.html)
+   * @see [MDN EventSource](https://developer.mozilla.org/en-US/docs/Web/API/EventSource)
+   * @param {object} [options] EventSource options.
+   * @param {function} [options.onmessage] Callback function to handle incoming messages.
+   * @param {function} [options.onerror] Callback function to handle errors.
+   * @returns {EventSource}
+   */
   stream(options) {
     this.checkFilter();
     try {
@@ -63,6 +71,9 @@ export class CallBuilder {
     }
   }
 
+  /**
+   * @private
+   */
   _requestFnForLink(link) {
     return opts => {
       let uri;
@@ -79,8 +90,9 @@ export class CallBuilder {
   } 
 
   /**
-  * Convert each link into a function on the response object.
-  */
+   * Convert each link into a function on the response object.
+   * @private
+   */
   _parseRecord(json) {
     if (!json._links) {
       return json;
@@ -106,6 +118,9 @@ export class CallBuilder {
     return toBluebird(promise);
   }
 
+  /**
+   * @private
+   */
   _parseResponse(json) {
     if (json._embedded && json._embedded.records) {
       return this._toCollectionPage(json);
@@ -114,6 +129,9 @@ export class CallBuilder {
     }
   }
 
+  /**
+   * @private
+   */
   _toCollectionPage(json) {
     for (var i = 0; i < json._embedded.records.length; i++) {
       json._embedded.records[i] = this._parseRecord(json._embedded.records[i]);
@@ -131,6 +149,9 @@ export class CallBuilder {
     };
   }
 
+  /**
+   * @private
+   */
   _handleNetworkError(response) {
     if (response instanceof Error) {
       return Promise.reject(response);
@@ -144,16 +165,30 @@ export class CallBuilder {
     }
   }
 
-  cursor(token) {
-    this.url.addQuery("cursor", token);
+  /**
+   * Adds `cursor` parameter to the current call. Returns the CallBuilder object on which this method has been called.
+   * @see [Paging](https://www.stellar.org/developers/horizon/learn/paging.html)
+   * @param {string} cursor A cursor is a value that points to a specific location in a collection of resources.
+   */
+  cursor(cursor) {
+    this.url.addQuery("cursor", cursor);
     return this;
   }
 
+  /**
+   * Adds `limit` parameter to the current call. Returns the CallBuilder object on which this method has been called.
+   * @see [Paging](https://www.stellar.org/developers/horizon/learn/paging.html)
+   * @param {number} number Number of records the server should return.
+   */
   limit(number) {
     this.url.addQuery("limit", number);
     return this;
   }
 
+  /**
+   * Adds `order` parameter to the current call. Returns the CallBuilder object on which this method has been called.
+   * @param {"asc"|"desc"} direction
+   */
   order(direction) {
     this.url.addQuery("order", direction);
     return this;

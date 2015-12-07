@@ -65,6 +65,7 @@
     "karma-sinon-chai": "^0.3.0",
     "karma-webpack": "^1.7.0",
     "lodash": "^3.10.1",
+    "minami": "^1.1.1",
     "mocha": "~1.17.1",
     "run-sequence": "^1.0.2",
     "sinon": "^1.14.1",
@@ -80,7 +81,7 @@
     "eventsource": "^0.1.6",
     "jsdoc": "jsdoc3/jsdoc#master",
     "lodash": "^3.6.0",
-    "stellar-base": "^0.4.15",
+    "stellar-base": "^0.4.17",
     "superagent": "^1.1.0"
   }
 }

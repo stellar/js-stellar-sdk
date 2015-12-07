@@ -1,19 +1,27 @@
 import {CallBuilder} from "./call_builder";
 
-/**
-* @class LedgerCallBuilder
-*/
 export class LedgerCallBuilder extends CallBuilder {
-    /*
-    * @constructor
-    */
-    constructor(url) {
-        super(url);
+    /**
+     * Creates a new {@link LedgerCallBuilder} pointed to server defined by serverUrl.
+     *
+     * Do not create this object directly, use {@link Server#ledgers}.
+     * @see [All Ledgers](https://www.stellar.org/developers/horizon/reference/ledgers-all.html)
+     * @constructor
+     * @extends CallBuilder
+     * @param {string} serverUrl Horizon server URL.
+     */
+    constructor(serverUrl) {
+        super(serverUrl);
         this.url.segment('ledgers');
     }
 
-    ledger(ledgerSeq) {
-        this.filter.push(['ledgers', ledgerSeq]);
+    /**
+     * Provides information on a single ledger.
+     * @param ledgerId Ledger ID
+     * @returns {LedgerCallBuilder}
+     */
+    ledger(ledgerId) {
+        this.filter.push(['ledgers', ledgerId]);
         return this;
     }
 

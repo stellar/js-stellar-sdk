@@ -20,20 +20,16 @@ let URITemplate = require("URIjs").URITemplate;
 
 export const SUBMIT_TRANSACTION_TIMEOUT = 20*1000;
 
-/**
-* @class Server
-*/
 export class Server {
     /**
-    * Server handles a network connection to a Horizon instance and exposes an
-    * interface for requests to that instance.
-    * @constructor
-    * @param {object}   [config] - The server configuration.
-    * @param {boolean}  [config.secure] - Use https, defaults false.
-    * @param {string}   [config.hostname] - The hostname of the Hoirzon server.
-    *                                       defaults to "localhost".
-    * @param {number}   [config.port] - Horizon port, defaults to 3000.
-    */
+     * Server handles a network connection to a [Horizon](https://www.stellar.org/developers/horizon/learn/index.html)
+     * instance and exposes an interface for requests to that instance.
+     * @constructor
+     * @param {object} [config] The server configuration.
+     * @param {boolean} [config.secure] Use https, defaults false.
+     * @param {string} [config.hostname] The hostname of the [Horizon](https://www.stellar.org/developers/horizon/learn/index.html) server, defaults to "localhost".
+     * @param {number} [config.port] Horizon port, defaults to 3000.
+     */
     constructor(config={}) {
         this.protocol = config.secure ? "https" : "http";
         this.hostname = config.hostname || "localhost";
@@ -44,9 +40,11 @@ export class Server {
     }
 
     /**
-    * Submits a transaction to the network.
-    * @param {Transaction} transaction - The transaction to submit.
-    */
+     * Submits a transaction to the network.
+     * @see [Post Transaction](https://www.stellar.org/developers/horizon/reference/transactions-create.html)
+     * @param {Transaction} transaction - The transaction to submit.
+     * @returns {Promise} Promise that resolves or rejects with response from horizon.
+     */
     submitTransaction(transaction) {
         let tx = encodeURIComponent(transaction.toEnvelope().toXDR().toString("base64"));
         var promise = axios.post(
@@ -67,60 +65,123 @@ export class Server {
         return toBluebird(promise);
     }
 
+    /**
+     * Returns new {@link AccountCallBuilder} object configured by a current Horizon server configuration.
+     * @returns {AccountCallBuilder}
+     */
     accounts() {
         return new AccountCallBuilder(URI(this.serverURL));
     }
 
-   
+    /**
+     * Returns new {@link LedgerCallBuilder} object configured by a current Horizon server configuration.
+     * @returns {LedgerCallBuilder}
+     */
     ledgers() {
         return new LedgerCallBuilder(URI(this.serverURL));
     }
 
+    /**
+     * Returns new {@link TransactionCallBuilder} object configured by a current Horizon server configuration.
+     * @returns {TransactionCallBuilder}
+     */
     transactions() {
         return new TransactionCallBuilder(URI(this.serverURL));
     }
 
-    /* 
-    * Should be
-    * offers('accounts', accountID)
-    */
+    /**
+     * People on the Stellar network can make offers to buy or sell assets. This endpoint represents all the offers a particular account makes.
+     * Currently this method only supports querying offers for account and should be used like this:
+     * ```
+     * server.offers('accounts', accountId)
+     *  .then(function(offers) {
+     *    console.log(offers);
+     *  });
+     * ```
+     * @param {string} resource Resource to query offers
+     * @param {...string} resourceParams Parameters for selected resource
+     * @returns OfferCallBuilder
+     */
     offers(resource, ...resourceParams) {
         return new OfferCallBuilder(URI(this.serverURL), resource, ...resourceParams);
     }
 
+    /**
+     * Returns new {@link OrderbookCallBuilder} object configured by a current Horizon server configuration.
+     * @param {Asset} selling Asset being sold
+     * @param {Asset} buying Asset being bought
+     * @returns {OrderbookCallBuilder}
+     */
     orderbook(selling, buying) {
         return new OrderbookCallBuilder(URI(this.serverURL), selling, buying);
     }
 
+    /**
+     * Returns new {@link OperationCallBuilder} object configured by a current Horizon server configuration.
+     * @returns {OperationCallBuilder}
+     */
     operations() {
         return new OperationCallBuilder(URI(this.serverURL));
     }
 
-    paths(source, destination, destination_type, destination_amount) {
-        return new PathCallBuilder(URI(this.serverURL), source, destination, destination_type, destination_amount);
+    /**
+     * The Stellar Network allows payments to be made across assets through path payments. A path payment specifies a
+     * series of assets to route a payment through, from source asset (the asset debited from the payer) to destination
+     * asset (the asset credited to the payee).
+     *
+     * A path search is specified using:
+     *
+     * * The destination address
+     * * The source address
+     * * The asset and amount that the destination account should receive
+     *
+     * As part of the search, horizon will load a list of assets available to the source address and will find any
+     * payment paths from those source assets to the desired destination asset. The search's amount parameter will be
+     * used to determine if there a given path can satisfy a payment of the desired amount.
+     *
+     * Returns new {@link PathCallBuilder} object configured by a current Horizon server configuration.
+     *
+     * @param {string} source The sender's account ID. Any returned path must use a source that the sender can hold.
+     * @param {string} destination The destination account ID that any returned path should use.
+     * @param {Asset} destinationAsset The destination asset.
+     * @param {string} destinationAmount The amount, denominated in the destination asset, that any returned path should be able to satisfy.
+     * @returns {@link PathCallBuilder}
+     */
+    paths(source, destination, destinationAsset, destinationAmount) {
+        return new PathCallBuilder(URI(this.serverURL), source, destination, destinationAsset, destinationAmount);
     }
 
+    /**
+     * Returns new {@link PaymentCallBuilder} object configured by a current Horizon server configuration.
+     * @returns {PaymentCallBuilder}
+     */
     payments() {
         return new PaymentCallBuilder(URI(this.serverURL));
     }
 
+    /**
+     * Returns new {@link EffectCallBuilder} object configured by a current Horizon server configuration.
+     * @returns {EffectCallBuilder}
+     */
     effects() {
         return new EffectCallBuilder(URI(this.serverURL));
     }
 
+    /**
+     * Returns new {@link FriendbotBuilder} object configured by a current Horizon server configuration.
+     * @returns {FriendbotBuilder}
+     * @private
+     */
     friendbot(address) {
         return new FriendbotBuilder(URI(this.serverURL), address);
     }
 
     /**
-    * Fetches an account's most current state in the ledger and then creates and returns
-    * an Account object.
+    * Fetches an account's most current state in the ledger and then creates and returns an {@link Account} object.
     * @param {string} address - The account to load.
-    * Returns a promisse to the given address's account with populated sequence number
-    *        and balance information.
+    * @returns {Promise} Returns a promise to the {@link Account} object with populated sequence number.
     */
     loadAccount(address) {
-        var self = this;
         return this.accounts()
             .address(address)
             .call()

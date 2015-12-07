@@ -1,21 +1,30 @@
 import {CallBuilder} from "./call_builder";
 
-/**
-* @class AccountCallBuilder
-*/
 export class AccountCallBuilder extends CallBuilder {
-
-    /*
-    * @constructor
-    */
-    constructor(url) {
-        super(url);
+    /**
+     * Creates a new {@link AccountCallBuilder} pointed to server defined by serverUrl.
+     *
+     * Do not create this object directly, use {@link Server#accounts}.
+     * @see [All Accounts](https://www.stellar.org/developers/horizon/reference/accounts-all.html)
+     * @constructor
+     * @extends CallBuilder
+     * @param {string} serverUrl Horizon server URL.
+     */
+    constructor(serverUrl) {
+        super(serverUrl);
         this.url.segment('accounts');
     }
 
-
-    address(accountAddress) {
-        this.filter.push(['accounts', accountAddress]);
+    /**
+     * Returns information and links relating to a single account.
+     * The balances section in the returned JSON will also list all the trust lines this account has set up.
+     *
+     * @see [Account Details](https://www.stellar.org/developers/horizon/reference/accounts-single.html)
+     * @param {string} accountId For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
+     * @returns {AccountCallBuilder}
+     */
+    address(accountId) {
+        this.filter.push(['accounts', accountId]);
         return this;
     }
 
