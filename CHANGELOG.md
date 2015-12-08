@@ -8,10 +8,11 @@ bumps.  A breaking change will get clearly notified in this log.
 
 ## [Unreleased]
 
+## [0.3.0]
 ### Added
 - AccountCallBuilder learned `accountId` method to replace `address` method.
-
 ### Changes
 - *Deprecated* AccountCallBuilder#address.
 
-[Unreleased]: https://github.com/stellar/horizon/compare/v0.2.22...master
+[Unreleased]: https://github.com/stellar/horizon/compare/v0.3.0...master
+[0.3.0]: https://github.com/stellar/horizon/compare/v0.2.22...v0.3.0
