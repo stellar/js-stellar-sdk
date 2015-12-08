@@ -415,7 +415,7 @@ describe("server.js tests", function () {
         },
         "id": "GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K",
         "paging_token": "146028892161",
-        "address": "GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K",
+        "account_id": "GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K",
         "sequence": 146028888090,
         "subentry_count": 0,
         "inflation_destination": null,
@@ -437,7 +437,7 @@ describe("server.js tests", function () {
         ],
         "signers": [
           {
-            "address": "GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K",
+            "public_key": "GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K",
             "weight": 1
           }
         ]
@@ -449,7 +449,7 @@ describe("server.js tests", function () {
           .returns(Promise.resolve({data: singleAccountResponse}));
 
         this.server.accounts()
-          .address("GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K")
+          .accountId("GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K")
           .call()
           .then(function (response) {
             expect(response).to.be.deep.equal(singleAccountResponse);
@@ -811,5 +811,5 @@ describe("server.js tests", function () {
           })
       });
     });
-  })  
+  })
 });
