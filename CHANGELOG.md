@@ -14,5 +14,5 @@ bumps.  A breaking change will get clearly notified in this log.
 ### Changes
 - *Deprecated* AccountCallBuilder#address.
 
-[Unreleased]: https://github.com/stellar/horizon/compare/v0.3.0...master
-[0.3.0]: https://github.com/stellar/horizon/compare/v0.2.22...v0.3.0
+[Unreleased]: https://github.com/stellar/js-stellar-sdk/compare/v0.3.0...master
+[0.3.0]: https://github.com/stellar/js-stellar-sdk/compare/v0.2.22...v0.3.0
