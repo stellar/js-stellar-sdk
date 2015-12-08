@@ -449,7 +449,7 @@ describe("server.js tests", function () {
           .returns(Promise.resolve({data: singleAccountResponse}));
 
         this.server.accounts()
-          .accountID("GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K")
+          .accountId("GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K")
           .call()
           .then(function (response) {
             expect(response).to.be.deep.equal(singleAccountResponse);

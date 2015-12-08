@@ -9,7 +9,7 @@ bumps.  A breaking change will get clearly notified in this log.
 ## [Unreleased]
 
 ### Added
-- AccountCallBuilder learned `accountID` method to replace `address` method.
+- AccountCallBuilder learned `accountId` method to replace `address` method.
 
 ### Changes
 - *Deprecated* AccountCallBuilder#address.

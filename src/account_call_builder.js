@@ -16,11 +16,14 @@ export class AccountCallBuilder extends CallBuilder {
     }
 
     /**
-     * @deprecated use accountID method instead
+     * Returns information and links relating to a single account.
+     * The balances section in the returned JSON will also list all the trust lines this account has set up.
+     *
+     * @deprecated use accountId method instead
      */
     address(id) {
-        console.warn("AccountCallBuilder#address is deprecated, please use AccountCallBuilder#accountID instead");
-        return this.accountID(id);
+        console.warn("AccountCallBuilder#address is deprecated, please use AccountCallBuilder#accountId instead");
+        return this.accountId(id);
     }
 
     /**
@@ -28,10 +31,10 @@ export class AccountCallBuilder extends CallBuilder {
      * The balances section in the returned JSON will also list all the trust lines this account has set up.
      *
      * @see [Account Details](https://www.stellar.org/developers/horizon/reference/accounts-single.html)
-     * @param {id} accountId For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
+     * @param {string} id For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
      * @returns {AccountCallBuilder}
      */
-    accountID(id) {
+    accountId(id) {
       this.filter.push(['accounts', id]);
       return this;
     }
