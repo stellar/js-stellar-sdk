@@ -76,7 +76,7 @@ Note that, if you don't want to use Bower, you can also copy built JS files from
   ```
 
 ## Usage
-For information on how to use js-stellar-sdk, take a look at the [docs folder](./docs).
+For information on how to use js-stellar-sdk, take a look at the [Developers site](https://www.stellar.org/developers/js-stellar-sdk/learn/index.html).
 
 There is also API Documentation [here](https://github.com/stellar/horizon/blob/master/docs/Readme.md).
 
@@ -93,10 +93,10 @@ gulp test:browser
 ```
 
 ## Documentation
-Documentation for this repo lives inside the [docs folder](./docs).
+Documentation for this repo lives in [Developers site](https://www.stellar.org/developers/js-stellar-sdk/learn/index.html).
 
 ## Contributing
-For information on how to contribute, please refer to our [contribution guide](./CONTRIBUTING.md).
+For information on how to contribute, please refer to our [contribution guide](https://github.com/stellar/js-stellar-sdk/blob/master/CONTRIBUTING.md).
 
 ## Publishing to npm
 ```
@@ -108,7 +108,7 @@ npm >=2.13.0 required.
 Read more about [npm version](https://docs.npmjs.com/cli/version).
 
 ## License
-js-stellar-sdk is licensed under an Apache-2.0 license. See the [LICENSE](./LICENSE) file for details.
+js-stellar-sdk is licensed under an Apache-2.0 license. See the [LICENSE](https://github.com/stellar/js-stellar-sdk/blob/master/LICENSE) file for details.
 
 
 
