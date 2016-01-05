@@ -18,7 +18,7 @@ describe("federation-server.js tests", function () {
   describe('FederationServer.forAddress', function () {
     beforeEach(function () {
       this.axiosMock.expects('get')
-        .withArgs(sinon.match('https://acme.com:1337/federation?type=name&q=bob*stellar.org'))
+        .withArgs(sinon.match('https://acme.com:1337/federation?type=name&q=bob%2Astellar.org'))
         .returns(Promise.resolve({
           data: {
             stellar_address: 'bob*stellar.org',

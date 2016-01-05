@@ -113,7 +113,7 @@ export class FederationServer {
    * @returns {Promise}
    */
   forAccountId(accountId) {
-    let url = this.serverURL.query({type: id, q: accountId});
+    let url = this.serverURL.query({type: 'id', q: accountId});
     return this._sendRequest(url);
   }
 
