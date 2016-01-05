@@ -178,15 +178,15 @@ export class Server {
 
     /**
     * Fetches an account's most current state in the ledger and then creates and returns an {@link Account} object.
-    * @param {string} address - The account to load.
+    * @param {string} accountId - The account to load.
     * @returns {Promise} Returns a promise to the {@link Account} object with populated sequence number.
     */
-    loadAccount(address) {
+    loadAccount(accountId) {
         return this.accounts()
-            .accountId(address)
+            .accountId(accountId)
             .call()
             .then(function (res) {
-                return new Account(address, res.sequence);
+                return new Account(accountId, res.sequence);
             });
     }
 
