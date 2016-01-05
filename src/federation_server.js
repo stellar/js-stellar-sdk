@@ -14,7 +14,7 @@ export class FederationServer {
    * @param {string} [config.hostname] The hostname of the [federation server](https://www.stellar.org/developers/learn/concepts/federation.html), defaults to "localhost".
    * @param {number} [config.port] Server port, defaults to 80.
    * @param {string} [config.path] The path to federation endpoint, defaults to "/federation".
-   * @param {string} [config.domain] Domain this federation server represents. Optional, if exist username passed to {@link FederationServer#federation} method does not need to contain a domain.
+   * @param {string} [config.domain] Domain this federation server represents. Optional. If exists, username passed to {@link FederationServer#forAddress} method does not need to contain a domain.
    */
   constructor(config={}) {
     this.protocol = config.secure ? "https" : "http";
