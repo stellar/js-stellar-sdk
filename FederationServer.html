@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>EffectCallBuilder - Documentation</title>
+    <title>FederationServer - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -28,7 +28,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">EffectCallBuilder</h1>
+    <h1 class="page-title">FederationServer</h1>
     
 
     
@@ -41,7 +41,7 @@
 <header>
     
         <h2>
-        EffectCallBuilder
+        FederationServer
         </h2>
         
     
@@ -54,18 +54,278 @@
 
     
 
-    <h4 class="name" id="EffectCallBuilder"><span class="type-signature"></span>new EffectCallBuilder<span class="signature">()</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="FederationServer"><span class="type-signature"></span>new FederationServer<span class="signature">(config<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
 
     
 
 
 
+<div class="description">
+    <p>FederationServer handles a network connection to a
+<a href="https://www.stellar.org/developers/learn/concepts/federation.html">federation server</a>
+instance and exposes an interface for requests to that instance.</p>
+</div>
 
 
 
 
 
 
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>config</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>The server configuration.</p>
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>secure</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>Use https, defaults false.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>hostname</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>The hostname of the <a href="https://www.stellar.org/developers/learn/concepts/federation.html">federation server</a>, defaults to &quot;localhost&quot;.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>port</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>Server port, defaults to 80.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>path</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>The path to federation endpoint, defaults to &quot;/federation&quot;.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>domain</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>Domain this federation server represents. Optional, if exist username passed to FederationServer#federation method does not need to contain a domain.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
 
 
 
@@ -101,7 +361,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_effect_call_builder.js.html">src/effect_call_builder.js</a>, <a href="src_effect_call_builder.js.html#line3">line 3</a>
+        <a href="src_federation_server.js.html">src/federation_server.js</a>, <a href="src_federation_server.js.html#line19">line 19</a>
     </li></ul></dd>
     
 
@@ -131,17 +391,6 @@
     </div>
 
     
-        <h3 class="subsection-title">Extends</h3>
-
-        
-
-
-    <ul>
-        <li><a href="CallBuilder.html">CallBuilder</a></li>
-    </ul>
-
-
-    
 
     
 
@@ -161,15 +410,22 @@
 
     
 
-    <h4 class="name" id="call"><span class="type-signature"></span>call<span class="signature">()</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+    <h4 class="name" id=".createForDomain"><span class="type-signature">(static) </span>createForDomain<span class="signature">(domain)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
 
     
 
 
 
 <div class="description">
-    <p>Triggers a HTTP request using this builder's current configuration.
-Returns a Promise that resolves to the server's response.</p>
+    <p>Creates a <code>FederationServer</code> instance based on information from <a href="https://www.stellar.org/developers/learn/concepts/stellar-toml.html">stellar.toml</a> file for a given domain.
+Returns a <code>Promise</code> that resolves to a <code>FederationServer</code> object. If <code>stellar.toml</code> file does not exist for a given domain or it does not contain information about a federation server Promise will reject.</p>
+<pre class="prettyprint source lang-js"><code>StellarSdk.FederationServer.createForDomain('acme.com')
+  .then(federationServer => {
+    // federationServer.forAddress('bob').then(...)
+  })
+  .catch(error => {
+    // stellar.toml does not exist or it does not contain information about federation server.
+  });</code></pre>
 </div>
 
 
@@ -178,6 +434,55 @@ Returns a Promise that resolves to the server's response.</p>
 
 
 
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>domain</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Domain to get federation server for</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
 
 
 
@@ -190,11 +495,6 @@ Returns a Promise that resolves to the server's response.</p>
 
     
 
-    
-    <dt class="inherited-from">Inherited From:</dt>
-    <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="CallBuilder.html#call">CallBuilder#call</a>
-    </li></ul></dd>
     
 
     
@@ -218,12 +518,19 @@ Returns a Promise that resolves to the server's response.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_call_builder.js.html">src/call_builder.js</a>, <a href="src_call_builder.js.html#line41">line 41</a>
+        <a href="src_federation_server.js.html">src/federation_server.js</a>, <a href="src_federation_server.js.html#line78">line 78</a>
     </li></ul></dd>
     
 
     
 
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="https://www.stellar.org/developers/learn/concepts/stellar-toml.html" target="_blank">Stellar.toml doc</a></li>
+        </ul>
+    </dd>
     
 
     
@@ -267,14 +574,23 @@ Returns a Promise that resolves to the server's response.</p>
 
     
 
-    <h4 class="name" id="cursor"><span class="type-signature"></span>cursor<span class="signature">(cursor)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id=".forAddress"><span class="type-signature">(static) </span>forAddress<span class="signature">(address)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
 
     
 
 
 
 <div class="description">
-    <p>Adds <code>cursor</code> parameter to the current call. Returns the CallBuilder object on which this method has been called.</p>
+    <p>This methods splits Stellar address (ex. <code>bob*stellar.org</code>) and then tries to find information about federation
+server in <code>stellar.toml</code> file for a given domain. It returns a <code>Promise</code> which resolves if federation server exists
+and user has been found and rejects in all other cases.</p>
+<pre class="prettyprint source lang-js"><code>StellarSdk.FederationServer.forAddress('bob*stellar.org')
+ .then(federationRecord => {
+   // {
+   //   stellar_address: 'bob*stellar.org',
+   //   account_id: 'GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS'
+   // }
+ });</code></pre><p>This function is here for convenience and is using <code>createForDomain</code> and non-static <code>forAddress</code> internally.</p>
 </div>
 
 
@@ -310,7 +626,7 @@ Returns a Promise that resolves to the server's response.</p>
 
         <tr>
             
-                <td class="name"><code>cursor</code></td>
+                <td class="name"><code>address</code></td>
             
 
             <td class="type">
@@ -326,7 +642,7 @@ Returns a Promise that resolves to the server's response.</p>
 
             
 
-            <td class="description last"><p>A cursor is a value that points to a specific location in a collection of resources.</p></td>
+            <td class="description last"><p>Stellar Address (ex. <code>bob*stellar.org</code>)</p></td>
         </tr>
 
     
@@ -344,11 +660,6 @@ Returns a Promise that resolves to the server's response.</p>
 
     
 
-    
-    <dt class="inherited-from">Inherited From:</dt>
-    <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="CallBuilder.html#cursor">CallBuilder#cursor</a>
-    </li></ul></dd>
     
 
     
@@ -372,7 +683,7 @@ Returns a Promise that resolves to the server's response.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_call_builder.js.html">src/call_builder.js</a>, <a href="src_call_builder.js.html#line173">line 173</a>
+        <a href="src_federation_server.js.html">src/federation_server.js</a>, <a href="src_federation_server.js.html#line52">line 52</a>
     </li></ul></dd>
     
 
@@ -382,7 +693,9 @@ Returns a Promise that resolves to the server's response.</p>
     <dt class="tag-see">See:</dt>
     <dd class="tag-see">
         <ul>
-            <li><p><a href="https://www.stellar.org/developers/horizon/learn/paging.html">Paging</a></p></li>
+            <li><a href="https://www.stellar.org/developers/learn/concepts/federation.html" target="_blank">Federation doc</a></li>
+        
+            <li><a href="https://www.stellar.org/developers/learn/concepts/stellar-toml.html" target="_blank">Stellar.toml doc</a></li>
         </ul>
     </dd>
     
@@ -402,6 +715,24 @@ Returns a Promise that resolves to the server's response.</p>
 
 
 
+<h5>Returns:</h5>
+
+        
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise</span>
+
+
+    </dd>
+</dl>
+
+    
 
 
 
@@ -410,14 +741,14 @@ Returns a Promise that resolves to the server's response.</p>
 
     
 
-    <h4 class="name" id="forAccount"><span class="type-signature"></span>forAccount<span class="signature">(accountId)</span><span class="type-signature"> &rarr; {<a href="EffectCallBuilder.html">EffectCallBuilder</a>}</span></h4>
+    <h4 class="name" id="forAccountId"><span class="type-signature"></span>forAccountId<span class="signature">(accountId)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
 
     
 
 
 
 <div class="description">
-    <p>This endpoint represents all effects that changed a given account. It will return relevant effects from the creation of the account to the current ledger.</p>
+    <p>Returns a Promise that resolves to federation record if the user was found for a given account ID.</p>
 </div>
 
 
@@ -469,7 +800,7 @@ Returns a Promise that resolves to the server's response.</p>
 
             
 
-            <td class="description last"><p>For example: <code>GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD</code></p></td>
+            <td class="description last"><p>Account ID (ex. <code>GBYNR2QJXLBCBTRN44MRORCMI4YO7FZPFBCNOKTOBCAAFC7KC3LNPRYS</code>)</p></td>
         </tr>
 
     
@@ -510,7 +841,7 @@ Returns a Promise that resolves to the server's response.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_effect_call_builder.js.html">src/effect_call_builder.js</a>, <a href="src_effect_call_builder.js.html#line27">line 27</a>
+        <a href="src_federation_server.js.html">src/federation_server.js</a>, <a href="src_federation_server.js.html#line116">line 116</a>
     </li></ul></dd>
     
 
@@ -520,7 +851,7 @@ Returns a Promise that resolves to the server's response.</p>
     <dt class="tag-see">See:</dt>
     <dd class="tag-see">
         <ul>
-            <li><p><a href="https://www.stellar.org/developers/horizon/reference/effects-for-account.html">Effects for Account</a></p></li>
+            <li><a href="https://www.stellar.org/developers/learn/concepts/federation.html" target="_blank">Federation doc</a></li>
         </ul>
     </dd>
     
@@ -551,7 +882,7 @@ Returns a Promise that resolves to the server's response.</p>
     </dt>
     <dd>
         
-<span class="param-type"><a href="EffectCallBuilder.html">EffectCallBuilder</a></span>
+<span class="param-type">Promise</span>
 
 
     </dd>
@@ -566,15 +897,14 @@ Returns a Promise that resolves to the server's response.</p>
 
     
 
-    <h4 class="name" id="forLedger"><span class="type-signature"></span>forLedger<span class="signature">(ledgerId)</span><span class="type-signature"> &rarr; {<a href="EffectCallBuilder.html">EffectCallBuilder</a>}</span></h4>
+    <h4 class="name" id="forAddress"><span class="type-signature"></span>forAddress<span class="signature">(address)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
 
     
 
 
 
 <div class="description">
-    <p>Effects are the specific ways that the ledger was changed by any operation.</p>
-<p>This endpoint represents all effects that occurred in the given ledger.</p>
+    <p>Returns a Promise that resolves to federation record if the user was found for a given Stellar address.</p>
 </div>
 
 
@@ -610,13 +940,13 @@ Returns a Promise that resolves to the server's response.</p>
 
         <tr>
             
-                <td class="name"><code>ledgerId</code></td>
+                <td class="name"><code>address</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">number</span>
+<span class="param-type">string</span>
 
 
             
@@ -626,7 +956,7 @@ Returns a Promise that resolves to the server's response.</p>
 
             
 
-            <td class="description last"><p>Ledger ID</p></td>
+            <td class="description last"><p>Stellar address (ex. <code>bob*stellar.org</code>). If <code>FederationServer</code> was instantiated with <code>domain</code> param only username (ex. <code>bob</code>) can be passed.</p></td>
         </tr>
 
     
@@ -667,7 +997,7 @@ Returns a Promise that resolves to the server's response.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_effect_call_builder.js.html">src/effect_call_builder.js</a>, <a href="src_effect_call_builder.js.html#line40">line 40</a>
+        <a href="src_federation_server.js.html">src/federation_server.js</a>, <a href="src_federation_server.js.html#line99">line 99</a>
     </li></ul></dd>
     
 
@@ -677,7 +1007,7 @@ Returns a Promise that resolves to the server's response.</p>
     <dt class="tag-see">See:</dt>
     <dd class="tag-see">
         <ul>
-            <li><p><a href="https://www.stellar.org/developers/horizon/reference/effects-for-ledger.html">Effects for Ledger</a></p></li>
+            <li><a href="https://www.stellar.org/developers/learn/concepts/federation.html" target="_blank">Federation doc</a></li>
         </ul>
     </dd>
     
@@ -708,7 +1038,7 @@ Returns a Promise that resolves to the server's response.</p>
     </dt>
     <dd>
         
-<span class="param-type"><a href="EffectCallBuilder.html">EffectCallBuilder</a></span>
+<span class="param-type">Promise</span>
 
 
     </dd>
@@ -723,170 +1053,14 @@ Returns a Promise that resolves to the server's response.</p>
 
     
 
-    <h4 class="name" id="forOperation"><span class="type-signature"></span>forOperation<span class="signature">(operationId)</span><span class="type-signature"> &rarr; {<a href="EffectCallBuilder.html">EffectCallBuilder</a>}</span></h4>
+    <h4 class="name" id="forTransactionId"><span class="type-signature"></span>forTransactionId<span class="signature">(transactionId)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
 
     
 
 
 
 <div class="description">
-    <p>This endpoint represents all effects that occurred as a result of a given operation.</p>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>operationId</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>Operation ID</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_effect_call_builder.js.html">src/effect_call_builder.js</a>, <a href="src_effect_call_builder.js.html#line62">line 62</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-    <dt class="tag-see">See:</dt>
-    <dd class="tag-see">
-        <ul>
-            <li><p><a href="https://www.stellar.org/developers/horizon/reference/effects-for-operation.html">Effects for Operation</a></p></li>
-        </ul>
-    </dd>
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-
-
-<dl class="param-type">
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type"><a href="EffectCallBuilder.html">EffectCallBuilder</a></span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="forTransaction"><span class="type-signature"></span>forTransaction<span class="signature">(transactionId)</span><span class="type-signature"> &rarr; {<a href="EffectCallBuilder.html">EffectCallBuilder</a>}</span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>This endpoint represents all effects that occurred as a result of a given transaction.</p>
+    <p>Returns a Promise that resolves to federation record if the sender of the transaction was found for a given transaction ID.</p>
 </div>
 
 
@@ -938,7 +1112,7 @@ Returns a Promise that resolves to the server's response.</p>
 
             
 
-            <td class="description last"><p>Transaction ID</p></td>
+            <td class="description last"><p>Transaction ID (ex. <code>3389e9f0f1a65f19736cacf544c2e825313e8447f569233bb8db39aa607c8889</code>)</p></td>
         </tr>
 
     
@@ -979,7 +1153,7 @@ Returns a Promise that resolves to the server's response.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_effect_call_builder.js.html">src/effect_call_builder.js</a>, <a href="src_effect_call_builder.js.html#line51">line 51</a>
+        <a href="src_federation_server.js.html">src/federation_server.js</a>, <a href="src_federation_server.js.html#line127">line 127</a>
     </li></ul></dd>
     
 
@@ -989,7 +1163,7 @@ Returns a Promise that resolves to the server's response.</p>
     <dt class="tag-see">See:</dt>
     <dd class="tag-see">
         <ul>
-            <li><p><a href="https://www.stellar.org/developers/horizon/reference/effects-for-transaction.html">Effects for Transaction</a></p></li>
+            <li><a href="https://www.stellar.org/developers/learn/concepts/federation.html" target="_blank">Federation doc</a></li>
         </ul>
     </dd>
     
@@ -1020,558 +1194,7 @@ Returns a Promise that resolves to the server's response.</p>
     </dt>
     <dd>
         
-<span class="param-type"><a href="EffectCallBuilder.html">EffectCallBuilder</a></span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="limit"><span class="type-signature"></span>limit<span class="signature">(number)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Adds <code>limit</code> parameter to the current call. Returns the CallBuilder object on which this method has been called.</p>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>number</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>Number of records the server should return.</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-    <dt class="inherited-from">Inherited From:</dt>
-    <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="CallBuilder.html#limit">CallBuilder#limit</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_call_builder.js.html">src/call_builder.js</a>, <a href="src_call_builder.js.html#line183">line 183</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-    <dt class="tag-see">See:</dt>
-    <dd class="tag-see">
-        <ul>
-            <li><p><a href="https://www.stellar.org/developers/horizon/learn/paging.html">Paging</a></p></li>
-        </ul>
-    </dd>
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="order"><span class="type-signature"></span>order<span class="signature">(direction)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Adds <code>order</code> parameter to the current call. Returns the CallBuilder object on which this method has been called.</p>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>direction</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">"asc"</span>
-|
-
-<span class="param-type">"desc"</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-    <dt class="inherited-from">Inherited From:</dt>
-    <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="CallBuilder.html#order">CallBuilder#order</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_call_builder.js.html">src/call_builder.js</a>, <a href="src_call_builder.js.html#line192">line 192</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="stream"><span class="type-signature"></span>stream<span class="signature">(options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {EventSource}</span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Creates an EventSource that listens for incoming messages from the server.</p>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>options</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>EventSource options.</p>
-                <h6>Properties</h6>
-                
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>onmessage</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>Callback function to handle incoming messages.</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>onerror</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>Callback function to handle errors.</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-            </td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-    <dt class="inherited-from">Inherited From:</dt>
-    <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="CallBuilder.html#stream">CallBuilder#stream</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_call_builder.js.html">src/call_builder.js</a>, <a href="src_call_builder.js.html#line56">line 56</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-    <dt class="tag-see">See:</dt>
-    <dd class="tag-see">
-        <ul>
-            <li><p><a href="https://www.stellar.org/developers/horizon/learn/responses.html">Horizon Response Format</a></p></li>
-        
-            <li><p><a href="https://developer.mozilla.org/en-US/docs/Web/API/EventSource">MDN EventSource</a></p></li>
-        </ul>
-    </dd>
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-
-
-<dl class="param-type">
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">EventSource</span>
+<span class="param-type">Promise</span>
 
 
     </dd>

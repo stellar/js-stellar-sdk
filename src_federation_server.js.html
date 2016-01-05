@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>CallBuilder - Documentation</title>
+    <title>src/federation_server.js - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -28,961 +28,162 @@
 
 <div id="main">
     
-    <h1 class="page-title">CallBuilder</h1>
-    
-
-    
-
-
-
-
-<section>
-
-<header>
-    
-        <h2>
-        CallBuilder
-        </h2>
-        
-    
-</header>
-
-<article>
-    <div class="container-overview">
-    
-        
-
-    
-
-    <h4 class="name" id="CallBuilder"><span class="type-signature"></span>new CallBuilder<span class="signature">(serverUrl)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Creates a new <a href="CallBuilder.html">CallBuilder</a> pointed to server defined by serverUrl.</p>
-<p>This is an <strong>abstract</strong> class. Do not create this object directly, use <a href="Server.html">Server</a> class.</p>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>serverUrl</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_call_builder.js.html">src/call_builder.js</a>, <a href="src_call_builder.js.html#line11">line 11</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-    </div>
-
-    
-
-    
-
-    
-
-     
-
-    
-
-    
-
-    
-        <h3 class="subsection-title">Methods</h3>
-
-        
-            
-
-    
-
-    <h4 class="name" id="call"><span class="type-signature"></span>call<span class="signature">()</span><span class="type-signature"> &rarr; {Promise}</span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Triggers a HTTP request using this builder's current configuration.
-Returns a Promise that resolves to the server's response.</p>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_call_builder.js.html">src/call_builder.js</a>, <a href="src_call_builder.js.html#line41">line 41</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-
-
-<dl class="param-type">
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Promise</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="cursor"><span class="type-signature"></span>cursor<span class="signature">(cursor)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Adds <code>cursor</code> parameter to the current call. Returns the CallBuilder object on which this method has been called.</p>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>cursor</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>A cursor is a value that points to a specific location in a collection of resources.</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_call_builder.js.html">src/call_builder.js</a>, <a href="src_call_builder.js.html#line173">line 173</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-    <dt class="tag-see">See:</dt>
-    <dd class="tag-see">
-        <ul>
-            <li><p><a href="https://www.stellar.org/developers/horizon/learn/paging.html">Paging</a></p></li>
-        </ul>
-    </dd>
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="limit"><span class="type-signature"></span>limit<span class="signature">(number)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Adds <code>limit</code> parameter to the current call. Returns the CallBuilder object on which this method has been called.</p>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>number</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>Number of records the server should return.</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_call_builder.js.html">src/call_builder.js</a>, <a href="src_call_builder.js.html#line183">line 183</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-    <dt class="tag-see">See:</dt>
-    <dd class="tag-see">
-        <ul>
-            <li><p><a href="https://www.stellar.org/developers/horizon/learn/paging.html">Paging</a></p></li>
-        </ul>
-    </dd>
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="order"><span class="type-signature"></span>order<span class="signature">(direction)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Adds <code>order</code> parameter to the current call. Returns the CallBuilder object on which this method has been called.</p>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>direction</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">"asc"</span>
-|
-
-<span class="param-type">"desc"</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_call_builder.js.html">src/call_builder.js</a>, <a href="src_call_builder.js.html#line192">line 192</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="stream"><span class="type-signature"></span>stream<span class="signature">(options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {EventSource}</span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Creates an EventSource that listens for incoming messages from the server.</p>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>options</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>EventSource options.</p>
-                <h6>Properties</h6>
-                
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>onmessage</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>Callback function to handle incoming messages.</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>onerror</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>Callback function to handle errors.</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-            </td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_call_builder.js.html">src/call_builder.js</a>, <a href="src_call_builder.js.html#line56">line 56</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-    <dt class="tag-see">See:</dt>
-    <dd class="tag-see">
-        <ul>
-            <li><p><a href="https://www.stellar.org/developers/horizon/learn/responses.html">Horizon Response Format</a></p></li>
-        
-            <li><p><a href="https://developer.mozilla.org/en-US/docs/Web/API/EventSource">MDN EventSource</a></p></li>
-        </ul>
-    </dd>
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-
-
-<dl class="param-type">
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">EventSource</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-        
-    
-
-    
-
-    
-</article>
-
-</section>
+    <h1 class="page-title">src/federation_server.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import axios from 'axios';
+import URI from 'URIjs';
+import Promise from 'bluebird';
+import toml from 'toml';
+
+export class FederationServer {
+  /**
+   * FederationServer handles a network connection to a
+   * [federation server](https://www.stellar.org/developers/learn/concepts/federation.html)
+   * instance and exposes an interface for requests to that instance.
+   * @constructor
+   * @param {object} [config] The server configuration.
+   * @param {boolean} [config.secure] Use https, defaults false.
+   * @param {string} [config.hostname] The hostname of the [federation server](https://www.stellar.org/developers/learn/concepts/federation.html), defaults to "localhost".
+   * @param {number} [config.port] Server port, defaults to 80.
+   * @param {string} [config.path] The path to federation endpoint, defaults to "/federation".
+   * @param {string} [config.domain] Domain this federation server represents. Optional, if exist username passed to {@link FederationServer#federation} method does not need to contain a domain.
+   */
+  constructor(config={}) {
+    this.protocol = config.secure ? "https" : "http";
+    this.hostname = config.hostname || "localhost";
+    this.port = config.port || 80;
+    this.path = config.path || '/federation';
+    this.domain = config.domain;
+    this.serverURL = URI({
+      protocol: this.protocol,
+      hostname: this.hostname,
+      port: this.port,
+      path: this.path
+    });
+  }
+
+  /**
+   * This methods splits Stellar address (ex. `bob*stellar.org`) and then tries to find information about federation
+   * server in `stellar.toml` file for a given domain. It returns a `Promise` which resolves if federation server exists
+   * and user has been found and rejects in all other cases.
+   * ```js
+   * StellarSdk.FederationServer.forAddress('bob*stellar.org')
+   *  .then(federationRecord => {
+   *    // {
+   *    //   stellar_address: 'bob*stellar.org',
+   *    //   account_id: 'GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS'
+   *    // }
+   *  });
+   * ```
+   * This function is here for convenience and is using `createForDomain` and non-static `forAddress` internally.
+   * @see &lt;a href="https://www.stellar.org/developers/learn/concepts/federation.html" target="_blank">Federation doc&lt;/a>
+   * @see &lt;a href="https://www.stellar.org/developers/learn/concepts/stellar-toml.html" target="_blank">Stellar.toml doc&lt;/a>
+   * @param {string} address Stellar Address (ex. `bob*stellar.org`)
+   * @returns {Promise}
+   */
+  static forAddress(address) {
+    let addressParts = address.split('*');
+    if (addressParts.length != 2) {
+      return Promise.reject(new Error('Invalid Stellar address'));
+    }
+    let [,domain] = addressParts;
+    return FederationServer.createForDomain(domain)
+      .then(federationServer => federationServer.forAddress(address));
+  }
+
+  /**
+   * Creates a `FederationServer` instance based on information from [stellar.toml](https://www.stellar.org/developers/learn/concepts/stellar-toml.html) file for a given domain.
+   * Returns a `Promise` that resolves to a `FederationServer` object. If `stellar.toml` file does not exist for a given domain or it does not contain information about a federation server Promise will reject.
+   * ```js
+   * StellarSdk.FederationServer.createForDomain('acme.com')
+   *   .then(federationServer => {
+   *     // federationServer.forAddress('bob').then(...)
+   *   })
+   *   .catch(error => {
+   *     // stellar.toml does not exist or it does not contain information about federation server.
+   *   });
+   * ```
+   * @see &lt;a href="https://www.stellar.org/developers/learn/concepts/stellar-toml.html" target="_blank">Stellar.toml doc&lt;/a>
+   * @param {string} domain Domain to get federation server for
+   * @returns {Promise}
+   */
+  static createForDomain(domain) {
+    return axios.get(`https://www.${domain}/.well-known/stellar.toml`)
+      .then(response => {
+        let tomlObject = toml.parse(response.data);
+        if (!tomlObject.FEDERATION_SERVER) {
+          return Promise.reject(new Error('stellar.toml does not contain FEDERATION_SERVER field'));
+        }
+
+        let config = URI.parse(tomlObject.FEDERATION_SERVER);
+        config.domain = domain;
+        config.secure = config.protocol == 'https';
+        return new FederationServer(config);
+      });
+  }
+
+  /**
+   * Returns a Promise that resolves to federation record if the user was found for a given Stellar address.
+   * @see &lt;a href="https://www.stellar.org/developers/learn/concepts/federation.html" target="_blank">Federation doc&lt;/a>
+   * @param {string} address Stellar address (ex. `bob*stellar.org`). If `FederationServer` was instantiated with `domain` param only username (ex. `bob`) can be passed.
+   * @returns {Promise}
+   */
+  forAddress(address) {
+    if (address.indexOf('*') &lt; 0) {
+      if (!this.domain) {
+        return Promise.reject(new Error('Unknown domain. Make sure `address` contains a domain (ex. `bob*stellar.org`) or pass `domain` parameter when instantiating the server object.'));
+      }
+      address = `${address}*${this.domain}`;
+    }
+    let url = this.serverURL.query({type: 'name', q: address});
+    return this._sendRequest(url);
+  }
+
+  /**
+   * Returns a Promise that resolves to federation record if the user was found for a given account ID.
+   * @see &lt;a href="https://www.stellar.org/developers/learn/concepts/federation.html" target="_blank">Federation doc&lt;/a>
+   * @param {string} accountId Account ID (ex. `GBYNR2QJXLBCBTRN44MRORCMI4YO7FZPFBCNOKTOBCAAFC7KC3LNPRYS`)
+   * @returns {Promise}
+   */
+  forAccountId(accountId) {
+    let url = this.serverURL.query({type: 'id', q: accountId});
+    return this._sendRequest(url);
+  }
+
+  /**
+   * Returns a Promise that resolves to federation record if the sender of the transaction was found for a given transaction ID.
+   * @see &lt;a href="https://www.stellar.org/developers/learn/concepts/federation.html" target="_blank">Federation doc&lt;/a>
+   * @param {string} transactionId Transaction ID (ex. `3389e9f0f1a65f19736cacf544c2e825313e8447f569233bb8db39aa607c8889`)
+   * @returns {Promise}
+   */
+  forTransactionId(transactionId) {
+    let url = this.serverURL.query({type: 'txid', q: transactionId});
+    return this._sendRequest(url);
+  }
+
+  _sendRequest(url) {
+    return axios.get(url.toString())
+      .then(response => response.data)
+      .catch(function (response) {
+        if (response instanceof Error) {
+          return Promise.reject(response);
+        } else {
+          return Promise.reject(response.data);
+        }
+      });
+  }
+}
+</code></pre>
+        </article>
+    </section>
 
 
 
