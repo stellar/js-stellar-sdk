@@ -101,4 +101,38 @@ describe("federation-server.js tests", function () {
         });
     });
   });
+
+  describe('FederationServer.createForDomain', function () {
+    it("creates correct object", function (done) {
+      this.axiosMock.expects('get')
+        .withArgs(sinon.match('https://www.acme.com/.well-known/stellar.toml'))
+        .returns(Promise.resolve({
+          data: `
+#   The endpoint which clients should query to resolve stellar addresses
+#   for users on your domain.
+FEDERATION_SERVER="https://api.stellar.org/federation"
+`
+        }));
+
+      StellarSdk.FederationServer.createForDomain('acme.com')
+        .then(federationServer => {
+          expect(federationServer.protocol).equals('https');
+          expect(federationServer.hostname).equals('api.stellar.org');
+          expect(federationServer.port).equals(80);
+          expect(federationServer.path).equals('/federation');
+          expect(federationServer.domain).equals('acme.com');
+          done();
+        });
+    });
+
+    it("fails when stellar.toml does not contain federation server info", function (done) {
+      this.axiosMock.expects('get')
+        .withArgs(sinon.match('https://www.acme.com/.well-known/stellar.toml'))
+        .returns(Promise.resolve({
+          data: ''
+        }));
+
+      StellarSdk.FederationServer.createForDomain('acme.com').should.be.rejectedWith(/stellar.toml does not contain FEDERATION_SERVER field/).and.notify(done);
+    });
+  });
 });

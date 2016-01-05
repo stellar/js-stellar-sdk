@@ -1,6 +1,7 @@
 import axios from 'axios';
 import URI from 'URIjs';
 import Promise from 'bluebird';
+import toml from 'toml';
 
 export class FederationServer {
   /**
@@ -11,14 +12,14 @@ export class FederationServer {
    * @param {object} [config] The server configuration.
    * @param {boolean} [config.secure] Use https, defaults false.
    * @param {string} [config.hostname] The hostname of the [federation server](https://www.stellar.org/developers/learn/concepts/federation.html), defaults to "localhost".
-   * @param {number} [config.port] Server port, defaults to 8000.
+   * @param {number} [config.port] Server port, defaults to 80.
    * @param {string} [config.path] The path to federation endpoint, defaults to "/federation".
    * @param {string} [config.domain] Domain this federation server represents. Optional, if exist username passed to {@link FederationServer#federation} method does not need to contain a domain.
    */
   constructor(config={}) {
     this.protocol = config.secure ? "https" : "http";
     this.hostname = config.hostname || "localhost";
-    this.port = config.port || 8000;
+    this.port = config.port || 80;
     this.path = config.path || '/federation';
     this.domain = config.domain;
     this.serverURL = URI({
@@ -27,6 +28,65 @@ export class FederationServer {
       port: this.port,
       path: this.path
     });
+  }
+
+  /**
+   * This methods splits Stellar address (ex. `bob*stellar.org`) and then tries to find information about federation
+   * server in `stellar.toml` file for a given domain. It returns a `Promise` which resolves if federation server exists
+   * and user has been found and rejects in all other cases.
+   * ```js
+   * StellarSdk.FederationServer.forAddress('bob*stellar.org')
+   *  .then(federationRecord => {
+   *    // {
+   *    //   stellar_address: 'bob*stellar.org',
+   *    //   account_id: 'GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS'
+   *    // }
+   *  });
+   * ```
+   * This function is here for convenience and is using `createForDomain` and non-static `forAddress` internally.
+   * @see <a href="https://www.stellar.org/developers/learn/concepts/federation.html" target="_blank">Federation doc</a>
+   * @see <a href="https://www.stellar.org/developers/learn/concepts/stellar-toml.html" target="_blank">Stellar.toml doc</a>
+   * @param {string} address Stellar Address (ex. `bob*stellar.org`)
+   * @returns {Promise}
+   */
+  static forAddress(address) {
+    let [,domain] = address.split('*');
+    if (!domain) {
+      return Promise.reject(new Error('Invalid Stellar address.'));
+    }
+    return FederationServer.createForDomain(domain)
+      .then(federationServer => federationServer.forAddress(address));
+  }
+
+  /**
+   * Creates a `FederationServer` instance based on information from [stellar.toml](https://www.stellar.org/developers/learn/concepts/stellar-toml.html) file for a given domain.
+   * Returns a `Promise` that resolves to a `FederationServer` object. If `stellar.toml` file does not exist for a given domain or it does not contain information about a federation server Promise will reject.
+   * ```js
+   * StellarSdk.FederationServer.createForDomain('acme.com')
+   *   .then(federationServer => {
+   *     // federationServer.forAddress('bob').then(...)
+   *   })
+   *   .catch(error => {
+   *     // stellar.toml does not exist or it does not contain information about federation server.
+   *   });
+   * ```
+   * @see <a href="https://www.stellar.org/developers/learn/concepts/stellar-toml.html" target="_blank">Stellar.toml doc</a>
+   * @param {string} domain Domain to get federation server for
+   * @returns {Promise}
+   */
+  static createForDomain(domain) {
+    return axios.get(`https://www.${domain}/.well-known/stellar.toml`)
+      .then(response => {
+        let tomlObject = toml.parse(response.data);
+        if (!tomlObject.FEDERATION_SERVER) {
+          return Promise.reject(new Error('stellar.toml does not contain FEDERATION_SERVER field'));
+        }
+
+        let config = URI.parse(tomlObject.FEDERATION_SERVER);
+        config.domain = domain;
+        config.secure = config.protocol == 'https';
+        return new FederationServer(config);
+      });
   }
 
   /**
@@ -42,7 +102,7 @@ export class FederationServer {
       }
       address = `${address}*${this.domain}`;
     }
-    let url = this.serverURL.query(`type=name&q=${address}`);
+    let url = this.serverURL.query({type: 'name', q: address});
     return this._sendRequest(url);
   }
 
@@ -53,7 +113,7 @@ export class FederationServer {
    * @returns {Promise}
    */
   forAccountId(accountId) {
-    let url = this.serverURL.query(`type=id&q=${accountId}`);
+    let url = this.serverURL.query({type: id, q: accountId});
     return this._sendRequest(url);
   }
 
@@ -64,15 +124,13 @@ export class FederationServer {
    * @returns {Promise}
    */
   forTransactionId(transactionId) {
-    let url = this.serverURL.query(`type=txid&q=${transactionId}`);
+    let url = this.serverURL.query({type: 'txid', q: transactionId});
     return this._sendRequest(url);
   }
 
   _sendRequest(url) {
     return axios.get(url.toString())
-      .then(function(response) {
-        return response.data;
-      })
+      .then(response => response.data)
       .catch(function (response) {
         if (response instanceof Error) {
           return Promise.reject(response);
