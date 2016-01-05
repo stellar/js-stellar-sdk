@@ -50,10 +50,11 @@ export class FederationServer {
    * @returns {Promise}
    */
   static forAddress(address) {
-    let [,domain] = address.split('*');
-    if (!domain) {
-      return Promise.reject(new Error('Invalid Stellar address.'));
+    let addressParts = address.split('*');
+    if (addressParts.length != 2) {
+      return Promise.reject(new Error('Invalid Stellar address'));
     }
+    let [,domain] = addressParts;
     return FederationServer.createForDomain(domain)
       .then(federationServer => federationServer.forAddress(address));
   }

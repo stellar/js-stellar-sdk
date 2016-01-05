@@ -135,4 +135,10 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
       StellarSdk.FederationServer.createForDomain('acme.com').should.be.rejectedWith(/stellar.toml does not contain FEDERATION_SERVER field/).and.notify(done);
     });
   });
+
+  describe('(static) FederationServer.forAddress', function () {
+    it("fails for invalid Stellar address", function (done) {
+      StellarSdk.FederationServer.forAddress('bob*stellar.org*test').should.be.rejectedWith(/Invalid Stellar address/).and.notify(done);
+    });
+  });
 });
