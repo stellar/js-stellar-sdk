@@ -183,7 +183,7 @@ export class Server {
     */
     loadAccount(address) {
         return this.accounts()
-            .address(address)
+            .accountId(address)
             .call()
             .then(function (res) {
                 return new Account(address, res.sequence);
