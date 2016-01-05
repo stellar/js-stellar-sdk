@@ -57,6 +57,7 @@
     "jshint-stylish": "^1.0.1",
     "karma": "^0.13.2",
     "karma-chai": "^0.1.0",
+    "karma-chai-as-promised": "^0.1.2",
     "karma-chrome-launcher": "^0.1.7",
     "karma-firefox-launcher": "^0.1.4",
     "karma-mocha": "^0.1.10",
