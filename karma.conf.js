@@ -1,6 +1,6 @@
 module.exports = function(config) {
   config.set({
-    frameworks: ['mocha', 'chai', 'sinon'],
+    frameworks: ['mocha', 'chai-as-promised', 'chai', 'sinon'],
     browsers : ["Firefox"],
 
     files: [

@@ -34,7 +34,7 @@ module.exports = function(config) {
     browserNoActivityTimeout : 4*60*1000,
     captureTimeout : 4*60*1000,
 
-    frameworks: ['mocha', 'chai', 'sinon'],
+    frameworks: ['mocha', 'chai-as-promised', 'chai', 'sinon'],
     customLaunchers: customLaunchers,
     browsers: Object.keys(customLaunchers),
 
