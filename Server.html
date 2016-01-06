@@ -54,7 +54,7 @@
 
     
 
-    <h4 class="name" id="Server"><span class="type-signature"></span>new Server<span class="signature">(config<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="Server"><span class="type-signature"></span>new Server<span class="signature">(serverURL)</span><span class="type-signature"></span></h4>
 
     
 
@@ -86,8 +86,6 @@ instance and exposes an interface for requests to that instance.</p>
         <th>Type</th>
 
         
-        <th>Attributes</th>
-        
 
         
 
@@ -100,94 +98,7 @@ instance and exposes an interface for requests to that instance.</p>
 
         <tr>
             
-                <td class="name"><code>config</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>The server configuration.</p>
-                <h6>Properties</h6>
-                
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>secure</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">boolean</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>Use https, defaults false.</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>hostname</code></td>
+                <td class="name"><code>serverURL</code></td>
             
 
             <td class="type">
@@ -200,60 +111,10 @@ instance and exposes an interface for requests to that instance.</p>
             </td>
 
             
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
 
             
 
-            <td class="description last"><p>The hostname of the <a href="https://www.stellar.org/developers/horizon/learn/index.html">Horizon</a> server, defaults to &quot;localhost&quot;.</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>port</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>Horizon port, defaults to 3000.</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-            </td>
+            <td class="description last"><p>Horizon Server URL (ex. <code>https://horizon-testnet.stellar.org</code>). The old method (config object parameter) is <strong>deprecated</strong>.</p></td>
         </tr>
 
     
@@ -294,7 +155,7 @@ instance and exposes an interface for requests to that instance.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_server.js.html">src/server.js</a>, <a href="src_server.js.html#line33">line 33</a>
+        <a href="src_server.js.html">src/server.js</a>, <a href="src_server.js.html#line32">line 32</a>
     </li></ul></dd>
     
 
@@ -394,7 +255,7 @@ instance and exposes an interface for requests to that instance.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_server.js.html">src/server.js</a>, <a href="src_server.js.html#line72">line 72</a>
+        <a href="src_server.js.html">src/server.js</a>, <a href="src_server.js.html#line77">line 77</a>
     </li></ul></dd>
     
 
@@ -494,7 +355,7 @@ instance and exposes an interface for requests to that instance.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_server.js.html">src/server.js</a>, <a href="src_server.js.html#line166">line 166</a>
+        <a href="src_server.js.html">src/server.js</a>, <a href="src_server.js.html#line171">line 171</a>
     </li></ul></dd>
     
 
@@ -594,7 +455,7 @@ instance and exposes an interface for requests to that instance.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_server.js.html">src/server.js</a>, <a href="src_server.js.html#line80">line 80</a>
+        <a href="src_server.js.html">src/server.js</a>, <a href="src_server.js.html#line85">line 85</a>
     </li></ul></dd>
     
 
@@ -743,7 +604,7 @@ instance and exposes an interface for requests to that instance.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_server.js.html">src/server.js</a>, <a href="src_server.js.html#line184">line 184</a>
+        <a href="src_server.js.html">src/server.js</a>, <a href="src_server.js.html#line189">line 189</a>
     </li></ul></dd>
     
 
@@ -944,7 +805,7 @@ Currently this method only supports querying offers for account and should be us
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_server.js.html">src/server.js</a>, <a href="src_server.js.html#line105">line 105</a>
+        <a href="src_server.js.html">src/server.js</a>, <a href="src_server.js.html#line110">line 110</a>
     </li></ul></dd>
     
 
@@ -1036,7 +897,7 @@ Currently this method only supports querying offers for account and should be us
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_server.js.html">src/server.js</a>, <a href="src_server.js.html#line123">line 123</a>
+        <a href="src_server.js.html">src/server.js</a>, <a href="src_server.js.html#line128">line 128</a>
     </li></ul></dd>
     
 
@@ -1208,7 +1069,7 @@ Currently this method only supports querying offers for account and should be us
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_server.js.html">src/server.js</a>, <a href="src_server.js.html#line115">line 115</a>
+        <a href="src_server.js.html">src/server.js</a>, <a href="src_server.js.html#line120">line 120</a>
     </li></ul></dd>
     
 
@@ -1438,7 +1299,7 @@ used to determine if there a given path can satisfy a payment of the desired amo
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_server.js.html">src/server.js</a>, <a href="src_server.js.html#line150">line 150</a>
+        <a href="src_server.js.html">src/server.js</a>, <a href="src_server.js.html#line155">line 155</a>
     </li></ul></dd>
     
 
@@ -1530,7 +1391,7 @@ used to determine if there a given path can satisfy a payment of the desired amo
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_server.js.html">src/server.js</a>, <a href="src_server.js.html#line158">line 158</a>
+        <a href="src_server.js.html">src/server.js</a>, <a href="src_server.js.html#line163">line 163</a>
     </li></ul></dd>
     
 
@@ -1679,7 +1540,7 @@ used to determine if there a given path can satisfy a payment of the desired amo
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_server.js.html">src/server.js</a>, <a href="src_server.js.html#line48">line 48</a>
+        <a href="src_server.js.html">src/server.js</a>, <a href="src_server.js.html#line53">line 53</a>
     </li></ul></dd>
     
 
@@ -1790,7 +1651,7 @@ used to determine if there a given path can satisfy a payment of the desired amo
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_server.js.html">src/server.js</a>, <a href="src_server.js.html#line88">line 88</a>
+        <a href="src_server.js.html">src/server.js</a>, <a href="src_server.js.html#line93">line 93</a>
     </li></ul></dd>
     
 
@@ -1852,7 +1713,7 @@ used to determine if there a given path can satisfy a payment of the desired amo
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.0-dev</a> on Tue Jan 05 2016 20:58:00 GMT+0000 (UTC) using the Minami theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.0-dev</a> on Wed Jan 06 2016 12:54:12 GMT+0000 (UTC) using the Minami theme.
 </footer>
 
 <script>prettyPrint();</script>

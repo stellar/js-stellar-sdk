@@ -54,7 +54,7 @@
 
     
 
-    <h4 class="name" id="FederationServer"><span class="type-signature"></span>new FederationServer<span class="signature">(config<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="FederationServer"><span class="type-signature"></span>new FederationServer<span class="signature">(serverURL, domain)</span><span class="type-signature"></span></h4>
 
     
 
@@ -87,8 +87,6 @@ instance and exposes an interface for requests to that instance.</p>
         <th>Type</th>
 
         
-        <th>Attributes</th>
-        
 
         
 
@@ -101,94 +99,7 @@ instance and exposes an interface for requests to that instance.</p>
 
         <tr>
             
-                <td class="name"><code>config</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>The server configuration.</p>
-                <h6>Properties</h6>
-                
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>secure</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">boolean</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>Use https, defaults false.</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>hostname</code></td>
+                <td class="name"><code>serverURL</code></td>
             
 
             <td class="type">
@@ -201,86 +112,10 @@ instance and exposes an interface for requests to that instance.</p>
             </td>
 
             
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
 
             
 
-            <td class="description last"><p>The hostname of the <a href="https://www.stellar.org/developers/learn/concepts/federation.html">federation server</a>, defaults to &quot;localhost&quot;.</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>port</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>Server port, defaults to 80.</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>path</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>The path to federation endpoint, defaults to &quot;/federation&quot;.</p></td>
+            <td class="description last"><p>The federation server URL (ex. <code>https://acme.com/federation</code>). The old method (config object parameter) is <strong>deprecated</strong>.</p></td>
         </tr>
 
     
@@ -300,27 +135,10 @@ instance and exposes an interface for requests to that instance.</p>
             </td>
 
             
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
 
             
 
-            <td class="description last"><p>Domain this federation server represents. Optional, if exist username passed to FederationServer#federation method does not need to contain a domain.</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-            </td>
+            <td class="description last"><p>Domain this server represents</p></td>
         </tr>
 
     
@@ -361,7 +179,7 @@ instance and exposes an interface for requests to that instance.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_federation_server.js.html">src/federation_server.js</a>, <a href="src_federation_server.js.html#line19">line 19</a>
+        <a href="src_federation_server.js.html">src/federation_server.js</a>, <a href="src_federation_server.js.html#line16">line 16</a>
     </li></ul></dd>
     
 
@@ -518,7 +336,7 @@ Returns a <code>Promise</code> that resolves to a <code>FederationServer</code> 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_federation_server.js.html">src/federation_server.js</a>, <a href="src_federation_server.js.html#line78">line 78</a>
+        <a href="src_federation_server.js.html">src/federation_server.js</a>, <a href="src_federation_server.js.html#line85">line 85</a>
     </li></ul></dd>
     
 
@@ -683,7 +501,7 @@ and user has been found and rejects in all other cases.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_federation_server.js.html">src/federation_server.js</a>, <a href="src_federation_server.js.html#line52">line 52</a>
+        <a href="src_federation_server.js.html">src/federation_server.js</a>, <a href="src_federation_server.js.html#line59">line 59</a>
     </li></ul></dd>
     
 
@@ -841,7 +659,7 @@ and user has been found and rejects in all other cases.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_federation_server.js.html">src/federation_server.js</a>, <a href="src_federation_server.js.html#line116">line 116</a>
+        <a href="src_federation_server.js.html">src/federation_server.js</a>, <a href="src_federation_server.js.html#line119">line 119</a>
     </li></ul></dd>
     
 
@@ -997,7 +815,7 @@ and user has been found and rejects in all other cases.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_federation_server.js.html">src/federation_server.js</a>, <a href="src_federation_server.js.html#line99">line 99</a>
+        <a href="src_federation_server.js.html">src/federation_server.js</a>, <a href="src_federation_server.js.html#line102">line 102</a>
     </li></ul></dd>
     
 
@@ -1153,7 +971,7 @@ and user has been found and rejects in all other cases.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_federation_server.js.html">src/federation_server.js</a>, <a href="src_federation_server.js.html#line127">line 127</a>
+        <a href="src_federation_server.js.html">src/federation_server.js</a>, <a href="src_federation_server.js.html#line130">line 130</a>
     </li></ul></dd>
     
 
@@ -1222,7 +1040,7 @@ and user has been found and rejects in all other cases.</p>
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.0-dev</a> on Tue Jan 05 2016 20:58:00 GMT+0000 (UTC) using the Minami theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.0-dev</a> on Wed Jan 06 2016 12:54:12 GMT+0000 (UTC) using the Minami theme.
 </footer>
 
 <script>prettyPrint();</script>
