@@ -1,6 +1,6 @@
 describe("server.js tests", function () {
   beforeEach(function () {
-    this.server = new StellarSdk.Server({secure: true, hostname: 'horizon-live.stellar.org', port: 1337});
+    this.server = new StellarSdk.Server('https://horizon-live.stellar.org:1337');
     this.axiosMock = sinon.mock(axios);
   });
 

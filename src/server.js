@@ -13,6 +13,8 @@ import {EffectCallBuilder} from "./effect_call_builder";
 import {FriendbotBuilder} from "./friendbot_builder";
 import {xdr, Account} from "stellar-base";
 
+import {isString} from "lodash";
+
 let axios = require("axios");
 let toBluebird = require("bluebird").resolve;
 let URI = require("URIjs");
@@ -25,18 +27,21 @@ export class Server {
      * Server handles a network connection to a [Horizon](https://www.stellar.org/developers/horizon/learn/index.html)
      * instance and exposes an interface for requests to that instance.
      * @constructor
-     * @param {object} [config] The server configuration.
-     * @param {boolean} [config.secure] Use https, defaults false.
-     * @param {string} [config.hostname] The hostname of the [Horizon](https://www.stellar.org/developers/horizon/learn/index.html) server, defaults to "localhost".
-     * @param {number} [config.port] Horizon port, defaults to 3000.
+     * @param {string} serverURL Horizon Server URL (ex. `https://horizon-testnet.stellar.org`). The old method (config object parameter) is **deprecated**.
      */
-    constructor(config={}) {
-        this.protocol = config.secure ? "https" : "http";
-        this.hostname = config.hostname || "localhost";
-        this.port = config.port || 3000;
-        this.serverURL = URI({ protocol: this.protocol, 
-                             hostname: this.hostname,
-                             port: this.port });
+    constructor(serverURL={}) {
+        if (isString(serverURL)) {
+            this.serverURL = URI(serverURL);
+        } else {
+            // We leave the old method for compatibility reasons.
+            // This will be removed in the next major release.
+            this.protocol = serverURL.secure ? "https" : "http";
+            this.hostname = serverURL.hostname || "localhost";
+            this.port = serverURL.port || 3000;
+            this.serverURL = URI({ protocol: this.protocol,
+                hostname: this.hostname,
+                port: this.port });
+        }
     }
 
     /**

@@ -1,12 +1,6 @@
 describe("federation-server.js tests", function () {
   beforeEach(function () {
-    this.server = new StellarSdk.FederationServer({
-      secure: true,
-      hostname: 'acme.com',
-      path: '/federation',
-      port: 1337,
-      domain: 'stellar.org'
-    });
+    this.server = new StellarSdk.FederationServer('https://acme.com:1337/federation', 'stellar.org');
     this.axiosMock = sinon.mock(axios);
   });
 
@@ -116,10 +110,9 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
 
       StellarSdk.FederationServer.createForDomain('acme.com')
         .then(federationServer => {
-          expect(federationServer.protocol).equals('https');
-          expect(federationServer.hostname).equals('api.stellar.org');
-          expect(federationServer.port).equals(80);
-          expect(federationServer.path).equals('/federation');
+          expect(federationServer.serverURL.protocol()).equals('https');
+          expect(federationServer.serverURL.hostname()).equals('api.stellar.org');
+          expect(federationServer.serverURL.path()).equals('/federation');
           expect(federationServer.domain).equals('acme.com');
           done();
         });
