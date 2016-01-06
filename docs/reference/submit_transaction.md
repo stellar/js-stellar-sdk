@@ -16,7 +16,7 @@ You can build a transaction locally (see [this example](../readme.md#building-tr
 
 ```js
 var StellarSdk = require('js-stellar-sdk')
-var server = new StellarSdk.Server({hostname:'horizon-testnet.stellar.org', secure: true, port: 443});
+var server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
 
 var transaction = new StellarSdk.TransactionBuilder(account)
         // this operation funds the new account with XLM

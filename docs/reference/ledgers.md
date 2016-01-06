@@ -24,7 +24,7 @@ By default, `ledgers()` provides access to the [`ledgers_all`](https://stellar.o
 
 ```js
 var StellarSdk = require('stellar-sdk');
-var server = new StellarSdk.Server({hostname:'horizon-testnet.stellar.org', secure:true, port:443});
+var server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
 
 server.ledgers()
   .limit(15)

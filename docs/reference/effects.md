@@ -28,7 +28,7 @@ By default, `effects()` provides access to the [`effects_all`](https://stellar.o
 
 ```js
 var StellarSdk = require('stellar-sdk');
-var server = new StellarSdk.Server({hostname:'horizon-testnet.stellar.org', secure:true, port:443});
+var server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
 
 server.effects()
   .forTransaction("7328c64eb9d1a6663c6464a8aecea34951db49b0fd6baae6ee1faa4fd8bc2dcb")

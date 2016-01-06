@@ -26,7 +26,7 @@ By default, `transactions()` provides access to the [`transactions_all`](https:/
 
 ```js
 var StellarSdk = require('stellar-sdk');
-var server = new StellarSdk.Server({hostname:'horizon-testnet.stellar.org', secure:true, port:443});
+var server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
 
 server.transactions()
   .forAddress("GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K")

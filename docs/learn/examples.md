@@ -43,11 +43,7 @@ var sourcePublicKey = sourceKeypair.address()
 
 // Configure StellarSdk to talk to the horizon instance hosted by Stellar.org
 // To use the live network, set the hostname to 'horizon.stellar.org'
-var server = new StellarSdk.Server({
-  hostname: 'horizon-testnet.stellar.org',
-  secure: true,
-  port: 443
-});
+var server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
 
 // Uncomment the following line to build transactions for the live network. Be
 // sure to also change the horizon hostname.
@@ -99,7 +95,7 @@ Let's say you want to look at an account's transaction history.  You can use the
 
 ```javascript
 var StellarSdk = require('stellar-sdk')
-var server = new StellarSdk.Server({hostname:'horizon-testnet.stellar.org', secure: true, port: 443});
+var server = new StellarSdk.Server('https://horizon-testnet.stellar.org);
 
 server.transactions()
     .forAccount(accountAddress)
@@ -124,7 +120,7 @@ js-stellar-sdk provides streaming support for Horizon endpoints using `EventSour
 
 ```javascript
 var StellarSdk = require('stellar-sdk')
-var server = new StellarSdk.Server({hostname:'horizon-testnet.stellar.org', secure: true, port: 443});
+var server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
 
 var streamingMessageHandler = function (message) {
     console.log(message);

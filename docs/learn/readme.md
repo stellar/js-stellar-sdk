@@ -16,7 +16,7 @@ to Horizon. Starting with a [server](../reference/server.md) object, you can cha
 (See the [Horizon reference](https://www.stellar.org/developers/reference/) documentation for what methods are possible.)
 ```js
 var StellarSdk = require('stellar-sdk')
-var server = new StellarSdk.Server({hostname:'horizon-testnet.stellar.org', secure: true, port: 443});
+var server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
 // get a list of transactions that occurred in ledger 1400
 server.transactions()
     .forLedger(1400)
@@ -40,7 +40,7 @@ For example, to log instances of transactions from a particular account:
 
 ```javascript
 var StellarSdk = require('stellar-sdk')
-var server = new StellarSdk.Server({hostname:'horizon-testnet.stellar.org', secure: true, port: 443});
+var server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
 var lastCursor=0; // or load where you left off
 
 var txHandler = function (txResponse) {
@@ -100,7 +100,7 @@ See the [Building Transactions](https://www.stellar.org/developers/js-stellar-ba
 Once you have built your transaction, you can submit it to the Stellar network with `Server.submitTransaction()`.
 ```js
 var StellarSdk = require('stellar-sdk')
-var server = new StellarSdk.Server({hostname:'horizon-testnet.stellar.org', secure: true, port: 443});
+var server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
 
 var transaction = new StellarSdk.TransactionBuilder(account)
         // this operation funds the new account with XLM

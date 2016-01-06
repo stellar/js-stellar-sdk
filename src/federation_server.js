@@ -15,6 +15,7 @@ export class FederationServer {
    */
   constructor(serverURL, domain) {
     if (isString(serverURL)) {
+      // TODO `domain` regexp
       this.serverURL = URI(serverURL);
       this.domain = domain;
     } else {

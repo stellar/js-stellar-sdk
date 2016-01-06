@@ -27,7 +27,7 @@ By default, `payments()` provides access to the [`payments_all`](https://stellar
 
 ```js
 var StellarSdk = require('stellar-sdk');
-var server = new StellarSdk.Server({hostname:'horizon-testnet.stellar.org', secure:true, port:443});
+var server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
 
 server.payments()
   .forAddress("GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ")
