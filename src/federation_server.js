@@ -77,7 +77,7 @@ export class FederationServer {
     // Check if `value` is in account ID format
     if (value.indexOf('*') < 0) {
       if (!Account.isValidAccountId(value)) {
-        return Promise.reject(new Error('Invalid Account ID'))
+        return Promise.reject(new Error('Invalid Account ID'));
       } else {
         return Promise.resolve({account_id: value});
       }
