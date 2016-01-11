@@ -2,7 +2,8 @@ import axios from 'axios';
 import URI from 'URIjs';
 import Promise from 'bluebird';
 import toml from 'toml';
-import {isString} from "lodash";
+import {isString, pick} from "lodash";
+import {Account} from 'stellar-base';
 
 export class FederationServer {
   /**
@@ -39,32 +40,58 @@ export class FederationServer {
   }
 
   /**
-   * This methods splits Stellar address (ex. `bob*stellar.org`) and then tries to find information about federation
-   * server in `stellar.toml` file for a given domain. It returns a `Promise` which resolves if federation server exists
-   * and user has been found and rejects in all other cases.
+   * This method is a helper method for handling user inputs that contain `destination` value.
+   * It accepts two types of values:
+   *
+   * * For Stellar address (ex. `bob*stellar.org`) it splits Stellar address and then tries to find information about
+   * federation server in `stellar.toml` file for a given domain. It returns a `Promise` which resolves if federation
+   * server exists and user has been found and rejects in all other cases.
+   * * For Account ID (ex. `GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS`) it returns a `Promise` which
+   * resolves if Account ID is valid and rejects in all other cases. Please note that this method does not check
+   * if the account actually exists in a ledger.
+   *
+   * Example:
    * ```js
    * StellarSdk.FederationServer.forAddress('bob*stellar.org')
    *  .then(federationRecord => {
    *    // {
-   *    //   stellar_address: 'bob*stellar.org',
-   *    //   account_id: 'GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS'
+   *    //   account_id: 'GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS',
+   *    //   memo_type: 'id',
+   *    //   memo: 100
    *    // }
    *  });
    * ```
-   * This function is here for convenience and is using `createForDomain` and non-static `forAddress` internally.
+   * It returns a `Promise` that will resolve to a JSON object with following fields:
+   * * `account_id` - Account ID of the destination,
+   * * `memo_type` (optional) - Memo type that needs to be attached to a transaction,
+   * * `memo` (optional) - Memo value that needs to be attached to a transaction.
+   *
+   * The Promise will reject in case of any errors.
+   *
    * @see <a href="https://www.stellar.org/developers/learn/concepts/federation.html" target="_blank">Federation doc</a>
    * @see <a href="https://www.stellar.org/developers/learn/concepts/stellar-toml.html" target="_blank">Stellar.toml doc</a>
-   * @param {string} address Stellar Address (ex. `bob*stellar.org`)
+   * @param {string} value Stellar Address (ex. `bob*stellar.org`)
    * @returns {Promise}
    */
-  static forAddress(address) {
-    let addressParts = address.split('*');
-    if (addressParts.length != 2) {
-      return Promise.reject(new Error('Invalid Stellar address'));
+  static resolve(value) {
+    // Check if `value` is in account ID format
+    if (value.indexOf('*') < 0) {
+      if (!Account.isValidAccountId(value)) {
+        return Promise.reject(new Error('Invalid Account ID'))
+      } else {
+        return Promise.resolve({account_id: value});
+      }
+    } else {
+      let addressParts = value.split('*');
+      let [,domain] = addressParts;
+
+      if (addressParts.length != 2 || !domain) {
+        return Promise.reject(new Error('Invalid Stellar address'));
+      }
+      return FederationServer.createForDomain(domain)
+        .then(federationServer => federationServer.resolveAddress(value))
+        .then(response => pick(response, ['account_id', 'memo_type', 'memo']));
     }
-    let [,domain] = addressParts;
-    return FederationServer.createForDomain(domain)
-      .then(federationServer => federationServer.forAddress(address));
   }
 
   /**
@@ -100,7 +127,7 @@ export class FederationServer {
    * @param {string} address Stellar address (ex. `bob*stellar.org`). If `FederationServer` was instantiated with `domain` param only username (ex. `bob`) can be passed.
    * @returns {Promise}
    */
-  forAddress(address) {
+  resolveAddress(address) {
     if (address.indexOf('*') < 0) {
       if (!this.domain) {
         return Promise.reject(new Error('Unknown domain. Make sure `address` contains a domain (ex. `bob*stellar.org`) or pass `domain` parameter when instantiating the server object.'));
@@ -117,7 +144,7 @@ export class FederationServer {
    * @param {string} accountId Account ID (ex. `GBYNR2QJXLBCBTRN44MRORCMI4YO7FZPFBCNOKTOBCAAFC7KC3LNPRYS`)
    * @returns {Promise}
    */
-  forAccountId(accountId) {
+  resolveAccountId(accountId) {
     let url = this.serverURL.query({type: 'id', q: accountId});
     return this._sendRequest(url);
   }
@@ -128,7 +155,7 @@ export class FederationServer {
    * @param {string} transactionId Transaction ID (ex. `3389e9f0f1a65f19736cacf544c2e825313e8447f569233bb8db39aa607c8889`)
    * @returns {Promise}
    */
-  forTransactionId(transactionId) {
+  resolveTransactionId(transactionId) {
     let url = this.serverURL.query({type: 'txid', q: transactionId});
     return this._sendRequest(url);
   }

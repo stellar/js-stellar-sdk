@@ -9,7 +9,7 @@ describe("federation-server.js tests", function () {
     this.axiosMock.restore();
   });
 
-  describe('FederationServer.forAddress', function () {
+  describe('FederationServer.resolveAddress', function () {
     beforeEach(function () {
       this.axiosMock.expects('get')
         .withArgs(sinon.match('https://acme.com:1337/federation?type=name&q=bob%2Astellar.org'))
@@ -22,7 +22,7 @@ describe("federation-server.js tests", function () {
     });
 
     it("requests is correct", function (done) {
-      this.server.forAddress('bob*stellar.org')
+      this.server.resolveAddress('bob*stellar.org')
         .then(response => {
           expect(response.stellar_address).equals('bob*stellar.org');
           expect(response.account_id).equals('GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS');
@@ -34,7 +34,7 @@ describe("federation-server.js tests", function () {
     });
 
     it("requests is correct for username as stellar address", function (done) {
-      this.server.forAddress('bob')
+      this.server.resolveAddress('bob')
         .then(response => {
           expect(response.stellar_address).equals('bob*stellar.org');
           expect(response.account_id).equals('GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS');
@@ -46,7 +46,7 @@ describe("federation-server.js tests", function () {
     });
   });
 
-  describe('FederationServer.forAccountId', function () {
+  describe('FederationServer.resolveAccountId', function () {
     beforeEach(function () {
       this.axiosMock.expects('get')
         .withArgs(sinon.match('https://acme.com:1337/federation?type=id&q=GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS'))
@@ -59,7 +59,7 @@ describe("federation-server.js tests", function () {
     });
 
     it("requests is correct", function (done) {
-      this.server.forAccountId('GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS')
+      this.server.resolveAccountId('GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS')
         .then(response => {
           expect(response.stellar_address).equals('bob*stellar.org');
           expect(response.account_id).equals('GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS');
@@ -71,7 +71,7 @@ describe("federation-server.js tests", function () {
     });
   });
 
-  describe('FederationServer.forTransactionId', function () {
+  describe('FederationServer.resolveTransactionId', function () {
     beforeEach(function () {
       this.axiosMock.expects('get')
         .withArgs(sinon.match('https://acme.com:1337/federation?type=txid&q=3389e9f0f1a65f19736cacf544c2e825313e8447f569233bb8db39aa607c8889'))
@@ -84,7 +84,7 @@ describe("federation-server.js tests", function () {
     });
 
     it("requests is correct", function (done) {
-      this.server.forTransactionId('3389e9f0f1a65f19736cacf544c2e825313e8447f569233bb8db39aa607c8889')
+      this.server.resolveTransactionId('3389e9f0f1a65f19736cacf544c2e825313e8447f569233bb8db39aa607c8889')
         .then(response => {
           expect(response.stellar_address).equals('bob*stellar.org');
           expect(response.account_id).equals('GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS');
@@ -129,9 +129,50 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
     });
   });
 
-  describe('(static) FederationServer.forAddress', function () {
+  describe('FederationServer.resolve', function () {
+    it("succeeds for a valid account ID", function (done) {
+      StellarSdk.FederationServer.resolve('GAFSZ3VPBC2H2DVKCEWLN3PQWZW6BVDMFROWJUDAJ3KWSOKQIJ4R5W4J')
+        .should.eventually.deep.equal({account_id: 'GAFSZ3VPBC2H2DVKCEWLN3PQWZW6BVDMFROWJUDAJ3KWSOKQIJ4R5W4J'})
+        .notify(done);
+    });
+
+    it("fails for invalid account ID", function (done) {
+      StellarSdk.FederationServer.resolve('invalid').should.be.rejectedWith(/Invalid Account ID/).notify(done);
+    });
+
+    it("succeeds for a valid Stellar address", function (done) {
+      this.axiosMock.expects('get')
+        .withArgs(sinon.match('https://www.stellar.org/.well-known/stellar.toml'))
+        .returns(Promise.resolve({
+          data: `
+#   The endpoint which clients should query to resolve stellar addresses
+#   for users on your domain.
+FEDERATION_SERVER="https://api.stellar.org/federation"
+`
+        }));
+
+      this.axiosMock.expects('get')
+        .withArgs(sinon.match('https://api.stellar.org/federation?type=name&q=bob%2Astellar.org'))
+        .returns(Promise.resolve({
+          data: {
+            stellar_address: 'bob*stellar.org',
+            account_id: 'GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS',
+            memo_type: 'id',
+            memo: 100
+          }
+        }));
+
+      StellarSdk.FederationServer.resolve('bob*stellar.org')
+        .should.eventually.deep.equal({
+          account_id: 'GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS',
+          memo_type: 'id',
+          memo: 100
+        })
+        .notify(done);
+    });
+
     it("fails for invalid Stellar address", function (done) {
-      StellarSdk.FederationServer.forAddress('bob*stellar.org*test').should.be.rejectedWith(/Invalid Stellar address/).and.notify(done);
+      StellarSdk.FederationServer.resolve('bob*stellar.org*test').should.be.rejectedWith(/Invalid Stellar address/).notify(done);
     });
   });
 });
