@@ -350,15 +350,15 @@ describe("server.js tests", function () {
   describe('Server.submitTransaction', function() {
     it("sends a transaction", function(done) {
       let keypair = StellarSdk.Keypair.random();
-      let account = new StellarSdk.Account(keypair.accountId(), 56199647068161);
+      let account = new StellarSdk.Account(keypair.accountId(), "56199647068161");
       let transaction = new StellarSdk.TransactionBuilder(account)
         .addOperation(StellarSdk.Operation.payment({
           destination: "GASOCNHNNLYFNMDJYQ3XFMI7BYHIOCFW3GJEOWRPEGK2TDPGTG2E5EDW",
           asset: StellarSdk.Asset.native(),
           amount: "100.50"
         }))
-        .addSigner(keypair)
         .build();
+      transaction.sign(keypair)
 
       let blob = encodeURIComponent(transaction.toEnvelope().toXDR().toString("base64"));
       this.axiosMock.expects('post')
