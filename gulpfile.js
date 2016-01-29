@@ -33,7 +33,7 @@ gulp.task('build', function(done) {
 });
 
 gulp.task('test', function(done) {
-  runSequence('clean', 'test:node', 'test:browser', function (err) {
+  runSequence('clean', 'test:unit', 'test:browser', function (err) {
     server.kill();
     done();
   });
@@ -82,13 +82,19 @@ gulp.task('test:init-istanbul', ['clean-coverage'], function () {
     .pipe(plugins.istanbul.hookRequire());
 });
 
-
-gulp.task('test:node', ['build:node', 'test:init-istanbul'], function() {
-  return gulp.src(["test/test-helper.js", "test/unit/**/*.js"])
+gulp.task('test:integration', ['build:node', 'test:init-istanbul'], function() {
+  return gulp.src(["test/test-helper.js", "test/unit/**/*.js", "test/integration/**/*.js"])
     .pipe(plugins.mocha({
-      reporter: ['dot']
+      reporter: ['spec']
     }))
     .pipe(plugins.istanbul.writeReports());
+});
+
+gulp.task('test:unit', ['build:node'], function() {
+  return gulp.src(["test/test-helper.js", "test/unit/**/*.js"])
+    .pipe(plugins.mocha({
+      reporter: ['spec']
+    }));
 });
 
 gulp.task('test:browser', ["build:browser"], function (done) {

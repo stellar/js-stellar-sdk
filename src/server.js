@@ -1,4 +1,3 @@
-import {TransactionResult} from "./transaction_result";
 import {NotFoundError, NetworkError, BadRequestError} from "./errors";
 
 import {AccountCallBuilder} from "./account_call_builder";

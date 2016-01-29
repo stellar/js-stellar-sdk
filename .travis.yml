@@ -1,17 +1,18 @@
 language: node_js
-sudo: required # to install newer g++ :(
+sudo: required # to install newer g++ and use docker
+dist: trusty # https://github.com/travis-ci/travis-ci/issues/5448
+services:
+  - docker
 matrix:
   include:
-    - node_js: "4.2" # LTS
-      env: SAUCE=false
+    - node_js: "4.2"
     - node_js: "0.12"
-      env: SAUCE=false
     - node_js: "0.11"
-      env: SAUCE=false
     - node_js: "0.10"
-      env: SAUCE=false
     - node_js: "0.12"
       env: SAUCE=true
+    - node_js: "4.2"
+      env: INTEGRATION=true
 before_install:
 - npm install -g npm@'>=2.13.5'
 script:
@@ -21,14 +22,19 @@ script:
   git config --global user.email "travis@stellar.org"
   if [ "${SAUCE}" = "true" ]; then
     gulp test:sauce
-  else
+  elif [ "${INTEGRATION}" = "true" ]; then
+    docker run -p 127.0.0.1:8000:8000 -d --name=stellar-core-horizon stellar/stellar-core-horizon:latest
+    echo "Waiting for horizon..."
+    sleep 10
     # Ugly but it's the only way to make istanbul generate coverage report
-    babel-node ./node_modules/gulp/bin/gulp.js test:node
+    babel-node ./node_modules/gulp/bin/gulp.js test:integration
+  else
+    gulp test:unit
   fi
 after_success:
 - |
   # Send report to coveralls but only once
-  if [ "${SAUCE}" = "false" ] && [ "${TRAVIS_NODE_VERSION}" = "0.12" ] && [ "${TRAVIS_BRANCH}" = "master" ] ; then
+  if [ "${INTEGRATION}" = "true" ] && [ "${TRAVIS_BRANCH}" = "master" ] ; then
     gulp submit-coverage
   fi
 env:
