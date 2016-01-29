@@ -1,10 +1,12 @@
 describe("integration tests", function () {
   // We need to wait for a ledger to close
-  this.timeout(20*1000);
-  this.slow(10*10000);
+  const TIMEOUT = 20*1000;
+  this.timeout(TIMEOUT);
+  this.slow(TIMEOUT/2);
 
   // Docker
-  let server = new StellarSdk.Server('http://127.0.0.1:8000');
+  //let server = new StellarSdk.Server('http://127.0.0.1:8000');
+  let server = new StellarSdk.Server('http://192.168.59.103:32773');
   let master = StellarSdk.Keypair.master();
 
   function createNewAccount(accountId) {
@@ -68,9 +70,11 @@ describe("integration tests", function () {
     });
 
     it("stream accounts", function (done) {
+      this.timeout(10*1000);
       let randomAccount = StellarSdk.Keypair.random();
 
-      server.accounts()
+      let eventStream;
+      eventStream = server.accounts()
         .cursor('now')
         .stream({
           onmessage: account => {
@@ -80,6 +84,7 @@ describe("integration tests", function () {
         });
 
       createNewAccount(randomAccount.accountId());
+      setTimeout(() => eventStream.close(), 10*1000);
     });
   });
 });
