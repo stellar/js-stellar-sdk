@@ -1,7 +1,7 @@
 import {NotFoundError, NetworkError, BadRequestError} from "./errors";
 
-let URI = require("URIjs");
-let URITemplate = require("URIjs").URITemplate;
+let URI = require("urijs");
+let URITemplate = require("urijs").URITemplate;
 
 let axios = require("axios");
 var EventSource = (typeof window === 'undefined') ? require('eventsource') : window.EventSource;
