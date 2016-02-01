@@ -16,8 +16,8 @@ import {isString} from "lodash";
 
 let axios = require("axios");
 let toBluebird = require("bluebird").resolve;
-let URI = require("URIjs");
-let URITemplate = require("URIjs").URITemplate;
+let URI = require("urijs");
+let URITemplate = require("urijs").URITemplate;
 
 export const SUBMIT_TRANSACTION_TIMEOUT = 20*1000;
 

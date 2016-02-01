@@ -1,5 +1,5 @@
 import axios from 'axios';
-import URI from 'URIjs';
+import URI from 'urijs';
 import Promise from 'bluebird';
 import toml from 'toml';
 import {isString, pick} from "lodash";
