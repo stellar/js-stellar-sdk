@@ -9,6 +9,23 @@ describe("integration tests", function () {
   //let server = new StellarSdk.Server('http://192.168.59.103:32773');
   let master = StellarSdk.Keypair.master();
 
+  before(function(done) {
+    this.timeout(60*1000);
+    checkConnection(done);
+  });
+
+  function checkConnection(done) {
+    server.loadAccount(master.accountId())
+      .then(source => {
+        console.log('Horizon up and running!');
+        done();
+      })
+      .catch(err => {
+        console.log("Couldn't connect to Horizon... Trying again.");
+        setTimeout(() => checkConnection(done), 2000);
+      });
+  }
+
   function createNewAccount(accountId) {
     return server.loadAccount(master.accountId())
       .then(source => {

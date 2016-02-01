@@ -21,11 +21,13 @@ script:
   git config --global user.name "Travis CI"
   git config --global user.email "travis@stellar.org"
   if [ "${SAUCE}" = "true" ]; then
-    gulp test:sauce
+    if [ "${TRAVIS_PULL_REQUEST}" = "false" ]; then
+      echo "Pull request - skip Sauce Labs testing..."
+    else
+      gulp test:sauce
+    fi
   elif [ "${INTEGRATION}" = "true" ]; then
     docker run -p 127.0.0.1:8000:8000 -d --name=stellar-core-horizon stellar/stellar-core-horizon:latest
-    echo "Waiting for horizon..."
-    sleep 10
     # Ugly but it's the only way to make istanbul generate coverage report
     babel-node ./node_modules/gulp/bin/gulp.js test:integration
   else
