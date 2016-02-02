@@ -100,18 +100,19 @@ Let's say you want to look at an account's transaction history.  You can use the
 
 ```javascript
 var StellarSdk = require('stellar-sdk')
-var server = new StellarSdk.Server('https://horizon-testnet.stellar.org);
+var server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
+var accountId = 'GBBORXCY3PQRRDLJ7G7DWHQBXPCJVFGJ4RGMJQVAX6ORAUH6RWSPP6FM';
 
 server.transactions()
-    .forAccount(accountAddress)
+    .forAccount(accountId)
     .call()
     .then(function (page) {
-        // page 1
+        console.log('Page 1: ');
         console.log(page.records);
         return page.next();
     })
     .then(function (page) {
-        // page 2
+        console.log('Page 2: ');
         console.log(page.records);
     })
     .catch(function (err) {
@@ -123,21 +124,21 @@ server.transactions()
 
 js-stellar-sdk provides streaming support for Horizon endpoints using `EventSource`.  You can pass a function to handle any events that occur on the stream.
 
+Try submitting a transaction (via the guide above) while running the following code example.
 ```javascript
 var StellarSdk = require('stellar-sdk')
 var server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
 
-var streamingMessageHandler = function (message) {
-    console.log(message);
-};
-
-// Get a message anytime one account sends to another
-// cursor is set to "now" to get notified of new payments than from the beginning of time
+// Get a message any time a payment occurs. Cursor is set to "now" to be notified
+// of payments happening starting from when this script runs (as opposed to from
+// the beginning of time).
 var es = server.payments()
-    .cursor('now')  
-    .stream({
-        onmessage: streamingMessageHandler
-    })
+  .cursor('now')
+  .stream({
+    onmessage: function (message) {
+      console.log(message);
+    }
+  })
 ```
 
 For more on streaming events, please check out [the Horizon responses documentation](https://www.stellar.org/developers/horizon/learn/responses.html#streaming) and this [guide to server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events).
