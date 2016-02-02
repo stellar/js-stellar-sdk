@@ -1,5 +1,5 @@
 ---
-title: Examples
+title: Basic Examples
 ---
 
 - [Creating a payment Transaction](#creating-a-payment-transaction)
