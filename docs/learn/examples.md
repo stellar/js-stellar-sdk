@@ -6,8 +6,6 @@ title: Examples
 - [Loading an account's transaction history](#loading-an-accounts-transaction-history)
 - [Streaming payment events](#streaming-payment-events)
 
-
-
 ## Creating a payment transaction
 
 js-stellar-sdk exposes the [`TransactionBuilder`](https://github.com/stellar/js-stellar-base/blob/master/src/transaction_builder.js) class from js-stellar-base.  There are more examples of [building transactions here](https://www.stellar.org/developers/js-stellar-base/learn/base-examples.html). All those examples can be signed and submitted to Stellar in a similar manner as is done below.
@@ -17,29 +15,30 @@ In this example you must ensure that the destination account exists
 ```javascript
 // Create, sign, and submit a transaction using JS Stellar SDK.
 
-// Assumes that you have:
+// Assumes that you have the following items:
 // 1. Secret key of a funded account to be the source account
 // 2. Public key of an existing account as a recipient
+//    These two keys can be created and funded by the friendbot at
+//    https://www.stellar.org/developers/ under the heading "Quick Start: Test Account"
 // 3. Access to JS Stellar SDK (https://github.com/stellar/js-stellar-sdk)
+//    either through Node.js or in the browser.
 
 // This code can be run in the browser at https://www.stellar.org/developers/
 // That site exposes a global StellarSdk object you can use.
 // To run this code in the Chrome, open the console tab in the DevTools.
 // The hotkey to open the DevTools console is Ctrl+Shift+J or (Cmd+Opt+J on Mac).
-// Note: run this in incognito mode so the input history is not saved
 
 // To use in node, do `npm install stellar-sdk` and uncomment the following line.
-// var StellarSdk = require('stellar-sdk')
+var StellarSdk = require('stellar-sdk');
 
-// The source account is the account we will be sending from.
-var sourceSecretKey = 'SCC2GLOCQLDIJPTQB6O2K2GVUXW52IWLSCKE76EMU5ILMED3CYQFHUFC';
-var receiverPublicKey = 'GAIRISXKPLOWZBMFRPU5XRGUUX3VMA3ZEWKBM5MSNRU3CHV6P4PYZ74D';
+// The source account is the account we will be signing and sending from.
+var sourceSecretKey = 'SAKRB7EE6H23EF733WFU76RPIYOPEWVOMBBUXDQYQ3OF4NF6ZY6B6VLW';
 
-// This is where the fun begins.
-
-// Calculate the source account's public key
+// Derive Keypair object and public key (that starts with a G) from the secret
 var sourceKeypair = StellarSdk.Keypair.fromSeed(sourceSecretKey);
-var sourcePublicKey = sourceKeypair.address()
+var sourcePublicKey = sourceKeypair.accountId();
+
+var receiverPublicKey = 'GAIRISXKPLOWZBMFRPU5XRGUUX3VMA3ZEWKBM5MSNRU3CHV6P4PYZ74D';
 
 // Configure StellarSdk to talk to the horizon instance hosted by Stellar.org
 // To use the live network, set the hostname to 'horizon.stellar.org'
@@ -49,8 +48,7 @@ var server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
 // sure to also change the horizon hostname.
 // StellarSdk.Network.usePublicNetwork();
 
-// Transactions need a valid sequence number inside the transaction to prevent
-// the transaction from being included in the ledger twice.
+// Transactions require a valid sequence number that is specific to this account.
 // We can fetch the current sequence number for the source account from Horizon.
 server.loadAccount(sourcePublicKey)
   .then(function(account) {
@@ -67,26 +65,33 @@ server.loadAccount(sourcePublicKey)
       }))
       // Uncomment to add a memo (https://www.stellar.org/developers/learn/concepts/transactions.html)
       // .addMemo(StellarSdk.Memo.text('Hello world!'))
-      .build()
+      .build();
 
     // Sign this transaction with the secret key
-    transaction.sign(sourceKeypair)
+    // NOTE: signing is transaction is network specific. Test network transactions
+    // won't work in the public network. To switch networks, use the Network object
+    // as explained above (look for StellarSdk.Network).
+    transaction.sign(sourceKeypair);
 
     // Let's see the XDR (encoded in base64) of the transaction we just built
-    console.log(transaction.toEnvelope().toXDR('base64'))
+    console.log(transaction.toEnvelope().toXDR('base64'));
 
     // Submit the transaction to the Horizon server. The Horizon server will then
     // submit the transaction into the network for us.
     server.submitTransaction(transaction)
       .then(function(transactionResult) {
-        console.log('Success!')
-        console.log(transactionResult);
+        console.log(JSON.stringify(transactionResult, null, 2));
+        console.log('\nSuccess! View the transaction at: ');
+        console.log(transactionResult._links.transaction.href);
       })
-      .catch(function (err){
-        console.log('error')
+      .catch(function(err) {
+        console.log('An error has occured:');
         console.log(err);
       });
   })
+  .catch(function(e) {
+    console.error(e);
+  });
 ```
 
 ## Loading an account's transaction history
@@ -136,4 +141,3 @@ var es = server.payments()
 ```
 
 For more on streaming events, please check out [the Horizon responses documentation](https://www.stellar.org/developers/horizon/learn/responses.html#streaming) and this [guide to server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events).
-
