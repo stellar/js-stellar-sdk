@@ -109,8 +109,9 @@ var transaction = new StellarSdk.TransactionBuilder(account)
             asset: StellarSdk.Asset.native(),
             amount: "20000000"
         }))
-        .addSigner(StellarSdk.Keypair.fromSeed(seedString)) // sign the transaction
         .build();
+
+transaction.sign(StellarSdk.Keypair.fromSeed(seedString)); // sign the transaction
 
 server.submitTransaction(transaction)
     .then(function (transactionResult) {

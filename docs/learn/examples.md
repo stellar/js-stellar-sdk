@@ -39,7 +39,7 @@ var receiverPublicKey = 'GAIRISXKPLOWZBMFRPU5XRGUUX3VMA3ZEWKBM5MSNRU3CHV6P4PYZ74
 
 // Calculate the source account's public key
 var sourceKeypair = StellarSdk.Keypair.fromSeed(sourceSecretKey);
-var sourcePublicKey = sourceKeypair.address()
+var sourcePublicKey = sourceKeypair.accountId()
 
 // Configure StellarSdk to talk to the horizon instance hosted by Stellar.org
 // To use the live network, set the hostname to 'horizon.stellar.org'

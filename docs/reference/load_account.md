@@ -27,8 +27,10 @@ server.loadAccount("GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ")
                 asset: StellarSdk.Asset.native(),
                 amount: "20000000"
             }))
-            .addSigner(StellarSdk.Keypair.fromSeed(seedString)) // sign the transaction
             .build();
+
+        transaction.sign(StellarSdk.Keypair.fromSeed(seedString)); // sign the transaction
+
         return server.submitTransaction(transaction);
     })
     .then(function (transactionResult) {

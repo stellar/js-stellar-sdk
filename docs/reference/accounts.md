@@ -13,7 +13,7 @@ By default, `accounts()` provides access to the [`accounts_all`](https://stellar
 | Method | Horizon Endpoint | Param Type | Description |
 | --- | --- | --- | --- |
 | `accounts()` | [`accounts_all`](https://stellar.org/developers/horizon/reference/accounts-all.html) | | Access all accounts. |
-| `.address("address")` | [`accounts_single`](https://stellar.org/developers/horizon/reference/accounts-single.html) | `string` | Pass in the address of the account you're interested in to reach its details.|
+| `.accountId("accountId")` | [`accounts_single`](https://stellar.org/developers/horizon/reference/accounts-single.html) | `string` | Pass in the ID of the account you're interested in to reach its details.|
 | `.limit(limit)` | | `integer` | Limits the number of returned resources to the given `limit`.|
 | `.cursor("token")` | | `string` | Return only resources after the given paging token. |
 | `.order({"asc" or "desc"})` | | `string` |  Order the returned collection in "asc" or "desc" order. |
@@ -28,7 +28,7 @@ var StellarSdk = require('stellar-sdk');
 var server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
 
 server.accounts()
-  .address("GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ")
+  .accountId("GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ")
   .call()
   .then(function (accountResult) {
     console.log(accountResult);

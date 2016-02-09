@@ -23,7 +23,7 @@ The mechanics underlying Friendbot (i.e., how a new account is funded) are deter
 var StellarLib = require('stellar-sdk');
 
 var new_seed = StellarLib.Keypair.random()
-var new_address = new_seed.address()
+var new_address = new_seed.accountId()
 
 server.friendbot(new_address)
   .then(function(resp) {
