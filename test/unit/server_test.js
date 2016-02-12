@@ -520,12 +520,45 @@ describe("server.js tests", function () {
         }
       };
 
-      it("requests the correct endpoint", function (done) {
+      it("requests the correct endpoint native/credit", function (done) {
         this.axiosMock.expects('get')
           .withArgs(sinon.match('https://horizon-live.stellar.org:1337/order_book?selling_asset_type=native&buying_asset_type=credit_alphanum4&buying_asset_code=USD&buying_asset_issuer=GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG'))
           .returns(Promise.resolve({data: orderBookResponse}));
 
-        this.server.orderbook(new StellarSdk.Asset.native(), new StellarSdk.Asset('USD', "GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG"))
+        this.server.orderbook(StellarSdk.Asset.native(), new StellarSdk.Asset('USD', "GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG"))
+          .call()
+          .then(function (response) {
+            expect(response).to.be.deep.equal(orderBookResponse);
+            done();
+          })
+          .catch(function (err) {
+            done(err);
+          })
+      });
+
+      it("requests the correct endpoint credit/native", function (done) {
+        this.axiosMock.expects('get')
+          .withArgs(sinon.match('https://horizon-live.stellar.org:1337/order_book?selling_asset_type=credit_alphanum4&selling_asset_code=USD&selling_asset_issuer=GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG&buying_asset_type=native'))
+          .returns(Promise.resolve({data: orderBookResponse}));
+
+        this.server.orderbook(new StellarSdk.Asset('USD', "GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG"), StellarSdk.Asset.native())
+          .call()
+          .then(function (response) {
+            expect(response).to.be.deep.equal(orderBookResponse);
+            done();
+          })
+          .catch(function (err) {
+            done(err);
+          })
+      });
+
+      it("trades() requests the correct endpoint", function (done) {
+        this.axiosMock.expects('get')
+          .withArgs(sinon.match('https://horizon-live.stellar.org:1337/order_book/trades?selling_asset_type=native&buying_asset_type=credit_alphanum4&buying_asset_code=USD&buying_asset_issuer=GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG'))
+          .returns(Promise.resolve({data: orderBookResponse}));
+
+        this.server.orderbook(StellarSdk.Asset.native(), new StellarSdk.Asset('USD', "GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG"))
+          .trades()
           .call()
           .then(function (response) {
             expect(response).to.be.deep.equal(orderBookResponse);
@@ -672,13 +705,51 @@ describe("server.js tests", function () {
           .catch(function (err) {
             done(err);
           })
-        });
+      });
+
+      it("forAccount() requests the correct endpoint", function (done) {
+        this.axiosMock.expects('get')
+          .withArgs(sinon.match('https://horizon-live.stellar.org:1337/accounts/GCGHCFUB6JKQE42C76BK2LYB3EHKP4WQJE624WTSL3CU2PPDYE5RBMJE/effects'))
+          .returns(Promise.resolve({data: effectsResponse}));
+
+        this.server.effects()
+          .forAccount("GCGHCFUB6JKQE42C76BK2LYB3EHKP4WQJE624WTSL3CU2PPDYE5RBMJE")
+          .call()
+          .then(function (response) {
+            expect(response.records).to.be.deep.equal(effectsResponse._embedded.records);
+            expect(response.next).to.be.function;
+            expect(response.prev).to.be.function;
+            done();
+          })
+          .catch(function (err) {
+            done(err);
+          })
+      });
+
+      it("forTransaction() requests the correct endpoint", function (done) {
+        this.axiosMock.expects('get')
+          .withArgs(sinon.match('https://horizon-live.stellar.org:1337/transactions/ef37d6770c40c3bdb6adba80759f2819971396d1c3dfb7b5611f63ad72a9a4ae/effects'))
+          .returns(Promise.resolve({data: effectsResponse}));
+
+        this.server.effects()
+          .forTransaction("ef37d6770c40c3bdb6adba80759f2819971396d1c3dfb7b5611f63ad72a9a4ae")
+          .call()
+          .then(function (response) {
+            expect(response.records).to.be.deep.equal(effectsResponse._embedded.records);
+            expect(response.next).to.be.function;
+            expect(response.prev).to.be.function;
+            done();
+          })
+          .catch(function (err) {
+            done(err);
+          })
+      });
 
       it("rejects two filters", function (done) {
         expect(() => this.server.effects().forOperation("blah").forLedger('234').call()).to.throw(/Too many filters/);
         done();
       });
-    })
+    });
 
     describe("OperationCallBuilder", function() {
       let operationsResponse = {
@@ -726,7 +797,64 @@ describe("server.js tests", function () {
         }
       };
 
-      it("requests the correct endpoint", function (done) {
+      it("operation() requests the correct endpoint", function (done) {
+        this.axiosMock.expects('get')
+          .withArgs(sinon.match('https://horizon-live.stellar.org:1337/operations/123456789'))
+          .returns(Promise.resolve({data: operationsResponse}));
+
+        this.server.operations()
+          .operation("123456789")
+          .call()
+          .then(function (response) {
+            expect(response.records).to.be.deep.equal(operationsResponse._embedded.records);
+            expect(response.next).to.be.function;
+            expect(response.prev).to.be.function;
+            done();
+          })
+          .catch(function (err) {
+            done(err);
+          })
+      });
+
+      it("forAccount() requests the correct endpoint", function (done) {
+        this.axiosMock.expects('get')
+          .withArgs(sinon.match('https://horizon-live.stellar.org:1337/accounts/GCGHCFUB6JKQE42C76BK2LYB3EHKP4WQJE624WTSL3CU2PPDYE5RBMJE/operations'))
+          .returns(Promise.resolve({data: operationsResponse}));
+
+        this.server.operations()
+          .forAccount("GCGHCFUB6JKQE42C76BK2LYB3EHKP4WQJE624WTSL3CU2PPDYE5RBMJE")
+          .call()
+          .then(function (response) {
+            expect(response.records).to.be.deep.equal(operationsResponse._embedded.records);
+            expect(response.next).to.be.function;
+            expect(response.prev).to.be.function;
+            done();
+          })
+          .catch(function (err) {
+            done(err);
+          })
+      });
+
+      it("forLedger() requests the correct endpoint", function (done) {
+        this.axiosMock.expects('get')
+          .withArgs(sinon.match('https://horizon-live.stellar.org:1337/ledgers/123456789/operations'))
+          .returns(Promise.resolve({data: operationsResponse}));
+
+        this.server.operations()
+          .forLedger("123456789")
+          .call()
+          .then(function (response) {
+            expect(response.records).to.be.deep.equal(operationsResponse._embedded.records);
+            expect(response.next).to.be.function;
+            expect(response.prev).to.be.function;
+            done();
+          })
+          .catch(function (err) {
+            done(err);
+          })
+      });
+
+      it("forTransaction() requests the correct endpoint", function (done) {
         this.axiosMock.expects('get')
           .withArgs(sinon.match('https://horizon-live.stellar.org:1337/transactions/blah/operations'))
           .returns(Promise.resolve({data: operationsResponse}));
@@ -792,7 +920,7 @@ describe("server.js tests", function () {
         }
       };
 
-      it("requests the correct endpoint", function (done) {
+      it("forAccount() requests the correct endpoint", function (done) {
         this.axiosMock.expects('get')
           .withArgs(sinon.match('https://horizon-live.stellar.org:1337/accounts/GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K/payments'))
           .returns(Promise.resolve({data: paymentsResponse}));
@@ -804,6 +932,66 @@ describe("server.js tests", function () {
             expect(response.records).to.be.deep.equal(paymentsResponse._embedded.records);
             expect(response.next).to.be.function;
             expect(response.prev).to.be.function;
+            done();
+          })
+          .catch(function (err) {
+            done(err);
+          })
+      });
+
+      it("forLedger() requests the correct endpoint", function (done) {
+        this.axiosMock.expects('get')
+          .withArgs(sinon.match('https://horizon-live.stellar.org:1337/ledgers/123456789/payments'))
+          .returns(Promise.resolve({data: paymentsResponse}));
+
+        this.server.payments()
+          .forLedger("123456789")
+          .call()
+          .then(function (response) {
+            expect(response.records).to.be.deep.equal(paymentsResponse._embedded.records);
+            expect(response.next).to.be.function;
+            expect(response.prev).to.be.function;
+            done();
+          })
+          .catch(function (err) {
+            done(err);
+          })
+      });
+
+      it("forTransaction() requests the correct endpoint", function (done) {
+        this.axiosMock.expects('get')
+          .withArgs(sinon.match('https://horizon-live.stellar.org:1337/transactions/77277606902d80a03a892536ebff8466726a4e55c3923ec2d3eeb3aa5bdc3731/payments'))
+          .returns(Promise.resolve({data: paymentsResponse}));
+
+        this.server.payments()
+          .forTransaction("77277606902d80a03a892536ebff8466726a4e55c3923ec2d3eeb3aa5bdc3731")
+          .call()
+          .then(function (response) {
+            expect(response.records).to.be.deep.equal(paymentsResponse._embedded.records);
+            expect(response.next).to.be.function;
+            expect(response.prev).to.be.function;
+            done();
+          })
+          .catch(function (err) {
+            done(err);
+          })
+      });
+    });
+
+    describe("FriendbotCallBuilder", function() {
+      let friendbotResponse = {
+        "ledger": 2
+      };
+
+      it("requests the correct endpoint", function (done) {
+        this.axiosMock.expects('get')
+          .withArgs(sinon.match('https://horizon-live.stellar.org:1337/friendbot?addr=GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K'))
+          .returns(Promise.resolve({data: friendbotResponse}));
+
+        this.server.friendbot("GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K")
+          .call()
+          .then(function (response) {
+            expect(response.ledger).to.be.equal(friendbotResponse.ledger);
             done();
           })
           .catch(function (err) {
