@@ -6,8 +6,9 @@ As this project is pre 1.0, breaking changes may happen for minor version bumps.
 
 * **Breaking change** `Server` and `FederationServer` constructors no longer accept object as `serverUrl` parameter.
 * **Breaking change** Removed `AccountCallBuilder.address` method. Use `AccountCallBuilder.accountId` instead.
+* **Breaking change** It's no longer possible to connect to insecure server in `Server` or `FederationServer` unless `allowHttp` flag in `opts` is set.
 
-## next patch - unreleased
+## Unreleased
 
 * Added tests.
 * Added `CHANGELOG.md` file.
