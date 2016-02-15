@@ -26,21 +26,10 @@ export class Server {
      * Server handles a network connection to a [Horizon](https://www.stellar.org/developers/horizon/learn/index.html)
      * instance and exposes an interface for requests to that instance.
      * @constructor
-     * @param {string} serverURL Horizon Server URL (ex. `https://horizon-testnet.stellar.org`). The old method (config object parameter) is **deprecated**.
+     * @param {string} serverURL Horizon Server URL (ex. `https://horizon-testnet.stellar.org`).
      */
-    constructor(serverURL={}) {
-        if (isString(serverURL)) {
-            this.serverURL = URI(serverURL);
-        } else {
-            // We leave the old method for compatibility reasons.
-            // This will be removed in the next major release.
-            this.protocol = serverURL.secure ? "https" : "http";
-            this.hostname = serverURL.hostname || "localhost";
-            this.port = serverURL.port || 3000;
-            this.serverURL = URI({ protocol: this.protocol,
-                hostname: this.hostname,
-                port: this.port });
-        }
+    constructor(serverURL) {
+        this.serverURL = URI(serverURL);
     }
 
     /**

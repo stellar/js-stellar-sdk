@@ -2,7 +2,11 @@
 
 As this project is pre 1.0, breaking changes may happen for minor version bumps. A breaking change will get clearly notified in this log.
 
-## 0.4.2 - unreleased
+## 0.5.0 - unreleased
+
+* **Breaking change** `Server` and `FederationServer` constructors no longer accept object as `serverUrl` parameter.
+
+## next patch - unreleased
 
 * Added tests.
 * Added `CHANGELOG.md` file.
