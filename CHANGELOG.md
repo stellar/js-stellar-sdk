@@ -5,6 +5,7 @@ As this project is pre 1.0, breaking changes may happen for minor version bumps.
 ## 0.5.0 - unreleased
 
 * **Breaking change** `Server` and `FederationServer` constructors no longer accept object as `serverUrl` parameter.
+* **Breaking change** Removed `AccountCallBuilder.address` method. Use `AccountCallBuilder.accountId` instead.
 
 ## next patch - unreleased
 
