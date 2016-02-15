@@ -1,18 +1,16 @@
 # Changelog
 
-All notable changes to this project will be documented in this
-file.  This project adheres to [Semantic Versioning](http://semver.org/).
+As this project is pre 1.0, breaking changes may happen for minor version bumps. A breaking change will get clearly notified in this log.
 
-As this project is pre 1.0, breaking changes may happen for minor version
-bumps.  A breaking change will get clearly notified in this log.
+## 0.4.2 - unreleased
 
-## [Unreleased]
+* Added tests.
+* Added `CHANGELOG.md` file.
 
-## [0.3.0]
-### Added
-- AccountCallBuilder learned `accountId` method to replace `address` method.
-### Changes
-- *Deprecated* AccountCallBuilder#address.
+## 0.4.1
 
-[Unreleased]: https://github.com/stellar/js-stellar-sdk/compare/v0.3.0...master
-[0.3.0]: https://github.com/stellar/js-stellar-sdk/compare/v0.2.22...v0.3.0
+* `stellar-base` bump. (c90c68f)
+
+## 0.4.0
+
+* **Breaking change** Bumped `stellar-base` to [0.5.0](https://github.com/stellar/js-stellar-base/blob/master/CHANGELOG.md#050). (b810aef)
