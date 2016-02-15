@@ -27,9 +27,15 @@ export class Server {
      * instance and exposes an interface for requests to that instance.
      * @constructor
      * @param {string} serverURL Horizon Server URL (ex. `https://horizon-testnet.stellar.org`).
+     * @param {object} [opts]
+     * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments!
      */
-    constructor(serverURL) {
+    constructor(serverURL, opts = {}) {
         this.serverURL = URI(serverURL);
+
+        if (this.serverURL.protocol() != 'https' && !opts.allowHttp) {
+            throw new Error('Cannot connect to insecure horizon server');
+        }
     }
 
     /**

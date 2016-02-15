@@ -13,11 +13,17 @@ export class FederationServer {
    * @constructor
    * @param {string} serverURL The federation server URL (ex. `https://acme.com/federation`).
    * @param {string} domain Domain this server represents
+   * @param {object} [opts]
+   * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments!
    */
-  constructor(serverURL, domain) {
+  constructor(serverURL, domain, opts = {}) {
     // TODO `domain` regexp
     this.serverURL = URI(serverURL);
     this.domain = domain;
+
+    if (this.serverURL.protocol() != 'https' && !opts.allowHttp) {
+      throw new Error('Cannot connect to insecure federation server');
+    }
   }
 
   /**

@@ -9,6 +9,16 @@ describe("federation-server.js tests", function () {
     this.axiosMock.restore();
   });
 
+  describe('FederationServer.constructor', function () {
+    it("throws error for insecure server", function () {
+      expect(() => new StellarSdk.FederationServer('http://acme.com:1337/federation', 'stellar.org')).to.throw(/Cannot connect to insecure federation server/);
+    });
+
+    it("allow insecure server when opts.allowHttp flag is set", function () {
+      expect(() => new StellarSdk.FederationServer('http://acme.com:1337/federation', 'stellar.org', {allowHttp: true})).to.not.throw();
+    });
+  });
+
   describe('FederationServer.resolveAddress', function () {
     beforeEach(function () {
       this.axiosMock.expects('get')
