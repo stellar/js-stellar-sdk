@@ -67,7 +67,7 @@ If you don't want to use install Bower, you can copy built JS files from the [bo
 1. Instruct the browser to fetch the library from [cdnjs](https://cdnjs.com/libraries/stellar-sdk), a 3rd party service that hosts js libraries:
 
   ```html
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/stellar-sdk/0.4.1/stellar-sdk.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/stellar-sdk/{version}/stellar-sdk.js"></script>
   <script>console.log(StellarSdk);</script>
   ```
 
