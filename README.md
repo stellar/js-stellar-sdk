@@ -13,7 +13,7 @@ It provides:
 
 ### js-stellar-sdk vs js-stellar-base
 
-js-stellar-sdk is a high-level library that serves as client side API for [Horizon](https://github.com/stellar/horizon). This library makes extensive use of the lower-level [js-stellar-base](https://github.com/stellar/js-stellar-base) and exposes js-stellar-base classes via its export object.  js-stellar-base can be used as a standalone library for creating Stellar primitive constructs via XDR helpers and wrappers. js-stellar-base doesn't depend on connecting to Horizon. 
+js-stellar-sdk is a high-level library that serves as client side API for [Horizon](https://github.com/stellar/horizon). This library makes extensive use of the lower-level [js-stellar-base](https://github.com/stellar/js-stellar-base) and exposes js-stellar-base classes via its export object.  js-stellar-base can be used as a standalone library for creating Stellar primitive constructs via XDR helpers and wrappers. js-stellar-base doesn't depend on connecting to Horizon.
 
 js-stellar-sdk exposes all js-stellar-base classes so you don't have to install js-stellar-base along js-stellar-sdk.
 
@@ -47,7 +47,7 @@ relative to your html file.
   var StellarSdk = require('stellar-sdk');
   ```
 
-### To use in the browser
+### To self host for use in the browser
 1. Install it using [bower](http://bower.io):
 
   ```shell
@@ -61,7 +61,19 @@ relative to your html file.
   <script>console.log(StellarSdk);</script>
   ```
 
-Note that, if you don't want to use Bower, you can also copy built JS files from [bower-js-stellar-sdk repo](https://github.com/stellar/bower-js-stellar-sdk).
+If you don't want to use install Bower, you can copy built JS files from the [bower-js-stellar-sdk repo](https://github.com/stellar/bower-js-stellar-sdk).
+
+### To use the [cdnjs](https://cdnjs.com/libraries/stellar-sdk) hosted script in the browser
+1. Instruct the browser to fetch the library from [cdnjs](https://cdnjs.com/libraries/stellar-sdk), a 3rd party service that hosts js libraries:
+
+  ```html
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/stellar-sdk/0.4.1/stellar-sdk.js"></script>
+  <script>console.log(StellarSdk);</script>
+  ```
+
+Note that this method relies using a third party to host the JS library. This may not be entirely secure.
+
+Make sure that you are using the latest version number. They can be found on the [releases page in Github](https://github.com/stellar/js-stellar-sdk/releases).
 
 ### To develop and test js-stellar-sdk itself
 1. Clone the repo:
@@ -109,6 +121,3 @@ Read more about [npm version](https://docs.npmjs.com/cli/version).
 
 ## License
 js-stellar-sdk is licensed under an Apache-2.0 license. See the [LICENSE](https://github.com/stellar/js-stellar-sdk/blob/master/LICENSE) file for details.
-
-
-
