@@ -65,11 +65,13 @@ deploy:
     on:
       tags: true
       repo: stellar/js-stellar-sdk
-      node: "4.2" # Deploy only once, no matter which node
+      node: "4.2"
+      condition: "$INTEGRATION = true"
   - provider: script
     script: ./bower_publish.sh
     skip_cleanup: true
     on:
       tags: true
       repo: stellar/js-stellar-sdk
-      node: "4.2" # Deploy only once, no matter which node
+      node: "4.2"
+      condition: "$INTEGRATION = true"
