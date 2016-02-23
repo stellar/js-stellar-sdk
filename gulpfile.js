@@ -69,7 +69,11 @@ gulp.task('build:browser', ['lint:src'], function() {
     .pipe(plugins.insert.prepend(fs.readFileSync('./node_modules/event-source-polyfill/eventsource.js')))
     .pipe(plugins.rename('stellar-sdk.js'))
     .pipe(gulp.dest('dist'))
-    .pipe(plugins.uglify())
+    .pipe(plugins.uglify({
+      output: {
+        ascii_only: true
+      }
+    }))
     .pipe(plugins.rename('stellar-sdk.min.js'))
     .pipe(gulp.dest('dist'));
 });

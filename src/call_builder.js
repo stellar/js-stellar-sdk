@@ -1,4 +1,5 @@
 import {NotFoundError, NetworkError, BadRequestError} from "./errors";
+import forEach from 'lodash/forEach';
 
 let URI = require("urijs");
 let URITemplate = require("urijs").URITemplate;
@@ -6,7 +7,6 @@ let URITemplate = require("urijs").URITemplate;
 let axios = require("axios");
 var EventSource = (typeof window === 'undefined') ? require('eventsource') : window.EventSource;
 let toBluebird = require("bluebird").resolve;
-let _ = require('lodash');
 
 /**
  * Creates a new {@link CallBuilder} pointed to server defined by serverUrl.
@@ -97,7 +97,7 @@ export class CallBuilder {
     if (!json._links) {
       return json;
     }
-    _.forEach(json._links, (n, key) => {json[key] = this._requestFnForLink(n);});
+    forEach(json._links, (n, key) => {json[key] = this._requestFnForLink(n);});
     return json;
   }
   

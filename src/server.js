@@ -11,8 +11,7 @@ import {PaymentCallBuilder} from "./payment_call_builder";
 import {EffectCallBuilder} from "./effect_call_builder";
 import {FriendbotBuilder} from "./friendbot_builder";
 import {xdr, Account} from "stellar-base";
-
-import {isString} from "lodash";
+import isString from "lodash/isString";
 
 let axios = require("axios");
 let toBluebird = require("bluebird").resolve;

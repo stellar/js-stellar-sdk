@@ -2,7 +2,8 @@ import axios from 'axios';
 import URI from 'urijs';
 import Promise from 'bluebird';
 import toml from 'toml';
-import {isString, pick} from "lodash";
+import isString from "lodash/isString";
+import pick from "lodash/pick";
 import {Account} from 'stellar-base';
 
 export class FederationServer {
