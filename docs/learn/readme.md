@@ -15,7 +15,7 @@ js-stellar-sdk uses the [Builder pattern](https://en.wikipedia.org/wiki/Builder_
 to Horizon. Starting with a [server](../reference/server.md) object, you can chain methods together to generate a query.
 (See the [Horizon reference](https://www.stellar.org/developers/reference/) documentation for what methods are possible.)
 ```js
-var StellarSdk = require('stellar-sdk')
+var StellarSdk = require('stellar-sdk');
 var server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
 // get a list of transactions that occurred in ledger 1400
 server.transactions()
