@@ -22,7 +22,7 @@ export const SUBMIT_TRANSACTION_TIMEOUT = 20*1000;
 
 export class Server {
     /**
-     * Server handles a network connection to a [Horizon](https://www.stellar.org/developers/horizon/learn/index.html)
+     * Server handles the network connection to a [Horizon](https://www.stellar.org/developers/horizon/learn/index.html)
      * instance and exposes an interface for requests to that instance.
      * @constructor
      * @param {string} serverURL Horizon Server URL (ex. `https://horizon-testnet.stellar.org`). The old method (config object parameter) is **deprecated**.
@@ -128,7 +128,7 @@ export class Server {
     }
 
     /**
-     * The Stellar Network allows payments to be made across assets through path payments. A path payment specifies a
+     * The Stellar Network allows payments to be made between assets through path payments. A path payment specifies a
      * series of assets to route a payment through, from source asset (the asset debited from the payer) to destination
      * asset (the asset credited to the payee).
      *
@@ -142,9 +142,9 @@ export class Server {
      * payment paths from those source assets to the desired destination asset. The search's amount parameter will be
      * used to determine if there a given path can satisfy a payment of the desired amount.
      *
-     * Returns new {@link PathCallBuilder} object configured by a current Horizon server configuration.
+     * Returns new {@link PathCallBuilder} object configured with the current Horizon server configuration.
      *
-     * @param {string} source The sender's account ID. Any returned path must use a source that the sender can hold.
+     * @param {string} source The sender's account ID. Any returned path will use a source that the sender can hold.
      * @param {string} destination The destination account ID that any returned path should use.
      * @param {Asset} destinationAsset The destination asset.
      * @param {string} destinationAmount The amount, denominated in the destination asset, that any returned path should be able to satisfy.
@@ -155,7 +155,7 @@ export class Server {
     }
 
     /**
-     * Returns new {@link PaymentCallBuilder} object configured by a current Horizon server configuration.
+     * Returns new {@link PaymentCallBuilder} object configured with the current Horizon server configuration.
      * @returns {PaymentCallBuilder}
      */
     payments() {
@@ -163,7 +163,7 @@ export class Server {
     }
 
     /**
-     * Returns new {@link EffectCallBuilder} object configured by a current Horizon server configuration.
+     * Returns new {@link EffectCallBuilder} object configured with the current Horizon server configuration.
      * @returns {EffectCallBuilder}
      */
     effects() {
@@ -171,7 +171,7 @@ export class Server {
     }
 
     /**
-     * Returns new {@link FriendbotBuilder} object configured by a current Horizon server configuration.
+     * Returns new {@link FriendbotBuilder} object configured with the current Horizon server configuration.
      * @returns {FriendbotBuilder}
      * @private
      */
@@ -182,7 +182,7 @@ export class Server {
     /**
     * Fetches an account's most current state in the ledger and then creates and returns an {@link Account} object.
     * @param {string} accountId - The account to load.
-    * @returns {Promise} Returns a promise to the {@link Account} object with populated sequence number.
+    * @returns {Promise} Returns a promise to the {@link Account} object with the sequence number populated.
     */
     loadAccount(accountId) {
         return this.accounts()
