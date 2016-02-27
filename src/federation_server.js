@@ -4,7 +4,7 @@ import Promise from 'bluebird';
 import toml from 'toml';
 import isString from "lodash/isString";
 import pick from "lodash/pick";
-import {Account} from 'stellar-base';
+import {Account, Keypair} from 'stellar-base';
 
 export class FederationServer {
   /**
@@ -77,7 +77,7 @@ export class FederationServer {
   static resolve(value) {
     // Check if `value` is in account ID format
     if (value.indexOf('*') < 0) {
-      if (!Keypair.isValidAccountId(value)) {
+      if (!Keypair.isValidPublicKey(value)) {
         return Promise.reject(new Error('Invalid Account ID'));
       } else {
         return Promise.resolve({account_id: value});
