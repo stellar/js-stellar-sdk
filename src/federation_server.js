@@ -53,7 +53,7 @@ export class FederationServer {
    *
    * Example:
    * ```js
-   * StellarSdk.FederationServer.forAddress('bob*stellar.org')
+   * StellarSdk.FederationServer.resolve('bob*stellar.org')
    *  .then(federationRecord => {
    *    // {
    *    //   account_id: 'GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS',
@@ -77,7 +77,7 @@ export class FederationServer {
   static resolve(value) {
     // Check if `value` is in account ID format
     if (value.indexOf('*') < 0) {
-      if (!Account.isValidAccountId(value)) {
+      if (!Keypair.isValidAccountId(value)) {
         return Promise.reject(new Error('Invalid Account ID'));
       } else {
         return Promise.resolve({account_id: value});
