@@ -164,6 +164,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
 
       StellarSdk.FederationServer.resolve('bob*stellar.org')
         .should.eventually.deep.equal({
+          stellar_address: 'bob*stellar.org',
           account_id: 'GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS',
           memo_type: 'id',
           memo: 100

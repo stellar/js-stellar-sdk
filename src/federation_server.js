@@ -90,8 +90,7 @@ export class FederationServer {
         return Promise.reject(new Error('Invalid Stellar address'));
       }
       return FederationServer.createForDomain(domain)
-        .then(federationServer => federationServer.resolveAddress(value))
-        .then(response => pick(response, ['account_id', 'memo_type', 'memo']));
+        .then(federationServer => federationServer.resolveAddress(value));
     }
   }
 
