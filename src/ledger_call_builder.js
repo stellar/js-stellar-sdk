@@ -17,11 +17,11 @@ export class LedgerCallBuilder extends CallBuilder {
 
     /**
      * Provides information on a single ledger.
-     * @param ledgerId Ledger ID
+     * @param sequence Ledger sequence
      * @returns {LedgerCallBuilder}
      */
-    ledger(ledgerId) {
-        this.filter.push(['ledgers', ledgerId]);
+    ledger(sequence) {
+        this.filter.push(['ledgers', sequence.toString()]);
         return this;
     }
 

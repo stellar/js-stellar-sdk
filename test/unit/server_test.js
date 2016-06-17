@@ -170,7 +170,7 @@ describe("server.js tests", function () {
             .returns(Promise.reject({status: 404, data: {}}));
 
           this.server.ledgers()
-            .ledger("1")
+            .ledger(1)
             .call()
             .then(function () {
               done("didn't throw an error");
