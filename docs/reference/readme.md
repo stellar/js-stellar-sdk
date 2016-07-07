@@ -12,7 +12,7 @@ js-stellar-sdk gives you access to all the endpoints exposed by Horizon.
 
 ## Building requests
 js-stellar-sdk uses the [Builder pattern](https://en.wikipedia.org/wiki/Builder_pattern) to create the requests to send
-to Horizon. Starting with a [server](../reference/server.md) object, you can chain methods together to generate a query.
+to Horizon. Starting with a [server](https://stellar.github.io/js-stellar-sdk/Server.html) object, you can chain methods together to generate a query.
 (See the [Horizon reference](https://www.stellar.org/developers/reference/) documentation for what methods are possible.)
 ```js
 var StellarSdk = require('stellar-sdk');
