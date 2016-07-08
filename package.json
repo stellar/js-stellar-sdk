@@ -76,15 +76,14 @@
   },
   "dependencies": {
     "urijs": "^1.16.0",
-    "axios": "^0.9.1",
+    "axios": "^0.12.0",
     "bluebird": "^3.1.5",
     "es6-promise": "^3.0.2",
     "event-source-polyfill": "0.0.7",
-    "eventsource": "^0.1.6",
+    "eventsource": "^0.2.1",
     "jsdoc": "jsdoc3/jsdoc#master",
     "lodash": "^4.0.1",
     "stellar-base": "^0.5.6",
-    "superagent": "^1.1.0",
     "toml": "^2.3.0"
   }
 }
