@@ -2,6 +2,13 @@
 
 As this project is pre 1.0, breaking changes may happen for minor version bumps. A breaking change will get clearly notified in this log.
 
+## 0.5.0
+
+* **Breaking change** `Server` and `FederationServer` constructors no longer accept object in `serverUrl` parameter.
+* **Breaking change** Removed `AccountCallBuilder.address` method. Use `AccountCallBuilder.accountId` instead.
+* **Breaking change** It's no longer possible to connect to insecure server in `Server` or `FederationServer` unless `allowHttp` flag in `opts` is set.
+* Updated dependencies.
+
 ## 0.4.3
 
 * Updated dependency (`stellar-base`).

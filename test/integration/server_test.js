@@ -5,8 +5,8 @@ describe("integration tests", function () {
   this.slow(TIMEOUT/2);
 
   // Docker
-  let server = new StellarSdk.Server('http://127.0.0.1:8000');
-  //let server = new StellarSdk.Server('http://192.168.59.103:32773');
+  let server = new StellarSdk.Server('http://127.0.0.1:8000', {allowHttp: true});
+  //let server = new StellarSdk.Server('http://192.168.59.103:32773', {allowHttp: true});
   let master = StellarSdk.Keypair.master();
 
   before(function(done) {

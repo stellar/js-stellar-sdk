@@ -12,31 +12,18 @@ export class FederationServer {
    * [federation server](https://www.stellar.org/developers/learn/concepts/federation.html)
    * instance and exposes an interface for requests to that instance.
    * @constructor
-   * @param {string} serverURL The federation server URL (ex. `https://acme.com/federation`). The old method (config object parameter) is **deprecated**.
+   * @param {string} serverURL The federation server URL (ex. `https://acme.com/federation`).
    * @param {string} domain Domain this server represents
+   * @param {object} [opts]
+   * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments!
    */
-  constructor(serverURL, domain) {
-    if (isString(serverURL)) {
-      // TODO `domain` regexp
-      this.serverURL = URI(serverURL);
-      this.domain = domain;
-    } else {
-      // We leave the old method for compatibility reasons.
-      // This will be removed in the next major release.
-      if (!serverURL) {
-        serverURL = {};
-      }
-      this.protocol = serverURL.secure ? "https" : "http";
-      this.hostname = serverURL.hostname || "localhost";
-      this.port = serverURL.port || 80;
-      this.path = serverURL.path || '/federation';
-      this.domain = serverURL.domain;
-      this.serverURL = URI({
-        protocol: this.protocol,
-        hostname: this.hostname,
-        port: this.port,
-        path: this.path
-      });
+  constructor(serverURL, domain, opts = {}) {
+    // TODO `domain` regexp
+    this.serverURL = URI(serverURL);
+    this.domain = domain;
+
+    if (this.serverURL.protocol() != 'https' && !opts.allowHttp) {
+      throw new Error('Cannot connect to insecure federation server');
     }
   }
 
