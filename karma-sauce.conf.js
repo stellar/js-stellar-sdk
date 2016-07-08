@@ -15,11 +15,11 @@ module.exports = function(config) {
       browserName: 'internet explorer',
       version: '11'
     },
-    sl_edge: {
-      base: 'SauceLabs',
-      browserName: 'microsoftedge',
-      version: '20'
-    }
+    // sl_edge: {
+    //   base: 'SauceLabs',
+    //   browserName: 'microsoftedge',
+    //   version: '20'
+    // }
   };
 
   config.set({
