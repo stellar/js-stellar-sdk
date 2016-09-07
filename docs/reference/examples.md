@@ -31,6 +31,8 @@ In this example you must ensure that the destination account exists
 // To use in node, do `npm install stellar-sdk` and uncomment the following line.
 var StellarSdk = require('stellar-sdk');
 
+StellarSdk.
+
 // The source account is the account we will be signing and sending from.
 var sourceSecretKey = 'SAKRB7EE6H23EF733WFU76RPIYOPEWVOMBBUXDQYQ3OF4NF6ZY6B6VLW';
 
@@ -47,6 +49,7 @@ var server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
 // Uncomment the following line to build transactions for the live network. Be
 // sure to also change the horizon hostname.
 // StellarSdk.Network.usePublicNetwork();
+StellarSdk.Network.useTestNetwork();
 
 // Transactions require a valid sequence number that is specific to this account.
 // We can fetch the current sequence number for the source account from Horizon.
