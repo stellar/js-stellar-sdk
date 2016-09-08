@@ -90,8 +90,7 @@ describe("integration tests", function () {
       this.timeout(10*1000);
       let randomAccount = StellarSdk.Keypair.random();
 
-      let eventStream;
-      eventStream = server.accounts()
+      let eventStreamClose = server.accounts()
         .cursor('now')
         .stream({
           onmessage: account => {
@@ -101,7 +100,7 @@ describe("integration tests", function () {
         });
 
       createNewAccount(randomAccount.accountId());
-      setTimeout(() => eventStream.close(), 10*1000);
+      setTimeout(() => eventStreamClose(), 10*1000);
     });
   });
 });
