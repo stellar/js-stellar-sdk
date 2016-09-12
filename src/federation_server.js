@@ -108,12 +108,12 @@ export class FederationServer {
    * @returns {Promise}
    */
   static createForDomain(domain, opts = {}) {
-    return StellarTomlResolver.resolve(domain, opts)
+    return StellarTomlResolver.resolve(domain)
       .then(tomlObject => {
         if (!tomlObject.FEDERATION_SERVER) {
           return Promise.reject(new Error('stellar.toml does not contain FEDERATION_SERVER field'));
         }
-        return new FederationServer(tomlObject.FEDERATION_SERVER, domain);
+        return new FederationServer(tomlObject.FEDERATION_SERVER, domain, opts);
       });
   }
 
