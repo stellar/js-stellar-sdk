@@ -8,7 +8,7 @@ As this project is pre 1.0, breaking changes may happen for minor version bumps.
 This is to prevent permanent disconnects (more in: [#76](https://github.com/stellar/js-stellar-sdk/pull/76)).
 Also, this method now returns `close` callback instead of `EventSource` object.
 * **Breaking change** `Server.loadAccount` now returns the `AccountResponse` object.
-* **Breaking change** Upgraded `stellar-base` to `0.6.0`. `ed25519` package is now an optional dependency. Check `StellarSdk.fastSigning` variable to check if `ed25519` package is available. More in README file.
+* **Breaking change** Upgraded `stellar-base` to `0.6.0`. `ed25519` package is now an optional dependency. Check `StellarSdk.FastSigning` variable to check if `ed25519` package is available. More in README file.
 * New `StellarTomlResolver` class that allows getting `stellar.toml` file for a domain.
 * New `Config` class to set global config values.
 
