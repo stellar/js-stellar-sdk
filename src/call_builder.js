@@ -45,30 +45,68 @@ export class CallBuilder {
   }
 
   /**
-   * Creates an EventSource that listens for incoming messages from the server.
+   * Creates an EventSource that listens for incoming messages from the server. To stop listening for new
+   * events call the function returned by this method.
    * @see [Horizon Response Format](https://www.stellar.org/developers/horizon/learn/responses.html)
    * @see [MDN EventSource](https://developer.mozilla.org/en-US/docs/Web/API/EventSource)
    * @param {object} [options] EventSource options.
    * @param {function} [options.onmessage] Callback function to handle incoming messages.
    * @param {function} [options.onerror] Callback function to handle errors.
-   * @returns {EventSource}
+   * @returns {function} Close function. Run to close the connection and stop listening for new events.
    */
   stream(options) {
     this.checkFilter();
-    try {
-      var es = new EventSource(this.url.toString());
-      es.onmessage = (message) => {
+
+    // EventSource object
+    let es;
+    // timeout is the id of the timeout to be triggered if there were no new messages
+    // in the last 15 seconds. The timeout is reset when a new message arrive.
+    // It prevents closing EventSource object in case of 504 errors as `readyState`
+    // property is not reliable.
+    let timeout;
+
+    var createTimeout = () => {
+      timeout = setTimeout(() => {
+        es.close();
+        es = createEventSource();
+      }, 15*1000);
+    };
+
+    var createEventSource = () => {
+      try {
+        es = new EventSource(this.url.toString());
+      } catch (err) {
+        if (options.onerror) {
+          options.onerror(err);
+          options.onerror('EventSource not supported');
+        }
+        return false;
+      }
+
+      createTimeout();
+
+      es.onmessage = message => {
         var result = message.data ? this._parseRecord(JSON.parse(message.data)) : message;
+        if (result.paging_token) {
+          this.url.setQuery("cursor", result.paging_token);
+        }
+        clearTimeout(timeout);
+        createTimeout();
         options.onmessage(result);
       };
-      es.onerror = options.onerror;
+
+      es.onerror = error => {
+        options.onerror(error);
+      };
+
       return es;
-    } catch (err) {
-      if (options.onerror) {
-        options.onerror('EventSource not supported');
-      }
-      return false;
-    }
+    };
+
+    createEventSource();
+    return function close() {
+      clearTimeout(timeout);
+      es.close();
+    };
   }
 
   /**
