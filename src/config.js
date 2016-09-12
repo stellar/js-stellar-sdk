@@ -2,7 +2,7 @@ import clone from 'lodash/clone';
 
 let defaultConfig = {
   allowHttp: false
-}
+};
 
 let config = clone(defaultConfig);
 
