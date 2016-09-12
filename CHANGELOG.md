@@ -2,6 +2,16 @@
 
 As this project is pre 1.0, breaking changes may happen for minor version bumps. A breaking change will get clearly notified in this log.
 
+## 0.6.0
+
+* **Breaking change** `CallBuilder.stream` now reconnects when no data was received for a long time.
+This is to prevent permanent disconnects (more in: [#76](https://github.com/stellar/js-stellar-sdk/pull/76)).
+Also, this method now returns `close` callback instead of `EventSource` object.
+* **Breaking change** `Server.loadAccount` now returns the `AccountResponse` object.
+* **Breaking change** Upgraded `stellar-base` to `0.6.0`. `ed25519` package is now an optional dependency. Check `StellarSdk.fastSigning` variable to check if `ed25519` package is available. More in README file.
+* New `StellarTomlResolver` class that allows getting `stellar.toml` file for a domain.
+* New `Config` class to set global config values.
+
 ## 0.5.1
 
 * Fixed XDR decoding issue when using firefox
