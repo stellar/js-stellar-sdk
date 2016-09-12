@@ -1,6 +1,7 @@
 import {NotFoundError, NetworkError, BadRequestError} from "./errors";
 
 import {AccountCallBuilder} from "./account_call_builder";
+import {AccountResponse} from "./account_response";
 import {LedgerCallBuilder} from "./ledger_call_builder";
 import {TransactionCallBuilder} from "./transaction_call_builder";
 import {OperationCallBuilder} from "./operation_call_builder";
@@ -10,7 +11,7 @@ import {PathCallBuilder} from "./path_call_builder";
 import {PaymentCallBuilder} from "./payment_call_builder";
 import {EffectCallBuilder} from "./effect_call_builder";
 import {FriendbotBuilder} from "./friendbot_builder";
-import {xdr, Account} from "stellar-base";
+import {xdr} from "stellar-base";
 import isString from "lodash/isString";
 
 let axios = require("axios");
@@ -177,17 +178,14 @@ export class Server {
     /**
     * Fetches an account's most current state in the ledger and then creates and returns an {@link Account} object.
     * @param {string} accountId - The account to load.
-    * @returns {Promise} Returns a promise to the {@link Account} object with the sequence number populated.
+    * @returns {Promise} Returns a promise to the {@link AccountResponse} object with populated sequence number.
     */
     loadAccount(accountId) {
         return this.accounts()
             .accountId(accountId)
             .call()
             .then(function (res) {
-                return new Account(accountId, res.sequence);
+                return new AccountResponse(res);
             });
     }
-
 }
-
- 
