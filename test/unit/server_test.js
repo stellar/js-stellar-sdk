@@ -234,21 +234,6 @@ describe("server.js tests", function () {
             });
         });
       });
-
-      describe("as stream", function () {
-        it("attaches onmessage handler to an EventSource", function (done) {
-          let eventSource = this.server.ledgers()
-            .stream({
-              onmessage: function (res) {
-                eventSource.close();
-                expect(res.test).to.be.equal("body");
-                done();
-              }
-            });
-
-          eventSource.onmessage({data: '{"test": "body"}'});
-        });
-      });
     });
 
     describe("requests a single ledger", function () {
@@ -443,21 +428,6 @@ describe("server.js tests", function () {
             .catch(function (err) {
               done(err);
             })
-        });
-      });
-      describe("as stream", function () {
-        it("attaches onmessage handler to an EventSource", function (done) {
-          var eventSource = this.server.transactions()
-            .forLedger("1")
-            .stream({
-              onmessage: function (res) {
-                eventSource.close();
-                expect(res.test).to.be.equal("body");
-                done();
-              }
-            });
-
-          eventSource.onmessage({data: '{"test": "body"}'});
         });
       });
     });
