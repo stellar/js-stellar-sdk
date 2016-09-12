@@ -13,15 +13,15 @@ export class AccountResponse {
      * @param {string} response Response from horizon account endpoint.
      * @returns {AccountResponse}
      */
-	constructor(response) {
-		this._baseAccount = new BaseAccount(response.account_id, response.sequence);
+    constructor(response) {
+        this._baseAccount = new BaseAccount(response.account_id, response.sequence);
         // Extract response fields
         forIn(response, (value, key) => {
             this[key] = value;
         });
-	}
+    }
 
-	/**
+    /**
      * Returns Stellar account ID, ex. `GB3KJPLFUYN5VL6R3GU3EGCGVCKFDSD7BEDX42HWG5BWFKB3KQGJJRMA`
      * @returns {string}
      */
