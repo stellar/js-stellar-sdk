@@ -193,7 +193,4 @@ export class CallBuilder {
     this.url.addQuery("order", direction);
     return this;
   }
-
-
-
 }

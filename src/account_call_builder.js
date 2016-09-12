@@ -27,6 +27,4 @@ export class AccountCallBuilder extends CallBuilder {
       this.filter.push(['accounts', id]);
       return this;
     }
-
-
 }
