@@ -1,6 +1,7 @@
 import axios from 'axios';
 import Promise from 'bluebird';
 import toml from 'toml';
+import {Config} from "./config";
 
 export class StellarTomlResolver {
   /**
@@ -22,8 +23,13 @@ export class StellarTomlResolver {
    * @returns {Promise}
    */
   static resolve(domain, opts = {}) {
+    let allowHttp = Config.isAllowHttp();
+    if (typeof opts.allowHttp !== 'undefined') {
+        allowHttp = opts.allowHttp;
+    }
+
     let protocol = 'https';
-    if (opts.allowHttp) {
+    if (allowHttp) {
         protocol = 'http';
     }
     return axios.get(`${protocol}://www.${domain}/.well-known/stellar.toml`)

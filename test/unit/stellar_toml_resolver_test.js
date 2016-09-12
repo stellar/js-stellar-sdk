@@ -1,6 +1,7 @@
 describe("stellar_toml_resolver.js tests", function () {
   beforeEach(function () {
     this.axiosMock = sinon.mock(axios);
+    StellarSdk.Config.setDefault();
   });
 
   afterEach(function () {
@@ -39,6 +40,26 @@ FEDERATION_SERVER="http://api.stellar.org/federation"
         }));
 
       StellarSdk.StellarTomlResolver.resolve('acme.com', {allowHttp: true})
+        .then(stellarToml => {
+          expect(stellarToml.FEDERATION_SERVER).equals('http://api.stellar.org/federation');
+          done();
+        });
+    });
+
+    it("returns stellar.toml object for valid request and stellar.toml file when global Config.allowHttp flag is set", function (done) {
+      StellarSdk.Config.setAllowHttp(true);
+
+      this.axiosMock.expects('get')
+        .withArgs(sinon.match('http://www.acme.com/.well-known/stellar.toml'))
+        .returns(Promise.resolve({
+          data: `
+#   The endpoint which clients should query to resolve stellar addresses
+#   for users on your domain.
+FEDERATION_SERVER="http://api.stellar.org/federation"
+`
+        }));
+
+      StellarSdk.StellarTomlResolver.resolve('acme.com')
         .then(stellarToml => {
           expect(stellarToml.FEDERATION_SERVER).equals('http://api.stellar.org/federation');
           done();

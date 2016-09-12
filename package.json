@@ -81,7 +81,7 @@
     "es6-promise": "^3.0.2",
     "event-source-polyfill": "0.0.7",
     "eventsource": "^0.2.1",
-    "jsdoc": "jsdoc3/jsdoc#master",
+    "jsdoc": "^3.4.1",
     "lodash": "^4.0.1",
     "stellar-base": "^0.6.0",
     "toml": "^2.3.0"

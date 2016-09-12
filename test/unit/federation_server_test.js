@@ -2,6 +2,7 @@ describe("federation-server.js tests", function () {
   beforeEach(function () {
     this.server = new StellarSdk.FederationServer('https://acme.com:1337/federation', 'stellar.org');
     this.axiosMock = sinon.mock(axios);
+    StellarSdk.Config.setDefault();
   });
 
   afterEach(function () {
@@ -15,6 +16,11 @@ describe("federation-server.js tests", function () {
     });
 
     it("allow insecure server when opts.allowHttp flag is set", function () {
+      expect(() => new StellarSdk.FederationServer('http://acme.com:1337/federation', 'stellar.org', {allowHttp: true})).to.not.throw();
+    });
+
+    it("allow insecure server when global Config.allowHttp flag is set", function () {
+      StellarSdk.Config.setAllowHttp(true);
       expect(() => new StellarSdk.FederationServer('http://acme.com:1337/federation', 'stellar.org', {allowHttp: true})).to.not.throw();
     });
   });

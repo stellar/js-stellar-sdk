@@ -2,6 +2,7 @@ describe("server.js tests", function () {
   beforeEach(function () {
     this.server = new StellarSdk.Server('https://horizon-live.stellar.org:1337');
     this.axiosMock = sinon.mock(axios);
+    StellarSdk.Config.setDefault();
   });
 
   afterEach(function () {
@@ -16,6 +17,11 @@ describe("server.js tests", function () {
 
     it("allow insecure server when opts.allowHttp flag is set", function () {
       expect(() => new StellarSdk.Server('http://horizon-live.stellar.org:1337', {allowHttp: true})).to.not.throw();
+    });
+
+    it("allow insecure server when global Config.allowHttp flag is set", function () {
+      StellarSdk.Config.setAllowHttp(true);
+      expect(() => new StellarSdk.Server('http://horizon-live.stellar.org:1337')).to.not.throw();
     });
   });
 

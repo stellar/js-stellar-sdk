@@ -3,6 +3,7 @@ import URI from 'urijs';
 import Promise from 'bluebird';
 import isString from "lodash/isString";
 import pick from "lodash/pick";
+import {Config} from "./config";
 import {Account, Keypair} from 'stellar-base';
 import {StellarTomlResolver} from "./stellar_toml_resolver";
 
@@ -15,14 +16,19 @@ export class FederationServer {
    * @param {string} serverURL The federation server URL (ex. `https://acme.com/federation`).
    * @param {string} domain Domain this server represents
    * @param {object} [opts]
-   * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments!
+   * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments! You can also use {@link Config} class to set this globally.
    */
   constructor(serverURL, domain, opts = {}) {
     // TODO `domain` regexp
     this.serverURL = URI(serverURL);
     this.domain = domain;
 
-    if (this.serverURL.protocol() != 'https' && !opts.allowHttp) {
+    let allowHttp = Config.isAllowHttp();
+    if (typeof opts.allowHttp !== 'undefined') {
+        allowHttp = opts.allowHttp;
+    }
+
+    if (this.serverURL.protocol() != 'https' && !allowHttp) {
       throw new Error('Cannot connect to insecure federation server');
     }
   }
