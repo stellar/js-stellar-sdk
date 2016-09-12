@@ -11,6 +11,10 @@ It provides:
 - a networking layer API for Horizon endpoints.
 - facilities for building and signing transactions, for communicating with a Stellar Horizon instance, and for submitting transactions or querying network history.
 
+> **Warning!** Node version of `stellar-base` (`stellar-sdk` dependency) package is using [`ed25519`](https://www.npmjs.com/package/ed25519) package, a native implementation of [Ed25519](https://ed25519.cr.yp.to/) in Node.js, as an [optional dependency](https://docs.npmjs.com/files/package.json#optionaldependencies). This means that if for any reason installation of this package fails, `stellar-base` (and `stellar-sdk`) will fallback to the much slower implementation contained in [`tweetnacl`](https://www.npmjs.com/package/tweetnacl).
+>
+> If you are using `stellar-sdk`/`stellar-base` in a browser you can ignore this. However, for production backend deployments you should definitely be using `ed25519`. If `ed25519` is successfully installed and working `StellarSdk.fastSigning` variable will be equal `true`. Otherwise it will be `false`.
+
 ### js-stellar-sdk vs js-stellar-base
 
 js-stellar-sdk is a high-level library that serves as client side API for [Horizon](https://github.com/stellar/horizon). This library makes extensive use of the lower-level [js-stellar-base](https://github.com/stellar/js-stellar-base) and exposes js-stellar-base classes via its export object.  js-stellar-base can be used as a standalone library for creating Stellar primitive constructs via XDR helpers and wrappers. js-stellar-base doesn't depend on connecting to Horizon.

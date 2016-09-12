@@ -83,7 +83,7 @@
     "eventsource": "^0.2.1",
     "jsdoc": "jsdoc3/jsdoc#master",
     "lodash": "^4.0.1",
-    "stellar-base": "^0.5.6",
+    "stellar-base": "^0.6.0",
     "toml": "^2.3.0"
   }
 }
