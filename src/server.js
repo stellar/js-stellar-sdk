@@ -2,6 +2,7 @@ import {NotFoundError, NetworkError, BadRequestError} from "./errors";
 
 import {AccountCallBuilder} from "./account_call_builder";
 import {AccountResponse} from "./account_response";
+import {Config} from "./config";
 import {LedgerCallBuilder} from "./ledger_call_builder";
 import {TransactionCallBuilder} from "./transaction_call_builder";
 import {OperationCallBuilder} from "./operation_call_builder";
@@ -28,12 +29,17 @@ export class Server {
      * @constructor
      * @param {string} serverURL Horizon Server URL (ex. `https://horizon-testnet.stellar.org`).
      * @param {object} [opts]
-     * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments!
+     * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments! You can also use {@link Config} class to set this globally.
      */
     constructor(serverURL, opts = {}) {
         this.serverURL = URI(serverURL);
 
-        if (this.serverURL.protocol() != 'https' && !opts.allowHttp) {
+        let allowHttp = Config.isAllowHttp();
+        if (typeof opts.allowHttp !== 'undefined') {
+            allowHttp = opts.allowHttp;
+        }
+
+        if (this.serverURL.protocol() != 'https' && !allowHttp) {
             throw new Error('Cannot connect to insecure horizon server');
         }
     }

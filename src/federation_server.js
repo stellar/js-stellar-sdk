@@ -1,10 +1,11 @@
 import axios from 'axios';
 import URI from 'urijs';
 import Promise from 'bluebird';
-import toml from 'toml';
 import isString from "lodash/isString";
 import pick from "lodash/pick";
+import {Config} from "./config";
 import {Account, Keypair} from 'stellar-base';
+import {StellarTomlResolver} from "./stellar_toml_resolver";
 
 export class FederationServer {
   /**
@@ -15,14 +16,19 @@ export class FederationServer {
    * @param {string} serverURL The federation server URL (ex. `https://acme.com/federation`).
    * @param {string} domain Domain this server represents
    * @param {object} [opts]
-   * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments!
+   * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments! You can also use {@link Config} class to set this globally.
    */
   constructor(serverURL, domain, opts = {}) {
     // TODO `domain` regexp
     this.serverURL = URI(serverURL);
     this.domain = domain;
 
-    if (this.serverURL.protocol() != 'https' && !opts.allowHttp) {
+    let allowHttp = Config.isAllowHttp();
+    if (typeof opts.allowHttp !== 'undefined') {
+        allowHttp = opts.allowHttp;
+    }
+
+    if (this.serverURL.protocol() != 'https' && !allowHttp) {
       throw new Error('Cannot connect to insecure federation server');
     }
   }
@@ -59,9 +65,11 @@ export class FederationServer {
    * @see <a href="https://www.stellar.org/developers/learn/concepts/federation.html" target="_blank">Federation doc</a>
    * @see <a href="https://www.stellar.org/developers/learn/concepts/stellar-toml.html" target="_blank">Stellar.toml doc</a>
    * @param {string} value Stellar Address (ex. `bob*stellar.org`)
+   * @param {object} [opts]
+   * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments!
    * @returns {Promise}
    */
-  static resolve(value) {
+  static resolve(value, opts = {}) {
     // Check if `value` is in account ID format
     if (value.indexOf('*') < 0) {
       if (!Keypair.isValidPublicKey(value)) {
@@ -76,7 +84,7 @@ export class FederationServer {
       if (addressParts.length != 2 || !domain) {
         return Promise.reject(new Error('Invalid Stellar address'));
       }
-      return FederationServer.createForDomain(domain)
+      return FederationServer.createForDomain(domain, opts)
         .then(federationServer => federationServer.resolveAddress(value));
     }
   }
@@ -95,16 +103,17 @@ export class FederationServer {
    * ```
    * @see <a href="https://www.stellar.org/developers/learn/concepts/stellar-toml.html" target="_blank">Stellar.toml doc</a>
    * @param {string} domain Domain to get federation server for
+   * @param {object} [opts]
+   * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments!
    * @returns {Promise}
    */
-  static createForDomain(domain) {
-    return axios.get(`https://www.${domain}/.well-known/stellar.toml`)
-      .then(response => {
-        let tomlObject = toml.parse(response.data);
+  static createForDomain(domain, opts = {}) {
+    return StellarTomlResolver.resolve(domain)
+      .then(tomlObject => {
         if (!tomlObject.FEDERATION_SERVER) {
           return Promise.reject(new Error('stellar.toml does not contain FEDERATION_SERVER field'));
         }
-        return new FederationServer(tomlObject.FEDERATION_SERVER, domain);
+        return new FederationServer(tomlObject.FEDERATION_SERVER, domain, opts);
       });
   }
 
