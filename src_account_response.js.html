@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>src/operation_call_builder.js - Documentation</title>
+    <title>src/account_response.js - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -28,7 +28,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">src/operation_call_builder.js</h1>
+    <h1 class="page-title">src/account_response.js</h1>
     
 
     
@@ -38,67 +38,50 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import {CallBuilder} from "./call_builder";
+            <pre class="prettyprint source linenums"><code>import {Account as BaseAccount} from "stellar-base";
+import forIn from "lodash/forIn";
 
-export class OperationCallBuilder extends CallBuilder {
+export class AccountResponse {
     /**
-     * Creates a new {@link OperationCallBuilder} pointed to server defined by serverUrl.
+     * Do not create this object directly, use {@link Server#loadAccount}.
      *
-     * Do not create this object directly, use {@link Server#operations}.
-     * @see [All Operations](https://www.stellar.org/developers/horizon/reference/operations-all.html)
-     * @constructor
-     * @extends CallBuilder
-     * @param {string} serverUrl Horizon server URL.
-     */
-    constructor(serverUrl) {
-        super(serverUrl);
-        this.url.segment('operations');
-    }
-
-    /**
-     * The operation details endpoint provides information on a single operation. The operation ID provided in the id
-     * argument specifies which operation to load.
-     * @see [Operation Details](https://www.stellar.org/developers/horizon/reference/operations-single.html)
-     * @param {number} operationId Operation ID
-     * @returns {OperationCallBuilder}
-     */
-    operation(operationId) {
-        this.filter.push(['operations', operationId]);
-        return this;
-    }
-
-    /**
-     * This endpoint represents all operations that were included in valid transactions that affected a particular account.
-     * @see [Operations for Account](https://www.stellar.org/developers/horizon/reference/operations-for-account.html)
-     * @param {string} accountId For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
-     * @returns {OperationCallBuilder}
-     */
-    forAccount(accountId) {
-        this.filter.push(['accounts', accountId, 'operations']);
-        return this;
-    }
-
-    /**
-     * This endpoint returns all operations that occurred in a given ledger.
+     * Returns information and links relating to a single account.
+     * The balances section in the returned JSON will also list all the trust lines this account has set up.
+     * It also contains {@link Account} object and exposes it's methods so can be used in {@link TransactionBuilder}.
      *
-     * @see [Operations for Ledger](https://www.stellar.org/developers/horizon/reference/operations-for-ledger.html)
-     * @param {number} ledgerId Ledger ID
-     * @returns {OperationCallBuilder}
+     * @see [Account Details](https://www.stellar.org/developers/horizon/reference/accounts-single.html)
+     * @param {string} response Response from horizon account endpoint.
+     * @returns {AccountResponse}
      */
-    forLedger(ledgerId) {
-        this.filter.push(['ledgers', ledgerId, 'operations']);
-        return this;
+    constructor(response) {
+        this._baseAccount = new BaseAccount(response.account_id, response.sequence);
+        // Extract response fields
+        forIn(response, (value, key) => {
+            this[key] = value;
+        });
     }
 
     /**
-     * This endpoint represents all operations that are part of a given transaction.
-     * @see [Operations for Transaction](https://www.stellar.org/developers/horizon/reference/operations-for-transaction.html)
-     * @param {string} transactionId Transaction ID
-     * @returns {OperationCallBuilder}
+     * Returns Stellar account ID, ex. `GB3KJPLFUYN5VL6R3GU3EGCGVCKFDSD7BEDX42HWG5BWFKB3KQGJJRMA`
+     * @returns {string}
      */
-    forTransaction(transactionId) {
-        this.filter.push(['transactions', transactionId, 'operations']);
-        return this;
+    accountId() {
+        return this._baseAccount.accountId();
+    }
+
+    /**
+     * @returns {string}
+     */
+    sequenceNumber() {
+        return this._baseAccount.sequenceNumber();
+    }
+
+    /**
+     * Increments sequence number in this object by one.
+     */
+    incrementSequenceNumber() {
+        this._baseAccount.incrementSequenceNumber();
+        this.sequence = this._baseAccount.sequenceNumber();
     }
 }
 </code></pre>

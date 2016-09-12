@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>src/operation_call_builder.js - Documentation</title>
+    <title>src/config.js - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -28,7 +28,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">src/operation_call_builder.js</h1>
+    <h1 class="page-title">src/config.js</h1>
     
 
     
@@ -38,69 +38,58 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import {CallBuilder} from "./call_builder";
+            <pre class="prettyprint source linenums"><code>import clone from 'lodash/clone';
 
-export class OperationCallBuilder extends CallBuilder {
-    /**
-     * Creates a new {@link OperationCallBuilder} pointed to server defined by serverUrl.
-     *
-     * Do not create this object directly, use {@link Server#operations}.
-     * @see [All Operations](https://www.stellar.org/developers/horizon/reference/operations-all.html)
-     * @constructor
-     * @extends CallBuilder
-     * @param {string} serverUrl Horizon server URL.
-     */
-    constructor(serverUrl) {
-        super(serverUrl);
-        this.url.segment('operations');
-    }
+let defaultConfig = {
+  allowHttp: false
+};
 
-    /**
-     * The operation details endpoint provides information on a single operation. The operation ID provided in the id
-     * argument specifies which operation to load.
-     * @see [Operation Details](https://www.stellar.org/developers/horizon/reference/operations-single.html)
-     * @param {number} operationId Operation ID
-     * @returns {OperationCallBuilder}
-     */
-    operation(operationId) {
-        this.filter.push(['operations', operationId]);
-        return this;
-    }
+let config = clone(defaultConfig);
 
-    /**
-     * This endpoint represents all operations that were included in valid transactions that affected a particular account.
-     * @see [Operations for Account](https://www.stellar.org/developers/horizon/reference/operations-for-account.html)
-     * @param {string} accountId For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
-     * @returns {OperationCallBuilder}
-     */
-    forAccount(accountId) {
-        this.filter.push(['accounts', accountId, 'operations']);
-        return this;
-    }
+/**
+ * Global config class.
+ *
+ * Usage node:
+ * ```
+ * import {Config} from 'stellar-sdk';
+ * Config.setAllowHttp(true);
+ * ```
+ *
+ * Usage browser:
+ * ```
+ * StellarSdk.Config.setAllowHttp(true);
+ * ```
+ * @static
+ */
+class Config {
+  /**
+   * Sets `allowHttp` flag globally. When set to `true`, connections to insecure http protocol servers will be allowed.
+   * Must be set to `false` in production. Default: `false`.
+   * @param {boolean} value
+   * @static
+   */
+  static setAllowHttp(value) {
+    config.allowHttp = value;
+  }
 
-    /**
-     * This endpoint returns all operations that occurred in a given ledger.
-     *
-     * @see [Operations for Ledger](https://www.stellar.org/developers/horizon/reference/operations-for-ledger.html)
-     * @param {number} ledgerId Ledger ID
-     * @returns {OperationCallBuilder}
-     */
-    forLedger(ledgerId) {
-        this.filter.push(['ledgers', ledgerId, 'operations']);
-        return this;
-    }
+  /**
+   * Returns the value of `allowHttp` flag.
+   * @static
+   */
+  static isAllowHttp() {
+    return clone(config.allowHttp);
+  }
 
-    /**
-     * This endpoint represents all operations that are part of a given transaction.
-     * @see [Operations for Transaction](https://www.stellar.org/developers/horizon/reference/operations-for-transaction.html)
-     * @param {string} transactionId Transaction ID
-     * @returns {OperationCallBuilder}
-     */
-    forTransaction(transactionId) {
-        this.filter.push(['transactions', transactionId, 'operations']);
-        return this;
-    }
+  /**
+   * Sets all global config flags to default values.
+   * @static
+   */
+  static setDefault() {
+    config = clone(defaultConfig);
+  }
 }
+
+export {Config};
 </code></pre>
         </article>
     </section>

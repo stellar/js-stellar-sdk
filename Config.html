@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>src/operation_call_builder.js - Documentation</title>
+    <title>Config - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -28,82 +28,436 @@
 
 <div id="main">
     
-    <h1 class="page-title">src/operation_call_builder.js</h1>
+    <h1 class="page-title">Config</h1>
     
 
     
 
 
 
+
+<section>
+
+<header>
     
-    <section>
-        <article>
-            <pre class="prettyprint source linenums"><code>import {CallBuilder} from "./call_builder";
+        <h2>
+        Config
+        </h2>
+        
+            <div class="class-description"><p>Global config class.</p>
+<p>Usage node:</p>
+<pre class="prettyprint source"><code>import {Config} from 'stellar-sdk';
+Config.setAllowHttp(true);</code></pre><p>Usage browser:</p>
+<pre class="prettyprint source"><code>StellarSdk.Config.setAllowHttp(true);</code></pre></div>
+        
+    
+</header>
 
-export class OperationCallBuilder extends CallBuilder {
-    /**
-     * Creates a new {@link OperationCallBuilder} pointed to server defined by serverUrl.
-     *
-     * Do not create this object directly, use {@link Server#operations}.
-     * @see [All Operations](https://www.stellar.org/developers/horizon/reference/operations-all.html)
-     * @constructor
-     * @extends CallBuilder
-     * @param {string} serverUrl Horizon server URL.
-     */
-    constructor(serverUrl) {
-        super(serverUrl);
-        this.url.segment('operations');
-    }
+<article>
+    <div class="container-overview">
+    
+        
 
-    /**
-     * The operation details endpoint provides information on a single operation. The operation ID provided in the id
-     * argument specifies which operation to load.
-     * @see [Operation Details](https://www.stellar.org/developers/horizon/reference/operations-single.html)
-     * @param {number} operationId Operation ID
-     * @returns {OperationCallBuilder}
-     */
-    operation(operationId) {
-        this.filter.push(['operations', operationId]);
-        return this;
-    }
+    
+    <h2>Constructor</h2>
+    
 
-    /**
-     * This endpoint represents all operations that were included in valid transactions that affected a particular account.
-     * @see [Operations for Account](https://www.stellar.org/developers/horizon/reference/operations-for-account.html)
-     * @param {string} accountId For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
-     * @returns {OperationCallBuilder}
-     */
-    forAccount(accountId) {
-        this.filter.push(['accounts', accountId, 'operations']);
-        return this;
-    }
+    <h4 class="name" id="Config"><span class="type-signature"></span>new Config<span class="signature">()</span><span class="type-signature"></span></h4>
 
-    /**
-     * This endpoint returns all operations that occurred in a given ledger.
-     *
-     * @see [Operations for Ledger](https://www.stellar.org/developers/horizon/reference/operations-for-ledger.html)
-     * @param {number} ledgerId Ledger ID
-     * @returns {OperationCallBuilder}
-     */
-    forLedger(ledgerId) {
-        this.filter.push(['ledgers', ledgerId, 'operations']);
-        return this;
-    }
+    
 
-    /**
-     * This endpoint represents all operations that are part of a given transaction.
-     * @see [Operations for Transaction](https://www.stellar.org/developers/horizon/reference/operations-for-transaction.html)
-     * @param {string} transactionId Transaction ID
-     * @returns {OperationCallBuilder}
-     */
-    forTransaction(transactionId) {
-        this.filter.push(['transactions', transactionId, 'operations']);
-        return this;
-    }
-}
-</code></pre>
-        </article>
-    </section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_config.js.html">src/config.js</a>, <a href="src_config.js.html#line24">line 24</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    </div>
+
+    
+
+    
+
+    
+
+     
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    <h4 class="name" id=".isAllowHttp"><span class="type-signature">(static) </span>isAllowHttp<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Returns the value of <code>allowHttp</code> flag.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_config.js.html">src/config.js</a>, <a href="src_config.js.html#line39">line 39</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".setAllowHttp"><span class="type-signature">(static) </span>setAllowHttp<span class="signature">(value)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Sets <code>allowHttp</code> flag globally. When set to <code>true</code>, connections to insecure http protocol servers will be allowed.
+Must be set to <code>false</code> in production. Default: <code>false</code>.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>value</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_config.js.html">src/config.js</a>, <a href="src_config.js.html#line31">line 31</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".setDefault"><span class="type-signature">(static) </span>setDefault<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Sets all global config flags to default values.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_config.js.html">src/config.js</a>, <a href="src_config.js.html#line47">line 47</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+    
+
+    
+
+    
+</article>
+
+</section>
 
 
 

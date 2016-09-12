@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>src/operation_call_builder.js - Documentation</title>
+    <title>src/stellar_toml_resolver.js - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -28,7 +28,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">src/operation_call_builder.js</h1>
+    <h1 class="page-title">src/stellar_toml_resolver.js</h1>
     
 
     
@@ -38,68 +38,50 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import {CallBuilder} from "./call_builder";
+            <pre class="prettyprint source linenums"><code>import axios from 'axios';
+import Promise from 'bluebird';
+import toml from 'toml';
+import {Config} from "./config";
 
-export class OperationCallBuilder extends CallBuilder {
-    /**
-     * Creates a new {@link OperationCallBuilder} pointed to server defined by serverUrl.
-     *
-     * Do not create this object directly, use {@link Server#operations}.
-     * @see [All Operations](https://www.stellar.org/developers/horizon/reference/operations-all.html)
-     * @constructor
-     * @extends CallBuilder
-     * @param {string} serverUrl Horizon server URL.
-     */
-    constructor(serverUrl) {
-        super(serverUrl);
-        this.url.segment('operations');
+export class StellarTomlResolver {
+  /**
+   * Returns a parsed `stellar.toml` file for a given domain.
+   * Returns a `Promise` that resolves to the parsed stellar.toml object. If `stellar.toml` file does not exist for a given domain or is invalid Promise will reject.
+   * ```js
+   * StellarSdk.StellarTomlResolver.resolve('acme.com')
+   *   .then(stellarToml => {
+   *     // stellarToml in an object representing domain stellar.toml file.
+   *   })
+   *   .catch(error => {
+   *     // stellar.toml does not exist or is invalid
+   *   });
+   * ```
+   * @see &lt;a href="https://www.stellar.org/developers/learn/concepts/stellar-toml.html" target="_blank">Stellar.toml doc&lt;/a>
+   * @param {string} domain Domain to get stellar.toml file for
+   * @param {object} [opts]
+   * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments!
+   * @returns {Promise}
+   */
+  static resolve(domain, opts = {}) {
+    let allowHttp = Config.isAllowHttp();
+    if (typeof opts.allowHttp !== 'undefined') {
+        allowHttp = opts.allowHttp;
     }
 
-    /**
-     * The operation details endpoint provides information on a single operation. The operation ID provided in the id
-     * argument specifies which operation to load.
-     * @see [Operation Details](https://www.stellar.org/developers/horizon/reference/operations-single.html)
-     * @param {number} operationId Operation ID
-     * @returns {OperationCallBuilder}
-     */
-    operation(operationId) {
-        this.filter.push(['operations', operationId]);
-        return this;
+    let protocol = 'https';
+    if (allowHttp) {
+        protocol = 'http';
     }
-
-    /**
-     * This endpoint represents all operations that were included in valid transactions that affected a particular account.
-     * @see [Operations for Account](https://www.stellar.org/developers/horizon/reference/operations-for-account.html)
-     * @param {string} accountId For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
-     * @returns {OperationCallBuilder}
-     */
-    forAccount(accountId) {
-        this.filter.push(['accounts', accountId, 'operations']);
-        return this;
-    }
-
-    /**
-     * This endpoint returns all operations that occurred in a given ledger.
-     *
-     * @see [Operations for Ledger](https://www.stellar.org/developers/horizon/reference/operations-for-ledger.html)
-     * @param {number} ledgerId Ledger ID
-     * @returns {OperationCallBuilder}
-     */
-    forLedger(ledgerId) {
-        this.filter.push(['ledgers', ledgerId, 'operations']);
-        return this;
-    }
-
-    /**
-     * This endpoint represents all operations that are part of a given transaction.
-     * @see [Operations for Transaction](https://www.stellar.org/developers/horizon/reference/operations-for-transaction.html)
-     * @param {string} transactionId Transaction ID
-     * @returns {OperationCallBuilder}
-     */
-    forTransaction(transactionId) {
-        this.filter.push(['transactions', transactionId, 'operations']);
-        return this;
-    }
+    return axios.get(`${protocol}://www.${domain}/.well-known/stellar.toml`)
+      .then(response => {
+      	try {
+            let tomlObject = toml.parse(response.data);
+            return Promise.resolve(tomlObject);
+        } catch (e) {
+            return Promise.reject(`Parsing error on line ${e.line}, column ${e.column}: ${e.message}`);
+        }
+      });
+  }
 }
 </code></pre>
         </article>

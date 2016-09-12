@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>PaymentCallBuilder - Documentation</title>
+    <title>AccountResponse - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -28,7 +28,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">PaymentCallBuilder</h1>
+    <h1 class="page-title">AccountResponse</h1>
     
 
     
@@ -41,7 +41,7 @@
 <header>
     
         <h2>
-        PaymentCallBuilder
+        AccountResponse
         </h2>
         
     
@@ -54,15 +54,17 @@
 
     
 
-    <h4 class="name" id="PaymentCallBuilder"><span class="type-signature"></span>new PaymentCallBuilder<span class="signature">(serverUrl)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="AccountResponse"><span class="type-signature"></span>new AccountResponse<span class="signature">(response)</span><span class="type-signature"> &rarr; {<a href="AccountResponse.html">AccountResponse</a>}</span></h4>
 
     
 
 
 
 <div class="description">
-    <p>Creates a new <a href="PaymentCallBuilder.html">PaymentCallBuilder</a> pointed to server defined by serverUrl.</p>
-<p>Do not create this object directly, use <a href="Server.html#payments">Server#payments</a>.</p>
+    <p>Do not create this object directly, use <a href="Server.html#loadAccount">Server#loadAccount</a>.</p>
+<p>Returns information and links relating to a single account.
+The balances section in the returned JSON will also list all the trust lines this account has set up.
+It also contains <a href="Account.html">Account</a> object and exposes it's methods so can be used in <a href="TransactionBuilder.html">TransactionBuilder</a>.</p>
 </div>
 
 
@@ -98,7 +100,7 @@
 
         <tr>
             
-                <td class="name"><code>serverUrl</code></td>
+                <td class="name"><code>response</code></td>
             
 
             <td class="type">
@@ -114,7 +116,7 @@
 
             
 
-            <td class="description last"><p>Horizon server URL.</p></td>
+            <td class="description last"><p>Response from horizon account endpoint.</p></td>
         </tr>
 
     
@@ -155,7 +157,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_payment_call_builder.js.html">src/payment_call_builder.js</a>, <a href="src_payment_call_builder.js.html#line13">line 13</a>
+        <a href="src_account_response.js.html">src/account_response.js</a>, <a href="src_account_response.js.html#line16">line 16</a>
     </li></ul></dd>
     
 
@@ -165,7 +167,7 @@
     <dt class="tag-see">See:</dt>
     <dd class="tag-see">
         <ul>
-            <li><p><a href="https://www.stellar.org/developers/horizon/reference/payments-all.html">All Payments</a></p></li>
+            <li><p><a href="https://www.stellar.org/developers/horizon/reference/accounts-single.html">Account Details</a></p></li>
         </ul>
     </dd>
     
@@ -185,22 +187,29 @@
 
 
 
+<h5>Returns:</h5>
+
+        
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="AccountResponse.html">AccountResponse</a></span>
+
+
+    </dd>
+</dl>
+
+    
 
 
 
     
     </div>
-
-    
-        <h3 class="subsection-title">Extends</h3>
-
-        
-
-
-    <ul>
-        <li><a href="CallBuilder.html">CallBuilder</a></li>
-    </ul>
-
 
     
 
@@ -222,15 +231,14 @@
 
     
 
-    <h4 class="name" id="call"><span class="type-signature"></span>call<span class="signature">()</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+    <h4 class="name" id="accountId"><span class="type-signature"></span>accountId<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span></h4>
 
     
 
 
 
 <div class="description">
-    <p>Triggers a HTTP request using this builder's current configuration.
-Returns a Promise that resolves to the server's response.</p>
+    <p>Returns Stellar account ID, ex. <code>GB3KJPLFUYN5VL6R3GU3EGCGVCKFDSD7BEDX42HWG5BWFKB3KQGJJRMA</code></p>
 </div>
 
 
@@ -251,11 +259,6 @@ Returns a Promise that resolves to the server's response.</p>
 
     
 
-    
-    <dt class="inherited-from">Inherited From:</dt>
-    <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="CallBuilder.html#call">CallBuilder#call</a>
-    </li></ul></dd>
     
 
     
@@ -279,7 +282,7 @@ Returns a Promise that resolves to the server's response.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_call_builder.js.html">src/call_builder.js</a>, <a href="src_call_builder.js.html#line41">line 41</a>
+        <a href="src_account_response.js.html">src/account_response.js</a>, <a href="src_account_response.js.html#line28">line 28</a>
     </li></ul></dd>
     
 
@@ -313,86 +316,37 @@ Returns a Promise that resolves to the server's response.</p>
     </dt>
     <dd>
         
-<span class="param-type">Promise</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="cursor"><span class="type-signature"></span>cursor<span class="signature">(cursor)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Adds <code>cursor</code> parameter to the current call. Returns the CallBuilder object on which this method has been called.</p>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>cursor</code></td>
-            
-
-            <td class="type">
-            
-                
 <span class="param-type">string</span>
 
 
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>A cursor is a value that points to a specific location in a collection of resources.</p></td>
-        </tr>
+    </dd>
+</dl>
 
     
-    </tbody>
-</table>
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="incrementSequenceNumber"><span class="type-signature"></span>incrementSequenceNumber<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Increments sequence number in this object by one.</p>
+</div>
+
+
+
+
+
+
+
 
 
 
@@ -405,11 +359,6 @@ Returns a Promise that resolves to the server's response.</p>
 
     
 
-    
-    <dt class="inherited-from">Inherited From:</dt>
-    <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="CallBuilder.html#cursor">CallBuilder#cursor</a>
-    </li></ul></dd>
     
 
     
@@ -433,19 +382,12 @@ Returns a Promise that resolves to the server's response.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_call_builder.js.html">src/call_builder.js</a>, <a href="src_call_builder.js.html#line211">line 211</a>
+        <a href="src_account_response.js.html">src/account_response.js</a>, <a href="src_account_response.js.html#line42">line 42</a>
     </li></ul></dd>
     
 
     
 
-    
-    <dt class="tag-see">See:</dt>
-    <dd class="tag-see">
-        <ul>
-            <li><p><a href="https://www.stellar.org/developers/horizon/learn/paging.html">Paging</a></p></li>
-        </ul>
-    </dd>
     
 
     
@@ -471,15 +413,12 @@ Returns a Promise that resolves to the server's response.</p>
 
     
 
-    <h4 class="name" id="forAccount"><span class="type-signature"></span>forAccount<span class="signature">(accountId)</span><span class="type-signature"> &rarr; {<a href="PaymentCallBuilder.html">PaymentCallBuilder</a>}</span></h4>
+    <h4 class="name" id="sequenceNumber"><span class="type-signature"></span>sequenceNumber<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span></h4>
 
     
 
 
 
-<div class="description">
-    <p>This endpoint responds with a collection of Payment operations where the given account was either the sender or receiver.</p>
-</div>
 
 
 
@@ -489,998 +428,73 @@ Returns a Promise that resolves to the server's response.</p>
 
 
 
-    <h5>Parameters:</h5>
+
+
+
+<dl class="details">
+
     
 
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
     
 
-        <tr>
-            
-                <td class="name"><code>accountId</code></td>
-            
+    
 
-            <td class="type">
-            
-                
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_account_response.js.html">src/account_response.js</a>, <a href="src_account_response.js.html#line35">line 35</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
 <span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>For example: <code>GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD</code></p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_payment_call_builder.js.html">src/payment_call_builder.js</a>, <a href="src_payment_call_builder.js.html#line24">line 24</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-    <dt class="tag-see">See:</dt>
-    <dd class="tag-see">
-        <ul>
-            <li><p><a href="https://www.stellar.org/developers/horizon/reference/payments-for-account.html">Payments for Account</a></p></li>
-        </ul>
-    </dd>
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-
-
-<dl class="param-type">
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type"><a href="PaymentCallBuilder.html">PaymentCallBuilder</a></span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="forLedger"><span class="type-signature"></span>forLedger<span class="signature">(ledgerId)</span><span class="type-signature"> &rarr; {<a href="PaymentCallBuilder.html">PaymentCallBuilder</a>}</span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>This endpoint represents all payment operations that are part of a valid transactions in a given ledger.</p>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>ledgerId</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>Ledger ID</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_payment_call_builder.js.html">src/payment_call_builder.js</a>, <a href="src_payment_call_builder.js.html#line35">line 35</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-    <dt class="tag-see">See:</dt>
-    <dd class="tag-see">
-        <ul>
-            <li><p><a href="https://www.stellar.org/developers/horizon/reference/payments-for-ledger.html">Payments for Ledger</a></p></li>
-        </ul>
-    </dd>
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-
-
-<dl class="param-type">
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type"><a href="PaymentCallBuilder.html">PaymentCallBuilder</a></span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="forTransaction"><span class="type-signature"></span>forTransaction<span class="signature">(transactionId)</span><span class="type-signature"> &rarr; {<a href="PaymentCallBuilder.html">PaymentCallBuilder</a>}</span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>This endpoint represents all payment operations that are part of a given transaction.</p>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>transactionId</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>Transaction ID</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_payment_call_builder.js.html">src/payment_call_builder.js</a>, <a href="src_payment_call_builder.js.html#line46">line 46</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-    <dt class="tag-see">See:</dt>
-    <dd class="tag-see">
-        <ul>
-            <li><p><a href="https://www.stellar.org/developers/horizon/reference/payments-for-transaction.html">Payments for Transaction</a></p></li>
-        </ul>
-    </dd>
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-
-
-<dl class="param-type">
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type"><a href="PaymentCallBuilder.html">PaymentCallBuilder</a></span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="limit"><span class="type-signature"></span>limit<span class="signature">(number)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Adds <code>limit</code> parameter to the current call. Returns the CallBuilder object on which this method has been called.</p>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>number</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>Number of records the server should return.</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-    <dt class="inherited-from">Inherited From:</dt>
-    <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="CallBuilder.html#limit">CallBuilder#limit</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_call_builder.js.html">src/call_builder.js</a>, <a href="src_call_builder.js.html#line221">line 221</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-    <dt class="tag-see">See:</dt>
-    <dd class="tag-see">
-        <ul>
-            <li><p><a href="https://www.stellar.org/developers/horizon/learn/paging.html">Paging</a></p></li>
-        </ul>
-    </dd>
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="order"><span class="type-signature"></span>order<span class="signature">(direction)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Adds <code>order</code> parameter to the current call. Returns the CallBuilder object on which this method has been called.</p>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>direction</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">"asc"</span>
-|
-
-<span class="param-type">"desc"</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-    <dt class="inherited-from">Inherited From:</dt>
-    <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="CallBuilder.html#order">CallBuilder#order</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_call_builder.js.html">src/call_builder.js</a>, <a href="src_call_builder.js.html#line230">line 230</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="stream"><span class="type-signature"></span>stream<span class="signature">(options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {function}</span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Creates an EventSource that listens for incoming messages from the server. To stop listening for new
-events call the function returned by this method.</p>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>options</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>EventSource options.</p>
-                <h6>Properties</h6>
-                
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>onmessage</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>Callback function to handle incoming messages.</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>onerror</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>Callback function to handle errors.</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-            </td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-    <dt class="inherited-from">Inherited From:</dt>
-    <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="CallBuilder.html#stream">CallBuilder#stream</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_call_builder.js.html">src/call_builder.js</a>, <a href="src_call_builder.js.html#line57">line 57</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-    <dt class="tag-see">See:</dt>
-    <dd class="tag-see">
-        <ul>
-            <li><p><a href="https://www.stellar.org/developers/horizon/learn/responses.html">Horizon Response Format</a></p></li>
-        
-            <li><p><a href="https://developer.mozilla.org/en-US/docs/Web/API/EventSource">MDN EventSource</a></p></li>
-        </ul>
-    </dd>
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>Close function. Run to close the connection and stop listening for new events.</p>
-</div>
-
-
-
-<dl class="param-type">
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">function</span>
 
 
     </dd>
