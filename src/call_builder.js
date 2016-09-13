@@ -96,7 +96,9 @@ export class CallBuilder {
       };
 
       es.onerror = error => {
-        options.onerror(error);
+        if (options.onerror) {
+          options.onerror(error);
+        }
       };
 
       return es;
