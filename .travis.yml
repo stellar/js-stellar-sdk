@@ -17,6 +17,7 @@ before_install:
 - npm install -g npm@'>=2.13.5'
 script:
 - |
+  echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
   echo "machine github.com login stellar-jenkins password $GITHUB_TOKEN" >~/.netrc
   git config --global user.name "Travis CI"
   git config --global user.email "travis@stellar.org"
@@ -59,8 +60,7 @@ after_deploy: ./after_deploy.sh
 deploy:
   - provider: npm
     email: npm@stellar.org
-    api_key:
-      secure: rQ9OjPbd/6yAgjILpYI4cdrPYPEUvEv/aJF1KrT42KlukLn5jrSGVzuhdVCtv2riNOvxkLFQEzv/Q/DhsB2tJ0nhiad/S21IIaqGmvWZjIUKOHUz91ncEcMDqAMKR1tBGjmtA3J25xbbyPBNFwDRsyNbhjWV2F4iS0Xc9f4abyY=
+    api_key: $NPM_TOKEN
     skip_cleanup: true
     on:
       tags: true
