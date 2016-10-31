@@ -137,7 +137,13 @@ export class CallBuilder {
     if (!json._links) {
       return json;
     }
-    forEach(json._links, (n, key) => {json[key] = this._requestFnForLink(n);});
+    forEach(json._links, (n, key) => {
+      // If the key with the link name already exists, create a copy
+      if (typeof json[key] != 'undefined') {
+        json[`${key}_attr`] = n;
+      }
+      json[key] = this._requestFnForLink(n);
+    });
     return json;
   }
   
