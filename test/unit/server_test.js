@@ -404,6 +404,8 @@ describe("server.js tests", function () {
             .call()
             .then(function (response) {
               expect(response.records).to.be.deep.equal(transactionsResponse._embedded.records);
+              expect(response.records[0].ledger).to.be.function;
+              expect(response.records[0].ledger_attr).to.be.equal(34);
               expect(response.next).to.be.function;
               expect(response.prev).to.be.function;
               done();
