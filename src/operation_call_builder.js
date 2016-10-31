@@ -42,11 +42,14 @@ export class OperationCallBuilder extends CallBuilder {
      * This endpoint returns all operations that occurred in a given ledger.
      *
      * @see [Operations for Ledger](https://www.stellar.org/developers/horizon/reference/operations-for-ledger.html)
-     * @param {number} ledgerId Ledger ID
+     * @param {number|string} sequence Ledger sequence
      * @returns {OperationCallBuilder}
      */
-    forLedger(ledgerId) {
-        this.filter.push(['ledgers', ledgerId, 'operations']);
+    forLedger(sequence) {
+        if (typeof sequence == 'number') {
+            sequence = sequence.toString();
+        }
+        this.filter.push(['ledgers', sequence, 'operations']);
         return this;
     }
 

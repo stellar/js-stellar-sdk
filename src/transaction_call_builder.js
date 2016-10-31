@@ -40,11 +40,14 @@ export class TransactionCallBuilder extends CallBuilder {
     /**
      * This endpoint represents all transactions in a given ledger.
      * @see [Transactions for Ledger](https://www.stellar.org/developers/horizon/reference/transactions-for-ledger.html)
-     * @param {number} ledgerId Ledger ID
+     * @param {number|string} sequence Ledger sequence
      * @returns {TransactionCallBuilder}
      */
-    forLedger(ledgerId) {
-        this.filter.push(['ledgers', ledgerId, 'transactions']);
+    forLedger(sequence) {
+        if (typeof sequence == 'number') {
+            sequence = sequence.toString();
+        }
+        this.filter.push(['ledgers', sequence, 'transactions']);
         return this;
     }
 }

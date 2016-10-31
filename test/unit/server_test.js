@@ -400,7 +400,7 @@ describe("server.js tests", function () {
             .returns(Promise.resolve({data: transactionsResponse}));
 
           this.server.transactions()
-            .forLedger("1")
+            .forLedger(1)
             .call()
             .then(function (response) {
               expect(response.records).to.be.deep.equal(transactionsResponse._embedded.records);
@@ -933,7 +933,7 @@ describe("server.js tests", function () {
           .returns(Promise.resolve({data: operationsResponse}));
 
         this.server.operations()
-          .forLedger("123456789")
+          .forLedger(123456789)
           .call()
           .then(function (response) {
             expect(response.records).to.be.deep.equal(operationsResponse._embedded.records);

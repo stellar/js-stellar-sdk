@@ -29,11 +29,14 @@ export class PaymentCallBuilder extends CallBuilder {
     /**
      * This endpoint represents all payment operations that are part of a valid transactions in a given ledger.
      * @see [Payments for Ledger](https://www.stellar.org/developers/horizon/reference/payments-for-ledger.html)
-     * @param {number} ledgerId Ledger ID
+     * @param {number|string} sequence Ledger sequence
      * @returns {PaymentCallBuilder}
      */
-    forLedger(ledgerId) {
-        this.filter.push(['ledgers', ledgerId, 'payments']);
+    forLedger(sequence) {
+        if (typeof sequence == 'number') {
+            sequence = sequence.toString();
+        }
+        this.filter.push(['ledgers', sequence, 'payments']);
         return this;
     }
 

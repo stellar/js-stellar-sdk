@@ -17,7 +17,7 @@ export class LedgerCallBuilder extends CallBuilder {
 
     /**
      * Provides information on a single ledger.
-     * @param sequence Ledger sequence
+     * @param {number|string} sequence Ledger sequence
      * @returns {LedgerCallBuilder}
      */
     ledger(sequence) {
