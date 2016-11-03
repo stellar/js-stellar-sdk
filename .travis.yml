@@ -7,11 +7,9 @@ matrix:
   include:
     - node_js: "4.2"
     - node_js: "0.12"
-    - node_js: "0.11"
-    - node_js: "0.10"
-    - node_js: "0.12"
+    - node_js: "6.9.1"
       env: SAUCE=true
-    - node_js: "4.2"
+    - node_js: "6.9.1"
       env: INTEGRATION=true
 before_install:
 - npm install -g npm@'>=2.13.5'
@@ -65,7 +63,7 @@ deploy:
     on:
       tags: true
       repo: stellar/js-stellar-sdk
-      node: "4.2"
+      node: "6.9.1"
       condition: "$INTEGRATION = true"
   - provider: script
     script: ./bower_publish.sh
@@ -73,5 +71,5 @@ deploy:
     on:
       tags: true
       repo: stellar/js-stellar-sdk
-      node: "4.2"
+      node: "6.9.1"
       condition: "$INTEGRATION = true"
