@@ -32,7 +32,7 @@ export class StellarTomlResolver {
     if (allowHttp) {
         protocol = 'http';
     }
-    return axios.get(`${protocol}://www.${domain}/.well-known/stellar.toml`)
+    return axios.get(`${protocol}://${domain}/.well-known/stellar.toml`)
       .then(response => {
       	try {
             let tomlObject = toml.parse(response.data);

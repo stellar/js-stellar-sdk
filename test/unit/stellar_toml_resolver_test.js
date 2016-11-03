@@ -12,7 +12,7 @@ describe("stellar_toml_resolver.js tests", function () {
   describe('StellarTomlResolver.resolve', function () {
     it("returns stellar.toml object for valid request and stellar.toml file", function (done) {
       this.axiosMock.expects('get')
-        .withArgs(sinon.match('https://www.acme.com/.well-known/stellar.toml'))
+        .withArgs(sinon.match('https://acme.com/.well-known/stellar.toml'))
         .returns(Promise.resolve({
           data: `
 #   The endpoint which clients should query to resolve stellar addresses
@@ -30,7 +30,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
 
     it("returns stellar.toml object for valid request and stellar.toml file when allowHttp is `true`", function (done) {
       this.axiosMock.expects('get')
-        .withArgs(sinon.match('http://www.acme.com/.well-known/stellar.toml'))
+        .withArgs(sinon.match('http://acme.com/.well-known/stellar.toml'))
         .returns(Promise.resolve({
           data: `
 #   The endpoint which clients should query to resolve stellar addresses
@@ -50,7 +50,7 @@ FEDERATION_SERVER="http://api.stellar.org/federation"
       StellarSdk.Config.setAllowHttp(true);
 
       this.axiosMock.expects('get')
-        .withArgs(sinon.match('http://www.acme.com/.well-known/stellar.toml'))
+        .withArgs(sinon.match('http://acme.com/.well-known/stellar.toml'))
         .returns(Promise.resolve({
           data: `
 #   The endpoint which clients should query to resolve stellar addresses
@@ -68,7 +68,7 @@ FEDERATION_SERVER="http://api.stellar.org/federation"
 
     it("rejects when stellar.toml file is invalid", function (done) {
       this.axiosMock.expects('get')
-        .withArgs(sinon.match('https://www.acme.com/.well-known/stellar.toml'))
+        .withArgs(sinon.match('https://acme.com/.well-known/stellar.toml'))
         .returns(Promise.resolve({
           data: `
 /#   The endpoint which clients should query to resolve stellar addresses
@@ -82,7 +82,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
 
     it("rejects when there was a connection error", function (done) {
       this.axiosMock.expects('get')
-        .withArgs(sinon.match('https://www.acme.com/.well-known/stellar.toml'))
+        .withArgs(sinon.match('https://acme.com/.well-known/stellar.toml'))
         .returns(Promise.reject());
 
       StellarSdk.StellarTomlResolver.resolve('acme.com').should.be.rejected.and.notify(done);
