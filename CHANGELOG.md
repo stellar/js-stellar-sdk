@@ -2,6 +2,15 @@
 
 As this project is pre 1.0, breaking changes may happen for minor version bumps. A breaking change will get clearly notified in this log.
 
+## 0.6.2
+
+* Updated `stellar.toml` location
+
+## 0.6.1
+
+* `forUpdate` methods of call builders now accept strings and numbers.
+* Create a copy of attribute in a response if there is a link with the same name (ex. `transaction.ledger`, `transaction._links.ledger`).
+
 ## 0.6.0
 
 * **Breaking change** `CallBuilder.stream` now reconnects when no data was received for a long time.
