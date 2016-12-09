@@ -2,7 +2,7 @@ import {NotFoundError, NetworkError, BadRequestError} from "./errors";
 import forEach from 'lodash/forEach';
 
 let URI = require("urijs");
-let URITemplate = require("urijs").URITemplate;
+let URITemplate = require("urijs/src/URITemplate");
 
 let axios = require("axios");
 var EventSource = (typeof window === 'undefined') ? require('eventsource') : window.EventSource;
@@ -118,9 +118,9 @@ export class CallBuilder {
     return opts => {
       let uri;
 
-      if (link.template) {
+      if (link.templated) {
         let template = URITemplate(link.href);
-        uri = URI(template.expand(opts));
+        uri = URI(template.expand(opts || {}));
       } else {
         uri = URI(link.href);
       }

@@ -334,81 +334,94 @@ describe("server.js tests", function () {
 
     describe("requests a sub resource", function (done) {
       let transactionsResponse = {
-        "_embedded": {
-          "records": [
-            {
-              "_links": {
-                "account": {
-                  "href": "/accounts/GBRPYHIL2CI3FNQ4BXLFMNDLFJUNPU2HY3ZMFSHONUCEOASW7QC7OX2H"
-                },
-                "effects": {
-                  "href": "/transactions/991534d902063b7715cd74207bef4e7bd7aa2f108f62d3eba837ce6023b2d4f3/effects{?cursor,limit,order}",
-                  "templated": true
-                },
-                "ledger": {
-                  "href": "/ledgers/34"
-                },
-                "operations": {
-                  "href": "/transactions/991534d902063b7715cd74207bef4e7bd7aa2f108f62d3eba837ce6023b2d4f3/operations{?cursor,limit,order}",
-                  "templated": true
-                },
-                "precedes": {
-                  "href": "/transactions?cursor=146028892160\u0026order=asc"
-                },
-                "self": {
-                  "href": "/transactions/991534d902063b7715cd74207bef4e7bd7aa2f108f62d3eba837ce6023b2d4f3"
-                },
-                "succeeds": {
-                  "href": "/transactions?cursor=146028892160\u0026order=desc"
-                }
-              },
-              "id": "991534d902063b7715cd74207bef4e7bd7aa2f108f62d3eba837ce6023b2d4f3",
-              "paging_token": "146028892160",
-              "hash": "991534d902063b7715cd74207bef4e7bd7aa2f108f62d3eba837ce6023b2d4f3",
-              "ledger": 34,
-              "created_at": "2015-09-29T23:38:10Z",
-              "account": "GBRPYHIL2CI3FNQ4BXLFMNDLFJUNPU2HY3ZMFSHONUCEOASW7QC7OX2H",
-              "account_sequence": 1,
-              "max_fee": 0,
-              "fee_paid": 0,
-              "operation_count": 1,
-              "result_code": 0,
-              "result_code_s": "tx_success",
-              "envelope_xdr": "AAAAAGL8HQvQkbK2HA3WVjRrKmjX00fG8sLI7m0ERwJW/AX3AAAAZAAAAAAAAAABAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAZc2EuuEa2W1PAKmaqVquHuzUMHaEiRs//+ODOfgWiz8AAFrzEHpAAAAAAAAAAAABVvwF9wAAAECdBs6M1RCYGMBFKqFb4hmJ3wafkfSE8oXELydY/U1VBmfHcr6QtHmRPgAhkf5dUBwHigKhNKcpvb6v66ClyGoN",
-              "result_xdr": "AAAAAAAAAGQAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAA=",
-              "result_meta_xdr": "AAAAAAAAAAEAAAACAAAAAAAAACIAAAAAAAAAAGXNhLrhGtltTwCpmqlarh7s1DB2hIkbP//jgzn4Fos/AABa8xB6QAAAAAAiAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAQAAACIAAAAAAAAAAGL8HQvQkbK2HA3WVjRrKmjX00fG8sLI7m0ERwJW/AX3DeBbwJbpv5wAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAA"
+          "_links": {
+            "self": {
+              "href": "https://horizon.stellar.org/transactions?order=desc\u0026limit=1\u0026cursor="
+            },
+            "next": {
+              "href": "https://horizon.stellar.org/transactions?order=desc\u0026limit=1\u0026cursor=34156680904183808"
+            },
+            "prev": {
+              "href": "https://horizon.stellar.org/transactions?order=asc\u0026limit=1\u0026cursor=34156680904183808"
             }
-          ]
-        },
-        "_links": {
-          "next": {
-            "href": "/transactions?order=asc\u0026limit=1\u0026cursor=146028892160"
           },
-          "prev": {
-            "href": "/transactions?order=desc\u0026limit=1\u0026cursor=146028892160"
-          },
-          "self": {
-            "href": "/transactions?order=asc\u0026limit=1\u0026cursor="
+          "_embedded": {
+            "records": [
+              {
+                "_links": {
+                  "self": {
+                    "href": "https://horizon.stellar.org/transactions/c585b8764b28be678c482f8b6e87e76e4b5f28043c53f4dcb7b724b4b2efebc1"
+                  },
+                  "account": {
+                    "href": "https://horizon.stellar.org/accounts/GBURK32BMC7XORYES62HDKY7VTA5MO7JYBDH7KTML4EPN4BV2MIRQOVR"
+                  },
+                  "ledger": {
+                    "href": "https://horizon.stellar.org/ledgers/7952722"
+                  },
+                  "operations": {
+                    "href": "https://horizon.stellar.org/transactions/c585b8764b28be678c482f8b6e87e76e4b5f28043c53f4dcb7b724b4b2efebc1/operations{?cursor,limit,order}",
+                    "templated": true
+                  },
+                  "effects": {
+                    "href": "https://horizon.stellar.org/transactions/c585b8764b28be678c482f8b6e87e76e4b5f28043c53f4dcb7b724b4b2efebc1/effects{?cursor,limit,order}",
+                    "templated": true
+                  },
+                  "precedes": {
+                    "href": "https://horizon.stellar.org/transactions?order=asc\u0026cursor=34156680904183808"
+                  },
+                  "succeeds": {
+                    "href": "https://horizon.stellar.org/transactions?order=desc\u0026cursor=34156680904183808"
+                  }
+                },
+                "id": "c585b8764b28be678c482f8b6e87e76e4b5f28043c53f4dcb7b724b4b2efebc1",
+                "paging_token": "34156680904183808",
+                "hash": "c585b8764b28be678c482f8b6e87e76e4b5f28043c53f4dcb7b724b4b2efebc1",
+                "ledger": 7952722,
+                "created_at": "2016-12-09T12:36:51Z",
+                "source_account": "GBURK32BMC7XORYES62HDKY7VTA5MO7JYBDH7KTML4EPN4BV2MIRQOVR",
+                "source_account_sequence": "25631492944168311",
+                "fee_paid": 400,
+                "operation_count": 4,
+                "envelope_xdr": "AAAAAGkVb0Fgv3dHBJe0casfrMHWO+nARn+qbF8I9vA10xEYAAABkABbD7UAAAV3AAAAAAAAAAAAAAAEAAAAAAAAAAMAAAABRlVOVAAAAABpigEf7e9h5IpePeEXCoPJPqY8IRt8hpneL5+OXfZ45QAAAAAAAAAABfXhAEeeSWkAKXANAAAAAAAAB74AAAABAAAAAGkVb0Fgv3dHBJe0casfrMHWO+nARn+qbF8I9vA10xEYAAAAAwAAAAAAAAABRlVOVAAAAABpigEf7e9h5IpePeEXCoPJPqY8IRt8hpneL5+OXfZ45QAAAApNO6TmAEeYrnXHsdUAAAAAAAAHvwAAAAEAAAAAaRVvQWC/d0cEl7Rxqx+swdY76cBGf6psXwj28DXTERgAAAADAAAAAAAAAAFVU0QAAAAAAGmKAR/t72Hkil494RcKg8k+pjwhG3yGmd4vn45d9njlAAAACVAvkAAACRT4DX+q6QAAAAAAAAfCAAAAAQAAAABpFW9BYL93RwSXtHGrH6zB1jvpwEZ/qmxfCPbwNdMRGAAAAAMAAAABVVNEAAAAAABpigEf7e9h5IpePeEXCoPJPqY8IRt8hpneL5+OXfZ45QAAAAAAAAAABkQTwCl6AxMAGo+PAAAAAAAAB8MAAAAAAAAAATXTERgAAABApox1kE2/f2oYQw/PdJZHUk74JVWRHDPwcqzGP+lSJljl6ABBRPqXewP1jAzpgY+vicDeLR/35/HyDyeAG7H0Aw==",
+                "result_xdr": "AAAAAAAAAZAAAAAAAAAABAAAAAAAAAADAAAAAAAAAAAAAAABAAAAAGkVb0Fgv3dHBJe0casfrMHWO+nARn+qbF8I9vA10xEYAAAAAAAAB74AAAABRlVOVAAAAABpigEf7e9h5IpePeEXCoPJPqY8IRt8hpneL5+OXfZ45QAAAAAAAAAABfXhAEeeSWkAKXANAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAAAAAAAAQAAAABpFW9BYL93RwSXtHGrH6zB1jvpwEZ/qmxfCPbwNdMRGAAAAAAAAAe/AAAAAAAAAAFGVU5UAAAAAGmKAR/t72Hkil494RcKg8k+pjwhG3yGmd4vn45d9njlAAAACk07pOYAR5iudcex1QAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAAAAAAEAAAAAaRVvQWC/d0cEl7Rxqx+swdY76cBGf6psXwj28DXTERgAAAAAAAAHwgAAAAAAAAABVVNEAAAAAABpigEf7e9h5IpePeEXCoPJPqY8IRt8hpneL5+OXfZ45QAAAAlQL5AAAAkU+A1/qukAAAAAAAAAAAAAAAAAAAADAAAAAAAAAAAAAAABAAAAAGkVb0Fgv3dHBJe0casfrMHWO+nARn+qbF8I9vA10xEYAAAAAAAAB8MAAAABVVNEAAAAAABpigEf7e9h5IpePeEXCoPJPqY8IRt8hpneL5+OXfZ45QAAAAAAAAAABkQTwCl6AxMAGo+PAAAAAAAAAAAAAAAA",
+                "result_meta_xdr": "AAAAAAAAAAQAAAACAAAAAwB5VlwAAAACAAAAAGkVb0Fgv3dHBJe0casfrMHWO+nARn+qbF8I9vA10xEYAAAAAAAAB74AAAABRlVOVAAAAABpigEf7e9h5IpePeEXCoPJPqY8IRt8hpneL5+OXfZ45QAAAAAAAAAABfXhAB0XUa8AEKh4AAAAAAAAAAAAAAAAAAAAAQB5WVIAAAACAAAAAGkVb0Fgv3dHBJe0casfrMHWO+nARn+qbF8I9vA10xEYAAAAAAAAB74AAAABRlVOVAAAAABpigEf7e9h5IpePeEXCoPJPqY8IRt8hpneL5+OXfZ45QAAAAAAAAAABfXhAEeeSWkAKXANAAAAAAAAAAAAAAAAAAAAAgAAAAMAeVZcAAAAAgAAAABpFW9BYL93RwSXtHGrH6zB1jvpwEZ/qmxfCPbwNdMRGAAAAAAAAAe/AAAAAAAAAAFGVU5UAAAAAGmKAR/t72Hkil494RcKg8k+pjwhG3yGmd4vn45d9njlAAAACmi91ogADBrzFB8c9gAAAAAAAAAAAAAAAAAAAAEAeVlSAAAAAgAAAABpFW9BYL93RwSXtHGrH6zB1jvpwEZ/qmxfCPbwNdMRGAAAAAAAAAe/AAAAAAAAAAFGVU5UAAAAAGmKAR/t72Hkil494RcKg8k+pjwhG3yGmd4vn45d9njlAAAACk07pOYAR5iudcex1QAAAAAAAAAAAAAAAAAAAAIAAAADAHlWXAAAAAIAAAAAaRVvQWC/d0cEl7Rxqx+swdY76cBGf6psXwj28DXTERgAAAAAAAAHwgAAAAAAAAABVVNEAAAAAABpigEf7e9h5IpePeEXCoPJPqY8IRt8hpneL5+OXfZ45QAAAAlQL5AAAA8e9BZqv1MAAAAAAAAAAAAAAAAAAAABAHlZUgAAAAIAAAAAaRVvQWC/d0cEl7Rxqx+swdY76cBGf6psXwj28DXTERgAAAAAAAAHwgAAAAAAAAABVVNEAAAAAABpigEf7e9h5IpePeEXCoPJPqY8IRt8hpneL5+OXfZ45QAAAAlQL5AAAAkU+A1/qukAAAAAAAAAAAAAAAAAAAACAAAAAwB5VlwAAAACAAAAAGkVb0Fgv3dHBJe0casfrMHWO+nARn+qbF8I9vA10xEYAAAAAAAAB8MAAAABVVNEAAAAAABpigEf7e9h5IpePeEXCoPJPqY8IRt8hpneL5+OXfZ45QAAAAAAAAAABkg0AAFCujYAAM8zAAAAAAAAAAAAAAAAAAAAAQB5WVIAAAACAAAAAGkVb0Fgv3dHBJe0casfrMHWO+nARn+qbF8I9vA10xEYAAAAAAAAB8MAAAABVVNEAAAAAABpigEf7e9h5IpePeEXCoPJPqY8IRt8hpneL5+OXfZ45QAAAAAAAAAABkQTwCl6AxMAGo+PAAAAAAAAAAAAAAAA",
+                "fee_meta_xdr": "AAAAAgAAAAMAeVZcAAAAAAAAAABpFW9BYL93RwSXtHGrH6zB1jvpwEZ/qmxfCPbwNdMRGAAAABc+8zU9AFsPtQAABXYAAAASAAAAAAAAAAAAAAAPZnVudHJhY2tlci5zaXRlAAEAAAAAAAAAAAAAAAAAAAAAAAABAHlZUgAAAAAAAAAAaRVvQWC/d0cEl7Rxqx+swdY76cBGf6psXwj28DXTERgAAAAXPvMzrQBbD7UAAAV3AAAAEgAAAAAAAAAAAAAAD2Z1bnRyYWNrZXIuc2l0ZQABAAAAAAAAAAAAAAAAAAAA",
+                "memo_type": "none",
+                "signatures": [
+                  "pox1kE2/f2oYQw/PdJZHUk74JVWRHDPwcqzGP+lSJljl6ABBRPqXewP1jAzpgY+vicDeLR/35/HyDyeAG7H0Aw=="
+                ]
+              }
+            ]
           }
-        }
-      };
+        };
 
       describe("without options", function () {
         it("requests the correct endpoint", function (done) {
           this.axiosMock.expects('get')
-            .withArgs(sinon.match('https://horizon-live.stellar.org:1337/ledgers/1/transactions'))
+            .withArgs(sinon.match('https://horizon-live.stellar.org:1337/ledgers/7952722/transactions'))
             .returns(Promise.resolve({data: transactionsResponse}));
 
+          this.axiosMock.expects('get')
+            .withArgs(sinon.match(/^https:\/\/horizon.stellar.org\/transactions\/c585b8764b28be678c482f8b6e87e76e4b5f28043c53f4dcb7b724b4b2efebc1\/operations/))
+            .returns(Promise.resolve({data: {operations: []}}));
+
           this.server.transactions()
-            .forLedger(1)
+            .forLedger(7952722)
             .call()
             .then(function (response) {
               expect(response.records).to.be.deep.equal(transactionsResponse._embedded.records);
               expect(response.records[0].ledger).to.be.function;
-              expect(response.records[0].ledger_attr).to.be.equal(34);
+              expect(response.records[0].ledger_attr).to.be.equal(7952722);
               expect(response.next).to.be.function;
               expect(response.prev).to.be.function;
-              done();
+
+              response.records[0].operations().then(function(response) {
+                expect(response.operations).to.not.be.undefined;
+                done();
+              })
+              .catch(function (err) {
+                done(err);
+              })
             })
             .catch(function (err) {
               done(err);
@@ -418,11 +431,15 @@ describe("server.js tests", function () {
       describe("with options", function () {
         it("requests the correct endpoint", function (done) {
           this.axiosMock.expects('get')
-            .withArgs(sinon.match('https://horizon-live.stellar.org:1337/ledgers/1/transactions?cursor=b&limit=1&order=asc'))
+            .withArgs(sinon.match('https://horizon-live.stellar.org:1337/ledgers/7952722/transactions?cursor=b&limit=1&order=asc'))
             .returns(Promise.resolve({data: transactionsResponse}));
 
+          this.axiosMock.expects('get')
+            .withArgs(sinon.match(/^https:\/\/horizon.stellar.org\/transactions\/c585b8764b28be678c482f8b6e87e76e4b5f28043c53f4dcb7b724b4b2efebc1\/operations\?limit=1/))
+            .returns(Promise.resolve({data: {operations: []}}));
+
           this.server.transactions()
-            .forLedger("1")
+            .forLedger("7952722")
             .cursor("b")
             .limit("1")
             .order("asc")
@@ -431,7 +448,13 @@ describe("server.js tests", function () {
               expect(response.records).to.be.deep.equal(transactionsResponse._embedded.records);
               expect(response.next).to.be.function;
               expect(response.prev).to.be.function;
-              done();
+              response.records[0].operations({limit: 1}).then(function(response) {
+                expect(response.operations).to.not.be.undefined;
+                done();
+              })
+              .catch(function (err) {
+                done(err);
+              })
             })
             .catch(function (err) {
               done(err);
