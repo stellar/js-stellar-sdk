@@ -3,6 +3,9 @@ import Promise from 'bluebird';
 import toml from 'toml';
 import {Config} from "./config";
 
+/**
+ * StellarTomlResolver allows resolving `stellar.toml` files.
+ */
 export class StellarTomlResolver {
   /**
    * Returns a parsed `stellar.toml` file for a given domain.
