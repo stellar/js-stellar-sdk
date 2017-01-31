@@ -4,6 +4,8 @@ describe("integration tests", function () {
   this.timeout(TIMEOUT);
   this.slow(TIMEOUT/2);
 
+  StellarSdk.Network.useTestNetwork();
+
   // Docker
   let server = new StellarSdk.Server('http://127.0.0.1:8000', {allowHttp: true});
   //let server = new StellarSdk.Server('http://192.168.59.103:32773', {allowHttp: true});
@@ -15,7 +17,7 @@ describe("integration tests", function () {
   });
 
   function checkConnection(done) {
-    server.loadAccount(master.accountId())
+    server.loadAccount(master.publicKey())
       .then(source => {
         console.log('Horizon up and running!');
         done();
@@ -27,7 +29,7 @@ describe("integration tests", function () {
   }
 
   function createNewAccount(accountId) {
-    return server.loadAccount(master.accountId())
+    return server.loadAccount(master.publicKey())
       .then(source => {
         let tx = new StellarSdk.TransactionBuilder(source)
           .addOperation(StellarSdk.Operation.createAccount({
@@ -44,7 +46,7 @@ describe("integration tests", function () {
 
   describe("/transaction", function () {
     it("submits a new transaction", function (done) {
-      createNewAccount(StellarSdk.Keypair.random().accountId())
+      createNewAccount(StellarSdk.Keypair.random().publicKey())
         .then(result => {
           expect(result.ledger).to.be.not.null;
           done();
@@ -53,12 +55,12 @@ describe("integration tests", function () {
     });
 
     it("submits a new transaction with error", function (done) {
-      server.loadAccount(master.accountId())
+      server.loadAccount(master.publicKey())
         .then(source => {
           source.incrementSequenceNumber(); // This will cause an error
           let tx = new StellarSdk.TransactionBuilder(source)
             .addOperation(StellarSdk.Operation.createAccount({
-              destination: StellarSdk.Keypair.random().accountId(),
+              destination: StellarSdk.Keypair.random().publicKey(),
               startingBalance: "20"
             }))
             .build();
@@ -81,7 +83,7 @@ describe("integration tests", function () {
         .call()
         .then(accounts => {
           // The first account should be a master account
-          expect(accounts.records[0].account_id).to.equal(master.accountId());
+          expect(accounts.records[0].account_id).to.equal(master.publicKey());
           done();
         });
     });
@@ -94,12 +96,12 @@ describe("integration tests", function () {
         .cursor('now')
         .stream({
           onmessage: account => {
-            expect(account.account_id).to.equal(randomAccount.accountId());
+            expect(account.account_id).to.equal(randomAccount.publicKey());
             done();
           }
         });
 
-      createNewAccount(randomAccount.accountId());
+      createNewAccount(randomAccount.publicKey());
       setTimeout(() => eventStreamClose(), 10*1000);
     });
   });
