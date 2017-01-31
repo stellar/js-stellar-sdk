@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>src/call_builder.js - Documentation</title>
+    <title>StellarTomlResolver - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -28,261 +28,404 @@
 
 <div id="main">
     
-    <h1 class="page-title">src/call_builder.js</h1>
+    <h1 class="page-title">StellarTomlResolver</h1>
     
 
     
 
 
 
+
+<section>
+
+<header>
     
-    <section>
-        <article>
-            <pre class="prettyprint source linenums"><code>import {NotFoundError, NetworkError, BadRequestError} from "./errors";
-import forEach from 'lodash/forEach';
+        <h2>
+        StellarTomlResolver
+        </h2>
+        
+            <div class="class-description"><p>StellarTomlResolver allows resolving <code>stellar.toml</code> files.</p></div>
+        
+    
+</header>
 
-let URI = require("urijs");
-let URITemplate = require("urijs/src/URITemplate");
+<article>
+    <div class="container-overview">
+    
+        
 
-let axios = require("axios");
-var EventSource = (typeof window === 'undefined') ? require('eventsource') : window.EventSource;
-let toBluebird = require("bluebird").resolve;
+    
+    <h2>Constructor</h2>
+    
 
-/**
- * Creates a new {@link CallBuilder} pointed to server defined by serverUrl.
- *
- * This is an **abstract** class. Do not create this object directly, use {@link Server} class.
- * @param {string} serverUrl
- * @class CallBuilder
- */
-export class CallBuilder {
-  constructor(serverUrl) {
-    this.url = serverUrl;
-    this.filter = [];
-  }
+    <h4 class="name" id="StellarTomlResolver"><span class="type-signature"></span>new StellarTomlResolver<span class="signature">()</span><span class="type-signature"></span></h4>
 
-  /**
-   * @private
-   */
-  checkFilter() {
-    if (this.filter.length >= 2) {
-      throw new BadRequestError("Too many filters specified", this.filter);
-    } 
-    if (this.filter.length === 1) {
-      this.url.segment(this.filter[0]);
-    }        
-  }
+    
 
-  /**
-   * Triggers a HTTP request using this builder's current configuration.
-   * Returns a Promise that resolves to the server's response.
-   * @returns {Promise}
-   */
-  call() {
-    this.checkFilter();
-    return this._sendNormalRequest(this.url)
-      .then(r => this._parseResponse(r));
-  }
 
-  /**
-   * Creates an EventSource that listens for incoming messages from the server. To stop listening for new
-   * events call the function returned by this method.
-   * @see [Horizon Response Format](https://www.stellar.org/developers/horizon/learn/responses.html)
-   * @see [MDN EventSource](https://developer.mozilla.org/en-US/docs/Web/API/EventSource)
-   * @param {object} [options] EventSource options.
-   * @param {function} [options.onmessage] Callback function to handle incoming messages.
-   * @param {function} [options.onerror] Callback function to handle errors.
-   * @returns {function} Close function. Run to close the connection and stop listening for new events.
-   */
-  stream(options) {
-    this.checkFilter();
 
-    // EventSource object
-    let es;
-    // timeout is the id of the timeout to be triggered if there were no new messages
-    // in the last 15 seconds. The timeout is reset when a new message arrive.
-    // It prevents closing EventSource object in case of 504 errors as `readyState`
-    // property is not reliable.
-    let timeout;
 
-    var createTimeout = () => {
-      timeout = setTimeout(() => {
-        es.close();
-        es = createEventSource();
-      }, 15*1000);
-    };
 
-    var createEventSource = () => {
-      try {
-        es = new EventSource(this.url.toString());
-      } catch (err) {
-        if (options.onerror) {
-          options.onerror(err);
-          options.onerror('EventSource not supported');
-        }
-        return false;
-      }
 
-      createTimeout();
 
-      es.onmessage = message => {
-        var result = message.data ? this._parseRecord(JSON.parse(message.data)) : message;
-        if (result.paging_token) {
-          this.url.setQuery("cursor", result.paging_token);
-        }
-        clearTimeout(timeout);
-        createTimeout();
-        options.onmessage(result);
-      };
 
-      es.onerror = error => {
-        if (options.onerror) {
-          options.onerror(error);
-        }
-      };
 
-      return es;
-    };
 
-    createEventSource();
-    return function close() {
-      clearTimeout(timeout);
-      es.close();
-    };
-  }
 
-  /**
-   * @private
-   */
-  _requestFnForLink(link) {
-    return opts => {
-      let uri;
 
-      if (link.templated) {
-        let template = URITemplate(link.href);
-        uri = URI(template.expand(opts || {}));
-      } else {
-        uri = URI(link.href);
-      }
 
-      return this._sendNormalRequest(uri).then(r => this._parseRecord(r));
-    };
-  } 
 
-  /**
-   * Convert each link into a function on the response object.
-   * @private
-   */
-  _parseRecord(json) {
-    if (!json._links) {
-      return json;
-    }
-    forEach(json._links, (n, key) => {
-      // If the key with the link name already exists, create a copy
-      if (typeof json[key] != 'undefined') {
-        json[`${key}_attr`] = json[key];
-      }
-      json[key] = this._requestFnForLink(n);
-    });
-    return json;
-  }
-  
-  _sendNormalRequest(url) {
-    if (url.authority() === '') {
-      url = url.authority(this.url.authority());
-    }
 
-    if (url.protocol() === '') {
-      url = url.protocol(this.url.protocol());
-    }
+<dl class="details">
 
-    // Temp fix for: https://github.com/stellar/js-stellar-sdk/issues/15
-    url.addQuery('c', Math.random());
-    var promise = axios.get(url.toString())
-      .then(response => response.data)
-      .catch(this._handleNetworkError);
-    return toBluebird(promise);
-  }
+    
 
-  /**
-   * @private
-   */
-  _parseResponse(json) {
-    if (json._embedded &amp;&amp; json._embedded.records) {
-      return this._toCollectionPage(json);
-    } else {
-      return this._parseRecord(json);
-    }
-  }
+    
 
-  /**
-   * @private
-   */
-  _toCollectionPage(json) {
-    for (var i = 0; i &lt; json._embedded.records.length; i++) {
-      json._embedded.records[i] = this._parseRecord(json._embedded.records[i]);
-    }
-    return {
-      records: json._embedded.records,
-      next: () => {
-        return this._sendNormalRequest(URI(json._links.next.href))
-          .then(r => this._toCollectionPage(r));
-      },
-      prev: () => {
-        return this._sendNormalRequest(URI(json._links.prev.href))
-          .then(r => this._toCollectionPage(r));
-      }
-    };
-  }
+    
 
-  /**
-   * @private
-   */
-  _handleNetworkError(response) {
-    if (response instanceof Error) {
-      return Promise.reject(response);
-    } else {
-      switch (response.status) {
-        case 404:
-          return Promise.reject(new NotFoundError(response.data, response));
-        default:
-          return Promise.reject(new NetworkError(response.status, response));
-      }
-    }
-  }
+    
 
-  /**
-   * Adds `cursor` parameter to the current call. Returns the CallBuilder object on which this method has been called.
-   * @see [Paging](https://www.stellar.org/developers/horizon/learn/paging.html)
-   * @param {string} cursor A cursor is a value that points to a specific location in a collection of resources.
-   */
-  cursor(cursor) {
-    this.url.addQuery("cursor", cursor);
-    return this;
-  }
+    
 
-  /**
-   * Adds `limit` parameter to the current call. Returns the CallBuilder object on which this method has been called.
-   * @see [Paging](https://www.stellar.org/developers/horizon/learn/paging.html)
-   * @param {number} number Number of records the server should return.
-   */
-  limit(number) {
-    this.url.addQuery("limit", number);
-    return this;
-  }
+    
 
-  /**
-   * Adds `order` parameter to the current call. Returns the CallBuilder object on which this method has been called.
-   * @param {"asc"|"desc"} direction
-   */
-  order(direction) {
-    this.url.addQuery("order", direction);
-    return this;
-  }
-}
-</code></pre>
-        </article>
-    </section>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_stellar_toml_resolver.js.html">src/stellar_toml_resolver.js</a>, <a href="src_stellar_toml_resolver.js.html#line9">line 9</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    </div>
+
+    
+
+    
+
+    
+
+     
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    <h4 class="name" id=".resolve"><span class="type-signature">(static) </span>resolve<span class="signature">(domain, opts<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Returns a parsed <code>stellar.toml</code> file for a given domain.
+Returns a <code>Promise</code> that resolves to the parsed stellar.toml object. If <code>stellar.toml</code> file does not exist for a given domain or is invalid Promise will reject.</p>
+<pre class="prettyprint source lang-js"><code>StellarSdk.StellarTomlResolver.resolve('acme.com')
+  .then(stellarToml => {
+    // stellarToml in an object representing domain stellar.toml file.
+  })
+  .catch(error => {
+    // stellar.toml does not exist or is invalid
+  });</code></pre>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>domain</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>Domain to get stellar.toml file for</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>opts</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>allowHttp</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>Allow connecting to http servers, default: <code>false</code>. This must be set to false in production deployments!</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_stellar_toml_resolver.js.html">src/stellar_toml_resolver.js</a>, <a href="src_stellar_toml_resolver.js.html#line28">line 28</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="https://www.stellar.org/developers/learn/concepts/stellar-toml.html" target="_blank">Stellar.toml doc</a></li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+    
+
+    
+
+    
+</article>
+
+</section>
 
 
 
