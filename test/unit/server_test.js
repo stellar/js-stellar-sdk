@@ -3,6 +3,7 @@ describe("server.js tests", function () {
     this.server = new StellarSdk.Server('https://horizon-live.stellar.org:1337');
     this.axiosMock = sinon.mock(axios);
     StellarSdk.Config.setDefault();
+    StellarSdk.Network.useTestNetwork();
   });
 
   afterEach(function () {
@@ -467,7 +468,7 @@ describe("server.js tests", function () {
   describe('Server.submitTransaction', function() {
     it("sends a transaction", function(done) {
       let keypair = StellarSdk.Keypair.random();
-      let account = new StellarSdk.Account(keypair.accountId(), "56199647068161");
+      let account = new StellarSdk.Account(keypair.publicKey(), "56199647068161");
       let transaction = new StellarSdk.TransactionBuilder(account)
         .addOperation(StellarSdk.Operation.payment({
           destination: "GASOCNHNNLYFNMDJYQ3XFMI7BYHIOCFW3GJEOWRPEGK2TDPGTG2E5EDW",

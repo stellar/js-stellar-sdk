@@ -1,16 +1,15 @@
 language: node_js
-sudo: required # to install newer g++ and use docker
-dist: trusty # https://github.com/travis-ci/travis-ci/issues/5448
+sudo: required
+dist: trusty
 services:
-  - docker
+- docker
 matrix:
   include:
-    - node_js: "4.2"
-    - node_js: "0.12"
-    - node_js: "6.9.1"
-      env: SAUCE=true
-    - node_js: "6.9.1"
-      env: INTEGRATION=true
+  - node_js: '4.2'
+  - node_js: 6.9.4
+    env: SAUCE=true
+  - node_js: 6.9.4
+    env: INTEGRATION=true
 before_install:
 - npm install -g npm@'>=2.13.5'
 script:
@@ -40,9 +39,8 @@ after_success:
   fi
 env:
   global:
-    # GITHUB_TOKEN
-    - secure: Pc3DwkXywnOGAhUdBZiUCKjyljzrQzPoqm9EEr+UL2BaeaDniFLCLEkuU+ViiuJBo8oPyOIl7I+d86Mi5q06fQx55+xH7DmiW/aj4qKVB2U6Ghn6A3QWkQuvRB1o8SP7iTYRCX480ULZs6AGrMd9y1PFRx/L93fBrO+J/bOtEmg=
-    - CXX=g++-4.8 # node bindings in 4.0.0
+  - secure: Pc3DwkXywnOGAhUdBZiUCKjyljzrQzPoqm9EEr+UL2BaeaDniFLCLEkuU+ViiuJBo8oPyOIl7I+d86Mi5q06fQx55+xH7DmiW/aj4qKVB2U6Ghn6A3QWkQuvRB1o8SP7iTYRCX480ULZs6AGrMd9y1PFRx/L93fBrO+J/bOtEmg=
+  - CXX=g++-4.8
 addons:
   apt:
     sources:
@@ -54,22 +52,22 @@ notifications:
   slack:
     secure: CgXxNEQrQ82EatyF/wSdF0P5rXcWPL+fFZ1lb1aBb8RbVt5gwddJ6xWVD/nYSr6tIJvIYHYhoYsIDPENwezIPsesG7kWXerQhydsEcA34JKxzsStd/TmU6Moxuwy6KTN7yzmL6586nSvoAw9TNPgvRkJFkH07asjGIc9Rlaq7/Y=
 before_deploy: gulp build
-after_deploy: ./after_deploy.sh
+after_deploy: "./after_deploy.sh"
 deploy:
   - provider: npm
     email: npm@stellar.org
-    api_key: $NPM_TOKEN
+    api_key: "$NPM_TOKEN"
     skip_cleanup: true
     on:
       tags: true
       repo: stellar/js-stellar-sdk
-      node: "6.9.1"
+      node: 6.9.4
       condition: "$INTEGRATION = true"
   - provider: script
-    script: ./bower_publish.sh
+    script: "./bower_publish.sh"
     skip_cleanup: true
     on:
       tags: true
       repo: stellar/js-stellar-sdk
-      node: "6.9.1"
+      node: 6.9.4
       condition: "$INTEGRATION = true"
