@@ -100,6 +100,7 @@ See the [Building Transactions](https://www.stellar.org/developers/js-stellar-ba
 Once you have built your transaction, you can submit it to the Stellar network with `Server.submitTransaction()`.
 ```js
 var StellarSdk = require('stellar-sdk')
+StellarSdk.Network.useTestNetwork();
 var server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
 
 var transaction = new StellarSdk.TransactionBuilder(account)
@@ -111,7 +112,7 @@ var transaction = new StellarSdk.TransactionBuilder(account)
         }))
         .build();
 
-transaction.sign(StellarSdk.Keypair.fromSeed(seedString)); // sign the transaction
+transaction.sign(StellarSdk.Keypair.fromSecret(secretString)); // sign the transaction
 
 server.submitTransaction(transaction)
     .then(function (transactionResult) {
