@@ -2,6 +2,10 @@
 
 As this project is pre 1.0, breaking changes may happen for minor version bumps. A breaking change will get clearly notified in this log.
 
+## 0.7.2
+
+* Allow hex string in setOptions signers
+
 ## 0.7.1
 
 * Upgrade `stellar-base`.
