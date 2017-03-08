@@ -7,6 +7,9 @@ import {Config} from "./config";
 import {Account, StrKey} from 'stellar-base';
 import {StellarTomlResolver} from "./stellar_toml_resolver";
 
+// FEDERATION_RESPONSE_MAX_SIZE is the maximum size of response from a federation server
+export const FEDERATION_RESPONSE_MAX_SIZE = 100 * 1024;
+
 export class FederationServer {
   /**
    * FederationServer handles a network connection to a
@@ -157,9 +160,14 @@ export class FederationServer {
   }
 
   _sendRequest(url) {
-    return axios.get(url.toString())
-      .then(response => response.data)
-      .catch(function (response) {
+    return axios.get(url.toString(), {maxContentLength: FEDERATION_RESPONSE_MAX_SIZE})
+      .then(response => {
+        if (typeof response.data.memo != "undefined" && typeof response.data.memo != 'string') {
+          throw new Error("memo value should be of type string");
+        }
+        return response.data;
+      })
+      .catch(response => {
         if (response instanceof Error) {
           return Promise.reject(response);
         } else {

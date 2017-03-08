@@ -1,3 +1,5 @@
+import http from "http";
+
 describe("stellar_toml_resolver.js tests", function () {
   beforeEach(function () {
     this.axiosMock = sinon.mock(axios);
@@ -86,6 +88,23 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
         .returns(Promise.reject());
 
       StellarSdk.StellarTomlResolver.resolve('acme.com').should.be.rejected.and.notify(done);
+    });
+
+    it("fails when response exceeds the limit", function (done) {
+      // Unable to create temp server in a browser
+      if (typeof window != 'undefined') {
+        return done();
+      }
+      var response = Array(StellarSdk.STELLAR_TOML_MAX_SIZE+10).join('a');
+      let tempServer = http.createServer((req, res) => {
+        res.setHeader('Content-Type', 'text/x-toml; charset=UTF-8');
+        res.end(response);
+      }).listen(4444, () => {
+        StellarSdk.StellarTomlResolver.resolve("localhost:4444", {allowHttp: true})
+          .should.be.rejectedWith(/maxContentLength size of [0-9]+ exceeded/)
+          .notify(done)
+          .then(() => tempServer.close());
+      });
     });
   });
 });

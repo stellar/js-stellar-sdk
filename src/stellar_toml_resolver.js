@@ -3,6 +3,9 @@ import Promise from 'bluebird';
 import toml from 'toml';
 import {Config} from "./config";
 
+// STELLAR_TOML_MAX_SIZE is the maximum size of stellar.toml file
+export const STELLAR_TOML_MAX_SIZE = 5 * 1024;
+
 /**
  * StellarTomlResolver allows resolving `stellar.toml` files.
  */
@@ -35,7 +38,7 @@ export class StellarTomlResolver {
     if (allowHttp) {
         protocol = 'http';
     }
-    return axios.get(`${protocol}://${domain}/.well-known/stellar.toml`)
+    return axios.get(`${protocol}://${domain}/.well-known/stellar.toml`, {maxContentLength: STELLAR_TOML_MAX_SIZE})
       .then(response => {
       	try {
             let tomlObject = toml.parse(response.data);

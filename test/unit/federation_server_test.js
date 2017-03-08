@@ -1,3 +1,5 @@
+import http from "http";
+
 describe("federation-server.js tests", function () {
   beforeEach(function () {
     this.server = new StellarSdk.FederationServer('https://acme.com:1337/federation', 'stellar.org');
@@ -174,7 +176,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
             stellar_address: 'bob*stellar.org',
             account_id: 'GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS',
             memo_type: 'id',
-            memo: 100
+            memo: '100'
           }
         }));
 
@@ -183,13 +185,47 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
           stellar_address: 'bob*stellar.org',
           account_id: 'GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS',
           memo_type: 'id',
-          memo: 100
+          memo: '100'
         })
         .notify(done);
     });
 
     it("fails for invalid Stellar address", function (done) {
       StellarSdk.FederationServer.resolve('bob*stellar.org*test').should.be.rejectedWith(/Invalid Stellar address/).notify(done);
+    });
+
+    it("fails when memo is not string", function (done) {
+      this.axiosMock.expects('get')
+        .withArgs(sinon.match('https://acme.com:1337/federation?type=name&q=bob%2Astellar.org'))
+        .returns(Promise.resolve({
+          data: {
+            stellar_address: 'bob*stellar.org',
+            account_id: 'GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS',
+            memo_type: 'id',
+            memo: 100
+          }
+        }));
+
+      this.server.resolveAddress('bob*stellar.org')
+        .should.be.rejectedWith(/memo value should be of type string/).notify(done);
+    });
+
+    it("fails when response exceeds the limit", function (done) {
+      // Unable to create temp server in a browser
+      if (typeof window != 'undefined') {
+        return done();
+      }
+      var response = Array(StellarSdk.FEDERATION_RESPONSE_MAX_SIZE+10).join('a');
+      let tempServer = http.createServer((req, res) => {
+        res.setHeader('Content-Type', 'application/json; charset=UTF-8');
+        res.end(response);
+      }).listen(4444, () => {
+        new StellarSdk.FederationServer('http://localhost:4444/federation', 'stellar.org', {allowHttp: true})
+          .resolveAddress('bob*stellar.org')
+          .should.be.rejectedWith(/maxContentLength size of [0-9]+ exceeded/)
+          .notify(done)
+          .then(() => tempServer.close());
+      });
     });
   });
 });
