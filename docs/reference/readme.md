@@ -102,23 +102,29 @@ Once you have built your transaction, you can submit it to the Stellar network w
 var StellarSdk = require('stellar-sdk')
 StellarSdk.Network.useTestNetwork();
 var server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
+server.loadAccount(publicKey)
+.then(
+	function(account){
+		var transaction = new StellarSdk.TransactionBuilder(account)
+				// this operation funds the new account with XLM
+				.addOperation(StellarSdk.Operation.payment({
+					destination: "GASOCNHNNLYFNMDJYQ3XFMI7BYHIOCFW3GJEOWRPEGK2TDPGTG2E5EDW",
+					asset: StellarSdk.Asset.native(),
+					amount: "20000000"
+				}))
+				.build();
 
-var transaction = new StellarSdk.TransactionBuilder(account)
-        // this operation funds the new account with XLM
-        .addOperation(StellarSdk.Operation.payment({
-            destination: "GASOCNHNNLYFNMDJYQ3XFMI7BYHIOCFW3GJEOWRPEGK2TDPGTG2E5EDW",
-            asset: StellarSdk.Asset.native(),
-            amount: "20000000"
-        }))
-        .build();
+		transaction.sign(StellarSdk.Keypair.fromSecret(secretString)); // sign the transaction
 
-transaction.sign(StellarSdk.Keypair.fromSecret(secretString)); // sign the transaction
-
-server.submitTransaction(transaction)
-    .then(function (transactionResult) {
-        console.log(transactionResult);
-    })
-    .catch(function (err) {
-        console.error(err);
-    });
+		server.submitTransaction(transaction)
+			.then(function (transactionResult) {
+				console.log(transactionResult);
+			})
+			.catch(function (err) {
+				console.error(err);
+			});
+	})
+.catch(function (err) {
+	console.error(err);
+});
 ```
