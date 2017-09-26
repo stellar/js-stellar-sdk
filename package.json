@@ -4,8 +4,8 @@
   "description": "stellar-sdk is a library for working with the Stellar Horizon server.",
   "main": "lib/index.js",
   "scripts": {
-    "test": "babel-node ./node_modules/gulp/bin/gulp.js test:node",
-    "docs": "./node_modules/.bin/jsdoc ./src/ -d docs/ -r ./docs/readme.md",
+    "test": "babel-node ./node_modules/.bin/gulp test",
+    "docs": "jsdoc ./src/ -d docs/ -r ./docs/readme.md",
     "preversion": "gulp test",
     "version": "gulp build",
     "postversion": "git push && git push --tags"
