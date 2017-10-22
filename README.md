@@ -5,7 +5,7 @@
 
 
 
-js-stellar-sdk is a client-side Stellar Javascript library for communicating with a [Stellar Horizon server](https://github.com/stellar/horizon). It is used for building Stellar apps either on Node.js or in the browser.
+js-stellar-sdk is a Javascript library for communicating with a [Stellar Horizon server](https://github.com/stellar/horizon). It is used for building Stellar apps either on Node.js or in the browser.
 
 It provides:
 - a networking layer API for Horizon endpoints.
