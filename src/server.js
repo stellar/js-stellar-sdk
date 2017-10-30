@@ -53,7 +53,7 @@ export class Server {
     submitTransaction(transaction) {
         let tx = encodeURIComponent(transaction.toEnvelope().toXDR().toString("base64"));
         var promise = axios.post(
-              URI(this.serverURL).path('transactions').toString(),
+              URI(this.serverURL).segment('transactions').toString(),
               `tx=${tx}`,
               {timeout: SUBMIT_TRANSACTION_TIMEOUT}
             )
