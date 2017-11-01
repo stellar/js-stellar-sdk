@@ -1,6 +1,4 @@
-import http from "http";
-
-describe("callbuilder.js tests", function () {
+describe("horizon path tests", function () {
 
   beforeEach(function () {
     this.axiosMock = sinon.mock(axios);
