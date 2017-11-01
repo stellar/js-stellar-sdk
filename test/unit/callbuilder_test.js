@@ -1,11 +1,4 @@
 describe("callbuilder.js tests", function () {
-  beforeEach(function () {
-
-  });
-
-  afterEach(function () {
-
-  });
 
   describe('server url without folder path: https://acme.com:1337', function () {
     let server = new StellarSdk.Server('https://acme.com:1337');

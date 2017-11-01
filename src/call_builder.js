@@ -33,9 +33,7 @@ export class CallBuilder {
     if (this.filter.length === 1) {
       //append filters to original segments
       let newSegment = this.originalSegments.concat(this.filter[0]);
-      forEach(this.filter[0], filter => {
-        this.url.segment(newSegment);
-      });
+      this.url.segment(newSegment);
     }        
   }
 
