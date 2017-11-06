@@ -98,7 +98,7 @@ export class Server {
      * People on the Stellar network can make offers to buy or sell assets. This endpoint represents all the offers a particular account makes.
      * Currently this method only supports querying offers for account and should be used like this:
      * ```
-     * server.offers('accounts', accountId)
+     * server.offers('accounts', accountId).call()
      *  .then(function(offers) {
      *    console.log(offers);
      *  });
