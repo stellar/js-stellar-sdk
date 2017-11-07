@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>src/account_response.js - Documentation</title>
+    <title>Keypair - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -29,65 +29,326 @@
 
 <div id="main">
     
-    <h1 class="page-title">src/account_response.js</h1>
+    <h1 class="page-title">Keypair</h1>
     
 
     
 
 
 
+
+<section>
+
+<header>
     
-    <section>
-        <article>
-            <pre class="prettyprint source linenums"><code>import {Account as BaseAccount} from "stellar-base";
-import forIn from "lodash/forIn";
+        <h2>
+        Keypair
+        </h2>
+        
+    
+</header>
 
-export class AccountResponse {
-    /**
-     * Do not create this object directly, use {@link Server#loadAccount}.
-     *
-     * Returns information and links relating to a single account.
-     * The balances section in the returned JSON will also list all the trust lines this account has set up.
-     * It also contains {@link Account} object and exposes it's methods so can be used in {@link TransactionBuilder}.
-     *
-     * @see [Account Details](https://www.stellar.org/developers/horizon/reference/accounts-single.html)
-     * @param {string} response Response from horizon account endpoint.
-     * @returns {AccountResponse}
-     */
-    constructor(response) {
-        this._baseAccount = new BaseAccount(response.account_id, response.sequence);
-        // Extract response fields
-        forIn(response, (value, key) => {
-            this[key] = value;
-        });
-    }
+<article>
+    <div class="container-overview">
+    
+        
+<div class="section-method">
 
-    /**
-     * Returns Stellar account ID, ex. `GB3KJPLFUYN5VL6R3GU3EGCGVCKFDSD7BEDX42HWG5BWFKB3KQGJJRMA`
-     * @returns {string}
-     */
-    accountId() {
-        return this._baseAccount.accountId();
-    }
+    
 
-    /**
-     * @returns {string}
-     */
-    sequenceNumber() {
-        return this._baseAccount.sequenceNumber();
-    }
+    <h4 class="name" id="Keypair"><span class="type-signature"></span>new Keypair<span class="signature">(keys)</span><span class="type-signature"></span></h4>
 
-    /**
-     * Increments sequence number in this object by one.
-     */
-    incrementSequenceNumber() {
-        this._baseAccount.incrementSequenceNumber();
-        this.sequence = this._baseAccount.sequenceNumber();
-    }
-}
-</code></pre>
-        </article>
-    </section>
+    
+
+
+
+<div class="description">
+    <p><code>Keypair</code> represents public (and secret) keys of the account.</p>
+<p>Currently <code>Keypair</code> only supports ed25519 but in a future this class can be abstraction layer for other
+public-key signature systems.</p>
+<p>Use more convenient methods to create <code>Keypair</code> object:</p>
+<ul>
+<li><code><a href="Keypair.html#.fromPublicKey">Keypair.fromPublicKey</a></code></li>
+<li><code><a href="Keypair.html#.fromSecret">Keypair.fromSecret</a></code></li>
+<li><code><a href="Keypair.html#.random">Keypair.random</a></code></li>
+</ul>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="node_modules_stellar-base_src_keypair.js.html">node_modules/stellar-base/src/keypair.js</a>, <a href="node_modules_stellar-base_src_keypair.js.html#line26">line 26</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>keys</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>object</code></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">
+                <p>At least one of keys must be provided.</p>
+                
+                    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>type</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>string</code></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">
+                <p>Public-key signature system name. (currently only <code>ed25519</code> keys are supported)</p>
+                
+            </td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>publicKey</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>Buffer</code></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">
+                <p>Raw public key</p>
+                
+            </td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>secretKey</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>Buffer</code></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">
+                <p>Raw secret key (32-byte secret seed in ed25519`)</p>
+                
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+                
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+    
+    </div>
+
+    
+
+    
+
+    
+
+     
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
 
 
 

@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>src/account_response.js - Documentation</title>
+    <title>PathCallBuilder - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -29,65 +29,308 @@
 
 <div id="main">
     
-    <h1 class="page-title">src/account_response.js</h1>
+    <h1 class="page-title">PathCallBuilder</h1>
     
 
     
 
 
 
+
+<section>
+
+<header>
     
-    <section>
-        <article>
-            <pre class="prettyprint source linenums"><code>import {Account as BaseAccount} from "stellar-base";
-import forIn from "lodash/forIn";
+        <h2>
+        PathCallBuilder
+        </h2>
+        
+    
+</header>
 
-export class AccountResponse {
-    /**
-     * Do not create this object directly, use {@link Server#loadAccount}.
-     *
-     * Returns information and links relating to a single account.
-     * The balances section in the returned JSON will also list all the trust lines this account has set up.
-     * It also contains {@link Account} object and exposes it's methods so can be used in {@link TransactionBuilder}.
-     *
-     * @see [Account Details](https://www.stellar.org/developers/horizon/reference/accounts-single.html)
-     * @param {string} response Response from horizon account endpoint.
-     * @returns {AccountResponse}
-     */
-    constructor(response) {
-        this._baseAccount = new BaseAccount(response.account_id, response.sequence);
-        // Extract response fields
-        forIn(response, (value, key) => {
-            this[key] = value;
-        });
-    }
+<article>
+    <div class="container-overview">
+    
+        
+<div class="section-method">
 
-    /**
-     * Returns Stellar account ID, ex. `GB3KJPLFUYN5VL6R3GU3EGCGVCKFDSD7BEDX42HWG5BWFKB3KQGJJRMA`
-     * @returns {string}
-     */
-    accountId() {
-        return this._baseAccount.accountId();
-    }
+    
 
-    /**
-     * @returns {string}
-     */
-    sequenceNumber() {
-        return this._baseAccount.sequenceNumber();
-    }
+    <h4 class="name" id="PathCallBuilder"><span class="type-signature"></span>new PathCallBuilder<span class="signature">(serverUrl, source, destination, destinationAsset, destinationAmount)</span><span class="type-signature"></span></h4>
 
-    /**
-     * Increments sequence number in this object by one.
-     */
-    incrementSequenceNumber() {
-        this._baseAccount.incrementSequenceNumber();
-        this.sequence = this._baseAccount.sequenceNumber();
-    }
-}
-</code></pre>
-        </article>
-    </section>
+    
+
+
+
+<div class="description">
+    <p>The Stellar Network allows payments to be made across assets through path payments. A path payment specifies a
+series of assets to route a payment through, from source asset (the asset debited from the payer) to destination
+asset (the asset credited to the payee).</p>
+<p>A path search is specified using:</p>
+<ul>
+<li>The destination address</li>
+<li>The source address</li>
+<li>The asset and amount that the destination account should receive</li>
+</ul>
+<p>As part of the search, horizon will load a list of assets available to the source address and will find any
+payment paths from those source assets to the desired destination asset. The search's amount parameter will be
+used to determine if there a given path can satisfy a payment of the desired amount.</p>
+<p>Do not create this object directly, use <a href="Server.html#paths">Server#paths</a>.</p>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_path_call_builder.js.html">src/path_call_builder.js</a>, <a href="src_path_call_builder.js.html#line27">line 27</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><p><a href="https://www.stellar.org/developers/horizon/reference/path-finding.html">Find Payment Paths</a></p></li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>serverUrl</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>string</code></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">
+                <p>Horizon server URL.</p>
+                
+            </td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>source</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>string</code></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">
+                <p>The sender's account ID. Any returned path must use a source that the sender can hold.</p>
+                
+            </td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>destination</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>string</code></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">
+                <p>The destination account ID that any returned path should use.</p>
+                
+            </td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>destinationAsset</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code><a href="Asset.html">Asset</a></code></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">
+                <p>The destination asset.</p>
+                
+            </td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>destinationAmount</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>string</code></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">
+                <p>The amount, denominated in the destination asset, that any returned path should be able to satisfy.</p>
+                
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+    
+    </div>
+
+    
+
+    
+
+    
+
+     
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
 
 
 

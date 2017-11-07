@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>src/account_response.js - Documentation</title>
+    <title>TransactionBuilder - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -29,65 +29,500 @@
 
 <div id="main">
     
-    <h1 class="page-title">src/account_response.js</h1>
+    <h1 class="page-title">TransactionBuilder</h1>
     
 
     
 
 
 
+
+<section>
+
+<header>
     
-    <section>
-        <article>
-            <pre class="prettyprint source linenums"><code>import {Account as BaseAccount} from "stellar-base";
-import forIn from "lodash/forIn";
+        <h2>
+        TransactionBuilder
+        </h2>
+        
+    
+</header>
 
-export class AccountResponse {
-    /**
-     * Do not create this object directly, use {@link Server#loadAccount}.
-     *
-     * Returns information and links relating to a single account.
-     * The balances section in the returned JSON will also list all the trust lines this account has set up.
-     * It also contains {@link Account} object and exposes it's methods so can be used in {@link TransactionBuilder}.
-     *
-     * @see [Account Details](https://www.stellar.org/developers/horizon/reference/accounts-single.html)
-     * @param {string} response Response from horizon account endpoint.
-     * @returns {AccountResponse}
-     */
-    constructor(response) {
-        this._baseAccount = new BaseAccount(response.account_id, response.sequence);
-        // Extract response fields
-        forIn(response, (value, key) => {
-            this[key] = value;
-        });
-    }
+<article>
+    <div class="container-overview">
+    
+        
+<div class="section-method">
 
-    /**
-     * Returns Stellar account ID, ex. `GB3KJPLFUYN5VL6R3GU3EGCGVCKFDSD7BEDX42HWG5BWFKB3KQGJJRMA`
-     * @returns {string}
-     */
-    accountId() {
-        return this._baseAccount.accountId();
-    }
+    
 
-    /**
-     * @returns {string}
-     */
-    sequenceNumber() {
-        return this._baseAccount.sequenceNumber();
-    }
+    <h4 class="name" id="TransactionBuilder"><span class="type-signature"></span>new TransactionBuilder<span class="signature">(sourceAccount, opts<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
 
-    /**
-     * Increments sequence number in this object by one.
-     */
-    incrementSequenceNumber() {
-        this._baseAccount.incrementSequenceNumber();
-        this.sequence = this._baseAccount.sequenceNumber();
-    }
-}
-</code></pre>
-        </article>
-    </section>
+    
+
+
+
+<div class="description">
+    <p>Transaction builder helps constructs a new <code><a href="Transaction.html">Transaction</a></code> using the given <a href="Account.html">Account</a>
+as the transaction's &quot;source account&quot;. The transaction will use the current sequence
+number of the given account as its sequence number and increment the given account's
+sequence number by one. The given source account must include a private key for signing
+the transaction or an error will be thrown.</p>
+
+<p>Operations can be added to the transaction via their corresponding builder methods, and
+each returns the TransactionBuilder object so they can be chained together. After adding
+the desired operations, call the <code>build()</code> method on the <code>TransactionBuilder</code> to return a fully
+constructed <code><a href="Transaction.html">Transaction</a></code> that can be signed. The returned transaction will contain the
+sequence number of the source account and include the signature from the source account.</p>
+
+<p>The following code example creates a new transaction with <a href="Operation.html#.createAccount">Operation.createAccount</a> and
+<a href="Operation.html#.payment">Operation.payment</a> operations.
+The Transaction's source account first funds <code>destinationA</code>, then sends
+a payment to <code>destinationB</code>. The built transaction is then signed by <code>sourceKeypair</code>.</p>
+
+<pre class="prettyprint source"><code>var transaction = new TransactionBuilder(source)
+ .addOperation(Operation.createAccount({
+          destination: destinationA,
+          startingBalance: &quot;20&quot;
+      }) // &lt;- funds and creates destinationA
+      .addOperation(Operation.payment({
+          destination: destinationB,
+          amount: &quot;100&quot;
+          asset: Asset.native()
+      }) // &lt;- sends 100 XLM to destinationB
+  .build();
+
+transaction.sign(sourceKeypair);</code></pre>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="node_modules_stellar-base_src_transaction_builder.js.html">node_modules/stellar-base/src/transaction_builder.js</a>, <a href="node_modules_stellar-base_src_transaction_builder.js.html#line61">line 61</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>sourceAccount</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code><a href="Account.html">Account</a></code></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">
+                <p>The source account for this transaction.</p>
+                
+            </td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>opts</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>object</code></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">
+                
+                
+                    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>fee</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>number</code></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">
+                <p>The max fee willing to pay per operation in this transaction (<strong>in stroops</strong>).</p>
+                
+            </td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>timebounds</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>object</code></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">
+                <p>The timebounds for the validity of this transaction.</p>
+                
+                    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>minTime</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>number</code></span>
+|
+
+<span class="param-type"><code>string</code></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">
+                <p>64 bit unix timestamp</p>
+                
+            </td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>maxTime</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>number</code></span>
+|
+
+<span class="param-type"><code>string</code></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">
+                <p>64 bit unix timestamp</p>
+                
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+                
+            </td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>memo</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code><a href="Memo.html">Memo</a></code></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">
+                <p>The memo for the transaction</p>
+                
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+                
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+    
+    </div>
+
+    
+
+    
+
+    
+
+     
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
 
 
 

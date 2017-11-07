@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>src/account_response.js - Documentation</title>
+    <title>OfferCallBuilder - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -29,65 +29,273 @@
 
 <div id="main">
     
-    <h1 class="page-title">src/account_response.js</h1>
+    <h1 class="page-title">OfferCallBuilder</h1>
     
 
     
 
 
 
+
+<section>
+
+<header>
     
-    <section>
-        <article>
-            <pre class="prettyprint source linenums"><code>import {Account as BaseAccount} from "stellar-base";
-import forIn from "lodash/forIn";
+        <h2>
+        OfferCallBuilder
+        </h2>
+        
+    
+</header>
 
-export class AccountResponse {
-    /**
-     * Do not create this object directly, use {@link Server#loadAccount}.
-     *
-     * Returns information and links relating to a single account.
-     * The balances section in the returned JSON will also list all the trust lines this account has set up.
-     * It also contains {@link Account} object and exposes it's methods so can be used in {@link TransactionBuilder}.
-     *
-     * @see [Account Details](https://www.stellar.org/developers/horizon/reference/accounts-single.html)
-     * @param {string} response Response from horizon account endpoint.
-     * @returns {AccountResponse}
-     */
-    constructor(response) {
-        this._baseAccount = new BaseAccount(response.account_id, response.sequence);
-        // Extract response fields
-        forIn(response, (value, key) => {
-            this[key] = value;
-        });
-    }
+<article>
+    <div class="container-overview">
+    
+        
+<div class="section-method">
 
-    /**
-     * Returns Stellar account ID, ex. `GB3KJPLFUYN5VL6R3GU3EGCGVCKFDSD7BEDX42HWG5BWFKB3KQGJJRMA`
-     * @returns {string}
-     */
-    accountId() {
-        return this._baseAccount.accountId();
-    }
+    
 
-    /**
-     * @returns {string}
-     */
-    sequenceNumber() {
-        return this._baseAccount.sequenceNumber();
-    }
+    <h4 class="name" id="OfferCallBuilder"><span class="type-signature"></span>new OfferCallBuilder<span class="signature">(serverUrl, resource, &hellip;resourceParams)</span><span class="type-signature"></span></h4>
 
-    /**
-     * Increments sequence number in this object by one.
-     */
-    incrementSequenceNumber() {
-        this._baseAccount.incrementSequenceNumber();
-        this.sequence = this._baseAccount.sequenceNumber();
-    }
-}
-</code></pre>
-        </article>
-    </section>
+    
+
+
+
+<div class="description">
+    <p>Creates a new OfferCallBuilder pointed to server defined by serverUrl.</p>
+<p>Do not create this object directly, use <a href="Server.html#offers">Server#offers</a>.</p>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_offer_call_builder.js.html">src/offer_call_builder.js</a>, <a href="src_offer_call_builder.js.html#line15">line 15</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><p><a href="https://www.stellar.org/developers/horizon/reference/offers-for-account.html">Offers for Account</a></p></li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>serverUrl</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>string</code></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">
+                <p>Horizon server URL.</p>
+                
+            </td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>resource</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>string</code></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">
+                <p>Resource to query offers</p>
+                
+            </td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>resourceParams</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>string</code></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                    &lt;repeatable><br>
+                
+                </td>
+            
+
+            
+
+            <td class="description last">
+                <p>Parameters for selected resource</p>
+                
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+    
+    </div>
+
+    
+
+    
+
+    
+
+     
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
 
 
 
