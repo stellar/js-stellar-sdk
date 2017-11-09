@@ -44,7 +44,7 @@ export class StellarTomlResolver {
             let tomlObject = toml.parse(response.data);
             return Promise.resolve(tomlObject);
         } catch (e) {
-            return Promise.reject(`Parsing error on line ${e.line}, column ${e.column}: ${e.message}`);
+            return Promise.reject(new Error(`Parsing error on line ${e.line}, column ${e.column}: ${e.message}`));
         }
       });
   }

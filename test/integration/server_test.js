@@ -69,8 +69,8 @@ describe("integration tests", function () {
 
           server.submitTransaction(tx)
             .then(result => done(new Error("This promise should be rejected.")))
-            .catch(result => {
-              expect(result.extras.result_codes.transaction).to.equal('tx_bad_seq');
+            .catch(error => {
+              expect(error.data.extras.result_codes.transaction).to.equal('tx_bad_seq');
               done();
             });
         });

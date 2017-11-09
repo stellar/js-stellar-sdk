@@ -5,6 +5,7 @@ import isString from "lodash/isString";
 import pick from "lodash/pick";
 import {Config} from "./config";
 import {Account, StrKey} from 'stellar-base';
+import {BadResponseError} from './errors';
 import {StellarTomlResolver} from "./stellar_toml_resolver";
 
 // FEDERATION_RESPONSE_MAX_SIZE is the maximum size of response from a federation server
@@ -171,7 +172,7 @@ export class FederationServer {
         if (response instanceof Error) {
           return Promise.reject(response);
         } else {
-          return Promise.reject(response.data);
+          return Promise.reject(new BadResponseError(`Server query failed. Server responded: ${response.status} ${response.statusText}`, response.data));
         }
       });
   }
