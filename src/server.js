@@ -1,4 +1,4 @@
-import {NotFoundError, NetworkError, BadRequestError} from "./errors";
+import {NotFoundError, NetworkError, BadRequestError, BadResponseError} from "./errors";
 
 import {AccountCallBuilder} from "./account_call_builder";
 import {AccountResponse} from "./account_response";
@@ -64,7 +64,7 @@ export class Server {
                 if (response instanceof Error) {
                     return Promise.reject(response);
                 } else {
-                    return Promise.reject(response.data);
+                    return Promise.reject(new BadResponseError(`Transaction submission failed. Server responded: ${response.status} ${response.statusText}`, response.data));
                 }
             });
         return toBluebird(promise);
