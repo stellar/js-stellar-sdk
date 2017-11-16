@@ -22,15 +22,15 @@ let URITemplate = require("urijs").URITemplate;
 
 export const SUBMIT_TRANSACTION_TIMEOUT = 20*1000;
 
+/**
+ * Server handles the network connection to a [Horizon](https://www.stellar.org/developers/horizon/learn/index.html)
+ * instance and exposes an interface for requests to that instance.
+ * @constructor
+ * @param {string} serverURL Horizon Server URL (ex. `https://horizon-testnet.stellar.org`).
+ * @param {object} [opts]
+ * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments! You can also use {@link Config} class to set this globally.
+ */
 export class Server {
-    /**
-     * Server handles the network connection to a [Horizon](https://www.stellar.org/developers/horizon/learn/index.html)
-     * instance and exposes an interface for requests to that instance.
-     * @constructor
-     * @param {string} serverURL Horizon Server URL (ex. `https://horizon-testnet.stellar.org`).
-     * @param {object} [opts]
-     * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments! You can also use {@link Config} class to set this globally.
-     */
     constructor(serverURL, opts = {}) {
         this.serverURL = URI(serverURL);
 
