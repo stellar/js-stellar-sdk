@@ -11,17 +11,17 @@ import {StellarTomlResolver} from "./stellar_toml_resolver";
 // FEDERATION_RESPONSE_MAX_SIZE is the maximum size of response from a federation server
 export const FEDERATION_RESPONSE_MAX_SIZE = 100 * 1024;
 
+/**
+ * FederationServer handles a network connection to a
+ * [federation server](https://www.stellar.org/developers/learn/concepts/federation.html)
+ * instance and exposes an interface for requests to that instance.
+ * @constructor
+ * @param {string} serverURL The federation server URL (ex. `https://acme.com/federation`).
+ * @param {string} domain Domain this server represents
+ * @param {object} [opts]
+ * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments! You can also use {@link Config} class to set this globally.
+ */
 export class FederationServer {
-  /**
-   * FederationServer handles a network connection to a
-   * [federation server](https://www.stellar.org/developers/learn/concepts/federation.html)
-   * instance and exposes an interface for requests to that instance.
-   * @constructor
-   * @param {string} serverURL The federation server URL (ex. `https://acme.com/federation`).
-   * @param {string} domain Domain this server represents
-   * @param {object} [opts]
-   * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments! You can also use {@link Config} class to set this globally.
-   */
   constructor(serverURL, domain, opts = {}) {
     // TODO `domain` regexp
     this.serverURL = URI(serverURL);
