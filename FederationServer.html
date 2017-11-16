@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>FederationServer - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
@@ -23,7 +24,7 @@
 <label for="nav-trigger" class="overlay"></label>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Account.html">Account</a><ul class='methods'><li data-type='method'><a href="Account.html#accountId">accountId</a></li><li data-type='method'><a href="Account.html#incrementSequenceNumber">incrementSequenceNumber</a></li><li data-type='method'><a href="Account.html#sequenceNumber">sequenceNumber</a></li></ul></li><li><a href="AccountCallBuilder.html">AccountCallBuilder</a><ul class='methods'><li data-type='method'><a href="AccountCallBuilder.html#accountId">accountId</a></li><li data-type='method'><a href="AccountCallBuilder.html#call">call</a></li><li data-type='method'><a href="AccountCallBuilder.html#cursor">cursor</a></li><li data-type='method'><a href="AccountCallBuilder.html#limit">limit</a></li><li data-type='method'><a href="AccountCallBuilder.html#order">order</a></li><li data-type='method'><a href="AccountCallBuilder.html#stream">stream</a></li></ul></li><li><a href="AccountResponse.html">AccountResponse</a><ul class='methods'><li data-type='method'><a href="AccountResponse.html#accountId">accountId</a></li><li data-type='method'><a href="AccountResponse.html#incrementSequenceNumber">incrementSequenceNumber</a></li><li data-type='method'><a href="AccountResponse.html#sequenceNumber">sequenceNumber</a></li></ul></li><li><a href="Asset.html">Asset</a><ul class='methods'><li data-type='method'><a href="Asset.html#.fromOperation">fromOperation</a></li><li data-type='method'><a href="Asset.html#.native">native</a></li><li data-type='method'><a href="Asset.html#equals">equals</a></li><li data-type='method'><a href="Asset.html#getAssetType">getAssetType</a></li><li data-type='method'><a href="Asset.html#getCode">getCode</a></li><li data-type='method'><a href="Asset.html#getIssuer">getIssuer</a></li><li data-type='method'><a href="Asset.html#isNative">isNative</a></li><li data-type='method'><a href="Asset.html#toXdrObject">toXdrObject</a></li></ul></li><li><a href="CallBuilder.html">CallBuilder</a><ul class='methods'><li data-type='method'><a href="CallBuilder.html#call">call</a></li><li data-type='method'><a href="CallBuilder.html#cursor">cursor</a></li><li data-type='method'><a href="CallBuilder.html#limit">limit</a></li><li data-type='method'><a href="CallBuilder.html#order">order</a></li><li data-type='method'><a href="CallBuilder.html#stream">stream</a></li></ul></li><li><a href="Config.html">Config</a><ul class='methods'><li data-type='method'><a href="Config.html#.isAllowHttp">isAllowHttp</a></li><li data-type='method'><a href="Config.html#.setAllowHttp">setAllowHttp</a></li><li data-type='method'><a href="Config.html#.setDefault">setDefault</a></li></ul></li><li><a href="EffectCallBuilder.html">EffectCallBuilder</a><ul class='methods'><li data-type='method'><a href="EffectCallBuilder.html#call">call</a></li><li data-type='method'><a href="EffectCallBuilder.html#cursor">cursor</a></li><li data-type='method'><a href="EffectCallBuilder.html#forAccount">forAccount</a></li><li data-type='method'><a href="EffectCallBuilder.html#forLedger">forLedger</a></li><li data-type='method'><a href="EffectCallBuilder.html#forOperation">forOperation</a></li><li data-type='method'><a href="EffectCallBuilder.html#forTransaction">forTransaction</a></li><li data-type='method'><a href="EffectCallBuilder.html#limit">limit</a></li><li data-type='method'><a href="EffectCallBuilder.html#order">order</a></li><li data-type='method'><a href="EffectCallBuilder.html#stream">stream</a></li></ul></li><li><a href="FederationServer.html">FederationServer</a><ul class='methods'><li data-type='method'><a href="FederationServer.html#.createForDomain">createForDomain</a></li><li data-type='method'><a href="FederationServer.html#.resolve">resolve</a></li><li data-type='method'><a href="FederationServer.html#resolveAccountId">resolveAccountId</a></li><li data-type='method'><a href="FederationServer.html#resolveAddress">resolveAddress</a></li><li data-type='method'><a href="FederationServer.html#resolveTransactionId">resolveTransactionId</a></li></ul></li><li><a href="Keypair.html">Keypair</a><ul class='methods'><li data-type='method'><a href="Keypair.html#.fromBase58Seed">fromBase58Seed</a></li><li data-type='method'><a href="Keypair.html#.fromPublicKey">fromPublicKey</a></li><li data-type='method'><a href="Keypair.html#.fromRawSeed">fromRawSeed</a></li><li data-type='method'><a href="Keypair.html#.fromSecret">fromSecret</a></li><li data-type='method'><a href="Keypair.html#.master">master</a></li><li data-type='method'><a href="Keypair.html#.random">random</a></li><li data-type='method'><a href="Keypair.html#canSign">canSign</a></li><li data-type='method'><a href="Keypair.html#publicKey">publicKey</a></li><li data-type='method'><a href="Keypair.html#rawPublicKey">rawPublicKey</a></li><li data-type='method'><a href="Keypair.html#rawSecretKey">rawSecretKey</a></li><li data-type='method'><a href="Keypair.html#secret">secret</a></li><li data-type='method'><a href="Keypair.html#sign">sign</a></li><li data-type='method'><a href="Keypair.html#verify">verify</a></li></ul></li><li><a href="LedgerCallBuilder.html">LedgerCallBuilder</a><ul class='methods'><li data-type='method'><a href="LedgerCallBuilder.html#call">call</a></li><li data-type='method'><a href="LedgerCallBuilder.html#cursor">cursor</a></li><li data-type='method'><a href="LedgerCallBuilder.html#ledger">ledger</a></li><li data-type='method'><a href="LedgerCallBuilder.html#limit">limit</a></li><li data-type='method'><a href="LedgerCallBuilder.html#order">order</a></li><li data-type='method'><a href="LedgerCallBuilder.html#stream">stream</a></li></ul></li><li><a href="Memo.html">Memo</a><ul class='methods'><li data-type='method'><a href="Memo.html#.hash">hash</a></li><li data-type='method'><a href="Memo.html#.id">id</a></li><li data-type='method'><a href="Memo.html#.none">none</a></li><li data-type='method'><a href="Memo.html#.returnHash">returnHash</a></li><li data-type='method'><a href="Memo.html#.text">text</a></li></ul></li><li><a href="Network.html">Network</a><ul class='methods'><li data-type='method'><a href="Network.html#.current">current</a></li><li data-type='method'><a href="Network.html#.use">use</a></li><li data-type='method'><a href="Network.html#.usePublicNetwork">usePublicNetwork</a></li><li data-type='method'><a href="Network.html#.useTestNetwork">useTestNetwork</a></li><li data-type='method'><a href="Network.html#networkId">networkId</a></li><li data-type='method'><a href="Network.html#networkPassphrase">networkPassphrase</a></li></ul></li><li><a href="OfferCallBuilder.html">OfferCallBuilder</a></li><li><a href="Operation.html">Operation</a><ul class='methods'><li data-type='method'><a href="Operation.html#.accountMerge">accountMerge</a></li><li data-type='method'><a href="Operation.html#.allowTrust">allowTrust</a></li><li data-type='method'><a href="Operation.html#.changeTrust">changeTrust</a></li><li data-type='method'><a href="Operation.html#.createAccount">createAccount</a></li><li data-type='method'><a href="Operation.html#.createPassiveOffer">createPassiveOffer</a></li><li data-type='method'><a href="Operation.html#.inflation">inflation</a></li><li data-type='method'><a href="Operation.html#.manageData">manageData</a></li><li data-type='method'><a href="Operation.html#.manageOffer">manageOffer</a></li><li data-type='method'><a href="Operation.html#.operationToObject">operationToObject</a></li><li data-type='method'><a href="Operation.html#.pathPayment">pathPayment</a></li><li data-type='method'><a href="Operation.html#.payment">payment</a></li><li data-type='method'><a href="Operation.html#.setOptions">setOptions</a></li></ul></li><li><a href="OperationCallBuilder.html">OperationCallBuilder</a><ul class='methods'><li data-type='method'><a href="OperationCallBuilder.html#call">call</a></li><li data-type='method'><a href="OperationCallBuilder.html#cursor">cursor</a></li><li data-type='method'><a href="OperationCallBuilder.html#forAccount">forAccount</a></li><li data-type='method'><a href="OperationCallBuilder.html#forLedger">forLedger</a></li><li data-type='method'><a href="OperationCallBuilder.html#forTransaction">forTransaction</a></li><li data-type='method'><a href="OperationCallBuilder.html#limit">limit</a></li><li data-type='method'><a href="OperationCallBuilder.html#operation">operation</a></li><li data-type='method'><a href="OperationCallBuilder.html#order">order</a></li><li data-type='method'><a href="OperationCallBuilder.html#stream">stream</a></li></ul></li><li><a href="OrderbookCallBuilder.html">OrderbookCallBuilder</a><ul class='methods'><li data-type='method'><a href="OrderbookCallBuilder.html#trades">trades</a></li></ul></li><li><a href="PathCallBuilder.html">PathCallBuilder</a></li><li><a href="PaymentCallBuilder.html">PaymentCallBuilder</a><ul class='methods'><li data-type='method'><a href="PaymentCallBuilder.html#call">call</a></li><li data-type='method'><a href="PaymentCallBuilder.html#cursor">cursor</a></li><li data-type='method'><a href="PaymentCallBuilder.html#forAccount">forAccount</a></li><li data-type='method'><a href="PaymentCallBuilder.html#forLedger">forLedger</a></li><li data-type='method'><a href="PaymentCallBuilder.html#forTransaction">forTransaction</a></li><li data-type='method'><a href="PaymentCallBuilder.html#limit">limit</a></li><li data-type='method'><a href="PaymentCallBuilder.html#order">order</a></li><li data-type='method'><a href="PaymentCallBuilder.html#stream">stream</a></li></ul></li><li><a href="Server.html">Server</a><ul class='methods'><li data-type='method'><a href="Server.html#accounts">accounts</a></li><li data-type='method'><a href="Server.html#effects">effects</a></li><li data-type='method'><a href="Server.html#ledgers">ledgers</a></li><li data-type='method'><a href="Server.html#loadAccount">loadAccount</a></li><li data-type='method'><a href="Server.html#offers">offers</a></li><li data-type='method'><a href="Server.html#operations">operations</a></li><li data-type='method'><a href="Server.html#orderbook">orderbook</a></li><li data-type='method'><a href="Server.html#paths">paths</a></li><li data-type='method'><a href="Server.html#payments">payments</a></li><li data-type='method'><a href="Server.html#submitTransaction">submitTransaction</a></li><li data-type='method'><a href="Server.html#transactions">transactions</a></li></ul></li><li><a href="StellarTomlResolver.html">StellarTomlResolver</a><ul class='methods'><li data-type='method'><a href="StellarTomlResolver.html#.resolve">resolve</a></li></ul></li><li><a href="StrKey.html">StrKey</a><ul class='methods'><li data-type='method'><a href="StrKey.html#.decodeEd25519PublicKey">decodeEd25519PublicKey</a></li><li data-type='method'><a href="StrKey.html#.decodeEd25519SecretSeed">decodeEd25519SecretSeed</a></li><li data-type='method'><a href="StrKey.html#.decodePreAuthTx">decodePreAuthTx</a></li><li data-type='method'><a href="StrKey.html#.decodeSha256Hash">decodeSha256Hash</a></li><li data-type='method'><a href="StrKey.html#.encodeEd25519PublicKey">encodeEd25519PublicKey</a></li><li data-type='method'><a href="StrKey.html#.encodeEd25519SecretSeed">encodeEd25519SecretSeed</a></li><li data-type='method'><a href="StrKey.html#.encodePreAuthTx">encodePreAuthTx</a></li><li data-type='method'><a href="StrKey.html#.encodeSha256Hash">encodeSha256Hash</a></li><li data-type='method'><a href="StrKey.html#.isValidEd25519PublicKey">isValidEd25519PublicKey</a></li><li data-type='method'><a href="StrKey.html#.isValidEd25519SecretSeed">isValidEd25519SecretSeed</a></li></ul></li><li><a href="Transaction.html">Transaction</a><ul class='methods'><li data-type='method'><a href="Transaction.html#hash">hash</a></li><li data-type='method'><a href="Transaction.html#sign">sign</a></li><li data-type='method'><a href="Transaction.html#signatureBase">signatureBase</a></li><li data-type='method'><a href="Transaction.html#signHashX">signHashX</a></li><li data-type='method'><a href="Transaction.html#toEnvelope">toEnvelope</a></li></ul></li><li><a href="TransactionBuilder.html">TransactionBuilder</a><ul class='methods'><li data-type='method'><a href="TransactionBuilder.html#addMemo">addMemo</a></li><li data-type='method'><a href="TransactionBuilder.html#addOperation">addOperation</a></li><li data-type='method'><a href="TransactionBuilder.html#build">build</a></li></ul></li><li><a href="TransactionCallBuilder.html">TransactionCallBuilder</a><ul class='methods'><li data-type='method'><a href="TransactionCallBuilder.html#call">call</a></li><li data-type='method'><a href="TransactionCallBuilder.html#cursor">cursor</a></li><li data-type='method'><a href="TransactionCallBuilder.html#forAccount">forAccount</a></li><li data-type='method'><a href="TransactionCallBuilder.html#forLedger">forLedger</a></li><li data-type='method'><a href="TransactionCallBuilder.html#limit">limit</a></li><li data-type='method'><a href="TransactionCallBuilder.html#order">order</a></li><li data-type='method'><a href="TransactionCallBuilder.html#stream">stream</a></li><li data-type='method'><a href="TransactionCallBuilder.html#transaction">transaction</a></li></ul></li></ul><h3>Global</h3><ul><li><a href="global.html#AuthImmutableFlag">AuthImmutableFlag</a></li><li><a href="global.html#AuthRequiredFlag">AuthRequiredFlag</a></li><li><a href="global.html#AuthRevocableFlag">AuthRevocableFlag</a></li><li><a href="global.html#FastSigning">FastSigning</a></li><li><a href="global.html#Networks">Networks</a></li></ul>
+    <li class="nav-link nav-home-link"><a href="index.html">Home</a></li><li class="nav-heading">Classes</li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="Account.html">Account</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Account.html#accountId">accountId</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Account.html#incrementSequenceNumber">incrementSequenceNumber</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Account.html#sequenceNumber">sequenceNumber</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="AccountCallBuilder_AccountCallBuilder.html">AccountCallBuilder</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="AccountCallBuilder_AccountCallBuilder.html#call">call</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="AccountCallBuilder_AccountCallBuilder.html#cursor">cursor</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="AccountCallBuilder_AccountCallBuilder.html#limit">limit</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="AccountCallBuilder_AccountCallBuilder.html#order">order</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="AccountCallBuilder_AccountCallBuilder.html#stream">stream</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="AccountResponse.html">AccountResponse</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="AccountResponse.html#accountId">accountId</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="AccountResponse.html#incrementSequenceNumber">incrementSequenceNumber</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="AccountResponse.html#sequenceNumber">sequenceNumber</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="Asset.html">Asset</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Asset.html#.fromOperation">fromOperation</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Asset.html#.native">native</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Asset.html#equals">equals</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Asset.html#getAssetType">getAssetType</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Asset.html#getCode">getCode</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Asset.html#getIssuer">getIssuer</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Asset.html#isNative">isNative</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Asset.html#toXDRObject">toXDRObject</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="CallBuilder.html">CallBuilder</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="CallBuilder.html#call">call</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="CallBuilder.html#cursor">cursor</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="CallBuilder.html#limit">limit</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="CallBuilder.html#order">order</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="CallBuilder.html#stream">stream</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="Config.html">Config</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Config.html#.isAllowHttp">isAllowHttp</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Config.html#.setAllowHttp">setAllowHttp</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Config.html#.setDefault">setDefault</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="EffectCallBuilder.html">EffectCallBuilder</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="EffectCallBuilder.html#call">call</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="EffectCallBuilder.html#cursor">cursor</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="EffectCallBuilder.html#forAccount">forAccount</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="EffectCallBuilder.html#forLedger">forLedger</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="EffectCallBuilder.html#forOperation">forOperation</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="EffectCallBuilder.html#forTransaction">forTransaction</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="EffectCallBuilder.html#limit">limit</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="EffectCallBuilder.html#order">order</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="EffectCallBuilder.html#stream">stream</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="FederationServer.html">FederationServer</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="FederationServer.html#.createForDomain">createForDomain</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="FederationServer.html#.resolve">resolve</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="FederationServer.html#resolveAccountId">resolveAccountId</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="FederationServer.html#resolveAddress">resolveAddress</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="FederationServer.html#resolveTransactionId">resolveTransactionId</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="Keypair.html">Keypair</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Keypair.html#.fromBase58Seed">fromBase58Seed</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Keypair.html#.fromPublicKey">fromPublicKey</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Keypair.html#.fromRawEd25519Seed">fromRawEd25519Seed</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Keypair.html#.fromSecret">fromSecret</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Keypair.html#.master">master</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Keypair.html#.random">random</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Keypair.html#canSign">canSign</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Keypair.html#publicKey">publicKey</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Keypair.html#rawPublicKey">rawPublicKey</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Keypair.html#rawSecretKey">rawSecretKey</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Keypair.html#secret">secret</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Keypair.html#sign">sign</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Keypair.html#verify">verify</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="LedgerCallBuilder_LedgerCallBuilder.html">LedgerCallBuilder</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="LedgerCallBuilder_LedgerCallBuilder.html#call">call</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="LedgerCallBuilder_LedgerCallBuilder.html#cursor">cursor</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="LedgerCallBuilder_LedgerCallBuilder.html#limit">limit</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="LedgerCallBuilder_LedgerCallBuilder.html#order">order</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="LedgerCallBuilder_LedgerCallBuilder.html#stream">stream</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="Memo.html">Memo</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Memo.html#.fromXDRObject">fromXDRObject</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Memo.html#.hash">hash</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Memo.html#.id">id</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Memo.html#.none">none</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Memo.html#.return">return</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Memo.html#.text">text</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Memo.html#toXDRObject">toXDRObject</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="Network.html">Network</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Network.html#.current">current</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Network.html#.use">use</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Network.html#.usePublicNetwork">usePublicNetwork</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Network.html#.useTestNetwork">useTestNetwork</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Network.html#networkId">networkId</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Network.html#networkPassphrase">networkPassphrase</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="OfferCallBuilder.html">OfferCallBuilder</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="Operation.html">Operation</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.accountMerge">accountMerge</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.allowTrust">allowTrust</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.changeTrust">changeTrust</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.createAccount">createAccount</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.createPassiveOffer">createPassiveOffer</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.fromXDRObject">fromXDRObject</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.inflation">inflation</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.manageData">manageData</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.manageOffer">manageOffer</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.pathPayment">pathPayment</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.payment">payment</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.setOptions">setOptions</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="OperationCallBuilder_OperationCallBuilder.html">OperationCallBuilder</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="OperationCallBuilder_OperationCallBuilder.html#call">call</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="OperationCallBuilder_OperationCallBuilder.html#cursor">cursor</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="OperationCallBuilder_OperationCallBuilder.html#limit">limit</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="OperationCallBuilder_OperationCallBuilder.html#order">order</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="OperationCallBuilder_OperationCallBuilder.html#stream">stream</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="OrderbookCallBuilder.html">OrderbookCallBuilder</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="OrderbookCallBuilder.html#trades">trades</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="PathCallBuilder.html">PathCallBuilder</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="PaymentCallBuilder_PaymentCallBuilder.html">PaymentCallBuilder</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PaymentCallBuilder_PaymentCallBuilder.html#call">call</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PaymentCallBuilder_PaymentCallBuilder.html#cursor">cursor</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PaymentCallBuilder_PaymentCallBuilder.html#limit">limit</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PaymentCallBuilder_PaymentCallBuilder.html#order">order</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PaymentCallBuilder_PaymentCallBuilder.html#stream">stream</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="Server.html">Server</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Server.html#accounts">accounts</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Server.html#effects">effects</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Server.html#ledgers">ledgers</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Server.html#loadAccount">loadAccount</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Server.html#offers">offers</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Server.html#operations">operations</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Server.html#orderbook">orderbook</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Server.html#paths">paths</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Server.html#payments">payments</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Server.html#submitTransaction">submitTransaction</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Server.html#transactions">transactions</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="StellarTomlResolver.html">StellarTomlResolver</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="StellarTomlResolver.html#.resolve">resolve</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="StrKey.html">StrKey</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="StrKey.html#.decodeEd25519PublicKey">decodeEd25519PublicKey</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="StrKey.html#.decodeEd25519SecretSeed">decodeEd25519SecretSeed</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="StrKey.html#.decodePreAuthTx">decodePreAuthTx</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="StrKey.html#.decodeSha256Hash">decodeSha256Hash</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="StrKey.html#.encodeEd25519PublicKey">encodeEd25519PublicKey</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="StrKey.html#.encodeEd25519SecretSeed">encodeEd25519SecretSeed</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="StrKey.html#.encodePreAuthTx">encodePreAuthTx</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="StrKey.html#.encodeSha256Hash">encodeSha256Hash</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="StrKey.html#.isValidEd25519PublicKey">isValidEd25519PublicKey</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="StrKey.html#.isValidEd25519SecretSeed">isValidEd25519SecretSeed</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="Transaction.html">Transaction</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Transaction.html#hash">hash</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Transaction.html#sign">sign</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Transaction.html#signatureBase">signatureBase</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Transaction.html#signHashX">signHashX</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Transaction.html#toEnvelope">toEnvelope</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="TransactionBuilder.html">TransactionBuilder</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TransactionBuilder.html#addMemo">addMemo</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TransactionBuilder.html#addOperation">addOperation</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TransactionBuilder.html#build">build</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="TransactionCallBuilder_TransactionCallBuilder.html">TransactionCallBuilder</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TransactionCallBuilder_TransactionCallBuilder.html#call">call</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TransactionCallBuilder_TransactionCallBuilder.html#cursor">cursor</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TransactionCallBuilder_TransactionCallBuilder.html#limit">limit</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TransactionCallBuilder_TransactionCallBuilder.html#order">order</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TransactionCallBuilder_TransactionCallBuilder.html#stream">stream</a></span></li><li class="nav-heading"><a href="global.html">Globals</a></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#AuthImmutableFlag">AuthImmutableFlag</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#AuthRequiredFlag">AuthRequiredFlag</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#AuthRevocableFlag">AuthRevocableFlag</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#FastSigning">FastSigning</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#MemoHash">MemoHash</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#MemoID">MemoID</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#MemoNone">MemoNone</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#MemoReturn">MemoReturn</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#MemoText">MemoText</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#Networks">Networks</a></span></li>
 </nav>
 
 <div id="main">
@@ -44,6 +45,10 @@
         FederationServer
         </h2>
         
+            <div class="class-description"><p>FederationServer handles a network connection to a
+<a href="https://www.stellar.org/developers/learn/concepts/federation.html">federation server</a>
+instance and exposes an interface for requests to that instance.</p></div>
+        
     
 </header>
 
@@ -51,7 +56,10 @@
     <div class="container-overview">
     
         
+<div class="section-method">
 
+    
+    <h2>Constructor</h2>
     
 
     <h4 class="name" id="FederationServer"><span class="type-signature"></span>new FederationServer<span class="signature">(serverURL, domain, opts<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
@@ -60,11 +68,49 @@
 
 
 
-<div class="description">
-    <p>FederationServer handles a network connection to a
-<a href="https://www.stellar.org/developers/learn/concepts/federation.html">federation server</a>
-instance and exposes an interface for requests to that instance.</p>
-</div>
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_federation_server.js.html">src/federation_server.js</a>, <a href="src_federation_server.js.html#line24">line 24</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
 
 
 
@@ -107,7 +153,7 @@ instance and exposes an interface for requests to that instance.</p>
             <td class="type">
             
                 
-<span class="param-type">string</span>
+<span class="param-type"><code>string</code></span>
 
 
             
@@ -125,7 +171,10 @@ instance and exposes an interface for requests to that instance.</p>
 
             
 
-            <td class="description last"><p>The federation server URL (ex. <code>https://acme.com/federation</code>).</p></td>
+            <td class="description last">
+                <p>The federation server URL (ex. <code>https://acme.com/federation</code>).</p>
+                
+            </td>
         </tr>
 
     
@@ -138,7 +187,7 @@ instance and exposes an interface for requests to that instance.</p>
             <td class="type">
             
                 
-<span class="param-type">string</span>
+<span class="param-type"><code>string</code></span>
 
 
             
@@ -156,7 +205,10 @@ instance and exposes an interface for requests to that instance.</p>
 
             
 
-            <td class="description last"><p>Domain this server represents</p></td>
+            <td class="description last">
+                <p>Domain this server represents</p>
+                
+            </td>
         </tr>
 
     
@@ -169,7 +221,7 @@ instance and exposes an interface for requests to that instance.</p>
             <td class="type">
             
                 
-<span class="param-type">object</span>
+<span class="param-type"><code>object</code></span>
 
 
             
@@ -190,8 +242,9 @@ instance and exposes an interface for requests to that instance.</p>
             
 
             <td class="description last">
-                <h6>Properties</h6>
                 
+                
+                    
 
 <table class="params">
     <thead>
@@ -223,7 +276,7 @@ instance and exposes an interface for requests to that instance.</p>
             <td class="type">
             
                 
-<span class="param-type">boolean</span>
+<span class="param-type"><code>boolean</code></span>
 
 
             
@@ -243,13 +296,9 @@ instance and exposes an interface for requests to that instance.</p>
 
             
 
-            <td class="description last"><p>Allow connecting to http servers, default: <code>false</code>. This must be set to false in production deployments! You can also use <a href="Config.html">Config</a> class to set this globally.</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
+            <td class="description last">
+                <p>Allow connecting to http servers, default: <code>false</code>. This must be set to false in production deployments! You can also use <a href="Config.html">Config</a> class to set this globally.</p>
+                
             </td>
         </tr>
 
@@ -257,6 +306,71 @@ instance and exposes an interface for requests to that instance.</p>
     </tbody>
 </table>
 
+                
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+    
+    </div>
+
+    
+
+    
+
+    
+
+     
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+<div class="section-method">
+
+    
+
+    <h4 class="name" id=".createForDomain"><span class="type-signature">(static) </span>createForDomain<span class="signature">(domain, opts<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Creates a <code>FederationServer</code> instance based on information from <a href="https://www.stellar.org/developers/learn/concepts/stellar-toml.html">stellar.toml</a> file for a given domain.
+Returns a <code>Promise</code> that resolves to a <code>FederationServer</code> object. If <code>stellar.toml</code> file does not exist for a given domain or it does not contain information about a federation server Promise will reject.</p>
+<pre class="prettyprint source lang-js"><code>StellarSdk.FederationServer.createForDomain('acme.com')
+  .then(federationServer => {
+    // federationServer.forAddress('bob').then(...)
+  })
+  .catch(error => {
+    // stellar.toml does not exist or it does not contain information about federation server.
+  });</code></pre>
+</div>
 
 
 
@@ -291,72 +405,23 @@ instance and exposes an interface for requests to that instance.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_federation_server.js.html">src/federation_server.js</a>, <a href="src_federation_server.js.html#line21">line 21</a>
+        <a href="src_federation_server.js.html">src/federation_server.js</a>, <a href="src_federation_server.js.html#line114">line 114</a>
     </li></ul></dd>
     
 
     
 
     
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="https://www.stellar.org/developers/learn/concepts/stellar-toml.html" target="_blank">Stellar.toml doc</a></li>
+        </ul>
+    </dd>
+    
 
     
 </dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-    </div>
-
-    
-
-    
-
-    
-
-     
-
-    
-
-    
-
-    
-        <h3 class="subsection-title">Methods</h3>
-
-        
-            
-
-    
-
-    <h4 class="name" id=".createForDomain"><span class="type-signature">(static) </span>createForDomain<span class="signature">(domain, opts<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Creates a <code>FederationServer</code> instance based on information from <a href="https://www.stellar.org/developers/learn/concepts/stellar-toml.html">stellar.toml</a> file for a given domain.
-Returns a <code>Promise</code> that resolves to a <code>FederationServer</code> object. If <code>stellar.toml</code> file does not exist for a given domain or it does not contain information about a federation server Promise will reject.</p>
-<pre class="prettyprint source lang-js"><code>StellarSdk.FederationServer.createForDomain('acme.com')
-  .then(federationServer => {
-    // federationServer.forAddress('bob').then(...)
-  })
-  .catch(error => {
-    // stellar.toml does not exist or it does not contain information about federation server.
-  });</code></pre>
-</div>
 
 
 
@@ -399,7 +464,7 @@ Returns a <code>Promise</code> that resolves to a <code>FederationServer</code> 
             <td class="type">
             
                 
-<span class="param-type">string</span>
+<span class="param-type"><code>string</code></span>
 
 
             
@@ -417,7 +482,10 @@ Returns a <code>Promise</code> that resolves to a <code>FederationServer</code> 
 
             
 
-            <td class="description last"><p>Domain to get federation server for</p></td>
+            <td class="description last">
+                <p>Domain to get federation server for</p>
+                
+            </td>
         </tr>
 
     
@@ -430,7 +498,7 @@ Returns a <code>Promise</code> that resolves to a <code>FederationServer</code> 
             <td class="type">
             
                 
-<span class="param-type">object</span>
+<span class="param-type"><code>object</code></span>
 
 
             
@@ -451,8 +519,9 @@ Returns a <code>Promise</code> that resolves to a <code>FederationServer</code> 
             
 
             <td class="description last">
-                <h6>Properties</h6>
                 
+                
+                    
 
 <table class="params">
     <thead>
@@ -484,7 +553,7 @@ Returns a <code>Promise</code> that resolves to a <code>FederationServer</code> 
             <td class="type">
             
                 
-<span class="param-type">boolean</span>
+<span class="param-type"><code>boolean</code></span>
 
 
             
@@ -504,13 +573,17 @@ Returns a <code>Promise</code> that resolves to a <code>FederationServer</code> 
 
             
 
-            <td class="description last"><p>Allow connecting to http servers, default: <code>false</code>. This must be set to false in production deployments!</p></td>
+            <td class="description last">
+                <p>Allow connecting to http servers, default: <code>false</code>. This must be set to false in production deployments!</p>
+                
+            </td>
         </tr>
 
     
     </tbody>
 </table>
 
+                
             </td>
         </tr>
 
@@ -523,52 +596,6 @@ Returns a <code>Promise</code> that resolves to a <code>FederationServer</code> 
 
 
 
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_federation_server.js.html">src/federation_server.js</a>, <a href="src_federation_server.js.html#line110">line 110</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-    <dt class="tag-see">See:</dt>
-    <dd class="tag-see">
-        <ul>
-            <li><a href="https://www.stellar.org/developers/learn/concepts/stellar-toml.html" target="_blank">Stellar.toml doc</a></li>
-        </ul>
-    </dd>
-    
-
-    
-</dl>
 
 
 
@@ -577,34 +604,33 @@ Returns a <code>Promise</code> that resolves to a <code>FederationServer</code> 
 
 
 
-
-
-
-
-
+<div class="section-returns">
 <h5>Returns:</h5>
 
         
 
-
 <dl class="param-type">
     <dt>
-        Type
+        Type:
     </dt>
     <dd>
         
-<span class="param-type">Promise</span>
+<span class="param-type"><code>Promise</code></span>
 
 
     </dd>
 </dl>
 
+
     
+</div>
 
 
 
+</div>
         
             
+<div class="section-method">
 
     
 
@@ -641,6 +667,59 @@ if the account actually exists in a ledger.</li>
 </ul>
 <p>The Promise will reject in case of any errors.</p>
 </div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_federation_server.js.html">src/federation_server.js</a>, <a href="src_federation_server.js.html#line76">line 76</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="https://www.stellar.org/developers/learn/concepts/federation.html" target="_blank">Federation doc</a></li>
+        
+            <li><a href="https://www.stellar.org/developers/learn/concepts/stellar-toml.html" target="_blank">Stellar.toml doc</a></li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
 
 
 
@@ -683,7 +762,7 @@ if the account actually exists in a ledger.</li>
             <td class="type">
             
                 
-<span class="param-type">string</span>
+<span class="param-type"><code>string</code></span>
 
 
             
@@ -701,7 +780,10 @@ if the account actually exists in a ledger.</li>
 
             
 
-            <td class="description last"><p>Stellar Address (ex. <code>bob*stellar.org</code>)</p></td>
+            <td class="description last">
+                <p>Stellar Address (ex. <code>bob*stellar.org</code>)</p>
+                
+            </td>
         </tr>
 
     
@@ -714,7 +796,7 @@ if the account actually exists in a ledger.</li>
             <td class="type">
             
                 
-<span class="param-type">object</span>
+<span class="param-type"><code>object</code></span>
 
 
             
@@ -735,8 +817,9 @@ if the account actually exists in a ledger.</li>
             
 
             <td class="description last">
-                <h6>Properties</h6>
                 
+                
+                    
 
 <table class="params">
     <thead>
@@ -768,7 +851,7 @@ if the account actually exists in a ledger.</li>
             <td class="type">
             
                 
-<span class="param-type">boolean</span>
+<span class="param-type"><code>boolean</code></span>
 
 
             
@@ -788,13 +871,9 @@ if the account actually exists in a ledger.</li>
 
             
 
-            <td class="description last"><p>Allow connecting to http servers, default: <code>false</code>. This must be set to false in production deployments!</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
+            <td class="description last">
+                <p>Allow connecting to http servers, default: <code>false</code>. This must be set to false in production deployments!</p>
+                
             </td>
         </tr>
 
@@ -802,6 +881,66 @@ if the account actually exists in a ledger.</li>
     </tbody>
 </table>
 
+                
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="section-returns">
+<h5>Returns:</h5>
+
+        
+
+<dl class="param-type">
+    <dt>
+        Type:
+    </dt>
+    <dd>
+        
+<span class="param-type"><code>Promise</code></span>
+
+
+    </dd>
+</dl>
+
+
+    
+</div>
+
+
+
+</div>
+        
+            
+<div class="section-method">
+
+    
+
+    <h4 class="name" id="resolveAccountId"><span class="type-signature"></span>resolveAccountId<span class="signature">(accountId)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Returns a Promise that resolves to federation record if the user was found for a given account ID.</p>
+</div>
 
 
 
@@ -836,7 +975,7 @@ if the account actually exists in a ledger.</li>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_federation_server.js.html">src/federation_server.js</a>, <a href="src_federation_server.js.html#line72">line 72</a>
+        <a href="src_federation_server.js.html">src/federation_server.js</a>, <a href="src_federation_server.js.html#line147">line 147</a>
     </li></ul></dd>
     
 
@@ -847,62 +986,12 @@ if the account actually exists in a ledger.</li>
     <dd class="tag-see">
         <ul>
             <li><a href="https://www.stellar.org/developers/learn/concepts/federation.html" target="_blank">Federation doc</a></li>
-        
-            <li><a href="https://www.stellar.org/developers/learn/concepts/stellar-toml.html" target="_blank">Stellar.toml doc</a></li>
         </ul>
     </dd>
     
 
     
 </dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-
-
-<dl class="param-type">
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Promise</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="resolveAccountId"><span class="type-signature"></span>resolveAccountId<span class="signature">(accountId)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Returns a Promise that resolves to federation record if the user was found for a given account ID.</p>
-</div>
 
 
 
@@ -943,7 +1032,7 @@ if the account actually exists in a ledger.</li>
             <td class="type">
             
                 
-<span class="param-type">string</span>
+<span class="param-type"><code>string</code></span>
 
 
             
@@ -953,13 +1042,68 @@ if the account actually exists in a ledger.</li>
 
             
 
-            <td class="description last"><p>Account ID (ex. <code>GBYNR2QJXLBCBTRN44MRORCMI4YO7FZPFBCNOKTOBCAAFC7KC3LNPRYS</code>)</p></td>
+            <td class="description last">
+                <p>Account ID (ex. <code>GBYNR2QJXLBCBTRN44MRORCMI4YO7FZPFBCNOKTOBCAAFC7KC3LNPRYS</code>)</p>
+                
+            </td>
         </tr>
 
     
     </tbody>
 </table>
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="section-returns">
+<h5>Returns:</h5>
+
+        
+
+<dl class="param-type">
+    <dt>
+        Type:
+    </dt>
+    <dd>
+        
+<span class="param-type"><code>Promise</code></span>
+
+
+    </dd>
+</dl>
+
+
+    
+</div>
+
+
+
+</div>
+        
+            
+<div class="section-method">
+
+    
+
+    <h4 class="name" id="resolveAddress"><span class="type-signature"></span>resolveAddress<span class="signature">(address)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Returns a Promise that resolves to federation record if the user was found for a given Stellar address.</p>
+</div>
 
 
 
@@ -994,7 +1138,7 @@ if the account actually exists in a ledger.</li>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_federation_server.js.html">src/federation_server.js</a>, <a href="src_federation_server.js.html#line143">line 143</a>
+        <a href="src_federation_server.js.html">src/federation_server.js</a>, <a href="src_federation_server.js.html#line130">line 130</a>
     </li></ul></dd>
     
 
@@ -1011,54 +1155,6 @@ if the account actually exists in a ledger.</li>
 
     
 </dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-
-
-<dl class="param-type">
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Promise</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="resolveAddress"><span class="type-signature"></span>resolveAddress<span class="signature">(address)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Returns a Promise that resolves to federation record if the user was found for a given Stellar address.</p>
-</div>
 
 
 
@@ -1099,7 +1195,7 @@ if the account actually exists in a ledger.</li>
             <td class="type">
             
                 
-<span class="param-type">string</span>
+<span class="param-type"><code>string</code></span>
 
 
             
@@ -1109,13 +1205,68 @@ if the account actually exists in a ledger.</li>
 
             
 
-            <td class="description last"><p>Stellar address (ex. <code>bob*stellar.org</code>). If <code>FederationServer</code> was instantiated with <code>domain</code> param only username (ex. <code>bob</code>) can be passed.</p></td>
+            <td class="description last">
+                <p>Stellar address (ex. <code>bob*stellar.org</code>). If <code>FederationServer</code> was instantiated with <code>domain</code> param only username (ex. <code>bob</code>) can be passed.</p>
+                
+            </td>
         </tr>
 
     
     </tbody>
 </table>
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="section-returns">
+<h5>Returns:</h5>
+
+        
+
+<dl class="param-type">
+    <dt>
+        Type:
+    </dt>
+    <dd>
+        
+<span class="param-type"><code>Promise</code></span>
+
+
+    </dd>
+</dl>
+
+
+    
+</div>
+
+
+
+</div>
+        
+            
+<div class="section-method">
+
+    
+
+    <h4 class="name" id="resolveTransactionId"><span class="type-signature"></span>resolveTransactionId<span class="signature">(transactionId)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Returns a Promise that resolves to federation record if the sender of the transaction was found for a given transaction ID.</p>
+</div>
 
 
 
@@ -1150,7 +1301,7 @@ if the account actually exists in a ledger.</li>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_federation_server.js.html">src/federation_server.js</a>, <a href="src_federation_server.js.html#line126">line 126</a>
+        <a href="src_federation_server.js.html">src/federation_server.js</a>, <a href="src_federation_server.js.html#line158">line 158</a>
     </li></ul></dd>
     
 
@@ -1167,54 +1318,6 @@ if the account actually exists in a ledger.</li>
 
     
 </dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-
-
-<dl class="param-type">
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Promise</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="resolveTransactionId"><span class="type-signature"></span>resolveTransactionId<span class="signature">(transactionId)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Returns a Promise that resolves to federation record if the sender of the transaction was found for a given transaction ID.</p>
-</div>
 
 
 
@@ -1255,7 +1358,7 @@ if the account actually exists in a ledger.</li>
             <td class="type">
             
                 
-<span class="param-type">string</span>
+<span class="param-type"><code>string</code></span>
 
 
             
@@ -1265,7 +1368,10 @@ if the account actually exists in a ledger.</li>
 
             
 
-            <td class="description last"><p>Transaction ID (ex. <code>3389e9f0f1a65f19736cacf544c2e825313e8447f569233bb8db39aa607c8889</code>)</p></td>
+            <td class="description last">
+                <p>Transaction ID (ex. <code>3389e9f0f1a65f19736cacf544c2e825313e8447f569233bb8db39aa607c8889</code>)</p>
+                
+            </td>
         </tr>
 
     
@@ -1277,52 +1383,6 @@ if the account actually exists in a ledger.</li>
 
 
 
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_federation_server.js.html">src/federation_server.js</a>, <a href="src_federation_server.js.html#line154">line 154</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-    <dt class="tag-see">See:</dt>
-    <dd class="tag-see">
-        <ul>
-            <li><a href="https://www.stellar.org/developers/learn/concepts/federation.html" target="_blank">Federation doc</a></li>
-        </ul>
-    </dd>
-    
-
-    
-</dl>
 
 
 
@@ -1331,32 +1391,30 @@ if the account actually exists in a ledger.</li>
 
 
 
-
-
-
-
-
+<div class="section-returns">
 <h5>Returns:</h5>
 
         
 
-
 <dl class="param-type">
     <dt>
-        Type
+        Type:
     </dt>
     <dd>
         
-<span class="param-type">Promise</span>
+<span class="param-type"><code>Promise</code></span>
 
 
     </dd>
 </dl>
 
+
     
+</div>
 
 
 
+</div>
         
     
 
@@ -1375,7 +1433,7 @@ if the account actually exists in a ledger.</li>
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Wed Mar 08 2017 12:35:05 GMT+0000 (UTC) using the Minami theme.
+    Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.3</a> on Thu Nov 16 2017 17:48:44 GMT+0000 (UTC) using the Minami theme.
 </footer>
 
 <script>prettyPrint();</script>
