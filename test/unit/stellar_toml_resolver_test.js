@@ -101,7 +101,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
         res.end(response);
       }).listen(4444, () => {
         StellarSdk.StellarTomlResolver.resolve("localhost:4444", {allowHttp: true})
-          .should.be.rejectedWith(/maxContentLength size of [0-9]+ exceeded/)
+          .should.be.rejectedWith(/stellar.toml file exceeds allowed size of [0-9]+/)
           .notify(done)
           .then(() => tempServer.close());
       });
