@@ -170,7 +170,11 @@ export class FederationServer {
       })
       .catch(response => {
         if (response instanceof Error) {
-          return Promise.reject(response);
+          if (response.message.match(/^maxContentLength size/)) {
+            throw new Error(`federation response exceeds allowed size of ${FEDERATION_RESPONSE_MAX_SIZE}`);
+          } else {
+            return Promise.reject(response);
+          }
         } else {
           return Promise.reject(new BadResponseError(`Server query failed. Server responded: ${response.status} ${response.statusText}`, response.data));
         }
