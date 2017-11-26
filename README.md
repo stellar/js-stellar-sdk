@@ -61,7 +61,7 @@ error MSB8020: The build tools for v120 (Platform Toolset = 'v120 ') cannot be f
 
 To resolve this issue, you should upgrade your version of nodejs, node-gyp and then re-attempt to install the offending package using `npm install -g --msvs_version=2015 ed25519`.  Afterwards, retry installing stellar-sdk as normal.
 
-If you encounter the error: "failed to find C:\OpenSSL-Win64", download and install OpenSSL from [here](http://slproweb.com/products/Win32OpenSSL.html). More information about this issue can be found [here](https://github.com/nodejs/node-gyp/wiki/Linking-to-OpenSSL).
+If you encounter the error: "failed to find C:\OpenSSL-Win64", You need to install OpenSSL. More information about this issue can be found [here](https://github.com/nodejs/node-gyp/wiki/Linking-to-OpenSSL).
 
 In the event the above does not work, please join us on our community slack to get help resolving your issue.
 
