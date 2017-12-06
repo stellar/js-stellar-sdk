@@ -20,7 +20,7 @@ let toBluebird = require("bluebird").resolve;
 let URI = require("urijs");
 let URITemplate = require("urijs").URITemplate;
 
-export const SUBMIT_TRANSACTION_TIMEOUT = 20*1000;
+export const SUBMIT_TRANSACTION_TIMEOUT = 60*1000;
 
 /**
  * Server handles the network connection to a [Horizon](https://www.stellar.org/developers/horizon/learn/index.html)
