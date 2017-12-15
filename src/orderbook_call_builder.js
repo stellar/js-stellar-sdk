@@ -28,15 +28,5 @@ export class OrderbookCallBuilder extends CallBuilder {
             this.url.addQuery("buying_asset_type", 'native');
         }
     }
-
-    /**
-     * People on the Stellar network can make offers to buy or sell assets. These offers are summarized by the assets being bought and sold in orderbooks. When an offer is fully or partially fulfilled, a trade happens.
-     * @see [Trades for Orderbook](https://www.stellar.org/developers/horizon/reference/trades-for-orderbook.html)
-     * @returns {OrderbookCallBuilder}
-     */
-    trades() {
-        this.filter.push(['order_book', 'trades']);
-        return this;
-    }
 }
 

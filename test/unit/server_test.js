@@ -670,21 +670,41 @@ describe("server.js tests", function () {
           })
       });
 
-      it("trades() requests the correct endpoint", function (done) {
-        this.axiosMock.expects('get')
-          .withArgs(sinon.match('https://horizon-live.stellar.org:1337/order_book/trades?selling_asset_type=native&buying_asset_type=credit_alphanum4&buying_asset_code=USD&buying_asset_issuer=GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG'))
-          .returns(Promise.resolve({data: orderBookResponse}));
+    });
 
-        this.server.orderbook(StellarSdk.Asset.native(), new StellarSdk.Asset('USD', "GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG"))
-          .trades()
-          .call()
-          .then(function (response) {
-            expect(response).to.be.deep.equal(orderBookResponse);
-            done();
-          })
-          .catch(function (err) {
-            done(err);
-          })
+    describe("TradesCallBuilder", function() {
+      it("trades() requests the correct endpoint (no filters)", function (done) {
+        let response = "trades_no_filters";
+        this.axiosMock.expects('get')
+            .withArgs(sinon.match('https://horizon-live.stellar.org:1337/trades'))
+            .returns(Promise.resolve({data: response}));
+
+        this.server.trades()
+            .call()
+            .then(function (response) {
+              expect(response).to.be.deep.equal(response);
+              done();
+            })
+            .catch(function (err) {
+              done(err);
+            })
+      });
+
+      it("trades() requests the correct endpoint (with assets filter)", function (done) {
+        let response = "trades_asset_filters";
+        this.axiosMock.expects('get')
+            .withArgs(sinon.match('https://horizon-live.stellar.org:1337/trades?base_asset_type=native&counter_asset_type=credit_alphanum4&counter_asset_code=USD&counter_asset_issuer=GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG'))
+            .returns(Promise.resolve({data: response}));
+
+        this.server.trades().withAssetPair(StellarSdk.Asset.native(), new StellarSdk.Asset('USD', "GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG"))
+            .call()
+            .then(function (response) {
+              expect(response).to.be.deep.equal(response);
+              done();
+            })
+            .catch(function (err) {
+              done(err);
+            })
       });
     });
 
