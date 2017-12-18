@@ -12,6 +12,7 @@ import {PathCallBuilder} from "./path_call_builder";
 import {PaymentCallBuilder} from "./payment_call_builder";
 import {EffectCallBuilder} from "./effect_call_builder";
 import {FriendbotBuilder} from "./friendbot_builder";
+import {AssetsBuilder} from "./assets_builder";
 import {xdr} from "stellar-base";
 import isString from "lodash/isString";
 
@@ -180,6 +181,15 @@ export class Server {
     friendbot(address) {
         return new FriendbotBuilder(URI(this.serverURL), address);
     }
+
+    /**
+     * Returns new {@link AssetsBuilder} object configured with the current Horizon server configuration.
+     * @returns {AssetsBuilder}
+     */
+    assets() {
+        return new AssetsBuilder(URI(this.serverURL));
+    }
+
 
     /**
     * Fetches an account's most current state in the ledger and then creates and returns an {@link Account} object.
