@@ -38,5 +38,20 @@ export class OrderbookCallBuilder extends CallBuilder {
         this.filter.push(['order_book', 'trades']);
         return this;
     }
+
+    /**
+     * Trade Aggregations facilitate efficient gathering of historical trade data
+     * @param {long} start_time lower time boundary represented as millis since epoch
+     * @param {long} end_time upper time boundary represented as millis since epoch
+     * @returns {OrderbookCallBuilder}
+     */
+    tradeAggregation(start_time, end_time){
+        if ((typeof start_time === 'undefined') || (typeof end_time === 'undefined')) {
+            throw new BadRequestError("Invalid time bounds", [start_time, end_time]);
+        }
+        this.url.addQuery("start_time", start_time);
+        this.url.addQuery("end_time", end_time);
+        return this;
+    }
 }
 
