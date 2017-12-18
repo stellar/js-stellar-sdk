@@ -10,9 +10,13 @@ import {CallBuilder} from "./call_builder";
  * @param {string} serverUrl Horizon server URL.
  */
 export class AssetsCallBuilder extends CallBuilder {
-    constructor(serverUrl) {
+    constructor(serverUrl,asset_code,asset_issuer) {
+        //      "href": "http://localhost:8000/assets{?asset_code,asset_issuer,cursor,limit,order}",
         super(serverUrl);
         this.url.segment('assets');
+        if (!asset_code)){
+            
+        }
     }
 
     /**
@@ -33,4 +37,27 @@ export class AssetsCallBuilder extends CallBuilder {
 https://horizon.stellar.org/assets?asset_code=USD&limit=10
 https://horizon.stellar.org/assets?asset_issuer=<some_issuer>
 https://horizon.stellar.org/assets?order=desc
+
+ACCT: GAXUUSLV6N3LN4YARKRNFDCAWN5WYGKCBN3VU5HJNZ2GWK5AXCH5RNT6
+SECRET: SD677LEZVVH72YZY4DOW7Q2SPFKPOKZUI26FXZT27J4VXFLK26Z6TKUN
+
+
+ACCT: GC3DNCXRH2HQW2X5CAKKXQWZ3BDMYTKJVHGUKA3M7UZHRZDRA7FNH6W4
+SECRET: SA7CAIK6T2UYYWUDW3F2SPX2NTDCQRB4GN3ZMNMSNU4ITHUWU52W6SYM
+
+
+https://horizon-testnet.stellar.org/
+order_book?
+selling_asset_type=native&
+buying_asset_type=credit_alphanum4&
+buying_asset_code=FOO&
+buying_asset_issuer=GBAUUA74H4XOQYRSOW2RZUA4QL5PB37U3JS5NE3RTB2ELJVMIF5RLMAG&limit=20
+
+
+
+
+
+
 */
+
+
