@@ -51,7 +51,15 @@ export class TradeAggregationCallBuilder extends CallBuilder {
    * @param {long} resolution 
    */
   isValidResolution(resolution){
-    return this.allowedResolutions.includes(resolution);
+    let found = false;
+
+    for (let i = 0; i < this.allowedResolutions.length; i++) {
+        if (this.allowedResolutions[i] == resolution) {
+            found = true;
+            break;
+        }       
+    }
+    return found;
   }
 
     
