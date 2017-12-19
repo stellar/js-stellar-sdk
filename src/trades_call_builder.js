@@ -43,7 +43,7 @@ export class TradesCallBuilder extends CallBuilder {
    * @returns {TradesCallBuilder}
    */
     forOffer(offerId) {
-        this.url.addQuery("offer_id", id);
+        this.url.addQuery("offer_id", offerId);
         return this;
     }
 }
