@@ -19,7 +19,7 @@ export class TradesCallBuilder extends CallBuilder {
     * @param {Asset} counter asset
     * @returns {TradesCallBuilder}
     */
-    withAssetPair(base, counter) {
+    forAssetPair(base, counter) {
         if (!base.isNative()) {
             this.url.addQuery("base_asset_type", base.getAssetType());
             this.url.addQuery("base_asset_code", base.getCode());
@@ -34,6 +34,16 @@ export class TradesCallBuilder extends CallBuilder {
         } else {
             this.url.addQuery("counter_asset_type", 'native');
         }
+        return this;
+    }
+
+  /**
+   * Filter trades for a specific offer
+   * @param offerId
+   * @returns {TradesCallBuilder}
+   */
+    forOffer(offerId) {
+        this.url.addQuery("offer_id", id);
         return this;
     }
 }

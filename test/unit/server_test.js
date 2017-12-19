@@ -690,13 +690,50 @@ describe("server.js tests", function () {
             })
       });
 
-      it("trades() requests the correct endpoint (with assets filter)", function (done) {
+      it("trades() requests the correct endpoint for assets", function (done) {
         let response = "trades_asset_filters";
         this.axiosMock.expects('get')
             .withArgs(sinon.match('https://horizon-live.stellar.org:1337/trades?base_asset_type=native&counter_asset_type=credit_alphanum4&counter_asset_code=USD&counter_asset_issuer=GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG'))
             .returns(Promise.resolve({data: response}));
 
-        this.server.trades().withAssetPair(StellarSdk.Asset.native(), new StellarSdk.Asset('USD', "GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG"))
+        this.server.trades()
+            .forAssetPair(StellarSdk.Asset.native(), new StellarSdk.Asset('USD', "GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG"))
+            .call()
+            .then(function (response) {
+              expect(response).to.be.deep.equal(response);
+              done();
+            })
+            .catch(function (err) {
+              done(err);
+            })
+      });
+
+      it("trades() requests the correct endpoint for offerid", function (done) {
+        let response = "trades_offerid_filters";
+        this.axiosMock.expects('get')
+            .withArgs(sinon.match('https://horizon-live.stellar.org:1337/trades?offer_id=10'))
+            .returns(Promise.resolve({data: response}));
+
+        this.server.trades()
+            .forOffer("10")
+            .call()
+            .then(function (response) {
+              expect(response).to.be.deep.equal(response);
+              done();
+            })
+            .catch(function (err) {
+              done(err);
+            })
+      });
+
+      it("trades() requests the correct endpoint for paging", function (done) {
+        let response = "trades_paging";
+        this.axiosMock.expects('get')
+            .withArgs(sinon.match('https://horizon-live.stellar.org:1337/trades?cursor=a&limit=10&order=desc'))
+            .returns(Promise.resolve({data: response}));
+
+        this.server.trades()
+            .cursor('a').limit('10').order('desc')
             .call()
             .then(function (response) {
               expect(response).to.be.deep.equal(response);
