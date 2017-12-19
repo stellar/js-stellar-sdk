@@ -12,6 +12,7 @@ import {PathCallBuilder} from "./path_call_builder";
 import {PaymentCallBuilder} from "./payment_call_builder";
 import {EffectCallBuilder} from "./effect_call_builder";
 import {FriendbotBuilder} from "./friendbot_builder";
+import { TradeAggregationCallBuilder } from "./trade_aggregation_call_builder";
 import {xdr} from "stellar-base";
 import isString from "lodash/isString";
 
@@ -193,5 +194,19 @@ export class Server {
             .then(function (res) {
                 return new AccountResponse(res);
             });
+    }
+
+    /**
+     * 
+     * @param {Asset} base base aseet
+     * @param {Asset} counter counter asset
+     * @param {long} start_time lower time boundary represented as millis since epoch
+     * @param {long} end_time upper time boundary represented as millis since epoch
+     * @param {long} resolution segment duration as millis since epoch. *Supported values are 5 minutes (300000), 15 minutes (900000), 1 hour (3600000), 1 day (86400000) and 1 week (604800000).
+     * Returns new {@link TradeAggregationCallBuilder} object configured with the current Horizon server configuration.
+     * @returns {TradeAggregationCallBuilder}
+     */
+    tradeAggregation(base, counter, start_time, end_time, resolution){
+        return new TradeAggregationCallBuilder(URI(this.serverURL), base, counter, start_time, end_time, resolution);
     }
 }
