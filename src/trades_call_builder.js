@@ -3,8 +3,8 @@ import {CallBuilder} from "./call_builder";
 /**
  * Creates a new {@link TradesCallBuilder} pointed to server defined by serverUrl.
  *
- * Do not create this object directly, use {@link Server#orderbook}.
- * @see [Trades](https://www.stellar.org/developers/horizon/reference/trades.html)
+ * Do not create this object directly, use {@link Server#trades}.
+ * @see [Trades](https://www.stellar.org/developers/horizon/reference/endpoints/trades.html)
  * @param {string} serverUrl serverUrl Horizon server URL.
  */
 export class TradesCallBuilder extends CallBuilder {
@@ -37,11 +37,11 @@ export class TradesCallBuilder extends CallBuilder {
         return this;
     }
 
-  /**
-   * Filter trades for a specific offer
-   * @param offerId
-   * @returns {TradesCallBuilder}
-   */
+    /**
+    * Filter trades for a specific offer
+    * @param offerId
+    * @returns {TradesCallBuilder}
+    */
     forOffer(offerId) {
         this.url.addQuery("offer_id", offerId);
         return this;
