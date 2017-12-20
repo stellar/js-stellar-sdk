@@ -12,7 +12,7 @@ import {PathCallBuilder} from "./path_call_builder";
 import {PaymentCallBuilder} from "./payment_call_builder";
 import {EffectCallBuilder} from "./effect_call_builder";
 import {FriendbotBuilder} from "./friendbot_builder";
-import {AssetsBuilder} from "./assets_builder";
+import {AssetsCallBuilder} from "./assets_call_builder";
 import {xdr} from "stellar-base";
 import isString from "lodash/isString";
 
@@ -183,11 +183,11 @@ export class Server {
     }
 
     /**
-     * Returns new {@link AssetsBuilder} object configured with the current Horizon server configuration.
-     * @returns {AssetsBuilder}
+     * Returns new {@link AssetsCallBuilder} object configured with the current Horizon server configuration.
+     * @returns {AssetsCallBuilder}
      */
     assets() {
-        return new AssetsBuilder(URI(this.serverURL));
+        return new AssetsCallBuilder(URI(this.serverURL));
     }
 
 
