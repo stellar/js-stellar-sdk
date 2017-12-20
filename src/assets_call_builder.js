@@ -1,15 +1,12 @@
 import {CallBuilder} from "./call_builder";
 
 /**
- * Creates a new {@link LedgerCallBuilder} pointed to server defined by serverUrl.
+ * Creates a new {@link AssetsCallBuilder} pointed to server defined by serverUrl.
  *
- * Do not create this object directly, use {@link Server#ledgers}.
- * @see [All Ledgers](https://www.stellar.org/developers/horizon/reference/ledgers-all.html)
+ * Do not create this object directly, use {@link Server#assets}.
  * @constructor
  * @extends CallBuilder
  * @param {string} serverUrl Horizon server URL.
- * @param {string} asset_issuer Public Key of issuer of interest
- * @param {string} asset_code Public Code of asset of interest
  */
 export class AssetsCallBuilder extends CallBuilder {
     constructor(serverUrl) {
@@ -18,11 +15,21 @@ export class AssetsCallBuilder extends CallBuilder {
         this.url.segment('assets');
     }
 
+    /**
+     * This endpoint filters all assets by the asset code.
+     * @param {string} value For example: `USD`
+     * @returns {AssetsCallBuilder}
+     */
     code(value){
         this.url.addQuery("asset_code", value);
         return this;
     }
 
+    /**
+     * This endpoint filters all assets by the asset issuer.
+     * @param {string} value For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
+     * @returns {AssetsCallBuilder}
+     */
     issuer(value){
         this.url.addQuery("asset_issuer", value);
         return this;
