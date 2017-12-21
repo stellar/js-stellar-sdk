@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Memo - Documentation</title>
+    <title>TradesCallBuilder - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -29,7 +29,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">Memo</h1>
+    <h1 class="page-title">TradesCallBuilder</h1>
     
 
     
@@ -42,8 +42,11 @@
 <header>
     
         <h2>
-        Memo
+        TradesCallBuilder
         </h2>
+        
+            <div class="class-description"><p>Creates a new <a href="TradesCallBuilder.html">TradesCallBuilder</a> pointed to server defined by serverUrl.</p>
+<p>Do not create this object directly, use <a href="Server.html#trades">Server#trades</a>.</p></div>
         
     
 </header>
@@ -55,16 +58,14 @@
 <div class="section-method">
 
     
+    <h2>Constructor</h2>
+    
 
-    <h4 class="name" id="Memo"><span class="type-signature"></span>new Memo<span class="signature">(type, value)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="TradesCallBuilder"><span class="type-signature"></span>new TradesCallBuilder<span class="signature">(serverUrl)</span><span class="type-signature"></span></h4>
 
     
 
 
-
-<div class="description">
-    <p><code>Memo</code> represents memos attached to transactions.</p>
-</div>
 
 
 
@@ -99,7 +100,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="node_modules_stellar-base_src_memo.js.html">node_modules/stellar-base/src/memo.js</a>, <a href="node_modules_stellar-base_src_memo.js.html#line30">line 30</a>
+        <a href="src_trades_call_builder.js.html">src/trades_call_builder.js</a>, <a href="src_trades_call_builder.js.html#line10">line 10</a>
     </li></ul></dd>
     
 
@@ -109,7 +110,7 @@
     <dt class="tag-see">See:</dt>
     <dd class="tag-see">
         <ul>
-            <li><p><a href="https://www.stellar.org/developers/learn/concepts/transactions.html">Transactions concept</a></p></li>
+            <li><p><a href="https://www.stellar.org/developers/horizon/reference/endpoints/trades.html">Trades</a></p></li>
         </ul>
     </dd>
     
@@ -150,7 +151,7 @@
 
         <tr>
             
-                <td class="name"><code>type</code></td>
+                <td class="name"><code>serverUrl</code></td>
             
 
             <td class="type">
@@ -167,33 +168,7 @@
             
 
             <td class="description last">
-                <p><code>MemoNone</code>, <code>MemoID</code>, <code>MemoText</code>, <code>MemoHash</code> or <code>MemoReturn</code></p>
-                
-            </td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>value</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><code>*</code></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">
-                <p><code>string</code> for <code>MemoID</code>, <code>MemoText</code>, buffer of hex string for <code>MemoHash</code> or <code>MemoReturn</code></p>
+                <p>serverUrl Horizon server URL.</p>
                 
             </td>
         </tr>
@@ -232,143 +207,6 @@
     
 
     
-        <h3 class="subsection-title">Members</h3>
-
-        
-            
-<div class="section-members">
-<h4 class="name" id="type"><span class="type-signature"></span>type<span class="type-signature"></span></h4>
-
-
-
-
-<div class="description">
-    <p>Contains memo type: <code>MemoNone</code>, <code>MemoID</code>, <code>MemoText</code>, <code>MemoHash</code> or <code>MemoReturn</code></p>
-</div>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="node_modules_stellar-base_src_memo.js.html">node_modules/stellar-base/src/memo.js</a>, <a href="node_modules_stellar-base_src_memo.js.html#line68">line 68</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-</div>
-
-        
-            
-<div class="section-members">
-<h4 class="name" id="value"><span class="type-signature"></span>value<span class="type-signature"></span></h4>
-
-
-
-
-<div class="description">
-    <p>Contains memo value:</p>
-<ul>
-<li><code>null</code> for <code>MemoNone</code>,</li>
-<li><code>string</code> for <code>MemoID</code>, <code>MemoText</code>,</li>
-<li><code>Buffer</code> for <code>MemoHash</code>, <code>MemoReturn</code></li>
-</ul>
-</div>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="node_modules_stellar-base_src_memo.js.html">node_modules/stellar-base/src/memo.js</a>, <a href="node_modules_stellar-base_src_memo.js.html#line82">line 82</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-</div>
-
-        
-    
 
     
         <h3 class="subsection-title">Methods</h3>
@@ -379,14 +217,14 @@
 
     
 
-    <h4 class="name" id=".fromXDRObject"><span class="type-signature">(static) </span>fromXDRObject<span class="signature">(object)</span><span class="type-signature"> &rarr; {<a href="Memo.html">Memo</a>}</span></h4>
+    <h4 class="name" id="forAssetPair"><span class="type-signature"></span>forAssetPair<span class="signature">(base, counter)</span><span class="type-signature"> &rarr; {<a href="TradesCallBuilder.html">TradesCallBuilder</a>}</span></h4>
 
     
 
 
 
 <div class="description">
-    <p>Returns <a href="Memo.html">Memo</a> from XDR memo object.</p>
+    <p>Filter trades for a specific asset pair (orderbook)</p>
 </div>
 
 
@@ -422,7 +260,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="node_modules_stellar-base_src_memo.js.html">node_modules/stellar-base/src/memo.js</a>, <a href="node_modules_stellar-base_src_memo.js.html#line227">line 227</a>
+        <a href="src_trades_call_builder.js.html">src/trades_call_builder.js</a>, <a href="src_trades_call_builder.js.html#line22">line 22</a>
     </li></ul></dd>
     
 
@@ -466,13 +304,13 @@
 
         <tr>
             
-                <td class="name"><code>object</code></td>
+                <td class="name"><code>base</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type"><code>xdr.Memo</code></span>
+<span class="param-type"><code><a href="Asset.html">Asset</a></code></span>
 
 
             
@@ -483,7 +321,33 @@
             
 
             <td class="description last">
+                <p>asset</p>
                 
+            </td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>counter</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code><a href="Asset.html">Asset</a></code></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">
+                <p>asset</p>
                 
             </td>
         </tr>
@@ -516,7 +380,7 @@
     </dt>
     <dd>
         
-<span class="param-type"><code><a href="Memo.html">Memo</a></code></span>
+<span class="param-type"><code><a href="TradesCallBuilder.html">TradesCallBuilder</a></code></span>
 
 
     </dd>
@@ -535,14 +399,14 @@
 
     
 
-    <h4 class="name" id=".hash"><span class="type-signature">(static) </span>hash<span class="signature">(hash)</span><span class="type-signature"> &rarr; {<a href="Memo.html">Memo</a>}</span></h4>
+    <h4 class="name" id="forOffer"><span class="type-signature"></span>forOffer<span class="signature">(offerId)</span><span class="type-signature"> &rarr; {<a href="TradesCallBuilder.html">TradesCallBuilder</a>}</span></h4>
 
     
 
 
 
 <div class="description">
-    <p>Creates and returns a <code>MemoHash</code> memo.</p>
+    <p>Filter trades for a specific offer</p>
 </div>
 
 
@@ -578,7 +442,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="node_modules_stellar-base_src_memo.js.html">node_modules/stellar-base/src/memo.js</a>, <a href="node_modules_stellar-base_src_memo.js.html#line190">line 190</a>
+        <a href="src_trades_call_builder.js.html">src/trades_call_builder.js</a>, <a href="src_trades_call_builder.js.html#line45">line 45</a>
     </li></ul></dd>
     
 
@@ -622,18 +486,10 @@
 
         <tr>
             
-                <td class="name"><code>hash</code></td>
+                <td class="name"><code>offerId</code></td>
             
 
             <td class="type">
-            
-                
-<span class="param-type"><code>array</code></span>
-|
-
-<span class="param-type"><code>string</code></span>
-
-
             
             </td>
 
@@ -642,7 +498,7 @@
             
 
             <td class="description last">
-                <p>32 byte hash or hex encoded string</p>
+                
                 
             </td>
         </tr>
@@ -675,686 +531,7 @@
     </dt>
     <dd>
         
-<span class="param-type"><code><a href="Memo.html">Memo</a></code></span>
-
-
-    </dd>
-</dl>
-
-
-    
-</div>
-
-
-
-</div>
-        
-            
-<div class="section-method">
-
-    
-
-    <h4 class="name" id=".id"><span class="type-signature">(static) </span>id<span class="signature">(id)</span><span class="type-signature"> &rarr; {<a href="Memo.html">Memo</a>}</span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Creates and returns a <code>MemoID</code> memo.</p>
-</div>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="node_modules_stellar-base_src_memo.js.html">node_modules/stellar-base/src/memo.js</a>, <a href="node_modules_stellar-base_src_memo.js.html#line181">line 181</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>id</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><code>string</code></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">
-                <p>64-bit number represented as a string</p>
-                
-            </td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div class="section-returns">
-<h5>Returns:</h5>
-
-        
-
-<dl class="param-type">
-    <dt>
-        Type:
-    </dt>
-    <dd>
-        
-<span class="param-type"><code><a href="Memo.html">Memo</a></code></span>
-
-
-    </dd>
-</dl>
-
-
-    
-</div>
-
-
-
-</div>
-        
-            
-<div class="section-method">
-
-    
-
-    <h4 class="name" id=".none"><span class="type-signature">(static) </span>none<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="Memo.html">Memo</a>}</span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Returns an empty memo (<code>MemoNone</code>).</p>
-</div>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="node_modules_stellar-base_src_memo.js.html">node_modules/stellar-base/src/memo.js</a>, <a href="node_modules_stellar-base_src_memo.js.html#line163">line 163</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div class="section-returns">
-<h5>Returns:</h5>
-
-        
-
-<dl class="param-type">
-    <dt>
-        Type:
-    </dt>
-    <dd>
-        
-<span class="param-type"><code><a href="Memo.html">Memo</a></code></span>
-
-
-    </dd>
-</dl>
-
-
-    
-</div>
-
-
-
-</div>
-        
-            
-<div class="section-method">
-
-    
-
-    <h4 class="name" id=".return"><span class="type-signature">(static) </span>return<span class="signature">(hash)</span><span class="type-signature"> &rarr; {<a href="Memo.html">Memo</a>}</span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Creates and returns a <code>MemoReturn</code> memo.</p>
-</div>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="node_modules_stellar-base_src_memo.js.html">node_modules/stellar-base/src/memo.js</a>, <a href="node_modules_stellar-base_src_memo.js.html#line199">line 199</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>hash</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><code>array</code></span>
-|
-
-<span class="param-type"><code>string</code></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">
-                <p>32 byte hash or hex encoded string</p>
-                
-            </td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div class="section-returns">
-<h5>Returns:</h5>
-
-        
-
-<dl class="param-type">
-    <dt>
-        Type:
-    </dt>
-    <dd>
-        
-<span class="param-type"><code><a href="Memo.html">Memo</a></code></span>
-
-
-    </dd>
-</dl>
-
-
-    
-</div>
-
-
-
-</div>
-        
-            
-<div class="section-method">
-
-    
-
-    <h4 class="name" id=".text"><span class="type-signature">(static) </span>text<span class="signature">(text)</span><span class="type-signature"> &rarr; {<a href="Memo.html">Memo</a>}</span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Creates and returns a <code>MemoText</code> memo.</p>
-</div>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="node_modules_stellar-base_src_memo.js.html">node_modules/stellar-base/src/memo.js</a>, <a href="node_modules_stellar-base_src_memo.js.html#line172">line 172</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>text</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><code>string</code></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">
-                <p>memo text</p>
-                
-            </td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div class="section-returns">
-<h5>Returns:</h5>
-
-        
-
-<dl class="param-type">
-    <dt>
-        Type:
-    </dt>
-    <dd>
-        
-<span class="param-type"><code><a href="Memo.html">Memo</a></code></span>
-
-
-    </dd>
-</dl>
-
-
-    
-</div>
-
-
-
-</div>
-        
-            
-<div class="section-method">
-
-    
-
-    <h4 class="name" id="toXDRObject"><span class="type-signature"></span>toXDRObject<span class="signature">()</span><span class="type-signature"> &rarr; {xdr.Memo}</span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Returns XDR memo object.</p>
-</div>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="node_modules_stellar-base_src_memo.js.html">node_modules/stellar-base/src/memo.js</a>, <a href="node_modules_stellar-base_src_memo.js.html#line207">line 207</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div class="section-returns">
-<h5>Returns:</h5>
-
-        
-
-<dl class="param-type">
-    <dt>
-        Type:
-    </dt>
-    <dd>
-        
-<span class="param-type"><code>xdr.Memo</code></span>
+<span class="param-type"><code><a href="TradesCallBuilder.html">TradesCallBuilder</a></code></span>
 
 
     </dd>
