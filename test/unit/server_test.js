@@ -1349,6 +1349,7 @@ describe("server.js tests", function () {
       });
     });
 
+
     describe("TradeAggregationCallBuilder", function () {
       let tradeAggregationResponse = {
         "_links": {
@@ -1436,9 +1437,236 @@ describe("server.js tests", function () {
             done(err);
           })
       });
-
     });    
 
 
+    describe("AssetsCallBuilder", function() {
+      it("requests the correct endpoint", function (done) {
+        let assetsResponse ={
+          "_links": {
+            "self": {
+              "href": "https://horizon-live.stellar.org:1337/assets?order=asc\u0026limit=1\u0026cursor="
+            },
+            "next": {
+              "href": "https://horizon-live.stellar.org:1337/assets?order=asc\u0026limit=1\u0026cursor=9HORIZONS_GB2HXY7UEDCSHOWZ4553QFGFILNU73OFS2P4HU5IB3UUU66TWPBPVTGW_credit_alphanum12"
+            },
+            "prev": {
+              "href": "https://horizon-live.stellar.org:1337/assets?order=desc\u0026limit=1\u0026cursor=9HORIZONS_GB2HXY7UEDCSHOWZ4553QFGFILNU73OFS2P4HU5IB3UUU66TWPBPVTGW_credit_alphanum12"
+            }
+          },
+          "_embedded": {
+            "records": [
+              {
+                "_links": {
+                  "toml": {
+                    "href": ""
+                  }
+                },
+                "asset_type": "credit_alphanum12",
+                "asset_code": "9HORIZONS",
+                "asset_issuer": "GB2HXY7UEDCSHOWZ4553QFGFILNU73OFS2P4HU5IB3UUU66TWPBPVTGW",
+                "paging_token": "9HORIZONS_GB2HXY7UEDCSHOWZ4553QFGFILNU73OFS2P4HU5IB3UUU66TWPBPVTGW_credit_alphanum12",
+                "amount": "1000000.0000000",
+                "num_accounts": 2,
+                "flags": {
+                  "auth_required": false,
+                  "auth_revocable": false
+                }
+              }
+            ]
+          }
+        };
+
+        this.axiosMock.expects('get')
+          .withArgs(sinon.match('https://horizon-live.stellar.org:1337/assets?limit=1'))
+          .returns(Promise.resolve({data: assetsResponse}));
+
+        this.server.assets()
+          .limit("1")
+          .call()
+          .then(function (response) {
+            expect(response.records).to.be.equal(assetsResponse._embedded.records);
+            done();
+          })
+          .catch(function (err) {
+            done(err);
+          })
+      });
+
+      it("requests the correct endpoint (asset_code)", function (done) {
+        let assetsCodeResponse = {
+          "_links": {
+            "self": {
+              "href": "https://horizon-live.stellar.org:1337/assets?order=asc\u0026limit=1\u0026cursor=\u0026asset_code=USD"
+            },
+            "next": {
+              "href": "https://horizon-live.stellar.org:1337/assets?order=asc\u0026limit=1\u0026cursor=USD_GCYK67DDGBOANS6UODJ62QWGLEB2A7JQ3XUV25HCMLT7CI23PMMK3W6R_credit_alphanum4\u0026asset_code=USD"
+            },
+            "prev": {
+              "href": "https://horizon-live.stellar.org:1337/assets?order=desc\u0026limit=1\u0026cursor=USD_GCYK67DDGBOANS6UODJ62QWGLEB2A7JQ3XUV25HCMLT7CI23PMMK3W6R_credit_alphanum4\u0026asset_code=USD"
+            }
+          },
+          "_embedded": {
+            "records": [
+              {
+                "_links": {
+                  "toml": {
+                    "href": ""
+                  }
+                },
+                "asset_type": "credit_alphanum4",
+                "asset_code": "USD",
+                "asset_issuer": "GCYK67DDGBOANS6UODJ62QWGLEB2A7JQ3XUV25HCMLT7CI23PMMK3W6R",
+                "paging_token": "USD_GCYK67DDGBOANS6UODJ62QWGLEB2A7JQ3XUV25HCMLT7CI23PMMK3W6R_credit_alphanum4",
+                "amount": "111.0010000",
+                "num_accounts": 127,
+                "flags": {
+                  "auth_required": false,
+                  "auth_revocable": false
+                }
+              }
+            ]
+          }
+        };
+        this.axiosMock.expects('get')
+          .withArgs(sinon.match('https://horizon-live.stellar.org:1337/assets?asset_code=USD&limit=1'))
+          .returns(Promise.resolve({data: assetsCodeResponse}));
+
+        this.server.assets()
+          .forCode("USD")
+          .limit("1")
+          .call()
+          .then(function (response) {
+            expect(response.records).to.be.equal(assetsCodeResponse._embedded.records);
+            done();
+          })
+          .catch(function (err) {
+            done(err);
+          })
+      });
+
+      it("requests the correct endpoint (asset_issuer)", function (done) {
+        let assetIssuerResponse = {
+          "_links": {
+            "self": {
+              "href": "http://horizon-testnet.stellar.org:1337/assets?order=asc\u0026limit=10\u0026cursor=\u0026asset_issuer=GCOGPF7IRVXUCJZAQWXVFQEE4HAOCTDGZI2QZSMKLM5BTTGRLY6GDOJN"
+            },
+            "next": {
+              "href": "http://horizon-testnet.stellar.org:1337/assets?order=asc\u0026limit=10\u0026cursor=00acc1_GCOGPF7IRVXUCJZAQWXVFQEE4HAOCTDGZI2QZSMKLM5BTTGRLY6GDOJN_credit_alphanum12\u0026asset_issuer=GCOGPF7IRVXUCJZAQWXVFQEE4HAOCTDGZI2QZSMKLM5BTTGRLY6GDOJN"
+            },
+            "prev": {
+              "href": "http://horizon-testnet.stellar.org:1337/assets?order=desc\u0026limit=10\u0026cursor=004d40_GCOGPF7IRVXUCJZAQWXVFQEE4HAOCTDGZI2QZSMKLM5BTTGRLY6GDOJN_credit_alphanum12\u0026asset_issuer=GCOGPF7IRVXUCJZAQWXVFQEE4HAOCTDGZI2QZSMKLM5BTTGRLY6GDOJN"
+            }
+          },
+          "_embedded": {
+            "records": [
+              {
+                "_links": {
+                  "toml": {
+                    "href": ""
+                  }
+                },
+                "asset_type": "credit_alphanum12",
+                "asset_code": "004d40",
+                "asset_issuer": "GCOGPF7IRVXUCJZAQWXVFQEE4HAOCTDGZI2QZSMKLM5BTTGRLY6GDOJN",
+                "paging_token": "004d40_GCOGPF7IRVXUCJZAQWXVFQEE4HAOCTDGZI2QZSMKLM5BTTGRLY6GDOJN_credit_alphanum12",
+                "amount": "757.0000000",
+                "num_accounts": 18,
+                "flags": {
+                  "auth_required": false,
+                  "auth_revocable": false
+                }
+              }
+            ]
+          }
+        };
+        this.axiosMock.expects('get')
+          .withArgs(sinon.match('https://horizon-live.stellar.org:1337/assets?asset_issuer=GCOGPF7IRVXUCJZAQWXVFQEE4HAOCTDGZI2QZSMKLM5BTTGRLY6GDOJN&limit=1'))
+          .returns(Promise.resolve({data: assetIssuerResponse}));
+
+        this.server.assets()
+          .forIssuer("GCOGPF7IRVXUCJZAQWXVFQEE4HAOCTDGZI2QZSMKLM5BTTGRLY6GDOJN")
+          .limit("1")
+          .call()
+          .then(function (response) {
+            expect(response.records).to.be.equal(assetIssuerResponse._embedded.records);
+            done();
+          })
+          .catch(function (err) {
+            done(err);
+          })
+      });
+
+      let assetCodeIssuerResponse = {
+        "_links": {
+          "self": {
+            "href": "http://horizon-testnet.stellar.org/assets?order=asc\u0026limit=10\u0026cursor=\u0026asset_code=USD\u0026asset_issuer=GBW3EZBZKRERB4JUDWGQPIBGHKJ4XPOFG2VQ2WTFR4F7TYC5WS7F3XGR"
+          },
+          "next": {
+            "href": "http://horizon-testnet.stellar.org/assets?order=asc\u0026limit=10\u0026cursor=USD_GBW3EZBZKRERB4JUDWGQPIBGHKJ4XPOFG2VQ2WTFR4F7TYC5WS7F3XGR_credit_alphanum4\u0026asset_code=USD\u0026asset_issuer=GBW3EZBZKRERB4JUDWGQPIBGHKJ4XPOFG2VQ2WTFR4F7TYC5WS7F3XGR"
+          },
+          "prev": {
+            "href": "http://horizon-testnet.stellar.org/assets?order=desc\u0026limit=10\u0026cursor=USD_GBW3EZBZKRERB4JUDWGQPIBGHKJ4XPOFG2VQ2WTFR4F7TYC5WS7F3XGR_credit_alphanum4\u0026asset_code=USD\u0026asset_issuer=GBW3EZBZKRERB4JUDWGQPIBGHKJ4XPOFG2VQ2WTFR4F7TYC5WS7F3XGR"
+          }
+        },
+        "_embedded": {
+          "records": [
+            {
+              "_links": {
+                "toml": {
+                  "href": "https://bakalr/.well-known/stellar.toml"
+                }
+              },
+              "asset_type": "credit_alphanum4",
+              "asset_code": "USD",
+              "asset_issuer": "GBW3EZBZKRERB4JUDWGQPIBGHKJ4XPOFG2VQ2WTFR4F7TYC5WS7F3XGR",
+              "paging_token": "USD_GBW3EZBZKRERB4JUDWGQPIBGHKJ4XPOFG2VQ2WTFR4F7TYC5WS7F3XGR_credit_alphanum4",
+              "amount": "1387.0000000",
+              "num_accounts": 1,
+              "flags": {
+                "auth_required": true,
+                "auth_revocable": true
+              }
+            }
+          ]
+        }
+      }
+      it("requests the correct endpoint (asset_code then asset_issuer)", function (done) {
+        this.axiosMock.expects('get')
+          .withArgs(sinon.match('https://horizon-live.stellar.org:1337/assets?asset_issuer=GBW3EZBZKRERB4JUDWGQPIBGHKJ4XPOFG2VQ2WTFR4F7TYC5WS7F3XGR&asset_code=USD'))
+          .returns(Promise.resolve({data: assetCodeIssuerResponse}));
+
+        this.server.assets()
+          .forIssuer("GBW3EZBZKRERB4JUDWGQPIBGHKJ4XPOFG2VQ2WTFR4F7TYC5WS7F3XGR")
+          .forCode("USD")
+          .call()
+          .then(function (response) {
+            expect(response.records).to.be.equal(assetCodeIssuerResponse._embedded.records);
+            done();
+          })
+          .catch(function (err) {
+            done(err);
+          })
+      });
+
+
+      it("requests the correct endpoint (asset_issuer then asset_code)", function (done) {
+        this.axiosMock.expects('get')
+          .withArgs(sinon.match('https://horizon-live.stellar.org:1337/assets?asset_code=USD&asset_issuer=GBW3EZBZKRERB4JUDWGQPIBGHKJ4XPOFG2VQ2WTFR4F7TYC5WS7F3XGR'))
+          .returns(Promise.resolve({data: assetCodeIssuerResponse}));
+
+        this.server.assets()
+          .forCode("USD")
+          .forIssuer("GBW3EZBZKRERB4JUDWGQPIBGHKJ4XPOFG2VQ2WTFR4F7TYC5WS7F3XGR")
+          .call()
+          .then(function (response) {
+            expect(response.records).to.be.equal(assetCodeIssuerResponse._embedded.records);
+            done();
+          })
+          .catch(function (err) {
+            done(err);
+        });
+      });
+    });    
   })
 });
