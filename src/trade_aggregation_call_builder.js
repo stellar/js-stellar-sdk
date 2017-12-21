@@ -1,6 +1,8 @@
 import { CallBuilder } from "./call_builder";
 import { NotFoundError, NetworkError, BadRequestError } from "./errors";
 
+const allowedResolutions = [300000, 900000, 3600000, 86400000, 604800000];
+
 /**
  * Trade Aggregations facilitate efficient gathering of historical trade data
  * Do not create this object directly, use {@link Server#tradeAggregation}.
@@ -15,7 +17,7 @@ import { NotFoundError, NetworkError, BadRequestError } from "./errors";
 export class TradeAggregationCallBuilder extends CallBuilder {
   constructor (serverUrl, base, counter, start_time, end_time, resolution){
     super(serverUrl);
-    this.allowedResolutions = [300000, 900000, 3600000, 86400000, 604800000];
+    
     this.url.segment('trade_aggregations');
     if (!base.isNative()) {
         this.url.addQuery("base_asset_type", base.getAssetType());
@@ -53,8 +55,8 @@ export class TradeAggregationCallBuilder extends CallBuilder {
   isValidResolution(resolution){
     let found = false;
 
-    for (let i = 0; i < this.allowedResolutions.length; i++) {
-        if (this.allowedResolutions[i] == resolution) {
+    for (let i = 0; i < allowedResolutions.length; i++) {
+        if (allowedResolutions[i] == resolution) {
             found = true;
             break;
         }       
