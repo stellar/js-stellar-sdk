@@ -981,24 +981,24 @@ describe("server.js tests", function () {
         }
       };
 
-    it("requests the correct endpoint", function (done) {
-      this.axiosMock.expects('get')
-        .withArgs(sinon.match('https://horizon-live.stellar.org:1337/paths?destination_account=GAEDTJ4PPEFVW5XV2S7LUXBEHNQMX5Q2GM562RJGOQG7GVCE5H3HIB4V&source_account=GARSFJNXJIHO6ULUBK3DBYKVSIZE7SC72S5DYBCHU7DKL22UXKVD7MXP&destination_amount=20.0&destination_asset_type=credit_alphanum4&destination_asset_code=EUR&destination_asset_issuer=GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN'))
-        .returns(Promise.resolve({data: pathsResponse}));
+      it("requests the correct endpoint", function (done) {
+        this.axiosMock.expects('get')
+          .withArgs(sinon.match('https://horizon-live.stellar.org:1337/paths?destination_account=GAEDTJ4PPEFVW5XV2S7LUXBEHNQMX5Q2GM562RJGOQG7GVCE5H3HIB4V&source_account=GARSFJNXJIHO6ULUBK3DBYKVSIZE7SC72S5DYBCHU7DKL22UXKVD7MXP&destination_amount=20.0&destination_asset_type=credit_alphanum4&destination_asset_code=EUR&destination_asset_issuer=GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN'))
+          .returns(Promise.resolve({data: pathsResponse}));
 
-      this.server.paths("GARSFJNXJIHO6ULUBK3DBYKVSIZE7SC72S5DYBCHU7DKL22UXKVD7MXP","GAEDTJ4PPEFVW5XV2S7LUXBEHNQMX5Q2GM562RJGOQG7GVCE5H3HIB4V", new StellarSdk.Asset('EUR', 'GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN'), '20.0')
-        .call()
-        .then(function (response) {
-          expect(response.records).to.be.deep.equal(pathsResponse._embedded.records);
-          expect(response.next).to.be.function;
-          expect(response.prev).to.be.function;
-          done();
+        this.server.paths("GARSFJNXJIHO6ULUBK3DBYKVSIZE7SC72S5DYBCHU7DKL22UXKVD7MXP","GAEDTJ4PPEFVW5XV2S7LUXBEHNQMX5Q2GM562RJGOQG7GVCE5H3HIB4V", new StellarSdk.Asset('EUR', 'GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN'), '20.0')
+          .call()
+          .then(function (response) {
+            expect(response.records).to.be.deep.equal(pathsResponse._embedded.records);
+            expect(response.next).to.be.function;
+            expect(response.prev).to.be.function;
+            done();
+          })
+        .catch(function (err) {
+          done(err);
         })
-      .catch(function (err) {
-        done(err);
-      })
+      });
     });
-  });
 
     describe("EffectCallBuilder", function() {
       let effectsResponse = {
@@ -1348,5 +1348,97 @@ describe("server.js tests", function () {
           })
       });
     });
+
+    describe("TradeAggregationCallBuilder", function () {
+      let tradeAggregationResponse = {
+        "_links": {
+          "self": {
+            "href": "https://horizon.stellar.org/trade_aggregations?base_asset_type=native\u0026counter_asset_type=credit_alphanum4\u0026counter_asset_code=BTC\u0026counter_asset_issuer=GATEMHCCKCY67ZUCKTROYN24ZYT5GK4EQZ65JJLDHKHRUZI3EUEKMTCH\u0026start_time=1512689100000\u0026end_time=1512775500000\u0026resolution=300000"
+          },
+          "next": {
+            "href": "https://horizon.stellar.org/trade_aggregations?base_asset_type=native\u0026counter_asset_code=BTC\u0026counter_asset_issuer=GATEMHCCKCY67ZUCKTROYN24ZYT5GK4EQZ65JJLDHKHRUZI3EUEKMTCH\u0026counter_asset_type=credit_alphanum4\u0026end_time=1512775500000\u0026resolution=300000\u0026start_time=1512765000000"
+          },
+          "prev": {
+            "href": ""
+          }
+        },
+        "_embedded": {
+          "records": [
+            {
+              "timestamp": 1512731100000,
+              "trade_count": 2,
+              "base_volume": "341.8032786",
+              "counter_volume": "0.0041700",
+              "avg": "0.0000122",
+              "high": "0.0000122",
+              "low": "0.0000122",
+              "open": "0.0000122",
+              "close": "0.0000122"
+            },
+            {
+              "timestamp": 1512732300000,
+              "trade_count": 1,
+              "base_volume": "233.6065573",
+              "counter_volume": "0.0028500",
+              "avg": "0.0000122",
+              "high": "0.0000122",
+              "low": "0.0000122",
+              "open": "0.0000122",
+              "close": "0.0000122"
+            },
+            {
+              "timestamp": 1512764700000,
+              "trade_count": 1,
+              "base_volume": "451.0000000",
+              "counter_volume": "0.0027962",
+              "avg": "0.0000062",
+              "high": "0.0000062",
+              "low": "0.0000062",
+              "open": "0.0000062",
+              "close": "0.0000062"
+            }
+          ]
+        }
+      };
+  
+      it("requests the correct endpoint native/credit", function (done) {
+        this.axiosMock.expects('get')
+          .withArgs(sinon.match('https://horizon-live.stellar.org:1337/trade_aggregations?base_asset_type=native&counter_asset_type=credit_alphanum4&counter_asset_code=BTC&counter_asset_issuer=GATEMHCCKCY67ZUCKTROYN24ZYT5GK4EQZ65JJLDHKHRUZI3EUEKMTCH&start_time=1512689100000&end_time=1512775500000&resolution=300000'))
+          .returns(Promise.resolve({ data: tradeAggregationResponse }));
+
+        this.server.tradeAggregation(StellarSdk.Asset.native(), new StellarSdk.Asset('BTC', "GATEMHCCKCY67ZUCKTROYN24ZYT5GK4EQZ65JJLDHKHRUZI3EUEKMTCH"), 1512689100000, 1512775500000, 300000)
+          .call()
+          .then(function (response) {
+            expect(response.records).to.be.deep.equal(tradeAggregationResponse._embedded.records);
+            expect(response.next).to.be.function;
+            expect(response.prev).to.be.function;
+            done();
+          })
+          .catch(function (err) {
+            done(err);
+          })
+      });
+
+      it("requests the correct endpoint credit/native", function (done) {
+        this.axiosMock.expects('get')
+          .withArgs(sinon.match('https://horizon-live.stellar.org:1337/trade_aggregations?base_asset_type=credit_alphanum4&base_asset_code=BTC&base_asset_issuer=GATEMHCCKCY67ZUCKTROYN24ZYT5GK4EQZ65JJLDHKHRUZI3EUEKMTCH&counter_asset_type=native&start_time=1512689100000&end_time=1512775500000&resolution=300000'))
+          .returns(Promise.resolve({ data: tradeAggregationResponse }));
+
+        this.server.tradeAggregation(new StellarSdk.Asset('BTC', "GATEMHCCKCY67ZUCKTROYN24ZYT5GK4EQZ65JJLDHKHRUZI3EUEKMTCH"), StellarSdk.Asset.native(), 1512689100000, 1512775500000, 300000)
+          .call()
+          .then(function (response) {
+            expect(response.records).to.be.deep.equal(tradeAggregationResponse._embedded.records);
+            expect(response.next).to.be.function;
+            expect(response.prev).to.be.function;
+            done();
+          })
+          .catch(function (err) {
+            done(err);
+          })
+      });
+
+    });    
+
+
   })
 });
