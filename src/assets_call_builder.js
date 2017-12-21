@@ -10,7 +10,6 @@ import {CallBuilder} from "./call_builder";
  */
 export class AssetsCallBuilder extends CallBuilder {
     constructor(serverUrl) {
-        //      "href": "http://localhost:8000/assets{?asset_code,asset_issuer,cursor,limit,order}",
         super(serverUrl);
         this.url.segment('assets');
     }
