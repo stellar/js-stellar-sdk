@@ -8,6 +8,7 @@ import {TransactionCallBuilder} from "./transaction_call_builder";
 import {OperationCallBuilder} from "./operation_call_builder";
 import {OfferCallBuilder} from "./offer_call_builder";
 import {OrderbookCallBuilder} from "./orderbook_call_builder";
+import {TradesCallBuilder} from "./trades_call_builder";
 import {PathCallBuilder} from "./path_call_builder";
 import {PaymentCallBuilder} from "./payment_call_builder";
 import {EffectCallBuilder} from "./effect_call_builder";
@@ -120,6 +121,14 @@ export class Server {
      */
     orderbook(selling, buying) {
         return new OrderbookCallBuilder(URI(this.serverURL), selling, buying);
+    }
+
+    /**
+     * Returns new {@link TradesCallBuilder} object configured by a current Horizon server configuration.
+     * @returns {TradesCallBuilder}
+     */
+    trades() {
+        return new TradesCallBuilder(URI(this.serverURL));
     }
 
     /**

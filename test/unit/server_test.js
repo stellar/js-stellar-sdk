@@ -670,21 +670,252 @@ describe("server.js tests", function () {
           })
       });
 
-      it("trades() requests the correct endpoint", function (done) {
-        this.axiosMock.expects('get')
-          .withArgs(sinon.match('https://horizon-live.stellar.org:1337/order_book/trades?selling_asset_type=native&buying_asset_type=credit_alphanum4&buying_asset_code=USD&buying_asset_issuer=GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG'))
-          .returns(Promise.resolve({data: orderBookResponse}));
+    });
 
-        this.server.orderbook(StellarSdk.Asset.native(), new StellarSdk.Asset('USD', "GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG"))
-          .trades()
-          .call()
-          .then(function (response) {
-            expect(response).to.be.deep.equal(orderBookResponse);
-            done();
-          })
-          .catch(function (err) {
-            done(err);
-          })
+    describe("TradesCallBuilder", function() {
+      it("trades() requests the correct endpoint (no filters)", function (done) {
+        let tradesResponse = {
+          _links: {
+            self: {
+              href: "https://horizon-live.stellar.org:1337/trades?order=asc&limit=200&cursor="
+            },
+            next: {
+              href: "https://horizon-live.stellar.org:1337/trades?order=asc&limit=200&cursor=64199539053039617-0"
+            },
+            prev: {
+              href: "https://horizon-live.stellar.org:1337/trades?order=desc&limit=200&cursor=64199539053039617-0"
+            }
+          },
+          _embedded: {
+            records: [
+              {
+                _links: {
+                  base: {
+                    href: "https://horizon-live.stellar.org:1337/accounts/GB7JKG66CJN3ACX5DX43FOZTTSOI7GZUP547I3BSXIJVUX3NRYUXHE6W"
+                  },
+                  counter: {
+                    href: "https://horizon-live.stellar.org:1337/accounts/GC6APVH2HCFB7QLSTG3U55IYSW7ZRNSCTOZZYZJCNHWX2FONCNJNULYN"
+                  },
+                  operation: {
+                    href: "https://horizon-live.stellar.org:1337/operations/64199539053039617"
+                  }
+                },
+                id: "64199539053039617-0",
+                paging_token: "64199539053039617-0",
+                ledger_close_time: "2017-12-07T16:45:19Z",
+                offer_id: "278232",
+                base_account: "GB7JKG66CJN3ACX5DX43FOZTTSOI7GZUP547I3BSXIJVUX3NRYUXHE6W",
+                base_amount: "1269.2134875",
+                base_asset_type: "native",
+                counter_account: "GC6APVH2HCFB7QLSTG3U55IYSW7ZRNSCTOZZYZJCNHWX2FONCNJNULYN",
+                counter_amount: "19637.5167985",
+                counter_asset_type: "credit_alphanum4",
+                counter_asset_code: "JPY",
+                counter_asset_issuer: "GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM",
+                base_is_seller: true
+              }
+            ]
+          }
+        };
+
+        this.axiosMock.expects('get')
+            .withArgs(sinon.match('https://horizon-live.stellar.org:1337/trades'))
+            .returns(Promise.resolve({data: tradesResponse}));
+
+        this.server.trades()
+            .call()
+            .then(function (response) {
+              expect(response.records).to.be.deep.equal(tradesResponse._embedded.records);
+              done();
+            })
+            .catch(function (err) {
+              done(err);
+            })
+      });
+
+      it("trades() requests the correct endpoint for assets", function (done) {
+        let tradesResponse = {
+          _links: {
+            self: {
+              href: "https://horizon-live.stellar.org:1337/trades?base_asset_type=native&counter_asset_type=credit_alphanum4&counter_asset_code=JPY&counter_asset_issuer=GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM&order=asc&limit=10&cursor="
+            },
+            next: {
+              href: "https://horizon-live.stellar.org:1337/trades?base_asset_type=native&counter_asset_type=credit_alphanum4&counter_asset_code=JPY&counter_asset_issuer=GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM&order=asc&limit=10&cursor=64199539053039617-0"
+            },
+            prev: {
+              href: "https://horizon-live.stellar.org:1337/trades?base_asset_type=native&counter_asset_type=credit_alphanum4&counter_asset_code=JPY&counter_asset_issuer=GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM&order=desc&limit=10&cursor=64199539053039617-0"
+            }
+          },
+          _embedded: {
+            records: [
+              {
+                _links: {
+                  base: {
+                    href: "https://horizon-live.stellar.org:1337/accounts/GB7JKG66CJN3ACX5DX43FOZTTSOI7GZUP547I3BSXIJVUX3NRYUXHE6W"
+                  },
+                  counter: {
+                    href: "https://horizon-live.stellar.org:1337/accounts/GC6APVH2HCFB7QLSTG3U55IYSW7ZRNSCTOZZYZJCNHWX2FONCNJNULYN"
+                  },
+                  operation: {
+                    href: "https://horizon-live.stellar.org:1337/operations/64199539053039617"
+                  }
+                },
+                id: "64199539053039617-0",
+                paging_token: "64199539053039617-0",
+                ledger_close_time: "2017-12-07T16:45:19Z",
+                offer_id: "278232",
+                base_account: "GB7JKG66CJN3ACX5DX43FOZTTSOI7GZUP547I3BSXIJVUX3NRYUXHE6W",
+                base_amount: "1269.2134875",
+                base_asset_type: "native",
+                counter_account: "GC6APVH2HCFB7QLSTG3U55IYSW7ZRNSCTOZZYZJCNHWX2FONCNJNULYN",
+                counter_amount: "19637.5167985",
+                counter_asset_type: "credit_alphanum4",
+                counter_asset_code: "JPY",
+                counter_asset_issuer: "GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM",
+                base_is_seller: true
+              }
+            ]
+          }
+        };
+
+        this.axiosMock.expects('get')
+            .withArgs(sinon.match('https://horizon-live.stellar.org:1337/trades?base_asset_type=native&counter_asset_type=credit_alphanum4&counter_asset_code=JPY&counter_asset_issuer=GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM'))
+            .returns(Promise.resolve({data: tradesResponse}));
+
+        this.server.trades()
+            .forAssetPair(StellarSdk.Asset.native(), new StellarSdk.Asset('JPY', "GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM"))
+            .call()
+            .then(function (response) {
+              expect(response.records).to.be.deep.equal(tradesResponse._embedded.records);
+              done();
+            })
+            .catch(function (err) {
+              done(err);
+            })
+      });
+
+      it("trades() requests the correct endpoint for offer", function (done) {
+        let tradesResponse = {
+          _links: {
+            self: {
+              href: "https://horizon-live.stellar.org:1337/trades?offer_id=278232&order=asc&limit=10&cursor="
+            },
+            next: {
+              href: "https://horizon-live.stellar.org:1337/trades?offer_id=278232&order=asc&limit=10&cursor=64199539053039617-0"
+            },
+            prev: {
+              href: "https://horizon-live.stellar.org:1337/trades?offer_id=278232&order=desc&limit=10&cursor=64199539053039617-0"
+            }
+          },
+          _embedded: {
+            records: [
+              {
+                _links: {
+                  base: {
+                    href: "https://horizon-live.stellar.org:1337/accounts/GB7JKG66CJN3ACX5DX43FOZTTSOI7GZUP547I3BSXIJVUX3NRYUXHE6W"
+                  },
+                  counter: {
+                    href: "https://horizon-live.stellar.org:1337/accounts/GC6APVH2HCFB7QLSTG3U55IYSW7ZRNSCTOZZYZJCNHWX2FONCNJNULYN"
+                  },
+                  operation: {
+                    href: "https://horizon-live.stellar.org:1337/operations/64199539053039617"
+                  }
+                },
+                id: "64199539053039617-0",
+                paging_token: "64199539053039617-0",
+                ledger_close_time: "2017-12-07T16:45:19Z",
+                offer_id: "278232",
+                base_account: "GB7JKG66CJN3ACX5DX43FOZTTSOI7GZUP547I3BSXIJVUX3NRYUXHE6W",
+                base_amount: "1269.2134875",
+                base_asset_type: "native",
+                counter_account: "GC6APVH2HCFB7QLSTG3U55IYSW7ZRNSCTOZZYZJCNHWX2FONCNJNULYN",
+                counter_amount: "19637.5167985",
+                counter_asset_type: "credit_alphanum4",
+                counter_asset_code: "JPY",
+                counter_asset_issuer: "GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM",
+                base_is_seller: true
+              }
+            ]
+          }
+        };
+
+        this.axiosMock.expects('get')
+            .withArgs(sinon.match('https://horizon-live.stellar.org:1337/trades?offer_id=278232'))
+            .returns(Promise.resolve({data: tradesResponse}));
+
+        this.server.trades()
+            .forOffer("278232")
+            .call()
+            .then(function (response) {
+              expect(response.records).to.be.deep.equal(tradesResponse._embedded.records);
+              done();
+            })
+            .catch(function (err) {
+              done(err);
+            })
+      });
+
+      it("trades() requests the correct endpoint for paging", function (done) {
+        let tradesResponse = {
+          _links: {
+            self: {
+              href: "https://horizon-live.stellar.org:1337/trades?order=asc&limit=1&cursor=64199539053039617-0"
+            },
+            next: {
+              href: "https://horizon-live.stellar.org:1337/trades?order=asc&limit=1&cursor=64199676491993090-0"
+            },
+            prev: {
+              href: "https://horizon-live.stellar.org:1337/trades?order=desc&limit=1&cursor=64199676491993090-0"
+            }
+          },
+          _embedded: {
+            records: [
+              {
+                _links: {
+                  base: {
+                    href: "https://horizon-live.stellar.org:1337/accounts/GBBHSWC3XSUFKEFDPQO346BCLM3EAJHICWRVSVIQOG4YBIH3A2VCJ6G2"
+                  },
+                  counter: {
+                    href: "https://horizon-live.stellar.org:1337/accounts/GDBXANSAUQ5WBFSA6LFQXR5PYVYAQ3T4KI4LHZ3YAAEFI3BS2Z3SFRVG"
+                  },
+                  operation: {
+                    href: "https://horizon-live.stellar.org:1337/operations/64199676491993090"
+                  }
+                },
+                id: "64199676491993090-0",
+                paging_token: "64199676491993090-0",
+                ledger_close_time: "2017-12-07T16:47:59Z",
+                offer_id: "278245",
+                base_account: "GBBHSWC3XSUFKEFDPQO346BCLM3EAJHICWRVSVIQOG4YBIH3A2VCJ6G2",
+                base_amount: "0.0000128",
+                base_asset_type: "credit_alphanum4",
+                base_asset_code: "BTC",
+                base_asset_issuer: "GBSTRH4QOTWNSVA6E4HFERETX4ZLSR3CIUBLK7AXYII277PFJC4BBYOG",
+                counter_account: "GDBXANSAUQ5WBFSA6LFQXR5PYVYAQ3T4KI4LHZ3YAAEFI3BS2Z3SFRVG",
+                counter_amount: "0.0005000",
+                counter_asset_type: "credit_alphanum4",
+                counter_asset_code: "ETH",
+                counter_asset_issuer: "GBSTRH4QOTWNSVA6E4HFERETX4ZLSR3CIUBLK7AXYII277PFJC4BBYOG",
+                base_is_seller: false
+              }
+            ]
+          }
+        };
+
+        this.axiosMock.expects('get')
+            .withArgs(sinon.match('https://horizon-live.stellar.org:1337/trades?order=asc&limit=1&cursor=64199539053039617-0'))
+            .returns(Promise.resolve({data: tradesResponse}));
+
+        this.server.trades()
+            .order('asc').limit('1').cursor('64199539053039617-0')
+            .call()
+            .then(function (response) {
+              expect(response.records).to.be.deep.equal(tradesResponse._embedded.records);
+              done();
+            })
+            .catch(function (err) {
+              done(err);
+            })
       });
     });
 
