@@ -19,7 +19,7 @@ export class AssetsCallBuilder extends CallBuilder {
      * @param {string} value For example: `USD`
      * @returns {AssetsCallBuilder}
      */
-    code(value){
+    forCode(value){
         this.url.addQuery("asset_code", value);
         return this;
     }
@@ -29,7 +29,7 @@ export class AssetsCallBuilder extends CallBuilder {
      * @param {string} value For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
      * @returns {AssetsCallBuilder}
      */
-    issuer(value){
+    forIssuer(value){
         this.url.addQuery("asset_issuer", value);
         return this;
     }

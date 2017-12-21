@@ -1533,7 +1533,7 @@ describe("server.js tests", function () {
           .returns(Promise.resolve({data: assetsCodeResponse}));
 
         this.server.assets()
-          .code("USD")
+          .forCode("USD")
           .limit("1")
           .call()
           .then(function (response) {
@@ -1585,7 +1585,7 @@ describe("server.js tests", function () {
           .returns(Promise.resolve({data: assetIssuerResponse}));
 
         this.server.assets()
-          .issuer("GCOGPF7IRVXUCJZAQWXVFQEE4HAOCTDGZI2QZSMKLM5BTTGRLY6GDOJN")
+          .forIssuer("GCOGPF7IRVXUCJZAQWXVFQEE4HAOCTDGZI2QZSMKLM5BTTGRLY6GDOJN")
           .limit("1")
           .call()
           .then(function (response) {
@@ -1637,8 +1637,8 @@ describe("server.js tests", function () {
           .returns(Promise.resolve({data: assetCodeIssuerResponse}));
 
         this.server.assets()
-          .issuer("GBW3EZBZKRERB4JUDWGQPIBGHKJ4XPOFG2VQ2WTFR4F7TYC5WS7F3XGR")
-          .code("USD")
+          .forIssuer("GBW3EZBZKRERB4JUDWGQPIBGHKJ4XPOFG2VQ2WTFR4F7TYC5WS7F3XGR")
+          .forCode("USD")
           .call()
           .then(function (response) {
             expect(response.records).to.be.equal(assetCodeIssuerResponse._embedded.records);
@@ -1656,8 +1656,8 @@ describe("server.js tests", function () {
           .returns(Promise.resolve({data: assetCodeIssuerResponse}));
 
         this.server.assets()
-          .code("USD")
-          .issuer("GBW3EZBZKRERB4JUDWGQPIBGHKJ4XPOFG2VQ2WTFR4F7TYC5WS7F3XGR")
+          .forCode("USD")
+          .forIssuer("GBW3EZBZKRERB4JUDWGQPIBGHKJ4XPOFG2VQ2WTFR4F7TYC5WS7F3XGR")
           .call()
           .then(function (response) {
             expect(response.records).to.be.equal(assetCodeIssuerResponse._embedded.records);
