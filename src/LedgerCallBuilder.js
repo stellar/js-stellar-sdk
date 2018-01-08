@@ -1,6 +1,6 @@
-import { CallBuilder } from './call_builder';
+import { CallBuilder } from './CallBuilder';
 
-export class LedgerCallBuilder extends CallBuilder {
+class LedgerCallBuilder extends CallBuilder {
   /**
      * Creates a new {@link LedgerCallBuilder} pointed to server defined by serverUrl.
      *
@@ -25,3 +25,5 @@ export class LedgerCallBuilder extends CallBuilder {
     return this;
   }
 }
+
+export { LedgerCallBuilder };

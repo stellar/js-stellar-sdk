@@ -1,4 +1,4 @@
-import { CallBuilder } from './call_builder';
+import { CallBuilder } from './CallBuilder';
 
 /**
  * Creates a new {@link TradesCallBuilder} pointed to server defined by serverUrl.
@@ -7,7 +7,7 @@ import { CallBuilder } from './call_builder';
  * @see [Trades](https://www.stellar.org/developers/horizon/reference/endpoints/trades.html)
  * @param {string} serverUrl serverUrl Horizon server URL.
  */
-export class TradesCallBuilder extends CallBuilder {
+class TradesCallBuilder extends CallBuilder {
   constructor(serverUrl) {
     super(serverUrl);
     this.url.segment('trades');
@@ -48,3 +48,4 @@ export class TradesCallBuilder extends CallBuilder {
   }
 }
 
+export { TradesCallBuilder };

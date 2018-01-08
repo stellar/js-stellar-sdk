@@ -1,10 +1,10 @@
-import { CallBuilder } from './call_builder';
+import { CallBuilder } from './CallBuilder';
 
 /**
  * @class EffectCallBuilder
  * @extends CallBuilder
  */
-export class EffectCallBuilder extends CallBuilder {
+class EffectCallBuilder extends CallBuilder {
   /*
      * Creates a new {@link EffectCallBuilder} pointed to server defined by serverUrl.
      *
@@ -68,3 +68,5 @@ export class EffectCallBuilder extends CallBuilder {
     return this;
   }
 }
+
+export { EffectCallBuilder };

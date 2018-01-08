@@ -12,7 +12,7 @@ import forIn from 'lodash/forIn';
  * @param {string} response Response from horizon account endpoint.
  * @returns {AccountResponse}
  */
-export class AccountResponse {
+class AccountResponse {
   constructor(response) {
     this._baseAccount = new BaseAccount(response.account_id, response.sequence);
     // Extract response fields
@@ -44,3 +44,6 @@ export class AccountResponse {
     this.sequence = this._baseAccount.sequenceNumber();
   }
 }
+
+export { AccountResponse };
+

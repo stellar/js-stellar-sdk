@@ -1,6 +1,6 @@
-import { CallBuilder } from './call_builder';
+import { CallBuilder } from './CallBuilder';
 
-export class TransactionCallBuilder extends CallBuilder {
+class TransactionCallBuilder extends CallBuilder {
   /**
      * Creates a new {@link TransactionCallBuilder} pointed to server defined by serverUrl.
      *
@@ -52,3 +52,5 @@ export class TransactionCallBuilder extends CallBuilder {
     return this;
   }
 }
+
+export { TransactionCallBuilder };

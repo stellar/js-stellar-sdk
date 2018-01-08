@@ -1,4 +1,4 @@
-import { CallBuilder } from './call_builder';
+import { CallBuilder } from './CallBuilder';
 
 /**
  * Creates a new {@link OrderbookCallBuilder} pointed to server defined by serverUrl.
@@ -9,7 +9,7 @@ import { CallBuilder } from './call_builder';
  * @param {Asset} selling Asset being sold
  * @param {Asset} buying Asset being bought
  */
-export class OrderbookCallBuilder extends CallBuilder {
+class OrderbookCallBuilder extends CallBuilder {
   constructor(serverUrl, selling, buying) {
     super(serverUrl);
     this.url.segment('order_book');
@@ -30,3 +30,4 @@ export class OrderbookCallBuilder extends CallBuilder {
   }
 }
 
+export { OrderbookCallBuilder };

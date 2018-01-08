@@ -2,12 +2,12 @@ import axios from 'axios';
 import URI from 'urijs';
 import Promise from 'bluebird';
 import { StrKey } from 'stellar-base';
-import { Config } from './config';
+import { Config } from './Config';
 import { BadResponseError } from './errors';
-import { StellarTomlResolver } from './stellar_toml_resolver';
+import { StellarTomlResolver } from './StellarTomlResolver';
 
 // FEDERATION_RESPONSE_MAX_SIZE is the maximum size of response from a federation server
-export const FEDERATION_RESPONSE_MAX_SIZE = 100 * 1024;
+const FEDERATION_RESPONSE_MAX_SIZE = 100 * 1024;
 
 /**
  * FederationServer handles a network connection to a
@@ -19,7 +19,7 @@ export const FEDERATION_RESPONSE_MAX_SIZE = 100 * 1024;
  * @param {object} [opts]
  * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments! You can also use {@link Config} class to set this globally.
  */
-export class FederationServer {
+class FederationServer {
   constructor(serverURL, domain, opts = {}) {
     // TODO `domain` regexp
     this.serverURL = URI(serverURL);
@@ -178,3 +178,5 @@ export class FederationServer {
       });
   }
 }
+
+export { FEDERATION_RESPONSE_MAX_SIZE, FederationServer };

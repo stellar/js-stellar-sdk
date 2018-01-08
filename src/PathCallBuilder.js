@@ -1,4 +1,4 @@
-import { CallBuilder } from './call_builder';
+import { CallBuilder } from './CallBuilder';
 
 /**
  * The Stellar Network allows payments to be made across assets through path payments. A path payment specifies a
@@ -23,7 +23,7 @@ import { CallBuilder } from './call_builder';
  * @param {Asset} destinationAsset The destination asset.
  * @param {string} destinationAmount The amount, denominated in the destination asset, that any returned path should be able to satisfy.
  */
-export class PathCallBuilder extends CallBuilder {
+class PathCallBuilder extends CallBuilder {
   constructor(serverUrl, source, destination, destinationAsset, destinationAmount) {
     super(serverUrl);
     this.url.segment('paths');
@@ -40,3 +40,5 @@ export class PathCallBuilder extends CallBuilder {
     }
   }
 }
+
+export { PathCallBuilder };

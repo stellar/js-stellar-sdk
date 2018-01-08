@@ -1,25 +1,25 @@
 import { BadResponseError } from './errors';
-import { AccountCallBuilder } from './account_call_builder';
-import { AccountResponse } from './account_response';
-import { Config } from './config';
-import { LedgerCallBuilder } from './ledger_call_builder';
-import { TransactionCallBuilder } from './transaction_call_builder';
-import { OperationCallBuilder } from './operation_call_builder';
-import { OfferCallBuilder } from './offer_call_builder';
-import { OrderbookCallBuilder } from './orderbook_call_builder';
-import { TradesCallBuilder } from './trades_call_builder';
-import { PathCallBuilder } from './path_call_builder';
-import { PaymentCallBuilder } from './payment_call_builder';
-import { EffectCallBuilder } from './effect_call_builder';
-import { FriendbotBuilder } from './friendbot_builder';
-import { AssetsCallBuilder } from './assets_call_builder';
-import { TradeAggregationCallBuilder } from './trade_aggregation_call_builder';
+import { AccountCallBuilder } from './AccountCallBuilder';
+import { AccountResponse } from './AccountResponse';
+import { Config } from './Config';
+import { LedgerCallBuilder } from './LedgerCallBuilder';
+import { TransactionCallBuilder } from './TransactionCallBuilder';
+import { OperationCallBuilder } from './OperationCallBuilder';
+import { OfferCallBuilder } from './OfferCallBuilder';
+import { OrderbookCallBuilder } from './OrderbookCallBuilder';
+import { TradesCallBuilder } from './TradesCallBuilder';
+import { PathCallBuilder } from './PathCallBuilder';
+import { PaymentCallBuilder } from './PaymentCallBuilder';
+import { EffectCallBuilder } from './EffectCallBuilder';
+import { FriendbotBuilder } from './FriendbotBuilder';
+import { AssetsCallBuilder } from './AssetsCallBuilder';
+import { TradeAggregationCallBuilder } from './TradeAggregationCallBuilder';
 
 const axios = require('axios');
 const toBluebird = require('bluebird').resolve;
 const URI = require('urijs');
 
-export const SUBMIT_TRANSACTION_TIMEOUT = 60 * 1000;
+const SUBMIT_TRANSACTION_TIMEOUT = 60 * 1000;
 
 /**
  * Server handles the network connection to a [Horizon](https://www.stellar.org/developers/horizon/learn/index.html)
@@ -29,7 +29,7 @@ export const SUBMIT_TRANSACTION_TIMEOUT = 60 * 1000;
  * @param {object} [opts]
  * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments! You can also use {@link Config} class to set this globally.
  */
-export class Server {
+class Server {
   constructor(serverURL, opts = {}) {
     this.serverURL = URI(serverURL);
 
@@ -218,3 +218,5 @@ export class Server {
     return new TradeAggregationCallBuilder(URI(this.serverURL), base, counter, startTime, endTime, resolution);
   }
 }
+
+export { SUBMIT_TRANSACTION_TIMEOUT, Server };

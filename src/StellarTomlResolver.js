@@ -1,15 +1,15 @@
 import axios from 'axios';
 import Promise from 'bluebird';
 import toml from 'toml';
-import { Config } from './config';
+import { Config } from './Config';
 
 // STELLAR_TOML_MAX_SIZE is the maximum size of stellar.toml file
-export const STELLAR_TOML_MAX_SIZE = 100 * 1024;
+const STELLAR_TOML_MAX_SIZE = 100 * 1024;
 
 /**
  * StellarTomlResolver allows resolving `stellar.toml` files.
  */
-export class StellarTomlResolver {
+class StellarTomlResolver {
   /**
    * Returns a parsed `stellar.toml` file for a given domain.
    * Returns a `Promise` that resolves to the parsed stellar.toml object. If `stellar.toml` file does not exist for a given domain or is invalid Promise will reject.
@@ -56,3 +56,5 @@ export class StellarTomlResolver {
       });
   }
 }
+
+export { STELLAR_TOML_MAX_SIZE, StellarTomlResolver };

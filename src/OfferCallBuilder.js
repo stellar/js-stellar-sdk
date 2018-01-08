@@ -1,4 +1,4 @@
-import { CallBuilder } from './call_builder';
+import { CallBuilder } from './CallBuilder';
 import { BadRequestError } from './errors';
 
 /**
@@ -10,7 +10,7 @@ import { BadRequestError } from './errors';
  * @param {string} resource Resource to query offers
  * @param {...string} resourceParams Parameters for selected resource
  */
-export class OfferCallBuilder extends CallBuilder {
+class OfferCallBuilder extends CallBuilder {
   constructor(serverUrl, resource, ...resourceParams) {
     super(serverUrl);
     if (resource === 'accounts') {
@@ -20,3 +20,5 @@ export class OfferCallBuilder extends CallBuilder {
     }
   }
 }
+
+export { OfferCallBuilder };

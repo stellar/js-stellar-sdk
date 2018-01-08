@@ -1,4 +1,4 @@
-import { CallBuilder } from './call_builder';
+import { CallBuilder } from './CallBuilder';
 import { BadRequestError } from './errors';
 
 const allowedResolutions = [300000, 900000, 3600000, 86400000, 604800000];
@@ -14,7 +14,7 @@ const allowedResolutions = [300000, 900000, 3600000, 86400000, 604800000];
  * @param {long} resolution segment duration as millis since epoch. *Supported values are 5 minutes (300000), 15 minutes (900000), 1 hour (3600000), 1 day (86400000) and 1 week (604800000).
  * @returns {OrderbookCallBuilder}
  */
-export class TradeAggregationCallBuilder extends CallBuilder {
+class TradeAggregationCallBuilder extends CallBuilder {
   constructor(serverUrl, base, counter, startTime, endTime, resolution) {
     super(serverUrl);
 
@@ -62,3 +62,5 @@ export class TradeAggregationCallBuilder extends CallBuilder {
     return found;
   }
 }
+
+export { TradeAggregationCallBuilder };

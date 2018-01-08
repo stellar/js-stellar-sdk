@@ -15,7 +15,7 @@ const toBluebird = require('bluebird').resolve;
  * @param {string} serverUrl
  * @class CallBuilder
  */
-export class CallBuilder {
+class CallBuilder {
   constructor(serverUrl) {
     this.url = serverUrl;
     this.filter = [];
@@ -241,3 +241,5 @@ export class CallBuilder {
     return this;
   }
 }
+
+export { CallBuilder };

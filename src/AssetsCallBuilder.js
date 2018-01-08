@@ -1,4 +1,4 @@
-import { CallBuilder } from './call_builder';
+import { CallBuilder } from './CallBuilder';
 
 /**
  * Creates a new {@link AssetsCallBuilder} pointed to server defined by serverUrl.
@@ -8,7 +8,7 @@ import { CallBuilder } from './call_builder';
  * @extends CallBuilder
  * @param {string} serverUrl Horizon server URL.
  */
-export class AssetsCallBuilder extends CallBuilder {
+class AssetsCallBuilder extends CallBuilder {
   constructor(serverUrl) {
     super(serverUrl);
     this.url.segment('assets');
@@ -34,4 +34,6 @@ export class AssetsCallBuilder extends CallBuilder {
     return this;
   }
 }
+
+export { AssetsCallBuilder };
 
