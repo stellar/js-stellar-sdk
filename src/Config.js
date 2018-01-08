@@ -1,7 +1,7 @@
 import clone from 'lodash/clone';
 
-let defaultConfig = {
-  allowHttp: false
+const defaultConfig = {
+  allowHttp: false,
 };
 
 let config = clone(defaultConfig);
@@ -49,4 +49,4 @@ class Config {
   }
 }
 
-export {Config};
+export { Config };

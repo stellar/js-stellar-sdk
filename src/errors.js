@@ -1,21 +1,4 @@
-Error.subclass = function(errorName) {
-  var newError = function(message, data) {
-    this.name    = errorName;
-    this.message = (message || "");
-    this.data = data;
-  };
-
-  newError.subclass = this.subclass;
-  inherits(newError, this);
-
-  return newError;
-};
-
-export var NetworkError = Error.subclass("NetworkError");
-export var NotFoundError = NetworkError.subclass("NotFoundError");
-export var BadRequestError = Error.subclass("BadRequestError");
-export var BadResponseError = Error.subclass("BadResponseError");
-
+/* eslint-disable */
 /**
  * From: https://github.com/joyent/node/blob/master/lib/util.js
  * Inherit the prototype methods from one constructor into another.
@@ -38,7 +21,28 @@ function inherits(ctor, superCtor) {
       value: ctor,
       enumerable: false,
       writable: true,
-      configurable: true
-    }
+      configurable: true,
+    },
   });
 }
+/* eslint-enable */
+
+Error.subclass = function errorSubclassFiunction(errorName) {
+  const newError = function newErrorFunction(message, data) {
+    this.name = errorName;
+    this.message = (message || '');
+    this.data = data;
+  };
+
+  newError.subclass = this.subclass;
+  inherits(newError, this);
+
+  return newError;
+};
+
+const NetworkError = Error.subclass('NetworkError');
+const NotFoundError = NetworkError.subclass('NotFoundError');
+const BadRequestError = Error.subclass('BadRequestError');
+const BadResponseError = Error.subclass('BadResponseError');
+
+export { NetworkError, NotFoundError, BadRequestError, BadResponseError };

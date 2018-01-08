@@ -1,7 +1,7 @@
-import {CallBuilder} from "./call_builder";
+import { CallBuilder } from './CallBuilder';
 
-export class AccountCallBuilder extends CallBuilder {
-    /**
+class AccountCallBuilder extends CallBuilder {
+  /**
      * Creates a new {@link AccountCallBuilder} pointed to server defined by serverUrl.
      *
      * Do not create this object directly, use {@link Server#accounts}.
@@ -10,12 +10,12 @@ export class AccountCallBuilder extends CallBuilder {
      * @extends CallBuilder
      * @param {string} serverUrl Horizon server URL.
      */
-    constructor(serverUrl) {
-        super(serverUrl);
-        this.url.segment('accounts');
-    }
+  constructor(serverUrl) {
+    super(serverUrl);
+    this.url.segment('accounts');
+  }
 
-    /**
+  /**
      * Returns information and links relating to a single account.
      * The balances section in the returned JSON will also list all the trust lines this account has set up.
      *
@@ -23,8 +23,10 @@ export class AccountCallBuilder extends CallBuilder {
      * @param {string} id For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
      * @returns {AccountCallBuilder}
      */
-    accountId(id) {
-      this.filter.push(['accounts', id]);
-      return this;
-    }
+  accountId(id) {
+    this.filter.push(['accounts', id]);
+    return this;
+  }
 }
+
+export { AccountCallBuilder };

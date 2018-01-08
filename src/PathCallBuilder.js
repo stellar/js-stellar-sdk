@@ -1,4 +1,4 @@
-import {CallBuilder} from './call_builder';
+import { CallBuilder } from './CallBuilder';
 
 /**
  * The Stellar Network allows payments to be made across assets through path payments. A path payment specifies a
@@ -23,20 +23,22 @@ import {CallBuilder} from './call_builder';
  * @param {Asset} destinationAsset The destination asset.
  * @param {string} destinationAmount The amount, denominated in the destination asset, that any returned path should be able to satisfy.
  */
-export class PathCallBuilder extends CallBuilder {
-    constructor(serverUrl, source, destination, destinationAsset, destinationAmount) {
-        super(serverUrl);
-        this.url.segment('paths');
-        this.url.addQuery('destination_account', destination);
-        this.url.addQuery('source_account', source);
-        this.url.addQuery('destination_amount', destinationAmount);
+class PathCallBuilder extends CallBuilder {
+  constructor(serverUrl, source, destination, destinationAsset, destinationAmount) {
+    super(serverUrl);
+    this.url.segment('paths');
+    this.url.addQuery('destination_account', destination);
+    this.url.addQuery('source_account', source);
+    this.url.addQuery('destination_amount', destinationAmount);
 
-        if (!destinationAsset.isNative()) {
-            this.url.addQuery('destination_asset_type', destinationAsset.getAssetType());
-            this.url.addQuery('destination_asset_code', destinationAsset.getCode());
-            this.url.addQuery('destination_asset_issuer', destinationAsset.getIssuer());
-        } else {
-            this.url.addQuery('destination_asset_type', 'native');
-        }
+    if (!destinationAsset.isNative()) {
+      this.url.addQuery('destination_asset_type', destinationAsset.getAssetType());
+      this.url.addQuery('destination_asset_code', destinationAsset.getCode());
+      this.url.addQuery('destination_asset_issuer', destinationAsset.getIssuer());
+    } else {
+      this.url.addQuery('destination_asset_type', 'native');
     }
+  }
 }
+
+export { PathCallBuilder };

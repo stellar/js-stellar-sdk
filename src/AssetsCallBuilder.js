@@ -1,4 +1,4 @@
-import {CallBuilder} from "./call_builder";
+import { CallBuilder } from './CallBuilder';
 
 /**
  * Creates a new {@link AssetsCallBuilder} pointed to server defined by serverUrl.
@@ -8,30 +8,32 @@ import {CallBuilder} from "./call_builder";
  * @extends CallBuilder
  * @param {string} serverUrl Horizon server URL.
  */
-export class AssetsCallBuilder extends CallBuilder {
-    constructor(serverUrl) {
-        super(serverUrl);
-        this.url.segment('assets');
-    }
+class AssetsCallBuilder extends CallBuilder {
+  constructor(serverUrl) {
+    super(serverUrl);
+    this.url.segment('assets');
+  }
 
-    /**
+  /**
      * This endpoint filters all assets by the asset code.
      * @param {string} value For example: `USD`
      * @returns {AssetsCallBuilder}
      */
-    forCode(value){
-        this.url.addQuery("asset_code", value);
-        return this;
-    }
+  forCode(value) {
+    this.url.addQuery('asset_code', value);
+    return this;
+  }
 
-    /**
+  /**
      * This endpoint filters all assets by the asset issuer.
      * @param {string} value For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
      * @returns {AssetsCallBuilder}
      */
-    forIssuer(value){
-        this.url.addQuery("asset_issuer", value);
-        return this;
-    }
+  forIssuer(value) {
+    this.url.addQuery('asset_issuer', value);
+    return this;
+  }
 }
+
+export { AssetsCallBuilder };
 

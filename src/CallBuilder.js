@@ -1,12 +1,12 @@
-import {NotFoundError, NetworkError, BadRequestError} from "./errors";
 import forEach from 'lodash/forEach';
+import { NotFoundError, NetworkError, BadRequestError } from './errors';
 
-let URI = require("urijs");
-let URITemplate = require("urijs/src/URITemplate");
+const URI = require('urijs');
+const URITemplate = require('urijs/src/URITemplate');
 
-let axios = require("axios");
-var EventSource = (typeof window === 'undefined') ? require('eventsource') : window.EventSource;
-let toBluebird = require("bluebird").resolve;
+const axios = require('axios');
+const EventSource = (typeof window === 'undefined') ? require('eventsource') : window.EventSource;
+const toBluebird = require('bluebird').resolve;
 
 /**
  * Creates a new {@link CallBuilder} pointed to server defined by serverUrl.
@@ -15,7 +15,7 @@ let toBluebird = require("bluebird").resolve;
  * @param {string} serverUrl
  * @class CallBuilder
  */
-export class CallBuilder {
+class CallBuilder {
   constructor(serverUrl) {
     this.url = serverUrl;
     this.filter = [];
@@ -27,14 +27,14 @@ export class CallBuilder {
    */
   checkFilter() {
     if (this.filter.length >= 2) {
-      throw new BadRequestError("Too many filters specified", this.filter);
+      throw new BadRequestError('Too many filters specified', this.filter);
     }
 
     if (this.filter.length === 1) {
-      //append filters to original segments
-      let newSegment = this.originalSegments.concat(this.filter[0]);
+      // append filters to original segments
+      const newSegment = this.originalSegments.concat(this.filter[0]);
       this.url.segment(newSegment);
-    }        
+    }
   }
 
   /**
@@ -69,14 +69,14 @@ export class CallBuilder {
     // property is not reliable.
     let timeout;
 
-    var createTimeout = () => {
+    const createTimeout = () => {
       timeout = setTimeout(() => {
         es.close();
-        es = createEventSource();
-      }, 15*1000);
+        es = createEventSource(); // eslint-disable-line no-use-before-define
+      }, 15 * 1000);
     };
 
-    var createEventSource = () => {
+    const createEventSource = () => {
       try {
         es = new EventSource(this.url.toString());
       } catch (err) {
@@ -89,17 +89,17 @@ export class CallBuilder {
 
       createTimeout();
 
-      es.onmessage = message => {
-        var result = message.data ? this._parseRecord(JSON.parse(message.data)) : message;
+      es.onmessage = (message) => {
+        const result = message.data ? this._parseRecord(JSON.parse(message.data)) : message;
         if (result.paging_token) {
-          this.url.setQuery("cursor", result.paging_token);
+          this.url.setQuery('cursor', result.paging_token);
         }
         clearTimeout(timeout);
         createTimeout();
         options.onmessage(result);
       };
 
-      es.onerror = error => {
+      es.onerror = (error) => {
         if (options.onerror) {
           options.onerror(error);
         }
@@ -119,11 +119,11 @@ export class CallBuilder {
    * @private
    */
   _requestFnForLink(link) {
-    return opts => {
+    return (opts) => {
       let uri;
 
       if (link.templated) {
-        let template = URITemplate(link.href);
+        const template = URITemplate(link.href);
         uri = URI(template.expand(opts || {}));
       } else {
         uri = URI(link.href);
@@ -131,27 +131,29 @@ export class CallBuilder {
 
       return this._sendNormalRequest(uri).then(r => this._parseRecord(r));
     };
-  } 
+  }
 
   /**
    * Convert each link into a function on the response object.
    * @private
    */
-  _parseRecord(json) {
+  _parseRecord(jsonParam) {
+    const json = jsonParam;
     if (!json._links) {
       return json;
     }
     forEach(json._links, (n, key) => {
       // If the key with the link name already exists, create a copy
-      if (typeof json[key] != 'undefined') {
+      if (typeof json[key] !== 'undefined') {
         json[`${key}_attr`] = json[key];
       }
       json[key] = this._requestFnForLink(n);
     });
     return json;
   }
-  
-  _sendNormalRequest(url) {
+
+  _sendNormalRequest(urlParam) {
+    let url = urlParam;
     if (url.authority() === '') {
       url = url.authority(this.url.authority());
     }
@@ -162,7 +164,7 @@ export class CallBuilder {
 
     // Temp fix for: https://github.com/stellar/js-stellar-sdk/issues/15
     url.addQuery('c', Math.random());
-    var promise = axios.get(url.toString())
+    const promise = axios.get(url.toString())
       .then(response => response.data)
       .catch(this._handleNetworkError);
     return toBluebird(promise);
@@ -174,28 +176,24 @@ export class CallBuilder {
   _parseResponse(json) {
     if (json._embedded && json._embedded.records) {
       return this._toCollectionPage(json);
-    } else {
-      return this._parseRecord(json);
     }
+    return this._parseRecord(json);
   }
 
   /**
    * @private
    */
-  _toCollectionPage(json) {
-    for (var i = 0; i < json._embedded.records.length; i++) {
+  _toCollectionPage(jsonParam) {
+    const json = jsonParam;
+    for (let i = 0; i < json._embedded.records.length; i++) {
       json._embedded.records[i] = this._parseRecord(json._embedded.records[i]);
     }
     return {
       records: json._embedded.records,
-      next: () => {
-        return this._sendNormalRequest(URI(json._links.next.href))
-          .then(r => this._toCollectionPage(r));
-      },
-      prev: () => {
-        return this._sendNormalRequest(URI(json._links.prev.href))
-          .then(r => this._toCollectionPage(r));
-      }
+      next: () => this._sendNormalRequest(URI(json._links.next.href))
+        .then(r => this._toCollectionPage(r)),
+      prev: () => this._sendNormalRequest(URI(json._links.prev.href))
+        .then(r => this._toCollectionPage(r)),
     };
   }
 
@@ -205,13 +203,12 @@ export class CallBuilder {
   _handleNetworkError(response) {
     if (response instanceof Error) {
       return Promise.reject(response);
-    } else {
-      switch (response.status) {
-        case 404:
-          return Promise.reject(new NotFoundError(response.data, response));
-        default:
-          return Promise.reject(new NetworkError(response.status, response));
-      }
+    }
+    switch (response.status) {
+      case 404:
+        return Promise.reject(new NotFoundError(response.data, response));
+      default:
+        return Promise.reject(new NetworkError(response.status, response));
     }
   }
 
@@ -221,7 +218,7 @@ export class CallBuilder {
    * @param {string} cursor A cursor is a value that points to a specific location in a collection of resources.
    */
   cursor(cursor) {
-    this.url.addQuery("cursor", cursor);
+    this.url.addQuery('cursor', cursor);
     return this;
   }
 
@@ -231,7 +228,7 @@ export class CallBuilder {
    * @param {number} number Number of records the server should return.
    */
   limit(number) {
-    this.url.addQuery("limit", number);
+    this.url.addQuery('limit', number);
     return this;
   }
 
@@ -240,7 +237,9 @@ export class CallBuilder {
    * @param {"asc"|"desc"} direction
    */
   order(direction) {
-    this.url.addQuery("order", direction);
+    this.url.addQuery('order', direction);
     return this;
   }
 }
+
+export { CallBuilder };

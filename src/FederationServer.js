@@ -1,15 +1,13 @@
 import axios from 'axios';
 import URI from 'urijs';
 import Promise from 'bluebird';
-import isString from "lodash/isString";
-import pick from "lodash/pick";
-import {Config} from "./config";
-import {Account, StrKey} from 'stellar-base';
-import {BadResponseError} from './errors';
-import {StellarTomlResolver} from "./stellar_toml_resolver";
+import { StrKey } from 'stellar-base';
+import { Config } from './Config';
+import { BadResponseError } from './errors';
+import { StellarTomlResolver } from './StellarTomlResolver';
 
 // FEDERATION_RESPONSE_MAX_SIZE is the maximum size of response from a federation server
-export const FEDERATION_RESPONSE_MAX_SIZE = 100 * 1024;
+const FEDERATION_RESPONSE_MAX_SIZE = 100 * 1024;
 
 /**
  * FederationServer handles a network connection to a
@@ -21,7 +19,7 @@ export const FEDERATION_RESPONSE_MAX_SIZE = 100 * 1024;
  * @param {object} [opts]
  * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments! You can also use {@link Config} class to set this globally.
  */
-export class FederationServer {
+class FederationServer {
   constructor(serverURL, domain, opts = {}) {
     // TODO `domain` regexp
     this.serverURL = URI(serverURL);
@@ -29,10 +27,10 @@ export class FederationServer {
 
     let allowHttp = Config.isAllowHttp();
     if (typeof opts.allowHttp !== 'undefined') {
-        allowHttp = opts.allowHttp;
+      allowHttp = opts.allowHttp;
     }
 
-    if (this.serverURL.protocol() != 'https' && !allowHttp) {
+    if (this.serverURL.protocol() !== 'https' && !allowHttp) {
       throw new Error('Cannot connect to insecure federation server');
     }
   }
@@ -78,19 +76,17 @@ export class FederationServer {
     if (value.indexOf('*') < 0) {
       if (!StrKey.isValidEd25519PublicKey(value)) {
         return Promise.reject(new Error('Invalid Account ID'));
-      } else {
-        return Promise.resolve({account_id: value});
       }
-    } else {
-      let addressParts = value.split('*');
-      let [,domain] = addressParts;
-
-      if (addressParts.length != 2 || !domain) {
-        return Promise.reject(new Error('Invalid Stellar address'));
-      }
-      return FederationServer.createForDomain(domain, opts)
-        .then(federationServer => federationServer.resolveAddress(value));
+      return Promise.resolve({ account_id: value });
     }
+    const addressParts = value.split('*');
+    const [, domain] = addressParts;
+
+    if (addressParts.length !== 2 || !domain) {
+      return Promise.reject(new Error('Invalid Stellar address'));
+    }
+    return FederationServer.createForDomain(domain, opts)
+      .then(federationServer => federationServer.resolveAddress(value));
   }
 
   /**
@@ -113,7 +109,7 @@ export class FederationServer {
    */
   static createForDomain(domain, opts = {}) {
     return StellarTomlResolver.resolve(domain)
-      .then(tomlObject => {
+      .then((tomlObject) => {
         if (!tomlObject.FEDERATION_SERVER) {
           return Promise.reject(new Error('stellar.toml does not contain FEDERATION_SERVER field'));
         }
@@ -128,13 +124,14 @@ export class FederationServer {
    * @returns {Promise}
    */
   resolveAddress(address) {
+    let q = address;
     if (address.indexOf('*') < 0) {
       if (!this.domain) {
         return Promise.reject(new Error('Unknown domain. Make sure `address` contains a domain (ex. `bob*stellar.org`) or pass `domain` parameter when instantiating the server object.'));
       }
-      address = `${address}*${this.domain}`;
+      q = `${address}*${this.domain}`;
     }
-    let url = this.serverURL.query({type: 'name', q: address});
+    const url = this.serverURL.query({ type: 'name', q });
     return this._sendRequest(url);
   }
 
@@ -145,7 +142,7 @@ export class FederationServer {
    * @returns {Promise}
    */
   resolveAccountId(accountId) {
-    let url = this.serverURL.query({type: 'id', q: accountId});
+    const url = this.serverURL.query({ type: 'id', q: accountId });
     return this._sendRequest(url);
   }
 
@@ -156,19 +153,19 @@ export class FederationServer {
    * @returns {Promise}
    */
   resolveTransactionId(transactionId) {
-    let url = this.serverURL.query({type: 'txid', q: transactionId});
+    const url = this.serverURL.query({ type: 'txid', q: transactionId });
     return this._sendRequest(url);
   }
 
   _sendRequest(url) {
-    return axios.get(url.toString(), {maxContentLength: FEDERATION_RESPONSE_MAX_SIZE})
-      .then(response => {
-        if (typeof response.data.memo != "undefined" && typeof response.data.memo != 'string') {
-          throw new Error("memo value should be of type string");
+    return axios.get(url.toString(), { maxContentLength: FEDERATION_RESPONSE_MAX_SIZE })
+      .then((response) => {
+        if (typeof response.data.memo !== 'undefined' && typeof response.data.memo !== 'string') {
+          throw new Error('memo value should be of type string');
         }
         return response.data;
       })
-      .catch(response => {
+      .catch((response) => {
         if (response instanceof Error) {
           if (response.message.match(/^maxContentLength size/)) {
             throw new Error(`federation response exceeds allowed size of ${FEDERATION_RESPONSE_MAX_SIZE}`);
@@ -181,3 +178,5 @@ export class FederationServer {
       });
   }
 }
+
+export { FEDERATION_RESPONSE_MAX_SIZE, FederationServer };
