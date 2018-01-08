@@ -51,11 +51,9 @@ export class Server {
      */
   submitTransaction(transaction) {
     const tx = encodeURIComponent(transaction.toEnvelope().toXDR().toString('base64'));
-    const promise = axios.post(
-      URI(this.serverURL).segment('transactions').toString(),
-      `tx=${tx}`,
-      { timeout: SUBMIT_TRANSACTION_TIMEOUT },
-    )
+    const uri = URI(this.serverURL).segment('transactions').toString();
+    const promise = axios
+      .post(uri, `tx=${tx}`, { timeout: SUBMIT_TRANSACTION_TIMEOUT })
       .then(response => response.data)
       .catch((response) => {
         if (response instanceof Error) {

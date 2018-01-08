@@ -36,8 +36,8 @@ export class TradeAggregationCallBuilder extends CallBuilder {
     if ((typeof startTime === 'undefined') || (typeof endTime === 'undefined')) {
       throw new BadRequestError('Invalid time bounds', [startTime, endTime]);
     } else {
-      this.url.addQuery('startTime', startTime);
-      this.url.addQuery('endTime', endTime);
+      this.url.addQuery('start_time', startTime);
+      this.url.addQuery('end_time', endTime);
     }
     if (!this.isValidResolution(resolution)) {
       throw new BadRequestError('Invalid resolution', resolution);
