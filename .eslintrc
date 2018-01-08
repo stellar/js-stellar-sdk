@@ -1,0 +1,26 @@
+{
+  "extends": [
+    "airbnb/base"
+  ],
+  "rules": {
+    "import/named": 2,
+    "import/no-unresolved": 2,
+    "no-extra-boolean-cast": 2,
+    "no-console": 1,
+    "max-len": 0,
+    "consistent-return": 0,
+    "no-mixed-operators": 0,
+    "class-methods-use-this": 0,
+    "import/prefer-default-export": 0,
+    "no-underscore-dangle": 0,
+    "no-plusplus": 0
+  },
+  "env": {
+    "browser": true,
+    "node": true
+  },
+  "globals": {
+    "__DEV__": true,
+    "StellarSdk": true
+  }
+}
