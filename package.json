@@ -4,6 +4,7 @@
   "description": "stellar-sdk is a library for working with the Stellar Horizon server.",
   "main": "lib/index.js",
   "scripts": {
+    "lint": "eslint .",
     "test": "babel-node ./node_modules/.bin/gulp test",
     "docs": "jsdoc ./src/ -d docs/ -r ./docs/readme.md",
     "preversion": "gulp test",
@@ -35,6 +36,9 @@
     "chai": "^2.2.0",
     "chai-as-promised": "^5.2.0",
     "coveralls": "^2.11.4",
+    "eslint": "^4.15.0",
+    "eslint-config-airbnb": "^16.1.0",
+    "eslint-plugin-import": "^2.8.0",
     "express": "^4.9.8",
     "ghooks": "^0.3.0",
     "gulp": "^3.8.11",
@@ -76,7 +80,6 @@
     "webpack": "^1.13.2"
   },
   "dependencies": {
-    "urijs": "1.18.4",
     "axios": "^0.12.0",
     "bluebird": "^3.1.5",
     "es6-promise": "^3.0.2",
@@ -84,6 +87,7 @@
     "eventsource": "^0.2.1",
     "lodash": "^4.0.1",
     "stellar-base": "^0.7.6",
-    "toml": "^2.3.0"
+    "toml": "^2.3.0",
+    "urijs": "1.18.4"
   }
 }
