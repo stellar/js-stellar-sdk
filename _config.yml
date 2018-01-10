@@ -1,1 +1,2 @@
 include: node_modules_stellar-base_*.js.html
+theme: jekyll-theme-cayman
