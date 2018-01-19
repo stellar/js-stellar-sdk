@@ -73,7 +73,7 @@ export class CallBuilder {
       timeout = setTimeout(() => {
         es.close();
         es = createEventSource();
-      }, 15*1000);
+      }, options.every || 15*1000);
     };
 
     var createEventSource = () => {
