@@ -56,6 +56,7 @@ export class CallBuilder {
    * @param {object} [options] EventSource options.
    * @param {function} [options.onmessage] Callback function to handle incoming messages.
    * @param {function} [options.onerror] Callback function to handle errors.
+   * @param {number} [options.reconnectTimeout] Custom stream connection timeout in ms, default is 15 seconds.
    * @returns {function} Close function. Run to close the connection and stop listening for new events.
    */
   stream(options) {
@@ -73,7 +74,7 @@ export class CallBuilder {
       timeout = setTimeout(() => {
         es.close();
         es = createEventSource();
-      }, options.every || 15*1000);
+      }, options.reconnectTimeout || 15*1000);
     };
 
     var createEventSource = () => {
