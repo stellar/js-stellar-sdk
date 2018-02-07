@@ -28,7 +28,7 @@ Using npm to include js-stellar-sdk in your own project:
 npm install --save stellar-sdk
 ```
 
-For browsers, [use Bower to install js-stellar-sdk](#to-use-in-the-browser). It exports a
+For browsers, [use Bower to install js-stellar-sdk](#to-self-host-for-use-in-the-browser). It exports a
 variable `StellarSdk`. The example below assumes you have `stellar-sdk.js`
 relative to your html file.
 
