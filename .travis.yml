@@ -25,7 +25,6 @@ script:
       echo "Pull request - skip Sauce Labs testing..."
     fi
   elif [ "${INTEGRATION}" = "true" ]; then
-    docker run -p 127.0.0.1:8000:8000 -d --name=stellar stellar/quickstart:latest --testnet
     # Ugly but it's the only way to make istanbul generate coverage report
     babel-node ./node_modules/gulp/bin/gulp.js test:integration
   else

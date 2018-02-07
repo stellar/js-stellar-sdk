@@ -107,6 +107,7 @@ describe("integration tests", function () {
             expect(operation.type).to.equal('create_account');
             expect(operation.funder).to.equal(master.publicKey());
             expect(operation.account).to.equal(randomAccount.publicKey());
+            eventStreamClose();
             done();
           }
         });
