@@ -222,7 +222,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
       }).listen(4444, () => {
         new StellarSdk.FederationServer('http://localhost:4444/federation', 'stellar.org', {allowHttp: true})
           .resolveAddress('bob*stellar.org')
-          .should.be.rejectedWith(/maxContentLength size of [0-9]+ exceeded/)
+          .should.be.rejectedWith(/federation response exceeds allowed size of [0-9]+/)
           .notify(done)
           .then(() => tempServer.close());
       });

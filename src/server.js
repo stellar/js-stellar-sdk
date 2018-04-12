@@ -1,4 +1,4 @@
-import {NotFoundError, NetworkError, BadRequestError} from "./errors";
+import {NotFoundError, NetworkError, BadRequestError, BadResponseError} from "./errors";
 
 import {AccountCallBuilder} from "./account_call_builder";
 import {AccountResponse} from "./account_response";
@@ -8,10 +8,13 @@ import {TransactionCallBuilder} from "./transaction_call_builder";
 import {OperationCallBuilder} from "./operation_call_builder";
 import {OfferCallBuilder} from "./offer_call_builder";
 import {OrderbookCallBuilder} from "./orderbook_call_builder";
+import {TradesCallBuilder} from "./trades_call_builder";
 import {PathCallBuilder} from "./path_call_builder";
 import {PaymentCallBuilder} from "./payment_call_builder";
 import {EffectCallBuilder} from "./effect_call_builder";
 import {FriendbotBuilder} from "./friendbot_builder";
+import {AssetsCallBuilder} from "./assets_call_builder";
+import { TradeAggregationCallBuilder } from "./trade_aggregation_call_builder";
 import {xdr} from "stellar-base";
 import isString from "lodash/isString";
 
@@ -20,17 +23,17 @@ let toBluebird = require("bluebird").resolve;
 let URI = require("urijs");
 let URITemplate = require("urijs").URITemplate;
 
-export const SUBMIT_TRANSACTION_TIMEOUT = 20*1000;
+export const SUBMIT_TRANSACTION_TIMEOUT = 60*1000;
 
+/**
+ * Server handles the network connection to a [Horizon](https://www.stellar.org/developers/horizon/learn/index.html)
+ * instance and exposes an interface for requests to that instance.
+ * @constructor
+ * @param {string} serverURL Horizon Server URL (ex. `https://horizon-testnet.stellar.org`).
+ * @param {object} [opts]
+ * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments! You can also use {@link Config} class to set this globally.
+ */
 export class Server {
-    /**
-     * Server handles the network connection to a [Horizon](https://www.stellar.org/developers/horizon/learn/index.html)
-     * instance and exposes an interface for requests to that instance.
-     * @constructor
-     * @param {string} serverURL Horizon Server URL (ex. `https://horizon-testnet.stellar.org`).
-     * @param {object} [opts]
-     * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments! You can also use {@link Config} class to set this globally.
-     */
     constructor(serverURL, opts = {}) {
         this.serverURL = URI(serverURL);
 
@@ -53,7 +56,7 @@ export class Server {
     submitTransaction(transaction) {
         let tx = encodeURIComponent(transaction.toEnvelope().toXDR().toString("base64"));
         var promise = axios.post(
-              URI(this.serverURL).path('transactions').toString(),
+              URI(this.serverURL).segment('transactions').toString(),
               `tx=${tx}`,
               {timeout: SUBMIT_TRANSACTION_TIMEOUT}
             )
@@ -64,7 +67,7 @@ export class Server {
                 if (response instanceof Error) {
                     return Promise.reject(response);
                 } else {
-                    return Promise.reject(response.data);
+                    return Promise.reject(new BadResponseError(`Transaction submission failed. Server responded: ${response.status} ${response.statusText}`, response.data));
                 }
             });
         return toBluebird(promise);
@@ -98,7 +101,7 @@ export class Server {
      * People on the Stellar network can make offers to buy or sell assets. This endpoint represents all the offers a particular account makes.
      * Currently this method only supports querying offers for account and should be used like this:
      * ```
-     * server.offers('accounts', accountId)
+     * server.offers('accounts', accountId).call()
      *  .then(function(offers) {
      *    console.log(offers);
      *  });
@@ -119,6 +122,14 @@ export class Server {
      */
     orderbook(selling, buying) {
         return new OrderbookCallBuilder(URI(this.serverURL), selling, buying);
+    }
+
+    /**
+     * Returns new {@link TradesCallBuilder} object configured by a current Horizon server configuration.
+     * @returns {TradesCallBuilder}
+     */
+    trades() {
+        return new TradesCallBuilder(URI(this.serverURL));
     }
 
     /**
@@ -182,6 +193,15 @@ export class Server {
     }
 
     /**
+     * Returns new {@link AssetsCallBuilder} object configured with the current Horizon server configuration.
+     * @returns {AssetsCallBuilder}
+     */
+    assets() {
+        return new AssetsCallBuilder(URI(this.serverURL));
+    }
+
+
+    /**
     * Fetches an account's most current state in the ledger and then creates and returns an {@link Account} object.
     * @param {string} accountId - The account to load.
     * @returns {Promise} Returns a promise to the {@link AccountResponse} object with populated sequence number.
@@ -193,5 +213,19 @@ export class Server {
             .then(function (res) {
                 return new AccountResponse(res);
             });
+    }
+
+    /**
+     * 
+     * @param {Asset} base base aseet
+     * @param {Asset} counter counter asset
+     * @param {long} start_time lower time boundary represented as millis since epoch
+     * @param {long} end_time upper time boundary represented as millis since epoch
+     * @param {long} resolution segment duration as millis since epoch. *Supported values are 5 minutes (300000), 15 minutes (900000), 1 hour (3600000), 1 day (86400000) and 1 week (604800000).
+     * Returns new {@link TradeAggregationCallBuilder} object configured with the current Horizon server configuration.
+     * @returns {TradeAggregationCallBuilder}
+     */
+    tradeAggregation(base, counter, start_time, end_time, resolution){
+        return new TradeAggregationCallBuilder(URI(this.serverURL), base, counter, start_time, end_time, resolution);
     }
 }

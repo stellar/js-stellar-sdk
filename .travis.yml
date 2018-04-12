@@ -5,7 +5,7 @@ services:
 - docker
 matrix:
   include:
-  - node_js: '4.2'
+  - node_js: 6.9.4
   - node_js: 6.9.4
     env: SAUCE=true
   - node_js: 6.9.4
@@ -25,7 +25,6 @@ script:
       echo "Pull request - skip Sauce Labs testing..."
     fi
   elif [ "${INTEGRATION}" = "true" ]; then
-    docker run -p 127.0.0.1:8000:8000 -d --name=stellar-core-horizon stellar/stellar-core-horizon:latest
     # Ugly but it's the only way to make istanbul generate coverage report
     babel-node ./node_modules/gulp/bin/gulp.js test:integration
   else

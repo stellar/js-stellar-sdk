@@ -5,7 +5,7 @@
 
 
 
-js-stellar-sdk is a client-side Stellar Javascript library for communicating with a [Stellar Horizon server](https://github.com/stellar/horizon). It is used for building Stellar apps either on Node.js or in the browser.
+js-stellar-sdk is a Javascript library for communicating with a [Stellar Horizon server](https://github.com/stellar/go/tree/master/services/horizon). It is used for building Stellar apps either on Node.js or in the browser.
 
 It provides:
 - a networking layer API for Horizon endpoints.
@@ -17,7 +17,7 @@ It provides:
 
 ### js-stellar-sdk vs js-stellar-base
 
-js-stellar-sdk is a high-level library that serves as client side API for [Horizon](https://github.com/stellar/horizon). This library makes extensive use of the lower-level [js-stellar-base](https://github.com/stellar/js-stellar-base) and exposes js-stellar-base classes via its export object.  js-stellar-base can be used as a standalone library for creating Stellar primitive constructs via XDR helpers and wrappers. js-stellar-base doesn't depend on connecting to Horizon.
+js-stellar-sdk is a high-level library that serves as client side API for [Horizon](https://github.com/stellar/go/tree/master/services/horizon). This library makes extensive use of the lower-level [js-stellar-base](https://github.com/stellar/js-stellar-base) and exposes js-stellar-base classes via its export object.  js-stellar-base can be used as a standalone library for creating Stellar primitive constructs via XDR helpers and wrappers. js-stellar-base doesn't depend on connecting to Horizon.
 
 js-stellar-sdk exposes all js-stellar-base classes so you don't have to install js-stellar-base along js-stellar-sdk.
 
@@ -28,7 +28,7 @@ Using npm to include js-stellar-sdk in your own project:
 npm install --save stellar-sdk
 ```
 
-For browsers, [use Bower to install js-stellar-sdk](#to-use-in-the-browser). It exports a
+For browsers, [use Bower to install js-stellar-sdk](#to-self-host-for-use-in-the-browser). It exports a
 variable `StellarSdk`. The example below assumes you have `stellar-sdk.js`
 relative to your html file.
 
@@ -60,6 +60,8 @@ error MSB8020: The build tools for v120 (Platform Toolset = 'v120 ') cannot be f
 ```
 
 To resolve this issue, you should upgrade your version of nodejs, node-gyp and then re-attempt to install the offending package using `npm install -g --msvs_version=2015 ed25519`.  Afterwards, retry installing stellar-sdk as normal.
+
+If you encounter the error: "failed to find C:\OpenSSL-Win64", You need to install OpenSSL. More information about this issue can be found [here](https://github.com/nodejs/node-gyp/wiki/Linking-to-OpenSSL).
 
 In the event the above does not work, please join us on our community slack to get help resolving your issue.
 

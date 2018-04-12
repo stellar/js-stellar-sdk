@@ -2,6 +2,12 @@
 
 As this project is pre 1.0, breaking changes may happen for minor version bumps. A breaking change will get clearly notified in this log.
 
+## 0.8.0
+
+* Modify `/trades` endpoint to reflect changes in horizon. 
+* Add `/trade_aggregations` support.
+* Add `/assets` support. 
+
 ## 0.7.3
 
 * Upgrade `stellar-base`.

@@ -19,6 +19,7 @@ export class CallBuilder {
   constructor(serverUrl) {
     this.url = serverUrl;
     this.filter = [];
+    this.originalSegments = this.url.segment() || [];
   }
 
   /**
@@ -27,9 +28,12 @@ export class CallBuilder {
   checkFilter() {
     if (this.filter.length >= 2) {
       throw new BadRequestError("Too many filters specified", this.filter);
-    } 
+    }
+
     if (this.filter.length === 1) {
-      this.url.segment(this.filter[0]);
+      //append filters to original segments
+      let newSegment = this.originalSegments.concat(this.filter[0]);
+      this.url.segment(newSegment);
     }        
   }
 
@@ -52,6 +56,7 @@ export class CallBuilder {
    * @param {object} [options] EventSource options.
    * @param {function} [options.onmessage] Callback function to handle incoming messages.
    * @param {function} [options.onerror] Callback function to handle errors.
+   * @param {number} [options.reconnectTimeout] Custom stream connection timeout in ms, default is 15 seconds.
    * @returns {function} Close function. Run to close the connection and stop listening for new events.
    */
   stream(options) {
@@ -69,7 +74,7 @@ export class CallBuilder {
       timeout = setTimeout(() => {
         es.close();
         es = createEventSource();
-      }, 15*1000);
+      }, options.reconnectTimeout || 15*1000);
     };
 
     var createEventSource = () => {

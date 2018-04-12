@@ -4,7 +4,7 @@ import toml from 'toml';
 import {Config} from "./config";
 
 // STELLAR_TOML_MAX_SIZE is the maximum size of stellar.toml file
-export const STELLAR_TOML_MAX_SIZE = 5 * 1024;
+export const STELLAR_TOML_MAX_SIZE = 100 * 1024;
 
 /**
  * StellarTomlResolver allows resolving `stellar.toml` files.
@@ -44,7 +44,14 @@ export class StellarTomlResolver {
             let tomlObject = toml.parse(response.data);
             return Promise.resolve(tomlObject);
         } catch (e) {
-            return Promise.reject(`Parsing error on line ${e.line}, column ${e.column}: ${e.message}`);
+            return Promise.reject(new Error(`Parsing error on line ${e.line}, column ${e.column}: ${e.message}`));
+        }
+      })
+      .catch(err => {
+        if (err.message.match(/^maxContentLength size/)) {
+          throw new Error(`stellar.toml file exceeds allowed size of ${STELLAR_TOML_MAX_SIZE}`);
+        } else {
+          throw err;
         }
       });
   }

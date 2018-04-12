@@ -1,32 +1,40 @@
+let axios = require('axios');
+
 describe("integration tests", function () {
-  // We need to wait for a ledger to close
   const TIMEOUT = 20*1000;
   this.timeout(TIMEOUT);
   this.slow(TIMEOUT/2);
 
+  const HORIZON = 'https://horizon-testnet.stellar.org';
   StellarSdk.Network.useTestNetwork();
-
-  // Docker
-  let server = new StellarSdk.Server('http://127.0.0.1:8000', {allowHttp: true});
-  //let server = new StellarSdk.Server('http://192.168.59.103:32773', {allowHttp: true});
-  let master = StellarSdk.Keypair.master();
+  let server = new StellarSdk.Server(HORIZON);
+  let master = StellarSdk.Keypair.random();
 
   before(function(done) {
-    this.timeout(60*1000);
-    checkConnection(done);
+    axios.get(`${HORIZON}/friendbot?addr=${master.publicKey()}`).then(() => done());
   });
 
-  function checkConnection(done) {
-    server.loadAccount(master.publicKey())
-      .then(source => {
-        console.log('Horizon up and running!');
-        done();
-      })
-      .catch(err => {
-        console.log("Couldn't connect to Horizon... Trying again.");
-        setTimeout(() => checkConnection(done), 2000);
+  after(function(done) {
+    // Merge account
+    server.operations().forAccount(master.publicKey()).limit(1).order('asc')
+      .call()
+      .then(response => {
+        let operation = response.records[0];
+        
+        return server.loadAccount(master.publicKey())
+          .then(source => {
+            let tx = new StellarSdk.TransactionBuilder(source)
+              .addOperation(StellarSdk.Operation.accountMerge({
+                destination: operation.funder
+              }))
+              .build();
+
+            tx.sign(master);
+
+            server.submitTransaction(tx).then(() => done());
+          });
       });
-  }
+  });
 
   function createNewAccount(accountId) {
     return server.loadAccount(master.publicKey())
@@ -34,7 +42,7 @@ describe("integration tests", function () {
         let tx = new StellarSdk.TransactionBuilder(source)
           .addOperation(StellarSdk.Operation.createAccount({
             destination: accountId,
-            startingBalance: "20"
+            startingBalance: "1"
           }))
           .build();
 
@@ -61,7 +69,7 @@ describe("integration tests", function () {
           let tx = new StellarSdk.TransactionBuilder(source)
             .addOperation(StellarSdk.Operation.createAccount({
               destination: StellarSdk.Keypair.random().publicKey(),
-              startingBalance: "20"
+              startingBalance: "1"
             }))
             .build();
 
@@ -69,8 +77,8 @@ describe("integration tests", function () {
 
           server.submitTransaction(tx)
             .then(result => done(new Error("This promise should be rejected.")))
-            .catch(result => {
-              expect(result.extras.result_codes.transaction).to.equal('tx_bad_seq');
+            .catch(error => {
+              expect(error.data.extras.result_codes.transaction).to.equal('tx_bad_seq');
               done();
             });
         });
@@ -78,12 +86,12 @@ describe("integration tests", function () {
   });
 
   describe("/accounts", function () {
-    it("lists all accounts", function (done) {
-      server.accounts()
+    it("get account", function (done) {
+      server.accounts().accountId(master.publicKey())
         .call()
-        .then(accounts => {
+        .then(account => {
           // The first account should be a master account
-          expect(accounts.records[0].account_id).to.equal(master.publicKey());
+          expect(account.account_id).to.equal(master.publicKey());
           done();
         });
     });
@@ -92,11 +100,14 @@ describe("integration tests", function () {
       this.timeout(10*1000);
       let randomAccount = StellarSdk.Keypair.random();
 
-      let eventStreamClose = server.accounts()
+      let eventStreamClose = server.operations().forAccount(master.publicKey())
         .cursor('now')
         .stream({
-          onmessage: account => {
-            expect(account.account_id).to.equal(randomAccount.publicKey());
+          onmessage: operation => {
+            expect(operation.type).to.equal('create_account');
+            expect(operation.funder).to.equal(master.publicKey());
+            expect(operation.account).to.equal(randomAccount.publicKey());
+            eventStreamClose();
             done();
           }
         });
