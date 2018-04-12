@@ -16,7 +16,7 @@ In order to submit transactions for an account, you need to know the account's s
 
 ## Example
 
-```
+```js
 server.loadAccount("GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ")
     .then(function (account) {
         // build the transaction with the account as the source
