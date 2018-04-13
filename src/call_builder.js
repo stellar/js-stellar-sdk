@@ -130,7 +130,7 @@ export class CallBuilder {
         uri = URI(link.href);
       }
 
-      return this._sendNormalRequest(uri).then(r => this._parseRecord(r));
+      return this._sendNormalRequest(uri).then(r => this._parseResponse(r));
     };
   } 
 
