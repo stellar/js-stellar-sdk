@@ -15,7 +15,7 @@ import {EffectCallBuilder} from "./effect_call_builder";
 import {FriendbotBuilder} from "./friendbot_builder";
 import {AssetsCallBuilder} from "./assets_call_builder";
 import { TradeAggregationCallBuilder } from "./trade_aggregation_call_builder";
-import {xdr} from "stellar-base";
+import {xdr} from "js-kinesis-base";
 import isString from "lodash/isString";
 
 let axios = require("axios");

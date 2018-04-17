@@ -1,5 +1,5 @@
 {
-  "name": "stellar-sdk",
+  "name": "js-kinesis-sdk",
   "version": "0.8.0",
   "description": "stellar-sdk is a library for working with the Stellar Horizon server.",
   "main": "lib/index.js",
@@ -83,7 +83,7 @@
     "event-source-polyfill": "0.0.7",
     "eventsource": "^0.2.1",
     "lodash": "^4.0.1",
-    "stellar-base": "^0.7.6",
+    "js-kinesis-base": "^0.7.6",
     "toml": "^2.3.0"
   }
 }

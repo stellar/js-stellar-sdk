@@ -1,4 +1,4 @@
-describe("horizon path tests", function () {
+describe.skip("horizon path tests", function () {
 
   beforeEach(function () {
     this.axiosMock = sinon.mock(axios);
@@ -60,7 +60,7 @@ describe("horizon path tests", function () {
 
       let keypair = StellarSdk.Keypair.random();
       let account = new StellarSdk.Account(keypair.publicKey(), "56199647068161");
-      
+
       let fakeTransaction = new StellarSdk.TransactionBuilder(account)
         .addOperation(StellarSdk.Operation.payment({
           destination: keypair.publicKey(),

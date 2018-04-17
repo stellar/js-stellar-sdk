@@ -20,7 +20,7 @@ describe("integration tests", function () {
       .call()
       .then(response => {
         let operation = response.records[0];
-        
+
         return server.loadAccount(master.publicKey())
           .then(source => {
             let tx = new StellarSdk.TransactionBuilder(source)

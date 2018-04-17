@@ -4,7 +4,7 @@ import Promise from 'bluebird';
 import isString from "lodash/isString";
 import pick from "lodash/pick";
 import {Config} from "./config";
-import {Account, StrKey} from 'stellar-base';
+import {Account, StrKey} from 'js-kinesis-base';
 import {BadResponseError} from './errors';
 import {StellarTomlResolver} from "./stellar_toml_resolver";
 
