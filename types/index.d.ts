@@ -39,18 +39,6 @@ export interface RecordLink {
     templated?: boolean;
 }
 
-/* Due to a bug with the recursive function requests */
-export interface CollectionRecord<T extends Record> {
-    _links: {
-        next: RecordLink
-        prev: RecordLink
-        self: RecordLink
-    };
-    _embedded: {
-        records: T[]
-    };
-}
-
 export interface CallFunctionTemplateOptions {
     cursor?: string | number;
     limit?: number;
@@ -59,7 +47,7 @@ export interface CallFunctionTemplateOptions {
 
 export type CallFunction<T extends Record> = () => Promise<T>;
 export type CallCollectionFunction<T extends Record> =
-    (options?: CallFunctionTemplateOptions) => Promise<CollectionRecord<T>>;
+    (options?: CallFunctionTemplateOptions) => Promise<CollectionPage<T>>;
 
 export interface AccountRecord extends Record {
     id: string;
