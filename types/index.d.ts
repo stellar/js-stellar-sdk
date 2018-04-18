@@ -131,6 +131,7 @@ export interface LedgerRecord extends Record {
     total_coins: string;
     fee_pool: string;
     base_fee: number;
+    base_percentage_fee: number;
     base_reserve: string;
     max_tx_set_size: number;
     protocol_version: number;
@@ -807,7 +808,7 @@ export class TransactionBuilder {
 
 export namespace TransactionBuilder {
     interface TransactionBuilderOptions {
-        fee?: number;
+        fee?: string;
         timebounds?: {
             minTime?: number | string
             maxTime?: number | string
