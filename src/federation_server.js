@@ -99,7 +99,7 @@ export class FederationServer {
    * ```js
    * StellarSdk.FederationServer.createForDomain('acme.com')
    *   .then(federationServer => {
-   *     // federationServer.forAddress('bob').then(...)
+   *     // federationServer.resolveAddress('bob').then(...)
    *   })
    *   .catch(error => {
    *     // stellar.toml does not exist or it does not contain information about federation server.
