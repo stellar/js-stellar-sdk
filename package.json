@@ -82,7 +82,7 @@
     "es6-promise": "^3.0.2",
     "event-source-polyfill": "0.0.7",
     "eventsource": "^0.2.1",
-    "js-kinesis-base": "^0.8.1",
+    "js-kinesis-base": "^0.9.0",
     "lodash": "^4.0.1",
     "toml": "^2.3.0",
     "urijs": "1.18.4"
