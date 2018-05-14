@@ -79,7 +79,7 @@ export interface AccountRecord extends Record {
     >;
     signers: Array<
     {
-        _key: string
+        public_key: string
         weight: number
     }
     >;
@@ -413,7 +413,7 @@ export class AccountResponse implements AccountRecord {
         >;
     signers: Array<
         {
-            _key: string
+            public_key: string
             weight: number
         }
         >;
