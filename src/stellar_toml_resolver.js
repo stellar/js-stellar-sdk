@@ -26,19 +26,27 @@ export class StellarTomlResolver {
    * @param {string} domain Domain to get stellar.toml file for
    * @param {object} [opts]
    * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments!
+   * @param {number} [opts.timeout] - Allow a timeout, default: 0. Allows user to avoid nasty lag due to TOML resolve issue.
    * @returns {Promise}
    */
   static resolve(domain, opts = {}) {
     let allowHttp = Config.isAllowHttp();
+    let timeout = 0;
+
     if (typeof opts.allowHttp !== 'undefined') {
         allowHttp = opts.allowHttp;
     }
+
+    if (typeof opts.timeout === 'number') {
+      timeout = opts.timeout;
+    } 
 
     let protocol = 'https';
     if (allowHttp) {
         protocol = 'http';
     }
-    return axios.get(`${protocol}://${domain}/.well-known/stellar.toml`, {maxContentLength: STELLAR_TOML_MAX_SIZE})
+
+    return axios.get(`${protocol}://${domain}/.well-known/stellar.toml`, {maxContentLength: STELLAR_TOML_MAX_SIZE, timeout})
       .then(response => {
       	try {
             let tomlObject = toml.parse(response.data);
