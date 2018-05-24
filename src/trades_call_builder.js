@@ -46,5 +46,16 @@ export class TradesCallBuilder extends CallBuilder {
         this.url.addQuery("offer_id", offerId);
         return this;
     }
+
+    /**
+     * Filter trades for a specific account
+     * @see [Trades for Account](https://www.stellar.org/developers/horizon/reference/trades-for-account.html)
+     * @param {string} accountId For example: `GBYTR4MC5JAX4ALGUBJD7EIKZVM7CUGWKXIUJMRSMK573XH2O7VAK3SR`
+     * @returns {TradesCallBuilder}
+     */
+    forAccount(accountId) {
+        this.filter.push(['accounts', accountId, 'trades']);
+        return this;
+    }
 }
 
