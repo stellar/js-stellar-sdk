@@ -855,6 +855,67 @@ describe("server.js tests", function () {
             })
       });
 
+      it("trades() requests the correct endpoint for account", function (done) {
+        let tradesResponse = {
+          _links: {
+            self: {
+              href: "https://horizon-live.stellar.org:1337/accounts/GABJBA4HI4LVKWAYORE7SOAAZMVXDHI566JBSD25O5TRDM7LVID6YOXY/trades?cursor=&limit=10&order=asc"
+            },
+            next: {
+              href: "https://horizon-live.stellar.org:1337/accounts/GABJBA4HI4LVKWAYORE7SOAAZMVXDHI566JBSD25O5TRDM7LVID6YOXY/trades?cursor=77434489365606401-1&limit=10&order=asc"
+            },
+            prev: {
+              href: "https://horizon-live.stellar.org:1337/accounts/GABJBA4HI4LVKWAYORE7SOAAZMVXDHI566JBSD25O5TRDM7LVID6YOXY/trades?cursor=77434489365606401-1&limit=10&order=desc"
+            }
+          },
+          _embedded: {
+            records: [
+              {
+                _links: {
+                  self: {
+                    href: ""
+                  },
+                  seller: {
+                    href: "https://horizon-live.stellar.org:1337/accounts/GBDTBUKFHJOEAFAVNPGIY65CBIH75DYEZ5VQXOE7YHZM7AJKDNEOW5JG"
+                  },
+                  buyer: {
+                    href: "https://horizon-live.stellar.org:1337/accounts/GABJBA4HI4LVKWAYORE7SOAAZMVXDHI566JBSD25O5TRDM7LVID6YOXY"
+                  },
+                  operation: {
+                    href: "https://horizon-live.stellar.org:1337/operations/77434489365606401"
+                  }
+                },
+                id: "77434489365606401-1",
+                paging_token: "77434489365606401-1",
+                offer_id: "",
+                seller: "GBDTBUKFHJOEAFAVNPGIY65CBIH75DYEZ5VQXOE7YHZM7AJKDNEOW5JG",
+                sold_amount: "",
+                sold_asset_type: "",
+                buyer: "GABJBA4HI4LVKWAYORE7SOAAZMVXDHI566JBSD25O5TRDM7LVID6YOXY",
+                bought_amount: "",
+                bought_asset_type: "",
+                created_at: "2018-05-23T22:42:28Z"
+              }
+            ]
+          }
+        };
+
+        this.axiosMock.expects('get')
+            .withArgs(sinon.match('https://horizon-live.stellar.org:1337/accounts/GABJBA4HI4LVKWAYORE7SOAAZMVXDHI566JBSD25O5TRDM7LVID6YOXY/trades'))
+            .returns(Promise.resolve({data: tradesResponse}));
+
+        this.server.trades()
+            .forAccount("GABJBA4HI4LVKWAYORE7SOAAZMVXDHI566JBSD25O5TRDM7LVID6YOXY")
+            .call()
+            .then(function (response) {
+              expect(response.records).to.be.deep.equal(tradesResponse._embedded.records);
+              done();
+            })
+            .catch(function (err) {
+              done(err);
+            })
+      });
+
       it("trades() requests the correct endpoint for paging", function (done) {
         let tradesResponse = {
           _links: {
