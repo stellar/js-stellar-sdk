@@ -31,7 +31,7 @@ export class StellarTomlResolver {
    */
   static resolve(domain, opts = {}) {
     let allowHttp = Config.isAllowHttp();
-    let timeout = 0;
+    let timeout = Config.hasTimeout();
 
     if (typeof opts.allowHttp !== 'undefined') {
         allowHttp = opts.allowHttp;
