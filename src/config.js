@@ -57,7 +57,7 @@ class Config {
    * Returns the value of `timeout` flag.
    * @static
    */
-  static hasTimeout() {
+  static getTimeout() {
     return clone(config.timeout);
   }
 

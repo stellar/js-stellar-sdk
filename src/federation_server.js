@@ -71,6 +71,7 @@ export class FederationServer {
    * @param {string} value Stellar Address (ex. `bob*stellar.org`)
    * @param {object} [opts]
    * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments!
+   * @param {number} [opts.timeout] - Allow a timeout, default: 0. Allows user to avoid nasty lag due to TOML resolve issue.
    * @returns {Promise}
    */
   static resolve(value, opts = {}) {
@@ -109,10 +110,11 @@ export class FederationServer {
    * @param {string} domain Domain to get federation server for
    * @param {object} [opts]
    * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments!
+   * @param {number} [opts.timeout] - Allow a timeout, default: 0. Allows user to avoid nasty lag due to TOML resolve issue.
    * @returns {Promise}
    */
   static createForDomain(domain, opts = {}) {
-    return StellarTomlResolver.resolve(domain)
+    return StellarTomlResolver.resolve(domain, opts)
       .then(tomlObject => {
         if (!tomlObject.FEDERATION_SERVER) {
           return Promise.reject(new Error('stellar.toml does not contain FEDERATION_SERVER field'));

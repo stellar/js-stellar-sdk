@@ -145,6 +145,25 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
 
       StellarSdk.FederationServer.createForDomain('acme.com').should.be.rejectedWith(/stellar.toml does not contain FEDERATION_SERVER field/).and.notify(done);
     });
+
+    it("rejects after given timeout when timeout specified in opts param", function (done) {
+      // Unable to create temp server in a browser
+      if (typeof window != 'undefined') {
+        return done();
+      }
+      var response = Array(StellarSdk.STELLAR_TOML_MAX_SIZE+10).join('a');
+      let tempServer = http.createServer((req, res) => {
+        setTimeout(() => {
+          res.setHeader('Content-Type', 'text/x-toml; charset=UTF-8');
+          res.end(response);
+        }, 10000);
+      }).listen(4444, () => {
+        StellarSdk.FederationServer.createForDomain("localhost:4444", {allowHttp: true, timeout: 1000})
+          .should.be.rejectedWith(/timeout of 1000ms exceeded/)
+          .notify(done)
+          .then(() => tempServer.close());
+      });
+    });
   });
 
   describe('FederationServer.resolve', function () {
