@@ -13,10 +13,18 @@ let toBluebird = require("bluebird").resolve;
  *
  * This is an **abstract** class. Do not create this object directly, use {@link Server} class.
  * @param {string} serverUrl
+ * @param {object} [opts]
+ * @param {number} [opts.timeout] - Allow a timeout, default: 0. In ms.
  * @class CallBuilder
  */
 export class CallBuilder {
-  constructor(serverUrl) {
+  constructor(serverUrl, opts = {}) {
+    this.timeout = 0;
+
+    if (typeof opts.timeout === 'number') {
+      this.timeout = opts.timeout;
+    } 
+
     this.url = serverUrl;
     this.filter = [];
     this.originalSegments = this.url.segment() || [];
@@ -163,7 +171,7 @@ export class CallBuilder {
 
     // Temp fix for: https://github.com/stellar/js-stellar-sdk/issues/15
     url.addQuery('c', Math.random());
-    var promise = axios.get(url.toString())
+    var promise = axios.get(url.toString(), {timeout: this.timeout})
       .then(response => response.data)
       .catch(this._handleNetworkError);
     return toBluebird(promise);
