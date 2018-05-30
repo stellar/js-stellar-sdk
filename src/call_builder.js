@@ -162,7 +162,7 @@ export class CallBuilder {
     }
 
     // Temp fix for: https://github.com/stellar/js-stellar-sdk/issues/15
-    url.addQuery('c', Math.random());
+    url.setQuery('c', Math.random());
     var promise = axios.get(url.toString())
       .then(response => response.data)
       .catch(this._handleNetworkError);
