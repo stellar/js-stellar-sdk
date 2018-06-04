@@ -13,13 +13,16 @@ export class Account {
     incrementSequenceNumber(): void;
 }
 
-export class CallBuilder<T extends Record> {
+export class CallBuilder<T extends Record, U extends T | T[]= T[]> {
     constructor(serverUrl: string)
-    call(): Promise<CollectionPage<T>>;
+    call: U extends T[] ? CallCollectionFunction<T> : CallFunction<T>;
     cursor(cursor: string): this;
     limit(limit: number): this;
     order(direction: 'asc' | 'desc'): this;
-    stream(options?: { onmessage?: () => void, onerror?: () => void }): () => void;
+    stream(options: {
+        onmessage: (message: T) => any,
+        onerror?: () => any,
+    }): () => void;
 }
 
 export interface CollectionPage<T extends Record> {
@@ -369,6 +372,7 @@ export interface TransactionRecord extends Record {
     result_xdr: string;
     result_meta_xdr: string;
     memo: string;
+    signatures: string[];
 
     account: CallFunction<AccountRecord>;
     effects: CallCollectionFunction<EffectRecord>;
@@ -797,6 +801,7 @@ export class Transaction {
     fee: number;
     source: string;
     memo: Memo;
+    signatures: string[];
 }
 
 export class TransactionBuilder {
