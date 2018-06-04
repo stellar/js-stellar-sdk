@@ -32,7 +32,6 @@ export const SUBMIT_TRANSACTION_TIMEOUT = 60*1000;
  * @param {string} serverURL Horizon Server URL (ex. `https://horizon-testnet.stellar.org`).
  * @param {object} [opts]
  * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments! You can also use {@link Config} class to set this globally.
- * @param {number} [opts.timeout] - Allow a timeout, default: 0. In ms.
  */
 export class Server {
     constructor(serverURL, opts = {}) {

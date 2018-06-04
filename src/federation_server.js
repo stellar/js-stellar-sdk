@@ -20,7 +20,6 @@ export const FEDERATION_RESPONSE_MAX_SIZE = 100 * 1024;
  * @param {string} domain Domain this server represents
  * @param {object} [opts]
  * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments! You can also use {@link Config} class to set this globally.
- * @param {number} [opts.timeout] - Allow a timeout, default: 0. In ms.
  */
 export class FederationServer {
   constructor(serverURL, domain, opts = {}) {
@@ -128,11 +127,9 @@ export class FederationServer {
    * Returns a Promise that resolves to federation record if the user was found for a given Stellar address.
    * @see <a href="https://www.stellar.org/developers/learn/concepts/federation.html" target="_blank">Federation doc</a>
    * @param {string} address Stellar address (ex. `bob*stellar.org`). If `FederationServer` was instantiated with `domain` param only username (ex. `bob`) can be passed.
-   * @param {object} [opts]
-   * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments!
-   * @param {number} [opts.timeout] - Allow a timeout, default: 0. In ms.
+   * @returns {Promise}
    */
-  resolveAddress(address, opts = {}) {
+  resolveAddress(address) {
     if (address.indexOf('*') < 0) {
       if (!this.domain) {
         return Promise.reject(new Error('Unknown domain. Make sure `address` contains a domain (ex. `bob*stellar.org`) or pass `domain` parameter when instantiating the server object.'));
@@ -140,48 +137,33 @@ export class FederationServer {
       address = `${address}*${this.domain}`;
     }
     let url = this.serverURL.query({type: 'name', q: address});
-    return this._sendRequest(url, opts);
+    return this._sendRequest(url);
   }
 
   /**
    * Returns a Promise that resolves to federation record if the user was found for a given account ID.
    * @see <a href="https://www.stellar.org/developers/learn/concepts/federation.html" target="_blank">Federation doc</a>
    * @param {string} accountId Account ID (ex. `GBYNR2QJXLBCBTRN44MRORCMI4YO7FZPFBCNOKTOBCAAFC7KC3LNPRYS`)
-   * @param {object} [opts]
-   * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments!
-   * @param {number} [opts.timeout] - Allow a timeout, default: 0. In ms.
    * @returns {Promise}
    */
-  resolveAccountId(accountId, opts = {}) {
+  resolveAccountId(accountId) {
     let url = this.serverURL.query({type: 'id', q: accountId});
-    return this._sendRequest(url, opts);
+    return this._sendRequest(url);
   }
 
   /**
    * Returns a Promise that resolves to federation record if the sender of the transaction was found for a given transaction ID.
    * @see <a href="https://www.stellar.org/developers/learn/concepts/federation.html" target="_blank">Federation doc</a>
    * @param {string} transactionId Transaction ID (ex. `3389e9f0f1a65f19736cacf544c2e825313e8447f569233bb8db39aa607c8889`)
-   * @param {object} [opts]
-   * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments!
-   * @param {number} [opts.timeout] - Allow a timeout, default: 0. In ms.
    * @returns {Promise}
    */
-  resolveTransactionId(transactionId, opts = {}) {
+  resolveTransactionId(transactionId) {
     let url = this.serverURL.query({type: 'txid', q: transactionId});
-    return this._sendRequest(url, opts);
+    return this._sendRequest(url);
   }
 
-  _sendRequest(url, opts = {}) {
-    let allowHttp = Config.isAllowHttp();
-    let timeout = Config.getTimeout();
-
-    if (typeof opts.allowHttp !== 'undefined') {
-        allowHttp = opts.allowHttp;
-    }
-
-    if (typeof opts.timeout === 'number') {
-      timeout = opts.timeout;
-    } 
+  _sendRequest(url) {
+    let timeout = this.timeout | Config.getTimeout();
 
     return axios.get(url.toString(), {maxContentLength: FEDERATION_RESPONSE_MAX_SIZE, timeout})
       .then(response => {

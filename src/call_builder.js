@@ -1,5 +1,6 @@
 import {NotFoundError, NetworkError, BadRequestError} from "./errors";
 import forEach from 'lodash/forEach';
+import { Config } from "./config";
 
 let URI = require("urijs");
 let URITemplate = require("urijs/src/URITemplate");
@@ -13,17 +14,10 @@ let toBluebird = require("bluebird").resolve;
  *
  * This is an **abstract** class. Do not create this object directly, use {@link Server} class.
  * @param {string} serverUrl
- * @param {object} [opts]
- * @param {number} [opts.timeout] - Allow a timeout, default: 0. In ms.
  * @class CallBuilder
  */
 export class CallBuilder {
-  constructor(serverUrl, opts = {}) {
-    this.timeout = 0;
-
-    if (typeof opts.timeout === 'number') {
-      this.timeout = opts.timeout;
-    } 
+  constructor(serverUrl) {
 
     this.url = serverUrl;
     this.filter = [];
@@ -171,7 +165,7 @@ export class CallBuilder {
 
     // Temp fix for: https://github.com/stellar/js-stellar-sdk/issues/15
     url.addQuery('c', Math.random());
-    var promise = axios.get(url.toString(), {timeout: this.timeout})
+    var promise = axios.get(url.toString())
       .then(response => response.data)
       .catch(this._handleNetworkError);
     return toBluebird(promise);

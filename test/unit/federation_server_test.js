@@ -145,25 +145,6 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
 
       StellarSdk.FederationServer.createForDomain('acme.com').should.be.rejectedWith(/stellar.toml does not contain FEDERATION_SERVER field/).and.notify(done);
     });
-
-    it("rejects after given timeout when timeout specified in opts param", function (done) {
-      // Unable to create temp server in a browser
-      if (typeof window != 'undefined') {
-        return done();
-      }
-      var response = Array(StellarSdk.STELLAR_TOML_MAX_SIZE+10).join('a');
-      let tempServer = http.createServer((req, res) => {
-        setTimeout(() => {
-          res.setHeader('Content-Type', 'text/x-toml; charset=UTF-8');
-          res.end(response);
-        }, 10000);
-      }).listen(4444, () => {
-        StellarSdk.FederationServer.createForDomain("localhost:4444", {allowHttp: true, timeout: 1000})
-          .should.be.rejectedWith(/timeout of 1000ms exceeded/)
-          .notify(done)
-          .then(() => tempServer.close());
-      });
-    });
   });
 
   describe('FederationServer.resolve', function () {
@@ -242,6 +223,114 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
         new StellarSdk.FederationServer('http://localhost:4444/federation', 'stellar.org', {allowHttp: true})
           .resolveAddress('bob*stellar.org')
           .should.be.rejectedWith(/federation response exceeds allowed size of [0-9]+/)
+          .notify(done)
+          .then(() => tempServer.close());
+      });
+    });
+
+  });
+
+  describe('FederationServer timeout', function () {
+
+    it("times out when resolveAddress response lags", function (done) {
+      StellarSdk.Config.setTimeout(100);
+
+      // Unable to create temp server in a browser
+      if (typeof window != 'undefined') {
+        return done();
+      }
+      var response = Array(StellarSdk.FEDERATION_RESPONSE_MAX_SIZE+10).join('a');
+      let tempServer = http.createServer((req, res) => {
+        res.setHeader('Content-Type', 'application/json; charset=UTF-8');
+        setTimeout(() => {
+          res.end(response);
+        }, 10000);
+      }).listen(4444, () => {
+        new StellarSdk.FederationServer('http://localhost:4444/federation', 'stellar.org', {allowHttp: true})
+          .resolveAddress('bob*stellar.org')
+          .should.be.rejectedWith(/timeout of 100ms exceeded/)
+          .notify(done)
+          .then(() => tempServer.close());
+      });
+    });
+
+    it("times out when resolveAccountId response lags", function (done) {
+      StellarSdk.Config.setTimeout(100);
+
+      // Unable to create temp server in a browser
+      if (typeof window != 'undefined') {
+        return done();
+      }
+      var response = Array(StellarSdk.FEDERATION_RESPONSE_MAX_SIZE+10).join('a');
+      let tempServer = http.createServer((req, res) => {
+        res.setHeader('Content-Type', 'application/json; charset=UTF-8');
+        setTimeout(() => {
+          res.end(response);
+        }, 10000);
+      }).listen(4444, () => {
+        new StellarSdk.FederationServer('http://localhost:4444/federation', 'stellar.org', {allowHttp: true})
+          .resolveAccountId('GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS')
+          .should.be.rejectedWith(/timeout of 100ms exceeded/)
+          .notify(done)
+          .then(() => tempServer.close());
+      });
+    });
+
+    it("times out when resolveTransactionId response lags", function (done) {
+      StellarSdk.Config.setTimeout(100);
+
+      // Unable to create temp server in a browser
+      if (typeof window != 'undefined') {
+        return done();
+      }
+      var response = Array(StellarSdk.FEDERATION_RESPONSE_MAX_SIZE+10).join('a');
+      let tempServer = http.createServer((req, res) => {
+        res.setHeader('Content-Type', 'application/json; charset=UTF-8');
+        setTimeout(() => {
+          res.end(response);
+        }, 10000);
+      }).listen(4444, () => {
+        new StellarSdk.FederationServer('http://localhost:4444/federation', 'stellar.org', {allowHttp: true})
+          .resolveTransactionId('3389e9f0f1a65f19736cacf544c2e825313e8447f569233bb8db39aa607c8889')
+          .should.be.rejectedWith(/timeout of 100ms exceeded/)
+          .notify(done)
+          .then(() => tempServer.close());
+      });
+    });
+
+    it("times out when createForDomain response lags", function (done) {
+      // Unable to create temp server in a browser
+      if (typeof window != 'undefined') {
+        return done();
+      }
+      var response = Array(StellarSdk.STELLAR_TOML_MAX_SIZE+10).join('a');
+      let tempServer = http.createServer((req, res) => {
+        setTimeout(() => {
+          res.setHeader('Content-Type', 'text/x-toml; charset=UTF-8');
+          res.end(response);
+        }, 1000);
+      }).listen(4444, () => {
+        StellarSdk.FederationServer.createForDomain("localhost:4444", {allowHttp: true, timeout: 100})
+          .should.be.rejectedWith(/timeout of 100ms exceeded/)
+          .notify(done)
+          .then(() => tempServer.close());
+      });
+    });
+
+    it("times out when resolve response lags", function (done) {
+      // Unable to create temp server in a browser
+      if (typeof window != 'undefined') {
+        return done();
+      }
+      var response = Array(StellarSdk.FEDERATION_RESPONSE_MAX_SIZE+10).join('a');
+      let tempServer = http.createServer((req, res) => {
+        setTimeout(() => {
+          res.end(response);
+        }, 10000);
+      }).listen(4444, () => {
+        StellarSdk.FederationServer
+          .resolve('bob*localhost:4444', {allowHttp: true, timeout: 100})
+          .should.eventually.be.rejectedWith(/timeout of 100ms exceeded/)
           .notify(done)
           .then(() => tempServer.close());
       });

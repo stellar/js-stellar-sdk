@@ -36,7 +36,7 @@ class Config {
   }
 
   /**
-   * Sets `timeout` flag globally. When set to anything besides 0, StellarTOMLResolver will timeout after specified time (ms).
+   * Sets `timeout` flag globally. When set to anything besides 0, the request will timeout after specified time (ms).
    * Default: 0.
    * @param {number} value
    * @static

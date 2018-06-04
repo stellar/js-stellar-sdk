@@ -108,7 +108,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
     });
 
     it("rejects after given timeout when global Config.timeout flag is set", function (done) {
-      StellarSdk.Config.setTimeout(1000);
+      StellarSdk.Config.setTimeout(100);
 
       if (typeof window != 'undefined') {
         return done();
@@ -121,7 +121,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
         }, 10000);
       }).listen(4444, () => {
         StellarSdk.StellarTomlResolver.resolve("localhost:4444", {allowHttp: true})
-          .should.be.rejectedWith(/timeout of 1000ms exceeded/)
+          .should.be.rejectedWith(/timeout of 100ms exceeded/)
           .notify(done)
           .then(() => tempServer.close());
       });
@@ -139,8 +139,8 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
           res.end(response);
         }, 10000);
       }).listen(4444, () => {
-        StellarSdk.StellarTomlResolver.resolve("localhost:4444", {allowHttp: true, timeout: 1000})
-          .should.be.rejectedWith(/timeout of 1000ms exceeded/)
+        StellarSdk.StellarTomlResolver.resolve("localhost:4444", {allowHttp: true, timeout: 100})
+          .should.be.rejectedWith(/timeout of 100ms exceeded/)
           .notify(done)
           .then(() => tempServer.close());
       });
