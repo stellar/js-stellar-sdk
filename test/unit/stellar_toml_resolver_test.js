@@ -12,6 +12,10 @@ describe("stellar_toml_resolver.js tests", function () {
   });
 
   describe('StellarTomlResolver.resolve', function () {
+    afterEach(function() {
+      StellarSdk.Config.setDefault();
+    });
+
     it("returns stellar.toml object for valid request and stellar.toml file", function (done) {
       this.axiosMock.expects('get')
         .withArgs(sinon.match('https://acme.com/.well-known/stellar.toml'))
