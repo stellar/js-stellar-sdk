@@ -1,4 +1,5 @@
 import http from "http";
+import { Config } from "../../src/config";
 
 describe("federation-server.js tests", function () {
   beforeEach(function () {
@@ -231,94 +232,67 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
   });
 
   describe('FederationServer times out when response lags and timeout set', function () {
-    it("resolveAddress times out", function (done) {
-      StellarSdk.Config.setTimeout(100);
-
+    let tempServer;
+    beforeEach(function() {
       // Unable to create temp server in a browser
       if (typeof window != 'undefined') {
         return done();
       }
-
-      let tempServer = http.createServer((req, res) => {
+      tempServer = http.createServer((req, res) => {
         setTimeout(() => {}, 10000);
-      }).listen(4444, () => {
-        new StellarSdk.FederationServer('http://localhost:4444/federation', 'stellar.org', {allowHttp: true})
+      }).listen(4444);
+    });
+    
+    afterEach(function() {
+      tempServer.close();
+      Config.setDefault();
+    });
+
+    let opts = {allowHttp: true};
+    let message;
+    for (let i = 0; i < 2; i++) {
+      if (i === 0) {
+        Config.setTimeout(1000);
+        message = "with global config set";
+      } else {
+        opts = {allowHttp: true, timeout: 1000};
+        message = "with instance opts set";
+      }
+      
+      it(`resolveAddress times out ${message}`, function (done) {
+        new StellarSdk.FederationServer('http://localhost:4444/federation', 'stellar.org', opts)
           .resolveAddress('bob*stellar.org')
-          .should.be.rejectedWith(/timeout of 100ms exceeded/)
+          .should.be.rejectedWith(/timeout of 1000ms exceeded/)
           .notify(done)
-          .then(() => tempServer.close());
       });
-    });
-
-    it("resolveAccountId times out", function (done) {
-      StellarSdk.Config.setTimeout(100);
-
-      // Unable to create temp server in a browser
-      if (typeof window != 'undefined') {
-        return done();
-      }
-
-      let tempServer = http.createServer((req, res) => {
-        setTimeout(() => {}, 10000);
-      }).listen(4444, () => {
-        new StellarSdk.FederationServer('http://localhost:4444/federation', 'stellar.org', {allowHttp: true})
+  
+      it(`resolveAccountId times out ${message}`, function (done) {
+        new StellarSdk.FederationServer('http://localhost:4444/federation', 'stellar.org', opts)
           .resolveAccountId('GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS')
-          .should.be.rejectedWith(/timeout of 100ms exceeded/)
+          .should.be.rejectedWith(/timeout of 1000ms exceeded/)
           .notify(done)
-          .then(() => tempServer.close());
       });
-    });
-
-    it("resolveTransactionId times out", function (done) {
-      StellarSdk.Config.setTimeout(100);
-
-      // Unable to create temp server in a browser
-      if (typeof window != 'undefined') {
-        return done();
-      }
-
-      let tempServer = http.createServer((req, res) => {
-        setTimeout(() => {}, 10000);
-      }).listen(4444, () => {
-        new StellarSdk.FederationServer('http://localhost:4444/federation', 'stellar.org', {allowHttp: true})
-          .resolveTransactionId('3389e9f0f1a65f19736cacf544c2e825313e8447f569233bb8db39aa607c8889')
-          .should.be.rejectedWith(/timeout of 100ms exceeded/)
-          .notify(done)
-          .then(() => tempServer.close());
+  
+      it(`resolveTransactionId times out ${message}`, function (done) {
+        new StellarSdk.FederationServer('http://localhost:4444/federation', 'stellar.org', opts)
+            .resolveTransactionId('3389e9f0f1a65f19736cacf544c2e825313e8447f569233bb8db39aa607c8889')
+            .should.be.rejectedWith(/timeout of 1000ms exceeded/)
+            .notify(done)
       });
-    });
-
-    it("createForDomain times out", function (done) {
-      // Unable to create temp server in a browser
-      if (typeof window != 'undefined') {
-        return done();
-      }
-
-      let tempServer = http.createServer((req, res) => {
-        setTimeout(() => {}, 1000);
-      }).listen(4444, () => {
-        StellarSdk.FederationServer.createForDomain("localhost:4444", {allowHttp: true, timeout: 100})
-          .should.be.rejectedWith(/timeout of 100ms exceeded/)
-          .notify(done)
-          .then(() => tempServer.close());
-      });
-    });
-
-    it("resolve times out", function (done) {
-      // Unable to create temp server in a browser
-      if (typeof window != 'undefined') {
-        return done();
-      }
-
-      let tempServer = http.createServer((req, res) => {
-        setTimeout(() => {}, 10000);
-      }).listen(4444, () => {
+  
+      it(`createForDomain times out ${message}`, function (done) {
         StellarSdk.FederationServer
-          .resolve('bob*localhost:4444', {allowHttp: true, timeout: 100})
-          .should.eventually.be.rejectedWith(/timeout of 100ms exceeded/)
+          .createForDomain("localhost:4444", opts)
+          .should.be.rejectedWith(/timeout of 1000ms exceeded/)
           .notify(done)
-          .then(() => tempServer.close());
       });
-    });
+  
+      it(`resolve times out ${message}`, function (done) {
+        StellarSdk.FederationServer
+          .resolve('bob*localhost:4444', opts)
+          .should.eventually.be.rejectedWith(/timeout of 1000ms exceeded/)
+          .notify(done)
+      });
+    }
   });
 });

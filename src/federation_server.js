@@ -20,6 +20,7 @@ export const FEDERATION_RESPONSE_MAX_SIZE = 100 * 1024;
  * @param {string} domain Domain this server represents
  * @param {object} [opts]
  * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments! You can also use {@link Config} class to set this globally.
+ * @param {number} [opts.timeout] - Allow a timeout, default: 0. Allows user to avoid nasty lag due to TOML resolve issue. You can also use {@link Config} class to set this globally.
  */
 export class FederationServer {
   constructor(serverURL, domain, opts = {}) {
@@ -31,6 +32,11 @@ export class FederationServer {
     if (typeof opts.allowHttp !== 'undefined') {
         allowHttp = opts.allowHttp;
     }
+
+    this.timeout = Config.getTimeout();
+    if (typeof opts.timeout === 'number') {
+      this.timeout = opts.timeout;
+    } 
 
     if (this.serverURL.protocol() != 'https' && !allowHttp) {
       throw new Error('Cannot connect to insecure federation server');
@@ -163,7 +169,7 @@ export class FederationServer {
   }
 
   _sendRequest(url) {
-    let timeout = this.timeout | Config.getTimeout();
+    let timeout = this.timeout;
 
     return axios.get(url.toString(), {maxContentLength: FEDERATION_RESPONSE_MAX_SIZE, timeout})
       .then(response => {
