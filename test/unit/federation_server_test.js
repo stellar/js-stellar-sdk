@@ -230,21 +230,17 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
 
   });
 
-  describe('FederationServer timeout', function () {
-
-    it("times out when resolveAddress response lags", function (done) {
+  describe('FederationServer times out when response lags and timeout set', function () {
+    it("resolveAddress times out", function (done) {
       StellarSdk.Config.setTimeout(100);
 
       // Unable to create temp server in a browser
       if (typeof window != 'undefined') {
         return done();
       }
-      var response = Array(StellarSdk.FEDERATION_RESPONSE_MAX_SIZE+10).join('a');
+
       let tempServer = http.createServer((req, res) => {
-        res.setHeader('Content-Type', 'application/json; charset=UTF-8');
-        setTimeout(() => {
-          res.end(response);
-        }, 10000);
+        setTimeout(() => {}, 10000);
       }).listen(4444, () => {
         new StellarSdk.FederationServer('http://localhost:4444/federation', 'stellar.org', {allowHttp: true})
           .resolveAddress('bob*stellar.org')
@@ -254,19 +250,16 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
       });
     });
 
-    it("times out when resolveAccountId response lags", function (done) {
+    it("resolveAccountId times out", function (done) {
       StellarSdk.Config.setTimeout(100);
 
       // Unable to create temp server in a browser
       if (typeof window != 'undefined') {
         return done();
       }
-      var response = Array(StellarSdk.FEDERATION_RESPONSE_MAX_SIZE+10).join('a');
+
       let tempServer = http.createServer((req, res) => {
-        res.setHeader('Content-Type', 'application/json; charset=UTF-8');
-        setTimeout(() => {
-          res.end(response);
-        }, 10000);
+        setTimeout(() => {}, 10000);
       }).listen(4444, () => {
         new StellarSdk.FederationServer('http://localhost:4444/federation', 'stellar.org', {allowHttp: true})
           .resolveAccountId('GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS')
@@ -276,19 +269,16 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
       });
     });
 
-    it("times out when resolveTransactionId response lags", function (done) {
+    it("resolveTransactionId times out", function (done) {
       StellarSdk.Config.setTimeout(100);
 
       // Unable to create temp server in a browser
       if (typeof window != 'undefined') {
         return done();
       }
-      var response = Array(StellarSdk.FEDERATION_RESPONSE_MAX_SIZE+10).join('a');
+
       let tempServer = http.createServer((req, res) => {
-        res.setHeader('Content-Type', 'application/json; charset=UTF-8');
-        setTimeout(() => {
-          res.end(response);
-        }, 10000);
+        setTimeout(() => {}, 10000);
       }).listen(4444, () => {
         new StellarSdk.FederationServer('http://localhost:4444/federation', 'stellar.org', {allowHttp: true})
           .resolveTransactionId('3389e9f0f1a65f19736cacf544c2e825313e8447f569233bb8db39aa607c8889')
@@ -298,17 +288,14 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
       });
     });
 
-    it("times out when createForDomain response lags", function (done) {
+    it("createForDomain times out", function (done) {
       // Unable to create temp server in a browser
       if (typeof window != 'undefined') {
         return done();
       }
-      var response = Array(StellarSdk.STELLAR_TOML_MAX_SIZE+10).join('a');
+
       let tempServer = http.createServer((req, res) => {
-        setTimeout(() => {
-          res.setHeader('Content-Type', 'text/x-toml; charset=UTF-8');
-          res.end(response);
-        }, 1000);
+        setTimeout(() => {}, 1000);
       }).listen(4444, () => {
         StellarSdk.FederationServer.createForDomain("localhost:4444", {allowHttp: true, timeout: 100})
           .should.be.rejectedWith(/timeout of 100ms exceeded/)
@@ -317,16 +304,14 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
       });
     });
 
-    it("times out when resolve response lags", function (done) {
+    it("resolve times out", function (done) {
       // Unable to create temp server in a browser
       if (typeof window != 'undefined') {
         return done();
       }
-      var response = Array(StellarSdk.FEDERATION_RESPONSE_MAX_SIZE+10).join('a');
+
       let tempServer = http.createServer((req, res) => {
-        setTimeout(() => {
-          res.end(response);
-        }, 10000);
+        setTimeout(() => {}, 10000);
       }).listen(4444, () => {
         StellarSdk.FederationServer
           .resolve('bob*localhost:4444', {allowHttp: true, timeout: 100})

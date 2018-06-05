@@ -1,6 +1,5 @@
 import {NotFoundError, NetworkError, BadRequestError} from "./errors";
 import forEach from 'lodash/forEach';
-import { Config } from "./config";
 
 let URI = require("urijs");
 let URITemplate = require("urijs/src/URITemplate");
@@ -18,7 +17,6 @@ let toBluebird = require("bluebird").resolve;
  */
 export class CallBuilder {
   constructor(serverUrl) {
-
     this.url = serverUrl;
     this.filter = [];
     this.originalSegments = this.url.segment() || [];
