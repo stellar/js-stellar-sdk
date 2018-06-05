@@ -4,15 +4,18 @@ import { NotFoundError, NetworkError, BadRequestError } from "./errors";
 const allowedResolutions = [60000, 300000, 900000, 3600000, 86400000, 604800000];
 
 /**
- * Trade Aggregations facilitate efficient gathering of historical trade data
+ * Trade Aggregations facilitate efficient gathering of historical trade data.
  * Do not create this object directly, use {@link Server#tradeAggregation}.
+ *
+ * @class TradeAggregationCallBuilder
+ * @extends CallBuilder
+ * @constructor
  * @param {string} serverUrl serverUrl Horizon server URL.
  * @param {Asset} base base asset
  * @param {Asset} counter counter asset
  * @param {long} start_time lower time boundary represented as millis since epoch
  * @param {long} end_time upper time boundary represented as millis since epoch
  * @param {long} resolution segment duration as millis since epoch. *Supported values are 1 minute (60000), 5 minutes (300000), 15 minutes (900000), 1 hour (3600000), 1 day (86400000) and 1 week (604800000).
- * @returns {OrderbookCallBuilder}
  */
 export class TradeAggregationCallBuilder extends CallBuilder {
   constructor (serverUrl, base, counter, start_time, end_time, resolution){

@@ -4,6 +4,7 @@ import {CallBuilder} from "./call_builder";
  * Creates a new {@link AssetsCallBuilder} pointed to server defined by serverUrl.
  *
  * Do not create this object directly, use {@link Server#assets}.
+ * @class AssetsCallBuilder
  * @constructor
  * @extends CallBuilder
  * @param {string} serverUrl Horizon server URL.

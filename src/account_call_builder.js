@@ -1,15 +1,17 @@
 import {CallBuilder} from "./call_builder";
 
+/**
+ * Creates a new {@link AccountCallBuilder} pointed to server defined by serverUrl.
+ * Do not create this object directly, use {@link Server#accounts}.
+ *
+ * @see [All Accounts](https://www.stellar.org/developers/horizon/reference/accounts-all.html)
+ * @class AccountCallBuilder
+ * @extends CallBuilder
+ * @constructor
+ * @extends CallBuilder
+ * @param {string} serverUrl Horizon server URL.
+ */
 export class AccountCallBuilder extends CallBuilder {
-    /**
-     * Creates a new {@link AccountCallBuilder} pointed to server defined by serverUrl.
-     *
-     * Do not create this object directly, use {@link Server#accounts}.
-     * @see [All Accounts](https://www.stellar.org/developers/horizon/reference/accounts-all.html)
-     * @constructor
-     * @extends CallBuilder
-     * @param {string} serverUrl Horizon server URL.
-     */
     constructor(serverUrl) {
         super(serverUrl);
         this.url.segment('accounts');

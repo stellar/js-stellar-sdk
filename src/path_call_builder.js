@@ -17,6 +17,7 @@ import {CallBuilder} from './call_builder';
  *
  * Do not create this object directly, use {@link Server#paths}.
  * @see [Find Payment Paths](https://www.stellar.org/developers/horizon/reference/path-finding.html)
+ * @extends CallBuilder
  * @param {string} serverUrl Horizon server URL.
  * @param {string} source The sender's account ID. Any returned path must use a source that the sender can hold.
  * @param {string} destination The destination account ID that any returned path should use.

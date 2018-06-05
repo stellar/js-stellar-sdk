@@ -1,18 +1,16 @@
 import {CallBuilder} from "./call_builder";
 
 /**
+ * Creates a new {@link EffectCallBuilder} pointed to server defined by serverUrl.
+ * Do not create this object directly, use {@link Server#effects}.
+ *
  * @class EffectCallBuilder
  * @extends CallBuilder
+ * @see [All Effects](https://www.stellar.org/developers/horizon/reference/effects-all.html)
+ * @constructor
+ * @param {string} serverUrl Horizon server URL.
  */
 export class EffectCallBuilder extends CallBuilder {
-    /*
-     * Creates a new {@link EffectCallBuilder} pointed to server defined by serverUrl.
-     *
-     * Do not create this object directly, use {@link Server#effects}.
-     * @see [All Effects](https://www.stellar.org/developers/horizon/reference/effects-all.html)
-     * @constructor
-     * @param {string} serverUrl Horizon server URL.
-     */
     constructor(serverUrl) {
         super(serverUrl);
         this.url.segment('effects');

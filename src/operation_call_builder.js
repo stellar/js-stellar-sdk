@@ -1,15 +1,16 @@
 import {CallBuilder} from "./call_builder";
 
+/**
+ * Creates a new {@link OperationCallBuilder} pointed to server defined by serverUrl.
+ * Do not create this object directly, use {@link Server#operations}.
+ *
+ * @see [All Operations](https://www.stellar.org/developers/horizon/reference/operations-all.html)
+ * @class OperationCallBuilder
+ * @constructor
+ * @extends CallBuilder
+ * @param {string} serverUrl Horizon server URL.
+ */
 export class OperationCallBuilder extends CallBuilder {
-    /**
-     * Creates a new {@link OperationCallBuilder} pointed to server defined by serverUrl.
-     *
-     * Do not create this object directly, use {@link Server#operations}.
-     * @see [All Operations](https://www.stellar.org/developers/horizon/reference/operations-all.html)
-     * @constructor
-     * @extends CallBuilder
-     * @param {string} serverUrl Horizon server URL.
-     */
     constructor(serverUrl) {
         super(serverUrl);
         this.url.segment('operations');
