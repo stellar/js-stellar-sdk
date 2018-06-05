@@ -20,6 +20,7 @@ export const FEDERATION_RESPONSE_MAX_SIZE = 100 * 1024;
  * @param {string} domain Domain this server represents
  * @param {object} [opts]
  * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments! You can also use {@link Config} class to set this globally.
+ * @param {number} [opts.timeout] - Allow a timeout, default: 0. Allows user to avoid nasty lag due to TOML resolve issue. You can also use {@link Config} class to set this globally.
  */
 export class FederationServer {
   constructor(serverURL, domain, opts = {}) {
@@ -31,6 +32,11 @@ export class FederationServer {
     if (typeof opts.allowHttp !== 'undefined') {
         allowHttp = opts.allowHttp;
     }
+
+    this.timeout = Config.getTimeout();
+    if (typeof opts.timeout === 'number') {
+      this.timeout = opts.timeout;
+    } 
 
     if (this.serverURL.protocol() != 'https' && !allowHttp) {
       throw new Error('Cannot connect to insecure federation server');
@@ -71,6 +77,7 @@ export class FederationServer {
    * @param {string} value Stellar Address (ex. `bob*stellar.org`)
    * @param {object} [opts]
    * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments!
+   * @param {number} [opts.timeout] - Allow a timeout, default: 0. Allows user to avoid nasty lag due to TOML resolve issue.
    * @returns {Promise}
    */
   static resolve(value, opts = {}) {
@@ -109,10 +116,11 @@ export class FederationServer {
    * @param {string} domain Domain to get federation server for
    * @param {object} [opts]
    * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments!
+   * @param {number} [opts.timeout] - Allow a timeout, default: 0. Allows user to avoid nasty lag due to TOML resolve issue.
    * @returns {Promise}
    */
   static createForDomain(domain, opts = {}) {
-    return StellarTomlResolver.resolve(domain)
+    return StellarTomlResolver.resolve(domain, opts)
       .then(tomlObject => {
         if (!tomlObject.FEDERATION_SERVER) {
           return Promise.reject(new Error('stellar.toml does not contain FEDERATION_SERVER field'));
@@ -161,7 +169,9 @@ export class FederationServer {
   }
 
   _sendRequest(url) {
-    return axios.get(url.toString(), {maxContentLength: FEDERATION_RESPONSE_MAX_SIZE})
+    let timeout = this.timeout;
+
+    return axios.get(url.toString(), {maxContentLength: FEDERATION_RESPONSE_MAX_SIZE, timeout})
       .then(response => {
         if (typeof response.data.memo != "undefined" && typeof response.data.memo != 'string') {
           throw new Error("memo value should be of type string");

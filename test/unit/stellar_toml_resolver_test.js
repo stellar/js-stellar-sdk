@@ -12,6 +12,10 @@ describe("stellar_toml_resolver.js tests", function () {
   });
 
   describe('StellarTomlResolver.resolve', function () {
+    afterEach(function() {
+      StellarSdk.Config.setDefault();
+    });
+
     it("returns stellar.toml object for valid request and stellar.toml file", function (done) {
       this.axiosMock.expects('get')
         .withArgs(sinon.match('https://acme.com/.well-known/stellar.toml'))
@@ -102,6 +106,43 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
       }).listen(4444, () => {
         StellarSdk.StellarTomlResolver.resolve("localhost:4444", {allowHttp: true})
           .should.be.rejectedWith(/stellar.toml file exceeds allowed size of [0-9]+/)
+          .notify(done)
+          .then(() => tempServer.close());
+      });
+    });
+
+    it("rejects after given timeout when global Config.timeout flag is set", function (done) {
+      StellarSdk.Config.setTimeout(1000);
+
+       // Unable to create temp server in a browser
+      if (typeof window != 'undefined') {
+        return done();
+      }
+
+      let tempServer = http.createServer((req, res) => {
+        setTimeout(() => {}, 10000);
+      }).listen(4444, () => {
+        StellarSdk.StellarTomlResolver.resolve("localhost:4444", {allowHttp: true})
+          .should.be.rejectedWith(/timeout of 1000ms exceeded/)
+          .notify(done)
+          .then(() => {
+            StellarSdk.Config.setDefault();
+            tempServer.close();
+          });
+      });
+    });
+
+    it("rejects after given timeout when timeout specified in StellarTomlResolver opts param", function (done) {
+      // Unable to create temp server in a browser
+      if (typeof window != 'undefined') {
+        return done();
+      }
+
+      let tempServer = http.createServer((req, res) => {
+        setTimeout(() => {}, 10000);
+      }).listen(4444, () => {
+        StellarSdk.StellarTomlResolver.resolve("localhost:4444", {allowHttp: true, timeout: 1000})
+          .should.be.rejectedWith(/timeout of 1000ms exceeded/)
           .notify(done)
           .then(() => tempServer.close());
       });
