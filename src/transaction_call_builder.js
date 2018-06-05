@@ -1,15 +1,16 @@
 import {CallBuilder} from "./call_builder";
 
+/**
+ * Creates a new {@link TransactionCallBuilder} pointed to server defined by serverUrl.
+ * Do not create this object directly, use {@link Server#transactions}.
+ *
+ * @class TransactionCallBuilder
+ * @extends CallBuilder
+ * @see [All Transactions](https://www.stellar.org/developers/horizon/reference/transactions-all.html)
+ * @constructor
+ * @param {string} serverUrl Horizon server URL.
+ */
 export class TransactionCallBuilder extends CallBuilder {
-    /**
-     * Creates a new {@link TransactionCallBuilder} pointed to server defined by serverUrl.
-     *
-     * Do not create this object directly, use {@link Server#transactions}.
-     * @see [All Transactions](https://www.stellar.org/developers/horizon/reference/transactions-all.html)
-     * @constructor
-     * @extends CallBuilder
-     * @param {string} serverUrl Horizon server URL.
-     */
     constructor(serverUrl) {
         super(serverUrl);
         this.url.segment('transactions');
