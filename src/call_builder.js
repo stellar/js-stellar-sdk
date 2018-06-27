@@ -6,7 +6,6 @@ let URITemplate = require("urijs/src/URITemplate");
 
 let axios = require("axios");
 var EventSource = (typeof window === 'undefined') ? require('eventsource') : window.EventSource;
-let toBluebird = require("bluebird").resolve;
 
 /**
  * Creates a new {@link CallBuilder} pointed to server defined by serverUrl.
@@ -163,10 +162,9 @@ export class CallBuilder {
 
     // Temp fix for: https://github.com/stellar/js-stellar-sdk/issues/15
     url.setQuery('c', Math.random());
-    var promise = axios.get(url.toString())
+    return axios.get(url.toString())
       .then(response => response.data)
       .catch(this._handleNetworkError);
-    return toBluebird(promise);
   }
 
   /**
@@ -203,16 +201,16 @@ export class CallBuilder {
   /**
    * @private
    */
-  _handleNetworkError(response) {
-    if (response instanceof Error) {
-      return Promise.reject(response);
-    } else {
-      switch (response.status) {
+  _handleNetworkError(error) {
+    if (error.response && error.response.status) {
+      switch (error.response.status) {
         case 404:
-          return Promise.reject(new NotFoundError(response.data, response));
+          return Promise.reject(new NotFoundError(error.response.statusText, error.response.data));
         default:
-          return Promise.reject(new NetworkError(response.status, response));
+          return Promise.reject(new NetworkError(error.response.statusText, error.response.data));
       }
+    } else {
+      return Promise.reject(new Error(error));
     }
   }
 

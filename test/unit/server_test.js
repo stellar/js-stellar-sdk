@@ -275,7 +275,7 @@ describe("server.js tests", function () {
         it("throws a NotFoundError", function (done) {
           this.axiosMock.expects('get')
             .withArgs(sinon.match('https://horizon-live.stellar.org:1337/ledgers/1'))
-            .returns(Promise.reject({status: 404, data: {}}));
+            .returns(Promise.reject({response: {status: 404, data: {}}}));
 
           this.server.ledgers()
             .ledger(1)
@@ -283,11 +283,12 @@ describe("server.js tests", function () {
             .then(function () {
               done("didn't throw an error");
             })
-            .catch(StellarSdk.NotFoundError, function (err) {
-              done();
-            })
             .catch(function (err) {
-              done(err);
+              if (err instanceof StellarSdk.NotFoundError) {
+                done();
+              } else {
+                done(err);
+              }
             })
         })
       });
