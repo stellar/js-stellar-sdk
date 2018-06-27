@@ -1,26 +1,26 @@
 module.exports = function(config) {
   var customLaunchers = {
-    sl_chrome: {
+    sl_chrome_49: {
       base: 'SauceLabs',
       browserName: 'chrome',
       version: '49'
     },
-    sl_chrome: {
+    sl_chrome_latest: {
       base: 'SauceLabs',
       browserName: 'chrome',
       version: 'latest'
     },
-    sl_firefox: {
+    sl_firefox_42: {
       base: 'SauceLabs',
       browserName: 'firefox',
       version: '42'
     },
-    sl_firefox: {
+    sl_firefox_latest: {
       base: 'SauceLabs',
       browserName: 'firefox',
       version: 'latest'
     },
-    sl_edge: {
+    sl_edge_17: {
       base: 'SauceLabs',
       browserName: 'microsoftedge',
       version: '17'
