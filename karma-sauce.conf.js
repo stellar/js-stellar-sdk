@@ -23,7 +23,7 @@ module.exports = function(config) {
     sl_edge: {
       base: 'SauceLabs',
       browserName: 'microsoftedge',
-      version: '20'
+      version: '17'
     }
   };
 
