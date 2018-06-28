@@ -19,7 +19,6 @@ import {xdr} from "stellar-base";
 import isString from "lodash/isString";
 
 let axios = require("axios");
-let toBluebird = require("bluebird").resolve;
 let URI = require("urijs");
 let URITemplate = require("urijs").URITemplate;
 
@@ -55,7 +54,7 @@ export class Server {
      */
     submitTransaction(transaction) {
         let tx = encodeURIComponent(transaction.toEnvelope().toXDR().toString("base64"));
-        var promise = axios.post(
+        return axios.post(
               URI(this.serverURL).segment('transactions').toString(),
               `tx=${tx}`,
               {timeout: SUBMIT_TRANSACTION_TIMEOUT}
@@ -70,7 +69,6 @@ export class Server {
                     return Promise.reject(new BadResponseError(`Transaction submission failed. Server responded: ${response.status} ${response.statusText}`, response.data));
                 }
             });
-        return toBluebird(promise);
     }
 
     /**

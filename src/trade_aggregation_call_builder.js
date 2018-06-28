@@ -1,5 +1,5 @@
 import { CallBuilder } from "./call_builder";
-import { NotFoundError, NetworkError, BadRequestError } from "./errors";
+import { BadRequestError } from "./errors";
 
 const allowedResolutions = [60000, 300000, 900000, 3600000, 86400000, 604800000];
 
