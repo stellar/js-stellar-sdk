@@ -1,6 +1,6 @@
 {
   "name": "stellar-sdk",
-  "version": "0.8.2",
+  "version": "0.9.0",
   "description": "stellar-sdk is a library for working with the Stellar Horizon server.",
   "main": "lib/index.js",
   "scripts": {
@@ -18,7 +18,7 @@
     "url": "https://github.com/stellar/js-stellar-sdk.git"
   },
   "engines": {
-    "node": ">=0.6"
+    "node": ">=6"
   },
   "author": "Stellar Development Foundation <hello@stellar.org>",
   "license": "Apache-2.0",

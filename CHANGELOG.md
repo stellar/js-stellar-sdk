@@ -2,6 +2,43 @@
 
 As this project is pre 1.0, breaking changes may happen for minor version bumps. A breaking change will get clearly notified in this log.
 
+## 0.9.0
+
+### Breaking changes
+
+* `stellar-sdk` is now using native `Promise` instead of `bluebird`. The `catch` function is different. Instead of:
+
+  ```js
+  .catch(StellarSdk.NotFoundError, function (err) { /* ... */ })
+  ```
+  please use the following snippet:
+  ```js
+  .catch(function (err) {
+    if (err instanceof StellarSdk.NotFoundError) { /* ... */ }
+  })
+  ```
+
+* We no longer support IE 11, Firefox < 42, Chrome < 49.
+
+### Changes
+
+* Fixed `_ is undefined` bug.
+* Browser build is around 130 KB smaller!
+
+## 0.8.2
+
+* Added `timeout` option to `StellarTomlResolver` and `FederationServer` calls (https://github.com/stellar/js-stellar-sdk/issues/158).
+* Fixed adding random value to URLs multiple times (https://github.com/stellar/js-stellar-sdk/issues/169).
+* Fixed jsdoc for classes that extend `CallBuilder`.
+* Updated dependencies.
+* Added `yarn.lock` file to repository.
+
+## 0.8.1
+
+* Add an allowed trade aggregation resolution of one minute
+* Various bug fixes
+* Improved documentation
+
 ## 0.8.0
 
 * Modify `/trades` endpoint to reflect changes in horizon. 
