@@ -142,4 +142,4 @@ var es = server.payments()
   })
 ```
 
-For more on streaming events, please check out [the Horizon responses documentation](https://www.stellar.org/developers/horizon/learn/responses.html#streaming) and this [guide to server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events).
+For more on streaming events, please check out [the Horizon responses documentation](https://www.stellar.org/developers/horizon/reference/streaming.html) and this [guide to server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events).
