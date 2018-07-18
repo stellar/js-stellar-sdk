@@ -106,7 +106,7 @@ Make sure that you are using the latest version number. They can be found on the
   ```
 
 ## Usage
-For information on how to use js-stellar-sdk, take a look at the [Developers site](https://www.stellar.org/developers/js-stellar-sdk/learn/index.html).
+For information on how to use js-stellar-sdk, take a look at the [Developers site](https://www.stellar.org/developers/js-stellar-sdk/reference/).
 
 There is also API Documentation [here](https://www.stellar.org/developers/reference/).
 
