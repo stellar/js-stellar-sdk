@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>OrderbookCallBuilder - Documentation</title>
+    <title>operation_call_builder.js - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -29,245 +29,86 @@
 
 <div id="main">
     
-    <h1 class="page-title">OrderbookCallBuilder</h1>
+    <h1 class="page-title">operation_call_builder.js</h1>
     
 
     
 
 
 
-
-<section>
-
-<header>
     
-        <h2>
-        OrderbookCallBuilder
-        </h2>
-        
-            <div class="class-description"><p>Creates a new <a href="OrderbookCallBuilder.html">OrderbookCallBuilder</a> pointed to server defined by serverUrl.</p>
-<p>Do not create this object directly, use <a href="Server.html#orderbook">Server#orderbook</a>.</p></div>
-        
-    
-</header>
-
-<article>
-    <div class="container-overview">
-    
-        
-<div class="section-method">
-
-    
-    <h2>Constructor</h2>
-    
-
-    <h4 class="name" id="OrderbookCallBuilder"><span class="type-signature"></span>new OrderbookCallBuilder<span class="signature">(serverUrl, selling, buying)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="orderbook_call_builder.js.html">orderbook_call_builder.js</a>, <a href="orderbook_call_builder.js.html#line12">line 12</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-    <dt class="tag-see">See:</dt>
-    <dd class="tag-see">
-        <ul>
-            <li><p><a href="https://www.stellar.org/developers/horizon/reference/orderbook-details.html">Orderbook Details</a></p></li>
-        </ul>
-    </dd>
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>serverUrl</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><code>string</code></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">
-                <p>serverUrl Horizon server URL.</p>
-                
-            </td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>selling</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><code>Asset</code></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">
-                <p>Asset being sold</p>
-                
-            </td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>buying</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><code>Asset</code></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">
-                <p>Asset being bought</p>
-                
-            </td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-</div>
-    
-    </div>
-
-    
-
-    
-
-    
-
-     
-
-    
-
-    
-
-    
-
-    
-
-    
-</article>
-
-</section>
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import {CallBuilder} from "./call_builder";
+
+/**
+ * Creates a new {@link OperationCallBuilder} pointed to server defined by serverUrl.
+ * Do not create this object directly, use {@link Server#operations}.
+ *
+ * @see [All Operations](https://www.stellar.org/developers/horizon/reference/operations-all.html)
+ * @class OperationCallBuilder
+ * @constructor
+ * @extends CallBuilder
+ * @param {string} serverUrl Horizon server URL.
+ */
+export class OperationCallBuilder extends CallBuilder {
+    constructor(serverUrl) {
+        super(serverUrl);
+        this.url.segment('operations');
+    }
+
+    /**
+     * The operation details endpoint provides information on a single operation. The operation ID provided in the id
+     * argument specifies which operation to load.
+     * @see [Operation Details](https://www.stellar.org/developers/horizon/reference/operations-single.html)
+     * @param {number} operationId Operation ID
+     * @returns {OperationCallBuilder}
+     */
+    operation(operationId) {
+        this.filter.push(['operations', operationId]);
+        return this;
+    }
+
+    /**
+     * This endpoint represents all operations that were included in valid transactions that affected a particular account.
+     * @see [Operations for Account](https://www.stellar.org/developers/horizon/reference/operations-for-account.html)
+     * @param {string} accountId For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
+     * @returns {OperationCallBuilder}
+     */
+    forAccount(accountId) {
+        this.filter.push(['accounts', accountId, 'operations']);
+        return this;
+    }
+
+    /**
+     * This endpoint returns all operations that occurred in a given ledger.
+     *
+     * @see [Operations for Ledger](https://www.stellar.org/developers/horizon/reference/operations-for-ledger.html)
+     * @param {number|string} sequence Ledger sequence
+     * @returns {OperationCallBuilder}
+     */
+    forLedger(sequence) {
+        if (typeof sequence == 'number') {
+            sequence = sequence.toString();
+        }
+        this.filter.push(['ledgers', sequence, 'operations']);
+        return this;
+    }
+
+    /**
+     * This endpoint represents all operations that are part of a given transaction.
+     * @see [Operations for Transaction](https://www.stellar.org/developers/horizon/reference/operations-for-transaction.html)
+     * @param {string} transactionId Transaction ID
+     * @returns {OperationCallBuilder}
+     */
+    forTransaction(transactionId) {
+        this.filter.push(['transactions', transactionId, 'operations']);
+        return this;
+    }
+}
+</code></pre>
+        </article>
+    </section>
 
 
 

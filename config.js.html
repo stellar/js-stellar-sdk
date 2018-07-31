@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>OrderbookCallBuilder - Documentation</title>
+    <title>config.js - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -29,245 +29,92 @@
 
 <div id="main">
     
-    <h1 class="page-title">OrderbookCallBuilder</h1>
+    <h1 class="page-title">config.js</h1>
     
 
     
 
 
 
-
-<section>
-
-<header>
     
-        <h2>
-        OrderbookCallBuilder
-        </h2>
-        
-            <div class="class-description"><p>Creates a new <a href="OrderbookCallBuilder.html">OrderbookCallBuilder</a> pointed to server defined by serverUrl.</p>
-<p>Do not create this object directly, use <a href="Server.html#orderbook">Server#orderbook</a>.</p></div>
-        
-    
-</header>
-
-<article>
-    <div class="container-overview">
-    
-        
-<div class="section-method">
-
-    
-    <h2>Constructor</h2>
-    
-
-    <h4 class="name" id="OrderbookCallBuilder"><span class="type-signature"></span>new OrderbookCallBuilder<span class="signature">(serverUrl, selling, buying)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="orderbook_call_builder.js.html">orderbook_call_builder.js</a>, <a href="orderbook_call_builder.js.html#line12">line 12</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-    <dt class="tag-see">See:</dt>
-    <dd class="tag-see">
-        <ul>
-            <li><p><a href="https://www.stellar.org/developers/horizon/reference/orderbook-details.html">Orderbook Details</a></p></li>
-        </ul>
-    </dd>
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>serverUrl</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><code>string</code></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">
-                <p>serverUrl Horizon server URL.</p>
-                
-            </td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>selling</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><code>Asset</code></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">
-                <p>Asset being sold</p>
-                
-            </td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>buying</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><code>Asset</code></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">
-                <p>Asset being bought</p>
-                
-            </td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-</div>
-    
-    </div>
-
-    
-
-    
-
-    
-
-     
-
-    
-
-    
-
-    
-
-    
-
-    
-</article>
-
-</section>
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import clone from 'lodash/clone';
+
+let defaultConfig = {
+  allowHttp: false,
+  timeout: 0
+};
+
+let config = clone(defaultConfig);
+
+/**
+ * Global config class.
+ *
+ * Usage node:
+ * ```
+ * import {Config} from 'stellar-sdk';
+ * Config.setAllowHttp(true);
+ * Config.setTimout(5000);
+ * ```
+ *
+ * Usage browser:
+ * ```
+ * StellarSdk.Config.setAllowHttp(true);
+ * StellarSdk.Config.setTimout(5000);
+ * ```
+ * @static
+ */
+class Config {
+  /**
+   * Sets `allowHttp` flag globally. When set to `true`, connections to insecure http protocol servers will be allowed.
+   * Must be set to `false` in production. Default: `false`.
+   * @param {boolean} value
+   * @static
+   */
+  static setAllowHttp(value) {
+    config.allowHttp = value;
+  }
+
+  /**
+   * Sets `timeout` flag globally. When set to anything besides 0, the request will timeout after specified time (ms).
+   * Default: 0.
+   * @param {number} value
+   * @static
+   */
+  static setTimeout(value) {
+    config.timeout = value;
+  }
+
+  /**
+   * Returns the value of `allowHttp` flag.
+   * @static
+   */
+  static isAllowHttp() {
+    return clone(config.allowHttp);
+  }
+
+   /**
+   * Returns the value of `timeout` flag.
+   * @static
+   */
+  static getTimeout() {
+    return clone(config.timeout);
+  }
+
+  /**
+   * Sets all global config flags to default values.
+   * @static
+   */
+  static setDefault() {
+    config = clone(defaultConfig);
+  }
+}
+
+export {Config};
+</code></pre>
+        </article>
+    </section>
 
 
 
