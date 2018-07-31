@@ -1327,7 +1327,7 @@ coveralls@^2.11.2, coveralls@^2.11.4:
     minimist "1.2.0"
     request "2.79.0"
 
-crc@^3.3.0, crc@^3.4.4:
+crc@^3.4.4, crc@3.5.0:
   version "3.5.0"
   resolved "https://registry.yarnpkg.com/crc/-/crc-3.5.0.tgz#98b8ba7d489665ba3979f59b21381374101a1964"
 
@@ -5009,13 +5009,13 @@ statuses@~1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/statuses/-/statuses-1.4.0.tgz#bb73d446da2796106efcc1b601a253d6c46bd087"
 
-stellar-base@^0.7.6:
-  version "0.7.8"
-  resolved "https://registry.yarnpkg.com/stellar-base/-/stellar-base-0.7.8.tgz#8bda188cf59eed4149bedf65b655711b88ce69fc"
+stellar-base@^0.8.0:
+  version "0.8.0"
+  resolved "https://registry.yarnpkg.com/stellar-base/-/stellar-base-0.8.0.tgz#98ca471c588ec44200ec113632d35729477b3f8c"
   dependencies:
     base32.js "~0.1.0"
     bignumber.js "^4.0.0"
-    crc "^3.3.0"
+    crc "3.5.0"
     js-xdr "^1.0.0"
     lodash "^4.17.10"
     sha.js "^2.3.6"

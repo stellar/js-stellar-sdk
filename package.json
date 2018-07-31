@@ -1,6 +1,6 @@
 {
   "name": "stellar-sdk",
-  "version": "0.9.2",
+  "version": "0.10.0",
   "description": "stellar-sdk is a library for working with the Stellar Horizon server.",
   "main": "lib/index.js",
   "scripts": {
@@ -84,7 +84,7 @@
     "event-source-polyfill": "0.0.12",
     "eventsource": "^1.0.5",
     "lodash": "^4.17.10",
-    "stellar-base": "^0.7.6",
+    "stellar-base": "^0.8.0",
     "toml": "^2.3.0",
     "urijs": "1.19.1"
   }
