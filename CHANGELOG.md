@@ -2,6 +2,14 @@
 
 As this project is pre 1.0, breaking changes may happen for minor version bumps. A breaking change will get clearly notified in this log.
 
+## 0.10.1
+
+* Update `stellar-base` to `0.8.1`.
+
+## 0.10.0
+
+* Update `stellar-base` to `0.8.0` with `bump_sequence` support.
+
 ## 0.9.2
 
 * Removed `.babelrc` file from the NPM package.
