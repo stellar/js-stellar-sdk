@@ -21,7 +21,7 @@ export class AssetsCallBuilder extends CallBuilder {
      * @returns {AssetsCallBuilder}
      */
     forCode(value){
-        this.url.addQuery("asset_code", value);
+        this.url.setQuery("asset_code", value);
         return this;
     }
 
@@ -31,7 +31,7 @@ export class AssetsCallBuilder extends CallBuilder {
      * @returns {AssetsCallBuilder}
      */
     forIssuer(value){
-        this.url.addQuery("asset_issuer", value);
+        this.url.setQuery("asset_issuer", value);
         return this;
     }
 }
