@@ -215,31 +215,31 @@ export class CallBuilder {
   }
 
   /**
-   * Adds `cursor` parameter to the current call. Returns the CallBuilder object on which this method has been called.
+   * Sets `cursor` parameter for the current call. Returns the CallBuilder object on which this method has been called.
    * @see [Paging](https://www.stellar.org/developers/horizon/learn/paging.html)
    * @param {string} cursor A cursor is a value that points to a specific location in a collection of resources.
    */
   cursor(cursor) {
-    this.url.addQuery("cursor", cursor);
+    this.url.setQuery("cursor", cursor);
     return this;
   }
 
   /**
-   * Adds `limit` parameter to the current call. Returns the CallBuilder object on which this method has been called.
+   * Sets `limit` parameter for the current call. Returns the CallBuilder object on which this method has been called.
    * @see [Paging](https://www.stellar.org/developers/horizon/learn/paging.html)
    * @param {number} number Number of records the server should return.
    */
   limit(number) {
-    this.url.addQuery("limit", number);
+    this.url.setQuery("limit", number);
     return this;
   }
 
   /**
-   * Adds `order` parameter to the current call. Returns the CallBuilder object on which this method has been called.
+   * Sets `order` parameter for the current call. Returns the CallBuilder object on which this method has been called.
    * @param {"asc"|"desc"} direction
    */
   order(direction) {
-    this.url.addQuery("order", direction);
+    this.url.setQuery("order", direction);
     return this;
   }
 }

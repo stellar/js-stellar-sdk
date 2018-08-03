@@ -24,18 +24,18 @@ export class TradesCallBuilder extends CallBuilder {
     */
     forAssetPair(base, counter) {
         if (!base.isNative()) {
-            this.url.addQuery("base_asset_type", base.getAssetType());
-            this.url.addQuery("base_asset_code", base.getCode());
-            this.url.addQuery("base_asset_issuer", base.getIssuer());
+            this.url.setQuery("base_asset_type", base.getAssetType());
+            this.url.setQuery("base_asset_code", base.getCode());
+            this.url.setQuery("base_asset_issuer", base.getIssuer());
         } else {
-            this.url.addQuery("base_asset_type", 'native');
+            this.url.setQuery("base_asset_type", 'native');
         }
         if (!counter.isNative()) {
-            this.url.addQuery("counter_asset_type", counter.getAssetType());
-            this.url.addQuery("counter_asset_code", counter.getCode());
-            this.url.addQuery("counter_asset_issuer", counter.getIssuer());
+            this.url.setQuery("counter_asset_type", counter.getAssetType());
+            this.url.setQuery("counter_asset_code", counter.getCode());
+            this.url.setQuery("counter_asset_issuer", counter.getIssuer());
         } else {
-            this.url.addQuery("counter_asset_type", 'native');
+            this.url.setQuery("counter_asset_type", 'native');
         }
         return this;
     }
@@ -46,7 +46,7 @@ export class TradesCallBuilder extends CallBuilder {
     * @returns {TradesCallBuilder}
     */
     forOffer(offerId) {
-        this.url.addQuery("offer_id", offerId);
+        this.url.setQuery("offer_id", offerId);
         return this;
     }
 
