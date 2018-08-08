@@ -739,12 +739,6 @@ babel-register@^6.26.0:
     mkdirp "^0.5.1"
     source-map-support "^0.4.15"
 
-babel-runtime@^4.7.16:
-  version "4.7.16"
-  resolved "https://registry.yarnpkg.com/babel-runtime/-/babel-runtime-4.7.16.tgz#7a3995ad8c9eb5b4d0dd35febf170d0d1420262b"
-  dependencies:
-    core-js "^0.6.1"
-
 babel-runtime@^6.18.0, babel-runtime@^6.2.0, babel-runtime@^6.22.0, babel-runtime@^6.26.0:
   version "6.26.0"
   resolved "https://registry.yarnpkg.com/babel-runtime/-/babel-runtime-6.26.0.tgz#965c7058668e82b55d7bfe04ff2337bc8b5647fe"
@@ -1304,10 +1298,6 @@ cookie@0.3.1:
 copy-descriptor@^0.1.0:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/copy-descriptor/-/copy-descriptor-0.1.1.tgz#676f6eb3c39997c2ee1ac3a924fd6124748f578d"
-
-core-js@^0.6.1:
-  version "0.6.1"
-  resolved "https://registry.yarnpkg.com/core-js/-/core-js-0.6.1.tgz#1b4970873e8101bf8c435af095faa9024f4b9b58"
 
 core-js@^2.1.0, core-js@^2.4.0, core-js@^2.5.0:
   version "2.5.7"
@@ -3078,11 +3068,10 @@ js-tokens@^3.0.0, js-tokens@^3.0.2:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/js-tokens/-/js-tokens-3.0.2.tgz#9866df395102130e38f7f996bceb65443209c25b"
 
-js-xdr@^1.0.0:
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/js-xdr/-/js-xdr-1.0.3.tgz#7ae0aba03969771a28dfe423ffc9e9d02d9301d7"
+js-xdr@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/js-xdr/-/js-xdr-1.0.4.tgz#a76e292ec3053f190dcd1dae9215274aae6a138d"
   dependencies:
-    babel-runtime "^4.7.16"
     cursor "^0.1.5"
     lodash "^4.17.5"
     long "^2.2.3"
@@ -5009,14 +4998,14 @@ statuses@~1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/statuses/-/statuses-1.4.0.tgz#bb73d446da2796106efcc1b601a253d6c46bd087"
 
-stellar-base@^0.8.1:
-  version "0.8.1"
-  resolved "https://registry.yarnpkg.com/stellar-base/-/stellar-base-0.8.1.tgz#b090635fd4eaf4f76e5e69a5c5306eeeb97f731b"
+stellar-base@^0.8.2:
+  version "0.8.2"
+  resolved "https://registry.yarnpkg.com/stellar-base/-/stellar-base-0.8.2.tgz#c623413ec3407e0354de4d2300506bc46b1f2656"
   dependencies:
     base32.js "~0.1.0"
     bignumber.js "^4.0.0"
     crc "3.5.0"
-    js-xdr "^1.0.0"
+    js-xdr "^1.0.4"
     lodash "^4.17.10"
     sha.js "^2.3.6"
     tweetnacl "^1.0.0"
