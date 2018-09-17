@@ -3068,9 +3068,9 @@ js-tokens@^3.0.0, js-tokens@^3.0.2:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/js-tokens/-/js-tokens-3.0.2.tgz#9866df395102130e38f7f996bceb65443209c25b"
 
-js-xdr@^1.0.4:
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/js-xdr/-/js-xdr-1.0.4.tgz#a76e292ec3053f190dcd1dae9215274aae6a138d"
+js-xdr@^1.0.5:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/js-xdr/-/js-xdr-1.0.5.tgz#c639f62e5988675e20dfe5fc51ede875e8989072"
   dependencies:
     cursor "^0.1.5"
     lodash "^4.17.5"
@@ -4998,14 +4998,14 @@ statuses@~1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/statuses/-/statuses-1.4.0.tgz#bb73d446da2796106efcc1b601a253d6c46bd087"
 
-stellar-base@^0.8.3:
-  version "0.8.3"
-  resolved "https://registry.yarnpkg.com/stellar-base/-/stellar-base-0.8.3.tgz#0403a538fdb5e7e247bb23e64eeabfa754323f72"
+stellar-base@^0.9.0:
+  version "0.9.0"
+  resolved "https://registry.yarnpkg.com/stellar-base/-/stellar-base-0.9.0.tgz#03a4d71c9bfe49f0c54afd4a8f34517ed49c0924"
   dependencies:
     base32.js "~0.1.0"
     bignumber.js "^4.0.0"
     crc "3.5.0"
-    js-xdr "^1.0.4"
+    js-xdr "^1.0.5"
     lodash "^4.17.10"
     sha.js "^2.3.6"
     tweetnacl "^1.0.0"
