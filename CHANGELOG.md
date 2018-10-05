@@ -6,6 +6,7 @@ As this project is pre 1.0, breaking changes may happen for minor version bumps.
 
 * Update `js-xdr` (by updating `stellar-base`) to support unmarshaling non-utf8 strings.
 * String fields returned by `Operation.fromXDRObject()` are of type `Buffer` now (except `SetOptions.home_domain` and `ManageData.name` - both required to be ASCII by stellar-core).
+* Add `offset` parameter to TradeAggregationCallBuilder to reflect new changes to the endpoint in horizon-0.15.0
 
 ## 0.10.3
 
