@@ -16,9 +16,10 @@ const allowedResolutions = [60000, 300000, 900000, 3600000, 86400000, 604800000]
  * @param {long} start_time lower time boundary represented as millis since epoch
  * @param {long} end_time upper time boundary represented as millis since epoch
  * @param {long} resolution segment duration as millis since epoch. *Supported values are 1 minute (60000), 5 minutes (300000), 15 minutes (900000), 1 hour (3600000), 1 day (86400000) and 1 week (604800000).
+ * @param {long} offset segments can be offset using this parameter. Expressed in milliseconds. *Can only be used if the resolution is greater than 1 hour. Value must be in whole hours, less than the provided resolution, and less than 24 hours.
  */
 export class TradeAggregationCallBuilder extends CallBuilder {
-  constructor (serverUrl, base, counter, start_time, end_time, resolution){
+  constructor (serverUrl, base, counter, start_time, end_time, resolution, offset){
     super(serverUrl);
     
     this.url.segment('trade_aggregations');
@@ -47,6 +48,11 @@ export class TradeAggregationCallBuilder extends CallBuilder {
     }else{
         this.url.setQuery("resolution", resolution);
     }
+    if (!this.isValidOffset(offset, resolution)) {
+        throw new BadRequestError("Invalid offset", offset);
+    } else {
+        this.url.setQuery("offset", offset);
+    }
 
 
   }
@@ -67,5 +73,13 @@ export class TradeAggregationCallBuilder extends CallBuilder {
     return found;
   }
 
-    
+   /**
+   * @private
+   * @param {long} offset
+   * @param {long} resolution
+   */
+  isValidOffset(offset, resolution){
+    const hour = 3600000;
+    return !(offset > resolution || offset > 24 * hour || (offset % hour !== 0));
+  }
 }
