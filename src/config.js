@@ -14,13 +14,13 @@ let config = clone(defaultConfig);
  * ```
  * import {Config} from 'stellar-sdk';
  * Config.setAllowHttp(true);
- * Config.setTimout(5000);
+ * Config.setTimeout(5000);
  * ```
  *
  * Usage browser:
  * ```
  * StellarSdk.Config.setAllowHttp(true);
- * StellarSdk.Config.setTimout(5000);
+ * StellarSdk.Config.setTimeout(5000);
  * ```
  * @static
  */
