@@ -30,6 +30,12 @@ export class CallBuilder {
     }
 
     if (this.filter.length === 1) {
+      this.filter[0].forEach(element => {
+        if (typeof element === 'undefined') {
+          throw new _errors.BadRequestError(`Invalid values are set in filters specified - ${element}`, this.filter);
+        }
+      });
+
       //append filters to original segments
       let newSegment = this.originalSegments.concat(this.filter[0]);
       this.url.segment(newSegment);
