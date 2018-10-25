@@ -1,10 +1,9 @@
-/*  */
-
 import forEach from 'lodash/forEach';
 import URI from 'urijs';
 import URITemplate from 'urijs/src/URITemplate';
-import axios from 'axios';
 
+import HorizonAxiosClient from './horizon_axios_client';
+import { version } from '../package.json';
 import { NotFoundError, NetworkError, BadRequestError } from './errors';
 
 const EventSource =
@@ -63,8 +62,11 @@ export class CallBuilder {
    * @param {number} [options.reconnectTimeout] Custom stream connection timeout in ms, default is 15 seconds.
    * @returns {function} Close function. Run to close the connection and stop listening for new events.
    */
-  stream(options) {
+  stream(options = {}) {
     this.checkFilter();
+
+    this.url.setQuery("X-Client-Name", 'js-stellar-sdk');
+    this.url.setQuery("X-Client-Version", version);
 
     // EventSource object
     let es;
@@ -182,7 +184,7 @@ export class CallBuilder {
 
     // Temp fix for: https://github.com/stellar/js-stellar-sdk/issues/15
     url.setQuery('c', Math.random());
-    return axios
+    return HorizonAxiosClient
       .get(url.toString())
       .then((response) => response.data)
       .catch(this._handleNetworkError);
