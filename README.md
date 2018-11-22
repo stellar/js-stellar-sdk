@@ -3,7 +3,7 @@
 [![Coverage Status](https://coveralls.io/repos/stellar/js-stellar-sdk/badge.svg?branch=master&service=github)](https://coveralls.io/github/stellar/js-stellar-sdk?branch=master)
 [![Dependency Status](https://david-dm.org/stellar/js-stellar-sdk.svg)](https://david-dm.org/stellar/js-stellar-sdk)
 
-
+Note: this is a fork of the original stellar sdk. This fork has been sligthly modified to be compatible with the Kin fork of the stellar network.
 
 js-stellar-sdk is a Javascript library for communicating with a [Stellar Horizon server](https://github.com/stellar/go/tree/master/services/horizon). It is used for building Stellar apps either on Node.js or in the browser.
 
