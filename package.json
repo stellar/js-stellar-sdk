@@ -1,7 +1,7 @@
 {
-  "name": "stellar-sdk",
-  "version": "0.11.0",
-  "description": "stellar-sdk is a library for working with the Stellar Horizon server.",
+  "name": "kin-sdk",
+  "version": "0.1.0",
+  "description": "kin-sdk is a library for working with the Stellar Horizon server.",
   "main": "lib/index.js",
   "scripts": {
     "test": "babel-node ./node_modules/.bin/gulp test",
@@ -11,21 +11,21 @@
     "postversion": "git push && git push --tags"
   },
   "keywords": [
-    "stellar"
+    "kin"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/stellar/js-stellar-sdk.git"
+    "url": "https://github.com/kinecosystem/js-kin-sdk.git"
   },
   "engines": {
     "node": ">=6"
   },
-  "author": "Stellar Development Foundation <hello@stellar.org>",
+  "author": "Kin Ecosystem <blockchain@kinecosystem.com>",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/stellar/js-stellar-sdk/issues"
+    "url": "https://github.com/kinecosystem/js-kin-sdk/issues"
   },
-  "homepage": "https://github.com/stellar/js-stellar-sdk",
+  "homepage": "https://github.com/kinecosystem/js-kin-sdk",
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-core": "~6.26.3",
@@ -84,7 +84,7 @@
     "event-source-polyfill": "0.0.12",
     "eventsource": "^1.0.5",
     "lodash": "^4.17.10",
-    "stellar-base": "kinecosystem/js-stellar-base#master",
+    "kin-base": "^0.1.0",
     "toml": "^2.3.0",
     "urijs": "1.19.1"
   }

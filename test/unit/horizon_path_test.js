@@ -67,6 +67,7 @@ describe("horizon path tests", function () {
           asset: StellarSdk.Asset.native(),
           amount: "100.50"
         }))
+	.setTimeout(0)
         .build();
       fakeTransaction.sign(keypair);
       let tx = encodeURIComponent(fakeTransaction.toEnvelope().toXDR().toString("base64"));

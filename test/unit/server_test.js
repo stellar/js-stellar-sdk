@@ -476,6 +476,7 @@ describe("server.js tests", function () {
           asset: StellarSdk.Asset.native(),
           amount: "100.50"
         }))
+	.setTimeout(0)
         .build();
       transaction.sign(keypair)
 
