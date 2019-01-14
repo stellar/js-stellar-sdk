@@ -6,9 +6,9 @@ describe("integration tests", function () {
   this.slow(TIMEOUT/2);
 
   const HORIZON = 'https://horizon-testnet.stellar.org';
-  StellarSdk.Network.useTestNetwork();
-  let server = new StellarSdk.Server(HORIZON);
-  let master = StellarSdk.Keypair.random();
+  KinSdk.Network.useTestNetwork();
+  let server = new KinSdk.Server(HORIZON);
+  let master = KinSdk.Keypair.random();
 
   before(function(done) {
     axios.get(`${HORIZON}/friendbot?addr=${master.publicKey()}`).then(() => done());
@@ -23,8 +23,8 @@ describe("integration tests", function () {
         
         return server.loadAccount(master.publicKey())
           .then(source => {
-            let tx = new StellarSdk.TransactionBuilder(source)
-              .addOperation(StellarSdk.Operation.accountMerge({
+            let tx = new KinSdk.TransactionBuilder(source)
+              .addOperation(KinSdk.Operation.accountMerge({
                 destination: operation.funder
               }))
               .build();
@@ -39,8 +39,8 @@ describe("integration tests", function () {
   function createNewAccount(accountId) {
     return server.loadAccount(master.publicKey())
       .then(source => {
-        let tx = new StellarSdk.TransactionBuilder(source)
-          .addOperation(StellarSdk.Operation.createAccount({
+        let tx = new KinSdk.TransactionBuilder(source)
+          .addOperation(KinSdk.Operation.createAccount({
             destination: accountId,
             startingBalance: "1"
           }))
@@ -54,7 +54,7 @@ describe("integration tests", function () {
 
   describe("/transaction", function () {
     it("submits a new transaction", function (done) {
-      createNewAccount(StellarSdk.Keypair.random().publicKey())
+      createNewAccount(KinSdk.Keypair.random().publicKey())
         .then(result => {
           expect(result.ledger).to.be.not.null;
           done();
@@ -66,9 +66,9 @@ describe("integration tests", function () {
       server.loadAccount(master.publicKey())
         .then(source => {
           source.incrementSequenceNumber(); // This will cause an error
-          let tx = new StellarSdk.TransactionBuilder(source)
-            .addOperation(StellarSdk.Operation.createAccount({
-              destination: StellarSdk.Keypair.random().publicKey(),
+          let tx = new KinSdk.TransactionBuilder(source)
+            .addOperation(KinSdk.Operation.createAccount({
+              destination: KinSdk.Keypair.random().publicKey(),
               startingBalance: "1"
             }))
             .build();
@@ -98,7 +98,7 @@ describe("integration tests", function () {
 
     it("stream accounts", function (done) {
       this.timeout(10*1000);
-      let randomAccount = StellarSdk.Keypair.random();
+      let randomAccount = KinSdk.Keypair.random();
 
       let eventStreamClose = server.operations().forAccount(master.publicKey())
         .cursor('now')

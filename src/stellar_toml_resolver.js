@@ -13,7 +13,7 @@ export class StellarTomlResolver {
    * Returns a parsed `stellar.toml` file for a given domain.
    * Returns a `Promise` that resolves to the parsed stellar.toml object. If `stellar.toml` file does not exist for a given domain or is invalid Promise will reject.
    * ```js
-   * StellarSdk.StellarTomlResolver.resolve('acme.com')
+   * KinSdk.StellarTomlResolver.resolve('acme.com')
    *   .then(stellarToml => {
    *     // stellarToml in an object representing domain stellar.toml file.
    *   })

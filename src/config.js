@@ -12,15 +12,15 @@ let config = clone(defaultConfig);
  *
  * Usage node:
  * ```
- * import {Config} from 'stellar-sdk';
+ * import {Config} from 'kin-sdk';
  * Config.setAllowHttp(true);
  * Config.setTimeout(5000);
  * ```
  *
  * Usage browser:
  * ```
- * StellarSdk.Config.setAllowHttp(true);
- * StellarSdk.Config.setTimeout(5000);
+ * KinSdk.Config.setAllowHttp(true);
+ * KinSdk.Config.setTimeout(5000);
  * ```
  * @static
  */

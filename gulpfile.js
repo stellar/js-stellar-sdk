@@ -52,9 +52,10 @@ gulp.task('build:node', ['lint:src'], function() {
 });
 
 gulp.task('build:browser', ['lint:src'], function() {
+  const CircularDependencyPlugin = require('circular-dependency-plugin')
   return gulp.src('src/browser.js')
     .pipe(plugins.webpack({
-      output: { library: 'StellarSdk' },
+      output: { library: 'KinSdk' },
       module: {
         loaders: [
           { test: /\.js$/, exclude: /node_modules/, loader: 'babel-loader'}
@@ -62,19 +63,27 @@ gulp.task('build:browser', ['lint:src'], function() {
       },
       plugins: [
         // Ignore native modules (ed25519)
-        new webpack.IgnorePlugin(/ed25519/)
+        new webpack.IgnorePlugin(/ed25519/),
+        new CircularDependencyPlugin({
+          // exclude detection of files based on a RegExp
+          exclude: /a\.js|node_modules/,
+          // add errors to webpack instead of warnings
+          failOnError: true,
+          // set the current working directory for displaying module paths
+          cwd: process.cwd(),
+        })
       ]
     }))
     // Add EventSource polyfill for IE11
     .pipe(plugins.insert.prepend(fs.readFileSync('./node_modules/event-source-polyfill/src/eventsource.min.js')))
-    .pipe(plugins.rename('stellar-sdk.js'))
+    .pipe(plugins.rename('kin-sdk.js'))
     .pipe(gulp.dest('dist'))
     .pipe(plugins.uglify({
       output: {
         ascii_only: true
       }
     }))
-    .pipe(plugins.rename('stellar-sdk.min.js'))
+    .pipe(plugins.rename('kin-sdk.min.js'))
     .pipe(gulp.dest('dist'));
 });
 

@@ -3,7 +3,7 @@ import URI from 'urijs';
 import isString from "lodash/isString";
 import pick from "lodash/pick";
 import {Config} from "./config";
-import {Account, StrKey} from 'stellar-base';
+import {Account, StrKey} from 'kin-base';
 import {BadResponseError} from './errors';
 import {StellarTomlResolver} from "./stellar_toml_resolver";
 
@@ -55,7 +55,7 @@ export class FederationServer {
    *
    * Example:
    * ```js
-   * StellarSdk.FederationServer.resolve('bob*stellar.org')
+   * KinSdk.FederationServer.resolve('bob*stellar.org')
    *  .then(federationRecord => {
    *    // {
    *    //   account_id: 'GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS',
@@ -103,7 +103,7 @@ export class FederationServer {
    * Creates a `FederationServer` instance based on information from [stellar.toml](https://www.stellar.org/developers/learn/concepts/stellar-toml.html) file for a given domain.
    * Returns a `Promise` that resolves to a `FederationServer` object. If `stellar.toml` file does not exist for a given domain or it does not contain information about a federation server Promise will reject.
    * ```js
-   * StellarSdk.FederationServer.createForDomain('acme.com')
+   * KinSdk.FederationServer.createForDomain('acme.com')
    *   .then(federationServer => {
    *     // federationServer.resolveAddress('bob').then(...)
    *   })
