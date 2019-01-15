@@ -1,7 +1,8 @@
 # js-kin-sdk
-<!--
+
 [![Build Status](https://travis-ci.org/kinecosystem/js-kin-sdk.svg?branch=master)](https://travis-ci.org/kinecosystem/js-kin-sdk)
 [![Coverage Status](https://coveralls.io/repos/kinecosystem/js-kin-sdk/badge.svg?branch=master&service=github)](https://coveralls.io/github/kinecosystem/js-kin-sdk?branch=master)
+<!--
 [![Dependency Status](https://david-dm.org/kinecosystem/js-kin-sdk.svg)](https://david-dm.org/kinecosystem/js-kin-sdk)
 -->
 
