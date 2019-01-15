@@ -2,6 +2,10 @@
 
 As this project is pre 1.0, breaking changes may happen for minor version bumps. A breaking change will get clearly notified in this log.
 
+## 0.20.0 
+
+* Full port to Kin SDK, including renaming, refactoring, integrating a new `js-kin-base`.
+
 ## 0.11.0
 
 * Update `js-xdr` (by updating `stellar-base`) to support unmarshaling non-utf8 strings.

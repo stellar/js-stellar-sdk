@@ -1,6 +1,6 @@
 if (typeof window === 'undefined') {
   require("babel-register");
-  global.StellarSdk = require('../src/index');
+  global.KinSdk = require('../src/index');
   global.axios = require("axios");
   var chaiAsPromised = require("chai-as-promised");
   global.chai = require('chai');
@@ -10,5 +10,5 @@ if (typeof window === 'undefined') {
   global.Promise = require('bluebird');
   global.expect = global.chai.expect;
 } else {
-  window.axios = StellarSdk.axios;
+  window.axios = KinSdk.axios;
 }

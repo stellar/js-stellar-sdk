@@ -2,8 +2,8 @@ describe("horizon path tests", function () {
 
   beforeEach(function () {
     this.axiosMock = sinon.mock(axios);
-    StellarSdk.Config.setDefault();
-    StellarSdk.Network.useTestNetwork();
+    KinSdk.Config.setDefault();
+    KinSdk.Network.useTestNetwork();
   });
 
   afterEach(function () {
@@ -13,7 +13,7 @@ describe("horizon path tests", function () {
 
   function test_horizon_paths(serverUrl) {
 
-    let server = new StellarSdk.Server(serverUrl);
+    let server = new KinSdk.Server(serverUrl);
 
     let randomResult = {
       data: {
@@ -58,15 +58,16 @@ describe("horizon path tests", function () {
     it("server.submitTransaction() " + serverUrl, function (done) {
       randomResult.endpoint = "post";
 
-      let keypair = StellarSdk.Keypair.random();
-      let account = new StellarSdk.Account(keypair.publicKey(), "56199647068161");
+      let keypair = KinSdk.Keypair.random();
+      let account = new KinSdk.Account(keypair.publicKey(), "56199647068161");
       
-      let fakeTransaction = new StellarSdk.TransactionBuilder(account)
-        .addOperation(StellarSdk.Operation.payment({
+      let fakeTransaction = new KinSdk.TransactionBuilder(account)
+        .addOperation(KinSdk.Operation.payment({
           destination: keypair.publicKey(),
-          asset: StellarSdk.Asset.native(),
+          asset: KinSdk.Asset.native(),
           amount: "100.50"
         }))
+        .setTimeout(KinSdk.TimeoutInfinite)
         .build();
       fakeTransaction.sign(keypair);
       let tx = encodeURIComponent(fakeTransaction.toEnvelope().toXDR().toString("base64"));
