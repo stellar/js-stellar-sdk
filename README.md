@@ -81,9 +81,9 @@ In the event the above does not work, please join us on our community slack to g
   <script>console.log(KinSdk);</script>
   ```
 
-<!--
 If you don't want to use install Bower, you can copy built JS files from the [bower-js-kin-sdk repo](https://github.com/kinecosystem/bower-js-kin-sdk).
 
+<!--
 ### To use the [cdnjs](https://cdnjs.com/libraries/kin-sdk) hosted script in the browser
 1. Instruct the browser to fetch the library from [cdnjs](https://cdnjs.com/libraries/kin-sdk), a 3rd party service that hosts js libraries:
 
@@ -110,7 +110,7 @@ Make sure that you are using the latest version number. They can be found on the
   ```
 
 ## Usage
-For information on how to use js-kin-sdk, take a look at the [Developers site](https://www.stellar.org/developers/js-stellar-sdk/reference/).
+For information on how to use js-kin-sdk, take a look at the [Stellar Developers site](https://www.stellar.org/developers/js-stellar-sdk/reference/).
 
 There is also API Documentation [here](https://www.stellar.org/developers/reference/).
 
@@ -124,10 +124,11 @@ To run a specific set of tests:
 ```shell
 gulp test:node
 gulp test:browser
+gulp test:integration
 ```
 
 ## Documentation
-Documentation for this repo lives in [Developers site](https://www.stellar.org/developers/js-stellar-sdk/learn/index.html).
+Documentation for this repo lives in [Stellar Developers site](https://www.stellar.org/developers/js-stellar-sdk/learn/index.html).
 
 <!--
 ## Contributing
