@@ -87,12 +87,12 @@
     "webpack": "^1.13.2"
   },
   "dependencies": {
+    "@kinecosystem/kin-base": "^0.1.0",
     "axios": "^0.18.0",
     "es6-promise": "^4.2.4",
-    "event-source-polyfill": "0.0.12",
+    "event-source-polyfill": "^1.0.5",
     "eventsource": "^1.0.5",
     "lodash": "^4.17.10",
-    "@kinecosystem/kin-base": "^0.1.0",
     "toml": "^2.3.0",
     "urijs": "1.19.1"
   }

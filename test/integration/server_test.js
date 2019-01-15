@@ -5,13 +5,14 @@ describe("integration tests", function () {
   this.timeout(TIMEOUT);
   this.slow(TIMEOUT/2);
 
-  const HORIZON = 'https://horizon-testnet.stellar.org';
+  const HORIZON = 'https://horizon-testnet.kininfrastructure.com';
+  const FRIENDBOT = 'https://friendbot-testnet.kininfrastructure.com'
   KinSdk.Network.useTestNetwork();
   let server = new KinSdk.Server(HORIZON);
   let master = KinSdk.Keypair.random();
 
   before(function(done) {
-    axios.get(`${HORIZON}/friendbot?addr=${master.publicKey()}`).then(() => done());
+    axios.get(`${FRIENDBOT}?addr=${master.publicKey()}`).then(() => done());
   });
 
   after(function(done) {
@@ -20,10 +21,10 @@ describe("integration tests", function () {
       .call()
       .then(response => {
         let operation = response.records[0];
-        
         return server.loadAccount(master.publicKey())
           .then(source => {
             let tx = new KinSdk.TransactionBuilder(source)
+              .setTimeout(0)
               .addOperation(KinSdk.Operation.accountMerge({
                 destination: operation.funder
               }))
@@ -40,6 +41,7 @@ describe("integration tests", function () {
     return server.loadAccount(master.publicKey())
       .then(source => {
         let tx = new KinSdk.TransactionBuilder(source)
+          .setTimeout(0)
           .addOperation(KinSdk.Operation.createAccount({
             destination: accountId,
             startingBalance: "1"
@@ -54,12 +56,13 @@ describe("integration tests", function () {
 
   describe("/transaction", function () {
     it("submits a new transaction", function (done) {
+
       createNewAccount(KinSdk.Keypair.random().publicKey())
         .then(result => {
           expect(result.ledger).to.be.not.null;
           done();
         })
-        .catch(err => done(err));
+        .catch(err => {console.error(err['response']); done(err)});
     });
 
     it("submits a new transaction with error", function (done) {
@@ -67,6 +70,7 @@ describe("integration tests", function () {
         .then(source => {
           source.incrementSequenceNumber(); // This will cause an error
           let tx = new KinSdk.TransactionBuilder(source)
+            .setTimeout(0)
             .addOperation(KinSdk.Operation.createAccount({
               destination: KinSdk.Keypair.random().publicKey(),
               startingBalance: "1"
