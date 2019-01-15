@@ -1,5 +1,5 @@
 {
-  "name": "kin-sdk",
+  "name": "@kinecosystem/kin-sdk",
   "version": "0.1.0",
   "description": "kin-sdk is a library for working with the Stellar Horizon server on Kin Network.",
   "main": "lib/index.js",
@@ -92,7 +92,7 @@
     "event-source-polyfill": "0.0.12",
     "eventsource": "^1.0.5",
     "lodash": "^4.17.10",
-    "stellar-base": "^0.10.0",
+    "@kinecosystem/kin-base": "^0.1.0",
     "toml": "^2.3.0",
     "urijs": "1.19.1"
   }

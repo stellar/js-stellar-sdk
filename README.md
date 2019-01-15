@@ -19,7 +19,7 @@ It provides:
 
 ### js-kin-sdk vs js-kin-base
 
-js-kin-sdk is a high-level library that serves as client side API for [Horizon](https://github.com/stellar/go/tree/master/services/horizon). This library makes extensive use of the lower-level [js-stellar-base](https://github.com/kinecosystem/js-kin-base) and exposes js-kin-base classes via its export object.  js-kin-base can be used as a standalone library for creating Stellar primitive constructs via XDR helpers and wrappers. js-kin-base doesn't depend on connecting to Horizon.
+js-kin-sdk is a high-level library that serves as client side API for [Horizon](https://github.com/stellar/go/tree/master/services/horizon). This library makes extensive use of the lower-level [js-kin-base](https://github.com/kinecosystem/js-kin-base) and exposes js-kin-base classes via its export object.  js-kin-base can be used as a standalone library for creating Stellar primitive constructs via XDR helpers and wrappers. js-kin-base doesn't depend on connecting to Horizon.
 
 js-kin-sdk exposes all js-kin-base classes so you don't have to install js-kin-base along js-kin-sdk.
 
@@ -27,7 +27,7 @@ js-kin-sdk exposes all js-kin-base classes so you don't have to install js-kin-b
 
 Using npm to include js-kin-sdk in your own project:
 ```shell
-npm install --save kin-sdk
+npm install --save @kinecosystem/kin-sdk
 ```
 
 For browsers, [use Bower to install js-kin-sdk](#to-self-host-for-use-in-the-browser). It exports a
@@ -45,7 +45,7 @@ relative to your html file.
 ### To use as a module in a Node.js project
 1. Install it using npm:
   ```shell
-  npm install --save kin-sdk
+  npm install --save @kinecosystem/kin-sdk
   ```
 
 2. require/import it in your JavaScript:

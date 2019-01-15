@@ -1,4 +1,4 @@
-import {Account as BaseAccount} from "kin-base";
+import {Account as BaseAccount} from "@kinecosystem/kin-base";
 import forIn from "lodash/forIn";
 
 /**

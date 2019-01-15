@@ -3,7 +3,7 @@ import URI from 'urijs';
 import isString from "lodash/isString";
 import pick from "lodash/pick";
 import {Config} from "./config";
-import {Account, StrKey} from 'kin-base';
+import {Account, StrKey} from '@kinecosystem/kin-base';
 import {BadResponseError} from './errors';
 import {StellarTomlResolver} from "./stellar_toml_resolver";
 
