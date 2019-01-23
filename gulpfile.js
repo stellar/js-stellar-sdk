@@ -6,7 +6,6 @@ var plugins = require('gulp-load-plugins')();
 var runSequence = require('run-sequence');
 var server = require('gulp-develop-server');
 var webpack = require('webpack');
-var exec = require('child_process').exec;
 var fs = require('fs');
 var clear = require('clear');
 
