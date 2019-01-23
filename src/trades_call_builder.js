@@ -1,4 +1,4 @@
-import {CallBuilder} from "./call_builder";
+import { CallBuilder } from './call_builder';
 
 /**
  * Creates a new {@link TradesCallBuilder} pointed to server defined by serverUrl.
@@ -11,54 +11,53 @@ import {CallBuilder} from "./call_builder";
  * @param {string} serverUrl serverUrl Horizon server URL.
  */
 export class TradesCallBuilder extends CallBuilder {
-    constructor(serverUrl) {
-        super(serverUrl);
-        this.url.segment('trades');
-    }
+  constructor(serverUrl) {
+    super(serverUrl);
+    this.url.segment('trades');
+  }
 
-    /**
-    * Filter trades for a specific asset pair (orderbook)
-    * @param {Asset} base asset
-    * @param {Asset} counter asset
-    * @returns {TradesCallBuilder}
-    */
-    forAssetPair(base, counter) {
-        if (!base.isNative()) {
-            this.url.setQuery("base_asset_type", base.getAssetType());
-            this.url.setQuery("base_asset_code", base.getCode());
-            this.url.setQuery("base_asset_issuer", base.getIssuer());
-        } else {
-            this.url.setQuery("base_asset_type", 'native');
-        }
-        if (!counter.isNative()) {
-            this.url.setQuery("counter_asset_type", counter.getAssetType());
-            this.url.setQuery("counter_asset_code", counter.getCode());
-            this.url.setQuery("counter_asset_issuer", counter.getIssuer());
-        } else {
-            this.url.setQuery("counter_asset_type", 'native');
-        }
-        return this;
+  /**
+   * Filter trades for a specific asset pair (orderbook)
+   * @param {Asset} base asset
+   * @param {Asset} counter asset
+   * @returns {TradesCallBuilder}
+   */
+  forAssetPair(base, counter) {
+    if (!base.isNative()) {
+      this.url.setQuery('base_asset_type', base.getAssetType());
+      this.url.setQuery('base_asset_code', base.getCode());
+      this.url.setQuery('base_asset_issuer', base.getIssuer());
+    } else {
+      this.url.setQuery('base_asset_type', 'native');
     }
+    if (!counter.isNative()) {
+      this.url.setQuery('counter_asset_type', counter.getAssetType());
+      this.url.setQuery('counter_asset_code', counter.getCode());
+      this.url.setQuery('counter_asset_issuer', counter.getIssuer());
+    } else {
+      this.url.setQuery('counter_asset_type', 'native');
+    }
+    return this;
+  }
 
-    /**
-    * Filter trades for a specific offer
-    * @param offerId
-    * @returns {TradesCallBuilder}
-    */
-    forOffer(offerId) {
-        this.url.setQuery("offer_id", offerId);
-        return this;
-    }
+  /**
+   * Filter trades for a specific offer
+   * @param offerId
+   * @returns {TradesCallBuilder}
+   */
+  forOffer(offerId) {
+    this.url.setQuery('offer_id', offerId);
+    return this;
+  }
 
-    /**
-     * Filter trades for a specific account
-     * @see [Trades for Account](https://www.stellar.org/developers/horizon/reference/trades-for-account.html)
-     * @param {string} accountId For example: `GBYTR4MC5JAX4ALGUBJD7EIKZVM7CUGWKXIUJMRSMK573XH2O7VAK3SR`
-     * @returns {TradesCallBuilder}
-     */
-    forAccount(accountId) {
-        this.filter.push(['accounts', accountId, 'trades']);
-        return this;
-    }
+  /**
+   * Filter trades for a specific account
+   * @see [Trades for Account](https://www.stellar.org/developers/horizon/reference/trades-for-account.html)
+   * @param {string} accountId For example: `GBYTR4MC5JAX4ALGUBJD7EIKZVM7CUGWKXIUJMRSMK573XH2O7VAK3SR`
+   * @returns {TradesCallBuilder}
+   */
+  forAccount(accountId) {
+    this.filter.push(['accounts', accountId, 'trades']);
+    return this;
+  }
 }
-

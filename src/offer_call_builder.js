@@ -1,6 +1,6 @@
-import {CallBuilder} from "./call_builder";
-import {OrderbookCallBuilder} from "./orderbook_call_builder";
-import {BadRequestError} from "./errors";
+import { CallBuilder } from './call_builder';
+import { OrderbookCallBuilder } from './orderbook_call_builder';
+import { BadRequestError } from './errors';
 
 /**
  * Creates a new {@link OfferCallBuilder} pointed to server defined by serverUrl.
@@ -15,13 +15,12 @@ import {BadRequestError} from "./errors";
  * @param {...string} resourceParams Parameters for selected resource
  */
 export class OfferCallBuilder extends CallBuilder {
-    constructor(serverUrl, resource, ...resourceParams) {
-        super(serverUrl);
-        if (resource === 'accounts') {
-            this.url.segment([resource, ...resourceParams, 'offers']);
-        } else {
-            throw new BadRequestError("Bad resource specified for offer:", resource);
-        }
+  constructor(serverUrl, resource, ...resourceParams) {
+    super(serverUrl);
+    if (resource === 'accounts') {
+      this.url.segment([resource, ...resourceParams, 'offers']);
+    } else {
+      throw new BadRequestError('Bad resource specified for offer:', resource);
     }
-
+  }
 }

@@ -1,4 +1,4 @@
-import {CallBuilder} from './call_builder';
+import { CallBuilder } from './call_builder';
 
 /**
  * The Stellar Network allows payments to be made across assets through path payments. A path payment specifies a
@@ -25,19 +25,31 @@ import {CallBuilder} from './call_builder';
  * @param {string} destinationAmount The amount, denominated in the destination asset, that any returned path should be able to satisfy.
  */
 export class PathCallBuilder extends CallBuilder {
-    constructor(serverUrl, source, destination, destinationAsset, destinationAmount) {
-        super(serverUrl);
-        this.url.segment('paths');
-        this.url.setQuery('destination_account', destination);
-        this.url.setQuery('source_account', source);
-        this.url.setQuery('destination_amount', destinationAmount);
+  constructor(
+    serverUrl,
+    source,
+    destination,
+    destinationAsset,
+    destinationAmount,
+  ) {
+    super(serverUrl);
+    this.url.segment('paths');
+    this.url.setQuery('destination_account', destination);
+    this.url.setQuery('source_account', source);
+    this.url.setQuery('destination_amount', destinationAmount);
 
-        if (!destinationAsset.isNative()) {
-            this.url.setQuery('destination_asset_type', destinationAsset.getAssetType());
-            this.url.setQuery('destination_asset_code', destinationAsset.getCode());
-            this.url.setQuery('destination_asset_issuer', destinationAsset.getIssuer());
-        } else {
-            this.url.setQuery('destination_asset_type', 'native');
-        }
+    if (!destinationAsset.isNative()) {
+      this.url.setQuery(
+        'destination_asset_type',
+        destinationAsset.getAssetType(),
+      );
+      this.url.setQuery('destination_asset_code', destinationAsset.getCode());
+      this.url.setQuery(
+        'destination_asset_issuer',
+        destinationAsset.getIssuer(),
+      );
+    } else {
+      this.url.setQuery('destination_asset_type', 'native');
     }
+  }
 }

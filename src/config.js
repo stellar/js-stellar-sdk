@@ -2,7 +2,7 @@ import clone from 'lodash/clone';
 
 let defaultConfig = {
   allowHttp: false,
-  timeout: 0
+  timeout: 0,
 };
 
 let config = clone(defaultConfig);
@@ -53,7 +53,7 @@ class Config {
     return clone(config.allowHttp);
   }
 
-   /**
+  /**
    * Returns the value of `timeout` flag.
    * @static
    */
@@ -70,4 +70,4 @@ class Config {
   }
 }
 
-export {Config};
+export { Config };

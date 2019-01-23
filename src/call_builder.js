@@ -1,11 +1,12 @@
-import {NotFoundError, NetworkError, BadRequestError} from "./errors";
+import { NotFoundError, NetworkError, BadRequestError } from './errors';
 import forEach from 'lodash/forEach';
 
-let URI = require("urijs");
-let URITemplate = require("urijs/src/URITemplate");
+let URI = require('urijs');
+let URITemplate = require('urijs/src/URITemplate');
 
-let axios = require("axios");
-var EventSource = (typeof window === 'undefined') ? require('eventsource') : window.EventSource;
+let axios = require('axios');
+var EventSource =
+  typeof window === 'undefined' ? require('eventsource') : window.EventSource;
 
 /**
  * Creates a new {@link CallBuilder} pointed to server defined by serverUrl.
@@ -26,14 +27,14 @@ export class CallBuilder {
    */
   checkFilter() {
     if (this.filter.length >= 2) {
-      throw new BadRequestError("Too many filters specified", this.filter);
+      throw new BadRequestError('Too many filters specified', this.filter);
     }
 
     if (this.filter.length === 1) {
       //append filters to original segments
       let newSegment = this.originalSegments.concat(this.filter[0]);
       this.url.segment(newSegment);
-    }        
+    }
   }
 
   /**
@@ -43,8 +44,9 @@ export class CallBuilder {
    */
   call() {
     this.checkFilter();
-    return this._sendNormalRequest(this.url)
-      .then(r => this._parseResponse(r));
+    return this._sendNormalRequest(this.url).then((r) =>
+      this._parseResponse(r),
+    );
   }
 
   /**
@@ -73,7 +75,7 @@ export class CallBuilder {
       timeout = setTimeout(() => {
         es.close();
         es = createEventSource();
-      }, options.reconnectTimeout || 15*1000);
+      }, options.reconnectTimeout || 15 * 1000);
     };
 
     var createEventSource = () => {
@@ -89,17 +91,19 @@ export class CallBuilder {
 
       createTimeout();
 
-      es.onmessage = message => {
-        var result = message.data ? this._parseRecord(JSON.parse(message.data)) : message;
+      es.onmessage = (message) => {
+        var result = message.data
+          ? this._parseRecord(JSON.parse(message.data))
+          : message;
         if (result.paging_token) {
-          this.url.setQuery("cursor", result.paging_token);
+          this.url.setQuery('cursor', result.paging_token);
         }
         clearTimeout(timeout);
         createTimeout();
         options.onmessage(result);
       };
 
-      es.onerror = error => {
+      es.onerror = (error) => {
         if (options.onerror) {
           options.onerror(error);
         }
@@ -119,7 +123,7 @@ export class CallBuilder {
    * @private
    */
   _requestFnForLink(link) {
-    return opts => {
+    return (opts) => {
       let uri;
 
       if (link.templated) {
@@ -129,9 +133,9 @@ export class CallBuilder {
         uri = URI(link.href);
       }
 
-      return this._sendNormalRequest(uri).then(r => this._parseResponse(r));
+      return this._sendNormalRequest(uri).then((r) => this._parseResponse(r));
     };
-  } 
+  }
 
   /**
    * Convert each link into a function on the response object.
@@ -150,7 +154,7 @@ export class CallBuilder {
     });
     return json;
   }
-  
+
   _sendNormalRequest(url) {
     if (url.authority() === '') {
       url = url.authority(this.url.authority());
@@ -162,8 +166,9 @@ export class CallBuilder {
 
     // Temp fix for: https://github.com/stellar/js-stellar-sdk/issues/15
     url.setQuery('c', Math.random());
-    return axios.get(url.toString())
-      .then(response => response.data)
+    return axios
+      .get(url.toString())
+      .then((response) => response.data)
       .catch(this._handleNetworkError);
   }
 
@@ -188,13 +193,15 @@ export class CallBuilder {
     return {
       records: json._embedded.records,
       next: () => {
-        return this._sendNormalRequest(URI(json._links.next.href))
-          .then(r => this._toCollectionPage(r));
+        return this._sendNormalRequest(URI(json._links.next.href)).then((r) =>
+          this._toCollectionPage(r),
+        );
       },
       prev: () => {
-        return this._sendNormalRequest(URI(json._links.prev.href))
-          .then(r => this._toCollectionPage(r));
-      }
+        return this._sendNormalRequest(URI(json._links.prev.href)).then((r) =>
+          this._toCollectionPage(r),
+        );
+      },
     };
   }
 
@@ -205,9 +212,13 @@ export class CallBuilder {
     if (error.response && error.response.status) {
       switch (error.response.status) {
         case 404:
-          return Promise.reject(new NotFoundError(error.response.statusText, error.response.data));
+          return Promise.reject(
+            new NotFoundError(error.response.statusText, error.response.data),
+          );
         default:
-          return Promise.reject(new NetworkError(error.response.statusText, error.response.data));
+          return Promise.reject(
+            new NetworkError(error.response.statusText, error.response.data),
+          );
       }
     } else {
       return Promise.reject(new Error(error));
@@ -220,7 +231,7 @@ export class CallBuilder {
    * @param {string} cursor A cursor is a value that points to a specific location in a collection of resources.
    */
   cursor(cursor) {
-    this.url.setQuery("cursor", cursor);
+    this.url.setQuery('cursor', cursor);
     return this;
   }
 
@@ -230,7 +241,7 @@ export class CallBuilder {
    * @param {number} number Number of records the server should return.
    */
   limit(number) {
-    this.url.setQuery("limit", number);
+    this.url.setQuery('limit', number);
     return this;
   }
 
@@ -239,7 +250,7 @@ export class CallBuilder {
    * @param {"asc"|"desc"} direction
    */
   order(direction) {
-    this.url.setQuery("order", direction);
+    this.url.setQuery('order', direction);
     return this;
   }
 }
