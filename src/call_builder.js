@@ -1,18 +1,18 @@
 import { NotFoundError, NetworkError, BadRequestError } from './errors';
 import forEach from 'lodash/forEach';
 
-let URI = require('urijs');
-let URITemplate = require('urijs/src/URITemplate');
+const URI = require('urijs');
+const URITemplate = require('urijs/src/URITemplate');
 
-let axios = require('axios');
-var EventSource =
+const axios = require('axios');
+const EventSource =
   typeof window === 'undefined' ? require('eventsource') : window.EventSource;
 
 /**
  * Creates a new {@link CallBuilder} pointed to server defined by serverUrl.
  *
  * This is an **abstract** class. Do not create this object directly, use {@link Server} class.
- * @param {string} serverUrl
+ * @param {string} serverUrl URL of Horizon server
  * @class CallBuilder
  */
 export class CallBuilder {
@@ -24,6 +24,7 @@ export class CallBuilder {
 
   /**
    * @private
+   * @returns {void}
    */
   checkFilter() {
     if (this.filter.length >= 2) {
@@ -32,15 +33,14 @@ export class CallBuilder {
 
     if (this.filter.length === 1) {
       //append filters to original segments
-      let newSegment = this.originalSegments.concat(this.filter[0]);
+      const newSegment = this.originalSegments.concat(this.filter[0]);
       this.url.segment(newSegment);
     }
   }
 
   /**
    * Triggers a HTTP request using this builder's current configuration.
-   * Returns a Promise that resolves to the server's response.
-   * @returns {Promise}
+   * @returns {Promise} a Promise that resolves to the server's response.
    */
   call() {
     this.checkFilter();
@@ -120,14 +120,19 @@ export class CallBuilder {
   }
 
   /**
+   * Convert a link object to a function that fetches that link.
    * @private
+   * @param {object} link A link object
+   * @param {bool} link.href the URI of the link
+   * @param {bool} [link.templated] Whether the link is templated
+   * @returns {function} A function that requests the link
    */
   _requestFnForLink(link) {
     return (opts) => {
       let uri;
 
       if (link.templated) {
-        let template = URITemplate(link.href);
+        const template = URITemplate(link.href);
         uri = URI(template.expand(opts || {}));
       } else {
         uri = URI(link.href);
@@ -138,8 +143,11 @@ export class CallBuilder {
   }
 
   /**
-   * Convert each link into a function on the response object.
+   * Given the json response, find and convert each link into a function that
+   * calls that link.
    * @private
+   * @param {object} json JSON response
+   * @returns {object} JSON response with string links replaced with functions
    */
   _parseRecord(json) {
     if (!json._links) {
@@ -174,6 +182,8 @@ export class CallBuilder {
 
   /**
    * @private
+   * @param {object} json Response object
+   * @returns {object} Extended response
    */
   _parseResponse(json) {
     if (json._embedded && json._embedded.records) {
@@ -185,6 +195,8 @@ export class CallBuilder {
 
   /**
    * @private
+   * @param {object} json Response object
+   * @returns {object} Extended response object
    */
   _toCollectionPage(json) {
     for (var i = 0; i < json._embedded.records.length; i++) {
@@ -192,21 +204,21 @@ export class CallBuilder {
     }
     return {
       records: json._embedded.records,
-      next: () => {
-        return this._sendNormalRequest(URI(json._links.next.href)).then((r) =>
+      next: () =>
+        this._sendNormalRequest(URI(json._links.next.href)).then((r) =>
           this._toCollectionPage(r),
-        );
-      },
-      prev: () => {
-        return this._sendNormalRequest(URI(json._links.prev.href)).then((r) =>
+        ),
+      prev: () =>
+        this._sendNormalRequest(URI(json._links.prev.href)).then((r) =>
           this._toCollectionPage(r),
-        );
-      },
+        ),
     };
   }
 
   /**
    * @private
+   * @param {object} error Network error object
+   * @returns {Promise<Error>} Promise that rejects with a human-readable error
    */
   _handleNetworkError(error) {
     if (error.response && error.response.status) {
@@ -229,6 +241,7 @@ export class CallBuilder {
    * Sets `cursor` parameter for the current call. Returns the CallBuilder object on which this method has been called.
    * @see [Paging](https://www.stellar.org/developers/horizon/learn/paging.html)
    * @param {string} cursor A cursor is a value that points to a specific location in a collection of resources.
+   * @returns {object} current CallBuilder instance
    */
   cursor(cursor) {
     this.url.setQuery('cursor', cursor);
@@ -239,6 +252,7 @@ export class CallBuilder {
    * Sets `limit` parameter for the current call. Returns the CallBuilder object on which this method has been called.
    * @see [Paging](https://www.stellar.org/developers/horizon/learn/paging.html)
    * @param {number} number Number of records the server should return.
+   * @returns {object} current CallBuilder instance
    */
   limit(number) {
     this.url.setQuery('limit', number);
@@ -247,7 +261,8 @@ export class CallBuilder {
 
   /**
    * Sets `order` parameter for the current call. Returns the CallBuilder object on which this method has been called.
-   * @param {"asc"|"desc"} direction
+   * @param {"asc"|"desc"} direction Sort direction
+   * @returns {object} current CallBuilder instance
    */
   order(direction) {
     this.url.setQuery('order', direction);

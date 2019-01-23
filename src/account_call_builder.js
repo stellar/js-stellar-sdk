@@ -23,7 +23,7 @@ export class AccountCallBuilder extends CallBuilder {
    *
    * @see [Account Details](https://www.stellar.org/developers/horizon/reference/accounts-single.html)
    * @param {string} id For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
-   * @returns {AccountCallBuilder}
+   * @returns {AccountCallBuilder} current AccountCallBuilder instance
    */
   accountId(id) {
     this.filter.push(['accounts', id]);

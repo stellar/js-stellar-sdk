@@ -19,7 +19,7 @@ export class PaymentCallBuilder extends CallBuilder {
    * This endpoint responds with a collection of Payment operations where the given account was either the sender or receiver.
    * @see [Payments for Account](https://www.stellar.org/developers/horizon/reference/payments-for-account.html)
    * @param {string} accountId For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
-   * @returns {PaymentCallBuilder}
+   * @returns {PaymentCallBuilder} this PaymentCallBuilder instance
    */
   forAccount(accountId) {
     this.filter.push(['accounts', accountId, 'payments']);
@@ -30,7 +30,7 @@ export class PaymentCallBuilder extends CallBuilder {
    * This endpoint represents all payment operations that are part of a valid transactions in a given ledger.
    * @see [Payments for Ledger](https://www.stellar.org/developers/horizon/reference/payments-for-ledger.html)
    * @param {number|string} sequence Ledger sequence
-   * @returns {PaymentCallBuilder}
+   * @returns {PaymentCallBuilder} this PaymentCallBuilder instance
    */
   forLedger(sequence) {
     if (typeof sequence == 'number') {
@@ -44,7 +44,7 @@ export class PaymentCallBuilder extends CallBuilder {
    * This endpoint represents all payment operations that are part of a given transaction.
    * @see [Payments for Transaction](https://www.stellar.org/developers/horizon/reference/payments-for-transaction.html)
    * @param {string} transactionId Transaction ID
-   * @returns {PaymentCallBuilder}
+   * @returns {PaymentCallBuilder} this PaymentCallBuilder instance
    */
   forTransaction(transactionId) {
     this.filter.push(['transactions', transactionId, 'payments']);

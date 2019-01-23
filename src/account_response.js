@@ -10,7 +10,7 @@ import forIn from 'lodash/forIn';
  *
  * @see [Account Details](https://www.stellar.org/developers/horizon/reference/accounts-single.html)
  * @param {string} response Response from horizon account endpoint.
- * @returns {AccountResponse}
+ * @returns {AccountResponse} AccountResponse instance
  */
 export class AccountResponse {
   constructor(response) {
@@ -22,15 +22,16 @@ export class AccountResponse {
   }
 
   /**
-   * Returns Stellar account ID, ex. `GB3KJPLFUYN5VL6R3GU3EGCGVCKFDSD7BEDX42HWG5BWFKB3KQGJJRMA`
-   * @returns {string}
+   * Get Stellar account public key ex. `GB3KJPLFUYN5VL6R3GU3EGCGVCKFDSD7BEDX42HWG5BWFKB3KQGJJRMA`
+   * @returns {string} accountId
    */
   accountId() {
     return this._baseAccount.accountId();
   }
 
   /**
-   * @returns {string}
+   * Get the current sequence number
+   * @returns {string} sequenceNumber
    */
   sequenceNumber() {
     return this._baseAccount.sequenceNumber();
@@ -38,6 +39,7 @@ export class AccountResponse {
 
   /**
    * Increments sequence number in this object by one.
+   * @returns {void}
    */
   incrementSequenceNumber() {
     this._baseAccount.incrementSequenceNumber();

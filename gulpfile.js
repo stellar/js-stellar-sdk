@@ -8,16 +8,17 @@ var server = require('gulp-develop-server');
 var webpack = require('webpack');
 var exec = require('child_process').exec;
 var fs = require('fs');
+var clear = require('clear');
 
 gulp.task('default', ['build']);
 
 gulp.task('lint:src', function() {
+  clear();
   return gulp
     .src(['src/**/*.js'])
-    .pipe(plugins.plumber())
-    .pipe(plugins.jshint())
-    .pipe(plugins.jshint.reporter('jshint-stylish'))
-    .pipe(plugins.jshint.reporter('fail'));
+    .pipe(plugins.eslint())
+    .pipe(plugins.eslint.format())
+    .pipe(plugins.eslint.failAfterError());
 });
 
 // Lint our test code
@@ -28,6 +29,10 @@ gulp.task('lint:test', function() {
     .pipe(plugins.jshint())
     .pipe(plugins.jshint.reporter('jshint-stylish'))
     .pipe(plugins.jshint.reporter('fail'));
+});
+
+gulp.task('lint:watch', ['lint:src'], function() {
+  gulp.watch('src/**/*', ['lint:src']);
 });
 
 gulp.task('build', function(done) {

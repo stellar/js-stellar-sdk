@@ -11,7 +11,6 @@ export const STELLAR_TOML_MAX_SIZE = 100 * 1024;
 export class StellarTomlResolver {
   /**
    * Returns a parsed `stellar.toml` file for a given domain.
-   * Returns a `Promise` that resolves to the parsed stellar.toml object. If `stellar.toml` file does not exist for a given domain or is invalid Promise will reject.
    * ```js
    * StellarSdk.StellarTomlResolver.resolve('acme.com')
    *   .then(stellarToml => {
@@ -23,10 +22,10 @@ export class StellarTomlResolver {
    * ```
    * @see <a href="https://www.stellar.org/developers/learn/concepts/stellar-toml.html" target="_blank">Stellar.toml doc</a>
    * @param {string} domain Domain to get stellar.toml file for
-   * @param {object} [opts]
+   * @param {object} [opts] Options object
    * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments!
    * @param {number} [opts.timeout] - Allow a timeout, default: 0. Allows user to avoid nasty lag due to TOML resolve issue.
-   * @returns {Promise}
+   * @returns {Promise} A `Promise` that resolves to the parsed stellar.toml object
    */
   static resolve(domain, opts = {}) {
     let allowHttp = Config.isAllowHttp();
@@ -52,7 +51,7 @@ export class StellarTomlResolver {
       })
       .then((response) => {
         try {
-          let tomlObject = toml.parse(response.data);
+          const tomlObject = toml.parse(response.data);
           return Promise.resolve(tomlObject);
         } catch (e) {
           return Promise.reject(

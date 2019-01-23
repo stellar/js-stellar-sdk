@@ -20,7 +20,7 @@ export class TradesCallBuilder extends CallBuilder {
    * Filter trades for a specific asset pair (orderbook)
    * @param {Asset} base asset
    * @param {Asset} counter asset
-   * @returns {TradesCallBuilder}
+   * @returns {TradesCallBuilder} current TradesCallBuilder instance
    */
   forAssetPair(base, counter) {
     if (!base.isNative()) {
@@ -42,8 +42,8 @@ export class TradesCallBuilder extends CallBuilder {
 
   /**
    * Filter trades for a specific offer
-   * @param offerId
-   * @returns {TradesCallBuilder}
+   * @param {string} offerId ID of the offer
+   * @returns {TradesCallBuilder} current TradesCallBuilder instance
    */
   forOffer(offerId) {
     this.url.setQuery('offer_id', offerId);
@@ -54,7 +54,7 @@ export class TradesCallBuilder extends CallBuilder {
    * Filter trades for a specific account
    * @see [Trades for Account](https://www.stellar.org/developers/horizon/reference/trades-for-account.html)
    * @param {string} accountId For example: `GBYTR4MC5JAX4ALGUBJD7EIKZVM7CUGWKXIUJMRSMK573XH2O7VAK3SR`
-   * @returns {TradesCallBuilder}
+   * @returns {TradesCallBuilder} current TradesCallBuilder instance
    */
   forAccount(accountId) {
     this.filter.push(['accounts', accountId, 'trades']);

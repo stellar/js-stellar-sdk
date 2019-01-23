@@ -1,9 +1,7 @@
 import axios from 'axios';
 import URI from 'urijs';
-import isString from 'lodash/isString';
-import pick from 'lodash/pick';
 import { Config } from './config';
-import { Account, StrKey } from 'stellar-base';
+import { StrKey } from 'stellar-base';
 import { BadResponseError } from './errors';
 import { StellarTomlResolver } from './stellar_toml_resolver';
 
@@ -17,9 +15,10 @@ export const FEDERATION_RESPONSE_MAX_SIZE = 100 * 1024;
  * @constructor
  * @param {string} serverURL The federation server URL (ex. `https://acme.com/federation`).
  * @param {string} domain Domain this server represents
- * @param {object} [opts]
+ * @param {object} [opts] options object
  * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments! You can also use {@link Config} class to set this globally.
  * @param {number} [opts.timeout] - Allow a timeout, default: 0. Allows user to avoid nasty lag due to TOML resolve issue. You can also use {@link Config} class to set this globally.
+ * @returns {void}
  */
 export class FederationServer {
   constructor(serverURL, domain, opts = {}) {
@@ -43,7 +42,7 @@ export class FederationServer {
   }
 
   /**
-   * This method is a helper method for handling user inputs that contain `destination` value.
+   * A helper method for handling user inputs that contain `destination` value.
    * It accepts two types of values:
    *
    * * For Stellar address (ex. `bob*stellar.org`) it splits Stellar address and then tries to find information about
@@ -64,20 +63,18 @@ export class FederationServer {
    *    // }
    *  });
    * ```
-   * It returns a `Promise` that will resolve to a JSON object with following fields:
-   * * `account_id` - Account ID of the destination,
-   * * `memo_type` (optional) - Memo type that needs to be attached to a transaction,
-   * * `memo` (optional) - Memo value that needs to be attached to a transaction.
-   *
-   * The Promise will reject in case of any errors.
    *
    * @see <a href="https://www.stellar.org/developers/learn/concepts/federation.html" target="_blank">Federation doc</a>
    * @see <a href="https://www.stellar.org/developers/learn/concepts/stellar-toml.html" target="_blank">Stellar.toml doc</a>
    * @param {string} value Stellar Address (ex. `bob*stellar.org`)
-   * @param {object} [opts]
+   * @param {object} [opts] Options object
    * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments!
    * @param {number} [opts.timeout] - Allow a timeout, default: 0. Allows user to avoid nasty lag due to TOML resolve issue.
-   * @returns {Promise}
+   * @returns {Promise} `Promise` that resolves to a JSON object with this shape:
+   * * `account_id` - Account ID of the destination,
+   * * `memo_type` (optional) - Memo type that needs to be attached to a transaction,
+   * * `memo` (optional) - Memo value that needs to be attached to a transaction.
+
    */
   static resolve(value, opts = {}) {
     // Check if `value` is in account ID format
@@ -88,8 +85,8 @@ export class FederationServer {
         return Promise.resolve({ account_id: value });
       }
     } else {
-      let addressParts = value.split('*');
-      let [, domain] = addressParts;
+      const addressParts = value.split('*');
+      const [, domain] = addressParts;
 
       if (addressParts.length != 2 || !domain) {
         return Promise.reject(new Error('Invalid Stellar address'));
@@ -101,8 +98,12 @@ export class FederationServer {
   }
 
   /**
-   * Creates a `FederationServer` instance based on information from [stellar.toml](https://www.stellar.org/developers/learn/concepts/stellar-toml.html) file for a given domain.
-   * Returns a `Promise` that resolves to a `FederationServer` object. If `stellar.toml` file does not exist for a given domain or it does not contain information about a federation server Promise will reject.
+   * Creates a `FederationServer` instance based on information from
+   * [stellar.toml](https://www.stellar.org/developers/learn/concepts/stellar-toml.html)
+   * file for a given domain.
+   *
+   * If `stellar.toml` file does not exist for a given domain or it does not
+   * contain information about a federation server Promise will reject.
    * ```js
    * StellarSdk.FederationServer.createForDomain('acme.com')
    *   .then(federationServer => {
@@ -114,10 +115,10 @@ export class FederationServer {
    * ```
    * @see <a href="https://www.stellar.org/developers/learn/concepts/stellar-toml.html" target="_blank">Stellar.toml doc</a>
    * @param {string} domain Domain to get federation server for
-   * @param {object} [opts]
+   * @param {object} [opts] Options object
    * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments!
    * @param {number} [opts.timeout] - Allow a timeout, default: 0. Allows user to avoid nasty lag due to TOML resolve issue.
-   * @returns {Promise}
+   * @returns {Promise} `Promise` that resolves to a FederationServer object
    */
   static createForDomain(domain, opts = {}) {
     return StellarTomlResolver.resolve(domain, opts).then((tomlObject) => {
@@ -131,10 +132,10 @@ export class FederationServer {
   }
 
   /**
-   * Returns a Promise that resolves to federation record if the user was found for a given Stellar address.
+   * Get the federation record if the user was found for a given Stellar address
    * @see <a href="https://www.stellar.org/developers/learn/concepts/federation.html" target="_blank">Federation doc</a>
    * @param {string} address Stellar address (ex. `bob*stellar.org`). If `FederationServer` was instantiated with `domain` param only username (ex. `bob`) can be passed.
-   * @returns {Promise}
+   * @returns {Promise} Promise that resolves to the federation record
    */
   resolveAddress(address) {
     if (address.indexOf('*') < 0) {
@@ -147,34 +148,34 @@ export class FederationServer {
       }
       address = `${address}*${this.domain}`;
     }
-    let url = this.serverURL.query({ type: 'name', q: address });
+    const url = this.serverURL.query({ type: 'name', q: address });
     return this._sendRequest(url);
   }
 
   /**
-   * Returns a Promise that resolves to federation record if the user was found for a given account ID.
+   * Given an account ID, get their federation record if the user was found
    * @see <a href="https://www.stellar.org/developers/learn/concepts/federation.html" target="_blank">Federation doc</a>
    * @param {string} accountId Account ID (ex. `GBYNR2QJXLBCBTRN44MRORCMI4YO7FZPFBCNOKTOBCAAFC7KC3LNPRYS`)
-   * @returns {Promise}
+   * @returns {Promise} A promise that resolves to the federation record
    */
   resolveAccountId(accountId) {
-    let url = this.serverURL.query({ type: 'id', q: accountId });
+    const url = this.serverURL.query({ type: 'id', q: accountId });
     return this._sendRequest(url);
   }
 
   /**
-   * Returns a Promise that resolves to federation record if the sender of the transaction was found for a given transaction ID.
+   * Given a transactionId, get the federation record if the sender of the transaction was found
    * @see <a href="https://www.stellar.org/developers/learn/concepts/federation.html" target="_blank">Federation doc</a>
    * @param {string} transactionId Transaction ID (ex. `3389e9f0f1a65f19736cacf544c2e825313e8447f569233bb8db39aa607c8889`)
-   * @returns {Promise}
+   * @returns {Promise} A promise that resolves to the federation record
    */
   resolveTransactionId(transactionId) {
-    let url = this.serverURL.query({ type: 'txid', q: transactionId });
+    const url = this.serverURL.query({ type: 'txid', q: transactionId });
     return this._sendRequest(url);
   }
 
   _sendRequest(url) {
-    let timeout = this.timeout;
+    const timeout = this.timeout;
 
     return axios
       .get(url.toString(), {

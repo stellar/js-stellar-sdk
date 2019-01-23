@@ -1,5 +1,4 @@
 import { CallBuilder } from './call_builder';
-import { OrderbookCallBuilder } from './orderbook_call_builder';
 import { BadRequestError } from './errors';
 
 /**

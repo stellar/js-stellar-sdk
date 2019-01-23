@@ -18,7 +18,7 @@ export class AssetsCallBuilder extends CallBuilder {
   /**
    * This endpoint filters all assets by the asset code.
    * @param {string} value For example: `USD`
-   * @returns {AssetsCallBuilder}
+   * @returns {AssetsCallBuilder} current AssetCallBuilder instance
    */
   forCode(value) {
     this.url.setQuery('asset_code', value);
@@ -28,7 +28,7 @@ export class AssetsCallBuilder extends CallBuilder {
   /**
    * This endpoint filters all assets by the asset issuer.
    * @param {string} value For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
-   * @returns {AssetsCallBuilder}
+   * @returns {AssetsCallBuilder} current AssetCallBuilder instance
    */
   forIssuer(value) {
     this.url.setQuery('asset_issuer', value);

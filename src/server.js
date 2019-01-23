@@ -1,9 +1,4 @@
-import {
-  NotFoundError,
-  NetworkError,
-  BadRequestError,
-  BadResponseError,
-} from './errors';
+import { BadResponseError } from './errors';
 
 import { AccountCallBuilder } from './account_call_builder';
 import { AccountResponse } from './account_response';
@@ -20,12 +15,9 @@ import { EffectCallBuilder } from './effect_call_builder';
 import { FriendbotBuilder } from './friendbot_builder';
 import { AssetsCallBuilder } from './assets_call_builder';
 import { TradeAggregationCallBuilder } from './trade_aggregation_call_builder';
-import { xdr } from 'stellar-base';
-import isString from 'lodash/isString';
 
-let axios = require('axios');
-let URI = require('urijs');
-let URITemplate = require('urijs').URITemplate;
+const axios = require('axios');
+const URI = require('urijs');
 
 export const SUBMIT_TRANSACTION_TIMEOUT = 60 * 1000;
 
@@ -34,7 +26,7 @@ export const SUBMIT_TRANSACTION_TIMEOUT = 60 * 1000;
  * instance and exposes an interface for requests to that instance.
  * @constructor
  * @param {string} serverURL Horizon Server URL (ex. `https://horizon-testnet.stellar.org`).
- * @param {object} [opts]
+ * @param {object} [opts] Options object
  * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments! You can also use {@link Config} class to set this globally.
  */
 export class Server {
@@ -58,7 +50,7 @@ export class Server {
    * @returns {Promise} Promise that resolves or rejects with response from horizon.
    */
   submitTransaction(transaction) {
-    let tx = encodeURIComponent(
+    const tx = encodeURIComponent(
       transaction
         .toEnvelope()
         .toXDR()
@@ -92,24 +84,21 @@ export class Server {
   }
 
   /**
-   * Returns new {@link AccountCallBuilder} object configured by a current Horizon server configuration.
-   * @returns {AccountCallBuilder}
+   * @returns {AccountCallBuilder} New {@link AccountCallBuilder} object configured by a current Horizon server configuration.
    */
   accounts() {
     return new AccountCallBuilder(URI(this.serverURL));
   }
 
   /**
-   * Returns new {@link LedgerCallBuilder} object configured by a current Horizon server configuration.
-   * @returns {LedgerCallBuilder}
+   * @returns {LedgerCallBuilder} New {@link LedgerCallBuilder} object configured by a current Horizon server configuration.
    */
   ledgers() {
     return new LedgerCallBuilder(URI(this.serverURL));
   }
 
   /**
-   * Returns new {@link TransactionCallBuilder} object configured by a current Horizon server configuration.
-   * @returns {TransactionCallBuilder}
+   * @returns {TransactionCallBuilder} New {@link TransactionCallBuilder} object configured by a current Horizon server configuration.
    */
   transactions() {
     return new TransactionCallBuilder(URI(this.serverURL));
@@ -126,7 +115,7 @@ export class Server {
    * ```
    * @param {string} resource Resource to query offers
    * @param {...string} resourceParams Parameters for selected resource
-   * @returns OfferCallBuilder
+   * @returns {OfferCallBuilder} New {@link OfferCallBuilder} object
    */
   offers(resource, ...resourceParams) {
     return new OfferCallBuilder(
@@ -137,26 +126,24 @@ export class Server {
   }
 
   /**
-   * Returns new {@link OrderbookCallBuilder} object configured by a current Horizon server configuration.
    * @param {Asset} selling Asset being sold
    * @param {Asset} buying Asset being bought
-   * @returns {OrderbookCallBuilder}
+   * @returns {OrderbookCallBuilder} New {@link OrderbookCallBuilder} object configured by a current Horizon server configuration.
    */
   orderbook(selling, buying) {
     return new OrderbookCallBuilder(URI(this.serverURL), selling, buying);
   }
 
   /**
-   * Returns new {@link TradesCallBuilder} object configured by a current Horizon server configuration.
-   * @returns {TradesCallBuilder}
+   * Returns
+   * @returns {TradesCallBuilder} New {@link TradesCallBuilder} object configured by a current Horizon server configuration.
    */
   trades() {
     return new TradesCallBuilder(URI(this.serverURL));
   }
 
   /**
-   * Returns new {@link OperationCallBuilder} object configured by a current Horizon server configuration.
-   * @returns {OperationCallBuilder}
+   * @returns {OperationCallBuilder} New {@link OperationCallBuilder} object configured by a current Horizon server configuration.
    */
   operations() {
     return new OperationCallBuilder(URI(this.serverURL));
@@ -177,13 +164,11 @@ export class Server {
    * payment paths from those source assets to the desired destination asset. The search's amount parameter will be
    * used to determine if there a given path can satisfy a payment of the desired amount.
    *
-   * Returns new {@link PathCallBuilder} object configured with the current Horizon server configuration.
-   *
    * @param {string} source The sender's account ID. Any returned path will use a source that the sender can hold.
    * @param {string} destination The destination account ID that any returned path should use.
    * @param {Asset} destinationAsset The destination asset.
    * @param {string} destinationAmount The amount, denominated in the destination asset, that any returned path should be able to satisfy.
-   * @returns {@link PathCallBuilder}
+   * @returns {PathCallBuilder} New {@link PathCallBuilder} object configured with the current Horizon server configuration.
    */
   paths(source, destination, destinationAsset, destinationAmount) {
     return new PathCallBuilder(
@@ -196,24 +181,25 @@ export class Server {
   }
 
   /**
-   * Returns new {@link PaymentCallBuilder} object configured with the current Horizon server configuration.
-   * @returns {PaymentCallBuilder}
+   * @returns {PaymentCallBuilder} New {@link PaymentCallBuilder} instance configured with the current
+   * Horizon server configuration.
    */
   payments() {
     return new PaymentCallBuilder(URI(this.serverURL));
   }
 
   /**
-   * Returns new {@link EffectCallBuilder} object configured with the current Horizon server configuration.
-   * @returns {EffectCallBuilder}
+   * @returns {EffectCallBuilder} New {@link EffectCallBuilder} instance configured with the current
+   * Horizon server configuration
    */
   effects() {
     return new EffectCallBuilder(URI(this.serverURL));
   }
 
   /**
-   * Returns new {@link FriendbotBuilder} object configured with the current Horizon server configuration.
-   * @returns {FriendbotBuilder}
+   * @param {string} address The Stellar ID that you want Friendbot to send lumens to
+   * @returns {FriendbotBuilder} New {@link FriendbotBuilder} instance configured with the current
+   * Horizon server configuration
    * @private
    */
   friendbot(address) {
@@ -221,8 +207,9 @@ export class Server {
   }
 
   /**
-   * Returns new {@link AssetsCallBuilder} object configured with the current Horizon server configuration.
-   * @returns {AssetsCallBuilder}
+   * Get a new {@link AssetsCallBuilder} instance configured with the current
+   * Horizon server configuration.
+   * @returns {AssetsCallBuilder} New AssetsCallBuilder instance
    */
   assets() {
     return new AssetsCallBuilder(URI(this.serverURL));
@@ -251,7 +238,7 @@ export class Server {
    * @param {long} resolution segment duration as millis since epoch. *Supported values are 5 minutes (300000), 15 minutes (900000), 1 hour (3600000), 1 day (86400000) and 1 week (604800000).
    * @param {long} offset segments can be offset using this parameter. Expressed in milliseconds. *Can only be used if the resolution is greater than 1 hour. Value must be in whole hours, less than the provided resolution, and less than 24 hours.
    * Returns new {@link TradeAggregationCallBuilder} object configured with the current Horizon server configuration.
-   * @returns {TradeAggregationCallBuilder}
+   * @returns {TradeAggregationCallBuilder} New TradeAggregationCallBuilder instance
    */
   tradeAggregation(base, counter, start_time, end_time, resolution, offset) {
     return new TradeAggregationCallBuilder(

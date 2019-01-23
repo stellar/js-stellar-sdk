@@ -21,7 +21,7 @@ export class OperationCallBuilder extends CallBuilder {
    * argument specifies which operation to load.
    * @see [Operation Details](https://www.stellar.org/developers/horizon/reference/operations-single.html)
    * @param {number} operationId Operation ID
-   * @returns {OperationCallBuilder}
+   * @returns {OperationCallBuilder} this OperationCallBuilder instance
    */
   operation(operationId) {
     this.filter.push(['operations', operationId]);
@@ -32,7 +32,7 @@ export class OperationCallBuilder extends CallBuilder {
    * This endpoint represents all operations that were included in valid transactions that affected a particular account.
    * @see [Operations for Account](https://www.stellar.org/developers/horizon/reference/operations-for-account.html)
    * @param {string} accountId For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
-   * @returns {OperationCallBuilder}
+   * @returns {OperationCallBuilder} this OperationCallBuilder instance
    */
   forAccount(accountId) {
     this.filter.push(['accounts', accountId, 'operations']);
@@ -44,7 +44,7 @@ export class OperationCallBuilder extends CallBuilder {
    *
    * @see [Operations for Ledger](https://www.stellar.org/developers/horizon/reference/operations-for-ledger.html)
    * @param {number|string} sequence Ledger sequence
-   * @returns {OperationCallBuilder}
+   * @returns {OperationCallBuilder} this OperationCallBuilder instance
    */
   forLedger(sequence) {
     if (typeof sequence == 'number') {
@@ -58,7 +58,7 @@ export class OperationCallBuilder extends CallBuilder {
    * This endpoint represents all operations that are part of a given transaction.
    * @see [Operations for Transaction](https://www.stellar.org/developers/horizon/reference/operations-for-transaction.html)
    * @param {string} transactionId Transaction ID
-   * @returns {OperationCallBuilder}
+   * @returns {OperationCallBuilder} this OperationCallBuilder instance
    */
   forTransaction(transactionId) {
     this.filter.push(['transactions', transactionId, 'operations']);

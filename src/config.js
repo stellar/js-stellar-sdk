@@ -1,6 +1,6 @@
 import clone from 'lodash/clone';
 
-let defaultConfig = {
+const defaultConfig = {
   allowHttp: false,
   timeout: 0,
 };
@@ -28,7 +28,8 @@ class Config {
   /**
    * Sets `allowHttp` flag globally. When set to `true`, connections to insecure http protocol servers will be allowed.
    * Must be set to `false` in production. Default: `false`.
-   * @param {boolean} value
+   * @param {boolean} value new allowHttp value
+   * @returns {void}
    * @static
    */
   static setAllowHttp(value) {
@@ -38,7 +39,8 @@ class Config {
   /**
    * Sets `timeout` flag globally. When set to anything besides 0, the request will timeout after specified time (ms).
    * Default: 0.
-   * @param {number} value
+   * @param {number} value new timeout value
+   * @returns {void}
    * @static
    */
   static setTimeout(value) {
@@ -46,16 +48,16 @@ class Config {
   }
 
   /**
-   * Returns the value of `allowHttp` flag.
    * @static
+   * @returns {boolean} allowHttp flag
    */
   static isAllowHttp() {
     return clone(config.allowHttp);
   }
 
   /**
-   * Returns the value of `timeout` flag.
    * @static
+   * @returns {number} timeout flag
    */
   static getTimeout() {
     return clone(config.timeout);
@@ -64,6 +66,7 @@ class Config {
   /**
    * Sets all global config flags to default values.
    * @static
+   * @returns {void}
    */
   static setDefault() {
     config = clone(defaultConfig);

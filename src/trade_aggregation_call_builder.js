@@ -72,7 +72,8 @@ export class TradeAggregationCallBuilder extends CallBuilder {
 
   /**
    * @private
-   * @param {long} resolution
+   * @param {long} resolution Trade data resolution in milliseconds
+   * @returns {boolean} true if the resolution is allowed
    */
   isValidResolution(resolution) {
     let found = false;
@@ -88,8 +89,9 @@ export class TradeAggregationCallBuilder extends CallBuilder {
 
   /**
    * @private
-   * @param {long} offset
-   * @param {long} resolution
+   * @param {long} offset Time offset in milliseconds
+   * @param {long} resolution Trade data resolution in milliseconds
+   * @returns {boolean} true if the offset is valid
    */
   isValidOffset(offset, resolution) {
     const hour = 3600000;

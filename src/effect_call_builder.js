@@ -20,7 +20,7 @@ export class EffectCallBuilder extends CallBuilder {
    * This endpoint represents all effects that changed a given account. It will return relevant effects from the creation of the account to the current ledger.
    * @see [Effects for Account](https://www.stellar.org/developers/horizon/reference/effects-for-account.html)
    * @param {string} accountId For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
-   * @returns {EffectCallBuilder}
+   * @returns {EffectCallBuilder} this EffectCallBuilder instance
    */
   forAccount(accountId) {
     this.filter.push(['accounts', accountId, 'effects']);
@@ -33,7 +33,7 @@ export class EffectCallBuilder extends CallBuilder {
    * This endpoint represents all effects that occurred in the given ledger.
    * @see [Effects for Ledger](https://www.stellar.org/developers/horizon/reference/effects-for-ledger.html)
    * @param {number|string} sequence Ledger sequence
-   * @returns {EffectCallBuilder}
+   * @returns {EffectCallBuilder} this EffectCallBuilder instance
    */
   forLedger(sequence) {
     if (typeof sequence == 'number') {
@@ -47,7 +47,7 @@ export class EffectCallBuilder extends CallBuilder {
    * This endpoint represents all effects that occurred as a result of a given transaction.
    * @see [Effects for Transaction](https://www.stellar.org/developers/horizon/reference/effects-for-transaction.html)
    * @param {string} transactionId Transaction ID
-   * @returns {EffectCallBuilder}
+   * @returns {EffectCallBuilder} this EffectCallBuilder instance
    */
   forTransaction(transactionId) {
     this.filter.push(['transactions', transactionId, 'effects']);
@@ -58,7 +58,7 @@ export class EffectCallBuilder extends CallBuilder {
    * This endpoint represents all effects that occurred as a result of a given operation.
    * @see [Effects for Operation](https://www.stellar.org/developers/horizon/reference/effects-for-operation.html)
    * @param {number} operationId Operation ID
-   * @returns {EffectCallBuilder}
+   * @returns {EffectCallBuilder} this EffectCallBuilder instance
    */
   forOperation(operationId) {
     this.filter.push(['operations', operationId, 'effects']);
