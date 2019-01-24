@@ -156,6 +156,13 @@ cd js-stellar-sdk
 npm install
 ```
 
+3. While you're making changes, make sure to run the linter-watcher to catch any
+   linting errors (in addition to making sure your text editor supports ESLint)
+
+```shell
+npx gulp lint:watch
+```
+
 ## Usage
 
 For information on how to use js-stellar-sdk, take a look at the
