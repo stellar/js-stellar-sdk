@@ -5,7 +5,7 @@
   "main": "lib/index.js",
   "scripts": {
     "test": "babel-node ./node_modules/.bin/gulp test",
-    "docs": "jsdoc ./src/ -d docs/ -r ./docs/readme.md",
+    "docs": "jsdoc -c .jsdoc.json --verbose",
     "preversion": "gulp test",
     "version": "gulp build",
     "postversion": "git push && git push --tags"

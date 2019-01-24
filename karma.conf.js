@@ -2,7 +2,6 @@ module.exports = function(config) {
   config.set({
     frameworks: ['mocha', 'chai-as-promised', 'chai', 'sinon'],
     browsers: ['Firefox'],
-    logLevel: config.LOG_DEBUG,
 
     files: ['dist/stellar-sdk.js', 'test/test-helper.js', 'test/unit/**/*.js'],
 
