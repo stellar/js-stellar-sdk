@@ -13,7 +13,7 @@ script:
     git config --global user.email "travis@stellar.org"
     if [ "${SAUCE}" = "true" ]; then
       if [ "${TRAVIS_PULL_REQUEST}" = "false" ]; then
-        gulp test:sauce
+        babel-node ./node_modules/gulp/bin/gulp.js test:sauce
       else
         echo "Pull request - skip Sauce Labs testing..."
       fi
@@ -27,7 +27,7 @@ after_success:
   - |
     # Send report to coveralls but only once
     if [ "${INTEGRATION}" = "true" ] && [ "${TRAVIS_BRANCH}" = "master" ] ; then
-      gulp submit-coverage
+      babel-node ./node_modules/gulp/bin/gulp.js submit-coverage
     fi
 env:
   global:
@@ -35,7 +35,7 @@ env:
 notifications:
   slack:
     secure: CgXxNEQrQ82EatyF/wSdF0P5rXcWPL+fFZ1lb1aBb8RbVt5gwddJ6xWVD/nYSr6tIJvIYHYhoYsIDPENwezIPsesG7kWXerQhydsEcA34JKxzsStd/TmU6Moxuwy6KTN7yzmL6586nSvoAw9TNPgvRkJFkH07asjGIc9Rlaq7/Y=
-before_deploy: gulp build
+before_deploy: babel-node ./node_modules/gulp/bin/gulp.js build
 after_deploy: './after_deploy.sh'
 deploy:
   - provider: npm
