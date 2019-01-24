@@ -21,7 +21,7 @@ script:
       # Ugly but it's the only way to make istanbul generate coverage report
       babel-node ./node_modules/gulp/bin/gulp.js test:integration
     else
-      gulp test:unit
+      babel-node ./node_modules/gulp/bin/gulp.js test:unit
     fi
 after_success:
   - |
