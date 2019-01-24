@@ -4998,9 +4998,9 @@ statuses@~1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/statuses/-/statuses-1.4.0.tgz#bb73d446da2796106efcc1b601a253d6c46bd087"
 
-stellar-base@^0.9.0:
-  version "0.9.0"
-  resolved "https://registry.yarnpkg.com/stellar-base/-/stellar-base-0.9.0.tgz#03a4d71c9bfe49f0c54afd4a8f34517ed49c0924"
+stellar-base@^0.10.0:
+  version "0.10.0"
+  resolved "https://registry.yarnpkg.com/stellar-base/-/stellar-base-0.10.0.tgz#4c661ede88f7d781411ca63c3a18042f4ac86658"
   dependencies:
     base32.js "~0.1.0"
     bignumber.js "^4.0.0"

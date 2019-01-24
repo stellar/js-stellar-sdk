@@ -27,6 +27,7 @@ describe("integration tests", function () {
               .addOperation(StellarSdk.Operation.accountMerge({
                 destination: operation.funder
               }))
+              .setTimeout(StellarSdk.TimeoutInfinite)
               .build();
 
             tx.sign(master);
@@ -44,6 +45,7 @@ describe("integration tests", function () {
             destination: accountId,
             startingBalance: "1"
           }))
+          .setTimeout(StellarSdk.TimeoutInfinite)
           .build();
 
         tx.sign(master);
@@ -71,6 +73,7 @@ describe("integration tests", function () {
               destination: StellarSdk.Keypair.random().publicKey(),
               startingBalance: "1"
             }))
+            .setTimeout(StellarSdk.TimeoutInfinite)
             .build();
 
           tx.sign(master);
