@@ -16,7 +16,8 @@ gulp.task('lint:src', function() {
   return gulp
     .src(['src/**/*.js'])
     .pipe(plugins.eslint())
-    .pipe(plugins.eslint.format());
+    .pipe(plugins.eslint.format())
+    .pipe(plugins.eslint.failAfterError());
 });
 
 // Lint our test code
@@ -28,8 +29,18 @@ gulp.task('lint:test', function() {
     .pipe(plugins.eslint.failAfterError());
 });
 
-gulp.task('lint:watch', ['lint:src'], function() {
-  gulp.watch('src/**/*', ['lint:src']);
+// this task doesn't fail on error so it doesn't break a watch loop
+gulp.task('lint-for-watcher:src', function() {
+  clear();
+  return gulp
+    .src(['src/**/*.js'])
+    .pipe(plugins.eslint())
+    .pipe(plugins.eslint.format())
+    .pipe(plugins.eslint.failAfterError());
+});
+
+gulp.task('lint:watch', ['lint-for-watcher:src'], function() {
+  gulp.watch('src/**/*', ['lint-for-watcher:src']);
 });
 
 gulp.task('build', function(done) {
