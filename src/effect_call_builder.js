@@ -36,10 +36,11 @@ export class EffectCallBuilder extends CallBuilder {
    * @returns {EffectCallBuilder} this EffectCallBuilder instance
    */
   forLedger(sequence) {
-    if (typeof sequence == 'number') {
-      sequence = sequence.toString();
-    }
-    this.filter.push(['ledgers', sequence, 'effects']);
+    this.filter.push([
+      'ledgers',
+      typeof sequence === 'number' ? sequence.toString() : sequence,
+      'effects',
+    ]);
     return this;
   }
 

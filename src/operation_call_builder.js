@@ -47,10 +47,11 @@ export class OperationCallBuilder extends CallBuilder {
    * @returns {OperationCallBuilder} this OperationCallBuilder instance
    */
   forLedger(sequence) {
-    if (typeof sequence == 'number') {
-      sequence = sequence.toString();
-    }
-    this.filter.push(['ledgers', sequence, 'operations']);
+    this.filter.push([
+      'ledgers',
+      typeof sequence === 'number' ? sequence.toString() : sequence,
+      'operations',
+    ]);
     return this;
   }
 

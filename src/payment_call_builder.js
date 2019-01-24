@@ -33,10 +33,11 @@ export class PaymentCallBuilder extends CallBuilder {
    * @returns {PaymentCallBuilder} this PaymentCallBuilder instance
    */
   forLedger(sequence) {
-    if (typeof sequence == 'number') {
-      sequence = sequence.toString();
-    }
-    this.filter.push(['ledgers', sequence, 'payments']);
+    this.filter.push([
+      'ledgers',
+      typeof sequence === 'number' ? sequence.toString() : sequence,
+      'payments',
+    ]);
     return this;
   }
 

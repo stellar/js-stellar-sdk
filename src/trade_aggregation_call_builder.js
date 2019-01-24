@@ -78,8 +78,8 @@ export class TradeAggregationCallBuilder extends CallBuilder {
   isValidResolution(resolution) {
     let found = false;
 
-    for (let i = 0; i < allowedResolutions.length; i++) {
-      if (allowedResolutions[i] == resolution) {
+    for (let i = 0; i < allowedResolutions.length; i += 1) {
+      if (allowedResolutions[i] === resolution) {
         found = true;
         break;
       }

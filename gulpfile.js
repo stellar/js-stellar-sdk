@@ -16,18 +16,16 @@ gulp.task('lint:src', function() {
   return gulp
     .src(['src/**/*.js'])
     .pipe(plugins.eslint())
-    .pipe(plugins.eslint.format())
-    .pipe(plugins.eslint.failAfterError());
+    .pipe(plugins.eslint.format());
 });
 
 // Lint our test code
 gulp.task('lint:test', function() {
   return gulp
     .src(['test/unit/**/*.js'])
-    .pipe(plugins.plumber())
-    .pipe(plugins.jshint())
-    .pipe(plugins.jshint.reporter('jshint-stylish'))
-    .pipe(plugins.jshint.reporter('fail'));
+    .pipe(plugins.eslint())
+    .pipe(plugins.eslint.format())
+    .pipe(plugins.eslint.failAfterError());
 });
 
 gulp.task('lint:watch', ['lint:src'], function() {

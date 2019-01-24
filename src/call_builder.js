@@ -1,11 +1,12 @@
-import { NotFoundError, NetworkError, BadRequestError } from './errors';
 import forEach from 'lodash/forEach';
+import URI from 'urijs';
+import URITemplate from 'urijs/src/URITemplate';
+import axios from 'axios';
 
-const URI = require('urijs');
-const URITemplate = require('urijs/src/URITemplate');
+import { NotFoundError, NetworkError, BadRequestError } from './errors';
 
-const axios = require('axios');
 const EventSource =
+  // eslint-disable-next-line no-undef
   typeof window === 'undefined' ? require('eventsource') : window.EventSource;
 
 /**
@@ -32,7 +33,7 @@ export class CallBuilder {
     }
 
     if (this.filter.length === 1) {
-      //append filters to original segments
+      // append filters to original segments
       const newSegment = this.originalSegments.concat(this.filter[0]);
       this.url.segment(newSegment);
     }
@@ -71,14 +72,14 @@ export class CallBuilder {
     // property is not reliable.
     let timeout;
 
-    var createTimeout = () => {
+    const createTimeout = () => {
       timeout = setTimeout(() => {
         es.close();
         es = createEventSource();
       }, options.reconnectTimeout || 15 * 1000);
     };
 
-    var createEventSource = () => {
+    const createEventSource = () => {
       try {
         es = new EventSource(this.url.toString());
       } catch (err) {
@@ -92,7 +93,7 @@ export class CallBuilder {
       createTimeout();
 
       es.onmessage = (message) => {
-        var result = message.data
+        const result = message.data
           ? this._parseRecord(JSON.parse(message.data))
           : message;
         if (result.paging_token) {
@@ -155,15 +156,20 @@ export class CallBuilder {
     }
     forEach(json._links, (n, key) => {
       // If the key with the link name already exists, create a copy
-      if (typeof json[key] != 'undefined') {
+      if (typeof json[key] !== 'undefined') {
+        // eslint-disable-next-line no-param-reassign
         json[`${key}_attr`] = json[key];
       }
+
+      // eslint-disable-next-line no-param-reassign
       json[key] = this._requestFnForLink(n);
     });
     return json;
   }
 
-  _sendNormalRequest(url) {
+  _sendNormalRequest(initialUrl) {
+    let url = initialUrl;
+
     if (url.authority() === '') {
       url = url.authority(this.url.authority());
     }
@@ -188,9 +194,8 @@ export class CallBuilder {
   _parseResponse(json) {
     if (json._embedded && json._embedded.records) {
       return this._toCollectionPage(json);
-    } else {
-      return this._parseRecord(json);
     }
+    return this._parseRecord(json);
   }
 
   /**
@@ -199,7 +204,8 @@ export class CallBuilder {
    * @returns {object} Extended response object
    */
   _toCollectionPage(json) {
-    for (var i = 0; i < json._embedded.records.length; i++) {
+    for (let i = 0; i < json._embedded.records.length; i += 1) {
+      // eslint-disable-next-line no-param-reassign
       json._embedded.records[i] = this._parseRecord(json._embedded.records[i]);
     }
     return {

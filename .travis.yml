@@ -1,42 +1,42 @@
 language: node_js
 matrix:
   include:
-  - node_js: 6.9.4
-  - node_js: 6.9.4
-    env: SAUCE=true
-  - node_js: 6.9.4
-    env: INTEGRATION=true
+    - node_js: 6.14.0
+    - node_js: 6.14.0
+      env: SAUCE=true
+    - node_js: 6.14.0
+      env: INTEGRATION=true
 script:
-- |
-  echo "machine github.com login stellar-jenkins password $GITHUB_TOKEN" >~/.netrc
-  git config --global user.name "Travis CI"
-  git config --global user.email "travis@stellar.org"
-  if [ "${SAUCE}" = "true" ]; then
-    if [ "${TRAVIS_PULL_REQUEST}" = "false" ]; then
-      gulp test:sauce
+  - |
+    echo "machine github.com login stellar-jenkins password $GITHUB_TOKEN" >~/.netrc
+    git config --global user.name "Travis CI"
+    git config --global user.email "travis@stellar.org"
+    if [ "${SAUCE}" = "true" ]; then
+      if [ "${TRAVIS_PULL_REQUEST}" = "false" ]; then
+        gulp test:sauce
+      else
+        echo "Pull request - skip Sauce Labs testing..."
+      fi
+    elif [ "${INTEGRATION}" = "true" ]; then
+      # Ugly but it's the only way to make istanbul generate coverage report
+      babel-node ./node_modules/gulp/bin/gulp.js test:integration
     else
-      echo "Pull request - skip Sauce Labs testing..."
+      gulp test:unit
     fi
-  elif [ "${INTEGRATION}" = "true" ]; then
-    # Ugly but it's the only way to make istanbul generate coverage report
-    babel-node ./node_modules/gulp/bin/gulp.js test:integration
-  else
-    gulp test:unit
-  fi
 after_success:
-- |
-  # Send report to coveralls but only once
-  if [ "${INTEGRATION}" = "true" ] && [ "${TRAVIS_BRANCH}" = "master" ] ; then
-    gulp submit-coverage
-  fi
+  - |
+    # Send report to coveralls but only once
+    if [ "${INTEGRATION}" = "true" ] && [ "${TRAVIS_BRANCH}" = "master" ] ; then
+      gulp submit-coverage
+    fi
 env:
   global:
-  - secure: Pc3DwkXywnOGAhUdBZiUCKjyljzrQzPoqm9EEr+UL2BaeaDniFLCLEkuU+ViiuJBo8oPyOIl7I+d86Mi5q06fQx55+xH7DmiW/aj4qKVB2U6Ghn6A3QWkQuvRB1o8SP7iTYRCX480ULZs6AGrMd9y1PFRx/L93fBrO+J/bOtEmg=
+    - secure: Pc3DwkXywnOGAhUdBZiUCKjyljzrQzPoqm9EEr+UL2BaeaDniFLCLEkuU+ViiuJBo8oPyOIl7I+d86Mi5q06fQx55+xH7DmiW/aj4qKVB2U6Ghn6A3QWkQuvRB1o8SP7iTYRCX480ULZs6AGrMd9y1PFRx/L93fBrO+J/bOtEmg=
 notifications:
   slack:
     secure: CgXxNEQrQ82EatyF/wSdF0P5rXcWPL+fFZ1lb1aBb8RbVt5gwddJ6xWVD/nYSr6tIJvIYHYhoYsIDPENwezIPsesG7kWXerQhydsEcA34JKxzsStd/TmU6Moxuwy6KTN7yzmL6586nSvoAw9TNPgvRkJFkH07asjGIc9Rlaq7/Y=
 before_deploy: gulp build
-after_deploy: "./after_deploy.sh"
+after_deploy: './after_deploy.sh'
 deploy:
   - provider: npm
     email: npm@stellar.org
@@ -47,12 +47,12 @@ deploy:
       tags: true
       repo: stellar/js-stellar-sdk
       node: 6.9.4
-      condition: "$INTEGRATION = true"
+      condition: '$INTEGRATION = true'
   - provider: script
-    script: "./bower_publish.sh"
+    script: './bower_publish.sh'
     skip_cleanup: true
     on:
       tags: true
       repo: stellar/js-stellar-sdk
       node: 6.9.4
-      condition: "$INTEGRATION = true"
+      condition: '$INTEGRATION = true'

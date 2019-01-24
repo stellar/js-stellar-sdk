@@ -45,10 +45,10 @@ export class TransactionCallBuilder extends CallBuilder {
    * @returns {TransactionCallBuilder} current TransactionCallBuilder instance
    */
   forLedger(sequence) {
-    if (typeof sequence == 'number') {
-      sequence = sequence.toString();
-    }
-    this.filter.push(['ledgers', sequence, 'transactions']);
+    const ledgerSequence =
+      typeof sequence === 'number' ? sequence.toString() : sequence;
+
+    this.filter.push(['ledgers', ledgerSequence, 'transactions']);
     return this;
   }
 }

@@ -1,11 +1,14 @@
 module.exports = {
-  extends: ['prettier'],
+  extends: ['airbnb-base', 'prettier'],
   plugins: ['prettier'],
   rules: {
     // OFF
+    'import/prefer-default-export': 0,
+    camelcase: 0,
     'class-methods-use-this': 0,
     'linebreak-style': 0,
     'no-underscore-dangle': 0,
+    'no-use-before-define': 0,
     'prefer-destructuring': 0,
     'lines-between-class-members': 0,
 

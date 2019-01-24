@@ -1,7 +1,8 @@
 import axios from 'axios';
 import URI from 'urijs';
-import { Config } from './config';
 import { StrKey } from 'stellar-base';
+
+import { Config } from './config';
 import { BadResponseError } from './errors';
 import { StellarTomlResolver } from './stellar_toml_resolver';
 
@@ -36,7 +37,7 @@ export class FederationServer {
       this.timeout = opts.timeout;
     }
 
-    if (this.serverURL.protocol() != 'https' && !allowHttp) {
+    if (this.serverURL.protocol() !== 'https' && !allowHttp) {
       throw new Error('Cannot connect to insecure federation server');
     }
   }
@@ -81,20 +82,19 @@ export class FederationServer {
     if (value.indexOf('*') < 0) {
       if (!StrKey.isValidEd25519PublicKey(value)) {
         return Promise.reject(new Error('Invalid Account ID'));
-      } else {
-        return Promise.resolve({ account_id: value });
       }
-    } else {
-      const addressParts = value.split('*');
-      const [, domain] = addressParts;
-
-      if (addressParts.length != 2 || !domain) {
-        return Promise.reject(new Error('Invalid Stellar address'));
-      }
-      return FederationServer.createForDomain(domain, opts).then(
-        (federationServer) => federationServer.resolveAddress(value),
-      );
+      return Promise.resolve({ account_id: value });
     }
+
+    const addressParts = value.split('*');
+    const [, domain] = addressParts;
+
+    if (addressParts.length !== 2 || !domain) {
+      return Promise.reject(new Error('Invalid Stellar address'));
+    }
+    return FederationServer.createForDomain(domain, opts).then(
+      (federationServer) => federationServer.resolveAddress(value),
+    );
   }
 
   /**
@@ -138,6 +138,7 @@ export class FederationServer {
    * @returns {Promise} Promise that resolves to the federation record
    */
   resolveAddress(address) {
+    let stellarAddress = address;
     if (address.indexOf('*') < 0) {
       if (!this.domain) {
         return Promise.reject(
@@ -146,9 +147,9 @@ export class FederationServer {
           ),
         );
       }
-      address = `${address}*${this.domain}`;
+      stellarAddress = `${address}*${this.domain}`;
     }
-    const url = this.serverURL.query({ type: 'name', q: address });
+    const url = this.serverURL.query({ type: 'name', q: stellarAddress });
     return this._sendRequest(url);
   }
 
@@ -184,8 +185,8 @@ export class FederationServer {
       })
       .then((response) => {
         if (
-          typeof response.data.memo != 'undefined' &&
-          typeof response.data.memo != 'string'
+          typeof response.data.memo !== 'undefined' &&
+          typeof response.data.memo !== 'string'
         ) {
           throw new Error('memo value should be of type string');
         }

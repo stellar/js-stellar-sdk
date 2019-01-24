@@ -38,7 +38,7 @@ export class Server {
       allowHttp = opts.allowHttp;
     }
 
-    if (this.serverURL.protocol() != 'https' && !allowHttp) {
+    if (this.serverURL.protocol() !== 'https' && !allowHttp) {
       throw new Error('Cannot connect to insecure horizon server');
     }
   }
@@ -64,22 +64,19 @@ export class Server {
         `tx=${tx}`,
         { timeout: SUBMIT_TRANSACTION_TIMEOUT },
       )
-      .then(function(response) {
-        return response.data;
-      })
-      .catch(function(response) {
+      .then((response) => response.data)
+      .catch((response) => {
         if (response instanceof Error) {
           return Promise.reject(response);
-        } else {
-          return Promise.reject(
-            new BadResponseError(
-              `Transaction submission failed. Server responded: ${
-                response.status
-              } ${response.statusText}`,
-              response.data,
-            ),
-          );
         }
+        return Promise.reject(
+          new BadResponseError(
+            `Transaction submission failed. Server responded: ${
+              response.status
+            } ${response.statusText}`,
+            response.data,
+          ),
+        );
       });
   }
 
@@ -224,9 +221,7 @@ export class Server {
     return this.accounts()
       .accountId(accountId)
       .call()
-      .then(function(res) {
-        return new AccountResponse(res);
-      });
+      .then((res) => new AccountResponse(res));
   }
 
   /**
