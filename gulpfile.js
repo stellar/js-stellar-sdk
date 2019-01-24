@@ -1,17 +1,18 @@
-'use strict';
+/* eslint-disable arrow-body-style */
 
-var gulp = require('gulp');
-var isparta = require('isparta');
-var plugins = require('gulp-load-plugins')();
-var runSequence = require('run-sequence');
-var server = require('gulp-develop-server');
-var webpack = require('webpack');
-var fs = require('fs');
-var clear = require('clear');
+const gulp = require('gulp');
+const isparta = require('isparta');
+const plugins = require('gulp-load-plugins')();
+const runSequence = require('run-sequence');
+const server = require('gulp-develop-server');
+const webpack = require('webpack');
+const fs = require('fs');
+const clear = require('clear');
+const karma = require('karma');
 
 gulp.task('default', ['build']);
 
-gulp.task('lint:src', function() {
+gulp.task('lint:src', () => {
   clear();
   return gulp
     .src(['src/**/*.js'])
@@ -21,7 +22,7 @@ gulp.task('lint:src', function() {
 });
 
 // Lint our test code
-gulp.task('lint:test', function() {
+gulp.task('lint:test', () => {
   return gulp
     .src(['test/unit/**/*.js'])
     .pipe(plugins.eslint())
@@ -30,7 +31,7 @@ gulp.task('lint:test', function() {
 });
 
 // this task doesn't fail on error so it doesn't break a watch loop
-gulp.task('lint-for-watcher:src', function() {
+gulp.task('lint-for-watcher:src', () => {
   clear();
   return gulp
     .src(['src/**/*.js'])
@@ -39,33 +40,33 @@ gulp.task('lint-for-watcher:src', function() {
     .pipe(plugins.eslint.failAfterError());
 });
 
-gulp.task('lint:watch', ['lint-for-watcher:src'], function() {
+gulp.task('lint:watch', ['lint-for-watcher:src'], () => {
   gulp.watch('src/**/*', ['lint-for-watcher:src']);
 });
 
-gulp.task('build', function(done) {
+gulp.task('build', (done) => {
   runSequence('clean', 'build:node', 'build:browser', done);
 });
 
-gulp.task('test', function(done) {
-  runSequence('clean', 'test:unit', 'test:browser', function(err) {
+gulp.task('test', (done) => {
+  runSequence('clean', 'test:unit', 'test:browser', () => {
     server.kill();
     done();
   });
 });
 
-gulp.task('hooks:precommit', ['build'], function() {
+gulp.task('hooks:precommit', ['build'], () => {
   return gulp.src(['dist/*', 'lib/*']).pipe(plugins.git.add());
 });
 
-gulp.task('build:node', ['lint:src'], function() {
+gulp.task('build:node', ['lint:src'], () => {
   return gulp
     .src('src/**/*.js')
     .pipe(plugins.babel())
     .pipe(gulp.dest('lib'));
 });
 
-gulp.task('build:browser', ['lint:src'], function() {
+gulp.task('build:browser', ['lint:src'], () => {
   return (
     gulp
       .src('src/browser.js')
@@ -109,7 +110,7 @@ gulp.task('build:browser', ['lint:src'], function() {
   );
 });
 
-gulp.task('test:init-istanbul', ['clean-coverage'], function() {
+gulp.task('test:init-istanbul', ['clean-coverage'], () => {
   return gulp
     .src(['src/**/*.js'])
     .pipe(
@@ -120,7 +121,7 @@ gulp.task('test:init-istanbul', ['clean-coverage'], function() {
     .pipe(plugins.istanbul.hookRequire());
 });
 
-gulp.task('test:integration', ['build:node', 'test:init-istanbul'], function() {
+gulp.task('test:integration', ['build:node', 'test:init-istanbul'], () => {
   return gulp
     .src([
       'test/test-helper.js',
@@ -135,7 +136,7 @@ gulp.task('test:integration', ['build:node', 'test:init-istanbul'], function() {
     .pipe(plugins.istanbul.writeReports());
 });
 
-gulp.task('test:unit', ['build:node'], function() {
+gulp.task('test:unit', ['build:node'], () => {
   return gulp.src(['test/test-helper.js', 'test/unit/**/*.js']).pipe(
     plugins.mocha({
       reporter: ['spec'],
@@ -143,34 +144,34 @@ gulp.task('test:unit', ['build:node'], function() {
   );
 });
 
-gulp.task('test:browser', ['build:browser'], function(done) {
-  var Server = require('karma').Server;
-  var server = new Server({ configFile: __dirname + '/karma.conf.js' });
-  server.start(function() {
+gulp.task('test:browser', ['build:browser'], (done) => {
+  const Server = karma.Server;
+  const s = new Server({ configFile: `${__dirname}/karma.conf.js` });
+  s.start(() => {
     done();
   });
 });
 
-gulp.task('test:sauce', ['build:browser'], function(done) {
-  var Server = require('karma').Server;
-  var server = new Server({ configFile: __dirname + '/karma-sauce.conf.js' });
-  server.start(function() {
+gulp.task('test:sauce', ['build:browser'], (done) => {
+  const Server = karma.Server;
+  const s = new Server({ configFile: `${__dirname}/karma-sauce.conf.js` });
+  s.start(() => {
     done();
   });
 });
 
-gulp.task('clean', function() {
+gulp.task('clean', () => {
   return gulp.src('dist', { read: false }).pipe(plugins.rimraf());
 });
 
-gulp.task('watch', ['build'], function() {
+gulp.task('watch', ['build'], () => {
   gulp.watch('lib/**/*', ['build']);
 });
 
-gulp.task('clean-coverage', function() {
+gulp.task('clean-coverage', () => {
   return gulp.src(['coverage'], { read: false }).pipe(plugins.rimraf());
 });
 
-gulp.task('submit-coverage', function() {
+gulp.task('submit-coverage', () => {
   return gulp.src('./coverage/**/lcov.info').pipe(plugins.coveralls());
 });
