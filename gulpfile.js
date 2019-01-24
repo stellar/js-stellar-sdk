@@ -1,5 +1,6 @@
 /* eslint-disable arrow-body-style */
 
+const path = require('path');
 const gulp = require('gulp');
 const isparta = require('isparta');
 const plugins = require('gulp-load-plugins')();
@@ -146,7 +147,7 @@ gulp.task('test:unit', ['build:node'], () => {
 
 gulp.task('test:browser', ['build:browser'], (done) => {
   const Server = karma.Server;
-  const s = new Server({ configFile: `${__dirname}/karma.conf.js` });
+  const s = new Server({ configFile: path.join(__dirname, '/karma.conf.js') });
   s.start(() => {
     done();
   });
@@ -154,7 +155,9 @@ gulp.task('test:browser', ['build:browser'], (done) => {
 
 gulp.task('test:sauce', ['build:browser'], (done) => {
   const Server = karma.Server;
-  const s = new Server({ configFile: `${__dirname}/karma-sauce.conf.js` });
+  const s = new Server({
+    configFile: path.join(__dirname, '/karma-sauce.conf.js'),
+  });
   s.start(() => {
     done();
   });
