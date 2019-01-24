@@ -37,8 +37,7 @@ gulp.task('lint-for-watcher:src', () => {
   return gulp
     .src(['src/**/*.js'])
     .pipe(plugins.eslint())
-    .pipe(plugins.eslint.format())
-    .pipe(plugins.eslint.failAfterError());
+    .pipe(plugins.eslint.format());
 });
 
 gulp.task('lint:watch', ['lint-for-watcher:src'], () => {
