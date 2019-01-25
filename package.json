@@ -8,7 +8,8 @@
     "docs": "jsdoc -c .jsdoc.json --verbose",
     "preversion": "gulp test",
     "version": "gulp build",
-    "postversion": "git push && git push --tags"
+    "postversion": "git push && git push --tags",
+    "prettier-all": "prettier --write **/*.js"
   },
   "husky": {
     "hooks": {
