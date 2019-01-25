@@ -1,4 +1,4 @@
-package.json
-node_modules
-lib
-dist
+/package.json
+/node_modules
+/lib
+/dist
