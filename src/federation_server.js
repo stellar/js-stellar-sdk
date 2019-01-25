@@ -93,7 +93,7 @@ export class FederationServer {
       return Promise.reject(new Error('Invalid Stellar address'));
     }
     return FederationServer.createForDomain(domain, opts).then(
-      (federationServer) => federationServer.resolveAddress(value),
+      (federationServer) => federationServer.resolveAddress(value)
     );
   }
 
@@ -124,7 +124,7 @@ export class FederationServer {
     return StellarTomlResolver.resolve(domain, opts).then((tomlObject) => {
       if (!tomlObject.FEDERATION_SERVER) {
         return Promise.reject(
-          new Error('stellar.toml does not contain FEDERATION_SERVER field'),
+          new Error('stellar.toml does not contain FEDERATION_SERVER field')
         );
       }
       return new FederationServer(tomlObject.FEDERATION_SERVER, domain, opts);
@@ -143,8 +143,8 @@ export class FederationServer {
       if (!this.domain) {
         return Promise.reject(
           new Error(
-            'Unknown domain. Make sure `address` contains a domain (ex. `bob*stellar.org`) or pass `domain` parameter when instantiating the server object.',
-          ),
+            'Unknown domain. Make sure `address` contains a domain (ex. `bob*stellar.org`) or pass `domain` parameter when instantiating the server object.'
+          )
         );
       }
       stellarAddress = `${address}*${this.domain}`;
@@ -181,7 +181,7 @@ export class FederationServer {
     return axios
       .get(url.toString(), {
         maxContentLength: FEDERATION_RESPONSE_MAX_SIZE,
-        timeout,
+        timeout
       })
       .then((response) => {
         if (
@@ -196,7 +196,7 @@ export class FederationServer {
         if (response instanceof Error) {
           if (response.message.match(/^maxContentLength size/)) {
             throw new Error(
-              `federation response exceeds allowed size of ${FEDERATION_RESPONSE_MAX_SIZE}`,
+              `federation response exceeds allowed size of ${FEDERATION_RESPONSE_MAX_SIZE}`
             );
           } else {
             return Promise.reject(response);
@@ -207,8 +207,8 @@ export class FederationServer {
               `Server query failed. Server responded: ${response.status} ${
                 response.statusText
               }`,
-              response.data,
-            ),
+              response.data
+            )
           );
         }
       });

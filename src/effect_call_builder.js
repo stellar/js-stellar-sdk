@@ -39,7 +39,7 @@ export class EffectCallBuilder extends CallBuilder {
     this.filter.push([
       'ledgers',
       typeof sequence === 'number' ? sequence.toString() : sequence,
-      'effects',
+      'effects'
     ]);
     return this;
   }

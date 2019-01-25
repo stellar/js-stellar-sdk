@@ -50,7 +50,7 @@ export class OperationCallBuilder extends CallBuilder {
     this.filter.push([
       'ledgers',
       typeof sequence === 'number' ? sequence.toString() : sequence,
-      'operations',
+      'operations'
     ]);
     return this;
   }

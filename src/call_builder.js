@@ -46,7 +46,7 @@ export class CallBuilder {
   call() {
     this.checkFilter();
     return this._sendNormalRequest(this.url).then((r) =>
-      this._parseResponse(r),
+      this._parseResponse(r)
     );
   }
 
@@ -212,12 +212,12 @@ export class CallBuilder {
       records: json._embedded.records,
       next: () =>
         this._sendNormalRequest(URI(json._links.next.href)).then((r) =>
-          this._toCollectionPage(r),
+          this._toCollectionPage(r)
         ),
       prev: () =>
         this._sendNormalRequest(URI(json._links.prev.href)).then((r) =>
-          this._toCollectionPage(r),
-        ),
+          this._toCollectionPage(r)
+        )
     };
   }
 
@@ -231,11 +231,11 @@ export class CallBuilder {
       switch (error.response.status) {
         case 404:
           return Promise.reject(
-            new NotFoundError(error.response.statusText, error.response.data),
+            new NotFoundError(error.response.statusText, error.response.data)
           );
         default:
           return Promise.reject(
-            new NetworkError(error.response.statusText, error.response.data),
+            new NetworkError(error.response.statusText, error.response.data)
           );
       }
     } else {

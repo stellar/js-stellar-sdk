@@ -163,6 +163,10 @@ npm install
 npx gulp lint:watch
 ```
 
+4. You can use ES-Next in the `./src/` directory _only_. In all other
+   directories, use ES5! (The reason is that our npm library must support
+   earlier versions of Node, so the tests need to run on those versions.)
+
 ## Usage
 
 For information on how to use js-stellar-sdk, take a look at the

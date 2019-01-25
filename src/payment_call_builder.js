@@ -36,7 +36,7 @@ export class PaymentCallBuilder extends CallBuilder {
     this.filter.push([
       'ledgers',
       typeof sequence === 'number' ? sequence.toString() : sequence,
-      'payments',
+      'payments'
     ]);
     return this;
   }

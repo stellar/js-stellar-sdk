@@ -7,7 +7,7 @@ const allowedResolutions = [
   900000,
   3600000,
   86400000,
-  604800000,
+  604800000
 ];
 
 /**
@@ -33,7 +33,7 @@ export class TradeAggregationCallBuilder extends CallBuilder {
     start_time,
     end_time,
     resolution,
-    offset,
+    offset
   ) {
     super(serverUrl);
 

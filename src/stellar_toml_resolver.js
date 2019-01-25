@@ -47,7 +47,7 @@ export class StellarTomlResolver {
     return axios
       .get(`${protocol}://${domain}/.well-known/stellar.toml`, {
         maxContentLength: STELLAR_TOML_MAX_SIZE,
-        timeout,
+        timeout
       })
       .then((response) => {
         try {
@@ -58,15 +58,15 @@ export class StellarTomlResolver {
             new Error(
               `Parsing error on line ${e.line}, column ${e.column}: ${
                 e.message
-              }`,
-            ),
+              }`
+            )
           );
         }
       })
       .catch((err) => {
         if (err.message.match(/^maxContentLength size/)) {
           throw new Error(
-            `stellar.toml file exceeds allowed size of ${STELLAR_TOML_MAX_SIZE}`,
+            `stellar.toml file exceeds allowed size of ${STELLAR_TOML_MAX_SIZE}`
           );
         } else {
           throw err;

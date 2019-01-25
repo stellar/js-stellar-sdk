@@ -54,7 +54,7 @@ export class Server {
       transaction
         .toEnvelope()
         .toXDR()
-        .toString('base64'),
+        .toString('base64')
     );
     return axios
       .post(
@@ -62,7 +62,7 @@ export class Server {
           .segment('transactions')
           .toString(),
         `tx=${tx}`,
-        { timeout: SUBMIT_TRANSACTION_TIMEOUT },
+        { timeout: SUBMIT_TRANSACTION_TIMEOUT }
       )
       .then((response) => response.data)
       .catch((response) => {
@@ -74,8 +74,8 @@ export class Server {
             `Transaction submission failed. Server responded: ${
               response.status
             } ${response.statusText}`,
-            response.data,
-          ),
+            response.data
+          )
         );
       });
   }
@@ -118,7 +118,7 @@ export class Server {
     return new OfferCallBuilder(
       URI(this.serverURL),
       resource,
-      ...resourceParams,
+      ...resourceParams
     );
   }
 
@@ -173,7 +173,7 @@ export class Server {
       source,
       destination,
       destinationAsset,
-      destinationAmount,
+      destinationAmount
     );
   }
 
@@ -243,7 +243,7 @@ export class Server {
       start_time,
       end_time,
       resolution,
-      offset,
+      offset
     );
   }
 }

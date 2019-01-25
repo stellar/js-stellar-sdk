@@ -1,20 +1,16 @@
-/* eslint-disable arrow-body-style */
+'use strict';
 
-const path = require('path');
-const gulp = require('gulp');
-const isparta = require('isparta');
-const plugins = require('gulp-load-plugins')();
-const runSequence = require('run-sequence');
-const server = require('gulp-develop-server');
-const webpack = require('webpack');
-const fs = require('fs');
-const clear = require('clear');
-const karma = require('karma');
+var gulp = require('gulp');
+var isparta = require('isparta');
+var plugins = require('gulp-load-plugins')();
+var runSequence = require('run-sequence');
+var server = require('gulp-develop-server');
+var webpack = require('webpack');
+var fs = require('fs');
 
 gulp.task('default', ['build']);
 
-gulp.task('lint:src', () => {
-  clear();
+gulp.task('lint:src', function() {
   return gulp
     .src(['src/**/*.js'])
     .pipe(plugins.eslint())
@@ -23,7 +19,7 @@ gulp.task('lint:src', () => {
 });
 
 // Lint our test code
-gulp.task('lint:test', () => {
+gulp.task('lint:test', function() {
   return gulp
     .src(['test/unit/**/*.js'])
     .pipe(plugins.eslint())
@@ -32,7 +28,7 @@ gulp.task('lint:test', () => {
 });
 
 // this task doesn't fail on error so it doesn't break a watch loop
-gulp.task('lint-for-watcher:src', () => {
+gulp.task('lint-for-watcher:src', function() {
   clear();
   return gulp
     .src(['src/**/*.js'])
@@ -40,33 +36,33 @@ gulp.task('lint-for-watcher:src', () => {
     .pipe(plugins.eslint.format());
 });
 
-gulp.task('lint:watch', ['lint-for-watcher:src'], () => {
+gulp.task('lint:watch', ['lint-for-watcher:src'], function() {
   gulp.watch('src/**/*', ['lint-for-watcher:src']);
 });
 
-gulp.task('build', (done) => {
+gulp.task('build', function(done) {
   runSequence('clean', 'build:node', 'build:browser', done);
 });
 
-gulp.task('test', (done) => {
-  runSequence('clean', 'test:unit', 'test:browser', () => {
+gulp.task('test', function(done) {
+  runSequence('clean', 'test:unit', 'test:browser', function(err) {
     server.kill();
     done();
   });
 });
 
-gulp.task('hooks:precommit', ['build'], () => {
+gulp.task('hooks:precommit', ['build'], function() {
   return gulp.src(['dist/*', 'lib/*']).pipe(plugins.git.add());
 });
 
-gulp.task('build:node', ['lint:src'], () => {
+gulp.task('build:node', ['lint:src'], function() {
   return gulp
     .src('src/**/*.js')
     .pipe(plugins.babel())
     .pipe(gulp.dest('lib'));
 });
 
-gulp.task('build:browser', ['lint:src'], () => {
+gulp.task('build:browser', ['lint:src'], function() {
   return (
     gulp
       .src('src/browser.js')
@@ -78,102 +74,100 @@ gulp.task('build:browser', ['lint:src'], () => {
               {
                 test: /\.js$/,
                 exclude: /node_modules/,
-                loader: 'babel-loader',
-              },
-            ],
+                loader: 'babel-loader'
+              }
+            ]
           },
           plugins: [
             // Ignore native modules (ed25519)
-            new webpack.IgnorePlugin(/ed25519/),
-          ],
-        }),
+            new webpack.IgnorePlugin(/ed25519/)
+          ]
+        })
       )
       // Add EventSource polyfill for IE11
       .pipe(
         plugins.insert.prepend(
           fs.readFileSync(
-            './node_modules/event-source-polyfill/src/eventsource.min.js',
-          ),
-        ),
+            './node_modules/event-source-polyfill/src/eventsource.min.js'
+          )
+        )
       )
       .pipe(plugins.rename('stellar-sdk.js'))
       .pipe(gulp.dest('dist'))
       .pipe(
         plugins.uglify({
           output: {
-            ascii_only: true,
-          },
-        }),
+            ascii_only: true
+          }
+        })
       )
       .pipe(plugins.rename('stellar-sdk.min.js'))
       .pipe(gulp.dest('dist'))
   );
 });
 
-gulp.task('test:init-istanbul', ['clean-coverage'], () => {
+gulp.task('test:init-istanbul', ['clean-coverage'], function() {
   return gulp
     .src(['src/**/*.js'])
     .pipe(
       plugins.istanbul({
-        instrumenter: isparta.Instrumenter,
-      }),
+        instrumenter: isparta.Instrumenter
+      })
     )
     .pipe(plugins.istanbul.hookRequire());
 });
 
-gulp.task('test:integration', ['build:node', 'test:init-istanbul'], () => {
+gulp.task('test:integration', ['build:node', 'test:init-istanbul'], function() {
   return gulp
     .src([
       'test/test-helper.js',
       'test/unit/**/*.js',
-      'test/integration/**/*.js',
+      'test/integration/**/*.js'
     ])
     .pipe(
       plugins.mocha({
-        reporter: ['spec'],
-      }),
+        reporter: ['spec']
+      })
     )
     .pipe(plugins.istanbul.writeReports());
 });
 
-gulp.task('test:unit', ['build:node'], () => {
+gulp.task('test:unit', ['build:node'], function() {
   return gulp.src(['test/test-helper.js', 'test/unit/**/*.js']).pipe(
     plugins.mocha({
-      reporter: ['spec'],
-    }),
+      reporter: ['spec']
+    })
   );
 });
 
-gulp.task('test:browser', ['build:browser'], (done) => {
-  const Server = karma.Server;
-  const s = new Server({ configFile: path.join(__dirname, '/karma.conf.js') });
-  s.start(() => {
+gulp.task('test:browser', ['build:browser'], function(done) {
+  var Server = require('karma').Server;
+  var server = new Server({ configFile: __dirname + '/karma.conf.js' });
+  server.start(function() {
     done();
   });
 });
 
-gulp.task('test:sauce', ['build:browser'], (done) => {
-  const Server = karma.Server;
-  const s = new Server({
-    configFile: path.join(__dirname, '/karma-sauce.conf.js'),
-  });
-  s.start(() => {
+gulp.task('test:sauce', ['build:browser'], function(done) {
+  var Server = require('karma').Server;
+  var server = new Server({ configFile: __dirname + '/karma-sauce.conf.js' });
+  server.start(function() {
     done();
   });
 });
 
-gulp.task('clean', () => {
+gulp.task('clean', function() {
   return gulp.src('dist', { read: false }).pipe(plugins.rimraf());
 });
 
-gulp.task('watch', ['build'], () => {
+gulp.task('watch', ['build'], function() {
   gulp.watch('lib/**/*', ['build']);
 });
 
-gulp.task('clean-coverage', () => {
+gulp.task('clean-coverage', function() {
   return gulp.src(['coverage'], { read: false }).pipe(plugins.rimraf());
 });
 
-gulp.task('submit-coverage', () => {
+gulp.task('submit-coverage', function() {
   return gulp.src('./coverage/**/lcov.info').pipe(plugins.coveralls());
 });
