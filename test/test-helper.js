@@ -7,8 +7,8 @@ if (typeof window === 'undefined') {
   global.chai.should();
   global.chai.use(chaiAsPromised);
   global.sinon = require('sinon');
-  global.Promise = require('bluebird');
   global.expect = global.chai.expect;
 } else {
+  // eslint-disable-next-line no-undef
   window.axios = StellarSdk.axios;
 }

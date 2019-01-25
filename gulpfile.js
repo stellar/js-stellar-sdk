@@ -37,8 +37,20 @@ gulp.task('lint-for-watcher:src', function() {
     .pipe(plugins.eslint.format());
 });
 
+gulp.task('lint-for-watcher:test', function() {
+  clear();
+  return gulp
+    .src(['test/**/*.js', 'gulpfile.js'])
+    .pipe(plugins.eslint())
+    .pipe(plugins.eslint.format());
+});
+
 gulp.task('lint:watch', ['lint-for-watcher:src'], function() {
-  gulp.watch('src/**/*', ['lint-for-watcher:src']);
+  gulp.watch(['src/**/*.js'], ['lint-for-watcher:src']);
+});
+
+gulp.task('lint:watch-test', ['lint-for-watcher:test'], function() {
+  gulp.watch(['test/**/*.js', 'gulpfile.js'], ['lint-for-watcher:test']);
 });
 
 gulp.task('build', function(done) {

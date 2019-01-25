@@ -1,8 +1,19 @@
 {
-    "presets": ["es2015"],
-    "plugins": [
-        ["babel-plugin-transform-builtin-extend", {
-            "globals": ["Error"]
-        }]
+  "presets": [
+    "es2015",
+    [
+      "@babe/preset-env",
+      {
+        "node": "6.14.0"
+      }
     ]
+  ],
+  "plugins": [
+    [
+      "babel-plugin-transform-builtin-extend",
+      {
+        "globals": ["Error"]
+      }
+    ]
+  ]
 }
