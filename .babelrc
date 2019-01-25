@@ -1,14 +1,7 @@
 {
-  "presets": [
-    "es2015",
-    [
-      "@babe/preset-env",
-      {
-        "node": "6.14.0"
-      }
-    ]
-  ],
+  "presets": ["es2017"],
   "plugins": [
+    "transform-runtime",
     [
       "babel-plugin-transform-builtin-extend",
       {
