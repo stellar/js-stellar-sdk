@@ -1,3 +1,6 @@
+import axios from 'axios';
+import URI from 'urijs';
+
 import { BadResponseError } from './errors';
 
 import { AccountCallBuilder } from './account_call_builder';
@@ -15,9 +18,6 @@ import { EffectCallBuilder } from './effect_call_builder';
 import { FriendbotBuilder } from './friendbot_builder';
 import { AssetsCallBuilder } from './assets_call_builder';
 import { TradeAggregationCallBuilder } from './trade_aggregation_call_builder';
-
-const axios = require('axios');
-const URI = require('urijs');
 
 export const SUBMIT_TRANSACTION_TIMEOUT = 60 * 1000;
 

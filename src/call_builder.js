@@ -1,3 +1,5 @@
+/*  */
+
 import forEach from 'lodash/forEach';
 import URI from 'urijs';
 import URITemplate from 'urijs/src/URITemplate';
@@ -6,7 +8,7 @@ import axios from 'axios';
 import { NotFoundError, NetworkError, BadRequestError } from './errors';
 
 const EventSource =
-  // eslint-disable-next-line no-undef
+  // eslint-disable-next-line no-undef, prefer-import/prefer-import-over-require
   typeof window === 'undefined' ? require('eventsource') : window.EventSource;
 
 /**
