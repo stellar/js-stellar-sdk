@@ -17,8 +17,8 @@ describe('horizon path tests', function() {
       data: {
         url: serverUrl,
         random: Math.round(1000 * Math.random()),
-        endpoint: 'bogus',
-      },
+        endpoint: 'bogus'
+      }
     };
 
     function prepareAxios(axiosMock, endpoint) {
@@ -39,7 +39,7 @@ describe('horizon path tests', function() {
     });
 
     it("server.accounts().accountId('fooAccountId') " + serverUrl, function(
-      done,
+      done
     ) {
       prepareAxios(this.axiosMock, '/accounts/fooAccountId');
       server
@@ -69,7 +69,7 @@ describe('horizon path tests', function() {
           .call()
           .should.eventually.deep.equal(randomResult.data)
           .notify(done);
-      },
+      }
     );
 
     it(
@@ -82,7 +82,7 @@ describe('horizon path tests', function() {
           .call()
           .should.eventually.deep.equal(randomResult.data)
           .notify(done);
-      },
+      }
     );
 
     it('server.submitTransaction() ' + serverUrl, function(done) {
@@ -91,7 +91,7 @@ describe('horizon path tests', function() {
       let keypair = StellarSdk.Keypair.random();
       let account = new StellarSdk.Account(
         keypair.publicKey(),
-        '56199647068161',
+        '56199647068161'
       );
 
       let fakeTransaction = new StellarSdk.TransactionBuilder(account)
@@ -99,8 +99,8 @@ describe('horizon path tests', function() {
           StellarSdk.Operation.payment({
             destination: keypair.publicKey(),
             asset: StellarSdk.Asset.native(),
-            amount: '100.50',
-          }),
+            amount: '100.50'
+          })
         )
         .setTimeout(StellarSdk.TimeoutInfinite)
         .build();
@@ -109,7 +109,7 @@ describe('horizon path tests', function() {
         fakeTransaction
           .toEnvelope()
           .toXDR()
-          .toString('base64'),
+          .toString('base64')
       );
 
       this.axiosMock

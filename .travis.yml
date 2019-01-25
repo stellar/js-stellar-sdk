@@ -17,21 +17,21 @@ script:
     git config --global user.email "travis@stellar.org"
     if [ "${SAUCE}" = "true" ]; then
       if [ "${TRAVIS_PULL_REQUEST}" = "false" ]; then
-        babel-node ./node_modules/gulp/bin/gulp.js test:sauce
+        gulp test:sauce
       else
         echo "Pull request - skip Sauce Labs testing..."
       fi
     elif [ "${INTEGRATION}" = "true" ]; then
       # Ugly but it's the only way to make istanbul generate coverage report
-      babel-node ./node_modules/gulp/bin/gulp.js test:integration
+      gulp test:integration
     else
-      babel-node ./node_modules/gulp/bin/gulp.js test:unit
+      gulp test:unit
     fi
 after_success:
   - |
     # Send report to coveralls but only once
     if [ "${INTEGRATION}" = "true" ] && [ "${TRAVIS_BRANCH}" = "master" ] ; then
-      babel-node ./node_modules/gulp/bin/gulp.js submit-coverage
+      gulp submit-coverage
     fi
 env:
   global:
@@ -39,7 +39,7 @@ env:
 notifications:
   slack:
     secure: CgXxNEQrQ82EatyF/wSdF0P5rXcWPL+fFZ1lb1aBb8RbVt5gwddJ6xWVD/nYSr6tIJvIYHYhoYsIDPENwezIPsesG7kWXerQhydsEcA34JKxzsStd/TmU6Moxuwy6KTN7yzmL6586nSvoAw9TNPgvRkJFkH07asjGIc9Rlaq7/Y=
-before_deploy: babel-node ./node_modules/gulp/bin/gulp.js build
+before_deploy: gulp build
 after_deploy: './after_deploy.sh'
 deploy:
   - provider: npm

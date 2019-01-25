@@ -3,35 +3,35 @@ module.exports = function(config) {
     sl_chrome_49: {
       base: 'SauceLabs',
       browserName: 'chrome',
-      version: '49',
+      version: '49'
     },
     sl_chrome_latest: {
       base: 'SauceLabs',
       browserName: 'chrome',
-      version: 'latest',
+      version: 'latest'
     },
     sl_firefox_42: {
       base: 'SauceLabs',
       browserName: 'firefox',
-      version: '42',
+      version: '42'
     },
     sl_firefox_latest: {
       base: 'SauceLabs',
       browserName: 'firefox',
-      version: 'latest',
+      version: 'latest'
     },
     sl_edge_17: {
       base: 'SauceLabs',
       browserName: 'microsoftedge',
-      version: '17',
-    },
+      version: '17'
+    }
   };
 
   config.set({
     sauceLabs: {
       testName: 'js-stellar-sdk',
       recordScreenshots: false,
-      recordVideo: false,
+      recordVideo: false
     },
 
     browserDisconnectTimeout: 10000,
@@ -46,23 +46,23 @@ module.exports = function(config) {
     files: ['dist/stellar-sdk.js', 'test/test-helper.js', 'test/unit/**/*.js'],
 
     preprocessors: {
-      'test/**/*.js': ['webpack'],
+      'test/**/*.js': ['webpack']
     },
 
     webpack: {
       module: {
         loaders: [
-          { test: /\.js$/, exclude: /node_modules/, loader: 'babel-loader' },
-        ],
-      },
+          { test: /\.js$/, exclude: /node_modules/, loader: 'babel-loader' }
+        ]
+      }
     },
 
     webpackMiddleware: {
-      noInfo: true,
+      noInfo: true
     },
 
     singleRun: true,
 
-    reporters: ['dots', 'saucelabs'],
+    reporters: ['dots', 'saucelabs']
   });
 };

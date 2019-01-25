@@ -7,6 +7,7 @@ var runSequence = require('run-sequence');
 var server = require('gulp-develop-server');
 var webpack = require('webpack');
 var fs = require('fs');
+var clear = require('clear');
 
 gulp.task('default', ['build']);
 
@@ -21,7 +22,7 @@ gulp.task('lint:src', function() {
 // Lint our test code
 gulp.task('lint:test', function() {
   return gulp
-    .src(['test/unit/**/*.js'])
+    .src(['test/unit/**/*.js', 'gulpfile.js'])
     .pipe(plugins.eslint())
     .pipe(plugins.eslint.format())
     .pipe(plugins.eslint.failAfterError());
@@ -45,7 +46,7 @@ gulp.task('build', function(done) {
 });
 
 gulp.task('test', function(done) {
-  runSequence('clean', 'test:unit', 'test:browser', function(err) {
+  runSequence('clean', 'test:unit', 'test:browser', function() {
     server.kill();
     done();
   });
@@ -71,11 +72,7 @@ gulp.task('build:browser', ['lint:src'], function() {
           output: { library: 'StellarSdk' },
           module: {
             loaders: [
-              {
-                test: /\.js$/,
-                exclude: /node_modules/,
-                loader: 'babel-loader'
-              }
+              { test: /\.js$/, exclude: /node_modules/, loader: 'babel-loader' }
             ]
           },
           plugins: [

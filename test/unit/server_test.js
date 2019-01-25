@@ -1,7 +1,7 @@
 describe('server.js tests', function() {
   beforeEach(function() {
     this.server = new StellarSdk.Server(
-      'https://horizon-live.stellar.org:1337',
+      'https://horizon-live.stellar.org:1337'
     );
     this.axiosMock = sinon.mock(axios);
     StellarSdk.Config.setDefault();
@@ -16,7 +16,7 @@ describe('server.js tests', function() {
   describe('Server.constructor', function() {
     it('throws error for insecure server', function() {
       expect(
-        () => new StellarSdk.Server('http://horizon-live.stellar.org:1337'),
+        () => new StellarSdk.Server('http://horizon-live.stellar.org:1337')
       ).to.throw(/Cannot connect to insecure horizon server/);
     });
 
@@ -24,15 +24,15 @@ describe('server.js tests', function() {
       expect(
         () =>
           new StellarSdk.Server('http://horizon-live.stellar.org:1337', {
-            allowHttp: true,
-          }),
+            allowHttp: true
+          })
       ).to.not.throw();
     });
 
     it('allow insecure server when global Config.allowHttp flag is set', function() {
       StellarSdk.Config.setAllowHttp(true);
       expect(
-        () => new StellarSdk.Server('http://horizon-live.stellar.org:1337'),
+        () => new StellarSdk.Server('http://horizon-live.stellar.org:1337')
       ).to.not.throw();
     });
   });
@@ -42,33 +42,33 @@ describe('server.js tests', function() {
       _links: {
         self: {
           href:
-            'https://horizon-testnet.stellar.org/accounts/GBAH7FQMC3CZJ4WD6GE7G7YXCIU36LC2IHXQ7D5MQAUO4PODOWIVLSFS',
+            'https://horizon-testnet.stellar.org/accounts/GBAH7FQMC3CZJ4WD6GE7G7YXCIU36LC2IHXQ7D5MQAUO4PODOWIVLSFS'
         },
         transactions: {
           href:
             'https://horizon-testnet.stellar.org/accounts/GBAH7FQMC3CZJ4WD6GE7G7YXCIU36LC2IHXQ7D5MQAUO4PODOWIVLSFS/transactions{?cursor,limit,order}',
-          templated: true,
+          templated: true
         },
         operations: {
           href:
             'https://horizon-testnet.stellar.org/accounts/GBAH7FQMC3CZJ4WD6GE7G7YXCIU36LC2IHXQ7D5MQAUO4PODOWIVLSFS/operations{?cursor,limit,order}',
-          templated: true,
+          templated: true
         },
         payments: {
           href:
             'https://horizon-testnet.stellar.org/accounts/GBAH7FQMC3CZJ4WD6GE7G7YXCIU36LC2IHXQ7D5MQAUO4PODOWIVLSFS/payments{?cursor,limit,order}',
-          templated: true,
+          templated: true
         },
         effects: {
           href:
             'https://horizon-testnet.stellar.org/accounts/GBAH7FQMC3CZJ4WD6GE7G7YXCIU36LC2IHXQ7D5MQAUO4PODOWIVLSFS/effects{?cursor,limit,order}',
-          templated: true,
+          templated: true
         },
         offers: {
           href:
             'https://horizon-testnet.stellar.org/accounts/GBAH7FQMC3CZJ4WD6GE7G7YXCIU36LC2IHXQ7D5MQAUO4PODOWIVLSFS/offers{?cursor,limit,order}',
-          templated: true,
-        },
+          templated: true
+        }
       },
       id: 'GBAH7FQMC3CZJ4WD6GE7G7YXCIU36LC2IHXQ7D5MQAUO4PODOWIVLSFS',
       paging_token: '5387216134082561',
@@ -78,11 +78,11 @@ describe('server.js tests', function() {
       thresholds: {
         low_threshold: 0,
         med_threshold: 0,
-        high_threshold: 0,
+        high_threshold: 0
       },
       flags: {
         auth_required: false,
-        auth_revocable: false,
+        auth_revocable: false
       },
       balances: [
         {
@@ -91,7 +91,7 @@ describe('server.js tests', function() {
           asset_type: 'credit_alphanum4',
           asset_code: 'AAA',
           asset_issuer:
-            'GAX4CUJEOUA27MDHTLSQCFRGQPEXCC6GMO2P2TZCG7IEBZIEGPOD6HKF',
+            'GAX4CUJEOUA27MDHTLSQCFRGQPEXCC6GMO2P2TZCG7IEBZIEGPOD6HKF'
         },
         {
           balance: '5000.0000000',
@@ -99,7 +99,7 @@ describe('server.js tests', function() {
           asset_type: 'credit_alphanum4',
           asset_code: 'MDL',
           asset_issuer:
-            'GAX4CUJEOUA27MDHTLSQCFRGQPEXCC6GMO2P2TZCG7IEBZIEGPOD6HKF',
+            'GAX4CUJEOUA27MDHTLSQCFRGQPEXCC6GMO2P2TZCG7IEBZIEGPOD6HKF'
         },
         {
           balance: '10000.0000000',
@@ -107,21 +107,21 @@ describe('server.js tests', function() {
           asset_type: 'credit_alphanum4',
           asset_code: 'USD',
           asset_issuer:
-            'GAX4CUJEOUA27MDHTLSQCFRGQPEXCC6GMO2P2TZCG7IEBZIEGPOD6HKF',
+            'GAX4CUJEOUA27MDHTLSQCFRGQPEXCC6GMO2P2TZCG7IEBZIEGPOD6HKF'
         },
         {
           balance: '70.0998900',
-          asset_type: 'native',
-        },
+          asset_type: 'native'
+        }
       ],
       signers: [
         {
           public_key:
             'GBAH7FQMC3CZJ4WD6GE7G7YXCIU36LC2IHXQ7D5MQAUO4PODOWIVLSFS',
-          weight: 1,
-        },
+          weight: 1
+        }
       ],
-      data: {},
+      data: {}
     };
 
     it('returns AccountResponse object', function(done) {
@@ -129,8 +129,8 @@ describe('server.js tests', function() {
         .expects('get')
         .withArgs(
           sinon.match(
-            'https://horizon-live.stellar.org:1337/accounts/GBAH7FQMC3CZJ4WD6GE7G7YXCIU36LC2IHXQ7D5MQAUO4PODOWIVLSFS',
-          ),
+            'https://horizon-live.stellar.org:1337/accounts/GBAH7FQMC3CZJ4WD6GE7G7YXCIU36LC2IHXQ7D5MQAUO4PODOWIVLSFS'
+          )
         )
         .returns(Promise.resolve({ data: accountResponse }));
 
@@ -139,7 +139,7 @@ describe('server.js tests', function() {
         .then((response) => {
           // Response data
           expect(response.account_id).to.be.equal(
-            'GBAH7FQMC3CZJ4WD6GE7G7YXCIU36LC2IHXQ7D5MQAUO4PODOWIVLSFS',
+            'GBAH7FQMC3CZJ4WD6GE7G7YXCIU36LC2IHXQ7D5MQAUO4PODOWIVLSFS'
           );
           expect(response.subentry_count).to.be.equal(5);
           expect(response.transactions).to.be.function;
@@ -170,19 +170,19 @@ describe('server.js tests', function() {
               _links: {
                 effects: {
                   href: '/ledgers/1/effects{?cursor,limit,order}',
-                  templated: true,
+                  templated: true
                 },
                 operations: {
                   href: '/ledgers/1/operations{?cursor,limit,order}',
-                  templated: true,
+                  templated: true
                 },
                 self: {
-                  href: '/ledgers/1',
+                  href: '/ledgers/1'
                 },
                 transactions: {
                   href: '/ledgers/1/transactions{?cursor,limit,order}',
-                  templated: true,
-                },
+                  templated: true
+                }
               },
               id:
                 '63d98f536ee68d1b27b5b89f23af5311b7569a24faf1403ad0b52b633b07be99',
@@ -192,21 +192,21 @@ describe('server.js tests', function() {
               sequence: 1,
               transaction_count: 0,
               operation_count: 0,
-              closed_at: '1970-01-01T00:00:00Z',
-            },
-          ],
+              closed_at: '1970-01-01T00:00:00Z'
+            }
+          ]
         },
         _links: {
           next: {
-            href: '/ledgers?order=asc\u0026limit=1\u0026cursor=4294967296',
+            href: '/ledgers?order=asc\u0026limit=1\u0026cursor=4294967296'
           },
           prev: {
-            href: '/ledgers?order=desc\u0026limit=1\u0026cursor=4294967296',
+            href: '/ledgers?order=desc\u0026limit=1\u0026cursor=4294967296'
           },
           self: {
-            href: '/ledgers?order=asc\u0026limit=1\u0026cursor=',
-          },
-        },
+            href: '/ledgers?order=asc\u0026limit=1\u0026cursor='
+          }
+        }
       };
 
       describe('without options', function() {
@@ -214,7 +214,7 @@ describe('server.js tests', function() {
           this.axiosMock
             .expects('get')
             .withArgs(
-              sinon.match('https://horizon-live.stellar.org:1337/ledgers'),
+              sinon.match('https://horizon-live.stellar.org:1337/ledgers')
             )
             .returns(Promise.resolve({ data: ledgersResponse }));
 
@@ -223,7 +223,7 @@ describe('server.js tests', function() {
             .call()
             .then((response) => {
               expect(response.records).to.be.deep.equal(
-                ledgersResponse._embedded.records,
+                ledgersResponse._embedded.records
               );
               expect(response.next).to.be.function;
               expect(response.prev).to.be.function;
@@ -241,8 +241,8 @@ describe('server.js tests', function() {
             .expects('get')
             .withArgs(
               sinon.match(
-                'https://horizon-live.stellar.org:1337/ledgers?limit=1&cursor=b&order=asc',
-              ),
+                'https://horizon-live.stellar.org:1337/ledgers?limit=1&cursor=b&order=asc'
+              )
             )
             .returns(Promise.resolve({ data: ledgersResponse }));
         });
@@ -256,7 +256,7 @@ describe('server.js tests', function() {
             .call()
             .then((response) => {
               expect(response.records).to.be.deep.equal(
-                ledgersResponse._embedded.records,
+                ledgersResponse._embedded.records
               );
               expect(response.next).to.be.function;
               expect(response.prev).to.be.function;
@@ -269,8 +269,8 @@ describe('server.js tests', function() {
             .expects('get')
             .withArgs(
               sinon.match(
-                'https://horizon-live.stellar.org:1337/ledgers?order=asc&limit=1&cursor=4294967296',
-              ),
+                'https://horizon-live.stellar.org:1337/ledgers?order=asc&limit=1&cursor=4294967296'
+              )
             )
             .returns(Promise.resolve({ data: ledgersResponse }));
 
@@ -283,7 +283,7 @@ describe('server.js tests', function() {
             .then(function(page) {
               page.next().then(function(response) {
                 expect(response.records).to.be.deep.equal(
-                  ledgersResponse._embedded.records,
+                  ledgersResponse._embedded.records
                 );
                 expect(response.next).to.be.function;
                 expect(response.prev).to.be.function;
@@ -299,19 +299,19 @@ describe('server.js tests', function() {
         _links: {
           effects: {
             href: '/ledgers/1/effects{?cursor,limit,order}',
-            templated: true,
+            templated: true
           },
           operations: {
             href: '/ledgers/1/operations{?cursor,limit,order}',
-            templated: true,
+            templated: true
           },
           self: {
-            href: '/ledgers/1',
+            href: '/ledgers/1'
           },
           transactions: {
             href: '/ledgers/1/transactions{?cursor,limit,order}',
-            templated: true,
-          },
+            templated: true
+          }
         },
         id: '63d98f536ee68d1b27b5b89f23af5311b7569a24faf1403ad0b52b633b07be99',
         paging_token: '4294967296',
@@ -320,7 +320,7 @@ describe('server.js tests', function() {
         sequence: 1,
         transaction_count: 0,
         operation_count: 0,
-        closed_at: '1970-01-01T00:00:00Z',
+        closed_at: '1970-01-01T00:00:00Z'
       };
 
       describe('for a non existent ledger', function() {
@@ -328,7 +328,7 @@ describe('server.js tests', function() {
           this.axiosMock
             .expects('get')
             .withArgs(
-              sinon.match('https://horizon-live.stellar.org:1337/ledgers/1'),
+              sinon.match('https://horizon-live.stellar.org:1337/ledgers/1')
             )
             .returns(Promise.reject({ response: { status: 404, data: {} } }));
 
@@ -353,7 +353,7 @@ describe('server.js tests', function() {
           this.axiosMock
             .expects('get')
             .withArgs(
-              sinon.match('https://horizon-live.stellar.org:1337/ledgers/1'),
+              sinon.match('https://horizon-live.stellar.org:1337/ledgers/1')
             )
             .returns(Promise.resolve({ data: singleLedgerResponse }));
 
@@ -377,8 +377,8 @@ describe('server.js tests', function() {
             .expects('get')
             .withArgs(
               sinon.match(
-                'https://horizon-live.stellar.org:1337/ledgers/1?limit=1&cursor=b&order=asc',
-              ),
+                'https://horizon-live.stellar.org:1337/ledgers/1?limit=1&cursor=b&order=asc'
+              )
             )
             .returns(Promise.resolve({ data: singleLedgerResponse }));
 
@@ -405,16 +405,16 @@ describe('server.js tests', function() {
         _links: {
           self: {
             href:
-              'https://horizon.stellar.org/transactions?order=desc\u0026limit=1\u0026cursor=',
+              'https://horizon.stellar.org/transactions?order=desc\u0026limit=1\u0026cursor='
           },
           next: {
             href:
-              'https://horizon.stellar.org/transactions?order=desc\u0026limit=1\u0026cursor=34156680904183808',
+              'https://horizon.stellar.org/transactions?order=desc\u0026limit=1\u0026cursor=34156680904183808'
           },
           prev: {
             href:
-              'https://horizon.stellar.org/transactions?order=asc\u0026limit=1\u0026cursor=34156680904183808',
-          },
+              'https://horizon.stellar.org/transactions?order=asc\u0026limit=1\u0026cursor=34156680904183808'
+          }
         },
         _embedded: {
           records: [
@@ -422,33 +422,33 @@ describe('server.js tests', function() {
               _links: {
                 self: {
                   href:
-                    'https://horizon.stellar.org/transactions/c585b8764b28be678c482f8b6e87e76e4b5f28043c53f4dcb7b724b4b2efebc1',
+                    'https://horizon.stellar.org/transactions/c585b8764b28be678c482f8b6e87e76e4b5f28043c53f4dcb7b724b4b2efebc1'
                 },
                 account: {
                   href:
-                    'https://horizon.stellar.org/accounts/GBURK32BMC7XORYES62HDKY7VTA5MO7JYBDH7KTML4EPN4BV2MIRQOVR',
+                    'https://horizon.stellar.org/accounts/GBURK32BMC7XORYES62HDKY7VTA5MO7JYBDH7KTML4EPN4BV2MIRQOVR'
                 },
                 ledger: {
-                  href: 'https://horizon.stellar.org/ledgers/7952722',
+                  href: 'https://horizon.stellar.org/ledgers/7952722'
                 },
                 operations: {
                   href:
                     'https://horizon.stellar.org/transactions/c585b8764b28be678c482f8b6e87e76e4b5f28043c53f4dcb7b724b4b2efebc1/operations{?cursor,limit,order}',
-                  templated: true,
+                  templated: true
                 },
                 effects: {
                   href:
                     'https://horizon.stellar.org/transactions/c585b8764b28be678c482f8b6e87e76e4b5f28043c53f4dcb7b724b4b2efebc1/effects{?cursor,limit,order}',
-                  templated: true,
+                  templated: true
                 },
                 precedes: {
                   href:
-                    'https://horizon.stellar.org/transactions?order=asc\u0026cursor=34156680904183808',
+                    'https://horizon.stellar.org/transactions?order=asc\u0026cursor=34156680904183808'
                 },
                 succeeds: {
                   href:
-                    'https://horizon.stellar.org/transactions?order=desc\u0026cursor=34156680904183808',
-                },
+                    'https://horizon.stellar.org/transactions?order=desc\u0026cursor=34156680904183808'
+                }
               },
               id:
                 'c585b8764b28be678c482f8b6e87e76e4b5f28043c53f4dcb7b724b4b2efebc1',
@@ -472,11 +472,11 @@ describe('server.js tests', function() {
                 'AAAAAgAAAAMAeVZcAAAAAAAAAABpFW9BYL93RwSXtHGrH6zB1jvpwEZ/qmxfCPbwNdMRGAAAABc+8zU9AFsPtQAABXYAAAASAAAAAAAAAAAAAAAPZnVudHJhY2tlci5zaXRlAAEAAAAAAAAAAAAAAAAAAAAAAAABAHlZUgAAAAAAAAAAaRVvQWC/d0cEl7Rxqx+swdY76cBGf6psXwj28DXTERgAAAAXPvMzrQBbD7UAAAV3AAAAEgAAAAAAAAAAAAAAD2Z1bnRyYWNrZXIuc2l0ZQABAAAAAAAAAAAAAAAAAAAA',
               memo_type: 'none',
               signatures: [
-                'pox1kE2/f2oYQw/PdJZHUk74JVWRHDPwcqzGP+lSJljl6ABBRPqXewP1jAzpgY+vicDeLR/35/HyDyeAG7H0Aw==',
-              ],
-            },
-          ],
-        },
+                'pox1kE2/f2oYQw/PdJZHUk74JVWRHDPwcqzGP+lSJljl6ABBRPqXewP1jAzpgY+vicDeLR/35/HyDyeAG7H0Aw=='
+              ]
+            }
+          ]
+        }
       };
 
       describe('without options', function() {
@@ -485,8 +485,8 @@ describe('server.js tests', function() {
             .expects('get')
             .withArgs(
               sinon.match(
-                'https://horizon-live.stellar.org:1337/ledgers/7952722/transactions',
-              ),
+                'https://horizon-live.stellar.org:1337/ledgers/7952722/transactions'
+              )
             )
             .returns(Promise.resolve({ data: transactionsResponse }));
 
@@ -494,8 +494,8 @@ describe('server.js tests', function() {
             .expects('get')
             .withArgs(
               sinon.match(
-                /^https:\/\/horizon.stellar.org\/transactions\/c585b8764b28be678c482f8b6e87e76e4b5f28043c53f4dcb7b724b4b2efebc1\/operations/,
-              ),
+                /^https:\/\/horizon.stellar.org\/transactions\/c585b8764b28be678c482f8b6e87e76e4b5f28043c53f4dcb7b724b4b2efebc1\/operations/
+              )
             )
             .returns(Promise.resolve({ data: { operations: [] } }));
 
@@ -505,7 +505,7 @@ describe('server.js tests', function() {
             .call()
             .then(function(response) {
               expect(response.records).to.be.deep.equal(
-                transactionsResponse._embedded.records,
+                transactionsResponse._embedded.records
               );
               expect(response.records[0].ledger).to.be.function;
               expect(response.records[0].ledger_attr).to.be.equal(7952722);
@@ -533,8 +533,8 @@ describe('server.js tests', function() {
             .expects('get')
             .withArgs(
               sinon.match(
-                'https://horizon-live.stellar.org:1337/ledgers/7952722/transactions?cursor=b&limit=1&order=asc',
-              ),
+                'https://horizon-live.stellar.org:1337/ledgers/7952722/transactions?cursor=b&limit=1&order=asc'
+              )
             )
             .returns(Promise.resolve({ data: transactionsResponse }));
 
@@ -542,8 +542,8 @@ describe('server.js tests', function() {
             .expects('get')
             .withArgs(
               sinon.match(
-                /^https:\/\/horizon.stellar.org\/transactions\/c585b8764b28be678c482f8b6e87e76e4b5f28043c53f4dcb7b724b4b2efebc1\/operations\?limit=1/,
-              ),
+                /^https:\/\/horizon.stellar.org\/transactions\/c585b8764b28be678c482f8b6e87e76e4b5f28043c53f4dcb7b724b4b2efebc1\/operations\?limit=1/
+              )
             )
             .returns(Promise.resolve({ data: { operations: [] } }));
 
@@ -556,7 +556,7 @@ describe('server.js tests', function() {
             .call()
             .then(function(response) {
               expect(response.records).to.be.deep.equal(
-                transactionsResponse._embedded.records,
+                transactionsResponse._embedded.records
               );
               expect(response.next).to.be.function;
               expect(response.prev).to.be.function;
@@ -583,7 +583,7 @@ describe('server.js tests', function() {
       let keypair = StellarSdk.Keypair.random();
       let account = new StellarSdk.Account(
         keypair.publicKey(),
-        '56199647068161',
+        '56199647068161'
       );
       let transaction = new StellarSdk.TransactionBuilder(account)
         .addOperation(
@@ -591,8 +591,8 @@ describe('server.js tests', function() {
             destination:
               'GASOCNHNNLYFNMDJYQ3XFMI7BYHIOCFW3GJEOWRPEGK2TDPGTG2E5EDW',
             asset: StellarSdk.Asset.native(),
-            amount: '100.50',
-          }),
+            amount: '100.50'
+          })
         )
         .setTimeout(StellarSdk.TimeoutInfinite)
         .build();
@@ -602,13 +602,13 @@ describe('server.js tests', function() {
         transaction
           .toEnvelope()
           .toXDR()
-          .toString('base64'),
+          .toString('base64')
       );
       this.axiosMock
         .expects('post')
         .withArgs(
           'https://horizon-live.stellar.org:1337/transactions',
-          `tx=${blob}`,
+          `tx=${blob}`
         )
         .returns(Promise.resolve({ data: {} }));
 
@@ -630,8 +630,8 @@ describe('server.js tests', function() {
         _links: {
           test: function() {
             return 'hi';
-          },
-        },
+          }
+        }
       });
       expect(typeof json.test).to.be.equal('function');
     });
@@ -644,27 +644,27 @@ describe('server.js tests', function() {
           effects: {
             href:
               '/accounts/GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K/effects{?cursor,limit,order}',
-            templated: true,
+            templated: true
           },
           offers: {
             href:
               '/accounts/GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K/offers{?cursor,limit,order}',
-            templated: true,
+            templated: true
           },
           operations: {
             href:
               '/accounts/GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K/operations{?cursor,limit,order}',
-            templated: true,
+            templated: true
           },
           self: {
             href:
-              '/accounts/GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K',
+              '/accounts/GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K'
           },
           transactions: {
             href:
               '/accounts/GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K/transactions{?cursor,limit,order}',
-            templated: true,
-          },
+            templated: true
+          }
         },
         id: 'GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K',
         paging_token: '146028892161',
@@ -676,25 +676,25 @@ describe('server.js tests', function() {
         thresholds: {
           low_threshold: 0,
           med_threshold: 0,
-          high_threshold: 0,
+          high_threshold: 0
         },
         flags: {
           auth_required: false,
-          auth_revocable: false,
+          auth_revocable: false
         },
         balances: [
           {
             asset_type: 'native',
-            balance: '9760000.3997400',
-          },
+            balance: '9760000.3997400'
+          }
         ],
         signers: [
           {
             public_key:
               'GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K',
-            weight: 1,
-          },
-        ],
+            weight: 1
+          }
+        ]
       };
 
       it('requests the correct endpoint', function(done) {
@@ -702,8 +702,8 @@ describe('server.js tests', function() {
           .expects('get')
           .withArgs(
             sinon.match(
-              'https://horizon-live.stellar.org:1337/accounts/GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K',
-            ),
+              'https://horizon-live.stellar.org:1337/accounts/GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K'
+            )
           )
           .returns(Promise.resolve({ data: singleAccountResponse }));
 
@@ -724,22 +724,22 @@ describe('server.js tests', function() {
     describe('OfferCallBuilder', function() {
       let offersResponse = {
         _embedded: {
-          records: [],
+          records: []
         },
         _links: {
           next: {
             href:
-              '/accounts/GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42/offers?order=asc\u0026limit=10\u0026cursor=',
+              '/accounts/GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42/offers?order=asc\u0026limit=10\u0026cursor='
           },
           prev: {
             href:
-              '/accounts/GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42/offers?order=desc\u0026limit=10\u0026cursor=',
+              '/accounts/GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42/offers?order=desc\u0026limit=10\u0026cursor='
           },
           self: {
             href:
-              '/accounts/GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42/offers?order=asc\u0026limit=10\u0026cursor=',
-          },
-        },
+              '/accounts/GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42/offers?order=asc\u0026limit=10\u0026cursor='
+          }
+        }
       };
 
       it('requests the correct endpoint', function(done) {
@@ -747,21 +747,21 @@ describe('server.js tests', function() {
           .expects('get')
           .withArgs(
             sinon.match(
-              'https://horizon-live.stellar.org:1337/accounts/GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K/offers?order=asc',
-            ),
+              'https://horizon-live.stellar.org:1337/accounts/GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K/offers?order=asc'
+            )
           )
           .returns(Promise.resolve({ data: offersResponse }));
 
         this.server
           .offers(
             'accounts',
-            'GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K',
+            'GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K'
           )
           .order('asc')
           .call()
           .then(function(response) {
             expect(response.records).to.be.deep.equal(
-              offersResponse._embedded.records,
+              offersResponse._embedded.records
             );
             expect(response.next).to.be.function;
             expect(response.prev).to.be.function;
@@ -774,7 +774,7 @@ describe('server.js tests', function() {
 
       it('rejects the wrong resource', function(done) {
         expect(() => this.server.offers('ledgers', '123').call()).to.throw(
-          /Bad resource specified/,
+          /Bad resource specified/
         );
         done();
       });
@@ -787,14 +787,14 @@ describe('server.js tests', function() {
         base: {
           asset_type: 'native',
           asset_code: '',
-          asset_issuer: '',
+          asset_issuer: ''
         },
         counter: {
           asset_type: 'credit_alphanum4',
           asset_code: 'USD',
           asset_issuer:
-            'GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG',
-        },
+            'GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG'
+        }
       };
 
       it('requests the correct endpoint native/credit', function(done) {
@@ -802,8 +802,8 @@ describe('server.js tests', function() {
           .expects('get')
           .withArgs(
             sinon.match(
-              'https://horizon-live.stellar.org:1337/order_book?selling_asset_type=native&buying_asset_type=credit_alphanum4&buying_asset_code=USD&buying_asset_issuer=GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG',
-            ),
+              'https://horizon-live.stellar.org:1337/order_book?selling_asset_type=native&buying_asset_type=credit_alphanum4&buying_asset_code=USD&buying_asset_issuer=GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG'
+            )
           )
           .returns(Promise.resolve({ data: orderBookResponse }));
 
@@ -812,8 +812,8 @@ describe('server.js tests', function() {
             StellarSdk.Asset.native(),
             new StellarSdk.Asset(
               'USD',
-              'GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG',
-            ),
+              'GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG'
+            )
           )
           .call()
           .then(function(response) {
@@ -830,8 +830,8 @@ describe('server.js tests', function() {
           .expects('get')
           .withArgs(
             sinon.match(
-              'https://horizon-live.stellar.org:1337/order_book?selling_asset_type=credit_alphanum4&selling_asset_code=USD&selling_asset_issuer=GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG&buying_asset_type=native',
-            ),
+              'https://horizon-live.stellar.org:1337/order_book?selling_asset_type=credit_alphanum4&selling_asset_code=USD&selling_asset_issuer=GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG&buying_asset_type=native'
+            )
           )
           .returns(Promise.resolve({ data: orderBookResponse }));
 
@@ -839,9 +839,9 @@ describe('server.js tests', function() {
           .orderbook(
             new StellarSdk.Asset(
               'USD',
-              'GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG',
+              'GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG'
             ),
-            StellarSdk.Asset.native(),
+            StellarSdk.Asset.native()
           )
           .call()
           .then(function(response) {
@@ -860,16 +860,16 @@ describe('server.js tests', function() {
           _links: {
             self: {
               href:
-                'https://horizon-live.stellar.org:1337/trades?order=asc&limit=200&cursor=',
+                'https://horizon-live.stellar.org:1337/trades?order=asc&limit=200&cursor='
             },
             next: {
               href:
-                'https://horizon-live.stellar.org:1337/trades?order=asc&limit=200&cursor=64199539053039617-0',
+                'https://horizon-live.stellar.org:1337/trades?order=asc&limit=200&cursor=64199539053039617-0'
             },
             prev: {
               href:
-                'https://horizon-live.stellar.org:1337/trades?order=desc&limit=200&cursor=64199539053039617-0',
-            },
+                'https://horizon-live.stellar.org:1337/trades?order=desc&limit=200&cursor=64199539053039617-0'
+            }
           },
           _embedded: {
             records: [
@@ -877,16 +877,16 @@ describe('server.js tests', function() {
                 _links: {
                   base: {
                     href:
-                      'https://horizon-live.stellar.org:1337/accounts/GB7JKG66CJN3ACX5DX43FOZTTSOI7GZUP547I3BSXIJVUX3NRYUXHE6W',
+                      'https://horizon-live.stellar.org:1337/accounts/GB7JKG66CJN3ACX5DX43FOZTTSOI7GZUP547I3BSXIJVUX3NRYUXHE6W'
                   },
                   counter: {
                     href:
-                      'https://horizon-live.stellar.org:1337/accounts/GC6APVH2HCFB7QLSTG3U55IYSW7ZRNSCTOZZYZJCNHWX2FONCNJNULYN',
+                      'https://horizon-live.stellar.org:1337/accounts/GC6APVH2HCFB7QLSTG3U55IYSW7ZRNSCTOZZYZJCNHWX2FONCNJNULYN'
                   },
                   operation: {
                     href:
-                      'https://horizon-live.stellar.org:1337/operations/64199539053039617',
-                  },
+                      'https://horizon-live.stellar.org:1337/operations/64199539053039617'
+                  }
                 },
                 id: '64199539053039617-0',
                 paging_token: '64199539053039617-0',
@@ -903,10 +903,10 @@ describe('server.js tests', function() {
                 counter_asset_code: 'JPY',
                 counter_asset_issuer:
                   'GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM',
-                base_is_seller: true,
-              },
-            ],
-          },
+                base_is_seller: true
+              }
+            ]
+          }
         };
 
         this.axiosMock
@@ -919,7 +919,7 @@ describe('server.js tests', function() {
           .call()
           .then(function(response) {
             expect(response.records).to.be.deep.equal(
-              tradesResponse._embedded.records,
+              tradesResponse._embedded.records
             );
             done();
           })
@@ -933,16 +933,16 @@ describe('server.js tests', function() {
           _links: {
             self: {
               href:
-                'https://horizon-live.stellar.org:1337/trades?base_asset_type=native&counter_asset_type=credit_alphanum4&counter_asset_code=JPY&counter_asset_issuer=GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM&order=asc&limit=10&cursor=',
+                'https://horizon-live.stellar.org:1337/trades?base_asset_type=native&counter_asset_type=credit_alphanum4&counter_asset_code=JPY&counter_asset_issuer=GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM&order=asc&limit=10&cursor='
             },
             next: {
               href:
-                'https://horizon-live.stellar.org:1337/trades?base_asset_type=native&counter_asset_type=credit_alphanum4&counter_asset_code=JPY&counter_asset_issuer=GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM&order=asc&limit=10&cursor=64199539053039617-0',
+                'https://horizon-live.stellar.org:1337/trades?base_asset_type=native&counter_asset_type=credit_alphanum4&counter_asset_code=JPY&counter_asset_issuer=GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM&order=asc&limit=10&cursor=64199539053039617-0'
             },
             prev: {
               href:
-                'https://horizon-live.stellar.org:1337/trades?base_asset_type=native&counter_asset_type=credit_alphanum4&counter_asset_code=JPY&counter_asset_issuer=GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM&order=desc&limit=10&cursor=64199539053039617-0',
-            },
+                'https://horizon-live.stellar.org:1337/trades?base_asset_type=native&counter_asset_type=credit_alphanum4&counter_asset_code=JPY&counter_asset_issuer=GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM&order=desc&limit=10&cursor=64199539053039617-0'
+            }
           },
           _embedded: {
             records: [
@@ -950,16 +950,16 @@ describe('server.js tests', function() {
                 _links: {
                   base: {
                     href:
-                      'https://horizon-live.stellar.org:1337/accounts/GB7JKG66CJN3ACX5DX43FOZTTSOI7GZUP547I3BSXIJVUX3NRYUXHE6W',
+                      'https://horizon-live.stellar.org:1337/accounts/GB7JKG66CJN3ACX5DX43FOZTTSOI7GZUP547I3BSXIJVUX3NRYUXHE6W'
                   },
                   counter: {
                     href:
-                      'https://horizon-live.stellar.org:1337/accounts/GC6APVH2HCFB7QLSTG3U55IYSW7ZRNSCTOZZYZJCNHWX2FONCNJNULYN',
+                      'https://horizon-live.stellar.org:1337/accounts/GC6APVH2HCFB7QLSTG3U55IYSW7ZRNSCTOZZYZJCNHWX2FONCNJNULYN'
                   },
                   operation: {
                     href:
-                      'https://horizon-live.stellar.org:1337/operations/64199539053039617',
-                  },
+                      'https://horizon-live.stellar.org:1337/operations/64199539053039617'
+                  }
                 },
                 id: '64199539053039617-0',
                 paging_token: '64199539053039617-0',
@@ -976,18 +976,18 @@ describe('server.js tests', function() {
                 counter_asset_code: 'JPY',
                 counter_asset_issuer:
                   'GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM',
-                base_is_seller: true,
-              },
-            ],
-          },
+                base_is_seller: true
+              }
+            ]
+          }
         };
 
         this.axiosMock
           .expects('get')
           .withArgs(
             sinon.match(
-              'https://horizon-live.stellar.org:1337/trades?base_asset_type=native&counter_asset_type=credit_alphanum4&counter_asset_code=JPY&counter_asset_issuer=GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM',
-            ),
+              'https://horizon-live.stellar.org:1337/trades?base_asset_type=native&counter_asset_type=credit_alphanum4&counter_asset_code=JPY&counter_asset_issuer=GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM'
+            )
           )
           .returns(Promise.resolve({ data: tradesResponse }));
 
@@ -997,13 +997,13 @@ describe('server.js tests', function() {
             StellarSdk.Asset.native(),
             new StellarSdk.Asset(
               'JPY',
-              'GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM',
-            ),
+              'GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM'
+            )
           )
           .call()
           .then(function(response) {
             expect(response.records).to.be.deep.equal(
-              tradesResponse._embedded.records,
+              tradesResponse._embedded.records
             );
             done();
           })
@@ -1017,16 +1017,16 @@ describe('server.js tests', function() {
           _links: {
             self: {
               href:
-                'https://horizon-live.stellar.org:1337/trades?offer_id=278232&order=asc&limit=10&cursor=',
+                'https://horizon-live.stellar.org:1337/trades?offer_id=278232&order=asc&limit=10&cursor='
             },
             next: {
               href:
-                'https://horizon-live.stellar.org:1337/trades?offer_id=278232&order=asc&limit=10&cursor=64199539053039617-0',
+                'https://horizon-live.stellar.org:1337/trades?offer_id=278232&order=asc&limit=10&cursor=64199539053039617-0'
             },
             prev: {
               href:
-                'https://horizon-live.stellar.org:1337/trades?offer_id=278232&order=desc&limit=10&cursor=64199539053039617-0',
-            },
+                'https://horizon-live.stellar.org:1337/trades?offer_id=278232&order=desc&limit=10&cursor=64199539053039617-0'
+            }
           },
           _embedded: {
             records: [
@@ -1034,16 +1034,16 @@ describe('server.js tests', function() {
                 _links: {
                   base: {
                     href:
-                      'https://horizon-live.stellar.org:1337/accounts/GB7JKG66CJN3ACX5DX43FOZTTSOI7GZUP547I3BSXIJVUX3NRYUXHE6W',
+                      'https://horizon-live.stellar.org:1337/accounts/GB7JKG66CJN3ACX5DX43FOZTTSOI7GZUP547I3BSXIJVUX3NRYUXHE6W'
                   },
                   counter: {
                     href:
-                      'https://horizon-live.stellar.org:1337/accounts/GC6APVH2HCFB7QLSTG3U55IYSW7ZRNSCTOZZYZJCNHWX2FONCNJNULYN',
+                      'https://horizon-live.stellar.org:1337/accounts/GC6APVH2HCFB7QLSTG3U55IYSW7ZRNSCTOZZYZJCNHWX2FONCNJNULYN'
                   },
                   operation: {
                     href:
-                      'https://horizon-live.stellar.org:1337/operations/64199539053039617',
-                  },
+                      'https://horizon-live.stellar.org:1337/operations/64199539053039617'
+                  }
                 },
                 id: '64199539053039617-0',
                 paging_token: '64199539053039617-0',
@@ -1060,18 +1060,18 @@ describe('server.js tests', function() {
                 counter_asset_code: 'JPY',
                 counter_asset_issuer:
                   'GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM',
-                base_is_seller: true,
-              },
-            ],
-          },
+                base_is_seller: true
+              }
+            ]
+          }
         };
 
         this.axiosMock
           .expects('get')
           .withArgs(
             sinon.match(
-              'https://horizon-live.stellar.org:1337/trades?offer_id=278232',
-            ),
+              'https://horizon-live.stellar.org:1337/trades?offer_id=278232'
+            )
           )
           .returns(Promise.resolve({ data: tradesResponse }));
 
@@ -1081,7 +1081,7 @@ describe('server.js tests', function() {
           .call()
           .then(function(response) {
             expect(response.records).to.be.deep.equal(
-              tradesResponse._embedded.records,
+              tradesResponse._embedded.records
             );
             done();
           })
@@ -1095,36 +1095,36 @@ describe('server.js tests', function() {
           _links: {
             self: {
               href:
-                'https://horizon-live.stellar.org:1337/accounts/GABJBA4HI4LVKWAYORE7SOAAZMVXDHI566JBSD25O5TRDM7LVID6YOXY/trades?cursor=&limit=10&order=asc',
+                'https://horizon-live.stellar.org:1337/accounts/GABJBA4HI4LVKWAYORE7SOAAZMVXDHI566JBSD25O5TRDM7LVID6YOXY/trades?cursor=&limit=10&order=asc'
             },
             next: {
               href:
-                'https://horizon-live.stellar.org:1337/accounts/GABJBA4HI4LVKWAYORE7SOAAZMVXDHI566JBSD25O5TRDM7LVID6YOXY/trades?cursor=77434489365606401-1&limit=10&order=asc',
+                'https://horizon-live.stellar.org:1337/accounts/GABJBA4HI4LVKWAYORE7SOAAZMVXDHI566JBSD25O5TRDM7LVID6YOXY/trades?cursor=77434489365606401-1&limit=10&order=asc'
             },
             prev: {
               href:
-                'https://horizon-live.stellar.org:1337/accounts/GABJBA4HI4LVKWAYORE7SOAAZMVXDHI566JBSD25O5TRDM7LVID6YOXY/trades?cursor=77434489365606401-1&limit=10&order=desc',
-            },
+                'https://horizon-live.stellar.org:1337/accounts/GABJBA4HI4LVKWAYORE7SOAAZMVXDHI566JBSD25O5TRDM7LVID6YOXY/trades?cursor=77434489365606401-1&limit=10&order=desc'
+            }
           },
           _embedded: {
             records: [
               {
                 _links: {
                   self: {
-                    href: '',
+                    href: ''
                   },
                   seller: {
                     href:
-                      'https://horizon-live.stellar.org:1337/accounts/GBDTBUKFHJOEAFAVNPGIY65CBIH75DYEZ5VQXOE7YHZM7AJKDNEOW5JG',
+                      'https://horizon-live.stellar.org:1337/accounts/GBDTBUKFHJOEAFAVNPGIY65CBIH75DYEZ5VQXOE7YHZM7AJKDNEOW5JG'
                   },
                   buyer: {
                     href:
-                      'https://horizon-live.stellar.org:1337/accounts/GABJBA4HI4LVKWAYORE7SOAAZMVXDHI566JBSD25O5TRDM7LVID6YOXY',
+                      'https://horizon-live.stellar.org:1337/accounts/GABJBA4HI4LVKWAYORE7SOAAZMVXDHI566JBSD25O5TRDM7LVID6YOXY'
                   },
                   operation: {
                     href:
-                      'https://horizon-live.stellar.org:1337/operations/77434489365606401',
-                  },
+                      'https://horizon-live.stellar.org:1337/operations/77434489365606401'
+                  }
                 },
                 id: '77434489365606401-1',
                 paging_token: '77434489365606401-1',
@@ -1137,30 +1137,30 @@ describe('server.js tests', function() {
                   'GABJBA4HI4LVKWAYORE7SOAAZMVXDHI566JBSD25O5TRDM7LVID6YOXY',
                 bought_amount: '',
                 bought_asset_type: '',
-                created_at: '2018-05-23T22:42:28Z',
-              },
-            ],
-          },
+                created_at: '2018-05-23T22:42:28Z'
+              }
+            ]
+          }
         };
 
         this.axiosMock
           .expects('get')
           .withArgs(
             sinon.match(
-              'https://horizon-live.stellar.org:1337/accounts/GABJBA4HI4LVKWAYORE7SOAAZMVXDHI566JBSD25O5TRDM7LVID6YOXY/trades',
-            ),
+              'https://horizon-live.stellar.org:1337/accounts/GABJBA4HI4LVKWAYORE7SOAAZMVXDHI566JBSD25O5TRDM7LVID6YOXY/trades'
+            )
           )
           .returns(Promise.resolve({ data: tradesResponse }));
 
         this.server
           .trades()
           .forAccount(
-            'GABJBA4HI4LVKWAYORE7SOAAZMVXDHI566JBSD25O5TRDM7LVID6YOXY',
+            'GABJBA4HI4LVKWAYORE7SOAAZMVXDHI566JBSD25O5TRDM7LVID6YOXY'
           )
           .call()
           .then(function(response) {
             expect(response.records).to.be.deep.equal(
-              tradesResponse._embedded.records,
+              tradesResponse._embedded.records
             );
             done();
           })
@@ -1174,16 +1174,16 @@ describe('server.js tests', function() {
           _links: {
             self: {
               href:
-                'https://horizon-live.stellar.org:1337/trades?order=asc&limit=1&cursor=64199539053039617-0',
+                'https://horizon-live.stellar.org:1337/trades?order=asc&limit=1&cursor=64199539053039617-0'
             },
             next: {
               href:
-                'https://horizon-live.stellar.org:1337/trades?order=asc&limit=1&cursor=64199676491993090-0',
+                'https://horizon-live.stellar.org:1337/trades?order=asc&limit=1&cursor=64199676491993090-0'
             },
             prev: {
               href:
-                'https://horizon-live.stellar.org:1337/trades?order=desc&limit=1&cursor=64199676491993090-0',
-            },
+                'https://horizon-live.stellar.org:1337/trades?order=desc&limit=1&cursor=64199676491993090-0'
+            }
           },
           _embedded: {
             records: [
@@ -1191,16 +1191,16 @@ describe('server.js tests', function() {
                 _links: {
                   base: {
                     href:
-                      'https://horizon-live.stellar.org:1337/accounts/GBBHSWC3XSUFKEFDPQO346BCLM3EAJHICWRVSVIQOG4YBIH3A2VCJ6G2',
+                      'https://horizon-live.stellar.org:1337/accounts/GBBHSWC3XSUFKEFDPQO346BCLM3EAJHICWRVSVIQOG4YBIH3A2VCJ6G2'
                   },
                   counter: {
                     href:
-                      'https://horizon-live.stellar.org:1337/accounts/GDBXANSAUQ5WBFSA6LFQXR5PYVYAQ3T4KI4LHZ3YAAEFI3BS2Z3SFRVG',
+                      'https://horizon-live.stellar.org:1337/accounts/GDBXANSAUQ5WBFSA6LFQXR5PYVYAQ3T4KI4LHZ3YAAEFI3BS2Z3SFRVG'
                   },
                   operation: {
                     href:
-                      'https://horizon-live.stellar.org:1337/operations/64199676491993090',
-                  },
+                      'https://horizon-live.stellar.org:1337/operations/64199676491993090'
+                  }
                 },
                 id: '64199676491993090-0',
                 paging_token: '64199676491993090-0',
@@ -1220,18 +1220,18 @@ describe('server.js tests', function() {
                 counter_asset_code: 'ETH',
                 counter_asset_issuer:
                   'GBSTRH4QOTWNSVA6E4HFERETX4ZLSR3CIUBLK7AXYII277PFJC4BBYOG',
-                base_is_seller: false,
-              },
-            ],
-          },
+                base_is_seller: false
+              }
+            ]
+          }
         };
 
         this.axiosMock
           .expects('get')
           .withArgs(
             sinon.match(
-              'https://horizon-live.stellar.org:1337/trades?order=asc&limit=1&cursor=64199539053039617-0',
-            ),
+              'https://horizon-live.stellar.org:1337/trades?order=asc&limit=1&cursor=64199539053039617-0'
+            )
           )
           .returns(Promise.resolve({ data: tradesResponse }));
 
@@ -1243,7 +1243,7 @@ describe('server.js tests', function() {
           .call()
           .then(function(response) {
             expect(response.records).to.be.deep.equal(
-              tradesResponse._embedded.records,
+              tradesResponse._embedded.records
             );
             done();
           })
@@ -1268,7 +1268,7 @@ describe('server.js tests', function() {
               source_asset_code: 'USD',
               source_asset_issuer:
                 'GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN',
-              source_asset_type: 'credit_alphanum4',
+              source_asset_type: 'credit_alphanum4'
             },
             {
               destination_amount: '20.0000000',
@@ -1281,14 +1281,14 @@ describe('server.js tests', function() {
                   asset_code: '1',
                   asset_issuer:
                     'GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN',
-                  asset_type: 'credit_alphanum4',
-                },
+                  asset_type: 'credit_alphanum4'
+                }
               ],
               source_amount: '20.0000000',
               source_asset_code: 'USD',
               source_asset_issuer:
                 'GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN',
-              source_asset_type: 'credit_alphanum4',
+              source_asset_type: 'credit_alphanum4'
             },
             {
               destination_amount: '20.0000000',
@@ -1301,28 +1301,28 @@ describe('server.js tests', function() {
                   asset_code: '21',
                   asset_issuer:
                     'GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN',
-                  asset_type: 'credit_alphanum4',
+                  asset_type: 'credit_alphanum4'
                 },
                 {
                   asset_code: '22',
                   asset_issuer:
                     'GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN',
-                  asset_type: 'credit_alphanum4',
-                },
+                  asset_type: 'credit_alphanum4'
+                }
               ],
               source_amount: '20.0000000',
               source_asset_code: 'USD',
               source_asset_issuer:
                 'GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN',
-              source_asset_type: 'credit_alphanum4',
-            },
-          ],
+              source_asset_type: 'credit_alphanum4'
+            }
+          ]
         },
         _links: {
           self: {
-            href: '/paths',
-          },
-        },
+            href: '/paths'
+          }
+        }
       };
 
       it('requests the correct endpoint', function(done) {
@@ -1330,8 +1330,8 @@ describe('server.js tests', function() {
           .expects('get')
           .withArgs(
             sinon.match(
-              'https://horizon-live.stellar.org:1337/paths?destination_account=GAEDTJ4PPEFVW5XV2S7LUXBEHNQMX5Q2GM562RJGOQG7GVCE5H3HIB4V&source_account=GARSFJNXJIHO6ULUBK3DBYKVSIZE7SC72S5DYBCHU7DKL22UXKVD7MXP&destination_amount=20.0&destination_asset_type=credit_alphanum4&destination_asset_code=EUR&destination_asset_issuer=GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN',
-            ),
+              'https://horizon-live.stellar.org:1337/paths?destination_account=GAEDTJ4PPEFVW5XV2S7LUXBEHNQMX5Q2GM562RJGOQG7GVCE5H3HIB4V&source_account=GARSFJNXJIHO6ULUBK3DBYKVSIZE7SC72S5DYBCHU7DKL22UXKVD7MXP&destination_amount=20.0&destination_asset_type=credit_alphanum4&destination_asset_code=EUR&destination_asset_issuer=GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN'
+            )
           )
           .returns(Promise.resolve({ data: pathsResponse }));
 
@@ -1341,14 +1341,14 @@ describe('server.js tests', function() {
             'GAEDTJ4PPEFVW5XV2S7LUXBEHNQMX5Q2GM562RJGOQG7GVCE5H3HIB4V',
             new StellarSdk.Asset(
               'EUR',
-              'GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN',
+              'GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN'
             ),
-            '20.0',
+            '20.0'
           )
           .call()
           .then(function(response) {
             expect(response.records).to.be.deep.equal(
-              pathsResponse._embedded.records,
+              pathsResponse._embedded.records
             );
             expect(response.next).to.be.function;
             expect(response.prev).to.be.function;
@@ -1367,35 +1367,35 @@ describe('server.js tests', function() {
             {
               _links: {
                 operation: {
-                  href: '/operations/146028892161',
+                  href: '/operations/146028892161'
                 },
                 precedes: {
-                  href: '/effects?cursor=146028892161-1\u0026order=asc',
+                  href: '/effects?cursor=146028892161-1\u0026order=asc'
                 },
                 succeeds: {
-                  href: '/effects?cursor=146028892161-1\u0026order=desc',
-                },
+                  href: '/effects?cursor=146028892161-1\u0026order=desc'
+                }
               },
               account:
                 'GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K',
               paging_token: '146028892161-1',
               starting_balance: '10000000.0',
               type: 0,
-              type_s: 'account_created',
-            },
-          ],
+              type_s: 'account_created'
+            }
+          ]
         },
         _links: {
           next: {
-            href: '/effects?order=asc\u0026limit=1\u0026cursor=146028892161-1',
+            href: '/effects?order=asc\u0026limit=1\u0026cursor=146028892161-1'
           },
           prev: {
-            href: '/effects?order=desc\u0026limit=1\u0026cursor=146028892161-1',
+            href: '/effects?order=desc\u0026limit=1\u0026cursor=146028892161-1'
           },
           self: {
-            href: '/effects?order=asc\u0026limit=1\u0026cursor=',
-          },
-        },
+            href: '/effects?order=asc\u0026limit=1\u0026cursor='
+          }
+        }
       };
 
       it('requests the correct endpoint', function(done) {
@@ -1403,8 +1403,8 @@ describe('server.js tests', function() {
           .expects('get')
           .withArgs(
             sinon.match(
-              'https://horizon-live.stellar.org:1337/effects?cursor=b',
-            ),
+              'https://horizon-live.stellar.org:1337/effects?cursor=b'
+            )
           )
           .returns(Promise.resolve({ data: effectsResponse }));
 
@@ -1414,7 +1414,7 @@ describe('server.js tests', function() {
           .call()
           .then(function(response) {
             expect(response.records).to.be.deep.equal(
-              effectsResponse._embedded.records,
+              effectsResponse._embedded.records
             );
             expect(response.next).to.be.function;
             expect(response.prev).to.be.function;
@@ -1430,20 +1430,20 @@ describe('server.js tests', function() {
           .expects('get')
           .withArgs(
             sinon.match(
-              'https://horizon-live.stellar.org:1337/accounts/GCGHCFUB6JKQE42C76BK2LYB3EHKP4WQJE624WTSL3CU2PPDYE5RBMJE/effects',
-            ),
+              'https://horizon-live.stellar.org:1337/accounts/GCGHCFUB6JKQE42C76BK2LYB3EHKP4WQJE624WTSL3CU2PPDYE5RBMJE/effects'
+            )
           )
           .returns(Promise.resolve({ data: effectsResponse }));
 
         this.server
           .effects()
           .forAccount(
-            'GCGHCFUB6JKQE42C76BK2LYB3EHKP4WQJE624WTSL3CU2PPDYE5RBMJE',
+            'GCGHCFUB6JKQE42C76BK2LYB3EHKP4WQJE624WTSL3CU2PPDYE5RBMJE'
           )
           .call()
           .then(function(response) {
             expect(response.records).to.be.deep.equal(
-              effectsResponse._embedded.records,
+              effectsResponse._embedded.records
             );
             expect(response.next).to.be.function;
             expect(response.prev).to.be.function;
@@ -1459,20 +1459,20 @@ describe('server.js tests', function() {
           .expects('get')
           .withArgs(
             sinon.match(
-              'https://horizon-live.stellar.org:1337/transactions/ef37d6770c40c3bdb6adba80759f2819971396d1c3dfb7b5611f63ad72a9a4ae/effects',
-            ),
+              'https://horizon-live.stellar.org:1337/transactions/ef37d6770c40c3bdb6adba80759f2819971396d1c3dfb7b5611f63ad72a9a4ae/effects'
+            )
           )
           .returns(Promise.resolve({ data: effectsResponse }));
 
         this.server
           .effects()
           .forTransaction(
-            'ef37d6770c40c3bdb6adba80759f2819971396d1c3dfb7b5611f63ad72a9a4ae',
+            'ef37d6770c40c3bdb6adba80759f2819971396d1c3dfb7b5611f63ad72a9a4ae'
           )
           .call()
           .then(function(response) {
             expect(response.records).to.be.deep.equal(
-              effectsResponse._embedded.records,
+              effectsResponse._embedded.records
             );
             expect(response.next).to.be.function;
             expect(response.prev).to.be.function;
@@ -1489,7 +1489,7 @@ describe('server.js tests', function() {
             .effects()
             .forOperation('blah')
             .forLedger('234')
-            .call(),
+            .call()
         ).to.throw(/Too many filters/);
         done();
       });
@@ -1503,21 +1503,21 @@ describe('server.js tests', function() {
               _links: {
                 effects: {
                   href: '/operations/146028892161/effects{?cursor,limit,order}',
-                  templated: true,
+                  templated: true
                 },
                 precedes: {
-                  href: '/operations?cursor=146028892161\u0026order=asc',
+                  href: '/operations?cursor=146028892161\u0026order=asc'
                 },
                 self: {
-                  href: '/operations/146028892161',
+                  href: '/operations/146028892161'
                 },
                 succeeds: {
-                  href: '/operations?cursor=146028892161\u0026order=desc',
+                  href: '/operations?cursor=146028892161\u0026order=desc'
                 },
                 transaction: {
                   href:
-                    '/transactions/991534d902063b7715cd74207bef4e7bd7aa2f108f62d3eba837ce6023b2d4f3',
-                },
+                    '/transactions/991534d902063b7715cd74207bef4e7bd7aa2f108f62d3eba837ce6023b2d4f3'
+                }
               },
               account:
                 'GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K',
@@ -1527,22 +1527,21 @@ describe('server.js tests', function() {
               paging_token: '146028892161',
               starting_balance: '10000000.0',
               type: 0,
-              type_s: 'create_account',
-            },
-          ],
+              type_s: 'create_account'
+            }
+          ]
         },
         _links: {
           next: {
-            href: '/operations?order=asc\u0026limit=1\u0026cursor=146028892161',
+            href: '/operations?order=asc\u0026limit=1\u0026cursor=146028892161'
           },
           prev: {
-            href:
-              '/operations?order=desc\u0026limit=1\u0026cursor=146028892161',
+            href: '/operations?order=desc\u0026limit=1\u0026cursor=146028892161'
           },
           self: {
-            href: '/operations?order=asc\u0026limit=1\u0026cursor=',
-          },
-        },
+            href: '/operations?order=asc\u0026limit=1\u0026cursor='
+          }
+        }
       };
 
       it('operation() requests the correct endpoint', function(done) {
@@ -1550,8 +1549,8 @@ describe('server.js tests', function() {
           .expects('get')
           .withArgs(
             sinon.match(
-              'https://horizon-live.stellar.org:1337/operations/123456789',
-            ),
+              'https://horizon-live.stellar.org:1337/operations/123456789'
+            )
           )
           .returns(Promise.resolve({ data: operationsResponse }));
 
@@ -1561,7 +1560,7 @@ describe('server.js tests', function() {
           .call()
           .then(function(response) {
             expect(response.records).to.be.deep.equal(
-              operationsResponse._embedded.records,
+              operationsResponse._embedded.records
             );
             expect(response.next).to.be.function;
             expect(response.prev).to.be.function;
@@ -1577,20 +1576,20 @@ describe('server.js tests', function() {
           .expects('get')
           .withArgs(
             sinon.match(
-              'https://horizon-live.stellar.org:1337/accounts/GCGHCFUB6JKQE42C76BK2LYB3EHKP4WQJE624WTSL3CU2PPDYE5RBMJE/operations',
-            ),
+              'https://horizon-live.stellar.org:1337/accounts/GCGHCFUB6JKQE42C76BK2LYB3EHKP4WQJE624WTSL3CU2PPDYE5RBMJE/operations'
+            )
           )
           .returns(Promise.resolve({ data: operationsResponse }));
 
         this.server
           .operations()
           .forAccount(
-            'GCGHCFUB6JKQE42C76BK2LYB3EHKP4WQJE624WTSL3CU2PPDYE5RBMJE',
+            'GCGHCFUB6JKQE42C76BK2LYB3EHKP4WQJE624WTSL3CU2PPDYE5RBMJE'
           )
           .call()
           .then(function(response) {
             expect(response.records).to.be.deep.equal(
-              operationsResponse._embedded.records,
+              operationsResponse._embedded.records
             );
             expect(response.next).to.be.function;
             expect(response.prev).to.be.function;
@@ -1606,8 +1605,8 @@ describe('server.js tests', function() {
           .expects('get')
           .withArgs(
             sinon.match(
-              'https://horizon-live.stellar.org:1337/ledgers/123456789/operations',
-            ),
+              'https://horizon-live.stellar.org:1337/ledgers/123456789/operations'
+            )
           )
           .returns(Promise.resolve({ data: operationsResponse }));
 
@@ -1617,7 +1616,7 @@ describe('server.js tests', function() {
           .call()
           .then(function(response) {
             expect(response.records).to.be.deep.equal(
-              operationsResponse._embedded.records,
+              operationsResponse._embedded.records
             );
             expect(response.next).to.be.function;
             expect(response.prev).to.be.function;
@@ -1633,8 +1632,8 @@ describe('server.js tests', function() {
           .expects('get')
           .withArgs(
             sinon.match(
-              'https://horizon-live.stellar.org:1337/transactions/blah/operations',
-            ),
+              'https://horizon-live.stellar.org:1337/transactions/blah/operations'
+            )
           )
           .returns(Promise.resolve({ data: operationsResponse }));
 
@@ -1644,7 +1643,7 @@ describe('server.js tests', function() {
           .call()
           .then(function(response) {
             expect(response.records).to.be.deep.equal(
-              operationsResponse._embedded.records,
+              operationsResponse._embedded.records
             );
             expect(response.next).to.be.function;
             expect(response.prev).to.be.function;
@@ -1664,21 +1663,21 @@ describe('server.js tests', function() {
               _links: {
                 effects: {
                   href: '/operations/146028892161/effects{?cursor,limit,order}',
-                  templated: true,
+                  templated: true
                 },
                 precedes: {
-                  href: '/operations?cursor=146028892161\u0026order=asc',
+                  href: '/operations?cursor=146028892161\u0026order=asc'
                 },
                 self: {
-                  href: '/operations/146028892161',
+                  href: '/operations/146028892161'
                 },
                 succeeds: {
-                  href: '/operations?cursor=146028892161\u0026order=desc',
+                  href: '/operations?cursor=146028892161\u0026order=desc'
                 },
                 transaction: {
                   href:
-                    '/transactions/991534d902063b7715cd74207bef4e7bd7aa2f108f62d3eba837ce6023b2d4f3',
-                },
+                    '/transactions/991534d902063b7715cd74207bef4e7bd7aa2f108f62d3eba837ce6023b2d4f3'
+                }
               },
               account:
                 'GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K',
@@ -1688,21 +1687,21 @@ describe('server.js tests', function() {
               paging_token: '146028892161',
               starting_balance: '10000000.0',
               type: 0,
-              type_s: 'create_account',
-            },
-          ],
+              type_s: 'create_account'
+            }
+          ]
         },
         _links: {
           next: {
-            href: '/payments?order=asc\u0026limit=1\u0026cursor=146028892161',
+            href: '/payments?order=asc\u0026limit=1\u0026cursor=146028892161'
           },
           prev: {
-            href: '/payments?order=desc\u0026limit=1\u0026cursor=146028892161',
+            href: '/payments?order=desc\u0026limit=1\u0026cursor=146028892161'
           },
           self: {
-            href: '/payments?order=asc\u0026limit=1\u0026cursor=',
-          },
-        },
+            href: '/payments?order=asc\u0026limit=1\u0026cursor='
+          }
+        }
       };
 
       it('forAccount() requests the correct endpoint', function(done) {
@@ -1710,20 +1709,20 @@ describe('server.js tests', function() {
           .expects('get')
           .withArgs(
             sinon.match(
-              'https://horizon-live.stellar.org:1337/accounts/GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K/payments',
-            ),
+              'https://horizon-live.stellar.org:1337/accounts/GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K/payments'
+            )
           )
           .returns(Promise.resolve({ data: paymentsResponse }));
 
         this.server
           .payments()
           .forAccount(
-            'GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K',
+            'GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K'
           )
           .call()
           .then(function(response) {
             expect(response.records).to.be.deep.equal(
-              paymentsResponse._embedded.records,
+              paymentsResponse._embedded.records
             );
             expect(response.next).to.be.function;
             expect(response.prev).to.be.function;
@@ -1739,8 +1738,8 @@ describe('server.js tests', function() {
           .expects('get')
           .withArgs(
             sinon.match(
-              'https://horizon-live.stellar.org:1337/ledgers/123456789/payments',
-            ),
+              'https://horizon-live.stellar.org:1337/ledgers/123456789/payments'
+            )
           )
           .returns(Promise.resolve({ data: paymentsResponse }));
 
@@ -1750,7 +1749,7 @@ describe('server.js tests', function() {
           .call()
           .then(function(response) {
             expect(response.records).to.be.deep.equal(
-              paymentsResponse._embedded.records,
+              paymentsResponse._embedded.records
             );
             expect(response.next).to.be.function;
             expect(response.prev).to.be.function;
@@ -1766,20 +1765,20 @@ describe('server.js tests', function() {
           .expects('get')
           .withArgs(
             sinon.match(
-              'https://horizon-live.stellar.org:1337/transactions/77277606902d80a03a892536ebff8466726a4e55c3923ec2d3eeb3aa5bdc3731/payments',
-            ),
+              'https://horizon-live.stellar.org:1337/transactions/77277606902d80a03a892536ebff8466726a4e55c3923ec2d3eeb3aa5bdc3731/payments'
+            )
           )
           .returns(Promise.resolve({ data: paymentsResponse }));
 
         this.server
           .payments()
           .forTransaction(
-            '77277606902d80a03a892536ebff8466726a4e55c3923ec2d3eeb3aa5bdc3731',
+            '77277606902d80a03a892536ebff8466726a4e55c3923ec2d3eeb3aa5bdc3731'
           )
           .call()
           .then(function(response) {
             expect(response.records).to.be.deep.equal(
-              paymentsResponse._embedded.records,
+              paymentsResponse._embedded.records
             );
             expect(response.next).to.be.function;
             expect(response.prev).to.be.function;
@@ -1793,7 +1792,7 @@ describe('server.js tests', function() {
 
     describe('FriendbotCallBuilder', function() {
       let friendbotResponse = {
-        ledger: 2,
+        ledger: 2
       };
 
       it('requests the correct endpoint', function(done) {
@@ -1801,8 +1800,8 @@ describe('server.js tests', function() {
           .expects('get')
           .withArgs(
             sinon.match(
-              'https://horizon-live.stellar.org:1337/friendbot?addr=GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K',
-            ),
+              'https://horizon-live.stellar.org:1337/friendbot?addr=GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K'
+            )
           )
           .returns(Promise.resolve({ data: friendbotResponse }));
 
@@ -1824,15 +1823,15 @@ describe('server.js tests', function() {
         _links: {
           self: {
             href:
-              'https://horizon.stellar.org/trade_aggregations?base_asset_type=native\u0026counter_asset_type=credit_alphanum4\u0026counter_asset_code=BTC\u0026counter_asset_issuer=GATEMHCCKCY67ZUCKTROYN24ZYT5GK4EQZ65JJLDHKHRUZI3EUEKMTCH\u0026start_time=1512689100000\u0026end_time=1512775500000\u0026resolution=300000',
+              'https://horizon.stellar.org/trade_aggregations?base_asset_type=native\u0026counter_asset_type=credit_alphanum4\u0026counter_asset_code=BTC\u0026counter_asset_issuer=GATEMHCCKCY67ZUCKTROYN24ZYT5GK4EQZ65JJLDHKHRUZI3EUEKMTCH\u0026start_time=1512689100000\u0026end_time=1512775500000\u0026resolution=300000'
           },
           next: {
             href:
-              'https://horizon.stellar.org/trade_aggregations?base_asset_type=native\u0026counter_asset_code=BTC\u0026counter_asset_issuer=GATEMHCCKCY67ZUCKTROYN24ZYT5GK4EQZ65JJLDHKHRUZI3EUEKMTCH\u0026counter_asset_type=credit_alphanum4\u0026end_time=1512775500000\u0026resolution=300000\u0026start_time=1512765000000',
+              'https://horizon.stellar.org/trade_aggregations?base_asset_type=native\u0026counter_asset_code=BTC\u0026counter_asset_issuer=GATEMHCCKCY67ZUCKTROYN24ZYT5GK4EQZ65JJLDHKHRUZI3EUEKMTCH\u0026counter_asset_type=credit_alphanum4\u0026end_time=1512775500000\u0026resolution=300000\u0026start_time=1512765000000'
           },
           prev: {
-            href: '',
-          },
+            href: ''
+          }
         },
         _embedded: {
           records: [
@@ -1845,7 +1844,7 @@ describe('server.js tests', function() {
               high: '0.0000122',
               low: '0.0000122',
               open: '0.0000122',
-              close: '0.0000122',
+              close: '0.0000122'
             },
             {
               timestamp: 1512732300000,
@@ -1856,7 +1855,7 @@ describe('server.js tests', function() {
               high: '0.0000122',
               low: '0.0000122',
               open: '0.0000122',
-              close: '0.0000122',
+              close: '0.0000122'
             },
             {
               timestamp: 1512764700000,
@@ -1867,10 +1866,10 @@ describe('server.js tests', function() {
               high: '0.0000062',
               low: '0.0000062',
               open: '0.0000062',
-              close: '0.0000062',
-            },
-          ],
-        },
+              close: '0.0000062'
+            }
+          ]
+        }
       };
 
       it('requests the correct endpoint native/credit', function(done) {
@@ -1878,8 +1877,8 @@ describe('server.js tests', function() {
           .expects('get')
           .withArgs(
             sinon.match(
-              'https://horizon-live.stellar.org:1337/trade_aggregations?base_asset_type=native&counter_asset_type=credit_alphanum4&counter_asset_code=BTC&counter_asset_issuer=GATEMHCCKCY67ZUCKTROYN24ZYT5GK4EQZ65JJLDHKHRUZI3EUEKMTCH&start_time=1512689100000&end_time=1512775500000&resolution=300000',
-            ),
+              'https://horizon-live.stellar.org:1337/trade_aggregations?base_asset_type=native&counter_asset_type=credit_alphanum4&counter_asset_code=BTC&counter_asset_issuer=GATEMHCCKCY67ZUCKTROYN24ZYT5GK4EQZ65JJLDHKHRUZI3EUEKMTCH&start_time=1512689100000&end_time=1512775500000&resolution=300000'
+            )
           )
           .returns(Promise.resolve({ data: tradeAggregationResponse }));
 
@@ -1888,17 +1887,17 @@ describe('server.js tests', function() {
             StellarSdk.Asset.native(),
             new StellarSdk.Asset(
               'BTC',
-              'GATEMHCCKCY67ZUCKTROYN24ZYT5GK4EQZ65JJLDHKHRUZI3EUEKMTCH',
+              'GATEMHCCKCY67ZUCKTROYN24ZYT5GK4EQZ65JJLDHKHRUZI3EUEKMTCH'
             ),
             1512689100000,
             1512775500000,
             300000,
-            0,
+            0
           )
           .call()
           .then(function(response) {
             expect(response.records).to.be.deep.equal(
-              tradeAggregationResponse._embedded.records,
+              tradeAggregationResponse._embedded.records
             );
             expect(response.next).to.be.function;
             expect(response.prev).to.be.function;
@@ -1914,8 +1913,8 @@ describe('server.js tests', function() {
           .expects('get')
           .withArgs(
             sinon.match(
-              'https://horizon-live.stellar.org:1337/trade_aggregations?base_asset_type=credit_alphanum4&base_asset_code=BTC&base_asset_issuer=GATEMHCCKCY67ZUCKTROYN24ZYT5GK4EQZ65JJLDHKHRUZI3EUEKMTCH&counter_asset_type=native&start_time=1512689100000&end_time=1512775500000&resolution=300000',
-            ),
+              'https://horizon-live.stellar.org:1337/trade_aggregations?base_asset_type=credit_alphanum4&base_asset_code=BTC&base_asset_issuer=GATEMHCCKCY67ZUCKTROYN24ZYT5GK4EQZ65JJLDHKHRUZI3EUEKMTCH&counter_asset_type=native&start_time=1512689100000&end_time=1512775500000&resolution=300000'
+            )
           )
           .returns(Promise.resolve({ data: tradeAggregationResponse }));
 
@@ -1923,18 +1922,18 @@ describe('server.js tests', function() {
           .tradeAggregation(
             new StellarSdk.Asset(
               'BTC',
-              'GATEMHCCKCY67ZUCKTROYN24ZYT5GK4EQZ65JJLDHKHRUZI3EUEKMTCH',
+              'GATEMHCCKCY67ZUCKTROYN24ZYT5GK4EQZ65JJLDHKHRUZI3EUEKMTCH'
             ),
             StellarSdk.Asset.native(),
             1512689100000,
             1512775500000,
             300000,
-            0,
+            0
           )
           .call()
           .then(function(response) {
             expect(response.records).to.be.deep.equal(
-              tradeAggregationResponse._embedded.records,
+              tradeAggregationResponse._embedded.records
             );
             expect(response.next).to.be.function;
             expect(response.prev).to.be.function;
@@ -1952,24 +1951,24 @@ describe('server.js tests', function() {
           _links: {
             self: {
               href:
-                'https://horizon-live.stellar.org:1337/assets?order=asc\u0026limit=1\u0026cursor=',
+                'https://horizon-live.stellar.org:1337/assets?order=asc\u0026limit=1\u0026cursor='
             },
             next: {
               href:
-                'https://horizon-live.stellar.org:1337/assets?order=asc\u0026limit=1\u0026cursor=9HORIZONS_GB2HXY7UEDCSHOWZ4553QFGFILNU73OFS2P4HU5IB3UUU66TWPBPVTGW_credit_alphanum12',
+                'https://horizon-live.stellar.org:1337/assets?order=asc\u0026limit=1\u0026cursor=9HORIZONS_GB2HXY7UEDCSHOWZ4553QFGFILNU73OFS2P4HU5IB3UUU66TWPBPVTGW_credit_alphanum12'
             },
             prev: {
               href:
-                'https://horizon-live.stellar.org:1337/assets?order=desc\u0026limit=1\u0026cursor=9HORIZONS_GB2HXY7UEDCSHOWZ4553QFGFILNU73OFS2P4HU5IB3UUU66TWPBPVTGW_credit_alphanum12',
-            },
+                'https://horizon-live.stellar.org:1337/assets?order=desc\u0026limit=1\u0026cursor=9HORIZONS_GB2HXY7UEDCSHOWZ4553QFGFILNU73OFS2P4HU5IB3UUU66TWPBPVTGW_credit_alphanum12'
+            }
           },
           _embedded: {
             records: [
               {
                 _links: {
                   toml: {
-                    href: '',
-                  },
+                    href: ''
+                  }
                 },
                 asset_type: 'credit_alphanum12',
                 asset_code: '9HORIZONS',
@@ -1981,17 +1980,17 @@ describe('server.js tests', function() {
                 num_accounts: 2,
                 flags: {
                   auth_required: false,
-                  auth_revocable: false,
-                },
-              },
-            ],
-          },
+                  auth_revocable: false
+                }
+              }
+            ]
+          }
         };
 
         this.axiosMock
           .expects('get')
           .withArgs(
-            sinon.match('https://horizon-live.stellar.org:1337/assets?limit=1'),
+            sinon.match('https://horizon-live.stellar.org:1337/assets?limit=1')
           )
           .returns(Promise.resolve({ data: assetsResponse }));
 
@@ -2001,7 +2000,7 @@ describe('server.js tests', function() {
           .call()
           .then(function(response) {
             expect(response.records).to.be.equal(
-              assetsResponse._embedded.records,
+              assetsResponse._embedded.records
             );
             done();
           })
@@ -2015,24 +2014,24 @@ describe('server.js tests', function() {
           _links: {
             self: {
               href:
-                'https://horizon-live.stellar.org:1337/assets?order=asc\u0026limit=1\u0026cursor=\u0026asset_code=USD',
+                'https://horizon-live.stellar.org:1337/assets?order=asc\u0026limit=1\u0026cursor=\u0026asset_code=USD'
             },
             next: {
               href:
-                'https://horizon-live.stellar.org:1337/assets?order=asc\u0026limit=1\u0026cursor=USD_GCYK67DDGBOANS6UODJ62QWGLEB2A7JQ3XUV25HCMLT7CI23PMMK3W6R_credit_alphanum4\u0026asset_code=USD',
+                'https://horizon-live.stellar.org:1337/assets?order=asc\u0026limit=1\u0026cursor=USD_GCYK67DDGBOANS6UODJ62QWGLEB2A7JQ3XUV25HCMLT7CI23PMMK3W6R_credit_alphanum4\u0026asset_code=USD'
             },
             prev: {
               href:
-                'https://horizon-live.stellar.org:1337/assets?order=desc\u0026limit=1\u0026cursor=USD_GCYK67DDGBOANS6UODJ62QWGLEB2A7JQ3XUV25HCMLT7CI23PMMK3W6R_credit_alphanum4\u0026asset_code=USD',
-            },
+                'https://horizon-live.stellar.org:1337/assets?order=desc\u0026limit=1\u0026cursor=USD_GCYK67DDGBOANS6UODJ62QWGLEB2A7JQ3XUV25HCMLT7CI23PMMK3W6R_credit_alphanum4\u0026asset_code=USD'
+            }
           },
           _embedded: {
             records: [
               {
                 _links: {
                   toml: {
-                    href: '',
-                  },
+                    href: ''
+                  }
                 },
                 asset_type: 'credit_alphanum4',
                 asset_code: 'USD',
@@ -2044,18 +2043,18 @@ describe('server.js tests', function() {
                 num_accounts: 127,
                 flags: {
                   auth_required: false,
-                  auth_revocable: false,
-                },
-              },
-            ],
-          },
+                  auth_revocable: false
+                }
+              }
+            ]
+          }
         };
         this.axiosMock
           .expects('get')
           .withArgs(
             sinon.match(
-              'https://horizon-live.stellar.org:1337/assets?asset_code=USD&limit=1',
-            ),
+              'https://horizon-live.stellar.org:1337/assets?asset_code=USD&limit=1'
+            )
           )
           .returns(Promise.resolve({ data: assetsCodeResponse }));
 
@@ -2066,7 +2065,7 @@ describe('server.js tests', function() {
           .call()
           .then(function(response) {
             expect(response.records).to.be.equal(
-              assetsCodeResponse._embedded.records,
+              assetsCodeResponse._embedded.records
             );
             done();
           })
@@ -2080,24 +2079,24 @@ describe('server.js tests', function() {
           _links: {
             self: {
               href:
-                'http://horizon-testnet.stellar.org:1337/assets?order=asc\u0026limit=10\u0026cursor=\u0026asset_issuer=GCOGPF7IRVXUCJZAQWXVFQEE4HAOCTDGZI2QZSMKLM5BTTGRLY6GDOJN',
+                'http://horizon-testnet.stellar.org:1337/assets?order=asc\u0026limit=10\u0026cursor=\u0026asset_issuer=GCOGPF7IRVXUCJZAQWXVFQEE4HAOCTDGZI2QZSMKLM5BTTGRLY6GDOJN'
             },
             next: {
               href:
-                'http://horizon-testnet.stellar.org:1337/assets?order=asc\u0026limit=10\u0026cursor=00acc1_GCOGPF7IRVXUCJZAQWXVFQEE4HAOCTDGZI2QZSMKLM5BTTGRLY6GDOJN_credit_alphanum12\u0026asset_issuer=GCOGPF7IRVXUCJZAQWXVFQEE4HAOCTDGZI2QZSMKLM5BTTGRLY6GDOJN',
+                'http://horizon-testnet.stellar.org:1337/assets?order=asc\u0026limit=10\u0026cursor=00acc1_GCOGPF7IRVXUCJZAQWXVFQEE4HAOCTDGZI2QZSMKLM5BTTGRLY6GDOJN_credit_alphanum12\u0026asset_issuer=GCOGPF7IRVXUCJZAQWXVFQEE4HAOCTDGZI2QZSMKLM5BTTGRLY6GDOJN'
             },
             prev: {
               href:
-                'http://horizon-testnet.stellar.org:1337/assets?order=desc\u0026limit=10\u0026cursor=004d40_GCOGPF7IRVXUCJZAQWXVFQEE4HAOCTDGZI2QZSMKLM5BTTGRLY6GDOJN_credit_alphanum12\u0026asset_issuer=GCOGPF7IRVXUCJZAQWXVFQEE4HAOCTDGZI2QZSMKLM5BTTGRLY6GDOJN',
-            },
+                'http://horizon-testnet.stellar.org:1337/assets?order=desc\u0026limit=10\u0026cursor=004d40_GCOGPF7IRVXUCJZAQWXVFQEE4HAOCTDGZI2QZSMKLM5BTTGRLY6GDOJN_credit_alphanum12\u0026asset_issuer=GCOGPF7IRVXUCJZAQWXVFQEE4HAOCTDGZI2QZSMKLM5BTTGRLY6GDOJN'
+            }
           },
           _embedded: {
             records: [
               {
                 _links: {
                   toml: {
-                    href: '',
-                  },
+                    href: ''
+                  }
                 },
                 asset_type: 'credit_alphanum12',
                 asset_code: '004d40',
@@ -2109,18 +2108,18 @@ describe('server.js tests', function() {
                 num_accounts: 18,
                 flags: {
                   auth_required: false,
-                  auth_revocable: false,
-                },
-              },
-            ],
-          },
+                  auth_revocable: false
+                }
+              }
+            ]
+          }
         };
         this.axiosMock
           .expects('get')
           .withArgs(
             sinon.match(
-              'https://horizon-live.stellar.org:1337/assets?asset_issuer=GCOGPF7IRVXUCJZAQWXVFQEE4HAOCTDGZI2QZSMKLM5BTTGRLY6GDOJN&limit=1',
-            ),
+              'https://horizon-live.stellar.org:1337/assets?asset_issuer=GCOGPF7IRVXUCJZAQWXVFQEE4HAOCTDGZI2QZSMKLM5BTTGRLY6GDOJN&limit=1'
+            )
           )
           .returns(Promise.resolve({ data: assetIssuerResponse }));
 
@@ -2131,7 +2130,7 @@ describe('server.js tests', function() {
           .call()
           .then(function(response) {
             expect(response.records).to.be.equal(
-              assetIssuerResponse._embedded.records,
+              assetIssuerResponse._embedded.records
             );
             done();
           })
@@ -2144,24 +2143,24 @@ describe('server.js tests', function() {
         _links: {
           self: {
             href:
-              'http://horizon-testnet.stellar.org/assets?order=asc\u0026limit=10\u0026cursor=\u0026asset_code=USD\u0026asset_issuer=GBW3EZBZKRERB4JUDWGQPIBGHKJ4XPOFG2VQ2WTFR4F7TYC5WS7F3XGR',
+              'http://horizon-testnet.stellar.org/assets?order=asc\u0026limit=10\u0026cursor=\u0026asset_code=USD\u0026asset_issuer=GBW3EZBZKRERB4JUDWGQPIBGHKJ4XPOFG2VQ2WTFR4F7TYC5WS7F3XGR'
           },
           next: {
             href:
-              'http://horizon-testnet.stellar.org/assets?order=asc\u0026limit=10\u0026cursor=USD_GBW3EZBZKRERB4JUDWGQPIBGHKJ4XPOFG2VQ2WTFR4F7TYC5WS7F3XGR_credit_alphanum4\u0026asset_code=USD\u0026asset_issuer=GBW3EZBZKRERB4JUDWGQPIBGHKJ4XPOFG2VQ2WTFR4F7TYC5WS7F3XGR',
+              'http://horizon-testnet.stellar.org/assets?order=asc\u0026limit=10\u0026cursor=USD_GBW3EZBZKRERB4JUDWGQPIBGHKJ4XPOFG2VQ2WTFR4F7TYC5WS7F3XGR_credit_alphanum4\u0026asset_code=USD\u0026asset_issuer=GBW3EZBZKRERB4JUDWGQPIBGHKJ4XPOFG2VQ2WTFR4F7TYC5WS7F3XGR'
           },
           prev: {
             href:
-              'http://horizon-testnet.stellar.org/assets?order=desc\u0026limit=10\u0026cursor=USD_GBW3EZBZKRERB4JUDWGQPIBGHKJ4XPOFG2VQ2WTFR4F7TYC5WS7F3XGR_credit_alphanum4\u0026asset_code=USD\u0026asset_issuer=GBW3EZBZKRERB4JUDWGQPIBGHKJ4XPOFG2VQ2WTFR4F7TYC5WS7F3XGR',
-          },
+              'http://horizon-testnet.stellar.org/assets?order=desc\u0026limit=10\u0026cursor=USD_GBW3EZBZKRERB4JUDWGQPIBGHKJ4XPOFG2VQ2WTFR4F7TYC5WS7F3XGR_credit_alphanum4\u0026asset_code=USD\u0026asset_issuer=GBW3EZBZKRERB4JUDWGQPIBGHKJ4XPOFG2VQ2WTFR4F7TYC5WS7F3XGR'
+          }
         },
         _embedded: {
           records: [
             {
               _links: {
                 toml: {
-                  href: 'https://bakalr/.well-known/stellar.toml',
-                },
+                  href: 'https://bakalr/.well-known/stellar.toml'
+                }
               },
               asset_type: 'credit_alphanum4',
               asset_code: 'USD',
@@ -2173,19 +2172,19 @@ describe('server.js tests', function() {
               num_accounts: 1,
               flags: {
                 auth_required: true,
-                auth_revocable: true,
-              },
-            },
-          ],
-        },
+                auth_revocable: true
+              }
+            }
+          ]
+        }
       };
       it('requests the correct endpoint (asset_code then asset_issuer)', function(done) {
         this.axiosMock
           .expects('get')
           .withArgs(
             sinon.match(
-              'https://horizon-live.stellar.org:1337/assets?asset_issuer=GBW3EZBZKRERB4JUDWGQPIBGHKJ4XPOFG2VQ2WTFR4F7TYC5WS7F3XGR&asset_code=USD',
-            ),
+              'https://horizon-live.stellar.org:1337/assets?asset_issuer=GBW3EZBZKRERB4JUDWGQPIBGHKJ4XPOFG2VQ2WTFR4F7TYC5WS7F3XGR&asset_code=USD'
+            )
           )
           .returns(Promise.resolve({ data: assetCodeIssuerResponse }));
 
@@ -2196,7 +2195,7 @@ describe('server.js tests', function() {
           .call()
           .then(function(response) {
             expect(response.records).to.be.equal(
-              assetCodeIssuerResponse._embedded.records,
+              assetCodeIssuerResponse._embedded.records
             );
             done();
           })
@@ -2210,8 +2209,8 @@ describe('server.js tests', function() {
           .expects('get')
           .withArgs(
             sinon.match(
-              'https://horizon-live.stellar.org:1337/assets?asset_code=USD&asset_issuer=GBW3EZBZKRERB4JUDWGQPIBGHKJ4XPOFG2VQ2WTFR4F7TYC5WS7F3XGR',
-            ),
+              'https://horizon-live.stellar.org:1337/assets?asset_code=USD&asset_issuer=GBW3EZBZKRERB4JUDWGQPIBGHKJ4XPOFG2VQ2WTFR4F7TYC5WS7F3XGR'
+            )
           )
           .returns(Promise.resolve({ data: assetCodeIssuerResponse }));
 
@@ -2222,7 +2221,7 @@ describe('server.js tests', function() {
           .call()
           .then(function(response) {
             expect(response.records).to.be.equal(
-              assetCodeIssuerResponse._embedded.records,
+              assetCodeIssuerResponse._embedded.records
             );
             done();
           })

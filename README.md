@@ -163,9 +163,10 @@ npm install
 npx gulp lint:watch
 ```
 
-4. You can use ES-Next in the `./src/` directory _only_. In all other
-   directories, use ES5! (The reason is that our npm library must support
-   earlier versions of Node, so the tests need to run on those versions.)
+4. If you're working on a file not in `src`, limit your code to Node 6.16 ES!
+   See what's supported here: https://node.green/ (The reason is that our npm
+   library must support earlier versions of Node, so the tests need to run on
+   those versions.)
 
 ## Usage
 

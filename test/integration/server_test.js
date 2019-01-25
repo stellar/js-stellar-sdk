@@ -31,8 +31,8 @@ describe('integration tests', function() {
           let tx = new StellarSdk.TransactionBuilder(source)
             .addOperation(
               StellarSdk.Operation.accountMerge({
-                destination: operation.funder,
-              }),
+                destination: operation.funder
+              })
             )
             .setTimeout(StellarSdk.TimeoutInfinite)
             .build();
@@ -50,8 +50,8 @@ describe('integration tests', function() {
         .addOperation(
           StellarSdk.Operation.createAccount({
             destination: accountId,
-            startingBalance: '1',
-          }),
+            startingBalance: '1'
+          })
         )
         .setTimeout(StellarSdk.TimeoutInfinite)
         .build();
@@ -79,8 +79,8 @@ describe('integration tests', function() {
           .addOperation(
             StellarSdk.Operation.createAccount({
               destination: StellarSdk.Keypair.random().publicKey(),
-              startingBalance: '1',
-            }),
+              startingBalance: '1'
+            })
           )
           .setTimeout(StellarSdk.TimeoutInfinite)
           .build();
@@ -92,7 +92,7 @@ describe('integration tests', function() {
           .then((result) => done(new Error('This promise should be rejected.')))
           .catch((error) => {
             expect(
-              error.response.data.extras.result_codes.transaction,
+              error.response.data.extras.result_codes.transaction
             ).to.equal('tx_bad_seq');
             done();
           });
@@ -128,7 +128,7 @@ describe('integration tests', function() {
             expect(operation.account).to.equal(randomAccount.publicKey());
             eventStreamClose();
             done();
-          },
+          }
         });
 
       createNewAccount(randomAccount.publicKey());
