@@ -156,17 +156,39 @@ cd js-stellar-sdk
 npm install
 ```
 
-3. While you're making changes, make sure to run the linter-watcher to catch any
+3. Install Node 6.14.0
+
+Because we support earlier versions of Node, please install and develop on Node
+6.14.0 so you don't get surprised when your code works locally but breaks in CI.
+
+Here's out to install `nvm` if you haven't: https://github.com/creationix/nvm
+
+```shell
+nvm install
+
+# if you've never installed 6.14.0 before you'll want to re-install yarn
+npm install -g yarn
+```
+
+If you work on several projects that use different Node versions, you might it
+helpful to install this automatic version manager:
+https://github.com/wbyoung/avn
+
+````
+
+4. Observe the project's code style
+
+While you're making changes, make sure to run the linter-watcher to catch any
    linting errors (in addition to making sure your text editor supports ESLint)
 
 ```shell
 npx gulp lint:watch
-```
+````
 
-4. If you're working on a file not in `src`, limit your code to Node 6.16 ES!
-   See what's supported here: https://node.green/ (The reason is that our npm
-   library must support earlier versions of Node, so the tests need to run on
-   those versions.)
+If you're working on a file not in `src`, limit your code to Node 6.16 ES! See
+what's supported here: https://node.green/ (The reason is that our npm library
+must support earlier versions of Node, so the tests need to run on those
+versions.)
 
 ## Usage
 

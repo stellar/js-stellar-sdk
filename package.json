@@ -91,7 +91,7 @@
     "karma-sinon": "^1.0.4",
     "karma-sinon-chai": "^0.3.0",
     "karma-webpack": "^1.7.0",
-    "lint-staged": "^8.1.0",
+    "lint-staged": "7.3.0",
     "lodash": "^4.17.10",
     "minami": "^1.1.1",
     "mocha": "~1.17.1",
@@ -104,7 +104,6 @@
   "dependencies": {
     "axios": "^0.18.0",
     "es6-promise": "^4.2.4",
-    "eslint-plugin-mocha": "^5.2.1",
     "event-source-polyfill": "0.0.12",
     "eventsource": "^1.0.5",
     "lodash": "^4.17.10",
