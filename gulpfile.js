@@ -8,12 +8,14 @@ var server = require('gulp-develop-server');
 var webpack = require('webpack');
 var fs = require('fs');
 var clear = require('clear');
+var plumber = require('gulp-plumber');
 
 gulp.task('default', ['build']);
 
 gulp.task('lint:src', function() {
   return gulp
     .src(['src/**/*.js'])
+    .pipe(plumber())
     .pipe(plugins.eslint())
     .pipe(plugins.eslint.format())
     .pipe(plugins.eslint.failAfterError());
@@ -23,34 +25,10 @@ gulp.task('lint:src', function() {
 gulp.task('lint:test', function() {
   return gulp
     .src(['test/unit/**/*.js', 'gulpfile.js'])
+    .pipe(plumber())
     .pipe(plugins.eslint())
     .pipe(plugins.eslint.format())
     .pipe(plugins.eslint.failAfterError());
-});
-
-// this task doesn't fail on error so it doesn't break a watch loop
-gulp.task('lint-for-watcher:src', function() {
-  clear();
-  return gulp
-    .src(['src/**/*.js'])
-    .pipe(plugins.eslint())
-    .pipe(plugins.eslint.format());
-});
-
-gulp.task('lint-for-watcher:test', function() {
-  clear();
-  return gulp
-    .src(['test/**/*.js', 'gulpfile.js'])
-    .pipe(plugins.eslint())
-    .pipe(plugins.eslint.format());
-});
-
-gulp.task('lint:watch', ['lint-for-watcher:src'], function() {
-  gulp.watch(['src/**/*.js'], ['lint-for-watcher:src']);
-});
-
-gulp.task('lint:watch-test', ['lint-for-watcher:test'], function() {
-  gulp.watch(['test/**/*.js', 'gulpfile.js'], ['lint-for-watcher:test']);
 });
 
 gulp.task('build', function(done) {
@@ -71,6 +49,7 @@ gulp.task('hooks:precommit', ['build'], function() {
 gulp.task('build:node', ['lint:src'], function() {
   return gulp
     .src('src/**/*.js')
+    .pipe(plumber())
     .pipe(plugins.babel())
     .pipe(gulp.dest('lib'));
 });
@@ -79,6 +58,7 @@ gulp.task('build:browser', ['lint:src'], function() {
   return (
     gulp
       .src('src/browser.js')
+      .pipe(plumber())
       .pipe(
         plugins.webpack({
           output: { library: 'StellarSdk' },
@@ -165,12 +145,17 @@ gulp.task('test:sauce', ['build:browser'], function(done) {
   });
 });
 
+gulp.task('clear-screen', function(cb) {
+  clear();
+  cb();
+});
+
 gulp.task('clean', function() {
   return gulp.src('dist', { read: false }).pipe(plugins.rimraf());
 });
 
 gulp.task('watch', ['build'], function() {
-  gulp.watch('lib/**/*', ['build']);
+  gulp.watch('lib/**/*', ['clear-screen', 'build']);
 });
 
 gulp.task('clean-coverage', function() {
