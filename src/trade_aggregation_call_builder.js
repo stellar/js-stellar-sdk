@@ -80,6 +80,6 @@ export class TradeAggregationCallBuilder extends CallBuilder {
    */
   isValidOffset(offset, resolution){
     const hour = 3600000;
-    return !(offset > resolution || offset > 24 * hour || (offset % hour !== 0));
+    return !(offset > resolution || offset >= 24 * hour || (offset % hour !== 0));
   }
 }
