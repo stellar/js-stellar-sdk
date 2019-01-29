@@ -38,90 +38,81 @@ describe('server.js tests', function() {
   });
 
   describe('Server.loadAccount', function() {
+    //prettier-ignore
     let accountResponse = {
-      _links: {
-        self: {
-          href:
-            'https://horizon-testnet.stellar.org/accounts/GBAH7FQMC3CZJ4WD6GE7G7YXCIU36LC2IHXQ7D5MQAUO4PODOWIVLSFS'
+      "_links": {
+        "self": {
+          "href": "https://horizon-testnet.stellar.org/accounts/GBAH7FQMC3CZJ4WD6GE7G7YXCIU36LC2IHXQ7D5MQAUO4PODOWIVLSFS"
         },
-        transactions: {
-          href:
-            'https://horizon-testnet.stellar.org/accounts/GBAH7FQMC3CZJ4WD6GE7G7YXCIU36LC2IHXQ7D5MQAUO4PODOWIVLSFS/transactions{?cursor,limit,order}',
-          templated: true
+        "transactions": {
+          "href": "https://horizon-testnet.stellar.org/accounts/GBAH7FQMC3CZJ4WD6GE7G7YXCIU36LC2IHXQ7D5MQAUO4PODOWIVLSFS/transactions{?cursor,limit,order}",
+          "templated": true
         },
-        operations: {
-          href:
-            'https://horizon-testnet.stellar.org/accounts/GBAH7FQMC3CZJ4WD6GE7G7YXCIU36LC2IHXQ7D5MQAUO4PODOWIVLSFS/operations{?cursor,limit,order}',
-          templated: true
+        "operations": {
+          "href": "https://horizon-testnet.stellar.org/accounts/GBAH7FQMC3CZJ4WD6GE7G7YXCIU36LC2IHXQ7D5MQAUO4PODOWIVLSFS/operations{?cursor,limit,order}",
+          "templated": true
         },
-        payments: {
-          href:
-            'https://horizon-testnet.stellar.org/accounts/GBAH7FQMC3CZJ4WD6GE7G7YXCIU36LC2IHXQ7D5MQAUO4PODOWIVLSFS/payments{?cursor,limit,order}',
-          templated: true
+        "payments": {
+          "href": "https://horizon-testnet.stellar.org/accounts/GBAH7FQMC3CZJ4WD6GE7G7YXCIU36LC2IHXQ7D5MQAUO4PODOWIVLSFS/payments{?cursor,limit,order}",
+          "templated": true
         },
-        effects: {
-          href:
-            'https://horizon-testnet.stellar.org/accounts/GBAH7FQMC3CZJ4WD6GE7G7YXCIU36LC2IHXQ7D5MQAUO4PODOWIVLSFS/effects{?cursor,limit,order}',
-          templated: true
+        "effects": {
+          "href": "https://horizon-testnet.stellar.org/accounts/GBAH7FQMC3CZJ4WD6GE7G7YXCIU36LC2IHXQ7D5MQAUO4PODOWIVLSFS/effects{?cursor,limit,order}",
+          "templated": true
         },
-        offers: {
-          href:
-            'https://horizon-testnet.stellar.org/accounts/GBAH7FQMC3CZJ4WD6GE7G7YXCIU36LC2IHXQ7D5MQAUO4PODOWIVLSFS/offers{?cursor,limit,order}',
-          templated: true
+        "offers": {
+          "href": "https://horizon-testnet.stellar.org/accounts/GBAH7FQMC3CZJ4WD6GE7G7YXCIU36LC2IHXQ7D5MQAUO4PODOWIVLSFS/offers{?cursor,limit,order}",
+          "templated": true
         }
       },
-      id: 'GBAH7FQMC3CZJ4WD6GE7G7YXCIU36LC2IHXQ7D5MQAUO4PODOWIVLSFS',
-      paging_token: '5387216134082561',
-      account_id: 'GBAH7FQMC3CZJ4WD6GE7G7YXCIU36LC2IHXQ7D5MQAUO4PODOWIVLSFS',
-      sequence: '5387216134078475',
-      subentry_count: 5,
-      thresholds: {
-        low_threshold: 0,
-        med_threshold: 0,
-        high_threshold: 0
+      "id": "GBAH7FQMC3CZJ4WD6GE7G7YXCIU36LC2IHXQ7D5MQAUO4PODOWIVLSFS",
+      "paging_token": "5387216134082561",
+      "account_id": "GBAH7FQMC3CZJ4WD6GE7G7YXCIU36LC2IHXQ7D5MQAUO4PODOWIVLSFS",
+      "sequence": "5387216134078475",
+      "subentry_count": 5,
+      "thresholds": {
+        "low_threshold": 0,
+        "med_threshold": 0,
+        "high_threshold": 0
       },
-      flags: {
-        auth_required: false,
-        auth_revocable: false
+      "flags": {
+        "auth_required": false,
+        "auth_revocable": false
       },
-      balances: [
+      "balances": [
         {
-          balance: '0.0000000',
-          limit: '922337203685.4775807',
-          asset_type: 'credit_alphanum4',
-          asset_code: 'AAA',
-          asset_issuer:
-            'GAX4CUJEOUA27MDHTLSQCFRGQPEXCC6GMO2P2TZCG7IEBZIEGPOD6HKF'
+          "balance": "0.0000000",
+          "limit": "922337203685.4775807",
+          "asset_type": "credit_alphanum4",
+          "asset_code": "AAA",
+          "asset_issuer": "GAX4CUJEOUA27MDHTLSQCFRGQPEXCC6GMO2P2TZCG7IEBZIEGPOD6HKF"
         },
         {
-          balance: '5000.0000000',
-          limit: '922337203685.4775807',
-          asset_type: 'credit_alphanum4',
-          asset_code: 'MDL',
-          asset_issuer:
-            'GAX4CUJEOUA27MDHTLSQCFRGQPEXCC6GMO2P2TZCG7IEBZIEGPOD6HKF'
+          "balance": "5000.0000000",
+          "limit": "922337203685.4775807",
+          "asset_type": "credit_alphanum4",
+          "asset_code": "MDL",
+          "asset_issuer": "GAX4CUJEOUA27MDHTLSQCFRGQPEXCC6GMO2P2TZCG7IEBZIEGPOD6HKF"
         },
         {
-          balance: '10000.0000000',
-          limit: '922337203685.4775807',
-          asset_type: 'credit_alphanum4',
-          asset_code: 'USD',
-          asset_issuer:
-            'GAX4CUJEOUA27MDHTLSQCFRGQPEXCC6GMO2P2TZCG7IEBZIEGPOD6HKF'
+          "balance": "10000.0000000",
+          "limit": "922337203685.4775807",
+          "asset_type": "credit_alphanum4",
+          "asset_code": "USD",
+          "asset_issuer": "GAX4CUJEOUA27MDHTLSQCFRGQPEXCC6GMO2P2TZCG7IEBZIEGPOD6HKF"
         },
         {
-          balance: '70.0998900',
-          asset_type: 'native'
+          "balance": "70.0998900",
+          "asset_type": "native"
         }
       ],
-      signers: [
+      "signers": [
         {
-          public_key:
-            'GBAH7FQMC3CZJ4WD6GE7G7YXCIU36LC2IHXQ7D5MQAUO4PODOWIVLSFS',
-          weight: 1
+          "public_key": "GBAH7FQMC3CZJ4WD6GE7G7YXCIU36LC2IHXQ7D5MQAUO4PODOWIVLSFS",
+          "weight": 1
         }
       ],
-      data: {}
+      "data": {}
     };
 
     it('returns AccountResponse object', function(done) {
