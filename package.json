@@ -107,7 +107,7 @@
     "event-source-polyfill": "0.0.12",
     "eventsource": "^1.0.5",
     "lodash": "^4.17.10",
-    "stellar-base": "^0.10.0",
+    "stellar-base": "morleyzhi/js-stellar-base#24caa57b837cdc44d06f9b78ac3d2fc6773d556c",
     "toml": "^2.3.0",
     "urijs": "1.19.1"
   }
