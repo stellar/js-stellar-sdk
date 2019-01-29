@@ -46,7 +46,7 @@ deploy:
     on:
       tags: true
       repo: stellar/js-stellar-sdk
-      node: 6.9.4
+      node: 6.14.0
       condition: '$INTEGRATION = true'
   - provider: script
     script: './bower_publish.sh'
@@ -54,5 +54,5 @@ deploy:
     on:
       tags: true
       repo: stellar/js-stellar-sdk
-      node: 6.9.4
+      node: 6.14.0
       condition: '$INTEGRATION = true'
