@@ -3,7 +3,7 @@ describe('server.js tests', function() {
     this.server = new StellarSdk.Server(
       'https://horizon-live.stellar.org:1337'
     );
-    this.axiosMock = sinon.mock(axios);
+    this.axiosMock = sinon.mock(HorizonAxiosClient);
     StellarSdk.Config.setDefault();
     StellarSdk.Network.useTestNetwork();
   });

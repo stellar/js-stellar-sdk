@@ -1,4 +1,3 @@
-import axios from 'axios';
 import URI from 'urijs';
 
 import { BadResponseError } from './errors';
@@ -6,6 +5,7 @@ import { BadResponseError } from './errors';
 import { AccountCallBuilder } from './account_call_builder';
 import { AccountResponse } from './account_response';
 import { Config } from './config';
+import HorizonAxiosClient from './horizon_axios_client';
 import { LedgerCallBuilder } from './ledger_call_builder';
 import { TransactionCallBuilder } from './transaction_call_builder';
 import { OperationCallBuilder } from './operation_call_builder';
@@ -56,7 +56,7 @@ export class Server {
         .toXDR()
         .toString('base64')
     );
-    return axios
+    return HorizonAxiosClient
       .post(
         URI(this.serverURL)
           .segment('transactions')

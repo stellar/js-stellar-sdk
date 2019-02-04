@@ -13,6 +13,7 @@ export {
   StellarTomlResolver,
   STELLAR_TOML_MAX_SIZE
 } from './stellar_toml_resolver';
+export { default as HorizonAxiosClient } from './horizon_axios_client';
 
 // expose classes and functions from stellar-base
 export * from 'stellar-base';
