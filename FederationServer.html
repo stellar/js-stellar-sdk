@@ -62,7 +62,7 @@ instance and exposes an interface for requests to that instance.</p></div>
     <h2>Constructor</h2>
     
 
-    <h4 class="name" id="FederationServer"><span class="type-signature"></span>new FederationServer<span class="signature">(serverURL, domain, opts<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="FederationServer"><span class="type-signature"></span>new FederationServer<span class="signature">(serverURL, domain, opts<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {void}</span></h4>
 
     
 
@@ -242,7 +242,7 @@ instance and exposes an interface for requests to that instance.</p></div>
             
 
             <td class="description last">
-                
+                <p>options object</p>
                 
                     
 
@@ -363,6 +363,27 @@ instance and exposes an interface for requests to that instance.</p></div>
 
 
 
+<div class="section-returns">
+<h5>Returns:</h5>
+
+        
+
+<dl class="param-type">
+    <dt>
+        Type:
+    </dt>
+    <dd>
+        
+<span class="param-type"><code>void</code></span>
+
+
+    </dd>
+</dl>
+
+
+    
+</div>
+
 
 
 </div>
@@ -397,8 +418,11 @@ instance and exposes an interface for requests to that instance.</p></div>
 
 
 <div class="description">
-    <p>Creates a <code>FederationServer</code> instance based on information from <a href="https://www.stellar.org/developers/learn/concepts/stellar-toml.html">stellar.toml</a> file for a given domain.
-Returns a <code>Promise</code> that resolves to a <code>FederationServer</code> object. If <code>stellar.toml</code> file does not exist for a given domain or it does not contain information about a federation server Promise will reject.</p>
+    <p>Creates a <code>FederationServer</code> instance based on information from
+<a href="https://www.stellar.org/developers/learn/concepts/stellar-toml.html">stellar.toml</a>
+file for a given domain.</p>
+<p>If <code>stellar.toml</code> file does not exist for a given domain or it does not
+contain information about a federation server Promise will reject.</p>
 <pre class="prettyprint source lang-js"><code>StellarSdk.FederationServer.createForDomain('acme.com')
   .then(federationServer => {
     // federationServer.resolveAddress('bob').then(...)
@@ -441,7 +465,7 @@ Returns a <code>Promise</code> that resolves to a <code>FederationServer</code> 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_federation_server.js.html">src/federation_server.js</a>, <a href="src_federation_server.js.html#line121">line 121</a>
+        <a href="src_federation_server.js.html">src/federation_server.js</a>, <a href="src_federation_server.js.html#line123">line 123</a>
     </li></ul></dd>
     
 
@@ -555,7 +579,7 @@ Returns a <code>Promise</code> that resolves to a <code>FederationServer</code> 
             
 
             <td class="description last">
-                
+                <p>Options object</p>
                 
                     
 
@@ -694,6 +718,10 @@ Returns a <code>Promise</code> that resolves to a <code>FederationServer</code> 
 </dl>
 
 
+<div class="param-desc">
+    <p><code>Promise</code> that resolves to a FederationServer object</p>
+</div>
+
     
 </div>
 
@@ -713,7 +741,7 @@ Returns a <code>Promise</code> that resolves to a <code>FederationServer</code> 
 
 
 <div class="description">
-    <p>This method is a helper method for handling user inputs that contain <code>destination</code> value.
+    <p>A helper method for handling user inputs that contain <code>destination</code> value.
 It accepts two types of values:</p>
 <ul>
 <li>For Stellar address (ex. <code>bob*stellar.org</code>) it splits Stellar address and then tries to find information about
@@ -731,13 +759,7 @@ if the account actually exists in a ledger.</li>
    //   memo_type: 'id',
    //   memo: 100
    // }
- });</code></pre><p>It returns a <code>Promise</code> that will resolve to a JSON object with following fields:</p>
-<ul>
-<li><code>account_id</code> - Account ID of the destination,</li>
-<li><code>memo_type</code> (optional) - Memo type that needs to be attached to a transaction,</li>
-<li><code>memo</code> (optional) - Memo value that needs to be attached to a transaction.</li>
-</ul>
-<p>The Promise will reject in case of any errors.</p>
+ });</code></pre>
 </div>
 
 
@@ -773,7 +795,7 @@ if the account actually exists in a ledger.</li>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_federation_server.js.html">src/federation_server.js</a>, <a href="src_federation_server.js.html#line82">line 82</a>
+        <a href="src_federation_server.js.html">src/federation_server.js</a>, <a href="src_federation_server.js.html#line80">line 80</a>
     </li></ul></dd>
     
 
@@ -889,7 +911,7 @@ if the account actually exists in a ledger.</li>
             
 
             <td class="description last">
-                
+                <p>Options object</p>
                 
                     
 
@@ -1028,6 +1050,15 @@ if the account actually exists in a ledger.</li>
 </dl>
 
 
+<div class="param-desc">
+    <p><code>Promise</code> that resolves to a JSON object with this shape:</p>
+<ul>
+<li><code>account_id</code> - Account ID of the destination,</li>
+<li><code>memo_type</code> (optional) - Memo type that needs to be attached to a transaction,</li>
+<li><code>memo</code> (optional) - Memo value that needs to be attached to a transaction.</li>
+</ul>
+</div>
+
     
 </div>
 
@@ -1047,7 +1078,7 @@ if the account actually exists in a ledger.</li>
 
 
 <div class="description">
-    <p>Returns a Promise that resolves to federation record if the user was found for a given account ID.</p>
+    <p>Given an account ID, get their federation record if the user was found</p>
 </div>
 
 
@@ -1083,7 +1114,7 @@ if the account actually exists in a ledger.</li>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_federation_server.js.html">src/federation_server.js</a>, <a href="src_federation_server.js.html#line154">line 154</a>
+        <a href="src_federation_server.js.html">src/federation_server.js</a>, <a href="src_federation_server.js.html#line162">line 162</a>
     </li></ul></dd>
     
 
@@ -1191,6 +1222,10 @@ if the account actually exists in a ledger.</li>
 </dl>
 
 
+<div class="param-desc">
+    <p>A promise that resolves to the federation record</p>
+</div>
+
     
 </div>
 
@@ -1210,7 +1245,7 @@ if the account actually exists in a ledger.</li>
 
 
 <div class="description">
-    <p>Returns a Promise that resolves to federation record if the user was found for a given Stellar address.</p>
+    <p>Get the federation record if the user was found for a given Stellar address</p>
 </div>
 
 
@@ -1246,7 +1281,7 @@ if the account actually exists in a ledger.</li>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_federation_server.js.html">src/federation_server.js</a>, <a href="src_federation_server.js.html#line137">line 137</a>
+        <a href="src_federation_server.js.html">src/federation_server.js</a>, <a href="src_federation_server.js.html#line140">line 140</a>
     </li></ul></dd>
     
 
@@ -1354,6 +1389,10 @@ if the account actually exists in a ledger.</li>
 </dl>
 
 
+<div class="param-desc">
+    <p>Promise that resolves to the federation record</p>
+</div>
+
     
 </div>
 
@@ -1373,7 +1412,7 @@ if the account actually exists in a ledger.</li>
 
 
 <div class="description">
-    <p>Returns a Promise that resolves to federation record if the sender of the transaction was found for a given transaction ID.</p>
+    <p>Given a transactionId, get the federation record if the sender of the transaction was found</p>
 </div>
 
 
@@ -1409,7 +1448,7 @@ if the account actually exists in a ledger.</li>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_federation_server.js.html">src/federation_server.js</a>, <a href="src_federation_server.js.html#line165">line 165</a>
+        <a href="src_federation_server.js.html">src/federation_server.js</a>, <a href="src_federation_server.js.html#line173">line 173</a>
     </li></ul></dd>
     
 
@@ -1517,6 +1556,10 @@ if the account actually exists in a ledger.</li>
 </dl>
 
 
+<div class="param-desc">
+    <p>A promise that resolves to the federation record</p>
+</div>
+
     
 </div>
 
@@ -1541,7 +1584,7 @@ if the account actually exists in a ledger.</li>
 <br class="clear">
 
 <footer>
-    Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.3</a> on Thu Jan 24 2019 14:41:12 GMT+0000 (UTC) using the Minami theme.
+    Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon Feb 04 2019 16:38:32 GMT+0000 (UTC) using the Minami theme.
 </footer>
 
 <script>prettyPrint();</script>
