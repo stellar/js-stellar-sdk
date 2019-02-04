@@ -1,6 +1,5 @@
 // eslint-disable-next-line prefer-import/prefer-import-over-require
 require('es6-promise').polyfill();
-import HorizonAxiosClient from './horizon_axios_client';
 
 // stellar-sdk classes to expose
 export * from './errors';
@@ -14,7 +13,7 @@ export {
   StellarTomlResolver,
   STELLAR_TOML_MAX_SIZE
 } from './stellar_toml_resolver';
-export { HorizonAxiosClient };
+export { default as HorizonAxiosClient } from './horizon_axios_client';
 
 // expose classes and functions from stellar-base
 export * from 'stellar-base';
