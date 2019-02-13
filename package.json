@@ -81,7 +81,7 @@
     "istanbul": "^0.4.5",
     "jsdoc": "3.5.5",
     "json-loader": "^0.5.1",
-    "karma": "4.0.0",
+    "karma": "3.1.4",
     "karma-chai": "^0.1.0",
     "karma-chai-as-promised": "^0.1.2",
     "karma-chrome-launcher": "^0.1.7",
