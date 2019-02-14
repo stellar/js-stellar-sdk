@@ -111,7 +111,8 @@ server
   					destination: "GASOCNHNNLYFNMDJYQ3XFMI7BYHIOCFW3GJEOWRPEGK2TDPGTG2E5EDW",
   					asset: StellarSdk.Asset.native(),
   					amount: "20000000"
-  				}))
+                }))
+                .setTimeout(30)
   				.build();
 
   		transaction.sign(StellarSdk.Keypair.fromSecret(secretString)); // sign the transaction

@@ -64,6 +64,8 @@ server.loadAccount(sourcePublicKey)
         // to avoid errors from the use of the JavaScript Number data structure.
         amount: '350.1234567',
       }))
+      // Make this transaction valid for the next 30 seconds only
+      .setTimeout(30)
       // Uncomment to add a memo (https://www.stellar.org/developers/learn/concepts/transactions.html)
       // .addMemo(StellarSdk.Memo.text('Hello world!'))
       .build();
