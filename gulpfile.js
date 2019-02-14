@@ -147,7 +147,9 @@ gulp.task('clear-screen', function clearScreen(cb) {
 });
 
 gulp.task('clean-coverage', function cleanCoverage() {
-  return gulp.src(['coverage'], { read: false }).pipe(plugins.rimraf());
+  return gulp
+    .src(['coverage'], { read: false, allowEmpty: true })
+    .pipe(plugins.rimraf());
 });
 
 gulp.task(
