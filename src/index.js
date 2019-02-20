@@ -1,10 +1,7 @@
-import * as Fees from './fees';
-
 // eslint-disable-next-line prefer-import/prefer-import-over-require
 require('es6-promise').polyfill();
 
 // stellar-sdk classes to expose
-export { Fees };
 export * from './errors';
 export { Config } from './config';
 export { Server } from './server';
