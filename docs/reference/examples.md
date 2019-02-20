@@ -55,10 +55,10 @@ StellarSdk.Network.useTestNetwork();
 var account = await server.loadAccount(sourcePublicKey);
 
 
-// Right now, there's one `StellarSdk.Fees` function that fetches the base fee.
+// Right now, there's one function that fetches the base fee.
 // In the future, we'll have functions that are smarter about suggesting fees,
 // e.g.: `fetchCheapFee`, `fetchAverageFee`, `fetchPriorityFee`, etc.
-var fee = await StellarSdk.Fees.fetchBaseFee();
+var fee = await server.fetchBaseFee();
 
 
 var transaction = new StellarSdk.TransactionBuilder(account, { fee })

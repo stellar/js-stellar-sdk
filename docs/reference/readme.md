@@ -104,11 +104,11 @@ const server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
 const account = await server.loadAccount(publicKey);
 
 /* 
-    Right now, we have one `Fees` function that fetches the base fee.
+    Right now, we have one function that fetches the base fee.
     In the future, we'll have functions that are smarter about suggesting fees,
     e.g.: `fetchCheapFee`, `fetchAverageFee`, `fetchPriorityFee`, etc.
 */
-const fee = await StellarSdk.Fees.fetchBaseFee();
+const fee = await server.fetchBaseFee();
 
 const transaction = new StellarSdk.TransactionBuilder(account, { fee })
     .addOperation(
