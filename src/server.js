@@ -44,10 +44,10 @@ export class Server {
   }
 
   /**
-   * Fetch the base fee.
-   * @returns {Promise} Promise that resolves to the base fee. Since this hits
-   * the server, if the server call fails, you might get an error. You should
-   * be prepared to use a default value if that happens.
+   * Fetch the base fee. Since this hits the server, if the server call fails,
+   * you might get an error. You should be prepared to use a default value if
+   * that happens!
+   * @returns {Promise<number>} Promise that resolves to the base fee.
    */
   fetchBaseFee() {
     return HorizonAxiosClient.get(
