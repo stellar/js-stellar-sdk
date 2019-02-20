@@ -94,7 +94,9 @@ describe('horizon path tests', function() {
         '56199647068161'
       );
 
-      let fakeTransaction = new StellarSdk.TransactionBuilder(account)
+      let fakeTransaction = new StellarSdk.TransactionBuilder(account, {
+        fee: 100
+      })
         .addOperation(
           StellarSdk.Operation.payment({
             destination: keypair.publicKey(),

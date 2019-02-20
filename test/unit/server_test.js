@@ -576,7 +576,7 @@ describe('server.js tests', function() {
         keypair.publicKey(),
         '56199647068161'
       );
-      let transaction = new StellarSdk.TransactionBuilder(account)
+      let transaction = new StellarSdk.TransactionBuilder(account, { fee: 100 })
         .addOperation(
           StellarSdk.Operation.payment({
             destination:

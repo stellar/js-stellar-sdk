@@ -10,7 +10,8 @@ title: Basic Examples
 
 js-stellar-sdk exposes the [`TransactionBuilder`](https://github.com/stellar/js-stellar-base/blob/master/src/transaction_builder.js) class from js-stellar-base.  There are more examples of [building transactions here](https://www.stellar.org/developers/js-stellar-base/learn/base-examples.html). All those examples can be signed and submitted to Stellar in a similar manner as is done below.
 
-In this example you must ensure that the destination account exists
+In this example, the destination account must exist. The example is written 
+using modern Javascript, but `await` calls can also be rendered with promises.
 
 ```javascript
 // Create, sign, and submit a transaction using JS Stellar SDK.
@@ -51,50 +52,52 @@ StellarSdk.Network.useTestNetwork();
 
 // Transactions require a valid sequence number that is specific to this account.
 // We can fetch the current sequence number for the source account from Horizon.
-server.loadAccount(sourcePublicKey)
-  .then(function(account) {
-    var transaction = new StellarSdk.TransactionBuilder(account)
-      // Add a payment operation to the transaction
-      .addOperation(StellarSdk.Operation.payment({
-        destination: receiverPublicKey,
-        // The term native asset refers to lumens
-        asset: StellarSdk.Asset.native(),
-        // Specify 350.1234567 lumens. Lumens are divisible to seven digits past
-        // the decimal. They are represented in JS Stellar SDK in string format
-        // to avoid errors from the use of the JavaScript Number data structure.
-        amount: '350.1234567',
-      }))
-      // Make this transaction valid for the next 30 seconds only
-      .setTimeout(30)
-      // Uncomment to add a memo (https://www.stellar.org/developers/learn/concepts/transactions.html)
-      // .addMemo(StellarSdk.Memo.text('Hello world!'))
-      .build();
+var account = await server.loadAccount(sourcePublicKey);
 
-    // Sign this transaction with the secret key
-    // NOTE: signing is transaction is network specific. Test network transactions
-    // won't work in the public network. To switch networks, use the Network object
-    // as explained above (look for StellarSdk.Network).
-    transaction.sign(sourceKeypair);
 
-    // Let's see the XDR (encoded in base64) of the transaction we just built
-    console.log(transaction.toEnvelope().toXDR('base64'));
+// Right now, there's one `StellarSdk.Fees` function that fetches the base fee.
+// In the future, we'll have functions that are smarter about suggesting fees,
+// e.g.: `fetchCheapFee`, `fetchAverageFee`, `fetchPriorityFee`, etc.
+var fee = await StellarSdk.Fees.fetchBaseFee();
 
-    // Submit the transaction to the Horizon server. The Horizon server will then
-    // submit the transaction into the network for us.
-    server.submitTransaction(transaction)
-      .then(function(transactionResult) {
-        console.log(JSON.stringify(transactionResult, null, 2));
-        console.log('\nSuccess! View the transaction at: ');
-        console.log(transactionResult._links.transaction.href);
-      })
-      .catch(function(err) {
-        console.log('An error has occured:');
-        console.log(err);
-      });
-  })
-  .catch(function(e) {
-    console.error(e);
-  });
+
+var transaction = new StellarSdk.TransactionBuilder(account, { fee })
+  // Add a payment operation to the transaction
+  .addOperation(StellarSdk.Operation.payment({
+    destination: receiverPublicKey,
+    // The term native asset refers to lumens
+    asset: StellarSdk.Asset.native(),
+    // Specify 350.1234567 lumens. Lumens are divisible to seven digits past
+    // the decimal. They are represented in JS Stellar SDK in string format
+    // to avoid errors from the use of the JavaScript Number data structure.
+    amount: '350.1234567',
+  }))
+  // Make this transaction valid for the next 30 seconds only
+  .setTimeout(30)
+  // Uncomment to add a memo (https://www.stellar.org/developers/learn/concepts/transactions.html)
+  // .addMemo(StellarSdk.Memo.text('Hello world!'))
+  .build();
+
+// Sign this transaction with the secret key
+// NOTE: signing is transaction is network specific. Test network transactions
+// won't work in the public network. To switch networks, use the Network object
+// as explained above (look for StellarSdk.Network).
+transaction.sign(sourceKeypair);
+
+// Let's see the XDR (encoded in base64) of the transaction we just built
+console.log(transaction.toEnvelope().toXDR('base64'));
+
+// Submit the transaction to the Horizon server. The Horizon server will then
+// submit the transaction into the network for us.
+try {
+  const transactionResult = await server.submitTransaction(transaction);
+  console.log(JSON.stringify(transactionResult, null, 2));
+  console.log('\nSuccess! View the transaction at: ');
+  console.log(transactionResult._links.transaction.href);
+} catch (e) {
+  console.log('An error has occured:');
+  console.log(e);
+}
 ```
 
 ## Loading an account's transaction history
