@@ -50,21 +50,13 @@ export class Server {
    * @returns {Promise<number>} Promise that resolves to the base fee.
    */
   fetchBaseFee() {
-    return HorizonAxiosClient.get(
-      URI(this.serverURL)
-        .segment('ledgers')
-        .search('order=desc&limit=1')
-        .toString()
-    )
-      .then((response) => response.data)
+    return this.ledgers()
+      .order('desc')
+      .limit(1)
+      .call()
       .then((response) => {
-        if (
-          response &&
-          response._embedded &&
-          response._embedded.records &&
-          response._embedded.records[0]
-        ) {
-          return response._embedded.records[0].base_fee_in_stroops || 100;
+        if (response && response.records[0]) {
+          return response.records[0].base_fee_in_stroops || 100;
         }
         return 100;
       });
