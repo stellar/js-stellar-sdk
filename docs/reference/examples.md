@@ -30,20 +30,20 @@ using modern Javascript, but `await` calls can also be rendered with promises.
 // The hotkey to open the DevTools console is Ctrl+Shift+J or (Cmd+Opt+J on Mac).
 
 // To use in node, do `npm install stellar-sdk` and uncomment the following line.
-// var StellarSdk = require('stellar-sdk');
+// const StellarSdk = require('stellar-sdk');
 
 // The source account is the account we will be signing and sending from.
-var sourceSecretKey = 'SAKRB7EE6H23EF733WFU76RPIYOPEWVOMBBUXDQYQ3OF4NF6ZY6B6VLW';
+const sourceSecretKey = 'SAKRB7EE6H23EF733WFU76RPIYOPEWVOMBBUXDQYQ3OF4NF6ZY6B6VLW';
 
 // Derive Keypair object and public key (that starts with a G) from the secret
-var sourceKeypair = StellarSdk.Keypair.fromSecret(sourceSecretKey);
-var sourcePublicKey = sourceKeypair.publicKey();
+const sourceKeypair = StellarSdk.Keypair.fromSecret(sourceSecretKey);
+const sourcePublicKey = sourceKeypair.publicKey();
 
-var receiverPublicKey = 'GAIRISXKPLOWZBMFRPU5XRGUUX3VMA3ZEWKBM5MSNRU3CHV6P4PYZ74D';
+const receiverPublicKey = 'GAIRISXKPLOWZBMFRPU5XRGUUX3VMA3ZEWKBM5MSNRU3CHV6P4PYZ74D';
 
 // Configure StellarSdk to talk to the horizon instance hosted by Stellar.org
 // To use the live network, set the hostname to 'horizon.stellar.org'
-var server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
+const server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
 
 // Uncomment the following line to build transactions for the live network. Be
 // sure to also change the horizon hostname.
@@ -52,16 +52,16 @@ StellarSdk.Network.useTestNetwork();
 
 // Transactions require a valid sequence number that is specific to this account.
 // We can fetch the current sequence number for the source account from Horizon.
-var account = await server.loadAccount(sourcePublicKey);
+const account = await server.loadAccount(sourcePublicKey);
 
 
 // Right now, there's one function that fetches the base fee.
 // In the future, we'll have functions that are smarter about suggesting fees,
 // e.g.: `fetchCheapFee`, `fetchAverageFee`, `fetchPriorityFee`, etc.
-var fee = await server.fetchBaseFee();
+const fee = await server.fetchBaseFee();
 
 
-var transaction = new StellarSdk.TransactionBuilder(account, { fee })
+const transaction = new StellarSdk.TransactionBuilder(account, { fee })
   // Add a payment operation to the transaction
   .addOperation(StellarSdk.Operation.payment({
     destination: receiverPublicKey,
@@ -105,9 +105,9 @@ try {
 Let's say you want to look at an account's transaction history.  You can use the `transactions()` command and pass in the account address to `forAccount` as the resource you're interested in.
 
 ```javascript
-var StellarSdk = require('stellar-sdk')
-var server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
-var accountId = 'GBBORXCY3PQRRDLJ7G7DWHQBXPCJVFGJ4RGMJQVAX6ORAUH6RWSPP6FM';
+const StellarSdk = require('stellar-sdk')
+const server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
+const accountId = 'GBBORXCY3PQRRDLJ7G7DWHQBXPCJVFGJ4RGMJQVAX6ORAUH6RWSPP6FM';
 
 server.transactions()
     .forAccount(accountId)
@@ -132,13 +132,13 @@ js-stellar-sdk provides streaming support for Horizon endpoints using `EventSour
 
 Try submitting a transaction (via the guide above) while running the following code example.
 ```javascript
-var StellarSdk = require('stellar-sdk')
-var server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
+const StellarSdk = require('stellar-sdk')
+const server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
 
 // Get a message any time a payment occurs. Cursor is set to "now" to be notified
 // of payments happening starting from when this script runs (as opposed to from
 // the beginning of time).
-var es = server.payments()
+const es = server.payments()
   .cursor('now')
   .stream({
     onmessage: function (message) {
