@@ -98,31 +98,37 @@ See the [Building Transactions](https://www.stellar.org/developers/js-stellar-ba
 ## Submitting transactions
 Once you have built your transaction, you can submit it to the Stellar network with `Server.submitTransaction()`.
 ```js
-var StellarSdk = require('stellar-sdk')
+const StellarSdk = require('stellar-sdk')
 StellarSdk.Network.useTestNetwork();
-var server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
+const server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
+const account = await server.loadAccount(publicKey);
 
-server
-  .loadAccount(publicKey)
-  .then(function(account){
-  		var transaction = new StellarSdk.TransactionBuilder(account)
-  				// this operation funds the new account with XLM
-  				.addOperation(StellarSdk.Operation.payment({
-  					destination: "GASOCNHNNLYFNMDJYQ3XFMI7BYHIOCFW3GJEOWRPEGK2TDPGTG2E5EDW",
-  					asset: StellarSdk.Asset.native(),
-  					amount: "20000000"
-                }))
-                .setTimeout(30)
-  				.build();
+/* 
+    Right now, we have one function that fetches the base fee.
+    In the future, we'll have functions that are smarter about suggesting fees,
+    e.g.: `fetchCheapFee`, `fetchAverageFee`, `fetchPriorityFee`, etc.
+*/
+const fee = await server.fetchBaseFee();
 
-  		transaction.sign(StellarSdk.Keypair.fromSecret(secretString)); // sign the transaction
+const transaction = new StellarSdk.TransactionBuilder(account, { fee })
+    .addOperation(
+        // this operation funds the new account with XLM
+        StellarSdk.Operation.payment({
+            destination: "GASOCNHNNLYFNMDJYQ3XFMI7BYHIOCFW3GJEOWRPEGK2TDPGTG2E5EDW",
+            asset: StellarSdk.Asset.native(),
+            amount: "20000000"
+        })
+    )
+    .setTimeout(30)
+    .build();
 
-		return server.submitTransaction(transaction);
-  })
-  .then(function (transactionResult) {
+// sign the transaction
+transaction.sign(StellarSdk.Keypair.fromSecret(secretString)); 
+
+try {
+    const transactionResult = await server.submitTransaction(transaction);
     console.log(transactionResult);
-  })
-  .catch(function (err) {
+} catch (err) {
   	console.error(err);
-  });
+}
 ```

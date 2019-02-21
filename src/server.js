@@ -44,6 +44,25 @@ export class Server {
   }
 
   /**
+   * Fetch the base fee. Since this hits the server, if the server call fails,
+   * you might get an error. You should be prepared to use a default value if
+   * that happens!
+   * @returns {Promise<number>} Promise that resolves to the base fee.
+   */
+  fetchBaseFee() {
+    return this.ledgers()
+      .order('desc')
+      .limit(1)
+      .call()
+      .then((response) => {
+        if (response && response.records[0]) {
+          return response.records[0].base_fee_in_stroops || 100;
+        }
+        return 100;
+      });
+  }
+
+  /**
    * Submits a transaction to the network.
    * @see [Post Transaction](https://www.stellar.org/developers/horizon/reference/transactions-create.html)
    * @param {Transaction} transaction - The transaction to submit.
@@ -56,14 +75,13 @@ export class Server {
         .toXDR()
         .toString('base64')
     );
-    return HorizonAxiosClient
-      .post(
-        URI(this.serverURL)
-          .segment('transactions')
-          .toString(),
-        `tx=${tx}`,
-        { timeout: SUBMIT_TRANSACTION_TIMEOUT }
-      )
+    return HorizonAxiosClient.post(
+      URI(this.serverURL)
+        .segment('transactions')
+        .toString(),
+      `tx=${tx}`,
+      { timeout: SUBMIT_TRANSACTION_TIMEOUT }
+    )
       .then((response) => response.data)
       .catch((response) => {
         if (response instanceof Error) {
@@ -226,7 +244,7 @@ export class Server {
 
   /**
    *
-   * @param {Asset} base base aseet
+   * @param {Asset} base base asset
    * @param {Asset} counter counter asset
    * @param {long} start_time lower time boundary represented as millis since epoch
    * @param {long} end_time upper time boundary represented as millis since epoch

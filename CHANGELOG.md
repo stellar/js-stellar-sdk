@@ -6,6 +6,10 @@ A breaking change will get clearly marked in this log.
 ## In `master`
 
 - Updated some out-of-date dependencies
+- Update documentation to explicitly set fees
+- Add `Server.prototype.fetchBaseFee`, which devs can use to fetch the current
+  base fee; we plan to add more functions to help suggest fees in future
+  releases
 
 ## 0.13.0
 

@@ -28,7 +28,7 @@ describe('integration tests', function() {
         let operation = response.records[0];
 
         return server.loadAccount(master.publicKey()).then((source) => {
-          let tx = new StellarSdk.TransactionBuilder(source)
+          let tx = new StellarSdk.TransactionBuilder(source, { fee: 100 })
             .addOperation(
               StellarSdk.Operation.accountMerge({
                 destination: operation.funder
@@ -46,7 +46,7 @@ describe('integration tests', function() {
 
   function createNewAccount(accountId) {
     return server.loadAccount(master.publicKey()).then((source) => {
-      let tx = new StellarSdk.TransactionBuilder(source)
+      let tx = new StellarSdk.TransactionBuilder(source, { fee: 100 })
         .addOperation(
           StellarSdk.Operation.createAccount({
             destination: accountId,
@@ -75,7 +75,7 @@ describe('integration tests', function() {
     it('submits a new transaction with error', function(done) {
       server.loadAccount(master.publicKey()).then((source) => {
         source.incrementSequenceNumber(); // This will cause an error
-        let tx = new StellarSdk.TransactionBuilder(source)
+        let tx = new StellarSdk.TransactionBuilder(source, { fee: 100 })
           .addOperation(
             StellarSdk.Operation.createAccount({
               destination: StellarSdk.Keypair.random().publicKey(),
