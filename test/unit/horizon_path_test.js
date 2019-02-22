@@ -59,6 +59,28 @@ describe('horizon path tests', function() {
         .notify(done);
     });
 
+    it('server.transactions().includeFailed(true) ' + serverUrl, function(
+      done
+    ) {
+      prepareAxios(this.axiosMock, '/transactions?include_failed=true');
+      server
+        .transactions()
+        .includeFailed(true)
+        .call()
+        .should.eventually.deep.equal(randomResult.data)
+        .notify(done);
+    });
+
+    it('server.operations().includeFailed(true) ' + serverUrl, function(done) {
+      prepareAxios(this.axiosMock, '/operations?include_failed=true');
+      server
+        .operations()
+        .includeFailed(true)
+        .call()
+        .should.eventually.deep.equal(randomResult.data)
+        .notify(done);
+    });
+
     it(
       "server.transactions().transaction('fooTransactionId') " + serverUrl,
       function(done) {

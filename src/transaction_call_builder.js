@@ -51,4 +51,15 @@ export class TransactionCallBuilder extends CallBuilder {
     this.filter.push(['ledgers', ledgerSequence, 'transactions']);
     return this;
   }
+
+  /**
+   * Adds a parameter defining whether to include failed transactions. By default only successful transactions are
+   * returned.
+   * @param {bool} value Set to `true` to include failed transactions.
+   * @returns {TransactionCallBuilder} current TransactionCallBuilder instance
+   */
+  includeFailed(value) {
+    this.url.setQuery('include_failed', value.toString());
+    return this;
+  }
 }

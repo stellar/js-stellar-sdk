@@ -4,6 +4,7 @@ import { BadResponseError } from './errors';
 
 import { AccountCallBuilder } from './account_call_builder';
 import { AccountResponse } from './account_response';
+import { CallBuilder } from './call_builder';
 import { Config } from './config';
 import HorizonAxiosClient from './horizon_axios_client';
 import { LedgerCallBuilder } from './ledger_call_builder';
@@ -60,6 +61,17 @@ export class Server {
         }
         return 100;
       });
+  }
+
+  /**
+   * Fetch the operation fee stats endpoint.
+   * @see [Operation Fee Stats](https://www.stellar.org/developers/horizon/reference/operation-fee-stats.html)
+   * @returns {Promise<number>} Promise that resolves to the fee stats returned by Horizon.
+   */
+  operationFeeStats() {
+    const cb = new CallBuilder(URI(this.serverURL));
+    cb.filter.push(['operation_fee_stats']);
+    return cb.call();
   }
 
   /**

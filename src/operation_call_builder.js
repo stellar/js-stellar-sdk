@@ -65,4 +65,15 @@ export class OperationCallBuilder extends CallBuilder {
     this.filter.push(['transactions', transactionId, 'operations']);
     return this;
   }
+
+  /**
+   * Adds a parameter defining whether to include failed transactions. By default only operations of
+   * successful transactions are returned.
+   * @param {bool} value Set to `true` to include operations of failed transactions.
+   * @returns {TransactionCallBuilder} current TransactionCallBuilder instance
+   */
+  includeFailed(value) {
+    this.url.setQuery('include_failed', value.toString());
+    return this;
+  }
 }
