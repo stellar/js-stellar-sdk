@@ -66,7 +66,7 @@ export class Server {
   /**
    * Fetch the operation fee stats endpoint.
    * @see [Operation Fee Stats](https://www.stellar.org/developers/horizon/reference/operation-fee-stats.html)
-   * @returns {Promise<number>} Promise that resolves to the fee stats returned by Horizon.
+   * @returns {Promise} Promise that resolves to the fee stats returned by Horizon.
    */
   operationFeeStats() {
     const cb = new CallBuilder(URI(this.serverURL));
