@@ -10,6 +10,9 @@ A breaking change will get clearly marked in this log.
 - Add `Server.prototype.fetchBaseFee`, which devs can use to fetch the current
   base fee; we plan to add more functions to help suggest fees in future
   releases
+- Add `includeFailed` to `OperationCallBuilder` for including failed
+  transactions in calls
+- Add `operationFeeStats` to `Server` for the new fee stats endpoint
 
 ## 0.13.0
 
