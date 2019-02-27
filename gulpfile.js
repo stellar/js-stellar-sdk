@@ -48,49 +48,39 @@ gulp.task(
 gulp.task(
   'build:browser',
   gulp.series('lint:src', function buildBrowser() {
-    return (
-      gulp
-        .src('src/browser.js')
-        .pipe(plumber())
-        .pipe(
-          plugins.webpack({
-            output: { library: 'StellarSdk' },
-            module: {
-              loaders: [
-                {
-                  test: /\.js$/,
-                  exclude: /node_modules/,
-                  loader: 'babel-loader'
-                },
-                { test: /\.json$/, loader: 'json-loader' }
-              ]
-            },
-            plugins: [
-              // Ignore native modules (ed25519)
-              new webpack.IgnorePlugin(/ed25519/)
+    return gulp
+      .src('src/browser.js')
+      .pipe(plumber())
+      .pipe(
+        plugins.webpack({
+          output: { library: 'StellarSdk' },
+          module: {
+            loaders: [
+              {
+                test: /\.js$/,
+                exclude: /node_modules/,
+                loader: 'babel-loader'
+              },
+              { test: /\.json$/, loader: 'json-loader' }
             ]
-          })
-        )
-        // Add EventSource polyfill for IE11
-        .pipe(
-          plugins.insert.prepend(
-            fs.readFileSync(
-              './node_modules/event-source-polyfill/src/eventsource.min.js'
-            )
-          )
-        )
-        .pipe(plugins.rename('stellar-sdk.js'))
-        .pipe(gulp.dest('dist'))
-        .pipe(
-          plugins.uglify({
-            output: {
-              ascii_only: true
-            }
-          })
-        )
-        .pipe(plugins.rename('stellar-sdk.min.js'))
-        .pipe(gulp.dest('dist'))
-    );
+          },
+          plugins: [
+            // Ignore native modules (ed25519)
+            new webpack.IgnorePlugin(/ed25519/)
+          ]
+        })
+      )
+      .pipe(plugins.rename('stellar-sdk.js'))
+      .pipe(gulp.dest('dist'))
+      .pipe(
+        plugins.uglify({
+          output: {
+            ascii_only: true
+          }
+        })
+      )
+      .pipe(plugins.rename('stellar-sdk.min.js'))
+      .pipe(gulp.dest('dist'));
   })
 );
 
