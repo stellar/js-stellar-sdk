@@ -106,7 +106,7 @@
     "es6-promise": "^4.2.4",
     "event-source-polyfill": "^0.0.12",
     "lodash": "^4.17.11",
-    "stellar-base": "file:/users/morley/projects/js-stellar-base/",
+    "stellar-base": "^0.12.0",
     "toml": "^2.3.0",
     "urijs": "^1.19.1"
   }
