@@ -5,8 +5,9 @@ A breaking change will get clearly marked in this log.
 
 ## In master
 
-- Replace the eventsource polyfill with one that doesn't use http/https, which
-  fixes a bug with Angular 6
+- Fix a bug with Angular 6
+  - Upgrade `stellar-base` to a version that doesn't use the `crypto` library
+  - Replace the eventsource polyfill with one that doesn't use http/https
 
 ## [v0.14.0](https://github.com/stellar/js-stellar-sdk/compare/v0.13.0...v0.14.0)
 
