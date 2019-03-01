@@ -6842,19 +6842,6 @@ stellar-base@^0.12.0:
   optionalDependencies:
     ed25519 "0.0.4"
 
-"stellar-base@file:/users/morley/projects/js-stellar-base/":
-  version "0.12.0"
-  dependencies:
-    base32.js "^0.1.0"
-    bignumber.js "^4.0.0"
-    crc "^3.5.0"
-    js-xdr "^1.1.1"
-    lodash "^4.17.11"
-    sha.js "^2.3.6"
-    tweetnacl "^1.0.0"
-  optionalDependencies:
-    ed25519 "0.0.4"
-
 stream-browserify@^2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/stream-browserify/-/stream-browserify-2.0.1.tgz#66266ee5f9bdb9940a4e4514cafb43bb71e5c9db"
