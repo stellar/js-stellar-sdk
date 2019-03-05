@@ -5,6 +5,10 @@ A breaking change will get clearly marked in this log.
 
 ## In master
 
+- **Breaking change**: `stellar-sdk` no longer ships with an `EventSource`
+  polyfill. If you plan to support IE11 / Edge, please use
+  [`event-source-polyfill`](https://www.npmjs.com/package/event-source-polyfill)
+  to set `window.EventSource`.
 - Fix a bug with Angular 6
   - Upgrade `stellar-base` to a version that doesn't use the `crypto` library
   - Replace the eventsource polyfill with one that doesn't use http/https
