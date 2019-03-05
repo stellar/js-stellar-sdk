@@ -128,6 +128,10 @@ describe('integration tests', function() {
             expect(operation.account).to.equal(randomAccount.publicKey());
             eventStreamClose();
             done();
+          },
+          onerror: (err) => {
+            console.log('whoa doggy bad error fuck you !!!!!!!!', err);
+            done(err);
           }
         });
 

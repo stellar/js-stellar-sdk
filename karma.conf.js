@@ -3,7 +3,12 @@ module.exports = function(config) {
     frameworks: ['mocha', 'chai-as-promised', 'chai', 'sinon'],
     browsers: ['Firefox'],
 
-    files: ['dist/stellar-sdk.js', 'test/test-helper.js', 'test/unit/**/*.js'],
+    files: [
+      'dist/stellar-sdk.js',
+      'test/test-helper.js',
+      'test/unit/**/*.js',
+      'test/integration/server_test.js'
+    ],
 
     preprocessors: {
       'test/**/*.js': ['webpack']

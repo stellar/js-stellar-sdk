@@ -1,13 +1,22 @@
 import forEach from 'lodash/forEach';
 import URI from 'urijs';
 import URITemplate from 'urijs/src/URITemplate';
+import isNode from 'detect-node';
 import { NativeEventSource, EventSourcePolyfill } from 'event-source-polyfill';
 
 import HorizonAxiosClient from './horizon_axios_client';
 import { version } from '../package.json';
 import { NotFoundError, NetworkError, BadRequestError } from './errors';
 
-const EventSource = NativeEventSource || EventSourcePolyfill;
+let EventSource;
+
+if (isNode) {
+  // eslint-disable-next-line
+  EventSource = require('eventsource');
+} else {
+  //
+  EventSource = NativeEventSource || EventSourcePolyfill;
+}
 
 /**
  * Creates a new {@link CallBuilder} pointed to server defined by serverUrl.

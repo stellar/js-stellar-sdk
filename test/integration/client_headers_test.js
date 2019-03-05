@@ -59,7 +59,12 @@ describe('integration tests', function() {
         allowHttp: true
       })
         .operations()
-        .stream();
+        .stream({
+          onerror: (err) => {
+            console.log('no no no you fucked', err);
+            done(err);
+          }
+        });
     });
   });
 });
