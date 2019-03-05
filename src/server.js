@@ -103,7 +103,7 @@ export class Server {
    * XDR object to see if it's an error!
    *
    * ```javascript
-   * const result = StellarSdk.StellarServer.submitTransaction(transaction);
+   * const result = await StellarSdk.StellarServer.submitTransaction(transaction);
    *
    * // if the transaction is valid, it'll be a real TransactionEnvelope
    * try {
