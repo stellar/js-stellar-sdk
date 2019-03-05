@@ -8,6 +8,8 @@ var webpack = require('webpack');
 var fs = require('fs');
 var clear = require('clear');
 var plumber = require('gulp-plumber');
+var BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
+  .BundleAnalyzerPlugin;
 
 gulp.task('lint:src', function lintSrc() {
   return gulp
@@ -81,6 +83,35 @@ gulp.task(
       )
       .pipe(plugins.rename('stellar-sdk.min.js'))
       .pipe(gulp.dest('dist'));
+  })
+);
+
+gulp.task(
+  'analyze:browser',
+  gulp.series('lint:src', function analyzeBrowser() {
+    return gulp
+      .src('src/browser.js')
+      .pipe(plumber())
+      .pipe(
+        plugins.webpack({
+          output: { library: 'StellarSdk' },
+          module: {
+            loaders: [
+              {
+                test: /\.js$/,
+                exclude: /node_modules/,
+                loader: 'babel-loader'
+              },
+              { test: /\.json$/, loader: 'json-loader' }
+            ]
+          },
+          plugins: [
+            // Ignore native modules (ed25519)
+            new webpack.IgnorePlugin(/ed25519/),
+            new BundleAnalyzerPlugin()
+          ]
+        })
+      );
   })
 );
 

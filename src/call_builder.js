@@ -2,7 +2,6 @@ import forEach from 'lodash/forEach';
 import URI from 'urijs';
 import URITemplate from 'urijs/src/URITemplate';
 import isNode from 'detect-node';
-import { NativeEventSource, EventSourcePolyfill } from 'event-source-polyfill';
 
 import HorizonAxiosClient from './horizon_axios_client';
 import { version } from '../package.json';
@@ -14,8 +13,8 @@ if (isNode) {
   // eslint-disable-next-line
   EventSource = require('eventsource');
 } else {
-  //
-  EventSource = NativeEventSource || EventSourcePolyfill;
+  // eslint-disable-next-line
+  EventSource = window.EventSource;
 }
 
 /**
