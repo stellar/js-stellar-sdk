@@ -76,6 +76,48 @@ export class Server {
 
   /**
    * Submits a transaction to the network.
+   *
+   * Warning: sometimes a transaction will "succeed" (without throwing an error)
+   * but the transaction won't appear on the network.
+   *
+   * For example, a user submits a `manageOffer` transaction that would
+   * result in a user receiving less than 0.0000001 of a token. The transaction
+   * won't be logged on the network, yet `submitTransaction` will resolve to this:
+   *
+   * ```json
+   * {
+   *   "_links": {
+   *     "transaction": {
+   *       "href": "https://horizon.stellar.org/transactions/f765724bcf5df1b44f0899ec0287ec7a994e4a98505b819453fee3b39642d185"
+   *     }
+   *   },
+   *   "hash": "f765724bcf5df1b44f0899ec0287ec7a994e4a98505b819453fee3b39642d185",
+   *   "ledger": 22781293,
+   *   "envelope_xdr": "AAAAAIUAEW3jQt3+fbT6nCASA1/8RWdp9fJ2woxqPHZPQUH/AAAAZAEH/OgAAAAXAAAAAQAAAAAAAAAAAAAAAFx+o4kAAAAAAAAAAQAAAAAAAAADAAAAAAAAAAFCQVQAAAAAAEZK09vHmzOmEMoVWYtbbZcKv3ZOoo06ckzbhyDIFKfhAAAAAAAAAAEAACcQAABOHwAAAAAAAAAAAAAAAAAAAAFPQUH/AAAAQB4Ckk7T0OTf1M4otquqdJb7iyDZf7dGS3m39HevsHTKV2eYqc9921sWELh75E7zfNWcuwg+z5MCedhgCTIqLQI=",
+   *   "result_xdr": "AAAAAAAAAGQAAAAAAAAAAQAAAAAAAAADAAAAAAAAAAAAAAACAAAAAA==",
+   *   "result_meta_xdr": "AAAAAQAAAAIAAAADAVudbQAAAAAAAAAAhQARbeNC3f59tPqcIBIDX/xFZ2n18nbCjGo8dk9BQf8AAAACVJZtHAEH/OgAAAAWAAAABgAAAAEAAAAAhD8BLsZFQEF33rKS6YopQUT3b6iLBG4nspe68/DBNBYAAAAAAAAAAAEAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBW51tAAAAAAAAAACFABFt40Ld/n20+pwgEgNf/EVnafXydsKMajx2T0FB/wAAAAJUlm0cAQf86AAAABcAAAAGAAAAAQAAAACEPwEuxkVAQXfespLpiilBRPdvqIsEbieyl7rz8ME0FgAAAAAAAAAAAQAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAA="
+   * }
+   * ```
+   *
+   * To catch failed transactions like this, you should inspect the resulting
+   * XDR object to see if it's an error!
+   *
+   * ```javascript
+   * const result = await StellarSdk.StellarServer.submitTransaction(transaction);
+   *
+   * // if the transaction is valid, it'll be a real TransactionEnvelope
+   * try {
+   *  const resultXDR = StellarSdk.xdr.TransactionEnvelope.fromXDR(result.result_xdr, 'base64');
+   *
+   *  // success! do your success stuff
+   *  onSuccess(result);
+   * } catch (e) {
+   *  // if it's not a real transaction envelope, you'll get an error like
+   *  // "trying to access beyond buffer length"
+   *  onError(result);
+   * }
+   * ```
+   *
    * @see [Post Transaction](https://www.stellar.org/developers/horizon/reference/transactions-create.html)
    * @param {Transaction} transaction - The transaction to submit.
    * @returns {Promise} Promise that resolves or rejects with response from horizon.
