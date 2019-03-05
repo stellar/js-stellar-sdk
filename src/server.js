@@ -77,13 +77,12 @@ export class Server {
   /**
    * Submits a transaction to the network.
    *
-   * Warning: sometimes a transaction will "succeed" (as in, no error is thrown)
-   * but the transaction failed on the network.
+   * Warning: sometimes a transaction will "succeed" (without throwing an error)
+   * but the transaction won't appear on the network.
    *
-   * In this case, a user has submitted a `manageOffer` transaction that would
-   * result in a user receiving less than 0.0000001 of a token.
-   *
-   * No error will be thrown, but the Promise will resolve to this object:
+   * For example, a user submits a `manageOffer` transaction that would
+   * result in a user receiving less than 0.0000001 of a token. The transaction
+   * won't be logged on the network, yet `submitTransaction` will resolve to this:
    *
    * ```json
    * {
