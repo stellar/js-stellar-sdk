@@ -130,7 +130,6 @@ describe('integration tests', function() {
             done();
           },
           onerror: (err) => {
-            console.log('whoa doggy bad error fuck you !!!!!!!!', err);
             done(err);
           }
         });
