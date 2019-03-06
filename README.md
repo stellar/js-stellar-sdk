@@ -15,6 +15,19 @@ It provides:
   Stellar Horizon instance, and for submitting transactions or querying network
   history.
 
+### stellar-sdk vs stellar-base
+
+stellar-sdk is a high-level library that serves as client-side API for Horizon.
+[stellar-base](https://github.com/stellar/js-stellar-base) is lower-level
+library for creating Stellar primitive constructs via XDR helpers and wrappers.
+
+**Most people will want stellar-sdk instead of stellar-base.** You should only
+use stellar-base if you know what you're doing!
+
+If you add stellar-sdk to a project, **do not add stellar-base!** Mis-matching
+versions could cause weird, hard-to-find bugs. stellar-sdk automatically
+installs stellar-base and exposes all of its exports in case you need them.
+
 > **Warning!** Node version of `stellar-base` (`stellar-sdk` dependency) package
 > is using [`ed25519`](https://www.npmjs.com/package/ed25519) package, a native
 > implementation of [Ed25519](https://ed25519.cr.yp.to/) in Node.js, as an
@@ -29,19 +42,6 @@ It provides:
 > using `ed25519`. If `ed25519` is successfully installed and working
 > `StellarSdk.FastSigning` variable will be equal `true`. Otherwise it will be
 > `false`.
-
-### js-stellar-sdk vs js-stellar-base
-
-js-stellar-sdk is a high-level library that serves as client side API for
-[Horizon](https://github.com/stellar/go/tree/master/services/horizon). This
-library makes extensive use of the lower-level
-[js-stellar-base](https://github.com/stellar/js-stellar-base) and exposes
-js-stellar-base classes via its export object. js-stellar-base can be used as a
-standalone library for creating Stellar primitive constructs via XDR helpers and
-wrappers. js-stellar-base doesn't depend on connecting to Horizon.
-
-js-stellar-sdk exposes all js-stellar-base classes so you don't have to install
-js-stellar-base along js-stellar-sdk.
 
 ## Quick start
 
