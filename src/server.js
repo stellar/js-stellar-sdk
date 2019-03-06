@@ -77,12 +77,13 @@ export class Server {
   /**
    * Submits a transaction to the network.
    *
-   * Warning: sometimes a transaction will "succeed" (without throwing an error)
-   * but the transaction won't appear on the network.
+   * Warning: transactions might fail on the network without throwing an error.
+   * You'll have to inspect the XDR response from this function to see if the
+   * transaction succeeded or failed.
    *
-   * For example, a user submits a `manageOffer` transaction that would
-   * result in a user receiving less than 0.0000001 of a token. The transaction
-   * won't be logged on the network, yet `submitTransaction` will resolve to this:
+   * For example, say a user submits a `manageOffer` transaction that would
+   * result in a user receiving less than 0.0000001 of a token. `submitTransaction`
+   * will resolve to this response object:
    *
    * ```json
    * {
@@ -99,22 +100,15 @@ export class Server {
    * }
    * ```
    *
-   * To catch failed transactions like this, you should inspect the resulting
-   * XDR object to see if it's an error!
+   * You can inspect the resulting XDR object to see if the transaction succeeded or failed:
    *
    * ```javascript
    * const result = await StellarSdk.StellarServer.submitTransaction(transaction);
-   *
-   * // if the transaction is valid, it'll be a real TransactionEnvelope
-   * try {
-   *  const resultXDR = StellarSdk.xdr.TransactionEnvelope.fromXDR(result.result_xdr, 'base64');
-   *
-   *  // success! do your success stuff
-   *  onSuccess(result);
-   * } catch (e) {
-   *  // if it's not a real transaction envelope, you'll get an error like
-   *  // "trying to access beyond buffer length"
-   *  onError(result);
+   * const resultXDR = StellarSdk.xdr.TransactionResult.fromXDR(result.result_xdr, 'base64');
+   * if (resultXDR.result().switch().value < 0) {
+   *  // transaction failed
+   * } else {
+   *  // transaction succeeded
    * }
    * ```
    *
