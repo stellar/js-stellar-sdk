@@ -1,14 +1,21 @@
 import forEach from 'lodash/forEach';
 import URI from 'urijs';
 import URITemplate from 'urijs/src/URITemplate';
+import isNode from 'detect-node';
 
 import HorizonAxiosClient from './horizon_axios_client';
 import { version } from '../package.json';
 import { NotFoundError, NetworkError, BadRequestError } from './errors';
 
-const EventSource =
-  // eslint-disable-next-line no-undef, prefer-import/prefer-import-over-require
-  typeof window === 'undefined' ? require('eventsource') : window.EventSource;
+let EventSource;
+
+if (isNode) {
+  // eslint-disable-next-line
+  EventSource = require('eventsource');
+} else {
+  // eslint-disable-next-line
+  EventSource = window.EventSource;
+}
 
 /**
  * Creates a new {@link CallBuilder} pointed to server defined by serverUrl.
@@ -65,8 +72,8 @@ export class CallBuilder {
   stream(options = {}) {
     this.checkFilter();
 
-    this.url.setQuery("X-Client-Name", 'js-stellar-sdk');
-    this.url.setQuery("X-Client-Version", version);
+    this.url.setQuery('X-Client-Name', 'js-stellar-sdk');
+    this.url.setQuery('X-Client-Version', version);
 
     // EventSource object
     let es;
@@ -184,8 +191,7 @@ export class CallBuilder {
 
     // Temp fix for: https://github.com/stellar/js-stellar-sdk/issues/15
     url.setQuery('c', Math.random());
-    return HorizonAxiosClient
-      .get(url.toString())
+    return HorizonAxiosClient.get(url.toString())
       .then((response) => response.data)
       .catch(this._handleNetworkError);
   }

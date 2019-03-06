@@ -20,6 +20,10 @@
     "**/*.{js,json}": [
       "prettier --write",
       "git add"
+    ],
+    "**/*.js": [
+      "eslint --fix --max-warnings 0",
+      "git add"
     ]
   },
   "keywords": [
@@ -99,13 +103,14 @@
     "run-sequence": "^1.0.2",
     "sinon": "^1.14.1",
     "sinon-chai": "^2.7.0",
-    "webpack": "^1.13.2"
+    "webpack": "^1.13.2",
+    "webpack-bundle-analyzer": "2.13.1"
   },
   "dependencies": {
     "axios": "^0.18.0",
+    "detect-node": "^2.0.4",
     "es6-promise": "^4.2.4",
-    "event-source-polyfill": "^0.0.12",
-    "eventsource": "^1.0.5",
+    "eventsource": "^1.0.7",
     "lodash": "^4.17.11",
     "stellar-base": "^0.12.0",
     "toml": "^2.3.0",

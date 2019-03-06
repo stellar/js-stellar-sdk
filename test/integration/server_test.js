@@ -128,6 +128,9 @@ describe('integration tests', function() {
             expect(operation.account).to.equal(randomAccount.publicKey());
             eventStreamClose();
             done();
+          },
+          onerror: (err) => {
+            done(err);
           }
         });
 

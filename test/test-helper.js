@@ -1,3 +1,5 @@
+/* eslint-disable no-undef */
+
 if (typeof window === 'undefined') {
   require('babel-register');
   global.StellarSdk = require('../src/index');
@@ -10,7 +12,6 @@ if (typeof window === 'undefined') {
   global.sinon = require('sinon');
   global.expect = global.chai.expect;
 } else {
-  // eslint-disable-next-line no-undef
   window.axios = StellarSdk.axios;
   window.HorizonAxiosClient = StellarSdk.HorizonAxiosClient;
 }

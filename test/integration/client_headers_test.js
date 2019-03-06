@@ -2,7 +2,7 @@ const http = require('http');
 const url = require('url');
 const port = 3000;
 
-describe('integration tests', function() {
+describe('integration tests', function(done) {
   if (typeof window !== 'undefined') {
     done();
     return;
@@ -38,6 +38,7 @@ describe('integration tests', function() {
     let closeStream;
 
     const requestHandler = (request, response) => {
+      // eslint-disable-next-line node/no-deprecated-api
       let query = url.parse(request.url, true).query;
       expect(query['X-Client-Name']).to.be.equal('js-stellar-sdk');
       expect(query['X-Client-Version']).to.match(/^[0-9]+\.[0-9]+\.[0-9]+$/);
@@ -59,7 +60,11 @@ describe('integration tests', function() {
         allowHttp: true
       })
         .operations()
-        .stream();
+        .stream({
+          onerror: (err) => {
+            done(err);
+          }
+        });
     });
   });
 });
