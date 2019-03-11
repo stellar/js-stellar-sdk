@@ -700,6 +700,72 @@ describe('server.js tests', function() {
           done(err);
         });
     });
+    it('adds metadata', function(done) {
+      const response = {
+        _links: {
+          transaction: {
+            href:
+              'https://horizon.stellar.org/transactions/ca6482d2d53636fb2b937ea8dd511da4ff08d6946685344167002df5116742ee'
+          }
+        },
+        hash:
+          'ca6482d2d53636fb2b937ea8dd511da4ff08d6946685344167002df5116742ee',
+        ledger: 22880495,
+        envelope_xdr:
+          'AAAAAIUAEW3jQt3+fbT6nCASA1/8RWdp9fJ2woxqPHZPQUH/AAAAZAEH/OgAAAAdAAAAAQAAAAAAAAAAAAAAAFyG16kAAAAAAAAAAQAAAAAAAAADAAAAAAAAAAFCQVQAAAAAAEZK09vHmzOmEMoVWYtbbZcKv3ZOoo06ckzbhyDIFKfhAAAAAAAAAAEAmJaAASM9LQAAAAAAAAAAAAAAAAAAAAFPQUH/AAAAQFOfhxRpShsXNZauuYgm+b3ydiHtxvqsjiEXOaLPWfMzG6QZRUS7JQPojgEOzFp7gEogry6XGb7tHClkuKOEWwI=',
+        result_xdr:
+          'AAAAAAAAAGQAAAAAAAAAAQAAAAAAAAADAAAAAAAAAAEAAAAAdZtwPxUrSKeMmz4rsGwKlBWXVRNIbTx3gJgwrvXYkfwAAAAABGL3pAAAAAFCQVQAAAAAAEZK09vHmzOmEMoVWYtbbZcKv3ZOoo06ckzbhyDIFKfhAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAA==',
+        result_meta_xdr:
+          'AAAAAQAAAAIAAAADAV0g7wAAAAAAAAAAhQARbeNC3f59tPqcIBIDX/xFZ2n18nbCjGo8dk9BQf8AAAACVJaDxAEH/OgAAAAcAAAABgAAAAEAAAAAhD8BLsZFQEF33rKS6YopQUT3b6iLBG4nspe68/DBNBYAAAAAAAAAAAEAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBXSDvAAAAAAAAAACFABFt40Ld/n20+pwgEgNf/EVnafXydsKMajx2T0FB/wAAAAJUloPEAQf86AAAAB0AAAAGAAAAAQAAAACEPwEuxkVAQXfespLpiilBRPdvqIsEbieyl7rz8ME0FgAAAAAAAAAAAQAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAYAAAADAV0g5QAAAAIAAAAAdZtwPxUrSKeMmz4rsGwKlBWXVRNIbTx3gJgwrvXYkfwAAAAABGL3pAAAAAFCQVQAAAAAAEZK09vHmzOmEMoVWYtbbZcKv3ZOoo06ckzbhyDIFKfhAAAAAAAAAAAE8SzlASM9LQCYloAAAAAAAAAAAAAAAAAAAAABAV0g7wAAAAIAAAAAdZtwPxUrSKeMmz4rsGwKlBWXVRNIbTx3gJgwrvXYkfwAAAAABGL3pAAAAAFCQVQAAAAAAEZK09vHmzOmEMoVWYtbbZcKv3ZOoo06ckzbhyDIFKfhAAAAAAAAAAAE8SzlASM9LQCYloAAAAAAAAAAAAAAAAAAAAADAV0g5QAAAAAAAAAAdZtwPxUrSKeMmz4rsGwKlBWXVRNIbTx3gJgwrvXYkfwAAAAQ/q9yBgD8MToAB03ZAAAACQAAAAEAAAAAPEGtxQtQD1UZU+mY3N5z5KtzKggiZYzimTMfGsnpHKQAAAAAAAAAAAEAAAAAAAAAAAAAAQAAAABzQHLKAAAAEODiE0UAAAAAAAAAAAAAAAEBXSDvAAAAAAAAAAB1m3A/FStIp4ybPiuwbAqUFZdVE0htPHeAmDCu9diR/AAAABD+r3IGAPwxOgAHTdkAAAAJAAAAAQAAAAA8Qa3FC1APVRlT6Zjc3nPkq3MqCCJljOKZMx8ayekcpAAAAAAAAAAAAQAAAAAAAAAAAAABAAAAAHNAcsoAAAAQ4OITRQAAAAAAAAAAAAAAAwFdIOUAAAABAAAAAHWbcD8VK0injJs+K7BsCpQVl1UTSG08d4CYMK712JH8AAAAAUJBVAAAAAAARkrT28ebM6YQyhVZi1ttlwq/dk6ijTpyTNuHIMgUp+EAAAAAO04at3//////////AAAAAQAAAAEAAAAJEiohiwAAAAA7Thq3AAAAAAAAAAAAAAABAV0g7wAAAAEAAAAAdZtwPxUrSKeMmz4rsGwKlBWXVRNIbTx3gJgwrvXYkfwAAAABQkFUAAAAAABGStPbx5szphDKFVmLW22XCr92TqKNOnJM24cgyBSn4QAAAAA7Thq3f/////////8AAAABAAAAAQAAAAkSKiGLAAAAADtOGrcAAAAAAAAAAA=='
+      };
+
+      let keypair = StellarSdk.Keypair.random();
+      let account = new StellarSdk.Account(
+        keypair.publicKey(),
+        '56199647068161'
+      );
+      let transaction = new StellarSdk.TransactionBuilder(account, { fee: 100 })
+        .addOperation(
+          StellarSdk.Operation.payment({
+            destination:
+              'GASOCNHNNLYFNMDJYQ3XFMI7BYHIOCFW3GJEOWRPEGK2TDPGTG2E5EDW',
+            asset: StellarSdk.Asset.native(),
+            amount: '100.50'
+          })
+        )
+        .setTimeout(StellarSdk.TimeoutInfinite)
+        .build();
+      transaction.sign(keypair);
+
+      let blob = encodeURIComponent(
+        transaction
+          .toEnvelope()
+          .toXDR()
+          .toString('base64')
+      );
+      this.axiosMock
+        .expects('post')
+        .withArgs(
+          'https://horizon-live.stellar.org:1337/transactions',
+          `tx=${blob}`
+        )
+        .returns(Promise.resolve({ data: response }));
+
+      this.server
+        .submitTransaction(transaction)
+        .then(function(res) {
+          // eslint-disable-next-line no-console
+          console.log(
+            'YOOOOOOOOOOOOOOO fuck with this dawg: ',
+            JSON.stringify(res, null, 2)
+          );
+
+          done();
+        })
+        .catch(function(err) {
+          done(err);
+        });
+    });
   });
 
   describe('Server._parseResult', function() {
