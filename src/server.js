@@ -118,6 +118,9 @@ export class Server {
    *
    *       // if the offer was created, updated, or partially filled, this is the current ID of the outstanding offer
    *       lastOfferId: number,
+   *
+   *       // the index of this particular operation in the op stack
+   *       index: number
    *     }
    *   ]
    * }

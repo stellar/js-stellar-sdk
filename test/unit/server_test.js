@@ -666,14 +666,11 @@ describe('server.js tests', function() {
       );
       let transaction = new StellarSdk.TransactionBuilder(account, { fee: 100 })
         .addOperation(
-          StellarSdk.Operation.manageOffer({
-            selling: new StellarSdk.Asset(
-              'BAT',
-              'GBDEVU63Y6NTHJQQZIKVTC23NWLQVP3WJ2RI2OTSJTNYOIGICST6DUXR'
-            ),
-            buying: StellarSdk.Asset.native(),
-            amount: '0.0000001',
-            price: '0.0000001'
+          StellarSdk.Operation.payment({
+            destination:
+              'GASOCNHNNLYFNMDJYQ3XFMI7BYHIOCFW3GJEOWRPEGK2TDPGTG2E5EDW',
+            asset: StellarSdk.Asset.native(),
+            amount: '100.50'
           })
         )
         .setTimeout(StellarSdk.TimeoutInfinite)
