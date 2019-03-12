@@ -126,6 +126,13 @@ export class Server {
    * }
    * ```
    *
+   * As a developer, just for example, you'll want to add these affordances to
+   * your app with these response details:
+   * * When you create a new offer, check `wasOfferDeleted` - if it was, and
+   * if the offer did cross the book, then treat the offer as failed
+   * * If you update an offer amount and `wasOfferDeleted` is true, treat the
+   * offer as deleted
+   *
    * @see [Post Transaction](https://www.stellar.org/developers/horizon/reference/transactions-create.html)
    * @param {Transaction} transaction - The transaction to submit.
    * @returns {Promise} Promise that resolves or rejects with response from horizon.
