@@ -666,11 +666,14 @@ describe('server.js tests', function() {
       );
       let transaction = new StellarSdk.TransactionBuilder(account, { fee: 100 })
         .addOperation(
-          StellarSdk.Operation.payment({
-            destination:
-              'GASOCNHNNLYFNMDJYQ3XFMI7BYHIOCFW3GJEOWRPEGK2TDPGTG2E5EDW',
-            asset: StellarSdk.Asset.native(),
-            amount: '100.50'
+          StellarSdk.Operation.manageOffer({
+            selling: new StellarSdk.Asset(
+              'BAT',
+              'GBDEVU63Y6NTHJQQZIKVTC23NWLQVP3WJ2RI2OTSJTNYOIGICST6DUXR'
+            ),
+            buying: StellarSdk.Asset.native(),
+            amount: '0.0000001',
+            price: '0.0000001'
           })
         )
         .setTimeout(StellarSdk.TimeoutInfinite)
@@ -725,12 +728,17 @@ describe('server.js tests', function() {
         '56199647068161'
       );
       let transaction = new StellarSdk.TransactionBuilder(account, { fee: 100 })
+        // note that the values aren't actually the ones used in the response package!
+        // (I couldn't remember exactly what values I used to generate the transactions)
         .addOperation(
-          StellarSdk.Operation.payment({
-            destination:
-              'GASOCNHNNLYFNMDJYQ3XFMI7BYHIOCFW3GJEOWRPEGK2TDPGTG2E5EDW',
-            asset: StellarSdk.Asset.native(),
-            amount: '100.50'
+          StellarSdk.Operation.manageOffer({
+            selling: new StellarSdk.Asset(
+              'BAT',
+              'GBDEVU63Y6NTHJQQZIKVTC23NWLQVP3WJ2RI2OTSJTNYOIGICST6DUXR'
+            ),
+            buying: StellarSdk.Asset.native(),
+            amount: '0.0000001',
+            price: '0.0000001'
           })
         )
         .setTimeout(StellarSdk.TimeoutInfinite)
@@ -754,12 +762,171 @@ describe('server.js tests', function() {
       this.server
         .submitTransaction(transaction)
         .then(function(res) {
-          // eslint-disable-next-line no-console
-          console.log(
-            'YOOOOOOOOOOOOOOO fuck with this dawg: ',
-            JSON.stringify(res, null, 2)
-          );
+          expect(res.offerResults).to.be.an.instanceOf(Array);
+          expect(res.offerResults[0].offersClaimed).to.be.an.instanceOf(Array);
+          expect(typeof res.offerResults[0].effect).to.equal('string');
+          expect(typeof res.offerResults[0].didCrossBook).to.equal('boolean');
+          expect(res.offerResults[0].index).to.equal(0);
 
+          done();
+        })
+        .catch(function(err) {
+          done(err);
+        });
+    });
+    it('doesnt add metadata to non-offers', function(done) {
+      const response = {
+        _links: {
+          transaction: {
+            href:
+              'https://horizon.stellar.org/transactions/6c3191f252f2c586c74275c766ce761021513e520eab3bb63d3fd18d0d01492e'
+          }
+        },
+        hash:
+          '6c3191f252f2c586c74275c766ce761021513e520eab3bb63d3fd18d0d01492e',
+        ledger: 22893969,
+        envelope_xdr:
+          'AAAAAIUAEW3jQt3+fbT6nCASA1/8RWdp9fJ2woxqPHZPQUH/AAAAZAEH/OgAAAAeAAAAAQAAAAAAAAAAAAAAAFyH7EoAAAAAAAAAAQAAAAAAAAAGAAAAAUJUQwAAAAAAKTpjGpnWX8jImMrLprg+1nHJhiAVINNe+zSvg3bvNiUAAAAAAAAAAAAAAAAAAAABT0FB/wAAAEBDRFjJITX4LIIY2tc8KxVU3Pe7dqZ+BkWft93SCVlEXxiCHnoNop5UEKRoRTvAUh34I6As4IN/QpGGqHmbKv8F',
+        result_xdr: 'AAAAAAAAAGQAAAAAAAAAAQAAAAAAAAAGAAAAAAAAAAA=',
+        result_meta_xdr:
+          'AAAAAQAAAAIAAAADAV1VkQAAAAAAAAAAhQARbeNC3f59tPqcIBIDX/xFZ2n18nbCjGo8dk9BQf8AAAACVLWYcQEH/OgAAAAdAAAABgAAAAEAAAAAhD8BLsZFQEF33rKS6YopQUT3b6iLBG4nspe68/DBNBYAAAAAAAAAAAEAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBXVWRAAAAAAAAAACFABFt40Ld/n20+pwgEgNf/EVnafXydsKMajx2T0FB/wAAAAJUtZhxAQf86AAAAB4AAAAGAAAAAQAAAACEPwEuxkVAQXfespLpiilBRPdvqIsEbieyl7rz8ME0FgAAAAAAAAAAAQAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAQAAAADAQpf6AAAAAEAAAAAhQARbeNC3f59tPqcIBIDX/xFZ2n18nbCjGo8dk9BQf8AAAABQlRDAAAAAAApOmMamdZfyMiYysumuD7WccmGIBUg0177NK+Ddu82JQAAAAAAAAAAf/////////8AAAABAAAAAAAAAAAAAAACAAAAAQAAAACFABFt40Ld/n20+pwgEgNf/EVnafXydsKMajx2T0FB/wAAAAFCVEMAAAAAACk6YxqZ1l/IyJjKy6a4PtZxyYYgFSDTXvs0r4N27zYlAAAAAwFdVZEAAAAAAAAAAIUAEW3jQt3+fbT6nCASA1/8RWdp9fJ2woxqPHZPQUH/AAAAAlS1mHEBB/zoAAAAHgAAAAYAAAABAAAAAIQ/AS7GRUBBd96ykumKKUFE92+oiwRuJ7KXuvPwwTQWAAAAAAAAAAABAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAV1VkQAAAAAAAAAAhQARbeNC3f59tPqcIBIDX/xFZ2n18nbCjGo8dk9BQf8AAAACVLWYcQEH/OgAAAAeAAAABQAAAAEAAAAAhD8BLsZFQEF33rKS6YopQUT3b6iLBG4nspe68/DBNBYAAAAAAAAAAAEAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=='
+      };
+
+      let keypair = StellarSdk.Keypair.random();
+      let account = new StellarSdk.Account(
+        keypair.publicKey(),
+        '56199647068161'
+      );
+      let transaction = new StellarSdk.TransactionBuilder(account, { fee: 100 })
+        // note that the values aren't actually the ones used in the response package!
+        // (I couldn't remember exactly what values I used to generate the transactions)
+        .addOperation(
+          StellarSdk.Operation.changeTrust({
+            asset: StellarSdk.Asset.native(),
+            limit: '100.50'
+          })
+        )
+        .setTimeout(StellarSdk.TimeoutInfinite)
+        .build();
+      transaction.sign(keypair);
+
+      let blob = encodeURIComponent(
+        transaction
+          .toEnvelope()
+          .toXDR()
+          .toString('base64')
+      );
+      this.axiosMock
+        .expects('post')
+        .withArgs(
+          'https://horizon-live.stellar.org:1337/transactions',
+          `tx=${blob}`
+        )
+        .returns(Promise.resolve({ data: response }));
+
+      this.server
+        .submitTransaction(transaction)
+        .then(function(res) {
+          expect(res.offerResults).to.be.undefined;
+          done();
+        })
+        .catch(function(err) {
+          done(err);
+        });
+    });
+    it('adds metadata about offers, even if some ops are not', function(done) {
+      const response = {
+        _links: {
+          transaction: {
+            href:
+              'https://horizon.stellar.org/transactions/6a22d6896140f6f330ef19086827df0780eb2ad3324f3271b38c70cb1cba1c3d'
+          }
+        },
+        hash:
+          '6a22d6896140f6f330ef19086827df0780eb2ad3324f3271b38c70cb1cba1c3d',
+        ledger: 22894978,
+        envelope_xdr:
+          'AAAAAIUAEW3jQt3+fbT6nCASA1/8RWdp9fJ2woxqPHZPQUH/AAABkAEH/OgAAAAfAAAAAQAAAAAAAAAAAAAAAFyIAGgAAAAAAAAABAAAAAAAAAAGAAAAAUJBVAAAAAAARkrT28ebM6YQyhVZi1ttlwq/dk6ijTpyTNuHIMgUp+F//////////wAAAAAAAAAFAAAAAQAAAACEPwEuxkVAQXfespLpiilBRPdvqIsEbieyl7rz8ME0FgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAUJBVAAAAAAARkrT28ebM6YQyhVZi1ttlwq/dk6ijTpyTNuHIMgUp+EAAAAAAAAAAQAmJaAAO4evAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAABQkFUAAAAAABGStPbx5szphDKFVmLW22XCr92TqKNOnJM24cgyBSn4QAAAAAAAAABACYloAA7h68AAAAAAAAAAAAAAAAAAAABT0FB/wAAAEBPLgxdQVWHP5g6YvkNgJV1j+2uj0aRIe+B2V/EwG40dSCbOOtuaOmX+pj0b7TTWK73/XUFbryZOFViAzHfkw4P',
+        result_xdr:
+          'AAAAAAAAAZAAAAAAAAAABAAAAAAAAAAGAAAAAAAAAAAAAAAFAAAAAAAAAAAAAAADAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAAAAAAAAAAAIAAAAA',
+        result_meta_xdr:
+          'AAAAAQAAAAIAAAADAV1ZggAAAAAAAAAAhQARbeNC3f59tPqcIBIDX/xFZ2n18nbCjGo8dk9BQf8AAAACVLWW4QEH/OgAAAAeAAAABQAAAAEAAAAAhD8BLsZFQEF33rKS6YopQUT3b6iLBG4nspe68/DBNBYAAAAAAAAAAAEAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBXVmCAAAAAAAAAACFABFt40Ld/n20+pwgEgNf/EVnafXydsKMajx2T0FB/wAAAAJUtZbhAQf86AAAAB8AAAAFAAAAAQAAAACEPwEuxkVAQXfespLpiilBRPdvqIsEbieyl7rz8ME0FgAAAAAAAAAAAQAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAIAAAADAVqyvQAAAAEAAAAAhQARbeNC3f59tPqcIBIDX/xFZ2n18nbCjGo8dk9BQf8AAAABQkFUAAAAAABGStPbx5szphDKFVmLW22XCr92TqKNOnJM24cgyBSn4QAAAAAAAAAAf/////////8AAAABAAAAAAAAAAAAAAABAV1ZggAAAAEAAAAAhQARbeNC3f59tPqcIBIDX/xFZ2n18nbCjGo8dk9BQf8AAAABQkFUAAAAAABGStPbx5szphDKFVmLW22XCr92TqKNOnJM24cgyBSn4QAAAAAAAAAAf/////////8AAAABAAAAAAAAAAAAAAACAAAAAwFdWYIAAAAAAAAAAIUAEW3jQt3+fbT6nCASA1/8RWdp9fJ2woxqPHZPQUH/AAAAAlS1luEBB/zoAAAAHwAAAAUAAAABAAAAAIQ/AS7GRUBBd96ykumKKUFE92+oiwRuJ7KXuvPwwTQWAAAAAAAAAAABAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAV1ZggAAAAAAAAAAhQARbeNC3f59tPqcIBIDX/xFZ2n18nbCjGo8dk9BQf8AAAACVLWW4QEH/OgAAAAfAAAABQAAAAEAAAAAhD8BLsZFQEF33rKS6YopQUT3b6iLBG4nspe68/DBNBYAAAAAAAAAAAEAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
+      };
+
+      let keypair = StellarSdk.Keypair.random();
+      let account = new StellarSdk.Account(
+        keypair.publicKey(),
+        '56199647068161'
+      );
+
+      let transaction = new StellarSdk.TransactionBuilder(account, { fee: 100 })
+        // note that the values aren't actually the ones used in the response package!
+        // (I couldn't remember exactly what values I used to generate the transactions)
+        .addOperation(
+          StellarSdk.Operation.changeTrust({
+            asset: StellarSdk.Asset.native(),
+            limit: '100.50'
+          })
+        )
+        .addOperation(
+          StellarSdk.Operation.setOptions({
+            inflationDest: keypair.publicKey()
+          })
+        )
+        .addOperation(
+          StellarSdk.Operation.manageOffer({
+            selling: new StellarSdk.Asset(
+              'BAT',
+              'GBDEVU63Y6NTHJQQZIKVTC23NWLQVP3WJ2RI2OTSJTNYOIGICST6DUXR'
+            ),
+            buying: StellarSdk.Asset.native(),
+            amount: '0.0000001',
+            price: '0.0000001'
+          })
+        )
+        .addOperation(
+          StellarSdk.Operation.manageOffer({
+            selling: new StellarSdk.Asset(
+              'BAT',
+              'GBDEVU63Y6NTHJQQZIKVTC23NWLQVP3WJ2RI2OTSJTNYOIGICST6DUXR'
+            ),
+            buying: StellarSdk.Asset.native(),
+            amount: '0.0000001',
+            price: '0.0000001'
+          })
+        )
+
+        .setTimeout(StellarSdk.TimeoutInfinite)
+        .build();
+      transaction.sign(keypair);
+
+      let blob = encodeURIComponent(
+        transaction
+          .toEnvelope()
+          .toXDR()
+          .toString('base64')
+      );
+      this.axiosMock
+        .expects('post')
+        .withArgs(
+          'https://horizon-live.stellar.org:1337/transactions',
+          `tx=${blob}`
+        )
+        .returns(Promise.resolve({ data: response }));
+
+      this.server
+        .submitTransaction(transaction)
+        .then(function(res) {
+          expect(res.offerResults).to.be.an.instanceOf(Array);
+          expect(res.offerResults).to.have.lengthOf(2);
+          expect(res.offerResults[0].offersClaimed).to.be.an.instanceOf(Array);
+          expect(typeof res.offerResults[0].effect).to.equal('string');
+          expect(typeof res.offerResults[0].didCrossBook).to.equal('boolean');
+          expect(res.offerResults[0].index).to.equal(2);
+          expect(res.offerResults[1].offersClaimed).to.be.an.instanceOf(Array);
+          expect(typeof res.offerResults[1].effect).to.equal('string');
+          expect(typeof res.offerResults[1].didCrossBook).to.equal('boolean');
+          expect(res.offerResults[1].index).to.equal(3);
           done();
         })
         .catch(function(err) {

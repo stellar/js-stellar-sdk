@@ -1,4 +1,5 @@
 import URI from 'urijs';
+import { xdr } from 'stellar-base';
 
 import { BadResponseError } from './errors';
 
@@ -77,6 +78,51 @@ export class Server {
   /**
    * Submits a transaction to the network.
    *
+   * If you submit a `manageOffer` operation, this function will add
+   * an attribute to the response that will help you analyze what happened
+   * with your offer.
+   *
+   * Ex:
+   * ```javascript
+   * const res = {
+   *   ...response,
+   *   offerResults: [
+   *     {
+   *       // This is a list of potential offers generated from this
+   *       // manageOffer operation. All but the last one have been
+   *       // deleted. The last one _may_ be on the book, or may
+   *       // be partially filled, or may be deleted too.
+   *       offersClaimed: [
+   *         sellerId: String,
+   *         offerId: number,
+   *         assetSold: { name, value },
+   *         assetBought: { name, value }
+   *       ],
+   *
+   *       // What effect your manageOffer op had.
+   *       effect: "manageOfferCreated|manageOfferUpdated|manageOfferDeleted",
+   *
+   *       // When your bid is >= the lowest ask, or your ask is <= the highest bid,
+   *       // you temporarily have crossed the book. That will usually result in
+   *       // either your order filling right away, or the offer getting deleted.
+   *       didCrossBook: boolean,
+   *
+   *       // was the offer successfully created?
+   *       wasOfferCreated: boolean,
+   *
+   *       // if the offer existed already and you were updating it, was that successful?
+   *       wasOfferUpdated: boolean,
+   *
+   *       // otherwise, was the offer you tried to create deleted immediately?
+   *       wasOfferDeleted: boolean,
+   *
+   *       // if the offer was created, updated, or partially filled, this is the current ID of the outstanding offer
+   *       lastOfferId: number,
+   *     }
+   *   ]
+   * }
+   * ```
+   *
    * @see [Post Transaction](https://www.stellar.org/developers/horizon/reference/transactions-create.html)
    * @param {Transaction} transaction - The transaction to submit.
    * @returns {Promise} Promise that resolves or rejects with response from horizon.
@@ -95,7 +141,73 @@ export class Server {
       `tx=${tx}`,
       { timeout: SUBMIT_TRANSACTION_TIMEOUT }
     )
-      .then((response) => response.data)
+      .then((response) => {
+        if (!response.data.result_xdr) {
+          return response.data;
+        }
+
+        const responseXDR = xdr.TransactionResult.fromXDR(
+          response.data.result_xdr,
+          'base64'
+        );
+        const results = responseXDR.result().value();
+
+        let offerResults;
+        let hasManageOffer;
+
+        if (results.length) {
+          offerResults = results
+            .map((result, i) => {
+              if (typeof result.value().value().success !== 'function') {
+                return null;
+              }
+              hasManageOffer = true;
+
+              // yeah this is annoying
+              const offerSuccess = result
+                .value()
+                .value()
+                .success();
+
+              const offersClaimed = offerSuccess
+                .offersClaimed()
+                .map((offerClaimed) => ({
+                  sellerId: offerClaimed
+                    .sellerId()
+                    .value()
+                    .toString('hex'),
+                  offerId: offerClaimed.offerId,
+                  assetSold: offerClaimed.assetSold().switch(),
+                  amountSold: offerClaimed.amountSold,
+                  assetBought: offerClaimed.assetSold().switch(),
+                  amountBought: offerClaimed.amountSold
+                }));
+
+              const effect = offerSuccess.offer().switch().name;
+
+              return {
+                offersClaimed,
+                effect,
+                index: i,
+
+                // newly calculated stuff
+                didCrossBook: !!offersClaimed.length,
+                wasOfferDeleted: effect === 'manageOfferDeleted',
+                wasOfferCreated: effect === 'manageOfferCreated',
+                wasOfferUpdated: effect === 'manageOfferUpdated',
+                lastOfferId: offersClaimed.reduce(
+                  (memo, offerClaimed) => offerClaimed.offerId,
+                  null
+                )
+              };
+            })
+            .filter((result) => !!result);
+        }
+
+        return Object.assign({}, response.data, {
+          offerResults: hasManageOffer ? offerResults : undefined
+        });
+      })
       .catch((response) => {
         if (response instanceof Error) {
           return Promise.reject(response);
