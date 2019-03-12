@@ -1,5 +1,6 @@
 import URI from 'urijs';
 import { xdr } from 'stellar-base';
+import BigNumber from 'bignumber.js';
 
 import { BadResponseError } from './errors';
 
@@ -22,6 +23,8 @@ import { AssetsCallBuilder } from './assets_call_builder';
 import { TradeAggregationCallBuilder } from './trade_aggregation_call_builder';
 
 export const SUBMIT_TRANSACTION_TIMEOUT = 60 * 1000;
+
+const STROOPS_IN_LUMEN = 10000000;
 
 /**
  * Server handles the network connection to a [Horizon](https://www.stellar.org/developers/horizon/learn/index.html)
@@ -102,19 +105,21 @@ export class Server {
    *       // What effect your manageOffer op had.
    *       effect: "manageOfferCreated|manageOfferUpdated|manageOfferDeleted",
    *
-   *       // When your bid is >= the lowest ask, or your ask is <= the highest bid,
-   *       // you temporarily have crossed the book. That will usually result in
-   *       // either your order filling right away, or the offer getting deleted.
-   *       didCrossBook: boolean,
+   *       // Whether your offer immediately got matched and filled
+   *       wasImmediatelyFilled: boolean,
    *
-   *       // was the offer successfully created?
-   *       wasOfferCreated: boolean,
+   *       // Whether your offer immediately got deleted, if for example the order was too small
+   *       wasImmediatelyDeleted: boolean,
    *
-   *       // if the offer existed already and you were updating it, was that successful?
-   *       wasOfferUpdated: boolean,
+   *       // Whether the offer was partially, but not completely, filled
+   *       wasPartiallyFilled: boolean,
    *
-   *       // otherwise, was the offer you tried to create deleted immediately?
-   *       wasOfferDeleted: boolean,
+   *       // The full requested amount of the offer is open for matching
+   *       isFullyOpen: boolean,
+   *
+   *       // The total amount of tokens bought / sold during transaction execution
+   *       amountBought: number,
+   *       amountSold: number,
    *
    *       // if the offer was created, updated, or partially filled, this is the current ID of the outstanding offer
    *       lastOfferId: number,
@@ -126,12 +131,17 @@ export class Server {
    * }
    * ```
    *
-   * As a developer, just for example, you'll want to add these affordances to
-   * your app with these response details:
-   * * When you create a new offer, check `wasOfferDeleted` - if it was, and
-   * if the offer did cross the book, then treat the offer as failed
-   * * If you update an offer amount and `wasOfferDeleted` is true, treat the
-   * offer as deleted
+   * For example, you'll want to check these details to add these types of
+   * affordances to your app:
+   * * If `wasImmediatelyFilled` is true, then no offer was created. So if you
+   * normally watch the `Server.offers` endpoint for offer updates, you instead
+   * need to check `Server.trades` to find the result of this filled offer.
+   * * If `wasImmediatelyDeleted` is true, then the offer you submitted was
+   * deleted without reaching the orderbook or being matched (possibly because
+   * your amounts were rounded down to zero). So treat the just-submitted offer
+   * request as if it never happened.
+   * * If `wasPartiallyFilled` is true, you can tell the user that `amountBought`
+   * or `amountSold` have already been transferred.
    *
    * @see [Post Transaction](https://www.stellar.org/developers/horizon/reference/transactions-create.html)
    * @param {Transaction} transaction - The transaction to submit.
@@ -144,6 +154,7 @@ export class Server {
         .toXDR()
         .toString('base64')
     );
+
     return HorizonAxiosClient.post(
       URI(this.serverURL)
         .segment('transactions')
@@ -160,6 +171,7 @@ export class Server {
           response.data.result_xdr,
           'base64'
         );
+
         const results = responseXDR.result().value();
 
         let offerResults;
@@ -171,9 +183,12 @@ export class Server {
               if (typeof result.value().value().success !== 'function') {
                 return null;
               }
+
               hasManageOffer = true;
 
-              // yeah this is annoying
+              let amountBought = new BigNumber(0);
+              let amountSold = new BigNumber(0);
+
               const offerSuccess = result
                 .value()
                 .value()
@@ -181,17 +196,40 @@ export class Server {
 
               const offersClaimed = offerSuccess
                 .offersClaimed()
-                .map((offerClaimed) => ({
-                  sellerId: offerClaimed
-                    .sellerId()
-                    .value()
-                    .toString('hex'),
-                  offerId: offerClaimed.offerId,
-                  assetSold: offerClaimed.assetSold().switch(),
-                  amountSold: offerClaimed.amountSold,
-                  assetBought: offerClaimed.assetSold().switch(),
-                  amountBought: offerClaimed.amountSold
-                }));
+                .map((offerClaimed) => {
+                  const claimedOfferAmountBought = new BigNumber(
+                    // amountBought is a js-xdr hyper
+                    offerClaimed.amountBought().toString()
+                  );
+                  const claimedOfferAmountSold = new BigNumber(
+                    // amountBought is a js-xdr hyper
+                    offerClaimed.amountSold().toString()
+                  );
+
+                  // This is an offer that was filled by the one just submitted.
+                  // So this offer has an _opposite_ bought/sold frame of ref
+                  // than from what we just submitted!
+                  // So add this claimed offer's bought to the SOLD count and vice v
+
+                  amountBought = amountBought.add(claimedOfferAmountSold);
+                  amountSold = amountSold.add(claimedOfferAmountBought);
+
+                  return {
+                    sellerId: offerClaimed
+                      .sellerId()
+                      .value()
+                      .toString('hex'),
+                    offerId: offerClaimed.offerId,
+                    assetSold: offerClaimed.assetSold().switch(),
+                    amountSold: claimedOfferAmountSold
+                      .div(STROOPS_IN_LUMEN)
+                      .toString(),
+                    assetBought: offerClaimed.assetBought().switch(),
+                    amountBought: claimedOfferAmountBought
+                      .div(STROOPS_IN_LUMEN)
+                      .toString()
+                  };
+                });
 
               const effect = offerSuccess.offer().switch().name;
 
@@ -199,16 +237,21 @@ export class Server {
                 offersClaimed,
                 effect,
                 index: i,
-
-                // newly calculated stuff
-                didCrossBook: !!offersClaimed.length,
-                wasOfferDeleted: effect === 'manageOfferDeleted',
-                wasOfferCreated: effect === 'manageOfferCreated',
-                wasOfferUpdated: effect === 'manageOfferUpdated',
                 lastOfferId: offersClaimed.reduce(
                   (memo, offerClaimed) => offerClaimed.offerId,
                   null
-                )
+                ),
+                // this value is in stroops so divide it out
+                amountBought: amountBought.div(STROOPS_IN_LUMEN).toString(),
+                amountSold: amountSold.div(STROOPS_IN_LUMEN).toString(),
+                isFullyOpen:
+                  !offersClaimed.length && effect === 'manageOfferCreated',
+                wasPartiallyFilled:
+                  !!offersClaimed.length && effect === 'manageOfferCreated',
+                wasImmediatelyFilled:
+                  !!offersClaimed.length && effect === 'manageOfferDeleted',
+                wasImmediatelyDeleted:
+                  !offersClaimed.length && effect === 'manageOfferDeleted'
               };
             })
             .filter((result) => !!result);
