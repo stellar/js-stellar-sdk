@@ -33,13 +33,13 @@ HorizonAxiosClient.interceptors.response.use((response) => {
   const serverTime = _toSeconds(Date.parse(response.headers.Date));
   const localTimeRecorded = _toSeconds(new Date().getTime());
 
-  SERVER_TIME_MAP[hostname] = {
-    serverTime,
-    localTimeRecorded
-  };
-
-  // if (!isNaN(serverTime))
-  // SERVER_TIME_MAP[]
+  // eslint-disable-next-line no-restricted-globals
+  if (!isNaN(serverTime)) {
+    SERVER_TIME_MAP[hostname] = {
+      serverTime,
+      localTimeRecorded
+    };
+  }
 
   return response;
 });

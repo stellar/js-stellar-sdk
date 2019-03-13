@@ -71,14 +71,13 @@ export class Server {
    *  .build();
    * ```
    * @argument {number} seconds Number of seconds past the current time to wait.
-   * @argument {bool} _isRetry True if this is a retry. Only set this internally!
+   * @argument {bool} [_isRetry=false] True if this is a retry. Only set this internally!
    * This is to avoid a scenario where Horizon is horking up the wrong date.
    * @returns {Promise<number>} Promise that resolves a `timebounds` object
    * (with the shape `{ minTime: 0, maxTime: N }`) that you can set the `timebounds` option to.
    */
-  fetchTimebounds(seconds, _isRetry) {
+  fetchTimebounds(seconds, _isRetry = false) {
     // HorizonAxiosClient instead of this.ledgers so we can get at them headers
-
     const currentTime = getCurrentServerTime(this.serverURL.hostname());
 
     if (currentTime) {
@@ -97,7 +96,7 @@ export class Server {
     }
 
     // otherwise, retry (by calling the fee endpoint)
-    return HorizonAxiosClient.get('fee_stats').then(() =>
+    return HorizonAxiosClient.get(`${URI(this.serverURL)}/fee_stats`).then(() =>
       this.fetchTimebounds(seconds, true)
     );
   }
