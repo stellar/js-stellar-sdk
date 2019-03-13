@@ -85,9 +85,9 @@ export class Server {
   /**
    * Submits a transaction to the network.
    *
-   * If you submit a `manageOffer` operation, this function will add
+   * If you submit any number of `manageOffer` operations, this will add
    * an attribute to the response that will help you analyze what happened
-   * with your offer.
+   * with your offers.
    *
    * Ex:
    * ```javascript
@@ -95,7 +95,7 @@ export class Server {
    *   ...response,
    *   offerResults: [
    *     {
-   *       // exact ordered list of offers that executed, with the exception
+   *       // Exact ordered list of offers that executed, with the exception
    *       // that the last one may not have executed entirely.
    *       offersClaimed: [
    *         sellerId: String,
@@ -112,7 +112,7 @@ export class Server {
    *         assetBought: {}
    *       ],
    *
-   *       // What effect your manageOffer op had.
+   *       // What effect your manageOffer op had
    *       effect: "manageOfferCreated|manageOfferUpdated|manageOfferDeleted",
    *
    *       // Whether your offer immediately got matched and filled
@@ -160,8 +160,8 @@ export class Server {
    * }
    * ```
    *
-   * For example, you'll want to check these details to add these types of
-   * affordances to your app:
+   * For example, you'll want to examine `offerResults` to add affordances
+   * like these to your app:
    * * If `wasImmediatelyFilled` is true, then no offer was created. So if you
    * normally watch the `Server.offers` endpoint for offer updates, you instead
    * need to check `Server.trades` to find the result of this filled offer.
