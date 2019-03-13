@@ -6,7 +6,9 @@ import { AccountCallBuilder } from './account_call_builder';
 import { AccountResponse } from './account_response';
 import { CallBuilder } from './call_builder';
 import { Config } from './config';
-import HorizonAxiosClient from './horizon_axios_client';
+import HorizonAxiosClient, {
+  getCurrentServerTime
+} from './horizon_axios_client';
 import { LedgerCallBuilder } from './ledger_call_builder';
 import { TransactionCallBuilder } from './transaction_call_builder';
 import { OperationCallBuilder } from './operation_call_builder';
@@ -42,6 +44,62 @@ export class Server {
     if (this.serverURL.protocol() !== 'https' && !allowHttp) {
       throw new Error('Cannot connect to insecure horizon server');
     }
+  }
+
+  /**
+   * Get timebounds for N seconds from now, when you're creating a transaction
+   * with {@link TransactionBuilder}.
+   *
+   * By default, {@link TransactionBuilder} uses the current local time, but
+   * your machine's local time could be different from Horizon's. This gives you
+   * more assurance that your timebounds will reflect what you want.
+   *
+   * Note that this will generate your timebounds when you **run the function**,
+   * not when you submit the function! So give yourself enough time to get
+   * the transaction built and signed before submitting.
+   *
+   * Example:
+   *
+   * ```javascript
+   * const transaction = new StellarSdk.TransactionBuilder(accountId, {
+   *  fee: await StellarSdk.Server.fetchBaseFee(),
+   *  timebounds: await StellarSdk.Server.fetchTimebounds(100)
+   * })
+   *  .addOperation(operation)
+   *  // normally we would need to call setTimeout here, but setting timebounds
+   *  // earlier does the trick!
+   *  .build();
+   * ```
+   * @argument {number} seconds Number of seconds past the current time to wait.
+   * @argument {bool} _isRetry True if this is a retry. Only set this internally!
+   * This is to avoid a scenario where Horizon is horking up the wrong date.
+   * @returns {Promise<number>} Promise that resolves a `timebounds` object
+   * (with the shape `{ minTime: 0, maxTime: N }`) that you can set the `timebounds` option to.
+   */
+  fetchTimebounds(seconds, _isRetry) {
+    // HorizonAxiosClient instead of this.ledgers so we can get at them headers
+
+    const currentTime = getCurrentServerTime(this.serverURL.hostname());
+
+    if (currentTime) {
+      return Promise.resolve({
+        minTime: 0,
+        maxTime: currentTime + seconds
+      });
+    }
+
+    // if this is a retry, then the retry has failed, so use local time
+    if (_isRetry) {
+      return Promise.resolve({
+        minTime: 0,
+        maxTime: Math.floor(new Date().getTime() / 1000) + seconds
+      });
+    }
+
+    // otherwise, retry (by calling the fee endpoint)
+    return HorizonAxiosClient.get('fee_stats').then(() =>
+      this.fetchTimebounds(seconds, true)
+    );
   }
 
   /**
