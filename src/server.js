@@ -99,46 +99,54 @@ export class Server {
    *       // that the last one may not have executed entirely.
    *       offersClaimed: [
    *         sellerId: String,
-   *         offerId: number,
-   *         assetSold: { name, value },
-   *         assetBought: { name, value }
+   *         offerId: String,
+   *         assetSold: {
+   *           type: 'assetTypeNative|assetTypeCreditAlphanum4|assetTypeCreditAlphanum12',
+   *
+   *           // these are anly present if the asset is not native
+   *           assetCode: String,
+   *           issuer: String,
+   *         },
+   *
+   *         // same shape as assetSold
+   *         assetBought: {}
    *       ],
    *
    *       // What effect your manageOffer op had.
    *       effect: "manageOfferCreated|manageOfferUpdated|manageOfferDeleted",
    *
    *       // Whether your offer immediately got matched and filled
-   *       wasImmediatelyFilled: boolean,
+   *       wasImmediatelyFilled: Boolean,
    *
    *       // Whether your offer immediately got deleted, if for example the order was too small
-   *       wasImmediatelyDeleted: boolean,
+   *       wasImmediatelyDeleted: Boolean,
    *
    *       // Whether the offer was partially, but not completely, filled
-   *       wasPartiallyFilled: boolean,
+   *       wasPartiallyFilled: Boolean,
    *
    *       // The full requested amount of the offer is open for matching
-   *       isFullyOpen: boolean,
+   *       isFullyOpen: Boolean,
    *
    *       // The total amount of tokens bought / sold during transaction execution
-   *       amountBought: number,
-   *       amountSold: number,
+   *       amountBought: Number,
+   *       amountSold: Number,
    *
    *       // if the offer was created, updated, or partially filled, this is
    *       // the outstanding offer
    *       currentOffer: {
-   *         offerId: string,
-   *         amount: string,
+   *         offerId: String,
+   *         amount: String,
    *         price: {
-   *           n: string,
-   *           d: string,
+   *           n: String,
+   *           d: String,
    *         },
    *
    *         selling: {
    *           type: 'assetTypeNative|assetTypeCreditAlphanum4|assetTypeCreditAlphanum12',
    *
    *           // these are anly present if the asset is not native
-   *           assetCode: string,
-   *           issuer: string,
+   *           assetCode: String,
+   *           issuer: String,
    *         },
    *
    *         // same as `selling`
@@ -146,7 +154,7 @@ export class Server {
    *       },
    *
    *       // the index of this particular operation in the op stack
-   *       operationIndex: number
+   *       operationIndex: Number
    *     }
    *   ]
    * }
@@ -201,7 +209,7 @@ export class Server {
         if (results.length) {
           offerResults = results
             .map((result, i) => {
-              if (typeof result.value().value().success !== 'function') {
+              if (result.value().switch().name !== 'manageOffer') {
                 return null;
               }
 
@@ -235,14 +243,54 @@ export class Server {
                   amountBought = amountBought.add(claimedOfferAmountSold);
                   amountSold = amountSold.add(claimedOfferAmountBought);
 
+                  const assetSold = {
+                    type: offerClaimed.assetSold().switch().name
+                  };
+
+                  if (assetSold.type !== 'assetTypeNative') {
+                    assetSold.assetCode = offerClaimed
+                      .assetSold()
+                      .value()
+                      .assetCode()
+                      .toString()
+                      .replace(/\0/g, '');
+                    assetSold.issuer = StrKey.encodeEd25519PublicKey(
+                      offerClaimed
+                        .assetSold()
+                        .value()
+                        .issuer()
+                        .ed25519()
+                    );
+                  }
+
+                  const assetBought = {
+                    type: offerClaimed.assetBought().switch().name
+                  };
+
+                  if (assetBought.type !== 'assetTypeNative') {
+                    assetBought.assetCode = offerClaimed
+                      .assetBought()
+                      .value()
+                      .assetCode()
+                      .toString()
+                      .replace(/\0/g, '');
+                    assetBought.issuer = StrKey.encodeEd25519PublicKey(
+                      offerClaimed
+                        .assetBought()
+                        .value()
+                        .issuer()
+                        .ed25519()
+                    );
+                  }
+
                   return {
                     sellerId: StrKey.encodeEd25519PublicKey(
                       offerClaimed.sellerId().ed25519()
                     ),
-                    offerId: offerClaimed.offerId,
-                    assetSold: offerClaimed.assetSold().switch(),
+                    offerId: offerClaimed.offerId().toString(),
+                    assetSold,
                     amountSold: _getAmountInLumens(claimedOfferAmountSold),
-                    assetBought: offerClaimed.assetBought().switch(),
+                    assetBought,
                     amountBought: _getAmountInLumens(claimedOfferAmountBought)
                   };
                 });
