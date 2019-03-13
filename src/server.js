@@ -1,5 +1,5 @@
 import URI from 'urijs';
-import { xdr } from 'stellar-base';
+import { xdr, StrKey } from 'stellar-base';
 import BigNumber from 'bignumber.js';
 
 import { BadResponseError } from './errors';
@@ -25,6 +25,10 @@ import { TradeAggregationCallBuilder } from './trade_aggregation_call_builder';
 export const SUBMIT_TRANSACTION_TIMEOUT = 60 * 1000;
 
 const STROOPS_IN_LUMEN = 10000000;
+
+function _getAmountInLumens(amt) {
+  return new BigNumber(amt).div(STROOPS_IN_LUMEN).toString();
+}
 
 /**
  * Server handles the network connection to a [Horizon](https://www.stellar.org/developers/horizon/learn/index.html)
@@ -91,10 +95,8 @@ export class Server {
    *   ...response,
    *   offerResults: [
    *     {
-   *       // This is a list of potential offers generated from this
-   *       // manageOffer operation. All but the last one have been
-   *       // deleted. The last one _may_ be on the book, or may
-   *       // be partially filled, or may be deleted too.
+   *       // exact ordered list of offers that executed, with the exception
+   *       // that the last one may not have executed entirely.
    *       offersClaimed: [
    *         sellerId: String,
    *         offerId: number,
@@ -121,11 +123,30 @@ export class Server {
    *       amountBought: number,
    *       amountSold: number,
    *
-   *       // if the offer was created, updated, or partially filled, this is the current ID of the outstanding offer
-   *       lastOfferId: number,
+   *       // if the offer was created, updated, or partially filled, this is
+   *       // the outstanding offer
+   *       currentOffer: {
+   *         offerId: string,
+   *         amount: string,
+   *         price: {
+   *           n: string,
+   *           d: string,
+   *         },
+   *
+   *         selling: {
+   *           type: 'assetTypeNative|assetTypeCreditAlphanum4|assetTypeCreditAlphanum12',
+   *
+   *           // these are anly present if the asset is not native
+   *           assetCode: string,
+   *           issuer: string,
+   *         },
+   *
+   *         // same as `selling`
+   *         buying: {},
+   *       },
    *
    *       // the index of this particular operation in the op stack
-   *       index: number
+   *       operationIndex: number
    *     }
    *   ]
    * }
@@ -215,39 +236,89 @@ export class Server {
                   amountSold = amountSold.add(claimedOfferAmountBought);
 
                   return {
-                    sellerId: offerClaimed
-                      .sellerId()
-                      .value()
-                      .toString('hex'),
+                    sellerId: StrKey.encodeEd25519PublicKey(
+                      offerClaimed.sellerId().ed25519()
+                    ),
                     offerId: offerClaimed.offerId,
                     assetSold: offerClaimed.assetSold().switch(),
-                    amountSold: claimedOfferAmountSold
-                      .div(STROOPS_IN_LUMEN)
-                      .toString(),
+                    amountSold: _getAmountInLumens(claimedOfferAmountSold),
                     assetBought: offerClaimed.assetBought().switch(),
-                    amountBought: claimedOfferAmountBought
-                      .div(STROOPS_IN_LUMEN)
-                      .toString()
+                    amountBought: _getAmountInLumens(claimedOfferAmountBought)
                   };
                 });
 
               const effect = offerSuccess.offer().switch().name;
 
+              let currentOffer;
+
+              if (
+                typeof offerSuccess.offer().value === 'function' &&
+                offerSuccess.offer().value()
+              ) {
+                const offerXDR = offerSuccess.offer().value();
+
+                currentOffer = {
+                  offerId: offerXDR.offerId().toString(),
+                  selling: {
+                    type: offerXDR.selling().switch().name
+                  },
+                  buying: {
+                    type: offerXDR.buying().switch().name
+                  },
+                  amount: _getAmountInLumens(offerXDR.amount().toString()),
+                  price: {
+                    n: offerXDR.price().n(),
+                    d: offerXDR.price().d()
+                  }
+                };
+
+                if (currentOffer.selling.type !== 'assetTypeNative') {
+                  currentOffer.selling.assetCode = offerXDR
+                    .selling()
+                    .value()
+                    .assetCode()
+                    .toString()
+                    .replace(/\0/g, '');
+                  currentOffer.selling.issuer = StrKey.encodeEd25519PublicKey(
+                    offerXDR
+                      .selling()
+                      .value()
+                      .issuer()
+                      .ed25519()
+                  );
+                }
+
+                if (currentOffer.buying.type !== 'assetTypeNative') {
+                  currentOffer.buying.assetCode = offerXDR
+                    .buying()
+                    .value()
+                    .assetCode()
+                    .toString()
+                    .replace(/\0/g, '');
+                  currentOffer.buying.issuer = StrKey.encodeEd25519PublicKey(
+                    offerXDR
+                      .buying()
+                      .value()
+                      .issuer()
+                      .ed25519()
+                  );
+                }
+              }
+
               return {
                 offersClaimed,
                 effect,
-                index: i,
-                lastOfferId: offersClaimed.reduce(
-                  (memo, offerClaimed) => offerClaimed.offerId,
-                  null
-                ),
+                operationIndex: i,
+                currentOffer,
+
                 // this value is in stroops so divide it out
-                amountBought: amountBought.div(STROOPS_IN_LUMEN).toString(),
-                amountSold: amountSold.div(STROOPS_IN_LUMEN).toString(),
+                amountBought: _getAmountInLumens(amountBought),
+                amountSold: _getAmountInLumens(amountSold),
+
                 isFullyOpen:
-                  !offersClaimed.length && effect === 'manageOfferCreated',
+                  !offersClaimed.length && effect !== 'manageOfferDeleted',
                 wasPartiallyFilled:
-                  !!offersClaimed.length && effect === 'manageOfferCreated',
+                  !!offersClaimed.length && effect !== 'manageOfferDeleted',
                 wasImmediatelyFilled:
                   !!offersClaimed.length && effect === 'manageOfferDeleted',
                 wasImmediatelyDeleted:
