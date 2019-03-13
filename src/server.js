@@ -77,6 +77,11 @@ export class Server {
    * (with the shape `{ minTime: 0, maxTime: N }`) that you can set the `timebounds` option to.
    */
   fetchTimebounds(seconds, _isRetry = false) {
+    // throw if we're not in an instance
+    if (!this.serverURL) {
+      throw new Error('You must run on a StellarSdk class instance');
+    }
+
     // HorizonAxiosClient instead of this.ledgers so we can get at them headers
     const currentTime = getCurrentServerTime(this.serverURL.hostname());
 

@@ -124,6 +124,12 @@ describe('server.js tests', function() {
           done(e);
         });
     });
+
+    it('throw if not issued on StellarSdk instance', function() {
+      expect(() => StellarSdk.Server.prototype.fetchTimebounds()).to.throw(
+        /StellarSdk class instance/
+      );
+    });
   });
 
   describe('Server.fetchBaseFee', function() {
