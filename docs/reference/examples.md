@@ -28,9 +28,7 @@ using modern Javascript, but `await` calls can also be rendered with promises.
 // That site exposes a global StellarSdk object you can use.
 // To run this code in the Chrome, open the console tab in the DevTools.
 // The hotkey to open the DevTools console is Ctrl+Shift+J or (Cmd+Opt+J on Mac).
-
-// To use in node, do `npm install stellar-sdk` and uncomment the following line.
-// const StellarSdk = require('stellar-sdk');
+const StellarSdk = require('stellar-sdk');
 
 // The source account is the account we will be signing and sending from.
 const sourceSecretKey = 'SAKRB7EE6H23EF733WFU76RPIYOPEWVOMBBUXDQYQ3OF4NF6ZY6B6VLW';
@@ -50,54 +48,56 @@ const server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
 // StellarSdk.Network.usePublicNetwork();
 StellarSdk.Network.useTestNetwork();
 
-// Transactions require a valid sequence number that is specific to this account.
-// We can fetch the current sequence number for the source account from Horizon.
-const account = await server.loadAccount(sourcePublicKey);
+(async function main() {
+  // Transactions require a valid sequence number that is specific to this account.
+  // We can fetch the current sequence number for the source account from Horizon.
+  const account = await server.loadAccount(sourcePublicKey);
 
 
-// Right now, there's one function that fetches the base fee.
-// In the future, we'll have functions that are smarter about suggesting fees,
-// e.g.: `fetchCheapFee`, `fetchAverageFee`, `fetchPriorityFee`, etc.
-const fee = await server.fetchBaseFee();
+  // Right now, there's one function that fetches the base fee.
+  // In the future, we'll have functions that are smarter about suggesting fees,
+  // e.g.: `fetchCheapFee`, `fetchAverageFee`, `fetchPriorityFee`, etc.
+  const fee = await server.fetchBaseFee();
 
 
-const transaction = new StellarSdk.TransactionBuilder(account, { fee })
-  // Add a payment operation to the transaction
-  .addOperation(StellarSdk.Operation.payment({
-    destination: receiverPublicKey,
-    // The term native asset refers to lumens
-    asset: StellarSdk.Asset.native(),
-    // Specify 350.1234567 lumens. Lumens are divisible to seven digits past
-    // the decimal. They are represented in JS Stellar SDK in string format
-    // to avoid errors from the use of the JavaScript Number data structure.
-    amount: '350.1234567',
-  }))
-  // Make this transaction valid for the next 30 seconds only
-  .setTimeout(30)
-  // Uncomment to add a memo (https://www.stellar.org/developers/learn/concepts/transactions.html)
-  // .addMemo(StellarSdk.Memo.text('Hello world!'))
-  .build();
+  const transaction = new StellarSdk.TransactionBuilder(account, { fee })
+    // Add a payment operation to the transaction
+    .addOperation(StellarSdk.Operation.payment({
+      destination: receiverPublicKey,
+      // The term native asset refers to lumens
+      asset: StellarSdk.Asset.native(),
+      // Specify 350.1234567 lumens. Lumens are divisible to seven digits past
+      // the decimal. They are represented in JS Stellar SDK in string format
+      // to avoid errors from the use of the JavaScript Number data structure.
+      amount: '350.1234567',
+    }))
+    // Make this transaction valid for the next 30 seconds only
+    .setTimeout(30)
+    // Uncomment to add a memo (https://www.stellar.org/developers/learn/concepts/transactions.html)
+    // .addMemo(StellarSdk.Memo.text('Hello world!'))
+    .build();
 
-// Sign this transaction with the secret key
-// NOTE: signing is transaction is network specific. Test network transactions
-// won't work in the public network. To switch networks, use the Network object
-// as explained above (look for StellarSdk.Network).
-transaction.sign(sourceKeypair);
+  // Sign this transaction with the secret key
+  // NOTE: signing is transaction is network specific. Test network transactions
+  // won't work in the public network. To switch networks, use the Network object
+  // as explained above (look for StellarSdk.Network).
+  transaction.sign(sourceKeypair);
 
-// Let's see the XDR (encoded in base64) of the transaction we just built
-console.log(transaction.toEnvelope().toXDR('base64'));
+  // Let's see the XDR (encoded in base64) of the transaction we just built
+  console.log(transaction.toEnvelope().toXDR('base64'));
 
-// Submit the transaction to the Horizon server. The Horizon server will then
-// submit the transaction into the network for us.
-try {
-  const transactionResult = await server.submitTransaction(transaction);
-  console.log(JSON.stringify(transactionResult, null, 2));
-  console.log('\nSuccess! View the transaction at: ');
-  console.log(transactionResult._links.transaction.href);
-} catch (e) {
-  console.log('An error has occured:');
-  console.log(e);
-}
+  // Submit the transaction to the Horizon server. The Horizon server will then
+  // submit the transaction into the network for us.
+  try {
+    const transactionResult = await server.submitTransaction(transaction);
+    console.log(JSON.stringify(transactionResult, null, 2));
+    console.log('\nSuccess! View the transaction at: ');
+    console.log(transactionResult._links.transaction.href);
+  } catch (e) {
+    console.log('An error has occured:');
+    console.log(e);
+  }
+})();
 ```
 
 ## Loading an account's transaction history

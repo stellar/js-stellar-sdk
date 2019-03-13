@@ -101,34 +101,37 @@ Once you have built your transaction, you can submit it to the Stellar network w
 const StellarSdk = require('stellar-sdk')
 StellarSdk.Network.useTestNetwork();
 const server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
-const account = await server.loadAccount(publicKey);
 
-/* 
-    Right now, we have one function that fetches the base fee.
-    In the future, we'll have functions that are smarter about suggesting fees,
-    e.g.: `fetchCheapFee`, `fetchAverageFee`, `fetchPriorityFee`, etc.
-*/
-const fee = await server.fetchBaseFee();
+(async function main() {
+    const account = await server.loadAccount(publicKey);
 
-const transaction = new StellarSdk.TransactionBuilder(account, { fee })
-    .addOperation(
-        // this operation funds the new account with XLM
-        StellarSdk.Operation.payment({
-            destination: "GASOCNHNNLYFNMDJYQ3XFMI7BYHIOCFW3GJEOWRPEGK2TDPGTG2E5EDW",
-            asset: StellarSdk.Asset.native(),
-            amount: "20000000"
-        })
-    )
-    .setTimeout(30)
-    .build();
+    /* 
+        Right now, we have one function that fetches the base fee.
+        In the future, we'll have functions that are smarter about suggesting fees,
+        e.g.: `fetchCheapFee`, `fetchAverageFee`, `fetchPriorityFee`, etc.
+    */
+    const fee = await server.fetchBaseFee();
 
-// sign the transaction
-transaction.sign(StellarSdk.Keypair.fromSecret(secretString)); 
+    const transaction = new StellarSdk.TransactionBuilder(account, { fee })
+        .addOperation(
+            // this operation funds the new account with XLM
+            StellarSdk.Operation.payment({
+                destination: "GASOCNHNNLYFNMDJYQ3XFMI7BYHIOCFW3GJEOWRPEGK2TDPGTG2E5EDW",
+                asset: StellarSdk.Asset.native(),
+                amount: "20000000"
+            })
+        )
+        .setTimeout(30)
+        .build();
 
-try {
-    const transactionResult = await server.submitTransaction(transaction);
-    console.log(transactionResult);
-} catch (err) {
-  	console.error(err);
-}
+    // sign the transaction
+    transaction.sign(StellarSdk.Keypair.fromSecret(secretString)); 
+
+    try {
+        const transactionResult = await server.submitTransaction(transaction);
+        console.log(transactionResult);
+    } catch (err) {
+        console.error(err);
+    }
+})()
 ```
