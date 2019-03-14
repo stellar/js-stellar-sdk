@@ -6,13 +6,7 @@ describe('server.js transaction tests', function() {
     this.axiosMock = sinon.mock(HorizonAxiosClient);
     StellarSdk.Config.setDefault();
     StellarSdk.Network.useTestNetwork();
-  });
 
-  afterEach(function() {
-    this.axiosMock.verify();
-    this.axiosMock.restore();
-  });
-  it('sends a transaction', function(done) {
     let keypair = StellarSdk.Keypair.random();
     let account = new StellarSdk.Account(keypair.publicKey(), '56199647068161');
     let transaction = new StellarSdk.TransactionBuilder(account, { fee: 100 })
@@ -28,22 +22,30 @@ describe('server.js transaction tests', function() {
       .build();
     transaction.sign(keypair);
 
-    let blob = encodeURIComponent(
+    this.transaction = transaction;
+    this.blob = encodeURIComponent(
       transaction
         .toEnvelope()
         .toXDR()
         .toString('base64')
     );
+  });
+
+  afterEach(function() {
+    this.axiosMock.verify();
+    this.axiosMock.restore();
+  });
+  it('sends a transaction', function(done) {
     this.axiosMock
       .expects('post')
       .withArgs(
         'https://horizon-live.stellar.org:1337/transactions',
-        `tx=${blob}`
+        `tx=${this.blob}`
       )
       .returns(Promise.resolve({ data: {} }));
 
     this.server
-      .submitTransaction(transaction)
+      .submitTransaction(this.transaction)
       .then(function() {
         done();
       })
@@ -68,42 +70,16 @@ describe('server.js transaction tests', function() {
         'AAAAAQAAAAIAAAADAV1cFQAAAAAAAAAAhQARbeNC3f59tPqcIBIDX/xFZ2n18nbCjGo8dk9BQf8AAAACU4RoUgEH/OgAAAAiAAAABQAAAAEAAAAAhD8BLsZFQEF33rKS6YopQUT3b6iLBG4nspe68/DBNBYAAAAAAAAAAAEAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBXVwVAAAAAAAAAACFABFt40Ld/n20+pwgEgNf/EVnafXydsKMajx2T0FB/wAAAAJThGhSAQf86AAAACMAAAAFAAAAAQAAAACEPwEuxkVAQXfespLpiilBRPdvqIsEbieyl7rz8ME0FgAAAAAAAAAAAQAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAA='
     };
 
-    let keypair = StellarSdk.Keypair.random();
-    let account = new StellarSdk.Account(keypair.publicKey(), '56199647068161');
-    let transaction = new StellarSdk.TransactionBuilder(account, { fee: 100 })
-      // note that the values aren't actually the ones used in the response package!
-      // (I couldn't remember exactly what values I used to generate the transactions)
-      .addOperation(
-        StellarSdk.Operation.manageOffer({
-          selling: new StellarSdk.Asset(
-            'BAT',
-            'GBDEVU63Y6NTHJQQZIKVTC23NWLQVP3WJ2RI2OTSJTNYOIGICST6DUXR'
-          ),
-          buying: StellarSdk.Asset.native(),
-          amount: '0.0000001',
-          price: '0.0000001'
-        })
-      )
-      .setTimeout(StellarSdk.TimeoutInfinite)
-      .build();
-    transaction.sign(keypair);
-
-    let blob = encodeURIComponent(
-      transaction
-        .toEnvelope()
-        .toXDR()
-        .toString('base64')
-    );
     this.axiosMock
       .expects('post')
       .withArgs(
         'https://horizon-live.stellar.org:1337/transactions',
-        `tx=${blob}`
+        `tx=${this.blob}`
       )
       .returns(Promise.resolve({ data: response }));
 
     this.server
-      .submitTransaction(transaction)
+      .submitTransaction(this.transaction)
       .then(function(res) {
         expect(res.offerResults).to.be.an.instanceOf(Array);
         expect(res.offerResults[0].offersClaimed).to.be.an.instanceOf(Array);
@@ -141,42 +117,16 @@ describe('server.js transaction tests', function() {
         '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'
     };
 
-    let keypair = StellarSdk.Keypair.random();
-    let account = new StellarSdk.Account(keypair.publicKey(), '56199647068161');
-    let transaction = new StellarSdk.TransactionBuilder(account, { fee: 100 })
-      // note that the values aren't actually the ones used in the response package!
-      // (I couldn't remember exactly what values I used to generate the transactions)
-      .addOperation(
-        StellarSdk.Operation.manageOffer({
-          selling: new StellarSdk.Asset(
-            'BAT',
-            'GBDEVU63Y6NTHJQQZIKVTC23NWLQVP3WJ2RI2OTSJTNYOIGICST6DUXR'
-          ),
-          buying: StellarSdk.Asset.native(),
-          amount: '2',
-          price: '1'
-        })
-      )
-      .setTimeout(StellarSdk.TimeoutInfinite)
-      .build();
-    transaction.sign(keypair);
-
-    let blob = encodeURIComponent(
-      transaction
-        .toEnvelope()
-        .toXDR()
-        .toString('base64')
-    );
     this.axiosMock
       .expects('post')
       .withArgs(
         'https://horizon-live.stellar.org:1337/transactions',
-        `tx=${blob}`
+        `tx=${this.blob}`
       )
       .returns(Promise.resolve({ data: response }));
 
     this.server
-      .submitTransaction(transaction)
+      .submitTransaction(this.transaction)
       .then(function(res) {
         expect(res.offerResults).to.be.an.instanceOf(Array);
         expect(res.offerResults[0].offersClaimed).to.be.an.instanceOf(Array);
@@ -212,42 +162,16 @@ describe('server.js transaction tests', function() {
         'AAAAAQAAAAIAAAADAV1eAQAAAAAAAAAAhQARbeNC3f59tPqcIBIDX/xFZ2n18nbCjGo8dk9BQf8AAAACU4Rn7gEH/OgAAAAjAAAABQAAAAEAAAAAhD8BLsZFQEF33rKS6YopQUT3b6iLBG4nspe68/DBNBYAAAAAAAAAAAEAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBXV4BAAAAAAAAAACFABFt40Ld/n20+pwgEgNf/EVnafXydsKMajx2T0FB/wAAAAJThGfuAQf86AAAACQAAAAFAAAAAQAAAACEPwEuxkVAQXfespLpiilBRPdvqIsEbieyl7rz8ME0FgAAAAAAAAAAAQAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAUAAAADAV1cAgAAAAEAAAAAhQARbeNC3f59tPqcIBIDX/xFZ2n18nbCjGo8dk9BQf8AAAABQkFUAAAAAABGStPbx5szphDKFVmLW22XCr92TqKNOnJM24cgyBSn4QAAAAAAo9f5f/////////8AAAABAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBXV4BAAAAAQAAAACFABFt40Ld/n20+pwgEgNf/EVnafXydsKMajx2T0FB/wAAAAFCQVQAAAAAAEZK09vHmzOmEMoVWYtbbZcKv3ZOoo06ckzbhyDIFKfhAAAAAACj1/l//////////wAAAAEAAAABAAAAAACYloAAAAAAAAAAAAAAAAAAAAAAAAAAAwFdXgEAAAAAAAAAAIUAEW3jQt3+fbT6nCASA1/8RWdp9fJ2woxqPHZPQUH/AAAAAlOEZ+4BB/zoAAAAJAAAAAUAAAABAAAAAIQ/AS7GRUBBd96ykumKKUFE92+oiwRuJ7KXuvPwwTQWAAAAAAAAAAABAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAV1eAQAAAAAAAAAAhQARbeNC3f59tPqcIBIDX/xFZ2n18nbCjGo8dk9BQf8AAAACU4Rn7gEH/OgAAAAkAAAABgAAAAEAAAAAhD8BLsZFQEF33rKS6YopQUT3b6iLBG4nspe68/DBNBYAAAAAAAAAAAEAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAACYloAAAAAAAAAAAAAAAAABXV4BAAAAAgAAAACFABFt40Ld/n20+pwgEgNf/EVnafXydsKMajx2T0FB/wAAAAAEZqfGAAAAAAAAAAFCQVQAAAAAAEZK09vHmzOmEMoVWYtbbZcKv3ZOoo06ckzbhyDIFKfhAAAAAACYloAAAAABAAAAAQAAAAAAAAAAAAAAAA=='
     };
 
-    let keypair = StellarSdk.Keypair.random();
-    let account = new StellarSdk.Account(keypair.publicKey(), '56199647068161');
-    let transaction = new StellarSdk.TransactionBuilder(account, { fee: 100 })
-      // note that the values aren't actually the ones used in the response package!
-      // (I couldn't remember exactly what values I used to generate the transactions)
-      .addOperation(
-        StellarSdk.Operation.manageOffer({
-          selling: new StellarSdk.Asset(
-            'BAT',
-            'GBDEVU63Y6NTHJQQZIKVTC23NWLQVP3WJ2RI2OTSJTNYOIGICST6DUXR'
-          ),
-          buying: StellarSdk.Asset.native(),
-          amount: '0.0000001',
-          price: '0.0000001'
-        })
-      )
-      .setTimeout(StellarSdk.TimeoutInfinite)
-      .build();
-    transaction.sign(keypair);
-
-    let blob = encodeURIComponent(
-      transaction
-        .toEnvelope()
-        .toXDR()
-        .toString('base64')
-    );
     this.axiosMock
       .expects('post')
       .withArgs(
         'https://horizon-live.stellar.org:1337/transactions',
-        `tx=${blob}`
+        `tx=${this.blob}`
       )
       .returns(Promise.resolve({ data: response }));
 
     this.server
-      .submitTransaction(transaction)
+      .submitTransaction(this.transaction)
       .then(function(res) {
         expect(res.offerResults).to.be.an.instanceOf(Array);
         expect(res.offerResults[0].offersClaimed).to.be.an.instanceOf(Array);
@@ -283,42 +207,16 @@ describe('server.js transaction tests', function() {
         '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'
     };
 
-    let keypair = StellarSdk.Keypair.random();
-    let account = new StellarSdk.Account(keypair.publicKey(), '56199647068161');
-    let transaction = new StellarSdk.TransactionBuilder(account, { fee: 100 })
-      // note that the values aren't actually the ones used in the response package!
-      // (I couldn't remember exactly what values I used to generate the transactions)
-      .addOperation(
-        StellarSdk.Operation.manageOffer({
-          selling: new StellarSdk.Asset(
-            'BAT',
-            'GBDEVU63Y6NTHJQQZIKVTC23NWLQVP3WJ2RI2OTSJTNYOIGICST6DUXR'
-          ),
-          buying: StellarSdk.Asset.native(),
-          amount: '0.0000001',
-          price: '0.0000001'
-        })
-      )
-      .setTimeout(StellarSdk.TimeoutInfinite)
-      .build();
-    transaction.sign(keypair);
-
-    let blob = encodeURIComponent(
-      transaction
-        .toEnvelope()
-        .toXDR()
-        .toString('base64')
-    );
     this.axiosMock
       .expects('post')
       .withArgs(
         'https://horizon-live.stellar.org:1337/transactions',
-        `tx=${blob}`
+        `tx=${this.blob}`
       )
       .returns(Promise.resolve({ data: response }));
 
     this.server
-      .submitTransaction(transaction)
+      .submitTransaction(this.transaction)
       .then(function(res) {
         expect(res.offerResults).to.be.an.instanceOf(Array);
         expect(res.offerResults[0].offersClaimed).to.be.an.instanceOf(Array);
@@ -364,37 +262,16 @@ describe('server.js transaction tests', function() {
         'AAAAAQAAAAIAAAADAV1VkQAAAAAAAAAAhQARbeNC3f59tPqcIBIDX/xFZ2n18nbCjGo8dk9BQf8AAAACVLWYcQEH/OgAAAAdAAAABgAAAAEAAAAAhD8BLsZFQEF33rKS6YopQUT3b6iLBG4nspe68/DBNBYAAAAAAAAAAAEAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBXVWRAAAAAAAAAACFABFt40Ld/n20+pwgEgNf/EVnafXydsKMajx2T0FB/wAAAAJUtZhxAQf86AAAAB4AAAAGAAAAAQAAAACEPwEuxkVAQXfespLpiilBRPdvqIsEbieyl7rz8ME0FgAAAAAAAAAAAQAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAQAAAADAQpf6AAAAAEAAAAAhQARbeNC3f59tPqcIBIDX/xFZ2n18nbCjGo8dk9BQf8AAAABQlRDAAAAAAApOmMamdZfyMiYysumuD7WccmGIBUg0177NK+Ddu82JQAAAAAAAAAAf/////////8AAAABAAAAAAAAAAAAAAACAAAAAQAAAACFABFt40Ld/n20+pwgEgNf/EVnafXydsKMajx2T0FB/wAAAAFCVEMAAAAAACk6YxqZ1l/IyJjKy6a4PtZxyYYgFSDTXvs0r4N27zYlAAAAAwFdVZEAAAAAAAAAAIUAEW3jQt3+fbT6nCASA1/8RWdp9fJ2woxqPHZPQUH/AAAAAlS1mHEBB/zoAAAAHgAAAAYAAAABAAAAAIQ/AS7GRUBBd96ykumKKUFE92+oiwRuJ7KXuvPwwTQWAAAAAAAAAAABAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAV1VkQAAAAAAAAAAhQARbeNC3f59tPqcIBIDX/xFZ2n18nbCjGo8dk9BQf8AAAACVLWYcQEH/OgAAAAeAAAABQAAAAEAAAAAhD8BLsZFQEF33rKS6YopQUT3b6iLBG4nspe68/DBNBYAAAAAAAAAAAEAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=='
     };
 
-    let keypair = StellarSdk.Keypair.random();
-    let account = new StellarSdk.Account(keypair.publicKey(), '56199647068161');
-    let transaction = new StellarSdk.TransactionBuilder(account, { fee: 100 })
-      // note that the values aren't actually the ones used in the response package!
-      // (I couldn't remember exactly what values I used to generate the transactions)
-      .addOperation(
-        StellarSdk.Operation.changeTrust({
-          asset: StellarSdk.Asset.native(),
-          limit: '100.50'
-        })
-      )
-      .setTimeout(StellarSdk.TimeoutInfinite)
-      .build();
-    transaction.sign(keypair);
-
-    let blob = encodeURIComponent(
-      transaction
-        .toEnvelope()
-        .toXDR()
-        .toString('base64')
-    );
     this.axiosMock
       .expects('post')
       .withArgs(
         'https://horizon-live.stellar.org:1337/transactions',
-        `tx=${blob}`
+        `tx=${this.blob}`
       )
       .returns(Promise.resolve({ data: response }));
 
     this.server
-      .submitTransaction(transaction)
+      .submitTransaction(this.transaction)
       .then(function(res) {
         expect(res.offerResults).to.be.undefined;
         done();
@@ -421,66 +298,16 @@ describe('server.js transaction tests', function() {
         'AAAAAQAAAAIAAAADAV1ZggAAAAAAAAAAhQARbeNC3f59tPqcIBIDX/xFZ2n18nbCjGo8dk9BQf8AAAACVLWW4QEH/OgAAAAeAAAABQAAAAEAAAAAhD8BLsZFQEF33rKS6YopQUT3b6iLBG4nspe68/DBNBYAAAAAAAAAAAEAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBXVmCAAAAAAAAAACFABFt40Ld/n20+pwgEgNf/EVnafXydsKMajx2T0FB/wAAAAJUtZbhAQf86AAAAB8AAAAFAAAAAQAAAACEPwEuxkVAQXfespLpiilBRPdvqIsEbieyl7rz8ME0FgAAAAAAAAAAAQAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAIAAAADAVqyvQAAAAEAAAAAhQARbeNC3f59tPqcIBIDX/xFZ2n18nbCjGo8dk9BQf8AAAABQkFUAAAAAABGStPbx5szphDKFVmLW22XCr92TqKNOnJM24cgyBSn4QAAAAAAAAAAf/////////8AAAABAAAAAAAAAAAAAAABAV1ZggAAAAEAAAAAhQARbeNC3f59tPqcIBIDX/xFZ2n18nbCjGo8dk9BQf8AAAABQkFUAAAAAABGStPbx5szphDKFVmLW22XCr92TqKNOnJM24cgyBSn4QAAAAAAAAAAf/////////8AAAABAAAAAAAAAAAAAAACAAAAAwFdWYIAAAAAAAAAAIUAEW3jQt3+fbT6nCASA1/8RWdp9fJ2woxqPHZPQUH/AAAAAlS1luEBB/zoAAAAHwAAAAUAAAABAAAAAIQ/AS7GRUBBd96ykumKKUFE92+oiwRuJ7KXuvPwwTQWAAAAAAAAAAABAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAV1ZggAAAAAAAAAAhQARbeNC3f59tPqcIBIDX/xFZ2n18nbCjGo8dk9BQf8AAAACVLWW4QEH/OgAAAAfAAAABQAAAAEAAAAAhD8BLsZFQEF33rKS6YopQUT3b6iLBG4nspe68/DBNBYAAAAAAAAAAAEAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
     };
 
-    let keypair = StellarSdk.Keypair.random();
-    let account = new StellarSdk.Account(keypair.publicKey(), '56199647068161');
-
-    let transaction = new StellarSdk.TransactionBuilder(account, { fee: 100 })
-      // note that the values aren't actually the ones used in the response package!
-      // (I couldn't remember exactly what values I used to generate the transactions)
-      .addOperation(
-        StellarSdk.Operation.changeTrust({
-          asset: StellarSdk.Asset.native(),
-          limit: '100.50'
-        })
-      )
-      .addOperation(
-        StellarSdk.Operation.setOptions({
-          inflationDest: keypair.publicKey()
-        })
-      )
-      .addOperation(
-        StellarSdk.Operation.manageOffer({
-          selling: new StellarSdk.Asset(
-            'BAT',
-            'GBDEVU63Y6NTHJQQZIKVTC23NWLQVP3WJ2RI2OTSJTNYOIGICST6DUXR'
-          ),
-          buying: StellarSdk.Asset.native(),
-          amount: '0.0000001',
-          price: '0.0000001'
-        })
-      )
-      .addOperation(
-        StellarSdk.Operation.manageOffer({
-          selling: new StellarSdk.Asset(
-            'BAT',
-            'GBDEVU63Y6NTHJQQZIKVTC23NWLQVP3WJ2RI2OTSJTNYOIGICST6DUXR'
-          ),
-          buying: StellarSdk.Asset.native(),
-          amount: '0.0000001',
-          price: '0.0000001'
-        })
-      )
-
-      .setTimeout(StellarSdk.TimeoutInfinite)
-      .build();
-    transaction.sign(keypair);
-
-    let blob = encodeURIComponent(
-      transaction
-        .toEnvelope()
-        .toXDR()
-        .toString('base64')
-    );
     this.axiosMock
       .expects('post')
       .withArgs(
         'https://horizon-live.stellar.org:1337/transactions',
-        `tx=${blob}`
+        `tx=${this.blob}`
       )
       .returns(Promise.resolve({ data: response }));
 
     this.server
-      .submitTransaction(transaction)
+      .submitTransaction(this.transaction)
       .then(function(res) {
         expect(res.offerResults).to.be.an.instanceOf(Array);
         expect(res.offerResults).to.have.lengthOf(2);
