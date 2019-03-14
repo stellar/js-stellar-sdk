@@ -76,15 +76,15 @@ describe('server.js tests', function() {
         // use MockAdapter instead of this.axiosMock
         // because we don't want to replace the get function
         // we need to use axios's one so interceptors run!!
-        this.mock = new MockAdapter(HorizonAxiosClient);
+        this.axiosMockAdapter = new MockAdapter(HorizonAxiosClient);
       });
 
       afterEach(function() {
-        this.mock.restore();
+        this.axiosMockAdapter.restore();
       });
 
       it('fetches if nothing is recorded', function(done) {
-        this.axiosMock.onGet(/fee_stats/).reply(
+        this.axiosMockAdapter.onGet(/fee_stats/).reply(
           200,
           {},
           {
@@ -111,7 +111,7 @@ describe('server.js tests', function() {
       });
 
       it('fetches falls back to local time if fetch is bad', function(done) {
-        this.axiosMock.onGet(/fee_stats/).reply(200, {}, {});
+        this.axiosMockAdapter.onGet(/fee_stats/).reply(200, {}, {});
 
         SERVER_TIME_MAP['horizon-live.stellar.org'] = undefined;
 
