@@ -1,5 +1,5 @@
 import URI from 'urijs';
-import { xdr, StrKey } from 'stellar-base';
+import { xdr, StrKey, Asset } from 'stellar-base';
 import BigNumber from 'bignumber.js';
 
 import { BadResponseError } from './errors';
@@ -101,9 +101,9 @@ export class Server {
    *         sellerId: String,
    *         offerId: String,
    *         assetSold: {
-   *           type: 'assetTypeNative|assetTypeCreditAlphanum4|assetTypeCreditAlphanum12',
+   *           type: 'native|credit_alphanum4|credit_alphanum12',
    *
-   *           // these are anly present if the asset is not native
+   *           // these are only present if the asset is not native
    *           assetCode: String,
    *           issuer: String,
    *         },
@@ -142,9 +142,9 @@ export class Server {
    *         },
    *
    *         selling: {
-   *           type: 'assetTypeNative|assetTypeCreditAlphanum4|assetTypeCreditAlphanum12',
+   *           type: 'native|credit_alphanum4|credit_alphanum12',
    *
-   *           // these are anly present if the asset is not native
+   *           // these are only present if the asset is not native
    *           assetCode: String,
    *           issuer: String,
    *         },
@@ -243,45 +243,22 @@ export class Server {
                   amountBought = amountBought.add(claimedOfferAmountSold);
                   amountSold = amountSold.add(claimedOfferAmountBought);
 
-                  const assetSold = {
-                    type: offerClaimed.assetSold().switch().name
-                  };
+                  const sold = Asset.fromOperation(offerClaimed.assetSold());
+                  const bought = Asset.fromOperation(
+                    offerClaimed.assetBought()
+                  );
 
-                  if (assetSold.type !== 'assetTypeNative') {
-                    assetSold.assetCode = offerClaimed
-                      .assetSold()
-                      .value()
-                      .assetCode()
-                      .toString()
-                      .replace(/\0/g, '');
-                    assetSold.issuer = StrKey.encodeEd25519PublicKey(
-                      offerClaimed
-                        .assetSold()
-                        .value()
-                        .issuer()
-                        .ed25519()
-                    );
-                  }
+                  const assetSold = {
+                    type: sold.getAssetType(),
+                    assetCode: sold.getCode(),
+                    issuer: sold.getIssuer()
+                  };
 
                   const assetBought = {
-                    type: offerClaimed.assetBought().switch().name
+                    type: bought.getAssetType(),
+                    assetCode: bought.getCode(),
+                    issuer: bought.getIssuer()
                   };
-
-                  if (assetBought.type !== 'assetTypeNative') {
-                    assetBought.assetCode = offerClaimed
-                      .assetBought()
-                      .value()
-                      .assetCode()
-                      .toString()
-                      .replace(/\0/g, '');
-                    assetBought.issuer = StrKey.encodeEd25519PublicKey(
-                      offerClaimed
-                        .assetBought()
-                        .value()
-                        .issuer()
-                        .ed25519()
-                    );
-                  }
 
                   return {
                     sellerId: StrKey.encodeEd25519PublicKey(
@@ -307,12 +284,8 @@ export class Server {
 
                 currentOffer = {
                   offerId: offerXDR.offerId().toString(),
-                  selling: {
-                    type: offerXDR.selling().switch().name
-                  },
-                  buying: {
-                    type: offerXDR.buying().switch().name
-                  },
+                  selling: {},
+                  buying: {},
                   amount: _getAmountInLumens(offerXDR.amount().toString()),
                   price: {
                     n: offerXDR.price().n(),
@@ -320,37 +293,21 @@ export class Server {
                   }
                 };
 
-                if (currentOffer.selling.type !== 'assetTypeNative') {
-                  currentOffer.selling.assetCode = offerXDR
-                    .selling()
-                    .value()
-                    .assetCode()
-                    .toString()
-                    .replace(/\0/g, '');
-                  currentOffer.selling.issuer = StrKey.encodeEd25519PublicKey(
-                    offerXDR
-                      .selling()
-                      .value()
-                      .issuer()
-                      .ed25519()
-                  );
-                }
+                const selling = Asset.fromOperation(offerXDR.selling());
 
-                if (currentOffer.buying.type !== 'assetTypeNative') {
-                  currentOffer.buying.assetCode = offerXDR
-                    .buying()
-                    .value()
-                    .assetCode()
-                    .toString()
-                    .replace(/\0/g, '');
-                  currentOffer.buying.issuer = StrKey.encodeEd25519PublicKey(
-                    offerXDR
-                      .buying()
-                      .value()
-                      .issuer()
-                      .ed25519()
-                  );
-                }
+                currentOffer.selling = {
+                  type: selling.getAssetType(),
+                  assetCode: selling.getCode(),
+                  issuer: selling.getIssuer()
+                };
+
+                const buying = Asset.fromOperation(offerXDR.buying());
+
+                currentOffer.buying = {
+                  type: buying.getAssetType(),
+                  assetCode: buying.getCode(),
+                  issuer: buying.getIssuer()
+                };
               }
 
               return {

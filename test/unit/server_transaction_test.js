@@ -115,6 +115,7 @@ describe('server.js transaction tests', function() {
         expect(res.offerResults[0].operationIndex).to.equal(0);
         expect(res.offerResults[0].amountBought).to.equal('0');
         expect(res.offerResults[0].amountSold).to.equal('0');
+        expect(res.offerResults[0].currentOffer).to.equal(undefined);
 
         done();
       })
@@ -330,6 +331,15 @@ describe('server.js transaction tests', function() {
         expect(res.offerResults[0].wasPartiallyFilled).to.equal(true);
         expect(res.offerResults[0].isFullyOpen).to.equal(false);
         expect(res.offerResults[0].operationIndex).to.equal(0);
+        expect(res.offerResults[0].currentOffer.selling.type).to.equal(
+          'native'
+        );
+        expect(res.offerResults[0].currentOffer.buying.assetCode).to.equal(
+          'BAT'
+        );
+        expect(res.offerResults[0].currentOffer.buying.issuer).to.equal(
+          'GBDEVU63Y6NTHJQQZIKVTC23NWLQVP3WJ2RI2OTSJTNYOIGICST6DUXR'
+        );
 
         done();
       })
