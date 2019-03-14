@@ -49,7 +49,7 @@ export default HorizonAxiosClient;
 /**
  * Given a hostname, get the current time of that server (i.e., use the last-
  * recorded server time and offset it by the time since then.) If there IS no
- * recorded server time, then return null.
+ * recorded server time, or it's been 5 minutes since the last, return null.
  * @param {string} hostname Hostname of a Horizon server.
  * @returns {number} The UNIX timestamp (in seconds, not milliseconds)
  * representing the current time on that server, or `null` if we don't have
@@ -68,5 +68,11 @@ export function getCurrentServerTime(hostname) {
   }
 
   const currentTime = _toSeconds(new Date().getTime());
+
+  // if it's been more than 5 minutes from the last time, then null it out
+  if (currentTime - localTimeRecorded > 60 * 5) {
+    return null;
+  }
+
   return currentTime - localTimeRecorded + serverTime;
 }

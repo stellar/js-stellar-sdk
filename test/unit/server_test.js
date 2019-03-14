@@ -57,13 +57,13 @@ describe('server.js tests', function() {
     it('uses SERVER_TIME_MAP if theres a recorded thing', function(done) {
       SERVER_TIME_MAP['horizon-live.stellar.org'] = {
         serverTime: 10,
-        localTimeRecorded: 0
+        localTimeRecorded: 10000
       };
 
       this.server
         .fetchTimebounds(20)
         .then((serverTime) => {
-          expect(serverTime).to.eql({ minTime: 0, maxTime: 10080 });
+          expect(serverTime).to.eql({ minTime: 0, maxTime: 80 });
           done();
         })
         .catch((e) => {
@@ -93,6 +93,36 @@ describe('server.js tests', function() {
         );
 
         SERVER_TIME_MAP['horizon-live.stellar.org'] = undefined;
+
+        this.server
+          .fetchTimebounds(20)
+          .then((serverTime) => {
+            expect(serverTime).to.eql({
+              minTime: 0,
+              // this is server time 1552515307 plus 20
+              maxTime: 1552515327
+            });
+
+            done();
+          })
+          .catch((e) => {
+            done(e);
+          });
+      });
+
+      it('fetches if the old time is too old', function(done) {
+        this.axiosMockAdapter.onGet(/fee_stats/).reply(
+          200,
+          {},
+          {
+            Date: 'Wed, 13 Mar 2019 22:15:07 GMT'
+          }
+        );
+
+        SERVER_TIME_MAP['horizon-live.stellar.org'] = {
+          serverTime: 'Wed, 13 Mar 2010 22:15:07 GMT',
+          localTimeRecorded: 50
+        };
 
         this.server
           .fetchTimebounds(20)
