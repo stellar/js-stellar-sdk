@@ -103,8 +103,9 @@ export class Server {
       });
     }
 
-    // otherwise, retry (by calling the fee endpoint)
-    return HorizonAxiosClient.get(`${URI(this.serverURL)}/fee_stats`).then(() =>
+    // otherwise, retry (by calling the root endpoint)
+    // toString automatically adds the trailing slash
+    return HorizonAxiosClient.get(URI(this.serverURL).toString()).then(() =>
       this.fetchTimebounds(seconds, true)
     );
   }

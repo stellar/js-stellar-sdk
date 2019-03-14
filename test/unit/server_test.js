@@ -84,13 +84,15 @@ describe('server.js non-transaction tests', function() {
       });
 
       it('fetches if nothing is recorded', function(done) {
-        this.axiosMockAdapter.onGet(/fee_stats/).reply(
-          200,
-          {},
-          {
-            Date: 'Wed, 13 Mar 2019 22:15:07 GMT'
-          }
-        );
+        this.axiosMockAdapter
+          .onGet('https://horizon-live.stellar.org:1337/')
+          .reply(
+            200,
+            {},
+            {
+              Date: 'Wed, 13 Mar 2019 22:15:07 GMT'
+            }
+          );
 
         SERVER_TIME_MAP['horizon-live.stellar.org'] = undefined;
 
@@ -111,13 +113,15 @@ describe('server.js non-transaction tests', function() {
       });
 
       it('fetches if the old time is too old', function(done) {
-        this.axiosMockAdapter.onGet(/fee_stats/).reply(
-          200,
-          {},
-          {
-            Date: 'Wed, 13 Mar 2019 22:15:07 GMT'
-          }
-        );
+        this.axiosMockAdapter
+          .onGet('https://horizon-live.stellar.org:1337/')
+          .reply(
+            200,
+            {},
+            {
+              Date: 'Wed, 13 Mar 2019 22:15:07 GMT'
+            }
+          );
 
         SERVER_TIME_MAP['horizon-live.stellar.org'] = {
           serverTime: 'Wed, 13 Mar 2010 22:15:07 GMT',
@@ -141,7 +145,9 @@ describe('server.js non-transaction tests', function() {
       });
 
       it('fetches falls back to local time if fetch is bad', function(done) {
-        this.axiosMockAdapter.onGet(/fee_stats/).reply(200, {}, {});
+        this.axiosMockAdapter
+          .onGet('https://horizon-live.stellar.org:1337/')
+          .reply(200, {}, {});
 
         SERVER_TIME_MAP['horizon-live.stellar.org'] = undefined;
 
