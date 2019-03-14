@@ -22,6 +22,10 @@ A breaking change will get clearly marked in this log.
 - Add `includeFailed` to `OperationCallBuilder` for including failed
   transactions in calls
 - Add `operationFeeStats` to `Server` for the new fee stats endpoint
+- After submitting a transaction with a `manageOffer` operation, return a new
+  property `offerResults`, which explains what happened to the offer. See
+  [`Server.prototype.submitTransaction`](https://stellar.github.io/js-stellar-sdk/Server.html#submitTransaction)
+  for documentation.
 
 ## 0.13.0
 
