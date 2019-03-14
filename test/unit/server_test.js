@@ -1,4 +1,4 @@
-describe('server.js tests', function() {
+describe('server.js non-transaction tests', function() {
   beforeEach(function() {
     this.server = new StellarSdk.Server(
       'https://horizon-live.stellar.org:1337'
@@ -654,51 +654,6 @@ describe('server.js tests', function() {
             });
         });
       });
-    });
-  });
-
-  describe('Server.submitTransaction', function() {
-    it('sends a transaction', function(done) {
-      let keypair = StellarSdk.Keypair.random();
-      let account = new StellarSdk.Account(
-        keypair.publicKey(),
-        '56199647068161'
-      );
-      let transaction = new StellarSdk.TransactionBuilder(account, { fee: 100 })
-        .addOperation(
-          StellarSdk.Operation.payment({
-            destination:
-              'GASOCNHNNLYFNMDJYQ3XFMI7BYHIOCFW3GJEOWRPEGK2TDPGTG2E5EDW',
-            asset: StellarSdk.Asset.native(),
-            amount: '100.50'
-          })
-        )
-        .setTimeout(StellarSdk.TimeoutInfinite)
-        .build();
-      transaction.sign(keypair);
-
-      let blob = encodeURIComponent(
-        transaction
-          .toEnvelope()
-          .toXDR()
-          .toString('base64')
-      );
-      this.axiosMock
-        .expects('post')
-        .withArgs(
-          'https://horizon-live.stellar.org:1337/transactions',
-          `tx=${blob}`
-        )
-        .returns(Promise.resolve({ data: {} }));
-
-      this.server
-        .submitTransaction(transaction)
-        .then(function() {
-          done();
-        })
-        .catch(function(err) {
-          done(err);
-        });
     });
   });
 

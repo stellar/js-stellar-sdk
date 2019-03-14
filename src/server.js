@@ -1,4 +1,6 @@
 import URI from 'urijs';
+import { xdr, StrKey, Asset } from 'stellar-base';
+import BigNumber from 'bignumber.js';
 
 import { BadResponseError } from './errors';
 
@@ -21,6 +23,12 @@ import { AssetsCallBuilder } from './assets_call_builder';
 import { TradeAggregationCallBuilder } from './trade_aggregation_call_builder';
 
 export const SUBMIT_TRANSACTION_TIMEOUT = 60 * 1000;
+
+const STROOPS_IN_LUMEN = 10000000;
+
+function _getAmountInLumens(amt) {
+  return new BigNumber(amt).div(STROOPS_IN_LUMEN).toString();
+}
 
 /**
  * Server handles the network connection to a [Horizon](https://www.stellar.org/developers/horizon/learn/index.html)
@@ -77,6 +85,93 @@ export class Server {
   /**
    * Submits a transaction to the network.
    *
+   * If you submit any number of `manageOffer` operations, this will add
+   * an attribute to the response that will help you analyze what happened
+   * with your offers.
+   *
+   * Ex:
+   * ```javascript
+   * const res = {
+   *   ...response,
+   *   offerResults: [
+   *     {
+   *       // Exact ordered list of offers that executed, with the exception
+   *       // that the last one may not have executed entirely.
+   *       offersClaimed: [
+   *         sellerId: String,
+   *         offerId: String,
+   *         assetSold: {
+   *           type: 'native|credit_alphanum4|credit_alphanum12',
+   *
+   *           // these are only present if the asset is not native
+   *           assetCode: String,
+   *           issuer: String,
+   *         },
+   *
+   *         // same shape as assetSold
+   *         assetBought: {}
+   *       ],
+   *
+   *       // What effect your manageOffer op had
+   *       effect: "manageOfferCreated|manageOfferUpdated|manageOfferDeleted",
+   *
+   *       // Whether your offer immediately got matched and filled
+   *       wasImmediatelyFilled: Boolean,
+   *
+   *       // Whether your offer immediately got deleted, if for example the order was too small
+   *       wasImmediatelyDeleted: Boolean,
+   *
+   *       // Whether the offer was partially, but not completely, filled
+   *       wasPartiallyFilled: Boolean,
+   *
+   *       // The full requested amount of the offer is open for matching
+   *       isFullyOpen: Boolean,
+   *
+   *       // The total amount of tokens bought / sold during transaction execution
+   *       amountBought: Number,
+   *       amountSold: Number,
+   *
+   *       // if the offer was created, updated, or partially filled, this is
+   *       // the outstanding offer
+   *       currentOffer: {
+   *         offerId: String,
+   *         amount: String,
+   *         price: {
+   *           n: String,
+   *           d: String,
+   *         },
+   *
+   *         selling: {
+   *           type: 'native|credit_alphanum4|credit_alphanum12',
+   *
+   *           // these are only present if the asset is not native
+   *           assetCode: String,
+   *           issuer: String,
+   *         },
+   *
+   *         // same as `selling`
+   *         buying: {},
+   *       },
+   *
+   *       // the index of this particular operation in the op stack
+   *       operationIndex: Number
+   *     }
+   *   ]
+   * }
+   * ```
+   *
+   * For example, you'll want to examine `offerResults` to add affordances
+   * like these to your app:
+   * * If `wasImmediatelyFilled` is true, then no offer was created. So if you
+   * normally watch the `Server.offers` endpoint for offer updates, you instead
+   * need to check `Server.trades` to find the result of this filled offer.
+   * * If `wasImmediatelyDeleted` is true, then the offer you submitted was
+   * deleted without reaching the orderbook or being matched (possibly because
+   * your amounts were rounded down to zero). So treat the just-submitted offer
+   * request as if it never happened.
+   * * If `wasPartiallyFilled` is true, you can tell the user that `amountBought`
+   * or `amountSold` have already been transferred.
+   *
    * @see [Post Transaction](https://www.stellar.org/developers/horizon/reference/transactions-create.html)
    * @param {Transaction} transaction - The transaction to submit.
    * @returns {Promise} Promise that resolves or rejects with response from horizon.
@@ -88,6 +183,7 @@ export class Server {
         .toXDR()
         .toString('base64')
     );
+
     return HorizonAxiosClient.post(
       URI(this.serverURL)
         .segment('transactions')
@@ -95,7 +191,152 @@ export class Server {
       `tx=${tx}`,
       { timeout: SUBMIT_TRANSACTION_TIMEOUT }
     )
-      .then((response) => response.data)
+      .then((response) => {
+        if (!response.data.result_xdr) {
+          return response.data;
+        }
+
+        const responseXDR = xdr.TransactionResult.fromXDR(
+          response.data.result_xdr,
+          'base64'
+        );
+
+        const results = responseXDR.result().value();
+
+        let offerResults;
+        let hasManageOffer;
+
+        if (results.length) {
+          offerResults = results
+            .map((result, i) => {
+              if (result.value().switch().name !== 'manageOffer') {
+                return null;
+              }
+
+              hasManageOffer = true;
+
+              let amountBought = new BigNumber(0);
+              let amountSold = new BigNumber(0);
+
+              const offerSuccess = result
+                .value()
+                .value()
+                .success();
+
+              const offersClaimed = offerSuccess
+                .offersClaimed()
+                .map((offerClaimed) => {
+                  const claimedOfferAmountBought = new BigNumber(
+                    // amountBought is a js-xdr hyper
+                    offerClaimed.amountBought().toString()
+                  );
+                  const claimedOfferAmountSold = new BigNumber(
+                    // amountBought is a js-xdr hyper
+                    offerClaimed.amountSold().toString()
+                  );
+
+                  // This is an offer that was filled by the one just submitted.
+                  // So this offer has an _opposite_ bought/sold frame of ref
+                  // than from what we just submitted!
+                  // So add this claimed offer's bought to the SOLD count and vice v
+
+                  amountBought = amountBought.add(claimedOfferAmountSold);
+                  amountSold = amountSold.add(claimedOfferAmountBought);
+
+                  const sold = Asset.fromOperation(offerClaimed.assetSold());
+                  const bought = Asset.fromOperation(
+                    offerClaimed.assetBought()
+                  );
+
+                  const assetSold = {
+                    type: sold.getAssetType(),
+                    assetCode: sold.getCode(),
+                    issuer: sold.getIssuer()
+                  };
+
+                  const assetBought = {
+                    type: bought.getAssetType(),
+                    assetCode: bought.getCode(),
+                    issuer: bought.getIssuer()
+                  };
+
+                  return {
+                    sellerId: StrKey.encodeEd25519PublicKey(
+                      offerClaimed.sellerId().ed25519()
+                    ),
+                    offerId: offerClaimed.offerId().toString(),
+                    assetSold,
+                    amountSold: _getAmountInLumens(claimedOfferAmountSold),
+                    assetBought,
+                    amountBought: _getAmountInLumens(claimedOfferAmountBought)
+                  };
+                });
+
+              const effect = offerSuccess.offer().switch().name;
+
+              let currentOffer;
+
+              if (
+                typeof offerSuccess.offer().value === 'function' &&
+                offerSuccess.offer().value()
+              ) {
+                const offerXDR = offerSuccess.offer().value();
+
+                currentOffer = {
+                  offerId: offerXDR.offerId().toString(),
+                  selling: {},
+                  buying: {},
+                  amount: _getAmountInLumens(offerXDR.amount().toString()),
+                  price: {
+                    n: offerXDR.price().n(),
+                    d: offerXDR.price().d()
+                  }
+                };
+
+                const selling = Asset.fromOperation(offerXDR.selling());
+
+                currentOffer.selling = {
+                  type: selling.getAssetType(),
+                  assetCode: selling.getCode(),
+                  issuer: selling.getIssuer()
+                };
+
+                const buying = Asset.fromOperation(offerXDR.buying());
+
+                currentOffer.buying = {
+                  type: buying.getAssetType(),
+                  assetCode: buying.getCode(),
+                  issuer: buying.getIssuer()
+                };
+              }
+
+              return {
+                offersClaimed,
+                effect,
+                operationIndex: i,
+                currentOffer,
+
+                // this value is in stroops so divide it out
+                amountBought: _getAmountInLumens(amountBought),
+                amountSold: _getAmountInLumens(amountSold),
+
+                isFullyOpen:
+                  !offersClaimed.length && effect !== 'manageOfferDeleted',
+                wasPartiallyFilled:
+                  !!offersClaimed.length && effect !== 'manageOfferDeleted',
+                wasImmediatelyFilled:
+                  !!offersClaimed.length && effect === 'manageOfferDeleted',
+                wasImmediatelyDeleted:
+                  !offersClaimed.length && effect === 'manageOfferDeleted'
+              };
+            })
+            .filter((result) => !!result);
+        }
+
+        return Object.assign({}, response.data, {
+          offerResults: hasManageOffer ? offerResults : undefined
+        });
+      })
       .catch((response) => {
         if (response instanceof Error) {
           return Promise.reject(response);

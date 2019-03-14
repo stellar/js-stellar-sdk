@@ -5,7 +5,6 @@ var isparta = require('isparta');
 var plugins = require('gulp-load-plugins')();
 var server = require('gulp-develop-server');
 var webpack = require('webpack');
-var fs = require('fs');
 var clear = require('clear');
 var plumber = require('gulp-plumber');
 var BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
