@@ -62,8 +62,8 @@ export class Server {
    * your machine's local time could be different from Horizon's. This gives you
    * more assurance that your timebounds will reflect what you want.
    *
-   * Note that this will generate your timebounds when you **run the function**,
-   * not when you submit the function! So give yourself enough time to get
+   * Note that this will generate your timebounds when you **init the transaction**,
+   * not when you build or submit the transaction! So give yourself enough time to get
    * the transaction built and signed before submitting.
    *
    * Example:

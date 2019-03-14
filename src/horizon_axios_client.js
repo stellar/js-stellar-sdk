@@ -58,12 +58,7 @@ export default HorizonAxiosClient;
 export function getCurrentServerTime(hostname) {
   const { serverTime, localTimeRecorded } = SERVER_TIME_MAP[hostname] || {};
 
-  if (
-    serverTime === undefined ||
-    localTimeRecorded === undefined ||
-    serverTime === null ||
-    localTimeRecorded === null
-  ) {
+  if (!serverTime || !localTimeRecorded) {
     return null;
   }
 
