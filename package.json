@@ -109,6 +109,7 @@
   },
   "dependencies": {
     "axios": "^0.18.0",
+    "bignumber.js": "^4.0.0",
     "detect-node": "^2.0.4",
     "es6-promise": "^4.2.4",
     "eventsource": "^1.0.7",
