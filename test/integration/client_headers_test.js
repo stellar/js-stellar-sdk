@@ -1,6 +1,6 @@
 const http = require('http');
 const url = require('url');
-const port = 3000;
+const port = 3100;
 
 describe('integration tests', function(done) {
   if (typeof window !== 'undefined') {
