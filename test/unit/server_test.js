@@ -71,58 +71,60 @@ describe('server.js tests', function() {
         });
     });
 
-    it('fetches if nothing is recorded', function(done) {
-      // use MockAdapter instead of this.axiosMock
-      // because we don't want to replace the get function
-      // we need to use axios's one so interceptors run!!
+    describe('with MockAdapter mocks', function() {
+      beforeEach(function() {
+        // use MockAdapter instead of this.axiosMock
+        // because we don't want to replace the get function
+        // we need to use axios's one so interceptors run!!
+        this.mock = new MockAdapter(HorizonAxiosClient);
+      });
 
-      const mock = new MockAdapter(HorizonAxiosClient);
+      afterEach(function() {
+        this.mock.restore();
+      });
 
-      mock.onGet(/fee_stats/).reply(
-        200,
-        {},
-        {
-          Date: 'Wed, 13 Mar 2019 22:15:07 GMT'
-        }
-      );
+      it('fetches if nothing is recorded', function(done) {
+        this.axiosMock.onGet(/fee_stats/).reply(
+          200,
+          {},
+          {
+            Date: 'Wed, 13 Mar 2019 22:15:07 GMT'
+          }
+        );
 
-      SERVER_TIME_MAP['horizon-live.stellar.org'] = undefined;
+        SERVER_TIME_MAP['horizon-live.stellar.org'] = undefined;
 
-      this.server
-        .fetchTimebounds(20)
-        .then((serverTime) => {
-          expect(serverTime).to.eql({
-            minTime: 0,
-            // this is server time 1552515307 plus 20
-            maxTime: 1552515327
+        this.server
+          .fetchTimebounds(20)
+          .then((serverTime) => {
+            expect(serverTime).to.eql({
+              minTime: 0,
+              // this is server time 1552515307 plus 20
+              maxTime: 1552515327
+            });
+
+            done();
+          })
+          .catch((e) => {
+            done(e);
           });
+      });
 
-          done();
-        })
-        .catch((e) => {
-          done(e);
-        });
-    });
+      it('fetches falls back to local time if fetch is bad', function(done) {
+        this.axiosMock.onGet(/fee_stats/).reply(200, {}, {});
 
-    it('fetches falls back to local time if fetch is bad', function(done) {
-      // use MockAdapter instead of this.axiosMock
-      // because we don't want to replace the get function
-      // we need to use axios's one so interceptors run!!
-      const mock = new MockAdapter(HorizonAxiosClient);
+        SERVER_TIME_MAP['horizon-live.stellar.org'] = undefined;
 
-      mock.onGet(/fee_stats/).reply(200, {}, {});
-
-      SERVER_TIME_MAP['horizon-live.stellar.org'] = undefined;
-
-      this.server
-        .fetchTimebounds(20)
-        .then((serverTime) => {
-          expect(serverTime).to.eql({ minTime: 0, maxTime: 70 });
-          done();
-        })
-        .catch((e) => {
-          done(e);
-        });
+        this.server
+          .fetchTimebounds(20)
+          .then((serverTime) => {
+            expect(serverTime).to.eql({ minTime: 0, maxTime: 70 });
+            done();
+          })
+          .catch((e) => {
+            done(e);
+          });
+      });
     });
   });
 
