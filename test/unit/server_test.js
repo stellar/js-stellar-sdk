@@ -46,8 +46,8 @@ describe('server.js tests', function() {
     let clock;
 
     beforeEach(function() {
-      // set now to 50 seconds
-      clock = sinon.useFakeTimers(50000);
+      // set now to 10050 seconds
+      clock = sinon.useFakeTimers(10050 * 1000);
     });
 
     afterEach(function() {
@@ -63,7 +63,7 @@ describe('server.js tests', function() {
       this.server
         .fetchTimebounds(20)
         .then((serverTime) => {
-          expect(serverTime).to.eql({ minTime: 0, maxTime: 80 });
+          expect(serverTime).to.eql({ minTime: 0, maxTime: 10080 });
           done();
         })
         .catch((e) => {
@@ -118,7 +118,7 @@ describe('server.js tests', function() {
         this.server
           .fetchTimebounds(20)
           .then((serverTime) => {
-            expect(serverTime).to.eql({ minTime: 0, maxTime: 70 });
+            expect(serverTime).to.eql({ minTime: 0, maxTime: 10070 });
             done();
           })
           .catch((e) => {
