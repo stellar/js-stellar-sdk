@@ -3,7 +3,7 @@
 As this project is pre 1.0, breaking changes may happen for minor version bumps.
 A breaking change will get clearly marked in this log.
 
-## In master
+## [v0.15.0](https://github.com/stellar/js-stellar-sdk/compare/v0.14.0...v0.15.0)
 
 - **Breaking change**: `stellar-sdk` no longer ships with an `EventSource`
   polyfill. If you plan to support IE11 / Edge, please use
