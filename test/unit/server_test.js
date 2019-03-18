@@ -1,3 +1,8 @@
+const MockAdapter = require('axios-mock-adapter');
+
+const SERVER_TIME_MAP = require('../../src/horizon_axios_client')
+  .SERVER_TIME_MAP;
+
 describe('server.js non-transaction tests', function() {
   beforeEach(function() {
     this.server = new StellarSdk.Server(
@@ -34,6 +39,128 @@ describe('server.js non-transaction tests', function() {
       expect(
         () => new StellarSdk.Server('http://horizon-live.stellar.org:1337')
       ).to.not.throw();
+    });
+  });
+
+  describe('Server.fetchTimebounds', function() {
+    let clock;
+
+    beforeEach(function() {
+      // set now to 10050 seconds
+      clock = sinon.useFakeTimers(10050 * 1000);
+    });
+
+    afterEach(function() {
+      clock.restore();
+    });
+
+    it('uses SERVER_TIME_MAP if theres a recorded thing', function(done) {
+      SERVER_TIME_MAP['horizon-live.stellar.org'] = {
+        serverTime: 10,
+        localTimeRecorded: 10000
+      };
+
+      this.server
+        .fetchTimebounds(20)
+        .then((serverTime) => {
+          expect(serverTime).to.eql({ minTime: 0, maxTime: 80 });
+          done();
+        })
+        .catch((e) => {
+          done(e);
+        });
+    });
+
+    describe('with MockAdapter mocks', function() {
+      beforeEach(function() {
+        // use MockAdapter instead of this.axiosMock
+        // because we don't want to replace the get function
+        // we need to use axios's one so interceptors run!!
+        this.axiosMockAdapter = new MockAdapter(HorizonAxiosClient);
+      });
+
+      afterEach(function() {
+        this.axiosMockAdapter.restore();
+      });
+
+      it('fetches if nothing is recorded', function(done) {
+        this.axiosMockAdapter
+          .onGet('https://horizon-live.stellar.org:1337/')
+          .reply(
+            200,
+            {},
+            {
+              Date: 'Wed, 13 Mar 2019 22:15:07 GMT'
+            }
+          );
+
+        SERVER_TIME_MAP['horizon-live.stellar.org'] = undefined;
+
+        this.server
+          .fetchTimebounds(20)
+          .then((serverTime) => {
+            expect(serverTime).to.eql({
+              minTime: 0,
+              // this is server time 1552515307 plus 20
+              maxTime: 1552515327
+            });
+
+            done();
+          })
+          .catch((e) => {
+            done(e);
+          });
+      });
+
+      it('fetches if the old time is too old', function(done) {
+        this.axiosMockAdapter
+          .onGet('https://horizon-live.stellar.org:1337/')
+          .reply(
+            200,
+            {},
+            {
+              Date: 'Wed, 13 Mar 2019 22:15:07 GMT'
+            }
+          );
+
+        SERVER_TIME_MAP['horizon-live.stellar.org'] = {
+          serverTime: 'Wed, 13 Mar 2010 22:15:07 GMT',
+          localTimeRecorded: 50
+        };
+
+        this.server
+          .fetchTimebounds(20)
+          .then((serverTime) => {
+            expect(serverTime).to.eql({
+              minTime: 0,
+              // this is server time 1552515307 plus 20
+              maxTime: 1552515327
+            });
+
+            done();
+          })
+          .catch((e) => {
+            done(e);
+          });
+      });
+
+      it('fetches falls back to local time if fetch is bad', function(done) {
+        this.axiosMockAdapter
+          .onGet('https://horizon-live.stellar.org:1337/')
+          .reply(200, {}, {});
+
+        SERVER_TIME_MAP['horizon-live.stellar.org'] = undefined;
+
+        this.server
+          .fetchTimebounds(20)
+          .then((serverTime) => {
+            expect(serverTime).to.eql({ minTime: 0, maxTime: 10070 });
+            done();
+          })
+          .catch((e) => {
+            done(e);
+          });
+      });
     });
   });
 

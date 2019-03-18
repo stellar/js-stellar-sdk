@@ -11,6 +11,9 @@ A breaking change will get clearly marked in this log.
   to set `window.EventSource`.
 - Upgrade `stellar-base` to a version that doesn't use the `crypto` library,
   fixing a bug with Angular 6
+- Add `Server.prototype.fetchTimebounds`, a helper function that helps you set
+  the `timebounds` property when initting `TransactionBuilder`. It bases the
+  timebounds on server time rather than local time.
 
 ## [v0.14.0](https://github.com/stellar/js-stellar-sdk/compare/v0.13.0...v0.14.0)
 
