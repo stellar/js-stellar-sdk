@@ -1,5 +1,5 @@
-// Type definitions for stellar-sdk 0.11
-// Project: https://github.com/stellar/js-stellar-sdk
+// Type definitions for kin-sdk 0.20
+// Project: https://github.com/kinecosystem/js-kin-sdk
 // Definitions by: Carl Foster <https://github.com/carl-foster>
 //                 Triston Jones <https://github.com/tristonj>
 //                 Paul Selden <https://github.com/pselden>
@@ -11,9 +11,9 @@
 
 /// <reference types="node" />
 
-import { AssetType, Asset, Memo, MemoType, Transaction } from 'stellar-base';
+import { AssetType, Asset, Memo, MemoType, Transaction } from 'kin-base';
 
-// Re-StellarBase
+// Re-KinBase
 export {
     Account,
     Asset,
@@ -46,7 +46,7 @@ export {
     sign,
     verify,
     xdr
-} from 'stellar-base';
+} from 'kin-base';
 
 // Shorthands, not-to-export.
 export {};

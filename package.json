@@ -1,8 +1,9 @@
 {
   "name": "@kinecosystem/kin-sdk",
-  "version": "0.20.0",
+  "version": "0.20.1",
   "description": "kin-sdk is a library for working with the Stellar Horizon server on Kin Network.",
   "main": "lib/index.js",
+  "types": "types/index.d.ts",
   "scripts": {
     "test": "babel-node ./node_modules/.bin/gulp test",
     "docs": "jsdoc ./src/ -d docs/ -r ./docs/readme.md",
@@ -87,7 +88,7 @@
     "webpack": "^1.13.2"
   },
   "dependencies": {
-    "@kinecosystem/kin-base": "^0.20.0",
+    "@kinecosystem/kin-base": "^0.20.1",
     "axios": "^0.18.0",
     "es6-promise": "^4.2.4",
     "event-source-polyfill": "^1.0.5",
