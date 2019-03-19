@@ -8,7 +8,7 @@ describe('getCurrentServerTime', () => {
 
   beforeEach(() => {
     // set it to 50 seconds
-    clock = sinon.useFakeTimers(50000);
+    clock = sinon.useFakeTimers(5050000);
   });
 
   afterEach(() => {
@@ -24,10 +24,18 @@ describe('getCurrentServerTime', () => {
     expect(getCurrentServerTime('host')).to.be.null;
   });
 
-  it('returns the delta between then and now', () => {
+  it('returns null when the old time is too old', () => {
     SERVER_TIME_MAP.host = {
       serverTime: 10,
       localTimeRecorded: 5
+    };
+    expect(getCurrentServerTime('host')).to.be.null;
+  });
+
+  it('returns the delta between then and now', () => {
+    SERVER_TIME_MAP.host = {
+      serverTime: 10,
+      localTimeRecorded: 5005
     };
     expect(getCurrentServerTime('host')).to.equal(55);
   });
