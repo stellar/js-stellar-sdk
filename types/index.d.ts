@@ -61,6 +61,11 @@ export namespace Config {
   function setDefault(): void;
 }
 
+interface Timebounds {
+  minTime: number;
+  maxTime: number;
+}
+
 export class Server {
   constructor(serverURL: string, options?: Server.Options);
   accounts(): Server.AccountCallBuilder;
@@ -91,15 +96,18 @@ export class Server {
   trades(): Server.TradesCallBuilder;
   transactions(): Server.TransactionCallBuilder;
 
+  fetchBaseFee(): Promise<number>;
+  fetchTimebounds(seconds: number): Promise<Timebounds>;
+
   serverURL: any; // TODO: require("urijs")
 }
 
+type CallBuilderResponse = Horizon.BaseResponse | Server.CollectionPage;
+
 export namespace Server {
-  abstract class CallBuilder<
-    T extends Horizon.BaseResponse = Horizon.BaseResponse
-  > {
+  abstract class CallBuilder<T extends CallBuilderResponse> {
     constructor(serverUrl: string);
-    call(): Promise<CollectionPage<T>>;
+    call(): Promise<T>;
     cursor(cursor: string): this;
     limit(limit: number | string): this;
     order(direction: 'asc' | 'desc'): this;
@@ -216,17 +224,23 @@ export namespace Server {
     transactions: CallCollectionFunction<TransactionRecord>;
   }
 
+  interface OfferAsset {
+    asset_type: AssetType;
+    asset_code?: string;
+    asset_issuer?: string;
+  }
+
   interface OfferRecord extends Horizon.BaseResponse {
     id: string;
     paging_token: string;
-    seller_attr: string;
-    selling: Asset;
-    buying: Asset;
+    seller: string;
+    selling: OfferAsset;
+    buying: OfferAsset;
     amount: string;
-    price_r: Horizon.PriceR;
+    price_r: Horizon.PriceRShorthand;
     price: string;
-
-    seller?: CallFunction<AccountRecord>;
+    last_modified_ledger: number;
+    last_modified_time: string;
   }
 
   import OperationResponseType = Horizon.OperationResponseType;
@@ -359,16 +373,19 @@ export namespace Server {
     id: string;
     paging_token: string;
     ledger_close_time: string;
+    offer_id: string;
+    base_offer_id: string;
     base_account: string;
     base_amount: string;
     base_asset_type: string;
-    base_asset_code: string;
-    base_asset_issuer: string;
+    base_asset_code?: string;
+    base_asset_issuer?: string;
+    counter_offer_id: string;
     counter_account: string;
     counter_amount: string;
     counter_asset_type: string;
-    counter_asset_code: string;
-    counter_asset_issuer: string;
+    counter_asset_code?: string;
+    counter_asset_issuer?: string;
     base_is_seller: boolean;
 
     base: CallFunction<AccountRecord>;
@@ -420,6 +437,7 @@ export namespace Server {
       [key: string]: string;
     };
     inflation_destination?: any;
+    last_modified_ledger: number;
 
     effects: CallCollectionFunction<EffectRecord>;
     offers: CallCollectionFunction<OfferRecord>;
@@ -432,29 +450,43 @@ export namespace Server {
     incrementSequenceNumber(): void;
   }
 
-  abstract class AssetsCallBuilder extends CallBuilder<AssetRecord> {
+  abstract class AssetsCallBuilder extends CallBuilder<
+    CollectionPage<AssetRecord>
+  > {
     forCode(value: string): this;
     forIssuer(value: string): this;
   }
 
-  abstract class EffectCallBuilder extends CallBuilder<EffectRecord> {
+  abstract class EffectCallBuilder extends CallBuilder<
+    CollectionPage<EffectRecord>
+  > {
     forAccount(accountId: string): this;
     forLedger(sequence: string): this;
     forOperation(operationId: number): this;
     forTransaction(transactionId: string): this;
   }
 
-  abstract class LedgerCallBuilder extends CallBuilder<LedgerRecord> {}
+  abstract class LedgerCallBuilder extends CallBuilder<
+    CollectionPage<LedgerRecord>
+  > {}
 
-  abstract class OfferCallBuilder extends CallBuilder<OfferRecord> {}
+  abstract class OfferCallBuilder extends CallBuilder<
+    CollectionPage<OfferRecord>
+  > {}
 
-  abstract class OperationCallBuilder extends CallBuilder<OperationRecord> {
+  abstract class OperationCallBuilder extends CallBuilder<
+    CollectionPage<OperationRecord>
+  > {
     forAccount(accountId: string): this;
     forLedger(sequence: string): this;
     forTransaction(transactionId: string): this;
+    includeFailed(value: boolean): this;
+    operation(operationId: number): this;
   }
   abstract class OrderbookCallBuilder extends CallBuilder<OrderbookRecord> {}
-  abstract class PathCallBuilder extends CallBuilder<PaymentPathRecord> {}
+  abstract class PathCallBuilder extends CallBuilder<
+    CollectionPage<PaymentPathRecord>
+  > {}
   abstract class PaymentCallBuilder extends CallBuilder<
     PaymentOperationRecord
   > {
@@ -468,17 +500,21 @@ export namespace Server {
   }
 
   abstract class TradeAggregationCallBuilder extends CallBuilder<
-    TradeAggregationRecord
+    CollectionPage<TradeAggregationRecord>
   > {}
-  abstract class TradesCallBuilder extends CallBuilder<TradeRecord> {
+  abstract class TradesCallBuilder extends CallBuilder<
+    CollectionPage<TradeRecord>
+  > {
     forAssetPair(base: Asset, counter: Asset): this;
     forOffer(offerId: string): this;
+    forAccount(accountId: string): this;
   }
 
   abstract class TransactionCallBuilder extends CallBuilder<TransactionRecord> {
     transaction(transactionId: string): this;
     forAccount(accountId: string): this;
     forLedger(sequence: string | number): this;
+    includeFailed(value: boolean): this;
   }
 }
 
@@ -558,6 +594,8 @@ export namespace Horizon {
   interface BalanceLineNative {
     balance: string;
     asset_type: AssetType.native;
+    buying_liabilities: string;
+    selling_liabilities: string;
   }
   interface BalanceLineAsset<
     T extends AssetType.credit4 | AssetType.credit12 =
@@ -569,6 +607,9 @@ export namespace Horizon {
     asset_type: T;
     asset_code: string;
     asset_issuer: string;
+    buying_liabilities: string;
+    selling_liabilities: string;
+    last_modified_ledger: number;
   }
   type BalanceLine<T extends AssetType = AssetType> = T extends AssetType.native
     ? BalanceLineNative
@@ -580,6 +621,12 @@ export namespace Horizon {
     numerator: number;
     denominator: number;
   }
+
+  interface PriceRShorthand {
+    n: number;
+    d: number;
+  }
+
   interface AccountThresholds {
     low_threshold: number;
     med_threshold: number;
