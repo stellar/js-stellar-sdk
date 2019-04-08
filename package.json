@@ -2,7 +2,8 @@
   "name": "stellar-sdk",
   "version": "0.15.0",
   "description": "stellar-sdk is a library for working with the Stellar Horizon server.",
-  "main": "lib/index.js",
+  "main": "./lib/index.js",
+  "types": "./types/index.d.ts",
   "scripts": {
     "test": "babel-node ./node_modules/.bin/gulp test",
     "docs": "jsdoc -c .jsdoc.json --verbose",
@@ -11,7 +12,6 @@
     "postversion": "git push && git push --tags",
     "prettier-all": "prettier --write **/*.js"
   },
-  "types": "types",
   "husky": {
     "hooks": {
       "pre-commit": "lint-staged"
