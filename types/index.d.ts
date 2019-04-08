@@ -1,4 +1,4 @@
-// Type definitions for stellar-sdk 0.11
+// Type definitions for stellar-sdk 0.15
 // Project: https://github.com/stellar/js-stellar-sdk
 // Definitions by: Carl Foster <https://github.com/carl-foster>
 //                 Triston Jones <https://github.com/tristonj>
