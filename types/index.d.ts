@@ -158,6 +158,8 @@ export namespace Server {
     account_id: string;
     sequence: number;
     subentry_count: number;
+    inflation_destination?: string;
+    last_modified_ledger: number;
     thresholds: Horizon.AccountThresholds;
     flags: Horizon.Flags;
     balances: Horizon.BalanceLine[];
