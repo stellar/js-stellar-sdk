@@ -61,7 +61,7 @@ export class CallBuilder {
   /**
    * Creates an EventSource that listens for incoming messages from the server. To stop listening for new
    * events call the function returned by this method.
-   * @see [Horizon Response Format](https://www.stellar.org/developers/horizon/learn/responses.html)
+   * @see [Horizon Response Format](https://www.stellar.org/developers/horizon/reference/responses.html)
    * @see [MDN EventSource](https://developer.mozilla.org/en-US/docs/Web/API/EventSource)
    * @param {object} [options] EventSource options.
    * @param {function} [options.onmessage] Callback function to handle incoming messages.
@@ -255,7 +255,7 @@ export class CallBuilder {
 
   /**
    * Sets `cursor` parameter for the current call. Returns the CallBuilder object on which this method has been called.
-   * @see [Paging](https://www.stellar.org/developers/horizon/learn/paging.html)
+   * @see [Paging](https://www.stellar.org/developers/horizon/reference/paging.html)
    * @param {string} cursor A cursor is a value that points to a specific location in a collection of resources.
    * @returns {object} current CallBuilder instance
    */
@@ -266,7 +266,7 @@ export class CallBuilder {
 
   /**
    * Sets `limit` parameter for the current call. Returns the CallBuilder object on which this method has been called.
-   * @see [Paging](https://www.stellar.org/developers/horizon/learn/paging.html)
+   * @see [Paging](https://www.stellar.org/developers/horizon/reference/paging.html)
    * @param {number} number Number of records the server should return.
    * @returns {object} current CallBuilder instance
    */

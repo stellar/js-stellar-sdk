@@ -6,7 +6,7 @@ import { CallBuilder } from './call_builder';
  *
  * @class TransactionCallBuilder
  * @extends CallBuilder
- * @see [All Transactions](https://www.stellar.org/developers/horizon/reference/transactions-all.html)
+ * @see [All Transactions](https://www.stellar.org/developers/horizon/reference/endpoints/transactions-all.html)
  * @constructor
  * @param {string} serverUrl Horizon server URL.
  */
@@ -18,7 +18,7 @@ export class TransactionCallBuilder extends CallBuilder {
 
   /**
    * The transaction details endpoint provides information on a single transaction. The transaction hash provided in the hash argument specifies which transaction to load.
-   * @see [Transaction Details](https://www.stellar.org/developers/horizon/reference/transactions-single.html)
+   * @see [Transaction Details](https://www.stellar.org/developers/horizon/reference/endpoints/transactions-single.html)
    * @param {string} transactionId Transaction ID
    * @returns {TransactionCallBuilder} current TransactionCallBuilder instance
    */
@@ -29,7 +29,7 @@ export class TransactionCallBuilder extends CallBuilder {
 
   /**
    * This endpoint represents all transactions that affected a given account.
-   * @see [Transactions for Account](https://www.stellar.org/developers/horizon/reference/transactions-for-account.html)
+   * @see [Transactions for Account](https://www.stellar.org/developers/horizon/reference/endpoints/transactions-for-account.html)
    * @param {string} accountId For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
    * @returns {TransactionCallBuilder} current TransactionCallBuilder instance
    */
@@ -40,7 +40,7 @@ export class TransactionCallBuilder extends CallBuilder {
 
   /**
    * This endpoint represents all transactions in a given ledger.
-   * @see [Transactions for Ledger](https://www.stellar.org/developers/horizon/reference/transactions-for-ledger.html)
+   * @see [Transactions for Ledger](https://www.stellar.org/developers/horizon/reference/endpoints/transactions-for-ledger.html)
    * @param {number|string} sequence Ledger sequence
    * @returns {TransactionCallBuilder} current TransactionCallBuilder instance
    */

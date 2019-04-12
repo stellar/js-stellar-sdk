@@ -11,7 +11,7 @@ export const FEDERATION_RESPONSE_MAX_SIZE = 100 * 1024;
 
 /**
  * FederationServer handles a network connection to a
- * [federation server](https://www.stellar.org/developers/learn/concepts/federation.html)
+ * [federation server](https://www.stellar.org/developers/guides/concepts/federation.html)
  * instance and exposes an interface for requests to that instance.
  * @constructor
  * @param {string} serverURL The federation server URL (ex. `https://acme.com/federation`).
@@ -65,8 +65,8 @@ export class FederationServer {
    *  });
    * ```
    *
-   * @see <a href="https://www.stellar.org/developers/learn/concepts/federation.html" target="_blank">Federation doc</a>
-   * @see <a href="https://www.stellar.org/developers/learn/concepts/stellar-toml.html" target="_blank">Stellar.toml doc</a>
+   * @see <a href="https://www.stellar.org/developers/guides/concepts/federation.html" target="_blank">Federation doc</a>
+   * @see <a href="https://www.stellar.org/developers/guides/concepts/stellar-toml.html" target="_blank">Stellar.toml doc</a>
    * @param {string} value Stellar Address (ex. `bob*stellar.org`)
    * @param {object} [opts] Options object
    * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments!
@@ -99,7 +99,7 @@ export class FederationServer {
 
   /**
    * Creates a `FederationServer` instance based on information from
-   * [stellar.toml](https://www.stellar.org/developers/learn/concepts/stellar-toml.html)
+   * [stellar.toml](https://www.stellar.org/developers/guides/concepts/stellar-toml.html)
    * file for a given domain.
    *
    * If `stellar.toml` file does not exist for a given domain or it does not
@@ -113,7 +113,7 @@ export class FederationServer {
    *     // stellar.toml does not exist or it does not contain information about federation server.
    *   });
    * ```
-   * @see <a href="https://www.stellar.org/developers/learn/concepts/stellar-toml.html" target="_blank">Stellar.toml doc</a>
+   * @see <a href="https://www.stellar.org/developers/guides/concepts/stellar-toml.html" target="_blank">Stellar.toml doc</a>
    * @param {string} domain Domain to get federation server for
    * @param {object} [opts] Options object
    * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments!
@@ -133,7 +133,7 @@ export class FederationServer {
 
   /**
    * Get the federation record if the user was found for a given Stellar address
-   * @see <a href="https://www.stellar.org/developers/learn/concepts/federation.html" target="_blank">Federation doc</a>
+   * @see <a href="https://www.stellar.org/developers/guides/concepts/federation.html" target="_blank">Federation doc</a>
    * @param {string} address Stellar address (ex. `bob*stellar.org`). If `FederationServer` was instantiated with `domain` param only username (ex. `bob`) can be passed.
    * @returns {Promise} Promise that resolves to the federation record
    */
@@ -155,7 +155,7 @@ export class FederationServer {
 
   /**
    * Given an account ID, get their federation record if the user was found
-   * @see <a href="https://www.stellar.org/developers/learn/concepts/federation.html" target="_blank">Federation doc</a>
+   * @see <a href="https://www.stellar.org/developers/guides/concepts/federation.html" target="_blank">Federation doc</a>
    * @param {string} accountId Account ID (ex. `GBYNR2QJXLBCBTRN44MRORCMI4YO7FZPFBCNOKTOBCAAFC7KC3LNPRYS`)
    * @returns {Promise} A promise that resolves to the federation record
    */
@@ -166,7 +166,7 @@ export class FederationServer {
 
   /**
    * Given a transactionId, get the federation record if the sender of the transaction was found
-   * @see <a href="https://www.stellar.org/developers/learn/concepts/federation.html" target="_blank">Federation doc</a>
+   * @see <a href="https://www.stellar.org/developers/guides/concepts/federation.html" target="_blank">Federation doc</a>
    * @param {string} transactionId Transaction ID (ex. `3389e9f0f1a65f19736cacf544c2e825313e8447f569233bb8db39aa607c8889`)
    * @returns {Promise} A promise that resolves to the federation record
    */
