@@ -41,7 +41,7 @@ deploy:
   - provider: npm
     email: npm@stellar.org
     api_key:
-      secure: I6WDNI9HIpGIJ8nygTkTmc2FdHC/d9xEkkBuHKPfeurG+i/6+WebUvhaMfDg+KjlxiKE1Rs6qs9gj8TRrwgT0E8pBNVoYayXB40hrVAX8aaw7bcU75jc+0wJ9P/NYXkgar/wpRaWDov1zoaS+ax/xlVrdElRBWvGzysIvkmjGJw=
+      secure: VmLreZhQBusSwCwsy7rORXFSKmK1B5TnmWmVBZ5DlxMqLAagbnIs/y/LVsybjd6AByHbXoAeEeGcShwMS13xfuVvWc5HZUJeJyZVKuZq3/FjvFiHAX2V/04++21NcxMHPcgI+/GFCauAuTg9OiE15VnrjFXP9R0YSJK3mutVqM61HoKNuRwJNXYj5BDXfxdtuKf2ENpfRdhQyUdOO3iAsL9FycC2HP605YXfyNuT9FfoUTc5t+O0sIMZg9jJAMbPnzgKwjwDV486qrzMDYlSKhRWpsf4a6SmwzwkF3nWFIv/9tPAH0TrUbNVXydy8YbEK7Cc+BhlL9IZWnThXI46N7Q5ucMbJ2M7q4gkJg/3TvcK/+X+P5t5KAt1JYHpd1hLvQDkgaQC/L/9PHoqzs4x9BoahhA40yUZ3OEKCpnNBctLqGP5I3oOGszXw96SwpqxqGoKbuHTJbduDhSI+3ToG0I9Xkgr26b+wR7aOXCxUX1KYymhaP8EXj2M5pHoN4k3H/8/OVNaScZA/lELoOVkCY041mSCPExsD8/868PR3Lk6P1HF+un5cs5Wk43997VX80s+jd9yfXaqvHAhEvC9Qx1KKS96MGp5Y4b39pXRqT8DfYZ9QR4+5Ern2CzfNl+H+KxNWpQrJXCkXVb7CuZEX2sSfotFM4/UwTwNaGSctkg=
     skip_cleanup: true
     on:
       tags: true
