@@ -7,6 +7,7 @@ A breaking change will get clearly marked in this log.
 
 - Add Typescript type definitions (imported from DefinitelyTyped with new
   adjustments).
+- Fix documentation links.
 
 ## [v0.15.0](https://github.com/stellar/js-stellar-sdk/compare/v0.14.0...v0.15.0)
 
