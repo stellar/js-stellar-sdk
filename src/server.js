@@ -33,7 +33,7 @@ function _getAmountInLumens(amt) {
 }
 
 /**
- * Server handles the network connection to a [Horizon](https://www.stellar.org/developers/horizon/learn/index.html)
+ * Server handles the network connection to a [Horizon](https://www.stellar.org/developers/horizon/reference/)
  * instance and exposes an interface for requests to that instance.
  * @constructor
  * @param {string} serverURL Horizon Server URL (ex. `https://horizon-testnet.stellar.org`).
@@ -131,7 +131,7 @@ export class Server {
 
   /**
    * Fetch the operation fee stats endpoint.
-   * @see [Operation Fee Stats](https://www.stellar.org/developers/horizon/reference/operation-fee-stats.html)
+   * @see [Operation Fee Stats](https://www.stellar.org/developers/horizon/reference/endpoints/fee-stats.html)
    * @returns {Promise} Promise that resolves to the fee stats returned by Horizon.
    */
   operationFeeStats() {
@@ -230,7 +230,7 @@ export class Server {
    * * If `wasPartiallyFilled` is true, you can tell the user that `amountBought`
    * or `amountSold` have already been transferred.
    *
-   * @see [Post Transaction](https://www.stellar.org/developers/horizon/reference/transactions-create.html)
+   * @see [Post Transaction](https://www.stellar.org/developers/horizon/reference/endpoints/transactions-create.html)
    * @param {Transaction} transaction - The transaction to submit.
    * @returns {Promise} Promise that resolves or rejects with response from horizon.
    */

@@ -4,7 +4,7 @@ import { CallBuilder } from './call_builder';
  * Creates a new {@link OrderbookCallBuilder} pointed to server defined by serverUrl.
  *
  * Do not create this object directly, use {@link Server#orderbook}.
- * @see [Orderbook Details](https://www.stellar.org/developers/horizon/reference/orderbook-details.html)
+ * @see [Orderbook Details](https://www.stellar.org/developers/horizon/reference/endpoints/orderbook-details.html)
  * @param {string} serverUrl serverUrl Horizon server URL.
  * @param {Asset} selling Asset being sold
  * @param {Asset} buying Asset being bought

@@ -5,7 +5,7 @@ import { BadRequestError } from './errors';
  * Creates a new {@link OfferCallBuilder} pointed to server defined by serverUrl.
  * Do not create this object directly, use {@link Server#offers}.
  *
- * @see [Offers for Account](https://www.stellar.org/developers/horizon/reference/offers-for-account.html)
+ * @see [Offers for Account](https://www.stellar.org/developers/horizon/reference/endpoints/offers-for-account.html)
  * @class OfferCallBuilder
  * @constructor
  * @extends CallBuilder
