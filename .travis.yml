@@ -6,6 +6,9 @@ matrix:
       env: SAUCE=true
     - node_js: 6.14.0
       env: INTEGRATION=true
+cache:
+  directories:
+    - node_modules
 script:
   - |
     echo "machine github.com login stellar-jenkins password $GITHUB_TOKEN" >~/.netrc
