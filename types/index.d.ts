@@ -490,7 +490,7 @@ export namespace Server {
     CollectionPage<PaymentPathRecord>
   > {}
   abstract class PaymentCallBuilder extends CallBuilder<
-    PaymentOperationRecord
+    CollectionPage<PaymentOperationRecord>
   > {
     forAccount(accountId: string): this;
     forLedger(sequence: string): this;
@@ -512,7 +512,9 @@ export namespace Server {
     forAccount(accountId: string): this;
   }
 
-  abstract class TransactionCallBuilder extends CallBuilder<TransactionRecord> {
+  abstract class TransactionCallBuilder extends CallBuilder<
+    CollectionPage<TransactionRecord>
+  > {
     transaction(transactionId: string): this;
     forAccount(accountId: string): this;
     forLedger(sequence: string | number): this;

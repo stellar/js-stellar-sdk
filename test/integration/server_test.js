@@ -1,6 +1,6 @@
 let axios = require('axios');
 
-describe('integration tests', function() {
+describe('integration tests: server', function() {
   const TIMEOUT = 20 * 1000;
   this.timeout(TIMEOUT);
   this.slow(TIMEOUT / 2);
@@ -12,8 +12,9 @@ describe('integration tests', function() {
 
   before(function(done) {
     axios
-      .get(`${HORIZON}/friendbot?addr=${master.publicKey()}`)
-      .then(() => done());
+      .get(`https://friendbot.stellar.org?addr=${master.publicKey()}`)
+      .then(() => done())
+      .catch((e) => done(e));
   });
 
   after(function(done) {
@@ -41,7 +42,8 @@ describe('integration tests', function() {
 
           server.submitTransaction(tx).then(() => done());
         });
-      });
+      })
+      .catch((e) => done(e));
   });
 
   function createNewAccount(accountId) {
