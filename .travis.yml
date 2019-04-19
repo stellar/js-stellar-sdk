@@ -40,8 +40,7 @@ after_deploy: './after_deploy.sh'
 deploy:
   - provider: npm
     email: npm@stellar.org
-    api_key:
-      secure: nfaQ5hzQnn1knh5AwIqMicA18fe2NpvNDv1NpG7I600UKjFh4zUZg+resbBbyjNcpegO6TnxpnxH8TR6NR9hpuFJb4Slh7PrPaLV00Qdln2wdqp5zQktqXc0azDIy04CsI66exrpIERQWxVLfIRib3zjs/Dds2cfZPR+tHueIig=
+    api_key: $NPM_TOKEN
     skip_cleanup: true
     on:
       tags: true
