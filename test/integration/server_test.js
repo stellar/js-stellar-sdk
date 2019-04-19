@@ -12,7 +12,7 @@ describe('integration tests', function() {
 
   before(function(done) {
     axios
-      .get(`${HORIZON}/friendbot?addr=${master.publicKey()}`)
+      .get(`https://friendbot.stellar.org?addr=${master.publicKey()}`)
       .then(() => done());
   });
 
