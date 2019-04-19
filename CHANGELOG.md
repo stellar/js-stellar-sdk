@@ -3,10 +3,27 @@
 As this project is pre 1.0, breaking changes may happen for minor version bumps.
 A breaking change will get clearly marked in this log.
 
+## [v0.15.2](https://github.com/stellar/js-stellar-sdk/compare/v0.15.1...v0.15.2)
+
+- Fix Server.transactions and Server.payments definitions to properly return
+  collections
+- Renew the npm publish key
+
 ## [v0.15.1](https://github.com/stellar/js-stellar-sdk/compare/v0.15.0...v0.15.1)
 
-- Add Typescript type definitions (imported from DefinitelyTyped with new
-  adjustments).
+- Add Typescript type definitions (imported from DefinitelyTyped).
+- Make these changes to those definitions:
+  - Add definitions for Server.fetchBaseFee and Server.fetchTimebounds
+  - CallBuilder: No long always returns CollectionPaged results. Interfaces that
+    extend CallBuilder should specify whether their response is a collection or
+    not
+  - CallBuilder: Add inflation_destination and last_modified_ledger property
+  - OfferRecord: Fix the returned properties
+  - TradeRecord: Fix the returned properties
+  - TradesCallBuilder: Add forAccount method
+  - TransactionCallBuilder: Add includeFailed method
+  - Horizon.BalanceLineNative/Asset: Add buying_liabilities /
+    selling_liabilities properties
 - Fix documentation links.
 
 ## [v0.15.0](https://github.com/stellar/js-stellar-sdk/compare/v0.14.0...v0.15.0)
