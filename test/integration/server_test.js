@@ -1,6 +1,6 @@
 let axios = require('axios');
 
-describe('integration tests', function() {
+describe('integration tests: server', function() {
   const TIMEOUT = 20 * 1000;
   this.timeout(TIMEOUT);
   this.slow(TIMEOUT / 2);
