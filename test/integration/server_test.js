@@ -13,7 +13,8 @@ describe('integration tests', function() {
   before(function(done) {
     axios
       .get(`https://friendbot.stellar.org?addr=${master.publicKey()}`)
-      .then(() => done());
+      .then(() => done())
+      .catch((e) => done(e));
   });
 
   after(function(done) {
@@ -41,7 +42,8 @@ describe('integration tests', function() {
 
           server.submitTransaction(tx).then(() => done());
         });
-      });
+      })
+      .catch((e) => done(e));
   });
 
   function createNewAccount(accountId) {
