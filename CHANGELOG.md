@@ -3,6 +3,11 @@
 As this project is pre 1.0, breaking changes may happen for minor version bumps.
 A breaking change will get clearly marked in this log.
 
+## [v0.15.3](https://github.com/stellar/js-stellar-sdk/compare/v0.15.2...v0.15.3)
+
+- In .travis.yml, try to switch from the encrypted API key to an environment
+  var.
+
 ## [v0.15.2](https://github.com/stellar/js-stellar-sdk/compare/v0.15.1...v0.15.2)
 
 - Fix Server.transactions and Server.payments definitions to properly return
