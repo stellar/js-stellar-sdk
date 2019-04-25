@@ -2,6 +2,7 @@
 
 /// <reference types="node" />
 
+import { AxiosInstance } from "axios";
 import { AssetType, Asset, Memo, MemoType, Transaction } from 'stellar-base';
 
 // Re-StellarBase
@@ -860,3 +861,5 @@ export namespace Horizon {
   interface TransactionResponseCollection
     extends ResponseCollection<TransactionResponse> {}
 }
+
+export const HorizonAxiosClient: AxiosInstance;
