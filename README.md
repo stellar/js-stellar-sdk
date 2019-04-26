@@ -1,6 +1,6 @@
 # js-stellar-sdk
 
-[![Build Status](https://travis-ci.org/stellar/js-stellar-sdk.svg?branch=master)](https://travis-ci.org/stellar/js-stellar-sdk)
+[![Build Status](https://travis-ci.com/stellar/js-stellar-sdk.svg?branch=master)](https://travis-ci.com/stellar/js-stellar-sdk)
 [![Coverage Status](https://coveralls.io/repos/stellar/js-stellar-sdk/badge.svg?branch=master&service=github)](https://coveralls.io/github/stellar/js-stellar-sdk?branch=master)
 [![Dependency Status](https://david-dm.org/stellar/js-stellar-sdk.svg)](https://david-dm.org/stellar/js-stellar-sdk)
 
