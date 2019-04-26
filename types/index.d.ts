@@ -460,9 +460,7 @@ export namespace Server {
     forIssuer(value: string): this;
   }
 
-  abstract class EffectCallBuilder extends CallBuilder<
-    CollectionPage<EffectRecord>
-  > {
+  abstract class EffectCallBuilder extends CallBuilder<EffectRecord> {
     forAccount(accountId: string): this;
     forLedger(sequence: string): this;
     forOperation(operationId: number): this;
@@ -513,9 +511,7 @@ export namespace Server {
     forAccount(accountId: string): this;
   }
 
-  abstract class TransactionCallBuilder extends CallBuilder<
-    CollectionPage<TransactionRecord>
-  > {
+  abstract class TransactionCallBuilder extends CallBuilder<TransactionRecord> {
     transaction(transactionId: string): this;
     forAccount(accountId: string): this;
     forLedger(sequence: string | number): this;
