@@ -106,14 +106,17 @@ export class Server {
 type CallBuilderResponse = Horizon.BaseResponse | Server.CollectionPage;
 
 export namespace Server {
-  abstract class CallBuilder<T extends CallBuilderResponse> {
+  abstract class CallBuilder<
+    FetchResponse extends CallBuilderResponse,
+    StreamResponse extends CallBuilderResponse = FetchResponse
+  > {
     constructor(serverUrl: string);
-    call(): Promise<T>;
+    call(): Promise<FetchResponse>;
     cursor(cursor: string): this;
     limit(limit: number | string): this;
     order(direction: 'asc' | 'desc'): this;
     stream(options?: {
-      onmessage?: (record: T) => void;
+      onmessage?: (record: StreamResponse) => void;
       onerror?: (error: Error) => void;
     }): () => void;
   }
@@ -454,13 +457,17 @@ export namespace Server {
   }
 
   abstract class AssetsCallBuilder extends CallBuilder<
-    CollectionPage<AssetRecord>
+    CollectionPage<AssetRecord>,
+    AssetRecord
   > {
     forCode(value: string): this;
     forIssuer(value: string): this;
   }
 
-  abstract class EffectCallBuilder extends CallBuilder<EffectRecord> {
+  abstract class EffectCallBuilder extends CallBuilder<
+    CollectionPage<EffectRecord>,
+    EffectRecord
+  > {
     forAccount(accountId: string): this;
     forLedger(sequence: string): this;
     forOperation(operationId: number): this;
@@ -468,15 +475,18 @@ export namespace Server {
   }
 
   abstract class LedgerCallBuilder extends CallBuilder<
-    CollectionPage<LedgerRecord>
+    CollectionPage<LedgerRecord>,
+    LedgerRecord
   > {}
 
   abstract class OfferCallBuilder extends CallBuilder<
-    CollectionPage<OfferRecord>
+    CollectionPage<OfferRecord>,
+    OfferRecord
   > {}
 
   abstract class OperationCallBuilder extends CallBuilder<
-    CollectionPage<OperationRecord>
+    CollectionPage<OperationRecord>,
+    OperationRecord
   > {
     forAccount(accountId: string): this;
     forLedger(sequence: string): this;
@@ -486,10 +496,12 @@ export namespace Server {
   }
   abstract class OrderbookCallBuilder extends CallBuilder<OrderbookRecord> {}
   abstract class PathCallBuilder extends CallBuilder<
-    CollectionPage<PaymentPathRecord>
+    CollectionPage<PaymentPathRecord>,
+    PaymentPathRecord
   > {}
   abstract class PaymentCallBuilder extends CallBuilder<
-    CollectionPage<PaymentOperationRecord>
+    CollectionPage<PaymentOperationRecord>,
+    PaymentOperationRecord
   > {
     forAccount(accountId: string): this;
     forLedger(sequence: string): this;
@@ -501,17 +513,22 @@ export namespace Server {
   }
 
   abstract class TradeAggregationCallBuilder extends CallBuilder<
-    CollectionPage<TradeAggregationRecord>
+    CollectionPage<TradeAggregationRecord>,
+    TradeAggregationRecord
   > {}
   abstract class TradesCallBuilder extends CallBuilder<
-    CollectionPage<TradeRecord>
+    CollectionPage<TradeRecord>,
+    TradeRecord
   > {
     forAssetPair(base: Asset, counter: Asset): this;
     forOffer(offerId: string): this;
     forAccount(accountId: string): this;
   }
 
-  abstract class TransactionCallBuilder extends CallBuilder<TransactionRecord> {
+  abstract class TransactionCallBuilder extends CallBuilder<
+    CollectionPage<TransactionRecord>,
+    TransactionRecord
+  > {
     transaction(transactionId: string): this;
     forAccount(accountId: string): this;
     forLedger(sequence: string | number): this;
