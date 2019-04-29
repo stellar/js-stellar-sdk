@@ -45,8 +45,6 @@
   },
   "homepage": "https://github.com/stellar/js-stellar-sdk",
   "devDependencies": {
-    "@types/node": "^11.13.0",
-    "@types/stellar-base": "^0.10.2",
     "axios-mock-adapter": "^1.16.0",
     "babel-cli": "^6.26.0",
     "babel-core": "~6.26.3",
@@ -113,6 +111,8 @@
     "webpack-bundle-analyzer": "2.13.1"
   },
   "dependencies": {
+    "@types/node": "^11.13.0",
+    "@types/stellar-base": "^0.10.2",
     "axios": "^0.18.0",
     "bignumber.js": "^4.0.0",
     "detect-node": "^2.0.4",
