@@ -470,7 +470,7 @@ export namespace Server {
     EffectRecord
   > {
     forAccount(accountId: string): this;
-    forLedger(sequence: string): this;
+    forLedger(sequence: string | number): this;
     forOperation(operationId: number): this;
     forTransaction(transactionId: string): this;
   }
@@ -478,7 +478,9 @@ export namespace Server {
   abstract class LedgerCallBuilder extends CallBuilder<
     CollectionPage<LedgerRecord>,
     LedgerRecord
-  > {}
+  > {
+    ledger(sequence: string | number): this;
+  }
 
   abstract class OfferCallBuilder extends CallBuilder<
     CollectionPage<OfferRecord>,
@@ -490,7 +492,7 @@ export namespace Server {
     OperationRecord
   > {
     forAccount(accountId: string): this;
-    forLedger(sequence: string): this;
+    forLedger(sequence: string | number): this;
     forTransaction(transactionId: string): this;
     includeFailed(value: boolean): this;
     operation(operationId: number): this;
@@ -505,7 +507,7 @@ export namespace Server {
     PaymentOperationRecord
   > {
     forAccount(accountId: string): this;
-    forLedger(sequence: string): this;
+    forLedger(sequence: string | number): this;
     forTransaction(transactionId: string): this;
   }
 
