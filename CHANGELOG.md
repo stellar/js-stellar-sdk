@@ -3,6 +3,17 @@
 As this project is pre 1.0, breaking changes may happen for minor version bumps.
 A breaking change will get clearly marked in this log.
 
+## [v0.15.4](https://github.com/stellar/js-stellar-sdk/compare/v0.15.3...v0.15.4)
+
+- Add types for LedgerCallBuilder.ledger.
+- Add types for Server.operationFeeStats.
+- Add types for the HorizonAxiosClient export.
+- Move @types/\* from devDependencies to dependencies.
+- Pass and use a stream response type to CallBuilders if it's different from the
+  normal call response.
+- Upgrade stellar-base to a version that includes types, and remove
+  @types/stellar-base as a result.
+
 ## [v0.15.3](https://github.com/stellar/js-stellar-sdk/compare/v0.15.2...v0.15.3)
 
 - In .travis.yml, try to switch from the encrypted API key to an environment
