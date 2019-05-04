@@ -99,7 +99,7 @@ export class Server {
 
   fetchBaseFee(): Promise<number>;
   fetchTimebounds(seconds: number): Promise<Timebounds>;
-  operationFeeStats(): Promise<Server.OperationFeeStatsResponse>;
+  operationFeeStats(): Promise<Horizon.OperationFeeStatsResponse>;
 
   serverURL: any; // TODO: require("urijs")
 }
