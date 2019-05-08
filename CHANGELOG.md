@@ -3,6 +3,13 @@
 As this project is pre 1.0, breaking changes may happen for minor version bumps.
 A breaking change will get clearly marked in this log.
 
+## [v1.0.0](https://github.com/stellar/js-stellar-sdk/compare/v0.15.4...v1.0.0)
+
+- Upgrade stellar-base to
+  [v1.0.0](https://github.com/stellar/js-stellar-base/releases/tag/v1.0.0),
+  which introduces two breaking changes.
+- Switch stellar-sdk's versioning to true semver! 🎉
+
 ## [v0.15.4](https://github.com/stellar/js-stellar-sdk/compare/v0.15.3...v0.15.4)
 
 - Add types for LedgerCallBuilder.ledger.

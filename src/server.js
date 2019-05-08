@@ -267,7 +267,10 @@ export class Server {
         if (results.length) {
           offerResults = results
             .map((result, i) => {
-              if (result.value().switch().name !== 'manageOffer') {
+              if (
+                result.value().switch().name !== 'manageBuyOffer' &&
+                result.value().switch().name !== 'manageSellOffer'
+              ) {
                 return null;
               }
 
