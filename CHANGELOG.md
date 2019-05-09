@@ -3,6 +3,13 @@
 As this project is pre 1.0, breaking changes may happen for minor version bumps.
 A breaking change will get clearly marked in this log.
 
+## [v1.0.1](https://github.com/stellar/js-stellar-sdk/compare/v1.0.0...v1.0.1)
+
+- Upgrade stellar-base to v1.0.1, which makes available again the deprecated
+  operation functions `Operation.manageOffer` and `Operation.createPassiveOffer`
+  (with a warning).
+- Fix the documentation around timebounds.
+
 ## [v1.0.0](https://github.com/stellar/js-stellar-sdk/compare/v0.15.4...v1.0.0)
 
 - Upgrade stellar-base to
