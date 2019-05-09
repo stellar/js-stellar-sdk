@@ -81,7 +81,7 @@ export class Server {
    * @argument {number} seconds Number of seconds past the current time to wait.
    * @argument {bool} [_isRetry=false] True if this is a retry. Only set this internally!
    * This is to avoid a scenario where Horizon is horking up the wrong date.
-   * @returns {Promise<number>} Promise that resolves a `timebounds` object
+   * @returns {Promise<Timebounds>} Promise that resolves a `timebounds` object
    * (with the shape `{ minTime: 0, maxTime: N }`) that you can set the `timebounds` option to.
    */
   fetchTimebounds(seconds, _isRetry = false) {
