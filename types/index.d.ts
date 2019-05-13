@@ -654,6 +654,7 @@ export namespace Horizon {
     high_threshold: number;
   }
   interface Flags {
+    auth_immutable: boolean;
     auth_required: boolean;
     auth_revocable: boolean;
   }
