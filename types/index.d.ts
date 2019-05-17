@@ -32,6 +32,7 @@ export {
   StrKey,
   Signer,
   SignerOptions,
+  TimeoutInfinite,
   Transaction,
   TransactionBuilder,
   hash,
