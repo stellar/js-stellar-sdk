@@ -170,8 +170,9 @@ export namespace Server {
     flags: Horizon.Flags;
     balances: Horizon.BalanceLine[];
     signers: Array<{
-      public_key: string;
+      key: string;
       weight: number;
+      type: string;
     }>;
     data: (options: { value: string }) => Promise<{ value: string }>;
     data_attr: {
