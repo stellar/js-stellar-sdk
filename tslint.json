@@ -1,0 +1,3 @@
+{
+  "extends": ["@stellar/tslint-config"]
+}
