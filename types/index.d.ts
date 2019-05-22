@@ -57,12 +57,6 @@ export class NotFoundError extends NetworkError {}
 export class BadRequestError extends NetworkError {}
 export class BadResponseError extends NetworkError {}
 
-export namespace Config {
-  function setAllowHttp(allow: boolean): void;
-  function isAllowHttp(): boolean;
-  function setDefault(): void;
-}
-
 type CallBuilderResponse = Horizon.BaseResponse | Server.CollectionPage;
 
 export const HorizonAxiosClient: AxiosInstance;
