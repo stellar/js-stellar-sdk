@@ -542,37 +542,6 @@ export namespace Server {
   }
 }
 
-export class FederationServer {
-  static createForDomain(
-    domain: string,
-    options?: FederationServer.Options
-  ): Promise<FederationServer>;
-  static resolve(
-    value: string,
-    options?: FederationServer.Options
-  ): Promise<FederationServer.Record>;
-
-  constructor(
-    serverURL: string,
-    domain: string,
-    options?: FederationServer.Options
-  );
-  resolveAccountId(account: string): Promise<FederationServer.Record>;
-  resolveAddress(address: string): Promise<FederationServer.Record>;
-  resolveTransactionId(transactionId: string): Promise<FederationServer.Record>;
-}
-export namespace FederationServer {
-  interface Record {
-    account_id: string;
-    memo_type?: string;
-    memo?: string;
-  }
-
-  interface Options {
-    allowHttp: boolean;
-  }
-}
-
 export namespace StellarTomlResolver {
   interface StellarTomlResolveOptions {
     allowHttp?: boolean;
