@@ -27,11 +27,16 @@ export namespace ServerApi {
   type CallFunction<
     T extends Horizon.BaseResponse = Horizon.BaseResponse
   > = () => Promise<T>;
-  type CallCollectionFunction<
+  export type CallCollectionFunction<
     T extends Horizon.BaseResponse = Horizon.BaseResponse
   > = (options?: CallFunctionTemplateOptions) => Promise<CollectionRecord<T>>;
 
-  interface AccountRecord extends Horizon.BaseResponse {
+  export interface AccountRecordSigners {
+    key: string;
+    weight: number;
+    type: string;
+  }
+  export interface AccountRecord extends Horizon.BaseResponse {
     id: string;
     paging_token: string;
     account_id: string;
@@ -42,11 +47,7 @@ export namespace ServerApi {
     thresholds: Horizon.AccountThresholds;
     flags: Horizon.Flags;
     balances: Horizon.BalanceLine[];
-    signers: Array<{
-      key: string;
-      weight: number;
-      type: string;
-    }>;
+    signers: AccountRecordSigners[];
     data: (options: { value: string }) => Promise<{ value: string }>;
     data_attr: {
       [key: string]: string;
@@ -58,7 +59,7 @@ export namespace ServerApi {
     trades: CallCollectionFunction<TradeRecord>;
   }
 
-  interface EffectRecord extends Horizon.BaseResponse {
+  export interface EffectRecord extends Horizon.BaseResponse {
     account: string;
     paging_token: string;
     starting_balance: string;
@@ -102,7 +103,7 @@ export namespace ServerApi {
     asset_issuer?: string;
   }
 
-  interface OfferRecord extends Horizon.BaseResponse {
+  export interface OfferRecord extends Horizon.BaseResponse {
     id: string;
     paging_token: string;
     seller: string;
@@ -134,7 +135,7 @@ export namespace ServerApi {
         OperationResponseTypeI.createAccount
       >,
       Horizon.CreateAccountOperationResponse {}
-  interface PaymentOperationRecord
+  export interface PaymentOperationRecord
     extends BaseOperationRecord<
         OperationResponseType.payment,
         OperationResponseTypeI.payment
@@ -204,7 +205,7 @@ export namespace ServerApi {
       >,
       Horizon.BumpSequenceOperationResponse {}
 
-  type OperationRecord =
+  export type OperationRecord =
     | CreateAccountOperationRecord
     | PaymentOperationRecord
     | PathPaymentOperationRecord
@@ -218,7 +219,7 @@ export namespace ServerApi {
     | ManageDataOperationRecord
     | BumpSequenceOperationRecord;
 
-  interface TradeRecord extends Horizon.BaseResponse {
+  export interface TradeRecord extends Horizon.BaseResponse {
     id: string;
     paging_token: string;
     ledger_close_time: string;
