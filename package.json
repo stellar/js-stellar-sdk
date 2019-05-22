@@ -20,11 +20,11 @@
   },
   "prettier": "@stellar/prettier-config",
   "lint-staged": {
-    "**/*.{js,json}": [
+    "lib/*.{js,json}": [
       "prettier --write",
       "git add"
     ],
-    "**/*.js": [
+    "lib/*.js": [
       "eslint --fix --max-warnings 0",
       "git add"
     ]
