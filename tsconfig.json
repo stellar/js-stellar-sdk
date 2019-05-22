@@ -1,15 +1,14 @@
 {
+  "extends": "@stellar/tsconfig",
   "compilerOptions": {
-    "extends": "@stellar/tsconfig",
-    "declaration": true,
-    "declarationDir": "dist",
     "lib": ["es2015"],
     "module": "esnext",
     "moduleResolution": "node",
+    "rootDir": ".",  // TODO: if it weren't package.json, we could directly write "lib".
     "outDir": "lib",
     "resolveJsonModule": true,
+    "allowJs": true,
     "target": "es5"
   },
-  "include": ["src"],
-  "exclude": ["node_modules", "dist"]
+  "include": ["src"]
 }

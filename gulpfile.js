@@ -9,6 +9,8 @@ var clear = require('clear');
 var plumber = require('gulp-plumber');
 var BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
   .BundleAnalyzerPlugin;
+var ts = require("gulp-typescript");
+var tsProject = ts.createProject("tsconfig.json");
 
 gulp.task('lint:src', function lintSrc() {
   return gulp
@@ -31,19 +33,30 @@ gulp.task('lint:test', function lintTest() {
 
 gulp.task('clean', function clean() {
   return gulp
-    .src('dist', { read: false, allowEmpty: true })
+    .src(['dist', 'lib'], { read: false, allowEmpty: true })
     .pipe(plugins.rimraf());
 });
 
 gulp.task(
   'build:node',
-  gulp.series('lint:src', function buildNode() {
-    return gulp
-      .src('src/**/*.js')
-      .pipe(plumber())
-      .pipe(plugins.babel())
-      .pipe(gulp.dest('lib'));
-  })
+  gulp.series(
+    'lint:src',
+    function buildNode() {
+      return tsProject.src()
+          .pipe(plumber())
+          .pipe(tsProject())
+          .js.pipe(gulp.dest('lib'))
+    },
+    // TODO: output directly where it's needed (see tsconfig.json).
+    function flatten() {
+      return gulp.src('lib/src/**')
+          .pipe(gulp.dest('lib'))
+    },
+    function flattenClean() {
+      return gulp.src('lib/src')
+          .pipe(plugins.rimraf());
+    },
+    )
 );
 
 gulp.task(
