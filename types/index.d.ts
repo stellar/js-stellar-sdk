@@ -542,16 +542,4 @@ export namespace Server {
   }
 }
 
-export namespace StellarTomlResolver {
-  interface StellarTomlResolveOptions {
-    allowHttp?: boolean;
-    timeout?: number;
-  }
-
-  function resolve(
-    domain: string,
-    options?: StellarTomlResolveOptions
-  ): Promise<{ [key: string]: any }>;
-}
-
 export const HorizonAxiosClient: AxiosInstance;
