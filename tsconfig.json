@@ -7,7 +7,6 @@
     "rootDir": ".",  // TODO: if it weren't package.json, we could directly write "lib".
     "outDir": "lib",
     "resolveJsonModule": true,
-    "allowJs": true,
     "target": "es5"
   },
   "include": ["src"]
