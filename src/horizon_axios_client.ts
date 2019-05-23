@@ -1,21 +1,26 @@
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import URI from 'urijs';
 
 import { version } from '../package.json';
 
-// keep a local map of server times
-// (export this purely for testing purposes)
-export const SERVER_TIME_MAP = {
-  /* each entry will map the server domain to the last-known time and the local 
-  time it was recorded
-  ex:
+export interface ServerTime {
+  serverTime: number;
+  localTimeRecorded: number;
+}
 
-  "horizon-testnet.stellar.org": {
-    serverTime: 1552513039,
-    localTimeRecorded: 1552513052
-  }
-  */
-};
+/**
+ * keep a local map of server times
+ * (export this purely for testing purposes)
+ *
+ * each entry will map the server domain to the last-known time and the local
+ * time it was recorded, ex:
+ *
+ *     "horizon-testnet.stellar.org": {
+ *       serverTime: 1552513039,
+ *       localTimeRecorded: 1552513052
+ *     }
+ **/
+export const SERVER_TIME_MAP: Record<string, ServerTime> = {};
 
 const HorizonAxiosClient = axios.create({
   headers: {
@@ -24,16 +29,15 @@ const HorizonAxiosClient = axios.create({
   }
 });
 
-function _toSeconds(ms) {
+function _toSeconds(ms: number): number {
   return Math.floor(ms / 1000);
 }
 
-HorizonAxiosClient.interceptors.response.use((response) => {
-  const hostname = URI(response.config.url).hostname();
+HorizonAxiosClient.interceptors.response.use(function interceptorHorizonResponse(response: AxiosResponse) {
+  const hostname = URI(response.config.url!).hostname();
   const serverTime = _toSeconds(Date.parse(response.headers.Date));
   const localTimeRecorded = _toSeconds(new Date().getTime());
 
-  // eslint-disable-next-line no-restricted-globals
   if (!isNaN(serverTime)) {
     SERVER_TIME_MAP[hostname] = {
       serverTime,
@@ -55,13 +59,14 @@ export default HorizonAxiosClient;
  * representing the current time on that server, or `null` if we don't have
  * a record of that time.
  */
-export function getCurrentServerTime(hostname) {
-  const { serverTime, localTimeRecorded } = SERVER_TIME_MAP[hostname] || {};
+export function getCurrentServerTime(hostname: string) : number | null {
+  const entry = SERVER_TIME_MAP[hostname];
 
-  if (!serverTime || !localTimeRecorded) {
+  if (!entry || !entry.localTimeRecorded || !entry.serverTime) {
     return null;
   }
 
+  const { serverTime, localTimeRecorded } = entry;
   const currentTime = _toSeconds(new Date().getTime());
 
   // if it's been more than 5 minutes from the last time, then null it out
