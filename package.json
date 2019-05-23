@@ -7,7 +7,7 @@
   "scripts": {
     "test": "babel-node ./node_modules/.bin/gulp test",
     "docs": "jsdoc -c .jsdoc.json --verbose",
-    "dtslint": "dtslint types",
+    "dtslint": "dtslint test/types",
     "preversion": "gulp test",
     "version": "gulp build",
     "postversion": "git push && git push --tags",
