@@ -2,7 +2,11 @@
 /* eslint-disable no-proto */
 
 export class NetworkError extends Error {
-  constructor(message, response) {
+
+  public response: any;
+  public __proto__: NetworkError;
+
+  constructor(message: string, response: any) {
     const trueProto = new.target.prototype;
     super(message);
     this.__proto__ = trueProto;
@@ -16,7 +20,7 @@ export class NetworkError extends Error {
 }
 
 export class NotFoundError extends NetworkError {
-  constructor(message, response) {
+  constructor(message: string, response: any) {
     const trueProto = new.target.prototype;
     super(message, response);
     this.__proto__ = trueProto;
@@ -25,7 +29,7 @@ export class NotFoundError extends NetworkError {
 }
 
 export class BadRequestError extends NetworkError {
-  constructor(message, response) {
+  constructor(message: string, response: any) {
     const trueProto = new.target.prototype;
     super(message, response);
     this.__proto__ = trueProto;
@@ -34,7 +38,7 @@ export class BadRequestError extends NetworkError {
 }
 
 export class BadResponseError extends NetworkError {
-  constructor(message, response) {
+  constructor(message: string, response: any) {
     const trueProto = new.target.prototype;
     super(message, response);
     this.__proto__ = trueProto;
