@@ -4,18 +4,12 @@ import { AssetType } from 'stellar-base';
 
 export namespace ServerApi {
 
-  /* Due to a bug with the recursive function requests */
-  interface CollectionRecord<
+  export interface CollectionPage<
     T extends Horizon.BaseResponse = Horizon.BaseResponse
   > {
-    _links: {
-      next: Horizon.ResponseLink;
-      prev: Horizon.ResponseLink;
-      self: Horizon.ResponseLink;
-    };
-    _embedded: {
-      records: T[];
-    };
+    records: T[];
+    next: () => Promise<CollectionPage<T>>;
+    prev: () => Promise<CollectionPage<T>>;
   }
 
   interface CallFunctionTemplateOptions {
@@ -29,7 +23,7 @@ export namespace ServerApi {
   > = () => Promise<T>;
   export type CallCollectionFunction<
     T extends Horizon.BaseResponse = Horizon.BaseResponse
-  > = (options?: CallFunctionTemplateOptions) => Promise<CollectionRecord<T>>;
+  > = (options?: CallFunctionTemplateOptions) => Promise<CollectionPage<T>>;
 
   export interface AccountRecordSigners {
     key: string;
@@ -72,7 +66,7 @@ export namespace ServerApi {
     succeeds?: CallFunction<EffectRecord>;
   }
 
-  interface LedgerRecord extends Horizon.BaseResponse {
+  export interface LedgerRecord extends Horizon.BaseResponse {
     id: string;
     paging_token: string;
     hash: string;

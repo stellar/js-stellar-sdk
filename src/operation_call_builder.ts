@@ -1,4 +1,5 @@
 import { CallBuilder } from './call_builder';
+import { ServerApi } from './server_api';
 
 /**
  * Creates a new {@link OperationCallBuilder} pointed to server defined by serverUrl.
@@ -10,8 +11,8 @@ import { CallBuilder } from './call_builder';
  * @extends CallBuilder
  * @param {string} serverUrl Horizon server URL.
  */
-export class OperationCallBuilder extends CallBuilder {
-  constructor(serverUrl) {
+export class OperationCallBuilder extends CallBuilder<ServerApi.CollectionPage<ServerApi.OperationRecord>> {
+  constructor(serverUrl: uri.URI) {
     super(serverUrl);
     this.url.segment('operations');
   }
@@ -23,7 +24,7 @@ export class OperationCallBuilder extends CallBuilder {
    * @param {number} operationId Operation ID
    * @returns {OperationCallBuilder} this OperationCallBuilder instance
    */
-  operation(operationId) {
+  public operation(operationId: string): this {
     this.filter.push(['operations', operationId]);
     return this;
   }
@@ -34,7 +35,7 @@ export class OperationCallBuilder extends CallBuilder {
    * @param {string} accountId For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
    * @returns {OperationCallBuilder} this OperationCallBuilder instance
    */
-  forAccount(accountId) {
+  public forAccount(accountId: string): this {
     this.filter.push(['accounts', accountId, 'operations']);
     return this;
   }
@@ -46,7 +47,7 @@ export class OperationCallBuilder extends CallBuilder {
    * @param {number|string} sequence Ledger sequence
    * @returns {OperationCallBuilder} this OperationCallBuilder instance
    */
-  forLedger(sequence) {
+  public forLedger(sequence: number | string): this {
     this.filter.push([
       'ledgers',
       typeof sequence === 'number' ? sequence.toString() : sequence,
@@ -61,7 +62,7 @@ export class OperationCallBuilder extends CallBuilder {
    * @param {string} transactionId Transaction ID
    * @returns {OperationCallBuilder} this OperationCallBuilder instance
    */
-  forTransaction(transactionId) {
+  public forTransaction(transactionId: string): this {
     this.filter.push(['transactions', transactionId, 'operations']);
     return this;
   }
@@ -72,7 +73,7 @@ export class OperationCallBuilder extends CallBuilder {
    * @param {bool} value Set to `true` to include operations of failed transactions.
    * @returns {TransactionCallBuilder} current TransactionCallBuilder instance
    */
-  includeFailed(value) {
+  public includeFailed(value: boolean): this {
     this.url.setQuery('include_failed', value.toString());
     return this;
   }
