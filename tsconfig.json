@@ -1,6 +1,8 @@
 {
   "extends": "@stellar/tsconfig",
   "compilerOptions": {
+    "declaration": true,
+    "declarationMap": true,
     "lib": ["es2015", "dom"],
     "module": "esnext",
     "moduleResolution": "node",

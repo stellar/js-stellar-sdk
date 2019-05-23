@@ -1,5 +1,6 @@
 'use strict';
 
+var cp = require('child_process');
 var gulp = require('gulp');
 var isparta = require('isparta');
 var plugins = require('gulp-load-plugins')();
@@ -41,13 +42,16 @@ gulp.task(
   'build:node',
   gulp.series(
     'lint:src',
-    function buildNode() {
-      return tsProject.src()
-          .pipe(plumber())
-          .pipe(tsProject())
-          .js.pipe(gulp.dest('lib'))
+    // TODO: output directly to "lib" folder (see tsconfig.json).
+    function buildNode(done) {
+      // TODO: Gulp-ify with `tsProject`.
+      try {
+        cp.execSync(`yarn run tsc`, {stdio: 'inherit'})
+        done()
+      } catch(err) {
+        done(err)
+      }
     },
-    // TODO: output directly where it's needed (see tsconfig.json).
     function flatten() {
       return gulp.src('lib/src/**')
           .pipe(gulp.dest('lib'))
