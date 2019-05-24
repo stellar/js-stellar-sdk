@@ -1,5 +1,5 @@
-import { CallBuilder } from './call_builder';
-import { ServerApi } from './server_api';
+import { CallBuilder } from "./call_builder";
+import { ServerApi } from "./server_api";
 
 /**
  * Creates a new {@link OperationCallBuilder} pointed to server defined by serverUrl.
@@ -11,10 +11,12 @@ import { ServerApi } from './server_api';
  * @extends CallBuilder
  * @param {string} serverUrl Horizon server URL.
  */
-export class OperationCallBuilder extends CallBuilder<ServerApi.CollectionPage<ServerApi.OperationRecord>> {
+export class OperationCallBuilder extends CallBuilder<
+  ServerApi.CollectionPage<ServerApi.OperationRecord>
+> {
   constructor(serverUrl: uri.URI) {
     super(serverUrl);
-    this.url.segment('operations');
+    this.url.segment("operations");
   }
 
   /**
@@ -25,7 +27,7 @@ export class OperationCallBuilder extends CallBuilder<ServerApi.CollectionPage<S
    * @returns {OperationCallBuilder} this OperationCallBuilder instance
    */
   public operation(operationId: string): this {
-    this.filter.push(['operations', operationId]);
+    this.filter.push(["operations", operationId]);
     return this;
   }
 
@@ -36,7 +38,7 @@ export class OperationCallBuilder extends CallBuilder<ServerApi.CollectionPage<S
    * @returns {OperationCallBuilder} this OperationCallBuilder instance
    */
   public forAccount(accountId: string): this {
-    this.filter.push(['accounts', accountId, 'operations']);
+    this.filter.push(["accounts", accountId, "operations"]);
     return this;
   }
 
@@ -49,9 +51,9 @@ export class OperationCallBuilder extends CallBuilder<ServerApi.CollectionPage<S
    */
   public forLedger(sequence: number | string): this {
     this.filter.push([
-      'ledgers',
-      typeof sequence === 'number' ? sequence.toString() : sequence,
-      'operations'
+      "ledgers",
+      typeof sequence === "number" ? sequence.toString() : sequence,
+      "operations",
     ]);
     return this;
   }
@@ -63,7 +65,7 @@ export class OperationCallBuilder extends CallBuilder<ServerApi.CollectionPage<S
    * @returns {OperationCallBuilder} this OperationCallBuilder instance
    */
   public forTransaction(transactionId: string): this {
-    this.filter.push(['transactions', transactionId, 'operations']);
+    this.filter.push(["transactions", transactionId, "operations"]);
     return this;
   }
 
@@ -74,7 +76,7 @@ export class OperationCallBuilder extends CallBuilder<ServerApi.CollectionPage<S
    * @returns {TransactionCallBuilder} current TransactionCallBuilder instance
    */
   public includeFailed(value: boolean): this {
-    this.url.setQuery('include_failed', value.toString());
+    this.url.setQuery("include_failed", value.toString());
     return this;
   }
 }

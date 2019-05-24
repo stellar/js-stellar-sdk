@@ -1,5 +1,5 @@
-import { CallBuilder } from './call_builder';
-import { ServerApi } from './server_api';
+import { CallBuilder } from "./call_builder";
+import { ServerApi } from "./server_api";
 
 /**
  * Creates a new {@link TransactionCallBuilder} pointed to server defined by serverUrl.
@@ -11,10 +11,12 @@ import { ServerApi } from './server_api';
  * @constructor
  * @param {string} serverUrl Horizon server URL.
  */
-export class TransactionCallBuilder extends CallBuilder<ServerApi.TransactionRecord> {
+export class TransactionCallBuilder extends CallBuilder<
+  ServerApi.TransactionRecord
+> {
   constructor(serverUrl: uri.URI) {
     super(serverUrl);
-    this.url.segment('transactions');
+    this.url.segment("transactions");
   }
 
   /**
@@ -24,7 +26,7 @@ export class TransactionCallBuilder extends CallBuilder<ServerApi.TransactionRec
    * @returns {TransactionCallBuilder} current TransactionCallBuilder instance
    */
   public transaction(transactionId: string): this {
-    this.filter.push(['transactions', transactionId]);
+    this.filter.push(["transactions", transactionId]);
     return this;
   }
 
@@ -35,7 +37,7 @@ export class TransactionCallBuilder extends CallBuilder<ServerApi.TransactionRec
    * @returns {TransactionCallBuilder} current TransactionCallBuilder instance
    */
   public forAccount(accountId: string): this {
-    this.filter.push(['accounts', accountId, 'transactions']);
+    this.filter.push(["accounts", accountId, "transactions"]);
     return this;
   }
 
@@ -47,9 +49,9 @@ export class TransactionCallBuilder extends CallBuilder<ServerApi.TransactionRec
    */
   public forLedger(sequence: number | string): this {
     const ledgerSequence =
-      typeof sequence === 'number' ? sequence.toString() : sequence;
+      typeof sequence === "number" ? sequence.toString() : sequence;
 
-    this.filter.push(['ledgers', ledgerSequence, 'transactions']);
+    this.filter.push(["ledgers", ledgerSequence, "transactions"]);
     return this;
   }
 
@@ -60,7 +62,7 @@ export class TransactionCallBuilder extends CallBuilder<ServerApi.TransactionRec
    * @returns {TransactionCallBuilder} current TransactionCallBuilder instance
    */
   public includeFailed(value: boolean): this {
-    this.url.setQuery('include_failed', value.toString());
+    this.url.setQuery("include_failed", value.toString());
     return this;
   }
 }

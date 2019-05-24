@@ -1,8 +1,8 @@
-import { Account as BaseAccount } from 'stellar-base';
-import forIn from 'lodash/forIn';
-import { ServerApi } from './server_api';
-import { Omit } from 'lodash';
-import { Horizon } from './horizon_api';
+import { Omit } from "lodash";
+import forIn from "lodash/forIn";
+import { Account as BaseAccount } from "stellar-base";
+import { Horizon } from "./horizon_api";
+import { ServerApi } from "./server_api";
 
 /**
  * Do not create this object directly, use {@link Server#loadAccount}.
@@ -15,9 +15,8 @@ import { Horizon } from './horizon_api';
  * @param {string} response Response from horizon account endpoint.
  * @returns {AccountResponse} AccountResponse instance
  */
-export class AccountResponse implements Omit<ServerApi.AccountRecord, '_links'> {
-  private readonly _baseAccount: BaseAccount;
-
+export class AccountResponse
+  implements Omit<ServerApi.AccountRecord, "_links"> {
   public readonly id!: string;
   public readonly paging_token!: string;
   public readonly account_id!: string;
@@ -29,13 +28,26 @@ export class AccountResponse implements Omit<ServerApi.AccountRecord, '_links'> 
   public readonly flags!: Horizon.Flags;
   public readonly balances!: Horizon.BalanceLine[];
   public readonly signers!: ServerApi.AccountRecordSigners[];
-  public readonly data!: (options: { value: string }) => Promise<{ value: string }>;
-  public readonly data_attr!: Record<string, string>
-  public readonly effects!: ServerApi.CallCollectionFunction<ServerApi.EffectRecord>;
-  public readonly offers!: ServerApi.CallCollectionFunction<ServerApi.OfferRecord>;
-  public readonly operations!: ServerApi.CallCollectionFunction<ServerApi.OperationRecord>;
-  public readonly payments!: ServerApi.CallCollectionFunction<ServerApi.PaymentOperationRecord>;
-  public readonly trades!: ServerApi.CallCollectionFunction<ServerApi.TradeRecord>;
+  public readonly data!: (options: {
+    value: string;
+  }) => Promise<{ value: string }>;
+  public readonly data_attr!: Record<string, string>;
+  public readonly effects!: ServerApi.CallCollectionFunction<
+    ServerApi.EffectRecord
+  >;
+  public readonly offers!: ServerApi.CallCollectionFunction<
+    ServerApi.OfferRecord
+  >;
+  public readonly operations!: ServerApi.CallCollectionFunction<
+    ServerApi.OperationRecord
+  >;
+  public readonly payments!: ServerApi.CallCollectionFunction<
+    ServerApi.PaymentOperationRecord
+  >;
+  public readonly trades!: ServerApi.CallCollectionFunction<
+    ServerApi.TradeRecord
+  >;
+  private readonly _baseAccount: BaseAccount;
 
   constructor(response: ServerApi.AccountRecord) {
     this._baseAccount = new BaseAccount(response.account_id, response.sequence);
@@ -50,7 +62,7 @@ export class AccountResponse implements Omit<ServerApi.AccountRecord, '_links'> 
    * Get Stellar account public key ex. `GB3KJPLFUYN5VL6R3GU3EGCGVCKFDSD7BEDX42HWG5BWFKB3KQGJJRMA`
    * @returns {string} accountId
    */
-  accountId(): string {
+  public accountId(): string {
     return this._baseAccount.accountId();
   }
 
@@ -58,7 +70,7 @@ export class AccountResponse implements Omit<ServerApi.AccountRecord, '_links'> 
    * Get the current sequence number
    * @returns {string} sequenceNumber
    */
-  sequenceNumber(): string {
+  public sequenceNumber(): string {
     return this._baseAccount.sequenceNumber();
   }
 
@@ -66,7 +78,7 @@ export class AccountResponse implements Omit<ServerApi.AccountRecord, '_links'> 
    * Increments sequence number in this object by one.
    * @returns {void}
    */
-  incrementSequenceNumber(): void {
+  public incrementSequenceNumber(): void {
     this._baseAccount.incrementSequenceNumber();
     this.sequence = this._baseAccount.sequenceNumber();
   }

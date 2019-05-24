@@ -1,6 +1,6 @@
-import { Horizon } from "./horizon_api";
 import { Omit } from "lodash";
-import { AssetType, Asset } from "stellar-base";
+import { Asset, AssetType } from "stellar-base";
+import { Horizon } from "./horizon_api";
 
 export namespace ServerApi {
   export interface CollectionPage<

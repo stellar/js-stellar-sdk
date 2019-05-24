@@ -1,4 +1,4 @@
-import clone from 'lodash/clone';
+import clone from "lodash/clone";
 
 interface Configuration {
   /**
@@ -17,7 +17,7 @@ interface Configuration {
 
 const defaultConfig: Configuration = {
   allowHttp: false,
-  timeout: 0
+  timeout: 0,
 };
 
 let config = clone(defaultConfig);

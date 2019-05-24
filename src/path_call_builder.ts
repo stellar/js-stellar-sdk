@@ -1,6 +1,6 @@
-import { CallBuilder } from './call_builder';
-import { Asset } from 'stellar-base';
-import { ServerApi } from './server_api';
+import { Asset } from "stellar-base";
+import { CallBuilder } from "./call_builder";
+import { ServerApi } from "./server_api";
 
 /**
  * The Stellar Network allows payments to be made across assets through path payments. A path payment specifies a
@@ -26,32 +26,34 @@ import { ServerApi } from './server_api';
  * @param {Asset} destinationAsset The destination asset.
  * @param {string} destinationAmount The amount, denominated in the destination asset, that any returned path should be able to satisfy.
  */
-export class PathCallBuilder extends CallBuilder<ServerApi.CollectionPage<ServerApi.PaymentPathRecord>> {
+export class PathCallBuilder extends CallBuilder<
+  ServerApi.CollectionPage<ServerApi.PaymentPathRecord>
+> {
   constructor(
     serverUrl: uri.URI,
     source: string,
     destination: string,
     destinationAsset: Asset,
-    destinationAmount: string
+    destinationAmount: string,
   ) {
     super(serverUrl);
-    this.url.segment('paths');
-    this.url.setQuery('destination_account', destination);
-    this.url.setQuery('source_account', source);
-    this.url.setQuery('destination_amount', destinationAmount);
+    this.url.segment("paths");
+    this.url.setQuery("destination_account", destination);
+    this.url.setQuery("source_account", source);
+    this.url.setQuery("destination_amount", destinationAmount);
 
     if (!destinationAsset.isNative()) {
       this.url.setQuery(
-        'destination_asset_type',
-        destinationAsset.getAssetType()
+        "destination_asset_type",
+        destinationAsset.getAssetType(),
       );
-      this.url.setQuery('destination_asset_code', destinationAsset.getCode());
+      this.url.setQuery("destination_asset_code", destinationAsset.getCode());
       this.url.setQuery(
-        'destination_asset_issuer',
-        destinationAsset.getIssuer()
+        "destination_asset_issuer",
+        destinationAsset.getIssuer(),
       );
     } else {
-      this.url.setQuery('destination_asset_type', 'native');
+      this.url.setQuery("destination_asset_type", "native");
     }
   }
 }

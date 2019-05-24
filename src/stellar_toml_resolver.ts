@@ -1,6 +1,6 @@
-import axios from 'axios';
-import toml from 'toml';
-import { Config } from './config';
+import axios from "axios";
+import toml from "toml";
+import { Config } from "./config";
 
 // STELLAR_TOML_MAX_SIZE is the maximum size of stellar.toml file
 export const STELLAR_TOML_MAX_SIZE = 100 * 1024;
@@ -27,21 +27,24 @@ export class StellarTomlResolver {
    * @param {number} [opts.timeout] - Allow a timeout, default: 0. Allows user to avoid nasty lag due to TOML resolve issue.
    * @returns {Promise} A `Promise` that resolves to the parsed stellar.toml object
    */
-  public static async resolve(domain: string, opts: StellarTomlResolver.StellarTomlResolveOptions = {}): Promise<{ [key: string]: any }> {
-    const allowHttp = typeof opts.allowHttp === 'undefined'
-      ? Config.isAllowHttp()
-      : opts.allowHttp;
+  public static async resolve(
+    domain: string,
+    opts: StellarTomlResolver.StellarTomlResolveOptions = {},
+  ): Promise<{ [key: string]: any }> {
+    const allowHttp =
+      typeof opts.allowHttp === "undefined"
+        ? Config.isAllowHttp()
+        : opts.allowHttp;
 
-    const timeout = typeof opts.timeout === 'undefined'
-      ? Config.getTimeout()
-      : opts.timeout;
+    const timeout =
+      typeof opts.timeout === "undefined" ? Config.getTimeout() : opts.timeout;
 
-    const protocol = allowHttp ? 'http' : 'https';
+    const protocol = allowHttp ? "http" : "https";
 
     return axios
       .get(`${protocol}://${domain}/.well-known/stellar.toml`, {
         maxContentLength: STELLAR_TOML_MAX_SIZE,
-        timeout
+        timeout,
       })
       .then((response) => {
         try {
@@ -52,15 +55,15 @@ export class StellarTomlResolver {
             new Error(
               `Parsing error on line ${e.line}, column ${e.column}: ${
                 e.message
-              }`
-            )
+              }`,
+            ),
           );
         }
       })
       .catch((err: Error) => {
         if (err.message.match(/^maxContentLength size/)) {
           throw new Error(
-            `stellar.toml file exceeds allowed size of ${STELLAR_TOML_MAX_SIZE}`
+            `stellar.toml file exceeds allowed size of ${STELLAR_TOML_MAX_SIZE}`,
           );
         } else {
           throw err;

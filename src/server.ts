@@ -1,29 +1,29 @@
-import URI from 'urijs';
-import { xdr, StrKey, Asset, Transaction } from 'stellar-base';
-import BigNumber from 'bignumber.js';
+import BigNumber from "bignumber.js";
+import { Asset, StrKey, Transaction, xdr } from "stellar-base";
+import URI from "urijs";
 
-import { BadResponseError } from './errors';
+import { BadResponseError } from "./errors";
 
-import { AccountCallBuilder } from './account_call_builder';
-import { AccountResponse } from './account_response';
-import { CallBuilder } from './call_builder';
-import { Config } from './config';
+import { AccountCallBuilder } from "./account_call_builder";
+import { AccountResponse } from "./account_response";
+import { AssetsCallBuilder } from "./assets_call_builder";
+import { CallBuilder } from "./call_builder";
+import { Config } from "./config";
+import { EffectCallBuilder } from "./effect_call_builder";
+import { FriendbotBuilder } from "./friendbot_builder";
 import HorizonAxiosClient, {
-  getCurrentServerTime
-} from './horizon_axios_client';
-import { LedgerCallBuilder } from './ledger_call_builder';
-import { TransactionCallBuilder } from './transaction_call_builder';
-import { OperationCallBuilder } from './operation_call_builder';
-import { OfferCallBuilder } from './offer_call_builder';
-import { OrderbookCallBuilder } from './orderbook_call_builder';
-import { TradesCallBuilder } from './trades_call_builder';
-import { PathCallBuilder } from './path_call_builder';
-import { PaymentCallBuilder } from './payment_call_builder';
-import { EffectCallBuilder } from './effect_call_builder';
-import { FriendbotBuilder } from './friendbot_builder';
-import { AssetsCallBuilder } from './assets_call_builder';
-import { TradeAggregationCallBuilder } from './trade_aggregation_call_builder';
-import { ServerApi } from './server_api';
+  getCurrentServerTime,
+} from "./horizon_axios_client";
+import { LedgerCallBuilder } from "./ledger_call_builder";
+import { OfferCallBuilder } from "./offer_call_builder";
+import { OperationCallBuilder } from "./operation_call_builder";
+import { OrderbookCallBuilder } from "./orderbook_call_builder";
+import { PathCallBuilder } from "./path_call_builder";
+import { PaymentCallBuilder } from "./payment_call_builder";
+import { ServerApi } from "./server_api";
+import { TradeAggregationCallBuilder } from "./trade_aggregation_call_builder";
+import { TradesCallBuilder } from "./trades_call_builder";
+import { TransactionCallBuilder } from "./transaction_call_builder";
 
 export const SUBMIT_TRANSACTION_TIMEOUT = 60 * 1000;
 
@@ -47,17 +47,18 @@ export class Server {
    *
    * TODO: Solve `URI(this.serverURL as any)`.
    */
-  public readonly serverURL: uri.URI
+  public readonly serverURL: uri.URI;
 
   constructor(serverURL: string, opts: Server.Options = {}) {
     this.serverURL = URI(serverURL);
 
-    const allowHttp = typeof opts.allowHttp === 'undefined'
-      ? Config.isAllowHttp()
-      : opts.allowHttp;
+    const allowHttp =
+      typeof opts.allowHttp === "undefined"
+        ? Config.isAllowHttp()
+        : opts.allowHttp;
 
-    if (this.serverURL.protocol() !== 'https' && !allowHttp) {
-      throw new Error('Cannot connect to insecure horizon server');
+    if (this.serverURL.protocol() !== "https" && !allowHttp) {
+      throw new Error("Cannot connect to insecure horizon server");
     }
   }
 
@@ -91,14 +92,17 @@ export class Server {
    * @returns {Promise<Timebounds>} Promise that resolves a `timebounds` object
    * (with the shape `{ minTime: 0, maxTime: N }`) that you can set the `timebounds` option to.
    */
-  public async fetchTimebounds(seconds: number, _isRetry: boolean = false): Promise<Server.Timebounds> {
+  public async fetchTimebounds(
+    seconds: number,
+    _isRetry: boolean = false,
+  ): Promise<Server.Timebounds> {
     // HorizonAxiosClient instead of this.ledgers so we can get at them headers
     const currentTime = getCurrentServerTime(this.serverURL.hostname());
 
     if (currentTime) {
       return {
         minTime: 0,
-        maxTime: currentTime + seconds
+        maxTime: currentTime + seconds,
       };
     }
 
@@ -106,7 +110,7 @@ export class Server {
     if (_isRetry) {
       return {
         minTime: 0,
-        maxTime: Math.floor(new Date().getTime() / 1000) + seconds
+        maxTime: Math.floor(new Date().getTime() / 1000) + seconds,
       };
     }
 
@@ -124,7 +128,7 @@ export class Server {
    */
   public async fetchBaseFee(): Promise<number> {
     const response = await this.ledgers()
-      .order('desc')
+      .order("desc")
       .limit(1)
       .call();
     if (response && response.records && response.records[0]) {
@@ -140,7 +144,7 @@ export class Server {
    */
   public async operationFeeStats(): Promise<any> {
     const cb = new CallBuilder(this.serverURL);
-    cb.filter.push(['operation_fee_stats']);
+    cb.filter.push(["operation_fee_stats"]);
     return cb.call();
   }
 
@@ -238,20 +242,22 @@ export class Server {
    * @param {Transaction} transaction - The transaction to submit.
    * @returns {Promise} Promise that resolves or rejects with response from horizon.
    */
-  public async submitTransaction(transaction: Transaction): Promise<ServerApi.TransactionRecord> {
+  public async submitTransaction(
+    transaction: Transaction,
+  ): Promise<ServerApi.TransactionRecord> {
     const tx = encodeURIComponent(
       transaction
         .toEnvelope()
         .toXDR()
-        .toString('base64')
+        .toString("base64"),
     );
 
     return HorizonAxiosClient.post(
       URI(this.serverURL as any)
-        .segment('transactions')
+        .segment("transactions")
         .toString(),
       `tx=${tx}`,
-      { timeout: SUBMIT_TRANSACTION_TIMEOUT }
+      { timeout: SUBMIT_TRANSACTION_TIMEOUT },
     )
       .then((response) => {
         if (!response.data.result_xdr) {
@@ -259,10 +265,8 @@ export class Server {
         }
 
         // TODO: fix stellar-base types.
-        const responseXDR: xdr.TransactionResult = (xdr.TransactionResult.fromXDR as any)(
-          response.data.result_xdr,
-          'base64'
-        );
+        const responseXDR: xdr.TransactionResult = (xdr.TransactionResult
+          .fromXDR as any)(response.data.result_xdr, "base64");
 
         // TODO: fix stellar-base types.
         const results = (responseXDR as any).result().value();
@@ -275,8 +279,8 @@ export class Server {
             // TODO: fix stellar-base types.
             .map((result: any, i: number) => {
               if (
-                result.value().switch().name !== 'manageBuyOffer' &&
-                result.value().switch().name !== 'manageSellOffer'
+                result.value().switch().name !== "manageBuyOffer" &&
+                result.value().switch().name !== "manageSellOffer"
               ) {
                 return null;
               }
@@ -297,11 +301,11 @@ export class Server {
                 .map((offerClaimed: any) => {
                   const claimedOfferAmountBought = new BigNumber(
                     // amountBought is a js-xdr hyper
-                    offerClaimed.amountBought().toString()
+                    offerClaimed.amountBought().toString(),
                   );
                   const claimedOfferAmountSold = new BigNumber(
                     // amountBought is a js-xdr hyper
-                    offerClaimed.amountSold().toString()
+                    offerClaimed.amountSold().toString(),
                   );
 
                   // This is an offer that was filled by the one just submitted.
@@ -314,30 +318,30 @@ export class Server {
 
                   const sold = Asset.fromOperation(offerClaimed.assetSold());
                   const bought = Asset.fromOperation(
-                    offerClaimed.assetBought()
+                    offerClaimed.assetBought(),
                   );
 
                   const assetSold = {
                     type: sold.getAssetType(),
                     assetCode: sold.getCode(),
-                    issuer: sold.getIssuer()
+                    issuer: sold.getIssuer(),
                   };
 
                   const assetBought = {
                     type: bought.getAssetType(),
                     assetCode: bought.getCode(),
-                    issuer: bought.getIssuer()
+                    issuer: bought.getIssuer(),
                   };
 
                   return {
                     sellerId: StrKey.encodeEd25519PublicKey(
-                      offerClaimed.sellerId().ed25519()
+                      offerClaimed.sellerId().ed25519(),
                     ),
                     offerId: offerClaimed.offerId().toString(),
                     assetSold,
                     amountSold: _getAmountInLumens(claimedOfferAmountSold),
                     assetBought,
-                    amountBought: _getAmountInLumens(claimedOfferAmountBought)
+                    amountBought: _getAmountInLumens(claimedOfferAmountBought),
                   };
                 });
 
@@ -346,7 +350,7 @@ export class Server {
               let currentOffer;
 
               if (
-                typeof offerSuccess.offer().value === 'function' &&
+                typeof offerSuccess.offer().value === "function" &&
                 offerSuccess.offer().value()
               ) {
                 const offerXDR = offerSuccess.offer().value();
@@ -358,8 +362,8 @@ export class Server {
                   amount: _getAmountInLumens(offerXDR.amount().toString()),
                   price: {
                     n: offerXDR.price().n(),
-                    d: offerXDR.price().d()
-                  }
+                    d: offerXDR.price().d(),
+                  },
                 };
 
                 const selling = Asset.fromOperation(offerXDR.selling());
@@ -367,7 +371,7 @@ export class Server {
                 currentOffer.selling = {
                   type: selling.getAssetType(),
                   assetCode: selling.getCode(),
-                  issuer: selling.getIssuer()
+                  issuer: selling.getIssuer(),
                 };
 
                 const buying = Asset.fromOperation(offerXDR.buying());
@@ -375,7 +379,7 @@ export class Server {
                 currentOffer.buying = {
                   type: buying.getAssetType(),
                   assetCode: buying.getCode(),
-                  issuer: buying.getIssuer()
+                  issuer: buying.getIssuer(),
                 };
               }
 
@@ -390,13 +394,13 @@ export class Server {
                 amountSold: _getAmountInLumens(amountSold),
 
                 isFullyOpen:
-                  !offersClaimed.length && effect !== 'manageOfferDeleted',
+                  !offersClaimed.length && effect !== "manageOfferDeleted",
                 wasPartiallyFilled:
-                  !!offersClaimed.length && effect !== 'manageOfferDeleted',
+                  !!offersClaimed.length && effect !== "manageOfferDeleted",
                 wasImmediatelyFilled:
-                  !!offersClaimed.length && effect === 'manageOfferDeleted',
+                  !!offersClaimed.length && effect === "manageOfferDeleted",
                 wasImmediatelyDeleted:
-                  !offersClaimed.length && effect === 'manageOfferDeleted'
+                  !offersClaimed.length && effect === "manageOfferDeleted",
               };
             })
             // TODO: fix stellar-base types.
@@ -404,7 +408,7 @@ export class Server {
         }
 
         return Object.assign({}, response.data, {
-          offerResults: hasManageOffer ? offerResults : undefined
+          offerResults: hasManageOffer ? offerResults : undefined,
         });
       })
       .catch((response) => {
@@ -416,8 +420,8 @@ export class Server {
             `Transaction submission failed. Server responded: ${
               response.status
             } ${response.statusText}`,
-            response.data
-          )
+            response.data,
+          ),
         );
       });
   }
@@ -456,12 +460,11 @@ export class Server {
    * @param {...string} resourceParams Parameters for selected resource
    * @returns {OfferCallBuilder} New {@link OfferCallBuilder} object
    */
-  public offers(resource: string, ...resourceParams: string[]): OfferCallBuilder {
-    return new OfferCallBuilder(
-      this.serverURL,
-      resource,
-      ...resourceParams
-    );
+  public offers(
+    resource: string,
+    ...resourceParams: string[]
+  ): OfferCallBuilder {
+    return new OfferCallBuilder(this.serverURL, resource, ...resourceParams);
   }
 
   /**
@@ -470,7 +473,11 @@ export class Server {
    * @returns {OrderbookCallBuilder} New {@link OrderbookCallBuilder} object configured by a current Horizon server configuration.
    */
   public orderbook(selling: Asset, buying: Asset): OrderbookCallBuilder {
-    return new OrderbookCallBuilder(URI(this.serverURL as any), selling, buying);
+    return new OrderbookCallBuilder(
+      URI(this.serverURL as any),
+      selling,
+      buying,
+    );
   }
 
   /**
@@ -509,13 +516,18 @@ export class Server {
    * @param {string} destinationAmount The amount, denominated in the destination asset, that any returned path should be able to satisfy.
    * @returns {PathCallBuilder} New {@link PathCallBuilder} object configured with the current Horizon server configuration.
    */
-  public paths(source: string, destination: string, destinationAsset: Asset, destinationAmount: string): PathCallBuilder {
+  public paths(
+    source: string,
+    destination: string,
+    destinationAsset: Asset,
+    destinationAmount: string,
+  ): PathCallBuilder {
     return new PathCallBuilder(
       this.serverURL,
       source,
       destination,
       destinationAsset,
-      destinationAmount
+      destinationAmount,
     );
   }
 
@@ -577,7 +589,14 @@ export class Server {
    * Returns new {@link TradeAggregationCallBuilder} object configured with the current Horizon server configuration.
    * @returns {TradeAggregationCallBuilder} New TradeAggregationCallBuilder instance
    */
-  tradeAggregation(base: Asset, counter: Asset, start_time: number, end_time: number, resolution: number, offset: number): TradeAggregationCallBuilder {
+  public tradeAggregation(
+    base: Asset,
+    counter: Asset,
+    start_time: number,
+    end_time: number,
+    resolution: number,
+    offset: number,
+  ): TradeAggregationCallBuilder {
     return new TradeAggregationCallBuilder(
       this.serverURL,
       base,
@@ -585,7 +604,7 @@ export class Server {
       start_time,
       end_time,
       resolution,
-      offset
+      offset,
     );
   }
 }

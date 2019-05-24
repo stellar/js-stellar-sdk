@@ -1,31 +1,31 @@
-import URI from 'urijs';
-import URITemplate from 'urijs/src/URITemplate';
-import isNode from 'detect-node';
+import isNode from "detect-node";
+import URI from "urijs";
+import URITemplate from "urijs/src/URITemplate";
 
-import HorizonAxiosClient from './horizon_axios_client';
-import { version } from '../package.json';
-import { NotFoundError, NetworkError, BadRequestError } from './errors';
-import { Horizon } from './horizon_api';
-import { ServerApi } from './server_api';
+import { version } from "../package.json";
+import { BadRequestError, NetworkError, NotFoundError } from "./errors";
+import { Horizon } from "./horizon_api";
+import HorizonAxiosClient from "./horizon_axios_client";
+import { ServerApi } from "./server_api";
 
-interface Constructable<T> {
-  new(e:string) : T;
-}
+type Constructable<T> = new (e: string) => T;
 declare global {
-  interface Window { EventSource: Constructable<EventSource>; }
+  interface Window {
+    EventSource: Constructable<EventSource>;
+  }
 }
 
 export interface EventSourceOptions {
   onmessage?: (event: MessageEvent) => void;
   onerror?: (event: MessageEvent) => void;
-  reconnectTimeout?: number
+  reconnectTimeout?: number;
 }
 
 let EventSource: Constructable<EventSource>;
 
 if (isNode) {
   // eslint-disable-next-line
-  EventSource = require('eventsource');
+  EventSource = require("eventsource");
 } else {
   // eslint-disable-next-line
   EventSource = window.EventSource;
@@ -38,9 +38,12 @@ if (isNode) {
  * @param {string} serverUrl URL of Horizon server
  * @class CallBuilder
  */
-export class CallBuilder<T extends Horizon.BaseResponse | ServerApi.CollectionPage<Horizon.BaseResponse>> {
-
-  protected url: uri.URI
+export class CallBuilder<
+  T extends
+    | Horizon.BaseResponse
+    | ServerApi.CollectionPage<Horizon.BaseResponse>
+> {
+  protected url: uri.URI;
   public filter: string[][];
   protected originalSegments: string[];
 
@@ -51,29 +54,13 @@ export class CallBuilder<T extends Horizon.BaseResponse | ServerApi.CollectionPa
   }
 
   /**
-   * @private
-   * @returns {void}
-   */
-  private checkFilter(): void {
-    if (this.filter.length >= 2) {
-      throw new BadRequestError('Too many filters specified', this.filter);
-    }
-
-    if (this.filter.length === 1) {
-      // append filters to original segments
-      const newSegment = this.originalSegments.concat(this.filter[0]);
-      this.url.segment(newSegment);
-    }
-  }
-
-  /**
    * Triggers a HTTP request using this builder's current configuration.
    * @returns {Promise} a Promise that resolves to the server's response.
    */
   public call(): Promise<T> {
     this.checkFilter();
     return this._sendNormalRequest(this.url).then((r) =>
-      this._parseResponse(r)
+      this._parseResponse(r),
     );
   }
   //// TODO: Migrate to async, BUT that's a change in behavior and tests "rejects two filters" will fail.
@@ -104,11 +91,11 @@ export class CallBuilder<T extends Horizon.BaseResponse | ServerApi.CollectionPa
    * @param {number} [options.reconnectTimeout] Custom stream connection timeout in ms, default is 15 seconds.
    * @returns {function} Close function. Run to close the connection and stop listening for new events.
    */
-  public stream(options: EventSourceOptions = {}): ()=>void {
+  public stream(options: EventSourceOptions = {}): () => void {
     this.checkFilter();
 
-    this.url.setQuery('X-Client-Name', 'js-stellar-sdk');
-    this.url.setQuery('X-Client-Version', version);
+    this.url.setQuery("X-Client-Name", "js-stellar-sdk");
+    this.url.setQuery("X-Client-Version", version);
 
     // EventSource object
     let es: EventSource;
@@ -141,11 +128,11 @@ export class CallBuilder<T extends Horizon.BaseResponse | ServerApi.CollectionPa
           ? this._parseRecord(JSON.parse(message.data))
           : message;
         if (result.paging_token) {
-          this.url.setQuery('cursor', result.paging_token);
+          this.url.setQuery("cursor", result.paging_token);
         }
         clearTimeout(timeout);
         createTimeout();
-        if (typeof options.onmessage !== 'undefined') {
+        if (typeof options.onmessage !== "undefined") {
           options.onmessage(result);
         }
       };
@@ -167,6 +154,54 @@ export class CallBuilder<T extends Horizon.BaseResponse | ServerApi.CollectionPa
   }
 
   /**
+   * Sets `cursor` parameter for the current call. Returns the CallBuilder object on which this method has been called.
+   * @see [Paging](https://www.stellar.org/developers/horizon/reference/paging.html)
+   * @param {string} cursor A cursor is a value that points to a specific location in a collection of resources.
+   * @returns {object} current CallBuilder instance
+   */
+  public cursor(cursor: string): this {
+    this.url.setQuery("cursor", cursor);
+    return this;
+  }
+
+  /**
+   * Sets `limit` parameter for the current call. Returns the CallBuilder object on which this method has been called.
+   * @see [Paging](https://www.stellar.org/developers/horizon/reference/paging.html)
+   * @param {number} number Number of records the server should return.
+   * @returns {object} current CallBuilder instance
+   */
+  public limit(recordsNumber: number): this {
+    this.url.setQuery("limit", recordsNumber.toString());
+    return this;
+  }
+
+  /**
+   * Sets `order` parameter for the current call. Returns the CallBuilder object on which this method has been called.
+   * @param {"asc"|"desc"} direction Sort direction
+   * @returns {object} current CallBuilder instance
+   */
+  public order(direction: "asc" | "desc"): this {
+    this.url.setQuery("order", direction);
+    return this;
+  }
+
+  /**
+   * @private
+   * @returns {void}
+   */
+  private checkFilter(): void {
+    if (this.filter.length >= 2) {
+      throw new BadRequestError("Too many filters specified", this.filter);
+    }
+
+    if (this.filter.length === 1) {
+      // append filters to original segments
+      const newSegment = this.originalSegments.concat(this.filter[0]);
+      this.url.segment(newSegment);
+    }
+  }
+
+  /**
    * Convert a link object to a function that fetches that link.
    * @private
    * @param {object} link A link object
@@ -180,7 +215,7 @@ export class CallBuilder<T extends Horizon.BaseResponse | ServerApi.CollectionPa
 
       if (link.templated) {
         const template = URITemplate(link.href);
-        uri = URI(template.expand(opts || {}) as any);  // TODO: fix upstream types.
+        uri = URI(template.expand(opts || {}) as any); // TODO: fix upstream types.
       } else {
         uri = URI(link.href);
       }
@@ -202,9 +237,9 @@ export class CallBuilder<T extends Horizon.BaseResponse | ServerApi.CollectionPa
       return json;
     }
     for (const key of Object.keys(json._links)) {
-      const n = json._links[key]
+      const n = json._links[key];
       // If the key with the link name already exists, create a copy
-      if (typeof json[key] !== 'undefined') {
+      if (typeof json[key] !== "undefined") {
         json[`${key}_attr`] = json[key];
       }
 
@@ -216,16 +251,16 @@ export class CallBuilder<T extends Horizon.BaseResponse | ServerApi.CollectionPa
   private async _sendNormalRequest(initialUrl: uri.URI) {
     let url = initialUrl;
 
-    if (url.authority() === '') {
+    if (url.authority() === "") {
       url = url.authority(this.url.authority());
     }
 
-    if (url.protocol() === '') {
+    if (url.protocol() === "") {
       url = url.protocol(this.url.protocol());
     }
 
     // Temp fix for: https://github.com/stellar/js-stellar-sdk/issues/15
-    url.setQuery('c', String(Math.random()));
+    url.setQuery("c", String(Math.random()));
     return HorizonAxiosClient.get(url.toString())
       .then((response) => response.data)
       .catch(this._handleNetworkError);
@@ -261,7 +296,7 @@ export class CallBuilder<T extends Horizon.BaseResponse | ServerApi.CollectionPa
       prev: async () => {
         const r = await this._sendNormalRequest(URI(json._links.prev.href));
         return this._toCollectionPage(r);
-      }
+      },
     };
   }
 
@@ -275,47 +310,15 @@ export class CallBuilder<T extends Horizon.BaseResponse | ServerApi.CollectionPa
       switch (error.response.status) {
         case 404:
           return Promise.reject(
-            new NotFoundError(error.response.statusText, error.response.data)
+            new NotFoundError(error.response.statusText, error.response.data),
           );
         default:
           return Promise.reject(
-            new NetworkError(error.response.statusText, error.response.data)
+            new NetworkError(error.response.statusText, error.response.data),
           );
       }
     } else {
       return Promise.reject(new Error(error.message));
     }
-  }
-
-  /**
-   * Sets `cursor` parameter for the current call. Returns the CallBuilder object on which this method has been called.
-   * @see [Paging](https://www.stellar.org/developers/horizon/reference/paging.html)
-   * @param {string} cursor A cursor is a value that points to a specific location in a collection of resources.
-   * @returns {object} current CallBuilder instance
-   */
-  public cursor(cursor: string): this {
-    this.url.setQuery('cursor', cursor);
-    return this;
-  }
-
-  /**
-   * Sets `limit` parameter for the current call. Returns the CallBuilder object on which this method has been called.
-   * @see [Paging](https://www.stellar.org/developers/horizon/reference/paging.html)
-   * @param {number} number Number of records the server should return.
-   * @returns {object} current CallBuilder instance
-   */
-  public limit(recordsNumber: number): this {
-    this.url.setQuery('limit', recordsNumber.toString());
-    return this;
-  }
-
-  /**
-   * Sets `order` parameter for the current call. Returns the CallBuilder object on which this method has been called.
-   * @param {"asc"|"desc"} direction Sort direction
-   * @returns {object} current CallBuilder instance
-   */
-  public order(direction: 'asc' | 'desc'): this {
-    this.url.setQuery('order', direction);
-    return this;
   }
 }
