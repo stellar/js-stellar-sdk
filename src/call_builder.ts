@@ -201,7 +201,8 @@ export class CallBuilder<T extends Horizon.BaseResponse | ServerApi.CollectionPa
     if (!json._links) {
       return json;
     }
-    for (const [key, n] of Object.entries(json._links)) {
+    for (const key of Object.keys(json._links)) {
+      const n = json._links[key]
       // If the key with the link name already exists, create a copy
       if (typeof json[key] !== 'undefined') {
         json[`${key}_attr`] = json[key];
