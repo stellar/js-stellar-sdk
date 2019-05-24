@@ -216,6 +216,7 @@ export namespace Server {
     public_key?: string;
 
     // trade
+    offer_id?: number;
     bought_amount?: string;
     bought_asset_type?: string;
     bought_asset_code?: string;
@@ -227,6 +228,31 @@ export namespace Server {
 
     // account_created
     starting_balance?: string;
+
+    // These were retrieved from the go repo, not through direct observation
+    // so they could be wrong!
+
+    // account thresholds updated
+    low_threshold?: number;
+    med_threshold?: number;
+    high_threshold?: number;
+
+    // home domain updated
+    home_domain?: string;
+
+    // account flags updated
+    auth_required_flag?: boolean;
+    auth_revokable_flag?: boolean;
+
+    // seq bumped
+    new_seq?: number;
+
+    // signer created / removed / updated
+    weight?: number;
+    key?: string;
+
+    // trustline authorized / deauthorized
+    trustor?: string;
 
     operation?: CallFunction<OperationRecord>;
     precedes?: CallFunction<EffectRecord>;
