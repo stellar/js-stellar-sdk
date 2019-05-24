@@ -2,7 +2,7 @@
 
 /// <reference types="node" />
 
-import { AxiosInstance } from "axios";
+import { AxiosInstance } from 'axios';
 import { AssetType, Asset, Memo, MemoType, Transaction } from 'stellar-base';
 
 // Re-StellarBase
@@ -198,10 +198,35 @@ export namespace Server {
   interface EffectRecord extends Horizon.BaseResponse {
     account: string;
     paging_token: string;
-    starting_balance: string;
     type_i: string;
     type: string;
+    created_at: string;
+    id: string;
+
+    // account_debited / credited / trustline_created
     amount?: any;
+    asset_type?: string;
+    asset_code?: string;
+    asset_issuer?: string;
+
+    // trustline_created / removed
+    limit?: string;
+
+    // signer_created
+    public_key?: string;
+
+    // trade
+    bought_amount?: string;
+    bought_asset_type?: string;
+    bought_asset_code?: string;
+    bought_asset_issuer?: string;
+    sold_amount?: string;
+    sold_asset_type?: string;
+    sold_asset_code?: string;
+    sold_asset_issuer?: string;
+
+    // account_created
+    starting_balance?: string;
 
     operation?: CallFunction<OperationRecord>;
     precedes?: CallFunction<EffectRecord>;
