@@ -247,7 +247,7 @@ export class Server {
     );
 
     return HorizonAxiosClient.post(
-      URI(this.serverURL.toString())  // TODO: Is toString() neccessary?)
+      URI(this.serverURL as any)
         .segment('transactions')
         .toString(),
       `tx=${tx}`,
@@ -542,7 +542,7 @@ export class Server {
    * @private
    */
   public friendbot(address: string): FriendbotBuilder {
-    return new FriendbotBuilder(URI(this.serverURL as any), address);  // TODO: Is toString() neccessary?
+    return new FriendbotBuilder(URI(this.serverURL as any), address);
   }
 
   /**

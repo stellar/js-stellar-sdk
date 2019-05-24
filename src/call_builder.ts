@@ -224,7 +224,7 @@ export class CallBuilder<T extends Horizon.BaseResponse | ServerApi.CollectionPa
     }
 
     // Temp fix for: https://github.com/stellar/js-stellar-sdk/issues/15
-    url.setQuery('c', Math.random() as any);  // TODO: Type conflict, please review.
+    url.setQuery('c', String(Math.random()));
     return HorizonAxiosClient.get(url.toString())
       .then((response) => response.data)
       .catch(this._handleNetworkError);
