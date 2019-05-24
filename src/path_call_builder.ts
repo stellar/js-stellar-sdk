@@ -1,5 +1,4 @@
 import { CallBuilder } from './call_builder';
-import { Horizon } from './horizon_api';
 import { Asset } from 'stellar-base';
 import { ServerApi } from './server_api';
 
@@ -27,7 +26,7 @@ import { ServerApi } from './server_api';
  * @param {Asset} destinationAsset The destination asset.
  * @param {string} destinationAmount The amount, denominated in the destination asset, that any returned path should be able to satisfy.
  */
-export class PathCallBuilder extends CallBuilder<ServerApi.CollectionPage<PaymentPathRecord>> {
+export class PathCallBuilder extends CallBuilder<ServerApi.CollectionPage<ServerApi.PaymentPathRecord>> {
   constructor(
     serverUrl: uri.URI,
     source: string,
@@ -55,20 +54,4 @@ export class PathCallBuilder extends CallBuilder<ServerApi.CollectionPage<Paymen
       this.url.setQuery('destination_asset_type', 'native');
     }
   }
-}
-
-export interface PaymentPathRecord extends Horizon.BaseResponse {
-  path: Array<{
-    asset_code: string;
-    asset_issuer: string;
-    asset_type: string;
-  }>;
-  source_amount: string;
-  source_asset_type: string;
-  source_asset_code: string;
-  source_asset_issuer: string;
-  destination_amount: string;
-  destination_asset_type: string;
-  destination_asset_code: string;
-  destination_asset_issuer: string;
 }

@@ -1,6 +1,4 @@
 import { CallBuilder } from './call_builder';
-import { AssetType } from 'stellar-base';
-import { Horizon } from './horizon_api';
 import { ServerApi } from './server_api';
 
 /**
@@ -12,7 +10,7 @@ import { ServerApi } from './server_api';
  * @extends CallBuilder
  * @param {string} serverUrl Horizon server URL.
  */
-export class AssetsCallBuilder extends CallBuilder<ServerApi.CollectionPage<AssetRecord>> {
+export class AssetsCallBuilder extends CallBuilder<ServerApi.CollectionPage<ServerApi.AssetRecord>> {
   constructor(serverUrl: uri.URI) {
     super(serverUrl);
     this.url.segment('assets');
@@ -37,14 +35,4 @@ export class AssetsCallBuilder extends CallBuilder<ServerApi.CollectionPage<Asse
     this.url.setQuery('asset_issuer', value);
     return this;
   }
-}
-
-export interface AssetRecord extends Horizon.BaseResponse {
-  asset_type: AssetType.credit4 | AssetType.credit12;
-  asset_code: string;
-  asset_issuer: string;
-  paging_token: string;
-  amount: string;
-  num_accounts: number;
-  flags: Horizon.Flags;
 }

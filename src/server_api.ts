@@ -1,6 +1,6 @@
 import { Horizon } from './horizon_api';
 import { Omit } from 'lodash';
-import { AssetType } from 'stellar-base';
+import { AssetType, Asset } from 'stellar-base';
 
 export namespace ServerApi {
 
@@ -248,6 +248,39 @@ export namespace ServerApi {
     precedes: CallFunction<TransactionRecord>;
     self: CallFunction<TransactionRecord>;
     succeeds: CallFunction<TransactionRecord>;
+  }
+
+  export interface AssetRecord extends Horizon.BaseResponse {
+    asset_type: AssetType.credit4 | AssetType.credit12;
+    asset_code: string;
+    asset_issuer: string;
+    paging_token: string;
+    amount: string;
+    num_accounts: number;
+    flags: Horizon.Flags;
+  }
+
+  export interface OrderbookRecord extends Horizon.BaseResponse {
+    bids: Array<{ price_r: {}; price: number; amount: string }>;
+    asks: Array<{ price_r: {}; price: number; amount: string }>;
+    selling: Asset;
+    buying: Asset;
+  }
+
+  export interface PaymentPathRecord extends Horizon.BaseResponse {
+    path: Array<{
+      asset_code: string;
+      asset_issuer: string;
+      asset_type: string;
+    }>;
+    source_amount: string;
+    source_asset_type: string;
+    source_asset_code: string;
+    source_asset_issuer: string;
+    destination_amount: string;
+    destination_asset_type: string;
+    destination_asset_code: string;
+    destination_asset_issuer: string;
   }
 
 }

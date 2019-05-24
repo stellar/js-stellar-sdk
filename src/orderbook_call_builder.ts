@@ -1,6 +1,6 @@
 import { CallBuilder } from './call_builder';
-import { Horizon } from './horizon_api';
 import { Asset } from 'stellar-base';
+import { ServerApi } from './server_api';
 
 /**
  * Creates a new {@link OrderbookCallBuilder} pointed to server defined by serverUrl.
@@ -11,7 +11,7 @@ import { Asset } from 'stellar-base';
  * @param {Asset} selling Asset being sold
  * @param {Asset} buying Asset being bought
  */
-export class OrderbookCallBuilder extends CallBuilder<OrderbookRecord> {
+export class OrderbookCallBuilder extends CallBuilder<ServerApi.OrderbookRecord> {
   constructor(serverUrl: uri.URI, selling: Asset, buying: Asset) {
     super(serverUrl);
     this.url.segment('order_book');
@@ -30,11 +30,4 @@ export class OrderbookCallBuilder extends CallBuilder<OrderbookRecord> {
       this.url.setQuery('buying_asset_type', 'native');
     }
   }
-}
-
-interface OrderbookRecord extends Horizon.BaseResponse {
-  bids: Array<{ price_r: {}; price: number; amount: string }>;
-  asks: Array<{ price_r: {}; price: number; amount: string }>;
-  selling: Asset;
-  buying: Asset;
 }
