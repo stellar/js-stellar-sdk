@@ -133,7 +133,7 @@
     "lodash": "^4.17.11",
     "stellar-base": "^1.0.2",
     "toml": "^2.3.0",
-    "ts-loader": "^6.0.1",
+    "ts-loader": "5.4.5",
     "urijs": "^1.19.1"
   }
 }
