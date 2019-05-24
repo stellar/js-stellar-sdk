@@ -104,7 +104,7 @@ gulp.task(
   'analyze:browser',
   gulp.series('lint:src', function analyzeBrowser() {
     return gulp
-      .src('src/browser.js')
+      .src('src/browser.ts')
       .pipe(plumber())
       .pipe(
         plugins.webpack({
