@@ -52,7 +52,7 @@ export namespace ServerApi {
     trades: CallCollectionFunction<TradeRecord>;
   }
 
-  interface EffectRecord extends Horizon.BaseResponse {
+  export interface EffectRecord extends Horizon.BaseResponse {
     account: string;
     paging_token: string;
     type_i: string;

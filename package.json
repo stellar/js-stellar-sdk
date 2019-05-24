@@ -52,7 +52,7 @@
   "devDependencies": {
     "@stellar/prettier-config": "^1.0.1",
     "@stellar/tsconfig": "^1.0.1",
-    "@stellar/tslint-config": "^1.0.0",
+    "@stellar/tslint-config": "^1.0.1",
     "@types/detect-node": "^2.0.0",
     "@types/lodash": "^4.14.130",
     "@types/urijs": "^1.19.1",
@@ -133,6 +133,7 @@
     "lodash": "^4.17.11",
     "stellar-base": "^1.0.2",
     "toml": "^2.3.0",
+    "ts-loader": "^6.0.1",
     "urijs": "^1.19.1"
   }
 }
