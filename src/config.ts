@@ -1,6 +1,21 @@
 import clone from 'lodash/clone';
 
-const defaultConfig = {
+interface Configuration {
+  /**
+   * Allow connecting to http servers, default: `false`. This must be set to false in production deployments!
+   *
+   * @type {boolean}
+   */
+  allowHttp: boolean;
+  /**
+   * Allow a timeout, default: 0. Allows user to avoid nasty lag due to TOML resolve issue. You can also use {@link Config} class to set this globally.
+   *
+   * @type {number}
+   */
+  timeout: number;
+}
+
+const defaultConfig: Configuration = {
   allowHttp: false,
   timeout: 0
 };
@@ -32,7 +47,7 @@ class Config {
    * @returns {void}
    * @static
    */
-  static setAllowHttp(value) {
+  public static setAllowHttp(value: boolean): void {
     config.allowHttp = value;
   }
 
@@ -43,7 +58,7 @@ class Config {
    * @returns {void}
    * @static
    */
-  static setTimeout(value) {
+  public static setTimeout(value: number): void {
     config.timeout = value;
   }
 
@@ -51,16 +66,16 @@ class Config {
    * @static
    * @returns {boolean} allowHttp flag
    */
-  static isAllowHttp() {
-    return clone(config.allowHttp);
+  public static isAllowHttp(): boolean {
+    return config.allowHttp;
   }
 
   /**
    * @static
    * @returns {number} timeout flag
    */
-  static getTimeout() {
-    return clone(config.timeout);
+  public static getTimeout(): number {
+    return config.timeout;
   }
 
   /**
@@ -68,8 +83,8 @@ class Config {
    * @static
    * @returns {void}
    */
-  static setDefault() {
-    config = clone(defaultConfig);
+  public static setDefault(): void {
+    config = Object.assign({}, defaultConfig);
   }
 }
 

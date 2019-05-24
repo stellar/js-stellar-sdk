@@ -1,4 +1,5 @@
 import { CallBuilder } from './call_builder';
+import { ServerApi } from './server_api';
 
 /**
  * Creates a new {@link TransactionCallBuilder} pointed to server defined by serverUrl.
@@ -10,8 +11,8 @@ import { CallBuilder } from './call_builder';
  * @constructor
  * @param {string} serverUrl Horizon server URL.
  */
-export class TransactionCallBuilder extends CallBuilder {
-  constructor(serverUrl) {
+export class TransactionCallBuilder extends CallBuilder<ServerApi.TransactionRecord> {
+  constructor(serverUrl: uri.URI) {
     super(serverUrl);
     this.url.segment('transactions');
   }
@@ -22,7 +23,7 @@ export class TransactionCallBuilder extends CallBuilder {
    * @param {string} transactionId Transaction ID
    * @returns {TransactionCallBuilder} current TransactionCallBuilder instance
    */
-  transaction(transactionId) {
+  public transaction(transactionId: string): this {
     this.filter.push(['transactions', transactionId]);
     return this;
   }
@@ -33,7 +34,7 @@ export class TransactionCallBuilder extends CallBuilder {
    * @param {string} accountId For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
    * @returns {TransactionCallBuilder} current TransactionCallBuilder instance
    */
-  forAccount(accountId) {
+  public forAccount(accountId: string): this {
     this.filter.push(['accounts', accountId, 'transactions']);
     return this;
   }
@@ -44,7 +45,7 @@ export class TransactionCallBuilder extends CallBuilder {
    * @param {number|string} sequence Ledger sequence
    * @returns {TransactionCallBuilder} current TransactionCallBuilder instance
    */
-  forLedger(sequence) {
+  public forLedger(sequence: number | string): this {
     const ledgerSequence =
       typeof sequence === 'number' ? sequence.toString() : sequence;
 
@@ -58,7 +59,7 @@ export class TransactionCallBuilder extends CallBuilder {
    * @param {bool} value Set to `true` to include failed transactions.
    * @returns {TransactionCallBuilder} current TransactionCallBuilder instance
    */
-  includeFailed(value) {
+  public includeFailed(value: boolean): this {
     this.url.setQuery('include_failed', value.toString());
     return this;
   }

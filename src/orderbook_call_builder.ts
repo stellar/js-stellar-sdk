@@ -1,4 +1,6 @@
 import { CallBuilder } from './call_builder';
+import { Asset } from 'stellar-base';
+import { ServerApi } from './server_api';
 
 /**
  * Creates a new {@link OrderbookCallBuilder} pointed to server defined by serverUrl.
@@ -9,8 +11,8 @@ import { CallBuilder } from './call_builder';
  * @param {Asset} selling Asset being sold
  * @param {Asset} buying Asset being bought
  */
-export class OrderbookCallBuilder extends CallBuilder {
-  constructor(serverUrl, selling, buying) {
+export class OrderbookCallBuilder extends CallBuilder<ServerApi.OrderbookRecord> {
+  constructor(serverUrl: uri.URI, selling: Asset, buying: Asset) {
     super(serverUrl);
     this.url.segment('order_book');
     if (!selling.isNative()) {

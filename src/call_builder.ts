@@ -1,4 +1,3 @@
-import forEach from 'lodash/forEach';
 import URI from 'urijs';
 import URITemplate from 'urijs/src/URITemplate';
 import isNode from 'detect-node';
@@ -6,8 +5,23 @@ import isNode from 'detect-node';
 import HorizonAxiosClient from './horizon_axios_client';
 import { version } from '../package.json';
 import { NotFoundError, NetworkError, BadRequestError } from './errors';
+import { Horizon } from './horizon_api';
+import { ServerApi } from './server_api';
 
-let EventSource;
+interface Constructable<T> {
+  new(e:string) : T;
+}
+declare global {
+  interface Window { EventSource: Constructable<EventSource>; }
+}
+
+export interface EventSourceOptions {
+  onmessage?: (event: MessageEvent) => void;
+  onerror?: (event: MessageEvent) => void;
+  reconnectTimeout?: number
+}
+
+let EventSource: Constructable<EventSource>;
 
 if (isNode) {
   // eslint-disable-next-line
@@ -24,8 +38,13 @@ if (isNode) {
  * @param {string} serverUrl URL of Horizon server
  * @class CallBuilder
  */
-export class CallBuilder {
-  constructor(serverUrl) {
+export class CallBuilder<T extends Horizon.BaseResponse | ServerApi.CollectionPage<Horizon.BaseResponse>> {
+
+  protected url: uri.URI
+  public filter: string[][];
+  protected originalSegments: string[];
+
+  constructor(serverUrl: uri.URI) {
     this.url = serverUrl;
     this.filter = [];
     this.originalSegments = this.url.segment() || [];
@@ -35,7 +54,7 @@ export class CallBuilder {
    * @private
    * @returns {void}
    */
-  checkFilter() {
+  private checkFilter(): void {
     if (this.filter.length >= 2) {
       throw new BadRequestError('Too many filters specified', this.filter);
     }
@@ -51,12 +70,28 @@ export class CallBuilder {
    * Triggers a HTTP request using this builder's current configuration.
    * @returns {Promise} a Promise that resolves to the server's response.
    */
-  call() {
+  public call(): Promise<T> {
     this.checkFilter();
     return this._sendNormalRequest(this.url).then((r) =>
       this._parseResponse(r)
     );
   }
+  //// TODO: Migrate to async, BUT that's a change in behavior and tests "rejects two filters" will fail.
+  //// It's because async will check within promise, which makes more sense when using awaits instead of Promises.
+  // public async call(): Promise<T> {
+  //   this.checkFilter();
+  //   const r = await this._sendNormalRequest(this.url);
+  //   return this._parseResponse(r);
+  // }
+  //// /* actually equals */
+  //// public call(): Promise<T> {
+  ////   return Promise.resolve().then(() => {
+  ////     this.checkFilter();
+  ////     return this._sendNormalRequest(this.url)
+  ////   }).then((r) => {
+  ////     this._parseResponse(r)
+  ////   });
+  //// }
 
   /**
    * Creates an EventSource that listens for incoming messages from the server. To stop listening for new
@@ -69,19 +104,19 @@ export class CallBuilder {
    * @param {number} [options.reconnectTimeout] Custom stream connection timeout in ms, default is 15 seconds.
    * @returns {function} Close function. Run to close the connection and stop listening for new events.
    */
-  stream(options = {}) {
+  public stream(options: EventSourceOptions = {}): ()=>void {
     this.checkFilter();
 
     this.url.setQuery('X-Client-Name', 'js-stellar-sdk');
     this.url.setQuery('X-Client-Version', version);
 
     // EventSource object
-    let es;
+    let es: EventSource;
     // timeout is the id of the timeout to be triggered if there were no new messages
     // in the last 15 seconds. The timeout is reset when a new message arrive.
     // It prevents closing EventSource object in case of 504 errors as `readyState`
     // property is not reliable.
-    let timeout;
+    let timeout: NodeJS.Timeout;
 
     const createTimeout = () => {
       timeout = setTimeout(() => {
@@ -96,9 +131,7 @@ export class CallBuilder {
       } catch (err) {
         if (options.onerror) {
           options.onerror(err);
-          options.onerror('EventSource not supported');
         }
-        return false;
       }
 
       createTimeout();
@@ -112,11 +145,13 @@ export class CallBuilder {
         }
         clearTimeout(timeout);
         createTimeout();
-        options.onmessage(result);
+        if (typeof options.onmessage !== 'undefined') {
+          options.onmessage(result);
+        }
       };
 
       es.onerror = (error) => {
-        if (options.onerror) {
+        if (options.onerror && error instanceof MessageEvent) {
           options.onerror(error);
         }
       };
@@ -139,18 +174,19 @@ export class CallBuilder {
    * @param {bool} [link.templated] Whether the link is templated
    * @returns {function} A function that requests the link
    */
-  _requestFnForLink(link) {
-    return (opts) => {
+  private _requestFnForLink(link: Horizon.ResponseLink): Function {
+    return async (opts: any) => {
       let uri;
 
       if (link.templated) {
         const template = URITemplate(link.href);
-        uri = URI(template.expand(opts || {}));
+        uri = URI(template.expand(opts || {}) as any);  // TODO: fix upstream types.
       } else {
         uri = URI(link.href);
       }
 
-      return this._sendNormalRequest(uri).then((r) => this._parseResponse(r));
+      const r = await this._sendNormalRequest(uri);
+      return this._parseResponse(r);
     };
   }
 
@@ -161,24 +197,23 @@ export class CallBuilder {
    * @param {object} json JSON response
    * @returns {object} JSON response with string links replaced with functions
    */
-  _parseRecord(json) {
+  private _parseRecord(json: any): any {
     if (!json._links) {
       return json;
     }
-    forEach(json._links, (n, key) => {
+    for (const key of Object.keys(json._links)) {
+      const n = json._links[key]
       // If the key with the link name already exists, create a copy
       if (typeof json[key] !== 'undefined') {
-        // eslint-disable-next-line no-param-reassign
         json[`${key}_attr`] = json[key];
       }
 
-      // eslint-disable-next-line no-param-reassign
-      json[key] = this._requestFnForLink(n);
-    });
+      json[key] = this._requestFnForLink(n as Horizon.ResponseLink);
+    }
     return json;
   }
 
-  _sendNormalRequest(initialUrl) {
+  private async _sendNormalRequest(initialUrl: uri.URI) {
     let url = initialUrl;
 
     if (url.authority() === '') {
@@ -190,7 +225,7 @@ export class CallBuilder {
     }
 
     // Temp fix for: https://github.com/stellar/js-stellar-sdk/issues/15
-    url.setQuery('c', Math.random());
+    url.setQuery('c', String(Math.random()));
     return HorizonAxiosClient.get(url.toString())
       .then((response) => response.data)
       .catch(this._handleNetworkError);
@@ -201,7 +236,7 @@ export class CallBuilder {
    * @param {object} json Response object
    * @returns {object} Extended response
    */
-  _parseResponse(json) {
+  private _parseResponse(json: any) {
     if (json._embedded && json._embedded.records) {
       return this._toCollectionPage(json);
     }
@@ -213,21 +248,20 @@ export class CallBuilder {
    * @param {object} json Response object
    * @returns {object} Extended response object
    */
-  _toCollectionPage(json) {
+  private _toCollectionPage(json: any): any {
     for (let i = 0; i < json._embedded.records.length; i += 1) {
-      // eslint-disable-next-line no-param-reassign
       json._embedded.records[i] = this._parseRecord(json._embedded.records[i]);
     }
     return {
       records: json._embedded.records,
-      next: () =>
-        this._sendNormalRequest(URI(json._links.next.href)).then((r) =>
-          this._toCollectionPage(r)
-        ),
-      prev: () =>
-        this._sendNormalRequest(URI(json._links.prev.href)).then((r) =>
-          this._toCollectionPage(r)
-        )
+      next: async () => {
+        const r = await this._sendNormalRequest(URI(json._links.next.href));
+        return this._toCollectionPage(r);
+      },
+      prev: async () => {
+        const r = await this._sendNormalRequest(URI(json._links.prev.href));
+        return this._toCollectionPage(r);
+      }
     };
   }
 
@@ -236,7 +270,7 @@ export class CallBuilder {
    * @param {object} error Network error object
    * @returns {Promise<Error>} Promise that rejects with a human-readable error
    */
-  _handleNetworkError(error) {
+  private async _handleNetworkError(error: NetworkError): Promise<void> {
     if (error.response && error.response.status) {
       switch (error.response.status) {
         case 404:
@@ -249,7 +283,7 @@ export class CallBuilder {
           );
       }
     } else {
-      return Promise.reject(new Error(error));
+      return Promise.reject(new Error(error.message));
     }
   }
 
@@ -259,7 +293,7 @@ export class CallBuilder {
    * @param {string} cursor A cursor is a value that points to a specific location in a collection of resources.
    * @returns {object} current CallBuilder instance
    */
-  cursor(cursor) {
+  public cursor(cursor: string): this {
     this.url.setQuery('cursor', cursor);
     return this;
   }
@@ -270,8 +304,8 @@ export class CallBuilder {
    * @param {number} number Number of records the server should return.
    * @returns {object} current CallBuilder instance
    */
-  limit(number) {
-    this.url.setQuery('limit', number);
+  public limit(recordsNumber: number): this {
+    this.url.setQuery('limit', recordsNumber.toString());
     return this;
   }
 
@@ -280,7 +314,7 @@ export class CallBuilder {
    * @param {"asc"|"desc"} direction Sort direction
    * @returns {object} current CallBuilder instance
    */
-  order(direction) {
+  public order(direction: 'asc' | 'desc'): this {
     this.url.setQuery('order', direction);
     return this;
   }

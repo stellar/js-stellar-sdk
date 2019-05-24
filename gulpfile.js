@@ -1,5 +1,6 @@
 'use strict';
 
+var cp = require('child_process');
 var gulp = require('gulp');
 var isparta = require('isparta');
 var plugins = require('gulp-load-plugins')();
@@ -31,26 +32,40 @@ gulp.task('lint:test', function lintTest() {
 
 gulp.task('clean', function clean() {
   return gulp
-    .src('dist', { read: false, allowEmpty: true })
+    .src(['dist', 'lib'], { read: false, allowEmpty: true })
     .pipe(plugins.rimraf());
 });
 
 gulp.task(
   'build:node',
-  gulp.series('lint:src', function buildNode() {
-    return gulp
-      .src('src/**/*.js')
-      .pipe(plumber())
-      .pipe(plugins.babel())
-      .pipe(gulp.dest('lib'));
-  })
+  gulp.series(
+    'lint:src',
+    // TODO: output directly to "lib" folder (see tsconfig.json).
+    function buildNode(done) {
+      // TODO: Gulp-ify using `gulp-typescript`.
+      try {
+        cp.execSync(`yarn run tsc`, {stdio: 'inherit'})
+        done()
+      } catch(err) {
+        done(err)
+      }
+    },
+    function flatten() {
+      return gulp.src('lib/src/**')
+          .pipe(gulp.dest('lib'))
+    },
+    function flattenClean() {
+      return gulp.src('lib/src')
+          .pipe(plugins.rimraf());
+    }
+    )
 );
 
 gulp.task(
   'build:browser',
   gulp.series('lint:src', function buildBrowser() {
     return gulp
-      .src('src/browser.js')
+      .src('lib/browser.js')
       .pipe(plumber())
       .pipe(
         plugins.webpack({

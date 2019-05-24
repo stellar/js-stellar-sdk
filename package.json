@@ -7,7 +7,7 @@
   "scripts": {
     "test": "babel-node ./node_modules/.bin/gulp test",
     "docs": "jsdoc -c .jsdoc.json --verbose",
-    "dtslint": "dtslint types",
+    "dtslint": "dtslint test/types",
     "preversion": "gulp test",
     "version": "gulp build",
     "postversion": "git push && git push --tags",
@@ -20,11 +20,11 @@
   },
   "prettier": "@stellar/prettier-config",
   "lint-staged": {
-    "**/*.{js,json}": [
+    "lib/*.{js,json}": [
       "prettier --write",
       "git add"
     ],
-    "**/*.js": [
+    "lib/*.js": [
       "eslint --fix --max-warnings 0",
       "git add"
     ]
@@ -49,6 +49,9 @@
     "@stellar/prettier-config": "^1.0.1",
     "@stellar/tsconfig": "^1.0.1",
     "@stellar/tslint-config": "^1.0.0",
+    "@types/detect-node": "^2.0.0",
+    "@types/lodash": "^4.14.130",
+    "@types/urijs": "^1.19.1",
     "axios-mock-adapter": "^1.16.0",
     "babel-cli": "^6.26.0",
     "babel-core": "~6.26.3",
