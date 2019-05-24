@@ -10,8 +10,6 @@ var clear = require('clear');
 var plumber = require('gulp-plumber');
 var BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
   .BundleAnalyzerPlugin;
-var ts = require("gulp-typescript");
-var tsProject = ts.createProject("tsconfig.json");
 
 gulp.task('lint:src', function lintSrc() {
   return gulp
@@ -44,7 +42,7 @@ gulp.task(
     'lint:src',
     // TODO: output directly to "lib" folder (see tsconfig.json).
     function buildNode(done) {
-      // TODO: Gulp-ify with `tsProject`.
+      // TODO: Gulp-ify using `gulp-typescript`.
       try {
         cp.execSync(`yarn run tsc`, {stdio: 'inherit'})
         done()
