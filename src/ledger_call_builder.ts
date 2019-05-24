@@ -1,5 +1,5 @@
-import { CallBuilder } from './call_builder';
-import { ServerApi } from './server_api';
+import { CallBuilder } from "./call_builder";
+import { ServerApi } from "./server_api";
 
 /**
  * Creates a new {@link LedgerCallBuilder} pointed to server defined by serverUrl.
@@ -11,10 +11,12 @@ import { ServerApi } from './server_api';
  * @extends CallBuilder
  * @param {string} serverUrl Horizon server URL.
  */
-export class LedgerCallBuilder extends CallBuilder<ServerApi.CollectionPage<ServerApi.LedgerRecord>> {
+export class LedgerCallBuilder extends CallBuilder<
+  ServerApi.CollectionPage<ServerApi.LedgerRecord>
+> {
   constructor(serverUrl: uri.URI) {
     super(serverUrl);
-    this.url.segment('ledgers');
+    this.url.segment("ledgers");
   }
 
   /**
@@ -23,7 +25,7 @@ export class LedgerCallBuilder extends CallBuilder<ServerApi.CollectionPage<Serv
    * @returns {LedgerCallBuilder} current LedgerCallBuilder instance
    */
   public ledger(sequence: number | string): this {
-    this.filter.push(['ledgers', sequence.toString()]);
+    this.filter.push(["ledgers", sequence.toString()]);
     return this;
   }
 }

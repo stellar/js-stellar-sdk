@@ -1,5 +1,5 @@
-import { CallBuilder } from './call_builder';
-import { ServerApi } from './server_api';
+import { CallBuilder } from "./call_builder";
+import { ServerApi } from "./server_api";
 
 /**
  * Creates a new {@link EffectCallBuilder} pointed to server defined by serverUrl.
@@ -11,10 +11,12 @@ import { ServerApi } from './server_api';
  * @constructor
  * @param {string} serverUrl Horizon server URL.
  */
-export class EffectCallBuilder extends CallBuilder<ServerApi.CollectionPage<ServerApi.EffectRecord>> {
+export class EffectCallBuilder extends CallBuilder<
+  ServerApi.CollectionPage<ServerApi.EffectRecord>
+> {
   constructor(serverUrl: uri.URI) {
     super(serverUrl);
-    this.url.segment('effects');
+    this.url.segment("effects");
   }
 
   /**
@@ -24,7 +26,7 @@ export class EffectCallBuilder extends CallBuilder<ServerApi.CollectionPage<Serv
    * @returns {EffectCallBuilder} this EffectCallBuilder instance
    */
   public forAccount(accountId: string): this {
-    this.filter.push(['accounts', accountId, 'effects']);
+    this.filter.push(["accounts", accountId, "effects"]);
     return this;
   }
 
@@ -38,9 +40,9 @@ export class EffectCallBuilder extends CallBuilder<ServerApi.CollectionPage<Serv
    */
   public forLedger(sequence: number | string): this {
     this.filter.push([
-      'ledgers',
-      typeof sequence === 'number' ? sequence.toString() : sequence,
-      'effects'
+      "ledgers",
+      typeof sequence === "number" ? sequence.toString() : sequence,
+      "effects",
     ]);
     return this;
   }
@@ -52,7 +54,7 @@ export class EffectCallBuilder extends CallBuilder<ServerApi.CollectionPage<Serv
    * @returns {EffectCallBuilder} this EffectCallBuilder instance
    */
   public forTransaction(transactionId: string): this {
-    this.filter.push(['transactions', transactionId, 'effects']);
+    this.filter.push(["transactions", transactionId, "effects"]);
     return this;
   }
 
@@ -63,7 +65,7 @@ export class EffectCallBuilder extends CallBuilder<ServerApi.CollectionPage<Serv
    * @returns {EffectCallBuilder} this EffectCallBuilder instance
    */
   public forOperation(operationId: string): this {
-    this.filter.push(['operations', operationId, 'effects']);
+    this.filter.push(["operations", operationId, "effects"]);
     return this;
   }
 }

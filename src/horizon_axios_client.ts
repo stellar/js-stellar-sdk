@@ -1,7 +1,7 @@
-import axios, { AxiosResponse } from 'axios';
-import URI from 'urijs';
+import axios, { AxiosResponse } from "axios";
+import URI from "urijs";
 
-import { version } from '../package.json';
+import { version } from "../package.json";
 
 export interface ServerTime {
   serverTime: number;
@@ -24,29 +24,31 @@ export const SERVER_TIME_MAP: Record<string, ServerTime> = {};
 
 const HorizonAxiosClient = axios.create({
   headers: {
-    'X-Client-Name': 'js-stellar-sdk',
-    'X-Client-Version': version
-  }
+    "X-Client-Name": "js-stellar-sdk",
+    "X-Client-Version": version,
+  },
 });
 
 function _toSeconds(ms: number): number {
   return Math.floor(ms / 1000);
 }
 
-HorizonAxiosClient.interceptors.response.use(function interceptorHorizonResponse(response: AxiosResponse) {
-  const hostname = URI(response.config.url!).hostname();
-  const serverTime = _toSeconds(Date.parse(response.headers.Date));
-  const localTimeRecorded = _toSeconds(new Date().getTime());
+HorizonAxiosClient.interceptors.response.use(
+  function interceptorHorizonResponse(response: AxiosResponse) {
+    const hostname = URI(response.config.url!).hostname();
+    const serverTime = _toSeconds(Date.parse(response.headers.Date));
+    const localTimeRecorded = _toSeconds(new Date().getTime());
 
-  if (!isNaN(serverTime)) {
-    SERVER_TIME_MAP[hostname] = {
-      serverTime,
-      localTimeRecorded
-    };
-  }
+    if (!isNaN(serverTime)) {
+      SERVER_TIME_MAP[hostname] = {
+        serverTime,
+        localTimeRecorded,
+      };
+    }
 
-  return response;
-});
+    return response;
+  },
+);
 
 export default HorizonAxiosClient;
 
@@ -59,7 +61,7 @@ export default HorizonAxiosClient;
  * representing the current time on that server, or `null` if we don't have
  * a record of that time.
  */
-export function getCurrentServerTime(hostname: string) : number | null {
+export function getCurrentServerTime(hostname: string): number | null {
   const entry = SERVER_TIME_MAP[hostname];
 
   if (!entry || !entry.localTimeRecorded || !entry.serverTime) {

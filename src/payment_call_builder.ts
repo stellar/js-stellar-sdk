@@ -1,5 +1,5 @@
-import { CallBuilder } from './call_builder';
-import { ServerApi } from './server_api';
+import { CallBuilder } from "./call_builder";
+import { ServerApi } from "./server_api";
 
 /**
  * Creates a new {@link PaymentCallBuilder} pointed to server defined by serverUrl.
@@ -10,11 +10,12 @@ import { ServerApi } from './server_api';
  * @extends CallBuilder
  * @param {string} serverUrl Horizon server URL.
  */
-export class PaymentCallBuilder extends CallBuilder<ServerApi.PaymentOperationRecord> {
-
+export class PaymentCallBuilder extends CallBuilder<
+  ServerApi.PaymentOperationRecord
+> {
   constructor(serverUrl: uri.URI) {
     super(serverUrl);
-    this.url.segment('payments');
+    this.url.segment("payments");
   }
 
   /**
@@ -24,7 +25,7 @@ export class PaymentCallBuilder extends CallBuilder<ServerApi.PaymentOperationRe
    * @returns {PaymentCallBuilder} this PaymentCallBuilder instance
    */
   public forAccount(accountId: string): this {
-    this.filter.push(['accounts', accountId, 'payments']);
+    this.filter.push(["accounts", accountId, "payments"]);
     return this;
   }
 
@@ -36,9 +37,9 @@ export class PaymentCallBuilder extends CallBuilder<ServerApi.PaymentOperationRe
    */
   public forLedger(sequence: number | string): this {
     this.filter.push([
-      'ledgers',
-      typeof sequence === 'number' ? sequence.toString() : sequence,
-      'payments'
+      "ledgers",
+      typeof sequence === "number" ? sequence.toString() : sequence,
+      "payments",
     ]);
     return this;
   }
@@ -50,7 +51,7 @@ export class PaymentCallBuilder extends CallBuilder<ServerApi.PaymentOperationRe
    * @returns {PaymentCallBuilder} this PaymentCallBuilder instance
    */
   public forTransaction(transactionId: string): this {
-    this.filter.push(['transactions', transactionId, 'payments']);
+    this.filter.push(["transactions", transactionId, "payments"]);
     return this;
   }
 }

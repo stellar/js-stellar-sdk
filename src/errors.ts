@@ -2,7 +2,6 @@
 /* eslint-disable no-proto */
 
 export class NetworkError extends Error {
-
   public response: any;
   public __proto__: NetworkError;
 
@@ -14,7 +13,7 @@ export class NetworkError extends Error {
     this.response = response;
   }
 
-  getResponse() {
+  public getResponse() {
     return this.response;
   }
 }

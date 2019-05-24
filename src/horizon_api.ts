@@ -1,4 +1,4 @@
-import { MemoType, AssetType } from 'stellar-base';
+import { AssetType, MemoType } from "stellar-base";
 
 export namespace Horizon {
   export interface ResponseLink {
@@ -6,11 +6,11 @@ export namespace Horizon {
     templated?: boolean;
   }
   export interface BaseResponse<T extends string = never> {
-    _links: { [key in T | 'self']: ResponseLink };
+    _links: { [key in T | "self"]: ResponseLink };
   }
   export interface TransactionResponse
     extends BaseResponse<
-      'account' | 'ledger' | 'operations' | 'effects' | 'succeeds' | 'precedes'
+      "account" | "ledger" | "operations" | "effects" | "succeeds" | "precedes"
     > {
     created_at: string;
     envelope_xdr: string;
@@ -50,7 +50,9 @@ export namespace Horizon {
     selling_liabilities: string;
     last_modified_ledger: number;
   }
-  export type BalanceLine<T extends AssetType = AssetType> = T extends AssetType.native
+  export type BalanceLine<
+    T extends AssetType = AssetType
+  > = T extends AssetType.native
     ? BalanceLineNative
     : T extends AssetType.credit4 | AssetType.credit12
     ? BalanceLineAsset<T>
@@ -82,13 +84,13 @@ export namespace Horizon {
   }
   export interface AccountResponse
     extends BaseResponse<
-      | 'transactions'
-      | 'operations'
-      | 'payments'
-      | 'effects'
-      | 'offers'
-      | 'trades'
-      | 'data'
+      | "transactions"
+      | "operations"
+      | "payments"
+      | "effects"
+      | "offers"
+      | "trades"
+      | "data"
     > {
     id: string;
     paging_token: string;
@@ -105,18 +107,18 @@ export namespace Horizon {
   }
 
   export enum OperationResponseType {
-    createAccount = 'create_account',
-    payment = 'payment',
-    pathPayment = 'path_payment',
-    createPassiveOffer = 'create_passive_offer',
-    manageOffer = 'manage_offer',
-    setOptions = 'set_options',
-    changeTrust = 'change_trust',
-    allowTrust = 'allow_trust',
-    accountMerge = 'account_merge',
-    inflation = 'inflation',
-    manageData = 'manage_data',
-    bumpSequence = 'bump_sequence'
+    createAccount = "create_account",
+    payment = "payment",
+    pathPayment = "path_payment",
+    createPassiveOffer = "create_passive_offer",
+    manageOffer = "manage_offer",
+    setOptions = "set_options",
+    changeTrust = "change_trust",
+    allowTrust = "allow_trust",
+    accountMerge = "account_merge",
+    inflation = "inflation",
+    manageData = "manage_data",
+    bumpSequence = "bump_sequence",
   }
   export enum OperationResponseTypeI {
     createAccount = 0,
@@ -130,12 +132,12 @@ export namespace Horizon {
     accountMerge = 8,
     inflation = 9,
     manageData = 10,
-    bumpSequence = 11
+    bumpSequence = 11,
   }
   export interface BaseOperationResponse<
     T extends OperationResponseType = OperationResponseType,
     TI extends OperationResponseTypeI = OperationResponseTypeI
-  > extends BaseResponse<'succeeds' | 'precedes' | 'effects' | 'transaction'> {
+  > extends BaseResponse<"succeeds" | "precedes" | "effects" | "transaction"> {
     id: string;
     paging_token: string;
     source_account: string;
@@ -227,9 +229,9 @@ export namespace Horizon {
     high_threshold?: number;
     home_domain?: string;
     set_flags: Array<1 | 2>;
-    set_flags_s: Array<'auth_required_flag' | 'auth_revocable_flag'>;
+    set_flags_s: Array<"auth_required_flag" | "auth_revocable_flag">;
     clear_flags: Array<1 | 2>;
-    clear_flags_s: Array<'auth_required_flag' | 'auth_revocable_flag'>;
+    clear_flags_s: Array<"auth_required_flag" | "auth_revocable_flag">;
   }
   export interface ChangeTrustOperationResponse
     extends BaseOperationResponse<

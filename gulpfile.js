@@ -75,7 +75,7 @@ gulp.task(
               {
                 test: /\.js$/,
                 exclude: /node_modules/,
-                loader: 'babel-loader'
+                loader: 'ts-loader'
               },
               { test: /\.json$/, loader: 'json-loader' }
             ]

@@ -1,5 +1,5 @@
-import { CallBuilder } from './call_builder';
-import { ServerApi } from './server_api';
+import { CallBuilder } from "./call_builder";
+import { ServerApi } from "./server_api";
 
 /**
  * Creates a new {@link AccountCallBuilder} pointed to server defined by serverUrl.
@@ -15,7 +15,7 @@ import { ServerApi } from './server_api';
 export class AccountCallBuilder extends CallBuilder<ServerApi.AccountRecord> {
   constructor(serverUrl: uri.URI) {
     super(serverUrl);
-    this.url.segment('accounts');
+    this.url.segment("accounts");
   }
 
   /**
@@ -27,7 +27,7 @@ export class AccountCallBuilder extends CallBuilder<ServerApi.AccountRecord> {
    * @returns {AccountCallBuilder} current AccountCallBuilder instance
    */
   public accountId(id: string): this {
-    this.filter.push(['accounts', id]);
+    this.filter.push(["accounts", id]);
     return this;
   }
 }

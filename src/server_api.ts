@@ -1,9 +1,8 @@
-import { Horizon } from './horizon_api';
-import { Omit } from 'lodash';
-import { AssetType, Asset } from 'stellar-base';
+import { Omit } from "lodash";
+import { Asset, AssetType } from "stellar-base";
+import { Horizon } from "./horizon_api";
 
 export namespace ServerApi {
-
   export interface CollectionPage<
     T extends Horizon.BaseResponse = Horizon.BaseResponse
   > {
@@ -15,7 +14,7 @@ export namespace ServerApi {
   export interface CallFunctionTemplateOptions {
     cursor?: string | number;
     limit?: number;
-    order?: 'asc' | 'desc';
+    order?: "asc" | "desc";
   }
 
   export type CallFunction<
@@ -56,10 +55,61 @@ export namespace ServerApi {
   export interface EffectRecord extends Horizon.BaseResponse {
     account: string;
     paging_token: string;
-    starting_balance: string;
     type_i: string;
     type: string;
+    created_at: string;
+    id: string;
+
+    // account_debited / credited / trustline_created
     amount?: any;
+    asset_type?: string;
+    asset_code?: string;
+    asset_issuer?: string;
+
+    // trustline_created / removed
+    limit?: string;
+
+    // signer_created
+    public_key?: string;
+
+    // trade
+    offer_id?: number;
+    bought_amount?: string;
+    bought_asset_type?: string;
+    bought_asset_code?: string;
+    bought_asset_issuer?: string;
+    sold_amount?: string;
+    sold_asset_type?: string;
+    sold_asset_code?: string;
+    sold_asset_issuer?: string;
+
+    // account_created
+    starting_balance?: string;
+
+    // These were retrieved from the go repo, not through direct observation
+    // so they could be wrong!
+
+    // account thresholds updated
+    low_threshold?: number;
+    med_threshold?: number;
+    high_threshold?: number;
+
+    // home domain updated
+    home_domain?: string;
+
+    // account flags updated
+    auth_required_flag?: boolean;
+    auth_revokable_flag?: boolean;
+
+    // seq bumped
+    new_seq?: number;
+
+    // signer created / removed / updated
+    weight?: number;
+    key?: string;
+
+    // trustline authorized / deauthorized
+    trustor?: string;
 
     operation?: CallFunction<OperationRecord>;
     precedes?: CallFunction<EffectRecord>;
@@ -238,8 +288,8 @@ export namespace ServerApi {
   }
 
   export interface TransactionRecord
-    extends Omit<Horizon.TransactionResponse, 'ledger'> {
-    ledger_attr: Horizon.TransactionResponse['ledger'];
+    extends Omit<Horizon.TransactionResponse, "ledger"> {
+    ledger_attr: Horizon.TransactionResponse["ledger"];
 
     account: CallFunction<AccountRecord>;
     effects: CallCollectionFunction<EffectRecord>;
@@ -282,5 +332,4 @@ export namespace ServerApi {
     destination_asset_code: string;
     destination_asset_issuer: string;
   }
-
 }
