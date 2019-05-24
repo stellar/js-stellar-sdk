@@ -57,7 +57,7 @@ gulp.task(
     function flattenClean() {
       return gulp.src('lib/src')
           .pipe(plugins.rimraf());
-    },
+    }
     )
 );
 
