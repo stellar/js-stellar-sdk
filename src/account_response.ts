@@ -21,7 +21,7 @@ export class AccountResponse implements Omit<ServerApi.AccountRecord, '_links'> 
   public readonly id!: string;
   public readonly paging_token!: string;
   public readonly account_id!: string;
-  public sequence!: number;
+  public sequence!: string;
   public readonly subentry_count!: number;
   public readonly inflation_destination!: string;
   public readonly last_modified_ledger!: number;
@@ -68,6 +68,6 @@ export class AccountResponse implements Omit<ServerApi.AccountRecord, '_links'> 
    */
   incrementSequenceNumber(): void {
     this._baseAccount.incrementSequenceNumber();
-    this.sequence = this._baseAccount.sequenceNumber() as any;  // TODO: type-conflict found, please review.
+    this.sequence = this._baseAccount.sequenceNumber();
   }
 }

@@ -34,7 +34,7 @@ export namespace ServerApi {
     id: string;
     paging_token: string;
     account_id: string;
-    sequence: number;
+    sequence: string;
     subentry_count: number;
     inflation_destination?: string;
     last_modified_ledger: number;
