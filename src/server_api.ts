@@ -12,13 +12,13 @@ export namespace ServerApi {
     prev: () => Promise<CollectionPage<T>>;
   }
 
-  interface CallFunctionTemplateOptions {
+  export interface CallFunctionTemplateOptions {
     cursor?: string | number;
     limit?: number;
     order?: 'asc' | 'desc';
   }
 
-  type CallFunction<
+  export type CallFunction<
     T extends Horizon.BaseResponse = Horizon.BaseResponse
   > = () => Promise<T>;
   export type CallCollectionFunction<
@@ -91,7 +91,7 @@ export namespace ServerApi {
     transactions: CallCollectionFunction<TransactionRecord>;
   }
 
-  interface OfferAsset {
+  export interface OfferAsset {
     asset_type: AssetType;
     asset_code?: string;
     asset_issuer?: string;
@@ -112,7 +112,7 @@ export namespace ServerApi {
 
   import OperationResponseType = Horizon.OperationResponseType;
   import OperationResponseTypeI = Horizon.OperationResponseTypeI;
-  interface BaseOperationRecord<
+  export interface BaseOperationRecord<
     T extends OperationResponseType = OperationResponseType,
     TI extends OperationResponseTypeI = OperationResponseTypeI
   > extends Horizon.BaseOperationResponse<T, TI> {
@@ -123,7 +123,7 @@ export namespace ServerApi {
     transaction: CallFunction<TransactionRecord>;
   }
 
-  interface CreateAccountOperationRecord
+  export interface CreateAccountOperationRecord
     extends BaseOperationRecord<
         OperationResponseType.createAccount,
         OperationResponseTypeI.createAccount
@@ -138,61 +138,61 @@ export namespace ServerApi {
     sender: CallFunction<AccountRecord>;
     receiver: CallFunction<AccountRecord>;
   }
-  interface PathPaymentOperationRecord
+  export interface PathPaymentOperationRecord
     extends BaseOperationRecord<
         OperationResponseType.pathPayment,
         OperationResponseTypeI.pathPayment
       >,
       Horizon.PathPaymentOperationResponse {}
-  interface ManageOfferOperationRecord
+  export interface ManageOfferOperationRecord
     extends BaseOperationRecord<
         OperationResponseType.manageOffer,
         OperationResponseTypeI.manageOffer
       >,
       Horizon.ManageOfferOperationResponse {}
-  interface PassiveOfferOperationRecord
+  export interface PassiveOfferOperationRecord
     extends BaseOperationRecord<
         OperationResponseType.createPassiveOffer,
         OperationResponseTypeI.createPassiveOffer
       >,
       Horizon.PassiveOfferOperationResponse {}
-  interface SetOptionsOperationRecord
+  export interface SetOptionsOperationRecord
     extends BaseOperationRecord<
         OperationResponseType.setOptions,
         OperationResponseTypeI.setOptions
       >,
       Horizon.SetOptionsOperationResponse {}
-  interface ChangeTrustOperationRecord
+  export interface ChangeTrustOperationRecord
     extends BaseOperationRecord<
         OperationResponseType.changeTrust,
         OperationResponseTypeI.changeTrust
       >,
       Horizon.ChangeTrustOperationResponse {}
-  interface AllowTrustOperationRecord
+  export interface AllowTrustOperationRecord
     extends BaseOperationRecord<
         OperationResponseType.allowTrust,
         OperationResponseTypeI.allowTrust
       >,
       Horizon.AllowTrustOperationResponse {}
-  interface AccountMergeOperationRecord
+  export interface AccountMergeOperationRecord
     extends BaseOperationRecord<
         OperationResponseType.accountMerge,
         OperationResponseTypeI.accountMerge
       >,
       Horizon.AccountMergeOperationResponse {}
-  interface InflationOperationRecord
+  export interface InflationOperationRecord
     extends BaseOperationRecord<
         OperationResponseType.inflation,
         OperationResponseTypeI.inflation
       >,
       Horizon.InflationOperationResponse {}
-  interface ManageDataOperationRecord
+  export interface ManageDataOperationRecord
     extends BaseOperationRecord<
         OperationResponseType.manageData,
         OperationResponseTypeI.manageData
       >,
       Horizon.ManageDataOperationResponse {}
-  interface BumpSequenceOperationRecord
+  export interface BumpSequenceOperationRecord
     extends BaseOperationRecord<
         OperationResponseType.bumpSequence,
         OperationResponseTypeI.bumpSequence
