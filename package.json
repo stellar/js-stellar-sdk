@@ -11,7 +11,7 @@
     "preversion": "gulp test",
     "version": "gulp build",
     "postversion": "git push && git push --tags",
-    "prettier-all": "prettier --write **/*.js"
+    "prettier-all": "prettier --write **/*.{js,ts}"
   },
   "husky": {
     "hooks": {
@@ -26,6 +26,11 @@
     ],
     "lib/*.js": [
       "eslint --fix --max-warnings 0",
+      "git add"
+    ],
+    "**/*.ts": [
+      "prettier --write",
+      "tslint --fix",
       "git add"
     ]
   },
