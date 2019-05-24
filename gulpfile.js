@@ -65,7 +65,7 @@ gulp.task(
   'build:browser',
   gulp.series('lint:src', function buildBrowser() {
     return gulp
-      .src('src/browser.js')
+      .src('src/browser.ts')
       .pipe(plumber())
       .pipe(
         plugins.webpack({
