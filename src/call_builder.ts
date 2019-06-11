@@ -24,10 +24,10 @@ export interface EventSourceOptions {
 let EventSource: Constructable<EventSource>;
 
 if (isNode) {
-  // eslint-disable-next-line
+  /* tslint:disable-next-line:no-var-requires */
   EventSource = require("eventsource");
 } else {
-  // eslint-disable-next-line
+  /* tslint:disable-next-line:variable-name */
   EventSource = window.EventSource;
 }
 
@@ -108,6 +108,7 @@ export class CallBuilder<
     const createTimeout = () => {
       timeout = setTimeout(() => {
         es.close();
+        /* tslint:disable-next-line:no-use-before-declare */
         es = createEventSource();
       }, options.reconnectTimeout || 15 * 1000);
     };
