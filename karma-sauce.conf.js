@@ -50,7 +50,7 @@ module.exports = function(config) {
 
     files: [
       "dist/stellar-sdk.js",
-      "lib/**/*.js",
+      "lib/*.js",
       "test/test-helper.js",
       "test/unit/**/*.js",
     ],
