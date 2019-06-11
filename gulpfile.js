@@ -13,11 +13,10 @@ var plumber = require('gulp-plumber');
 
 gulp.task('lint:src', function lintSrc() {
   return gulp
-    .src(['src/**/*.js'])
+    .src(['src/**/*.ts'])
     .pipe(plumber())
-    .pipe(plugins.eslint())
-    .pipe(plugins.eslint.format())
-    .pipe(plugins.eslint.failAfterError());
+    .pipe(plugins.tslint({ formatter: "verbose" }))
+    .pipe(plugins.tslint.report());
 });
 
 // Lint our test code
@@ -62,14 +61,17 @@ gulp.task(
 
 gulp.task(
   'build:browser',
-  function buildBrowser() {
-    return gulp
-      .src('src/browser.ts')
-      .pipe(
-        webpackStream(webpackConfigBrowser), webpack
-      )
-      .pipe(gulp.dest('dist'))
-  }
+  gulp.parallel(
+    'lint:src',
+    function buildBrowser() {
+      return gulp
+        .src('src/browser.ts')
+        .pipe(
+          webpackStream(webpackConfigBrowser), webpack
+        )
+        .pipe(gulp.dest('dist'))
+    }
+  )
 );
 
 gulp.task(
