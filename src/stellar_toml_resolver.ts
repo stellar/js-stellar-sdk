@@ -72,6 +72,7 @@ export class StellarTomlResolver {
   }
 }
 
+/* tslint:disable-next-line: no-namespace */
 export namespace StellarTomlResolver {
   export interface StellarTomlResolveOptions {
     allowHttp?: boolean;
