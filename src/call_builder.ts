@@ -24,10 +24,10 @@ export interface EventSourceOptions {
 let EventSource: Constructable<EventSource>;
 
 if (isNode) {
-  // eslint-disable-next-line
+  /* tslint:disable-next-line:no-var-requires */
   EventSource = require("eventsource");
 } else {
-  // eslint-disable-next-line
+  /* tslint:disable-next-line:variable-name */
   EventSource = window.EventSource;
 }
 
@@ -108,6 +108,7 @@ export class CallBuilder<
     const createTimeout = () => {
       timeout = setTimeout(() => {
         es.close();
+        /* tslint:disable-next-line:no-use-before-declare */
         es = createEventSource();
       }, options.reconnectTimeout || 15 * 1000);
     };
@@ -209,13 +210,13 @@ export class CallBuilder<
    * @param {bool} [link.templated] Whether the link is templated
    * @returns {function} A function that requests the link
    */
-  private _requestFnForLink(link: Horizon.ResponseLink): Function {
-    return async (opts: any) => {
+  private _requestFnForLink(link: Horizon.ResponseLink): (opts?: any) => any {
+    return async (opts: any = {}) => {
       let uri;
 
       if (link.templated) {
         const template = URITemplate(link.href);
-        uri = URI(template.expand(opts || {}) as any); // TODO: fix upstream types.
+        uri = URI(template.expand(opts) as any); // TODO: fix upstream types.
       } else {
         uri = URI(link.href);
       }

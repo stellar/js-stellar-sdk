@@ -1,4 +1,4 @@
-// eslint-disable-next-line prefer-import/prefer-import-over-require
+/* tslint:disable-next-line:no-var-requires */
 require("es6-promise").polyfill();
 
 // stellar-sdk classes to expose

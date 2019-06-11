@@ -2,6 +2,7 @@ import { Omit } from "lodash";
 import { Asset, AssetType } from "stellar-base";
 import { Horizon } from "./horizon_api";
 
+/* tslint:disable-next-line: no-namespace */
 export namespace ServerApi {
   export interface CollectionPage<
     T extends Horizon.BaseResponse = Horizon.BaseResponse

@@ -1,3 +1,4 @@
+/* tslint:disable:variable-name no-namespace */
 import BigNumber from "bignumber.js";
 import { Asset, StrKey, Transaction, xdr } from "stellar-base";
 import URI from "urijs";

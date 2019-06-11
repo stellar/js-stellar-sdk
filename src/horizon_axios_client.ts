@@ -19,7 +19,7 @@ export interface ServerTime {
  *       serverTime: 1552513039,
  *       localTimeRecorded: 1552513052
  *     }
- **/
+ */
 export const SERVER_TIME_MAP: Record<string, ServerTime> = {};
 
 const HorizonAxiosClient = axios.create({

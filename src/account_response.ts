@@ -1,3 +1,5 @@
+/* tslint:disable:variable-name */
+
 import { Omit } from "lodash";
 import forIn from "lodash/forIn";
 import { Account as BaseAccount } from "stellar-base";

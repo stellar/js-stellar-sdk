@@ -1,5 +1,6 @@
 import { AssetType, MemoType } from "stellar-base";
 
+/* tslint:disable-next-line:no-namespace */
 export namespace Horizon {
   export interface ResponseLink {
     href: string;
