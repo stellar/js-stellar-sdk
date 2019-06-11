@@ -5004,6 +5004,11 @@ karma-chrome-launcher@^0.1.7:
   dependencies:
     which "^1.0.9"
 
+karma-commonjs@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/karma-commonjs/-/karma-commonjs-1.0.0.tgz#8681d5d7d606628c5f00a36e6aef3cf943c6b0a9"
+  integrity sha1-hoHV19YGYoxfAKNuau88+UPGsKk=
+
 karma-firefox-launcher@^0.1.4:
   version "0.1.7"
   resolved "https://registry.yarnpkg.com/karma-firefox-launcher/-/karma-firefox-launcher-0.1.7.tgz#c05dd86533691e62f31952595098e8bd357d39f3"
