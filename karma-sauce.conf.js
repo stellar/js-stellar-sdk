@@ -50,9 +50,12 @@ module.exports = function(config) {
 
     files: [
       "dist/stellar-sdk.js",
-      "lib/*.js",
-      "test/test-helper.js",
+      "test/test-browser.js",
       "test/unit/**/*.js",
+    ],
+
+    exclude: [
+      "unit/horizon_axios_client_test.js",  // Fails due dependency on internals accessable only via `lib` file.
     ],
 
     preprocessors: {
