@@ -1,6 +1,7 @@
 const webpackConfig = require("./webpack.config.browser.js");
 
-const { output, plugins, ...webpackKarmaConfig } = webpackConfig;
+delete webpackConfig.plugins;
+delete webpackConfig.output;
 
 module.exports = function(config) {
   var customLaunchers = {
@@ -53,7 +54,7 @@ module.exports = function(config) {
       "test/**/*.js": ["webpack"],
     },
 
-    webpack: webpackKarmaConfig,
+    webpack: webpackConfig,
 
     webpackMiddleware: {
       noInfo: true,
