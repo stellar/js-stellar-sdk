@@ -48,7 +48,12 @@ module.exports = function(config) {
     customLaunchers: customLaunchers,
     browsers: Object.keys(customLaunchers),
 
-    files: ["dist/stellar-sdk.js", "test/test-helper.js", "test/unit/**/*.js"],
+    files: [
+      "dist/stellar-sdk.js",
+      "lib/**/*.js",
+      "test/test-helper.js",
+      "test/unit/**/*.js",
+    ],
 
     preprocessors: {
       "test/**/*.js": ["webpack"],
