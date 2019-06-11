@@ -2,8 +2,8 @@
 
 if (typeof window === "undefined") {
   require("babel-register");
-  global.StellarSdk = require("../dist/stellar-sdk");
-  global.axios = StellarSdk.axios;
+  global.StellarSdk = require("../lib/index");
+  global.axios = require("axios");
   global.HorizonAxiosClient = StellarSdk.HorizonAxiosClient;
   var chaiAsPromised = require("chai-as-promised");
   global.chai = require("chai");
