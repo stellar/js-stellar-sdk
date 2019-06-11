@@ -10,8 +10,6 @@ var webpackStream = require('webpack-stream');
 var webpackConfigBrowser = require('./webpack.config.browser.js');
 var clear = require('clear');
 var plumber = require('gulp-plumber');
-var BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
-  .BundleAnalyzerPlugin;
 
 gulp.task('lint:src', function lintSrc() {
   return gulp
