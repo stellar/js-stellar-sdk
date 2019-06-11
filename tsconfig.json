@@ -3,8 +3,7 @@
   "compilerOptions": {
     "declaration": true,
     "declarationMap": true,
-    "lib": ["es2015", "dom"],
-    "module": "amd",
+    "lib": ["es2015", "dom", "es5"],
     "moduleResolution": "node",
     "rootDir": ".", // TODO: if it weren't package.json, we could directly write "lib".
     "outDir": "lib",
