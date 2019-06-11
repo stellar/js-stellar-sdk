@@ -76,7 +76,6 @@ export class FederationServer {
    * * `account_id` - Account ID of the destination,
    * * `memo_type` (optional) - Memo type that needs to be attached to a transaction,
    * * `memo` (optional) - Memo value that needs to be attached to a transaction.
-
    */
   public static async resolve(
     value: string,
@@ -251,6 +250,7 @@ export class FederationServer {
   }
 }
 
+/* tslint:disable-next-line:no-namespace */
 export namespace FederationServer {
   export interface Record {
     account_id: string;
