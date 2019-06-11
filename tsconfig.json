@@ -4,7 +4,6 @@
     "declaration": true,
     "declarationMap": true,
     "lib": ["es2015", "dom"],
-    "module": "esnext",
     "moduleResolution": "node",
     "rootDir": ".", // TODO: if it weren't package.json, we could directly write "lib".
     "outDir": "lib",
