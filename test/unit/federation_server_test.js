@@ -1,4 +1,5 @@
 const http = require("http");
+const Config = require("../../lib/config").Config;
 
 describe("federation-server.js tests", function() {
   beforeEach(function() {
@@ -348,14 +349,14 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
 
   describe("FederationServer times out when response lags and timeout set", function() {
     afterEach(function() {
-      StellarSdk.Config.setDefault();
+      Config.setDefault();
     });
 
     let opts = { allowHttp: true };
     let message;
     for (let i = 0; i < 2; i++) {
       if (i === 0) {
-        StellarSdk.Config.setTimeout(1000);
+        Config.setTimeout(1000);
         message = "with global config set";
       } else {
         opts = { allowHttp: true, timeout: 1000 };
