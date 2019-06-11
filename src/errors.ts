@@ -1,5 +1,5 @@
 // For ES5 compatibility (https://stackoverflow.com/a/55066280).
-/* eslint-disable no-proto */
+/* tslint:disable:variable-name max-classes-per-file */
 
 export class NetworkError extends Error {
   public response: any;
