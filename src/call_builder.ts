@@ -211,12 +211,12 @@ export class CallBuilder<
    * @returns {function} A function that requests the link
    */
   private _requestFnForLink(link: Horizon.ResponseLink): (opts?: any) => any {
-    return async (opts?: any) => {
+    return async (opts: any = {}) => {
       let uri;
 
       if (link.templated) {
         const template = URITemplate(link.href);
-        uri = URI(template.expand(opts || {}) as any); // TODO: fix upstream types.
+        uri = URI(template.expand(opts) as any); // TODO: fix upstream types.
       } else {
         uri = URI(link.href);
       }
