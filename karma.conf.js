@@ -1,34 +1,31 @@
+const webpackConfig = require("./webpack.config.browser.js");
+
+const { output, plugins, ...webpackKarmaConfig } = webpackConfig;
+
 module.exports = function(config) {
   config.set({
-    frameworks: ['mocha', 'chai-as-promised', 'chai', 'sinon'],
-    browsers: ['Firefox'],
+    frameworks: ["mocha", "chai-as-promised", "chai", "sinon"],
+    browsers: ["Firefox"],
 
     files: [
-      'dist/stellar-sdk.js',
-      'test/test-helper.js',
-      'test/unit/**/*.js',
-      'test/integration/server_test.js'
+      "dist/stellar-sdk.js",
+      "test/test-helper.js",
+      "test/unit/**/*.js",
+      "test/integration/server_test.js",
     ],
 
     preprocessors: {
-      'test/**/*.js': ['webpack']
+      "test/**/*.js": ["webpack"],
     },
 
-    webpack: {
-      module: {
-        loaders: [
-          { test: /\.js$/, exclude: /node_modules/, loader: 'babel-loader' },
-          { test: /\.json$/, loader: 'json-loader' }
-        ]
-      }
-    },
+    webpack: webpackKarmaConfig,
 
     webpackMiddleware: {
-      noInfo: true
+      noInfo: true,
     },
 
     singleRun: true,
 
-    reporters: ['dots']
+    reporters: ["dots"],
   });
 };

@@ -6,10 +6,10 @@ var isparta = require('isparta');
 var plugins = require('gulp-load-plugins')();
 var server = require('gulp-develop-server');
 var webpack = require('webpack');
+var webpackStream = require('webpack-stream');
+var webpackConfigBrowser = require('./webpack.config.browser.js');
 var clear = require('clear');
 var plumber = require('gulp-plumber');
-var BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
-  .BundleAnalyzerPlugin;
 
 gulp.task('lint:src', function lintSrc() {
   return gulp
@@ -39,7 +39,6 @@ gulp.task('clean', function clean() {
 gulp.task(
   'build:node',
   gulp.series(
-    'lint:src',
     // TODO: output directly to "lib" folder (see tsconfig.json).
     function buildNode(done) {
       // TODO: Gulp-ify using `gulp-typescript`.
@@ -63,70 +62,14 @@ gulp.task(
 
 gulp.task(
   'build:browser',
-  gulp.series('lint:src', function buildBrowser() {
+  function buildBrowser() {
     return gulp
       .src('src/browser.ts')
-      .pipe(plumber())
       .pipe(
-        plugins.webpack({
-          output: { library: 'StellarSdk' },
-          module: {
-            loaders: [
-              {
-                test: /\.js$/,
-                exclude: /node_modules/,
-                loader: 'ts-loader'
-              },
-              { test: /\.json$/, loader: 'json-loader' }
-            ]
-          },
-          plugins: [
-            // Ignore native modules (ed25519)
-            new webpack.IgnorePlugin(/ed25519/)
-          ]
-        })
+        webpackStream(webpackConfigBrowser), webpack
       )
-      .pipe(plugins.rename('stellar-sdk.js'))
       .pipe(gulp.dest('dist'))
-      .pipe(
-        plugins.uglify({
-          output: {
-            ascii_only: true
-          }
-        })
-      )
-      .pipe(plugins.rename('stellar-sdk.min.js'))
-      .pipe(gulp.dest('dist'));
-  })
-);
-
-gulp.task(
-  'analyze:browser',
-  gulp.series('lint:src', function analyzeBrowser() {
-    return gulp
-      .src('src/browser.ts')
-      .pipe(plumber())
-      .pipe(
-        plugins.webpack({
-          output: { library: 'StellarSdk' },
-          module: {
-            loaders: [
-              {
-                test: /\.js$/,
-                exclude: /node_modules/,
-                loader: 'babel-loader'
-              },
-              { test: /\.json$/, loader: 'json-loader' }
-            ]
-          },
-          plugins: [
-            // Ignore native modules (ed25519)
-            new webpack.IgnorePlugin(/ed25519/),
-            new BundleAnalyzerPlugin()
-          ]
-        })
-      );
-  })
+  }
 );
 
 gulp.task(
