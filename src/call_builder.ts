@@ -210,8 +210,8 @@ export class CallBuilder<
    * @param {bool} [link.templated] Whether the link is templated
    * @returns {function} A function that requests the link
    */
-  private _requestFnForLink(link: Horizon.ResponseLink): (opts: any) => any {
-    return async (opts: any) => {
+  private _requestFnForLink(link: Horizon.ResponseLink): (opts?: any) => any {
+    return async (opts?: any) => {
       let uri;
 
       if (link.templated) {
