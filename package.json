@@ -112,7 +112,7 @@
   },
   "dependencies": {
     "@types/node": ">= 8",
-    "axios": "^0.18.0",
+    "axios": "^0.19.0",
     "bignumber.js": "^4.0.0",
     "detect-node": "^2.0.4",
     "es6-promise": "^4.2.4",
