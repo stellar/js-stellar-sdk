@@ -1,7 +1,5 @@
-const SERVER_TIME_MAP = require("../../lib/horizon_axios_client")
-  .SERVER_TIME_MAP;
-const getCurrentServerTime = require("../../lib/horizon_axios_client")
-  .getCurrentServerTime;
+const SERVER_TIME_MAP = StellarSdk.SERVER_TIME_MAP;
+const getCurrentServerTime = StellarSdk.getCurrentServerTime;
 
 describe("getCurrentServerTime", () => {
   let clock;
