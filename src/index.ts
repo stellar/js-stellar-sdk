@@ -1,6 +1,8 @@
 /* tslint:disable-next-line:no-var-requires */
 require("es6-promise").polyfill();
 
+import { version } from "../package.json";
+
 // stellar-sdk classes to expose
 export * from "./errors";
 export { Config } from "./config";
@@ -21,5 +23,7 @@ export {
 
 // expose classes and functions from stellar-base
 export * from "stellar-base";
+
+export { version };
 
 export default module.exports;
