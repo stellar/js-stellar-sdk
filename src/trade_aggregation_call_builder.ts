@@ -82,7 +82,10 @@ export class TradeAggregationCallBuilder extends CallBuilder<
    * @returns {boolean} true if the resolution is allowed
    */
   private isValidResolution(resolution: number): boolean {
-    return allowedResolutions.includes(resolution);
+    for (const allowed of allowedResolutions) {
+      if (allowed === resolution) { return true; }
+    }
+    return false;
   }
 
   /**
