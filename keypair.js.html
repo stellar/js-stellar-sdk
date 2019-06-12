@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Account - Documentation</title>
+    <title>keypair.js - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -29,527 +29,236 @@
 
 <div id="main">
     
-    <h1 class="page-title">Account</h1>
-    
-
-    
-
-
-
-
-<section>
-
-<header>
-    
-        <h2>
-        Account
-        </h2>
-        
-            <div class="class-description"><p>Create a new Account object.</p>
-<p><code>Account</code> represents a single account in Stellar network and its sequence number.
-Account tracks the sequence number as it is used by <a href="TransactionBuilder.html">TransactionBuilder</a>.
-See <a href="https://stellar.org/developers/learn/concepts/accounts.html">Accounts</a> for more information about how
-accounts work in Stellar.</p></div>
-        
-    
-</header>
-
-<article>
-    <div class="container-overview">
-    
-        
-<div class="section-method">
-
-    
-    <h2>Constructor</h2>
-    
-
-    <h4 class="name" id="Account"><span class="type-signature"></span>new Account<span class="signature">(accountId, sequence)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="account.js.html">account.js</a>, <a href="account.js.html#line16">line 16</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>accountId</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><code>string</code></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">
-                <p>ID of the account (ex. <code>GB3KJPLFUYN5VL6R3GU3EGCGVCKFDSD7BEDX42HWG5BWFKB3KQGJJRMA</code>)</p>
-                
-            </td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>sequence</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><code>string</code></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">
-                <p>current sequence number of the account</p>
-                
-            </td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-</div>
-    
-    </div>
-
-    
-
-    
-
-    
-
-     
-
-    
-
-    
-
-    
-        <h3 class="subsection-title">Methods</h3>
-
-        
-            
-<div class="section-method">
-
-    
-
-    <h4 class="name" id="accountId"><span class="type-signature"></span>accountId<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Returns Stellar account ID, ex. <code>GB3KJPLFUYN5VL6R3GU3EGCGVCKFDSD7BEDX42HWG5BWFKB3KQGJJRMA</code></p>
-</div>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="account.js.html">account.js</a>, <a href="account.js.html#line32">line 32</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div class="section-returns">
-<h5>Returns:</h5>
-
-        
-
-<dl class="param-type">
-    <dt>
-        Type:
-    </dt>
-    <dd>
-        
-<span class="param-type"><code>string</code></span>
-
-
-    </dd>
-</dl>
-
-
-    
-</div>
-
-
-
-</div>
-        
-            
-<div class="section-method">
-
-    
-
-    <h4 class="name" id="incrementSequenceNumber"><span class="type-signature"></span>incrementSequenceNumber<span class="signature">()</span><span class="type-signature"> &rarr; {void}</span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Increments sequence number in this object by one.</p>
-</div>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="account.js.html">account.js</a>, <a href="account.js.html#line47">line 47</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div class="section-returns">
-<h5>Returns:</h5>
-
-        
-
-<dl class="param-type">
-    <dt>
-        Type:
-    </dt>
-    <dd>
-        
-<span class="param-type"><code>void</code></span>
-
-
-    </dd>
-</dl>
-
-
-    
-</div>
-
-
-
-</div>
-        
-            
-<div class="section-method">
-
-    
-
-    <h4 class="name" id="sequenceNumber"><span class="type-signature"></span>sequenceNumber<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span></h4>
-
-    
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="account.js.html">account.js</a>, <a href="account.js.html#line39">line 39</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div class="section-returns">
-<h5>Returns:</h5>
-
-        
-
-<dl class="param-type">
-    <dt>
-        Type:
-    </dt>
-    <dd>
-        
-<span class="param-type"><code>string</code></span>
-
-
-    </dd>
-</dl>
-
-
-    
-</div>
-
-
-
-</div>
-        
-    
-
-    
-
-    
-</article>
-
-</section>
+    <h1 class="page-title">keypair.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import nacl from 'tweetnacl';
+import { Network } from './network';
+import { sign, verify, generate } from './signing';
+import * as base58 from './base58';
+import { StrKey } from './strkey';
+import xdr from './generated/stellar-xdr_generated';
+
+/**
+ * `Keypair` represents public (and secret) keys of the account.
+ *
+ * Currently `Keypair` only supports ed25519 but in a future this class can be abstraction layer for other
+ * public-key signature systems.
+ *
+ * Use more convenient methods to create `Keypair` object:
+ * * `{@link Keypair.fromPublicKey}`
+ * * `{@link Keypair.fromSecret}`
+ * * `{@link Keypair.random}`
+ *
+ * @constructor
+ * @param {object} keys At least one of keys must be provided.
+ * @param {string} keys.type Public-key signature system name. (currently only `ed25519` keys are supported)
+ * @param {Buffer} [keys.publicKey] Raw public key
+ * @param {Buffer} [keys.secretKey] Raw secret key (32-byte secret seed in ed25519`)
+ */
+export class Keypair {
+  constructor(keys) {
+    if (keys.type !== 'ed25519') {
+      throw new Error('Invalid keys type');
+    }
+
+    this.type = keys.type;
+
+    if (keys.secretKey) {
+      keys.secretKey = Buffer.from(keys.secretKey);
+
+      if (keys.secretKey.length !== 32) {
+        throw new Error('secretKey length is invalid');
+      }
+
+      this._secretSeed = keys.secretKey;
+      this._publicKey = generate(keys.secretKey);
+      this._secretKey = Buffer.concat([keys.secretKey, this._publicKey]);
+
+      if (
+        keys.publicKey &amp;&amp;
+        !this._publicKey.equals(Buffer.from(keys.publicKey))
+      ) {
+        throw new Error('secretKey does not match publicKey');
+      }
+    } else {
+      this._publicKey = Buffer.from(keys.publicKey);
+
+      if (this._publicKey.length !== 32) {
+        throw new Error('publicKey length is invalid');
+      }
+    }
+  }
+
+  /**
+   * Creates a new `Keypair` instance from secret. This can either be secret key or secret seed depending
+   * on underlying public-key signature system. Currently `Keypair` only supports ed25519.
+   * @param {string} secret secret key (ex. `SDAKFNYEIAORZKKCYRILFQKLLOCNPL5SWJ3YY5NM3ZH6GJSZGXHZEPQS`)
+   * @returns {Keypair}
+   */
+  static fromSecret(secret) {
+    const rawSecret = StrKey.decodeEd25519SecretSeed(secret);
+    return this.fromRawEd25519Seed(rawSecret);
+  }
+
+  /**
+   * Base58 address encoding is **DEPRECATED**! Use this method only for transition to strkey encoding.
+   * @param {string} seed Base58 secret seed
+   * @deprecated Use {@link Keypair.fromSecret}
+   * @returns {Keypair}
+   */
+  static fromBase58Seed(seed) {
+    const rawSeed = base58.decodeBase58Check('seed', seed);
+    return this.fromRawEd25519Seed(rawSeed);
+  }
+
+  /**
+   * Creates a new `Keypair` object from ed25519 secret key seed raw bytes.
+   *
+   * @param {Buffer} rawSeed Raw 32-byte ed25519 secret key seed
+   * @returns {Keypair}
+   */
+  static fromRawEd25519Seed(rawSeed) {
+    return new this({ type: 'ed25519', secretKey: rawSeed });
+  }
+
+  /**
+   * Returns `Keypair` object representing network master key.
+   * @returns {Keypair}
+   */
+  static master() {
+    if (Network.current() === null) {
+      throw new Error(
+        'No network selected. Use `Network.use`, `Network.usePublicNetwork` or `Network.useTestNetwork` helper methods to select network.'
+      );
+    }
+    return this.fromRawEd25519Seed(Network.current().networkId());
+  }
+
+  /**
+   * Creates a new `Keypair` object from public key.
+   * @param {string} publicKey public key (ex. `GB3KJPLFUYN5VL6R3GU3EGCGVCKFDSD7BEDX42HWG5BWFKB3KQGJJRMA`)
+   * @returns {Keypair}
+   */
+  static fromPublicKey(publicKey) {
+    publicKey = StrKey.decodeEd25519PublicKey(publicKey);
+    if (publicKey.length !== 32) {
+      throw new Error('Invalid Stellar public key');
+    }
+    return new this({ type: 'ed25519', publicKey });
+  }
+
+  /**
+   * Create a random `Keypair` object.
+   * @returns {Keypair}
+   */
+  static random() {
+    const secret = nacl.randomBytes(32);
+    return this.fromRawEd25519Seed(secret);
+  }
+
+  xdrAccountId() {
+    return new xdr.AccountId.publicKeyTypeEd25519(this._publicKey);
+  }
+
+  xdrPublicKey() {
+    return new xdr.PublicKey.publicKeyTypeEd25519(this._publicKey);
+  }
+
+  /**
+   * Returns raw public key
+   * @returns {Buffer}
+   */
+  rawPublicKey() {
+    return this._publicKey;
+  }
+
+  signatureHint() {
+    const a = this.xdrAccountId().toXDR();
+
+    return a.slice(a.length - 4);
+  }
+
+  /**
+   * Returns public key associated with this `Keypair` object.
+   * @returns {string}
+   */
+  publicKey() {
+    return StrKey.encodeEd25519PublicKey(this._publicKey);
+  }
+
+  /**
+   * Returns secret key associated with this `Keypair` object
+   * @returns {string}
+   */
+  secret() {
+    if (!this._secretSeed) {
+      throw new Error('no secret key available');
+    }
+
+    if (this.type === 'ed25519') {
+      return StrKey.encodeEd25519SecretSeed(this._secretSeed);
+    }
+
+    throw new Error('Invalid Keypair type');
+  }
+
+  /**
+   * Returns raw secret key.
+   * @returns {Buffer}
+   */
+  rawSecretKey() {
+    return this._secretSeed;
+  }
+
+  /**
+   * Returns `true` if this `Keypair` object contains secret key and can sign.
+   * @returns {boolean}
+   */
+  canSign() {
+    return !!this._secretKey;
+  }
+
+  /**
+   * Signs data.
+   * @param {Buffer} data Data to sign
+   * @returns {Buffer}
+   */
+  sign(data) {
+    if (!this.canSign()) {
+      throw new Error('cannot sign: no secret key available');
+    }
+
+    return sign(data, this._secretKey);
+  }
+
+  /**
+   * Verifies if `signature` for `data` is valid.
+   * @param {Buffer} data Signed data
+   * @param {Buffer} signature Signature
+   * @returns {boolean}
+   */
+  verify(data, signature) {
+    return verify(data, signature, this._publicKey);
+  }
+
+  signDecorated(data) {
+    const signature = this.sign(data);
+    const hint = this.signatureHint();
+
+    return new xdr.DecoratedSignature({ hint, signature });
+  }
+}
+</code></pre>
+        </article>
+    </section>
 
 
 

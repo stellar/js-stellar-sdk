@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Account - Documentation</title>
+    <title>asset.js - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -29,527 +29,171 @@
 
 <div id="main">
     
-    <h1 class="page-title">Account</h1>
-    
-
-    
-
-
-
-
-<section>
-
-<header>
-    
-        <h2>
-        Account
-        </h2>
-        
-            <div class="class-description"><p>Create a new Account object.</p>
-<p><code>Account</code> represents a single account in Stellar network and its sequence number.
-Account tracks the sequence number as it is used by <a href="TransactionBuilder.html">TransactionBuilder</a>.
-See <a href="https://stellar.org/developers/learn/concepts/accounts.html">Accounts</a> for more information about how
-accounts work in Stellar.</p></div>
-        
-    
-</header>
-
-<article>
-    <div class="container-overview">
-    
-        
-<div class="section-method">
-
-    
-    <h2>Constructor</h2>
-    
-
-    <h4 class="name" id="Account"><span class="type-signature"></span>new Account<span class="signature">(accountId, sequence)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="account.js.html">account.js</a>, <a href="account.js.html#line16">line 16</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>accountId</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><code>string</code></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">
-                <p>ID of the account (ex. <code>GB3KJPLFUYN5VL6R3GU3EGCGVCKFDSD7BEDX42HWG5BWFKB3KQGJJRMA</code>)</p>
-                
-            </td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>sequence</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><code>string</code></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">
-                <p>current sequence number of the account</p>
-                
-            </td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-</div>
-    
-    </div>
-
-    
-
-    
-
-    
-
-     
-
-    
-
-    
-
-    
-        <h3 class="subsection-title">Methods</h3>
-
-        
-            
-<div class="section-method">
-
-    
-
-    <h4 class="name" id="accountId"><span class="type-signature"></span>accountId<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Returns Stellar account ID, ex. <code>GB3KJPLFUYN5VL6R3GU3EGCGVCKFDSD7BEDX42HWG5BWFKB3KQGJJRMA</code></p>
-</div>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="account.js.html">account.js</a>, <a href="account.js.html#line32">line 32</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div class="section-returns">
-<h5>Returns:</h5>
-
-        
-
-<dl class="param-type">
-    <dt>
-        Type:
-    </dt>
-    <dd>
-        
-<span class="param-type"><code>string</code></span>
-
-
-    </dd>
-</dl>
-
-
-    
-</div>
-
-
-
-</div>
-        
-            
-<div class="section-method">
-
-    
-
-    <h4 class="name" id="incrementSequenceNumber"><span class="type-signature"></span>incrementSequenceNumber<span class="signature">()</span><span class="type-signature"> &rarr; {void}</span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Increments sequence number in this object by one.</p>
-</div>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="account.js.html">account.js</a>, <a href="account.js.html#line47">line 47</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div class="section-returns">
-<h5>Returns:</h5>
-
-        
-
-<dl class="param-type">
-    <dt>
-        Type:
-    </dt>
-    <dd>
-        
-<span class="param-type"><code>void</code></span>
-
-
-    </dd>
-</dl>
-
-
-    
-</div>
-
-
-
-</div>
-        
-            
-<div class="section-method">
-
-    
-
-    <h4 class="name" id="sequenceNumber"><span class="type-signature"></span>sequenceNumber<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span></h4>
-
-    
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="account.js.html">account.js</a>, <a href="account.js.html#line39">line 39</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div class="section-returns">
-<h5>Returns:</h5>
-
-        
-
-<dl class="param-type">
-    <dt>
-        Type:
-    </dt>
-    <dd>
-        
-<span class="param-type"><code>string</code></span>
-
-
-    </dd>
-</dl>
-
-
-    
-</div>
-
-
-
-</div>
-        
-    
-
-    
-
-    
-</article>
-
-</section>
+    <h1 class="page-title">asset.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import clone from 'lodash/clone';
+import padEnd from 'lodash/padEnd';
+import trimEnd from 'lodash/trimEnd';
+import xdr from './generated/stellar-xdr_generated';
+import { Keypair } from './keypair';
+import { StrKey } from './strkey';
+
+/**
+ * Asset class represents an asset, either the native asset (`XLM`)
+ * or an asset code / issuer account ID pair.
+ *
+ * An asset code describes an asset code and issuer pair. In the case of the native
+ * asset XLM, the issuer will be null.
+ *
+ * @constructor
+ * @param {string} code - The asset code.
+ * @param {string} issuer - The account ID of the issuer.
+ */
+export class Asset {
+  constructor(code, issuer) {
+    if (!/^[a-zA-Z0-9]{1,12}$/.test(code)) {
+      throw new Error(
+        'Asset code is invalid (maximum alphanumeric, 12 characters at max)'
+      );
+    }
+    if (String(code).toLowerCase() !== 'xlm' &amp;&amp; !issuer) {
+      throw new Error('Issuer cannot be null');
+    }
+    if (issuer &amp;&amp; !StrKey.isValidEd25519PublicKey(issuer)) {
+      throw new Error('Issuer is invalid');
+    }
+
+    this.code = code;
+    this.issuer = issuer;
+  }
+
+  /**
+   * Returns an asset object for the native asset.
+   * @Return {Asset}
+   */
+  static native() {
+    return new Asset('XLM');
+  }
+
+  /**
+   * Returns an asset object from its XDR object representation.
+   * @param {xdr.Asset} assetXdr - The asset xdr object.
+   * @returns {Asset}
+   */
+  static fromOperation(assetXdr) {
+    let anum;
+    let code;
+    let issuer;
+    switch (assetXdr.switch()) {
+      case xdr.AssetType.assetTypeNative():
+        return this.native();
+      case xdr.AssetType.assetTypeCreditAlphanum4():
+        anum = assetXdr.alphaNum4();
+      /* falls through */
+      case xdr.AssetType.assetTypeCreditAlphanum12():
+        anum = anum || assetXdr.alphaNum12();
+        issuer = StrKey.encodeEd25519PublicKey(anum.issuer().ed25519());
+        code = trimEnd(anum.assetCode(), '\0');
+        return new this(code, issuer);
+      default:
+        throw new Error(`Invalid asset type: ${assetXdr.switch().name}`);
+    }
+  }
+
+  /**
+   * Returns the xdr object for this asset.
+   * @returns {xdr.Asset} XDR Asset object
+   */
+  toXDRObject() {
+    if (this.isNative()) {
+      return xdr.Asset.assetTypeNative();
+    }
+
+    let xdrType;
+    let xdrTypeString;
+    if (this.code.length &lt;= 4) {
+      xdrType = xdr.AssetAlphaNum4;
+      xdrTypeString = 'assetTypeCreditAlphanum4';
+    } else {
+      xdrType = xdr.AssetAlphaNum12;
+      xdrTypeString = 'assetTypeCreditAlphanum12';
+    }
+
+    // pad code with null bytes if necessary
+    const padLength = this.code.length &lt;= 4 ? 4 : 12;
+    const paddedCode = padEnd(this.code, padLength, '\0');
+
+    // eslint-disable-next-line new-cap
+    const assetType = new xdrType({
+      assetCode: paddedCode,
+      issuer: Keypair.fromPublicKey(this.issuer).xdrAccountId()
+    });
+
+    return new xdr.Asset(xdrTypeString, assetType);
+  }
+
+  /**
+   * @returns {string} Asset code
+   */
+  getCode() {
+    return clone(this.code);
+  }
+
+  /**
+   * @returns {string} Asset issuer
+   */
+  getIssuer() {
+    return clone(this.issuer);
+  }
+
+  /**
+   * @see [Assets concept](https://www.stellar.org/developers/learn/concepts/assets.html)
+   * @returns {string} Asset type. Can be one of following types:
+   *
+   * * `native`
+   * * `credit_alphanum4`
+   * * `credit_alphanum12`
+   */
+  getAssetType() {
+    if (this.isNative()) {
+      return 'native';
+    }
+    if (this.code.length >= 1 &amp;&amp; this.code.length &lt;= 4) {
+      return 'credit_alphanum4';
+    }
+    if (this.code.length >= 5 &amp;&amp; this.code.length &lt;= 12) {
+      return 'credit_alphanum12';
+    }
+
+    return null;
+  }
+
+  /**
+   * @returns {boolean}  true if this asset object is the native asset.
+   */
+  isNative() {
+    return !this.issuer;
+  }
+
+  /**
+   * @param {Asset} asset Asset to compare
+   * @returns {boolean} true if this asset equals the given asset.
+   */
+  equals(asset) {
+    return this.code === asset.getCode() &amp;&amp; this.issuer === asset.getIssuer();
+  }
+}
+</code></pre>
+        </article>
+    </section>
 
 
 

@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Account - Documentation</title>
+    <title>transaction_builder.js - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -29,527 +29,240 @@
 
 <div id="main">
     
-    <h1 class="page-title">Account</h1>
-    
-
-    
-
-
-
-
-<section>
-
-<header>
-    
-        <h2>
-        Account
-        </h2>
-        
-            <div class="class-description"><p>Create a new Account object.</p>
-<p><code>Account</code> represents a single account in Stellar network and its sequence number.
-Account tracks the sequence number as it is used by <a href="TransactionBuilder.html">TransactionBuilder</a>.
-See <a href="https://stellar.org/developers/learn/concepts/accounts.html">Accounts</a> for more information about how
-accounts work in Stellar.</p></div>
-        
-    
-</header>
-
-<article>
-    <div class="container-overview">
-    
-        
-<div class="section-method">
-
-    
-    <h2>Constructor</h2>
-    
-
-    <h4 class="name" id="Account"><span class="type-signature"></span>new Account<span class="signature">(accountId, sequence)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="account.js.html">account.js</a>, <a href="account.js.html#line16">line 16</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>accountId</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><code>string</code></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">
-                <p>ID of the account (ex. <code>GB3KJPLFUYN5VL6R3GU3EGCGVCKFDSD7BEDX42HWG5BWFKB3KQGJJRMA</code>)</p>
-                
-            </td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>sequence</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><code>string</code></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">
-                <p>current sequence number of the account</p>
-                
-            </td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-</div>
-    
-    </div>
-
-    
-
-    
-
-    
-
-     
-
-    
-
-    
-
-    
-        <h3 class="subsection-title">Methods</h3>
-
-        
-            
-<div class="section-method">
-
-    
-
-    <h4 class="name" id="accountId"><span class="type-signature"></span>accountId<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Returns Stellar account ID, ex. <code>GB3KJPLFUYN5VL6R3GU3EGCGVCKFDSD7BEDX42HWG5BWFKB3KQGJJRMA</code></p>
-</div>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="account.js.html">account.js</a>, <a href="account.js.html#line32">line 32</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div class="section-returns">
-<h5>Returns:</h5>
-
-        
-
-<dl class="param-type">
-    <dt>
-        Type:
-    </dt>
-    <dd>
-        
-<span class="param-type"><code>string</code></span>
-
-
-    </dd>
-</dl>
-
-
-    
-</div>
-
-
-
-</div>
-        
-            
-<div class="section-method">
-
-    
-
-    <h4 class="name" id="incrementSequenceNumber"><span class="type-signature"></span>incrementSequenceNumber<span class="signature">()</span><span class="type-signature"> &rarr; {void}</span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Increments sequence number in this object by one.</p>
-</div>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="account.js.html">account.js</a>, <a href="account.js.html#line47">line 47</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div class="section-returns">
-<h5>Returns:</h5>
-
-        
-
-<dl class="param-type">
-    <dt>
-        Type:
-    </dt>
-    <dd>
-        
-<span class="param-type"><code>void</code></span>
-
-
-    </dd>
-</dl>
-
-
-    
-</div>
-
-
-
-</div>
-        
-            
-<div class="section-method">
-
-    
-
-    <h4 class="name" id="sequenceNumber"><span class="type-signature"></span>sequenceNumber<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span></h4>
-
-    
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="account.js.html">account.js</a>, <a href="account.js.html#line39">line 39</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div class="section-returns">
-<h5>Returns:</h5>
-
-        
-
-<dl class="param-type">
-    <dt>
-        Type:
-    </dt>
-    <dd>
-        
-<span class="param-type"><code>string</code></span>
-
-
-    </dd>
-</dl>
-
-
-    
-</div>
-
-
-
-</div>
-        
-    
-
-    
-
-    
-</article>
-
-</section>
+    <h1 class="page-title">transaction_builder.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { UnsignedHyper } from 'js-xdr';
+import BigNumber from 'bignumber.js';
+import clone from 'lodash/clone';
+import isUndefined from 'lodash/isUndefined';
+import xdr from './generated/stellar-xdr_generated';
+import { Keypair } from './keypair';
+import { Transaction } from './transaction';
+import { Memo } from './memo';
+
+export const BASE_FEE = 100; // Stroops
+
+/**
+ * @constant
+ * @see {@link TransactionBuilder#setTimeout}
+ * @see [Timeout](https://www.stellar.org/developers/horizon/reference/endpoints/transactions-create.html#timeout)
+ */
+export const TimeoutInfinite = 0;
+
+/**
+ * &lt;p>Transaction builder helps constructs a new `{@link Transaction}` using the given {@link Account}
+ * as the transaction's "source account". The transaction will use the current sequence
+ * number of the given account as its sequence number and increment the given account's
+ * sequence number by one. The given source account must include a private key for signing
+ * the transaction or an error will be thrown.&lt;/p>
+ *
+ * &lt;p>Operations can be added to the transaction via their corresponding builder methods, and
+ * each returns the TransactionBuilder object so they can be chained together. After adding
+ * the desired operations, call the `build()` method on the `TransactionBuilder` to return a fully
+ * constructed `{@link Transaction}` that can be signed. The returned transaction will contain the
+ * sequence number of the source account and include the signature from the source account.&lt;/p>
+ * 
+ * &lt;p>&lt;strong>Be careful about unsubmitted transactions!&lt;/strong> When you build a transaction, stellar-sdk
+ * automatically increments the source account's sequence number. If you end up 
+ * not submitting this transaction and submitting another one instead, it'll fail due to
+ * the sequence number being wrong. So if you decide not to use a built transaction,
+ * make sure to update the source account's sequence number 
+ * with [Server.loadAccount](https://stellar.github.io/js-stellar-sdk/Server.html#loadAccount) before creating another transaction.&lt;/p>
+ *
+ * &lt;p>The following code example creates a new transaction with {@link Operation.createAccount} and
+ * {@link Operation.payment} operations.
+ * The Transaction's source account first funds `destinationA`, then sends
+ * a payment to `destinationB`. The built transaction is then signed by `sourceKeypair`.&lt;/p>
+ *
+ * ```
+ * var transaction = new TransactionBuilder(source, { fee })
+ *  .addOperation(Operation.createAccount({
+        destination: destinationA,
+        startingBalance: "20"
+    })) // &lt;- funds and creates destinationA
+    .addOperation(Operation.payment({
+        destination: destinationB,
+        amount: "100",
+        asset: Asset.native()
+    })) // &lt;- sends 100 XLM to destinationB
+ *   .setTimeout(30)
+ *   .build();
+ *
+ * transaction.sign(sourceKeypair);
+ * ```
+ * @constructor
+ * @param {Account} sourceAccount - The source account for this transaction.
+ * @param {object} opts Options object
+ * @param {number} opts.fee - The max fee willing to pay per operation in this transaction (**in stroops**). Required.
+ * @param {object} [opts.timebounds] - The timebounds for the validity of this transaction.
+ * @param {number|string|Date} [opts.timebounds.minTime] - 64 bit unix timestamp or Date object
+ * @param {number|string|Date} [opts.timebounds.maxTime] - 64 bit unix timestamp or Date object
+ * @param {Memo} [opts.memo] - The memo for the transaction
+ */
+export class TransactionBuilder {
+  constructor(sourceAccount, opts = {}) {
+    if (!sourceAccount) {
+      throw new Error('must specify source account for the transaction');
+    }
+
+    if (isUndefined(opts.fee)) {
+      throw new Error('must specify fee for the transaction (in stroops)');
+    }
+
+    this.source = sourceAccount;
+    this.operations = [];
+
+    this.baseFee = isUndefined(opts.fee) ? BASE_FEE : opts.fee;
+    this.timebounds = clone(opts.timebounds) || null;
+    this.memo = opts.memo || Memo.none();
+    this.timeoutSet = false;
+  }
+
+  /**
+   * Adds an operation to the transaction.
+   * @param {xdr.Operation} operation The xdr operation object, use {@link Operation} static methods.
+   * @returns {TransactionBuilder}
+   */
+  addOperation(operation) {
+    this.operations.push(operation);
+    return this;
+  }
+
+  /**
+   * Adds a memo to the transaction.
+   * @param {Memo} memo {@link Memo} object
+   * @returns {TransactionBuilder}
+   */
+  addMemo(memo) {
+    this.memo = memo;
+    return this;
+  }
+
+  /**
+   * Because of the distributed nature of the Stellar network it is possible that the status of your transaction
+   * will be determined after a long time if the network is highly congested.
+   * If you want to be sure to receive the status of the transaction within a given period you should set the
+   * {@link TimeBounds} with &lt;code>maxTime&lt;/code> on the transaction (this is what &lt;code>setTimeout&lt;/code> does
+   * internally; if there's &lt;code>minTime&lt;/code> set but no &lt;code>maxTime&lt;/code> it will be added).
+   * Call to &lt;code>TransactionBuilder.setTimeout&lt;/code> is required if Transaction does not have &lt;code>max_time&lt;/code> set.
+   * If you don't want to set timeout, use &lt;code>{@link TimeoutInfinite}&lt;/code>. In general you should set
+   * &lt;code>{@link TimeoutInfinite}&lt;/code> only in smart contracts.
+   *
+   * Please note that Horizon may still return &lt;code>504 Gateway Timeout&lt;/code> error, even for short timeouts.
+   * In such case you need to resubmit the same transaction again without making any changes to receive a status.
+   * This method is using the machine system time (UTC), make sure it is set correctly.
+   * @param {number} timeout Number of seconds the transaction is good. Can't be negative.
+   * If the value is `0`, the transaction is good indefinitely.
+   * @return {TransactionBuilder}
+   * @see TimeoutInfinite
+   */
+  setTimeout(timeout) {
+    if (this.timebounds != null &amp;&amp; this.timebounds.maxTime > 0) {
+      throw new Error(
+        'TimeBounds.max_time has been already set - setting timeout would overwrite it.'
+      );
+    }
+
+    if (timeout &lt; 0) {
+      throw new Error('timeout cannot be negative');
+    }
+
+    this.timeoutSet = true;
+    if (timeout > 0) {
+      const timeoutTimestamp = Math.floor(Date.now() / 1000) + timeout;
+      if (this.timebounds === null) {
+        this.timebounds = { minTime: 0, maxTime: timeoutTimestamp };
+      } else {
+        this.timebounds = {
+          minTime: this.timebounds.minTime,
+          maxTime: timeoutTimestamp
+        };
+      }
+    }
+
+    return this;
+  }
+
+  /**
+   * This will build the transaction.
+   * It will also increment the source account's sequence number by 1.
+   * @returns {Transaction} This method will return the built {@link Transaction}.
+   */
+  build() {
+    // Ensure setTimeout called or maxTime is set
+    if (
+      (this.timebounds === null ||
+        (this.timebounds !== null &amp;&amp; this.timebounds.maxTime === 0)) &amp;&amp;
+      !this.timeoutSet
+    ) {
+      throw new Error(
+        'TimeBounds has to be set or you must call setTimeout(TimeoutInfinite).'
+      );
+    }
+
+    const sequenceNumber = new BigNumber(this.source.sequenceNumber()).add(1);
+
+    const attrs = {
+      sourceAccount: Keypair.fromPublicKey(
+        this.source.accountId()
+      ).xdrAccountId(),
+      fee: this.baseFee * this.operations.length,
+      seqNum: xdr.SequenceNumber.fromString(sequenceNumber.toString()),
+      memo: this.memo ? this.memo.toXDRObject() : null,
+      ext: new xdr.TransactionExt(0)
+    };
+
+    if (this.timebounds) {
+      if (isValidDate(this.timebounds.minTime)) {
+        this.timebounds.minTime = this.timebounds.minTime.getTime() / 1000;
+      }
+      if (isValidDate(this.timebounds.maxTime)) {
+        this.timebounds.maxTime = this.timebounds.maxTime.getTime() / 1000;
+      }
+
+      this.timebounds.minTime = UnsignedHyper.fromString(
+        this.timebounds.minTime.toString()
+      );
+      this.timebounds.maxTime = UnsignedHyper.fromString(
+        this.timebounds.maxTime.toString()
+      );
+
+      attrs.timeBounds = new xdr.TimeBounds(this.timebounds);
+    }
+
+    const xtx = new xdr.Transaction(attrs);
+    xtx.operations(this.operations);
+
+    const xenv = new xdr.TransactionEnvelope({ tx: xtx });
+    const tx = new Transaction(xenv);
+
+    this.source.incrementSequenceNumber();
+
+    return tx;
+  }
+}
+
+/**
+ * Checks whether a provided object is a valid Date.
+ * @argument {Date} d date object
+ * @returns {boolean}
+ */
+export function isValidDate(d) {
+  // isnan is okay here because it correctly checks for invalid date objects
+  // eslint-disable-next-line no-restricted-globals
+  return d instanceof Date &amp;&amp; !isNaN(d);
+}
+</code></pre>
+        </article>
+    </section>
 
 
 

@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Account - Documentation</title>
+    <title>memo.js - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -29,527 +29,267 @@
 
 <div id="main">
     
-    <h1 class="page-title">Account</h1>
-    
-
-    
-
-
-
-
-<section>
-
-<header>
-    
-        <h2>
-        Account
-        </h2>
-        
-            <div class="class-description"><p>Create a new Account object.</p>
-<p><code>Account</code> represents a single account in Stellar network and its sequence number.
-Account tracks the sequence number as it is used by <a href="TransactionBuilder.html">TransactionBuilder</a>.
-See <a href="https://stellar.org/developers/learn/concepts/accounts.html">Accounts</a> for more information about how
-accounts work in Stellar.</p></div>
-        
-    
-</header>
-
-<article>
-    <div class="container-overview">
-    
-        
-<div class="section-method">
-
-    
-    <h2>Constructor</h2>
-    
-
-    <h4 class="name" id="Account"><span class="type-signature"></span>new Account<span class="signature">(accountId, sequence)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="account.js.html">account.js</a>, <a href="account.js.html#line16">line 16</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>accountId</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><code>string</code></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">
-                <p>ID of the account (ex. <code>GB3KJPLFUYN5VL6R3GU3EGCGVCKFDSD7BEDX42HWG5BWFKB3KQGJJRMA</code>)</p>
-                
-            </td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>sequence</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><code>string</code></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">
-                <p>current sequence number of the account</p>
-                
-            </td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-</div>
-    
-    </div>
-
-    
-
-    
-
-    
-
-     
-
-    
-
-    
-
-    
-        <h3 class="subsection-title">Methods</h3>
-
-        
-            
-<div class="section-method">
-
-    
-
-    <h4 class="name" id="accountId"><span class="type-signature"></span>accountId<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Returns Stellar account ID, ex. <code>GB3KJPLFUYN5VL6R3GU3EGCGVCKFDSD7BEDX42HWG5BWFKB3KQGJJRMA</code></p>
-</div>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="account.js.html">account.js</a>, <a href="account.js.html#line32">line 32</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div class="section-returns">
-<h5>Returns:</h5>
-
-        
-
-<dl class="param-type">
-    <dt>
-        Type:
-    </dt>
-    <dd>
-        
-<span class="param-type"><code>string</code></span>
-
-
-    </dd>
-</dl>
-
-
-    
-</div>
-
-
-
-</div>
-        
-            
-<div class="section-method">
-
-    
-
-    <h4 class="name" id="incrementSequenceNumber"><span class="type-signature"></span>incrementSequenceNumber<span class="signature">()</span><span class="type-signature"> &rarr; {void}</span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Increments sequence number in this object by one.</p>
-</div>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="account.js.html">account.js</a>, <a href="account.js.html#line47">line 47</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div class="section-returns">
-<h5>Returns:</h5>
-
-        
-
-<dl class="param-type">
-    <dt>
-        Type:
-    </dt>
-    <dd>
-        
-<span class="param-type"><code>void</code></span>
-
-
-    </dd>
-</dl>
-
-
-    
-</div>
-
-
-
-</div>
-        
-            
-<div class="section-method">
-
-    
-
-    <h4 class="name" id="sequenceNumber"><span class="type-signature"></span>sequenceNumber<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span></h4>
-
-    
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="account.js.html">account.js</a>, <a href="account.js.html#line39">line 39</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div class="section-returns">
-<h5>Returns:</h5>
-
-        
-
-<dl class="param-type">
-    <dt>
-        Type:
-    </dt>
-    <dd>
-        
-<span class="param-type"><code>string</code></span>
-
-
-    </dd>
-</dl>
-
-
-    
-</div>
-
-
-
-</div>
-        
-    
-
-    
-
-    
-</article>
-
-</section>
+    <h1 class="page-title">memo.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import isUndefined from 'lodash/isUndefined';
+import isString from 'lodash/isString';
+import clone from 'lodash/clone';
+import { UnsignedHyper } from 'js-xdr';
+import BigNumber from 'bignumber.js';
+import xdr from './generated/stellar-xdr_generated';
+
+/**
+ * Type of {@link Memo}.
+ */
+export const MemoNone = 'none';
+/**
+ * Type of {@link Memo}.
+ */
+export const MemoID = 'id';
+/**
+ * Type of {@link Memo}.
+ */
+export const MemoText = 'text';
+/**
+ * Type of {@link Memo}.
+ */
+export const MemoHash = 'hash';
+/**
+ * Type of {@link Memo}.
+ */
+export const MemoReturn = 'return';
+
+/**
+ * `Memo` represents memos attached to transactions.
+ *
+ * @param {string} type - `MemoNone`, `MemoID`, `MemoText`, `MemoHash` or `MemoReturn`
+ * @param {*} value - `string` for `MemoID`, `MemoText`, buffer of hex string for `MemoHash` or `MemoReturn`
+ * @see [Transactions concept](https://www.stellar.org/developers/learn/concepts/transactions.html)
+ * @class Memo
+ */
+export class Memo {
+  constructor(type, value = null) {
+    this._type = type;
+    this._value = value;
+
+    switch (this._type) {
+      case MemoNone:
+        break;
+      case MemoID:
+        Memo._validateIdValue(value);
+        break;
+      case MemoText:
+        Memo._validateTextValue(value);
+        break;
+      case MemoHash:
+      case MemoReturn:
+        Memo._validateHashValue(value);
+        // We want MemoHash and MemoReturn to have Buffer as a value
+        if (isString(value)) {
+          this._value = Buffer.from(value, 'hex');
+        }
+        break;
+      default:
+        throw new Error('Invalid memo type');
+    }
+  }
+
+  /**
+   * Contains memo type: `MemoNone`, `MemoID`, `MemoText`, `MemoHash` or `MemoReturn`
+   */
+  get type() {
+    return clone(this._type);
+  }
+
+  set type(type) {
+    throw new Error('Memo is immutable');
+  }
+
+  /**
+   * Contains memo value:
+   * * `null` for `MemoNone`,
+   * * `string` for `MemoID`,
+   * * `Buffer` for `MemoText` after decoding using `fromXDRObject`, original value otherwise,
+   * * `Buffer` for `MemoHash`, `MemoReturn`.
+   */
+  get value() {
+    switch (this._type) {
+      case MemoNone:
+        return null;
+      case MemoID:
+      case MemoText:
+        return clone(this._value);
+      case MemoHash:
+      case MemoReturn:
+        return Buffer.from(this._value);
+      default:
+        throw new Error('Invalid memo type');
+    }
+  }
+
+  set value(value) {
+    throw new Error('Memo is immutable');
+  }
+
+  static _validateIdValue(value) {
+    const error = new Error(`Expects a int64 as a string. Got ${value}`);
+
+    if (!isString(value)) {
+      throw error;
+    }
+
+    let number;
+    try {
+      number = new BigNumber(value);
+    } catch (e) {
+      throw error;
+    }
+
+    // Infinity
+    if (!number.isFinite()) {
+      throw error;
+    }
+
+    // NaN
+    if (number.isNaN()) {
+      throw error;
+    }
+  }
+
+  static _validateTextValue(value) {
+    if (!xdr.Memo.armTypeForArm('text').isValid(value)) {
+      throw new Error('Expects string, array or buffer, max 28 bytes');
+    }
+  }
+
+  static _validateHashValue(value) {
+    const error = new Error(
+      `Expects a 32 byte hash value or hex encoded string. Got ${value}`
+    );
+
+    if (value === null || isUndefined(value)) {
+      throw error;
+    }
+
+    let valueBuffer;
+    if (isString(value)) {
+      if (!/^[0-9A-Fa-f]{64}$/g.test(value)) {
+        throw error;
+      }
+      valueBuffer = Buffer.from(value, 'hex');
+    } else if (Buffer.isBuffer(value)) {
+      valueBuffer = Buffer.from(value);
+    } else {
+      throw error;
+    }
+
+    if (!valueBuffer.length || valueBuffer.length !== 32) {
+      throw error;
+    }
+  }
+
+  /**
+   * Returns an empty memo (`MemoNone`).
+   * @returns {Memo}
+   */
+  static none() {
+    return new Memo(MemoNone);
+  }
+
+  /**
+   * Creates and returns a `MemoText` memo.
+   * @param {string} text - memo text
+   * @returns {Memo}
+   */
+  static text(text) {
+    return new Memo(MemoText, text);
+  }
+
+  /**
+   * Creates and returns a `MemoID` memo.
+   * @param {string} id - 64-bit number represented as a string
+   * @returns {Memo}
+   */
+  static id(id) {
+    return new Memo(MemoID, id);
+  }
+
+  /**
+   * Creates and returns a `MemoHash` memo.
+   * @param {array|string} hash - 32 byte hash or hex encoded string
+   * @returns {Memo}
+   */
+  static hash(hash) {
+    return new Memo(MemoHash, hash);
+  }
+
+  /**
+   * Creates and returns a `MemoReturn` memo.
+   * @param {array|string} hash - 32 byte hash or hex encoded string
+   * @returns {Memo}
+   */
+  static return(hash) {
+    return new Memo(MemoReturn, hash);
+  }
+
+  /**
+   * Returns XDR memo object.
+   * @returns {xdr.Memo}
+   */
+  toXDRObject() {
+    switch (this._type) {
+      case MemoNone:
+        return xdr.Memo.memoNone();
+      case MemoID:
+        return xdr.Memo.memoId(UnsignedHyper.fromString(this._value));
+      case MemoText:
+        return xdr.Memo.memoText(this._value);
+      case MemoHash:
+        return xdr.Memo.memoHash(this._value);
+      case MemoReturn:
+        return xdr.Memo.memoReturn(this._value);
+      default:
+        return null;
+    }
+  }
+
+  /**
+   * Returns {@link Memo} from XDR memo object.
+   * @param {xdr.Memo} object XDR memo object
+   * @returns {Memo}
+   */
+  static fromXDRObject(object) {
+    switch (object.arm()) {
+      case 'id':
+        return Memo.id(object.value().toString());
+      case 'text':
+        return Memo.text(object.value());
+      case 'hash':
+        return Memo.hash(object.value());
+      case 'retHash':
+        return Memo.return(object.value());
+      default:
+        break;
+    }
+
+    if (typeof object.value() === 'undefined') {
+      return Memo.none();
+    }
+
+    throw new Error('Unknown type');
+  }
+}
+</code></pre>
+        </article>
+    </section>
 
 
 

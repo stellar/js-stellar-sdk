@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Account - Documentation</title>
+    <title>signing.js - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -29,527 +29,122 @@
 
 <div id="main">
     
-    <h1 class="page-title">Account</h1>
-    
-
-    
-
-
-
-
-<section>
-
-<header>
-    
-        <h2>
-        Account
-        </h2>
-        
-            <div class="class-description"><p>Create a new Account object.</p>
-<p><code>Account</code> represents a single account in Stellar network and its sequence number.
-Account tracks the sequence number as it is used by <a href="TransactionBuilder.html">TransactionBuilder</a>.
-See <a href="https://stellar.org/developers/learn/concepts/accounts.html">Accounts</a> for more information about how
-accounts work in Stellar.</p></div>
-        
-    
-</header>
-
-<article>
-    <div class="container-overview">
-    
-        
-<div class="section-method">
-
-    
-    <h2>Constructor</h2>
-    
-
-    <h4 class="name" id="Account"><span class="type-signature"></span>new Account<span class="signature">(accountId, sequence)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="account.js.html">account.js</a>, <a href="account.js.html#line16">line 16</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>accountId</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><code>string</code></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">
-                <p>ID of the account (ex. <code>GB3KJPLFUYN5VL6R3GU3EGCGVCKFDSD7BEDX42HWG5BWFKB3KQGJJRMA</code>)</p>
-                
-            </td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>sequence</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><code>string</code></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">
-                <p>current sequence number of the account</p>
-                
-            </td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-</div>
-    
-    </div>
-
-    
-
-    
-
-    
-
-     
-
-    
-
-    
-
-    
-        <h3 class="subsection-title">Methods</h3>
-
-        
-            
-<div class="section-method">
-
-    
-
-    <h4 class="name" id="accountId"><span class="type-signature"></span>accountId<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Returns Stellar account ID, ex. <code>GB3KJPLFUYN5VL6R3GU3EGCGVCKFDSD7BEDX42HWG5BWFKB3KQGJJRMA</code></p>
-</div>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="account.js.html">account.js</a>, <a href="account.js.html#line32">line 32</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div class="section-returns">
-<h5>Returns:</h5>
-
-        
-
-<dl class="param-type">
-    <dt>
-        Type:
-    </dt>
-    <dd>
-        
-<span class="param-type"><code>string</code></span>
-
-
-    </dd>
-</dl>
-
-
-    
-</div>
-
-
-
-</div>
-        
-            
-<div class="section-method">
-
-    
-
-    <h4 class="name" id="incrementSequenceNumber"><span class="type-signature"></span>incrementSequenceNumber<span class="signature">()</span><span class="type-signature"> &rarr; {void}</span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Increments sequence number in this object by one.</p>
-</div>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="account.js.html">account.js</a>, <a href="account.js.html#line47">line 47</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div class="section-returns">
-<h5>Returns:</h5>
-
-        
-
-<dl class="param-type">
-    <dt>
-        Type:
-    </dt>
-    <dd>
-        
-<span class="param-type"><code>void</code></span>
-
-
-    </dd>
-</dl>
-
-
-    
-</div>
-
-
-
-</div>
-        
-            
-<div class="section-method">
-
-    
-
-    <h4 class="name" id="sequenceNumber"><span class="type-signature"></span>sequenceNumber<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span></h4>
-
-    
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="account.js.html">account.js</a>, <a href="account.js.html#line39">line 39</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div class="section-returns">
-<h5>Returns:</h5>
-
-        
-
-<dl class="param-type">
-    <dt>
-        Type:
-    </dt>
-    <dd>
-        
-<span class="param-type"><code>string</code></span>
-
-
-    </dd>
-</dl>
-
-
-    
-</div>
-
-
-
-</div>
-        
-    
-
-    
-
-    
-</article>
-
-</section>
+    <h1 class="page-title">signing.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>//  This module provides the signing functionality used by the stellar network
+//  The code below may look a little strange... this is because we try to provide
+//  the most efficient signing method possible.  First, we try to load the
+//  native `sodium-native` package for node.js environments, and if that fails we
+//  fallback to `tweetnacl`
+
+const actualMethods = {};
+
+/**
+ * Use this flag to check if fast signing (provided by `sodium-native` package) is available.
+ * If your app is signing a large number of transaction or verifying a large number
+ * of signatures make sure `sodium-native` package is installed.
+ */
+export const FastSigning = checkFastSigning();
+
+export function sign(data, secretKey) {
+  return actualMethods.sign(data, secretKey);
+}
+
+export function verify(data, signature, publicKey) {
+  return actualMethods.verify(data, signature, publicKey);
+}
+
+export function generate(secretKey) {
+  return actualMethods.generate(secretKey);
+}
+
+function checkFastSigning() {
+  return typeof window === 'undefined'
+    ? checkFastSigningNode()
+    : checkFastSigningBrowser();
+}
+
+function checkFastSigningNode() {
+  // NOTE: we use commonjs style require here because es6 imports
+  // can only occur at the top level.  thanks, obama.
+  let sodium;
+  try {
+    // eslint-disable-next-line
+    sodium = require('sodium-native');
+  } catch (err) {
+    return checkFastSigningBrowser();
+  }
+
+  actualMethods.generate = (secretKey) => {
+    const pk = Buffer.alloc(sodium.crypto_sign_PUBLICKEYBYTES);
+    const sk = Buffer.alloc(sodium.crypto_sign_SECRETKEYBYTES);
+    sodium.crypto_sign_seed_keypair(pk, sk, secretKey);
+    return pk;
+  };
+
+  actualMethods.sign = (data, secretKey) => {
+    data = Buffer.from(data);
+    const signature = Buffer.alloc(sodium.crypto_sign_BYTES);
+    sodium.crypto_sign_detached(signature, data, secretKey);
+    return signature;
+  };
+
+  actualMethods.verify = (data, signature, publicKey) => {
+    data = Buffer.from(data);
+    try {
+      return sodium.crypto_sign_verify_detached(signature, data, publicKey);
+    } catch (e) {
+      return false;
+    }
+  };
+
+  return true;
+}
+
+function checkFastSigningBrowser() {
+  // fallback to `tweetnacl` if we're in the browser or
+  // if there was a failure installing `sodium-native`
+  // eslint-disable-next-line
+  const nacl = require('tweetnacl');
+
+  actualMethods.generate = (secretKey) => {
+    const secretKeyUint8 = new Uint8Array(secretKey);
+    const naclKeys = nacl.sign.keyPair.fromSeed(secretKeyUint8);
+    return Buffer.from(naclKeys.publicKey);
+  };
+
+  actualMethods.sign = (data, secretKey) => {
+    data = Buffer.from(data);
+    data = new Uint8Array(data.toJSON().data);
+    secretKey = new Uint8Array(secretKey.toJSON().data);
+
+    const signature = nacl.sign.detached(data, secretKey);
+
+    return Buffer.from(signature);
+  };
+
+  actualMethods.verify = (data, signature, publicKey) => {
+    data = Buffer.from(data);
+    data = new Uint8Array(data.toJSON().data);
+    signature = new Uint8Array(signature.toJSON().data);
+    publicKey = new Uint8Array(publicKey.toJSON().data);
+
+    return nacl.sign.detached.verify(data, signature, publicKey);
+  };
+
+  return false;
+}
+</code></pre>
+        </article>
+    </section>
 
 
 
