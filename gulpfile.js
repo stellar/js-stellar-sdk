@@ -105,7 +105,7 @@ gulp.task(
 
 gulp.task(
   'test:sauce',
-  gulp.series('build:node', function testSauce(done) {
+  gulp.series(gulp.parallel('build:browser', 'build:node'), function testSauce(done) {
     var Server = require('karma').Server;
     var server = new Server(
       { configFile: __dirname + '/karma-sauce.conf.js' },
