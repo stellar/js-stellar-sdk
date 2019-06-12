@@ -48,15 +48,7 @@ module.exports = function(config) {
     customLaunchers: customLaunchers,
     browsers: Object.keys(customLaunchers),
 
-    files: [
-      "dist/stellar-sdk.js",
-      "test/test-browser.js",
-      "test/unit/**/*.js",
-    ],
-
-    exclude: [
-      "unit/horizon_axios_client_test.js",  // Fails due dependency on internals accessable only via `lib` file.
-    ],
+    files: ["dist/stellar-sdk.js", "test/test-browser.js", "test/unit/**/*.js"],
 
     preprocessors: {
       "test/**/*.js": ["webpack", "commonjs"],
