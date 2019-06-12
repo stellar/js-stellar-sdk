@@ -8,8 +8,7 @@
     "rootDir": ".", // TODO: if it weren't package.json, we could directly write "lib".
     "outDir": "lib",
     "resolveJsonModule": true,
-    "target": "es5",
-    "importHelpers": true
+    "target": "es5"
   },
   "include": ["src"]
 }
