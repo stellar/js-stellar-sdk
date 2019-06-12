@@ -10,6 +10,8 @@ A breaking change will get clearly marked in this log.
   some unanticipated bugs.)
 - Upgrade Webpack to v4.
 
+Many thanks to @Ffloriel and @Akuukis for their help with this release!
+
 ## [v1.0.2](https://github.com/stellar/js-stellar-sdk/compare/v1.0.1...v1.0.2)
 
 - Upgrade stellar-base to v1.0.2 to fix a bug with the browser bundle.
