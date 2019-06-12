@@ -15,7 +15,7 @@ script:
     git config --global user.name "Travis CI"
     git config --global user.email "travis@stellar.org"
     if [ "${SAUCE}" = "true" ]; then
-      if [ "${TRAVIS_PULL_REQUEST}" = "false" ] || [ "${TRAVIS_PULL_REQUEST_BRANCH}" = "typescript" ]; then
+      if [ "${TRAVIS_PULL_REQUEST}" = "false" ]; then
         gulp test:sauce
       else
         echo "Pull request - skip Sauce Labs testing..."
