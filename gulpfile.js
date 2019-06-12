@@ -77,7 +77,7 @@ gulp.task(
 gulp.task(
   'test:unit',
   gulp.series('build:node', function testUnit() {
-    return gulp.src(['test/test-helper.js', 'test/unit/**/*.js']).pipe(
+    return gulp.src(['test/test-nodejs.js', 'test/unit/**/*.js']).pipe(
       plugins.mocha({
         reporter: ['spec']
       })
@@ -151,7 +151,7 @@ gulp.task(
   gulp.series('build:node', 'test:init-istanbul', function testIntegration() {
     return gulp
       .src([
-        'test/test-helper.js',
+        'test/test-nodejs.js',
         'test/unit/**/*.js',
         'test/integration/**/*.js'
       ])

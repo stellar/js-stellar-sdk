@@ -10,7 +10,7 @@ module.exports = function(config) {
 
     files: [
       "dist/stellar-sdk.js",
-      "test/test-helper.js",
+      "test/test-browser.js",
       "test/unit/**/*.js",
       "test/integration/server_test.js",
     ],
