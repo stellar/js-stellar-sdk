@@ -1,5 +1,5 @@
 import { CallBuilder } from "./call_builder";
-import { Server } from "./server_types";
+import { ServerApi } from "./server_api";
 
 /**
  * Creates a new {@link OperationCallBuilder} pointed to server defined by serverUrl.
@@ -12,7 +12,7 @@ import { Server } from "./server_types";
  * @param {string} serverUrl Horizon server URL.
  */
 export class OperationCallBuilder extends CallBuilder<
-  Server.CollectionPage<Server.OperationRecord>
+  ServerApi.CollectionPage<ServerApi.OperationRecord>
 > {
   constructor(serverUrl: uri.URI) {
     super(serverUrl);

@@ -1,6 +1,6 @@
 import { Asset } from "stellar-base";
 import { CallBuilder } from "./call_builder";
-import { Server } from "./server_types";
+import { ServerApi } from "./server_api";
 
 /**
  * Creates a new {@link TradesCallBuilder} pointed to server defined by serverUrl.
@@ -13,7 +13,7 @@ import { Server } from "./server_types";
  * @param {string} serverUrl serverUrl Horizon server URL.
  */
 export class TradesCallBuilder extends CallBuilder<
-  Server.CollectionPage<Server.TradeRecord>
+  ServerApi.CollectionPage<ServerApi.TradeRecord>
 > {
   constructor(serverUrl: uri.URI) {
     super(serverUrl);

@@ -1,5 +1,5 @@
 import { CallBuilder } from "./call_builder";
-import { Server } from "./server_types";
+import { ServerApi } from "./server_api";
 
 /**
  * Creates a new {@link EffectCallBuilder} pointed to server defined by serverUrl.
@@ -12,7 +12,7 @@ import { Server } from "./server_types";
  * @param {string} serverUrl Horizon server URL.
  */
 export class EffectCallBuilder extends CallBuilder<
-  Server.CollectionPage<Server.EffectRecord>
+  ServerApi.CollectionPage<ServerApi.EffectRecord>
 > {
   constructor(serverUrl: uri.URI) {
     super(serverUrl);

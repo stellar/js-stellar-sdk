@@ -6,7 +6,10 @@ A breaking change will get clearly marked in this log.
 
 - **Breaking change** Port stellar-sdk to Typescript. Because we use a slightly
   different build process, there could be some unanticipated bugs. Additionally,
-  some types have changed:
+  some type definitions have changed:
+  - The `Server` namespace has been broken up into `Server`, the `Server` class,
+    and `ServerApi`, which handles all the types not defined by the class. So,
+    for example, `Server.AccountRecord` -> `ServerApi.AccountRecord`.
   - `Server.AccountResponse` is out of the `Server` namespace ->
     `AccountResponse`
   - `Server.*CallBuilder` is out of the `Server` namespace -> `*CallBuilder`
@@ -14,6 +17,11 @@ A breaking change will get clearly marked in this log.
 - Upgrade Webpack to v4.
 
 Many thanks to @Ffloriel and @Akuukis for their help with this release!
+
+## [v1.0.3](https://github.com/stellar/js-stellar-sdk/compare/v1.0.2...v1.0.3)
+
+- Upgrade axios to 0.19.0 to close a security vulnerability.
+- Some type fixes.
 
 ## [v1.0.2](https://github.com/stellar/js-stellar-sdk/compare/v1.0.1...v1.0.2)
 
