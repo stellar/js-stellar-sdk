@@ -11,7 +11,7 @@ import { ServerApi } from "./server_api";
  * @param {string} serverUrl Horizon server URL.
  */
 export class PaymentCallBuilder extends CallBuilder<
-  ServerApi.PaymentOperationRecord
+  ServerApi.CollectionPage<ServerApi.PaymentOperationRecord>
 > {
   constructor(serverUrl: uri.URI) {
     super(serverUrl);
