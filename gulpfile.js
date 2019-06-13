@@ -42,7 +42,7 @@ gulp.task(
     function buildNode(done) {
       // TODO: Gulp-ify using `gulp-typescript`.
       try {
-        cp.execSync(`yarn run tsc`, {stdio: 'inherit'})
+        cp.execSync(`tsc`, {stdio: 'inherit'})
         done()
       } catch(err) {
         done(err)
@@ -54,6 +54,30 @@ gulp.task(
     },
     function flattenClean() {
       return gulp.src('lib/src')
+          .pipe(plugins.rimraf());
+    }
+    )
+);
+
+gulp.task(
+  'build:docs',
+  gulp.series(
+    // TODO: output directly to "lib" folder (see tsconfig.json).
+    function buildNode(done) {
+      // TODO: Gulp-ify using `gulp-typescript`.
+      try {
+        cp.execSync(`tsc --outDir libdocs --target es6`, {stdio: 'inherit'})
+        done()
+      } catch(err) {
+        done(err)
+      }
+    },
+    function flatten() {
+      return gulp.src('libdocs/src/**')
+          .pipe(gulp.dest('libdocs'))
+    },
+    function flattenClean() {
+      return gulp.src('libdocs/src')
           .pipe(plugins.rimraf());
     }
     )
