@@ -3,7 +3,7 @@
   "version": "2.0.0-beta",
   "description": "stellar-sdk is a library for working with the Stellar Horizon server.",
   "main": "./lib/index.js",
-  "types": "./types/index.d.ts",
+  "types": "./lib/index.d.ts",
   "scripts": {
     "test": "babel-node ./node_modules/.bin/gulp test",
     "docs": "jsdoc -c .jsdoc.json --verbose",
@@ -56,7 +56,6 @@
     "@stellar/tslint-config": "^1.0.1",
     "@types/detect-node": "^2.0.0",
     "@types/lodash": "^4.14.130",
-    "@types/urijs": "^1.19.1",
     "axios-mock-adapter": "^1.16.0",
     "babel-cli": "^6.26.0",
     "babel-core": "~6.26.3",
@@ -130,6 +129,7 @@
   },
   "dependencies": {
     "@types/node": ">= 8",
+    "@types/urijs": "^1.19.1",
     "axios": "^0.18.0",
     "bignumber.js": "^4.0.0",
     "detect-node": "^2.0.4",

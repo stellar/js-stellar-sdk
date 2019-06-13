@@ -12,7 +12,7 @@ import { ServerApi } from "./server_api";
  * @param {string} serverUrl Horizon server URL.
  */
 export class TransactionCallBuilder extends CallBuilder<
-  ServerApi.TransactionRecord
+  ServerApi.CollectionPage<ServerApi.TransactionRecord>
 > {
   constructor(serverUrl: uri.URI) {
     super(serverUrl);

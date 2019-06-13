@@ -3,6 +3,10 @@ require("es6-promise").polyfill();
 
 import { version } from "../package.json";
 
+// Expose all types
+export * from "./horizon_api";
+export * from "./server_api";
+
 // stellar-sdk classes to expose
 export * from "./errors";
 export { Config } from "./config";
