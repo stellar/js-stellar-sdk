@@ -3,7 +3,7 @@
 import { Omit } from "lodash";
 import forIn from "lodash/forIn";
 import { Account as BaseAccount } from "stellar-base";
-import { Horizon } from "./horizon_api";
+import { Horizon } from "./horizon_api_types";
 import { Server } from "./server_types";
 
 /**

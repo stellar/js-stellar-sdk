@@ -2,7 +2,7 @@
 import { Asset } from "stellar-base";
 import { CallBuilder } from "./call_builder";
 import { BadRequestError } from "./errors";
-import { Horizon } from "./horizon_api";
+import { Horizon } from "./horizon_api_types";
 import { Server } from "./server_types";
 
 const allowedResolutions = [

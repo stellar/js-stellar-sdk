@@ -4,7 +4,7 @@ import URITemplate from "urijs/src/URITemplate";
 
 import { version } from "../package.json";
 import { BadRequestError, NetworkError, NotFoundError } from "./errors";
-import { Horizon } from "./horizon_api";
+import { Horizon } from "./horizon_api_types";
 import HorizonAxiosClient from "./horizon_axios_client";
 import { Server } from "./server_types";
 
