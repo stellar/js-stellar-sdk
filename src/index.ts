@@ -4,8 +4,8 @@ require("es6-promise").polyfill();
 import { version } from "../package.json";
 
 // Expose all types
-export * from "./horizon_api";
-export * from "./server_api";
+export * from "./horizon_api_types";
+export * from "./server_types";
 
 // stellar-sdk classes to expose
 export * from "./errors";

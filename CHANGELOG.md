@@ -4,9 +4,13 @@ A breaking change will get clearly marked in this log.
 
 ## [v2.0.0](https://github.com/stellar/js-stellar-sdk/compare/v1.0.2...v2.0.0)
 
-- **Breaking change** Port stellar-sdk to Typescript. (No functionality should
-  change, but because we use a slightly different build process, there could be
-  some unanticipated bugs.)
+- **Breaking change** Port stellar-sdk to Typescript. Because we use a slightly
+  different build process, there could be some unanticipated bugs. Additionally,
+  some types have changed:
+  - `Server.AccountResponse` is out of the `Server` namespace ->
+    `AccountResponse`
+  - `Server.*CallBuilder` is out of the `Server` namespace -> `*CallBuilder`
+  - `HorizonResponseAccount` is now `Horizon.AccountResponse`
 - Upgrade Webpack to v4.
 
 Many thanks to @Ffloriel and @Akuukis for their help with this release!

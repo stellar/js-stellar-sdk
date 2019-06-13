@@ -4,9 +4,9 @@ import URITemplate from "urijs/src/URITemplate";
 
 import { version } from "../package.json";
 import { BadRequestError, NetworkError, NotFoundError } from "./errors";
-import { Horizon } from "./horizon_api";
+import { Horizon } from "./horizon_api_types";
 import HorizonAxiosClient from "./horizon_axios_client";
-import { ServerApi } from "./server_api";
+import { Server } from "./server_types";
 
 type Constructable<T> = new (e: string) => T;
 declare global {
@@ -39,9 +39,7 @@ if (isNode) {
  * @class CallBuilder
  */
 export class CallBuilder<
-  T extends
-    | Horizon.BaseResponse
-    | ServerApi.CollectionPage<Horizon.BaseResponse>
+  T extends Horizon.BaseResponse | Server.CollectionPage<Horizon.BaseResponse>
 > {
   protected url: uri.URI;
   public filter: string[][];

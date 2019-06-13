@@ -21,7 +21,7 @@ import { OperationCallBuilder } from "./operation_call_builder";
 import { OrderbookCallBuilder } from "./orderbook_call_builder";
 import { PathCallBuilder } from "./path_call_builder";
 import { PaymentCallBuilder } from "./payment_call_builder";
-import { ServerApi } from "./server_api";
+import { Server } from "./server_types";
 import { TradeAggregationCallBuilder } from "./trade_aggregation_call_builder";
 import { TradesCallBuilder } from "./trades_call_builder";
 import { TransactionCallBuilder } from "./transaction_call_builder";
@@ -42,7 +42,7 @@ function _getAmountInLumens(amt: BigNumber) {
  * @param {object} [opts] Options object
  * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments! You can also use {@link Config} class to set this globally.
  */
-export class Server {
+class Server {
   /**
    * serverURL Horizon Server URL (ex. `https://horizon-testnet.stellar.org`).
    *
@@ -245,7 +245,7 @@ export class Server {
    */
   public async submitTransaction(
     transaction: Transaction,
-  ): Promise<ServerApi.TransactionRecord> {
+  ): Promise<Server.TransactionRecord> {
     const tx = encodeURIComponent(
       transaction
         .toEnvelope()
@@ -610,13 +610,4 @@ export class Server {
   }
 }
 
-export namespace Server {
-  export interface Options {
-    allowHttp?: boolean;
-  }
-
-  export interface Timebounds {
-    minTime: number;
-    maxTime: number;
-  }
-}
+export { Server };

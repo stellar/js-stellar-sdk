@@ -1,6 +1,6 @@
 import { CallBuilder } from "./call_builder";
 import { BadRequestError } from "./errors";
-import { ServerApi } from "./server_api";
+import { Server } from "./server_types";
 
 /**
  * Creates a new {@link OfferCallBuilder} pointed to server defined by serverUrl.
@@ -15,7 +15,7 @@ import { ServerApi } from "./server_api";
  * @param {...string} resourceParams Parameters for selected resource
  */
 export class OfferCallBuilder extends CallBuilder<
-  ServerApi.CollectionPage<ServerApi.OfferRecord>
+  Server.CollectionPage<Server.OfferRecord>
 > {
   constructor(
     serverUrl: uri.URI,
