@@ -1,5 +1,5 @@
 import { CallBuilder } from "./call_builder";
-import { Server } from "./server_types";
+import { ServerApi } from "./server_api";
 
 /**
  * Creates a new {@link PaymentCallBuilder} pointed to server defined by serverUrl.
@@ -11,7 +11,7 @@ import { Server } from "./server_types";
  * @param {string} serverUrl Horizon server URL.
  */
 export class PaymentCallBuilder extends CallBuilder<
-  Server.PaymentOperationRecord
+  ServerApi.PaymentOperationRecord
 > {
   constructor(serverUrl: uri.URI) {
     super(serverUrl);

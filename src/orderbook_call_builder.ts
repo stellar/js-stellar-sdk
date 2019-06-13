@@ -1,6 +1,6 @@
 import { Asset } from "stellar-base";
 import { CallBuilder } from "./call_builder";
-import { Server } from "./server_types";
+import { ServerApi } from "./server_api";
 
 /**
  * Creates a new {@link OrderbookCallBuilder} pointed to server defined by serverUrl.
@@ -11,7 +11,9 @@ import { Server } from "./server_types";
  * @param {Asset} selling Asset being sold
  * @param {Asset} buying Asset being bought
  */
-export class OrderbookCallBuilder extends CallBuilder<Server.OrderbookRecord> {
+export class OrderbookCallBuilder extends CallBuilder<
+  ServerApi.OrderbookRecord
+> {
   constructor(serverUrl: uri.URI, selling: Asset, buying: Asset) {
     super(serverUrl);
     this.url.segment("order_book");

@@ -3,8 +3,8 @@
 import { Omit } from "lodash";
 import forIn from "lodash/forIn";
 import { Account as BaseAccount } from "stellar-base";
-import { Horizon } from "./horizon_api_types";
-import { Server } from "./server_types";
+import { Horizon } from "./horizon_api";
+import { ServerApi } from "./server_api";
 
 /**
  * Do not create this object directly, use {@link Server#loadAccount}.
@@ -17,7 +17,8 @@ import { Server } from "./server_types";
  * @param {string} response Response from horizon account endpoint.
  * @returns {AccountResponse} AccountResponse instance
  */
-export class AccountResponse implements Omit<Server.AccountRecord, "_links"> {
+export class AccountResponse
+  implements Omit<ServerApi.AccountRecord, "_links"> {
   public readonly id!: string;
   public readonly paging_token!: string;
   public readonly account_id!: string;
@@ -28,23 +29,29 @@ export class AccountResponse implements Omit<Server.AccountRecord, "_links"> {
   public readonly thresholds!: Horizon.AccountThresholds;
   public readonly flags!: Horizon.Flags;
   public readonly balances!: Horizon.BalanceLine[];
-  public readonly signers!: Server.AccountRecordSigners[];
+  public readonly signers!: ServerApi.AccountRecordSigners[];
   public readonly data!: (options: {
     value: string;
   }) => Promise<{ value: string }>;
   public readonly data_attr!: Record<string, string>;
-  public readonly effects!: Server.CallCollectionFunction<Server.EffectRecord>;
-  public readonly offers!: Server.CallCollectionFunction<Server.OfferRecord>;
-  public readonly operations!: Server.CallCollectionFunction<
-    Server.OperationRecord
+  public readonly effects!: ServerApi.CallCollectionFunction<
+    ServerApi.EffectRecord
   >;
-  public readonly payments!: Server.CallCollectionFunction<
-    Server.PaymentOperationRecord
+  public readonly offers!: ServerApi.CallCollectionFunction<
+    ServerApi.OfferRecord
   >;
-  public readonly trades!: Server.CallCollectionFunction<Server.TradeRecord>;
+  public readonly operations!: ServerApi.CallCollectionFunction<
+    ServerApi.OperationRecord
+  >;
+  public readonly payments!: ServerApi.CallCollectionFunction<
+    ServerApi.PaymentOperationRecord
+  >;
+  public readonly trades!: ServerApi.CallCollectionFunction<
+    ServerApi.TradeRecord
+  >;
   private readonly _baseAccount: BaseAccount;
 
-  constructor(response: Server.AccountRecord) {
+  constructor(response: ServerApi.AccountRecord) {
     this._baseAccount = new BaseAccount(response.account_id, response.sequence);
     // Extract response fields
     // TODO: do it in type-safe manner.
