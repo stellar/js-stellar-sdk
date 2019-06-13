@@ -1,6 +1,6 @@
 import { Asset } from "stellar-base";
 import { CallBuilder } from "./call_builder";
-import { ServerApi } from "./server_api";
+import { Server } from "./server_types";
 
 /**
  * The Stellar Network allows payments to be made across assets through path payments. A path payment specifies a
@@ -27,7 +27,7 @@ import { ServerApi } from "./server_api";
  * @param {string} destinationAmount The amount, denominated in the destination asset, that any returned path should be able to satisfy.
  */
 export class PathCallBuilder extends CallBuilder<
-  ServerApi.CollectionPage<ServerApi.PaymentPathRecord>
+  Server.CollectionPage<Server.PaymentPathRecord>
 > {
   constructor(
     serverUrl: uri.URI,

@@ -1,5 +1,5 @@
 import { CallBuilder } from "./call_builder";
-import { ServerApi } from "./server_api";
+import { Server } from "./server_types";
 
 /**
  * Creates a new {@link AssetsCallBuilder} pointed to server defined by serverUrl.
@@ -11,7 +11,7 @@ import { ServerApi } from "./server_api";
  * @param {string} serverUrl Horizon server URL.
  */
 export class AssetsCallBuilder extends CallBuilder<
-  ServerApi.CollectionPage<ServerApi.AssetRecord>
+  Server.CollectionPage<Server.AssetRecord>
 > {
   constructor(serverUrl: uri.URI) {
     super(serverUrl);

@@ -3,7 +3,16 @@ import { Asset, AssetType } from "stellar-base";
 import { Horizon } from "./horizon_api";
 
 /* tslint:disable-next-line: no-namespace */
-export namespace ServerApi {
+export namespace Server {
+  export interface Options {
+    allowHttp?: boolean;
+  }
+
+  export interface Timebounds {
+    minTime: number;
+    maxTime: number;
+  }
+
   export interface CollectionPage<
     T extends Horizon.BaseResponse = Horizon.BaseResponse
   > {

@@ -5,7 +5,7 @@ import { version } from "../package.json";
 
 // Expose all types
 export * from "./horizon_api";
-export * from "./server_api";
+export * from "./server_types";
 
 // stellar-sdk classes to expose
 export * from "./errors";

@@ -1,5 +1,5 @@
 import { CallBuilder } from "./call_builder";
-import { ServerApi } from "./server_api";
+import { Server } from "./server_types";
 
 /**
  * Creates a new {@link AccountCallBuilder} pointed to server defined by serverUrl.
@@ -12,7 +12,7 @@ import { ServerApi } from "./server_api";
  * @extends CallBuilder
  * @param {string} serverUrl Horizon server URL.
  */
-export class AccountCallBuilder extends CallBuilder<ServerApi.AccountRecord> {
+export class AccountCallBuilder extends CallBuilder<Server.AccountRecord> {
   constructor(serverUrl: uri.URI) {
     super(serverUrl);
     this.url.segment("accounts");

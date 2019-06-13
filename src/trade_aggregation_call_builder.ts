@@ -3,7 +3,7 @@ import { Asset } from "stellar-base";
 import { CallBuilder } from "./call_builder";
 import { BadRequestError } from "./errors";
 import { Horizon } from "./horizon_api";
-import { ServerApi } from "./server_api";
+import { Server } from "./server_types";
 
 const allowedResolutions = [
   60000,
@@ -30,7 +30,7 @@ const allowedResolutions = [
  * @param {long} offset segments can be offset using this parameter. Expressed in milliseconds. *Can only be used if the resolution is greater than 1 hour. Value must be in whole hours, less than the provided resolution, and less than 24 hours.
  */
 export class TradeAggregationCallBuilder extends CallBuilder<
-  ServerApi.CollectionPage<TradeAggregationRecord>
+  Server.CollectionPage<TradeAggregationRecord>
 > {
   constructor(
     serverUrl: uri.URI,
@@ -83,7 +83,9 @@ export class TradeAggregationCallBuilder extends CallBuilder<
    */
   private isValidResolution(resolution: number): boolean {
     for (const allowed of allowedResolutions) {
-      if (allowed === resolution) { return true; }
+      if (allowed === resolution) {
+        return true;
+      }
     }
     return false;
   }
