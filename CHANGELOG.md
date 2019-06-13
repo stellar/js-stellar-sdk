@@ -3,6 +3,11 @@
 As this project is pre 1.0, breaking changes may happen for minor version bumps.
 A breaking change will get clearly marked in this log.
 
+## [v1.0.3](https://github.com/stellar/js-stellar-sdk/compare/v1.0.2...v1.0.3)
+
+- Upgrade axios to 0.19.0 to close a security vulnerability.
+- Some type fixes.
+
 ## [v1.0.2](https://github.com/stellar/js-stellar-sdk/compare/v1.0.1...v1.0.2)
 
 - Upgrade stellar-base to v1.0.2 to fix a bug with the browser bundle.
