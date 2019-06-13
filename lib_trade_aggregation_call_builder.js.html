@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>node_modules/stellar-base/src/operations/inflation.js - Documentation</title>
+    <title>lib/trade_aggregation_call_builder.js - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -29,7 +29,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">node_modules/stellar-base/src/operations/inflation.js</h1>
+    <h1 class="page-title">lib/trade_aggregation_call_builder.js</h1>
     
 
     
@@ -39,23 +39,102 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import xdr from '../generated/stellar-xdr_generated';
-
+            <pre class="prettyprint source linenums"><code>import * as tslib_1 from "tslib";
+import { CallBuilder } from "./call_builder";
+import { BadRequestError } from "./errors";
+var allowedResolutions = [
+    60000,
+    300000,
+    900000,
+    3600000,
+    86400000,
+    604800000,
+];
 /**
- * This operation generates the inflation.
- * @function
- * @alias Operation.inflation
- * @param {object} [opts] Options object
- * @param {string} [opts.source] - The optional source account.
- * @returns {xdr.InflationOp} Inflation operation
+ * Trade Aggregations facilitate efficient gathering of historical trade data.
+ * Do not create this object directly, use {@link Server#tradeAggregation}.
+ *
+ * @class TradeAggregationCallBuilder
+ * @extends CallBuilder
+ * @constructor
+ * @param {string} serverUrl serverUrl Horizon server URL.
+ * @param {Asset} base base asset
+ * @param {Asset} counter counter asset
+ * @param {long} start_time lower time boundary represented as millis since epoch
+ * @param {long} end_time upper time boundary represented as millis since epoch
+ * @param {long} resolution segment duration as millis since epoch. *Supported values are 1 minute (60000), 5 minutes (300000), 15 minutes (900000), 1 hour (3600000), 1 day (86400000) and 1 week (604800000).
+ * @param {long} offset segments can be offset using this parameter. Expressed in milliseconds. *Can only be used if the resolution is greater than 1 hour. Value must be in whole hours, less than the provided resolution, and less than 24 hours.
  */
-export function inflation(opts = {}) {
-  const opAttributes = {};
-  opAttributes.body = xdr.OperationBody.inflation();
-  this.setSourceAccount(opAttributes, opts);
-  return new xdr.Operation(opAttributes);
-}
-</code></pre>
+var TradeAggregationCallBuilder = /** @class */ (function (_super) {
+    tslib_1.__extends(TradeAggregationCallBuilder, _super);
+    function TradeAggregationCallBuilder(serverUrl, base, counter, start_time, end_time, resolution, offset) {
+        var _this = _super.call(this, serverUrl) || this;
+        _this.url.segment("trade_aggregations");
+        if (!base.isNative()) {
+            _this.url.setQuery("base_asset_type", base.getAssetType());
+            _this.url.setQuery("base_asset_code", base.getCode());
+            _this.url.setQuery("base_asset_issuer", base.getIssuer());
+        }
+        else {
+            _this.url.setQuery("base_asset_type", "native");
+        }
+        if (!counter.isNative()) {
+            _this.url.setQuery("counter_asset_type", counter.getAssetType());
+            _this.url.setQuery("counter_asset_code", counter.getCode());
+            _this.url.setQuery("counter_asset_issuer", counter.getIssuer());
+        }
+        else {
+            _this.url.setQuery("counter_asset_type", "native");
+        }
+        if (typeof start_time === "undefined" || typeof end_time === "undefined") {
+            throw new BadRequestError("Invalid time bounds", [start_time, end_time]);
+        }
+        else {
+            _this.url.setQuery("start_time", start_time.toString());
+            _this.url.setQuery("end_time", end_time.toString());
+        }
+        if (!_this.isValidResolution(resolution)) {
+            throw new BadRequestError("Invalid resolution", resolution);
+        }
+        else {
+            _this.url.setQuery("resolution", resolution.toString());
+        }
+        if (!_this.isValidOffset(offset, resolution)) {
+            throw new BadRequestError("Invalid offset", offset);
+        }
+        else {
+            _this.url.setQuery("offset", offset.toString());
+        }
+        return _this;
+    }
+    /**
+     * @private
+     * @param {long} resolution Trade data resolution in milliseconds
+     * @returns {boolean} true if the resolution is allowed
+     */
+    TradeAggregationCallBuilder.prototype.isValidResolution = function (resolution) {
+        for (var _i = 0, allowedResolutions_1 = allowedResolutions; _i &lt; allowedResolutions_1.length; _i++) {
+            var allowed = allowedResolutions_1[_i];
+            if (allowed === resolution) {
+                return true;
+            }
+        }
+        return false;
+    };
+    /**
+     * @private
+     * @param {long} offset Time offset in milliseconds
+     * @param {long} resolution Trade data resolution in milliseconds
+     * @returns {boolean} true if the offset is valid
+     */
+    TradeAggregationCallBuilder.prototype.isValidOffset = function (offset, resolution) {
+        var hour = 3600000;
+        return !(offset > resolution || offset >= 24 * hour || offset % hour !== 0);
+    };
+    return TradeAggregationCallBuilder;
+}(CallBuilder));
+export { TradeAggregationCallBuilder };
+//# sourceMappingURL=trade_aggregation_call_builder.js.map</code></pre>
         </article>
     </section>
 

@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>node_modules/stellar-base/src/operations/inflation.js - Documentation</title>
+    <title>lib/path_call_builder.js - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -29,7 +29,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">node_modules/stellar-base/src/operations/inflation.js</h1>
+    <h1 class="page-title">lib/path_call_builder.js</h1>
     
 
     
@@ -39,23 +39,54 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import xdr from '../generated/stellar-xdr_generated';
-
+            <pre class="prettyprint source linenums"><code>import * as tslib_1 from "tslib";
+import { CallBuilder } from "./call_builder";
 /**
- * This operation generates the inflation.
- * @function
- * @alias Operation.inflation
- * @param {object} [opts] Options object
- * @param {string} [opts.source] - The optional source account.
- * @returns {xdr.InflationOp} Inflation operation
+ * The Stellar Network allows payments to be made across assets through path payments. A path payment specifies a
+ * series of assets to route a payment through, from source asset (the asset debited from the payer) to destination
+ * asset (the asset credited to the payee).
+ *
+ * A path search is specified using:
+ *
+ * * The destination address
+ * * The source address
+ * * The asset and amount that the destination account should receive
+ *
+ * As part of the search, horizon will load a list of assets available to the source address and will find any
+ * payment paths from those source assets to the desired destination asset. The search's amount parameter will be
+ * used to determine if there a given path can satisfy a payment of the desired amount.
+ *
+ * Do not create this object directly, use {@link Server#paths}.
+ * @see [Find Payment Paths](https://www.stellar.org/developers/horizon/reference/endpoints/path-finding.html)
+ * @extends CallBuilder
+ * @param {string} serverUrl Horizon server URL.
+ * @param {string} source The sender's account ID. Any returned path must use a source that the sender can hold.
+ * @param {string} destination The destination account ID that any returned path should use.
+ * @param {Asset} destinationAsset The destination asset.
+ * @param {string} destinationAmount The amount, denominated in the destination asset, that any returned path should be able to satisfy.
  */
-export function inflation(opts = {}) {
-  const opAttributes = {};
-  opAttributes.body = xdr.OperationBody.inflation();
-  this.setSourceAccount(opAttributes, opts);
-  return new xdr.Operation(opAttributes);
-}
-</code></pre>
+var PathCallBuilder = /** @class */ (function (_super) {
+    tslib_1.__extends(PathCallBuilder, _super);
+    function PathCallBuilder(serverUrl, source, destination, destinationAsset, destinationAmount) {
+        var _this = _super.call(this, serverUrl) || this;
+        _this.url.segment("paths");
+        _this.url.setQuery("destination_account", destination);
+        _this.url.setQuery("source_account", source);
+        _this.url.setQuery("destination_amount", destinationAmount);
+        if (!destinationAsset.isNative()) {
+            _this.url.setQuery("destination_asset_type", destinationAsset.getAssetType());
+            _this.url.setQuery("destination_asset_code", destinationAsset.getCode());
+            _this.url.setQuery("destination_asset_issuer", destinationAsset.getIssuer());
+        }
+        else {
+            _this.url.setQuery("destination_asset_type", "native");
+        }
+        return _this;
+    }
+    return PathCallBuilder;
+}(CallBuilder));
+export { PathCallBuilder };
+//# sourceMappingURL=path_call_builder.js.map</code></pre>
         </article>
     </section>
 

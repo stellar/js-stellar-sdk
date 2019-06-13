@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>node_modules/stellar-base/src/operations/inflation.js - Documentation</title>
+    <title>lib/offer_call_builder.js - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -29,7 +29,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">node_modules/stellar-base/src/operations/inflation.js</h1>
+    <h1 class="page-title">lib/offer_call_builder.js</h1>
     
 
     
@@ -39,23 +39,41 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import xdr from '../generated/stellar-xdr_generated';
-
+            <pre class="prettyprint source linenums"><code>import * as tslib_1 from "tslib";
+import { CallBuilder } from "./call_builder";
+import { BadRequestError } from "./errors";
 /**
- * This operation generates the inflation.
- * @function
- * @alias Operation.inflation
- * @param {object} [opts] Options object
- * @param {string} [opts.source] - The optional source account.
- * @returns {xdr.InflationOp} Inflation operation
+ * Creates a new {@link OfferCallBuilder} pointed to server defined by serverUrl.
+ * Do not create this object directly, use {@link Server#offers}.
+ *
+ * @see [Offers for Account](https://www.stellar.org/developers/horizon/reference/endpoints/offers-for-account.html)
+ * @class OfferCallBuilder
+ * @constructor
+ * @extends CallBuilder
+ * @param {string} serverUrl Horizon server URL.
+ * @param {string} resource Resource to query offers
+ * @param {...string} resourceParams Parameters for selected resource
  */
-export function inflation(opts = {}) {
-  const opAttributes = {};
-  opAttributes.body = xdr.OperationBody.inflation();
-  this.setSourceAccount(opAttributes, opts);
-  return new xdr.Operation(opAttributes);
-}
-</code></pre>
+var OfferCallBuilder = /** @class */ (function (_super) {
+    tslib_1.__extends(OfferCallBuilder, _super);
+    function OfferCallBuilder(serverUrl, resource) {
+        var resourceParams = [];
+        for (var _i = 2; _i &lt; arguments.length; _i++) {
+            resourceParams[_i - 2] = arguments[_i];
+        }
+        var _this = _super.call(this, serverUrl) || this;
+        if (resource === "accounts") {
+            _this.url.segment([resource].concat(resourceParams, ["offers"]));
+        }
+        else {
+            throw new BadRequestError("Bad resource specified for offer:", resource);
+        }
+        return _this;
+    }
+    return OfferCallBuilder;
+}(CallBuilder));
+export { OfferCallBuilder };
+//# sourceMappingURL=offer_call_builder.js.map</code></pre>
         </article>
     </section>
 

@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>lib/server.js - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <li class="nav-link nav-home-link"><a href="index.html">Home</a></li><li class="nav-heading">Classes</li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="Account.html">Account</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Account.html#accountId">accountId</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Account.html#incrementSequenceNumber">incrementSequenceNumber</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Account.html#sequenceNumber">sequenceNumber</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="AccountCallBuilder.html">AccountCallBuilder</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="Asset.html">Asset</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Asset.html#.fromOperation">fromOperation</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Asset.html#.native">native</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Asset.html#equals">equals</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Asset.html#getAssetType">getAssetType</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Asset.html#getCode">getCode</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Asset.html#getIssuer">getIssuer</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Asset.html#isNative">isNative</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Asset.html#toXDRObject">toXDRObject</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="AssetsCallBuilder.html">AssetsCallBuilder</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="CallBuilder.html">CallBuilder</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="EffectCallBuilder.html">EffectCallBuilder</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="FederationServer.html">FederationServer</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="Keypair.html">Keypair</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Keypair.html#.fromBase58Seed">fromBase58Seed</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Keypair.html#.fromPublicKey">fromPublicKey</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Keypair.html#.fromRawEd25519Seed">fromRawEd25519Seed</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Keypair.html#.fromSecret">fromSecret</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Keypair.html#.master">master</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Keypair.html#.random">random</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Keypair.html#canSign">canSign</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Keypair.html#publicKey">publicKey</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Keypair.html#rawPublicKey">rawPublicKey</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Keypair.html#rawSecretKey">rawSecretKey</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Keypair.html#secret">secret</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Keypair.html#sign">sign</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Keypair.html#verify">verify</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="LedgerCallBuilder.html">LedgerCallBuilder</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="Memo.html">Memo</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Memo.html#.fromXDRObject">fromXDRObject</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Memo.html#.hash">hash</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Memo.html#.id">id</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Memo.html#.none">none</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Memo.html#.return">return</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Memo.html#.text">text</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Memo.html#toXDRObject">toXDRObject</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="Network.html">Network</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Network.html#.current">current</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Network.html#.use">use</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Network.html#.usePublicNetwork">usePublicNetwork</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Network.html#.useTestNetwork">useTestNetwork</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Network.html#networkId">networkId</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Network.html#networkPassphrase">networkPassphrase</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="OfferCallBuilder.html">OfferCallBuilder</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="Operation.html">Operation</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.accountMerge">accountMerge</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.allowTrust">allowTrust</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.bumpSequence">bumpSequence</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.changeTrust">changeTrust</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.createAccount">createAccount</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.createPassiveSellOffer">createPassiveSellOffer</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.fromXDRObject">fromXDRObject</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.inflation">inflation</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.manageBuyOffer">manageBuyOffer</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.manageData">manageData</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.manageSellOffer">manageSellOffer</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.pathPayment">pathPayment</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.payment">payment</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.setOptions">setOptions</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="OperationCallBuilder.html">OperationCallBuilder</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="PaymentCallBuilder.html">PaymentCallBuilder</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="Server.html">Server</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="StrKey.html">StrKey</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="StrKey.html#.decodeEd25519PublicKey">decodeEd25519PublicKey</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="StrKey.html#.decodeEd25519SecretSeed">decodeEd25519SecretSeed</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="StrKey.html#.decodePreAuthTx">decodePreAuthTx</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="StrKey.html#.decodeSha256Hash">decodeSha256Hash</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="StrKey.html#.encodeEd25519PublicKey">encodeEd25519PublicKey</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="StrKey.html#.encodeEd25519SecretSeed">encodeEd25519SecretSeed</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="StrKey.html#.encodePreAuthTx">encodePreAuthTx</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="StrKey.html#.encodeSha256Hash">encodeSha256Hash</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="StrKey.html#.isValidEd25519PublicKey">isValidEd25519PublicKey</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="StrKey.html#.isValidEd25519SecretSeed">isValidEd25519SecretSeed</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="TradeAggregationCallBuilder.html">TradeAggregationCallBuilder</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="TradesCallBuilder.html">TradesCallBuilder</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="Transaction.html">Transaction</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Transaction.html#addSignature">addSignature</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Transaction.html#getKeypairSignature">getKeypairSignature</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Transaction.html#hash">hash</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Transaction.html#sign">sign</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Transaction.html#signatureBase">signatureBase</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Transaction.html#signHashX">signHashX</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Transaction.html#toEnvelope">toEnvelope</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Transaction.html#toXDR">toXDR</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="TransactionBuilder.html">TransactionBuilder</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TransactionBuilder.html#addMemo">addMemo</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TransactionBuilder.html#addOperation">addOperation</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TransactionBuilder.html#build">build</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TransactionBuilder.html#setTimeout">setTimeout</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="TransactionCallBuilder.html">TransactionCallBuilder</a></span></li><li class="nav-heading"><a href="global.html">Globals</a></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#AccountResponse">AccountResponse</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#AuthImmutableFlag">AuthImmutableFlag</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#AuthRequiredFlag">AuthRequiredFlag</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#AuthRevocableFlag">AuthRevocableFlag</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#Config">Config</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#FastSigning">FastSigning</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#getCurrentServerTime">getCurrentServerTime</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#isValidDate">isValidDate</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#MemoHash">MemoHash</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#MemoID">MemoID</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#MemoNone">MemoNone</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#MemoReturn">MemoReturn</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#MemoText">MemoText</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#Networks">Networks</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#OrderbookCallBuilder">OrderbookCallBuilder</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#PathCallBuilder">PathCallBuilder</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#SERVER_TIME_MAP">SERVER_TIME_MAP</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#StellarTomlResolver">StellarTomlResolver</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#TimeoutInfinite">TimeoutInfinite</a></span></li>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">lib/server.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import * as tslib_1 from "tslib";
+/* tslint:disable:variable-name no-namespace */
+import BigNumber from "bignumber.js";
+import { Asset, StrKey, xdr } from "stellar-base";
+import URI from "urijs";
+import { BadResponseError } from "./errors";
+import { AccountCallBuilder } from "./account_call_builder";
+import { AccountResponse } from "./account_response";
+import { AssetsCallBuilder } from "./assets_call_builder";
+import { CallBuilder } from "./call_builder";
+import { Config } from "./config";
+import { EffectCallBuilder } from "./effect_call_builder";
+import { FriendbotBuilder } from "./friendbot_builder";
+import HorizonAxiosClient, { getCurrentServerTime, } from "./horizon_axios_client";
+import { LedgerCallBuilder } from "./ledger_call_builder";
+import { OfferCallBuilder } from "./offer_call_builder";
+import { OperationCallBuilder } from "./operation_call_builder";
+import { OrderbookCallBuilder } from "./orderbook_call_builder";
+import { PathCallBuilder } from "./path_call_builder";
+import { PaymentCallBuilder } from "./payment_call_builder";
+import { TradeAggregationCallBuilder } from "./trade_aggregation_call_builder";
+import { TradesCallBuilder } from "./trades_call_builder";
+import { TransactionCallBuilder } from "./transaction_call_builder";
+export var SUBMIT_TRANSACTION_TIMEOUT = 60 * 1000;
+var STROOPS_IN_LUMEN = 10000000;
+function _getAmountInLumens(amt) {
+    return new BigNumber(amt).div(STROOPS_IN_LUMEN).toString();
+}
+/**
+ * Server handles the network connection to a [Horizon](https://www.stellar.org/developers/horizon/reference/)
+ * instance and exposes an interface for requests to that instance.
+ * @constructor
+ * @param {string} serverURL Horizon Server URL (ex. `https://horizon-testnet.stellar.org`).
+ * @param {object} [opts] Options object
+ * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments! You can also use {@link Config} class to set this globally.
+ */
+var Server = /** @class */ (function () {
+    function Server(serverURL, opts) {
+        if (opts === void 0) { opts = {}; }
+        this.serverURL = URI(serverURL);
+        var allowHttp = typeof opts.allowHttp === "undefined"
+            ? Config.isAllowHttp()
+            : opts.allowHttp;
+        if (this.serverURL.protocol() !== "https" &amp;&amp; !allowHttp) {
+            throw new Error("Cannot connect to insecure horizon server");
+        }
+    }
+    /**
+     * Get timebounds for N seconds from now, when you're creating a transaction
+     * with {@link TransactionBuilder}.
+     *
+     * By default, {@link TransactionBuilder} uses the current local time, but
+     * your machine's local time could be different from Horizon's. This gives you
+     * more assurance that your timebounds will reflect what you want.
+     *
+     * Note that this will generate your timebounds when you **init the transaction**,
+     * not when you build or submit the transaction! So give yourself enough time to get
+     * the transaction built and signed before submitting.
+     *
+     * Example:
+     *
+     * ```javascript
+     * const transaction = new StellarSdk.TransactionBuilder(accountId, {
+     *  fee: await StellarSdk.Server.fetchBaseFee(),
+     *  timebounds: await StellarSdk.Server.fetchTimebounds(100)
+     * })
+     *  .addOperation(operation)
+     *  // normally we would need to call setTimeout here, but setting timebounds
+     *  // earlier does the trick!
+     *  .build();
+     * ```
+     * @argument {number} seconds Number of seconds past the current time to wait.
+     * @argument {bool} [_isRetry=false] True if this is a retry. Only set this internally!
+     * This is to avoid a scenario where Horizon is horking up the wrong date.
+     * @returns {Promise&lt;Timebounds>} Promise that resolves a `timebounds` object
+     * (with the shape `{ minTime: 0, maxTime: N }`) that you can set the `timebounds` option to.
+     */
+    Server.prototype.fetchTimebounds = function (seconds, _isRetry) {
+        if (_isRetry === void 0) { _isRetry = false; }
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var currentTime;
+            return tslib_1.__generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        currentTime = getCurrentServerTime(this.serverURL.hostname());
+                        if (currentTime) {
+                            return [2 /*return*/, {
+                                    minTime: 0,
+                                    maxTime: currentTime + seconds,
+                                }];
+                        }
+                        // if this is a retry, then the retry has failed, so use local time
+                        if (_isRetry) {
+                            return [2 /*return*/, {
+                                    minTime: 0,
+                                    maxTime: Math.floor(new Date().getTime() / 1000) + seconds,
+                                }];
+                        }
+                        // otherwise, retry (by calling the root endpoint)
+                        // toString automatically adds the trailing slash
+                        return [4 /*yield*/, HorizonAxiosClient.get(URI(this.serverURL).toString())];
+                    case 1:
+                        // otherwise, retry (by calling the root endpoint)
+                        // toString automatically adds the trailing slash
+                        _a.sent();
+                        return [4 /*yield*/, this.fetchTimebounds(seconds, true)];
+                    case 2: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    /**
+     * Fetch the base fee. Since this hits the server, if the server call fails,
+     * you might get an error. You should be prepared to use a default value if
+     * that happens!
+     * @returns {Promise&lt;number>} Promise that resolves to the base fee.
+     */
+    Server.prototype.fetchBaseFee = function () {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var response;
+            return tslib_1.__generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.ledgers()
+                            .order("desc")
+                            .limit(1)
+                            .call()];
+                    case 1:
+                        response = _a.sent();
+                        if (response &amp;&amp; response.records &amp;&amp; response.records[0]) {
+                            return [2 /*return*/, response.records[0].base_fee_in_stroops || 100];
+                        }
+                        return [2 /*return*/, 100];
+                }
+            });
+        });
+    };
+    /**
+     * Fetch the operation fee stats endpoint.
+     * @see [Operation Fee Stats](https://www.stellar.org/developers/horizon/reference/endpoints/fee-stats.html)
+     * @returns {Promise} Promise that resolves to the fee stats returned by Horizon.
+     */
+    Server.prototype.operationFeeStats = function () {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var cb;
+            return tslib_1.__generator(this, function (_a) {
+                cb = new CallBuilder(this.serverURL);
+                cb.filter.push(["operation_fee_stats"]);
+                return [2 /*return*/, cb.call()];
+            });
+        });
+    };
+    /**
+     * Submits a transaction to the network.
+     *
+     * If you submit any number of `manageOffer` operations, this will add
+     * an attribute to the response that will help you analyze what happened
+     * with your offers.
+     *
+     * Ex:
+     * ```javascript
+     * const res = {
+     *   ...response,
+     *   offerResults: [
+     *     {
+     *       // Exact ordered list of offers that executed, with the exception
+     *       // that the last one may not have executed entirely.
+     *       offersClaimed: [
+     *         sellerId: String,
+     *         offerId: String,
+     *         assetSold: {
+     *           type: 'native|credit_alphanum4|credit_alphanum12',
+     *
+     *           // these are only present if the asset is not native
+     *           assetCode: String,
+     *           issuer: String,
+     *         },
+     *
+     *         // same shape as assetSold
+     *         assetBought: {}
+     *       ],
+     *
+     *       // What effect your manageOffer op had
+     *       effect: "manageOfferCreated|manageOfferUpdated|manageOfferDeleted",
+     *
+     *       // Whether your offer immediately got matched and filled
+     *       wasImmediatelyFilled: Boolean,
+     *
+     *       // Whether your offer immediately got deleted, if for example the order was too small
+     *       wasImmediatelyDeleted: Boolean,
+     *
+     *       // Whether the offer was partially, but not completely, filled
+     *       wasPartiallyFilled: Boolean,
+     *
+     *       // The full requested amount of the offer is open for matching
+     *       isFullyOpen: Boolean,
+     *
+     *       // The total amount of tokens bought / sold during transaction execution
+     *       amountBought: Number,
+     *       amountSold: Number,
+     *
+     *       // if the offer was created, updated, or partially filled, this is
+     *       // the outstanding offer
+     *       currentOffer: {
+     *         offerId: String,
+     *         amount: String,
+     *         price: {
+     *           n: String,
+     *           d: String,
+     *         },
+     *
+     *         selling: {
+     *           type: 'native|credit_alphanum4|credit_alphanum12',
+     *
+     *           // these are only present if the asset is not native
+     *           assetCode: String,
+     *           issuer: String,
+     *         },
+     *
+     *         // same as `selling`
+     *         buying: {},
+     *       },
+     *
+     *       // the index of this particular operation in the op stack
+     *       operationIndex: Number
+     *     }
+     *   ]
+     * }
+     * ```
+     *
+     * For example, you'll want to examine `offerResults` to add affordances
+     * like these to your app:
+     * * If `wasImmediatelyFilled` is true, then no offer was created. So if you
+     * normally watch the `Server.offers` endpoint for offer updates, you instead
+     * need to check `Server.trades` to find the result of this filled offer.
+     * * If `wasImmediatelyDeleted` is true, then the offer you submitted was
+     * deleted without reaching the orderbook or being matched (possibly because
+     * your amounts were rounded down to zero). So treat the just-submitted offer
+     * request as if it never happened.
+     * * If `wasPartiallyFilled` is true, you can tell the user that `amountBought`
+     * or `amountSold` have already been transferred.
+     *
+     * @see [Post Transaction](https://www.stellar.org/developers/horizon/reference/endpoints/transactions-create.html)
+     * @param {Transaction} transaction - The transaction to submit.
+     * @returns {Promise} Promise that resolves or rejects with response from horizon.
+     */
+    Server.prototype.submitTransaction = function (transaction) {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var tx;
+            return tslib_1.__generator(this, function (_a) {
+                tx = encodeURIComponent(transaction
+                    .toEnvelope()
+                    .toXDR()
+                    .toString("base64"));
+                return [2 /*return*/, HorizonAxiosClient.post(URI(this.serverURL)
+                        .segment("transactions")
+                        .toString(), "tx=" + tx, { timeout: SUBMIT_TRANSACTION_TIMEOUT })
+                        .then(function (response) {
+                        if (!response.data.result_xdr) {
+                            return response.data;
+                        }
+                        // TODO: fix stellar-base types.
+                        var responseXDR = xdr.TransactionResult
+                            .fromXDR(response.data.result_xdr, "base64");
+                        // TODO: fix stellar-base types.
+                        var results = responseXDR.result().value();
+                        var offerResults;
+                        var hasManageOffer;
+                        if (results.length) {
+                            offerResults = results
+                                // TODO: fix stellar-base types.
+                                .map(function (result, i) {
+                                if (result.value().switch().name !== "manageBuyOffer" &amp;&amp;
+                                    result.value().switch().name !== "manageSellOffer") {
+                                    return null;
+                                }
+                                hasManageOffer = true;
+                                var amountBought = new BigNumber(0);
+                                var amountSold = new BigNumber(0);
+                                var offerSuccess = result
+                                    .value()
+                                    .value()
+                                    .success();
+                                var offersClaimed = offerSuccess
+                                    .offersClaimed()
+                                    // TODO: fix stellar-base types.
+                                    .map(function (offerClaimed) {
+                                    var claimedOfferAmountBought = new BigNumber(
+                                    // amountBought is a js-xdr hyper
+                                    offerClaimed.amountBought().toString());
+                                    var claimedOfferAmountSold = new BigNumber(
+                                    // amountBought is a js-xdr hyper
+                                    offerClaimed.amountSold().toString());
+                                    // This is an offer that was filled by the one just submitted.
+                                    // So this offer has an _opposite_ bought/sold frame of ref
+                                    // than from what we just submitted!
+                                    // So add this claimed offer's bought to the SOLD count and vice v
+                                    amountBought = amountBought.add(claimedOfferAmountSold);
+                                    amountSold = amountSold.add(claimedOfferAmountBought);
+                                    var sold = Asset.fromOperation(offerClaimed.assetSold());
+                                    var bought = Asset.fromOperation(offerClaimed.assetBought());
+                                    var assetSold = {
+                                        type: sold.getAssetType(),
+                                        assetCode: sold.getCode(),
+                                        issuer: sold.getIssuer(),
+                                    };
+                                    var assetBought = {
+                                        type: bought.getAssetType(),
+                                        assetCode: bought.getCode(),
+                                        issuer: bought.getIssuer(),
+                                    };
+                                    return {
+                                        sellerId: StrKey.encodeEd25519PublicKey(offerClaimed.sellerId().ed25519()),
+                                        offerId: offerClaimed.offerId().toString(),
+                                        assetSold: assetSold,
+                                        amountSold: _getAmountInLumens(claimedOfferAmountSold),
+                                        assetBought: assetBought,
+                                        amountBought: _getAmountInLumens(claimedOfferAmountBought),
+                                    };
+                                });
+                                var effect = offerSuccess.offer().switch().name;
+                                var currentOffer;
+                                if (typeof offerSuccess.offer().value === "function" &amp;&amp;
+                                    offerSuccess.offer().value()) {
+                                    var offerXDR = offerSuccess.offer().value();
+                                    currentOffer = {
+                                        offerId: offerXDR.offerId().toString(),
+                                        selling: {},
+                                        buying: {},
+                                        amount: _getAmountInLumens(offerXDR.amount().toString()),
+                                        price: {
+                                            n: offerXDR.price().n(),
+                                            d: offerXDR.price().d(),
+                                        },
+                                    };
+                                    var selling = Asset.fromOperation(offerXDR.selling());
+                                    currentOffer.selling = {
+                                        type: selling.getAssetType(),
+                                        assetCode: selling.getCode(),
+                                        issuer: selling.getIssuer(),
+                                    };
+                                    var buying = Asset.fromOperation(offerXDR.buying());
+                                    currentOffer.buying = {
+                                        type: buying.getAssetType(),
+                                        assetCode: buying.getCode(),
+                                        issuer: buying.getIssuer(),
+                                    };
+                                }
+                                return {
+                                    offersClaimed: offersClaimed,
+                                    effect: effect,
+                                    operationIndex: i,
+                                    currentOffer: currentOffer,
+                                    // this value is in stroops so divide it out
+                                    amountBought: _getAmountInLumens(amountBought),
+                                    amountSold: _getAmountInLumens(amountSold),
+                                    isFullyOpen: !offersClaimed.length &amp;&amp; effect !== "manageOfferDeleted",
+                                    wasPartiallyFilled: !!offersClaimed.length &amp;&amp; effect !== "manageOfferDeleted",
+                                    wasImmediatelyFilled: !!offersClaimed.length &amp;&amp; effect === "manageOfferDeleted",
+                                    wasImmediatelyDeleted: !offersClaimed.length &amp;&amp; effect === "manageOfferDeleted",
+                                };
+                            })
+                                // TODO: fix stellar-base types.
+                                .filter(function (result) { return !!result; });
+                        }
+                        return Object.assign({}, response.data, {
+                            offerResults: hasManageOffer ? offerResults : undefined,
+                        });
+                    })
+                        .catch(function (response) {
+                        if (response instanceof Error) {
+                            return Promise.reject(response);
+                        }
+                        return Promise.reject(new BadResponseError("Transaction submission failed. Server responded: " + response.status + " " + response.statusText, response.data));
+                    })];
+            });
+        });
+    };
+    /**
+     * @returns {AccountCallBuilder} New {@link AccountCallBuilder} object configured by a current Horizon server configuration.
+     */
+    Server.prototype.accounts = function () {
+        return new AccountCallBuilder(URI(this.serverURL));
+    };
+    /**
+     * @returns {LedgerCallBuilder} New {@link LedgerCallBuilder} object configured by a current Horizon server configuration.
+     */
+    Server.prototype.ledgers = function () {
+        return new LedgerCallBuilder(URI(this.serverURL));
+    };
+    /**
+     * @returns {TransactionCallBuilder} New {@link TransactionCallBuilder} object configured by a current Horizon server configuration.
+     */
+    Server.prototype.transactions = function () {
+        return new TransactionCallBuilder(URI(this.serverURL));
+    };
+    /**
+     * People on the Stellar network can make offers to buy or sell assets. This endpoint represents all the offers a particular account makes.
+     * Currently this method only supports querying offers for account and should be used like this:
+     * ```
+     * server.offers('accounts', accountId).call()
+     *  .then(function(offers) {
+     *    console.log(offers);
+     *  });
+     * ```
+     * @param {string} resource Resource to query offers
+     * @param {...string} resourceParams Parameters for selected resource
+     * @returns {OfferCallBuilder} New {@link OfferCallBuilder} object
+     */
+    Server.prototype.offers = function (resource) {
+        var resourceParams = [];
+        for (var _i = 1; _i &lt; arguments.length; _i++) {
+            resourceParams[_i - 1] = arguments[_i];
+        }
+        return new (OfferCallBuilder.bind.apply(OfferCallBuilder, [void 0, this.serverURL, resource].concat(resourceParams)))();
+    };
+    /**
+     * @param {Asset} selling Asset being sold
+     * @param {Asset} buying Asset being bought
+     * @returns {OrderbookCallBuilder} New {@link OrderbookCallBuilder} object configured by a current Horizon server configuration.
+     */
+    Server.prototype.orderbook = function (selling, buying) {
+        return new OrderbookCallBuilder(URI(this.serverURL), selling, buying);
+    };
+    /**
+     * Returns
+     * @returns {TradesCallBuilder} New {@link TradesCallBuilder} object configured by a current Horizon server configuration.
+     */
+    Server.prototype.trades = function () {
+        return new TradesCallBuilder(URI(this.serverURL));
+    };
+    /**
+     * @returns {OperationCallBuilder} New {@link OperationCallBuilder} object configured by a current Horizon server configuration.
+     */
+    Server.prototype.operations = function () {
+        return new OperationCallBuilder(URI(this.serverURL));
+    };
+    /**
+     * The Stellar Network allows payments to be made between assets through path payments. A path payment specifies a
+     * series of assets to route a payment through, from source asset (the asset debited from the payer) to destination
+     * asset (the asset credited to the payee).
+     *
+     * A path search is specified using:
+     *
+     * * The destination address
+     * * The source address
+     * * The asset and amount that the destination account should receive
+     *
+     * As part of the search, horizon will load a list of assets available to the source address and will find any
+     * payment paths from those source assets to the desired destination asset. The search's amount parameter will be
+     * used to determine if there a given path can satisfy a payment of the desired amount.
+     *
+     * @param {string} source The sender's account ID. Any returned path will use a source that the sender can hold.
+     * @param {string} destination The destination account ID that any returned path should use.
+     * @param {Asset} destinationAsset The destination asset.
+     * @param {string} destinationAmount The amount, denominated in the destination asset, that any returned path should be able to satisfy.
+     * @returns {PathCallBuilder} New {@link PathCallBuilder} object configured with the current Horizon server configuration.
+     */
+    Server.prototype.paths = function (source, destination, destinationAsset, destinationAmount) {
+        return new PathCallBuilder(this.serverURL, source, destination, destinationAsset, destinationAmount);
+    };
+    /**
+     * @returns {PaymentCallBuilder} New {@link PaymentCallBuilder} instance configured with the current
+     * Horizon server configuration.
+     */
+    Server.prototype.payments = function () {
+        return new PaymentCallBuilder(URI(this.serverURL));
+    };
+    /**
+     * @returns {EffectCallBuilder} New {@link EffectCallBuilder} instance configured with the current
+     * Horizon server configuration
+     */
+    Server.prototype.effects = function () {
+        return new EffectCallBuilder(URI(this.serverURL));
+    };
+    /**
+     * @param {string} address The Stellar ID that you want Friendbot to send lumens to
+     * @returns {FriendbotBuilder} New {@link FriendbotBuilder} instance configured with the current
+     * Horizon server configuration
+     * @private
+     */
+    Server.prototype.friendbot = function (address) {
+        return new FriendbotBuilder(URI(this.serverURL), address);
+    };
+    /**
+     * Get a new {@link AssetsCallBuilder} instance configured with the current
+     * Horizon server configuration.
+     * @returns {AssetsCallBuilder} New AssetsCallBuilder instance
+     */
+    Server.prototype.assets = function () {
+        return new AssetsCallBuilder(URI(this.serverURL));
+    };
+    /**
+     * Fetches an account's most current state in the ledger and then creates and returns an {@link Account} object.
+     * @param {string} accountId - The account to load.
+     * @returns {Promise} Returns a promise to the {@link AccountResponse} object with populated sequence number.
+     */
+    Server.prototype.loadAccount = function (accountId) {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var res;
+            return tslib_1.__generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.accounts()
+                            .accountId(accountId)
+                            .call()];
+                    case 1:
+                        res = _a.sent();
+                        return [2 /*return*/, new AccountResponse(res)];
+                }
+            });
+        });
+    };
+    /**
+     *
+     * @param {Asset} base base asset
+     * @param {Asset} counter counter asset
+     * @param {long} start_time lower time boundary represented as millis since epoch
+     * @param {long} end_time upper time boundary represented as millis since epoch
+     * @param {long} resolution segment duration as millis since epoch. *Supported values are 5 minutes (300000), 15 minutes (900000), 1 hour (3600000), 1 day (86400000) and 1 week (604800000).
+     * @param {long} offset segments can be offset using this parameter. Expressed in milliseconds. *Can only be used if the resolution is greater than 1 hour. Value must be in whole hours, less than the provided resolution, and less than 24 hours.
+     * Returns new {@link TradeAggregationCallBuilder} object configured with the current Horizon server configuration.
+     * @returns {TradeAggregationCallBuilder} New TradeAggregationCallBuilder instance
+     */
+    Server.prototype.tradeAggregation = function (base, counter, start_time, end_time, resolution, offset) {
+        return new TradeAggregationCallBuilder(this.serverURL, base, counter, start_time, end_time, resolution, offset);
+    };
+    return Server;
+}());
+export { Server };
+//# sourceMappingURL=server.js.map</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Thu Jun 13 2019 21:47:39 GMT+0000 (UTC) using the Minami theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>

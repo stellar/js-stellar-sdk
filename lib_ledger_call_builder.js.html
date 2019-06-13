@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>node_modules/stellar-base/src/operations/inflation.js - Documentation</title>
+    <title>lib/ledger_call_builder.js - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -29,7 +29,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">node_modules/stellar-base/src/operations/inflation.js</h1>
+    <h1 class="page-title">lib/ledger_call_builder.js</h1>
     
 
     
@@ -39,23 +39,38 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import xdr from '../generated/stellar-xdr_generated';
-
+            <pre class="prettyprint source linenums"><code>import * as tslib_1 from "tslib";
+import { CallBuilder } from "./call_builder";
 /**
- * This operation generates the inflation.
- * @function
- * @alias Operation.inflation
- * @param {object} [opts] Options object
- * @param {string} [opts.source] - The optional source account.
- * @returns {xdr.InflationOp} Inflation operation
+ * Creates a new {@link LedgerCallBuilder} pointed to server defined by serverUrl.
+ * Do not create this object directly, use {@link Server#ledgers}.
+ *
+ * @see [All Ledgers](https://www.stellar.org/developers/horizon/reference/endpoints/ledgers-all.html)
+ * @constructor
+ * @class LedgerCallBuilder
+ * @extends CallBuilder
+ * @param {string} serverUrl Horizon server URL.
  */
-export function inflation(opts = {}) {
-  const opAttributes = {};
-  opAttributes.body = xdr.OperationBody.inflation();
-  this.setSourceAccount(opAttributes, opts);
-  return new xdr.Operation(opAttributes);
-}
-</code></pre>
+var LedgerCallBuilder = /** @class */ (function (_super) {
+    tslib_1.__extends(LedgerCallBuilder, _super);
+    function LedgerCallBuilder(serverUrl) {
+        var _this = _super.call(this, serverUrl) || this;
+        _this.url.segment("ledgers");
+        return _this;
+    }
+    /**
+     * Provides information on a single ledger.
+     * @param {number|string} sequence Ledger sequence
+     * @returns {LedgerCallBuilder} current LedgerCallBuilder instance
+     */
+    LedgerCallBuilder.prototype.ledger = function (sequence) {
+        this.filter.push(["ledgers", sequence.toString()]);
+        return this;
+    };
+    return LedgerCallBuilder;
+}(CallBuilder));
+export { LedgerCallBuilder };
+//# sourceMappingURL=ledger_call_builder.js.map</code></pre>
         </article>
     </section>
 

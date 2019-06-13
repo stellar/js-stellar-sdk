@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>node_modules/stellar-base/src/operations/inflation.js - Documentation</title>
+    <title>lib/assets_call_builder.js - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -29,7 +29,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">node_modules/stellar-base/src/operations/inflation.js</h1>
+    <h1 class="page-title">lib/assets_call_builder.js</h1>
     
 
     
@@ -39,23 +39,46 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import xdr from '../generated/stellar-xdr_generated';
-
+            <pre class="prettyprint source linenums"><code>import * as tslib_1 from "tslib";
+import { CallBuilder } from "./call_builder";
 /**
- * This operation generates the inflation.
- * @function
- * @alias Operation.inflation
- * @param {object} [opts] Options object
- * @param {string} [opts.source] - The optional source account.
- * @returns {xdr.InflationOp} Inflation operation
+ * Creates a new {@link AssetsCallBuilder} pointed to server defined by serverUrl.
+ *
+ * Do not create this object directly, use {@link Server#assets}.
+ * @class AssetsCallBuilder
+ * @constructor
+ * @extends CallBuilder
+ * @param {string} serverUrl Horizon server URL.
  */
-export function inflation(opts = {}) {
-  const opAttributes = {};
-  opAttributes.body = xdr.OperationBody.inflation();
-  this.setSourceAccount(opAttributes, opts);
-  return new xdr.Operation(opAttributes);
-}
-</code></pre>
+var AssetsCallBuilder = /** @class */ (function (_super) {
+    tslib_1.__extends(AssetsCallBuilder, _super);
+    function AssetsCallBuilder(serverUrl) {
+        var _this = _super.call(this, serverUrl) || this;
+        _this.url.segment("assets");
+        return _this;
+    }
+    /**
+     * This endpoint filters all assets by the asset code.
+     * @param {string} value For example: `USD`
+     * @returns {AssetsCallBuilder} current AssetCallBuilder instance
+     */
+    AssetsCallBuilder.prototype.forCode = function (value) {
+        this.url.setQuery("asset_code", value);
+        return this;
+    };
+    /**
+     * This endpoint filters all assets by the asset issuer.
+     * @param {string} value For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
+     * @returns {AssetsCallBuilder} current AssetCallBuilder instance
+     */
+    AssetsCallBuilder.prototype.forIssuer = function (value) {
+        this.url.setQuery("asset_issuer", value);
+        return this;
+    };
+    return AssetsCallBuilder;
+}(CallBuilder));
+export { AssetsCallBuilder };
+//# sourceMappingURL=assets_call_builder.js.map</code></pre>
         </article>
     </section>
 

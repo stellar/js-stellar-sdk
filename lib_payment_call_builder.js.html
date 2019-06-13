@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>node_modules/stellar-base/src/operations/inflation.js - Documentation</title>
+    <title>lib/payment_call_builder.js - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -29,7 +29,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">node_modules/stellar-base/src/operations/inflation.js</h1>
+    <h1 class="page-title">lib/payment_call_builder.js</h1>
     
 
     
@@ -39,23 +39,62 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import xdr from '../generated/stellar-xdr_generated';
-
+            <pre class="prettyprint source linenums"><code>import * as tslib_1 from "tslib";
+import { CallBuilder } from "./call_builder";
 /**
- * This operation generates the inflation.
- * @function
- * @alias Operation.inflation
- * @param {object} [opts] Options object
- * @param {string} [opts.source] - The optional source account.
- * @returns {xdr.InflationOp} Inflation operation
+ * Creates a new {@link PaymentCallBuilder} pointed to server defined by serverUrl.
+ *
+ * Do not create this object directly, use {@link Server#payments}.
+ * @see [All Payments](https://www.stellar.org/developers/horizon/reference/endpoints/payments-all.html)
+ * @constructor
+ * @extends CallBuilder
+ * @param {string} serverUrl Horizon server URL.
  */
-export function inflation(opts = {}) {
-  const opAttributes = {};
-  opAttributes.body = xdr.OperationBody.inflation();
-  this.setSourceAccount(opAttributes, opts);
-  return new xdr.Operation(opAttributes);
-}
-</code></pre>
+var PaymentCallBuilder = /** @class */ (function (_super) {
+    tslib_1.__extends(PaymentCallBuilder, _super);
+    function PaymentCallBuilder(serverUrl) {
+        var _this = _super.call(this, serverUrl) || this;
+        _this.url.segment("payments");
+        return _this;
+    }
+    /**
+     * This endpoint responds with a collection of Payment operations where the given account was either the sender or receiver.
+     * @see [Payments for Account](https://www.stellar.org/developers/horizon/reference/endpoints/payments-for-account.html)
+     * @param {string} accountId For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
+     * @returns {PaymentCallBuilder} this PaymentCallBuilder instance
+     */
+    PaymentCallBuilder.prototype.forAccount = function (accountId) {
+        this.filter.push(["accounts", accountId, "payments"]);
+        return this;
+    };
+    /**
+     * This endpoint represents all payment operations that are part of a valid transactions in a given ledger.
+     * @see [Payments for Ledger](https://www.stellar.org/developers/horizon/reference/endpoints/payments-for-ledger.html)
+     * @param {number|string} sequence Ledger sequence
+     * @returns {PaymentCallBuilder} this PaymentCallBuilder instance
+     */
+    PaymentCallBuilder.prototype.forLedger = function (sequence) {
+        this.filter.push([
+            "ledgers",
+            typeof sequence === "number" ? sequence.toString() : sequence,
+            "payments",
+        ]);
+        return this;
+    };
+    /**
+     * This endpoint represents all payment operations that are part of a given transaction.
+     * @see [Payments for Transaction](https://www.stellar.org/developers/horizon/reference/endpoints/payments-for-transaction.html)
+     * @param {string} transactionId Transaction ID
+     * @returns {PaymentCallBuilder} this PaymentCallBuilder instance
+     */
+    PaymentCallBuilder.prototype.forTransaction = function (transactionId) {
+        this.filter.push(["transactions", transactionId, "payments"]);
+        return this;
+    };
+    return PaymentCallBuilder;
+}(CallBuilder));
+export { PaymentCallBuilder };
+//# sourceMappingURL=payment_call_builder.js.map</code></pre>
         </article>
     </section>
 

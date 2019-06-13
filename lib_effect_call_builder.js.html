@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>node_modules/stellar-base/src/operations/inflation.js - Documentation</title>
+    <title>lib/effect_call_builder.js - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -29,7 +29,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">node_modules/stellar-base/src/operations/inflation.js</h1>
+    <h1 class="page-title">lib/effect_call_builder.js</h1>
     
 
     
@@ -39,23 +39,75 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import xdr from '../generated/stellar-xdr_generated';
-
+            <pre class="prettyprint source linenums"><code>import * as tslib_1 from "tslib";
+import { CallBuilder } from "./call_builder";
 /**
- * This operation generates the inflation.
- * @function
- * @alias Operation.inflation
- * @param {object} [opts] Options object
- * @param {string} [opts.source] - The optional source account.
- * @returns {xdr.InflationOp} Inflation operation
+ * Creates a new {@link EffectCallBuilder} pointed to server defined by serverUrl.
+ * Do not create this object directly, use {@link Server#effects}.
+ *
+ * @class EffectCallBuilder
+ * @extends CallBuilder
+ * @see [All Effects](https://www.stellar.org/developers/horizon/reference/endpoints/effects-all.html)
+ * @constructor
+ * @param {string} serverUrl Horizon server URL.
  */
-export function inflation(opts = {}) {
-  const opAttributes = {};
-  opAttributes.body = xdr.OperationBody.inflation();
-  this.setSourceAccount(opAttributes, opts);
-  return new xdr.Operation(opAttributes);
-}
-</code></pre>
+var EffectCallBuilder = /** @class */ (function (_super) {
+    tslib_1.__extends(EffectCallBuilder, _super);
+    function EffectCallBuilder(serverUrl) {
+        var _this = _super.call(this, serverUrl) || this;
+        _this.url.segment("effects");
+        return _this;
+    }
+    /**
+     * This endpoint represents all effects that changed a given account. It will return relevant effects from the creation of the account to the current ledger.
+     * @see [Effects for Account](https://www.stellar.org/developers/horizon/reference/endpoints/effects-for-account.html)
+     * @param {string} accountId For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
+     * @returns {EffectCallBuilder} this EffectCallBuilder instance
+     */
+    EffectCallBuilder.prototype.forAccount = function (accountId) {
+        this.filter.push(["accounts", accountId, "effects"]);
+        return this;
+    };
+    /**
+     * Effects are the specific ways that the ledger was changed by any operation.
+     *
+     * This endpoint represents all effects that occurred in the given ledger.
+     * @see [Effects for Ledger](https://www.stellar.org/developers/horizon/reference/endpoints/effects-for-ledger.html)
+     * @param {number|string} sequence Ledger sequence
+     * @returns {EffectCallBuilder} this EffectCallBuilder instance
+     */
+    EffectCallBuilder.prototype.forLedger = function (sequence) {
+        this.filter.push([
+            "ledgers",
+            typeof sequence === "number" ? sequence.toString() : sequence,
+            "effects",
+        ]);
+        return this;
+    };
+    /**
+     * This endpoint represents all effects that occurred as a result of a given transaction.
+     * @see [Effects for Transaction](https://www.stellar.org/developers/horizon/reference/endpoints/effects-for-transaction.html)
+     * @param {string} transactionId Transaction ID
+     * @returns {EffectCallBuilder} this EffectCallBuilder instance
+     */
+    EffectCallBuilder.prototype.forTransaction = function (transactionId) {
+        this.filter.push(["transactions", transactionId, "effects"]);
+        return this;
+    };
+    /**
+     * This endpoint represents all effects that occurred as a result of a given operation.
+     * @see [Effects for Operation](https://www.stellar.org/developers/horizon/reference/endpoints/effects-for-operation.html)
+     * @param {number} operationId Operation ID
+     * @returns {EffectCallBuilder} this EffectCallBuilder instance
+     */
+    EffectCallBuilder.prototype.forOperation = function (operationId) {
+        this.filter.push(["operations", operationId, "effects"]);
+        return this;
+    };
+    return EffectCallBuilder;
+}(CallBuilder));
+export { EffectCallBuilder };
+//# sourceMappingURL=effect_call_builder.js.map</code></pre>
         </article>
     </section>
 

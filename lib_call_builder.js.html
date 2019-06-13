@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>node_modules/stellar-base/src/operations/inflation.js - Documentation</title>
+    <title>lib/call_builder.js - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -29,7 +29,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">node_modules/stellar-base/src/operations/inflation.js</h1>
+    <h1 class="page-title">lib/call_builder.js</h1>
     
 
     
@@ -39,23 +39,320 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import xdr from '../generated/stellar-xdr_generated';
-
-/**
- * This operation generates the inflation.
- * @function
- * @alias Operation.inflation
- * @param {object} [opts] Options object
- * @param {string} [opts.source] - The optional source account.
- * @returns {xdr.InflationOp} Inflation operation
- */
-export function inflation(opts = {}) {
-  const opAttributes = {};
-  opAttributes.body = xdr.OperationBody.inflation();
-  this.setSourceAccount(opAttributes, opts);
-  return new xdr.Operation(opAttributes);
+            <pre class="prettyprint source linenums"><code>import * as tslib_1 from "tslib";
+import isNode from "detect-node";
+import URI from "urijs";
+import URITemplate from "urijs/src/URITemplate";
+import { version } from "../package.json";
+import { BadRequestError, NetworkError, NotFoundError } from "./errors";
+import HorizonAxiosClient from "./horizon_axios_client";
+var EventSource;
+if (isNode) {
+    /* tslint:disable-next-line:no-var-requires */
+    EventSource = require("eventsource");
 }
-</code></pre>
+else {
+    /* tslint:disable-next-line:variable-name */
+    EventSource = window.EventSource;
+}
+/**
+ * Creates a new {@link CallBuilder} pointed to server defined by serverUrl.
+ *
+ * This is an **abstract** class. Do not create this object directly, use {@link Server} class.
+ * @param {string} serverUrl URL of Horizon server
+ * @class CallBuilder
+ */
+var CallBuilder = /** @class */ (function () {
+    function CallBuilder(serverUrl) {
+        this.url = serverUrl;
+        this.filter = [];
+        this.originalSegments = this.url.segment() || [];
+    }
+    /**
+     * Triggers a HTTP request using this builder's current configuration.
+     * @returns {Promise} a Promise that resolves to the server's response.
+     */
+    CallBuilder.prototype.call = function () {
+        var _this = this;
+        this.checkFilter();
+        return this._sendNormalRequest(this.url).then(function (r) {
+            return _this._parseResponse(r);
+        });
+    };
+    //// TODO: Migrate to async, BUT that's a change in behavior and tests "rejects two filters" will fail.
+    //// It's because async will check within promise, which makes more sense when using awaits instead of Promises.
+    // public async call(): Promise&lt;T> {
+    //   this.checkFilter();
+    //   const r = await this._sendNormalRequest(this.url);
+    //   return this._parseResponse(r);
+    // }
+    //// /* actually equals */
+    //// public call(): Promise&lt;T> {
+    ////   return Promise.resolve().then(() => {
+    ////     this.checkFilter();
+    ////     return this._sendNormalRequest(this.url)
+    ////   }).then((r) => {
+    ////     this._parseResponse(r)
+    ////   });
+    //// }
+    /**
+     * Creates an EventSource that listens for incoming messages from the server. To stop listening for new
+     * events call the function returned by this method.
+     * @see [Horizon Response Format](https://www.stellar.org/developers/horizon/reference/responses.html)
+     * @see [MDN EventSource](https://developer.mozilla.org/en-US/docs/Web/API/EventSource)
+     * @param {object} [options] EventSource options.
+     * @param {function} [options.onmessage] Callback function to handle incoming messages.
+     * @param {function} [options.onerror] Callback function to handle errors.
+     * @param {number} [options.reconnectTimeout] Custom stream connection timeout in ms, default is 15 seconds.
+     * @returns {function} Close function. Run to close the connection and stop listening for new events.
+     */
+    CallBuilder.prototype.stream = function (options) {
+        var _this = this;
+        if (options === void 0) { options = {}; }
+        this.checkFilter();
+        this.url.setQuery("X-Client-Name", "js-stellar-sdk");
+        this.url.setQuery("X-Client-Version", version);
+        // EventSource object
+        var es;
+        // timeout is the id of the timeout to be triggered if there were no new messages
+        // in the last 15 seconds. The timeout is reset when a new message arrive.
+        // It prevents closing EventSource object in case of 504 errors as `readyState`
+        // property is not reliable.
+        var timeout;
+        var createTimeout = function () {
+            timeout = setTimeout(function () {
+                es.close();
+                /* tslint:disable-next-line:no-use-before-declare */
+                es = createEventSource();
+            }, options.reconnectTimeout || 15 * 1000);
+        };
+        var createEventSource = function () {
+            try {
+                es = new EventSource(_this.url.toString());
+            }
+            catch (err) {
+                if (options.onerror) {
+                    options.onerror(err);
+                }
+            }
+            createTimeout();
+            es.onmessage = function (message) {
+                var result = message.data
+                    ? _this._parseRecord(JSON.parse(message.data))
+                    : message;
+                if (result.paging_token) {
+                    _this.url.setQuery("cursor", result.paging_token);
+                }
+                clearTimeout(timeout);
+                createTimeout();
+                if (typeof options.onmessage !== "undefined") {
+                    options.onmessage(result);
+                }
+            };
+            es.onerror = function (error) {
+                if (options.onerror &amp;&amp; error instanceof MessageEvent) {
+                    options.onerror(error);
+                }
+            };
+            return es;
+        };
+        createEventSource();
+        return function close() {
+            clearTimeout(timeout);
+            es.close();
+        };
+    };
+    /**
+     * Sets `cursor` parameter for the current call. Returns the CallBuilder object on which this method has been called.
+     * @see [Paging](https://www.stellar.org/developers/horizon/reference/paging.html)
+     * @param {string} cursor A cursor is a value that points to a specific location in a collection of resources.
+     * @returns {object} current CallBuilder instance
+     */
+    CallBuilder.prototype.cursor = function (cursor) {
+        this.url.setQuery("cursor", cursor);
+        return this;
+    };
+    /**
+     * Sets `limit` parameter for the current call. Returns the CallBuilder object on which this method has been called.
+     * @see [Paging](https://www.stellar.org/developers/horizon/reference/paging.html)
+     * @param {number} number Number of records the server should return.
+     * @returns {object} current CallBuilder instance
+     */
+    CallBuilder.prototype.limit = function (recordsNumber) {
+        this.url.setQuery("limit", recordsNumber.toString());
+        return this;
+    };
+    /**
+     * Sets `order` parameter for the current call. Returns the CallBuilder object on which this method has been called.
+     * @param {"asc"|"desc"} direction Sort direction
+     * @returns {object} current CallBuilder instance
+     */
+    CallBuilder.prototype.order = function (direction) {
+        this.url.setQuery("order", direction);
+        return this;
+    };
+    /**
+     * @private
+     * @returns {void}
+     */
+    CallBuilder.prototype.checkFilter = function () {
+        if (this.filter.length >= 2) {
+            throw new BadRequestError("Too many filters specified", this.filter);
+        }
+        if (this.filter.length === 1) {
+            // append filters to original segments
+            var newSegment = this.originalSegments.concat(this.filter[0]);
+            this.url.segment(newSegment);
+        }
+    };
+    /**
+     * Convert a link object to a function that fetches that link.
+     * @private
+     * @param {object} link A link object
+     * @param {bool} link.href the URI of the link
+     * @param {bool} [link.templated] Whether the link is templated
+     * @returns {function} A function that requests the link
+     */
+    CallBuilder.prototype._requestFnForLink = function (link) {
+        var _this = this;
+        return function (opts) {
+            if (opts === void 0) { opts = {}; }
+            return tslib_1.__awaiter(_this, void 0, void 0, function () {
+                var uri, template, r;
+                return tslib_1.__generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0:
+                            if (link.templated) {
+                                template = URITemplate(link.href);
+                                uri = URI(template.expand(opts)); // TODO: fix upstream types.
+                            }
+                            else {
+                                uri = URI(link.href);
+                            }
+                            return [4 /*yield*/, this._sendNormalRequest(uri)];
+                        case 1:
+                            r = _a.sent();
+                            return [2 /*return*/, this._parseResponse(r)];
+                    }
+                });
+            });
+        };
+    };
+    /**
+     * Given the json response, find and convert each link into a function that
+     * calls that link.
+     * @private
+     * @param {object} json JSON response
+     * @returns {object} JSON response with string links replaced with functions
+     */
+    CallBuilder.prototype._parseRecord = function (json) {
+        if (!json._links) {
+            return json;
+        }
+        for (var _i = 0, _a = Object.keys(json._links); _i &lt; _a.length; _i++) {
+            var key = _a[_i];
+            var n = json._links[key];
+            // If the key with the link name already exists, create a copy
+            if (typeof json[key] !== "undefined") {
+                json[key + "_attr"] = json[key];
+            }
+            json[key] = this._requestFnForLink(n);
+        }
+        return json;
+    };
+    CallBuilder.prototype._sendNormalRequest = function (initialUrl) {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var url;
+            return tslib_1.__generator(this, function (_a) {
+                url = initialUrl;
+                if (url.authority() === "") {
+                    url = url.authority(this.url.authority());
+                }
+                if (url.protocol() === "") {
+                    url = url.protocol(this.url.protocol());
+                }
+                // Temp fix for: https://github.com/stellar/js-stellar-sdk/issues/15
+                url.setQuery("c", String(Math.random()));
+                return [2 /*return*/, HorizonAxiosClient.get(url.toString())
+                        .then(function (response) { return response.data; })
+                        .catch(this._handleNetworkError)];
+            });
+        });
+    };
+    /**
+     * @private
+     * @param {object} json Response object
+     * @returns {object} Extended response
+     */
+    CallBuilder.prototype._parseResponse = function (json) {
+        if (json._embedded &amp;&amp; json._embedded.records) {
+            return this._toCollectionPage(json);
+        }
+        return this._parseRecord(json);
+    };
+    /**
+     * @private
+     * @param {object} json Response object
+     * @returns {object} Extended response object
+     */
+    CallBuilder.prototype._toCollectionPage = function (json) {
+        var _this = this;
+        for (var i = 0; i &lt; json._embedded.records.length; i += 1) {
+            json._embedded.records[i] = this._parseRecord(json._embedded.records[i]);
+        }
+        return {
+            records: json._embedded.records,
+            next: function () { return tslib_1.__awaiter(_this, void 0, void 0, function () {
+                var r;
+                return tslib_1.__generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, this._sendNormalRequest(URI(json._links.next.href))];
+                        case 1:
+                            r = _a.sent();
+                            return [2 /*return*/, this._toCollectionPage(r)];
+                    }
+                });
+            }); },
+            prev: function () { return tslib_1.__awaiter(_this, void 0, void 0, function () {
+                var r;
+                return tslib_1.__generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, this._sendNormalRequest(URI(json._links.prev.href))];
+                        case 1:
+                            r = _a.sent();
+                            return [2 /*return*/, this._toCollectionPage(r)];
+                    }
+                });
+            }); },
+        };
+    };
+    /**
+     * @private
+     * @param {object} error Network error object
+     * @returns {Promise&lt;Error>} Promise that rejects with a human-readable error
+     */
+    CallBuilder.prototype._handleNetworkError = function (error) {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            return tslib_1.__generator(this, function (_a) {
+                if (error.response &amp;&amp; error.response.status) {
+                    switch (error.response.status) {
+                        case 404:
+                            return [2 /*return*/, Promise.reject(new NotFoundError(error.response.statusText, error.response.data))];
+                        default:
+                            return [2 /*return*/, Promise.reject(new NetworkError(error.response.statusText, error.response.data))];
+                    }
+                }
+                else {
+                    return [2 /*return*/, Promise.reject(new Error(error.message))];
+                }
+                return [2 /*return*/];
+            });
+        });
+    };
+    return CallBuilder;
+}());
+export { CallBuilder };
+//# sourceMappingURL=call_builder.js.map</code></pre>
         </article>
     </section>
 

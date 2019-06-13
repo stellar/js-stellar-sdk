@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>node_modules/stellar-base/src/operations/inflation.js - Documentation</title>
+    <title>lib/stellar_toml_resolver.js - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -29,7 +29,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">node_modules/stellar-base/src/operations/inflation.js</h1>
+    <h1 class="page-title">lib/stellar_toml_resolver.js</h1>
     
 
     
@@ -39,23 +39,75 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import xdr from '../generated/stellar-xdr_generated';
-
+            <pre class="prettyprint source linenums"><code>import * as tslib_1 from "tslib";
+import axios from "axios";
+import toml from "toml";
+import { Config } from "./config";
+// STELLAR_TOML_MAX_SIZE is the maximum size of stellar.toml file
+export var STELLAR_TOML_MAX_SIZE = 100 * 1024;
 /**
- * This operation generates the inflation.
- * @function
- * @alias Operation.inflation
- * @param {object} [opts] Options object
- * @param {string} [opts.source] - The optional source account.
- * @returns {xdr.InflationOp} Inflation operation
+ * StellarTomlResolver allows resolving `stellar.toml` files.
  */
-export function inflation(opts = {}) {
-  const opAttributes = {};
-  opAttributes.body = xdr.OperationBody.inflation();
-  this.setSourceAccount(opAttributes, opts);
-  return new xdr.Operation(opAttributes);
-}
-</code></pre>
+var StellarTomlResolver = /** @class */ (function () {
+    function StellarTomlResolver() {
+    }
+    /**
+     * Returns a parsed `stellar.toml` file for a given domain.
+     * ```js
+     * StellarSdk.StellarTomlResolver.resolve('acme.com')
+     *   .then(stellarToml => {
+     *     // stellarToml in an object representing domain stellar.toml file.
+     *   })
+     *   .catch(error => {
+     *     // stellar.toml does not exist or is invalid
+     *   });
+     * ```
+     * @see &lt;a href="https://www.stellar.org/developers/guides/concepts/stellar-toml.html" target="_blank">Stellar.toml doc&lt;/a>
+     * @param {string} domain Domain to get stellar.toml file for
+     * @param {object} [opts] Options object
+     * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments!
+     * @param {number} [opts.timeout] - Allow a timeout, default: 0. Allows user to avoid nasty lag due to TOML resolve issue.
+     * @returns {Promise} A `Promise` that resolves to the parsed stellar.toml object
+     */
+    StellarTomlResolver.resolve = function (domain, opts) {
+        if (opts === void 0) { opts = {}; }
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var allowHttp, timeout, protocol;
+            return tslib_1.__generator(this, function (_a) {
+                allowHttp = typeof opts.allowHttp === "undefined"
+                    ? Config.isAllowHttp()
+                    : opts.allowHttp;
+                timeout = typeof opts.timeout === "undefined" ? Config.getTimeout() : opts.timeout;
+                protocol = allowHttp ? "http" : "https";
+                return [2 /*return*/, axios
+                        .get(protocol + "://" + domain + "/.well-known/stellar.toml", {
+                        maxContentLength: STELLAR_TOML_MAX_SIZE,
+                        timeout: timeout,
+                    })
+                        .then(function (response) {
+                        try {
+                            var tomlObject = toml.parse(response.data);
+                            return Promise.resolve(tomlObject);
+                        }
+                        catch (e) {
+                            return Promise.reject(new Error("Parsing error on line " + e.line + ", column " + e.column + ": " + e.message));
+                        }
+                    })
+                        .catch(function (err) {
+                        if (err.message.match(/^maxContentLength size/)) {
+                            throw new Error("stellar.toml file exceeds allowed size of " + STELLAR_TOML_MAX_SIZE);
+                        }
+                        else {
+                            throw err;
+                        }
+                    })];
+            });
+        });
+    };
+    return StellarTomlResolver;
+}());
+export { StellarTomlResolver };
+//# sourceMappingURL=stellar_toml_resolver.js.map</code></pre>
         </article>
     </section>
 

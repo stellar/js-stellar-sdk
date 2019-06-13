@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>node_modules/stellar-base/src/operations/inflation.js - Documentation</title>
+    <title>lib/trades_call_builder.js - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -29,7 +29,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">node_modules/stellar-base/src/operations/inflation.js</h1>
+    <h1 class="page-title">lib/trades_call_builder.js</h1>
     
 
     
@@ -39,23 +39,73 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import xdr from '../generated/stellar-xdr_generated';
-
+            <pre class="prettyprint source linenums"><code>import * as tslib_1 from "tslib";
+import { CallBuilder } from "./call_builder";
 /**
- * This operation generates the inflation.
- * @function
- * @alias Operation.inflation
- * @param {object} [opts] Options object
- * @param {string} [opts.source] - The optional source account.
- * @returns {xdr.InflationOp} Inflation operation
+ * Creates a new {@link TradesCallBuilder} pointed to server defined by serverUrl.
+ * Do not create this object directly, use {@link Server#trades}.
+ *
+ * @class TradesCallBuilder
+ * @extends CallBuilder
+ * @constructor
+ * @see [Trades](https://www.stellar.org/developers/horizon/reference/endpoints/trades.html)
+ * @param {string} serverUrl serverUrl Horizon server URL.
  */
-export function inflation(opts = {}) {
-  const opAttributes = {};
-  opAttributes.body = xdr.OperationBody.inflation();
-  this.setSourceAccount(opAttributes, opts);
-  return new xdr.Operation(opAttributes);
-}
-</code></pre>
+var TradesCallBuilder = /** @class */ (function (_super) {
+    tslib_1.__extends(TradesCallBuilder, _super);
+    function TradesCallBuilder(serverUrl) {
+        var _this = _super.call(this, serverUrl) || this;
+        _this.url.segment("trades");
+        return _this;
+    }
+    /**
+     * Filter trades for a specific asset pair (orderbook)
+     * @param {Asset} base asset
+     * @param {Asset} counter asset
+     * @returns {TradesCallBuilder} current TradesCallBuilder instance
+     */
+    TradesCallBuilder.prototype.forAssetPair = function (base, counter) {
+        if (!base.isNative()) {
+            this.url.setQuery("base_asset_type", base.getAssetType());
+            this.url.setQuery("base_asset_code", base.getCode());
+            this.url.setQuery("base_asset_issuer", base.getIssuer());
+        }
+        else {
+            this.url.setQuery("base_asset_type", "native");
+        }
+        if (!counter.isNative()) {
+            this.url.setQuery("counter_asset_type", counter.getAssetType());
+            this.url.setQuery("counter_asset_code", counter.getCode());
+            this.url.setQuery("counter_asset_issuer", counter.getIssuer());
+        }
+        else {
+            this.url.setQuery("counter_asset_type", "native");
+        }
+        return this;
+    };
+    /**
+     * Filter trades for a specific offer
+     * @param {string} offerId ID of the offer
+     * @returns {TradesCallBuilder} current TradesCallBuilder instance
+     */
+    TradesCallBuilder.prototype.forOffer = function (offerId) {
+        this.url.setQuery("offer_id", offerId);
+        return this;
+    };
+    /**
+     * Filter trades for a specific account
+     * @see [Trades for Account](https://www.stellar.org/developers/horizon/reference/endpoints/trades-for-account.html)
+     * @param {string} accountId For example: `GBYTR4MC5JAX4ALGUBJD7EIKZVM7CUGWKXIUJMRSMK573XH2O7VAK3SR`
+     * @returns {TradesCallBuilder} current TradesCallBuilder instance
+     */
+    TradesCallBuilder.prototype.forAccount = function (accountId) {
+        this.filter.push(["accounts", accountId, "trades"]);
+        return this;
+    };
+    return TradesCallBuilder;
+}(CallBuilder));
+export { TradesCallBuilder };
+//# sourceMappingURL=trades_call_builder.js.map</code></pre>
         </article>
     </section>
 

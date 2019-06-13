@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>node_modules/stellar-base/src/operations/inflation.js - Documentation</title>
+    <title>lib/config.js - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -29,7 +29,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">node_modules/stellar-base/src/operations/inflation.js</h1>
+    <h1 class="page-title">lib/config.js</h1>
     
 
     
@@ -39,23 +39,78 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import xdr from '../generated/stellar-xdr_generated';
-
+            <pre class="prettyprint source linenums"><code>import clone from "lodash/clone";
+var defaultConfig = {
+    allowHttp: false,
+    timeout: 0,
+};
+var config = clone(defaultConfig);
 /**
- * This operation generates the inflation.
- * @function
- * @alias Operation.inflation
- * @param {object} [opts] Options object
- * @param {string} [opts.source] - The optional source account.
- * @returns {xdr.InflationOp} Inflation operation
+ * Global config class.
+ *
+ * Usage node:
+ * ```
+ * import {Config} from 'stellar-sdk';
+ * Config.setAllowHttp(true);
+ * Config.setTimeout(5000);
+ * ```
+ *
+ * Usage browser:
+ * ```
+ * StellarSdk.Config.setAllowHttp(true);
+ * StellarSdk.Config.setTimeout(5000);
+ * ```
+ * @static
  */
-export function inflation(opts = {}) {
-  const opAttributes = {};
-  opAttributes.body = xdr.OperationBody.inflation();
-  this.setSourceAccount(opAttributes, opts);
-  return new xdr.Operation(opAttributes);
-}
-</code></pre>
+var Config = /** @class */ (function () {
+    function Config() {
+    }
+    /**
+     * Sets `allowHttp` flag globally. When set to `true`, connections to insecure http protocol servers will be allowed.
+     * Must be set to `false` in production. Default: `false`.
+     * @param {boolean} value new allowHttp value
+     * @returns {void}
+     * @static
+     */
+    Config.setAllowHttp = function (value) {
+        config.allowHttp = value;
+    };
+    /**
+     * Sets `timeout` flag globally. When set to anything besides 0, the request will timeout after specified time (ms).
+     * Default: 0.
+     * @param {number} value new timeout value
+     * @returns {void}
+     * @static
+     */
+    Config.setTimeout = function (value) {
+        config.timeout = value;
+    };
+    /**
+     * @static
+     * @returns {boolean} allowHttp flag
+     */
+    Config.isAllowHttp = function () {
+        return config.allowHttp;
+    };
+    /**
+     * @static
+     * @returns {number} timeout flag
+     */
+    Config.getTimeout = function () {
+        return config.timeout;
+    };
+    /**
+     * Sets all global config flags to default values.
+     * @static
+     * @returns {void}
+     */
+    Config.setDefault = function () {
+        config = Object.assign({}, defaultConfig);
+    };
+    return Config;
+}());
+export { Config };
+//# sourceMappingURL=config.js.map</code></pre>
         </article>
     </section>
 

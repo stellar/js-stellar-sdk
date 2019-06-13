@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>node_modules/stellar-base/src/operations/inflation.js - Documentation</title>
+    <title>lib/transaction_call_builder.js - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -29,7 +29,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">node_modules/stellar-base/src/operations/inflation.js</h1>
+    <h1 class="page-title">lib/transaction_call_builder.js</h1>
     
 
     
@@ -39,23 +39,70 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import xdr from '../generated/stellar-xdr_generated';
-
+            <pre class="prettyprint source linenums"><code>import * as tslib_1 from "tslib";
+import { CallBuilder } from "./call_builder";
 /**
- * This operation generates the inflation.
- * @function
- * @alias Operation.inflation
- * @param {object} [opts] Options object
- * @param {string} [opts.source] - The optional source account.
- * @returns {xdr.InflationOp} Inflation operation
+ * Creates a new {@link TransactionCallBuilder} pointed to server defined by serverUrl.
+ * Do not create this object directly, use {@link Server#transactions}.
+ *
+ * @class TransactionCallBuilder
+ * @extends CallBuilder
+ * @see [All Transactions](https://www.stellar.org/developers/horizon/reference/endpoints/transactions-all.html)
+ * @constructor
+ * @param {string} serverUrl Horizon server URL.
  */
-export function inflation(opts = {}) {
-  const opAttributes = {};
-  opAttributes.body = xdr.OperationBody.inflation();
-  this.setSourceAccount(opAttributes, opts);
-  return new xdr.Operation(opAttributes);
-}
-</code></pre>
+var TransactionCallBuilder = /** @class */ (function (_super) {
+    tslib_1.__extends(TransactionCallBuilder, _super);
+    function TransactionCallBuilder(serverUrl) {
+        var _this = _super.call(this, serverUrl) || this;
+        _this.url.segment("transactions");
+        return _this;
+    }
+    /**
+     * The transaction details endpoint provides information on a single transaction. The transaction hash provided in the hash argument specifies which transaction to load.
+     * @see [Transaction Details](https://www.stellar.org/developers/horizon/reference/endpoints/transactions-single.html)
+     * @param {string} transactionId Transaction ID
+     * @returns {TransactionCallBuilder} current TransactionCallBuilder instance
+     */
+    TransactionCallBuilder.prototype.transaction = function (transactionId) {
+        this.filter.push(["transactions", transactionId]);
+        return this;
+    };
+    /**
+     * This endpoint represents all transactions that affected a given account.
+     * @see [Transactions for Account](https://www.stellar.org/developers/horizon/reference/endpoints/transactions-for-account.html)
+     * @param {string} accountId For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
+     * @returns {TransactionCallBuilder} current TransactionCallBuilder instance
+     */
+    TransactionCallBuilder.prototype.forAccount = function (accountId) {
+        this.filter.push(["accounts", accountId, "transactions"]);
+        return this;
+    };
+    /**
+     * This endpoint represents all transactions in a given ledger.
+     * @see [Transactions for Ledger](https://www.stellar.org/developers/horizon/reference/endpoints/transactions-for-ledger.html)
+     * @param {number|string} sequence Ledger sequence
+     * @returns {TransactionCallBuilder} current TransactionCallBuilder instance
+     */
+    TransactionCallBuilder.prototype.forLedger = function (sequence) {
+        var ledgerSequence = typeof sequence === "number" ? sequence.toString() : sequence;
+        this.filter.push(["ledgers", ledgerSequence, "transactions"]);
+        return this;
+    };
+    /**
+     * Adds a parameter defining whether to include failed transactions. By default only successful transactions are
+     * returned.
+     * @param {bool} value Set to `true` to include failed transactions.
+     * @returns {TransactionCallBuilder} current TransactionCallBuilder instance
+     */
+    TransactionCallBuilder.prototype.includeFailed = function (value) {
+        this.url.setQuery("include_failed", value.toString());
+        return this;
+    };
+    return TransactionCallBuilder;
+}(CallBuilder));
+export { TransactionCallBuilder };
+//# sourceMappingURL=transaction_call_builder.js.map</code></pre>
         </article>
     </section>
 
