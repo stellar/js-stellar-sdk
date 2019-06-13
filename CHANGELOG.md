@@ -1,6 +1,5 @@
 # Changelog
 
-As this project is pre 1.0, breaking changes may happen for minor version bumps.
 A breaking change will get clearly marked in this log.
 
 ## [v2.0.0](https://github.com/stellar/js-stellar-sdk/compare/v1.0.2...v2.0.0)
