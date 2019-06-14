@@ -66,7 +66,7 @@ gulp.task(
     function buildNode(done) {
       // TODO: Gulp-ify using `gulp-typescript`.
       try {
-        cp.execSync(`tsc --outDir libdocs --target es6`, {stdio: 'inherit'})
+        cp.execSync(`tsc --removeComments false --outDir libdocs --target es6 --module esnext`, {stdio: 'inherit'})
         done()
       } catch(err) {
         done(err)

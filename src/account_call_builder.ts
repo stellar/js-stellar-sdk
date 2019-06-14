@@ -9,7 +9,6 @@ import { ServerApi } from "./server_api";
  * @class AccountCallBuilder
  * @extends CallBuilder
  * @constructor
- * @extends CallBuilder
  * @param {string} serverUrl Horizon server URL.
  */
 export class AccountCallBuilder extends CallBuilder<ServerApi.AccountRecord> {
