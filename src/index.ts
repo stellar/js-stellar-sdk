@@ -1,7 +1,6 @@
-/* tslint:disable-next-line:no-var-requires */
+/* tslint:disable:no-var-requires */
 require("es6-promise").polyfill();
-
-import { version } from "../package.json";
+const version = require("../package.json").version;
 
 // Expose all types
 export * from "./horizon_api";
