@@ -317,4 +317,42 @@ export namespace Horizon {
     p95_accepted_fee: string;
     p99_accepted_fee: string;
   }
+
+  export type ErrorResponseData =
+    | ErrorResponseData.RateLimitExceeded
+    | ErrorResponseData.InternalServerError
+    | ErrorResponseData.TransactionFailed;
+
+  export namespace ErrorResponseData {
+    export interface Base {
+      status: number;
+      title: string;
+      type: string; // TODO
+      details: string; // TODO
+      instance: string; // TODO
+    }
+
+    export interface RateLimitExceeded extends Base {
+      status: 429;
+      title: "Rate Limit Exceeded";
+    }
+    export interface InternalServerError extends Base {
+      status: 500;
+      title: "Internal Server Error";
+    }
+    export interface TransactionFailed extends Base {
+      status: 400;
+      title: "Transaction Failed";
+      extras: TransactionFailedExtras;
+    }
+  }
+
+  export interface TransactionFailedExtras {
+    envelope_xdr: string; // base64
+    result_codes: {
+      transaction: "tx_failed" | "tx_bad_seq";
+      operations: string[];
+    };
+    result_xdr: string;
+  }
 }
