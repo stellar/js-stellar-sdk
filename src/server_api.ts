@@ -1,5 +1,5 @@
-import { Omit } from "lodash";
 import { Asset, AssetType } from "stellar-base";
+import { Omit } from "utility-types";
 import { Horizon } from "./horizon_api";
 
 /* tslint:disable-next-line: no-namespace */

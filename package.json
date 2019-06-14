@@ -139,6 +139,7 @@
     "stellar-base": "^1.0.2",
     "toml": "^2.3.0",
     "tslib": "^1.10.0",
-    "urijs": "^1.19.1"
+    "urijs": "^1.19.1",
+    "utility-types": "^3.7.0"
   }
 }
