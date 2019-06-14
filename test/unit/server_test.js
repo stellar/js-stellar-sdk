@@ -474,7 +474,7 @@ describe('server.js non-transaction tests', function() {
             .withArgs(
               sinon.match('https://horizon-live.stellar.org:1337/ledgers/1')
             )
-            .returns(Promise.reject({ response: { status: 404, data: {} } }));
+            .returns(Promise.reject({ response: { status: 404, statusText: 'NotFound', data: {} } }));
 
           this.server
             .ledgers()
