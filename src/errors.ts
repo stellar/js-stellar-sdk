@@ -7,6 +7,7 @@ export class NetworkError extends Error {
   public response: {
     data?: Horizon.ErrorResponseData;
     status?: number;
+    statusText?: string;
     url?: string;
   };
   public __proto__: NetworkError;
