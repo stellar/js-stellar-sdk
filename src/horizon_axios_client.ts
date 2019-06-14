@@ -1,7 +1,8 @@
 import axios, { AxiosResponse } from "axios";
 import URI from "urijs";
 
-import { version } from "../package.json";
+/* tslint:disable-next-line:no-var-requires */
+const version = require("../package.json").version;
 
 export interface ServerTime {
   serverTime: number;
