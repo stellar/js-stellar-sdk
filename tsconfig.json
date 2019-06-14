@@ -8,7 +8,6 @@
     "rootDir": ".", // TODO: if it weren't package.json, we could directly write "lib".
     "outDir": "lib",
     "target": "es5",
-    "module": "esnext",
     "removeComments": false
   },
   "include": ["src"]
