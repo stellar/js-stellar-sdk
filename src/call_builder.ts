@@ -307,7 +307,7 @@ export class CallBuilder<
    * @returns {Promise<Error>} Promise that rejects with a human-readable error
    */
   private async _handleNetworkError(error: NetworkError): Promise<void> {
-    if (error.response && error.response.status) {
+    if (error.response && error.response.status && error.response.statusText) {
       switch (error.response.status) {
         case 404:
           return Promise.reject(
