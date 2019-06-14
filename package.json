@@ -6,7 +6,7 @@
   "types": "./lib/index.d.ts",
   "scripts": {
     "test": "babel-node ./node_modules/.bin/gulp test",
-    "docs": "rm -rf libdocs && gulp build:docs && jsdoc -c .jsdoc.json",
+    "docs": "gulp build:docs && jsdoc -c .jsdoc.json",
     "dtslint": "dtslint test/types",
     "preversion": "gulp test",
     "version": "gulp build",
