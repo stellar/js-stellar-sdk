@@ -5,6 +5,7 @@
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
   "scripts": {
+    "prepare": "gulp build",
     "test": "babel-node ./node_modules/.bin/gulp test",
     "docs": "gulp build:docs && jsdoc -c .jsdoc.json",
     "dtslint": "dtslint test/types",
