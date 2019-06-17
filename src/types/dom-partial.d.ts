@@ -5,7 +5,10 @@
  * - `HTMLElement` used by `urijs`.
  */
 
-type EventListener = (evt: Event) => void;
+interface EventListener {
+  // tslint:disable-next-line: callable-types
+  (evt: Event): void;
+}
 
 interface EventListenerObject {
   handleEvent(evt: Event): void;
@@ -24,7 +27,6 @@ interface EventInit {
   cancelable?: boolean;
   composed?: boolean;
 }
-type EventListenerOrEventListenerObject = EventListener | EventListenerObject;
 
 /** EventTarget is an interface implemented by objects that can receive events and may have listeners for them. */
 interface EventTarget {
@@ -40,7 +42,7 @@ interface EventTarget {
    */
   addEventListener(
     type: string,
-    listener: EventListenerOrEventListenerObject | null,
+    listener: EventListener | EventListenerObject | null,
     options?: boolean | AddEventListenerOptions,
   ): void;
   /**
@@ -53,7 +55,7 @@ interface EventTarget {
    */
   removeEventListener(
     type: string,
-    callback: EventListenerOrEventListenerObject | null,
+    callback: EventListener | EventListenerObject | null,
     options?: EventListenerOptions | boolean,
   ): void;
 }
@@ -136,21 +138,16 @@ interface ImageBitmap {
   close(): void;
 }
 
-type Transferable = ArrayBuffer | MessagePort | ImageBitmap;
-
 interface MessagePortEventMap {
   message: MessageEvent;
   messageerror: MessageEvent;
 }
-
-type MessageEventSource = /* WindowProxy | */ MessagePort /* | ServiceWorker */;
 
 interface MessageEventInit extends EventInit {
   data?: any;
   lastEventId?: string;
   origin?: string;
   ports?: MessagePort[];
-  source?: MessageEventSource | null;
 }
 
 /** The MessagePort interface of the Channel Messaging API represents one of the two ports of a MessageChannel, allowing messages to be sent from one port and listening out for them arriving at the other. */
@@ -168,7 +165,10 @@ interface MessagePort extends EventTarget {
    * transfer contains duplicate objects or port, or if message
    * could not be cloned.
    */
-  postMessage(message: any, transfer?: Transferable[]): void;
+  postMessage(
+    message: any,
+    transfer?: ArrayBuffer | MessagePort | ImageBitmap[],
+  ): void;
   /**
    * Begins dispatching messages received on the port.
    */
@@ -180,7 +180,7 @@ interface MessagePort extends EventTarget {
   ): void;
   addEventListener(
     type: string,
-    listener: EventListenerOrEventListenerObject,
+    listener: EventListener | EventListenerObject,
     options?: boolean | AddEventListenerOptions,
   ): void;
   removeEventListener<K extends keyof MessagePortEventMap>(
@@ -190,7 +190,7 @@ interface MessagePort extends EventTarget {
   ): void;
   removeEventListener(
     type: string,
-    listener: EventListenerOrEventListenerObject,
+    listener: EventListener | EventListenerObject,
     options?: boolean | EventListenerOptions,
   ): void;
 }
@@ -216,12 +216,6 @@ interface MessageEvent extends Event {
    * messaging and channel messaging.
    */
   readonly ports: ReadonlyArray<MessagePort>;
-  /**
-   * Returns the WindowProxy of the source window, for cross-document
-   * messaging, and the MessagePort being attached, in the connect event fired at
-   * SharedWorkerGlobalScope objects.
-   */
-  readonly source: MessageEventSource | null;
 }
 
 declare var MessageEvent: {
@@ -229,4 +223,7 @@ declare var MessageEvent: {
   new (type: string, eventInitDict?: MessageEventInit): MessageEvent;
 };
 
-declare type HTMLElement = any;
+// tslint:disable-next-line: no-empty-interface
+declare interface HTMLElement {
+  /* any */
+}
