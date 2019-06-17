@@ -11,11 +11,6 @@ import { ServerApi } from "./server_api";
 const version = require("../package.json").version;
 
 type Constructable<T> = new (e: string) => T;
-declare global {
-  interface Window {
-    EventSource: Constructable<EventSource>;
-  }
-}
 
 export interface EventSourceOptions {
   onmessage?: (event: MessageEvent) => void;
@@ -30,7 +25,7 @@ if (isNode) {
   EventSource = require("eventsource");
 } else {
   /* tslint:disable-next-line:variable-name */
-  EventSource = window.EventSource;
+  EventSource = (global as any).window.EventSource;
 }
 
 /**
