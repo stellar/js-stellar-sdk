@@ -15,6 +15,7 @@ declare global {
   interface Window {
     EventSource: Constructable<EventSource>;
   }
+  const window: Window;
 }
 
 export interface EventSourceOptions {
