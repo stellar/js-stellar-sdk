@@ -661,8 +661,9 @@ export namespace Horizon {
     auth_revocable: boolean;
   }
   interface AccountSigner {
-    public_key: string;
+    key: string;
     weight: number;
+    type: string;
   }
   interface AccountResponse
     extends BaseResponse<
