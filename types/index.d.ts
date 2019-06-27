@@ -156,7 +156,7 @@ export namespace Server {
   > = () => Promise<T>;
   type CallCollectionFunction<
     T extends Horizon.BaseResponse = Horizon.BaseResponse
-  > = (options?: CallFunctionTemplateOptions) => Promise<CollectionRecord<T>>;
+  > = (options?: CallFunctionTemplateOptions) => Promise<CollectionPage<T>>;
 
   interface AccountRecord extends Horizon.BaseResponse {
     id: string;
