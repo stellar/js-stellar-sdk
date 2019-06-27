@@ -80,8 +80,9 @@ export namespace Horizon {
     auth_revocable: boolean;
   }
   export interface AccountSigner {
-    public_key: string;
+    key: string;
     weight: number;
+    type: string;
   }
   export interface AccountResponse
     extends BaseResponse<
