@@ -3,6 +3,11 @@
 As this project is pre 1.0, breaking changes may happen for minor version bumps.
 A breaking change will get clearly marked in this log.
 
+## [v1.0.5](https://github.com/stellar/js-stellar-sdk/compare/v1.0.4...v1.0.5)
+
+- Make CallCollectionFunction return a CollectionPage.
+- Update Horizon.AccountSigner[] types.
+
 ## [v1.0.4](https://github.com/stellar/js-stellar-sdk/compare/v1.0.3...v1.0.4)
 
 - Automatically tag alpha / beta releases as "next" in NPM.
