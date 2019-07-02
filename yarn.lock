@@ -143,9 +143,9 @@
   integrity sha512-bsTIJFVQv7jnvNiC42ld2pQW2KRI+pAG243L+iATvqzy3X6+NH1obz2itRKDZZ8VVhN3wjwYax/VBGCcXzgTqQ==
 
 "@types/urijs@^1.19.1":
-  version "1.19.1"
-  resolved "https://registry.yarnpkg.com/@types/urijs/-/urijs-1.19.1.tgz#da69e8479eec0bb4580c7cc218d218f107d2d526"
-  integrity sha512-5waMuQ9z8pH8+5yAyX05bsA7SOl50l5ZkeMripxoOgN2+nSQb4TOSuhWoRlPt7FPIIohk6iBrX/rEktUJa8KfQ==
+  version "1.19.2"
+  resolved "https://registry.yarnpkg.com/@types/urijs/-/urijs-1.19.2.tgz#45212f53c3f14f1d90ca823a719b164748ad413b"
+  integrity sha512-8Q7e4XLsVuqWkvl5Q9osdxi4R2nciXOu2sNWaroAY1rL58PEiSFU23q/elrAAUQdsHMaHk4kwsiOZh1rZ+7APA==
 
 "@webassemblyjs/ast@1.8.5":
   version "1.8.5"
