@@ -47,14 +47,6 @@ gulp.task(
       } catch(err) {
         done(err)
       }
-    },
-    function flatten() {
-      return gulp.src('lib/src/**')
-          .pipe(gulp.dest('lib'))
-    },
-    function flattenClean() {
-      return gulp.src('lib/src')
-          .pipe(plugins.rimraf());
     }
     )
 );
