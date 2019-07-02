@@ -118,9 +118,9 @@
   integrity sha512-+BozjlbPTACYITf1PWf62HLtDV79HbmZosUN1mv1gGrnjDCRwBXkDKka1sf6YQJvspmfPXVcy+X6tFW62KteeQ==
 
 "@types/eventsource@^1.1.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@types/eventsource/-/eventsource-1.1.0.tgz#4497f09af3693f5ae7d5ac2b0d3ca18a1a35c60f"
-  integrity sha512-Ygc2l1zQRuuQL9WwE7BDn7M++X4JuHgJpSTrSo/CRt/Eao268rv4hpyv4H2TlZqQ1nYt/I4Wkwbpqg8Xjz5shA==
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@types/eventsource/-/eventsource-1.1.1.tgz#61f72be00d1b02f8ebb8c8a4a4cfb945cc103f67"
+  integrity sha512-feB5PibPLCWqc6KlbcGtdsXIdZLx816p75bXQ+t7L0cJ82MxlqFuJLwlgVbzioJGa8Aul2DuuOO+a0GH8lRopA==
 
 "@types/fancy-log@1.3.0":
   version "1.3.0"
