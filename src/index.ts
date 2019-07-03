@@ -10,6 +10,7 @@ export * from "./horizon_api";
 export * from "./server_api";
 
 // stellar-sdk classes to expose
+export * from "./account_response";
 export * from "./errors";
 export { Config } from "./config";
 export { Server } from "./server";
