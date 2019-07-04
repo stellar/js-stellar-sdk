@@ -117,10 +117,10 @@
   resolved "https://registry.yarnpkg.com/@types/detect-node/-/detect-node-2.0.0.tgz#696e024ddd105c72bbc6a2e3f97902a2886f2c3f"
   integrity sha512-+BozjlbPTACYITf1PWf62HLtDV79HbmZosUN1mv1gGrnjDCRwBXkDKka1sf6YQJvspmfPXVcy+X6tFW62KteeQ==
 
-"@types/eventsource@^1.1.0":
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/@types/eventsource/-/eventsource-1.1.1.tgz#61f72be00d1b02f8ebb8c8a4a4cfb945cc103f67"
-  integrity sha512-feB5PibPLCWqc6KlbcGtdsXIdZLx816p75bXQ+t7L0cJ82MxlqFuJLwlgVbzioJGa8Aul2DuuOO+a0GH8lRopA==
+"@types/eventsource@^1.1.2":
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/@types/eventsource/-/eventsource-1.1.2.tgz#079ab4213e844e56f7384aec620e1163dab692b3"
+  integrity sha512-4AKWJ6tvEU4fk0770oAK4Z0lQUuSnc5ljHTcYZhQtdP7XMDKKvegGUC6xGD8+4+F+svZKAzlxbKnuGWfgMtgVA==
 
 "@types/fancy-log@1.3.0":
   version "1.3.0"
@@ -142,7 +142,7 @@
   resolved "https://registry.yarnpkg.com/@types/parsimmon/-/parsimmon-1.10.0.tgz#ffb81cb023ff435a41d4710a29ab23c561dc9fdf"
   integrity sha512-bsTIJFVQv7jnvNiC42ld2pQW2KRI+pAG243L+iATvqzy3X6+NH1obz2itRKDZZ8VVhN3wjwYax/VBGCcXzgTqQ==
 
-"@types/urijs@^1.19.1":
+"@types/urijs@^1.19.2":
   version "1.19.2"
   resolved "https://registry.yarnpkg.com/@types/urijs/-/urijs-1.19.2.tgz#45212f53c3f14f1d90ca823a719b164748ad413b"
   integrity sha512-8Q7e4XLsVuqWkvl5Q9osdxi4R2nciXOu2sNWaroAY1rL58PEiSFU23q/elrAAUQdsHMaHk4kwsiOZh1rZ+7APA==
