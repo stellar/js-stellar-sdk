@@ -104,7 +104,9 @@ export class CallBuilder<
 
     const createTimeout = () => {
       timeout = setTimeout(() => {
-        es.close();
+        if (es) {
+          es.close();
+        }
         /* tslint:disable-next-line:no-use-before-declare */
         es = createEventSource();
       }, options.reconnectTimeout || 15 * 1000);
