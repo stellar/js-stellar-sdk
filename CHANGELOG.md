@@ -15,6 +15,7 @@ A breaking change will get clearly marked in this log.
   - `Server.*CallBuilder` is out of the `Server` namespace -> `*CallBuilder`
   - `HorizonResponseAccount` is now `Horizon.AccountResponse`
 - Upgrade Webpack to v4.
+- Add support for providing app name and version to request headers.
 
 Many thanks to @Ffloriel and @Akuukis for their help with this release!
 
