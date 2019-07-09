@@ -1,20 +1,19 @@
 /* tslint:disable:variable-name no-namespace */
+
 import BigNumber from "bignumber.js";
+import _ from "lodash";
 import { Asset, StrKey, Transaction, xdr } from "stellar-base";
 import URI from "urijs";
 
+import { CallBuilder } from "./call_builder";
+import { Config } from "./config";
 import { BadResponseError } from "./errors";
 
 import { AccountCallBuilder } from "./account_call_builder";
 import { AccountResponse } from "./account_response";
 import { AssetsCallBuilder } from "./assets_call_builder";
-import { CallBuilder } from "./call_builder";
-import { Config } from "./config";
 import { EffectCallBuilder } from "./effect_call_builder";
 import { FriendbotBuilder } from "./friendbot_builder";
-import HorizonAxiosClient, {
-  getCurrentServerTime,
-} from "./horizon_axios_client";
 import { LedgerCallBuilder } from "./ledger_call_builder";
 import { OfferCallBuilder } from "./offer_call_builder";
 import { OperationCallBuilder } from "./operation_call_builder";
@@ -25,6 +24,10 @@ import { ServerApi } from "./server_api";
 import { TradeAggregationCallBuilder } from "./trade_aggregation_call_builder";
 import { TradesCallBuilder } from "./trades_call_builder";
 import { TransactionCallBuilder } from "./transaction_call_builder";
+
+import HorizonAxiosClient, {
+  getCurrentServerTime,
+} from "./horizon_axios_client";
 
 export const SUBMIT_TRANSACTION_TIMEOUT = 60 * 1000;
 
@@ -41,6 +44,8 @@ function _getAmountInLumens(amt: BigNumber) {
  * @param {string} serverURL Horizon Server URL (ex. `https://horizon-testnet.stellar.org`).
  * @param {object} [opts] Options object
  * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments! You can also use {@link Config} class to set this globally.
+ * @param {string} [opts.appName] - Allow set custom header `X-App-Name`, default: `undefined`.
+ * @param {string} [opts.appVersion] - Allow set custom header `X-App-Version`, default: `undefined`.
  */
 export class Server {
   /**
@@ -57,6 +62,23 @@ export class Server {
       typeof opts.allowHttp === "undefined"
         ? Config.isAllowHttp()
         : opts.allowHttp;
+
+    const customHeaders: any = {};
+
+    if (opts.appName) {
+      customHeaders["X-App-Name"] = opts.appName;
+    }
+    if (opts.appVersion) {
+      customHeaders["X-App-Version"] = opts.appVersion;
+    }
+    if (!_.isEmpty(customHeaders)) {
+      HorizonAxiosClient.interceptors.request.use((config) => {
+        // merge the custom headers with an existing headers
+        config.headers = _.merge(customHeaders, config.headers);
+
+        return config;
+      });
+    }
 
     if (this.serverURL.protocol() !== "https" && !allowHttp) {
       throw new Error("Cannot connect to insecure horizon server");
@@ -613,6 +635,8 @@ export class Server {
 export namespace Server {
   export interface Options {
     allowHttp?: boolean;
+    appName?: string;
+    appVersion?: string;
   }
 
   export interface Timebounds {
