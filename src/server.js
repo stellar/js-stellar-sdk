@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import URI from 'urijs';
 import { xdr, StrKey, Asset } from 'stellar-base';
 import BigNumber from 'bignumber.js';
@@ -39,6 +40,8 @@ function _getAmountInLumens(amt) {
  * @param {string} serverURL Horizon Server URL (ex. `https://horizon-testnet.stellar.org`).
  * @param {object} [opts] Options object
  * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments! You can also use {@link Config} class to set this globally.
+ * @param {string} [opts.appName] - Allow set custom header `X-App-Name`, default: `undefined`.
+ * @param {string} [opts.appVersion] - Allow set custom header `X-App-Version`, default: `undefined`.
  */
 export class Server {
   constructor(serverURL, opts = {}) {
@@ -47,6 +50,22 @@ export class Server {
     let allowHttp = Config.isAllowHttp();
     if (typeof opts.allowHttp !== 'undefined') {
       allowHttp = opts.allowHttp;
+    }
+
+    const customHeaders = {};
+    if (typeof opts.appName === 'string') {
+      customHeaders['X-App-Name'] = opts.appName;
+    }
+    if (typeof opts.appVersion === 'string') {
+      customHeaders['X-App-Version'] = opts.appVersion;
+    }
+    if (!_.isEmpty(customHeaders)) {
+      HorizonAxiosClient.interceptors.request.use((config) => {
+        // merge the custom headers with an existing headers
+        config.headers = _.merge(customHeaders, config.headers);
+
+        return config;
+      });
     }
 
     if (this.serverURL.protocol() !== 'https' && !allowHttp) {
@@ -404,9 +423,7 @@ export class Server {
         }
         return Promise.reject(
           new BadResponseError(
-            `Transaction submission failed. Server responded: ${
-              response.status
-            } ${response.statusText}`,
+            `Transaction submission failed. Server responded: ${response.status} ${response.statusText}`,
             response.data
           )
         );
