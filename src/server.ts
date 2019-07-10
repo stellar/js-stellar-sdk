@@ -1,7 +1,8 @@
 /* tslint:disable:variable-name no-namespace */
 
 import BigNumber from "bignumber.js";
-import _ from "lodash";
+import isEmpty from "lodash/isEmpty";
+import merge from "lodash/merge";
 import { Asset, StrKey, Transaction, xdr } from "stellar-base";
 import URI from "urijs";
 
@@ -71,10 +72,10 @@ export class Server {
     if (opts.appVersion) {
       customHeaders["X-App-Version"] = opts.appVersion;
     }
-    if (!_.isEmpty(customHeaders)) {
+    if (!isEmpty(customHeaders)) {
       HorizonAxiosClient.interceptors.request.use((config) => {
         // merge the custom headers with an existing headers
-        config.headers = _.merge(customHeaders, config.headers);
+        config.headers = merge(customHeaders, config.headers);
 
         return config;
       });
