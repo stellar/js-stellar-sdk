@@ -7,9 +7,9 @@ A breaking change will get clearly marked in this log.
 - **Breaking change** Port stellar-sdk to Typescript. Because we use a slightly
   different build process, there could be some unanticipated bugs. Additionally,
   some type definitions have changed:
-  - The `Server` namespace has been broken up into `Server`, the `Server` class,
-    and `ServerApi`, which handles all the types not defined by the class. So,
-    for example, `Server.AccountRecord` -> `ServerApi.AccountRecord`.
+  - Types that were once in the `Server` namespace but didn't actually deal with
+    the `Server` class have been broken out into a new namespace, `ServerApi`.
+    So, for example, `Server.AccountRecord` -> `ServerApi.AccountRecord`.
   - `Server.AccountResponse` is out of the `Server` namespace ->
     `AccountResponse`
   - `Server.*CallBuilder` is out of the `Server` namespace -> `*CallBuilder`
