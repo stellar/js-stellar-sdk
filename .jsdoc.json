@@ -1,6 +1,6 @@
 {
   "source": {
-    "include": ["lib", "node_modules/stellar-base/src"],
+    "include": ["libdocs", "node_modules/stellar-base/src"],
     "exclude": "node_modules/stellar-base/src/generated"
   },
   "opts": {
