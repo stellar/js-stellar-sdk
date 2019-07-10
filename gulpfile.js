@@ -38,7 +38,6 @@ gulp.task('clean', function clean() {
 gulp.task(
   'build:node',
   gulp.series(
-    // TODO: output directly to "lib" folder (see tsconfig.json).
     function buildNode(done) {
       // TODO: Gulp-ify using `gulp-typescript`.
       try {
@@ -54,7 +53,6 @@ gulp.task(
 gulp.task(
   'build:docs',
   gulp.series(
-    // TODO: output directly to "lib" folder (see tsconfig.json).
     function buildNode(done) {
       // TODO: Gulp-ify using `gulp-typescript`.
       try {
@@ -63,14 +61,6 @@ gulp.task(
       } catch(err) {
         done(err)
       }
-    },
-    function flatten() {
-      return gulp.src('libdocs/src/**')
-          .pipe(gulp.dest('libdocs'))
-    },
-    function flattenClean() {
-      return gulp.src('libdocs/src')
-          .pipe(plugins.rimraf());
     }
     )
 );
