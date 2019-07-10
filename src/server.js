@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { isEmpty, merge } from 'lodash';
 import URI from 'urijs';
 import { xdr, StrKey, Asset } from 'stellar-base';
 import BigNumber from 'bignumber.js';
@@ -59,10 +59,10 @@ export class Server {
     if (typeof opts.appVersion === 'string') {
       customHeaders['X-App-Version'] = opts.appVersion;
     }
-    if (!_.isEmpty(customHeaders)) {
+    if (!isEmpty(customHeaders)) {
       HorizonAxiosClient.interceptors.request.use((config) => {
         // merge the custom headers with an existing headers
-        config.headers = _.merge(customHeaders, config.headers);
+        config.headers = merge(customHeaders, config.headers);
 
         return config;
       });
