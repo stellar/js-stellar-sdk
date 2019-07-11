@@ -53,9 +53,9 @@ export class StellarTomlResolver {
         } catch (e) {
           return Promise.reject(
             new Error(
-              `Parsing error on line ${e.line}, column ${e.column}: ${
-                e.message
-              }`,
+              `stellar.toml is invalid - Parsing error on line ${
+                e.line
+              }, column ${e.column}: ${e.message}`,
             ),
           );
         }
