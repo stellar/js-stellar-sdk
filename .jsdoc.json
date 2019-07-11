@@ -1,6 +1,6 @@
 {
   "source": {
-    "include": ["src", "node_modules/stellar-base/src"],
+    "include": ["libdocs", "node_modules/stellar-base/src"],
     "exclude": "node_modules/stellar-base/src/generated"
   },
   "opts": {
@@ -9,7 +9,5 @@
     "template": "node_modules/minami",
     "readme": "./README.md"
   },
-  "plugins": [
-    "plugins/markdown"
-  ]
+  "plugins": ["plugins/markdown"]
 }

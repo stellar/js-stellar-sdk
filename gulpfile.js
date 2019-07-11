@@ -1,22 +1,22 @@
 'use strict';
 
+var cp = require('child_process');
 var gulp = require('gulp');
 var isparta = require('isparta');
 var plugins = require('gulp-load-plugins')();
 var server = require('gulp-develop-server');
 var webpack = require('webpack');
+var webpackStream = require('webpack-stream');
+var webpackConfigBrowser = require('./webpack.config.browser.js');
 var clear = require('clear');
 var plumber = require('gulp-plumber');
-var BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
-  .BundleAnalyzerPlugin;
 
 gulp.task('lint:src', function lintSrc() {
   return gulp
-    .src(['src/**/*.js'])
+    .src(['src/**/*.ts'])
     .pipe(plumber())
-    .pipe(plugins.eslint())
-    .pipe(plugins.eslint.format())
-    .pipe(plugins.eslint.failAfterError());
+    .pipe(plugins.tslint({ formatter: "verbose" }))
+    .pipe(plugins.tslint.report());
 });
 
 // Lint our test code
@@ -31,93 +31,59 @@ gulp.task('lint:test', function lintTest() {
 
 gulp.task('clean', function clean() {
   return gulp
-    .src('dist', { read: false, allowEmpty: true })
+    .src(['dist', 'lib'], { read: false, allowEmpty: true })
     .pipe(plugins.rimraf());
 });
 
 gulp.task(
   'build:node',
-  gulp.series('lint:src', function buildNode() {
-    return gulp
-      .src('src/**/*.js')
-      .pipe(plumber())
-      .pipe(plugins.babel())
-      .pipe(gulp.dest('lib'));
-  })
+  gulp.series(
+    function buildNode(done) {
+      // TODO: Gulp-ify using `gulp-typescript`.
+      try {
+        cp.execSync(`tsc`, {stdio: 'inherit'})
+        done()
+      } catch(err) {
+        done(err)
+      }
+    }
+    )
+);
+
+gulp.task(
+  'build:docs',
+  gulp.series(
+    function buildNode(done) {
+      // TODO: Gulp-ify using `gulp-typescript`.
+      try {
+        cp.execSync(`tsc --removeComments false --outDir libdocs --target es6 --module esnext`, {stdio: 'inherit'})
+        done()
+      } catch(err) {
+        done(err)
+      }
+    }
+    )
 );
 
 gulp.task(
   'build:browser',
-  gulp.series('lint:src', function buildBrowser() {
-    return gulp
-      .src('src/browser.js')
-      .pipe(plumber())
-      .pipe(
-        plugins.webpack({
-          output: { library: 'StellarSdk' },
-          module: {
-            loaders: [
-              {
-                test: /\.js$/,
-                exclude: /node_modules/,
-                loader: 'babel-loader'
-              },
-              { test: /\.json$/, loader: 'json-loader' }
-            ]
-          },
-          plugins: [
-            // Ignore native modules (ed25519)
-            new webpack.IgnorePlugin(/ed25519/)
-          ]
-        })
-      )
-      .pipe(plugins.rename('stellar-sdk.js'))
-      .pipe(gulp.dest('dist'))
-      .pipe(
-        plugins.uglify({
-          output: {
-            ascii_only: true
-          }
-        })
-      )
-      .pipe(plugins.rename('stellar-sdk.min.js'))
-      .pipe(gulp.dest('dist'));
-  })
-);
-
-gulp.task(
-  'analyze:browser',
-  gulp.series('lint:src', function analyzeBrowser() {
-    return gulp
-      .src('src/browser.js')
-      .pipe(plumber())
-      .pipe(
-        plugins.webpack({
-          output: { library: 'StellarSdk' },
-          module: {
-            loaders: [
-              {
-                test: /\.js$/,
-                exclude: /node_modules/,
-                loader: 'babel-loader'
-              },
-              { test: /\.json$/, loader: 'json-loader' }
-            ]
-          },
-          plugins: [
-            // Ignore native modules (ed25519)
-            new webpack.IgnorePlugin(/ed25519/),
-            new BundleAnalyzerPlugin()
-          ]
-        })
-      );
-  })
+  gulp.parallel(
+    'lint:src',
+    function buildBrowser() {
+      return gulp
+        .src('src/browser.ts')
+        .pipe(
+          webpackStream(webpackConfigBrowser), webpack
+        )
+        .pipe(gulp.dest('dist'))
+    }
+  )
 );
 
 gulp.task(
   'test:unit',
   gulp.series('build:node', function testUnit() {
-    return gulp.src(['test/test-helper.js', 'test/unit/**/*.js']).pipe(
+    return gulp.src(['test/test-nodejs.js', 'test/unit/**/*.js']).pipe(
       plugins.mocha({
         reporter: ['spec']
       })
@@ -145,7 +111,7 @@ gulp.task(
 
 gulp.task(
   'test:sauce',
-  gulp.series('build:browser', function testSauce(done) {
+  gulp.series(gulp.parallel('build:browser', 'build:node'), function testSauce(done) {
     var Server = require('karma').Server;
     var server = new Server(
       { configFile: __dirname + '/karma-sauce.conf.js' },
@@ -191,7 +157,7 @@ gulp.task(
   gulp.series('build:node', 'test:init-istanbul', function testIntegration() {
     return gulp
       .src([
-        'test/test-helper.js',
+        'test/test-nodejs.js',
         'test/unit/**/*.js',
         'test/integration/**/*.js'
       ])

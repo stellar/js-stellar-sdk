@@ -1,4 +1,5 @@
-import { CallBuilder } from './call_builder';
+import { CallBuilder } from "./call_builder";
+import { ServerApi } from "./server_api";
 
 /**
  * Creates a new {@link AccountCallBuilder} pointed to server defined by serverUrl.
@@ -8,13 +9,12 @@ import { CallBuilder } from './call_builder';
  * @class AccountCallBuilder
  * @extends CallBuilder
  * @constructor
- * @extends CallBuilder
  * @param {string} serverUrl Horizon server URL.
  */
-export class AccountCallBuilder extends CallBuilder {
-  constructor(serverUrl) {
+export class AccountCallBuilder extends CallBuilder<ServerApi.AccountRecord> {
+  constructor(serverUrl: uri.URI) {
     super(serverUrl);
-    this.url.segment('accounts');
+    this.url.segment("accounts");
   }
 
   /**
@@ -25,8 +25,8 @@ export class AccountCallBuilder extends CallBuilder {
    * @param {string} id For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
    * @returns {AccountCallBuilder} current AccountCallBuilder instance
    */
-  accountId(id) {
-    this.filter.push(['accounts', id]);
+  public accountId(id: string): this {
+    this.filter.push(["accounts", id]);
     return this;
   }
 }

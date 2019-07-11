@@ -1,18 +1,21 @@
-import { CallBuilder } from './call_builder';
+import { CallBuilder } from "./call_builder";
+import { ServerApi } from "./server_api";
 
-export class PaymentCallBuilder extends CallBuilder {
-  /**
-   * Creates a new {@link PaymentCallBuilder} pointed to server defined by serverUrl.
-   *
-   * Do not create this object directly, use {@link Server#payments}.
-   * @see [All Payments](https://www.stellar.org/developers/horizon/reference/endpoints/payments-all.html)
-   * @constructor
-   * @extends CallBuilder
-   * @param {string} serverUrl Horizon server URL.
-   */
-  constructor(serverUrl) {
+/**
+ * Creates a new {@link PaymentCallBuilder} pointed to server defined by serverUrl.
+ *
+ * Do not create this object directly, use {@link Server#payments}.
+ * @see [All Payments](https://www.stellar.org/developers/horizon/reference/endpoints/payments-all.html)
+ * @constructor
+ * @extends CallBuilder
+ * @param {string} serverUrl Horizon server URL.
+ */
+export class PaymentCallBuilder extends CallBuilder<
+  ServerApi.CollectionPage<ServerApi.PaymentOperationRecord>
+> {
+  constructor(serverUrl: uri.URI) {
     super(serverUrl);
-    this.url.segment('payments');
+    this.url.segment("payments");
   }
 
   /**
@@ -21,8 +24,8 @@ export class PaymentCallBuilder extends CallBuilder {
    * @param {string} accountId For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
    * @returns {PaymentCallBuilder} this PaymentCallBuilder instance
    */
-  forAccount(accountId) {
-    this.filter.push(['accounts', accountId, 'payments']);
+  public forAccount(accountId: string): this {
+    this.filter.push(["accounts", accountId, "payments"]);
     return this;
   }
 
@@ -32,11 +35,11 @@ export class PaymentCallBuilder extends CallBuilder {
    * @param {number|string} sequence Ledger sequence
    * @returns {PaymentCallBuilder} this PaymentCallBuilder instance
    */
-  forLedger(sequence) {
+  public forLedger(sequence: number | string): this {
     this.filter.push([
-      'ledgers',
-      typeof sequence === 'number' ? sequence.toString() : sequence,
-      'payments'
+      "ledgers",
+      typeof sequence === "number" ? sequence.toString() : sequence,
+      "payments",
     ]);
     return this;
   }
@@ -47,8 +50,8 @@ export class PaymentCallBuilder extends CallBuilder {
    * @param {string} transactionId Transaction ID
    * @returns {PaymentCallBuilder} this PaymentCallBuilder instance
    */
-  forTransaction(transactionId) {
-    this.filter.push(['transactions', transactionId, 'payments']);
+  public forTransaction(transactionId: string): this {
+    this.filter.push(["transactions", transactionId, "payments"]);
     return this;
   }
 }

@@ -1,4 +1,5 @@
-import { CallBuilder } from './call_builder';
+import { CallBuilder } from "./call_builder";
+import { ServerApi } from "./server_api";
 
 /**
  * Creates a new {@link EffectCallBuilder} pointed to server defined by serverUrl.
@@ -10,10 +11,12 @@ import { CallBuilder } from './call_builder';
  * @constructor
  * @param {string} serverUrl Horizon server URL.
  */
-export class EffectCallBuilder extends CallBuilder {
-  constructor(serverUrl) {
+export class EffectCallBuilder extends CallBuilder<
+  ServerApi.CollectionPage<ServerApi.EffectRecord>
+> {
+  constructor(serverUrl: uri.URI) {
     super(serverUrl);
-    this.url.segment('effects');
+    this.url.segment("effects");
   }
 
   /**
@@ -22,8 +25,8 @@ export class EffectCallBuilder extends CallBuilder {
    * @param {string} accountId For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
    * @returns {EffectCallBuilder} this EffectCallBuilder instance
    */
-  forAccount(accountId) {
-    this.filter.push(['accounts', accountId, 'effects']);
+  public forAccount(accountId: string): this {
+    this.filter.push(["accounts", accountId, "effects"]);
     return this;
   }
 
@@ -35,11 +38,11 @@ export class EffectCallBuilder extends CallBuilder {
    * @param {number|string} sequence Ledger sequence
    * @returns {EffectCallBuilder} this EffectCallBuilder instance
    */
-  forLedger(sequence) {
+  public forLedger(sequence: number | string): this {
     this.filter.push([
-      'ledgers',
-      typeof sequence === 'number' ? sequence.toString() : sequence,
-      'effects'
+      "ledgers",
+      typeof sequence === "number" ? sequence.toString() : sequence,
+      "effects",
     ]);
     return this;
   }
@@ -50,8 +53,8 @@ export class EffectCallBuilder extends CallBuilder {
    * @param {string} transactionId Transaction ID
    * @returns {EffectCallBuilder} this EffectCallBuilder instance
    */
-  forTransaction(transactionId) {
-    this.filter.push(['transactions', transactionId, 'effects']);
+  public forTransaction(transactionId: string): this {
+    this.filter.push(["transactions", transactionId, "effects"]);
     return this;
   }
 
@@ -61,8 +64,8 @@ export class EffectCallBuilder extends CallBuilder {
    * @param {number} operationId Operation ID
    * @returns {EffectCallBuilder} this EffectCallBuilder instance
    */
-  forOperation(operationId) {
-    this.filter.push(['operations', operationId, 'effects']);
+  public forOperation(operationId: string): this {
+    this.filter.push(["operations", operationId, "effects"]);
     return this;
   }
 }

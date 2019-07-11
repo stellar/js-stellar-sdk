@@ -1,0 +1,6 @@
+{
+  "extends": ["@stellar/tslint-config"],
+  "rules": {
+    "max-line-length": [false]
+  }
+}

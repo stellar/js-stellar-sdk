@@ -1,10 +1,10 @@
-import axios from 'axios';
-import URI from 'urijs';
-import { StrKey } from 'stellar-base';
+import axios from "axios";
+import { StrKey } from "stellar-base";
+import URI from "urijs";
 
-import { Config } from './config';
-import { BadResponseError } from './errors';
-import { StellarTomlResolver } from './stellar_toml_resolver';
+import { Config } from "./config";
+import { BadResponseError } from "./errors";
+import { StellarTomlResolver } from "./stellar_toml_resolver";
 
 // FEDERATION_RESPONSE_MAX_SIZE is the maximum size of response from a federation server
 export const FEDERATION_RESPONSE_MAX_SIZE = 100 * 1024;
@@ -22,25 +22,26 @@ export const FEDERATION_RESPONSE_MAX_SIZE = 100 * 1024;
  * @returns {void}
  */
 export class FederationServer {
-  constructor(serverURL, domain, opts = {}) {
-    // TODO `domain` regexp
-    this.serverURL = URI(serverURL);
-    this.domain = domain;
-
-    let allowHttp = Config.isAllowHttp();
-    if (typeof opts.allowHttp !== 'undefined') {
-      allowHttp = opts.allowHttp;
-    }
-
-    this.timeout = Config.getTimeout();
-    if (typeof opts.timeout === 'number') {
-      this.timeout = opts.timeout;
-    }
-
-    if (this.serverURL.protocol() !== 'https' && !allowHttp) {
-      throw new Error('Cannot connect to insecure federation server');
-    }
-  }
+  /**
+   * The federation server URL (ex. `https://acme.com/federation`).
+   *
+   * @memberof FederationServer
+   */
+  private readonly serverURL: uri.URI; // TODO: public or private? readonly?
+  /**
+   * Domain this server represents.
+   *
+   * @type {string}
+   * @memberof FederationServer
+   */
+  private readonly domain: string; // TODO: public or private? readonly?
+  /**
+   * Allow a timeout, default: 0. Allows user to avoid nasty lag due to TOML resolve issue.
+   *
+   * @type {number}
+   * @memberof FederationServer
+   */
+  private readonly timeout: number; // TODO: public or private? readonly?
 
   /**
    * A helper method for handling user inputs that contain `destination` value.
@@ -75,26 +76,30 @@ export class FederationServer {
    * * `account_id` - Account ID of the destination,
    * * `memo_type` (optional) - Memo type that needs to be attached to a transaction,
    * * `memo` (optional) - Memo value that needs to be attached to a transaction.
-
    */
-  static resolve(value, opts = {}) {
+  public static async resolve(
+    value: string,
+    opts: FederationServer.Options = {},
+  ): Promise<FederationServer.Record> {
     // Check if `value` is in account ID format
-    if (value.indexOf('*') < 0) {
+    if (value.indexOf("*") < 0) {
       if (!StrKey.isValidEd25519PublicKey(value)) {
-        return Promise.reject(new Error('Invalid Account ID'));
+        return Promise.reject(new Error("Invalid Account ID"));
       }
       return Promise.resolve({ account_id: value });
     }
 
-    const addressParts = value.split('*');
+    const addressParts = value.split("*");
     const [, domain] = addressParts;
 
     if (addressParts.length !== 2 || !domain) {
-      return Promise.reject(new Error('Invalid Stellar address'));
+      return Promise.reject(new Error("Invalid Stellar address"));
     }
-    return FederationServer.createForDomain(domain, opts).then(
-      (federationServer) => federationServer.resolveAddress(value)
+    const federationServer = await FederationServer.createForDomain(
+      domain,
+      opts,
     );
+    return federationServer.resolveAddress(value);
   }
 
   /**
@@ -120,15 +125,39 @@ export class FederationServer {
    * @param {number} [opts.timeout] - Allow a timeout, default: 0. Allows user to avoid nasty lag due to TOML resolve issue.
    * @returns {Promise} `Promise` that resolves to a FederationServer object
    */
-  static createForDomain(domain, opts = {}) {
-    return StellarTomlResolver.resolve(domain, opts).then((tomlObject) => {
-      if (!tomlObject.FEDERATION_SERVER) {
-        return Promise.reject(
-          new Error('stellar.toml does not contain FEDERATION_SERVER field')
-        );
-      }
-      return new FederationServer(tomlObject.FEDERATION_SERVER, domain, opts);
-    });
+  public static async createForDomain(
+    domain: string,
+    opts: FederationServer.Options = {},
+  ): Promise<FederationServer> {
+    const tomlObject = await StellarTomlResolver.resolve(domain, opts);
+    if (!tomlObject.FEDERATION_SERVER) {
+      return Promise.reject(
+        new Error("stellar.toml does not contain FEDERATION_SERVER field"),
+      );
+    }
+    return new FederationServer(tomlObject.FEDERATION_SERVER, domain, opts);
+  }
+
+  public constructor(
+    serverURL: string,
+    domain: string,
+    opts: FederationServer.Options = {},
+  ) {
+    // TODO `domain` regexp
+    this.serverURL = URI(serverURL);
+    this.domain = domain;
+
+    const allowHttp =
+      typeof opts.allowHttp === "undefined"
+        ? Config.isAllowHttp()
+        : opts.allowHttp;
+
+    this.timeout =
+      typeof opts.timeout === "undefined" ? Config.getTimeout() : opts.timeout;
+
+    if (this.serverURL.protocol() !== "https" && !allowHttp) {
+      throw new Error("Cannot connect to insecure federation server");
+    }
   }
 
   /**
@@ -137,19 +166,21 @@ export class FederationServer {
    * @param {string} address Stellar address (ex. `bob*stellar.org`). If `FederationServer` was instantiated with `domain` param only username (ex. `bob`) can be passed.
    * @returns {Promise} Promise that resolves to the federation record
    */
-  resolveAddress(address) {
+  public async resolveAddress(
+    address: string,
+  ): Promise<FederationServer.Record> {
     let stellarAddress = address;
-    if (address.indexOf('*') < 0) {
+    if (address.indexOf("*") < 0) {
       if (!this.domain) {
         return Promise.reject(
           new Error(
-            'Unknown domain. Make sure `address` contains a domain (ex. `bob*stellar.org`) or pass `domain` parameter when instantiating the server object.'
-          )
+            "Unknown domain. Make sure `address` contains a domain (ex. `bob*stellar.org`) or pass `domain` parameter when instantiating the server object.",
+          ),
         );
       }
       stellarAddress = `${address}*${this.domain}`;
     }
-    const url = this.serverURL.query({ type: 'name', q: stellarAddress });
+    const url = this.serverURL.query({ type: "name", q: stellarAddress });
     return this._sendRequest(url);
   }
 
@@ -159,8 +190,10 @@ export class FederationServer {
    * @param {string} accountId Account ID (ex. `GBYNR2QJXLBCBTRN44MRORCMI4YO7FZPFBCNOKTOBCAAFC7KC3LNPRYS`)
    * @returns {Promise} A promise that resolves to the federation record
    */
-  resolveAccountId(accountId) {
-    const url = this.serverURL.query({ type: 'id', q: accountId });
+  public async resolveAccountId(
+    accountId: string,
+  ): Promise<FederationServer.Record> {
+    const url = this.serverURL.query({ type: "id", q: accountId });
     return this._sendRequest(url);
   }
 
@@ -170,25 +203,27 @@ export class FederationServer {
    * @param {string} transactionId Transaction ID (ex. `3389e9f0f1a65f19736cacf544c2e825313e8447f569233bb8db39aa607c8889`)
    * @returns {Promise} A promise that resolves to the federation record
    */
-  resolveTransactionId(transactionId) {
-    const url = this.serverURL.query({ type: 'txid', q: transactionId });
+  public async resolveTransactionId(
+    transactionId: string,
+  ): Promise<FederationServer.Record> {
+    const url = this.serverURL.query({ type: "txid", q: transactionId });
     return this._sendRequest(url);
   }
 
-  _sendRequest(url) {
+  private async _sendRequest(url: uri.URI) {
     const timeout = this.timeout;
 
     return axios
       .get(url.toString(), {
         maxContentLength: FEDERATION_RESPONSE_MAX_SIZE,
-        timeout
+        timeout,
       })
       .then((response) => {
         if (
-          typeof response.data.memo !== 'undefined' &&
-          typeof response.data.memo !== 'string'
+          typeof response.data.memo !== "undefined" &&
+          typeof response.data.memo !== "string"
         ) {
-          throw new Error('memo value should be of type string');
+          throw new Error("memo value should be of type string");
         }
         return response.data;
       })
@@ -196,7 +231,7 @@ export class FederationServer {
         if (response instanceof Error) {
           if (response.message.match(/^maxContentLength size/)) {
             throw new Error(
-              `federation response exceeds allowed size of ${FEDERATION_RESPONSE_MAX_SIZE}`
+              `federation response exceeds allowed size of ${FEDERATION_RESPONSE_MAX_SIZE}`,
             );
           } else {
             return Promise.reject(response);
@@ -207,10 +242,24 @@ export class FederationServer {
               `Server query failed. Server responded: ${response.status} ${
                 response.statusText
               }`,
-              response.data
-            )
+              response.data,
+            ),
           );
         }
       });
+  }
+}
+
+/* tslint:disable-next-line:no-namespace */
+export namespace FederationServer {
+  export interface Record {
+    account_id: string;
+    memo_type?: string;
+    memo?: string;
+  }
+
+  export interface Options {
+    allowHttp?: boolean;
+    timeout?: number;
   }
 }

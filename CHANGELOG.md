@@ -1,7 +1,23 @@
 # Changelog
 
-As this project is pre 1.0, breaking changes may happen for minor version bumps.
 A breaking change will get clearly marked in this log.
+
+## [v2.0.0](https://github.com/stellar/js-stellar-sdk/compare/v1.0.2...v2.0.0)
+
+- **Breaking change** Port stellar-sdk to Typescript. Because we use a slightly
+  different build process, there could be some unanticipated bugs. Additionally,
+  some type definitions have changed:
+  - Types that were once in the `Server` namespace but didn't actually deal with
+    the `Server` class have been broken out into a new namespace, `ServerApi`.
+    So, for example, `Server.AccountRecord` -> `ServerApi.AccountRecord`.
+  - `Server.AccountResponse` is out of the `Server` namespace ->
+    `AccountResponse`
+  - `Server.*CallBuilder` is out of the `Server` namespace -> `*CallBuilder`
+  - `HorizonResponseAccount` is now `Horizon.AccountResponse`
+- Upgrade Webpack to v4.
+- Add support for providing app name and version to request headers.
+
+Many thanks to @Ffloriel and @Akuukis for their help with this release!
 
 ## [v1.0.5](https://github.com/stellar/js-stellar-sdk/compare/v1.0.4...v1.0.5)
 
