@@ -6,8 +6,6 @@
  * - `EventSource` used at `src/call_builder.ts`.
  */
 
-type EventListenerOrEventListenerObject = EventListener | EventListenerObject;
-
 interface EventSourceEventMap {
   error: Event;
   message: MessageEvent;
@@ -44,7 +42,7 @@ interface EventSource extends EventTarget {
   ): void;
   addEventListener(
     type: string,
-    listener: EventListenerOrEventListenerObject,
+    listener: EventListener | EventListenerObject,
     options?: boolean | AddEventListenerOptions,
   ): void;
   removeEventListener<K extends keyof EventSourceEventMap>(
@@ -54,7 +52,7 @@ interface EventSource extends EventTarget {
   ): void;
   removeEventListener(
     type: string,
-    listener: EventListenerOrEventListenerObject,
+    listener: EventListener | EventListenerObject,
     options?: boolean | EventListenerOptions,
   ): void;
 }
