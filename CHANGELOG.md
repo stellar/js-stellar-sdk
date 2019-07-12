@@ -2,7 +2,7 @@
 
 A breaking change will get clearly marked in this log.
 
-## [v2.0.0](https://github.com/stellar/js-stellar-sdk/compare/v1.0.2...v2.0.0)
+## [v2.0.1](https://github.com/stellar/js-stellar-sdk/compare/v1.0.2...v2.0.1)
 
 - **Breaking change** Port stellar-sdk to Typescript. Because we use a slightly
   different build process, there could be some unanticipated bugs. Additionally,
@@ -16,6 +16,7 @@ A breaking change will get clearly marked in this log.
   - `HorizonResponseAccount` is now `Horizon.AccountResponse`
 - Upgrade Webpack to v4.
 - Add support for providing app name and version to request headers.
+- (NPM wouldn't accept the 2.0.0 version, so we're publishing to 2.0.1.)
 
 Many thanks to @Ffloriel and @Akuukis for their help with this release!
 
