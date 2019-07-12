@@ -5,7 +5,7 @@ if [ ! -d "jsdoc" ]; then
   exit 1
 fi
 
-jsdoc -c .jsdoc.json --verbose
+npm run docs
 cd jsdoc
 git add .
 git commit -m $TRAVIS_TAG
