@@ -27,6 +27,7 @@ export {
   SERVER_TIME_MAP,
   getCurrentServerTime,
 } from "./horizon_axios_client";
+export * from "./utils";
 
 // expose classes and functions from stellar-base
 export * from "stellar-base";
