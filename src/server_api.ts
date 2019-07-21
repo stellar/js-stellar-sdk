@@ -36,6 +36,7 @@ export namespace ServerApi {
     account_id: string;
     sequence: string;
     subentry_count: number;
+    home_domain?: string;
     inflation_destination?: string;
     last_modified_ledger: number;
     thresholds: Horizon.AccountThresholds;
