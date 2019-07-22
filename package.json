@@ -54,7 +54,7 @@
   "devDependencies": {
     "@stellar/prettier-config": "^1.0.1",
     "@stellar/tsconfig": "^1.0.1",
-    "@stellar/tslint-config": "^1.0.1",
+    "@stellar/tslint-config": "^1.0.3",
     "@types/detect-node": "^2.0.0",
     "@types/lodash": "^4.14.130",
     "axios-mock-adapter": "^1.16.0",

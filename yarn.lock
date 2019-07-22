@@ -107,10 +107,10 @@
   resolved "https://registry.yarnpkg.com/@stellar/tsconfig/-/tsconfig-1.0.1.tgz#71fdb62e9a20a435d4962b906c997ec6927264e6"
   integrity sha512-dYdEY2chPcD8V2flkG00BTxYUKkIFqTV1n8aIxkdUpSIfnMv8FnixtdLbCb9hRutQgKjIQvHRisUS7yczfjSrw==
 
-"@stellar/tslint-config@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@stellar/tslint-config/-/tslint-config-1.0.1.tgz#35f4d35352b1657c74097d0eb0fc8d4583ba8f3a"
-  integrity sha512-vkm5ROjjyQ/zaV/qaXcG/xHJcaznhigq0gHg3sbwOzkJaDhRDOQvHpJDMQmRn3L83vgN4R8qqQsMTBC9J1/nRw==
+"@stellar/tslint-config@^1.0.3":
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/@stellar/tslint-config/-/tslint-config-1.0.3.tgz#6b9aa87c4c7213cd3d4c49b5ad3001bb26a73937"
+  integrity sha512-Ec9f9+9PU+9/pT2Ehd05o8qzLrr6IDDjExjaXNpqCxy/D4X2vwH5ubu1GQsXJ47yDCi4CyAlhG8VP80MP/BatQ==
 
 "@types/detect-node@^2.0.0":
   version "2.0.0"
