@@ -131,6 +131,7 @@
   "dependencies": {
     "@types/eventsource": "^1.1.2",
     "@types/node": ">= 8",
+    "@types/randombytes": "^2.0.0",
     "@types/urijs": "^1.19.2",
     "axios": "^0.19.0",
     "bignumber.js": "^4.0.0",
@@ -138,6 +139,7 @@
     "es6-promise": "^4.2.4",
     "eventsource": "^1.0.7",
     "lodash": "^4.17.11",
+    "randombytes": "^2.1.0",
     "stellar-base": "^1.0.3",
     "toml": "^2.3.0",
     "tslib": "^1.10.0",
