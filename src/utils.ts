@@ -22,7 +22,14 @@ export namespace Utils {
    * @param {string} clientAccountID The stellar account that the wallet wishes to authenticate with the server.
    * @param {string} anchorName Anchor's name to be used in the manage_data key.
    * @param {number} [timeout=300] Challenge duration (default to 5 minutes).
-   * @returns {string} Transaction in Base64
+   * @example
+   * import { Utils, Keypair, Network }  from 'stellar-sdk'
+   *
+   * Network.useTestNetwork();
+   *
+   * let serverKeyPair = Keypair.fromSecret("server-secret")
+   * let challenge = Utils.buildChallengeTx(serverKeyPair, "client-stellar-account-id", "SDF", 300)
+   * @returns {string} A base64 encoded string of the raw TransactionEnvelope xdr struct for the transaction.
    */
   export function buildChallengeTx(
     serverKeypair: Keypair,
