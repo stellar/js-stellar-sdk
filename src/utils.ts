@@ -1,5 +1,11 @@
 import { randomBytes } from "crypto";
-import { Account, Keypair, Operation, TransactionBuilder } from "stellar-base";
+import {
+  Account,
+  BASE_FEE,
+  Keypair,
+  Operation,
+  TransactionBuilder,
+} from "stellar-base";
 
 /**
  * @namespace Utils
@@ -28,7 +34,7 @@ export namespace Utils {
     const now = Math.floor(Date.now() / 1000);
 
     const transaction = new TransactionBuilder(account, {
-      fee: 100,
+      fee: BASE_FEE,
       timebounds: {
         minTime: now,
         maxTime: now + timeout,
