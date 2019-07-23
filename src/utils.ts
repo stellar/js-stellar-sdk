@@ -1,4 +1,4 @@
-import { randomBytes } from "crypto";
+import randomBytes from "randombytes";
 import {
   Account,
   BASE_FEE,
