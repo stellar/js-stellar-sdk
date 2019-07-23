@@ -7,7 +7,8 @@
   "scripts": {
     "prepare": "gulp build",
     "test": "babel-node ./node_modules/.bin/gulp test",
-    "docs": "gulp build:docs && jsdoc -c .jsdoc.json",
+    "build:docs": "gulp build:docs",
+    "docs": "yarn build:docs && jsdoc -c .jsdoc.json",
     "dtslint": "dtslint test/types",
     "preversion": "gulp test",
     "version": "gulp build",
