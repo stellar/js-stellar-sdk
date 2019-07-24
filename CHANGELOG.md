@@ -2,6 +2,21 @@
 
 A breaking change will get clearly marked in this log.
 
+## [v2.1.0](https://github.com/stellar/js-stellar-sdk/compare/v2.0.1...v2.1.0)
+
+### Add
+- Add single script to build docs and call it when combined with jsdoc. ([#380](https://github.com/stellar/js-stellar-sdk/issues/380))
+- Add SEP0010 transaction challenge builder. ([#375](https://github.com/stellar/js-stellar-sdk/issues/375))
+- Add `home_domain` to ServerApi.AccountRecord ([#376](https://github.com/stellar/js-stellar-sdk/issues/376))
+
+### Bump
+- Bump stellar-base to 1.0.3. ([#378](https://github.com/stellar/js-stellar-sdk/issues/378))
+- Bump @stellar/tslint-config ([#377](https://github.com/stellar/js-stellar-sdk/issues/377))
+
+### Fix
+- Fix jsdoc's build in after_deploy ([#373](https://github.com/stellar/js-stellar-sdk/issues/373))
+- Create new URI instead of passing serverUrl (Fix [#379](https://github.com/stellar/js-stellar-sdk/issues/379)). ([#382](https://github.com/stellar/js-stellar-sdk/issues/382))
+
 ## [v2.0.1](https://github.com/stellar/js-stellar-sdk/compare/v1.0.2...v2.0.1)
 
 - **Breaking change** Port stellar-sdk to Typescript. Because we use a slightly
