@@ -488,7 +488,11 @@ export class Server {
     resource: string,
     ...resourceParams: string[]
   ): OfferCallBuilder {
-    return new OfferCallBuilder(this.serverURL, resource, ...resourceParams);
+    return new OfferCallBuilder(
+      URI(this.serverURL as any),
+      resource,
+      ...resourceParams,
+    );
   }
 
   /**
