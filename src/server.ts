@@ -167,7 +167,7 @@ export class Server {
    * @returns {Promise} Promise that resolves to the fee stats returned by Horizon.
    */
   public async operationFeeStats(): Promise<any> {
-    const cb = new CallBuilder(this.serverURL);
+    const cb = new CallBuilder(URI(this.serverURL as any));
     cb.filter.push(["operation_fee_stats"]);
     return cb.call();
   }
@@ -551,7 +551,7 @@ export class Server {
     destinationAmount: string,
   ): PathCallBuilder {
     return new PathCallBuilder(
-      this.serverURL,
+      URI(this.serverURL as any),
       source,
       destination,
       destinationAsset,
@@ -626,7 +626,7 @@ export class Server {
     offset: number,
   ): TradeAggregationCallBuilder {
     return new TradeAggregationCallBuilder(
-      this.serverURL,
+      URI(this.serverURL as any),
       base,
       counter,
       start_time,
