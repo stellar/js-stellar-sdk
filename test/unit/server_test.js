@@ -2329,5 +2329,28 @@ describe('server.js non-transaction tests', function() {
           });
       });
     });
+
+    describe('Regressions', function() {
+      it('offers callBuilder does not pollute Server instance URI #379', function(done) {
+        this.axiosMock
+          .expects('get')
+          .withArgs(
+            sinon.match(
+              'https://horizon-live.stellar.org:1337/accounts/GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K/effects'
+            )
+          )
+          .returns(Promise.resolve({ data: {} }));
+
+        const account = "GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K";
+
+        const offerCallBuilder = this.server.offers("accounts", account);
+        const effectCallBuilder = this.server.effects().forAccount(account).limit(1);
+        effectCallBuilder.call().then(function(response) {
+          done();
+        }).catch(function(err) {
+          done(err);
+        });
+      });
+    });
   });
 });
