@@ -12,8 +12,8 @@ const version = require("../package.json").version;
 
 type Constructable<T> = new (e: string) => T;
 
-export interface EventSourceOptions {
-  onmessage?: (event: MessageEvent) => void;
+export interface EventSourceOptions<T> {
+  onmessage?: (value: T) => void;
   onerror?: (event: MessageEvent) => void;
   reconnectTimeout?: number;
 }
@@ -88,7 +88,7 @@ export class CallBuilder<
    * @param {number} [options.reconnectTimeout] Custom stream connection timeout in ms, default is 15 seconds.
    * @returns {function} Close function. Run to close the connection and stop listening for new events.
    */
-  public stream(options: EventSourceOptions = {}): () => void {
+  public stream(options: EventSourceOptions<T> = {}): () => void {
     this.checkFilter();
 
     this.url.setQuery("X-Client-Name", "js-stellar-sdk");
