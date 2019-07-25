@@ -2,6 +2,11 @@
 
 A breaking change will get clearly marked in this log.
 
+## [v2.1.1](https://github.com/stellar/js-stellar-sdk/compare/v2.1.0...v2.1.1)
+
+### Fix
+- Fix CallBuilder onmessage type ([#385](https://github.com/stellar/js-stellar-sdk/issues/385))
+
 ## [v2.1.0](https://github.com/stellar/js-stellar-sdk/compare/v2.0.1...v2.1.0)
 
 ### Add
