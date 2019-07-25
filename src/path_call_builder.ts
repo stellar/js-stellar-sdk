@@ -1,4 +1,4 @@
-import { Asset } from "stellar-base";
+import { AccountId, Asset } from "stellar-base";
 import { CallBuilder } from "./call_builder";
 import { ServerApi } from "./server_api";
 
@@ -31,8 +31,8 @@ export class PathCallBuilder extends CallBuilder<
 > {
   constructor(
     serverUrl: uri.URI,
-    source: string,
-    destination: string,
+    source: AccountId,
+    destination: AccountId,
     destinationAsset: Asset,
     destinationAmount: string,
   ) {

@@ -1,5 +1,5 @@
 import axios from "axios";
-import { StrKey } from "stellar-base";
+import { AccountId, StrKey } from "stellar-base";
 import URI from "urijs";
 
 import { Config } from "./config";
@@ -253,7 +253,7 @@ export class FederationServer {
 /* tslint:disable-next-line:no-namespace */
 export namespace FederationServer {
   export interface Record {
-    account_id: string;
+    account_id: AccountId;
     memo_type?: string;
     memo?: string;
   }

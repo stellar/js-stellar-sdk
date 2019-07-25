@@ -3,7 +3,14 @@
 import BigNumber from "bignumber.js";
 import isEmpty from "lodash/isEmpty";
 import merge from "lodash/merge";
-import { Asset, StrKey, Transaction, xdr } from "stellar-base";
+import {
+  AccountId,
+  Asset,
+  PublicKey,
+  StrKey,
+  Transaction,
+  xdr,
+} from "stellar-base";
 import URI from "urijs";
 
 import { CallBuilder } from "./call_builder";
@@ -188,14 +195,14 @@ export class Server {
    *       // Exact ordered list of offers that executed, with the exception
    *       // that the last one may not have executed entirely.
    *       offersClaimed: [
-   *         sellerId: String,
-   *         offerId: String,
+   *         sellerId: AccountId,
+   *         offerId: AccountId,
    *         assetSold: {
    *           type: 'native|credit_alphanum4|credit_alphanum12',
    *
    *           // these are only present if the asset is not native
    *           assetCode: String,
-   *           issuer: String,
+   *           issuer: AccountId,
    *         },
    *
    *         // same shape as assetSold
@@ -236,7 +243,7 @@ export class Server {
    *
    *           // these are only present if the asset is not native
    *           assetCode: String,
-   *           issuer: String,
+   *           issuer: AccountId,
    *         },
    *
    *         // same as `selling`
@@ -545,8 +552,8 @@ export class Server {
    * @returns {PathCallBuilder} New {@link PathCallBuilder} object configured with the current Horizon server configuration.
    */
   public paths(
-    source: string,
-    destination: string,
+    source: AccountId,
+    destination: AccountId,
     destinationAsset: Asset,
     destinationAmount: string,
   ): PathCallBuilder {
@@ -581,7 +588,7 @@ export class Server {
    * Horizon server configuration
    * @private
    */
-  public friendbot(address: string): FriendbotBuilder {
+  public friendbot(address: PublicKey): FriendbotBuilder {
     return new FriendbotBuilder(URI(this.serverURL as any), address);
   }
 
@@ -596,12 +603,12 @@ export class Server {
 
   /**
    * Fetches an account's most current state in the ledger and then creates and returns an {@link Account} object.
-   * @param {string} accountId - The account to load.
+   * @param {string} publicKey - The account to load.
    * @returns {Promise} Returns a promise to the {@link AccountResponse} object with populated sequence number.
    */
-  public async loadAccount(accountId: string): Promise<AccountResponse> {
+  public async loadAccount(publicKey: PublicKey): Promise<AccountResponse> {
     const res = await this.accounts()
-      .accountId(accountId)
+      .accountId(publicKey)
       .call();
     return new AccountResponse(res);
   }

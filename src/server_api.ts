@@ -1,4 +1,4 @@
-import { Asset, AssetType } from "stellar-base";
+import { AccountId, Asset, AssetType } from "stellar-base";
 import { Omit } from "utility-types";
 import { Horizon } from "./horizon_api";
 
@@ -33,7 +33,7 @@ export namespace ServerApi {
   export interface AccountRecord extends Horizon.BaseResponse {
     id: string;
     paging_token: string;
-    account_id: string;
+    account_id: AccountId;
     sequence: string;
     subentry_count: number;
     home_domain?: string;
@@ -55,7 +55,7 @@ export namespace ServerApi {
   }
 
   export interface EffectRecord extends Horizon.BaseResponse {
-    account: string;
+    account: AccountId;
     paging_token: string;
     type_i: string;
     type: string;
@@ -79,11 +79,11 @@ export namespace ServerApi {
     bought_amount?: string;
     bought_asset_type?: string;
     bought_asset_code?: string;
-    bought_asset_issuer?: string;
+    bought_asset_issuer?: AccountId;
     sold_amount?: string;
     sold_asset_type?: string;
     sold_asset_code?: string;
-    sold_asset_issuer?: string;
+    sold_asset_issuer?: AccountId;
 
     // account_created
     starting_balance?: string;
@@ -152,7 +152,7 @@ export namespace ServerApi {
   export interface OfferRecord extends Horizon.BaseResponse {
     id: string;
     paging_token: string;
-    seller: string;
+    seller: AccountId;
     selling: OfferAsset;
     buying: OfferAsset;
     amount: string;
@@ -275,13 +275,13 @@ export namespace ServerApi {
     base_amount: string;
     base_asset_type: string;
     base_asset_code?: string;
-    base_asset_issuer?: string;
+    base_asset_issuer?: AccountId;
     counter_offer_id: string;
     counter_account: string;
     counter_amount: string;
     counter_asset_type: string;
     counter_asset_code?: string;
-    counter_asset_issuer?: string;
+    counter_asset_issuer?: AccountId;
     base_is_seller: boolean;
 
     base: CallFunction<AccountRecord>;
@@ -305,7 +305,7 @@ export namespace ServerApi {
   export interface AssetRecord extends Horizon.BaseResponse {
     asset_type: AssetType.credit4 | AssetType.credit12;
     asset_code: string;
-    asset_issuer: string;
+    asset_issuer: AccountId;
     paging_token: string;
     amount: string;
     num_accounts: number;
@@ -322,16 +322,16 @@ export namespace ServerApi {
   export interface PaymentPathRecord extends Horizon.BaseResponse {
     path: Array<{
       asset_code: string;
-      asset_issuer: string;
+      asset_issuer: AccountId;
       asset_type: string;
     }>;
     source_amount: string;
     source_asset_type: string;
     source_asset_code: string;
-    source_asset_issuer: string;
+    source_asset_issuer: AccountId;
     destination_amount: string;
     destination_asset_type: string;
     destination_asset_code: string;
-    destination_asset_issuer: string;
+    destination_asset_issuer: AccountId;
   }
 }

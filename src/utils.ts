@@ -1,6 +1,7 @@
 import randomBytes from "randombytes";
 import {
   Account,
+  AccountId,
   BASE_FEE,
   Keypair,
   Operation,
@@ -19,7 +20,7 @@ export namespace Utils {
    * @function
    * @memberof Utils
    * @param {Keypair} serverKeypair Keypair for server's signing account.
-   * @param {string} clientAccountID The stellar account that the wallet wishes to authenticate with the server.
+   * @param {string} clientAccountId The stellar account that the wallet wishes to authenticate with the server.
    * @param {string} anchorName Anchor's name to be used in the manage_data key.
    * @param {number} [timeout=300] Challenge duration (default to 5 minutes).
    * @example
@@ -33,7 +34,7 @@ export namespace Utils {
    */
   export function buildChallengeTx(
     serverKeypair: Keypair,
-    clientAccountID: string,
+    clientAccountId: AccountId,
     anchorName: string,
     timeout: number = 300,
   ): string {
@@ -51,7 +52,7 @@ export namespace Utils {
         Operation.manageData({
           name: `${anchorName} auth`,
           value: randomBytes(64),
-          source: clientAccountID,
+          source: clientAccountId,
         }),
       )
       .build();

@@ -1,7 +1,7 @@
 /* tslint:disable:variable-name */
 
 import forIn from "lodash/forIn";
-import { Account as BaseAccount } from "stellar-base";
+import { Account as BaseAccount, AccountId } from "stellar-base";
 import { Omit } from "utility-types";
 import { Horizon } from "./horizon_api";
 import { ServerApi } from "./server_api";
@@ -21,7 +21,7 @@ export class AccountResponse
   implements Omit<ServerApi.AccountRecord, "_links"> {
   public readonly id!: string;
   public readonly paging_token!: string;
-  public readonly account_id!: string;
+  public readonly account_id!: AccountId;
   public sequence!: string;
   public readonly subentry_count!: number;
   public readonly inflation_destination!: string;

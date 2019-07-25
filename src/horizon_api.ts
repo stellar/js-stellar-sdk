@@ -1,4 +1,4 @@
-import { AssetType, MemoType } from "stellar-base";
+import { AccountId, AssetType, MemoType, PublicKey } from "stellar-base";
 
 /* tslint:disable-next-line:no-namespace */
 export namespace Horizon {
@@ -27,7 +27,7 @@ export namespace Horizon {
     result_meta_xdr: string;
     result_xdr: string;
     signatures: string[];
-    source_account: string;
+    source_account: AccountId;
     source_account_sequence: string;
   }
 
@@ -46,7 +46,7 @@ export namespace Horizon {
     limit: string;
     asset_type: T;
     asset_code: string;
-    asset_issuer: string;
+    asset_issuer: AccountId;
     buying_liabilities: string;
     selling_liabilities: string;
     last_modified_ledger: number;
@@ -80,7 +80,7 @@ export namespace Horizon {
     auth_revocable: boolean;
   }
   export interface AccountSigner {
-    key: string;
+    key: PublicKey;
     weight: number;
     type: string;
   }
@@ -96,7 +96,7 @@ export namespace Horizon {
     > {
     id: string;
     paging_token: string;
-    account_id: string;
+    account_id: AccountId;
     sequence: string;
     subentry_count: number;
     thresholds: AccountThresholds;
@@ -142,7 +142,7 @@ export namespace Horizon {
   > extends BaseResponse<"succeeds" | "precedes" | "effects" | "transaction"> {
     id: string;
     paging_token: string;
-    source_account: string;
+    source_account: AccountId;
     type: T;
     type_i: TI;
     created_at: string;
@@ -153,8 +153,8 @@ export namespace Horizon {
       OperationResponseType.createAccount,
       OperationResponseTypeI.createAccount
     > {
-    account: string;
-    funder: string;
+    account: AccountId;
+    funder: AccountId;
     starting_balance: string;
   }
   export interface PaymentOperationResponse
@@ -162,11 +162,11 @@ export namespace Horizon {
       OperationResponseType.payment,
       OperationResponseTypeI.payment
     > {
-    from: string;
-    to: string;
+    from: AccountId;
+    to: AccountId;
     asset_type: AssetType;
     asset_code?: string;
-    asset_issuer?: string;
+    asset_issuer?: AccountId;
     amount: string;
   }
   export interface PathPaymentOperationResponse
@@ -174,15 +174,15 @@ export namespace Horizon {
       OperationResponseType.pathPayment,
       OperationResponseTypeI.pathPayment
     > {
-    from: string;
-    to: string;
+    from: AccountId;
+    to: AccountId;
     asset_type: AssetType;
     asset_code?: string;
-    asset_issuer?: string;
+    asset_issuer?: AccountId;
     amount: string;
     source_asset_type: AssetType;
     source_asset_code?: string;
-    source_asset_issuer?: string;
+    source_asset_issuer?: AccountId;
     source_max: string;
     source_amount: string;
   }
@@ -195,12 +195,12 @@ export namespace Horizon {
     amount: string;
     buying_asset_type: AssetType;
     buying_asset_code?: string;
-    buying_asset_issuer?: string;
+    buying_asset_issuer?: AccountId;
     price: string;
     price_r: PriceR;
     selling_asset_type: AssetType;
     selling_asset_code?: string;
-    selling_asset_issuer?: string;
+    selling_asset_issuer?: AccountId;
   }
   export interface PassiveOfferOperationResponse
     extends BaseOperationResponse<
@@ -211,12 +211,12 @@ export namespace Horizon {
     amount: string;
     buying_asset_type: AssetType;
     buying_asset_code?: string;
-    buying_asset_issuer?: string;
+    buying_asset_issuer?: AccountId;
     price: string;
     price_r: PriceR;
     selling_asset_type: AssetType;
     selling_asset_code?: string;
-    selling_asset_issuer?: string;
+    selling_asset_issuer?: AccountId;
   }
   export interface SetOptionsOperationResponse
     extends BaseOperationResponse<
@@ -242,9 +242,9 @@ export namespace Horizon {
     > {
     asset_type: AssetType.credit4 | AssetType.credit12;
     asset_code: string;
-    asset_issuer: string;
-    trustee: string;
-    trustor: string;
+    asset_issuer: AccountId;
+    trustee: AccountId;
+    trustor: AccountId;
     limit: string;
   }
   export interface AllowTrustOperationResponse
@@ -254,10 +254,10 @@ export namespace Horizon {
     > {
     asset_type: AssetType;
     asset_code: string;
-    asset_issuer: string;
+    asset_issuer: AccountId;
     authorize: boolean;
-    trustee: string;
-    trustor: string;
+    trustee: AccountId;
+    trustor: AccountId;
   }
   export interface AccountMergeOperationResponse
     extends BaseOperationResponse<
