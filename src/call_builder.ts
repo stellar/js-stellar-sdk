@@ -125,25 +125,27 @@ export class CallBuilder<
 
       createTimeout();
 
-      es.onmessage = (message) => {
-        const result = message.data
-          ? this._parseRecord(JSON.parse(message.data))
-          : message;
-        if (result.paging_token) {
-          this.url.setQuery("cursor", result.paging_token);
-        }
-        clearTimeout(timeout);
-        createTimeout();
-        if (typeof options.onmessage !== "undefined") {
-          options.onmessage(result);
-        }
-      };
+      if (es) {
+        es.onmessage = (message) => {
+          const result = message.data
+            ? this._parseRecord(JSON.parse(message.data))
+            : message;
+          if (result.paging_token) {
+            this.url.setQuery("cursor", result.paging_token);
+          }
+          clearTimeout(timeout);
+          createTimeout();
+          if (typeof options.onmessage !== "undefined") {
+            options.onmessage(result);
+          }
+        };
 
-      es.onerror = (error) => {
-        if (options.onerror && error instanceof MessageEvent) {
-          options.onerror(error);
-        }
-      };
+        es.onerror = (error) => {
+          if (options.onerror && error instanceof MessageEvent) {
+            options.onerror(error);
+          }
+        };
+      }
 
       return es;
     };
