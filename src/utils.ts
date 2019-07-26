@@ -115,30 +115,45 @@ export namespace Utils {
       );
     }
 
-    const hashedSignatureBase = transaction.hash();
-
-    const serverKeypair = Keypair.fromPublicKey(serverAccountId);
-    const signedByServer = transaction.signatures.find((sig) => {
-      return serverKeypair.verify(hashedSignatureBase, sig.signature());
-    });
-
-    if (!signedByServer) {
+    if (!signedBy(transaction, serverAccountId)) {
       throw new InvalidSep10ChallengeError(
         "The transaction is not signed by the server",
       );
     }
 
-    const clientKeypair = Keypair.fromPublicKey(operation.source as string);
-    const signedByClient = transaction.signatures.find((sig) => {
-      return clientKeypair.verify(hashedSignatureBase, sig.signature());
-    });
-
-    if (!signedByClient) {
+    if (!signedBy(transaction, operation.source as string)) {
       throw new InvalidSep10ChallengeError(
         "The transaction is not signed by the client",
       );
     }
 
+    if (!validateTimebounds(transaction)) {
+      throw new InvalidSep10ChallengeError("The transaction has expired");
+    }
+
     return true;
+  }
+
+  function validateTimebounds(transaction: Transaction): boolean {
+    if (!transaction.timeBounds) {
+      return false;
+    }
+
+    const now = Math.floor(Date.now() / 1000);
+    const { minTime, maxTime } = transaction.timeBounds;
+
+    return (
+      now >= Number.parseInt(minTime, 10) && now <= Number.parseInt(maxTime, 10)
+    );
+  }
+
+  function signedBy(transaction: Transaction, accountId: string): boolean {
+    const hashedSignatureBase = transaction.hash();
+
+    const keypair = Keypair.fromPublicKey(accountId);
+
+    return !!transaction.signatures.find((sig) => {
+      return keypair.verify(hashedSignatureBase, sig.signature());
+    });
   }
 }

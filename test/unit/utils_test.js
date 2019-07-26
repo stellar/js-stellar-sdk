@@ -190,5 +190,46 @@ describe('Utils', function() {
         /The transaction is not signed by the client/
       );
     });
+
+    describe("timeBounds", function() {
+      let clock;
+
+      beforeEach(() => {
+        clock = sinon.useFakeTimers();
+      });
+
+      afterEach(() => {
+        clock.restore();
+      });
+
+      it('throws an error if transaction does not contain valid timeBounds', function() {
+        let keypair = StellarSdk.Keypair.random();
+        let clientKeypair = StellarSdk.Keypair.random();
+
+        const challenge = StellarSdk.Utils.buildChallengeTx(
+          keypair,
+          clientKeypair.publicKey(),
+          "SDF",
+          300
+        );
+
+        clock.tick(350000);
+
+        const transaction = new StellarSdk.Transaction(challenge);
+        transaction.sign(clientKeypair);
+
+        const signedChallenge = transaction
+              .toEnvelope()
+              .toXDR("base64")
+              .toString();
+
+        expect(
+          () => StellarSdk.Utils.verifyChallengeTx(signedChallenge, keypair.publicKey())
+        ).to.throw(
+          StellarSdk.InvalidSep10ChallengeError,
+          /The transaction has expired/
+        );
+      });
+    });
   });
 });
