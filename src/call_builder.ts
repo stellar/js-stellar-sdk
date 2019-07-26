@@ -19,13 +19,15 @@ export interface EventSourceOptions<T> {
 }
 
 let EventSource: Constructable<EventSource>;
+const anyGlobal = global as any;
 
-if (isNode) {
+if (anyGlobal.EventSource) {
+  EventSource = anyGlobal.EventSource;
+} else if (isNode) {
   /* tslint:disable-next-line:no-var-requires */
   EventSource = require("eventsource");
 } else {
-  /* tslint:disable-next-line:variable-name */
-  EventSource = (global as any).window.EventSource;
+  EventSource = anyGlobal.window.EventSource;
 }
 
 /**
@@ -123,25 +125,27 @@ export class CallBuilder<
 
       createTimeout();
 
-      es.onmessage = (message) => {
-        const result = message.data
-          ? this._parseRecord(JSON.parse(message.data))
-          : message;
-        if (result.paging_token) {
-          this.url.setQuery("cursor", result.paging_token);
-        }
-        clearTimeout(timeout);
-        createTimeout();
-        if (typeof options.onmessage !== "undefined") {
-          options.onmessage(result);
-        }
-      };
+      if (es) {
+        es.onmessage = (message) => {
+          const result = message.data
+            ? this._parseRecord(JSON.parse(message.data))
+            : message;
+          if (result.paging_token) {
+            this.url.setQuery("cursor", result.paging_token);
+          }
+          clearTimeout(timeout);
+          createTimeout();
+          if (typeof options.onmessage !== "undefined") {
+            options.onmessage(result);
+          }
+        };
 
-      es.onerror = (error) => {
-        if (options.onerror && error instanceof MessageEvent) {
-          options.onerror(error);
-        }
-      };
+        es.onerror = (error) => {
+          if (options.onerror && error instanceof MessageEvent) {
+            options.onerror(error);
+          }
+        };
+      }
 
       return es;
     };
@@ -149,7 +153,10 @@ export class CallBuilder<
     createEventSource();
     return function close() {
       clearTimeout(timeout);
-      es.close();
+
+      if (es) {
+        es.close();
+      }
     };
   }
 
