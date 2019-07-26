@@ -99,6 +99,20 @@ export namespace Utils {
       throw new InvalidSep10ChallengeError("The transaction is not signed");
     }
 
+    if (transaction.operations.length !== 1) {
+      throw new InvalidSep10ChallengeError(
+        "The transaction should contain only one operation",
+      );
+    }
+
+    const [operation] = transaction.operations;
+
+    if (!operation.source) {
+      throw new InvalidSep10ChallengeError(
+        "The transaction should contain a source account",
+      );
+    }
+
     return true;
   }
 }

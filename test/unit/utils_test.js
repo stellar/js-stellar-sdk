@@ -1,3 +1,5 @@
+const randomBytes = require("randombytes");
+
 describe('Utils', function() {
   beforeEach(function() {
     StellarSdk.Network.useTestNetwork();
@@ -84,6 +86,54 @@ describe('Utils', function() {
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
         /The transaction is not signed/
+      );
+    });
+
+    it('throws an error if transaction doestn\'t contain any operation', function() {
+      let keypair = StellarSdk.Keypair.random();
+      const account = new StellarSdk.Account(keypair.publicKey(), "-1");
+      const transaction = new StellarSdk.TransactionBuilder(account, { fee: 100 })
+            .setTimeout(30)
+            .build();
+
+      transaction.sign(keypair);
+      const challenge = transaction
+            .toEnvelope()
+            .toXDR("base64")
+            .toString();
+
+      expect(
+        () => StellarSdk.Utils.verifyChallengeTx(challenge, keypair.publicKey())
+      ).to.throw(
+        StellarSdk.InvalidSep10ChallengeError,
+        /The transaction should contain only one operation/
+      );
+    });
+
+    it('throws an error if operation does not contain the source account', function() {
+      let keypair = StellarSdk.Keypair.random();
+      const account = new StellarSdk.Account(keypair.publicKey(), "-1");
+      const transaction = new StellarSdk.TransactionBuilder(account, { fee: 100 })
+            .addOperation(
+              StellarSdk.Operation.manageData({
+                name: 'SDF auth',
+                value: randomBytes(64)
+              })
+            )
+            .setTimeout(30)
+            .build();
+
+      transaction.sign(keypair);
+      const challenge = transaction
+            .toEnvelope()
+            .toXDR("base64")
+            .toString();
+
+      expect(
+        () => StellarSdk.Utils.verifyChallengeTx(challenge, keypair.publicKey())
+      ).to.throw(
+        StellarSdk.InvalidSep10ChallengeError,
+        /The transaction should contain a source account/
       );
     });
   });
