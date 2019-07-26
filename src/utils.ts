@@ -98,6 +98,14 @@ export namespace Utils {
   ): boolean {
     const transaction = new Transaction(challengeTx);
 
+    const sequence = Number.parseInt(transaction.sequence, 10);
+
+    if (sequence !== 0) {
+      throw new InvalidSep10ChallengeError(
+        "The transaction sequence number should be zero",
+      );
+    }
+
     if (transaction.source !== serverAccountId) {
       throw new InvalidSep10ChallengeError(
         "The transaction source account is not equal to the server's account",

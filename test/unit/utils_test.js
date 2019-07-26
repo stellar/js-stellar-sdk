@@ -86,6 +86,27 @@ describe('Utils', function() {
       expect(StellarSdk.Utils.verifyChallengeTx(signedChallenge, keypair.publicKey())).to.eql(true);
     });
 
+    it('throws an error if transaction sequenceNumber if different to zero', function() {
+      let keypair = StellarSdk.Keypair.random();
+
+      const account = new StellarSdk.Account(keypair.publicKey(), "100");
+      const transaction = new StellarSdk.TransactionBuilder(account, { fee: 100 })
+            .setTimeout(30)
+            .build();
+
+      let challenge = transaction
+          .toEnvelope()
+          .toXDR("base64")
+          .toString();
+
+      expect(
+        () => StellarSdk.Utils.verifyChallengeTx(challenge, keypair.publicKey())
+      ).to.throw(
+        StellarSdk.InvalidSep10ChallengeError,
+        /The transaction sequence number should be zero/
+      );
+    });
+
     it('throws an error if transaction source account is different to server account id', function() {
       let keypair = StellarSdk.Keypair.random();
 
