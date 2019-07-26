@@ -63,7 +63,27 @@ describe('Utils', function() {
         () => StellarSdk.Utils.verifyChallengeTx(challenge, serverAccountId)
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
-        /Transaction source account is not equal to the server's account/
+        /The transaction source account is not equal to the server's account/
+      );
+    });
+
+    it('throws an error if transaction has no signatures', function() {
+      let keypair = StellarSdk.Keypair.random();
+      const account = new StellarSdk.Account(keypair.publicKey(), "-1");
+      const transaction = new StellarSdk.TransactionBuilder(account, { fee: 100 })
+            .setTimeout(30)
+            .build();
+
+      const challenge = transaction
+            .toEnvelope()
+            .toXDR("base64")
+            .toString();
+
+      expect(
+        () => StellarSdk.Utils.verifyChallengeTx(challenge, keypair.publicKey())
+      ).to.throw(
+        StellarSdk.InvalidSep10ChallengeError,
+        /The transaction is not signed/
       );
     });
   });

@@ -91,8 +91,12 @@ export namespace Utils {
 
     if (transaction.source !== serverAccountId) {
       throw new InvalidSep10ChallengeError(
-        "Transaction source account is not equal to the server's account",
+        "The transaction source account is not equal to the server's account",
       );
+    }
+
+    if (transaction.signatures.length === 0) {
+      throw new InvalidSep10ChallengeError("The transaction is not signed");
     }
 
     return true;
