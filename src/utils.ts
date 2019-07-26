@@ -70,6 +70,15 @@ export namespace Utils {
    * Verifies if a transaction is a valid [SEP0010](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0010.md)
    * challenge transaction.
    *
+   * This function performs the following checks:
+   *
+   *   1. Verifies that the transaction's source is the same as the server account id.
+   *   2. Verifies that the number of operations in the transaction is equal to one and of type manageData.
+   *   3. Verifies if timeBounds are still valid.
+   *   4. Verifies if the transaction has been signed by the server and the client.
+   *   5. Verifies that the sequenceNumber is equal to zero.
+   *
+   *
    * @see [SEP0010: Stellar Web Authentication](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0010.md)
    * @function
    * @memberof Utils
