@@ -116,8 +116,8 @@ export namespace Utils {
     }
 
     const hashedSignatureBase = transaction.hash();
-    const serverKeypair = Keypair.fromPublicKey(serverAccountId);
 
+    const serverKeypair = Keypair.fromPublicKey(serverAccountId);
     const signedByServer = transaction.signatures.find((sig) => {
       return serverKeypair.verify(hashedSignatureBase, sig.signature());
     });
@@ -125,6 +125,17 @@ export namespace Utils {
     if (!signedByServer) {
       throw new InvalidSep10ChallengeError(
         "The transaction is not signed by the server",
+      );
+    }
+
+    const clientKeypair = Keypair.fromPublicKey(operation.source as string);
+    const signedByClient = transaction.signatures.find((sig) => {
+      return clientKeypair.verify(hashedSignatureBase, sig.signature());
+    });
+
+    if (!signedByClient) {
+      throw new InvalidSep10ChallengeError(
+        "The transaction is not signed by the client",
       );
     }
 

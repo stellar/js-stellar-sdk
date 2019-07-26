@@ -173,5 +173,22 @@ describe('Utils', function() {
         /The transaction is not signed by the server/
       );
     });
+
+    it('throws an error if transaction is not signed by the client', function() {
+      let keypair = StellarSdk.Keypair.random();
+
+      const challenge = StellarSdk.Utils.buildChallengeTx(
+        keypair,
+        "GBDIT5GUJ7R5BXO3GJHFXJ6AZ5UQK6MNOIDMPQUSMXLIHTUNR2Q5CFNF",
+        "SDF"
+      );
+
+      expect(
+        () => StellarSdk.Utils.verifyChallengeTx(challenge, keypair.publicKey())
+      ).to.throw(
+        StellarSdk.InvalidSep10ChallengeError,
+        /The transaction is not signed by the client/
+      );
+    });
   });
 });
