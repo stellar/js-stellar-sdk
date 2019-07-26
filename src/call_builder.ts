@@ -19,13 +19,15 @@ export interface EventSourceOptions<T> {
 }
 
 let EventSource: Constructable<EventSource>;
+const anyGlobal = global as any;
 
-if (isNode) {
+if (anyGlobal.EventSource) {
+  EventSource = anyGlobal.EventSource;
+} else if (isNode) {
   /* tslint:disable-next-line:no-var-requires */
   EventSource = require("eventsource");
 } else {
-  /* tslint:disable-next-line:variable-name */
-  EventSource = (global as any).window.EventSource;
+  EventSource = anyGlobal.window.EventSource;
 }
 
 /**
@@ -149,7 +151,10 @@ export class CallBuilder<
     createEventSource();
     return function close() {
       clearTimeout(timeout);
-      es.close();
+
+      if (es) {
+        es.close();
+      }
     };
   }
 
