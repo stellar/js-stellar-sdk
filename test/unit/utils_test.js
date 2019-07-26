@@ -69,26 +69,6 @@ describe('Utils', function() {
       );
     });
 
-    it('throws an error if transaction has no signatures', function() {
-      let keypair = StellarSdk.Keypair.random();
-      const account = new StellarSdk.Account(keypair.publicKey(), "-1");
-      const transaction = new StellarSdk.TransactionBuilder(account, { fee: 100 })
-            .setTimeout(30)
-            .build();
-
-      const challenge = transaction
-            .toEnvelope()
-            .toXDR("base64")
-            .toString();
-
-      expect(
-        () => StellarSdk.Utils.verifyChallengeTx(challenge, keypair.publicKey())
-      ).to.throw(
-        StellarSdk.InvalidSep10ChallengeError,
-        /The transaction is not signed/
-      );
-    });
-
     it('throws an error if transaction doestn\'t contain any operation', function() {
       let keypair = StellarSdk.Keypair.random();
       const account = new StellarSdk.Account(keypair.publicKey(), "-1");
@@ -161,6 +141,36 @@ describe('Utils', function() {
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
         /The transaction\'s operation should be manageData/
+      );
+    });
+
+    it('throws an error if transaction is not signed by the server', function() {
+      let keypair = StellarSdk.Keypair.random();
+
+      const challenge = StellarSdk.Utils.buildChallengeTx(
+        keypair,
+        "GBDIT5GUJ7R5BXO3GJHFXJ6AZ5UQK6MNOIDMPQUSMXLIHTUNR2Q5CFNF",
+        "SDF"
+      );
+
+      const transaction = new StellarSdk.Transaction(challenge);
+
+      transaction.signatures = [];
+
+      let newSigner = StellarSdk.Keypair.random();
+
+      transaction.sign(newSigner);
+
+      const unsignedChallenge = transaction
+            .toEnvelope()
+            .toXDR("base64")
+            .toString();
+
+      expect(
+        () => StellarSdk.Utils.verifyChallengeTx(unsignedChallenge, keypair.publicKey())
+      ).to.throw(
+        StellarSdk.InvalidSep10ChallengeError,
+        /The transaction is not signed by the server/
       );
     });
   });

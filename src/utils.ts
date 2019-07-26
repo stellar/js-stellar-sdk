@@ -95,10 +95,6 @@ export namespace Utils {
       );
     }
 
-    if (transaction.signatures.length === 0) {
-      throw new InvalidSep10ChallengeError("The transaction is not signed");
-    }
-
     if (transaction.operations.length !== 1) {
       throw new InvalidSep10ChallengeError(
         "The transaction should contain only one operation",
@@ -116,6 +112,19 @@ export namespace Utils {
     if (operation.type !== "manageData") {
       throw new InvalidSep10ChallengeError(
         "The transaction's operation should be manageData",
+      );
+    }
+
+    const hashedSignatureBase = transaction.hash();
+    const serverKeypair = Keypair.fromPublicKey(serverAccountId);
+
+    const signedByServer = transaction.signatures.find((sig) => {
+      return serverKeypair.verify(hashedSignatureBase, sig.signature());
+    });
+
+    if (!signedByServer) {
+      throw new InvalidSep10ChallengeError(
+        "The transaction is not signed by the server",
       );
     }
 
