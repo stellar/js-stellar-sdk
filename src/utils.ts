@@ -4,8 +4,10 @@ import {
   BASE_FEE,
   Keypair,
   Operation,
+  Transaction,
   TransactionBuilder,
 } from "stellar-base";
+import { InvalidSep10ChallengeError } from "./errors";
 
 /**
  * @namespace Utils
@@ -62,5 +64,37 @@ export namespace Utils {
       .toEnvelope()
       .toXDR("base64")
       .toString();
+  }
+
+  /**
+   * Verifies if a transaction is a valid [SEP0010](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0010.md)
+   * challenge transaction.
+   *
+   * @see [SEP0010: Stellar Web Authentication](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0010.md)
+   * @function
+   * @memberof Utils
+   * @param {string} challengeTx SEP0010 transaction challenge transaction in base64.
+   * @param {string} serverAccountID The server's stellar account.
+   * @example
+   * import { Utils, Network }  from 'stellar-sdk'
+   *
+   * Network.useTestNetwork();
+   *
+   * let challenge = Utils.verifyChallengeTx("base64tx", "server-account-id")
+   * @returns {boolean}
+   */
+  export function verifyChallengeTx(
+    challengeTx: string,
+    serverAccountId: string,
+  ): boolean {
+    const transaction = new Transaction(challengeTx);
+
+    if (transaction.source !== serverAccountId) {
+      throw new InvalidSep10ChallengeError(
+        "Transaction source account is not equal to the server's account",
+      );
+    }
+
+    return true;
   }
 }

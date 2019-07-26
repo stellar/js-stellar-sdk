@@ -1,4 +1,8 @@
 describe('Utils', function() {
+  beforeEach(function() {
+    StellarSdk.Network.useTestNetwork();
+  });
+
   describe('Utils.buildChallengeTx', function() {
     it('returns challenge which follows SEP0010 spec', function() {
       let keypair = StellarSdk.Keypair.random();
@@ -40,6 +44,27 @@ describe('Utils', function() {
       const transaction = new StellarSdk.Transaction(challenge);
       const { maxTime, minTime } = transaction.timeBounds;
       expect(parseInt(maxTime) - parseInt(minTime)).to.eql(600);
+    });
+  });
+
+  describe('Utils.verifyChallengeTx', function() {
+    it('throws an error if transaction source account is different to server account id', function() {
+      let keypair = StellarSdk.Keypair.random();
+
+      const challenge = StellarSdk.Utils.buildChallengeTx(
+        keypair,
+        "GBDIT5GUJ7R5BXO3GJHFXJ6AZ5UQK6MNOIDMPQUSMXLIHTUNR2Q5CFNF",
+        "SDF"
+      );
+
+      let serverAccountId = StellarSdk.Keypair.random().publicKey();
+
+      expect(
+        () => StellarSdk.Utils.verifyChallengeTx(challenge, serverAccountId)
+      ).to.throw(
+        StellarSdk.InvalidSep10ChallengeError,
+        /Transaction source account is not equal to the server's account/
+      );
     });
   });
 });
