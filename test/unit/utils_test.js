@@ -51,8 +51,13 @@ describe('Utils', function() {
       );
 
       const transaction = new StellarSdk.Transaction(challenge);
-      const { maxTime, minTime } = transaction.timeBounds;
-      expect(parseInt(maxTime) - parseInt(minTime)).to.eql(600);
+
+      let maxTime = parseInt(transaction.timeBounds.maxTime);
+      let minTime = parseInt(transaction.timeBounds.minTime);
+
+      expect(minTime).to.eql(0);
+      expect(maxTime).to.eql(600);
+      expect(maxTime - minTime).to.eql(600);
     });
   });
 
