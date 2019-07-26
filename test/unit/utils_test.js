@@ -133,7 +133,34 @@ describe('Utils', function() {
         () => StellarSdk.Utils.verifyChallengeTx(challenge, keypair.publicKey())
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
-        /The transaction should contain a source account/
+        /The transaction\'s operation should contain a source account/
+      );
+    });
+
+    it('throws an error if operation is not manage data', function() {
+      let keypair = StellarSdk.Keypair.random();
+      const account = new StellarSdk.Account(keypair.publicKey(), "-1");
+      const transaction = new StellarSdk.TransactionBuilder(account, { fee: 100 })
+            .addOperation(
+              StellarSdk.Operation.accountMerge({
+                destination: keypair.publicKey(),
+                source: keypair.publicKey()
+              })
+            )
+            .setTimeout(30)
+            .build();
+
+      transaction.sign(keypair);
+      const challenge = transaction
+            .toEnvelope()
+            .toXDR("base64")
+            .toString();
+
+      expect(
+        () => StellarSdk.Utils.verifyChallengeTx(challenge, keypair.publicKey())
+      ).to.throw(
+        StellarSdk.InvalidSep10ChallengeError,
+        /The transaction\'s operation should be manageData/
       );
     });
   });

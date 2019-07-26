@@ -109,7 +109,13 @@ export namespace Utils {
 
     if (!operation.source) {
       throw new InvalidSep10ChallengeError(
-        "The transaction should contain a source account",
+        "The transaction's operation should contain a source account",
+      );
+    }
+
+    if (operation.type !== "manageData") {
+      throw new InvalidSep10ChallengeError(
+        "The transaction's operation should be manageData",
       );
     }
 
