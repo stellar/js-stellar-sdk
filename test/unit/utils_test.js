@@ -1,8 +1,15 @@
 const randomBytes = require("randombytes");
 
 describe('Utils', function() {
+  let clock;
+
   beforeEach(function() {
+    clock = sinon.useFakeTimers();
     StellarSdk.Network.useTestNetwork();
+  });
+
+  afterEach(() => {
+    clock.restore();
   });
 
   describe('Utils.buildChallengeTx', function() {
@@ -50,6 +57,30 @@ describe('Utils', function() {
   });
 
   describe('Utils.verifyChallengeTx', function() {
+    it('returns true if the transaction is valid and signed by the server and client', function() {
+      let keypair = StellarSdk.Keypair.random();
+      let clientKeypair = StellarSdk.Keypair.random();
+
+      const challenge = StellarSdk.Utils.buildChallengeTx(
+        keypair,
+        clientKeypair.publicKey(),
+        "SDF",
+        300
+      );
+
+      clock.tick(200);
+
+      const transaction = new StellarSdk.Transaction(challenge);
+      transaction.sign(clientKeypair);
+
+      const signedChallenge = transaction
+            .toEnvelope()
+            .toXDR("base64")
+            .toString();
+
+      expect(StellarSdk.Utils.verifyChallengeTx(signedChallenge, keypair.publicKey())).to.eql(true);
+    });
+
     it('throws an error if transaction source account is different to server account id', function() {
       let keypair = StellarSdk.Keypair.random();
 
@@ -191,45 +222,33 @@ describe('Utils', function() {
       );
     });
 
-    describe("timeBounds", function() {
-      let clock;
+    it('throws an error if transaction does not contain valid timeBounds', function() {
+      let keypair = StellarSdk.Keypair.random();
+      let clientKeypair = StellarSdk.Keypair.random();
 
-      beforeEach(() => {
-        clock = sinon.useFakeTimers();
-      });
+      const challenge = StellarSdk.Utils.buildChallengeTx(
+        keypair,
+        clientKeypair.publicKey(),
+        "SDF",
+        300
+      );
 
-      afterEach(() => {
-        clock.restore();
-      });
+      clock.tick(350000);
 
-      it('throws an error if transaction does not contain valid timeBounds', function() {
-        let keypair = StellarSdk.Keypair.random();
-        let clientKeypair = StellarSdk.Keypair.random();
+      const transaction = new StellarSdk.Transaction(challenge);
+      transaction.sign(clientKeypair);
 
-        const challenge = StellarSdk.Utils.buildChallengeTx(
-          keypair,
-          clientKeypair.publicKey(),
-          "SDF",
-          300
-        );
+      const signedChallenge = transaction
+            .toEnvelope()
+            .toXDR("base64")
+            .toString();
 
-        clock.tick(350000);
-
-        const transaction = new StellarSdk.Transaction(challenge);
-        transaction.sign(clientKeypair);
-
-        const signedChallenge = transaction
-              .toEnvelope()
-              .toXDR("base64")
-              .toString();
-
-        expect(
-          () => StellarSdk.Utils.verifyChallengeTx(signedChallenge, keypair.publicKey())
-        ).to.throw(
-          StellarSdk.InvalidSep10ChallengeError,
-          /The transaction has expired/
-        );
-      });
+      expect(
+        () => StellarSdk.Utils.verifyChallengeTx(signedChallenge, keypair.publicKey())
+      ).to.throw(
+        StellarSdk.InvalidSep10ChallengeError,
+        /The transaction has expired/
+      );
     });
   });
 });
