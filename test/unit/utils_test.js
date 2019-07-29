@@ -277,4 +277,36 @@ describe('Utils', function() {
       );
     });
   });
+
+  describe('Utils.verifyTxSignedBy', function() {
+    beforeEach(function() {
+      this.keypair = StellarSdk.Keypair.random();
+      this.account = new StellarSdk.Account(this.keypair.publicKey(), "-1");
+      this.transaction = new StellarSdk.TransactionBuilder(this.account, { fee: 100 })
+        .setTimeout(30)
+        .build();
+    });
+
+    afterEach(function() {
+      this.keypair, this.account, this.transaction = null;
+    });
+
+    it('returns true if the transaction was signed by the given account', function() {
+      this.transaction.sign(this.keypair);
+
+      expect(StellarSdk.Utils.verifyTxSignedBy(this.transaction, this.keypair.publicKey())).to.eql(true);
+    });
+
+    it('returns false if the transaction was not signed by the given account', function() {
+      this.transaction.sign(this.keypair);
+
+      let differentKeypair = StellarSdk.Keypair.random();
+
+      expect(StellarSdk.Utils.verifyTxSignedBy(this.transaction, differentKeypair.publicKey())).to.eql(false);
+    });
+
+    it('works with an unsigned transaction', function() {
+      expect(StellarSdk.Utils.verifyTxSignedBy(this.transaction, this.keypair.publicKey())).to.eql(false);
+    });
+  });
 });

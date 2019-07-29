@@ -151,7 +151,26 @@ export namespace Utils {
     return true;
   }
 
-  function verifyTxSignedBy(
+  /**
+   * Verifies if a transaction was signed by the given account id.
+   *
+   * @function
+   * @memberof Utils
+   * @param {Transaction} transaction
+   * @param {string} accountID
+   * @example
+   * let keypair = Keypair.random();
+   * const account = new StellarSdk.Account(keypair.publicKey(), "-1");
+   *
+   * const transaction = new TransactionBuilder(account, { fee: 100 })
+   *    .setTimeout(30)
+   *    .build();
+   *
+   * transaction.sign(keypair)
+   * Utils.verifyTxSignedBy(transaction, keypair.publicKey())
+   * @returns {boolean}.
+   */
+  export function verifyTxSignedBy(
     transaction: Transaction,
     accountId: string,
   ): boolean {
