@@ -132,13 +132,13 @@ export namespace Utils {
       );
     }
 
-    if (!signedBy(transaction, serverAccountId)) {
+    if (!verifyTxSignedBy(transaction, serverAccountId)) {
       throw new InvalidSep10ChallengeError(
         "The transaction is not signed by the server",
       );
     }
 
-    if (!signedBy(transaction, operation.source as string)) {
+    if (!verifyTxSignedBy(transaction, operation.source as string)) {
       throw new InvalidSep10ChallengeError(
         "The transaction is not signed by the client",
       );
@@ -149,6 +149,19 @@ export namespace Utils {
     }
 
     return true;
+  }
+
+  function verifyTxSignedBy(
+    transaction: Transaction,
+    accountId: string,
+  ): boolean {
+    const hashedSignatureBase = transaction.hash();
+
+    const keypair = Keypair.fromPublicKey(accountId);
+
+    return !!transaction.signatures.find((sig) => {
+      return keypair.verify(hashedSignatureBase, sig.signature());
+    });
   }
 
   function validateTimebounds(transaction: Transaction): boolean {
@@ -162,15 +175,5 @@ export namespace Utils {
     return (
       now >= Number.parseInt(minTime, 10) && now <= Number.parseInt(maxTime, 10)
     );
-  }
-
-  function signedBy(transaction: Transaction, accountId: string): boolean {
-    const hashedSignatureBase = transaction.hash();
-
-    const keypair = Keypair.fromPublicKey(accountId);
-
-    return !!transaction.signatures.find((sig) => {
-      return keypair.verify(hashedSignatureBase, sig.signature());
-    });
   }
 }
