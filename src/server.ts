@@ -15,13 +15,13 @@ import { AccountResponse } from "./account_response";
 import { AssetsCallBuilder } from "./assets_call_builder";
 import { EffectCallBuilder } from "./effect_call_builder";
 import { FriendbotBuilder } from "./friendbot_builder";
+import { Horizon } from "./horizon_api";
 import { LedgerCallBuilder } from "./ledger_call_builder";
 import { OfferCallBuilder } from "./offer_call_builder";
 import { OperationCallBuilder } from "./operation_call_builder";
 import { OrderbookCallBuilder } from "./orderbook_call_builder";
 import { PathCallBuilder } from "./path_call_builder";
 import { PaymentCallBuilder } from "./payment_call_builder";
-import { ServerApi } from "./server_api";
 import { TradeAggregationCallBuilder } from "./trade_aggregation_call_builder";
 import { TradesCallBuilder } from "./trades_call_builder";
 import { TransactionCallBuilder } from "./transaction_call_builder";
@@ -268,7 +268,7 @@ export class Server {
    */
   public async submitTransaction(
     transaction: Transaction,
-  ): Promise<ServerApi.TransactionRecord> {
+  ): Promise<Horizon.SubmitTransactionResponse> {
     const tx = encodeURIComponent(
       transaction
         .toEnvelope()

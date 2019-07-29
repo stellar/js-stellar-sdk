@@ -9,23 +9,33 @@ export namespace Horizon {
   export interface BaseResponse<T extends string = never> {
     _links: { [key in T | "self"]: ResponseLink };
   }
-  export interface TransactionResponse
-    extends BaseResponse<
-      "account" | "ledger" | "operations" | "effects" | "succeeds" | "precedes"
-    > {
-    created_at: string;
+
+  export interface SubmitTransactionResponse {
+    hash: string;
+    ledger: number;
     envelope_xdr: string;
+    result_xdr: string;
+    result_meta_xdr: string;
+  }
+
+  export interface TransactionResponse
+    extends SubmitTransactionResponse,
+      BaseResponse<
+        | "account"
+        | "ledger"
+        | "operations"
+        | "effects"
+        | "succeeds"
+        | "precedes"
+      > {
+    created_at: string;
     fee_meta_xdr: string;
     fee_paid: number;
-    hash: string;
     id: string;
-    ledger: number;
     memo_type: MemoType;
     memo?: string;
     operation_count: number;
     paging_token: string;
-    result_meta_xdr: string;
-    result_xdr: string;
     signatures: string[];
     source_account: string;
     source_account_sequence: string;
