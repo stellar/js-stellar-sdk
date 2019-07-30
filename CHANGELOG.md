@@ -2,6 +2,15 @@
 
 A breaking change will get clearly marked in this log.
 
+## [v2.2.0](https://github.com/stellar/js-stellar-sdk/compare/v2.1.1...v2.2.0)
+
+### Add
+- Add helper `Utils.verifyChallengeTx` to verify SEP0010 "Challenge" Transaction. ([#388](https://github.com/stellar/js-stellar-sdk/issues/388))
+- Add helper `Utils.verifyTxSignedBy` to verify that a transaction has been signed by a given account. ([#388](https://github.com/stellar/js-stellar-sdk/pull/388/commits/2cbf36891e529f63867d46bcf321b5bb76acef50))
+
+### Fix
+- Check for a global EventSource before deciding what to use. This allows you to inject polyfills in other environments like react-native. ([#389](https://github.com/stellar/js-stellar-sdk/issues/389))
+
 ## [v2.1.1](https://github.com/stellar/js-stellar-sdk/compare/v2.1.0...v2.1.1)
 
 ### Fix
