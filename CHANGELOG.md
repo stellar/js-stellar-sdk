@@ -2,6 +2,13 @@
 
 A breaking change will get clearly marked in this log.
 
+## [v2.2.1](https://github.com/stellar/js-stellar-sdk/compare/v2.2.0...v2.2.1)
+
+### Fix
+
+- Fix [#391](https://github.com/stellar/js-stellar-sdk/issues/391): Remove instance check for MessageEvent on stream error. ([#392](https://github.com/stellar/js-stellar-sdk/issues/392))
+
+
 ## [v2.2.0](https://github.com/stellar/js-stellar-sdk/compare/v2.1.1...v2.2.0)
 
 ### Add
