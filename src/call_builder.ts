@@ -141,8 +141,8 @@ export class CallBuilder<
         };
 
         es.onerror = (error) => {
-          if (options.onerror && error instanceof MessageEvent) {
-            options.onerror(error);
+          if (options.onerror) {
+            options.onerror(error as MessageEvent);
           }
         };
       }
