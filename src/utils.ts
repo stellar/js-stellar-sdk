@@ -42,6 +42,13 @@ export namespace Utils {
     const account = new Account(serverKeypair.publicKey(), "-1");
     const now = Math.floor(Date.now() / 1000);
 
+    // A Base64 digit represents 6 bits, to generate a random 64 bytes
+    // base64 string, we need 48 random bytes = (64 * 6)/8
+    //
+    // Each Base64 digit is in ASCII and each ASCII characters when
+    // turned into binary represents 8 bits = 1 bytes.
+    const value = randomBytes(48).toString("base64");
+
     const transaction = new TransactionBuilder(account, {
       fee: BASE_FEE,
       timebounds: {
@@ -52,7 +59,7 @@ export namespace Utils {
       .addOperation(
         Operation.manageData({
           name: `${anchorName} auth`,
-          value: randomBytes(64),
+          value,
           source: clientAccountID,
         }),
       )
@@ -123,6 +130,18 @@ export namespace Utils {
     if (!operation.source) {
       throw new InvalidSep10ChallengeError(
         "The transaction's operation should contain a source account",
+      );
+    }
+
+    if (operation.type !== "manageData") {
+      throw new InvalidSep10ChallengeError(
+        "The transaction's operation should be manageData",
+      );
+    }
+
+    if (Buffer.from(operation.value.toString(), "base64").length !== 48) {
+      throw new InvalidSep10ChallengeError(
+        "The transaction's operation value should be a 64 bytes base64 random string",
       );
     }
 
