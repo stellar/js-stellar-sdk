@@ -38,6 +38,7 @@ describe('Utils', function() {
       expect(operation.source).to.eql("GBDIT5GUJ7R5BXO3GJHFXJ6AZ5UQK6MNOIDMPQUSMXLIHTUNR2Q5CFNF");
       expect(operation.type).to.eql("manageData");
       expect(operation.value.length).to.eql(64);
+      expect(Buffer.from(operation.value.toString(), 'base64').length).to.eql(48);
     });
 
     it('uses the passed-in timeout', function() {
@@ -154,7 +155,7 @@ describe('Utils', function() {
             .addOperation(
               StellarSdk.Operation.manageData({
                 name: 'SDF auth',
-                value: randomBytes(64)
+                value: randomBytes(48).toString('base64')
               })
             )
             .setTimeout(30)
@@ -198,6 +199,34 @@ describe('Utils', function() {
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
         /The transaction\'s operation should be manageData/
+      );
+    });
+
+    it('throws an error if operation value is not a 64 bytes base64 string', function() {
+      let keypair = StellarSdk.Keypair.random();
+      const account = new StellarSdk.Account(keypair.publicKey(), "-1");
+      const transaction = new StellarSdk.TransactionBuilder(account, { fee: 100 })
+            .addOperation(
+              StellarSdk.Operation.manageData({
+                name: 'SDF auth',
+                value: randomBytes(64),
+                source: 'GBDIT5GUJ7R5BXO3GJHFXJ6AZ5UQK6MNOIDMPQUSMXLIHTUNR2Q5CFNF'
+              })
+            )
+            .setTimeout(30)
+            .build();
+
+      transaction.sign(keypair);
+      const challenge = transaction
+            .toEnvelope()
+            .toXDR("base64")
+            .toString();
+
+      expect(
+        () => StellarSdk.Utils.verifyChallengeTx(challenge, keypair.publicKey())
+      ).to.throw(
+        StellarSdk.InvalidSep10ChallengeError,
+        /The transaction\'s operation value should be a 64 bytes base64 random string/
       );
     });
 
