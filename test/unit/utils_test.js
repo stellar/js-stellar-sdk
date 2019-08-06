@@ -1,11 +1,14 @@
 const randomBytes = require("randombytes");
 
 describe('Utils', function() {
-  let clock;
+  let clock, txBuilderOpts;
 
   beforeEach(function() {
     clock = sinon.useFakeTimers();
-    StellarSdk.Network.useTestNetwork();
+    txBuilderOpts = {
+      fee: 100,
+      networkPassphrase: StellarSdk.Networks.TESTNET
+    };
   });
 
   afterEach(() => {
@@ -19,10 +22,12 @@ describe('Utils', function() {
       const challenge = StellarSdk.Utils.buildChallengeTx(
         keypair,
         "GBDIT5GUJ7R5BXO3GJHFXJ6AZ5UQK6MNOIDMPQUSMXLIHTUNR2Q5CFNF",
-        "SDF"
+        "SDF",
+        300,
+        StellarSdk.Networks.TESTNET
       );
 
-      const transaction = new StellarSdk.Transaction(challenge);
+      const transaction = new StellarSdk.Transaction(challenge, StellarSdk.Networks.TESTNET);
 
       expect(transaction.sequence).to.eql("0");
       expect(transaction.source).to.eql(keypair.publicKey());
@@ -48,10 +53,11 @@ describe('Utils', function() {
         keypair,
         "GBDIT5GUJ7R5BXO3GJHFXJ6AZ5UQK6MNOIDMPQUSMXLIHTUNR2Q5CFNF",
         "SDF",
-        600
+        600,
+        StellarSdk.Networks.TESTNET
       );
 
-      const transaction = new StellarSdk.Transaction(challenge);
+      const transaction = new StellarSdk.Transaction(challenge, StellarSdk.Networks.TESTNET);
 
       let maxTime = parseInt(transaction.timeBounds.maxTime);
       let minTime = parseInt(transaction.timeBounds.minTime);
@@ -71,12 +77,13 @@ describe('Utils', function() {
         keypair,
         clientKeypair.publicKey(),
         "SDF",
-        300
+        300,
+        StellarSdk.Networks.TESTNET
       );
 
       clock.tick(200);
 
-      const transaction = new StellarSdk.Transaction(challenge);
+      const transaction = new StellarSdk.Transaction(challenge, StellarSdk.Networks.TESTNET);
       transaction.sign(clientKeypair);
 
       const signedChallenge = transaction
@@ -84,14 +91,14 @@ describe('Utils', function() {
             .toXDR("base64")
             .toString();
 
-      expect(StellarSdk.Utils.verifyChallengeTx(signedChallenge, keypair.publicKey())).to.eql(true);
+      expect(StellarSdk.Utils.verifyChallengeTx(signedChallenge, keypair.publicKey(), StellarSdk.Networks.TESTNET)).to.eql(true);
     });
 
     it('throws an error if transaction sequenceNumber if different to zero', function() {
       let keypair = StellarSdk.Keypair.random();
 
       const account = new StellarSdk.Account(keypair.publicKey(), "100");
-      const transaction = new StellarSdk.TransactionBuilder(account, { fee: 100 })
+      const transaction = new StellarSdk.TransactionBuilder(account, txBuilderOpts)
             .setTimeout(30)
             .build();
 
@@ -101,7 +108,7 @@ describe('Utils', function() {
           .toString();
 
       expect(
-        () => StellarSdk.Utils.verifyChallengeTx(challenge, keypair.publicKey())
+        () => StellarSdk.Utils.verifyChallengeTx(challenge, keypair.publicKey(), StellarSdk.Networks.TESTNET)
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
         /The transaction sequence number should be zero/
@@ -114,13 +121,15 @@ describe('Utils', function() {
       const challenge = StellarSdk.Utils.buildChallengeTx(
         keypair,
         "GBDIT5GUJ7R5BXO3GJHFXJ6AZ5UQK6MNOIDMPQUSMXLIHTUNR2Q5CFNF",
-        "SDF"
+        "SDF",
+        300,
+        StellarSdk.Networks.TESTNET
       );
 
       let serverAccountId = StellarSdk.Keypair.random().publicKey();
 
       expect(
-        () => StellarSdk.Utils.verifyChallengeTx(challenge, serverAccountId)
+        () => StellarSdk.Utils.verifyChallengeTx(challenge, serverAccountId, StellarSdk.Networks.TESTNET)
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
         /The transaction source account is not equal to the server's account/
@@ -130,7 +139,7 @@ describe('Utils', function() {
     it('throws an error if transaction doestn\'t contain any operation', function() {
       let keypair = StellarSdk.Keypair.random();
       const account = new StellarSdk.Account(keypair.publicKey(), "-1");
-      const transaction = new StellarSdk.TransactionBuilder(account, { fee: 100 })
+      const transaction = new StellarSdk.TransactionBuilder(account, txBuilderOpts)
             .setTimeout(30)
             .build();
 
@@ -141,7 +150,7 @@ describe('Utils', function() {
             .toString();
 
       expect(
-        () => StellarSdk.Utils.verifyChallengeTx(challenge, keypair.publicKey())
+        () => StellarSdk.Utils.verifyChallengeTx(challenge, keypair.publicKey(), StellarSdk.Networks.TESTNET)
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
         /The transaction should contain only one operation/
@@ -151,7 +160,7 @@ describe('Utils', function() {
     it('throws an error if operation does not contain the source account', function() {
       let keypair = StellarSdk.Keypair.random();
       const account = new StellarSdk.Account(keypair.publicKey(), "-1");
-      const transaction = new StellarSdk.TransactionBuilder(account, { fee: 100 })
+      const transaction = new StellarSdk.TransactionBuilder(account, txBuilderOpts)
             .addOperation(
               StellarSdk.Operation.manageData({
                 name: 'SDF auth',
@@ -168,7 +177,7 @@ describe('Utils', function() {
             .toString();
 
       expect(
-        () => StellarSdk.Utils.verifyChallengeTx(challenge, keypair.publicKey())
+        () => StellarSdk.Utils.verifyChallengeTx(challenge, keypair.publicKey(), StellarSdk.Networks.TESTNET)
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
         /The transaction\'s operation should contain a source account/
@@ -178,7 +187,7 @@ describe('Utils', function() {
     it('throws an error if operation is not manage data', function() {
       let keypair = StellarSdk.Keypair.random();
       const account = new StellarSdk.Account(keypair.publicKey(), "-1");
-      const transaction = new StellarSdk.TransactionBuilder(account, { fee: 100 })
+      const transaction = new StellarSdk.TransactionBuilder(account, txBuilderOpts)
             .addOperation(
               StellarSdk.Operation.accountMerge({
                 destination: keypair.publicKey(),
@@ -195,7 +204,7 @@ describe('Utils', function() {
             .toString();
 
       expect(
-        () => StellarSdk.Utils.verifyChallengeTx(challenge, keypair.publicKey())
+        () => StellarSdk.Utils.verifyChallengeTx(challenge, keypair.publicKey(), StellarSdk.Networks.TESTNET)
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
         /The transaction\'s operation should be manageData/
@@ -205,7 +214,7 @@ describe('Utils', function() {
     it('throws an error if operation value is not a 64 bytes base64 string', function() {
       let keypair = StellarSdk.Keypair.random();
       const account = new StellarSdk.Account(keypair.publicKey(), "-1");
-      const transaction = new StellarSdk.TransactionBuilder(account, { fee: 100 })
+      const transaction = new StellarSdk.TransactionBuilder(account, txBuilderOpts)
             .addOperation(
               StellarSdk.Operation.manageData({
                 name: 'SDF auth',
@@ -223,7 +232,7 @@ describe('Utils', function() {
             .toString();
 
       expect(
-        () => StellarSdk.Utils.verifyChallengeTx(challenge, keypair.publicKey())
+        () => StellarSdk.Utils.verifyChallengeTx(challenge, keypair.publicKey(), StellarSdk.Networks.TESTNET)
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
         /The transaction\'s operation value should be a 64 bytes base64 random string/
@@ -236,10 +245,12 @@ describe('Utils', function() {
       const challenge = StellarSdk.Utils.buildChallengeTx(
         keypair,
         "GBDIT5GUJ7R5BXO3GJHFXJ6AZ5UQK6MNOIDMPQUSMXLIHTUNR2Q5CFNF",
-        "SDF"
+        "SDF",
+        300,
+        StellarSdk.Networks.TESTNET
       );
 
-      const transaction = new StellarSdk.Transaction(challenge);
+      const transaction = new StellarSdk.Transaction(challenge, StellarSdk.Networks.TESTNET);
 
       transaction.signatures = [];
 
@@ -253,7 +264,7 @@ describe('Utils', function() {
             .toString();
 
       expect(
-        () => StellarSdk.Utils.verifyChallengeTx(unsignedChallenge, keypair.publicKey())
+        () => StellarSdk.Utils.verifyChallengeTx(unsignedChallenge, keypair.publicKey(), StellarSdk.Networks.TESTNET)
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
         /The transaction is not signed by the server/
@@ -266,11 +277,13 @@ describe('Utils', function() {
       const challenge = StellarSdk.Utils.buildChallengeTx(
         keypair,
         "GBDIT5GUJ7R5BXO3GJHFXJ6AZ5UQK6MNOIDMPQUSMXLIHTUNR2Q5CFNF",
-        "SDF"
+        "SDF",
+        300,
+        StellarSdk.Networks.TESTNET
       );
 
       expect(
-        () => StellarSdk.Utils.verifyChallengeTx(challenge, keypair.publicKey())
+        () => StellarSdk.Utils.verifyChallengeTx(challenge, keypair.publicKey(), StellarSdk.Networks.TESTNET)
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
         /The transaction is not signed by the client/
@@ -285,12 +298,13 @@ describe('Utils', function() {
         keypair,
         clientKeypair.publicKey(),
         "SDF",
-        300
+        300,
+        StellarSdk.Networks.TESTNET
       );
 
       clock.tick(350000);
 
-      const transaction = new StellarSdk.Transaction(challenge);
+      const transaction = new StellarSdk.Transaction(challenge, StellarSdk.Networks.TESTNET);
       transaction.sign(clientKeypair);
 
       const signedChallenge = transaction
@@ -299,7 +313,7 @@ describe('Utils', function() {
             .toString();
 
       expect(
-        () => StellarSdk.Utils.verifyChallengeTx(signedChallenge, keypair.publicKey())
+        () => StellarSdk.Utils.verifyChallengeTx(signedChallenge, keypair.publicKey(), StellarSdk.Networks.TESTNET)
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
         /The transaction has expired/
@@ -311,7 +325,7 @@ describe('Utils', function() {
     beforeEach(function() {
       this.keypair = StellarSdk.Keypair.random();
       this.account = new StellarSdk.Account(this.keypair.publicKey(), "-1");
-      this.transaction = new StellarSdk.TransactionBuilder(this.account, { fee: 100 })
+      this.transaction = new StellarSdk.TransactionBuilder(this.account, txBuilderOpts)
         .setTimeout(30)
         .build();
     });
