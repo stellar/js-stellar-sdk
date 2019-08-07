@@ -24,13 +24,12 @@ export namespace Utils {
    * @param {string} clientAccountID The stellar account that the wallet wishes to authenticate with the server.
    * @param {string} anchorName Anchor's name to be used in the manage_data key.
    * @param {number} [timeout=300] Challenge duration (default to 5 minutes).
+   * @param {string} [networkPassphrase] The network passphrase. If you pass this argument then timeout is required.
    * @example
-   * import { Utils, Keypair, Network }  from 'stellar-sdk'
-   *
-   * Network.useTestNetwork();
+   * import { Utils, Keypair, Networks }  from 'stellar-sdk'
    *
    * let serverKeyPair = Keypair.fromSecret("server-secret")
-   * let challenge = Utils.buildChallengeTx(serverKeyPair, "client-stellar-account-id", "SDF", 300)
+   * let challenge = Utils.buildChallengeTx(serverKeyPair, "client-stellar-account-id", "SDF", 300, Networks.TESTNET)
    * @returns {string} A base64 encoded string of the raw TransactionEnvelope xdr struct for the transaction.
    */
   export function buildChallengeTx(
@@ -38,6 +37,7 @@ export namespace Utils {
     clientAccountID: string,
     anchorName: string,
     timeout: number = 300,
+    networkPassphrase?: string,
   ): string {
     const account = new Account(serverKeypair.publicKey(), "-1");
     const now = Math.floor(Date.now() / 1000);
@@ -51,6 +51,7 @@ export namespace Utils {
 
     const transaction = new TransactionBuilder(account, {
       fee: BASE_FEE,
+      networkPassphrase,
       timebounds: {
         minTime: now,
         maxTime: now + timeout,
@@ -91,19 +92,19 @@ export namespace Utils {
    * @memberof Utils
    * @param {string} challengeTx SEP0010 transaction challenge transaction in base64.
    * @param {string} serverAccountID The server's stellar account.
+   * @param {string} [networkPassphrase] The network passphrase. If you pass this argument then timeout is required.
    * @example
-   * import { Utils, Network }  from 'stellar-sdk'
+   * import { Utils, Networks }  from 'stellar-sdk'
    *
-   * Network.useTestNetwork();
-   *
-   * let challenge = Utils.verifyChallengeTx("base64tx", "server-account-id")
+   * let challenge = Utils.verifyChallengeTx("base64tx", "server-account-id", Networks.TESTNET)
    * @returns {boolean}
    */
   export function verifyChallengeTx(
     challengeTx: string,
     serverAccountId: string,
+    networkPassphrase?: string,
   ): boolean {
-    const transaction = new Transaction(challengeTx);
+    const transaction = new Transaction(challengeTx, networkPassphrase);
 
     const sequence = Number.parseInt(transaction.sequence, 10);
 
