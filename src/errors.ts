@@ -31,6 +31,7 @@ export class NotFoundError extends NetworkError {
     super(message, response);
     this.__proto__ = trueProto;
     this.constructor = NotFoundError;
+    this.name = "NotFoundError";
   }
 }
 
@@ -40,6 +41,7 @@ export class BadRequestError extends NetworkError {
     super(message, response);
     this.__proto__ = trueProto;
     this.constructor = BadRequestError;
+    this.name = "BadRequestError";
   }
 }
 
@@ -49,6 +51,7 @@ export class BadResponseError extends NetworkError {
     super(message, response);
     this.__proto__ = trueProto;
     this.constructor = BadResponseError;
+    this.name = "BadResponseError";
   }
 }
 
@@ -60,5 +63,6 @@ export class InvalidSep10ChallengeError extends Error {
     super(message);
     this.__proto__ = trueProto;
     this.constructor = InvalidSep10ChallengeError;
+    this.name = "InvalidSep10ChallengeError";
   }
 }
