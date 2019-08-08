@@ -313,10 +313,24 @@ export namespace ServerApi {
   }
 
   export interface OrderbookRecord extends Horizon.BaseResponse {
-    bids: Array<{ price_r: {}; price: number; amount: string }>;
-    asks: Array<{ price_r: {}; price: number; amount: string }>;
-    selling: Asset;
-    buying: Asset;
+    bids: Array<{
+      price_r: {
+        d: number;
+        n: number;
+      };
+      price: string;
+      amount: string
+    }>;
+    asks: Array<{
+      price_r: {
+        d: number;
+        n: number;
+      };
+      price: string;
+      amount: string
+    }>;
+    base: Asset;
+    counter: Asset;
   }
 
   export interface PaymentPathRecord extends Horizon.BaseResponse {
