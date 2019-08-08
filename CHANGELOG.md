@@ -2,6 +2,14 @@
 
 A breaking change will get clearly marked in this log.
 
+## [v2.2.3](https://github.com/stellar/js-stellar-sdk/compare/v2.2.2...v2.2.23)
+
+### Fix
+- Fix ServerApi's OrderbookRecord type ([#401](https://github.com/stellar/js-stellar-sdk/issues/401))
+
+### Set
+- Set `name` in custom errors ([#403](https://github.com/stellar/js-stellar-sdk/issues/403))
+
 ## [v2.2.2](https://github.com/stellar/js-stellar-sdk/compare/v2.2.1...v2.2.2)
 
 ### Fix
