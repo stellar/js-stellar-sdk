@@ -329,8 +329,8 @@ export namespace ServerApi {
       price: string;
       amount: string
     }>;
-    selling: Asset;
-    buying: Asset;
+    base: Asset;
+    counter: Asset;
   }
 
   export interface PaymentPathRecord extends Horizon.BaseResponse {
