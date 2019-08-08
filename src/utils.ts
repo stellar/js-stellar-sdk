@@ -146,12 +146,6 @@ export namespace Utils {
       );
     }
 
-    if (operation.type !== "manageData") {
-      throw new InvalidSep10ChallengeError(
-        "The transaction's operation should be manageData",
-      );
-    }
-
     if (!verifyTxSignedBy(transaction, serverAccountId)) {
       throw new InvalidSep10ChallengeError(
         "The transaction is not signed by the server",
