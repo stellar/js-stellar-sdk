@@ -92,7 +92,7 @@ export namespace Utils {
    * @memberof Utils
    * @param {string} challengeTx SEP0010 transaction challenge transaction in base64.
    * @param {string} serverAccountID The server's stellar account.
-   * @param {string} [networkPassphrase] The network passphrase. If you pass this argument then timeout is required.
+   * @param {string} [networkPassphrase] The network passphrase.
    * @example
    * import { Utils, Networks }  from 'stellar-sdk'
    *
