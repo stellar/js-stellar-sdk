@@ -126,7 +126,7 @@ export class CallBuilder<
       createTimeout();
 
       if (es) {
-        es.onmessage = (message) => {
+        const onMessage = (message: any) => {
           const result = message.data
             ? this._parseRecord(JSON.parse(message.data))
             : message;
@@ -140,11 +140,20 @@ export class CallBuilder<
           }
         };
 
-        es.onerror = (error) => {
+        const onError = (error: any) => {
           if (options.onerror) {
             options.onerror(error as MessageEvent);
           }
         };
+
+        // use addEventListener too, just in case
+        if (es.addEventListener) {
+          es.addEventListener("message", onMessage.bind(this));
+          es.addEventListener("error", onError.bind(this));
+        } else {
+          es.onmessage = onMessage.bind(this);
+          es.onerror = onError.bind(this);
+        }
       }
 
       return es;
