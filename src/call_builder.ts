@@ -146,13 +146,13 @@ export class CallBuilder<
           }
         };
 
-        es.onmessage = onMessage;
-        es.onerror = onError;
+        es.onmessage = onMessage.bind(this);
+        es.onerror = onError.bind(this);
 
         // use addEventListener too, just in case
         if (es.addEventListener) {
-          es.addEventListener("message", onMessage);
-          es.addEventListener("error", onError);
+          es.addEventListener("message", onMessage.bind(this));
+          es.addEventListener("error", onError.bind(this));
         }
       }
 
