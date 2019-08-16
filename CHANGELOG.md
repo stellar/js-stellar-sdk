@@ -2,7 +2,16 @@
 
 A breaking change will get clearly marked in this log.
 
-## [v2.2.3](https://github.com/stellar/js-stellar-sdk/compare/v2.2.2...v2.2.23)
+## [v2.3.0](https://github.com/stellar/js-stellar-sdk/compare/v2.2.3...v2.3.0)
+
+### Add
+- Add feeStats support. ([#409](https://github.com/stellar/js-stellar-sdk/issues/409))
+
+### Fix
+- Fix Util.verifyChallengeTx documentation ([#405](https://github.com/stellar/js-stellar-sdk/issues/405))
+- Fix: listen to stream events with addEventListener ([#408](https://github.com/stellar/js-stellar-sdk/issues/408))
+
+## [v2.2.3](https://github.com/stellar/js-stellar-sdk/compare/v2.2.2...v2.2.3)
 
 ### Fix
 - Fix ServerApi's OrderbookRecord type ([#401](https://github.com/stellar/js-stellar-sdk/issues/401))
