@@ -104,78 +104,28 @@ describe('server.js non-transaction tests', function() {
 
   describe('Server.fetchBaseFee', function() {
     let response = {
-      _links: {
-        self: {
-          href:
-            'https://horizon-testnet.stellar.org/ledgers?cursor=\u0026limit=1\u0026order=desc'
-        },
-        next: {
-          href:
-            'https://horizon-testnet.stellar.org/ledgers?cursor=10036088735268864\u0026limit=1\u0026order=desc'
-        },
-        prev: {
-          href:
-            'https://horizon-testnet.stellar.org/ledgers?cursor=10036088735268864\u0026limit=1\u0026order=asc'
-        }
-      },
-      _embedded: {
-        records: [
-          {
-            _links: {
-              self: {
-                href: 'https://horizon-testnet.stellar.org/ledgers/2336709'
-              },
-              transactions: {
-                href:
-                  'https://horizon-testnet.stellar.org/ledgers/2336709/transactions{?cursor,limit,order}',
-                templated: true
-              },
-              operations: {
-                href:
-                  'https://horizon-testnet.stellar.org/ledgers/2336709/operations{?cursor,limit,order}',
-                templated: true
-              },
-              payments: {
-                href:
-                  'https://horizon-testnet.stellar.org/ledgers/2336709/payments{?cursor,limit,order}',
-                templated: true
-              },
-              effects: {
-                href:
-                  'https://horizon-testnet.stellar.org/ledgers/2336709/effects{?cursor,limit,order}',
-                templated: true
-              }
-            },
-            id:
-              '4ad88e04f8b09202a8aa4c744557c56cc7977cf9a62c0b17b5b721a1c07d8983',
-            paging_token: '10036088735268864',
-            hash:
-              '4ad88e04f8b09202a8aa4c744557c56cc7977cf9a62c0b17b5b721a1c07d8983',
-            prev_hash:
-              '01712b5336570d997e8a20c5e60e94b53a544e976fbe7d5ccaccae17ec1c3b61',
-            sequence: 2336709,
-            transaction_count: 0,
-            successful_transaction_count: 0,
-            failed_transaction_count: 1,
-            operation_count: 0,
-            closed_at: '2019-02-20T22:28:06Z',
-            total_coins: '100784946217.6530980',
-            fee_pool: '784967750.5572832',
-            base_fee_in_stroops: 888,
-            base_reserve_in_stroops: 5000000,
-            max_tx_set_size: 100,
-            protocol_version: 10,
-            header_xdr:
-              'AAAACgFxK1M2Vw2ZfoogxeYOlLU6VE6Xb759XMrMrhfsHDthXQF37XWZ+DKNrR14LC65ncZVUil/zAG3j5AdwqQESB0AAAAAXG3UdgAAAAAAAAAAGzhxLW35GoYC3jxNrb/HzKlEEv3jdYXVwfylUNZv2Y8wuvQVqrUx0l/LPJlRBXLqJ7LdPonMD15mTYpM6P328AAjp8UN/Jm+/BnCJAAb4z13Ui/gAAAAKQAAAAAAkhPyAAAAZABMS0AAAABkhFe6fHzbbdocHURk6KM7tYLZbY5f9inrib8hT0POwjGovrlCuLwbkLoyRQwKy8fYJnXT4367PFpNe9ruTGbEYuTBRwO6l475F0j3EZre/ia1OdZveX4nJNIwwt83UWrkNyacmCtLebAykeimcpwO5SaNEzH3yFZ1WDuW7HCv6FUAAAAA'
-          }
-        ]
-      }
+      "last_ledger": "256736",
+      "last_ledger_base_fee": "888",
+      "ledger_capacity_usage": "0.18",
+      "min_accepted_fee": "100",
+      "mode_accepted_fee": "2000",
+      "p10_accepted_fee": "100",
+      "p20_accepted_fee": "100",
+      "p30_accepted_fee": "100",
+      "p40_accepted_fee": "300",
+      "p50_accepted_fee": "650",
+      "p60_accepted_fee": "2000",
+      "p70_accepted_fee": "2000",
+      "p80_accepted_fee": "2000",
+      "p90_accepted_fee": "2000",
+      "p95_accepted_fee": "2000",
+      "p99_accepted_fee": "2000"
     };
 
     it('returns the base reserve', function(done) {
       this.axiosMock
         .expects('get')
-        .withArgs(sinon.match('https://horizon-live.stellar.org:1337/ledgers'))
+        .withArgs(sinon.match('https://horizon-live.stellar.org:1337/fee_stats'))
         .returns(Promise.resolve({ data: response }));
 
       this.server
@@ -188,7 +138,62 @@ describe('server.js non-transaction tests', function() {
           done(err);
         });
     });
+
+    it('returns default value (100) if last_ledger_base_fee is missing', function(done) {
+      this.axiosMock
+        .expects('get')
+        .withArgs(sinon.match('https://horizon-live.stellar.org:1337/fee_stats'))
+        .returns(Promise.resolve({ data: {} }));
+
+      this.server
+        .fetchBaseFee()
+        .then((fee) => {
+          expect(fee).to.be.equal(100);
+          done();
+        })
+        .catch(function(err) {
+          done(err);
+        });
+    });
   });
+
+  describe('Server.feeStats', function() {
+    let response = {
+      "last_ledger": "256736",
+      "last_ledger_base_fee": "100",
+      "ledger_capacity_usage": "0.18",
+      "min_accepted_fee": "100",
+      "mode_accepted_fee": "2000",
+      "p10_accepted_fee": "100",
+      "p20_accepted_fee": "100",
+      "p30_accepted_fee": "100",
+      "p40_accepted_fee": "300",
+      "p50_accepted_fee": "650",
+      "p60_accepted_fee": "2000",
+      "p70_accepted_fee": "2000",
+      "p80_accepted_fee": "2000",
+      "p90_accepted_fee": "2000",
+      "p95_accepted_fee": "2000",
+      "p99_accepted_fee": "2000"
+    };
+
+    it('returns the base reserve', function(done) {
+      this.axiosMock
+        .expects('get')
+        .withArgs(sinon.match('https://horizon-live.stellar.org:1337/fee_stats'))
+        .returns(Promise.resolve({ data: response }));
+
+      this.server
+        .feeStats()
+        .then((feeStats) => {
+          expect(feeStats).to.be.equal(response);
+          done();
+        })
+        .catch(function(err) {
+          done(err);
+        });
+    });
+  })
 
   describe('Server.loadAccount', function() {
     //prettier-ignore

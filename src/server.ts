@@ -151,24 +151,21 @@ export class Server {
    * @returns {Promise<number>} Promise that resolves to the base fee.
    */
   public async fetchBaseFee(): Promise<number> {
-    const response = await this.ledgers()
-      .order("desc")
-      .limit(1)
-      .call();
-    if (response && response.records && response.records[0]) {
-      return response.records[0].base_fee_in_stroops || 100;
-    }
-    return 100;
+    const response = await this.feeStats();
+
+    return parseInt(response.last_ledger_base_fee, 10) || 100;
   }
 
   /**
-   * Fetch the operation fee stats endpoint.
-   * @see [Operation Fee Stats](https://www.stellar.org/developers/horizon/reference/endpoints/fee-stats.html)
-   * @returns {Promise} Promise that resolves to the fee stats returned by Horizon.
+   * Fetch the fee stats endpoint.
+   * @see [Fee Stats](https://www.stellar.org/developers/horizon/reference/endpoints/fee-stats.html)
+   * @returns {Promise<Horizon.FeeStatsResponse>} Promise that resolves to the fee stats returned by Horizon.
    */
-  public async operationFeeStats(): Promise<any> {
-    const cb = new CallBuilder(URI(this.serverURL as any));
-    cb.filter.push(["operation_fee_stats"]);
+  public async feeStats(): Promise<Horizon.FeeStatsResponse> {
+    const cb = new CallBuilder<Horizon.FeeStatsResponse>(
+      URI(this.serverURL as any),
+    );
+    cb.filter.push(["fee_stats"]);
     return cb.call();
   }
 
