@@ -157,9 +157,9 @@ export class Server {
   }
 
   /**
-   * Fetch the operation fee stats endpoint.
-   * @see [Operation Fee Stats](https://www.stellar.org/developers/horizon/reference/endpoints/fee-stats.html)
-   * @returns {Promise} Promise that resolves to the fee stats returned by Horizon.
+   * Fetch the fee stats endpoint.
+   * @see [Fee Stats](https://www.stellar.org/developers/horizon/reference/endpoints/fee-stats.html)
+   * @returns {Promise<Horizon.FeeStatsResponse>} Promise that resolves to the fee stats returned by Horizon.
    */
   public async feeStats(): Promise<Horizon.FeeStatsResponse> {
     const cb = new CallBuilder<Horizon.FeeStatsResponse>(
