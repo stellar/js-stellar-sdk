@@ -310,7 +310,7 @@ export namespace Horizon {
   export interface TransactionResponseCollection
     extends ResponseCollection<TransactionResponse> {}
 
-  export interface OperationFeeStatsResponse {
+  export interface FeeStatsResponse {
     last_ledger: string;
     last_ledger_base_fee: string;
     ledger_capacity_usage: string;

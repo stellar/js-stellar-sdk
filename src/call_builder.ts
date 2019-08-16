@@ -39,6 +39,7 @@ if (anyGlobal.EventSource) {
  */
 export class CallBuilder<
   T extends
+    | Horizon.FeeStatsResponse
     | Horizon.BaseResponse
     | ServerApi.CollectionPage<Horizon.BaseResponse>
 > {

@@ -190,6 +190,44 @@ describe('server.js non-transaction tests', function() {
     });
   });
 
+  describe('Server.feeStats', function() {
+    let response = {
+      "last_ledger": "256736",
+      "last_ledger_base_fee": "100",
+      "ledger_capacity_usage": "0.18",
+      "min_accepted_fee": "100",
+      "mode_accepted_fee": "2000",
+      "p10_accepted_fee": "100",
+      "p20_accepted_fee": "100",
+      "p30_accepted_fee": "100",
+      "p40_accepted_fee": "300",
+      "p50_accepted_fee": "650",
+      "p60_accepted_fee": "2000",
+      "p70_accepted_fee": "2000",
+      "p80_accepted_fee": "2000",
+      "p90_accepted_fee": "2000",
+      "p95_accepted_fee": "2000",
+      "p99_accepted_fee": "2000"
+    };
+
+    it('returns the base reserve', function(done) {
+      this.axiosMock
+        .expects('get')
+        .withArgs(sinon.match('https://horizon-live.stellar.org:1337/fee_stats'))
+        .returns(Promise.resolve({ data: response }));
+
+      this.server
+        .feeStats()
+        .then((feeStats) => {
+          expect(feeStats).to.be.equal(response);
+          done();
+        })
+        .catch(function(err) {
+          done(err);
+        });
+    });
+  })
+
   describe('Server.loadAccount', function() {
     //prettier-ignore
     let accountResponse = {
