@@ -151,14 +151,9 @@ export class Server {
    * @returns {Promise<number>} Promise that resolves to the base fee.
    */
   public async fetchBaseFee(): Promise<number> {
-    const response = await this.ledgers()
-      .order("desc")
-      .limit(1)
-      .call();
-    if (response && response.records && response.records[0]) {
-      return response.records[0].base_fee_in_stroops || 100;
-    }
-    return 100;
+    const response = await this.feeStats();
+
+    return parseInt(response.last_ledger_base_fee, 10) || 100;
   }
 
   /**
