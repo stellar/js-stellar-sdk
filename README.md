@@ -231,7 +231,7 @@ cd jsdoc && serve .
 ## Documentation
 
 Documentation for this repo lives in
-[Developers site](https://www.stellar.org/developers/js-stellar-sdk/learn/index.html).
+[Developers site](https://www.stellar.org/developers/js-stellar-sdk/reference/).
 
 ## Contributing
 
