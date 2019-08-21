@@ -57,7 +57,7 @@ var es = server.transactions()
 ## Handling responses
 
 ### XDR
-The transaction endpoints will return some fields in raw [XDR](https://www.stellar.org/developers/horizon/learn/xdr.html)
+The transaction endpoints will return some fields in raw [XDR](https://www.stellar.org/developers/guides/concepts/xdr.html)
 form. You can convert this XDR to JSON using the `.fromXDR()` method.
 
 An example of re-writing the txHandler from above to print the XDR fields as JSON:
