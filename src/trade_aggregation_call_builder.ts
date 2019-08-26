@@ -58,7 +58,7 @@ export class TradeAggregationCallBuilder extends CallBuilder<
     } else {
       this.url.setQuery("counter_asset_type", "native");
     }
-    if (typeof start_time === "undefined" || typeof end_time === "undefined") {
+    if (typeof start_time !== "number" || typeof end_time !== "number") {
       throw new BadRequestError("Invalid time bounds", [start_time, end_time]);
     } else {
       this.url.setQuery("start_time", start_time.toString());
