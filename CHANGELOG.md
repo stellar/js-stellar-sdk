@@ -2,6 +2,12 @@
 
 A breaking change will get clearly marked in this log.
 
+## [v3.0.0](https://github.com/stellar/js-stellar-sdk/compare/v2.3.0...v3.0.0)
+
+### BREAKING CHANGES ⚠
+
+- Drop Support for Node 6 since it has been end-of-lifed and no longer in LTS. We now require Node 10 which is the current LTS until April 1st, 2021. ([#424](https://github.com/stellar/js-stellar-sdk/pull/424)
+
 ## [v2.3.0](https://github.com/stellar/js-stellar-sdk/compare/v2.2.3...v2.3.0)
 
 ### Add
