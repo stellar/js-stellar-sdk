@@ -156,17 +156,17 @@ cd js-stellar-sdk
 npm install
 ```
 
-3. Install Node 6.14.0
+3. Install Node 10.16.3
 
 Because we support earlier versions of Node, please install and develop on Node
-6.14.0 so you don't get surprised when your code works locally but breaks in CI.
+10.16.3 so you don't get surprised when your code works locally but breaks in CI.
 
 Here's out to install `nvm` if you haven't: https://github.com/creationix/nvm
 
 ```shell
 nvm install
 
-# if you've never installed 6.14.0 before you'll want to re-install yarn
+# if you've never installed 10.16.3 before you'll want to re-install yarn
 npm install -g yarn
 ```
 
