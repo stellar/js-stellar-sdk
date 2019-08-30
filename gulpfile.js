@@ -10,6 +10,7 @@ var webpackStream = require('webpack-stream');
 var webpackConfigBrowser = require('./webpack.config.browser.js');
 var clear = require('clear');
 var plumber = require('gulp-plumber');
+var del = require('del');
 
 gulp.task('lint:src', function lintSrc() {
   return gulp
@@ -30,9 +31,7 @@ gulp.task('lint:test', function lintTest() {
 });
 
 gulp.task('clean', function clean() {
-  return gulp
-    .src(['dist', 'lib'], { read: false, allowEmpty: true })
-    .pipe(plugins.rimraf());
+  return del(['dist/', 'lib/']);
 });
 
 gulp.task(
@@ -133,9 +132,7 @@ gulp.task('clear-screen', function clearScreen(cb) {
 });
 
 gulp.task('clean-coverage', function cleanCoverage() {
-  return gulp
-    .src(['coverage'], { read: false, allowEmpty: true })
-    .pipe(plugins.rimraf());
+  return del(['coverage']);
 });
 
 gulp.task(
