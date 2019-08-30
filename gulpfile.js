@@ -5,7 +5,6 @@ var coveralls = require('@kollavarsham/gulp-coveralls');
 var gulp = require('gulp');
 var isparta = require('isparta');
 var plugins = require('gulp-load-plugins')();
-var server = require('gulp-develop-server');
 var webpack = require('webpack');
 var webpackStream = require('webpack-stream');
 var webpackConfigBrowser = require('./webpack.config.browser.js');
@@ -177,7 +176,6 @@ gulp.task('build', gulp.series('clean', 'build:node', 'build:browser'));
 gulp.task(
   'test',
   gulp.series('clean', 'test:unit', 'test:browser', function test(done) {
-    server.kill();
     done();
   })
 );
