@@ -191,11 +191,4 @@ gulp.task(
   })
 );
 
-gulp.task(
-  'hooks:precommit',
-  gulp.series('build', function hooksPrecommit() {
-    return gulp.src(['dist/*', 'lib/*']).pipe(plugins.git.add());
-  })
-);
-
 gulp.task('default', gulp.series('build'));
