@@ -1,6 +1,7 @@
 'use strict';
 
 var cp = require('child_process');
+var coveralls = require('@kollavarsham/gulp-coveralls');
 var gulp = require('gulp');
 var isparta = require('isparta');
 var plugins = require('gulp-load-plugins')();
@@ -168,7 +169,7 @@ gulp.task(
 );
 
 gulp.task('submit-coverage', function submitCoverage() {
-  return gulp.src('./coverage/**/lcov.info').pipe(plugins.coveralls());
+  return gulp.src('./coverage/**/lcov.info').pipe(coveralls());
 });
 
 gulp.task('build', gulp.series('clean', 'build:node', 'build:browser'));
