@@ -81,7 +81,6 @@
     "eslint-plugin-node": "^8.0.1",
     "eslint-plugin-prefer-import": "^0.0.1",
     "eslint-plugin-prettier": "^3.0.1",
-    "express": "^4.9.8",
     "ghooks": "^0.3.0",
     "gulp": "4.0.0",
     "gulp-babel": "^6.1.3",
