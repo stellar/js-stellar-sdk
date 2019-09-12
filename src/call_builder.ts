@@ -10,6 +10,10 @@ import { ServerApi } from "./server_api";
 /* tslint:disable-next-line:no-var-requires */
 const version = require("../package.json").version;
 
+// Resources which can be included in the Horizon response via the `join`
+// query-param.
+const JOINABLE = ["transaction"];
+
 type Constructable<T> = new (e: string) => T;
 
 export interface EventSourceOptions<T> {
@@ -203,6 +207,22 @@ export class CallBuilder<
   }
 
   /**
+   * Sets `join` parameter for the current call. The `join` parameter
+   * includes the requested resource in the response. Currently, the
+   * only valid value for the parameter is `transactions` and is only
+   * supported on the operations and payments endpoints. The response
+   * will include a `transaction` field for each operation in the
+   * response.
+   *
+   * @param {"transactions"} join Records to be included in the response.
+   * @returns {object} current CallBuilder instance.
+   */
+  public join(include: "transactions"): this {
+    this.url.setQuery("join", include);
+    return this;
+  }
+
+  /**
    * @private
    * @returns {void}
    */
@@ -255,12 +275,28 @@ export class CallBuilder<
     }
     for (const key of Object.keys(json._links)) {
       const n = json._links[key];
+      let included = false;
       // If the key with the link name already exists, create a copy
       if (typeof json[key] !== "undefined") {
         json[`${key}_attr`] = json[key];
+        included = true;
       }
 
-      json[key] = this._requestFnForLink(n as Horizon.ResponseLink);
+      /*
+       If the resource can be side-loaded using `join` query-param then don't
+       try to load from the server. We need to whitelist the keys which are
+       joinable, since there are other keys like `ledger` which is included in
+       some payloads, but doesn't represent the ledger resource, in that
+       scenario we want to make the call to the server using the URL from links.
+      */
+      if (included && JOINABLE.indexOf(key) >= 0) {
+        const record = this._parseRecord(json[key]);
+        // Maintain a promise based API so the behavior is the same whether you
+        // are loading from the server or in-memory (via join).
+        json[key] = async () => record;
+      } else {
+        json[key] = this._requestFnForLink(n as Horizon.ResponseLink);
+      }
     }
     return json;
   }
