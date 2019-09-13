@@ -2,6 +2,11 @@
 
 A breaking change will get clearly marked in this log.
 
+## [v3.0.1](https://github.com/stellar/js-stellar-sdk/compare/v3.0.0...v3.0.1)
+
+### Add
+- Add join method to call builder. ([#436](https://github.com/stellar/js-stellar-sdk/issues/436))
+
 ## [v3.0.0](https://github.com/stellar/js-stellar-sdk/compare/v2.3.0...v3.0.0)
 
 ### BREAKING CHANGES ⚠
