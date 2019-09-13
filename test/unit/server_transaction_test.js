@@ -5,11 +5,12 @@ describe('server.js transaction tests', function() {
     );
     this.axiosMock = sinon.mock(HorizonAxiosClient);
     StellarSdk.Config.setDefault();
-    StellarSdk.Network.useTestNetwork();
-
     let keypair = StellarSdk.Keypair.random();
     let account = new StellarSdk.Account(keypair.publicKey(), '56199647068161');
-    let transaction = new StellarSdk.TransactionBuilder(account, { fee: 100 })
+    let transaction = new StellarSdk.TransactionBuilder(account, {
+      fee: 100,
+      networkPassphrase: StellarSdk.Networks.TESTNET
+    })
       .addOperation(
         StellarSdk.Operation.payment({
           destination:
