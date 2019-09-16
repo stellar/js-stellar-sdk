@@ -2,7 +2,6 @@ describe('horizon path tests', function() {
   beforeEach(function() {
     this.axiosMock = sinon.mock(HorizonAxiosClient);
     StellarSdk.Config.setDefault();
-    StellarSdk.Network.useTestNetwork();
   });
 
   afterEach(function() {
@@ -117,7 +116,8 @@ describe('horizon path tests', function() {
       );
 
       let fakeTransaction = new StellarSdk.TransactionBuilder(account, {
-        fee: 100
+        fee: 100,
+        networkPassphrase: StellarSdk.Networks.TESTNET
       })
         .addOperation(
           StellarSdk.Operation.payment({

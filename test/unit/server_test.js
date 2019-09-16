@@ -7,7 +7,6 @@ describe('server.js non-transaction tests', function() {
     );
     this.axiosMock = sinon.mock(HorizonAxiosClient);
     StellarSdk.Config.setDefault();
-    StellarSdk.Network.useTestNetwork();
   });
 
   afterEach(function() {
