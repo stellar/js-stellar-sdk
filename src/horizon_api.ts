@@ -358,10 +358,17 @@ export namespace Horizon {
     }
   }
 
+  export enum TransactionFailedResultCodes {
+    TX_FAILED = "tx_failed",
+    TX_BAD_SEQ = "tx_bad_seq",
+    TX_BAD_AUTH = "tx_bad_auth",
+    TX_BAD_AUTH_EXTRA = "tx_bad_auth_extra",
+  }
+
   export interface TransactionFailedExtras {
     envelope_xdr: string; // base64
     result_codes: {
-      transaction: "tx_failed" | "tx_bad_seq";
+      transaction: TransactionFailedResultCodes;
       operations: string[];
     };
     result_xdr: string;
