@@ -31,7 +31,7 @@ using modern Javascript, but `await` calls can also be rendered with promises.
 const StellarSdk = require('stellar-sdk');
 
 // The source account is the account we will be signing and sending from.
-const sourceSecretKey = 'SAKRB7EE6H23EF733WFU76RPIYOPEWVOMBBUXDQYQ3OF4NF6ZY6B6VLW';
+const sourceSecretKey = 'SCZANGBA5YHTNYVVV4C3U252E2B6P6F5T3U6MM63WBSBZATAQI3EBTQ4';
 
 // Derive Keypair object and public key (that starts with a G) from the secret
 const sourceKeypair = StellarSdk.Keypair.fromSecret(sourceSecretKey);
@@ -42,11 +42,6 @@ const receiverPublicKey = 'GAIRISXKPLOWZBMFRPU5XRGUUX3VMA3ZEWKBM5MSNRU3CHV6P4PYZ
 // Configure StellarSdk to talk to the horizon instance hosted by Stellar.org
 // To use the live network, set the hostname to 'horizon.stellar.org'
 const server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
-
-// Uncomment the following line to build transactions for the live network. Be
-// sure to also change the horizon hostname.
-// StellarSdk.Network.usePublicNetwork();
-StellarSdk.Network.useTestNetwork();
 
 (async function main() {
   // Transactions require a valid sequence number that is specific to this account.
@@ -60,7 +55,13 @@ StellarSdk.Network.useTestNetwork();
   const fee = await server.fetchBaseFee();
 
 
-  const transaction = new StellarSdk.TransactionBuilder(account, { fee })
+  const transaction = new StellarSdk.TransactionBuilder(account, { 
+      fee,
+      // Uncomment the following line to build transactions for the live network. Be
+      // sure to also change the horizon hostname.
+      // networkPassphrase: StellarSdk.Networks.PUBLIC,
+      networkPassphrase: StellarSdk.Networks.TESTNET
+    })
     // Add a payment operation to the transaction
     .addOperation(StellarSdk.Operation.payment({
       destination: receiverPublicKey,
