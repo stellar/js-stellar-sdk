@@ -22,6 +22,8 @@ import { OperationCallBuilder } from "./operation_call_builder";
 import { OrderbookCallBuilder } from "./orderbook_call_builder";
 import { PathCallBuilder } from "./path_call_builder";
 import { PaymentCallBuilder } from "./payment_call_builder";
+import { StrictReceivePathCallBuilder } from "./strict_receive_path_call_builder";
+import { StrictSendPathCallBuilder } from "./strict_send_path_call_builder";
 import { TradeAggregationCallBuilder } from "./trade_aggregation_call_builder";
 import { TradesCallBuilder } from "./trades_call_builder";
 import { TransactionCallBuilder } from "./transaction_call_builder";
@@ -438,9 +440,7 @@ export class Server {
         }
         return Promise.reject(
           new BadResponseError(
-            `Transaction submission failed. Server responded: ${
-              response.status
-            } ${response.statusText}`,
+            `Transaction submission failed. Server responded: ${response.status} ${response.statusText}`,
             response.data,
           ),
         );
@@ -521,6 +521,7 @@ export class Server {
   }
 
   /**
+   *
    * The Stellar Network allows payments to be made between assets through path payments. A path payment specifies a
    * series of assets to route a payment through, from source asset (the asset debited from the payer) to destination
    * asset (the asset credited to the payee).
@@ -540,6 +541,8 @@ export class Server {
    * @param {Asset} destinationAsset The destination asset.
    * @param {string} destinationAmount The amount, denominated in the destination asset, that any returned path should be able to satisfy.
    * @returns {PathCallBuilder} New {@link PathCallBuilder} object configured with the current Horizon server configuration.
+   *
+   * @deprecated Use {@link Server#strictReceivePaths}
    */
   public paths(
     source: string,
@@ -547,12 +550,85 @@ export class Server {
     destinationAsset: Asset,
     destinationAmount: string,
   ): PathCallBuilder {
+    console.warn(
+      "`Server#paths` is deprecated. Please use `Server#strictReceivePaths`.",
+    );
     return new PathCallBuilder(
       URI(this.serverURL as any),
       source,
       destination,
       destinationAsset,
       destinationAmount,
+    );
+  }
+
+  /**
+   * The Stellar Network allows payments to be made between assets through path
+   * payments. A strict receive path payment specifies a series of assets to
+   * route a payment through, from source asset (the asset debited from the
+   * payer) to destination asset (the asset credited to the payee).
+   *
+   * A strict receive path search is specified using:
+   *
+   * * The destination address.
+   * * The source address or source assets.
+   * * The asset and amount that the destination account should receive.
+   *
+   * As part of the search, horizon will load a list of assets available to the
+   * source address and will find any payment paths from those source assets to
+   * the desired destination asset. The search's amount parameter will be used
+   * to determine if there a given path can satisfy a payment of the desired
+   * amount.
+   *
+   * If a list of assets is passed as the source, horizon will find any payment
+   * paths from those source assets to the desired destination asset.
+   *
+   * @param {string|Asset[]} source The sender's account ID or a list of assets. Any returned path will use a source that the sender can hold.
+   * @param {string} destination The destination account ID that any returned path should use.
+   * @param {Asset} destinationAsset The destination asset.
+   * @param {string} destinationAmount The amount, denominated in the destination asset, that any returned path should be able to satisfy.
+   * @returns {StrictReceivePathCallBuilder} New {@link StrictReceivePathCallBuilder} object configured with the current Horizon server configuration.
+   */
+  public strictReceivePaths(
+    source: string | Asset[],
+    destination: string,
+    destinationAsset: Asset,
+    destinationAmount: string,
+  ): PathCallBuilder {
+    return new StrictReceivePathCallBuilder(
+      URI(this.serverURL as any),
+      source,
+      destination,
+      destinationAsset,
+      destinationAmount,
+    );
+  }
+
+  /**
+   * The Stellar Network allows payments to be made between assets through path payments. A strict send path payment specifies a
+   * series of assets to route a payment through, from source asset (the asset debited from the payer) to destination
+   * asset (the asset credited to the payee).
+   *
+   * A strict send path search is specified using:
+   *
+   * The asset and amount that is being sent.
+   * The destination account or the destination assets.
+   *
+   * @param {Asset} sourceAsset The asset to be sent.
+   * @param {string} sourceAmount The amount, denominated in the source asset, that any returned path should be able to satisfy.
+   * @param {string|Asset[]} destination The destination account or the destination assets.
+   * @returns {StrictSendPathCallBuilder} New {@link StrictSendPathCallBuilder} object configured with the current Horizon server configuration.
+   */
+  public strictSendPaths(
+    sourceAsset: Asset,
+    sourceAmount: string,
+    destination: string | Asset[],
+  ): PathCallBuilder {
+    return new StrictSendPathCallBuilder(
+      URI(this.serverURL as any),
+      sourceAsset,
+      sourceAmount,
+      destination,
     );
   }
 
