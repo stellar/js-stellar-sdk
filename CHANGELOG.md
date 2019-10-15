@@ -4,6 +4,8 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+## [v3.1.0](https://github.com/stellar/js-stellar-sdk/compare/v3.0.0...v3.1.0)
+
 ### Add ➕
 
 - Add `server.strictReceivePaths` which adds support for `/paths/strict-receive`. ([444](https://github.com/stellar/js-stellar-sdk/pull/444))
