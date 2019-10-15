@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Memo - Documentation</title>
+    <title>StrictSendPathCallBuilder - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -29,7 +29,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">Memo</h1>
+    <h1 class="page-title">StrictSendPathCallBuilder</h1>
     
 
     
@@ -42,8 +42,23 @@
 <header>
     
         <h2>
-        Memo
+        StrictSendPathCallBuilder
         </h2>
+        
+            <div class="class-description"><p>The Stellar Network allows payments to be made across assets through path
+payments. A strict send path payment specifies a series of assets to route a
+payment through, from source asset (the asset debited from the payer) to
+destination asset (the asset credited to the payee).</p>
+<p>A strict send path search is specified using:</p>
+<p>The source asset
+The source amount
+The destination assets or destination account.</p>
+<p>As part of the search, horizon will load a list of assets available to the
+source address and will find any payment paths from those source assets to
+the desired destination asset. The search's source_amount parameter will be
+used to determine if there a given path can satisfy a payment of the desired
+amount.</p>
+<p>Do not create this object directly, use <a href="Server.html#strictSendPaths">Server#strictSendPaths</a>.</p></div>
         
     
 </header>
@@ -55,16 +70,14 @@
 <div class="section-method">
 
     
+    <h2>Constructor</h2>
+    
 
-    <h4 class="name" id="Memo"><span class="type-signature"></span>new Memo<span class="signature">(type, value)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="StrictSendPathCallBuilder"><span class="type-signature"></span>new StrictSendPathCallBuilder<span class="signature">(serverUrl, sourceAsset, sourceAmount, destination)</span><span class="type-signature"></span></h4>
 
     
 
 
-
-<div class="description">
-    <p><code>Memo</code> represents memos attached to transactions.</p>
-</div>
 
 
 
@@ -99,7 +112,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="node_modules_stellar-base_src_memo.js.html">node_modules/stellar-base/src/memo.js</a>, <a href="node_modules_stellar-base_src_memo.js.html#line29">line 29</a>
+        <a href="libdocs_strict_send_path_call_builder.js.html">libdocs/strict_send_path_call_builder.js</a>, <a href="libdocs_strict_send_path_call_builder.js.html#line29">line 29</a>
     </li></ul></dd>
     
 
@@ -109,7 +122,7 @@
     <dt class="tag-see">See:</dt>
     <dd class="tag-see">
         <ul>
-            <li><p><a href="https://www.stellar.org/developers/learn/concepts/transactions.html">Transactions concept</a></p></li>
+            <li><p><a href="https://www.stellar.org/developers/horizon/reference/endpoints/path-finding.html">Find Payment Paths</a></p></li>
         </ul>
     </dd>
     
@@ -150,7 +163,7 @@
 
         <tr>
             
-                <td class="name"><code>type</code></td>
+                <td class="name"><code>serverUrl</code></td>
             
 
             <td class="type">
@@ -167,7 +180,7 @@
             
 
             <td class="description last">
-                <p><code>MemoNone</code>, <code>MemoID</code>, <code>MemoText</code>, <code>MemoHash</code> or <code>MemoReturn</code></p>
+                <p>Horizon server URL.</p>
                 
             </td>
         </tr>
@@ -176,13 +189,13 @@
 
         <tr>
             
-                <td class="name"><code>value</code></td>
+                <td class="name"><code>sourceAsset</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type"><code>*</code></span>
+<span class="param-type"><code><a href="Asset.html">Asset</a></code></span>
 
 
             
@@ -193,7 +206,62 @@
             
 
             <td class="description last">
-                <p><code>string</code> for <code>MemoID</code>, <code>MemoText</code>, buffer of hex string for <code>MemoHash</code> or <code>MemoReturn</code></p>
+                <p>The asset to be sent.</p>
+                
+            </td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>sourceAmount</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>string</code></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">
+                <p>The amount, denominated in the source asset, that any returned path should be able to satisfy.</p>
+                
+            </td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>destination</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>string</code></span>
+|
+
+<span class="param-type"><code>Array.&lt;<a href="Asset.html">Asset</a>></code></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">
+                <p>The destination account or the destination assets.</p>
                 
             </td>
         </tr>
@@ -222,6 +290,17 @@
     </div>
 
     
+        <h3 class="subsection-title">Extends</h3>
+
+        
+
+
+    <ul>
+        <li><a href="CallBuilder.html">CallBuilder</a></li>
+    </ul>
+
+
+    
 
     
 
@@ -231,144 +310,6 @@
 
     
 
-    
-        <h3 class="subsection-title">Members</h3>
-
-        
-            
-<div class="section-members">
-<h4 class="name" id="type"><span class="type-signature"></span>type<span class="type-signature"></span></h4>
-
-
-
-
-<div class="description">
-    <p>Contains memo type: <code>MemoNone</code>, <code>MemoID</code>, <code>MemoText</code>, <code>MemoHash</code> or <code>MemoReturn</code></p>
-</div>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="node_modules_stellar-base_src_memo.js.html">node_modules/stellar-base/src/memo.js</a>, <a href="node_modules_stellar-base_src_memo.js.html#line67">line 67</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-</div>
-
-        
-            
-<div class="section-members">
-<h4 class="name" id="value"><span class="type-signature"></span>value<span class="type-signature"></span></h4>
-
-
-
-
-<div class="description">
-    <p>Contains memo value:</p>
-<ul>
-<li><code>null</code> for <code>MemoNone</code>,</li>
-<li><code>string</code> for <code>MemoID</code>,</li>
-<li><code>Buffer</code> for <code>MemoText</code> after decoding using <code>fromXDRObject</code>, original value otherwise,</li>
-<li><code>Buffer</code> for <code>MemoHash</code>, <code>MemoReturn</code>.</li>
-</ul>
-</div>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="node_modules_stellar-base_src_memo.js.html">node_modules/stellar-base/src/memo.js</a>, <a href="node_modules_stellar-base_src_memo.js.html#line82">line 82</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-</div>
-
-        
     
 
     
@@ -380,14 +321,14 @@
 
     
 
-    <h4 class="name" id=".fromXDRObject"><span class="type-signature">(static) </span>fromXDRObject<span class="signature">(object)</span><span class="type-signature"> &rarr; {<a href="Memo.html">Memo</a>}</span></h4>
+    <h4 class="name" id="call"><span class="type-signature"></span>call<span class="signature">()</span><span class="type-signature"> &rarr; {Promise}</span></h4>
 
     
 
 
 
 <div class="description">
-    <p>Returns <a href="Memo.html">Memo</a> from XDR memo object.</p>
+    <p>Triggers a HTTP request using this builder's current configuration.</p>
 </div>
 
 
@@ -400,6 +341,11 @@
 
     
 
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="CallBuilder.html#call">CallBuilder#call</a>
+    </li></ul></dd>
     
 
     
@@ -423,12 +369,132 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="node_modules_stellar-base_src_memo.js.html">node_modules/stellar-base/src/memo.js</a>, <a href="node_modules_stellar-base_src_memo.js.html#line228">line 228</a>
+        <a href="libdocs_call_builder.js.html">libdocs/call_builder.js</a>, <a href="libdocs_call_builder.js.html#line41">line 41</a>
     </li></ul></dd>
     
 
     
 
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="section-returns">
+<h5>Returns:</h5>
+
+        
+
+<dl class="param-type">
+    <dt>
+        Type:
+    </dt>
+    <dd>
+        
+<span class="param-type"><code>Promise</code></span>
+
+
+    </dd>
+</dl>
+
+
+<div class="param-desc">
+    <p>a Promise that resolves to the server's response.</p>
+</div>
+
+    
+</div>
+
+
+
+</div>
+        
+            
+<div class="section-method">
+
+    
+
+    <h4 class="name" id="cursor"><span class="type-signature"></span>cursor<span class="signature">(cursor)</span><span class="type-signature"> &rarr; {object}</span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Sets <code>cursor</code> parameter for the current call. Returns the CallBuilder object on which this method has been called.</p>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="CallBuilder.html#cursor">CallBuilder#cursor</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="libdocs_call_builder.js.html">libdocs/call_builder.js</a>, <a href="libdocs_call_builder.js.html#line147">line 147</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><p><a href="https://www.stellar.org/developers/horizon/reference/paging.html">Paging</a></p></li>
+        </ul>
+    </dd>
     
 
     
@@ -467,13 +533,13 @@
 
         <tr>
             
-                <td class="name"><code>object</code></td>
+                <td class="name"><code>cursor</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type"><code>xdr.Memo</code></span>
+<span class="param-type"><code>string</code></span>
 
 
             
@@ -484,7 +550,7 @@
             
 
             <td class="description last">
-                <p>XDR memo object</p>
+                <p>A cursor is a value that points to a specific location in a collection of resources.</p>
                 
             </td>
         </tr>
@@ -517,12 +583,16 @@
     </dt>
     <dd>
         
-<span class="param-type"><code><a href="Memo.html">Memo</a></code></span>
+<span class="param-type"><code>object</code></span>
 
 
     </dd>
 </dl>
 
+
+<div class="param-desc">
+    <p>current CallBuilder instance</p>
+</div>
 
     
 </div>
@@ -536,14 +606,19 @@
 
     
 
-    <h4 class="name" id=".hash"><span class="type-signature">(static) </span>hash<span class="signature">(hash)</span><span class="type-signature"> &rarr; {<a href="Memo.html">Memo</a>}</span></h4>
+    <h4 class="name" id="join"><span class="type-signature"></span>join<span class="signature">(join)</span><span class="type-signature"> &rarr; {object}</span></h4>
 
     
 
 
 
 <div class="description">
-    <p>Creates and returns a <code>MemoHash</code> memo.</p>
+    <p>Sets <code>join</code> parameter for the current call. The <code>join</code> parameter
+includes the requested resource in the response. Currently, the
+only valid value for the parameter is <code>transactions</code> and is only
+supported on the operations and payments endpoints. The response
+will include a <code>transaction</code> field for each operation in the
+response.</p>
 </div>
 
 
@@ -556,6 +631,11 @@
 
     
 
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="CallBuilder.html#join">CallBuilder#join</a>
+    </li></ul></dd>
     
 
     
@@ -579,7 +659,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="node_modules_stellar-base_src_memo.js.html">node_modules/stellar-base/src/memo.js</a>, <a href="node_modules_stellar-base_src_memo.js.html#line189">line 189</a>
+        <a href="libdocs_call_builder.js.html">libdocs/call_builder.js</a>, <a href="libdocs_call_builder.js.html#line181">line 181</a>
     </li></ul></dd>
     
 
@@ -623,16 +703,353 @@
 
         <tr>
             
-                <td class="name"><code>hash</code></td>
+                <td class="name"><code>join</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type"><code>array</code></span>
+<span class="param-type"><code>"transactions"</code></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">
+                <p>Records to be included in the response.</p>
+                
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="section-returns">
+<h5>Returns:</h5>
+
+        
+
+<dl class="param-type">
+    <dt>
+        Type:
+    </dt>
+    <dd>
+        
+<span class="param-type"><code>object</code></span>
+
+
+    </dd>
+</dl>
+
+
+<div class="param-desc">
+    <p>current CallBuilder instance.</p>
+</div>
+
+    
+</div>
+
+
+
+</div>
+        
+            
+<div class="section-method">
+
+    
+
+    <h4 class="name" id="limit"><span class="type-signature"></span>limit<span class="signature">(number)</span><span class="type-signature"> &rarr; {object}</span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Sets <code>limit</code> parameter for the current call. Returns the CallBuilder object on which this method has been called.</p>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="CallBuilder.html#limit">CallBuilder#limit</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="libdocs_call_builder.js.html">libdocs/call_builder.js</a>, <a href="libdocs_call_builder.js.html#line157">line 157</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><p><a href="https://www.stellar.org/developers/horizon/reference/paging.html">Paging</a></p></li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>number</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>number</code></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">
+                <p>Number of records the server should return.</p>
+                
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="section-returns">
+<h5>Returns:</h5>
+
+        
+
+<dl class="param-type">
+    <dt>
+        Type:
+    </dt>
+    <dd>
+        
+<span class="param-type"><code>object</code></span>
+
+
+    </dd>
+</dl>
+
+
+<div class="param-desc">
+    <p>current CallBuilder instance</p>
+</div>
+
+    
+</div>
+
+
+
+</div>
+        
+            
+<div class="section-method">
+
+    
+
+    <h4 class="name" id="order"><span class="type-signature"></span>order<span class="signature">(direction)</span><span class="type-signature"> &rarr; {object}</span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Sets <code>order</code> parameter for the current call. Returns the CallBuilder object on which this method has been called.</p>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="CallBuilder.html#order">CallBuilder#order</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="libdocs_call_builder.js.html">libdocs/call_builder.js</a>, <a href="libdocs_call_builder.js.html#line166">line 166</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>direction</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>"asc"</code></span>
 |
 
-<span class="param-type"><code>string</code></span>
+<span class="param-type"><code>"desc"</code></span>
 
 
             
@@ -643,7 +1060,7 @@
             
 
             <td class="description last">
-                <p>32 byte hash or hex encoded string</p>
+                <p>Sort direction</p>
                 
             </td>
         </tr>
@@ -676,12 +1093,16 @@
     </dt>
     <dd>
         
-<span class="param-type"><code><a href="Memo.html">Memo</a></code></span>
+<span class="param-type"><code>object</code></span>
 
 
     </dd>
 </dl>
 
+
+<div class="param-desc">
+    <p>current CallBuilder instance</p>
+</div>
 
     
 </div>
@@ -695,14 +1116,15 @@
 
     
 
-    <h4 class="name" id=".id"><span class="type-signature">(static) </span>id<span class="signature">(id)</span><span class="type-signature"> &rarr; {<a href="Memo.html">Memo</a>}</span></h4>
+    <h4 class="name" id="stream"><span class="type-signature"></span>stream<span class="signature">(options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {function}</span></h4>
 
     
 
 
 
 <div class="description">
-    <p>Creates and returns a <code>MemoID</code> memo.</p>
+    <p>Creates an EventSource that listens for incoming messages from the server. To stop listening for new
+events call the function returned by this method.</p>
 </div>
 
 
@@ -715,6 +1137,11 @@
 
     
 
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="CallBuilder.html#stream">CallBuilder#stream</a>
+    </li></ul></dd>
     
 
     
@@ -738,12 +1165,21 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="node_modules_stellar-base_src_memo.js.html">node_modules/stellar-base/src/memo.js</a>, <a href="node_modules_stellar-base_src_memo.js.html#line180">line 180</a>
+        <a href="libdocs_call_builder.js.html">libdocs/call_builder.js</a>, <a href="libdocs_call_builder.js.html#line72">line 72</a>
     </li></ul></dd>
     
 
     
 
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><p><a href="https://www.stellar.org/developers/horizon/reference/responses.html">Horizon Response Format</a></p></li>
+        
+            <li><p><a href="https://developer.mozilla.org/en-US/docs/Web/API/EventSource">MDN EventSource</a></p></li>
+        </ul>
+    </dd>
     
 
     
@@ -770,6 +1206,8 @@
         <th>Type</th>
 
         
+        <th>Attributes</th>
+        
 
         
 
@@ -782,243 +1220,36 @@
 
         <tr>
             
-                <td class="name"><code>id</code></td>
+                <td class="name"><code>options</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type"><code>string</code></span>
+<span class="param-type"><code>object</code></span>
 
 
             
             </td>
 
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
             
 
             
 
             <td class="description last">
-                <p>64-bit number represented as a string</p>
+                <p>EventSource options.</p>
                 
-            </td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div class="section-returns">
-<h5>Returns:</h5>
-
-        
-
-<dl class="param-type">
-    <dt>
-        Type:
-    </dt>
-    <dd>
-        
-<span class="param-type"><code><a href="Memo.html">Memo</a></code></span>
-
-
-    </dd>
-</dl>
-
-
-    
-</div>
-
-
-
-</div>
-        
-            
-<div class="section-method">
-
-    
-
-    <h4 class="name" id=".none"><span class="type-signature">(static) </span>none<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="Memo.html">Memo</a>}</span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Returns an empty memo (<code>MemoNone</code>).</p>
-</div>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="node_modules_stellar-base_src_memo.js.html">node_modules/stellar-base/src/memo.js</a>, <a href="node_modules_stellar-base_src_memo.js.html#line162">line 162</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div class="section-returns">
-<h5>Returns:</h5>
-
-        
-
-<dl class="param-type">
-    <dt>
-        Type:
-    </dt>
-    <dd>
-        
-<span class="param-type"><code><a href="Memo.html">Memo</a></code></span>
-
-
-    </dd>
-</dl>
-
-
-    
-</div>
-
-
-
-</div>
-        
-            
-<div class="section-method">
-
-    
-
-    <h4 class="name" id=".return"><span class="type-signature">(static) </span>return<span class="signature">(hash)</span><span class="type-signature"> &rarr; {<a href="Memo.html">Memo</a>}</span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Creates and returns a <code>MemoReturn</code> memo.</p>
-</div>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="node_modules_stellar-base_src_memo.js.html">node_modules/stellar-base/src/memo.js</a>, <a href="node_modules_stellar-base_src_memo.js.html#line198">line 198</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
+                    
 
 <table class="params">
     <thead>
@@ -1030,6 +1261,8 @@
         <th>Type</th>
 
         
+        <th>Attributes</th>
+        
 
         
 
@@ -1042,27 +1275,114 @@
 
         <tr>
             
-                <td class="name"><code>hash</code></td>
+                <td class="name"><code>onmessage</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type"><code>array</code></span>
-|
-
-<span class="param-type"><code>string</code></span>
+<span class="param-type"><code>function</code></span>
 
 
             
             </td>
 
             
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
 
             
 
             <td class="description last">
-                <p>32 byte hash or hex encoded string</p>
+                <p>Callback function to handle incoming messages.</p>
+                
+            </td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>onerror</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>function</code></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">
+                <p>Callback function to handle errors.</p>
+                
+            </td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>reconnectTimeout</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>number</code></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">
+                <p>Custom stream connection timeout in ms, default is 15 seconds.</p>
+                
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
                 
             </td>
         </tr>
@@ -1095,272 +1415,16 @@
     </dt>
     <dd>
         
-<span class="param-type"><code><a href="Memo.html">Memo</a></code></span>
+<span class="param-type"><code>function</code></span>
 
 
     </dd>
 </dl>
 
 
-    
+<div class="param-desc">
+    <p>Close function. Run to close the connection and stop listening for new events.</p>
 </div>
-
-
-
-</div>
-        
-            
-<div class="section-method">
-
-    
-
-    <h4 class="name" id=".text"><span class="type-signature">(static) </span>text<span class="signature">(text)</span><span class="type-signature"> &rarr; {<a href="Memo.html">Memo</a>}</span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Creates and returns a <code>MemoText</code> memo.</p>
-</div>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="node_modules_stellar-base_src_memo.js.html">node_modules/stellar-base/src/memo.js</a>, <a href="node_modules_stellar-base_src_memo.js.html#line171">line 171</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>text</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><code>string</code></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">
-                <p>memo text</p>
-                
-            </td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div class="section-returns">
-<h5>Returns:</h5>
-
-        
-
-<dl class="param-type">
-    <dt>
-        Type:
-    </dt>
-    <dd>
-        
-<span class="param-type"><code><a href="Memo.html">Memo</a></code></span>
-
-
-    </dd>
-</dl>
-
-
-    
-</div>
-
-
-
-</div>
-        
-            
-<div class="section-method">
-
-    
-
-    <h4 class="name" id="toXDRObject"><span class="type-signature"></span>toXDRObject<span class="signature">()</span><span class="type-signature"> &rarr; {xdr.Memo}</span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Returns XDR memo object.</p>
-</div>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="node_modules_stellar-base_src_memo.js.html">node_modules/stellar-base/src/memo.js</a>, <a href="node_modules_stellar-base_src_memo.js.html#line206">line 206</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div class="section-returns">
-<h5>Returns:</h5>
-
-        
-
-<dl class="param-type">
-    <dt>
-        Type:
-    </dt>
-    <dd>
-        
-<span class="param-type"><code>xdr.Memo</code></span>
-
-
-    </dd>
-</dl>
-
 
     
 </div>
