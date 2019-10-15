@@ -2,6 +2,50 @@
 
 A breaking change will get clearly marked in this log.
 
+## Unreleased
+
+### Add ➕
+
+- Add `server.strictReceivePaths` which adds support for `/paths/strict-receive`. ([444](https://github.com/stellar/js-stellar-sdk/pull/444))
+  This function takes a list of source assets or a source address, a destination
+  address, a destination asset and a destination amount.
+
+  You can call it passing a list of source assets:
+
+  ```
+  server.strictReceivePaths(sourceAssets,destinationAccount,destinationAsset, destinationAmount)
+  ```
+
+  Or a by passing a Stellar source account address:
+
+  ```
+  server.strictReceivePaths(sourceAccount,destinationAccount,destinationAsset, destinationAmount)
+  ```
+
+  When you call this function with a Stellar account address, it will look at the account’s trustlines and use them to determine all payment paths that can satisfy the desired amount.
+
+- Add `server.strictSendPaths` which adds support for `/paths/strict-send`. ([444](https://github.com/stellar/js-stellar-sdk/pull/444))
+  This function takes the asset you want to send, and the amount of that asset,
+  along with either a list of destination assets or a destination address.
+
+  You can call it passing a list of destination assets:
+
+  ```
+  server.strictSendPaths(sourceAsset, sourceAmount, [destinationAsset]).call()
+  ```
+
+  Or a by passing a Stellar account address:
+
+  ```
+  server.strictSendPaths(sourceAsset, sourceAmount, "GDRREYWHQWJDICNH4SAH4TT2JRBYRPTDYIMLK4UWBDT3X3ZVVYT6I4UQ").call()
+  ```
+
+  When you call this function with a Stellar account address, it will look at the account’s trustlines and use them to determine all payment paths that can satisfy the desired amount.
+
+### Deprecated ⚠️
+
+- [Server#paths](https://stellar.github.io/js-stellar-sdk/Server.html#paths) is deprecated in favor of [Server#strictReceivePaths](https://stellar.github.io/js-stellar-sdk/Server.html#strictReceivePaths). ([444](https://github.com/stellar/js-stellar-sdk/pull/444))
+
 ## [v3.0.1](https://github.com/stellar/js-stellar-sdk/compare/v3.0.0...v3.0.1)
 
 ### Add
