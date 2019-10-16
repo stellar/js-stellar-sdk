@@ -4,9 +4,11 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+## [v3.1.1](https://github.com/stellar/js-stellar-sdk/compare/v3.1.0...v3.1.1)
+
 ### Change ⚠️
 
-- Change arguments on [server.strictReceivePaths](https://stellar.github.io/js-stellar-sdk/Server.html#strictReceivePaths) since we included `destinationAccount` as argument, which is not longer required on Horizon. ([477](https://github.com/stellar/js-stellar-sdk/pull/447))
+- Change arguments on [server.strictReceivePaths](https://stellar.github.io/js-stellar-sdk/Server.html#strictReceivePaths) since we included `destinationAccount` as an argument, but it is not longer required by Horizon. ([477](https://github.com/stellar/js-stellar-sdk/pull/447))
 
 ## [v3.1.0](https://github.com/stellar/js-stellar-sdk/compare/v3.0.0...v3.1.0)
 
