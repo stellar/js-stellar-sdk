@@ -1540,7 +1540,7 @@ describe('server.js non-transaction tests', function() {
           .expects('get')
           .withArgs(
             sinon.match(
-              'https://horizon-live.stellar.org:1337/paths/strict-receive?destination_account=GAEDTJ4PPEFVW5XV2S7LUXBEHNQMX5Q2GM562RJGOQG7GVCE5H3HIB4V&source_account=GARSFJNXJIHO6ULUBK3DBYKVSIZE7SC72S5DYBCHU7DKL22UXKVD7MXP&destination_amount=20.0&destination_asset_type=credit_alphanum4&destination_asset_code=EUR&destination_asset_issuer=GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN'
+              'https://horizon-live.stellar.org:1337/paths/strict-receive?source_account=GARSFJNXJIHO6ULUBK3DBYKVSIZE7SC72S5DYBCHU7DKL22UXKVD7MXP&destination_amount=20.0&destination_asset_type=credit_alphanum4&destination_asset_code=EUR&destination_asset_issuer=GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN'
             )
           )
           .returns(Promise.resolve({ data: pathsResponse }));
@@ -1548,7 +1548,6 @@ describe('server.js non-transaction tests', function() {
         this.server
           .strictReceivePaths(
             'GARSFJNXJIHO6ULUBK3DBYKVSIZE7SC72S5DYBCHU7DKL22UXKVD7MXP',
-            'GAEDTJ4PPEFVW5XV2S7LUXBEHNQMX5Q2GM562RJGOQG7GVCE5H3HIB4V',
             new StellarSdk.Asset(
               'EUR',
               'GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN'
@@ -1573,7 +1572,7 @@ describe('server.js non-transaction tests', function() {
           .expects('get')
           .withArgs(
             sinon.match(
-              `https://horizon-live.stellar.org:1337/paths/strict-receive?destination_account=GAEDTJ4PPEFVW5XV2S7LUXBEHNQMX5Q2GM562RJGOQG7GVCE5H3HIB4V&source_assets=${destinationAssets}&destination_amount=20.0&destination_asset_type=credit_alphanum4&destination_asset_code=EUR&destination_asset_issuer=GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN`
+              `https://horizon-live.stellar.org:1337/paths/strict-receive?source_assets=${destinationAssets}&destination_amount=20.0&destination_asset_type=credit_alphanum4&destination_asset_code=EUR&destination_asset_issuer=GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN`
             )
           )
           .returns(Promise.resolve({ data: pathsResponse }));
@@ -1593,7 +1592,6 @@ describe('server.js non-transaction tests', function() {
         this.server
           .strictReceivePaths(
             assets,
-            'GAEDTJ4PPEFVW5XV2S7LUXBEHNQMX5Q2GM562RJGOQG7GVCE5H3HIB4V',
             new StellarSdk.Asset(
               'EUR',
               'GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN'

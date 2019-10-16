@@ -4,6 +4,10 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Change ⚠️
+
+- Change arguments on [server.strictReceivePaths](https://stellar.github.io/js-stellar-sdk/Server.html#strictReceivePaths) since we included `destinationAccount` as argument, which is not longer required on Horizon. ([477](https://github.com/stellar/js-stellar-sdk/pull/447))
+
 ## [v3.1.0](https://github.com/stellar/js-stellar-sdk/compare/v3.0.0...v3.1.0)
 
 ### Add ➕
@@ -15,13 +19,13 @@ A breaking change will get clearly marked in this log.
   You can call it passing a list of source assets:
 
   ```
-  server.strictReceivePaths(sourceAssets,destinationAccount,destinationAsset, destinationAmount)
+  server.strictReceivePaths(sourceAssets,destinationAsset, destinationAmount)
   ```
 
   Or a by passing a Stellar source account address:
 
   ```
-  server.strictReceivePaths(sourceAccount,destinationAccount,destinationAsset, destinationAmount)
+  server.strictReceivePaths(sourceAccount,destinationAsset, destinationAmount)
   ```
 
   When you call this function with a Stellar account address, it will look at the account’s trustlines and use them to determine all payment paths that can satisfy the desired amount.

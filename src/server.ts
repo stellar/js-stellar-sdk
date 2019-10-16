@@ -584,21 +584,18 @@ export class Server {
    * paths from those source assets to the desired destination asset.
    *
    * @param {string|Asset[]} source The sender's account ID or a list of assets. Any returned path will use a source that the sender can hold.
-   * @param {string} destination The destination account ID that any returned path should use.
    * @param {Asset} destinationAsset The destination asset.
    * @param {string} destinationAmount The amount, denominated in the destination asset, that any returned path should be able to satisfy.
    * @returns {StrictReceivePathCallBuilder} New {@link StrictReceivePathCallBuilder} object configured with the current Horizon server configuration.
    */
   public strictReceivePaths(
     source: string | Asset[],
-    destination: string,
     destinationAsset: Asset,
     destinationAmount: string,
   ): PathCallBuilder {
     return new StrictReceivePathCallBuilder(
       URI(this.serverURL as any),
       source,
-      destination,
       destinationAsset,
       destinationAmount,
     );

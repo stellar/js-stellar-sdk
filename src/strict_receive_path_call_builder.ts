@@ -27,7 +27,6 @@ import { ServerApi } from "./server_api";
  * @extends CallBuilder
  * @param {string} serverUrl Horizon server URL.
  * @param {string|Asset[]} source The sender's account ID or a list of Assets. Any returned path must use a source that the sender can hold.
- * @param {string} destination The destination account ID that any returned path should use.
  * @param {Asset} destinationAsset The destination asset.
  * @param {string} destinationAmount The amount, denominated in the destination asset, that any returned path should be able to satisfy.
  */
@@ -37,13 +36,11 @@ export class StrictReceivePathCallBuilder extends CallBuilder<
   constructor(
     serverUrl: uri.URI,
     source: string | Asset[],
-    destination: string,
     destinationAsset: Asset,
     destinationAmount: string,
   ) {
     super(serverUrl);
     this.url.segment("paths/strict-receive");
-    this.url.setQuery("destination_account", destination);
 
     if (typeof source === "string") {
       this.url.setQuery("source_account", source);
