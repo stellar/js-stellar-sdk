@@ -184,7 +184,7 @@ what's supported here: https://node.green/ (The reason is that our npm library
 must support earlier versions of Node, so the tests need to run on those
 versions.)
 
-### To use as a module in a Node.js project
+### How to use with React-Native
 
 1. Add the following postinstall script:
 ```
