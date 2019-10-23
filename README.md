@@ -184,6 +184,29 @@ what's supported here: https://node.green/ (The reason is that our npm library
 must support earlier versions of Node, so the tests need to run on those
 versions.)
 
+### To use as a module in a Node.js project
+
+1. Add the following postinstall script:
+```
+yarn rn-nodeify --install url,events,https,http,util,stream,crypto,vm,buffer --hack --yarn
+```
+2. `yarn add -D rn-nodeify`
+3. Uncomment `require('crypto')` on shim.js
+4. `react-native link react-native-randombytes`
+5. Create file `rn-cli.config.js`
+```
+module.exports = {
+  resolver: {
+    extraNodeModules: require("node-libs-react-native"),
+  },
+};
+```
+6. Add `import "./shim";` to the top of `index.js`
+7. `yarn add stellar-sdk`
+
+There is also a [sample](https://github.com/fnando/rn-stellar-sdk-sample) that you can follow.
+
+
 ## Usage
 
 For information on how to use js-stellar-sdk, take a look at the
