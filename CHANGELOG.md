@@ -4,6 +4,12 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+## [v3.1.2](https://github.com/stellar/js-stellar-sdk/compare/v3.1.1...v3.1.2)
+
+### Change
+
+- Upgrade `stellar-base` to `v2.1.2`. ([452](https://github.com/stellar/js-stellar-sdk/pull/452))
+
 ## [v3.1.1](https://github.com/stellar/js-stellar-sdk/compare/v3.1.0...v3.1.1)
 
 ### Change ⚠️
