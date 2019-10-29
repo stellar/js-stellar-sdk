@@ -11,7 +11,6 @@ import { ServerApi } from "./server_api";
  * A path search is specified using:
  *
  * * The source address or source assets.
- * * The destination address
  * * The asset and amount that the destination account should receive
  *
  * As part of the search, horizon will load a list of assets available to the
