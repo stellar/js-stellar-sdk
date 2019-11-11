@@ -31,6 +31,8 @@ export namespace Horizon {
     created_at: string;
     fee_meta_xdr: string;
     fee_paid: number;
+    fee_charged: number;
+    max_fee: number;
     id: string;
     memo_type: MemoType;
     memo?: string;
