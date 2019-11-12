@@ -103,8 +103,8 @@ export class TradeAggregationCallBuilder extends CallBuilder<
 }
 
 interface TradeAggregationRecord extends Horizon.BaseResponse {
-  timestamp: string;
-  trade_count: number;
+  timestamp: number | string;
+  trade_count: number | string;
   base_volume: string;
   counter_volume: string;
   avg: string;

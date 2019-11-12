@@ -75,7 +75,7 @@ export namespace ServerApi {
     public_key?: string;
 
     // trade
-    offer_id?: number;
+    offer_id?: number | string;
     bought_amount?: string;
     bought_asset_type?: string;
     bought_asset_code?: string;
@@ -150,7 +150,7 @@ export namespace ServerApi {
   }
 
   export interface OfferRecord extends Horizon.BaseResponse {
-    id: string;
+    id: number | string;
     paging_token: string;
     seller: string;
     selling: OfferAsset;
