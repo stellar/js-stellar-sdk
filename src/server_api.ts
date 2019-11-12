@@ -75,7 +75,7 @@ export namespace ServerApi {
     public_key?: string;
 
     // trade
-    offer_id?: number;
+    offer_id?: number | string;
     bought_amount?: string;
     bought_asset_type?: string;
     bought_asset_code?: string;
@@ -104,7 +104,7 @@ export namespace ServerApi {
     auth_revokable_flag?: boolean;
 
     // seq bumped
-    new_seq?: number;
+    new_seq?: number | string;
 
     // signer created / removed / updated
     weight?: number;
@@ -150,7 +150,7 @@ export namespace ServerApi {
   }
 
   export interface OfferRecord extends Horizon.BaseResponse {
-    id: string;
+    id: number | string;
     paging_token: string;
     seller: string;
     selling: OfferAsset;
@@ -319,7 +319,7 @@ export namespace ServerApi {
         n: number;
       };
       price: string;
-      amount: string
+      amount: string;
     }>;
     asks: Array<{
       price_r: {
@@ -327,7 +327,7 @@ export namespace ServerApi {
         n: number;
       };
       price: string;
-      amount: string
+      amount: string;
     }>;
     base: Asset;
     counter: Asset;

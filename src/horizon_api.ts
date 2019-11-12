@@ -203,7 +203,7 @@ export namespace Horizon {
       OperationResponseType.manageOffer,
       OperationResponseTypeI.manageOffer
     > {
-    offer_id: number;
+    offer_id: number | string;
     amount: string;
     buying_asset_type: AssetType;
     buying_asset_code?: string;
@@ -219,7 +219,7 @@ export namespace Horizon {
       OperationResponseType.createPassiveOffer,
       OperationResponseTypeI.createPassiveOffer
     > {
-    offer_id: number;
+    offer_id: number | string;
     amount: string;
     buying_asset_type: AssetType;
     buying_asset_code?: string;
