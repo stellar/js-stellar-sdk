@@ -104,7 +104,7 @@ export namespace ServerApi {
     auth_revokable_flag?: boolean;
 
     // seq bumped
-    new_seq?: number;
+    new_seq?: number | string;
 
     // signer created / removed / updated
     weight?: number;
@@ -319,7 +319,7 @@ export namespace ServerApi {
         n: number;
       };
       price: string;
-      amount: string
+      amount: string;
     }>;
     asks: Array<{
       price_r: {
@@ -327,7 +327,7 @@ export namespace ServerApi {
         n: number;
       };
       price: string;
-      amount: string
+      amount: string;
     }>;
     base: Asset;
     counter: Asset;
