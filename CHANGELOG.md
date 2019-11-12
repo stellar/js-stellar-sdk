@@ -4,6 +4,16 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+## [v3.2.0](https://github.com/stellar/js-stellar-sdk/compare/v3.1.2...v3.2.0)
+
+### Add ➕
+
+- Add `fee_charged` an `max_fee` to `TransactionResponse` interface. ([455](https://github.com/stellar/js-stellar-sdk/pull/455))
+
+### Deprecated ⚠️
+
+- Horizon 0.25 will stop sending the property `fee_paid` in the transaction response. Use `fee_charged` and `max_fee`, read more about it in [450](https://github.com/stellar/js-stellar-sdk/issues/450).
+
 ## [v3.1.2](https://github.com/stellar/js-stellar-sdk/compare/v3.1.1...v3.1.2)
 
 ### Change
