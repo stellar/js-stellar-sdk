@@ -24,8 +24,8 @@ A breaking change will get clearly marked in this log.
   - `ManageOfferOperationResponse#offer_id`
   - `PassiveOfferOperationResponse#offer_id`
 
-  We recommend you to update your code to handle both `string` or `number` in
-  the fields listed above, once Horizon 0.25.0 is released, your application
+  We recommend you update your code to handle both `string` or `number` in
+  the fields listed above, so that once Horizon 0.25.0 is released, your application
   will be able to handle the new type without breaking.
 
 ## [v3.2.0](https://github.com/stellar/js-stellar-sdk/compare/v3.1.2...v3.2.0)
