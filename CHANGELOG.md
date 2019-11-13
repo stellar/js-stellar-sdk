@@ -10,7 +10,7 @@ A breaking change will get clearly marked in this log.
 
 - Horizon 0.25.0 will change the data type for multiple attributes from `Int64` to
   `string`. When the JSON payload includes an `Int64`, there are
-  scenarios where there might incorrect data since JavaScript doesn't support
+  scenarios where large number data can be incorrectly parsed, since JavaScript doesn't support
   `Int64` values. You can read more about it in [#1363](https:/.
   /github.com/stellar/go/issues/1363).
 
