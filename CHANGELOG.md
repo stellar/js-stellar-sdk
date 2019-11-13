@@ -4,6 +4,29 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+## [v3.3.0](https://github.com/stellar/js-stellar-sdk/compare/v3.2.0...v3.3.0)
+
+### Deprecated ⚠️
+
+- Horizon 0.25.0 will change the data type for multiple attributes from `Int64` to
+  `string`. When the JSON payload includes an `Int64`, there are
+  scenarios where large number data can be incorrectly parsed, since JavaScript doesn't support
+  `Int64` values. You can read more about it in [#1363](https://github.com/stellar/go/issues/1363).
+
+  This release extends the data types for the following attributes to be of type `string` or `number`:
+
+  - `EffectRecord#offer_id`
+  - `EffectRecord#new_seq`
+  - `OfferRecord#id`
+  - `TradeAggregationRecord#timestamp`
+  - `TradeAggregationRecord#trade_count`
+  - `ManageOfferOperationResponse#offer_id`
+  - `PassiveOfferOperationResponse#offer_id`
+
+  We recommend you update your code to handle both `string` or `number` in
+  the fields listed above, so that once Horizon 0.25.0 is released, your application
+  will be able to handle the new type without breaking.
+
 ## [v3.2.0](https://github.com/stellar/js-stellar-sdk/compare/v3.1.2...v3.2.0)
 
 ### Add ➕
