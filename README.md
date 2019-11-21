@@ -1,8 +1,13 @@
-# js-stellar-sdk
-
-[![Build Status](https://travis-ci.com/stellar/js-stellar-sdk.svg?branch=master)](https://travis-ci.com/stellar/js-stellar-sdk)
-[![Coverage Status](https://coveralls.io/repos/stellar/js-stellar-sdk/badge.svg?branch=master&service=github)](https://coveralls.io/github/stellar/js-stellar-sdk?branch=master)
-[![Dependency Status](https://david-dm.org/stellar/js-stellar-sdk.svg)](https://david-dm.org/stellar/js-stellar-sdk)
+<div align="center">
+<img alt="Stellar" src="https://www.stellar.org/old-content/2019/03/stellar-logo-solo-1.png" width="558" />
+<br/>
+<strong>Creating equitable access to the global financial system</strong>
+<h1>js-stellar-sdk</h1>
+</div>
+<p align="center">
+<a href="https://travis-ci.com/stellar/js-stellar-sdk"><img alt="Build Status" src="https://travis-ci.com/stellar/js-stellar-sdk.svg?branch=master" /></a>
+<a href="https://coveralls.io/github/stellar/js-stellar-sdk?branch=master"><img alt="Coverage Status" src="https://coveralls.io/repos/stellar/js-stellar-sdk/badge.svg?branch=master&service=github" /></a>
+</p>
 
 js-stellar-sdk is a Javascript library for communicating with a
 [Stellar Horizon server](https://github.com/stellar/go/tree/master/services/horizon).
