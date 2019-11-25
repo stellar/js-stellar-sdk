@@ -173,8 +173,6 @@ If you work on several projects that use different Node versions, you might it
 helpful to install this automatic version manager:
 https://github.com/wbyoung/avn
 
-````
-
 4. Observe the project's code style
 
 While you're making changes, make sure to run the linter-watcher to catch any
