@@ -118,7 +118,39 @@ describe('server.js non-transaction tests', function() {
       "p80_accepted_fee": "2000",
       "p90_accepted_fee": "2000",
       "p95_accepted_fee": "2000",
-      "p99_accepted_fee": "2000"
+      "p99_accepted_fee": "2000",
+      "max_fee": {
+        "max": "2000",
+        "min": "100",
+        "mode": "2000",
+        "p10": "100",
+        "p20": "100",
+        "p30": "100",
+        "p40": "300",
+        "p50": "650",
+        "p60": "2000",
+        "p70": "2000",
+        "p80": "2000",
+        "p90": "2000",
+        "p95": "2000",
+        "p99": "2000",
+      },
+      "fee_charged": {
+        "min": "100",
+        "max": "100",
+        "mode": "100",
+        "p10": "100",
+        "p20": "100",
+        "p30": "100",
+        "p40": "100",
+        "p50": "100",
+        "p60": "100",
+        "p70": "100",
+        "p80": "100",
+        "p90": "100",
+        "p95": "100",
+        "p99": "100"
+      }
     };
 
     it('returns the base reserve', function(done) {
