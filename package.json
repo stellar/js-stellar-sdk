@@ -43,9 +43,6 @@
     "type": "git",
     "url": "https://github.com/stellar/js-stellar-sdk.git"
   },
-  "engines": {
-    "node": ">=10.16.3"
-  },
   "author": "Stellar Development Foundation <hello@stellar.org>",
   "license": "Apache-2.0",
   "bugs": {
