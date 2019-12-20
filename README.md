@@ -56,10 +56,10 @@ Using npm to include js-stellar-sdk in your own project:
 npm install --save stellar-sdk
 ```
 
-Alternatively, you can use jsDelivr or cdnjs in a browser
+Alternatively, you can use cdnjs in a browser:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/stellar-sdk@latest/lib/index.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stellar-sdk/{version}/stellar-sdk.js"></script>
 ````
 
 ## Install
