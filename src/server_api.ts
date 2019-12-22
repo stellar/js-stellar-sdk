@@ -340,7 +340,7 @@ export namespace ServerApi {
     counter: Asset;
   }
 
-  export interface PaymentPathRecord extends Horizon.BaseResponse {
+  export interface PaymentPathRecord {
     path: Array<{
       asset_code: string;
       asset_issuer: string;
