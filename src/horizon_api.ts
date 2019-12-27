@@ -312,6 +312,22 @@ export namespace Horizon {
   export interface TransactionResponseCollection
     extends ResponseCollection<TransactionResponse> {}
 
+  export interface FeeDistribution {
+    max: string;
+    min: string;
+    mode: string;
+    p10: string;
+    p20: string;
+    p30: string;
+    p40: string;
+    p50: string;
+    p60: string;
+    p70: string;
+    p80: string;
+    p90: string;
+    p95: string;
+    p99: string;
+  }
   export interface FeeStatsResponse {
     last_ledger: string;
     last_ledger_base_fee: string;
@@ -329,6 +345,8 @@ export namespace Horizon {
     p90_accepted_fee: string;
     p95_accepted_fee: string;
     p99_accepted_fee: string;
+    fee_charged: FeeDistribution;
+    max_fee: FeeDistribution;
   }
 
   export type ErrorResponseData =
