@@ -183,7 +183,7 @@ gulp.task(
 gulp.task(
   'watch',
   gulp.series('build', function watch() {
-    return gulp.watch('lib/**/*', ['clear-screen', 'build']);
+    return gulp.watch('lib/**/*', gulp.series(['clear-screen', 'build']));
   })
 );
 
