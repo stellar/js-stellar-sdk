@@ -73,7 +73,7 @@ var txHandler = function (txResponse) {
 
 
 ### Following links
-The links returned with the Horizon response are converted into functions you can call on the returned object.
+The [HAL format](https://www.stellar.org/developers/horizon/reference/responses.html) links returned with the Horizon response are converted into functions you can call on the returned object.
 This allows you to simply use `.next()` to page through results. It also makes fetching additional info, as in the following example, easy:
 
 ```js
