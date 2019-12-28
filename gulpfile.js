@@ -40,7 +40,7 @@ gulp.task(
     function buildNode(done) {
       // TODO: Gulp-ify using `gulp-typescript`.
       try {
-        cp.execSync(`tsc`, {stdio: 'inherit'})
+        cp.execSync(`npx tsc`, {stdio: 'inherit'})
         done()
       } catch(err) {
         done(err)
@@ -55,7 +55,7 @@ gulp.task(
     function buildNode(done) {
       // TODO: Gulp-ify using `gulp-typescript`.
       try {
-        cp.execSync(`tsc --removeComments false --outDir libdocs --target es6 --module esnext`, {stdio: 'inherit'})
+        cp.execSync(`npx tsc --removeComments false --outDir libdocs --target es6 --module esnext`, {stdio: 'inherit'})
         done()
       } catch(err) {
         done(err)
