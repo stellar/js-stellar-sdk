@@ -854,6 +854,53 @@ describe('server.js non-transaction tests', function() {
             done(err);
           });
       });
+      
+      it('adds a "signer" query to the endpoint', function(done) {
+        this.axiosMock
+          .expects('get')
+          .withArgs(
+            sinon.match(
+              'https://horizon-live.stellar.org:1337/accounts?signer=GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42'
+            )
+          )
+          .returns(Promise.resolve({ data: 'correct' }));
+          
+        this.server
+          .accounts()
+          .forSigner('GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42')
+          .call()
+          .then(function(response) {
+            expect(response).to.equal('correct');
+            done();
+          })
+          .catch(function(err) {
+            done(err);
+          });
+      });
+      
+      it('adds an "asset" query to the endpoint', function(done) {
+        this.axiosMock
+          .expects('get')
+          .withArgs(
+            sinon.match(
+              'https://horizon-live.stellar.org:1337/accounts?asset=USD%3AGDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD'
+            )
+          )
+          .returns(Promise.resolve({ data: 'correct' }));
+          
+        this.server
+          .accounts()
+          .forAsset(new StellarSdk.Asset('USD','GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD'))
+          .call()
+          .then(function(response) {
+            expect(response).to.equal('correct');
+            done();
+          })
+          .catch(function(err) {
+            done(err);
+          });
+      });
+      
     });
 
     describe('OfferCallBuilder', function() {

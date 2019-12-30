@@ -1,3 +1,4 @@
+import { Asset } from "stellar-base";
 import { CallBuilder } from "./call_builder";
 import { ServerApi } from "./server_api";
 
@@ -27,6 +28,29 @@ export class AccountCallBuilder extends CallBuilder<ServerApi.AccountRecord> {
    */
   public accountId(id: string): this {
     this.filter.push(["accounts", id]);
+    return this;
+  }
+
+  /**
+   * This endpoint filters accounts by signer account.
+   * @see [Accounts](https://www.stellar.org/developers/horizon/reference/endpoints/accounts.html)
+   * @param {string} value For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
+   * @returns {AccountCallBuilder} current AccountCallBuilder instance
+   */
+  public forSigner(id: string) {
+    this.url.setQuery("signer", id);
+    return this;
+  }
+
+  /**
+   * This endpoint filters all accounts who are trustees to an asset.
+   * @see [Accounts](https://www.stellar.org/developers/horizon/reference/endpoints/accounts.html)
+   * @see Asset
+   * @param {Asset} value For example: `new Asset('USD','GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD')`
+   * @returns {AccountCallBuilder} current AccountCallBuilder instance
+   */
+  public forAsset(asset: Asset) {
+    this.url.setQuery("asset", `${asset}`);
     return this;
   }
 }
