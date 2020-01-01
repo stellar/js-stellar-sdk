@@ -774,65 +774,66 @@ describe('server.js non-transaction tests', function() {
 
   describe('Smoke tests for the rest of the builders', function() {
     describe('AccountCallBuilder', function() {
-      let singleAccountResponse = {
-        _links: {
-          effects: {
-            href:
-              '/accounts/GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K/effects{?cursor,limit,order}',
-            templated: true
-          },
-          offers: {
-            href:
-              '/accounts/GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K/offers{?cursor,limit,order}',
-            templated: true
-          },
-          operations: {
-            href:
-              '/accounts/GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K/operations{?cursor,limit,order}',
-            templated: true
-          },
-          self: {
-            href:
-              '/accounts/GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K'
-          },
-          transactions: {
-            href:
-              '/accounts/GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K/transactions{?cursor,limit,order}',
-            templated: true
-          }
-        },
-        id: 'GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K',
-        paging_token: '146028892161',
-        account_id: 'GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K',
-        sequence: 146028888090,
-        subentry_count: 0,
-        inflation_destination: null,
-        home_domain: '',
-        thresholds: {
-          low_threshold: 0,
-          med_threshold: 0,
-          high_threshold: 0
-        },
-        flags: {
-          auth_required: false,
-          auth_revocable: false
-        },
-        balances: [
-          {
-            asset_type: 'native',
-            balance: '9760000.3997400'
-          }
-        ],
-        signers: [
-          {
-            public_key:
-              'GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K',
-            weight: 1
-          }
-        ]
-      };
 
       it('requests the correct endpoint', function(done) {
+        let singleAccountResponse = {
+          _links: {
+            effects: {
+              href:
+                '/accounts/GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K/effects{?cursor,limit,order}',
+              templated: true
+            },
+            offers: {
+              href:
+                '/accounts/GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K/offers{?cursor,limit,order}',
+              templated: true
+            },
+            operations: {
+              href:
+                '/accounts/GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K/operations{?cursor,limit,order}',
+              templated: true
+            },
+            self: {
+              href:
+                '/accounts/GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K'
+            },
+            transactions: {
+              href:
+                '/accounts/GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K/transactions{?cursor,limit,order}',
+              templated: true
+            }
+          },
+          id: 'GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K',
+          paging_token: '146028892161',
+          account_id: 'GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K',
+          sequence: 146028888090,
+          subentry_count: 0,
+          inflation_destination: null,
+          home_domain: '',
+          thresholds: {
+            low_threshold: 0,
+            med_threshold: 0,
+            high_threshold: 0
+          },
+          flags: {
+            auth_required: false,
+            auth_revocable: false
+          },
+          balances: [
+            {
+              asset_type: 'native',
+              balance: '9760000.3997400'
+            }
+          ],
+          signers: [
+            {
+              public_key:
+                'GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K',
+              weight: 1
+            }
+          ]
+        };
+        
         this.axiosMock
           .expects('get')
           .withArgs(
@@ -854,6 +855,253 @@ describe('server.js non-transaction tests', function() {
             done(err);
           });
       });
+      
+      it('adds a "signer" query to the endpoint', function(done) {
+        let accountsForSignerResponse = {
+          _links: {
+            self: {
+              href: '/accounts?cursor=&limit=10&order=asc&signer=GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42'
+            },
+            next: {
+              href: '/accounts?cursor=GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42&limit=10&order=asc&signer=GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42'
+            },
+            prev: {
+              href: '/accounts?cursor=GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42&limit=10&order=desc&signer=GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42'
+            }
+          },
+          _embedded: {
+            records: [
+              {
+                _links: {
+                  self: {
+                    href: '/accounts/GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42'
+                  },
+                  transactions: {
+                    href: '/accounts/GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42/transactions{?cursor,limit,order}',
+                    templated: true
+                  },
+                  operations: {
+                    href: '/accounts/GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42/operations{?cursor,limit,order}',
+                    templated: true
+                  },
+                  payments: {
+                    href: '/accounts/GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42/payments{?cursor,limit,order}',
+                    templated: true
+                  },
+                  effects: {
+                    href: '/accounts/GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42/effects{?cursor,limit,order}',
+                    templated: true
+                  },
+                  offers: {
+                    href: '/accounts/GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42/offers{?cursor,limit,order}',
+                    templated: true
+                  },
+                  trades: {
+                    href: '/accounts/GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42/trades{?cursor,limit,order}',
+                    templated: true
+                  },
+                  data: {
+                    href: '/accounts/GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42/data/{key}',
+                    templated: true
+                  }
+                },
+                id: 'GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42',
+                account_id: 'GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42',
+                sequence: '4233832731508737',
+                subentry_count: 1,
+                last_modified_ledger: 986912,
+                thresholds: {
+                  low_threshold: 0,
+                  med_threshold: 0,
+                  high_threshold: 0
+                },
+                flags: {
+                  auth_required: false,
+                  auth_revocable: false,
+                  auth_immutable: false
+                },
+                balances: [
+                  {
+                    balance: '0.0000000',
+                    limit: '450.0000000',
+                    buying_liabilities: '0.0000000',
+                    selling_liabilities: '0.0000000',
+                    last_modified_ledger: 986912,
+                    is_authorized: true,
+                    asset_type: 'credit_alphanum4',
+                    asset_code: 'USD',
+                    asset_issuer: 'GDUEG67IE5TJUVWRRTMXDP3Q6EMMZJ6HL5OMWLBYOIUIZEUW2T2PBPJH'
+                  },
+                  {
+                    balance: '9999.9999900',
+                    buying_liabilities: '0.0000000',
+                    selling_liabilities: '0.0000000',
+                    asset_type: 'native'
+                  }
+                ],
+                signers: [
+                  {
+                    weight: 1,
+                    key: 'GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42',
+                    type: 'ed25519_public_key'
+                  }
+                ],
+                data: {},
+                paging_token: 'GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42'
+              }
+            ]
+          }
+        };
+        
+        this.axiosMock
+          .expects('get')
+          .withArgs(
+            sinon.match(
+              'https://horizon-live.stellar.org:1337/accounts?signer=GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42'
+            )
+          )
+          .returns(Promise.resolve({ data: accountsForSignerResponse }));
+          
+        this.server
+          .accounts()
+          .forSigner('GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42')
+          .call()
+          .then(function(response) {
+            expect(response.records).to.be.deep.equal(
+              accountsForSignerResponse._embedded.records
+            );
+            expect(response.next).to.be.function;
+            expect(response.prev).to.be.function;
+            done();
+          })
+          .catch(function(err) {
+            done(err);
+          });
+      });
+      
+      it('adds an "asset" query to the endpoint', function(done) {
+        let accountsForAssetResponse = {
+          _links: {
+            self: {
+              href: '/accounts?asset=USD%3AGDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD\u0026cursor=\u0026limit=10\u0026order=asc'
+            },
+            next: {
+              href: '/accounts?asset=USD%3AGDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD\u0026cursor=GC4J73PTB5WN7MOJWOAECPHRCV2UU3WCY37L3BNY6RZVKE23JGQYJMJ6\u0026limit=10\u0026order=asc'
+            },
+            prev: {
+              href: '/accounts?asset=USD%3AGDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD\u0026cursor=GBPFGVESMB7HSTQREV354WA4UDGAPS2NCB5DZQ7K2VZM3PSX4TDCV667\u0026limit=10\u0026order=desc'
+            }
+          },
+          _embedded: {
+            records: [
+              {
+                _links: {
+                  self: {
+                    href: '/accounts/GBPFGVESMB7HSTQREV354WA4UDGAPS2NCB5DZQ7K2VZM3PSX4TDCV667'
+                  },
+                  transactions: {
+                    href: '/accounts/GBPFGVESMB7HSTQREV354WA4UDGAPS2NCB5DZQ7K2VZM3PSX4TDCV667/transactions{?cursor,limit,order}',
+                    templated: true
+                  },
+                  operations: {
+                    href: '/accounts/GBPFGVESMB7HSTQREV354WA4UDGAPS2NCB5DZQ7K2VZM3PSX4TDCV667/operations{?cursor,limit,order}',
+                    templated: true
+                  },
+                  payments: {
+                    href: '/accounts/GBPFGVESMB7HSTQREV354WA4UDGAPS2NCB5DZQ7K2VZM3PSX4TDCV667/payments{?cursor,limit,order}',
+                    templated: true
+                  },
+                  effects: {
+                    href: '/accounts/GBPFGVESMB7HSTQREV354WA4UDGAPS2NCB5DZQ7K2VZM3PSX4TDCV667/effects{?cursor,limit,order}',
+                    templated: true
+                  },
+                  offers: {
+                    href: '/accounts/GBPFGVESMB7HSTQREV354WA4UDGAPS2NCB5DZQ7K2VZM3PSX4TDCV667/offers{?cursor,limit,order}',
+                    templated: true
+                  },
+                  trades: {
+                    href: '/accounts/GBPFGVESMB7HSTQREV354WA4UDGAPS2NCB5DZQ7K2VZM3PSX4TDCV667/trades{?cursor,limit,order}',
+                    templated: true
+                  },
+                  data: {
+                    href: '/accounts/GBPFGVESMB7HSTQREV354WA4UDGAPS2NCB5DZQ7K2VZM3PSX4TDCV667/data/{key}',
+                    templated: true
+                  }
+                },
+                id: 'GBPFGVESMB7HSTQREV354WA4UDGAPS2NCB5DZQ7K2VZM3PSX4TDCV667',
+                account_id: 'GBPFGVESMB7HSTQREV354WA4UDGAPS2NCB5DZQ7K2VZM3PSX4TDCV667',
+                sequence: '3902600558673934',
+                subentry_count: 3,
+                last_modified_ledger: 983682,
+                thresholds: {
+                  low_threshold: 0,
+                  med_threshold: 0,
+                  high_threshold: 0
+                },
+                flags: {
+                  auth_required: false,
+                  auth_revocable: false,
+                  auth_immutable: false
+                },
+                balances: [
+                  {
+                    balance: '0.0000000',
+                    limit: '25.0000000',
+                    buying_liabilities: '0.0000000',
+                    selling_liabilities: '0.0000000',
+                    last_modified_ledger: 983682,
+                    is_authorized: true,
+                    asset_type: 'credit_alphanum4',
+                    asset_code: 'USD',
+                    asset_issuer: 'GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD'
+                  },
+                  {
+                    balance: '9999.9998600',
+                    buying_liabilities: '0.0000000',
+                    selling_liabilities: '0.0000000',
+                    asset_type: 'native'
+                  }
+                ],
+                signers: [
+                  {
+                    weight: 1,
+                    key: 'GBPFGVESMB7HSTQREV354WA4UDGAPS2NCB5DZQ7K2VZM3PSX4TDCV667',
+                    type: 'ed25519_public_key'
+                  }
+                ],
+                data: {},
+                paging_token: 'GBPFGVESMB7HSTQREV354WA4UDGAPS2NCB5DZQ7K2VZM3PSX4TDCV667'
+              }
+            ]
+          }
+        };
+        
+        this.axiosMock
+          .expects('get')
+          .withArgs(
+            sinon.match(
+              'https://horizon-live.stellar.org:1337/accounts?asset=USD%3AGDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD'
+            )
+          )
+          .returns(Promise.resolve({ data: accountsForAssetResponse }));
+          
+        this.server
+          .accounts()
+          .forAsset(new StellarSdk.Asset('USD','GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD'))
+          .call()
+          .then(function(response) {
+            expect(response.records).to.be.deep.equal(
+              accountsForAssetResponse._embedded.records
+            );
+            expect(response.next).to.be.function;
+            expect(response.prev).to.be.function;
+            done();
+          })
+          .catch(function(err) {
+            done(err);
+          });
+      });
+      
     });
 
     describe('OfferCallBuilder', function() {
