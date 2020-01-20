@@ -8,6 +8,7 @@ var plugins = require('gulp-load-plugins')();
 var webpack = require('webpack');
 var webpackStream = require('webpack-stream');
 var webpackConfigBrowser = require('./webpack.config.browser.js');
+var webpackConfigCommonJs = require('./webpack.config.common.js');
 var clear = require('clear');
 var plumber = require('gulp-plumber');
 var del = require('del');
@@ -73,6 +74,21 @@ gulp.task(
         .src('src/browser.ts')
         .pipe(
           webpackStream(webpackConfigBrowser), webpack
+        )
+        .pipe(gulp.dest('dist'))
+    }
+  )
+);
+
+gulp.task(
+  'build:commonjs',
+  gulp.parallel(
+    'lint:src',
+    function buildCommonJs() {
+      return gulp
+        .src('src/browser.ts')
+        .pipe(
+          webpackStream(webpackConfigCommonJs), webpack
         )
         .pipe(gulp.dest('dist'))
     }
@@ -171,7 +187,7 @@ gulp.task('submit-coverage', function submitCoverage() {
   return gulp.src('./coverage/**/lcov.info').pipe(coveralls());
 });
 
-gulp.task('build', gulp.series('clean', 'build:node', 'build:browser'));
+gulp.task('build', gulp.series('clean', 'build:node', 'build:browser', 'build:commonjs'));
 
 gulp.task(
   'test',
