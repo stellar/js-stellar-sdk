@@ -52,7 +52,7 @@ export class CallBuilder<
   protected originalSegments: string[];
 
   constructor(serverUrl: uri.URI) {
-    this.url = serverUrl;
+    this.url = serverUrl.clone();
     this.filter = [];
     this.originalSegments = this.url.segment() || [];
   }
