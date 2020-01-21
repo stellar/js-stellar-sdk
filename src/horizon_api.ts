@@ -132,6 +132,8 @@ export namespace Horizon {
     inflation = "inflation",
     manageData = "manage_data",
     bumpSequence = "bump_sequence",
+    manageBuyOffer = "manage_buy_offer",
+    pathPaymentStrictSend = "path_payment_strict_send",
   }
   export enum OperationResponseTypeI {
     createAccount = 0,
@@ -146,6 +148,8 @@ export namespace Horizon {
     inflation = 9,
     manageData = 10,
     bumpSequence = 11,
+    manageBuyOffer = 12,
+    pathPaymentStrictSend = 13,
   }
   export interface BaseOperationResponse<
     T extends OperationResponseType = OperationResponseType,
