@@ -56,7 +56,6 @@ describe("Server - CallBuilder#join", function() {
       source_account:
         "GBIABVWR2LOKFDMAI6QA2NGT4G54O3BC577GAWDQ6QMOUP5E3ULBBGYX",
       source_account_sequence: "2954696981479425",
-      fee_paid: 3600,
       fee_charged: 3600,
       max_fee: 3600,
       operation_count: 6,
