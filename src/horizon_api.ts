@@ -122,9 +122,9 @@ export namespace Horizon {
   export enum OperationResponseType {
     createAccount = "create_account",
     payment = "payment",
-    pathPayment = "path_payment",
-    createPassiveOffer = "create_passive_offer",
-    manageOffer = "manage_offer",
+    pathPayment = "path_payment_strict_receive",
+    createPassiveOffer = "create_passive_sell_offer",
+    manageOffer = "manage_sell_offer",
     setOptions = "set_options",
     changeTrust = "change_trust",
     allowTrust = "allow_trust",
