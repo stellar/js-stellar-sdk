@@ -196,6 +196,12 @@ export namespace ServerApi {
         OperationResponseTypeI.pathPayment
       >,
       Horizon.PathPaymentOperationResponse {}
+  export interface PathPaymentStrictSendOperationRecord
+    extends BaseOperationRecord<
+        OperationResponseType.pathPaymentStrictSend,
+        OperationResponseTypeI.pathPaymentStrictSend
+      >,
+      Horizon.PathPaymentStrictSendOperationResponse {}
   export interface ManageOfferOperationRecord
     extends BaseOperationRecord<
         OperationResponseType.manageOffer,
@@ -263,7 +269,8 @@ export namespace ServerApi {
     | AccountMergeOperationRecord
     | InflationOperationRecord
     | ManageDataOperationRecord
-    | BumpSequenceOperationRecord;
+    | BumpSequenceOperationRecord
+    | PathPaymentStrictSendOperationRecord;
 
   export interface TradeRecord extends Horizon.BaseResponse {
     id: string;

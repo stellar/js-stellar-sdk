@@ -189,17 +189,44 @@ export namespace Horizon {
       OperationResponseType.pathPayment,
       OperationResponseTypeI.pathPayment
     > {
-    from: string;
-    to: string;
-    asset_type: AssetType;
+    amount: string;
     asset_code?: string;
     asset_issuer?: string;
-    amount: string;
-    source_asset_type: AssetType;
+    asset_type: AssetType;
+    from: string;
+    path: Array<{
+      asset_code: string;
+      asset_issuer: string;
+      asset_type: AssetType;
+    }>;
+    source_amount: string;
     source_asset_code?: string;
     source_asset_issuer?: string;
+    source_asset_type: AssetType;
     source_max: string;
+    to: string;
+  }
+  export interface PathPaymentStrictSendOperationResponse
+    extends BaseOperationResponse<
+      OperationResponseType.pathPaymentStrictSend,
+      OperationResponseTypeI.pathPaymentStrictSend
+    > {
+    amount: string;
+    asset_code?: string;
+    asset_issuer?: string;
+    asset_type: AssetType;
+    destination_min: string;
+    from: string;
+    path: Array<{
+      asset_code: string;
+      asset_issuer: string;
+      asset_type: AssetType;
+    }>;
     source_amount: string;
+    source_asset_code?: string;
+    source_asset_issuer?: string;
+    source_asset_type: AssetType;
+    to: string;
   }
   export interface ManageOfferOperationResponse
     extends BaseOperationResponse<
