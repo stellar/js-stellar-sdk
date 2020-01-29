@@ -122,9 +122,9 @@ export namespace Horizon {
   export enum OperationResponseType {
     createAccount = "create_account",
     payment = "payment",
-    pathPayment = "path_payment",
-    createPassiveOffer = "create_passive_offer",
-    manageOffer = "manage_offer",
+    pathPayment = "path_payment_strict_receive",
+    createPassiveOffer = "create_passive_sell_offer",
+    manageOffer = "manage_sell_offer",
     setOptions = "set_options",
     changeTrust = "change_trust",
     allowTrust = "allow_trust",
@@ -132,6 +132,8 @@ export namespace Horizon {
     inflation = "inflation",
     manageData = "manage_data",
     bumpSequence = "bump_sequence",
+    manageBuyOffer = "manage_buy_offer",
+    pathPaymentStrictSend = "path_payment_strict_send",
   }
   export enum OperationResponseTypeI {
     createAccount = 0,
@@ -146,6 +148,8 @@ export namespace Horizon {
     inflation = 9,
     manageData = 10,
     bumpSequence = 11,
+    manageBuyOffer = 12,
+    pathPaymentStrictSend = 13,
   }
   export interface BaseOperationResponse<
     T extends OperationResponseType = OperationResponseType,
@@ -185,17 +189,44 @@ export namespace Horizon {
       OperationResponseType.pathPayment,
       OperationResponseTypeI.pathPayment
     > {
-    from: string;
-    to: string;
-    asset_type: AssetType;
+    amount: string;
     asset_code?: string;
     asset_issuer?: string;
-    amount: string;
-    source_asset_type: AssetType;
+    asset_type: AssetType;
+    from: string;
+    path: Array<{
+      asset_code: string;
+      asset_issuer: string;
+      asset_type: AssetType;
+    }>;
+    source_amount: string;
     source_asset_code?: string;
     source_asset_issuer?: string;
+    source_asset_type: AssetType;
     source_max: string;
+    to: string;
+  }
+  export interface PathPaymentStrictSendOperationResponse
+    extends BaseOperationResponse<
+      OperationResponseType.pathPaymentStrictSend,
+      OperationResponseTypeI.pathPaymentStrictSend
+    > {
+    amount: string;
+    asset_code?: string;
+    asset_issuer?: string;
+    asset_type: AssetType;
+    destination_min: string;
+    from: string;
+    path: Array<{
+      asset_code: string;
+      asset_issuer: string;
+      asset_type: AssetType;
+    }>;
     source_amount: string;
+    source_asset_code?: string;
+    source_asset_issuer?: string;
+    source_asset_type: AssetType;
+    to: string;
   }
   export interface ManageOfferOperationResponse
     extends BaseOperationResponse<
