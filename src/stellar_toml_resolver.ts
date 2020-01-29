@@ -5,6 +5,10 @@ import { Config } from "./config";
 // STELLAR_TOML_MAX_SIZE is the maximum size of stellar.toml file
 export const STELLAR_TOML_MAX_SIZE = 100 * 1024;
 
+// axios timeout doesn't catch missing urls, e.g. those with no response
+// so we use the axios cancel token to ensure the timeout
+const CancelToken = axios.CancelToken;
+
 /**
  * StellarTomlResolver allows resolving `stellar.toml` files.
  */
@@ -44,6 +48,7 @@ export class StellarTomlResolver {
     return axios
       .get(`${protocol}://${domain}/.well-known/stellar.toml`, {
         maxContentLength: STELLAR_TOML_MAX_SIZE,
+        cancelToken: new CancelToken((cancel) => setTimeout(cancel, timeout)),
         timeout,
       })
       .then((response) => {
