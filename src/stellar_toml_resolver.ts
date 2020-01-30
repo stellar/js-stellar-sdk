@@ -48,7 +48,14 @@ export class StellarTomlResolver {
     return axios
       .get(`${protocol}://${domain}/.well-known/stellar.toml`, {
         maxContentLength: STELLAR_TOML_MAX_SIZE,
-        cancelToken: new CancelToken((cancel) => setTimeout(cancel, timeout)),
+        cancelToken: timeout
+          ? new CancelToken((cancel) =>
+              setTimeout(
+                () => cancel(`timeout of ${timeout}ms exceeded`),
+                timeout,
+              ),
+            )
+          : undefined,
         timeout,
       })
       .then((response) => {
@@ -58,9 +65,7 @@ export class StellarTomlResolver {
         } catch (e) {
           return Promise.reject(
             new Error(
-              `stellar.toml is invalid - Parsing error on line ${
-                e.line
-              }, column ${e.column}: ${e.message}`,
+              `stellar.toml is invalid - Parsing error on line ${e.line}, column ${e.column}: ${e.message}`,
             ),
           );
         }
