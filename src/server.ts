@@ -469,27 +469,21 @@ export class Server {
   }
 
   /**
-   * People on the Stellar network can make offers to buy or sell assets. This endpoint represents all the offers a particular account makes.
-   * Currently this method only supports querying offers for account and should be used like this:
+   * People on the Stellar network can make offers to buy or sell assets. This endpoint represents all the offers on the DEX.
+   *
+   * You can query all offers for account using the function `.accountId`:
+   *
    * ```
-   * server.offers('accounts', accountId).call()
+   * server.offers()
+   *  .forAccount(accountId).call()
    *  .then(function(offers) {
    *    console.log(offers);
    *  });
    * ```
-   * @param {string} resource Resource to query offers
-   * @param {...string} resourceParams Parameters for selected resource
    * @returns {OfferCallBuilder} New {@link OfferCallBuilder} object
    */
-  public offers(
-    resource: string,
-    ...resourceParams: string[]
-  ): OfferCallBuilder {
-    return new OfferCallBuilder(
-      URI(this.serverURL as any),
-      resource,
-      ...resourceParams,
-    );
+  public offers(): OfferCallBuilder {
+    return new OfferCallBuilder(URI(this.serverURL as any));
   }
 
   /**
