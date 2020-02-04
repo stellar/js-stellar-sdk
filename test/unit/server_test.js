@@ -1112,41 +1112,37 @@ describe('server.js non-transaction tests', function() {
     });
 
     describe('OfferCallBuilder', function() {
-      let offersResponse = {
-        _embedded: {
-          records: []
-        },
-        _links: {
-          next: {
-            href:
-              '/accounts/GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42/offers?order=asc\u0026limit=10\u0026cursor='
-          },
-          prev: {
-            href:
-              '/accounts/GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42/offers?order=desc\u0026limit=10\u0026cursor='
-          },
-          self: {
-            href:
-              '/accounts/GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42/offers?order=asc\u0026limit=10\u0026cursor='
-          }
-        }
-      };
+      const offersResponse = {
+            _embedded: {
+              records: []
+            },
+            _links: {
+              next: {
+                href:
+                  '/offers'
+              },
+              prev: {
+                href:
+                  '/offers'
+              },
+              self: {
+                href:
+                  '/offers'
+              }
+            }
+          };
 
-      it('requests the correct endpoint', function(done) {
+      it('without params requests the correct endpoint', function(done) {
         this.axiosMock
           .expects('get')
           .withArgs(
             sinon.match(
-              'https://horizon-live.stellar.org:1337/accounts/GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K/offers?order=asc'
+              'https://horizon-live.stellar.org:1337/offers?order=asc'
             )
           )
           .returns(Promise.resolve({ data: offersResponse }));
-
         this.server
-          .offers(
-            'accounts',
-            'GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K'
-          )
+          .offers()
           .order('asc')
           .call()
           .then(function(response) {
@@ -1162,11 +1158,96 @@ describe('server.js non-transaction tests', function() {
           });
       });
 
-      it('rejects the wrong resource', function(done) {
-        expect(() => this.server.offers('ledgers', '123').call()).to.throw(
-          /Bad resource specified/
+      it('forAccount requests the correct endpoint', function(done) {
+        this.axiosMock
+          .expects('get')
+          .withArgs(
+            sinon.match(
+              'https://horizon-live.stellar.org:1337/offers?seller=GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K&order=asc'
+            )
+          )
+          .returns(Promise.resolve({ data: offersResponse }));
+
+        this.server
+          .offers()
+          .forAccount('GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K')
+          .order('asc')
+          .call()
+          .then(function(response) {
+            expect(response.records).to.be.deep.equal(
+              offersResponse._embedded.records
+            );
+            expect(response.next).to.be.function;
+            expect(response.prev).to.be.function;
+            done();
+          })
+          .catch(function(err) {
+            done(err);
+          });
+      });
+      it('selling requests the correct endpoint', function(done) {
+        const selling = new StellarSdk.Asset(
+          'USD',
+          'GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG'
         );
-        done();
+        
+        this.axiosMock
+          .expects('get')
+          .withArgs(
+            sinon.match(
+              'https://horizon-live.stellar.org:1337/offers?selling_asset_type=credit_alphanum4&selling_asset_code=USD&selling_asset_issuer=GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG&order=asc'
+            )
+          )
+          .returns(Promise.resolve({ data: offersResponse }));
+
+        this.server
+          .offers()
+          .selling(selling)
+          .order('asc')
+          .call()
+          .then(function(response) {
+            expect(response.records).to.be.deep.equal(
+              offersResponse._embedded.records
+            );
+            expect(response.next).to.be.function;
+            expect(response.prev).to.be.function;
+            done();
+          })
+          .catch(function(err) {
+            done(err);
+          });
+      });
+      it('buying requests the correct endpoint', function(done) {
+        const buying = new StellarSdk.Asset(
+          'COP',
+          'GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG'
+        );
+        
+        this.axiosMock
+          .expects('get')
+          .withArgs(
+            sinon.match(
+              'https://horizon-live.stellar.org:1337/offers?buying_asset_type=credit_alphanum4&buying_asset_code=COP&buying_asset_issuer=GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG&order=asc'
+            )
+          )
+          .returns(Promise.resolve({ data: offersResponse }));
+
+        this.server
+          .offers()
+          .buying(buying)
+          .order('asc')
+          .call()
+          .then(function(response) {
+            expect(response.records).to.be.deep.equal(
+              offersResponse._embedded.records
+            );
+            expect(response.next).to.be.function;
+            expect(response.prev).to.be.function;
+            done();
+          })
+          .catch(function(err) {
+            done(err);
+          });
       });
     });
 

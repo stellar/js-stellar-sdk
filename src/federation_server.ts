@@ -239,9 +239,7 @@ export class FederationServer {
         } else {
           return Promise.reject(
             new BadResponseError(
-              `Server query failed. Server responded: ${response.status} ${
-                response.statusText
-              }`,
+              `Server query failed. Server responded: ${response.status} ${response.statusText}`,
               response.data,
             ),
           );
