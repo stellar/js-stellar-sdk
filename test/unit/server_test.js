@@ -80,7 +80,7 @@ describe('server.js non-transaction tests', function() {
           200,
           {},
           {
-            Date: 'Wed, 13 Mar 2019 22:15:07 GMT'
+            date: 'Wed, 13 Mar 2019 22:15:07 GMT'
           }
         );
 
@@ -840,7 +840,7 @@ describe('server.js non-transaction tests', function() {
             }
           ]
         };
-        
+
         this.axiosMock
           .expects('get')
           .withArgs(
@@ -862,7 +862,7 @@ describe('server.js non-transaction tests', function() {
             done(err);
           });
       });
-      
+
       it('adds a "signer" query to the endpoint', function(done) {
         let accountsForSignerResponse = {
           _links: {
@@ -959,7 +959,7 @@ describe('server.js non-transaction tests', function() {
             ]
           }
         };
-        
+
         this.axiosMock
           .expects('get')
           .withArgs(
@@ -968,7 +968,7 @@ describe('server.js non-transaction tests', function() {
             )
           )
           .returns(Promise.resolve({ data: accountsForSignerResponse }));
-          
+
         this.server
           .accounts()
           .forSigner('GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42')
@@ -985,7 +985,7 @@ describe('server.js non-transaction tests', function() {
             done(err);
           });
       });
-      
+
       it('adds an "asset" query to the endpoint', function(done) {
         let accountsForAssetResponse = {
           _links: {
@@ -1082,7 +1082,7 @@ describe('server.js non-transaction tests', function() {
             ]
           }
         };
-        
+
         this.axiosMock
           .expects('get')
           .withArgs(
@@ -1091,7 +1091,7 @@ describe('server.js non-transaction tests', function() {
             )
           )
           .returns(Promise.resolve({ data: accountsForAssetResponse }));
-          
+
         this.server
           .accounts()
           .forAsset(new StellarSdk.Asset('USD','GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD'))
@@ -1108,7 +1108,7 @@ describe('server.js non-transaction tests', function() {
             done(err);
           });
       });
-      
+
     });
 
     describe('OfferCallBuilder', function() {
@@ -1190,7 +1190,7 @@ describe('server.js non-transaction tests', function() {
           'USD',
           'GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG'
         );
-        
+
         this.axiosMock
           .expects('get')
           .withArgs(
@@ -1222,7 +1222,7 @@ describe('server.js non-transaction tests', function() {
           'COP',
           'GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG'
         );
-        
+
         this.axiosMock
           .expects('get')
           .withArgs(
@@ -1980,7 +1980,7 @@ describe('server.js non-transaction tests', function() {
           });
       });
     });
-    
+
     describe('PathStrictSendCallBuilder', function() {
       let pathsResponse = {
         _embedded: {
