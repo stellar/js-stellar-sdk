@@ -23,11 +23,16 @@ export class TransactionCallBuilder extends CallBuilder<
    * The transaction details endpoint provides information on a single transaction. The transaction hash provided in the hash argument specifies which transaction to load.
    * @see [Transaction Details](https://www.stellar.org/developers/horizon/reference/endpoints/transactions-single.html)
    * @param {string} transactionId Transaction ID
-   * @returns {TransactionCallBuilder} current TransactionCallBuilder instance
+   * @returns {CallBuilder} a CallBuilder instance
    */
-  public transaction(transactionId: string): this {
-    this.filter.push(["transactions", transactionId]);
-    return this;
+  public transaction(
+    transactionId: string,
+  ): CallBuilder<ServerApi.TransactionRecord> {
+    const builder = new CallBuilder<ServerApi.TransactionRecord>(
+      this.url.clone(),
+    );
+    builder.filter.push([transactionId]);
+    return builder;
   }
 
   /**
