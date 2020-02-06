@@ -4,6 +4,78 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+## [v4.0.0](https://github.com/stellar/js-stellar-sdk/compare/v3.3.0...v4.0.0)
+
+### Added
+- Add support for top-level offers endpoint with `seller`, `selling`, and `buying` filter. ([#485](https://github.com/stellar/js-stellar-sdk/issues/485))
+  Horizon 1.0 includes a new `/offers` end-point, which allows you to list all offers, supporting filtering by `seller`, `selling`, or `buying` asset.
+
+  You can fetch data from this endpoint by doing `server.offers()` and use any of the following filters:
+
+  - `seller`: `server.offers().accountId(accountId)`
+  - `buying`: `server.offers().buying(asset)`
+  - `selling`: `server.offers().selling(asset)`
+
+  This introduced a breaking change since it modified the signature for the function `server.offers()`.
+
+  Before, if you wanted to list all the offers for a given account, you'd do:
+
+  ```
+  server.offers('accounts', accountID)
+  ```
+
+  Starting on this version you'll need to do:
+
+  ```
+  server.offers().accountId(accountId)
+  ```
+
+  You can do now things that were not possible before, like finding
+  all offers for an account filtering by the selling or buying asset
+
+  ```
+  server.offers().accountId(accountId).selling(assetA).buying(assetB)
+  ```
+
+- Add support for filtering accounts by `signer` or `asset` ([#474](https://github.com/stellar/js-stellar-sdk/issues/474))
+  Horizon 1.0 includes a new `/accounts` end-point, which allows you to list all accounts who have another account as a signer or hold a given asset.
+
+  You can fetch data from this endpoint by doing `server.accounts()` and use any of the following filters:
+
+  - `accountID`: `server.accounts().accountId(accountId)`, returns a single account.
+  - `forSigner`: `server.accounts().forSigner(accountId)`, returns accounts where `accountId` is a signer.
+  - `forAsset`: `server.accounts().forAsset(asset)`, returns accounts which hold the `asset`.
+
+- Add TypeScript typings for new fields in `fee_stats`. ([#462](https://github.com/stellar/js-stellar-sdk/issues/462))
+
+
+### Changed
+- Changed TypeScript typing for multiple operations "type", it will match the new value on Horizon. ([#477](https://github.com/stellar/js-stellar-sdk/issues/477))
+
+### Fixed
+- Fix fetchTimebounds() ([#487](https://github.com/stellar/js-stellar-sdk/issues/487))
+- Clone the passed URI in CallBuilder constructor, to not mutate the outside ref ([#473](https://github.com/stellar/js-stellar-sdk/issues/473))
+- Use axios CancelToken to ensure timeout ([#482](https://github.com/stellar/js-stellar-sdk/issues/482))
+
+### Breaking
+- Remove `fee_paid` field from transaction response. ([#476](https://github.com/stellar/js-stellar-sdk/issues/476))
+- Remove all `*_accepted_fee` from FeeStatsResponse. ([#463](https://github.com/stellar/js-stellar-sdk/issues/463))
+- Change function signature for `server.offers`. ([#485](https://github.com/stellar/js-stellar-sdk/issues/485))
+  The signature for the function `server.offers()` was changed to bring suppport for other filters.
+
+  Before, if you wanted to list all the offers for a given account, you'd do:
+
+  ```
+  server.offers('accounts', accountID)
+  ```
+
+  Starting on this version you'll need to do:
+
+  ```
+  server.offers().accountId(accountId)
+  ```
+
+
 ## [v3.3.0](https://github.com/stellar/js-stellar-sdk/compare/v3.2.0...v3.3.0)
 
 ### Deprecated ⚠️
