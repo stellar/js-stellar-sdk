@@ -8,7 +8,7 @@ A breaking change will get clearly marked in this log.
 
 ### Added
 - Add support for top-level offers endpoint with `seller`, `selling`, and `buying` filter. ([#485](https://github.com/stellar/js-stellar-sdk/issues/485))
-  Horizon 1.0 includes a new `/offers` end-point, which allows you to list all offers, supporting filtering by `seller`, `selling asset`, or `buying asset`.
+  Horizon 1.0 includes a new `/offers` end-point, which allows you to list all offers, supporting filtering by `seller`, `selling`, or `buying` asset.
 
   You can fetch data from this endpoint by doing `server.offers()` and use any of the following filters:
 
@@ -18,7 +18,7 @@ A breaking change will get clearly marked in this log.
 
   This introduced a breaking change since it modified the signature for the function `server.offers()`.
 
-  Before if you wanted to list all the offers for a given account, you'd do:
+  Before, if you wanted to list all the offers for a given account, you'd do:
 
   ```
   server.offers('accounts', accountID)
@@ -63,7 +63,7 @@ A breaking change will get clearly marked in this log.
 - Change function signature for `server.offers`. ([#485](https://github.com/stellar/js-stellar-sdk/issues/485))
   The signature for the function `server.offers()` was changed to bring suppport for other filters.
 
-  Before if you wanted to list all the offers for a given account, you'd do:
+  Before, if you wanted to list all the offers for a given account, you'd do:
 
   ```
   server.offers('accounts', accountID)
