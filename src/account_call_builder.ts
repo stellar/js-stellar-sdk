@@ -12,7 +12,9 @@ import { ServerApi } from "./server_api";
  * @constructor
  * @param {string} serverUrl Horizon server URL.
  */
-export class AccountCallBuilder extends CallBuilder<ServerApi.AccountRecord> {
+export class AccountCallBuilder extends CallBuilder<
+  ServerApi.CollectionPage<ServerApi.AccountRecord>
+> {
   constructor(serverUrl: uri.URI) {
     super(serverUrl);
     this.url.segment("accounts");
@@ -26,9 +28,10 @@ export class AccountCallBuilder extends CallBuilder<ServerApi.AccountRecord> {
    * @param {string} id For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
    * @returns {AccountCallBuilder} current AccountCallBuilder instance
    */
-  public accountId(id: string): this {
-    this.filter.push(["accounts", id]);
-    return this;
+  public accountId(id: string): CallBuilder<ServerApi.AccountRecord> {
+    const builder = new CallBuilder<ServerApi.AccountRecord>(this.url.clone());
+    builder.filter.push([id]);
+    return builder;
   }
 
   /**
@@ -37,7 +40,7 @@ export class AccountCallBuilder extends CallBuilder<ServerApi.AccountRecord> {
    * @param {string} value For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
    * @returns {AccountCallBuilder} current AccountCallBuilder instance
    */
-  public forSigner(id: string) {
+  public forSigner(id: string): this {
     this.url.setQuery("signer", id);
     return this;
   }
@@ -49,7 +52,7 @@ export class AccountCallBuilder extends CallBuilder<ServerApi.AccountRecord> {
    * @param {Asset} value For example: `new Asset('USD','GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD')`
    * @returns {AccountCallBuilder} current AccountCallBuilder instance
    */
-  public forAsset(asset: Asset) {
+  public forAsset(asset: Asset): this {
     this.url.setQuery("asset", `${asset}`);
     return this;
   }
