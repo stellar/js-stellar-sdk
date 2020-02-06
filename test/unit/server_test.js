@@ -780,6 +780,80 @@ describe('server.js non-transaction tests', function() {
   });
 
   describe('Smoke tests for the rest of the builders', function() {
+    describe('TransactionCallBuilder', function() {
+
+      it('#transaction - requests the correct endpoint', function(done) {
+        let singleTranssactionResponse = {
+          "_links": {
+            "self": {
+              "href": "https://horizon-testnet.stellar.org/transactions/6bbd8cbd90498a26210a21ec599702bead8f908f412455da300318aba36831b0"
+            },
+            "account": {
+              "href": "https://horizon-testnet.stellar.org/accounts/GBCCHT5P34DMK2LTN4SPHBAJCXYFNUEWSM7SDSWEXJA7NN6CA3HNHTM6"
+            },
+            "ledger": {
+              "href": "https://horizon-testnet.stellar.org/ledgers/121879"
+            },
+            "operations": {
+              "href": "https://horizon-testnet.stellar.org/transactions/6bbd8cbd90498a26210a21ec599702bead8f908f412455da300318aba36831b0/operations{?cursor,limit,order}",
+              "templated": true
+            },
+            "effects": {
+              "href": "https://horizon-testnet.stellar.org/transactions/6bbd8cbd90498a26210a21ec599702bead8f908f412455da300318aba36831b0/effects{?cursor,limit,order}",
+              "templated": true
+            },
+            "precedes": {
+              "href": "https://horizon-testnet.stellar.org/transactions?order=asc&cursor=523466319077376"
+            },
+            "succeeds": {
+              "href": "https://horizon-testnet.stellar.org/transactions?order=desc&cursor=523466319077376"
+            }
+          },
+          "id": "6bbd8cbd90498a26210a21ec599702bead8f908f412455da300318aba36831b0",
+          "paging_token": "523466319077376",
+          "successful": true,
+          "hash": "6bbd8cbd90498a26210a21ec599702bead8f908f412455da300318aba36831b0",
+          "ledger": 121879,
+          "created_at": "2020-02-06T01:57:18Z",
+          "source_account": "GBCCHT5P34DMK2LTN4SPHBAJCXYFNUEWSM7SDSWEXJA7NN6CA3HNHTM6",
+          "source_account_sequence": "523406189527045",
+          "fee_paid": 100,
+          "fee_charged": 100,
+          "max_fee": 100,
+          "operation_count": 1,
+          "envelope_xdr": "AAAAAEQjz6/fBsVpc28k84QJFfBW0JaTPyHKxLpB9rfCBs7TAAAAZAAB3AkAAAAFAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAMBwd6tPbAYimyr/BzBgOosIbrnrzfxfS/gmfqoDSx0IAAAAAHc1lAAAAAAAAAAABwgbO0wAAAECl/OULPE7Q3ikmwIYeECFtxVH4rh8lmk465QLIeHEeEcbYhaTfgfe8VAwKsYf4YqK+YKiSiI0BqJKDr6CeI3QJ",
+          "result_xdr": "AAAAAAAAAGQAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAA=",
+          "result_meta_xdr": "AAAAAQAAAAIAAAADAAHcFwAAAAAAAAAARCPPr98GxWlzbyTzhAkV8FbQlpM/IcrEukH2t8IGztMAAAAW0UFSDAAB3AkAAAAEAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAABAAHcFwAAAAAAAAAARCPPr98GxWlzbyTzhAkV8FbQlpM/IcrEukH2t8IGztMAAAAW0UFSDAAB3AkAAAAFAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAABAAAAAwAAAAMAAdwXAAAAAAAAAABEI8+v3wbFaXNvJPOECRXwVtCWkz8hysS6Qfa3wgbO0wAAABbRQVIMAAHcCQAAAAUAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAEAAdwXAAAAAAAAAABEI8+v3wbFaXNvJPOECRXwVtCWkz8hysS6Qfa3wgbO0wAAABazc+0MAAHcCQAAAAUAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAdwXAAAAAAAAAAAwHB3q09sBiKbKv8HMGA6iwhuuevN/F9L+CZ+qgNLHQgAAAAAdzWUAAAHcFwAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAA==",
+          "fee_meta_xdr": "AAAAAgAAAAMAAdwUAAAAAAAAAABEI8+v3wbFaXNvJPOECRXwVtCWkz8hysS6Qfa3wgbO0wAAABbRQVJwAAHcCQAAAAQAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAEAAdwXAAAAAAAAAABEI8+v3wbFaXNvJPOECRXwVtCWkz8hysS6Qfa3wgbO0wAAABbRQVIMAAHcCQAAAAQAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAA==",
+          "memo_type": "none",
+          "signatures": [
+            "pfzlCzxO0N4pJsCGHhAhbcVR+K4fJZpOOuUCyHhxHhHG2IWk34H3vFQMCrGH+GKivmCokoiNAaiSg6+gniN0CQ=="
+          ]
+        };
+        
+        this.axiosMock
+          .expects('get')
+          .withArgs(
+            sinon.match(
+              'https://horizon-live.stellar.org:1337/transactions/6bbd8cbd90498a26210a21ec599702bead8f908f412455da300318aba36831b0'
+            )
+          )
+          .returns(Promise.resolve({ data: singleTranssactionResponse }));
+
+        this.server
+          .transactions()
+          .transaction('6bbd8cbd90498a26210a21ec599702bead8f908f412455da300318aba36831b0')
+          .call()
+          .then(function(response) {
+            expect(response).to.be.deep.equal(singleTranssactionResponse);
+            done();
+          })
+          .catch(function(err) {
+            done(err);
+          });
+      });
+    });
+
     describe('AccountCallBuilder', function() {
 
       it('requests the correct endpoint', function(done) {
