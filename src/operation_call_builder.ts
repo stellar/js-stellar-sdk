@@ -26,9 +26,14 @@ export class OperationCallBuilder extends CallBuilder<
    * @param {number} operationId Operation ID
    * @returns {OperationCallBuilder} this OperationCallBuilder instance
    */
-  public operation(operationId: string): this {
-    this.filter.push(["operations", operationId]);
-    return this;
+  public operation(
+    operationId: string,
+  ): CallBuilder<ServerApi.OperationRecord> {
+    const builder = new CallBuilder<ServerApi.OperationRecord>(
+      this.url.clone(),
+    );
+    builder.filter.push([operationId]);
+    return builder;
   }
 
   /**
