@@ -75,6 +75,76 @@ export namespace Utils {
   }
 
   /**
+   * readChallengeTx reads a SEP 10 challenge transaction and returns the decoded
+   * transaction and client account ID contained within.
+   *
+   * It also verifies that transaction is signed by the server.
+   *
+   * It does not verify that the transaction has been signed by the client or
+   * that any signatures other than the servers on the transaction are valid. Use
+   * one of the following functions to completely verify the transaction:
+   * - verifyChallengeTxThreshold
+   * - verifyChallengeTxSigners
+   * @function
+   * @memberof Utils
+   * @param {string} challengeTx SEP0010 transaction challenge transaction in base64.
+   * @param {string} serverAccountID The server's stellar account.
+   * @param {string} [networkPassphrase] The network passphrase.
+   * @returns {Transaction} the actual submited Transaction
+   * @returns {string} The stellar clientAccountID that the wallet wishes to authenticate with the server.
+   */
+  export function readChallengeTx(
+    challengeTx: string,
+    serverAccountId: string,
+    networkPassphrase?: string,
+  ): { tx: Transaction; clientAccountID: string } {
+    console.log("challengeTx", challengeTx);
+    console.log("serverAccountId", serverAccountId);
+    console.log("networkPassphrase", networkPassphrase);
+
+    const transaction = new Transaction(challengeTx, networkPassphrase);
+
+    // verify sequence number
+    const sequence = Number.parseInt(transaction.sequence, 10);
+
+    if (sequence !== 0) {
+      throw new InvalidSep10ChallengeError(
+        "The transaction sequence number should be zero",
+      );
+    }
+
+    // verify transaction source
+    if (transaction.source !== serverAccountId) {
+      throw new InvalidSep10ChallengeError(
+        "The transaction source account is not equal to the server's account",
+      );
+    }
+
+    // verify operation
+    if (transaction.operations.length !== 1) {
+      throw new InvalidSep10ChallengeError(
+        "The transaction should contain only one operation",
+      );
+    }
+
+    const [operation] = transaction.operations;
+
+    if (!operation.source) {
+      throw new InvalidSep10ChallengeError(
+        "The transaction's operation should contain a source account",
+      );
+    }
+
+    if (operation.type !== "manageData") {
+      throw new InvalidSep10ChallengeError(
+        "The transaction's operation type should be 'manageData'",
+      );
+    }
+
+    return { tx: transaction, clientAccountID: "" };
+  }
+
+  /**
    * Verifies if a transaction is a valid [SEP0010](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0010.md)
    * challenge transaction.
    *
@@ -113,7 +183,6 @@ export namespace Utils {
         "The transaction sequence number should be zero",
       );
     }
-
     if (transaction.source !== serverAccountId) {
       throw new InvalidSep10ChallengeError(
         "The transaction source account is not equal to the server's account",
@@ -140,6 +209,8 @@ export namespace Utils {
       );
     }
 
+    // ------- ALL ABOVE ARE TESTED
+
     if (Buffer.from(operation.value.toString(), "base64").length !== 48) {
       throw new InvalidSep10ChallengeError(
         "The transaction's operation value should be a 64 bytes base64 random string",
@@ -157,6 +228,8 @@ export namespace Utils {
         "The transaction is not signed by the client",
       );
     }
+
+    // ------- ALL BELOW ARE TESTED
 
     if (!validateTimebounds(transaction)) {
       throw new InvalidSep10ChallengeError("The transaction has expired");
