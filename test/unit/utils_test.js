@@ -185,6 +185,116 @@ describe('Utils', function() {
         /The transaction\'s operation type should be \'manageData\'/
       );
     });
+
+    it('throws an error if transaction.timeBounds.maxTime is infinite', function() {
+      let serverKeypair = StellarSdk.Keypair.random();
+      let clientKeypair = StellarSdk.Keypair.random();
+
+      const anchorName = "SDF"
+      const networkPassphrase = StellarSdk.Networks.TESTNET
+      
+      const account = new StellarSdk.Account(serverKeypair.publicKey(), "-1");
+      const now = Math.floor(Date.now() / 1000);
+
+      const value = randomBytes(48).toString("base64");
+
+      let transaction = new StellarSdk.TransactionBuilder(account, {
+        fee: StellarSdk.BASE_FEE,
+        networkPassphrase,
+        timebounds: {
+          minTime: now,
+          maxTime: "0",
+        },
+      })
+        .addOperation(
+          StellarSdk.Operation.manageData({
+            name: `${anchorName} auth`,
+            value,
+            source: clientKeypair.publicKey(),
+          }),
+        )
+        .build();
+
+      transaction.sign(serverKeypair);
+
+      const challenge = transaction
+        .toEnvelope()
+        .toXDR("base64")
+        .toString();
+
+      transaction = new StellarSdk.Transaction(challenge, StellarSdk.Networks.TESTNET);
+      transaction.sign(clientKeypair);
+
+      const signedChallenge = transaction
+            .toEnvelope()
+            .toXDR("base64")
+            .toString();
+
+      expect(
+        () => StellarSdk.Utils.readChallengeTx(signedChallenge, serverKeypair.publicKey(), StellarSdk.Networks.TESTNET)
+      ).to.throw(
+        StellarSdk.InvalidSep10ChallengeError,
+        /The transaction requires non-infinite timebounds/
+      );
+    });
+
+    it('throws an error if operation value is not a 64 bytes base64 string', function() {
+      let keypair = StellarSdk.Keypair.random();
+      const account = new StellarSdk.Account(keypair.publicKey(), "-1");
+      const transaction = new StellarSdk.TransactionBuilder(account, txBuilderOpts)
+            .addOperation(
+              StellarSdk.Operation.manageData({
+                name: 'SDF auth',
+                value: randomBytes(64),
+                source: 'GBDIT5GUJ7R5BXO3GJHFXJ6AZ5UQK6MNOIDMPQUSMXLIHTUNR2Q5CFNF'
+              })
+            )
+            .setTimeout(30)
+            .build();
+
+      transaction.sign(keypair);
+      const challenge = transaction
+            .toEnvelope()
+            .toXDR("base64")
+            .toString();
+
+      expect(
+        () => StellarSdk.Utils.readChallengeTx(challenge, keypair.publicKey(), StellarSdk.Networks.TESTNET)
+      ).to.throw(
+        StellarSdk.InvalidSep10ChallengeError,
+        /The transaction\'s operation value should be a 64 bytes base64 random string/
+      );
+    });
+
+    it('throws an error if transaction does not contain valid timeBounds', function() {
+      let keypair = StellarSdk.Keypair.random();
+      let clientKeypair = StellarSdk.Keypair.random();
+
+      const challenge = StellarSdk.Utils.buildChallengeTx(
+        keypair,
+        clientKeypair.publicKey(),
+        "SDF",
+        300,
+        StellarSdk.Networks.TESTNET
+      );
+
+      clock.tick(350000);
+
+      const transaction = new StellarSdk.Transaction(challenge, StellarSdk.Networks.TESTNET);
+      transaction.sign(clientKeypair);
+
+      const signedChallenge = transaction
+            .toEnvelope()
+            .toXDR("base64")
+            .toString();
+
+      expect(
+        () => StellarSdk.Utils.readChallengeTx(signedChallenge, keypair.publicKey(), StellarSdk.Networks.TESTNET)
+      ).to.throw(
+        StellarSdk.InvalidSep10ChallengeError,
+        /The transaction has expired/
+      );
+    });
   });
 
   describe('Utils.verifyChallengeTx', function() {

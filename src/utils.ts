@@ -4,6 +4,7 @@ import {
   BASE_FEE,
   Keypair,
   Operation,
+  TimeoutInfinite,
   Transaction,
   TransactionBuilder,
 } from "stellar-base";
@@ -98,10 +99,6 @@ export namespace Utils {
     serverAccountId: string,
     networkPassphrase?: string,
   ): { tx: Transaction; clientAccountID: string } {
-    console.log("challengeTx", challengeTx);
-    console.log("serverAccountId", serverAccountId);
-    console.log("networkPassphrase", networkPassphrase);
-
     const transaction = new Transaction(challengeTx, networkPassphrase);
 
     // verify sequence number
@@ -138,6 +135,26 @@ export namespace Utils {
     if (operation.type !== "manageData") {
       throw new InvalidSep10ChallengeError(
         "The transaction's operation type should be 'manageData'",
+      );
+    }
+
+    // verify timebounds
+    if (
+      transaction.timeBounds &&
+      Number.parseInt(transaction.timeBounds?.maxTime, 10) === TimeoutInfinite
+    ) {
+      throw new InvalidSep10ChallengeError(
+        "The transaction requires non-infinite timebounds",
+      );
+    }
+
+    if (!validateTimebounds(transaction)) {
+      throw new InvalidSep10ChallengeError("The transaction has expired");
+    }
+
+    if (Buffer.from(operation.value.toString(), "base64").length !== 48) {
+      throw new InvalidSep10ChallengeError(
+        "The transaction's operation value should be a 64 bytes base64 random string",
       );
     }
 
@@ -209,13 +226,13 @@ export namespace Utils {
       );
     }
 
-    // ------- ALL ABOVE ARE TESTED
-
     if (Buffer.from(operation.value.toString(), "base64").length !== 48) {
       throw new InvalidSep10ChallengeError(
         "The transaction's operation value should be a 64 bytes base64 random string",
       );
     }
+
+    // ------- ALL ABOVE ARE TESTEDm
 
     if (!verifyTxSignedBy(transaction, serverAccountId)) {
       throw new InvalidSep10ChallengeError(
