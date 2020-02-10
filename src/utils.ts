@@ -152,6 +152,7 @@ export namespace Utils {
       throw new InvalidSep10ChallengeError("The transaction has expired");
     }
 
+    // verify base64
     if (Buffer.from(operation.value.toString(), "base64").length !== 48) {
       throw new InvalidSep10ChallengeError(
         "The transaction's operation value should be a 64 bytes base64 random string",
@@ -278,13 +279,62 @@ export namespace Utils {
     transaction: Transaction,
     accountId: string,
   ): boolean {
+    return verifyTxMultiSignedBy(transaction, accountId).length !== 0;
+  }
+
+  /**
+   * Verifies if a transaction was signed by the given account id.
+   *
+   * @function
+   * @memberof Utils
+   * @param {Transaction} transaction
+   * @param {string[]} accountIds
+   * @example
+   * let keypair1 = Keypair.random();
+   * let keypair2 = Keypair.random();
+   * const account = new StellarSdk.Account(keypair1.publicKey(), "-1");
+   *
+   * const transaction = new TransactionBuilder(account, { fee: 100 })
+   *    .setTimeout(30)
+   *    .build();
+   *
+   * transaction.sign(keypair1, keypair2)
+   * Utils.verifyTxMultiSignedBy(transaction, [keypair1.publicKey(), keypair2.publicKey()])
+   * @returns {string[]}.
+   */
+  export function verifyTxMultiSignedBy(
+    transaction: Transaction,
+    ...accountIDs: string[]
+  ): string[] {
     const hashedSignatureBase = transaction.hash();
 
-    const keypair = Keypair.fromPublicKey(accountId);
+    const usedSignatures: boolean[] = new Array(transaction.signatures.length);
+    const signersFoundM = new Map<string, boolean>();
+    const signersFound: any = {};
 
-    return !!transaction.signatures.find((sig) => {
-      return keypair.verify(hashedSignatureBase, sig.signature());
+    accountIDs.forEach((signer) => {
+      const keypair = Keypair.fromPublicKey(signer);
+
+      for (let i = 0; i < transaction.signatures.length; i++) {
+        if (usedSignatures[i]) {
+          continue;
+        }
+
+        const decSeg = transaction.signatures[i];
+
+        if (!decSeg.hint().equals(keypair.signatureHint())) {
+          continue;
+        }
+
+        if (keypair.verify(hashedSignatureBase, decSeg.signature())) {
+          usedSignatures[i] = true;
+          signersFound[signer] = true;
+          signersFoundM.set(signer, true);
+        }
+      }
     });
+
+    return Array.from(signersFoundM.keys());
   }
 
   function validateTimebounds(transaction: Transaction): boolean {

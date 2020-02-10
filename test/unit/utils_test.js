@@ -581,4 +581,45 @@ describe('Utils', function() {
       expect(StellarSdk.Utils.verifyTxSignedBy(this.transaction, this.keypair.publicKey())).to.eql(false);
     });
   });
+
+  describe('Utils.verifyTxMultiSignedBy', function() {
+    beforeEach(function() {
+      this.keypair1 = StellarSdk.Keypair.random();
+      this.keypair2 = StellarSdk.Keypair.random();
+      this.account = new StellarSdk.Account(this.keypair1.publicKey(), "-1");
+      this.transaction = new StellarSdk.TransactionBuilder(this.account, txBuilderOpts)
+        .setTimeout(30)
+        .build();
+    });
+
+    afterEach(function() {
+      this.keypair1, this.keypair2, this.account, this.transaction = null;
+    });
+
+    it('returns a list with the signatures used in the transaction', function() {
+      this.transaction.sign(this.keypair1, this.keypair2);
+
+      const expectedSignatures = [this.keypair1.publicKey(), this.keypair2.publicKey()]
+      expect(StellarSdk.Utils.verifyTxMultiSignedBy(this.transaction, this.keypair1.publicKey(), this.keypair2.publicKey())).to.eql(expectedSignatures);
+    });
+
+    it('returns a list with the signatures used in the transaction, removing duplicates', function() {
+      this.transaction.sign(this.keypair1, this.keypair1, this.keypair1, this.keypair2, this.keypair2, this.keypair2);
+
+      const expectedSignatures = [this.keypair1.publicKey(), this.keypair2.publicKey()]
+      expect(StellarSdk.Utils.verifyTxMultiSignedBy(this.transaction, this.keypair1.publicKey(), this.keypair2.publicKey())).to.eql(expectedSignatures);
+    });
+
+    it('returns an empty list if the transaction was not signed by the given accounts', function() {
+      this.transaction.sign(this.keypair1, this.keypair2);
+
+      let wrongSignatures = [StellarSdk.Keypair.random().publicKey(), StellarSdk.Keypair.random().publicKey(), StellarSdk.Keypair.random().publicKey()];
+
+      expect(StellarSdk.Utils.verifyTxMultiSignedBy(this.transaction, ...wrongSignatures)).to.eql([]);
+    });
+
+    it('calling verifyTxMultiSignedBy with an unsigned transaction will return an empty list', function() {
+      expect(StellarSdk.Utils.verifyTxMultiSignedBy(this.transaction, this.keypair1.publicKey(), this.keypair2.publicKey())).to.eql([]);
+    });
+  });
 });
