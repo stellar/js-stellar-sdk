@@ -4,6 +4,7 @@ import {
   BASE_FEE,
   Keypair,
   Operation,
+  StrKey,
   TimeoutInfinite,
   Transaction,
   TransactionBuilder,
@@ -163,6 +164,77 @@ export namespace Utils {
   }
 
   /**
+   * VerifyChallengeTxSigners verifies that for a SEP 10 challenge transaction
+   * all signatures on the transaction are accounted for. A transaction is
+   * verified if it is signed by the server account, and all other signatures
+   * match a signer that has been provided as an argument. Additional signers can
+   * be provided that do not have a signature, but all signatures must be matched
+   * to a signer for verification to succeed. If verification succeeds a list of
+   * signers that were found is returned, excluding the server account ID.
+   *
+   * @function
+   * @memberof Utils
+   * @param {string} challengeTx SEP0010 transaction challenge transaction in base64.
+   * @param {string} serverAccountID The server's stellar account.
+   * @param {string} network The network passphrase.
+   * @param {string[]} accountIDs The stellar account public keys that have supposedly been used to sign the transaction
+   * @example
+   * // TODO
+   * @returns {string[]} The list of signers that were found, excluding the server account ID
+   */
+  export function verifyChallengeTxSigners(
+    challengeTx: string,
+    serverAccountID: string,
+    network: string,
+    ...accountIDs: string[]
+  ): string[] {
+    // Read the transaction which validates its structure.
+    const { tx } = readChallengeTx(challengeTx, serverAccountID, network);
+    console.log(tx);
+
+    // Ensure the server account ID is an address and not a seed.
+    const serverKP = Keypair.fromPublicKey(serverAccountID); // can throw 'Invalid Stellar public key'
+
+    // Deduplicate the client signers and ensure the server is not included
+    // anywhere we check or output the list of signers.
+    const clientSigners: string[] = new Array();
+    const clientSignersSeen = new Map<string, boolean>();
+
+    for (const signer of accountIDs) {
+      // Ignore the server signer if it is in the signers list. It's
+      // important when verifying signers of a challenge transaction that we
+      // only verify and return client signers. If an account has the server
+      // as a signer the server should not play a part in the authentication
+      // of the client.
+      if (signer === serverKP.publicKey()) {
+        continue;
+      }
+
+      // Deduplicate.
+      if (clientSignersSeen.get(signer) !== undefined) {
+        continue;
+      }
+
+      // Ignore non-G... account/address signers.
+      if (!StrKey.isValidEd25519PublicKey(signer)) {
+        continue;
+      }
+
+      clientSigners.push(signer);
+      clientSignersSeen.set(signer, true);
+    }
+
+    // Don't continue if none of the signers provided are in the final list.
+    if (clientSigners.length === 0) {
+      throw new InvalidSep10ChallengeError(
+        "No verifiable signers provided, at least one G... address must be provided",
+      );
+    }
+
+    return [];
+  }
+
+  /**
    * Verifies if a transaction is a valid [SEP0010](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0010.md)
    * challenge transaction.
    *
@@ -309,8 +381,7 @@ export namespace Utils {
     const hashedSignatureBase = transaction.hash();
 
     const usedSignatures: boolean[] = new Array(transaction.signatures.length);
-    const signersFoundM = new Map<string, boolean>();
-    const signersFound: any = {};
+    const signersFound = new Map<string, boolean>();
 
     accountIDs.forEach((signer) => {
       const keypair = Keypair.fromPublicKey(signer);
@@ -328,13 +399,12 @@ export namespace Utils {
 
         if (keypair.verify(hashedSignatureBase, decSeg.signature())) {
           usedSignatures[i] = true;
-          signersFound[signer] = true;
-          signersFoundM.set(signer, true);
+          signersFound.set(signer, true);
         }
       }
     });
 
-    return Array.from(signersFoundM.keys());
+    return Array.from(signersFound.keys());
   }
 
   function validateTimebounds(transaction: Transaction): boolean {
