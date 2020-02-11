@@ -297,6 +297,148 @@ describe('Utils', function() {
     });
   });
 
+  describe('Utils.verifyChallengeTxSigners', function() {
+    beforeEach(function() {
+      this.serverKP = StellarSdk.Keypair.random();
+      this.clientKP1 = StellarSdk.Keypair.random();
+      this.clientKP2 = StellarSdk.Keypair.random();
+      
+      this.txAccount = new StellarSdk.Account(this.serverKP.publicKey(), "-1");
+      this.opAccount = new StellarSdk.Account(this.clientKP1.publicKey(), "0");
+
+      this.operation = StellarSdk.Operation.manageData({
+        source: this.clientKP1.publicKey(),
+        name: 'SDF testserver auth',
+        value: randomBytes(48).toString('base64')
+      });
+      
+      this.txBuilderOpts = {
+        fee: 100,
+        networkPassphrase: StellarSdk.Networks.TESTNET
+      };
+    });
+
+    afterEach(function() {
+      this.serverKP, this.clientKP1, this.clientKP2, this.txAccount, this.opAccount, this.operation = null;
+    });
+
+    it('successfully validates server and clients signatures in the transaction', function() {
+      const transaction = new StellarSdk.TransactionBuilder(this.txAccount, this.txBuilderOpts)
+            .addOperation(this.operation)
+            .setTimeout(30)
+            .build();
+
+      const clientSigners = [this.clientKP1, this.clientKP2]
+      const clientSignersPubKey = clientSigners.map((kp) => { return kp.publicKey() });
+
+      transaction.sign(this.serverKP, ...clientSigners)
+
+      const challenge = transaction
+            .toEnvelope()
+            .toXDR("base64")
+            .toString();
+
+      expect(StellarSdk.Utils.verifyChallengeTxSigners(challenge, this.serverKP.publicKey(), StellarSdk.Networks.TESTNET, ...clientSignersPubKey)).to.eql(clientSignersPubKey);
+    });
+
+    it('throws an error if there are no clients signing the Tx', function() {
+      const transaction = new StellarSdk.TransactionBuilder(this.txAccount, this.txBuilderOpts)
+            .addOperation(this.operation)
+            .setTimeout(30)
+            .build();
+
+      const unsignedChallenge = transaction
+            .toEnvelope()
+            .toXDR("base64")
+            .toString();
+
+      expect(
+        () => StellarSdk.Utils.verifyChallengeTxSigners(unsignedChallenge, this.serverKP.publicKey(), StellarSdk.Networks.TESTNET)
+      ).to.throw(
+        StellarSdk.InvalidSep10ChallengeError,
+        /No verifiable client signers provided, at least one G... address must be provided/
+      );
+    });
+
+    it('throws an error if the server hasn\'t signed the transaction', function() {
+      const transaction = new StellarSdk.TransactionBuilder(this.txAccount, this.txBuilderOpts)
+            .addOperation(this.operation)
+            .setTimeout(30)
+            .build();
+
+      const unsignedChallenge = transaction
+            .toEnvelope()
+            .toXDR("base64")
+            .toString();
+
+      expect(
+        () => StellarSdk.Utils.verifyChallengeTxSigners(unsignedChallenge, this.serverKP.publicKey(), StellarSdk.Networks.TESTNET, this.clientKP1.publicKey())
+      ).to.throw(
+        StellarSdk.InvalidSep10ChallengeError,
+        "Transaction not signed by server: '" + this.serverKP.publicKey() + "'"
+      );
+    });
+
+    it('throws an error if no client has signed the transaction', function() {
+      const transaction = new StellarSdk.TransactionBuilder(this.txAccount, this.txBuilderOpts)
+            .addOperation(this.operation)
+            .setTimeout(30)
+            .build();
+
+      transaction.sign(this.serverKP)
+      const challenge = transaction
+            .toEnvelope()
+            .toXDR("base64")
+            .toString();
+
+      const clientSigners = [this.clientKP1.publicKey(), this.clientKP2.publicKey()]
+
+      expect(
+        () => StellarSdk.Utils.verifyChallengeTxSigners(challenge, this.serverKP.publicKey(), StellarSdk.Networks.TESTNET, ...clientSigners)
+      ).to.throw(
+        StellarSdk.InvalidSep10ChallengeError,
+        "Transaction not signed by clients: '" + clientSigners.join() + "'"
+      );
+    });
+
+    it('throws an error if not all tx signers were passed as argument', function() {
+      const transaction = new StellarSdk.TransactionBuilder(this.txAccount, this.txBuilderOpts)
+            .addOperation(this.operation)
+            .setTimeout(30)
+            .build();
+
+      transaction.sign(this.serverKP, this.clientKP1, this.clientKP2)
+      const challenge = transaction
+            .toEnvelope()
+            .toXDR("base64")
+            .toString();
+
+      const clientSigners = [this.clientKP1.publicKey(), StellarSdk.Keypair.random().publicKey(), StellarSdk.Keypair.random().publicKey()]
+
+      expect(
+        () => StellarSdk.Utils.verifyChallengeTxSigners(challenge, this.serverKP.publicKey(), StellarSdk.Networks.TESTNET, ...clientSigners)
+      ).to.throw(
+        StellarSdk.InvalidSep10ChallengeError,
+        /Transaction has unrecognized signatures/
+      );
+    });
+
+    // it('invalidServer')
+    // it('validServerAndClientMasterKey')
+    // it('invalidServerAndNoClient')
+    // it('invalidServerAndUnrecognizedClient')
+    // it('validServerAndMultipleClientSigners')
+    // it('validServerAndMultipleClientSignersReverseOrder')
+    // it('validServerAndClientSignersNotMasterKey')
+    // it('validServerAndClientSignersIgnoresServerSigner')
+    // it('invalidServerNoClientSignersIgnoresServerSigner')
+    // it('validServerAndClientSignersIgnoresDuplicateSigner')
+    // it('validIgnorePreauthTxHashAndXHash')
+    // it('invalidServerAndClientSignersIgnoresDuplicateSignerInError')
+    // it('invalidServerAndClientSignersFailsDuplicateSignatures')
+    // it('invalidServerAndClientSignersFailsSignerSeed')
+  });
+
   describe('Utils.verifyChallengeTx', function() {
     it('returns true if the transaction is valid and signed by the server and client', function() {
       let keypair = StellarSdk.Keypair.random();

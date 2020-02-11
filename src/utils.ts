@@ -170,7 +170,7 @@ export namespace Utils {
    * match a signer that has been provided as an argument. Additional signers can
    * be provided that do not have a signature, but all signatures must be matched
    * to a signer for verification to succeed. If verification succeeds a list of
-   * signers that were found is returned, excluding the server account ID.
+   * signers that were found is returned, not including the server account ID.
    *
    * @function
    * @memberof Utils
@@ -190,7 +190,6 @@ export namespace Utils {
   ): string[] {
     // Read the transaction which validates its structure.
     const { tx } = readChallengeTx(challengeTx, serverAccountID, network);
-    console.log(tx);
 
     // Ensure the server account ID is an address and not a seed.
     const serverKP = Keypair.fromPublicKey(serverAccountID); // can throw 'Invalid Stellar public key'
@@ -199,7 +198,6 @@ export namespace Utils {
     // anywhere we check or output the list of signers.
     const clientSigners: string[] = new Array();
     const clientSignersSeen = new Map<string, boolean>();
-
     for (const signer of accountIDs) {
       // Ignore the server signer if it is in the signers list. It's
       // important when verifying signers of a challenge transaction that we
@@ -227,11 +225,50 @@ export namespace Utils {
     // Don't continue if none of the signers provided are in the final list.
     if (clientSigners.length === 0) {
       throw new InvalidSep10ChallengeError(
-        "No verifiable signers provided, at least one G... address must be provided",
+        "No verifiable client signers provided, at least one G... address must be provided",
       );
     }
 
-    return [];
+    // Verify all the transaction's signers (server and client) in one
+    // hit. We do this in one hit here even though the server signature was
+    // checked in the ReadChallengeTx to ensure that every signature and signer
+    // are consumed only once on the transaction.
+    const allSigners: string[] = [serverKP.publicKey(), ...clientSigners];
+    const allSignersFound: string[] = verifyTxMultiSignedBy(tx, ...allSigners);
+
+    // Confirm the server is in the list of signers found and remove it.
+    let serverSignerFound: boolean = false;
+    const signersFound: string[] = new Array();
+    for (const signer of allSignersFound) {
+      if (signer === serverKP.publicKey()) {
+        serverSignerFound = true;
+        continue;
+      }
+      signersFound.push(signer);
+    }
+
+    // Confirm we matched a signature to the server signer.
+    if (!serverSignerFound) {
+      throw new InvalidSep10ChallengeError(
+        "Transaction not signed by server: '" + serverKP.publicKey() + "'",
+      );
+    }
+
+    // Confirm we matched a signature to the server signer.
+    if (signersFound.length === 0) {
+      throw new InvalidSep10ChallengeError(
+        "Transaction not signed by clients: '" + clientSigners.join() + "'",
+      );
+    }
+
+    // Confirm all signatures were consumed by a signer.
+    if (allSignersFound.length !== tx.signatures.length) {
+      throw new InvalidSep10ChallengeError(
+        "Transaction has unrecognized signatures",
+      );
+    }
+
+    return signersFound;
   }
 
   /**
@@ -355,7 +392,7 @@ export namespace Utils {
   }
 
   /**
-   * Verifies if a transaction was signed by the given account id.
+   * Verifies if a transaction was signed by the given account IDs.
    *
    * @function
    * @memberof Utils
