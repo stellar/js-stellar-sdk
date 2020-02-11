@@ -69,6 +69,30 @@ describe('Utils', function() {
   });
 
   describe('Utils.readChallengeTx', function() {
+    it('returns the transaction and the clientAccountID (client\'s pubKey) if the challenge was created successfully', function() {
+      let serverKP = StellarSdk.Keypair.random();
+      let clientKP = StellarSdk.Keypair.random();
+
+      const challenge = StellarSdk.Utils.buildChallengeTx(
+        serverKP,
+        clientKP.publicKey(),
+        "SDF",
+        300,
+        StellarSdk.Networks.TESTNET
+      );
+
+      clock.tick(200);
+
+      const transaction = new StellarSdk.Transaction(challenge, StellarSdk.Networks.TESTNET);
+
+      expect(
+        StellarSdk.Utils.readChallengeTx(challenge, serverKP.publicKey(), StellarSdk.Networks.TESTNET)
+        ).to.eql({ 
+          tx: transaction, 
+          clientAccountID: clientKP.publicKey() 
+        });
+    });
+
     it('throws an error if transaction sequenceNumber if different to zero', function() {
       let keypair = StellarSdk.Keypair.random();
 
@@ -128,7 +152,7 @@ describe('Utils', function() {
         () => StellarSdk.Utils.readChallengeTx(challenge, keypair.publicKey(), StellarSdk.Networks.TESTNET)
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
-        /The transaction should contain only one operation/
+        /The transaction should contain exactly one operation/
       );
     });
 
@@ -308,7 +332,7 @@ describe('Utils', function() {
 
       this.operation = StellarSdk.Operation.manageData({
         source: this.clientKP1.publicKey(),
-        name: 'SDF testserver auth',
+        name: 'SDF-test auth',
         value: randomBytes(48).toString('base64')
       });
       
@@ -422,21 +446,6 @@ describe('Utils', function() {
         /Transaction has unrecognized signatures/
       );
     });
-
-    // it('invalidServer')
-    // it('validServerAndClientMasterKey')
-    // it('invalidServerAndNoClient')
-    // it('invalidServerAndUnrecognizedClient')
-    // it('validServerAndMultipleClientSigners')
-    // it('validServerAndMultipleClientSignersReverseOrder')
-    // it('validServerAndClientSignersNotMasterKey')
-    // it('validServerAndClientSignersIgnoresServerSigner')
-    // it('invalidServerNoClientSignersIgnoresServerSigner')
-    // it('validServerAndClientSignersIgnoresDuplicateSigner')
-    // it('validIgnorePreauthTxHashAndXHash')
-    // it('invalidServerAndClientSignersIgnoresDuplicateSignerInError')
-    // it('invalidServerAndClientSignersFailsDuplicateSignatures')
-    // it('invalidServerAndClientSignersFailsSignerSeed')
   });
 
   describe('Utils.verifyChallengeTx', function() {

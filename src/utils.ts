@@ -121,7 +121,7 @@ export namespace Utils {
     // verify operation
     if (transaction.operations.length !== 1) {
       throw new InvalidSep10ChallengeError(
-        "The transaction should contain only one operation",
+        "The transaction should contain exactly one operation",
       );
     }
 
@@ -132,6 +132,7 @@ export namespace Utils {
         "The transaction's operation should contain a source account",
       );
     }
+    const clientAccountID: string = operation.source!;
 
     if (operation.type !== "manageData") {
       throw new InvalidSep10ChallengeError(
@@ -160,7 +161,7 @@ export namespace Utils {
       );
     }
 
-    return { tx: transaction, clientAccountID: "" };
+    return { tx: transaction, clientAccountID };
   }
 
   /**
