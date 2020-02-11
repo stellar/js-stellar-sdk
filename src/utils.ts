@@ -95,6 +95,7 @@ export namespace Utils {
    * @returns {Transaction} the actual submited Transaction
    * @returns {string} The stellar clientAccountID that the wallet wishes to authenticate with the server.
    */
+
   export function readChallengeTx(
     challengeTx: string,
     serverAccountId: string,
@@ -258,7 +259,7 @@ export namespace Utils {
     // Confirm we matched a signature to the server signer.
     if (signersFound.length === 0) {
       throw new InvalidSep10ChallengeError(
-        "Transaction not signed by clients: '" + clientSigners.join() + "'",
+        "Transaction not signed by client(s): '" + clientSigners.join() + "'",
       );
     }
 
