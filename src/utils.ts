@@ -166,6 +166,64 @@ export namespace Utils {
   }
 
   /**
+   * VerifyChallengeTxThreshold verifies that for a SEP 10 challenge transaction
+   * all signatures on the transaction are accounted for and that the signatures
+   * meet a threshold on an account. A transaction is verified if it is signed by
+   * the server account, and all other signatures match a signer that has been
+   * provided as an argument, and those signatures meet a threshold on the
+   * account.
+   *
+   * Signers that are not prefixed as an address/account ID strkey (G...) will be
+   * ignored.
+   *
+   * Errors will be raised if:
+   *  - The transaction is invalid according to ReadChallengeTx.
+   *  - No client signatures are found on the transaction.
+   *  - One or more signatures in the transaction are not identifiable as the
+   *    server account or one of the signers provided in the arguments.
+   *  - The signatures are all valid but do not meet the threshold.
+   * @function
+   * @memberof Utils
+   * @param {string} challengeTx SEP0010 transaction challenge transaction in base64.
+   * @param {string} serverAccountID The server's stellar account.
+   * @param {string} network The network passphrase.
+   * @param {number} threshold The required threshold for verifying this transaction
+   * @param {Map<string, number>} signerSummary a map of signers to their weights, used to validate if the signers' total weight can meet a given threshold
+   * @example
+   * // TODO
+   * @returns {string[]} The list of signers that were found, given that the threshold was met
+   */
+  export function verifyChallengeTxThreshold(
+    challengeTx: string,
+    serverAccountID: string,
+    network: string,
+    threshold: number,
+    signerSummary: Map<string, number>,
+  ): string[] {
+    const signers = Array.from(signerSummary.keys());
+
+    const signersFound = verifyChallengeTxSigners(
+      challengeTx,
+      serverAccountID,
+      network,
+      ...signers,
+    );
+    let weight = 0;
+
+    for (const signer of signersFound) {
+      weight += signerSummary.get(signer) || 0;
+    }
+
+    if (weight < threshold) {
+      throw new InvalidSep10ChallengeError(
+        `signers with weight ${weight} do not meet threshold ${threshold}"`,
+      );
+    }
+
+    return signersFound;
+  }
+
+  /**
    * VerifyChallengeTxSigners verifies that for a SEP 10 challenge transaction
    * all signatures on the transaction are accounted for. A transaction is
    * verified if it is signed by the server account, and all other signatures

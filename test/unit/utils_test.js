@@ -321,6 +321,218 @@ describe('Utils', function() {
     });
   });
 
+  describe('Utils.verifyChallengeTxThreshold', function() {
+    beforeEach(function() {
+      this.serverKP = StellarSdk.Keypair.random();
+      this.clientKP1 = StellarSdk.Keypair.random();
+      this.clientKP2 = StellarSdk.Keypair.random();
+      this.clientKP3 = StellarSdk.Keypair.random();
+      
+      this.txAccount = new StellarSdk.Account(this.serverKP.publicKey(), "-1");
+      this.opAccount = new StellarSdk.Account(this.clientKP1.publicKey(), "0");
+
+      this.operation = StellarSdk.Operation.manageData({
+        source: this.clientKP1.publicKey(),
+        name: 'SDF-test auth',
+        value: randomBytes(48).toString('base64')
+      });
+      
+      this.txBuilderOpts = {
+        fee: 100,
+        networkPassphrase: StellarSdk.Networks.TESTNET
+      };
+    });
+
+    afterEach(function() {
+      this.serverKP, this.clientKP1, this.clientKP2, this.txAccount, this.opAccount, this.operation = null;
+    });
+
+    it('throws an error if the server hasn\'t signed the transaction', function() {
+      const transaction = new StellarSdk.TransactionBuilder(this.txAccount, this.txBuilderOpts)
+            .addOperation(this.operation)
+            .setTimeout(30)
+            .build();
+
+      const threshold = 1;
+      const signerSummary = new Map();
+      signerSummary.set(this.clientKP1.publicKey(), 1);
+
+      transaction.sign(this.clientKP1);
+
+      const challenge = transaction
+            .toEnvelope()
+            .toXDR("base64")
+            .toString();
+
+      expect(
+        () => StellarSdk.Utils.verifyChallengeTxThreshold(challenge, this.serverKP.publicKey(), StellarSdk.Networks.TESTNET, threshold, signerSummary)
+      ).to.throw(
+        StellarSdk.InvalidSep10ChallengeError,
+        "Transaction not signed by server: '" + this.serverKP.publicKey() + "'"
+      );
+    });
+
+    it('successfully validates server and client key meeting threshold', function() {
+      const challenge = StellarSdk.Utils.buildChallengeTx(
+        this.serverKP,
+        this.clientKP1.publicKey(),
+        "SDF",
+        300,
+        StellarSdk.Networks.TESTNET
+      );
+
+      clock.tick(200);
+      
+      const transaction = new StellarSdk.Transaction(challenge, StellarSdk.Networks.TESTNET);
+      transaction.sign(this.clientKP1)
+      const signedChallenge = transaction
+            .toEnvelope()
+            .toXDR("base64")
+            .toString();
+
+      const threshold = 1;
+      const signerSummary = new Map();
+      signerSummary.set(this.clientKP1.publicKey(), 1);
+
+      expect(
+        StellarSdk.Utils.verifyChallengeTxThreshold(signedChallenge, this.serverKP.publicKey(), StellarSdk.Networks.TESTNET, threshold, signerSummary)
+      ).to.eql(
+        [this.clientKP1.publicKey()]
+      );
+    });
+
+    it('successfully validates server and multiple client keys, meeting threshold', function() {
+      const challenge = StellarSdk.Utils.buildChallengeTx(
+        this.serverKP,
+        this.clientKP1.publicKey(),
+        "SDF",
+        300,
+        StellarSdk.Networks.TESTNET
+      );
+
+      clock.tick(200);
+      
+      const transaction = new StellarSdk.Transaction(challenge, StellarSdk.Networks.TESTNET);
+      transaction.sign(this.clientKP1, this.clientKP2)
+      const signedChallenge = transaction
+            .toEnvelope()
+            .toXDR("base64")
+            .toString();
+
+      const threshold = 3;
+      const signerSummary = new Map();
+      signerSummary.set(this.clientKP1.publicKey(), 1);
+      signerSummary.set(this.clientKP2.publicKey(), 2);
+
+      expect(
+        StellarSdk.Utils.verifyChallengeTxThreshold(signedChallenge, this.serverKP.publicKey(), StellarSdk.Networks.TESTNET, threshold, signerSummary)
+      ).to.eql(
+        [this.clientKP1.publicKey(), this.clientKP2.publicKey()]
+      );
+    });
+
+    it('successfully validates server and multiple client keys, meeting threshold with more keys than needed', function() {
+      const challenge = StellarSdk.Utils.buildChallengeTx(
+        this.serverKP,
+        this.clientKP1.publicKey(),
+        "SDF",
+        300,
+        StellarSdk.Networks.TESTNET
+      );
+
+      clock.tick(200);
+      
+      const transaction = new StellarSdk.Transaction(challenge, StellarSdk.Networks.TESTNET);
+      transaction.sign(this.clientKP1, this.clientKP2)
+      const signedChallenge = transaction
+            .toEnvelope()
+            .toXDR("base64")
+            .toString();
+
+      const threshold = 3;
+      const signerSummary = new Map();
+      signerSummary.set(this.clientKP1.publicKey(), 1);
+      signerSummary.set(this.clientKP2.publicKey(), 2);
+      signerSummary.set(this.clientKP3.publicKey(), 2);
+
+      expect(
+        StellarSdk.Utils.verifyChallengeTxThreshold(signedChallenge, this.serverKP.publicKey(), StellarSdk.Networks.TESTNET, threshold, signerSummary)
+      ).to.eql(
+        [this.clientKP1.publicKey(), this.clientKP2.publicKey()]
+      );
+    });
+
+    it('successfully validates server and multiple client keys, meeting threshold with more keys than needed but ignoring PreauthTxHash and XHash', function() {
+      const preauthTxHash = "TAQCSRX2RIDJNHFIFHWD63X7D7D6TRT5Y2S6E3TEMXTG5W3OECHZ2OG4";
+	    const xHash = "XDRPF6NZRR7EEVO7ESIWUDXHAOMM2QSKIQQBJK6I2FB7YKDZES5UCLWD";
+      const unknownSignerType = "?ARPF6NZRR7EEVO7ESIWUDXHAOMM2QSKIQQBJK6I2FB7YKDZES5UCLWD";
+      
+      const challenge = StellarSdk.Utils.buildChallengeTx(
+        this.serverKP,
+        this.clientKP1.publicKey(),
+        "SDF",
+        300,
+        StellarSdk.Networks.TESTNET
+      );
+
+      clock.tick(200);
+      
+      const transaction = new StellarSdk.Transaction(challenge, StellarSdk.Networks.TESTNET);
+      transaction.sign(this.clientKP1, this.clientKP2)
+      const signedChallenge = transaction
+            .toEnvelope()
+            .toXDR("base64")
+            .toString();
+
+      const threshold = 3;
+      const signerSummary = new Map();
+      signerSummary.set(this.clientKP1.publicKey(), 1);
+      signerSummary.set(this.clientKP2.publicKey(), 2);
+      signerSummary.set(this.clientKP3.publicKey(), 2);
+      signerSummary.set(preauthTxHash, 10);
+      signerSummary.set(xHash, 10);
+      signerSummary.set(unknownSignerType, 10);
+
+      expect(
+        StellarSdk.Utils.verifyChallengeTxThreshold(signedChallenge, this.serverKP.publicKey(), StellarSdk.Networks.TESTNET, threshold, signerSummary)
+      ).to.eql(
+        [this.clientKP1.publicKey(), this.clientKP2.publicKey()]
+      );
+    });
+
+    it('throws an error if multiple client keys were not enough to meet the threshold', function() {
+      const challenge = StellarSdk.Utils.buildChallengeTx(
+        this.serverKP,
+        this.clientKP1.publicKey(),
+        "SDF",
+        300,
+        StellarSdk.Networks.TESTNET
+      );
+
+      clock.tick(200);
+      
+      const transaction = new StellarSdk.Transaction(challenge, StellarSdk.Networks.TESTNET);
+      transaction.sign(this.clientKP1, this.clientKP2)
+      const signedChallenge = transaction
+            .toEnvelope()
+            .toXDR("base64")
+            .toString();
+
+      const threshold = 10;
+      const signerSummary = new Map();
+      signerSummary.set(this.clientKP1.publicKey(), 1);
+      signerSummary.set(this.clientKP2.publicKey(), 2);
+      signerSummary.set(this.clientKP3.publicKey(), 2);
+
+      expect(
+        () => StellarSdk.Utils.verifyChallengeTxThreshold(signedChallenge, this.serverKP.publicKey(), StellarSdk.Networks.TESTNET, threshold, signerSummary)
+      ).to.throw(
+        StellarSdk.InvalidSep10ChallengeError,
+        `signers with weight 3 do not meet threshold ${threshold}"`
+      );
+    });
+  });
+
   describe('Utils.verifyChallengeTxSigners', function() {
     beforeEach(function() {
       this.serverKP = StellarSdk.Keypair.random();
