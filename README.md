@@ -1,5 +1,5 @@
 <div align="center">
-<img alt="Stellar" src="https://www.stellar.org/old-content/2019/03/stellar-logo-solo-1.png" width="558" />
+<img alt="Stellar" src="https://assets-global.website-files.com/5deac75ecad2173c2ccccbc7/5dec8960504967fd31147f62_Stellar_lockup_black_RGB.svg" width="558" />
 <br/>
 <strong>Creating equitable access to the global financial system</strong>
 <h1>js-stellar-sdk</h1>
