@@ -531,6 +531,66 @@ describe('Utils', function() {
         `signers with weight 3 do not meet threshold ${threshold}"`
       );
     });
+
+    it('throws an error if an unrecognized (not from the signerSummary) key has signed the transaction', function() {
+      const challenge = StellarSdk.Utils.buildChallengeTx(
+        this.serverKP,
+        this.clientKP1.publicKey(),
+        "SDF",
+        300,
+        StellarSdk.Networks.TESTNET
+      );
+
+      clock.tick(200);
+      
+      const transaction = new StellarSdk.Transaction(challenge, StellarSdk.Networks.TESTNET);
+      transaction.sign(this.clientKP1, this.clientKP2, this.clientKP3)
+      const signedChallenge = transaction
+            .toEnvelope()
+            .toXDR("base64")
+            .toString();
+
+      const threshold = 10;
+      const signerSummary = new Map();
+      signerSummary.set(this.clientKP1.publicKey(), 1);
+      signerSummary.set(this.clientKP2.publicKey(), 2);
+
+      expect(
+        () => StellarSdk.Utils.verifyChallengeTxThreshold(signedChallenge, this.serverKP.publicKey(), StellarSdk.Networks.TESTNET, threshold, signerSummary)
+      ).to.throw(
+        StellarSdk.InvalidSep10ChallengeError,
+        /Transaction has unrecognized signatures/
+      );
+    });
+
+    it('throws an error if the signerSummary is empty', function() {
+      const challenge = StellarSdk.Utils.buildChallengeTx(
+        this.serverKP,
+        this.clientKP1.publicKey(),
+        "SDF",
+        300,
+        StellarSdk.Networks.TESTNET
+      );
+
+      clock.tick(200);
+      
+      const transaction = new StellarSdk.Transaction(challenge, StellarSdk.Networks.TESTNET);
+      transaction.sign(this.clientKP1, this.clientKP2, this.clientKP3)
+      const signedChallenge = transaction
+            .toEnvelope()
+            .toXDR("base64")
+            .toString();
+
+      const threshold = 10;
+      const signerSummary = new Map();
+
+      expect(
+        () => StellarSdk.Utils.verifyChallengeTxThreshold(signedChallenge, this.serverKP.publicKey(), StellarSdk.Networks.TESTNET, threshold, signerSummary)
+      ).to.throw(
+        StellarSdk.InvalidSep10ChallengeError,
+        /No verifiable client signers provided, at least one G... address must be provided/
+      );
+    });
   });
 
   describe('Utils.verifyChallengeTxSigners', function() {
