@@ -19,7 +19,7 @@ export namespace Utils {
    * Returns a valid [SEP0010](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0010.md)
    * challenge transaction which you can use for Stellar Web Authentication.
    *
-   * @see [SEP0010: Stellar Web Authentication](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0010.md)
+   * @see [SEP0010: Stellar Web Authentication](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0010.md).
    * @function
    * @memberof Utils
    * @param {Keypair} serverKeypair Keypair for server's signing account.
@@ -80,21 +80,21 @@ export namespace Utils {
    * readChallengeTx reads a SEP 10 challenge transaction and returns the decoded
    * transaction and client account ID contained within.
    *
-   * It also verifies that transaction is signed by the server.
+   * It also verifies that the transaction has been signed by the server.
    *
    * It does not verify that the transaction has been signed by the client or
-   * that any signatures other than the servers on the transaction are valid. Use
+   * that any signatures other than the server's on the transaction are valid. Use
    * one of the following functions to completely verify the transaction:
    * - verifyChallengeTxThreshold
    * - verifyChallengeTxSigners
    *
-   * @see [SEP0010: Stellar Web Authentication](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0010.md)
+   * @see [SEP0010: Stellar Web Authentication](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0010.md).
    * @function
    * @memberof Utils
-   * @param {string} challengeTx SEP0010 transaction challenge transaction in base64.
-   * @param {string} serverAccountID The server's stellar account.
-   * @param {string} [networkPassphrase] The network passphrase.
-   * @returns {Transaction, string} the actual submited Transaction and the stellar public key (master key)
+   * @param {string} challengeTx SEP0010 challenge transaction in base64.
+   * @param {string} serverAccountID The server's stellar account (public key).
+   * @param {string} networkPassphrase The network passphrase, e.g.: 'Test SDF Network ; September 2015'.
+   * @returns {Transaction, string} the actual submited transaction and the stellar public key (master key) used to sign the Manage Data operation.
    */
   export function readChallengeTx(
     challengeTx: string,
@@ -183,15 +183,17 @@ export namespace Utils {
    *    server account or one of the signers provided in the arguments.
    *  - The signatures are all valid but do not meet the threshold.
    *
-   * @see [SEP0010: Stellar Web Authentication](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0010.md)
+   * @see [SEP0010: Stellar Web Authentication](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0010.md).
    * @function
    * @memberof Utils
-   * @param {string} challengeTx SEP0010 transaction challenge transaction in base64.
-   * @param {string} serverAccountID The server's stellar account.
-   * @param {string} network The network passphrase.
-   * @param {number} threshold The required threshold for verifying this transaction
-   * @param {Map<string, number>} signerSummary a map of signers to their weights, used to validate if the signers' total weight can meet a given threshold
+   * @param {string} challengeTx SEP0010 challenge transaction in base64.
+   * @param {string} serverAccountID The server's stellar account (public key).
+   * @param {string} networkPassphrase The network passphrase, e.g.: 'Test SDF Network ; September 2015'.
+   * @param {number} threshold The required signatures threshold for verifying this transaction.
+   * @param {Map<string, number>} signerSummary a map of all authorized signers to their weights. It's used to validate if the transaction signatures have met the given threshold.
+   * @returns {string[]} The list of signers public keys that have signed the transaction, excluding the server account ID, given that the threshold was met.
    * @example
+   *
    * import { Networks, Transaction, Utils }  from 'stellar-sdk';
    *
    * const serverKP = Keypair.random();
@@ -225,12 +227,11 @@ export namespace Utils {
    *
    * // The result below should be equal to [clientKP1.publicKey(), clientKP2.publicKey()]
    * Utils.verifyChallengeTxThreshold(signedChallenge, serverKP.publicKey(), Networks.TESTNET, threshold, signerSummary);
-   * @returns {string[]} The list of signers that were found, given that the threshold was met
    */
   export function verifyChallengeTxThreshold(
     challengeTx: string,
     serverAccountID: string,
-    network: string,
+    networkPassphrase: string,
     threshold: number,
     signerSummary: Map<string, number>,
   ): string[] {
@@ -239,7 +240,7 @@ export namespace Utils {
     const signersFound = verifyChallengeTxSigners(
       challengeTx,
       serverAccountID,
-      network,
+      networkPassphrase,
       ...signers,
     );
     let weight = 0;
@@ -258,22 +259,32 @@ export namespace Utils {
   }
 
   /**
-   * VerifyChallengeTxSigners verifies that for a SEP 10 challenge transaction
-   * all signatures on the transaction are accounted for. A transaction is
-   * verified if it is signed by the server account, and all other signatures
-   * match a signer that has been provided as an argument. Additional signers can
-   * be provided that do not have a signature, but all signatures must be matched
-   * to a signer for verification to succeed. If verification succeeds a list of
-   * signers that were found is returned, not including the server account ID.
+   * VerifyChallengeTxSigners verifies that for a SEP 10 challenge transaction all
+   * signatures on the transaction are accounted for. A transaction is verified
+   * if it is signed by the server account, and all other signatures match a signer
+   * that has been provided as an argument (as the accountIDs list). Additional signers
+   * can be provided that do not have a signature, but all signatures must be matched
+   * to a signer (accountIDs) for verification to succeed. If verification succeeds,
+   * a list of signers that were found is returned, not including the server account ID.
    *
-   * @see [SEP0010: Stellar Web Authentication](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0010.md)
+   * Signers that are not prefixed as an address/account ID strkey (G...) will be ignored.
+   *
+   * Errors will be raised if:
+   *  - The transaction is invalid according to ReadChallengeTx.
+   *  - No client signatures are found on the transaction.
+   *  - One or more signatures in the transaction are not identifiable as the
+   *    server account or one of the signers provided in the arguments.
+   *
+   * @see [SEP0010: Stellar Web Authentication](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0010.md).
    * @function
    * @memberof Utils
-   * @param {string} challengeTx SEP0010 transaction challenge transaction in base64.
-   * @param {string} serverAccountID The server's stellar account.
-   * @param {string} network The network passphrase.
-   * @param {string[]} accountIDs The stellar account public keys that have supposedly been used to sign the transaction
+   * @param {string} challengeTx SEP0010 challenge transaction in base64.
+   * @param {string} serverAccountID The server's stellar account (public key).
+   * @param {string} networkPassphrase The network passphrase, e.g.: 'Test SDF Network ; September 2015'.
+   * @param {string[]} accountIDs The signers public keys. This list should contain the public keys for all signers that have signed the transaction.
+   * @returns {string[]} The list of signers public keys that have signed the transaction, excluding the server account ID.
    * @example
+   *
    * import { Networks, Transaction, Utils }  from 'stellar-sdk';
    *
    * const serverKP = Keypair.random();
@@ -301,16 +312,19 @@ export namespace Utils {
    *
    * // The result below should be equal to [clientKP1.publicKey(), clientKP2.publicKey()]
    * Utils.verifyChallengeTxSigners(signedChallenge, serverKP.publicKey(), Networks.TESTNET, threshold, clientKP1.publicKey(), clientKP2.publicKey());
-   * @returns {string[]} The list of signers that were found, excluding the server account ID
    */
   export function verifyChallengeTxSigners(
     challengeTx: string,
     serverAccountID: string,
-    network: string,
+    networkPassphrase: string,
     ...accountIDs: string[]
   ): string[] {
     // Read the transaction which validates its structure.
-    const { tx } = readChallengeTx(challengeTx, serverAccountID, network);
+    const { tx } = readChallengeTx(
+      challengeTx,
+      serverAccountID,
+      networkPassphrase,
+    );
 
     // Ensure the server account ID is an address and not a seed.
     const serverKP = Keypair.fromPublicKey(serverAccountID); // can throw 'Invalid Stellar public key'
@@ -404,13 +418,12 @@ export namespace Utils {
    *   4. Verifies if the transaction has been signed by the server and the client.
    *   5. Verifies that the sequenceNumber is equal to zero.
    *
-   *
-   * @see [SEP0010: Stellar Web Authentication](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0010.md)
+   * @see [SEP0010: Stellar Web Authentication](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0010.md).
    * @function
    * @memberof Utils
    * @param {string} challengeTx SEP0010 transaction challenge transaction in base64.
    * @param {string} serverAccountID The server's stellar account.
-   * @param {string} [networkPassphrase] The network passphrase.
+   * @param {string} networkPassphrase The network passphrase.
    * @example
    * import { Utils, Networks }  from 'stellar-sdk'
    *
@@ -470,12 +483,15 @@ export namespace Utils {
   }
 
   /**
-   * Verifies if a transaction was signed by the given account IDs.
+   *
+   * verifyTxMultiSignedBy checks if a transaction has been signed by one or more of
+   * the signers, returning a list of signers that were found to have signed the
+   * transaction.
    *
    * @function
    * @memberof Utils
-   * @param {Transaction} transaction
-   * @param {string[]} accountIds
+   * @param {Transaction} transaction the signed transaction.
+   * @param {string[]} accountIDs The signers public keys.
    * @example
    * let keypair1 = Keypair.random();
    * let keypair2 = Keypair.random();
@@ -487,7 +503,7 @@ export namespace Utils {
    *
    * transaction.sign(keypair1, keypair2)
    * Utils.verifyTxMultiSignedBy(transaction, [keypair1.publicKey(), keypair2.publicKey()])
-   * @returns {string[]}.
+   * @returns {string[]} a list of signers that were found to have signed the transaction.
    */
   export function verifyTxMultiSignedBy(
     transaction: Transaction,
@@ -527,8 +543,8 @@ export namespace Utils {
    *
    * @function
    * @memberof Utils
-   * @param {Transaction} transaction the transaction whose timebonds will be validated
-   * @returns {boolean} returns true if the current time is within the current [minTime, maxTime] range
+   * @param {Transaction} transaction the transaction whose timebonds will be validated.
+   * @returns {boolean} returns true if the current time is within the transaction's [minTime, maxTime] range.
    */
   function validateTimebounds(transaction: Transaction): boolean {
     if (!transaction.timeBounds) {
