@@ -2,7 +2,6 @@
 
 import forIn from "lodash/forIn";
 import { Account as BaseAccount } from "stellar-base";
-import { Omit } from "utility-types";
 import { Horizon } from "./horizon_api";
 import { ServerApi } from "./server_api";
 
@@ -17,8 +16,7 @@ import { ServerApi } from "./server_api";
  * @param {string} response Response from horizon account endpoint.
  * @returns {AccountResponse} AccountResponse instance
  */
-export class AccountResponse
-  implements Omit<ServerApi.AccountRecord, "_links"> {
+export class AccountResponse {
   public readonly id!: string;
   public readonly paging_token!: string;
   public readonly account_id!: string;
