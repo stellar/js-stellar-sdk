@@ -61,6 +61,7 @@ export namespace Horizon {
     buying_liabilities: string;
     selling_liabilities: string;
     last_modified_ledger: number;
+    is_authorized: boolean;
   }
   export type BalanceLine<
     T extends AssetType = AssetType
