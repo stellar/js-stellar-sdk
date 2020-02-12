@@ -95,7 +95,6 @@ export namespace Utils {
    * @returns {Transaction} the actual submited Transaction
    * @returns {string} The stellar clientAccountID that the wallet wishes to authenticate with the server.
    */
-
   export function readChallengeTx(
     challengeTx: string,
     serverAccountId: string,
@@ -190,7 +189,39 @@ export namespace Utils {
    * @param {number} threshold The required threshold for verifying this transaction
    * @param {Map<string, number>} signerSummary a map of signers to their weights, used to validate if the signers' total weight can meet a given threshold
    * @example
-   * // TODO
+   * import { Networks, Transaction, Utils }  from 'stellar-sdk';
+   *
+   * const serverKP = Keypair.random();
+   * const clientKP1 = Keypair.random();
+   * const clientKP2 = Keypair.random();
+   *
+   * // Challenge, possibly built in the server side
+   * const challenge = Utils.buildChallengeTx(
+   *   serverKP,
+   *   clientKP1.publicKey(),
+   *   "SDF",
+   *   300,
+   *   Networks.TESTNET
+   * );
+   *
+   * // clock.tick(200);  // Simulates a 200 ms delay when communicating from server to client
+   *
+   * // Trsansaction gathered from a challenge, possibly from the client side
+   * const transaction = new Transaction(challenge, Networks.TESTNET);
+   * transaction.sign(clientKP1, clientKP2);
+   * const signedChallenge = transaction
+   *         .toEnvelope()
+   *         .toXDR("base64")
+   *         .toString();
+   *
+   * // Defining the threshold and signerSummary
+   * const threshold = 3;
+   * const signerSummary = new Map();
+   * signerSummary.set(clientKP1.publicKey(), 1);
+   * signerSummary.set(clientKP2.publicKey(), 2);
+   *
+   * // The result below should be equal to [clientKP1.publicKey(), clientKP2.publicKey()]
+   * Utils.verifyChallengeTxThreshold(signedChallenge, serverKP.publicKey(), Networks.TESTNET, threshold, signerSummary);
    * @returns {string[]} The list of signers that were found, given that the threshold was met
    */
   export function verifyChallengeTxThreshold(
@@ -239,7 +270,33 @@ export namespace Utils {
    * @param {string} network The network passphrase.
    * @param {string[]} accountIDs The stellar account public keys that have supposedly been used to sign the transaction
    * @example
-   * // TODO
+   * import { Networks, Transaction, Utils }  from 'stellar-sdk';
+   *
+   * const serverKP = Keypair.random();
+   * const clientKP1 = Keypair.random();
+   * const clientKP2 = Keypair.random();
+   *
+   * // Challenge, possibly built in the server side
+   * const challenge = Utils.buildChallengeTx(
+   *   serverKP,
+   *   clientKP1.publicKey(),
+   *   "SDF",
+   *   300,
+   *   Networks.TESTNET
+   * );
+   *
+   * // clock.tick(200);  // Simulates a 200 ms delay when communicating from server to client
+   *
+   * // Trsansaction gathered from a challenge, possibly from the client side
+   * const transaction = new Transaction(challenge, Networks.TESTNET);
+   * transaction.sign(clientKP1, clientKP2);
+   * const signedChallenge = transaction
+   *         .toEnvelope()
+   *         .toXDR("base64")
+   *         .toString();
+   *
+   * // The result below should be equal to [clientKP1.publicKey(), clientKP2.publicKey()]
+   * Utils.verifyChallengeTxSigners(signedChallenge, serverKP.publicKey(), Networks.TESTNET, threshold, clientKP1.publicKey(), clientKP2.publicKey());
    * @returns {string[]} The list of signers that were found, excluding the server account ID
    */
   export function verifyChallengeTxSigners(
