@@ -1362,7 +1362,7 @@ describe('Utils', function() {
         () => StellarSdk.Utils.verifyChallengeTx(challenge, keypair.publicKey(), StellarSdk.Networks.TESTNET)
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
-        /The transaction should contain only one operation/
+        /The transaction should contain exactly one operation/,
       );
     });
 
@@ -1416,7 +1416,7 @@ describe('Utils', function() {
         () => StellarSdk.Utils.verifyChallengeTx(challenge, keypair.publicKey(), StellarSdk.Networks.TESTNET)
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
-        /The transaction\'s operation should be manageData/
+        /The transaction\'s operation type should be \'manageData\'/,
       );
     });
 

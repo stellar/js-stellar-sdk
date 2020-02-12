@@ -87,13 +87,14 @@ export namespace Utils {
    * one of the following functions to completely verify the transaction:
    * - verifyChallengeTxThreshold
    * - verifyChallengeTxSigners
+   *
+   * @see [SEP0010: Stellar Web Authentication](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0010.md)
    * @function
    * @memberof Utils
    * @param {string} challengeTx SEP0010 transaction challenge transaction in base64.
    * @param {string} serverAccountID The server's stellar account.
    * @param {string} [networkPassphrase] The network passphrase.
-   * @returns {Transaction} the actual submited Transaction
-   * @returns {string} The stellar clientAccountID that the wallet wishes to authenticate with the server.
+   * @returns {Transaction, string} the actual submited Transaction and the stellar public key (master key)
    */
   export function readChallengeTx(
     challengeTx: string,
@@ -181,6 +182,8 @@ export namespace Utils {
    *  - One or more signatures in the transaction are not identifiable as the
    *    server account or one of the signers provided in the arguments.
    *  - The signatures are all valid but do not meet the threshold.
+   *
+   * @see [SEP0010: Stellar Web Authentication](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0010.md)
    * @function
    * @memberof Utils
    * @param {string} challengeTx SEP0010 transaction challenge transaction in base64.
@@ -263,6 +266,7 @@ export namespace Utils {
    * to a signer for verification to succeed. If verification succeeds a list of
    * signers that were found is returned, not including the server account ID.
    *
+   * @see [SEP0010: Stellar Web Authentication](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0010.md)
    * @function
    * @memberof Utils
    * @param {string} challengeTx SEP0010 transaction challenge transaction in base64.
@@ -418,65 +422,22 @@ export namespace Utils {
     serverAccountId: string,
     networkPassphrase?: string,
   ): boolean {
-    const transaction = new Transaction(challengeTx, networkPassphrase);
+    const { tx, clientAccountID } = readChallengeTx(
+      challengeTx,
+      serverAccountId,
+      networkPassphrase,
+    );
 
-    const sequence = Number.parseInt(transaction.sequence, 10);
-
-    if (sequence !== 0) {
-      throw new InvalidSep10ChallengeError(
-        "The transaction sequence number should be zero",
-      );
-    }
-    if (transaction.source !== serverAccountId) {
-      throw new InvalidSep10ChallengeError(
-        "The transaction source account is not equal to the server's account",
-      );
-    }
-
-    if (transaction.operations.length !== 1) {
-      throw new InvalidSep10ChallengeError(
-        "The transaction should contain only one operation",
-      );
-    }
-
-    const [operation] = transaction.operations;
-
-    if (!operation.source) {
-      throw new InvalidSep10ChallengeError(
-        "The transaction's operation should contain a source account",
-      );
-    }
-
-    if (operation.type !== "manageData") {
-      throw new InvalidSep10ChallengeError(
-        "The transaction's operation should be manageData",
-      );
-    }
-
-    if (Buffer.from(operation.value.toString(), "base64").length !== 48) {
-      throw new InvalidSep10ChallengeError(
-        "The transaction's operation value should be a 64 bytes base64 random string",
-      );
-    }
-
-    // ------- ALL ABOVE ARE TESTEDm
-
-    if (!verifyTxSignedBy(transaction, serverAccountId)) {
+    if (!verifyTxSignedBy(tx, serverAccountId)) {
       throw new InvalidSep10ChallengeError(
         "The transaction is not signed by the server",
       );
     }
 
-    if (!verifyTxSignedBy(transaction, operation.source as string)) {
+    if (!verifyTxSignedBy(tx, clientAccountID)) {
       throw new InvalidSep10ChallengeError(
         "The transaction is not signed by the client",
       );
-    }
-
-    // ------- ALL BELOW ARE TESTED
-
-    if (!validateTimebounds(transaction)) {
-      throw new InvalidSep10ChallengeError("The transaction has expired");
     }
 
     return true;
@@ -561,6 +522,14 @@ export namespace Utils {
     return Array.from(signersFound.keys());
   }
 
+  /**
+   * Verifies if the current date is within the transaction's timebonds
+   *
+   * @function
+   * @memberof Utils
+   * @param {Transaction} transaction the transaction whose timebonds will be validated
+   * @returns {boolean} returns true if the current time is within the current [minTime, maxTime] range
+   */
   function validateTimebounds(transaction: Transaction): boolean {
     if (!transaction.timeBounds) {
       return false;
