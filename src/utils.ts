@@ -366,17 +366,17 @@ export namespace Utils {
       serverKP.publicKey(),
       ...Array.from(clientSigners),
     ];
-    const allSignersFound: string[] = verifyTxMultiSignedBy(tx, ...allSigners);
+
+    const signersFound: string[] = verifyTxMultiSignedBy(tx, ...allSigners);
 
     // Confirm the server is in the list of signers found and remove it.
     let serverSignerFound: boolean = false;
-    const signersFound: string[] = new Array();
-    for (const signer of allSignersFound) {
-      if (signer === serverKP.publicKey()) {
+    for (let i = 0; i < signersFound.length; i++) {
+      if (signersFound[i] === serverKP.publicKey()) {
         serverSignerFound = true;
-        continue;
+        signersFound.splice(i, 1);
+        break;
       }
-      signersFound.push(signer);
     }
 
     // Confirm we matched a signature to the server signer.
@@ -395,8 +395,8 @@ export namespace Utils {
       );
     }
 
-    // Confirm all signatures were consumed by a signer.
-    if (allSignersFound.length !== tx.signatures.length) {
+    // Confirm all signatures, including the server signature represented by the "+ 1", were consumed by a signer:
+    if (signersFound.length + 1 !== tx.signatures.length) {
       throw new InvalidSep10ChallengeError(
         "Transaction has unrecognized signatures",
       );
@@ -490,8 +490,8 @@ export namespace Utils {
   /**
    *
    * verifyTxMultiSignedBy checks if a transaction has been signed by one or more of
-   * the signers, returning a list of signers that were found to have signed the
-   * transaction.
+   * the given signers, returning a list of non-repeated signers that were found to have
+   * signed the given transaction.
    *
    * @function
    * @memberof Utils
