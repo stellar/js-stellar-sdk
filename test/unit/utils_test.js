@@ -1562,7 +1562,7 @@ describe('Utils', function() {
     });
   });
 
-  describe("Utils.verifyTxMultiSignedBy", function() {
+  describe("Utils.gatherTxSigners", function() {
     beforeEach(function() {
       this.keypair1 = StellarSdk.Keypair.random();
       this.keypair2 = StellarSdk.Keypair.random();
@@ -1587,7 +1587,7 @@ describe('Utils', function() {
         this.keypair2.publicKey(),
       ];
       expect(
-        StellarSdk.Utils.verifyTxMultiSignedBy(
+        StellarSdk.Utils.gatherTxSigners(
           this.transaction,
           this.keypair1.publicKey(),
           this.keypair2.publicKey(),
@@ -1610,7 +1610,7 @@ describe('Utils', function() {
         this.keypair2.publicKey(),
       ];
       expect(
-        StellarSdk.Utils.verifyTxMultiSignedBy(
+        StellarSdk.Utils.gatherTxSigners(
           this.transaction,
           this.keypair1.publicKey(),
           this.keypair2.publicKey(),
@@ -1628,16 +1628,16 @@ describe('Utils', function() {
       ];
 
       expect(
-        StellarSdk.Utils.verifyTxMultiSignedBy(
+        StellarSdk.Utils.gatherTxSigners(
           this.transaction,
           ...wrongSignatures,
         ),
       ).to.eql([]);
     });
 
-    it("calling verifyTxMultiSignedBy with an unsigned transaction will return an empty list", function() {
+    it("calling gatherTxSigners with an unsigned transaction will return an empty list", function() {
       expect(
-        StellarSdk.Utils.verifyTxMultiSignedBy(
+        StellarSdk.Utils.gatherTxSigners(
           this.transaction,
           this.keypair1.publicKey(),
           this.keypair2.publicKey(),

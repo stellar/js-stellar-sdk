@@ -367,7 +367,7 @@ export namespace Utils {
       ...Array.from(clientSigners),
     ];
 
-    const signersFound: string[] = verifyTxMultiSignedBy(tx, ...allSigners);
+    const signersFound: string[] = gatherTxSigners(tx, ...allSigners);
 
     // Confirm the server is in the list of signers found and remove it.
     let serverSignerFound: boolean = false;
@@ -484,12 +484,12 @@ export namespace Utils {
     transaction: Transaction,
     accountId: string,
   ): boolean {
-    return verifyTxMultiSignedBy(transaction, accountId).length !== 0;
+    return gatherTxSigners(transaction, accountId).length !== 0;
   }
 
   /**
    *
-   * verifyTxMultiSignedBy checks if a transaction has been signed by one or more of
+   * gatherTxSigners checks if a transaction has been signed by one or more of
    * the given signers, returning a list of non-repeated signers that were found to have
    * signed the given transaction.
    *
@@ -507,10 +507,10 @@ export namespace Utils {
    *    .build();
    *
    * transaction.sign(keypair1, keypair2)
-   * Utils.verifyTxMultiSignedBy(transaction, [keypair1.publicKey(), keypair2.publicKey()])
+   * Utils.gatherTxSigners(transaction, [keypair1.publicKey(), keypair2.publicKey()])
    * @returns {string[]} a list of signers that were found to have signed the transaction.
    */
-  export function verifyTxMultiSignedBy(
+  export function gatherTxSigners(
     transaction: Transaction,
     ...accountIDs: string[]
   ): string[] {
