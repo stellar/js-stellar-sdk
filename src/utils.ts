@@ -1,3 +1,4 @@
+import clone from "lodash/clone";
 import randomBytes from "randombytes";
 import {
   Account,
@@ -331,8 +332,7 @@ export namespace Utils {
 
     // Deduplicate the client signers and ensure the server is not included
     // anywhere we check or output the list of signers.
-    const clientSigners: string[] = new Array();
-    const clientSignersSeen = new Map<string, boolean>();
+    const clientSigners = new Set<string>();
     for (const signer of accountIDs) {
       // Ignore the server signer if it is in the signers list. It's
       // important when verifying signers of a challenge transaction that we
@@ -343,22 +343,16 @@ export namespace Utils {
         continue;
       }
 
-      // Deduplicate.
-      if (clientSignersSeen.get(signer) !== undefined) {
-        continue;
-      }
-
       // Ignore non-G... account/address signers.
       if (!StrKey.isValidEd25519PublicKey(signer)) {
         continue;
       }
 
-      clientSigners.push(signer);
-      clientSignersSeen.set(signer, true);
+      clientSigners.add(signer);
     }
 
     // Don't continue if none of the signers provided are in the final list.
-    if (clientSigners.length === 0) {
+    if (clientSigners.size === 0) {
       throw new InvalidSep10ChallengeError(
         "No verifiable client signers provided, at least one G... address must be provided",
       );
@@ -368,7 +362,10 @@ export namespace Utils {
     // hit. We do this in one hit here even though the server signature was
     // checked in the ReadChallengeTx to ensure that every signature and signer
     // are consumed only once on the transaction.
-    const allSigners: string[] = [serverKP.publicKey(), ...clientSigners];
+    const allSigners: string[] = [
+      serverKP.publicKey(),
+      ...Array.from(clientSigners),
+    ];
     const allSignersFound: string[] = verifyTxMultiSignedBy(tx, ...allSigners);
 
     // Confirm the server is in the list of signers found and remove it.
@@ -392,7 +389,9 @@ export namespace Utils {
     // Confirm we matched a signature to the server signer.
     if (signersFound.length === 0) {
       throw new InvalidSep10ChallengeError(
-        "Transaction not signed by client(s): '" + clientSigners.join() + "'",
+        "Transaction not signed by client(s): '" +
+          Array.from(clientSigners).join() +
+          "'",
       );
     }
 
@@ -517,31 +516,32 @@ export namespace Utils {
   ): string[] {
     const hashedSignatureBase = transaction.hash();
 
-    const usedSignatures: boolean[] = new Array(transaction.signatures.length);
-    const signersFound = new Map<string, boolean>();
+    const txSignatures = clone(transaction.signatures);
+    const signersFound = new Set<string>();
 
-    accountIDs.forEach((signer) => {
+    for (const signer of accountIDs) {
+      if (txSignatures.length === 0) {
+        break;
+      }
+
       const keypair = Keypair.fromPublicKey(signer);
 
-      for (let i = 0; i < transaction.signatures.length; i++) {
-        if (usedSignatures[i]) {
-          continue;
-        }
-
-        const decSeg = transaction.signatures[i];
+      for (let i = 0; i < txSignatures.length; i++) {
+        const decSeg = txSignatures[i];
 
         if (!decSeg.hint().equals(keypair.signatureHint())) {
           continue;
         }
 
         if (keypair.verify(hashedSignatureBase, decSeg.signature())) {
-          usedSignatures[i] = true;
-          signersFound.set(signer, true);
+          signersFound.add(signer);
+          txSignatures.splice(i, 1);
+          break;
         }
       }
-    });
+    }
 
-    return Array.from(signersFound.keys());
+    return Array.from(signersFound);
   }
 
   /**
