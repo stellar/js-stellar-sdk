@@ -429,12 +429,18 @@ export namespace Utils {
    *
    * let challenge = Utils.verifyChallengeTx("base64tx", "server-account-id", Networks.TESTNET)
    * @returns {boolean}
+   *
+   * @deprecated Use {@link Utils#verifyChallengeTxThreshold}
    */
   export function verifyChallengeTx(
     challengeTx: string,
     serverAccountId: string,
     networkPassphrase?: string,
   ): boolean {
+    console.warn(
+      "`Utils#verifyChallengeTx` is deprecated. Please use `Utils#verifyChallengeTxThreshold`.",
+    );
+
     const { tx, clientAccountID } = readChallengeTx(
       challengeTx,
       serverAccountId,
