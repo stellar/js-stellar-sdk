@@ -166,7 +166,7 @@ export namespace Utils {
   }
 
   /**
-   * VerifyChallengeTxThreshold verifies that for a SEP 10 challenge transaction
+   * verifyChallengeTxThreshold verifies that for a SEP 10 challenge transaction
    * all signatures on the transaction are accounted for and that the signatures
    * meet a threshold on an account. A transaction is verified if it is signed by
    * the server account, and all other signatures match a signer that has been
@@ -211,7 +211,7 @@ export namespace Utils {
    *
    * // clock.tick(200);  // Simulates a 200 ms delay when communicating from server to client
    *
-   * // Trsansaction gathered from a challenge, possibly from the client side
+   * // Transaction gathered from a challenge, possibly from the client side
    * const transaction = new Transaction(challenge, Networks.TESTNET);
    * transaction.sign(clientKP1, clientKP2);
    * const signedChallenge = transaction
@@ -259,7 +259,7 @@ export namespace Utils {
   }
 
   /**
-   * VerifyChallengeTxSigners verifies that for a SEP 10 challenge transaction all
+   * verifyChallengeTxSigners verifies that for a SEP 10 challenge transaction all
    * signatures on the transaction are accounted for. A transaction is verified
    * if it is signed by the server account, and all other signatures match a signer
    * that has been provided as an argument (as the accountIDs list). Additional signers
@@ -302,7 +302,7 @@ export namespace Utils {
    *
    * // clock.tick(200);  // Simulates a 200 ms delay when communicating from server to client
    *
-   * // Trsansaction gathered from a challenge, possibly from the client side
+   * // Transaction gathered from a challenge, possibly from the client side
    * const transaction = new Transaction(challenge, Networks.TESTNET);
    * transaction.sign(clientKP1, clientKP2);
    * const signedChallenge = transaction

@@ -100,7 +100,7 @@ describe('Utils', function() {
       });
     });
 
-    it("throws an error if transaction sequenceNumber if different to zero", function() {
+    it("throws an error if transaction sequenceNumber is different to zero", function() {
       let keypair = StellarSdk.Keypair.random();
 
       const account = new StellarSdk.Account(keypair.publicKey(), "100");
@@ -1303,7 +1303,7 @@ describe('Utils', function() {
       expect(StellarSdk.Utils.verifyChallengeTx(signedChallenge, keypair.publicKey(), StellarSdk.Networks.TESTNET)).to.eql(true);
     });
 
-    it('throws an error if transaction sequenceNumber if different to zero', function() {
+    it('throws an error if transaction sequenceNumber is different to zero', function() {
       let keypair = StellarSdk.Keypair.random();
 
       const account = new StellarSdk.Account(keypair.publicKey(), "100");
