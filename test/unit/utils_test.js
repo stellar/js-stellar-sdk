@@ -769,7 +769,7 @@ describe('Utils', function() {
           signedChallenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
-          this.clientKP1.publicKey(),
+          [this.clientKP1.publicKey()],
         ),
       ).to.eql([this.clientKP1.publicKey()]);
     });
@@ -795,7 +795,7 @@ describe('Utils', function() {
           invalidsServerSignedChallenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
-          this.clientKP1.publicKey(),
+          [this.clientKP1.publicKey()],
         ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
@@ -819,6 +819,7 @@ describe('Utils', function() {
           challenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
+          [],
         ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
@@ -849,7 +850,7 @@ describe('Utils', function() {
           challenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
-          this.clientKP1.publicKey(),
+          [this.clientKP1.publicKey()],
         ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
@@ -890,7 +891,7 @@ describe('Utils', function() {
           signedChallenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
-          ...clientSignersPubKey,
+          clientSignersPubKey,
         ),
       ).to.eql(clientSignersPubKey);
     });
@@ -926,7 +927,7 @@ describe('Utils', function() {
           signedChallenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
-          ...clientSignersPubKey,
+          clientSignersPubKey,
         ),
       ).to.have.same.members(clientSignersPubKey.reverse());
     });
@@ -958,7 +959,7 @@ describe('Utils', function() {
           signedChallenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
-          this.clientKP2.publicKey(),
+          [this.clientKP2.publicKey()],
         ),
       ).to.eql([this.clientKP2.publicKey()]);
     });
@@ -990,8 +991,7 @@ describe('Utils', function() {
           signedChallenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
-          this.clientKP2.publicKey(),
-          this.serverKP.publicKey(),
+          [this.clientKP2.publicKey(), this.serverKP.publicKey()],
         ),
       ).to.eql([this.clientKP2.publicKey()]);
     });
@@ -1023,8 +1023,7 @@ describe('Utils', function() {
           signedChallenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
-          this.clientKP2.publicKey(),
-          this.serverKP.publicKey(),
+          [this.clientKP2.publicKey(), this.serverKP.publicKey()],
         ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
@@ -1061,8 +1060,7 @@ describe('Utils', function() {
           signedChallenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
-          this.clientKP2.publicKey(),
-          this.clientKP2.publicKey(),
+          [this.clientKP2.publicKey(), this.clientKP2.publicKey()],
         ),
       ).to.eql([this.clientKP2.publicKey()]);
     });
@@ -1098,10 +1096,7 @@ describe('Utils', function() {
           signedChallenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
-          this.clientKP2.publicKey(),
-          preauthTxHash,
-          xHash,
-          unknownSignerType,
+          [this.clientKP2.publicKey(), preauthTxHash, xHash, unknownSignerType],
         ),
       ).to.eql([this.clientKP2.publicKey()]);
     });
@@ -1128,8 +1123,7 @@ describe('Utils', function() {
           challenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
-          this.clientKP2.publicKey(),
-          this.clientKP2.publicKey(),
+          [this.clientKP2.publicKey(), this.clientKP2.publicKey()],
         ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
@@ -1166,7 +1160,7 @@ describe('Utils', function() {
           signedChallenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
-          this.clientKP2.publicKey(),
+          [this.clientKP2.publicKey()],
         ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
@@ -1201,7 +1195,7 @@ describe('Utils', function() {
           signedChallenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
-          this.clientKP2.secret(),
+          [this.clientKP2.secret()],
         ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
@@ -1234,7 +1228,7 @@ describe('Utils', function() {
           challenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
-          ...clientSigners,
+          clientSigners,
         ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
@@ -1269,6 +1263,7 @@ describe('Utils', function() {
           signedChallenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
+          [],
         ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
@@ -1587,11 +1582,10 @@ describe('Utils', function() {
         this.keypair2.publicKey(),
       ];
       expect(
-        StellarSdk.Utils.gatherTxSigners(
-          this.transaction,
+        StellarSdk.Utils.gatherTxSigners(this.transaction, [
           this.keypair1.publicKey(),
           this.keypair2.publicKey(),
-        ),
+        ]),
       ).to.eql(expectedSignatures);
     });
 
@@ -1610,11 +1604,10 @@ describe('Utils', function() {
         this.keypair2.publicKey(),
       ];
       expect(
-        StellarSdk.Utils.gatherTxSigners(
-          this.transaction,
+        StellarSdk.Utils.gatherTxSigners(this.transaction, [
           this.keypair1.publicKey(),
           this.keypair2.publicKey(),
-        ),
+        ]),
       ).to.eql(expectedSignatures);
     });
 
@@ -1628,20 +1621,16 @@ describe('Utils', function() {
       ];
 
       expect(
-        StellarSdk.Utils.gatherTxSigners(
-          this.transaction,
-          ...wrongSignatures,
-        ),
+        StellarSdk.Utils.gatherTxSigners(this.transaction, wrongSignatures),
       ).to.eql([]);
     });
 
     it("calling gatherTxSigners with an unsigned transaction will return an empty list", function() {
       expect(
-        StellarSdk.Utils.gatherTxSigners(
-          this.transaction,
+        StellarSdk.Utils.gatherTxSigners(this.transaction, [
           this.keypair1.publicKey(),
           this.keypair2.publicKey(),
-        ),
+        ]),
       ).to.eql([]);
     });
   });

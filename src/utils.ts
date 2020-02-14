@@ -242,7 +242,7 @@ export namespace Utils {
       challengeTx,
       serverAccountID,
       networkPassphrase,
-      ...signers,
+      signers,
     );
     let weight = 0;
 
@@ -318,7 +318,7 @@ export namespace Utils {
     challengeTx: string,
     serverAccountID: string,
     networkPassphrase: string,
-    ...accountIDs: string[]
+    accountIDs: string[],
   ): string[] {
     // Read the transaction which validates its structure.
     const { tx } = readChallengeTx(
@@ -367,7 +367,7 @@ export namespace Utils {
       ...Array.from(clientSigners),
     ];
 
-    const signersFound: string[] = gatherTxSigners(tx, ...allSigners);
+    const signersFound: string[] = gatherTxSigners(tx, allSigners);
 
     // Confirm we matched a signature to the server signer.
     if (!signersFound.includes(serverKP.publicKey())) {
@@ -475,9 +475,9 @@ export namespace Utils {
    */
   export function verifyTxSignedBy(
     transaction: Transaction,
-    accountId: string,
+    accountID: string,
   ): boolean {
-    return gatherTxSigners(transaction, accountId).length !== 0;
+    return gatherTxSigners(transaction, [accountID]).length !== 0;
   }
 
   /**
@@ -505,7 +505,7 @@ export namespace Utils {
    */
   export function gatherTxSigners(
     transaction: Transaction,
-    ...accountIDs: string[]
+    accountIDs: string[],
   ): string[] {
     const hashedSignatureBase = transaction.hash();
 
