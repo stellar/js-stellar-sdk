@@ -328,7 +328,15 @@ export namespace Utils {
     );
 
     // Ensure the server account ID is an address and not a seed.
-    const serverKP = Keypair.fromPublicKey(serverAccountID); // can throw 'Invalid Stellar public key'
+    let serverKP: Keypair;
+    try {
+      serverKP = Keypair.fromPublicKey(serverAccountID); // can throw 'Invalid Stellar public key'
+    } catch (err) {
+      throw new Error(
+        "Couldn't infer keypair from the provided 'serverAccountID': " +
+          err.message,
+      );
+    }
 
     // Deduplicate the client signers and ensure the server is not included
     // anywhere we check or output the list of signers.
