@@ -369,25 +369,15 @@ export namespace Utils {
 
     const signersFound: string[] = gatherTxSigners(tx, ...allSigners);
 
-    // Confirm the server is in the list of signers found and remove it.
-    let serverSignerFound: boolean = false;
-    for (let i = 0; i < signersFound.length; i++) {
-      if (signersFound[i] === serverKP.publicKey()) {
-        serverSignerFound = true;
-        signersFound.splice(i, 1);
-        break;
-      }
-    }
-
     // Confirm we matched a signature to the server signer.
-    if (!serverSignerFound) {
+    if (!signersFound.includes(serverKP.publicKey())) {
       throw new InvalidSep10ChallengeError(
         "Transaction not signed by server: '" + serverKP.publicKey() + "'",
       );
     }
 
     // Confirm we matched a signature to the server signer.
-    if (signersFound.length === 0) {
+    if (signersFound.length === 1) {
       throw new InvalidSep10ChallengeError(
         "Transaction not signed by client(s): '" +
           Array.from(clientSigners).join() +
@@ -395,12 +385,15 @@ export namespace Utils {
       );
     }
 
-    // Confirm all signatures, including the server signature represented by the "+ 1", were consumed by a signer:
-    if (signersFound.length + 1 !== tx.signatures.length) {
+    // Confirm all signatures, including the server signature, were consumed by a signer:
+    if (signersFound.length !== tx.signatures.length) {
       throw new InvalidSep10ChallengeError(
         "Transaction has unrecognized signatures",
       );
     }
+
+    // Remove the server public key before returning
+    signersFound.splice(signersFound.indexOf(serverKP.publicKey()), 1);
 
     return signersFound;
   }
