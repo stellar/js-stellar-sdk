@@ -384,12 +384,10 @@ export namespace Utils {
       );
     }
 
-    // Confirm we matched a signature to the server signer.
+    // Confirm we matched at least one given signer with the transaction signatures
     if (signersFound.length === 1) {
       throw new InvalidSep10ChallengeError(
-        "Transaction not signed by client(s): '" +
-          Array.from(clientSigners).join() +
-          "'",
+        "None of the given signers match the transaction signatures",
       );
     }
 

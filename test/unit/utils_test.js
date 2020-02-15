@@ -894,9 +894,7 @@ describe('Utils', function() {
         ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
-        "Transaction not signed by client(s): '" +
-          this.clientKP1.publicKey() +
-          "'",
+        /None of the given signers match the transaction signatures/,
       );
     });
 
@@ -1067,9 +1065,7 @@ describe('Utils', function() {
         ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
-        "Transaction not signed by client(s): '" +
-          this.clientKP2.publicKey() +
-          "'",
+        /None of the given signers match the transaction signatures/,
       );
     });
 
@@ -1141,7 +1137,7 @@ describe('Utils', function() {
       ).to.eql([this.clientKP2.publicKey()]);
     });
 
-    it("throws an error if the signers (duplicated) provided have not signed the actual transaction", function() {
+    it("throws an error if duplicated signers have been provided and they haven't actually signed the transaction", function() {
       const challenge = StellarSdk.Utils.buildChallengeTx(
         this.serverKP,
         this.clientKP1.publicKey(),
@@ -1167,9 +1163,7 @@ describe('Utils', function() {
         ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
-        "Transaction not signed by client(s): '" +
-          this.clientKP2.publicKey() +
-          "'",
+        /None of the given signers match the transaction signatures/,
       );
     });
 
@@ -1272,7 +1266,7 @@ describe('Utils', function() {
         ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
-        "Transaction not signed by client(s): '" + clientSigners.join() + "'",
+        /None of the given signers match the transaction signatures/,
       );
     });
 
