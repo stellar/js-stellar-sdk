@@ -244,8 +244,8 @@ export namespace Utils {
       networkPassphrase,
       signers,
     );
-    let weight = 0;
 
+    let weight = 0;
     for (const signer of signersFound) {
       weight += signerSummary.get(signer) || 0;
     }
@@ -282,7 +282,7 @@ export namespace Utils {
    * @param {string} challengeTx SEP0010 challenge transaction in base64.
    * @param {string} serverAccountID The server's stellar account (public key).
    * @param {string} networkPassphrase The network passphrase, e.g.: 'Test SDF Network ; September 2015'.
-   * @param {string[]} accountIDs The signers public keys. This list should contain the public keys for all signers that have signed the transaction.
+   * @param {string[]} signers The signers public keys. This list should contain the public keys for all signers that have signed the transaction.
    * @returns {string[]} The list of signers public keys that have signed the transaction, excluding the server account ID.
    * @example
    *
@@ -312,13 +312,13 @@ export namespace Utils {
    *         .toString();
    *
    * // The result below should be equal to [clientKP1.publicKey(), clientKP2.publicKey()]
-   * Utils.verifyChallengeTxSigners(signedChallenge, serverKP.publicKey(), Networks.TESTNET, threshold, clientKP1.publicKey(), clientKP2.publicKey());
+   * Utils.verifyChallengeTxSigners(signedChallenge, serverKP.publicKey(), Networks.TESTNET, threshold, [clientKP1.publicKey(), clientKP2.publicKey()]);
    */
   export function verifyChallengeTxSigners(
     challengeTx: string,
     serverAccountID: string,
     networkPassphrase: string,
-    accountIDs: string[],
+    signers: string[],
   ): string[] {
     // Read the transaction which validates its structure.
     const { tx } = readChallengeTx(
@@ -341,7 +341,7 @@ export namespace Utils {
     // Deduplicate the client signers and ensure the server is not included
     // anywhere we check or output the list of signers.
     const clientSigners = new Set<string>();
-    for (const signer of accountIDs) {
+    for (const signer of signers) {
       // Ignore the server signer if it is in the signers list. It's
       // important when verifying signers of a challenge transaction that we
       // only verify and return client signers. If an account has the server
@@ -497,7 +497,7 @@ export namespace Utils {
    * @function
    * @memberof Utils
    * @param {Transaction} transaction the signed transaction.
-   * @param {string[]} accountIDs The signers public keys.
+   * @param {string[]} signers The signers public keys.
    * @example
    * let keypair1 = Keypair.random();
    * let keypair2 = Keypair.random();
@@ -513,14 +513,14 @@ export namespace Utils {
    */
   export function gatherTxSigners(
     transaction: Transaction,
-    accountIDs: string[],
+    signers: string[],
   ): string[] {
     const hashedSignatureBase = transaction.hash();
 
     const txSignatures = clone(transaction.signatures);
     const signersFound = new Set<string>();
 
-    for (const signer of accountIDs) {
+    for (const signer of signers) {
       if (txSignatures.length === 0) {
         break;
       }
@@ -528,13 +528,13 @@ export namespace Utils {
       const keypair = Keypair.fromPublicKey(signer);
 
       for (let i = 0; i < txSignatures.length; i++) {
-        const decSeg = txSignatures[i];
+        const decSig = txSignatures[i];
 
-        if (!decSeg.hint().equals(keypair.signatureHint())) {
+        if (!decSig.hint().equals(keypair.signatureHint())) {
           continue;
         }
 
-        if (keypair.verify(hashedSignatureBase, decSeg.signature())) {
+        if (keypair.verify(hashedSignatureBase, decSig.signature())) {
           signersFound.add(signer);
           txSignatures.splice(i, 1);
           break;

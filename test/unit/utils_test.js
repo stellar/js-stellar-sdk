@@ -153,13 +153,53 @@ describe('Utils', function() {
       );
     });
 
-    it("throws an error if transaction doestn't contain exactly one operation", function() {
+    it("throws an error if transaction doestn't contain any operation", function() {
       let keypair = StellarSdk.Keypair.random();
       const account = new StellarSdk.Account(keypair.publicKey(), "-1");
       const transaction = new StellarSdk.TransactionBuilder(
         account,
         txBuilderOpts,
       )
+        .setTimeout(30)
+        .build();
+
+      transaction.sign(keypair);
+      const challenge = transaction
+        .toEnvelope()
+        .toXDR("base64")
+        .toString();
+
+      expect(() =>
+        StellarSdk.Utils.readChallengeTx(
+          challenge,
+          keypair.publicKey(),
+          StellarSdk.Networks.TESTNET,
+        ),
+      ).to.throw(
+        StellarSdk.InvalidSep10ChallengeError,
+        /The transaction should contain exactly one operation/,
+      );
+    });
+
+    it("throws an error if transaction contains more than one operation", function() {
+      let keypair = StellarSdk.Keypair.random();
+      const account = new StellarSdk.Account(keypair.publicKey(), "-1");
+      const transaction = new StellarSdk.TransactionBuilder(
+        account,
+        txBuilderOpts,
+      )
+        .addOperation(
+          StellarSdk.Operation.manageData({
+            name: "SDF auth",
+            value: randomBytes(48).toString("base64"),
+          }),
+        )
+        .addOperation(
+          StellarSdk.Operation.manageData({
+            name: "SDF auth",
+            value: randomBytes(48).toString("base64"),
+          }),
+        )
         .setTimeout(30)
         .build();
 
@@ -803,7 +843,7 @@ describe('Utils', function() {
       );
     });
 
-    it("throws an error if there are no clients signing the Tx", function() {
+    it("throws an error if the list of signers is empty", function() {
       const challenge = StellarSdk.Utils.buildChallengeTx(
         this.serverKP,
         this.clientKP1.publicKey(),
@@ -929,7 +969,7 @@ describe('Utils', function() {
           StellarSdk.Networks.TESTNET,
           clientSignersPubKey,
         ),
-      ).to.have.same.members(clientSignersPubKey.reverse());
+      ).to.have.same.members(clientSignersPubKey);
     });
 
     it("successfully validates server and non-masterkey client signer", function() {
@@ -964,7 +1004,7 @@ describe('Utils', function() {
       ).to.eql([this.clientKP2.publicKey()]);
     });
 
-    it("successfully validates server and non-masterkey client signer, ignoring extra server signature", function() {
+    it("successfully validates server and non-master key client signer, ignoring extra signer", function() {
       const challenge = StellarSdk.Utils.buildChallengeTx(
         this.serverKP,
         this.clientKP1.publicKey(),
@@ -991,7 +1031,7 @@ describe('Utils', function() {
           signedChallenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
-          [this.clientKP2.publicKey(), this.serverKP.publicKey()],
+          [this.clientKP2.publicKey(), StellarSdk.Keypair.random().publicKey()],
         ),
       ).to.eql([this.clientKP2.publicKey()]);
     });
