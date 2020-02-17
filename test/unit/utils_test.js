@@ -1676,5 +1676,27 @@ describe('Utils', function() {
         ]),
       ).to.eql([]);
     });
+
+    it("Raises an error in case one of the given signers is not a valid G signer", function() {
+      this.transaction.sign(this.keypair1, this.keypair2);
+      const preauthTxHash = "TAQCSRX2RIDJNHFIFHWD63X7D7D6TRT5Y2S6E3TEMXTG5W3OECHZ2OG4";
+      expect(
+        () => StellarSdk.Utils.gatherTxSigners(this.transaction, [preauthTxHash, this.keypair1.publicKey()]),
+      ).to.throw(
+        StellarSdk.InvalidSep10ChallengeError,
+        /Signer is not a valid address/
+      );
+    });
+
+    it("Raises an error in case one of the given signers is an invalid G signer", function() {
+      this.transaction.sign(this.keypair1, this.keypair2);
+      const invalidGHash = "GBDIT5GUJ7R5BXO3GJHFXJ6AZ5UQK6MNOIDMPQUSMXLIHTUNR2Q5CAAA";
+      expect(
+        () => StellarSdk.Utils.gatherTxSigners(this.transaction, [invalidGHash, this.keypair1.publicKey()]),
+      ).to.throw(
+        StellarSdk.InvalidSep10ChallengeError,
+        /Signer is not a valid address/
+      );
+    });
   });
 });

@@ -362,7 +362,7 @@ export namespace Utils {
       }
 
       // Ignore non-G... account/address signers.
-      if (!StrKey.isValidEd25519PublicKey(signer)) {
+      if (signer.charAt(0) !== "G") {
         continue;
       }
 
@@ -533,7 +533,12 @@ export namespace Utils {
         break;
       }
 
-      const keypair = Keypair.fromPublicKey(signer);
+      // Raise an error on invalid G signers:
+      if (!StrKey.isValidEd25519PublicKey(signer)) {
+        throw new InvalidSep10ChallengeError("Signer is not a valid address");
+      }
+
+      const keypair = Keypair.fromPublicKey(signer); // This can throw new Error('Invalid Stellar public key');
 
       for (let i = 0; i < txSignatures.length; i++) {
         const decSig = txSignatures[i];
