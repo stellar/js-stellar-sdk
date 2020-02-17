@@ -915,9 +915,7 @@ describe('Utils', function() {
       );
       const clientSigners = [this.clientKP1, this.clientKP2];
       transaction.sign(...clientSigners);
-      const clientSignersPubKey = clientSigners.map((kp) => {
-        return kp.publicKey();
-      });
+      const clientSignersPubKey = clientSigners.map(kp => kp.publicKey());
 
       const signedChallenge = transaction
         .toEnvelope()
@@ -951,9 +949,7 @@ describe('Utils', function() {
       );
       const clientSigners = [this.clientKP1, this.clientKP2];
       transaction.sign(...clientSigners.reverse());
-      const clientSignersPubKey = clientSigners.map((kp) => {
-        return kp.publicKey();
-      });
+      const clientSignersPubKey = clientSigners.map(kp => kp.publicKey());
 
       const signedChallenge = transaction
         .toEnvelope()
