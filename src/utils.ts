@@ -11,6 +11,7 @@ import {
   TransactionBuilder,
 } from "stellar-base";
 import { InvalidSep10ChallengeError } from "./errors";
+import { ServerApi } from "./server_api";
 
 /**
  * @namespace Utils
@@ -191,7 +192,7 @@ export namespace Utils {
    * @param {string} serverAccountID The server's stellar account (public key).
    * @param {string} networkPassphrase The network passphrase, e.g.: 'Test SDF Network ; September 2015'.
    * @param {number} threshold The required signatures threshold for verifying this transaction.
-   * @param {Map<string, number>} signerSummary a map of all authorized signers to their weights. It's used to validate if the transaction signatures have met the given threshold.
+   * @param {ServerApi.AccountRecordSigners[]} signerSummary a map of all authorized signers to their weights. It's used to validate if the transaction signatures have met the given threshold.
    * @returns {string[]} The list of signers public keys that have signed the transaction, excluding the server account ID, given that the threshold was met.
    * @example
    *
@@ -222,9 +223,16 @@ export namespace Utils {
    *
    * // Defining the threshold and signerSummary
    * const threshold = 3;
-   * const signerSummary = new Map();
-   * signerSummary.set(clientKP1.publicKey(), 1);
-   * signerSummary.set(clientKP2.publicKey(), 2);
+   * const signerSummary = [
+   *    {
+   *      key: this.clientKP1.publicKey(),
+   *      weight: 1,
+   *    },
+   *    {
+   *      key: this.clientKP2.publicKey(),
+   *      weight: 2,
+   *    },
+   *  ];
    *
    * // The result below should be equal to [clientKP1.publicKey(), clientKP2.publicKey()]
    * Utils.verifyChallengeTxThreshold(signedChallenge, serverKP.publicKey(), Networks.TESTNET, threshold, signerSummary);
@@ -234,9 +242,9 @@ export namespace Utils {
     serverAccountID: string,
     networkPassphrase: string,
     threshold: number,
-    signerSummary: Map<string, number>,
+    signerSummary: ServerApi.AccountRecordSigners[],
   ): string[] {
-    const signers = Array.from(signerSummary.keys());
+    const signers = signerSummary.map((signer) => signer.key);
 
     const signersFound = verifyChallengeTxSigners(
       challengeTx,
@@ -247,7 +255,9 @@ export namespace Utils {
 
     let weight = 0;
     for (const signer of signersFound) {
-      weight += signerSummary.get(signer) || 0;
+      const sigWeight =
+        signerSummary.find((s) => s.key === signer)?.weight || 0;
+      weight += sigWeight;
     }
 
     if (weight < threshold) {

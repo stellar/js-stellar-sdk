@@ -1,5 +1,9 @@
 const randomBytes = require("randombytes");
 
+function newClientSigner(key, weight) {
+  return { key, weight }
+}
+
 describe('Utils', function() {
   let clock, txBuilderOpts;
 
@@ -457,8 +461,9 @@ describe('Utils', function() {
         .build();
 
       const threshold = 1;
-      const signerSummary = new Map();
-      signerSummary.set(this.clientKP1.publicKey(), 1);
+      const signerSummary = [
+        newClientSigner(this.clientKP1.publicKey(), 1)
+      ];
 
       transaction.sign(this.clientKP1);
 
@@ -503,8 +508,9 @@ describe('Utils', function() {
         .toString();
 
       const threshold = 1;
-      const signerSummary = new Map();
-      signerSummary.set(this.clientKP1.publicKey(), 1);
+      const signerSummary = [
+        newClientSigner(this.clientKP1.publicKey(), 1)
+      ];
 
       expect(
         StellarSdk.Utils.verifyChallengeTxThreshold(
@@ -539,9 +545,10 @@ describe('Utils', function() {
         .toString();
 
       const threshold = 3;
-      const signerSummary = new Map();
-      signerSummary.set(this.clientKP1.publicKey(), 1);
-      signerSummary.set(this.clientKP2.publicKey(), 2);
+      const signerSummary = [
+        newClientSigner(this.clientKP1.publicKey(), 1),
+        newClientSigner(this.clientKP2.publicKey(), 2)
+      ];
 
       expect(
         StellarSdk.Utils.verifyChallengeTxThreshold(
@@ -576,10 +583,11 @@ describe('Utils', function() {
         .toString();
 
       const threshold = 3;
-      const signerSummary = new Map();
-      signerSummary.set(this.clientKP1.publicKey(), 1);
-      signerSummary.set(this.clientKP2.publicKey(), 2);
-      signerSummary.set(this.clientKP3.publicKey(), 2);
+      const signerSummary = [
+        newClientSigner(this.clientKP1.publicKey(), 1),
+        newClientSigner(this.clientKP2.publicKey(), 2),
+        newClientSigner(this.clientKP3.publicKey(), 2)
+      ];
 
       expect(
         StellarSdk.Utils.verifyChallengeTxThreshold(
@@ -618,13 +626,14 @@ describe('Utils', function() {
         .toString();
 
       const threshold = 3;
-      const signerSummary = new Map();
-      signerSummary.set(this.clientKP1.publicKey(), 1);
-      signerSummary.set(this.clientKP2.publicKey(), 2);
-      signerSummary.set(this.clientKP3.publicKey(), 2);
-      signerSummary.set(preauthTxHash, 10);
-      signerSummary.set(xHash, 10);
-      signerSummary.set(unknownSignerType, 10);
+      const signerSummary = [
+        newClientSigner(this.clientKP1.publicKey(), 1),
+        newClientSigner(this.clientKP2.publicKey(), 2),
+        newClientSigner(this.clientKP3.publicKey(), 2),
+        newClientSigner(preauthTxHash, 10),
+        newClientSigner(xHash, 10),
+        newClientSigner(unknownSignerType, 10),
+      ];
 
       expect(
         StellarSdk.Utils.verifyChallengeTxThreshold(
@@ -659,10 +668,11 @@ describe('Utils', function() {
         .toString();
 
       const threshold = 10;
-      const signerSummary = new Map();
-      signerSummary.set(this.clientKP1.publicKey(), 1);
-      signerSummary.set(this.clientKP2.publicKey(), 2);
-      signerSummary.set(this.clientKP3.publicKey(), 2);
+      const signerSummary = [
+        newClientSigner(this.clientKP1.publicKey(), 1),
+        newClientSigner(this.clientKP2.publicKey(), 2),
+        newClientSigner(this.clientKP3.publicKey(), 2),
+      ];
 
       expect(() =>
         StellarSdk.Utils.verifyChallengeTxThreshold(
@@ -700,9 +710,10 @@ describe('Utils', function() {
         .toString();
 
       const threshold = 10;
-      const signerSummary = new Map();
-      signerSummary.set(this.clientKP1.publicKey(), 1);
-      signerSummary.set(this.clientKP2.publicKey(), 2);
+      const signerSummary = [
+        newClientSigner(this.clientKP1.publicKey(), 1),
+        newClientSigner(this.clientKP2.publicKey(), 2),
+      ];
 
       expect(() =>
         StellarSdk.Utils.verifyChallengeTxThreshold(
@@ -740,7 +751,6 @@ describe('Utils', function() {
         .toString();
 
       const threshold = 10;
-      const signerSummary = new Map();
 
       expect(() =>
         StellarSdk.Utils.verifyChallengeTxThreshold(
@@ -748,7 +758,7 @@ describe('Utils', function() {
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
           threshold,
-          signerSummary,
+          [],
         ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
