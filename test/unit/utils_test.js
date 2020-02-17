@@ -323,7 +323,6 @@ describe('Utils', function() {
         .build();
 
       transaction.sign(serverKeypair);
-
       const challenge = transaction
         .toEnvelope()
         .toXDR("base64")
@@ -877,7 +876,7 @@ describe('Utils', function() {
       );
     });
 
-    it("throws an error if the challenge was signed by an unrecognized client", function() {
+    it("throws an error if none of the given signers have signed the transaction", function() {
       const challenge = StellarSdk.Utils.buildChallengeTx(
         this.serverKP,
         this.clientKP1.publicKey(),
@@ -892,12 +891,15 @@ describe('Utils', function() {
         challenge,
         StellarSdk.Networks.TESTNET,
       );
-      const unrecognizedKP = StellarSdk.Keypair.random();
-      transaction.sign(unrecognizedKP);
+      transaction.sign(StellarSdk.Keypair.random(), StellarSdk.Keypair.random());
+      const signedChallenge = transaction
+        .toEnvelope()
+        .toXDR("base64")
+        .toString();
 
       expect(() =>
         StellarSdk.Utils.verifyChallengeTxSigners(
-          challenge,
+          signedChallenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
           [this.clientKP1.publicKey()],
@@ -1159,10 +1161,14 @@ describe('Utils', function() {
         StellarSdk.Networks.TESTNET,
       );
       transaction.sign(this.clientKP1);
+      const signedChallenge = transaction
+        .toEnvelope()
+        .toXDR("base64")
+        .toString();
 
       expect(() =>
         StellarSdk.Utils.verifyChallengeTxSigners(
-          challenge,
+          signedChallenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
           [this.clientKP2.publicKey(), this.clientKP2.publicKey()],
@@ -1622,10 +1628,7 @@ describe('Utils', function() {
         this.keypair2.publicKey(),
       ];
       expect(
-        StellarSdk.Utils.gatherTxSigners(this.transaction, [
-          this.keypair1.publicKey(),
-          this.keypair2.publicKey(),
-        ]),
+        StellarSdk.Utils.gatherTxSigners(this.transaction, expectedSignatures),
       ).to.eql(expectedSignatures);
     });
 
