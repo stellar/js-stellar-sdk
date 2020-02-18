@@ -5,7 +5,6 @@ import {
   BASE_FEE,
   Keypair,
   Operation,
-  StrKey,
   TimeoutInfinite,
   Transaction,
   TransactionBuilder,
@@ -533,12 +532,14 @@ export namespace Utils {
         break;
       }
 
-      // Raise an error on invalid G signers:
-      if (!StrKey.isValidEd25519PublicKey(signer)) {
-        throw new InvalidSep10ChallengeError("Signer is not a valid address");
+      let keypair: Keypair;
+      try {
+        keypair = Keypair.fromPublicKey(signer); // This can throw a few different errors
+      } catch (err) {
+        throw new InvalidSep10ChallengeError(
+          "Signer is not a valid address: " + err.message,
+        );
       }
-
-      const keypair = Keypair.fromPublicKey(signer); // This can throw new Error('Invalid Stellar public key');
 
       for (let i = 0; i < txSignatures.length; i++) {
         const decSig = txSignatures[i];
