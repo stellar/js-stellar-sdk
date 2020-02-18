@@ -4,6 +4,18 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+## [v4.0.1](https://github.com/stellar/js-stellar-sdk/compare/v4.0.0...v4.0.1)
+
+### Add
+- Add `.offer` method to `OfferCallBuilder` which allows fetching a single offer by ID. ([#499](https://github.com/stellar/js-stellar-sdk/issues/499))
+
+### Fix
+- Fix broken link to Stellar logo+wordmark. ([#496](https://github.com/stellar/js-stellar-sdk/issues/496))
+- Fix `_link` omition for AccountResponse class. ([#495](https://github.com/stellar/js-stellar-sdk/issues/495))
+
+### Update
+- Update challenge transaction helpers for SEP0010. ([#497](https://github.com/stellar/js-stellar-sdk/issues/497))
+
 ## [v4.0.0](https://github.com/stellar/js-stellar-sdk/compare/v3.3.0...v4.0.0)
 
 ### Added
