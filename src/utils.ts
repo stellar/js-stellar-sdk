@@ -387,7 +387,7 @@ export namespace Utils {
     const signersFound: string[] = gatherTxSigners(tx, allSigners);
 
     // Confirm we matched a signature to the server signer.
-    if (!signersFound.includes(serverKP.publicKey())) {
+    if (signersFound.indexOf(serverKP.publicKey()) === -1) {
       throw new InvalidSep10ChallengeError(
         "Transaction not signed by server: '" + serverKP.publicKey() + "'",
       );
