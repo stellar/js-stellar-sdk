@@ -1232,6 +1232,62 @@ describe('server.js non-transaction tests', function() {
           });
       });
 
+      it('single offer requests the correct endpoint', function(done) {
+        const offerResponse = {
+          "_links": {
+            "self": {
+              "href": "https://horizon.stellar.org/offers/12345"
+            },
+            "offer_maker": {
+              "href": "https://horizon.stellar.org/accounts/GCK4WSNF3F6ZNCMK6BU77ZCZ3NMF3JGU2U3ZAPKXYBKYYCJA72FDBY7K"
+            }
+          },
+          "id": 12345,
+          "paging_token": "12345",
+          "seller": "GCK4WSNF3F6ZNCMK6BU77ZCZ3NMF3JGU2U3ZAPKXYBKYYCJA72FDBY7K",
+          "selling": {
+            "asset_type": "credit_alphanum4",
+            "asset_code": "NGNT",
+            "asset_issuer": "GAWODAROMJ33V5YDFY3NPYTHVYQG7MJXVJ2ND3AOGIHYRWINES6ACCPD"
+          },
+          "buying": {
+            "asset_type": "native"
+          },
+          "amount": "21611.9486669",
+          "price_r": {
+            "n": 52836797,
+            "d": 1396841783
+          },
+          "price": "0.0378259",
+          "last_modified_ledger": 28285404,
+          "last_modified_time": "2020-02-18T17:00:56Z"
+        };
+  
+        this.axiosMock
+          .expects('get')
+          .withArgs(
+            sinon.match(
+              'https://horizon-live.stellar.org:1337/offers/12345'
+            )
+          )
+          .returns(Promise.resolve({ data: offerResponse }));
+
+        this.server
+          .offers()
+          .offer("12345")
+          .call()
+          .then(function(response) {
+            expect(response).to.be.deep.equal(
+              offerResponse
+            );
+            expect(response.self).to.be.function;
+            done();
+          })
+          .catch(function(err) {
+            done(err);
+          });
+      });
+
       it('forAccount requests the correct endpoint', function(done) {
         this.axiosMock
           .expects('get')
