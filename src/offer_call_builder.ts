@@ -21,6 +21,19 @@ export class OfferCallBuilder extends CallBuilder<
   }
 
   /**
+   * The offer details endpoint provides information on a single offer. The offer ID provided in the id
+   * argument specifies which offer to load.
+   * @see [Offer Details](https://www.stellar.org/developers/horizon/reference/endpoints/offer-details.html)
+   * @param {string} offerId Offer ID
+   * @returns {CallBuilder<ServerApi.OfferRecord>} CallBuilder<ServerApi.OfferRecord> OperationCallBuilder instance
+   */
+  public offer(offerId: string): CallBuilder<ServerApi.OfferRecord> {
+    const builder = new CallBuilder<ServerApi.OfferRecord>(this.url.clone());
+    builder.filter.push([offerId]);
+    return builder;
+  }
+
+  /**
    * Returns all offers where the given account is the seller.
    *
    * @see [Offers](https://www.stellar.org/developers/horizon/reference/endpoints/offers.html)
