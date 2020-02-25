@@ -22,7 +22,8 @@ export class AccountResponse {
   public readonly account_id!: string;
   public sequence!: string;
   public readonly subentry_count!: number;
-  public readonly inflation_destination!: string;
+  public readonly home_domain?: string;
+  public readonly inflation_destination?: string;
   public readonly last_modified_ledger!: number;
   public readonly thresholds!: Horizon.AccountThresholds;
   public readonly flags!: Horizon.Flags;
