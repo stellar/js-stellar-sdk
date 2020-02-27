@@ -24,7 +24,7 @@ A breaking change will get clearly marked in this log.
 
   You can fetch data from this endpoint by doing `server.offers()` and use any of the following filters:
 
-  - `seller`: `server.offers().accountId(accountId)`
+  - `seller`: `server.offers().forAccount(accountId)`
   - `buying`: `server.offers().buying(asset)`
   - `selling`: `server.offers().selling(asset)`
 
