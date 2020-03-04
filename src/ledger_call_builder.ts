@@ -14,7 +14,7 @@ import { ServerApi } from "./server_api";
 export class LedgerCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.LedgerRecord>
 > {
-  constructor(serverUrl: uri.URI) {
+  constructor(serverUrl: URI) {
     super(serverUrl);
     this.url.segment("ledgers");
   }

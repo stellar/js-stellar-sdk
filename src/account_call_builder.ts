@@ -15,7 +15,7 @@ import { ServerApi } from "./server_api";
 export class AccountCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.AccountRecord>
 > {
-  constructor(serverUrl: uri.URI) {
+  constructor(serverUrl: URI) {
     super(serverUrl);
     this.url.segment("accounts");
   }

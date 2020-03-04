@@ -13,7 +13,7 @@ import { ServerApi } from "./server_api";
 export class PaymentCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.PaymentOperationRecord>
 > {
-  constructor(serverUrl: uri.URI) {
+  constructor(serverUrl: URI) {
     super(serverUrl);
     this.url.segment("payments");
   }

@@ -56,7 +56,7 @@ export class Server {
    *
    * TODO: Solve `URI(this.serverURL as any)`.
    */
-  public readonly serverURL: uri.URI;
+  public readonly serverURL: URI;
 
   constructor(serverURL: string, opts: Server.Options = {}) {
     this.serverURL = URI(serverURL);

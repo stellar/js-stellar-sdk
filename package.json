@@ -125,7 +125,7 @@
     "@types/eventsource": "^1.1.2",
     "@types/node": ">= 8",
     "@types/randombytes": "^2.0.0",
-    "@types/urijs": "^1.19.2",
+    "@types/urijs": "^1.19.6",
     "axios": "^0.19.0",
     "bignumber.js": "^4.0.0",
     "detect-node": "^2.0.4",

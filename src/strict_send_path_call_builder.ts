@@ -33,7 +33,7 @@ export class StrictSendPathCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.PaymentPathRecord>
 > {
   constructor(
-    serverUrl: uri.URI,
+    serverUrl: URI,
     sourceAsset: Asset,
     sourceAmount: string,
     destination: string | Asset[],

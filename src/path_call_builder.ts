@@ -30,7 +30,7 @@ export class PathCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.PaymentPathRecord>
 > {
   constructor(
-    serverUrl: uri.URI,
+    serverUrl: URI,
     source: string,
     destination: string,
     destinationAsset: Asset,
