@@ -13,7 +13,7 @@ import { ServerApi } from "./server_api";
 export class AssetsCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.AssetRecord>
 > {
-  constructor(serverUrl: uri.URI) {
+  constructor(serverUrl: URI) {
     super(serverUrl);
     this.url.segment("assets");
   }

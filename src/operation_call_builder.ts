@@ -14,7 +14,7 @@ import { ServerApi } from "./server_api";
 export class OperationCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.OperationRecord>
 > {
-  constructor(serverUrl: uri.URI) {
+  constructor(serverUrl: URI) {
     super(serverUrl);
     this.url.segment("operations");
   }

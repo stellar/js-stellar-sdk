@@ -14,7 +14,7 @@ import { ServerApi } from "./server_api";
 export class OrderbookCallBuilder extends CallBuilder<
   ServerApi.OrderbookRecord
 > {
-  constructor(serverUrl: uri.URI, selling: Asset, buying: Asset) {
+  constructor(serverUrl: URI, selling: Asset, buying: Asset) {
     super(serverUrl);
     this.url.segment("order_book");
     if (!selling.isNative()) {

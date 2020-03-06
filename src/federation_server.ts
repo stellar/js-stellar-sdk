@@ -27,7 +27,7 @@ export class FederationServer {
    *
    * @memberof FederationServer
    */
-  private readonly serverURL: uri.URI; // TODO: public or private? readonly?
+  private readonly serverURL: URI; // TODO: public or private? readonly?
   /**
    * Domain this server represents.
    *
@@ -210,7 +210,7 @@ export class FederationServer {
     return this._sendRequest(url);
   }
 
-  private async _sendRequest(url: uri.URI) {
+  private async _sendRequest(url: URI) {
     const timeout = this.timeout;
 
     return axios

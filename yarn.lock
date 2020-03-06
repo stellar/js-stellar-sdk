@@ -197,10 +197,10 @@
   dependencies:
     "@types/node" "*"
 
-"@types/urijs@^1.19.2":
-  version "1.19.5"
-  resolved "https://registry.yarnpkg.com/@types/urijs/-/urijs-1.19.5.tgz#f2083392f5859be59cbba0b1d463b922c8aef842"
-  integrity sha512-LAyzQkr9rZDoHrv8xRcHStLo8Z4PbP3ZHMqw8WRr1T7Jn4O1z13Qkv+ed9e12pBXWaaqsBj1l4ADU/FlA/jn3w==
+"@types/urijs@^1.19.6":
+  version "1.19.6"
+  resolved "https://registry.yarnpkg.com/@types/urijs/-/urijs-1.19.6.tgz#4cee39e4e5ad8d276d617d159ffcb423ca2fd9f1"
+  integrity sha512-kdnK+JtEiUgnpB7r99SAZjjz9nhZ/7MWo/hxTSNfvslAa4r8jpDXDEJ2cQrjemes4eX2Y5Om3udmcc8QalPzOA==
 
 "@webassemblyjs/ast@1.8.5":
   version "1.8.5"

@@ -47,11 +47,11 @@ export class CallBuilder<
     | Horizon.BaseResponse
     | ServerApi.CollectionPage<Horizon.BaseResponse>
 > {
-  protected url: uri.URI;
+  protected url: URI;
   public filter: string[][];
   protected originalSegments: string[];
 
-  constructor(serverUrl: uri.URI) {
+  constructor(serverUrl: URI) {
     this.url = serverUrl.clone();
     this.filter = [];
     this.originalSegments = this.url.segment() || [];
@@ -301,7 +301,7 @@ export class CallBuilder<
     return json;
   }
 
-  private async _sendNormalRequest(initialUrl: uri.URI) {
+  private async _sendNormalRequest(initialUrl: URI) {
     let url = initialUrl;
 
     if (url.authority() === "") {

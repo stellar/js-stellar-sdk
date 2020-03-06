@@ -33,7 +33,7 @@ export class TradeAggregationCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<TradeAggregationRecord>
 > {
   constructor(
-    serverUrl: uri.URI,
+    serverUrl: URI,
     base: Asset,
     counter: Asset,
     start_time: number,
