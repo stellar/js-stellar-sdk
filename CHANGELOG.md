@@ -4,6 +4,14 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+## [v4.0.2](https://github.com/stellar/js-stellar-sdk/compare/v4.0.1...v4.0.2)
+
+### Fix
+- Fix URI TypeScript reference. ([#509](https://github.com/stellar/js-stellar-sdk/issues/509))
+- Fix docs build. ([#503](https://github.com/stellar/js-stellar-sdk/issues/503))
+- Fix documentation for method to filter offers by account. ([#507](https://github.com/stellar/js-stellar-sdk/issues/507))
+- Fix types and add missing attribute to `account_response`. ([#504](https://github.com/stellar/js-stellar-sdk/issues/504))
+
 ## [v4.0.1](https://github.com/stellar/js-stellar-sdk/compare/v4.0.0...v4.0.1)
 
 ### Add
