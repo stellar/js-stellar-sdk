@@ -1,12 +1,12 @@
 describe('server.js transaction tests', function() {
+  let keypair = StellarSdk.Keypair.random();
+  let account = new StellarSdk.Account(keypair.publicKey(), '56199647068161');
+  
   beforeEach(function() {
     this.server = new StellarSdk.Server(
       'https://horizon-live.stellar.org:1337'
     );
     this.axiosMock = sinon.mock(HorizonAxiosClient);
-    StellarSdk.Config.setDefault();
-    let keypair = StellarSdk.Keypair.random();
-    let account = new StellarSdk.Account(keypair.publicKey(), '56199647068161');
     let transaction = new StellarSdk.TransactionBuilder(account, {
       fee: 100,
       networkPassphrase: StellarSdk.Networks.TESTNET
@@ -36,6 +36,7 @@ describe('server.js transaction tests', function() {
     this.axiosMock.verify();
     this.axiosMock.restore();
   });
+  
   it('sends a transaction', function(done) {
     this.axiosMock
       .expects('post')
@@ -46,7 +47,7 @@ describe('server.js transaction tests', function() {
       .returns(Promise.resolve({ data: {} }));
 
     this.server
-      .submitTransaction(this.transaction)
+      .submitTransaction(this.transaction, {skipMemoRequiredCheck: true})
       .then(function() {
         done();
       })
@@ -80,7 +81,7 @@ describe('server.js transaction tests', function() {
       .returns(Promise.resolve({ data: response }));
 
     this.server
-      .submitTransaction(this.transaction)
+      .submitTransaction(this.transaction, {skipMemoRequiredCheck: true})
       .then(function(res) {
         expect(res.offerResults).to.be.an.instanceOf(Array);
         expect(res.offerResults[0].offersClaimed).to.be.an.instanceOf(Array);
@@ -127,7 +128,7 @@ describe('server.js transaction tests', function() {
       .returns(Promise.resolve({ data: response }));
 
     this.server
-      .submitTransaction(this.transaction)
+      .submitTransaction(this.transaction, {skipMemoRequiredCheck: true})
       .then(function(res) {
         expect(res.offerResults).to.be.an.instanceOf(Array);
         expect(res.offerResults[0].offersClaimed).to.be.an.instanceOf(Array);
@@ -172,7 +173,7 @@ describe('server.js transaction tests', function() {
       .returns(Promise.resolve({ data: response }));
 
     this.server
-      .submitTransaction(this.transaction)
+      .submitTransaction(this.transaction, {skipMemoRequiredCheck: true})
       .then(function(res) {
         expect(res.offerResults).to.be.an.instanceOf(Array);
         expect(res.offerResults[0].offersClaimed).to.be.an.instanceOf(Array);
@@ -217,7 +218,7 @@ describe('server.js transaction tests', function() {
       .returns(Promise.resolve({ data: response }));
 
     this.server
-      .submitTransaction(this.transaction)
+      .submitTransaction(this.transaction, {skipMemoRequiredCheck: true})
       .then(function(res) {
         expect(res.offerResults).to.be.an.instanceOf(Array);
         expect(res.offerResults[0].offersClaimed).to.be.an.instanceOf(Array);
@@ -272,7 +273,7 @@ describe('server.js transaction tests', function() {
       .returns(Promise.resolve({ data: response }));
 
     this.server
-      .submitTransaction(this.transaction)
+      .submitTransaction(this.transaction, {skipMemoRequiredCheck: true})
       .then(function(res) {
         expect(res.offerResults).to.be.undefined;
         done();
@@ -308,7 +309,7 @@ describe('server.js transaction tests', function() {
       .returns(Promise.resolve({ data: response }));
 
     this.server
-      .submitTransaction(this.transaction)
+      .submitTransaction(this.transaction, {skipMemoRequiredCheck: true})
       .then(function(res) {
         expect(res.offerResults).to.be.an.instanceOf(Array);
         expect(res.offerResults).to.have.lengthOf(2);
@@ -318,6 +319,32 @@ describe('server.js transaction tests', function() {
         expect(res.offerResults[1].offersClaimed).to.be.an.instanceOf(Array);
         expect(typeof res.offerResults[1].effect).to.equal('string');
         expect(res.offerResults[1].operationIndex).to.equal(3);
+        done();
+      })
+      .catch(function(err) {
+        done(err);
+      });
+  });
+  it('checks for memo required by default', function(done) {
+    this.axiosMock
+      .expects('post')
+      .withArgs(
+        'https://horizon-live.stellar.org:1337/transactions',
+        `tx=${this.blob}`
+      )
+      .returns(Promise.resolve({ data: {} }));
+    this.axiosMock.expects("get") 
+      .withArgs(
+        sinon.match(
+          'https://horizon-live.stellar.org:1337/accounts/GASOCNHNNLYFNMDJYQ3XFMI7BYHIOCFW3GJEOWRPEGK2TDPGTG2E5EDW'
+        )
+      )
+      .returns(Promise.reject({ response: { status: 404, statusText: "NotFound", data: {} } }))
+      .once();
+
+    this.server
+      .submitTransaction(this.transaction, {skipMemoRequiredCheck: false})
+      .then(function() {
         done();
       })
       .catch(function(err) {

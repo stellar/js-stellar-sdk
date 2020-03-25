@@ -142,7 +142,7 @@ describe('horizon path tests', function() {
         .returns(Promise.resolve(randomResult));
 
       server
-        .submitTransaction(fakeTransaction)
+        .submitTransaction(fakeTransaction, {skipMemoRequiredCheck: true})
         .should.eventually.deep.equal(randomResult.data)
         .notify(done);
     });

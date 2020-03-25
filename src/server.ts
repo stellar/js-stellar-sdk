@@ -8,7 +8,11 @@ import URI from "urijs";
 
 import { CallBuilder } from "./call_builder";
 import { Config } from "./config";
-import { BadResponseError } from "./errors";
+import {
+  AccountRequiresMemoError,
+  BadResponseError,
+  NotFoundError,
+} from "./errors";
 
 import { AccountCallBuilder } from "./account_call_builder";
 import { AccountResponse } from "./account_response";
@@ -35,6 +39,10 @@ import HorizonAxiosClient, {
 export const SUBMIT_TRANSACTION_TIMEOUT = 60 * 1000;
 
 const STROOPS_IN_LUMEN = 10000000;
+
+// ACCOUNT_REQUIRES_MEMO is the base64 encoding of "1".
+// SEP 29 uses this value to define transaction memo requirements for incoming payments.
+const ACCOUNT_REQUIRES_MEMO = "MQ==";
 
 function _getAmountInLumens(amt: BigNumber) {
   return new BigNumber(amt).div(STROOPS_IN_LUMEN).toString();
@@ -174,9 +182,12 @@ export class Server {
   /**
    * Submits a transaction to the network.
    *
-   * If you submit any number of `manageOffer` operations, this will add
-   * an attribute to the response that will help you analyze what happened
-   * with your offers.
+   * By default this function calls {@link Server#checkMemoRequired}, you can
+   * skip this check by setting the option `skipMemoRequiredCheck` to `true`.
+   *
+   * If you submit any number of `manageOffer` operations, this will add an
+   * attribute to the response that will help you analyze what happened with
+   * your offers.
    *
    * Ex:
    * ```javascript
@@ -249,25 +260,38 @@ export class Server {
    * }
    * ```
    *
-   * For example, you'll want to examine `offerResults` to add affordances
-   * like these to your app:
+   * For example, you'll want to examine `offerResults` to add affordances like
+   * these to your app:
    * * If `wasImmediatelyFilled` is true, then no offer was created. So if you
-   * normally watch the `Server.offers` endpoint for offer updates, you instead
-   * need to check `Server.trades` to find the result of this filled offer.
+   *   normally watch the `Server.offers` endpoint for offer updates, you
+   *   instead need to check `Server.trades` to find the result of this filled
+   *   offer.
    * * If `wasImmediatelyDeleted` is true, then the offer you submitted was
-   * deleted without reaching the orderbook or being matched (possibly because
-   * your amounts were rounded down to zero). So treat the just-submitted offer
-   * request as if it never happened.
-   * * If `wasPartiallyFilled` is true, you can tell the user that `amountBought`
-   * or `amountSold` have already been transferred.
+   *   deleted without reaching the orderbook or being matched (possibly because
+   *   your amounts were rounded down to zero). So treat the just-submitted
+   *   offer request as if it never happened.
+   * * If `wasPartiallyFilled` is true, you can tell the user that
+   *   `amountBought` or `amountSold` have already been transferred.
    *
-   * @see [Post Transaction](https://www.stellar.org/developers/horizon/reference/endpoints/transactions-create.html)
+   * @see [Post
+   * Transaction](https://www.stellar.org/developers/horizon/reference/endpoints/transactions-create.html)
    * @param {Transaction} transaction - The transaction to submit.
-   * @returns {Promise} Promise that resolves or rejects with response from horizon.
+   * @param {object} [opts] Options object
+   * @param {boolean} [opts.skipMemoRequiredCheck] - Allow skipping memo
+   * required check, default: `false`. See
+   * [SEP0029](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0029.md).
+   * @returns {Promise} Promise that resolves or rejects with response from
+   * horizon.
    */
   public async submitTransaction(
     transaction: Transaction,
+    opts: Server.SubmitTransactionOptions = { skipMemoRequiredCheck: false },
   ): Promise<Horizon.SubmitTransactionResponse> {
+    // only check for memo required if skipMemoRequiredCheck is false and the transaction doesn't include a memo.
+    if (!opts.skipMemoRequiredCheck) {
+      await this.checkMemoRequired(transaction);
+    }
+
     const tx = encodeURIComponent(
       transaction
         .toEnvelope()
@@ -667,6 +691,7 @@ export class Server {
     const res = await this.accounts()
       .accountId(accountId)
       .call();
+
     return new AccountResponse(res);
   }
 
@@ -699,6 +724,75 @@ export class Server {
       offset,
     );
   }
+
+  /**
+   * Check if any of the destination accounts requires a memo.
+   *
+   * This function implements a memo required check as defined in
+   * [SEP0029](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0029.md).
+   * It will load each account which is the destination and check if it has the
+   * data field `config.memo_required` set to `"MQ=="`.
+   *
+   * Each account is checked sequentially instead of loading multiple accounts
+   * at the same time from Horizon.
+   *
+   * @see
+   * [SEP0029](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0029.md)
+   * @param {Transaction} transaction - The transaction to check.
+   * @returns {Promise<void, Error>} - If any of the destination account
+   * requires a memo, the promise will throw {@link AccountRequiresMemoError}.
+   * @throws  {AccountRequiresMemoError}
+   */
+  public async checkMemoRequired(transaction: Transaction): Promise<void> {
+    if (transaction.memo.type !== "none") {
+      return;
+    }
+
+    const destinations = new Set<string>();
+
+    for (let i = 0; i < transaction.operations.length; i++) {
+      const operation = transaction.operations[i];
+
+      switch (operation.type) {
+        case "payment":
+        case "pathPaymentStrictReceive":
+        case "pathPaymentStrictSend":
+        case "accountMerge":
+          break;
+        default:
+          continue;
+      }
+      const destination = operation.destination;
+      if (destinations.has(destination)) {
+        continue;
+      }
+      destinations.add(destination);
+
+      try {
+        const account = await this.loadAccount(destination);
+        if (
+          account.data_attr["config.memo_required"] === ACCOUNT_REQUIRES_MEMO
+        ) {
+          throw new AccountRequiresMemoError(
+            "account requires memo",
+            destination,
+            i,
+          );
+        }
+      } catch (e) {
+        if (e instanceof AccountRequiresMemoError) {
+          throw e;
+        }
+
+        // fail if the error is different to account not found
+        if (!(e instanceof NotFoundError)) {
+          throw e;
+        }
+
+        continue;
+      }
+    }
+  }
 }
 
 export namespace Server {
@@ -711,5 +805,9 @@ export namespace Server {
   export interface Timebounds {
     minTime: number;
     maxTime: number;
+  }
+
+  export interface SubmitTransactionOptions {
+    skipMemoRequiredCheck?: boolean;
   }
 }
