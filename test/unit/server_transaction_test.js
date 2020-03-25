@@ -351,7 +351,7 @@ describe('server.js transaction tests', function() {
         done(err);
       });
   });
-  it('skips memo required is the transaction has a memo', function(done) {
+  it('skips memo required if the transaction has a memo', function(done) {
     this.axiosMock
       .expects('post')
       .withArgs(
