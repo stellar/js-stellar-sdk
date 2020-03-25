@@ -733,6 +733,9 @@ export class Server {
    * It will load each account which is the destination and check if it has the
    * data field `config.memo_required` set to `"MQ=="`.
    *
+   * Each account is checked sequentially instead of loading multiple accounts
+   * at the same time from Horizon.
+   *
    * @see
    * [SEP0029](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0029.md)
    * @param {Transaction} transaction - The transaction to check.
