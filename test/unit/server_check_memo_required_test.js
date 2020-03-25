@@ -106,7 +106,7 @@ describe("server.js check-memo-required", function() {
     it("fails if memo is required", function(done) {
       let accountId = "GAYHAAKPAQLMGIJYMIWPDWCGUCQ5LAWY4Q7Q3IKSP57O7GUPD3NEOSEA";
       mockAccountRequest(this.axiosMock, accountId, 200, { "config.memo_required": "MQ==" });
-      let transaction = buildTransaction("GAYHAAKPAQLMGIJYMIWPDWCGUCQ5LAWY4Q7Q3IKSP57O7GUPD3NEOSEA");
+      let transaction = buildTransaction(accountId);
 
       this.server
         .checkMemoRequired(transaction)
@@ -114,7 +114,8 @@ describe("server.js check-memo-required", function() {
           expect.fail("promise should have failed");
         }, function(err) {
           expect(err).to.be.instanceOf(StellarSdk.AccountRequiresMemoError);
-          expect(err.toString()).to.eq("AccountRequiresMemoError: operation[0]");
+          expect(err.accountId).to.eq(accountId);
+          expect(err.operationIndex).to.eq(0);
           done();
         })
         .catch(function(err) {
@@ -129,8 +130,7 @@ describe("server.js check-memo-required", function() {
 
       this.server
         .checkMemoRequired(transaction)
-        .then(function(memoRequired) {
-          expect(memoRequired).to.be.false
+        .then(function() {
           done();
         })
         .catch(function(err) {
@@ -145,8 +145,7 @@ describe("server.js check-memo-required", function() {
 
       this.server
         .checkMemoRequired(transaction)
-        .then(function(memoRequired) {
-          expect(memoRequired).to.be.false
+        .then(function() {
           done();
         })
         .catch(function(err) {
@@ -188,8 +187,7 @@ describe("server.js check-memo-required", function() {
       
       this.server
         .checkMemoRequired(transaction)
-        .then(function(memoRequired) {
-          expect(memoRequired).to.be.false
+        .then(function() {
           done();
         })
         .catch(function(err) {
@@ -241,8 +239,7 @@ describe("server.js check-memo-required", function() {
       
       this.server
         .checkMemoRequired(transaction)
-        .then(function(memoRequired) {
-          expect(memoRequired).to.be.false
+        .then(function() {
           done();
         })
         .catch(function(err) {

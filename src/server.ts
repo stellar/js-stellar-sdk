@@ -766,7 +766,11 @@ export class Server {
         if (
           account.data_attr["config.memo_required"] === ACCOUNT_REQUIRES_MEMO
         ) {
-          throw new AccountRequiresMemoError(`operation[${i}]`);
+          throw new AccountRequiresMemoError(
+            "account requires memo",
+            destination,
+            i,
+          );
         }
       } catch (e) {
         if (e instanceof AccountRequiresMemoError) {
