@@ -288,7 +288,7 @@ export class Server {
     opts: Server.SubmitTransactionOptions = { skipMemoRequiredCheck: false },
   ): Promise<Horizon.SubmitTransactionResponse> {
     // only check for memo required if skipMemoRequiredCheck is false and the transaction doesn't include a memo.
-    if (!opts.skipMemoRequiredCheck && transaction.memo.type === "none") {
+    if (!opts.skipMemoRequiredCheck) {
       await this.checkMemoRequired(transaction);
     }
 
@@ -741,6 +741,10 @@ export class Server {
    * @throws  {AccountRequiresMemoError}
    */
   public async checkMemoRequired(transaction: Transaction): Promise<void> {
+    if (transaction.memo.type !== "none") {
+      return;
+    }
+
     const destinations = new Set<string>();
 
     for (let i = 0; i < transaction.operations.length; i++) {

@@ -351,38 +351,4 @@ describe('server.js transaction tests', function() {
         done(err);
       });
   });
-  it('skips memo required if the transaction has a memo', function(done) {
-    this.axiosMock
-      .expects('post')
-      .withArgs(
-        'https://horizon-live.stellar.org:1337/transactions'
-      )
-      .returns(Promise.resolve({ data: {} }));
-
-    let memo = StellarSdk.Memo.text('42');
-    let transaction = new StellarSdk.TransactionBuilder(account, {
-      memo,
-      fee: 100,
-      networkPassphrase: StellarSdk.Networks.TESTNET
-    })
-      .addOperation(
-        StellarSdk.Operation.payment({
-          destination:
-            'GASOCNHNNLYFNMDJYQ3XFMI7BYHIOCFW3GJEOWRPEGK2TDPGTG2E5EDW',
-          asset: StellarSdk.Asset.native(),
-          amount: '100.50'
-        })
-      )
-      .setTimeout(StellarSdk.TimeoutInfinite)
-      .build();
-
-    this.server
-      .submitTransaction(transaction)
-      .then(function() {
-        done();
-      })
-      .catch(function(err) {
-        done(err);
-      });
-  });
 });

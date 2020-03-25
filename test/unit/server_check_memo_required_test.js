@@ -1,10 +1,12 @@
-function buildTransaction(destination, operations = []) {
-  let keypair = StellarSdk.Keypair.random();
-  let account = new StellarSdk.Account(keypair.publicKey(), "56199647068161");
-  let transaction = new StellarSdk.TransactionBuilder(account, {
+function buildTransaction(destination, operations = [], builderOpts = {}) {
+  let txBuilderOpts = {
     fee: 100,
     networkPassphrase: StellarSdk.Networks.TESTNET
-  })
+  };
+  Object.assign(txBuilderOpts, builderOpts);
+  let keypair = StellarSdk.Keypair.random();
+  let account = new StellarSdk.Account(keypair.publicKey(), "56199647068161");
+  let transaction = new StellarSdk.TransactionBuilder(account, txBuilderOpts)
     .addOperation(
       StellarSdk.Operation.payment({
         destination: destination,
@@ -246,6 +248,17 @@ describe("server.js check-memo-required", function() {
           done(err);
         });
     });
-
-  });
-  
+    it('checks for memo required by default', function(done) {
+      let accountId = "GAYHAAKPAQLMGIJYMIWPDWCGUCQ5LAWY4Q7Q3IKSP57O7GUPD3NEOSEA";
+      let memo = StellarSdk.Memo.text('42');
+      let transaction = buildTransaction(accountId, [], { memo });
+      this.server
+        .checkMemoRequired(transaction)
+        .then(function() {
+          done();
+        })
+        .catch(function(err) {
+          done(err);
+        });
+    });
+});
