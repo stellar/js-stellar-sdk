@@ -271,11 +271,18 @@ export class Server {
    *
    * @see [Post Transaction](https://www.stellar.org/developers/horizon/reference/endpoints/transactions-create.html)
    * @param {Transaction} transaction - The transaction to submit.
+   * @param {Server.SubmitTransactionOptions} options.
    * @returns {Promise} Promise that resolves or rejects with response from horizon.
    */
   public async submitTransaction(
     transaction: Transaction,
+    opts: Server.SubmitTransactionOptions = { skipMemoRequiredCheck: false },
   ): Promise<Horizon.SubmitTransactionResponse> {
+    // only check for memo required if skipMemoRequiredCheck is false and the transaction doesn't include a memo.
+    if (!opts.skipMemoRequiredCheck && transaction.memo.type === "none") {
+      await this.checkMemoRequired(transaction);
+    }
+
     const tx = encodeURIComponent(
       transaction
         .toEnvelope()
@@ -776,5 +783,9 @@ export namespace Server {
   export interface Timebounds {
     minTime: number;
     maxTime: number;
+  }
+
+  export interface SubmitTransactionOptions {
+    skipMemoRequiredCheck?: boolean;
   }
 }
