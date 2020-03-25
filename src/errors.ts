@@ -67,6 +67,15 @@ export class InvalidSep10ChallengeError extends Error {
   }
 }
 
+/**
+ * AccountRequiresMemoError is raised when a transaction is trying to submit a
+ * payment like operation to an account which requires a memo. See
+ * [SEP0029](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0029.md)
+ * for more information.
+ * @class AccountRequiresMemoError
+ * @hideconstructor
+ *
+ */
 export class AccountRequiresMemoError extends Error {
   public __proto__: AccountRequiresMemoError;
 

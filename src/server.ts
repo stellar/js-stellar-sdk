@@ -182,9 +182,12 @@ export class Server {
   /**
    * Submits a transaction to the network.
    *
-   * If you submit any number of `manageOffer` operations, this will add
-   * an attribute to the response that will help you analyze what happened
-   * with your offers.
+   * By default this function calls {@link Server#checkMemoRequired}, you can
+   * skip this check by setting the option `skipMemoRequiredCheck` to `true`.
+   *
+   * If you submit any number of `manageOffer` operations, this will add an
+   * attribute to the response that will help you analyze what happened with
+   * your offers.
    *
    * Ex:
    * ```javascript
@@ -257,22 +260,28 @@ export class Server {
    * }
    * ```
    *
-   * For example, you'll want to examine `offerResults` to add affordances
-   * like these to your app:
+   * For example, you'll want to examine `offerResults` to add affordances like
+   * these to your app:
    * * If `wasImmediatelyFilled` is true, then no offer was created. So if you
-   * normally watch the `Server.offers` endpoint for offer updates, you instead
-   * need to check `Server.trades` to find the result of this filled offer.
+   *   normally watch the `Server.offers` endpoint for offer updates, you
+   *   instead need to check `Server.trades` to find the result of this filled
+   *   offer.
    * * If `wasImmediatelyDeleted` is true, then the offer you submitted was
-   * deleted without reaching the orderbook or being matched (possibly because
-   * your amounts were rounded down to zero). So treat the just-submitted offer
-   * request as if it never happened.
-   * * If `wasPartiallyFilled` is true, you can tell the user that `amountBought`
-   * or `amountSold` have already been transferred.
+   *   deleted without reaching the orderbook or being matched (possibly because
+   *   your amounts were rounded down to zero). So treat the just-submitted
+   *   offer request as if it never happened.
+   * * If `wasPartiallyFilled` is true, you can tell the user that
+   *   `amountBought` or `amountSold` have already been transferred.
    *
-   * @see [Post Transaction](https://www.stellar.org/developers/horizon/reference/endpoints/transactions-create.html)
+   * @see [Post
+   * Transaction](https://www.stellar.org/developers/horizon/reference/endpoints/transactions-create.html)
    * @param {Transaction} transaction - The transaction to submit.
-   * @param {Server.SubmitTransactionOptions} options.
-   * @returns {Promise} Promise that resolves or rejects with response from horizon.
+   * @param {object} [opts] Options object
+   * @param {boolean} [opts.skipMemoRequiredCheck] - Allow skipping memo
+   * required check, default: `false`. See
+   * [SEP0029](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0029.md).
+   * @returns {Promise} Promise that resolves or rejects with response from
+   * horizon.
    */
   public async submitTransaction(
     transaction: Transaction,
@@ -717,17 +726,21 @@ export class Server {
   }
 
   /**
-   * Checks if any of the destination accounts requires a memo.
+   * Check if any of the destination accounts requires a memo.
    *
-   * This function implements a memo required check as defined in SEP0029.
+   * This function implements a memo required check as defined in
+   * [SEP0029](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0029.md).
    * It will load each account which is the destination and check if it has the
-   * data field `config.memo_required` set to "MQ==".
+   * data field `config.memo_required` set to `"MQ=="`.
    *
-   * @see [SEP0029](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0029.md)
+   * @see
+   * [SEP0029](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0029.md)
    * @param {Transaction} transaction - The transaction to check.
-   * @returns {Promise} Promise that resolves or rejects with AccountRequiresMemoError
+   * @returns {Promise<void, Error>} - If any of the destination account
+   * requires a memo, the promise will throw {@link AccountRequiresMemoError}.
+   * @throws  {AccountRequiresMemoError}
    */
-  public async checkMemoRequired(transaction: Transaction): Promise<boolean> {
+  public async checkMemoRequired(transaction: Transaction): Promise<void> {
     const destinations = new Set<string>();
 
     for (let i = 0; i < transaction.operations.length; i++) {
@@ -768,8 +781,6 @@ export class Server {
         continue;
       }
     }
-
-    return false;
   }
 }
 
