@@ -66,3 +66,15 @@ export class InvalidSep10ChallengeError extends Error {
     this.name = "InvalidSep10ChallengeError";
   }
 }
+
+export class AccountRequiresMemoError extends Error {
+  public __proto__: AccountRequiresMemoError;
+
+  constructor(message: string) {
+    const trueProto = new.target.prototype;
+    super(message);
+    this.__proto__ = trueProto;
+    this.constructor = AccountRequiresMemoError;
+    this.name = "AccountRequiresMemoError";
+  }
+}

@@ -8,7 +8,11 @@ import URI from "urijs";
 
 import { CallBuilder } from "./call_builder";
 import { Config } from "./config";
-import { BadResponseError } from "./errors";
+import {
+  AccountRequiresMemoError,
+  BadResponseError,
+  NotFoundError,
+} from "./errors";
 
 import { AccountCallBuilder } from "./account_call_builder";
 import { AccountResponse } from "./account_response";
@@ -35,6 +39,10 @@ import HorizonAxiosClient, {
 export const SUBMIT_TRANSACTION_TIMEOUT = 60 * 1000;
 
 const STROOPS_IN_LUMEN = 10000000;
+
+// ACCOUNT_REQUIRES_MEMO is the base64 encoding of "1".
+// SEP 29 uses this value to define transaction memo requirements for incoming payments.
+const ACCOUNT_REQUIRES_MEMO = "MQ==";
 
 function _getAmountInLumens(amt: BigNumber) {
   return new BigNumber(amt).div(STROOPS_IN_LUMEN).toString();
@@ -667,6 +675,7 @@ export class Server {
     const res = await this.accounts()
       .accountId(accountId)
       .call();
+
     return new AccountResponse(res);
   }
 
@@ -698,6 +707,62 @@ export class Server {
       resolution,
       offset,
     );
+  }
+
+  /**
+   * Checks if any of the destination accounts requires a memo.
+   *
+   * This function implements a memo required check as defined in SEP0029.
+   * It will load each account which is the destination and check if it has the
+   * data field `config.memo_required` set to "MQ==".
+   *
+   * @see [SEP0029](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0029.md)
+   * @param {Transaction} transaction - The transaction to check.
+   * @returns {Promise} Promise that resolves or rejects with AccountRequiresMemoError
+   */
+  public async checkMemoRequired(transaction: Transaction): Promise<boolean> {
+    const destinations = new Set<string>();
+
+    for (let i = 0; i < transaction.operations.length; i++) {
+      const operation = transaction.operations[i];
+
+      switch (operation.type) {
+        case "payment":
+        case "pathPaymentStrictReceive":
+        case "pathPaymentStrictSend":
+        case "accountMerge":
+          break;
+        default:
+          continue;
+      }
+      const destination = operation.destination;
+      if (destinations.has(destination)) {
+        continue;
+      }
+      destinations.add(destination);
+
+      try {
+        const account = await this.loadAccount(destination);
+        if (
+          account.data_attr["config.memo_required"] === ACCOUNT_REQUIRES_MEMO
+        ) {
+          throw new AccountRequiresMemoError(`operation[${i}]`);
+        }
+      } catch (e) {
+        if (e instanceof AccountRequiresMemoError) {
+          throw e;
+        }
+
+        // fail if the error is different to account not found
+        if (!(e instanceof NotFoundError)) {
+          throw e;
+        }
+
+        continue;
+      }
+    }
+
+    return false;
   }
 }
 
