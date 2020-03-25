@@ -7,6 +7,7 @@
   "scripts": {
     "prepare": "gulp build",
     "test": "babel-node ./node_modules/.bin/gulp test",
+    "test:watch": "babel-node ./node_modules/.bin/gulp test:watch",
     "build:docs": "gulp build:docs",
     "docs": "yarn build:docs && jsdoc -c .jsdoc.json",
     "dtslint": "dtslint test/types",
