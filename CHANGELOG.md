@@ -7,7 +7,7 @@ A breaking change will get clearly marked in this log.
 ## [v4.1.0](https://github.com/stellar/js-stellar-sdk/compare/v4.0.2...v4.1.0)
 
 ### Add
-- Add SEP0029 support. ([#516](https://github.com/stellar/js-stellar-sdk/issues/516))
+- Add SEP0029 (memo required) support. ([#516](https://github.com/stellar/js-stellar-sdk/issues/516))
 
   Extends `server.submitTransaction` to always run a memo required check before
   sending the transaction.  If any of the destinations require a memo and the
