@@ -25,7 +25,7 @@ A breaking change will get clearly marked in this log.
    - `pathPaymentStrictSend`
    - `mergeAccount`
 
-  If the transaction includes a memo, then memo required checked is skipped.
+  If the transaction includes a memo, then memo required checking is skipped.
 
   See [SEP0029](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0029.md) for more information about memo required check.
 
