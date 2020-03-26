@@ -10,7 +10,7 @@ A breaking change will get clearly marked in this log.
 - Add SEP0029 support. ([#516](https://github.com/stellar/js-stellar-sdk/issues/516))
 
   Extends `server.submitTransaction` to always run a memo required check before
-  sending the transaction, if any of the destinations requires a memo and the
+  sending the transaction.  If any of the destinations require a memo and the
   transaction doesn't include one, then an `AccountRequiresMemoError` will be thrown.  
 
   You can skip this check by passing `{skipMemoRequiredCheck: true}` to `server.submitTransaction`:
