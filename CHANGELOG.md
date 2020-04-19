@@ -72,14 +72,14 @@ A breaking change will get clearly marked in this log.
   Starting on this version you'll need to do:
 
   ```
-  server.offers().accountId(accountId)
+  server.offers().forAccount(accountId)
   ```
 
   You can do now things that were not possible before, like finding
   all offers for an account filtering by the selling or buying asset
 
   ```
-  server.offers().accountId(accountId).selling(assetA).buying(assetB)
+  server.offers().forAccount(accountId).selling(assetA).buying(assetB)
   ```
 
 - Add support for filtering accounts by `signer` or `asset` ([#474](https://github.com/stellar/js-stellar-sdk/issues/474))
