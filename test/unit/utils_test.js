@@ -1500,9 +1500,10 @@ describe('Utils', function() {
         StellarSdk.Networks.TESTNET
       );
 
-      const transaction = new StellarSdk.Transaction(challenge, StellarSdk.Networks.TESTNET);
+      let envelope = StellarSdk.xdr.TransactionEnvelope.fromXDR(challenge, 'base64');
+      envelope.value().signatures([]);
 
-      transaction.signatures = [];
+      const transaction = new StellarSdk.Transaction(envelope, StellarSdk.Networks.TESTNET);
 
       let newSigner = StellarSdk.Keypair.random();
 
