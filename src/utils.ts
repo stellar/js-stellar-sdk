@@ -42,6 +42,12 @@ export namespace Utils {
     timeout: number = 300,
     networkPassphrase: string,
   ): string {
+    if (clientAccountID.startsWith("M")) {
+      throw Error(
+        "Invalid clientAccountID: multiplexed accounts are not supported.",
+      );
+    }
+
     const account = new Account(serverKeypair.publicKey(), "-1");
     const now = Math.floor(Date.now() / 1000);
 
@@ -99,9 +105,15 @@ export namespace Utils {
    */
   export function readChallengeTx(
     challengeTx: string,
-    serverAccountId: string,
+    serverAccountID: string,
     networkPassphrase: string,
   ): { tx: Transaction; clientAccountID: string } {
+    if (serverAccountID.startsWith("M")) {
+      throw Error(
+        "Invalid serverAccountID: multiplexed accounts are not supported.",
+      );
+    }
+
     const transaction = TransactionBuilder.fromXDR(
       challengeTx,
       networkPassphrase,
@@ -123,7 +135,7 @@ export namespace Utils {
     }
 
     // verify transaction source
-    if (transaction.source !== serverAccountId) {
+    if (transaction.source !== serverAccountID) {
       throw new InvalidSep10ChallengeError(
         "The transaction source account is not equal to the server's account",
       );

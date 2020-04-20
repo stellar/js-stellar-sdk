@@ -20,6 +20,21 @@ describe('Utils', function() {
   });
 
   describe('Utils.buildChallengeTx', function() {
+    it('requires a non-muxed account', function() {
+      let keypair = StellarSdk.Keypair.random();
+
+      expect(() =>
+        StellarSdk.Utils.buildChallengeTx(
+          keypair,
+          "MAAAAAAAAAAAAAB7BQ2L7E5NBWMXDUCMZSIPOBKRDSBYVLMXGSSKF6YNPIB7Y77ITLVL6",
+          "SDF",
+          300,
+          StellarSdk.Networks.TESTNET
+        )
+      ).to.throw(
+        /Invalid clientAccountID: multiplexed accounts are not supported./
+      );
+    });
     it('returns challenge which follows SEP0010 spec', function() {
       let keypair = StellarSdk.Keypair.random();
 
@@ -73,6 +88,19 @@ describe('Utils', function() {
   });
 
   describe("Utils.readChallengeTx", function() {
+    it('requires a non-muxed account', function() {
+      expect(() =>
+        StellarSdk.Utils.readChallengeTx(
+          "avalidtx",
+          "MAAAAAAAAAAAAAB7BQ2L7E5NBWMXDUCMZSIPOBKRDSBYVLMXGSSKF6YNPIB7Y77ITLVL6",
+          "SDF",
+          300,
+          StellarSdk.Networks.TESTNET
+        )
+      ).to.throw(
+        /Invalid serverAccountID: multiplexed accounts are not supported./
+      );
+    });
     it("requires a envelopeTypeTxV0 or envelopeTypeTx", function(){
       let serverKP = StellarSdk.Keypair.random();
       let clientKP = StellarSdk.Keypair.random();
