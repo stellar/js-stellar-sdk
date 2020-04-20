@@ -73,6 +73,63 @@ describe('Utils', function() {
   });
 
   describe("Utils.readChallengeTx", function() {
+    it("requires a envelopeTypeTxV0 or envelopeTypeTx", function(){
+      let serverKP = StellarSdk.Keypair.random();
+      let clientKP = StellarSdk.Keypair.random();
+
+      const challenge = StellarSdk.Utils.buildChallengeTx(
+        serverKP,
+        clientKP.publicKey(),
+        "SDF",
+        300,
+        StellarSdk.Networks.TESTNET
+      );
+
+      const txV0 = StellarSdk.TransactionBuilder.fromXDR(challenge, StellarSdk.Networks.TESTNET);
+      const txV1Raw = new StellarSdk.xdr.TransactionEnvelope.envelopeTypeTx(
+        new StellarSdk.xdr.TransactionV1Envelope({
+          tx: StellarSdk.xdr.Transaction.fromXDR(Buffer.concat([StellarSdk.xdr.PublicKeyType.publicKeyTypeEd25519().toXDR(), txV0.tx.toXDR()])),
+          signatures: txV0.signatures
+        })
+      );
+      const txV1 = StellarSdk.TransactionBuilder.fromXDR(
+        txV1Raw.toXDR().toString('base64'),
+        StellarSdk.Networks.TESTNET
+      )
+      
+      let feeBump = StellarSdk.TransactionBuilder.buildFeeBumpTransaction(
+        serverKP, 
+        "200", 
+        txV1, 
+        StellarSdk.Networks.TESTNET
+      ).toXDR();
+
+      expect(() =>
+        StellarSdk.Utils.readChallengeTx(
+          feeBump,
+          serverKP.publicKey(),
+          StellarSdk.Networks.TESTNET
+        )
+      ).to.throw(
+        StellarSdk.InvalidSep10ChallengeError,
+        /Invalid challenge: expected a Transaction but received a FeeBumpTransaction/
+      );
+
+      expect(() =>
+        StellarSdk.Utils.readChallengeTx(
+          challenge,
+          serverKP.publicKey(),
+          StellarSdk.Networks.TESTNET
+        )
+      ).to.not.throw(StellarSdk.InvalidSep10ChallengeError);
+      expect(() =>
+        StellarSdk.Utils.readChallengeTx(
+          txV1Raw.toXDR().toString('base64'),
+          serverKP.publicKey(),
+          StellarSdk.Networks.TESTNET
+        )
+      ).to.not.throw(StellarSdk.InvalidSep10ChallengeError);
+    });
     it("returns the transaction and the clientAccountID (client's pubKey) if the challenge was created successfully", function() {
       let serverKP = StellarSdk.Keypair.random();
       let clientKP = StellarSdk.Keypair.random();

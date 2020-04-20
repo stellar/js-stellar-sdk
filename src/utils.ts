@@ -27,7 +27,7 @@ export namespace Utils {
    * @param {string} clientAccountID The stellar account that the wallet wishes to authenticate with the server.
    * @param {string} anchorName Anchor's name to be used in the manage_data key.
    * @param {number} [timeout=300] Challenge duration (default to 5 minutes).
-   * @param {string} [networkPassphrase] The network passphrase. If you pass this argument then timeout is required.
+   * @param {string} networkPassphrase The network passphrase. If you pass this argument then timeout is required.
    * @example
    * import { Utils, Keypair, Networks }  from 'stellar-sdk'
    *
@@ -40,7 +40,7 @@ export namespace Utils {
     clientAccountID: string,
     anchorName: string,
     timeout: number = 300,
-    networkPassphrase?: string,
+    networkPassphrase: string,
   ): string {
     const account = new Account(serverKeypair.publicKey(), "-1");
     const now = Math.floor(Date.now() / 1000);
@@ -100,9 +100,18 @@ export namespace Utils {
   export function readChallengeTx(
     challengeTx: string,
     serverAccountId: string,
-    networkPassphrase?: string,
+    networkPassphrase: string,
   ): { tx: Transaction; clientAccountID: string } {
-    const transaction = new Transaction(challengeTx, networkPassphrase);
+    const transaction = TransactionBuilder.fromXDR(
+      challengeTx,
+      networkPassphrase,
+    );
+
+    if (!(transaction instanceof Transaction)) {
+      throw new InvalidSep10ChallengeError(
+        "Invalid challenge: expected a Transaction but received a FeeBumpTransaction",
+      );
+    }
 
     // verify sequence number
     const sequence = Number.parseInt(transaction.sequence, 10);
@@ -195,7 +204,7 @@ export namespace Utils {
    * @returns {string[]} The list of signers public keys that have signed the transaction, excluding the server account ID, given that the threshold was met.
    * @example
    *
-   * import { Networks, Transaction, Utils }  from 'stellar-sdk';
+   * import { Networks, TransactionBuilder, Utils }  from 'stellar-sdk';
    *
    * const serverKP = Keypair.random();
    * const clientKP1 = Keypair.random();
@@ -213,7 +222,7 @@ export namespace Utils {
    * // clock.tick(200);  // Simulates a 200 ms delay when communicating from server to client
    *
    * // Transaction gathered from a challenge, possibly from the client side
-   * const transaction = new Transaction(challenge, Networks.TESTNET);
+   * const transaction = TransactionBuilder.fromXDR(challenge, Networks.TESTNET);
    * transaction.sign(clientKP1, clientKP2);
    * const signedChallenge = transaction
    *         .toEnvelope()
@@ -295,7 +304,7 @@ export namespace Utils {
    * @returns {string[]} The list of signers public keys that have signed the transaction, excluding the server account ID.
    * @example
    *
-   * import { Networks, Transaction, Utils }  from 'stellar-sdk';
+   * import { Networks, TransactionBuilder, Utils }  from 'stellar-sdk';
    *
    * const serverKP = Keypair.random();
    * const clientKP1 = Keypair.random();
@@ -313,7 +322,7 @@ export namespace Utils {
    * // clock.tick(200);  // Simulates a 200 ms delay when communicating from server to client
    *
    * // Transaction gathered from a challenge, possibly from the client side
-   * const transaction = new Transaction(challenge, Networks.TESTNET);
+   * const transaction = TransactionBuilder.fromXDR(challenge, Networks.TESTNET);
    * transaction.sign(clientKP1, clientKP2);
    * const signedChallenge = transaction
    *         .toEnvelope()
@@ -442,7 +451,7 @@ export namespace Utils {
   export function verifyChallengeTx(
     challengeTx: string,
     serverAccountId: string,
-    networkPassphrase?: string,
+    networkPassphrase: string,
   ): boolean {
     console.warn(
       "`Utils#verifyChallengeTx` is deprecated. Please use `Utils#verifyChallengeTxThreshold`.",
