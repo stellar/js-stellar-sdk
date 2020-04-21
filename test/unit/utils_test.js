@@ -20,6 +20,21 @@ describe('Utils', function() {
   });
 
   describe('Utils.buildChallengeTx', function() {
+    it('requires a non-muxed account', function() {
+      let keypair = StellarSdk.Keypair.random();
+
+      expect(() =>
+        StellarSdk.Utils.buildChallengeTx(
+          keypair,
+          "MAAAAAAAAAAAAAB7BQ2L7E5NBWMXDUCMZSIPOBKRDSBYVLMXGSSKF6YNPIB7Y77ITLVL6",
+          "SDF",
+          300,
+          StellarSdk.Networks.TESTNET
+        )
+      ).to.throw(
+        /Invalid clientAccountID: multiplexed accounts are not supported./
+      );
+    });
     it('returns challenge which follows SEP0010 spec', function() {
       let keypair = StellarSdk.Keypair.random();
 
@@ -73,6 +88,76 @@ describe('Utils', function() {
   });
 
   describe("Utils.readChallengeTx", function() {
+    it('requires a non-muxed account', function() {
+      expect(() =>
+        StellarSdk.Utils.readChallengeTx(
+          "avalidtx",
+          "MAAAAAAAAAAAAAB7BQ2L7E5NBWMXDUCMZSIPOBKRDSBYVLMXGSSKF6YNPIB7Y77ITLVL6",
+          "SDF",
+          300,
+          StellarSdk.Networks.TESTNET
+        )
+      ).to.throw(
+        /Invalid serverAccountID: multiplexed accounts are not supported./
+      );
+    });
+    it("requires a envelopeTypeTxV0 or envelopeTypeTx", function(){
+      let serverKP = StellarSdk.Keypair.random();
+      let clientKP = StellarSdk.Keypair.random();
+
+      const challenge = StellarSdk.Utils.buildChallengeTx(
+        serverKP,
+        clientKP.publicKey(),
+        "SDF",
+        300,
+        StellarSdk.Networks.TESTNET
+      );
+
+      const txV0 = StellarSdk.TransactionBuilder.fromXDR(challenge, StellarSdk.Networks.TESTNET);
+      const txV1Raw = new StellarSdk.xdr.TransactionEnvelope.envelopeTypeTx(
+        new StellarSdk.xdr.TransactionV1Envelope({
+          tx: StellarSdk.xdr.Transaction.fromXDR(Buffer.concat([StellarSdk.xdr.PublicKeyType.publicKeyTypeEd25519().toXDR(), txV0.tx.toXDR()])),
+          signatures: txV0.signatures
+        })
+      );
+      const txV1 = StellarSdk.TransactionBuilder.fromXDR(
+        txV1Raw.toXDR().toString('base64'),
+        StellarSdk.Networks.TESTNET
+      )
+      
+      let feeBump = StellarSdk.TransactionBuilder.buildFeeBumpTransaction(
+        serverKP, 
+        "200", 
+        txV1, 
+        StellarSdk.Networks.TESTNET
+      ).toXDR();
+
+      expect(() =>
+        StellarSdk.Utils.readChallengeTx(
+          feeBump,
+          serverKP.publicKey(),
+          StellarSdk.Networks.TESTNET
+        )
+      ).to.throw(
+        StellarSdk.InvalidSep10ChallengeError,
+        /Invalid challenge: expected a Transaction but received a FeeBumpTransaction/
+      );
+
+      expect(() =>
+        StellarSdk.Utils.readChallengeTx(
+          challenge,
+          serverKP.publicKey(),
+          StellarSdk.Networks.TESTNET
+        )
+      ).to.not.throw(StellarSdk.InvalidSep10ChallengeError);
+      expect(() =>
+        StellarSdk.Utils.readChallengeTx(
+          txV1Raw.toXDR().toString('base64'),
+          serverKP.publicKey(),
+          StellarSdk.Networks.TESTNET
+        )
+      ).to.not.throw(StellarSdk.InvalidSep10ChallengeError);
+    });
     it("returns the transaction and the clientAccountID (client's pubKey) if the challenge was created successfully", function() {
       let serverKP = StellarSdk.Keypair.random();
       let clientKP = StellarSdk.Keypair.random();
@@ -1314,260 +1399,6 @@ describe('Utils', function() {
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
         /No verifiable client signers provided, at least one G... address must be provided/,
-      );
-    });
-  });
-
-  describe('Utils.verifyChallengeTx', function() {
-    it('returns true if the transaction is valid and signed by the server and client', function() {
-      let keypair = StellarSdk.Keypair.random();
-      let clientKeypair = StellarSdk.Keypair.random();
-
-      const challenge = StellarSdk.Utils.buildChallengeTx(
-        keypair,
-        clientKeypair.publicKey(),
-        "SDF",
-        300,
-        StellarSdk.Networks.TESTNET
-      );
-
-      clock.tick(200);
-
-      const transaction = new StellarSdk.Transaction(challenge, StellarSdk.Networks.TESTNET);
-      transaction.sign(clientKeypair);
-
-      const signedChallenge = transaction
-            .toEnvelope()
-            .toXDR("base64")
-            .toString();
-
-      expect(StellarSdk.Utils.verifyChallengeTx(signedChallenge, keypair.publicKey(), StellarSdk.Networks.TESTNET)).to.eql(true);
-    });
-
-    it('throws an error if transaction sequenceNumber is different to zero', function() {
-      let keypair = StellarSdk.Keypair.random();
-
-      const account = new StellarSdk.Account(keypair.publicKey(), "100");
-      const transaction = new StellarSdk.TransactionBuilder(account, txBuilderOpts)
-            .setTimeout(30)
-            .build();
-
-      let challenge = transaction
-          .toEnvelope()
-          .toXDR("base64")
-          .toString();
-
-      expect(
-        () => StellarSdk.Utils.verifyChallengeTx(challenge, keypair.publicKey(), StellarSdk.Networks.TESTNET)
-      ).to.throw(
-        StellarSdk.InvalidSep10ChallengeError,
-        /The transaction sequence number should be zero/
-      );
-    });
-
-    it('throws an error if transaction source account is different to server account id', function() {
-      let keypair = StellarSdk.Keypair.random();
-
-      const challenge = StellarSdk.Utils.buildChallengeTx(
-        keypair,
-        "GBDIT5GUJ7R5BXO3GJHFXJ6AZ5UQK6MNOIDMPQUSMXLIHTUNR2Q5CFNF",
-        "SDF",
-        300,
-        StellarSdk.Networks.TESTNET
-      );
-
-      let serverAccountId = StellarSdk.Keypair.random().publicKey();
-
-      expect(
-        () => StellarSdk.Utils.verifyChallengeTx(challenge, serverAccountId, StellarSdk.Networks.TESTNET)
-      ).to.throw(
-        StellarSdk.InvalidSep10ChallengeError,
-        /The transaction source account is not equal to the server's account/
-      );
-    });
-
-    it('throws an error if transaction doestn\'t contain any operation', function() {
-      let keypair = StellarSdk.Keypair.random();
-      const account = new StellarSdk.Account(keypair.publicKey(), "-1");
-      const transaction = new StellarSdk.TransactionBuilder(account, txBuilderOpts)
-            .setTimeout(30)
-            .build();
-
-      transaction.sign(keypair);
-      const challenge = transaction
-            .toEnvelope()
-            .toXDR("base64")
-            .toString();
-
-      expect(
-        () => StellarSdk.Utils.verifyChallengeTx(challenge, keypair.publicKey(), StellarSdk.Networks.TESTNET)
-      ).to.throw(
-        StellarSdk.InvalidSep10ChallengeError,
-        /The transaction should contain exactly one operation/,
-      );
-    });
-
-    it('throws an error if operation does not contain the source account', function() {
-      let keypair = StellarSdk.Keypair.random();
-      const account = new StellarSdk.Account(keypair.publicKey(), "-1");
-      const transaction = new StellarSdk.TransactionBuilder(account, txBuilderOpts)
-            .addOperation(
-              StellarSdk.Operation.manageData({
-                name: 'SDF auth',
-                value: randomBytes(48).toString('base64')
-              })
-            )
-            .setTimeout(30)
-            .build();
-
-      transaction.sign(keypair);
-      const challenge = transaction
-            .toEnvelope()
-            .toXDR("base64")
-            .toString();
-
-      expect(
-        () => StellarSdk.Utils.verifyChallengeTx(challenge, keypair.publicKey(), StellarSdk.Networks.TESTNET)
-      ).to.throw(
-        StellarSdk.InvalidSep10ChallengeError,
-        /The transaction\'s operation should contain a source account/
-      );
-    });
-
-    it('throws an error if operation is not manage data', function() {
-      let keypair = StellarSdk.Keypair.random();
-      const account = new StellarSdk.Account(keypair.publicKey(), "-1");
-      const transaction = new StellarSdk.TransactionBuilder(account, txBuilderOpts)
-            .addOperation(
-              StellarSdk.Operation.accountMerge({
-                destination: keypair.publicKey(),
-                source: keypair.publicKey()
-              })
-            )
-            .setTimeout(30)
-            .build();
-
-      transaction.sign(keypair);
-      const challenge = transaction
-            .toEnvelope()
-            .toXDR("base64")
-            .toString();
-
-      expect(
-        () => StellarSdk.Utils.verifyChallengeTx(challenge, keypair.publicKey(), StellarSdk.Networks.TESTNET)
-      ).to.throw(
-        StellarSdk.InvalidSep10ChallengeError,
-        /The transaction\'s operation type should be \'manageData\'/,
-      );
-    });
-
-    it('throws an error if operation value is not a 64 bytes base64 string', function() {
-      let keypair = StellarSdk.Keypair.random();
-      const account = new StellarSdk.Account(keypair.publicKey(), "-1");
-      const transaction = new StellarSdk.TransactionBuilder(account, txBuilderOpts)
-            .addOperation(
-              StellarSdk.Operation.manageData({
-                name: 'SDF auth',
-                value: randomBytes(64),
-                source: 'GBDIT5GUJ7R5BXO3GJHFXJ6AZ5UQK6MNOIDMPQUSMXLIHTUNR2Q5CFNF'
-              })
-            )
-            .setTimeout(30)
-            .build();
-
-      transaction.sign(keypair);
-      const challenge = transaction
-            .toEnvelope()
-            .toXDR("base64")
-            .toString();
-
-      expect(
-        () => StellarSdk.Utils.verifyChallengeTx(challenge, keypair.publicKey(), StellarSdk.Networks.TESTNET)
-      ).to.throw(
-        StellarSdk.InvalidSep10ChallengeError,
-        /The transaction\'s operation value should be a 64 bytes base64 random string/
-      );
-    });
-
-    it('throws an error if transaction is not signed by the server', function() {
-      let keypair = StellarSdk.Keypair.random();
-
-      const challenge = StellarSdk.Utils.buildChallengeTx(
-        keypair,
-        "GBDIT5GUJ7R5BXO3GJHFXJ6AZ5UQK6MNOIDMPQUSMXLIHTUNR2Q5CFNF",
-        "SDF",
-        300,
-        StellarSdk.Networks.TESTNET
-      );
-
-      let envelope = StellarSdk.xdr.TransactionEnvelope.fromXDR(challenge, 'base64');
-      envelope.value().signatures([]);
-
-      const transaction = new StellarSdk.Transaction(envelope, StellarSdk.Networks.TESTNET);
-
-      let newSigner = StellarSdk.Keypair.random();
-
-      transaction.sign(newSigner);
-
-      const unsignedChallenge = transaction
-            .toEnvelope()
-            .toXDR("base64")
-            .toString();
-
-      expect(
-        () => StellarSdk.Utils.verifyChallengeTx(unsignedChallenge, keypair.publicKey(), StellarSdk.Networks.TESTNET)
-      ).to.throw(
-        StellarSdk.InvalidSep10ChallengeError,
-        /The transaction is not signed by the server/
-      );
-    });
-
-    it('throws an error if transaction is not signed by the client', function() {
-      let keypair = StellarSdk.Keypair.random();
-
-      const challenge = StellarSdk.Utils.buildChallengeTx(
-        keypair,
-        "GBDIT5GUJ7R5BXO3GJHFXJ6AZ5UQK6MNOIDMPQUSMXLIHTUNR2Q5CFNF",
-        "SDF",
-        300,
-        StellarSdk.Networks.TESTNET
-      );
-
-      expect(
-        () => StellarSdk.Utils.verifyChallengeTx(challenge, keypair.publicKey(), StellarSdk.Networks.TESTNET)
-      ).to.throw(
-        StellarSdk.InvalidSep10ChallengeError,
-        /The transaction is not signed by the client/
-      );
-    });
-
-    it('throws an error if transaction does not contain valid timeBounds', function() {
-      let keypair = StellarSdk.Keypair.random();
-      let clientKeypair = StellarSdk.Keypair.random();
-
-      const challenge = StellarSdk.Utils.buildChallengeTx(
-        keypair,
-        clientKeypair.publicKey(),
-        "SDF",
-        300,
-        StellarSdk.Networks.TESTNET
-      );
-
-      clock.tick(350000);
-
-      const transaction = new StellarSdk.Transaction(challenge, StellarSdk.Networks.TESTNET);
-      transaction.sign(clientKeypair);
-
-      const signedChallenge = transaction
-            .toEnvelope()
-            .toXDR("base64")
-            .toString();
-
-      expect(
-        () => StellarSdk.Utils.verifyChallengeTx(signedChallenge, keypair.publicKey(), StellarSdk.Networks.TESTNET)
-      ).to.throw(
-        StellarSdk.InvalidSep10ChallengeError,
-        /The transaction has expired/
       );
     });
   });
