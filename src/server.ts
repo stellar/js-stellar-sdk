@@ -539,48 +539,6 @@ export class Server {
   }
 
   /**
-   *
-   * The Stellar Network allows payments to be made between assets through path payments. A path payment specifies a
-   * series of assets to route a payment through, from source asset (the asset debited from the payer) to destination
-   * asset (the asset credited to the payee).
-   *
-   * A path search is specified using:
-   *
-   * * The destination address
-   * * The source address
-   * * The asset and amount that the destination account should receive
-   *
-   * As part of the search, horizon will load a list of assets available to the source address and will find any
-   * payment paths from those source assets to the desired destination asset. The search's amount parameter will be
-   * used to determine if there a given path can satisfy a payment of the desired amount.
-   *
-   * @param {string} source The sender's account ID. Any returned path will use a source that the sender can hold.
-   * @param {string} destination The destination account ID that any returned path should use.
-   * @param {Asset} destinationAsset The destination asset.
-   * @param {string} destinationAmount The amount, denominated in the destination asset, that any returned path should be able to satisfy.
-   * @returns {PathCallBuilder} New {@link PathCallBuilder} object configured with the current Horizon server configuration.
-   *
-   * @deprecated Use {@link Server#strictReceivePaths}
-   */
-  public paths(
-    source: string,
-    destination: string,
-    destinationAsset: Asset,
-    destinationAmount: string,
-  ): PathCallBuilder {
-    console.warn(
-      "`Server#paths` is deprecated. Please use `Server#strictReceivePaths`.",
-    );
-    return new PathCallBuilder(
-      URI(this.serverURL as any),
-      source,
-      destination,
-      destinationAsset,
-      destinationAmount,
-    );
-  }
-
-  /**
    * The Stellar Network allows payments to be made between assets through path
    * payments. A strict receive path payment specifies a series of assets to
    * route a payment through, from source asset (the asset debited from the
