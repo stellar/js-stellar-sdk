@@ -4,6 +4,13 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+## [5.0.0-alpha.1](https://github.com/stellar/js-stellar-sdk/compare/v4.1.0...v5.0.0-alpha.1)
+
+### Breaking changes 
+- Bump `stellar-base` to `v3.0.0-alpha-0`: This new version of stellar-base brings support for protocol 13, including multiple breaking changes which might affect your code, please review the list of breaking changes in [stellar-base@3.0.0-alpha.0](https://github.com/stellar/js-stellar-base/releases/tag/v3.0.0-alpha.0) release ([#524](https://github.com/stellar/js-stellar-sdk/pull/524)).
+- Make `networkPassphrase` a required argument in `Utils.buildChallengeTx` and  `Utils.readChallengeTx` ([#524](https://github.com/stellar/js-stellar-sdk/pull/524)).
+- Remove `Server.paths` ([#525](https://github.com/stellar/js-stellar-sdk/pull/525)).
+
 ## [v4.1.0](https://github.com/stellar/js-stellar-sdk/compare/v4.0.2...v4.1.0)
 
 ### Add
