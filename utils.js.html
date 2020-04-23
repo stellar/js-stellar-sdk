@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>CallBuilder - Documentation</title>
+    <title>utils.js - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -29,1277 +29,438 @@
 
 <div id="main">
     
-    <h1 class="page-title">CallBuilder</h1>
-    
-
-    
-
-
-
-
-<section>
-
-<header>
-    
-        <h2>
-        CallBuilder
-        </h2>
-        
-    
-</header>
-
-<article>
-    <div class="container-overview">
-    
-        
-<div class="section-method">
-
-    
-
-    <h4 class="name" id="CallBuilder"><span class="type-signature"></span>new CallBuilder<span class="signature">(serverUrl)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Creates a new <a href="CallBuilder.html">CallBuilder</a> pointed to server defined by serverUrl.</p>
-<p>This is an <strong>abstract</strong> class. Do not create this object directly, use <a href="Server.html">Server</a> class.</p>
-</div>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="call_builder.js.html">call_builder.js</a>, <a href="call_builder.js.html#line24">line 24</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>serverUrl</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><code>string</code></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">
-                <p>URL of Horizon server</p>
-                
-            </td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-</div>
-    
-    </div>
-
-    
-
-    
-
-    
-
-     
-
-    
-
-    
-
-    
-        <h3 class="subsection-title">Methods</h3>
-
-        
-            
-<div class="section-method">
-
-    
-
-    <h4 class="name" id="call"><span class="type-signature"></span>call<span class="signature">()</span><span class="type-signature"> &rarr; {Promise}</span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Triggers a HTTP request using this builder's current configuration.</p>
-</div>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="call_builder.js.html">call_builder.js</a>, <a href="call_builder.js.html#line41">line 41</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div class="section-returns">
-<h5>Returns:</h5>
-
-        
-
-<dl class="param-type">
-    <dt>
-        Type:
-    </dt>
-    <dd>
-        
-<span class="param-type"><code>Promise</code></span>
-
-
-    </dd>
-</dl>
-
-
-<div class="param-desc">
-    <p>a Promise that resolves to the server's response.</p>
-</div>
-
-    
-</div>
-
-
-
-</div>
-        
-            
-<div class="section-method">
-
-    
-
-    <h4 class="name" id="cursor"><span class="type-signature"></span>cursor<span class="signature">(cursor)</span><span class="type-signature"> &rarr; {object}</span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Sets <code>cursor</code> parameter for the current call. Returns the CallBuilder object on which this method has been called.</p>
-</div>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="call_builder.js.html">call_builder.js</a>, <a href="call_builder.js.html#line147">line 147</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-    <dt class="tag-see">See:</dt>
-    <dd class="tag-see">
-        <ul>
-            <li><p><a href="https://www.stellar.org/developers/horizon/reference/paging.html">Paging</a></p></li>
-        </ul>
-    </dd>
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>cursor</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><code>string</code></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">
-                <p>A cursor is a value that points to a specific location in a collection of resources.</p>
-                
-            </td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div class="section-returns">
-<h5>Returns:</h5>
-
-        
-
-<dl class="param-type">
-    <dt>
-        Type:
-    </dt>
-    <dd>
-        
-<span class="param-type"><code>object</code></span>
-
-
-    </dd>
-</dl>
-
-
-<div class="param-desc">
-    <p>current CallBuilder instance</p>
-</div>
-
-    
-</div>
-
-
-
-</div>
-        
-            
-<div class="section-method">
-
-    
-
-    <h4 class="name" id="join"><span class="type-signature"></span>join<span class="signature">(join)</span><span class="type-signature"> &rarr; {object}</span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Sets <code>join</code> parameter for the current call. The <code>join</code> parameter
-includes the requested resource in the response. Currently, the
-only valid value for the parameter is <code>transactions</code> and is only
-supported on the operations and payments endpoints. The response
-will include a <code>transaction</code> field for each operation in the
-response.</p>
-</div>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="call_builder.js.html">call_builder.js</a>, <a href="call_builder.js.html#line181">line 181</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>join</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><code>"transactions"</code></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">
-                <p>Records to be included in the response.</p>
-                
-            </td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div class="section-returns">
-<h5>Returns:</h5>
-
-        
-
-<dl class="param-type">
-    <dt>
-        Type:
-    </dt>
-    <dd>
-        
-<span class="param-type"><code>object</code></span>
-
-
-    </dd>
-</dl>
-
-
-<div class="param-desc">
-    <p>current CallBuilder instance.</p>
-</div>
-
-    
-</div>
-
-
-
-</div>
-        
-            
-<div class="section-method">
-
-    
-
-    <h4 class="name" id="limit"><span class="type-signature"></span>limit<span class="signature">(number)</span><span class="type-signature"> &rarr; {object}</span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Sets <code>limit</code> parameter for the current call. Returns the CallBuilder object on which this method has been called.</p>
-</div>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="call_builder.js.html">call_builder.js</a>, <a href="call_builder.js.html#line157">line 157</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-    <dt class="tag-see">See:</dt>
-    <dd class="tag-see">
-        <ul>
-            <li><p><a href="https://www.stellar.org/developers/horizon/reference/paging.html">Paging</a></p></li>
-        </ul>
-    </dd>
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>number</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><code>number</code></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">
-                <p>Number of records the server should return.</p>
-                
-            </td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div class="section-returns">
-<h5>Returns:</h5>
-
-        
-
-<dl class="param-type">
-    <dt>
-        Type:
-    </dt>
-    <dd>
-        
-<span class="param-type"><code>object</code></span>
-
-
-    </dd>
-</dl>
-
-
-<div class="param-desc">
-    <p>current CallBuilder instance</p>
-</div>
-
-    
-</div>
-
-
-
-</div>
-        
-            
-<div class="section-method">
-
-    
-
-    <h4 class="name" id="order"><span class="type-signature"></span>order<span class="signature">(direction)</span><span class="type-signature"> &rarr; {object}</span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Sets <code>order</code> parameter for the current call. Returns the CallBuilder object on which this method has been called.</p>
-</div>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="call_builder.js.html">call_builder.js</a>, <a href="call_builder.js.html#line166">line 166</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>direction</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><code>"asc"</code></span>
-|
-
-<span class="param-type"><code>"desc"</code></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">
-                <p>Sort direction</p>
-                
-            </td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div class="section-returns">
-<h5>Returns:</h5>
-
-        
-
-<dl class="param-type">
-    <dt>
-        Type:
-    </dt>
-    <dd>
-        
-<span class="param-type"><code>object</code></span>
-
-
-    </dd>
-</dl>
-
-
-<div class="param-desc">
-    <p>current CallBuilder instance</p>
-</div>
-
-    
-</div>
-
-
-
-</div>
-        
-            
-<div class="section-method">
-
-    
-
-    <h4 class="name" id="stream"><span class="type-signature"></span>stream<span class="signature">(options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {function}</span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Creates an EventSource that listens for incoming messages from the server. To stop listening for new
-events call the function returned by this method.</p>
-</div>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="call_builder.js.html">call_builder.js</a>, <a href="call_builder.js.html#line72">line 72</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-    <dt class="tag-see">See:</dt>
-    <dd class="tag-see">
-        <ul>
-            <li><p><a href="https://www.stellar.org/developers/horizon/reference/responses.html">Horizon Response Format</a></p></li>
-        
-            <li><p><a href="https://developer.mozilla.org/en-US/docs/Web/API/EventSource">MDN EventSource</a></p></li>
-        </ul>
-    </dd>
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>options</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><code>object</code></span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">
-                <p>EventSource options.</p>
-                
-                    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>onmessage</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><code>function</code></span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">
-                <p>Callback function to handle incoming messages.</p>
-                
-            </td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>onerror</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><code>function</code></span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">
-                <p>Callback function to handle errors.</p>
-                
-            </td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>reconnectTimeout</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><code>number</code></span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">
-                <p>Custom stream connection timeout in ms, default is 15 seconds.</p>
-                
-            </td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-                
-            </td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div class="section-returns">
-<h5>Returns:</h5>
-
-        
-
-<dl class="param-type">
-    <dt>
-        Type:
-    </dt>
-    <dd>
-        
-<span class="param-type"><code>function</code></span>
-
-
-    </dd>
-</dl>
-
-
-<div class="param-desc">
-    <p>Close function. Run to close the connection and stop listening for new events.</p>
-</div>
-
-    
-</div>
-
-
-
-</div>
-        
-    
-
-    
-
-    
-</article>
-
-</section>
+    <h1 class="page-title">utils.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import clone from "lodash/clone";
+import randomBytes from "randombytes";
+import { Account, BASE_FEE, Keypair, Operation, TimeoutInfinite, Transaction, TransactionBuilder, } from "stellar-base";
+import { InvalidSep10ChallengeError } from "./errors";
+/**
+ * @namespace Utils
+ */
+export var Utils;
+(function (Utils) {
+    /**
+     * Returns a valid [SEP0010](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0010.md)
+     * challenge transaction which you can use for Stellar Web Authentication.
+     *
+     * @see [SEP0010: Stellar Web Authentication](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0010.md).
+     * @function
+     * @memberof Utils
+     * @param {Keypair} serverKeypair Keypair for server's signing account.
+     * @param {string} clientAccountID The stellar account that the wallet wishes to authenticate with the server.
+     * @param {string} anchorName Anchor's name to be used in the manage_data key.
+     * @param {number} [timeout=300] Challenge duration (default to 5 minutes).
+     * @param {string} networkPassphrase The network passphrase. If you pass this argument then timeout is required.
+     * @example
+     * import { Utils, Keypair, Networks }  from 'stellar-sdk'
+     *
+     * let serverKeyPair = Keypair.fromSecret("server-secret")
+     * let challenge = Utils.buildChallengeTx(serverKeyPair, "client-stellar-account-id", "SDF", 300, Networks.TESTNET)
+     * @returns {string} A base64 encoded string of the raw TransactionEnvelope xdr struct for the transaction.
+     */
+    function buildChallengeTx(serverKeypair, clientAccountID, anchorName, timeout = 300, networkPassphrase) {
+        if (clientAccountID.startsWith("M")) {
+            throw Error("Invalid clientAccountID: multiplexed accounts are not supported.");
+        }
+        const account = new Account(serverKeypair.publicKey(), "-1");
+        const now = Math.floor(Date.now() / 1000);
+        // A Base64 digit represents 6 bits, to generate a random 64 bytes
+        // base64 string, we need 48 random bytes = (64 * 6)/8
+        //
+        // Each Base64 digit is in ASCII and each ASCII characters when
+        // turned into binary represents 8 bits = 1 bytes.
+        const value = randomBytes(48).toString("base64");
+        const transaction = new TransactionBuilder(account, {
+            fee: BASE_FEE,
+            networkPassphrase,
+            timebounds: {
+                minTime: now,
+                maxTime: now + timeout,
+            },
+        })
+            .addOperation(Operation.manageData({
+            name: `${anchorName} auth`,
+            value,
+            source: clientAccountID,
+        }))
+            .build();
+        transaction.sign(serverKeypair);
+        return transaction
+            .toEnvelope()
+            .toXDR("base64")
+            .toString();
+    }
+    Utils.buildChallengeTx = buildChallengeTx;
+    /**
+     * readChallengeTx reads a SEP 10 challenge transaction and returns the decoded
+     * transaction and client account ID contained within.
+     *
+     * It also verifies that the transaction has been signed by the server.
+     *
+     * It does not verify that the transaction has been signed by the client or
+     * that any signatures other than the server's on the transaction are valid. Use
+     * one of the following functions to completely verify the transaction:
+     * - verifyChallengeTxThreshold
+     * - verifyChallengeTxSigners
+     *
+     * @see [SEP0010: Stellar Web Authentication](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0010.md).
+     * @function
+     * @memberof Utils
+     * @param {string} challengeTx SEP0010 challenge transaction in base64.
+     * @param {string} serverAccountID The server's stellar account (public key).
+     * @param {string} networkPassphrase The network passphrase, e.g.: 'Test SDF Network ; September 2015'.
+     * @returns {Transaction|string} the actual submited transaction and the stellar public key (master key) used to sign the Manage Data operation.
+     */
+    function readChallengeTx(challengeTx, serverAccountID, networkPassphrase) {
+        var _a;
+        if (serverAccountID.startsWith("M")) {
+            throw Error("Invalid serverAccountID: multiplexed accounts are not supported.");
+        }
+        const transaction = TransactionBuilder.fromXDR(challengeTx, networkPassphrase);
+        if (!(transaction instanceof Transaction)) {
+            throw new InvalidSep10ChallengeError("Invalid challenge: expected a Transaction but received a FeeBumpTransaction");
+        }
+        // verify sequence number
+        const sequence = Number.parseInt(transaction.sequence, 10);
+        if (sequence !== 0) {
+            throw new InvalidSep10ChallengeError("The transaction sequence number should be zero");
+        }
+        // verify transaction source
+        if (transaction.source !== serverAccountID) {
+            throw new InvalidSep10ChallengeError("The transaction source account is not equal to the server's account");
+        }
+        // verify operation
+        if (transaction.operations.length !== 1) {
+            throw new InvalidSep10ChallengeError("The transaction should contain exactly one operation");
+        }
+        const [operation] = transaction.operations;
+        if (!operation.source) {
+            throw new InvalidSep10ChallengeError("The transaction's operation should contain a source account");
+        }
+        const clientAccountID = operation.source;
+        if (operation.type !== "manageData") {
+            throw new InvalidSep10ChallengeError("The transaction's operation type should be 'manageData'");
+        }
+        // verify timebounds
+        if (transaction.timeBounds &amp;&amp;
+            Number.parseInt((_a = transaction.timeBounds) === null || _a === void 0 ? void 0 : _a.maxTime, 10) === TimeoutInfinite) {
+            throw new InvalidSep10ChallengeError("The transaction requires non-infinite timebounds");
+        }
+        if (!validateTimebounds(transaction)) {
+            throw new InvalidSep10ChallengeError("The transaction has expired");
+        }
+        // verify base64
+        if (Buffer.from(operation.value.toString(), "base64").length !== 48) {
+            throw new InvalidSep10ChallengeError("The transaction's operation value should be a 64 bytes base64 random string");
+        }
+        return { tx: transaction, clientAccountID };
+    }
+    Utils.readChallengeTx = readChallengeTx;
+    /**
+     * verifyChallengeTxThreshold verifies that for a SEP 10 challenge transaction
+     * all signatures on the transaction are accounted for and that the signatures
+     * meet a threshold on an account. A transaction is verified if it is signed by
+     * the server account, and all other signatures match a signer that has been
+     * provided as an argument, and those signatures meet a threshold on the
+     * account.
+     *
+     * Signers that are not prefixed as an address/account ID strkey (G...) will be
+     * ignored.
+     *
+     * Errors will be raised if:
+     *  - The transaction is invalid according to ReadChallengeTx.
+     *  - No client signatures are found on the transaction.
+     *  - One or more signatures in the transaction are not identifiable as the
+     *    server account or one of the signers provided in the arguments.
+     *  - The signatures are all valid but do not meet the threshold.
+     *
+     * @see [SEP0010: Stellar Web Authentication](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0010.md).
+     * @function
+     * @memberof Utils
+     * @param {string} challengeTx SEP0010 challenge transaction in base64.
+     * @param {string} serverAccountID The server's stellar account (public key).
+     * @param {string} networkPassphrase The network passphrase, e.g.: 'Test SDF Network ; September 2015'.
+     * @param {number} threshold The required signatures threshold for verifying this transaction.
+     * @param {ServerApi.AccountRecordSigners[]} signerSummary a map of all authorized signers to their weights. It's used to validate if the transaction signatures have met the given threshold.
+     * @returns {string[]} The list of signers public keys that have signed the transaction, excluding the server account ID, given that the threshold was met.
+     * @example
+     *
+     * import { Networks, TransactionBuilder, Utils }  from 'stellar-sdk';
+     *
+     * const serverKP = Keypair.random();
+     * const clientKP1 = Keypair.random();
+     * const clientKP2 = Keypair.random();
+     *
+     * // Challenge, possibly built in the server side
+     * const challenge = Utils.buildChallengeTx(
+     *   serverKP,
+     *   clientKP1.publicKey(),
+     *   "SDF",
+     *   300,
+     *   Networks.TESTNET
+     * );
+     *
+     * // clock.tick(200);  // Simulates a 200 ms delay when communicating from server to client
+     *
+     * // Transaction gathered from a challenge, possibly from the client side
+     * const transaction = TransactionBuilder.fromXDR(challenge, Networks.TESTNET);
+     * transaction.sign(clientKP1, clientKP2);
+     * const signedChallenge = transaction
+     *         .toEnvelope()
+     *         .toXDR("base64")
+     *         .toString();
+     *
+     * // Defining the threshold and signerSummary
+     * const threshold = 3;
+     * const signerSummary = [
+     *    {
+     *      key: this.clientKP1.publicKey(),
+     *      weight: 1,
+     *    },
+     *    {
+     *      key: this.clientKP2.publicKey(),
+     *      weight: 2,
+     *    },
+     *  ];
+     *
+     * // The result below should be equal to [clientKP1.publicKey(), clientKP2.publicKey()]
+     * Utils.verifyChallengeTxThreshold(signedChallenge, serverKP.publicKey(), Networks.TESTNET, threshold, signerSummary);
+     */
+    function verifyChallengeTxThreshold(challengeTx, serverAccountID, networkPassphrase, threshold, signerSummary) {
+        var _a;
+        const signers = signerSummary.map((signer) => signer.key);
+        const signersFound = verifyChallengeTxSigners(challengeTx, serverAccountID, networkPassphrase, signers);
+        let weight = 0;
+        for (const signer of signersFound) {
+            const sigWeight = ((_a = signerSummary.find((s) => s.key === signer)) === null || _a === void 0 ? void 0 : _a.weight) || 0;
+            weight += sigWeight;
+        }
+        if (weight &lt; threshold) {
+            throw new InvalidSep10ChallengeError(`signers with weight ${weight} do not meet threshold ${threshold}"`);
+        }
+        return signersFound;
+    }
+    Utils.verifyChallengeTxThreshold = verifyChallengeTxThreshold;
+    /**
+     * verifyChallengeTxSigners verifies that for a SEP 10 challenge transaction all
+     * signatures on the transaction are accounted for. A transaction is verified
+     * if it is signed by the server account, and all other signatures match a signer
+     * that has been provided as an argument (as the accountIDs list). Additional signers
+     * can be provided that do not have a signature, but all signatures must be matched
+     * to a signer (accountIDs) for verification to succeed. If verification succeeds,
+     * a list of signers that were found is returned, not including the server account ID.
+     *
+     * Signers that are not prefixed as an address/account ID strkey (G...) will be ignored.
+     *
+     * Errors will be raised if:
+     *  - The transaction is invalid according to ReadChallengeTx.
+     *  - No client signatures are found on the transaction.
+     *  - One or more signatures in the transaction are not identifiable as the
+     *    server account or one of the signers provided in the arguments.
+     *
+     * @see [SEP0010: Stellar Web Authentication](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0010.md).
+     * @function
+     * @memberof Utils
+     * @param {string} challengeTx SEP0010 challenge transaction in base64.
+     * @param {string} serverAccountID The server's stellar account (public key).
+     * @param {string} networkPassphrase The network passphrase, e.g.: 'Test SDF Network ; September 2015'.
+     * @param {string[]} signers The signers public keys. This list should contain the public keys for all signers that have signed the transaction.
+     * @returns {string[]} The list of signers public keys that have signed the transaction, excluding the server account ID.
+     * @example
+     *
+     * import { Networks, TransactionBuilder, Utils }  from 'stellar-sdk';
+     *
+     * const serverKP = Keypair.random();
+     * const clientKP1 = Keypair.random();
+     * const clientKP2 = Keypair.random();
+     *
+     * // Challenge, possibly built in the server side
+     * const challenge = Utils.buildChallengeTx(
+     *   serverKP,
+     *   clientKP1.publicKey(),
+     *   "SDF",
+     *   300,
+     *   Networks.TESTNET
+     * );
+     *
+     * // clock.tick(200);  // Simulates a 200 ms delay when communicating from server to client
+     *
+     * // Transaction gathered from a challenge, possibly from the client side
+     * const transaction = TransactionBuilder.fromXDR(challenge, Networks.TESTNET);
+     * transaction.sign(clientKP1, clientKP2);
+     * const signedChallenge = transaction
+     *         .toEnvelope()
+     *         .toXDR("base64")
+     *         .toString();
+     *
+     * // The result below should be equal to [clientKP1.publicKey(), clientKP2.publicKey()]
+     * Utils.verifyChallengeTxSigners(signedChallenge, serverKP.publicKey(), Networks.TESTNET, threshold, [clientKP1.publicKey(), clientKP2.publicKey()]);
+     */
+    function verifyChallengeTxSigners(challengeTx, serverAccountID, networkPassphrase, signers) {
+        // Read the transaction which validates its structure.
+        const { tx } = readChallengeTx(challengeTx, serverAccountID, networkPassphrase);
+        // Ensure the server account ID is an address and not a seed.
+        let serverKP;
+        try {
+            serverKP = Keypair.fromPublicKey(serverAccountID); // can throw 'Invalid Stellar public key'
+        }
+        catch (err) {
+            throw new Error("Couldn't infer keypair from the provided 'serverAccountID': " +
+                err.message);
+        }
+        // Deduplicate the client signers and ensure the server is not included
+        // anywhere we check or output the list of signers.
+        const clientSigners = new Set();
+        for (const signer of signers) {
+            // Ignore the server signer if it is in the signers list. It's
+            // important when verifying signers of a challenge transaction that we
+            // only verify and return client signers. If an account has the server
+            // as a signer the server should not play a part in the authentication
+            // of the client.
+            if (signer === serverKP.publicKey()) {
+                continue;
+            }
+            // Ignore non-G... account/address signers.
+            if (signer.charAt(0) !== "G") {
+                continue;
+            }
+            clientSigners.add(signer);
+        }
+        // Don't continue if none of the signers provided are in the final list.
+        if (clientSigners.size === 0) {
+            throw new InvalidSep10ChallengeError("No verifiable client signers provided, at least one G... address must be provided");
+        }
+        // Verify all the transaction's signers (server and client) in one
+        // hit. We do this in one hit here even though the server signature was
+        // checked in the ReadChallengeTx to ensure that every signature and signer
+        // are consumed only once on the transaction.
+        const allSigners = [
+            serverKP.publicKey(),
+            ...Array.from(clientSigners),
+        ];
+        const signersFound = gatherTxSigners(tx, allSigners);
+        // Confirm we matched a signature to the server signer.
+        if (signersFound.indexOf(serverKP.publicKey()) === -1) {
+            throw new InvalidSep10ChallengeError("Transaction not signed by server: '" + serverKP.publicKey() + "'");
+        }
+        // Confirm we matched at least one given signer with the transaction signatures
+        if (signersFound.length === 1) {
+            throw new InvalidSep10ChallengeError("None of the given signers match the transaction signatures");
+        }
+        // Confirm all signatures, including the server signature, were consumed by a signer:
+        if (signersFound.length !== tx.signatures.length) {
+            throw new InvalidSep10ChallengeError("Transaction has unrecognized signatures");
+        }
+        // Remove the server public key before returning
+        signersFound.splice(signersFound.indexOf(serverKP.publicKey()), 1);
+        return signersFound;
+    }
+    Utils.verifyChallengeTxSigners = verifyChallengeTxSigners;
+    /**
+     * Verifies if a transaction was signed by the given account id.
+     *
+     * @function
+     * @memberof Utils
+     * @param {Transaction} transaction
+     * @param {string} accountID
+     * @example
+     * let keypair = Keypair.random();
+     * const account = new StellarSdk.Account(keypair.publicKey(), "-1");
+     *
+     * const transaction = new TransactionBuilder(account, { fee: 100 })
+     *    .setTimeout(30)
+     *    .build();
+     *
+     * transaction.sign(keypair)
+     * Utils.verifyTxSignedBy(transaction, keypair.publicKey())
+     * @returns {boolean}.
+     */
+    function verifyTxSignedBy(transaction, accountID) {
+        return gatherTxSigners(transaction, [accountID]).length !== 0;
+    }
+    Utils.verifyTxSignedBy = verifyTxSignedBy;
+    /**
+     *
+     * gatherTxSigners checks if a transaction has been signed by one or more of
+     * the given signers, returning a list of non-repeated signers that were found to have
+     * signed the given transaction.
+     *
+     * @function
+     * @memberof Utils
+     * @param {Transaction} transaction the signed transaction.
+     * @param {string[]} signers The signers public keys.
+     * @example
+     * let keypair1 = Keypair.random();
+     * let keypair2 = Keypair.random();
+     * const account = new StellarSdk.Account(keypair1.publicKey(), "-1");
+     *
+     * const transaction = new TransactionBuilder(account, { fee: 100 })
+     *    .setTimeout(30)
+     *    .build();
+     *
+     * transaction.sign(keypair1, keypair2)
+     * Utils.gatherTxSigners(transaction, [keypair1.publicKey(), keypair2.publicKey()])
+     * @returns {string[]} a list of signers that were found to have signed the transaction.
+     */
+    function gatherTxSigners(transaction, signers) {
+        const hashedSignatureBase = transaction.hash();
+        const txSignatures = clone(transaction.signatures);
+        const signersFound = new Set();
+        for (const signer of signers) {
+            if (txSignatures.length === 0) {
+                break;
+            }
+            let keypair;
+            try {
+                keypair = Keypair.fromPublicKey(signer); // This can throw a few different errors
+            }
+            catch (err) {
+                throw new InvalidSep10ChallengeError("Signer is not a valid address: " + err.message);
+            }
+            for (let i = 0; i &lt; txSignatures.length; i++) {
+                const decSig = txSignatures[i];
+                if (!decSig.hint().equals(keypair.signatureHint())) {
+                    continue;
+                }
+                if (keypair.verify(hashedSignatureBase, decSig.signature())) {
+                    signersFound.add(signer);
+                    txSignatures.splice(i, 1);
+                    break;
+                }
+            }
+        }
+        return Array.from(signersFound);
+    }
+    Utils.gatherTxSigners = gatherTxSigners;
+    /**
+     * Verifies if the current date is within the transaction's timebonds
+     *
+     * @function
+     * @memberof Utils
+     * @param {Transaction} transaction the transaction whose timebonds will be validated.
+     * @returns {boolean} returns true if the current time is within the transaction's [minTime, maxTime] range.
+     */
+    function validateTimebounds(transaction) {
+        if (!transaction.timeBounds) {
+            return false;
+        }
+        const now = Math.floor(Date.now() / 1000);
+        const { minTime, maxTime } = transaction.timeBounds;
+        return (now >= Number.parseInt(minTime, 10) &amp;&amp; now &lt;= Number.parseInt(maxTime, 10));
+    }
+})(Utils || (Utils = {}));
+//# sourceMappingURL=utils.js.map</code></pre>
+        </article>
+    </section>
 
 
 
