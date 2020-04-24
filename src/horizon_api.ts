@@ -401,6 +401,17 @@ export namespace Horizon {
     TX_BAD_SEQ = "tx_bad_seq",
     TX_BAD_AUTH = "tx_bad_auth",
     TX_BAD_AUTH_EXTRA = "tx_bad_auth_extra",
+    TX_FEE_BUMP_INNER_SUCCESS = "tx_fee_bump_inner_success",
+    TX_FEE_BUMP_INNER_FAILED = "tx_fee_bump_inner_failed",
+    TX_NOT_SUPPORTED = "tx_not_supported",
+    TX_SUCCESS = "tx_success",
+    TX_TOO_EARLY = "tx_too_early",
+    TX_TOO_LATE = "tx_too_late",
+    TX_MISSING_OPERATION = "tx_missing_operation",
+    TX_INSUFFICIENT_BALANCE = "tx_insufficient_balance",
+    TX_NO_SOURCE_ACCOUNT = "tx_no_source_account",
+    TX_INSUFFICIENT_FEE = "tx_insufficient_fee",
+    TX_INTERNAL_ERROR = "tx_internal_error",
   }
 
   export interface TransactionFailedExtras {
