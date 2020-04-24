@@ -4,6 +4,10 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Breaking changes 
+- The attributes `max_fee` and `fee_charged` in `TransactionResponse` can be now a `number` or a `string`. 
+  Update your code to handle both types since Horizon will start sending `string` in version `1.3.0`.
+
 ## [v5.0.0-alpha.2](https://github.com/stellar/js-stellar-sdk/compare/v5.0.0-alpha.1..v5.0.0-alpha.2)
 
 ### Update
