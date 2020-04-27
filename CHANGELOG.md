@@ -4,6 +4,8 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+## [v5.0.0](https://github.com/stellar/js-stellar-sdk/compare/v4.1.0...v5.0.0)
+
 ### Add
 - Add fee bump related attributes to `TransactionResponse` ([#532](https://github.com/stellar/js-stellar-sdk/pull/532)): 
     - `fee_account: string`.
@@ -43,6 +45,9 @@ A breaking change will get clearly marked in this log.
 ### Breaking changes 
 - The attributes `max_fee` and `fee_charged` in `TransactionResponse` can be now a `number` or a `string`. 
   Update your code to handle both types since Horizon will start sending `string` in version `1.3.0` ([#528](https://github.com/stellar/js-stellar-sdk/pull/528)).
+- Bump `stellar-base` to `v3.0.0`: This new version of stellar-base brings support for protocol 13, including multiple breaking changes which might affect your code, please review the list of breaking changes in [stellar-base@3.0.0](https://github.com/stellar/js-stellar-base/releases/tag/v3.0.0) release ([#524](https://github.com/stellar/js-stellar-sdk/pull/524)).
+- Make `networkPassphrase` a required argument in `Utils.buildChallengeTx` and  `Utils.readChallengeTx` ([#524](https://github.com/stellar/js-stellar-sdk/pull/524)).
+- Remove `Server.paths` ([#525](https://github.com/stellar/js-stellar-sdk/pull/525)).
 
 ## [v5.0.0-alpha.2](https://github.com/stellar/js-stellar-sdk/compare/v5.0.0-alpha.1..v5.0.0-alpha.2)
 
