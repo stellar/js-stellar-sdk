@@ -18,6 +18,17 @@ export namespace Horizon {
     result_meta_xdr: string;
   }
 
+  export interface FeeBumpTransactionResponse {
+    hash: string;
+    signatures: string[];
+  }
+
+  export interface InnerTransactionResponse {
+    hash: string;
+    signatures: string[];
+    max_fee: string;
+  }
+
   export interface TransactionResponse
     extends SubmitTransactionResponse,
       BaseResponse<
@@ -41,6 +52,9 @@ export namespace Horizon {
     signatures: string[];
     source_account: string;
     source_account_sequence: string;
+    fee_account: string;
+    inner_transaction?: InnerTransactionResponse;
+    fee_bump_transaction?: FeeBumpTransactionResponse;
   }
 
   export interface BalanceLineNative {
