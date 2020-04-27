@@ -18,6 +18,17 @@ export namespace Horizon {
     result_meta_xdr: string;
   }
 
+  export interface FeeBumpTransactionResponse {
+    hash: string;
+    signatures: string[];
+  }
+
+  export interface InnerTransactionResponse {
+    hash: string;
+    signatures: string[];
+    max_fee: string;
+  }
+
   export interface TransactionResponse
     extends SubmitTransactionResponse,
       BaseResponse<
@@ -30,16 +41,20 @@ export namespace Horizon {
       > {
     created_at: string;
     fee_meta_xdr: string;
-    fee_charged: number;
-    max_fee: number;
+    fee_charged: number | string;
+    max_fee: number | string;
     id: string;
     memo_type: MemoType;
     memo?: string;
+    memo_bytes?: string;
     operation_count: number;
     paging_token: string;
     signatures: string[];
     source_account: string;
     source_account_sequence: string;
+    fee_account: string;
+    inner_transaction?: InnerTransactionResponse;
+    fee_bump_transaction?: FeeBumpTransactionResponse;
   }
 
   export interface BalanceLineNative {
@@ -62,6 +77,7 @@ export namespace Horizon {
     selling_liabilities: string;
     last_modified_ledger: number;
     is_authorized: boolean;
+    is_authorized_to_maintain_liabilities: boolean;
   }
   export type BalanceLine<
     T extends AssetType = AssetType
@@ -299,6 +315,7 @@ export namespace Horizon {
     asset_code: string;
     asset_issuer: string;
     authorize: boolean;
+    authorize_to_maintain_liabilities: boolean;
     trustee: string;
     trustor: string;
   }
@@ -401,6 +418,17 @@ export namespace Horizon {
     TX_BAD_SEQ = "tx_bad_seq",
     TX_BAD_AUTH = "tx_bad_auth",
     TX_BAD_AUTH_EXTRA = "tx_bad_auth_extra",
+    TX_FEE_BUMP_INNER_SUCCESS = "tx_fee_bump_inner_success",
+    TX_FEE_BUMP_INNER_FAILED = "tx_fee_bump_inner_failed",
+    TX_NOT_SUPPORTED = "tx_not_supported",
+    TX_SUCCESS = "tx_success",
+    TX_TOO_EARLY = "tx_too_early",
+    TX_TOO_LATE = "tx_too_late",
+    TX_MISSING_OPERATION = "tx_missing_operation",
+    TX_INSUFFICIENT_BALANCE = "tx_insufficient_balance",
+    TX_NO_SOURCE_ACCOUNT = "tx_no_source_account",
+    TX_INSUFFICIENT_FEE = "tx_insufficient_fee",
+    TX_INTERNAL_ERROR = "tx_internal_error",
   }
 
   export interface TransactionFailedExtras {

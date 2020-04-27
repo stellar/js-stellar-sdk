@@ -27,7 +27,7 @@ export namespace Utils {
    * @param {string} clientAccountID The stellar account that the wallet wishes to authenticate with the server.
    * @param {string} anchorName Anchor's name to be used in the manage_data key.
    * @param {number} [timeout=300] Challenge duration (default to 5 minutes).
-   * @param {string} [networkPassphrase] The network passphrase. If you pass this argument then timeout is required.
+   * @param {string} networkPassphrase The network passphrase. If you pass this argument then timeout is required.
    * @example
    * import { Utils, Keypair, Networks }  from 'stellar-sdk'
    *
@@ -40,8 +40,14 @@ export namespace Utils {
     clientAccountID: string,
     anchorName: string,
     timeout: number = 300,
-    networkPassphrase?: string,
+    networkPassphrase: string,
   ): string {
+    if (clientAccountID.startsWith("M")) {
+      throw Error(
+        "Invalid clientAccountID: multiplexed accounts are not supported.",
+      );
+    }
+
     const account = new Account(serverKeypair.publicKey(), "-1");
     const now = Math.floor(Date.now() / 1000);
 
@@ -99,10 +105,25 @@ export namespace Utils {
    */
   export function readChallengeTx(
     challengeTx: string,
-    serverAccountId: string,
-    networkPassphrase?: string,
+    serverAccountID: string,
+    networkPassphrase: string,
   ): { tx: Transaction; clientAccountID: string } {
-    const transaction = new Transaction(challengeTx, networkPassphrase);
+    if (serverAccountID.startsWith("M")) {
+      throw Error(
+        "Invalid serverAccountID: multiplexed accounts are not supported.",
+      );
+    }
+
+    const transaction = TransactionBuilder.fromXDR(
+      challengeTx,
+      networkPassphrase,
+    );
+
+    if (!(transaction instanceof Transaction)) {
+      throw new InvalidSep10ChallengeError(
+        "Invalid challenge: expected a Transaction but received a FeeBumpTransaction",
+      );
+    }
 
     // verify sequence number
     const sequence = Number.parseInt(transaction.sequence, 10);
@@ -114,7 +135,7 @@ export namespace Utils {
     }
 
     // verify transaction source
-    if (transaction.source !== serverAccountId) {
+    if (transaction.source !== serverAccountID) {
       throw new InvalidSep10ChallengeError(
         "The transaction source account is not equal to the server's account",
       );
@@ -195,7 +216,7 @@ export namespace Utils {
    * @returns {string[]} The list of signers public keys that have signed the transaction, excluding the server account ID, given that the threshold was met.
    * @example
    *
-   * import { Networks, Transaction, Utils }  from 'stellar-sdk';
+   * import { Networks, TransactionBuilder, Utils }  from 'stellar-sdk';
    *
    * const serverKP = Keypair.random();
    * const clientKP1 = Keypair.random();
@@ -213,7 +234,7 @@ export namespace Utils {
    * // clock.tick(200);  // Simulates a 200 ms delay when communicating from server to client
    *
    * // Transaction gathered from a challenge, possibly from the client side
-   * const transaction = new Transaction(challenge, Networks.TESTNET);
+   * const transaction = TransactionBuilder.fromXDR(challenge, Networks.TESTNET);
    * transaction.sign(clientKP1, clientKP2);
    * const signedChallenge = transaction
    *         .toEnvelope()
@@ -295,7 +316,7 @@ export namespace Utils {
    * @returns {string[]} The list of signers public keys that have signed the transaction, excluding the server account ID.
    * @example
    *
-   * import { Networks, Transaction, Utils }  from 'stellar-sdk';
+   * import { Networks, TransactionBuilder, Utils }  from 'stellar-sdk';
    *
    * const serverKP = Keypair.random();
    * const clientKP1 = Keypair.random();
@@ -313,7 +334,7 @@ export namespace Utils {
    * // clock.tick(200);  // Simulates a 200 ms delay when communicating from server to client
    *
    * // Transaction gathered from a challenge, possibly from the client side
-   * const transaction = new Transaction(challenge, Networks.TESTNET);
+   * const transaction = TransactionBuilder.fromXDR(challenge, Networks.TESTNET);
    * transaction.sign(clientKP1, clientKP2);
    * const signedChallenge = transaction
    *         .toEnvelope()
@@ -411,62 +432,6 @@ export namespace Utils {
     signersFound.splice(signersFound.indexOf(serverKP.publicKey()), 1);
 
     return signersFound;
-  }
-
-  /**
-   * Verifies if a transaction is a valid [SEP0010](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0010.md)
-   * challenge transaction.
-   *
-   * This function performs the following checks:
-   *
-   *   1. Verifies that the transaction's source is the same as the server account id.
-   *   2. Verifies that the number of operations in the transaction is equal to one and of type manageData.
-   *   3. Verifies if timeBounds are still valid.
-   *   4. Verifies if the transaction has been signed by the server and the client.
-   *   5. Verifies that the sequenceNumber is equal to zero.
-   *
-   * @see [SEP0010: Stellar Web Authentication](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0010.md).
-   * @function
-   * @memberof Utils
-   * @param {string} challengeTx SEP0010 transaction challenge transaction in base64.
-   * @param {string} serverAccountID The server's stellar account.
-   * @param {string} networkPassphrase The network passphrase.
-   * @example
-   * import { Utils, Networks }  from 'stellar-sdk'
-   *
-   * let challenge = Utils.verifyChallengeTx("base64tx", "server-account-id", Networks.TESTNET)
-   * @returns {boolean}
-   *
-   * @deprecated Use {@link Utils#verifyChallengeTxThreshold}
-   */
-  export function verifyChallengeTx(
-    challengeTx: string,
-    serverAccountId: string,
-    networkPassphrase?: string,
-  ): boolean {
-    console.warn(
-      "`Utils#verifyChallengeTx` is deprecated. Please use `Utils#verifyChallengeTxThreshold`.",
-    );
-
-    const { tx, clientAccountID } = readChallengeTx(
-      challengeTx,
-      serverAccountId,
-      networkPassphrase,
-    );
-
-    if (!verifyTxSignedBy(tx, serverAccountId)) {
-      throw new InvalidSep10ChallengeError(
-        "The transaction is not signed by the server",
-      );
-    }
-
-    if (!verifyTxSignedBy(tx, clientAccountID)) {
-      throw new InvalidSep10ChallengeError(
-        "The transaction is not signed by the client",
-      );
-    }
-
-    return true;
   }
 
   /**

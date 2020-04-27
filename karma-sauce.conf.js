@@ -39,11 +39,6 @@ module.exports = function(config) {
       recordVideo: false,
     },
 
-    browserDisconnectTimeout: 10000,
-    browserDisconnectTolerance: 1,
-    browserNoActivityTimeout: 4 * 60 * 1000,
-    captureTimeout: 4 * 60 * 1000,
-
     frameworks: ["mocha", "chai-as-promised", "chai", "sinon", "commonjs"],
     customLaunchers: customLaunchers,
     browsers: Object.keys(customLaunchers),
