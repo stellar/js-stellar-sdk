@@ -35,6 +35,7 @@ export namespace Horizon {
     id: string;
     memo_type: MemoType;
     memo?: string;
+    memo_bytes?: string;
     operation_count: number;
     paging_token: string;
     signatures: string[];
