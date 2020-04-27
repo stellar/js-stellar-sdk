@@ -29,24 +29,22 @@ library for creating Stellar primitive constructs via XDR helpers and wrappers.
 **Most people will want stellar-sdk instead of stellar-base.** You should only
 use stellar-base if you know what you're doing!
 
-If you add stellar-sdk to a project, **do not add stellar-base!** Mis-matching
-versions could cause weird, hard-to-find bugs. stellar-sdk automatically
-installs stellar-base and exposes all of its exports in case you need them.
+If you add `stellar-sdk` to a project, **do not add `stellar-base`!** Mis-matching
+versions could cause weird, hard-to-find bugs. `stellar-sdk` automatically
+installs `stellar-base` and exposes all of its exports in case you need them.
 
-> **Warning!** Node version of `stellar-base` (`stellar-sdk` dependency) package
-> is using [`ed25519`](https://www.npmjs.com/package/ed25519) package, a native
-> implementation of [Ed25519](https://ed25519.cr.yp.to/) in Node.js, as an
-> [optional dependency](https://docs.npmjs.com/files/package.json#optionaldependencies).
-> This means that if for any reason installation of this package fails,
-> `stellar-base` (and `stellar-sdk`) will fallback to the much slower
-> implementation contained in
-> [`tweetnacl`](https://www.npmjs.com/package/tweetnacl).
+> **Important!** The Node.js version of the `stellar-base` (`stellar-sdk` dependency) package
+> uses the [`sodium-native`](https://www.npmjs.com/package/sodium-native) package as
+> an [optional dependency](https://docs.npmjs.com/files/package.json#optionaldependencies). `sodium-native` is
+> a low level binding to [libsodium](https://github.com/jedisct1/libsodium),
+> (an implementation of [Ed25519](https://ed25519.cr.yp.to/) signatures).
+> If installation of `sodium-native` fails, or it is unavailable, `stellar-base` (and `stellar-sdk`) will
+> fallback to using the [`tweetnacl`](https://www.npmjs.com/package/tweetnacl) package implementation.
 >
 > If you are using `stellar-sdk`/`stellar-base` in a browser you can ignore
-> this. However, for production backend deployments you should definitely be
-> using `ed25519`. If `ed25519` is successfully installed and working
-> `StellarSdk.FastSigning` variable will be equal `true`. Otherwise it will be
-> `false`.
+> this. However, for production backend deployments you should be
+> using `sodium-native`. If `sodium-native` is successfully installed and working the
+> `StellarSdk.FastSigning` variable will return `true`.
 
 ## Quick start
 
@@ -77,29 +75,6 @@ npm install --save stellar-sdk
 ```js
 var StellarSdk = require('stellar-sdk');
 ```
-
-#### Help! I'm having trouble installing the SDK on Windows
-
-Unfortunately, the Stellar platform development team mostly works on OS X and
-Linux, and so sometimes bugs creep through that are specific to windows. When
-installing stellar-sdk on windows, you might see an error that looks similar to
-the following:
-
-```shell
-error MSB8020: The build tools for v120 (Platform Toolset = 'v120 ') cannot be found. To build using the v120 build tools, please install v120 build tools.  Alternatively, you may upgrade to the current Visual Studio tools by selecting the Project menu or right-click the solution, and then selecting "Retarget solution"
-```
-
-To resolve this issue, you should upgrade your version of nodejs, node-gyp and
-then re-attempt to install the offending package using
-`npm install -g --msvs_version=2015 ed25519`. Afterwards, retry installing
-stellar-sdk as normal.
-
-If you encounter the error: "failed to find C:\OpenSSL-Win64", You need to
-install OpenSSL. More information about this issue can be found
-[here](https://github.com/nodejs/node-gyp/wiki/Linking-to-OpenSSL).
-
-In the event the above does not work, please join us on our community slack to
-get help resolving your issue.
 
 ### To self host for use in the browser
 
