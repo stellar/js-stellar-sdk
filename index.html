@@ -74,23 +74,21 @@ history.</li>
 library for creating Stellar primitive constructs via XDR helpers and wrappers.</p>
 <p><strong>Most people will want stellar-sdk instead of stellar-base.</strong> You should only
 use stellar-base if you know what you're doing!</p>
-<p>If you add stellar-sdk to a project, <strong>do not add stellar-base!</strong> Mis-matching
-versions could cause weird, hard-to-find bugs. stellar-sdk automatically
-installs stellar-base and exposes all of its exports in case you need them.</p>
+<p>If you add <code>stellar-sdk</code> to a project, <strong>do not add <code>stellar-base</code>!</strong> Mis-matching
+versions could cause weird, hard-to-find bugs. <code>stellar-sdk</code> automatically
+installs <code>stellar-base</code> and exposes all of its exports in case you need them.</p>
 <blockquote>
-<p><strong>Warning!</strong> Node version of <code>stellar-base</code> (<code>stellar-sdk</code> dependency) package
-is using <a href="https://www.npmjs.com/package/ed25519"><code>ed25519</code></a> package, a native
-implementation of <a href="https://ed25519.cr.yp.to/">Ed25519</a> in Node.js, as an
-<a href="https://docs.npmjs.com/files/package.json#optionaldependencies">optional dependency</a>.
-This means that if for any reason installation of this package fails,
-<code>stellar-base</code> (and <code>stellar-sdk</code>) will fallback to the much slower
-implementation contained in
-<a href="https://www.npmjs.com/package/tweetnacl"><code>tweetnacl</code></a>.</p>
+<p><strong>Important!</strong> The Node.js version of the <code>stellar-base</code> (<code>stellar-sdk</code> dependency) package
+uses the <a href="https://www.npmjs.com/package/sodium-native"><code>sodium-native</code></a> package as
+an <a href="https://docs.npmjs.com/files/package.json#optionaldependencies">optional dependency</a>. <code>sodium-native</code> is
+a low level binding to <a href="https://github.com/jedisct1/libsodium">libsodium</a>,
+(an implementation of <a href="https://ed25519.cr.yp.to/">Ed25519</a> signatures).
+If installation of <code>sodium-native</code> fails, or it is unavailable, <code>stellar-base</code> (and <code>stellar-sdk</code>) will
+fallback to using the <a href="https://www.npmjs.com/package/tweetnacl"><code>tweetnacl</code></a> package implementation.</p>
 <p>If you are using <code>stellar-sdk</code>/<code>stellar-base</code> in a browser you can ignore
-this. However, for production backend deployments you should definitely be
-using <code>ed25519</code>. If <code>ed25519</code> is successfully installed and working
-<code>StellarSdk.FastSigning</code> variable will be equal <code>true</code>. Otherwise it will be
-<code>false</code>.</p>
+this. However, for production backend deployments you should be
+using <code>sodium-native</code>. If <code>sodium-native</code> is successfully installed and working the
+<code>StellarSdk.FastSigning</code> variable will return <code>true</code>.</p>
 </blockquote>
 <h2>Quick start</h2><p>Using npm to include js-stellar-sdk in your own project:</p>
 <pre class="prettyprint source lang-shell"><code>npm install --save stellar-sdk</code></pre><p>Alternatively, you can use cdnjs in a browser:</p>
@@ -101,20 +99,7 @@ using <code>ed25519</code>. If <code>ed25519</code> is successfully installed an
 <pre class="prettyprint source lang-shell"><code>npm install --save stellar-sdk</code></pre><ol start="2">
 <li>require/import it in your JavaScript:</li>
 </ol>
-<pre class="prettyprint source lang-js"><code>var StellarSdk = require('stellar-sdk');</code></pre><h4>Help! I'm having trouble installing the SDK on Windows</h4><p>Unfortunately, the Stellar platform development team mostly works on OS X and
-Linux, and so sometimes bugs creep through that are specific to windows. When
-installing stellar-sdk on windows, you might see an error that looks similar to
-the following:</p>
-<pre class="prettyprint source lang-shell"><code>error MSB8020: The build tools for v120 (Platform Toolset = 'v120 ') cannot be found. To build using the v120 build tools, please install v120 build tools.  Alternatively, you may upgrade to the current Visual Studio tools by selecting the Project menu or right-click the solution, and then selecting &quot;Retarget solution&quot;</code></pre><p>To resolve this issue, you should upgrade your version of nodejs, node-gyp and
-then re-attempt to install the offending package using
-<code>npm install -g --msvs_version=2015 ed25519</code>. Afterwards, retry installing
-stellar-sdk as normal.</p>
-<p>If you encounter the error: &quot;failed to find C:\OpenSSL-Win64&quot;, You need to
-install OpenSSL. More information about this issue can be found
-<a href="https://github.com/nodejs/node-gyp/wiki/Linking-to-OpenSSL">here</a>.</p>
-<p>In the event the above does not work, please join us on our community slack to
-get help resolving your issue.</p>
-<h3>To self host for use in the browser</h3><ol>
+<pre class="prettyprint source lang-js"><code>var StellarSdk = require('stellar-sdk');</code></pre><h3>To self host for use in the browser</h3><ol>
 <li>Install it using <a href="http://bower.io">bower</a>:</li>
 </ol>
 <pre class="prettyprint source lang-shell"><code>bower install stellar-sdk</code></pre><ol start="2">
@@ -219,7 +204,7 @@ for details.</p></article>
 <br class="clear">
 
 <footer>
-    Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Thu Apr 23 2020 22:53:55 GMT+0000 (Coordinated Universal Time) using the Minami theme.
+    Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon Apr 27 2020 22:54:50 GMT+0000 (Coordinated Universal Time) using the Minami theme.
 </footer>
 
 <script>prettyPrint();</script>
