@@ -1,7 +1,8 @@
 function buildTransaction(destination, operations = [], builderOpts = {}) {
   let txBuilderOpts = {
     fee: 100,
-    networkPassphrase: StellarSdk.Networks.TESTNET
+    networkPassphrase: StellarSdk.Networks.TESTNET,
+    v1: true
   };
   Object.assign(txBuilderOpts, builderOpts);
   let keypair = StellarSdk.Keypair.random();
@@ -22,7 +23,16 @@ function buildTransaction(destination, operations = [], builderOpts = {}) {
     .build();
   transaction.sign(keypair);
 
-  return transaction;
+  if (builderOpts.feeBump) {
+    return StellarSdk.TransactionBuilder.buildFeeBumpTransaction(
+      keypair,
+      '200',
+      transaction,
+      txBuilderOpts.networkPassphrase
+    );
+  } else {
+    return transaction;
+  }
 }
 
 function buildAccount(id, data = {}) {
@@ -109,6 +119,26 @@ describe("server.js check-memo-required", function() {
       let accountId = "GAYHAAKPAQLMGIJYMIWPDWCGUCQ5LAWY4Q7Q3IKSP57O7GUPD3NEOSEA";
       mockAccountRequest(this.axiosMock, accountId, 200, { "config.memo_required": "MQ==" });
       let transaction = buildTransaction(accountId);
+
+      this.server
+        .checkMemoRequired(transaction)
+        .then(function() {
+          expect.fail("promise should have failed");
+        }, function(err) {
+          expect(err).to.be.instanceOf(StellarSdk.AccountRequiresMemoError);
+          expect(err.accountId).to.eq(accountId);
+          expect(err.operationIndex).to.eq(0);
+          done();
+        })
+        .catch(function(err) {
+          done(err);
+        });
+    });
+
+    it("fee bump - fails if memo is required", function(done) {
+      let accountId = "GAYHAAKPAQLMGIJYMIWPDWCGUCQ5LAWY4Q7Q3IKSP57O7GUPD3NEOSEA";
+      mockAccountRequest(this.axiosMock, accountId, 200, { "config.memo_required": "MQ==" });
+      let transaction = buildTransaction(accountId, [], {feeBump: true});
 
       this.server
         .checkMemoRequired(transaction)

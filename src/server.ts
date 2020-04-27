@@ -3,7 +3,13 @@
 import BigNumber from "bignumber.js";
 import isEmpty from "lodash/isEmpty";
 import merge from "lodash/merge";
-import { Asset, StrKey, Transaction, xdr } from "stellar-base";
+import {
+  Asset,
+  FeeBumpTransaction,
+  StrKey,
+  Transaction,
+  xdr,
+} from "stellar-base";
 import URI from "urijs";
 
 import { CallBuilder } from "./call_builder";
@@ -701,7 +707,13 @@ export class Server {
    * requires a memo, the promise will throw {@link AccountRequiresMemoError}.
    * @throws  {AccountRequiresMemoError}
    */
-  public async checkMemoRequired(transaction: Transaction): Promise<void> {
+  public async checkMemoRequired(
+    transaction: Transaction | FeeBumpTransaction,
+  ): Promise<void> {
+    if (transaction instanceof FeeBumpTransaction) {
+      transaction = transaction.innerTransaction;
+    }
+
     if (transaction.memo.type !== "none") {
       return;
     }
