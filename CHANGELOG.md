@@ -4,9 +4,45 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Add
+- Add fee bump related attributes to `TransactionResponse` ([#532](https://github.com/stellar/js-stellar-sdk/pull/532)): 
+    - `fee_account: string`.
+    - `fee_bump_transaction: FeeBumpTransactionResponse`:
+      ```js
+      interface FeeBumpTransactionResponse {
+        hash: string;
+        signatures: string[];
+      }
+      ```
+    - `inner_transaction: InnerTransactionResponse`: 
+      ```js
+      interface InnerTransactionResponse {
+        hash: string;
+        signatures: string[];
+        max_fee: string;
+      }
+      ```
+- Add `memo_bytes: string` to `TransactionResponse` ([#532](https://github.com/stellar/js-stellar-sdk/pull/532)).
+- Add `authorize_to_maintain_liabilities: boolean` to `AllowTrustOperation` ([#532](https://github.com/stellar/js-stellar-sdk/pull/532)).
+- Add `is_authorized_to_maintain_liabilities: boolean` to `BalanceLineNative` ([#532](https://github.com/stellar/js-stellar-sdk/pull/532)).
+- Add new result codes to `TransactionFailedResultCodes` ([#531](https://github.com/stellar/js-stellar-sdk/pull/531)).
+  ```js
+  TX_FEE_BUMP_INNER_SUCCESS = "tx_fee_bump_inner_success",
+  TX_FEE_BUMP_INNER_FAILED = "tx_fee_bump_inner_failed",
+  TX_NOT_SUPPORTED = "tx_not_supported",
+  TX_SUCCESS = "tx_success",
+  TX_TOO_EARLY = "tx_too_early",
+  TX_TOO_LATE = "tx_too_late",
+  TX_MISSING_OPERATION = "tx_missing_operation",
+  TX_INSUFFICIENT_BALANCE = "tx_insufficient_balance",
+  TX_NO_SOURCE_ACCOUNT = "tx_no_source_account",
+  TX_INSUFFICIENT_FEE = "tx_insufficient_fee",
+  TX_INTERNAL_ERROR = "tx_internal_error",
+  ```
+
 ### Breaking changes 
 - The attributes `max_fee` and `fee_charged` in `TransactionResponse` can be now a `number` or a `string`. 
-  Update your code to handle both types since Horizon will start sending `string` in version `1.3.0`.
+  Update your code to handle both types since Horizon will start sending `string` in version `1.3.0` ([#528](https://github.com/stellar/js-stellar-sdk/pull/528)).
 
 ## [v5.0.0-alpha.2](https://github.com/stellar/js-stellar-sdk/compare/v5.0.0-alpha.1..v5.0.0-alpha.2)
 
