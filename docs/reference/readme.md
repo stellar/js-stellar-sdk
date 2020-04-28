@@ -99,7 +99,6 @@ See the [Building Transactions](https://www.stellar.org/developers/js-stellar-ba
 Once you have built your transaction, you can submit it to the Stellar network with `Server.submitTransaction()`.
 ```js
 const StellarSdk = require('stellar-sdk')
-StellarSdk.Network.useTestNetwork();
 const server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
 
 (async function main() {
@@ -112,7 +111,7 @@ const server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
     */
     const fee = await server.fetchBaseFee();
 
-    const transaction = new StellarSdk.TransactionBuilder(account, { fee })
+    const transaction = new StellarSdk.TransactionBuilder(account, { fee, networkPassphrase: StellarSdk.Networks.TESTNET })
         .addOperation(
             // this operation funds the new account with XLM
             StellarSdk.Operation.payment({
