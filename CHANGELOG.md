@@ -4,6 +4,10 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Update
+
+- Skip SEP0029 (memo required check) for multiplexed accounts ([#538](https://github.com/stellar/js-stellar-sdk/pull/538)).
+
 ## [v5.0.0](https://github.com/stellar/js-stellar-sdk/compare/v4.1.0...v5.0.0)
 
 ### Add

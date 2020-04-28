@@ -738,6 +738,11 @@ export class Server {
       }
       destinations.add(destination);
 
+      // skip M account checks since it implies a memo
+      if (destination.startsWith("M")) {
+        continue;
+      }
+
       try {
         const account = await this.loadAccount(destination);
         if (

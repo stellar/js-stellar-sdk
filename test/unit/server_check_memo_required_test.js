@@ -291,4 +291,19 @@ describe("server.js check-memo-required", function() {
           done(err);
         });
     });
+    it("skips memo require check for M accounts", function(done) {
+      let accountId = "MAAAAAAAAAAAAAB7BQ2L7E5NBWMXDUCMZSIPOBKRDSBYVLMXGSSKF6YNPIB7Y77ITLVL6";
+      let transaction = buildTransaction(accountId);
+
+      this.server
+        .checkMemoRequired(transaction)
+        .then(function() {
+          done();
+        }, function(err) {
+          done(err);
+        })
+        .catch(function(err) {
+          done(err);
+        });
+    });
 });
