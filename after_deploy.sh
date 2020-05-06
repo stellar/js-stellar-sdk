@@ -5,6 +5,7 @@ if [ ! -d "jsdoc" ]; then
   exit 1
 fi
 
+git clone https://github.com/stellar/js-stellar-base
 npm run docs
 cd jsdoc
 git add .
