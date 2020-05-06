@@ -4,14 +4,20 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+## [v5.0.1](https://github.com/stellar/js-stellar-sdk/compare/v5.0.0...v5.0.1)
+
 ### Update
 
 - Skip SEP0029 (memo required check) for multiplexed accounts ([#538](https://github.com/stellar/js-stellar-sdk/pull/538)).
 
+### Fix
+- Fix missing documentation for `stellar-base` ([#544](https://github.com/stellar/js-stellar-sdk/pull/544)).
+- Move dom-monkeypatch to root types and publish to npm ([#543](https://github.com/stellar/js-stellar-sdk/pull/543)).
+
 ## [v5.0.0](https://github.com/stellar/js-stellar-sdk/compare/v4.1.0...v5.0.0)
 
 ### Add
-- Add fee bump related attributes to `TransactionResponse` ([#532](https://github.com/stellar/js-stellar-sdk/pull/532)): 
+- Add fee bump related attributes to `TransactionResponse` ([#532](https://github.com/stellar/js-stellar-sdk/pull/532)):
     - `fee_account: string`.
     - `fee_bump_transaction: FeeBumpTransactionResponse`:
       ```js
@@ -20,7 +26,7 @@ A breaking change will get clearly marked in this log.
         signatures: string[];
       }
       ```
-    - `inner_transaction: InnerTransactionResponse`: 
+    - `inner_transaction: InnerTransactionResponse`:
       ```js
       interface InnerTransactionResponse {
         hash: string;
@@ -46,8 +52,8 @@ A breaking change will get clearly marked in this log.
   TX_INTERNAL_ERROR = "tx_internal_error",
   ```
 
-### Breaking changes 
-- The attributes `max_fee` and `fee_charged` in `TransactionResponse` can be now a `number` or a `string`. 
+### Breaking changes
+- The attributes `max_fee` and `fee_charged` in `TransactionResponse` can be now a `number` or a `string`.
   Update your code to handle both types since Horizon will start sending `string` in version `1.3.0` ([#528](https://github.com/stellar/js-stellar-sdk/pull/528)).
 - Bump `stellar-base` to `v3.0.0`: This new version of stellar-base brings support for protocol 13, including multiple breaking changes which might affect your code, please review the list of breaking changes in [stellar-base@3.0.0](https://github.com/stellar/js-stellar-base/releases/tag/v3.0.0) release ([#524](https://github.com/stellar/js-stellar-sdk/pull/524)).
 - Make `networkPassphrase` a required argument in `Utils.buildChallengeTx` and  `Utils.readChallengeTx` ([#524](https://github.com/stellar/js-stellar-sdk/pull/524)).
