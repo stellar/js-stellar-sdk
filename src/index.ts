@@ -1,5 +1,5 @@
 // tslint:disable-next-line: no-reference
-/// <reference path="./types/dom-monkeypatch.d.ts" />
+/// <reference path="../types/dom-monkeypatch.d.ts" />
 
 /* tslint:disable:no-var-requires */
 require("es6-promise").polyfill();
