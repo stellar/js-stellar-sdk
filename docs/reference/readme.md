@@ -33,7 +33,7 @@ Once the request is built, it can be invoked with `.call()` or with `.stream()`.
 ## Streaming requests
 Many requests can be invoked with `stream()`. Instead of returning a promise like `call()` does, `.stream()` will return an `EventSource`.
 Horizon will start sending responses from either the beginning of time or from the point specified with `.cursor()`.
-(See the [Horizon reference](https://www.stellar.org/developers/reference/) documentation to learn which endpoints support streaming.)
+(See the [Horizon reference](https://www.stellar.org/developers/horizon/reference/streaming.html) documentation to learn which endpoints support streaming.)
 
 For example, to log instances of transactions from a particular account:
 
@@ -93,7 +93,7 @@ server.payments()
 
 ## Building transactions
 
-See the [Building Transactions](https://www.stellar.org/developers/js-stellar-base/learn/building-transactions.html) guide for information about assembling a transaction.
+See the [Building Transactions](https://www.stellar.org/developers/js-stellar-base/reference/building-transactions.html) guide for information about assembling a transaction.
 
 ## Submitting transactions
 Once you have built your transaction, you can submit it to the Stellar network with `Server.submitTransaction()`.
@@ -104,7 +104,7 @@ const server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
 (async function main() {
     const account = await server.loadAccount(publicKey);
 
-    /* 
+    /*
         Right now, we have one function that fetches the base fee.
         In the future, we'll have functions that are smarter about suggesting fees,
         e.g.: `fetchCheapFee`, `fetchAverageFee`, `fetchPriorityFee`, etc.
@@ -124,7 +124,7 @@ const server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
         .build();
 
     // sign the transaction
-    transaction.sign(StellarSdk.Keypair.fromSecret(secretString)); 
+    transaction.sign(StellarSdk.Keypair.fromSecret(secretString));
 
     try {
         const transactionResult = await server.submitTransaction(transaction);

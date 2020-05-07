@@ -191,7 +191,7 @@ For information on how to use js-stellar-sdk, take a look at the
 [Developers site](https://www.stellar.org/developers/js-stellar-sdk/reference/).
 
 There is also API Documentation
-[here](https://www.stellar.org/developers/reference/).
+[here](https://www.stellar.org/developers/horizon/reference/index.html).
 
 ## Testing
 
