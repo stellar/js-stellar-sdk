@@ -8,9 +8,9 @@ title: Basic Examples
 
 ## Creating a payment transaction
 
-js-stellar-sdk exposes the [`TransactionBuilder`](https://github.com/stellar/js-stellar-base/blob/master/src/transaction_builder.js) class from js-stellar-base.  There are more examples of [building transactions here](https://www.stellar.org/developers/js-stellar-base/learn/base-examples.html). All those examples can be signed and submitted to Stellar in a similar manner as is done below.
+The `js-stellar-sdk` exposes the [`TransactionBuilder`](https://stellar.github.io/js-stellar-base/TransactionBuilder.html) class from `js-stellar-base`.  There are more examples of [building transactions here](https://www.stellar.org/developers/js-stellar-base/reference/base-examples.html). All those examples can be signed and submitted to Stellar in a similar manner as is done below.
 
-In this example, the destination account must exist. The example is written 
+In this example, the destination account must exist. The example is written
 using modern Javascript, but `await` calls can also be rendered with promises.
 
 ```javascript
@@ -20,11 +20,11 @@ using modern Javascript, but `await` calls can also be rendered with promises.
 // 1. Secret key of a funded account to be the source account
 // 2. Public key of an existing account as a recipient
 //    These two keys can be created and funded by the friendbot at
-//    https://www.stellar.org/laboratory/ under the heading "Quick Start: Test Account"
+//    https://laboratory.stellar.org under the heading "Quick Start: Test Account"
 // 3. Access to JS Stellar SDK (https://github.com/stellar/js-stellar-sdk)
 //    either through Node.js or in the browser.
 
-// This code can be run in the browser at https://www.stellar.org/laboratory/
+// This code can be run in the browser at https://laboratory.stellar.org
 // That site exposes a global StellarSdk object you can use.
 // To run this code in the Chrome, open the console tab in the DevTools.
 // The hotkey to open the DevTools console is Ctrl+Shift+J or (Cmd+Opt+J on Mac).
@@ -55,7 +55,7 @@ const server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
   const fee = await server.fetchBaseFee();
 
 
-  const transaction = new StellarSdk.TransactionBuilder(account, { 
+  const transaction = new StellarSdk.TransactionBuilder(account, {
       fee,
       // Uncomment the following line to build transactions for the live network. Be
       // sure to also change the horizon hostname.
@@ -74,7 +74,7 @@ const server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
     }))
     // Make this transaction valid for the next 30 seconds only
     .setTimeout(30)
-    // Uncomment to add a memo (https://www.stellar.org/developers/learn/concepts/transactions.html)
+    // Uncomment to add a memo (https://www.stellar.org/developers/guides/concepts/transactions.html)
     // .addMemo(StellarSdk.Memo.text('Hello world!'))
     .build();
 
@@ -148,4 +148,4 @@ const es = server.payments()
   })
 ```
 
-For more on streaming events, please check out [the Horizon responses documentation](https://www.stellar.org/developers/horizon/learn/responses.html#streaming) and this [guide to server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events).
+For more on streaming events, please check out [the Horizon documentation](https://www.stellar.org/developers/horizon/reference/streaming.html) and this [guide to server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events).
