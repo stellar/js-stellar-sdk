@@ -281,7 +281,7 @@ export class Server {
    *
    * @see [Post
    * Transaction](https://www.stellar.org/developers/horizon/reference/endpoints/transactions-create.html)
-   * @param {Transaction} transaction - The transaction to submit.
+   * @param {Transaction|FeeBumpTransaction} transaction - The transaction to submit.
    * @param {object} [opts] Options object
    * @param {boolean} [opts.skipMemoRequiredCheck] - Allow skipping memo
    * required check, default: `false`. See
@@ -290,7 +290,7 @@ export class Server {
    * horizon.
    */
   public async submitTransaction(
-    transaction: Transaction,
+    transaction: Transaction | FeeBumpTransaction,
     opts: Server.SubmitTransactionOptions = { skipMemoRequiredCheck: false },
   ): Promise<Horizon.SubmitTransactionResponse> {
     // only check for memo required if skipMemoRequiredCheck is false and the transaction doesn't include a memo.
