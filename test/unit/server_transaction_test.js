@@ -9,7 +9,8 @@ describe('server.js transaction tests', function() {
     this.axiosMock = sinon.mock(HorizonAxiosClient);
     let transaction = new StellarSdk.TransactionBuilder(account, {
       fee: 100,
-      networkPassphrase: StellarSdk.Networks.TESTNET
+      networkPassphrase: StellarSdk.Networks.TESTNET,
+      v1: true
     })
       .addOperation(
         StellarSdk.Operation.payment({
@@ -344,6 +345,38 @@ describe('server.js transaction tests', function() {
 
     this.server
       .submitTransaction(this.transaction, {skipMemoRequiredCheck: false})
+      .then(function() {
+        done();
+      })
+      .catch(function(err) {
+        done(err);
+      });
+  });
+  it('submits fee bump transactions', function(done) {
+    const feeBumpTx = StellarSdk.TransactionBuilder.buildFeeBumpTransaction(
+      keypair,
+      '200',
+      this.transaction,
+      StellarSdk.Networks.TESTNET
+    );
+
+    this.blob = encodeURIComponent(
+      feeBumpTx
+        .toEnvelope()
+        .toXDR()
+        .toString('base64')
+    );
+
+    this.axiosMock
+      .expects('post')
+      .withArgs(
+        'https://horizon-live.stellar.org:1337/transactions',
+        `tx=${this.blob}`
+      )
+      .returns(Promise.resolve({ data: {} }));
+
+    this.server
+      .submitTransaction(feeBumpTx, {skipMemoRequiredCheck: true})
       .then(function() {
         done();
       })
