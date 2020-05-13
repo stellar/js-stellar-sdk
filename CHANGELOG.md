@@ -4,6 +4,10 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+## [v5.0.2](https://github.com/stellar/js-stellar-sdk/compare/v5.0.1...v5.0.2)
+
+### Update
+
 - Allow submitTransaction to receive a FeeBumpTransaction ([#548](https://github.com/stellar/js-stellar-sdk/pull/548)).
 
 ## [v5.0.1](https://github.com/stellar/js-stellar-sdk/compare/v5.0.0...v5.0.1)
