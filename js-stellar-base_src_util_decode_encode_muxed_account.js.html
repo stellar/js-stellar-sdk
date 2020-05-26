@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>js-stellar-base/src/strkey.js - Documentation</title>
+    <title>js-stellar-base/src/util/decode_encode_muxed_account.js - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -29,7 +29,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">js-stellar-base/src/strkey.js</h1>
+    <h1 class="page-title">js-stellar-base/src/util/decode_encode_muxed_account.js</h1>
     
 
     
@@ -39,199 +39,36 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>/* eslint-disable no-bitwise */
-
-import base32 from 'base32.js';
-import crc from 'crc';
-import isUndefined from 'lodash/isUndefined';
-import isNull from 'lodash/isNull';
-import isString from 'lodash/isString';
-import { verifyChecksum } from './util/checksum';
-
-const versionBytes = {
-  ed25519PublicKey: 6 &lt;&lt; 3, // G
-  ed25519SecretSeed: 18 &lt;&lt; 3, // S
-  preAuthTx: 19 &lt;&lt; 3, // T
-  sha256Hash: 23 &lt;&lt; 3 // X
-};
+            <pre class="prettyprint source linenums"><code>import xdr from '../generated/stellar-xdr_generated';
+import { StrKey } from '../strkey';
 
 /**
- * StrKey is a helper class that allows encoding and decoding strkey.
+ * Returns a XDR.MuxedAccount forcing the ed25519 discriminant.
+ * @function
+ * @param {string} address address to encode to XDR.
+ * @returns {xdr.MuxedAccount} MuxedAccount with ed25519 discriminant.
  */
-export class StrKey {
-  /**
-   * Encodes data to strkey ed25519 public key.
-   * @param {Buffer} data data to encode
-   * @returns {string}
-   */
-  static encodeEd25519PublicKey(data) {
-    return encodeCheck('ed25519PublicKey', data);
-  }
-
-  /**
-   * Decodes strkey ed25519 public key to raw data.
-   * @param {string} data data to decode
-   * @returns {Buffer}
-   */
-  static decodeEd25519PublicKey(data) {
-    return decodeCheck('ed25519PublicKey', data);
-  }
-
-  /**
-   * Returns true if the given Stellar public key is a valid ed25519 public key.
-   * @param {string} publicKey public key to check
-   * @returns {boolean}
-   */
-  static isValidEd25519PublicKey(publicKey) {
-    return isValid('ed25519PublicKey', publicKey);
-  }
-
-  /**
-   * Encodes data to strkey ed25519 seed.
-   * @param {Buffer} data data to encode
-   * @returns {string}
-   */
-  static encodeEd25519SecretSeed(data) {
-    return encodeCheck('ed25519SecretSeed', data);
-  }
-
-  /**
-   * Decodes strkey ed25519 seed to raw data.
-   * @param {string} data data to decode
-   * @returns {Buffer}
-   */
-  static decodeEd25519SecretSeed(data) {
-    return decodeCheck('ed25519SecretSeed', data);
-  }
-
-  /**
-   * Returns true if the given Stellar secret key is a valid ed25519 secret seed.
-   * @param {string} seed seed to check
-   * @returns {boolean}
-   */
-  static isValidEd25519SecretSeed(seed) {
-    return isValid('ed25519SecretSeed', seed);
-  }
-
-  /**
-   * Encodes data to strkey preAuthTx.
-   * @param {Buffer} data data to encode
-   * @returns {string}
-   */
-  static encodePreAuthTx(data) {
-    return encodeCheck('preAuthTx', data);
-  }
-
-  /**
-   * Decodes strkey PreAuthTx to raw data.
-   * @param {string} data data to decode
-   * @returns {Buffer}
-   */
-  static decodePreAuthTx(data) {
-    return decodeCheck('preAuthTx', data);
-  }
-
-  /**
-   * Encodes data to strkey sha256 hash.
-   * @param {Buffer} data data to encode
-   * @returns {string}
-   */
-  static encodeSha256Hash(data) {
-    return encodeCheck('sha256Hash', data);
-  }
-
-  /**
-   * Decodes strkey sha256 hash to raw data.
-   * @param {string} data data to decode
-   * @returns {Buffer}
-   */
-  static decodeSha256Hash(data) {
-    return decodeCheck('sha256Hash', data);
-  }
+export function decodeAddressToMuxedAccount(address) {
+  return xdr.MuxedAccount.keyTypeEd25519(
+    StrKey.decodeEd25519PublicKey(address)
+  );
 }
 
-function isValid(versionByteName, encoded) {
-  if (encoded &amp;&amp; encoded.length !== 56) {
-    return false;
+/**
+ * Converts an xdr.MuxedAccount to its string representation, forcing the ed25519 representation.
+ * @function
+ * @param {xdr.MuxedAccount} muxedAccount .
+ * @returns {string} address
+ */
+export function encodeMuxedAccountToAddress(muxedAccount) {
+  let ed25519;
+  if (muxedAccount.switch() === xdr.CryptoKeyType.keyTypeEd25519()) {
+    ed25519 = muxedAccount.ed25519();
+  } else {
+    ed25519 = muxedAccount.med25519().ed25519();
   }
 
-  try {
-    const decoded = decodeCheck(versionByteName, encoded);
-    if (decoded.length !== 32) {
-      return false;
-    }
-  } catch (err) {
-    return false;
-  }
-  return true;
-}
-
-export function decodeCheck(versionByteName, encoded) {
-  if (!isString(encoded)) {
-    throw new TypeError('encoded argument must be of type String');
-  }
-
-  const decoded = base32.decode(encoded);
-  const versionByte = decoded[0];
-  const payload = decoded.slice(0, -2);
-  const data = payload.slice(1);
-  const checksum = decoded.slice(-2);
-
-  if (encoded !== base32.encode(decoded)) {
-    throw new Error('invalid encoded string');
-  }
-
-  const expectedVersion = versionBytes[versionByteName];
-
-  if (isUndefined(expectedVersion)) {
-    throw new Error(
-      `${versionByteName} is not a valid version byte name. Expected one of "ed25519PublicKey", "ed25519SecretSeed", "preAuthTx", "sha256Hash", "muxedAccount"`
-    );
-  }
-
-  if (versionByte !== expectedVersion) {
-    throw new Error(
-      `invalid version byte. expected ${expectedVersion}, got ${versionByte}`
-    );
-  }
-
-  const expectedChecksum = calculateChecksum(payload);
-
-  if (!verifyChecksum(expectedChecksum, checksum)) {
-    throw new Error(`invalid checksum`);
-  }
-
-  return Buffer.from(data);
-}
-
-export function encodeCheck(versionByteName, data) {
-  if (isNull(data) || isUndefined(data)) {
-    throw new Error('cannot encode null data');
-  }
-
-  const versionByte = versionBytes[versionByteName];
-
-  if (isUndefined(versionByte)) {
-    throw new Error(
-      `${versionByteName} is not a valid version byte name. Expected one of "ed25519PublicKey", "ed25519SecretSeed", "preAuthTx", "sha256Hash", "muxedAccount"`
-    );
-  }
-  data = Buffer.from(data);
-
-  const versionBuffer = Buffer.from([versionByte]);
-  const payload = Buffer.concat([versionBuffer, data]);
-  const checksum = calculateChecksum(payload);
-  const unencoded = Buffer.concat([payload, checksum]);
-
-  return base32.encode(unencoded);
-}
-
-function calculateChecksum(payload) {
-  // This code calculates CRC16-XModem checksum of payload
-  // and returns it as Buffer in little-endian order.
-  const checksum = Buffer.alloc(2);
-  checksum.writeUInt16LE(crc.crc16xmodem(payload), 0);
-  return checksum;
+  return StrKey.encodeEd25519PublicKey(ed25519);
 }
 </code></pre>
         </article>
