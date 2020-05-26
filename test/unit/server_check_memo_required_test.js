@@ -17,7 +17,7 @@ function buildTransaction(destination, operations = [], builderOpts = {}) {
     )
 
   operations.forEach(op => transaction = transaction.addOperation(op))
-  
+
   transaction = transaction.
     setTimeout(StellarSdk.TimeoutInfinite)
     .build();
@@ -92,7 +92,7 @@ function mockAccountRequest(axiosMock, id, status, data = {}) {
       break;
   }
 
-  axiosMock.expects("get") 
+  axiosMock.expects("get")
     .withArgs(
       sinon.match(
         `https://horizon-testnet.stellar.org/accounts/${id}`
@@ -102,19 +102,19 @@ function mockAccountRequest(axiosMock, id, status, data = {}) {
     .once();
 }
 
-describe("server.js check-memo-required", function() {    
+describe("server.js check-memo-required", function() {
     beforeEach(function() {
       this.server = new StellarSdk.Server(
         "https://horizon-testnet.stellar.org"
       );
       this.axiosMock = sinon.mock(HorizonAxiosClient);
     });
-  
+
     afterEach(function() {
       this.axiosMock.verify();
       this.axiosMock.restore();
     });
-    
+
     it("fails if memo is required", function(done) {
       let accountId = "GAYHAAKPAQLMGIJYMIWPDWCGUCQ5LAWY4Q7Q3IKSP57O7GUPD3NEOSEA";
       mockAccountRequest(this.axiosMock, accountId, 200, { "config.memo_required": "MQ==" });
@@ -214,9 +214,9 @@ describe("server.js check-memo-required", function() {
           amount: "100.50"
         })
       ];
-      
+
       let transaction = buildTransaction(accountId, operations);
-      
+
       this.server
         .checkMemoRequired(transaction)
         .then(function() {
@@ -241,7 +241,7 @@ describe("server.js check-memo-required", function() {
       const eur = new StellarSdk.Asset("EUR", "GDTNXRLOJD2YEBPKK7KCMR7J33AAG5VZXHAJTHIG736D6LVEFLLLKPDL");
 
       let operations = [
-        StellarSdk.Operation.accountMerge({ 
+        StellarSdk.Operation.accountMerge({
           destination: destinations[0]
         }),
         StellarSdk.Operation.pathPaymentStrictReceive({
@@ -260,15 +260,15 @@ describe("server.js check-memo-required", function() {
           destMin: "5.50",
           path: [usd,eur]
         }),
-        StellarSdk.Operation.changeTrust({ 
+        StellarSdk.Operation.changeTrust({
           asset: usd
         })
       ];
 
       destinations.forEach(d => mockAccountRequest(this.axiosMock, d, 200, {}))
-      
+
       let transaction = buildTransaction(accountId, operations);
-      
+
       this.server
         .checkMemoRequired(transaction)
         .then(function() {
@@ -286,21 +286,6 @@ describe("server.js check-memo-required", function() {
         .checkMemoRequired(transaction)
         .then(function() {
           done();
-        })
-        .catch(function(err) {
-          done(err);
-        });
-    });
-    it("skips memo require check for M accounts", function(done) {
-      let accountId = "MAAAAAAAAAAAAAB7BQ2L7E5NBWMXDUCMZSIPOBKRDSBYVLMXGSSKF6YNPIB7Y77ITLVL6";
-      let transaction = buildTransaction(accountId);
-
-      this.server
-        .checkMemoRequired(transaction)
-        .then(function() {
-          done();
-        }, function(err) {
-          done(err);
         })
         .catch(function(err) {
           done(err);
