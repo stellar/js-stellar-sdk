@@ -1293,7 +1293,7 @@ describe('server.js non-transaction tests', function() {
           .expects('get')
           .withArgs(
             sinon.match(
-              'https://horizon-live.stellar.org:1337/offers?seller=GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K&order=asc'
+              'https://horizon-live.stellar.org:1337/accounts/GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K/offers?order=asc'
             )
           )
           .returns(Promise.resolve({ data: offersResponse }));
