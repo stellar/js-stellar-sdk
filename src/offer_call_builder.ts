@@ -41,13 +41,13 @@ export class OfferCallBuilder extends CallBuilder<
    * @returns {OfferCallBuilder} current OfferCallBuilder instance
    */
   public forAccount(id: string): this {
-    this.url.setQuery("seller", id);
+    this.filter.push(["accounts", id, "offers"]);
     return this;
   }
 
   /**
    * Returns all offers buying an asset.
-   * @see [Offers](https://www.stellar.org/developers/horizon/reference/endpoints/offers.html)
+   * @see [Offers](https://www.stellar.org/developers/horizon/reference/endpoints/offers-for-account.html)
    * @see Asset
    * @param {Asset} value For example: `new Asset('USD','GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD')`
    * @returns {OfferCallBuilder} current OfferCallBuilder instance
