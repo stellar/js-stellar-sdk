@@ -378,6 +378,7 @@ describe('server.js non-transaction tests', function() {
               sequence: 1,
               transaction_count: 0,
               operation_count: 0,
+              tx_set_operation_count: 0,
               closed_at: '1970-01-01T00:00:00Z'
             }
           ]
@@ -506,6 +507,7 @@ describe('server.js non-transaction tests', function() {
         sequence: 1,
         transaction_count: 0,
         operation_count: 0,
+        tx_set_operation_count: 0,
         closed_at: '1970-01-01T00:00:00Z'
       };
 

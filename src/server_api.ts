@@ -126,6 +126,7 @@ export namespace ServerApi {
     sequence: number;
     transaction_count: number;
     operation_count: number;
+    tx_set_operation_count: number | null;
     closed_at: string;
     total_coins: string;
     fee_pool: string;
