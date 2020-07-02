@@ -4,6 +4,11 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+## [v5.0.4](https://github.com/stellar/js-stellar-sdk/compare/v5.0.3...v5.0.4)
+
+### Update
+- Add `tx_set_operation_count` to `ledger` resource ([#559](https://github.com/stellar/js-stellar-sdk/pull/559)).
+
 ## [v5.0.3](https://github.com/stellar/js-stellar-sdk/compare/v5.0.2...v5.0.3)
 
 ### Fix
