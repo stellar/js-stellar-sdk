@@ -3,6 +3,7 @@ import randomBytes from "randombytes";
 import {
   Account,
   BASE_FEE,
+  FeeBumpTransaction,
   Keypair,
   Operation,
   TimeoutInfinite,
@@ -454,7 +455,7 @@ export namespace Utils {
    * @returns {boolean}.
    */
   export function verifyTxSignedBy(
-    transaction: Transaction,
+    transaction: FeeBumpTransaction | Transaction,
     accountID: string,
   ): boolean {
     return gatherTxSigners(transaction, [accountID]).length !== 0;
@@ -484,7 +485,7 @@ export namespace Utils {
    * @returns {string[]} a list of signers that were found to have signed the transaction.
    */
   export function gatherTxSigners(
-    transaction: Transaction,
+    transaction: FeeBumpTransaction | Transaction,
     signers: string[],
   ): string[] {
     const hashedSignatureBase = transaction.hash();
