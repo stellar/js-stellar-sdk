@@ -117,7 +117,7 @@ const server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
             StellarSdk.Operation.payment({
                 destination: "GASOCNHNNLYFNMDJYQ3XFMI7BYHIOCFW3GJEOWRPEGK2TDPGTG2E5EDW",
                 asset: StellarSdk.Asset.native(),
-                amount: "20000000"
+                amount: "2"
             })
         )
         .setTimeout(30)
