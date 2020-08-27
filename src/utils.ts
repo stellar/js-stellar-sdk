@@ -74,9 +74,9 @@ export namespace Utils {
       } catch (e) {
         throw Error(`Invalid homeDomain: ${e.message}`);
       }
-      manageDataKey = `${uri.domain()} auth`;
+      manageDataKey = uri.authority();
     } else {
-      manageDataKey = `${anchorName} auth`;
+      manageDataKey = anchorName;
     }
 
     const transaction = new TransactionBuilder(account, {
