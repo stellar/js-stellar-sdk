@@ -39,4 +39,45 @@ describe("integration tests: streaming", function(done) {
         });
     });
   });
+
+  it("handles close message", function(done) {
+    let server;
+    let closeStream;
+
+    const requestHandler = (request, response) => {
+      request.on("close", (e) => {
+        closeStream();
+        server.close();
+        done();
+      });
+
+      response.writeHead(200, {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive'
+      });
+      response.write("retry: 10\nevent: close\ndata: byebye\n\n");
+    };
+
+    server = http.createServer(requestHandler);
+    server.listen(port, (err) => {
+      if (err) {
+        done(err);
+        return;
+      }
+
+      closeStream = new StellarSdk.Server(`http://localhost:${port}`, {
+        allowHttp: true,
+      })
+        .operations()
+        .stream({
+          onmessage: (m) => {
+            done("unexpected message "+JSON.stringify(m));
+          },
+          onerror: (err) => {
+            done(err);
+          },
+        });
+    });
+  });
 });
