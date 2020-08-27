@@ -131,7 +131,26 @@ export class CallBuilder<
       createTimeout();
 
       if (es) {
+        // when receiving the close message from Horizon we should
+        // close the connection and recreate the event source
+        let closed = false;
+        const onClose = () => {
+          if (closed) {
+            return;
+          }
+
+          clearTimeout(timeout);
+          es.close();
+          createEventSource();
+          closed = true;
+        };
+
         const onMessage = (message: any) => {
+          if (message.type === "close") {
+            onClose();
+            return;
+          }
+
           const result = message.data
             ? this._parseRecord(JSON.parse(message.data))
             : message;
@@ -155,6 +174,7 @@ export class CallBuilder<
         if (es.addEventListener) {
           es.addEventListener("message", onMessage.bind(this));
           es.addEventListener("error", onError.bind(this));
+          es.addEventListener("close", onClose.bind(this));
         } else {
           es.onmessage = onMessage.bind(this);
           es.onerror = onError.bind(this);
