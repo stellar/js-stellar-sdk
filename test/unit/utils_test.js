@@ -35,46 +35,16 @@ describe('Utils', function() {
         /Invalid clientAccountID: multiplexed accounts are not supported./
       );
     });
-    it('returns challenge which follows SEP0010 <2.0 spec', function() {
+
+    it('returns challenge which follows SEP0010 spec', function() {
       let keypair = StellarSdk.Keypair.random();
 
       const challenge = StellarSdk.Utils.buildChallengeTx(
         keypair,
         "GBDIT5GUJ7R5BXO3GJHFXJ6AZ5UQK6MNOIDMPQUSMXLIHTUNR2Q5CFNF",
-        "SDF",
+        "testanchor.stellar.org",
         300,
         StellarSdk.Networks.TESTNET
-      );
-
-      const transaction = new StellarSdk.Transaction(challenge, StellarSdk.Networks.TESTNET);
-
-      expect(transaction.sequence).to.eql("0");
-      expect(transaction.source).to.eql(keypair.publicKey());
-      expect(transaction.operations.length).to.eql(1);
-
-      const { maxTime, minTime } = transaction.timeBounds;
-
-      expect(parseInt(maxTime) - parseInt(minTime)).to.eql(300);
-
-      const [ operation ] =  transaction.operations;
-
-      expect(operation.name).to.eql("SDF auth");
-      expect(operation.source).to.eql("GBDIT5GUJ7R5BXO3GJHFXJ6AZ5UQK6MNOIDMPQUSMXLIHTUNR2Q5CFNF");
-      expect(operation.type).to.eql("manageData");
-      expect(operation.value.length).to.eql(64);
-      expect(Buffer.from(operation.value.toString(), 'base64').length).to.eql(48);
-    });
-
-    it('returns challenge which follows SEP0010 ==2.0 spec', function() {
-      let keypair = StellarSdk.Keypair.random();
-
-      const challenge = StellarSdk.Utils.buildChallengeTx(
-        keypair,
-        "GBDIT5GUJ7R5BXO3GJHFXJ6AZ5UQK6MNOIDMPQUSMXLIHTUNR2Q5CFNF",
-        null,
-        300,
-        StellarSdk.Networks.TESTNET,
-        "https://testanchor.stellar.org"
       );
 
       const transaction = new StellarSdk.Transaction(challenge, StellarSdk.Networks.TESTNET);

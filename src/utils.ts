@@ -10,7 +10,6 @@ import {
   Transaction,
   TransactionBuilder,
 } from "stellar-base";
-import URI from "urijs";
 import { InvalidSep10ChallengeError } from "./errors";
 import { ServerApi } from "./server_api";
 
@@ -27,10 +26,9 @@ export namespace Utils {
    * @memberof Utils
    * @param {Keypair} serverKeypair Keypair for server's signing account.
    * @param {string} clientAccountID The stellar account that the wallet wishes to authenticate with the server.
-   * @param {string} anchorName Anchor's name to be used in the manage_data key.
+   * @param {string} homeDomain The fully qualified domain name of the service requiring authentication
    * @param {number} [timeout=300] Challenge duration (default to 5 minutes).
    * @param {string} networkPassphrase The network passphrase. If you pass this argument then timeout is required.
-   * @param {string} [homeDomain=undefined] The home domain to be used in the manage_data key for SEP-10 2.0 servers. If specified, `anchorName` will be ignored.
    * @example
    * import { Utils, Keypair, Networks }  from 'stellar-sdk'
    *
@@ -41,10 +39,9 @@ export namespace Utils {
   export function buildChallengeTx(
     serverKeypair: Keypair,
     clientAccountID: string,
-    anchorName: string,
+    homeDomain: string,
     timeout: number = 300,
     networkPassphrase: string,
-    homeDomain?: string,
   ): string {
     if (clientAccountID.startsWith("M")) {
       throw Error(
@@ -62,23 +59,6 @@ export namespace Utils {
     // turned into binary represents 8 bits = 1 bytes.
     const value = randomBytes(48).toString("base64");
 
-    // fully qualified domain name of the web service requiring authentication
-    let manageDataKey;
-    if (homeDomain) {
-      const homeDomainKeyValue = homeDomain.startsWith("https://")
-        ? homeDomain.substring(8)
-        : homeDomain;
-      let uri;
-      try {
-        uri = new URI(`https://${homeDomainKeyValue}`);
-      } catch (e) {
-        throw Error(`Invalid homeDomain: ${e.message}`);
-      }
-      manageDataKey = uri.authority();
-    } else {
-      manageDataKey = anchorName;
-    }
-
     const transaction = new TransactionBuilder(account, {
       fee: BASE_FEE,
       networkPassphrase,
@@ -89,7 +69,7 @@ export namespace Utils {
     })
       .addOperation(
         Operation.manageData({
-          name: `${manageDataKey} auth`,
+          name: `${homeDomain} auth`,
           value,
           source: clientAccountID,
         }),
@@ -208,15 +188,10 @@ export namespace Utils {
     }
 
     // verify homeDomain
-    if (homeDomain) {
-      const homeDomainKeyValue = homeDomain.startsWith("https://")
-        ? homeDomain.substring(8)
-        : homeDomain;
-      if (!operation.name.includes(homeDomainKeyValue)) {
-        throw new InvalidSep10ChallengeError(
-          "The transaction's operation key name does not include the expected home domain",
-        );
-      }
+    if (homeDomain && `${homeDomain} auth` !== operation.name) {
+      throw new InvalidSep10ChallengeError(
+        "The transaction's operation key name does not match the expected home domain",
+      );
     }
 
     return { tx: transaction, clientAccountID };
