@@ -26,7 +26,7 @@ export namespace Utils {
    * @memberof Utils
    * @param {Keypair} serverKeypair Keypair for server's signing account.
    * @param {string} clientAccountID The stellar account that the wallet wishes to authenticate with the server.
-   * @param {string} anchorName Anchor's name to be used in the manage_data key.
+   * @param {string} homeDomain The fully qualified domain name of the service requiring authentication
    * @param {number} [timeout=300] Challenge duration (default to 5 minutes).
    * @param {string} networkPassphrase The network passphrase. If you pass this argument then timeout is required.
    * @example
@@ -39,7 +39,7 @@ export namespace Utils {
   export function buildChallengeTx(
     serverKeypair: Keypair,
     clientAccountID: string,
-    anchorName: string,
+    homeDomain: string,
     timeout: number = 300,
     networkPassphrase: string,
   ): string {
@@ -69,7 +69,7 @@ export namespace Utils {
     })
       .addOperation(
         Operation.manageData({
-          name: `${anchorName} auth`,
+          name: `${homeDomain} auth`,
           value,
           source: clientAccountID,
         }),
@@ -102,12 +102,14 @@ export namespace Utils {
    * @param {string} challengeTx SEP0010 challenge transaction in base64.
    * @param {string} serverAccountID The server's stellar account (public key).
    * @param {string} networkPassphrase The network passphrase, e.g.: 'Test SDF Network ; September 2015'.
-   * @returns {Transaction|string} the actual submited transaction and the stellar public key (master key) used to sign the Manage Data operation.
+   * @param {string} [homeDomain=undefined] The home domain that should be included in the Manage Data operation's string key.
+   * @returns {Transaction|string} The actual submited transaction and the stellar public key (master key) used to sign the Manage Data operation.
    */
   export function readChallengeTx(
     challengeTx: string,
     serverAccountID: string,
     networkPassphrase: string,
+    homeDomain?: string,
   ): { tx: Transaction; clientAccountID: string } {
     if (serverAccountID.startsWith("M")) {
       throw Error(
@@ -182,6 +184,13 @@ export namespace Utils {
     if (Buffer.from(operation.value.toString(), "base64").length !== 48) {
       throw new InvalidSep10ChallengeError(
         "The transaction's operation value should be a 64 bytes base64 random string",
+      );
+    }
+
+    // verify homeDomain
+    if (homeDomain && `${homeDomain} auth` !== operation.name) {
+      throw new InvalidSep10ChallengeError(
+        "The transaction's operation key name does not match the expected home domain",
       );
     }
 
