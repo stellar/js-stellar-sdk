@@ -78,6 +78,7 @@ export namespace Horizon {
     last_modified_ledger: number;
     is_authorized: boolean;
     is_authorized_to_maintain_liabilities: boolean;
+    sponsor?: string;
   }
   export type BalanceLine<
     T extends AssetType = AssetType
@@ -111,6 +112,7 @@ export namespace Horizon {
     key: string;
     weight: number;
     type: string;
+    sponsor?: string;
   }
   export interface AccountResponse
     extends BaseResponse<
@@ -134,6 +136,9 @@ export namespace Horizon {
     data: {
       [key: string]: string;
     };
+    sponsor?: string;
+    num_sponsoring: number;
+    num_sponsored: number;
   }
 
   export enum OperationResponseType {

@@ -47,6 +47,9 @@ export namespace ServerApi {
     data_attr: {
       [key: string]: string;
     };
+    sponsor?: string;
+    num_sponsoring: number;
+    num_sponsored: number;
     effects: CallCollectionFunction<EffectRecord>;
     offers: CallCollectionFunction<OfferRecord>;
     operations: CallCollectionFunction<OperationRecord>;
@@ -161,6 +164,7 @@ export namespace ServerApi {
     price: string;
     last_modified_ledger: number;
     last_modified_time: string;
+    sponsor?: string;
   }
 
   import OperationResponseType = Horizon.OperationResponseType;
