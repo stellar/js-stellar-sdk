@@ -126,6 +126,35 @@ export namespace ServerApi {
     // trustline authorized / deauthorized
     trustor?: string;
 
+    // claimable_balance_created
+    // claimable_balance_claimant_created
+    // claimable_balance_claimed
+    balance_id?: string;
+    asset?: string;
+    predicate?: Horizon.Predicate;
+
+    // account_sponsorship_created
+    // trustline_sponsorship_created
+    // claimable_balance_sponsorship_created
+    // signer_sponsorship_created
+    // data_sponsorship_created
+    sponsor?: string;
+    signer?: string;
+    data_name?: string;
+
+    // account_sponsorship_updated
+    // account_sponsorship_removed
+    // trustline_sponsorship_updated
+    // trustline_sponsorship_removed
+    // claimable_balance_sponsorship_updated
+    // claimable_balance_sponsorship_removed
+    // signer_sponsorship_updated
+    // signer_sponsorship_removed
+    // data_sponsorship_updated
+    // data_sponsorship_removed
+    new_sponsor?: string;
+    former_sponsor?: string;
+
     operation?: CallFunction<OperationRecord>;
     precedes?: CallFunction<EffectRecord>;
     succeeds?: CallFunction<EffectRecord>;
