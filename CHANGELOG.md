@@ -4,6 +4,23 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+- Add support for claimable balances ([#572]https://github.com/stellar/js-stellar-sdk/pull/572)).
+Extend server class to allow loading claimable balances from Horizon. The following functions are available:
+
+```
+server.claimableBalances();
+server.claimableBalances().claimant(claimant);
+server.claimableBalances().sponsor(sponsorID);
+server.claimableBalances().asset(asset);
+server.claimableBalances().claimableBalance(balanceID);
+```
+-  Add the following attributes to `AccountResponse` ([#572]https://github.com/stellar/js-stellar-sdk/pull/572)):
+  - `sponsor?: string`
+  - `num_sponsoring: number`
+  - `num_sponsored: number`
+
+- Add the optional attribute `sponsor` to `AccountSigner`, `BalanceLineAsset`, `ClaimableBalanceRecord`, and `OfferRecord` ([#572]https://github.com/stellar/js-stellar-sdk/pull/572)).
+
 ## [v5.0.4](https://github.com/stellar/js-stellar-sdk/compare/v5.0.3...v5.0.4)
 
 ### Update
