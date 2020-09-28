@@ -114,22 +114,27 @@ describe('Utils', function() {
         StellarSdk.Networks.TESTNET
       );
 
-      const txV0 = StellarSdk.TransactionBuilder.fromXDR(challenge, StellarSdk.Networks.TESTNET);
-      const txV1Raw = new StellarSdk.xdr.TransactionEnvelope.envelopeTypeTx(
-        new StellarSdk.xdr.TransactionV1Envelope({
-          tx: StellarSdk.xdr.Transaction.fromXDR(Buffer.concat([StellarSdk.xdr.PublicKeyType.publicKeyTypeEd25519().toXDR(), txV0.tx.toXDR()])),
-          signatures: txV0.signatures
-        })
-      );
-      const txV1 = StellarSdk.TransactionBuilder.fromXDR(
-        txV1Raw.toXDR().toString('base64'),
-        StellarSdk.Networks.TESTNET
-      )
-      
+      const innerTx = new StellarSdk.TransactionBuilder(new StellarSdk.Account(clientKP.publicKey(), "0"), {
+        fee: '100',
+        networkPassphrase: StellarSdk.Networks.TESTNET,
+        timebounds: {
+          minTime: 0,
+          maxTime: 0
+        }
+      })
+        .addOperation(
+          StellarSdk.Operation.payment({
+            destination: clientKP.publicKey(),
+            asset: StellarSdk.Asset.native(),
+            amount: "10.000"
+          })
+        )
+        .build();
+
       let feeBump = StellarSdk.TransactionBuilder.buildFeeBumpTransaction(
         serverKP, 
-        "200", 
-        txV1, 
+        "300", 
+        innerTx,
         StellarSdk.Networks.TESTNET
       ).toXDR();
 
@@ -153,7 +158,7 @@ describe('Utils', function() {
       ).to.not.throw(StellarSdk.InvalidSep10ChallengeError);
       expect(() =>
         StellarSdk.Utils.readChallengeTx(
-          txV1Raw.toXDR().toString('base64'),
+          feeBump.toXDR().toString('base64'),
           serverKP.publicKey(),
           StellarSdk.Networks.TESTNET
         )
@@ -168,22 +173,22 @@ describe('Utils', function() {
         clientKP.publicKey(),
         "SDF",
         300,
-        StellarSdk.Networks.TESTNET,
+        StellarSdk.Networks.TESTNET
       );
 
       clock.tick(200);
 
       const transaction = new StellarSdk.Transaction(
         challenge,
-        StellarSdk.Networks.TESTNET,
+        StellarSdk.Networks.TESTNET
       );
 
       expect(
         StellarSdk.Utils.readChallengeTx(
           challenge,
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET,
-        ),
+          StellarSdk.Networks.TESTNET
+        )
       ).to.eql({
         tx: transaction,
         clientAccountID: clientKP.publicKey(),
