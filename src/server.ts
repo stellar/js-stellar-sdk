@@ -23,6 +23,7 @@ import {
 import { AccountCallBuilder } from "./account_call_builder";
 import { AccountResponse } from "./account_response";
 import { AssetsCallBuilder } from "./assets_call_builder";
+import { ClaimableBalanceCallBuilder } from "./claimable_balances_call_builder";
 import { EffectCallBuilder } from "./effect_call_builder";
 import { FriendbotBuilder } from "./friendbot_builder";
 import { Horizon } from "./horizon_api";
@@ -482,6 +483,13 @@ export class Server {
    */
   public accounts(): AccountCallBuilder {
     return new AccountCallBuilder(URI(this.serverURL as any));
+  }
+
+  /**
+   * @returns {ClaimableBalanceCallBuilder} New {@link ClaimableBalanceCallBuilder} object configured by a current Horizon server configuration.
+   */
+  public claimableBalances(): ClaimableBalanceCallBuilder {
+    return new ClaimableBalanceCallBuilder(URI(this.serverURL as any));
   }
 
   /**

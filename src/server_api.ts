@@ -57,6 +57,29 @@ export namespace ServerApi {
     trades: CallCollectionFunction<TradeRecord>;
   }
 
+  export interface Predicate {
+    and?: Predicate[];
+    or?: Predicate[];
+    not?: Predicate;
+    absBefore?: string;
+    relBefore?: string;
+  }
+
+  export interface Claimant {
+    destination: string;
+    predicate: Predicate;
+  }
+
+  export interface ClaimableBalanceRecord extends Horizon.BaseResponse {
+    id: string;
+    paging_token: string;
+    asset: string;
+    amount: string;
+    sponsor?: string;
+    last_modified_ledger: number;
+    claimants: Claimant[];
+  }
+
   export interface EffectRecord extends Horizon.BaseResponse {
     account: string;
     paging_token: string;
