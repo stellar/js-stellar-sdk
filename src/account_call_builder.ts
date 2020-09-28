@@ -56,4 +56,15 @@ export class AccountCallBuilder extends CallBuilder<
     this.url.setQuery("asset", `${asset}`);
     return this;
   }
+
+  /**
+   * This endpoint filters accounts where the given account is sponsoring the account or any of its sub-entries..
+   * @see [Accounts](https://www.stellar.org/developers/horizon/reference/endpoints/accounts.html)
+   * @param {string} value For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
+   * @returns {AccountCallBuilder} current AccountCallBuilder instance
+   */
+  public sponsor(id: string): this {
+    this.url.setQuery("sponsor", id);
+    return this;
+  }
 }

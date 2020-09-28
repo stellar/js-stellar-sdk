@@ -21,6 +21,82 @@ server.claimableBalances().claimableBalance(balanceID);
 
 - Add the optional attribute `sponsor` to `AccountSigner`, `BalanceLineAsset`, `ClaimableBalanceRecord`, and `OfferRecord` ([#572]https://github.com/stellar/js-stellar-sdk/pull/572)).
 
+- Add `sponsor` filtering support for `offers` and `accounts` ([#572]https://github.com/stellar/js-stellar-sdk/pull/572)).
+  - `server.offers().sponsor(accountID)` 
+  - `server.accounts().sponsor(accountID)`
+
+- Extend operation responses to support new operations ([#572]https://github.com/stellar/js-stellar-sdk/pull/572)).
+    * `create_claimable_balance` with the following fields:
+        * `asset` - asset available to be claimed (in canonical form),
+        * `amount` - amount available to be claimed,
+        * `claimants` - list of claimants with predicates (see below):
+            * `destination` - destination account ID,
+            * `predicate` - predicate required to claim a balance (see below).
+    * `claim_claimable_balance` with the following fields:
+        * `balance_id` - unique ID of balance to be claimed,
+        * `claimant` - account ID of a claimant.
+    * `begin_sponsoring_future_reserves` with the following fields:
+        * `sponsored_id` - account ID for which future reserves will be sponsored.
+    * `end_sponsoring_future_reserves` with the following fields:
+        * `begin_sponsor` - account sponsoring reserves.
+    * `revoke_sponsorship` with the following fields:
+        * `account_id` - if account sponsorship was revoked,
+        * `claimable_balance_id` - if claimable balance sponsorship was revoked,
+        * `data_account_id` - if account data sponsorship was revoked,
+        * `data_name` - if account data sponsorship was revoked,
+        * `offer_id` - if offer sponsorship was revoked,
+        * `trustline_account_id` - if trustline sponsorship was revoked,
+        * `trustline_asset` - if trustline sponsorship was revoked,
+        * `signer_account_id` - if signer sponsorship was revoked,
+        * `signer_key` - if signer sponsorship was revoked.
+
+- Extend effect responses to support new effects ([#572]https://github.com/stellar/js-stellar-sdk/pull/572)).
+    * `claimable_balance_created` with the following fields:
+        * `balance_id` - unique ID of claimable balance,
+        * `asset` - asset available to be claimed (in canonical form),
+        * `amount` - amount available to be claimed.
+    * `claimable_balance_claimant_created` with the following fields:
+        * `balance_id` - unique ID of a claimable balance,
+        * `asset` - asset available to be claimed (in canonical form),
+        * `amount` - amount available to be claimed,
+        * `predicate` - predicate required to claim a balance (see below).
+    * `claimable_balance_claimed` with the following fields:
+        * `balance_id` - unique ID of a claimable balance,
+        * `asset` - asset available to be claimed (in canonical form),
+        * `amount` - amount available to be claimed,
+    * `account_sponsorship_created` with the following fields:
+        * `sponsor` - sponsor of an account.
+    * `account_sponsorship_updated` with the following fields:
+        * `new_sponsor` - new sponsor of an account,
+        * `former_sponsor` - former sponsor of an account.
+    * `account_sponsorship_removed` with the following fields:
+        * `former_sponsor` - former sponsor of an account. 
+    * `trustline_sponsorship_created` with the following fields:
+        * `sponsor` - sponsor of a trustline.
+    * `trustline_sponsorship_updated` with the following fields:
+        * `new_sponsor` - new sponsor of a trustline,
+        * `former_sponsor` - former sponsor of a trustline.
+    * `trustline_sponsorship_removed` with the following fields:
+        * `former_sponsor` - former sponsor of a trustline. 
+    * `claimable_balance_sponsorship_created` with the following fields:
+        * `sponsor` - sponsor of a claimable balance.
+    * `claimable_balance_sponsorship_updated` with the following fields:
+        * `new_sponsor` - new sponsor of a claimable balance,
+        * `former_sponsor` - former sponsor of a claimable balance.
+    * `claimable_balance_sponsorship_removed` with the following fields:
+        * `former_sponsor` - former sponsor of a claimable balance. 
+    * `signer_sponsorship_created` with the following fields:
+        * `signer` - signer being sponsored. 
+        * `sponsor` - signer sponsor. 
+    * `signer_sponsorship_updated` with the following fields:
+        * `signer` - signer being sponsored. 
+        * `former_sponsor` - the former sponsor of the signer. 
+        * `new_sponsor` - the new sponsor of the signer. 
+    * `signer_sponsorship_removed` with the following fields:
+        * `former_sponsor` - former sponsor of a signer. 
+
+
+
 ## [v5.0.4](https://github.com/stellar/js-stellar-sdk/compare/v5.0.3...v5.0.4)
 
 ### Update
