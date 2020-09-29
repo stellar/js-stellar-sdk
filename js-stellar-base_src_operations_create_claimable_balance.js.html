@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>libdocs/strict_receive_path_call_builder.js - Documentation</title>
+    <title>js-stellar-base/src/operations/create_claimable_balance.js - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -29,7 +29,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">libdocs/strict_receive_path_call_builder.js</h1>
+    <h1 class="page-title">js-stellar-base/src/operations/create_claimable_balance.js</h1>
     
 
     
@@ -39,64 +39,70 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import { CallBuilder } from "./call_builder";
+            <pre class="prettyprint source linenums"><code>import xdr from '../generated/stellar-xdr_generated';
+import { Asset } from '../asset';
+
 /**
- * The Stellar Network allows payments to be made across assets through path
- * payments. A strict receive path payment specifies a series of assets to route
- * a payment through, from source asset (the asset debited from the payer) to
- * destination asset (the asset credited to the payee).
+ * Create a new claimable balance operation.
+ * @function
+ * @alias Operation.createClaimableBalance
+ * @param {object} opts Options object
+ * @param {Asset} opts.asset - The asset for the claimable balance.
+ * @param {string} opts.amount - Amount.
+ * @param {Claimant[]} opts.claimants - An array of Claimants
+ * @param {string} [opts.source] - The source account for the operation. Defaults to the transaction's source account.
+ * @returns {xdr.Operation} Create claimable balance operation
  *
- * A path search is specified using:
+ * @example
+ * const asset = new Asset(
+ *   'USD',
+ *   'GDGU5OAPHNPU5UCLE5RDJHG7PXZFQYWKCFOEXSXNMR6KRQRI5T6XXCD7'
+ * );
+ * const amount = '100.0000000';
+ * const claimants = [
+ *   new Claimant(
+ *     'GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ',
+ *      Claimant.predicateBeforeAbsoluteTime("4102444800000")
+ *   )
+ * ];
  *
- * * The source address or source assets.
- * * The asset and amount that the destination account should receive
+ * const op = Operation.createClaimableBalance({
+ *   asset,
+ *   amount,
+ *   claimants
+ * });
  *
- * As part of the search, horizon will load a list of assets available to the
- * source address and will find any payment paths from those source assets to
- * the desired destination asset. The search's amount parameter will be used to
- * determine if there a given path can satisfy a payment of the desired amount.
- *
- * If a list of assets is passed as the source, horizon will find any payment
- * paths from those source assets to the desired destination asset.
- *
- * Do not create this object directly, use {@link Server#strictReceivePaths}.
- * @see [Find Payment Paths](https://www.stellar.org/developers/horizon/reference/endpoints/path-finding.html)
- * @extends CallBuilder
- * @param {string} serverUrl Horizon server URL.
- * @param {string|Asset[]} source The sender's account ID or a list of Assets. Any returned path must use a source that the sender can hold.
- * @param {Asset} destinationAsset The destination asset.
- * @param {string} destinationAmount The amount, denominated in the destination asset, that any returned path should be able to satisfy.
  */
-export class StrictReceivePathCallBuilder extends CallBuilder {
-    constructor(serverUrl, source, destinationAsset, destinationAmount) {
-        super(serverUrl);
-        this.url.segment("paths/strict-receive");
-        if (typeof source === "string") {
-            this.url.setQuery("source_account", source);
-        }
-        else {
-            const assets = source
-                .map((asset) => {
-                if (asset.isNative()) {
-                    return "native";
-                }
-                return `${asset.getCode()}:${asset.getIssuer()}`;
-            })
-                .join(",");
-            this.url.setQuery("source_assets", assets);
-        }
-        this.url.setQuery("destination_amount", destinationAmount);
-        if (!destinationAsset.isNative()) {
-            this.url.setQuery("destination_asset_type", destinationAsset.getAssetType());
-            this.url.setQuery("destination_asset_code", destinationAsset.getCode());
-            this.url.setQuery("destination_asset_issuer", destinationAsset.getIssuer());
-        }
-        else {
-            this.url.setQuery("destination_asset_type", "native");
-        }
-    }
+export function createClaimableBalance(opts) {
+  if (!(opts.asset instanceof Asset)) {
+    throw new Error(
+      'must provide an asset for create claimable balance operation'
+    );
+  }
+
+  if (!this.isValidAmount(opts.amount)) {
+    throw new TypeError(this.constructAmountRequirementsError('amount'));
+  }
+
+  if (!Array.isArray(opts.claimants) || opts.claimants.length === 0) {
+    throw new Error('must provide at least one claimant');
+  }
+
+  const attributes = {};
+  attributes.asset = opts.asset.toXDRObject();
+  attributes.amount = this._toXDRAmount(opts.amount);
+  attributes.claimants = opts.claimants.map((c) => c.toXDRObject());
+  const createClaimableBalanceOp = new xdr.CreateClaimableBalanceOp(attributes);
+
+  const opAttributes = {};
+  opAttributes.body = xdr.OperationBody.createClaimableBalance(
+    createClaimableBalanceOp
+  );
+  this.setSourceAccount(opAttributes, opts);
+
+  return new xdr.Operation(opAttributes);
 }
-//# sourceMappingURL=strict_receive_path_call_builder.js.map</code></pre>
+</code></pre>
         </article>
     </section>
 

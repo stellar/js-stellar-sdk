@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>libdocs/strict_receive_path_call_builder.js - Documentation</title>
+    <title>Claimant - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -29,76 +29,1585 @@
 
 <div id="main">
     
-    <h1 class="page-title">libdocs/strict_receive_path_call_builder.js</h1>
+    <h1 class="page-title">Claimant</h1>
     
 
     
 
 
 
+
+<section>
+
+<header>
     
-    <section>
-        <article>
-            <pre class="prettyprint source linenums"><code>import { CallBuilder } from "./call_builder";
-/**
- * The Stellar Network allows payments to be made across assets through path
- * payments. A strict receive path payment specifies a series of assets to route
- * a payment through, from source asset (the asset debited from the payer) to
- * destination asset (the asset credited to the payee).
- *
- * A path search is specified using:
- *
- * * The source address or source assets.
- * * The asset and amount that the destination account should receive
- *
- * As part of the search, horizon will load a list of assets available to the
- * source address and will find any payment paths from those source assets to
- * the desired destination asset. The search's amount parameter will be used to
- * determine if there a given path can satisfy a payment of the desired amount.
- *
- * If a list of assets is passed as the source, horizon will find any payment
- * paths from those source assets to the desired destination asset.
- *
- * Do not create this object directly, use {@link Server#strictReceivePaths}.
- * @see [Find Payment Paths](https://www.stellar.org/developers/horizon/reference/endpoints/path-finding.html)
- * @extends CallBuilder
- * @param {string} serverUrl Horizon server URL.
- * @param {string|Asset[]} source The sender's account ID or a list of Assets. Any returned path must use a source that the sender can hold.
- * @param {Asset} destinationAsset The destination asset.
- * @param {string} destinationAmount The amount, denominated in the destination asset, that any returned path should be able to satisfy.
- */
-export class StrictReceivePathCallBuilder extends CallBuilder {
-    constructor(serverUrl, source, destinationAsset, destinationAmount) {
-        super(serverUrl);
-        this.url.segment("paths/strict-receive");
-        if (typeof source === "string") {
-            this.url.setQuery("source_account", source);
-        }
-        else {
-            const assets = source
-                .map((asset) => {
-                if (asset.isNative()) {
-                    return "native";
-                }
-                return `${asset.getCode()}:${asset.getIssuer()}`;
-            })
-                .join(",");
-            this.url.setQuery("source_assets", assets);
-        }
-        this.url.setQuery("destination_amount", destinationAmount);
-        if (!destinationAsset.isNative()) {
-            this.url.setQuery("destination_asset_type", destinationAsset.getAssetType());
-            this.url.setQuery("destination_asset_code", destinationAsset.getCode());
-            this.url.setQuery("destination_asset_issuer", destinationAsset.getIssuer());
-        }
-        else {
-            this.url.setQuery("destination_asset_type", "native");
-        }
-    }
-}
-//# sourceMappingURL=strict_receive_path_call_builder.js.map</code></pre>
-        </article>
-    </section>
+        <h2>
+        Claimant
+        </h2>
+        
+            <div class="class-description"><p>Claimant class represents an xdr.Claimant</p>
+<p>The claim predicate is optional, it defaults to unconditional if none is specified.</p></div>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+<div class="section-method">
+
+    
+    <h2>Constructor</h2>
+    
+
+    <h4 class="name" id="Claimant"><span class="type-signature"></span>new Claimant<span class="signature">(destination, predicate<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="js-stellar-base_src_claimant.js.html">js-stellar-base/src/claimant.js</a>, <a href="js-stellar-base_src_claimant.js.html#line14">line 14</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>destination</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>string</code></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">
+                <p>The destination account ID.</p>
+                
+            </td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>predicate</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>xdr.ClaimPredicate</code></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">
+                <p>The claim predicate.</p>
+                
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+    
+    </div>
+
+    
+
+    
+
+    
+
+     
+
+    
+
+    
+        <h3 class="subsection-title">Members</h3>
+
+        
+            
+<div class="section-members">
+<h4 class="name" id="destination"><span class="type-signature">(readonly) </span>destination<span class="type-signature"> :string</span></h4>
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="js-stellar-base_src_claimant.js.html">js-stellar-base/src/claimant.js</a>, <a href="js-stellar-base_src_claimant.js.html#line152">line 152</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type"><code>string</code></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</div>
+
+        
+            
+<div class="section-members">
+<h4 class="name" id="predicate"><span class="type-signature">(readonly) </span>predicate<span class="type-signature"> :xdr.ClaimPredicate</span></h4>
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="js-stellar-base_src_claimant.js.html">js-stellar-base/src/claimant.js</a>, <a href="js-stellar-base_src_claimant.js.html#line164">line 164</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type"><code>xdr.ClaimPredicate</code></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</div>
+
+        
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+<div class="section-method">
+
+    
+
+    <h4 class="name" id=".fromXDR"><span class="type-signature">(static) </span>fromXDR<span class="signature">(claimantXdr)</span><span class="type-signature"> &rarr; {<a href="Claimant.html">Claimant</a>}</span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Returns a claimant object from its XDR object representation.</p>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="js-stellar-base_src_claimant.js.html">js-stellar-base/src/claimant.js</a>, <a href="js-stellar-base_src_claimant.js.html#line121">line 121</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>claimantXdr</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>xdr.Claimant</code></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">
+                <p>The claimant xdr object.</p>
+                
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="section-returns">
+<h5>Returns:</h5>
+
+        
+
+<dl class="param-type">
+    <dt>
+        Type:
+    </dt>
+    <dd>
+        
+<span class="param-type"><code><a href="Claimant.html">Claimant</a></code></span>
+
+
+    </dd>
+</dl>
+
+
+    
+</div>
+
+
+
+</div>
+        
+            
+<div class="section-method">
+
+    
+
+    <h4 class="name" id=".predicateAnd"><span class="type-signature">(static) </span>predicateAnd<span class="signature">(left, right)</span><span class="type-signature"> &rarr; {xdr.ClaimPredicate}</span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Returns an <code>and</code> claim predicate</p>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="js-stellar-base_src_claimant.js.html">js-stellar-base/src/claimant.js</a>, <a href="js-stellar-base_src_claimant.js.html#line44">line 44</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>left</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>xdr.ClaimPredicate</code></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">
+                <p>an xdr.ClaimPredicate</p>
+                
+            </td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>right</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>xdr.ClaimPredicate</code></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">
+                <p>an xdr.ClaimPredicate</p>
+                
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="section-returns">
+<h5>Returns:</h5>
+
+        
+
+<dl class="param-type">
+    <dt>
+        Type:
+    </dt>
+    <dd>
+        
+<span class="param-type"><code>xdr.ClaimPredicate</code></span>
+
+
+    </dd>
+</dl>
+
+
+    
+</div>
+
+
+
+</div>
+        
+            
+<div class="section-method">
+
+    
+
+    <h4 class="name" id=".predicateBeforeAbsoluteTime"><span class="type-signature">(static) </span>predicateBeforeAbsoluteTime<span class="signature">(absBefore)</span><span class="type-signature"> &rarr; {xdr.ClaimPredicate}</span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Returns a <code>BeforeAbsoluteTime</code> claim predicate</p>
+<p>This predicate will be fulfilled if the closing time of the ledger that
+includes the CreateClaimableBalance operation is less than this (absolute) Unix timestamp.</p>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="js-stellar-base_src_claimant.js.html">js-stellar-base/src/claimant.js</a>, <a href="js-stellar-base_src_claimant.js.html#line94">line 94</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>absBefore</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>string</code></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">
+                <p>Unix epoch as a string</p>
+                
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="section-returns">
+<h5>Returns:</h5>
+
+        
+
+<dl class="param-type">
+    <dt>
+        Type:
+    </dt>
+    <dd>
+        
+<span class="param-type"><code>xdr.ClaimPredicate</code></span>
+
+
+    </dd>
+</dl>
+
+
+    
+</div>
+
+
+
+</div>
+        
+            
+<div class="section-method">
+
+    
+
+    <h4 class="name" id=".predicateBeforeRelativeTime"><span class="type-signature">(static) </span>predicateBeforeRelativeTime<span class="signature">(seconds)</span><span class="type-signature"> &rarr; {xdr.ClaimPredicate}</span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Returns a <code>BeforeRelativeTime</code> claim predicate</p>
+<p>This predicate will be fulfilled if the closing time of the ledger that
+includes the CreateClaimableBalance operation plus this relative time delta
+(in seconds) is less than the current time.</p>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="js-stellar-base_src_claimant.js.html">js-stellar-base/src/claimant.js</a>, <a href="js-stellar-base_src_claimant.js.html#line110">line 110</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>seconds</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>strings</code></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">
+                <p>seconds since closeTime of the ledger in which the ClaimableBalanceEntry was created (as string)</p>
+                
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="section-returns">
+<h5>Returns:</h5>
+
+        
+
+<dl class="param-type">
+    <dt>
+        Type:
+    </dt>
+    <dd>
+        
+<span class="param-type"><code>xdr.ClaimPredicate</code></span>
+
+
+    </dd>
+</dl>
+
+
+    
+</div>
+
+
+
+</div>
+        
+            
+<div class="section-method">
+
+    
+
+    <h4 class="name" id=".predicateNot"><span class="type-signature">(static) </span>predicateNot<span class="signature">(predicate)</span><span class="type-signature"> &rarr; {xdr.ClaimPredicate}</span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Returns a <code>not</code> claim predicate</p>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="js-stellar-base_src_claimant.js.html">js-stellar-base/src/claimant.js</a>, <a href="js-stellar-base_src_claimant.js.html#line77">line 77</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>predicate</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>xdr.ClaimPredicate</code></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">
+                <p>an xdr.ClaimPredicate</p>
+                
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="section-returns">
+<h5>Returns:</h5>
+
+        
+
+<dl class="param-type">
+    <dt>
+        Type:
+    </dt>
+    <dd>
+        
+<span class="param-type"><code>xdr.ClaimPredicate</code></span>
+
+
+    </dd>
+</dl>
+
+
+    
+</div>
+
+
+
+</div>
+        
+            
+<div class="section-method">
+
+    
+
+    <h4 class="name" id=".predicateOr"><span class="type-signature">(static) </span>predicateOr<span class="signature">(left, right)</span><span class="type-signature"> &rarr; {xdr.ClaimPredicate}</span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Returns an <code>or</code> claim predicate</p>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="js-stellar-base_src_claimant.js.html">js-stellar-base/src/claimant.js</a>, <a href="js-stellar-base_src_claimant.js.html#line61">line 61</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>left</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>xdr.ClaimPredicate</code></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">
+                <p>an xdr.ClaimPredicate</p>
+                
+            </td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>right</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>xdr.ClaimPredicate</code></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">
+                <p>an xdr.ClaimPredicate</p>
+                
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="section-returns">
+<h5>Returns:</h5>
+
+        
+
+<dl class="param-type">
+    <dt>
+        Type:
+    </dt>
+    <dd>
+        
+<span class="param-type"><code>xdr.ClaimPredicate</code></span>
+
+
+    </dd>
+</dl>
+
+
+    
+</div>
+
+
+
+</div>
+        
+            
+<div class="section-method">
+
+    
+
+    <h4 class="name" id=".predicateUnconditional"><span class="type-signature">(static) </span>predicateUnconditional<span class="signature">()</span><span class="type-signature"> &rarr; {xdr.ClaimPredicate}</span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Returns an unconditional claim predicate</p>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="js-stellar-base_src_claimant.js.html">js-stellar-base/src/claimant.js</a>, <a href="js-stellar-base_src_claimant.js.html#line34">line 34</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="section-returns">
+<h5>Returns:</h5>
+
+        
+
+<dl class="param-type">
+    <dt>
+        Type:
+    </dt>
+    <dd>
+        
+<span class="param-type"><code>xdr.ClaimPredicate</code></span>
+
+
+    </dd>
+</dl>
+
+
+    
+</div>
+
+
+
+</div>
+        
+            
+<div class="section-method">
+
+    
+
+    <h4 class="name" id="toXDRObject"><span class="type-signature"></span>toXDRObject<span class="signature">()</span><span class="type-signature"> &rarr; {xdr.Claimant}</span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Returns the xdr object for this claimant.</p>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="js-stellar-base_src_claimant.js.html">js-stellar-base/src/claimant.js</a>, <a href="js-stellar-base_src_claimant.js.html#line139">line 139</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="section-returns">
+<h5>Returns:</h5>
+
+        
+
+<dl class="param-type">
+    <dt>
+        Type:
+    </dt>
+    <dd>
+        
+<span class="param-type"><code>xdr.Claimant</code></span>
+
+
+    </dd>
+</dl>
+
+
+<div class="param-desc">
+    <p>XDR Claimant object</p>
+</div>
+
+    
+</div>
+
+
+
+</div>
+        
+    
+
+    
+
+    
+</article>
+
+</section>
 
 
 
