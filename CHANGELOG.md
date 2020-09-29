@@ -4,6 +4,10 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+## [v6.0.0](https://github.com/stellar/js-stellar-sdk/compare/v5.0.4...v6.0.0)
+
+### Add
+
 - Add support for claimable balances ([#572](https://github.com/stellar/js-stellar-sdk/pull/572)).
 Extend server class to allow loading claimable balances from Horizon. The following functions are available:
 
@@ -94,6 +98,22 @@ server.claimableBalances().claimableBalance(balanceID);
         * `new_sponsor` - the new sponsor of the signer.
     * `signer_sponsorship_removed` with the following fields:
         * `former_sponsor` - former sponsor of a signer.
+
+### Breaking
+
+- Update `stellar-base` to `v4.0.0` which introduces a breaking change in the internal XDR library.
+
+The following functions were renamed:
+
+- `xdr.OperationBody.setOption()` -> `xdr.OperationBody.setOptions()`
+- `xdr.OperationBody.manageDatum()` -> `xdr.OperationBody.manageData()`
+- `xdr.OperationType.setOption()` -> `xdr.OperationType.setOptions()`
+- `xdr.OperationType.manageDatum()` -> `xdr.OperationType.manageData()`
+
+The following enum values were rename in `OperationType`:
+
+- `setOption` -> `setOptions`
+- `manageDatum` -> `manageData`
 
 
 ## [v5.0.4](https://github.com/stellar/js-stellar-sdk/compare/v5.0.3...v5.0.4)
