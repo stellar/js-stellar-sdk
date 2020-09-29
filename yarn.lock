@@ -7715,10 +7715,10 @@ static-extend@^0.1.1:
   resolved "https://registry.yarnpkg.com/statuses/-/statuses-1.5.0.tgz#161c7dac177659fd9811f43771fa99381478628c"
   integrity sha1-Fhx9rBd2Wf2YEfQ3cfqZOBR4Yow=
 
-stellar-base@^3.0.3:
-  version "3.0.3"
-  resolved "https://registry.yarnpkg.com/stellar-base/-/stellar-base-3.0.3.tgz#e4b033d113f11e9239ce4fe8ead6e9a791f04f14"
-  integrity sha512-Kb79uQOmlMhGw96rg5qRA+rxK58N2eH+q8OuqVgQr85t5l/+p35BFKVl2yW3xN/OVwY7NrAjFn/KJmoxjcTfeg==
+stellar-base@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/stellar-base/-/stellar-base-4.0.0.tgz#5eb314c76a2054b4df8bcec1278b78172b0fe663"
+  integrity sha512-isn7FoecIcr6lr38oT132UkrYPOEsZy/XAkXteClZpuBBK2aZn0qjyyX4WAoA6cQhnJw/lQQwND+qfijRETvyg==
   dependencies:
     base32.js "^0.1.0"
     bignumber.js "^4.0.0"

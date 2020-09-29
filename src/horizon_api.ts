@@ -78,6 +78,7 @@ export namespace Horizon {
     last_modified_ledger: number;
     is_authorized: boolean;
     is_authorized_to_maintain_liabilities: boolean;
+    sponsor?: string;
   }
   export type BalanceLine<
     T extends AssetType = AssetType
@@ -111,6 +112,7 @@ export namespace Horizon {
     key: string;
     weight: number;
     type: string;
+    sponsor?: string;
   }
   export interface AccountResponse
     extends BaseResponse<
@@ -134,6 +136,9 @@ export namespace Horizon {
     data: {
       [key: string]: string;
     };
+    sponsor?: string;
+    num_sponsoring: number;
+    num_sponsored: number;
   }
 
   export enum OperationResponseType {
@@ -151,6 +156,11 @@ export namespace Horizon {
     bumpSequence = "bump_sequence",
     manageBuyOffer = "manage_buy_offer",
     pathPaymentStrictSend = "path_payment_strict_send",
+    createClaimableBalance = "create_claimable_balance",
+    claimClaimableBalance = "claim_claimable_balance",
+    beginSponsoringFutureReserves = "begin_sponsoring_future_reserves",
+    endSponsoringFutureReserves = "end_sponsoring_future_reserves",
+    revokeSponsorship = "revoke_sponsorship",
   }
   export enum OperationResponseTypeI {
     createAccount = 0,
@@ -167,6 +177,11 @@ export namespace Horizon {
     bumpSequence = 11,
     manageBuyOffer = 12,
     pathPaymentStrictSend = 13,
+    createClaimableBalance = 14,
+    claimClaimableBalance = 15,
+    beginSponsoringFutureReserves = 16,
+    endSponsoringFutureReserves = 17,
+    revokeSponsorship = 18,
   }
   export interface BaseOperationResponse<
     T extends OperationResponseType = OperationResponseType,
@@ -345,6 +360,70 @@ export namespace Horizon {
       OperationResponseTypeI.bumpSequence
     > {
     bump_to: string;
+  }
+  export interface Predicate {
+    and?: Predicate[];
+    or?: Predicate[];
+    not?: Predicate;
+    absBefore?: string;
+    relBefore?: string;
+  }
+
+  export interface Claimant {
+    destination: string;
+    predicate: Predicate;
+  }
+
+  export interface CreateClaimableBalanceOperationResponse
+    extends BaseOperationResponse<
+      OperationResponseType.createClaimableBalance,
+      OperationResponseTypeI.createClaimableBalance
+    > {
+    asset: string;
+    amount: string;
+    sponsor: string;
+    claimants: Claimant[];
+  }
+
+  export interface ClaimClaimableBalanceOperationResponse
+    extends BaseOperationResponse<
+      OperationResponseType.claimClaimableBalance,
+      OperationResponseTypeI.claimClaimableBalance
+    > {
+    balance_id: string;
+    claimant: string;
+  }
+
+  export interface BeginSponsoringFutureReservesOperationResponse
+    extends BaseOperationResponse<
+      OperationResponseType.beginSponsoringFutureReserves,
+      OperationResponseTypeI.beginSponsoringFutureReserves
+    > {
+    sponsored_id: string;
+  }
+
+  export interface EndSponsoringFutureReservesOperationResponse
+    extends BaseOperationResponse<
+      OperationResponseType.endSponsoringFutureReserves,
+      OperationResponseTypeI.endSponsoringFutureReserves
+    > {
+    begin_sponsor: string;
+  }
+
+  export interface RevokeSponsorshipOperationResponse
+    extends BaseOperationResponse<
+      OperationResponseType.revokeSponsorship,
+      OperationResponseTypeI.revokeSponsorship
+    > {
+    account_id?: string;
+    claimable_balance_id?: string;
+    data_account_id?: string;
+    data_name?: string;
+    offer_id?: string;
+    trustline_account_id?: string;
+    trustline_asset?: string;
+    signer_account_id?: string;
+    signer_key?: string;
   }
 
   export interface ResponseCollection<T extends BaseResponse = BaseResponse> {

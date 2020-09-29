@@ -1185,6 +1185,132 @@ describe('server.js non-transaction tests', function() {
           });
       });
 
+      it('adds a "sponsor" query to the endpoint', function(done) {
+        let accountsForSponsor = {
+          _links: {
+            self: {
+              href: '/accounts?cursor=&limit=10&order=asc&sponsor=GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42'
+            },
+            next: {
+              href: '/accounts?cursor=GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42&limit=10&order=asc&sponsor=GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42'
+            },
+            prev: {
+              href: '/accounts?cursor=GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42&limit=10&order=desc&sponsor=GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42'
+            }
+          },
+          _embedded: {
+            records: [
+              {
+                _links: {
+                  self: {
+                    href: '/accounts/GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42'
+                  },
+                  transactions: {
+                    href: '/accounts/GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42/transactions{?cursor,limit,order}',
+                    templated: true
+                  },
+                  operations: {
+                    href: '/accounts/GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42/operations{?cursor,limit,order}',
+                    templated: true
+                  },
+                  payments: {
+                    href: '/accounts/GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42/payments{?cursor,limit,order}',
+                    templated: true
+                  },
+                  effects: {
+                    href: '/accounts/GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42/effects{?cursor,limit,order}',
+                    templated: true
+                  },
+                  offers: {
+                    href: '/accounts/GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42/offers{?cursor,limit,order}',
+                    templated: true
+                  },
+                  trades: {
+                    href: '/accounts/GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42/trades{?cursor,limit,order}',
+                    templated: true
+                  },
+                  data: {
+                    href: '/accounts/GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42/data/{key}',
+                    templated: true
+                  }
+                },
+                id: 'GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42',
+                account_id: 'GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42',
+                sequence: '4233832731508737',
+                subentry_count: 1,
+                last_modified_ledger: 986912,
+                thresholds: {
+                  low_threshold: 0,
+                  med_threshold: 0,
+                  high_threshold: 0
+                },
+                flags: {
+                  auth_required: false,
+                  auth_revocable: false,
+                  auth_immutable: false
+                },
+                balances: [
+                  {
+                    balance: '0.0000000',
+                    limit: '450.0000000',
+                    buying_liabilities: '0.0000000',
+                    selling_liabilities: '0.0000000',
+                    last_modified_ledger: 986912,
+                    is_authorized: true,
+                    asset_type: 'credit_alphanum4',
+                    asset_code: 'USD',
+                    asset_issuer: 'GDUEG67IE5TJUVWRRTMXDP3Q6EMMZJ6HL5OMWLBYOIUIZEUW2T2PBPJH',
+                    sponsor: "GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42"
+                  },
+                  {
+                    balance: '9999.9999900',
+                    buying_liabilities: '0.0000000',
+                    selling_liabilities: '0.0000000',
+                    asset_type: 'native',
+                  }
+                ],
+                signers: [
+                  {
+                    weight: 1,
+                    key: 'GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42',
+                    type: 'ed25519_public_key'
+                  }
+                ],
+                data: {},
+                paging_token: 'GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42',
+                num_sponsoring: 0,
+                num_sponsored: 3,
+              }
+            ]
+          }
+        };
+
+        this.axiosMock
+          .expects('get')
+          .withArgs(
+            sinon.match(
+              'https://horizon-live.stellar.org:1337/accounts?sponsor=GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42'
+            )
+          )
+          .returns(Promise.resolve({ data: accountsForSponsor }));
+
+        this.server
+          .accounts()
+          .sponsor('GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42')
+          .call()
+          .then(function(response) {
+            expect(response.records).to.be.deep.equal(
+              accountsForSponsor._embedded.records
+            );
+            expect(response.next).to.be.function;
+            expect(response.prev).to.be.function;
+            done();
+          })
+          .catch(function(err) {
+            done(err);
+          });
+      });
+
     });
 
     describe('OfferCallBuilder', function() {
@@ -1367,6 +1493,33 @@ describe('server.js non-transaction tests', function() {
         this.server
           .offers()
           .buying(buying)
+          .order('asc')
+          .call()
+          .then(function(response) {
+            expect(response.records).to.be.deep.equal(
+              offersResponse._embedded.records
+            );
+            expect(response.next).to.be.function;
+            expect(response.prev).to.be.function;
+            done();
+          })
+          .catch(function(err) {
+            done(err);
+          });
+      });
+      it('sponsor requests the correct endpoint', function(done) {
+        this.axiosMock
+          .expects('get')
+          .withArgs(
+            sinon.match(
+              'https://horizon-live.stellar.org:1337/offers?sponsor=GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG&order=asc'
+            )
+          )
+          .returns(Promise.resolve({ data: offersResponse }));
+
+        this.server
+          .offers()
+          .sponsor("GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG")
           .order('asc')
           .call()
           .then(function(response) {

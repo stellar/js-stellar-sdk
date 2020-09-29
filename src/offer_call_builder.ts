@@ -80,4 +80,15 @@ export class OfferCallBuilder extends CallBuilder<
     }
     return this;
   }
+
+  /**
+   * This endpoint filters offers where the given account is sponsoring the offer entry.
+   * @see [Offers](https://www.stellar.org/developers/horizon/reference/endpoints/offers.html)
+   * @param {string} value For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
+   * @returns {OfferCallBuilder} current OfferCallBuilder instance
+   */
+  public sponsor(id: string): this {
+    this.url.setQuery("sponsor", id);
+    return this;
+  }
 }

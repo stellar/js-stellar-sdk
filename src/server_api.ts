@@ -47,11 +47,24 @@ export namespace ServerApi {
     data_attr: {
       [key: string]: string;
     };
+    sponsor?: string;
+    num_sponsoring: number;
+    num_sponsored: number;
     effects: CallCollectionFunction<EffectRecord>;
     offers: CallCollectionFunction<OfferRecord>;
     operations: CallCollectionFunction<OperationRecord>;
     payments: CallCollectionFunction<PaymentOperationRecord>;
     trades: CallCollectionFunction<TradeRecord>;
+  }
+
+  export interface ClaimableBalanceRecord extends Horizon.BaseResponse {
+    id: string;
+    paging_token: string;
+    asset: string;
+    amount: string;
+    sponsor?: string;
+    last_modified_ledger: number;
+    claimants: Horizon.Claimant[];
   }
 
   export interface EffectRecord extends Horizon.BaseResponse {
@@ -113,6 +126,35 @@ export namespace ServerApi {
     // trustline authorized / deauthorized
     trustor?: string;
 
+    // claimable_balance_created
+    // claimable_balance_claimant_created
+    // claimable_balance_claimed
+    balance_id?: string;
+    asset?: string;
+    predicate?: Horizon.Predicate;
+
+    // account_sponsorship_created
+    // trustline_sponsorship_created
+    // claimable_balance_sponsorship_created
+    // signer_sponsorship_created
+    // data_sponsorship_created
+    sponsor?: string;
+    signer?: string;
+    data_name?: string;
+
+    // account_sponsorship_updated
+    // account_sponsorship_removed
+    // trustline_sponsorship_updated
+    // trustline_sponsorship_removed
+    // claimable_balance_sponsorship_updated
+    // claimable_balance_sponsorship_removed
+    // signer_sponsorship_updated
+    // signer_sponsorship_removed
+    // data_sponsorship_updated
+    // data_sponsorship_removed
+    new_sponsor?: string;
+    former_sponsor?: string;
+
     operation?: CallFunction<OperationRecord>;
     precedes?: CallFunction<EffectRecord>;
     succeeds?: CallFunction<EffectRecord>;
@@ -161,6 +203,7 @@ export namespace ServerApi {
     price: string;
     last_modified_ledger: number;
     last_modified_time: string;
+    sponsor?: string;
   }
 
   import OperationResponseType = Horizon.OperationResponseType;
@@ -257,6 +300,36 @@ export namespace ServerApi {
         OperationResponseTypeI.bumpSequence
       >,
       Horizon.BumpSequenceOperationResponse {}
+  export interface CreateClaimableBalanceOperationRecord
+    extends BaseOperationRecord<
+        OperationResponseType.createClaimableBalance,
+        OperationResponseTypeI.createClaimableBalance
+      >,
+      Horizon.CreateClaimableBalanceOperationResponse {}
+  export interface ClaimClaimableBalanceOperationRecord
+    extends BaseOperationRecord<
+        OperationResponseType.claimClaimableBalance,
+        OperationResponseTypeI.claimClaimableBalance
+      >,
+      Horizon.ClaimClaimableBalanceOperationResponse {}
+  export interface BeginSponsoringFutureReservesOperationRecord
+    extends BaseOperationRecord<
+        OperationResponseType.beginSponsoringFutureReserves,
+        OperationResponseTypeI.beginSponsoringFutureReserves
+      >,
+      Horizon.BeginSponsoringFutureReservesOperationResponse {}
+  export interface EndSponsoringFutureReservesOperationRecord
+    extends BaseOperationRecord<
+        OperationResponseType.endSponsoringFutureReserves,
+        OperationResponseTypeI.endSponsoringFutureReserves
+      >,
+      Horizon.EndSponsoringFutureReservesOperationResponse {}
+  export interface RevokeSponsorshipOperationRecord
+    extends BaseOperationRecord<
+        OperationResponseType.revokeSponsorship,
+        OperationResponseTypeI.revokeSponsorship
+      >,
+      Horizon.RevokeSponsorshipOperationResponse {}
 
   export type OperationRecord =
     | CreateAccountOperationRecord
@@ -271,7 +344,12 @@ export namespace ServerApi {
     | InflationOperationRecord
     | ManageDataOperationRecord
     | BumpSequenceOperationRecord
-    | PathPaymentStrictSendOperationRecord;
+    | PathPaymentStrictSendOperationRecord
+    | CreateClaimableBalanceOperationRecord
+    | ClaimClaimableBalanceOperationRecord
+    | BeginSponsoringFutureReservesOperationRecord
+    | EndSponsoringFutureReservesOperationRecord
+    | RevokeSponsorshipOperationRecord;
 
   export interface TradeRecord extends Horizon.BaseResponse {
     id: string;
