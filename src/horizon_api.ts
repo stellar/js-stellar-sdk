@@ -365,8 +365,8 @@ export namespace Horizon {
     and?: Predicate[];
     or?: Predicate[];
     not?: Predicate;
-    absBefore?: string;
-    relBefore?: string;
+    abs_before?: string;
+    rel_before?: string;
   }
 
   export interface Claimant {
