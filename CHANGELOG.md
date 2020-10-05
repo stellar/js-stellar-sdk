@@ -4,6 +4,12 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+## [v6.1.0](https://github.com/stellar/js-stellar-sdk/compare/v6.0.0...v6.1.0)
+
+### Update
+
+- Update claim predicate fields to match Horizon 1.9.1 ([#575](https://github.com/stellar/js-stellar-sdk/pull/575)).
+
 ## [v6.0.0](https://github.com/stellar/js-stellar-sdk/compare/v5.0.4...v6.0.0)
 
 ### Add
