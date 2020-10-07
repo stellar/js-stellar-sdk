@@ -272,47 +272,7 @@ describe('Utils', function() {
         ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
-        /The transaction should contain exactly one operation/,
-      );
-    });
-
-    it("throws an error if transaction contains more than one operation", function() {
-      let keypair = StellarSdk.Keypair.random();
-      const account = new StellarSdk.Account(keypair.publicKey(), "-1");
-      const transaction = new StellarSdk.TransactionBuilder(
-        account,
-        txBuilderOpts,
-      )
-        .addOperation(
-          StellarSdk.Operation.manageData({
-            name: "SDF auth",
-            value: randomBytes(48).toString("base64"),
-          }),
-        )
-        .addOperation(
-          StellarSdk.Operation.manageData({
-            name: "SDF auth",
-            value: randomBytes(48).toString("base64"),
-          }),
-        )
-        .setTimeout(30)
-        .build();
-
-      transaction.sign(keypair);
-      const challenge = transaction
-        .toEnvelope()
-        .toXDR("base64")
-        .toString();
-
-      expect(() =>
-        StellarSdk.Utils.readChallengeTx(
-          challenge,
-          keypair.publicKey(),
-          StellarSdk.Networks.TESTNET,
-        ),
-      ).to.throw(
-        StellarSdk.InvalidSep10ChallengeError,
-        /The transaction should contain exactly one operation/,
+        /The transaction should contain at least one operation/,
       );
     });
 
@@ -511,6 +471,191 @@ describe('Utils', function() {
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
         /The transaction has expired/,
+      );
+    });
+
+    it("allows any value in home domain field", function() {
+      let serverKP = StellarSdk.Keypair.random();
+      let clientKP = StellarSdk.Keypair.random();
+      const serverAccount = new StellarSdk.Account(serverKP.publicKey(), "-1");
+      const transaction = new StellarSdk.TransactionBuilder(
+        serverAccount,
+        txBuilderOpts,
+      )
+        .addOperation(
+          StellarSdk.Operation.manageData({
+            source: clientKP.publicKey(),
+            name: "example.org auth",
+            value: randomBytes(48).toString("base64"),
+          }),
+        )
+        .setTimeout(30)
+        .build();
+
+      transaction.sign(serverKP);
+      const challenge = transaction
+        .toEnvelope()
+        .toXDR("base64")
+        .toString();
+
+      const transactionRoundTripped = new StellarSdk.Transaction(
+        challenge,
+        StellarSdk.Networks.TESTNET
+      );
+
+      expect(
+        StellarSdk.Utils.readChallengeTx(
+          challenge,
+          serverKP.publicKey(),
+          StellarSdk.Networks.TESTNET,
+          "example.com",
+        ),
+      ).to.eql({
+        tx: transactionRoundTripped,
+        clientAccountID: clientKP.publicKey(),
+      });
+    });
+
+    it("allows transaction to contain subsequent manage data ops with server account as source account", function() {
+      let serverKP = StellarSdk.Keypair.random();
+      let clientKP = StellarSdk.Keypair.random();
+      const serverAccount = new StellarSdk.Account(serverKP.publicKey(), "-1");
+      const transaction = new StellarSdk.TransactionBuilder(
+        serverAccount,
+        txBuilderOpts,
+      )
+        .addOperation(
+          StellarSdk.Operation.manageData({
+            source: clientKP.publicKey(),
+            name: "SDF auth",
+            value: randomBytes(48).toString("base64"),
+          }),
+        )
+        .addOperation(
+          StellarSdk.Operation.manageData({
+            source: serverKP.publicKey(),
+            name: "a key",
+            value: "a value",
+          }),
+        )
+        .setTimeout(30)
+        .build();
+
+      transaction.sign(serverKP);
+      const challenge = transaction
+        .toEnvelope()
+        .toXDR("base64")
+        .toString();
+
+      const transactionRoundTripped = new StellarSdk.Transaction(
+        challenge,
+        StellarSdk.Networks.TESTNET
+      );
+
+      expect(
+        StellarSdk.Utils.readChallengeTx(
+          challenge,
+          serverKP.publicKey(),
+          StellarSdk.Networks.TESTNET,
+        ),
+      ).to.eql({
+        tx: transactionRoundTripped,
+        clientAccountID: clientKP.publicKey(),
+      });
+    });
+
+    it("throws an error if the transaction contain subsequent manage data ops without the server account as the source account", function() {
+      let serverKP = StellarSdk.Keypair.random();
+      let clientKP = StellarSdk.Keypair.random();
+      const serverAccount = new StellarSdk.Account(serverKP.publicKey(), "-1");
+      const transaction = new StellarSdk.TransactionBuilder(
+        serverAccount,
+        txBuilderOpts,
+      )
+        .addOperation(
+          StellarSdk.Operation.manageData({
+            source: clientKP.publicKey(),
+            name: "SDF auth",
+            value: randomBytes(48).toString("base64"),
+          }),
+        )
+        .addOperation(
+          StellarSdk.Operation.manageData({
+            source: clientKP.publicKey(),
+            name: "a key",
+            value: "a value",
+          }),
+        )
+        .setTimeout(30)
+        .build();
+
+      transaction.sign(serverKP);
+      const challenge = transaction
+        .toEnvelope()
+        .toXDR("base64")
+        .toString();
+
+      const transactionRoundTripped = new StellarSdk.Transaction(
+        challenge,
+        StellarSdk.Networks.TESTNET
+      );
+
+      expect(() =>
+        StellarSdk.Utils.readChallengeTx(
+          challenge,
+          serverKP.publicKey(),
+          StellarSdk.Networks.TESTNET,
+        ),
+      ).to.throw(
+        StellarSdk.InvalidSep10ChallengeError,
+        /The transaction has operations that are unrecognized/,
+      );
+    });
+
+    it("throws an error if the transaction contain subsequent ops that are not manage data ops", function() {
+      let serverKP = StellarSdk.Keypair.random();
+      let clientKP = StellarSdk.Keypair.random();
+      const serverAccount = new StellarSdk.Account(serverKP.publicKey(), "-1");
+      const transaction = new StellarSdk.TransactionBuilder(
+        serverAccount,
+        txBuilderOpts,
+      )
+        .addOperation(
+          StellarSdk.Operation.manageData({
+            source: clientKP.publicKey(),
+            name: "SDF auth",
+            value: randomBytes(48).toString("base64"),
+          }),
+        )
+        .addOperation(
+          StellarSdk.Operation.bumpSequence({
+            source: clientKP.publicKey(),
+            bumpTo: "0",
+          }),
+        )
+        .setTimeout(30)
+        .build();
+
+      transaction.sign(serverKP);
+      const challenge = transaction
+        .toEnvelope()
+        .toXDR("base64")
+        .toString();
+
+      const transactionRoundTripped = new StellarSdk.Transaction(
+        challenge,
+        StellarSdk.Networks.TESTNET
+      );
+
+      expect(() =>
+        StellarSdk.Utils.readChallengeTx(
+          challenge,
+          serverKP.publicKey(),
+          StellarSdk.Networks.TESTNET,
+        ),
+      ).to.throw(
+        StellarSdk.InvalidSep10ChallengeError,
+        /The transaction has operations that are not of type 'manageData'/,
       );
     });
   });
