@@ -1,6 +1,6 @@
 const MockAdapter = require('axios-mock-adapter');
 
-describe('Adolfo ClaimableBalanceCallBuilder', function() {
+describe('ClaimableBalanceCallBuilder', function() {
     beforeEach(function() {
         this.server = new StellarSdk.Server(
           'https://horizon-live.stellar.org:1337'
