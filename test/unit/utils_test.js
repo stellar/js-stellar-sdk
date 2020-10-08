@@ -44,26 +44,32 @@ describe('Utils', function() {
         "GBDIT5GUJ7R5BXO3GJHFXJ6AZ5UQK6MNOIDMPQUSMXLIHTUNR2Q5CFNF",
         "testanchor.stellar.org",
         300,
-        StellarSdk.Networks.TESTNET
+        StellarSdk.Networks.TESTNET,
+        "sep10.example.com",
       );
 
       const transaction = new StellarSdk.Transaction(challenge, StellarSdk.Networks.TESTNET);
 
       expect(transaction.sequence).to.eql("0");
       expect(transaction.source).to.eql(keypair.publicKey());
-      expect(transaction.operations.length).to.eql(1);
+      expect(transaction.operations.length).to.eql(2);
 
       const { maxTime, minTime } = transaction.timeBounds;
 
       expect(parseInt(maxTime) - parseInt(minTime)).to.eql(300);
 
-      const [ operation ] =  transaction.operations;
+      const [ operation, serverHostnameOperation ] =  transaction.operations;
 
       expect(operation.name).to.eql("testanchor.stellar.org auth");
       expect(operation.source).to.eql("GBDIT5GUJ7R5BXO3GJHFXJ6AZ5UQK6MNOIDMPQUSMXLIHTUNR2Q5CFNF");
       expect(operation.type).to.eql("manageData");
       expect(operation.value.length).to.eql(64);
       expect(Buffer.from(operation.value.toString(), 'base64').length).to.eql(48);
+
+      expect(serverHostnameOperation.name).to.eql("server_hostname");
+      expect(serverHostnameOperation.source).to.eql(keypair.publicKey());
+      expect(serverHostnameOperation.type).to.eql("manageData");
+      expect(serverHostnameOperation.value.toString()).to.eql("sep10.example.com");
     });
 
     it('uses the passed-in timeout', function() {
@@ -74,7 +80,8 @@ describe('Utils', function() {
         "GBDIT5GUJ7R5BXO3GJHFXJ6AZ5UQK6MNOIDMPQUSMXLIHTUNR2Q5CFNF",
         "SDF",
         600,
-        StellarSdk.Networks.TESTNET
+        StellarSdk.Networks.TESTNET,
+        "sep10.example.com",
       );
 
       const transaction = new StellarSdk.Transaction(challenge, StellarSdk.Networks.TESTNET);
@@ -96,7 +103,8 @@ describe('Utils', function() {
           "MAAAAAAAAAAAAAB7BQ2L7E5NBWMXDUCMZSIPOBKRDSBYVLMXGSSKF6YNPIB7Y77ITLVL6",
           "SDF",
           300,
-          StellarSdk.Networks.TESTNET
+          StellarSdk.Networks.TESTNET,
+          "sep10.example.com",
         )
       ).to.throw(
         /Invalid serverAccountID: multiplexed accounts are not supported./
@@ -111,7 +119,8 @@ describe('Utils', function() {
         clientKP.publicKey(),
         "SDF",
         300,
-        StellarSdk.Networks.TESTNET
+        StellarSdk.Networks.TESTNET,
+        "sep10.example.com",
       );
 
       const innerTx = new StellarSdk.TransactionBuilder(new StellarSdk.Account(clientKP.publicKey(), "0"), {
@@ -142,7 +151,8 @@ describe('Utils', function() {
         StellarSdk.Utils.readChallengeTx(
           feeBump,
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET
+          StellarSdk.Networks.TESTNET,
+          "sep10.example.com",
         )
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
@@ -153,14 +163,16 @@ describe('Utils', function() {
         StellarSdk.Utils.readChallengeTx(
           challenge,
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET
+          StellarSdk.Networks.TESTNET,
+          "sep10.example.com",
         )
       ).to.not.throw(StellarSdk.InvalidSep10ChallengeError);
       expect(() =>
         StellarSdk.Utils.readChallengeTx(
           feeBump.toXDR().toString('base64'),
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET
+          StellarSdk.Networks.TESTNET,
+          "sep10.example.com",
         )
       ).to.not.throw(StellarSdk.InvalidSep10ChallengeError);
     });
@@ -173,7 +185,8 @@ describe('Utils', function() {
         clientKP.publicKey(),
         "SDF",
         300,
-        StellarSdk.Networks.TESTNET
+        StellarSdk.Networks.TESTNET,
+        "sep10.example.com",
       );
 
       clock.tick(200);
@@ -187,7 +200,8 @@ describe('Utils', function() {
         StellarSdk.Utils.readChallengeTx(
           challenge,
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET
+          StellarSdk.Networks.TESTNET,
+          "sep10.example.com",
         )
       ).to.eql({
         tx: transaction,
@@ -232,6 +246,7 @@ describe('Utils', function() {
         "SDF",
         300,
         StellarSdk.Networks.TESTNET,
+        "sep10.example.com",
       );
 
       let serverAccountId = StellarSdk.Keypair.random().publicKey();
@@ -241,6 +256,7 @@ describe('Utils', function() {
           challenge,
           serverAccountId,
           StellarSdk.Networks.TESTNET,
+          "sep10.example.com",
         ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
@@ -269,6 +285,7 @@ describe('Utils', function() {
           challenge,
           keypair.publicKey(),
           StellarSdk.Networks.TESTNET,
+          "sep10.example.com",
         ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
@@ -303,6 +320,7 @@ describe('Utils', function() {
           challenge,
           keypair.publicKey(),
           StellarSdk.Networks.TESTNET,
+          "sep10.example.com",
         ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
@@ -337,6 +355,7 @@ describe('Utils', function() {
           challenge,
           keypair.publicKey(),
           StellarSdk.Networks.TESTNET,
+          "sep10.example.com",
         ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
@@ -395,6 +414,7 @@ describe('Utils', function() {
           signedChallenge,
           serverKeypair.publicKey(),
           StellarSdk.Networks.TESTNET,
+          "sep10.example.com",
         ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
@@ -430,6 +450,7 @@ describe('Utils', function() {
           challenge,
           keypair.publicKey(),
           StellarSdk.Networks.TESTNET,
+          "sep10.example.com",
         ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
@@ -447,6 +468,7 @@ describe('Utils', function() {
         "SDF",
         300,
         StellarSdk.Networks.TESTNET,
+        "sep10.example.com",
       );
 
       clock.tick(350000);
@@ -467,6 +489,7 @@ describe('Utils', function() {
           signedChallenge,
           keypair.publicKey(),
           StellarSdk.Networks.TESTNET,
+          "sep10.example.com",
         ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
@@ -508,6 +531,7 @@ describe('Utils', function() {
           challenge,
           serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
+          "sep10.example.com",
           "example.com",
         ),
       ).to.eql({
@@ -557,6 +581,7 @@ describe('Utils', function() {
           challenge,
           serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
+          "sep10.example.com",
         ),
       ).to.eql({
         tx: transactionRoundTripped,
@@ -605,6 +630,7 @@ describe('Utils', function() {
           challenge,
           serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
+          "sep10.example.com",
         ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
@@ -652,10 +678,74 @@ describe('Utils', function() {
           challenge,
           serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
+          "sep10.example.com",
         ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
         /The transaction has operations that are not of type 'manageData'/,
+      );
+    });
+
+    it("verifies server hostname in challenge transactions matches", function() {
+      let serverKP = StellarSdk.Keypair.random();
+      let clientKP = StellarSdk.Keypair.random();
+      const serverAccount = new StellarSdk.Account(serverKP.publicKey(), "-1");
+      const transaction = new StellarSdk.TransactionBuilder(
+        serverAccount,
+        txBuilderOpts,
+      )
+        .addOperation(
+          StellarSdk.Operation.manageData({
+            source: clientKP.publicKey(),
+            name: "SDF auth",
+            value: randomBytes(48).toString("base64"),
+          }),
+        )
+        .addOperation(
+          StellarSdk.Operation.manageData({
+            source: serverKP.publicKey(),
+            name: "server_hostname",
+            value: "sep10.example.com",
+          }),
+        )
+        .setTimeout(30)
+        .build();
+
+      transaction.sign(serverKP);
+      const challenge = transaction
+        .toEnvelope()
+        .toXDR("base64")
+        .toString();
+
+      const transactionRoundTripped = new StellarSdk.Transaction(
+        challenge,
+        StellarSdk.Networks.TESTNET
+      );
+
+      // server hostname provided does verify and passes when correct
+      expect(
+        StellarSdk.Utils.readChallengeTx(
+          challenge,
+          serverKP.publicKey(),
+          StellarSdk.Networks.TESTNET,
+          "sep10.example.com",
+        ),
+      ).to.eql({
+        tx: transactionRoundTripped,
+        clientAccountID: clientKP.publicKey(),
+      });
+
+      // server hostname provided does verify and fails when incorrect
+      expect(() =>
+        StellarSdk.Utils.readChallengeTx(
+          challenge,
+          serverKP.publicKey(),
+          StellarSdk.Networks.TESTNET,
+          "sep10.example.org",
+        ),
+      ).to.throw(
+        StellarSdk.InvalidSep10ChallengeError,
+        /The transaction has a server hostname mismatch/,
       );
     });
   });
@@ -676,6 +766,8 @@ describe('Utils', function() {
         value: randomBytes(48).toString("base64"),
       });
 
+      this.serverHostname = "sep10.example.com";
+
       this.txBuilderOpts = {
         fee: 100,
         networkPassphrase: StellarSdk.Networks.TESTNET,
@@ -683,7 +775,7 @@ describe('Utils', function() {
     });
 
     afterEach(function() {
-      this.serverKP, this.clientKP1, this.clientKP2, this.txAccount, this.opAccount, this.operation = null;
+      this.serverKP, this.clientKP1, this.clientKP2, this.txAccount, this.opAccount, this.operation, this.serverHostname = null;
     });
 
     it("throws an error if the server hasn't signed the transaction", function() {
@@ -712,6 +804,7 @@ describe('Utils', function() {
           challenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
+          this.serverHostname,
           threshold,
           signerSummary,
         ),
@@ -728,6 +821,7 @@ describe('Utils', function() {
         "SDF",
         300,
         StellarSdk.Networks.TESTNET,
+        "sep10.example.com",
       );
 
       clock.tick(200);
@@ -752,6 +846,7 @@ describe('Utils', function() {
           signedChallenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
+          this.serverHostname,
           threshold,
           signerSummary,
         ),
@@ -765,6 +860,7 @@ describe('Utils', function() {
         "SDF",
         300,
         StellarSdk.Networks.TESTNET,
+        "sep10.example.com",
       );
 
       clock.tick(200);
@@ -790,6 +886,7 @@ describe('Utils', function() {
           signedChallenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
+          this.serverHostname,
           threshold,
           signerSummary,
         ),
@@ -803,6 +900,7 @@ describe('Utils', function() {
         "SDF",
         300,
         StellarSdk.Networks.TESTNET,
+        "sep10.example.com",
       );
 
       clock.tick(200);
@@ -829,6 +927,7 @@ describe('Utils', function() {
           signedChallenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
+          this.serverHostname,
           threshold,
           signerSummary,
         ),
@@ -846,6 +945,7 @@ describe('Utils', function() {
         "SDF",
         300,
         StellarSdk.Networks.TESTNET,
+        "sep10.example.com",
       );
 
       clock.tick(200);
@@ -875,6 +975,7 @@ describe('Utils', function() {
           signedChallenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
+          this.serverHostname,
           threshold,
           signerSummary,
         ),
@@ -888,6 +989,7 @@ describe('Utils', function() {
         "SDF",
         300,
         StellarSdk.Networks.TESTNET,
+        "sep10.example.com",
       );
 
       clock.tick(200);
@@ -914,6 +1016,7 @@ describe('Utils', function() {
           signedChallenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
+          this.serverHostname,
           threshold,
           signerSummary,
         ),
@@ -930,6 +1033,7 @@ describe('Utils', function() {
         "SDF",
         300,
         StellarSdk.Networks.TESTNET,
+        "sep10.example.com",
       );
 
       clock.tick(200);
@@ -955,6 +1059,7 @@ describe('Utils', function() {
           signedChallenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
+          this.serverHostname,
           threshold,
           signerSummary,
         ),
@@ -971,6 +1076,7 @@ describe('Utils', function() {
         "SDF",
         300,
         StellarSdk.Networks.TESTNET,
+        "sep10.example.com",
       );
 
       clock.tick(200);
@@ -992,6 +1098,7 @@ describe('Utils', function() {
           signedChallenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
+          this.serverHostname,
           threshold,
           [],
         ),
@@ -1017,6 +1124,8 @@ describe('Utils', function() {
         value: randomBytes(48).toString("base64"),
       });
 
+      this.serverHostname = "sep10.example.com";
+
       this.txBuilderOpts = {
         fee: 100,
         networkPassphrase: StellarSdk.Networks.TESTNET,
@@ -1024,7 +1133,7 @@ describe('Utils', function() {
     });
 
     afterEach(function() {
-      this.serverKP, this.clientKP1, this.clientKP2, this.txAccount, this.opAccount, this.operation = null;
+      this.serverKP, this.clientKP1, this.clientKP2, this.txAccount, this.opAccount, this.operation, this.serverHostname = null;
     });
 
     it("successfully validates server and client master key signatures in the transaction", function() {
@@ -1034,6 +1143,7 @@ describe('Utils', function() {
         "SDF",
         300,
         StellarSdk.Networks.TESTNET,
+        "sep10.example.com",
       );
 
       clock.tick(200);
@@ -1054,6 +1164,7 @@ describe('Utils', function() {
           signedChallenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
+          this.serverHostname,
           [this.clientKP1.publicKey()],
         ),
       ).to.eql([this.clientKP1.publicKey()]);
@@ -1080,6 +1191,7 @@ describe('Utils', function() {
           invalidsServerSignedChallenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
+          this.serverHostname,
           [this.clientKP1.publicKey()],
         ),
       ).to.throw(
@@ -1095,6 +1207,7 @@ describe('Utils', function() {
         "SDF",
         300,
         StellarSdk.Networks.TESTNET,
+        "sep10.example.com",
       );
 
       clock.tick(200);
@@ -1104,6 +1217,7 @@ describe('Utils', function() {
           challenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
+          this.serverHostname,
           [],
         ),
       ).to.throw(
@@ -1119,6 +1233,7 @@ describe('Utils', function() {
         "SDF",
         300,
         StellarSdk.Networks.TESTNET,
+        "sep10.example.com",
       );
 
       clock.tick(200);
@@ -1138,6 +1253,7 @@ describe('Utils', function() {
           signedChallenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
+          this.serverHostname,
           [this.clientKP1.publicKey()],
         ),
       ).to.throw(
@@ -1153,6 +1269,7 @@ describe('Utils', function() {
         "SDF",
         300,
         StellarSdk.Networks.TESTNET,
+        "sep10.example.com",
       );
 
       clock.tick(200);
@@ -1175,6 +1292,7 @@ describe('Utils', function() {
           signedChallenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
+          this.serverHostname,
           clientSignersPubKey,
         ),
       ).to.eql(clientSignersPubKey);
@@ -1187,6 +1305,7 @@ describe('Utils', function() {
         "SDF",
         300,
         StellarSdk.Networks.TESTNET,
+        "sep10.example.com",
       );
 
       clock.tick(200);
@@ -1209,6 +1328,7 @@ describe('Utils', function() {
           signedChallenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
+          this.serverHostname,
           clientSignersPubKey,
         ),
       ).to.have.same.members(clientSignersPubKey);
@@ -1221,6 +1341,7 @@ describe('Utils', function() {
         "SDF",
         300,
         StellarSdk.Networks.TESTNET,
+        "sep10.example.com",
       );
 
       clock.tick(200);
@@ -1241,6 +1362,7 @@ describe('Utils', function() {
           signedChallenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
+          this.serverHostname,
           [this.clientKP2.publicKey()],
         ),
       ).to.eql([this.clientKP2.publicKey()]);
@@ -1253,6 +1375,7 @@ describe('Utils', function() {
         "SDF",
         300,
         StellarSdk.Networks.TESTNET,
+        "sep10.example.com",
       );
 
       clock.tick(200);
@@ -1273,6 +1396,7 @@ describe('Utils', function() {
           signedChallenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
+          this.serverHostname,
           [this.clientKP2.publicKey(), StellarSdk.Keypair.random().publicKey()],
         ),
       ).to.eql([this.clientKP2.publicKey()]);
@@ -1285,6 +1409,7 @@ describe('Utils', function() {
         "SDF",
         300,
         StellarSdk.Networks.TESTNET,
+        "sep10.example.com",
       );
 
       clock.tick(200);
@@ -1305,6 +1430,7 @@ describe('Utils', function() {
           signedChallenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
+          this.serverHostname,
           [this.clientKP2.publicKey(), this.serverKP.publicKey()],
         ),
       ).to.throw(
@@ -1320,6 +1446,7 @@ describe('Utils', function() {
         "SDF",
         300,
         StellarSdk.Networks.TESTNET,
+        "sep10.example.com",
       );
 
       clock.tick(200);
@@ -1340,6 +1467,7 @@ describe('Utils', function() {
           signedChallenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
+          this.serverHostname,
           [this.clientKP2.publicKey(), this.clientKP2.publicKey()],
         ),
       ).to.eql([this.clientKP2.publicKey()]);
@@ -1356,6 +1484,7 @@ describe('Utils', function() {
         "SDF",
         300,
         StellarSdk.Networks.TESTNET,
+        "sep10.example.com",
       );
 
       clock.tick(200);
@@ -1376,6 +1505,7 @@ describe('Utils', function() {
           signedChallenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
+          this.serverHostname,
           [this.clientKP2.publicKey(), preauthTxHash, xHash, unknownSignerType],
         ),
       ).to.eql([this.clientKP2.publicKey()]);
@@ -1388,6 +1518,7 @@ describe('Utils', function() {
         "SDF",
         300,
         StellarSdk.Networks.TESTNET,
+        "sep10.example.com",
       );
 
       clock.tick(200);
@@ -1407,6 +1538,7 @@ describe('Utils', function() {
           signedChallenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
+          this.serverHostname,
           [this.clientKP2.publicKey(), this.clientKP2.publicKey()],
         ),
       ).to.throw(
@@ -1422,6 +1554,7 @@ describe('Utils', function() {
         "SDF",
         300,
         StellarSdk.Networks.TESTNET,
+        "sep10.example.com",
       );
 
       clock.tick(200);
@@ -1442,6 +1575,7 @@ describe('Utils', function() {
           signedChallenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
+          this.serverHostname,
           [this.clientKP2.publicKey()],
         ),
       ).to.throw(
@@ -1457,6 +1591,7 @@ describe('Utils', function() {
         "SDF",
         300,
         StellarSdk.Networks.TESTNET,
+        "sep10.example.com",
       );
 
       clock.tick(200);
@@ -1477,6 +1612,7 @@ describe('Utils', function() {
           signedChallenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
+          this.serverHostname,
           [this.clientKP2.secret()],
         ),
       ).to.throw(
@@ -1510,6 +1646,7 @@ describe('Utils', function() {
           challenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
+          this.serverHostname,
           clientSigners,
         ),
       ).to.throw(
@@ -1525,6 +1662,7 @@ describe('Utils', function() {
         "SDF",
         300,
         StellarSdk.Networks.TESTNET,
+        "sep10.example.com",
       );
 
       clock.tick(200);
@@ -1545,6 +1683,7 @@ describe('Utils', function() {
           signedChallenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
+          this.serverHostname,
           [],
         ),
       ).to.throw(

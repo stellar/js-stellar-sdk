@@ -29,11 +29,12 @@ export namespace Utils {
    * @param {string} homeDomain The fully qualified domain name of the service requiring authentication
    * @param {number} [timeout=300] Challenge duration (default to 5 minutes).
    * @param {string} networkPassphrase The network passphrase. If you pass this argument then timeout is required.
+   * @param {string} serverHostname The SEP0010 server's hostname that the challenge transaction is requested from.
    * @example
    * import { Utils, Keypair, Networks }  from 'stellar-sdk'
    *
    * let serverKeyPair = Keypair.fromSecret("server-secret")
-   * let challenge = Utils.buildChallengeTx(serverKeyPair, "client-stellar-account-id", "SDF", 300, Networks.TESTNET)
+   * let challenge = Utils.buildChallengeTx(serverKeyPair, "client-stellar-account-id", "SDF", 300, Networks.TESTNET, "sep10.example.com")
    * @returns {string} A base64 encoded string of the raw TransactionEnvelope xdr struct for the transaction.
    */
   export function buildChallengeTx(
@@ -42,6 +43,7 @@ export namespace Utils {
     homeDomain: string,
     timeout: number = 300,
     networkPassphrase: string,
+    serverHostname: string,
   ): string {
     if (clientAccountID.startsWith("M")) {
       throw Error(
@@ -74,6 +76,13 @@ export namespace Utils {
           source: clientAccountID,
         }),
       )
+      .addOperation(
+        Operation.manageData({
+          name: "server_hostname",
+          value: serverHostname,
+          source: serverKeypair.publicKey(),
+        }),
+      )
       .build();
 
     transaction.sign(serverKeypair);
@@ -102,6 +111,7 @@ export namespace Utils {
    * @param {string} challengeTx SEP0010 challenge transaction in base64.
    * @param {string} serverAccountID The server's stellar account (public key).
    * @param {string} networkPassphrase The network passphrase, e.g.: 'Test SDF Network ; September 2015'.
+   * @param {string} serverHostname The SEP0010 server's hostname that the challenge transaction is requested from.
    * @param {string} [homeDomain=undefined] The field is reserved for future use and not used.
    * @returns {Transaction|string} The actual submited transaction and the stellar public key (master key) used to sign the Manage Data operation.
    */
@@ -109,6 +119,7 @@ export namespace Utils {
     challengeTx: string,
     serverAccountID: string,
     networkPassphrase: string,
+    serverHostname: string,
     _homeDomain?: string,
   ): { tx: Transaction; clientAccountID: string } {
     if (serverAccountID.startsWith("M")) {
@@ -199,6 +210,17 @@ export namespace Utils {
           "The transaction has operations that are unrecognized",
         );
       }
+      switch (op.name) {
+        case "server_hostname":
+          if (op.value.toString() !== serverHostname) {
+            throw new InvalidSep10ChallengeError(
+              "The transaction has a server hostname mismatch",
+            );
+          }
+          break;
+        default:
+          break;
+      }
     }
 
     return { tx: transaction, clientAccountID };
@@ -228,6 +250,7 @@ export namespace Utils {
    * @param {string} challengeTx SEP0010 challenge transaction in base64.
    * @param {string} serverAccountID The server's stellar account (public key).
    * @param {string} networkPassphrase The network passphrase, e.g.: 'Test SDF Network ; September 2015'.
+   * @param {string} serverHostname The SEP0010 server's hostname that the challenge transaction is requested from.
    * @param {number} threshold The required signatures threshold for verifying this transaction.
    * @param {ServerApi.AccountRecordSigners[]} signerSummary a map of all authorized signers to their weights. It's used to validate if the transaction signatures have met the given threshold.
    * @returns {string[]} The list of signers public keys that have signed the transaction, excluding the server account ID, given that the threshold was met.
@@ -245,7 +268,8 @@ export namespace Utils {
    *   clientKP1.publicKey(),
    *   "SDF",
    *   300,
-   *   Networks.TESTNET
+   *   Networks.TESTNET,
+   *   "sep10.example.com",
    * );
    *
    * // clock.tick(200);  // Simulates a 200 ms delay when communicating from server to client
@@ -272,12 +296,13 @@ export namespace Utils {
    *  ];
    *
    * // The result below should be equal to [clientKP1.publicKey(), clientKP2.publicKey()]
-   * Utils.verifyChallengeTxThreshold(signedChallenge, serverKP.publicKey(), Networks.TESTNET, threshold, signerSummary);
+   * Utils.verifyChallengeTxThreshold(signedChallenge, serverKP.publicKey(), Networks.TESTNET, "sep10.example.com", threshold, signerSummary);
    */
   export function verifyChallengeTxThreshold(
     challengeTx: string,
     serverAccountID: string,
     networkPassphrase: string,
+    serverHostname: string,
     threshold: number,
     signerSummary: ServerApi.AccountRecordSigners[],
   ): string[] {
@@ -287,6 +312,7 @@ export namespace Utils {
       challengeTx,
       serverAccountID,
       networkPassphrase,
+      serverHostname,
       signers,
     );
 
@@ -329,6 +355,7 @@ export namespace Utils {
    * @param {string} challengeTx SEP0010 challenge transaction in base64.
    * @param {string} serverAccountID The server's stellar account (public key).
    * @param {string} networkPassphrase The network passphrase, e.g.: 'Test SDF Network ; September 2015'.
+   * @param {string} serverHostname The SEP0010 server's hostname that the challenge transaction is requested from.
    * @param {string[]} signers The signers public keys. This list should contain the public keys for all signers that have signed the transaction.
    * @returns {string[]} The list of signers public keys that have signed the transaction, excluding the server account ID.
    * @example
@@ -345,7 +372,8 @@ export namespace Utils {
    *   clientKP1.publicKey(),
    *   "SDF",
    *   300,
-   *   Networks.TESTNET
+   *   Networks.TESTNET,
+   *   "sep10.example.com",
    * );
    *
    * // clock.tick(200);  // Simulates a 200 ms delay when communicating from server to client
@@ -359,12 +387,13 @@ export namespace Utils {
    *         .toString();
    *
    * // The result below should be equal to [clientKP1.publicKey(), clientKP2.publicKey()]
-   * Utils.verifyChallengeTxSigners(signedChallenge, serverKP.publicKey(), Networks.TESTNET, threshold, [clientKP1.publicKey(), clientKP2.publicKey()]);
+   * Utils.verifyChallengeTxSigners(signedChallenge, serverKP.publicKey(), Networks.TESTNET, "sep10.example.com", threshold, [clientKP1.publicKey(), clientKP2.publicKey()]);
    */
   export function verifyChallengeTxSigners(
     challengeTx: string,
     serverAccountID: string,
     networkPassphrase: string,
+    serverHostname: string,
     signers: string[],
   ): string[] {
     // Read the transaction which validates its structure.
@@ -372,6 +401,7 @@ export namespace Utils {
       challengeTx,
       serverAccountID,
       networkPassphrase,
+      serverHostname,
     );
 
     // Ensure the server account ID is an address and not a seed.
