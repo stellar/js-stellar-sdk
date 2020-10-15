@@ -4,6 +4,12 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Update
+
+- Update challenge transaction helpers for SEP0010 v2.1.0. ([#581](https://github.com/stellar/js-stellar-sdk/issues/581))
+   * Remove verification of home domain.
+   * Allow additional manage data operations that have the source account set as the server key.
+
 ## [v6.1.0](https://github.com/stellar/js-stellar-sdk/compare/v6.0.0...v6.1.0)
 
 ### Update

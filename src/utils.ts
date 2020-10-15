@@ -102,14 +102,14 @@ export namespace Utils {
    * @param {string} challengeTx SEP0010 challenge transaction in base64.
    * @param {string} serverAccountID The server's stellar account (public key).
    * @param {string} networkPassphrase The network passphrase, e.g.: 'Test SDF Network ; September 2015'.
-   * @param {string} [homeDomain=undefined] The home domain that should be included in the Manage Data operation's string key.
+   * @param {string} [homeDomain=undefined] The field is reserved for future use and not used.
    * @returns {Transaction|string} The actual submited transaction and the stellar public key (master key) used to sign the Manage Data operation.
    */
   export function readChallengeTx(
     challengeTx: string,
     serverAccountID: string,
     networkPassphrase: string,
-    homeDomain?: string,
+    _homeDomain?: string,
   ): { tx: Transaction; clientAccountID: string } {
     if (serverAccountID.startsWith("M")) {
       throw Error(
@@ -145,13 +145,13 @@ export namespace Utils {
     }
 
     // verify operation
-    if (transaction.operations.length !== 1) {
+    if (transaction.operations.length < 1) {
       throw new InvalidSep10ChallengeError(
-        "The transaction should contain exactly one operation",
+        "The transaction should contain at least one operation",
       );
     }
 
-    const [operation] = transaction.operations;
+    const [operation, ...subsequentOperations] = transaction.operations;
 
     if (!operation.source) {
       throw new InvalidSep10ChallengeError(
@@ -187,11 +187,18 @@ export namespace Utils {
       );
     }
 
-    // verify homeDomain
-    if (homeDomain && `${homeDomain} auth` !== operation.name) {
-      throw new InvalidSep10ChallengeError(
-        "The transaction's operation key name does not match the expected home domain",
-      );
+    // verify any subsequent operations are manage data ops and source account is the server
+    for (const op of subsequentOperations) {
+      if (op.type !== "manageData") {
+        throw new InvalidSep10ChallengeError(
+          "The transaction has operations that are not of type 'manageData'",
+        );
+      }
+      if (op.source !== serverAccountID) {
+        throw new InvalidSep10ChallengeError(
+          "The transaction has operations that are unrecognized",
+        );
+      }
     }
 
     return { tx: transaction, clientAccountID };
