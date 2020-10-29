@@ -437,6 +437,41 @@ describe('Utils', function() {
       );
     });
 
+    it("throws an error if operation value is null", function() {
+      let keypair = StellarSdk.Keypair.random();
+      const account = new StellarSdk.Account(keypair.publicKey(), "-1");
+      const transaction = new StellarSdk.TransactionBuilder(
+        account,
+        txBuilderOpts,
+      )
+        .addOperation(
+          StellarSdk.Operation.manageData({
+            name: "SDF auth",
+            value: null,
+            source: "GBDIT5GUJ7R5BXO3GJHFXJ6AZ5UQK6MNOIDMPQUSMXLIHTUNR2Q5CFNF",
+          }),
+        )
+        .setTimeout(30)
+        .build();
+
+      transaction.sign(keypair);
+      const challenge = transaction
+        .toEnvelope()
+        .toXDR("base64")
+        .toString();
+
+      expect(() =>
+        StellarSdk.Utils.readChallengeTx(
+          challenge,
+          keypair.publicKey(),
+          StellarSdk.Networks.TESTNET,
+        ),
+      ).to.throw(
+        StellarSdk.InvalidSep10ChallengeError,
+        /The transaction\'s operation value should not be null/,
+      );
+    });
+
     it("throws an error if transaction does not contain valid timeBounds", function() {
       let keypair = StellarSdk.Keypair.random();
       let clientKeypair = StellarSdk.Keypair.random();

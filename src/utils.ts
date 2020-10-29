@@ -180,6 +180,12 @@ export namespace Utils {
       throw new InvalidSep10ChallengeError("The transaction has expired");
     }
 
+    if (operation.value === undefined) {
+      throw new InvalidSep10ChallengeError(
+        "The transaction's operation value should not be null",
+      );
+    }
+
     // verify base64
     if (Buffer.from(operation.value.toString(), "base64").length !== 48) {
       throw new InvalidSep10ChallengeError(
