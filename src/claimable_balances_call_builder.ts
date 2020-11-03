@@ -65,7 +65,7 @@ export class ClaimableBalanceCallBuilder extends CallBuilder<
    * Returns all claimable balances which provide a balance for the given asset.
    *
    * @see [Claimable Balances](https://developers.stellar.org/api/resources/claimablebalances/list/)
-   * @param {string} claimant For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
+   * @param {Asset} The Asset held by the claimable balance
    * @returns {ClaimableBalanceCallBuilder} current ClaimableBalanceCallBuilder instance
    */
   public asset(asset: Asset): this {
