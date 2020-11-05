@@ -102,14 +102,14 @@ export namespace Utils {
    * @param {string} challengeTx SEP0010 challenge transaction in base64.
    * @param {string} serverAccountID The server's stellar account (public key).
    * @param {string} networkPassphrase The network passphrase, e.g.: 'Test SDF Network ; September 2015'.
-   * @param {string} [homeDomain=undefined] The field is reserved for future use and not used.
-   * @returns {Transaction|string} The actual submited transaction and the stellar public key (master key) used to sign the Manage Data operation.
+   * @param {string} [homeDomain=undefined] The home domain that should be included in the Manage Data operation's string key.
+   * @returns {Transaction|string} The actual submitted transaction and the stellar public key (master key) used to sign the Manage Data operation.
    */
   export function readChallengeTx(
     challengeTx: string,
     serverAccountID: string,
     networkPassphrase: string,
-    _homeDomain?: string,
+    homeDomain?: string,
   ): { tx: Transaction; clientAccountID: string } {
     if (serverAccountID.startsWith("M")) {
       throw Error(
@@ -199,6 +199,13 @@ export namespace Utils {
           "The transaction has operations that are unrecognized",
         );
       }
+    }
+
+    // verify homeDomain
+    if (homeDomain && `${homeDomain} auth` !== operation.name) {
+      throw new InvalidSep10ChallengeError(
+        "The transaction's operation key name does not match the expected home domain",
+      );
     }
 
     return { tx: transaction, clientAccountID };
