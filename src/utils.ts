@@ -109,7 +109,7 @@ export namespace Utils {
     challengeTx: string,
     serverAccountID: string,
     networkPassphrase: string,
-    homeDomain?: string,
+    homeDomain: string,
   ): { tx: Transaction; clientAccountID: string } {
     if (serverAccountID.startsWith("M")) {
       throw Error(
