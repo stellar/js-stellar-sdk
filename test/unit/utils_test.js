@@ -1,17 +1,17 @@
 const randomBytes = require("randombytes");
 
 function newClientSigner(key, weight) {
-  return { key, weight };
+  return { key, weight }
 }
 
-describe("Utils", function() {
+describe('Utils', function() {
   let clock, txBuilderOpts;
 
   beforeEach(function() {
     clock = sinon.useFakeTimers();
     txBuilderOpts = {
       fee: 100,
-      networkPassphrase: StellarSdk.Networks.TESTNET,
+      networkPassphrase: StellarSdk.Networks.TESTNET
     };
   });
 
@@ -19,8 +19,8 @@ describe("Utils", function() {
     clock.restore();
   });
 
-  describe("Utils.buildChallengeTx", function() {
-    it("requires a non-muxed account", function() {
+  describe('Utils.buildChallengeTx', function() {
+    it('requires a non-muxed account', function() {
       let keypair = StellarSdk.Keypair.random();
 
       expect(() =>
@@ -29,14 +29,14 @@ describe("Utils", function() {
           "MAAAAAAAAAAAAAB7BQ2L7E5NBWMXDUCMZSIPOBKRDSBYVLMXGSSKF6YNPIB7Y77ITLVL6",
           "SDF",
           300,
-          StellarSdk.Networks.TESTNET,
-        ),
+          StellarSdk.Networks.TESTNET
+        )
       ).to.throw(
-        /Invalid clientAccountID: multiplexed accounts are not supported./,
+        /Invalid clientAccountID: multiplexed accounts are not supported./
       );
     });
 
-    it("returns challenge which follows SEP0010 spec", function() {
+    it('returns challenge which follows SEP0010 spec', function() {
       let keypair = StellarSdk.Keypair.random();
 
       const challenge = StellarSdk.Utils.buildChallengeTx(
@@ -44,13 +44,10 @@ describe("Utils", function() {
         "GBDIT5GUJ7R5BXO3GJHFXJ6AZ5UQK6MNOIDMPQUSMXLIHTUNR2Q5CFNF",
         "testanchor.stellar.org",
         300,
-        StellarSdk.Networks.TESTNET,
+        StellarSdk.Networks.TESTNET
       );
 
-      const transaction = new StellarSdk.Transaction(
-        challenge,
-        StellarSdk.Networks.TESTNET,
-      );
+      const transaction = new StellarSdk.Transaction(challenge, StellarSdk.Networks.TESTNET);
 
       expect(transaction.sequence).to.eql("0");
       expect(transaction.source).to.eql(keypair.publicKey());
@@ -60,20 +57,16 @@ describe("Utils", function() {
 
       expect(parseInt(maxTime) - parseInt(minTime)).to.eql(300);
 
-      const [operation] = transaction.operations;
+      const [ operation ] =  transaction.operations;
 
       expect(operation.name).to.eql("testanchor.stellar.org auth");
-      expect(operation.source).to.eql(
-        "GBDIT5GUJ7R5BXO3GJHFXJ6AZ5UQK6MNOIDMPQUSMXLIHTUNR2Q5CFNF",
-      );
+      expect(operation.source).to.eql("GBDIT5GUJ7R5BXO3GJHFXJ6AZ5UQK6MNOIDMPQUSMXLIHTUNR2Q5CFNF");
       expect(operation.type).to.eql("manageData");
       expect(operation.value.length).to.eql(64);
-      expect(Buffer.from(operation.value.toString(), "base64").length).to.eql(
-        48,
-      );
+      expect(Buffer.from(operation.value.toString(), 'base64').length).to.eql(48);
     });
 
-    it("uses the passed-in timeout", function() {
+    it('uses the passed-in timeout', function() {
       let keypair = StellarSdk.Keypair.random();
 
       const challenge = StellarSdk.Utils.buildChallengeTx(
@@ -81,13 +74,10 @@ describe("Utils", function() {
         "GBDIT5GUJ7R5BXO3GJHFXJ6AZ5UQK6MNOIDMPQUSMXLIHTUNR2Q5CFNF",
         "SDF",
         600,
-        StellarSdk.Networks.TESTNET,
+        StellarSdk.Networks.TESTNET
       );
 
-      const transaction = new StellarSdk.Transaction(
-        challenge,
-        StellarSdk.Networks.TESTNET,
-      );
+      const transaction = new StellarSdk.Transaction(challenge, StellarSdk.Networks.TESTNET);
 
       let maxTime = parseInt(transaction.timeBounds.maxTime);
       let minTime = parseInt(transaction.timeBounds.minTime);
@@ -99,20 +89,20 @@ describe("Utils", function() {
   });
 
   describe("Utils.readChallengeTx", function() {
-    it("requires a non-muxed account", function() {
+    it('requires a non-muxed account', function() {
       expect(() =>
         StellarSdk.Utils.readChallengeTx(
           "avalidtx",
           "MAAAAAAAAAAAAAB7BQ2L7E5NBWMXDUCMZSIPOBKRDSBYVLMXGSSKF6YNPIB7Y77ITLVL6",
           "SDF",
           300,
-          StellarSdk.Networks.TESTNET,
-        ),
+          StellarSdk.Networks.TESTNET
+        )
       ).to.throw(
-        /Invalid serverAccountID: multiplexed accounts are not supported./,
+        /Invalid serverAccountID: multiplexed accounts are not supported./
       );
     });
-    it("requires a envelopeTypeTxV0 or envelopeTypeTx", function() {
+    it("requires a envelopeTypeTxV0 or envelopeTypeTx", function(){
       let serverKP = StellarSdk.Keypair.random();
       let clientKP = StellarSdk.Keypair.random();
 
@@ -121,26 +111,23 @@ describe("Utils", function() {
         clientKP.publicKey(),
         "SDF",
         300,
-        StellarSdk.Networks.TESTNET,
+        StellarSdk.Networks.TESTNET
       );
 
-      const innerTx = new StellarSdk.TransactionBuilder(
-        new StellarSdk.Account(clientKP.publicKey(), "0"),
-        {
-          fee: "100",
-          networkPassphrase: StellarSdk.Networks.TESTNET,
-          timebounds: {
-            minTime: 0,
-            maxTime: 0,
-          },
-        },
-      )
+      const innerTx = new StellarSdk.TransactionBuilder(new StellarSdk.Account(clientKP.publicKey(), "0"), {
+        fee: '100',
+        networkPassphrase: StellarSdk.Networks.TESTNET,
+        timebounds: {
+          minTime: 0,
+          maxTime: 0
+        }
+      })
         .addOperation(
           StellarSdk.Operation.payment({
             destination: clientKP.publicKey(),
             asset: StellarSdk.Asset.native(),
-            amount: "10.000",
-          }),
+            amount: "10.000"
+          })
         )
         .build();
 
@@ -148,33 +135,33 @@ describe("Utils", function() {
         serverKP,
         "300",
         innerTx,
-        StellarSdk.Networks.TESTNET,
+        StellarSdk.Networks.TESTNET
       ).toXDR();
 
       expect(() =>
         StellarSdk.Utils.readChallengeTx(
           feeBump,
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET,
-        ),
+          StellarSdk.Networks.TESTNET
+        )
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
-        /Invalid challenge: expected a Transaction but received a FeeBumpTransaction/,
+        /Invalid challenge: expected a Transaction but received a FeeBumpTransaction/
       );
 
       expect(() =>
         StellarSdk.Utils.readChallengeTx(
           challenge,
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET,
-        ),
+          StellarSdk.Networks.TESTNET
+        )
       ).to.not.throw(StellarSdk.InvalidSep10ChallengeError);
       expect(() =>
         StellarSdk.Utils.readChallengeTx(
-          feeBump.toXDR().toString("base64"),
+          feeBump.toXDR().toString('base64'),
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET,
-        ),
+          StellarSdk.Networks.TESTNET
+        )
       ).to.not.throw(StellarSdk.InvalidSep10ChallengeError);
     });
     it("returns the transaction and the clientAccountID (client's pubKey) if the challenge was created successfully", function() {
@@ -186,22 +173,22 @@ describe("Utils", function() {
         clientKP.publicKey(),
         "SDF",
         300,
-        StellarSdk.Networks.TESTNET,
+        StellarSdk.Networks.TESTNET
       );
 
       clock.tick(200);
 
       const transaction = new StellarSdk.Transaction(
         challenge,
-        StellarSdk.Networks.TESTNET,
+        StellarSdk.Networks.TESTNET
       );
 
       expect(
         StellarSdk.Utils.readChallengeTx(
           challenge,
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET,
-        ),
+          StellarSdk.Networks.TESTNET
+        )
       ).to.eql({
         tx: transaction,
         clientAccountID: clientKP.publicKey(),
@@ -513,7 +500,7 @@ describe("Utils", function() {
 
       const transactionRoundTripped = new StellarSdk.Transaction(
         challenge,
-        StellarSdk.Networks.TESTNET,
+        StellarSdk.Networks.TESTNET
       );
 
       expect(
@@ -562,7 +549,7 @@ describe("Utils", function() {
 
       const transactionRoundTripped = new StellarSdk.Transaction(
         challenge,
-        StellarSdk.Networks.TESTNET,
+        StellarSdk.Networks.TESTNET
       );
 
       expect(
@@ -610,7 +597,7 @@ describe("Utils", function() {
 
       const transactionRoundTripped = new StellarSdk.Transaction(
         challenge,
-        StellarSdk.Networks.TESTNET,
+        StellarSdk.Networks.TESTNET
       );
 
       expect(() =>
@@ -657,7 +644,7 @@ describe("Utils", function() {
 
       const transactionRoundTripped = new StellarSdk.Transaction(
         challenge,
-        StellarSdk.Networks.TESTNET,
+        StellarSdk.Networks.TESTNET
       );
 
       expect(() =>
@@ -696,12 +683,7 @@ describe("Utils", function() {
     });
 
     afterEach(function() {
-      this.serverKP,
-        this.clientKP1,
-        this.clientKP2,
-        this.txAccount,
-        this.opAccount,
-        (this.operation = null);
+      this.serverKP, this.clientKP1, this.clientKP2, this.txAccount, this.opAccount, this.operation = null;
     });
 
     it("throws an error if the server hasn't signed the transaction", function() {
@@ -714,7 +696,9 @@ describe("Utils", function() {
         .build();
 
       const threshold = 1;
-      const signerSummary = [newClientSigner(this.clientKP1.publicKey(), 1)];
+      const signerSummary = [
+        newClientSigner(this.clientKP1.publicKey(), 1)
+      ];
 
       transaction.sign(this.clientKP1);
 
@@ -759,7 +743,9 @@ describe("Utils", function() {
         .toString();
 
       const threshold = 1;
-      const signerSummary = [newClientSigner(this.clientKP1.publicKey(), 1)];
+      const signerSummary = [
+        newClientSigner(this.clientKP1.publicKey(), 1)
+      ];
 
       expect(
         StellarSdk.Utils.verifyChallengeTxThreshold(
@@ -796,7 +782,7 @@ describe("Utils", function() {
       const threshold = 3;
       const signerSummary = [
         newClientSigner(this.clientKP1.publicKey(), 1),
-        newClientSigner(this.clientKP2.publicKey(), 2),
+        newClientSigner(this.clientKP2.publicKey(), 2)
       ];
 
       expect(
@@ -835,7 +821,7 @@ describe("Utils", function() {
       const signerSummary = [
         newClientSigner(this.clientKP1.publicKey(), 1),
         newClientSigner(this.clientKP2.publicKey(), 2),
-        newClientSigner(this.clientKP3.publicKey(), 2),
+        newClientSigner(this.clientKP3.publicKey(), 2)
       ];
 
       expect(
@@ -850,11 +836,9 @@ describe("Utils", function() {
     });
 
     it("successfully validates server and multiple client keys, meeting threshold with more keys than needed but ignoring PreauthTxHash and XHash", function() {
-      const preauthTxHash =
-        "TAQCSRX2RIDJNHFIFHWD63X7D7D6TRT5Y2S6E3TEMXTG5W3OECHZ2OG4";
+      const preauthTxHash = "TAQCSRX2RIDJNHFIFHWD63X7D7D6TRT5Y2S6E3TEMXTG5W3OECHZ2OG4";
       const xHash = "XDRPF6NZRR7EEVO7ESIWUDXHAOMM2QSKIQQBJK6I2FB7YKDZES5UCLWD";
-      const unknownSignerType =
-        "?ARPF6NZRR7EEVO7ESIWUDXHAOMM2QSKIQQBJK6I2FB7YKDZES5UCLWD";
+      const unknownSignerType = "?ARPF6NZRR7EEVO7ESIWUDXHAOMM2QSKIQQBJK6I2FB7YKDZES5UCLWD";
 
       const challenge = StellarSdk.Utils.buildChallengeTx(
         this.serverKP,
@@ -1040,12 +1024,7 @@ describe("Utils", function() {
     });
 
     afterEach(function() {
-      this.serverKP,
-        this.clientKP1,
-        this.clientKP2,
-        this.txAccount,
-        this.opAccount,
-        (this.operation = null);
+      this.serverKP, this.clientKP1, this.clientKP2, this.txAccount, this.opAccount, this.operation = null;
     });
 
     it("successfully validates server and client master key signatures in the transaction", function() {
@@ -1148,10 +1127,7 @@ describe("Utils", function() {
         challenge,
         StellarSdk.Networks.TESTNET,
       );
-      transaction.sign(
-        StellarSdk.Keypair.random(),
-        StellarSdk.Keypair.random(),
-      );
+      transaction.sign(StellarSdk.Keypair.random(), StellarSdk.Keypair.random());
       const signedChallenge = transaction
         .toEnvelope()
         .toXDR("base64")
@@ -1187,7 +1163,7 @@ describe("Utils", function() {
       );
       const clientSigners = [this.clientKP1, this.clientKP2];
       transaction.sign(...clientSigners);
-      const clientSignersPubKey = clientSigners.map((kp) => kp.publicKey());
+      const clientSignersPubKey = clientSigners.map(kp => kp.publicKey());
 
       const signedChallenge = transaction
         .toEnvelope()
@@ -1221,7 +1197,7 @@ describe("Utils", function() {
       );
       const clientSigners = [this.clientKP1, this.clientKP2];
       transaction.sign(...clientSigners.reverse());
-      const clientSignersPubKey = clientSigners.map((kp) => kp.publicKey());
+      const clientSignersPubKey = clientSigners.map(kp => kp.publicKey());
 
       const signedChallenge = transaction
         .toEnvelope()
@@ -1370,11 +1346,9 @@ describe("Utils", function() {
     });
 
     it("successfully validates server and non-masterkey client signer, ignoring preauthTxHash and xHash", function() {
-      const preauthTxHash =
-        "TAQCSRX2RIDJNHFIFHWD63X7D7D6TRT5Y2S6E3TEMXTG5W3OECHZ2OG4";
+      const preauthTxHash = "TAQCSRX2RIDJNHFIFHWD63X7D7D6TRT5Y2S6E3TEMXTG5W3OECHZ2OG4";
       const xHash = "XDRPF6NZRR7EEVO7ESIWUDXHAOMM2QSKIQQBJK6I2FB7YKDZES5UCLWD";
-      const unknownSignerType =
-        "?ARPF6NZRR7EEVO7ESIWUDXHAOMM2QSKIQQBJK6I2FB7YKDZES5UCLWD";
+      const unknownSignerType = "?ARPF6NZRR7EEVO7ESIWUDXHAOMM2QSKIQQBJK6I2FB7YKDZES5UCLWD";
 
       const challenge = StellarSdk.Utils.buildChallengeTx(
         this.serverKP,
@@ -1580,53 +1554,35 @@ describe("Utils", function() {
     });
   });
 
-  describe("Utils.verifyTxSignedBy", function() {
+  describe('Utils.verifyTxSignedBy', function() {
     beforeEach(function() {
       this.keypair = StellarSdk.Keypair.random();
       this.account = new StellarSdk.Account(this.keypair.publicKey(), "-1");
-      this.transaction = new StellarSdk.TransactionBuilder(
-        this.account,
-        txBuilderOpts,
-      )
+      this.transaction = new StellarSdk.TransactionBuilder(this.account, txBuilderOpts)
         .setTimeout(30)
         .build();
     });
 
     afterEach(function() {
-      this.keypair, this.account, (this.transaction = null);
+      this.keypair, this.account, this.transaction = null;
     });
 
-    it("returns true if the transaction was signed by the given account", function() {
+    it('returns true if the transaction was signed by the given account', function() {
       this.transaction.sign(this.keypair);
 
-      expect(
-        StellarSdk.Utils.verifyTxSignedBy(
-          this.transaction,
-          this.keypair.publicKey(),
-        ),
-      ).to.eql(true);
+      expect(StellarSdk.Utils.verifyTxSignedBy(this.transaction, this.keypair.publicKey())).to.eql(true);
     });
 
-    it("returns false if the transaction was not signed by the given account", function() {
+    it('returns false if the transaction was not signed by the given account', function() {
       this.transaction.sign(this.keypair);
 
       let differentKeypair = StellarSdk.Keypair.random();
 
-      expect(
-        StellarSdk.Utils.verifyTxSignedBy(
-          this.transaction,
-          differentKeypair.publicKey(),
-        ),
-      ).to.eql(false);
+      expect(StellarSdk.Utils.verifyTxSignedBy(this.transaction, differentKeypair.publicKey())).to.eql(false);
     });
 
-    it("works with an unsigned transaction", function() {
-      expect(
-        StellarSdk.Utils.verifyTxSignedBy(
-          this.transaction,
-          this.keypair.publicKey(),
-        ),
-      ).to.eql(false);
+    it('works with an unsigned transaction', function() {
+      expect(StellarSdk.Utils.verifyTxSignedBy(this.transaction, this.keypair.publicKey())).to.eql(false);
     });
   });
 
@@ -1644,7 +1600,7 @@ describe("Utils", function() {
     });
 
     afterEach(function() {
-      this.keypair1, this.keypair2, this.account, (this.transaction = null);
+      this.keypair1, this.keypair2, this.account, this.transaction = null;
     });
 
     it("returns a list with the signatures used in the transaction", function() {
@@ -1706,31 +1662,23 @@ describe("Utils", function() {
 
     it("Raises an error in case one of the given signers is not a valid G signer", function() {
       this.transaction.sign(this.keypair1, this.keypair2);
-      const preauthTxHash =
-        "TAQCSRX2RIDJNHFIFHWD63X7D7D6TRT5Y2S6E3TEMXTG5W3OECHZ2OG4";
-      expect(() =>
-        StellarSdk.Utils.gatherTxSigners(this.transaction, [
-          preauthTxHash,
-          this.keypair1.publicKey(),
-        ]),
+      const preauthTxHash = "TAQCSRX2RIDJNHFIFHWD63X7D7D6TRT5Y2S6E3TEMXTG5W3OECHZ2OG4";
+      expect(
+        () => StellarSdk.Utils.gatherTxSigners(this.transaction, [preauthTxHash, this.keypair1.publicKey()]),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
-        /Signer is not a valid address/,
+        /Signer is not a valid address/
       );
     });
 
     it("Raises an error in case one of the given signers is an invalid G signer", function() {
       this.transaction.sign(this.keypair1, this.keypair2);
-      const invalidGHash =
-        "GBDIT5GUJ7R5BXO3GJHFXJ6AZ5UQK6MNOIDMPQUSMXLIHTUNR2Q5CAAA";
-      expect(() =>
-        StellarSdk.Utils.gatherTxSigners(this.transaction, [
-          invalidGHash,
-          this.keypair1.publicKey(),
-        ]),
+      const invalidGHash = "GBDIT5GUJ7R5BXO3GJHFXJ6AZ5UQK6MNOIDMPQUSMXLIHTUNR2Q5CAAA";
+      expect(
+        () => StellarSdk.Utils.gatherTxSigners(this.transaction, [invalidGHash, this.keypair1.publicKey()]),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
-        /Signer is not a valid address/,
+        /Signer is not a valid address/
       );
     });
   });
