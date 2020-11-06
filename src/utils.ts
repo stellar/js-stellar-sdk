@@ -102,8 +102,8 @@ export namespace Utils {
    * @param {string} challengeTx SEP0010 challenge transaction in base64.
    * @param {string} serverAccountID The server's stellar account (public key).
    * @param {string} networkPassphrase The network passphrase, e.g.: 'Test SDF Network ; September 2015'.
-   * @param {string} [homeDomain=undefined] The home domain that should be included in the Manage Data operation's string key.
-   * @returns {Transaction|string} The actual submitted transaction and the stellar public key (master key) used to sign the Manage Data operation.
+   * @param {string} [homeDomain=undefined] The home domain that should be included in the first Manage Data operation's string key.
+   * @returns {Transaction|string} The actual transaction and the stellar public key (master key) used to sign the Manage Data operation.
    */
   export function readChallengeTx(
     challengeTx: string,
