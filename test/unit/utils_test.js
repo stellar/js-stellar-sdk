@@ -474,7 +474,7 @@ describe('Utils', function() {
       );
     });
 
-    it("allows any value in home domain field", function() {
+    it("home domain matches transaction\'s operation key name", function() {
       let serverKP = StellarSdk.Keypair.random();
       let clientKP = StellarSdk.Keypair.random();
       const serverAccount = new StellarSdk.Account(serverKP.publicKey(), "-1");
@@ -514,6 +514,43 @@ describe('Utils', function() {
         tx: transactionRoundTripped,
         clientAccountID: clientKP.publicKey(),
       });
+    });
+
+    it("throws an error if home domain does not match transaction\'s operation key name", function() {
+      let serverKP = StellarSdk.Keypair.random();
+      let clientKP = StellarSdk.Keypair.random();
+      const serverAccount = new StellarSdk.Account(serverKP.publicKey(), "-1");
+      const transaction = new StellarSdk.TransactionBuilder(
+        serverAccount,
+        txBuilderOpts,
+      )
+        .addOperation(
+          StellarSdk.Operation.manageData({
+            source: clientKP.publicKey(),
+            name: "does.not.match auth",
+            value: randomBytes(48).toString("base64"),
+          }),
+        )
+        .setTimeout(30)
+        .build();
+
+      transaction.sign(serverKP);
+      const challenge = transaction
+        .toEnvelope()
+        .toXDR("base64")
+        .toString();
+
+      expect(() =>
+        StellarSdk.Utils.readChallengeTx(
+          challenge,
+          serverKP.publicKey(),
+          StellarSdk.Networks.TESTNET,
+          "testanchor.stellar.org",
+        ),
+      ).to.throw(
+        StellarSdk.InvalidSep10ChallengeError,
+        /The transaction\'s operation key name does not match the expected home domain/,
+      );
     });
 
     it("allows transaction to contain subsequent manage data ops with server account as source account", function() {

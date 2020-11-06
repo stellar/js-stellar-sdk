@@ -187,6 +187,13 @@ export namespace Utils {
       );
     }
 
+    // verify homeDomain
+    if (homeDomain && `${homeDomain} auth` !== operation.name) {
+      throw new InvalidSep10ChallengeError(
+        "The transaction's operation key name does not match the expected home domain",
+      );
+    }
+
     // verify any subsequent operations are manage data ops and source account is the server
     for (const op of subsequentOperations) {
       if (op.type !== "manageData") {
@@ -199,13 +206,6 @@ export namespace Utils {
           "The transaction has operations that are unrecognized",
         );
       }
-    }
-
-    // verify homeDomain
-    if (homeDomain && `${homeDomain} auth` !== operation.name) {
-      throw new InvalidSep10ChallengeError(
-        "The transaction's operation key name does not match the expected home domain",
-      );
     }
 
     return { tx: transaction, clientAccountID };
