@@ -2,7 +2,18 @@
 
 A breaking change will get clearly marked in this log.
 
-## Unreleased
+## [v7.0.0](https://github.com/stellar/js-stellar-sdk/compare/v6.2.0...v7.0.0)
+
+This release includes a major-version increase due to breaking changes included.
+
+### Breaking
+
+- Updates the SEP-10 utility function parameters and return values to support [SEP-10 v3.0](https://github.com/stellar/stellar-protocol/commit/9d121f98fd2201a5edfe0ed2befe92f4bf88bfe4)
+  - The following functions replaced the `homeDomain` parameter with `homeDomains` (note: plural):
+    - `utils.readChallengeTx()`
+    - `utils.verifyChallengeTxThreshold()`
+    - `utils.verifyChallengeTxSigners()`
+  - `utils.readChallengeTx()` now returns an additional object attribute, `matchedHomeDomain`
 
 ## Update
 
