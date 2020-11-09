@@ -2,6 +2,13 @@
 
 A breaking change will get clearly marked in this log.
 
+## Unreleased
+
+## Update
+
+- Update challenge transaction helpers for SEP0010 v3.0.0. ([#596](https://github.com/stellar/js-stellar-sdk/pull/596))
+   * Restore `homeDomain` validation in `readChallengeTx()`.
+
 ## [v6.2.0](https://github.com/stellar/js-stellar-sdk/compare/v6.1.0...v6.2.0)
 
 ### Update

@@ -96,7 +96,8 @@ describe('Utils', function() {
           "MAAAAAAAAAAAAAB7BQ2L7E5NBWMXDUCMZSIPOBKRDSBYVLMXGSSKF6YNPIB7Y77ITLVL6",
           "SDF",
           300,
-          StellarSdk.Networks.TESTNET
+          StellarSdk.Networks.TESTNET,
+          "testanchor.stellar.org",
         )
       ).to.throw(
         /Invalid serverAccountID: multiplexed accounts are not supported./
@@ -111,7 +112,7 @@ describe('Utils', function() {
         clientKP.publicKey(),
         "SDF",
         300,
-        StellarSdk.Networks.TESTNET
+        StellarSdk.Networks.TESTNET,
       );
 
       const innerTx = new StellarSdk.TransactionBuilder(new StellarSdk.Account(clientKP.publicKey(), "0"), {
@@ -132,8 +133,8 @@ describe('Utils', function() {
         .build();
 
       let feeBump = StellarSdk.TransactionBuilder.buildFeeBumpTransaction(
-        serverKP, 
-        "300", 
+        serverKP,
+        "300",
         innerTx,
         StellarSdk.Networks.TESTNET
       ).toXDR();
@@ -142,7 +143,8 @@ describe('Utils', function() {
         StellarSdk.Utils.readChallengeTx(
           feeBump,
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET
+          StellarSdk.Networks.TESTNET,
+          "SDF",
         )
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
@@ -153,14 +155,16 @@ describe('Utils', function() {
         StellarSdk.Utils.readChallengeTx(
           challenge,
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET
+          StellarSdk.Networks.TESTNET,
+          "SDF",
         )
       ).to.not.throw(StellarSdk.InvalidSep10ChallengeError);
       expect(() =>
         StellarSdk.Utils.readChallengeTx(
           feeBump.toXDR().toString('base64'),
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET
+          StellarSdk.Networks.TESTNET,
+          "SDF",
         )
       ).to.not.throw(StellarSdk.InvalidSep10ChallengeError);
     });
@@ -187,11 +191,13 @@ describe('Utils', function() {
         StellarSdk.Utils.readChallengeTx(
           challenge,
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET
+          StellarSdk.Networks.TESTNET,
+          "SDF",
         )
       ).to.eql({
         tx: transaction,
         clientAccountID: clientKP.publicKey(),
+        matchedHomeDomain: "SDF",
       });
     });
 
@@ -216,6 +222,7 @@ describe('Utils', function() {
           challenge,
           keypair.publicKey(),
           StellarSdk.Networks.TESTNET,
+          "SDF",
         ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
@@ -241,6 +248,7 @@ describe('Utils', function() {
           challenge,
           serverAccountId,
           StellarSdk.Networks.TESTNET,
+          "SDF",
         ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
@@ -269,6 +277,7 @@ describe('Utils', function() {
           challenge,
           keypair.publicKey(),
           StellarSdk.Networks.TESTNET,
+          "SDF",
         ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
@@ -303,6 +312,7 @@ describe('Utils', function() {
           challenge,
           keypair.publicKey(),
           StellarSdk.Networks.TESTNET,
+          "SDF",
         ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
@@ -337,6 +347,7 @@ describe('Utils', function() {
           challenge,
           keypair.publicKey(),
           StellarSdk.Networks.TESTNET,
+          "SDF",
         ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
@@ -395,6 +406,7 @@ describe('Utils', function() {
           signedChallenge,
           serverKeypair.publicKey(),
           StellarSdk.Networks.TESTNET,
+          anchorName,
         ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
@@ -430,6 +442,7 @@ describe('Utils', function() {
           challenge,
           keypair.publicKey(),
           StellarSdk.Networks.TESTNET,
+          "SDF",
         ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
@@ -467,6 +480,7 @@ describe('Utils', function() {
           signedChallenge,
           keypair.publicKey(),
           StellarSdk.Networks.TESTNET,
+          "SDF",
         ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
@@ -474,7 +488,7 @@ describe('Utils', function() {
       );
     });
 
-    it("allows any value in home domain field", function() {
+    it("home domain string matches transaction\'s operation key name", function() {
       let serverKP = StellarSdk.Keypair.random();
       let clientKP = StellarSdk.Keypair.random();
       const serverAccount = new StellarSdk.Account(serverKP.publicKey(), "-1");
@@ -485,7 +499,7 @@ describe('Utils', function() {
         .addOperation(
           StellarSdk.Operation.manageData({
             source: clientKP.publicKey(),
-            name: "example.org auth",
+            name: "testanchor.stellar.org auth",
             value: randomBytes(48).toString("base64"),
           }),
         )
@@ -508,12 +522,205 @@ describe('Utils', function() {
           challenge,
           serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
-          "example.com",
+          "testanchor.stellar.org",
         ),
       ).to.eql({
         tx: transactionRoundTripped,
         clientAccountID: clientKP.publicKey(),
+        matchedHomeDomain: "testanchor.stellar.org",
       });
+    });
+
+    it("home domain in array matches transaction\'s operation key name", function() {
+      let serverKP = StellarSdk.Keypair.random();
+      let clientKP = StellarSdk.Keypair.random();
+      const serverAccount = new StellarSdk.Account(serverKP.publicKey(), "-1");
+      const transaction = new StellarSdk.TransactionBuilder(
+        serverAccount,
+        txBuilderOpts,
+      )
+        .addOperation(
+          StellarSdk.Operation.manageData({
+            source: clientKP.publicKey(),
+            name: "testanchor.stellar.org auth",
+            value: randomBytes(48).toString("base64"),
+          }),
+        )
+        .setTimeout(30)
+        .build();
+
+      transaction.sign(serverKP);
+      const challenge = transaction
+        .toEnvelope()
+        .toXDR("base64")
+        .toString();
+
+      const transactionRoundTripped = new StellarSdk.Transaction(
+        challenge,
+        StellarSdk.Networks.TESTNET
+      );
+
+      expect(
+        StellarSdk.Utils.readChallengeTx(
+          challenge,
+          serverKP.publicKey(),
+          StellarSdk.Networks.TESTNET,
+          ["SDF", "Test", "testanchor.stellar.org", "SDF-test"],
+        ),
+      ).to.eql({
+        tx: transactionRoundTripped,
+        clientAccountID: clientKP.publicKey(),
+        matchedHomeDomain: "testanchor.stellar.org",
+      });
+    });
+
+    it("throws an error if home domain is not provided", function() {
+      let serverKP = StellarSdk.Keypair.random();
+      let clientKP = StellarSdk.Keypair.random();
+      const serverAccount = new StellarSdk.Account(serverKP.publicKey(), "-1");
+      const transaction = new StellarSdk.TransactionBuilder(
+        serverAccount,
+        txBuilderOpts,
+      )
+        .addOperation(
+          StellarSdk.Operation.manageData({
+            source: clientKP.publicKey(),
+            name: "testanchor.stellar.org auth",
+            value: randomBytes(48).toString("base64"),
+          }),
+        )
+        .setTimeout(30)
+        .build();
+
+      transaction.sign(serverKP);
+      const challenge = transaction
+        .toEnvelope()
+        .toXDR("base64")
+        .toString();
+
+      expect(() =>
+        StellarSdk.Utils.readChallengeTx(
+          challenge,
+          serverKP.publicKey(),
+          StellarSdk.Networks.TESTNET,
+          // home domain not provided
+        ),
+      ).to.throw(
+        StellarSdk.InvalidSep10ChallengeError,
+        /Invalid homeDomains: a home domain must be provided for verification/,
+      );
+    });
+
+    it("throws an error if home domain type is not string or array", function() {
+      let serverKP = StellarSdk.Keypair.random();
+      let clientKP = StellarSdk.Keypair.random();
+      const serverAccount = new StellarSdk.Account(serverKP.publicKey(), "-1");
+      const transaction = new StellarSdk.TransactionBuilder(
+        serverAccount,
+        txBuilderOpts,
+      )
+        .addOperation(
+          StellarSdk.Operation.manageData({
+            source: clientKP.publicKey(),
+            name: "testanchor.stellar.org auth",
+            value: randomBytes(48).toString("base64"),
+          }),
+        )
+        .setTimeout(30)
+        .build();
+
+      transaction.sign(serverKP);
+      const challenge = transaction
+        .toEnvelope()
+        .toXDR("base64")
+        .toString();
+
+      expect(() =>
+        StellarSdk.Utils.readChallengeTx(
+          challenge,
+          serverKP.publicKey(),
+          StellarSdk.Networks.TESTNET,
+          // home domain as number
+          1,
+        ),
+      ).to.throw(
+        StellarSdk.InvalidSep10ChallengeError,
+        /Invalid homeDomains: homeDomains type is number but should be a string or an array/,
+      );
+    });
+
+    it("throws an error if home domain string does not match transaction\'s operation key name", function() {
+      let serverKP = StellarSdk.Keypair.random();
+      let clientKP = StellarSdk.Keypair.random();
+      const serverAccount = new StellarSdk.Account(serverKP.publicKey(), "-1");
+      const transaction = new StellarSdk.TransactionBuilder(
+        serverAccount,
+        txBuilderOpts,
+      )
+        .addOperation(
+          StellarSdk.Operation.manageData({
+            source: clientKP.publicKey(),
+            name: "does.not.match auth",
+            value: randomBytes(48).toString("base64"),
+          }),
+        )
+        .setTimeout(30)
+        .build();
+
+      transaction.sign(serverKP);
+      const challenge = transaction
+        .toEnvelope()
+        .toXDR("base64")
+        .toString();
+
+      expect(() =>
+        StellarSdk.Utils.readChallengeTx(
+          challenge,
+          serverKP.publicKey(),
+          StellarSdk.Networks.TESTNET,
+          "testanchor.stellar.org",
+        ),
+      ).to.throw(
+        StellarSdk.InvalidSep10ChallengeError,
+        /Invalid homeDomains: the transaction\'s operation key name does not match the expected home domain/,
+      );
+    });
+
+    it("throws an error if home domain array does not have a match to transaction\'s operation key name", function() {
+      let serverKP = StellarSdk.Keypair.random();
+      let clientKP = StellarSdk.Keypair.random();
+      const serverAccount = new StellarSdk.Account(serverKP.publicKey(), "-1");
+      const transaction = new StellarSdk.TransactionBuilder(
+        serverAccount,
+        txBuilderOpts,
+      )
+        .addOperation(
+          StellarSdk.Operation.manageData({
+            source: clientKP.publicKey(),
+            name: "does.not.match auth",
+            value: randomBytes(48).toString("base64"),
+          }),
+        )
+        .setTimeout(30)
+        .build();
+
+      transaction.sign(serverKP);
+      const challenge = transaction
+        .toEnvelope()
+        .toXDR("base64")
+        .toString();
+
+      expect(() =>
+        StellarSdk.Utils.readChallengeTx(
+          challenge,
+          serverKP.publicKey(),
+          StellarSdk.Networks.TESTNET,
+          ["SDF", "Test", "testanchor.stellar.org", "SDF-test"],
+        ),
+      ).to.throw(
+        StellarSdk.InvalidSep10ChallengeError,
+        /Invalid homeDomains: the transaction\'s operation key name does not match the expected home domain/,
+      );
     });
 
     it("allows transaction to contain subsequent manage data ops with server account as source account", function() {
@@ -557,10 +764,12 @@ describe('Utils', function() {
           challenge,
           serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
+          "SDF",
         ),
       ).to.eql({
         tx: transactionRoundTripped,
         clientAccountID: clientKP.publicKey(),
+        matchedHomeDomain: "SDF",
       });
     });
 
@@ -605,6 +814,7 @@ describe('Utils', function() {
           challenge,
           serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
+          "SDF",
         ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
@@ -652,6 +862,7 @@ describe('Utils', function() {
           challenge,
           serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
+          "SDF",
         ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
@@ -714,6 +925,7 @@ describe('Utils', function() {
           StellarSdk.Networks.TESTNET,
           threshold,
           signerSummary,
+          "SDF-test"
         ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
@@ -754,6 +966,7 @@ describe('Utils', function() {
           StellarSdk.Networks.TESTNET,
           threshold,
           signerSummary,
+          "SDF",
         ),
       ).to.eql([this.clientKP1.publicKey()]);
     });
@@ -792,6 +1005,7 @@ describe('Utils', function() {
           StellarSdk.Networks.TESTNET,
           threshold,
           signerSummary,
+          "SDF",
         ),
       ).to.eql([this.clientKP1.publicKey(), this.clientKP2.publicKey()]);
     });
@@ -831,6 +1045,7 @@ describe('Utils', function() {
           StellarSdk.Networks.TESTNET,
           threshold,
           signerSummary,
+          "SDF",
         ),
       ).to.eql([this.clientKP1.publicKey(), this.clientKP2.publicKey()]);
     });
@@ -877,6 +1092,7 @@ describe('Utils', function() {
           StellarSdk.Networks.TESTNET,
           threshold,
           signerSummary,
+          "SDF",
         ),
       ).to.eql([this.clientKP1.publicKey(), this.clientKP2.publicKey()]);
     });
@@ -916,6 +1132,7 @@ describe('Utils', function() {
           StellarSdk.Networks.TESTNET,
           threshold,
           signerSummary,
+          "SDF",
         ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
@@ -957,6 +1174,7 @@ describe('Utils', function() {
           StellarSdk.Networks.TESTNET,
           threshold,
           signerSummary,
+          "SDF",
         ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
@@ -994,6 +1212,7 @@ describe('Utils', function() {
           StellarSdk.Networks.TESTNET,
           threshold,
           [],
+          "SDF",
         ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
@@ -1055,6 +1274,7 @@ describe('Utils', function() {
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
           [this.clientKP1.publicKey()],
+          "SDF",
         ),
       ).to.eql([this.clientKP1.publicKey()]);
     });
@@ -1081,6 +1301,7 @@ describe('Utils', function() {
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
           [this.clientKP1.publicKey()],
+          "SDF-test",
         ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
@@ -1105,6 +1326,7 @@ describe('Utils', function() {
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
           [],
+          "SDF",
         ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
@@ -1139,6 +1361,7 @@ describe('Utils', function() {
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
           [this.clientKP1.publicKey()],
+          "SDF",
         ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
@@ -1176,6 +1399,7 @@ describe('Utils', function() {
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
           clientSignersPubKey,
+          "SDF",
         ),
       ).to.eql(clientSignersPubKey);
     });
@@ -1210,6 +1434,7 @@ describe('Utils', function() {
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
           clientSignersPubKey,
+          "SDF",
         ),
       ).to.have.same.members(clientSignersPubKey);
     });
@@ -1242,6 +1467,7 @@ describe('Utils', function() {
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
           [this.clientKP2.publicKey()],
+          "SDF",
         ),
       ).to.eql([this.clientKP2.publicKey()]);
     });
@@ -1274,6 +1500,7 @@ describe('Utils', function() {
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
           [this.clientKP2.publicKey(), StellarSdk.Keypair.random().publicKey()],
+          "SDF",
         ),
       ).to.eql([this.clientKP2.publicKey()]);
     });
@@ -1306,6 +1533,7 @@ describe('Utils', function() {
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
           [this.clientKP2.publicKey(), this.serverKP.publicKey()],
+          "SDF",
         ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
@@ -1341,6 +1569,7 @@ describe('Utils', function() {
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
           [this.clientKP2.publicKey(), this.clientKP2.publicKey()],
+          "SDF",
         ),
       ).to.eql([this.clientKP2.publicKey()]);
     });
@@ -1377,6 +1606,7 @@ describe('Utils', function() {
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
           [this.clientKP2.publicKey(), preauthTxHash, xHash, unknownSignerType],
+          "SDF",
         ),
       ).to.eql([this.clientKP2.publicKey()]);
     });
@@ -1408,6 +1638,7 @@ describe('Utils', function() {
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
           [this.clientKP2.publicKey(), this.clientKP2.publicKey()],
+          "SDF",
         ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
@@ -1443,6 +1674,7 @@ describe('Utils', function() {
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
           [this.clientKP2.publicKey()],
+          "SDF",
         ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
@@ -1478,6 +1710,7 @@ describe('Utils', function() {
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
           [this.clientKP2.secret()],
+          "SDF",
         ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
@@ -1511,6 +1744,7 @@ describe('Utils', function() {
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
           clientSigners,
+          "SDF-test",
         ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
@@ -1546,6 +1780,7 @@ describe('Utils', function() {
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
           [],
+          "SDF",
         ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
