@@ -190,7 +190,7 @@ export namespace Utils {
     // verify homeDomains
     if (!homeDomains) {
       throw new InvalidSep10ChallengeError(
-        "Invalid homeDomains: the transaction requires a home domain",
+        "Invalid homeDomains: a home domain must be provided for verification",
       );
     }
 
