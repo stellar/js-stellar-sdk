@@ -102,15 +102,15 @@ export namespace Utils {
    * @param {string} challengeTx SEP0010 challenge transaction in base64.
    * @param {string} serverAccountID The server's stellar account (public key).
    * @param {string} networkPassphrase The network passphrase, e.g.: 'Test SDF Network ; September 2015'.
-   * @param {string} [homeDomain=undefined] The home domain that should be included in the first Manage Data operation's string key.
-   * @returns {Transaction|string} The actual transaction and the stellar public key (master key) used to sign the Manage Data operation.
+   * @param {string|string[]} [homeDomains] The home domain(s) that should be included in the first Manage Data operation's string key.
+   * @returns {Transaction|string|string} The actual transaction and the stellar public key (master key) used to sign the Manage Data operation, and matched home domain.
    */
   export function readChallengeTx(
     challengeTx: string,
     serverAccountID: string,
     networkPassphrase: string,
-    homeDomain: string,
-  ): { tx: Transaction; clientAccountID: string } {
+    homeDomains: string | string[],
+  ): { tx: Transaction; clientAccountID: string; matchedHomeDomain: string } {
     if (serverAccountID.startsWith("M")) {
       throw Error(
         "Invalid serverAccountID: multiplexed accounts are not supported.",
@@ -187,10 +187,34 @@ export namespace Utils {
       );
     }
 
-    // verify homeDomain
-    if (homeDomain && `${homeDomain} auth` !== operation.name) {
+    // verify homeDomains
+    if (!homeDomains) {
       throw new InvalidSep10ChallengeError(
-        "The transaction's operation key name does not match the expected home domain",
+        "Invalid homeDomains: the transaction requires a home domain",
+      );
+    }
+
+    let matchedHomeDomain;
+
+    if (typeof homeDomains === "string") {
+      if (`${homeDomains} auth` === operation.name) {
+        matchedHomeDomain = homeDomains;
+      }
+    } else {
+      if (!Array.isArray(homeDomains)) {
+        throw new InvalidSep10ChallengeError(
+          `Invalid homeDomains: homeDomains type is ${typeof homeDomains} but should be a string or an array`,
+        );
+      }
+
+      matchedHomeDomain = homeDomains.find(
+        (domain) => `${domain} auth` === operation.name,
+      );
+    }
+
+    if (!matchedHomeDomain) {
+      throw new InvalidSep10ChallengeError(
+        "Invalid homeDomains: the transaction's operation key name does not match the expected home domain",
       );
     }
 
@@ -208,7 +232,7 @@ export namespace Utils {
       }
     }
 
-    return { tx: transaction, clientAccountID };
+    return { tx: transaction, clientAccountID, matchedHomeDomain };
   }
 
   /**
@@ -237,6 +261,7 @@ export namespace Utils {
    * @param {string} networkPassphrase The network passphrase, e.g.: 'Test SDF Network ; September 2015'.
    * @param {number} threshold The required signatures threshold for verifying this transaction.
    * @param {ServerApi.AccountRecordSigners[]} signerSummary a map of all authorized signers to their weights. It's used to validate if the transaction signatures have met the given threshold.
+   * @param {string|string[]} [homeDomains] The home domain(s) that should be included in the first Manage Data operation's string key. Required in verifyChallengeTxSigners() => readChallengeTx().
    * @returns {string[]} The list of signers public keys that have signed the transaction, excluding the server account ID, given that the threshold was met.
    * @example
    *
@@ -287,6 +312,7 @@ export namespace Utils {
     networkPassphrase: string,
     threshold: number,
     signerSummary: ServerApi.AccountRecordSigners[],
+    homeDomains: string | string[],
   ): string[] {
     const signers = signerSummary.map((signer) => signer.key);
 
@@ -295,6 +321,7 @@ export namespace Utils {
       serverAccountID,
       networkPassphrase,
       signers,
+      homeDomains,
     );
 
     let weight = 0;
@@ -337,6 +364,7 @@ export namespace Utils {
    * @param {string} serverAccountID The server's stellar account (public key).
    * @param {string} networkPassphrase The network passphrase, e.g.: 'Test SDF Network ; September 2015'.
    * @param {string[]} signers The signers public keys. This list should contain the public keys for all signers that have signed the transaction.
+   * @param {string|string[]} [homeDomains] The home domain(s) that should be included in the first Manage Data operation's string key. Required in readChallengeTx().
    * @returns {string[]} The list of signers public keys that have signed the transaction, excluding the server account ID.
    * @example
    *
@@ -373,12 +401,14 @@ export namespace Utils {
     serverAccountID: string,
     networkPassphrase: string,
     signers: string[],
+    homeDomains: string | string[],
   ): string[] {
     // Read the transaction which validates its structure.
     const { tx } = readChallengeTx(
       challengeTx,
       serverAccountID,
       networkPassphrase,
+      homeDomains,
     );
 
     // Ensure the server account ID is an address and not a seed.

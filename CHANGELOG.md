@@ -2,6 +2,12 @@
 
 A breaking change will get clearly marked in this log.
 
+## Unreleased
+
+## Update
+
+- Restore `homeDomain` validation in `readChallengeTx()` ([#596](https://github.com/stellar/js-stellar-sdk/pull/596))
+
 ## [v6.2.0](https://github.com/stellar/js-stellar-sdk/compare/v6.1.0...v6.2.0)
 
 ### Update
