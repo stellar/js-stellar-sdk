@@ -200,15 +200,13 @@ export namespace Utils {
       if (`${homeDomains} auth` === operation.name) {
         matchedHomeDomain = homeDomains;
       }
-    } else {
-      if (!Array.isArray(homeDomains)) {
-        throw new InvalidSep10ChallengeError(
-          `Invalid homeDomains: homeDomains type is ${typeof homeDomains} but should be a string or an array`,
-        );
-      }
-
+    } else if (Array.isArray(homeDomains)) {
       matchedHomeDomain = homeDomains.find(
         (domain) => `${domain} auth` === operation.name,
+      );
+    } else {
+      throw new InvalidSep10ChallengeError(
+        `Invalid homeDomains: homeDomains type is ${typeof homeDomains} but should be a string or an array`,
       );
     }
 
