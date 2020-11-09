@@ -607,7 +607,7 @@ describe('Utils', function() {
         ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
-        /Invalid homeDomains: the transaction requires a home domain/,
+        /Invalid homeDomains: a home domain must be provided for verification/,
       );
     });
 
