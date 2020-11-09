@@ -517,7 +517,7 @@ signed the given transaction.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="libdocs_utils.js.html">libdocs/utils.js</a>, <a href="libdocs_utils.js.html#line383">line 383</a>
+        <a href="libdocs_utils.js.html">libdocs/utils.js</a>, <a href="libdocs_utils.js.html#line404">line 404</a>
     </li></ul></dd>
     
 
@@ -676,7 +676,7 @@ Utils.gatherTxSigners(transaction, [keypair1.publicKey(), keypair2.publicKey()])
 
     
 
-    <h4 class="name" id=".readChallengeTx"><span class="type-signature">(static) </span>readChallengeTx<span class="signature">(challengeTx, serverAccountID, networkPassphrase, homeDomain<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {<a href="Transaction.html">Transaction</a>|string}</span></h4>
+    <h4 class="name" id=".readChallengeTx"><span class="type-signature">(static) </span>readChallengeTx<span class="signature">(challengeTx, serverAccountID, networkPassphrase, homeDomains<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {<a href="Transaction.html">Transaction</a>|string|string}</span></h4>
 
     
 
@@ -883,13 +883,16 @@ one of the following functions to completely verify the transaction:</p>
 
         <tr>
             
-                <td class="name"><code>homeDomain</code></td>
+                <td class="name"><code>homeDomains</code></td>
             
 
             <td class="type">
             
                 
 <span class="param-type"><code>string</code></span>
+|
+
+<span class="param-type"><code>Array.&lt;string></code></span>
 
 
             
@@ -910,7 +913,7 @@ one of the following functions to completely verify the transaction:</p>
             
 
             <td class="description last">
-                <p>The field is reserved for future use and not used.</p>
+                <p>The home domain that is expected to be included in the first Manage Data operation's string key. If an array is provided, one of the domain names in the array must match.</p>
                 
             </td>
         </tr>
@@ -947,6 +950,9 @@ one of the following functions to completely verify the transaction:</p>
 |
 
 <span class="param-type"><code>string</code></span>
+|
+
+<span class="param-type"><code>string</code></span>
 
 
     </dd>
@@ -954,7 +960,7 @@ one of the following functions to completely verify the transaction:</p>
 
 
 <div class="param-desc">
-    <p>The actual submited transaction and the stellar public key (master key) used to sign the Manage Data operation.</p>
+    <p>The actual transaction and the stellar public key (master key) used to sign the Manage Data operation, and matched home domain.</p>
 </div>
 
     
@@ -1012,7 +1018,7 @@ one of the following functions to completely verify the transaction:</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="libdocs_utils.js.html">libdocs/utils.js</a>, <a href="libdocs_utils.js.html#line421">line 421</a>
+        <a href="libdocs_utils.js.html">libdocs/utils.js</a>, <a href="libdocs_utils.js.html#line442">line 442</a>
     </li></ul></dd>
     
 
@@ -1129,7 +1135,7 @@ one of the following functions to completely verify the transaction:</p>
 
     
 
-    <h4 class="name" id=".verifyChallengeTxSigners"><span class="type-signature">(static) </span>verifyChallengeTxSigners<span class="signature">(challengeTx, serverAccountID, networkPassphrase, signers)</span><span class="type-signature"> &rarr; {Array.&lt;string>}</span></h4>
+    <h4 class="name" id=".verifyChallengeTxSigners"><span class="type-signature">(static) </span>verifyChallengeTxSigners<span class="signature">(challengeTx, serverAccountID, networkPassphrase, signers, homeDomains<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Array.&lt;string>}</span></h4>
 
     
 
@@ -1186,7 +1192,7 @@ server account or one of the signers provided in the arguments.</li>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="libdocs_utils.js.html">libdocs/utils.js</a>, <a href="libdocs_utils.js.html#line277">line 277</a>
+        <a href="libdocs_utils.js.html">libdocs/utils.js</a>, <a href="libdocs_utils.js.html#line298">line 298</a>
     </li></ul></dd>
     
 
@@ -1225,6 +1231,8 @@ server account or one of the signers provided in the arguments.</li>
         <th>Type</th>
 
         
+        <th>Attributes</th>
+        
 
         
 
@@ -1249,6 +1257,14 @@ server account or one of the signers provided in the arguments.</li>
             
             </td>
 
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
             
 
             
@@ -1276,6 +1292,14 @@ server account or one of the signers provided in the arguments.</li>
             </td>
 
             
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
 
             
 
@@ -1301,6 +1325,14 @@ server account or one of the signers provided in the arguments.</li>
             
             </td>
 
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
             
 
             
@@ -1328,11 +1360,58 @@ server account or one of the signers provided in the arguments.</li>
             </td>
 
             
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
 
             
 
             <td class="description last">
                 <p>The signers public keys. This list should contain the public keys for all signers that have signed the transaction.</p>
+                
+            </td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>homeDomains</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>string</code></span>
+|
+
+<span class="param-type"><code>Array.&lt;string></code></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">
+                <p>The home domain(s) that should be included in the first Manage Data operation's string key. Required in readChallengeTx().</p>
                 
             </td>
         </tr>
@@ -1421,7 +1500,7 @@ Utils.verifyChallengeTxSigners(signedChallenge, serverKP.publicKey(), Networks.T
 
     
 
-    <h4 class="name" id=".verifyChallengeTxThreshold"><span class="type-signature">(static) </span>verifyChallengeTxThreshold<span class="signature">(challengeTx, serverAccountID, networkPassphrase, threshold, signerSummary)</span><span class="type-signature"> &rarr; {Array.&lt;string>}</span></h4>
+    <h4 class="name" id=".verifyChallengeTxThreshold"><span class="type-signature">(static) </span>verifyChallengeTxThreshold<span class="signature">(challengeTx, serverAccountID, networkPassphrase, threshold, signerSummary, homeDomains<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Array.&lt;string>}</span></h4>
 
     
 
@@ -1479,7 +1558,7 @@ server account or one of the signers provided in the arguments.</li>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="libdocs_utils.js.html">libdocs/utils.js</a>, <a href="libdocs_utils.js.html#line207">line 207</a>
+        <a href="libdocs_utils.js.html">libdocs/utils.js</a>, <a href="libdocs_utils.js.html#line227">line 227</a>
     </li></ul></dd>
     
 
@@ -1518,6 +1597,8 @@ server account or one of the signers provided in the arguments.</li>
         <th>Type</th>
 
         
+        <th>Attributes</th>
+        
 
         
 
@@ -1542,6 +1623,14 @@ server account or one of the signers provided in the arguments.</li>
             
             </td>
 
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
             
 
             
@@ -1569,6 +1658,14 @@ server account or one of the signers provided in the arguments.</li>
             </td>
 
             
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
 
             
 
@@ -1594,6 +1691,14 @@ server account or one of the signers provided in the arguments.</li>
             
             </td>
 
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
             
 
             
@@ -1621,6 +1726,14 @@ server account or one of the signers provided in the arguments.</li>
             </td>
 
             
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
 
             
 
@@ -1647,11 +1760,58 @@ server account or one of the signers provided in the arguments.</li>
             </td>
 
             
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
 
             
 
             <td class="description last">
                 <p>a map of all authorized signers to their weights. It's used to validate if the transaction signatures have met the given threshold.</p>
+                
+            </td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>homeDomains</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>string</code></span>
+|
+
+<span class="param-type"><code>Array.&lt;string></code></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">
+                <p>The home domain(s) that should be included in the first Manage Data operation's string key. Required in verifyChallengeTxSigners() =&gt; readChallengeTx().</p>
                 
             </td>
         </tr>
@@ -1796,7 +1956,7 @@ Utils.verifyChallengeTxThreshold(signedChallenge, serverKP.publicKey(), Networks
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="libdocs_utils.js.html">libdocs/utils.js</a>, <a href="libdocs_utils.js.html#line356">line 356</a>
+        <a href="libdocs_utils.js.html">libdocs/utils.js</a>, <a href="libdocs_utils.js.html#line377">line 377</a>
     </li></ul></dd>
     
 
@@ -1966,7 +2126,7 @@ Utils.verifyTxSignedBy(transaction, keypair.publicKey())</code></pre>
 <br class="clear">
 
 <footer>
-    Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Thu Oct 15 2020 23:57:21 GMT+0000 (Coordinated Universal Time) using the Minami theme.
+    Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon Nov 09 2020 22:33:28 GMT+0000 (Coordinated Universal Time) using the Minami theme.
 </footer>
 
 <script>prettyPrint();</script>
