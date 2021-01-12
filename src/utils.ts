@@ -29,11 +29,12 @@ export namespace Utils {
    * @param {string} homeDomain The fully qualified domain name of the service requiring authentication
    * @param {number} [timeout=300] Challenge duration (default to 5 minutes).
    * @param {string} networkPassphrase The network passphrase. If you pass this argument then timeout is required.
+   * @param {string} webAuthDomain The fully qualified domain name of the service issuing the challenge.
    * @example
    * import { Utils, Keypair, Networks }  from 'stellar-sdk'
    *
    * let serverKeyPair = Keypair.fromSecret("server-secret")
-   * let challenge = Utils.buildChallengeTx(serverKeyPair, "client-stellar-account-id", "SDF", 300, Networks.TESTNET)
+   * let challenge = Utils.buildChallengeTx(serverKeyPair, "client-stellar-account-id", "stellar.org", 300, Networks.TESTNET)
    * @returns {string} A base64 encoded string of the raw TransactionEnvelope xdr struct for the transaction.
    */
   export function buildChallengeTx(
@@ -42,6 +43,7 @@ export namespace Utils {
     homeDomain: string,
     timeout: number = 300,
     networkPassphrase: string,
+    webAuthDomain: string,
   ): string {
     if (clientAccountID.startsWith("M")) {
       throw Error(
@@ -74,6 +76,13 @@ export namespace Utils {
           source: clientAccountID,
         }),
       )
+      .addOperation(
+        Operation.manageData({
+          name: "web_auth_domain",
+          value: webAuthDomain,
+          source: account.accountId(),
+        }),
+      )
       .build();
 
     transaction.sign(serverKeypair);
@@ -103,6 +112,7 @@ export namespace Utils {
    * @param {string} serverAccountID The server's stellar account (public key).
    * @param {string} networkPassphrase The network passphrase, e.g.: 'Test SDF Network ; September 2015'.
    * @param {string|string[]} [homeDomains] The home domain that is expected to be included in the first Manage Data operation's string key. If an array is provided, one of the domain names in the array must match.
+   * @param {string} webAuthDomain The home domain that is expected to be included as the value of the Manage Data operation with the 'web_auth_domain' key. If no such operation is included, this parameter is not used.
    * @returns {Transaction|string|string} The actual transaction and the stellar public key (master key) used to sign the Manage Data operation, and matched home domain.
    */
   export function readChallengeTx(
@@ -110,6 +120,7 @@ export namespace Utils {
     serverAccountID: string,
     networkPassphrase: string,
     homeDomains: string | string[],
+    webAuthDomain: string,
   ): { tx: Transaction; clientAccountID: string; matchedHomeDomain: string } {
     if (serverAccountID.startsWith("M")) {
       throw Error(
@@ -187,7 +198,10 @@ export namespace Utils {
     }
 
     // verify base64
-    if (Buffer.from(operation.value.toString(), "base64").length !== 48) {
+    if (
+      !operation.value ||
+      Buffer.from(operation.value.toString(), "base64").length !== 48
+    ) {
       throw new InvalidSep10ChallengeError(
         "The transaction's operation value should be a 64 bytes base64 random string",
       );
@@ -234,6 +248,16 @@ export namespace Utils {
           "The transaction has operations that are unrecognized",
         );
       }
+      if (
+        op.name === "web_auth_domain" &&
+        (!op.value || op.value.toString() !== webAuthDomain)
+      ) {
+        throw new InvalidSep10ChallengeError(
+          `Invalid 'web_auth_domain' value. Expected: ${webAuthDomain}; Contained: ${
+            op.value ? op.value.toString() : op.value
+          }`,
+        );
+      }
     }
 
     return { tx: transaction, clientAccountID, matchedHomeDomain };
@@ -266,6 +290,7 @@ export namespace Utils {
    * @param {number} threshold The required signatures threshold for verifying this transaction.
    * @param {ServerApi.AccountRecordSigners[]} signerSummary a map of all authorized signers to their weights. It's used to validate if the transaction signatures have met the given threshold.
    * @param {string|string[]} [homeDomains] The home domain(s) that should be included in the first Manage Data operation's string key. Required in verifyChallengeTxSigners() => readChallengeTx().
+   * @param {string} webAuthDomain The home domain that is expected to be included as the value of the Manage Data operation with the 'web_auth_domain' key, if present. Used in verifyChallengeTxSigners() => readChallengeTx().
    * @returns {string[]} The list of signers public keys that have signed the transaction, excluding the server account ID, given that the threshold was met.
    * @example
    *
@@ -317,6 +342,7 @@ export namespace Utils {
     threshold: number,
     signerSummary: ServerApi.AccountRecordSigners[],
     homeDomains: string | string[],
+    webAuthDomain: string,
   ): string[] {
     const signers = signerSummary.map((signer) => signer.key);
 
@@ -326,6 +352,7 @@ export namespace Utils {
       networkPassphrase,
       signers,
       homeDomains,
+      webAuthDomain,
     );
 
     let weight = 0;
@@ -369,6 +396,7 @@ export namespace Utils {
    * @param {string} networkPassphrase The network passphrase, e.g.: 'Test SDF Network ; September 2015'.
    * @param {string[]} signers The signers public keys. This list should contain the public keys for all signers that have signed the transaction.
    * @param {string|string[]} [homeDomains] The home domain(s) that should be included in the first Manage Data operation's string key. Required in readChallengeTx().
+   * @param {string} webAuthDomain The home domain that is expected to be included as the value of the Manage Data operation with the 'web_auth_domain' key, if present. Used in readChallengeTx().
    * @returns {string[]} The list of signers public keys that have signed the transaction, excluding the server account ID.
    * @example
    *
@@ -406,6 +434,7 @@ export namespace Utils {
     networkPassphrase: string,
     signers: string[],
     homeDomains: string | string[],
+    webAuthDomain: string,
   ): string[] {
     // Read the transaction which validates its structure.
     const { tx } = readChallengeTx(
@@ -413,6 +442,7 @@ export namespace Utils {
       serverAccountID,
       networkPassphrase,
       homeDomains,
+      webAuthDomain,
     );
 
     // Ensure the server account ID is an address and not a seed.
