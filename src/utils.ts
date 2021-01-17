@@ -252,7 +252,7 @@ export namespace Utils {
       }
       if (
         op.name === "web_auth_domain" &&
-        !op.value.compare(Buffer.from(webAuthDomain))
+        op.value.compare(Buffer.from(webAuthDomain))
       ) {
         throw new InvalidSep10ChallengeError(
           `'web_auth_domain' operation value does not match ${webAuthDomain}`,
