@@ -983,7 +983,7 @@ describe('Utils', function() {
         ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
-        /'web_auth_domain' operation value does not match testanchor.stellar.orrequires a envelopeTypeTxV0 or envelopeTypeTxg/
+        /'web_auth_domain' operation value does not match testanchor.stellar.org/
       );
     });
 
