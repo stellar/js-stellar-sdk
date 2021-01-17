@@ -193,15 +193,12 @@ export namespace Utils {
 
     if (operation.value === undefined) {
       throw new InvalidSep10ChallengeError(
-        "The transaction's operation value should not be null",
+        "The transaction's operation values should not be null",
       );
     }
 
     // verify base64
-    if (
-      !operation.value ||
-      Buffer.from(operation.value.toString(), "base64").length !== 48
-    ) {
+    if (Buffer.from(operation.value.toString(), "base64").length !== 48) {
       throw new InvalidSep10ChallengeError(
         "The transaction's operation value should be a 64 bytes base64 random string",
       );
@@ -248,14 +245,17 @@ export namespace Utils {
           "The transaction has operations that are unrecognized",
         );
       }
+      if (op.value === undefined) {
+        throw new InvalidSep10ChallengeError(
+          "The transaction's operation values should not be null",
+        );
+      }
       if (
         op.name === "web_auth_domain" &&
-        (!op.value || op.value.toString() !== webAuthDomain)
+        !op.value.compare(Buffer.from(webAuthDomain))
       ) {
         throw new InvalidSep10ChallengeError(
-          `Invalid 'web_auth_domain' value. Expected: ${webAuthDomain}; Contained: ${
-            op.value ? op.value.toString() : op.value
-          }`,
+          `'web_auth_domain' operation value does not match ${webAuthDomain}`,
         );
       }
     }
