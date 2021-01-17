@@ -504,7 +504,7 @@ describe('Utils', function() {
         ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
-        /The transaction\'s operation value should not be null/,
+        /The transaction\'s operation values should not be null/,
       );
     });
 
@@ -983,7 +983,7 @@ describe('Utils', function() {
         ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
-        /'web_auth_domain' operation value does not match testanchor.stellar.org/
+        /'web_auth_domain' operation value does not match testanchor.stellar.orrequires a envelopeTypeTxV0 or envelopeTypeTxg/
       );
     });
 
