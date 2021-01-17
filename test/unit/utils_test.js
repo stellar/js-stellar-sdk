@@ -983,7 +983,7 @@ describe('Utils', function() {
         ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
-        /Invalid 'web_auth_domain' value. Expected: testanchor.stellar.org; Contained: unexpected_web_auth_domain/,
+        /'web_auth_domain' operation value does not match testanchor.stellar.org/
       );
     });
 
