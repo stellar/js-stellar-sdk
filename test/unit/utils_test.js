@@ -1100,7 +1100,7 @@ describe('Utils', function() {
           StellarSdk.Operation.manageData({
             source: serverKP.publicKey(),
             name: "web_auth_domain",
-            value: "testanchor.stellar.org"
+            value: "auth.stellar.org"
           }),
         )
         .setTimeout(30)
@@ -1123,7 +1123,7 @@ describe('Utils', function() {
           serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
           "testanchor.stellar.org",
-          "testanchor.stellar.org"
+          "auth.stellar.org"
         ),
       ).to.eql({
         tx: transactionRoundTripped,
