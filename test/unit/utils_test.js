@@ -1131,6 +1131,57 @@ describe('Utils', function() {
         matchedHomeDomain: "testanchor.stellar.org",
       });
     });
+
+    it("allows subsequent manageData operations to have undefined values", () => {
+      let serverKP = StellarSdk.Keypair.random();
+      let clientKP = StellarSdk.Keypair.random();
+      const serverAccount = new StellarSdk.Account(serverKP.publicKey(), "-1");
+      const transaction = new StellarSdk.TransactionBuilder(
+        serverAccount,
+        txBuilderOpts,
+      )
+        .addOperation(
+          StellarSdk.Operation.manageData({
+            source: clientKP.publicKey(),
+            name: "testanchor.stellar.org auth",
+            value: randomBytes(48).toString("base64"),
+          }),
+        )
+        .addOperation(
+          StellarSdk.Operation.manageData({
+            source: serverKP.publicKey(),
+            name: "nonWebAuthDomainKey",
+            value: null
+          }),
+        )
+        .setTimeout(30)
+        .build();
+
+      transaction.sign(serverKP);
+      const challenge = transaction
+        .toEnvelope()
+        .toXDR("base64")
+        .toString();
+
+      const transactionRoundTripped = new StellarSdk.Transaction(
+        challenge,
+        StellarSdk.Networks.TESTNET
+      );
+
+      expect(
+        StellarSdk.Utils.readChallengeTx(
+          challenge,
+          serverKP.publicKey(),
+          StellarSdk.Networks.TESTNET,
+          "testanchor.stellar.org",
+          "auth.stellar.org"
+        ),
+      ).to.eql({
+        tx: transactionRoundTripped,
+        clientAccountID: clientKP.publicKey(),
+        matchedHomeDomain: "testanchor.stellar.org",
+      });
+    });
   });
 
   describe("Utils.verifyChallengeTxThreshold", function() {
