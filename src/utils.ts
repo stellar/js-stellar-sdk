@@ -248,7 +248,7 @@ export namespace Utils {
       if (op.name === "web_auth_domain") {
         if (op.value === undefined) {
           throw new InvalidSep10ChallengeError(
-            "The transaction's operation values should not be null",
+            "'web_auth_domain' operation value should not be null",
           );
         }
         if (op.value.compare(Buffer.from(webAuthDomain))) {
