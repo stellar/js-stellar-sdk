@@ -245,13 +245,9 @@ export namespace Utils {
           "The transaction has operations that are unrecognized",
         );
       }
-      if (op.value === undefined) {
-        throw new InvalidSep10ChallengeError(
-          "The transaction's operation values should not be null",
-        );
-      }
       if (
         op.name === "web_auth_domain" &&
+        op.value &&
         op.value.compare(Buffer.from(webAuthDomain))
       ) {
         throw new InvalidSep10ChallengeError(
