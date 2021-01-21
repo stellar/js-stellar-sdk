@@ -16,11 +16,11 @@ A breaking change will get clearly marked in this log.
 
 ### Fix
 
-- Fixes bug where the first Manage Data operation in a challenge transaction could have a null value
+- Fixes bug where the first Manage Data operation in a challenge transaction could have a null value [(#591)](https://github.com/stellar/js-stellar-sdk/pull/591)
 
 ### Update
 
-- Upgraded `axios` package to version `^0.21.1` from `^0.19.0`
+- Upgraded `axios` package to version `^0.21.1` from `^0.19.0` [(#608)](https://github.com/stellar/js-stellar-sdk/pull/608)
 
 ## [v7.0.0](https://github.com/stellar/js-stellar-sdk/compare/v6.2.0...v7.0.0)
 
