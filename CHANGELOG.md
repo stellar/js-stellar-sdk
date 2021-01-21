@@ -6,7 +6,7 @@ A breaking change will get clearly marked in this log.
 
 ### Breaking
 
-- Updates the SEP-10 utility function parameters to support [SEP-10 v3.1](https://github.com/stellar/stellar-protocol/commit/6c8c9cf6685c85509835188a136ffb8cd6b9c11c)
+- Updates the SEP-10 utility function parameters to support [SEP-10 v3.1](https://github.com/stellar/stellar-protocol/commit/6c8c9cf6685c85509835188a136ffb8cd6b9c11c) [(#607)](https://github.com/stellar/js-stellar-sdk/pull/607)
   - A new required `webAuthDomain` parameter was added to the following functions
     - `utils.buildChallengeTx()`
     - `utils.readChallengeTx()`
