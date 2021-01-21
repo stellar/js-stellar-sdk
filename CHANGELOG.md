@@ -2,6 +2,18 @@
 
 A breaking change will get clearly marked in this log.
 
+## [v8.0.0](https://github.com/stellar/js-stellar-sdk/compare/v7.0.0...v7.1.0)
+
+### Breaking
+
+- Updates the SEP-10 utility function parameters to support [SEP-10 v3.1](https://github.com/stellar/stellar-protocol/commit/6c8c9cf6685c85509835188a136ffb8cd6b9c11c)
+  - A new required `webAuthDomain` parameter was added to the following functions
+    - `utils.buildChallengeTx()`
+    - `utils.readChallengeTx()`
+    - `utils.verifyChallengeTxThreshold()`
+    - `utils.verifyChallengeTxSigners()`
+  - The `webAuthDomain` parameter is expected to match the value of the Manage Data operation with the 'web_auth_domain' key, if present
+
 ## [v7.0.0](https://github.com/stellar/js-stellar-sdk/compare/v6.2.0...v7.0.0)
 
 This release includes a major-version increase due to breaking changes included.
@@ -15,7 +27,7 @@ This release includes a major-version increase due to breaking changes included.
     - `utils.verifyChallengeTxSigners()`
   - `utils.readChallengeTx()` now returns an additional object attribute, `matchedHomeDomain`
 
-## Update
+### Update
 
 - Update challenge transaction helpers for SEP0010 v3.0.0. ([#596](https://github.com/stellar/js-stellar-sdk/pull/596))
    * Restore `homeDomain` validation in `readChallengeTx()`.
