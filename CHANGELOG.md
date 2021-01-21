@@ -2,7 +2,7 @@
 
 A breaking change will get clearly marked in this log.
 
-## [v8.0.0](https://github.com/stellar/js-stellar-sdk/compare/v7.0.0...v7.1.0)
+## [v8.0.0](https://github.com/stellar/js-stellar-sdk/compare/v7.0.0...v8.0.0)
 
 ### Breaking
 
@@ -13,6 +13,14 @@ A breaking change will get clearly marked in this log.
     - `utils.verifyChallengeTxThreshold()`
     - `utils.verifyChallengeTxSigners()`
   - The `webAuthDomain` parameter is expected to match the value of the Manage Data operation with the 'web_auth_domain' key, if present
+
+### Fix
+
+- Fixes bug where the first Manage Data operation in a challenge transaction could have a null value
+
+### Update
+
+- Upgraded `axios` package to version `^0.21.1` from `^0.19.0`
 
 ## [v7.0.0](https://github.com/stellar/js-stellar-sdk/compare/v6.2.0...v7.0.0)
 
