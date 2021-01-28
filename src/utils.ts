@@ -198,6 +198,12 @@ export namespace Utils {
     }
 
     // verify base64
+    if (!operation.value) {
+      throw new InvalidSep10ChallengeError(
+        "The transaction's operation value should not be null",
+      );
+    }
+
     if (Buffer.from(operation.value.toString(), "base64").length !== 48) {
       throw new InvalidSep10ChallengeError(
         "The transaction's operation value should be a 64 bytes base64 random string",

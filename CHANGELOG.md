@@ -20,7 +20,9 @@ A breaking change will get clearly marked in this log.
 
 ### Update
 
-- Upgraded `axios` package to version `^0.21.1` from `^0.19.0` [(#608)](https://github.com/stellar/js-stellar-sdk/pull/608)
+- Upgraded `axios` package to version `^0.21.1` from `^0.19.0` to fix security vulnerabilities [(#608)](https://github.com/stellar/js-stellar-sdk/pull/608)
+
+- Upgraded `js-stellar-base` package to version `^4.0.3` from `^4.0.0` to allow accounts with a balance of zero [(#616)](https://github.com/stellar/js-stellar-sdk/pull/616)
 
 ## [v7.0.0](https://github.com/stellar/js-stellar-sdk/compare/v6.2.0...v7.0.0)
 
