@@ -122,7 +122,7 @@
 
     
 
-    <h4 class="name" id=".buildChallengeTx"><span class="type-signature">(static) </span>buildChallengeTx<span class="signature">(serverKeypair, clientAccountID, homeDomain, timeout<span class="signature-attributes">opt</span>, networkPassphrase)</span><span class="type-signature"> &rarr; {string}</span></h4>
+    <h4 class="name" id=".buildChallengeTx"><span class="type-signature">(static) </span>buildChallengeTx<span class="signature">(serverKeypair, clientAccountID, homeDomain, timeout<span class="signature-attributes">opt</span>, networkPassphrase, webAuthDomain)</span><span class="type-signature"> &rarr; {string}</span></h4>
 
     
 
@@ -166,7 +166,7 @@ challenge transaction which you can use for Stellar Web Authentication.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="libdocs_utils.js.html">libdocs/utils.js</a>, <a href="libdocs_utils.js.html#line29">line 29</a>
+        <a href="libdocs_utils.js.html">libdocs/utils.js</a>, <a href="libdocs_utils.js.html#line30">line 30</a>
     </li></ul></dd>
     
 
@@ -412,6 +412,44 @@ challenge transaction which you can use for Stellar Web Authentication.</p>
         </tr>
 
     
+
+        <tr>
+            
+                <td class="name"><code>webAuthDomain</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>string</code></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last">
+                <p>The fully qualified domain name of the service issuing the challenge.</p>
+                
+            </td>
+        </tr>
+
+    
     </tbody>
 </table>
 
@@ -461,7 +499,7 @@ challenge transaction which you can use for Stellar Web Authentication.</p>
     <pre class="prettyprint"><code>import { Utils, Keypair, Networks }  from 'stellar-sdk'
 
 let serverKeyPair = Keypair.fromSecret("server-secret")
-let challenge = Utils.buildChallengeTx(serverKeyPair, "client-stellar-account-id", "SDF", 300, Networks.TESTNET)</code></pre>
+let challenge = Utils.buildChallengeTx(serverKeyPair, "client-stellar-account-id", "stellar.org", 300, Networks.TESTNET)</code></pre>
 
 </div>
 
@@ -517,7 +555,7 @@ signed the given transaction.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="libdocs_utils.js.html">libdocs/utils.js</a>, <a href="libdocs_utils.js.html#line404">line 404</a>
+        <a href="libdocs_utils.js.html">libdocs/utils.js</a>, <a href="libdocs_utils.js.html#line427">line 427</a>
     </li></ul></dd>
     
 
@@ -676,7 +714,7 @@ Utils.gatherTxSigners(transaction, [keypair1.publicKey(), keypair2.publicKey()])
 
     
 
-    <h4 class="name" id=".readChallengeTx"><span class="type-signature">(static) </span>readChallengeTx<span class="signature">(challengeTx, serverAccountID, networkPassphrase, homeDomains<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {<a href="Transaction.html">Transaction</a>|string|string}</span></h4>
+    <h4 class="name" id=".readChallengeTx"><span class="type-signature">(static) </span>readChallengeTx<span class="signature">(challengeTx, serverAccountID, networkPassphrase, homeDomains<span class="signature-attributes">opt</span>, webAuthDomain)</span><span class="type-signature"> &rarr; {<a href="Transaction.html">Transaction</a>|string|string}</span></h4>
 
     
 
@@ -728,7 +766,7 @@ one of the following functions to completely verify the transaction:</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="libdocs_utils.js.html">libdocs/utils.js</a>, <a href="libdocs_utils.js.html#line83">line 83</a>
+        <a href="libdocs_utils.js.html">libdocs/utils.js</a>, <a href="libdocs_utils.js.html#line90">line 90</a>
     </li></ul></dd>
     
 
@@ -919,6 +957,40 @@ one of the following functions to completely verify the transaction:</p>
         </tr>
 
     
+
+        <tr>
+            
+                <td class="name"><code>webAuthDomain</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>string</code></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">
+                <p>The home domain that is expected to be included as the value of the Manage Data operation with the 'web_auth_domain' key. If no such operation is included, this parameter is not used.</p>
+                
+            </td>
+        </tr>
+
+    
     </tbody>
 </table>
 
@@ -1018,7 +1090,7 @@ one of the following functions to completely verify the transaction:</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="libdocs_utils.js.html">libdocs/utils.js</a>, <a href="libdocs_utils.js.html#line442">line 442</a>
+        <a href="libdocs_utils.js.html">libdocs/utils.js</a>, <a href="libdocs_utils.js.html#line465">line 465</a>
     </li></ul></dd>
     
 
@@ -1135,7 +1207,7 @@ one of the following functions to completely verify the transaction:</p>
 
     
 
-    <h4 class="name" id=".verifyChallengeTxSigners"><span class="type-signature">(static) </span>verifyChallengeTxSigners<span class="signature">(challengeTx, serverAccountID, networkPassphrase, signers, homeDomains<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Array.&lt;string>}</span></h4>
+    <h4 class="name" id=".verifyChallengeTxSigners"><span class="type-signature">(static) </span>verifyChallengeTxSigners<span class="signature">(challengeTx, serverAccountID, networkPassphrase, signers, homeDomains<span class="signature-attributes">opt</span>, webAuthDomain)</span><span class="type-signature"> &rarr; {Array.&lt;string>}</span></h4>
 
     
 
@@ -1192,7 +1264,7 @@ server account or one of the signers provided in the arguments.</li>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="libdocs_utils.js.html">libdocs/utils.js</a>, <a href="libdocs_utils.js.html#line298">line 298</a>
+        <a href="libdocs_utils.js.html">libdocs/utils.js</a>, <a href="libdocs_utils.js.html#line321">line 321</a>
     </li></ul></dd>
     
 
@@ -1417,6 +1489,40 @@ server account or one of the signers provided in the arguments.</li>
         </tr>
 
     
+
+        <tr>
+            
+                <td class="name"><code>webAuthDomain</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>string</code></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">
+                <p>The home domain that is expected to be included as the value of the Manage Data operation with the 'web_auth_domain' key, if present. Used in readChallengeTx().</p>
+                
+            </td>
+        </tr>
+
+    
     </tbody>
 </table>
 
@@ -1500,7 +1606,7 @@ Utils.verifyChallengeTxSigners(signedChallenge, serverKP.publicKey(), Networks.T
 
     
 
-    <h4 class="name" id=".verifyChallengeTxThreshold"><span class="type-signature">(static) </span>verifyChallengeTxThreshold<span class="signature">(challengeTx, serverAccountID, networkPassphrase, threshold, signerSummary, homeDomains<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Array.&lt;string>}</span></h4>
+    <h4 class="name" id=".verifyChallengeTxThreshold"><span class="type-signature">(static) </span>verifyChallengeTxThreshold<span class="signature">(challengeTx, serverAccountID, networkPassphrase, threshold, signerSummary, homeDomains<span class="signature-attributes">opt</span>, webAuthDomain)</span><span class="type-signature"> &rarr; {Array.&lt;string>}</span></h4>
 
     
 
@@ -1558,7 +1664,7 @@ server account or one of the signers provided in the arguments.</li>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="libdocs_utils.js.html">libdocs/utils.js</a>, <a href="libdocs_utils.js.html#line227">line 227</a>
+        <a href="libdocs_utils.js.html">libdocs/utils.js</a>, <a href="libdocs_utils.js.html#line249">line 249</a>
     </li></ul></dd>
     
 
@@ -1817,6 +1923,40 @@ server account or one of the signers provided in the arguments.</li>
         </tr>
 
     
+
+        <tr>
+            
+                <td class="name"><code>webAuthDomain</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>string</code></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">
+                <p>The home domain that is expected to be included as the value of the Manage Data operation with the 'web_auth_domain' key, if present. Used in verifyChallengeTxSigners() =&gt; readChallengeTx().</p>
+                
+            </td>
+        </tr>
+
+    
     </tbody>
 </table>
 
@@ -1956,7 +2096,7 @@ Utils.verifyChallengeTxThreshold(signedChallenge, serverKP.publicKey(), Networks
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="libdocs_utils.js.html">libdocs/utils.js</a>, <a href="libdocs_utils.js.html#line377">line 377</a>
+        <a href="libdocs_utils.js.html">libdocs/utils.js</a>, <a href="libdocs_utils.js.html#line400">line 400</a>
     </li></ul></dd>
     
 
@@ -2126,7 +2266,7 @@ Utils.verifyTxSignedBy(transaction, keypair.publicKey())</code></pre>
 <br class="clear">
 
 <footer>
-    Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon Nov 09 2020 22:34:06 GMT+0000 (Coordinated Universal Time) using the Minami theme.
+    Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Feb 10 2021 20:03:50 GMT+0000 (Coordinated Universal Time) using the Minami theme.
 </footer>
 
 <script>prettyPrint();</script>
