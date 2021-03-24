@@ -49,5 +49,6 @@ module.exports = {
   plugins: [
     // Ignore native modules (ed25519)
     new webpack.IgnorePlugin(/ed25519/),
+    new webpack.ProvidePlugin({ "Promise": "es6-promise" })
   ],
 };
