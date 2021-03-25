@@ -2,6 +2,16 @@
 
 A breaking change will get clearly marked in this log.
 
+## Unreleased
+
+
+## [v8.1.0](https://github.com/stellar/js-stellar-sdk/compare/v8.0.0...v8.1.0)
+
+### Update
+
+- Upgraded `js-stellar-base` package to version `^5.0.0` from `^4.0.3` to support new CAP-35 operations [(#624)](https://github.com/stellar/js-stellar-sdk/pull/624)
+
+
 ## [v8.0.0](https://github.com/stellar/js-stellar-sdk/compare/v7.0.0...v8.0.0)
 
 ### Breaking
