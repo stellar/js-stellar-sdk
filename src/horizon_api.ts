@@ -88,6 +88,17 @@ export namespace Horizon {
     ? BalanceLineAsset<T>
     : BalanceLineNative | BalanceLineAsset;
 
+  export interface AssetAccounts {
+    authorized: number;
+    authorized_to_maintain_liabilities: number;
+    unauthorized: number;
+  }
+  export interface AssetBalances {
+    authorized: string;
+    authorized_to_maintain_liabilities: string;
+    unauthorized: string;
+  }
+
   export interface PriceR {
     numerator: number;
     denominator: number;

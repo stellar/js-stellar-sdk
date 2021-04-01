@@ -393,6 +393,10 @@ export namespace ServerApi {
     asset_code: string;
     asset_issuer: string;
     paging_token: string;
+    accounts: Horizon.AssetAccounts;
+    num_claimable_balances: number;
+    balances: Horizon.AssetBalances;
+    claimable_balances_amount: string;
     amount: string;
     num_accounts: number;
     flags: Horizon.Flags;
