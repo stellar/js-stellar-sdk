@@ -5,6 +5,13 @@ A breaking change will get clearly marked in this log.
 ## Unreleased
 
 
+## [v8.1.1](https://github.com/stellar/js-stellar-sdk/compare/v8.1.0...v8.1.1)
+
+### Fix
+
+- Upgraded `js-stellar-base` package to version `^5.1.0` from `^5.0.0` to expose the Typescript hints for CAP-35 operations [(#TODO)](https://github.com/stellar/js-stellar-sdk/pull/TODO).
+
+
 ## [v8.1.0](https://github.com/stellar/js-stellar-sdk/compare/v8.0.0...v8.1.0)
 
 ### Update
