@@ -2917,22 +2917,34 @@ describe('server.js non-transaction tests', function() {
               {
                 _links: {
                   toml: {
-                    href: ''
-                  }
+                    href: "",
+                  },
                 },
-                asset_type: 'credit_alphanum12',
-                asset_code: '9HORIZONS',
+                asset_type: "credit_alphanum12",
+                asset_code: "9HORIZONS",
                 asset_issuer:
-                  'GB2HXY7UEDCSHOWZ4553QFGFILNU73OFS2P4HU5IB3UUU66TWPBPVTGW',
+                  "GB2HXY7UEDCSHOWZ4553QFGFILNU73OFS2P4HU5IB3UUU66TWPBPVTGW",
                 paging_token:
-                  '9HORIZONS_GB2HXY7UEDCSHOWZ4553QFGFILNU73OFS2P4HU5IB3UUU66TWPBPVTGW_credit_alphanum12',
-                amount: '1000000.0000000',
+                  "9HORIZONS_GB2HXY7UEDCSHOWZ4553QFGFILNU73OFS2P4HU5IB3UUU66TWPBPVTGW_credit_alphanum12",
+                accounts: {
+                  authorized: 2,
+                  authorized_to_maintain_liabilities: 1,
+                  unauthorized: 0,
+                },
+                num_claimable_balances: 3,
+                balances: {
+                  authorized: "1000000.0000000",
+                  authorized_to_maintain_liabilities: "500000.0000000",
+                  unauthorized: "0.0000000",
+                },
+                claimable_balances_amount: "0.0000000",
+                amount: "1000000.0000000",
                 num_accounts: 2,
                 flags: {
                   auth_required: false,
-                  auth_revocable: false
-                }
-              }
+                  auth_revocable: false,
+                },
+              },
             ]
           }
         };
@@ -2980,22 +2992,34 @@ describe('server.js non-transaction tests', function() {
               {
                 _links: {
                   toml: {
-                    href: ''
-                  }
+                    href: "",
+                  },
                 },
-                asset_type: 'credit_alphanum4',
-                asset_code: 'USD',
+                asset_type: "credit_alphanum4",
+                asset_code: "USD",
                 asset_issuer:
-                  'GCYK67DDGBOANS6UODJ62QWGLEB2A7JQ3XUV25HCMLT7CI23PMMK3W6R',
+                  "GCYK67DDGBOANS6UODJ62QWGLEB2A7JQ3XUV25HCMLT7CI23PMMK3W6R",
                 paging_token:
-                  'USD_GCYK67DDGBOANS6UODJ62QWGLEB2A7JQ3XUV25HCMLT7CI23PMMK3W6R_credit_alphanum4',
-                amount: '111.0010000',
+                  "USD_GCYK67DDGBOANS6UODJ62QWGLEB2A7JQ3XUV25HCMLT7CI23PMMK3W6R_credit_alphanum4",
+                accounts: {
+                  authorized: 127,
+                  authorized_to_maintain_liabilities: 64,
+                  unauthorized: 0,
+                },
+                num_claimable_balances: 3,
+                balances: {
+                  authorized: "111.0010000",
+                  authorized_to_maintain_liabilities: "55.5005000",
+                  unauthorized: "0.0000000",
+                },
+                claimable_balances_amount: "0.0000000",
+                amount: "111.0010000",
                 num_accounts: 127,
                 flags: {
                   auth_required: false,
-                  auth_revocable: false
-                }
-              }
+                  auth_revocable: false,
+                },
+              },
             ]
           }
         };
@@ -3045,22 +3069,34 @@ describe('server.js non-transaction tests', function() {
               {
                 _links: {
                   toml: {
-                    href: ''
-                  }
+                    href: "",
+                  },
                 },
-                asset_type: 'credit_alphanum12',
-                asset_code: '004d40',
+                asset_type: "credit_alphanum12",
+                asset_code: "004d40",
                 asset_issuer:
-                  'GCOGPF7IRVXUCJZAQWXVFQEE4HAOCTDGZI2QZSMKLM5BTTGRLY6GDOJN',
+                  "GCOGPF7IRVXUCJZAQWXVFQEE4HAOCTDGZI2QZSMKLM5BTTGRLY6GDOJN",
                 paging_token:
-                  '004d40_GCOGPF7IRVXUCJZAQWXVFQEE4HAOCTDGZI2QZSMKLM5BTTGRLY6GDOJN_credit_alphanum12',
-                amount: '757.0000000',
+                  "004d40_GCOGPF7IRVXUCJZAQWXVFQEE4HAOCTDGZI2QZSMKLM5BTTGRLY6GDOJN_credit_alphanum12",
+                accounts: {
+                  authorized: 18,
+                  authorized_to_maintain_liabilities: 9,
+                  unauthorized: 0,
+                },
+                num_claimable_balances: 3,
+                balances: {
+                  authorized: "757.0000000",
+                  authorized_to_maintain_liabilities: "378.5000000",
+                  unauthorized: "0.0000000",
+                },
+                claimable_balances_amount: "0.0000000",
+                amount: "757.0000000",
                 num_accounts: 18,
                 flags: {
                   auth_required: false,
-                  auth_revocable: false
-                }
-              }
+                  auth_revocable: false,
+                },
+              },
             ]
           }
         };
@@ -3109,22 +3145,34 @@ describe('server.js non-transaction tests', function() {
             {
               _links: {
                 toml: {
-                  href: 'https://bakalr/.well-known/stellar.toml'
-                }
+                  href: "https://bakalr/.well-known/stellar.toml",
+                },
               },
-              asset_type: 'credit_alphanum4',
-              asset_code: 'USD',
+              asset_type: "credit_alphanum4",
+              asset_code: "USD",
               asset_issuer:
-                'GBW3EZBZKRERB4JUDWGQPIBGHKJ4XPOFG2VQ2WTFR4F7TYC5WS7F3XGR',
+                "GBW3EZBZKRERB4JUDWGQPIBGHKJ4XPOFG2VQ2WTFR4F7TYC5WS7F3XGR",
               paging_token:
-                'USD_GBW3EZBZKRERB4JUDWGQPIBGHKJ4XPOFG2VQ2WTFR4F7TYC5WS7F3XGR_credit_alphanum4',
-              amount: '1387.0000000',
+                "USD_GBW3EZBZKRERB4JUDWGQPIBGHKJ4XPOFG2VQ2WTFR4F7TYC5WS7F3XGR_credit_alphanum4",
+              accounts: {
+                authorized: 1,
+                authorized_to_maintain_liabilities: 0,
+                unauthorized: 0,
+              },
+              num_claimable_balances: 0,
+              balances: {
+                authorized: "1387.0000000",
+                authorized_to_maintain_liabilities: "0.0000000",
+                unauthorized: "0.0000000",
+              },
+              claimable_balances_amount: "0.0000000",
+              amount: "1387.0000000",
               num_accounts: 1,
               flags: {
                 auth_required: true,
-                auth_revocable: true
-              }
-            }
+                auth_revocable: true,
+              },
+            },
           ]
         }
       };
