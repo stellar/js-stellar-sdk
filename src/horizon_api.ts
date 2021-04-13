@@ -118,6 +118,7 @@ export namespace Horizon {
     auth_immutable: boolean;
     auth_required: boolean;
     auth_revocable: boolean;
+    auth_clawback_enabled: boolean;
   }
   export interface AccountSigner {
     key: string;
@@ -172,6 +173,9 @@ export namespace Horizon {
     beginSponsoringFutureReserves = "begin_sponsoring_future_reserves",
     endSponsoringFutureReserves = "end_sponsoring_future_reserves",
     revokeSponsorship = "revoke_sponsorship",
+    clawback = "clawback",
+    clawbackClaimableBalance = "clawback_claimable_balance",
+    setTrustLineFlags = "set_trust_line_flags",
   }
   export enum OperationResponseTypeI {
     createAccount = 0,
@@ -193,6 +197,9 @@ export namespace Horizon {
     beginSponsoringFutureReserves = 16,
     endSponsoringFutureReserves = 17,
     revokeSponsorship = 18,
+    clawback = 19,
+    clawbackClaimableBalance = 20,
+    setTrustLineFlags = 21,
   }
   export interface BaseOperationResponse<
     T extends OperationResponseType = OperationResponseType,
@@ -315,10 +322,18 @@ export namespace Horizon {
     med_threshold?: number;
     high_threshold?: number;
     home_domain?: string;
-    set_flags: Array<1 | 2>;
-    set_flags_s: Array<"auth_required_flag" | "auth_revocable_flag">;
-    clear_flags: Array<1 | 2>;
-    clear_flags_s: Array<"auth_required_flag" | "auth_revocable_flag">;
+    set_flags: Array<1 | 2 | 4>;
+    set_flags_s: Array<
+      | "auth_required_flag"
+      | "auth_revocable_flag"
+      | "auth_clawback_enabled_flag"
+    >;
+    clear_flags: Array<1 | 2 | 4>;
+    clear_flags_s: Array<
+      | "auth_required_flag"
+      | "auth_revocable_flag"
+      | "auth_clawback_enabled_flag"
+    >;
   }
   export interface ChangeTrustOperationResponse
     extends BaseOperationResponse<
@@ -435,6 +450,39 @@ export namespace Horizon {
     trustline_asset?: string;
     signer_account_id?: string;
     signer_key?: string;
+  }
+
+  export interface ClawbackOperationResponse
+    extends BaseOperationResponse<
+      OperationResponseType.clawback,
+      OperationResponseTypeI.clawback
+    > {
+    asset_type: AssetType;
+    asset_code: string;
+    asset_issuer: string;
+    from: string;
+    amount: string;
+  }
+
+  export interface ClawbackClaimableBalanceOperationResponse
+    extends BaseOperationResponse<
+      OperationResponseType.clawbackClaimableBalance,
+      OperationResponseTypeI.clawbackClaimableBalance
+    > {
+    balance_id: string;
+  }
+
+  export interface SetTrustLineFlagsOperationResponse
+    extends BaseOperationResponse<
+      OperationResponseType.setTrustLineFlags,
+      OperationResponseTypeI.setTrustLineFlags
+    > {
+    asset_type: AssetType;
+    asset_code: string;
+    asset_issuer: string;
+    trustor: string;
+    set_flags: Array<1 | 2 | 4>;
+    clear_flags: Array<1 | 2 | 4>;
   }
 
   export interface ResponseCollection<T extends BaseResponse = BaseResponse> {

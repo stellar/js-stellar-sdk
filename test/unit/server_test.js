@@ -272,7 +272,9 @@ describe('server.js non-transaction tests', function() {
       },
       "flags": {
         "auth_required": false,
-        "auth_revocable": false
+        "auth_revocable": false,
+        "auth_immutable": false,
+        "auth_clawback_enabled": false
       },
       "balances": [
         {
@@ -333,6 +335,7 @@ describe('server.js non-transaction tests', function() {
           expect(response.payments).to.be.function;
           expect(response.effects).to.be.function;
           expect(response.offers).to.be.function;
+          expect(Object.keys(response.flags).length).to.be.equal(4);
           // AccountResponse methods
           expect(response.sequenceNumber()).to.be.equal('5387216134078475');
           expect(response.sequence).to.be.equal('5387216134078475');
@@ -832,7 +835,7 @@ describe('server.js non-transaction tests', function() {
             "pfzlCzxO0N4pJsCGHhAhbcVR+K4fJZpOOuUCyHhxHhHG2IWk34H3vFQMCrGH+GKivmCokoiNAaiSg6+gniN0CQ=="
           ]
         };
-        
+
         this.axiosMock
           .expects('get')
           .withArgs(
@@ -1088,7 +1091,9 @@ describe('server.js non-transaction tests', function() {
           },
           flags: {
             auth_required: false,
-            auth_revocable: false
+            auth_revocable: false,
+            auth_immutable: false,
+            auth_clawback_enabled: false
           },
           balances: [
             {
@@ -1189,7 +1194,8 @@ describe('server.js non-transaction tests', function() {
                 flags: {
                   auth_required: false,
                   auth_revocable: false,
-                  auth_immutable: false
+                  auth_immutable: false,
+                  auth_clawback_enabled: false
                 },
                 balances: [
                   {
@@ -1312,7 +1318,8 @@ describe('server.js non-transaction tests', function() {
                 flags: {
                   auth_required: false,
                   auth_revocable: false,
-                  auth_immutable: false
+                  auth_immutable: false,
+                  auth_clawback_enabled: false
                 },
                 balances: [
                   {
@@ -1435,7 +1442,8 @@ describe('server.js non-transaction tests', function() {
                 flags: {
                   auth_required: false,
                   auth_revocable: false,
-                  auth_immutable: false
+                  auth_immutable: false,
+                  auth_clawback_enabled: false
                 },
                 balances: [
                   {
@@ -1578,7 +1586,7 @@ describe('server.js non-transaction tests', function() {
           "last_modified_ledger": 28285404,
           "last_modified_time": "2020-02-18T17:00:56Z"
         };
-  
+
         this.axiosMock
           .expects('get')
           .withArgs(
@@ -3160,6 +3168,8 @@ describe('server.js non-transaction tests', function() {
                 flags: {
                   auth_required: false,
                   auth_revocable: false,
+                  auth_immutable: false,
+                  auth_clawback_enabled: false
                 },
               },
             ]
@@ -3235,6 +3245,8 @@ describe('server.js non-transaction tests', function() {
                 flags: {
                   auth_required: false,
                   auth_revocable: false,
+                  auth_immutable: false,
+                  auth_clawback_enabled: false
                 },
               },
             ]
@@ -3312,6 +3324,8 @@ describe('server.js non-transaction tests', function() {
                 flags: {
                   auth_required: false,
                   auth_revocable: false,
+                  auth_immutable: false,
+                  auth_clawback_enabled: false
                 },
               },
             ]
@@ -3388,6 +3402,8 @@ describe('server.js non-transaction tests', function() {
               flags: {
                 auth_required: true,
                 auth_revocable: true,
+                auth_immutable: false,
+                auth_clawback_enabled: false
               },
             },
           ]
