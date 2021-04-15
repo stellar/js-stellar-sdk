@@ -47,6 +47,17 @@ export class TransactionCallBuilder extends CallBuilder<
   }
 
   /**
+   * This endpoint represents all transactions that reference a given claimable_balance.
+   * @see [Operations for Claimable Balance](https://www.stellar.org/developers/horizon/reference/endpoints/transactions-for-claimable-balance.html)
+   * @param {string} claimableBalanceId Claimable Balance ID
+   * @returns {TransactionCallBuilder} this TransactionCallBuilder instance
+   */
+  public forClaimableBalance(claimableBalanceId: string): this {
+    this.filter.push(["claimable_balances", claimableBalanceId, "transactions"]);
+    return this;
+  }
+
+  /**
    * This endpoint represents all transactions in a given ledger.
    * @see [Transactions for Ledger](https://www.stellar.org/developers/horizon/reference/endpoints/transactions-for-ledger.html)
    * @param {number|string} sequence Ledger sequence

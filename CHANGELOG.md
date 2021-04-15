@@ -4,6 +4,9 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+- Added TransactionCallBuilder.forClaimableBalance(), and OperationCallBuilder.forClaimableBalance().
+- Added support for new `accounts`, `balances`, `claimable_balances_amount`, and `num_claimable_balances` fields on Assets.
+
 
 ## [v8.1.1](https://github.com/stellar/js-stellar-sdk/compare/v8.1.0...v8.1.1)
 
