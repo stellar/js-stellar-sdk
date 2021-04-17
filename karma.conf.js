@@ -12,7 +12,6 @@ module.exports = function(config) {
       "dist/stellar-sdk.js",
       "test/test-browser.js",
       "test/unit/**/*.js",
-      "test/integration/server_test.js",
     ],
 
     preprocessors: {
