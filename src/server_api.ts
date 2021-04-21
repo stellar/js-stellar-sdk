@@ -45,6 +45,7 @@ import {
   TrustlineUpdated,
 } from "./types/effects";
 import { OfferRecord as OfferRecordType } from "./types/offer";
+import { Trade } from "./types/trade";
 
 /* tslint:disable-next-line: no-namespace */
 export namespace ServerApi {
@@ -109,7 +110,8 @@ export namespace ServerApi {
     | ClaimableBalanceSponsorshipUpdated
     | SignerSponsorshipCreated
     | SignerSponsorshipUpdated
-    | SignerSponsorshipRemoved;
+    | SignerSponsorshipRemoved
+    | Trade;
 
   export type EffectRecord = BaseEffectRecordFromTypes & EffectRecordMethods;
   export interface ClaimableBalanceRecord extends Horizon.BaseResponse {
