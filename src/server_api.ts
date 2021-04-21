@@ -7,7 +7,6 @@ import { AccountRecordSigners as AccountRecordSignersType } from "./types/accoun
 import { AssetRecord as AssetRecordType } from "./types/assets";
 import {
   AccountCreated,
-  // Types of effects
   AccountCredited,
   AccountDebited,
   AccountFlagsUpdated,
@@ -16,7 +15,6 @@ import {
   AccountSponsporshipRemoved,
   AccountSponsporshipUpdated,
   AccountThresholdsUpdated,
-  BaseEffectRecord,
   ClaimableBalanceClaimantCreated,
   ClaimableBalanceClaimed,
   ClaimableBalanceCreated,
