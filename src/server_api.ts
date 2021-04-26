@@ -1,9 +1,19 @@
-import { Asset, AssetType } from "stellar-base";
+import { Asset } from "stellar-base";
 import { Omit } from "utility-types";
 import { Horizon } from "./horizon_api";
 
+// more types
+import { AccountRecordSigners as AccountRecordSignersType } from "./types/account";
+import { AssetRecord as AssetRecordType } from "./types/assets";
+import * as Effects from "./types/effects";
+import { OfferRecord as OfferRecordType } from "./types/offer";
+import { Trade } from "./types/trade";
+
 /* tslint:disable-next-line: no-namespace */
 export namespace ServerApi {
+  export type OfferRecord = OfferRecordType;
+  export type AccountRecordSigners = AccountRecordSignersType;
+  export type AssetRecord = AssetRecordType;
   export interface CollectionPage<
     T extends Horizon.BaseResponse = Horizon.BaseResponse
   > {
@@ -25,10 +35,55 @@ export namespace ServerApi {
     T extends Horizon.BaseResponse = Horizon.BaseResponse
   > = (options?: CallFunctionTemplateOptions) => Promise<CollectionPage<T>>;
 
-  export interface AccountRecordSigners {
-    key: string;
-    weight: number;
-    type: string;
+  type BaseEffectRecordFromTypes =
+    | Effects.AccountCreated
+    | Effects.AccountCredited
+    | Effects.AccountDebited
+    | Effects.AccountThresholdsUpdated
+    | Effects.AccountHomeDomainUpdated
+    | Effects.AccountFlagsUpdated
+    | Effects.DataCreated
+    | Effects.DataRemoved
+    | Effects.DataUpdated
+    | Effects.SequenceBumped
+    | Effects.SignerCreated
+    | Effects.SignerRemoved
+    | Effects.SignerUpdated
+    | Effects.TrustlineCreated
+    | Effects.TrustlineRemoved
+    | Effects.TrustlineUpdated
+    | Effects.TrustlineAuthorized
+    | Effects.TrustlineDeauthorized
+    | Effects.TrustlineAuthorizedToMaintainLiabilities
+    | Effects.ClaimableBalanceCreated
+    | Effects.ClaimableBalanceClaimed
+    | Effects.ClaimableBalanceClaimantCreated
+    | Effects.AccountSponsorshipCreated
+    | Effects.AccountSponsorshipRemoved
+    | Effects.AccountSponsorshipUpdated
+    | Effects.TrustlineSponsorshipCreated
+    | Effects.TrustlineSponsorshipUpdated
+    | Effects.TrustlineSponsorshipRemoved
+    | Effects.DateSponsorshipCreated
+    | Effects.DateSponsorshipUpdated
+    | Effects.DateSponsorshipRemoved
+    | Effects.ClaimableBalanceSponsorshipCreated
+    | Effects.ClaimableBalanceSponsorshipRemoved
+    | Effects.ClaimableBalanceSponsorshipUpdated
+    | Effects.SignerSponsorshipCreated
+    | Effects.SignerSponsorshipUpdated
+    | Effects.SignerSponsorshipRemoved
+    | Trade;
+
+  export type EffectRecord = BaseEffectRecordFromTypes & EffectRecordMethods;
+  export interface ClaimableBalanceRecord extends Horizon.BaseResponse {
+    id: string;
+    paging_token: string;
+    asset: string;
+    amount: string;
+    sponsor?: string;
+    last_modified_ledger: number;
+    claimants: Horizon.Claimant[];
   }
   export interface AccountRecord extends Horizon.BaseResponse {
     id: string;
@@ -56,110 +111,11 @@ export namespace ServerApi {
     payments: CallCollectionFunction<PaymentOperationRecord>;
     trades: CallCollectionFunction<TradeRecord>;
   }
-
-  export interface ClaimableBalanceRecord extends Horizon.BaseResponse {
-    id: string;
-    paging_token: string;
-    asset: string;
-    amount: string;
-    sponsor?: string;
-    last_modified_ledger: number;
-    claimants: Horizon.Claimant[];
-  }
-
-  export interface EffectRecord extends Horizon.BaseResponse {
-    account: string;
-    paging_token: string;
-    type_i: string;
-    type: string;
-    created_at: string;
-    id: string;
-
-    // account_debited / credited / trustline_created
-    amount?: any;
-    asset_type?: string;
-    asset_code?: string;
-    asset_issuer?: string;
-
-    // trustline_created / removed
-    limit?: string;
-
-    // signer_created
-    public_key?: string;
-
-    // trade
-    offer_id?: number | string;
-    bought_amount?: string;
-    bought_asset_type?: string;
-    bought_asset_code?: string;
-    bought_asset_issuer?: string;
-    sold_amount?: string;
-    sold_asset_type?: string;
-    sold_asset_code?: string;
-    sold_asset_issuer?: string;
-
-    // account_created
-    starting_balance?: string;
-
-    // These were retrieved from the go repo, not through direct observation
-    // so they could be wrong!
-
-    // account thresholds updated
-    low_threshold?: number;
-    med_threshold?: number;
-    high_threshold?: number;
-
-    // home domain updated
-    home_domain?: string;
-
-    // account flags updated
-    auth_required_flag?: boolean;
-    auth_revokable_flag?: boolean;
-
-    // seq bumped
-    new_seq?: number | string;
-
-    // signer created / removed / updated
-    weight?: number;
-    key?: string;
-
-    // trustline authorized / deauthorized
-    trustor?: string;
-
-    // claimable_balance_created
-    // claimable_balance_claimant_created
-    // claimable_balance_claimed
-    balance_id?: string;
-    asset?: string;
-    predicate?: Horizon.Predicate;
-
-    // account_sponsorship_created
-    // trustline_sponsorship_created
-    // claimable_balance_sponsorship_created
-    // signer_sponsorship_created
-    // data_sponsorship_created
-    sponsor?: string;
-    signer?: string;
-    data_name?: string;
-
-    // account_sponsorship_updated
-    // account_sponsorship_removed
-    // trustline_sponsorship_updated
-    // trustline_sponsorship_removed
-    // claimable_balance_sponsorship_updated
-    // claimable_balance_sponsorship_removed
-    // signer_sponsorship_updated
-    // signer_sponsorship_removed
-    // data_sponsorship_updated
-    // data_sponsorship_removed
-    new_sponsor?: string;
-    former_sponsor?: string;
-
+  interface EffectRecordMethods {
     operation?: CallFunction<OperationRecord>;
     precedes?: CallFunction<EffectRecord>;
     succeeds?: CallFunction<EffectRecord>;
   }
-
   export interface LedgerRecord extends Horizon.BaseResponse {
     id: string;
     paging_token: string;
@@ -186,26 +142,6 @@ export namespace ServerApi {
     transactions: CallCollectionFunction<TransactionRecord>;
   }
 
-  export interface OfferAsset {
-    asset_type: AssetType;
-    asset_code?: string;
-    asset_issuer?: string;
-  }
-
-  export interface OfferRecord extends Horizon.BaseResponse {
-    id: number | string;
-    paging_token: string;
-    seller: string;
-    selling: OfferAsset;
-    buying: OfferAsset;
-    amount: string;
-    price_r: Horizon.PriceRShorthand;
-    price: string;
-    last_modified_ledger: number;
-    last_modified_time: string;
-    sponsor?: string;
-  }
-
   import OperationResponseType = Horizon.OperationResponseType;
   import OperationResponseTypeI = Horizon.OperationResponseTypeI;
   export interface BaseOperationRecord<
@@ -218,7 +154,6 @@ export namespace ServerApi {
     effects: CallCollectionFunction<EffectRecord>;
     transaction: CallFunction<TransactionRecord>;
   }
-
   export interface CreateAccountOperationRecord
     extends BaseOperationRecord<
         OperationResponseType.createAccount,
@@ -350,7 +285,6 @@ export namespace ServerApi {
     | BeginSponsoringFutureReservesOperationRecord
     | EndSponsoringFutureReservesOperationRecord
     | RevokeSponsorshipOperationRecord;
-
   export interface TradeRecord extends Horizon.BaseResponse {
     id: string;
     paging_token: string;
@@ -374,7 +308,6 @@ export namespace ServerApi {
     counter: CallFunction<AccountRecord>;
     operation: CallFunction<OperationRecord>;
   }
-
   export interface TransactionRecord
     extends Omit<Horizon.TransactionResponse, "ledger"> {
     ledger_attr: Horizon.TransactionResponse["ledger"];
@@ -387,21 +320,6 @@ export namespace ServerApi {
     self: CallFunction<TransactionRecord>;
     succeeds: CallFunction<TransactionRecord>;
   }
-
-  export interface AssetRecord extends Horizon.BaseResponse {
-    asset_type: AssetType.credit4 | AssetType.credit12;
-    asset_code: string;
-    asset_issuer: string;
-    paging_token: string;
-    accounts: Horizon.AssetAccounts;
-    num_claimable_balances: number;
-    balances: Horizon.AssetBalances;
-    claimable_balances_amount: string;
-    amount: string;
-    num_accounts: number;
-    flags: Horizon.Flags;
-  }
-
   export interface OrderbookRecord extends Horizon.BaseResponse {
     bids: Array<{
       price_r: {
@@ -422,7 +340,6 @@ export namespace ServerApi {
     base: Asset;
     counter: Asset;
   }
-
   export interface PaymentPathRecord extends Horizon.BaseResponse {
     path: Array<{
       asset_code: string;
