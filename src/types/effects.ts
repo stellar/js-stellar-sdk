@@ -1,5 +1,5 @@
 import { Horizon } from "./../horizon_api";
-import { OfferAsset } from "./assets";
+import { OfferAsset } from "./offer";
 
 // Reference: GO SDK https://github.com/stellar/go/blob/ec5600bd6b2b6900d26988ff670b9ca7992313b8/services/horizon/internal/resourceadapter/effects.go
 export enum EffectType {
@@ -140,11 +140,11 @@ export interface TrustlineAuthorized extends BaseEffectRecord {
   asset_code: OfferAsset["asset_code"];
   trustor: string;
 }
-export interface TrustlineDeautorized
+export interface TrustlineDeauthorized
   extends Omit<TrustlineAuthorized, "type_i"> {
   type_i: EffectType.trustline_deauthorized;
 }
-export interface TrustlineAutorizedToMaintainLiabilities
+export interface TrustlineAuthorizedToMaintainLiabilities
   extends Omit<TrustlineAuthorized, "type_i"> {
   type_i: EffectType.trustline_authorized_to_maintain_liabilities;
 }

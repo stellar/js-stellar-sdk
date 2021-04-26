@@ -53,8 +53,8 @@ export namespace ServerApi {
     | Effects.TrustlineRemoved
     | Effects.TrustlineUpdated
     | Effects.TrustlineAuthorized
-    | Effects.TrustlineDeautorized
-    | Effects.TrustlineAutorizedToMaintainLiabilities
+    | Effects.TrustlineDeauthorized
+    | Effects.TrustlineAuthorizedToMaintainLiabilities
     | Effects.ClaimableBalanceCreated
     | Effects.ClaimableBalanceClaimed
     | Effects.ClaimableBalanceClaimantCreated

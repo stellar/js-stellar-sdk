@@ -6,6 +6,7 @@ A breaking change will get clearly marked in this log.
 
 - Added TransactionCallBuilder.forClaimableBalance(), and OperationCallBuilder.forClaimableBalance().
 - Added support for new `accounts`, `balances`, `claimable_balances_amount`, and `num_claimable_balances` fields on Assets.
+- Added types for all Effects supported as an enum, and moved Trade, Asset, Offer, and Account types to separate files. [(#635)](https://github.com/stellar/js-stellar-sdk/pull/635)
 
 
 ## [v8.1.1](https://github.com/stellar/js-stellar-sdk/compare/v8.1.0...v8.1.1)
