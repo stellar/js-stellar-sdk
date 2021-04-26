@@ -5,45 +5,7 @@ import { Horizon } from "./horizon_api";
 // more types
 import { AccountRecordSigners as AccountRecordSignersType } from "./types/account";
 import { AssetRecord as AssetRecordType } from "./types/assets";
-import {
-  AccountCreated,
-  AccountCredited,
-  AccountDebited,
-  AccountFlagsUpdated,
-  AccountHomeDomainUpdated,
-  AccountSponsporshipCreated,
-  AccountSponsporshipRemoved,
-  AccountSponsporshipUpdated,
-  AccountThresholdsUpdated,
-  ClaimableBalanceClaimantCreated,
-  ClaimableBalanceClaimed,
-  ClaimableBalanceCreated,
-  ClaimableBalanceSponsorshipCreated,
-  ClaimableBalanceSponsorshipRemoved,
-  ClaimableBalanceSponsorshipUpdated,
-  DataCreated,
-  DataRemoved,
-  DataUpdated,
-  DateSponsporshipCreated,
-  DateSponsporshipRemoved,
-  DateSponsporshipUpdated,
-  SequenceBumped,
-  SignerCreated,
-  SignerRemoved,
-  SignerSponsorshipCreated,
-  SignerSponsorshipRemoved,
-  SignerSponsorshipUpdated,
-  SignerUpdated,
-  TrustlineAuthorized,
-  TrustlineAutorizedToMaintainLiabilities,
-  TrustlineCreated,
-  TrustlineDeautorized,
-  TrustlineRemoved,
-  TrustlineSponsporshipCreated,
-  TrustlineSponsporshipRemoved,
-  TrustlineSponsporshipUpdated,
-  TrustlineUpdated,
-} from "./types/effects";
+import * as Effects from "./types/effects";
 import { OfferRecord as OfferRecordType } from "./types/offer";
 import { Trade } from "./types/trade";
 
@@ -74,43 +36,43 @@ export namespace ServerApi {
   > = (options?: CallFunctionTemplateOptions) => Promise<CollectionPage<T>>;
 
   type BaseEffectRecordFromTypes =
-    | AccountCreated
-    | AccountCredited
-    | AccountDebited
-    | AccountThresholdsUpdated
-    | AccountHomeDomainUpdated
-    | AccountFlagsUpdated
-    | DataCreated
-    | DataRemoved
-    | DataUpdated
-    | SequenceBumped
-    | SignerCreated
-    | SignerRemoved
-    | SignerUpdated
-    | TrustlineCreated
-    | TrustlineRemoved
-    | TrustlineUpdated
-    | TrustlineAuthorized
-    | TrustlineDeautorized
-    | TrustlineAutorizedToMaintainLiabilities
-    | ClaimableBalanceCreated
-    | ClaimableBalanceClaimed
-    | ClaimableBalanceClaimantCreated
-    | AccountSponsporshipCreated
-    | AccountSponsporshipRemoved
-    | AccountSponsporshipUpdated
-    | TrustlineSponsporshipCreated
-    | TrustlineSponsporshipUpdated
-    | TrustlineSponsporshipRemoved
-    | DateSponsporshipCreated
-    | DateSponsporshipUpdated
-    | DateSponsporshipRemoved
-    | ClaimableBalanceSponsorshipCreated
-    | ClaimableBalanceSponsorshipRemoved
-    | ClaimableBalanceSponsorshipUpdated
-    | SignerSponsorshipCreated
-    | SignerSponsorshipUpdated
-    | SignerSponsorshipRemoved
+    | Effects.AccountCreated
+    | Effects.AccountCredited
+    | Effects.AccountDebited
+    | Effects.AccountThresholdsUpdated
+    | Effects.AccountHomeDomainUpdated
+    | Effects.AccountFlagsUpdated
+    | Effects.DataCreated
+    | Effects.DataRemoved
+    | Effects.DataUpdated
+    | Effects.SequenceBumped
+    | Effects.SignerCreated
+    | Effects.SignerRemoved
+    | Effects.SignerUpdated
+    | Effects.TrustlineCreated
+    | Effects.TrustlineRemoved
+    | Effects.TrustlineUpdated
+    | Effects.TrustlineAuthorized
+    | Effects.TrustlineDeautorized
+    | Effects.TrustlineAutorizedToMaintainLiabilities
+    | Effects.ClaimableBalanceCreated
+    | Effects.ClaimableBalanceClaimed
+    | Effects.ClaimableBalanceClaimantCreated
+    | Effects.AccountSponsorshipCreated
+    | Effects.AccountSponsorshipRemoved
+    | Effects.AccountSponsorshipUpdated
+    | Effects.TrustlineSponsorshipCreated
+    | Effects.TrustlineSponsorshipUpdated
+    | Effects.TrustlineSponsorshipRemoved
+    | Effects.DateSponsorshipCreated
+    | Effects.DateSponsorshipUpdated
+    | Effects.DateSponsorshipRemoved
+    | Effects.ClaimableBalanceSponsorshipCreated
+    | Effects.ClaimableBalanceSponsorshipRemoved
+    | Effects.ClaimableBalanceSponsorshipUpdated
+    | Effects.SignerSponsorshipCreated
+    | Effects.SignerSponsorshipUpdated
+    | Effects.SignerSponsorshipRemoved
     | Trade;
 
   export type EffectRecord = BaseEffectRecordFromTypes & EffectRecordMethods;
