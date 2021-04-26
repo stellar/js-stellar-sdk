@@ -168,52 +168,51 @@ interface SponsershipFields {
   new_sponsor: string;
   former_sponsor: string;
 }
-interface AccountSponsporshipEvents
+interface AccountSponsorshipEvents
   extends BaseEffectRecord,
     SponsershipFields {}
 
-export type AccountSponsporshipCreated = Omit<
-  AccountSponsporshipEvents,
+export type AccountSponsorshipCreated = Omit<
+  AccountSponsorshipEvents,
   "new_sponsor" | "former_sponsor"
 > & { type_i: EffectType.account_sponsorship_created };
-export type AccountSponsporshipUpdated = Omit<
-  AccountSponsporshipEvents,
+export type AccountSponsorshipUpdated = Omit<
+  AccountSponsorshipEvents,
   "sponsor"
 > & { type_i: EffectType.account_sponsorship_updated };
-export type AccountSponsporshipRemoved = Omit<
-  AccountSponsporshipEvents,
+export type AccountSponsorshipRemoved = Omit<
+  AccountSponsorshipEvents,
   "new_sponsor" | "sponsor"
 > & { type_i: EffectType.account_sponsorship_removed };
-interface TrustlineSponsporshipEvents
+interface TrustlineSponsorshipEvents
   extends BaseEffectRecord,
     SponsershipFields {
   asset: string;
 }
-export type TrustlineSponsporshipCreated = Omit<
-  TrustlineSponsporshipEvents,
+export type TrustlineSponsorshipCreated = Omit<
+  TrustlineSponsorshipEvents,
   "new_sponsor" | "former_sponsor"
 > & { type_i: EffectType.trustline_sponsorship_created };
-export type TrustlineSponsporshipUpdated = Omit<
-  TrustlineSponsporshipEvents,
+export type TrustlineSponsorshipUpdated = Omit<
+  TrustlineSponsorshipEvents,
   "sponsor"
 > & { type_i: EffectType.trustline_sponsorship_updated };
-export type TrustlineSponsporshipRemoved = Omit<
-  TrustlineSponsporshipEvents,
+export type TrustlineSponsorshipRemoved = Omit<
+  TrustlineSponsorshipEvents,
   "new_sponsor" | "sponsor"
 > & { type_i: EffectType.trustline_sponsorship_removed };
-interface DataSponsporshipEvents extends BaseEffectRecord, SponsershipFields {
+interface DataSponsorshipEvents extends BaseEffectRecord, SponsershipFields {
   data_name: string;
 }
-export type DateSponsporshipCreated = Omit<
-  DataSponsporshipEvents,
+export type DateSponsorshipCreated = Omit<
+  DataSponsorshipEvents,
   "new_sponsor" | "former_sponsor"
 > & { type_i: EffectType.data_sponsorship_created };
-export type DateSponsporshipUpdated = Omit<
-  DataSponsporshipEvents,
-  "sponsor"
-> & { type_i: EffectType.data_sponsorship_updated };
-export type DateSponsporshipRemoved = Omit<
-  DataSponsporshipEvents,
+export type DateSponsorshipUpdated = Omit<DataSponsorshipEvents, "sponsor"> & {
+  type_i: EffectType.data_sponsorship_updated;
+};
+export type DateSponsorshipRemoved = Omit<
+  DataSponsorshipEvents,
   "new_sponsor" | "sponsor"
 > & { type_i: EffectType.data_sponsorship_removed };
 interface ClaimableBalanceSponsorshipEvents
