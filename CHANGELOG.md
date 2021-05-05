@@ -4,16 +4,34 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
-- Added TransactionCallBuilder.forClaimableBalance(), and OperationCallBuilder.forClaimableBalance().
-- Added support for new `accounts`, `balances`, `claimable_balances_amount`, and `num_claimable_balances` fields on Assets.
-- Added types for all Effects supported as an enum, and moved Trade, Asset, Offer, and Account types to separate files. [(#635)](https://github.com/stellar/js-stellar-sdk/pull/635)
+### Add
+- Added support for querying the relevant transactions and operations for a claimable balance [(#628)](https://github.com/stellar/js-stellar-sdk/pull/628):
+  * `TransactionCallBuilder.forClaimableBalance()`: builds a query to `/claimable_balances/:id/transactions/`
+  * `OperationCallBuilder.forClaimableBalance()`: builds a query to `/claimable_balances/:id/operations/`
 
+- Added support for new stat fields on the `/assets` endpoint [(#628)](https://github.com/stellar/js-stellar-sdk/pull/628):
+  * `accounts` - a breakdown of accounts using this asset by authorization type
+  * `balances` - a breakdown of balances by account authorization type
+  * `num_claimable_balances` - the number of pending claimable balances
+  * `claimable_balances_amount` - the total balance of pending claimable balances
+
+- Added types for all Effects supported as an enum, and moved `Trade`, `Asset`, `Offer`, and `Account` types to separate files [(#635)](https://github.com/stellar/js-stellar-sdk/pull/635).
+
+### Update
+- Upgraded `js-stellar-base` package to version `^5.2.0` from `^5.1.0`, refer to its [release notes](https://github.com/stellar/js-stellar-base/releases/tag/v5.2.0) for more [(#639)](https://github.com/stellar/js-stellar-sdk/pull/639):
+  * opt-in **support for muxed accounts** ([SEP-23](https://stellar.org/protocol/sep-23))
+  * exposing the `AuthClawbackEnabled` flag to Typescript to **complete Protocol 17 support**
+
+- Exposed more Protocol 17 (CAP-35) operations [(#633)](https://github.com/stellar/js-stellar-sdk/pull/633):
+  * The `/accounts` endpoint now resolves the `flags.auth_clawback_enabled` field.
+  * The operation responses for `clawback`, `clawbackClaimableBalance`, and `setTrustLineFlags` are now defined.
+  * The operation response for `setOptions` has been updated to show `auth_clawback_enabled`.
 
 ## [v8.1.1](https://github.com/stellar/js-stellar-sdk/compare/v8.1.0...v8.1.1)
 
 ### Fix
 
-- Upgraded `js-stellar-base` package to version `^5.1.0` from `^5.0.0` to expose the Typescript hints for CAP-35 operations [(#TODO)](https://github.com/stellar/js-stellar-sdk/pull/TODO).
+- Upgraded `js-stellar-base` package to version `^5.1.0` from `^5.0.0` to expose the Typescript hints for CAP-35 operations [(#629)](https://github.com/stellar/js-stellar-sdk/pull/629).
 
 
 ## [v8.1.0](https://github.com/stellar/js-stellar-sdk/compare/v8.0.0...v8.1.0)
