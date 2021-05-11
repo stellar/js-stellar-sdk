@@ -4,6 +4,8 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+## [v8.2.0](https://github.com/stellar/js-stellar-sdk/compare/v8.1.1...v8.2.0)
+
 ### Add
 - Added support for querying the relevant transactions and operations for a claimable balance [(#628)](https://github.com/stellar/js-stellar-sdk/pull/628):
   * `TransactionCallBuilder.forClaimableBalance()`: builds a query to `/claimable_balances/:id/transactions/`
