@@ -18,9 +18,10 @@ A breaking change will get clearly marked in this log.
 - Added types for all Effects supported as an enum, and moved `Trade`, `Asset`, `Offer`, and `Account` types to separate files [(#635)](https://github.com/stellar/js-stellar-sdk/pull/635).
 
 ### Update
-- Upgraded `js-stellar-base` package to version `^5.2.0` from `^5.1.0`, refer to its [release notes](https://github.com/stellar/js-stellar-base/releases/tag/v5.2.0) for more [(#639)](https://github.com/stellar/js-stellar-sdk/pull/639):
+- Upgraded `js-stellar-base` package to version `^5.2.1` from `^5.1.0`, refer to its [release notes](https://github.com/stellar/js-stellar-base/releases/tag/v5.2.0) for more [(#639)](https://github.com/stellar/js-stellar-sdk/pull/639):
   * opt-in **support for muxed accounts** ([SEP-23](https://stellar.org/protocol/sep-23))
   * exposing the `AuthClawbackEnabled` flag to Typescript to **complete Protocol 17 support**
+  * fixing a public key parsing regression
 
 - Exposed more Protocol 17 (CAP-35) operations [(#633)](https://github.com/stellar/js-stellar-sdk/pull/633):
   * The `/accounts` endpoint now resolves the `flags.auth_clawback_enabled` field.
