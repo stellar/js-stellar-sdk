@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>js-stellar-base/src/operations/clawback.js - Documentation</title>
+    <title>MuxedAccount - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -29,56 +29,946 @@
 
 <div id="main">
     
-    <h1 class="page-title">js-stellar-base/src/operations/clawback.js</h1>
+    <h1 class="page-title">MuxedAccount</h1>
     
 
     
 
 
 
+
+<section>
+
+<header>
     
-    <section>
-        <article>
-            <pre class="prettyprint source linenums"><code>import xdr from '../generated/stellar-xdr_generated';
-import { decodeAddressToMuxedAccount } from '../util/decode_encode_muxed_account';
+        <h2>
+        MuxedAccount
+        </h2>
+        
+            <div class="class-description"><p>Represents a muxed account for transactions and operations.</p>
+<p>A muxed (or <em>multiplexed</em>) account (defined rigorously in
+<a href="https://stellar.org/protocol/cap-27">CAP-27</a> and briefly in
+<a href="https://stellar.org/protocol/sep-23">SEP-23</a>) is one that resolves a single
+Stellar <code>G...`</code> account to many different underlying IDs.</p>
+<p>For example, you may have a single Stellar address for accounting purposes:
+  GA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJVSGZ</p>
+<p>Yet would like to use it for 4 different family members:
+  1: MA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJUAAAAAAAAAAAAGZFQ
+  2: MA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJUAAAAAAAAAAAALIWQ
+  3: MA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJUAAAAAAAAAAAAPYHQ
+  4: MA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJUAAAAAAAAAAAAQLQQ</p>
+<p>This object makes it easy to create muxed accounts from regular accounts,
+duplicate them, retrieve the underlying IDs, etc. without mucking around with
+the raw XDR.</p>
+<p>Because muxed accounts are purely an off-chain convention, they all share the
+sequence number tied to the underlying G... account. Thus, this object
+<em>requires</em> an <a href="Account.html">Account</a> instance to be passed in, so that muxed
+instances of an account can collectively modify the sequence number whenever
+a muxed account is used as the source of a @{link Transaction} with <a href="TransactionBuilder.html">TransactionBuilder</a>.</p></div>
+        
+    
+</header>
 
-/**
- * Creates a clawback operation.
- *
- * @function
- * @alias Operation.clawback
- *
- * @param {object} opts - Options object
- * @param {Asset}  opts.asset - The asset being clawed back.
- * @param {string} opts.amount - The amount of the asset to claw back.
- * @param {string} opts.from - The public key of the (muxed) account to claw back from.
- *
- * @param {string} [opts.source] - The source account for the operation. Defaults to the transaction's source account.
- *
- * @return {xdr.ClawbackOp}
- *
- * @link https://github.com/stellar/stellar-protocol/blob/master/core/cap-0035.md#clawback-operation
- */
-export function clawback(opts = {}) {
-  const attributes = {};
+<article>
+    <div class="container-overview">
+    
+        
+<div class="section-method">
 
-  if (!this.isValidAmount(opts.amount)) {
-    throw new TypeError(this.constructAmountRequirementsError('amount'));
-  }
-  attributes.amount = this._toXDRAmount(opts.amount);
-  attributes.asset = opts.asset.toXDRObject();
-  attributes.from = decodeAddressToMuxedAccount(opts.from);
+    
+    <h2>Constructor</h2>
+    
 
-  const opAttributes = {
-    body: xdr.OperationBody.clawback(new xdr.ClawbackOp(attributes))
-  };
-  this.setSourceAccount(opAttributes, opts);
+    <h4 class="name" id="MuxedAccount"><span class="type-signature"></span>new MuxedAccount<span class="signature">(account, id)</span><span class="type-signature"></span></h4>
 
-  return new xdr.Operation(opAttributes);
-}
-</code></pre>
-        </article>
-    </section>
+    
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="js-stellar-base_src_account.js.html">js-stellar-base/src/account.js</a>, <a href="js-stellar-base_src_account.js.html#line117">line 117</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>account</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code><a href="Account.html">Account</a></code></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">
+                <p>the @{link Account} instance representing the
+    underlying G... address</p>
+                
+            </td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>id</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>string</code></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">
+                <p>a stringified uint64 value that represents the
+    ID of the muxed account</p>
+                
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+    
+    </div>
+
+    
+
+    
+
+    
+
+     
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+<div class="section-method">
+
+    
+
+    <h4 class="name" id=".fromAddress"><span class="type-signature">(static) </span>fromAddress<span class="signature">(mAddress, sequenceNum)</span><span class="type-signature"> &rarr; {<a href="MuxedAccount.html">MuxedAccount</a>}</span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Parses an M-address into a MuxedAccount object.</p>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="js-stellar-base_src_account.js.html">js-stellar-base/src/account.js</a>, <a href="js-stellar-base_src_account.js.html#line141">line 141</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>mAddress</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>string</code></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">
+                <p>an M-address to transform</p>
+                
+            </td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>sequenceNum</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>string</code></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">
+                <p>the sequence number of the underlying <a href="Account.html">Account</a>, to use for the underlying base account (@link
+    MuxedAccount.baseAccount). If you're using the SDK, you can use
+    <code>server.loadAccount</code> to fetch this if you don't know it.</p>
+                
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="section-returns">
+<h5>Returns:</h5>
+
+        
+
+<dl class="param-type">
+    <dt>
+        Type:
+    </dt>
+    <dd>
+        
+<span class="param-type"><code><a href="MuxedAccount.html">MuxedAccount</a></code></span>
+
+
+    </dd>
+</dl>
+
+
+    
+</div>
+
+
+
+</div>
+        
+            
+<div class="section-method">
+
+    
+
+    <h4 class="name" id="accountId"><span class="type-signature"></span>accountId<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span></h4>
+
+    
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="js-stellar-base_src_account.js.html">js-stellar-base/src/account.js</a>, <a href="js-stellar-base_src_account.js.html#line163">line 163</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="section-returns">
+<h5>Returns:</h5>
+
+        
+
+<dl class="param-type">
+    <dt>
+        Type:
+    </dt>
+    <dd>
+        
+<span class="param-type"><code>string</code></span>
+
+
+    </dd>
+</dl>
+
+
+<div class="param-desc">
+    <p>the M-address representing this account's (G-address, ID)</p>
+</div>
+
+    
+</div>
+
+
+
+</div>
+        
+            
+<div class="section-method">
+
+    
+
+    <h4 class="name" id="baseAccount"><span class="type-signature"></span>baseAccount<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="Account.html">Account</a>}</span></h4>
+
+    
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="js-stellar-base_src_account.js.html">js-stellar-base/src/account.js</a>, <a href="js-stellar-base_src_account.js.html#line156">line 156</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="section-returns">
+<h5>Returns:</h5>
+
+        
+
+<dl class="param-type">
+    <dt>
+        Type:
+    </dt>
+    <dd>
+        
+<span class="param-type"><code><a href="Account.html">Account</a></code></span>
+
+
+    </dd>
+</dl>
+
+
+<div class="param-desc">
+    <p>the underlying account object shared among all muxed
+    accounts with this Stellar address</p>
+</div>
+
+    
+</div>
+
+
+
+</div>
+        
+            
+<div class="section-method">
+
+    
+
+    <h4 class="name" id="incrementSequenceNumber"><span class="type-signature"></span>incrementSequenceNumber<span class="signature">()</span><span class="type-signature"> &rarr; {void}</span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Increments the underlying account's sequence number by one.</p>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="js-stellar-base_src_account.js.html">js-stellar-base/src/account.js</a>, <a href="js-stellar-base_src_account.js.html#line194">line 194</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="section-returns">
+<h5>Returns:</h5>
+
+        
+
+<dl class="param-type">
+    <dt>
+        Type:
+    </dt>
+    <dd>
+        
+<span class="param-type"><code>void</code></span>
+
+
+    </dd>
+</dl>
+
+
+    
+</div>
+
+
+
+</div>
+        
+            
+<div class="section-method">
+
+    
+
+    <h4 class="name" id="sequenceNumber"><span class="type-signature"></span>sequenceNumber<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Accesses the underlying account's sequence number.</p>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="js-stellar-base_src_account.js.html">js-stellar-base/src/account.js</a>, <a href="js-stellar-base_src_account.js.html#line186">line 186</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="section-returns">
+<h5>Returns:</h5>
+
+        
+
+<dl class="param-type">
+    <dt>
+        Type:
+    </dt>
+    <dd>
+        
+<span class="param-type"><code>string</code></span>
+
+
+    </dd>
+</dl>
+
+
+<div class="param-desc">
+    <p>strigified sequence number for the underlying account</p>
+</div>
+
+    
+</div>
+
+
+
+</div>
+        
+            
+<div class="section-method">
+
+    
+
+    <h4 class="name" id="toXDRObject"><span class="type-signature"></span>toXDRObject<span class="signature">()</span><span class="type-signature"> &rarr; {xdr.MuxedAccount}</span></h4>
+
+    
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="js-stellar-base_src_account.js.html">js-stellar-base/src/account.js</a>, <a href="js-stellar-base_src_account.js.html#line202">line 202</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="section-returns">
+<h5>Returns:</h5>
+
+        
+
+<dl class="param-type">
+    <dt>
+        Type:
+    </dt>
+    <dd>
+        
+<span class="param-type"><code>xdr.MuxedAccount</code></span>
+
+
+    </dd>
+</dl>
+
+
+<div class="param-desc">
+    <p>the XDR object representing this muxed account's
+    G-address and uint64 ID</p>
+</div>
+
+    
+</div>
+
+
+
+</div>
+        
+    
+
+    
+
+    
+</article>
+
+</section>
 
 
 
@@ -88,7 +978,7 @@ export function clawback(opts = {}) {
 <br class="clear">
 
 <footer>
-    Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Tue May 11 2021 19:22:38 GMT+0000 (Coordinated Universal Time) using the Minami theme.
+    Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Tue May 11 2021 19:22:39 GMT+0000 (Coordinated Universal Time) using the Minami theme.
 </footer>
 
 <script>prettyPrint();</script>
