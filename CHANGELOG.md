@@ -4,6 +4,13 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+
+## [v8.2.1](https://github.com/stellar/js-stellar-sdk/compare/v8.2.0...v8.2.1)
+
+### Fix
+- A defunct query paramater (`?c=[...]`) has been removed now that Horizon properly sends Cache-Control headers [(#652)](https://github.com/stellar/js-stellar-sdk/pull/652).
+
+
 ## [v8.2.0](https://github.com/stellar/js-stellar-sdk/compare/v8.1.1...v8.2.0)
 
 ### Add
