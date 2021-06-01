@@ -1,7 +1,7 @@
 /* tslint:disable:variable-name */
 
 import forIn from "lodash/forIn";
-import { Account as BaseAccount } from "stellar-base";
+import { Account as BaseAccount, MuxedAccount } from "stellar-base";
 import { Horizon } from "./horizon_api";
 import { ServerApi } from "./server_api";
 
@@ -82,5 +82,9 @@ export class AccountResponse {
   public incrementSequenceNumber(): void {
     this._baseAccount.incrementSequenceNumber();
     this.sequence = this._baseAccount.sequenceNumber();
+  }
+
+  public createSubaccount(id: string): MuxedAccount {
+    return this._baseAccount.createSubaccount(id);
   }
 }
