@@ -655,9 +655,13 @@ export class Server {
   }
 
   /**
-   * Fetches an account's most current state in the ledger and then creates and returns an {@link Account} object.
+   * Fetches an account's most current state in the ledger, then creates and
+   * returns an {@link AccountResponse} object.
+   *
    * @param {string} accountId - The account to load.
-   * @returns {Promise} Returns a promise to the {@link AccountResponse} object with populated sequence number.
+   *
+   * @returns {Promise} Returns a promise to the {@link AccountResponse} object
+   * with populated sequence number.
    */
   public async loadAccount(accountId: string): Promise<AccountResponse> {
     const res = await this.accounts()
