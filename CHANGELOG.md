@@ -4,6 +4,9 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+
+## [v8.2.2](https://github.com/stellar/js-stellar-sdk/compare/v8.2.1...v8.2.2)
+
 ### Fix
 - Fixes a breaking bug introduced in v8.2.0 in which `AccountResponse` no longer conformed to the `StellarBase.Account` interface, which was updated in [stellar-base@v5.2.0](https://github.com/stellar/js-stellar-base/releases/tag/v5.2.0) [(#655)](https://github.com/stellar/js-stellar-sdk/pull/655).
 
