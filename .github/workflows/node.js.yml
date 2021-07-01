@@ -6,6 +6,9 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    services:
+      firefox:
+        image: selenium/standalone-firefox:89.0
     strategy:
       matrix:
         node-version: [10.16.3, 12.x, 14.x, 16.x]
