@@ -265,6 +265,12 @@ export namespace Utils {
       }
     }
 
+    if (!verifyTxSignedBy(transaction, serverAccountID)) {
+      throw new InvalidSep10ChallengeError(
+        `Transaction not signed by server: '${serverAccountID}'`,
+      );
+    }
+
     return { tx: transaction, clientAccountID, matchedHomeDomain };
   }
 

@@ -216,6 +216,41 @@ describe('Utils', function() {
       });
     });
 
+    it("throws an error if the server hasn't signed the transaction", function () {
+      let serverKP = StellarSdk.Keypair.random();
+      let clientKP = StellarSdk.Keypair.random();
+
+      const transaction = new StellarSdk.TransactionBuilder(
+        new StellarSdk.Account(serverKP.publicKey(), "-1"),
+        { fee: 100, networkPassphrase: StellarSdk.Networks.TESTNET },
+      )
+        .addOperation(StellarSdk.Operation.manageData({
+          source: clientKP.publicKey(),
+          name: "SDF-test auth",
+          value: randomBytes(48).toString("base64"),
+        }))
+        .setTimeout(30)
+        .build();
+
+      const challenge = transaction
+        .toEnvelope()
+        .toXDR("base64")
+        .toString();
+
+      expect(() =>
+        StellarSdk.Utils.readChallengeTx(
+          challenge,
+          serverKP.publicKey(),
+          StellarSdk.Networks.TESTNET,
+          "SDF-test",
+          "testanchor.stellar.org"
+        ),
+      ).to.throw(
+        StellarSdk.InvalidSep10ChallengeError,
+        "Transaction not signed by server: '" + serverKP.publicKey() + "'",
+      );
+    });
+
     it("throws an error if transaction sequenceNumber is different to zero", function() {
       let keypair = StellarSdk.Keypair.random();
 

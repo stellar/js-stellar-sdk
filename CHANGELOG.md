@@ -4,6 +4,11 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+## [v8.2.3](https://github.com/stellar/js-stellar-sdk/compare/v8.2.2...v8.2.3)
+
+### Fix
+- Fix server signature verification in `Utils.readChallengeTx`. The function was
+not verifying the server account had signed the challenge transaction.
 
 ## [v8.2.2](https://github.com/stellar/js-stellar-sdk/compare/v8.2.1...v8.2.2)
 
