@@ -639,8 +639,12 @@ export namespace Utils {
     const now = Math.floor(Date.now() / 1000);
     const { minTime, maxTime } = transaction.timeBounds;
 
+    // give a small grace period for the transaction time to account for clock drift
+    const gracePeriod = 60 * 5;
+
     return (
-      now >= Number.parseInt(minTime, 10) && now <= Number.parseInt(maxTime, 10)
+      now >= Number.parseInt(minTime, 10) - gracePeriod &&
+      now <= Number.parseInt(maxTime, 10) + gracePeriod
     );
   }
 }

@@ -556,7 +556,8 @@ describe('Utils', function() {
         "testanchor.stellar.org"
       );
 
-      clock.tick(350000);
+      // Note that this is greater than the grace period of 5 minutes (600 seconds)
+      clock.tick(1000 * 1000);
 
       const transaction = new StellarSdk.Transaction(
         challenge,
