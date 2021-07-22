@@ -187,7 +187,8 @@ export namespace Utils {
       );
     }
 
-    if (!validateTimebounds(transaction)) {
+    // give a small grace period for the transaction time to account for clock drift
+    if (!validateTimebounds(transaction, 60 * 5)) {
       throw new InvalidSep10ChallengeError("The transaction has expired");
     }
 
@@ -631,7 +632,10 @@ export namespace Utils {
    * @param {Transaction} transaction the transaction whose timebonds will be validated.
    * @returns {boolean} returns true if the current time is within the transaction's [minTime, maxTime] range.
    */
-  function validateTimebounds(transaction: Transaction): boolean {
+  function validateTimebounds(
+    transaction: Transaction,
+    gracePeriod: number = 0,
+  ): boolean {
     if (!transaction.timeBounds) {
       return false;
     }
@@ -640,7 +644,8 @@ export namespace Utils {
     const { minTime, maxTime } = transaction.timeBounds;
 
     return (
-      now >= Number.parseInt(minTime, 10) && now <= Number.parseInt(maxTime, 10)
+      now >= Number.parseInt(minTime, 10) - gracePeriod &&
+      now <= Number.parseInt(maxTime, 10) + gracePeriod
     );
   }
 }

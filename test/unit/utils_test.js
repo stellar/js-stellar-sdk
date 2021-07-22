@@ -556,7 +556,8 @@ describe('Utils', function() {
         "testanchor.stellar.org"
       );
 
-      clock.tick(350000);
+      // Note that this is greater than the grace period of 5 minutes (600 seconds)
+      clock.tick(1000 * 1000);
 
       const transaction = new StellarSdk.Transaction(
         challenge,
@@ -578,6 +579,28 @@ describe('Utils', function() {
           "testanchor.stellar.org"
         ),
       ).to.throw(
+        StellarSdk.InvalidSep10ChallengeError,
+        /The transaction has expired/,
+      );
+    });
+
+
+    it("does NOT throw errors when the user is slightly out of minTime", function() {
+      clock.tick(1626888681 * 1000);
+
+      // this challenge from Stablex's testnet env, collected 2021-07-21T17:31:21.530Z,
+      // is erroring, and we want to know if it's a bug on our side or in the sdk
+      const signedChallenge = "AAAAAgAAAADZJunw2QO9LzjqagEjh/mpWG8Us5nOb+gc6wOex8G+IwAAAGQAAAAAAAAAAAAAAAEAAAAAYPhZ6gAAAXrKHz2UAAAAAAAAAAEAAAABAAAAAJyknd/qYHdzX6iV3TkHlh/usJUr5/U8cRsfVNqaruBAAAAACgAAAB50ZXN0bmV0LXNlcC5zdGFibGV4LmNsb3VkIGF1dGgAAAAAAAEAAABAaEs3QUZieUFCZzBEekx0WnpTVXJkcEhWOXdkdExXUkwxUHFFOW5QRVIrZVlaZzQvdDJlc3drclpBc0ZnTnp5UQAAAAAAAAABx8G+IwAAAEA8I5qQ+/HHXoHrULlg1ODTiCEQ92GQrVBFaB40OKxJhTf1c597AuKLHhJ3c4TNdSp1rjLGbk7qUuhjauxUuH0N";
+
+      expect(() =>
+        StellarSdk.Utils.readChallengeTx(
+          signedChallenge,
+          "GDMSN2PQ3EB32LZY5JVACI4H7GUVQ3YUWOM4437IDTVQHHWHYG7CGA5Z",
+          StellarSdk.Networks.TESTNET,
+          "testnet-sep.stablex.cloud",
+          "staging-transfer-server.zetl.network"
+        ),
+      ).not.to.throw(
         StellarSdk.InvalidSep10ChallengeError,
         /The transaction has expired/,
       );
