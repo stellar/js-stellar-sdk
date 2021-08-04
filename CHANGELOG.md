@@ -4,11 +4,15 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Fix
+- Updated various dependencies to secure versions ([#]()).
+
 
 ## [v8.2.5](https://github.com/stellar/js-stellar-sdk/compare/v8.2.4...v8.2.5)
 
 ### Update
 - The `js-stellar-base` library has been updated to [v5.3.2](https://github.com/stellar/js-stellar-base/releases/tag/v5.3.2), which fixes a muxed account bug and updates vulnerable dependencies ([#670](https://github.com/stellar/js-stellar-sdk/pull/670)).
+
 
 ## [v8.2.4](https://github.com/stellar/js-stellar-sdk/compare/v8.2.3...v8.2.4)
 
