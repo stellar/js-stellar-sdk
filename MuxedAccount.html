@@ -58,10 +58,10 @@ Stellar <code>G...`</code> account to many different underlying IDs.</p>
   3: MA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJUAAAAAAAAAAAAPYHQ
   4: MA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJUAAAAAAAAAAAAQLQQ</p>
 <p>This object makes it easy to create muxed accounts from regular accounts,
-duplicate them, retrieve the underlying IDs, etc. without mucking around with
+duplicate them, get/set the underlying IDs, etc. without mucking around with
 the raw XDR.</p>
 <p>Because muxed accounts are purely an off-chain convention, they all share the
-sequence number tied to the underlying G... account. Thus, this object
+sequence number tied to their underlying G... account. Thus, this object
 <em>requires</em> an <a href="Account.html">Account</a> instance to be passed in, so that muxed
 instances of an account can collectively modify the sequence number whenever
 a muxed account is used as the source of a @{link Transaction} with <a href="TransactionBuilder.html">TransactionBuilder</a>.</p></div>
@@ -118,7 +118,7 @@ a muxed account is used as the source of a @{link Transaction} with <a href="Tra
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="js-stellar-base_src_account.js.html">js-stellar-base/src/account.js</a>, <a href="js-stellar-base_src_account.js.html#line117">line 117</a>
+        <a href="js-stellar-base_src_account.js.html">js-stellar-base/src/account.js</a>, <a href="js-stellar-base_src_account.js.html#line120">line 120</a>
     </li></ul></dd>
     
 
@@ -180,7 +180,7 @@ a muxed account is used as the source of a @{link Transaction} with <a href="Tra
 
             <td class="description last">
                 <p>the @{link Account} instance representing the
-    underlying G... address</p>
+                             underlying G... address</p>
                 
             </td>
         </tr>
@@ -207,7 +207,7 @@ a muxed account is used as the source of a @{link Transaction} with <a href="Tra
 
             <td class="description last">
                 <p>a stringified uint64 value that represents the
-    ID of the muxed account</p>
+                             ID of the muxed account</p>
                 
             </td>
         </tr>
@@ -299,7 +299,7 @@ a muxed account is used as the source of a @{link Transaction} with <a href="Tra
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="js-stellar-base_src_account.js.html">js-stellar-base/src/account.js</a>, <a href="js-stellar-base_src_account.js.html#line141">line 141</a>
+        <a href="js-stellar-base_src_account.js.html">js-stellar-base/src/account.js</a>, <a href="js-stellar-base_src_account.js.html#line144">line 144</a>
     </li></ul></dd>
     
 
@@ -479,7 +479,7 @@ a muxed account is used as the source of a @{link Transaction} with <a href="Tra
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="js-stellar-base_src_account.js.html">js-stellar-base/src/account.js</a>, <a href="js-stellar-base_src_account.js.html#line163">line 163</a>
+        <a href="js-stellar-base_src_account.js.html">js-stellar-base/src/account.js</a>, <a href="js-stellar-base_src_account.js.html#line166">line 166</a>
     </li></ul></dd>
     
 
@@ -583,7 +583,7 @@ a muxed account is used as the source of a @{link Transaction} with <a href="Tra
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="js-stellar-base_src_account.js.html">js-stellar-base/src/account.js</a>, <a href="js-stellar-base_src_account.js.html#line156">line 156</a>
+        <a href="js-stellar-base_src_account.js.html">js-stellar-base/src/account.js</a>, <a href="js-stellar-base_src_account.js.html#line159">line 159</a>
     </li></ul></dd>
     
 
@@ -692,7 +692,7 @@ a muxed account is used as the source of a @{link Transaction} with <a href="Tra
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="js-stellar-base_src_account.js.html">js-stellar-base/src/account.js</a>, <a href="js-stellar-base_src_account.js.html#line204">line 204</a>
+        <a href="js-stellar-base_src_account.js.html">js-stellar-base/src/account.js</a>, <a href="js-stellar-base_src_account.js.html#line207">line 207</a>
     </li></ul></dd>
     
 
@@ -852,7 +852,7 @@ a muxed account is used as the source of a @{link Transaction} with <a href="Tra
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="js-stellar-base_src_account.js.html">js-stellar-base/src/account.js</a>, <a href="js-stellar-base_src_account.js.html#line194">line 194</a>
+        <a href="js-stellar-base_src_account.js.html">js-stellar-base/src/account.js</a>, <a href="js-stellar-base_src_account.js.html#line197">line 197</a>
     </li></ul></dd>
     
 
@@ -956,7 +956,7 @@ a muxed account is used as the source of a @{link Transaction} with <a href="Tra
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="js-stellar-base_src_account.js.html">js-stellar-base/src/account.js</a>, <a href="js-stellar-base_src_account.js.html#line186">line 186</a>
+        <a href="js-stellar-base_src_account.js.html">js-stellar-base/src/account.js</a>, <a href="js-stellar-base_src_account.js.html#line189">line 189</a>
     </li></ul></dd>
     
 
@@ -1060,7 +1060,7 @@ a muxed account is used as the source of a @{link Transaction} with <a href="Tra
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="js-stellar-base_src_account.js.html">js-stellar-base/src/account.js</a>, <a href="js-stellar-base_src_account.js.html#line212">line 212</a>
+        <a href="js-stellar-base_src_account.js.html">js-stellar-base/src/account.js</a>, <a href="js-stellar-base_src_account.js.html#line215">line 215</a>
     </li></ul></dd>
     
 
@@ -1138,7 +1138,7 @@ a muxed account is used as the source of a @{link Transaction} with <a href="Tra
 <br class="clear">
 
 <footer>
-    Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Thu Jul 22 2021 17:25:46 GMT+0000 (Coordinated Universal Time) using the Minami theme.
+    Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Aug 04 2021 19:07:57 GMT+0000 (Coordinated Universal Time) using the Minami theme.
 </footer>
 
 <script>prettyPrint();</script>
