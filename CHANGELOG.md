@@ -6,12 +6,7 @@ A breaking change will get clearly marked in this log.
 
 ## [v9.0.0](https://github.com/stellar/js-stellar-sdk/compare/v8.2.5...v9.0.0)
 
-- Update stellar-base version to `6.0.0`.
-  - Troubleshooting: while we're not using the npm version of `stellar-base` we need to install the dependency manually with:
-
-    ```sh
-    cd node_modules/stellar-base/ && yarn install && yarn gulp build && cd ../..
-    ```
+- Update `stellar-base` version to `6.0.1`.
 
 ### Fix
 - Updated various developer dependencies to secure versions ([#671](https://github.com/stellar/js-stellar-sdk/pull/671)).
