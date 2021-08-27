@@ -3,11 +3,13 @@ function copyJson(js) {
   return JSON.parse(JSON.stringify(js));
 }
 
+const BASE_URL = "https://horizon-live.stellar.org:1337";
+const LP_URL = BASE_URL + "/liquidity_pools"
+
+
 describe('/liquidity_pools tests', function() {
   beforeEach(function() {
-    this.server = new StellarSdk.Server(
-      'https://horizon-live.stellar.org:1337'
-    );
+    this.server = new StellarSdk.Server(BASE_URL);
     this.axiosMock = sinon.mock(HorizonAxiosClient);
     StellarSdk.Config.setDefault();
   });
@@ -17,14 +19,10 @@ describe('/liquidity_pools tests', function() {
     this.axiosMock.restore();
   });
 
-  const BASE_URL = "https://horizon-live.stellar.org:1337";
-  const LP_URL = BASE_URL + "/liquidity_pools"
   const server = new StellarSdk.Server(BASE_URL);
 
-  it('can create a call builder', function() {
-    let builder = server.liquidityPools();
-    expect(StellarSdk.LiquidityPoolCallBuilder).to.not.be.undefined;
-    expect(builder).to.be.an.instanceof(StellarSdk.LiquidityPoolCallBuilder);
+  it('can create a LiquidityPoolCallBuilder', function() {
+    expect(server.liquidityPools()).not.to.be.undefined;
   });
 
   const rootResponse = {
@@ -127,7 +125,7 @@ describe('/liquidity_pools tests', function() {
       const queryStr = testCase.assets.map(asset => asset.toString()).join(',');
       const description = testCase.assets.map(asset => asset.getCode()).join(' + ');
 
-      it('can filter by asset(s) ' + description, function(done) {
+      it('filters by asset(s) ' + description, function(done) {
         this.axiosMock
           .expects('get')
           .withArgs(sinon.match(`${LP_URL}?reserves=${encodeURIComponent(queryStr)}`))

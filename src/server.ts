@@ -580,7 +580,7 @@ export class Server {
 
   /**
    * @returns {LiquidityPoolCallBuilder} New {@link LiquidityPoolCallBuilder}
-   *     object configured by a current Horizon server configuration.
+   *     object configured to the current Horizon server settings.
    */
   public liquidityPools(): LiquidityPoolCallBuilder {
     return new LiquidityPoolCallBuilder(URI(this.serverURL));

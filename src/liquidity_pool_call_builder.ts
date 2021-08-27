@@ -25,7 +25,7 @@ export class LiquidityPoolCallBuilder extends CallBuilder<
    * corresponding to any of the provided assets.
    *
    * @see Asset
-   * @returns {AccountCallBuilder} current AccountCallBuilder instance
+   * @returns {LiquidityPoolCallBuilder} current LiquidityPoolCallBuilder instance
    */
   public forAssets(...assets: Asset[]) {
     const commaSeparatedAssets: string = assets
