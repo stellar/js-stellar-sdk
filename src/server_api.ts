@@ -123,6 +123,11 @@ export namespace ServerApi {
       asset: string;
     };
   }
+  export enum TradeType {
+    all = "all",
+    liquidity_pools = "liquidity_pools",
+    orderbook = "orderbook",
+  }
   interface EffectRecordMethods {
     operation?: CallFunction<OperationRecord>;
     precedes?: CallFunction<EffectRecord>;
@@ -302,6 +307,7 @@ export namespace ServerApi {
     paging_token: string;
     ledger_close_time: string;
     offer_id: string;
+    trade_type: TradeType;
     base_offer_id: string;
     base_account: string;
     base_amount: string;
