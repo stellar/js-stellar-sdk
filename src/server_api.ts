@@ -321,7 +321,10 @@ export namespace ServerApi {
       counter_asset_code?: string;
       counter_asset_issuer?: string;
       base_is_seller: boolean;
-      // price: string;
+      price?: {
+        n: string;
+        d: string;
+      };
 
       operation: CallFunction<OperationRecord>;
     }

@@ -2015,7 +2015,11 @@ describe('server.js non-transaction tests', function() {
                 counter_asset_code: 'JPY',
                 counter_asset_issuer:
                   'GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM',
-                base_is_seller: true
+                base_is_seller: true,
+                price: {
+                  n: "1",
+                  d: "2"
+                }
               }
             ]
           }
@@ -2177,7 +2181,11 @@ describe('server.js non-transaction tests', function() {
                 counter_asset_code: 'ETH',
                 counter_asset_issuer:
                   'GBSTRH4QOTWNSVA6E4HFERETX4ZLSR3CIUBLK7AXYII277PFJC4BBYOG',
-                base_is_seller: false
+                base_is_seller: false,
+                price: {
+                  n: "1",
+                  d: "2"
+                }
               }
             ]
           }
@@ -2258,7 +2266,11 @@ describe('server.js non-transaction tests', function() {
                 counter_asset_code: 'JPY',
                 counter_asset_issuer:
                   'GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM',
-                base_is_seller: true
+                base_is_seller: true,
+                price: {
+                  n: "1",
+                  d: "2"
+                }
               }
             ]
           }
@@ -2334,7 +2346,11 @@ describe('server.js non-transaction tests', function() {
                 counter_asset_code: 'JPY',
                 counter_asset_issuer:
                   'GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM',
-                base_is_seller: true
+                base_is_seller: true,
+                price: {
+                  n: "1",
+                  d: "2"
+                }
               }
             ]
           }
