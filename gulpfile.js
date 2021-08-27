@@ -158,8 +158,6 @@ gulp.task(
   gulp.series('build:node', 'test:init-istanbul', function testIntegration() {
     return gulp
       .src([
-        'test/test-nodejs.js',
-        'test/unit/**/*.js',
         'test/integration/**/*.js'
       ])
       .pipe(
@@ -179,7 +177,7 @@ gulp.task('build', gulp.series('clean', 'build:node', 'build:browser'));
 
 gulp.task(
   'test',
-  gulp.series('clean', 'test:unit', 'test:browser', function test(done) {
+  gulp.series('clean', 'test:unit', 'test:browser', 'test:integration', function test(done) {
     done();
   })
 );
