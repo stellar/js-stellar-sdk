@@ -304,7 +304,7 @@ export namespace ServerApi {
     | RevokeSponsorshipOperationRecord;
 
   export namespace TradeRecord {
-    export interface Base extends Horizon.BaseResponse {
+    interface Base extends Horizon.BaseResponse {
       id: string;
       paging_token: string;
       ledger_close_time: string;

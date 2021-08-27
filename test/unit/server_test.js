@@ -1856,7 +1856,11 @@ describe('server.js non-transaction tests', function() {
                 counter_asset_code: 'JPY',
                 counter_asset_issuer:
                   'GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM',
-                base_is_seller: true
+                base_is_seller: true,
+                price: {
+                  n: "1",
+                  d: "2"
+                }
               }
             ]
           }
@@ -1930,7 +1934,11 @@ describe('server.js non-transaction tests', function() {
                 counter_asset_code: 'JPY',
                 counter_asset_issuer:
                   'GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM',
-                base_is_seller: true
+                base_is_seller: true,
+                price: {
+                  n: "1",
+                  d: "2"
+                }
               }
             ]
           }
@@ -2301,15 +2309,15 @@ describe('server.js non-transaction tests', function() {
           _links: {
             self: {
               href:
-                'https://horizon-live.stellar.org:1337/trades?order=asc&limit=200&cursor='
+                'https://horizon-live.stellar.org:1337/trades?order=asc&limit=200&trade_type=liquidity_pool&cursor='
             },
             next: {
               href:
-                'https://horizon-live.stellar.org:1337/trades?order=asc&limit=200&cursor=64199539053039617-0'
+                'https://horizon-live.stellar.org:1337/trades?order=asc&limit=200&trade_type=liquidity_pool&cursor=64199539053039617-0'
             },
             prev: {
               href:
-                'https://horizon-live.stellar.org:1337/trades?order=desc&limit=200&cursor=64199539053039617-0'
+                'https://horizon-live.stellar.org:1337/trades?order=desc&limit=200&trade_type=liquidity_pool&cursor=64199539053039617-0'
             }
           },
           _embedded: {

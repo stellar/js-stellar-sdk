@@ -15,15 +15,15 @@ A breaking change will get clearly marked in this log.
 ### Updates
 
 - Update `stellar-base` version to `6.0.1` ([#681](https://github.com/stellar/js-stellar-sdk/pull/681)).
-- A new kind of trade of type `liquidity_pool` was added. For that reason, the `/trades` endpoint sufered a few changes ([#685](https://github.com/stellar/js-stellar-sdk/pull/685)):
-  - There's a new field `trade_type` that can be either `orderbook` or `liquidity_pool`.
+- A new kind of trade of type `liquidity_pool` was added. For that reason, the `/trades` endpoint suffered a few changes ([#685](https://github.com/stellar/js-stellar-sdk/pull/685)):
+  - There's a new field `trade_type` that can be either `orderbook` or `liquidity_pool`. You can filter by that field.
   - Liquidity pool trades will contain the field `liquidity_pool_fee_bp` and either `base_liquidity_pool_id` or `counter_liquidity_pool_id`.
-  - There are a few breaking changes to this endpoint, listed in the breaking changes section below.
+  - There are a few breaking changes to this endpoint listed in the section below.
 
 ### Breaking changes
 
-- The response from `/trades` endpoint now can now contain two different kinds of trades, `orderbook` and `liquidity_pool` (new), which brought a few breaking changes ([#685](https://github.com/stellar/js-stellar-sdk/pull/685)):
-  - Some previously few mandatory fields were made into optional. `counter_offer_id`, `base_offer_id` will only show up in orderbook trades while only one of `base_account` and `counter_account` will show in liquidity pool trades.
+- The response from `/trades` endpoint can now contain two different kinds of trades, `orderbook` and `liquidity_pool` (new), which brought a few breaking changes ([#685](https://github.com/stellar/js-stellar-sdk/pull/685)):
+  - Some previously mandatory fields were made into optional. `counter_offer_id`, `base_offer_id` will only show up in orderbook trades while only one of `base_account` and `counter_account` will appear in liquidity pool trades.
   - The `price` field changed from `{n: number; d: number;}` to `{n: string; d: string;}`.
   - The links to "base" and "counter" returned from horizon can now point to either an account or a liquidity pool.
 
