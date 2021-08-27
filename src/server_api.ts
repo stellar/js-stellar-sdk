@@ -310,13 +310,11 @@ export namespace ServerApi {
       ledger_close_time: string;
       offer_id: string;
       trade_type: TradeType;
-      base_offer_id?: string;
       base_account?: string;
       base_amount: string;
       base_asset_type: string;
       base_asset_code?: string;
       base_asset_issuer?: string;
-      counter_offer_id?: string;
       counter_account?: string;
       counter_amount: string;
       counter_asset_type: string;
@@ -325,8 +323,6 @@ export namespace ServerApi {
       base_is_seller: boolean;
       // price: string;
 
-      base: CallFunction<AccountRecord>;
-      counter: CallFunction<AccountRecord>;
       operation: CallFunction<OperationRecord>;
     }
     export interface Orderbook extends Base {
@@ -335,12 +331,18 @@ export namespace ServerApi {
       base_account: string;
       counter_offer_id: string;
       counter_account: string;
+
+      base: CallFunction<AccountRecord>;
+      counter: CallFunction<AccountRecord>;
     }
     export interface LiquidityPool extends Base {
       trade_type: TradeType.liquidityPools;
       base_liquidity_pool_id?: string;
       counter_liquidity_pool_id?: string;
       liquidity_pool_fee_bp: number;
+
+      base: CallFunction<AccountRecord | LiquidityPoolRecord>;
+      counter: CallFunction<AccountRecord | LiquidityPoolRecord>;
     }
   }
   export type TradeRecord = TradeRecord.Orderbook | TradeRecord.LiquidityPool;

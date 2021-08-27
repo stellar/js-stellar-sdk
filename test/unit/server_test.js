@@ -2209,20 +2209,20 @@ describe('server.js non-transaction tests', function() {
           });
       });
 
-      it('trades() requests the correct endpoint for type', function(done) {
+      it('trades() requests the correct endpoint for type orderbook', function(done) {
         let tradesResponse = {
           _links: {
             self: {
               href:
-                'https://horizon-live.stellar.org:1337/trades?order=asc&limit=200&cursor='
+                'https://horizon-live.stellar.org:1337/trades?order=asc&limit=200&trade_type=orderbook&cursor='
             },
             next: {
               href:
-                'https://horizon-live.stellar.org:1337/trades?order=asc&limit=200&cursor=64199539053039617-0'
+                'https://horizon-live.stellar.org:1337/trades?order=asc&limit=200&trade_type=orderbook&cursor=64199539053039617-0'
             },
             prev: {
               href:
-                'https://horizon-live.stellar.org:1337/trades?order=desc&limit=200&cursor=64199539053039617-0'
+                'https://horizon-live.stellar.org:1337/trades?order=desc&limit=200&trade_type=orderbook&cursor=64199539053039617-0'
             }
           },
           _embedded: {
@@ -2272,6 +2272,82 @@ describe('server.js non-transaction tests', function() {
         this.server
           .trades()
           .forType('orderbook')
+          .call()
+          .then(function(response) {
+            expect(response.records).to.be.deep.equal(
+              tradesResponse._embedded.records
+            );
+            done();
+          })
+          .catch(function(err) {
+            done(err);
+          });
+      });
+      
+      it('trades() requests the correct endpoint for type liquidity_pool', function(done) {
+        let tradesResponse = {
+          _links: {
+            self: {
+              href:
+                'https://horizon-live.stellar.org:1337/trades?order=asc&limit=200&cursor='
+            },
+            next: {
+              href:
+                'https://horizon-live.stellar.org:1337/trades?order=asc&limit=200&cursor=64199539053039617-0'
+            },
+            prev: {
+              href:
+                'https://horizon-live.stellar.org:1337/trades?order=desc&limit=200&cursor=64199539053039617-0'
+            }
+          },
+          _embedded: {
+            records: [
+              {
+                _links: {
+                  base: {
+                    href:
+                      'https://horizon-live.stellar.org:1337/accounts/GB7JKG66CJN3ACX5DX43FOZTTSOI7GZUP547I3BSXIJVUX3NRYUXHE6W'
+                  },
+                  counter: {
+                    href:
+                      'https://horizon-live.stellar.org:1337/liquidity_pool/dd7b1ab831c273310ddbec6f97870aa83c2fbd78ce22aded37ecbf4f3380fac7'
+                  },
+                  operation: {
+                    href:
+                      'https://horizon-live.stellar.org:1337/operations/64199539053039617'
+                  }
+                },
+                id: '64199539053039617-0',
+                paging_token: '64199539053039617-0',
+                ledger_close_time: '2017-12-07T16:45:19Z',
+                offer_id: '4616800602922426369',
+                trade_type: 'liquidity_pool',
+                liquidity_pool_fee_bp: 30,
+                base_account:
+                  'GB7JKG66CJN3ACX5DX43FOZTTSOI7GZUP547I3BSXIJVUX3NRYUXHE6W',
+                base_amount: '1269.2134875',
+                base_asset_type: 'native',
+                counter_liquidity_pool_id:
+                  'dd7b1ab831c273310ddbec6f97870aa83c2fbd78ce22aded37ecbf4f3380fac7',
+                counter_amount: '19637.5167985',
+                counter_asset_type: 'credit_alphanum4',
+                counter_asset_code: 'JPY',
+                counter_asset_issuer:
+                  'GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM',
+                base_is_seller: true
+              }
+            ]
+          }
+        };
+
+        this.axiosMock
+          .expects('get')
+          .withArgs(sinon.match('https://horizon-live.stellar.org:1337/trades?trade_type=liquidity_pool'))
+          .returns(Promise.resolve({ data: tradesResponse }));
+
+        this.server
+          .trades()
+          .forType('liquidity_pool')
           .call()
           .then(function(response) {
             expect(response.records).to.be.deep.equal(
