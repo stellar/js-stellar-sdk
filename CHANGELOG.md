@@ -4,6 +4,10 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Add
+- Introduced a `LiquidityPoolCallBuilder` to make calls to the new `/liquidity_pools` endpoint ([#682](https://github.com/stellar/js-stellar-sdk/pull/682)).
+
+
 ## [v9.0.0](https://github.com/stellar/js-stellar-sdk/compare/v8.2.5...v9.0.0)
 
 - Update `stellar-base` version to `6.0.1`.
