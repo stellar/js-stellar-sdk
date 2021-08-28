@@ -21,10 +21,10 @@ export class LiquidityPoolCallBuilder extends CallBuilder<
   }
 
   /**
-   * This endpoint filters all liquidity pools which contain reserves
-   * corresponding to any of the provided assets.
+   * Filters out liquidity pools whose reserves aren't in this list of assets.
    *
    * @see Asset
+   * @param {Asset[]} assets
    * @returns {LiquidityPoolCallBuilder} current LiquidityPoolCallBuilder instance
    */
   public forAssets(...assets: Asset[]) {

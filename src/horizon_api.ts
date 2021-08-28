@@ -153,6 +153,10 @@ export namespace Horizon {
     num_sponsored: number;
   }
 
+  export enum LiquidityPoolType {
+    constantProduct = "constant_product",
+  }
+
   export enum OperationResponseType {
     createAccount = "create_account",
     payment = "payment",

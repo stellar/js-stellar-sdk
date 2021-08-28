@@ -19,10 +19,8 @@ describe('/liquidity_pools tests', function() {
     this.axiosMock.restore();
   });
 
-  const server = new StellarSdk.Server(BASE_URL);
-
   it('can create a LiquidityPoolCallBuilder', function() {
-    expect(server.liquidityPools()).not.to.be.undefined;
+    expect(this.server.liquidityPools()).not.to.be.undefined;
   });
 
   const rootResponse = {

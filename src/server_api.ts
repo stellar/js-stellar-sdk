@@ -115,7 +115,7 @@ export namespace ServerApi {
     id: string;
     paging_token: string;
     fee_bp: number;
-    type: string;
+    type: Horizon.LiquidityPoolType;
     total_trustlines: string;
     total_shares: string;
     reserves: {
