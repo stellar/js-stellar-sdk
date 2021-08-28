@@ -111,6 +111,18 @@ export namespace ServerApi {
     payments: CallCollectionFunction<PaymentOperationRecord>;
     trades: CallCollectionFunction<TradeRecord>;
   }
+  export interface LiquidityPoolRecord extends Horizon.BaseResponse {
+    id: string;
+    paging_token: string;
+    fee_bp: number;
+    type: Horizon.LiquidityPoolType;
+    total_trustlines: string;
+    total_shares: string;
+    reserves: {
+      amount: string;
+      asset: string;
+    };
+  }
   interface EffectRecordMethods {
     operation?: CallFunction<OperationRecord>;
     precedes?: CallFunction<EffectRecord>;

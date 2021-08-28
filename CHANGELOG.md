@@ -2,11 +2,17 @@
 
 A breaking change will get clearly marked in this log.
 
+
 ## Unreleased
+
 
 ## [v9.0.0](https://github.com/stellar/js-stellar-sdk/compare/v8.2.5...v9.0.0)
 
-- Update `stellar-base` version to `6.0.1`.
+### Add
+- Introduced a `LiquidityPoolCallBuilder` to make calls to the new `/liquidity_pools` endpoint, including filtering by reserve asset ([#682](https://github.com/stellar/js-stellar-sdk/pull/682)).
+
+### Update
+- Update `stellar-base` version to `6.0.1` ([#681](https://github.com/stellar/js-stellar-sdk/pull/681)).
 
 ### Fix
 - Updated various developer dependencies to secure versions ([#671](https://github.com/stellar/js-stellar-sdk/pull/671)).

@@ -28,6 +28,7 @@ import { EffectCallBuilder } from "./effect_call_builder";
 import { FriendbotBuilder } from "./friendbot_builder";
 import { Horizon } from "./horizon_api";
 import { LedgerCallBuilder } from "./ledger_call_builder";
+import { LiquidityPoolCallBuilder } from "./liquidity_pool_call_builder";
 import { OfferCallBuilder } from "./offer_call_builder";
 import { OperationCallBuilder } from "./operation_call_builder";
 import { OrderbookCallBuilder } from "./orderbook_call_builder";
@@ -575,6 +576,14 @@ export class Server {
    */
   public operations(): OperationCallBuilder {
     return new OperationCallBuilder(URI(this.serverURL as any));
+  }
+
+  /**
+   * @returns {LiquidityPoolCallBuilder} New {@link LiquidityPoolCallBuilder}
+   *     object configured to the current Horizon server settings.
+   */
+  public liquidityPools(): LiquidityPoolCallBuilder {
+    return new LiquidityPoolCallBuilder(URI(this.serverURL));
   }
 
   /**
