@@ -141,27 +141,33 @@ describe('/liquidity_pools tests', function() {
       });
     });
 
-    const poolResponse = {
-      "id": "ae44a51f6191ce24414fbd1326e93ccb0ae656f07fc1e37602b11d0802f74b9a",
-      "paging_token": "113725249324879873",
-      "fee_bp": 30,
-      "type": "constant_product",
-      "total_trustlines": "300",
-      "total_shares": "5000",
-      "reserves": [
-        {
-          "amount": "1000.0000005",
-          "asset": "EURT:GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S"
-        },
-        {
-          "amount": "2000.0000000",
-          "asset": "PHP:GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S"
-        },
-      ]
-    };
     const lpId = "ae44a51f6191ce24414fbd1326e93ccb0ae656f07fc1e37602b11d0802f74b9a";
 
+    it('checks for valid IDs', function() {
+      expect(() => this.server.liquidityPools().liquidityPoolId("nonsense")).to.throw();
+      expect(() => this.server.liquidityPools().liquidityPoolId(lpId)).not.to.throw();
+    });
+
     it('filters by specific ID', function(done) {
+      const poolResponse = {
+        "id": "ae44a51f6191ce24414fbd1326e93ccb0ae656f07fc1e37602b11d0802f74b9a",
+        "paging_token": "113725249324879873",
+        "fee_bp": 30,
+        "type": "constant_product",
+        "total_trustlines": "300",
+        "total_shares": "5000",
+        "reserves": [
+          {
+            "amount": "1000.0000005",
+            "asset": "EURT:GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S"
+          },
+          {
+            "amount": "2000.0000000",
+            "asset": "PHP:GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S"
+          },
+        ]
+      };
+
       this.axiosMock
         .expects('get')
         .withArgs(sinon.match(`${LP_URL}/${lpId}`))
@@ -176,10 +182,6 @@ describe('/liquidity_pools tests', function() {
           done();
         })
         .catch(done);
-    });
-
-    it('checks for valid IDs', function() {
-      expect(() => this.server.liquidityPools().liquidityPoolId("nonsense")).to.throw();
     });
   });
 });
