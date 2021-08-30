@@ -1844,6 +1844,7 @@ describe('server.js non-transaction tests', function() {
                 paging_token: '64199539053039617-0',
                 ledger_close_time: '2017-12-07T16:45:19Z',
                 offer_id: '278232',
+                trade_type: 'orderbook',
                 base_account:
                   'GB7JKG66CJN3ACX5DX43FOZTTSOI7GZUP547I3BSXIJVUX3NRYUXHE6W',
                 base_amount: '1269.2134875',
@@ -1855,7 +1856,11 @@ describe('server.js non-transaction tests', function() {
                 counter_asset_code: 'JPY',
                 counter_asset_issuer:
                   'GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM',
-                base_is_seller: true
+                base_is_seller: true,
+                price: {
+                  n: "1",
+                  d: "2"
+                }
               }
             ]
           }
@@ -1917,6 +1922,7 @@ describe('server.js non-transaction tests', function() {
                 paging_token: '64199539053039617-0',
                 ledger_close_time: '2017-12-07T16:45:19Z',
                 offer_id: '278232',
+                trade_type: 'orderbook',
                 base_account:
                   'GB7JKG66CJN3ACX5DX43FOZTTSOI7GZUP547I3BSXIJVUX3NRYUXHE6W',
                 base_amount: '1269.2134875',
@@ -1928,7 +1934,11 @@ describe('server.js non-transaction tests', function() {
                 counter_asset_code: 'JPY',
                 counter_asset_issuer:
                   'GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM',
-                base_is_seller: true
+                base_is_seller: true,
+                price: {
+                  n: "1",
+                  d: "2"
+                }
               }
             ]
           }
@@ -2001,6 +2011,7 @@ describe('server.js non-transaction tests', function() {
                 paging_token: '64199539053039617-0',
                 ledger_close_time: '2017-12-07T16:45:19Z',
                 offer_id: '278232',
+                trade_type: 'orderbook',
                 base_account:
                   'GB7JKG66CJN3ACX5DX43FOZTTSOI7GZUP547I3BSXIJVUX3NRYUXHE6W',
                 base_amount: '1269.2134875',
@@ -2012,7 +2023,11 @@ describe('server.js non-transaction tests', function() {
                 counter_asset_code: 'JPY',
                 counter_asset_issuer:
                   'GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM',
-                base_is_seller: true
+                base_is_seller: true,
+                price: {
+                  n: "1",
+                  d: "2"
+                }
               }
             ]
           }
@@ -2081,6 +2096,7 @@ describe('server.js non-transaction tests', function() {
                 id: '77434489365606401-1',
                 paging_token: '77434489365606401-1',
                 offer_id: '',
+                trade_type: 'orderbook',
                 seller:
                   'GBDTBUKFHJOEAFAVNPGIY65CBIH75DYEZ5VQXOE7YHZM7AJKDNEOW5JG',
                 sold_amount: '',
@@ -2158,6 +2174,7 @@ describe('server.js non-transaction tests', function() {
                 paging_token: '64199676491993090-0',
                 ledger_close_time: '2017-12-07T16:47:59Z',
                 offer_id: '278245',
+                trade_type: 'orderbook',
                 base_account:
                   'GBBHSWC3XSUFKEFDPQO346BCLM3EAJHICWRVSVIQOG4YBIH3A2VCJ6G2',
                 base_amount: '0.0000128',
@@ -2172,7 +2189,11 @@ describe('server.js non-transaction tests', function() {
                 counter_asset_code: 'ETH',
                 counter_asset_issuer:
                   'GBSTRH4QOTWNSVA6E4HFERETX4ZLSR3CIUBLK7AXYII277PFJC4BBYOG',
-                base_is_seller: false
+                base_is_seller: false,
+                price: {
+                  n: "1",
+                  d: "2"
+                }
               }
             ]
           }
@@ -2192,6 +2213,165 @@ describe('server.js non-transaction tests', function() {
           .order('asc')
           .limit('1')
           .cursor('64199539053039617-0')
+          .call()
+          .then(function(response) {
+            expect(response.records).to.be.deep.equal(
+              tradesResponse._embedded.records
+            );
+            done();
+          })
+          .catch(function(err) {
+            done(err);
+          });
+      });
+
+      it('trades() requests the correct endpoint for type orderbook', function(done) {
+        let tradesResponse = {
+          _links: {
+            self: {
+              href:
+                'https://horizon-live.stellar.org:1337/trades?order=asc&limit=200&trade_type=orderbook&cursor='
+            },
+            next: {
+              href:
+                'https://horizon-live.stellar.org:1337/trades?order=asc&limit=200&trade_type=orderbook&cursor=64199539053039617-0'
+            },
+            prev: {
+              href:
+                'https://horizon-live.stellar.org:1337/trades?order=desc&limit=200&trade_type=orderbook&cursor=64199539053039617-0'
+            }
+          },
+          _embedded: {
+            records: [
+              {
+                _links: {
+                  base: {
+                    href:
+                      'https://horizon-live.stellar.org:1337/accounts/GB7JKG66CJN3ACX5DX43FOZTTSOI7GZUP547I3BSXIJVUX3NRYUXHE6W'
+                  },
+                  counter: {
+                    href:
+                      'https://horizon-live.stellar.org:1337/accounts/GC6APVH2HCFB7QLSTG3U55IYSW7ZRNSCTOZZYZJCNHWX2FONCNJNULYN'
+                  },
+                  operation: {
+                    href:
+                      'https://horizon-live.stellar.org:1337/operations/64199539053039617'
+                  }
+                },
+                id: '64199539053039617-0',
+                paging_token: '64199539053039617-0',
+                ledger_close_time: '2017-12-07T16:45:19Z',
+                offer_id: '278232',
+                trade_type: 'orderbook',
+                base_account:
+                  'GB7JKG66CJN3ACX5DX43FOZTTSOI7GZUP547I3BSXIJVUX3NRYUXHE6W',
+                base_amount: '1269.2134875',
+                base_asset_type: 'native',
+                counter_account:
+                  'GC6APVH2HCFB7QLSTG3U55IYSW7ZRNSCTOZZYZJCNHWX2FONCNJNULYN',
+                counter_amount: '19637.5167985',
+                counter_asset_type: 'credit_alphanum4',
+                counter_asset_code: 'JPY',
+                counter_asset_issuer:
+                  'GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM',
+                base_is_seller: true,
+                price: {
+                  n: "1",
+                  d: "2"
+                }
+              }
+            ]
+          }
+        };
+
+        this.axiosMock
+          .expects('get')
+          .withArgs(sinon.match('https://horizon-live.stellar.org:1337/trades?trade_type=orderbook'))
+          .returns(Promise.resolve({ data: tradesResponse }));
+
+        this.server
+          .trades()
+          .forType('orderbook')
+          .call()
+          .then(function(response) {
+            expect(response.records).to.be.deep.equal(
+              tradesResponse._embedded.records
+            );
+            done();
+          })
+          .catch(function(err) {
+            done(err);
+          });
+      });
+      
+      it('trades() requests the correct endpoint for type liquidity_pool', function(done) {
+        let tradesResponse = {
+          _links: {
+            self: {
+              href:
+                'https://horizon-live.stellar.org:1337/trades?order=asc&limit=200&trade_type=liquidity_pool&cursor='
+            },
+            next: {
+              href:
+                'https://horizon-live.stellar.org:1337/trades?order=asc&limit=200&trade_type=liquidity_pool&cursor=64199539053039617-0'
+            },
+            prev: {
+              href:
+                'https://horizon-live.stellar.org:1337/trades?order=desc&limit=200&trade_type=liquidity_pool&cursor=64199539053039617-0'
+            }
+          },
+          _embedded: {
+            records: [
+              {
+                _links: {
+                  base: {
+                    href:
+                      'https://horizon-live.stellar.org:1337/accounts/GB7JKG66CJN3ACX5DX43FOZTTSOI7GZUP547I3BSXIJVUX3NRYUXHE6W'
+                  },
+                  counter: {
+                    href:
+                      'https://horizon-live.stellar.org:1337/liquidity_pool/dd7b1ab831c273310ddbec6f97870aa83c2fbd78ce22aded37ecbf4f3380fac7'
+                  },
+                  operation: {
+                    href:
+                      'https://horizon-live.stellar.org:1337/operations/64199539053039617'
+                  }
+                },
+                id: '64199539053039617-0',
+                paging_token: '64199539053039617-0',
+                ledger_close_time: '2017-12-07T16:45:19Z',
+                offer_id: '4616800602922426369',
+                trade_type: 'liquidity_pool',
+                liquidity_pool_fee_bp: 30,
+                base_account:
+                  'GB7JKG66CJN3ACX5DX43FOZTTSOI7GZUP547I3BSXIJVUX3NRYUXHE6W',
+                base_amount: '1269.2134875',
+                base_asset_type: 'native',
+                counter_liquidity_pool_id:
+                  'dd7b1ab831c273310ddbec6f97870aa83c2fbd78ce22aded37ecbf4f3380fac7',
+                counter_amount: '19637.5167985',
+                counter_asset_type: 'credit_alphanum4',
+                counter_asset_code: 'JPY',
+                counter_asset_issuer:
+                  'GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM',
+                base_is_seller: true,
+                price: {
+                  n: "1",
+                  d: "2"
+                }
+              }
+            ]
+          }
+        };
+
+        this.axiosMock
+          .expects('get')
+          .withArgs(sinon.match('https://horizon-live.stellar.org:1337/trades?trade_type=liquidity_pool'))
+          .returns(Promise.resolve({ data: tradesResponse }));
+
+        this.server
+          .trades()
+          .forType('liquidity_pool')
           .call()
           .then(function(response) {
             expect(response.records).to.be.deep.equal(

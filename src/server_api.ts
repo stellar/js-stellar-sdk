@@ -123,6 +123,11 @@ export namespace ServerApi {
       asset: string;
     };
   }
+  export enum TradeType {
+    all = "all",
+    liquidityPools = "liquidity_pools",
+    orderbook = "orderbook",
+  }
   interface EffectRecordMethods {
     operation?: CallFunction<OperationRecord>;
     precedes?: CallFunction<EffectRecord>;
@@ -297,29 +302,53 @@ export namespace ServerApi {
     | BeginSponsoringFutureReservesOperationRecord
     | EndSponsoringFutureReservesOperationRecord
     | RevokeSponsorshipOperationRecord;
-  export interface TradeRecord extends Horizon.BaseResponse {
-    id: string;
-    paging_token: string;
-    ledger_close_time: string;
-    offer_id: string;
-    base_offer_id: string;
-    base_account: string;
-    base_amount: string;
-    base_asset_type: string;
-    base_asset_code?: string;
-    base_asset_issuer?: string;
-    counter_offer_id: string;
-    counter_account: string;
-    counter_amount: string;
-    counter_asset_type: string;
-    counter_asset_code?: string;
-    counter_asset_issuer?: string;
-    base_is_seller: boolean;
 
-    base: CallFunction<AccountRecord>;
-    counter: CallFunction<AccountRecord>;
-    operation: CallFunction<OperationRecord>;
+  export namespace TradeRecord {
+    interface Base extends Horizon.BaseResponse {
+      id: string;
+      paging_token: string;
+      ledger_close_time: string;
+      offer_id: string;
+      trade_type: TradeType;
+      base_account?: string;
+      base_amount: string;
+      base_asset_type: string;
+      base_asset_code?: string;
+      base_asset_issuer?: string;
+      counter_account?: string;
+      counter_amount: string;
+      counter_asset_type: string;
+      counter_asset_code?: string;
+      counter_asset_issuer?: string;
+      base_is_seller: boolean;
+      price?: {
+        n: string;
+        d: string;
+      };
+
+      operation: CallFunction<OperationRecord>;
+    }
+    export interface Orderbook extends Base {
+      trade_type: TradeType.orderbook;
+      base_offer_id: string;
+      base_account: string;
+      counter_offer_id: string;
+      counter_account: string;
+
+      base: CallFunction<AccountRecord>;
+      counter: CallFunction<AccountRecord>;
+    }
+    export interface LiquidityPool extends Base {
+      trade_type: TradeType.liquidityPools;
+      base_liquidity_pool_id?: string;
+      counter_liquidity_pool_id?: string;
+      liquidity_pool_fee_bp: number;
+
+      base: CallFunction<AccountRecord | LiquidityPoolRecord>;
+      counter: CallFunction<AccountRecord | LiquidityPoolRecord>;
+    }
   }
+  export type TradeRecord = TradeRecord.Orderbook | TradeRecord.LiquidityPool;
   export interface TransactionRecord
     extends Omit<Horizon.TransactionResponse, "ledger"> {
     ledger_attr: Horizon.TransactionResponse["ledger"];
