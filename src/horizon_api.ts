@@ -63,6 +63,15 @@ export namespace Horizon {
     buying_liabilities: string;
     selling_liabilities: string;
   }
+  export interface BalanceLineLiquidityPool {
+    liquidity_pool_id: string;
+    asset_type: AssetType.liquidityPoolShares;
+    balance: string;
+    limit: string;
+    last_modified_ledger: number;
+    is_authorized: boolean;
+    is_authorized_to_maintain_liabilities: boolean;
+  }
   export interface BalanceLineAsset<
     T extends AssetType.credit4 | AssetType.credit12 =
       | AssetType.credit4
@@ -86,7 +95,9 @@ export namespace Horizon {
     ? BalanceLineNative
     : T extends AssetType.credit4 | AssetType.credit12
     ? BalanceLineAsset<T>
-    : BalanceLineNative | BalanceLineAsset;
+    : T extends AssetType.liquidityPoolShares
+    ? BalanceLineLiquidityPool
+    : BalanceLineNative | BalanceLineAsset | BalanceLineLiquidityPool;
 
   export interface AssetAccounts {
     authorized: number;
