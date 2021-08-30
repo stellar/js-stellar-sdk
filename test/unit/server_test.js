@@ -278,11 +278,13 @@ describe('server.js non-transaction tests', function() {
       },
       "balances": [
         {
-          "balance": "0.0000000",
-          "limit": "922337203685.4775807",
-          "asset_type": "credit_alphanum4",
-          "asset_code": "AAA",
-          "asset_issuer": "GAX4CUJEOUA27MDHTLSQCFRGQPEXCC6GMO2P2TZCG7IEBZIEGPOD6HKF"
+          "liquidity_pool_id": "dd7b1ab831c273310ddbec6f97870aa83c2fbd78ce22aded37ecbf4f3380fac7",
+          "asset_type": "liquidity_pool_shares",
+          "balance": "10",
+          "limit": "10000",
+          "last_modified_ledger": 7877447,
+          "is_authorized": false,
+          "is_authorized_to_maintain_liabilities": false
         },
         {
           "balance": "5000.0000000",
@@ -1574,7 +1576,7 @@ describe('server.js non-transaction tests', function() {
                 },
                 balances: [
                   {
-                    liquidity_pool_id: "abcdef",
+                    liquidity_pool_id: "dd7b1ab831c273310ddbec6f97870aa83c2fbd78ce22aded37ecbf4f3380fac7",
                     asset_type: "liquidity_pool_shares",
                     balance: "10",
                     limit: "10000",
