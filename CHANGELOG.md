@@ -14,6 +14,10 @@ A breaking change will get clearly marked in this log.
   * filtering by reserve asset via `?reserves=[...]` ([#682](https://github.com/stellar/js-stellar-sdk/pull/682)), and 
   * retrieving a specific pool via `/<id>/` ([#687](https://github.com/stellar/js-stellar-sdk/pull/687)).
 
+- Expands the `Operation`, `Transaction`, and `EffectsCallBuilder`s to allow querying for a specific liquidity pool by ID ([#689](https://github.com/stellar/js-stellar-sdk/pull/689)).
+
+- Expands the `Operation`, `Transaction`, and `EffectsCallBuilder`s to allow querying for a specific liquidity pool by ID ([#689](https://github.com/stellar/js-stellar-sdk/pull/689)).
+
 ### Updates
 
 - Update `stellar-base` version to `6.0.1` ([#681](https://github.com/stellar/js-stellar-sdk/pull/681)).
