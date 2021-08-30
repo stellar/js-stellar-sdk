@@ -86,10 +86,22 @@ export class OperationCallBuilder extends CallBuilder<
   }
 
   /**
-   * Adds a parameter defining whether to include failed transactions. By default only operations of
-   * successful transactions are returned.
+   * This endpoint represents all operations involving a particular liquidity pool.
+   *
+   * @param {string} poolId   liquidity pool ID
+   * @returns {OperationCallBuilder} this OperationCallBuilder instance
+   */
+  public forLiquidityPool(poolId: string): this {
+    this.filter.push(["liquidity_pools", poolId, "operations"]);
+    return this;
+  }
+
+  /**
+   * Adds a parameter defining whether to include failed transactions.
+   *   By default, only operations of successful transactions are returned.
+   *
    * @param {bool} value Set to `true` to include operations of failed transactions.
-   * @returns {TransactionCallBuilder} current TransactionCallBuilder instance
+   * @returns {OperationCallBuilder} this OperationCallBuilder instance
    */
   public includeFailed(value: boolean): this {
     this.url.setQuery("include_failed", value.toString());

@@ -68,4 +68,15 @@ export class EffectCallBuilder extends CallBuilder<
     this.filter.push(["operations", operationId, "effects"]);
     return this;
   }
+
+  /**
+   * This endpoint represents all effects involving a particular liquidity pool.
+   *
+   * @param {string} poolId   liquidity pool ID
+   * @returns {EffectCallBuilder} this EffectCallBuilder instance
+   */
+  public forLiquidityPool(poolId: string): this {
+    this.filter.push(["liquidity_pools", poolId, "effects"]);
+    return this;
+  }
 }
