@@ -57,6 +57,8 @@ export enum EffectType {
   claimable_balance_clawed_back = 80,
   liquidity_pool_deposited = 81,
   liquidity_pool_withdrew = 82,
+  liquidity_pool_trade = 83,
+  liquidity_pool_created = 84,
 }
 export interface BaseEffectRecord extends Horizon.BaseResponse {
   id: string;
@@ -285,4 +287,20 @@ export interface WithdrawLiquidityEffect extends BaseEffectRecord {
     },
   ];
   shares_redeemed: string;
+}
+export interface LiquidityPoolTradeEffect extends BaseEffectRecord {
+  type_i: EffectType.liquidity_pool_trade;
+  liquidity_pool: LiquidityPoolEffectRecord;
+  sold: {
+    asset: string;
+    amount: string;
+  };
+  bought: {
+    asset: string;
+    amount: string;
+  };
+}
+export interface LiquidityPoolCreatedEffect extends BaseEffectRecord {
+  type_i: EffectType.liquidity_pool_created;
+  liquidity_pool: LiquidityPoolEffectRecord;
 }
