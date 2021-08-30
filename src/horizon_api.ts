@@ -355,9 +355,13 @@ export namespace Horizon {
       OperationResponseType.changeTrust,
       OperationResponseTypeI.changeTrust
     > {
-    asset_type: AssetType.credit4 | AssetType.credit12;
-    asset_code: string;
-    asset_issuer: string;
+    asset_type:
+      | AssetType.credit4
+      | AssetType.credit12
+      | AssetType.liquidityPoolShares;
+    asset_code?: string;
+    asset_issuer?: string;
+    liquidity_pool_id?: string;
     trustee: string;
     trustor: string;
     limit: string;
