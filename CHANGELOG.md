@@ -23,7 +23,7 @@ A breaking change will get clearly marked in this log.
 ### Breaking changes
 
 - The response from `/trades` endpoint can now contain two different kinds of trades, `orderbook` and `liquidity_pool` (new), which brought a few breaking changes ([#685](https://github.com/stellar/js-stellar-sdk/pull/685)):
-  - Some previously mandatory fields were made into optional. `counter_offer_id`, `base_offer_id` will only show up in orderbook trades while only one of `base_account` and `counter_account` will appear in liquidity pool trades.
+  - Some previously mandatory fields were made optional: `counter_offer_id`, `base_offer_id` will only show up in orderbook trades while only one of `base_account` and `counter_account` will appear in liquidity pool trades.
   - The `price` field changed from `{n: number; d: number;}` to `{n: string; d: string;}`.
   - The links to "base" and "counter" returned from horizon can now point to either an account or a liquidity pool.
 
