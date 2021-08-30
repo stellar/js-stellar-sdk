@@ -27,8 +27,11 @@ A breaking change will get clearly marked in this log.
   - Some previously mandatory fields were made optional: `counter_offer_id`, `base_offer_id` will only show up in orderbook trades while only one of `base_account` and `counter_account` will appear in liquidity pool trades.
   - The `price` field changed from `{n: number; d: number;}` to `{n: string; d: string;}`.
   - The links to "base" and "counter" returned from horizon can now point to either an account or a liquidity pool.
+- The `balances` array from an account response now supports liquidity pool balances ([#688](https://github.com/stellar/js-stellar-sdk/pull/688)).
+  - the `asset_type` field can now be `liquidity_pool_shares`.
+  - `buying_liabilities`, `selling_liabilities`, `asset_code`, and `asset_issuer` are omited from the response for pool shares because they are not relevant to liquidity pools.
 - Update the `ChangeTrustOperationResponse` interface so it can conform to a change in a liquidity pool trustline ([#688](https://github.com/stellar/js-stellar-sdk/pull/688)).
-  - `asset_type` can now be `liquidity_pool_shares`
+  - `asset_type` can now be `liquidity_pool_shares`.
   - `asset_code` and `asset_issuer` are now optional.
   - Added `liquidity_pool_id` as an optional field.
 
