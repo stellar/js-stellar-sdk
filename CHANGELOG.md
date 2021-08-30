@@ -19,7 +19,7 @@ A breaking change will get clearly marked in this log.
   - There's a new field `trade_type` that can be either `orderbook` or `liquidity_pool`. You can filter by that field.
   - Liquidity pool trades will contain the field `liquidity_pool_fee_bp` and either `base_liquidity_pool_id` or `counter_liquidity_pool_id`.
   - There are a few breaking changes to this endpoint listed in the section below.
-- A new kind of trustline called `liquidity_pool_shares` was added and clients can now filter the results from the `/accounts` endpoint by `liquidity_pool`. This will include a new kind of trustline in the account `balances` array, causing a breaking change as described in the section below ([#687](https://github.com/stellar/js-stellar-sdk/pull/687)).
+- A new kind of trustline called `liquidity_pool_shares` was added and clients can now filter the results from the `/accounts` endpoint by `liquidity_pool`. This will include a new kind of trustline in the account `balances` array, causing a breaking change as described in the section below ([#688](https://github.com/stellar/js-stellar-sdk/pull/688)).
 
 ### Breaking changes
 
@@ -27,7 +27,7 @@ A breaking change will get clearly marked in this log.
   - Some previously mandatory fields were made optional: `counter_offer_id`, `base_offer_id` will only show up in orderbook trades while only one of `base_account` and `counter_account` will appear in liquidity pool trades.
   - The `price` field changed from `{n: number; d: number;}` to `{n: string; d: string;}`.
   - The links to "base" and "counter" returned from horizon can now point to either an account or a liquidity pool.
-- Update the `ChangeTrustOperationResponse` interface so it can conform to a change in a liquidity pool trustline ([#687](https://github.com/stellar/js-stellar-sdk/pull/687)).
+- Update the `ChangeTrustOperationResponse` interface so it can conform to a change in a liquidity pool trustline ([#688](https://github.com/stellar/js-stellar-sdk/pull/688)).
   - `asset_type` can now be `liquidity_pool_shares`
   - `asset_code` and `asset_issuer` are now optional.
   - Added `liquidity_pool_id` as an optional field.
