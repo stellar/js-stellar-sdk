@@ -27,7 +27,7 @@ export class LiquidityPoolCallBuilder extends CallBuilder<
    * @param {Asset[]} assets
    * @returns {LiquidityPoolCallBuilder} current LiquidityPoolCallBuilder instance
    */
-  public forAssets(...assets: Asset[]) {
+  public forAssets(...assets: Asset[]): this {
     const commaSeparatedAssets: string = assets
       .map((asset: Asset) => {
         return asset.toString();
@@ -35,5 +35,25 @@ export class LiquidityPoolCallBuilder extends CallBuilder<
       .join(",");
     this.url.setQuery("reserves", commaSeparatedAssets);
     return this;
+  }
+
+  /**
+   * Retrieves a specific liquidity pool by ID.
+   *
+   * @param  {string} id
+   * @returns {CallBuilder} a new CallBuilder instance for the /liquidity_pools/:id endpoint
+   */
+  public liquidityPoolId(
+    id: string,
+  ): CallBuilder<ServerApi.LiquidityPoolRecord> {
+    if (!id.match(/[a-fA-F0-9]{64}/)) {
+      throw new Error(`${id} does not look like a liquidity pool ID`);
+    }
+
+    const builder = new CallBuilder<ServerApi.LiquidityPoolRecord>(
+      this.url.clone(),
+    );
+    builder.filter.push([id.toLowerCase()]);
+    return builder;
   }
 }
