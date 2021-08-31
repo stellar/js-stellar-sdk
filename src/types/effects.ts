@@ -130,6 +130,7 @@ export interface SignerUpdated extends SignerEvents {
 }
 interface TrustlineEvents extends BaseEffectRecord, OfferAsset {
   limit: string;
+  liquidity_pool_id?: string;
 }
 export interface TrustlineCreated extends TrustlineEvents {
   type_i: EffectType.trustline_created;
@@ -193,7 +194,8 @@ export type AccountSponsorshipRemoved = Omit<
 interface TrustlineSponsorshipEvents
   extends BaseEffectRecord,
     SponsershipFields {
-  asset: string;
+  asset?: string;
+  liquidity_pool_id?: string;
 }
 export type TrustlineSponsorshipCreated = Omit<
   TrustlineSponsorshipEvents,

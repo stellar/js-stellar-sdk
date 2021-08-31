@@ -11,6 +11,7 @@ A breaking change will get clearly marked in this log.
 ### Add
 
 - Introduced a `LiquidityPoolCallBuilder` to make calls to the new `/liquidity_pools` endpoint, including filtering by reserve asset ([#682](https://github.com/stellar/js-stellar-sdk/pull/682)).
+- New effect types: `DepositLiquidityEffect`, `WithdrawLiquidityEffect`, `LiquidityPoolTradeEffect`, `LiquidityPoolCreatedEffect`, `LiquidityPoolRemovedEffect` and `LiquidityPoolRevokedEffect`.
 
 ### Updates
 
@@ -35,6 +36,8 @@ A breaking change will get clearly marked in this log.
   - `asset_type` can now be `liquidity_pool_shares`.
   - `asset_code` and `asset_issuer` are now optional.
   - Added `liquidity_pool_id` as an optional field.
+- Trustline created/updated/revoked effects' asset type can now be `liquidity_pool_shares`.
+- Trustline sponsorship effects have been updated so the `asset` becomes optional and is replaced with `liquidity_pool_id` for liquidity pools.
 
 ### Fix
 - Updated various developer dependencies to secure versions ([#671](https://github.com/stellar/js-stellar-sdk/pull/671)).
