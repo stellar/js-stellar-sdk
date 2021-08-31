@@ -191,13 +191,13 @@ describe('/liquidity_pools tests', function() {
     const poolOpsResponse = {
       "_links": {
         "self": {
-          "href": "https://private-33c60-amm3.apiary-mock.com/liquidity_pools/1/operations?cursor=113725249324879873&limit=10&order=asc"
+          "href": "https://private-33c60-amm3.apiary-mock.com/liquidity_pools/ae44a51f6191ce24414fbd1326e93ccb0ae656f07fc1e37602b11d0802f74b9a/operations?cursor=113725249324879873&limit=10&order=asc"
         },
         "next": {
-          "href": "https://private-33c60-amm3.apiary-mock.com/liquidity_pools/1/operations?cursor=113725249324879873&limit=10&order=asc"
+          "href": "https://private-33c60-amm3.apiary-mock.com/liquidity_pools/ae44a51f6191ce24414fbd1326e93ccb0ae656f07fc1e37602b11d0802f74b9a/operations?cursor=113725249324879873&limit=10&order=asc"
         },
         "prev": {
-          "href": "https://private-33c60-amm3.apiary-mock.com/liquidity_pools/1/operations?cursor=113725249324879873&limit=10&order=desc"
+          "href": "https://private-33c60-amm3.apiary-mock.com/liquidity_pools/ae44a51f6191ce24414fbd1326e93ccb0ae656f07fc1e37602b11d0802f74b9a/operations?cursor=113725249324879873&limit=10&order=desc"
         }
       },
       "_embedded": {
@@ -211,7 +211,7 @@ describe('/liquidity_pools tests', function() {
             "type_i": 22,
             "created_at": "2021-11-18T03:47:47Z",
             "transaction_hash": "43ed5ce19190822ec080b67c3ccbab36a56bc34102b1a21d3ee690ed3bc23378",
-            "liquidity_pool_id": "1",
+            "liquidity_pool_id": "ae44a51f6191ce24414fbd1326e93ccb0ae656f07fc1e37602b11d0802f74b9a",
             "reserves_max": [
               {
                 "asset": "JPY:GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM",
@@ -253,7 +253,7 @@ describe('/liquidity_pools tests', function() {
             "type_i": 23,
             "created_at": "2021-11-18T03:47:47Z",
             "transaction_hash": "43ed5ce19190822ec080b67c3ccbab36a56bc34102b1a21d3ee690ed3bc23378",
-            "liquidity_pool_id": "1",
+            "liquidity_pool_id": "ae44a51f6191ce24414fbd1326e93ccb0ae656f07fc1e37602b11d0802f74b9a",
             "reserves_min": [
               {
                 "asset": "EURT:GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S",
@@ -286,7 +286,7 @@ describe('/liquidity_pools tests', function() {
             "created_at": "2021-08-04T20:01:24Z",
             "transaction_hash": "941f2fa2101d1265696a3c7d35e7688cd210324114e96b64a386ab55f65e488f",
             "asset_type": "liquidity_pool_shares",
-            "liquidity_pool_id": "1",
+            "liquidity_pool_id": "ae44a51f6191ce24414fbd1326e93ccb0ae656f07fc1e37602b11d0802f74b9a",
             "limit": "1000",
             "trustor": "GBBWI7TEVQBPEUXKYNGI3GBAH7EHFEREONKK3UK56ZSLJIDIYHQJCVSG"
           },
@@ -334,13 +334,13 @@ describe('/liquidity_pools tests', function() {
     const poolTxsResponse = {
       "_links": {
         "self": {
-          "href": "https://private-33c60-amm3.apiary-mock.com/liquidity_pools/1/transactions?cursor=113725249324879873&limit=10&order=asc"
+          "href": "https://private-33c60-amm3.apiary-mock.com/liquidity_pools/ae44a51f6191ce24414fbd1326e93ccb0ae656f07fc1e37602b11d0802f74b9a/transactions?cursor=113725249324879873&limit=10&order=asc"
         },
         "next": {
-          "href": "https://private-33c60-amm3.apiary-mock.com/liquidity_pools/1/transactions?cursor=113725249324879873&limit=10&order=asc"
+          "href": "https://private-33c60-amm3.apiary-mock.com/liquidity_pools/ae44a51f6191ce24414fbd1326e93ccb0ae656f07fc1e37602b11d0802f74b9a/transactions?cursor=113725249324879873&limit=10&order=asc"
         },
         "prev": {
-          "href": "https://private-33c60-amm3.apiary-mock.com/liquidity_pools/1/transactions?cursor=113725249324879873&limit=10&order=desc"
+          "href": "https://private-33c60-amm3.apiary-mock.com/liquidity_pools/ae44a51f6191ce24414fbd1326e93ccb0ae656f07fc1e37602b11d0802f74b9a/transactions?cursor=113725249324879873&limit=10&order=desc"
         }
       },
       "_embedded": {
@@ -416,16 +416,16 @@ describe('/liquidity_pools tests', function() {
         .catch(done);
     });
 
-    const poolFxsResponse = {
+    const poolEffectsResponse = {
       "_links": {
         "self": {
-          "href": "https://private-33c60-amm3.apiary-mock.com/liquidity_pools?cursor=113725249324879873&limit=10&order=asc"
+          "href": "https://private-33c60-amm3.apiary-mock.com/liquidity_pools/ae44a51f6191ce24414fbd1326e93ccb0ae656f07fc1e37602b11d0802f74b9a/effects?cursor=113725249324879873&limit=10&order=asc"
         },
         "next": {
-          "href": "https://private-33c60-amm3.apiary-mock.com/liquidity_pools?cursor=113725249324879873&limit=10&order=asc"
+          "href": "https://private-33c60-amm3.apiary-mock.com/liquidity_pools/ae44a51f6191ce24414fbd1326e93ccb0ae656f07fc1e37602b11d0802f74b9a/effects?cursor=113725249324879873&limit=10&order=asc"
         },
         "prev": {
-          "href": "https://private-33c60-amm3.apiary-mock.com/liquidity_pools?cursor=113725249324879873&limit=10&order=asc"
+          "href": "https://private-33c60-amm3.apiary-mock.com/liquidity_pools/ae44a51f6191ce24414fbd1326e93ccb0ae656f07fc1e37602b11d0802f74b9a/effects?cursor=113725249324879873&limit=10&order=asc"
         }
       },
       "_embedded": {
@@ -659,14 +659,14 @@ describe('/liquidity_pools tests', function() {
       this.axiosMock
         .expects('get')
         .withArgs(sinon.match(`${LP_URL}/${lpId}/effects`))
-        .returns(Promise.resolve({ data: poolFxsResponse }))
+        .returns(Promise.resolve({ data: poolEffectsResponse }))
 
       this.server
         .effects()
         .forLiquidityPool(lpId)
         .call()
-        .then((poolFxs) => {
-          expect(poolFxs.records).to.deep.equal(poolFxsResponse._embedded.records);
+        .then((poolEffects) => {
+          expect(poolEffects.records).to.deep.equal(poolEffectsResponse._embedded.records);
           done();
         })
         .catch(done);
