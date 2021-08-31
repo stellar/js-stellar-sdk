@@ -699,7 +699,7 @@ describe('/liquidity_pools tests', function() {
             "type_i": 22,
             "created_at": "2021-11-18T03:47:47Z",
             "transaction_hash": "43ed5ce19190822ec080b67c3ccbab36a56bc34102b1a21d3ee690ed3bc23378",
-            "liquidity_pool_id": "1",
+            "liquidity_pool_id": "ae44a51f6191ce24414fbd1326e93ccb0ae656f07fc1e37602b11d0802f74b9a",
             "reserves_max": [
               {
                 "asset": "JPY:GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM",
