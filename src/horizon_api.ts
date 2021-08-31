@@ -467,6 +467,7 @@ export namespace Horizon {
     offer_id?: string;
     trustline_account_id?: string;
     trustline_asset?: string;
+    trustline_liquidity_pool_id?: string;
     signer_account_id?: string;
     signer_key?: string;
   }
