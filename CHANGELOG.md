@@ -44,6 +44,7 @@ A breaking change will get clearly marked in this log.
   - Added `liquidity_pool_id` as an optional field.
 - Trustline created/updated/revoked effects' asset type can now be `liquidity_pool_shares`.
 - Trustline sponsorship effects have been updated so the `asset` becomes optional and is replaced with `liquidity_pool_id` for liquidity pools.
+- The `trustee` attribute was made optional in the `ChangeTrustOperationResponse`.
 
 ### Fix
 - Updated various developer dependencies to secure versions ([#671](https://github.com/stellar/js-stellar-sdk/pull/671)).

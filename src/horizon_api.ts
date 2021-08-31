@@ -366,7 +366,7 @@ export namespace Horizon {
     asset_code?: string;
     asset_issuer?: string;
     liquidity_pool_id?: string;
-    trustee: string;
+    trustee?: string;
     trustor: string;
     limit: string;
   }
