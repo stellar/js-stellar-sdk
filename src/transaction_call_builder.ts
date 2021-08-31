@@ -15,7 +15,7 @@ export class TransactionCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.TransactionRecord>
 > {
   constructor(serverUrl: URI) {
-    super(serverUrl);
+    super(serverUrl, "transactions");
     this.url.segment("transactions");
   }
 
@@ -42,8 +42,7 @@ export class TransactionCallBuilder extends CallBuilder<
    * @returns {TransactionCallBuilder} current TransactionCallBuilder instance
    */
   public forAccount(accountId: string): this {
-    this.filter.push(["accounts", accountId, "transactions"]);
-    return this;
+    return this.forEndpoint("accounts", accountId);
   }
 
   /**
@@ -53,12 +52,7 @@ export class TransactionCallBuilder extends CallBuilder<
    * @returns {TransactionCallBuilder} this TransactionCallBuilder instance
    */
   public forClaimableBalance(claimableBalanceId: string): this {
-    this.filter.push([
-      "claimable_balances",
-      claimableBalanceId,
-      "transactions",
-    ]);
-    return this;
+    return this.forEndpoint("claimable_balances", claimableBalanceId);
   }
 
   /**
@@ -70,9 +64,7 @@ export class TransactionCallBuilder extends CallBuilder<
   public forLedger(sequence: number | string): this {
     const ledgerSequence =
       typeof sequence === "number" ? sequence.toString() : sequence;
-
-    this.filter.push(["ledgers", ledgerSequence, "transactions"]);
-    return this;
+    return this.forEndpoint("ledgers", ledgerSequence);
   }
 
   /**
@@ -82,8 +74,7 @@ export class TransactionCallBuilder extends CallBuilder<
    * @returns {TransactionCallBuilder} this TransactionCallBuilder instance
    */
   public forLiquidityPool(poolId: string): this {
-    this.filter.push(["liquidity_pools", poolId, "transactions"]);
-    return this;
+    return this.forEndpoint("liquidity_pools", poolId);
   }
 
   /**

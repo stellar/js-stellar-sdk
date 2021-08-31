@@ -86,7 +86,7 @@ gulp.task('test:watch', function() {
 gulp.task(
   'test:unit',
   gulp.series('build:node', function testUnit() {
-    return gulp.src(['test/test-nodejs.js', 'test/unit/liquidity_pool_endpoints_test.js']).pipe(
+    return gulp.src(['test/test-nodejs.js', 'test/unit/**/*.js']).pipe(
       plugins.mocha({
         reporter: ['spec']
       })

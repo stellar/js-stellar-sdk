@@ -15,7 +15,7 @@ export class EffectCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.EffectRecord>
 > {
   constructor(serverUrl: URI) {
-    super(serverUrl);
+    super(serverUrl, "effects");
     this.url.segment("effects");
   }
 
@@ -26,8 +26,7 @@ export class EffectCallBuilder extends CallBuilder<
    * @returns {EffectCallBuilder} this EffectCallBuilder instance
    */
   public forAccount(accountId: string): this {
-    this.filter.push(["accounts", accountId, "effects"]);
-    return this;
+    return this.forEndpoint("accounts", accountId);
   }
 
   /**
@@ -39,12 +38,10 @@ export class EffectCallBuilder extends CallBuilder<
    * @returns {EffectCallBuilder} this EffectCallBuilder instance
    */
   public forLedger(sequence: number | string): this {
-    this.filter.push([
+    return this.forEndpoint(
       "ledgers",
       typeof sequence === "number" ? sequence.toString() : sequence,
-      "effects",
-    ]);
-    return this;
+    );
   }
 
   /**
@@ -54,8 +51,7 @@ export class EffectCallBuilder extends CallBuilder<
    * @returns {EffectCallBuilder} this EffectCallBuilder instance
    */
   public forTransaction(transactionId: string): this {
-    this.filter.push(["transactions", transactionId, "effects"]);
-    return this;
+    return this.forEndpoint("transactions", transactionId);
   }
 
   /**
@@ -65,8 +61,7 @@ export class EffectCallBuilder extends CallBuilder<
    * @returns {EffectCallBuilder} this EffectCallBuilder instance
    */
   public forOperation(operationId: string): this {
-    this.filter.push(["operations", operationId, "effects"]);
-    return this;
+    return this.forEndpoint("operations", operationId);
   }
 
   /**
@@ -76,7 +71,6 @@ export class EffectCallBuilder extends CallBuilder<
    * @returns {EffectCallBuilder} this EffectCallBuilder instance
    */
   public forLiquidityPool(poolId: string): this {
-    this.filter.push(["liquidity_pools", poolId, "effects"]);
-    return this;
+    return this.forEndpoint("liquidity_pools", poolId);
   }
 }
