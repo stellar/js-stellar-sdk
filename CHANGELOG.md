@@ -8,16 +8,16 @@ A breaking change will get clearly marked in this log.
 
 ## [v9.0.0](https://github.com/stellar/js-stellar-sdk/compare/v8.2.5...v9.0.0)
 
-This release adds **support for Automated Market Makers**. For details, you can refer to [CAP-38](https://stellar.org/protocol/cap-38)) for XDR changes and [this document](https://docs.google.com/document/d/1pXL8kr1a2vfYSap9T67R-g72B_WWbaE1YsLMa04OgoU/view) for detailed changes to the Horizon API.
+This release adds **support for Automated Market Makers**. For details, you can refer to [CAP-38](https://stellar.org/protocol/cap-38) for XDR changes and [this document](https://docs.google.com/document/d/1pXL8kr1a2vfYSap9T67R-g72B_WWbaE1YsLMa04OgoU/view) for detailed changes to the Horizon API.
 
 
 ### Add
 
 - Introduced a `LiquidityPoolCallBuilder` to make calls to a new endpoint:
-  * `/liquidity_pools[?reserves=...]` - a collection of current liquidity pools, optionally filtered by one or more assets ([#682](https://github.com/stellar/js-stellar-sdk/pull/682)).
-  * `/liquidity_pools/:id` - a specific liquidity pool ([#687](https://github.com/stellar/js-stellar-sdk/pull/687)).
+  * `/liquidity_pools[?reserves=...]` - a collection of liquidity pools, optionally filtered by one or more assets ([#682](https://github.com/stellar/js-stellar-sdk/pull/682))
+  * `/liquidity_pools/:id` - a specific liquidity pool ([#687](https://github.com/stellar/js-stellar-sdk/pull/687))
 
-- Expanded the `OperationCallBuilder`, `TransactionCallBuilder`, and `EffectsCallBuilder`s to apply to specific liquidity pools ([#689](https://github.com/stellar/js-stellar-sdk/pull/689)). This corresponds to the following new endpoints:
+- Expanded the `TransactionCallBuilder`, `OperationCallBuilder`, and `EffectsCallBuilder`s to apply to specific liquidity pools ([#689](https://github.com/stellar/js-stellar-sdk/pull/689)). This corresponds to the following new endpoints:
   * `/liquidity_pools/:id/transactions`
   * `/liquidity_pools/:id/operations`
   * `/liquidity_pools/:id/effects`
@@ -28,7 +28,7 @@ This release adds **support for Automated Market Makers**. For details, you can 
     - `liquidity_pool_fee_bp`: LP fee expressed in basis points, and *either*
     - `base_liquidity_pool_id` or `counter_liquidity_pool_id`
 
-- New effects related to liquidity pools ([#690](https://github.com/stellar/js-stellar-sdk/pull/690)):
+- Added new effects related to liquidity pools ([#690](https://github.com/stellar/js-stellar-sdk/pull/690)):
   * `DepositLiquidityEffect`
   * `WithdrawLiquidityEffect`
   * `LiquidityPoolTradeEffect`
@@ -36,32 +36,32 @@ This release adds **support for Automated Market Makers**. For details, you can 
   * `LiquidityPoolRemovedEffect`
   * `LiquidityPoolRevokedEffect`
 
-- New responses related to liquidity pool operations ([#692](https://github.com/stellar/js-stellar-sdk/pull/692)):
+- Added new responses related to liquidity pool operations ([#692](https://github.com/stellar/js-stellar-sdk/pull/692)):
   * `DepositLiquidityOperationResponse`
   * `WithdrawLiquidityOperationResponse`
 
 ### Updates
 
-- The underlying `stellar-base` library has been updated to [v6.0.1](https://github.com/stellar/js-stellar-base/releases/tag/v6.0.1) to include CAP-38 features ([#681](https://github.com/stellar/js-stellar-sdk/pull/681)).
+- Updated the underlying `stellar-base` library to [v6.0.1](https://github.com/stellar/js-stellar-base/releases/tag/v6.0.1) to include CAP-38 changes ([#681](https://github.com/stellar/js-stellar-sdk/pull/681)).
 
-- `AccountResponse` has been updated to include liquidity pool shares in its `balances` field ([#688](https://github.com/stellar/js-stellar-sdk/pull/688)).
+- Updated `AccountResponse` to include liquidity pool shares in its `balances` field ([#688](https://github.com/stellar/js-stellar-sdk/pull/688)).
 
-- `AccountCallBuilder` has been updated to allow filtering based on participation in a certain liquidity pool ([#688](https://github.com/stellar/js-stellar-sdk/pull/688)), corresponding to the following new filter:
+- Updated `AccountCallBuilder` to allow filtering based on participation in a certain liquidity pool ([#688](https://github.com/stellar/js-stellar-sdk/pull/688)), corresponding to the following new filter:
   * `/accounts?reserves=[...list of assets...]`
 
-- `RevokeSponsorshipOperationResponse` has been updated to contain an optional attribute `trustline_liquidity_pool_id`, for when a liquidity pool trustline is revoked ([#690](https://github.com/stellar/js-stellar-sdk/pull/690)).
+- Updated `RevokeSponsorshipOperationResponse` to contain an optional attribute `trustline_liquidity_pool_id`, for when a liquidity pool trustline is revoked ([#690](https://github.com/stellar/js-stellar-sdk/pull/690)).
 
 ### Breaking changes
 
 - A `TradeRecord` can now correspond to two different types of trades and has changed ([#685](https://github.com/stellar/js-stellar-sdk/pull/685)):
-  * `Orderbook` (existing)
+  * `Orderbook` (the existing structure)
     - `counter_offer_id` and `base_offer_id` only show up in these records
   * `LiquidityPool` (new)
     - `base_account` xor `counter_account` will appear in these records
-  * `price` fields changed from `number` to `string`
-  * The links to `base` and `counter` can now point to either an account or a liquidity pool
+  * `price` fields changed from `number`s to `string`s
+  * The links to `base` and `counter` can now point to *either* an account or a liquidity pool
 
-- The account `balances` now include a new type and have changed: ([#688](https://github.com/stellar/js-stellar-sdk/pull/688)).
+- An account's `balances` array can now include a new type ([#688](https://github.com/stellar/js-stellar-sdk/pull/688)):
   * `asset_type` can now be `liquidity_pool_shares`
   * The following fields are *not* included in pool share balances:
     - `buying_liabilities`
