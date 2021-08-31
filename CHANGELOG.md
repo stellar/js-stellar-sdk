@@ -15,8 +15,9 @@ A breaking change will get clearly marked in this log.
   - retrieving a specific pool via `/<id>/` ([#687](https://github.com/stellar/js-stellar-sdk/pull/687)).
 
 - Expands the `Operation`, `Transaction`, and `Effects` call builders to allow querying for a specific liquidity pool by ID ([#689](https://github.com/stellar/js-stellar-sdk/pull/689)).
-- New effect types: `DepositLiquidityEffect`, `WithdrawLiquidityEffect`, `LiquidityPoolTradeEffect`, `LiquidityPoolCreatedEffect`, `LiquidityPoolRemovedEffect` and `LiquidityPoolRevokedEffect`.
+- New effect types: `DepositLiquidityEffect`, `WithdrawLiquidityEffect`, `LiquidityPoolTradeEffect`, `LiquidityPoolCreatedEffect`, `LiquidityPoolRemovedEffect` and `LiquidityPoolRevokedEffect` ([#690](https://github.com/stellar/js-stellar-sdk/pull/690)).
 - The `RevokeSponsorshipOperationResponse` interface can now contain an optional attribute `trustline_liquidity_pool_id` for when a liquidity pool trustline is revoked.
+- Add operations `DepositLiquidityOperationResponse` and `WithdrawLiquidityOperationResponse`  ([#692](https://github.com/stellar/js-stellar-sdk/pull/692)).
 
 ### Updates
 
@@ -41,8 +42,9 @@ A breaking change will get clearly marked in this log.
   - `asset_type` can now be `liquidity_pool_shares`.
   - `asset_code` and `asset_issuer` are now optional.
   - Added `liquidity_pool_id` as an optional field.
-- Trustline created/updated/revoked effects' asset type can now be `liquidity_pool_shares`.
-- Trustline sponsorship effects have been updated so the `asset` becomes optional and is replaced with `liquidity_pool_id` for liquidity pools.
+- Trustline created/updated/revoked effects' asset type can now be `liquidity_pool_shares` ([#690](https://github.com/stellar/js-stellar-sdk/pull/690)).
+- Trustline sponsorship effects have been updated so the `asset` becomes optional and is replaced with `liquidity_pool_id` for liquidity pools ([#690](https://github.com/stellar/js-stellar-sdk/pull/690)).
+- The `trustee` attribute was made optional in the `ChangeTrustOperationResponse` ([#692](https://github.com/stellar/js-stellar-sdk/pull/692)).
 
 ### Fix
 - Updated various developer dependencies to secure versions ([#671](https://github.com/stellar/js-stellar-sdk/pull/671)).
