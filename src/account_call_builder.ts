@@ -67,4 +67,15 @@ export class AccountCallBuilder extends CallBuilder<
     this.url.setQuery("sponsor", id);
     return this;
   }
+
+  /**
+   * This endpoint filters accounts holding a trustline to the given liquidity pool.
+   *
+   * @param {string} id The ID of the liquidity pool. For example: `dd7b1ab831c273310ddbec6f97870aa83c2fbd78ce22aded37ecbf4f3380fac7`.
+   * @returns {AccountCallBuilder} current AccountCallBuilder instance
+   */
+  public forLiquidityPool(id: string): this {
+    this.url.setQuery("liquidity_pool", id);
+    return this;
+  }
 }

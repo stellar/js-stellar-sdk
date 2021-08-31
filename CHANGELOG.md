@@ -19,6 +19,8 @@ A breaking change will get clearly marked in this log.
   - There's a new field `trade_type` that can be either `orderbook` or `liquidity_pool`. You can filter by that field.
   - Liquidity pool trades will contain the field `liquidity_pool_fee_bp` and either `base_liquidity_pool_id` or `counter_liquidity_pool_id`.
   - There are a few breaking changes to this endpoint listed in the section below.
+- A new type of trustline called `liquidity_pool_shares` was added, which is included in the account `balances` array and causes a breaking change (see below) ([#688](https://github.com/stellar/js-stellar-sdk/pull/688)).
+- Clients can now filter the results from the `/accounts` endpoint based on participation in a certain liquidity pool ([#688](https://github.com/stellar/js-stellar-sdk/pull/688)).
 
 ### Breaking changes
 
@@ -26,6 +28,13 @@ A breaking change will get clearly marked in this log.
   - Some previously mandatory fields were made optional: `counter_offer_id`, `base_offer_id` will only show up in orderbook trades while only one of `base_account` and `counter_account` will appear in liquidity pool trades.
   - The `price` field changed from `{n: number; d: number;}` to `{n: string; d: string;}`.
   - The links to "base" and "counter" returned from horizon can now point to either an account or a liquidity pool.
+- The `balances` array from an account response now supports liquidity pool balances ([#688](https://github.com/stellar/js-stellar-sdk/pull/688)).
+  - the `asset_type` field can now be `liquidity_pool_shares`.
+  - `buying_liabilities`, `selling_liabilities`, `asset_code`, and `asset_issuer` are omitted from the response for pool shares because they are not relevant to liquidity pools.
+- Update the `ChangeTrustOperationResponse` interface so it can conform to a change in a liquidity pool trustline ([#688](https://github.com/stellar/js-stellar-sdk/pull/688)).
+  - `asset_type` can now be `liquidity_pool_shares`.
+  - `asset_code` and `asset_issuer` are now optional.
+  - Added `liquidity_pool_id` as an optional field.
 
 ### Fix
 - Updated various developer dependencies to secure versions ([#671](https://github.com/stellar/js-stellar-sdk/pull/671)).

@@ -239,6 +239,7 @@ describe("server.js check-memo-required", function() {
 
       const usd = new StellarSdk.Asset("USD", "GBBM6BKZPEHWYO3E3YKREDPQXMS4VK35YLNU7NFBRI26RAN7GI5POFBB");
       const eur = new StellarSdk.Asset("EUR", "GDTNXRLOJD2YEBPKK7KCMR7J33AAG5VZXHAJTHIG736D6LVEFLLLKPDL");
+      const liquidityPoolAsset = new StellarSdk.LiquidityPoolAsset(eur, usd, 30);
 
       let operations = [
         StellarSdk.Operation.accountMerge({
@@ -262,6 +263,9 @@ describe("server.js check-memo-required", function() {
         }),
         StellarSdk.Operation.changeTrust({
           asset: usd
+        }),
+        StellarSdk.Operation.changeTrust({
+          asset: liquidityPoolAsset
         })
       ];
 

@@ -278,11 +278,13 @@ describe('server.js non-transaction tests', function() {
       },
       "balances": [
         {
-          "balance": "0.0000000",
-          "limit": "922337203685.4775807",
-          "asset_type": "credit_alphanum4",
-          "asset_code": "AAA",
-          "asset_issuer": "GAX4CUJEOUA27MDHTLSQCFRGQPEXCC6GMO2P2TZCG7IEBZIEGPOD6HKF"
+          "liquidity_pool_id": "dd7b1ab831c273310ddbec6f97870aa83c2fbd78ce22aded37ecbf4f3380fac7",
+          "asset_type": "liquidity_pool_shares",
+          "balance": "10",
+          "limit": "10000",
+          "last_modified_ledger": 7877447,
+          "is_authorized": false,
+          "is_authorized_to_maintain_liabilities": false
         },
         {
           "balance": "5000.0000000",
@@ -1507,6 +1509,154 @@ describe('server.js non-transaction tests', function() {
           });
       });
 
+      it('adds a "liquidity_pool" filter to the endpoint', function(done) {
+        const accountsForAssetResponse = {
+          _links: {
+            self: {
+              href: '/accounts?liquidity_pool=dd7b1ab831c273310ddbec6f97870aa83c2fbd78ce22aded37ecbf4f3380fac7&cursor=&limit=10&order=asc'
+            },
+            next: {
+              href: '/accounts?liquidity_pool=dd7b1ab831c273310ddbec6f97870aa83c2fbd78ce22aded37ecbf4f3380fac7&cursor=GC4J73PTB5WN7MOJWOAECPHRCV2UU3WCY37L3BNY6RZVKE23JGQYJMJ6&limit=10&order=asc'
+            },
+            prev: {
+              href: '/accounts?liquidity_pool=dd7b1ab831c273310ddbec6f97870aa83c2fbd78ce22aded37ecbf4f3380fac7&cursor=GBPFGVESMB7HSTQREV354WA4UDGAPS2NCB5DZQ7K2VZM3PSX4TDCV667&limit=10&order=desc'
+            }
+          },
+          _embedded: {
+            records: [
+              {
+                _links: {
+                  self: {
+                    href: '/accounts/GBPFGVESMB7HSTQREV354WA4UDGAPS2NCB5DZQ7K2VZM3PSX4TDCV667'
+                  },
+                  transactions: {
+                    href: '/accounts/GBPFGVESMB7HSTQREV354WA4UDGAPS2NCB5DZQ7K2VZM3PSX4TDCV667/transactions{?cursor,limit,order}',
+                    templated: true
+                  },
+                  operations: {
+                    href: '/accounts/GBPFGVESMB7HSTQREV354WA4UDGAPS2NCB5DZQ7K2VZM3PSX4TDCV667/operations{?cursor,limit,order}',
+                    templated: true
+                  },
+                  payments: {
+                    href: '/accounts/GBPFGVESMB7HSTQREV354WA4UDGAPS2NCB5DZQ7K2VZM3PSX4TDCV667/payments{?cursor,limit,order}',
+                    templated: true
+                  },
+                  effects: {
+                    href: '/accounts/GBPFGVESMB7HSTQREV354WA4UDGAPS2NCB5DZQ7K2VZM3PSX4TDCV667/effects{?cursor,limit,order}',
+                    templated: true
+                  },
+                  offers: {
+                    href: '/accounts/GBPFGVESMB7HSTQREV354WA4UDGAPS2NCB5DZQ7K2VZM3PSX4TDCV667/offers{?cursor,limit,order}',
+                    templated: true
+                  },
+                  trades: {
+                    href: '/accounts/GBPFGVESMB7HSTQREV354WA4UDGAPS2NCB5DZQ7K2VZM3PSX4TDCV667/trades{?cursor,limit,order}',
+                    templated: true
+                  },
+                  data: {
+                    href: '/accounts/GBPFGVESMB7HSTQREV354WA4UDGAPS2NCB5DZQ7K2VZM3PSX4TDCV667/data/{key}',
+                    templated: true
+                  }
+                },
+                id: 'GBPFGVESMB7HSTQREV354WA4UDGAPS2NCB5DZQ7K2VZM3PSX4TDCV667',
+                account_id: 'GBPFGVESMB7HSTQREV354WA4UDGAPS2NCB5DZQ7K2VZM3PSX4TDCV667',
+                sequence: '3902600558673934',
+                subentry_count: 3,
+                last_modified_ledger: 983682,
+                thresholds: {
+                  low_threshold: 0,
+                  med_threshold: 0,
+                  high_threshold: 0
+                },
+                flags: {
+                  auth_required: false,
+                  auth_revocable: false,
+                  auth_immutable: false,
+                  auth_clawback_enabled: false
+                },
+                balances: [
+                  {
+                    liquidity_pool_id: "dd7b1ab831c273310ddbec6f97870aa83c2fbd78ce22aded37ecbf4f3380fac7",
+                    asset_type: "liquidity_pool_shares",
+                    balance: "10",
+                    limit: "10000",
+                    last_modified_ledger: 7877447,
+                    is_authorized: true,
+                    is_authorized_to_maintain_liabilities: false,
+                    is_clawback_enabled: false
+                  },
+                  {
+                    balance: '0.0000000',
+                    limit: '922337203685.4775807',
+                    buying_liabilities: '0.0000000',
+                    selling_liabilities: '0.0000000',
+                    last_modified_ledger: 983682,
+                    is_authorized: true,
+                    is_authorized_to_maintain_liabilities: false,
+                    is_clawback_enabled: false,
+                    asset_type: 'credit_alphanum4',
+                    asset_code: 'ARST',
+                    asset_issuer: 'GB7TAYRUZGE6TVT7NHP5SMIZRNQA6PLM423EYISAOAP3MKYIQMVYP2JO'
+                  },
+                  {
+                    balance: '0.0000000',
+                    limit: '922337203685.4775807',
+                    buying_liabilities: '0.0000000',
+                    selling_liabilities: '0.0000000',
+                    last_modified_ledger: 983682,
+                    is_authorized: true,
+                    is_authorized_to_maintain_liabilities: false,
+                    is_clawback_enabled: false,
+                    asset_type: 'credit_alphanum4',
+                    asset_code: 'USD',
+                    asset_issuer: 'GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ'
+                  },
+                  {
+                    balance: '9999.9998600',
+                    buying_liabilities: '0.0000000',
+                    selling_liabilities: '0.0000000',
+                    asset_type: 'native'
+                  }
+                ],
+                signers: [
+                  {
+                    weight: 1,
+                    key: 'GBPFGVESMB7HSTQREV354WA4UDGAPS2NCB5DZQ7K2VZM3PSX4TDCV667',
+                    type: 'ed25519_public_key'
+                  }
+                ],
+                data: {},
+                paging_token: 'GBPFGVESMB7HSTQREV354WA4UDGAPS2NCB5DZQ7K2VZM3PSX4TDCV667'
+              }
+            ]
+          }
+        };
+
+        this.axiosMock
+          .expects('get')
+          .withArgs(
+            sinon.match(
+              'https://horizon-live.stellar.org:1337/accounts?liquidity_pool=dd7b1ab831c273310ddbec6f97870aa83c2fbd78ce22aded37ecbf4f3380fac7'
+            )
+          )
+          .returns(Promise.resolve({ data: accountsForAssetResponse }));
+
+        this.server
+          .accounts()
+          .forLiquidityPool('dd7b1ab831c273310ddbec6f97870aa83c2fbd78ce22aded37ecbf4f3380fac7')
+          .call()
+          .then(function(response) {
+            expect(response.records).to.be.deep.equal(
+              accountsForAssetResponse._embedded.records
+            );
+            expect(response.next).to.be.function;
+            expect(response.prev).to.be.function;
+            done();
+          })
+          .catch(function(err) {
+            done(err);
+          });
+      });
     });
 
     describe('OfferCallBuilder', function() {
