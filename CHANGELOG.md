@@ -69,9 +69,9 @@ This release adds **support for Automated Market Makers**. For details, you can 
     - `asset_code`
     - `asset_issue`
 
-- The `ChangeTrustOperationResponse` has changed ([#688](https://github.com/stellar/js-stellar-sdk/pull/688)):
+- The `ChangeTrustOperationResponse` has changed ([#688](https://github.com/stellar/js-stellar-sdk/pull/688), [#692](https://github.com/stellar/js-stellar-sdk/pull/692)):
   * `asset_type` can now be `liquidity_pool_shares`
-  * `asset_code` and `asset_issuer` are now optional
+  * `asset_code`, `asset_issuer`, and `trustee` are now optional
   * `liquidity_pool_id` is a new optional field
 
 - The trustline effects (`TrustlineCreated`, `TrustlineUpdated`, `TrustlineRevoked`) have changed ([#690](https://github.com/stellar/js-stellar-sdk/pull/690)):
@@ -81,9 +81,6 @@ This release adds **support for Automated Market Makers**. For details, you can 
 - Trustline sponsorship effects (`TrustlineSponsorshipCreated`, `TrustlineSponsorshipUpdated`, `TrustlineSponsorshipRemoved`) have been updated ([#690](https://github.com/stellar/js-stellar-sdk/pull/690)): 
   * the `asset` field is now optional, and is replaced by
   * the `liquidity_pool_id` field for liquidity pools
-
-- The `ChangeTrustOperationResponse` has changed ([#692](https://github.com/stellar/js-stellar-sdk/pull/692)):
-  * the `trustee` field is now optional
 
 ### Fix
 - Updated various developer dependencies to secure versions ([#671](https://github.com/stellar/js-stellar-sdk/pull/671)).
