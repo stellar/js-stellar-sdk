@@ -260,6 +260,9 @@ export class CallBuilder<
    * @returns {CallBuilder} this CallBuilder instance
    */
   protected forEndpoint(endpoint: string, param: string): this {
+    if (this.neighborRoot === "") {
+      throw new Error("Invalid usage: neighborRoot not set in constructor");
+    }
     this.filter.push([endpoint, param, this.neighborRoot]);
     return this;
   }
