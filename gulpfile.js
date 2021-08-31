@@ -86,7 +86,7 @@ gulp.task('test:watch', function() {
 gulp.task(
   'test:unit',
   gulp.series('build:node', function testUnit() {
-    return gulp.src(['test/test-nodejs.js', 'test/unit/**/*.js']).pipe(
+    return gulp.src(['test/test-nodejs.js', 'test/unit/liquidity_pool_endpoints_test.js']).pipe(
       plugins.mocha({
         reporter: ['spec']
       })
@@ -158,6 +158,8 @@ gulp.task(
   gulp.series('build:node', 'test:init-istanbul', function testIntegration() {
     return gulp
       .src([
+        'test/test-nodejs.js',
+        'test/unit/**/*.js',
         'test/integration/**/*.js'
       ])
       .pipe(
@@ -177,7 +179,7 @@ gulp.task('build', gulp.series('clean', 'build:node', 'build:browser'));
 
 gulp.task(
   'test',
-  gulp.series('clean', 'test:unit', 'test:browser', 'test:integration', function test(done) {
+  gulp.series('clean', 'test:unit', 'test:browser', function test(done) {
     done();
   })
 );
