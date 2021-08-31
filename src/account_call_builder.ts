@@ -26,7 +26,7 @@ export class AccountCallBuilder extends CallBuilder<
    *
    * @see [Account Details](https://www.stellar.org/developers/horizon/reference/endpoints/accounts-single.html)
    * @param {string} id For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
-   * @returns {CallBuilder} current AccountCallBuilder instance
+   * @returns {CallBuilder} a new CallBuilder instance for the /accounts/:id endpoint
    */
   public accountId(id: string): CallBuilder<ServerApi.AccountRecord> {
     const builder = new CallBuilder<ServerApi.AccountRecord>(this.url.clone());

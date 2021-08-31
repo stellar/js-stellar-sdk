@@ -53,7 +53,11 @@ export class TransactionCallBuilder extends CallBuilder<
    * @returns {TransactionCallBuilder} this TransactionCallBuilder instance
    */
   public forClaimableBalance(claimableBalanceId: string): this {
-    this.filter.push(["claimable_balances", claimableBalanceId, "transactions"]);
+    this.filter.push([
+      "claimable_balances",
+      claimableBalanceId,
+      "transactions",
+    ]);
     return this;
   }
 
@@ -68,6 +72,17 @@ export class TransactionCallBuilder extends CallBuilder<
       typeof sequence === "number" ? sequence.toString() : sequence;
 
     this.filter.push(["ledgers", ledgerSequence, "transactions"]);
+    return this;
+  }
+
+  /**
+   * This endpoint represents all transactions involving a particular liquidity pool.
+   *
+   * @param {string} poolId   liquidity pool ID
+   * @returns {TransactionCallBuilder} this TransactionCallBuilder instance
+   */
+  public forLiquidityPool(poolId: string): this {
+    this.filter.push(["liquidity_pools", poolId, "transactions"]);
     return this;
   }
 
