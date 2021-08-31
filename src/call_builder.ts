@@ -50,11 +50,13 @@ export class CallBuilder<
   protected url: URI;
   public filter: string[][];
   protected originalSegments: string[];
+  protected neighborRoot: string;
 
-  constructor(serverUrl: URI) {
+  constructor(serverUrl: URI, neighborRoot: string = "") {
     this.url = serverUrl.clone();
     this.filter = [];
     this.originalSegments = this.url.segment() || [];
+    this.neighborRoot = neighborRoot;
   }
 
   /**
@@ -239,6 +241,26 @@ export class CallBuilder<
    */
   public join(include: "transactions"): this {
     this.url.setQuery("join", include);
+    return this;
+  }
+
+  /**
+   * A helper method to craft queries to "neighbor" endpoints.
+   *
+   *  For example, we have an `/effects` suffix endpoint on many different
+   *  "root" endpoints, such as `/transactions/:id` and `/accounts/:id`. So,
+   *  it's helpful to be able to conveniently create queries to the
+   *  `/accounts/:id/effects` endpoint:
+   *
+   *    this.forEndpoint("accounts", accountId)`.
+   *
+   * @param  {string} endpoint neighbor endpoint in question, like /operations
+   * @param  {string} param    filter parameter, like an operation ID
+   *
+   * @returns {CallBuilder} this CallBuilder instance
+   */
+  protected forEndpoint(endpoint: string, param: string): this {
+    this.filter.push([endpoint, param, this.neighborRoot]);
     return this;
   }
 
