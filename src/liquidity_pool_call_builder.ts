@@ -28,12 +28,10 @@ export class LiquidityPoolCallBuilder extends CallBuilder<
    * @returns {LiquidityPoolCallBuilder} current LiquidityPoolCallBuilder instance
    */
   public forAssets(...assets: Asset[]): this {
-    const commaSeparatedAssets: string = assets
-      .map((asset: Asset) => {
-        return asset.toString();
-      })
+    const assetList: string = assets
+      .map((asset: Asset) => asset.toString())
       .join(",");
-    this.url.setQuery("reserves", commaSeparatedAssets);
+    this.url.setQuery("reserves", assetList);
     return this;
   }
 
