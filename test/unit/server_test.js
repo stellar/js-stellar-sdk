@@ -1509,7 +1509,7 @@ describe('server.js non-transaction tests', function() {
           });
       });
 
-      it('adds an "liquidity_pool" query to the endpoint', function(done) {
+      it('adds a "liquidity_pool" filter to the endpoint', function(done) {
         const accountsForAssetResponse = {
           _links: {
             self: {
