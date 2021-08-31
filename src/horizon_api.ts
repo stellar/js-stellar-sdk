@@ -71,6 +71,7 @@ export namespace Horizon {
     last_modified_ledger: number;
     is_authorized: boolean;
     is_authorized_to_maintain_liabilities: boolean;
+    is_clawback_enabled: boolean;
   }
   export interface BalanceLineAsset<
     T extends AssetType.credit4 | AssetType.credit12 =
@@ -87,6 +88,7 @@ export namespace Horizon {
     last_modified_ledger: number;
     is_authorized: boolean;
     is_authorized_to_maintain_liabilities: boolean;
+    is_clawback_enabled: boolean;
     sponsor?: string;
   }
   export type BalanceLine<
