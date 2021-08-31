@@ -17,6 +17,7 @@ A breaking change will get clearly marked in this log.
 - Expands the `Operation`, `Transaction`, and `Effects` call builders to allow querying for a specific liquidity pool by ID ([#689](https://github.com/stellar/js-stellar-sdk/pull/689)).
 - New effect types: `DepositLiquidityEffect`, `WithdrawLiquidityEffect`, `LiquidityPoolTradeEffect`, `LiquidityPoolCreatedEffect`, `LiquidityPoolRemovedEffect` and `LiquidityPoolRevokedEffect`.
 - The `RevokeSponsorshipOperationResponse` interface can now contain an optional attribute `trustline_liquidity_pool_id` for when a liquidity pool trustline is revoked.
+- Add operations `DepositLiquidityOperationResponse` and `WithdrawLiquidityOperationResponse`.
 
 ### Updates
 
