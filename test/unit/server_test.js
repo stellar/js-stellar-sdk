@@ -1581,8 +1581,9 @@ describe('server.js non-transaction tests', function() {
                     balance: "10",
                     limit: "10000",
                     last_modified_ledger: 7877447,
-                    is_authorized: false,
-                    is_authorized_to_maintain_liabilities: false
+                    is_authorized: true,
+                    is_authorized_to_maintain_liabilities: false,
+                    is_clawback_enabled: false
                   },
                   {
                     balance: '0.0000000',
@@ -1591,6 +1592,8 @@ describe('server.js non-transaction tests', function() {
                     selling_liabilities: '0.0000000',
                     last_modified_ledger: 983682,
                     is_authorized: true,
+                    is_authorized_to_maintain_liabilities: false,
+                    is_clawback_enabled: false,
                     asset_type: 'credit_alphanum4',
                     asset_code: 'ARST',
                     asset_issuer: 'GB7TAYRUZGE6TVT7NHP5SMIZRNQA6PLM423EYISAOAP3MKYIQMVYP2JO'
@@ -1602,6 +1605,8 @@ describe('server.js non-transaction tests', function() {
                     selling_liabilities: '0.0000000',
                     last_modified_ledger: 983682,
                     is_authorized: true,
+                    is_authorized_to_maintain_liabilities: false,
+                    is_clawback_enabled: false,
                     asset_type: 'credit_alphanum4',
                     asset_code: 'USD',
                     asset_issuer: 'GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ'
