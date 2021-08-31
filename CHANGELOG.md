@@ -22,7 +22,7 @@ This release adds **support for Automated Market Makers**. For details, you can 
   * `/liquidity_pools/:id/operations`
   * `/liquidity_pools/:id/effects`
 
-- Expanded the `TradesCallBuilder` to support making liquidity pool trades and accepts a new `trade_type` filter ([#685](https://github.com/stellar/js-stellar-sdk/pull/685)):
+- Expanded the `TradesCallBuilder` to support fetching liquidity pool trades and accepts a new `trade_type` filter ([#685](https://github.com/stellar/js-stellar-sdk/pull/685)):
   * `/trades?trade_type={orderbook,liquidity_pools}`
   * A liquidity pool trade contains the following fields:
     - `liquidity_pool_fee_bp`: LP fee expressed in basis points, and *either*
