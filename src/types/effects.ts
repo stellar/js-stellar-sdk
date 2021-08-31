@@ -257,52 +257,35 @@ export type SignerSponsorshipRemoved = Omit<
   SignerSponsorshipEvents,
   "new_sponsor" | "sponsor"
 > & { type_i: EffectType.signer_sponsorship_removed };
+export interface Reserve {
+  asset: string;
+  amount: string;
+}
 export interface LiquidityPoolEffectRecord extends Horizon.BaseResponse {
   id: string;
   fee_bp: number;
   type: Horizon.LiquidityPoolType;
   total_trustlines: string;
   total_shares: string;
-  reserves: [
-    {
-      amount: string;
-      asset: string;
-    },
-  ];
+  reserves: Reserve[];
 }
 export interface DepositLiquidityEffect extends BaseEffectRecord {
   type_i: EffectType.liquidity_pool_deposited;
   liquidity_pool: LiquidityPoolEffectRecord;
-  reserves_deposited: [
-    {
-      asset: string;
-      amount: string;
-    },
-  ];
+  reserves_deposited: Reserve[];
   shares_received: string;
 }
 export interface WithdrawLiquidityEffect extends BaseEffectRecord {
   type_i: EffectType.liquidity_pool_withdrew;
   liquidity_pool: LiquidityPoolEffectRecord;
-  reserves_received: [
-    {
-      asset: string;
-      amount: string;
-    },
-  ];
+  reserves_received: Reserve[];
   shares_redeemed: string;
 }
 export interface LiquidityPoolTradeEffect extends BaseEffectRecord {
   type_i: EffectType.liquidity_pool_trade;
   liquidity_pool: LiquidityPoolEffectRecord;
-  sold: {
-    asset: string;
-    amount: string;
-  };
-  bought: {
-    asset: string;
-    amount: string;
-  };
+  sold: Reserve;
+  bought: Reserve;
 }
 export interface LiquidityPoolCreatedEffect extends BaseEffectRecord {
   type_i: EffectType.liquidity_pool_created;
