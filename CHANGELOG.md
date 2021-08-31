@@ -40,7 +40,6 @@ This release adds **support for Automated Market Makers**. For details, you can 
   * `DepositLiquidityOperationResponse`
   * `WithdrawLiquidityOperationResponse`
 
-
 ### Updates
 
 - The underlying `stellar-base` library has been updated to [v6.0.1](https://github.com/stellar/js-stellar-base/releases/tag/v6.0.1) to include CAP-38 features ([#681](https://github.com/stellar/js-stellar-sdk/pull/681)).
@@ -85,7 +84,6 @@ This release adds **support for Automated Market Makers**. For details, you can 
 
 - The `ChangeTrustOperationResponse` has changed ([#692](https://github.com/stellar/js-stellar-sdk/pull/692)):
   * the `trustee` field is now optional
-
 
 ### Fix
 - Updated various developer dependencies to secure versions ([#671](https://github.com/stellar/js-stellar-sdk/pull/671)).

@@ -71,6 +71,7 @@ export namespace Horizon {
     last_modified_ledger: number;
     is_authorized: boolean;
     is_authorized_to_maintain_liabilities: boolean;
+    is_clawback_enabled: boolean;
   }
   export interface BalanceLineAsset<
     T extends AssetType.credit4 | AssetType.credit12 =
@@ -87,6 +88,7 @@ export namespace Horizon {
     last_modified_ledger: number;
     is_authorized: boolean;
     is_authorized_to_maintain_liabilities: boolean;
+    is_clawback_enabled: boolean;
     sponsor?: string;
   }
   export type BalanceLine<
@@ -191,6 +193,8 @@ export namespace Horizon {
     clawback = "clawback",
     clawbackClaimableBalance = "clawback_claimable_balance",
     setTrustLineFlags = "set_trust_line_flags",
+    liquidityPoolDeposit = "liquidity_pool_deposit",
+    liquidityPoolWithdraw = "liquidity_pool_withdraw",
   }
   export enum OperationResponseTypeI {
     createAccount = 0,
@@ -215,6 +219,8 @@ export namespace Horizon {
     clawback = 19,
     clawbackClaimableBalance = 20,
     setTrustLineFlags = 21,
+    liquidityPoolDeposit = 22,
+    liquidityPoolWithdraw = 23,
   }
   export interface BaseOperationResponse<
     T extends OperationResponseType = OperationResponseType,
@@ -362,7 +368,7 @@ export namespace Horizon {
     asset_code?: string;
     asset_issuer?: string;
     liquidity_pool_id?: string;
-    trustee: string;
+    trustee?: string;
     trustor: string;
     limit: string;
   }
@@ -503,6 +509,34 @@ export namespace Horizon {
     trustor: string;
     set_flags: Array<1 | 2 | 4>;
     clear_flags: Array<1 | 2 | 4>;
+  }
+  export interface Reserve {
+    asset: string;
+    amount: string;
+  }
+  export interface DepositLiquidityOperationResponse
+    extends BaseOperationResponse<
+      OperationResponseType.liquidityPoolDeposit,
+      OperationResponseTypeI.liquidityPoolDeposit
+    > {
+    liquidity_pool_id: string;
+    reserves_max: Reserve[];
+    min_price: string;
+    min_price_r: PriceRShorthand;
+    max_price: string;
+    max_price_r: PriceRShorthand;
+    reserves_deposited: Reserve[];
+    shares_received: string;
+  }
+  export interface WithdrawLiquidityOperationResponse
+    extends BaseOperationResponse<
+      OperationResponseType.liquidityPoolWithdraw,
+      OperationResponseTypeI.liquidityPoolWithdraw
+    > {
+    liquidity_pool_id: string;
+    reserves_min: Reserve[];
+    shares: string;
+    reserves_received: Reserve[];
   }
 
   export interface ResponseCollection<T extends BaseResponse = BaseResponse> {
