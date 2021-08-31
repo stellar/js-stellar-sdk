@@ -12,6 +12,7 @@ A breaking change will get clearly marked in this log.
 
 - Introduced a `LiquidityPoolCallBuilder` to make calls to the new `/liquidity_pools` endpoint, including filtering by reserve asset ([#682](https://github.com/stellar/js-stellar-sdk/pull/682)).
 - New effect types: `DepositLiquidityEffect`, `WithdrawLiquidityEffect`, `LiquidityPoolTradeEffect`, `LiquidityPoolCreatedEffect`, `LiquidityPoolRemovedEffect` and `LiquidityPoolRevokedEffect`.
+- The `RevokeSponsorshipOperationResponse` interface can now contain an optional attribute `trustline_liquidity_pool_id` for when a liquidity pool trustline is revoked.
 
 ### Updates
 
