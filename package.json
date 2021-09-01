@@ -132,6 +132,7 @@
     "@types/urijs": "^1.19.6",
     "axios": "0.21.1",
     "bignumber.js": "^4.0.0",
+    "chai-http": "^4.3.0",
     "detect-node": "^2.0.4",
     "es6-promise": "^4.2.4",
     "eventsource": "^1.0.7",
