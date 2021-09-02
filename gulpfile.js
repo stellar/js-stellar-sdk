@@ -159,8 +159,8 @@ gulp.task(
     return gulp
       .src([
         'test/test-nodejs.js',
-        // 'test/unit/**/*.js',
-        'test/integration/apiary.js'
+        'test/unit/**/*.js',
+        'test/integration/**/*.js'
       ])
       .pipe(
         plugins.mocha({
