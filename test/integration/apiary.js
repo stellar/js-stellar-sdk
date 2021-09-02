@@ -31,7 +31,7 @@ describe("tests the /liquidity_pools endpoint", function() {
       });
   });
 
-  it('GET /<id>/', function(done) {
+  it('GET /<id>', function(done) {
     let server = new StellarSdk.Server(MOCK_SERVER, {allowHttp: true});
 
     chai.request(MOCK_SERVER)
@@ -97,6 +97,84 @@ describe("tests the /liquidity_pools endpoint", function() {
             .catch((err) => done(err));
         });
     });
+  });
+});
+
+describe("tests the /accounts endpoint", function() {
+  it('GET /', function(done) {
+    let server = new StellarSdk.Server(MOCK_SERVER, {allowHttp: true});
+
+    chai.request(MOCK_SERVER)
+      .get("/accounts")
+      .end(function(err, res) {
+        if (err != null) return done(err);
+        expect(res.body).not.to.be.null;
+
+        server
+          .accounts()
+          .call()
+          .then((resp) => {
+            expect(resp.records).to.deep.equal(res.body._embedded.records);
+          }).catch((err) => done(err));
+
+        done();
+      });
+  });
+
+  it('GET /?liquidity_pool=<id>', function(done) {
+    let server = new StellarSdk.Server(MOCK_SERVER, {allowHttp: true});
+    const lpId = "0569b19c75d7ecadce50501fffad6fe8ba4652455df9e1cc96dc408141124dd5";
+
+    chai.request(MOCK_SERVER)
+      .get("/accounts")
+      .query({liquidity_pool: lpId})
+      .end(function(err, res) {
+        if (err != null) return done(err);
+        expect(res.body).not.to.be.null;
+
+        server
+          .accounts()
+          .forLiquidityPool(lpId)
+          .call()
+          .then((resp) => {
+            expect(resp.records).to.deep.equal(res.body._embedded.records);
+            done();
+          }).catch((err) => done(err));
+      });
+  });
+
+  it('GET /<id>', function(done) {
+    let server = new StellarSdk.Server(MOCK_SERVER, {allowHttp: true});
+    const accountId = "GDQNY3PBOJOKYZSRMK2S7LHHGWZIUISD4QORETLMXEWXBI7KFZZMKTL3";
+
+    chai.request(MOCK_SERVER)
+      .get(`/accounts/${accountId}`)
+      .end(function(err, res) {
+        if (err != null) return done(err);
+        expect(res.body).not.to.be.null;
+
+        server
+          .accounts()
+          .accountId(accountId)
+          .call()
+          .then((resp) => {
+            expect(resp).to.deep.equal(res.body);
+
+            // find the pool share balance(s)
+            const poolShares = resp.balances
+              .filter((b) => b.asset_type === "liquidity_pool_shares");
+
+            expect(poolShares).to.have.lengthOf(1);
+            poolShares.forEach((poolShare) => {
+              expect(poolShare.buying_liabilities).to.be.undefined;
+              expect(poolShare.selling_liabilities).to.be.undefined;
+              expect(poolShare.asset_code).to.be.undefined;
+              expect(poolShare.asset_issuer).to.be.undefined;
+            });
+
+            done();
+          }).catch((err) => done(err));
+      });
   });
 });
 
