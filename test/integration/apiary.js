@@ -3,7 +3,6 @@
 
 // All endpoints from here are tested:
 // https://docs.google.com/document/d/1pXL8kr1a2vfYSap9T67R-g72B_WWbaE1YsLMa04OgoU/edit
-
 const MOCK_SERVER = "http://private-anon-a06e1b25a0-ammmock.apiary-mock.com";
 
 describe("tests the /liquidity_pools endpoint", function() {
@@ -15,19 +14,17 @@ describe("tests the /liquidity_pools endpoint", function() {
     chai.request(MOCK_SERVER)
       .get("/liquidity_pools")
       .end(function(err, res) {
-        if (err != null) {
-          done(err);
-        }
+        if (err != null) done(err);
         expect(res.body).not.to.be.null;
 
         server
           .liquidityPools()
           .call()
-          .then((resp) => {
+          .then(resp => {
             expect(resp.records).to.deep.equal(res.body._embedded.records);
             done();
           })
-          .catch((err) => done(err));
+          .catch(err => done(err));
       });
   });
 
@@ -37,20 +34,18 @@ describe("tests the /liquidity_pools endpoint", function() {
     chai.request(MOCK_SERVER)
       .get(`/liquidity_pools/${lpId}`)
       .end(function(err, res) {
-        if (err != null) {
-          done(err);
-        }
+        if (err != null) done(err);
         expect(res.body).not.to.be.null;
 
         server
           .liquidityPools()
           .liquidityPoolId(lpId)
           .call()
-          .then((resp) => {
+          .then(resp => {
             expect(resp).to.deep.equal(res.body);
             done();
           })
-          .catch((err) => done(err));
+          .catch(err => done(err));
       });
   });
 
@@ -72,7 +67,7 @@ describe("tests the /liquidity_pools endpoint", function() {
           testCases[suffix]
             .forLiquidityPool(lpId)
             .call()
-            .then((resp) => {
+            .then(resp => {
               resp.records.forEach((record, i) => {
                 // In an ideal world, we'd do a `.deep.equal(...)` here against
                 // the server response. However, these methods provide
@@ -94,7 +89,7 @@ describe("tests the /liquidity_pools endpoint", function() {
               });
               done();
             })
-            .catch((err) => done(err));
+            .catch(err => done(err));
         });
     });
   });
@@ -113,9 +108,9 @@ describe("tests the /accounts endpoint", function() {
         server
           .accounts()
           .call()
-          .then((resp) => {
+          .then(resp => {
             expect(resp.records).to.deep.equal(res.body._embedded.records);
-          }).catch((err) => done(err));
+          }).catch(err => done(err));
 
         done();
       });
@@ -136,10 +131,10 @@ describe("tests the /accounts endpoint", function() {
           .accounts()
           .forLiquidityPool(lpId)
           .call()
-          .then((resp) => {
+          .then(resp => {
             expect(resp.records).to.deep.equal(res.body._embedded.records);
             done();
-          }).catch((err) => done(err));
+          }).catch(err => done(err));
       });
   });
 
@@ -157,23 +152,22 @@ describe("tests the /accounts endpoint", function() {
           .accounts()
           .accountId(accountId)
           .call()
-          .then((resp) => {
-            expect(resp).to.deep.equal(res.body);
-
+          .then(resp => {
             // find the pool share balance(s)
             const poolShares = resp.balances
-              .filter((b) => b.asset_type === "liquidity_pool_shares");
+              .filter(b => b.asset_type === "liquidity_pool_shares");
 
             expect(poolShares).to.have.lengthOf(1);
-            poolShares.forEach((poolShare) => {
+            poolShares.forEach(poolShare => {
               expect(poolShare.buying_liabilities).to.be.undefined;
               expect(poolShare.selling_liabilities).to.be.undefined;
               expect(poolShare.asset_code).to.be.undefined;
               expect(poolShare.asset_issuer).to.be.undefined;
             });
 
+            expect(resp).to.deep.equal(res.body);
             done();
-          }).catch((err) => done(err));
+          }).catch(err => done(err));
       });
   });
 });
@@ -181,8 +175,8 @@ describe("tests the /accounts endpoint", function() {
 // isSubsetOf returns true if all of the `needles` array is part of `haystack`.
 function isSubsetOf(haystack, needles) {
   return needles
-    .map((item) => haystack.indexOf(item) !== -1)
-    .reduce((failed, value) => failed && value, true);
+    .map(item => haystack.indexOf(item) !== -1)       // found the needle?
+    .reduce((hasFailed, b) => hasFailed && b, true);  // were all found?
 }
 
 describe('isSubsetOf works', function() {
@@ -197,7 +191,7 @@ describe('isSubsetOf works', function() {
     { values: [], expected: true },
   ];
 
-  testCases.forEach((test) => {
+  testCases.forEach(test => {
     it(`[${test.values}] should be ${test.expected}`, function() {
       expect(isSubsetOf(masterArray, test.values)).to.equal(test.expected);
     });
