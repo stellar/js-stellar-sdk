@@ -23,6 +23,6 @@ jobs:
         run: gulp
 
       - name: Publish npm package
-        run: npm unpublish v9.0.0 && yarn publish --tag beta
+        run: npm unpublish stellar-sdk@v9.0.0 && yarn publish --tag beta
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
