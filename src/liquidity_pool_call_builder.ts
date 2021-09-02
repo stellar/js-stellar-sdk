@@ -21,7 +21,7 @@ export class LiquidityPoolCallBuilder extends CallBuilder<
   }
 
   /**
-   * Filters out liquidity pools whose reserves aren't in this list of assets.
+   * Filters out pools whose reserves don't exactly match these assets.
    *
    * @see Asset
    * @param {Asset[]} assets

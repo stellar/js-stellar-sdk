@@ -115,7 +115,7 @@ describe('/liquidity_pools tests', function() {
         response: phpResponse,
       }, {
         assets: [EURT, PHP],
-        response: rootResponse,
+        response: phpResponse,
       },
     ];
 
