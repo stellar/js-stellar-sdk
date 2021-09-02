@@ -3,6 +3,8 @@
 
 // All endpoints from here are tested:
 // https://docs.google.com/document/d/1pXL8kr1a2vfYSap9T67R-g72B_WWbaE1YsLMa04OgoU/edit
+const _ = require("lodash");
+
 const MOCK_SERVER = "http://private-anon-a06e1b25a0-ammmock.apiary-mock.com";
 
 describe("tests the /liquidity_pools endpoint", function() {
@@ -65,23 +67,17 @@ describe("tests the /liquidity_pools endpoint", function() {
             .call()
             .then(resp => {
               resp.records.forEach((record, i) => {
-                // In an ideal world, we'd do a `.deep.equal(...)` here against
-                // the server response. However, these methods provide
-                // convenience methods that cause them to not perfectly align
-                // with the server response.
-                //
-                // For example, transaction responses include the ledger number,
-                // but this is attached to the `ledger_attr` field in a
-                // `TransactionRecord`, while `ledger` is a function that
-                // corresponds to a `LedgerCallBuilder`.
-                //
-                // For this reason, we do a "best effort" validity check by at
-                // least ensuring that the response objects have *at least* all
-                // of the keys in the server response.
-                expect(isSubsetOf(
-                  Object.keys(record),
-                  Object.keys(res.body._embedded.records[i])
-                )).to.be.true;
+                let expectedRecord = res.body._embedded.records[i];
+
+                // TransactionRecord values don't map 1-to-1 to the JSON (see
+                // e.g. the ledger vs. ledger_attr properties), so we do a "best
+                // effort" validation by checking that at least the keys exist.
+                if (suffix === "transactions") {
+                  record = Object.keys(record);
+                  expectedRecord = Object.keys(expectedRecord);
+                }
+
+                expect(_.isMatch(record, expectedRecord)).to.be.true;
               });
               done();
             })
@@ -163,31 +159,5 @@ describe("tests the /accounts endpoint", function() {
             done();
           }).catch(err => done(err));
       });
-  });
-});
-
-// isSubsetOf returns true if all of the `needles` array is part of `haystack`.
-function isSubsetOf(haystack, needles) {
-  return needles
-    .map(item => haystack.indexOf(item) !== -1)       // found the needle?
-    .reduce((hasFailed, b) => hasFailed && b, true);  // were all found?
-}
-
-describe('isSubsetOf works', function() {
-  const masterArray = ['a', 'b', 'c'];
-
-  const testCases = [
-    { values: ['a'], expected: true },
-    { values: ['a', 'b'], expected: true },
-    { values: ['z'], expected: false },
-    { values: ['a', 'z'], expected: false },
-    { values: ['a', 'b', 'c', 'z'], expected: false },
-    { values: [], expected: true },
-  ];
-
-  testCases.forEach(test => {
-    it(`[${test.values}] should be ${test.expected}`, function() {
-      expect(isSubsetOf(masterArray, test.values)).to.equal(test.expected);
-    });
   });
 });
