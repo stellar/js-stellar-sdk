@@ -308,7 +308,6 @@ export namespace ServerApi {
       id: string;
       paging_token: string;
       ledger_close_time: string;
-      offer_id: string;
       trade_type: TradeType;
       base_account?: string;
       base_amount: string;
