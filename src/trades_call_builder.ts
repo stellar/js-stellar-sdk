@@ -16,7 +16,7 @@ export class TradesCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.TradeRecord>
 > {
   constructor(serverUrl: URI) {
-    super(serverUrl);
+    super(serverUrl, "trades");
     this.url.segment("trades");
   }
 
@@ -71,7 +71,6 @@ export class TradesCallBuilder extends CallBuilder<
    * @returns {TradesCallBuilder} current TradesCallBuilder instance
    */
   public forAccount(accountId: string): this {
-    this.filter.push(["accounts", accountId, "trades"]);
-    return this;
+    return this.forEndpoint("accounts", accountId);
   }
 }

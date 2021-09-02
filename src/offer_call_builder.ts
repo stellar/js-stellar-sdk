@@ -16,7 +16,7 @@ export class OfferCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.OfferRecord>
 > {
   constructor(serverUrl: URI) {
-    super(serverUrl);
+    super(serverUrl, "offers");
     this.url.segment("offers");
   }
 
@@ -41,8 +41,7 @@ export class OfferCallBuilder extends CallBuilder<
    * @returns {OfferCallBuilder} current OfferCallBuilder instance
    */
   public forAccount(id: string): this {
-    this.filter.push(["accounts", id, "offers"]);
-    return this;
+    return this.forEndpoint("accounts", id);
   }
 
   /**
