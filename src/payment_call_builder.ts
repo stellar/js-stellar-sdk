@@ -37,7 +37,7 @@ export class PaymentCallBuilder extends CallBuilder<
   public forLedger(sequence: number | string): this {
     return this.forEndpoint(
       "ledgers",
-      typeof sequence === "number" ? sequence.toString() : sequence,
+      sequence.toString(),
     );
   }
 
