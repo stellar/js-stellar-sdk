@@ -15,7 +15,7 @@ export class LedgerCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.LedgerRecord>
 > {
   constructor(serverUrl: URI) {
-    super(serverUrl, "ledgers");
+    super(serverUrl);
     this.url.segment("ledgers");
   }
 
@@ -25,6 +25,7 @@ export class LedgerCallBuilder extends CallBuilder<
    * @returns {LedgerCallBuilder} current LedgerCallBuilder instance
    */
   public ledger(sequence: number | string): this {
-    return this.forEndpoint("ledgers", sequence.toString());
+    this.filter.push(["ledgers", sequence.toString()]);
+    return this;
   }
 }
