@@ -16,7 +16,7 @@ export class TradesCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.TradeRecord>
 > {
   constructor(serverUrl: URI) {
-    super(serverUrl);
+    super(serverUrl, "trades");
     this.url.segment("trades");
   }
 
@@ -55,13 +55,22 @@ export class TradesCallBuilder extends CallBuilder<
   }
 
   /**
+   * Filter trades by a specific type.
+   * @param {ServerApi.TradeType} tradeType the trade type to filter by.
+   * @returns {TradesCallBuilder} current TradesCallBuilder instance.
+   */
+  public forType(tradeType: ServerApi.TradeType): this {
+    this.url.setQuery("trade_type", tradeType);
+    return this;
+  }
+
+  /**
    * Filter trades for a specific account
    * @see [Trades for Account](https://www.stellar.org/developers/horizon/reference/endpoints/trades-for-account.html)
    * @param {string} accountId For example: `GBYTR4MC5JAX4ALGUBJD7EIKZVM7CUGWKXIUJMRSMK573XH2O7VAK3SR`
    * @returns {TradesCallBuilder} current TradesCallBuilder instance
    */
   public forAccount(accountId: string): this {
-    this.filter.push(["accounts", accountId, "trades"]);
-    return this;
+    return this.forEndpoint("accounts", accountId);
   }
 }

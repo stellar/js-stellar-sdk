@@ -2,10 +2,83 @@
 
 A breaking change will get clearly marked in this log.
 
+
 ## Unreleased
 
-### Fix
+### Add
+
+- Introduced a `LiquidityPoolCallBuilder` to make calls to a new endpoint:
+  * `/liquidity_pools[?reserves=...]` - a collection of liquidity pools, optionally filtered by one or more assets ([#682](https://github.com/stellar/js-stellar-sdk/pull/682))
+  * `/liquidity_pools/:id` - a specific liquidity pool ([#687](https://github.com/stellar/js-stellar-sdk/pull/687))
+
+- Expanded the `TransactionCallBuilder`, `OperationCallBuilder`, and `EffectsCallBuilder`s to apply to specific liquidity pools ([#689](https://github.com/stellar/js-stellar-sdk/pull/689)). This corresponds to the following new endpoints:
+  * `/liquidity_pools/:id/transactions`
+  * `/liquidity_pools/:id/operations`
+  * `/liquidity_pools/:id/effects`
+
+- Expanded the `TradesCallBuilder` to support fetching liquidity pool trades and accepts a new `trade_type` filter ([#685](https://github.com/stellar/js-stellar-sdk/pull/685)):
+  * `/trades?trade_type={orderbook,liquidity_pools}`
+  * A liquidity pool trade contains the following fields:
+    - `liquidity_pool_fee_bp`: LP fee expressed in basis points, and *either*
+    - `base_liquidity_pool_id` or `counter_liquidity_pool_id`
+
+- Added new effects related to liquidity pools ([#690](https://github.com/stellar/js-stellar-sdk/pull/690)):
+  * `DepositLiquidityEffect`
+  * `WithdrawLiquidityEffect`
+  * `LiquidityPoolTradeEffect`
+  * `LiquidityPoolCreatedEffect`
+  * `LiquidityPoolRemovedEffect`
+  * `LiquidityPoolRevokedEffect`
+
+- Added new responses related to liquidity pool operations ([#692](https://github.com/stellar/js-stellar-sdk/pull/692)):
+  * `DepositLiquidityOperationResponse`
+  * `WithdrawLiquidityOperationResponse`
+
+### Updates
+
+- Updated the underlying `stellar-base` library to [v6.0.1](https://github.com/stellar/js-stellar-base/releases/tag/v6.0.1) to include CAP-38 changes ([#681](https://github.com/stellar/js-stellar-sdk/pull/681)).
+
 - Updated various developer dependencies to secure versions ([#671](https://github.com/stellar/js-stellar-sdk/pull/671)).
+
+- Updated `AccountResponse` to include liquidity pool shares in its `balances` field ([#688](https://github.com/stellar/js-stellar-sdk/pull/688)).
+
+- Updated `AccountCallBuilder` to allow filtering based on participation in a certain liquidity pool ([#688](https://github.com/stellar/js-stellar-sdk/pull/688)), corresponding to the following new filter:
+  * `/accounts?reserves=[...list of assets...]`
+
+- Updated `RevokeSponsorshipOperationResponse` to contain an optional attribute `trustline_liquidity_pool_id`, for when a liquidity pool trustline is revoked ([#690](https://github.com/stellar/js-stellar-sdk/pull/690)).
+
+### Breaking changes
+
+- A `TradeRecord` can now correspond to two different types of trades and has changed ([#685](https://github.com/stellar/js-stellar-sdk/pull/685)):
+  * `Orderbook` (the existing structure)
+    - `counter_offer_id` and `base_offer_id` only show up in these records
+  * `LiquidityPool` (new)
+    - `base_account` xor `counter_account` will appear in these records
+  * `price` fields changed from `number`s to `string`s
+  * The links to `base` and `counter` can now point to *either* an account or a liquidity pool
+
+- An account's `balances` array can now include a new type ([#688](https://github.com/stellar/js-stellar-sdk/pull/688)):
+  * `asset_type` can now be `liquidity_pool_shares`
+  * The following fields are *not* included in pool share balances:
+    - `buying_liabilities`
+    - `selling_liabilities`
+    - `asset_code`
+    - `asset_issue`
+
+- The `ChangeTrustOperationResponse` has changed ([#688](https://github.com/stellar/js-stellar-sdk/pull/688), [#692](https://github.com/stellar/js-stellar-sdk/pull/692)):
+  * `asset_type` can now be `liquidity_pool_shares`
+  * `asset_code`, `asset_issuer`, and `trustee` are now optional
+  * `liquidity_pool_id` is a new optional field
+
+- The trustline effects (`TrustlineCreated`, `TrustlineUpdated`, `TrustlineRevoked`) have changed ([#690](https://github.com/stellar/js-stellar-sdk/pull/690)):
+  * the asset type can now be `liquidity_pool_shares` 
+  * they can optionally include a `liquidity_pool_id`
+
+- Trustline sponsorship effects (`TrustlineSponsorshipCreated`, `TrustlineSponsorshipUpdated`, `TrustlineSponsorshipRemoved`) have been updated ([#690](https://github.com/stellar/js-stellar-sdk/pull/690)): 
+  * the `asset` field is now optional, and is replaced by
+  * the `liquidity_pool_id` field for liquidity pools
+
+- `TradeRecord`s no longer have an `offer_id` field. This field is redundant, being represented by `base_offer_id` in given an `Orderbook` trade.
 
 
 ## [v8.2.5](https://github.com/stellar/js-stellar-sdk/compare/v8.2.4...v8.2.5)

@@ -63,6 +63,17 @@ export namespace Horizon {
     buying_liabilities: string;
     selling_liabilities: string;
   }
+  export interface BalanceLineLiquidityPool {
+    liquidity_pool_id: string;
+    asset_type: AssetType.liquidityPoolShares;
+    balance: string;
+    limit: string;
+    last_modified_ledger: number;
+    is_authorized: boolean;
+    is_authorized_to_maintain_liabilities: boolean;
+    is_clawback_enabled: boolean;
+    sponsor?: string;
+  }
   export interface BalanceLineAsset<
     T extends AssetType.credit4 | AssetType.credit12 =
       | AssetType.credit4
@@ -78,6 +89,7 @@ export namespace Horizon {
     last_modified_ledger: number;
     is_authorized: boolean;
     is_authorized_to_maintain_liabilities: boolean;
+    is_clawback_enabled: boolean;
     sponsor?: string;
   }
   export type BalanceLine<
@@ -86,7 +98,9 @@ export namespace Horizon {
     ? BalanceLineNative
     : T extends AssetType.credit4 | AssetType.credit12
     ? BalanceLineAsset<T>
-    : BalanceLineNative | BalanceLineAsset;
+    : T extends AssetType.liquidityPoolShares
+    ? BalanceLineLiquidityPool
+    : BalanceLineNative | BalanceLineAsset | BalanceLineLiquidityPool;
 
   export interface AssetAccounts {
     authorized: number;
@@ -153,6 +167,10 @@ export namespace Horizon {
     num_sponsored: number;
   }
 
+  export enum LiquidityPoolType {
+    constantProduct = "constant_product",
+  }
+
   export enum OperationResponseType {
     createAccount = "create_account",
     payment = "payment",
@@ -176,6 +194,8 @@ export namespace Horizon {
     clawback = "clawback",
     clawbackClaimableBalance = "clawback_claimable_balance",
     setTrustLineFlags = "set_trust_line_flags",
+    liquidityPoolDeposit = "liquidity_pool_deposit",
+    liquidityPoolWithdraw = "liquidity_pool_withdraw",
   }
   export enum OperationResponseTypeI {
     createAccount = 0,
@@ -200,6 +220,8 @@ export namespace Horizon {
     clawback = 19,
     clawbackClaimableBalance = 20,
     setTrustLineFlags = 21,
+    liquidityPoolDeposit = 22,
+    liquidityPoolWithdraw = 23,
   }
   export interface BaseOperationResponse<
     T extends OperationResponseType = OperationResponseType,
@@ -340,10 +362,14 @@ export namespace Horizon {
       OperationResponseType.changeTrust,
       OperationResponseTypeI.changeTrust
     > {
-    asset_type: AssetType.credit4 | AssetType.credit12;
-    asset_code: string;
-    asset_issuer: string;
-    trustee: string;
+    asset_type:
+      | AssetType.credit4
+      | AssetType.credit12
+      | AssetType.liquidityPoolShares;
+    asset_code?: string;
+    asset_issuer?: string;
+    liquidity_pool_id?: string;
+    trustee?: string;
     trustor: string;
     limit: string;
   }
@@ -448,6 +474,7 @@ export namespace Horizon {
     offer_id?: string;
     trustline_account_id?: string;
     trustline_asset?: string;
+    trustline_liquidity_pool_id?: string;
     signer_account_id?: string;
     signer_key?: string;
   }
@@ -483,6 +510,34 @@ export namespace Horizon {
     trustor: string;
     set_flags: Array<1 | 2 | 4>;
     clear_flags: Array<1 | 2 | 4>;
+  }
+  export interface Reserve {
+    asset: string;
+    amount: string;
+  }
+  export interface DepositLiquidityOperationResponse
+    extends BaseOperationResponse<
+      OperationResponseType.liquidityPoolDeposit,
+      OperationResponseTypeI.liquidityPoolDeposit
+    > {
+    liquidity_pool_id: string;
+    reserves_max: Reserve[];
+    min_price: string;
+    min_price_r: PriceRShorthand;
+    max_price: string;
+    max_price_r: PriceRShorthand;
+    reserves_deposited: Reserve[];
+    shares_received: string;
+  }
+  export interface WithdrawLiquidityOperationResponse
+    extends BaseOperationResponse<
+      OperationResponseType.liquidityPoolWithdraw,
+      OperationResponseTypeI.liquidityPoolWithdraw
+    > {
+    liquidity_pool_id: string;
+    reserves_min: Reserve[];
+    shares: string;
+    reserves_received: Reserve[];
   }
 
   export interface ResponseCollection<T extends BaseResponse = BaseResponse> {

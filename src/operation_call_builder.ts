@@ -15,7 +15,7 @@ export class OperationCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.OperationRecord>
 > {
   constructor(serverUrl: URI) {
-    super(serverUrl);
+    super(serverUrl, "operations");
     this.url.segment("operations");
   }
 
@@ -43,8 +43,7 @@ export class OperationCallBuilder extends CallBuilder<
    * @returns {OperationCallBuilder} this OperationCallBuilder instance
    */
   public forAccount(accountId: string): this {
-    this.filter.push(["accounts", accountId, "operations"]);
-    return this;
+    return this.forEndpoint("accounts", accountId);
   }
 
   /**
@@ -54,8 +53,7 @@ export class OperationCallBuilder extends CallBuilder<
    * @returns {OperationCallBuilder} this OperationCallBuilder instance
    */
   public forClaimableBalance(claimableBalanceId: string): this {
-    this.filter.push(["claimable_balances", claimableBalanceId, "operations"]);
-    return this;
+    return this.forEndpoint("claimable_balances", claimableBalanceId);
   }
 
   /**
@@ -66,12 +64,7 @@ export class OperationCallBuilder extends CallBuilder<
    * @returns {OperationCallBuilder} this OperationCallBuilder instance
    */
   public forLedger(sequence: number | string): this {
-    this.filter.push([
-      "ledgers",
-      typeof sequence === "number" ? sequence.toString() : sequence,
-      "operations",
-    ]);
-    return this;
+    return this.forEndpoint("ledgers", sequence.toString());
   }
 
   /**
@@ -81,15 +74,25 @@ export class OperationCallBuilder extends CallBuilder<
    * @returns {OperationCallBuilder} this OperationCallBuilder instance
    */
   public forTransaction(transactionId: string): this {
-    this.filter.push(["transactions", transactionId, "operations"]);
-    return this;
+    return this.forEndpoint("transactions", transactionId);
   }
 
   /**
-   * Adds a parameter defining whether to include failed transactions. By default only operations of
-   * successful transactions are returned.
+   * This endpoint represents all operations involving a particular liquidity pool.
+   *
+   * @param {string} poolId   liquidity pool ID
+   * @returns {OperationCallBuilder} this OperationCallBuilder instance
+   */
+  public forLiquidityPool(poolId: string): this {
+    return this.forEndpoint("liquidity_pools", poolId);
+  }
+
+  /**
+   * Adds a parameter defining whether to include failed transactions.
+   *   By default, only operations of successful transactions are returned.
+   *
    * @param {bool} value Set to `true` to include operations of failed transactions.
-   * @returns {TransactionCallBuilder} current TransactionCallBuilder instance
+   * @returns {OperationCallBuilder} this OperationCallBuilder instance
    */
   public includeFailed(value: boolean): this {
     this.url.setQuery("include_failed", value.toString());

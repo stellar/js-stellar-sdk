@@ -55,6 +55,12 @@ export enum EffectType {
   signer_sponsorship_updated = 73,
   signer_sponsorship_removed = 74,
   claimable_balance_clawed_back = 80,
+  liquidity_pool_deposited = 81,
+  liquidity_pool_withdrew = 82,
+  liquidity_pool_trade = 83,
+  liquidity_pool_created = 84,
+  liquidity_pool_removed = 85,
+  liquidity_pool_revoked = 86,
 }
 export interface BaseEffectRecord extends Horizon.BaseResponse {
   id: string;
@@ -124,6 +130,7 @@ export interface SignerUpdated extends SignerEvents {
 }
 interface TrustlineEvents extends BaseEffectRecord, OfferAsset {
   limit: string;
+  liquidity_pool_id?: string;
 }
 export interface TrustlineCreated extends TrustlineEvents {
   type_i: EffectType.trustline_created;
@@ -187,7 +194,8 @@ export type AccountSponsorshipRemoved = Omit<
 interface TrustlineSponsorshipEvents
   extends BaseEffectRecord,
     SponsershipFields {
-  asset: string;
+  asset?: string;
+  liquidity_pool_id?: string;
 }
 export type TrustlineSponsorshipCreated = Omit<
   TrustlineSponsorshipEvents,
@@ -249,3 +257,49 @@ export type SignerSponsorshipRemoved = Omit<
   SignerSponsorshipEvents,
   "new_sponsor" | "sponsor"
 > & { type_i: EffectType.signer_sponsorship_removed };
+export interface LiquidityPoolEffectRecord extends Horizon.BaseResponse {
+  id: string;
+  fee_bp: number;
+  type: Horizon.LiquidityPoolType;
+  total_trustlines: string;
+  total_shares: string;
+  reserves: Horizon.Reserve[];
+}
+export interface DepositLiquidityEffect extends BaseEffectRecord {
+  type_i: EffectType.liquidity_pool_deposited;
+  liquidity_pool: LiquidityPoolEffectRecord;
+  reserves_deposited: Horizon.Reserve[];
+  shares_received: string;
+}
+export interface WithdrawLiquidityEffect extends BaseEffectRecord {
+  type_i: EffectType.liquidity_pool_withdrew;
+  liquidity_pool: LiquidityPoolEffectRecord;
+  reserves_received: Horizon.Reserve[];
+  shares_redeemed: string;
+}
+export interface LiquidityPoolTradeEffect extends BaseEffectRecord {
+  type_i: EffectType.liquidity_pool_trade;
+  liquidity_pool: LiquidityPoolEffectRecord;
+  sold: Horizon.Reserve;
+  bought: Horizon.Reserve;
+}
+export interface LiquidityPoolCreatedEffect extends BaseEffectRecord {
+  type_i: EffectType.liquidity_pool_created;
+  liquidity_pool: LiquidityPoolEffectRecord;
+}
+export interface LiquidityPoolRemovedEffect extends BaseEffectRecord {
+  type_i: EffectType.liquidity_pool_removed;
+  liquidity_pool_id: string;
+}
+export interface LiquidityPoolRevokedEffect extends BaseEffectRecord {
+  type_i: EffectType.liquidity_pool_revoked;
+  liquidity_pool: LiquidityPoolEffectRecord;
+  reserves_revoked: [
+    {
+      asset: string;
+      amount: string;
+      claimable_balance_id: string;
+    },
+  ];
+  shares_revoked: string;
+}

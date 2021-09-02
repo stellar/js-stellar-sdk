@@ -28,6 +28,7 @@ import { EffectCallBuilder } from "./effect_call_builder";
 import { FriendbotBuilder } from "./friendbot_builder";
 import { Horizon } from "./horizon_api";
 import { LedgerCallBuilder } from "./ledger_call_builder";
+import { LiquidityPoolCallBuilder } from "./liquidity_pool_call_builder";
 import { OfferCallBuilder } from "./offer_call_builder";
 import { OperationCallBuilder } from "./operation_call_builder";
 import { OrderbookCallBuilder } from "./orderbook_call_builder";
@@ -352,7 +353,34 @@ export class Server {
               const offersClaimed = offerSuccess
                 .offersClaimed()
                 // TODO: fix stellar-base types.
-                .map((offerClaimed: any) => {
+                .map((offerClaimedAtom: any) => {
+                  const offerClaimed = offerClaimedAtom.value();
+
+                  let sellerId: string = "";
+                  switch (offerClaimedAtom.switch()) {
+                    case xdr.ClaimAtomType.claimAtomTypeV0():
+                      sellerId = StrKey.encodeEd25519PublicKey(
+                        offerClaimed.sellerEd25519(),
+                      );
+                      break;
+                    case xdr.ClaimAtomType.claimAtomTypeOrderBook():
+                      sellerId = StrKey.encodeEd25519PublicKey(
+                        offerClaimed.sellerId().ed25519(),
+                      );
+                      break;
+                    // It shouldn't be possible for a claimed offer to have type
+                    // claimAtomTypeLiquidityPool:
+                    //
+                    // https://github.com/stellar/stellar-core/blob/c5f6349b240818f716617ca6e0f08d295a6fad9a/src/transactions/TransactionUtils.cpp#L1284
+                    //
+                    // However, you can never be too careful.
+                    default:
+                      throw new Error(
+                        "Invalid offer result type: " +
+                          offerClaimedAtom.switch(),
+                      );
+                  }
+
                   const claimedOfferAmountBought = new BigNumber(
                     // amountBought is a js-xdr hyper
                     offerClaimed.amountBought().toString(),
@@ -388,9 +416,7 @@ export class Server {
                   };
 
                   return {
-                    sellerId: StrKey.encodeEd25519PublicKey(
-                      offerClaimed.sellerId().ed25519(),
-                    ),
+                    sellerId,
                     offerId: offerClaimed.offerId().toString(),
                     assetSold,
                     amountSold: _getAmountInLumens(claimedOfferAmountSold),
@@ -550,6 +576,14 @@ export class Server {
    */
   public operations(): OperationCallBuilder {
     return new OperationCallBuilder(URI(this.serverURL as any));
+  }
+
+  /**
+   * @returns {LiquidityPoolCallBuilder} New {@link LiquidityPoolCallBuilder}
+   *     object configured to the current Horizon server settings.
+   */
+  public liquidityPools(): LiquidityPoolCallBuilder {
+    return new LiquidityPoolCallBuilder(URI(this.serverURL));
   }
 
   /**
