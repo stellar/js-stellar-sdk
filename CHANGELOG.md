@@ -5,7 +5,10 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
-This release adds **support for Automated Market Makers**. For details, you can refer to [CAP-38](https://stellar.org/protocol/cap-38) for XDR changes and [this document](https://docs.google.com/document/d/1pXL8kr1a2vfYSap9T67R-g72B_WWbaE1YsLMa04OgoU/view) for detailed changes to the Horizon API.
+
+## [v9.0.0-beta.0](https://github.com/stellar/js-stellar-sdk/compare/v8.2.5...v9.0.0-beta.0)
+
+This beta release adds **support for Automated Market Makers**. For details, you can refer to [CAP-38](https://stellar.org/protocol/cap-38) for XDR changes and [this document](https://docs.google.com/document/d/1pXL8kr1a2vfYSap9T67R-g72B_WWbaE1YsLMa04OgoU/view) for detailed changes to the Horizon API.
 
 ### Add
 
@@ -54,6 +57,7 @@ This release adds **support for Automated Market Makers**. For details, you can 
 - A `TradeRecord` can now correspond to two different types of trades and has changed ([#685](https://github.com/stellar/js-stellar-sdk/pull/685)):
   * `Orderbook` (the existing structure)
     - `counter_offer_id` and `base_offer_id` only show up in these records
+    - the redundant `offer_id` field was removed; it matches `base_offer_id`
   * `LiquidityPool` (new)
     - `base_account` xor `counter_account` will appear in these records
   * `price` fields changed from `number`s to `string`s
@@ -79,8 +83,6 @@ This release adds **support for Automated Market Makers**. For details, you can 
 - Trustline sponsorship effects (`TrustlineSponsorshipCreated`, `TrustlineSponsorshipUpdated`, `TrustlineSponsorshipRemoved`) have been updated ([#690](https://github.com/stellar/js-stellar-sdk/pull/690)): 
   * the `asset` field is now optional, and is replaced by
   * the `liquidity_pool_id` field for liquidity pools
-
-- `TradeRecord`s no longer have an `offer_id` field. This field is redundant, being represented by `base_offer_id` in given an `Orderbook` trade.
 
 
 ## [v8.2.5](https://github.com/stellar/js-stellar-sdk/compare/v8.2.4...v8.2.5)
