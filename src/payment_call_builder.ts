@@ -35,10 +35,7 @@ export class PaymentCallBuilder extends CallBuilder<
    * @returns {PaymentCallBuilder} this PaymentCallBuilder instance
    */
   public forLedger(sequence: number | string): this {
-    return this.forEndpoint(
-      "ledgers",
-      sequence.toString(),
-    );
+    return this.forEndpoint("ledgers", sequence.toString());
   }
 
   /**

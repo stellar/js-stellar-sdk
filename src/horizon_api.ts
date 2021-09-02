@@ -72,6 +72,7 @@ export namespace Horizon {
     is_authorized: boolean;
     is_authorized_to_maintain_liabilities: boolean;
     is_clawback_enabled: boolean;
+    sponsor?: string;
   }
   export interface BalanceLineAsset<
     T extends AssetType.credit4 | AssetType.credit12 =

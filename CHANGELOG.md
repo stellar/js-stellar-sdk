@@ -38,6 +38,8 @@ A breaking change will get clearly marked in this log.
 
 - Updated the underlying `stellar-base` library to [v6.0.1](https://github.com/stellar/js-stellar-base/releases/tag/v6.0.1) to include CAP-38 changes ([#681](https://github.com/stellar/js-stellar-sdk/pull/681)).
 
+- Updated various developer dependencies to secure versions ([#671](https://github.com/stellar/js-stellar-sdk/pull/671)).
+
 - Updated `AccountResponse` to include liquidity pool shares in its `balances` field ([#688](https://github.com/stellar/js-stellar-sdk/pull/688)).
 
 - Updated `AccountCallBuilder` to allow filtering based on participation in a certain liquidity pool ([#688](https://github.com/stellar/js-stellar-sdk/pull/688)), corresponding to the following new filter:
@@ -76,8 +78,7 @@ A breaking change will get clearly marked in this log.
   * the `asset` field is now optional, and is replaced by
   * the `liquidity_pool_id` field for liquidity pools
 
-### Fix
-- Updated various developer dependencies to secure versions ([#671](https://github.com/stellar/js-stellar-sdk/pull/671)).
+- `TradeRecord`s no longer have an `offer_id` field. This field is redundant, being represented by `base_offer_id` in given an `Orderbook` trade.
 
 
 ## [v8.2.5](https://github.com/stellar/js-stellar-sdk/compare/v8.2.4...v8.2.5)

@@ -38,10 +38,7 @@ export class EffectCallBuilder extends CallBuilder<
    * @returns {EffectCallBuilder} this EffectCallBuilder instance
    */
   public forLedger(sequence: number | string): this {
-    return this.forEndpoint(
-      "ledgers",
-      typeof sequence === "number" ? sequence.toString() : sequence,
-    );
+    return this.forEndpoint("ledgers", sequence.toString());
   }
 
   /**
