@@ -7,10 +7,9 @@ const MOCK_SERVER = "http://private-anon-a06e1b25a0-ammmock.apiary-mock.com";
 
 describe("tests the /liquidity_pools endpoint", function() {
   const lpId = "0569b19c75d7ecadce50501fffad6fe8ba4652455df9e1cc96dc408141124dd5";
+  const server = new StellarSdk.Server(MOCK_SERVER, {allowHttp: true});
 
   it("GET /", function(done) {
-    let server = new StellarSdk.Server(MOCK_SERVER, {allowHttp: true});
-
     chai.request(MOCK_SERVER)
       .get("/liquidity_pools")
       .end(function(err, res) {
@@ -29,8 +28,6 @@ describe("tests the /liquidity_pools endpoint", function() {
   });
 
   it('GET /<pool-id>', function(done) {
-    let server = new StellarSdk.Server(MOCK_SERVER, {allowHttp: true});
-
     chai.request(MOCK_SERVER)
       .get(`/liquidity_pools/${lpId}`)
       .end(function(err, res) {
@@ -49,7 +46,6 @@ describe("tests the /liquidity_pools endpoint", function() {
       });
   });
 
-  let server = new StellarSdk.Server(MOCK_SERVER, {allowHttp: true});
   const testCases = {
     transactions: server.transactions(),
     operations: server.operations(),
@@ -96,9 +92,9 @@ describe("tests the /liquidity_pools endpoint", function() {
 });
 
 describe("tests the /accounts endpoint", function() {
-  it('GET /', function(done) {
-    let server = new StellarSdk.Server(MOCK_SERVER, {allowHttp: true});
+  const server = new StellarSdk.Server(MOCK_SERVER, {allowHttp: true});
 
+  it('GET /', function(done) {
     chai.request(MOCK_SERVER)
       .get("/accounts")
       .end(function(err, res) {
@@ -117,7 +113,6 @@ describe("tests the /accounts endpoint", function() {
   });
 
   it('GET /?liquidity_pool=<pool-id>', function(done) {
-    let server = new StellarSdk.Server(MOCK_SERVER, {allowHttp: true});
     const lpId = "0569b19c75d7ecadce50501fffad6fe8ba4652455df9e1cc96dc408141124dd5";
 
     chai.request(MOCK_SERVER)
@@ -139,7 +134,6 @@ describe("tests the /accounts endpoint", function() {
   });
 
   it('GET /<id>', function(done) {
-    let server = new StellarSdk.Server(MOCK_SERVER, {allowHttp: true});
     const accountId = "GDQNY3PBOJOKYZSRMK2S7LHHGWZIUISD4QORETLMXEWXBI7KFZZMKTL3";
 
     chai.request(MOCK_SERVER)
