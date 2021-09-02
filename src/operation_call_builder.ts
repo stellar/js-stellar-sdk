@@ -64,10 +64,7 @@ export class OperationCallBuilder extends CallBuilder<
    * @returns {OperationCallBuilder} this OperationCallBuilder instance
    */
   public forLedger(sequence: number | string): this {
-    return this.forEndpoint(
-      "ledgers",
-      typeof sequence === "number" ? sequence.toString() : sequence,
-    );
+    return this.forEndpoint("ledgers", sequence.toString());
   }
 
   /**

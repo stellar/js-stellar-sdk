@@ -62,9 +62,7 @@ export class TransactionCallBuilder extends CallBuilder<
    * @returns {TransactionCallBuilder} current TransactionCallBuilder instance
    */
   public forLedger(sequence: number | string): this {
-    const ledgerSequence =
-      typeof sequence === "number" ? sequence.toString() : sequence;
-    return this.forEndpoint("ledgers", ledgerSequence);
+    return this.forEndpoint("ledgers", sequence.toString());
   }
 
   /**
