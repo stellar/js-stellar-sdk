@@ -28,7 +28,7 @@ describe("tests the /liquidity_pools endpoint", function() {
       });
   });
 
-  it('GET /<id>', function(done) {
+  it('GET /<pool-id>', function(done) {
     let server = new StellarSdk.Server(MOCK_SERVER, {allowHttp: true});
 
     chai.request(MOCK_SERVER)
@@ -116,7 +116,7 @@ describe("tests the /accounts endpoint", function() {
       });
   });
 
-  it('GET /?liquidity_pool=<id>', function(done) {
+  it('GET /?liquidity_pool=<pool-id>', function(done) {
     let server = new StellarSdk.Server(MOCK_SERVER, {allowHttp: true});
     const lpId = "0569b19c75d7ecadce50501fffad6fe8ba4652455df9e1cc96dc408141124dd5";
 
