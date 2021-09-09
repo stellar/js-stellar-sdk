@@ -20,7 +20,7 @@ jobs:
         run: yarn
 
       - name: Build
-        run: gulp
+        run: yarn version
 
       - name: Publish npm package
         run: yarn publish --tag beta

@@ -5,7 +5,7 @@
 // https://docs.google.com/document/d/1pXL8kr1a2vfYSap9T67R-g72B_WWbaE1YsLMa04OgoU/edit
 const _ = require("lodash");
 
-const MOCK_SERVER = "http://private-anon-a06e1b25a0-ammmock.apiary-mock.com";
+const MOCK_SERVER = "https://private-d133c-ammmock.apiary-mock.com";
 
 describe("tests the /liquidity_pools endpoint", function() {
   const lpId = "0569b19c75d7ecadce50501fffad6fe8ba4652455df9e1cc96dc408141124dd5";
@@ -55,7 +55,7 @@ describe("tests the /liquidity_pools endpoint", function() {
   };
 
   Object.keys(testCases).forEach(suffix => {
-    it(`GET /<id>/${suffix}`, function(done) {
+    it(`GET /<pool-id>/${suffix}`, function(done) {
       chai.request(MOCK_SERVER)
         .get(`/liquidity_pools/${lpId}/${suffix}`)
         .end(function(err, res) {
@@ -129,7 +129,7 @@ describe("tests the /accounts endpoint", function() {
       });
   });
 
-  it('GET /<id>', function(done) {
+  it('GET /<account-id>', function(done) {
     const accountId = "GDQNY3PBOJOKYZSRMK2S7LHHGWZIUISD4QORETLMXEWXBI7KFZZMKTL3";
 
     chai.request(MOCK_SERVER)
