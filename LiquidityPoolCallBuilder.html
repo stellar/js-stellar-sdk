@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>OperationCallBuilder - Documentation</title>
+    <title>LiquidityPoolCallBuilder - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -29,7 +29,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">OperationCallBuilder</h1>
+    <h1 class="page-title">LiquidityPoolCallBuilder</h1>
     
 
     
@@ -42,10 +42,10 @@
 <header>
     
         <h2>
-        OperationCallBuilder
+        LiquidityPoolCallBuilder
         </h2>
         
-            <div class="class-description"><p>OperationCallBuilder</p></div>
+            <div class="class-description"><p>LiquidityPoolCallBuilder</p></div>
         
     
 </header>
@@ -60,7 +60,7 @@
     <h2>Constructor</h2>
     
 
-    <h4 class="name" id="OperationCallBuilder"><span class="type-signature"></span>new OperationCallBuilder<span class="signature">(serverUrl)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="LiquidityPoolCallBuilder"><span class="type-signature"></span>new LiquidityPoolCallBuilder<span class="signature">(serverUrl)</span><span class="type-signature"></span></h4>
 
     
 
@@ -99,19 +99,12 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="operation_call_builder.js.html">operation_call_builder.js</a>, <a href="operation_call_builder.js.html#line12">line 12</a>
+        <a href="liquidity_pool_call_builder.js.html">liquidity_pool_call_builder.js</a>, <a href="liquidity_pool_call_builder.js.html#line11">line 11</a>
     </li></ul></dd>
     
 
     
 
-    
-    <dt class="tag-see">See:</dt>
-    <dd class="tag-see">
-        <ul>
-            <li><p><a href="https://www.stellar.org/developers/horizon/reference/endpoints/operations-all.html">All Operations</a></p></li>
-        </ul>
-    </dd>
     
 
     
@@ -512,14 +505,14 @@
 
     
 
-    <h4 class="name" id="forAccount"><span class="type-signature"></span>forAccount<span class="signature">(accountId)</span><span class="type-signature"> &rarr; {<a href="OperationCallBuilder.html">OperationCallBuilder</a>}</span></h4>
+    <h4 class="name" id="forAssets"><span class="type-signature"></span>forAssets<span class="signature">(&hellip;assets)</span><span class="type-signature"> &rarr; {<a href="LiquidityPoolCallBuilder.html">LiquidityPoolCallBuilder</a>}</span></h4>
 
     
 
 
 
 <div class="description">
-    <p>This endpoint represents all operations that were included in valid transactions that affected a particular account.</p>
+    <p>Filters out pools whose reserves don't exactly match these assets.</p>
 </div>
 
 
@@ -555,7 +548,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="operation_call_builder.js.html">operation_call_builder.js</a>, <a href="operation_call_builder.js.html#line35">line 35</a>
+        <a href="liquidity_pool_call_builder.js.html">liquidity_pool_call_builder.js</a>, <a href="liquidity_pool_call_builder.js.html#line23">line 23</a>
     </li></ul></dd>
     
 
@@ -565,7 +558,7 @@
     <dt class="tag-see">See:</dt>
     <dd class="tag-see">
         <ul>
-            <li><p><a href="https://www.stellar.org/developers/horizon/reference/endpoints/operations-for-account.html">Operations for Account</a></p></li>
+            <li>Asset</li>
         </ul>
     </dd>
     
@@ -594,6 +587,8 @@
         <th>Type</th>
 
         
+        <th>Attributes</th>
+        
 
         
 
@@ -606,24 +601,34 @@
 
         <tr>
             
-                <td class="name"><code>accountId</code></td>
+                <td class="name"><code>assets</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type"><code>string</code></span>
+<span class="param-type"><code></code></span>
 
 
             
             </td>
 
             
+                <td class="attributes">
+                
+
+                
+
+                
+                    &lt;repeatable><br>
+                
+                </td>
+            
 
             
 
             <td class="description last">
-                <p>For example: <code>GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD</code></p>
+                
                 
             </td>
         </tr>
@@ -656,7 +661,7 @@
     </dt>
     <dd>
         
-<span class="param-type"><code><a href="OperationCallBuilder.html">OperationCallBuilder</a></code></span>
+<span class="param-type"><code><a href="LiquidityPoolCallBuilder.html">LiquidityPoolCallBuilder</a></code></span>
 
 
     </dd>
@@ -664,174 +669,7 @@
 
 
 <div class="param-desc">
-    <p>this OperationCallBuilder instance</p>
-</div>
-
-    
-</div>
-
-
-
-</div>
-        
-            
-<div class="section-method">
-
-    
-
-    <h4 class="name" id="forClaimableBalance"><span class="type-signature"></span>forClaimableBalance<span class="signature">(claimableBalanceId)</span><span class="type-signature"> &rarr; {<a href="OperationCallBuilder.html">OperationCallBuilder</a>}</span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>This endpoint represents all operations that reference a given claimable_balance.</p>
-</div>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="operation_call_builder.js.html">operation_call_builder.js</a>, <a href="operation_call_builder.js.html#line44">line 44</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-    <dt class="tag-see">See:</dt>
-    <dd class="tag-see">
-        <ul>
-            <li><p><a href="https://www.stellar.org/developers/horizon/reference/endpoints/operations-for-claimable-balance.html">Operations for Claimable Balance</a></p></li>
-        </ul>
-    </dd>
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>claimableBalanceId</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><code>string</code></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">
-                <p>Claimable Balance ID</p>
-                
-            </td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div class="section-returns">
-<h5>Returns:</h5>
-
-        
-
-<dl class="param-type">
-    <dt>
-        Type:
-    </dt>
-    <dd>
-        
-<span class="param-type"><code><a href="OperationCallBuilder.html">OperationCallBuilder</a></code></span>
-
-
-    </dd>
-</dl>
-
-
-<div class="param-desc">
-    <p>this OperationCallBuilder instance</p>
+    <p>current LiquidityPoolCallBuilder instance</p>
 </div>
 
     
@@ -1028,664 +866,6 @@
 
 <div class="param-desc">
     <p>this CallBuilder instance</p>
-</div>
-
-    
-</div>
-
-
-
-</div>
-        
-            
-<div class="section-method">
-
-    
-
-    <h4 class="name" id="forLedger"><span class="type-signature"></span>forLedger<span class="signature">(sequence)</span><span class="type-signature"> &rarr; {<a href="OperationCallBuilder.html">OperationCallBuilder</a>}</span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>This endpoint returns all operations that occurred in a given ledger.</p>
-</div>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="operation_call_builder.js.html">operation_call_builder.js</a>, <a href="operation_call_builder.js.html#line54">line 54</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-    <dt class="tag-see">See:</dt>
-    <dd class="tag-see">
-        <ul>
-            <li><p><a href="https://www.stellar.org/developers/horizon/reference/endpoints/operations-for-ledger.html">Operations for Ledger</a></p></li>
-        </ul>
-    </dd>
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>sequence</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><code>number</code></span>
-|
-
-<span class="param-type"><code>string</code></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">
-                <p>Ledger sequence</p>
-                
-            </td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div class="section-returns">
-<h5>Returns:</h5>
-
-        
-
-<dl class="param-type">
-    <dt>
-        Type:
-    </dt>
-    <dd>
-        
-<span class="param-type"><code><a href="OperationCallBuilder.html">OperationCallBuilder</a></code></span>
-
-
-    </dd>
-</dl>
-
-
-<div class="param-desc">
-    <p>this OperationCallBuilder instance</p>
-</div>
-
-    
-</div>
-
-
-
-</div>
-        
-            
-<div class="section-method">
-
-    
-
-    <h4 class="name" id="forLiquidityPool"><span class="type-signature"></span>forLiquidityPool<span class="signature">(poolId)</span><span class="type-signature"> &rarr; {<a href="OperationCallBuilder.html">OperationCallBuilder</a>}</span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>This endpoint represents all operations involving a particular liquidity pool.</p>
-</div>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="operation_call_builder.js.html">operation_call_builder.js</a>, <a href="operation_call_builder.js.html#line72">line 72</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>poolId</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><code>string</code></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">
-                <p>liquidity pool ID</p>
-                
-            </td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div class="section-returns">
-<h5>Returns:</h5>
-
-        
-
-<dl class="param-type">
-    <dt>
-        Type:
-    </dt>
-    <dd>
-        
-<span class="param-type"><code><a href="OperationCallBuilder.html">OperationCallBuilder</a></code></span>
-
-
-    </dd>
-</dl>
-
-
-<div class="param-desc">
-    <p>this OperationCallBuilder instance</p>
-</div>
-
-    
-</div>
-
-
-
-</div>
-        
-            
-<div class="section-method">
-
-    
-
-    <h4 class="name" id="forTransaction"><span class="type-signature"></span>forTransaction<span class="signature">(transactionId)</span><span class="type-signature"> &rarr; {<a href="OperationCallBuilder.html">OperationCallBuilder</a>}</span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>This endpoint represents all operations that are part of a given transaction.</p>
-</div>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="operation_call_builder.js.html">operation_call_builder.js</a>, <a href="operation_call_builder.js.html#line63">line 63</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-    <dt class="tag-see">See:</dt>
-    <dd class="tag-see">
-        <ul>
-            <li><p><a href="https://www.stellar.org/developers/horizon/reference/endpoints/operations-for-transaction.html">Operations for Transaction</a></p></li>
-        </ul>
-    </dd>
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>transactionId</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><code>string</code></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">
-                <p>Transaction ID</p>
-                
-            </td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div class="section-returns">
-<h5>Returns:</h5>
-
-        
-
-<dl class="param-type">
-    <dt>
-        Type:
-    </dt>
-    <dd>
-        
-<span class="param-type"><code><a href="OperationCallBuilder.html">OperationCallBuilder</a></code></span>
-
-
-    </dd>
-</dl>
-
-
-<div class="param-desc">
-    <p>this OperationCallBuilder instance</p>
-</div>
-
-    
-</div>
-
-
-
-</div>
-        
-            
-<div class="section-method">
-
-    
-
-    <h4 class="name" id="includeFailed"><span class="type-signature"></span>includeFailed<span class="signature">(value)</span><span class="type-signature"> &rarr; {<a href="OperationCallBuilder.html">OperationCallBuilder</a>}</span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Adds a parameter defining whether to include failed transactions.
-  By default, only operations of successful transactions are returned.</p>
-</div>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="operation_call_builder.js.html">operation_call_builder.js</a>, <a href="operation_call_builder.js.html#line82">line 82</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>value</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><code>bool</code></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">
-                <p>Set to <code>true</code> to include operations of failed transactions.</p>
-                
-            </td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div class="section-returns">
-<h5>Returns:</h5>
-
-        
-
-<dl class="param-type">
-    <dt>
-        Type:
-    </dt>
-    <dd>
-        
-<span class="param-type"><code><a href="OperationCallBuilder.html">OperationCallBuilder</a></code></span>
-
-
-    </dd>
-</dl>
-
-
-<div class="param-desc">
-    <p>this OperationCallBuilder instance</p>
 </div>
 
     
@@ -2042,15 +1222,14 @@ response.</p>
 
     
 
-    <h4 class="name" id="operation"><span class="type-signature"></span>operation<span class="signature">(operationId)</span><span class="type-signature"> &rarr; {<a href="CallBuilder.html">CallBuilder</a>}</span></h4>
+    <h4 class="name" id="liquidityPoolId"><span class="type-signature"></span>liquidityPoolId<span class="signature">(id)</span><span class="type-signature"> &rarr; {<a href="CallBuilder.html">CallBuilder</a>}</span></h4>
 
     
 
 
 
 <div class="description">
-    <p>The operation details endpoint provides information on a single operation. The operation ID provided in the id
-argument specifies which operation to load.</p>
+    <p>Retrieves a specific liquidity pool by ID.</p>
 </div>
 
 
@@ -2086,19 +1265,12 @@ argument specifies which operation to load.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="operation_call_builder.js.html">operation_call_builder.js</a>, <a href="operation_call_builder.js.html#line24">line 24</a>
+        <a href="liquidity_pool_call_builder.js.html">liquidity_pool_call_builder.js</a>, <a href="liquidity_pool_call_builder.js.html#line36">line 36</a>
     </li></ul></dd>
     
 
     
 
-    
-    <dt class="tag-see">See:</dt>
-    <dd class="tag-see">
-        <ul>
-            <li><p><a href="https://www.stellar.org/developers/horizon/reference/endpoints/operations-single.html">Operation Details</a></p></li>
-        </ul>
-    </dd>
     
 
     
@@ -2137,13 +1309,13 @@ argument specifies which operation to load.</p>
 
         <tr>
             
-                <td class="name"><code>operationId</code></td>
+                <td class="name"><code>id</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type"><code>number</code></span>
+<span class="param-type"><code>string</code></span>
 
 
             
@@ -2154,7 +1326,7 @@ argument specifies which operation to load.</p>
             
 
             <td class="description last">
-                <p>Operation ID</p>
+                
                 
             </td>
         </tr>
@@ -2195,7 +1367,7 @@ argument specifies which operation to load.</p>
 
 
 <div class="param-desc">
-    <p>this OperationCallBuilder instance</p>
+    <p>a new CallBuilder instance for the /liquidity_pools/:id endpoint</p>
 </div>
 
     
