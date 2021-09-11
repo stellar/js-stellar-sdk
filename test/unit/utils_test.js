@@ -20,21 +20,19 @@ describe('Utils', function() {
   });
 
   describe('Utils.buildChallengeTx', function() {
-    it('requires a non-muxed account', function() {
+    it('allows non-muxed accounts', function() {
       let keypair = StellarSdk.Keypair.random();
 
       expect(() =>
         StellarSdk.Utils.buildChallengeTx(
           keypair,
-          "MAAAAAAAAAAAAAB7BQ2L7E5NBWMXDUCMZSIPOBKRDSBYVLMXGSSKF6YNPIB7Y77ITLVL6",
+          "MCM4GQXVYWWCHUDIRGSKDPNO2U5KK2R3LF3F2VGLMD6WEWD55T64YAAAAAAAAAAAPPTGE",
           "testanchor.stellar.org",
           300,
           StellarSdk.Networks.TESTNET,
           "testanchor.stellar.org"
         )
-      ).to.throw(
-        /Invalid clientAccountID: multiplexed accounts are not supported./
-      );
+      ).not.to.throw();
     });
 
     it('returns challenge which follows SEP0010 spec', function() {
@@ -213,6 +211,7 @@ describe('Utils', function() {
         tx: transaction,
         clientAccountID: clientKP.publicKey(),
         matchedHomeDomain: "SDF",
+        memo: undefined
       });
     });
 

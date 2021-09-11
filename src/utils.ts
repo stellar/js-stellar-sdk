@@ -5,6 +5,9 @@ import {
   BASE_FEE,
   FeeBumpTransaction,
   Keypair,
+  Memo,
+  MemoID,
+  MemoNone,
   Operation,
   TimeoutInfinite,
   Transaction,
@@ -25,11 +28,12 @@ export namespace Utils {
    * @function
    * @memberof Utils
    * @param {Keypair} serverKeypair Keypair for server's signing account.
-   * @param {string} clientAccountID The stellar account that the wallet wishes to authenticate with the server.
+   * @param {string} clientAccountID The stellar account (G...) or muxed account (M...) that the wallet wishes to authenticate with the server.
    * @param {string} homeDomain The fully qualified domain name of the service requiring authentication
    * @param {number} [timeout=300] Challenge duration (default to 5 minutes).
    * @param {string} networkPassphrase The network passphrase. If you pass this argument then timeout is required.
    * @param {string} webAuthDomain The fully qualified domain name of the service issuing the challenge.
+   * @param {string} The memo to attach to the challenge transaction. The memo must be of type `id`. If the `clientaccountID` is a muxed account, memos cannot be used.
    * @example
    * import { Utils, Keypair, Networks }  from 'stellar-sdk'
    *
@@ -44,11 +48,10 @@ export namespace Utils {
     timeout: number = 300,
     networkPassphrase: string,
     webAuthDomain: string,
+    memo: string,
   ): string {
-    if (clientAccountID.startsWith("M")) {
-      throw Error(
-        "Invalid clientAccountID: multiplexed accounts are not supported.",
-      );
+    if (clientAccountID.startsWith("M") && memo) {
+      throw Error("memo cannot be used if clientAccountID is a muxed account");
     }
 
     const account = new Account(serverKeypair.publicKey(), "-1");
@@ -61,7 +64,7 @@ export namespace Utils {
     // turned into binary represents 8 bits = 1 bytes.
     const value = randomBytes(48).toString("base64");
 
-    const transaction = new TransactionBuilder(account, {
+    const transactionBuilder = new TransactionBuilder(account, {
       fee: BASE_FEE,
       networkPassphrase,
       timebounds: {
@@ -74,6 +77,7 @@ export namespace Utils {
           name: `${homeDomain} auth`,
           value,
           source: clientAccountID,
+          withMuxing: true,
         }),
       )
       .addOperation(
@@ -82,8 +86,10 @@ export namespace Utils {
           value: webAuthDomain,
           source: account.accountId(),
         }),
-      )
-      .build();
+      );
+    if (memo) { transactionBuilder.addMemo(Memo.id(memo)); }
+
+    const transaction = transactionBuilder.build();
 
     transaction.sign(serverKeypair);
 
@@ -121,7 +127,12 @@ export namespace Utils {
     networkPassphrase: string,
     homeDomains: string | string[],
     webAuthDomain: string,
-  ): { tx: Transaction; clientAccountID: string; matchedHomeDomain: string } {
+  ): {
+    tx: Transaction;
+    clientAccountID: string;
+    matchedHomeDomain: string;
+    memo?: string;
+  } {
     if (serverAccountID.startsWith("M")) {
       throw Error(
         "Invalid serverAccountID: multiplexed accounts are not supported.",
@@ -170,6 +181,21 @@ export namespace Utils {
       );
     }
     const clientAccountID: string = operation.source!;
+
+    let memo: undefined | string;
+    if (transaction.memo) {
+      if (clientAccountID.startsWith("M")) {
+        throw new InvalidSep10ChallengeError(
+          "The transaction has a memo but the client account ID is a muxed account",
+        );
+      }
+      if (![MemoID, MemoNone].includes(transaction.memo.type)) {
+        throw new InvalidSep10ChallengeError(
+          "The transaction's memo must be of type `id`",
+        );
+      }
+      memo = transaction.memo.value as string;
+    }
 
     if (operation.type !== "manageData") {
       throw new InvalidSep10ChallengeError(
@@ -272,7 +298,7 @@ export namespace Utils {
       );
     }
 
-    return { tx: transaction, clientAccountID, matchedHomeDomain };
+    return { tx: transaction, clientAccountID, matchedHomeDomain, memo };
   }
 
   /**
