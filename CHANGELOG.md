@@ -5,6 +5,10 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Fix
+
+- Drops the `chai-http` dependency to be only for developers ([#707](https://github.com/stellar/js-stellar-sdk/pull/707)).
+
 
 ## [v9.0.0-beta.0](https://github.com/stellar/js-stellar-sdk/compare/v8.2.5...v9.0.0-beta.0)
 
