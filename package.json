@@ -131,7 +131,7 @@
     "@types/node": ">= 8",
     "@types/randombytes": "^2.0.0",
     "@types/urijs": "^1.19.6",
-    "axios": "0.21.1",
+    "axios": "0.21.2",
     "bignumber.js": "^4.0.0",
     "detect-node": "^2.0.4",
     "es6-promise": "^4.2.4",
