@@ -48,7 +48,7 @@ export namespace Utils {
     timeout: number = 300,
     networkPassphrase: string,
     webAuthDomain: string,
-    memo: string,
+    memo: string | null,
   ): string {
     if (clientAccountID.startsWith("M") && memo) {
       throw Error("memo cannot be used if clientAccountID is a muxed account");
@@ -87,7 +87,15 @@ export namespace Utils {
           source: account.accountId(),
         }),
       );
-    if (memo) { transactionBuilder.addMemo(Memo.id(memo)); }
+    if (memo) {
+      try {
+        transactionBuilder.addMemo(Memo.id(memo));
+      } catch {
+        throw new Error(
+          "invalid value for 'memo', must be 64-bit integer string",
+        );
+      }
+    }
 
     const transaction = transactionBuilder.build();
 
@@ -131,7 +139,7 @@ export namespace Utils {
     tx: Transaction;
     clientAccountID: string;
     matchedHomeDomain: string;
-    memo?: string;
+    memo: string | null;
   } {
     if (serverAccountID.startsWith("M")) {
       throw Error(
@@ -139,12 +147,21 @@ export namespace Utils {
       );
     }
 
-    const transaction = TransactionBuilder.fromXDR(
-      challengeTx,
-      networkPassphrase,
-    );
-
-    if (!(transaction instanceof Transaction)) {
+    let transaction;
+    try {
+      transaction = new Transaction(challengeTx, networkPassphrase, true);
+    } catch {
+      try {
+        transaction = new FeeBumpTransaction(
+          challengeTx,
+          networkPassphrase,
+          true,
+        );
+      } catch {
+        throw new InvalidSep10ChallengeError(
+          "Invalid challenge: unable to deserialize challengeTx transaction string",
+        );
+      }
       throw new InvalidSep10ChallengeError(
         "Invalid challenge: expected a Transaction but received a FeeBumpTransaction",
       );
@@ -182,14 +199,14 @@ export namespace Utils {
     }
     const clientAccountID: string = operation.source!;
 
-    let memo: undefined | string;
-    if (transaction.memo) {
+    let memo: string | null = null;
+    if (transaction.memo.type !== MemoNone) {
       if (clientAccountID.startsWith("M")) {
         throw new InvalidSep10ChallengeError(
           "The transaction has a memo but the client account ID is a muxed account",
         );
       }
-      if (![MemoID, MemoNone].includes(transaction.memo.type)) {
+      if (transaction.memo.type !== MemoID) {
         throw new InvalidSep10ChallengeError(
           "The transaction's memo must be of type `id`",
         );
