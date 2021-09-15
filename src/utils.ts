@@ -64,7 +64,7 @@ export namespace Utils {
     // turned into binary represents 8 bits = 1 bytes.
     const value = randomBytes(48).toString("base64");
 
-    const transactionBuilder = new TransactionBuilder(account, {
+    const transaction = new TransactionBuilder(account, {
       fee: BASE_FEE,
       networkPassphrase,
       timebounds: {
@@ -86,18 +86,9 @@ export namespace Utils {
           value: webAuthDomain,
           source: account.accountId(),
         }),
-      );
-    if (memo) {
-      try {
-        transactionBuilder.addMemo(Memo.id(memo));
-      } catch {
-        throw new Error(
-          "invalid value for 'memo', must be 64-bit integer string",
-        );
-      }
-    }
-
-    const transaction = transactionBuilder.build();
+      )
+      .addMemo(memo ? Memo.id(memo) : Memo.none())
+      .build();
 
     transaction.sign(serverKeypair);
 
@@ -127,7 +118,7 @@ export namespace Utils {
    * @param {string} networkPassphrase The network passphrase, e.g.: 'Test SDF Network ; September 2015'.
    * @param {string|string[]} [homeDomains] The home domain that is expected to be included in the first Manage Data operation's string key. If an array is provided, one of the domain names in the array must match.
    * @param {string} webAuthDomain The home domain that is expected to be included as the value of the Manage Data operation with the 'web_auth_domain' key. If no such operation is included, this parameter is not used.
-   * @returns {Transaction|string|string} The actual transaction and the stellar public key (master key) used to sign the Manage Data operation, and matched home domain.
+   * @returns {Transaction|string|string|string} The actual transaction and the stellar public key (master key) used to sign the Manage Data operation, the matched home domain, and the memo attached to the transaction.
    */
   export function readChallengeTx(
     challengeTx: string,

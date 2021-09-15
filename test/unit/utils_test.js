@@ -72,9 +72,7 @@ describe('Utils', function() {
           "testanchor.stellar.org",
           "memo text"
         )
-      ).to.throw(
-        /invalid value for 'memo', must be 64-bit integer string/
-      );
+      ).to.throw();
     });
 
     it('disallows memos with muxed accounts', function() {
