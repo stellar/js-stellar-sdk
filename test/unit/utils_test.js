@@ -321,7 +321,7 @@ describe('Utils', function() {
 
       const challenge = StellarSdk.Utils.buildChallengeTx(
         serverKP,
-        clientMuxedAccount.accountId(),
+        muxedAddress,
         "SDF",
         300,
         StellarSdk.Networks.TESTNET,
