@@ -153,17 +153,11 @@ describe('Utils', function() {
 
     it("throws an error if a muxed account and memo is passed", function () {
       let keypair = StellarSdk.Keypair.random();
-      const muxedAccount = new StellarSdk.MuxedAccount(
-        new StellarSdk.Account(
-          StellarSdk.Keypair.random().publicKey(), "-1"
-        ),
-        "5842698851377328257"
-      )
-
+      const muxedAddress = "MCQQMHTBRF2NPCEJWO2JMDT2HBQ2FGDCYREY2YIBSHLTXDG54Y3KTWX3R7NBER62VBELC";
       expect(() =>
         StellarSdk.Utils.buildChallengeTx(
           keypair,
-          muxedAccount.accountId(),
+          muxedAddress,
           "testanchor.stellar.org",
           600,
           StellarSdk.Networks.TESTNET,
@@ -323,12 +317,7 @@ describe('Utils', function() {
 
     it("returns the muxed clientAccountID if included in the challenge", function() {
       let serverKP = StellarSdk.Keypair.random();
-      let clientMuxedAccount = new StellarSdk.MuxedAccount(
-        new StellarSdk.Account(
-          StellarSdk.Keypair.random().publicKey(), "-1"
-        ),
-        "5842698851377328257"
-      );
+      let muxedAddress = "MCQQMHTBRF2NPCEJWO2JMDT2HBQ2FGDCYREY2YIBSHLTXDG54Y3KTWX3R7NBER62VBELC";
 
       const challenge = StellarSdk.Utils.buildChallengeTx(
         serverKP,
@@ -353,7 +342,7 @@ describe('Utils', function() {
         )
       ).to.eql({
         tx: transaction,
-        clientAccountID: clientMuxedAccount.accountId(),
+        clientAccountID: muxedAddress,
         matchedHomeDomain: "SDF",
         memo: null
       });
@@ -362,15 +351,15 @@ describe('Utils', function() {
     it("throws an error if the transaction uses a muxed account and has a memo", function () {
       let serverKP = StellarSdk.Keypair.random();
       let clientKP = StellarSdk.Keypair.random();
-      const serverAccount = new StellarSdk.Account(serverKP.publicKey(), "-1");
-      const clientAccount = new StellarSdk.Account(clientKP.publicKey(), "-1");
+      const serverAccount = new StellarSdk.Account(serverKP.publicKey(), "0");
+      const clientMuxedAddress = "MCQQMHTBRF2NPCEJWO2JMDT2HBQ2FGDCYREY2YIBSHLTXDG54Y3KTWX3R7NBER62VBELC";
       const transaction = new StellarSdk.TransactionBuilder(
         serverAccount,
         txBuilderOpts,
       )
         .addOperation(
           StellarSdk.Operation.manageData({
-            source: new StellarSdk.MuxedAccount(clientAccount, "5842698851377328257").accountId(),
+            source: clientMuxedAddress,
             name: "testanchor.stellar.org auth",
             value: randomBytes(48).toString("base64"),
             withMuxing: true
