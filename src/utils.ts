@@ -33,7 +33,7 @@ export namespace Utils {
    * @param {number} [timeout=300] Challenge duration (default to 5 minutes).
    * @param {string} networkPassphrase The network passphrase. If you pass this argument then timeout is required.
    * @param {string} webAuthDomain The fully qualified domain name of the service issuing the challenge.
-   * @param {string} The memo to attach to the challenge transaction. The memo must be of type `id`. If the `clientaccountID` is a muxed account, memos cannot be used.
+   * @param {string} [memo] The memo to attach to the challenge transaction. The memo must be of type `id`. If the `clientaccountID` is a muxed account, memos cannot be used.
    * @example
    * import { Utils, Keypair, Networks }  from 'stellar-sdk'
    *
