@@ -20,11 +20,12 @@ describe('Utils', function() {
   });
 
   describe('Utils.buildChallengeTx', function() {
-    it('requires a non-muxed account', function() {
+    it('allows non-muxed accounts', function() {
       let keypair = StellarSdk.Keypair.random();
-
+      let muxedAddress = "MAAAAAAAAAAAAAB7BQ2L7E5NBWMXDUCMZSIPOBKRDSBYVLMXGSSKF6YNPIB7Y77ITLVL6";
+      let challenge;
       expect(() =>
-        StellarSdk.Utils.buildChallengeTx(
+        challenge = StellarSdk.Utils.buildChallengeTx(
           keypair,
           "MAAAAAAAAAAAAAB7BQ2L7E5NBWMXDUCMZSIPOBKRDSBYVLMXGSSKF6YNPIB7Y77ITLVL6",
           "testanchor.stellar.org",
@@ -32,8 +33,63 @@ describe('Utils', function() {
           StellarSdk.Networks.TESTNET,
           "testanchor.stellar.org"
         )
+      ).not.to.throw();
+      const transaction = new StellarSdk.Transaction(
+        challenge, StellarSdk.Networks.TESTNET, true
+      );
+      expect(transaction.operations[0].source).to.equal(muxedAddress);
+    });
+
+    it('allows ID memos', function() {
+      let keypair = StellarSdk.Keypair.random();
+      let challenge;
+      expect(() =>
+        challenge = StellarSdk.Utils.buildChallengeTx(
+          keypair,
+          StellarSdk.Keypair.random().publicKey(),
+          "testanchor.stellar.org",
+          300,
+          StellarSdk.Networks.TESTNET,
+          "testanchor.stellar.org",
+          "8884404377665521220"
+        )
+      ).not.to.throw();
+      const transaction = new StellarSdk.Transaction(
+        challenge, StellarSdk.Networks.TESTNET, true
+      );
+      expect(transaction.memo.value).to.equal("8884404377665521220");
+    });
+
+    it('disallows non-ID memos', function() {
+      let keypair = StellarSdk.Keypair.random();
+      expect(() =>
+        challenge = StellarSdk.Utils.buildChallengeTx(
+          keypair,
+          StellarSdk.Keypair.random().publicKey(),
+          "testanchor.stellar.org",
+          300,
+          StellarSdk.Networks.TESTNET,
+          "testanchor.stellar.org",
+          "memo text"
+        )
+      ).to.throw();
+    });
+
+    it('disallows memos with muxed accounts', function() {
+      let keypair = StellarSdk.Keypair.random();
+      const muxedAddress = "MAAAAAAAAAAAAAB7BQ2L7E5NBWMXDUCMZSIPOBKRDSBYVLMXGSSKF6YNPIB7Y77ITLVL6";
+      expect(() =>
+        challenge = StellarSdk.Utils.buildChallengeTx(
+          keypair,
+          muxedAddress,
+          "testanchor.stellar.org",
+          300,
+          StellarSdk.Networks.TESTNET,
+          "testanchor.stellar.org",
+          "8884404377665521220"
+        )
       ).to.throw(
-        /Invalid clientAccountID: multiplexed accounts are not supported./
+        /memo cannot be used if clientAccountID is a muxed account/
       );
     });
 
@@ -94,24 +150,28 @@ describe('Utils', function() {
       expect(maxTime).to.eql(600);
       expect(maxTime - minTime).to.eql(600);
     });
+
+    it("throws an error if a muxed account and memo is passed", function () {
+      let keypair = StellarSdk.Keypair.random();
+      const muxedAddress = "MCQQMHTBRF2NPCEJWO2JMDT2HBQ2FGDCYREY2YIBSHLTXDG54Y3KTWX3R7NBER62VBELC";
+      expect(() =>
+        StellarSdk.Utils.buildChallengeTx(
+          keypair,
+          muxedAddress,
+          "testanchor.stellar.org",
+          600,
+          StellarSdk.Networks.TESTNET,
+          "testanchor.stellar.org",
+          "10154623012567072189"
+        )
+      ).to.throw(
+        /memo cannot be used if clientAccountID is a muxed account/
+      );
+    });
+
   });
 
   describe("Utils.readChallengeTx", function() {
-    it('requires a non-muxed account', function() {
-      expect(() =>
-        StellarSdk.Utils.readChallengeTx(
-          "avalidtx",
-          "MAAAAAAAAAAAAAB7BQ2L7E5NBWMXDUCMZSIPOBKRDSBYVLMXGSSKF6YNPIB7Y77ITLVL6",
-          "SDF",
-          300,
-          StellarSdk.Networks.TESTNET,
-          "testanchor.stellar.org",
-          "testanchor.stellar.org"
-        )
-      ).to.throw(
-        /Invalid serverAccountID: multiplexed accounts are not supported./
-      );
-    });
     it("requires a envelopeTypeTxV0 or envelopeTypeTx", function(){
       let serverKP = StellarSdk.Keypair.random();
       let clientKP = StellarSdk.Keypair.random();
@@ -213,8 +273,126 @@ describe('Utils', function() {
         tx: transaction,
         clientAccountID: clientKP.publicKey(),
         matchedHomeDomain: "SDF",
+        memo: null
       });
     });
+
+    it("returns the clientAccountID and memo if the challenge includes a memo", function() {
+      let serverKP = StellarSdk.Keypair.random();
+      let clientKP = StellarSdk.Keypair.random();
+      let clientMemo = "7659725268483412096";
+
+      const challenge = StellarSdk.Utils.buildChallengeTx(
+        serverKP,
+        clientKP.publicKey(),
+        "SDF",
+        300,
+        StellarSdk.Networks.TESTNET,
+        "testanchor.stellar.org",
+        clientMemo
+      );
+
+      clock.tick(200);
+
+      const transaction = new StellarSdk.Transaction(
+        challenge,
+        StellarSdk.Networks.TESTNET
+      );
+
+      expect(
+        StellarSdk.Utils.readChallengeTx(
+          challenge,
+          serverKP.publicKey(),
+          StellarSdk.Networks.TESTNET,
+          "SDF",
+          "testanchor.stellar.org"
+        )
+      ).to.eql({
+        tx: transaction,
+        clientAccountID: clientKP.publicKey(),
+        matchedHomeDomain: "SDF",
+        memo: clientMemo
+      });
+    });
+
+    it("returns the muxed clientAccountID if included in the challenge", function() {
+      let serverKP = StellarSdk.Keypair.random();
+      let muxedAddress = "MCQQMHTBRF2NPCEJWO2JMDT2HBQ2FGDCYREY2YIBSHLTXDG54Y3KTWX3R7NBER62VBELC";
+
+      const challenge = StellarSdk.Utils.buildChallengeTx(
+        serverKP,
+        muxedAddress,
+        "SDF",
+        300,
+        StellarSdk.Networks.TESTNET,
+        "testanchor.stellar.org",
+      );
+
+      clock.tick(200);
+
+      const transaction = new StellarSdk.Transaction(challenge, StellarSdk.Networks.TESTNET, true);
+
+      expect(
+        StellarSdk.Utils.readChallengeTx(
+          challenge,
+          serverKP.publicKey(),
+          StellarSdk.Networks.TESTNET,
+          "SDF",
+          "testanchor.stellar.org"
+        )
+      ).to.eql({
+        tx: transaction,
+        clientAccountID: muxedAddress,
+        matchedHomeDomain: "SDF",
+        memo: null
+      });
+    });
+
+    it("throws an error if the transaction uses a muxed account and has a memo", function () {
+      let serverKP = StellarSdk.Keypair.random();
+      let clientKP = StellarSdk.Keypair.random();
+      const serverAccount = new StellarSdk.Account(serverKP.publicKey(), "-1");
+      const clientMuxedAddress = "MCQQMHTBRF2NPCEJWO2JMDT2HBQ2FGDCYREY2YIBSHLTXDG54Y3KTWX3R7NBER62VBELC";
+      const transaction = new StellarSdk.TransactionBuilder(
+        serverAccount,
+        txBuilderOpts,
+      )
+        .addOperation(
+          StellarSdk.Operation.manageData({
+            source: clientMuxedAddress,
+            name: "testanchor.stellar.org auth",
+            value: randomBytes(48).toString("base64"),
+            withMuxing: true
+          }),
+        )
+        .addMemo(new StellarSdk.Memo.id("5842698851377328257"))
+        .setTimeout(30)
+        .build();
+
+      transaction.sign(serverKP);
+      const challenge = transaction
+        .toEnvelope()
+        .toXDR("base64")
+        .toString();
+
+      const transactionRoundTripped = new StellarSdk.Transaction(
+        challenge,
+        StellarSdk.Networks.TESTNET
+      );
+
+      expect(() =>
+        StellarSdk.Utils.readChallengeTx(
+          challenge,
+          serverKP.publicKey(),
+          StellarSdk.Networks.TESTNET,
+          "testanchor.stellar.org",
+          "testanchor.stellar.org"
+        ),
+      ).to.throw(
+        StellarSdk.InvalidSep10ChallengeError,
+        /The transaction has a memo but the client account ID is a muxed account/
+      )
+    })
 
     it("throws an error if the server hasn't signed the transaction", function () {
       let serverKP = StellarSdk.Keypair.random();
@@ -647,6 +825,7 @@ describe('Utils', function() {
         tx: transactionRoundTripped,
         clientAccountID: clientKP.publicKey(),
         matchedHomeDomain: "testanchor.stellar.org",
+        memo: null
       });
     });
 
@@ -691,6 +870,7 @@ describe('Utils', function() {
         tx: transactionRoundTripped,
         clientAccountID: clientKP.publicKey(),
         matchedHomeDomain: "testanchor.stellar.org",
+        memo: null
       });
     });
 
@@ -893,6 +1073,7 @@ describe('Utils', function() {
         tx: transactionRoundTripped,
         clientAccountID: clientKP.publicKey(),
         matchedHomeDomain: "SDF",
+        memo: null
       });
     });
 
@@ -1136,6 +1317,7 @@ describe('Utils', function() {
         tx: transactionRoundTripped,
         clientAccountID: clientKP.publicKey(),
         matchedHomeDomain: "testanchor.stellar.org",
+        memo: null
       });
     });
 
@@ -1187,6 +1369,7 @@ describe('Utils', function() {
         tx: transactionRoundTripped,
         clientAccountID: clientKP.publicKey(),
         matchedHomeDomain: "testanchor.stellar.org",
+        memo: null
       });
     });
 
@@ -1238,6 +1421,7 @@ describe('Utils', function() {
         tx: transactionRoundTripped,
         clientAccountID: clientKP.publicKey(),
         matchedHomeDomain: "testanchor.stellar.org",
+        memo: null
       });
     });
   });

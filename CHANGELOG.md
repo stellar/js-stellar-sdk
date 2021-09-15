@@ -5,10 +5,17 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Updates
+
+- Updates the following SEP-10 utility functions to be compilant with the protocols ([#709](https://github.com/stellar/js-stellar-sdk/pull/709/), [stellar-protocol/#1036](https://github.com/stellar/stellar-protocol/pull/1036))
+    - Updated `utils.buildChallengeTx()` to accept muxed accounts (`M...`) for client account IDs
+    - Updated `utils.buildChallengeTx()` to accept a `memo` parameter to attach to the challenge transaction
+    - Updated `utils.readChallengeTx()` to provide a `memo` property in the returned object
+    - Updated `utils.readChallengeTx()` to validate challenge transactions with muxed accounts (`M...`) as the client account ID
+
 ### Fix
 
 - Drops the `chai-http` dependency to be only for developers ([#707](https://github.com/stellar/js-stellar-sdk/pull/707)).
-
 
 ## [v9.0.0-beta.0](https://github.com/stellar/js-stellar-sdk/compare/v8.2.5...v9.0.0-beta.0)
 
