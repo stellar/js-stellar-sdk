@@ -2,8 +2,16 @@
 
 A breaking change will get clearly marked in this log.
 
-## Unreleased
+## [v8.3.0](https://github.com/stellar/js-stellar-sdk/compare/v8.2.5...v8.3.0)
 
+### Updates
+
+- Updates the following SEP-10 utility functions to be compilant with the protocols ([#709](https://github.com/stellar/js-stellar-sdk/pull/709/), [stellar-protocol/#1036](https://github.com/stellar/stellar-protocol/pull/1036))
+    - Updated `utils.buildChallengeTx()` to accept muxed accounts (`M...`) for client account IDs
+    - Updated `utils.buildChallengeTx()` to accept a `memo` parameter to attach to the challenge transaction
+    - Updated `utils.readChallengeTx()` to provide a `memo` property in the returned object
+    - Updated `utils.readChallengeTx()` to validate challenge transactions with muxed accounts (`M...`) as the client account ID
+- Upgraded `js-stellar-base` package to version `^5.3.2` from `^6.0.3`, refer to its [release notes](https://github.com/stellar/js-stellar-base/releases/tag/v6.0.3) for more info ([#709](https://github.com/stellar/js-stellar-sdk/pull/709/), [stellar-protocol/#1036](https://github.com/stellar/stellar-protocol/pull/1036))
 
 ## [v8.2.5](https://github.com/stellar/js-stellar-sdk/compare/v8.2.4...v8.2.5)
 

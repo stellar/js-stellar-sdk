@@ -5,6 +5,9 @@ import {
   BASE_FEE,
   FeeBumpTransaction,
   Keypair,
+  Memo,
+  MemoID,
+  MemoNone,
   Operation,
   TimeoutInfinite,
   Transaction,
@@ -25,11 +28,12 @@ export namespace Utils {
    * @function
    * @memberof Utils
    * @param {Keypair} serverKeypair Keypair for server's signing account.
-   * @param {string} clientAccountID The stellar account that the wallet wishes to authenticate with the server.
+   * @param {string} clientAccountID The stellar account (G...) or muxed account (M...) that the wallet wishes to authenticate with the server.
    * @param {string} homeDomain The fully qualified domain name of the service requiring authentication
    * @param {number} [timeout=300] Challenge duration (default to 5 minutes).
    * @param {string} networkPassphrase The network passphrase. If you pass this argument then timeout is required.
    * @param {string} webAuthDomain The fully qualified domain name of the service issuing the challenge.
+   * @param {string} [memo] The memo to attach to the challenge transaction. The memo must be of type `id`. If the `clientaccountID` is a muxed account, memos cannot be used.
    * @example
    * import { Utils, Keypair, Networks }  from 'stellar-sdk'
    *
@@ -44,11 +48,10 @@ export namespace Utils {
     timeout: number = 300,
     networkPassphrase: string,
     webAuthDomain: string,
+    memo: string | null = null,
   ): string {
-    if (clientAccountID.startsWith("M")) {
-      throw Error(
-        "Invalid clientAccountID: multiplexed accounts are not supported.",
-      );
+    if (clientAccountID.startsWith("M") && memo) {
+      throw Error("memo cannot be used if clientAccountID is a muxed account");
     }
 
     const account = new Account(serverKeypair.publicKey(), "-1");
@@ -61,7 +64,7 @@ export namespace Utils {
     // turned into binary represents 8 bits = 1 bytes.
     const value = randomBytes(48).toString("base64");
 
-    const transaction = new TransactionBuilder(account, {
+    const builder = new TransactionBuilder(account, {
       fee: BASE_FEE,
       networkPassphrase,
       timebounds: {
@@ -74,6 +77,7 @@ export namespace Utils {
           name: `${homeDomain} auth`,
           value,
           source: clientAccountID,
+          withMuxing: true,
         }),
       )
       .addOperation(
@@ -82,9 +86,13 @@ export namespace Utils {
           value: webAuthDomain,
           source: account.accountId(),
         }),
-      )
-      .build();
+      );
 
+    if (memo) {
+      builder.addMemo(Memo.id(memo));
+    }
+
+    const transaction = builder.build();
     transaction.sign(serverKeypair);
 
     return transaction
@@ -113,7 +121,7 @@ export namespace Utils {
    * @param {string} networkPassphrase The network passphrase, e.g.: 'Test SDF Network ; September 2015'.
    * @param {string|string[]} [homeDomains] The home domain that is expected to be included in the first Manage Data operation's string key. If an array is provided, one of the domain names in the array must match.
    * @param {string} webAuthDomain The home domain that is expected to be included as the value of the Manage Data operation with the 'web_auth_domain' key. If no such operation is included, this parameter is not used.
-   * @returns {Transaction|string|string} The actual transaction and the stellar public key (master key) used to sign the Manage Data operation, and matched home domain.
+   * @returns {Transaction|string|string|string} The actual transaction and the stellar public key (master key) used to sign the Manage Data operation, the matched home domain, and the memo attached to the transaction, which will be null if not present.
    */
   export function readChallengeTx(
     challengeTx: string,
@@ -121,19 +129,33 @@ export namespace Utils {
     networkPassphrase: string,
     homeDomains: string | string[],
     webAuthDomain: string,
-  ): { tx: Transaction; clientAccountID: string; matchedHomeDomain: string } {
+  ): {
+    tx: Transaction;
+    clientAccountID: string;
+    matchedHomeDomain: string;
+    memo: string | null;
+  } {
     if (serverAccountID.startsWith("M")) {
       throw Error(
         "Invalid serverAccountID: multiplexed accounts are not supported.",
       );
     }
 
-    const transaction = TransactionBuilder.fromXDR(
-      challengeTx,
-      networkPassphrase,
-    );
-
-    if (!(transaction instanceof Transaction)) {
+    let transaction;
+    try {
+      transaction = new Transaction(challengeTx, networkPassphrase, true);
+    } catch {
+      try {
+        transaction = new FeeBumpTransaction(
+          challengeTx,
+          networkPassphrase,
+          true,
+        );
+      } catch {
+        throw new InvalidSep10ChallengeError(
+          "Invalid challenge: unable to deserialize challengeTx transaction string",
+        );
+      }
       throw new InvalidSep10ChallengeError(
         "Invalid challenge: expected a Transaction but received a FeeBumpTransaction",
       );
@@ -170,6 +192,21 @@ export namespace Utils {
       );
     }
     const clientAccountID: string = operation.source!;
+
+    let memo: string | null = null;
+    if (transaction.memo.type !== MemoNone) {
+      if (clientAccountID.startsWith("M")) {
+        throw new InvalidSep10ChallengeError(
+          "The transaction has a memo but the client account ID is a muxed account",
+        );
+      }
+      if (transaction.memo.type !== MemoID) {
+        throw new InvalidSep10ChallengeError(
+          "The transaction's memo must be of type `id`",
+        );
+      }
+      memo = transaction.memo.value as string;
+    }
 
     if (operation.type !== "manageData") {
       throw new InvalidSep10ChallengeError(
@@ -272,7 +309,7 @@ export namespace Utils {
       );
     }
 
-    return { tx: transaction, clientAccountID, matchedHomeDomain };
+    return { tx: transaction, clientAccountID, matchedHomeDomain, memo };
   }
 
   /**
