@@ -351,7 +351,7 @@ describe('Utils', function() {
     it("throws an error if the transaction uses a muxed account and has a memo", function () {
       let serverKP = StellarSdk.Keypair.random();
       let clientKP = StellarSdk.Keypair.random();
-      const serverAccount = new StellarSdk.Account(serverKP.publicKey(), "0");
+      const serverAccount = new StellarSdk.Account(serverKP.publicKey(), "-1");
       const clientMuxedAddress = "MCQQMHTBRF2NPCEJWO2JMDT2HBQ2FGDCYREY2YIBSHLTXDG54Y3KTWX3R7NBER62VBELC";
       const transaction = new StellarSdk.TransactionBuilder(
         serverAccount,
