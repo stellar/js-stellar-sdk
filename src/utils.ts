@@ -64,7 +64,7 @@ export namespace Utils {
     // turned into binary represents 8 bits = 1 bytes.
     const value = randomBytes(48).toString("base64");
 
-    const transaction = new TransactionBuilder(account, {
+    const builder = new TransactionBuilder(account, {
       fee: BASE_FEE,
       networkPassphrase,
       timebounds: {
@@ -86,10 +86,11 @@ export namespace Utils {
           value: webAuthDomain,
           source: account.accountId(),
         }),
-      )
-      .addMemo(memo ? Memo.id(memo) : Memo.none())
-      .build();
+      );
 
+    if (memo) { builder.addMemo(Memo.id(memo)); }
+
+    const transaction = builder.build();
     transaction.sign(serverKeypair);
 
     return transaction
