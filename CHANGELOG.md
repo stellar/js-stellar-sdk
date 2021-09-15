@@ -5,6 +5,12 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Updates
+
+- Updated `utils.buildChallengeTx()` to accept muxed accounts (`M...`) for client account IDs
+- Updated `utils.buildChallengeTx()` to accept a `memo` parameter to attach to the challenge transaction
+- Updated `utils.readChallengeTx()` to provide a `memo` property in the returned object
+- Updated `utils.readChallengeTx()` to validate challenge transactions with muxed accounts (`M...`) as the client account ID
 
 ## [v9.0.0-beta.0](https://github.com/stellar/js-stellar-sdk/compare/v8.2.5...v9.0.0-beta.0)
 

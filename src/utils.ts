@@ -48,7 +48,7 @@ export namespace Utils {
     timeout: number = 300,
     networkPassphrase: string,
     webAuthDomain: string,
-    memo: string | null,
+    memo: string | null = null,
   ): string {
     if (clientAccountID.startsWith("M") && memo) {
       throw Error("memo cannot be used if clientAccountID is a muxed account");
