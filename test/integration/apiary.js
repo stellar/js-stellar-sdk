@@ -49,9 +49,10 @@ describe("tests the /liquidity_pools endpoint", function() {
   });
 
   const testCases = {
-    transactions: server.transactions(),
-    operations: server.operations(),
     effects: server.effects(),
+    operations: server.operations(),
+    trades: server.trades(),
+    transactions: server.transactions(),
   };
 
   Object.keys(testCases).forEach(suffix => {
