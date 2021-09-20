@@ -671,6 +671,77 @@ describe('/liquidity_pools tests', function() {
         })
         .catch(done);
     });
+
+    const poolTradesResponse = {
+      "_links": {
+        "self": {
+          "href": "https://private-33c60-amm3.apiary-mock.com/liquidity_pools/3b476aff8a406a6ec3b61d5c038009cef85f2ddfaf616822dc4fec92845149b4/trades?cursor=113725249324879873&limit=10&order=asc"
+        },
+        "next": {
+          "href": "https://private-33c60-amm3.apiary-mock.com/liquidity_pools/3b476aff8a406a6ec3b61d5c038009cef85f2ddfaf616822dc4fec92845149b4/trades?cursor=113725249324879873&limit=10&order=asc"
+        },
+        "prev": {
+          "href": "https://private-33c60-amm3.apiary-mock.com/liquidity_pools/3b476aff8a406a6ec3b61d5c038009cef85f2ddfaf616822dc4fec92845149b4/trades?cursor=113725249324879873&limit=10&order=asc"
+        }
+      },
+      "_embedded": {
+        "records": [
+          {
+            "_links": {
+              "self": {
+                "href": ""
+              },
+              "base": {
+                "href": "https://private-33c60-amm3.apiary-mock.com/accounts/GAVH5JM5OKXGMQDS7YPRJ4MQCPXJUGH26LYQPQJ4SOMOJ4SXY472ZM7G"
+              },
+              "counter": {
+                "href": "https://private-33c60-amm3.apiary-mock.com/accounts/GBB4JST32UWKOLGYYSCEYBHBCOFL2TGBHDVOMZP462ET4ZRD4ULA7S2L"
+              },
+              "operation": {
+                "href": "https://private-33c60-amm3.apiary-mock.com/operations/3697472920621057"
+              }
+            },
+            "id": "3697472920621057-0",
+            "paging_token": "3697472920621057-0",
+            "ledger_close_time": "2015-11-18T03:47:47Z",
+            "offer_id": "9",
+            "base_offer_id": "9",
+            "base_account": "GAVH5JM5OKXGMQDS7YPRJ4MQCPXJUGH26LYQPQJ4SOMOJ4SXY472ZM7G",
+            "base_amount": "10.0000000",
+            "base_asset_type": "native",
+            "counter_liquidity_pool": "3b476aff8a406a6ec3b61d5c038009cef85f2ddfaf616822dc4fec92845149b4",
+            "liquidity_pool_fee_bp": "30",
+            "counter_amount": "2.6700000",
+            "counter_asset_type": "credit_alphanum4",
+            "counter_asset_code": "JPY",
+            "counter_asset_issuer": "GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM",
+            "base_is_seller": true,
+            "price": {
+              "n": "267",
+              "d": "1000"
+            },
+            "trade_type": "liquidity_pool",
+          }
+        ]
+      }
+    };
+
+    it('retrieves its trades', function(done) {
+      this.axiosMock
+        .expects('get')
+        .withArgs(sinon.match(`${LP_URL}/${lpId}/trades`))
+        .returns(Promise.resolve({ data: poolTradesResponse }))
+
+      this.server
+        .trades()
+        .forLiquidityPool(lpId)
+        .call()
+        .then((poolTrades) => {
+          expect(poolTrades.records).to.deep.equal(poolTradesResponse._embedded.records);
+          done();
+        })
+        .catch(done);
+    });
   });
 
   describe('querying a specific pool', function() {

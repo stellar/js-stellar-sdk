@@ -73,4 +73,14 @@ export class TradesCallBuilder extends CallBuilder<
   public forAccount(accountId: string): this {
     return this.forEndpoint("accounts", accountId);
   }
+
+  /**
+   * Filter trades for a specific liquidity pool
+   * @see [Trades for Liquidity Pool](https://www.stellar.org/developers/horizon/reference/endpoints/trades-for-liquidity-pool.html)
+   * @param {string} liquidityPoolId For example: `3b476aff8a406a6ec3b61d5c038009cef85f2ddfaf616822dc4fec92845149b4`
+   * @returns {TradesCallBuilder} current TradesCallBuilder instance
+   */
+  public forLiquidityPool(liquidityPoolId: string): this {
+    return this.forEndpoint("liquidity_pools", liquidityPoolId);
+  }
 }
