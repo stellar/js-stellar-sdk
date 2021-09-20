@@ -3,7 +3,11 @@
 A breaking change will get clearly marked in this log.
 
 
-## Unreleased
+## [v9.0.0-beta.1](https://github.com/stellar/js-stellar-sdk/compare/v9.0.0-beta.0...v9.0.0-beta.1)
+
+### Add
+
+- Add `/liquidity_pools/:id/trades` endpoint ([#710](https://github.com/stellar/js-stellar-sdk/pull/710))
 
 ### Updates
 
