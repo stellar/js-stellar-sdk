@@ -12,7 +12,7 @@ import { ServerApi } from "./server_api";
  * The balances section in the returned JSON will also list all the trust lines this account has set up.
  * It also contains {@link Account} object and exposes it's methods so can be used in {@link TransactionBuilder}.
  *
- * @see [Account Details](https://www.stellar.org/developers/horizon/reference/endpoints/accounts-single.html)
+ * @see [Account Details](https://developers.stellar.org/api/resources/accounts/object/)
  * @param {string} response Response from horizon account endpoint.
  * @returns {AccountResponse} AccountResponse instance
  */

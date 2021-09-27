@@ -9,7 +9,7 @@ import { ServerApi } from "./server_api";
  * @class TradesCallBuilder
  * @extends CallBuilder
  * @constructor
- * @see [Trades](https://www.stellar.org/developers/horizon/reference/endpoints/trades.html)
+ * @see [Trades](https://developers.stellar.org/api/resources/trades/)
  * @param {string} serverUrl serverUrl Horizon server URL.
  */
 export class TradesCallBuilder extends CallBuilder<
@@ -66,7 +66,7 @@ export class TradesCallBuilder extends CallBuilder<
 
   /**
    * Filter trades for a specific account
-   * @see [Trades for Account](https://www.stellar.org/developers/horizon/reference/endpoints/trades-for-account.html)
+   * @see [Trades for Account](https://developers.stellar.org/api/resources/accounts/trades/)
    * @param {string} accountId For example: `GBYTR4MC5JAX4ALGUBJD7EIKZVM7CUGWKXIUJMRSMK573XH2O7VAK3SR`
    * @returns {TradesCallBuilder} current TradesCallBuilder instance
    */
@@ -76,7 +76,7 @@ export class TradesCallBuilder extends CallBuilder<
 
   /**
    * Filter trades for a specific liquidity pool
-   * @see [Trades for Liquidity Pool](https://www.stellar.org/developers/horizon/reference/endpoints/trades-for-liquidity-pool.html)
+   * @see [Trades for Liquidity Pool](https://developers.stellar.org/api/resources/liquiditypools/trades/)
    * @param {string} liquidityPoolId For example: `3b476aff8a406a6ec3b61d5c038009cef85f2ddfaf616822dc4fec92845149b4`
    * @returns {TradesCallBuilder} current TradesCallBuilder instance
    */

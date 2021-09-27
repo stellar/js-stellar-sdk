@@ -188,10 +188,10 @@ There is also a [sample](https://github.com/fnando/rn-stellar-sdk-sample) that y
 ## Usage
 
 For information on how to use js-stellar-sdk, take a look at the
-[Developers site](https://www.stellar.org/developers/js-stellar-sdk/reference/).
+[Developers site](https://github.com/stellar/js-stellar-sdk/blob/master/docs/reference/readme.md).
 
 There is also API Documentation
-[here](https://www.stellar.org/developers/horizon/reference/index.html).
+[here](https://developers.stellar.org/api/introduction/).
 
 ## Testing
 
@@ -226,7 +226,7 @@ cd jsdoc && serve .
 ## Documentation
 
 Documentation for this repo lives in
-[Developers site](https://www.stellar.org/developers/js-stellar-sdk/reference/).
+[Developers site](https://github.com/stellar/js-stellar-sdk/blob/master/docs/reference/readme.md).
 
 ## Contributing
 

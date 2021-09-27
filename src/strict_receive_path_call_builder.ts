@@ -22,7 +22,7 @@ import { ServerApi } from "./server_api";
  * paths from those source assets to the desired destination asset.
  *
  * Do not create this object directly, use {@link Server#strictReceivePaths}.
- * @see [Find Payment Paths](https://www.stellar.org/developers/horizon/reference/endpoints/path-finding.html)
+ * @see [Find Payment Paths](https://developers.stellar.org/api/aggregations/paths/)
  * @extends CallBuilder
  * @param {string} serverUrl Horizon server URL.
  * @param {string|Asset[]} source The sender's account ID or a list of Assets. Any returned path must use a source that the sender can hold.
