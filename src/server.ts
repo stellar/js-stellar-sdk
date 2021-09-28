@@ -57,7 +57,7 @@ function _getAmountInLumens(amt: BigNumber) {
 }
 
 /**
- * Server handles the network connection to a [Horizon](https://www.stellar.org/developers/horizon/reference/)
+ * Server handles the network connection to a [Horizon](https://developers.stellar.org/api/introduction/)
  * instance and exposes an interface for requests to that instance.
  * @constructor
  * @param {string} serverURL Horizon Server URL (ex. `https://horizon-testnet.stellar.org`).
@@ -176,7 +176,7 @@ export class Server {
 
   /**
    * Fetch the fee stats endpoint.
-   * @see [Fee Stats](https://www.stellar.org/developers/horizon/reference/endpoints/fee-stats.html)
+   * @see [Fee Stats](https://developers.stellar.org/api/aggregations/fee-stats/)
    * @returns {Promise<Horizon.FeeStatsResponse>} Promise that resolves to the fee stats returned by Horizon.
    */
   public async feeStats(): Promise<Horizon.FeeStatsResponse> {
@@ -282,7 +282,7 @@ export class Server {
    *   `amountBought` or `amountSold` have already been transferred.
    *
    * @see [Post
-   * Transaction](https://www.stellar.org/developers/horizon/reference/endpoints/transactions-create.html)
+   * Transaction](https://developers.stellar.org/api/resources/transactions/post/)
    * @param {Transaction|FeeBumpTransaction} transaction - The transaction to submit.
    * @param {object} [opts] Options object
    * @param {boolean} [opts.skipMemoRequiredCheck] - Allow skipping memo

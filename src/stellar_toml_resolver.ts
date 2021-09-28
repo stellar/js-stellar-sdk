@@ -24,7 +24,7 @@ export class StellarTomlResolver {
    *     // stellar.toml does not exist or is invalid
    *   });
    * ```
-   * @see <a href="https://www.stellar.org/developers/guides/concepts/stellar-toml.html" target="_blank">Stellar.toml doc</a>
+   * @see <a href="https://developers.stellar.org/docs/issuing-assets/publishing-asset-info/" target="_blank">Stellar.toml doc</a>
    * @param {string} domain Domain to get stellar.toml file for
    * @param {object} [opts] Options object
    * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments!

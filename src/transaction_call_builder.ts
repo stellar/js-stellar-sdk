@@ -7,7 +7,7 @@ import { ServerApi } from "./server_api";
  *
  * @class TransactionCallBuilder
  * @extends CallBuilder
- * @see [All Transactions](https://www.stellar.org/developers/horizon/reference/endpoints/transactions-all.html)
+ * @see [All Transactions](https://developers.stellar.org/api/resources/transactions/)
  * @constructor
  * @param {string} serverUrl Horizon server URL.
  */
@@ -21,7 +21,7 @@ export class TransactionCallBuilder extends CallBuilder<
 
   /**
    * The transaction details endpoint provides information on a single transaction. The transaction hash provided in the hash argument specifies which transaction to load.
-   * @see [Transaction Details](https://www.stellar.org/developers/horizon/reference/endpoints/transactions-single.html)
+   * @see [Transaction Details](https://developers.stellar.org/api/resources/transactions/single/)
    * @param {string} transactionId Transaction ID
    * @returns {CallBuilder} a CallBuilder instance
    */
@@ -37,7 +37,7 @@ export class TransactionCallBuilder extends CallBuilder<
 
   /**
    * This endpoint represents all transactions that affected a given account.
-   * @see [Transactions for Account](https://www.stellar.org/developers/horizon/reference/endpoints/transactions-for-account.html)
+   * @see [Transactions for Account](https://developers.stellar.org/api/resources/accounts/transactions/)
    * @param {string} accountId For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
    * @returns {TransactionCallBuilder} current TransactionCallBuilder instance
    */
@@ -47,7 +47,7 @@ export class TransactionCallBuilder extends CallBuilder<
 
   /**
    * This endpoint represents all transactions that reference a given claimable_balance.
-   * @see [Operations for Claimable Balance](https://www.stellar.org/developers/horizon/reference/endpoints/transactions-for-claimable-balance.html)
+   * @see [Operations for Claimable Balance](https://developers.stellar.org/api/resources/claimablebalances/transactions/)
    * @param {string} claimableBalanceId Claimable Balance ID
    * @returns {TransactionCallBuilder} this TransactionCallBuilder instance
    */
@@ -57,7 +57,7 @@ export class TransactionCallBuilder extends CallBuilder<
 
   /**
    * This endpoint represents all transactions in a given ledger.
-   * @see [Transactions for Ledger](https://www.stellar.org/developers/horizon/reference/endpoints/transactions-for-ledger.html)
+   * @see [Transactions for Ledger](https://developers.stellar.org/api/resources/ledgers/transactions/)
    * @param {number|string} sequence Ledger sequence
    * @returns {TransactionCallBuilder} current TransactionCallBuilder instance
    */

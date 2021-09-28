@@ -7,7 +7,7 @@ import { ServerApi } from "./server_api";
  *
  * @class EffectCallBuilder
  * @extends CallBuilder
- * @see [All Effects](https://www.stellar.org/developers/horizon/reference/endpoints/effects-all.html)
+ * @see [All Effects](https://developers.stellar.org/api/resources/effects/)
  * @constructor
  * @param {string} serverUrl Horizon server URL.
  */
@@ -21,7 +21,7 @@ export class EffectCallBuilder extends CallBuilder<
 
   /**
    * This endpoint represents all effects that changed a given account. It will return relevant effects from the creation of the account to the current ledger.
-   * @see [Effects for Account](https://www.stellar.org/developers/horizon/reference/endpoints/effects-for-account.html)
+   * @see [Effects for Account](https://developers.stellar.org/api/resources/accounts/effects/)
    * @param {string} accountId For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
    * @returns {EffectCallBuilder} this EffectCallBuilder instance
    */
@@ -33,7 +33,7 @@ export class EffectCallBuilder extends CallBuilder<
    * Effects are the specific ways that the ledger was changed by any operation.
    *
    * This endpoint represents all effects that occurred in the given ledger.
-   * @see [Effects for Ledger](https://www.stellar.org/developers/horizon/reference/endpoints/effects-for-ledger.html)
+   * @see [Effects for Ledger](https://developers.stellar.org/api/resources/ledgers/effects/)
    * @param {number|string} sequence Ledger sequence
    * @returns {EffectCallBuilder} this EffectCallBuilder instance
    */
@@ -43,7 +43,7 @@ export class EffectCallBuilder extends CallBuilder<
 
   /**
    * This endpoint represents all effects that occurred as a result of a given transaction.
-   * @see [Effects for Transaction](https://www.stellar.org/developers/horizon/reference/endpoints/effects-for-transaction.html)
+   * @see [Effects for Transaction](https://developers.stellar.org/api/resources/transactions/effects/)
    * @param {string} transactionId Transaction ID
    * @returns {EffectCallBuilder} this EffectCallBuilder instance
    */
@@ -53,7 +53,7 @@ export class EffectCallBuilder extends CallBuilder<
 
   /**
    * This endpoint represents all effects that occurred as a result of a given operation.
-   * @see [Effects for Operation](https://www.stellar.org/developers/horizon/reference/endpoints/effects-for-operation.html)
+   * @see [Effects for Operation](https://developers.stellar.org/api/resources/operations/effects/)
    * @param {number} operationId Operation ID
    * @returns {EffectCallBuilder} this EffectCallBuilder instance
    */

@@ -8,7 +8,7 @@ title: Basic Examples
 
 ## Creating a payment transaction
 
-The `js-stellar-sdk` exposes the [`TransactionBuilder`](https://stellar.github.io/js-stellar-base/TransactionBuilder.html) class from `js-stellar-base`.  There are more examples of [building transactions here](https://www.stellar.org/developers/js-stellar-base/reference/base-examples.html). All those examples can be signed and submitted to Stellar in a similar manner as is done below.
+The `js-stellar-sdk` exposes the [`TransactionBuilder`](https://stellar.github.io/js-stellar-base/TransactionBuilder.html) class from `js-stellar-base`.  There are more examples of [building transactions here](https://github.com/stellar/js-stellar-base/blob/master/docs/reference/base-examples.md). All those examples can be signed and submitted to Stellar in a similar manner as is done below.
 
 In this example, the destination account must exist. The example is written
 using modern Javascript, but `await` calls can also be rendered with promises.
@@ -74,7 +74,7 @@ const server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
     }))
     // Make this transaction valid for the next 30 seconds only
     .setTimeout(30)
-    // Uncomment to add a memo (https://www.stellar.org/developers/guides/concepts/transactions.html)
+    // Uncomment to add a memo (https://developers.stellar.org/docs/glossary/transactions/)
     // .addMemo(StellarSdk.Memo.text('Hello world!'))
     .build();
 
@@ -148,4 +148,4 @@ const es = server.payments()
   })
 ```
 
-For more on streaming events, please check out [the Horizon documentation](https://www.stellar.org/developers/horizon/reference/streaming.html) and this [guide to server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events).
+For more on streaming events, please check out [the Horizon documentation](https://developers.stellar.org/api/introduction/streaming/) and this [guide to server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events).
