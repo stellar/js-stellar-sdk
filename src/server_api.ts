@@ -118,10 +118,7 @@ export namespace ServerApi {
     type: Horizon.LiquidityPoolType;
     total_trustlines: string;
     total_shares: string;
-    reserves: {
-      amount: string;
-      asset: string;
-    };
+    reserves: Horizon.Reserve[];
   }
   export enum TradeType {
     all = "all",
