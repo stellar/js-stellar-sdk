@@ -6,7 +6,12 @@ A breaking change will get clearly marked in this log.
 ## Unreleased
 
 
-## [v9.0.0-beta.2](https://github.com/stellar/js-stellar-sdk/compare/v9.0.0-beta.1...v9.0.0-beta.2)
+## [v9.0.0](https://github.com/stellar/js-stellar-sdk/compare/v9.0.0-beta.1...v9.0.0)
+
+This stable release adds **support for Protocol 18**. For details, you can refer to [CAP-38](https://stellar.org/protocol/cap-38) for XDR changes and [this document](https://docs.google.com/document/d/1pXL8kr1a2vfYSap9T67R-g72B_WWbaE1YsLMa04OgoU/view) for changes to the Horizon API.
+
+Refer to the release notes for the betas (e.g. [v9.0.0-beta.0](https://github.com/stellar/js-stellar-sdk/releases/v9.0.0-beta.0)) for a comprehensive list of changes to this library.
+
 
 ### Fix
 
