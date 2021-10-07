@@ -11,7 +11,7 @@ A breaking change will get clearly marked in this log.
 ### Fix
 
 - Corrects the `reserves` field on `LiquidityPoolRecord`s to be an array ([#715](https://github.com/stellar/js-stellar-sdk/pull/715)).
-- Bumps the `stellar-base` dependency to v6.0.4 ([#715](https://github.com/stellar/js-stellar-sdk/pull/715)).
+- Bumps the `stellar-base` dependency to [v6.0.4](https://github.com/stellar/js-stellar-base/releases/tag/v6.0.4) ([#715](https://github.com/stellar/js-stellar-sdk/pull/715)).
 
 
 ## [v9.0.0-beta.1](https://github.com/stellar/js-stellar-sdk/compare/v9.0.0-beta.0...v9.0.0-beta.1)
