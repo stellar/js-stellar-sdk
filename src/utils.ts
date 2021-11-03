@@ -49,6 +49,8 @@ export namespace Utils {
     networkPassphrase: string,
     webAuthDomain: string,
     memo: string | null = null,
+    clientDomain: string | null = null,
+    clientSigningKey: string | null = null,
   ): string {
     if (clientAccountID.startsWith("M") && memo) {
       throw Error("memo cannot be used if clientAccountID is a muxed account");
@@ -87,6 +89,19 @@ export namespace Utils {
           source: account.accountId(),
         }),
       );
+
+    if (clientDomain) {
+      if (!clientSigningKey) {
+        throw Error("clientSigningKey is required if clientDomain is provided");
+      }
+      builder.addOperation(
+        Operation.manageData({
+          name: `client_domain`,
+          value: clientDomain,
+          source: clientSigningKey,
+        }),
+      );
+    }
 
     if (memo) {
       builder.addMemo(Memo.id(memo));
@@ -284,7 +299,7 @@ export namespace Utils {
           "The transaction has operations that are not of type 'manageData'",
         );
       }
-      if (op.source !== serverAccountID) {
+      if (op.source !== serverAccountID && op.name !== "client_domain") {
         throw new InvalidSep10ChallengeError(
           "The transaction has operations that are unrecognized",
         );
@@ -533,6 +548,14 @@ export namespace Utils {
       );
     }
 
+    let clientSigningKey;
+    for (const op of tx.operations) {
+      if (op.type === "manageData" && op.name === "client_domain") {
+        clientSigningKey = op.source;
+        break;
+      }
+    }
+
     // Verify all the transaction's signers (server and client) in one
     // hit. We do this in one hit here even though the server signature was
     // checked in the ReadChallengeTx to ensure that every signature and signer
@@ -541,13 +564,29 @@ export namespace Utils {
       serverKP.publicKey(),
       ...Array.from(clientSigners),
     ];
+    if (clientSigningKey) { allSigners.push(clientSigningKey); }
 
     const signersFound: string[] = gatherTxSigners(tx, allSigners);
 
+    let serverSignatureFound = false;
+    let clientSigningKeySignatureFound = false;
+    for (const signer of signersFound) {
+      if (signer === serverKP.publicKey()) { serverSignatureFound = true; }
+      if (signer === clientSigningKey) { clientSigningKeySignatureFound = true; }
+    }
+
     // Confirm we matched a signature to the server signer.
-    if (signersFound.indexOf(serverKP.publicKey()) === -1) {
+    if (!serverSignatureFound) {
       throw new InvalidSep10ChallengeError(
         "Transaction not signed by server: '" + serverKP.publicKey() + "'",
+      );
+    }
+
+    // Confirm we matched a signature to the client domain's signer
+    if (clientSigningKey && !clientSigningKeySignatureFound) {
+      throw new InvalidSep10ChallengeError(
+        "Transaction not signed by the source account of the 'client_domain' " +
+          "ManageData operation",
       );
     }
 
@@ -567,6 +606,10 @@ export namespace Utils {
 
     // Remove the server public key before returning
     signersFound.splice(signersFound.indexOf(serverKP.publicKey()), 1);
+    if (clientSigningKey) {
+      // Remove the client domain public key public key before returning
+      signersFound.splice(signersFound.indexOf(clientSigningKey), 1);
+    }
 
     return signersFound;
   }

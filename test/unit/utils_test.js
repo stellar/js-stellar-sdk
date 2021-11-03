@@ -95,6 +95,7 @@ describe('Utils', function() {
 
     it('returns challenge which follows SEP0010 spec', function() {
       let keypair = StellarSdk.Keypair.random();
+      let clientSigningKeypair = StellarSdk.Keypair.random();
 
       const challenge = StellarSdk.Utils.buildChallengeTx(
         keypair,
@@ -102,20 +103,23 @@ describe('Utils', function() {
         "testanchor.stellar.org",
         300,
         StellarSdk.Networks.TESTNET,
-        "testanchor.stellar.org"
+        "testanchor.stellar.org",
+        null,
+        "testdomain",
+        clientSigningKeypair.publicKey()
       );
 
       const transaction = new StellarSdk.Transaction(challenge, StellarSdk.Networks.TESTNET);
 
       expect(transaction.sequence).to.eql("0");
       expect(transaction.source).to.eql(keypair.publicKey());
-      expect(transaction.operations.length).to.eql(2);
+      expect(transaction.operations.length).to.eql(3);
 
       const { maxTime, minTime } = transaction.timeBounds;
 
       expect(parseInt(maxTime) - parseInt(minTime)).to.eql(300);
 
-      const [ operation1, operation2 ] =  transaction.operations;
+      const [ operation1, operation2, operation3 ] =  transaction.operations;
 
       expect(operation1.name).to.eql("testanchor.stellar.org auth");
       expect(operation1.source).to.eql("GBDIT5GUJ7R5BXO3GJHFXJ6AZ5UQK6MNOIDMPQUSMXLIHTUNR2Q5CFNF");
@@ -127,6 +131,11 @@ describe('Utils', function() {
       expect(operation2.source).to.eql(keypair.publicKey());
       expect(operation2.type).to.eql("manageData");
       expect(operation2.value.toString()).to.eql("testanchor.stellar.org");
+
+      expect(operation3.name).to.eql("client_domain");
+      expect(operation3.source).to.eql(clientSigningKeypair.publicKey());
+      expect(operation3.type).to.eql("manageData");
+      expect(operation3.value.toString()).to.eql("testdomain");
     });
 
     it('uses the passed-in timeout', function() {
@@ -166,6 +175,24 @@ describe('Utils', function() {
         )
       ).to.throw(
         /memo cannot be used if clientAccountID is a muxed account/
+      );
+    });
+
+    it("throws an error if clientSigningKey is not passed", function() {
+      expect(() =>
+        StellarSdk.Utils.buildChallengeTx(
+          StellarSdk.Keypair.random(),
+          StellarSdk.Keypair.random().publicKey(),
+          "testanchor.stellar.org",
+          600,
+          StellarSdk.Networks.TESTNET,
+          "testanchor.stellar.org",
+          null,
+          "testdomain",
+          null
+        )
+      ).to.throw(
+        /clientSigningKey is required if clientDomain is provided/
       );
     });
 
@@ -1424,6 +1451,31 @@ describe('Utils', function() {
         memo: null
       });
     });
+
+    it("validates a challenge containing a 'client_domain' manageData operation", () => {
+      let keypair = StellarSdk.Keypair.random();
+      let clientSigningKeypair = StellarSdk.Keypair.random();
+
+      const challenge = StellarSdk.Utils.buildChallengeTx(
+        keypair,
+        "GBDIT5GUJ7R5BXO3GJHFXJ6AZ5UQK6MNOIDMPQUSMXLIHTUNR2Q5CFNF",
+        "testanchor.stellar.org",
+        300,
+        StellarSdk.Networks.TESTNET,
+        "testanchor.stellar.org",
+        null,
+        "testdomain",
+        clientSigningKeypair.publicKey()
+      );
+
+      StellarSdk.Utils.readChallengeTx(
+        challenge,
+        keypair.publicKey(),
+        StellarSdk.Networks.TESTNET,
+        "testanchor.stellar.org",
+        "testanchor.stellar.org"
+      );
+    });
   });
 
   describe("Utils.verifyChallengeTxThreshold", function() {
@@ -2385,6 +2437,94 @@ describe('Utils', function() {
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
         /No verifiable client signers provided, at least one G... address must be provided/,
+      );
+    });
+
+    it("validates challenges containing client domain signers", () => {
+      const serverKP = StellarSdk.Keypair.random();
+      const clientKP = StellarSdk.Keypair.random();
+      const clientSigningKey = StellarSdk.Keypair.random();
+      const challenge = StellarSdk.Utils.buildChallengeTx(
+        serverKP,
+        clientKP.publicKey(),
+        "SDF",
+        300,
+        StellarSdk.Networks.TESTNET,
+        "testanchor.stellar.org",
+        null,
+        "testdomain",
+        clientSigningKey.publicKey()
+      );
+
+      clock.tick(200);
+
+      const transaction = new StellarSdk.Transaction(
+        challenge,
+        StellarSdk.Networks.TESTNET
+      );
+
+      transaction.sign(clientKP);
+      transaction.sign(clientSigningKey);
+
+      const signedChallenge = transaction
+        .toEnvelope()
+        .toXDR("base64")
+        .toString();
+
+      const signersFound = StellarSdk.Utils.verifyChallengeTxSigners(
+        signedChallenge,
+        serverKP.publicKey(),
+        StellarSdk.Networks.TESTNET,
+        [clientKP.publicKey()],
+        "SDF",
+        "testanchor.stellar.org"
+      );
+
+      expect(signersFound.indexOf(clientSigningKey.publicKey())).to.eql(-1);
+    });
+
+    it("throws an error if a challenge with a client_domain operation doesn't have a matching signature", () => {
+      const serverKP = StellarSdk.Keypair.random();
+      const clientKP = StellarSdk.Keypair.random();
+      const clientSigningKeypair = StellarSdk.Keypair.random();
+      const challenge = StellarSdk.Utils.buildChallengeTx(
+        serverKP,
+        clientKP.publicKey(),
+        "SDF",
+        300,
+        StellarSdk.Networks.TESTNET,
+        "testanchor.stellar.org",
+        null,
+        "testdomain",
+        clientSigningKeypair.publicKey()
+      );
+
+      clock.tick(200);
+
+      const transaction = new StellarSdk.Transaction(
+        challenge,
+        StellarSdk.Networks.TESTNET
+      );
+
+      transaction.sign(clientKP);
+
+      const signedChallenge = transaction
+        .toEnvelope()
+        .toXDR("base64")
+        .toString();
+
+      expect(() => 
+        StellarSdk.Utils.verifyChallengeTxSigners(
+          signedChallenge,
+          serverKP.publicKey(),
+          StellarSdk.Networks.TESTNET,
+          [clientKP.publicKey()],
+          "SDF",
+          "testanchor.stellar.org"
+        )
+      ).to.throw(
+        StellarSdk.InvalidSep10ChallengeError,
+        /Transaction not signed by the source account of the 'client_domain' ManageData operation/
       );
     });
   });
