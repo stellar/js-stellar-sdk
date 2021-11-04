@@ -5,6 +5,12 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Add
+
+- Adds [client domain verification](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0010.md#verifying-the-client-domain) to the SEP-10 helper functions ([#720](https://github.com/stellar/js-stellar-sdk/pull/720)):
+  - `Utils.buildChallengeTx()`
+  - `Utils.readChallengeTx()`
+  - `Utils.verifyChallengeTxSigners()`
 
 ## [v9.0.0](https://github.com/stellar/js-stellar-sdk/compare/v9.0.0-beta.1...v9.0.0)
 
