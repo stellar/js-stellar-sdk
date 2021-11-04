@@ -548,14 +548,17 @@ export namespace Utils {
       );
     }
 
-   let clientSigningKey;
-   for (const op of tx.operations) {
-     if (op.type === "manageData" && op.name === "client_domain") {
-       if (clientSigningKey)
-         throw new InvalidSep10ChallengeError("Found more than one client_domain signing key");
-       clientSigningKey = op.source;
-     }
-   }
+    let clientSigningKey;
+    for (const op of tx.operations) {
+      if (op.type === "manageData" && op.name === "client_domain") {
+        if (clientSigningKey) {
+          throw new InvalidSep10ChallengeError(
+            "Found more than one client_domain operation",
+          );
+        }
+        clientSigningKey = op.source;
+      }
+    }
 
     // Verify all the transaction's signers (server and client) in one
     // hit. We do this in one hit here even though the server signature was
@@ -565,15 +568,21 @@ export namespace Utils {
       serverKP.publicKey(),
       ...Array.from(clientSigners),
     ];
-    if (clientSigningKey) { allSigners.push(clientSigningKey); }
+    if (clientSigningKey) {
+      allSigners.push(clientSigningKey);
+    }
 
     const signersFound: string[] = gatherTxSigners(tx, allSigners);
 
     let serverSignatureFound = false;
     let clientSigningKeySignatureFound = false;
     for (const signer of signersFound) {
-      if (signer === serverKP.publicKey()) { serverSignatureFound = true; }
-      if (signer === clientSigningKey) { clientSigningKeySignatureFound = true; }
+      if (signer === serverKP.publicKey()) {
+        serverSignatureFound = true;
+      }
+      if (signer === clientSigningKey) {
+        clientSigningKeySignatureFound = true;
+      }
     }
 
     // Confirm we matched a signature to the server signer.

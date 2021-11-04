@@ -1453,24 +1453,41 @@ describe('Utils', function() {
     });
 
     it("validates a challenge containing a 'client_domain' manageData operation", () => {
-      let keypair = StellarSdk.Keypair.random();
+      let serverKP = StellarSdk.Keypair.random();
+      let clientKP = StellarSdk.Keypair.random();
+      const serverAccount = new StellarSdk.Account(serverKP.publicKey(), "-1");
       let clientSigningKeypair = StellarSdk.Keypair.random();
 
-      const challenge = StellarSdk.Utils.buildChallengeTx(
-        keypair,
-        "GBDIT5GUJ7R5BXO3GJHFXJ6AZ5UQK6MNOIDMPQUSMXLIHTUNR2Q5CFNF",
-        "testanchor.stellar.org",
-        300,
-        StellarSdk.Networks.TESTNET,
-        "testanchor.stellar.org",
-        null,
-        "testdomain",
-        clientSigningKeypair.publicKey()
-      );
+      const transaction = new StellarSdk.TransactionBuilder(
+        serverAccount,
+        txBuilderOpts,
+      )
+        .addOperation(
+          StellarSdk.Operation.manageData({
+            source: clientKP.publicKey(),
+            name: "testanchor.stellar.org auth",
+            value: randomBytes(48).toString("base64"),
+          }),
+        )
+        .addOperation(
+          StellarSdk.Operation.manageData({
+            source: clientSigningKeypair.publicKey(),
+            name: "client_domain",
+            value: "testdomain"
+          }),
+        )
+        .setTimeout(30)
+        .build();
+
+      transaction.sign(serverKP);
+      const challenge = transaction
+        .toEnvelope()
+        .toXDR("base64")
+        .toString();
 
       StellarSdk.Utils.readChallengeTx(
         challenge,
-        keypair.publicKey(),
+        serverKP.publicKey(),
         StellarSdk.Networks.TESTNET,
         "testanchor.stellar.org",
         "testanchor.stellar.org"
@@ -2525,6 +2542,67 @@ describe('Utils', function() {
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
         /Transaction not signed by the source account of the 'client_domain' ManageData operation/
+      );
+    });
+
+    it("throws an error if a challenge has multiple client_domain operations", () => {
+      const serverKP = StellarSdk.Keypair.random();
+      const clientKP = StellarSdk.Keypair.random();
+      const clientSigningKeypair = StellarSdk.Keypair.random();
+
+      const serverAccount = new StellarSdk.Account(serverKP.publicKey(), "-1");
+
+      const transaction = new StellarSdk.TransactionBuilder(
+        serverAccount,
+        txBuilderOpts,
+      )
+        .addOperation(
+          StellarSdk.Operation.manageData({
+            source: clientKP.publicKey(),
+            name: "testanchor.stellar.org auth",
+            value: randomBytes(48).toString("base64"),
+          }),
+        )
+        .addOperation(
+          StellarSdk.Operation.manageData({
+            source: clientSigningKeypair.publicKey(),
+            name: "client_domain",
+            value: "testdomain"
+          }),
+        )
+        .addOperation(
+          StellarSdk.Operation.manageData({
+            source: clientSigningKeypair.publicKey(),
+            name: "client_domain",
+            value: "testdomain2"
+          }),
+        )
+        .setTimeout(30)
+        .build();
+
+      clock.tick(200);
+
+      transaction.sign(serverKP);
+      transaction.sign(clientKP);
+      transaction.sign(clientSigningKeypair);
+
+      const signedChallenge = transaction
+        .toEnvelope()
+        .toXDR("base64")
+        .toString();
+
+      expect(() => 
+        StellarSdk.Utils.verifyChallengeTxSigners(
+          signedChallenge,
+          serverKP.publicKey(),
+          StellarSdk.Networks.TESTNET,
+          [clientKP.publicKey()],
+          "testanchor.stellar.org",
+          "testanchor.stellar.org"
+        )
+      ).to.throw(
+        StellarSdk.InvalidSep10ChallengeError,
+        /Found more than one client_domain operation/
       );
     });
   });
