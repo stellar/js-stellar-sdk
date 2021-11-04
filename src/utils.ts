@@ -548,13 +548,14 @@ export namespace Utils {
       );
     }
 
-    let clientSigningKey;
-    for (const op of tx.operations) {
-      if (op.type === "manageData" && op.name === "client_domain") {
-        clientSigningKey = op.source;
-        break;
-      }
-    }
+   let clientSigningKey;
+   for (const op of tx.operations) {
+     if (op.type === "manageData" && op.name === "client_domain") {
+       if (clientSigningKey)
+         throw new InvalidSep10ChallengeError("Found more than one client_domain signing key");
+       clientSigningKey = op.source;
+     }
+   }
 
     // Verify all the transaction's signers (server and client) in one
     // hit. We do this in one hit here even though the server signature was
