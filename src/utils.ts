@@ -34,6 +34,8 @@ export namespace Utils {
    * @param {string} networkPassphrase The network passphrase. If you pass this argument then timeout is required.
    * @param {string} webAuthDomain The fully qualified domain name of the service issuing the challenge.
    * @param {string} [memo] The memo to attach to the challenge transaction. The memo must be of type `id`. If the `clientaccountID` is a muxed account, memos cannot be used.
+   * @param {string} [clientDomain] The fully qualified domain of the client requesting the challenge. Only necessary when the the 'client_domain' parameter is passed.
+   * @param {string} [clientSigningKey] The public key assigned to the SIGNING_KEY attribute specified on the stellar.toml hosted on the client domain. Only necessary when the 'client_domain' parameter is passed.
    * @example
    * import { Utils, Keypair, Networks }  from 'stellar-sdk'
    *
