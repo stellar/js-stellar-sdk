@@ -5,12 +5,12 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
-### Add
+### Updates
 
-- Adds [client domain verification](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0010.md#verifying-the-client-domain) to the SEP-10 helper functions ([#720](https://github.com/stellar/js-stellar-sdk/pull/720)):
-  - `Utils.buildChallengeTx()`
-  - `Utils.readChallengeTx()`
-  - `Utils.verifyChallengeTxSigners()`
+- Updates the following SEP-10 utility functions to include [client domain verification](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0010.md#verifying-the-client-domain) functionality ([#720](https://github.com/stellar/js-stellar-sdk/pull/720)):
+  - Updated `Utils.buildChallengeTx()` to accept the `clientDomain` and `clientSigningKey` optional parameters
+  - Updated `Utils.readChallengeTx()` to parse challenge transactions containing a `client_domain` ManageData operation
+  - Updated `Utils.verifyChallengeTxSigners()` to verify an additional signature from the `clientSigningKey` keypair if a `client_domain` Manage Data operation is included in the challenge
 
 ## [v9.0.0](https://github.com/stellar/js-stellar-sdk/compare/v9.0.0-beta.1...v9.0.0)
 
