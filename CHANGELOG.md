@@ -9,6 +9,8 @@ A breaking change will get clearly marked in this log.
 
 - Fixes the `type_i` enumeration field to accurately reflect liquidity pool effects ([#723](https://github.com/stellar/js-stellar-sdk/pull/723)).
 
+- Upgrades axios dependency to v0.21.4 to alleviate security concern ([GHSA-cph5-m8f7-6c5x](https://github.com/advisories/GHSA-cph5-m8f7-6c5x), [#724](https://github.com/stellar/js-stellar-sdk/pull/724)).
+
 ### Updates
 
 - Updates the following SEP-10 utility functions to include [client domain verification](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0010.md#verifying-the-client-domain) functionality ([#720](https://github.com/stellar/js-stellar-sdk/pull/720)):
