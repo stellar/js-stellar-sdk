@@ -54,13 +54,15 @@ export enum EffectType {
   signer_sponsorship_created = 72,
   signer_sponsorship_updated = 73,
   signer_sponsorship_removed = 74,
+  // clawback effects
   claimable_balance_clawed_back = 80,
-  liquidity_pool_deposited = 81,
-  liquidity_pool_withdrew = 82,
-  liquidity_pool_trade = 83,
-  liquidity_pool_created = 84,
-  liquidity_pool_removed = 85,
-  liquidity_pool_revoked = 86,
+  // liquidity pool effects
+  liquidity_pool_deposited = 90,
+  liquidity_pool_withdrew = 91,
+  liquidity_pool_trade = 92,
+  liquidity_pool_created = 93,
+  liquidity_pool_removed = 94,
+  liquidity_pool_revoked = 95,
 }
 export interface BaseEffectRecord extends Horizon.BaseResponse {
   id: string;
