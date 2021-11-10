@@ -1,0 +1,42 @@
+name: Github Pages
+on:
+  release:
+    types: [published]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install Node (14.x)
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14.x'
+
+      - name: Install Dependencies
+        run: yarn install
+
+      - name: Build
+        run: yarn build
+
+      - name: Checkout GH pages
+        uses: actions/checkout@v2
+        with:
+          repository: stellar/js-stellar-sdk
+          ref: gh-pages
+          path: jsdoc
+
+      - name: Generate JS docs
+        run: yarn docs
+
+      - name: Publish JS docs
+        run: |
+          TAG=`git describe --tags`
+          cd jsdoc
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add .
+          git commit -m $TAG
+          git push origin gh-pages
