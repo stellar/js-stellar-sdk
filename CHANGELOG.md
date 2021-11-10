@@ -7,7 +7,7 @@ A breaking change will get clearly marked in this log.
 
 ### Fix
 
-- Fixes the `type_i` enumeration field to accurately reflect liquidity pool effects ([]()).
+- Fixes the `type_i` enumeration field to accurately reflect liquidity pool effects ([#723](https://github.com/stellar/js-stellar-sdk/pull/723)).
 
 ### Updates
 
