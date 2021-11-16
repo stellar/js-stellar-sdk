@@ -1,0 +1,41 @@
+name: Bower Publish
+on:
+  release:
+    types: [published]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Checkout Bower
+        uses: actions/checkout@v2
+        with:
+          repository: stellar/bower-js-stellar-sdk
+          path: bower
+
+      - name: Install Node (14.x)
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14.x'
+
+      - name: Install and build package
+        run: |
+          yarn install
+          yarn build
+          cp dist/* bower/
+
+      - name: Publish to bower
+        run:
+          TAG=`git describe --tags`
+          cd bower/
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add .
+          git commit -m $TAG
+          git tag -a $TAG -m $TAG
+          git push origin master --tags
