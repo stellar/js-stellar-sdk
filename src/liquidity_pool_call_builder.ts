@@ -36,9 +36,20 @@ export class LiquidityPoolCallBuilder extends CallBuilder<
   }
 
   /**
+   * Retrieves all pools an account is participating in.
+   *
+   * @param {string} id   the participant account to filter by
+   * @returns {LiquidityPoolCallBuilder} current LiquidityPoolCallBuilder instance
+   */
+  public forAccount(id: string): this {
+    this.url.setQuery("account", id);
+    return this;
+  }
+
+  /**
    * Retrieves a specific liquidity pool by ID.
    *
-   * @param  {string} id
+   * @param {string} id   the hash/ID of the liquidity pool
    * @returns {CallBuilder} a new CallBuilder instance for the /liquidity_pools/:id endpoint
    */
   public liquidityPoolId(

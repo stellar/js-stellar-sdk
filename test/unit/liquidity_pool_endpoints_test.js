@@ -102,7 +102,7 @@ describe('/liquidity_pools tests', function() {
       .catch(done);
   });
 
-  describe('filtering by asset', function() {
+  describe('filters', function() {
     const testCases = [
       {
         assets: [StellarSdk.Asset.native()],
@@ -141,6 +141,26 @@ describe('/liquidity_pools tests', function() {
       });
     });
 
+    it('filters by account', function(done) {
+      const accountId = "GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S";
+      this.axiosMock
+        .expects('get')
+        .withArgs(sinon.match(`${LP_URL}?account=${accountId}`))
+        .returns(Promise.resolve({ data: rootResponse }))
+
+        this.server
+          .liquidityPools()
+          .forAccount(accountId)
+          .call()
+          .then((pools) => {
+            expect(pools.records).to.deep.equal(rootResponse._embedded.records);
+            done();
+          })
+          .catch(done);
+      });
+  });
+
+  describe('querying a specific pool', function() {
     const lpId = "ae44a51f6191ce24414fbd1326e93ccb0ae656f07fc1e37602b11d0802f74b9a";
 
     it('checks for valid IDs', function() {
@@ -150,7 +170,7 @@ describe('/liquidity_pools tests', function() {
 
     it('filters by specific ID', function(done) {
       const poolResponse = {
-        "id": "ae44a51f6191ce24414fbd1326e93ccb0ae656f07fc1e37602b11d0802f74b9a",
+        "id": lpId,
         "paging_token": "113725249324879873",
         "fee_bp": 30,
         "type": "constant_product",
@@ -183,10 +203,6 @@ describe('/liquidity_pools tests', function() {
         })
         .catch(done);
     });
-  });
-
-  describe('querying a specific pool', function() {
-    const lpId = "ae44a51f6191ce24414fbd1326e93ccb0ae656f07fc1e37602b11d0802f74b9a";
 
     const poolOpsResponse = {
       "_links": {
