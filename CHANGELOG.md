@@ -5,26 +5,36 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+
+## [v9.1.0](https://github.com/stellar/js-stellar-sdk/compare/v9.0.1...v9.1.0)
+
+### Add
+
+- Adds a way to filter liquidity pools by participating account: `server.liquidityPools.forAccount(id)` ([#727](https://github.com/stellar/js-stellar-sdk/pull/727)).
+
+### Updates
+
+- Updates the following SEP-10 utility functions to include [client domain verification](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0010.md#verifying-the-client-domain) functionality ([#720](https://github.com/stellar/js-stellar-sdk/pull/720)):
+  - `Utils.buildChallengeTx()` accepts the `clientDomain` and `clientSigningKey` optional parameters
+  - `Utils.readChallengeTx()` parses challenge transactions containing a `client_domain` ManageData operation
+  - `Utils.verifyChallengeTxSigners()` verifies an additional signature from the `clientSigningKey` keypair if a `client_domain` Manage Data operation is included in the challenge
+
+- Bumps `stellar-base` version to [v6.0.6](https://github.com/stellar/js-stellar-base/releases/tag/v6.0.6).
+
 ### Fix
 
 - Fixes the `type_i` enumeration field to accurately reflect liquidity pool effects ([#723](https://github.com/stellar/js-stellar-sdk/pull/723)).
 
 - Upgrades axios dependency to v0.21.4 to alleviate security concern ([GHSA-cph5-m8f7-6c5x](https://github.com/advisories/GHSA-cph5-m8f7-6c5x), [#724](https://github.com/stellar/js-stellar-sdk/pull/724)).
 
-### Updates
-
-- Updates the following SEP-10 utility functions to include [client domain verification](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0010.md#verifying-the-client-domain) functionality ([#720](https://github.com/stellar/js-stellar-sdk/pull/720)):
-  - Updated `Utils.buildChallengeTx()` to accept the `clientDomain` and `clientSigningKey` optional parameters
-  - Updated `Utils.readChallengeTx()` to parse challenge transactions containing a `client_domain` ManageData operation
-  - Updated `Utils.verifyChallengeTxSigners()` to verify an additional signature from the `clientSigningKey` keypair if a `client_domain` Manage Data operation is included in the challenge
+- Publish Bower package to [stellar/bower-js-stellar-sdk](https://github.com/stellar/bower-js-stellar-sdk) ([#725](https://github.com/stellar/js-stellar-sdk/pull/725)).
 
 
-## [v9.0.0](https://github.com/stellar/js-stellar-sdk/compare/v9.0.0-beta.1...v9.0.0)
+## [v9.0.1](https://github.com/stellar/js-stellar-sdk/compare/v9.0.0-beta.1...v9.0.1)
 
 This stable release adds **support for Protocol 18**. For details, you can refer to [CAP-38](https://stellar.org/protocol/cap-38) for XDR changes and [this document](https://docs.google.com/document/d/1pXL8kr1a2vfYSap9T67R-g72B_WWbaE1YsLMa04OgoU/view) for changes to the Horizon API.
 
 Refer to the release notes for the betas (e.g. [v9.0.0-beta.0](https://github.com/stellar/js-stellar-sdk/releases/v9.0.0-beta.0)) for a comprehensive list of changes to this library.
-
 
 ### Fix
 
