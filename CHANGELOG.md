@@ -6,6 +6,20 @@ A breaking change will get clearly marked in this log.
 ## Unreleased
 
 
+## [v10.0.0](https://github.com/stellar/js-stellar-sdk/compare/v9.1.0...v10.0.0)
+
+This release introduces breaking changes from `stellar-base`. It adds **unconditional support for muxed accounts**. Please refer to its [release notes](https://github.com/stellar/js-stellar-base/releases/tag/v7.0.0) for details on the breaking changes.
+
+### Breaking Updates
+
+- Upgrades the stellar-base library to v7.0.0 ([]()).
+
+
+### Fix
+
+- Use the right string for liquidity pool trades ([#734](https://github.com/stellar/js-stellar-sdk/pull/734)).
+
+
 ## [v9.1.0](https://github.com/stellar/js-stellar-sdk/compare/v9.0.1...v9.1.0)
 
 ### Add
