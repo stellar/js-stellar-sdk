@@ -14,6 +14,8 @@ This release introduces breaking changes from `stellar-base`. It adds **uncondit
 
 - Upgrades the stellar-base library to v7.0.0 ([#735](https://github.com/stellar/js-stellar-sdk/pull/735)).
 
+- Removes the `AccountResponse.createSubaccount` method since this is also gone from the underlying `Account` interface. The `stellar-base` release notes describe alternative construction methods ([#735](https://github.com/stellar/js-stellar-sdk/pull/735)).
+
 ### Fix
 
 - Use the right string for liquidity pool trades ([#734](https://github.com/stellar/js-stellar-sdk/pull/734)).
