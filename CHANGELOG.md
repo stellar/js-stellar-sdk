@@ -8,12 +8,11 @@ A breaking change will get clearly marked in this log.
 
 ## [v10.0.0](https://github.com/stellar/js-stellar-sdk/compare/v9.1.0...v10.0.0)
 
-This release introduces breaking changes from `stellar-base`. It adds **unconditional support for muxed accounts**. Please refer to its [release notes](https://github.com/stellar/js-stellar-base/releases/tag/v7.0.0) for details on the breaking changes.
+This release introduces breaking changes from `stellar-base`. It adds **unconditional support for muxed accounts**. Please refer to the corresponding [release notes](https://github.com/stellar/js-stellar-base/releases/tag/v7.0.0) for details on the breaking changes there.
 
 ### Breaking Updates
 
 - Upgrades the stellar-base library to v7.0.0 ([#735](https://github.com/stellar/js-stellar-sdk/pull/735)).
-
 
 ### Fix
 
