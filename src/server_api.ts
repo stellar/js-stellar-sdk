@@ -122,7 +122,7 @@ export namespace ServerApi {
   }
   export enum TradeType {
     all = "all",
-    liquidityPools = "liquidity_pools",
+    liquidityPools = "liquidity_pool",
     orderbook = "orderbook",
   }
   interface EffectRecordMethods {
