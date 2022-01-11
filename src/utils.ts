@@ -81,7 +81,6 @@ export namespace Utils {
           name: `${homeDomain} auth`,
           value,
           source: clientAccountID,
-          withMuxing: true,
         }),
       )
       .addOperation(
@@ -160,14 +159,10 @@ export namespace Utils {
 
     let transaction;
     try {
-      transaction = new Transaction(challengeTx, networkPassphrase, true);
+      transaction = new Transaction(challengeTx, networkPassphrase);
     } catch {
       try {
-        transaction = new FeeBumpTransaction(
-          challengeTx,
-          networkPassphrase,
-          true,
-        );
+        transaction = new FeeBumpTransaction(challengeTx, networkPassphrase);
       } catch {
         throw new InvalidSep10ChallengeError(
           "Invalid challenge: unable to deserialize challengeTx transaction string",
