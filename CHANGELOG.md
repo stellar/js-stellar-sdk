@@ -12,7 +12,7 @@ This release introduces breaking changes from `stellar-base`. It adds **uncondit
 
 ### Breaking Updates
 
-- Upgrades the stellar-base library to v7.0.0 ([]()).
+- Upgrades the stellar-base library to v7.0.0 ([#735](https://github.com/stellar/js-stellar-sdk/pull/735)).
 
 
 ### Fix
