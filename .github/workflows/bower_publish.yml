@@ -26,7 +26,7 @@ jobs:
       - name: Install and build package
         run: |
           yarn install
-          yarn build
+          yarn
           cp dist/* bower/
 
       - name: Publish to bower
@@ -37,5 +37,4 @@ jobs:
           git config user.email github-actions@github.com
           git add .
           git commit -m $TAG
-          git tag -a $TAG -m $TAG
-          git push origin master --tags
+          git push origin master

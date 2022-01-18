@@ -31,12 +31,13 @@ jobs:
           path: jsdoc
 
       - name: Generate JS docs
+        continue-on-error: true
         run: yarn docs
 
       - name: Publish JS docs
         run: |
           TAG=`git describe --tags`
-          cd jsdoc
+          cd jsdoc/
           git config user.name github-actions
           git config user.email github-actions@github.com
           git add .
