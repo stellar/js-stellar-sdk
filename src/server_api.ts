@@ -136,14 +136,13 @@ export namespace ServerApi {
     hash: string;
     prev_hash: string;
     sequence: number;
-    transaction_count: number;
+    successful_transaction_count: number;
+    failed_transaction_count: number;
     operation_count: number;
     tx_set_operation_count: number | null;
     closed_at: string;
     total_coins: string;
     fee_pool: string;
-    base_fee: number;
-    base_reserve: string;
     max_tx_set_size: number;
     protocol_version: number;
     header_xdr: string;
