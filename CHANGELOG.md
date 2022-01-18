@@ -8,7 +8,7 @@ A breaking change will get clearly marked in this log.
 
 ### Fix
 
-- Add missing fields to the `LedgerRecord`: `successful_transaction_count` and `failed_transaction_count`. Note that this also marks several fields as _deprecated_ because they don't actually exist in the Horizon API response:
+- Add missing fields to the `LedgerRecord`: `successful_transaction_count` and `failed_transaction_count` ([#740](https://github.com/stellar/js-stellar-sdk/pull/740)). Note that this also marks several fields as _deprecated_ because they don't actually exist in the Horizon API response:
 
   - `transaction_count`: superceded by the sum of the aforementioned fields
   - `base_fee`: superceded by the `base_fee_in_stroops` field
