@@ -148,6 +148,21 @@ export namespace ServerApi {
     header_xdr: string;
     base_fee_in_stroops: number;
     base_reserve_in_stroops: number;
+    /**
+     * @deprecated  This will be removed in the next major version: the property
+     *     no longer exists on the Horizon API
+     */
+    transaction_count: number;
+    /**
+     * @deprecated  This will be removed in the next major version: the property
+     *     no longer exists on the Horizon API
+     */
+    base_fee: number;
+    /**
+     * @deprecated  This will be removed in the next major version: the property
+     *     no longer exists on the Horizon API
+     */
+    base_reserve: string;
 
     effects: CallCollectionFunction<EffectRecord>;
     operations: CallCollectionFunction<OperationRecord>;
