@@ -7,10 +7,16 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout SDK
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
+
+      - name: Checkout Base
+        uses: actions/checkout@v2
+        with:
+          repository: stellar/js-stellar-base
+          path: js-stellar-base
 
       - name: Install Node (14.x)
         uses: actions/setup-node@v2
