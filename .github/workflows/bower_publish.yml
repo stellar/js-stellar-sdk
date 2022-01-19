@@ -37,4 +37,5 @@ jobs:
           git config user.email github-actions@github.com
           git add .
           git commit -m $TAG
-          git push origin master
+          git tag -a $TAG -m $TAG
+          git push origin master --tags
