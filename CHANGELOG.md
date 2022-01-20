@@ -6,6 +6,17 @@ A breaking change will get clearly marked in this log.
 ## Unreleased
 
 
+### Fix
+
+- Add missing fields to the `LedgerRecord`: `successful_transaction_count` and `failed_transaction_count` ([#740](https://github.com/stellar/js-stellar-sdk/pull/740)). Note that this also marks several fields as _deprecated_ because they don't actually exist in the Horizon API response:
+
+  - `transaction_count`: superceded by the sum of the aforementioned fields
+  - `base_fee`: superceded by the `base_fee_in_stroops` field
+  - `base_reserve`: superceded by the `base_reserve_in_stroops` field
+
+These deprecated fields will be removed in the next major version. It's unlikely that this breaking change should affect anyone, as these fields have likely been missing/invalid for some time.
+
+
 ## [v10.0.0](https://github.com/stellar/js-stellar-sdk/compare/v9.1.0...v10.0.0)
 
 This release introduces breaking changes from `stellar-base`. It adds **unconditional support for muxed accounts**. Please refer to the corresponding [release notes](https://github.com/stellar/js-stellar-base/releases/tag/v7.0.0) for details on the breaking changes there.
