@@ -7,10 +7,16 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout SDK
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
+
+      - name: Checkout Base
+        uses: actions/checkout@v2
+        with:
+          repository: stellar/js-stellar-base
+          path: js-stellar-base
 
       - name: Install Node (14.x)
         uses: actions/setup-node@v2
@@ -31,12 +37,13 @@ jobs:
           path: jsdoc
 
       - name: Generate JS docs
+        continue-on-error: true
         run: yarn docs
 
       - name: Publish JS docs
         run: |
           TAG=`git describe --tags`
-          cd jsdoc
+          cd jsdoc/
           git config user.name github-actions
           git config user.email github-actions@github.com
           git add .

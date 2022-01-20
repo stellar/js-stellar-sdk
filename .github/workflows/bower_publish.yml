@@ -26,7 +26,7 @@ jobs:
       - name: Install and build package
         run: |
           yarn install
-          yarn build
+          yarn
           cp dist/* bower/
 
       - name: Publish to bower
