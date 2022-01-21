@@ -2,9 +2,6 @@ name: Bower Publish
 on:
   release:
     types: [published]
-  push:
-    branches:
-      - master
 
 jobs:
   build-and-deploy:
