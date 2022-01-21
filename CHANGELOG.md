@@ -6,6 +6,8 @@ A breaking change will get clearly marked in this log.
 ## Unreleased
 
 
+## [v10.0.1](https://github.com/stellar/js-stellar-sdk/compare/v10.0.0...v10.0.1)
+
 ### Fix
 
 - Add missing fields to the `LedgerRecord`: `successful_transaction_count` and `failed_transaction_count` ([#740](https://github.com/stellar/js-stellar-sdk/pull/740)). Note that this also marks several fields as _deprecated_ because they don't actually exist in the Horizon API response:
@@ -15,6 +17,15 @@ A breaking change will get clearly marked in this log.
   - `base_reserve`: superceded by the `base_reserve_in_stroops` field
 
 These deprecated fields will be removed in the next major version. It's unlikely that this breaking change should affect anyone, as these fields have likely been missing/invalid for some time.
+
+### Update
+- Update a number of dependencies that needed various security updates: 
+
+  * several dependencies bumped their patch version ([#736](https://github.com/stellar/js-stellar-sdk/pull/736), [#684](https://github.com/stellar/js-stellar-sdk/pull/684), [#672](https://github.com/stellar/js-stellar-sdk/pull/672), [#666](https://github.com/stellar/js-stellar-sdk/pull/666), [#644](https://github.com/stellar/js-stellar-sdk/pull/644), [#622](https://github.com/stellar/js-stellar-sdk/pull/622))
+  * axios has been bumped to 0.25.0 without causing breaking changes ([#742](https://github.com/stellar/js-stellar-sdk/pull/742))
+  * the `karma` suite of packages has been updated to the latest major version ([#743](https://github.com/stellar/js-stellar-sdk/pull/743))
+
+All of the dependencies in question besides `axios` were _developer_ dependencies, so there never was downstream security impact nor will there be downstream upgrade impact.
 
 
 ## [v10.0.0](https://github.com/stellar/js-stellar-sdk/compare/v9.1.0...v10.0.0)
