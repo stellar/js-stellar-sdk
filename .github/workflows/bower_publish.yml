@@ -2,6 +2,9 @@ name: Bower Publish
 on:
   release:
     types: [published]
+  push:
+    branches:
+      - master
 
 jobs:
   build-and-deploy:
@@ -30,7 +33,7 @@ jobs:
           cp dist/* bower/
 
       - name: Publish to bower
-        run:
+        run: |
           TAG=`git describe --tags`
           cd bower/
           git config user.name github-actions
