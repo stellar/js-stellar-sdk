@@ -48,15 +48,17 @@
 
 
     <section class="readme">
-        <article><p><div align="center">
-<img alt="Stellar" src="https://github.com/stellar/.github/raw/master/stellar-logo.png" width="558" />
-<br/>
-<strong>Creating equitable access to the global financial system</strong></p>
-<p><h1>js-stellar-sdk</h1>
-</div></p>
+        <article><div align="center">
+  <img alt="Stellar" src="https://github.com/stellar/.github/raw/master/stellar-logo.png" width="558" />
+  <br/>
+  <strong>Creating equitable access to the global financial system</strong>
+  <h1>js-stellar-sdk</h1>
+</div>
+
 <p align="center">
-<a href="https://travis-ci.com/stellar/js-stellar-sdk"><img alt="Build Status" src="https://travis-ci.com/stellar/js-stellar-sdk.svg?branch=master" /></a>
-<a href="https://coveralls.io/github/stellar/js-stellar-sdk?branch=master"><img alt="Coverage Status" src="https://coveralls.io/repos/stellar/js-stellar-sdk/badge.svg?branch=master&service=github" /></a>
+  <a href="https://badge.fury.io/js/stellar-sdk"><img src="https://badge.fury.io/js/stellar-sdk.svg" alt="npm version" height="18"></a>
+  <a href="https://github.com/stellar/js-stellar-sdk/actions/workflows/tests.yml"><img alt="Test Status" src="https://github.com/stellar/js-stellar-sdk/actions/workflows/tests.yml/badge.svg" /></a>
+  <a href="https://coveralls.io/github/stellar/js-stellar-sdk?branch=master"><img alt="Coverage Status" src="https://coveralls.io/repos/stellar/js-stellar-sdk/badge.svg?branch=master&service=github" /></a>
 </p>
 
 <p>js-stellar-sdk is a Javascript library for communicating with a
@@ -108,7 +110,7 @@ using <code>sodium-native</code>. If <code>sodium-native</code> is successfully 
 <pre class="prettyprint source lang-html"><code>&lt;script src=&quot;./bower_components/stellar-sdk/stellar-sdk.js&quot;>&lt;/script>
 &lt;script>
   console.log(StellarSdk);
-&lt;/script></code></pre><p>If you don't want to use install Bower, you can copy built JS files from the
+&lt;/script></code></pre><p>If you don't want to use or install Bower, you can copy built JS files from the
 <a href="https://github.com/stellar/bower-js-stellar-sdk">bower-js-stellar-sdk repo</a>.</p>
 <h3>To use the <a href="https://cdnjs.com/libraries/stellar-sdk">cdnjs</a> hosted script in the browser</h3><ol>
 <li>Instruct the browser to fetch the library from
@@ -130,14 +132,13 @@ may not be entirely secure.</p>
 </ol>
 <pre class="prettyprint source lang-shell"><code>cd js-stellar-sdk
 npm install</code></pre><ol start="3">
-<li>Install Node 10.16.3</li>
+<li>Install Node 12</li>
 </ol>
-<p>Because we support earlier versions of Node, please install and develop on Node
-10.16.3 so you don't get surprised when your code works locally but breaks in CI.</p>
-<p>Here's out to install <code>nvm</code> if you haven't: https://github.com/creationix/nvm</p>
+<p>Because we support the latest maintenance version of Node, please install and develop on Node 12 so you don't get surprised when your code works locally but breaks in CI.</p>
+<p>Here's how to install <code>nvm</code> if you haven't: https://github.com/creationix/nvm</p>
 <pre class="prettyprint source lang-shell"><code>nvm install
 
-# if you've never installed 10.16.3 before you'll want to re-install yarn
+# if you've never installed 12 before you'll want to re-install yarn
 npm install -g yarn</code></pre><p>If you work on several projects that use different Node versions, you might it
 helpful to install this automatic version manager:
 https://github.com/wbyoung/avn</p>
@@ -147,11 +148,7 @@ https://github.com/wbyoung/avn</p>
 <p>While you're making changes, make sure to run the linter-watcher to catch any
    linting errors (in addition to making sure your text editor supports ESLint)</p>
 <pre class="prettyprint source lang-shell"><code>node_modules/.bin/gulp watch
-`</code></pre><p>If you're working on a file not in <code>src</code>, limit your code to Node 6.16 ES! See
-what's supported here: https://node.green/ (The reason is that our npm library
-must support earlier versions of Node, so the tests need to run on those
-versions.)</p>
-<h3>How to use with React-Native</h3><ol>
+`</code></pre><h3>How to use with React-Native</h3><ol>
 <li>Add the following postinstall script:<pre class="prettyprint source"><code>yarn rn-nodeify --install url,events,https,http,util,stream,crypto,vm,buffer --hack --yarn</code></pre></li>
 <li><code>yarn add -D rn-nodeify</code></li>
 <li>Uncomment <code>require('crypto')</code> on shim.js</li>
@@ -187,8 +184,8 @@ cd jsdoc && serve .
 <a href="https://github.com/stellar/js-stellar-sdk/blob/master/docs/reference/readme.md">Developers site</a>.</p>
 <h2>Contributing</h2><p>For information on how to contribute, please refer to our
 <a href="https://github.com/stellar/js-stellar-sdk/blob/master/CONTRIBUTING.md">contribution guide</a>.</p>
-<h2>Publishing to npm</h2><pre class="prettyprint source"><code>npm version [&lt;newversion> | major | minor | patch | premajor | preminor | prepatch | prerelease]</code></pre><p>A new version will be published to npm <strong>and</strong> Bower by Travis CI.</p>
-<p>npm &gt;=2.13.0 required. Read more about
+<h2>Publishing to npm</h2><pre class="prettyprint source"><code>npm version [&lt;newversion> | major | minor | patch | premajor | preminor | prepatch | prerelease]</code></pre><p>A new version will be published to npm <strong>and</strong> Bower by GitHub actions.</p>
+<p>npm &gt;= 2.13.0 required. Read more about
 <a href="https://docs.npmjs.com/cli/version">npm version</a>.</p>
 <h2>License</h2><p>js-stellar-sdk is licensed under an Apache-2.0 license. See the
 <a href="https://github.com/stellar/js-stellar-sdk/blob/master/LICENSE">LICENSE</a> file
@@ -205,7 +202,7 @@ for details.</p></article>
 <br class="clear">
 
 <footer>
-    Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Jan 19 2022 15:34:11 GMT-0800 (Pacific Standard Time) using the Minami theme.
+    Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Jan 21 2022 21:31:39 GMT+0000 (Coordinated Universal Time) using the Minami theme.
 </footer>
 
 <script>prettyPrint();</script>

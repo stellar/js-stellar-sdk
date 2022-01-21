@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>js-stellar-base/src/operations/set_options.js - Documentation</title>
+    <title>LiquidityPoolAsset - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -29,190 +29,880 @@
 
 <div id="main">
     
-    <h1 class="page-title">js-stellar-base/src/operations/set_options.js</h1>
+    <h1 class="page-title">LiquidityPoolAsset</h1>
     
 
     
 
 
 
+
+<section>
+
+<header>
     
-    <section>
-        <article>
-            <pre class="prettyprint source linenums"><code>/* eslint-disable no-param-reassign */
+        <h2>
+        LiquidityPoolAsset
+        </h2>
+        
+            <div class="class-description"><p>LiquidityPoolAsset class represents a liquidity pool trustline change.</p></div>
+        
+    
+</header>
 
-import isUndefined from 'lodash/isUndefined';
-import isString from 'lodash/isString';
+<article>
+    <div class="container-overview">
+    
+        
+<div class="section-method">
 
-import xdr from '../generated/stellar-xdr_generated';
-import { Keypair } from '../keypair';
-import { StrKey } from '../strkey';
+    
+    <h2>Constructor</h2>
+    
 
-function weightCheckFunction(value, name) {
-  if (value >= 0 &amp;&amp; value &lt;= 255) {
-    return true;
-  }
-  throw new Error(`${name} value must be between 0 and 255`);
-}
+    <h4 class="name" id="LiquidityPoolAsset"><span class="type-signature"></span>new LiquidityPoolAsset<span class="signature">(assetA, assetB, fee)</span><span class="type-signature"></span></h4>
 
-/**
- * Returns an XDR SetOptionsOp. A "set options" operations set or clear account flags,
- * set the account's inflation destination, and/or add new signers to the account.
- * The flags used in `opts.clearFlags` and `opts.setFlags` can be the following:
- *   - `{@link AuthRequiredFlag}`
- *   - `{@link AuthRevocableFlag}`
- *   - `{@link AuthImmutableFlag}`
- *   - `{@link AuthClawbackEnabledFlag}`
- *
- * It's possible to set/clear multiple flags at once using logical or.
- *
- * @function
- * @alias Operation.setOptions
- *
- * @param {object} opts Options object
- * @param {string} [opts.inflationDest] - Set this account ID as the account's inflation destination.
- * @param {(number|string)} [opts.clearFlags] - Bitmap integer for which account flags to clear.
- * @param {(number|string)} [opts.setFlags] - Bitmap integer for which account flags to set.
- * @param {number|string} [opts.masterWeight] - The master key weight.
- * @param {number|string} [opts.lowThreshold] - The sum weight for the low threshold.
- * @param {number|string} [opts.medThreshold] - The sum weight for the medium threshold.
- * @param {number|string} [opts.highThreshold] - The sum weight for the high threshold.
- * @param {object} [opts.signer] - Add or remove a signer from the account. The signer is
- *                                 deleted if the weight is 0. Only one of `ed25519PublicKey`, `sha256Hash`, `preAuthTx` should be defined.
- * @param {string} [opts.signer.ed25519PublicKey] - The ed25519 public key of the signer.
- * @param {Buffer|string} [opts.signer.sha256Hash] - sha256 hash (Buffer or hex string) of preimage that will unlock funds. Preimage should be used as signature of future transaction.
- * @param {Buffer|string} [opts.signer.preAuthTx] - Hash (Buffer or hex string) of transaction that will unlock funds.
- * @param {number|string} [opts.signer.weight] - The weight of the new signer (0 to delete or 1-255)
- * @param {string} [opts.homeDomain] - sets the home domain used for reverse federation lookup.
- * @param {string} [opts.source] - The source account (defaults to transaction source).
- *
- * @returns {xdr.SetOptionsOp}  XDR operation
- * @see [Account flags](https://developers.stellar.org/docs/glossary/accounts/#flags)
- */
-export function setOptions(opts) {
-  const attributes = {};
+    
 
-  if (opts.inflationDest) {
-    if (!StrKey.isValidEd25519PublicKey(opts.inflationDest)) {
-      throw new Error('inflationDest is invalid');
-    }
-    attributes.inflationDest = Keypair.fromPublicKey(
-      opts.inflationDest
-    ).xdrAccountId();
-  }
 
-  attributes.clearFlags = this._checkUnsignedIntValue(
-    'clearFlags',
-    opts.clearFlags
-  );
-  attributes.setFlags = this._checkUnsignedIntValue('setFlags', opts.setFlags);
-  attributes.masterWeight = this._checkUnsignedIntValue(
-    'masterWeight',
-    opts.masterWeight,
-    weightCheckFunction
-  );
-  attributes.lowThreshold = this._checkUnsignedIntValue(
-    'lowThreshold',
-    opts.lowThreshold,
-    weightCheckFunction
-  );
-  attributes.medThreshold = this._checkUnsignedIntValue(
-    'medThreshold',
-    opts.medThreshold,
-    weightCheckFunction
-  );
-  attributes.highThreshold = this._checkUnsignedIntValue(
-    'highThreshold',
-    opts.highThreshold,
-    weightCheckFunction
-  );
 
-  if (!isUndefined(opts.homeDomain) &amp;&amp; !isString(opts.homeDomain)) {
-    throw new TypeError('homeDomain argument must be of type String');
-  }
-  attributes.homeDomain = opts.homeDomain;
 
-  if (opts.signer) {
-    const weight = this._checkUnsignedIntValue(
-      'signer.weight',
-      opts.signer.weight,
-      weightCheckFunction
-    );
-    let key;
 
-    let setValues = 0;
 
-    if (opts.signer.ed25519PublicKey) {
-      if (!StrKey.isValidEd25519PublicKey(opts.signer.ed25519PublicKey)) {
-        throw new Error('signer.ed25519PublicKey is invalid.');
-      }
-      const rawKey = StrKey.decodeEd25519PublicKey(
-        opts.signer.ed25519PublicKey
-      );
 
-      // eslint-disable-next-line new-cap
-      key = new xdr.SignerKey.signerKeyTypeEd25519(rawKey);
-      setValues += 1;
-    }
+<dl class="details">
 
-    if (opts.signer.preAuthTx) {
-      if (isString(opts.signer.preAuthTx)) {
-        opts.signer.preAuthTx = Buffer.from(opts.signer.preAuthTx, 'hex');
-      }
+    
 
-      if (
-        !(
-          Buffer.isBuffer(opts.signer.preAuthTx) &amp;&amp;
-          opts.signer.preAuthTx.length === 32
-        )
-      ) {
-        throw new Error('signer.preAuthTx must be 32 bytes Buffer.');
-      }
+    
 
-      // eslint-disable-next-line new-cap
-      key = new xdr.SignerKey.signerKeyTypePreAuthTx(opts.signer.preAuthTx);
-      setValues += 1;
-    }
+    
 
-    if (opts.signer.sha256Hash) {
-      if (isString(opts.signer.sha256Hash)) {
-        opts.signer.sha256Hash = Buffer.from(opts.signer.sha256Hash, 'hex');
-      }
+    
 
-      if (
-        !(
-          Buffer.isBuffer(opts.signer.sha256Hash) &amp;&amp;
-          opts.signer.sha256Hash.length === 32
-        )
-      ) {
-        throw new Error('signer.sha256Hash must be 32 bytes Buffer.');
-      }
+    
 
-      // eslint-disable-next-line new-cap
-      key = new xdr.SignerKey.signerKeyTypeHashX(opts.signer.sha256Hash);
-      setValues += 1;
-    }
+    
 
-    if (setValues !== 1) {
-      throw new Error(
-        'Signer object must contain exactly one of signer.ed25519PublicKey, signer.sha256Hash, signer.preAuthTx.'
-      );
-    }
+    
 
-    attributes.signer = new xdr.Signer({ key, weight });
-  }
+    
 
-  const setOptionsOp = new xdr.SetOptionsOp(attributes);
+    
 
-  const opAttributes = {};
-  opAttributes.body = xdr.OperationBody.setOptions(setOptionsOp);
-  this.setSourceAccount(opAttributes, opts);
+    
 
-  return new xdr.Operation(opAttributes);
-}
-</code></pre>
-        </article>
-    </section>
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="js-stellar-base_src_liquidity_pool_asset.js.html">js-stellar-base/src/liquidity_pool_asset.js</a>, <a href="js-stellar-base_src_liquidity_pool_asset.js.html#line17">line 17</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>assetA</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code><a href="Asset.html">Asset</a></code></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">
+                <p>– The first asset in the Pool, it must respect the rule assetA &lt; assetB. See <a href="Asset.html#.compare">Asset.compare</a> for more details on how assets are sorted.</p>
+                
+            </td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>assetB</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code><a href="Asset.html">Asset</a></code></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">
+                <p>– The second asset in the Pool, it must respect the rule assetA &lt; assetB. See <a href="Asset.html#.compare">Asset.compare</a> for more details on how assets are sorted.</p>
+                
+            </td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>fee</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>number</code></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">
+                <p>– The liquidity pool fee. For now the only fee supported is <code>30</code>.</p>
+                
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+    
+    </div>
+
+    
+
+    
+
+    
+
+     
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+<div class="section-method">
+
+    
+
+    <h4 class="name" id=".fromOperation"><span class="type-signature">(static) </span>fromOperation<span class="signature">(ctAssetXdr)</span><span class="type-signature"> &rarr; {<a href="LiquidityPoolAsset.html">LiquidityPoolAsset</a>}</span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Returns a liquidity pool asset object from its XDR ChangeTrustAsset object
+representation.</p>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="js-stellar-base_src_liquidity_pool_asset.js.html">js-stellar-base/src/liquidity_pool_asset.js</a>, <a href="js-stellar-base_src_liquidity_pool_asset.js.html#line43">line 43</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>ctAssetXdr</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code>xdr.ChangeTrustAsset</code></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">
+                <p>The asset XDR object.</p>
+                
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="section-returns">
+<h5>Returns:</h5>
+
+        
+
+<dl class="param-type">
+    <dt>
+        Type:
+    </dt>
+    <dd>
+        
+<span class="param-type"><code><a href="LiquidityPoolAsset.html">LiquidityPoolAsset</a></code></span>
+
+
+    </dd>
+</dl>
+
+
+    
+</div>
+
+
+
+</div>
+        
+            
+<div class="section-method">
+
+    
+
+    <h4 class="name" id="equals"><span class="type-signature"></span>equals<span class="signature">(other)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
+
+    
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="js-stellar-base_src_liquidity_pool_asset.js.html">js-stellar-base/src/liquidity_pool_asset.js</a>, <a href="js-stellar-base_src_liquidity_pool_asset.js.html#line106">line 106</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>other</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><code><a href="LiquidityPoolAsset.html">LiquidityPoolAsset</a></code></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">
+                <p>the LiquidityPoolAsset to compare</p>
+                
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="section-returns">
+<h5>Returns:</h5>
+
+        
+
+<dl class="param-type">
+    <dt>
+        Type:
+    </dt>
+    <dd>
+        
+<span class="param-type"><code>boolean</code></span>
+
+
+    </dd>
+</dl>
+
+
+<div class="param-desc">
+    <p><code>true</code> if this asset equals the given asset.</p>
+</div>
+
+    
+</div>
+
+
+
+</div>
+        
+            
+<div class="section-method">
+
+    
+
+    <h4 class="name" id="getAssetType"><span class="type-signature"></span>getAssetType<span class="signature">()</span><span class="type-signature"> &rarr; {AssetType.liquidityPoolShares}</span></h4>
+
+    
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="js-stellar-base_src_liquidity_pool_asset.js.html">js-stellar-base/src/liquidity_pool_asset.js</a>, <a href="js-stellar-base_src_liquidity_pool_asset.js.html#line98">line 98</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><p><a href="https://developers.stellar.org/docs/glossary/assets/">Assets concept</a></p></li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="section-returns">
+<h5>Returns:</h5>
+
+        
+
+<dl class="param-type">
+    <dt>
+        Type:
+    </dt>
+    <dd>
+        
+<span class="param-type"><code>AssetType.liquidityPoolShares</code></span>
+
+
+    </dd>
+</dl>
+
+
+<div class="param-desc">
+    <p>asset type. Can only be <code>liquidity_pool_shares</code>.</p>
+</div>
+
+    
+</div>
+
+
+
+</div>
+        
+            
+<div class="section-method">
+
+    
+
+    <h4 class="name" id="getLiquidityPoolParameters"><span class="type-signature"></span>getLiquidityPoolParameters<span class="signature">()</span><span class="type-signature"> &rarr; {LiquidityPoolParameters}</span></h4>
+
+    
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="js-stellar-base_src_liquidity_pool_asset.js.html">js-stellar-base/src/liquidity_pool_asset.js</a>, <a href="js-stellar-base_src_liquidity_pool_asset.js.html#line86">line 86</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="section-returns">
+<h5>Returns:</h5>
+
+        
+
+<dl class="param-type">
+    <dt>
+        Type:
+    </dt>
+    <dd>
+        
+<span class="param-type"><code>LiquidityPoolParameters</code></span>
+
+
+    </dd>
+</dl>
+
+
+<div class="param-desc">
+    <p>Liquidity pool parameters.</p>
+</div>
+
+    
+</div>
+
+
+
+</div>
+        
+            
+<div class="section-method">
+
+    
+
+    <h4 class="name" id="toXDRObject"><span class="type-signature"></span>toXDRObject<span class="signature">()</span><span class="type-signature"> &rarr; {xdr.ChangeTrustAsset}</span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Returns the <code>xdr.ChangeTrustAsset</code> object for this liquidity pool asset.</p>
+<p>Note: To convert from an <a href="Asset.html"><code>Asset</code></a> to <code>xdr.ChangeTrustAsset</code>
+please refer to the
+<code>Asset.toChangeTrustXDRObject</code> method.</p>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="js-stellar-base_src_liquidity_pool_asset.js.html">js-stellar-base/src/liquidity_pool_asset.js</a>, <a href="js-stellar-base_src_liquidity_pool_asset.js.html#line68">line 68</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="section-returns">
+<h5>Returns:</h5>
+
+        
+
+<dl class="param-type">
+    <dt>
+        Type:
+    </dt>
+    <dd>
+        
+<span class="param-type"><code>xdr.ChangeTrustAsset</code></span>
+
+
+    </dd>
+</dl>
+
+
+<div class="param-desc">
+    <p>XDR ChangeTrustAsset object.</p>
+</div>
+
+    
+</div>
+
+
+
+</div>
+        
+    
+
+    
+
+    
+</article>
+
+</section>
 
 
 
@@ -222,7 +912,7 @@ export function setOptions(opts) {
 <br class="clear">
 
 <footer>
-    Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Jan 21 2022 21:31:39 GMT+0000 (Coordinated Universal Time) using the Minami theme.
+    Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Jan 21 2022 21:31:40 GMT+0000 (Coordinated Universal Time) using the Minami theme.
 </footer>
 
 <script>prettyPrint();</script>
