@@ -1,12 +1,14 @@
 <div align="center">
-<img alt="Stellar" src="https://github.com/stellar/.github/raw/master/stellar-logo.png" width="558" />
-<br/>
-<strong>Creating equitable access to the global financial system</strong>
-<h1>js-stellar-sdk</h1>
+  <img alt="Stellar" src="https://github.com/stellar/.github/raw/master/stellar-logo.png" width="558" />
+  <br/>
+  <strong>Creating equitable access to the global financial system</strong>
+  <h1>js-stellar-sdk</h1>
 </div>
+
 <p align="center">
-<a href="https://travis-ci.com/stellar/js-stellar-sdk"><img alt="Build Status" src="https://travis-ci.com/stellar/js-stellar-sdk.svg?branch=master" /></a>
-<a href="https://coveralls.io/github/stellar/js-stellar-sdk?branch=master"><img alt="Coverage Status" src="https://coveralls.io/repos/stellar/js-stellar-sdk/badge.svg?branch=master&service=github" /></a>
+  <a href="https://badge.fury.io/js/stellar-sdk"><img src="https://badge.fury.io/js/stellar-sdk.svg" alt="npm version" height="18"></a>
+  <a href="https://github.com/stellar/js-stellar-sdk/actions/workflows/tests.yml"><img alt="Test Status" src="https://github.com/stellar/js-stellar-sdk/actions/workflows/tests.yml/badge.svg" /></a>
+  <a href="https://coveralls.io/github/stellar/js-stellar-sdk?branch=master"><img alt="Coverage Status" src="https://coveralls.io/repos/stellar/js-stellar-sdk/badge.svg?branch=master&service=github" /></a>
 </p>
 
 js-stellar-sdk is a Javascript library for communicating with a
@@ -93,7 +95,7 @@ bower install stellar-sdk
 </script>
 ```
 
-If you don't want to use install Bower, you can copy built JS files from the
+If you don't want to use or install Bower, you can copy built JS files from the
 [bower-js-stellar-sdk repo](https://github.com/stellar/bower-js-stellar-sdk).
 
 ### To use the [cdnjs](https://cdnjs.com/libraries/stellar-sdk) hosted script in the browser
@@ -130,17 +132,16 @@ cd js-stellar-sdk
 npm install
 ```
 
-3. Install Node 10.16.3
+3. Install Node 12
 
-Because we support earlier versions of Node, please install and develop on Node
-10.16.3 so you don't get surprised when your code works locally but breaks in CI.
+Because we support the latest maintenance version of Node, please install and develop on Node 12 so you don't get surprised when your code works locally but breaks in CI.
 
-Here's out to install `nvm` if you haven't: https://github.com/creationix/nvm
+Here's how to install `nvm` if you haven't: https://github.com/creationix/nvm
 
 ```shell
 nvm install
 
-# if you've never installed 10.16.3 before you'll want to re-install yarn
+# if you've never installed 12 before you'll want to re-install yarn
 npm install -g yarn
 ```
 
@@ -156,11 +157,6 @@ While you're making changes, make sure to run the linter-watcher to catch any
 ```shell
 node_modules/.bin/gulp watch
 ````
-
-If you're working on a file not in `src`, limit your code to Node 6.16 ES! See
-what's supported here: https://node.green/ (The reason is that our npm library
-must support earlier versions of Node, so the tests need to run on those
-versions.)
 
 ### How to use with React-Native
 
@@ -240,9 +236,9 @@ For information on how to contribute, please refer to our
 npm version [<newversion> | major | minor | patch | premajor | preminor | prepatch | prerelease]
 ```
 
-A new version will be published to npm **and** Bower by Travis CI.
+A new version will be published to npm **and** Bower by GitHub actions.
 
-npm >=2.13.0 required. Read more about
+npm >= 2.13.0 required. Read more about
 [npm version](https://docs.npmjs.com/cli/version).
 
 ## License
