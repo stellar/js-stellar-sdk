@@ -41,7 +41,8 @@ export class OfferCallBuilder extends CallBuilder<
    * @returns {OfferCallBuilder} current OfferCallBuilder instance
    */
   public forAccount(id: string): this {
-    return this.forEndpoint("accounts", id);
+    this.url.setQuery("seller", id);
+    return this;
   }
 
   /**
