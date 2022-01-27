@@ -41,8 +41,7 @@ export class OfferCallBuilder extends CallBuilder<
    * @returns {OfferCallBuilder} current OfferCallBuilder instance
    */
   public forAccount(id: string): this {
-    this.url.setQuery("seller", id);
-    return this;
+    return this.forEndpoint("accounts", id);
   }
 
   /**
@@ -78,6 +77,17 @@ export class OfferCallBuilder extends CallBuilder<
     } else {
       this.url.setQuery("selling_asset_type", "native");
     }
+    return this;
+  }
+
+  /**
+   * This endpoint filters offers where the given account is the seller of the offer entry.
+   * @see [Offers](https://developers.stellar.org/api/resources/offers/list/)
+   * @param {string} value For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
+   * @returns {OfferCallBuilder} current OfferCallBuilder instance
+   */
+  public seller(id: string): this {
+    this.url.setQuery("seller", id);
     return this;
   }
 
