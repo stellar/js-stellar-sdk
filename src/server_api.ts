@@ -90,6 +90,8 @@ export namespace ServerApi {
     paging_token: string;
     account_id: string;
     sequence: string;
+    sequence_ledger: number;
+    sequence_time: string;
     subentry_count: number;
     home_domain?: string;
     inflation_destination?: string;
