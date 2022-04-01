@@ -31,12 +31,12 @@ export namespace Horizon {
 
   export interface TransactionPreconditions {
     timebounds?: {
-      min_time?: string;
-      max_time?: string;
+      min_time: string;
+      max_time: string;
     };
     ledgerbounds?: {
-      min_ledger?: number;
-      max_ledger?: number;
+      min_ledger: number;
+      max_ledger: number;
     };
     min_account_sequence?: string;
     min_account_sequence_age?: string;
