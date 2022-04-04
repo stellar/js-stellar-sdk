@@ -21,6 +21,8 @@ export class AccountResponse {
   public readonly paging_token!: string;
   public readonly account_id!: string;
   public sequence!: string;
+  public readonly sequence_ledger?: number;
+  public readonly sequence_time?: string;
   public readonly subentry_count!: number;
   public readonly home_domain?: string;
   public readonly inflation_destination?: string;
