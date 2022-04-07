@@ -1880,6 +1880,7 @@ describe('server.js non-transaction tests', function() {
             done(err);
           });
       });
+    });
 
     describe('OrderbookCallBuilder', function() {
       let orderBookResponse = {
