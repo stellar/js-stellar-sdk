@@ -6,6 +6,11 @@ A breaking change will get clearly marked in this log.
 ## Unreleased
 
 
+### Add
+
+- Add a way to filter offers by seller: `OfferCallBuilder.seller(string)`, corresponding to `GET /offers?seller=<string>` ([#773](https://github.com/stellar/js-stellar-sdk/pull/773)).
+
+
 ## [v10.0.1](https://github.com/stellar/js-stellar-sdk/compare/v10.0.0...v10.0.1)
 
 ### Fix
