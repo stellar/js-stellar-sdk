@@ -156,7 +156,7 @@ export namespace Horizon {
     sequence: string;
     subentry_count: number;
     thresholds: AccountThresholds;
-    last_modified_ledger: string;
+    last_modified_ledger: number;
     last_modified_time: string;
     flags: Flags;
     balances: BalanceLine[];
