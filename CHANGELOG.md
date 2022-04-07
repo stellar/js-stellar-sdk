@@ -8,7 +8,7 @@ A breaking change will get clearly marked in this log.
 
 ### Fix
 
-- Add missing field to account responses: `last_modified_time` which is the time equivalent of the existing `last_modified_ledger` ([]()).
+- Add missing field to account responses: `last_modified_time` which is the time equivalent of the existing `last_modified_ledger` ([#770](https://github.com/stellar/js-stellar-sdk/pull/770)).
 
 
 ## [v10.0.1](https://github.com/stellar/js-stellar-sdk/compare/v10.0.0...v10.0.1)
