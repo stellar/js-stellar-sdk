@@ -170,6 +170,8 @@ export namespace Horizon {
     paging_token: string;
     account_id: string;
     sequence: string;
+    sequence_ledger?: number;
+    sequence_time?: string;
     subentry_count: number;
     thresholds: AccountThresholds;
     last_modified_ledger: number;
