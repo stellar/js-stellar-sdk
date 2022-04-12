@@ -34,7 +34,7 @@ export class OfferCallBuilder extends CallBuilder<
   }
 
   /**
-   * Returns all offers where the given account is the seller.
+   * Returns all offers where the given account is involved.
    *
    * @see [Offers](https://developers.stellar.org/api/resources/accounts/offers/)
    * @param {string} id For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
@@ -48,7 +48,7 @@ export class OfferCallBuilder extends CallBuilder<
    * Returns all offers buying an asset.
    * @see [Offers](https://developers.stellar.org/api/resources/offers/list/)
    * @see Asset
-   * @param {Asset} value For example: `new Asset('USD','GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD')`
+   * @param {Asset} asset For example: `new Asset('USD','GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD')`
    * @returns {OfferCallBuilder} current OfferCallBuilder instance
    */
   public buying(asset: Asset): this {
@@ -66,7 +66,7 @@ export class OfferCallBuilder extends CallBuilder<
    * Returns all offers selling an asset.
    * @see [Offers](https://developers.stellar.org/api/resources/offers/list/)
    * @see Asset
-   * @param {Asset} value For example: `new Asset('EUR','GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD')`
+   * @param {Asset} asset For example: `new Asset('EUR','GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD')`
    * @returns {OfferCallBuilder} current OfferCallBuilder instance
    */
   public selling(asset: Asset): this {
@@ -83,11 +83,23 @@ export class OfferCallBuilder extends CallBuilder<
   /**
    * This endpoint filters offers where the given account is sponsoring the offer entry.
    * @see [Offers](https://developers.stellar.org/api/resources/offers/list/)
-   * @param {string} value For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
+   * @param {string} id For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
    * @returns {OfferCallBuilder} current OfferCallBuilder instance
    */
   public sponsor(id: string): this {
     this.url.setQuery("sponsor", id);
+    return this;
+  }
+
+  /**
+   * This endpoint filters offers where the given account is the seller.
+   *
+   * @see [Offers](https://developers.stellar.org/api/resources/offers/list/)
+   * @param {string} seller For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
+   * @returns {OfferCallBuilder} current OfferCallBuilder instance
+   */
+  public seller(seller: string): this {
+    this.url.setQuery("seller", seller);
     return this;
   }
 }
