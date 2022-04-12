@@ -27,6 +27,7 @@ export class AccountResponse {
   public readonly home_domain?: string;
   public readonly inflation_destination?: string;
   public readonly last_modified_ledger!: number;
+  public readonly last_modified_time!: string;
   public readonly thresholds!: Horizon.AccountThresholds;
   public readonly flags!: Horizon.Flags;
   public readonly balances!: Horizon.BalanceLine[];

@@ -96,6 +96,7 @@ export namespace ServerApi {
     home_domain?: string;
     inflation_destination?: string;
     last_modified_ledger: number;
+    last_modified_time: string;
     thresholds: Horizon.AccountThresholds;
     flags: Horizon.Flags;
     balances: Horizon.BalanceLine[];

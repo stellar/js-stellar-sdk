@@ -1188,6 +1188,7 @@ describe('server.js non-transaction tests', function() {
                 sequence: '4233832731508737',
                 subentry_count: 1,
                 last_modified_ledger: 986912,
+                last_modified_time: '1970-01-01T00:00:00Z',
                 thresholds: {
                   low_threshold: 0,
                   med_threshold: 0,
@@ -1312,6 +1313,7 @@ describe('server.js non-transaction tests', function() {
                 sequence: '3902600558673934',
                 subentry_count: 3,
                 last_modified_ledger: 983682,
+                last_modified_time: '1970-01-01T00:00:00Z',
                 thresholds: {
                   low_threshold: 0,
                   med_threshold: 0,
@@ -1436,6 +1438,7 @@ describe('server.js non-transaction tests', function() {
                 sequence: '4233832731508737',
                 subentry_count: 1,
                 last_modified_ledger: 986912,
+                last_modified_time: '1970-01-01T00:00:00Z',
                 thresholds: {
                   low_threshold: 0,
                   med_threshold: 0,
@@ -1563,6 +1566,7 @@ describe('server.js non-transaction tests', function() {
                 sequence: '3902600558673934',
                 subentry_count: 3,
                 last_modified_ledger: 983682,
+                last_modified_time: '1970-01-01T00:00:00Z',
                 thresholds: {
                   low_threshold: 0,
                   med_threshold: 0,

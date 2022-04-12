@@ -132,16 +132,16 @@ cd js-stellar-sdk
 npm install
 ```
 
-3. Install Node 12
+3. Install Node 14
 
-Because we support the latest maintenance version of Node, please install and develop on Node 12 so you don't get surprised when your code works locally but breaks in CI.
+Because we support the latest maintenance version of Node, please install and develop on Node 14 so you don't get surprised when your code works locally but breaks in CI.
 
 Here's how to install `nvm` if you haven't: https://github.com/creationix/nvm
 
 ```shell
 nvm install
 
-# if you've never installed 12 before you'll want to re-install yarn
+# if you've never installed 14 before you'll want to re-install yarn
 npm install -g yarn
 ```
 
@@ -180,6 +180,29 @@ module.exports = {
 
 There is also a [sample](https://github.com/fnando/rn-stellar-sdk-sample) that you can follow.
 
+#### Using in an Expo managed workflow
+
+1. Add the following postinstall script:
+```
+yarn rn-nodeify --install process,url,events,https,http,util,stream,crypto,vm,buffer --hack --yarn
+```
+2. `yarn add -D rn-nodeify`
+3. Add `import "./shim";` to the your app's entry point (by default `./App.js`)
+4. `yarn add stellar-sdk`
+5. `expo install expo-random`
+
+At this point, the stellar SDK will work, except that `StellarSdk.Keypair.random()` will throw an error. So to work around this you can create your own method to generate a random keypair like this:
+
+```javascript
+import * as Random from 'expo-random';
+import StellarSdk from 'stellar-sdk';
+
+const generateRandomKeypair = () => {
+  const randomBytes = Random.getRandomBytes(32);
+
+  return StellarSdk.Keypair.fromRawEd25519Seed(Buffer.from(randomBytes));
+};
+```
 
 ## Usage
 
