@@ -5,6 +5,9 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+
+## [v10.1.0-beta.0](https://github.com/stellar/js-stellar-sdk/compare/v10.0.1...v10.1.0-beta.0)
+
 ### Add
 
 - Add a way to filter offers by seller: `OfferCallBuilder.seller(string)`, corresponding to `GET /offers?seller=<string>` ([#773](https://github.com/stellar/js-stellar-sdk/pull/773)).
@@ -20,6 +23,10 @@ A breaking change will get clearly marked in this log.
 ### Fix
 
 - Add missing field to account responses: `last_modified_time` which is the time equivalent of the existing `last_modified_ledger` ([#770](https://github.com/stellar/js-stellar-sdk/pull/770)).
+
+- Stop opening extra connections when SSE streams receive `event: close` events ([#772](https://github.com/stellar/js-stellar-sdk/pull/772)).
+
+- Fix SSE streams not loading under React Native (thank you, @hunterpetersen!) ([#761](https://github.com/stellar/js-stellar-sdk/pull/761)).
 
 
 ## [v10.0.1](https://github.com/stellar/js-stellar-sdk/compare/v10.0.0...v10.0.1)
