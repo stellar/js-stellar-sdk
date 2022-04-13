@@ -29,6 +29,21 @@ export namespace Horizon {
     max_fee: string;
   }
 
+  export interface TransactionPreconditions {
+    timebounds?: {
+      min_time: string;
+      max_time: string;
+    };
+    ledgerbounds?: {
+      min_ledger: number;
+      max_ledger: number;
+    };
+    min_account_sequence?: string;
+    min_account_sequence_age?: string;
+    min_account_sequence_ledger_gap?: number;
+    extra_signers?: string[];
+  }
+
   export interface TransactionResponse
     extends SubmitTransactionResponse,
       BaseResponse<
@@ -55,6 +70,7 @@ export namespace Horizon {
     fee_account: string;
     inner_transaction?: InnerTransactionResponse;
     fee_bump_transaction?: FeeBumpTransactionResponse;
+    preconditions?: TransactionPreconditions;
   }
 
   export interface BalanceLineNative {
@@ -154,6 +170,8 @@ export namespace Horizon {
     paging_token: string;
     account_id: string;
     sequence: string;
+    sequence_ledger?: number;
+    sequence_time?: string;
     subentry_count: number;
     thresholds: AccountThresholds;
     last_modified_ledger: number;

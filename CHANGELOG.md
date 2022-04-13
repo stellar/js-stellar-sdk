@@ -9,6 +9,14 @@ A breaking change will get clearly marked in this log.
 
 - Add a way to filter offers by seller: `OfferCallBuilder.seller(string)`, corresponding to `GET /offers?seller=<string>` ([#773](https://github.com/stellar/js-stellar-sdk/pull/773)).
 
+### Add
+
+- Support for Protocol 19 ([#775](https://github.com/stellar/js-stellar-sdk/pull/775)):
+
+  * new precondition fields on a `TransactionResponse`
+  * new account fields on `AccountResponse` and `AccountRecord`
+  * bumping `stellar-base` to the latest beta version
+
 ### Fix
 
 - Add missing field to account responses: `last_modified_time` which is the time equivalent of the existing `last_modified_ledger` ([#770](https://github.com/stellar/js-stellar-sdk/pull/770)).
