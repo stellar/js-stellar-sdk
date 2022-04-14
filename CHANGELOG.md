@@ -6,6 +6,11 @@ A breaking change will get clearly marked in this log.
 ## Unreleased
 
 
+## [v10.1.0](https://github.com/stellar/js-stellar-sdk/compare/v10.0.1...v10.1.0-beta.0)
+
+This is a promotion from the beta version without changes, besides upgrading the underlying [stellar-base@v8.0.0](https://github.com/stellar/js-stellar-base/releases/tag/v8.0.0) to its stable release.
+
+
 ## [v10.1.0-beta.0](https://github.com/stellar/js-stellar-sdk/compare/v10.0.1...v10.1.0-beta.0)
 
 ### Add
