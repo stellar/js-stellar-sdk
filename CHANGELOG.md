@@ -5,6 +5,10 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Fix
+
+- Reverts a change from [v10.0.0](#v10.0.0) which caused streams to die prematurely ([TODO](https://github.com/stellar/js-stellar-sdk/pull/TODO)).
+
 
 ## [v10.1.0](https://github.com/stellar/js-stellar-sdk/compare/v10.0.1...v10.1.0-beta.0)
 
