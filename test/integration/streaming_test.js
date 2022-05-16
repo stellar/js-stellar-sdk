@@ -88,12 +88,13 @@ describe("integration tests:live streaming", function(done) {
     return;
   }
 
-  // stream ledgers from pubnet for a while and ensure that the quantity we see
-  // looks reasonable (since they're supposed to arrive every ~6s).
+  // stream transactions from pubnet for a while and ensure that we cross a
+  // ledger boundary (if streaming is broken, we will get stuck on a single
+  // ledger's transaction batch).
   it("streams in perpetuity", function(done) {
     const DURATION = 30;
     const server = new StellarSdk.Server("https://horizon.stellar.org");
-    this.timeout((DURATION + 5) * 1000);
+    this.timeout((DURATION + 5) * 1000); // pad timeout
 
     let transactions = [];
 
