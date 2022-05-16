@@ -81,3 +81,43 @@ describe("integration tests: streaming", function(done) {
     });
   });
 });
+
+describe("integration tests:live streaming", function(done) {
+  if (typeof window !== "undefined") {
+    done();
+    return;
+  }
+
+  // stream ledgers from pubnet for a while and ensure that the quantity we see
+  // looks reasonable (since they're supposed to arrive every ~6s).
+  it("streams in perpetuity", function(done) {
+    const DURATION = 30;
+    const server = new StellarSdk.Server("https://horizon.stellar.org");
+    this.timeout((DURATION + 5) * 1000);
+
+    let transactions = [];
+
+    const finishTest = (err) => {
+      clearTimeout(timeout);
+      closeHandler();
+
+      expect(transactions.length).to.be.gt(0);
+      let firstLedger = transactions[0].ledger_attr;
+      let lastLedger = transactions[transactions.length - 1].ledger_attr;
+      expect(lastLedger - firstLedger).to.be.gte(1);
+
+      done(err);
+    }
+
+    let closeHandler = server.transactions()
+      .cursor("now")
+      .stream({
+        onmessage: (msg) => {
+          transactions.push(msg);
+        },
+        onerror: finishTest,
+      });
+
+    let timeout = setTimeout(finishTest, DURATION * 1000);
+  });
+});
