@@ -5,9 +5,14 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+
+## [v10.1.1](https://github.com/stellar/js-stellar-sdk/compare/v10.1.0...v10.1.1)
+
 ### Fix
 
-- Reverts a change from [v10.0.0](#v10.0.0) which caused streams to die prematurely ([#780](https://github.com/stellar/js-stellar-sdk/pull/780)).
+- Reverts a change from [v10.1.0](#v10.1.0) which caused streams to die prematurely ([#780](https://github.com/stellar/js-stellar-sdk/pull/780)).
+
+- Bumps `stellar-base` version to [v8.0.1](https://github.com/stellar/js-stellar-base/releases/tag/v8.0.1) to include latest bugfixes.
 
 
 ## [v10.1.0](https://github.com/stellar/js-stellar-sdk/compare/v10.0.1...v10.1.0-beta.0)
