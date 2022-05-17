@@ -137,9 +137,18 @@ export class CallBuilder<
       createTimeout();
 
       if (es) {
+        // when receiving the close message from Horizon we should
+        // close the connection and recreate the event source
+        let closed = false;
         const onClose = () => {
+          if (closed) {
+            return;
+          }
+
           clearTimeout(timeout);
           es.close();
+          createEventSource();
+          closed = true;
         };
 
         const onMessage = (message: any) => {
