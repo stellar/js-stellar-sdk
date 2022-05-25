@@ -135,7 +135,7 @@
     "bignumber.js": "^4.0.0",
     "detect-node": "^2.0.4",
     "es6-promise": "^4.2.4",
-    "eventsource": "^1.0.7",
+    "eventsource": "^2.0.2",
     "lodash": "^4.17.21",
     "randombytes": "^2.1.0",
     "stellar-base": "^8.0.1",
