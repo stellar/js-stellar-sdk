@@ -6,6 +6,13 @@ A breaking change will get clearly marked in this log.
 ## Unreleased
 
 
+## [v10.1.2](https://github.com/stellar/js-stellar-sdk/compare/v10.1.1...v10.1.2)
+
+### Fix
+
+- Upgrades the `eventsource` dependency to fix a critical security vulnerability ([#783](https://github.com/stellar/js-stellar-sdk/pull/783)).
+
+
 ## [v10.1.1](https://github.com/stellar/js-stellar-sdk/compare/v10.1.0...v10.1.1)
 
 ### Fix
