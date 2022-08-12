@@ -138,7 +138,7 @@
     "eventsource": "^1.1.1",
     "lodash": "^4.17.21",
     "randombytes": "^2.1.0",
-    "stellar-base": "^8.0.1",
+    "stellar-base": "stellar/js-stellar-base#soroban",
     "toml": "^2.3.0",
     "tslib": "^1.10.0",
     "urijs": "^1.19.1",
