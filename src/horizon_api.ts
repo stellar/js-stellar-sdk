@@ -13,6 +13,7 @@ export namespace Horizon {
   export interface SubmitTransactionResponse {
     hash: string;
     ledger: number;
+    successful: boolean;
     envelope_xdr: string;
     result_xdr: string;
     result_meta_xdr: string;
