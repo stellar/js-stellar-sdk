@@ -6,6 +6,17 @@ A breaking change will get clearly marked in this log.
 ## Unreleased
 
 
+## [v10.2.0](https://github.com/stellar/js-stellar-sdk/compare/v10.1.2...v10.2.0)
+
+### Fix
+
+- Adds the missing `successful` field to transaction responses ([#790](https://github.com/stellar/js-stellar-sdk/pull/790)).
+
+### Update
+
+- Bumps `stellar-base` version to [v8.1.0](https://github.com/stellar/js-stellar-base/releases/tag/v8.1.0) to include bug fixes and latest XDR changes.
+
+
 ## [v10.1.2](https://github.com/stellar/js-stellar-sdk/compare/v10.1.1...v10.1.2)
 
 ### Fix
