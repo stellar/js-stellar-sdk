@@ -6,6 +6,13 @@ A breaking change will get clearly marked in this log.
 ## Unreleased
 
 
+## [v10.2.1](https://github.com/stellar/js-stellar-sdk/compare/v10.2.0...v10.2.1)
+
+### Update
+
+- Bumps `stellar-base` version to [v8.2.0](https://github.com/stellar/js-stellar-base/releases/tag/v8.2.0) to include CAP-40 support in `Operation.setOptions`.
+
+
 ## [v10.2.0](https://github.com/stellar/js-stellar-sdk/compare/v10.1.2...v10.2.0)
 
 ### Fix
