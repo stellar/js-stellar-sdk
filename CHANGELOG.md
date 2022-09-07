@@ -6,7 +6,11 @@ A breaking change will get clearly marked in this log.
 ## Unreleased
 
 
-## [v10.2.1](https://github.com/stellar/js-stellar-sdk/compare/v10.2.0...v10.2.1)
+## [v10.3.0](https://github.com/stellar/js-stellar-sdk/compare/v10.2.0...v10.3.0)
+
+### Fix
+
+- Adds `successful` field to transaction submission response ([#790](https://github.com/stellar/js-stellar-sdk/pull/790)).
 
 ### Update
 
