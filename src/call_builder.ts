@@ -2,9 +2,9 @@ import isNode from "detect-node";
 import URI from "urijs";
 import URITemplate from "urijs/src/URITemplate";
 
+import AxiosClient from "./axios_client";
 import { BadRequestError, NetworkError, NotFoundError } from "./errors";
 import { Horizon } from "./horizon_api";
-import HorizonAxiosClient from "./horizon_axios_client";
 import { ServerApi } from "./server_api";
 
 /* tslint:disable-next-line:no-var-requires */
@@ -30,7 +30,7 @@ if (anyGlobal.EventSource) {
 } else if (isNode) {
   /* tslint:disable-next-line:no-var-requires */
   EventSource = require("eventsource");
-} else if (anyGlobal.window.EventSource) { 
+} else if (anyGlobal.window.EventSource) {
   EventSource = anyGlobal.window.EventSource;
 } else {
   // require("eventsource") for React Native environment
@@ -361,7 +361,7 @@ export class CallBuilder<
       url = url.protocol(this.url.protocol());
     }
 
-    return HorizonAxiosClient.get(url.toString())
+    return AxiosClient.get(url.toString())
       .then((response) => response.data)
       .catch(this._handleNetworkError);
   }

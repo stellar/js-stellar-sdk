@@ -5,7 +5,7 @@ describe('ClaimableBalanceCallBuilder', function() {
         this.server = new StellarSdk.Server(
           'https://horizon-live.stellar.org:1337'
         );
-        this.axiosMock = sinon.mock(HorizonAxiosClient);
+        this.axiosMock = sinon.mock(AxiosClient);
         StellarSdk.Config.setDefault();
       });
     

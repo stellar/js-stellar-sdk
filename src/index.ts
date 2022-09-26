@@ -23,10 +23,10 @@ export {
   STELLAR_TOML_MAX_SIZE,
 } from "./stellar_toml_resolver";
 export {
-  default as HorizonAxiosClient,
+  default as AxiosClient,
   SERVER_TIME_MAP,
   getCurrentServerTime,
-} from "./horizon_axios_client";
+} from "./axios_client";
 export * from "./utils";
 
 // expose classes and functions from stellar-base

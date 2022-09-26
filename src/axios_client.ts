@@ -23,7 +23,7 @@ export interface ServerTime {
  */
 export const SERVER_TIME_MAP: Record<string, ServerTime> = {};
 
-const HorizonAxiosClient = axios.create({
+const AxiosClient = axios.create({
   headers: {
     "X-Client-Name": "js-stellar-sdk",
     "X-Client-Version": version,
@@ -34,24 +34,24 @@ function _toSeconds(ms: number): number {
   return Math.floor(ms / 1000);
 }
 
-HorizonAxiosClient.interceptors.response.use(
-  function interceptorHorizonResponse(response: AxiosResponse) {
-    const hostname = URI(response.config.url!).hostname();
-    const serverTime = _toSeconds(Date.parse(response.headers.date));
-    const localTimeRecorded = _toSeconds(new Date().getTime());
+AxiosClient.interceptors.response.use(function interceptorResponse(
+  response: AxiosResponse,
+) {
+  const hostname = URI(response.config.url!).hostname();
+  const serverTime = _toSeconds(Date.parse(response.headers.date));
+  const localTimeRecorded = _toSeconds(new Date().getTime());
 
-    if (!isNaN(serverTime)) {
-      SERVER_TIME_MAP[hostname] = {
-        serverTime,
-        localTimeRecorded,
-      };
-    }
+  if (!isNaN(serverTime)) {
+    SERVER_TIME_MAP[hostname] = {
+      serverTime,
+      localTimeRecorded,
+    };
+  }
 
-    return response;
-  },
-);
+  return response;
+});
 
-export default HorizonAxiosClient;
+export default AxiosClient;
 
 /**
  * Given a hostname, get the current time of that server (i.e., use the last-

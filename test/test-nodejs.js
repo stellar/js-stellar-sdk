@@ -4,7 +4,7 @@ require("babel-register");
 global.StellarSdk = require("../lib/");
 
 global.axios = require("axios");
-global.HorizonAxiosClient = StellarSdk.HorizonAxiosClient;
+global.AxiosClient = StellarSdk.AxiosClient;
 
 var chaiAsPromised = require("chai-as-promised");
 var chaiHttp = require("chai-http");

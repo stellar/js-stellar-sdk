@@ -107,7 +107,7 @@ describe("server.js check-memo-required", function() {
       this.server = new StellarSdk.Server(
         "https://horizon-testnet.stellar.org"
       );
-      this.axiosMock = sinon.mock(HorizonAxiosClient);
+      this.axiosMock = sinon.mock(AxiosClient);
     });
 
     afterEach(function() {

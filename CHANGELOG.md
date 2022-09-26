@@ -5,6 +5,7 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+- Rename HorizonAxiosClient to AxiosClient.
 
 ## [v10.1.2](https://github.com/stellar/js-stellar-sdk/compare/v10.1.1...v10.1.2)
 
