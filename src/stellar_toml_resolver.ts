@@ -1,4 +1,5 @@
 import axios from "axios";
+import { Networks } from "stellar-base";
 import toml from "toml";
 import { Config } from "./config";
 
@@ -34,7 +35,7 @@ export class StellarTomlResolver {
   public static async resolve(
     domain: string,
     opts: StellarTomlResolver.StellarTomlResolveOptions = {},
-  ): Promise<{ [key: string]: any }> {
+  ): Promise<StellarTomlResolver.StellarToml> {
     const allowHttp =
       typeof opts.allowHttp === "undefined"
         ? Config.isAllowHttp()
@@ -87,5 +88,107 @@ export namespace StellarTomlResolver {
   export interface StellarTomlResolveOptions {
     allowHttp?: boolean;
     timeout?: number;
+  }
+  export type Url = string;
+  export type PublicKey = string;
+  export type ISODateTime = string;
+  export interface Documentation {
+    ORG_NAME?: string;
+    ORG_DBA?: string;
+    ORG_URL?: Url;
+    ORG_PHONE_NUMBER?: string;
+    ORG_LOGO?: Url;
+    ORG_LICENSE_NUMBER?: string;
+    ORG_LICENSING_AUTHORITY?: string;
+    ORG_LICENSE_TYPE?: string;
+    ORG_DESCRIPTION?: string;
+    ORG_PHYSICAL_ADDRESS?: string;
+    ORG_PHYSICAL_ADDRESS_ATTESTATION?: string;
+    ORG_PHONE_NUMBER_ATTESTATION?: string;
+    ORG_OFFICIAL_EMAIL?: string;
+    ORG_SUPPORT_EMAIL?: string;
+    ORG_KEYBASE?: string;
+    ORG_TWITTER?: string;
+    ORG_GITHUB?: string;
+    [key: string]: unknown;
+  }
+  export interface Principal {
+    name: string;
+    email: string;
+    github?: string;
+    keybase?: string;
+    telegram?: string;
+    twitter?: string;
+    id_photo_hash?: string;
+    verification_photo_hash?: string;
+    [key: string]: unknown;
+  }
+  export interface Currency {
+    code?: string;
+    code_template?: string;
+    issuer?: PublicKey;
+    display_decimals?: number;
+    status?: "live" | "dead" | "test" | "private";
+    name?: string;
+    desc?: string;
+    conditions?: string;
+    fixed_number?: number;
+    max_number?: number;
+    is_asset_anchored?: boolean;
+    anchor_asset_type?:
+      | "fiat"
+      | "crypto"
+      | "nft"
+      | "stock"
+      | "bond"
+      | "commodity"
+      | "realestate"
+      | "other";
+    anchor_asset?: string;
+    attestation_of_reserve?: Url;
+    attestation_of_reserve_amount?: string;
+    attestation_of_reserve_last_audit?: ISODateTime;
+    is_unlimited?: boolean;
+    redemption_instructions?: string;
+    image?: Url;
+    regulated?: boolean;
+    collateral_addresses?: string[];
+    collateral_address_messages?: string[];
+    collateral_address_signatures?: string[];
+    approval_server?: Url;
+    approval_criteria?: string;
+    [key: string]: unknown;
+  }
+
+  export interface Validator {
+    ALIAS?: string;
+    DISPLAY_NAME?: string;
+    PUBLIC_KEY?: PublicKey;
+    HOST?: string;
+    HISTORY?: Url;
+    [key: string]: unknown;
+  }
+  // All fields are optional because there are no runtime checks
+  // on external data body
+  // Sourced from https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0001.md
+  export interface StellarToml {
+    VERSION?: string;
+    ACCOUNTS?: PublicKey[];
+    NETWORK_PASSPHRASE?: Networks;
+    TRANSFER_SERVER_SEP0024?: Url;
+    TRANSFER_SERVER?: Url;
+    KYC_SERVER?: Url;
+    WEB_AUTH_ENDPOINT?: Url;
+    FEDERATION_SERVER?: Url;
+    SIGNING_KEY?: PublicKey;
+    HORIZON_URL?: Url;
+    URI_REQUEST_SIGNING_KEY?: PublicKey;
+    DIRECT_PAYMENT_SERVER?: Url;
+    ANCHOR_QUOTE_SERVER?: Url;
+    DOCUMENTATION?: Documentation;
+    PRINCIPALS?: Principal[];
+    CURRENCIES?: Currency[];
+    VALIDATORS?: Validator[];
+    [key: string]: unknown;
   }
 }
