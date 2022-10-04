@@ -6,6 +6,19 @@ A breaking change will get clearly marked in this log.
 ## Unreleased
 
 
+## [v10.4.0](https://github.com/stellar/js-stellar-sdk/compare/v10.3.0...v10.4.0)
+
+### Add
+
+- Add [SEP-1](https://stellar.org/protocol/sep-1) fields to `StellarTomlResolver` for type checks ([#794](https://github.com/stellar/js-stellar-sdk/pull/794)).
+
+- Add support for passing `X-Auth-Token` as a custom header ([#795](https://github.com/stellar/js-stellar-sdk/pull/795)).
+
+### Update
+
+- Bumps `stellar-base` version to [v8.2.1](https://github.com/stellar/js-stellar-base/releases/tag/v8.2.1) to include latest fixes.
+
+
 ## [v10.3.0](https://github.com/stellar/js-stellar-sdk/compare/v10.2.0...v10.3.0)
 
 ### Fix
