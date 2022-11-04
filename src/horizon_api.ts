@@ -17,6 +17,7 @@ export namespace Horizon {
     envelope_xdr: string;
     result_xdr: string;
     result_meta_xdr: string;
+    paging_token: string;
   }
 
   export interface FeeBumpTransactionResponse {
