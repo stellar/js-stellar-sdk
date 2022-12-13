@@ -5,6 +5,7 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+
 ## [v10.4.1](https://github.com/stellar/js-stellar-sdk/compare/v10.4.0...v10.4.1)
 
 ### Update
