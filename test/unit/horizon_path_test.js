@@ -1,10 +1,10 @@
-describe('horizon path tests', function() {
-  beforeEach(function() {
+describe('horizon path tests', function () {
+  beforeEach(function () {
     this.axiosMock = sinon.mock(HorizonAxiosClient);
     StellarSdk.Config.setDefault();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     this.axiosMock.verify();
     this.axiosMock.restore();
   });
@@ -28,7 +28,7 @@ describe('horizon path tests', function() {
         .returns(Promise.resolve(randomResult));
     }
 
-    it('server.accounts() ' + serverUrl, function(done) {
+    it('server.accounts() ' + serverUrl, function (done) {
       prepareAxios(this.axiosMock, '/accounts');
       server
         .accounts()
@@ -37,19 +37,20 @@ describe('horizon path tests', function() {
         .notify(done);
     });
 
-    it("server.accounts().accountId('fooAccountId') " + serverUrl, function(
-      done
-    ) {
-      prepareAxios(this.axiosMock, '/accounts/fooAccountId');
-      server
-        .accounts()
-        .accountId('fooAccountId')
-        .call()
-        .should.eventually.deep.equal(randomResult.data)
-        .notify(done);
-    });
+    it(
+      "server.accounts().accountId('fooAccountId') " + serverUrl,
+      function (done) {
+        prepareAxios(this.axiosMock, '/accounts/fooAccountId');
+        server
+          .accounts()
+          .accountId('fooAccountId')
+          .call()
+          .should.eventually.deep.equal(randomResult.data)
+          .notify(done);
+      }
+    );
 
-    it('server.transactions() ' + serverUrl, function(done) {
+    it('server.transactions() ' + serverUrl, function (done) {
       prepareAxios(this.axiosMock, '/transactions');
       server
         .transactions()
@@ -58,19 +59,20 @@ describe('horizon path tests', function() {
         .notify(done);
     });
 
-    it('server.transactions().includeFailed(true) ' + serverUrl, function(
-      done
-    ) {
-      prepareAxios(this.axiosMock, '/transactions?include_failed=true');
-      server
-        .transactions()
-        .includeFailed(true)
-        .call()
-        .should.eventually.deep.equal(randomResult.data)
-        .notify(done);
-    });
+    it(
+      'server.transactions().includeFailed(true) ' + serverUrl,
+      function (done) {
+        prepareAxios(this.axiosMock, '/transactions?include_failed=true');
+        server
+          .transactions()
+          .includeFailed(true)
+          .call()
+          .should.eventually.deep.equal(randomResult.data)
+          .notify(done);
+      }
+    );
 
-    it('server.operations().includeFailed(true) ' + serverUrl, function(done) {
+    it('server.operations().includeFailed(true) ' + serverUrl, function (done) {
       prepareAxios(this.axiosMock, '/operations?include_failed=true');
       server
         .operations()
@@ -82,7 +84,7 @@ describe('horizon path tests', function() {
 
     it(
       "server.transactions().transaction('fooTransactionId') " + serverUrl,
-      function(done) {
+      function (done) {
         prepareAxios(this.axiosMock, '/transactions/fooTransactionId');
         server
           .transactions()
@@ -95,7 +97,7 @@ describe('horizon path tests', function() {
 
     it(
       "server.transactions().forAccount('fooAccountId') " + serverUrl,
-      function(done) {
+      function (done) {
         prepareAxios(this.axiosMock, '/accounts/fooAccountId/transactions');
         server
           .transactions()
@@ -106,7 +108,7 @@ describe('horizon path tests', function() {
       }
     );
 
-    it('server.submitTransaction() ' + serverUrl, function(done) {
+    it('server.submitTransaction() ' + serverUrl, function (done) {
       randomResult.endpoint = 'post';
 
       let keypair = StellarSdk.Keypair.random();
@@ -130,10 +132,7 @@ describe('horizon path tests', function() {
         .build();
       fakeTransaction.sign(keypair);
       let tx = encodeURIComponent(
-        fakeTransaction
-          .toEnvelope()
-          .toXDR()
-          .toString('base64')
+        fakeTransaction.toEnvelope().toXDR().toString('base64')
       );
 
       this.axiosMock
@@ -142,7 +141,7 @@ describe('horizon path tests', function() {
         .returns(Promise.resolve(randomResult));
 
       server
-        .submitTransaction(fakeTransaction, {skipMemoRequiredCheck: true})
+        .submitTransaction(fakeTransaction, { skipMemoRequiredCheck: true })
         .should.eventually.deep.equal(randomResult.data)
         .notify(done);
     });

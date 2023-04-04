@@ -1,22 +1,22 @@
 const http = require('http');
 
-describe('stellar_toml_resolver.js tests', function() {
-  beforeEach(function() {
+describe('stellar_toml_resolver.js tests', function () {
+  beforeEach(function () {
     this.axiosMock = sinon.mock(axios);
     StellarSdk.Config.setDefault();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     this.axiosMock.verify();
     this.axiosMock.restore();
   });
 
-  describe('StellarTomlResolver.resolve', function() {
-    afterEach(function() {
+  describe('StellarTomlResolver.resolve', function () {
+    afterEach(function () {
       StellarSdk.Config.setDefault();
     });
 
-    it('returns stellar.toml object for valid request and stellar.toml file', function(done) {
+    it('returns stellar.toml object for valid request and stellar.toml file', function (done) {
       this.axiosMock
         .expects('get')
         .withArgs(sinon.match('https://acme.com/.well-known/stellar.toml'))
@@ -38,7 +38,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
       });
     });
 
-    it('returns stellar.toml object for valid request and stellar.toml file when allowHttp is `true`', function(done) {
+    it('returns stellar.toml object for valid request and stellar.toml file when allowHttp is `true`', function (done) {
       this.axiosMock
         .expects('get')
         .withArgs(sinon.match('http://acme.com/.well-known/stellar.toml'))
@@ -62,7 +62,7 @@ FEDERATION_SERVER="http://api.stellar.org/federation"
       });
     });
 
-    it('returns stellar.toml object for valid request and stellar.toml file when global Config.allowHttp flag is set', function(done) {
+    it('returns stellar.toml object for valid request and stellar.toml file when global Config.allowHttp flag is set', function (done) {
       StellarSdk.Config.setAllowHttp(true);
 
       this.axiosMock
@@ -86,7 +86,7 @@ FEDERATION_SERVER="http://api.stellar.org/federation"
       });
     });
 
-    it('rejects when stellar.toml file is invalid', function(done) {
+    it('rejects when stellar.toml file is invalid', function (done) {
       this.axiosMock
         .expects('get')
         .withArgs(sinon.match('https://acme.com/.well-known/stellar.toml'))
@@ -105,7 +105,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
         .and.notify(done);
     });
 
-    it('rejects when there was a connection error', function(done) {
+    it('rejects when there was a connection error', function (done) {
       this.axiosMock
         .expects('get')
         .withArgs(sinon.match('https://acme.com/.well-known/stellar.toml'))
@@ -116,7 +116,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
       ).should.be.rejected.and.notify(done);
     });
 
-    it('fails when response exceeds the limit', function(done) {
+    it('fails when response exceeds the limit', function (done) {
       // Unable to create temp server in a browser
       if (typeof window != 'undefined') {
         return done();
@@ -139,7 +139,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
         });
     });
 
-    it('rejects after given timeout when global Config.timeout flag is set', function(done) {
+    it('rejects after given timeout when global Config.timeout flag is set', function (done) {
       StellarSdk.Config.setTimeout(1000);
 
       // Unable to create temp server in a browser
@@ -164,7 +164,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
         });
     });
 
-    it('rejects after given timeout when timeout specified in StellarTomlResolver opts param', function(done) {
+    it('rejects after given timeout when timeout specified in StellarTomlResolver opts param', function (done) {
       // Unable to create temp server in a browser
       if (typeof window != 'undefined') {
         return done();

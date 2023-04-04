@@ -1,8 +1,8 @@
-describe('server.js transaction tests', function() {
+describe('server.js transaction tests', function () {
   let keypair = StellarSdk.Keypair.random();
   let account = new StellarSdk.Account(keypair.publicKey(), '56199647068161');
-  
-  beforeEach(function() {
+
+  beforeEach(function () {
     this.server = new StellarSdk.Server(
       'https://horizon-live.stellar.org:1337'
     );
@@ -26,19 +26,16 @@ describe('server.js transaction tests', function() {
 
     this.transaction = transaction;
     this.blob = encodeURIComponent(
-      transaction
-        .toEnvelope()
-        .toXDR()
-        .toString('base64')
+      transaction.toEnvelope().toXDR().toString('base64')
     );
   });
 
-  afterEach(function() {
+  afterEach(function () {
     this.axiosMock.verify();
     this.axiosMock.restore();
   });
-  
-  it('sends a transaction', function(done) {
+
+  it('sends a transaction', function (done) {
     this.axiosMock
       .expects('post')
       .withArgs(
@@ -48,20 +45,19 @@ describe('server.js transaction tests', function() {
       .returns(Promise.resolve({ data: {} }));
 
     this.server
-      .submitTransaction(this.transaction, {skipMemoRequiredCheck: true})
-      .then(function() {
+      .submitTransaction(this.transaction, { skipMemoRequiredCheck: true })
+      .then(function () {
         done();
       })
-      .catch(function(err) {
+      .catch(function (err) {
         done(err);
       });
   });
-  it('adds metadata - tx was too small and was immediately deleted', function(done) {
+  it('adds metadata - tx was too small and was immediately deleted', function (done) {
     const response = {
       _links: {
         transaction: {
-          href:
-            'https://horizon.stellar.org/transactions/db2c69a07be57eb5baefbfbb72b95c7c20d2c4d6f2a0e84e7c27dd0359055a2f'
+          href: 'https://horizon.stellar.org/transactions/db2c69a07be57eb5baefbfbb72b95c7c20d2c4d6f2a0e84e7c27dd0359055a2f'
         }
       },
       hash: 'db2c69a07be57eb5baefbfbb72b95c7c20d2c4d6f2a0e84e7c27dd0359055a2f',
@@ -82,8 +78,8 @@ describe('server.js transaction tests', function() {
       .returns(Promise.resolve({ data: response }));
 
     this.server
-      .submitTransaction(this.transaction, {skipMemoRequiredCheck: true})
-      .then(function(res) {
+      .submitTransaction(this.transaction, { skipMemoRequiredCheck: true })
+      .then(function (res) {
         expect(res.offerResults).to.be.an.instanceOf(Array);
         expect(res.offerResults[0].offersClaimed).to.be.an.instanceOf(Array);
         expect(typeof res.offerResults[0].effect).to.equal('string');
@@ -98,16 +94,15 @@ describe('server.js transaction tests', function() {
 
         done();
       })
-      .catch(function(err) {
+      .catch(function (err) {
         done(err);
       });
   });
-  it('adds metadata, order immediately fills', function(done) {
+  it('adds metadata, order immediately fills', function (done) {
     const response = {
       _links: {
         transaction: {
-          href:
-            'https://horizon.stellar.org/transactions/d88ded94c558790f7e819b85fd35adb10a1e474312c34ebd611495c349a8eb69'
+          href: 'https://horizon.stellar.org/transactions/d88ded94c558790f7e819b85fd35adb10a1e474312c34ebd611495c349a8eb69'
         }
       },
       hash: 'd88ded94c558790f7e819b85fd35adb10a1e474312c34ebd611495c349a8eb69',
@@ -129,8 +124,8 @@ describe('server.js transaction tests', function() {
       .returns(Promise.resolve({ data: response }));
 
     this.server
-      .submitTransaction(this.transaction, {skipMemoRequiredCheck: true})
-      .then(function(res) {
+      .submitTransaction(this.transaction, { skipMemoRequiredCheck: true })
+      .then(function (res) {
         expect(res.offerResults).to.be.an.instanceOf(Array);
         expect(res.offerResults[0].offersClaimed).to.be.an.instanceOf(Array);
         expect(typeof res.offerResults[0].effect).to.equal('string');
@@ -143,16 +138,15 @@ describe('server.js transaction tests', function() {
 
         done();
       })
-      .catch(function(err) {
+      .catch(function (err) {
         done(err);
       });
   });
-  it('adds metadata, order is open', function(done) {
+  it('adds metadata, order is open', function (done) {
     const response = {
       _links: {
         transaction: {
-          href:
-            'https://horizon.stellar.org/transactions/e1c2b91141d8c4185dc8c18118f345a269d88c476bdadec695c1b3ecdc999831'
+          href: 'https://horizon.stellar.org/transactions/e1c2b91141d8c4185dc8c18118f345a269d88c476bdadec695c1b3ecdc999831'
         }
       },
       hash: 'e1c2b91141d8c4185dc8c18118f345a269d88c476bdadec695c1b3ecdc999831',
@@ -174,8 +168,8 @@ describe('server.js transaction tests', function() {
       .returns(Promise.resolve({ data: response }));
 
     this.server
-      .submitTransaction(this.transaction, {skipMemoRequiredCheck: true})
-      .then(function(res) {
+      .submitTransaction(this.transaction, { skipMemoRequiredCheck: true })
+      .then(function (res) {
         expect(res.offerResults).to.be.an.instanceOf(Array);
         expect(res.offerResults[0].offersClaimed).to.be.an.instanceOf(Array);
         expect(typeof res.offerResults[0].effect).to.equal('string');
@@ -188,16 +182,15 @@ describe('server.js transaction tests', function() {
 
         done();
       })
-      .catch(function(err) {
+      .catch(function (err) {
         done(err);
       });
   });
-  it('adds metadata, partial fill', function(done) {
+  it('adds metadata, partial fill', function (done) {
     const response = {
       _links: {
         transaction: {
-          href:
-            'https://horizon.stellar.org/transactions/28552ba6a70ab74f6de05319950e2ddad94491159ebc97b14cfcde2d3c7e70a1'
+          href: 'https://horizon.stellar.org/transactions/28552ba6a70ab74f6de05319950e2ddad94491159ebc97b14cfcde2d3c7e70a1'
         }
       },
       hash: '28552ba6a70ab74f6de05319950e2ddad94491159ebc97b14cfcde2d3c7e70a1',
@@ -219,8 +212,8 @@ describe('server.js transaction tests', function() {
       .returns(Promise.resolve({ data: response }));
 
     this.server
-      .submitTransaction(this.transaction, {skipMemoRequiredCheck: true})
-      .then(function(res) {
+      .submitTransaction(this.transaction, { skipMemoRequiredCheck: true })
+      .then(function (res) {
         expect(res.offerResults).to.be.an.instanceOf(Array);
         expect(res.offerResults[0].offersClaimed).to.be.an.instanceOf(Array);
         expect(res.offerResults[0].offersClaimed).to.have.lengthOf(1);
@@ -244,16 +237,15 @@ describe('server.js transaction tests', function() {
 
         done();
       })
-      .catch(function(err) {
+      .catch(function (err) {
         done(err);
       });
   });
-  it('doesnt add metadata to non-offers', function(done) {
+  it('doesnt add metadata to non-offers', function (done) {
     const response = {
       _links: {
         transaction: {
-          href:
-            'https://horizon.stellar.org/transactions/6c3191f252f2c586c74275c766ce761021513e520eab3bb63d3fd18d0d01492e'
+          href: 'https://horizon.stellar.org/transactions/6c3191f252f2c586c74275c766ce761021513e520eab3bb63d3fd18d0d01492e'
         }
       },
       hash: '6c3191f252f2c586c74275c766ce761021513e520eab3bb63d3fd18d0d01492e',
@@ -274,21 +266,20 @@ describe('server.js transaction tests', function() {
       .returns(Promise.resolve({ data: response }));
 
     this.server
-      .submitTransaction(this.transaction, {skipMemoRequiredCheck: true})
-      .then(function(res) {
+      .submitTransaction(this.transaction, { skipMemoRequiredCheck: true })
+      .then(function (res) {
         expect(res.offerResults).to.be.undefined;
         done();
       })
-      .catch(function(err) {
+      .catch(function (err) {
         done(err);
       });
   });
-  it('adds metadata about offers, even if some ops are not', function(done) {
+  it('adds metadata about offers, even if some ops are not', function (done) {
     const response = {
       _links: {
         transaction: {
-          href:
-            'https://horizon.stellar.org/transactions/6a22d6896140f6f330ef19086827df0780eb2ad3324f3271b38c70cb1cba1c3d'
+          href: 'https://horizon.stellar.org/transactions/6a22d6896140f6f330ef19086827df0780eb2ad3324f3271b38c70cb1cba1c3d'
         }
       },
       hash: '6a22d6896140f6f330ef19086827df0780eb2ad3324f3271b38c70cb1cba1c3d',
@@ -310,8 +301,8 @@ describe('server.js transaction tests', function() {
       .returns(Promise.resolve({ data: response }));
 
     this.server
-      .submitTransaction(this.transaction, {skipMemoRequiredCheck: true})
-      .then(function(res) {
+      .submitTransaction(this.transaction, { skipMemoRequiredCheck: true })
+      .then(function (res) {
         expect(res.offerResults).to.be.an.instanceOf(Array);
         expect(res.offerResults).to.have.lengthOf(2);
         expect(res.offerResults[0].offersClaimed).to.be.an.instanceOf(Array);
@@ -322,11 +313,11 @@ describe('server.js transaction tests', function() {
         expect(res.offerResults[1].operationIndex).to.equal(3);
         done();
       })
-      .catch(function(err) {
+      .catch(function (err) {
         done(err);
       });
   });
-  it('checks for memo required by default', function(done) {
+  it('checks for memo required by default', function (done) {
     this.axiosMock
       .expects('post')
       .withArgs(
@@ -334,25 +325,30 @@ describe('server.js transaction tests', function() {
         `tx=${this.blob}`
       )
       .returns(Promise.resolve({ data: {} }));
-    this.axiosMock.expects("get") 
+    this.axiosMock
+      .expects('get')
       .withArgs(
         sinon.match(
           'https://horizon-live.stellar.org:1337/accounts/GASOCNHNNLYFNMDJYQ3XFMI7BYHIOCFW3GJEOWRPEGK2TDPGTG2E5EDW'
         )
       )
-      .returns(Promise.reject({ response: { status: 404, statusText: "NotFound", data: {} } }))
+      .returns(
+        Promise.reject({
+          response: { status: 404, statusText: 'NotFound', data: {} }
+        })
+      )
       .once();
 
     this.server
-      .submitTransaction(this.transaction, {skipMemoRequiredCheck: false})
-      .then(function() {
+      .submitTransaction(this.transaction, { skipMemoRequiredCheck: false })
+      .then(function () {
         done();
       })
-      .catch(function(err) {
+      .catch(function (err) {
         done(err);
       });
   });
-  it('submits fee bump transactions', function(done) {
+  it('submits fee bump transactions', function (done) {
     const feeBumpTx = StellarSdk.TransactionBuilder.buildFeeBumpTransaction(
       keypair,
       '200',
@@ -361,10 +357,7 @@ describe('server.js transaction tests', function() {
     );
 
     this.blob = encodeURIComponent(
-      feeBumpTx
-        .toEnvelope()
-        .toXDR()
-        .toString('base64')
+      feeBumpTx.toEnvelope().toXDR().toString('base64')
     );
 
     this.axiosMock
@@ -376,11 +369,11 @@ describe('server.js transaction tests', function() {
       .returns(Promise.resolve({ data: {} }));
 
     this.server
-      .submitTransaction(feeBumpTx, {skipMemoRequiredCheck: true})
-      .then(function() {
+      .submitTransaction(feeBumpTx, { skipMemoRequiredCheck: true })
+      .then(function () {
         done();
       })
-      .catch(function(err) {
+      .catch(function (err) {
         done(err);
       });
   });
