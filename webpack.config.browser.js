@@ -24,7 +24,7 @@ const config = {
     clean: true,
     library: 'StellarSdk',
     compareBeforeEmit: true,
-    path: path.resolve(__dirname, './dist')
+    path: path.resolve(__dirname, './dist'),
   },
   mode: process.env.NODE_ENV ?? 'development',
   devtool: process.env.NODE_ENV === 'production' ? false : 'inline-source-map',
@@ -68,7 +68,7 @@ const config = {
     })
   ],
   watchOptions: {
-    ignored: /(node_modules|coverage)/
+    ignored: /(node_modules|coverage|lib|dist)/
   }
 };
 

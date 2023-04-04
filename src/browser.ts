@@ -1,7 +1,7 @@
 /* tslint:disable:no-var-requires */
 
-module.exports = require("./index");
-module.exports.axios = require("axios");
-module.exports.StellarBase = require("stellar-base");
+export * from "./index";
+export * as axios from "axios";
+export * as StellarBase from "stellar-base";
 
-export {};
+export default module.exports;
