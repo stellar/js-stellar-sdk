@@ -1,53 +1,75 @@
-const path = require("path");
-const webpack = require("webpack");
-const TerserPlugin = require("terser-webpack-plugin");
+var path = require('path');
+var webpack = require('webpack');
 
-module.exports = {
+var ESLintPlugin = require('eslint-webpack-plugin');
+var TerserPlugin = require('terser-webpack-plugin');
+var NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
+
+const config = {
+  target: 'web',
+  // https://stackoverflow.com/a/34018909
   entry: {
-    "stellar-sdk": "./src/browser.ts",
-    "stellar-sdk.min": "./src/browser.ts",
-  },
-  output: {
-    filename: "[name].js",
-    path: path.resolve(__dirname, "dist"),
-    library: "StellarSdk",
-    umdNamedDefine: true,
+    'stellar-sdk': path.resolve(__dirname, './src/browser.ts'),
+    'stellar-sdk.min': path.resolve(__dirname, './src/browser.ts')
   },
   resolve: {
-    extensions: [".js", ".json", ".ts"],
+    fallback: {
+      crypto: require.resolve('crypto-browserify'),
+      stream: require.resolve('stream-browserify'),
+      buffer: require.resolve('buffer')
+    },
+    extensions: ['.ts', '.js']
   },
+  output: {
+    clean: true,
+    library: 'StellarSdk',
+    compareBeforeEmit: true,
+    path: path.resolve(__dirname, './dist')
+  },
+  mode: process.env.NODE_ENV ?? 'development',
+  devtool: process.env.NODE_ENV === 'production' ? false : 'inline-source-map',
   module: {
     rules: [
       {
-        test: /\.ts$/,
+        test: /\.m?(ts|js)$/,
         exclude: /node_modules/,
-        use: [
-          {
-            loader: "ts-loader",
-          },
-        ],
-      },
-      {
-        test: /\.js$/,
-        exclude: /node_modules\/(?!(crc)\/).*/,
-        use: [
-          {
-            loader: "babel-loader",
-          },
-        ],
-      },
-    ],
+        use: {
+          loader: 'babel-loader',
+          options: {
+            cacheDirectory: true
+          }
+        }
+      }
+    ]
   },
   optimization: {
     minimize: true,
     minimizer: [
       new TerserPlugin({
-        test: /\.min\.js$/,
-      }),
-    ],
+        include: /\.min\.js$/,
+        terserOptions: {
+          format: {
+            ascii_only: true
+          }
+        }
+      })
+    ]
   },
   plugins: [
-    // Ignore native modules (ed25519)
-    new webpack.IgnorePlugin(/ed25519/),
+    // this must be first for karma to work (see line 5 of karma.conf.js)
+    new ESLintPlugin({
+      overrideConfigFile: path.resolve(__dirname, './.eslintrc.js')
+    }),
+    // Ignore native modules (sodium-native)
+    new webpack.IgnorePlugin({ resourceRegExp: /sodium-native/ }),
+    new NodePolyfillPlugin(),
+    new webpack.ProvidePlugin({
+      Buffer: ['buffer', 'Buffer']
+    })
   ],
+  watchOptions: {
+    ignored: /(node_modules|coverage)/
+  }
 };
+
+module.exports = config;

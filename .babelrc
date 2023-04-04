@@ -1,8 +1,9 @@
 {
-    "presets": ["es2015"],
+    "presets": [
+        "@babel/preset-env",
+        "@babel/typescript"
+    ],
     "plugins": [
-        ["babel-plugin-transform-builtin-extend", {
-            "globals": ["Error"]
-        }]
+        "istanbul"
     ]
 }
