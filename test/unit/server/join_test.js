@@ -3,7 +3,7 @@ const MockAdapter = require("axios-mock-adapter");
 describe("Server - CallBuilder#join", function () {
   beforeEach(function () {
     this.server = new StellarSdk.Server(
-      "https://horizon-live.stellar.org:1337"
+      "https://horizon-live.stellar.org:1337",
     );
     this.axiosMock = sinon.mock(HorizonAxiosClient);
   });
@@ -18,28 +18,28 @@ describe("Server - CallBuilder#join", function () {
       memo: "",
       _links: {
         self: {
-          href: "https://horizon-live.stellar.org:1337/transactions/de8ca055af7972f817e9d3f7c7a0b480de82593bc378f0e48f83b8e31985e4e5"
+          href: "https://horizon-live.stellar.org:1337/transactions/de8ca055af7972f817e9d3f7c7a0b480de82593bc378f0e48f83b8e31985e4e5",
         },
         account: {
-          href: "https://horizon-live.stellar.org:1337/accounts/GBIABVWR2LOKFDMAI6QA2NGT4G54O3BC577GAWDQ6QMOUP5E3ULBBGYX"
+          href: "https://horizon-live.stellar.org:1337/accounts/GBIABVWR2LOKFDMAI6QA2NGT4G54O3BC577GAWDQ6QMOUP5E3ULBBGYX",
         },
         ledger: {
-          href: "https://horizon-live.stellar.org:1337/ledgers/679846"
+          href: "https://horizon-live.stellar.org:1337/ledgers/679846",
         },
         operations: {
           href: "https://horizon-live.stellar.org:1337/transactions/de8ca055af7972f817e9d3f7c7a0b480de82593bc378f0e48f83b8e31985e4e5/operations{?cursor,limit,order}",
-          templated: true
+          templated: true,
         },
         effects: {
           href: "https://horizon-live.stellar.org:1337/transactions/de8ca055af7972f817e9d3f7c7a0b480de82593bc378f0e48f83b8e31985e4e5/effects{?cursor,limit,order}",
-          templated: true
+          templated: true,
         },
         precedes: {
-          href: "https://horizon-live.stellar.org:1337/transactions?order=asc\u0026cursor=2919916336320512"
+          href: "https://horizon-live.stellar.org:1337/transactions?order=asc\u0026cursor=2919916336320512",
         },
         succeeds: {
-          href: "https://horizon-live.stellar.org:1337/transactions?order=desc\u0026cursor=2919916336320512"
-        }
+          href: "https://horizon-live.stellar.org:1337/transactions?order=desc\u0026cursor=2919916336320512",
+        },
       },
       id: "de8ca055af7972f817e9d3f7c7a0b480de82593bc378f0e48f83b8e31985e4e5",
       paging_token: "2919916336320512",
@@ -63,40 +63,40 @@ describe("Server - CallBuilder#join", function () {
         "AAAAAgAAAAMAClg5AAAAAAAAAABQANbR0tyijYBHoA000+G7x2wi7/5gWHD0GOo/pN0WEAAAAASoF8gAAAp/SAAAAAAAAAAGAAAAAAAAAAAAAAAAAAsLCwAAAAQAAAABE/EpwLKV4cIOVgnzPs38d/VhMlCerZKJeZrQDItSTxAAAAAWAAAAAVRTwbkj89ksTEv7fZ757ymL+5KMn3TClrUC9W2dyLCmAAAAFQAAAAHSdKqZF3xBOHELun5ttDzJCH1pUyeAT2uJcjcDbEJrEAAAABcAAAAB3oygVa95cvgX6dP3x6C0gN6CWTvDePDkj4O44xmF5OUAAAAYAAAAAAAAAAAAAAABAApfpgAAAAAAAAAAUADW0dLcoo2AR6ANNNPhu8dsIu/+YFhw9BjqP6TdFhAAAAAEqBe58AAKf0gAAAAAAAAABgAAAAAAAAAAAAAAAAALCwsAAAAEAAAAARPxKcCyleHCDlYJ8z7N/Hf1YTJQnq2SiXma0AyLUk8QAAAAFgAAAAFUU8G5I/PZLExL+32e+e8pi/uSjJ90wpa1AvVtnciwpgAAABUAAAAB0nSqmRd8QThxC7p+bbQ8yQh9aVMngE9riXI3A2xCaxAAAAAXAAAAAd6MoFWveXL4F+nT98egtIDeglk7w3jw5I+DuOMZheTlAAAAGAAAAAAAAAAA",
       memo_type: "text",
       signatures: [
-        "5QcaEgzj+krAtiH0+iRho6gjxWIUMkTfVo28FqoBqlraePffIIDL7TiJN1gMrdZxiBTrsAJvpRqoJtmjEjL8AQ=="
-      ]
+        "5QcaEgzj+krAtiH0+iRho6gjxWIUMkTfVo28FqoBqlraePffIIDL7TiJN1gMrdZxiBTrsAJvpRqoJtmjEjL8AQ==",
+      ],
     };
     const operationsResponse = {
       _links: {
         self: {
-          href: "https://horizon-live.stellar.org:1337/operations?cursor=\u0026join=transactions\u0026limit=10\u0026order=asc"
+          href: "https://horizon-live.stellar.org:1337/operations?cursor=\u0026join=transactions\u0026limit=10\u0026order=asc",
         },
         next: {
-          href: "https://horizon-live.stellar.org:1337/operations?cursor=2919916336320518\u0026join=transactions\u0026limit=10\u0026order=asc"
+          href: "https://horizon-live.stellar.org:1337/operations?cursor=2919916336320518\u0026join=transactions\u0026limit=10\u0026order=asc",
         },
         prev: {
-          href: "https://horizon-live.stellar.org:1337/operations?cursor=2919916336320518\u0026join=transactions\u0026limit=1\u0026order=asc"
-        }
+          href: "https://horizon-live.stellar.org:1337/operations?cursor=2919916336320518\u0026join=transactions\u0026limit=1\u0026order=asc",
+        },
       },
       _embedded: {
         records: [
           {
             _links: {
               self: {
-                href: "https://horizon-live.stellar.org:1337/operations/2919916336320518"
+                href: "https://horizon-live.stellar.org:1337/operations/2919916336320518",
               },
               transaction: {
-                href: "https://horizon-live.stellar.org:1337/transactions/de8ca055af7972f817e9d3f7c7a0b480de82593bc378f0e48f83b8e31985e4e5"
+                href: "https://horizon-live.stellar.org:1337/transactions/de8ca055af7972f817e9d3f7c7a0b480de82593bc378f0e48f83b8e31985e4e5",
               },
               effects: {
-                href: "https://horizon-live.stellar.org:1337/operations/2919916336320518/effects"
+                href: "https://horizon-live.stellar.org:1337/operations/2919916336320518/effects",
               },
               succeeds: {
-                href: "https://horizon-live.stellar.org:1337/effects?order=desc\u0026cursor=2919916336320518"
+                href: "https://horizon-live.stellar.org:1337/effects?order=desc\u0026cursor=2919916336320518",
               },
               precedes: {
-                href: "https://horizon-live.stellar.org:1337/effects?order=asc\u0026cursor=2919916336320518"
-              }
+                href: "https://horizon-live.stellar.org:1337/effects?order=asc\u0026cursor=2919916336320518",
+              },
             },
             id: "2919916336320518",
             paging_token: "2919916336320518",
@@ -121,24 +121,24 @@ describe("Server - CallBuilder#join", function () {
                 asset_type: "credit_alphanum4",
                 asset_code: "USD",
                 asset_issuer:
-                  "GBXGR3C3VKWAJCWLF7LX5TLS4KWQKPKJ4KUOJ6T6NEBROA62TTUUM6GD"
+                  "GBXGR3C3VKWAJCWLF7LX5TLS4KWQKPKJ4KUOJ6T6NEBROA62TTUUM6GD",
               },
               {
                 asset_type: "credit_alphanum4",
                 asset_code: "USD",
                 asset_issuer:
-                  "GBXGR3C3VKWAJCWLF7LX5TLS4KWQKPKJ4KUOJ6T6NEBROA62TTUUM6GD"
-              }
+                  "GBXGR3C3VKWAJCWLF7LX5TLS4KWQKPKJ4KUOJ6T6NEBROA62TTUUM6GD",
+              },
             ],
             source_amount: "10000.0000000",
             source_max: "10000.0000000",
             source_asset_type: "credit_alphanum4",
             source_asset_code: "USD",
             source_asset_issuer:
-              "GBXGR3C3VKWAJCWLF7LX5TLS4KWQKPKJ4KUOJ6T6NEBROA62TTUUM6GD"
-          }
-        ]
-      }
+              "GBXGR3C3VKWAJCWLF7LX5TLS4KWQKPKJ4KUOJ6T6NEBROA62TTUUM6GD",
+          },
+        ],
+      },
     };
 
     it("loads resources in join and avoids extra call to server", function (done) {
@@ -146,8 +146,8 @@ describe("Server - CallBuilder#join", function () {
         .expects("get")
         .withArgs(
           sinon.match(
-            "https://horizon-live.stellar.org:1337/operations?join=transactions"
-          )
+            "https://horizon-live.stellar.org:1337/operations?join=transactions",
+          ),
         )
         .returns(Promise.resolve({ data: operationsResponse }));
 

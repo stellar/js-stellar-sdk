@@ -2,20 +2,20 @@ function buildTransaction(destination, operations = [], builderOpts = {}) {
   let txBuilderOpts = {
     fee: 100,
     networkPassphrase: StellarSdk.Networks.TESTNET,
-    v1: true
+    v1: true,
   };
   Object.assign(txBuilderOpts, builderOpts);
   let keypair = StellarSdk.Keypair.random();
   let account = new StellarSdk.Account(keypair.publicKey(), "56199647068161");
   let transaction = new StellarSdk.TransactionBuilder(
     account,
-    txBuilderOpts
+    txBuilderOpts,
   ).addOperation(
     StellarSdk.Operation.payment({
       destination: destination,
       asset: StellarSdk.Asset.native(),
-      amount: "100.50"
-    })
+      amount: "100.50",
+    }),
   );
 
   operations.forEach((op) => (transaction = transaction.addOperation(op)));
@@ -28,7 +28,7 @@ function buildTransaction(destination, operations = [], builderOpts = {}) {
       keypair,
       "200",
       transaction,
-      txBuilderOpts.networkPassphrase
+      txBuilderOpts.networkPassphrase,
     );
   } else {
     return transaction;
@@ -40,8 +40,8 @@ function buildAccount(id, data = {}) {
     _links: {
       data: {
         href: `https://horizon-testnet.stellar.org/accounts/${id}/data/{key}`,
-        templated: true
-      }
+        templated: true,
+      },
     },
     id: id,
     account_id: id,
@@ -51,29 +51,29 @@ function buildAccount(id, data = {}) {
     thresholds: {
       low_threshold: 0,
       med_threshold: 0,
-      high_threshold: 0
+      high_threshold: 0,
     },
     flags: {
       auth_required: false,
       auth_revocable: false,
-      auth_immutable: false
+      auth_immutable: false,
     },
     balances: [
       {
         balance: "9999.9999900",
         buying_liabilities: "0.0000000",
         selling_liabilities: "0.0000000",
-        asset_type: "native"
-      }
+        asset_type: "native",
+      },
     ],
     signers: [
       {
         weight: 1,
         key: id,
-        type: "ed25519_public_key"
-      }
+        type: "ed25519_public_key",
+      },
     ],
-    data: data
+    data: data,
   };
 }
 
@@ -83,12 +83,12 @@ function mockAccountRequest(axiosMock, id, status, data = {}) {
   switch (status) {
     case 404:
       response = Promise.reject({
-        response: { status: 404, statusText: "NotFound", data: {} }
+        response: { status: 404, statusText: "NotFound", data: {} },
       });
       break;
     case 400:
       response = Promise.reject({
-        response: { status: 400, statusText: "BadRequestError", data: {} }
+        response: { status: 400, statusText: "BadRequestError", data: {} },
       });
       break;
     default:
@@ -117,7 +117,7 @@ describe("server.js check-memo-required", function () {
   it("fails if memo is required", function (done) {
     let accountId = "GAYHAAKPAQLMGIJYMIWPDWCGUCQ5LAWY4Q7Q3IKSP57O7GUPD3NEOSEA";
     mockAccountRequest(this.axiosMock, accountId, 200, {
-      "config.memo_required": "MQ=="
+      "config.memo_required": "MQ==",
     });
     let transaction = buildTransaction(accountId);
 
@@ -132,7 +132,7 @@ describe("server.js check-memo-required", function () {
           expect(err.accountId).to.eq(accountId);
           expect(err.operationIndex).to.eq(0);
           done();
-        }
+        },
       )
       .catch(function (err) {
         done(err);
@@ -142,7 +142,7 @@ describe("server.js check-memo-required", function () {
   it("fee bump - fails if memo is required", function (done) {
     let accountId = "GAYHAAKPAQLMGIJYMIWPDWCGUCQ5LAWY4Q7Q3IKSP57O7GUPD3NEOSEA";
     mockAccountRequest(this.axiosMock, accountId, 200, {
-      "config.memo_required": "MQ=="
+      "config.memo_required": "MQ==",
     });
     let transaction = buildTransaction(accountId, [], { feeBump: true });
 
@@ -157,7 +157,7 @@ describe("server.js check-memo-required", function () {
           expect(err.accountId).to.eq(accountId);
           expect(err.operationIndex).to.eq(0);
           done();
-        }
+        },
       )
       .catch(function (err) {
         done(err);
@@ -208,7 +208,7 @@ describe("server.js check-memo-required", function () {
         function (err) {
           expect(err).to.be.instanceOf(StellarSdk.NetworkError);
           done();
-        }
+        },
       )
       .catch(function (err) {
         done(err);
@@ -223,8 +223,8 @@ describe("server.js check-memo-required", function () {
       StellarSdk.Operation.payment({
         destination: accountId,
         asset: StellarSdk.Asset.native(),
-        amount: "100.50"
-      })
+        amount: "100.50",
+      }),
     ];
 
     let transaction = buildTransaction(accountId, operations);
@@ -246,22 +246,22 @@ describe("server.js check-memo-required", function () {
     const destinations = [
       "GASGNGGXDNJE5C2O7LDCATIVYSSTZKB24SHYS6F4RQT4M4IGNYXB4TIV",
       "GBBM6BKZPEHWYO3E3YKREDPQXMS4VK35YLNU7NFBRI26RAN7GI5POFBB",
-      "GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ"
+      "GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ",
     ];
 
     const usd = new StellarSdk.Asset(
       "USD",
-      "GBBM6BKZPEHWYO3E3YKREDPQXMS4VK35YLNU7NFBRI26RAN7GI5POFBB"
+      "GBBM6BKZPEHWYO3E3YKREDPQXMS4VK35YLNU7NFBRI26RAN7GI5POFBB",
     );
     const eur = new StellarSdk.Asset(
       "EUR",
-      "GDTNXRLOJD2YEBPKK7KCMR7J33AAG5VZXHAJTHIG736D6LVEFLLLKPDL"
+      "GDTNXRLOJD2YEBPKK7KCMR7J33AAG5VZXHAJTHIG736D6LVEFLLLKPDL",
     );
     const liquidityPoolAsset = new StellarSdk.LiquidityPoolAsset(eur, usd, 30);
 
     let operations = [
       StellarSdk.Operation.accountMerge({
-        destination: destinations[0]
+        destination: destinations[0],
       }),
       StellarSdk.Operation.pathPaymentStrictReceive({
         sendAsset: StellarSdk.Asset.native(),
@@ -269,7 +269,7 @@ describe("server.js check-memo-required", function () {
         destination: destinations[1],
         destAsset: StellarSdk.Asset.native(),
         destAmount: "5.50",
-        path: [usd, eur]
+        path: [usd, eur],
       }),
       StellarSdk.Operation.pathPaymentStrictSend({
         sendAsset: StellarSdk.Asset.native(),
@@ -277,14 +277,14 @@ describe("server.js check-memo-required", function () {
         destination: destinations[2],
         destAsset: StellarSdk.Asset.native(),
         destMin: "5.50",
-        path: [usd, eur]
+        path: [usd, eur],
       }),
       StellarSdk.Operation.changeTrust({
-        asset: usd
+        asset: usd,
       }),
       StellarSdk.Operation.changeTrust({
-        asset: liquidityPoolAsset
-      })
+        asset: liquidityPoolAsset,
+      }),
     ];
 
     destinations.forEach((d) => mockAccountRequest(this.axiosMock, d, 200, {}));

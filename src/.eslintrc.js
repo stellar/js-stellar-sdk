@@ -1,6 +1,6 @@
 module.exports = {
   env: {
-    es6: true
+    es6: true,
   },
   extends: ["airbnb-base", "prettier"],
   plugins: ["prettier", "prefer-import"],
@@ -28,15 +28,15 @@ module.exports = {
     "valid-jsdoc": [
       1,
       {
-        requireReturnDescription: false
-      }
+        requireReturnDescription: false,
+      },
     ],
     "prefer-const": 1,
     "object-shorthand": 1,
     "require-await": 1,
 
     // ERROR
-    "no-unused-expressions": [2, { allowTaggedTemplates: true }]
+    "no-unused-expressions": [2, { allowTaggedTemplates: true }],
   },
-  parser: "babel-eslint"
+  parser: "babel-eslint",
 };

@@ -16,8 +16,8 @@ describe("horizon path tests", function () {
       data: {
         url: serverUrl,
         random: Math.round(1000 * Math.random()),
-        endpoint: "bogus"
-      }
+        endpoint: "bogus",
+      },
     };
 
     function prepareAxios(axiosMock, endpoint) {
@@ -47,7 +47,7 @@ describe("horizon path tests", function () {
           .call()
           .should.eventually.deep.equal(randomResult.data)
           .notify(done);
-      }
+      },
     );
 
     it("server.transactions() " + serverUrl, function (done) {
@@ -69,7 +69,7 @@ describe("horizon path tests", function () {
           .call()
           .should.eventually.deep.equal(randomResult.data)
           .notify(done);
-      }
+      },
     );
 
     it("server.operations().includeFailed(true) " + serverUrl, function (done) {
@@ -92,7 +92,7 @@ describe("horizon path tests", function () {
           .call()
           .should.eventually.deep.equal(randomResult.data)
           .notify(done);
-      }
+      },
     );
 
     it(
@@ -105,7 +105,7 @@ describe("horizon path tests", function () {
           .call()
           .should.eventually.deep.equal(randomResult.data)
           .notify(done);
-      }
+      },
     );
 
     it("server.submitTransaction() " + serverUrl, function (done) {
@@ -114,25 +114,25 @@ describe("horizon path tests", function () {
       let keypair = StellarSdk.Keypair.random();
       let account = new StellarSdk.Account(
         keypair.publicKey(),
-        "56199647068161"
+        "56199647068161",
       );
 
       let fakeTransaction = new StellarSdk.TransactionBuilder(account, {
         fee: 100,
-        networkPassphrase: StellarSdk.Networks.TESTNET
+        networkPassphrase: StellarSdk.Networks.TESTNET,
       })
         .addOperation(
           StellarSdk.Operation.payment({
             destination: keypair.publicKey(),
             asset: StellarSdk.Asset.native(),
-            amount: "100.50"
-          })
+            amount: "100.50",
+          }),
         )
         .setTimeout(StellarSdk.TimeoutInfinite)
         .build();
       fakeTransaction.sign(keypair);
       let tx = encodeURIComponent(
-        fakeTransaction.toEnvelope().toXDR().toString("base64")
+        fakeTransaction.toEnvelope().toXDR().toString("base64"),
       );
 
       this.axiosMock

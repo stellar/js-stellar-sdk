@@ -25,7 +25,7 @@ describe("getCurrentServerTime", () => {
   it("returns null when the old time is too old", () => {
     SERVER_TIME_MAP.host = {
       serverTime: 10,
-      localTimeRecorded: 5
+      localTimeRecorded: 5,
     };
     expect(getCurrentServerTime("host")).to.be.null;
   });
@@ -33,7 +33,7 @@ describe("getCurrentServerTime", () => {
   it("returns the delta between then and now", () => {
     SERVER_TIME_MAP.host = {
       serverTime: 10,
-      localTimeRecorded: 5005
+      localTimeRecorded: 5005,
     };
     expect(getCurrentServerTime("host")).to.equal(55);
   });
