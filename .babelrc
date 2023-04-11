@@ -4,7 +4,11 @@
         "@babel/preset-env",
         "@babel/typescript"
     ],
-    "plugins": [
-        "istanbul"
-    ]
+    "env": {
+        "development": {
+            "plugins": [
+                "istanbul"
+            ]
+        }
+    }
 }

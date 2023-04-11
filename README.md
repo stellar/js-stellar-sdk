@@ -136,7 +136,7 @@ npm install
 
 3. Install Node 14
 
-Because we support the latest maintenance version of Node, please install and develop on Node 14 so you don't get surprised when your code works locally but breaks in CI.
+Because we support the oldest maintenance version of Node, please install and develop on Node 14 so you don't get surprised when your code works locally but breaks in CI.
 
 Here's how to install `nvm` if you haven't: https://github.com/creationix/nvm
 

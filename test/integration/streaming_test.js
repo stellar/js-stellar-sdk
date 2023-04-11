@@ -45,7 +45,13 @@ describe("integration tests: streaming", function (done) {
     let closeStream;
 
     const requestHandler = (request, response) => {
-      request.on("close", (e) => {
+      // the streamer will retry indefinitely (by design), so we want to ensure
+      // that the test is only completed once
+      if (!server.listening) {
+        return;
+      }
+
+      request.once("close", (e) => {
         closeStream();
         server.close();
         done();
@@ -82,7 +88,7 @@ describe("integration tests: streaming", function (done) {
   });
 });
 
-describe("integration tests: live streaming", function (done) {
+describe("end-to-end tests: real streaming", function (done) {
   if (typeof window !== "undefined") {
     done();
     return;
