@@ -2,12 +2,12 @@
   "extends": "@stellar/tsconfig",
   "compilerOptions": {
     "declaration": true,
-    "declarationDir": "lib",
+    "declarationDir": "../lib",
     "lib": ["es2015"],
     "moduleResolution": "node",
-    "rootDir": "src",
-    "outDir": "lib",
+    "rootDir": "../src",
+    "outDir": "../lib",
     "target": "es5"
   },
-  "include": ["src"]
+  "include": ["../src"]
 }
