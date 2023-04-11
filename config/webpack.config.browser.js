@@ -9,8 +9,8 @@ const config = {
   target: "web",
   // https://stackoverflow.com/a/34018909
   entry: {
-    "stellar-sdk": path.resolve(__dirname, "./src/browser.ts"),
-    "stellar-sdk.min": path.resolve(__dirname, "./src/browser.ts")
+    "stellar-sdk": path.resolve(__dirname, "../src/browser.ts"),
+    "stellar-sdk.min": path.resolve(__dirname, "../src/browser.ts")
   },
   resolve: {
     fallback: {
@@ -24,7 +24,7 @@ const config = {
     clean: true,
     library: "StellarSdk",
     compareBeforeEmit: true,
-    path: path.resolve(__dirname, "./dist")
+    path: path.resolve(__dirname, "../dist")
   },
   mode: process.env.NODE_ENV ?? "development",
   devtool: process.env.NODE_ENV === "production" ? false : "inline-source-map",
@@ -58,7 +58,7 @@ const config = {
   plugins: [
     // this must be first for karma to work (see line 5 of karma.conf.js)
     new ESLintPlugin({
-      overrideConfigFile: path.resolve(__dirname, "./.eslintrc.js")
+      overrideConfigFile: path.resolve(__dirname, "../.eslintrc.js")
     }),
     // Ignore native modules (sodium-native)
     new webpack.IgnorePlugin({ resourceRegExp: /sodium-native/ }),

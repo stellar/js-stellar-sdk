@@ -55,7 +55,7 @@ describe("tests the /liquidity_pools endpoint", function () {
     effects: server.effects(),
     operations: server.operations(),
     trades: server.trades(),
-    transactions: server.transactions()
+    transactions: server.transactions(),
   };
 
   Object.keys(testCases).forEach((suffix) => {

@@ -26,7 +26,7 @@ describe("stellar_toml_resolver.js tests", function () {
 #   The endpoint which clients should query to resolve stellar addresses
 #   for users on your domain.
 FEDERATION_SERVER="https://api.stellar.org/federation"
-`
+`,
           })
         );
 
@@ -48,12 +48,12 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
 #   The endpoint which clients should query to resolve stellar addresses
 #   for users on your domain.
 FEDERATION_SERVER="http://api.stellar.org/federation"
-`
+`,
           })
         );
 
       StellarSdk.StellarTomlResolver.resolve("acme.com", {
-        allowHttp: true
+        allowHttp: true,
       }).then((stellarToml) => {
         expect(stellarToml.FEDERATION_SERVER).equals(
           "http://api.stellar.org/federation"
@@ -74,7 +74,7 @@ FEDERATION_SERVER="http://api.stellar.org/federation"
 #   The endpoint which clients should query to resolve stellar addresses
 #   for users on your domain.
 FEDERATION_SERVER="http://api.stellar.org/federation"
-`
+`,
           })
         );
 
@@ -96,7 +96,7 @@ FEDERATION_SERVER="http://api.stellar.org/federation"
 /#   The endpoint which clients should query to resolve stellar addresses
 #   for users on your domain.
 FEDERATION_SERVER="https://api.stellar.org/federation"
-`
+`,
           })
         );
 
@@ -129,7 +129,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
         })
         .listen(4444, () => {
           StellarSdk.StellarTomlResolver.resolve("localhost:4444", {
-            allowHttp: true
+            allowHttp: true,
           })
             .should.be.rejectedWith(
               /stellar.toml file exceeds allowed size of [0-9]+/
@@ -153,7 +153,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
         })
         .listen(4444, () => {
           StellarSdk.StellarTomlResolver.resolve("localhost:4444", {
-            allowHttp: true
+            allowHttp: true,
           })
             .should.be.rejectedWith(/timeout of 1000ms exceeded/)
             .notify(done)
@@ -177,7 +177,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
         .listen(4444, () => {
           StellarSdk.StellarTomlResolver.resolve("localhost:4444", {
             allowHttp: true,
-            timeout: 1000
+            timeout: 1000,
           })
             .should.be.rejectedWith(/timeout of 1000ms exceeded/)
             .notify(done)

@@ -16,8 +16,8 @@ describe("horizon path tests", function () {
       data: {
         url: serverUrl,
         random: Math.round(1000 * Math.random()),
-        endpoint: "bogus"
-      }
+        endpoint: "bogus",
+      },
     };
 
     function prepareAxios(axiosMock, endpoint) {
@@ -119,13 +119,13 @@ describe("horizon path tests", function () {
 
       let fakeTransaction = new StellarSdk.TransactionBuilder(account, {
         fee: 100,
-        networkPassphrase: StellarSdk.Networks.TESTNET
+        networkPassphrase: StellarSdk.Networks.TESTNET,
       })
         .addOperation(
           StellarSdk.Operation.payment({
             destination: keypair.publicKey(),
             asset: StellarSdk.Asset.native(),
-            amount: "100.50"
+            amount: "100.50",
           })
         )
         .setTimeout(StellarSdk.TimeoutInfinite)

@@ -4,7 +4,7 @@
     "exclude": "js-stellar-base/src/generated"
   },
   "opts": {
-    "destination": "./jsdoc/",
+    "destination": "jsdoc/",
     "recurse": true,
     "template": "node_modules/minami",
     "readme": "README.md"

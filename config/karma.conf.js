@@ -10,13 +10,13 @@ module.exports = function (config) {
     browsers: ["FirefoxHeadless", "ChromeHeadless"],
 
     files: [
-      "dist/stellar-sdk.js", // webpack should build this first
-      "test/test-browser.js",
-      "test/unit/**/*.js"
+      "../dist/stellar-sdk.js", // webpack should build this first
+      "../test/test-browser.js",
+      "../test/unit/**/*.js"
     ],
 
     preprocessors: {
-      "test/**/*.js": ["webpack"]
+      "../test/**/*.js": ["webpack"]
     },
 
     webpack: webpackConfig,

@@ -57,13 +57,13 @@ describe("integration tests: client headers", function (done) {
       }
 
       closeStream = new StellarSdk.Server(`http://localhost:${port}`, {
-        allowHttp: true
+        allowHttp: true,
       })
         .operations()
         .stream({
           onerror: (err) => {
             done(err);
-          }
+          },
         });
     });
   });

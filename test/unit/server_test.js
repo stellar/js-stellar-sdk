@@ -25,7 +25,7 @@ describe("server.js non-transaction tests", function () {
       expect(
         () =>
           new StellarSdk.Server("http://horizon-live.stellar.org:1337", {
-            allowHttp: true
+            allowHttp: true,
           })
       ).to.not.throw();
     });
@@ -80,7 +80,7 @@ describe("server.js non-transaction tests", function () {
           200,
           {},
           {
-            date: "Wed, 13 Mar 2019 22:15:07 GMT"
+            date: "Wed, 13 Mar 2019 22:15:07 GMT",
           }
         );
 
@@ -90,7 +90,7 @@ describe("server.js non-transaction tests", function () {
           expect(serverTime).to.eql({
             minTime: 0,
             // this is server time 1552515307 plus 20
-            maxTime: 1552515327
+            maxTime: 1552515327,
           });
 
           done();
@@ -120,7 +120,7 @@ describe("server.js non-transaction tests", function () {
         p80: "2000",
         p90: "2000",
         p95: "2000",
-        p99: "2000"
+        p99: "2000",
       },
       fee_charged: {
         min: "100",
@@ -136,8 +136,8 @@ describe("server.js non-transaction tests", function () {
         p80: "100",
         p90: "100",
         p95: "100",
-        p99: "100"
-      }
+        p99: "100",
+      },
     };
 
     it("returns the base reserve", function (done) {
@@ -198,7 +198,7 @@ describe("server.js non-transaction tests", function () {
         p80: "2000",
         p90: "2000",
         p95: "2000",
-        p99: "2000"
+        p99: "2000",
       },
       fee_charged: {
         min: "100",
@@ -214,8 +214,8 @@ describe("server.js non-transaction tests", function () {
         p80: "100",
         p90: "100",
         p95: "100",
-        p99: "100"
-      }
+        p99: "100",
+      },
     };
 
     it("returns the base reserve", function (done) {
@@ -367,19 +367,19 @@ describe("server.js non-transaction tests", function () {
               _links: {
                 effects: {
                   href: "/ledgers/1/effects{?cursor,limit,order}",
-                  templated: true
+                  templated: true,
                 },
                 operations: {
                   href: "/ledgers/1/operations{?cursor,limit,order}",
-                  templated: true
+                  templated: true,
                 },
                 self: {
-                  href: "/ledgers/1"
+                  href: "/ledgers/1",
                 },
                 transactions: {
                   href: "/ledgers/1/transactions{?cursor,limit,order}",
-                  templated: true
-                }
+                  templated: true,
+                },
               },
               id: "63d98f536ee68d1b27b5b89f23af5311b7569a24faf1403ad0b52b633b07be99",
               paging_token: "4294967296",
@@ -388,21 +388,21 @@ describe("server.js non-transaction tests", function () {
               transaction_count: 0,
               operation_count: 0,
               tx_set_operation_count: 0,
-              closed_at: "1970-01-01T00:00:00Z"
-            }
-          ]
+              closed_at: "1970-01-01T00:00:00Z",
+            },
+          ],
         },
         _links: {
           next: {
-            href: "/ledgers?order=asc\u0026limit=1\u0026cursor=4294967296"
+            href: "/ledgers?order=asc\u0026limit=1\u0026cursor=4294967296",
           },
           prev: {
-            href: "/ledgers?order=desc\u0026limit=1\u0026cursor=4294967296"
+            href: "/ledgers?order=desc\u0026limit=1\u0026cursor=4294967296",
           },
           self: {
-            href: "/ledgers?order=asc\u0026limit=1\u0026cursor="
-          }
-        }
+            href: "/ledgers?order=asc\u0026limit=1\u0026cursor=",
+          },
+        },
       };
 
       describe("without options", function () {
@@ -495,19 +495,19 @@ describe("server.js non-transaction tests", function () {
         _links: {
           effects: {
             href: "/ledgers/1/effects{?cursor,limit,order}",
-            templated: true
+            templated: true,
           },
           operations: {
             href: "/ledgers/1/operations{?cursor,limit,order}",
-            templated: true
+            templated: true,
           },
           self: {
-            href: "/ledgers/1"
+            href: "/ledgers/1",
           },
           transactions: {
             href: "/ledgers/1/transactions{?cursor,limit,order}",
-            templated: true
-          }
+            templated: true,
+          },
         },
         id: "63d98f536ee68d1b27b5b89f23af5311b7569a24faf1403ad0b52b633b07be99",
         paging_token: "4294967296",
@@ -516,7 +516,7 @@ describe("server.js non-transaction tests", function () {
         transaction_count: 0,
         operation_count: 0,
         tx_set_operation_count: 0,
-        closed_at: "1970-01-01T00:00:00Z"
+        closed_at: "1970-01-01T00:00:00Z",
       };
 
       describe("for a non existent ledger", function () {
@@ -528,7 +528,7 @@ describe("server.js non-transaction tests", function () {
             )
             .returns(
               Promise.reject({
-                response: { status: 404, statusText: "NotFound", data: {} }
+                response: { status: 404, statusText: "NotFound", data: {} },
               })
             );
 
@@ -604,42 +604,42 @@ describe("server.js non-transaction tests", function () {
       let transactionsResponse = {
         _links: {
           self: {
-            href: "https://horizon.stellar.org/transactions?order=desc\u0026limit=1\u0026cursor="
+            href: "https://horizon.stellar.org/transactions?order=desc\u0026limit=1\u0026cursor=",
           },
           next: {
-            href: "https://horizon.stellar.org/transactions?order=desc\u0026limit=1\u0026cursor=34156680904183808"
+            href: "https://horizon.stellar.org/transactions?order=desc\u0026limit=1\u0026cursor=34156680904183808",
           },
           prev: {
-            href: "https://horizon.stellar.org/transactions?order=asc\u0026limit=1\u0026cursor=34156680904183808"
-          }
+            href: "https://horizon.stellar.org/transactions?order=asc\u0026limit=1\u0026cursor=34156680904183808",
+          },
         },
         _embedded: {
           records: [
             {
               _links: {
                 self: {
-                  href: "https://horizon.stellar.org/transactions/c585b8764b28be678c482f8b6e87e76e4b5f28043c53f4dcb7b724b4b2efebc1"
+                  href: "https://horizon.stellar.org/transactions/c585b8764b28be678c482f8b6e87e76e4b5f28043c53f4dcb7b724b4b2efebc1",
                 },
                 account: {
-                  href: "https://horizon.stellar.org/accounts/GBURK32BMC7XORYES62HDKY7VTA5MO7JYBDH7KTML4EPN4BV2MIRQOVR"
+                  href: "https://horizon.stellar.org/accounts/GBURK32BMC7XORYES62HDKY7VTA5MO7JYBDH7KTML4EPN4BV2MIRQOVR",
                 },
                 ledger: {
-                  href: "https://horizon.stellar.org/ledgers/7952722"
+                  href: "https://horizon.stellar.org/ledgers/7952722",
                 },
                 operations: {
                   href: "https://horizon.stellar.org/transactions/c585b8764b28be678c482f8b6e87e76e4b5f28043c53f4dcb7b724b4b2efebc1/operations{?cursor,limit,order}",
-                  templated: true
+                  templated: true,
                 },
                 effects: {
                   href: "https://horizon.stellar.org/transactions/c585b8764b28be678c482f8b6e87e76e4b5f28043c53f4dcb7b724b4b2efebc1/effects{?cursor,limit,order}",
-                  templated: true
+                  templated: true,
                 },
                 precedes: {
-                  href: "https://horizon.stellar.org/transactions?order=asc\u0026cursor=34156680904183808"
+                  href: "https://horizon.stellar.org/transactions?order=asc\u0026cursor=34156680904183808",
                 },
                 succeeds: {
-                  href: "https://horizon.stellar.org/transactions?order=desc\u0026cursor=34156680904183808"
-                }
+                  href: "https://horizon.stellar.org/transactions?order=desc\u0026cursor=34156680904183808",
+                },
               },
               id: "c585b8764b28be678c482f8b6e87e76e4b5f28043c53f4dcb7b724b4b2efebc1",
               paging_token: "34156680904183808",
@@ -662,11 +662,11 @@ describe("server.js non-transaction tests", function () {
                 "AAAAAgAAAAMAeVZcAAAAAAAAAABpFW9BYL93RwSXtHGrH6zB1jvpwEZ/qmxfCPbwNdMRGAAAABc+8zU9AFsPtQAABXYAAAASAAAAAAAAAAAAAAAPZnVudHJhY2tlci5zaXRlAAEAAAAAAAAAAAAAAAAAAAAAAAABAHlZUgAAAAAAAAAAaRVvQWC/d0cEl7Rxqx+swdY76cBGf6psXwj28DXTERgAAAAXPvMzrQBbD7UAAAV3AAAAEgAAAAAAAAAAAAAAD2Z1bnRyYWNrZXIuc2l0ZQABAAAAAAAAAAAAAAAAAAAA",
               memo_type: "none",
               signatures: [
-                "pox1kE2/f2oYQw/PdJZHUk74JVWRHDPwcqzGP+lSJljl6ABBRPqXewP1jAzpgY+vicDeLR/35/HyDyeAG7H0Aw=="
-              ]
-            }
-          ]
-        }
+                "pox1kE2/f2oYQw/PdJZHUk74JVWRHDPwcqzGP+lSJljl6ABBRPqXewP1jAzpgY+vicDeLR/35/HyDyeAG7H0Aw==",
+              ],
+            },
+          ],
+        },
       };
 
       describe("without options", function () {
@@ -775,8 +775,8 @@ describe("server.js non-transaction tests", function () {
         _links: {
           test: function () {
             return "hi";
-          }
-        }
+          },
+        },
       });
       expect(typeof json.test).to.be.equal("function");
     });
@@ -788,28 +788,28 @@ describe("server.js non-transaction tests", function () {
         let singleTranssactionResponse = {
           _links: {
             self: {
-              href: "https://horizon-testnet.stellar.org/transactions/6bbd8cbd90498a26210a21ec599702bead8f908f412455da300318aba36831b0"
+              href: "https://horizon-testnet.stellar.org/transactions/6bbd8cbd90498a26210a21ec599702bead8f908f412455da300318aba36831b0",
             },
             account: {
-              href: "https://horizon-testnet.stellar.org/accounts/GBCCHT5P34DMK2LTN4SPHBAJCXYFNUEWSM7SDSWEXJA7NN6CA3HNHTM6"
+              href: "https://horizon-testnet.stellar.org/accounts/GBCCHT5P34DMK2LTN4SPHBAJCXYFNUEWSM7SDSWEXJA7NN6CA3HNHTM6",
             },
             ledger: {
-              href: "https://horizon-testnet.stellar.org/ledgers/121879"
+              href: "https://horizon-testnet.stellar.org/ledgers/121879",
             },
             operations: {
               href: "https://horizon-testnet.stellar.org/transactions/6bbd8cbd90498a26210a21ec599702bead8f908f412455da300318aba36831b0/operations{?cursor,limit,order}",
-              templated: true
+              templated: true,
             },
             effects: {
               href: "https://horizon-testnet.stellar.org/transactions/6bbd8cbd90498a26210a21ec599702bead8f908f412455da300318aba36831b0/effects{?cursor,limit,order}",
-              templated: true
+              templated: true,
             },
             precedes: {
-              href: "https://horizon-testnet.stellar.org/transactions?order=asc&cursor=523466319077376"
+              href: "https://horizon-testnet.stellar.org/transactions?order=asc&cursor=523466319077376",
             },
             succeeds: {
-              href: "https://horizon-testnet.stellar.org/transactions?order=desc&cursor=523466319077376"
-            }
+              href: "https://horizon-testnet.stellar.org/transactions?order=desc&cursor=523466319077376",
+            },
           },
           id: "6bbd8cbd90498a26210a21ec599702bead8f908f412455da300318aba36831b0",
           paging_token: "523466319077376",
@@ -833,8 +833,8 @@ describe("server.js non-transaction tests", function () {
             "AAAAAgAAAAMAAdwUAAAAAAAAAABEI8+v3wbFaXNvJPOECRXwVtCWkz8hysS6Qfa3wgbO0wAAABbRQVJwAAHcCQAAAAQAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAEAAdwXAAAAAAAAAABEI8+v3wbFaXNvJPOECRXwVtCWkz8hysS6Qfa3wgbO0wAAABbRQVIMAAHcCQAAAAQAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAA==",
           memo_type: "none",
           signatures: [
-            "pfzlCzxO0N4pJsCGHhAhbcVR+K4fJZpOOuUCyHhxHhHG2IWk34H3vFQMCrGH+GKivmCokoiNAaiSg6+gniN0CQ=="
-          ]
+            "pfzlCzxO0N4pJsCGHhAhbcVR+K4fJZpOOuUCyHhxHhHG2IWk34H3vFQMCrGH+GKivmCokoiNAaiSg6+gniN0CQ==",
+          ],
         };
 
         this.axiosMock
@@ -864,14 +864,14 @@ describe("server.js non-transaction tests", function () {
       const transactionsResponse = {
         _links: {
           self: {
-            href: "https://horizon.stellar.org/transactions?cursor=\u0026limit=3\u0026order=asc"
+            href: "https://horizon.stellar.org/transactions?cursor=\u0026limit=3\u0026order=asc",
           },
           next: {
-            href: "https://horizon.stellar.org/transactions?cursor=33736968114176\u0026limit=3\u0026order=asc"
+            href: "https://horizon.stellar.org/transactions?cursor=33736968114176\u0026limit=3\u0026order=asc",
           },
           prev: {
-            href: "https://horizon.stellar.org/transactions?cursor=12884905984\u0026limit=3\u0026order=desc"
-          }
+            href: "https://horizon.stellar.org/transactions?cursor=12884905984\u0026limit=3\u0026order=desc",
+          },
         },
         _embedded: {
           records: [
@@ -879,28 +879,28 @@ describe("server.js non-transaction tests", function () {
               memo: "hello world",
               _links: {
                 self: {
-                  href: "https://horizon.stellar.org/transactions/3389e9f0f1a65f19736cacf544c2e825313e8447f569233bb8db39aa607c8889"
+                  href: "https://horizon.stellar.org/transactions/3389e9f0f1a65f19736cacf544c2e825313e8447f569233bb8db39aa607c8889",
                 },
                 account: {
-                  href: "https://horizon.stellar.org/accounts/GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN7"
+                  href: "https://horizon.stellar.org/accounts/GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN7",
                 },
                 ledger: {
-                  href: "https://horizon.stellar.org/ledgers/3"
+                  href: "https://horizon.stellar.org/ledgers/3",
                 },
                 operations: {
                   href: "https://horizon.stellar.org/transactions/3389e9f0f1a65f19736cacf544c2e825313e8447f569233bb8db39aa607c8889/operations{?cursor,limit,order}",
-                  templated: true
+                  templated: true,
                 },
                 effects: {
                   href: "https://horizon.stellar.org/transactions/3389e9f0f1a65f19736cacf544c2e825313e8447f569233bb8db39aa607c8889/effects{?cursor,limit,order}",
-                  templated: true
+                  templated: true,
                 },
                 precedes: {
-                  href: "https://horizon.stellar.org/transactions?order=asc\u0026cursor=12884905984"
+                  href: "https://horizon.stellar.org/transactions?order=asc\u0026cursor=12884905984",
                 },
                 succeeds: {
-                  href: "https://horizon.stellar.org/transactions?order=desc\u0026cursor=12884905984"
-                }
+                  href: "https://horizon.stellar.org/transactions?order=desc\u0026cursor=12884905984",
+                },
               },
               id: "3389e9f0f1a65f19736cacf544c2e825313e8447f569233bb8db39aa607c8889",
               paging_token: "12884905984",
@@ -924,35 +924,35 @@ describe("server.js non-transaction tests", function () {
                 "AAAAAgAAAAMAAAABAAAAAAAAAAABlHJijueOuScU0i0DkJY8JNkn6gCZmUhuiR+sLaqcIQ3gtrOnZAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAEAAAADAAAAAAAAAAABlHJijueOuScU0i0DkJY8JNkn6gCZmUhuiR+sLaqcIQ3gtrOnY/7UAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAA==",
               memo_type: "text",
               signatures: [
-                "SsKlst02jsaBp35vXlI300Qbz39+HbwwNDX/gfM+MwaG/dFF7bgqpkKsDAsh/qJDiN3NOW695IZB9Mj+JAsHBA=="
-              ]
+                "SsKlst02jsaBp35vXlI300Qbz39+HbwwNDX/gfM+MwaG/dFF7bgqpkKsDAsh/qJDiN3NOW695IZB9Mj+JAsHBA==",
+              ],
             },
             {
               memo: "testpool,faucet,sdf",
               _links: {
                 self: {
-                  href: "https://horizon.stellar.org/transactions/2db4b22ca018119c5027a80578813ffcf582cda4aa9e31cd92b43cf1bda4fc5a"
+                  href: "https://horizon.stellar.org/transactions/2db4b22ca018119c5027a80578813ffcf582cda4aa9e31cd92b43cf1bda4fc5a",
                 },
                 account: {
-                  href: "https://horizon.stellar.org/accounts/GALPCCZN4YXA3YMJHKL6CVIECKPLJJCTVMSNYWBTKJW4K5HQLYLDMZTB"
+                  href: "https://horizon.stellar.org/accounts/GALPCCZN4YXA3YMJHKL6CVIECKPLJJCTVMSNYWBTKJW4K5HQLYLDMZTB",
                 },
                 ledger: {
-                  href: "https://horizon.stellar.org/ledgers/7841"
+                  href: "https://horizon.stellar.org/ledgers/7841",
                 },
                 operations: {
                   href: "https://horizon.stellar.org/transactions/2db4b22ca018119c5027a80578813ffcf582cda4aa9e31cd92b43cf1bda4fc5a/operations{?cursor,limit,order}",
-                  templated: true
+                  templated: true,
                 },
                 effects: {
                   href: "https://horizon.stellar.org/transactions/2db4b22ca018119c5027a80578813ffcf582cda4aa9e31cd92b43cf1bda4fc5a/effects{?cursor,limit,order}",
-                  templated: true
+                  templated: true,
                 },
                 precedes: {
-                  href: "https://horizon.stellar.org/transactions?order=asc\u0026cursor=33676838572032"
+                  href: "https://horizon.stellar.org/transactions?order=asc\u0026cursor=33676838572032",
                 },
                 succeeds: {
-                  href: "https://horizon.stellar.org/transactions?order=desc\u0026cursor=33676838572032"
-                }
+                  href: "https://horizon.stellar.org/transactions?order=desc\u0026cursor=33676838572032",
+                },
               },
               id: "2db4b22ca018119c5027a80578813ffcf582cda4aa9e31cd92b43cf1bda4fc5a",
               paging_token: "33676838572032",
@@ -976,35 +976,35 @@ describe("server.js non-transaction tests", function () {
                 "AAAAAgAAAAMAAB55AAAAAAAAAAAW8Qst5i4N4Yk6l+FVBBKetKRTqyTcWDNSbcV08F4WNg3gtrObeDuoAAAAAwAAAAEAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAEAAB6hAAAAAAAAAAAW8Qst5i4N4Yk6l+FVBBKetKRTqyTcWDNSbcV08F4WNg3gtrObeDp8AAAAAwAAAAIAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAA==",
               memo_type: "text",
               signatures: [
-                "NIEHl40QqRYihBtnVhBpsm4TmZb8AqGsdPHD0feb+xqL3RhxpmWwB7e5472MTGNJkXbz1lxHi9zTAXDWn9bIBw=="
-              ]
+                "NIEHl40QqRYihBtnVhBpsm4TmZb8AqGsdPHD0feb+xqL3RhxpmWwB7e5472MTGNJkXbz1lxHi9zTAXDWn9bIBw==",
+              ],
             },
             {
               memo: "",
               _links: {
                 self: {
-                  href: "https://horizon.stellar.org/transactions/3ce2aca2fed36da2faea31352c76c5e412348887a4c119b1e90de8d1b937396a"
+                  href: "https://horizon.stellar.org/transactions/3ce2aca2fed36da2faea31352c76c5e412348887a4c119b1e90de8d1b937396a",
                 },
                 account: {
-                  href: "https://horizon.stellar.org/accounts/GALPCCZN4YXA3YMJHKL6CVIECKPLJJCTVMSNYWBTKJW4K5HQLYLDMZTB"
+                  href: "https://horizon.stellar.org/accounts/GALPCCZN4YXA3YMJHKL6CVIECKPLJJCTVMSNYWBTKJW4K5HQLYLDMZTB",
                 },
                 ledger: {
-                  href: "https://horizon.stellar.org/ledgers/7855"
+                  href: "https://horizon.stellar.org/ledgers/7855",
                 },
                 operations: {
                   href: "https://horizon.stellar.org/transactions/3ce2aca2fed36da2faea31352c76c5e412348887a4c119b1e90de8d1b937396a/operations{?cursor,limit,order}",
-                  templated: true
+                  templated: true,
                 },
                 effects: {
                   href: "https://horizon.stellar.org/transactions/3ce2aca2fed36da2faea31352c76c5e412348887a4c119b1e90de8d1b937396a/effects{?cursor,limit,order}",
-                  templated: true
+                  templated: true,
                 },
                 precedes: {
-                  href: "https://horizon.stellar.org/transactions?order=asc\u0026cursor=33736968114176"
+                  href: "https://horizon.stellar.org/transactions?order=asc\u0026cursor=33736968114176",
                 },
                 succeeds: {
-                  href: "https://horizon.stellar.org/transactions?order=desc\u0026cursor=33736968114176"
-                }
+                  href: "https://horizon.stellar.org/transactions?order=desc\u0026cursor=33736968114176",
+                },
               },
               id: "3ce2aca2fed36da2faea31352c76c5e412348887a4c119b1e90de8d1b937396a",
               paging_token: "33736968114176",
@@ -1027,11 +1027,11 @@ describe("server.js non-transaction tests", function () {
                 "AAAAAgAAAAMAAB6hAAAAAAAAAAAW8Qst5i4N4Yk6l+FVBBKetKRTqyTcWDNSbcV08F4WNg3gtrN3tPR8AAAAAwAAAAIAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAEAAB6vAAAAAAAAAAAW8Qst5i4N4Yk6l+FVBBKetKRTqyTcWDNSbcV08F4WNg3gtrN3tPQYAAAAAwAAAAMAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAA==",
               memo_type: "text",
               signatures: [
-                "1sNxaxHezfPxDOpq1x1z+TYvgtdYkwDp5dpzx1teQB1zimkfbmKwYLk7C8bTpXC9zcJ7f+vathwE/e/GHHXwDw=="
-              ]
-            }
-          ]
-        }
+                "1sNxaxHezfPxDOpq1x1z+TYvgtdYkwDp5dpzx1teQB1zimkfbmKwYLk7C8bTpXC9zcJ7f+vathwE/e/GHHXwDw==",
+              ],
+            },
+          ],
+        },
       };
 
       it("forClaimableBalance() requests the correct endpoint", function (done) {
@@ -1070,23 +1070,23 @@ describe("server.js non-transaction tests", function () {
           _links: {
             effects: {
               href: "/accounts/GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K/effects{?cursor,limit,order}",
-              templated: true
+              templated: true,
             },
             offers: {
               href: "/accounts/GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K/offers{?cursor,limit,order}",
-              templated: true
+              templated: true,
             },
             operations: {
               href: "/accounts/GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K/operations{?cursor,limit,order}",
-              templated: true
+              templated: true,
             },
             self: {
-              href: "/accounts/GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K"
+              href: "/accounts/GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K",
             },
             transactions: {
               href: "/accounts/GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K/transactions{?cursor,limit,order}",
-              templated: true
-            }
+              templated: true,
+            },
           },
           id: "GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K",
           paging_token: "146028892161",
@@ -1099,27 +1099,27 @@ describe("server.js non-transaction tests", function () {
           thresholds: {
             low_threshold: 0,
             med_threshold: 0,
-            high_threshold: 0
+            high_threshold: 0,
           },
           flags: {
             auth_required: false,
             auth_revocable: false,
             auth_immutable: false,
-            auth_clawback_enabled: false
+            auth_clawback_enabled: false,
           },
           balances: [
             {
               asset_type: "native",
-              balance: "9760000.3997400"
-            }
+              balance: "9760000.3997400",
+            },
           ],
           signers: [
             {
               public_key:
                 "GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K",
-              weight: 1
-            }
-          ]
+              weight: 1,
+            },
+          ],
         };
 
         this.axiosMock
@@ -1148,50 +1148,50 @@ describe("server.js non-transaction tests", function () {
         let accountsForSignerResponse = {
           _links: {
             self: {
-              href: "/accounts?cursor=&limit=10&order=asc&signer=GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42"
+              href: "/accounts?cursor=&limit=10&order=asc&signer=GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42",
             },
             next: {
-              href: "/accounts?cursor=GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42&limit=10&order=asc&signer=GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42"
+              href: "/accounts?cursor=GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42&limit=10&order=asc&signer=GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42",
             },
             prev: {
-              href: "/accounts?cursor=GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42&limit=10&order=desc&signer=GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42"
-            }
+              href: "/accounts?cursor=GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42&limit=10&order=desc&signer=GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42",
+            },
           },
           _embedded: {
             records: [
               {
                 _links: {
                   self: {
-                    href: "/accounts/GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42"
+                    href: "/accounts/GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42",
                   },
                   transactions: {
                     href: "/accounts/GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42/transactions{?cursor,limit,order}",
-                    templated: true
+                    templated: true,
                   },
                   operations: {
                     href: "/accounts/GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42/operations{?cursor,limit,order}",
-                    templated: true
+                    templated: true,
                   },
                   payments: {
                     href: "/accounts/GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42/payments{?cursor,limit,order}",
-                    templated: true
+                    templated: true,
                   },
                   effects: {
                     href: "/accounts/GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42/effects{?cursor,limit,order}",
-                    templated: true
+                    templated: true,
                   },
                   offers: {
                     href: "/accounts/GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42/offers{?cursor,limit,order}",
-                    templated: true
+                    templated: true,
                   },
                   trades: {
                     href: "/accounts/GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42/trades{?cursor,limit,order}",
-                    templated: true
+                    templated: true,
                   },
                   data: {
                     href: "/accounts/GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42/data/{key}",
-                    templated: true
-                  }
+                    templated: true,
+                  },
                 },
                 id: "GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42",
                 account_id:
@@ -1203,13 +1203,13 @@ describe("server.js non-transaction tests", function () {
                 thresholds: {
                   low_threshold: 0,
                   med_threshold: 0,
-                  high_threshold: 0
+                  high_threshold: 0,
                 },
                 flags: {
                   auth_required: false,
                   auth_revocable: false,
                   auth_immutable: false,
-                  auth_clawback_enabled: false
+                  auth_clawback_enabled: false,
                 },
                 balances: [
                   {
@@ -1222,28 +1222,28 @@ describe("server.js non-transaction tests", function () {
                     asset_type: "credit_alphanum4",
                     asset_code: "USD",
                     asset_issuer:
-                      "GDUEG67IE5TJUVWRRTMXDP3Q6EMMZJ6HL5OMWLBYOIUIZEUW2T2PBPJH"
+                      "GDUEG67IE5TJUVWRRTMXDP3Q6EMMZJ6HL5OMWLBYOIUIZEUW2T2PBPJH",
                   },
                   {
                     balance: "9999.9999900",
                     buying_liabilities: "0.0000000",
                     selling_liabilities: "0.0000000",
-                    asset_type: "native"
-                  }
+                    asset_type: "native",
+                  },
                 ],
                 signers: [
                   {
                     weight: 1,
                     key: "GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42",
-                    type: "ed25519_public_key"
-                  }
+                    type: "ed25519_public_key",
+                  },
                 ],
                 data: {},
                 paging_token:
-                  "GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42"
-              }
-            ]
-          }
+                  "GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42",
+              },
+            ],
+          },
         };
 
         this.axiosMock
@@ -1276,50 +1276,50 @@ describe("server.js non-transaction tests", function () {
         let accountsForAssetResponse = {
           _links: {
             self: {
-              href: "/accounts?asset=USD%3AGDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD\u0026cursor=\u0026limit=10\u0026order=asc"
+              href: "/accounts?asset=USD%3AGDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD\u0026cursor=\u0026limit=10\u0026order=asc",
             },
             next: {
-              href: "/accounts?asset=USD%3AGDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD\u0026cursor=GC4J73PTB5WN7MOJWOAECPHRCV2UU3WCY37L3BNY6RZVKE23JGQYJMJ6\u0026limit=10\u0026order=asc"
+              href: "/accounts?asset=USD%3AGDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD\u0026cursor=GC4J73PTB5WN7MOJWOAECPHRCV2UU3WCY37L3BNY6RZVKE23JGQYJMJ6\u0026limit=10\u0026order=asc",
             },
             prev: {
-              href: "/accounts?asset=USD%3AGDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD\u0026cursor=GBPFGVESMB7HSTQREV354WA4UDGAPS2NCB5DZQ7K2VZM3PSX4TDCV667\u0026limit=10\u0026order=desc"
-            }
+              href: "/accounts?asset=USD%3AGDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD\u0026cursor=GBPFGVESMB7HSTQREV354WA4UDGAPS2NCB5DZQ7K2VZM3PSX4TDCV667\u0026limit=10\u0026order=desc",
+            },
           },
           _embedded: {
             records: [
               {
                 _links: {
                   self: {
-                    href: "/accounts/GBPFGVESMB7HSTQREV354WA4UDGAPS2NCB5DZQ7K2VZM3PSX4TDCV667"
+                    href: "/accounts/GBPFGVESMB7HSTQREV354WA4UDGAPS2NCB5DZQ7K2VZM3PSX4TDCV667",
                   },
                   transactions: {
                     href: "/accounts/GBPFGVESMB7HSTQREV354WA4UDGAPS2NCB5DZQ7K2VZM3PSX4TDCV667/transactions{?cursor,limit,order}",
-                    templated: true
+                    templated: true,
                   },
                   operations: {
                     href: "/accounts/GBPFGVESMB7HSTQREV354WA4UDGAPS2NCB5DZQ7K2VZM3PSX4TDCV667/operations{?cursor,limit,order}",
-                    templated: true
+                    templated: true,
                   },
                   payments: {
                     href: "/accounts/GBPFGVESMB7HSTQREV354WA4UDGAPS2NCB5DZQ7K2VZM3PSX4TDCV667/payments{?cursor,limit,order}",
-                    templated: true
+                    templated: true,
                   },
                   effects: {
                     href: "/accounts/GBPFGVESMB7HSTQREV354WA4UDGAPS2NCB5DZQ7K2VZM3PSX4TDCV667/effects{?cursor,limit,order}",
-                    templated: true
+                    templated: true,
                   },
                   offers: {
                     href: "/accounts/GBPFGVESMB7HSTQREV354WA4UDGAPS2NCB5DZQ7K2VZM3PSX4TDCV667/offers{?cursor,limit,order}",
-                    templated: true
+                    templated: true,
                   },
                   trades: {
                     href: "/accounts/GBPFGVESMB7HSTQREV354WA4UDGAPS2NCB5DZQ7K2VZM3PSX4TDCV667/trades{?cursor,limit,order}",
-                    templated: true
+                    templated: true,
                   },
                   data: {
                     href: "/accounts/GBPFGVESMB7HSTQREV354WA4UDGAPS2NCB5DZQ7K2VZM3PSX4TDCV667/data/{key}",
-                    templated: true
-                  }
+                    templated: true,
+                  },
                 },
                 id: "GBPFGVESMB7HSTQREV354WA4UDGAPS2NCB5DZQ7K2VZM3PSX4TDCV667",
                 account_id:
@@ -1331,13 +1331,13 @@ describe("server.js non-transaction tests", function () {
                 thresholds: {
                   low_threshold: 0,
                   med_threshold: 0,
-                  high_threshold: 0
+                  high_threshold: 0,
                 },
                 flags: {
                   auth_required: false,
                   auth_revocable: false,
                   auth_immutable: false,
-                  auth_clawback_enabled: false
+                  auth_clawback_enabled: false,
                 },
                 balances: [
                   {
@@ -1350,28 +1350,28 @@ describe("server.js non-transaction tests", function () {
                     asset_type: "credit_alphanum4",
                     asset_code: "USD",
                     asset_issuer:
-                      "GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD"
+                      "GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD",
                   },
                   {
                     balance: "9999.9998600",
                     buying_liabilities: "0.0000000",
                     selling_liabilities: "0.0000000",
-                    asset_type: "native"
-                  }
+                    asset_type: "native",
+                  },
                 ],
                 signers: [
                   {
                     weight: 1,
                     key: "GBPFGVESMB7HSTQREV354WA4UDGAPS2NCB5DZQ7K2VZM3PSX4TDCV667",
-                    type: "ed25519_public_key"
-                  }
+                    type: "ed25519_public_key",
+                  },
                 ],
                 data: {},
                 paging_token:
-                  "GBPFGVESMB7HSTQREV354WA4UDGAPS2NCB5DZQ7K2VZM3PSX4TDCV667"
-              }
-            ]
-          }
+                  "GBPFGVESMB7HSTQREV354WA4UDGAPS2NCB5DZQ7K2VZM3PSX4TDCV667",
+              },
+            ],
+          },
         };
 
         this.axiosMock
@@ -1409,50 +1409,50 @@ describe("server.js non-transaction tests", function () {
         let accountsForSponsor = {
           _links: {
             self: {
-              href: "/accounts?cursor=&limit=10&order=asc&sponsor=GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42"
+              href: "/accounts?cursor=&limit=10&order=asc&sponsor=GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42",
             },
             next: {
-              href: "/accounts?cursor=GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42&limit=10&order=asc&sponsor=GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42"
+              href: "/accounts?cursor=GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42&limit=10&order=asc&sponsor=GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42",
             },
             prev: {
-              href: "/accounts?cursor=GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42&limit=10&order=desc&sponsor=GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42"
-            }
+              href: "/accounts?cursor=GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42&limit=10&order=desc&sponsor=GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42",
+            },
           },
           _embedded: {
             records: [
               {
                 _links: {
                   self: {
-                    href: "/accounts/GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42"
+                    href: "/accounts/GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42",
                   },
                   transactions: {
                     href: "/accounts/GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42/transactions{?cursor,limit,order}",
-                    templated: true
+                    templated: true,
                   },
                   operations: {
                     href: "/accounts/GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42/operations{?cursor,limit,order}",
-                    templated: true
+                    templated: true,
                   },
                   payments: {
                     href: "/accounts/GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42/payments{?cursor,limit,order}",
-                    templated: true
+                    templated: true,
                   },
                   effects: {
                     href: "/accounts/GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42/effects{?cursor,limit,order}",
-                    templated: true
+                    templated: true,
                   },
                   offers: {
                     href: "/accounts/GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42/offers{?cursor,limit,order}",
-                    templated: true
+                    templated: true,
                   },
                   trades: {
                     href: "/accounts/GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42/trades{?cursor,limit,order}",
-                    templated: true
+                    templated: true,
                   },
                   data: {
                     href: "/accounts/GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42/data/{key}",
-                    templated: true
-                  }
+                    templated: true,
+                  },
                 },
                 id: "GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42",
                 account_id:
@@ -1464,13 +1464,13 @@ describe("server.js non-transaction tests", function () {
                 thresholds: {
                   low_threshold: 0,
                   med_threshold: 0,
-                  high_threshold: 0
+                  high_threshold: 0,
                 },
                 flags: {
                   auth_required: false,
                   auth_revocable: false,
                   auth_immutable: false,
-                  auth_clawback_enabled: false
+                  auth_clawback_enabled: false,
                 },
                 balances: [
                   {
@@ -1485,30 +1485,30 @@ describe("server.js non-transaction tests", function () {
                     asset_issuer:
                       "GDUEG67IE5TJUVWRRTMXDP3Q6EMMZJ6HL5OMWLBYOIUIZEUW2T2PBPJH",
                     sponsor:
-                      "GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42"
+                      "GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42",
                   },
                   {
                     balance: "9999.9999900",
                     buying_liabilities: "0.0000000",
                     selling_liabilities: "0.0000000",
-                    asset_type: "native"
-                  }
+                    asset_type: "native",
+                  },
                 ],
                 signers: [
                   {
                     weight: 1,
                     key: "GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42",
-                    type: "ed25519_public_key"
-                  }
+                    type: "ed25519_public_key",
+                  },
                 ],
                 data: {},
                 paging_token:
                   "GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42",
                 num_sponsoring: 0,
-                num_sponsored: 3
-              }
-            ]
-          }
+                num_sponsored: 3,
+              },
+            ],
+          },
         };
 
         this.axiosMock
@@ -1541,50 +1541,50 @@ describe("server.js non-transaction tests", function () {
         const accountsForAssetResponse = {
           _links: {
             self: {
-              href: "/accounts?liquidity_pool=dd7b1ab831c273310ddbec6f97870aa83c2fbd78ce22aded37ecbf4f3380fac7&cursor=&limit=10&order=asc"
+              href: "/accounts?liquidity_pool=dd7b1ab831c273310ddbec6f97870aa83c2fbd78ce22aded37ecbf4f3380fac7&cursor=&limit=10&order=asc",
             },
             next: {
-              href: "/accounts?liquidity_pool=dd7b1ab831c273310ddbec6f97870aa83c2fbd78ce22aded37ecbf4f3380fac7&cursor=GC4J73PTB5WN7MOJWOAECPHRCV2UU3WCY37L3BNY6RZVKE23JGQYJMJ6&limit=10&order=asc"
+              href: "/accounts?liquidity_pool=dd7b1ab831c273310ddbec6f97870aa83c2fbd78ce22aded37ecbf4f3380fac7&cursor=GC4J73PTB5WN7MOJWOAECPHRCV2UU3WCY37L3BNY6RZVKE23JGQYJMJ6&limit=10&order=asc",
             },
             prev: {
-              href: "/accounts?liquidity_pool=dd7b1ab831c273310ddbec6f97870aa83c2fbd78ce22aded37ecbf4f3380fac7&cursor=GBPFGVESMB7HSTQREV354WA4UDGAPS2NCB5DZQ7K2VZM3PSX4TDCV667&limit=10&order=desc"
-            }
+              href: "/accounts?liquidity_pool=dd7b1ab831c273310ddbec6f97870aa83c2fbd78ce22aded37ecbf4f3380fac7&cursor=GBPFGVESMB7HSTQREV354WA4UDGAPS2NCB5DZQ7K2VZM3PSX4TDCV667&limit=10&order=desc",
+            },
           },
           _embedded: {
             records: [
               {
                 _links: {
                   self: {
-                    href: "/accounts/GBPFGVESMB7HSTQREV354WA4UDGAPS2NCB5DZQ7K2VZM3PSX4TDCV667"
+                    href: "/accounts/GBPFGVESMB7HSTQREV354WA4UDGAPS2NCB5DZQ7K2VZM3PSX4TDCV667",
                   },
                   transactions: {
                     href: "/accounts/GBPFGVESMB7HSTQREV354WA4UDGAPS2NCB5DZQ7K2VZM3PSX4TDCV667/transactions{?cursor,limit,order}",
-                    templated: true
+                    templated: true,
                   },
                   operations: {
                     href: "/accounts/GBPFGVESMB7HSTQREV354WA4UDGAPS2NCB5DZQ7K2VZM3PSX4TDCV667/operations{?cursor,limit,order}",
-                    templated: true
+                    templated: true,
                   },
                   payments: {
                     href: "/accounts/GBPFGVESMB7HSTQREV354WA4UDGAPS2NCB5DZQ7K2VZM3PSX4TDCV667/payments{?cursor,limit,order}",
-                    templated: true
+                    templated: true,
                   },
                   effects: {
                     href: "/accounts/GBPFGVESMB7HSTQREV354WA4UDGAPS2NCB5DZQ7K2VZM3PSX4TDCV667/effects{?cursor,limit,order}",
-                    templated: true
+                    templated: true,
                   },
                   offers: {
                     href: "/accounts/GBPFGVESMB7HSTQREV354WA4UDGAPS2NCB5DZQ7K2VZM3PSX4TDCV667/offers{?cursor,limit,order}",
-                    templated: true
+                    templated: true,
                   },
                   trades: {
                     href: "/accounts/GBPFGVESMB7HSTQREV354WA4UDGAPS2NCB5DZQ7K2VZM3PSX4TDCV667/trades{?cursor,limit,order}",
-                    templated: true
+                    templated: true,
                   },
                   data: {
                     href: "/accounts/GBPFGVESMB7HSTQREV354WA4UDGAPS2NCB5DZQ7K2VZM3PSX4TDCV667/data/{key}",
-                    templated: true
-                  }
+                    templated: true,
+                  },
                 },
                 id: "GBPFGVESMB7HSTQREV354WA4UDGAPS2NCB5DZQ7K2VZM3PSX4TDCV667",
                 account_id:
@@ -1596,13 +1596,13 @@ describe("server.js non-transaction tests", function () {
                 thresholds: {
                   low_threshold: 0,
                   med_threshold: 0,
-                  high_threshold: 0
+                  high_threshold: 0,
                 },
                 flags: {
                   auth_required: false,
                   auth_revocable: false,
                   auth_immutable: false,
-                  auth_clawback_enabled: false
+                  auth_clawback_enabled: false,
                 },
                 balances: [
                   {
@@ -1614,7 +1614,7 @@ describe("server.js non-transaction tests", function () {
                     last_modified_ledger: 7877447,
                     is_authorized: true,
                     is_authorized_to_maintain_liabilities: false,
-                    is_clawback_enabled: false
+                    is_clawback_enabled: false,
                   },
                   {
                     balance: "0.0000000",
@@ -1628,7 +1628,7 @@ describe("server.js non-transaction tests", function () {
                     asset_type: "credit_alphanum4",
                     asset_code: "ARST",
                     asset_issuer:
-                      "GB7TAYRUZGE6TVT7NHP5SMIZRNQA6PLM423EYISAOAP3MKYIQMVYP2JO"
+                      "GB7TAYRUZGE6TVT7NHP5SMIZRNQA6PLM423EYISAOAP3MKYIQMVYP2JO",
                   },
                   {
                     balance: "0.0000000",
@@ -1642,28 +1642,28 @@ describe("server.js non-transaction tests", function () {
                     asset_type: "credit_alphanum4",
                     asset_code: "USD",
                     asset_issuer:
-                      "GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ"
+                      "GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ",
                   },
                   {
                     balance: "9999.9998600",
                     buying_liabilities: "0.0000000",
                     selling_liabilities: "0.0000000",
-                    asset_type: "native"
-                  }
+                    asset_type: "native",
+                  },
                 ],
                 signers: [
                   {
                     weight: 1,
                     key: "GBPFGVESMB7HSTQREV354WA4UDGAPS2NCB5DZQ7K2VZM3PSX4TDCV667",
-                    type: "ed25519_public_key"
-                  }
+                    type: "ed25519_public_key",
+                  },
                 ],
                 data: {},
                 paging_token:
-                  "GBPFGVESMB7HSTQREV354WA4UDGAPS2NCB5DZQ7K2VZM3PSX4TDCV667"
-              }
-            ]
-          }
+                  "GBPFGVESMB7HSTQREV354WA4UDGAPS2NCB5DZQ7K2VZM3PSX4TDCV667",
+              },
+            ],
+          },
         };
 
         this.axiosMock
@@ -1698,19 +1698,19 @@ describe("server.js non-transaction tests", function () {
     describe("OfferCallBuilder", function () {
       const offersResponse = {
         _embedded: {
-          records: []
+          records: [],
         },
         _links: {
           next: {
-            href: "/offers"
+            href: "/offers",
           },
           prev: {
-            href: "/offers"
+            href: "/offers",
           },
           self: {
-            href: "/offers"
-          }
-        }
+            href: "/offers",
+          },
+        },
       };
 
       it("without params requests the correct endpoint", function (done) {
@@ -1743,11 +1743,11 @@ describe("server.js non-transaction tests", function () {
         const offerResponse = {
           _links: {
             self: {
-              href: "https://horizon.stellar.org/offers/12345"
+              href: "https://horizon.stellar.org/offers/12345",
             },
             offer_maker: {
-              href: "https://horizon.stellar.org/accounts/GCK4WSNF3F6ZNCMK6BU77ZCZ3NMF3JGU2U3ZAPKXYBKYYCJA72FDBY7K"
-            }
+              href: "https://horizon.stellar.org/accounts/GCK4WSNF3F6ZNCMK6BU77ZCZ3NMF3JGU2U3ZAPKXYBKYYCJA72FDBY7K",
+            },
           },
           id: 12345,
           paging_token: "12345",
@@ -1756,19 +1756,19 @@ describe("server.js non-transaction tests", function () {
             asset_type: "credit_alphanum4",
             asset_code: "NGNT",
             asset_issuer:
-              "GAWODAROMJ33V5YDFY3NPYTHVYQG7MJXVJ2ND3AOGIHYRWINES6ACCPD"
+              "GAWODAROMJ33V5YDFY3NPYTHVYQG7MJXVJ2ND3AOGIHYRWINES6ACCPD",
           },
           buying: {
-            asset_type: "native"
+            asset_type: "native",
           },
           amount: "21611.9486669",
           price_r: {
             n: 52836797,
-            d: 1396841783
+            d: 1396841783,
           },
           price: "0.0378259",
           last_modified_ledger: 28285404,
-          last_modified_time: "2020-02-18T17:00:56Z"
+          last_modified_time: "2020-02-18T17:00:56Z",
         };
 
         this.axiosMock
@@ -1921,14 +1921,14 @@ describe("server.js non-transaction tests", function () {
         base: {
           asset_type: "native",
           asset_code: "",
-          asset_issuer: ""
+          asset_issuer: "",
         },
         counter: {
           asset_type: "credit_alphanum4",
           asset_code: "USD",
           asset_issuer:
-            "GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG"
-        }
+            "GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG",
+        },
       };
 
       it("requests the correct endpoint native/credit", function (done) {
@@ -1993,28 +1993,28 @@ describe("server.js non-transaction tests", function () {
         let tradesResponse = {
           _links: {
             self: {
-              href: "https://horizon-live.stellar.org:1337/trades?order=asc&limit=200&cursor="
+              href: "https://horizon-live.stellar.org:1337/trades?order=asc&limit=200&cursor=",
             },
             next: {
-              href: "https://horizon-live.stellar.org:1337/trades?order=asc&limit=200&cursor=64199539053039617-0"
+              href: "https://horizon-live.stellar.org:1337/trades?order=asc&limit=200&cursor=64199539053039617-0",
             },
             prev: {
-              href: "https://horizon-live.stellar.org:1337/trades?order=desc&limit=200&cursor=64199539053039617-0"
-            }
+              href: "https://horizon-live.stellar.org:1337/trades?order=desc&limit=200&cursor=64199539053039617-0",
+            },
           },
           _embedded: {
             records: [
               {
                 _links: {
                   base: {
-                    href: "https://horizon-live.stellar.org:1337/accounts/GB7JKG66CJN3ACX5DX43FOZTTSOI7GZUP547I3BSXIJVUX3NRYUXHE6W"
+                    href: "https://horizon-live.stellar.org:1337/accounts/GB7JKG66CJN3ACX5DX43FOZTTSOI7GZUP547I3BSXIJVUX3NRYUXHE6W",
                   },
                   counter: {
-                    href: "https://horizon-live.stellar.org:1337/accounts/GC6APVH2HCFB7QLSTG3U55IYSW7ZRNSCTOZZYZJCNHWX2FONCNJNULYN"
+                    href: "https://horizon-live.stellar.org:1337/accounts/GC6APVH2HCFB7QLSTG3U55IYSW7ZRNSCTOZZYZJCNHWX2FONCNJNULYN",
                   },
                   operation: {
-                    href: "https://horizon-live.stellar.org:1337/operations/64199539053039617"
-                  }
+                    href: "https://horizon-live.stellar.org:1337/operations/64199539053039617",
+                  },
                 },
                 id: "64199539053039617-0",
                 paging_token: "64199539053039617-0",
@@ -2035,11 +2035,11 @@ describe("server.js non-transaction tests", function () {
                 base_is_seller: true,
                 price: {
                   n: "1",
-                  d: "2"
-                }
-              }
-            ]
-          }
+                  d: "2",
+                },
+              },
+            ],
+          },
         };
 
         this.axiosMock
@@ -2065,28 +2065,28 @@ describe("server.js non-transaction tests", function () {
         let tradesResponse = {
           _links: {
             self: {
-              href: "https://horizon-live.stellar.org:1337/trades?base_asset_type=native&counter_asset_type=credit_alphanum4&counter_asset_code=JPY&counter_asset_issuer=GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM&order=asc&limit=10&cursor="
+              href: "https://horizon-live.stellar.org:1337/trades?base_asset_type=native&counter_asset_type=credit_alphanum4&counter_asset_code=JPY&counter_asset_issuer=GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM&order=asc&limit=10&cursor=",
             },
             next: {
-              href: "https://horizon-live.stellar.org:1337/trades?base_asset_type=native&counter_asset_type=credit_alphanum4&counter_asset_code=JPY&counter_asset_issuer=GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM&order=asc&limit=10&cursor=64199539053039617-0"
+              href: "https://horizon-live.stellar.org:1337/trades?base_asset_type=native&counter_asset_type=credit_alphanum4&counter_asset_code=JPY&counter_asset_issuer=GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM&order=asc&limit=10&cursor=64199539053039617-0",
             },
             prev: {
-              href: "https://horizon-live.stellar.org:1337/trades?base_asset_type=native&counter_asset_type=credit_alphanum4&counter_asset_code=JPY&counter_asset_issuer=GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM&order=desc&limit=10&cursor=64199539053039617-0"
-            }
+              href: "https://horizon-live.stellar.org:1337/trades?base_asset_type=native&counter_asset_type=credit_alphanum4&counter_asset_code=JPY&counter_asset_issuer=GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM&order=desc&limit=10&cursor=64199539053039617-0",
+            },
           },
           _embedded: {
             records: [
               {
                 _links: {
                   base: {
-                    href: "https://horizon-live.stellar.org:1337/accounts/GB7JKG66CJN3ACX5DX43FOZTTSOI7GZUP547I3BSXIJVUX3NRYUXHE6W"
+                    href: "https://horizon-live.stellar.org:1337/accounts/GB7JKG66CJN3ACX5DX43FOZTTSOI7GZUP547I3BSXIJVUX3NRYUXHE6W",
                   },
                   counter: {
-                    href: "https://horizon-live.stellar.org:1337/accounts/GC6APVH2HCFB7QLSTG3U55IYSW7ZRNSCTOZZYZJCNHWX2FONCNJNULYN"
+                    href: "https://horizon-live.stellar.org:1337/accounts/GC6APVH2HCFB7QLSTG3U55IYSW7ZRNSCTOZZYZJCNHWX2FONCNJNULYN",
                   },
                   operation: {
-                    href: "https://horizon-live.stellar.org:1337/operations/64199539053039617"
-                  }
+                    href: "https://horizon-live.stellar.org:1337/operations/64199539053039617",
+                  },
                 },
                 id: "64199539053039617-0",
                 paging_token: "64199539053039617-0",
@@ -2107,11 +2107,11 @@ describe("server.js non-transaction tests", function () {
                 base_is_seller: true,
                 price: {
                   n: "1",
-                  d: "2"
-                }
-              }
-            ]
-          }
+                  d: "2",
+                },
+              },
+            ],
+          },
         };
 
         this.axiosMock
@@ -2148,28 +2148,28 @@ describe("server.js non-transaction tests", function () {
         let tradesResponse = {
           _links: {
             self: {
-              href: "https://horizon-live.stellar.org:1337/trades?offer_id=278232&order=asc&limit=10&cursor="
+              href: "https://horizon-live.stellar.org:1337/trades?offer_id=278232&order=asc&limit=10&cursor=",
             },
             next: {
-              href: "https://horizon-live.stellar.org:1337/trades?offer_id=278232&order=asc&limit=10&cursor=64199539053039617-0"
+              href: "https://horizon-live.stellar.org:1337/trades?offer_id=278232&order=asc&limit=10&cursor=64199539053039617-0",
             },
             prev: {
-              href: "https://horizon-live.stellar.org:1337/trades?offer_id=278232&order=desc&limit=10&cursor=64199539053039617-0"
-            }
+              href: "https://horizon-live.stellar.org:1337/trades?offer_id=278232&order=desc&limit=10&cursor=64199539053039617-0",
+            },
           },
           _embedded: {
             records: [
               {
                 _links: {
                   base: {
-                    href: "https://horizon-live.stellar.org:1337/accounts/GB7JKG66CJN3ACX5DX43FOZTTSOI7GZUP547I3BSXIJVUX3NRYUXHE6W"
+                    href: "https://horizon-live.stellar.org:1337/accounts/GB7JKG66CJN3ACX5DX43FOZTTSOI7GZUP547I3BSXIJVUX3NRYUXHE6W",
                   },
                   counter: {
-                    href: "https://horizon-live.stellar.org:1337/accounts/GC6APVH2HCFB7QLSTG3U55IYSW7ZRNSCTOZZYZJCNHWX2FONCNJNULYN"
+                    href: "https://horizon-live.stellar.org:1337/accounts/GC6APVH2HCFB7QLSTG3U55IYSW7ZRNSCTOZZYZJCNHWX2FONCNJNULYN",
                   },
                   operation: {
-                    href: "https://horizon-live.stellar.org:1337/operations/64199539053039617"
-                  }
+                    href: "https://horizon-live.stellar.org:1337/operations/64199539053039617",
+                  },
                 },
                 id: "64199539053039617-0",
                 paging_token: "64199539053039617-0",
@@ -2190,11 +2190,11 @@ describe("server.js non-transaction tests", function () {
                 base_is_seller: true,
                 price: {
                   n: "1",
-                  d: "2"
-                }
-              }
-            ]
-          }
+                  d: "2",
+                },
+              },
+            ],
+          },
         };
 
         this.axiosMock
@@ -2225,31 +2225,31 @@ describe("server.js non-transaction tests", function () {
         let tradesResponse = {
           _links: {
             self: {
-              href: "https://horizon-live.stellar.org:1337/accounts/GABJBA4HI4LVKWAYORE7SOAAZMVXDHI566JBSD25O5TRDM7LVID6YOXY/trades?cursor=&limit=10&order=asc"
+              href: "https://horizon-live.stellar.org:1337/accounts/GABJBA4HI4LVKWAYORE7SOAAZMVXDHI566JBSD25O5TRDM7LVID6YOXY/trades?cursor=&limit=10&order=asc",
             },
             next: {
-              href: "https://horizon-live.stellar.org:1337/accounts/GABJBA4HI4LVKWAYORE7SOAAZMVXDHI566JBSD25O5TRDM7LVID6YOXY/trades?cursor=77434489365606401-1&limit=10&order=asc"
+              href: "https://horizon-live.stellar.org:1337/accounts/GABJBA4HI4LVKWAYORE7SOAAZMVXDHI566JBSD25O5TRDM7LVID6YOXY/trades?cursor=77434489365606401-1&limit=10&order=asc",
             },
             prev: {
-              href: "https://horizon-live.stellar.org:1337/accounts/GABJBA4HI4LVKWAYORE7SOAAZMVXDHI566JBSD25O5TRDM7LVID6YOXY/trades?cursor=77434489365606401-1&limit=10&order=desc"
-            }
+              href: "https://horizon-live.stellar.org:1337/accounts/GABJBA4HI4LVKWAYORE7SOAAZMVXDHI566JBSD25O5TRDM7LVID6YOXY/trades?cursor=77434489365606401-1&limit=10&order=desc",
+            },
           },
           _embedded: {
             records: [
               {
                 _links: {
                   self: {
-                    href: ""
+                    href: "",
                   },
                   seller: {
-                    href: "https://horizon-live.stellar.org:1337/accounts/GBDTBUKFHJOEAFAVNPGIY65CBIH75DYEZ5VQXOE7YHZM7AJKDNEOW5JG"
+                    href: "https://horizon-live.stellar.org:1337/accounts/GBDTBUKFHJOEAFAVNPGIY65CBIH75DYEZ5VQXOE7YHZM7AJKDNEOW5JG",
                   },
                   buyer: {
-                    href: "https://horizon-live.stellar.org:1337/accounts/GABJBA4HI4LVKWAYORE7SOAAZMVXDHI566JBSD25O5TRDM7LVID6YOXY"
+                    href: "https://horizon-live.stellar.org:1337/accounts/GABJBA4HI4LVKWAYORE7SOAAZMVXDHI566JBSD25O5TRDM7LVID6YOXY",
                   },
                   operation: {
-                    href: "https://horizon-live.stellar.org:1337/operations/77434489365606401"
-                  }
+                    href: "https://horizon-live.stellar.org:1337/operations/77434489365606401",
+                  },
                 },
                 id: "77434489365606401-1",
                 paging_token: "77434489365606401-1",
@@ -2263,10 +2263,10 @@ describe("server.js non-transaction tests", function () {
                   "GABJBA4HI4LVKWAYORE7SOAAZMVXDHI566JBSD25O5TRDM7LVID6YOXY",
                 bought_amount: "",
                 bought_asset_type: "",
-                created_at: "2018-05-23T22:42:28Z"
-              }
-            ]
-          }
+                created_at: "2018-05-23T22:42:28Z",
+              },
+            ],
+          },
         };
 
         this.axiosMock
@@ -2299,28 +2299,28 @@ describe("server.js non-transaction tests", function () {
         let tradesResponse = {
           _links: {
             self: {
-              href: "https://horizon-live.stellar.org:1337/trades?order=asc&limit=1&cursor=64199539053039617-0"
+              href: "https://horizon-live.stellar.org:1337/trades?order=asc&limit=1&cursor=64199539053039617-0",
             },
             next: {
-              href: "https://horizon-live.stellar.org:1337/trades?order=asc&limit=1&cursor=64199676491993090-0"
+              href: "https://horizon-live.stellar.org:1337/trades?order=asc&limit=1&cursor=64199676491993090-0",
             },
             prev: {
-              href: "https://horizon-live.stellar.org:1337/trades?order=desc&limit=1&cursor=64199676491993090-0"
-            }
+              href: "https://horizon-live.stellar.org:1337/trades?order=desc&limit=1&cursor=64199676491993090-0",
+            },
           },
           _embedded: {
             records: [
               {
                 _links: {
                   base: {
-                    href: "https://horizon-live.stellar.org:1337/accounts/GBBHSWC3XSUFKEFDPQO346BCLM3EAJHICWRVSVIQOG4YBIH3A2VCJ6G2"
+                    href: "https://horizon-live.stellar.org:1337/accounts/GBBHSWC3XSUFKEFDPQO346BCLM3EAJHICWRVSVIQOG4YBIH3A2VCJ6G2",
                   },
                   counter: {
-                    href: "https://horizon-live.stellar.org:1337/accounts/GDBXANSAUQ5WBFSA6LFQXR5PYVYAQ3T4KI4LHZ3YAAEFI3BS2Z3SFRVG"
+                    href: "https://horizon-live.stellar.org:1337/accounts/GDBXANSAUQ5WBFSA6LFQXR5PYVYAQ3T4KI4LHZ3YAAEFI3BS2Z3SFRVG",
                   },
                   operation: {
-                    href: "https://horizon-live.stellar.org:1337/operations/64199676491993090"
-                  }
+                    href: "https://horizon-live.stellar.org:1337/operations/64199676491993090",
+                  },
                 },
                 id: "64199676491993090-0",
                 paging_token: "64199676491993090-0",
@@ -2344,11 +2344,11 @@ describe("server.js non-transaction tests", function () {
                 base_is_seller: false,
                 price: {
                   n: "1",
-                  d: "2"
-                }
-              }
-            ]
-          }
+                  d: "2",
+                },
+              },
+            ],
+          },
         };
 
         this.axiosMock
@@ -2381,28 +2381,28 @@ describe("server.js non-transaction tests", function () {
         let tradesResponse = {
           _links: {
             self: {
-              href: "https://horizon-live.stellar.org:1337/trades?order=asc&limit=200&trade_type=orderbook&cursor="
+              href: "https://horizon-live.stellar.org:1337/trades?order=asc&limit=200&trade_type=orderbook&cursor=",
             },
             next: {
-              href: "https://horizon-live.stellar.org:1337/trades?order=asc&limit=200&trade_type=orderbook&cursor=64199539053039617-0"
+              href: "https://horizon-live.stellar.org:1337/trades?order=asc&limit=200&trade_type=orderbook&cursor=64199539053039617-0",
             },
             prev: {
-              href: "https://horizon-live.stellar.org:1337/trades?order=desc&limit=200&trade_type=orderbook&cursor=64199539053039617-0"
-            }
+              href: "https://horizon-live.stellar.org:1337/trades?order=desc&limit=200&trade_type=orderbook&cursor=64199539053039617-0",
+            },
           },
           _embedded: {
             records: [
               {
                 _links: {
                   base: {
-                    href: "https://horizon-live.stellar.org:1337/accounts/GB7JKG66CJN3ACX5DX43FOZTTSOI7GZUP547I3BSXIJVUX3NRYUXHE6W"
+                    href: "https://horizon-live.stellar.org:1337/accounts/GB7JKG66CJN3ACX5DX43FOZTTSOI7GZUP547I3BSXIJVUX3NRYUXHE6W",
                   },
                   counter: {
-                    href: "https://horizon-live.stellar.org:1337/accounts/GC6APVH2HCFB7QLSTG3U55IYSW7ZRNSCTOZZYZJCNHWX2FONCNJNULYN"
+                    href: "https://horizon-live.stellar.org:1337/accounts/GC6APVH2HCFB7QLSTG3U55IYSW7ZRNSCTOZZYZJCNHWX2FONCNJNULYN",
                   },
                   operation: {
-                    href: "https://horizon-live.stellar.org:1337/operations/64199539053039617"
-                  }
+                    href: "https://horizon-live.stellar.org:1337/operations/64199539053039617",
+                  },
                 },
                 id: "64199539053039617-0",
                 paging_token: "64199539053039617-0",
@@ -2423,11 +2423,11 @@ describe("server.js non-transaction tests", function () {
                 base_is_seller: true,
                 price: {
                   n: "1",
-                  d: "2"
-                }
-              }
-            ]
-          }
+                  d: "2",
+                },
+              },
+            ],
+          },
         };
 
         this.axiosMock
@@ -2458,28 +2458,28 @@ describe("server.js non-transaction tests", function () {
         let tradesResponse = {
           _links: {
             self: {
-              href: "https://horizon-live.stellar.org:1337/trades?order=asc&limit=200&trade_type=liquidity_pool&cursor="
+              href: "https://horizon-live.stellar.org:1337/trades?order=asc&limit=200&trade_type=liquidity_pool&cursor=",
             },
             next: {
-              href: "https://horizon-live.stellar.org:1337/trades?order=asc&limit=200&trade_type=liquidity_pool&cursor=64199539053039617-0"
+              href: "https://horizon-live.stellar.org:1337/trades?order=asc&limit=200&trade_type=liquidity_pool&cursor=64199539053039617-0",
             },
             prev: {
-              href: "https://horizon-live.stellar.org:1337/trades?order=desc&limit=200&trade_type=liquidity_pool&cursor=64199539053039617-0"
-            }
+              href: "https://horizon-live.stellar.org:1337/trades?order=desc&limit=200&trade_type=liquidity_pool&cursor=64199539053039617-0",
+            },
           },
           _embedded: {
             records: [
               {
                 _links: {
                   base: {
-                    href: "https://horizon-live.stellar.org:1337/accounts/GB7JKG66CJN3ACX5DX43FOZTTSOI7GZUP547I3BSXIJVUX3NRYUXHE6W"
+                    href: "https://horizon-live.stellar.org:1337/accounts/GB7JKG66CJN3ACX5DX43FOZTTSOI7GZUP547I3BSXIJVUX3NRYUXHE6W",
                   },
                   counter: {
-                    href: "https://horizon-live.stellar.org:1337/liquidity_pool/dd7b1ab831c273310ddbec6f97870aa83c2fbd78ce22aded37ecbf4f3380fac7"
+                    href: "https://horizon-live.stellar.org:1337/liquidity_pool/dd7b1ab831c273310ddbec6f97870aa83c2fbd78ce22aded37ecbf4f3380fac7",
                   },
                   operation: {
-                    href: "https://horizon-live.stellar.org:1337/operations/64199539053039617"
-                  }
+                    href: "https://horizon-live.stellar.org:1337/operations/64199539053039617",
+                  },
                 },
                 id: "64199539053039617-0",
                 paging_token: "64199539053039617-0",
@@ -2501,11 +2501,11 @@ describe("server.js non-transaction tests", function () {
                 base_is_seller: true,
                 price: {
                   n: "1",
-                  d: "2"
-                }
-              }
-            ]
-          }
+                  d: "2",
+                },
+              },
+            ],
+          },
         };
 
         this.axiosMock
@@ -2548,7 +2548,7 @@ describe("server.js non-transaction tests", function () {
               source_asset_code: "USD",
               source_asset_issuer:
                 "GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN",
-              source_asset_type: "credit_alphanum4"
+              source_asset_type: "credit_alphanum4",
             },
             {
               destination_amount: "20.0000000",
@@ -2561,14 +2561,14 @@ describe("server.js non-transaction tests", function () {
                   asset_code: "1",
                   asset_issuer:
                     "GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN",
-                  asset_type: "credit_alphanum4"
-                }
+                  asset_type: "credit_alphanum4",
+                },
               ],
               source_amount: "20.0000000",
               source_asset_code: "USD",
               source_asset_issuer:
                 "GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN",
-              source_asset_type: "credit_alphanum4"
+              source_asset_type: "credit_alphanum4",
             },
             {
               destination_amount: "20.0000000",
@@ -2581,28 +2581,28 @@ describe("server.js non-transaction tests", function () {
                   asset_code: "21",
                   asset_issuer:
                     "GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN",
-                  asset_type: "credit_alphanum4"
+                  asset_type: "credit_alphanum4",
                 },
                 {
                   asset_code: "22",
                   asset_issuer:
                     "GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN",
-                  asset_type: "credit_alphanum4"
-                }
+                  asset_type: "credit_alphanum4",
+                },
               ],
               source_amount: "20.0000000",
               source_asset_code: "USD",
               source_asset_issuer:
                 "GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN",
-              source_asset_type: "credit_alphanum4"
-            }
-          ]
+              source_asset_type: "credit_alphanum4",
+            },
+          ],
         },
         _links: {
           self: {
-            href: "/paths/strict-receive"
-          }
-        }
+            href: "/paths/strict-receive",
+          },
+        },
       };
 
       it("requests the correct endpoint when source is an account", function (done) {
@@ -2659,7 +2659,7 @@ describe("server.js non-transaction tests", function () {
           new StellarSdk.Asset(
             "USD",
             "GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN"
-          )
+          ),
         ];
 
         this.server
@@ -2701,7 +2701,7 @@ describe("server.js non-transaction tests", function () {
               source_asset_code: "USD",
               source_asset_issuer:
                 "GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN",
-              source_asset_type: "credit_alphanum4"
+              source_asset_type: "credit_alphanum4",
             },
             {
               destination_amount: "20.0000000",
@@ -2714,14 +2714,14 @@ describe("server.js non-transaction tests", function () {
                   asset_code: "1",
                   asset_issuer:
                     "GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN",
-                  asset_type: "credit_alphanum4"
-                }
+                  asset_type: "credit_alphanum4",
+                },
               ],
               source_amount: "20.0000000",
               source_asset_code: "USD",
               source_asset_issuer:
                 "GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN",
-              source_asset_type: "credit_alphanum4"
+              source_asset_type: "credit_alphanum4",
             },
             {
               destination_amount: "20.0000000",
@@ -2734,28 +2734,28 @@ describe("server.js non-transaction tests", function () {
                   asset_code: "21",
                   asset_issuer:
                     "GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN",
-                  asset_type: "credit_alphanum4"
+                  asset_type: "credit_alphanum4",
                 },
                 {
                   asset_code: "22",
                   asset_issuer:
                     "GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN",
-                  asset_type: "credit_alphanum4"
-                }
+                  asset_type: "credit_alphanum4",
+                },
               ],
               source_amount: "20.0000000",
               source_asset_code: "USD",
               source_asset_issuer:
                 "GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN",
-              source_asset_type: "credit_alphanum4"
-            }
-          ]
+              source_asset_type: "credit_alphanum4",
+            },
+          ],
         },
         _links: {
           self: {
-            href: "/paths/strict-send"
-          }
-        }
+            href: "/paths/strict-send",
+          },
+        },
       };
 
       it("requests the correct endpoint when destination is account", function (done) {
@@ -2812,7 +2812,7 @@ describe("server.js non-transaction tests", function () {
           new StellarSdk.Asset(
             "USD",
             "GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN"
-          )
+          ),
         ];
 
         this.server
@@ -2846,35 +2846,35 @@ describe("server.js non-transaction tests", function () {
             {
               _links: {
                 operation: {
-                  href: "/operations/146028892161"
+                  href: "/operations/146028892161",
                 },
                 precedes: {
-                  href: "/effects?cursor=146028892161-1\u0026order=asc"
+                  href: "/effects?cursor=146028892161-1\u0026order=asc",
                 },
                 succeeds: {
-                  href: "/effects?cursor=146028892161-1\u0026order=desc"
-                }
+                  href: "/effects?cursor=146028892161-1\u0026order=desc",
+                },
               },
               account:
                 "GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K",
               paging_token: "146028892161-1",
               starting_balance: "10000000.0",
               type: 0,
-              type_s: "account_created"
-            }
-          ]
+              type_s: "account_created",
+            },
+          ],
         },
         _links: {
           next: {
-            href: "/effects?order=asc\u0026limit=1\u0026cursor=146028892161-1"
+            href: "/effects?order=asc\u0026limit=1\u0026cursor=146028892161-1",
           },
           prev: {
-            href: "/effects?order=desc\u0026limit=1\u0026cursor=146028892161-1"
+            href: "/effects?order=desc\u0026limit=1\u0026cursor=146028892161-1",
           },
           self: {
-            href: "/effects?order=asc\u0026limit=1\u0026cursor="
-          }
-        }
+            href: "/effects?order=asc\u0026limit=1\u0026cursor=",
+          },
+        },
       };
 
       it("requests the correct endpoint", function (done) {
@@ -2978,20 +2978,20 @@ describe("server.js non-transaction tests", function () {
               _links: {
                 effects: {
                   href: "/operations/146028892161/effects{?cursor,limit,order}",
-                  templated: true
+                  templated: true,
                 },
                 precedes: {
-                  href: "/operations?cursor=146028892161\u0026order=asc"
+                  href: "/operations?cursor=146028892161\u0026order=asc",
                 },
                 self: {
-                  href: "/operations/146028892161"
+                  href: "/operations/146028892161",
                 },
                 succeeds: {
-                  href: "/operations?cursor=146028892161\u0026order=desc"
+                  href: "/operations?cursor=146028892161\u0026order=desc",
                 },
                 transaction: {
-                  href: "/transactions/991534d902063b7715cd74207bef4e7bd7aa2f108f62d3eba837ce6023b2d4f3"
-                }
+                  href: "/transactions/991534d902063b7715cd74207bef4e7bd7aa2f108f62d3eba837ce6023b2d4f3",
+                },
               },
               account:
                 "GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K",
@@ -3001,21 +3001,21 @@ describe("server.js non-transaction tests", function () {
               paging_token: "146028892161",
               starting_balance: "10000000.0",
               type: 0,
-              type_s: "create_account"
-            }
-          ]
+              type_s: "create_account",
+            },
+          ],
         },
         _links: {
           next: {
-            href: "/operations?order=asc\u0026limit=1\u0026cursor=146028892161"
+            href: "/operations?order=asc\u0026limit=1\u0026cursor=146028892161",
           },
           prev: {
-            href: "/operations?order=desc\u0026limit=1\u0026cursor=146028892161"
+            href: "/operations?order=desc\u0026limit=1\u0026cursor=146028892161",
           },
           self: {
-            href: "/operations?order=asc\u0026limit=1\u0026cursor="
-          }
-        }
+            href: "/operations?order=asc\u0026limit=1\u0026cursor=",
+          },
+        },
       };
 
       it("operation() requests the correct endpoint", function (done) {
@@ -3166,20 +3166,20 @@ describe("server.js non-transaction tests", function () {
               _links: {
                 effects: {
                   href: "/operations/146028892161/effects{?cursor,limit,order}",
-                  templated: true
+                  templated: true,
                 },
                 precedes: {
-                  href: "/operations?cursor=146028892161\u0026order=asc"
+                  href: "/operations?cursor=146028892161\u0026order=asc",
                 },
                 self: {
-                  href: "/operations/146028892161"
+                  href: "/operations/146028892161",
                 },
                 succeeds: {
-                  href: "/operations?cursor=146028892161\u0026order=desc"
+                  href: "/operations?cursor=146028892161\u0026order=desc",
                 },
                 transaction: {
-                  href: "/transactions/991534d902063b7715cd74207bef4e7bd7aa2f108f62d3eba837ce6023b2d4f3"
-                }
+                  href: "/transactions/991534d902063b7715cd74207bef4e7bd7aa2f108f62d3eba837ce6023b2d4f3",
+                },
               },
               account:
                 "GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K",
@@ -3189,21 +3189,21 @@ describe("server.js non-transaction tests", function () {
               paging_token: "146028892161",
               starting_balance: "10000000.0",
               type: 0,
-              type_s: "create_account"
-            }
-          ]
+              type_s: "create_account",
+            },
+          ],
         },
         _links: {
           next: {
-            href: "/payments?order=asc\u0026limit=1\u0026cursor=146028892161"
+            href: "/payments?order=asc\u0026limit=1\u0026cursor=146028892161",
           },
           prev: {
-            href: "/payments?order=desc\u0026limit=1\u0026cursor=146028892161"
+            href: "/payments?order=desc\u0026limit=1\u0026cursor=146028892161",
           },
           self: {
-            href: "/payments?order=asc\u0026limit=1\u0026cursor="
-          }
-        }
+            href: "/payments?order=asc\u0026limit=1\u0026cursor=",
+          },
+        },
       };
 
       it("forAccount() requests the correct endpoint", function (done) {
@@ -3294,7 +3294,7 @@ describe("server.js non-transaction tests", function () {
 
     describe("FriendbotCallBuilder", function () {
       let friendbotResponse = {
-        ledger: 2
+        ledger: 2,
       };
 
       it("requests the correct endpoint", function (done) {
@@ -3324,14 +3324,14 @@ describe("server.js non-transaction tests", function () {
       let tradeAggregationResponse = {
         _links: {
           self: {
-            href: "https://horizon.stellar.org/trade_aggregations?base_asset_type=native\u0026counter_asset_type=credit_alphanum4\u0026counter_asset_code=BTC\u0026counter_asset_issuer=GATEMHCCKCY67ZUCKTROYN24ZYT5GK4EQZ65JJLDHKHRUZI3EUEKMTCH\u0026start_time=1512689100000\u0026end_time=1512775500000\u0026resolution=300000"
+            href: "https://horizon.stellar.org/trade_aggregations?base_asset_type=native\u0026counter_asset_type=credit_alphanum4\u0026counter_asset_code=BTC\u0026counter_asset_issuer=GATEMHCCKCY67ZUCKTROYN24ZYT5GK4EQZ65JJLDHKHRUZI3EUEKMTCH\u0026start_time=1512689100000\u0026end_time=1512775500000\u0026resolution=300000",
           },
           next: {
-            href: "https://horizon.stellar.org/trade_aggregations?base_asset_type=native\u0026counter_asset_code=BTC\u0026counter_asset_issuer=GATEMHCCKCY67ZUCKTROYN24ZYT5GK4EQZ65JJLDHKHRUZI3EUEKMTCH\u0026counter_asset_type=credit_alphanum4\u0026end_time=1512775500000\u0026resolution=300000\u0026start_time=1512765000000"
+            href: "https://horizon.stellar.org/trade_aggregations?base_asset_type=native\u0026counter_asset_code=BTC\u0026counter_asset_issuer=GATEMHCCKCY67ZUCKTROYN24ZYT5GK4EQZ65JJLDHKHRUZI3EUEKMTCH\u0026counter_asset_type=credit_alphanum4\u0026end_time=1512775500000\u0026resolution=300000\u0026start_time=1512765000000",
           },
           prev: {
-            href: ""
-          }
+            href: "",
+          },
         },
         _embedded: {
           records: [
@@ -3344,7 +3344,7 @@ describe("server.js non-transaction tests", function () {
               high: "0.0000122",
               low: "0.0000122",
               open: "0.0000122",
-              close: "0.0000122"
+              close: "0.0000122",
             },
             {
               timestamp: 1512732300000,
@@ -3355,7 +3355,7 @@ describe("server.js non-transaction tests", function () {
               high: "0.0000122",
               low: "0.0000122",
               open: "0.0000122",
-              close: "0.0000122"
+              close: "0.0000122",
             },
             {
               timestamp: 1512764700000,
@@ -3366,10 +3366,10 @@ describe("server.js non-transaction tests", function () {
               high: "0.0000062",
               low: "0.0000062",
               open: "0.0000062",
-              close: "0.0000062"
-            }
-          ]
-        }
+              close: "0.0000062",
+            },
+          ],
+        },
       };
 
       it("requests the correct endpoint native/credit", function (done) {
@@ -3450,22 +3450,22 @@ describe("server.js non-transaction tests", function () {
         let assetsResponse = {
           _links: {
             self: {
-              href: "https://horizon-live.stellar.org:1337/assets?order=asc\u0026limit=1\u0026cursor="
+              href: "https://horizon-live.stellar.org:1337/assets?order=asc\u0026limit=1\u0026cursor=",
             },
             next: {
-              href: "https://horizon-live.stellar.org:1337/assets?order=asc\u0026limit=1\u0026cursor=9HORIZONS_GB2HXY7UEDCSHOWZ4553QFGFILNU73OFS2P4HU5IB3UUU66TWPBPVTGW_credit_alphanum12"
+              href: "https://horizon-live.stellar.org:1337/assets?order=asc\u0026limit=1\u0026cursor=9HORIZONS_GB2HXY7UEDCSHOWZ4553QFGFILNU73OFS2P4HU5IB3UUU66TWPBPVTGW_credit_alphanum12",
             },
             prev: {
-              href: "https://horizon-live.stellar.org:1337/assets?order=desc\u0026limit=1\u0026cursor=9HORIZONS_GB2HXY7UEDCSHOWZ4553QFGFILNU73OFS2P4HU5IB3UUU66TWPBPVTGW_credit_alphanum12"
-            }
+              href: "https://horizon-live.stellar.org:1337/assets?order=desc\u0026limit=1\u0026cursor=9HORIZONS_GB2HXY7UEDCSHOWZ4553QFGFILNU73OFS2P4HU5IB3UUU66TWPBPVTGW_credit_alphanum12",
+            },
           },
           _embedded: {
             records: [
               {
                 _links: {
                   toml: {
-                    href: ""
-                  }
+                    href: "",
+                  },
                 },
                 asset_type: "credit_alphanum12",
                 asset_code: "9HORIZONS",
@@ -3476,13 +3476,13 @@ describe("server.js non-transaction tests", function () {
                 accounts: {
                   authorized: 2,
                   authorized_to_maintain_liabilities: 1,
-                  unauthorized: 0
+                  unauthorized: 0,
                 },
                 num_claimable_balances: 3,
                 balances: {
                   authorized: "1000000.0000000",
                   authorized_to_maintain_liabilities: "500000.0000000",
-                  unauthorized: "0.0000000"
+                  unauthorized: "0.0000000",
                 },
                 claimable_balances_amount: "0.0000000",
                 amount: "1000000.0000000",
@@ -3491,11 +3491,11 @@ describe("server.js non-transaction tests", function () {
                   auth_required: false,
                   auth_revocable: false,
                   auth_immutable: false,
-                  auth_clawback_enabled: false
-                }
-              }
-            ]
-          }
+                  auth_clawback_enabled: false,
+                },
+              },
+            ],
+          },
         };
 
         this.axiosMock
@@ -3524,22 +3524,22 @@ describe("server.js non-transaction tests", function () {
         let assetsCodeResponse = {
           _links: {
             self: {
-              href: "https://horizon-live.stellar.org:1337/assets?order=asc\u0026limit=1\u0026cursor=\u0026asset_code=USD"
+              href: "https://horizon-live.stellar.org:1337/assets?order=asc\u0026limit=1\u0026cursor=\u0026asset_code=USD",
             },
             next: {
-              href: "https://horizon-live.stellar.org:1337/assets?order=asc\u0026limit=1\u0026cursor=USD_GCYK67DDGBOANS6UODJ62QWGLEB2A7JQ3XUV25HCMLT7CI23PMMK3W6R_credit_alphanum4\u0026asset_code=USD"
+              href: "https://horizon-live.stellar.org:1337/assets?order=asc\u0026limit=1\u0026cursor=USD_GCYK67DDGBOANS6UODJ62QWGLEB2A7JQ3XUV25HCMLT7CI23PMMK3W6R_credit_alphanum4\u0026asset_code=USD",
             },
             prev: {
-              href: "https://horizon-live.stellar.org:1337/assets?order=desc\u0026limit=1\u0026cursor=USD_GCYK67DDGBOANS6UODJ62QWGLEB2A7JQ3XUV25HCMLT7CI23PMMK3W6R_credit_alphanum4\u0026asset_code=USD"
-            }
+              href: "https://horizon-live.stellar.org:1337/assets?order=desc\u0026limit=1\u0026cursor=USD_GCYK67DDGBOANS6UODJ62QWGLEB2A7JQ3XUV25HCMLT7CI23PMMK3W6R_credit_alphanum4\u0026asset_code=USD",
+            },
           },
           _embedded: {
             records: [
               {
                 _links: {
                   toml: {
-                    href: ""
-                  }
+                    href: "",
+                  },
                 },
                 asset_type: "credit_alphanum4",
                 asset_code: "USD",
@@ -3550,13 +3550,13 @@ describe("server.js non-transaction tests", function () {
                 accounts: {
                   authorized: 127,
                   authorized_to_maintain_liabilities: 64,
-                  unauthorized: 0
+                  unauthorized: 0,
                 },
                 num_claimable_balances: 3,
                 balances: {
                   authorized: "111.0010000",
                   authorized_to_maintain_liabilities: "55.5005000",
-                  unauthorized: "0.0000000"
+                  unauthorized: "0.0000000",
                 },
                 claimable_balances_amount: "0.0000000",
                 amount: "111.0010000",
@@ -3565,11 +3565,11 @@ describe("server.js non-transaction tests", function () {
                   auth_required: false,
                   auth_revocable: false,
                   auth_immutable: false,
-                  auth_clawback_enabled: false
-                }
-              }
-            ]
-          }
+                  auth_clawback_enabled: false,
+                },
+              },
+            ],
+          },
         };
         this.axiosMock
           .expects("get")
@@ -3600,22 +3600,22 @@ describe("server.js non-transaction tests", function () {
         let assetIssuerResponse = {
           _links: {
             self: {
-              href: "http://horizon-testnet.stellar.org:1337/assets?order=asc\u0026limit=10\u0026cursor=\u0026asset_issuer=GCOGPF7IRVXUCJZAQWXVFQEE4HAOCTDGZI2QZSMKLM5BTTGRLY6GDOJN"
+              href: "http://horizon-testnet.stellar.org:1337/assets?order=asc\u0026limit=10\u0026cursor=\u0026asset_issuer=GCOGPF7IRVXUCJZAQWXVFQEE4HAOCTDGZI2QZSMKLM5BTTGRLY6GDOJN",
             },
             next: {
-              href: "http://horizon-testnet.stellar.org:1337/assets?order=asc\u0026limit=10\u0026cursor=00acc1_GCOGPF7IRVXUCJZAQWXVFQEE4HAOCTDGZI2QZSMKLM5BTTGRLY6GDOJN_credit_alphanum12\u0026asset_issuer=GCOGPF7IRVXUCJZAQWXVFQEE4HAOCTDGZI2QZSMKLM5BTTGRLY6GDOJN"
+              href: "http://horizon-testnet.stellar.org:1337/assets?order=asc\u0026limit=10\u0026cursor=00acc1_GCOGPF7IRVXUCJZAQWXVFQEE4HAOCTDGZI2QZSMKLM5BTTGRLY6GDOJN_credit_alphanum12\u0026asset_issuer=GCOGPF7IRVXUCJZAQWXVFQEE4HAOCTDGZI2QZSMKLM5BTTGRLY6GDOJN",
             },
             prev: {
-              href: "http://horizon-testnet.stellar.org:1337/assets?order=desc\u0026limit=10\u0026cursor=004d40_GCOGPF7IRVXUCJZAQWXVFQEE4HAOCTDGZI2QZSMKLM5BTTGRLY6GDOJN_credit_alphanum12\u0026asset_issuer=GCOGPF7IRVXUCJZAQWXVFQEE4HAOCTDGZI2QZSMKLM5BTTGRLY6GDOJN"
-            }
+              href: "http://horizon-testnet.stellar.org:1337/assets?order=desc\u0026limit=10\u0026cursor=004d40_GCOGPF7IRVXUCJZAQWXVFQEE4HAOCTDGZI2QZSMKLM5BTTGRLY6GDOJN_credit_alphanum12\u0026asset_issuer=GCOGPF7IRVXUCJZAQWXVFQEE4HAOCTDGZI2QZSMKLM5BTTGRLY6GDOJN",
+            },
           },
           _embedded: {
             records: [
               {
                 _links: {
                   toml: {
-                    href: ""
-                  }
+                    href: "",
+                  },
                 },
                 asset_type: "credit_alphanum12",
                 asset_code: "004d40",
@@ -3626,13 +3626,13 @@ describe("server.js non-transaction tests", function () {
                 accounts: {
                   authorized: 18,
                   authorized_to_maintain_liabilities: 9,
-                  unauthorized: 0
+                  unauthorized: 0,
                 },
                 num_claimable_balances: 3,
                 balances: {
                   authorized: "757.0000000",
                   authorized_to_maintain_liabilities: "378.5000000",
-                  unauthorized: "0.0000000"
+                  unauthorized: "0.0000000",
                 },
                 claimable_balances_amount: "0.0000000",
                 amount: "757.0000000",
@@ -3641,11 +3641,11 @@ describe("server.js non-transaction tests", function () {
                   auth_required: false,
                   auth_revocable: false,
                   auth_immutable: false,
-                  auth_clawback_enabled: false
-                }
-              }
-            ]
-          }
+                  auth_clawback_enabled: false,
+                },
+              },
+            ],
+          },
         };
         this.axiosMock
           .expects("get")
@@ -3675,22 +3675,22 @@ describe("server.js non-transaction tests", function () {
       let assetCodeIssuerResponse = {
         _links: {
           self: {
-            href: "http://horizon-testnet.stellar.org/assets?order=asc\u0026limit=10\u0026cursor=\u0026asset_code=USD\u0026asset_issuer=GBW3EZBZKRERB4JUDWGQPIBGHKJ4XPOFG2VQ2WTFR4F7TYC5WS7F3XGR"
+            href: "http://horizon-testnet.stellar.org/assets?order=asc\u0026limit=10\u0026cursor=\u0026asset_code=USD\u0026asset_issuer=GBW3EZBZKRERB4JUDWGQPIBGHKJ4XPOFG2VQ2WTFR4F7TYC5WS7F3XGR",
           },
           next: {
-            href: "http://horizon-testnet.stellar.org/assets?order=asc\u0026limit=10\u0026cursor=USD_GBW3EZBZKRERB4JUDWGQPIBGHKJ4XPOFG2VQ2WTFR4F7TYC5WS7F3XGR_credit_alphanum4\u0026asset_code=USD\u0026asset_issuer=GBW3EZBZKRERB4JUDWGQPIBGHKJ4XPOFG2VQ2WTFR4F7TYC5WS7F3XGR"
+            href: "http://horizon-testnet.stellar.org/assets?order=asc\u0026limit=10\u0026cursor=USD_GBW3EZBZKRERB4JUDWGQPIBGHKJ4XPOFG2VQ2WTFR4F7TYC5WS7F3XGR_credit_alphanum4\u0026asset_code=USD\u0026asset_issuer=GBW3EZBZKRERB4JUDWGQPIBGHKJ4XPOFG2VQ2WTFR4F7TYC5WS7F3XGR",
           },
           prev: {
-            href: "http://horizon-testnet.stellar.org/assets?order=desc\u0026limit=10\u0026cursor=USD_GBW3EZBZKRERB4JUDWGQPIBGHKJ4XPOFG2VQ2WTFR4F7TYC5WS7F3XGR_credit_alphanum4\u0026asset_code=USD\u0026asset_issuer=GBW3EZBZKRERB4JUDWGQPIBGHKJ4XPOFG2VQ2WTFR4F7TYC5WS7F3XGR"
-          }
+            href: "http://horizon-testnet.stellar.org/assets?order=desc\u0026limit=10\u0026cursor=USD_GBW3EZBZKRERB4JUDWGQPIBGHKJ4XPOFG2VQ2WTFR4F7TYC5WS7F3XGR_credit_alphanum4\u0026asset_code=USD\u0026asset_issuer=GBW3EZBZKRERB4JUDWGQPIBGHKJ4XPOFG2VQ2WTFR4F7TYC5WS7F3XGR",
+          },
         },
         _embedded: {
           records: [
             {
               _links: {
                 toml: {
-                  href: "https://bakalr/.well-known/stellar.toml"
-                }
+                  href: "https://bakalr/.well-known/stellar.toml",
+                },
               },
               asset_type: "credit_alphanum4",
               asset_code: "USD",
@@ -3701,13 +3701,13 @@ describe("server.js non-transaction tests", function () {
               accounts: {
                 authorized: 1,
                 authorized_to_maintain_liabilities: 0,
-                unauthorized: 0
+                unauthorized: 0,
               },
               num_claimable_balances: 0,
               balances: {
                 authorized: "1387.0000000",
                 authorized_to_maintain_liabilities: "0.0000000",
-                unauthorized: "0.0000000"
+                unauthorized: "0.0000000",
               },
               claimable_balances_amount: "0.0000000",
               amount: "1387.0000000",
@@ -3716,11 +3716,11 @@ describe("server.js non-transaction tests", function () {
                 auth_required: true,
                 auth_revocable: true,
                 auth_immutable: false,
-                auth_clawback_enabled: false
-              }
-            }
-          ]
-        }
+                auth_clawback_enabled: false,
+              },
+            },
+          ],
+        },
       };
       it("requests the correct endpoint (asset_code then asset_issuer)", function (done) {
         this.axiosMock

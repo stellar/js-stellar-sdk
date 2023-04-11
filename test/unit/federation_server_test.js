@@ -64,8 +64,8 @@ describe("federation-server.js tests", function () {
             data: {
               stellar_address: "bob*stellar.org",
               account_id:
-                "GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS"
-            }
+                "GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS",
+            },
           })
         );
     });
@@ -115,8 +115,8 @@ describe("federation-server.js tests", function () {
             data: {
               stellar_address: "bob*stellar.org",
               account_id:
-                "GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS"
-            }
+                "GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS",
+            },
           })
         );
     });
@@ -153,8 +153,8 @@ describe("federation-server.js tests", function () {
             data: {
               stellar_address: "bob*stellar.org",
               account_id:
-                "GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS"
-            }
+                "GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS",
+            },
           })
         );
     });
@@ -188,7 +188,7 @@ describe("federation-server.js tests", function () {
 #   The endpoint which clients should query to resolve stellar addresses
 #   for users on your domain.
 FEDERATION_SERVER="https://api.stellar.org/federation"
-`
+`,
           })
         );
 
@@ -211,7 +211,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
         .withArgs(sinon.match("https://acme.com/.well-known/stellar.toml"))
         .returns(
           Promise.resolve({
-            data: ""
+            data: "",
           })
         );
 
@@ -229,7 +229,8 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
         "GAFSZ3VPBC2H2DVKCEWLN3PQWZW6BVDMFROWJUDAJ3KWSOKQIJ4R5W4J"
       )
         .should.eventually.deep.equal({
-          account_id: "GAFSZ3VPBC2H2DVKCEWLN3PQWZW6BVDMFROWJUDAJ3KWSOKQIJ4R5W4J"
+          account_id:
+            "GAFSZ3VPBC2H2DVKCEWLN3PQWZW6BVDMFROWJUDAJ3KWSOKQIJ4R5W4J",
         })
         .notify(done);
     });
@@ -250,7 +251,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
 #   The endpoint which clients should query to resolve stellar addresses
 #   for users on your domain.
 FEDERATION_SERVER="https://api.stellar.org/federation"
-`
+`,
           })
         );
 
@@ -268,8 +269,8 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
               account_id:
                 "GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS",
               memo_type: "id",
-              memo: "100"
-            }
+              memo: "100",
+            },
           })
         );
 
@@ -279,7 +280,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
           account_id:
             "GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS",
           memo_type: "id",
-          memo: "100"
+          memo: "100",
         })
         .notify(done);
     });
@@ -305,8 +306,8 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
               account_id:
                 "GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS",
               memo_type: "id",
-              memo: 100
-            }
+              memo: 100,
+            },
           })
         );
 

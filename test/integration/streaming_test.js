@@ -27,7 +27,7 @@ describe("integration tests: streaming", function (done) {
       }
 
       closeStream = new StellarSdk.Server(`http://localhost:${port}`, {
-        allowHttp: true
+        allowHttp: true,
       })
         .operations()
         .stream({
@@ -35,7 +35,7 @@ describe("integration tests: streaming", function (done) {
             server.close();
             closeStream();
             done();
-          }
+          },
         });
     });
   });
@@ -60,7 +60,7 @@ describe("integration tests: streaming", function (done) {
       response.writeHead(200, {
         "Content-Type": "text/event-stream",
         "Cache-Control": "no-cache",
-        Connection: "keep-alive"
+        Connection: "keep-alive",
       });
       response.write("retry: 10\nevent: close\ndata: byebye\n\n");
     };
@@ -73,7 +73,7 @@ describe("integration tests: streaming", function (done) {
       }
 
       closeStream = new StellarSdk.Server(`http://localhost:${port}`, {
-        allowHttp: true
+        allowHttp: true,
       })
         .operations()
         .stream({
@@ -82,7 +82,7 @@ describe("integration tests: streaming", function (done) {
           },
           onerror: (err) => {
             done(err);
-          }
+          },
         });
     });
   });
@@ -123,7 +123,7 @@ describe("end-to-end tests: real streaming", function (done) {
         onmessage: (msg) => {
           transactions.push(msg);
         },
-        onerror: finishTest
+        onerror: finishTest,
       });
 
     let timeout = setTimeout(finishTest, DURATION * 1000);

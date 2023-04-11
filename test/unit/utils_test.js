@@ -11,7 +11,7 @@ describe("Utils", function () {
     clock = sinon.useFakeTimers();
     txBuilderOpts = {
       fee: 100,
-      networkPassphrase: StellarSdk.Networks.TESTNET
+      networkPassphrase: StellarSdk.Networks.TESTNET,
     };
   });
 
@@ -233,15 +233,15 @@ describe("Utils", function () {
           networkPassphrase: StellarSdk.Networks.TESTNET,
           timebounds: {
             minTime: 0,
-            maxTime: 0
-          }
+            maxTime: 0,
+          },
         }
       )
         .addOperation(
           StellarSdk.Operation.payment({
             destination: clientKP.publicKey(),
             asset: StellarSdk.Asset.native(),
-            amount: "10.000"
+            amount: "10.000",
           })
         )
         .build();
@@ -317,7 +317,7 @@ describe("Utils", function () {
         tx: transaction,
         clientAccountID: clientKP.publicKey(),
         matchedHomeDomain: "SDF",
-        memo: null
+        memo: null,
       });
     });
 
@@ -355,7 +355,7 @@ describe("Utils", function () {
         tx: transaction,
         clientAccountID: clientKP.publicKey(),
         matchedHomeDomain: "SDF",
-        memo: clientMemo
+        memo: clientMemo,
       });
     });
 
@@ -393,7 +393,7 @@ describe("Utils", function () {
         tx: transaction,
         clientAccountID: muxedAddress,
         matchedHomeDomain: "SDF",
-        memo: null
+        memo: null,
       });
     });
 
@@ -412,7 +412,7 @@ describe("Utils", function () {
             source: clientMuxedAddress,
             name: "testanchor.stellar.org auth",
             value: randomBytes(48).toString("base64"),
-            withMuxing: true
+            withMuxing: true,
           })
         )
         .addMemo(new StellarSdk.Memo.id("5842698851377328257"))
@@ -453,7 +453,7 @@ describe("Utils", function () {
           StellarSdk.Operation.manageData({
             source: clientKP.publicKey(),
             name: "SDF-test auth",
-            value: randomBytes(48).toString("base64")
+            value: randomBytes(48).toString("base64"),
           })
         )
         .setTimeout(30)
@@ -567,7 +567,7 @@ describe("Utils", function () {
         .addOperation(
           StellarSdk.Operation.manageData({
             name: "SDF auth",
-            value: randomBytes(48).toString("base64")
+            value: randomBytes(48).toString("base64"),
           })
         )
         .setTimeout(30)
@@ -600,7 +600,7 @@ describe("Utils", function () {
         .addOperation(
           StellarSdk.Operation.accountMerge({
             destination: keypair.publicKey(),
-            source: keypair.publicKey()
+            source: keypair.publicKey(),
           })
         )
         .setTimeout(30)
@@ -640,14 +640,14 @@ describe("Utils", function () {
         networkPassphrase,
         timebounds: {
           minTime: now,
-          maxTime: "0"
-        }
+          maxTime: "0",
+        },
       })
         .addOperation(
           StellarSdk.Operation.manageData({
             name: `${anchorName} auth`,
             value,
-            source: clientKeypair.publicKey()
+            source: clientKeypair.publicKey(),
           })
         )
         .build();
@@ -691,7 +691,7 @@ describe("Utils", function () {
           StellarSdk.Operation.manageData({
             name: "SDF auth",
             value: randomBytes(64),
-            source: "GBDIT5GUJ7R5BXO3GJHFXJ6AZ5UQK6MNOIDMPQUSMXLIHTUNR2Q5CFNF"
+            source: "GBDIT5GUJ7R5BXO3GJHFXJ6AZ5UQK6MNOIDMPQUSMXLIHTUNR2Q5CFNF",
           })
         )
         .setTimeout(30)
@@ -725,7 +725,7 @@ describe("Utils", function () {
           StellarSdk.Operation.manageData({
             name: "SDF auth",
             value: null,
-            source: "GBDIT5GUJ7R5BXO3GJHFXJ6AZ5UQK6MNOIDMPQUSMXLIHTUNR2Q5CFNF"
+            source: "GBDIT5GUJ7R5BXO3GJHFXJ6AZ5UQK6MNOIDMPQUSMXLIHTUNR2Q5CFNF",
           })
         )
         .setTimeout(30)
@@ -821,7 +821,7 @@ describe("Utils", function () {
           StellarSdk.Operation.manageData({
             source: clientKP.publicKey(),
             name: "testanchor.stellar.org auth",
-            value: randomBytes(48).toString("base64")
+            value: randomBytes(48).toString("base64"),
           })
         )
         .setTimeout(30)
@@ -847,7 +847,7 @@ describe("Utils", function () {
         tx: transactionRoundTripped,
         clientAccountID: clientKP.publicKey(),
         matchedHomeDomain: "testanchor.stellar.org",
-        memo: null
+        memo: null,
       });
     });
 
@@ -863,7 +863,7 @@ describe("Utils", function () {
           StellarSdk.Operation.manageData({
             source: clientKP.publicKey(),
             name: "testanchor.stellar.org auth",
-            value: randomBytes(48).toString("base64")
+            value: randomBytes(48).toString("base64"),
           })
         )
         .setTimeout(30)
@@ -889,7 +889,7 @@ describe("Utils", function () {
         tx: transactionRoundTripped,
         clientAccountID: clientKP.publicKey(),
         matchedHomeDomain: "testanchor.stellar.org",
-        memo: null
+        memo: null,
       });
     });
 
@@ -905,7 +905,7 @@ describe("Utils", function () {
           StellarSdk.Operation.manageData({
             source: clientKP.publicKey(),
             name: "testanchor.stellar.org auth",
-            value: randomBytes(48).toString("base64")
+            value: randomBytes(48).toString("base64"),
           })
         )
         .setTimeout(30)
@@ -939,7 +939,7 @@ describe("Utils", function () {
           StellarSdk.Operation.manageData({
             source: clientKP.publicKey(),
             name: "testanchor.stellar.org auth",
-            value: randomBytes(48).toString("base64")
+            value: randomBytes(48).toString("base64"),
           })
         )
         .setTimeout(30)
@@ -974,7 +974,7 @@ describe("Utils", function () {
           StellarSdk.Operation.manageData({
             source: clientKP.publicKey(),
             name: "does.not.match auth",
-            value: randomBytes(48).toString("base64")
+            value: randomBytes(48).toString("base64"),
           })
         )
         .setTimeout(30)
@@ -1009,7 +1009,7 @@ describe("Utils", function () {
           StellarSdk.Operation.manageData({
             source: clientKP.publicKey(),
             name: "does.not.match auth",
-            value: randomBytes(48).toString("base64")
+            value: randomBytes(48).toString("base64"),
           })
         )
         .setTimeout(30)
@@ -1044,14 +1044,14 @@ describe("Utils", function () {
           StellarSdk.Operation.manageData({
             source: clientKP.publicKey(),
             name: "SDF auth",
-            value: randomBytes(48).toString("base64")
+            value: randomBytes(48).toString("base64"),
           })
         )
         .addOperation(
           StellarSdk.Operation.manageData({
             source: serverKP.publicKey(),
             name: "a key",
-            value: "a value"
+            value: "a value",
           })
         )
         .setTimeout(30)
@@ -1077,7 +1077,7 @@ describe("Utils", function () {
         tx: transactionRoundTripped,
         clientAccountID: clientKP.publicKey(),
         matchedHomeDomain: "SDF",
-        memo: null
+        memo: null,
       });
     });
 
@@ -1093,14 +1093,14 @@ describe("Utils", function () {
           StellarSdk.Operation.manageData({
             source: clientKP.publicKey(),
             name: "SDF auth",
-            value: randomBytes(48).toString("base64")
+            value: randomBytes(48).toString("base64"),
           })
         )
         .addOperation(
           StellarSdk.Operation.manageData({
             source: clientKP.publicKey(),
             name: "a key",
-            value: "a value"
+            value: "a value",
           })
         )
         .setTimeout(30)
@@ -1140,13 +1140,13 @@ describe("Utils", function () {
           StellarSdk.Operation.manageData({
             source: clientKP.publicKey(),
             name: "SDF auth",
-            value: randomBytes(48).toString("base64")
+            value: randomBytes(48).toString("base64"),
           })
         )
         .addOperation(
           StellarSdk.Operation.bumpSequence({
             source: clientKP.publicKey(),
-            bumpTo: "0"
+            bumpTo: "0",
           })
         )
         .setTimeout(30)
@@ -1186,14 +1186,14 @@ describe("Utils", function () {
           StellarSdk.Operation.manageData({
             source: clientKP.publicKey(),
             name: "testanchor.stellar.org auth",
-            value: randomBytes(48).toString("base64")
+            value: randomBytes(48).toString("base64"),
           })
         )
         .addOperation(
           StellarSdk.Operation.manageData({
             source: serverKP.publicKey(),
             name: "web_auth_domain",
-            value: "unexpected_web_auth_domain"
+            value: "unexpected_web_auth_domain",
           })
         )
         .setTimeout(30)
@@ -1233,14 +1233,14 @@ describe("Utils", function () {
           StellarSdk.Operation.manageData({
             source: clientKP.publicKey(),
             name: "testanchor.stellar.org auth",
-            value: randomBytes(48).toString("base64")
+            value: randomBytes(48).toString("base64"),
           })
         )
         .addOperation(
           StellarSdk.Operation.manageData({
             source: clientKP.publicKey(),
             name: "web_auth_domain",
-            value: "testanchor.stellar.org"
+            value: "testanchor.stellar.org",
           })
         )
         .setTimeout(30)
@@ -1280,7 +1280,7 @@ describe("Utils", function () {
           StellarSdk.Operation.manageData({
             source: clientKP.publicKey(),
             name: "testanchor.stellar.org auth",
-            value: randomBytes(48).toString("base64")
+            value: randomBytes(48).toString("base64"),
           })
         )
         .setTimeout(30)
@@ -1306,7 +1306,7 @@ describe("Utils", function () {
         tx: transactionRoundTripped,
         clientAccountID: clientKP.publicKey(),
         matchedHomeDomain: "testanchor.stellar.org",
-        memo: null
+        memo: null,
       });
     });
 
@@ -1322,14 +1322,14 @@ describe("Utils", function () {
           StellarSdk.Operation.manageData({
             source: clientKP.publicKey(),
             name: "testanchor.stellar.org auth",
-            value: randomBytes(48).toString("base64")
+            value: randomBytes(48).toString("base64"),
           })
         )
         .addOperation(
           StellarSdk.Operation.manageData({
             source: serverKP.publicKey(),
             name: "web_auth_domain",
-            value: "auth.stellar.org"
+            value: "auth.stellar.org",
           })
         )
         .setTimeout(30)
@@ -1355,7 +1355,7 @@ describe("Utils", function () {
         tx: transactionRoundTripped,
         clientAccountID: clientKP.publicKey(),
         matchedHomeDomain: "testanchor.stellar.org",
-        memo: null
+        memo: null,
       });
     });
 
@@ -1371,14 +1371,14 @@ describe("Utils", function () {
           StellarSdk.Operation.manageData({
             source: clientKP.publicKey(),
             name: "testanchor.stellar.org auth",
-            value: randomBytes(48).toString("base64")
+            value: randomBytes(48).toString("base64"),
           })
         )
         .addOperation(
           StellarSdk.Operation.manageData({
             source: serverKP.publicKey(),
             name: "nonWebAuthDomainKey",
-            value: null
+            value: null,
           })
         )
         .setTimeout(30)
@@ -1404,7 +1404,7 @@ describe("Utils", function () {
         tx: transactionRoundTripped,
         clientAccountID: clientKP.publicKey(),
         matchedHomeDomain: "testanchor.stellar.org",
-        memo: null
+        memo: null,
       });
     });
 
@@ -1422,14 +1422,14 @@ describe("Utils", function () {
           StellarSdk.Operation.manageData({
             source: clientKP.publicKey(),
             name: "testanchor.stellar.org auth",
-            value: randomBytes(48).toString("base64")
+            value: randomBytes(48).toString("base64"),
           })
         )
         .addOperation(
           StellarSdk.Operation.manageData({
             source: clientSigningKeypair.publicKey(),
             name: "client_domain",
-            value: "testdomain"
+            value: "testdomain",
           })
         )
         .setTimeout(30)
@@ -1461,12 +1461,12 @@ describe("Utils", function () {
       this.operation = StellarSdk.Operation.manageData({
         source: this.clientKP1.publicKey(),
         name: "SDF-test auth",
-        value: randomBytes(48).toString("base64")
+        value: randomBytes(48).toString("base64"),
       });
 
       this.txBuilderOpts = {
         fee: 100,
-        networkPassphrase: StellarSdk.Networks.TESTNET
+        networkPassphrase: StellarSdk.Networks.TESTNET,
       };
     });
 
@@ -1574,7 +1574,7 @@ describe("Utils", function () {
       const threshold = 3;
       const signerSummary = [
         newClientSigner(this.clientKP1.publicKey(), 1),
-        newClientSigner(this.clientKP2.publicKey(), 2)
+        newClientSigner(this.clientKP2.publicKey(), 2),
       ];
 
       expect(
@@ -1616,7 +1616,7 @@ describe("Utils", function () {
       const signerSummary = [
         newClientSigner(this.clientKP1.publicKey(), 1),
         newClientSigner(this.clientKP2.publicKey(), 2),
-        newClientSigner(this.clientKP3.publicKey(), 2)
+        newClientSigner(this.clientKP3.publicKey(), 2),
       ];
 
       expect(
@@ -1667,7 +1667,7 @@ describe("Utils", function () {
         newClientSigner(this.clientKP3.publicKey(), 2),
         newClientSigner(preauthTxHash, 10),
         newClientSigner(xHash, 10),
-        newClientSigner(unknownSignerType, 10)
+        newClientSigner(unknownSignerType, 10),
       ];
 
       expect(
@@ -1709,7 +1709,7 @@ describe("Utils", function () {
       const signerSummary = [
         newClientSigner(this.clientKP1.publicKey(), 1),
         newClientSigner(this.clientKP2.publicKey(), 2),
-        newClientSigner(this.clientKP3.publicKey(), 2)
+        newClientSigner(this.clientKP3.publicKey(), 2),
       ];
 
       expect(() =>
@@ -1753,7 +1753,7 @@ describe("Utils", function () {
       const threshold = 10;
       const signerSummary = [
         newClientSigner(this.clientKP1.publicKey(), 1),
-        newClientSigner(this.clientKP2.publicKey(), 2)
+        newClientSigner(this.clientKP2.publicKey(), 2),
       ];
 
       expect(() =>
@@ -1825,12 +1825,12 @@ describe("Utils", function () {
       this.operation = StellarSdk.Operation.manageData({
         source: this.clientKP1.publicKey(),
         name: "SDF-test auth",
-        value: randomBytes(48).toString("base64")
+        value: randomBytes(48).toString("base64"),
       });
 
       this.txBuilderOpts = {
         fee: 100,
-        networkPassphrase: StellarSdk.Networks.TESTNET
+        networkPassphrase: StellarSdk.Networks.TESTNET,
       };
     });
 
@@ -2361,7 +2361,7 @@ describe("Utils", function () {
 
       const clientSigners = [
         this.clientKP1.publicKey(),
-        this.clientKP2.publicKey()
+        this.clientKP2.publicKey(),
       ];
 
       expect(() =>
@@ -2520,21 +2520,21 @@ describe("Utils", function () {
           StellarSdk.Operation.manageData({
             source: clientKP.publicKey(),
             name: "testanchor.stellar.org auth",
-            value: randomBytes(48).toString("base64")
+            value: randomBytes(48).toString("base64"),
           })
         )
         .addOperation(
           StellarSdk.Operation.manageData({
             source: clientSigningKeypair.publicKey(),
             name: "client_domain",
-            value: "testdomain"
+            value: "testdomain",
           })
         )
         .addOperation(
           StellarSdk.Operation.manageData({
             source: clientSigningKeypair.publicKey(),
             name: "client_domain",
-            value: "testdomain2"
+            value: "testdomain2",
           })
         )
         .setTimeout(30)
@@ -2639,7 +2639,7 @@ describe("Utils", function () {
 
       const expectedSignatures = [
         this.keypair1.publicKey(),
-        this.keypair2.publicKey()
+        this.keypair2.publicKey(),
       ];
       expect(
         StellarSdk.Utils.gatherTxSigners(this.transaction, expectedSignatures)
@@ -2658,12 +2658,12 @@ describe("Utils", function () {
 
       const expectedSignatures = [
         this.keypair1.publicKey(),
-        this.keypair2.publicKey()
+        this.keypair2.publicKey(),
       ];
       expect(
         StellarSdk.Utils.gatherTxSigners(this.transaction, [
           this.keypair1.publicKey(),
-          this.keypair2.publicKey()
+          this.keypair2.publicKey(),
         ])
       ).to.eql(expectedSignatures);
     });
@@ -2674,7 +2674,7 @@ describe("Utils", function () {
       let wrongSignatures = [
         StellarSdk.Keypair.random().publicKey(),
         StellarSdk.Keypair.random().publicKey(),
-        StellarSdk.Keypair.random().publicKey()
+        StellarSdk.Keypair.random().publicKey(),
       ];
 
       expect(
@@ -2686,7 +2686,7 @@ describe("Utils", function () {
       expect(
         StellarSdk.Utils.gatherTxSigners(this.transaction, [
           this.keypair1.publicKey(),
-          this.keypair2.publicKey()
+          this.keypair2.publicKey(),
         ])
       ).to.eql([]);
     });
@@ -2698,7 +2698,7 @@ describe("Utils", function () {
       expect(() =>
         StellarSdk.Utils.gatherTxSigners(this.transaction, [
           preauthTxHash,
-          this.keypair1.publicKey()
+          this.keypair1.publicKey(),
         ])
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
@@ -2713,7 +2713,7 @@ describe("Utils", function () {
       expect(() =>
         StellarSdk.Utils.gatherTxSigners(this.transaction, [
           invalidGHash,
-          this.keypair1.publicKey()
+          this.keypair1.publicKey(),
         ])
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
