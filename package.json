@@ -34,7 +34,7 @@
     "test:integration": "yarn _nyc mocha --recursive 'test/integration/**/*.js'",
     "test:browser": "karma start ./karma.conf.js",
     "lint": "eslint -c ./.eslintrc.js src/",
-    "pretty": "prettier --ignore-path ./.prettierignore --write './**/*.js'",
+    "fmt": "prettier --config prettier.config.js --ignore-path ./.prettierignore --write './**/*.js'",
     "preversion": "yarn clean && yarn pretty && yarn build:prod && yarn test",
     "prepare": "yarn build:prod",
     "_build": "yarn build:node && yarn build:browser",
