@@ -2,8 +2,8 @@ module.exports = {
   env: {
     mocha: true
   },
-  parser: '@babel/eslint-parser',
-  plugins: ['@babel'],
+  parser: "@babel/eslint-parser",
+  plugins: ["@babel"],
   globals: {
     StellarSdk: true,
     axios: true,
@@ -13,6 +13,6 @@ module.exports = {
     HorizonAxiosClient: true
   },
   rules: {
-    'no-unused-vars': 0
+    "no-unused-vars": 0
   }
 };

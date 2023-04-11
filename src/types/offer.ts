@@ -1,5 +1,5 @@
-import { AssetType } from 'stellar-base';
-import { Horizon } from './../horizon_api';
+import { AssetType } from "stellar-base";
+import { Horizon } from "./../horizon_api";
 
 export interface OfferAsset {
   asset_type: AssetType;
