@@ -1,14 +1,14 @@
-const http = require('http');
-const url = require('url');
+const http = require("http");
+const url = require("url");
 const port = 3100;
 
-describe('integration tests: streaming', function (done) {
-  if (typeof window !== 'undefined') {
+describe("integration tests: streaming", function (done) {
+  if (typeof window !== "undefined") {
     done();
     return;
   }
 
-  it('handles onerror', function (done) {
+  it("handles onerror", function (done) {
     let server;
     let closeStream;
 
@@ -40,23 +40,23 @@ describe('integration tests: streaming', function (done) {
     });
   });
 
-  it('handles close message', function (done) {
+  it("handles close message", function (done) {
     let server;
     let closeStream;
 
     const requestHandler = (request, response) => {
-      request.on('close', (e) => {
+      request.on("close", (e) => {
         closeStream();
         server.close();
         done();
       });
 
       response.writeHead(200, {
-        'Content-Type': 'text/event-stream',
-        'Cache-Control': 'no-cache',
-        Connection: 'keep-alive'
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        Connection: "keep-alive"
       });
-      response.write('retry: 10\nevent: close\ndata: byebye\n\n');
+      response.write("retry: 10\nevent: close\ndata: byebye\n\n");
     };
 
     server = http.createServer(requestHandler);
@@ -72,7 +72,7 @@ describe('integration tests: streaming', function (done) {
         .operations()
         .stream({
           onmessage: (m) => {
-            done('unexpected message ' + JSON.stringify(m));
+            done("unexpected message " + JSON.stringify(m));
           },
           onerror: (err) => {
             done(err);
@@ -82,8 +82,8 @@ describe('integration tests: streaming', function (done) {
   });
 });
 
-describe('integration tests: live streaming', function (done) {
-  if (typeof window !== 'undefined') {
+describe("integration tests: live streaming", function (done) {
+  if (typeof window !== "undefined") {
     done();
     return;
   }
@@ -91,9 +91,9 @@ describe('integration tests: live streaming', function (done) {
   // stream transactions from pubnet for a while and ensure that we cross a
   // ledger boundary (if streaming is broken, we will get stuck on a single
   // ledger's transaction batch).
-  it('streams in perpetuity', function (done) {
+  it("streams in perpetuity", function (done) {
     const DURATION = 30;
-    const server = new StellarSdk.Server('https://horizon.stellar.org');
+    const server = new StellarSdk.Server("https://horizon.stellar.org");
     this.timeout((DURATION + 5) * 1000); // pad timeout
 
     let transactions = [];
@@ -112,7 +112,7 @@ describe('integration tests: live streaming', function (done) {
 
     let closeHandler = server
       .transactions()
-      .cursor('now')
+      .cursor("now")
       .stream({
         onmessage: (msg) => {
           transactions.push(msg);

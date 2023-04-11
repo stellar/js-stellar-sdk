@@ -8,19 +8,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Install Node
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: '14.x'
           registry-url: 'https://registry.npmjs.org'
 
       - name: Install Depencencies
-        run: yarn
+        run: yarn install
 
-      - name: Build
-        run: yarn version
+      - name: Build, Test, and Package
+        run: yarn preversion
 
       - name: Publish npm package
         run: yarn publish

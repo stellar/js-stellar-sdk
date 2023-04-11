@@ -23,22 +23,24 @@
     "/dist"
   ],
   "scripts": {
-    "build": "yarn build:node",
-    "build:all": "yarn build:node && yarn build:browser",
-    "build:all:prod": "yarn build:prod && yarn build:browser:prod",
-    "build:browser": "yarn build:node && webpack -c ./webpack.config.browser.js",
-    "build:browser:prod": "cross-env NODE_ENV=production yarn build:browser",
+    "build": "cross-env NODE_ENV=development yarn _build",
+    "build:prod": "cross-env NODE_ENV=production yarn _build",
     "build:node": "babel --extensions '.ts' --out-dir lib/ src/",
-    "build:prod": "cross-env NODE_ENV=production yarn build",
+    "build:node:prod": "cross-env NODE_ENV=production yarn _build",
+    "build:browser": "webpack -c ./webpack.config.browser.js",
+    "build:browser:prod": "cross-env NODE_ENV=production yarn build:browser",
     "clean": "rm -rf lib/ dist/ coverage/ .nyc_output/",
-    "docs": "jsdoc -c ./.jsdoc.json --verbose",
-    "pretty": "prettier --config ./prettier.config.js --ignore-path ./.prettierignore --write './**/*.js'",
-    "test": "yarn build && yarn test:node",
-    "test:all": "yarn test && yarn test:browser && yarn tslint",
+    "docs": "TODO",
+    "test": "yarn test:node && yarn test:integration && yarn test:browser",
+    "test:node": "yarn _nyc mocha --recursive 'test/unit/**/*.js'",
+    "test:integration": "yarn _nyc mocha --recursive 'test/integration/**/*.js'",
     "test:browser": "karma start ./karma.conf.js",
-    "test:node": "nyc --nycrc-path ./.nycrc mocha --recursive",
-    "tslint": "dtslint --localTs node_modules/typescript/lib types/",
-    "preversion": "yarn clean && yarn pretty && yarn build:all:prod && yarn test:all"
+    "lint": "eslint -c ./.eslintrc.js src/",
+    "pretty": "prettier --config ./prettier.config.js --ignore-path ./.prettierignore --write './**/*.js'",
+    "preversion": "yarn clean && yarn pretty && yarn build:prod && yarn test",
+    "prepare": "yarn build:prod",
+    "_build": "yarn build:node && yarn build:browser",
+    "_nyc": "nyc --nycrc-path ./.nycrc"
   },
   "husky": {
     "hooks": {
@@ -46,51 +48,31 @@
     }
   },
   "lint-staged": {
-    "lib/*.{js,json}": [
-      "prettier --write"
-    ],
-    "lib/*.js": [
-      "eslint --fix --max-warnings 0",
-      "git add"
-    ],
-    "**/*.ts": [
-      "prettier --write",
-      "tslint --fix"
+    "**/*.{js,json,ts}": [
+      "yarn pretty",
+      "yarn lint"
     ]
   },
   "prettier": "@stellar/prettier-config",
   "mocha": {
-    "exclude": "test/test-browser.js",
     "reporter": "spec",
     "require": [
       "@babel/register",
       "./test/test-nodejs.js"
     ],
+    "exclude": [
+      "test/test-browser.js"
+    ],
+    "recursive": true,
+    "sort": true,
     "timeout": 60000
   },
   "nyc": {
     "instrument": false,
-    "reporter": "text-summary",
+    "reporter": [
+      "text-summary"
+    ],
     "sourceMap": false
-  },
-  "dependencies": {
-    "@types/eventsource": "^1.1.2",
-    "@types/node": "^18.15.11",
-    "@types/randombytes": "^2.0.0",
-    "@types/urijs": "^1.19.6",
-    "axios": "0.25.0",
-    "bignumber.js": "^4.0.0",
-    "detect-node": "^2.0.4",
-    "es6-promise": "^4.2.4",
-    "eventsource": "^1.1.1",
-    "lodash": "^4.17.21",
-    "randombytes": "^2.1.0",
-    "tslib": "^1.10.0",
-    "stellar-base": "^8.2.1",
-    "toml": "^3.0.0",
-    "typescript": "^5.0.3",
-    "urijs": "^1.19.1",
-    "utility-types": "^3.7.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.21.0",
@@ -103,7 +85,7 @@
     "@definitelytyped/dtslint": "^0.0.159",
     "@istanbuljs/nyc-config-babel": "3.0.0",
     "@stellar/tsconfig": "^1.0.2",
-    "@typescript-eslint/parser": "^5.57.1",
+    "@typescript-eslint/parser": "^5.58.0",
     "axios-mock-adapter": "^1.21.4",
     "babel-loader": "^9.1.2",
     "babel-plugin-istanbul": "^6.1.1",
@@ -112,14 +94,14 @@
     "chai-as-promised": "^7.1.1",
     "chai-http": "^4.3.0",
     "cross-env": "^7.0.3",
-    "eslint": "^8.37.0",
+    "eslint": "^8.38.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-import": "^2.25.2",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prefer-import": "^0.0.1",
     "eslint-plugin-prettier": "^4.2.1",
-    "eslint-webpack-plugin": "^4.0.0",
+    "eslint-webpack-plugin": "^4.0.1",
     "ghooks": "^2.0.4",
     "husky": "^8.0.3",
     "jsdoc": "^4.0.2",
@@ -131,7 +113,7 @@
     "karma-mocha": "^2.0.0",
     "karma-sinon-chai": "^2.0.2",
     "karma-webpack": "^5.0.0",
-    "lint-staged": "^13.2.0",
+    "lint-staged": "^13.2.1",
     "minami": "^1.1.1",
     "mocha": "^10.2.0",
     "node-polyfill-webpack-plugin": "^2.0.1",
@@ -145,5 +127,23 @@
     "ts-node": "^10.9.1",
     "webpack": "^5.77.0",
     "webpack-cli": "^5.0.1"
+  },
+  "dependencies": {
+    "@types/eventsource": "^1.1.2",
+    "@types/node": "^18.15.11",
+    "@types/randombytes": "^2.0.0",
+    "@types/urijs": "^1.19.6",
+    "axios": "0.25.0",
+    "bignumber.js": "^4.0.0",
+    "detect-node": "^2.0.4",
+    "es6-promise": "^4.2.4",
+    "eventsource": "^1.1.1",
+    "lodash": "^4.17.21",
+    "randombytes": "^2.1.0",
+    "stellar-base": "git+https://github.com/stellar/js-stellar-base#7abe5259",
+    "toml": "^3.0.0",
+    "typescript": "^5.0.4",
+    "urijs": "^1.19.1",
+    "utility-types": "^3.7.0"
   }
 }
