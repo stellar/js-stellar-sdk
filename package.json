@@ -58,7 +58,7 @@
     "reporter": "spec",
     "require": [
       "@babel/register",
-      "./test/test-nodejs.js"
+      "test/test-nodejs.js"
     ],
     "exclude": [
       "test/test-browser.js"
