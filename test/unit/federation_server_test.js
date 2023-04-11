@@ -6,13 +6,13 @@ describe("federation-server.js tests", function () {
       "https://acme.com:1337/federation",
       "stellar.org",
     );
+
     this.axiosMock = sinon.mock(axios);
     StellarSdk.Config.setDefault();
   });
 
   afterEach(function () {
-    this.axiosMock.verify();
-    this.axiosMock.restore();
+    this.axiosMock.verify(); // also restores
   });
 
   describe("FederationServer.constructor", function () {
