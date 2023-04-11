@@ -51,7 +51,7 @@
       "yarn lint"
     ]
   },
-  "prettier": "@stellar/prettier-config",
+  "prettier": "prettier.config.js",
   "mocha": {
     "reporter": "spec",
     "require": [
@@ -82,7 +82,6 @@
     "@babel/register": "^7.21.0",
     "@definitelytyped/dtslint": "^0.0.159",
     "@istanbuljs/nyc-config-babel": "3.0.0",
-    "@stellar/prettier-config": "^1.0.1",
     "@stellar/tsconfig": "^1.0.2",
     "@types/detect-node": "^2.0.0",
     "@types/lodash": "^4.14.192",
