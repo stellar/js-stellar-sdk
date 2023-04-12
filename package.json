@@ -48,7 +48,7 @@
   },
   "lint-staged": {
     "**/*.{js,json,ts}": [
-      "yarn pretty",
+      "yarn fmt",
       "yarn lint"
     ]
   },
