@@ -36,7 +36,7 @@ export class StrictSendPathCallBuilder extends CallBuilder<
     serverUrl: URI,
     sourceAsset: Asset,
     sourceAmount: string,
-    destination: string | Asset[],
+    destination: string | Asset[]
   ) {
     super(serverUrl);
 

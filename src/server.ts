@@ -399,8 +399,8 @@ export class Server {
                   // than from what we just submitted!
                   // So add this claimed offer's bought to the SOLD count and vice v
 
-                  amountBought = amountBought.add(claimedOfferAmountSold);
-                  amountSold = amountSold.add(claimedOfferAmountBought);
+                  amountBought = amountBought.plus(claimedOfferAmountSold);
+                  amountSold = amountSold.plus(claimedOfferAmountBought);
 
                   const sold = Asset.fromOperation(offerClaimed.assetSold());
                   const bought = Asset.fromOperation(

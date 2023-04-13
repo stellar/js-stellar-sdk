@@ -1,6 +1,6 @@
 /* eslint-disable no-undef */
 
-require("babel-register");
+require("@babel/register");
 global.StellarSdk = require("../lib/");
 
 global.axios = require("axios");

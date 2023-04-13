@@ -1,8 +1,14 @@
 {
-    "presets": ["es2015"],
-    "plugins": [
-        ["babel-plugin-transform-builtin-extend", {
-            "globals": ["Error"]
-        }]
-    ]
+    "comments": true,
+    "presets": [
+        "@babel/preset-env",
+        "@babel/typescript"
+    ],
+    "env": {
+        "development": {
+            "plugins": [
+                "istanbul"
+            ]
+        }
+    }
 }

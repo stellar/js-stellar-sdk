@@ -30,7 +30,7 @@ if (anyGlobal.EventSource) {
 } else if (isNode) {
   /* tslint:disable-next-line:no-var-requires */
   EventSource = require("eventsource");
-} else if (anyGlobal.window.EventSource) { 
+} else if (anyGlobal.window.EventSource) {
   EventSource = anyGlobal.window.EventSource;
 } else {
   // require("eventsource") for React Native environment
@@ -117,86 +117,81 @@ export class CallBuilder<
 
     const createTimeout = () => {
       timeout = setTimeout(() => {
-        if (es) {
-          es.close();
-        }
-        /* tslint:disable-next-line:no-use-before-declare */
+        es?.close();
         es = createEventSource();
       }, options.reconnectTimeout || 15 * 1000);
     };
 
-    const createEventSource = () => {
+    let createEventSource = (): EventSource => {
       try {
         es = new EventSource(this.url.toString());
       } catch (err) {
         if (options.onerror) {
-          options.onerror(err);
+          options.onerror(err as MessageEvent);
         }
       }
 
       createTimeout();
+      if (!es) {
+        return es;
+      }
 
-      if (es) {
-        // when receiving the close message from Horizon we should
-        // close the connection and recreate the event source
-        let closed = false;
-        const onClose = () => {
-          if (closed) {
-            return;
-          }
-
-          clearTimeout(timeout);
-          es.close();
-          createEventSource();
-          closed = true;
-        };
-
-        const onMessage = (message: any) => {
-          if (message.type === "close") {
-            onClose();
-            return;
-          }
-
-          const result = message.data
-            ? this._parseRecord(JSON.parse(message.data))
-            : message;
-          if (result.paging_token) {
-            this.url.setQuery("cursor", result.paging_token);
-          }
-          clearTimeout(timeout);
-          createTimeout();
-          if (typeof options.onmessage !== "undefined") {
-            options.onmessage(result);
-          }
-        };
-
-        const onError = (error: any) => {
-          if (options.onerror) {
-            options.onerror(error as MessageEvent);
-          }
-        };
-
-        // use addEventListener too, just in case
-        if (es.addEventListener) {
-          es.addEventListener("message", onMessage.bind(this));
-          es.addEventListener("error", onError.bind(this));
-          es.addEventListener("close", onClose.bind(this));
-        } else {
-          es.onmessage = onMessage.bind(this);
-          es.onerror = onError.bind(this);
+      // when receiving the close message from Horizon we should close the
+      // connection and recreate the event source (basically retrying forever)
+      let closed = false;
+      const onClose = () => {
+        if (closed) {
+          return;
         }
+
+        clearTimeout(timeout);
+
+        es.close();
+        createEventSource();
+        closed = true;
+      };
+
+      const onMessage = (message: any) => {
+        if (message.type === "close") {
+          onClose();
+          return;
+        }
+
+        const result = message.data
+          ? this._parseRecord(JSON.parse(message.data))
+          : message;
+        if (result.paging_token) {
+          this.url.setQuery("cursor", result.paging_token);
+        }
+        clearTimeout(timeout);
+        createTimeout();
+        if (typeof options.onmessage !== "undefined") {
+          options.onmessage(result);
+        }
+      };
+
+      const onError = (error: any) => {
+        if (options.onerror) {
+          options.onerror(error as MessageEvent);
+        }
+      };
+
+      if (es.addEventListener) {
+        es.addEventListener("message", onMessage.bind(this));
+        es.addEventListener("error", onError.bind(this));
+        es.addEventListener("close", onClose.bind(this));
+      } else {
+        es.onmessage = onMessage.bind(this);
+        es.onerror = onError.bind(this);
       }
 
       return es;
     };
 
     createEventSource();
-    return function close() {
+    return () => {
       clearTimeout(timeout);
-
-      if (es) {
-        es.close();
-      }
+      es?.close();
     };
   }
 

@@ -11,9 +11,7 @@ import { ServerApi } from "./server_api";
  * @param {Asset} selling Asset being sold
  * @param {Asset} buying Asset being bought
  */
-export class OrderbookCallBuilder extends CallBuilder<
-  ServerApi.OrderbookRecord
-> {
+export class OrderbookCallBuilder extends CallBuilder<ServerApi.OrderbookRecord> {
   constructor(serverUrl: URI, selling: Asset, buying: Asset) {
     super(serverUrl);
     this.url.segment("order_book");

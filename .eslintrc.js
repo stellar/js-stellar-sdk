@@ -1,9 +1,11 @@
 module.exports = {
   env: {
-    node: true
+    es6: true,
   },
-  extends: ['eslint:recommended', 'plugin:node/recommended'],
+  extends: ["airbnb-base", "prettier"],
+  plugins: ["@babel", "prettier", "prefer-import"],
+  parser: "@babel/eslint-parser",
   rules: {
-    'node/no-unpublished-require': 0
-  }
+    "node/no-unpublished-require": 0,
+  },
 };

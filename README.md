@@ -7,8 +7,10 @@
 
 <p align="center">
   <a href="https://badge.fury.io/js/stellar-sdk"><img src="https://badge.fury.io/js/stellar-sdk.svg" alt="npm version" height="18"></a>
+  <a href="https://www.npmjs.com/package/stellar-sdk">
+    <img alt="Weekly Downloads" src="https://img.shields.io/npm/dw/stellar-sdk" />
+  </a>
   <a href="https://github.com/stellar/js-stellar-sdk/actions/workflows/tests.yml"><img alt="Test Status" src="https://github.com/stellar/js-stellar-sdk/actions/workflows/tests.yml/badge.svg" /></a>
-  <a href="https://coveralls.io/github/stellar/js-stellar-sdk?branch=master"><img alt="Coverage Status" src="https://coveralls.io/repos/stellar/js-stellar-sdk/badge.svg?branch=master&service=github" /></a>
 </p>
 
 js-stellar-sdk is a Javascript library for communicating with a
@@ -134,7 +136,7 @@ npm install
 
 3. Install Node 14
 
-Because we support the latest maintenance version of Node, please install and develop on Node 14 so you don't get surprised when your code works locally but breaks in CI.
+Because we support the oldest maintenance version of Node, please install and develop on Node 14 so you don't get surprised when your code works locally but breaks in CI.
 
 Here's how to install `nvm` if you haven't: https://github.com/creationix/nvm
 
@@ -156,15 +158,25 @@ While you're making changes, make sure to run the linter-watcher to catch any
 
 ```shell
 node_modules/.bin/gulp watch
-````
+```
 
-### How to use with React-Native
 
-1. Add the following postinstall script:
+## Usage
+
+For information on how to use js-stellar-sdk, take a look at [the
+documentation](https://stellar.github.io/js-stellar-sdk/), or [the
+examples](https://github.com/stellar/js-stellar-sdk/tree/master/docs/reference).
+
+There is also Horizon REST API Documentation
+[here](https://developers.stellar.org/api/introduction/).
+
+### Usage with React-Native
+
+1. Install `yarn add --dev rn-nodeify`
+2. Add the following postinstall script:
 ```
 yarn rn-nodeify --install url,events,https,http,util,stream,crypto,vm,buffer --hack --yarn
 ```
-2. `yarn add -D rn-nodeify`
 3. Uncomment `require('crypto')` on shim.js
 4. `react-native link react-native-randombytes`
 5. Create file `rn-cli.config.js`
@@ -182,16 +194,16 @@ There is also a [sample](https://github.com/fnando/rn-stellar-sdk-sample) that y
 
 #### Using in an Expo managed workflow
 
-1. Add the following postinstall script:
+1. Install `yarn add --dev rn-nodeify`
+2. Add the following postinstall script:
 ```
 yarn rn-nodeify --install process,url,events,https,http,util,stream,crypto,vm,buffer --hack --yarn
 ```
-2. `yarn add -D rn-nodeify`
 3. Add `import "./shim";` to the your app's entry point (by default `./App.js`)
 4. `yarn add stellar-sdk`
 5. `expo install expo-random`
 
-At this point, the stellar SDK will work, except that `StellarSdk.Keypair.random()` will throw an error. So to work around this you can create your own method to generate a random keypair like this:
+At this point, the Stellar SDK will work, except that `StellarSdk.Keypair.random()` will throw an error. To work around this, you can create your own method to generate a random keypair like this:
 
 ```javascript
 import * as Random from 'expo-random';
@@ -204,28 +216,19 @@ const generateRandomKeypair = () => {
 };
 ```
 
-## Usage
-
-For information on how to use js-stellar-sdk, take a look at [the
-documentation](https://stellar.github.io/js-stellar-sdk/), or [the
-examples](https://github.com/stellar/js-stellar-sdk/tree/master/docs/reference).
-
-There is also Horizon REST API Documentation
-[here](https://developers.stellar.org/api/introduction/).
-
 ## Testing
 
 To run all tests:
 
 ```shell
-gulp test
+yarn test
 ```
 
 To run a specific set of tests:
 
 ```shell
-gulp test:node
-gulp test:browser
+yarn test:node
+yarn test:browser
 ```
 
 To generate and check the documentation site:
@@ -235,7 +238,7 @@ To generate and check the documentation site:
 npm install -g serve
 
 # generate the docs files
-npm run docs
+yarn docs
 
 # get these files working in a browser
 cd jsdoc && serve .

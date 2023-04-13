@@ -1,13 +1,13 @@
 {
   "source": {
-    "include": ["libdocs", "js-stellar-base/src"],
+    "include": ["lib/", "js-stellar-base/src"],
     "exclude": "js-stellar-base/src/generated"
   },
   "opts": {
-    "destination": "./jsdoc/",
+    "destination": "jsdoc/",
     "recurse": true,
     "template": "node_modules/minami",
-    "readme": "./README.md"
+    "readme": "README.md"
   },
   "plugins": ["plugins/markdown"]
 }

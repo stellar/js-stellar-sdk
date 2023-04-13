@@ -36,7 +36,7 @@ export class StrictReceivePathCallBuilder extends CallBuilder<
     serverUrl: URI,
     source: string | Asset[],
     destinationAsset: Asset,
-    destinationAmount: string,
+    destinationAmount: string
   ) {
     super(serverUrl);
     this.url.segment("paths/strict-receive");
@@ -61,12 +61,12 @@ export class StrictReceivePathCallBuilder extends CallBuilder<
     if (!destinationAsset.isNative()) {
       this.url.setQuery(
         "destination_asset_type",
-        destinationAsset.getAssetType(),
+        destinationAsset.getAssetType()
       );
       this.url.setQuery("destination_asset_code", destinationAsset.getCode());
       this.url.setQuery(
         "destination_asset_issuer",
-        destinationAsset.getIssuer(),
+        destinationAsset.getIssuer()
       );
     } else {
       this.url.setQuery("destination_asset_type", "native");

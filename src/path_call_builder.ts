@@ -34,7 +34,7 @@ export class PathCallBuilder extends CallBuilder<
     source: string,
     destination: string,
     destinationAsset: Asset,
-    destinationAmount: string,
+    destinationAmount: string
   ) {
     super(serverUrl);
     this.url.segment("paths");
@@ -45,12 +45,12 @@ export class PathCallBuilder extends CallBuilder<
     if (!destinationAsset.isNative()) {
       this.url.setQuery(
         "destination_asset_type",
-        destinationAsset.getAssetType(),
+        destinationAsset.getAssetType()
       );
       this.url.setQuery("destination_asset_code", destinationAsset.getCode());
       this.url.setQuery(
         "destination_asset_issuer",
-        destinationAsset.getIssuer(),
+        destinationAsset.getIssuer()
       );
     } else {
       this.url.setQuery("destination_asset_type", "native");
