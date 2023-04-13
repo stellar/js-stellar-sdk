@@ -117,7 +117,6 @@ export class CallBuilder<
 
     const createTimeout = () => {
       timeout = setTimeout(() => {
-        console.log("timed out")
         es?.close();
         es = createEventSource();
       }, options.reconnectTimeout || 15 * 1000);
@@ -126,9 +125,6 @@ export class CallBuilder<
     let createEventSource = (): EventSource => {
       try {
         es = new EventSource(this.url.toString());
-        if (!es.addEventListener) {
-          throw new Error(`expected an .addEventListener property for SSE`);
-        }
       } catch (err) {
         if (options.onerror) {
           options.onerror(err as MessageEvent);
