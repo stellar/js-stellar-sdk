@@ -255,6 +255,7 @@ export namespace Horizon {
     type_i: TI;
     created_at: string;
     transaction_hash: string;
+    transaction_successful: boolean;
   }
   export interface CreateAccountOperationResponse
     extends BaseOperationResponse<
