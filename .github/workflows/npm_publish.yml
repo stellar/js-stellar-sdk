@@ -23,6 +23,6 @@ jobs:
         run: yarn preversion
 
       - name: Publish npm package
-        run: yarn publish
+        run: yarn publish --tag beta
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
