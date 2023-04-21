@@ -6,6 +6,21 @@ A breaking change will get clearly marked in this log.
 ## Unreleased
 
 
+## [v11.0.0-beta.0](https://github.com/stellar/js-stellar-sdk/compare/v10.4.1...v11.0.0-beta.0)
+
+This version is marked by a major version bump because of the significant upgrades to underlying dependencies. While there should be no noticeable API changes from a downstream perspective, there may be breaking changes in the way that this library is bundled.
+
+### Update
+
+- Build system has been overhauled to support Webpack 5 ([#814](https://github.com/stellar/js-stellar-sdk/pull/814)).
+
+- `stellar-base` has been updated to its corresponding overhaul ([#818](https://github.com/stellar/js-stellar-sdk/pull/818)).
+
+### Fix
+
+- Missing fields have been added to certain API responses ([#801](https://github.com/stellar/js-stellar-sdk/pull/801) and [#797](https://github.com/stellar/js-stellar-sdk/pull/797)).
+
+
 ## [v10.4.1](https://github.com/stellar/js-stellar-sdk/compare/v10.4.0...v10.4.1)
 
 ### Update
@@ -105,7 +120,7 @@ This is a promotion from the beta version without changes, besides upgrading the
 These deprecated fields will be removed in the next major version. It's unlikely that this breaking change should affect anyone, as these fields have likely been missing/invalid for some time.
 
 ### Update
-- Update a number of dependencies that needed various security updates: 
+- Update a number of dependencies that needed various security updates:
 
   * several dependencies bumped their patch version ([#736](https://github.com/stellar/js-stellar-sdk/pull/736), [#684](https://github.com/stellar/js-stellar-sdk/pull/684), [#672](https://github.com/stellar/js-stellar-sdk/pull/672), [#666](https://github.com/stellar/js-stellar-sdk/pull/666), [#644](https://github.com/stellar/js-stellar-sdk/pull/644), [#622](https://github.com/stellar/js-stellar-sdk/pull/622))
   * axios has been bumped to 0.25.0 without causing breaking changes ([#742](https://github.com/stellar/js-stellar-sdk/pull/742))
@@ -254,10 +269,10 @@ This beta release adds **support for Automated Market Makers**. For details, you
   * `liquidity_pool_id` is a new optional field
 
 - The trustline effects (`TrustlineCreated`, `TrustlineUpdated`, `TrustlineRevoked`) have changed ([#690](https://github.com/stellar/js-stellar-sdk/pull/690)):
-  * the asset type can now be `liquidity_pool_shares` 
+  * the asset type can now be `liquidity_pool_shares`
   * they can optionally include a `liquidity_pool_id`
 
-- Trustline sponsorship effects (`TrustlineSponsorshipCreated`, `TrustlineSponsorshipUpdated`, `TrustlineSponsorshipRemoved`) have been updated ([#690](https://github.com/stellar/js-stellar-sdk/pull/690)): 
+- Trustline sponsorship effects (`TrustlineSponsorshipCreated`, `TrustlineSponsorshipUpdated`, `TrustlineSponsorshipRemoved`) have been updated ([#690](https://github.com/stellar/js-stellar-sdk/pull/690)):
   * the `asset` field is now optional, and is replaced by
   * the `liquidity_pool_id` field for liquidity pools
 
