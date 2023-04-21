@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>CallBuilder - Documentation</title>
+    <title>lib/strict_receive_path_call_builder.js - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -29,186 +29,97 @@
 
 <div id="main">
     
-    <h1 class="page-title">CallBuilder</h1>
+    <h1 class="page-title">lib/strict_receive_path_call_builder.js</h1>
     
 
     
 
 
 
-
-<section>
-
-<header>
     
-        <h2>
-        CallBuilder
-        </h2>
-        
-    
-</header>
-
-<article>
-    <div class="container-overview">
-    
-        
-<div class="section-method">
-
-    
-
-    <h4 class="name" id="CallBuilder"><span class="type-signature"></span>new CallBuilder<span class="signature">(serverUrl)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Creates a new <a href="CallBuilder.html">CallBuilder</a> pointed to server defined by serverUrl.</p>
-<p>This is an <strong>abstract</strong> class. Do not create this object directly, use <a href="Server.html">Server</a> class.</p>
-</div>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="lib_call_builder.js.html">lib/call_builder.js</a>, <a href="lib_call_builder.js.html#line43">line 43</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>serverUrl</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><code>string</code></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">
-                <p>URL of Horizon server</p>
-                
-            </td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-</div>
-    
-    </div>
-
-    
-
-    
-
-    
-
-     
-
-    
-
-    
-
-    
-
-    
-
-    
-</article>
-
-</section>
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>"use strict";
+
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol &amp;&amp; "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj &amp;&amp; "function" == typeof Symbol &amp;&amp; obj.constructor === Symbol &amp;&amp; obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.StrictReceivePathCallBuilder = void 0;
+var _call_builder = require("./call_builder");
+function _defineProperties(target, props) { for (var i = 0; i &lt; props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" &amp;&amp; superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass &amp;&amp; superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); Object.defineProperty(subClass, "prototype", { writable: false }); if (superClass) _setPrototypeOf(subClass, superClass); }
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+function _possibleConstructorReturn(self, call) { if (call &amp;&amp; (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+/**
+ * The Stellar Network allows payments to be made across assets through path
+ * payments. A strict receive path payment specifies a series of assets to route
+ * a payment through, from source asset (the asset debited from the payer) to
+ * destination asset (the asset credited to the payee).
+ *
+ * A path search is specified using:
+ *
+ * * The source address or source assets.
+ * * The asset and amount that the destination account should receive
+ *
+ * As part of the search, horizon will load a list of assets available to the
+ * source address and will find any payment paths from those source assets to
+ * the desired destination asset. The search's amount parameter will be used to
+ * determine if there a given path can satisfy a payment of the desired amount.
+ *
+ * If a list of assets is passed as the source, horizon will find any payment
+ * paths from those source assets to the desired destination asset.
+ *
+ * Do not create this object directly, use {@link Server#strictReceivePaths}.
+ * @see [Find Payment Paths](https://developers.stellar.org/api/aggregations/paths/)
+ * @extends CallBuilder
+ * @param {string} serverUrl Horizon server URL.
+ * @param {string|Asset[]} source The sender's account ID or a list of Assets. Any returned path must use a source that the sender can hold.
+ * @param {Asset} destinationAsset The destination asset.
+ * @param {string} destinationAmount The amount, denominated in the destination asset, that any returned path should be able to satisfy.
+ */
+var StrictReceivePathCallBuilder = /*#__PURE__*/function (_CallBuilder) {
+  _inherits(StrictReceivePathCallBuilder, _CallBuilder);
+  var _super = _createSuper(StrictReceivePathCallBuilder);
+  function StrictReceivePathCallBuilder(serverUrl, source, destinationAsset, destinationAmount) {
+    var _this;
+    _classCallCheck(this, StrictReceivePathCallBuilder);
+    _this = _super.call(this, serverUrl);
+    _this.url.segment("paths/strict-receive");
+    if (typeof source === "string") {
+      _this.url.setQuery("source_account", source);
+    } else {
+      var assets = source.map(function (asset) {
+        if (asset.isNative()) {
+          return "native";
+        }
+        return "".concat(asset.getCode(), ":").concat(asset.getIssuer());
+      }).join(",");
+      _this.url.setQuery("source_assets", assets);
+    }
+    _this.url.setQuery("destination_amount", destinationAmount);
+    if (!destinationAsset.isNative()) {
+      _this.url.setQuery("destination_asset_type", destinationAsset.getAssetType());
+      _this.url.setQuery("destination_asset_code", destinationAsset.getCode());
+      _this.url.setQuery("destination_asset_issuer", destinationAsset.getIssuer());
+    } else {
+      _this.url.setQuery("destination_asset_type", "native");
+    }
+    return _this;
+  }
+  return _createClass(StrictReceivePathCallBuilder);
+}(_call_builder.CallBuilder);
+exports.StrictReceivePathCallBuilder = StrictReceivePathCallBuilder;</code></pre>
+        </article>
+    </section>
 
 
 

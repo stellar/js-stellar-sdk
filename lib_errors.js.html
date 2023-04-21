@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>CallBuilder - Documentation</title>
+    <title>lib/errors.js - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -29,186 +29,175 @@
 
 <div id="main">
     
-    <h1 class="page-title">CallBuilder</h1>
+    <h1 class="page-title">lib/errors.js</h1>
     
 
     
 
 
 
-
-<section>
-
-<header>
     
-        <h2>
-        CallBuilder
-        </h2>
-        
-    
-</header>
-
-<article>
-    <div class="container-overview">
-    
-        
-<div class="section-method">
-
-    
-
-    <h4 class="name" id="CallBuilder"><span class="type-signature"></span>new CallBuilder<span class="signature">(serverUrl)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Creates a new <a href="CallBuilder.html">CallBuilder</a> pointed to server defined by serverUrl.</p>
-<p>This is an <strong>abstract</strong> class. Do not create this object directly, use <a href="Server.html">Server</a> class.</p>
-</div>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="lib_call_builder.js.html">lib/call_builder.js</a>, <a href="lib_call_builder.js.html#line43">line 43</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>serverUrl</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><code>string</code></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">
-                <p>URL of Horizon server</p>
-                
-            </td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-</div>
-    
-    </div>
-
-    
-
-    
-
-    
-
-     
-
-    
-
-    
-
-    
-
-    
-
-    
-</article>
-
-</section>
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>"use strict";
+
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol &amp;&amp; "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj &amp;&amp; "function" == typeof Symbol &amp;&amp; obj.constructor === Symbol &amp;&amp; obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.NotFoundError = exports.NetworkError = exports.InvalidSep10ChallengeError = exports.BadResponseError = exports.BadRequestError = exports.AccountRequiresMemoError = void 0;
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _defineProperties(target, props) { for (var i = 0; i &lt; props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" &amp;&amp; superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass &amp;&amp; superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); Object.defineProperty(subClass, "prototype", { writable: false }); if (superClass) _setPrototypeOf(subClass, superClass); }
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+function _possibleConstructorReturn(self, call) { if (call &amp;&amp; (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+function _wrapNativeSuper(Class) { var _cache = typeof Map === "function" ? new Map() : undefined; _wrapNativeSuper = function _wrapNativeSuper(Class) { if (Class === null || !_isNativeFunction(Class)) return Class; if (typeof Class !== "function") { throw new TypeError("Super expression must either be null or a function"); } if (typeof _cache !== "undefined") { if (_cache.has(Class)) return _cache.get(Class); _cache.set(Class, Wrapper); } function Wrapper() { return _construct(Class, arguments, _getPrototypeOf(this).constructor); } Wrapper.prototype = Object.create(Class.prototype, { constructor: { value: Wrapper, enumerable: false, writable: true, configurable: true } }); return _setPrototypeOf(Wrapper, Class); }; return _wrapNativeSuper(Class); }
+function _construct(Parent, args, Class) { if (_isNativeReflectConstruct()) { _construct = Reflect.construct.bind(); } else { _construct = function _construct(Parent, args, Class) { var a = [null]; a.push.apply(a, args); var Constructor = Function.bind.apply(Parent, a); var instance = new Constructor(); if (Class) _setPrototypeOf(instance, Class.prototype); return instance; }; } return _construct.apply(null, arguments); }
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+function _isNativeFunction(fn) { return Function.toString.call(fn).indexOf("[native code]") !== -1; }
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+// For ES5 compatibility (https://stackoverflow.com/a/55066280).
+/* tslint:disable:variable-name max-classes-per-file */
+var NetworkError = /*#__PURE__*/function (_Error) {
+  _inherits(NetworkError, _Error);
+  var _super = _createSuper(NetworkError);
+  function NetworkError(message, response) {
+    var _this;
+    _classCallCheck(this, NetworkError);
+    var trueProto = (this instanceof NetworkError ? this.constructor : void 0).prototype;
+    _this = _super.call(this, message);
+    _this.__proto__ = trueProto;
+    _this.constructor = NetworkError;
+    _this.response = response;
+    return _this;
+  }
+  _createClass(NetworkError, [{
+    key: "getResponse",
+    value: function getResponse() {
+      return this.response;
+    }
+  }]);
+  return NetworkError;
+}( /*#__PURE__*/_wrapNativeSuper(Error));
+exports.NetworkError = NetworkError;
+var NotFoundError = /*#__PURE__*/function (_NetworkError) {
+  _inherits(NotFoundError, _NetworkError);
+  var _super2 = _createSuper(NotFoundError);
+  function NotFoundError(message, response) {
+    var _this2;
+    _classCallCheck(this, NotFoundError);
+    var trueProto = (this instanceof NotFoundError ? this.constructor : void 0).prototype;
+    _this2 = _super2.call(this, message, response);
+    _this2.__proto__ = trueProto;
+    _this2.constructor = NotFoundError;
+    _this2.name = "NotFoundError";
+    return _this2;
+  }
+  return _createClass(NotFoundError);
+}(NetworkError);
+exports.NotFoundError = NotFoundError;
+var BadRequestError = /*#__PURE__*/function (_NetworkError2) {
+  _inherits(BadRequestError, _NetworkError2);
+  var _super3 = _createSuper(BadRequestError);
+  function BadRequestError(message, response) {
+    var _this3;
+    _classCallCheck(this, BadRequestError);
+    var trueProto = (this instanceof BadRequestError ? this.constructor : void 0).prototype;
+    _this3 = _super3.call(this, message, response);
+    _this3.__proto__ = trueProto;
+    _this3.constructor = BadRequestError;
+    _this3.name = "BadRequestError";
+    return _this3;
+  }
+  return _createClass(BadRequestError);
+}(NetworkError);
+exports.BadRequestError = BadRequestError;
+var BadResponseError = /*#__PURE__*/function (_NetworkError3) {
+  _inherits(BadResponseError, _NetworkError3);
+  var _super4 = _createSuper(BadResponseError);
+  function BadResponseError(message, response) {
+    var _this4;
+    _classCallCheck(this, BadResponseError);
+    var trueProto = (this instanceof BadResponseError ? this.constructor : void 0).prototype;
+    _this4 = _super4.call(this, message, response);
+    _this4.__proto__ = trueProto;
+    _this4.constructor = BadResponseError;
+    _this4.name = "BadResponseError";
+    return _this4;
+  }
+  return _createClass(BadResponseError);
+}(NetworkError);
+exports.BadResponseError = BadResponseError;
+var InvalidSep10ChallengeError = /*#__PURE__*/function (_Error2) {
+  _inherits(InvalidSep10ChallengeError, _Error2);
+  var _super5 = _createSuper(InvalidSep10ChallengeError);
+  function InvalidSep10ChallengeError(message) {
+    var _this5;
+    _classCallCheck(this, InvalidSep10ChallengeError);
+    var trueProto = (this instanceof InvalidSep10ChallengeError ? this.constructor : void 0).prototype;
+    _this5 = _super5.call(this, message);
+    _this5.__proto__ = trueProto;
+    _this5.constructor = InvalidSep10ChallengeError;
+    _this5.name = "InvalidSep10ChallengeError";
+    return _this5;
+  }
+  return _createClass(InvalidSep10ChallengeError);
+}( /*#__PURE__*/_wrapNativeSuper(Error));
+/**
+ * AccountRequiresMemoError is raised when a transaction is trying to submit an
+ * operation to an account which requires a memo. See
+ * [SEP0029](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0029.md)
+ * for more information.
+ *
+ * This error contains two attributes to help you identify the account requiring
+ * the memo and the operation where the account is the destination
+ *
+ * ```
+ * console.log('The following account requires a memo ', err.accountId)
+ * console.log('The account is used in operation: ', err.operationIndex)
+ * ```
+ *
+ */
+exports.InvalidSep10ChallengeError = InvalidSep10ChallengeError;
+var AccountRequiresMemoError = /*#__PURE__*/function (_Error3) {
+  _inherits(AccountRequiresMemoError, _Error3);
+  var _super6 = _createSuper(AccountRequiresMemoError);
+  /**
+   * accountId account which requires a memo.
+   */
+
+  /**
+   * operationIndex operation where accountId is the destination.
+   */
+
+  /**
+   * Create an AccountRequiresMemoError
+   * @param {message} message - error message
+   * @param {string} accountId - The account which requires a memo.
+   * @param {number} operationIndex - The index of the operation where `accountId` is the destination.
+   */
+  function AccountRequiresMemoError(message, accountId, operationIndex) {
+    var _this6;
+    _classCallCheck(this, AccountRequiresMemoError);
+    var trueProto = (this instanceof AccountRequiresMemoError ? this.constructor : void 0).prototype;
+    _this6 = _super6.call(this, message);
+    _this6.__proto__ = trueProto;
+    _this6.constructor = AccountRequiresMemoError;
+    _this6.name = "AccountRequiresMemoError";
+    _this6.accountId = accountId;
+    _this6.operationIndex = operationIndex;
+    return _this6;
+  }
+  return _createClass(AccountRequiresMemoError);
+}( /*#__PURE__*/_wrapNativeSuper(Error));
+exports.AccountRequiresMemoError = AccountRequiresMemoError;</code></pre>
+        </article>
+    </section>
 
 
 
