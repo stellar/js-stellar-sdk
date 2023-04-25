@@ -6378,10 +6378,10 @@ statuses@~1.5.0:
   resolved "https://registry.yarnpkg.com/statuses/-/statuses-1.5.0.tgz#161c7dac177659fd9811f43771fa99381478628c"
   integrity sha512-OpZ3zP+jT1PI7I8nemJX4AKmAX070ZkYPVWV/AaKTJl+tXCTGyVdC1a4SL8RUQYEwk/f34ZX8UTykN68FwrqAA==
 
-stellar-base@v9.0.0-beta.0:
-  version "9.0.0-beta.0"
-  resolved "https://registry.yarnpkg.com/stellar-base/-/stellar-base-9.0.0-beta.0.tgz#d1eaa85c870b61e4832012c9cf3e5a703c4b45fc"
-  integrity sha512-A0K1GbtV5z0pnhBnmbq0SSZt07yiXNdPHHGCjZLELlIWKjoBE+WucqMX5JSSz2PQIqYsqClxh/ccOalcrgHWzA==
+stellar-base@v9.0.0-beta.1:
+  version "9.0.0-beta.1"
+  resolved "https://registry.yarnpkg.com/stellar-base/-/stellar-base-9.0.0-beta.1.tgz#400962644b92cbb8d2f62339fe778ee4bc7960ac"
+  integrity sha512-v8j8lBT9v+uWQWeYo0O3aDN0wqKFfSugBacY4fqvHmfCyz7NQRcsmWAL27O8Sg8EAazKgUv8KvXylcpVbdO90A==
   dependencies:
     base32.js "^0.1.0"
     bignumber.js "^9.1.1"
@@ -7240,9 +7240,9 @@ yallist@^4.0.0:
   integrity sha512-3wdGidZyq5PB084XLES5TpOSRA3wjXAlIWMhum2kRcv/41Sn2emQ0dycQW4uZXLejwKvg6EsvbdlVL+FYEct7A==
 
 yaml@^2.2.1:
-  version "2.2.1"
-  resolved "https://registry.yarnpkg.com/yaml/-/yaml-2.2.1.tgz#3014bf0482dcd15147aa8e56109ce8632cd60ce4"
-  integrity sha512-e0WHiYql7+9wr4cWMx3TVQrNwejKaEe7/rHNmQmqRjazfOP5W8PB6Jpebb5o6fIapbz9o9+2ipcaTM2ZwDI6lw==
+  version "2.2.2"
+  resolved "https://registry.yarnpkg.com/yaml/-/yaml-2.2.2.tgz#ec551ef37326e6d42872dad1970300f8eb83a073"
+  integrity sha512-CBKFWExMn46Foo4cldiChEzn7S7SRV+wqiluAb6xmueD/fGyRHIhX8m14vVGgeFWjN540nKCNVj6P21eQjgTuA==
 
 yargs-parser@20.2.4:
   version "20.2.4"
