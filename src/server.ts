@@ -1,8 +1,6 @@
 /* tslint:disable:variable-name no-namespace */
 
 import BigNumber from "bignumber.js";
-import isEmpty from "lodash/isEmpty";
-import merge from "lodash/merge";
 import {
   Asset,
   FeeBumpTransaction,
@@ -83,7 +81,7 @@ export class Server {
         ? Config.isAllowHttp()
         : opts.allowHttp;
 
-    const customHeaders: any = {};
+    const customHeaders: object = {};
 
     if (opts.appName) {
       customHeaders["X-App-Name"] = opts.appName;
@@ -94,10 +92,11 @@ export class Server {
     if (opts.authToken) {
       customHeaders["X-Auth-Token"] = opts.authToken;
     }
-    if (!isEmpty(customHeaders)) {
+    if (Object.keys(customHeaders).length > 0) {
       HorizonAxiosClient.interceptors.request.use((config) => {
-        // merge the custom headers with an existing headers
-        config.headers = merge(customHeaders, config.headers);
+        // merge the custom headers with an existing headers, where customs
+        // override defaults
+        config.headers = Object.assign(config.headers, customHeaders);
 
         return config;
       });

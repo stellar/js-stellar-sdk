@@ -1,5 +1,3 @@
-import clone from "lodash/clone";
-
 interface Configuration {
   /**
    * Allow connecting to http servers, default: `false`. This must be set to false in production deployments!
@@ -20,7 +18,7 @@ const defaultConfig: Configuration = {
   timeout: 0,
 };
 
-let config = clone(defaultConfig);
+let config = Object.assign({}, defaultConfig);
 
 /**
  * Global config class.

@@ -1,4 +1,3 @@
-import clone from "lodash/clone";
 import randomBytes from "randombytes";
 import {
   Account,
@@ -676,7 +675,7 @@ export namespace Utils {
   ): string[] {
     const hashedSignatureBase = transaction.hash();
 
-    const txSignatures = clone(transaction.signatures);
+    const txSignatures = [...transaction.signatures]; // shallow copy for safe splicing
     const signersFound = new Set<string>();
 
     for (const signer of signers) {
