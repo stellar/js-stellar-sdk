@@ -4,6 +4,7 @@
 /libdocs/
 /dist/
 /coverage/
+/.nyc_output/
 /jsdoc/
 .DS_Store
 .idea/
