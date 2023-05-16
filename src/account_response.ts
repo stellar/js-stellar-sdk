@@ -1,6 +1,5 @@
 /* tslint:disable:variable-name */
 
-import forIn from "lodash/forIn";
 import { Account as BaseAccount } from "stellar-base";
 import { Horizon } from "./horizon_api";
 import { ServerApi } from "./server_api";
@@ -57,7 +56,7 @@ export class AccountResponse {
     this._baseAccount = new BaseAccount(response.account_id, response.sequence);
     // Extract response fields
     // TODO: do it in type-safe manner.
-    forIn(response, (value, key) => {
+    Object.entries(response).forEach(([key, value]) => {
       (this as any)[key] = value;
     });
   }
