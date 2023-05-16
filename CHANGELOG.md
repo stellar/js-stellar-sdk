@@ -6,6 +6,15 @@ A breaking change will get clearly marked in this log.
 ## Unreleased
 
 
+## [v11.0.0-beta.1](https://github.com/stellar/js-stellar-sdk/compare/v11.0.0-beta.0...v11.0.0-beta.1)
+
+### Update
+
+- Bundle size has decreased by dropping unnecessary dependencies (`lodash`: [#822](https://github.com/stellar/js-stellar-sdk/pull/822), `es6-promise`: [#823](https://github.com/stellar/js-stellar-sdk/pull/823), polyfills: [#825](https://github.com/stellar/js-stellar-sdk/pull/825), `urijs`: [TODO](https://github.com/stellar/js-stellar-sdk/issues/827)).
+
+- Dependencies (including `stellar-base`) have been updated to their latest versions ([#825](https://github.com/stellar/js-stellar-sdk/pull/825), [#827](https://github.com/stellar/js-stellar-sdk/pull/827)).
+
+
 ## [v11.0.0-beta.0](https://github.com/stellar/js-stellar-sdk/compare/v10.4.1...v11.0.0-beta.0)
 
 This version is marked by a major version bump because of the significant upgrades to underlying dependencies. While there should be no noticeable API changes from a downstream perspective, there may be breaking changes in the way that this library is bundled.
