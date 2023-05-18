@@ -132,18 +132,18 @@
     "terser-webpack-plugin": "^5.3.9",
     "ts-node": "^10.9.1",
     "typescript": "^5.0.4",
+    "utility-types": "^3.7.0",
     "webpack": "^5.83.1",
     "webpack-cli": "^5.0.1"
   },
   "dependencies": {
-    "axios": "1.4.0",
+    "axios": "^1.4.0",
     "bignumber.js": "^9.1.1",
     "detect-node": "^2.0.4",
     "eventsource": "^2.0.2",
     "randombytes": "^2.1.0",
     "stellar-base": "v9.0.0-beta.2",
     "toml": "^3.0.0",
-    "urijs": "^1.19.1",
-    "utility-types": "^3.7.0"
+    "urijs": "^1.19.1"
   }
 }
