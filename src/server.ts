@@ -81,7 +81,7 @@ export class Server {
         ? Config.isAllowHttp()
         : opts.allowHttp;
 
-    const customHeaders: object = {};
+    const customHeaders: Record<string, string> = {};
 
     if (opts.appName) {
       customHeaders["X-App-Name"] = opts.appName;
