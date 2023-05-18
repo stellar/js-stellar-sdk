@@ -69,7 +69,7 @@ export class CallBuilder<
    */
   public call(): Promise<T> {
     this.checkFilter();
-    return this._sendNormalRequest(this.url).then((r) =>
+    return this._sendNormalRequest(new URL(this.url.toString())).then((r) =>
       this._parseResponse(r),
     );
   }
@@ -285,9 +285,11 @@ export class CallBuilder<
   /**
    * Convert a link object to a function that fetches that link.
    * @private
+   *
    * @param {object} link A link object
-   * @param {bool} link.href the URI of the link
-   * @param {bool} [link.templated] Whether the link is templated
+   * @param {string} link.href the URI of the link
+   * @param {bool}   [link.templated] Whether the link is templated
+   *
    * @returns {function} A function that requests the link
    */
   private _requestFnForLink(link: Horizon.ResponseLink): (opts?: any) => any {
@@ -345,15 +347,21 @@ export class CallBuilder<
     return json;
   }
 
-  private async _sendNormalRequest(initialUrl: URI) {
-    let url = initialUrl;
+  private async _sendNormalRequest(initialUrl: URL) {
+    // Update the given URL's username, password, and protocol using the
+    // internal URL as a template if they aren't explicitly set already.
 
-    if (url.authority() === "") {
-      url = url.authority(this.url.authority());
+    let url = new URL(initialUrl); // clone to avoid modifying caller
+    let thisUrl = new URL(this.url.toString()); // while we migrate
+
+    if (url.port === "" && url.username === "" && url.password === "") {
+      url.port = thisUrl.port;
+      url.username = thisUrl.username
+      url.password = thisUrl.password
     }
 
-    if (url.protocol() === "") {
-      url = url.protocol(this.url.protocol());
+    if (url.protocol === "") {
+      url.protocol = thisUrl.protocol;
     }
 
     return HorizonAxiosClient.get(url.toString())
@@ -385,11 +393,11 @@ export class CallBuilder<
     return {
       records: json._embedded.records,
       next: async () => {
-        const r = await this._sendNormalRequest(URI(json._links.next.href));
+        const r = await this._sendNormalRequest(new URL(json._links.next.href));
         return this._toCollectionPage(r);
       },
       prev: async () => {
-        const r = await this._sendNormalRequest(URI(json._links.prev.href));
+        const r = await this._sendNormalRequest(new URL(json._links.prev.href));
         return this._toCollectionPage(r);
       },
     };
