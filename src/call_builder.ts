@@ -52,12 +52,18 @@ export class CallBuilder<
     | ServerApi.CollectionPage<Horizon.BaseResponse>
 > {
   protected url: URI;
-  public filter: string[][];
   protected originalSegments: string[];
   protected neighborRoot: string;
 
-  constructor(serverUrl: URI, neighborRoot: string = "") {
-    this.url = serverUrl.clone();
+  public filter: string[][];
+
+  constructor(serverUrl: URI | URL, neighborRoot: string = "") {
+    if (serverUrl instanceof URL) {
+      this.url = URI(serverUrl.toString());
+    } else {
+      this.url = serverUrl.clone();
+    }
+
     this.filter = [];
     this.originalSegments = this.url.segment() || [];
     this.neighborRoot = neighborRoot;
@@ -294,13 +300,13 @@ export class CallBuilder<
    */
   private _requestFnForLink(link: Horizon.ResponseLink): (opts?: any) => any {
     return async (opts: any = {}) => {
-      let uri;
+      let uri: URL;
 
       if (link.templated) {
         const template = URITemplate(link.href);
-        uri = URI(template.expand(opts) as any); // TODO: fix upstream types.
+        uri = new URL(template.expand(opts).toString()); // TODO: fix upstream types.
       } else {
-        uri = URI(link.href);
+        uri = new URL(link.href);
       }
 
       const r = await this._sendNormalRequest(uri);
@@ -351,7 +357,7 @@ export class CallBuilder<
     // Update the given URL's username, password, and protocol using the
     // internal URL as a template if they aren't explicitly set already.
 
-    let url = new URL(initialUrl); // clone to avoid modifying caller
+    let url = new URL(initialUrl.toString()); // clone to avoid modifying caller
     let thisUrl = new URL(this.url.toString()); // while we migrate
 
     if (url.port === "" && url.username === "" && url.password === "") {

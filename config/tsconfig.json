@@ -1,12 +1,16 @@
 {
   "extends": "@stellar/tsconfig",
   "compilerOptions": {
+    "lib": ["es2015"],
+    "target": "es5",
     "declaration": true,
     "declarationDir": "../lib",
+    "emitDeclarationOnly": true,
+    // Ensure that Babel can safely transpile files in the TypeScript project
+    "isolatedModules": true,
     "moduleResolution": "node",
     "rootDir": "../src",
     "outDir": "../lib",
-    "target": "es6"
   },
   "include": ["../src"]
 }
