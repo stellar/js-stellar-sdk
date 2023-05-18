@@ -1,5 +1,4 @@
 import axios, { AxiosResponse } from "axios";
-import URI from "urijs";
 
 /* tslint:disable-next-line:no-var-requires */
 const version = require("../package.json").version;
@@ -36,7 +35,7 @@ function _toSeconds(ms: number): number {
 
 HorizonAxiosClient.interceptors.response.use(
   function interceptorHorizonResponse(response: AxiosResponse) {
-    const hostname = URI(response.config.url!).hostname();
+    const hostname = new URL(response.config.url!).hostname;
     const serverTime = _toSeconds(Date.parse(response.headers.date));
     const localTimeRecorded = _toSeconds(new Date().getTime());
 
