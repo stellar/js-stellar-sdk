@@ -1,25 +1,32 @@
 import axios from "axios";
 import { StrKey } from "stellar-base";
-import URI from "urijs";
 
 import { Config } from "./config";
 import { BadResponseError } from "./errors";
 import { StellarTomlResolver } from "./stellar_toml_resolver";
 
-// FEDERATION_RESPONSE_MAX_SIZE is the maximum size of response from a federation server
+/**
+ * The maximum size of response from a federation server
+ */
 export const FEDERATION_RESPONSE_MAX_SIZE = 100 * 1024;
 
 /**
- * FederationServer handles a network connection to a
- * [federation server](https://developers.stellar.org/docs/glossary/federation/)
- * instance and exposes an interface for requests to that instance.
+ * FederationServer handles a network connection to a [federation
+ * server](https://developers.stellar.org/docs/glossary/federation/) instance
+ * and exposes an interface for requests to that instance.
+ *
  * @constructor
- * @param {string} serverURL The federation server URL (ex. `https://acme.com/federation`).
+ *
+ * @param {string} serverURL The federation server URL (ex.
+ *    `https://acme.com/federation`).
  * @param {string} domain Domain this server represents
  * @param {object} [opts] options object
- * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments! You can also use {@link Config} class to set this globally.
- * @param {number} [opts.timeout] - Allow a timeout, default: 0. Allows user to avoid nasty lag due to TOML resolve issue. You can also use {@link Config} class to set this globally.
- * @returns {void}
+ * @param {boolean} [opts.allowHttp] - Allow connecting to http servers,
+ *    default: `false`. This must be set to false in production deployments! You
+ *    can also use {@link Config} class to set this globally.
+ * @param {number} [opts.timeout] - Allow a timeout, default: 0. Allows user to
+ *    avoid nasty lag due to TOML resolve issue. You can also use {@link Config}
+ *    class to set this globally.
  */
 export class FederationServer {
   /**
@@ -27,7 +34,7 @@ export class FederationServer {
    *
    * @memberof FederationServer
    */
-  private readonly serverURL: URI; // TODO: public or private? readonly?
+  private readonly serverURL: URL;
   /**
    * Domain this server represents.
    *
@@ -47,14 +54,20 @@ export class FederationServer {
    * A helper method for handling user inputs that contain `destination` value.
    * It accepts two types of values:
    *
-   * * For Stellar address (ex. `bob*stellar.org`) it splits Stellar address and then tries to find information about
-   * federation server in `stellar.toml` file for a given domain. It returns a `Promise` which resolves if federation
-   * server exists and user has been found and rejects in all other cases.
-   * * For Account ID (ex. `GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS`) it returns a `Promise` which
-   * resolves if Account ID is valid and rejects in all other cases. Please note that this method does not check
-   * if the account actually exists in a ledger.
+   * * For Stellar address (ex. `bob*stellar.org`) it splits Stellar address and
+   *   then tries to find information about federation server in `stellar.toml`
+   *   file for a given domain. It returns a `Promise` which resolves if
+   *   federation server exists and user has been found and rejects in all other
+   *   cases.
+   *
+   * * For Account ID (ex.
+   *   `GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS`) it returns a
+   *   `Promise` which resolves if Account ID is valid and rejects in all other
+   *   cases. Please note that this method does not check if the account
+   *   actually exists in a ledger.
    *
    * Example:
+   *
    * ```js
    * StellarSdk.FederationServer.resolve('bob*stellar.org')
    *  .then(federationRecord => {
@@ -66,16 +79,25 @@ export class FederationServer {
    *  });
    * ```
    *
-   * @see <a href="https://developers.stellar.org/docs/glossary/federation/" target="_blank">Federation doc</a>
-   * @see <a href="https://developers.stellar.org/docs/issuing-assets/publishing-asset-info/" target="_blank">Stellar.toml doc</a>
+   * @see <a href="https://developers.stellar.org/docs/glossary/federation/"
+   * target="_blank">Federation doc</a>
+   * @see <a
+   * href="https://developers.stellar.org/docs/issuing-assets/publishing-asset-info/"
+   * target="_blank">Stellar.toml doc</a>
+   *
    * @param {string} value Stellar Address (ex. `bob*stellar.org`)
    * @param {object} [opts] Options object
-   * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments!
-   * @param {number} [opts.timeout] - Allow a timeout, default: 0. Allows user to avoid nasty lag due to TOML resolve issue.
-   * @returns {Promise} `Promise` that resolves to a JSON object with this shape:
-   * * `account_id` - Account ID of the destination,
-   * * `memo_type` (optional) - Memo type that needs to be attached to a transaction,
-   * * `memo` (optional) - Memo value that needs to be attached to a transaction.
+   * @param {boolean} [opts.allowHttp] - Allow connecting to http servers,
+   *    default: `false`. This must be set to false in production deployments!
+   * @param {number} [opts.timeout] - Allow a timeout, default: 0. Allows user
+   *    to avoid nasty lag due to TOML resolve issue.
+   *
+   * @returns {Promise} resolves to a JSON object with this shape:
+   *    * `account_id` - account ID of the destination
+   *    * `memo_type` (optional) - memo type that needs to be attached to a
+   *      transaction
+   *    * `memo` (optional) - memo value that needs to be attached to a
+   *      transaction
    */
   public static async resolve(
     value: string,
@@ -109,6 +131,7 @@ export class FederationServer {
    *
    * If `stellar.toml` file does not exist for a given domain or it does not
    * contain information about a federation server Promise will reject.
+   *
    * ```js
    * StellarSdk.FederationServer.createForDomain('acme.com')
    *   .then(federationServer => {
@@ -118,11 +141,18 @@ export class FederationServer {
    *     // stellar.toml does not exist or it does not contain information about federation server.
    *   });
    * ```
-   * @see <a href="https://developers.stellar.org/docs/issuing-assets/publishing-asset-info/" target="_blank">Stellar.toml doc</a>
+   *
+   * @see <a
+   * href="https://developers.stellar.org/docs/issuing-assets/publishing-asset-info/"
+   * target="_blank">Stellar.toml doc</a>
+   *
    * @param {string} domain Domain to get federation server for
    * @param {object} [opts] Options object
-   * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments!
-   * @param {number} [opts.timeout] - Allow a timeout, default: 0. Allows user to avoid nasty lag due to TOML resolve issue.
+   * @param {boolean} [opts.allowHttp] - Allow connecting to http servers,
+   *    default: `false`. This must be set to false in production deployments!
+   * @param {number} [opts.timeout] - Allow a timeout, default: 0. Allows user
+   *    to avoid nasty lag due to TOML resolve issue.
+   *
    * @returns {Promise} `Promise` that resolves to a FederationServer object
    */
   public static async createForDomain(
@@ -144,7 +174,7 @@ export class FederationServer {
     opts: FederationServer.Options = {},
   ) {
     // TODO `domain` regexp
-    this.serverURL = URI(serverURL);
+    this.serverURL = new URL(serverURL);
     this.domain = domain;
 
     const allowHttp =
@@ -155,15 +185,21 @@ export class FederationServer {
     this.timeout =
       typeof opts.timeout === "undefined" ? Config.getTimeout() : opts.timeout;
 
-    if (this.serverURL.protocol() !== "https" && !allowHttp) {
+    if (this.serverURL.protocol !== "https" && !allowHttp) {
       throw new Error("Cannot connect to insecure federation server");
     }
   }
 
   /**
    * Get the federation record if the user was found for a given Stellar address
-   * @see <a href="https://developers.stellar.org/docs/glossary/federation/" target="_blank">Federation doc</a>
-   * @param {string} address Stellar address (ex. `bob*stellar.org`). If `FederationServer` was instantiated with `domain` param only username (ex. `bob`) can be passed.
+   *
+   * @see <a href="https://developers.stellar.org/docs/glossary/federation/"
+   * target="_blank">Federation doc</a>
+   *
+   * @param {string} address Stellar address (ex. `bob*stellar.org`). If
+   *    `FederationServer` was instantiated with `domain` param only username
+   *    (ex. `bob`) can be passed.
+   *
    * @returns {Promise} Promise that resolves to the federation record
    */
   public async resolveAddress(
@@ -180,8 +216,8 @@ export class FederationServer {
       }
       stellarAddress = `${address}*${this.domain}`;
     }
-    const url = this.serverURL.query({ type: "name", q: stellarAddress });
-    return this._sendRequest(url);
+
+    return this._sendRequest(query(this.serverURL, { type: "name", q: stellarAddress }));
   }
 
   /**
@@ -193,7 +229,7 @@ export class FederationServer {
   public async resolveAccountId(
     accountId: string,
   ): Promise<FederationServer.Record> {
-    const url = this.serverURL.query({ type: "id", q: accountId });
+    const url = query(this.serverURL, { type: "id", q: accountId });
     return this._sendRequest(url);
   }
 
@@ -206,11 +242,11 @@ export class FederationServer {
   public async resolveTransactionId(
     transactionId: string,
   ): Promise<FederationServer.Record> {
-    const url = this.serverURL.query({ type: "txid", q: transactionId });
+    const url = query(this.serverURL, { type: "txid", q: transactionId });
     return this._sendRequest(url);
   }
 
-  private async _sendRequest(url: URI) {
+  private async _sendRequest(url: URI | URL) {
     const timeout = this.timeout;
 
     return axios
@@ -260,4 +296,18 @@ export namespace FederationServer {
     allowHttp?: boolean;
     timeout?: number;
   }
+}
+
+/**
+ * Returns a new URL with the given parameters specified as a query.
+ *
+ * @param {URL} url the starting URL
+ * @param {Record<string, string>} params key-value pairs of query params to set
+ *
+ * @returns {URL} a new URL with the parameters set
+ */
+function query(url: URL, params: Record<string, string>): URL {
+  let clone = new URL(url);
+  clone.search = new URLSearchParams(params).toString();
+  return clone;
 }
