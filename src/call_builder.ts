@@ -362,8 +362,8 @@ export class CallBuilder<
 
     if (url.port === "" && url.username === "" && url.password === "") {
       url.port = thisUrl.port;
-      url.username = thisUrl.username
-      url.password = thisUrl.password
+      url.username = thisUrl.username;
+      url.password = thisUrl.password;
     }
 
     if (url.protocol === "") {

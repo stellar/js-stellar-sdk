@@ -41,14 +41,14 @@ export class FederationServer {
    * @type {string}
    * @memberof FederationServer
    */
-  private readonly domain: string; // TODO: public or private? readonly?
+  private readonly domain: string;
   /**
    * Allow a timeout, default: 0. Allows user to avoid nasty lag due to TOML resolve issue.
    *
    * @type {number}
    * @memberof FederationServer
    */
-  private readonly timeout: number; // TODO: public or private? readonly?
+  private readonly timeout: number;
 
   /**
    * A helper method for handling user inputs that contain `destination` value.
@@ -177,15 +177,10 @@ export class FederationServer {
     this.serverURL = new URL(serverURL);
     this.domain = domain;
 
-    const allowHttp =
-      typeof opts.allowHttp === "undefined"
-        ? Config.isAllowHttp()
-        : opts.allowHttp;
+    const allowHttp = opts.allowHttp ?? Config.isAllowHttp();
+    this.timeout = opts.timeout ?? Config.getTimeout();
 
-    this.timeout =
-      typeof opts.timeout === "undefined" ? Config.getTimeout() : opts.timeout;
-
-    if (this.serverURL.protocol !== "https" && !allowHttp) {
+    if (this.serverURL.protocol !== "https:" && !allowHttp) {
       throw new Error("Cannot connect to insecure federation server");
     }
   }
@@ -308,6 +303,9 @@ export namespace FederationServer {
  */
 function query(url: URL, params: Record<string, string>): URL {
   let clone = new URL(url.toString());
-  clone.search = new URLSearchParams(params).toString();
+  Object.entries(params).forEach(([key, value]) => {
+    clone.searchParams.append(key, value);
+  });
+
   return clone;
 }

@@ -56,7 +56,7 @@ describe("federation-server.js tests", function () {
         .expects("get")
         .withArgs(
           sinon.match(
-            "https://acme.com:1337/federation?type=name&q=bob%2Astellar.org"
+            /https:\/\/acme.com:1337\/federation\?type=name&q=bob(%2A|\*)stellar\.org/
           )
         )
         .returns(
@@ -194,11 +194,11 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
 
       StellarSdk.FederationServer.createForDomain("acme.com").then(
         (federationServer) => {
-          expect(federationServer.serverURL.protocol()).equals("https");
-          expect(federationServer.serverURL.hostname()).equals(
+          expect(federationServer.serverURL.protocol).equals("https:");
+          expect(federationServer.serverURL.hostname).equals(
             "api.stellar.org"
           );
-          expect(federationServer.serverURL.path()).equals("/federation");
+          expect(federationServer.serverURL.pathname).equals("/federation");
           expect(federationServer.domain).equals("acme.com");
           done();
         }
@@ -259,7 +259,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
         .expects("get")
         .withArgs(
           sinon.match(
-            "https://api.stellar.org/federation?type=name&q=bob%2Astellar.org"
+            /https:\/\/api\.stellar\.org\/federation\?type=name&q=bob(%2A|\*)stellar\.org/
           )
         )
         .returns(
@@ -296,7 +296,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
         .expects("get")
         .withArgs(
           sinon.match(
-            "https://acme.com:1337/federation?type=name&q=bob%2Astellar.org"
+            /https:\/\/acme.com:1337\/federation\?type=name&q=bob(%2A|\*)stellar\.org/
           )
         )
         .returns(

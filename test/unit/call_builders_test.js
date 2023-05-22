@@ -1,9 +1,8 @@
-const URI = require("urijs");
 const CallBuilder = require("../../lib/call_builder").CallBuilder;
 
 describe("CallBuilder functions", function () {
   it("doesn't mutate the constructor passed url argument (it clones it instead)", function () {
-    let arg = URI("https://onedom.ain/");
+    let arg = new URL("https://onedom.ain/");
     const builder = new CallBuilder(arg);
     builder.url.segment("one_segment");
     builder.checkFilter();

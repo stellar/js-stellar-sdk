@@ -36,14 +36,8 @@ export class StellarTomlResolver {
     domain: string,
     opts: StellarTomlResolver.StellarTomlResolveOptions = {},
   ): Promise<StellarTomlResolver.StellarToml> {
-    const allowHttp =
-      typeof opts.allowHttp === "undefined"
-        ? Config.isAllowHttp()
-        : opts.allowHttp;
-
-    const timeout =
-      typeof opts.timeout === "undefined" ? Config.getTimeout() : opts.timeout;
-
+    const allowHttp = opts.allowHttp ?? Config.isAllowHttp();
+    const timeout = opts.timeout ?? Config.getTimeout()
     const protocol = allowHttp ? "http" : "https";
 
     return axios
