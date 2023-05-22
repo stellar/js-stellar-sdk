@@ -9,12 +9,12 @@ import { ServerApi } from "./server_api";
  * @class OperationCallBuilder
  * @constructor
  * @extends CallBuilder
- * @param {string} serverUrl Horizon server URL.
+ * @param {string|URL} serverUrl Horizon server URL.
  */
 export class OperationCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.OperationRecord>
 > {
-  constructor(serverUrl: URI) {
+  constructor(serverUrl: URL | string) {
     super(serverUrl, "operations");
     this.segment("operations");
   }

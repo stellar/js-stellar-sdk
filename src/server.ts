@@ -8,7 +8,6 @@ import {
   Transaction,
   xdr,
 } from "stellar-base";
-import URI from "urijs";
 
 import { CallBuilder } from "./call_builder";
 import { Config } from "./config";
@@ -69,10 +68,10 @@ export class Server {
   /**
    * Horizon Server URL (ex. `https://horizon-testnet.stellar.org`).
    */
-  public readonly serverURL: URI;
+  public readonly serverURL: URL;
 
   constructor(serverURL: string | URL, opts: Server.Options = {}) {
-    this.serverURL = URI(serverURL.toString());
+    this.serverURL = new URL(serverURL.toString());
 
     const allowHttp = opts.allowHttp ?? Config.isAllowHttp();
     const customHeaders: Record<string, string> = {};
@@ -96,7 +95,7 @@ export class Server {
       });
     }
 
-    if (this.serverURL.protocol() !== "https" && !allowHttp) {
+    if (this.serverURL.protocol !== "https:" && !allowHttp) {
       throw new Error("Cannot connect to insecure horizon server");
     }
   }
@@ -136,7 +135,7 @@ export class Server {
     _isRetry: boolean = false,
   ): Promise<Server.Timebounds> {
     // HorizonAxiosClient instead of this.ledgers so we can get at them headers
-    const currentTime = getCurrentServerTime(this.serverURL.hostname());
+    const currentTime = getCurrentServerTime(this.serverURL.hostname);
 
     if (currentTime) {
       return {
@@ -155,7 +154,7 @@ export class Server {
 
     // otherwise, retry (by calling the root endpoint)
     // toString automatically adds the trailing slash
-    await HorizonAxiosClient.get(URI(this.serverURL as any).toString());
+    await HorizonAxiosClient.get(this.serverURL.toString());
     return await this.fetchTimebounds(seconds, true);
   }
 
@@ -178,7 +177,7 @@ export class Server {
    */
   public async feeStats(): Promise<Horizon.FeeStatsResponse> {
     const cb = new CallBuilder<Horizon.FeeStatsResponse>(
-      URI(this.serverURL as any),
+      this.serverURL,
     );
     cb.filter.push(["fee_stats"]);
     return cb.call();
@@ -506,28 +505,28 @@ export class Server {
    * @returns {AccountCallBuilder} New {@link AccountCallBuilder} object configured by a current Horizon server configuration.
    */
   public accounts(): AccountCallBuilder {
-    return new AccountCallBuilder(URI(this.serverURL as any));
+    return new AccountCallBuilder(this.serverURL);
   }
 
   /**
    * @returns {ClaimableBalanceCallBuilder} New {@link ClaimableBalanceCallBuilder} object configured by a current Horizon server configuration.
    */
   public claimableBalances(): ClaimableBalanceCallBuilder {
-    return new ClaimableBalanceCallBuilder(URI(this.serverURL as any));
+    return new ClaimableBalanceCallBuilder(this.serverURL);
   }
 
   /**
    * @returns {LedgerCallBuilder} New {@link LedgerCallBuilder} object configured by a current Horizon server configuration.
    */
   public ledgers(): LedgerCallBuilder {
-    return new LedgerCallBuilder(URI(this.serverURL as any));
+    return new LedgerCallBuilder(this.serverURL);
   }
 
   /**
    * @returns {TransactionCallBuilder} New {@link TransactionCallBuilder} object configured by a current Horizon server configuration.
    */
   public transactions(): TransactionCallBuilder {
-    return new TransactionCallBuilder(URI(this.serverURL as any));
+    return new TransactionCallBuilder(this.serverURL);
   }
 
   /**
@@ -545,7 +544,7 @@ export class Server {
    * @returns {OfferCallBuilder} New {@link OfferCallBuilder} object
    */
   public offers(): OfferCallBuilder {
-    return new OfferCallBuilder(URI(this.serverURL as any));
+    return new OfferCallBuilder(this.serverURL);
   }
 
   /**
@@ -555,7 +554,7 @@ export class Server {
    */
   public orderbook(selling: Asset, buying: Asset): OrderbookCallBuilder {
     return new OrderbookCallBuilder(
-      URI(this.serverURL as any),
+      this.serverURL,
       selling,
       buying,
     );
@@ -566,14 +565,14 @@ export class Server {
    * @returns {TradesCallBuilder} New {@link TradesCallBuilder} object configured by a current Horizon server configuration.
    */
   public trades(): TradesCallBuilder {
-    return new TradesCallBuilder(URI(this.serverURL as any));
+    return new TradesCallBuilder(this.serverURL);
   }
 
   /**
    * @returns {OperationCallBuilder} New {@link OperationCallBuilder} object configured by a current Horizon server configuration.
    */
   public operations(): OperationCallBuilder {
-    return new OperationCallBuilder(URI(this.serverURL as any));
+    return new OperationCallBuilder(this.serverURL);
   }
 
   /**
@@ -581,7 +580,7 @@ export class Server {
    *     object configured to the current Horizon server settings.
    */
   public liquidityPools(): LiquidityPoolCallBuilder {
-    return new LiquidityPoolCallBuilder(URI(this.serverURL));
+    return new LiquidityPoolCallBuilder(this.serverURL);
   }
 
   /**
@@ -616,7 +615,7 @@ export class Server {
     destinationAmount: string,
   ): PathCallBuilder {
     return new StrictReceivePathCallBuilder(
-      URI(this.serverURL as any),
+      this.serverURL,
       source,
       destinationAsset,
       destinationAmount,
@@ -644,7 +643,7 @@ export class Server {
     destination: string | Asset[],
   ): PathCallBuilder {
     return new StrictSendPathCallBuilder(
-      URI(this.serverURL as any),
+      this.serverURL,
       sourceAsset,
       sourceAmount,
       destination,
@@ -656,7 +655,7 @@ export class Server {
    * Horizon server configuration.
    */
   public payments(): PaymentCallBuilder {
-    return new PaymentCallBuilder(URI(this.serverURL as any) as any);
+    return new PaymentCallBuilder(this.serverURL as any);
   }
 
   /**
@@ -664,7 +663,7 @@ export class Server {
    * Horizon server configuration
    */
   public effects(): EffectCallBuilder {
-    return new EffectCallBuilder(URI(this.serverURL as any) as any);
+    return new EffectCallBuilder(this.serverURL as any);
   }
 
   /**
@@ -674,7 +673,7 @@ export class Server {
    * @private
    */
   public friendbot(address: string): FriendbotBuilder {
-    return new FriendbotBuilder(URI(this.serverURL as any), address);
+    return new FriendbotBuilder(this.serverURL, address);
   }
 
   /**
@@ -683,7 +682,7 @@ export class Server {
    * @returns {AssetsCallBuilder} New AssetsCallBuilder instance
    */
   public assets(): AssetsCallBuilder {
-    return new AssetsCallBuilder(URI(this.serverURL as any));
+    return new AssetsCallBuilder(this.serverURL);
   }
 
   /**
@@ -723,7 +722,7 @@ export class Server {
     offset: number,
   ): TradeAggregationCallBuilder {
     return new TradeAggregationCallBuilder(
-      URI(this.serverURL as any),
+      this.serverURL,
       base,
       counter,
       start_time,

@@ -477,8 +477,6 @@ describe("server.js non-transaction tests", function () {
             .order("asc")
             .call()
             .then(function (page) {
-              console.log("page:", page)
-
               page.next().then(function (response) {
                 expect(response.records).to.be.deep.equal(
                   ledgersResponse._embedded.records

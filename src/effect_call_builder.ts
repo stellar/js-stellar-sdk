@@ -9,12 +9,12 @@ import { ServerApi } from "./server_api";
  * @extends CallBuilder
  * @see [All Effects](https://developers.stellar.org/api/resources/effects/)
  * @constructor
- * @param {string} serverUrl Horizon server URL.
+ * @param {string|URL} serverUrl Horizon server URL.
  */
 export class EffectCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.EffectRecord>
 > {
-  constructor(serverUrl: URI) {
+  constructor(serverUrl: URL | string) {
     super(serverUrl, "effects");
     this.segment("effects");
   }

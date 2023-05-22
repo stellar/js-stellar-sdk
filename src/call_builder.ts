@@ -1,4 +1,3 @@
-import URI from "urijs";
 import URITemplate from "urijs/src/URITemplate";
 
 import { BadRequestError, NetworkError, NotFoundError } from "./errors";
@@ -45,7 +44,7 @@ export class CallBuilder<
 
   public filter: string[][];
 
-  constructor(serverUrl: URL | URI, neighborRoot: string = "") {
+  constructor(serverUrl: URL | string, neighborRoot: string = "") {
     this.url = new URL(serverUrl.toString());
 
     this.filter = [];

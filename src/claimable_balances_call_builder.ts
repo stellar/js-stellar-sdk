@@ -10,12 +10,12 @@ import { ServerApi } from "./server_api";
  * @class ClaimableBalanceCallBuilder
  * @constructor
  * @extends CallBuilder
- * @param {string} serverUrl Horizon server URL.
+ * @param {URL|string} serverUrl Horizon server URL.
  */
 export class ClaimableBalanceCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.ClaimableBalanceRecord>
 > {
-  constructor(serverUrl: URI) {
+  constructor(serverUrl: URL|string) {
     super(serverUrl);
     this.segment("claimable_balances");
   }

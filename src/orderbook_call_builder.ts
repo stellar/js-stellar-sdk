@@ -7,12 +7,12 @@ import { ServerApi } from "./server_api";
  *
  * Do not create this object directly, use {@link Server#orderbook}.
  * @see [Orderbook Details](https://developers.stellar.org/api/aggregations/order-books/)
- * @param {string} serverUrl serverUrl Horizon server URL.
+ * @param {string|URL} serverUrl serverUrl Horizon server URL.
  * @param {Asset} selling Asset being sold
  * @param {Asset} buying Asset being bought
  */
 export class OrderbookCallBuilder extends CallBuilder<ServerApi.OrderbookRecord> {
-  constructor(serverUrl: URI, selling: Asset, buying: Asset) {
+  constructor(serverUrl: URL | string, selling: Asset, buying: Asset) {
     super(serverUrl);
     this.segment("order_book");
     if (!selling.isNative()) {

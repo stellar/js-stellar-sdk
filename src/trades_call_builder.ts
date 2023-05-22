@@ -15,7 +15,7 @@ import { ServerApi } from "./server_api";
 export class TradesCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.TradeRecord>
 > {
-  constructor(serverUrl: URI) {
+  constructor(serverUrl: URL | string) {
     super(serverUrl, "trades");
     this.segment("trades");
   }

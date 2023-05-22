@@ -8,12 +8,12 @@ import { ServerApi } from "./server_api";
  * @see [All Payments](https://developers.stellar.org/api/resources/payments/)
  * @constructor
  * @extends CallBuilder
- * @param {string} serverUrl Horizon server URL.
+ * @param {string|URL} serverUrl Horizon server URL.
  */
 export class PaymentCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.PaymentOperationRecord>
 > {
-  constructor(serverUrl: URI) {
+  constructor(serverUrl: URL | string) {
     super(serverUrl, "payments");
     this.segment("payments");
   }

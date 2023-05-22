@@ -10,12 +10,12 @@ import { ServerApi } from "./server_api";
  * @class LiquidityPoolCallBuilder
  * @extends CallBuilder
  * @constructor
- * @param {string} serverUrl Horizon server URL.
+ * @param {string|URL} serverUrl Horizon server URL.
  */
 export class LiquidityPoolCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.LiquidityPoolRecord>
 > {
-  constructor(serverUrl: URI) {
+  constructor(serverUrl: URL | string) {
     super(serverUrl);
     this.segment("liquidity_pools");
   }

@@ -8,12 +8,12 @@ import { ServerApi } from "./server_api";
  * @class AssetsCallBuilder
  * @constructor
  * @extends CallBuilder
- * @param {string} serverUrl Horizon server URL.
+ * @param {string|URL} serverUrl Horizon server URL.
  */
 export class AssetsCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.AssetRecord>
 > {
-  constructor(serverUrl: URI) {
+  constructor(serverUrl: URL | string) {
     super(serverUrl);
     this.segment("assets");
   }

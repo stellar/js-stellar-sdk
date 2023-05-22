@@ -21,7 +21,7 @@ const allowedResolutions = [
  * @class TradeAggregationCallBuilder
  * @extends CallBuilder
  * @constructor
- * @param {string} serverUrl serverUrl Horizon server URL.
+ * @param {string|URL} serverUrl serverUrl Horizon server URL.
  * @param {Asset} base base asset
  * @param {Asset} counter counter asset
  * @param {long} start_time lower time boundary represented as millis since epoch
@@ -33,7 +33,7 @@ export class TradeAggregationCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<TradeAggregationRecord>
 > {
   constructor(
-    serverUrl: URI,
+    serverUrl: URL | string,
     base: Asset,
     counter: Asset,
     start_time: number,

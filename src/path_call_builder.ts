@@ -20,7 +20,7 @@ import { ServerApi } from "./server_api";
  * Do not create this object directly, use {@link Server#paths}.
  * @see [Find Payment Paths](https://developers.stellar.org/api/aggregations/paths/)
  * @extends CallBuilder
- * @param {string} serverUrl Horizon server URL.
+ * @param {string|URL} serverUrl Horizon server URL.
  * @param {string} source The sender's account ID. Any returned path must use a source that the sender can hold.
  * @param {string} destination The destination account ID that any returned path should use.
  * @param {Asset} destinationAsset The destination asset.
@@ -30,7 +30,7 @@ export class PathCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.PaymentPathRecord>
 > {
   constructor(
-    serverUrl: URI,
+    serverUrl: URL | string,
     source: string,
     destination: string,
     destinationAsset: Asset,

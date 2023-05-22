@@ -10,12 +10,12 @@ import { ServerApi } from "./server_api";
  * @class OfferCallBuilder
  * @constructor
  * @extends CallBuilder
- * @param {string} serverUrl Horizon server URL.
+ * @param {string|URL} serverUrl Horizon server URL.
  */
 export class OfferCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.OfferRecord>
 > {
-  constructor(serverUrl: URI) {
+  constructor(serverUrl: URL | string) {
     super(serverUrl, "offers");
     this.segment("offers");
   }

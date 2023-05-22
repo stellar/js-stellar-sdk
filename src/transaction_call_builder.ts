@@ -9,12 +9,12 @@ import { ServerApi } from "./server_api";
  * @extends CallBuilder
  * @see [All Transactions](https://developers.stellar.org/api/resources/transactions/)
  * @constructor
- * @param {string} serverUrl Horizon server URL.
+ * @param {string|URL} serverUrl Horizon server URL.
  */
 export class TransactionCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.TransactionRecord>
 > {
-  constructor(serverUrl: URI) {
+  constructor(serverUrl: URL | string) {
     super(serverUrl, "transactions");
     this.segment("transactions");
   }
