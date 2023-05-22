@@ -1,6 +1,5 @@
-/package.json
-/node_modules
-/lib
-/dist
-/docs
-gulpfile.js
+../package.json
+../node_modules
+../lib
+../dist
+../docs
