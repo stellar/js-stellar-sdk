@@ -17,7 +17,7 @@ export class AccountCallBuilder extends CallBuilder<
 > {
   constructor(serverUrl: URI) {
     super(serverUrl);
-    this.url.segment("accounts");
+    this.segment("accounts");
   }
 
   /**
@@ -29,7 +29,7 @@ export class AccountCallBuilder extends CallBuilder<
    * @returns {CallBuilder} a new CallBuilder instance for the /accounts/:id endpoint
    */
   public accountId(id: string): CallBuilder<ServerApi.AccountRecord> {
-    const builder = new CallBuilder<ServerApi.AccountRecord>(this.url.clone());
+    const builder = new CallBuilder<ServerApi.AccountRecord>(this.clone());
     builder.filter.push([id]);
     return builder;
   }
@@ -41,7 +41,7 @@ export class AccountCallBuilder extends CallBuilder<
    * @returns {AccountCallBuilder} current AccountCallBuilder instance
    */
   public forSigner(id: string): this {
-    this.url.setQuery("signer", id);
+    this.url.searchParams.set("signer", id);
     return this;
   }
 
@@ -53,7 +53,7 @@ export class AccountCallBuilder extends CallBuilder<
    * @returns {AccountCallBuilder} current AccountCallBuilder instance
    */
   public forAsset(asset: Asset): this {
-    this.url.setQuery("asset", `${asset}`);
+    this.url.searchParams.set("asset", `${asset}`);
     return this;
   }
 
@@ -64,7 +64,7 @@ export class AccountCallBuilder extends CallBuilder<
    * @returns {AccountCallBuilder} current AccountCallBuilder instance
    */
   public sponsor(id: string): this {
-    this.url.setQuery("sponsor", id);
+    this.url.searchParams.set("sponsor", id);
     return this;
   }
 
@@ -75,7 +75,7 @@ export class AccountCallBuilder extends CallBuilder<
    * @returns {AccountCallBuilder} current AccountCallBuilder instance
    */
   public forLiquidityPool(id: string): this {
-    this.url.setQuery("liquidity_pool", id);
+    this.url.searchParams.set("liquidity_pool", id);
     return this;
   }
 }

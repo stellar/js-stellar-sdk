@@ -17,7 +17,7 @@ export class TradesCallBuilder extends CallBuilder<
 > {
   constructor(serverUrl: URI) {
     super(serverUrl, "trades");
-    this.url.segment("trades");
+    this.segment("trades");
   }
 
   /**
@@ -28,18 +28,18 @@ export class TradesCallBuilder extends CallBuilder<
    */
   public forAssetPair(base: Asset, counter: Asset): this {
     if (!base.isNative()) {
-      this.url.setQuery("base_asset_type", base.getAssetType());
-      this.url.setQuery("base_asset_code", base.getCode());
-      this.url.setQuery("base_asset_issuer", base.getIssuer());
+      this.url.searchParams.set("base_asset_type", base.getAssetType());
+      this.url.searchParams.set("base_asset_code", base.getCode());
+      this.url.searchParams.set("base_asset_issuer", base.getIssuer());
     } else {
-      this.url.setQuery("base_asset_type", "native");
+      this.url.searchParams.set("base_asset_type", "native");
     }
     if (!counter.isNative()) {
-      this.url.setQuery("counter_asset_type", counter.getAssetType());
-      this.url.setQuery("counter_asset_code", counter.getCode());
-      this.url.setQuery("counter_asset_issuer", counter.getIssuer());
+      this.url.searchParams.set("counter_asset_type", counter.getAssetType());
+      this.url.searchParams.set("counter_asset_code", counter.getCode());
+      this.url.searchParams.set("counter_asset_issuer", counter.getIssuer());
     } else {
-      this.url.setQuery("counter_asset_type", "native");
+      this.url.searchParams.set("counter_asset_type", "native");
     }
     return this;
   }
@@ -50,7 +50,7 @@ export class TradesCallBuilder extends CallBuilder<
    * @returns {TradesCallBuilder} current TradesCallBuilder instance
    */
   public forOffer(offerId: string): this {
-    this.url.setQuery("offer_id", offerId);
+    this.url.searchParams.set("offer_id", offerId);
     return this;
   }
 
@@ -60,7 +60,7 @@ export class TradesCallBuilder extends CallBuilder<
    * @returns {TradesCallBuilder} current TradesCallBuilder instance.
    */
   public forType(tradeType: ServerApi.TradeType): this {
-    this.url.setQuery("trade_type", tradeType);
+    this.url.searchParams.set("trade_type", tradeType);
     return this;
   }
 

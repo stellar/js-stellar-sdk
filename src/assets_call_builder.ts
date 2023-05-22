@@ -15,7 +15,7 @@ export class AssetsCallBuilder extends CallBuilder<
 > {
   constructor(serverUrl: URI) {
     super(serverUrl);
-    this.url.segment("assets");
+    this.segment("assets");
   }
 
   /**
@@ -24,7 +24,7 @@ export class AssetsCallBuilder extends CallBuilder<
    * @returns {AssetsCallBuilder} current AssetCallBuilder instance
    */
   public forCode(value: string): AssetsCallBuilder {
-    this.url.setQuery("asset_code", value);
+    this.url.searchParams.set("asset_code", value);
     return this;
   }
 
@@ -34,7 +34,7 @@ export class AssetsCallBuilder extends CallBuilder<
    * @returns {AssetsCallBuilder} current AssetCallBuilder instance
    */
   public forIssuer(value: string): AssetsCallBuilder {
-    this.url.setQuery("asset_issuer", value);
+    this.url.searchParams.set("asset_issuer", value);
     return this;
   }
 }

@@ -43,36 +43,36 @@ export class TradeAggregationCallBuilder extends CallBuilder<
   ) {
     super(serverUrl);
 
-    this.url.segment("trade_aggregations");
+    this.segment("trade_aggregations");
     if (!base.isNative()) {
-      this.url.setQuery("base_asset_type", base.getAssetType());
-      this.url.setQuery("base_asset_code", base.getCode());
-      this.url.setQuery("base_asset_issuer", base.getIssuer());
+      this.url.searchParams.set("base_asset_type", base.getAssetType());
+      this.url.searchParams.set("base_asset_code", base.getCode());
+      this.url.searchParams.set("base_asset_issuer", base.getIssuer());
     } else {
-      this.url.setQuery("base_asset_type", "native");
+      this.url.searchParams.set("base_asset_type", "native");
     }
     if (!counter.isNative()) {
-      this.url.setQuery("counter_asset_type", counter.getAssetType());
-      this.url.setQuery("counter_asset_code", counter.getCode());
-      this.url.setQuery("counter_asset_issuer", counter.getIssuer());
+      this.url.searchParams.set("counter_asset_type", counter.getAssetType());
+      this.url.searchParams.set("counter_asset_code", counter.getCode());
+      this.url.searchParams.set("counter_asset_issuer", counter.getIssuer());
     } else {
-      this.url.setQuery("counter_asset_type", "native");
+      this.url.searchParams.set("counter_asset_type", "native");
     }
     if (typeof start_time !== "number" || typeof end_time !== "number") {
       throw new BadRequestError("Invalid time bounds", [start_time, end_time]);
     } else {
-      this.url.setQuery("start_time", start_time.toString());
-      this.url.setQuery("end_time", end_time.toString());
+      this.url.searchParams.set("start_time", start_time.toString());
+      this.url.searchParams.set("end_time", end_time.toString());
     }
     if (!this.isValidResolution(resolution)) {
       throw new BadRequestError("Invalid resolution", resolution);
     } else {
-      this.url.setQuery("resolution", resolution.toString());
+      this.url.searchParams.set("resolution", resolution.toString());
     }
     if (!this.isValidOffset(offset, resolution)) {
       throw new BadRequestError("Invalid offset", offset);
     } else {
-      this.url.setQuery("offset", offset.toString());
+      this.url.searchParams.set("offset", offset.toString());
     }
   }
 

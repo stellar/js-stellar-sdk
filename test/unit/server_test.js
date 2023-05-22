@@ -358,7 +358,7 @@ describe("server.js non-transaction tests", function () {
     });
   });
 
-  describe("Server._sendResourceRequest", function () {
+  describe("Server._sendNormalRequest", function () {
     describe("requests all ledgers", function () {
       let ledgersResponse = {
         _embedded: {
@@ -477,6 +477,8 @@ describe("server.js non-transaction tests", function () {
             .order("asc")
             .call()
             .then(function (page) {
+              console.log("page:", page)
+
               page.next().then(function (response) {
                 expect(response.records).to.be.deep.equal(
                   ledgersResponse._embedded.records

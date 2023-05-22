@@ -304,7 +304,7 @@ export namespace FederationServer {
 function query(url: URL, params: Record<string, string>): URL {
   let clone = new URL(url.toString());
   Object.entries(params).forEach(([key, value]) => {
-    clone.searchParams.append(key, value);
+    clone.searchParams.set(key, value);
   });
 
   return clone;

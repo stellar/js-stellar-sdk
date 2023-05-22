@@ -16,7 +16,7 @@ export class EffectCallBuilder extends CallBuilder<
 > {
   constructor(serverUrl: URI) {
     super(serverUrl, "effects");
-    this.url.segment("effects");
+    this.segment("effects");
   }
 
   /**

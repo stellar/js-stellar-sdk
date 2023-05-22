@@ -16,7 +16,7 @@ export class LedgerCallBuilder extends CallBuilder<
 > {
   constructor(serverUrl: URI) {
     super(serverUrl);
-    this.url.segment("ledgers");
+    this.segment("ledgers");
   }
 
   /**

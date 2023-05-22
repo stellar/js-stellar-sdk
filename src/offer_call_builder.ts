@@ -17,7 +17,7 @@ export class OfferCallBuilder extends CallBuilder<
 > {
   constructor(serverUrl: URI) {
     super(serverUrl, "offers");
-    this.url.segment("offers");
+    this.segment("offers");
   }
 
   /**
@@ -28,7 +28,7 @@ export class OfferCallBuilder extends CallBuilder<
    * @returns {CallBuilder<ServerApi.OfferRecord>} CallBuilder<ServerApi.OfferRecord> OperationCallBuilder instance
    */
   public offer(offerId: string): CallBuilder<ServerApi.OfferRecord> {
-    const builder = new CallBuilder<ServerApi.OfferRecord>(this.url.clone());
+    const builder = new CallBuilder<ServerApi.OfferRecord>(this.clone());
     builder.filter.push([offerId]);
     return builder;
   }
@@ -53,11 +53,11 @@ export class OfferCallBuilder extends CallBuilder<
    */
   public buying(asset: Asset): this {
     if (!asset.isNative()) {
-      this.url.setQuery("buying_asset_type", asset.getAssetType());
-      this.url.setQuery("buying_asset_code", asset.getCode());
-      this.url.setQuery("buying_asset_issuer", asset.getIssuer());
+      this.url.searchParams.set("buying_asset_type", asset.getAssetType());
+      this.url.searchParams.set("buying_asset_code", asset.getCode());
+      this.url.searchParams.set("buying_asset_issuer", asset.getIssuer());
     } else {
-      this.url.setQuery("buying_asset_type", "native");
+      this.url.searchParams.set("buying_asset_type", "native");
     }
     return this;
   }
@@ -71,11 +71,11 @@ export class OfferCallBuilder extends CallBuilder<
    */
   public selling(asset: Asset): this {
     if (!asset.isNative()) {
-      this.url.setQuery("selling_asset_type", asset.getAssetType());
-      this.url.setQuery("selling_asset_code", asset.getCode());
-      this.url.setQuery("selling_asset_issuer", asset.getIssuer());
+      this.url.searchParams.set("selling_asset_type", asset.getAssetType());
+      this.url.searchParams.set("selling_asset_code", asset.getCode());
+      this.url.searchParams.set("selling_asset_issuer", asset.getIssuer());
     } else {
-      this.url.setQuery("selling_asset_type", "native");
+      this.url.searchParams.set("selling_asset_type", "native");
     }
     return this;
   }
@@ -87,7 +87,7 @@ export class OfferCallBuilder extends CallBuilder<
    * @returns {OfferCallBuilder} current OfferCallBuilder instance
    */
   public sponsor(id: string): this {
-    this.url.setQuery("sponsor", id);
+    this.url.searchParams.set("sponsor", id);
     return this;
   }
 
@@ -99,7 +99,7 @@ export class OfferCallBuilder extends CallBuilder<
    * @returns {OfferCallBuilder} current OfferCallBuilder instance
    */
   public seller(seller: string): this {
-    this.url.setQuery("seller", seller);
+    this.url.searchParams.set("seller", seller);
     return this;
   }
 }

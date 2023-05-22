@@ -15,7 +15,7 @@ export class PaymentCallBuilder extends CallBuilder<
 > {
   constructor(serverUrl: URI) {
     super(serverUrl, "payments");
-    this.url.segment("payments");
+    this.segment("payments");
   }
 
   /**

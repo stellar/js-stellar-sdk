@@ -23,7 +23,7 @@ const anyGlobal = global as any;
 type Constructable<T> = new (e: string) => T;
 // require("eventsource") for Node and React Native environment
 let EventSource: Constructable<EventSource> = anyGlobal.EventSource ??
-  anyGlobal.window.EventSource ??
+  anyGlobal.window?.EventSource ??
   require("eventsource");
 
 /**
@@ -39,21 +39,17 @@ export class CallBuilder<
     | Horizon.BaseResponse
     | ServerApi.CollectionPage<Horizon.BaseResponse>
 > {
-  protected url: URI;
+  protected url: URL;
   protected originalSegments: string[];
   protected neighborRoot: string;
 
   public filter: string[][];
 
-  constructor(serverUrl: URI | URL, neighborRoot: string = "") {
-    if (serverUrl instanceof URL) {
-      this.url = URI(serverUrl.toString());
-    } else {
-      this.url = serverUrl.clone();
-    }
+  constructor(serverUrl: URL | URI, neighborRoot: string = "") {
+    this.url = new URL(serverUrl.toString());
 
     this.filter = [];
-    this.originalSegments = this.url.segment() || [];
+    this.originalSegments = this.url.pathname.split('/').slice(1) || [];
     this.neighborRoot = neighborRoot;
   }
 
@@ -63,7 +59,7 @@ export class CallBuilder<
    */
   public call(): Promise<T> {
     this.checkFilter();
-    return this._sendNormalRequest(new URL(this.url.toString())).then((r) =>
+    return this._sendNormalRequest(this.url).then((r) =>
       this._parseResponse(r),
     );
   }
@@ -98,8 +94,8 @@ export class CallBuilder<
   public stream(options: EventSourceOptions<T> = {}): () => void {
     this.checkFilter();
 
-    this.url.setQuery("X-Client-Name", "js-stellar-sdk");
-    this.url.setQuery("X-Client-Version", version);
+    this.url.searchParams.set("X-Client-Name", "js-stellar-sdk");
+    this.url.searchParams.set("X-Client-Version", version);
 
     // EventSource object
     let es: EventSource;
@@ -155,7 +151,7 @@ export class CallBuilder<
           ? this._parseRecord(JSON.parse(message.data))
           : message;
         if (result.paging_token) {
-          this.url.setQuery("cursor", result.paging_token);
+          this.url.searchParams.set("cursor", result.paging_token);
         }
         clearTimeout(timeout);
         createTimeout();
@@ -196,7 +192,7 @@ export class CallBuilder<
    * @returns {object} current CallBuilder instance
    */
   public cursor(cursor: string): this {
-    this.url.setQuery("cursor", cursor);
+    this.url.searchParams.set("cursor", cursor);
     return this;
   }
 
@@ -207,7 +203,7 @@ export class CallBuilder<
    * @returns {object} current CallBuilder instance
    */
   public limit(recordsNumber: number): this {
-    this.url.setQuery("limit", recordsNumber.toString());
+    this.url.searchParams.set("limit", recordsNumber.toString());
     return this;
   }
 
@@ -217,7 +213,7 @@ export class CallBuilder<
    * @returns {object} current CallBuilder instance
    */
   public order(direction: "asc" | "desc"): this {
-    this.url.setQuery("order", direction);
+    this.url.searchParams.set("order", direction);
     return this;
   }
 
@@ -233,7 +229,7 @@ export class CallBuilder<
    * @returns {object} current CallBuilder instance.
    */
   public join(include: "transactions"): this {
-    this.url.setQuery("join", include);
+    this.url.searchParams.set("join", include);
     return this;
   }
 
@@ -272,7 +268,7 @@ export class CallBuilder<
     if (this.filter.length === 1) {
       // append filters to original segments
       const newSegment = this.originalSegments.concat(this.filter[0]);
-      this.url.segment(newSegment);
+      this.url.pathname = newSegment.join('/');
     }
   }
 
@@ -342,20 +338,11 @@ export class CallBuilder<
   }
 
   private async _sendNormalRequest(initialUrl: URL) {
-    // Update the given URL's username, password, and protocol using the
-    // internal URL as a template if they aren't explicitly set already.
-
+    // Update the given URL's protocol using the internal URL as a template if
+    // it isn't set already.
     let url = new URL(initialUrl.toString()); // clone to avoid modifying caller
-    let thisUrl = new URL(this.url.toString()); // while we migrate
-
-    if (url.port === "" && url.username === "" && url.password === "") {
-      url.port = thisUrl.port;
-      url.username = thisUrl.username;
-      url.password = thisUrl.password;
-    }
-
     if (url.protocol === "") {
-      url.protocol = thisUrl.protocol;
+      url.protocol = this.url.protocol;
     }
 
     return HorizonAxiosClient.get(url.toString())
@@ -387,11 +374,13 @@ export class CallBuilder<
     return {
       records: json._embedded.records,
       next: async () => {
-        const r = await this._sendNormalRequest(new URL(json._links.next.href));
+        let base = json._links.next.href.startsWith("/") ? this.url.origin : "";
+        const r = await this._sendNormalRequest(new URL(json._links.next.href, base));
         return this._toCollectionPage(r);
       },
       prev: async () => {
-        const r = await this._sendNormalRequest(new URL(json._links.prev.href));
+        let base = json._links.prev.href.startsWith("/") ? this.url.origin : "";
+        const r = await this._sendNormalRequest(new URL(json._links.prev.href, base));
         return this._toCollectionPage(r);
       },
     };
@@ -417,5 +406,23 @@ export class CallBuilder<
     } else {
       return Promise.reject(new Error(error.message));
     }
+  }
+
+  /**
+   * @returns {URL}   a new copy of the internal server URL
+   */
+  protected clone(): URL {
+    return new URL(this.url.toString());
+  }
+
+  /**
+   * Adds paths to the internal URL.
+   * @param {string[]} segments   the paths to append, without any `/` characters
+   * @returns {URL} the internal URL, for chaining convenience
+   */
+  protected segment(...segments: string[]): URL {
+    const prefix = this.url.pathname.endsWith("/") ? "" : "/"
+    this.url.pathname += prefix + segments.join("/");
+    return this.url;
   }
 }

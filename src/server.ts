@@ -67,20 +67,14 @@ function _getAmountInLumens(amt: BigNumber) {
  */
 export class Server {
   /**
-   * serverURL Horizon Server URL (ex. `https://horizon-testnet.stellar.org`).
-   *
-   * TODO: Solve `URI(this.serverURL as any)`.
+   * Horizon Server URL (ex. `https://horizon-testnet.stellar.org`).
    */
   public readonly serverURL: URI;
 
-  constructor(serverURL: string, opts: Server.Options = {}) {
-    this.serverURL = URI(serverURL);
+  constructor(serverURL: string | URL, opts: Server.Options = {}) {
+    this.serverURL = URI(serverURL.toString());
 
-    const allowHttp =
-      typeof opts.allowHttp === "undefined"
-        ? Config.isAllowHttp()
-        : opts.allowHttp;
-
+    const allowHttp = opts.allowHttp ?? Config.isAllowHttp();
     const customHeaders: Record<string, string> = {};
 
     if (opts.appName) {
@@ -310,10 +304,11 @@ export class Server {
         .toString("base64"),
     );
 
-    return HorizonAxiosClient.post(
-      URI(this.serverURL as any)
-        .segment("transactions")
-        .toString(),
+    const url = new URL(this.serverURL.toString());
+    const prefix = url.pathname.endsWith("/") ? "" : "/";
+    url.pathname += prefix + "transactions";
+
+    return HorizonAxiosClient.post(url.toString(),
       `tx=${tx}`,
       { timeout: SUBMIT_TRANSACTION_TIMEOUT },
     )

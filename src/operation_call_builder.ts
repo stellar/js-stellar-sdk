@@ -16,7 +16,7 @@ export class OperationCallBuilder extends CallBuilder<
 > {
   constructor(serverUrl: URI) {
     super(serverUrl, "operations");
-    this.url.segment("operations");
+    this.segment("operations");
   }
 
   /**
@@ -30,7 +30,7 @@ export class OperationCallBuilder extends CallBuilder<
     operationId: string,
   ): CallBuilder<ServerApi.OperationRecord> {
     const builder = new CallBuilder<ServerApi.OperationRecord>(
-      this.url.clone(),
+      this.clone(),
     );
     builder.filter.push([operationId]);
     return builder;
@@ -95,7 +95,7 @@ export class OperationCallBuilder extends CallBuilder<
    * @returns {OperationCallBuilder} this OperationCallBuilder instance
    */
   public includeFailed(value: boolean): this {
-    this.url.setQuery("include_failed", value.toString());
+    this.url.searchParams.set("include_failed", value.toString());
     return this;
   }
 }
