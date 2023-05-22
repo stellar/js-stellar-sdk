@@ -26,12 +26,12 @@
   "scripts": {
     "build": "cross-env NODE_ENV=test yarn _build",
     "build:prod": "cross-env NODE_ENV=production yarn _build",
-    "build:node": "build:babel && build:ts",
-    "build:babel": "babel --extensions '.ts' --out-dir lib/ src/",
+    "build:node": "yarn _babel && yarn build:ts",
     "build:ts": "tsc -p ./config/tsconfig.json",
     "build:browser": "webpack --stats-modules-space 999 -c config/webpack.config.browser.js",
+    "build:docs": "cross-env NODE_ENV=development yarn _babel",
     "clean": "rm -rf lib/ dist/ coverage/ .nyc_output/ jsdoc/",
-    "docs": "cross-env NODE_ENV=development yarn build:babel && jsdoc -c ./config/.jsdoc.json --verbose",
+    "docs": "yarn build:docs && jsdoc -c ./config/.jsdoc.json --verbose",
     "test": "yarn test:node && yarn test:integration && yarn test:browser",
     "test:node": "yarn _nyc mocha --recursive 'test/unit/**/*.js'",
     "test:integration": "yarn _nyc mocha --recursive 'test/integration/**/*.js'",
@@ -40,6 +40,7 @@
     "preversion": "yarn clean && yarn fmt && yarn build:prod && yarn test",
     "prepare": "yarn build:prod",
     "_build": "yarn build:node && yarn build:browser",
+    "_babel": "babel --extensions '.ts' --out-dir lib/ src/",
     "_nyc": "nyc --nycrc-path config/.nycrc",
     "_prettier": "prettier --ignore-path config/.prettierignore --write './**/*.js'"
   },

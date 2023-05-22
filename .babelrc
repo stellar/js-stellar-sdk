@@ -10,10 +10,11 @@
     },
     "env": {
         "test": {
+            "comments": true,           // for debugging
             "plugins": [ "istanbul" ]   // for code coverage
         },
         "development": {
-            "comments": true
+            "comments": true            // for jsdocs
         },
         "production": {
             // stricter target for final browser bundle
