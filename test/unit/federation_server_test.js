@@ -195,9 +195,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
       StellarSdk.FederationServer.createForDomain("acme.com").then(
         (federationServer) => {
           expect(federationServer.serverURL.protocol).equals("https:");
-          expect(federationServer.serverURL.hostname).equals(
-            "api.stellar.org"
-          );
+          expect(federationServer.serverURL.hostname).equals("api.stellar.org");
           expect(federationServer.serverURL.pathname).equals("/federation");
           expect(federationServer.domain).equals("acme.com");
           done();
