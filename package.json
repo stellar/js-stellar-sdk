@@ -24,12 +24,12 @@
     "/dist"
   ],
   "scripts": {
-    "build": "cross-env NODE_ENV=test yarn _build",
+    "build": "cross-env NODE_ENV=development yarn _build",
     "build:prod": "cross-env NODE_ENV=production yarn _build",
     "build:node": "yarn _babel && yarn build:ts",
     "build:ts": "tsc -p ./config/tsconfig.json",
     "build:browser": "webpack --stats-modules-space 999 -c config/webpack.config.browser.js",
-    "build:docs": "cross-env NODE_ENV=development yarn _babel",
+    "build:docs": "cross-env NODE_ENV=docs yarn _babel",
     "clean": "rm -rf lib/ dist/ coverage/ .nyc_output/ jsdoc/",
     "docs": "yarn build:docs && jsdoc -c ./config/.jsdoc.json --verbose",
     "test": "yarn test:node && yarn test:integration && yarn test:browser",

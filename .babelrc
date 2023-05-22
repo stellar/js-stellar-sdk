@@ -9,11 +9,11 @@
         "browsers": [ "> 2%" ]
     },
     "env": {
-        "test": {
+        "development": {
             "comments": true,           // for debugging
             "plugins": [ "istanbul" ]   // for code coverage
         },
-        "development": {
+        "docs": {
             "comments": true            // for jsdocs
         },
         "production": {
