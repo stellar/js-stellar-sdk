@@ -63,7 +63,7 @@ export class StellarTomlResolver {
         try {
           const tomlObject = toml.parse(response.data);
           return Promise.resolve(tomlObject);
-        } catch (e) {
+        } catch (e: any) {
           return Promise.reject(
             new Error(
               `stellar.toml is invalid - Parsing error on line ${e.line}, column ${e.column}: ${e.message}`,

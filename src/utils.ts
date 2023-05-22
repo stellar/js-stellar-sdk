@@ -509,7 +509,7 @@ export namespace Utils {
     let serverKP: Keypair;
     try {
       serverKP = Keypair.fromPublicKey(serverAccountID); // can throw 'Invalid Stellar public key'
-    } catch (err) {
+    } catch (err: any) {
       throw new Error(
         "Couldn't infer keypair from the provided 'serverAccountID': " +
           err.message,
@@ -686,7 +686,7 @@ export namespace Utils {
       let keypair: Keypair;
       try {
         keypair = Keypair.fromPublicKey(signer); // This can throw a few different errors
-      } catch (err) {
+      } catch (err: any) {
         throw new InvalidSep10ChallengeError(
           "Signer is not a valid address: " + err.message,
         );
