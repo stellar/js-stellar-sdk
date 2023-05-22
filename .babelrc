@@ -1,14 +1,29 @@
 {
-    "comments": true,
+    "comments": false,
     "presets": [
         "@babel/preset-env",
         "@babel/typescript"
     ],
+    "targets": {
+        "node": 14,
+        "browsers": [ "> 2%" ]
+    },
     "env": {
+        "test": {
+            "plugins": [ "istanbul" ]   // for code coverage
+        },
         "development": {
-            "plugins": [
-                "istanbul"
-            ]
+            "comments": true
+        },
+        "production": {
+            // stricter target for final browser bundle
+            "targets": {
+                "browsers": [
+                    "> 2%",
+                    "ie 11",
+                    "not op_mini all"
+                ]
+            }
         }
     }
 }
