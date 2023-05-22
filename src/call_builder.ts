@@ -23,7 +23,7 @@ const anyGlobal = global as any;
 type Constructable<T> = new (e: string) => T;
 // require("eventsource") for Node and React Native environment
 let EventSource: Constructable<EventSource> = anyGlobal.EventSource ??
-  anyGlobal.window.EventSource ??
+  anyGlobal.window?.EventSource ??
   require("eventsource");
 
 /**
