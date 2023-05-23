@@ -63,7 +63,7 @@ const config = {
     // Ignore native modules (sodium-native)
     new webpack.IgnorePlugin({ resourceRegExp: /sodium-native/ }),
     new NodePolyfillPlugin({
-      includeAliases: ["http", "https"] // others aren't needed
+      includeAliases: ['http', 'https'] // others aren't needed
     }),
     new webpack.ProvidePlugin({
       Buffer: ['buffer', 'Buffer']
