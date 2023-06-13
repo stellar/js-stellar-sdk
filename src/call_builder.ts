@@ -1,4 +1,3 @@
-import isNode from "detect-node";
 import URI from "urijs";
 import URITemplate from "urijs/src/URITemplate";
 
@@ -14,29 +13,18 @@ const version = require("../package.json").version;
 // query-param.
 const JOINABLE = ["transaction"];
 
-type Constructable<T> = new (e: string) => T;
-
 export interface EventSourceOptions<T> {
   onmessage?: (value: T) => void;
   onerror?: (event: MessageEvent) => void;
   reconnectTimeout?: number;
 }
 
-let EventSource: Constructable<EventSource>;
 const anyGlobal = global as any;
-
-if (anyGlobal.EventSource) {
-  EventSource = anyGlobal.EventSource;
-} else if (isNode) {
-  /* tslint:disable-next-line:no-var-requires */
-  EventSource = require("eventsource");
-} else if (anyGlobal.window.EventSource) {
-  EventSource = anyGlobal.window.EventSource;
-} else {
-  // require("eventsource") for React Native environment
-  /* tslint:disable-next-line:no-var-requires */
-  EventSource = require("eventsource");
-}
+type Constructable<T> = new (e: string) => T;
+// require("eventsource") for Node and React Native environment
+let EventSource: Constructable<EventSource> = anyGlobal.EventSource ??
+  anyGlobal.window?.EventSource ??
+  require("eventsource");
 
 /**
  * Creates a new {@link CallBuilder} pointed to server defined by serverUrl.

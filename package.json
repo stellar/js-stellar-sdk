@@ -141,7 +141,6 @@
   "dependencies": {
     "axios": "^1.4.0",
     "bignumber.js": "^9.1.1",
-    "detect-node": "^2.0.4",
     "eventsource": "^2.0.2",
     "randombytes": "^2.1.0",
     "stellar-base": "v9.0.0-beta.2",
