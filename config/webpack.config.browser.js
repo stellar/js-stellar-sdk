@@ -32,7 +32,7 @@ const config = {
     rules: [
       {
         test: /\.m?(ts|js)$/,
-        exclude: /node_modules/,
+        exclude: /node_modules\/(?!(stellar-base|js-xdr))/,
         use: {
           loader: 'babel-loader',
           options: {
