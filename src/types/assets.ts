@@ -7,12 +7,14 @@ export interface AssetRecord extends Horizon.BaseResponse {
   asset_issuer: string;
   paging_token: string;
   accounts: Horizon.AssetAccounts;
+  balances: Horizon.AssetBalances;
   num_claimable_balances: number;
   num_liquidity_pools: number;
-  balances: Horizon.AssetBalances;
-  claimable_balances_amount: string;
-  amount: string;
+  num_contracts: number;
   num_accounts: number;
+  amount: string;
+  claimable_balances_amount: string;
   liquidity_pools_amount: string;
+  contracts_amount: string;
   flags: Horizon.Flags;
 }

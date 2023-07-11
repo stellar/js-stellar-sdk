@@ -3479,12 +3479,14 @@ describe("server.js non-transaction tests", function () {
                   unauthorized: 0,
                 },
                 num_claimable_balances: 3,
+                num_contracts: 2,
                 balances: {
                   authorized: "1000000.0000000",
                   authorized_to_maintain_liabilities: "500000.0000000",
                   unauthorized: "0.0000000",
                 },
                 claimable_balances_amount: "0.0000000",
+                contracts_amount: "1000.0000000",
                 amount: "1000000.0000000",
                 num_accounts: 2,
                 flags: {
@@ -3553,12 +3555,14 @@ describe("server.js non-transaction tests", function () {
                   unauthorized: 0,
                 },
                 num_claimable_balances: 3,
+                num_contracts: 2,
                 balances: {
                   authorized: "111.0010000",
                   authorized_to_maintain_liabilities: "55.5005000",
                   unauthorized: "0.0000000",
                 },
                 claimable_balances_amount: "0.0000000",
+                contracts_amount: "10000.0000000",
                 amount: "111.0010000",
                 num_accounts: 127,
                 flags: {
@@ -3629,12 +3633,14 @@ describe("server.js non-transaction tests", function () {
                   unauthorized: 0,
                 },
                 num_claimable_balances: 3,
+                num_contracts: 2,
                 balances: {
                   authorized: "757.0000000",
                   authorized_to_maintain_liabilities: "378.5000000",
                   unauthorized: "0.0000000",
                 },
                 claimable_balances_amount: "0.0000000",
+                contracts_amount: "10000.0000000",
                 amount: "757.0000000",
                 num_accounts: 18,
                 flags: {
@@ -3704,12 +3710,14 @@ describe("server.js non-transaction tests", function () {
                 unauthorized: 0,
               },
               num_claimable_balances: 0,
+              num_contracts: 2,
               balances: {
                 authorized: "1387.0000000",
                 authorized_to_maintain_liabilities: "0.0000000",
                 unauthorized: "0.0000000",
               },
               claimable_balances_amount: "0.0000000",
+              contracts_amount: "10000.0000000",
               amount: "1387.0000000",
               num_accounts: 1,
               flags: {
