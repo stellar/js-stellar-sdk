@@ -1,7 +1,7 @@
-import axios from "axios";
-import { Networks } from "stellar-base";
-import toml from "toml";
-import { Config } from "./config";
+import axios from 'axios';
+import { Networks } from 'stellar-base';
+import toml from 'toml';
+import { Config } from './config';
 
 // STELLAR_TOML_MAX_SIZE is the maximum size of stellar.toml file
 export const STELLAR_TOML_MAX_SIZE = 100 * 1024;
@@ -34,17 +34,17 @@ export class StellarTomlResolver {
    */
   public static async resolve(
     domain: string,
-    opts: StellarTomlResolver.StellarTomlResolveOptions = {},
+    opts: StellarTomlResolver.StellarTomlResolveOptions = {}
   ): Promise<StellarTomlResolver.StellarToml> {
     const allowHttp =
-      typeof opts.allowHttp === "undefined"
+      typeof opts.allowHttp === 'undefined'
         ? Config.isAllowHttp()
         : opts.allowHttp;
 
     const timeout =
-      typeof opts.timeout === "undefined" ? Config.getTimeout() : opts.timeout;
+      typeof opts.timeout === 'undefined' ? Config.getTimeout() : opts.timeout;
 
-    const protocol = allowHttp ? "http" : "https";
+    const protocol = allowHttp ? 'http' : 'https';
 
     return axios
       .get(`${protocol}://${domain}/.well-known/stellar.toml`, {
@@ -53,11 +53,11 @@ export class StellarTomlResolver {
           ? new CancelToken((cancel) =>
               setTimeout(
                 () => cancel(`timeout of ${timeout}ms exceeded`),
-                timeout,
-              ),
+                timeout
+              )
             )
           : undefined,
-        timeout,
+        timeout
       })
       .then((response) => {
         try {
@@ -66,15 +66,15 @@ export class StellarTomlResolver {
         } catch (e: any) {
           return Promise.reject(
             new Error(
-              `stellar.toml is invalid - Parsing error on line ${e.line}, column ${e.column}: ${e.message}`,
-            ),
+              `stellar.toml is invalid - Parsing error on line ${e.line}, column ${e.column}: ${e.message}`
+            )
           );
         }
       })
       .catch((err: Error) => {
         if (err.message.match(/^maxContentLength size/)) {
           throw new Error(
-            `stellar.toml file exceeds allowed size of ${STELLAR_TOML_MAX_SIZE}`,
+            `stellar.toml file exceeds allowed size of ${STELLAR_TOML_MAX_SIZE}`
           );
         } else {
           throw err;
@@ -128,7 +128,7 @@ export namespace StellarTomlResolver {
     code_template?: string;
     issuer?: PublicKey;
     display_decimals?: number;
-    status?: "live" | "dead" | "test" | "private";
+    status?: 'live' | 'dead' | 'test' | 'private';
     name?: string;
     desc?: string;
     conditions?: string;
@@ -136,14 +136,14 @@ export namespace StellarTomlResolver {
     max_number?: number;
     is_asset_anchored?: boolean;
     anchor_asset_type?:
-      | "fiat"
-      | "crypto"
-      | "nft"
-      | "stock"
-      | "bond"
-      | "commodity"
-      | "realestate"
-      | "other";
+      | 'fiat'
+      | 'crypto'
+      | 'nft'
+      | 'stock'
+      | 'bond'
+      | 'commodity'
+      | 'realestate'
+      | 'other';
     anchor_asset?: string;
     attestation_of_reserve?: Url;
     attestation_of_reserve_amount?: string;

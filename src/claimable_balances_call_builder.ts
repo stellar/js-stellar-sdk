@@ -1,6 +1,6 @@
-import { Asset } from "stellar-base";
-import { CallBuilder } from "./call_builder";
-import { ServerApi } from "./server_api";
+import { Asset } from 'stellar-base';
+import { CallBuilder } from './call_builder';
+import { ServerApi } from './server_api';
 
 /**
  * Creates a new {@link ClaimableBalanceCallBuilder} pointed to server defined by serverUrl.
@@ -17,7 +17,7 @@ export class ClaimableBalanceCallBuilder extends CallBuilder<
 > {
   constructor(serverUrl: URI) {
     super(serverUrl);
-    this.url.segment("claimable_balances");
+    this.url.segment('claimable_balances');
   }
 
   /**
@@ -28,10 +28,10 @@ export class ClaimableBalanceCallBuilder extends CallBuilder<
    * @returns {CallBuilder<ServerApi.ClaimableBalanceRecord>} CallBuilder<ServerApi.ClaimableBalanceRecord> OperationCallBuilder instance
    */
   public claimableBalance(
-    claimableBalanceId: string,
+    claimableBalanceId: string
   ): CallBuilder<ServerApi.ClaimableBalanceRecord> {
     const builder = new CallBuilder<ServerApi.ClaimableBalanceRecord>(
-      this.url.clone(),
+      this.url.clone()
     );
     builder.filter.push([claimableBalanceId]);
     return builder;
@@ -45,7 +45,7 @@ export class ClaimableBalanceCallBuilder extends CallBuilder<
    * @returns {ClaimableBalanceCallBuilder} current ClaimableBalanceCallBuilder instance
    */
   public sponsor(sponsor: string): this {
-    this.url.setQuery("sponsor", sponsor);
+    this.url.setQuery('sponsor', sponsor);
     return this;
   }
 
@@ -57,7 +57,7 @@ export class ClaimableBalanceCallBuilder extends CallBuilder<
    * @returns {ClaimableBalanceCallBuilder} current ClaimableBalanceCallBuilder instance
    */
   public claimant(claimant: string): this {
-    this.url.setQuery("claimant", claimant);
+    this.url.setQuery('claimant', claimant);
     return this;
   }
 
@@ -69,7 +69,7 @@ export class ClaimableBalanceCallBuilder extends CallBuilder<
    * @returns {ClaimableBalanceCallBuilder} current ClaimableBalanceCallBuilder instance
    */
   public asset(asset: Asset): this {
-    this.url.setQuery("asset", asset.toString());
+    this.url.setQuery('asset', asset.toString());
     return this;
   }
 }

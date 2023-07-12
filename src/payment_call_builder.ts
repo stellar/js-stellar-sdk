@@ -1,5 +1,5 @@
-import { CallBuilder } from "./call_builder";
-import { ServerApi } from "./server_api";
+import { CallBuilder } from './call_builder';
+import { ServerApi } from './server_api';
 
 /**
  * Creates a new {@link PaymentCallBuilder} pointed to server defined by serverUrl.
@@ -14,8 +14,8 @@ export class PaymentCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.PaymentOperationRecord>
 > {
   constructor(serverUrl: URI) {
-    super(serverUrl, "payments");
-    this.url.segment("payments");
+    super(serverUrl, 'payments');
+    this.url.segment('payments');
   }
 
   /**
@@ -25,7 +25,7 @@ export class PaymentCallBuilder extends CallBuilder<
    * @returns {PaymentCallBuilder} this PaymentCallBuilder instance
    */
   public forAccount(accountId: string): this {
-    return this.forEndpoint("accounts", accountId);
+    return this.forEndpoint('accounts', accountId);
   }
 
   /**
@@ -35,7 +35,7 @@ export class PaymentCallBuilder extends CallBuilder<
    * @returns {PaymentCallBuilder} this PaymentCallBuilder instance
    */
   public forLedger(sequence: number | string): this {
-    return this.forEndpoint("ledgers", sequence.toString());
+    return this.forEndpoint('ledgers', sequence.toString());
   }
 
   /**
@@ -45,6 +45,6 @@ export class PaymentCallBuilder extends CallBuilder<
    * @returns {PaymentCallBuilder} this PaymentCallBuilder instance
    */
   public forTransaction(transactionId: string): this {
-    return this.forEndpoint("transactions", transactionId);
+    return this.forEndpoint('transactions', transactionId);
   }
 }

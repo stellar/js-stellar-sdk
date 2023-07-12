@@ -17,7 +17,7 @@
   "author": "Stellar Development Foundation <hello@stellar.org>",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
-  "browser": "./dist/stellar-sdk.js",
+  "browser": "./dist/stellar-sdk.min.js",
   "files": [
     "/types",
     "/lib",
@@ -42,7 +42,7 @@
     "_build": "yarn build:node && yarn build:browser",
     "_babel": "babel --extensions '.ts' --out-dir lib/ src/",
     "_nyc": "nyc --nycrc-path config/.nycrc",
-    "_prettier": "prettier --ignore-path config/.prettierignore --write './**/*.js'"
+    "_prettier": "prettier --ignore-path config/.prettierignore --write './**/*.{ts,js}'"
   },
   "husky": {
     "hooks": {
@@ -74,6 +74,18 @@
     "reporter": [
       "text-summary"
     ]
+  },
+  "prettier": {
+    "arrowParens": "always",
+    "bracketSpacing": true,
+    "bracketSameLine": false,
+    "printWidth": 80,
+    "proseWrap": "always",
+    "semi": true,
+    "singleQuote": true,
+    "tabWidth": 2,
+    "trailingComma": "none",
+    "useTabs": false
   },
   "devDependencies": {
     "@babel/cli": "^7.22.6",

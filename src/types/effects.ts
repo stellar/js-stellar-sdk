@@ -1,5 +1,5 @@
-import { Horizon } from "./../horizon_api";
-import { OfferAsset } from "./offer";
+import { Horizon } from './../horizon_api';
+import { OfferAsset } from './offer';
 
 // Reference: GO SDK https://github.com/stellar/go/blob/ec5600bd6b2b6900d26988ff670b9ca7992313b8/services/horizon/internal/resourceadapter/effects.go
 export enum EffectType {
@@ -148,16 +148,16 @@ export interface TrustlineUpdated extends TrustlineEvents {
 }
 export interface TrustlineAuthorized extends BaseEffectRecord {
   type_i: EffectType.trustline_authorized;
-  asset_type: OfferAsset["asset_type"];
-  asset_code: OfferAsset["asset_code"];
+  asset_type: OfferAsset['asset_type'];
+  asset_code: OfferAsset['asset_code'];
   trustor: string;
 }
 export interface TrustlineDeauthorized
-  extends Omit<TrustlineAuthorized, "type_i"> {
+  extends Omit<TrustlineAuthorized, 'type_i'> {
   type_i: EffectType.trustline_deauthorized;
 }
 export interface TrustlineAuthorizedToMaintainLiabilities
-  extends Omit<TrustlineAuthorized, "type_i"> {
+  extends Omit<TrustlineAuthorized, 'type_i'> {
   type_i: EffectType.trustline_authorized_to_maintain_liabilities;
 }
 export interface ClaimableBalanceCreated extends BaseEffectRecord {
@@ -167,12 +167,12 @@ export interface ClaimableBalanceCreated extends BaseEffectRecord {
   asset: string;
 }
 export interface ClaimableBalanceClaimed
-  extends Omit<ClaimableBalanceCreated, "type_i"> {
+  extends Omit<ClaimableBalanceCreated, 'type_i'> {
   type_i: EffectType.claimable_balance_claimed;
 }
 
 export interface ClaimableBalanceClaimantCreated
-  extends Omit<ClaimableBalanceCreated, "type_i"> {
+  extends Omit<ClaimableBalanceCreated, 'type_i'> {
   type_i: EffectType.claimable_balance_claimant_created;
 }
 interface SponsershipFields {
@@ -186,15 +186,15 @@ interface AccountSponsorshipEvents
 
 export type AccountSponsorshipCreated = Omit<
   AccountSponsorshipEvents,
-  "new_sponsor" | "former_sponsor"
+  'new_sponsor' | 'former_sponsor'
 > & { type_i: EffectType.account_sponsorship_created };
 export type AccountSponsorshipUpdated = Omit<
   AccountSponsorshipEvents,
-  "sponsor"
+  'sponsor'
 > & { type_i: EffectType.account_sponsorship_updated };
 export type AccountSponsorshipRemoved = Omit<
   AccountSponsorshipEvents,
-  "new_sponsor" | "sponsor"
+  'new_sponsor' | 'sponsor'
 > & { type_i: EffectType.account_sponsorship_removed };
 interface TrustlineSponsorshipEvents
   extends BaseEffectRecord,
@@ -204,29 +204,29 @@ interface TrustlineSponsorshipEvents
 }
 export type TrustlineSponsorshipCreated = Omit<
   TrustlineSponsorshipEvents,
-  "new_sponsor" | "former_sponsor"
+  'new_sponsor' | 'former_sponsor'
 > & { type_i: EffectType.trustline_sponsorship_created };
 export type TrustlineSponsorshipUpdated = Omit<
   TrustlineSponsorshipEvents,
-  "sponsor"
+  'sponsor'
 > & { type_i: EffectType.trustline_sponsorship_updated };
 export type TrustlineSponsorshipRemoved = Omit<
   TrustlineSponsorshipEvents,
-  "new_sponsor" | "sponsor"
+  'new_sponsor' | 'sponsor'
 > & { type_i: EffectType.trustline_sponsorship_removed };
 interface DataSponsorshipEvents extends BaseEffectRecord, SponsershipFields {
   data_name: string;
 }
 export type DateSponsorshipCreated = Omit<
   DataSponsorshipEvents,
-  "new_sponsor" | "former_sponsor"
+  'new_sponsor' | 'former_sponsor'
 > & { type_i: EffectType.data_sponsorship_created };
-export type DateSponsorshipUpdated = Omit<DataSponsorshipEvents, "sponsor"> & {
+export type DateSponsorshipUpdated = Omit<DataSponsorshipEvents, 'sponsor'> & {
   type_i: EffectType.data_sponsorship_updated;
 };
 export type DateSponsorshipRemoved = Omit<
   DataSponsorshipEvents,
-  "new_sponsor" | "sponsor"
+  'new_sponsor' | 'sponsor'
 > & { type_i: EffectType.data_sponsorship_removed };
 interface ClaimableBalanceSponsorshipEvents
   extends BaseEffectRecord,
@@ -236,15 +236,15 @@ interface ClaimableBalanceSponsorshipEvents
 
 export type ClaimableBalanceSponsorshipCreated = Omit<
   ClaimableBalanceSponsorshipEvents,
-  "new_sponsor" | "former_sponsor"
+  'new_sponsor' | 'former_sponsor'
 > & { type_i: EffectType.claimable_balance_sponsorship_created };
 export type ClaimableBalanceSponsorshipUpdated = Omit<
   ClaimableBalanceSponsorshipEvents,
-  "sponsor"
+  'sponsor'
 > & { type_i: EffectType.claimable_balance_sponsorship_updated };
 export type ClaimableBalanceSponsorshipRemoved = Omit<
   ClaimableBalanceSponsorshipEvents,
-  "new_sponsor" | "sponsor"
+  'new_sponsor' | 'sponsor'
 > & { type_i: EffectType.claimable_balance_sponsorship_removed };
 interface SignerSponsorshipEvents extends BaseEffectRecord, SponsershipFields {
   signer: string;
@@ -252,19 +252,19 @@ interface SignerSponsorshipEvents extends BaseEffectRecord, SponsershipFields {
 
 export type SignerSponsorshipCreated = Omit<
   SignerSponsorshipEvents,
-  "new_sponsor" | "former_sponsor"
+  'new_sponsor' | 'former_sponsor'
 > & { type_i: EffectType.signer_sponsorship_created };
 export type SignerSponsorshipUpdated = Omit<
   SignerSponsorshipEvents,
-  "sponsor"
+  'sponsor'
 > & { type_i: EffectType.signer_sponsorship_updated };
 export type SignerSponsorshipRemoved = Omit<
   SignerSponsorshipEvents,
-  "new_sponsor" | "sponsor"
+  'new_sponsor' | 'sponsor'
 > & { type_i: EffectType.signer_sponsorship_removed };
 
 export interface ClaimableBalanceClawedBack extends Horizon.BaseResponse {
-	balance_id: string
+  balance_id: string;
 }
 
 export interface LiquidityPoolEffectRecord extends Horizon.BaseResponse {
@@ -309,7 +309,7 @@ export interface LiquidityPoolRevokedEffect extends BaseEffectRecord {
       asset: string;
       amount: string;
       claimable_balance_id: string;
-    },
+    }
   ];
   shares_revoked: string;
 }

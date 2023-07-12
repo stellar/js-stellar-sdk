@@ -1,8 +1,8 @@
-import axios, { AxiosResponse } from "axios";
-import URI from "urijs";
+import axios, { AxiosResponse } from 'axios';
+import URI from 'urijs';
 
 /* tslint:disable-next-line:no-var-requires */
-const version = require("../package.json").version;
+const version = require('../package.json').version;
 
 export interface ServerTime {
   serverTime: number;
@@ -25,9 +25,9 @@ export const SERVER_TIME_MAP: Record<string, ServerTime> = {};
 
 const HorizonAxiosClient = axios.create({
   headers: {
-    "X-Client-Name": "js-stellar-sdk",
-    "X-Client-Version": version,
-  },
+    'X-Client-Name': 'js-stellar-sdk',
+    'X-Client-Version': version
+  }
 });
 
 function _toSeconds(ms: number): number {
@@ -43,12 +43,12 @@ HorizonAxiosClient.interceptors.response.use(
     if (!isNaN(serverTime)) {
       SERVER_TIME_MAP[hostname] = {
         serverTime,
-        localTimeRecorded,
+        localTimeRecorded
       };
     }
 
     return response;
-  },
+  }
 );
 
 export default HorizonAxiosClient;

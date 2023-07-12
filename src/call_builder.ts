@@ -1,17 +1,17 @@
-import URI from "urijs";
-import URITemplate from "urijs/src/URITemplate";
+import URI from 'urijs';
+import URITemplate from 'urijs/src/URITemplate';
 
-import { BadRequestError, NetworkError, NotFoundError } from "./errors";
-import { Horizon } from "./horizon_api";
-import HorizonAxiosClient from "./horizon_axios_client";
-import { ServerApi } from "./server_api";
+import { BadRequestError, NetworkError, NotFoundError } from './errors';
+import { Horizon } from './horizon_api';
+import HorizonAxiosClient from './horizon_axios_client';
+import { ServerApi } from './server_api';
 
 /* tslint:disable-next-line:no-var-requires */
-const version = require("../package.json").version;
+const version = require('../package.json').version;
 
 // Resources which can be included in the Horizon response via the `join`
 // query-param.
-const JOINABLE = ["transaction"];
+const JOINABLE = ['transaction'];
 
 export interface EventSourceOptions<T> {
   onmessage?: (value: T) => void;
@@ -22,9 +22,10 @@ export interface EventSourceOptions<T> {
 const anyGlobal = global as any;
 type Constructable<T> = new (e: string) => T;
 // require("eventsource") for Node and React Native environment
-let EventSource: Constructable<EventSource> = anyGlobal.EventSource ??
+let EventSource: Constructable<EventSource> =
+  anyGlobal.EventSource ??
   anyGlobal.window?.EventSource ??
-  require("eventsource");
+  require('eventsource');
 
 /**
  * Creates a new {@link CallBuilder} pointed to server defined by serverUrl.
@@ -44,7 +45,7 @@ export class CallBuilder<
   protected originalSegments: string[];
   protected neighborRoot: string;
 
-  constructor(serverUrl: URI, neighborRoot: string = "") {
+  constructor(serverUrl: URI, neighborRoot: string = '') {
     this.url = serverUrl.clone();
     this.filter = [];
     this.originalSegments = this.url.segment() || [];
@@ -58,7 +59,7 @@ export class CallBuilder<
   public call(): Promise<T> {
     this.checkFilter();
     return this._sendNormalRequest(this.url).then((r) =>
-      this._parseResponse(r),
+      this._parseResponse(r)
     );
   }
   //// TODO: Migrate to async, BUT that's a change in behavior and tests "rejects two filters" will fail.
@@ -92,8 +93,8 @@ export class CallBuilder<
   public stream(options: EventSourceOptions<T> = {}): () => void {
     this.checkFilter();
 
-    this.url.setQuery("X-Client-Name", "js-stellar-sdk");
-    this.url.setQuery("X-Client-Version", version);
+    this.url.setQuery('X-Client-Name', 'js-stellar-sdk');
+    this.url.setQuery('X-Client-Version', version);
 
     // EventSource object
     let es: EventSource;
@@ -104,10 +105,13 @@ export class CallBuilder<
     let timeout: NodeJS.Timeout;
 
     const createTimeout = () => {
-      timeout = setTimeout(() => {
-        es?.close();
-        es = createEventSource();
-      }, options.reconnectTimeout || 15 * 1000);
+      timeout = setTimeout(
+        () => {
+          es?.close();
+          es = createEventSource();
+        },
+        options.reconnectTimeout || 15 * 1000
+      );
     };
 
     let createEventSource = (): EventSource => {
@@ -140,7 +144,7 @@ export class CallBuilder<
       };
 
       const onMessage = (message: any) => {
-        if (message.type === "close") {
+        if (message.type === 'close') {
           onClose();
           return;
         }
@@ -149,11 +153,11 @@ export class CallBuilder<
           ? this._parseRecord(JSON.parse(message.data))
           : message;
         if (result.paging_token) {
-          this.url.setQuery("cursor", result.paging_token);
+          this.url.setQuery('cursor', result.paging_token);
         }
         clearTimeout(timeout);
         createTimeout();
-        if (typeof options.onmessage !== "undefined") {
+        if (typeof options.onmessage !== 'undefined') {
           options.onmessage(result);
         }
       };
@@ -165,9 +169,9 @@ export class CallBuilder<
       };
 
       if (es.addEventListener) {
-        es.addEventListener("message", onMessage.bind(this));
-        es.addEventListener("error", onError.bind(this));
-        es.addEventListener("close", onClose.bind(this));
+        es.addEventListener('message', onMessage.bind(this));
+        es.addEventListener('error', onError.bind(this));
+        es.addEventListener('close', onClose.bind(this));
       } else {
         es.onmessage = onMessage.bind(this);
         es.onerror = onError.bind(this);
@@ -190,7 +194,7 @@ export class CallBuilder<
    * @returns {object} current CallBuilder instance
    */
   public cursor(cursor: string): this {
-    this.url.setQuery("cursor", cursor);
+    this.url.setQuery('cursor', cursor);
     return this;
   }
 
@@ -201,7 +205,7 @@ export class CallBuilder<
    * @returns {object} current CallBuilder instance
    */
   public limit(recordsNumber: number): this {
-    this.url.setQuery("limit", recordsNumber.toString());
+    this.url.setQuery('limit', recordsNumber.toString());
     return this;
   }
 
@@ -210,8 +214,8 @@ export class CallBuilder<
    * @param {"asc"|"desc"} direction Sort direction
    * @returns {object} current CallBuilder instance
    */
-  public order(direction: "asc" | "desc"): this {
-    this.url.setQuery("order", direction);
+  public order(direction: 'asc' | 'desc'): this {
+    this.url.setQuery('order', direction);
     return this;
   }
 
@@ -226,8 +230,8 @@ export class CallBuilder<
    * @param {"transactions"} join Records to be included in the response.
    * @returns {object} current CallBuilder instance.
    */
-  public join(include: "transactions"): this {
-    this.url.setQuery("join", include);
+  public join(include: 'transactions'): this {
+    this.url.setQuery('join', include);
     return this;
   }
 
@@ -247,8 +251,8 @@ export class CallBuilder<
    * @returns {CallBuilder} this CallBuilder instance
    */
   protected forEndpoint(endpoint: string, param: string): this {
-    if (this.neighborRoot === "") {
-      throw new Error("Invalid usage: neighborRoot not set in constructor");
+    if (this.neighborRoot === '') {
+      throw new Error('Invalid usage: neighborRoot not set in constructor');
     }
     this.filter.push([endpoint, param, this.neighborRoot]);
     return this;
@@ -260,7 +264,7 @@ export class CallBuilder<
    */
   private checkFilter(): void {
     if (this.filter.length >= 2) {
-      throw new BadRequestError("Too many filters specified", this.filter);
+      throw new BadRequestError('Too many filters specified', this.filter);
     }
 
     if (this.filter.length === 1) {
@@ -309,7 +313,7 @@ export class CallBuilder<
       const n = json._links[key];
       let included = false;
       // If the key with the link name already exists, create a copy
-      if (typeof json[key] !== "undefined") {
+      if (typeof json[key] !== 'undefined') {
         json[`${key}_attr`] = json[key];
         included = true;
       }
@@ -336,11 +340,11 @@ export class CallBuilder<
   private async _sendNormalRequest(initialUrl: URI) {
     let url = initialUrl;
 
-    if (url.authority() === "") {
+    if (url.authority() === '') {
       url = url.authority(this.url.authority());
     }
 
-    if (url.protocol() === "") {
+    if (url.protocol() === '') {
       url = url.protocol(this.url.protocol());
     }
 
@@ -379,7 +383,7 @@ export class CallBuilder<
       prev: async () => {
         const r = await this._sendNormalRequest(URI(json._links.prev.href));
         return this._toCollectionPage(r);
-      },
+      }
     };
   }
 
@@ -393,11 +397,11 @@ export class CallBuilder<
       switch (error.response.status) {
         case 404:
           return Promise.reject(
-            new NotFoundError(error.response.statusText, error.response.data),
+            new NotFoundError(error.response.statusText, error.response.data)
           );
         default:
           return Promise.reject(
-            new NetworkError(error.response.statusText, error.response.data),
+            new NetworkError(error.response.statusText, error.response.data)
           );
       }
     } else {

@@ -1,4 +1,4 @@
-import { Horizon } from "./horizon_api";
+import { Horizon } from './horizon_api';
 
 // For ES5 compatibility (https://stackoverflow.com/a/55066280).
 /* tslint:disable:variable-name max-classes-per-file */
@@ -31,7 +31,7 @@ export class NotFoundError extends NetworkError {
     super(message, response);
     this.__proto__ = trueProto;
     this.constructor = NotFoundError;
-    this.name = "NotFoundError";
+    this.name = 'NotFoundError';
   }
 }
 
@@ -41,7 +41,7 @@ export class BadRequestError extends NetworkError {
     super(message, response);
     this.__proto__ = trueProto;
     this.constructor = BadRequestError;
-    this.name = "BadRequestError";
+    this.name = 'BadRequestError';
   }
 }
 
@@ -51,7 +51,7 @@ export class BadResponseError extends NetworkError {
     super(message, response);
     this.__proto__ = trueProto;
     this.constructor = BadResponseError;
-    this.name = "BadResponseError";
+    this.name = 'BadResponseError';
   }
 }
 
@@ -63,7 +63,7 @@ export class InvalidSep10ChallengeError extends Error {
     super(message);
     this.__proto__ = trueProto;
     this.constructor = InvalidSep10ChallengeError;
-    this.name = "InvalidSep10ChallengeError";
+    this.name = 'InvalidSep10ChallengeError';
   }
 }
 
@@ -104,7 +104,7 @@ export class AccountRequiresMemoError extends Error {
     super(message);
     this.__proto__ = trueProto;
     this.constructor = AccountRequiresMemoError;
-    this.name = "AccountRequiresMemoError";
+    this.name = 'AccountRequiresMemoError';
     this.accountId = accountId;
     this.operationIndex = operationIndex;
   }

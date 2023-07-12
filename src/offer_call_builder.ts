@@ -1,6 +1,6 @@
-import { Asset } from "stellar-base";
-import { CallBuilder } from "./call_builder";
-import { ServerApi } from "./server_api";
+import { Asset } from 'stellar-base';
+import { CallBuilder } from './call_builder';
+import { ServerApi } from './server_api';
 
 /**
  * Creates a new {@link OfferCallBuilder} pointed to server defined by serverUrl.
@@ -16,8 +16,8 @@ export class OfferCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.OfferRecord>
 > {
   constructor(serverUrl: URI) {
-    super(serverUrl, "offers");
-    this.url.segment("offers");
+    super(serverUrl, 'offers');
+    this.url.segment('offers');
   }
 
   /**
@@ -41,7 +41,7 @@ export class OfferCallBuilder extends CallBuilder<
    * @returns {OfferCallBuilder} current OfferCallBuilder instance
    */
   public forAccount(id: string): this {
-    return this.forEndpoint("accounts", id);
+    return this.forEndpoint('accounts', id);
   }
 
   /**
@@ -53,11 +53,11 @@ export class OfferCallBuilder extends CallBuilder<
    */
   public buying(asset: Asset): this {
     if (!asset.isNative()) {
-      this.url.setQuery("buying_asset_type", asset.getAssetType());
-      this.url.setQuery("buying_asset_code", asset.getCode());
-      this.url.setQuery("buying_asset_issuer", asset.getIssuer());
+      this.url.setQuery('buying_asset_type', asset.getAssetType());
+      this.url.setQuery('buying_asset_code', asset.getCode());
+      this.url.setQuery('buying_asset_issuer', asset.getIssuer());
     } else {
-      this.url.setQuery("buying_asset_type", "native");
+      this.url.setQuery('buying_asset_type', 'native');
     }
     return this;
   }
@@ -71,11 +71,11 @@ export class OfferCallBuilder extends CallBuilder<
    */
   public selling(asset: Asset): this {
     if (!asset.isNative()) {
-      this.url.setQuery("selling_asset_type", asset.getAssetType());
-      this.url.setQuery("selling_asset_code", asset.getCode());
-      this.url.setQuery("selling_asset_issuer", asset.getIssuer());
+      this.url.setQuery('selling_asset_type', asset.getAssetType());
+      this.url.setQuery('selling_asset_code', asset.getCode());
+      this.url.setQuery('selling_asset_issuer', asset.getIssuer());
     } else {
-      this.url.setQuery("selling_asset_type", "native");
+      this.url.setQuery('selling_asset_type', 'native');
     }
     return this;
   }
@@ -87,7 +87,7 @@ export class OfferCallBuilder extends CallBuilder<
    * @returns {OfferCallBuilder} current OfferCallBuilder instance
    */
   public sponsor(id: string): this {
-    this.url.setQuery("sponsor", id);
+    this.url.setQuery('sponsor', id);
     return this;
   }
 
@@ -99,7 +99,7 @@ export class OfferCallBuilder extends CallBuilder<
    * @returns {OfferCallBuilder} current OfferCallBuilder instance
    */
   public seller(seller: string): this {
-    this.url.setQuery("seller", seller);
+    this.url.setQuery('seller', seller);
     return this;
   }
 }

@@ -1,6 +1,6 @@
-import { Asset } from "stellar-base";
-import { CallBuilder } from "./call_builder";
-import { ServerApi } from "./server_api";
+import { Asset } from 'stellar-base';
+import { CallBuilder } from './call_builder';
+import { ServerApi } from './server_api';
 
 /**
  * Creates a new {@link AccountCallBuilder} pointed to server defined by serverUrl.
@@ -17,7 +17,7 @@ export class AccountCallBuilder extends CallBuilder<
 > {
   constructor(serverUrl: URI) {
     super(serverUrl);
-    this.url.segment("accounts");
+    this.url.segment('accounts');
   }
 
   /**
@@ -41,7 +41,7 @@ export class AccountCallBuilder extends CallBuilder<
    * @returns {AccountCallBuilder} current AccountCallBuilder instance
    */
   public forSigner(id: string): this {
-    this.url.setQuery("signer", id);
+    this.url.setQuery('signer', id);
     return this;
   }
 
@@ -53,7 +53,7 @@ export class AccountCallBuilder extends CallBuilder<
    * @returns {AccountCallBuilder} current AccountCallBuilder instance
    */
   public forAsset(asset: Asset): this {
-    this.url.setQuery("asset", `${asset}`);
+    this.url.setQuery('asset', `${asset}`);
     return this;
   }
 
@@ -64,7 +64,7 @@ export class AccountCallBuilder extends CallBuilder<
    * @returns {AccountCallBuilder} current AccountCallBuilder instance
    */
   public sponsor(id: string): this {
-    this.url.setQuery("sponsor", id);
+    this.url.setQuery('sponsor', id);
     return this;
   }
 
@@ -75,7 +75,7 @@ export class AccountCallBuilder extends CallBuilder<
    * @returns {AccountCallBuilder} current AccountCallBuilder instance
    */
   public forLiquidityPool(id: string): this {
-    this.url.setQuery("liquidity_pool", id);
+    this.url.setQuery('liquidity_pool', id);
     return this;
   }
 }

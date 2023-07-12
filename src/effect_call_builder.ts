@@ -1,5 +1,5 @@
-import { CallBuilder } from "./call_builder";
-import { ServerApi } from "./server_api";
+import { CallBuilder } from './call_builder';
+import { ServerApi } from './server_api';
 
 /**
  * Creates a new {@link EffectCallBuilder} pointed to server defined by serverUrl.
@@ -15,8 +15,8 @@ export class EffectCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.EffectRecord>
 > {
   constructor(serverUrl: URI) {
-    super(serverUrl, "effects");
-    this.url.segment("effects");
+    super(serverUrl, 'effects');
+    this.url.segment('effects');
   }
 
   /**
@@ -26,7 +26,7 @@ export class EffectCallBuilder extends CallBuilder<
    * @returns {EffectCallBuilder} this EffectCallBuilder instance
    */
   public forAccount(accountId: string): this {
-    return this.forEndpoint("accounts", accountId);
+    return this.forEndpoint('accounts', accountId);
   }
 
   /**
@@ -38,7 +38,7 @@ export class EffectCallBuilder extends CallBuilder<
    * @returns {EffectCallBuilder} this EffectCallBuilder instance
    */
   public forLedger(sequence: number | string): this {
-    return this.forEndpoint("ledgers", sequence.toString());
+    return this.forEndpoint('ledgers', sequence.toString());
   }
 
   /**
@@ -48,7 +48,7 @@ export class EffectCallBuilder extends CallBuilder<
    * @returns {EffectCallBuilder} this EffectCallBuilder instance
    */
   public forTransaction(transactionId: string): this {
-    return this.forEndpoint("transactions", transactionId);
+    return this.forEndpoint('transactions', transactionId);
   }
 
   /**
@@ -58,7 +58,7 @@ export class EffectCallBuilder extends CallBuilder<
    * @returns {EffectCallBuilder} this EffectCallBuilder instance
    */
   public forOperation(operationId: string): this {
-    return this.forEndpoint("operations", operationId);
+    return this.forEndpoint('operations', operationId);
   }
 
   /**
@@ -68,6 +68,6 @@ export class EffectCallBuilder extends CallBuilder<
    * @returns {EffectCallBuilder} this EffectCallBuilder instance
    */
   public forLiquidityPool(poolId: string): this {
-    return this.forEndpoint("liquidity_pools", poolId);
+    return this.forEndpoint('liquidity_pools', poolId);
   }
 }

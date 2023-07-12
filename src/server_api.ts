@@ -1,13 +1,13 @@
-import { Asset } from "stellar-base";
-import { Omit } from "utility-types";
-import { Horizon } from "./horizon_api";
+import { Asset } from 'stellar-base';
+import { Omit } from 'utility-types';
+import { Horizon } from './horizon_api';
 
 // more types
-import { AccountRecordSigners as AccountRecordSignersType } from "./types/account";
-import { AssetRecord as AssetRecordType } from "./types/assets";
-import * as Effects from "./types/effects";
-import { OfferRecord as OfferRecordType } from "./types/offer";
-import { Trade } from "./types/trade";
+import { AccountRecordSigners as AccountRecordSignersType } from './types/account';
+import { AssetRecord as AssetRecordType } from './types/assets';
+import * as Effects from './types/effects';
+import { OfferRecord as OfferRecordType } from './types/offer';
+import { Trade } from './types/trade';
 
 /* tslint:disable-next-line: no-namespace */
 export namespace ServerApi {
@@ -25,7 +25,7 @@ export namespace ServerApi {
   export interface CallFunctionTemplateOptions {
     cursor?: string | number;
     limit?: number;
-    order?: "asc" | "desc";
+    order?: 'asc' | 'desc';
   }
 
   export type CallFunction<
@@ -132,9 +132,9 @@ export namespace ServerApi {
     reserves: Horizon.Reserve[];
   }
   export enum TradeType {
-    all = "all",
-    liquidityPools = "liquidity_pool",
-    orderbook = "orderbook",
+    all = 'all',
+    liquidityPools = 'liquidity_pool',
+    orderbook = 'orderbook'
   }
   interface EffectRecordMethods {
     operation?: CallFunction<OperationRecord>;
@@ -371,8 +371,8 @@ export namespace ServerApi {
   }
   export type TradeRecord = TradeRecord.Orderbook | TradeRecord.LiquidityPool;
   export interface TransactionRecord
-    extends Omit<Horizon.TransactionResponse, "ledger"> {
-    ledger_attr: Horizon.TransactionResponse["ledger"];
+    extends Omit<Horizon.TransactionResponse, 'ledger'> {
+    ledger_attr: Horizon.TransactionResponse['ledger'];
 
     account: CallFunction<AccountRecord>;
     effects: CallCollectionFunction<EffectRecord>;

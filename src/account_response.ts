@@ -1,8 +1,8 @@
 /* tslint:disable:variable-name */
 
-import { Account as BaseAccount } from "stellar-base";
-import { Horizon } from "./horizon_api";
-import { ServerApi } from "./server_api";
+import { Account as BaseAccount } from 'stellar-base';
+import { Horizon } from './horizon_api';
+import { ServerApi } from './server_api';
 
 /**
  * Do not create this object directly, use {@link Server#loadAccount}.
@@ -35,21 +35,11 @@ export class AccountResponse {
     value: string;
   }) => Promise<{ value: string }>;
   public readonly data_attr!: Record<string, string>;
-  public readonly effects!: ServerApi.CallCollectionFunction<
-    ServerApi.EffectRecord
-  >;
-  public readonly offers!: ServerApi.CallCollectionFunction<
-    ServerApi.OfferRecord
-  >;
-  public readonly operations!: ServerApi.CallCollectionFunction<
-    ServerApi.OperationRecord
-  >;
-  public readonly payments!: ServerApi.CallCollectionFunction<
-    ServerApi.PaymentOperationRecord
-  >;
-  public readonly trades!: ServerApi.CallCollectionFunction<
-    ServerApi.TradeRecord
-  >;
+  public readonly effects!: ServerApi.CallCollectionFunction<ServerApi.EffectRecord>;
+  public readonly offers!: ServerApi.CallCollectionFunction<ServerApi.OfferRecord>;
+  public readonly operations!: ServerApi.CallCollectionFunction<ServerApi.OperationRecord>;
+  public readonly payments!: ServerApi.CallCollectionFunction<ServerApi.PaymentOperationRecord>;
+  public readonly trades!: ServerApi.CallCollectionFunction<ServerApi.TradeRecord>;
   private readonly _baseAccount: BaseAccount;
 
   constructor(response: ServerApi.AccountRecord) {

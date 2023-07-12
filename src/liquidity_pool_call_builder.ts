@@ -1,7 +1,7 @@
-import { Asset } from "stellar-base";
+import { Asset } from 'stellar-base';
 
-import { CallBuilder } from "./call_builder";
-import { ServerApi } from "./server_api";
+import { CallBuilder } from './call_builder';
+import { ServerApi } from './server_api';
 
 /**
  * Creates a new {@link LiquidityPoolCallBuilder} pointed to server defined by serverUrl.
@@ -17,7 +17,7 @@ export class LiquidityPoolCallBuilder extends CallBuilder<
 > {
   constructor(serverUrl: URI) {
     super(serverUrl);
-    this.url.segment("liquidity_pools");
+    this.url.segment('liquidity_pools');
   }
 
   /**
@@ -30,8 +30,8 @@ export class LiquidityPoolCallBuilder extends CallBuilder<
   public forAssets(...assets: Asset[]): this {
     const assetList: string = assets
       .map((asset: Asset) => asset.toString())
-      .join(",");
-    this.url.setQuery("reserves", assetList);
+      .join(',');
+    this.url.setQuery('reserves', assetList);
     return this;
   }
 
@@ -42,7 +42,7 @@ export class LiquidityPoolCallBuilder extends CallBuilder<
    * @returns {LiquidityPoolCallBuilder} current LiquidityPoolCallBuilder instance
    */
   public forAccount(id: string): this {
-    this.url.setQuery("account", id);
+    this.url.setQuery('account', id);
     return this;
   }
 
@@ -53,14 +53,14 @@ export class LiquidityPoolCallBuilder extends CallBuilder<
    * @returns {CallBuilder} a new CallBuilder instance for the /liquidity_pools/:id endpoint
    */
   public liquidityPoolId(
-    id: string,
+    id: string
   ): CallBuilder<ServerApi.LiquidityPoolRecord> {
     if (!id.match(/[a-fA-F0-9]{64}/)) {
       throw new TypeError(`${id} does not look like a liquidity pool ID`);
     }
 
     const builder = new CallBuilder<ServerApi.LiquidityPoolRecord>(
-      this.url.clone(),
+      this.url.clone()
     );
     builder.filter.push([id.toLowerCase()]);
     return builder;

@@ -38,22 +38,22 @@ interface EventSource extends EventTarget {
   addEventListener<K extends keyof EventSourceEventMap>(
     type: K,
     listener: (this: EventSource, ev: EventSourceEventMap[K]) => any,
-    options?: boolean | AddEventListenerOptions,
+    options?: boolean | AddEventListenerOptions
   ): void;
   addEventListener(
     type: string,
     listener: EventListener | EventListenerObject,
-    options?: boolean | AddEventListenerOptions,
+    options?: boolean | AddEventListenerOptions
   ): void;
   removeEventListener<K extends keyof EventSourceEventMap>(
     type: K,
     listener: (this: EventSource, ev: EventSourceEventMap[K]) => any,
-    options?: boolean | EventListenerOptions,
+    options?: boolean | EventListenerOptions
   ): void;
   removeEventListener(
     type: string,
     listener: EventListener | EventListenerObject,
-    options?: boolean | EventListenerOptions,
+    options?: boolean | EventListenerOptions
   ): void;
 }
 
@@ -90,7 +90,7 @@ interface EventTarget {
   addEventListener(
     type: string,
     listener: EventListener | EventListenerObject | null,
-    options?: boolean | AddEventListenerOptions,
+    options?: boolean | AddEventListenerOptions
   ): void;
   /**
    * Dispatches a synthetic event event to target and returns true
@@ -103,7 +103,7 @@ interface EventTarget {
   removeEventListener(
     type: string,
     callback: EventListener | EventListenerObject | null,
-    options?: EventListenerOptions | boolean,
+    options?: EventListenerOptions | boolean
   ): void;
 }
 

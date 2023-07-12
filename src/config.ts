@@ -15,7 +15,7 @@ interface Configuration {
 
 const defaultConfig: Configuration = {
   allowHttp: false,
-  timeout: 0,
+  timeout: 0
 };
 
 let config = Object.assign({}, defaultConfig);

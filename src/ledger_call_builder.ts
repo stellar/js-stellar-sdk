@@ -1,5 +1,5 @@
-import { CallBuilder } from "./call_builder";
-import { ServerApi } from "./server_api";
+import { CallBuilder } from './call_builder';
+import { ServerApi } from './server_api';
 
 /**
  * Creates a new {@link LedgerCallBuilder} pointed to server defined by serverUrl.
@@ -16,7 +16,7 @@ export class LedgerCallBuilder extends CallBuilder<
 > {
   constructor(serverUrl: URI) {
     super(serverUrl);
-    this.url.segment("ledgers");
+    this.url.segment('ledgers');
   }
 
   /**
@@ -25,7 +25,7 @@ export class LedgerCallBuilder extends CallBuilder<
    * @returns {LedgerCallBuilder} current LedgerCallBuilder instance
    */
   public ledger(sequence: number | string): this {
-    this.filter.push(["ledgers", sequence.toString()]);
+    this.filter.push(['ledgers', sequence.toString()]);
     return this;
   }
 }

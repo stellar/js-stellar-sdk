@@ -1,6 +1,6 @@
-import { Asset } from "stellar-base";
-import { CallBuilder } from "./call_builder";
-import { ServerApi } from "./server_api";
+import { Asset } from 'stellar-base';
+import { CallBuilder } from './call_builder';
+import { ServerApi } from './server_api';
 
 /**
  * The Stellar Network allows payments to be made across assets through path
@@ -40,32 +40,32 @@ export class StrictSendPathCallBuilder extends CallBuilder<
   ) {
     super(serverUrl);
 
-    this.url.segment("paths/strict-send");
+    this.url.segment('paths/strict-send');
 
     if (sourceAsset.isNative()) {
-      this.url.setQuery("source_asset_type", "native");
+      this.url.setQuery('source_asset_type', 'native');
     } else {
-      this.url.setQuery("source_asset_type", sourceAsset.getAssetType());
-      this.url.setQuery("source_asset_code", sourceAsset.getCode());
-      this.url.setQuery("source_asset_issuer", sourceAsset.getIssuer());
+      this.url.setQuery('source_asset_type', sourceAsset.getAssetType());
+      this.url.setQuery('source_asset_code', sourceAsset.getCode());
+      this.url.setQuery('source_asset_issuer', sourceAsset.getIssuer());
     }
 
-    this.url.setQuery("source_amount", sourceAmount);
+    this.url.setQuery('source_amount', sourceAmount);
 
-    if (typeof destination === "string") {
-      this.url.setQuery("destination_account", destination);
+    if (typeof destination === 'string') {
+      this.url.setQuery('destination_account', destination);
     } else {
       const assets = destination
         .map((asset) => {
           if (asset.isNative()) {
-            return "native";
+            return 'native';
           }
 
           return `${asset.getCode()}:${asset.getIssuer()}`;
         })
-        .join(",");
+        .join(',');
 
-      this.url.setQuery("destination_assets", assets);
+      this.url.setQuery('destination_assets', assets);
     }
   }
 }

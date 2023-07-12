@@ -1,4 +1,4 @@
-import { AssetType, MemoType } from "stellar-base";
+import { AssetType, MemoType } from 'stellar-base';
 
 /* tslint:disable-next-line:no-namespace */
 export namespace Horizon {
@@ -7,7 +7,7 @@ export namespace Horizon {
     templated?: boolean;
   }
   export interface BaseResponse<T extends string = never> {
-    _links: { [key in T | "self"]: ResponseLink };
+    _links: { [key in T | 'self']: ResponseLink };
   }
 
   export interface SubmitTransactionResponse {
@@ -49,12 +49,12 @@ export namespace Horizon {
   export interface TransactionResponse
     extends SubmitTransactionResponse,
       BaseResponse<
-        | "account"
-        | "ledger"
-        | "operations"
-        | "effects"
-        | "succeeds"
-        | "precedes"
+        | 'account'
+        | 'ledger'
+        | 'operations'
+        | 'effects'
+        | 'succeeds'
+        | 'precedes'
       > {
     created_at: string;
     fee_meta_xdr: string;
@@ -110,15 +110,14 @@ export namespace Horizon {
     is_clawback_enabled: boolean;
     sponsor?: string;
   }
-  export type BalanceLine<
-    T extends AssetType = AssetType
-  > = T extends AssetType.native
-    ? BalanceLineNative
-    : T extends AssetType.credit4 | AssetType.credit12
-    ? BalanceLineAsset<T>
-    : T extends AssetType.liquidityPoolShares
-    ? BalanceLineLiquidityPool
-    : BalanceLineNative | BalanceLineAsset | BalanceLineLiquidityPool;
+  export type BalanceLine<T extends AssetType = AssetType> =
+    T extends AssetType.native
+      ? BalanceLineNative
+      : T extends AssetType.credit4 | AssetType.credit12
+      ? BalanceLineAsset<T>
+      : T extends AssetType.liquidityPoolShares
+      ? BalanceLineLiquidityPool
+      : BalanceLineNative | BalanceLineAsset | BalanceLineLiquidityPool;
 
   export interface AssetAccounts {
     authorized: number;
@@ -160,13 +159,13 @@ export namespace Horizon {
   }
   export interface AccountResponse
     extends BaseResponse<
-      | "transactions"
-      | "operations"
-      | "payments"
-      | "effects"
-      | "offers"
-      | "trades"
-      | "data"
+      | 'transactions'
+      | 'operations'
+      | 'payments'
+      | 'effects'
+      | 'offers'
+      | 'trades'
+      | 'data'
     > {
     id: string;
     paging_token: string;
@@ -190,34 +189,34 @@ export namespace Horizon {
   }
 
   export enum LiquidityPoolType {
-    constantProduct = "constant_product",
+    constantProduct = 'constant_product'
   }
 
   export enum OperationResponseType {
-    createAccount = "create_account",
-    payment = "payment",
-    pathPayment = "path_payment_strict_receive",
-    createPassiveOffer = "create_passive_sell_offer",
-    manageOffer = "manage_sell_offer",
-    setOptions = "set_options",
-    changeTrust = "change_trust",
-    allowTrust = "allow_trust",
-    accountMerge = "account_merge",
-    inflation = "inflation",
-    manageData = "manage_data",
-    bumpSequence = "bump_sequence",
-    manageBuyOffer = "manage_buy_offer",
-    pathPaymentStrictSend = "path_payment_strict_send",
-    createClaimableBalance = "create_claimable_balance",
-    claimClaimableBalance = "claim_claimable_balance",
-    beginSponsoringFutureReserves = "begin_sponsoring_future_reserves",
-    endSponsoringFutureReserves = "end_sponsoring_future_reserves",
-    revokeSponsorship = "revoke_sponsorship",
-    clawback = "clawback",
-    clawbackClaimableBalance = "clawback_claimable_balance",
-    setTrustLineFlags = "set_trust_line_flags",
-    liquidityPoolDeposit = "liquidity_pool_deposit",
-    liquidityPoolWithdraw = "liquidity_pool_withdraw",
+    createAccount = 'create_account',
+    payment = 'payment',
+    pathPayment = 'path_payment_strict_receive',
+    createPassiveOffer = 'create_passive_sell_offer',
+    manageOffer = 'manage_sell_offer',
+    setOptions = 'set_options',
+    changeTrust = 'change_trust',
+    allowTrust = 'allow_trust',
+    accountMerge = 'account_merge',
+    inflation = 'inflation',
+    manageData = 'manage_data',
+    bumpSequence = 'bump_sequence',
+    manageBuyOffer = 'manage_buy_offer',
+    pathPaymentStrictSend = 'path_payment_strict_send',
+    createClaimableBalance = 'create_claimable_balance',
+    claimClaimableBalance = 'claim_claimable_balance',
+    beginSponsoringFutureReserves = 'begin_sponsoring_future_reserves',
+    endSponsoringFutureReserves = 'end_sponsoring_future_reserves',
+    revokeSponsorship = 'revoke_sponsorship',
+    clawback = 'clawback',
+    clawbackClaimableBalance = 'clawback_claimable_balance',
+    setTrustLineFlags = 'set_trust_line_flags',
+    liquidityPoolDeposit = 'liquidity_pool_deposit',
+    liquidityPoolWithdraw = 'liquidity_pool_withdraw'
   }
   export enum OperationResponseTypeI {
     createAccount = 0,
@@ -243,12 +242,12 @@ export namespace Horizon {
     clawbackClaimableBalance = 20,
     setTrustLineFlags = 21,
     liquidityPoolDeposit = 22,
-    liquidityPoolWithdraw = 23,
+    liquidityPoolWithdraw = 23
   }
   export interface BaseOperationResponse<
     T extends OperationResponseType = OperationResponseType,
     TI extends OperationResponseTypeI = OperationResponseTypeI
-  > extends BaseResponse<"succeeds" | "precedes" | "effects" | "transaction"> {
+  > extends BaseResponse<'succeeds' | 'precedes' | 'effects' | 'transaction'> {
     id: string;
     paging_token: string;
     source_account: string;
@@ -369,15 +368,15 @@ export namespace Horizon {
     home_domain?: string;
     set_flags: Array<1 | 2 | 4>;
     set_flags_s: Array<
-      | "auth_required_flag"
-      | "auth_revocable_flag"
-      | "auth_clawback_enabled_flag"
+      | 'auth_required_flag'
+      | 'auth_revocable_flag'
+      | 'auth_clawback_enabled_flag'
     >;
     clear_flags: Array<1 | 2 | 4>;
     clear_flags_s: Array<
-      | "auth_required_flag"
-      | "auth_revocable_flag"
-      | "auth_clawback_enabled_flag"
+      | 'auth_required_flag'
+      | 'auth_revocable_flag'
+      | 'auth_clawback_enabled_flag'
     >;
   }
   export interface ChangeTrustOperationResponse
@@ -616,35 +615,35 @@ export namespace Horizon {
 
     export interface RateLimitExceeded extends Base {
       status: 429;
-      title: "Rate Limit Exceeded";
+      title: 'Rate Limit Exceeded';
     }
     export interface InternalServerError extends Base {
       status: 500;
-      title: "Internal Server Error";
+      title: 'Internal Server Error';
     }
     export interface TransactionFailed extends Base {
       status: 400;
-      title: "Transaction Failed";
+      title: 'Transaction Failed';
       extras: TransactionFailedExtras;
     }
   }
 
   export enum TransactionFailedResultCodes {
-    TX_FAILED = "tx_failed",
-    TX_BAD_SEQ = "tx_bad_seq",
-    TX_BAD_AUTH = "tx_bad_auth",
-    TX_BAD_AUTH_EXTRA = "tx_bad_auth_extra",
-    TX_FEE_BUMP_INNER_SUCCESS = "tx_fee_bump_inner_success",
-    TX_FEE_BUMP_INNER_FAILED = "tx_fee_bump_inner_failed",
-    TX_NOT_SUPPORTED = "tx_not_supported",
-    TX_SUCCESS = "tx_success",
-    TX_TOO_EARLY = "tx_too_early",
-    TX_TOO_LATE = "tx_too_late",
-    TX_MISSING_OPERATION = "tx_missing_operation",
-    TX_INSUFFICIENT_BALANCE = "tx_insufficient_balance",
-    TX_NO_SOURCE_ACCOUNT = "tx_no_source_account",
-    TX_INSUFFICIENT_FEE = "tx_insufficient_fee",
-    TX_INTERNAL_ERROR = "tx_internal_error",
+    TX_FAILED = 'tx_failed',
+    TX_BAD_SEQ = 'tx_bad_seq',
+    TX_BAD_AUTH = 'tx_bad_auth',
+    TX_BAD_AUTH_EXTRA = 'tx_bad_auth_extra',
+    TX_FEE_BUMP_INNER_SUCCESS = 'tx_fee_bump_inner_success',
+    TX_FEE_BUMP_INNER_FAILED = 'tx_fee_bump_inner_failed',
+    TX_NOT_SUPPORTED = 'tx_not_supported',
+    TX_SUCCESS = 'tx_success',
+    TX_TOO_EARLY = 'tx_too_early',
+    TX_TOO_LATE = 'tx_too_late',
+    TX_MISSING_OPERATION = 'tx_missing_operation',
+    TX_INSUFFICIENT_BALANCE = 'tx_insufficient_balance',
+    TX_NO_SOURCE_ACCOUNT = 'tx_no_source_account',
+    TX_INSUFFICIENT_FEE = 'tx_insufficient_fee',
+    TX_INTERNAL_ERROR = 'tx_internal_error'
   }
 
   export interface TransactionFailedExtras {

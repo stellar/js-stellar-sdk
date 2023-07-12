@@ -1,5 +1,5 @@
-import { CallBuilder } from "./call_builder";
-import { ServerApi } from "./server_api";
+import { CallBuilder } from './call_builder';
+import { ServerApi } from './server_api';
 
 /**
  * Creates a new {@link TransactionCallBuilder} pointed to server defined by serverUrl.
@@ -15,8 +15,8 @@ export class TransactionCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.TransactionRecord>
 > {
   constructor(serverUrl: URI) {
-    super(serverUrl, "transactions");
-    this.url.segment("transactions");
+    super(serverUrl, 'transactions');
+    this.url.segment('transactions');
   }
 
   /**
@@ -26,10 +26,10 @@ export class TransactionCallBuilder extends CallBuilder<
    * @returns {CallBuilder} a CallBuilder instance
    */
   public transaction(
-    transactionId: string,
+    transactionId: string
   ): CallBuilder<ServerApi.TransactionRecord> {
     const builder = new CallBuilder<ServerApi.TransactionRecord>(
-      this.url.clone(),
+      this.url.clone()
     );
     builder.filter.push([transactionId]);
     return builder;
@@ -42,7 +42,7 @@ export class TransactionCallBuilder extends CallBuilder<
    * @returns {TransactionCallBuilder} current TransactionCallBuilder instance
    */
   public forAccount(accountId: string): this {
-    return this.forEndpoint("accounts", accountId);
+    return this.forEndpoint('accounts', accountId);
   }
 
   /**
@@ -52,7 +52,7 @@ export class TransactionCallBuilder extends CallBuilder<
    * @returns {TransactionCallBuilder} this TransactionCallBuilder instance
    */
   public forClaimableBalance(claimableBalanceId: string): this {
-    return this.forEndpoint("claimable_balances", claimableBalanceId);
+    return this.forEndpoint('claimable_balances', claimableBalanceId);
   }
 
   /**
@@ -62,7 +62,7 @@ export class TransactionCallBuilder extends CallBuilder<
    * @returns {TransactionCallBuilder} current TransactionCallBuilder instance
    */
   public forLedger(sequence: number | string): this {
-    return this.forEndpoint("ledgers", sequence.toString());
+    return this.forEndpoint('ledgers', sequence.toString());
   }
 
   /**
@@ -72,7 +72,7 @@ export class TransactionCallBuilder extends CallBuilder<
    * @returns {TransactionCallBuilder} this TransactionCallBuilder instance
    */
   public forLiquidityPool(poolId: string): this {
-    return this.forEndpoint("liquidity_pools", poolId);
+    return this.forEndpoint('liquidity_pools', poolId);
   }
 
   /**
@@ -82,7 +82,7 @@ export class TransactionCallBuilder extends CallBuilder<
    * @returns {TransactionCallBuilder} current TransactionCallBuilder instance
    */
   public includeFailed(value: boolean): this {
-    this.url.setQuery("include_failed", value.toString());
+    this.url.setQuery('include_failed', value.toString());
     return this;
   }
 }
