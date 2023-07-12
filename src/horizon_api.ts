@@ -218,6 +218,9 @@ export namespace Horizon {
     setTrustLineFlags = "set_trust_line_flags",
     liquidityPoolDeposit = "liquidity_pool_deposit",
     liquidityPoolWithdraw = "liquidity_pool_withdraw",
+    invokeHostFunction = "invoke_host_function",
+    bumpFootprintExpiration = "bump_footprint_expiration",
+    restoreFootprint = "restore_footprint",
   }
   export enum OperationResponseTypeI {
     createAccount = 0,
@@ -244,6 +247,9 @@ export namespace Horizon {
     setTrustLineFlags = 21,
     liquidityPoolDeposit = 22,
     liquidityPoolWithdraw = 23,
+    invokeHostFunction = 24,
+    bumpFootprintExpiration = 25,
+    restoreFootprint = 26,
   }
   export interface BaseOperationResponse<
     T extends OperationResponseType = OperationResponseType,
@@ -562,6 +568,42 @@ export namespace Horizon {
     shares: string;
     reserves_received: Reserve[];
   }
+
+  export interface BalanceChange {
+    type: string;
+    from: string;
+    to: string;
+    amount: string;
+  }
+
+  export interface InvokeHostFunctionOperationResponse
+    extends BaseOperationResponse<
+      OperationResponseType.invokeHostFunction,
+      OperationResponseTypeI.invokeHostFunction
+    > {
+    function: string;
+    parameters: {
+      value: string;
+      type: string;
+    }[];
+    address: string;
+    salt: string;
+    asset_balance_changes: BalanceChange[];
+  }
+
+  export interface BumpFootprintExpirationOperationResponse
+    extends BaseOperationResponse<
+      OperationResponseType.bumpFootprintExpiration,
+      OperationResponseTypeI.bumpFootprintExpiration
+    > {
+    ledgersToExpire: string;
+  }
+
+  export interface RestoreFootprintOperationResponse
+    extends BaseOperationResponse<
+      OperationResponseType.restoreFootprint,
+      OperationResponseTypeI.restoreFootprint
+    > {};
 
   export interface ResponseCollection<T extends BaseResponse = BaseResponse> {
     _links: {
