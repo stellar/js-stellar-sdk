@@ -262,6 +262,11 @@ export type SignerSponsorshipRemoved = Omit<
   SignerSponsorshipEvents,
   "new_sponsor" | "sponsor"
 > & { type_i: EffectType.signer_sponsorship_removed };
+
+export interface ClaimableBalanceClawedBack extends Horizon.BaseResponse {
+	balance_id: string
+}
+
 export interface LiquidityPoolEffectRecord extends Horizon.BaseResponse {
   id: string;
   fee_bp: number;
@@ -308,6 +313,7 @@ export interface LiquidityPoolRevokedEffect extends BaseEffectRecord {
   ];
   shares_revoked: string;
 }
+
 export interface ContractCreditedEffect extends BaseEffectRecord, OfferAsset {
   type_i: EffectType.contract_credited;
   contract: string;
