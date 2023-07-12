@@ -5,6 +5,12 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Add
+
+- Asset stat records (`ServerApi.AssetRecord`) contain two new fields to support the Protocol 20 (Soroban) release ([#TODO](https://github.com/stellar/js-stellar-sdk/pulls/)):
+ * `num_contracts` - the integer quantity of contracts that hold this asset
+ * `contracts_amount` - the total units of that asset held by contracts
+
 
 ## [v11.0.0-beta.1](https://github.com/stellar/js-stellar-sdk/compare/v11.0.0-beta.0...v11.0.0-beta.1)
 
