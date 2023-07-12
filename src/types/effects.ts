@@ -63,6 +63,9 @@ export enum EffectType {
   liquidity_pool_created = 93,
   liquidity_pool_removed = 94,
   liquidity_pool_revoked = 95,
+  // contract effects
+  contract_credited = 96,
+  contract_debited = 97
 }
 export interface BaseEffectRecord extends Horizon.BaseResponse {
   id: string;
@@ -259,6 +262,11 @@ export type SignerSponsorshipRemoved = Omit<
   SignerSponsorshipEvents,
   "new_sponsor" | "sponsor"
 > & { type_i: EffectType.signer_sponsorship_removed };
+
+export interface ClaimableBalanceClawedBack extends Horizon.BaseResponse {
+	balance_id: string
+}
+
 export interface LiquidityPoolEffectRecord extends Horizon.BaseResponse {
   id: string;
   fee_bp: number;
@@ -304,4 +312,15 @@ export interface LiquidityPoolRevokedEffect extends BaseEffectRecord {
     },
   ];
   shares_revoked: string;
+}
+
+export interface ContractCreditedEffect extends BaseEffectRecord, OfferAsset {
+  type_i: EffectType.contract_credited;
+  contract: string;
+  amount: string;
+}
+export interface ContractDebitedEffect extends BaseEffectRecord, OfferAsset {
+  type_i: EffectType.contract_debited;
+  contract: string;
+  amount: string;
 }
