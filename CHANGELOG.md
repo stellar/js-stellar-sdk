@@ -10,7 +10,7 @@ A breaking change will get clearly marked in this log.
 - Asset stat records (`ServerApi.AssetRecord`) contain two new fields to support the Protocol 20 (Soroban) release ([#841](https://github.com/stellar/js-stellar-sdk/pull/841)):
   * `num_contracts` - the integer quantity of contracts that hold this asset
   * `contracts_amount` - the total units of that asset held by contracts
-- New operation responses ([#TODO](https://github.com/stellar/js-stellar-sdk/pull/843)):
+- New operation responses ([#845](https://github.com/stellar/js-stellar-sdk/pull/845)):
   * `invokeHostFunction`: see `Horizon.InvokeHostFunctionOperationResponse`
   * `bumpFootprintExpiration`: see `Horizon.BumpFootprintExpirationOperationResponse`
   * `restoreFootprint`: see `Horizon.RestoreFootprintOperationResponse`
@@ -36,6 +36,7 @@ interface BumpFootprintExpirationOperationResponse {
 }
 interface RestoreFootprintOperationResponse {};
 ```
+
 
 ## [v11.0.0-beta.1](https://github.com/stellar/js-stellar-sdk/compare/v11.0.0-beta.0...v11.0.0-beta.1)
 
