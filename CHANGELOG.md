@@ -7,10 +7,35 @@ A breaking change will get clearly marked in this log.
 
 ### Add
 
-- Asset stat records (`ServerApi.AssetRecord`) contain two new fields to support the Protocol 20 (Soroban) release ([#TODO](https://github.com/stellar/js-stellar-sdk/pulls/)):
- * `num_contracts` - the integer quantity of contracts that hold this asset
- * `contracts_amount` - the total units of that asset held by contracts
-
+- Asset stat records (`ServerApi.AssetRecord`) contain two new fields to support the Protocol 20 (Soroban) release ([#841](https://github.com/stellar/js-stellar-sdk/pull/841)):
+  * `num_contracts` - the integer quantity of contracts that hold this asset
+  * `contracts_amount` - the total units of that asset held by contracts
+- New operation responses ([#TODO](https://github.com/stellar/js-stellar-sdk/pull/843)):
+  * `invokeHostFunction`: see `Horizon.InvokeHostFunctionOperationResponse`
+  * `bumpFootprintExpiration`: see `Horizon.BumpFootprintExpirationOperationResponse`
+  * `restoreFootprint`: see `Horizon.RestoreFootprintOperationResponse`
+  * You can refer to the actual definitions for details, but the gist of the schemas is below:
+```ts
+interface InvokeHostFunctionOperationResponse {
+  function: string;
+  parameters: {
+    value: string;
+    type: string;
+  }[];
+  address: string;
+  salt: string;
+  asset_balance_changes: {
+    type: string;
+    from: string;
+    to: string;
+    amount: string;
+  }[];
+}
+interface BumpFootprintExpirationOperationResponse {
+  ledgersToExpire: string;
+}
+interface RestoreFootprintOperationResponse {};
+```
 
 ## [v11.0.0-beta.1](https://github.com/stellar/js-stellar-sdk/compare/v11.0.0-beta.0...v11.0.0-beta.1)
 
