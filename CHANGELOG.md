@@ -7,7 +7,8 @@ A breaking change will get clearly marked in this log.
 
 
 ### Breaking Changes
-- Certain effects have been renamed to align better with the "tense" that other structures have ([TODO]()):
+
+- Certain effects have been renamed to align better with the "tense" that other structures have ([#844](https://github.com/stellar/js-stellar-sdk/pull/844)):
   * `DepositLiquidityEffect` -> `LiquidityPoolDeposited`
   * `WithdrawLiquidityEffect` -> `LiquidityPoolWithdrew`
   * `LiquidityPoolTradeEffect` -> `LiquidityPoolTrade`
