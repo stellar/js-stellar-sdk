@@ -134,16 +134,16 @@ cd js-stellar-sdk
 npm install
 ```
 
-3. Install Node 14
+3. Install Node 16
 
-Because we support the oldest maintenance version of Node, please install and develop on Node 14 so you don't get surprised when your code works locally but breaks in CI.
+Because we support the oldest maintenance version of Node, please install and develop on Node 16 so you don't get surprised when your code works locally but breaks in CI.
 
 Here's how to install `nvm` if you haven't: https://github.com/creationix/nvm
 
 ```shell
 nvm install
 
-# if you've never installed 14 before you'll want to re-install yarn
+# if you've never installed 16 before you'll want to re-install yarn
 npm install -g yarn
 ```
 
