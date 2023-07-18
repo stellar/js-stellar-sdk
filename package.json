@@ -17,7 +17,7 @@
   "author": "Stellar Development Foundation <hello@stellar.org>",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
-  "browser": "./dist/stellar-sdk.js",
+  "browser": "./dist/stellar-sdk.min.js",
   "files": [
     "/types",
     "/lib",
@@ -143,7 +143,7 @@
     "bignumber.js": "^9.1.1",
     "eventsource": "^2.0.2",
     "randombytes": "^2.1.0",
-    "stellar-base": "^9.0.0",
+    "stellar-base": "^10.0.0-soroban.4",
     "toml": "^3.0.0",
     "urijs": "^1.19.1"
   }

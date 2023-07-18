@@ -2,8 +2,8 @@ import axios from "axios";
 import { StrKey } from "stellar-base";
 import URI from "urijs";
 
-import { Config } from "./config";
-import { BadResponseError } from "./errors";
+import { Config } from "../config";
+import { BadResponseError } from "../errors";
 import { StellarTomlResolver } from "./stellar_toml_resolver";
 
 // FEDERATION_RESPONSE_MAX_SIZE is the maximum size of response from a federation server
