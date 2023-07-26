@@ -95,7 +95,7 @@ const server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
     console.log('\nSuccess! View the transaction at: ');
     console.log(transactionResult._links.transaction.href);
   } catch (e) {
-    console.log('An error has occured:');
+    console.log('An error has occurred:');
     console.log(e);
   }
 })();

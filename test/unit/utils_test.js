@@ -530,7 +530,7 @@ describe("Utils", function () {
       );
     });
 
-    it("throws an error if transaction doestn't contain any operation", function () {
+    it("throws an error if transaction doesn't contain any operation", function () {
       let keypair = StellarSdk.Keypair.random();
       const account = new StellarSdk.Account(keypair.publicKey(), "-1");
       const transaction = new StellarSdk.TransactionBuilder(
@@ -2120,7 +2120,7 @@ describe("Utils", function () {
       ).to.eql([this.clientKP2.publicKey()]);
     });
 
-    it("throws an error if no client but insted the server has signed the transaction", function () {
+    it("throws an error if no client but instead the server has signed the transaction", function () {
       const challenge = StellarSdk.Utils.buildChallengeTx(
         this.serverKP,
         this.clientKP1.publicKey(),
