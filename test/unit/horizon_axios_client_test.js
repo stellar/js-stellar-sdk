@@ -13,7 +13,7 @@ describe("getCurrentServerTime", () => {
     clock.restore();
   });
 
-  it("returns null when the hostname hasnt been hit", () => {
+  it("returns null when the hostname hasn't been hit", () => {
     expect(getCurrentServerTime("host")).to.be.null;
   });
 
