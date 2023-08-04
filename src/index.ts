@@ -31,6 +31,8 @@ export * from "./utils";
 // expose classes and functions from stellar-base
 export * from "stellar-base";
 
+export * from './soroban';
+
 export { version };
 
 export default module.exports;

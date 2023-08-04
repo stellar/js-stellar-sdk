@@ -88,11 +88,11 @@ describe("/liquidity_pools tests", function () {
 
   const EURT = new StellarSdk.Asset(
     "EURT",
-    "GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S"
+    "GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S",
   );
   const PHP = new StellarSdk.Asset(
     "PHP",
-    "GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S"
+    "GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S",
   );
 
   it("returns the right root response", function (done) {
@@ -143,7 +143,7 @@ describe("/liquidity_pools tests", function () {
         this.axiosMock
           .expects("get")
           .withArgs(
-            sinon.match(`${LP_URL}?reserves=${encodeURIComponent(queryStr)}`)
+            sinon.match(`${LP_URL}?reserves=${encodeURIComponent(queryStr)}`),
           )
           .returns(Promise.resolve({ data: testCase.response }));
 
@@ -153,7 +153,7 @@ describe("/liquidity_pools tests", function () {
           .call()
           .then((pools) => {
             expect(pools.records).to.deep.equal(
-              testCase.response._embedded.records
+              testCase.response._embedded.records,
             );
             done();
           })
@@ -187,10 +187,10 @@ describe("/liquidity_pools tests", function () {
 
     it("checks for valid IDs", function () {
       expect(() =>
-        this.server.liquidityPools().liquidityPoolId("nonsense")
+        this.server.liquidityPools().liquidityPoolId("nonsense"),
       ).to.throw();
       expect(() =>
-        this.server.liquidityPools().liquidityPoolId(lpId)
+        this.server.liquidityPools().liquidityPoolId(lpId),
       ).not.to.throw();
     });
 
@@ -389,7 +389,7 @@ describe("/liquidity_pools tests", function () {
         .call()
         .then((poolOps) => {
           expect(poolOps.records).to.deep.equal(
-            poolOpsResponse._embedded.records
+            poolOpsResponse._embedded.records,
           );
           done();
         })
@@ -481,7 +481,7 @@ describe("/liquidity_pools tests", function () {
         .call()
         .then((poolTxs) => {
           expect(poolTxs.records).to.deep.equal(
-            poolTxsResponse._embedded.records
+            poolTxsResponse._embedded.records,
           );
           done();
         })
@@ -757,7 +757,7 @@ describe("/liquidity_pools tests", function () {
         .call()
         .then((poolEffects) => {
           expect(poolEffects.records).to.deep.equal(
-            poolEffectsResponse._embedded.records
+            poolEffectsResponse._embedded.records,
           );
           done();
         })
@@ -833,7 +833,7 @@ describe("/liquidity_pools tests", function () {
         .call()
         .then((poolTrades) => {
           expect(poolTrades.records).to.deep.equal(
-            poolTradesResponse._embedded.records
+            poolTradesResponse._embedded.records,
           );
           done();
         })
@@ -1000,7 +1000,7 @@ describe("/liquidity_pools tests", function () {
         .call()
         .then((poolOps) => {
           expect(poolOps.records).to.deep.equal(
-            poolOpsResponse._embedded.records
+            poolOpsResponse._embedded.records,
           );
           done();
         })
@@ -1092,7 +1092,7 @@ describe("/liquidity_pools tests", function () {
         .call()
         .then((poolTxs) => {
           expect(poolTxs.records).to.deep.equal(
-            poolTxsResponse._embedded.records
+            poolTxsResponse._embedded.records,
           );
           done();
         })
@@ -1368,7 +1368,7 @@ describe("/liquidity_pools tests", function () {
         .call()
         .then((poolFxs) => {
           expect(poolFxs.records).to.deep.equal(
-            poolFxsResponse._embedded.records
+            poolFxsResponse._embedded.records,
           );
           done();
         })

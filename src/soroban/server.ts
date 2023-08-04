@@ -1,7 +1,5 @@
 /* tslint:disable:variable-name no-namespace */
 
-import isEmpty from "lodash/isEmpty";
-import merge from "lodash/merge";
 import {
   Account,
   Address,
@@ -69,11 +67,10 @@ export class Server {
     if (opts.appVersion) {
       customHeaders["X-App-Version"] = opts.appVersion;
     }
-    if (!isEmpty(customHeaders)) {
+    if ((Object.keys(customHeaders).length ?? 0) !== 0) {
       AxiosClient.interceptors.request.use((config: any) => {
-        // merge the custom headers with an existing headers
-        config.headers = merge(customHeaders, config.headers);
-
+        // merge the custom headers with any existing headers
+        config.headers = Object.assign(config.headers, customHeaders);
         return config;
       });
     }

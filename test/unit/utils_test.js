@@ -33,13 +33,13 @@ describe("Utils", function () {
             "testanchor.stellar.org",
             300,
             StellarSdk.Networks.TESTNET,
-            "testanchor.stellar.org"
-          ))
+            "testanchor.stellar.org",
+          )),
       ).not.to.throw();
       const transaction = new StellarSdk.Transaction(
         challenge,
         StellarSdk.Networks.TESTNET,
-        true
+        true,
       );
       expect(transaction.operations[0].source).to.equal(muxedAddress);
     });
@@ -56,13 +56,13 @@ describe("Utils", function () {
             300,
             StellarSdk.Networks.TESTNET,
             "testanchor.stellar.org",
-            "8884404377665521220"
-          ))
+            "8884404377665521220",
+          )),
       ).not.to.throw();
       const transaction = new StellarSdk.Transaction(
         challenge,
         StellarSdk.Networks.TESTNET,
-        true
+        true,
       );
       expect(transaction.memo.value).to.equal("8884404377665521220");
     });
@@ -78,8 +78,8 @@ describe("Utils", function () {
             300,
             StellarSdk.Networks.TESTNET,
             "testanchor.stellar.org",
-            "memo text"
-          ))
+            "memo text",
+          )),
       ).to.throw();
     });
 
@@ -96,8 +96,8 @@ describe("Utils", function () {
             300,
             StellarSdk.Networks.TESTNET,
             "testanchor.stellar.org",
-            "8884404377665521220"
-          ))
+            "8884404377665521220",
+          )),
       ).to.throw(/memo cannot be used if clientAccountID is a muxed account/);
     });
 
@@ -114,12 +114,12 @@ describe("Utils", function () {
         "testanchor.stellar.org",
         null,
         "testdomain",
-        clientSigningKeypair.publicKey()
+        clientSigningKeypair.publicKey(),
       );
 
       const transaction = new StellarSdk.Transaction(
         challenge,
-        StellarSdk.Networks.TESTNET
+        StellarSdk.Networks.TESTNET,
       );
 
       expect(transaction.sequence).to.eql("0");
@@ -134,12 +134,12 @@ describe("Utils", function () {
 
       expect(operation1.name).to.eql("testanchor.stellar.org auth");
       expect(operation1.source).to.eql(
-        "GBDIT5GUJ7R5BXO3GJHFXJ6AZ5UQK6MNOIDMPQUSMXLIHTUNR2Q5CFNF"
+        "GBDIT5GUJ7R5BXO3GJHFXJ6AZ5UQK6MNOIDMPQUSMXLIHTUNR2Q5CFNF",
       );
       expect(operation1.type).to.eql("manageData");
       expect(operation1.value.length).to.eql(64);
       expect(Buffer.from(operation1.value.toString(), "base64").length).to.eql(
-        48
+        48,
       );
 
       expect(operation2.name).to.equal("web_auth_domain");
@@ -162,12 +162,12 @@ describe("Utils", function () {
         "testanchor.stellar.org",
         600,
         StellarSdk.Networks.TESTNET,
-        "testanchor.stellar.org"
+        "testanchor.stellar.org",
       );
 
       const transaction = new StellarSdk.Transaction(
         challenge,
-        StellarSdk.Networks.TESTNET
+        StellarSdk.Networks.TESTNET,
       );
 
       let maxTime = parseInt(transaction.timeBounds.maxTime);
@@ -190,8 +190,8 @@ describe("Utils", function () {
           600,
           StellarSdk.Networks.TESTNET,
           "testanchor.stellar.org",
-          "10154623012567072189"
-        )
+          "10154623012567072189",
+        ),
       ).to.throw(/memo cannot be used if clientAccountID is a muxed account/);
     });
 
@@ -206,8 +206,8 @@ describe("Utils", function () {
           "testanchor.stellar.org",
           null,
           "testdomain",
-          null
-        )
+          null,
+        ),
       ).to.throw(/clientSigningKey is required if clientDomain is provided/);
     });
   });
@@ -223,7 +223,7 @@ describe("Utils", function () {
         "SDF",
         300,
         StellarSdk.Networks.TESTNET,
-        "testanchor.stellar.org"
+        "testanchor.stellar.org",
       );
 
       const innerTx = new StellarSdk.TransactionBuilder(
@@ -235,14 +235,14 @@ describe("Utils", function () {
             minTime: 0,
             maxTime: 0,
           },
-        }
+        },
       )
         .addOperation(
           StellarSdk.Operation.payment({
             destination: clientKP.publicKey(),
             asset: StellarSdk.Asset.native(),
             amount: "10.000",
-          })
+          }),
         )
         .build();
 
@@ -250,7 +250,7 @@ describe("Utils", function () {
         serverKP,
         "300",
         innerTx,
-        StellarSdk.Networks.TESTNET
+        StellarSdk.Networks.TESTNET,
       ).toXDR();
 
       expect(() =>
@@ -259,11 +259,11 @@ describe("Utils", function () {
           serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
           "SDF",
-          "testanchor.stellar.org"
-        )
+          "testanchor.stellar.org",
+        ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
-        /Invalid challenge: expected a Transaction but received a FeeBumpTransaction/
+        /Invalid challenge: expected a Transaction but received a FeeBumpTransaction/,
       );
 
       expect(() =>
@@ -272,8 +272,8 @@ describe("Utils", function () {
           serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
           "SDF",
-          "testanchor.stellar.org"
-        )
+          "testanchor.stellar.org",
+        ),
       ).to.not.throw(StellarSdk.InvalidSep10ChallengeError);
       expect(() =>
         StellarSdk.Utils.readChallengeTx(
@@ -281,8 +281,8 @@ describe("Utils", function () {
           serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
           "SDF",
-          "testanchor.stellar.org"
-        )
+          "testanchor.stellar.org",
+        ),
       ).to.not.throw(StellarSdk.InvalidSep10ChallengeError);
     });
     it("returns the transaction and the clientAccountID (client's pubKey) if the challenge was created successfully", function () {
@@ -295,14 +295,14 @@ describe("Utils", function () {
         "SDF",
         300,
         StellarSdk.Networks.TESTNET,
-        "testanchor.stellar.org"
+        "testanchor.stellar.org",
       );
 
       clock.tick(200);
 
       const transaction = new StellarSdk.Transaction(
         challenge,
-        StellarSdk.Networks.TESTNET
+        StellarSdk.Networks.TESTNET,
       );
 
       expect(
@@ -311,8 +311,8 @@ describe("Utils", function () {
           serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
           "SDF",
-          "testanchor.stellar.org"
-        )
+          "testanchor.stellar.org",
+        ),
       ).to.eql({
         tx: transaction,
         clientAccountID: clientKP.publicKey(),
@@ -333,14 +333,14 @@ describe("Utils", function () {
         300,
         StellarSdk.Networks.TESTNET,
         "testanchor.stellar.org",
-        clientMemo
+        clientMemo,
       );
 
       clock.tick(200);
 
       const transaction = new StellarSdk.Transaction(
         challenge,
-        StellarSdk.Networks.TESTNET
+        StellarSdk.Networks.TESTNET,
       );
 
       expect(
@@ -349,8 +349,8 @@ describe("Utils", function () {
           serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
           "SDF",
-          "testanchor.stellar.org"
-        )
+          "testanchor.stellar.org",
+        ),
       ).to.eql({
         tx: transaction,
         clientAccountID: clientKP.publicKey(),
@@ -370,7 +370,7 @@ describe("Utils", function () {
         "SDF",
         300,
         StellarSdk.Networks.TESTNET,
-        "testanchor.stellar.org"
+        "testanchor.stellar.org",
       );
 
       clock.tick(200);
@@ -378,7 +378,7 @@ describe("Utils", function () {
       const transaction = new StellarSdk.Transaction(
         challenge,
         StellarSdk.Networks.TESTNET,
-        true
+        true,
       );
 
       expect(
@@ -387,8 +387,8 @@ describe("Utils", function () {
           serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
           "SDF",
-          "testanchor.stellar.org"
-        )
+          "testanchor.stellar.org",
+        ),
       ).to.eql({
         tx: transaction,
         clientAccountID: muxedAddress,
@@ -405,7 +405,7 @@ describe("Utils", function () {
         "MCQQMHTBRF2NPCEJWO2JMDT2HBQ2FGDCYREY2YIBSHLTXDG54Y3KTWX3R7NBER62VBELC";
       const transaction = new StellarSdk.TransactionBuilder(
         serverAccount,
-        txBuilderOpts
+        txBuilderOpts,
       )
         .addOperation(
           StellarSdk.Operation.manageData({
@@ -413,7 +413,7 @@ describe("Utils", function () {
             name: "testanchor.stellar.org auth",
             value: randomBytes(48).toString("base64"),
             withMuxing: true,
-          })
+          }),
         )
         .addMemo(new StellarSdk.Memo.id("5842698851377328257"))
         .setTimeout(30)
@@ -424,7 +424,7 @@ describe("Utils", function () {
 
       const transactionRoundTripped = new StellarSdk.Transaction(
         challenge,
-        StellarSdk.Networks.TESTNET
+        StellarSdk.Networks.TESTNET,
       );
 
       expect(() =>
@@ -433,11 +433,11 @@ describe("Utils", function () {
           serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
           "testanchor.stellar.org",
-          "testanchor.stellar.org"
-        )
+          "testanchor.stellar.org",
+        ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
-        /The transaction has a memo but the client account ID is a muxed account/
+        /The transaction has a memo but the client account ID is a muxed account/,
       );
     });
 
@@ -447,14 +447,14 @@ describe("Utils", function () {
 
       const transaction = new StellarSdk.TransactionBuilder(
         new StellarSdk.Account(serverKP.publicKey(), "-1"),
-        { fee: 100, networkPassphrase: StellarSdk.Networks.TESTNET }
+        { fee: 100, networkPassphrase: StellarSdk.Networks.TESTNET },
       )
         .addOperation(
           StellarSdk.Operation.manageData({
             source: clientKP.publicKey(),
             name: "SDF-test auth",
             value: randomBytes(48).toString("base64"),
-          })
+          }),
         )
         .setTimeout(30)
         .build();
@@ -467,11 +467,11 @@ describe("Utils", function () {
           serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
           "SDF-test",
-          "testanchor.stellar.org"
-        )
+          "testanchor.stellar.org",
+        ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
-        "Transaction not signed by server: '" + serverKP.publicKey() + "'"
+        "Transaction not signed by server: '" + serverKP.publicKey() + "'",
       );
     });
 
@@ -481,7 +481,7 @@ describe("Utils", function () {
       const account = new StellarSdk.Account(keypair.publicKey(), "100");
       const transaction = new StellarSdk.TransactionBuilder(
         account,
-        txBuilderOpts
+        txBuilderOpts,
       )
         .setTimeout(30)
         .build();
@@ -494,11 +494,11 @@ describe("Utils", function () {
           keypair.publicKey(),
           StellarSdk.Networks.TESTNET,
           "SDF",
-          "testanchor.stellar.org"
-        )
+          "testanchor.stellar.org",
+        ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
-        /The transaction sequence number should be zero/
+        /The transaction sequence number should be zero/,
       );
     });
 
@@ -511,7 +511,7 @@ describe("Utils", function () {
         "SDF",
         300,
         StellarSdk.Networks.TESTNET,
-        "testanchor.stellar.org"
+        "testanchor.stellar.org",
       );
 
       let serverAccountId = StellarSdk.Keypair.random().publicKey();
@@ -522,11 +522,11 @@ describe("Utils", function () {
           serverAccountId,
           StellarSdk.Networks.TESTNET,
           "SDF",
-          "testanchor.stellar.org"
-        )
+          "testanchor.stellar.org",
+        ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
-        /The transaction source account is not equal to the server's account/
+        /The transaction source account is not equal to the server's account/,
       );
     });
 
@@ -535,7 +535,7 @@ describe("Utils", function () {
       const account = new StellarSdk.Account(keypair.publicKey(), "-1");
       const transaction = new StellarSdk.TransactionBuilder(
         account,
-        txBuilderOpts
+        txBuilderOpts,
       )
         .setTimeout(30)
         .build();
@@ -549,11 +549,11 @@ describe("Utils", function () {
           keypair.publicKey(),
           StellarSdk.Networks.TESTNET,
           "SDF",
-          "testanchor.stellar.org"
-        )
+          "testanchor.stellar.org",
+        ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
-        /The transaction should contain at least one operation/
+        /The transaction should contain at least one operation/,
       );
     });
 
@@ -562,13 +562,13 @@ describe("Utils", function () {
       const account = new StellarSdk.Account(keypair.publicKey(), "-1");
       const transaction = new StellarSdk.TransactionBuilder(
         account,
-        txBuilderOpts
+        txBuilderOpts,
       )
         .addOperation(
           StellarSdk.Operation.manageData({
             name: "SDF auth",
             value: randomBytes(48).toString("base64"),
-          })
+          }),
         )
         .setTimeout(30)
         .build();
@@ -582,11 +582,11 @@ describe("Utils", function () {
           keypair.publicKey(),
           StellarSdk.Networks.TESTNET,
           "SDF",
-          "testanchor.stellar.org"
-        )
+          "testanchor.stellar.org",
+        ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
-        /The transaction\'s operation should contain a source account/
+        /The transaction\'s operation should contain a source account/,
       );
     });
 
@@ -595,13 +595,13 @@ describe("Utils", function () {
       const account = new StellarSdk.Account(keypair.publicKey(), "-1");
       const transaction = new StellarSdk.TransactionBuilder(
         account,
-        txBuilderOpts
+        txBuilderOpts,
       )
         .addOperation(
           StellarSdk.Operation.accountMerge({
             destination: keypair.publicKey(),
             source: keypair.publicKey(),
-          })
+          }),
         )
         .setTimeout(30)
         .build();
@@ -615,11 +615,11 @@ describe("Utils", function () {
           keypair.publicKey(),
           StellarSdk.Networks.TESTNET,
           "SDF",
-          "testanchor.stellar.org"
-        )
+          "testanchor.stellar.org",
+        ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
-        /The transaction\'s operation type should be \'manageData\'/
+        /The transaction\'s operation type should be \'manageData\'/,
       );
     });
 
@@ -648,7 +648,7 @@ describe("Utils", function () {
             name: `${anchorName} auth`,
             value,
             source: clientKeypair.publicKey(),
-          })
+          }),
         )
         .build();
 
@@ -657,7 +657,7 @@ describe("Utils", function () {
 
       transaction = new StellarSdk.Transaction(
         challenge,
-        StellarSdk.Networks.TESTNET
+        StellarSdk.Networks.TESTNET,
       );
       transaction.sign(clientKeypair);
 
@@ -672,11 +672,11 @@ describe("Utils", function () {
           serverKeypair.publicKey(),
           StellarSdk.Networks.TESTNET,
           anchorName,
-          "testanchor.stellar.org"
-        )
+          "testanchor.stellar.org",
+        ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
-        /The transaction requires non-infinite timebounds/
+        /The transaction requires non-infinite timebounds/,
       );
     });
 
@@ -685,14 +685,14 @@ describe("Utils", function () {
       const account = new StellarSdk.Account(keypair.publicKey(), "-1");
       const transaction = new StellarSdk.TransactionBuilder(
         account,
-        txBuilderOpts
+        txBuilderOpts,
       )
         .addOperation(
           StellarSdk.Operation.manageData({
             name: "SDF auth",
             value: randomBytes(64),
             source: "GBDIT5GUJ7R5BXO3GJHFXJ6AZ5UQK6MNOIDMPQUSMXLIHTUNR2Q5CFNF",
-          })
+          }),
         )
         .setTimeout(30)
         .build();
@@ -706,11 +706,11 @@ describe("Utils", function () {
           keypair.publicKey(),
           StellarSdk.Networks.TESTNET,
           "SDF",
-          "testanchor.stellar.org"
-        )
+          "testanchor.stellar.org",
+        ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
-        /The transaction\'s operation value should be a 64 bytes base64 random string/
+        /The transaction\'s operation value should be a 64 bytes base64 random string/,
       );
     });
 
@@ -719,14 +719,14 @@ describe("Utils", function () {
       const account = new StellarSdk.Account(keypair.publicKey(), "-1");
       const transaction = new StellarSdk.TransactionBuilder(
         account,
-        txBuilderOpts
+        txBuilderOpts,
       )
         .addOperation(
           StellarSdk.Operation.manageData({
             name: "SDF auth",
             value: null,
             source: "GBDIT5GUJ7R5BXO3GJHFXJ6AZ5UQK6MNOIDMPQUSMXLIHTUNR2Q5CFNF",
-          })
+          }),
         )
         .setTimeout(30)
         .build();
@@ -738,11 +738,11 @@ describe("Utils", function () {
         StellarSdk.Utils.readChallengeTx(
           challenge,
           keypair.publicKey(),
-          StellarSdk.Networks.TESTNET
-        )
+          StellarSdk.Networks.TESTNET,
+        ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
-        /The transaction\'s operation values should not be null/
+        /The transaction\'s operation values should not be null/,
       );
     });
 
@@ -756,7 +756,7 @@ describe("Utils", function () {
         "SDF",
         300,
         StellarSdk.Networks.TESTNET,
-        "testanchor.stellar.org"
+        "testanchor.stellar.org",
       );
 
       // Note that this is greater than the grace period of 5 minutes (600 seconds)
@@ -764,7 +764,7 @@ describe("Utils", function () {
 
       const transaction = new StellarSdk.Transaction(
         challenge,
-        StellarSdk.Networks.TESTNET
+        StellarSdk.Networks.TESTNET,
       );
       transaction.sign(clientKeypair);
 
@@ -779,11 +779,11 @@ describe("Utils", function () {
           keypair.publicKey(),
           StellarSdk.Networks.TESTNET,
           "SDF",
-          "testanchor.stellar.org"
-        )
+          "testanchor.stellar.org",
+        ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
-        /The transaction has expired/
+        /The transaction has expired/,
       );
     });
 
@@ -801,11 +801,11 @@ describe("Utils", function () {
           "GDMSN2PQ3EB32LZY5JVACI4H7GUVQ3YUWOM4437IDTVQHHWHYG7CGA5Z",
           StellarSdk.Networks.TESTNET,
           "testnet-sep.stablex.cloud",
-          "staging-transfer-server.zetl.network"
-        )
+          "staging-transfer-server.zetl.network",
+        ),
       ).not.to.throw(
         StellarSdk.InvalidSep10ChallengeError,
-        /The transaction has expired/
+        /The transaction has expired/,
       );
     });
 
@@ -815,14 +815,14 @@ describe("Utils", function () {
       const serverAccount = new StellarSdk.Account(serverKP.publicKey(), "-1");
       const transaction = new StellarSdk.TransactionBuilder(
         serverAccount,
-        txBuilderOpts
+        txBuilderOpts,
       )
         .addOperation(
           StellarSdk.Operation.manageData({
             source: clientKP.publicKey(),
             name: "testanchor.stellar.org auth",
             value: randomBytes(48).toString("base64"),
-          })
+          }),
         )
         .setTimeout(30)
         .build();
@@ -832,7 +832,7 @@ describe("Utils", function () {
 
       const transactionRoundTripped = new StellarSdk.Transaction(
         challenge,
-        StellarSdk.Networks.TESTNET
+        StellarSdk.Networks.TESTNET,
       );
 
       expect(
@@ -841,8 +841,8 @@ describe("Utils", function () {
           serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
           "testanchor.stellar.org",
-          "testanchor.stellar.org"
-        )
+          "testanchor.stellar.org",
+        ),
       ).to.eql({
         tx: transactionRoundTripped,
         clientAccountID: clientKP.publicKey(),
@@ -857,14 +857,14 @@ describe("Utils", function () {
       const serverAccount = new StellarSdk.Account(serverKP.publicKey(), "-1");
       const transaction = new StellarSdk.TransactionBuilder(
         serverAccount,
-        txBuilderOpts
+        txBuilderOpts,
       )
         .addOperation(
           StellarSdk.Operation.manageData({
             source: clientKP.publicKey(),
             name: "testanchor.stellar.org auth",
             value: randomBytes(48).toString("base64"),
-          })
+          }),
         )
         .setTimeout(30)
         .build();
@@ -874,7 +874,7 @@ describe("Utils", function () {
 
       const transactionRoundTripped = new StellarSdk.Transaction(
         challenge,
-        StellarSdk.Networks.TESTNET
+        StellarSdk.Networks.TESTNET,
       );
 
       expect(
@@ -883,8 +883,8 @@ describe("Utils", function () {
           serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
           ["SDF", "Test", "testanchor.stellar.org", "SDF-test"],
-          "testanchor.stellar.org"
-        )
+          "testanchor.stellar.org",
+        ),
       ).to.eql({
         tx: transactionRoundTripped,
         clientAccountID: clientKP.publicKey(),
@@ -899,14 +899,14 @@ describe("Utils", function () {
       const serverAccount = new StellarSdk.Account(serverKP.publicKey(), "-1");
       const transaction = new StellarSdk.TransactionBuilder(
         serverAccount,
-        txBuilderOpts
+        txBuilderOpts,
       )
         .addOperation(
           StellarSdk.Operation.manageData({
             source: clientKP.publicKey(),
             name: "testanchor.stellar.org auth",
             value: randomBytes(48).toString("base64"),
-          })
+          }),
         )
         .setTimeout(30)
         .build();
@@ -918,12 +918,12 @@ describe("Utils", function () {
         StellarSdk.Utils.readChallengeTx(
           challenge,
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET
+          StellarSdk.Networks.TESTNET,
           // home domain not provided
-        )
+        ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
-        /Invalid homeDomains: a home domain must be provided for verification/
+        /Invalid homeDomains: a home domain must be provided for verification/,
       );
     });
 
@@ -933,14 +933,14 @@ describe("Utils", function () {
       const serverAccount = new StellarSdk.Account(serverKP.publicKey(), "-1");
       const transaction = new StellarSdk.TransactionBuilder(
         serverAccount,
-        txBuilderOpts
+        txBuilderOpts,
       )
         .addOperation(
           StellarSdk.Operation.manageData({
             source: clientKP.publicKey(),
             name: "testanchor.stellar.org auth",
             value: randomBytes(48).toString("base64"),
-          })
+          }),
         )
         .setTimeout(30)
         .build();
@@ -954,11 +954,11 @@ describe("Utils", function () {
           serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
           // home domain as number
-          1
-        )
+          1,
+        ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
-        /Invalid homeDomains: homeDomains type is number but should be a string or an array/
+        /Invalid homeDomains: homeDomains type is number but should be a string or an array/,
       );
     });
 
@@ -968,14 +968,14 @@ describe("Utils", function () {
       const serverAccount = new StellarSdk.Account(serverKP.publicKey(), "-1");
       const transaction = new StellarSdk.TransactionBuilder(
         serverAccount,
-        txBuilderOpts
+        txBuilderOpts,
       )
         .addOperation(
           StellarSdk.Operation.manageData({
             source: clientKP.publicKey(),
             name: "does.not.match auth",
             value: randomBytes(48).toString("base64"),
-          })
+          }),
         )
         .setTimeout(30)
         .build();
@@ -989,11 +989,11 @@ describe("Utils", function () {
           serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
           "testanchor.stellar.org",
-          "testanchor.stellar.org"
-        )
+          "testanchor.stellar.org",
+        ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
-        /Invalid homeDomains: the transaction\'s operation key name does not match the expected home domain/
+        /Invalid homeDomains: the transaction\'s operation key name does not match the expected home domain/,
       );
     });
 
@@ -1003,14 +1003,14 @@ describe("Utils", function () {
       const serverAccount = new StellarSdk.Account(serverKP.publicKey(), "-1");
       const transaction = new StellarSdk.TransactionBuilder(
         serverAccount,
-        txBuilderOpts
+        txBuilderOpts,
       )
         .addOperation(
           StellarSdk.Operation.manageData({
             source: clientKP.publicKey(),
             name: "does.not.match auth",
             value: randomBytes(48).toString("base64"),
-          })
+          }),
         )
         .setTimeout(30)
         .build();
@@ -1024,11 +1024,11 @@ describe("Utils", function () {
           serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
           ["SDF", "Test", "testanchor.stellar.org", "SDF-test"],
-          "testanchor.stellar.org"
-        )
+          "testanchor.stellar.org",
+        ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
-        /Invalid homeDomains: the transaction\'s operation key name does not match the expected home domain/
+        /Invalid homeDomains: the transaction\'s operation key name does not match the expected home domain/,
       );
     });
 
@@ -1038,21 +1038,21 @@ describe("Utils", function () {
       const serverAccount = new StellarSdk.Account(serverKP.publicKey(), "-1");
       const transaction = new StellarSdk.TransactionBuilder(
         serverAccount,
-        txBuilderOpts
+        txBuilderOpts,
       )
         .addOperation(
           StellarSdk.Operation.manageData({
             source: clientKP.publicKey(),
             name: "SDF auth",
             value: randomBytes(48).toString("base64"),
-          })
+          }),
         )
         .addOperation(
           StellarSdk.Operation.manageData({
             source: serverKP.publicKey(),
             name: "a key",
             value: "a value",
-          })
+          }),
         )
         .setTimeout(30)
         .build();
@@ -1062,7 +1062,7 @@ describe("Utils", function () {
 
       const transactionRoundTripped = new StellarSdk.Transaction(
         challenge,
-        StellarSdk.Networks.TESTNET
+        StellarSdk.Networks.TESTNET,
       );
 
       expect(
@@ -1071,8 +1071,8 @@ describe("Utils", function () {
           serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
           "SDF",
-          "testanchor.stellar.org"
-        )
+          "testanchor.stellar.org",
+        ),
       ).to.eql({
         tx: transactionRoundTripped,
         clientAccountID: clientKP.publicKey(),
@@ -1087,21 +1087,21 @@ describe("Utils", function () {
       const serverAccount = new StellarSdk.Account(serverKP.publicKey(), "-1");
       const transaction = new StellarSdk.TransactionBuilder(
         serverAccount,
-        txBuilderOpts
+        txBuilderOpts,
       )
         .addOperation(
           StellarSdk.Operation.manageData({
             source: clientKP.publicKey(),
             name: "SDF auth",
             value: randomBytes(48).toString("base64"),
-          })
+          }),
         )
         .addOperation(
           StellarSdk.Operation.manageData({
             source: clientKP.publicKey(),
             name: "a key",
             value: "a value",
-          })
+          }),
         )
         .setTimeout(30)
         .build();
@@ -1111,7 +1111,7 @@ describe("Utils", function () {
 
       const transactionRoundTripped = new StellarSdk.Transaction(
         challenge,
-        StellarSdk.Networks.TESTNET
+        StellarSdk.Networks.TESTNET,
       );
 
       expect(() =>
@@ -1120,11 +1120,11 @@ describe("Utils", function () {
           serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
           "SDF",
-          "testanchor.stellar.org"
-        )
+          "testanchor.stellar.org",
+        ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
-        /The transaction has operations that are unrecognized/
+        /The transaction has operations that are unrecognized/,
       );
     });
 
@@ -1134,20 +1134,20 @@ describe("Utils", function () {
       const serverAccount = new StellarSdk.Account(serverKP.publicKey(), "-1");
       const transaction = new StellarSdk.TransactionBuilder(
         serverAccount,
-        txBuilderOpts
+        txBuilderOpts,
       )
         .addOperation(
           StellarSdk.Operation.manageData({
             source: clientKP.publicKey(),
             name: "SDF auth",
             value: randomBytes(48).toString("base64"),
-          })
+          }),
         )
         .addOperation(
           StellarSdk.Operation.bumpSequence({
             source: clientKP.publicKey(),
             bumpTo: "0",
-          })
+          }),
         )
         .setTimeout(30)
         .build();
@@ -1157,7 +1157,7 @@ describe("Utils", function () {
 
       const transactionRoundTripped = new StellarSdk.Transaction(
         challenge,
-        StellarSdk.Networks.TESTNET
+        StellarSdk.Networks.TESTNET,
       );
 
       expect(() =>
@@ -1166,11 +1166,11 @@ describe("Utils", function () {
           serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
           "SDF",
-          "testanchor.stellar.org"
-        )
+          "testanchor.stellar.org",
+        ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
-        /The transaction has operations that are not of type 'manageData'/
+        /The transaction has operations that are not of type 'manageData'/,
       );
     });
 
@@ -1180,21 +1180,21 @@ describe("Utils", function () {
       const serverAccount = new StellarSdk.Account(serverKP.publicKey(), "-1");
       const transaction = new StellarSdk.TransactionBuilder(
         serverAccount,
-        txBuilderOpts
+        txBuilderOpts,
       )
         .addOperation(
           StellarSdk.Operation.manageData({
             source: clientKP.publicKey(),
             name: "testanchor.stellar.org auth",
             value: randomBytes(48).toString("base64"),
-          })
+          }),
         )
         .addOperation(
           StellarSdk.Operation.manageData({
             source: serverKP.publicKey(),
             name: "web_auth_domain",
             value: "unexpected_web_auth_domain",
-          })
+          }),
         )
         .setTimeout(30)
         .build();
@@ -1204,7 +1204,7 @@ describe("Utils", function () {
 
       const transactionRoundTripped = new StellarSdk.Transaction(
         challenge,
-        StellarSdk.Networks.TESTNET
+        StellarSdk.Networks.TESTNET,
       );
 
       expect(() =>
@@ -1213,11 +1213,11 @@ describe("Utils", function () {
           serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
           "testanchor.stellar.org",
-          "testanchor.stellar.org"
-        )
+          "testanchor.stellar.org",
+        ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
-        /'web_auth_domain' operation value does not match testanchor.stellar.org/
+        /'web_auth_domain' operation value does not match testanchor.stellar.org/,
       );
     });
 
@@ -1227,21 +1227,21 @@ describe("Utils", function () {
       const serverAccount = new StellarSdk.Account(serverKP.publicKey(), "-1");
       const transaction = new StellarSdk.TransactionBuilder(
         serverAccount,
-        txBuilderOpts
+        txBuilderOpts,
       )
         .addOperation(
           StellarSdk.Operation.manageData({
             source: clientKP.publicKey(),
             name: "testanchor.stellar.org auth",
             value: randomBytes(48).toString("base64"),
-          })
+          }),
         )
         .addOperation(
           StellarSdk.Operation.manageData({
             source: clientKP.publicKey(),
             name: "web_auth_domain",
             value: "testanchor.stellar.org",
-          })
+          }),
         )
         .setTimeout(30)
         .build();
@@ -1251,7 +1251,7 @@ describe("Utils", function () {
 
       const transactionRoundTripped = new StellarSdk.Transaction(
         challenge,
-        StellarSdk.Networks.TESTNET
+        StellarSdk.Networks.TESTNET,
       );
 
       expect(() =>
@@ -1260,11 +1260,11 @@ describe("Utils", function () {
           serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
           "testanchor.stellar.org",
-          "testanchor.stellar.org"
-        )
+          "testanchor.stellar.org",
+        ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
-        /The transaction has operations that are unrecognized/
+        /The transaction has operations that are unrecognized/,
       );
     });
 
@@ -1274,14 +1274,14 @@ describe("Utils", function () {
       const serverAccount = new StellarSdk.Account(serverKP.publicKey(), "-1");
       const transaction = new StellarSdk.TransactionBuilder(
         serverAccount,
-        txBuilderOpts
+        txBuilderOpts,
       )
         .addOperation(
           StellarSdk.Operation.manageData({
             source: clientKP.publicKey(),
             name: "testanchor.stellar.org auth",
             value: randomBytes(48).toString("base64"),
-          })
+          }),
         )
         .setTimeout(30)
         .build();
@@ -1291,7 +1291,7 @@ describe("Utils", function () {
 
       const transactionRoundTripped = new StellarSdk.Transaction(
         challenge,
-        StellarSdk.Networks.TESTNET
+        StellarSdk.Networks.TESTNET,
       );
 
       expect(
@@ -1300,8 +1300,8 @@ describe("Utils", function () {
           serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
           "testanchor.stellar.org",
-          "testanchor.stellar.org"
-        )
+          "testanchor.stellar.org",
+        ),
       ).to.eql({
         tx: transactionRoundTripped,
         clientAccountID: clientKP.publicKey(),
@@ -1316,21 +1316,21 @@ describe("Utils", function () {
       const serverAccount = new StellarSdk.Account(serverKP.publicKey(), "-1");
       const transaction = new StellarSdk.TransactionBuilder(
         serverAccount,
-        txBuilderOpts
+        txBuilderOpts,
       )
         .addOperation(
           StellarSdk.Operation.manageData({
             source: clientKP.publicKey(),
             name: "testanchor.stellar.org auth",
             value: randomBytes(48).toString("base64"),
-          })
+          }),
         )
         .addOperation(
           StellarSdk.Operation.manageData({
             source: serverKP.publicKey(),
             name: "web_auth_domain",
             value: "auth.stellar.org",
-          })
+          }),
         )
         .setTimeout(30)
         .build();
@@ -1340,7 +1340,7 @@ describe("Utils", function () {
 
       const transactionRoundTripped = new StellarSdk.Transaction(
         challenge,
-        StellarSdk.Networks.TESTNET
+        StellarSdk.Networks.TESTNET,
       );
 
       expect(
@@ -1349,8 +1349,8 @@ describe("Utils", function () {
           serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
           "testanchor.stellar.org",
-          "auth.stellar.org"
-        )
+          "auth.stellar.org",
+        ),
       ).to.eql({
         tx: transactionRoundTripped,
         clientAccountID: clientKP.publicKey(),
@@ -1365,21 +1365,21 @@ describe("Utils", function () {
       const serverAccount = new StellarSdk.Account(serverKP.publicKey(), "-1");
       const transaction = new StellarSdk.TransactionBuilder(
         serverAccount,
-        txBuilderOpts
+        txBuilderOpts,
       )
         .addOperation(
           StellarSdk.Operation.manageData({
             source: clientKP.publicKey(),
             name: "testanchor.stellar.org auth",
             value: randomBytes(48).toString("base64"),
-          })
+          }),
         )
         .addOperation(
           StellarSdk.Operation.manageData({
             source: serverKP.publicKey(),
             name: "nonWebAuthDomainKey",
             value: null,
-          })
+          }),
         )
         .setTimeout(30)
         .build();
@@ -1389,7 +1389,7 @@ describe("Utils", function () {
 
       const transactionRoundTripped = new StellarSdk.Transaction(
         challenge,
-        StellarSdk.Networks.TESTNET
+        StellarSdk.Networks.TESTNET,
       );
 
       expect(
@@ -1398,8 +1398,8 @@ describe("Utils", function () {
           serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
           "testanchor.stellar.org",
-          "auth.stellar.org"
-        )
+          "auth.stellar.org",
+        ),
       ).to.eql({
         tx: transactionRoundTripped,
         clientAccountID: clientKP.publicKey(),
@@ -1416,21 +1416,21 @@ describe("Utils", function () {
 
       const transaction = new StellarSdk.TransactionBuilder(
         serverAccount,
-        txBuilderOpts
+        txBuilderOpts,
       )
         .addOperation(
           StellarSdk.Operation.manageData({
             source: clientKP.publicKey(),
             name: "testanchor.stellar.org auth",
             value: randomBytes(48).toString("base64"),
-          })
+          }),
         )
         .addOperation(
           StellarSdk.Operation.manageData({
             source: clientSigningKeypair.publicKey(),
             name: "client_domain",
             value: "testdomain",
-          })
+          }),
         )
         .setTimeout(30)
         .build();
@@ -1443,7 +1443,7 @@ describe("Utils", function () {
         serverKP.publicKey(),
         StellarSdk.Networks.TESTNET,
         "testanchor.stellar.org",
-        "testanchor.stellar.org"
+        "testanchor.stellar.org",
       );
     });
   });
@@ -1482,7 +1482,7 @@ describe("Utils", function () {
     it("throws an error if the server hasn't signed the transaction", function () {
       const transaction = new StellarSdk.TransactionBuilder(
         this.txAccount,
-        this.txBuilderOpts
+        this.txBuilderOpts,
       )
         .addOperation(this.operation)
         .setTimeout(30)
@@ -1503,11 +1503,11 @@ describe("Utils", function () {
           threshold,
           signerSummary,
           "SDF-test",
-          "testanchor.stellar.org"
-        )
+          "testanchor.stellar.org",
+        ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
-        "Transaction not signed by server: '" + this.serverKP.publicKey() + "'"
+        "Transaction not signed by server: '" + this.serverKP.publicKey() + "'",
       );
     });
 
@@ -1518,14 +1518,14 @@ describe("Utils", function () {
         "SDF",
         300,
         StellarSdk.Networks.TESTNET,
-        "testanchor.stellar.org"
+        "testanchor.stellar.org",
       );
 
       clock.tick(200);
 
       const transaction = new StellarSdk.Transaction(
         challenge,
-        StellarSdk.Networks.TESTNET
+        StellarSdk.Networks.TESTNET,
       );
       transaction.sign(this.clientKP1);
       const signedChallenge = transaction
@@ -1544,8 +1544,8 @@ describe("Utils", function () {
           threshold,
           signerSummary,
           "SDF",
-          "testanchor.stellar.org"
-        )
+          "testanchor.stellar.org",
+        ),
       ).to.eql([this.clientKP1.publicKey()]);
     });
 
@@ -1556,14 +1556,14 @@ describe("Utils", function () {
         "SDF",
         300,
         StellarSdk.Networks.TESTNET,
-        "testanchor.stellar.org"
+        "testanchor.stellar.org",
       );
 
       clock.tick(200);
 
       const transaction = new StellarSdk.Transaction(
         challenge,
-        StellarSdk.Networks.TESTNET
+        StellarSdk.Networks.TESTNET,
       );
       transaction.sign(this.clientKP1, this.clientKP2);
       const signedChallenge = transaction
@@ -1585,8 +1585,8 @@ describe("Utils", function () {
           threshold,
           signerSummary,
           "SDF",
-          "testanchor.stellar.org"
-        )
+          "testanchor.stellar.org",
+        ),
       ).to.eql([this.clientKP1.publicKey(), this.clientKP2.publicKey()]);
     });
 
@@ -1597,14 +1597,14 @@ describe("Utils", function () {
         "SDF",
         300,
         StellarSdk.Networks.TESTNET,
-        "testanchor.stellar.org"
+        "testanchor.stellar.org",
       );
 
       clock.tick(200);
 
       const transaction = new StellarSdk.Transaction(
         challenge,
-        StellarSdk.Networks.TESTNET
+        StellarSdk.Networks.TESTNET,
       );
       transaction.sign(this.clientKP1, this.clientKP2);
       const signedChallenge = transaction
@@ -1627,8 +1627,8 @@ describe("Utils", function () {
           threshold,
           signerSummary,
           "SDF",
-          "testanchor.stellar.org"
-        )
+          "testanchor.stellar.org",
+        ),
       ).to.eql([this.clientKP1.publicKey(), this.clientKP2.publicKey()]);
     });
 
@@ -1645,14 +1645,14 @@ describe("Utils", function () {
         "SDF",
         300,
         StellarSdk.Networks.TESTNET,
-        "testanchor.stellar.org"
+        "testanchor.stellar.org",
       );
 
       clock.tick(200);
 
       const transaction = new StellarSdk.Transaction(
         challenge,
-        StellarSdk.Networks.TESTNET
+        StellarSdk.Networks.TESTNET,
       );
       transaction.sign(this.clientKP1, this.clientKP2);
       const signedChallenge = transaction
@@ -1678,8 +1678,8 @@ describe("Utils", function () {
           threshold,
           signerSummary,
           "SDF",
-          "testanchor.stellar.org"
-        )
+          "testanchor.stellar.org",
+        ),
       ).to.eql([this.clientKP1.publicKey(), this.clientKP2.publicKey()]);
     });
 
@@ -1690,14 +1690,14 @@ describe("Utils", function () {
         "SDF",
         300,
         StellarSdk.Networks.TESTNET,
-        "testanchor.stellar.org"
+        "testanchor.stellar.org",
       );
 
       clock.tick(200);
 
       const transaction = new StellarSdk.Transaction(
         challenge,
-        StellarSdk.Networks.TESTNET
+        StellarSdk.Networks.TESTNET,
       );
       transaction.sign(this.clientKP1, this.clientKP2);
       const signedChallenge = transaction
@@ -1720,11 +1720,11 @@ describe("Utils", function () {
           threshold,
           signerSummary,
           "SDF",
-          "testanchor.stellar.org"
-        )
+          "testanchor.stellar.org",
+        ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
-        `signers with weight 3 do not meet threshold ${threshold}"`
+        `signers with weight 3 do not meet threshold ${threshold}"`,
       );
     });
 
@@ -1735,14 +1735,14 @@ describe("Utils", function () {
         "SDF",
         300,
         StellarSdk.Networks.TESTNET,
-        "testanchor.stellar.org"
+        "testanchor.stellar.org",
       );
 
       clock.tick(200);
 
       const transaction = new StellarSdk.Transaction(
         challenge,
-        StellarSdk.Networks.TESTNET
+        StellarSdk.Networks.TESTNET,
       );
       transaction.sign(this.clientKP1, this.clientKP2, this.clientKP3);
       const signedChallenge = transaction
@@ -1764,11 +1764,11 @@ describe("Utils", function () {
           threshold,
           signerSummary,
           "SDF",
-          "testanchor.stellar.org"
-        )
+          "testanchor.stellar.org",
+        ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
-        /Transaction has unrecognized signatures/
+        /Transaction has unrecognized signatures/,
       );
     });
 
@@ -1779,14 +1779,14 @@ describe("Utils", function () {
         "SDF",
         300,
         StellarSdk.Networks.TESTNET,
-        "testanchor.stellar.org"
+        "testanchor.stellar.org",
       );
 
       clock.tick(200);
 
       const transaction = new StellarSdk.Transaction(
         challenge,
-        StellarSdk.Networks.TESTNET
+        StellarSdk.Networks.TESTNET,
       );
       transaction.sign(this.clientKP1, this.clientKP2, this.clientKP3);
       const signedChallenge = transaction
@@ -1804,11 +1804,11 @@ describe("Utils", function () {
           threshold,
           [],
           "SDF",
-          "testanchor.stellar.org"
-        )
+          "testanchor.stellar.org",
+        ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
-        /No verifiable client signers provided, at least one G... address must be provided/
+        /No verifiable client signers provided, at least one G... address must be provided/,
       );
     });
   });
@@ -1850,14 +1850,14 @@ describe("Utils", function () {
         "SDF",
         300,
         StellarSdk.Networks.TESTNET,
-        "testanchor.stellar.org"
+        "testanchor.stellar.org",
       );
 
       clock.tick(200);
 
       const transaction = new StellarSdk.Transaction(
         challenge,
-        StellarSdk.Networks.TESTNET
+        StellarSdk.Networks.TESTNET,
       );
       transaction.sign(this.clientKP1);
 
@@ -1873,15 +1873,15 @@ describe("Utils", function () {
           StellarSdk.Networks.TESTNET,
           [this.clientKP1.publicKey()],
           "SDF",
-          "testanchor.stellar.org"
-        )
+          "testanchor.stellar.org",
+        ),
       ).to.eql([this.clientKP1.publicKey()]);
     });
 
     it("throws an error if the server hasn't signed the transaction", function () {
       const transaction = new StellarSdk.TransactionBuilder(
         this.txAccount,
-        this.txBuilderOpts
+        this.txBuilderOpts,
       )
         .addOperation(this.operation)
         .setTimeout(30)
@@ -1901,11 +1901,11 @@ describe("Utils", function () {
           StellarSdk.Networks.TESTNET,
           [this.clientKP1.publicKey()],
           "SDF-test",
-          "testanchor.stellar.org"
-        )
+          "testanchor.stellar.org",
+        ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
-        "Transaction not signed by server: '" + this.serverKP.publicKey() + "'"
+        "Transaction not signed by server: '" + this.serverKP.publicKey() + "'",
       );
     });
 
@@ -1916,7 +1916,7 @@ describe("Utils", function () {
         "SDF",
         300,
         StellarSdk.Networks.TESTNET,
-        "testanchor.stellar.org"
+        "testanchor.stellar.org",
       );
 
       clock.tick(200);
@@ -1928,11 +1928,11 @@ describe("Utils", function () {
           StellarSdk.Networks.TESTNET,
           [],
           "SDF",
-          "testanchor.stellar.org"
-        )
+          "testanchor.stellar.org",
+        ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
-        /No verifiable client signers provided, at least one G... address must be provided/
+        /No verifiable client signers provided, at least one G... address must be provided/,
       );
     });
 
@@ -1943,18 +1943,18 @@ describe("Utils", function () {
         "SDF",
         300,
         StellarSdk.Networks.TESTNET,
-        "testanchor.stellar.org"
+        "testanchor.stellar.org",
       );
 
       clock.tick(200);
 
       const transaction = new StellarSdk.Transaction(
         challenge,
-        StellarSdk.Networks.TESTNET
+        StellarSdk.Networks.TESTNET,
       );
       transaction.sign(
         StellarSdk.Keypair.random(),
-        StellarSdk.Keypair.random()
+        StellarSdk.Keypair.random(),
       );
       const signedChallenge = transaction
         .toEnvelope()
@@ -1968,11 +1968,11 @@ describe("Utils", function () {
           StellarSdk.Networks.TESTNET,
           [this.clientKP1.publicKey()],
           "SDF",
-          "testanchor.stellar.org"
-        )
+          "testanchor.stellar.org",
+        ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
-        /None of the given signers match the transaction signatures/
+        /None of the given signers match the transaction signatures/,
       );
     });
 
@@ -1983,14 +1983,14 @@ describe("Utils", function () {
         "SDF",
         300,
         StellarSdk.Networks.TESTNET,
-        "testanchor.stellar.org"
+        "testanchor.stellar.org",
       );
 
       clock.tick(200);
 
       const transaction = new StellarSdk.Transaction(
         challenge,
-        StellarSdk.Networks.TESTNET
+        StellarSdk.Networks.TESTNET,
       );
       const clientSigners = [this.clientKP1, this.clientKP2];
       transaction.sign(...clientSigners);
@@ -2008,8 +2008,8 @@ describe("Utils", function () {
           StellarSdk.Networks.TESTNET,
           clientSignersPubKey,
           "SDF",
-          "testanchor.stellar.org"
-        )
+          "testanchor.stellar.org",
+        ),
       ).to.eql(clientSignersPubKey);
     });
 
@@ -2020,14 +2020,14 @@ describe("Utils", function () {
         "SDF",
         300,
         StellarSdk.Networks.TESTNET,
-        "testanchor.stellar.org"
+        "testanchor.stellar.org",
       );
 
       clock.tick(200);
 
       const transaction = new StellarSdk.Transaction(
         challenge,
-        StellarSdk.Networks.TESTNET
+        StellarSdk.Networks.TESTNET,
       );
       const clientSigners = [this.clientKP1, this.clientKP2];
       transaction.sign(...clientSigners.reverse());
@@ -2045,8 +2045,8 @@ describe("Utils", function () {
           StellarSdk.Networks.TESTNET,
           clientSignersPubKey,
           "SDF",
-          "testanchor.stellar.org"
-        )
+          "testanchor.stellar.org",
+        ),
       ).to.have.same.members(clientSignersPubKey);
     });
 
@@ -2057,14 +2057,14 @@ describe("Utils", function () {
         "SDF",
         300,
         StellarSdk.Networks.TESTNET,
-        "testanchor.stellar.org"
+        "testanchor.stellar.org",
       );
 
       clock.tick(200);
 
       const transaction = new StellarSdk.Transaction(
         challenge,
-        StellarSdk.Networks.TESTNET
+        StellarSdk.Networks.TESTNET,
       );
       transaction.sign(this.clientKP2);
 
@@ -2080,8 +2080,8 @@ describe("Utils", function () {
           StellarSdk.Networks.TESTNET,
           [this.clientKP2.publicKey()],
           "SDF",
-          "testanchor.stellar.org"
-        )
+          "testanchor.stellar.org",
+        ),
       ).to.eql([this.clientKP2.publicKey()]);
     });
 
@@ -2092,14 +2092,14 @@ describe("Utils", function () {
         "SDF",
         300,
         StellarSdk.Networks.TESTNET,
-        "testanchor.stellar.org"
+        "testanchor.stellar.org",
       );
 
       clock.tick(200);
 
       const transaction = new StellarSdk.Transaction(
         challenge,
-        StellarSdk.Networks.TESTNET
+        StellarSdk.Networks.TESTNET,
       );
       transaction.sign(this.clientKP2);
 
@@ -2115,8 +2115,8 @@ describe("Utils", function () {
           StellarSdk.Networks.TESTNET,
           [this.clientKP2.publicKey(), StellarSdk.Keypair.random().publicKey()],
           "SDF",
-          "testanchor.stellar.org"
-        )
+          "testanchor.stellar.org",
+        ),
       ).to.eql([this.clientKP2.publicKey()]);
     });
 
@@ -2127,14 +2127,14 @@ describe("Utils", function () {
         "SDF",
         300,
         StellarSdk.Networks.TESTNET,
-        "testanchor.stellar.org"
+        "testanchor.stellar.org",
       );
 
       clock.tick(200);
 
       const transaction = new StellarSdk.Transaction(
         challenge,
-        StellarSdk.Networks.TESTNET
+        StellarSdk.Networks.TESTNET,
       );
       transaction.sign(this.serverKP);
 
@@ -2150,11 +2150,11 @@ describe("Utils", function () {
           StellarSdk.Networks.TESTNET,
           [this.clientKP2.publicKey(), this.serverKP.publicKey()],
           "SDF",
-          "testanchor.stellar.org"
-        )
+          "testanchor.stellar.org",
+        ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
-        /None of the given signers match the transaction signatures/
+        /None of the given signers match the transaction signatures/,
       );
     });
 
@@ -2165,14 +2165,14 @@ describe("Utils", function () {
         "SDF",
         300,
         StellarSdk.Networks.TESTNET,
-        "testanchor.stellar.org"
+        "testanchor.stellar.org",
       );
 
       clock.tick(200);
 
       const transaction = new StellarSdk.Transaction(
         challenge,
-        StellarSdk.Networks.TESTNET
+        StellarSdk.Networks.TESTNET,
       );
       transaction.sign(this.clientKP2);
 
@@ -2188,8 +2188,8 @@ describe("Utils", function () {
           StellarSdk.Networks.TESTNET,
           [this.clientKP2.publicKey(), this.clientKP2.publicKey()],
           "SDF",
-          "testanchor.stellar.org"
-        )
+          "testanchor.stellar.org",
+        ),
       ).to.eql([this.clientKP2.publicKey()]);
     });
 
@@ -2206,14 +2206,14 @@ describe("Utils", function () {
         "SDF",
         300,
         StellarSdk.Networks.TESTNET,
-        "testanchor.stellar.org"
+        "testanchor.stellar.org",
       );
 
       clock.tick(200);
 
       const transaction = new StellarSdk.Transaction(
         challenge,
-        StellarSdk.Networks.TESTNET
+        StellarSdk.Networks.TESTNET,
       );
       transaction.sign(this.clientKP2);
 
@@ -2229,8 +2229,8 @@ describe("Utils", function () {
           StellarSdk.Networks.TESTNET,
           [this.clientKP2.publicKey(), preauthTxHash, xHash, unknownSignerType],
           "SDF",
-          "testanchor.stellar.org"
-        )
+          "testanchor.stellar.org",
+        ),
       ).to.eql([this.clientKP2.publicKey()]);
     });
 
@@ -2241,14 +2241,14 @@ describe("Utils", function () {
         "SDF",
         300,
         StellarSdk.Networks.TESTNET,
-        "testanchor.stellar.org"
+        "testanchor.stellar.org",
       );
 
       clock.tick(200);
 
       const transaction = new StellarSdk.Transaction(
         challenge,
-        StellarSdk.Networks.TESTNET
+        StellarSdk.Networks.TESTNET,
       );
       transaction.sign(this.clientKP1);
       const signedChallenge = transaction
@@ -2263,11 +2263,11 @@ describe("Utils", function () {
           StellarSdk.Networks.TESTNET,
           [this.clientKP2.publicKey(), this.clientKP2.publicKey()],
           "SDF",
-          "testanchor.stellar.org"
-        )
+          "testanchor.stellar.org",
+        ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
-        /None of the given signers match the transaction signatures/
+        /None of the given signers match the transaction signatures/,
       );
     });
 
@@ -2278,14 +2278,14 @@ describe("Utils", function () {
         "SDF",
         300,
         StellarSdk.Networks.TESTNET,
-        "testanchor.stellar.org"
+        "testanchor.stellar.org",
       );
 
       clock.tick(200);
 
       const transaction = new StellarSdk.Transaction(
         challenge,
-        StellarSdk.Networks.TESTNET
+        StellarSdk.Networks.TESTNET,
       );
       transaction.sign(this.clientKP2, this.clientKP2);
 
@@ -2301,11 +2301,11 @@ describe("Utils", function () {
           StellarSdk.Networks.TESTNET,
           [this.clientKP2.publicKey()],
           "SDF",
-          "testanchor.stellar.org"
-        )
+          "testanchor.stellar.org",
+        ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
-        /Transaction has unrecognized signatures/
+        /Transaction has unrecognized signatures/,
       );
     });
 
@@ -2316,14 +2316,14 @@ describe("Utils", function () {
         "SDF",
         300,
         StellarSdk.Networks.TESTNET,
-        "testanchor.stellar.org"
+        "testanchor.stellar.org",
       );
 
       clock.tick(200);
 
       const transaction = new StellarSdk.Transaction(
         challenge,
-        StellarSdk.Networks.TESTNET
+        StellarSdk.Networks.TESTNET,
       );
       transaction.sign(this.clientKP2, this.clientKP2);
 
@@ -2339,18 +2339,18 @@ describe("Utils", function () {
           StellarSdk.Networks.TESTNET,
           [this.clientKP2.secret()],
           "SDF",
-          "testanchor.stellar.org"
-        )
+          "testanchor.stellar.org",
+        ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
-        /No verifiable client signers provided, at least one G... address must be provided/
+        /No verifiable client signers provided, at least one G... address must be provided/,
       );
     });
 
     it("throws an error if no client has signed the transaction", function () {
       const transaction = new StellarSdk.TransactionBuilder(
         this.txAccount,
-        this.txBuilderOpts
+        this.txBuilderOpts,
       )
         .addOperation(this.operation)
         .setTimeout(30)
@@ -2371,11 +2371,11 @@ describe("Utils", function () {
           StellarSdk.Networks.TESTNET,
           clientSigners,
           "SDF-test",
-          "testanchor.stellar.org"
-        )
+          "testanchor.stellar.org",
+        ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
-        /None of the given signers match the transaction signatures/
+        /None of the given signers match the transaction signatures/,
       );
     });
 
@@ -2386,14 +2386,14 @@ describe("Utils", function () {
         "SDF",
         300,
         StellarSdk.Networks.TESTNET,
-        "testanchor.stellar.org"
+        "testanchor.stellar.org",
       );
 
       clock.tick(200);
 
       const transaction = new StellarSdk.Transaction(
         challenge,
-        StellarSdk.Networks.TESTNET
+        StellarSdk.Networks.TESTNET,
       );
       transaction.sign(this.clientKP1);
 
@@ -2409,11 +2409,11 @@ describe("Utils", function () {
           StellarSdk.Networks.TESTNET,
           [],
           "SDF",
-          "testanchor.stellar.org"
-        )
+          "testanchor.stellar.org",
+        ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
-        /No verifiable client signers provided, at least one G... address must be provided/
+        /No verifiable client signers provided, at least one G... address must be provided/,
       );
     });
 
@@ -2430,14 +2430,14 @@ describe("Utils", function () {
         "testanchor.stellar.org",
         null,
         "testdomain",
-        clientSigningKey.publicKey()
+        clientSigningKey.publicKey(),
       );
 
       clock.tick(200);
 
       const transaction = new StellarSdk.Transaction(
         challenge,
-        StellarSdk.Networks.TESTNET
+        StellarSdk.Networks.TESTNET,
       );
 
       transaction.sign(clientKP);
@@ -2454,7 +2454,7 @@ describe("Utils", function () {
         StellarSdk.Networks.TESTNET,
         [clientKP.publicKey()],
         "SDF",
-        "testanchor.stellar.org"
+        "testanchor.stellar.org",
       );
 
       expect(signersFound.indexOf(clientSigningKey.publicKey())).to.eql(-1);
@@ -2473,14 +2473,14 @@ describe("Utils", function () {
         "testanchor.stellar.org",
         null,
         "testdomain",
-        clientSigningKeypair.publicKey()
+        clientSigningKeypair.publicKey(),
       );
 
       clock.tick(200);
 
       const transaction = new StellarSdk.Transaction(
         challenge,
-        StellarSdk.Networks.TESTNET
+        StellarSdk.Networks.TESTNET,
       );
 
       transaction.sign(clientKP);
@@ -2497,11 +2497,11 @@ describe("Utils", function () {
           StellarSdk.Networks.TESTNET,
           [clientKP.publicKey()],
           "SDF",
-          "testanchor.stellar.org"
-        )
+          "testanchor.stellar.org",
+        ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
-        /Transaction not signed by the source account of the 'client_domain' ManageData operation/
+        /Transaction not signed by the source account of the 'client_domain' ManageData operation/,
       );
     });
 
@@ -2514,28 +2514,28 @@ describe("Utils", function () {
 
       const transaction = new StellarSdk.TransactionBuilder(
         serverAccount,
-        txBuilderOpts
+        txBuilderOpts,
       )
         .addOperation(
           StellarSdk.Operation.manageData({
             source: clientKP.publicKey(),
             name: "testanchor.stellar.org auth",
             value: randomBytes(48).toString("base64"),
-          })
+          }),
         )
         .addOperation(
           StellarSdk.Operation.manageData({
             source: clientSigningKeypair.publicKey(),
             name: "client_domain",
             value: "testdomain",
-          })
+          }),
         )
         .addOperation(
           StellarSdk.Operation.manageData({
             source: clientSigningKeypair.publicKey(),
             name: "client_domain",
             value: "testdomain2",
-          })
+          }),
         )
         .setTimeout(30)
         .build();
@@ -2558,11 +2558,11 @@ describe("Utils", function () {
           StellarSdk.Networks.TESTNET,
           [clientKP.publicKey()],
           "testanchor.stellar.org",
-          "testanchor.stellar.org"
-        )
+          "testanchor.stellar.org",
+        ),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
-        /Found more than one client_domain operation/
+        /Found more than one client_domain operation/,
       );
     });
   });
@@ -2573,7 +2573,7 @@ describe("Utils", function () {
       this.account = new StellarSdk.Account(this.keypair.publicKey(), "-1");
       this.transaction = new StellarSdk.TransactionBuilder(
         this.account,
-        txBuilderOpts
+        txBuilderOpts,
       )
         .setTimeout(30)
         .build();
@@ -2589,8 +2589,8 @@ describe("Utils", function () {
       expect(
         StellarSdk.Utils.verifyTxSignedBy(
           this.transaction,
-          this.keypair.publicKey()
-        )
+          this.keypair.publicKey(),
+        ),
       ).to.eql(true);
     });
 
@@ -2602,8 +2602,8 @@ describe("Utils", function () {
       expect(
         StellarSdk.Utils.verifyTxSignedBy(
           this.transaction,
-          differentKeypair.publicKey()
-        )
+          differentKeypair.publicKey(),
+        ),
       ).to.eql(false);
     });
 
@@ -2611,8 +2611,8 @@ describe("Utils", function () {
       expect(
         StellarSdk.Utils.verifyTxSignedBy(
           this.transaction,
-          this.keypair.publicKey()
-        )
+          this.keypair.publicKey(),
+        ),
       ).to.eql(false);
     });
   });
@@ -2624,7 +2624,7 @@ describe("Utils", function () {
       this.account = new StellarSdk.Account(this.keypair1.publicKey(), "-1");
       this.transaction = new StellarSdk.TransactionBuilder(
         this.account,
-        txBuilderOpts
+        txBuilderOpts,
       )
         .setTimeout(30)
         .build();
@@ -2642,7 +2642,7 @@ describe("Utils", function () {
         this.keypair2.publicKey(),
       ];
       expect(
-        StellarSdk.Utils.gatherTxSigners(this.transaction, expectedSignatures)
+        StellarSdk.Utils.gatherTxSigners(this.transaction, expectedSignatures),
       ).to.eql(expectedSignatures);
     });
 
@@ -2653,7 +2653,7 @@ describe("Utils", function () {
         this.keypair1,
         this.keypair2,
         this.keypair2,
-        this.keypair2
+        this.keypair2,
       );
 
       const expectedSignatures = [
@@ -2664,7 +2664,7 @@ describe("Utils", function () {
         StellarSdk.Utils.gatherTxSigners(this.transaction, [
           this.keypair1.publicKey(),
           this.keypair2.publicKey(),
-        ])
+        ]),
       ).to.eql(expectedSignatures);
     });
 
@@ -2678,7 +2678,7 @@ describe("Utils", function () {
       ];
 
       expect(
-        StellarSdk.Utils.gatherTxSigners(this.transaction, wrongSignatures)
+        StellarSdk.Utils.gatherTxSigners(this.transaction, wrongSignatures),
       ).to.eql([]);
     });
 
@@ -2687,7 +2687,7 @@ describe("Utils", function () {
         StellarSdk.Utils.gatherTxSigners(this.transaction, [
           this.keypair1.publicKey(),
           this.keypair2.publicKey(),
-        ])
+        ]),
       ).to.eql([]);
     });
 
@@ -2699,10 +2699,10 @@ describe("Utils", function () {
         StellarSdk.Utils.gatherTxSigners(this.transaction, [
           preauthTxHash,
           this.keypair1.publicKey(),
-        ])
+        ]),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
-        /Signer is not a valid address/
+        /Signer is not a valid address/,
       );
     });
 
@@ -2714,10 +2714,10 @@ describe("Utils", function () {
         StellarSdk.Utils.gatherTxSigners(this.transaction, [
           invalidGHash,
           this.keypair1.publicKey(),
-        ])
+        ]),
       ).to.throw(
         StellarSdk.InvalidSep10ChallengeError,
-        /Signer is not a valid address/
+        /Signer is not a valid address/,
       );
     });
   });

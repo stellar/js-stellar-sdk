@@ -157,7 +157,7 @@ describe("tests the /accounts endpoint", function () {
           .then((resp) => {
             // find the pool share balance(s)
             const poolShares = resp.balances.filter(
-              (b) => b.asset_type === "liquidity_pool_shares"
+              (b) => b.asset_type === "liquidity_pool_shares",
             );
 
             expect(poolShares).to.have.lengthOf(1);
