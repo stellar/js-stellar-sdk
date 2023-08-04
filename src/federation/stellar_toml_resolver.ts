@@ -1,7 +1,8 @@
 import axios from "axios";
-import { Networks } from "stellar-base";
 import toml from "toml";
-import { Config } from "./config";
+import { Networks } from "stellar-base";
+
+import { Config } from "../config";
 
 // STELLAR_TOML_MAX_SIZE is the maximum size of stellar.toml file
 export const STELLAR_TOML_MAX_SIZE = 100 * 1024;

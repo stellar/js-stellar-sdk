@@ -5,14 +5,11 @@
 const version = require("../package.json").version;
 
 // Expose all types
-export * from "./horizon/horizon_api";
-export * from "./horizon/server_api";
+export * from "./horizon";
 
 // stellar-sdk classes to expose
-export * from "./horizon/account_response";
 export * from "./errors";
 export { Config } from "./config";
-export { Server } from "./horizon/server";
 export {
   FederationServer,
   FEDERATION_RESPONSE_MAX_SIZE

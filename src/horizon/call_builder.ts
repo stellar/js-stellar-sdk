@@ -1,9 +1,10 @@
 import URI from "urijs";
 import URITemplate from "urijs/src/URITemplate";
 
-import { BadRequestError, NetworkError, NotFoundError } from "./errors";
+import { BadRequestError, NetworkError, NotFoundError } from "../errors";
+
 import { Horizon } from "./horizon_api";
-import HorizonAxiosClient from "./horizon_axios_client";
+import { HorizonAxiosClient } from "./horizon_axios_client";
 import { ServerApi } from "./server_api";
 
 /* tslint:disable-next-line:no-var-requires */

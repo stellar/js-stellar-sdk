@@ -11,12 +11,12 @@ import {
 import URI from "urijs";
 
 import { CallBuilder } from "./call_builder";
-import { Config } from "./config";
+import { Config } from "../config";
 import {
   AccountRequiresMemoError,
   BadResponseError,
   NotFoundError,
-} from "./errors";
+} from "../errors";
 
 import { AccountCallBuilder } from "./account_call_builder";
 import { AccountResponse } from "./account_response";

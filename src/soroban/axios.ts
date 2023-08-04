@@ -2,7 +2,7 @@ import axios, { AxiosResponse } from "axios";
 import URI from "urijs";
 
 /* tslint:disable-next-line:no-var-requires */
-const version = require("../../package.json").version;
+const version = require("../package.json").version;
 
 export interface ServerTime {
   serverTime: number;
@@ -16,16 +16,16 @@ export interface ServerTime {
  * each entry will map the server domain to the last-known time and the local
  * time it was recorded, ex:
  *
- *     "horizon-testnet.stellar.org": {
+ *     "localhost:8000": {
  *       serverTime: 1552513039,
  *       localTimeRecorded: 1552513052
  *     }
  */
 export const SERVER_TIME_MAP: Record<string, ServerTime> = {};
 
-export const HorizonAxiosClient = axios.create({
+const AxiosClient = axios.create({
   headers: {
-    "X-Client-Name": "js-stellar-sdk",
+    "X-Client-Name": "js-soroban-client",
     "X-Client-Version": version,
   },
 });
@@ -34,30 +34,30 @@ function _toSeconds(ms: number): number {
   return Math.floor(ms / 1000);
 }
 
-HorizonAxiosClient.interceptors.response.use(
-  function interceptorHorizonResponse(response: AxiosResponse) {
-    const hostname = URI(response.config.url!).hostname();
-    const serverTime = _toSeconds(Date.parse(response.headers.date));
-    const localTimeRecorded = _toSeconds(new Date().getTime());
+AxiosClient.interceptors.response.use(function interceptorHorizonResponse(
+  response: AxiosResponse,
+) {
+  const hostname = URI(response.config.url!).hostname();
+  const serverTime = _toSeconds(Date.parse(response.headers.date));
+  const localTimeRecorded = _toSeconds(new Date().getTime());
 
-    if (!isNaN(serverTime)) {
-      SERVER_TIME_MAP[hostname] = {
-        serverTime,
-        localTimeRecorded,
-      };
-    }
+  if (!isNaN(serverTime)) {
+    SERVER_TIME_MAP[hostname] = {
+      serverTime,
+      localTimeRecorded,
+    };
+  }
 
-    return response;
-  },
-);
+  return response;
+});
 
-export default HorizonAxiosClient;
+export default AxiosClient;
 
 /**
  * Given a hostname, get the current time of that server (i.e., use the last-
  * recorded server time and offset it by the time since then.) If there IS no
  * recorded server time, or it's been 5 minutes since the last, return null.
- * @param {string} hostname Hostname of a Horizon server.
+ * @param {string} hostname Hostname of a Soroban-RPC server.
  * @returns {number} The UNIX timestamp (in seconds, not milliseconds)
  * representing the current time on that server, or `null` if we don't have
  * a record of that time.
