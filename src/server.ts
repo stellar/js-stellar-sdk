@@ -290,7 +290,7 @@ export class Server {
    * @param {object} [opts] Options object
    * @param {boolean} [opts.skipMemoRequiredCheck] - Allow skipping memo
    * required check, default: `false`. See
-   * [SEP0029](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0029.md).
+   * [SEP0029](https://stellar.org/protocol/sep-29.md).
    * @returns {Promise} Promise that resolves or rejects with response from
    * horizon.
    */
@@ -323,11 +323,11 @@ export class Server {
         }
 
         // TODO: fix stellar-base types.
-        const responseXDR: xdr.TransactionResult = (xdr.TransactionResult
-          .fromXDR as any)(response.data.result_xdr, "base64");
+        const responseXDR: xdr.TransactionResult = xdr.TransactionResult.fromXDR(
+          response.data.result_xdr, "base64");
 
         // TODO: fix stellar-base types.
-        const results = (responseXDR as any).result().value();
+        const results = responseXDR.result().results();
 
         let offerResults;
         let hasManageOffer;
@@ -335,10 +335,10 @@ export class Server {
         if (results.length) {
           offerResults = results
             // TODO: fix stellar-base types.
-            .map((result: any, i: number) => {
+            .map((result, i: number) => {
               if (
-                result.value().switch().name !== "manageBuyOffer" &&
-                result.value().switch().name !== "manageSellOffer"
+                result.tr().switch().name !== "manageBuyOffer" &&
+                result.tr().switch().name !== "manageSellOffer"
               ) {
                 return null;
               }
@@ -348,9 +348,10 @@ export class Server {
               let amountBought = new BigNumber(0);
               let amountSold = new BigNumber(0);
 
-              const offerSuccess = result
-                .value()
-                .value()
+              const offerSuccess = (
+                result
+                  .tr()
+                  .value() as xdr.ManageBuyOfferResult | xdr.ManageSellOfferResult)
                 .success();
 
               const offersClaimed = offerSuccess
@@ -436,13 +437,13 @@ export class Server {
                 typeof offerSuccess.offer().value === "function" &&
                 offerSuccess.offer().value()
               ) {
-                const offerXDR = offerSuccess.offer().value();
+                const offerXDR = offerSuccess.offer().offer();
 
                 currentOffer = {
                   offerId: offerXDR.offerId().toString(),
                   selling: {},
                   buying: {},
-                  amount: _getAmountInLumens(offerXDR.amount().toString()),
+                  amount: _getAmountInLumens(new BigNumber(offerXDR.amount().toString())),
                   price: {
                     n: offerXDR.price().n(),
                     d: offerXDR.price().d(),
@@ -742,15 +743,14 @@ export class Server {
    * Check if any of the destination accounts requires a memo.
    *
    * This function implements a memo required check as defined in
-   * [SEP0029](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0029.md).
+   * [SEP-29](https://stellar.org/protocol/sep-29.md).
    * It will load each account which is the destination and check if it has the
    * data field `config.memo_required` set to `"MQ=="`.
    *
    * Each account is checked sequentially instead of loading multiple accounts
    * at the same time from Horizon.
    *
-   * @see
-   * [SEP0029](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0029.md)
+   * @see https://stellar.org/protocol/sep-29.md
    * @param {Transaction} transaction - The transaction to check.
    * @returns {Promise<void, Error>} - If any of the destination account
    * requires a memo, the promise will throw {@link AccountRequiresMemoError}.

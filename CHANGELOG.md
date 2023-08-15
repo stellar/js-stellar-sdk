@@ -166,7 +166,7 @@ This release introduces breaking changes from `stellar-base`. It adds **uncondit
 
 ### Updates
 
-- Updates the following SEP-10 utility functions to include [client domain verification](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0010.md#verifying-the-client-domain) functionality ([#720](https://github.com/stellar/js-stellar-sdk/pull/720)):
+- Updates the following SEP-10 utility functions to include [client domain verification](https://stellar.org/protocol/sep-10.md#verifying-the-client-domain) functionality ([#720](https://github.com/stellar/js-stellar-sdk/pull/720)):
   - `Utils.buildChallengeTx()` accepts the `clientDomain` and `clientSigningKey` optional parameters
   - `Utils.readChallengeTx()` parses challenge transactions containing a `client_domain` ManageData operation
   - `Utils.verifyChallengeTxSigners()` verifies an additional signature from the `clientSigningKey` keypair if a `client_domain` Manage Data operation is included in the challenge
@@ -634,7 +634,7 @@ The following enum values were rename in `OperationType`:
 
   If the transaction includes a memo, then memo required checking is skipped.
 
-  See [SEP0029](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0029.md) for more information about memo required check.
+  See [SEP0029](https://stellar.org/protocol/sep-29.md) for more information about memo required check.
 
 ## [v4.0.2](https://github.com/stellar/js-stellar-sdk/compare/v4.0.1...v4.0.2)
 

@@ -20,10 +20,10 @@ import { ServerApi } from "./server_api";
  */
 export namespace Utils {
   /**
-   * Returns a valid [SEP0010](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0010.md)
+   * Returns a valid [SEP0010](https://stellar.org/protocol/sep-10.md)
    * challenge transaction which you can use for Stellar Web Authentication.
    *
-   * @see [SEP0010: Stellar Web Authentication](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0010.md).
+   * @see [SEP0010: Stellar Web Authentication](https://stellar.org/protocol/sep-10.md).
    * @function
    * @memberof Utils
    * @param {Keypair} serverKeypair Keypair for server's signing account.
@@ -128,7 +128,7 @@ export namespace Utils {
    * - verifyChallengeTxThreshold
    * - verifyChallengeTxSigners
    *
-   * @see [SEP0010: Stellar Web Authentication](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0010.md).
+   * @see [SEP0010: Stellar Web Authentication](https://stellar.org/protocol/sep-10.md).
    * @function
    * @memberof Utils
    * @param {string} challengeTx SEP0010 challenge transaction in base64.
@@ -341,7 +341,7 @@ export namespace Utils {
    *    server account or one of the signers provided in the arguments.
    *  - The signatures are all valid but do not meet the threshold.
    *
-   * @see [SEP0010: Stellar Web Authentication](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0010.md).
+   * @see [SEP0010: Stellar Web Authentication](https://stellar.org/protocol/sep-10.md).
    * @function
    * @memberof Utils
    * @param {string} challengeTx SEP0010 challenge transaction in base64.
@@ -448,7 +448,7 @@ export namespace Utils {
    *  - One or more signatures in the transaction are not identifiable as the
    *    server account or one of the signers provided in the arguments.
    *
-   * @see [SEP0010: Stellar Web Authentication](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0010.md).
+   * @see [SEP0010: Stellar Web Authentication](https://stellar.org/protocol/sep-10.md).
    * @function
    * @memberof Utils
    * @param {string} challengeTx SEP0010 challenge transaction in base64.

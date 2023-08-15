@@ -170,7 +170,7 @@ export namespace StellarTomlResolver {
   }
   // All fields are optional because there are no runtime checks
   // on external data body
-  // Sourced from https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0001.md
+  // Sourced from https://stellar.org/protocol/sep-1.md
   export interface StellarToml {
     VERSION?: string;
     ACCOUNTS?: PublicKey[];
