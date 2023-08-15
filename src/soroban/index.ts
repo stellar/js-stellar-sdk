@@ -7,6 +7,8 @@ export { version } from './axios';
 export * from "./soroban_rpc";
 export * from "./transaction";
 
+export * from 'stellar-base';
+
 // http classes to expose
 export { Server } from "./server";
 export {

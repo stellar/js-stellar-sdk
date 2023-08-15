@@ -5,7 +5,8 @@
         "@babel/typescript"
     ],
     "targets": {
-        "browsers": [ "> 2%" ]          // target modern browsers and ES6
+        "node": 16,
+        "browsers": [ "> 2%" ]  // target modern browsers and ES6
     },
     "env": {
         "development": {
@@ -14,7 +15,7 @@
         "production": {
             "comments": false,
             "targets": {
-                "node": 16,
+                // larger feature set for prod bundle
                 "browsers": [
                     "> 2%",
                     "ie 11",

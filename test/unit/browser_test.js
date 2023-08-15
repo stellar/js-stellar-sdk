@@ -4,4 +4,9 @@ describe("Browser version tests", function () {
       expect(typeof _ === "undefined").to.be.true;
     }
   });
+
+  it("defines globals", function() {
+    expect(StellarSdk).to.not.be.undefined;
+    expect(SorobanClient).to.not.be.undefined;
+  });
 });
