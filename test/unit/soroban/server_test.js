@@ -1,6 +1,4 @@
-const MockAdapter = require("axios-mock-adapter");
-
-describe("Server.constructor", function () {
+describe("Soroban Server.constructor", function () {
   beforeEach(function () {
     this.server = new SorobanClient.Server(serverUrl);
     this.axiosMock = sinon.mock(AxiosClient);

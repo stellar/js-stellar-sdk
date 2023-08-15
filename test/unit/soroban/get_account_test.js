@@ -6,8 +6,6 @@ describe("Server#getAccount", function () {
   beforeEach(function () {
     this.server = new SorobanClient.Server(serverUrl);
     this.axiosMock = sinon.mock(AxiosClient);
-
-    console.log('client:', AxiosClient);
   });
 
   afterEach(function () {

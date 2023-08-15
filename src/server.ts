@@ -40,7 +40,7 @@ import { TransactionCallBuilder } from "./transaction_call_builder";
 
 import AxiosClient, {
   getCurrentServerTime,
-} from "./horizon_axios_client";
+} from "./axios";
 
 export const SUBMIT_TRANSACTION_TIMEOUT = 60 * 1000;
 

@@ -1,4 +1,4 @@
-import axios from "./axios";
+import axios from "axios";
 import { hasOwnProperty } from "./utils";
 
 export type Id = string | number;

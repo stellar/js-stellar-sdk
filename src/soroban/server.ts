@@ -11,7 +11,7 @@ import {
 } from "stellar-base";
 import URI from "urijs";
 
-import AxiosClient from "./axios";
+import AxiosClient from "../axios";
 import { Friendbot } from "./friendbot";
 import * as jsonrpc from "./jsonrpc";
 import { SorobanRpc } from "./soroban_rpc";

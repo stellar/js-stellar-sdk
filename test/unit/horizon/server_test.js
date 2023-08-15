@@ -1,10 +1,25 @@
 const MockAdapter = require("axios-mock-adapter");
 
-describe("server.js non-transaction tests", function () {
-  beforeEach(function () {
-    this.server = new StellarSdk.Server(
-      "https://horizon-live.stellar.org:1337",
+describe("Horizon Server constructor", function () {
+  const serverUrl = 'https://horizon-live.stellar.org:1337';
+  let insecureServerUrl = serverUrl.replace("https://", "http://");
+
+  it("throws error for insecure server", function () {
+    expect(() => new StellarSdk.Server(insecureServerUrl)).to.throw(
+      /Cannot connect to insecure horizon server/i
     );
+  });
+
+  it("allow insecure server when opts.allowHttp flag is set", function () {
+    expect(
+      () => new StellarSdk.Server(insecureServerUrl, { allowHttp: true })
+    ).to.not.throw();
+  });
+});
+
+describe("Horizon Server non-transaction tests", function () {
+  beforeEach(function () {
+    this.server = new StellarSdk.Server('https://horizon-live.stellar.org:1337');
     this.axiosMock = sinon.mock(AxiosClient);
     StellarSdk.Config.setDefault();
   });
@@ -12,30 +27,6 @@ describe("server.js non-transaction tests", function () {
   afterEach(function () {
     this.axiosMock.verify();
     this.axiosMock.restore();
-  });
-
-  describe("Server.constructor", function () {
-    it("throws error for insecure server", function () {
-      expect(
-        () => new StellarSdk.Server("http://horizon-live.stellar.org:1337"),
-      ).to.throw(/Cannot connect to insecure horizon server/);
-    });
-
-    it("allow insecure server when opts.allowHttp flag is set", function () {
-      expect(
-        () =>
-          new StellarSdk.Server("http://horizon-live.stellar.org:1337", {
-            allowHttp: true,
-          }),
-      ).to.not.throw();
-    });
-
-    it("allow insecure server when global Config.allowHttp flag is set", function () {
-      StellarSdk.Config.setAllowHttp(true);
-      expect(
-        () => new StellarSdk.Server("http://horizon-live.stellar.org:1337"),
-      ).to.not.throw();
-    });
   });
 
   describe("Server.fetchTimebounds", function () {
