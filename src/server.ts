@@ -38,7 +38,7 @@ import { TradeAggregationCallBuilder } from "./trade_aggregation_call_builder";
 import { TradesCallBuilder } from "./trades_call_builder";
 import { TransactionCallBuilder } from "./transaction_call_builder";
 
-import HorizonAxiosClient, {
+import AxiosClient, {
   getCurrentServerTime,
 } from "./horizon_axios_client";
 
@@ -93,7 +93,7 @@ export class Server {
       customHeaders["X-Auth-Token"] = opts.authToken;
     }
     if (Object.keys(customHeaders).length > 0) {
-      HorizonAxiosClient.interceptors.request.use((config) => {
+      AxiosClient.interceptors.request.use((config) => {
         // merge the custom headers with an existing headers, where customs
         // override defaults
         config.headers = Object.assign(config.headers, customHeaders);
@@ -141,7 +141,7 @@ export class Server {
     seconds: number,
     _isRetry: boolean = false,
   ): Promise<Server.Timebounds> {
-    // HorizonAxiosClient instead of this.ledgers so we can get at them headers
+    // AxiosClient instead of this.ledgers so we can get at them headers
     const currentTime = getCurrentServerTime(this.serverURL.hostname());
 
     if (currentTime) {
@@ -161,7 +161,7 @@ export class Server {
 
     // otherwise, retry (by calling the root endpoint)
     // toString automatically adds the trailing slash
-    await HorizonAxiosClient.get(URI(this.serverURL as any).toString());
+    await AxiosClient.get(URI(this.serverURL as any).toString());
     return await this.fetchTimebounds(seconds, true);
   }
 
@@ -310,7 +310,7 @@ export class Server {
         .toString("base64"),
     );
 
-    return HorizonAxiosClient.post(
+    return AxiosClient.post(
       URI(this.serverURL as any)
         .segment("transactions")
         .toString(),

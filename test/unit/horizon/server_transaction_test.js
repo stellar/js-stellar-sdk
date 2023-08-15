@@ -6,7 +6,7 @@ describe("server.js transaction tests", function () {
     this.server = new StellarSdk.Server(
       "https://horizon-live.stellar.org:1337",
     );
-    this.axiosMock = sinon.mock(HorizonAxiosClient);
+    this.axiosMock = sinon.mock(AxiosClient);
     let transaction = new StellarSdk.TransactionBuilder(account, {
       fee: 100,
       networkPassphrase: StellarSdk.Networks.TESTNET,

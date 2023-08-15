@@ -5,8 +5,7 @@ global.StellarSdk = require("../lib/");
 global.SorobanClient = global.StellarSdk.SorobanClient;
 
 global.axios = require("axios");
-global.HorizonAxiosClient = StellarSdk.HorizonAxiosClient;
-global.AxiosClient = global.SorobanClient.AxiosClient;
+global.AxiosClient = StellarSdk.AxiosClient;
 global.serverUrl = "https://horizon-live.stellar.org:1337/api/v1/jsonrpc";
 
 var chaiAsPromised = require("chai-as-promised");

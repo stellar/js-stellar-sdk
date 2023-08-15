@@ -5,7 +5,7 @@ describe("server.js non-transaction tests", function () {
     this.server = new StellarSdk.Server(
       "https://horizon-live.stellar.org:1337",
     );
-    this.axiosMock = sinon.mock(HorizonAxiosClient);
+    this.axiosMock = sinon.mock(AxiosClient);
     StellarSdk.Config.setDefault();
   });
 
@@ -47,7 +47,7 @@ describe("server.js non-transaction tests", function () {
       // use MockAdapter instead of this.axiosMock
       // because we don't want to replace the get function
       // we need to use axios's one so interceptors run!!
-      this.axiosMockAdapter = new MockAdapter(HorizonAxiosClient);
+      this.axiosMockAdapter = new MockAdapter(AxiosClient);
     });
 
     afterEach(function () {

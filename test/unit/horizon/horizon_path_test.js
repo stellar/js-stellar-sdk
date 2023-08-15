@@ -1,6 +1,6 @@
 describe("horizon path tests", function () {
   beforeEach(function () {
-    this.axiosMock = sinon.mock(HorizonAxiosClient);
+    this.axiosMock = sinon.mock(AxiosClient);
     StellarSdk.Config.setDefault();
   });
 
