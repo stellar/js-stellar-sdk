@@ -1,13 +1,10 @@
 import URI from "urijs";
 import URITemplate from "urijs/src/URITemplate";
 
-import { BadRequestError, NetworkError, NotFoundError } from "./errors";
+import { BadRequestError, NetworkError, NotFoundError } from "../errors";
 import { Horizon } from "./horizon_api";
-import AxiosClient from "./axios";
+import AxiosClient, { version } from "../axios";
 import { ServerApi } from "./server_api";
-
-/* tslint:disable-next-line:no-var-requires */
-const version = require("../package.json").version;
 
 // Resources which can be included in the Horizon response via the `join`
 // query-param.

@@ -12,8 +12,9 @@ import {
   Transaction,
   TransactionBuilder,
 } from "stellar-base";
+
 import { InvalidSep10ChallengeError } from "./errors";
-import { ServerApi } from "./server_api";
+import { ServerApi } from "./horizon/server_api";
 
 /**
  * @namespace Utils

@@ -11,12 +11,12 @@ import {
 import URI from "urijs";
 
 import { CallBuilder } from "./call_builder";
-import { Config } from "./config";
+import { Config } from "../config";
 import {
   AccountRequiresMemoError,
   BadResponseError,
   NotFoundError,
-} from "./errors";
+} from "../errors";
 
 import { AccountCallBuilder } from "./account_call_builder";
 import { AccountResponse } from "./account_response";
@@ -38,9 +38,7 @@ import { TradeAggregationCallBuilder } from "./trade_aggregation_call_builder";
 import { TradesCallBuilder } from "./trades_call_builder";
 import { TransactionCallBuilder } from "./transaction_call_builder";
 
-import AxiosClient, {
-  getCurrentServerTime,
-} from "./axios";
+import AxiosClient, { getCurrentServerTime } from "../axios";
 
 export const SUBMIT_TRANSACTION_TIMEOUT = 60 * 1000;
 

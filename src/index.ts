@@ -2,14 +2,11 @@
 /// <reference path="../types/dom-monkeypatch.d.ts" />
 
 // Expose all types
-export * from './horizon_api';
-export * from './server_api';
 
 // stellar-sdk classes to expose
-export * from './account_response';
 export * from './errors';
 export { Config } from './config';
-export { Server } from './server';
+export { Server } from './horizon/server';
 export {
   FederationServer,
   FEDERATION_RESPONSE_MAX_SIZE,
@@ -28,6 +25,9 @@ export * from './utils';
 
 // expose classes and functions from stellar-base
 export * from 'stellar-base';
+
+// expose all Horizon stuff
+export * from './horizon';
 
 // expose all Soroban stuff
 export * as SorobanClient from './soroban';

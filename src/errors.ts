@@ -1,4 +1,4 @@
-import { Horizon } from "./horizon_api";
+import { Horizon } from "./horizon/horizon_api";
 
 // For ES5 compatibility (https://stackoverflow.com/a/55066280).
 /* tslint:disable:variable-name max-classes-per-file */
