@@ -1,5 +1,5 @@
 const URI = require("urijs");
-const CallBuilder = require("../../../lib/call_builder"); // bc not exported
+const { CallBuilder } = require("../../../lib/call_builder"); // bc not exported
 
 describe("CallBuilder functions", function () {
   it("doesn't mutate the constructor passed url argument (it clones it instead)", function () {

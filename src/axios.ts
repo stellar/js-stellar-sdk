@@ -2,7 +2,7 @@ import axios, { AxiosResponse } from "axios";
 import URI from "urijs";
 
 /* tslint:disable-next-line:no-var-requires */
-const version = require("../package.json").version;
+export const version = require("../package.json").version;
 
 export interface ServerTime {
   serverTime: number;
@@ -35,7 +35,7 @@ function _toSeconds(ms: number): number {
 }
 
 AxiosClient.interceptors.response.use(
-  function interceptorHorizonResponse(response: AxiosResponse) {
+  (response: AxiosResponse) => {
     const hostname = URI(response.config.url!).hostname();
     const serverTime = _toSeconds(Date.parse(response.headers.date));
     const localTimeRecorded = _toSeconds(new Date().getTime());
@@ -48,7 +48,7 @@ AxiosClient.interceptors.response.use(
     }
 
     return response;
-  },
+  }
 );
 
 export default AxiosClient;

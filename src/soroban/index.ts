@@ -9,10 +9,5 @@ export * from 'stellar-base';
 
 // http classes to expose
 export { Server } from "./server";
-export {
-  default as AxiosClient,
-  SERVER_TIME_MAP,
-  getCurrentServerTime,
-} from "../axios";
 
 export default module.exports;

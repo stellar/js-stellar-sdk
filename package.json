@@ -32,6 +32,7 @@
     "docs": "yarn build:docs && jsdoc -c ./config/.jsdoc.json --verbose",
     "test": "yarn build && yarn test:node && yarn test:integration && yarn test:browser",
     "test:node": "yarn _nyc mocha --recursive 'test/unit/**/*.js'",
+    "test:node:soroban": "yarn _nyc mocha --recursive 'test/unit/soroban/**/*.js'",
     "test:integration": "yarn _nyc mocha --recursive 'test/integration/**/*.js'",
     "test:browser": "karma start config/karma.conf.js",
     "fmt": "yarn eslint -c .eslintrc.js src/ --fix && yarn _prettier",

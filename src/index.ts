@@ -1,9 +1,6 @@
 // tslint:disable-next-line: no-reference
 /// <reference path="../types/dom-monkeypatch.d.ts" />
 
-/* tslint:disable:no-var-requires */
-const version = require("../package.json").version;
-
 // Expose all types
 export * from "./horizon_api";
 export * from "./server_api";
@@ -24,7 +21,8 @@ export {
 export {
   default as AxiosClient,
   SERVER_TIME_MAP,
-  getCurrentServerTime
+  getCurrentServerTime,
+  version
 } from "./axios";
 export * from "./utils";
 
@@ -33,7 +31,5 @@ export * from "stellar-base";
 
 // expose all Soroban stuff
 export * as SorobanClient from './soroban';
-
-export { version };
 
 export default module.exports;
