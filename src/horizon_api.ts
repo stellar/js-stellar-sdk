@@ -570,6 +570,10 @@ export namespace Horizon {
   }
 
   export interface BalanceChange {
+    asset_type: string;
+    asset_code?: string;
+    asset_issuer?: string;
+
     type: string;
     from: string;
     to: string;
@@ -596,7 +600,7 @@ export namespace Horizon {
       OperationResponseType.bumpFootprintExpiration,
       OperationResponseTypeI.bumpFootprintExpiration
     > {
-    ledgersToExpire: string;
+    ledgersToExpire: number;
   }
 
   export interface RestoreFootprintOperationResponse
