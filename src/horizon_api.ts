@@ -600,7 +600,7 @@ export namespace Horizon {
       OperationResponseType.bumpFootprintExpiration,
       OperationResponseTypeI.bumpFootprintExpiration
     > {
-    ledgersToExpire: number;
+    ledgers_to_expire: number;
   }
 
   export interface RestoreFootprintOperationResponse
