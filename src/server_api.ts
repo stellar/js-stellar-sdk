@@ -73,14 +73,14 @@ export namespace ServerApi {
     | Effects.SignerSponsorshipCreated
     | Effects.SignerSponsorshipUpdated
     | Effects.SignerSponsorshipRemoved
-    | Effects.DepositLiquidityEffect
-    | Effects.WithdrawLiquidityEffect
-    | Effects.LiquidityPoolCreatedEffect
-    | Effects.LiquidityPoolRemovedEffect
-    | Effects.LiquidityPoolRevokedEffect
-    | Effects.LiquidityPoolTradeEffect
-    | Effects.ContractCreditedEffect
-    | Effects.ContractDebitedEffect
+    | Effects.LiquidityPoolDeposited
+    | Effects.LiquidityPoolWithdrew
+    | Effects.LiquidityPoolCreated
+    | Effects.LiquidityPoolRemoved
+    | Effects.LiquidityPoolRevoked
+    | Effects.LiquidityPoolTrade
+    | Effects.ContractCredited
+    | Effects.ContractDebited
     | Trade;
 
   export type EffectRecord = BaseEffectRecordFromTypes & EffectRecordMethods;
