@@ -1,3 +1,5 @@
+const { HorizonServer } = StellarSdk;
+
 function buildTransaction(destination, operations = [], builderOpts = {}) {
   let txBuilderOpts = {
     fee: 100,
@@ -9,13 +11,13 @@ function buildTransaction(destination, operations = [], builderOpts = {}) {
   let account = new StellarSdk.Account(keypair.publicKey(), "56199647068161");
   let transaction = new StellarSdk.TransactionBuilder(
     account,
-    txBuilderOpts
+    txBuilderOpts,
   ).addOperation(
     StellarSdk.Operation.payment({
       destination: destination,
       asset: StellarSdk.Asset.native(),
       amount: "100.50",
-    })
+    }),
   );
 
   operations.forEach((op) => (transaction = transaction.addOperation(op)));
@@ -28,7 +30,7 @@ function buildTransaction(destination, operations = [], builderOpts = {}) {
       keypair,
       "200",
       transaction,
-      txBuilderOpts.networkPassphrase
+      txBuilderOpts.networkPassphrase,
     );
   } else {
     return transaction;
@@ -105,7 +107,7 @@ function mockAccountRequest(axiosMock, id, status, data = {}) {
 
 describe("server.js check-memo-required", function () {
   beforeEach(function () {
-    this.server = new StellarSdk.Server("https://horizon-testnet.stellar.org");
+    this.server = new HorizonServer("https://horizon-testnet.stellar.org");
     this.axiosMock = sinon.mock(HorizonAxiosClient);
   });
 
@@ -132,7 +134,7 @@ describe("server.js check-memo-required", function () {
           expect(err.accountId).to.eq(accountId);
           expect(err.operationIndex).to.eq(0);
           done();
-        }
+        },
       )
       .catch(function (err) {
         done(err);
@@ -157,7 +159,7 @@ describe("server.js check-memo-required", function () {
           expect(err.accountId).to.eq(accountId);
           expect(err.operationIndex).to.eq(0);
           done();
-        }
+        },
       )
       .catch(function (err) {
         done(err);
@@ -208,7 +210,7 @@ describe("server.js check-memo-required", function () {
         function (err) {
           expect(err).to.be.instanceOf(StellarSdk.NetworkError);
           done();
-        }
+        },
       )
       .catch(function (err) {
         done(err);
@@ -251,11 +253,11 @@ describe("server.js check-memo-required", function () {
 
     const usd = new StellarSdk.Asset(
       "USD",
-      "GBBM6BKZPEHWYO3E3YKREDPQXMS4VK35YLNU7NFBRI26RAN7GI5POFBB"
+      "GBBM6BKZPEHWYO3E3YKREDPQXMS4VK35YLNU7NFBRI26RAN7GI5POFBB",
     );
     const eur = new StellarSdk.Asset(
       "EUR",
-      "GDTNXRLOJD2YEBPKK7KCMR7J33AAG5VZXHAJTHIG736D6LVEFLLLKPDL"
+      "GDTNXRLOJD2YEBPKK7KCMR7J33AAG5VZXHAJTHIG736D6LVEFLLLKPDL",
     );
     const liquidityPoolAsset = new StellarSdk.LiquidityPoolAsset(eur, usd, 30);
 

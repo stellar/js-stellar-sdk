@@ -27,12 +27,12 @@ describe("stellar_toml_resolver.js tests", function () {
 #   for users on your domain.
 FEDERATION_SERVER="https://api.stellar.org/federation"
 `,
-          })
+          }),
         );
 
       StellarSdk.StellarTomlResolver.resolve("acme.com").then((stellarToml) => {
         expect(stellarToml.FEDERATION_SERVER).equals(
-          "https://api.stellar.org/federation"
+          "https://api.stellar.org/federation",
         );
         done();
       });
@@ -49,14 +49,14 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
 #   for users on your domain.
 FEDERATION_SERVER="http://api.stellar.org/federation"
 `,
-          })
+          }),
         );
 
       StellarSdk.StellarTomlResolver.resolve("acme.com", {
         allowHttp: true,
       }).then((stellarToml) => {
         expect(stellarToml.FEDERATION_SERVER).equals(
-          "http://api.stellar.org/federation"
+          "http://api.stellar.org/federation",
         );
         done();
       });
@@ -75,12 +75,12 @@ FEDERATION_SERVER="http://api.stellar.org/federation"
 #   for users on your domain.
 FEDERATION_SERVER="http://api.stellar.org/federation"
 `,
-          })
+          }),
         );
 
       StellarSdk.StellarTomlResolver.resolve("acme.com").then((stellarToml) => {
         expect(stellarToml.FEDERATION_SERVER).equals(
-          "http://api.stellar.org/federation"
+          "http://api.stellar.org/federation",
         );
         done();
       });
@@ -97,7 +97,7 @@ FEDERATION_SERVER="http://api.stellar.org/federation"
 #   for users on your domain.
 FEDERATION_SERVER="https://api.stellar.org/federation"
 `,
-          })
+          }),
         );
 
       StellarSdk.StellarTomlResolver.resolve("acme.com")
@@ -112,7 +112,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
         .returns(Promise.reject());
 
       StellarSdk.StellarTomlResolver.resolve(
-        "acme.com"
+        "acme.com",
       ).should.be.rejected.and.notify(done);
     });
 
@@ -132,7 +132,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
             allowHttp: true,
           })
             .should.be.rejectedWith(
-              /stellar.toml file exceeds allowed size of [0-9]+/
+              /stellar.toml file exceeds allowed size of [0-9]+/,
             )
             .notify(done)
             .then(() => tempServer.close());

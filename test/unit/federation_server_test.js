@@ -4,7 +4,7 @@ describe("federation-server.js tests", function () {
   beforeEach(function () {
     this.server = new StellarSdk.FederationServer(
       "https://acme.com:1337/federation",
-      "stellar.org"
+      "stellar.org",
     );
 
     this.axiosMock = sinon.mock(axios);
@@ -21,8 +21,8 @@ describe("federation-server.js tests", function () {
         () =>
           new StellarSdk.FederationServer(
             "http://acme.com:1337/federation",
-            "stellar.org"
-          )
+            "stellar.org",
+          ),
       ).to.throw(/Cannot connect to insecure federation server/);
     });
 
@@ -32,8 +32,8 @@ describe("federation-server.js tests", function () {
           new StellarSdk.FederationServer(
             "http://acme.com:1337/federation",
             "stellar.org",
-            { allowHttp: true }
-          )
+            { allowHttp: true },
+          ),
       ).to.not.throw();
     });
 
@@ -44,8 +44,8 @@ describe("federation-server.js tests", function () {
           new StellarSdk.FederationServer(
             "http://acme.com:1337/federation",
             "stellar.org",
-            { allowHttp: true }
-          )
+            { allowHttp: true },
+          ),
       ).to.not.throw();
     });
   });
@@ -56,8 +56,8 @@ describe("federation-server.js tests", function () {
         .expects("get")
         .withArgs(
           sinon.match(
-            "https://acme.com:1337/federation?type=name&q=bob%2Astellar.org"
-          )
+            "https://acme.com:1337/federation?type=name&q=bob%2Astellar.org",
+          ),
         )
         .returns(
           Promise.resolve({
@@ -66,7 +66,7 @@ describe("federation-server.js tests", function () {
               account_id:
                 "GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS",
             },
-          })
+          }),
         );
     });
 
@@ -76,7 +76,7 @@ describe("federation-server.js tests", function () {
         .then((response) => {
           expect(response.stellar_address).equals("bob*stellar.org");
           expect(response.account_id).equals(
-            "GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS"
+            "GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS",
           );
           done();
         })
@@ -91,7 +91,7 @@ describe("federation-server.js tests", function () {
         .then((response) => {
           expect(response.stellar_address).equals("bob*stellar.org");
           expect(response.account_id).equals(
-            "GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS"
+            "GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS",
           );
           done();
         })
@@ -107,8 +107,8 @@ describe("federation-server.js tests", function () {
         .expects("get")
         .withArgs(
           sinon.match(
-            "https://acme.com:1337/federation?type=id&q=GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS"
-          )
+            "https://acme.com:1337/federation?type=id&q=GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS",
+          ),
         )
         .returns(
           Promise.resolve({
@@ -117,19 +117,19 @@ describe("federation-server.js tests", function () {
               account_id:
                 "GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS",
             },
-          })
+          }),
         );
     });
 
     it("requests is correct", function (done) {
       this.server
         .resolveAccountId(
-          "GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS"
+          "GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS",
         )
         .then((response) => {
           expect(response.stellar_address).equals("bob*stellar.org");
           expect(response.account_id).equals(
-            "GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS"
+            "GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS",
           );
           done();
         })
@@ -145,8 +145,8 @@ describe("federation-server.js tests", function () {
         .expects("get")
         .withArgs(
           sinon.match(
-            "https://acme.com:1337/federation?type=txid&q=3389e9f0f1a65f19736cacf544c2e825313e8447f569233bb8db39aa607c8889"
-          )
+            "https://acme.com:1337/federation?type=txid&q=3389e9f0f1a65f19736cacf544c2e825313e8447f569233bb8db39aa607c8889",
+          ),
         )
         .returns(
           Promise.resolve({
@@ -155,19 +155,19 @@ describe("federation-server.js tests", function () {
               account_id:
                 "GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS",
             },
-          })
+          }),
         );
     });
 
     it("requests is correct", function (done) {
       this.server
         .resolveTransactionId(
-          "3389e9f0f1a65f19736cacf544c2e825313e8447f569233bb8db39aa607c8889"
+          "3389e9f0f1a65f19736cacf544c2e825313e8447f569233bb8db39aa607c8889",
         )
         .then((response) => {
           expect(response.stellar_address).equals("bob*stellar.org");
           expect(response.account_id).equals(
-            "GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS"
+            "GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS",
           );
           done();
         })
@@ -189,19 +189,19 @@ describe("federation-server.js tests", function () {
 #   for users on your domain.
 FEDERATION_SERVER="https://api.stellar.org/federation"
 `,
-          })
+          }),
         );
 
       StellarSdk.FederationServer.createForDomain("acme.com").then(
         (federationServer) => {
           expect(federationServer.serverURL.protocol()).equals("https");
           expect(federationServer.serverURL.hostname()).equals(
-            "api.stellar.org"
+            "api.stellar.org",
           );
           expect(federationServer.serverURL.path()).equals("/federation");
           expect(federationServer.domain).equals("acme.com");
           done();
-        }
+        },
       );
     });
 
@@ -212,12 +212,12 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
         .returns(
           Promise.resolve({
             data: "",
-          })
+          }),
         );
 
       StellarSdk.FederationServer.createForDomain("acme.com")
         .should.be.rejectedWith(
-          /stellar.toml does not contain FEDERATION_SERVER field/
+          /stellar.toml does not contain FEDERATION_SERVER field/,
         )
         .and.notify(done);
     });
@@ -226,7 +226,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
   describe("FederationServer.resolve", function () {
     it("succeeds for a valid account ID", function (done) {
       StellarSdk.FederationServer.resolve(
-        "GAFSZ3VPBC2H2DVKCEWLN3PQWZW6BVDMFROWJUDAJ3KWSOKQIJ4R5W4J"
+        "GAFSZ3VPBC2H2DVKCEWLN3PQWZW6BVDMFROWJUDAJ3KWSOKQIJ4R5W4J",
       )
         .should.eventually.deep.equal({
           account_id:
@@ -252,15 +252,15 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
 #   for users on your domain.
 FEDERATION_SERVER="https://api.stellar.org/federation"
 `,
-          })
+          }),
         );
 
       this.axiosMock
         .expects("get")
         .withArgs(
           sinon.match(
-            "https://api.stellar.org/federation?type=name&q=bob%2Astellar.org"
-          )
+            "https://api.stellar.org/federation?type=name&q=bob%2Astellar.org",
+          ),
         )
         .returns(
           Promise.resolve({
@@ -271,7 +271,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
               memo_type: "id",
               memo: "100",
             },
-          })
+          }),
         );
 
       StellarSdk.FederationServer.resolve("bob*stellar.org")
@@ -296,8 +296,8 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
         .expects("get")
         .withArgs(
           sinon.match(
-            "https://acme.com:1337/federation?type=name&q=bob%2Astellar.org"
-          )
+            "https://acme.com:1337/federation?type=name&q=bob%2Astellar.org",
+          ),
         )
         .returns(
           Promise.resolve({
@@ -308,7 +308,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
               memo_type: "id",
               memo: 100,
             },
-          })
+          }),
         );
 
       this.server
@@ -323,7 +323,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
         return done();
       }
       var response = Array(StellarSdk.FEDERATION_RESPONSE_MAX_SIZE + 10).join(
-        "a"
+        "a",
       );
       let tempServer = http
         .createServer((req, res) => {
@@ -334,11 +334,11 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
           new StellarSdk.FederationServer(
             "http://localhost:4444/federation",
             "stellar.org",
-            { allowHttp: true }
+            { allowHttp: true },
           )
             .resolveAddress("bob*stellar.org")
             .should.be.rejectedWith(
-              /federation response exceeds allowed size of [0-9]+/
+              /federation response exceeds allowed size of [0-9]+/,
             )
             .notify(done)
             .then(() => tempServer.close());
@@ -376,7 +376,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
             new StellarSdk.FederationServer(
               "http://localhost:4444/federation",
               "stellar.org",
-              opts
+              opts,
             )
               .resolveAddress("bob*stellar.org")
               .should.be.rejectedWith(/timeout of 1000ms exceeded/)
@@ -398,10 +398,10 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
             new StellarSdk.FederationServer(
               "http://localhost:4444/federation",
               "stellar.org",
-              opts
+              opts,
             )
               .resolveAccountId(
-                "GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS"
+                "GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS",
               )
               .should.be.rejectedWith(/timeout of 1000ms exceeded/)
               .notify(done)
@@ -422,10 +422,10 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
             new StellarSdk.FederationServer(
               "http://localhost:4444/federation",
               "stellar.org",
-              opts
+              opts,
             )
               .resolveTransactionId(
-                "3389e9f0f1a65f19736cacf544c2e825313e8447f569233bb8db39aa607c8889"
+                "3389e9f0f1a65f19736cacf544c2e825313e8447f569233bb8db39aa607c8889",
               )
               .should.be.rejectedWith(/timeout of 1000ms exceeded/)
               .notify(done)

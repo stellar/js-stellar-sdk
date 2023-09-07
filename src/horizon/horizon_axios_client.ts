@@ -2,7 +2,7 @@ import axios, { AxiosResponse } from "axios";
 import URI from "urijs";
 
 /* tslint:disable-next-line:no-var-requires */
-const version = require("../../package.json").version;
+export const version = require("../../package.json").version;
 
 export interface ServerTime {
   serverTime: number;

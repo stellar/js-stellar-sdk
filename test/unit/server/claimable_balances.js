@@ -1,10 +1,8 @@
-const MockAdapter = require("axios-mock-adapter");
+const { HorizonServer } = StellarSdk;
 
 describe("ClaimableBalanceCallBuilder", function () {
   beforeEach(function () {
-    this.server = new StellarSdk.Server(
-      "https://horizon-live.stellar.org:1337"
-    );
+    this.server = new HorizonServer("https://horizon-live.stellar.org:1337");
     this.axiosMock = sinon.mock(HorizonAxiosClient);
     StellarSdk.Config.setDefault();
   });
@@ -43,15 +41,15 @@ describe("ClaimableBalanceCallBuilder", function () {
       .expects("get")
       .withArgs(
         sinon.match(
-          "https://horizon-live.stellar.org:1337/claimable_balances/00000000929b20b72e5890ab51c24f1cc46fa01c4f318d8d33367d24dd614cfdf5491072"
-        )
+          "https://horizon-live.stellar.org:1337/claimable_balances/00000000929b20b72e5890ab51c24f1cc46fa01c4f318d8d33367d24dd614cfdf5491072",
+        ),
       )
       .returns(Promise.resolve({ data: singleBalanceResponse }));
 
     this.server
       .claimableBalances()
       .claimableBalance(
-        "00000000929b20b72e5890ab51c24f1cc46fa01c4f318d8d33367d24dd614cfdf5491072"
+        "00000000929b20b72e5890ab51c24f1cc46fa01c4f318d8d33367d24dd614cfdf5491072",
       )
       .call()
       .then(function (response) {
@@ -85,8 +83,8 @@ describe("ClaimableBalanceCallBuilder", function () {
       .expects("get")
       .withArgs(
         sinon.match(
-          "https://horizon-live.stellar.org:1337/claimable_balances?sponsor=GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD"
-        )
+          "https://horizon-live.stellar.org:1337/claimable_balances?sponsor=GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD",
+        ),
       )
       .returns(Promise.resolve({ data }));
 
@@ -126,8 +124,8 @@ describe("ClaimableBalanceCallBuilder", function () {
       .expects("get")
       .withArgs(
         sinon.match(
-          "https://horizon-live.stellar.org:1337/claimable_balances?claimant=GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD"
-        )
+          "https://horizon-live.stellar.org:1337/claimable_balances?claimant=GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD",
+        ),
       )
       .returns(Promise.resolve({ data }));
 
@@ -167,8 +165,8 @@ describe("ClaimableBalanceCallBuilder", function () {
       .expects("get")
       .withArgs(
         sinon.match(
-          "https://horizon-live.stellar.org:1337/claimable_balances?asset=USD%3AGDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD"
-        )
+          "https://horizon-live.stellar.org:1337/claimable_balances?asset=USD%3AGDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD",
+        ),
       )
       .returns(Promise.resolve({ data }));
 
@@ -177,8 +175,8 @@ describe("ClaimableBalanceCallBuilder", function () {
       .asset(
         new StellarSdk.Asset(
           "USD",
-          "GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD"
-        )
+          "GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD",
+        ),
       )
       .call()
       .then(function (response) {

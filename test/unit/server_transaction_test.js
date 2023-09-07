@@ -1,11 +1,11 @@
+const { HorizonServer } = StellarSdk;
+
 describe("server.js transaction tests", function () {
   let keypair = StellarSdk.Keypair.random();
   let account = new StellarSdk.Account(keypair.publicKey(), "56199647068161");
 
   beforeEach(function () {
-    this.server = new StellarSdk.Server(
-      "https://horizon-live.stellar.org:1337"
-    );
+    this.server = new HorizonServer("https://horizon-live.stellar.org:1337");
     this.axiosMock = sinon.mock(HorizonAxiosClient);
     let transaction = new StellarSdk.TransactionBuilder(account, {
       fee: 100,
@@ -18,7 +18,7 @@ describe("server.js transaction tests", function () {
             "GASOCNHNNLYFNMDJYQ3XFMI7BYHIOCFW3GJEOWRPEGK2TDPGTG2E5EDW",
           asset: StellarSdk.Asset.native(),
           amount: "100.50",
-        })
+        }),
       )
       .setTimeout(StellarSdk.TimeoutInfinite)
       .build();
@@ -26,7 +26,7 @@ describe("server.js transaction tests", function () {
 
     this.transaction = transaction;
     this.blob = encodeURIComponent(
-      transaction.toEnvelope().toXDR().toString("base64")
+      transaction.toEnvelope().toXDR().toString("base64"),
     );
   });
 
@@ -40,7 +40,7 @@ describe("server.js transaction tests", function () {
       .expects("post")
       .withArgs(
         "https://horizon-live.stellar.org:1337/transactions",
-        `tx=${this.blob}`
+        `tx=${this.blob}`,
       )
       .returns(Promise.resolve({ data: {} }));
 
@@ -73,7 +73,7 @@ describe("server.js transaction tests", function () {
       .expects("post")
       .withArgs(
         "https://horizon-live.stellar.org:1337/transactions",
-        `tx=${this.blob}`
+        `tx=${this.blob}`,
       )
       .returns(Promise.resolve({ data: response }));
 
@@ -119,7 +119,7 @@ describe("server.js transaction tests", function () {
       .expects("post")
       .withArgs(
         "https://horizon-live.stellar.org:1337/transactions",
-        `tx=${this.blob}`
+        `tx=${this.blob}`,
       )
       .returns(Promise.resolve({ data: response }));
 
@@ -163,7 +163,7 @@ describe("server.js transaction tests", function () {
       .expects("post")
       .withArgs(
         "https://horizon-live.stellar.org:1337/transactions",
-        `tx=${this.blob}`
+        `tx=${this.blob}`,
       )
       .returns(Promise.resolve({ data: response }));
 
@@ -207,7 +207,7 @@ describe("server.js transaction tests", function () {
       .expects("post")
       .withArgs(
         "https://horizon-live.stellar.org:1337/transactions",
-        `tx=${this.blob}`
+        `tx=${this.blob}`,
       )
       .returns(Promise.resolve({ data: response }));
 
@@ -226,13 +226,13 @@ describe("server.js transaction tests", function () {
         expect(res.offerResults[0].isFullyOpen).to.equal(false);
         expect(res.offerResults[0].operationIndex).to.equal(0);
         expect(res.offerResults[0].currentOffer.selling.type).to.equal(
-          "native"
+          "native",
         );
         expect(res.offerResults[0].currentOffer.buying.assetCode).to.equal(
-          "BAT"
+          "BAT",
         );
         expect(res.offerResults[0].currentOffer.buying.issuer).to.equal(
-          "GBDEVU63Y6NTHJQQZIKVTC23NWLQVP3WJ2RI2OTSJTNYOIGICST6DUXR"
+          "GBDEVU63Y6NTHJQQZIKVTC23NWLQVP3WJ2RI2OTSJTNYOIGICST6DUXR",
         );
 
         done();
@@ -261,7 +261,7 @@ describe("server.js transaction tests", function () {
       .expects("post")
       .withArgs(
         "https://horizon-live.stellar.org:1337/transactions",
-        `tx=${this.blob}`
+        `tx=${this.blob}`,
       )
       .returns(Promise.resolve({ data: response }));
 
@@ -296,7 +296,7 @@ describe("server.js transaction tests", function () {
       .expects("post")
       .withArgs(
         "https://horizon-live.stellar.org:1337/transactions",
-        `tx=${this.blob}`
+        `tx=${this.blob}`,
       )
       .returns(Promise.resolve({ data: response }));
 
@@ -322,20 +322,20 @@ describe("server.js transaction tests", function () {
       .expects("post")
       .withArgs(
         "https://horizon-live.stellar.org:1337/transactions",
-        `tx=${this.blob}`
+        `tx=${this.blob}`,
       )
       .returns(Promise.resolve({ data: {} }));
     this.axiosMock
       .expects("get")
       .withArgs(
         sinon.match(
-          "https://horizon-live.stellar.org:1337/accounts/GASOCNHNNLYFNMDJYQ3XFMI7BYHIOCFW3GJEOWRPEGK2TDPGTG2E5EDW"
-        )
+          "https://horizon-live.stellar.org:1337/accounts/GASOCNHNNLYFNMDJYQ3XFMI7BYHIOCFW3GJEOWRPEGK2TDPGTG2E5EDW",
+        ),
       )
       .returns(
         Promise.reject({
           response: { status: 404, statusText: "NotFound", data: {} },
-        })
+        }),
       )
       .once();
 
@@ -353,18 +353,18 @@ describe("server.js transaction tests", function () {
       keypair,
       "200",
       this.transaction,
-      StellarSdk.Networks.TESTNET
+      StellarSdk.Networks.TESTNET,
     );
 
     this.blob = encodeURIComponent(
-      feeBumpTx.toEnvelope().toXDR().toString("base64")
+      feeBumpTx.toEnvelope().toXDR().toString("base64"),
     );
 
     this.axiosMock
       .expects("post")
       .withArgs(
         "https://horizon-live.stellar.org:1337/transactions",
-        `tx=${this.blob}`
+        `tx=${this.blob}`,
       )
       .returns(Promise.resolve({ data: {} }));
 
