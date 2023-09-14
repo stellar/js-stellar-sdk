@@ -1,5 +1,4 @@
 import axios from "./axios";
-import { hasOwnProperty } from "./utils";
 
 export type Id = string | number;
 
@@ -72,4 +71,13 @@ export async function postObject<T>(
   } else {
     return response.data?.result;
   }
+}
+
+// Check if the given object X has a field Y, and make that available to
+// typescript typing.
+function hasOwnProperty<X extends {}, Y extends PropertyKey>(
+  obj: X,
+  prop: Y,
+): obj is X & Record<Y, unknown> {
+  return obj.hasOwnProperty(prop);
 }
