@@ -1,5 +1,6 @@
-const URI = require("urijs");
-const CallBuilder = require("../../lib/call_builder").CallBuilder;
+import URI from "urijs";
+
+const { CallBuilder } = StellarSdk;
 
 describe("CallBuilder functions", function () {
   it("doesn't mutate the constructor passed url argument (it clones it instead)", function () {

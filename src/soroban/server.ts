@@ -457,15 +457,15 @@ export class Server {
    *
    * @example
    * const contractId = 'CA3D5KRYM6CB7OWQ6TWYRR3Z4T7GNZLKERYNZGGA5SOAOPIFY6YQGAXE';
-   * const contract = new SorobanClient.Contract(contractId);
+   * const contract = new StellarSdk.Contract(contractId);
    *
    * // Right now, this is just the default fee for this example.
-   * const fee = SorobanClient.BASE_FEE;
-   * const transaction = new SorobanClient.TransactionBuilder(account, { fee })
+   * const fee = StellarSdk.BASE_FEE;
+   * const transaction = new StellarSdk.TransactionBuilder(account, { fee })
    *   // Uncomment the following line to build transactions for the live network. Be
    *   // sure to also change the horizon hostname.
-   *   //.setNetworkPassphrase(SorobanClient.Networks.PUBLIC)
-   *   .setNetworkPassphrase(SorobanClient.Networks.FUTURENET)
+   *   //.setNetworkPassphrase(StellarSdk.Networks.PUBLIC)
+   *   .setNetworkPassphrase(StellarSdk.Networks.FUTURENET)
    *   .setTimeout(30) // valid for the next 30s
    *   // Add an operation to call increment() on the contract
    *   .addOperation(contract.call("increment"))
@@ -532,15 +532,15 @@ export class Server {
    * @throws {jsonrpc.Error<any> | Error}   if simulation fails
    * @example
    * const contractId = 'CA3D5KRYM6CB7OWQ6TWYRR3Z4T7GNZLKERYNZGGA5SOAOPIFY6YQGAXE';
-   * const contract = new SorobanClient.Contract(contractId);
+   * const contract = new StellarSdk.Contract(contractId);
    *
    * // Right now, this is just the default fee for this example.
-   * const fee = SorobanClient.BASE_FEE;
-   * const transaction = new SorobanClient.TransactionBuilder(account, { fee })
+   * const fee = StellarSdk.BASE_FEE;
+   * const transaction = new StellarSdk.TransactionBuilder(account, { fee })
    *   // Uncomment the following line to build transactions for the live network. Be
    *   // sure to also change the horizon hostname.
-   *   //.setNetworkPassphrase(SorobanClient.Networks.PUBLIC)
-   *   .setNetworkPassphrase(SorobanClient.Networks.FUTURENET)
+   *   //.setNetworkPassphrase(StellarSdk.Networks.PUBLIC)
+   *   .setNetworkPassphrase(StellarSdk.Networks.FUTURENET)
    *   .setTimeout(30) // valid for the next 30s
    *   // Add an operation to call increment() on the contract
    *   .addOperation(contract.call("increment"))
@@ -551,8 +551,8 @@ export class Server {
    * // Sign this transaction with the secret key
    * // NOTE: signing is transaction is network specific. Test network transactions
    * // won't work in the public network. To switch networks, use the Network object
-   * // as explained above (look for SorobanClient.Network).
-   * const sourceKeypair = SorobanClient.Keypair.fromSecret(sourceSecretKey);
+   * // as explained above (look for StellarSdk.Network).
+   * const sourceKeypair = StellarSdk.Keypair.fromSecret(sourceSecretKey);
    * preparedTransaction.sign(sourceKeypair);
    *
    * server.sendTransaction(transaction).then(result => {
@@ -597,15 +597,15 @@ export class Server {
    * @see https://soroban.stellar.org/api/methods/sendTransaction
    * @example
    * const contractId = 'CA3D5KRYM6CB7OWQ6TWYRR3Z4T7GNZLKERYNZGGA5SOAOPIFY6YQGAXE';
-   * const contract = new SorobanClient.Contract(contractId);
+   * const contract = new StellarSdk.Contract(contractId);
    *
    * // Right now, this is just the default fee for this example.
-   * const fee = SorobanClient.BASE_FEE;
-   * const transaction = new SorobanClient.TransactionBuilder(account, { fee })
+   * const fee = StellarSdk.BASE_FEE;
+   * const transaction = new StellarSdk.TransactionBuilder(account, { fee })
    *   // Uncomment the following line to build transactions for the live network. Be
    *   // sure to also change the horizon hostname.
-   *   //.setNetworkPassphrase(SorobanClient.Networks.PUBLIC)
-   *   .setNetworkPassphrase(SorobanClient.Networks.FUTURENET)
+   *   //.setNetworkPassphrase(StellarSdk.Networks.PUBLIC)
+   *   .setNetworkPassphrase(StellarSdk.Networks.FUTURENET)
    *   .setTimeout(30) // valid for the next 30s
    *   // Add an operation to call increment() on the contract
    *   .addOperation(contract.call("increment"))
@@ -614,8 +614,8 @@ export class Server {
    * // Sign this transaction with the secret key
    * // NOTE: signing is transaction is network specific. Test network transactions
    * // won't work in the public network. To switch networks, use the Network object
-   * // as explained above (look for SorobanClient.Network).
-   * const sourceKeypair = SorobanClient.Keypair.fromSecret(sourceSecretKey);
+   * // as explained above (look for StellarSdk.Network).
+   * const sourceKeypair = StellarSdk.Keypair.fromSecret(sourceSecretKey);
    * transaction.sign(sourceKeypair);
    *
    * server.sendTransaction(transaction).then((result) => {

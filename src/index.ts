@@ -29,9 +29,10 @@ export { Server as HorizonServer } from './horizon/server';
 export * from './utils';
 
 // soroban-client classes to expose
-export { SorobanClient, AxiosClient as SorobanAxiosClient } from './soroban';
+export { SorobanServer, AxiosClient as SorobanAxiosClient } from './soroban';
 
 export * from './soroban/transaction';
+export { ContractSpec } from './soroban/contract_spec';
 
 // expose classes and functions from stellar-base
 export * from 'stellar-base';
