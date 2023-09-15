@@ -5,8 +5,22 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
-### Add
 
+## [v11.0.0-beta.2](https://github.com/stellar/js-stellar-sdk/compare/v11.0.0-beta.1...v11.0.0-beta.2)
+
+### Breaking Changes
+- Certain effects have been renamed to align better with the "tense" that other structures have ([#844](https://github.com/stellar/js-stellar-sdk/pull/844)):
+  * `DepositLiquidityEffect` -> `LiquidityPoolDeposited`
+  * `WithdrawLiquidityEffect` -> `LiquidityPoolWithdrew`
+  * `LiquidityPoolTradeEffect` -> `LiquidityPoolTrade`
+  * `LiquidityPoolCreatedEffect` -> `LiquidityPoolCreated`
+  * `LiquidityPoolRevokedEffect` -> `LiquidityPoolRevoked`
+  * `LiquidityPoolRemovedEffect` -> `LiquidityPoolRemoved`
+
+### Add
+- New effects have been added to support Protocol 20 (Soroban) ([#842](https://github.com/stellar/js-stellar-sdk/pull/842)):
+  * `ContractCredited` occurs when a Stellar asset moves **into** its corresponding Stellar Asset Contract instance
+  * `ContractDebited` occurs when a Stellar asset moves **out of** its corresponding Stellar Asset Contract instance
 - Asset stat records (`ServerApi.AssetRecord`) contain two new fields to support the Protocol 20 (Soroban) release ([#841](https://github.com/stellar/js-stellar-sdk/pull/841)):
   * `num_contracts` - the integer quantity of contracts that hold this asset
   * `contracts_amount` - the total units of that asset held by contracts
@@ -37,31 +51,11 @@ interface BumpFootprintExpirationOperationResponse {
 interface RestoreFootprintOperationResponse {};
 ```
 
-
-### Breaking Changes
-
-- Certain effects have been renamed to align better with the "tense" that other structures have ([#844](https://github.com/stellar/js-stellar-sdk/pull/844)):
-  * `DepositLiquidityEffect` -> `LiquidityPoolDeposited`
-  * `WithdrawLiquidityEffect` -> `LiquidityPoolWithdrew`
-  * `LiquidityPoolTradeEffect` -> `LiquidityPoolTrade`
-  * `LiquidityPoolCreatedEffect` -> `LiquidityPoolCreated`
-  * `LiquidityPoolRevokedEffect` -> `LiquidityPoolRevoked`
-  * `LiquidityPoolRemovedEffect` -> `LiquidityPoolRemoved`
-
-### Add
-
-- New effects have been added to support Protocol 20 (Soroban) ([#842](https://github.com/stellar/js-stellar-sdk/pull/842)):
-  * `ContractCredited` occurs when a Stellar asset moves **into** its corresponding Stellar Asset Contract instance
-  * `ContractDebited` occurs when a Stellar asset moves **out of** its corresponding Stellar Asset Contract instance
-- Asset stat records (`ServerApi.AssetRecord`) contain two new fields to support the Protocol 20 (Soroban) release ([#TODO](https://github.com/stellar/js-stellar-sdk/pulls/)):
-  * `num_contracts` - the integer quantity of contracts that hold this asset
-  * `contracts_amount` - the total units of that asset held by contracts
-
 ### Fixed
-
 - Some effect definitions that were missing have been added ([#842](https://github.com/stellar/js-stellar-sdk/pull/842)):
   * `ClaimableBalanceClawedBack` is now defined
   * `type EffectRecord` now has all of the effect types
+- The `stellar-base` library has been upgraded to support the latest Protocol 20 XDR schema and all Soroban functionality ([]()).
 
 
 ## [v11.0.0-beta.1](https://github.com/stellar/js-stellar-sdk/compare/v11.0.0-beta.0...v11.0.0-beta.1)

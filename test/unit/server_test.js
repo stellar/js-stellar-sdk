@@ -3,7 +3,7 @@ const MockAdapter = require("axios-mock-adapter");
 describe("server.js non-transaction tests", function () {
   beforeEach(function () {
     this.server = new StellarSdk.Server(
-      "https://horizon-live.stellar.org:1337"
+      "https://horizon-live.stellar.org:1337",
     );
     this.axiosMock = sinon.mock(HorizonAxiosClient);
     StellarSdk.Config.setDefault();
@@ -17,7 +17,7 @@ describe("server.js non-transaction tests", function () {
   describe("Server.constructor", function () {
     it("throws error for insecure server", function () {
       expect(
-        () => new StellarSdk.Server("http://horizon-live.stellar.org:1337")
+        () => new StellarSdk.Server("http://horizon-live.stellar.org:1337"),
       ).to.throw(/Cannot connect to insecure horizon server/);
     });
 
@@ -26,14 +26,14 @@ describe("server.js non-transaction tests", function () {
         () =>
           new StellarSdk.Server("http://horizon-live.stellar.org:1337", {
             allowHttp: true,
-          })
+          }),
       ).to.not.throw();
     });
 
     it("allow insecure server when global Config.allowHttp flag is set", function () {
       StellarSdk.Config.setAllowHttp(true);
       expect(
-        () => new StellarSdk.Server("http://horizon-live.stellar.org:1337")
+        () => new StellarSdk.Server("http://horizon-live.stellar.org:1337"),
       ).to.not.throw();
     });
   });
@@ -81,7 +81,7 @@ describe("server.js non-transaction tests", function () {
           {},
           {
             date: "Wed, 13 Mar 2019 22:15:07 GMT",
-          }
+          },
         );
 
       this.server
@@ -144,7 +144,7 @@ describe("server.js non-transaction tests", function () {
       this.axiosMock
         .expects("get")
         .withArgs(
-          sinon.match("https://horizon-live.stellar.org:1337/fee_stats")
+          sinon.match("https://horizon-live.stellar.org:1337/fee_stats"),
         )
         .returns(Promise.resolve({ data: response }));
 
@@ -163,7 +163,7 @@ describe("server.js non-transaction tests", function () {
       this.axiosMock
         .expects("get")
         .withArgs(
-          sinon.match("https://horizon-live.stellar.org:1337/fee_stats")
+          sinon.match("https://horizon-live.stellar.org:1337/fee_stats"),
         )
         .returns(Promise.resolve({ data: {} }));
 
@@ -222,7 +222,7 @@ describe("server.js non-transaction tests", function () {
       this.axiosMock
         .expects("get")
         .withArgs(
-          sinon.match("https://horizon-live.stellar.org:1337/fee_stats")
+          sinon.match("https://horizon-live.stellar.org:1337/fee_stats"),
         )
         .returns(Promise.resolve({ data: response }));
 
@@ -325,8 +325,8 @@ describe("server.js non-transaction tests", function () {
         .expects("get")
         .withArgs(
           sinon.match(
-            "https://horizon-live.stellar.org:1337/accounts/GBAH7FQMC3CZJ4WD6GE7G7YXCIU36LC2IHXQ7D5MQAUO4PODOWIVLSFS"
-          )
+            "https://horizon-live.stellar.org:1337/accounts/GBAH7FQMC3CZJ4WD6GE7G7YXCIU36LC2IHXQ7D5MQAUO4PODOWIVLSFS",
+          ),
         )
         .returns(Promise.resolve({ data: accountResponse }));
 
@@ -335,7 +335,7 @@ describe("server.js non-transaction tests", function () {
         .then((response) => {
           // Response data
           expect(response.account_id).to.be.equal(
-            "GBAH7FQMC3CZJ4WD6GE7G7YXCIU36LC2IHXQ7D5MQAUO4PODOWIVLSFS"
+            "GBAH7FQMC3CZJ4WD6GE7G7YXCIU36LC2IHXQ7D5MQAUO4PODOWIVLSFS",
           );
           expect(response.subentry_count).to.be.equal(5);
           expect(response.transactions).to.be.a("function");
@@ -410,7 +410,7 @@ describe("server.js non-transaction tests", function () {
           this.axiosMock
             .expects("get")
             .withArgs(
-              sinon.match("https://horizon-live.stellar.org:1337/ledgers")
+              sinon.match("https://horizon-live.stellar.org:1337/ledgers"),
             )
             .returns(Promise.resolve({ data: ledgersResponse }));
 
@@ -419,7 +419,7 @@ describe("server.js non-transaction tests", function () {
             .call()
             .then((response) => {
               expect(response.records).to.be.deep.equal(
-                ledgersResponse._embedded.records
+                ledgersResponse._embedded.records,
               );
               expect(response.next).to.be.a("function");
               expect(response.prev).to.be.a("function");
@@ -437,8 +437,8 @@ describe("server.js non-transaction tests", function () {
             .expects("get")
             .withArgs(
               sinon.match(
-                "https://horizon-live.stellar.org:1337/ledgers?limit=1&cursor=b&order=asc"
-              )
+                "https://horizon-live.stellar.org:1337/ledgers?limit=1&cursor=b&order=asc",
+              ),
             )
             .returns(Promise.resolve({ data: ledgersResponse }));
         });
@@ -452,7 +452,7 @@ describe("server.js non-transaction tests", function () {
             .call()
             .then((response) => {
               expect(response.records).to.be.deep.equal(
-                ledgersResponse._embedded.records
+                ledgersResponse._embedded.records,
               );
               expect(response.next).to.be.a("function");
               expect(response.prev).to.be.a("function");
@@ -465,8 +465,8 @@ describe("server.js non-transaction tests", function () {
             .expects("get")
             .withArgs(
               sinon.match(
-                "https://horizon-live.stellar.org:1337/ledgers?order=asc&limit=1&cursor=4294967296"
-              )
+                "https://horizon-live.stellar.org:1337/ledgers?order=asc&limit=1&cursor=4294967296",
+              ),
             )
             .returns(Promise.resolve({ data: ledgersResponse }));
 
@@ -479,7 +479,7 @@ describe("server.js non-transaction tests", function () {
             .then(function (page) {
               page.next().then(function (response) {
                 expect(response.records).to.be.deep.equal(
-                  ledgersResponse._embedded.records
+                  ledgersResponse._embedded.records,
                 );
                 expect(response.next).to.be.a("function");
                 expect(response.prev).to.be.a("function");
@@ -524,12 +524,12 @@ describe("server.js non-transaction tests", function () {
           this.axiosMock
             .expects("get")
             .withArgs(
-              sinon.match("https://horizon-live.stellar.org:1337/ledgers/1")
+              sinon.match("https://horizon-live.stellar.org:1337/ledgers/1"),
             )
             .returns(
               Promise.reject({
                 response: { status: 404, statusText: "NotFound", data: {} },
-              })
+              }),
             );
 
           this.server
@@ -553,7 +553,7 @@ describe("server.js non-transaction tests", function () {
           this.axiosMock
             .expects("get")
             .withArgs(
-              sinon.match("https://horizon-live.stellar.org:1337/ledgers/1")
+              sinon.match("https://horizon-live.stellar.org:1337/ledgers/1"),
             )
             .returns(Promise.resolve({ data: singleLedgerResponse }));
 
@@ -577,8 +577,8 @@ describe("server.js non-transaction tests", function () {
             .expects("get")
             .withArgs(
               sinon.match(
-                "https://horizon-live.stellar.org:1337/ledgers/1?limit=1&cursor=b&order=asc"
-              )
+                "https://horizon-live.stellar.org:1337/ledgers/1?limit=1&cursor=b&order=asc",
+              ),
             )
             .returns(Promise.resolve({ data: singleLedgerResponse }));
 
@@ -675,8 +675,8 @@ describe("server.js non-transaction tests", function () {
             .expects("get")
             .withArgs(
               sinon.match(
-                "https://horizon-live.stellar.org:1337/ledgers/7952722/transactions"
-              )
+                "https://horizon-live.stellar.org:1337/ledgers/7952722/transactions",
+              ),
             )
             .returns(Promise.resolve({ data: transactionsResponse }));
 
@@ -684,8 +684,8 @@ describe("server.js non-transaction tests", function () {
             .expects("get")
             .withArgs(
               sinon.match(
-                /^https:\/\/horizon.stellar.org\/transactions\/c585b8764b28be678c482f8b6e87e76e4b5f28043c53f4dcb7b724b4b2efebc1\/operations/
-              )
+                /^https:\/\/horizon.stellar.org\/transactions\/c585b8764b28be678c482f8b6e87e76e4b5f28043c53f4dcb7b724b4b2efebc1\/operations/,
+              ),
             )
             .returns(Promise.resolve({ data: { operations: [] } }));
 
@@ -695,7 +695,7 @@ describe("server.js non-transaction tests", function () {
             .call()
             .then(function (response) {
               expect(response.records).to.be.deep.equal(
-                transactionsResponse._embedded.records
+                transactionsResponse._embedded.records,
               );
               expect(response.records[0].ledger).to.be.a("function");
               expect(response.records[0].ledger_attr).to.be.equal(7952722);
@@ -723,8 +723,8 @@ describe("server.js non-transaction tests", function () {
             .expects("get")
             .withArgs(
               sinon.match(
-                "https://horizon-live.stellar.org:1337/ledgers/7952722/transactions?cursor=b&limit=1&order=asc"
-              )
+                "https://horizon-live.stellar.org:1337/ledgers/7952722/transactions?cursor=b&limit=1&order=asc",
+              ),
             )
             .returns(Promise.resolve({ data: transactionsResponse }));
 
@@ -732,8 +732,8 @@ describe("server.js non-transaction tests", function () {
             .expects("get")
             .withArgs(
               sinon.match(
-                /^https:\/\/horizon.stellar.org\/transactions\/c585b8764b28be678c482f8b6e87e76e4b5f28043c53f4dcb7b724b4b2efebc1\/operations\?limit=1/
-              )
+                /^https:\/\/horizon.stellar.org\/transactions\/c585b8764b28be678c482f8b6e87e76e4b5f28043c53f4dcb7b724b4b2efebc1\/operations\?limit=1/,
+              ),
             )
             .returns(Promise.resolve({ data: { operations: [] } }));
 
@@ -746,7 +746,7 @@ describe("server.js non-transaction tests", function () {
             .call()
             .then(function (response) {
               expect(response.records).to.be.deep.equal(
-                transactionsResponse._embedded.records
+                transactionsResponse._embedded.records,
               );
               expect(response.next).to.be.a("function");
               expect(response.prev).to.be.a("function");
@@ -841,15 +841,15 @@ describe("server.js non-transaction tests", function () {
           .expects("get")
           .withArgs(
             sinon.match(
-              "https://horizon-live.stellar.org:1337/transactions/6bbd8cbd90498a26210a21ec599702bead8f908f412455da300318aba36831b0"
-            )
+              "https://horizon-live.stellar.org:1337/transactions/6bbd8cbd90498a26210a21ec599702bead8f908f412455da300318aba36831b0",
+            ),
           )
           .returns(Promise.resolve({ data: singleTranssactionResponse }));
 
         this.server
           .transactions()
           .transaction(
-            "6bbd8cbd90498a26210a21ec599702bead8f908f412455da300318aba36831b0"
+            "6bbd8cbd90498a26210a21ec599702bead8f908f412455da300318aba36831b0",
           )
           .call()
           .then(function (response) {
@@ -1039,20 +1039,20 @@ describe("server.js non-transaction tests", function () {
           .expects("get")
           .withArgs(
             sinon.match(
-              "https://horizon-live.stellar.org:1337/claimable_balances/000000000102030000000000000000000000000000000000000000000000000000000000/transactions"
-            )
+              "https://horizon-live.stellar.org:1337/claimable_balances/000000000102030000000000000000000000000000000000000000000000000000000000/transactions",
+            ),
           )
           .returns(Promise.resolve({ data: transactionsResponse }));
 
         this.server
           .transactions()
           .forClaimableBalance(
-            "000000000102030000000000000000000000000000000000000000000000000000000000"
+            "000000000102030000000000000000000000000000000000000000000000000000000000",
           )
           .call()
           .then(function (response) {
             expect(response.records).to.be.deep.equal(
-              transactionsResponse._embedded.records
+              transactionsResponse._embedded.records,
             );
             expect(response.next).to.be.a("function");
             expect(response.prev).to.be.a("function");
@@ -1126,8 +1126,8 @@ describe("server.js non-transaction tests", function () {
           .expects("get")
           .withArgs(
             sinon.match(
-              "https://horizon-live.stellar.org:1337/accounts/GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K"
-            )
+              "https://horizon-live.stellar.org:1337/accounts/GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K",
+            ),
           )
           .returns(Promise.resolve({ data: singleAccountResponse }));
 
@@ -1250,8 +1250,8 @@ describe("server.js non-transaction tests", function () {
           .expects("get")
           .withArgs(
             sinon.match(
-              "https://horizon-live.stellar.org:1337/accounts?signer=GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42"
-            )
+              "https://horizon-live.stellar.org:1337/accounts?signer=GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42",
+            ),
           )
           .returns(Promise.resolve({ data: accountsForSignerResponse }));
 
@@ -1261,7 +1261,7 @@ describe("server.js non-transaction tests", function () {
           .call()
           .then(function (response) {
             expect(response.records).to.be.deep.equal(
-              accountsForSignerResponse._embedded.records
+              accountsForSignerResponse._embedded.records,
             );
             expect(response.next).to.be.a("function");
             expect(response.prev).to.be.a("function");
@@ -1378,8 +1378,8 @@ describe("server.js non-transaction tests", function () {
           .expects("get")
           .withArgs(
             sinon.match(
-              "https://horizon-live.stellar.org:1337/accounts?asset=USD%3AGDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD"
-            )
+              "https://horizon-live.stellar.org:1337/accounts?asset=USD%3AGDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD",
+            ),
           )
           .returns(Promise.resolve({ data: accountsForAssetResponse }));
 
@@ -1388,13 +1388,13 @@ describe("server.js non-transaction tests", function () {
           .forAsset(
             new StellarSdk.Asset(
               "USD",
-              "GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD"
-            )
+              "GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD",
+            ),
           )
           .call()
           .then(function (response) {
             expect(response.records).to.be.deep.equal(
-              accountsForAssetResponse._embedded.records
+              accountsForAssetResponse._embedded.records,
             );
             expect(response.next).to.be.a("function");
             expect(response.prev).to.be.a("function");
@@ -1515,8 +1515,8 @@ describe("server.js non-transaction tests", function () {
           .expects("get")
           .withArgs(
             sinon.match(
-              "https://horizon-live.stellar.org:1337/accounts?sponsor=GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42"
-            )
+              "https://horizon-live.stellar.org:1337/accounts?sponsor=GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42",
+            ),
           )
           .returns(Promise.resolve({ data: accountsForSponsor }));
 
@@ -1526,7 +1526,7 @@ describe("server.js non-transaction tests", function () {
           .call()
           .then(function (response) {
             expect(response.records).to.be.deep.equal(
-              accountsForSponsor._embedded.records
+              accountsForSponsor._embedded.records,
             );
             expect(response.next).to.be.a("function");
             expect(response.prev).to.be.a("function");
@@ -1670,20 +1670,20 @@ describe("server.js non-transaction tests", function () {
           .expects("get")
           .withArgs(
             sinon.match(
-              "https://horizon-live.stellar.org:1337/accounts?liquidity_pool=dd7b1ab831c273310ddbec6f97870aa83c2fbd78ce22aded37ecbf4f3380fac7"
-            )
+              "https://horizon-live.stellar.org:1337/accounts?liquidity_pool=dd7b1ab831c273310ddbec6f97870aa83c2fbd78ce22aded37ecbf4f3380fac7",
+            ),
           )
           .returns(Promise.resolve({ data: accountsForAssetResponse }));
 
         this.server
           .accounts()
           .forLiquidityPool(
-            "dd7b1ab831c273310ddbec6f97870aa83c2fbd78ce22aded37ecbf4f3380fac7"
+            "dd7b1ab831c273310ddbec6f97870aa83c2fbd78ce22aded37ecbf4f3380fac7",
           )
           .call()
           .then(function (response) {
             expect(response.records).to.be.deep.equal(
-              accountsForAssetResponse._embedded.records
+              accountsForAssetResponse._embedded.records,
             );
             expect(response.next).to.be.a("function");
             expect(response.prev).to.be.a("function");
@@ -1718,8 +1718,8 @@ describe("server.js non-transaction tests", function () {
           .expects("get")
           .withArgs(
             sinon.match(
-              "https://horizon-live.stellar.org:1337/offers?order=asc"
-            )
+              "https://horizon-live.stellar.org:1337/offers?order=asc",
+            ),
           )
           .returns(Promise.resolve({ data: offersResponse }));
         this.server
@@ -1728,7 +1728,7 @@ describe("server.js non-transaction tests", function () {
           .call()
           .then(function (response) {
             expect(response.records).to.be.deep.equal(
-              offersResponse._embedded.records
+              offersResponse._embedded.records,
             );
             expect(response.next).to.be.a("function");
             expect(response.prev).to.be.a("function");
@@ -1774,7 +1774,7 @@ describe("server.js non-transaction tests", function () {
         this.axiosMock
           .expects("get")
           .withArgs(
-            sinon.match("https://horizon-live.stellar.org:1337/offers/12345")
+            sinon.match("https://horizon-live.stellar.org:1337/offers/12345"),
           )
           .returns(Promise.resolve({ data: offerResponse }));
 
@@ -1797,21 +1797,21 @@ describe("server.js non-transaction tests", function () {
           .expects("get")
           .withArgs(
             sinon.match(
-              "https://horizon-live.stellar.org:1337/accounts/GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K/offers?order=asc"
-            )
+              "https://horizon-live.stellar.org:1337/accounts/GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K/offers?order=asc",
+            ),
           )
           .returns(Promise.resolve({ data: offersResponse }));
 
         this.server
           .offers()
           .forAccount(
-            "GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K"
+            "GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K",
           )
           .order("asc")
           .call()
           .then(function (response) {
             expect(response.records).to.be.deep.equal(
-              offersResponse._embedded.records
+              offersResponse._embedded.records,
             );
             expect(response.next).to.be.a("function");
             expect(response.prev).to.be.a("function");
@@ -1824,15 +1824,15 @@ describe("server.js non-transaction tests", function () {
       it("selling requests the correct endpoint", function (done) {
         const selling = new StellarSdk.Asset(
           "USD",
-          "GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG"
+          "GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG",
         );
 
         this.axiosMock
           .expects("get")
           .withArgs(
             sinon.match(
-              "https://horizon-live.stellar.org:1337/offers?selling_asset_type=credit_alphanum4&selling_asset_code=USD&selling_asset_issuer=GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG&order=asc"
-            )
+              "https://horizon-live.stellar.org:1337/offers?selling_asset_type=credit_alphanum4&selling_asset_code=USD&selling_asset_issuer=GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG&order=asc",
+            ),
           )
           .returns(Promise.resolve({ data: offersResponse }));
 
@@ -1843,7 +1843,7 @@ describe("server.js non-transaction tests", function () {
           .call()
           .then(function (response) {
             expect(response.records).to.be.deep.equal(
-              offersResponse._embedded.records
+              offersResponse._embedded.records,
             );
             expect(response.next).to.be.a("function");
             expect(response.prev).to.be.a("function");
@@ -1856,15 +1856,15 @@ describe("server.js non-transaction tests", function () {
       it("buying requests the correct endpoint", function (done) {
         const buying = new StellarSdk.Asset(
           "COP",
-          "GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG"
+          "GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG",
         );
 
         this.axiosMock
           .expects("get")
           .withArgs(
             sinon.match(
-              "https://horizon-live.stellar.org:1337/offers?buying_asset_type=credit_alphanum4&buying_asset_code=COP&buying_asset_issuer=GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG&order=asc"
-            )
+              "https://horizon-live.stellar.org:1337/offers?buying_asset_type=credit_alphanum4&buying_asset_code=COP&buying_asset_issuer=GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG&order=asc",
+            ),
           )
           .returns(Promise.resolve({ data: offersResponse }));
 
@@ -1875,7 +1875,7 @@ describe("server.js non-transaction tests", function () {
           .call()
           .then(function (response) {
             expect(response.records).to.be.deep.equal(
-              offersResponse._embedded.records
+              offersResponse._embedded.records,
             );
             expect(response.next).to.be.a("function");
             expect(response.prev).to.be.a("function");
@@ -1890,8 +1890,8 @@ describe("server.js non-transaction tests", function () {
           .expects("get")
           .withArgs(
             sinon.match(
-              "https://horizon-live.stellar.org:1337/offers?sponsor=GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG&order=asc"
-            )
+              "https://horizon-live.stellar.org:1337/offers?sponsor=GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG&order=asc",
+            ),
           )
           .returns(Promise.resolve({ data: offersResponse }));
 
@@ -1902,7 +1902,7 @@ describe("server.js non-transaction tests", function () {
           .call()
           .then(function (response) {
             expect(response.records).to.be.deep.equal(
-              offersResponse._embedded.records
+              offersResponse._embedded.records,
             );
             expect(response.next).to.be.a("function");
             expect(response.prev).to.be.a("function");
@@ -1936,8 +1936,8 @@ describe("server.js non-transaction tests", function () {
           .expects("get")
           .withArgs(
             sinon.match(
-              "https://horizon-live.stellar.org:1337/order_book?selling_asset_type=native&buying_asset_type=credit_alphanum4&buying_asset_code=USD&buying_asset_issuer=GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG"
-            )
+              "https://horizon-live.stellar.org:1337/order_book?selling_asset_type=native&buying_asset_type=credit_alphanum4&buying_asset_code=USD&buying_asset_issuer=GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG",
+            ),
           )
           .returns(Promise.resolve({ data: orderBookResponse }));
 
@@ -1946,8 +1946,8 @@ describe("server.js non-transaction tests", function () {
             StellarSdk.Asset.native(),
             new StellarSdk.Asset(
               "USD",
-              "GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG"
-            )
+              "GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG",
+            ),
           )
           .call()
           .then(function (response) {
@@ -1964,8 +1964,8 @@ describe("server.js non-transaction tests", function () {
           .expects("get")
           .withArgs(
             sinon.match(
-              "https://horizon-live.stellar.org:1337/order_book?selling_asset_type=credit_alphanum4&selling_asset_code=USD&selling_asset_issuer=GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG&buying_asset_type=native"
-            )
+              "https://horizon-live.stellar.org:1337/order_book?selling_asset_type=credit_alphanum4&selling_asset_code=USD&selling_asset_issuer=GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG&buying_asset_type=native",
+            ),
           )
           .returns(Promise.resolve({ data: orderBookResponse }));
 
@@ -1973,9 +1973,9 @@ describe("server.js non-transaction tests", function () {
           .orderbook(
             new StellarSdk.Asset(
               "USD",
-              "GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG"
+              "GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG",
             ),
-            StellarSdk.Asset.native()
+            StellarSdk.Asset.native(),
           )
           .call()
           .then(function (response) {
@@ -2052,7 +2052,7 @@ describe("server.js non-transaction tests", function () {
           .call()
           .then(function (response) {
             expect(response.records).to.be.deep.equal(
-              tradesResponse._embedded.records
+              tradesResponse._embedded.records,
             );
             done();
           })
@@ -2118,8 +2118,8 @@ describe("server.js non-transaction tests", function () {
           .expects("get")
           .withArgs(
             sinon.match(
-              "https://horizon-live.stellar.org:1337/trades?base_asset_type=native&counter_asset_type=credit_alphanum4&counter_asset_code=JPY&counter_asset_issuer=GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM"
-            )
+              "https://horizon-live.stellar.org:1337/trades?base_asset_type=native&counter_asset_type=credit_alphanum4&counter_asset_code=JPY&counter_asset_issuer=GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM",
+            ),
           )
           .returns(Promise.resolve({ data: tradesResponse }));
 
@@ -2129,13 +2129,13 @@ describe("server.js non-transaction tests", function () {
             StellarSdk.Asset.native(),
             new StellarSdk.Asset(
               "JPY",
-              "GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM"
-            )
+              "GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM",
+            ),
           )
           .call()
           .then(function (response) {
             expect(response.records).to.be.deep.equal(
-              tradesResponse._embedded.records
+              tradesResponse._embedded.records,
             );
             done();
           })
@@ -2201,8 +2201,8 @@ describe("server.js non-transaction tests", function () {
           .expects("get")
           .withArgs(
             sinon.match(
-              "https://horizon-live.stellar.org:1337/trades?offer_id=278232"
-            )
+              "https://horizon-live.stellar.org:1337/trades?offer_id=278232",
+            ),
           )
           .returns(Promise.resolve({ data: tradesResponse }));
 
@@ -2212,7 +2212,7 @@ describe("server.js non-transaction tests", function () {
           .call()
           .then(function (response) {
             expect(response.records).to.be.deep.equal(
-              tradesResponse._embedded.records
+              tradesResponse._embedded.records,
             );
             done();
           })
@@ -2273,20 +2273,20 @@ describe("server.js non-transaction tests", function () {
           .expects("get")
           .withArgs(
             sinon.match(
-              "https://horizon-live.stellar.org:1337/accounts/GABJBA4HI4LVKWAYORE7SOAAZMVXDHI566JBSD25O5TRDM7LVID6YOXY/trades"
-            )
+              "https://horizon-live.stellar.org:1337/accounts/GABJBA4HI4LVKWAYORE7SOAAZMVXDHI566JBSD25O5TRDM7LVID6YOXY/trades",
+            ),
           )
           .returns(Promise.resolve({ data: tradesResponse }));
 
         this.server
           .trades()
           .forAccount(
-            "GABJBA4HI4LVKWAYORE7SOAAZMVXDHI566JBSD25O5TRDM7LVID6YOXY"
+            "GABJBA4HI4LVKWAYORE7SOAAZMVXDHI566JBSD25O5TRDM7LVID6YOXY",
           )
           .call()
           .then(function (response) {
             expect(response.records).to.be.deep.equal(
-              tradesResponse._embedded.records
+              tradesResponse._embedded.records,
             );
             done();
           })
@@ -2355,8 +2355,8 @@ describe("server.js non-transaction tests", function () {
           .expects("get")
           .withArgs(
             sinon.match(
-              "https://horizon-live.stellar.org:1337/trades?order=asc&limit=1&cursor=64199539053039617-0"
-            )
+              "https://horizon-live.stellar.org:1337/trades?order=asc&limit=1&cursor=64199539053039617-0",
+            ),
           )
           .returns(Promise.resolve({ data: tradesResponse }));
 
@@ -2368,7 +2368,7 @@ describe("server.js non-transaction tests", function () {
           .call()
           .then(function (response) {
             expect(response.records).to.be.deep.equal(
-              tradesResponse._embedded.records
+              tradesResponse._embedded.records,
             );
             done();
           })
@@ -2434,8 +2434,8 @@ describe("server.js non-transaction tests", function () {
           .expects("get")
           .withArgs(
             sinon.match(
-              "https://horizon-live.stellar.org:1337/trades?trade_type=orderbook"
-            )
+              "https://horizon-live.stellar.org:1337/trades?trade_type=orderbook",
+            ),
           )
           .returns(Promise.resolve({ data: tradesResponse }));
 
@@ -2445,7 +2445,7 @@ describe("server.js non-transaction tests", function () {
           .call()
           .then(function (response) {
             expect(response.records).to.be.deep.equal(
-              tradesResponse._embedded.records
+              tradesResponse._embedded.records,
             );
             done();
           })
@@ -2512,8 +2512,8 @@ describe("server.js non-transaction tests", function () {
           .expects("get")
           .withArgs(
             sinon.match(
-              "https://horizon-live.stellar.org:1337/trades?trade_type=liquidity_pool"
-            )
+              "https://horizon-live.stellar.org:1337/trades?trade_type=liquidity_pool",
+            ),
           )
           .returns(Promise.resolve({ data: tradesResponse }));
 
@@ -2523,7 +2523,7 @@ describe("server.js non-transaction tests", function () {
           .call()
           .then(function (response) {
             expect(response.records).to.be.deep.equal(
-              tradesResponse._embedded.records
+              tradesResponse._embedded.records,
             );
             done();
           })
@@ -2610,8 +2610,8 @@ describe("server.js non-transaction tests", function () {
           .expects("get")
           .withArgs(
             sinon.match(
-              "https://horizon-live.stellar.org:1337/paths/strict-receive?source_account=GARSFJNXJIHO6ULUBK3DBYKVSIZE7SC72S5DYBCHU7DKL22UXKVD7MXP&destination_amount=20.0&destination_asset_type=credit_alphanum4&destination_asset_code=EUR&destination_asset_issuer=GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN"
-            )
+              "https://horizon-live.stellar.org:1337/paths/strict-receive?source_account=GARSFJNXJIHO6ULUBK3DBYKVSIZE7SC72S5DYBCHU7DKL22UXKVD7MXP&destination_amount=20.0&destination_asset_type=credit_alphanum4&destination_asset_code=EUR&destination_asset_issuer=GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN",
+            ),
           )
           .returns(Promise.resolve({ data: pathsResponse }));
 
@@ -2620,14 +2620,14 @@ describe("server.js non-transaction tests", function () {
             "GARSFJNXJIHO6ULUBK3DBYKVSIZE7SC72S5DYBCHU7DKL22UXKVD7MXP",
             new StellarSdk.Asset(
               "EUR",
-              "GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN"
+              "GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN",
             ),
-            "20.0"
+            "20.0",
           )
           .call()
           .then(function (response) {
             expect(response.records).to.be.deep.equal(
-              pathsResponse._embedded.records
+              pathsResponse._embedded.records,
             );
             expect(response.next).to.be.a("function");
             expect(response.prev).to.be.a("function");
@@ -2639,14 +2639,14 @@ describe("server.js non-transaction tests", function () {
       });
       it("requests the correct endpoint when source is a list of assets", function (done) {
         let destinationAssets = encodeURIComponent(
-          "native,EUR:GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN,USD:GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN"
+          "native,EUR:GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN,USD:GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN",
         );
         this.axiosMock
           .expects("get")
           .withArgs(
             sinon.match(
-              `https://horizon-live.stellar.org:1337/paths/strict-receive?source_assets=${destinationAssets}&destination_amount=20.0&destination_asset_type=credit_alphanum4&destination_asset_code=EUR&destination_asset_issuer=GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN`
-            )
+              `https://horizon-live.stellar.org:1337/paths/strict-receive?source_assets=${destinationAssets}&destination_amount=20.0&destination_asset_type=credit_alphanum4&destination_asset_code=EUR&destination_asset_issuer=GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN`,
+            ),
           )
           .returns(Promise.resolve({ data: pathsResponse }));
 
@@ -2654,11 +2654,11 @@ describe("server.js non-transaction tests", function () {
           StellarSdk.Asset.native(),
           new StellarSdk.Asset(
             "EUR",
-            "GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN"
+            "GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN",
           ),
           new StellarSdk.Asset(
             "USD",
-            "GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN"
+            "GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN",
           ),
         ];
 
@@ -2667,14 +2667,14 @@ describe("server.js non-transaction tests", function () {
             assets,
             new StellarSdk.Asset(
               "EUR",
-              "GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN"
+              "GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN",
             ),
-            "20.0"
+            "20.0",
           )
           .call()
           .then(function (response) {
             expect(response.records).to.be.deep.equal(
-              pathsResponse._embedded.records
+              pathsResponse._embedded.records,
             );
             expect(response.next).to.be.a("function");
             expect(response.prev).to.be.a("function");
@@ -2763,8 +2763,8 @@ describe("server.js non-transaction tests", function () {
           .expects("get")
           .withArgs(
             sinon.match(
-              "https://horizon-live.stellar.org:1337/paths/strict-send?source_asset_type=credit_alphanum4&source_asset_code=EUR&source_asset_issuer=GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN&source_amount=20.0&destination_account=GAEDTJ4PPEFVW5XV2S7LUXBEHNQMX5Q2GM562RJGOQG7GVCE5H3HIB4V"
-            )
+              "https://horizon-live.stellar.org:1337/paths/strict-send?source_asset_type=credit_alphanum4&source_asset_code=EUR&source_asset_issuer=GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN&source_amount=20.0&destination_account=GAEDTJ4PPEFVW5XV2S7LUXBEHNQMX5Q2GM562RJGOQG7GVCE5H3HIB4V",
+            ),
           )
           .returns(Promise.resolve({ data: pathsResponse }));
 
@@ -2772,15 +2772,15 @@ describe("server.js non-transaction tests", function () {
           .strictSendPaths(
             new StellarSdk.Asset(
               "EUR",
-              "GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN"
+              "GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN",
             ),
             "20.0",
-            "GAEDTJ4PPEFVW5XV2S7LUXBEHNQMX5Q2GM562RJGOQG7GVCE5H3HIB4V"
+            "GAEDTJ4PPEFVW5XV2S7LUXBEHNQMX5Q2GM562RJGOQG7GVCE5H3HIB4V",
           )
           .call()
           .then(function (response) {
             expect(response.records).to.be.deep.equal(
-              pathsResponse._embedded.records
+              pathsResponse._embedded.records,
             );
             expect(response.next).to.be.a("function");
             expect(response.prev).to.be.a("function");
@@ -2792,14 +2792,14 @@ describe("server.js non-transaction tests", function () {
       });
       it("requests the correct endpoint when destination is a list of assets", function (done) {
         let destinationAssets = encodeURIComponent(
-          "native,EUR:GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN,USD:GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN"
+          "native,EUR:GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN,USD:GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN",
         );
         this.axiosMock
           .expects("get")
           .withArgs(
             sinon.match(
-              `https://horizon-live.stellar.org:1337/paths/strict-send?source_asset_type=credit_alphanum4&source_asset_code=EUR&source_asset_issuer=GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN&source_amount=20.0&destination_assets=${destinationAssets}`
-            )
+              `https://horizon-live.stellar.org:1337/paths/strict-send?source_asset_type=credit_alphanum4&source_asset_code=EUR&source_asset_issuer=GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN&source_amount=20.0&destination_assets=${destinationAssets}`,
+            ),
           )
           .returns(Promise.resolve({ data: pathsResponse }));
 
@@ -2807,11 +2807,11 @@ describe("server.js non-transaction tests", function () {
           StellarSdk.Asset.native(),
           new StellarSdk.Asset(
             "EUR",
-            "GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN"
+            "GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN",
           ),
           new StellarSdk.Asset(
             "USD",
-            "GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN"
+            "GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN",
           ),
         ];
 
@@ -2819,15 +2819,15 @@ describe("server.js non-transaction tests", function () {
           .strictSendPaths(
             new StellarSdk.Asset(
               "EUR",
-              "GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN"
+              "GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN",
             ),
             "20.0",
-            assets
+            assets,
           )
           .call()
           .then(function (response) {
             expect(response.records).to.be.deep.equal(
-              pathsResponse._embedded.records
+              pathsResponse._embedded.records,
             );
             expect(response.next).to.be.a("function");
             expect(response.prev).to.be.a("function");
@@ -2882,8 +2882,8 @@ describe("server.js non-transaction tests", function () {
           .expects("get")
           .withArgs(
             sinon.match(
-              "https://horizon-live.stellar.org:1337/effects?cursor=b"
-            )
+              "https://horizon-live.stellar.org:1337/effects?cursor=b",
+            ),
           )
           .returns(Promise.resolve({ data: effectsResponse }));
 
@@ -2893,7 +2893,7 @@ describe("server.js non-transaction tests", function () {
           .call()
           .then(function (response) {
             expect(response.records).to.be.deep.equal(
-              effectsResponse._embedded.records
+              effectsResponse._embedded.records,
             );
             expect(response.next).to.be.a("function");
             expect(response.prev).to.be.a("function");
@@ -2909,20 +2909,20 @@ describe("server.js non-transaction tests", function () {
           .expects("get")
           .withArgs(
             sinon.match(
-              "https://horizon-live.stellar.org:1337/accounts/GCGHCFUB6JKQE42C76BK2LYB3EHKP4WQJE624WTSL3CU2PPDYE5RBMJE/effects"
-            )
+              "https://horizon-live.stellar.org:1337/accounts/GCGHCFUB6JKQE42C76BK2LYB3EHKP4WQJE624WTSL3CU2PPDYE5RBMJE/effects",
+            ),
           )
           .returns(Promise.resolve({ data: effectsResponse }));
 
         this.server
           .effects()
           .forAccount(
-            "GCGHCFUB6JKQE42C76BK2LYB3EHKP4WQJE624WTSL3CU2PPDYE5RBMJE"
+            "GCGHCFUB6JKQE42C76BK2LYB3EHKP4WQJE624WTSL3CU2PPDYE5RBMJE",
           )
           .call()
           .then(function (response) {
             expect(response.records).to.be.deep.equal(
-              effectsResponse._embedded.records
+              effectsResponse._embedded.records,
             );
             expect(response.next).to.be.a("function");
             expect(response.prev).to.be.a("function");
@@ -2938,20 +2938,20 @@ describe("server.js non-transaction tests", function () {
           .expects("get")
           .withArgs(
             sinon.match(
-              "https://horizon-live.stellar.org:1337/transactions/ef37d6770c40c3bdb6adba80759f2819971396d1c3dfb7b5611f63ad72a9a4ae/effects"
-            )
+              "https://horizon-live.stellar.org:1337/transactions/ef37d6770c40c3bdb6adba80759f2819971396d1c3dfb7b5611f63ad72a9a4ae/effects",
+            ),
           )
           .returns(Promise.resolve({ data: effectsResponse }));
 
         this.server
           .effects()
           .forTransaction(
-            "ef37d6770c40c3bdb6adba80759f2819971396d1c3dfb7b5611f63ad72a9a4ae"
+            "ef37d6770c40c3bdb6adba80759f2819971396d1c3dfb7b5611f63ad72a9a4ae",
           )
           .call()
           .then(function (response) {
             expect(response.records).to.be.deep.equal(
-              effectsResponse._embedded.records
+              effectsResponse._embedded.records,
             );
             expect(response.next).to.be.a("function");
             expect(response.prev).to.be.a("function");
@@ -2964,7 +2964,7 @@ describe("server.js non-transaction tests", function () {
 
       it("rejects two filters", function (done) {
         expect(() =>
-          this.server.effects().forOperation("blah").forLedger("234").call()
+          this.server.effects().forOperation("blah").forLedger("234").call(),
         ).to.throw(/Too many filters/);
         done();
       });
@@ -3023,8 +3023,8 @@ describe("server.js non-transaction tests", function () {
           .expects("get")
           .withArgs(
             sinon.match(
-              "https://horizon-live.stellar.org:1337/operations/123456789"
-            )
+              "https://horizon-live.stellar.org:1337/operations/123456789",
+            ),
           )
           .returns(Promise.resolve({ data: operationsResponse }));
 
@@ -3034,7 +3034,7 @@ describe("server.js non-transaction tests", function () {
           .call()
           .then(function (response) {
             expect(response.records).to.be.deep.equal(
-              operationsResponse._embedded.records
+              operationsResponse._embedded.records,
             );
             expect(response.next).to.be.a("function");
             expect(response.prev).to.be.a("function");
@@ -3050,20 +3050,20 @@ describe("server.js non-transaction tests", function () {
           .expects("get")
           .withArgs(
             sinon.match(
-              "https://horizon-live.stellar.org:1337/accounts/GCGHCFUB6JKQE42C76BK2LYB3EHKP4WQJE624WTSL3CU2PPDYE5RBMJE/operations"
-            )
+              "https://horizon-live.stellar.org:1337/accounts/GCGHCFUB6JKQE42C76BK2LYB3EHKP4WQJE624WTSL3CU2PPDYE5RBMJE/operations",
+            ),
           )
           .returns(Promise.resolve({ data: operationsResponse }));
 
         this.server
           .operations()
           .forAccount(
-            "GCGHCFUB6JKQE42C76BK2LYB3EHKP4WQJE624WTSL3CU2PPDYE5RBMJE"
+            "GCGHCFUB6JKQE42C76BK2LYB3EHKP4WQJE624WTSL3CU2PPDYE5RBMJE",
           )
           .call()
           .then(function (response) {
             expect(response.records).to.be.deep.equal(
-              operationsResponse._embedded.records
+              operationsResponse._embedded.records,
             );
             expect(response.next).to.be.a("function");
             expect(response.prev).to.be.a("function");
@@ -3079,20 +3079,20 @@ describe("server.js non-transaction tests", function () {
           .expects("get")
           .withArgs(
             sinon.match(
-              "https://horizon-live.stellar.org:1337/claimable_balances/000000000102030000000000000000000000000000000000000000000000000000000000/operations"
-            )
+              "https://horizon-live.stellar.org:1337/claimable_balances/000000000102030000000000000000000000000000000000000000000000000000000000/operations",
+            ),
           )
           .returns(Promise.resolve({ data: operationsResponse }));
 
         this.server
           .operations()
           .forClaimableBalance(
-            "000000000102030000000000000000000000000000000000000000000000000000000000"
+            "000000000102030000000000000000000000000000000000000000000000000000000000",
           )
           .call()
           .then(function (response) {
             expect(response.records).to.be.deep.equal(
-              operationsResponse._embedded.records
+              operationsResponse._embedded.records,
             );
             expect(response.next).to.be.a("function");
             expect(response.prev).to.be.a("function");
@@ -3108,8 +3108,8 @@ describe("server.js non-transaction tests", function () {
           .expects("get")
           .withArgs(
             sinon.match(
-              "https://horizon-live.stellar.org:1337/ledgers/123456789/operations"
-            )
+              "https://horizon-live.stellar.org:1337/ledgers/123456789/operations",
+            ),
           )
           .returns(Promise.resolve({ data: operationsResponse }));
 
@@ -3119,7 +3119,7 @@ describe("server.js non-transaction tests", function () {
           .call()
           .then(function (response) {
             expect(response.records).to.be.deep.equal(
-              operationsResponse._embedded.records
+              operationsResponse._embedded.records,
             );
             expect(response.next).to.be.a("function");
             expect(response.prev).to.be.a("function");
@@ -3135,8 +3135,8 @@ describe("server.js non-transaction tests", function () {
           .expects("get")
           .withArgs(
             sinon.match(
-              "https://horizon-live.stellar.org:1337/transactions/blah/operations"
-            )
+              "https://horizon-live.stellar.org:1337/transactions/blah/operations",
+            ),
           )
           .returns(Promise.resolve({ data: operationsResponse }));
 
@@ -3146,7 +3146,7 @@ describe("server.js non-transaction tests", function () {
           .call()
           .then(function (response) {
             expect(response.records).to.be.deep.equal(
-              operationsResponse._embedded.records
+              operationsResponse._embedded.records,
             );
             expect(response.next).to.be.a("function");
             expect(response.prev).to.be.a("function");
@@ -3211,20 +3211,20 @@ describe("server.js non-transaction tests", function () {
           .expects("get")
           .withArgs(
             sinon.match(
-              "https://horizon-live.stellar.org:1337/accounts/GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K/payments"
-            )
+              "https://horizon-live.stellar.org:1337/accounts/GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K/payments",
+            ),
           )
           .returns(Promise.resolve({ data: paymentsResponse }));
 
         this.server
           .payments()
           .forAccount(
-            "GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K"
+            "GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K",
           )
           .call()
           .then(function (response) {
             expect(response.records).to.be.deep.equal(
-              paymentsResponse._embedded.records
+              paymentsResponse._embedded.records,
             );
             expect(response.next).to.be.a("function");
             expect(response.prev).to.be.a("function");
@@ -3240,8 +3240,8 @@ describe("server.js non-transaction tests", function () {
           .expects("get")
           .withArgs(
             sinon.match(
-              "https://horizon-live.stellar.org:1337/ledgers/123456789/payments"
-            )
+              "https://horizon-live.stellar.org:1337/ledgers/123456789/payments",
+            ),
           )
           .returns(Promise.resolve({ data: paymentsResponse }));
 
@@ -3251,7 +3251,7 @@ describe("server.js non-transaction tests", function () {
           .call()
           .then(function (response) {
             expect(response.records).to.be.deep.equal(
-              paymentsResponse._embedded.records
+              paymentsResponse._embedded.records,
             );
             expect(response.next).to.be.a("function");
             expect(response.prev).to.be.a("function");
@@ -3267,20 +3267,20 @@ describe("server.js non-transaction tests", function () {
           .expects("get")
           .withArgs(
             sinon.match(
-              "https://horizon-live.stellar.org:1337/transactions/77277606902d80a03a892536ebff8466726a4e55c3923ec2d3eeb3aa5bdc3731/payments"
-            )
+              "https://horizon-live.stellar.org:1337/transactions/77277606902d80a03a892536ebff8466726a4e55c3923ec2d3eeb3aa5bdc3731/payments",
+            ),
           )
           .returns(Promise.resolve({ data: paymentsResponse }));
 
         this.server
           .payments()
           .forTransaction(
-            "77277606902d80a03a892536ebff8466726a4e55c3923ec2d3eeb3aa5bdc3731"
+            "77277606902d80a03a892536ebff8466726a4e55c3923ec2d3eeb3aa5bdc3731",
           )
           .call()
           .then(function (response) {
             expect(response.records).to.be.deep.equal(
-              paymentsResponse._embedded.records
+              paymentsResponse._embedded.records,
             );
             expect(response.next).to.be.a("function");
             expect(response.prev).to.be.a("function");
@@ -3302,8 +3302,8 @@ describe("server.js non-transaction tests", function () {
           .expects("get")
           .withArgs(
             sinon.match(
-              "https://horizon-live.stellar.org:1337/friendbot?addr=GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K"
-            )
+              "https://horizon-live.stellar.org:1337/friendbot?addr=GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K",
+            ),
           )
           .returns(Promise.resolve({ data: friendbotResponse }));
 
@@ -3377,8 +3377,8 @@ describe("server.js non-transaction tests", function () {
           .expects("get")
           .withArgs(
             sinon.match(
-              "https://horizon-live.stellar.org:1337/trade_aggregations?base_asset_type=native&counter_asset_type=credit_alphanum4&counter_asset_code=BTC&counter_asset_issuer=GATEMHCCKCY67ZUCKTROYN24ZYT5GK4EQZ65JJLDHKHRUZI3EUEKMTCH&start_time=1512689100000&end_time=1512775500000&resolution=300000"
-            )
+              "https://horizon-live.stellar.org:1337/trade_aggregations?base_asset_type=native&counter_asset_type=credit_alphanum4&counter_asset_code=BTC&counter_asset_issuer=GATEMHCCKCY67ZUCKTROYN24ZYT5GK4EQZ65JJLDHKHRUZI3EUEKMTCH&start_time=1512689100000&end_time=1512775500000&resolution=300000",
+            ),
           )
           .returns(Promise.resolve({ data: tradeAggregationResponse }));
 
@@ -3387,17 +3387,17 @@ describe("server.js non-transaction tests", function () {
             StellarSdk.Asset.native(),
             new StellarSdk.Asset(
               "BTC",
-              "GATEMHCCKCY67ZUCKTROYN24ZYT5GK4EQZ65JJLDHKHRUZI3EUEKMTCH"
+              "GATEMHCCKCY67ZUCKTROYN24ZYT5GK4EQZ65JJLDHKHRUZI3EUEKMTCH",
             ),
             1512689100000,
             1512775500000,
             300000,
-            0
+            0,
           )
           .call()
           .then(function (response) {
             expect(response.records).to.be.deep.equal(
-              tradeAggregationResponse._embedded.records
+              tradeAggregationResponse._embedded.records,
             );
             expect(response.next).to.be.a("function");
             expect(response.prev).to.be.a("function");
@@ -3413,8 +3413,8 @@ describe("server.js non-transaction tests", function () {
           .expects("get")
           .withArgs(
             sinon.match(
-              "https://horizon-live.stellar.org:1337/trade_aggregations?base_asset_type=credit_alphanum4&base_asset_code=BTC&base_asset_issuer=GATEMHCCKCY67ZUCKTROYN24ZYT5GK4EQZ65JJLDHKHRUZI3EUEKMTCH&counter_asset_type=native&start_time=1512689100000&end_time=1512775500000&resolution=300000"
-            )
+              "https://horizon-live.stellar.org:1337/trade_aggregations?base_asset_type=credit_alphanum4&base_asset_code=BTC&base_asset_issuer=GATEMHCCKCY67ZUCKTROYN24ZYT5GK4EQZ65JJLDHKHRUZI3EUEKMTCH&counter_asset_type=native&start_time=1512689100000&end_time=1512775500000&resolution=300000",
+            ),
           )
           .returns(Promise.resolve({ data: tradeAggregationResponse }));
 
@@ -3422,18 +3422,18 @@ describe("server.js non-transaction tests", function () {
           .tradeAggregation(
             new StellarSdk.Asset(
               "BTC",
-              "GATEMHCCKCY67ZUCKTROYN24ZYT5GK4EQZ65JJLDHKHRUZI3EUEKMTCH"
+              "GATEMHCCKCY67ZUCKTROYN24ZYT5GK4EQZ65JJLDHKHRUZI3EUEKMTCH",
             ),
             StellarSdk.Asset.native(),
             1512689100000,
             1512775500000,
             300000,
-            0
+            0,
           )
           .call()
           .then(function (response) {
             expect(response.records).to.be.deep.equal(
-              tradeAggregationResponse._embedded.records
+              tradeAggregationResponse._embedded.records,
             );
             expect(response.next).to.be.a("function");
             expect(response.prev).to.be.a("function");
@@ -3503,7 +3503,7 @@ describe("server.js non-transaction tests", function () {
         this.axiosMock
           .expects("get")
           .withArgs(
-            sinon.match("https://horizon-live.stellar.org:1337/assets?limit=1")
+            sinon.match("https://horizon-live.stellar.org:1337/assets?limit=1"),
           )
           .returns(Promise.resolve({ data: assetsResponse }));
 
@@ -3513,7 +3513,7 @@ describe("server.js non-transaction tests", function () {
           .call()
           .then(function (response) {
             expect(response.records).to.be.equal(
-              assetsResponse._embedded.records
+              assetsResponse._embedded.records,
             );
             done();
           })
@@ -3579,8 +3579,8 @@ describe("server.js non-transaction tests", function () {
           .expects("get")
           .withArgs(
             sinon.match(
-              "https://horizon-live.stellar.org:1337/assets?asset_code=USD&limit=1"
-            )
+              "https://horizon-live.stellar.org:1337/assets?asset_code=USD&limit=1",
+            ),
           )
           .returns(Promise.resolve({ data: assetsCodeResponse }));
 
@@ -3591,7 +3591,7 @@ describe("server.js non-transaction tests", function () {
           .call()
           .then(function (response) {
             expect(response.records).to.be.equal(
-              assetsCodeResponse._embedded.records
+              assetsCodeResponse._embedded.records,
             );
             done();
           })
@@ -3657,8 +3657,8 @@ describe("server.js non-transaction tests", function () {
           .expects("get")
           .withArgs(
             sinon.match(
-              "https://horizon-live.stellar.org:1337/assets?asset_issuer=GCOGPF7IRVXUCJZAQWXVFQEE4HAOCTDGZI2QZSMKLM5BTTGRLY6GDOJN&limit=1"
-            )
+              "https://horizon-live.stellar.org:1337/assets?asset_issuer=GCOGPF7IRVXUCJZAQWXVFQEE4HAOCTDGZI2QZSMKLM5BTTGRLY6GDOJN&limit=1",
+            ),
           )
           .returns(Promise.resolve({ data: assetIssuerResponse }));
 
@@ -3669,7 +3669,7 @@ describe("server.js non-transaction tests", function () {
           .call()
           .then(function (response) {
             expect(response.records).to.be.equal(
-              assetIssuerResponse._embedded.records
+              assetIssuerResponse._embedded.records,
             );
             done();
           })
@@ -3735,8 +3735,8 @@ describe("server.js non-transaction tests", function () {
           .expects("get")
           .withArgs(
             sinon.match(
-              "https://horizon-live.stellar.org:1337/assets?asset_issuer=GBW3EZBZKRERB4JUDWGQPIBGHKJ4XPOFG2VQ2WTFR4F7TYC5WS7F3XGR&asset_code=USD"
-            )
+              "https://horizon-live.stellar.org:1337/assets?asset_issuer=GBW3EZBZKRERB4JUDWGQPIBGHKJ4XPOFG2VQ2WTFR4F7TYC5WS7F3XGR&asset_code=USD",
+            ),
           )
           .returns(Promise.resolve({ data: assetCodeIssuerResponse }));
 
@@ -3747,7 +3747,7 @@ describe("server.js non-transaction tests", function () {
           .call()
           .then(function (response) {
             expect(response.records).to.be.equal(
-              assetCodeIssuerResponse._embedded.records
+              assetCodeIssuerResponse._embedded.records,
             );
             done();
           })
@@ -3761,8 +3761,8 @@ describe("server.js non-transaction tests", function () {
           .expects("get")
           .withArgs(
             sinon.match(
-              "https://horizon-live.stellar.org:1337/assets?asset_code=USD&asset_issuer=GBW3EZBZKRERB4JUDWGQPIBGHKJ4XPOFG2VQ2WTFR4F7TYC5WS7F3XGR"
-            )
+              "https://horizon-live.stellar.org:1337/assets?asset_code=USD&asset_issuer=GBW3EZBZKRERB4JUDWGQPIBGHKJ4XPOFG2VQ2WTFR4F7TYC5WS7F3XGR",
+            ),
           )
           .returns(Promise.resolve({ data: assetCodeIssuerResponse }));
 
@@ -3773,7 +3773,7 @@ describe("server.js non-transaction tests", function () {
           .call()
           .then(function (response) {
             expect(response.records).to.be.equal(
-              assetCodeIssuerResponse._embedded.records
+              assetCodeIssuerResponse._embedded.records,
             );
             done();
           })
@@ -3789,8 +3789,8 @@ describe("server.js non-transaction tests", function () {
           .expects("get")
           .withArgs(
             sinon.match(
-              "https://horizon-live.stellar.org:1337/accounts/GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K/effects"
-            )
+              "https://horizon-live.stellar.org:1337/accounts/GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K/effects",
+            ),
           )
           .returns(Promise.resolve({ data: {} }));
 
