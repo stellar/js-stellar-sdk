@@ -21,9 +21,6 @@ A breaking change will get clearly marked in this log.
 - New effects have been added to support Protocol 20 (Soroban) ([#842](https://github.com/stellar/js-stellar-sdk/pull/842)):
   * `ContractCredited` occurs when a Stellar asset moves **into** its corresponding Stellar Asset Contract instance
   * `ContractDebited` occurs when a Stellar asset moves **out of** its corresponding Stellar Asset Contract instance
-- Asset stat records (`ServerApi.AssetRecord`) contain two new fields to support the Protocol 20 (Soroban) release ([#TODO](https://github.com/stellar/js-stellar-sdk/pulls/)):
-  * `num_contracts` - the integer quantity of contracts that hold this asset
-  * `contracts_amount` - the total units of that asset held by contracts
 - Asset stat records (`ServerApi.AssetRecord`) contain two new fields to support the Protocol 20 (Soroban) release ([#841](https://github.com/stellar/js-stellar-sdk/pull/841)):
   * `num_contracts` - the integer quantity of contracts that hold this asset
   * `contracts_amount` - the total units of that asset held by contracts
