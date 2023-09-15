@@ -1,10 +1,10 @@
 const xdr = StellarSdk.xdr; // shorthand
 
-describe('assembleTransaction', () => {
-  xit('works with keybump transactions');
+describe("assembleTransaction", () => {
+  xit("works with keybump transactions");
 
   const scAddress = new StellarSdk.Address(
-    'GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI'
+    "GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI"
   ).toScAddress();
 
   const fnAuth = new xdr.SorobanAuthorizationEntry({
@@ -23,7 +23,7 @@ describe('assembleTransaction', () => {
         xdr.SorobanAuthorizedFunction.sorobanAuthorizedFunctionTypeContractFn(
           new xdr.InvokeContractArgs({
             contractAddress: scAddress,
-            functionName: 'fn',
+            functionName: "fn",
             args: []
           })
         ),
@@ -36,40 +36,40 @@ describe('assembleTransaction', () => {
     .build();
 
   const simulationResponse = {
-    transactionData: sorobanTransactionData.toXDR('base64'),
+    transactionData: sorobanTransactionData.toXDR("base64"),
     events: [],
-    minResourceFee: '115',
+    minResourceFee: "115",
     results: [
       {
         auth: [fnAuth],
-        xdr: xdr.ScVal.scvU32(0).toXDR('base64')
+        xdr: xdr.ScVal.scvU32(0).toXDR("base64")
       }
     ],
     latestLedger: 3,
     cost: {
-      cpuInsns: '0',
-      memBytes: '0'
+      cpuInsns: "0",
+      memBytes: "0"
     }
   };
 
-  describe('Transaction', () => {
+  describe("Transaction", () => {
     const networkPassphrase = StellarSdk.Networks.TESTNET;
     const source = new StellarSdk.Account(
-      'GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI',
-      '1'
+      "GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI",
+      "1"
     );
 
     function singleContractFnTransaction(auth) {
       return new StellarSdk.TransactionBuilder(source, { fee: 100 })
-        .setNetworkPassphrase('Test')
+        .setNetworkPassphrase("Test")
         .setTimeout(StellarSdk.TimeoutInfinite)
         .addOperation(
           StellarSdk.Operation.invokeHostFunction({
             func: xdr.HostFunction.hostFunctionTypeInvokeContract(
               new xdr.InvokeContractArgs({
                 contractAddress: scAddress,
-                functionName: 'hello',
-                args: [xdr.ScVal.scvString('hello')]
+                functionName: "hello",
+                args: [xdr.ScVal.scvString("hello")]
               })
             ),
             auth: auth ?? []
@@ -78,7 +78,7 @@ describe('assembleTransaction', () => {
         .build();
     }
 
-    it('simulate updates the tx data from simulation response', () => {
+    it("simulate updates the tx data from simulation response", () => {
       const txn = singleContractFnTransaction();
       const result = StellarSdk.assembleTransaction(
         txn,
@@ -96,7 +96,7 @@ describe('assembleTransaction', () => {
       );
     });
 
-    it('simulate adds the auth to the host function in tx operation', () => {
+    it("simulate adds the auth to the host function in tx operation", () => {
       const txn = singleContractFnTransaction();
       const result = StellarSdk.assembleTransaction(
         txn,
@@ -118,7 +118,7 @@ describe('assembleTransaction', () => {
           .contractFn()
           .functionName()
           .toString()
-      ).to.equal('fn');
+      ).to.equal("fn");
 
       expect(
         StellarSdk.StrKey.encodeEd25519PublicKey(
@@ -136,10 +136,10 @@ describe('assembleTransaction', () => {
             .accountId()
             .ed25519()
         )
-      ).to.equal('GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI');
+      ).to.equal("GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI");
     });
 
-    it('simulate ignores non auth from simulation', () => {
+    it("simulate ignores non auth from simulation", () => {
       const txn = singleContractFnTransaction();
       let simulateResp = JSON.parse(JSON.stringify(simulationResponse));
       simulateResp.results[0].auth = null;
@@ -161,7 +161,7 @@ describe('assembleTransaction', () => {
       ).to.have.length(0);
     });
 
-    it('throws for non-Soroban ops', () => {
+    it("throws for non-Soroban ops", () => {
       const txn = new StellarSdk.TransactionBuilder(source, {
         fee: 100,
         networkPassphrase,
@@ -179,7 +179,7 @@ describe('assembleTransaction', () => {
         StellarSdk.assembleTransaction(txn, networkPassphrase, {
           transactionData: {},
           events: [],
-          minResourceFee: '0',
+          minResourceFee: "0",
           results: [],
           latestLedger: 3
         }).build();
@@ -187,7 +187,7 @@ describe('assembleTransaction', () => {
       }).to.throw(/unsupported transaction/i);
     });
 
-    it('works for all Soroban ops', function () {
+    it("works for all Soroban ops", function () {
       [
         StellarSdk.Operation.invokeHostFunction({
           func: xdr.HostFunction.hostFunctionTypeInvokeContract()

@@ -1,6 +1,6 @@
 const { SorobanServer, xdr } = StellarSdk;
 
-describe('Server#getContractData', function () {
+describe("Server#getContractData", function () {
   beforeEach(function () {
     this.server = new SorobanServer(serverUrl);
     this.axiosMock = sinon.mock(SorobanAxiosClient);
@@ -11,23 +11,23 @@ describe('Server#getContractData', function () {
     this.axiosMock.restore();
   });
 
-  let address = 'CCJZ5DGASBWQXR5MPFCJXMBI333XE5U3FSJTNQU7RIKE3P5GN2K2WYD5';
+  let address = "CCJZ5DGASBWQXR5MPFCJXMBI333XE5U3FSJTNQU7RIKE3P5GN2K2WYD5";
   let key = StellarSdk.xdr.ScVal.scvVec([
-    StellarSdk.xdr.ScVal.scvSymbol('Admin')
+    StellarSdk.xdr.ScVal.scvSymbol("Admin")
   ]);
 
-  it('key found', function (done) {
+  it("key found", function (done) {
     let result = {
       id: address,
-      sequence: '1'
+      sequence: "1"
     };
 
     this.axiosMock
-      .expects('post')
+      .expects("post")
       .withArgs(serverUrl, {
-        jsonrpc: '2.0',
+        jsonrpc: "2.0",
         id: 1,
-        method: 'getLedgerEntries',
+        method: "getLedgerEntries",
         params: [
           [
             xdr.LedgerKey.contractData(
@@ -38,7 +38,7 @@ describe('Server#getContractData', function () {
                   .toScAddress(),
                 durability: xdr.ContractDataDurability.persistent()
               })
-            ).toXDR('base64')
+            ).toXDR("base64")
           ]
         ]
       })
@@ -53,7 +53,7 @@ describe('Server#getContractData', function () {
       );
 
     this.server
-      .getContractData(address, key, 'persistent')
+      .getContractData(address, key, "persistent")
       .then(function (response) {
         expect(response).to.be.deep.equal(result);
         done();
@@ -63,13 +63,13 @@ describe('Server#getContractData', function () {
       });
   });
 
-  it('key not found', function (done) {
+  it("key not found", function (done) {
     this.axiosMock
-      .expects('post')
+      .expects("post")
       .withArgs(serverUrl, {
-        jsonrpc: '2.0',
+        jsonrpc: "2.0",
         id: 1,
-        method: 'getLedgerEntries',
+        method: "getLedgerEntries",
         params: [
           [
             xdr.LedgerKey.contractData(
@@ -80,30 +80,30 @@ describe('Server#getContractData', function () {
                   .toScAddress(),
                 durability: xdr.ContractDataDurability.temporary()
               })
-            ).toXDR('base64')
+            ).toXDR("base64")
           ]
         ]
       })
       .returns(Promise.resolve({ data: { result: { entries: [] } } }));
 
     this.server
-      .getContractData(address, key, 'temporary')
+      .getContractData(address, key, "temporary")
       .then(function (_response) {
-        done(new Error('Expected error'));
+        done(new Error("Expected error"));
       })
       .catch(function (err) {
         done(
           err.code == 404
             ? null
-            : new Error('Expected error code 404, got: ' + err.code)
+            : new Error("Expected error code 404, got: " + err.code)
         );
       });
   });
 
-  it('fails on hex address (was deprecated now unsupported)', function (done) {
-    let hexAddress = '0'.repeat(63) + '1';
+  it("fails on hex address (was deprecated now unsupported)", function (done) {
+    let hexAddress = "0".repeat(63) + "1";
     this.server
-      .getContractData(hexAddress, key, 'persistent')
+      .getContractData(hexAddress, key, "persistent")
       .then((reply) => done(new Error(`should fail, got: ${reply}`)))
       .catch((error) => {
         expect(error).to.contain(/unsupported contract id/i);

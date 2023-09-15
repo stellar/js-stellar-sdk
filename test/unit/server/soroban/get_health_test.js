@@ -1,6 +1,6 @@
 const { SorobanServer } = StellarSdk;
 
-describe('Server#getHealth', function () {
+describe("Server#getHealth", function () {
   beforeEach(function () {
     this.server = new SorobanServer(serverUrl);
     this.axiosMock = sinon.mock(SorobanAxiosClient);
@@ -11,17 +11,17 @@ describe('Server#getHealth', function () {
     this.axiosMock.restore();
   });
 
-  it('requests the correct endpoint', function (done) {
+  it("requests the correct endpoint", function (done) {
     let result = {
-      status: 'healthy'
+      status: "healthy"
     };
 
     this.axiosMock
-      .expects('post')
+      .expects("post")
       .withArgs(serverUrl, {
-        jsonrpc: '2.0',
+        jsonrpc: "2.0",
         id: 1,
-        method: 'getHealth',
+        method: "getHealth",
         params: null
       })
       .returns(Promise.resolve({ data: { result } }));

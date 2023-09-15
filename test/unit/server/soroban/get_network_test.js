@@ -1,6 +1,6 @@
 const { SorobanServer } = StellarSdk;
 
-describe('Server#getNetwork', function () {
+describe("Server#getNetwork", function () {
   beforeEach(function () {
     this.server = new SorobanServer(serverUrl);
     this.axiosMock = sinon.mock(SorobanAxiosClient);
@@ -11,18 +11,18 @@ describe('Server#getNetwork', function () {
     this.axiosMock.restore();
   });
 
-  it('requests the correct method', function (done) {
+  it("requests the correct method", function (done) {
     const result = {
-      friendbotUrl: 'https://friendbot.stellar.org',
-      passphrase: 'Soroban Testnet ; December 2018',
+      friendbotUrl: "https://friendbot.stellar.org",
+      passphrase: "Soroban Testnet ; December 2018",
       protocolVersion: 20
     };
     this.axiosMock
-      .expects('post')
+      .expects("post")
       .withArgs(serverUrl, {
-        jsonrpc: '2.0',
+        jsonrpc: "2.0",
         id: 1,
-        method: 'getNetwork',
+        method: "getNetwork",
         params: null
       })
       .returns(Promise.resolve({ data: { result } }));
