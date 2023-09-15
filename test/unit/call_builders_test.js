@@ -1,17 +1,17 @@
-import URI from "urijs";
+import URI from 'urijs';
 // not exported by the library
-import { CallBuilder } from "../../lib/horizon/call_builder";
+import { CallBuilder } from '../../lib/horizon/call_builder';
 
-describe("CallBuilder functions", function () {
+describe('CallBuilder functions', function () {
   it("doesn't mutate the constructor passed url argument (it clones it instead)", function () {
-    let arg = URI("https://onedom.ain/");
+    let arg = URI('https://onedom.ain/');
     const builder = new CallBuilder(arg);
-    builder.url.segment("one_segment");
+    builder.url.segment('one_segment');
     builder.checkFilter();
 
-    expect(arg.toString()).not.to.be.equal("https://onedom.ain/one_segment"); // https://onedom.ain/
+    expect(arg.toString()).not.to.be.equal('https://onedom.ain/one_segment'); // https://onedom.ain/
     expect(builder.url.toString()).to.be.equal(
-      "https://onedom.ain/one_segment",
+      'https://onedom.ain/one_segment'
     );
   });
 });
