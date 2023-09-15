@@ -275,33 +275,33 @@ export interface LiquidityPoolEffectRecord extends Horizon.BaseResponse {
   total_shares: string;
   reserves: Horizon.Reserve[];
 }
-export interface DepositLiquidityEffect extends BaseEffectRecord {
+export interface LiquidityPoolDeposited extends BaseEffectRecord {
   type_i: EffectType.liquidity_pool_deposited;
   liquidity_pool: LiquidityPoolEffectRecord;
   reserves_deposited: Horizon.Reserve[];
   shares_received: string;
 }
-export interface WithdrawLiquidityEffect extends BaseEffectRecord {
+export interface LiquidityPoolWithdrew extends BaseEffectRecord {
   type_i: EffectType.liquidity_pool_withdrew;
   liquidity_pool: LiquidityPoolEffectRecord;
   reserves_received: Horizon.Reserve[];
   shares_redeemed: string;
 }
-export interface LiquidityPoolTradeEffect extends BaseEffectRecord {
+export interface LiquidityPoolTrade extends BaseEffectRecord {
   type_i: EffectType.liquidity_pool_trade;
   liquidity_pool: LiquidityPoolEffectRecord;
   sold: Horizon.Reserve;
   bought: Horizon.Reserve;
 }
-export interface LiquidityPoolCreatedEffect extends BaseEffectRecord {
+export interface LiquidityPoolCreated extends BaseEffectRecord {
   type_i: EffectType.liquidity_pool_created;
   liquidity_pool: LiquidityPoolEffectRecord;
 }
-export interface LiquidityPoolRemovedEffect extends BaseEffectRecord {
+export interface LiquidityPoolRemoved extends BaseEffectRecord {
   type_i: EffectType.liquidity_pool_removed;
   liquidity_pool_id: string;
 }
-export interface LiquidityPoolRevokedEffect extends BaseEffectRecord {
+export interface LiquidityPoolRevoked extends BaseEffectRecord {
   type_i: EffectType.liquidity_pool_revoked;
   liquidity_pool: LiquidityPoolEffectRecord;
   reserves_revoked: [
@@ -314,12 +314,12 @@ export interface LiquidityPoolRevokedEffect extends BaseEffectRecord {
   shares_revoked: string;
 }
 
-export interface ContractCreditedEffect extends BaseEffectRecord, OfferAsset {
+export interface ContractCredited extends BaseEffectRecord, OfferAsset {
   type_i: EffectType.contract_credited;
   contract: string;
   amount: string;
 }
-export interface ContractDebitedEffect extends BaseEffectRecord, OfferAsset {
+export interface ContractDebited extends BaseEffectRecord, OfferAsset {
   type_i: EffectType.contract_debited;
   contract: string;
   amount: string;

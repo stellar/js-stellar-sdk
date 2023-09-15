@@ -7,9 +7,61 @@ A breaking change will get clearly marked in this log.
 
 ### Add
 
+- Asset stat records (`ServerApi.AssetRecord`) contain two new fields to support the Protocol 20 (Soroban) release ([#841](https://github.com/stellar/js-stellar-sdk/pull/841)):
+  * `num_contracts` - the integer quantity of contracts that hold this asset
+  * `contracts_amount` - the total units of that asset held by contracts
+- New operation responses ([#845](https://github.com/stellar/js-stellar-sdk/pull/845)):
+  * `invokeHostFunction`: see `Horizon.InvokeHostFunctionOperationResponse`
+  * `bumpFootprintExpiration`: see `Horizon.BumpFootprintExpirationOperationResponse`
+  * `restoreFootprint`: see `Horizon.RestoreFootprintOperationResponse`
+  * You can refer to the actual definitions for details, but the gist of the schemas is below:
+```ts
+interface InvokeHostFunctionOperationResponse {
+  function: string;
+  parameters: {
+    value: string;
+    type: string;
+  }[];
+  address: string;
+  salt: string;
+  asset_balance_changes: {
+    type: string;
+    from: string;
+    to: string;
+    amount: string;
+  }[];
+}
+interface BumpFootprintExpirationOperationResponse {
+  ledgersToExpire: string;
+}
+interface RestoreFootprintOperationResponse {};
+```
+
+
+### Breaking Changes
+
+- Certain effects have been renamed to align better with the "tense" that other structures have ([#844](https://github.com/stellar/js-stellar-sdk/pull/844)):
+  * `DepositLiquidityEffect` -> `LiquidityPoolDeposited`
+  * `WithdrawLiquidityEffect` -> `LiquidityPoolWithdrew`
+  * `LiquidityPoolTradeEffect` -> `LiquidityPoolTrade`
+  * `LiquidityPoolCreatedEffect` -> `LiquidityPoolCreated`
+  * `LiquidityPoolRevokedEffect` -> `LiquidityPoolRevoked`
+  * `LiquidityPoolRemovedEffect` -> `LiquidityPoolRemoved`
+
+### Add
+
+- New effects have been added to support Protocol 20 (Soroban) ([#842](https://github.com/stellar/js-stellar-sdk/pull/842)):
+  * `ContractCredited` occurs when a Stellar asset moves **into** its corresponding Stellar Asset Contract instance
+  * `ContractDebited` occurs when a Stellar asset moves **out of** its corresponding Stellar Asset Contract instance
 - Asset stat records (`ServerApi.AssetRecord`) contain two new fields to support the Protocol 20 (Soroban) release ([#TODO](https://github.com/stellar/js-stellar-sdk/pulls/)):
- * `num_contracts` - the integer quantity of contracts that hold this asset
- * `contracts_amount` - the total units of that asset held by contracts
+  * `num_contracts` - the integer quantity of contracts that hold this asset
+  * `contracts_amount` - the total units of that asset held by contracts
+
+### Fixed
+
+- Some effect definitions that were missing have been added ([#842](https://github.com/stellar/js-stellar-sdk/pull/842)):
+  * `ClaimableBalanceClawedBack` is now defined
+  * `type EffectRecord` now has all of the effect types
 
 
 ## [v11.0.0-beta.1](https://github.com/stellar/js-stellar-sdk/compare/v11.0.0-beta.0...v11.0.0-beta.1)
@@ -27,7 +79,6 @@ This version is marked by a major version bump because of the significant upgrad
 ### Update
 
 - Build system has been overhauled to support Webpack 5 ([#814](https://github.com/stellar/js-stellar-sdk/pull/814)).
-
 - `stellar-base` has been updated to its corresponding overhaul ([#818](https://github.com/stellar/js-stellar-sdk/pull/818)).
 
 ### Fix
@@ -47,7 +98,6 @@ This version is marked by a major version bump because of the significant upgrad
 ### Add
 
 - Add [SEP-1](https://stellar.org/protocol/sep-1) fields to `StellarTomlResolver` for type checks ([#794](https://github.com/stellar/js-stellar-sdk/pull/794)).
-
 - Add support for passing `X-Auth-Token` as a custom header ([#795](https://github.com/stellar/js-stellar-sdk/pull/795)).
 
 ### Update
@@ -89,7 +139,6 @@ This version is marked by a major version bump because of the significant upgrad
 ### Fix
 
 - Reverts a change from [v10.1.0](#v10.1.0) which caused streams to die prematurely ([#780](https://github.com/stellar/js-stellar-sdk/pull/780)).
-
 - Bumps `stellar-base` version to [v8.0.1](https://github.com/stellar/js-stellar-base/releases/tag/v8.0.1) to include latest bugfixes.
 
 
@@ -107,7 +156,6 @@ This is a promotion from the beta version without changes, besides upgrading the
 ### Add
 
 - Support for Protocol 19 ([#775](https://github.com/stellar/js-stellar-sdk/pull/775)):
-
   * new precondition fields on a `TransactionResponse`
   * new account fields on `AccountResponse` and `AccountRecord`
   * bumping `stellar-base` to the latest beta version
@@ -115,9 +163,7 @@ This is a promotion from the beta version without changes, besides upgrading the
 ### Fix
 
 - Add missing field to account responses: `last_modified_time` which is the time equivalent of the existing `last_modified_ledger` ([#770](https://github.com/stellar/js-stellar-sdk/pull/770)).
-
 - Stop opening extra connections when SSE streams receive `event: close` events ([#772](https://github.com/stellar/js-stellar-sdk/pull/772)).
-
 - Fix SSE streams not loading under React Native (thank you, @hunterpetersen!) ([#761](https://github.com/stellar/js-stellar-sdk/pull/761)).
 
 
@@ -126,16 +172,14 @@ This is a promotion from the beta version without changes, besides upgrading the
 ### Fix
 
 - Add missing fields to the `LedgerRecord`: `successful_transaction_count` and `failed_transaction_count` ([#740](https://github.com/stellar/js-stellar-sdk/pull/740)). Note that this also marks several fields as _deprecated_ because they don't actually exist in the Horizon API response:
-
-  - `transaction_count`: superceded by the sum of the aforementioned fields
-  - `base_fee`: superceded by the `base_fee_in_stroops` field
-  - `base_reserve`: superceded by the `base_reserve_in_stroops` field
+  * `transaction_count`: superceded by the sum of the aforementioned fields
+  * `base_fee`: superceded by the `base_fee_in_stroops` field
+  * `base_reserve`: superceded by the `base_reserve_in_stroops` field
 
 These deprecated fields will be removed in the next major version. It's unlikely that this breaking change should affect anyone, as these fields have likely been missing/invalid for some time.
 
 ### Update
 - Update a number of dependencies that needed various security updates:
-
   * several dependencies bumped their patch version ([#736](https://github.com/stellar/js-stellar-sdk/pull/736), [#684](https://github.com/stellar/js-stellar-sdk/pull/684), [#672](https://github.com/stellar/js-stellar-sdk/pull/672), [#666](https://github.com/stellar/js-stellar-sdk/pull/666), [#644](https://github.com/stellar/js-stellar-sdk/pull/644), [#622](https://github.com/stellar/js-stellar-sdk/pull/622))
   * axios has been bumped to 0.25.0 without causing breaking changes ([#742](https://github.com/stellar/js-stellar-sdk/pull/742))
   * the `karma` suite of packages has been updated to the latest major version ([#743](https://github.com/stellar/js-stellar-sdk/pull/743))

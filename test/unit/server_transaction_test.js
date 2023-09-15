@@ -241,7 +241,7 @@ describe("server.js transaction tests", function () {
         done(err);
       });
   });
-  it("doesnt add metadata to non-offers", function (done) {
+  it("doesn't add metadata to non-offers", function (done) {
     const response = {
       _links: {
         transaction: {

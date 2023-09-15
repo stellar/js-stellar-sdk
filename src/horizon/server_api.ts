@@ -73,14 +73,14 @@ export namespace ServerApi {
     | Effects.SignerSponsorshipCreated
     | Effects.SignerSponsorshipUpdated
     | Effects.SignerSponsorshipRemoved
-    | Effects.DepositLiquidityEffect
-    | Effects.WithdrawLiquidityEffect
-    | Effects.LiquidityPoolCreatedEffect
-    | Effects.LiquidityPoolRemovedEffect
-    | Effects.LiquidityPoolRevokedEffect
-    | Effects.LiquidityPoolTradeEffect
-    | Effects.ContractCreditedEffect
-    | Effects.ContractDebitedEffect
+    | Effects.LiquidityPoolDeposited
+    | Effects.LiquidityPoolWithdrew
+    | Effects.LiquidityPoolCreated
+    | Effects.LiquidityPoolRemoved
+    | Effects.LiquidityPoolRevoked
+    | Effects.LiquidityPoolTrade
+    | Effects.ContractCredited
+    | Effects.ContractDebited
     | Trade;
 
   export type EffectRecord = BaseEffectRecordFromTypes & EffectRecordMethods;
@@ -304,6 +304,54 @@ export namespace ServerApi {
         OperationResponseTypeI.revokeSponsorship
       >,
       Horizon.RevokeSponsorshipOperationResponse {}
+  export interface ClawbackOperationRecord
+    extends BaseOperationRecord<
+      OperationResponseType.clawback,
+      OperationResponseTypeI.clawback
+    >,
+    Horizon.ClawbackOperationResponse {}
+  export interface ClawbackClaimableBalanceOperationRecord
+    extends BaseOperationRecord<
+      OperationResponseType.clawbackClaimableBalance,
+      OperationResponseTypeI.clawbackClaimableBalance
+    >,
+    Horizon.ClawbackClaimableBalanceOperationResponse {}
+  export interface SetTrustLineFlagsOperationRecord
+    extends BaseOperationRecord<
+      OperationResponseType.setTrustLineFlags,
+      OperationResponseTypeI.setTrustLineFlags
+    >,
+    Horizon.SetTrustLineFlagsOperationResponse {}
+  export interface DepositLiquidityOperationRecord
+    extends BaseOperationRecord<
+      OperationResponseType.liquidityPoolDeposit,
+      OperationResponseTypeI.liquidityPoolDeposit
+    >,
+    Horizon.DepositLiquidityOperationResponse {}
+  export interface WithdrawLiquidityOperationRecord
+    extends BaseOperationRecord<
+      OperationResponseType.liquidityPoolWithdraw,
+      OperationResponseTypeI.liquidityPoolWithdraw
+    >,
+    Horizon.WithdrawLiquidityOperationResponse {}
+  export interface InvokeHostFunctionOperationRecord
+    extends BaseOperationRecord<
+      OperationResponseType.invokeHostFunction,
+      OperationResponseTypeI.invokeHostFunction
+    >,
+    Horizon.InvokeHostFunctionOperationResponse {}
+  export interface BumpFootprintExpirationOperationRecord
+    extends BaseOperationRecord<
+      OperationResponseType.bumpFootprintExpiration,
+      OperationResponseTypeI.bumpFootprintExpiration
+    >,
+    Horizon.BumpFootprintExpirationOperationResponse {}
+  export interface RestoreFootprintOperationRecord
+    extends BaseOperationRecord<
+      OperationResponseType.restoreFootprint,
+      OperationResponseTypeI.restoreFootprint
+    >,
+    Horizon.RestoreFootprintOperationResponse {}
 
   export type OperationRecord =
     | CreateAccountOperationRecord
@@ -323,7 +371,15 @@ export namespace ServerApi {
     | ClaimClaimableBalanceOperationRecord
     | BeginSponsoringFutureReservesOperationRecord
     | EndSponsoringFutureReservesOperationRecord
-    | RevokeSponsorshipOperationRecord;
+    | RevokeSponsorshipOperationRecord
+    | ClawbackClaimableBalanceOperationRecord
+    | ClawbackOperationRecord
+    | SetTrustLineFlagsOperationRecord
+    | DepositLiquidityOperationRecord
+    | WithdrawLiquidityOperationRecord
+    | InvokeHostFunctionOperationRecord
+    | BumpFootprintExpirationOperationRecord
+    | RestoreFootprintOperationRecord;
 
   export namespace TradeRecord {
     interface Base extends Horizon.BaseResponse {

@@ -1,0 +1,30 @@
+name: Bundle Size
+
+on:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Node.js 16
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      # Workaround for some `yarn` nonsense, see:
+      # https://github.com/yarnpkg/yarn/issues/6312#issuecomment-429685210
+      - name: Install Dependencies
+        run: yarn install --network-concurrency 1
+
+      - name: Build All
+        run: yarn build:prod
+
+      - name: Report Bundle Size
+        uses: preactjs/compressed-size-action@v2
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          pattern: "dist/*.js"
+          compression: "none"
