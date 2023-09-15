@@ -1,10 +1,10 @@
 const xdr = StellarSdk.xdr; // shorthand
 
-describe('assembleTransaction', () => {
-  xit('works with keybump transactions');
+describe("assembleTransaction", () => {
+  xit("works with keybump transactions");
 
   const scAddress = new StellarSdk.Address(
-    'GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI'
+    "GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI",
   ).toScAddress();
 
   const fnAuth = new xdr.SorobanAuthorizationEntry({
@@ -14,8 +14,8 @@ describe('assembleTransaction', () => {
         address: scAddress,
         nonce: new xdr.Int64(0),
         signatureExpirationLedger: 1,
-        signature: xdr.ScVal.scvVoid()
-      })
+        signature: xdr.ScVal.scvVoid(),
+      }),
     ),
     // And a basic invocation
     rootInvocation: new xdr.SorobanAuthorizedInvocation({
@@ -23,12 +23,12 @@ describe('assembleTransaction', () => {
         xdr.SorobanAuthorizedFunction.sorobanAuthorizedFunctionTypeContractFn(
           new xdr.InvokeContractArgs({
             contractAddress: scAddress,
-            functionName: 'fn',
-            args: []
-          })
+            functionName: "fn",
+            args: [],
+          }),
         ),
-      subInvocations: []
-    })
+      subInvocations: [],
+    }),
   }).toXDR();
 
   const sorobanTransactionData = new StellarSdk.SorobanDataBuilder()
@@ -36,54 +36,54 @@ describe('assembleTransaction', () => {
     .build();
 
   const simulationResponse = {
-    transactionData: sorobanTransactionData.toXDR('base64'),
+    transactionData: sorobanTransactionData.toXDR("base64"),
     events: [],
-    minResourceFee: '115',
+    minResourceFee: "115",
     results: [
       {
         auth: [fnAuth],
-        xdr: xdr.ScVal.scvU32(0).toXDR('base64')
-      }
+        xdr: xdr.ScVal.scvU32(0).toXDR("base64"),
+      },
     ],
     latestLedger: 3,
     cost: {
-      cpuInsns: '0',
-      memBytes: '0'
-    }
+      cpuInsns: "0",
+      memBytes: "0",
+    },
   };
 
-  describe('Transaction', () => {
+  describe("Transaction", () => {
     const networkPassphrase = StellarSdk.Networks.TESTNET;
     const source = new StellarSdk.Account(
-      'GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI',
-      '1'
+      "GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI",
+      "1",
     );
 
     function singleContractFnTransaction(auth) {
       return new StellarSdk.TransactionBuilder(source, { fee: 100 })
-        .setNetworkPassphrase('Test')
+        .setNetworkPassphrase("Test")
         .setTimeout(StellarSdk.TimeoutInfinite)
         .addOperation(
           StellarSdk.Operation.invokeHostFunction({
             func: xdr.HostFunction.hostFunctionTypeInvokeContract(
               new xdr.InvokeContractArgs({
                 contractAddress: scAddress,
-                functionName: 'hello',
-                args: [xdr.ScVal.scvString('hello')]
-              })
+                functionName: "hello",
+                args: [xdr.ScVal.scvString("hello")],
+              }),
             ),
-            auth: auth ?? []
-          })
+            auth: auth ?? [],
+          }),
         )
         .build();
     }
 
-    it('simulate updates the tx data from simulation response', () => {
+    it("simulate updates the tx data from simulation response", () => {
       const txn = singleContractFnTransaction();
       const result = StellarSdk.assembleTransaction(
         txn,
         networkPassphrase,
-        simulationResponse
+        simulationResponse,
       ).build();
 
       // validate it auto updated the tx fees from sim response fees
@@ -92,16 +92,16 @@ describe('assembleTransaction', () => {
 
       // validate it udpated sorobantransactiondata block in the tx ext
       expect(result.toEnvelope().v1().tx().ext().sorobanData()).to.deep.equal(
-        sorobanTransactionData
+        sorobanTransactionData,
       );
     });
 
-    it('simulate adds the auth to the host function in tx operation', () => {
+    it("simulate adds the auth to the host function in tx operation", () => {
       const txn = singleContractFnTransaction();
       const result = StellarSdk.assembleTransaction(
         txn,
         networkPassphrase,
-        simulationResponse
+        simulationResponse,
       ).build();
 
       expect(
@@ -117,8 +117,8 @@ describe('assembleTransaction', () => {
           .function()
           .contractFn()
           .functionName()
-          .toString()
-      ).to.equal('fn');
+          .toString(),
+      ).to.equal("fn");
 
       expect(
         StellarSdk.StrKey.encodeEd25519PublicKey(
@@ -134,19 +134,19 @@ describe('assembleTransaction', () => {
             .address()
             .address()
             .accountId()
-            .ed25519()
-        )
-      ).to.equal('GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI');
+            .ed25519(),
+        ),
+      ).to.equal("GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI");
     });
 
-    it('simulate ignores non auth from simulation', () => {
+    it("simulate ignores non auth from simulation", () => {
       const txn = singleContractFnTransaction();
       let simulateResp = JSON.parse(JSON.stringify(simulationResponse));
       simulateResp.results[0].auth = null;
       const result = StellarSdk.assembleTransaction(
         txn,
         networkPassphrase,
-        simulateResp
+        simulateResp,
       ).build();
 
       expect(
@@ -157,20 +157,20 @@ describe('assembleTransaction', () => {
           .operations()[0]
           .body()
           .invokeHostFunctionOp()
-          .auth()
+          .auth(),
       ).to.have.length(0);
     });
 
-    it('throws for non-Soroban ops', () => {
+    it("throws for non-Soroban ops", () => {
       const txn = new StellarSdk.TransactionBuilder(source, {
         fee: 100,
         networkPassphrase,
-        v1: true
+        v1: true,
       })
         .addOperation(
           StellarSdk.Operation.changeTrust({
-            asset: StellarSdk.Asset.native()
-          })
+            asset: StellarSdk.Asset.native(),
+          }),
         )
         .setTimeout(StellarSdk.TimeoutInfinite)
         .build();
@@ -179,28 +179,28 @@ describe('assembleTransaction', () => {
         StellarSdk.assembleTransaction(txn, networkPassphrase, {
           transactionData: {},
           events: [],
-          minResourceFee: '0',
+          minResourceFee: "0",
           results: [],
-          latestLedger: 3
+          latestLedger: 3,
         }).build();
         expect.fail();
       }).to.throw(/unsupported transaction/i);
     });
 
-    it('works for all Soroban ops', function () {
+    it("works for all Soroban ops", function () {
       [
         StellarSdk.Operation.invokeHostFunction({
-          func: xdr.HostFunction.hostFunctionTypeInvokeContract()
+          func: xdr.HostFunction.hostFunctionTypeInvokeContract(),
         }),
         StellarSdk.Operation.bumpFootprintExpiration({
-          ledgersToExpire: 27
+          ledgersToExpire: 27,
         }),
-        StellarSdk.Operation.restoreFootprint()
+        StellarSdk.Operation.restoreFootprint(),
       ].forEach((op) => {
         const txn = new StellarSdk.TransactionBuilder(source, {
           fee: 100,
           networkPassphrase,
-          v1: true
+          v1: true,
         })
           .setTimeout(StellarSdk.TimeoutInfinite)
           .addOperation(op)
@@ -209,7 +209,7 @@ describe('assembleTransaction', () => {
         const tx = StellarSdk.assembleTransaction(
           txn,
           networkPassphrase,
-          simulationResponse
+          simulationResponse,
         ).build();
         expect(tx.operations[0].type).to.equal(op.body().switch().name);
       });
@@ -220,12 +220,12 @@ describe('assembleTransaction', () => {
       const tx = StellarSdk.assembleTransaction(
         txn,
         networkPassphrase,
-        simulationResponse
+        simulationResponse,
       ).build();
 
       expect(tx.operations[0].auth.length).to.equal(
         3,
-        `auths aren't preserved after simulation: ${simulationResponse}, ${tx}`
+        `auths aren't preserved after simulation: ${simulationResponse}, ${tx}`,
       );
     });
   });
