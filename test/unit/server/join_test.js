@@ -3,7 +3,7 @@ const MockAdapter = require("axios-mock-adapter");
 describe("Server - CallBuilder#join", function () {
   beforeEach(function () {
     this.server = new StellarSdk.Server(
-      "https://horizon-live.stellar.org:1337"
+      "https://horizon-live.stellar.org:1337",
     );
     this.axiosMock = sinon.mock(HorizonAxiosClient);
   });
@@ -146,8 +146,8 @@ describe("Server - CallBuilder#join", function () {
         .expects("get")
         .withArgs(
           sinon.match(
-            "https://horizon-live.stellar.org:1337/operations?join=transactions"
-          )
+            "https://horizon-live.stellar.org:1337/operations?join=transactions",
+          ),
         )
         .returns(Promise.resolve({ data: operationsResponse }));
 
