@@ -22,8 +22,11 @@ const config = {
   },
   output: {
     clean: true,
-    library: 'StellarSdk',
-    compareBeforeEmit: true,
+    library: {
+      name: 'StellarSdk',
+      type: 'umd',
+      umdNamedDefine: true
+    },
     path: path.resolve(__dirname, '../dist')
   },
   mode: process.env.NODE_ENV ?? 'development',

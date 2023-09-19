@@ -6,6 +6,12 @@ A breaking change will get clearly marked in this log.
 ## Unreleased
 
 
+## [v11.0.0-beta.3](https://github.com/stellar/js-stellar-sdk/compare/v11.0.0-beta.2...v11.0.0-beta.3)
+
+### Fixed
+- Fix a webpack error preventing correct exports of the SDK for browsers ([TODO]()).
+
+
 ## [v11.0.0-beta.2](https://github.com/stellar/js-stellar-sdk/compare/v11.0.0-beta.1...v11.0.0-beta.2)
 
 ### Breaking Changes
