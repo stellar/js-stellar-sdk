@@ -1,6 +1,6 @@
 {
   "name": "stellar-sdk",
-  "version": "11.0.0-beta.4",
+  "version": "11.0.0-beta.3",
   "description": "A library for working with the Stellar Horizon server.",
   "keywords": [
     "stellar"
@@ -17,7 +17,7 @@
   "author": "Stellar Development Foundation <hello@stellar.org>",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
-  "browser": "./dist/stellar-sdk.min.js",
+  "browser": "./dist/stellar-sdk.js",
   "files": [
     "/types",
     "/lib",
@@ -43,7 +43,7 @@
     "_build": "yarn build:node && yarn build:test && yarn build:browser",
     "_babel": "babel --extensions '.ts' --out-dir lib/ src/",
     "_nyc": "nyc --nycrc-path config/.nycrc",
-    "_prettier": "prettier --config config/prettier.config.js --ignore-path config/.prettierignore --write './**/*.js'"
+    "_prettier": "prettier --ignore-path config/.prettierignore --write './test/**/*.js'"
   },
   "husky": {
     "hooks": {

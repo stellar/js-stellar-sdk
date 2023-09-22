@@ -19,9 +19,6 @@ jobs:
       - name: Install Depencencies
         run: yarn install
 
-      - name: Ensure minification for stable releases
-        run: cat package.json | jq '.version' | grep '.beta' || grep 'stellar-sdk.min.js' package.json
-
       - name: Build, Test, and Package
         run: yarn preversion
 
