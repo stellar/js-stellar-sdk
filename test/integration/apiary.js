@@ -56,7 +56,7 @@ describe("tests the /liquidity_pools endpoint", function () {
     effects: server.effects(),
     operations: server.operations(),
     trades: server.trades(),
-    transactions: server.transactions()
+    transactions: server.transactions(),
   };
 
   Object.keys(testCases).forEach((suffix) => {
@@ -158,7 +158,7 @@ describe("tests the /accounts endpoint", function () {
           .then((resp) => {
             // find the pool share balance(s)
             const poolShares = resp.balances.filter(
-              (b) => b.asset_type === "liquidity_pool_shares"
+              (b) => b.asset_type === "liquidity_pool_shares",
             );
 
             expect(poolShares).to.have.lengthOf(1);

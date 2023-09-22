@@ -8,6 +8,6 @@ module.exports = {
   singleQuote: false,
   tabWidth: 2,
   parser: "babel",
-  trailingComma: "none",
-  useTabs: false
+  trailingComma: "all",
+  useTabs: false,
 };

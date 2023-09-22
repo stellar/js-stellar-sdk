@@ -13,13 +13,13 @@ describe("Server#getContractData", function () {
 
   let address = "CCJZ5DGASBWQXR5MPFCJXMBI333XE5U3FSJTNQU7RIKE3P5GN2K2WYD5";
   let key = StellarSdk.xdr.ScVal.scvVec([
-    StellarSdk.xdr.ScVal.scvSymbol("Admin")
+    StellarSdk.xdr.ScVal.scvSymbol("Admin"),
   ]);
 
   it("key found", function (done) {
     let result = {
       id: address,
-      sequence: "1"
+      sequence: "1",
     };
 
     this.axiosMock
@@ -36,20 +36,20 @@ describe("Server#getContractData", function () {
                 contract: new StellarSdk.Contract(address)
                   .address()
                   .toScAddress(),
-                durability: xdr.ContractDataDurability.persistent()
-              })
-            ).toXDR("base64")
-          ]
-        ]
+                durability: xdr.ContractDataDurability.persistent(),
+              }),
+            ).toXDR("base64"),
+          ],
+        ],
       })
       .returns(
         Promise.resolve({
           data: {
             result: {
-              entries: [result]
-            }
-          }
-        })
+              entries: [result],
+            },
+          },
+        }),
       );
 
     this.server
@@ -78,11 +78,11 @@ describe("Server#getContractData", function () {
                 contract: new StellarSdk.Contract(address)
                   .address()
                   .toScAddress(),
-                durability: xdr.ContractDataDurability.temporary()
-              })
-            ).toXDR("base64")
-          ]
-        ]
+                durability: xdr.ContractDataDurability.temporary(),
+              }),
+            ).toXDR("base64"),
+          ],
+        ],
       })
       .returns(Promise.resolve({ data: { result: { entries: [] } } }));
 
@@ -95,7 +95,7 @@ describe("Server#getContractData", function () {
         done(
           err.code == 404
             ? null
-            : new Error("Expected error code 404, got: " + err.code)
+            : new Error("Expected error code 404, got: " + err.code),
         );
       });
   });

@@ -5,7 +5,7 @@ const {
   SorobanServer,
   SorobanDataBuilder,
   authorizeInvocation,
-  xdr
+  xdr,
 } = StellarSdk;
 
 describe("Server#simulateTransaction", function () {
@@ -23,12 +23,12 @@ describe("Server#simulateTransaction", function () {
     transactionData: new SorobanDataBuilder(simulationResponse.transactionData),
     result: {
       auth: simulationResponse.results[0].auth.map((entry) =>
-        xdr.SorobanAuthorizationEntry.fromXDR(entry, "base64")
+        xdr.SorobanAuthorizationEntry.fromXDR(entry, "base64"),
       ),
-      retval: xdr.ScVal.fromXDR(simulationResponse.results[0].xdr, "base64")
+      retval: xdr.ScVal.fromXDR(simulationResponse.results[0].xdr, "base64"),
     },
     cost: simulationResponse.cost,
-    _parsed: true
+    _parsed: true,
   };
 
   beforeEach(function () {
@@ -36,7 +36,7 @@ describe("Server#simulateTransaction", function () {
     this.axiosMock = sinon.mock(SorobanAxiosClient);
     const source = new Account(
       "GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI",
-      "1"
+      "1",
     );
     function emptyContractTransaction() {
       return new StellarSdk.TransactionBuilder(source, { fee: 100 })
@@ -48,11 +48,11 @@ describe("Server#simulateTransaction", function () {
               new xdr.InvokeContractArgs({
                 contractAddress: address,
                 functionName: "hello",
-                args: []
-              })
+                args: [],
+              }),
             ),
-            auth: []
-          })
+            auth: [],
+          }),
         )
         .build();
     }
@@ -77,10 +77,10 @@ describe("Server#simulateTransaction", function () {
         jsonrpc: "2.0",
         id: 1,
         method: "simulateTransaction",
-        params: [this.blob]
+        params: [this.blob],
       })
       .returns(
-        Promise.resolve({ data: { id: 1, result: simulationResponse } })
+        Promise.resolve({ data: { id: 1, result: simulationResponse } }),
       );
 
     this.server
@@ -128,7 +128,7 @@ describe("Server#simulateTransaction", function () {
     const expected = cloneSimulation(parsedSimulationResponse);
     expected.restorePreamble = {
       minResourceFee: "51",
-      transactionData: new SorobanDataBuilder()
+      transactionData: new SorobanDataBuilder(),
     };
 
     const parsed = StellarSdk.parseRawSimulation(simResponse);
@@ -165,12 +165,12 @@ function cloneSimulation(sim) {
     transactionData: new SorobanDataBuilder(sim.transactionData.build()),
     result: {
       auth: sim.result.auth.map((entry) =>
-        xdr.SorobanAuthorizationEntry.fromXDR(entry.toXDR())
+        xdr.SorobanAuthorizationEntry.fromXDR(entry.toXDR()),
       ),
-      retval: xdr.ScVal.fromXDR(sim.result.retval.toXDR())
+      retval: xdr.ScVal.fromXDR(sim.result.retval.toXDR()),
     },
     cost: sim.cost,
-    _parsed: sim._parsed
+    _parsed: sim._parsed,
   };
 }
 
@@ -187,9 +187,9 @@ function buildAuthEntry(address) {
         new xdr.InvokeContractArgs({
           contractAddress: address,
           functionName: "test",
-          args: []
-        })
-      )
+          args: [],
+        }),
+      ),
   });
 
   const kp = Keypair.random();
@@ -200,8 +200,8 @@ function invokeSimulationResponse(address) {
   return baseSimulationResponse([
     {
       auth: [buildAuthEntry(address)].map((entry) => entry.toXDR("base64")),
-      xdr: xdr.ScVal.scvU32(0).toXDR("base64")
-    }
+      xdr: xdr.ScVal.scvU32(0).toXDR("base64"),
+    },
   ]);
 }
 
@@ -210,7 +210,7 @@ function simulationResponseError(events) {
     id: 1,
     ...(events !== undefined && { events }),
     latestLedger: 3,
-    error: "This is an error"
+    error: "This is an error",
   };
 }
 
@@ -224,8 +224,8 @@ function baseSimulationResponse(results) {
     ...(results !== undefined && { results }),
     cost: {
       cpuInsns: "1",
-      memBytes: "2"
-    }
+      memBytes: "2",
+    },
   };
 }
 
@@ -234,8 +234,8 @@ function invokeSimulationResponseWithRestoration(address) {
     ...invokeSimulationResponse(address),
     restorePreamble: {
       minResourceFee: "51",
-      transactionData: new SorobanDataBuilder().build().toXDR("base64")
-    }
+      transactionData: new SorobanDataBuilder().build().toXDR("base64"),
+    },
   };
 }
 
@@ -246,23 +246,23 @@ describe("works with real responses", function () {
     minResourceFee: "27889",
     events: [
       "AAAAAQAAAAAAAAAAAAAAAgAAAAAAAAADAAAADwAAAAdmbl9jYWxsAAAAAA0AAAAgr/p6gt6h8MrmSw+WNJnu3+sCP9dHXx7jR8IH0sG6Cy0AAAAPAAAABWhlbGxvAAAAAAAADwAAAAVBbG9oYQAAAA==",
-      "AAAAAQAAAAAAAAABr/p6gt6h8MrmSw+WNJnu3+sCP9dHXx7jR8IH0sG6Cy0AAAACAAAAAAAAAAIAAAAPAAAACWZuX3JldHVybgAAAAAAAA8AAAAFaGVsbG8AAAAAAAAQAAAAAQAAAAIAAAAPAAAABUhlbGxvAAAAAAAADwAAAAVBbG9oYQAAAA=="
+      "AAAAAQAAAAAAAAABr/p6gt6h8MrmSw+WNJnu3+sCP9dHXx7jR8IH0sG6Cy0AAAACAAAAAAAAAAIAAAAPAAAACWZuX3JldHVybgAAAAAAAA8AAAAFaGVsbG8AAAAAAAAQAAAAAQAAAAIAAAAPAAAABUhlbGxvAAAAAAAADwAAAAVBbG9oYQAAAA==",
     ],
     results: [
       {
         auth: [],
-        xdr: "AAAAEAAAAAEAAAACAAAADwAAAAVIZWxsbwAAAAAAAA8AAAAFQWxvaGEAAAA="
-      }
+        xdr: "AAAAEAAAAAEAAAACAAAADwAAAAVIZWxsbwAAAAAAAA8AAAAFQWxvaGEAAAA=",
+      },
     ],
     cost: {
       cpuInsns: "1322134",
-      memBytes: "1207047"
+      memBytes: "1207047",
     },
     restorePreamble: {
       transactionData: "",
-      minResourceFee: "0"
+      minResourceFee: "0",
     },
-    latestLedger: "2634"
+    latestLedger: "2634",
   };
 
   it("parses the schema", function () {

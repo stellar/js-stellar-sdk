@@ -13,7 +13,7 @@ describe("Server#getHealth", function () {
 
   it("requests the correct endpoint", function (done) {
     let result = {
-      status: "healthy"
+      status: "healthy",
     };
 
     this.axiosMock
@@ -22,7 +22,7 @@ describe("Server#getHealth", function () {
         jsonrpc: "2.0",
         id: 1,
         method: "getHealth",
-        params: null
+        params: null,
       })
       .returns(Promise.resolve({ data: { result } }));
 

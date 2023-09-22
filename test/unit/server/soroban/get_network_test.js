@@ -15,7 +15,7 @@ describe("Server#getNetwork", function () {
     const result = {
       friendbotUrl: "https://friendbot.stellar.org",
       passphrase: "Soroban Testnet ; December 2018",
-      protocolVersion: 20
+      protocolVersion: 20,
     };
     this.axiosMock
       .expects("post")
@@ -23,7 +23,7 @@ describe("Server#getNetwork", function () {
         jsonrpc: "2.0",
         id: 1,
         method: "getNetwork",
-        params: null
+        params: null,
       })
       .returns(Promise.resolve({ data: { result } }));
 

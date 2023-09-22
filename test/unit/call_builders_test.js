@@ -11,7 +11,7 @@ describe("CallBuilder functions", function () {
 
     expect(arg.toString()).not.to.be.equal("https://onedom.ain/one_segment"); // https://onedom.ain/
     expect(builder.url.toString()).to.be.equal(
-      "https://onedom.ain/one_segment"
+      "https://onedom.ain/one_segment",
     );
   });
 });

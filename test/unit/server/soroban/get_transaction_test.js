@@ -5,7 +5,7 @@ const {
   SorobanServer,
   TransactionBuilder,
   nativeToScVal,
-  XdrLargeInt
+  XdrLargeInt,
 } = StellarSdk;
 
 describe("Server#getTransaction", function () {
@@ -18,15 +18,15 @@ describe("Server#getTransaction", function () {
     let transaction = new TransactionBuilder(account, {
       fee: 100,
       networkPassphrase: StellarSdk.Networks.TESTNET,
-      v1: true
+      v1: true,
     })
       .addOperation(
         StellarSdk.Operation.payment({
           destination:
             "GASOCNHNNLYFNMDJYQ3XFMI7BYHIOCFW3GJEOWRPEGK2TDPGTG2E5EDW",
           asset: StellarSdk.Asset.native(),
-          amount: "100.50"
-        })
+          amount: "100.50",
+        }),
       )
       .setTimeout(StellarSdk.TimeoutInfinite)
       .build();
@@ -42,7 +42,7 @@ describe("Server#getTransaction", function () {
           jsonrpc: "2.0",
           id: 1,
           method: "getTransaction",
-          params: [this.hash]
+          params: [this.hash],
         })
         .returns(Promise.resolve({ data: { id: 1, result } }));
     };
@@ -74,7 +74,7 @@ describe("Server#getTransaction", function () {
     [
       ["envelopeXdr", xdr.TransactionEnvelope],
       ["resultXdr", xdr.TransactionResult],
-      ["resultMetaXdr", xdr.TransactionMeta]
+      ["resultMetaXdr", xdr.TransactionMeta],
     ].forEach(([field, struct]) => {
       expected[field] = struct.fromXDR(result[field], "base64");
     });
@@ -123,9 +123,9 @@ function makeTxResult(status, addSoroban = true) {
         ext: new xdr.ExtensionPoint(0),
         events: [],
         diagnosticEvents: [],
-        returnValue: nativeToScVal(1234)
-      })
-    })
+        returnValue: nativeToScVal(1234),
+      }),
+    }),
   );
 
   // only injected in the success case
@@ -141,7 +141,7 @@ function makeTxResult(status, addSoroban = true) {
       "AAAAAgAAAAAT/LQZdYz0FcQ4Xwyg8IM17rkUx3pPCCWLu+SowQ/T+gBLB24poiQa9iwAngAAAAEAAAAAAAAAAAAAAABkwdeeAAAAAAAAAAEAAAABAAAAAC/9E8hDhnktyufVBS5tqA734Yz5XrLX2XNgBgH/YEkiAAAADQAAAAAAAAAAAAA1/gAAAAAv/RPIQ4Z5Lcrn1QUubagO9+GM+V6y19lzYAYB/2BJIgAAAAAAAAAAAAA1/gAAAAQAAAACU0lMVkVSAAAAAAAAAAAAAFDutWuu6S6UPJBrotNSgfmXa27M++63OT7TYn1qjgy+AAAAAVNHWAAAAAAAUO61a67pLpQ8kGui01KB+Zdrbsz77rc5PtNifWqODL4AAAACUEFMTEFESVVNAAAAAAAAAFDutWuu6S6UPJBrotNSgfmXa27M++63OT7TYn1qjgy+AAAAAlNJTFZFUgAAAAAAAAAAAABQ7rVrrukulDyQa6LTUoH5l2tuzPvutzk+02J9ao4MvgAAAAAAAAACwQ/T+gAAAEA+ztVEKWlqHXNnqy6FXJeHr7TltHzZE6YZm5yZfzPIfLaqpp+5cyKotVkj3d89uZCQNsKsZI48uoyERLne+VwL/2BJIgAAAEA7323gPSaezVSa7Vi0J4PqsnklDH1oHLqNBLwi5EWo5W7ohLGObRVQZ0K0+ufnm4hcm9J4Cuj64gEtpjq5j5cM",
     resultXdr:
       "AAAAAAAAAGQAAAAAAAAAAQAAAAAAAAANAAAAAAAAAAUAAAACZ4W6fmN63uhVqYRcHET+D2NEtJvhCIYflFh9GqtY+AwAAAACU0lMVkVSAAAAAAAAAAAAAFDutWuu6S6UPJBrotNSgfmXa27M++63OT7TYn1qjgy+AAAYW0toL2gAAAAAAAAAAAAANf4AAAACcgyAkXD5kObNTeRYciLh7R6ES/zzKp0n+cIK3Y6TjBkAAAABU0dYAAAAAABQ7rVrrukulDyQa6LTUoH5l2tuzPvutzk+02J9ao4MvgAAGlGnIJrXAAAAAlNJTFZFUgAAAAAAAAAAAABQ7rVrrukulDyQa6LTUoH5l2tuzPvutzk+02J9ao4MvgAAGFtLaC9oAAAAApmc7UgUBInrDvij8HMSridx2n1w3I8TVEn4sLr1LSpmAAAAAlBBTExBRElVTQAAAAAAAABQ7rVrrukulDyQa6LTUoH5l2tuzPvutzk+02J9ao4MvgAAIUz88EqYAAAAAVNHWAAAAAAAUO61a67pLpQ8kGui01KB+Zdrbsz77rc5PtNifWqODL4AABpRpyCa1wAAAAKYUsaaCZ233xB1p+lG7YksShJWfrjsmItbokiR3ifa0gAAAAJTSUxWRVIAAAAAAAAAAAAAUO61a67pLpQ8kGui01KB+Zdrbsz77rc5PtNifWqODL4AABv52PPa5wAAAAJQQUxMQURJVU0AAAAAAAAAUO61a67pLpQ8kGui01KB+Zdrbsz77rc5PtNifWqODL4AACFM/PBKmAAAAAJnhbp+Y3re6FWphFwcRP4PY0S0m+EIhh+UWH0aq1j4DAAAAAAAAAAAAAA9pAAAAAJTSUxWRVIAAAAAAAAAAAAAUO61a67pLpQ8kGui01KB+Zdrbsz77rc5PtNifWqODL4AABv52PPa5wAAAAAv/RPIQ4Z5Lcrn1QUubagO9+GM+V6y19lzYAYB/2BJIgAAAAAAAAAAAAA9pAAAAAA=",
-    resultMetaXdr: metaV3.toXDR("base64")
+    resultMetaXdr: metaV3.toXDR("base64"),
   };
 
   if (!addSoroban) {
@@ -156,6 +156,6 @@ function makeTxResult(status, addSoroban = true) {
     latestLedgerCloseTime: 12345,
     oldestLedger: 50,
     oldestLedgerCloseTime: 500,
-    ...(status === "SUCCESS" && successInfo)
+    ...(status === "SUCCESS" && successInfo),
   };
 }

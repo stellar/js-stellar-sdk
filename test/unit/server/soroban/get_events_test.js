@@ -18,9 +18,9 @@ describe("Server#getEvents", function () {
       {
         filters: [],
         pagination: {},
-        startLedger: "1"
+        startLedger: "1",
       },
-      result
+      result,
     );
 
     this.server
@@ -43,12 +43,12 @@ describe("Server#getEvents", function () {
         startLedger: "1",
         filters: [
           {
-            topics: [["*", "*"]]
-          }
+            topics: [["*", "*"]],
+          },
         ],
-        pagination: {}
+        pagination: {},
       },
-      result
+      result,
     );
 
     this.server
@@ -56,9 +56,9 @@ describe("Server#getEvents", function () {
         startLedger: 1,
         filters: [
           {
-            topics: [["*", "*"]]
-          }
-        ]
+            topics: [["*", "*"]],
+          },
+        ],
       })
       .then(function (response) {
         expect(response).to.be.deep.equal(result);
@@ -70,7 +70,7 @@ describe("Server#getEvents", function () {
   it("can build matching filters", function (done) {
     let result = filterEvents(
       getEventsResponseFixture,
-      "AAAABQAAAAh0cmFuc2Zlcg==/AAAAAQB6Mcc="
+      "AAAABQAAAAh0cmFuc2Zlcg==/AAAAAQB6Mcc=",
     );
 
     setupMock(
@@ -79,12 +79,12 @@ describe("Server#getEvents", function () {
         startLedger: "1",
         filters: [
           {
-            topics: [["AAAABQAAAAh0cmFuc2Zlcg==", "AAAAAQB6Mcc="]]
-          }
+            topics: [["AAAABQAAAAh0cmFuc2Zlcg==", "AAAAAQB6Mcc="]],
+          },
         ],
-        pagination: {}
+        pagination: {},
       },
-      result
+      result,
     );
 
     this.server
@@ -92,9 +92,9 @@ describe("Server#getEvents", function () {
         startLedger: 1,
         filters: [
           {
-            topics: [["AAAABQAAAAh0cmFuc2Zlcg==", "AAAAAQB6Mcc="]]
-          }
-        ]
+            topics: [["AAAABQAAAAh0cmFuc2Zlcg==", "AAAAAQB6Mcc="]],
+          },
+        ],
       })
       .then(function (response) {
         expect(response).to.be.deep.equal(result);
@@ -106,7 +106,7 @@ describe("Server#getEvents", function () {
   it("can build mixed filters", function (done) {
     let result = filterEventsByLedger(
       filterEvents(getEventsResponseFixture, "AAAABQAAAAh0cmFuc2Zlcg==/*"),
-      1
+      1,
     );
 
     setupMock(
@@ -115,12 +115,12 @@ describe("Server#getEvents", function () {
         startLedger: "1",
         filters: [
           {
-            topics: [["AAAABQAAAAh0cmFuc2Zlcg==", "*"]]
-          }
+            topics: [["AAAABQAAAAh0cmFuc2Zlcg==", "*"]],
+          },
         ],
-        pagination: {}
+        pagination: {},
       },
-      result
+      result,
     );
 
     this.server
@@ -128,9 +128,9 @@ describe("Server#getEvents", function () {
         startLedger: 1,
         filters: [
           {
-            topics: [["AAAABQAAAAh0cmFuc2Zlcg==", "*"]]
-          }
-        ]
+            topics: [["AAAABQAAAAh0cmFuc2Zlcg==", "*"]],
+          },
+        ],
       })
       .then(function (response) {
         expect(response).to.be.deep.equal(result);
@@ -142,7 +142,7 @@ describe("Server#getEvents", function () {
   it("can paginate", function (done) {
     let result = filterEventsByLedger(
       filterEvents(getEventsResponseFixture, "*/*"),
-      1
+      1,
     );
 
     setupMock(
@@ -150,26 +150,26 @@ describe("Server#getEvents", function () {
       {
         filters: [
           {
-            topics: [["*", "*"]]
-          }
+            topics: [["*", "*"]],
+          },
         ],
         pagination: {
           limit: 10,
-          cursor: "0164090849041387521-0000000000"
-        }
+          cursor: "0164090849041387521-0000000000",
+        },
       },
-      result
+      result,
     );
 
     this.server
       .getEvents({
         filters: [
           {
-            topics: [["*", "*"]]
-          }
+            topics: [["*", "*"]],
+          },
         ],
         cursor: "0164090849041387521-0000000000",
-        limit: 10
+        limit: 10,
       })
       .then(function (response) {
         expect(response).to.be.deep.equal(result);
@@ -183,7 +183,7 @@ function filterEvents(events, filter) {
   return events.filter(
     (e, i) =>
       e.topic.length == filter.length &&
-      e.topic.every((s, j) => s === filter[j] || s === "*")
+      e.topic.every((s, j) => s === filter[j] || s === "*"),
   );
 }
 
@@ -200,7 +200,7 @@ function setupMock(axiosMock, params, result) {
       jsonrpc: "2.0",
       id: 1,
       method: "getEvents",
-      params: params
+      params: params,
     })
     .returns(Promise.resolve({ data: { result } }));
 }
@@ -217,8 +217,8 @@ let getEventsResponseFixture = [
     topic: ["AAAABQAAAAh0cmFuc2Zlcg==", "AAAAAQB6Mcc="],
     inSuccessfulContractCall: true,
     value: {
-      xdr: "AAAABQAAAApHaWJNb255UGxzAAA="
-    }
+      xdr: "AAAABQAAAApHaWJNb255UGxzAAA=",
+    },
   },
   {
     type: "contract",
@@ -231,8 +231,8 @@ let getEventsResponseFixture = [
     topic: ["AAAAAQB6Mcc=", "AAAABQAAAAh0cmFuc2Zlcg=="],
     inSuccessfulContractCall: true,
     value: {
-      xdr: "AAAABQAAAApHaWJNb255UGxzAAA="
-    }
+      xdr: "AAAABQAAAApHaWJNb255UGxzAAA=",
+    },
   },
   {
     type: "diagnostic",
@@ -245,8 +245,8 @@ let getEventsResponseFixture = [
     inSuccessfulContractCall: true,
     topic: ["AAAAAQB6Mcc="],
     value: {
-      xdr: "AAAABQAAAApHaWJNb255UGxzAAA="
-    }
+      xdr: "AAAABQAAAApHaWJNb255UGxzAAA=",
+    },
   },
   {
     type: "contract",
@@ -259,7 +259,7 @@ let getEventsResponseFixture = [
     inSuccessfulContractCall: true,
     topic: ["AAAABQAAAAdDT1VOVEVSAA==", "AAAABQAAAAlpbmNyZW1lbnQAAAA="],
     value: {
-      xdr: "AAAAAQAAAAE="
-    }
-  }
+      xdr: "AAAAAQAAAAE=",
+    },
+  },
 ];

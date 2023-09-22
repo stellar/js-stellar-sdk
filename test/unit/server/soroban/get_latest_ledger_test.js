@@ -15,7 +15,7 @@ describe("Server#getLatestLedger", function () {
     const result = {
       id: "hashed_id",
       sequence: 123,
-      protocolVersion: 20
+      protocolVersion: 20,
     };
     this.axiosMock
       .expects("post")
@@ -23,7 +23,7 @@ describe("Server#getLatestLedger", function () {
         jsonrpc: "2.0",
         id: 1,
         method: "getLatestLedger",
-        params: null
+        params: null,
       })
       .returns(Promise.resolve({ data: { result } }));
 

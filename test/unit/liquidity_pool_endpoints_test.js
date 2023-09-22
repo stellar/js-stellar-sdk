@@ -22,14 +22,14 @@ describe("/liquidity_pools tests", function () {
   const rootResponse = {
     _links: {
       self: {
-        href: "https://private-33c60-amm3.apiary-mock.com/liquidity_pools?cursor=113725249324879873&limit=10&order=asc"
+        href: "https://private-33c60-amm3.apiary-mock.com/liquidity_pools?cursor=113725249324879873&limit=10&order=asc",
       },
       next: {
-        href: "https://private-33c60-amm3.apiary-mock.com/liquidity_pools?cursor=113725249324879873&limit=10&order=asc"
+        href: "https://private-33c60-amm3.apiary-mock.com/liquidity_pools?cursor=113725249324879873&limit=10&order=asc",
       },
       prev: {
-        href: "https://private-33c60-amm3.apiary-mock.com/liquidity_pools?cursor=113725249324879873&limit=10&order=desc"
-      }
+        href: "https://private-33c60-amm3.apiary-mock.com/liquidity_pools?cursor=113725249324879873&limit=10&order=desc",
+      },
     },
     _embedded: {
       records: [
@@ -44,14 +44,14 @@ describe("/liquidity_pools tests", function () {
             {
               amount: "1000.0000005",
               asset:
-                "EURT:GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S"
+                "EURT:GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S",
             },
             {
               amount: "2000.0000000",
               asset:
-                "PHP:GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S"
-            }
-          ]
+                "PHP:GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S",
+            },
+          ],
         },
         {
           id: "2",
@@ -64,17 +64,17 @@ describe("/liquidity_pools tests", function () {
             {
               amount: "1000.0000005",
               asset:
-                "EURT:GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S"
+                "EURT:GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S",
             },
             {
               amount: "1200.0000000",
               asset:
-                "USDC:GC5W3BH2MQRQK2H4A6LP3SXDSAAY2W2W64OWKKVNQIAOVWSAHFDEUSDC"
-            }
-          ]
-        }
-      ]
-    }
+                "USDC:GC5W3BH2MQRQK2H4A6LP3SXDSAAY2W2W64OWKKVNQIAOVWSAHFDEUSDC",
+            },
+          ],
+        },
+      ],
+    },
   };
 
   let emptyResponse = copyJson(rootResponse);
@@ -85,11 +85,11 @@ describe("/liquidity_pools tests", function () {
 
   const EURT = new StellarSdk.Asset(
     "EURT",
-    "GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S"
+    "GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S",
   );
   const PHP = new StellarSdk.Asset(
     "PHP",
-    "GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S"
+    "GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S",
   );
 
   it("returns the right root response", function (done) {
@@ -112,20 +112,20 @@ describe("/liquidity_pools tests", function () {
     const testCases = [
       {
         assets: [StellarSdk.Asset.native()],
-        response: emptyResponse
+        response: emptyResponse,
       },
       {
         assets: [EURT],
-        response: rootResponse
+        response: rootResponse,
       },
       {
         assets: [PHP],
-        response: phpResponse
+        response: phpResponse,
       },
       {
         assets: [EURT, PHP],
-        response: phpResponse
-      }
+        response: phpResponse,
+      },
     ];
 
     testCases.forEach((testCase) => {
@@ -140,7 +140,7 @@ describe("/liquidity_pools tests", function () {
         this.axiosMock
           .expects("get")
           .withArgs(
-            sinon.match(`${LP_URL}?reserves=${encodeURIComponent(queryStr)}`)
+            sinon.match(`${LP_URL}?reserves=${encodeURIComponent(queryStr)}`),
           )
           .returns(Promise.resolve({ data: testCase.response }));
 
@@ -150,7 +150,7 @@ describe("/liquidity_pools tests", function () {
           .call()
           .then((pools) => {
             expect(pools.records).to.deep.equal(
-              testCase.response._embedded.records
+              testCase.response._embedded.records,
             );
             done();
           })
@@ -184,10 +184,10 @@ describe("/liquidity_pools tests", function () {
 
     it("checks for valid IDs", function () {
       expect(() =>
-        this.server.liquidityPools().liquidityPoolId("nonsense")
+        this.server.liquidityPools().liquidityPoolId("nonsense"),
       ).to.throw();
       expect(() =>
-        this.server.liquidityPools().liquidityPoolId(lpId)
+        this.server.liquidityPools().liquidityPoolId(lpId),
       ).not.to.throw();
     });
 
@@ -203,14 +203,14 @@ describe("/liquidity_pools tests", function () {
           {
             amount: "1000.0000005",
             asset:
-              "EURT:GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S"
+              "EURT:GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S",
           },
           {
             amount: "2000.0000000",
             asset:
-              "PHP:GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S"
-          }
-        ]
+              "PHP:GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S",
+          },
+        ],
       };
 
       this.axiosMock
@@ -232,14 +232,14 @@ describe("/liquidity_pools tests", function () {
     const poolOpsResponse = {
       _links: {
         self: {
-          href: "https://private-33c60-amm3.apiary-mock.com/liquidity_pools/ae44a51f6191ce24414fbd1326e93ccb0ae656f07fc1e37602b11d0802f74b9a/operations?cursor=113725249324879873&limit=10&order=asc"
+          href: "https://private-33c60-amm3.apiary-mock.com/liquidity_pools/ae44a51f6191ce24414fbd1326e93ccb0ae656f07fc1e37602b11d0802f74b9a/operations?cursor=113725249324879873&limit=10&order=asc",
         },
         next: {
-          href: "https://private-33c60-amm3.apiary-mock.com/liquidity_pools/ae44a51f6191ce24414fbd1326e93ccb0ae656f07fc1e37602b11d0802f74b9a/operations?cursor=113725249324879873&limit=10&order=asc"
+          href: "https://private-33c60-amm3.apiary-mock.com/liquidity_pools/ae44a51f6191ce24414fbd1326e93ccb0ae656f07fc1e37602b11d0802f74b9a/operations?cursor=113725249324879873&limit=10&order=asc",
         },
         prev: {
-          href: "https://private-33c60-amm3.apiary-mock.com/liquidity_pools/ae44a51f6191ce24414fbd1326e93ccb0ae656f07fc1e37602b11d0802f74b9a/operations?cursor=113725249324879873&limit=10&order=desc"
-        }
+          href: "https://private-33c60-amm3.apiary-mock.com/liquidity_pools/ae44a51f6191ce24414fbd1326e93ccb0ae656f07fc1e37602b11d0802f74b9a/operations?cursor=113725249324879873&limit=10&order=desc",
+        },
       },
       _embedded: {
         records: [
@@ -260,37 +260,37 @@ describe("/liquidity_pools tests", function () {
               {
                 asset:
                   "JPY:GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM",
-                amount: "1000.0000005"
+                amount: "1000.0000005",
               },
               {
                 asset:
                   "EURT:GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S",
-                amount: "3000.0000005"
-              }
+                amount: "3000.0000005",
+              },
             ],
             min_price: "0.2680000",
             min_price_r: {
               n: 67,
-              d: 250
+              d: 250,
             },
             max_price: "0.3680000",
             max_price_r: {
               n: 73,
-              d: 250
+              d: 250,
             },
             reserves_deposited: [
               {
                 asset:
                   "JPY:GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM",
-                amount: "983.0000005"
+                amount: "983.0000005",
               },
               {
                 asset:
                   "EURT:GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S",
-                amount: "2378.0000005"
-              }
+                amount: "2378.0000005",
+              },
             ],
-            shares_received: "1000"
+            shares_received: "1000",
           },
           {
             id: "3697472920621057",
@@ -309,27 +309,27 @@ describe("/liquidity_pools tests", function () {
               {
                 asset:
                   "EURT:GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S",
-                min: "1000.0000005"
+                min: "1000.0000005",
               },
               {
                 asset:
                   "PHP:GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S",
-                min: "3000.0000005"
-              }
+                min: "3000.0000005",
+              },
             ],
             shares: "200",
             reserves_received: [
               {
                 asset:
                   "EURT:GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S",
-                amount: "993.0000005"
+                amount: "993.0000005",
               },
               {
                 asset:
                   "PHP:GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S",
-                amount: "2478.0000005"
-              }
-            ]
+                amount: "2478.0000005",
+              },
+            ],
           },
           {
             id: "157639717969326081",
@@ -346,7 +346,7 @@ describe("/liquidity_pools tests", function () {
             liquidity_pool_id:
               "ae44a51f6191ce24414fbd1326e93ccb0ae656f07fc1e37602b11d0802f74b9a",
             limit: "1000",
-            trustor: "GBBWI7TEVQBPEUXKYNGI3GBAH7EHFEREONKK3UK56ZSLJIDIYHQJCVSG"
+            trustor: "GBBWI7TEVQBPEUXKYNGI3GBAH7EHFEREONKK3UK56ZSLJIDIYHQJCVSG",
           },
           {
             id: "157235845014249474-0",
@@ -367,11 +367,11 @@ describe("/liquidity_pools tests", function () {
             base_is_seller: false,
             price: {
               n: "10000000",
-              d: "899997"
-            }
-          }
-        ]
-      }
+              d: "899997",
+            },
+          },
+        ],
+      },
     };
 
     it("retrieves its operations", function (done) {
@@ -386,7 +386,7 @@ describe("/liquidity_pools tests", function () {
         .call()
         .then((poolOps) => {
           expect(poolOps.records).to.deep.equal(
-            poolOpsResponse._embedded.records
+            poolOpsResponse._embedded.records,
           );
           done();
         })
@@ -396,45 +396,45 @@ describe("/liquidity_pools tests", function () {
     const poolTxsResponse = {
       _links: {
         self: {
-          href: "https://private-33c60-amm3.apiary-mock.com/liquidity_pools/ae44a51f6191ce24414fbd1326e93ccb0ae656f07fc1e37602b11d0802f74b9a/transactions?cursor=113725249324879873&limit=10&order=asc"
+          href: "https://private-33c60-amm3.apiary-mock.com/liquidity_pools/ae44a51f6191ce24414fbd1326e93ccb0ae656f07fc1e37602b11d0802f74b9a/transactions?cursor=113725249324879873&limit=10&order=asc",
         },
         next: {
-          href: "https://private-33c60-amm3.apiary-mock.com/liquidity_pools/ae44a51f6191ce24414fbd1326e93ccb0ae656f07fc1e37602b11d0802f74b9a/transactions?cursor=113725249324879873&limit=10&order=asc"
+          href: "https://private-33c60-amm3.apiary-mock.com/liquidity_pools/ae44a51f6191ce24414fbd1326e93ccb0ae656f07fc1e37602b11d0802f74b9a/transactions?cursor=113725249324879873&limit=10&order=asc",
         },
         prev: {
-          href: "https://private-33c60-amm3.apiary-mock.com/liquidity_pools/ae44a51f6191ce24414fbd1326e93ccb0ae656f07fc1e37602b11d0802f74b9a/transactions?cursor=113725249324879873&limit=10&order=desc"
-        }
+          href: "https://private-33c60-amm3.apiary-mock.com/liquidity_pools/ae44a51f6191ce24414fbd1326e93ccb0ae656f07fc1e37602b11d0802f74b9a/transactions?cursor=113725249324879873&limit=10&order=desc",
+        },
       },
       _embedded: {
         records: [
           {
             _links: {
               self: {
-                href: "https://private-33c60-amm3.apiary-mock.com/transactions/2ff47e1bafe68639276b2a8df0a73597ee0c062fbcc72d121af314fe7851c908"
+                href: "https://private-33c60-amm3.apiary-mock.com/transactions/2ff47e1bafe68639276b2a8df0a73597ee0c062fbcc72d121af314fe7851c908",
               },
               account: {
-                href: "https://private-33c60-amm3.apiary-mock.com/accounts/GAHQN6YNYD6ZT7TLAVE4R36MSZWQJZ22XB3WD4RLSHURMXHW4VHJIDF7"
+                href: "https://private-33c60-amm3.apiary-mock.com/accounts/GAHQN6YNYD6ZT7TLAVE4R36MSZWQJZ22XB3WD4RLSHURMXHW4VHJIDF7",
               },
               ledger: {
-                href: "https://private-33c60-amm3.apiary-mock.com/ledgers/895788"
+                href: "https://private-33c60-amm3.apiary-mock.com/ledgers/895788",
               },
               operations: {
                 href: "https://private-33c60-amm3.apiary-mock.com/transactions/2ff47e1bafe68639276b2a8df0a73597ee0c062fbcc72d121af314fe7851c908/operations",
-                templated: true
+                templated: true,
               },
               effects: {
                 href: "https://private-33c60-amm3.apiary-mock.com/transactions/2ff47e1bafe68639276b2a8df0a73597ee0c062fbcc72d121af314fe7851c908/effects",
-                templated: true
+                templated: true,
               },
               precedes: {
-                href: "https://private-33c60-amm3.apiary-mock.com/transactions?order=asc&cursor=3847380164161536"
+                href: "https://private-33c60-amm3.apiary-mock.com/transactions?order=asc&cursor=3847380164161536",
               },
               succeeds: {
-                href: "https://private-33c60-amm3.apiary-mock.com/transactions?order=desc&cursor=3847380164161536"
+                href: "https://private-33c60-amm3.apiary-mock.com/transactions?order=desc&cursor=3847380164161536",
               },
               transaction: {
-                href: "https://private-33c60-amm3.apiary-mock.com/transactions/2ff47e1bafe68639276b2a8df0a73597ee0c062fbcc72d121af314fe7851c908"
-              }
+                href: "https://private-33c60-amm3.apiary-mock.com/transactions/2ff47e1bafe68639276b2a8df0a73597ee0c062fbcc72d121af314fe7851c908",
+              },
             },
             id: "2ff47e1bafe68639276b2a8df0a73597ee0c062fbcc72d121af314fe7851c908",
             paging_token: "3847380164161536",
@@ -459,11 +459,11 @@ describe("/liquidity_pools tests", function () {
               "AAAAAgAAAAMADasrAAAAAAAAAAAPBvsNwP2Z/msFScjvzJZtBOdauHdh8iuR6RZc9uVOlAAAAAAa0nQcAA2rKgAAAAEAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAEADassAAAAAAAAAAAPBvsNwP2Z/msFScjvzJZtBOdauHdh8iuR6RZc9uVOlAAAAAAa0k0MAA2rKgAAAAEAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAA==",
             memo_type: "none",
             signatures: [
-              "l5kbKF5kYiY1K7W5A2WEZ82nObNQlVeINkZSIASLkLcttZ6c9wNVYVHEpgMfhprMhsVRbyK3HbLU2sCZZsvZBQ=="
-            ]
-          }
-        ]
-      }
+              "l5kbKF5kYiY1K7W5A2WEZ82nObNQlVeINkZSIASLkLcttZ6c9wNVYVHEpgMfhprMhsVRbyK3HbLU2sCZZsvZBQ==",
+            ],
+          },
+        ],
+      },
     };
 
     it("retrieves its transactions", function (done) {
@@ -478,7 +478,7 @@ describe("/liquidity_pools tests", function () {
         .call()
         .then((poolTxs) => {
           expect(poolTxs.records).to.deep.equal(
-            poolTxsResponse._embedded.records
+            poolTxsResponse._embedded.records,
           );
           done();
         })
@@ -488,28 +488,28 @@ describe("/liquidity_pools tests", function () {
     const poolEffectsResponse = {
       _links: {
         self: {
-          href: "https://private-33c60-amm3.apiary-mock.com/liquidity_pools/ae44a51f6191ce24414fbd1326e93ccb0ae656f07fc1e37602b11d0802f74b9a/effects?cursor=113725249324879873&limit=10&order=asc"
+          href: "https://private-33c60-amm3.apiary-mock.com/liquidity_pools/ae44a51f6191ce24414fbd1326e93ccb0ae656f07fc1e37602b11d0802f74b9a/effects?cursor=113725249324879873&limit=10&order=asc",
         },
         next: {
-          href: "https://private-33c60-amm3.apiary-mock.com/liquidity_pools/ae44a51f6191ce24414fbd1326e93ccb0ae656f07fc1e37602b11d0802f74b9a/effects?cursor=113725249324879873&limit=10&order=asc"
+          href: "https://private-33c60-amm3.apiary-mock.com/liquidity_pools/ae44a51f6191ce24414fbd1326e93ccb0ae656f07fc1e37602b11d0802f74b9a/effects?cursor=113725249324879873&limit=10&order=asc",
         },
         prev: {
-          href: "https://private-33c60-amm3.apiary-mock.com/liquidity_pools/ae44a51f6191ce24414fbd1326e93ccb0ae656f07fc1e37602b11d0802f74b9a/effects?cursor=113725249324879873&limit=10&order=asc"
-        }
+          href: "https://private-33c60-amm3.apiary-mock.com/liquidity_pools/ae44a51f6191ce24414fbd1326e93ccb0ae656f07fc1e37602b11d0802f74b9a/effects?cursor=113725249324879873&limit=10&order=asc",
+        },
       },
       _embedded: {
         records: [
           {
             _links: {
               operation: {
-                href: "https://private-33c60-amm3.apiary-mock.com/operations/3849085266190337"
+                href: "https://private-33c60-amm3.apiary-mock.com/operations/3849085266190337",
               },
               succeeds: {
-                href: "https://private-33c60-amm3.apiary-mock.com/effects?order=desc&cursor=3849085266190337-1"
+                href: "https://private-33c60-amm3.apiary-mock.com/effects?order=desc&cursor=3849085266190337-1",
               },
               precedes: {
-                href: "https://private-33c60-amm3.apiary-mock.com/effects?order=asc&cursor=3849085266190337-1"
-              }
+                href: "https://private-33c60-amm3.apiary-mock.com/effects?order=asc&cursor=3849085266190337-1",
+              },
             },
             id: "0000000012884905986-0000000001",
             paging_token: "12884905986-2",
@@ -527,28 +527,28 @@ describe("/liquidity_pools tests", function () {
                 {
                   amount: "1000.0000005",
                   asset:
-                    "EURT:GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S"
+                    "EURT:GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S",
                 },
                 {
                   amount: "2000.0000000",
                   asset:
-                    "PHP:GBUQWP3BOUZX34TOND2QV7QQ7K7VJTG6VSE7WMLBTMDJLLAW7YKGU6EP"
-                }
-              ]
+                    "PHP:GBUQWP3BOUZX34TOND2QV7QQ7K7VJTG6VSE7WMLBTMDJLLAW7YKGU6EP",
+                },
+              ],
             },
             reserves_deposited: [
               {
                 asset:
                   "JPY:GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM",
-                amount: "983.0000005"
+                amount: "983.0000005",
               },
               {
                 asset:
                   "EURT:GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S",
-                amount: "2378.0000005"
-              }
+                amount: "2378.0000005",
+              },
             ],
-            shares_received: "1000"
+            shares_received: "1000",
           },
           {
             id: "0000000012884905986-0000000002",
@@ -567,28 +567,28 @@ describe("/liquidity_pools tests", function () {
                 {
                   amount: "7.0000005",
                   asset:
-                    "EURT:GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S"
+                    "EURT:GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S",
                 },
                 {
                   amount: "1.0000000",
                   asset:
-                    "PHP:GBUQWP3BOUZX34TOND2QV7QQ7K7VJTG6VSE7WMLBTMDJLLAW7YKGU6EP"
-                }
-              ]
+                    "PHP:GBUQWP3BOUZX34TOND2QV7QQ7K7VJTG6VSE7WMLBTMDJLLAW7YKGU6EP",
+                },
+              ],
             },
             reserves_received: [
               {
                 asset:
                   "JPY:GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM",
-                amount: "993.0000005"
+                amount: "993.0000005",
               },
               {
                 asset:
                   "EURT:GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S",
-                amount: "2478.0000005"
-              }
+                amount: "2478.0000005",
+              },
             ],
-            shares_redeemed: "1000"
+            shares_redeemed: "1000",
           },
           {
             id: "0000000012884905986-0000000003",
@@ -607,25 +607,25 @@ describe("/liquidity_pools tests", function () {
                 {
                   amount: "1000.0000005",
                   asset:
-                    "EURT:GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S"
+                    "EURT:GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S",
                 },
                 {
                   amount: "2000.0000000",
                   asset:
-                    "PHP:GBUQWP3BOUZX34TOND2QV7QQ7K7VJTG6VSE7WMLBTMDJLLAW7YKGU6EP"
-                }
-              ]
+                    "PHP:GBUQWP3BOUZX34TOND2QV7QQ7K7VJTG6VSE7WMLBTMDJLLAW7YKGU6EP",
+                },
+              ],
             },
             sold: {
               asset:
                 "JPY:GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM",
-              amount: "983.0000005"
+              amount: "983.0000005",
             },
             bought: {
               asset:
                 "EURT:GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S",
-              amount: "2378.0000005"
-            }
+              amount: "2378.0000005",
+            },
           },
           {
             id: "0000000012884905986-0000000004",
@@ -644,15 +644,15 @@ describe("/liquidity_pools tests", function () {
                 {
                   amount: "0",
                   asset:
-                    "EURT:GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S"
+                    "EURT:GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S",
                 },
                 {
                   amount: "0",
                   asset:
-                    "PHP:GBUQWP3BOUZX34TOND2QV7QQ7K7VJTG6VSE7WMLBTMDJLLAW7YKGU6EP"
-                }
-              ]
-            }
+                    "PHP:GBUQWP3BOUZX34TOND2QV7QQ7K7VJTG6VSE7WMLBTMDJLLAW7YKGU6EP",
+                },
+              ],
+            },
           },
           {
             id: "0000000012884905986-0000000005",
@@ -661,7 +661,7 @@ describe("/liquidity_pools tests", function () {
             type: "liquidity_pool_removed",
             type_i: 85,
             created_at: "2021-11-18T03:15:54Z",
-            liquidity_pool_id: "abcdef"
+            liquidity_pool_id: "abcdef",
           },
           {
             id: "0000000012884905986-0000000006",
@@ -680,30 +680,30 @@ describe("/liquidity_pools tests", function () {
                 {
                   amount: "7.0000005",
                   asset:
-                    "EURT:GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S"
+                    "EURT:GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S",
                 },
                 {
                   amount: "1.0000000",
                   asset:
-                    "PHP:GBUQWP3BOUZX34TOND2QV7QQ7K7VJTG6VSE7WMLBTMDJLLAW7YKGU6EP"
-                }
-              ]
+                    "PHP:GBUQWP3BOUZX34TOND2QV7QQ7K7VJTG6VSE7WMLBTMDJLLAW7YKGU6EP",
+                },
+              ],
             },
             reserves_revoked: [
               {
                 asset:
                   "JPY:GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM",
                 amount: "993.0000005",
-                claimable_balance_id: "cbid1235"
+                claimable_balance_id: "cbid1235",
               },
               {
                 asset:
                   "EURT:GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S",
                 amount: "2478.0000005",
-                claimable_balance_id: "idcbd1234"
-              }
+                claimable_balance_id: "idcbd1234",
+              },
             ],
-            shares_revoked: "1000"
+            shares_revoked: "1000",
           },
           {
             id: "0000000012884905986-0000000007",
@@ -714,7 +714,7 @@ describe("/liquidity_pools tests", function () {
             created_at: "2021-08-04T20:01:24Z",
             asset_type: "liquidity_pool_shares",
             liquidity_pool_id: "abcdef",
-            limit: "1000"
+            limit: "1000",
           },
           {
             id: "0000000012884905986-0000000008",
@@ -725,7 +725,7 @@ describe("/liquidity_pools tests", function () {
             created_at: "2021-08-04T20:01:24Z",
             asset_type: "liquidity_pool_shares",
             liquidity_pool_id: "abcdef",
-            limit: "2000"
+            limit: "2000",
           },
           {
             id: "0000000012884905986-0000000009",
@@ -736,10 +736,10 @@ describe("/liquidity_pools tests", function () {
             created_at: "2021-08-04T20:01:24Z",
             asset_type: "liquidity_pool_shares",
             liquidity_pool_id: "abcdef",
-            limit: "0.0000000"
-          }
-        ]
-      }
+            limit: "0.0000000",
+          },
+        ],
+      },
     };
 
     it("retrieves its effects", function (done) {
@@ -754,7 +754,7 @@ describe("/liquidity_pools tests", function () {
         .call()
         .then((poolEffects) => {
           expect(poolEffects.records).to.deep.equal(
-            poolEffectsResponse._embedded.records
+            poolEffectsResponse._embedded.records,
           );
           done();
         })
@@ -764,31 +764,31 @@ describe("/liquidity_pools tests", function () {
     const poolTradesResponse = {
       _links: {
         self: {
-          href: "https://private-33c60-amm3.apiary-mock.com/liquidity_pools/3b476aff8a406a6ec3b61d5c038009cef85f2ddfaf616822dc4fec92845149b4/trades?cursor=113725249324879873&limit=10&order=asc"
+          href: "https://private-33c60-amm3.apiary-mock.com/liquidity_pools/3b476aff8a406a6ec3b61d5c038009cef85f2ddfaf616822dc4fec92845149b4/trades?cursor=113725249324879873&limit=10&order=asc",
         },
         next: {
-          href: "https://private-33c60-amm3.apiary-mock.com/liquidity_pools/3b476aff8a406a6ec3b61d5c038009cef85f2ddfaf616822dc4fec92845149b4/trades?cursor=113725249324879873&limit=10&order=asc"
+          href: "https://private-33c60-amm3.apiary-mock.com/liquidity_pools/3b476aff8a406a6ec3b61d5c038009cef85f2ddfaf616822dc4fec92845149b4/trades?cursor=113725249324879873&limit=10&order=asc",
         },
         prev: {
-          href: "https://private-33c60-amm3.apiary-mock.com/liquidity_pools/3b476aff8a406a6ec3b61d5c038009cef85f2ddfaf616822dc4fec92845149b4/trades?cursor=113725249324879873&limit=10&order=asc"
-        }
+          href: "https://private-33c60-amm3.apiary-mock.com/liquidity_pools/3b476aff8a406a6ec3b61d5c038009cef85f2ddfaf616822dc4fec92845149b4/trades?cursor=113725249324879873&limit=10&order=asc",
+        },
       },
       _embedded: {
         records: [
           {
             _links: {
               self: {
-                href: ""
+                href: "",
               },
               base: {
-                href: "https://private-33c60-amm3.apiary-mock.com/accounts/GAVH5JM5OKXGMQDS7YPRJ4MQCPXJUGH26LYQPQJ4SOMOJ4SXY472ZM7G"
+                href: "https://private-33c60-amm3.apiary-mock.com/accounts/GAVH5JM5OKXGMQDS7YPRJ4MQCPXJUGH26LYQPQJ4SOMOJ4SXY472ZM7G",
               },
               counter: {
-                href: "https://private-33c60-amm3.apiary-mock.com/accounts/GBB4JST32UWKOLGYYSCEYBHBCOFL2TGBHDVOMZP462ET4ZRD4ULA7S2L"
+                href: "https://private-33c60-amm3.apiary-mock.com/accounts/GBB4JST32UWKOLGYYSCEYBHBCOFL2TGBHDVOMZP462ET4ZRD4ULA7S2L",
               },
               operation: {
-                href: "https://private-33c60-amm3.apiary-mock.com/operations/3697472920621057"
-              }
+                href: "https://private-33c60-amm3.apiary-mock.com/operations/3697472920621057",
+              },
             },
             id: "3697472920621057-0",
             paging_token: "3697472920621057-0",
@@ -810,12 +810,12 @@ describe("/liquidity_pools tests", function () {
             base_is_seller: true,
             price: {
               n: "267",
-              d: "1000"
+              d: "1000",
             },
-            trade_type: "liquidity_pool"
-          }
-        ]
-      }
+            trade_type: "liquidity_pool",
+          },
+        ],
+      },
     };
 
     it("retrieves its trades", function (done) {
@@ -830,7 +830,7 @@ describe("/liquidity_pools tests", function () {
         .call()
         .then((poolTrades) => {
           expect(poolTrades.records).to.deep.equal(
-            poolTradesResponse._embedded.records
+            poolTradesResponse._embedded.records,
           );
           done();
         })
@@ -845,14 +845,14 @@ describe("/liquidity_pools tests", function () {
     const poolOpsResponse = {
       _links: {
         self: {
-          href: "https://private-33c60-amm3.apiary-mock.com/liquidity_pools/1/operations?cursor=113725249324879873&limit=10&order=asc"
+          href: "https://private-33c60-amm3.apiary-mock.com/liquidity_pools/1/operations?cursor=113725249324879873&limit=10&order=asc",
         },
         next: {
-          href: "https://private-33c60-amm3.apiary-mock.com/liquidity_pools/1/operations?cursor=113725249324879873&limit=10&order=asc"
+          href: "https://private-33c60-amm3.apiary-mock.com/liquidity_pools/1/operations?cursor=113725249324879873&limit=10&order=asc",
         },
         prev: {
-          href: "https://private-33c60-amm3.apiary-mock.com/liquidity_pools/1/operations?cursor=113725249324879873&limit=10&order=desc"
-        }
+          href: "https://private-33c60-amm3.apiary-mock.com/liquidity_pools/1/operations?cursor=113725249324879873&limit=10&order=desc",
+        },
       },
       _embedded: {
         records: [
@@ -873,37 +873,37 @@ describe("/liquidity_pools tests", function () {
               {
                 asset:
                   "JPY:GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM",
-                amount: "1000.0000005"
+                amount: "1000.0000005",
               },
               {
                 asset:
                   "EURT:GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S",
-                amount: "3000.0000005"
-              }
+                amount: "3000.0000005",
+              },
             ],
             min_price: "0.2680000",
             min_price_r: {
               n: 67,
-              d: 250
+              d: 250,
             },
             max_price: "0.3680000",
             max_price_r: {
               n: 73,
-              d: 250
+              d: 250,
             },
             reserves_deposited: [
               {
                 asset:
                   "JPY:GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM",
-                amount: "983.0000005"
+                amount: "983.0000005",
               },
               {
                 asset:
                   "EURT:GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S",
-                amount: "2378.0000005"
-              }
+                amount: "2378.0000005",
+              },
             ],
-            shares_received: "1000"
+            shares_received: "1000",
           },
           {
             id: "3697472920621057",
@@ -921,27 +921,27 @@ describe("/liquidity_pools tests", function () {
               {
                 asset:
                   "EURT:GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S",
-                min: "1000.0000005"
+                min: "1000.0000005",
               },
               {
                 asset:
                   "PHP:GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S",
-                min: "3000.0000005"
-              }
+                min: "3000.0000005",
+              },
             ],
             shares: "200",
             reserves_received: [
               {
                 asset:
                   "EURT:GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S",
-                amount: "993.0000005"
+                amount: "993.0000005",
               },
               {
                 asset:
                   "PHP:GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S",
-                amount: "2478.0000005"
-              }
-            ]
+                amount: "2478.0000005",
+              },
+            ],
           },
           {
             id: "157639717969326081",
@@ -957,7 +957,7 @@ describe("/liquidity_pools tests", function () {
             asset_type: "liquidity_pool_shares",
             liquidity_pool_id: "1",
             limit: "1000",
-            trustor: "GBBWI7TEVQBPEUXKYNGI3GBAH7EHFEREONKK3UK56ZSLJIDIYHQJCVSG"
+            trustor: "GBBWI7TEVQBPEUXKYNGI3GBAH7EHFEREONKK3UK56ZSLJIDIYHQJCVSG",
           },
           {
             id: "157235845014249474-0",
@@ -978,11 +978,11 @@ describe("/liquidity_pools tests", function () {
             base_is_seller: false,
             price: {
               n: "10000000",
-              d: "899997"
-            }
-          }
-        ]
-      }
+              d: "899997",
+            },
+          },
+        ],
+      },
     };
 
     it("retrieves its operations", function (done) {
@@ -997,7 +997,7 @@ describe("/liquidity_pools tests", function () {
         .call()
         .then((poolOps) => {
           expect(poolOps.records).to.deep.equal(
-            poolOpsResponse._embedded.records
+            poolOpsResponse._embedded.records,
           );
           done();
         })
@@ -1007,45 +1007,45 @@ describe("/liquidity_pools tests", function () {
     const poolTxsResponse = {
       _links: {
         self: {
-          href: "https://private-33c60-amm3.apiary-mock.com/liquidity_pools/1/transactions?cursor=113725249324879873&limit=10&order=asc"
+          href: "https://private-33c60-amm3.apiary-mock.com/liquidity_pools/1/transactions?cursor=113725249324879873&limit=10&order=asc",
         },
         next: {
-          href: "https://private-33c60-amm3.apiary-mock.com/liquidity_pools/1/transactions?cursor=113725249324879873&limit=10&order=asc"
+          href: "https://private-33c60-amm3.apiary-mock.com/liquidity_pools/1/transactions?cursor=113725249324879873&limit=10&order=asc",
         },
         prev: {
-          href: "https://private-33c60-amm3.apiary-mock.com/liquidity_pools/1/transactions?cursor=113725249324879873&limit=10&order=desc"
-        }
+          href: "https://private-33c60-amm3.apiary-mock.com/liquidity_pools/1/transactions?cursor=113725249324879873&limit=10&order=desc",
+        },
       },
       _embedded: {
         records: [
           {
             _links: {
               self: {
-                href: "https://private-33c60-amm3.apiary-mock.com/transactions/2ff47e1bafe68639276b2a8df0a73597ee0c062fbcc72d121af314fe7851c908"
+                href: "https://private-33c60-amm3.apiary-mock.com/transactions/2ff47e1bafe68639276b2a8df0a73597ee0c062fbcc72d121af314fe7851c908",
               },
               account: {
-                href: "https://private-33c60-amm3.apiary-mock.com/accounts/GAHQN6YNYD6ZT7TLAVE4R36MSZWQJZ22XB3WD4RLSHURMXHW4VHJIDF7"
+                href: "https://private-33c60-amm3.apiary-mock.com/accounts/GAHQN6YNYD6ZT7TLAVE4R36MSZWQJZ22XB3WD4RLSHURMXHW4VHJIDF7",
               },
               ledger: {
-                href: "https://private-33c60-amm3.apiary-mock.com/ledgers/895788"
+                href: "https://private-33c60-amm3.apiary-mock.com/ledgers/895788",
               },
               operations: {
                 href: "https://private-33c60-amm3.apiary-mock.com/transactions/2ff47e1bafe68639276b2a8df0a73597ee0c062fbcc72d121af314fe7851c908/operations",
-                templated: true
+                templated: true,
               },
               effects: {
                 href: "https://private-33c60-amm3.apiary-mock.com/transactions/2ff47e1bafe68639276b2a8df0a73597ee0c062fbcc72d121af314fe7851c908/effects",
-                templated: true
+                templated: true,
               },
               precedes: {
-                href: "https://private-33c60-amm3.apiary-mock.com/transactions?order=asc&cursor=3847380164161536"
+                href: "https://private-33c60-amm3.apiary-mock.com/transactions?order=asc&cursor=3847380164161536",
               },
               succeeds: {
-                href: "https://private-33c60-amm3.apiary-mock.com/transactions?order=desc&cursor=3847380164161536"
+                href: "https://private-33c60-amm3.apiary-mock.com/transactions?order=desc&cursor=3847380164161536",
               },
               transaction: {
-                href: "https://private-33c60-amm3.apiary-mock.com/transactions/2ff47e1bafe68639276b2a8df0a73597ee0c062fbcc72d121af314fe7851c908"
-              }
+                href: "https://private-33c60-amm3.apiary-mock.com/transactions/2ff47e1bafe68639276b2a8df0a73597ee0c062fbcc72d121af314fe7851c908",
+              },
             },
             id: "2ff47e1bafe68639276b2a8df0a73597ee0c062fbcc72d121af314fe7851c908",
             paging_token: "3847380164161536",
@@ -1070,11 +1070,11 @@ describe("/liquidity_pools tests", function () {
               "AAAAAgAAAAMADasrAAAAAAAAAAAPBvsNwP2Z/msFScjvzJZtBOdauHdh8iuR6RZc9uVOlAAAAAAa0nQcAA2rKgAAAAEAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAEADassAAAAAAAAAAAPBvsNwP2Z/msFScjvzJZtBOdauHdh8iuR6RZc9uVOlAAAAAAa0k0MAA2rKgAAAAEAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAA==",
             memo_type: "none",
             signatures: [
-              "l5kbKF5kYiY1K7W5A2WEZ82nObNQlVeINkZSIASLkLcttZ6c9wNVYVHEpgMfhprMhsVRbyK3HbLU2sCZZsvZBQ=="
-            ]
-          }
-        ]
-      }
+              "l5kbKF5kYiY1K7W5A2WEZ82nObNQlVeINkZSIASLkLcttZ6c9wNVYVHEpgMfhprMhsVRbyK3HbLU2sCZZsvZBQ==",
+            ],
+          },
+        ],
+      },
     };
 
     it("retrieves its transactions", function (done) {
@@ -1089,7 +1089,7 @@ describe("/liquidity_pools tests", function () {
         .call()
         .then((poolTxs) => {
           expect(poolTxs.records).to.deep.equal(
-            poolTxsResponse._embedded.records
+            poolTxsResponse._embedded.records,
           );
           done();
         })
@@ -1099,28 +1099,28 @@ describe("/liquidity_pools tests", function () {
     const poolFxsResponse = {
       _links: {
         self: {
-          href: "https://private-33c60-amm3.apiary-mock.com/liquidity_pools?cursor=113725249324879873&limit=10&order=asc"
+          href: "https://private-33c60-amm3.apiary-mock.com/liquidity_pools?cursor=113725249324879873&limit=10&order=asc",
         },
         next: {
-          href: "https://private-33c60-amm3.apiary-mock.com/liquidity_pools?cursor=113725249324879873&limit=10&order=asc"
+          href: "https://private-33c60-amm3.apiary-mock.com/liquidity_pools?cursor=113725249324879873&limit=10&order=asc",
         },
         prev: {
-          href: "https://private-33c60-amm3.apiary-mock.com/liquidity_pools?cursor=113725249324879873&limit=10&order=asc"
-        }
+          href: "https://private-33c60-amm3.apiary-mock.com/liquidity_pools?cursor=113725249324879873&limit=10&order=asc",
+        },
       },
       _embedded: {
         records: [
           {
             _links: {
               operation: {
-                href: "https://private-33c60-amm3.apiary-mock.com/operations/3849085266190337"
+                href: "https://private-33c60-amm3.apiary-mock.com/operations/3849085266190337",
               },
               succeeds: {
-                href: "https://private-33c60-amm3.apiary-mock.com/effects?order=desc&cursor=3849085266190337-1"
+                href: "https://private-33c60-amm3.apiary-mock.com/effects?order=desc&cursor=3849085266190337-1",
               },
               precedes: {
-                href: "https://private-33c60-amm3.apiary-mock.com/effects?order=asc&cursor=3849085266190337-1"
-              }
+                href: "https://private-33c60-amm3.apiary-mock.com/effects?order=asc&cursor=3849085266190337-1",
+              },
             },
             id: "0000000012884905986-0000000001",
             paging_token: "12884905986-2",
@@ -1138,28 +1138,28 @@ describe("/liquidity_pools tests", function () {
                 {
                   amount: "1000.0000005",
                   asset:
-                    "EURT:GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S"
+                    "EURT:GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S",
                 },
                 {
                   amount: "2000.0000000",
                   asset:
-                    "PHP:GBUQWP3BOUZX34TOND2QV7QQ7K7VJTG6VSE7WMLBTMDJLLAW7YKGU6EP"
-                }
-              ]
+                    "PHP:GBUQWP3BOUZX34TOND2QV7QQ7K7VJTG6VSE7WMLBTMDJLLAW7YKGU6EP",
+                },
+              ],
             },
             reserves_deposited: [
               {
                 asset:
                   "JPY:GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM",
-                amount: "983.0000005"
+                amount: "983.0000005",
               },
               {
                 asset:
                   "EURT:GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S",
-                amount: "2378.0000005"
-              }
+                amount: "2378.0000005",
+              },
             ],
-            shares_received: "1000"
+            shares_received: "1000",
           },
           {
             id: "0000000012884905986-0000000002",
@@ -1178,28 +1178,28 @@ describe("/liquidity_pools tests", function () {
                 {
                   amount: "7.0000005",
                   asset:
-                    "EURT:GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S"
+                    "EURT:GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S",
                 },
                 {
                   amount: "1.0000000",
                   asset:
-                    "PHP:GBUQWP3BOUZX34TOND2QV7QQ7K7VJTG6VSE7WMLBTMDJLLAW7YKGU6EP"
-                }
-              ]
+                    "PHP:GBUQWP3BOUZX34TOND2QV7QQ7K7VJTG6VSE7WMLBTMDJLLAW7YKGU6EP",
+                },
+              ],
             },
             reserves_received: [
               {
                 asset:
                   "JPY:GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM",
-                amount: "993.0000005"
+                amount: "993.0000005",
               },
               {
                 asset:
                   "EURT:GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S",
-                amount: "2478.0000005"
-              }
+                amount: "2478.0000005",
+              },
             ],
-            shares_redeemed: "1000"
+            shares_redeemed: "1000",
           },
           {
             id: "0000000012884905986-0000000003",
@@ -1218,25 +1218,25 @@ describe("/liquidity_pools tests", function () {
                 {
                   amount: "1000.0000005",
                   asset:
-                    "EURT:GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S"
+                    "EURT:GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S",
                 },
                 {
                   amount: "2000.0000000",
                   asset:
-                    "PHP:GBUQWP3BOUZX34TOND2QV7QQ7K7VJTG6VSE7WMLBTMDJLLAW7YKGU6EP"
-                }
-              ]
+                    "PHP:GBUQWP3BOUZX34TOND2QV7QQ7K7VJTG6VSE7WMLBTMDJLLAW7YKGU6EP",
+                },
+              ],
             },
             sold: {
               asset:
                 "JPY:GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM",
-              amount: "983.0000005"
+              amount: "983.0000005",
             },
             bought: {
               asset:
                 "EURT:GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S",
-              amount: "2378.0000005"
-            }
+              amount: "2378.0000005",
+            },
           },
           {
             id: "0000000012884905986-0000000004",
@@ -1255,15 +1255,15 @@ describe("/liquidity_pools tests", function () {
                 {
                   amount: "0",
                   asset:
-                    "EURT:GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S"
+                    "EURT:GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S",
                 },
                 {
                   amount: "0",
                   asset:
-                    "PHP:GBUQWP3BOUZX34TOND2QV7QQ7K7VJTG6VSE7WMLBTMDJLLAW7YKGU6EP"
-                }
-              ]
-            }
+                    "PHP:GBUQWP3BOUZX34TOND2QV7QQ7K7VJTG6VSE7WMLBTMDJLLAW7YKGU6EP",
+                },
+              ],
+            },
           },
           {
             id: "0000000012884905986-0000000005",
@@ -1272,7 +1272,7 @@ describe("/liquidity_pools tests", function () {
             type: "liquidity_pool_removed",
             type_i: 85,
             created_at: "2021-11-18T03:15:54Z",
-            liquidity_pool_id: "abcdef"
+            liquidity_pool_id: "abcdef",
           },
           {
             id: "0000000012884905986-0000000006",
@@ -1291,30 +1291,30 @@ describe("/liquidity_pools tests", function () {
                 {
                   amount: "7.0000005",
                   asset:
-                    "EURT:GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S"
+                    "EURT:GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S",
                 },
                 {
                   amount: "1.0000000",
                   asset:
-                    "PHP:GBUQWP3BOUZX34TOND2QV7QQ7K7VJTG6VSE7WMLBTMDJLLAW7YKGU6EP"
-                }
-              ]
+                    "PHP:GBUQWP3BOUZX34TOND2QV7QQ7K7VJTG6VSE7WMLBTMDJLLAW7YKGU6EP",
+                },
+              ],
             },
             reserves_revoked: [
               {
                 asset:
                   "JPY:GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM",
                 amount: "993.0000005",
-                claimable_balance_id: "cbid1235"
+                claimable_balance_id: "cbid1235",
               },
               {
                 asset:
                   "EURT:GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S",
                 amount: "2478.0000005",
-                claimable_balance_id: "idcbd1234"
-              }
+                claimable_balance_id: "idcbd1234",
+              },
             ],
-            shares_revoked: "1000"
+            shares_revoked: "1000",
           },
           {
             id: "0000000012884905986-0000000007",
@@ -1325,7 +1325,7 @@ describe("/liquidity_pools tests", function () {
             created_at: "2021-08-04T20:01:24Z",
             asset_type: "liquidity_pool_shares",
             liquidity_pool_id: "abcdef",
-            limit: "1000"
+            limit: "1000",
           },
           {
             id: "0000000012884905986-0000000008",
@@ -1336,7 +1336,7 @@ describe("/liquidity_pools tests", function () {
             created_at: "2021-08-04T20:01:24Z",
             asset_type: "liquidity_pool_shares",
             liquidity_pool_id: "abcdef",
-            limit: "2000"
+            limit: "2000",
           },
           {
             id: "0000000012884905986-0000000009",
@@ -1347,10 +1347,10 @@ describe("/liquidity_pools tests", function () {
             created_at: "2021-08-04T20:01:24Z",
             asset_type: "liquidity_pool_shares",
             liquidity_pool_id: "abcdef",
-            limit: "0.0000000"
-          }
-        ]
-      }
+            limit: "0.0000000",
+          },
+        ],
+      },
     };
 
     it("retrieves its effects", function (done) {
@@ -1365,7 +1365,7 @@ describe("/liquidity_pools tests", function () {
         .call()
         .then((poolFxs) => {
           expect(poolFxs.records).to.deep.equal(
-            poolFxsResponse._embedded.records
+            poolFxsResponse._embedded.records,
           );
           done();
         })

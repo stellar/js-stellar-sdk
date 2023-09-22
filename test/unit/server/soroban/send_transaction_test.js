@@ -10,15 +10,15 @@ describe("Server#sendTransaction", function () {
     let transaction = new StellarSdk.TransactionBuilder(account, {
       fee: 100,
       networkPassphrase: StellarSdk.Networks.TESTNET,
-      v1: true
+      v1: true,
     })
       .addOperation(
         StellarSdk.Operation.payment({
           destination:
             "GASOCNHNNLYFNMDJYQ3XFMI7BYHIOCFW3GJEOWRPEGK2TDPGTG2E5EDW",
           asset: StellarSdk.Asset.native(),
-          amount: "100.50"
-        })
+          amount: "100.50",
+        }),
       )
       .setTimeout(StellarSdk.TimeoutInfinite)
       .build();
@@ -41,12 +41,12 @@ describe("Server#sendTransaction", function () {
         jsonrpc: "2.0",
         id: 1,
         method: "sendTransaction",
-        params: [this.blob]
+        params: [this.blob],
       })
       .returns(
         Promise.resolve({
-          data: { id: 1, result: { id: this.hash, status: "PENDING" } }
-        })
+          data: { id: 1, result: { id: this.hash, status: "PENDING" } },
+        }),
       );
 
     this.server

@@ -12,16 +12,16 @@ module.exports = function (config) {
     files: [
       "../dist/stellar-sdk.js", // webpack should build this first
       "../test/test-browser.js",
-      "../test/unit/**/*.js"
+      "../test/unit/**/*.js",
     ],
 
     preprocessors: {
-      "../test/**/*.js": ["webpack"]
+      "../test/**/*.js": ["webpack"],
     },
 
     webpack: webpackConfig,
     webpackMiddleware: {
-      noInfo: true
+      noInfo: true,
     },
 
     colors: true,
@@ -31,8 +31,8 @@ module.exports = function (config) {
     coverageReporter: {
       type: "text-summary",
       instrumenterOptions: {
-        istanbul: { noCompact: true }
-      }
-    }
+        istanbul: { noCompact: true },
+      },
+    },
   });
 };

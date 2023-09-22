@@ -10,7 +10,7 @@ before(() => {
 });
 it("throws if no entries", () => {
   expect(() => new ContractSpec([])).to.throw(
-    /Contract spec must have at least one entry/i
+    /Contract spec must have at least one entry/i,
   );
 });
 describe("Can round trip custom types", function () {
@@ -63,7 +63,7 @@ describe("Can round trip custom types", function () {
     it("struct", () => {
       const complex = {
         tag: "Struct",
-        values: [{ a: 0, b: true, c: "hello" }]
+        values: [{ a: 0, b: true, c: "hello" }],
       };
       roundtrip("complex", complex);
     });
@@ -73,16 +73,16 @@ describe("Can round trip custom types", function () {
         values: [
           [
             { a: 0, b: true, c: "hello" },
-            { tag: "First", values: undefined }
-          ]
-        ]
+            { tag: "First", values: undefined },
+          ],
+        ],
       };
       roundtrip("complex", complex);
     });
     it("enum", () => {
       const complex = {
         tag: "Enum",
-        values: [{ tag: "First", values: undefined }]
+        values: [{ tag: "First", values: undefined }],
       };
       roundtrip("complex", complex);
     });
@@ -129,7 +129,7 @@ describe("Can round trip custom types", function () {
     roundtrip("map", map);
     map.set(3, "hahaha");
     expect(() => roundtrip("map", map)).to.throw(
-      /invalid type scSpecTypeBool specified for string value/i
+      /invalid type scSpecTypeBool specified for string value/i,
     );
   });
   it("vec", () => {
@@ -147,7 +147,7 @@ describe("Can round trip custom types", function () {
   it("u256", () => {
     roundtrip("u256", 1n);
     expect(() => roundtrip("u256", -1n)).to.throw(
-      /expected a positive value, got: -1/i
+      /expected a positive value, got: -1/i,
     );
   });
   it("i256", () => {
@@ -159,7 +159,7 @@ describe("Can round trip custom types", function () {
   it("tuple_strukt", () => {
     const arg = [
       { a: 0, b: true, c: "hello" },
-      { tag: "First", values: undefined }
+      { tag: "First", values: undefined },
     ];
     roundtrip("tuple_strukt", arg);
   });
@@ -182,63 +182,63 @@ export const GIGA_MAP = xdr.ScSpecEntry.scSpecEntryUdtStructV0(
       new xdr.ScSpecUdtStructFieldV0({
         doc: "",
         name: "bool",
-        type: xdr.ScSpecTypeDef.scSpecTypeBool()
+        type: xdr.ScSpecTypeDef.scSpecTypeBool(),
       }),
       new xdr.ScSpecUdtStructFieldV0({
         doc: "",
         name: "i128",
-        type: xdr.ScSpecTypeDef.scSpecTypeI128()
+        type: xdr.ScSpecTypeDef.scSpecTypeI128(),
       }),
       new xdr.ScSpecUdtStructFieldV0({
         doc: "",
         name: "u128",
-        type: xdr.ScSpecTypeDef.scSpecTypeU128()
+        type: xdr.ScSpecTypeDef.scSpecTypeU128(),
       }),
       new xdr.ScSpecUdtStructFieldV0({
         doc: "",
         name: "i256",
-        type: xdr.ScSpecTypeDef.scSpecTypeI256()
+        type: xdr.ScSpecTypeDef.scSpecTypeI256(),
       }),
       new xdr.ScSpecUdtStructFieldV0({
         doc: "",
         name: "u256",
-        type: xdr.ScSpecTypeDef.scSpecTypeU256()
+        type: xdr.ScSpecTypeDef.scSpecTypeU256(),
       }),
       new xdr.ScSpecUdtStructFieldV0({
         doc: "",
         name: "i32",
-        type: xdr.ScSpecTypeDef.scSpecTypeI32()
+        type: xdr.ScSpecTypeDef.scSpecTypeI32(),
       }),
       new xdr.ScSpecUdtStructFieldV0({
         doc: "",
         name: "u32",
-        type: xdr.ScSpecTypeDef.scSpecTypeU32()
+        type: xdr.ScSpecTypeDef.scSpecTypeU32(),
       }),
       new xdr.ScSpecUdtStructFieldV0({
         doc: "",
         name: "i64",
-        type: xdr.ScSpecTypeDef.scSpecTypeI64()
+        type: xdr.ScSpecTypeDef.scSpecTypeI64(),
       }),
       new xdr.ScSpecUdtStructFieldV0({
         doc: "",
         name: "u64",
-        type: xdr.ScSpecTypeDef.scSpecTypeU64()
+        type: xdr.ScSpecTypeDef.scSpecTypeU64(),
       }),
       new xdr.ScSpecUdtStructFieldV0({
         doc: "",
         name: "symbol",
-        type: xdr.ScSpecTypeDef.scSpecTypeSymbol()
+        type: xdr.ScSpecTypeDef.scSpecTypeSymbol(),
       }),
       new xdr.ScSpecUdtStructFieldV0({
         doc: "",
         name: "string",
-        type: xdr.ScSpecTypeDef.scSpecTypeString()
-      })
-    ]
-  })
+        type: xdr.ScSpecTypeDef.scSpecTypeString(),
+      }),
+    ],
+  }),
 );
 const GIGA_MAP_TYPE = xdr.ScSpecTypeDef.scSpecTypeUdt(
-  new xdr.ScSpecTypeUdt({ name: "GigaMap" })
+  new xdr.ScSpecTypeUdt({ name: "GigaMap" }),
 );
 let func = xdr.ScSpecEntry.scSpecEntryFunctionV0(
   new xdr.ScSpecFunctionV0({
@@ -248,9 +248,9 @@ let func = xdr.ScSpecEntry.scSpecEntryFunctionV0(
       new xdr.ScSpecFunctionInputV0({
         doc: "",
         name: "giga_map",
-        type: GIGA_MAP_TYPE
-      })
+        type: GIGA_MAP_TYPE,
+      }),
     ],
-    outputs: [GIGA_MAP_TYPE]
-  })
+    outputs: [GIGA_MAP_TYPE],
+  }),
 );

@@ -10,21 +10,21 @@ const config = {
   // https://stackoverflow.com/a/34018909
   entry: {
     "stellar-sdk": path.resolve(__dirname, "../src/browser.ts"),
-    "stellar-sdk.min": path.resolve(__dirname, "../src/browser.ts")
+    "stellar-sdk.min": path.resolve(__dirname, "../src/browser.ts"),
   },
   resolve: {
     fallback: {
       crypto: require.resolve("crypto-browserify"),
       stream: require.resolve("stream-browserify"),
-      buffer: require.resolve("buffer")
+      buffer: require.resolve("buffer"),
     },
-    extensions: [".ts", ".js"]
+    extensions: [".ts", ".js"],
   },
   output: {
     clean: true,
     library: "StellarSdk",
     compareBeforeEmit: true,
-    path: path.resolve(__dirname, "../dist")
+    path: path.resolve(__dirname, "../dist"),
   },
   mode: process.env.NODE_ENV ?? "development",
   devtool: process.env.NODE_ENV === "production" ? false : "inline-source-map",
@@ -36,11 +36,11 @@ const config = {
         use: {
           loader: "babel-loader",
           options: {
-            cacheDirectory: true
-          }
-        }
-      }
-    ]
+            cacheDirectory: true,
+          },
+        },
+      },
+    ],
   },
   optimization: {
     minimize: true,
@@ -49,29 +49,29 @@ const config = {
         include: /\.min\.js$/,
         terserOptions: {
           format: {
-            ascii_only: true
-          }
-        }
-      })
-    ]
+            ascii_only: true,
+          },
+        },
+      }),
+    ],
   },
   plugins: [
     // this must be first for karma to work (see line 5 of karma.conf.js)
     new ESLintPlugin({
-      overrideConfigFile: path.resolve(__dirname, "../.eslintrc.js")
+      overrideConfigFile: path.resolve(__dirname, "../.eslintrc.js"),
     }),
     // Ignore native modules (sodium-native)
     new webpack.IgnorePlugin({ resourceRegExp: /sodium-native/ }),
     new NodePolyfillPlugin({
-      includeAliases: ["http", "https"] // others aren't needed
+      includeAliases: ["http", "https"], // others aren't needed
     }),
     new webpack.ProvidePlugin({
-      Buffer: ["buffer", "Buffer"]
-    })
+      Buffer: ["buffer", "Buffer"],
+    }),
   ],
   watchOptions: {
-    ignored: /(node_modules|coverage|lib|dist)/
-  }
+    ignored: /(node_modules|coverage|lib|dist)/,
+  },
 };
 
 module.exports = config;

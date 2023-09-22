@@ -4,7 +4,7 @@ describe("assembleTransaction", () => {
   xit("works with keybump transactions");
 
   const scAddress = new StellarSdk.Address(
-    "GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI"
+    "GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI",
   ).toScAddress();
 
   const fnAuth = new xdr.SorobanAuthorizationEntry({
@@ -14,8 +14,8 @@ describe("assembleTransaction", () => {
         address: scAddress,
         nonce: new xdr.Int64(0),
         signatureExpirationLedger: 1,
-        signature: xdr.ScVal.scvVoid()
-      })
+        signature: xdr.ScVal.scvVoid(),
+      }),
     ),
     // And a basic invocation
     rootInvocation: new xdr.SorobanAuthorizedInvocation({
@@ -24,11 +24,11 @@ describe("assembleTransaction", () => {
           new xdr.InvokeContractArgs({
             contractAddress: scAddress,
             functionName: "fn",
-            args: []
-          })
+            args: [],
+          }),
         ),
-      subInvocations: []
-    })
+      subInvocations: [],
+    }),
   }).toXDR();
 
   const sorobanTransactionData = new StellarSdk.SorobanDataBuilder()
@@ -42,21 +42,21 @@ describe("assembleTransaction", () => {
     results: [
       {
         auth: [fnAuth],
-        xdr: xdr.ScVal.scvU32(0).toXDR("base64")
-      }
+        xdr: xdr.ScVal.scvU32(0).toXDR("base64"),
+      },
     ],
     latestLedger: 3,
     cost: {
       cpuInsns: "0",
-      memBytes: "0"
-    }
+      memBytes: "0",
+    },
   };
 
   describe("Transaction", () => {
     const networkPassphrase = StellarSdk.Networks.TESTNET;
     const source = new StellarSdk.Account(
       "GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI",
-      "1"
+      "1",
     );
 
     function singleContractFnTransaction(auth) {
@@ -69,11 +69,11 @@ describe("assembleTransaction", () => {
               new xdr.InvokeContractArgs({
                 contractAddress: scAddress,
                 functionName: "hello",
-                args: [xdr.ScVal.scvString("hello")]
-              })
+                args: [xdr.ScVal.scvString("hello")],
+              }),
             ),
-            auth: auth ?? []
-          })
+            auth: auth ?? [],
+          }),
         )
         .build();
     }
@@ -83,7 +83,7 @@ describe("assembleTransaction", () => {
       const result = StellarSdk.assembleTransaction(
         txn,
         networkPassphrase,
-        simulationResponse
+        simulationResponse,
       ).build();
 
       // validate it auto updated the tx fees from sim response fees
@@ -92,7 +92,7 @@ describe("assembleTransaction", () => {
 
       // validate it udpated sorobantransactiondata block in the tx ext
       expect(result.toEnvelope().v1().tx().ext().sorobanData()).to.deep.equal(
-        sorobanTransactionData
+        sorobanTransactionData,
       );
     });
 
@@ -101,7 +101,7 @@ describe("assembleTransaction", () => {
       const result = StellarSdk.assembleTransaction(
         txn,
         networkPassphrase,
-        simulationResponse
+        simulationResponse,
       ).build();
 
       expect(
@@ -117,7 +117,7 @@ describe("assembleTransaction", () => {
           .function()
           .contractFn()
           .functionName()
-          .toString()
+          .toString(),
       ).to.equal("fn");
 
       expect(
@@ -134,8 +134,8 @@ describe("assembleTransaction", () => {
             .address()
             .address()
             .accountId()
-            .ed25519()
-        )
+            .ed25519(),
+        ),
       ).to.equal("GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI");
     });
 
@@ -146,7 +146,7 @@ describe("assembleTransaction", () => {
       const result = StellarSdk.assembleTransaction(
         txn,
         networkPassphrase,
-        simulateResp
+        simulateResp,
       ).build();
 
       expect(
@@ -157,7 +157,7 @@ describe("assembleTransaction", () => {
           .operations()[0]
           .body()
           .invokeHostFunctionOp()
-          .auth()
+          .auth(),
       ).to.have.length(0);
     });
 
@@ -165,12 +165,12 @@ describe("assembleTransaction", () => {
       const txn = new StellarSdk.TransactionBuilder(source, {
         fee: 100,
         networkPassphrase,
-        v1: true
+        v1: true,
       })
         .addOperation(
           StellarSdk.Operation.changeTrust({
-            asset: StellarSdk.Asset.native()
-          })
+            asset: StellarSdk.Asset.native(),
+          }),
         )
         .setTimeout(StellarSdk.TimeoutInfinite)
         .build();
@@ -181,7 +181,7 @@ describe("assembleTransaction", () => {
           events: [],
           minResourceFee: "0",
           results: [],
-          latestLedger: 3
+          latestLedger: 3,
         }).build();
         expect.fail();
       }).to.throw(/unsupported transaction/i);
@@ -190,17 +190,17 @@ describe("assembleTransaction", () => {
     it("works for all Soroban ops", function () {
       [
         StellarSdk.Operation.invokeHostFunction({
-          func: xdr.HostFunction.hostFunctionTypeInvokeContract()
+          func: xdr.HostFunction.hostFunctionTypeInvokeContract(),
         }),
         StellarSdk.Operation.bumpFootprintExpiration({
-          ledgersToExpire: 27
+          ledgersToExpire: 27,
         }),
-        StellarSdk.Operation.restoreFootprint()
+        StellarSdk.Operation.restoreFootprint(),
       ].forEach((op) => {
         const txn = new StellarSdk.TransactionBuilder(source, {
           fee: 100,
           networkPassphrase,
-          v1: true
+          v1: true,
         })
           .setTimeout(StellarSdk.TimeoutInfinite)
           .addOperation(op)
@@ -209,7 +209,7 @@ describe("assembleTransaction", () => {
         const tx = StellarSdk.assembleTransaction(
           txn,
           networkPassphrase,
-          simulationResponse
+          simulationResponse,
         ).build();
         expect(tx.operations[0].type).to.equal(op.body().switch().name);
       });
@@ -220,12 +220,12 @@ describe("assembleTransaction", () => {
       const tx = StellarSdk.assembleTransaction(
         txn,
         networkPassphrase,
-        simulationResponse
+        simulationResponse,
       ).build();
 
       expect(tx.operations[0].auth.length).to.equal(
         3,
-        `auths aren't preserved after simulation: ${simulationResponse}, ${tx}`
+        `auths aren't preserved after simulation: ${simulationResponse}, ${tx}`,
       );
     });
   });
