@@ -1,7 +1,12 @@
 {
     "comments": true, // for debugging & jsdocs
     "presets": [
-        "@babel/preset-env",
+        [
+            "@babel/preset-env",
+            {
+                "modules": "commonjs"
+            }
+        ],
         "@babel/typescript"
     ],
     "targets": {
