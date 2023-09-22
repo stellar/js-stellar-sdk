@@ -1,6 +1,6 @@
 {
   "name": "stellar-sdk",
-  "version": "11.0.0-beta.2",
+  "version": "11.0.0-beta.4",
   "description": "A library for working with the Stellar Horizon server.",
   "keywords": [
     "stellar"
@@ -91,7 +91,7 @@
     "@types/eventsource": "^1.1.2",
     "@types/lodash": "^4.14.198",
     "@types/mocha": "^10.0.1",
-    "@types/node": "^20.6.0",
+    "@types/node": "^20.6.1",
     "@types/randombytes": "^2.0.0",
     "@types/sinon": "^10.0.16",
     "@types/urijs": "^1.19.20",
