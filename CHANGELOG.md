@@ -6,6 +6,12 @@ A breaking change will get clearly marked in this log.
 ## Unreleased
 
 
+## [v11.0.0-beta.4](https://github.com/stellar/js-stellar-sdk/compare/v11.0.0-beta.3...v11.0.0-beta.4)
+
+### Updated
+- The `stellar-base` dependency has been pinned to a specific version to avoid incorrect semver resolution ([]()).
+
+
 ## [v11.0.0-beta.3](https://github.com/stellar/js-stellar-sdk/compare/v11.0.0-beta.2...v11.0.0-beta.3)
 
 ### Fixed
