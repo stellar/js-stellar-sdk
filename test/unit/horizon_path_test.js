@@ -1,8 +1,8 @@
-const { HorizonServer } = StellarSdk;
+const { Horizon } = StellarSdk;
 
 describe("horizon path tests", function () {
   beforeEach(function () {
-    this.axiosMock = sinon.mock(HorizonAxiosClient);
+    this.axiosMock = sinon.mock(Horizon.AxiosClient);
     StellarSdk.Config.setDefault();
   });
 
@@ -12,7 +12,7 @@ describe("horizon path tests", function () {
   });
 
   function test_horizon_paths(serverUrl) {
-    let server = new HorizonServer(serverUrl);
+    let server = new Horizon.Server(serverUrl);
 
     let randomResult = {
       data: {

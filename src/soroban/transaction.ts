@@ -7,7 +7,7 @@ import {
   xdr
 } from "stellar-base";
 
-import { SorobanRpc } from "./soroban_rpc";
+import { Api } from "./soroban_rpc";
 
 /**
  * Combines the given raw transaction alongside the simulation results.
@@ -32,8 +32,8 @@ export function assembleTransaction(
   raw: Transaction | FeeBumpTransaction,
   networkPassphrase: string,
   simulation:
-    | SorobanRpc.SimulateTransactionResponse
-    | SorobanRpc.RawSimulateTransactionResponse
+    | Api.SimulateTransactionResponse
+    | Api.RawSimulateTransactionResponse
 ): TransactionBuilder {
   if ("innerTransaction" in raw) {
     // TODO: Handle feebump transactions
@@ -53,7 +53,7 @@ export function assembleTransaction(
   }
 
   let success = parseRawSimulation(simulation);
-  if (!SorobanRpc.isSimulationSuccess(success)) {
+  if (!Api.isSimulationSuccess(success)) {
     throw new Error(`simulation incorrect: ${JSON.stringify(success)}`);
   }
 
@@ -110,9 +110,9 @@ export function assembleTransaction(
  */
 export function parseRawSimulation(
   sim:
-    | SorobanRpc.SimulateTransactionResponse
-    | SorobanRpc.RawSimulateTransactionResponse
-): SorobanRpc.SimulateTransactionResponse {
+    | Api.SimulateTransactionResponse
+    | Api.RawSimulateTransactionResponse
+): Api.SimulateTransactionResponse {
   const looksRaw = isSimulationRaw(sim);
   if (!looksRaw) {
     // Gordon Ramsey in shambles
@@ -120,7 +120,7 @@ export function parseRawSimulation(
   }
 
   // shared across all responses
-  let base: SorobanRpc.BaseSimulateTransactionResponse = {
+  let base: Api.BaseSimulateTransactionResponse = {
     _parsed: true,
     id: sim.id,
     latestLedger: sim.latestLedger,
@@ -141,14 +141,14 @@ export function parseRawSimulation(
 }
 
 function parseSuccessful(
-  sim: SorobanRpc.RawSimulateTransactionResponse,
-  partial: SorobanRpc.BaseSimulateTransactionResponse
+  sim: Api.RawSimulateTransactionResponse,
+  partial: Api.BaseSimulateTransactionResponse
 ):
-  | SorobanRpc.SimulateTransactionRestoreResponse
-  | SorobanRpc.SimulateTransactionSuccessResponse {
+  | Api.SimulateTransactionRestoreResponse
+  | Api.SimulateTransactionSuccessResponse {
 
   // success type: might have a result (if invoking) and...
-  const success: SorobanRpc.SimulateTransactionSuccessResponse = {
+  const success: Api.SimulateTransactionSuccessResponse = {
     ...partial,
     transactionData: new SorobanDataBuilder(sim.transactionData!),
     minResourceFee: sim.minResourceFee!,
@@ -190,10 +190,10 @@ function parseSuccessful(
 
 export function isSimulationRaw(
   sim:
-    | SorobanRpc.SimulateTransactionResponse
-    | SorobanRpc.RawSimulateTransactionResponse
-): sim is SorobanRpc.RawSimulateTransactionResponse {
-  return !(sim as SorobanRpc.SimulateTransactionResponse)._parsed;
+    | Api.SimulateTransactionResponse
+    | Api.RawSimulateTransactionResponse
+): sim is Api.RawSimulateTransactionResponse {
+  return !(sim as Api.SimulateTransactionResponse)._parsed;
 }
 
 function isSorobanTransaction(tx: Transaction): boolean {

@@ -4,14 +4,14 @@
 // All endpoints from here are tested:
 // https://docs.google.com/document/d/1pXL8kr1a2vfYSap9T67R-g72B_WWbaE1YsLMa04OgoU/edit
 const _ = require("lodash");
-const { HorizonServer } = StellarSdk;
+const { Horizon } = StellarSdk;
 
 const MOCK_SERVER = "https://private-d133c-ammmock.apiary-mock.com";
 
 describe("tests the /liquidity_pools endpoint", function () {
   const lpId =
     "0569b19c75d7ecadce50501fffad6fe8ba4652455df9e1cc96dc408141124dd5";
-  const server = new HorizonServer(MOCK_SERVER, { allowHttp: true });
+  const server = Horizon.Server(MOCK_SERVER, { allowHttp: true });
 
   it("GET /", function (done) {
     chai
@@ -94,7 +94,7 @@ describe("tests the /liquidity_pools endpoint", function () {
 });
 
 describe("tests the /accounts endpoint", function () {
-  const server = new HorizonServer(MOCK_SERVER, { allowHttp: true });
+  const server = Horizon.Server(MOCK_SERVER, { allowHttp: true });
 
   it("GET /", function (done) {
     chai

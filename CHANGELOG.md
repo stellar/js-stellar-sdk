@@ -989,7 +989,7 @@ Many thanks to @Ffloriel and @Akuukis for their help with this release!
 
 - Add types for LedgerCallBuilder.ledger.
 - Add types for Server.operationFeeStats.
-- Add types for the HorizonAxiosClient export.
+- Add types for the Horizon.AxiosClient export.
 - Move @types/\* from devDependencies to dependencies.
 - Pass and use a stream response type to CallBuilders if it's different from the
   normal call response.

@@ -14,7 +14,7 @@ import {
 import AxiosClient from "./axios";
 import { Friendbot } from "./friendbot";
 import * as jsonrpc from "./jsonrpc";
-import { SorobanRpc } from "./soroban_rpc";
+import { Api } from "./soroban_rpc";
 import { assembleTransaction, parseRawSimulation } from "./transaction";
 
 export const SUBMIT_TRANSACTION_TIMEOUT = 60 * 1000;
@@ -30,7 +30,7 @@ export enum Durability {
 export namespace Server {
   /** Describes the complex filter combinations available for event queries. */
   export interface GetEventsRequest {
-    filters: SorobanRpc.EventFilter[];
+    filters: Api.EventFilter[];
     startLedger?: number; // either this or cursor
     cursor?: string;      // either this or startLedger
     limit?: number;
@@ -129,8 +129,8 @@ export class Server {
   /**
    * General node health check.
    *
-   * @returns {Promise<SorobanRpc.GetHealthResponse>}   a promise to the
-   *    {@link SorobanRpc.GetHealthResponse} object with the status of the
+   * @returns {Promise<Api.GetHealthResponse>}   a promise to the
+   *    {@link Api.GetHealthResponse} object with the status of the
    *    server (e.g. "healthy").
    *
    * @see https://soroban.stellar.org/api/methods/getHealth
@@ -139,8 +139,8 @@ export class Server {
    *   console.log("status:", health.status);
    * });
    */
-  public async getHealth(): Promise<SorobanRpc.GetHealthResponse> {
-    return jsonrpc.post<SorobanRpc.GetHealthResponse>(
+  public async getHealth(): Promise<Api.GetHealthResponse> {
+    return jsonrpc.post<Api.GetHealthResponse>(
       this.serverURL.toString(),
       "getHealth",
     );
@@ -161,7 +161,7 @@ export class Server {
    *    keyspace" that this ledger key belongs to, which is either 'temporary'
    *    or 'persistent' (the default), see {@link Durability}.
    *
-   * @returns {Promise<SorobanRpc.LedgerEntryResult>}   the current data value
+   * @returns {Promise<Api.LedgerEntryResult>}   the current data value
    *
    * @warning If the data entry in question is a 'temporary' entry, it's
    *    entirely possible that it has expired out of existence.
@@ -180,7 +180,7 @@ export class Server {
     contract: string | Address | Contract,
     key: xdr.ScVal,
     durability: Durability = Durability.Persistent,
-  ): Promise<SorobanRpc.LedgerEntryResult> {
+  ): Promise<Api.LedgerEntryResult> {
     // coalesce `contract` param variants to an ScAddress
     let scAddress: xdr.ScAddress;
     if (typeof contract === "string") {
@@ -246,7 +246,7 @@ export class Server {
    *
    * @param {xdr.ScVal[]} keys  one or more ledger entry keys to load
    *
-   * @returns {Promise<SorobanRpc.GetLedgerEntriesResponse>}  the current
+   * @returns {Promise<Api.GetLedgerEntriesResponse>}  the current
    *    on-chain values for the given ledger keys
    *
    * @see https://soroban.stellar.org/api/methods/getLedgerEntries
@@ -267,7 +267,7 @@ export class Server {
    */
   public async getLedgerEntries(
     ...keys: xdr.LedgerKey[]
-  ): Promise<SorobanRpc.GetLedgerEntriesResponse> {
+  ): Promise<Api.GetLedgerEntriesResponse> {
     return await jsonrpc.post(
       this.serverURL.toString(),
       "getLedgerEntries",
@@ -283,7 +283,7 @@ export class Server {
    *
    * @param {string} hash   hex-encoded hash of the transaction to check
    *
-   * @returns {Promise<SorobanRpc.GetTransactionResponse>}  the status,
+   * @returns {Promise<Api.GetTransactionResponse>}  the status,
    *    result, and other details about the transaction
    *
    * @see https://soroban.stellar.org/api/methods/getTransaction
@@ -298,19 +298,19 @@ export class Server {
    */
   public async getTransaction(
     hash: string,
-  ): Promise<SorobanRpc.GetTransactionResponse> {
-    const raw = await jsonrpc.post<SorobanRpc.RawGetTransactionResponse>(
+  ): Promise<Api.GetTransactionResponse> {
+    const raw = await jsonrpc.post<Api.RawGetTransactionResponse>(
       this.serverURL.toString(),
       "getTransaction",
       hash,
     );
 
     let successInfo: Omit<
-      SorobanRpc.GetSuccessfulTransactionResponse,
-      keyof SorobanRpc.GetFailedTransactionResponse
+      Api.GetSuccessfulTransactionResponse,
+      keyof Api.GetFailedTransactionResponse
     > = {} as any;
 
-    if (raw.status === SorobanRpc.GetTransactionStatus.SUCCESS) {
+    if (raw.status === Api.GetTransactionStatus.SUCCESS) {
       const meta = xdr.TransactionMeta.fromXDR(raw.resultMetaXdr!, "base64");
       successInfo = {
         ledger: raw.ledger!,
@@ -330,7 +330,7 @@ export class Server {
       };
     }
 
-    const result: SorobanRpc.GetTransactionResponse = {
+    const result: Api.GetTransactionResponse = {
       status: raw.status,
       latestLedger: raw.latestLedger,
       latestLedgerCloseTime: raw.latestLedgerCloseTime,
@@ -345,15 +345,15 @@ export class Server {
   /**
    * Fetch all events that match a given set of filters.
    *
-   * The given filters (see {@link SorobanRpc.EventFilter} for detailed fields)
+   * The given filters (see {@link Api.EventFilter} for detailed fields)
    * are combined only in a logical OR fashion, and all of the fields in each
    * filter are optional.
    *
    * To page through events, use the `pagingToken` field on the relevant
-   * {@link SorobanRpc.EventResponse} object to set the `cursor` parameter.
+   * {@link Api.EventResponse} object to set the `cursor` parameter.
    *
    * @param {Server.GetEventsRequest} request   event filters
-   * @returns {Promise<SorobanRpc.GetEventsResponse>}   a paginatable set of the
+   * @returns {Promise<Api.GetEventsResponse>}   a paginatable set of the
    *    events matching the given event filters
    *
    * @see https://soroban.stellar.org/api/methods/getEvents
@@ -382,7 +382,7 @@ export class Server {
    */
   public async getEvents(
     request: Server.GetEventsRequest,
-  ): Promise<SorobanRpc.GetEventsResponse> {
+  ): Promise<Api.GetEventsResponse> {
     // TODO: It'd be nice if we could do something to infer the types of filter
     // arguments a user wants, e.g. converting something like "transfer/*/42"
     // into the base64-encoded `ScVal` equivalents by inferring that the first
@@ -402,7 +402,7 @@ export class Server {
   /**
    * Fetch metadata about the network this Soroban RPC server is connected to.
    *
-   * @returns {Promise<SorobanRpc.GetNetworkResponse>}  metadata about the
+   * @returns {Promise<Api.GetNetworkResponse>}  metadata about the
    *    current network this RPC server is connected to
    *
    * @see https://soroban.stellar.org/api/methods/getNetwork
@@ -413,7 +413,7 @@ export class Server {
    *   console.log("protocolVersion:", network.protocolVersion);
    * });
    */
-  public async getNetwork(): Promise<SorobanRpc.GetNetworkResponse> {
+  public async getNetwork(): Promise<Api.GetNetworkResponse> {
     return await jsonrpc.post(this.serverURL.toString(), "getNetwork");
   }
 
@@ -421,7 +421,7 @@ export class Server {
    * Fetch the latest ledger meta info from network which this Soroban RPC
    * server is connected to.
    *
-   * @returns {Promise<SorobanRpc.GetLatestLedgerResponse>}   metadata about the
+   * @returns {Promise<Api.GetLatestLedgerResponse>}   metadata about the
    *    latest ledger on the network that this RPC server is connected to
    *
    * @see https://soroban.stellar.org/api/methods/getLatestLedger
@@ -432,7 +432,7 @@ export class Server {
    *   console.log("protocolVersion:", response.protocolVersion);
    * });
    */
-  public async getLatestLedger(): Promise<SorobanRpc.GetLatestLedgerResponse> {
+  public async getLatestLedger(): Promise<Api.GetLatestLedgerResponse> {
     return jsonrpc.post(this.serverURL.toString(), "getLatestLedger");
   }
 
@@ -446,7 +446,7 @@ export class Server {
    *    or {@link xdr.RestoreFootprintOp}). Any provided footprint or auth
    *    information will be ignored.
    *
-   * @returns {Promise<SorobanRpc.SimulateTransactionResponse>}   an object with
+   * @returns {Promise<Api.SimulateTransactionResponse>}   an object with
    *    the cost, footprint, result/auth requirements (if applicable), and error
    *    of the transaction
    *
@@ -480,9 +480,9 @@ export class Server {
    */
   public async simulateTransaction(
     transaction: Transaction | FeeBumpTransaction,
-  ): Promise<SorobanRpc.SimulateTransactionResponse> {
+  ): Promise<Api.SimulateTransactionResponse> {
     return jsonrpc
-      .post<SorobanRpc.RawSimulateTransactionResponse>(
+      .post<Api.RawSimulateTransactionResponse>(
         this.serverURL.toString(),
         "simulateTransaction",
         transaction.toXDR(),
@@ -571,7 +571,7 @@ export class Server {
         : this.getNetwork(),
       this.simulateTransaction(transaction),
     ]);
-    if (SorobanRpc.isSimulationError(simResponse)) {
+    if (Api.isSimulationError(simResponse)) {
       throw simResponse.error;
     }
     if (!simResponse.result) {
@@ -590,7 +590,7 @@ export class Server {
    * success/failure.
    *
    * @param {Transaction | FeeBumpTransaction} transaction  to submit
-   * @returns {Promise<SorobanRpc.SendTransactionResponse>}   the
+   * @returns {Promise<Api.SendTransactionResponse>}   the
    *    transaction id, status, and any error if available
    *
    * @see https://developers.stellar.org/docs/glossary/transactions/
@@ -626,7 +626,7 @@ export class Server {
    */
   public async sendTransaction(
     transaction: Transaction | FeeBumpTransaction,
-  ): Promise<SorobanRpc.SendTransactionResponse> {
+  ): Promise<Api.SendTransactionResponse> {
     return await jsonrpc.post(
       this.serverURL.toString(),
       "sendTransaction",

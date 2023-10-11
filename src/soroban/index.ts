@@ -5,9 +5,9 @@
 export * from './soroban_rpc';
 
 // stellar-sdk classes to expose
-export { Server as SorobanServer } from './server';
+export { Server } from './server';
 export { default as AxiosClient } from './axios';
+export { ContractSpec } from './contract_spec';
 export * from './transaction';
-export * from './contract_spec';
 
 export default module.exports;

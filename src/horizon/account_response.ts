@@ -1,7 +1,7 @@
 /* tslint:disable:variable-name */
 
 import { Account as BaseAccount } from "stellar-base";
-import { Horizon } from "./horizon_api";
+import { HorizonApi } from "./horizon_api";
 import { ServerApi } from "./server_api";
 
 /**
@@ -27,9 +27,9 @@ export class AccountResponse {
   public readonly inflation_destination?: string;
   public readonly last_modified_ledger!: number;
   public readonly last_modified_time!: string;
-  public readonly thresholds!: Horizon.AccountThresholds;
-  public readonly flags!: Horizon.Flags;
-  public readonly balances!: Horizon.BalanceLine[];
+  public readonly thresholds!: HorizonApi.AccountThresholds;
+  public readonly flags!: HorizonApi.Flags;
+  public readonly balances!: HorizonApi.BalanceLine[];
   public readonly signers!: ServerApi.AccountRecordSigners[];
   public readonly data!: (options: {
     value: string;

@@ -12,13 +12,40 @@ import {
   Transaction,
   TransactionBuilder,
 } from "stellar-base";
+
 import { InvalidSep10ChallengeError } from "./errors";
 import { ServerApi } from "./horizon/server_api";
 
-/**
- * @namespace Utils
- */
-export namespace Utils {
+
+export class Utils {
+  /**
+   * Verifies if the current date is within the transaction's timebonds
+   *
+   * @static
+   * @function
+   * @param {Transaction} transaction the transaction whose timebonds will be validated.
+   * @returns {boolean} returns true if the current time is within the transaction's [minTime, maxTime] range.
+   */
+  static validateTimebounds(
+    transaction: Transaction,
+    gracePeriod: number = 0,
+  ): boolean {
+    if (!transaction.timeBounds) {
+      return false;
+    }
+
+    const now = Math.floor(Date.now() / 1000);
+    const { minTime, maxTime } = transaction.timeBounds;
+
+    return (
+      now >= Number.parseInt(minTime, 10) - gracePeriod &&
+      now <= Number.parseInt(maxTime, 10) + gracePeriod
+    );
+  }
+}
+
+/** @namespace Sep10 */
+export namespace Sep10 {
   /**
    * Returns a valid [SEP0010](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0010.md)
    * challenge transaction which you can use for Stellar Web Authentication.
@@ -39,7 +66,7 @@ export namespace Utils {
    * import { Utils, Keypair, Networks }  from 'stellar-sdk'
    *
    * let serverKeyPair = Keypair.fromSecret("server-secret")
-   * let challenge = Utils.buildChallengeTx(serverKeyPair, "client-stellar-account-id", "stellar.org", 300, Networks.TESTNET)
+   * let challenge = Sep10.buildChallengeTx(serverKeyPair, "client-stellar-account-id", "stellar.org", 300, Networks.TESTNET)
    * @returns {string} A base64 encoded string of the raw TransactionEnvelope xdr struct for the transaction.
    */
   export function buildChallengeTx(
@@ -236,7 +263,7 @@ export namespace Utils {
     }
 
     // give a small grace period for the transaction time to account for clock drift
-    if (!validateTimebounds(transaction, 60 * 5)) {
+    if (!Utils.validateTimebounds(transaction, 60 * 5)) {
       throw new InvalidSep10ChallengeError("The transaction has expired");
     }
 
@@ -361,7 +388,7 @@ export namespace Utils {
    * const clientKP2 = Keypair.random();
    *
    * // Challenge, possibly built in the server side
-   * const challenge = Utils.buildChallengeTx(
+   * const challenge = Sep10.buildChallengeTx(
    *   serverKP,
    *   clientKP1.publicKey(),
    *   "SDF",
@@ -393,7 +420,7 @@ export namespace Utils {
    *  ];
    *
    * // The result below should be equal to [clientKP1.publicKey(), clientKP2.publicKey()]
-   * Utils.verifyChallengeTxThreshold(signedChallenge, serverKP.publicKey(), Networks.TESTNET, threshold, signerSummary);
+   * Sep10.verifyChallengeTxThreshold(signedChallenge, serverKP.publicKey(), Networks.TESTNET, threshold, signerSummary);
    */
   export function verifyChallengeTxThreshold(
     challengeTx: string,
@@ -467,7 +494,7 @@ export namespace Utils {
    * const clientKP2 = Keypair.random();
    *
    * // Challenge, possibly built in the server side
-   * const challenge = Utils.buildChallengeTx(
+   * const challenge = Sep10.buildChallengeTx(
    *   serverKP,
    *   clientKP1.publicKey(),
    *   "SDF",
@@ -486,7 +513,7 @@ export namespace Utils {
    *         .toString();
    *
    * // The result below should be equal to [clientKP1.publicKey(), clientKP2.publicKey()]
-   * Utils.verifyChallengeTxSigners(signedChallenge, serverKP.publicKey(), Networks.TESTNET, threshold, [clientKP1.publicKey(), clientKP2.publicKey()]);
+   * Sep10.verifyChallengeTxSigners(signedChallenge, serverKP.publicKey(), Networks.TESTNET, threshold, [clientKP1.publicKey(), clientKP2.publicKey()]);
    */
   export function verifyChallengeTxSigners(
     challengeTx: string,
@@ -624,7 +651,7 @@ export namespace Utils {
    * Verifies if a transaction was signed by the given account id.
    *
    * @function
-   * @memberof Utils
+   * @memberof Sep10
    * @param {Transaction} transaction
    * @param {string} accountID
    * @example
@@ -636,7 +663,7 @@ export namespace Utils {
    *    .build();
    *
    * transaction.sign(keypair)
-   * Utils.verifyTxSignedBy(transaction, keypair.publicKey())
+   * Sep10.verifyTxSignedBy(transaction, keypair.publicKey())
    * @returns {boolean}.
    */
   export function verifyTxSignedBy(
@@ -653,7 +680,7 @@ export namespace Utils {
    * signed the given transaction.
    *
    * @function
-   * @memberof Utils
+   * @memberof Sep10
    * @param {Transaction} transaction the signed transaction.
    * @param {string[]} signers The signers public keys.
    * @example
@@ -666,7 +693,7 @@ export namespace Utils {
    *    .build();
    *
    * transaction.sign(keypair1, keypair2)
-   * Utils.gatherTxSigners(transaction, [keypair1.publicKey(), keypair2.publicKey()])
+   * Sep10.gatherTxSigners(transaction, [keypair1.publicKey(), keypair2.publicKey()])
    * @returns {string[]} a list of signers that were found to have signed the transaction.
    */
   export function gatherTxSigners(
@@ -708,30 +735,5 @@ export namespace Utils {
     }
 
     return Array.from(signersFound);
-  }
-
-  /**
-   * Verifies if the current date is within the transaction's timebonds
-   *
-   * @function
-   * @memberof Utils
-   * @param {Transaction} transaction the transaction whose timebonds will be validated.
-   * @returns {boolean} returns true if the current time is within the transaction's [minTime, maxTime] range.
-   */
-  function validateTimebounds(
-    transaction: Transaction,
-    gracePeriod: number = 0,
-  ): boolean {
-    if (!transaction.timeBounds) {
-      return false;
-    }
-
-    const now = Math.floor(Date.now() / 1000);
-    const { minTime, maxTime } = transaction.timeBounds;
-
-    return (
-      now >= Number.parseInt(minTime, 10) - gracePeriod &&
-      now <= Number.parseInt(maxTime, 10) + gracePeriod
-    );
   }
 }

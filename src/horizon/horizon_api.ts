@@ -1,7 +1,7 @@
 import { AssetType, MemoType } from "stellar-base";
 
 /* tslint:disable-next-line:no-namespace */
-export namespace Horizon {
+export namespace HorizonApi {
   export interface ResponseLink {
     href: string;
     templated?: boolean;

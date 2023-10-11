@@ -1,9 +1,15 @@
-import { AccountCallBuilder as ACB } from './account_call_builder'
-import { AccountResponse as AR } from './account_response'
+// Expose all types
+export * from "./horizon_api";
+export * from "./server_api";
 
-export namespace Horizon {
-    export type AccountCallBuilder = ACB;
-    export type AccountResponse = AR;
-}
+// stellar-sdk classes to expose
+export * from "./account_response";
 
-export default Horizon;
+export { Server } from "./server";
+export {
+  default as AxiosClient,
+  SERVER_TIME_MAP,
+  getCurrentServerTime
+} from "./horizon_axios_client";
+
+export default module.exports;

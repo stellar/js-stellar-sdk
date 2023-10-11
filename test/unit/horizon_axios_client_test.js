@@ -1,5 +1,4 @@
-const SERVER_TIME_MAP = StellarSdk.SERVER_TIME_MAP;
-const getCurrentServerTime = StellarSdk.getCurrentServerTime;
+const { SERVER_TIME_MAP, getCurrentServerTime } = StellarSdk.Horizon;
 
 describe("getCurrentServerTime", () => {
   let clock;

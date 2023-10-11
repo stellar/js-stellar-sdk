@@ -1,9 +1,9 @@
-const { HorizonServer } = StellarSdk;
+const { Horizon } = StellarSdk;
 
 describe("Server - CallBuilder#join", function () {
   beforeEach(function () {
-    this.server = new HorizonServer("https://horizon-live.stellar.org:1337");
-    this.axiosMock = sinon.mock(HorizonAxiosClient);
+    this.server = new Horizon.Server("https://horizon-live.stellar.org:1337");
+    this.axiosMock = sinon.mock(Horizon.AxiosClient);
   });
 
   afterEach(function () {

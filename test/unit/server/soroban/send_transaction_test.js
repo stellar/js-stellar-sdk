@@ -1,12 +1,12 @@
-const { SorobanServer } = StellarSdk;
+const { Server, AxiosClient } = StellarSdk.SorobanRpc;
 
 describe("Server#sendTransaction", function () {
   let keypair = StellarSdk.Keypair.random();
   let account = new StellarSdk.Account(keypair.publicKey(), "56199647068161");
 
   beforeEach(function () {
-    this.server = new SorobanServer(serverUrl);
-    this.axiosMock = sinon.mock(SorobanAxiosClient);
+    this.server = new Server(serverUrl);
+    this.axiosMock = sinon.mock(AxiosClient);
     let transaction = new StellarSdk.TransactionBuilder(account, {
       fee: 100,
       networkPassphrase: StellarSdk.Networks.TESTNET,

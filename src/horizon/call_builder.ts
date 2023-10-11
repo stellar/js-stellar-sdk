@@ -3,8 +3,8 @@ import URITemplate from "urijs/src/URITemplate";
 
 import { BadRequestError, NetworkError, NotFoundError } from "../errors";
 
-import { Horizon } from "./horizon_api";
-import { HorizonAxiosClient, version } from "./horizon_axios_client";
+import { HorizonApi } from "./horizon_api";
+import { AxiosClient, version } from "./horizon_axios_client";
 import { ServerApi } from "./server_api";
 
 // Resources which can be included in the Horizon response via the `join`
@@ -33,9 +33,9 @@ let EventSource: Constructable<EventSource> = anyGlobal.EventSource ??
  */
 export class CallBuilder<
   T extends
-    | Horizon.FeeStatsResponse
-    | Horizon.BaseResponse
-    | ServerApi.CollectionPage<Horizon.BaseResponse>
+    | HorizonApi.FeeStatsResponse
+    | HorizonApi.BaseResponse
+    | ServerApi.CollectionPage<HorizonApi.BaseResponse>
 > {
   protected url: URI;
   public filter: string[][];
@@ -276,7 +276,7 @@ export class CallBuilder<
    * @param {bool} [link.templated] Whether the link is templated
    * @returns {function} A function that requests the link
    */
-  private _requestFnForLink(link: Horizon.ResponseLink): (opts?: any) => any {
+  private _requestFnForLink(link: HorizonApi.ResponseLink): (opts?: any) => any {
     return async (opts: any = {}) => {
       let uri;
 
@@ -325,7 +325,7 @@ export class CallBuilder<
         // are loading from the server or in-memory (via join).
         json[key] = async () => record;
       } else {
-        json[key] = this._requestFnForLink(n as Horizon.ResponseLink);
+        json[key] = this._requestFnForLink(n as HorizonApi.ResponseLink);
       }
     }
     return json;
@@ -342,7 +342,7 @@ export class CallBuilder<
       url = url.protocol(this.url.protocol());
     }
 
-    return HorizonAxiosClient.get(url.toString())
+    return AxiosClient.get(url.toString())
       .then((response) => response.data)
       .catch(this._handleNetworkError);
   }

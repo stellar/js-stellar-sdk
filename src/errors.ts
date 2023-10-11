@@ -1,11 +1,11 @@
-import { Horizon } from "./horizon/horizon_api";
+import { HorizonApi } from "./horizon/horizon_api";
 
 // For ES5 compatibility (https://stackoverflow.com/a/55066280).
 /* tslint:disable:variable-name max-classes-per-file */
 
 export class NetworkError extends Error {
   public response: {
-    data?: Horizon.ErrorResponseData;
+    data?: HorizonApi.ErrorResponseData;
     status?: number;
     statusText?: string;
     url?: string;

@@ -1,10 +1,10 @@
-const { HorizonServer } = StellarSdk;
+const { Horizon } = StellarSdk;
 const MockAdapter = require("axios-mock-adapter");
 
 describe("server.js non-transaction tests", function () {
   beforeEach(function () {
-    this.server = new HorizonServer("https://horizon-live.stellar.org:1337");
-    this.axiosMock = sinon.mock(HorizonAxiosClient);
+    this.server = new Horizon.Server("https://horizon-live.stellar.org:1337");
+    this.axiosMock = sinon.mock(Horizon.AxiosClient);
     StellarSdk.Config.setDefault();
   });
 
@@ -16,14 +16,14 @@ describe("server.js non-transaction tests", function () {
   describe("Server.constructor", function () {
     it("throws error for insecure server", function () {
       expect(
-        () => new HorizonServer("http://horizon-live.stellar.org:1337"),
+        () => new Horizon.Server("http://horizon-live.stellar.org:1337"),
       ).to.throw(/Cannot connect to insecure horizon server/);
     });
 
     it("allow insecure server when opts.allowHttp flag is set", function () {
       expect(
         () =>
-          new HorizonServer("http://horizon-live.stellar.org:1337", {
+          new Horizon.Server("http://horizon-live.stellar.org:1337", {
             allowHttp: true,
           }),
       ).to.not.throw();
@@ -32,7 +32,7 @@ describe("server.js non-transaction tests", function () {
     it("allow insecure server when global Config.allowHttp flag is set", function () {
       StellarSdk.Config.setAllowHttp(true);
       expect(
-        () => new HorizonServer("http://horizon-live.stellar.org:1337"),
+        () => new Horizon.Server("http://horizon-live.stellar.org:1337"),
       ).to.not.throw();
     });
   });
@@ -46,7 +46,7 @@ describe("server.js non-transaction tests", function () {
       // use MockAdapter instead of this.axiosMock
       // because we don't want to replace the get function
       // we need to use axios's one so interceptors run!!
-      this.axiosMockAdapter = new MockAdapter(HorizonAxiosClient);
+      this.axiosMockAdapter = new MockAdapter(Horizon.AxiosClient);
     });
 
     afterEach(function () {

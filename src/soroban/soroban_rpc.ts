@@ -1,12 +1,7 @@
 import { AssetType, SorobanDataBuilder, xdr } from "stellar-base";
 
-// TODO: Better parsing for hashes
-
 /* tslint:disable-next-line:no-namespace */
-/**
- * @namespace SorobanRpc
- */
-export namespace SorobanRpc {
+export namespace Api {
   export interface Balance {
     asset_type: AssetType.credit4 | AssetType.credit12;
     asset_code: string;

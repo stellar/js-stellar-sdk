@@ -1,4 +1,4 @@
-const xdr = StellarSdk.xdr; // shorthand
+const { xdr, SorobanRpc } = StellarSdk; // shorthand
 
 describe("assembleTransaction", () => {
   xit("works with keybump transactions");
@@ -80,7 +80,7 @@ describe("assembleTransaction", () => {
 
     it("simulate updates the tx data from simulation response", () => {
       const txn = singleContractFnTransaction();
-      const result = StellarSdk.assembleTransaction(
+      const result = SorobanRpc.assembleTransaction(
         txn,
         networkPassphrase,
         simulationResponse,
@@ -98,7 +98,7 @@ describe("assembleTransaction", () => {
 
     it("simulate adds the auth to the host function in tx operation", () => {
       const txn = singleContractFnTransaction();
-      const result = StellarSdk.assembleTransaction(
+      const result = SorobanRpc.assembleTransaction(
         txn,
         networkPassphrase,
         simulationResponse,
@@ -143,7 +143,7 @@ describe("assembleTransaction", () => {
       const txn = singleContractFnTransaction();
       let simulateResp = JSON.parse(JSON.stringify(simulationResponse));
       simulateResp.results[0].auth = null;
-      const result = StellarSdk.assembleTransaction(
+      const result = SorobanRpc.assembleTransaction(
         txn,
         networkPassphrase,
         simulateResp,
@@ -176,7 +176,7 @@ describe("assembleTransaction", () => {
         .build();
 
       expect(() => {
-        StellarSdk.assembleTransaction(txn, networkPassphrase, {
+        SorobanRpc.assembleTransaction(txn, networkPassphrase, {
           transactionData: {},
           events: [],
           minResourceFee: "0",
@@ -206,7 +206,7 @@ describe("assembleTransaction", () => {
           .addOperation(op)
           .build();
 
-        const tx = StellarSdk.assembleTransaction(
+        const tx = SorobanRpc.assembleTransaction(
           txn,
           networkPassphrase,
           simulationResponse,
@@ -217,7 +217,7 @@ describe("assembleTransaction", () => {
 
     it("doesn't overwrite auth if it's present", function () {
       const txn = singleContractFnTransaction([fnAuth, fnAuth, fnAuth]);
-      const tx = StellarSdk.assembleTransaction(
+      const tx = SorobanRpc.assembleTransaction(
         txn,
         networkPassphrase,
         simulationResponse,

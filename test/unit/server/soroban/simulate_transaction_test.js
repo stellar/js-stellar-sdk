@@ -2,11 +2,13 @@ const {
   Account,
   Keypair,
   Networks,
-  SorobanServer,
+  SorobanRpc,
   SorobanDataBuilder,
   authorizeInvocation,
   xdr,
 } = StellarSdk;
+const { Server, AxiosClient } = SorobanRpc;
+
 
 describe("Server#simulateTransaction", function () {
   let keypair = Keypair.random();
@@ -32,8 +34,8 @@ describe("Server#simulateTransaction", function () {
   };
 
   beforeEach(function () {
-    this.server = new SorobanServer(serverUrl);
-    this.axiosMock = sinon.mock(SorobanAxiosClient);
+    this.server = new Server(serverUrl);
+    this.axiosMock = sinon.mock(AxiosClient);
     const source = new Account(
       "GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI",
       "1",
@@ -99,9 +101,9 @@ describe("Server#simulateTransaction", function () {
     const parsedCopy = cloneSimulation(parsedSimulationResponse);
     delete parsedCopy.result;
 
-    const parsed = StellarSdk.parseRawSimulation(simResponse);
+    const parsed = SorobanRpc.parseRawSimulation(simResponse);
     expect(parsed).to.deep.equal(parsedCopy);
-    expect(StellarSdk.SorobanRpc.isSimulationSuccess(parsed)).to.be.true;
+    expect(StellarSdk.SorobanRpc.Api.isSimulationSuccess(parsed)).to.be.true;
   });
 
   it("works with no auth", function () {
@@ -110,7 +112,7 @@ describe("Server#simulateTransaction", function () {
 
     const parsedCopy = cloneSimulation(parsedSimulationResponse);
     parsedCopy.result.auth = [];
-    const parsed = StellarSdk.parseRawSimulation(simResponse);
+    const parsed = SorobanRpc.parseRawSimulation(simResponse);
 
     // FIXME: This is a workaround for an xdrgen bug that does not allow you to
     // build "perfectly-equal" xdr.ExtensionPoint instances (but they're still
@@ -119,7 +121,7 @@ describe("Server#simulateTransaction", function () {
     parsed.transactionData = parsed.transactionData.build();
 
     expect(parsed).to.be.deep.equal(parsedCopy);
-    expect(StellarSdk.SorobanRpc.isSimulationSuccess(parsed)).to.be.true;
+    expect(StellarSdk.SorobanRpc.Api.isSimulationSuccess(parsed)).to.be.true;
   });
 
   xit("works with restoration", function () {
@@ -131,9 +133,9 @@ describe("Server#simulateTransaction", function () {
       transactionData: new SorobanDataBuilder(),
     };
 
-    const parsed = StellarSdk.parseRawSimulation(simResponse);
+    const parsed = SorobanRpc.parseRawSimulation(simResponse);
     expect(parsed).to.be.deep.equal(expected);
-    expect(StellarSdk.SorobanRpc.isSimulationRestore(parsed)).to.be.true;
+    expect(StellarSdk.SorobanRpc.Api.isSimulationRestore(parsed)).to.be.true;
   });
 
   it("works with errors", function () {
@@ -148,9 +150,9 @@ describe("Server#simulateTransaction", function () {
     expected.error = "This is an error";
     expected.events = [];
 
-    const parsed = StellarSdk.parseRawSimulation(simResponse);
+    const parsed = SorobanRpc.parseRawSimulation(simResponse);
     expect(parsed).to.be.deep.equal(expected);
-    expect(StellarSdk.SorobanRpc.isSimulationError(parsed)).to.be.true;
+    expect(StellarSdk.SorobanRpc.Api.isSimulationError(parsed)).to.be.true;
   });
 
   xit("simulates fee bump transactions");
@@ -266,9 +268,9 @@ describe("works with real responses", function () {
   };
 
   it("parses the schema", function () {
-    expect(StellarSdk.isSimulationRaw(schema)).to.be.true;
+    expect(StellarSdk.SorobanRpc.isSimulationRaw(schema)).to.be.true;
 
-    const parsed = StellarSdk.parseRawSimulation(schema);
+    const parsed = StellarSdk.SorobanRpc.parseRawSimulation(schema);
 
     expect(parsed.results).to.be.undefined;
     expect(parsed.result.auth).to.be.empty;

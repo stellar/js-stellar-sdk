@@ -1,9 +1,9 @@
-const { SorobanServer } = StellarSdk;
+const { Server, AxiosClient } = StellarSdk.SorobanRpc;
 
 describe("Server.constructor", function () {
   beforeEach(function () {
-    this.server = new SorobanServer(serverUrl);
-    this.axiosMock = sinon.mock(SorobanAxiosClient);
+    this.server = new Server(serverUrl);
+    this.axiosMock = sinon.mock(AxiosClient);
   });
 
   afterEach(function () {
@@ -14,14 +14,14 @@ describe("Server.constructor", function () {
   let insecureServerUrl = serverUrl.replace("https://", "http://");
 
   it("throws error for insecure server", function () {
-    expect(() => new SorobanServer(insecureServerUrl)).to.throw(
+    expect(() => new Server(insecureServerUrl)).to.throw(
       /Cannot connect to insecure Soroban RPC server/i,
     );
   });
 
   it("allow insecure server when opts.allowHttp flag is set", function () {
     expect(
-      () => new SorobanServer(insecureServerUrl, { allowHttp: true }),
+      () => new Server(insecureServerUrl, { allowHttp: true }),
     ).to.not.throw();
   });
 });

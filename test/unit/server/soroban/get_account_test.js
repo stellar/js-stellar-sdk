@@ -1,11 +1,10 @@
-const { SorobanServer } = StellarSdk;
+const { Account, StrKey, xdr } = StellarSdk;
+const { Server, AxiosClient } = StellarSdk.SorobanRpc;
 
 describe("Server#getAccount", function () {
-  const { Account, StrKey, xdr } = StellarSdk;
-
   beforeEach(function () {
-    this.server = new SorobanServer(serverUrl);
-    this.axiosMock = sinon.mock(SorobanAxiosClient);
+    this.server = new Server(serverUrl);
+    this.axiosMock = sinon.mock(AxiosClient);
   });
 
   afterEach(function () {

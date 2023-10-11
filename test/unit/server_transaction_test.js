@@ -1,12 +1,12 @@
-const { HorizonServer } = StellarSdk;
+const { Horizon } = StellarSdk;
 
 describe("server.js transaction tests", function () {
   let keypair = StellarSdk.Keypair.random();
   let account = new StellarSdk.Account(keypair.publicKey(), "56199647068161");
 
   beforeEach(function () {
-    this.server = new HorizonServer("https://horizon-live.stellar.org:1337");
-    this.axiosMock = sinon.mock(HorizonAxiosClient);
+    this.server = new Horizon.Server("https://horizon-live.stellar.org:1337");
+    this.axiosMock = sinon.mock(Horizon.AxiosClient);
     let transaction = new StellarSdk.TransactionBuilder(account, {
       fee: 100,
       networkPassphrase: StellarSdk.Networks.TESTNET,

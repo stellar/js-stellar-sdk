@@ -2,7 +2,7 @@
 import { Asset } from "stellar-base";
 import { CallBuilder } from "./call_builder";
 import { BadRequestError } from "../errors";
-import { Horizon } from "./horizon_api";
+import { HorizonApi } from "./horizon_api";
 import { ServerApi } from "./server_api";
 
 const allowedResolutions = [
@@ -102,7 +102,7 @@ export class TradeAggregationCallBuilder extends CallBuilder<
   }
 }
 
-interface TradeAggregationRecord extends Horizon.BaseResponse {
+interface TradeAggregationRecord extends HorizonApi.BaseResponse {
   timestamp: number | string;
   trade_count: number | string;
   base_volume: string;

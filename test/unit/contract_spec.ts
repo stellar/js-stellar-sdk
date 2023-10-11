@@ -1,4 +1,6 @@
-import { xdr, ContractSpec, Address } from "../../lib";
+import { xdr, Address } from "../../lib";
+import { ContractSpec } from "../../lib/soroban";
+
 //@ts-ignore
 import spec from "../spec.json";
 import { expect } from "chai";
@@ -151,7 +153,7 @@ describe("Can round trip custom types", function () {
     map.set(1, true);
     map.set(2, false);
     roundtrip("map", map);
-    
+
     map.set(3, "hahaha")
     expect(() => roundtrip("map", map)).to.throw(/invalid type scSpecTypeBool specified for string value/i);
   });

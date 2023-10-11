@@ -1,4 +1,4 @@
-const { SorobanServer } = StellarSdk;
+const { Server, AxiosClient } = StellarSdk.SorobanRpc;
 
 describe("Server#requestAirdrop", function () {
   const { Account, StrKey, xdr } = StellarSdk;
@@ -42,8 +42,8 @@ describe("Server#requestAirdrop", function () {
   }
 
   beforeEach(function () {
-    this.server = new SorobanServer(serverUrl);
-    this.axiosMock = sinon.mock(SorobanAxiosClient);
+    this.server = new Server(serverUrl);
+    this.axiosMock = sinon.mock(AxiosClient);
   });
 
   afterEach(function () {

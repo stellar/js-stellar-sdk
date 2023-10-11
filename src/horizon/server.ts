@@ -24,7 +24,7 @@ import { AssetsCallBuilder } from "./assets_call_builder";
 import { ClaimableBalanceCallBuilder } from "./claimable_balances_call_builder";
 import { EffectCallBuilder } from "./effect_call_builder";
 import { FriendbotBuilder } from "./friendbot_builder";
-import { Horizon } from "./horizon_api";
+import { HorizonApi } from "./horizon_api";
 import { LedgerCallBuilder } from "./ledger_call_builder";
 import { LiquidityPoolCallBuilder } from "./liquidity_pool_call_builder";
 import { OfferCallBuilder } from "./offer_call_builder";
@@ -38,7 +38,7 @@ import { TradeAggregationCallBuilder } from "./trade_aggregation_call_builder";
 import { TradesCallBuilder } from "./trades_call_builder";
 import { TransactionCallBuilder } from "./transaction_call_builder";
 
-import HorizonAxiosClient, {
+import AxiosClient, {
   getCurrentServerTime,
 } from "./horizon_axios_client";
 
@@ -93,7 +93,7 @@ export class Server {
       customHeaders["X-Auth-Token"] = opts.authToken;
     }
     if (Object.keys(customHeaders).length > 0) {
-      HorizonAxiosClient.interceptors.request.use((config) => {
+      AxiosClient.interceptors.request.use((config) => {
         // merge the custom headers with an existing headers, where customs
         // override defaults
         config.headers = Object.assign(config.headers, customHeaders);
@@ -141,7 +141,7 @@ export class Server {
     seconds: number,
     _isRetry: boolean = false,
   ): Promise<Server.Timebounds> {
-    // HorizonAxiosClient instead of this.ledgers so we can get at them headers
+    // AxiosClient instead of this.ledgers so we can get at them headers
     const currentTime = getCurrentServerTime(this.serverURL.hostname());
 
     if (currentTime) {
@@ -161,7 +161,7 @@ export class Server {
 
     // otherwise, retry (by calling the root endpoint)
     // toString automatically adds the trailing slash
-    await HorizonAxiosClient.get(URI(this.serverURL as any).toString());
+    await AxiosClient.get(URI(this.serverURL as any).toString());
     return await this.fetchTimebounds(seconds, true);
   }
 
@@ -180,10 +180,10 @@ export class Server {
   /**
    * Fetch the fee stats endpoint.
    * @see [Fee Stats](https://developers.stellar.org/api/aggregations/fee-stats/)
-   * @returns {Promise<Horizon.FeeStatsResponse>} Promise that resolves to the fee stats returned by Horizon.
+   * @returns {Promise<HorizonApi.FeeStatsResponse>} Promise that resolves to the fee stats returned by Api.
    */
-  public async feeStats(): Promise<Horizon.FeeStatsResponse> {
-    const cb = new CallBuilder<Horizon.FeeStatsResponse>(
+  public async feeStats(): Promise<HorizonApi.FeeStatsResponse> {
+    const cb = new CallBuilder<HorizonApi.FeeStatsResponse>(
       URI(this.serverURL as any),
     );
     cb.filter.push(["fee_stats"]);
@@ -297,7 +297,7 @@ export class Server {
   public async submitTransaction(
     transaction: Transaction | FeeBumpTransaction,
     opts: Server.SubmitTransactionOptions = { skipMemoRequiredCheck: false },
-  ): Promise<Horizon.SubmitTransactionResponse> {
+  ): Promise<HorizonApi.SubmitTransactionResponse> {
     // only check for memo required if skipMemoRequiredCheck is false and the transaction doesn't include a memo.
     if (!opts.skipMemoRequiredCheck) {
       await this.checkMemoRequired(transaction);
@@ -310,7 +310,7 @@ export class Server {
         .toString("base64"),
     );
 
-    return HorizonAxiosClient.post(
+    return AxiosClient.post(
       URI(this.serverURL as any)
         .segment("transactions")
         .toString(),
@@ -747,7 +747,7 @@ export class Server {
    * data field `config.memo_required` set to `"MQ=="`.
    *
    * Each account is checked sequentially instead of loading multiple accounts
-   * at the same time from Horizon.
+   * at the same time from Api.
    *
    * @see
    * [SEP0029](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0029.md)
