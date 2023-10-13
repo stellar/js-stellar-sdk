@@ -26,9 +26,7 @@ import {
 
 export const SUBMIT_TRANSACTION_TIMEOUT = 60 * 1000;
 
-/**
- * Specifies the durability namespace of contract-related ledger entries.
- */
+/** Specifies the durability namespace of contract-related ledger entries. */
 export enum Durability {
   Temporary = 'temporary',
   Persistent = 'persistent'

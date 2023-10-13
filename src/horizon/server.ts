@@ -180,7 +180,7 @@ export class Server {
   /**
    * Fetch the fee stats endpoint.
    * @see [Fee Stats](https://developers.stellar.org/api/aggregations/fee-stats/)
-   * @returns {Promise<HorizonApi.FeeStatsResponse>} Promise that resolves to the fee stats returned by Api.
+   * @returns {Promise<HorizonApi.FeeStatsResponse>} Promise that resolves to the fee stats returned by Horizon.
    */
   public async feeStats(): Promise<HorizonApi.FeeStatsResponse> {
     const cb = new CallBuilder<HorizonApi.FeeStatsResponse>(
@@ -742,15 +742,14 @@ export class Server {
    * Check if any of the destination accounts requires a memo.
    *
    * This function implements a memo required check as defined in
-   * [SEP0029](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0029.md).
-   * It will load each account which is the destination and check if it has the
-   * data field `config.memo_required` set to `"MQ=="`.
+   * [SEP-29](https://stellar.org/protocol/sep-29). It will load each account
+   * which is the destination and check if it has the data field
+   * `config.memo_required` set to `"MQ=="`.
    *
    * Each account is checked sequentially instead of loading multiple accounts
-   * at the same time from Api.
+   * at the same time from Horizon.
    *
-   * @see
-   * [SEP0029](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0029.md)
+   * @see https://stellar.org/protocol/sep-29
    * @param {Transaction} transaction - The transaction to check.
    * @returns {Promise<void, Error>} - If any of the destination account
    * requires a memo, the promise will throw {@link AccountRequiresMemoError}.
