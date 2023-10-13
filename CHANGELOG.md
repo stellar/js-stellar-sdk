@@ -103,7 +103,7 @@ This version is marked by a major version bump because of the significant upgrad
 
 ### Add
 
-- Add [SEP-1](https://stellar.org/protocol/sep-1) fields to `StellarTomlResolver` for type checks ([#794](https://github.com/stellar/js-stellar-sdk/pull/794)).
+- Add [SEP-1](https://stellar.org/protocol/sep-1) fields to `TomlResolver` for type checks ([#794](https://github.com/stellar/js-stellar-sdk/pull/794)).
 - Add support for passing `X-Auth-Token` as a custom header ([#795](https://github.com/stellar/js-stellar-sdk/pull/795)).
 
 ### Update
@@ -1142,7 +1142,7 @@ Many thanks to @Ffloriel and @Akuukis for their help with this release!
 
 ## 0.8.2
 
-- Added `timeout` option to `StellarTomlResolver` and `FederationServer` calls
+- Added `timeout` option to `TomlResolver` and `FederationServer` calls
   (https://github.com/stellar/js-stellar-sdk/issues/158).
 - Fixed adding random value to URLs multiple times
   (https://github.com/stellar/js-stellar-sdk/issues/169).
@@ -1210,7 +1210,7 @@ Many thanks to @Ffloriel and @Akuukis for their help with this release!
 - **Breaking change** Upgraded `stellar-base` to `0.6.0`. `ed25519` package is
   now an optional dependency. Check `StellarSdk.FastSigning` variable to check
   if `ed25519` package is available. More in README file.
-- New `StellarTomlResolver` class that allows getting `stellar.toml` file for a
+- New `TomlResolver` class that allows getting `stellar.toml` file for a
   domain.
 - New `Config` class to set global config values.
 

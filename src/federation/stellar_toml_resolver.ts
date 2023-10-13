@@ -4,21 +4,19 @@ import { Networks } from "stellar-base";
 
 import { Config } from "../config";
 
-// STELLAR_TOML_MAX_SIZE is the maximum size of stellar.toml file
+/** the maximum size of stellar.toml file */
 export const STELLAR_TOML_MAX_SIZE = 100 * 1024;
 
 // axios timeout doesn't catch missing urls, e.g. those with no response
 // so we use the axios cancel token to ensure the timeout
 const CancelToken = axios.CancelToken;
 
-/**
- * StellarTomlResolver allows resolving `stellar.toml` files.
- */
-export class StellarTomlResolver {
+/** TomlResolver allows resolving `stellar.toml` files. */
+export class TomlResolver {
   /**
    * Returns a parsed `stellar.toml` file for a given domain.
    * ```js
-   * StellarSdk.StellarTomlResolver.resolve('acme.com')
+   * StellarSdk.TomlResolver.resolve('acme.com')
    *   .then(stellarToml => {
    *     // stellarToml in an object representing domain stellar.toml file.
    *   })
@@ -35,8 +33,8 @@ export class StellarTomlResolver {
    */
   public static async resolve(
     domain: string,
-    opts: StellarTomlResolver.StellarTomlResolveOptions = {},
-  ): Promise<StellarTomlResolver.StellarToml> {
+    opts: TomlResolver.StellarTomlResolveOptions = {},
+  ): Promise<TomlResolver.StellarToml> {
     const allowHttp =
       typeof opts.allowHttp === "undefined"
         ? Config.isAllowHttp()
@@ -85,7 +83,7 @@ export class StellarTomlResolver {
 }
 
 /* tslint:disable-next-line: no-namespace */
-export namespace StellarTomlResolver {
+export namespace TomlResolver {
   export interface StellarTomlResolveOptions {
     allowHttp?: boolean;
     timeout?: number;

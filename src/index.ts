@@ -4,7 +4,7 @@
 // Expose all types
 export * from './errors';
 export { Config } from './config';
-export { Sep10, Utils } from './utils';
+export { Utils } from './utils';
 
 // TOML and federation resolvers to expose
 export * as Federation from './federation';
@@ -14,6 +14,10 @@ export * as Horizon from './horizon';
 
 // Soroban RPC-related classes to expose
 export * as SorobanRpc from './soroban';
+export { ContractSpec } from './soroban'; // not RPC related, so at top-level
+
+// SEP-10 related helpers to expose
+export * as Sep10 from './sep10';
 
 // expose classes and functions from stellar-base
 export * from 'stellar-base';

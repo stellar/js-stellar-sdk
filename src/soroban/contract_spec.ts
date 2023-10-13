@@ -1,8 +1,11 @@
-import { ScIntType, XdrLargeInt, xdr } from 'stellar-base';
-
-import { Address } from 'stellar-base';
-import { Contract } from 'stellar-base';
-import { scValToBigInt } from 'stellar-base';
+import {
+  Address,
+  Contract,
+  ScIntType,
+  XdrLargeInt,
+  scValToBigInt,
+  xdr
+} from 'stellar-base';
 
 export interface Union<T> {
   tag: string;

@@ -1,5 +1,4 @@
-import { xdr, Address } from "../../lib";
-import { ContractSpec } from "../../lib/soroban";
+import { xdr, Address, ContractSpec } from "../../lib";
 //@ts-ignore
 import spec from "../spec.json";
 import { expect } from "chai";

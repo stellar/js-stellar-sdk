@@ -4,6 +4,6 @@ export {
 } from './federation_server';
 
 export {
-  StellarTomlResolver,
+  TomlResolver,
   STELLAR_TOML_MAX_SIZE
 } from './stellar_toml_resolver';

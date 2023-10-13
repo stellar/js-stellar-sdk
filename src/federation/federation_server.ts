@@ -4,7 +4,7 @@ import URI from "urijs";
 
 import { Config } from "../config";
 import { BadResponseError } from "../errors";
-import { StellarTomlResolver } from "./stellar_toml_resolver";
+import { TomlResolver } from "./stellar_toml_resolver";
 
 // FEDERATION_RESPONSE_MAX_SIZE is the maximum size of response from a federation server
 export const FEDERATION_RESPONSE_MAX_SIZE = 100 * 1024;
@@ -129,7 +129,7 @@ export class FederationServer {
     domain: string,
     opts: FederationServer.Options = {},
   ): Promise<FederationServer> {
-    const tomlObject = await StellarTomlResolver.resolve(domain, opts);
+    const tomlObject = await TomlResolver.resolve(domain, opts);
     if (!tomlObject.FEDERATION_SERVER) {
       return Promise.reject(
         new Error("stellar.toml does not contain FEDERATION_SERVER field"),
