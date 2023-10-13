@@ -1,4 +1,4 @@
-const { xdr, SorobanRpc } = StellarSdk; // shorthand
+const { xdr, SorobanRpc } = StellarSdk;
 
 describe("assembleTransaction", () => {
   xit("works with keybump transactions");

@@ -1,3 +1,4 @@
+const { xdr } = StellarSdk;
 const { Server, AxiosClient } = StellarSdk.SorobanRpc;
 
 describe("Server#sendTransaction", function () {
@@ -58,6 +59,47 @@ describe("Server#sendTransaction", function () {
         done(err);
       });
   });
+
+  it("encodes the error result", function (done) {
+    const txResult = new xdr.TransactionResult({
+      feeCharged: new xdr.Int64(1),
+      result: xdr.TransactionResultResult.txSorobanInvalid(),
+      ext: new xdr.TransactionResultExt(0),
+    });
+
+    this.axiosMock
+      .expects("post")
+      .withArgs(serverUrl, {
+        jsonrpc: "2.0",
+        id: 1,
+        method: "sendTransaction",
+        params: [this.blob],
+      })
+      .returns(
+        Promise.resolve({
+          data: {
+            id: 1,
+            result: {
+              id: this.hash,
+              status: "ERROR",
+              errorResultXdr: txResult.toXDR("base64"),
+            },
+          },
+        }),
+      );
+
+    this.server
+      .sendTransaction(this.transaction)
+      .then(function (r) {
+        expect(r.errorResult).to.be.instanceOf(xdr.TransactionResult);
+        expect(r.errorResult).to.eql(txResult);
+        expect(r.errorResultXdr).to.be.undefined;
+
+        done();
+      })
+      .catch(done);
+  });
+
   xit("adds metadata - tx was too small and was immediately deleted");
   xit("adds metadata, order immediately fills");
   xit("adds metadata, order is open");

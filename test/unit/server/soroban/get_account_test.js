@@ -1,4 +1,4 @@
-const { Account, StrKey, xdr } = StellarSdk;
+const { Account, Keypair, StrKey, hash, xdr } = StellarSdk;
 const { Server, AxiosClient } = StellarSdk.SorobanRpc;
 
 describe("Server#getAccount", function () {
@@ -12,35 +12,33 @@ describe("Server#getAccount", function () {
     this.axiosMock.restore();
   });
 
-  it("requests the correct method", function (done) {
-    const address = "GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI";
-    const accountId = xdr.PublicKey.publicKeyTypeEd25519(
-      StrKey.decodeEd25519PublicKey(address),
-    );
+  const address = "GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI";
+  const accountId = Keypair.fromPublicKey(address).xdrPublicKey();
+  const key = xdr.LedgerKey.account(new xdr.LedgerKeyAccount({ accountId }));
+  const accountEntry =
+    "AAAAAAAAAABzdv3ojkzWHMD7KUoXhrPx0GH18vHKV0ZfqpMiEblG1g3gtpoE608YAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAADAAAAAAAAAAQAAAAAY9D8iA";
+  const ledgerExpirationKey = xdr.LedgerKey.expiration(
+    new xdr.LedgerKeyExpiration({ keyHash: hash(key.toXDR()) }),
+  );
 
+  it("requests the correct method", function (done) {
     this.axiosMock
       .expects("post")
       .withArgs(serverUrl, {
         jsonrpc: "2.0",
         id: 1,
         method: "getLedgerEntries",
-        params: [
-          [
-            xdr.LedgerKey.account(
-              new xdr.LedgerKeyAccount({
-                accountId,
-              }),
-            ).toXDR("base64"),
-          ],
-        ],
+        params: [[key.toXDR("base64"), ledgerExpirationKey.toXDR("base64")]],
       })
       .returns(
         Promise.resolve({
           data: {
             result: {
+              latestLedger: 0,
               entries: [
                 {
-                  xdr: "AAAAAAAAAABzdv3ojkzWHMD7KUoXhrPx0GH18vHKV0ZfqpMiEblG1g3gtpoE608YAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAADAAAAAAAAAAQAAAAAY9D8iA",
+                  key: key.toXDR("base64"),
+                  xdr: accountEntry,
                 },
               ],
             },
@@ -70,20 +68,13 @@ describe("Server#getAccount", function () {
         jsonrpc: "2.0",
         id: 1,
         method: "getLedgerEntries",
-        params: [
-          [
-            xdr.LedgerKey.account(
-              new xdr.LedgerKeyAccount({
-                accountId,
-              }),
-            ).toXDR("base64"),
-          ],
-        ],
+        params: [[key.toXDR("base64"), ledgerExpirationKey.toXDR("base64")]],
       })
       .returns(
         Promise.resolve({
           data: {
             result: {
+              latestLedger: 0,
               entries: null,
             },
           },

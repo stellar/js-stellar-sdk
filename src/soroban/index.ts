@@ -4,10 +4,11 @@
 // Expose all types
 export * from './soroban_rpc';
 
-// stellar-sdk classes to expose
-export { Server } from './server';
+// soroban-client classes to expose
+export { Server, Durability } from './server';
 export { default as AxiosClient } from './axios';
 export { ContractSpec } from './contract_spec';
+export { parseRawSimulation, parseRawEvents } from './parsers';
 export * from './transaction';
 
 export default module.exports;

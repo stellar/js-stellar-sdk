@@ -1,3 +1,4 @@
+const { SorobanRpc } = StellarSdk;
 const { Server, AxiosClient } = StellarSdk.SorobanRpc;
 
 describe("Server#getEvents", function () {
@@ -12,7 +13,7 @@ describe("Server#getEvents", function () {
   });
 
   it("requests the correct endpoint", function (done) {
-    let result = { events: [] };
+    let result = { latestLedger: 0, events: [] };
     setupMock(
       this.axiosMock,
       {
@@ -35,7 +36,10 @@ describe("Server#getEvents", function () {
   });
 
   it("can build wildcard filters", function (done) {
-    let result = filterEvents(getEventsResponseFixture, "*/*");
+    let result = {
+      latestLedger: 1,
+      events: filterEvents(getEventsResponseFixture, "*/*"),
+    };
 
     setupMock(
       this.axiosMock,
@@ -61,17 +65,20 @@ describe("Server#getEvents", function () {
         ],
       })
       .then(function (response) {
-        expect(response).to.be.deep.equal(result);
+        expect(response).to.be.deep.equal(parseEvents(result));
         done();
       })
       .catch(done);
   });
 
   it("can build matching filters", function (done) {
-    let result = filterEvents(
-      getEventsResponseFixture,
-      "AAAABQAAAAh0cmFuc2Zlcg==/AAAAAQB6Mcc=",
-    );
+    let result = {
+      latestLedger: 1,
+      events: filterEvents(
+        getEventsResponseFixture,
+        "AAAABQAAAAh0cmFuc2Zlcg==/AAAAAQB6Mcc=",
+      ),
+    };
 
     setupMock(
       this.axiosMock,
@@ -104,10 +111,13 @@ describe("Server#getEvents", function () {
   });
 
   it("can build mixed filters", function (done) {
-    let result = filterEventsByLedger(
-      filterEvents(getEventsResponseFixture, "AAAABQAAAAh0cmFuc2Zlcg==/*"),
-      1,
-    );
+    let result = {
+      latestLedger: 1,
+      events: filterEventsByLedger(
+        filterEvents(getEventsResponseFixture, "AAAABQAAAAh0cmFuc2Zlcg==/*"),
+        1,
+      ),
+    };
 
     setupMock(
       this.axiosMock,
@@ -140,10 +150,13 @@ describe("Server#getEvents", function () {
   });
 
   it("can paginate", function (done) {
-    let result = filterEventsByLedger(
-      filterEvents(getEventsResponseFixture, "*/*"),
-      1,
-    );
+    let result = {
+      latestLedger: 1,
+      events: filterEventsByLedger(
+        filterEvents(getEventsResponseFixture, "*/*"),
+        1,
+      ),
+    };
 
     setupMock(
       this.axiosMock,
@@ -203,6 +216,13 @@ function setupMock(axiosMock, params, result) {
       params: params,
     })
     .returns(Promise.resolve({ data: { result } }));
+}
+
+function parseEvents(result) {
+  return {
+    ...result,
+    events: result.events.map(SorobanRpc.parseRawEvents),
+  };
 }
 
 let getEventsResponseFixture = [

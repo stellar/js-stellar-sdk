@@ -6,7 +6,6 @@ const {
   nativeToScVal,
   XdrLargeInt,
 } = StellarSdk;
-
 const { Server, AxiosClient } = StellarSdk.SorobanRpc;
 
 describe("Server#getTransaction", function () {

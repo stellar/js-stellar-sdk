@@ -1,6 +1,9 @@
-import { AssetType, SorobanDataBuilder, xdr } from "stellar-base";
+import { AssetType, Contract, SorobanDataBuilder, xdr } from 'stellar-base';
+
+// TODO: Better parsing for hashes
 
 /* tslint:disable-next-line:no-namespace */
+/** @namespace Api */
 export namespace Api {
   export interface Balance {
     asset_type: AssetType.credit4 | AssetType.credit12;
@@ -16,21 +19,37 @@ export namespace Api {
   }
 
   export interface GetHealthResponse {
-    status: "healthy";
+    status: 'healthy';
   }
 
   export interface LedgerEntryResult {
+    lastModifiedLedgerSeq?: number;
+    key: xdr.LedgerKey;
+    val: xdr.LedgerEntryData;
+    expirationLedgerSeq?: number;
+  }
+
+  export interface RawLedgerEntryResult {
     lastModifiedLedgerSeq?: number;
     /** a base-64 encoded {@link xdr.LedgerKey} instance */
     key: string;
     /** a base-64 encoded {@link xdr.LedgerEntryData} instance */
     xdr: string;
+    /** optional, a future ledger number upon which this entry will expire
+     *  based on https://github.com/stellar/soroban-tools/issues/1010
+     */
+    expirationLedgerSeq?: number;
   }
 
-  /* Response for jsonrpc method `getLedgerEntries`
-   */
+  /** An XDR-parsed version of {@link RawLedgerEntryResult} */
   export interface GetLedgerEntriesResponse {
-    entries: LedgerEntryResult[] | null;
+    entries: LedgerEntryResult[];
+    latestLedger: number;
+  }
+
+  /** @see https://soroban.stellar.org/api/methods/getLedgerEntries */
+  export interface RawGetLedgerEntriesResponse {
+    entries?: RawLedgerEntryResult[];
     latestLedger: number;
   }
 
@@ -51,9 +70,9 @@ export namespace Api {
   }
 
   export enum GetTransactionStatus {
-    SUCCESS = "SUCCESS",
-    NOT_FOUND = "NOT_FOUND",
-    FAILED = "FAILED"
+    SUCCESS = 'SUCCESS',
+    NOT_FOUND = 'NOT_FOUND',
+    FAILED = 'FAILED'
   }
 
   export type GetTransactionResponse =
@@ -69,15 +88,18 @@ export namespace Api {
     oldestLedgerCloseTime: number;
   }
 
-  export interface GetMissingTransactionResponse extends GetAnyTransactionResponse {
+  export interface GetMissingTransactionResponse
+    extends GetAnyTransactionResponse {
     status: GetTransactionStatus.NOT_FOUND;
   }
 
-  export interface GetFailedTransactionResponse extends GetAnyTransactionResponse {
+  export interface GetFailedTransactionResponse
+    extends GetAnyTransactionResponse {
     status: GetTransactionStatus.FAILED;
   }
 
-  export interface GetSuccessfulTransactionResponse extends GetAnyTransactionResponse {
+  export interface GetSuccessfulTransactionResponse
+    extends GetAnyTransactionResponse {
     status: GetTransactionStatus.SUCCESS;
 
     ledger: number;
@@ -88,7 +110,7 @@ export namespace Api {
     resultXdr: xdr.TransactionResult;
     resultMetaXdr: xdr.TransactionMeta;
 
-    returnValue?: xdr.ScVal;  // present iff resultMeta is a v3
+    returnValue?: xdr.ScVal; // present iff resultMeta is a v3
   }
 
   export interface RawGetTransactionResponse {
@@ -108,7 +130,7 @@ export namespace Api {
     createdAt?: number;
   }
 
-  export type EventType = "contract" | "system" | "diagnostic";
+  export type EventType = 'contract' | 'system' | 'diagnostic';
 
   export interface EventFilter {
     type?: EventType;
@@ -121,14 +143,28 @@ export namespace Api {
     events: EventResponse[];
   }
 
-  export interface EventResponse {
+  interface EventResponse extends BaseEventResponse {
+    contractId: Contract;
+    topic: xdr.ScVal[];
+    value: xdr.DiagnosticEvent;
+  }
+
+  export interface RawGetEventsResponse {
+    latestLedger: string;
+    events: RawEventResponse[];
+  }
+
+  interface BaseEventResponse {
+    id: string;
     type: EventType;
     ledger: string;
     ledgerClosedAt: string;
-    contractId: string;
-    id: string;
     pagingToken: string;
     inSuccessfulContractCall: boolean;
+  }
+
+  interface RawEventResponse extends BaseEventResponse {
+    contractId: string;
     topic: string[];
     value: {
       xdr: string;
@@ -140,15 +176,28 @@ export namespace Api {
   }
 
   export type SendTransactionStatus =
-    | "PENDING"
-    | "DUPLICATE"
-    | "TRY_AGAIN_LATER"
-    | "ERROR";
+    | 'PENDING'
+    | 'DUPLICATE'
+    | 'TRY_AGAIN_LATER'
+    | 'ERROR';
 
-  export interface SendTransactionResponse {
-    status: SendTransactionStatus;
-    // errorResultXdr is only set when status is ERROR
+  export interface SendTransactionResponse extends BaseSendTransactionResponse {
+    errorResult?: xdr.TransactionResult;
+  }
+
+  export interface RawSendTransactionResponse
+    extends BaseSendTransactionResponse {
+    /**
+     * This is a base64-encoded instance of {@link xdr.TransactionResult}, set
+     * only when `status` is `"ERROR"`.
+     *
+     * It contains details on why the network rejected the transaction.
+     */
     errorResultXdr?: string;
+  }
+
+  export interface BaseSendTransactionResponse {
+    status: SendTransactionStatus;
     hash: string;
     latestLedger: number;
     latestLedgerCloseTime: number;
@@ -228,23 +277,37 @@ export namespace Api {
     restorePreamble: {
       minResourceFee: string;
       transactionData: SorobanDataBuilder;
-    }
+    };
   }
 
-  export function isSimulationError(sim: SimulateTransactionResponse):
-    sim is SimulateTransactionErrorResponse {
+  export function isSimulationError(
+    sim: SimulateTransactionResponse
+  ): sim is SimulateTransactionErrorResponse {
     return 'error' in sim;
   }
 
-  export function isSimulationSuccess(sim: SimulateTransactionResponse):
-    sim is SimulateTransactionSuccessResponse {
+  export function isSimulationSuccess(
+    sim: SimulateTransactionResponse
+  ): sim is SimulateTransactionSuccessResponse {
     return 'transactionData' in sim;
   }
 
-  export function isSimulationRestore(sim: SimulateTransactionResponse):
-    sim is SimulateTransactionRestoreResponse {
-    return isSimulationSuccess(sim) && 'restorePreamble' in sim &&
-      !!sim.restorePreamble.transactionData;
+  export function isSimulationRestore(
+    sim: SimulateTransactionResponse
+  ): sim is SimulateTransactionRestoreResponse {
+    return (
+      isSimulationSuccess(sim) &&
+      'restorePreamble' in sim &&
+      !!sim.restorePreamble.transactionData
+    );
+  }
+
+  export function isSimulationRaw(
+    sim:
+      | Api.SimulateTransactionResponse
+      | Api.RawSimulateTransactionResponse
+  ): sim is Api.RawSimulateTransactionResponse {
+    return !(sim as Api.SimulateTransactionResponse)._parsed;
   }
 
   interface RawSimulateHostFunctionResult {
@@ -272,6 +335,6 @@ export namespace Api {
     restorePreamble?: {
       minResourceFee: string;
       transactionData: string;
-    }
+    };
   }
 }

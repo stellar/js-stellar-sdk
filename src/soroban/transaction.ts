@@ -2,12 +2,11 @@ import {
   FeeBumpTransaction,
   Operation,
   Transaction,
-  TransactionBuilder,
-  SorobanDataBuilder,
-  xdr
-} from "stellar-base";
+  TransactionBuilder
+} from 'stellar-base';
 
-import { Api } from "./soroban_rpc";
+import { Api } from './soroban_rpc';
+import { parseRawSimulation } from './parsers';
 
 /**
  * Combines the given raw transaction alongside the simulation results.
@@ -35,7 +34,7 @@ export function assembleTransaction(
     | Api.SimulateTransactionResponse
     | Api.RawSimulateTransactionResponse
 ): TransactionBuilder {
-  if ("innerTransaction" in raw) {
+  if ('innerTransaction' in raw) {
     // TODO: Handle feebump transactions
     return assembleTransaction(
       raw.innerTransaction,
@@ -46,9 +45,9 @@ export function assembleTransaction(
 
   if (!isSorobanTransaction(raw)) {
     throw new TypeError(
-      "unsupported transaction: must contain exactly one " +
-        "invokeHostFunction, bumpFootprintExpiration, or restoreFootprint " +
-        "operation"
+      'unsupported transaction: must contain exactly one ' +
+        'invokeHostFunction, bumpFootprintExpiration, or restoreFootprint ' +
+        'operation'
     );
   }
 
@@ -75,7 +74,7 @@ export function assembleTransaction(
   });
 
   switch (raw.operations[0].type) {
-    case "invokeHostFunction":
+    case 'invokeHostFunction':
       // In this case, we don't want to clone the operation, so we drop it.
       txnBuilder.clearOperations();
 
@@ -90,7 +89,7 @@ export function assembleTransaction(
           //
           // the intuition is "if auth exists, this tx has probably been
           // simulated before"
-          auth: existingAuth.length > 0 ? existingAuth : success.result!.auth,
+          auth: existingAuth.length > 0 ? existingAuth : success.result!.auth
         })
       );
       break;
@@ -99,113 +98,16 @@ export function assembleTransaction(
   return txnBuilder;
 }
 
-/**
- * Converts a raw response schema into one with parsed XDR fields and a
- * simplified interface.
- *
- * @param raw   the raw response schema (parsed ones are allowed, best-effort
- *    detected, and returned untouched)
- *
- * @returns the original parameter (if already parsed), parsed otherwise
- */
-export function parseRawSimulation(
-  sim:
-    | Api.SimulateTransactionResponse
-    | Api.RawSimulateTransactionResponse
-): Api.SimulateTransactionResponse {
-  const looksRaw = isSimulationRaw(sim);
-  if (!looksRaw) {
-    // Gordon Ramsey in shambles
-    return sim;
-  }
-
-  // shared across all responses
-  let base: Api.BaseSimulateTransactionResponse = {
-    _parsed: true,
-    id: sim.id,
-    latestLedger: sim.latestLedger,
-    events: sim.events?.map(
-      evt => xdr.DiagnosticEvent.fromXDR(evt, 'base64')
-    ) ?? [],
-  };
-
-  // error type: just has error string
-  if (typeof sim.error === 'string') {
-    return {
-      ...base,
-      error: sim.error,
-    };
-  }
-
-  return parseSuccessful(sim, base);
-}
-
-function parseSuccessful(
-  sim: Api.RawSimulateTransactionResponse,
-  partial: Api.BaseSimulateTransactionResponse
-):
-  | Api.SimulateTransactionRestoreResponse
-  | Api.SimulateTransactionSuccessResponse {
-
-  // success type: might have a result (if invoking) and...
-  const success: Api.SimulateTransactionSuccessResponse = {
-    ...partial,
-    transactionData: new SorobanDataBuilder(sim.transactionData!),
-    minResourceFee: sim.minResourceFee!,
-    cost: sim.cost!,
-    ...(
-      // coalesce 0-or-1-element results[] list into a single result struct
-      // with decoded fields if present
-      (sim.results?.length ?? 0 > 0) &&
-      {
-        result: sim.results!.map(row => {
-          return {
-            auth: (row.auth ?? []).map((entry) =>
-              xdr.SorobanAuthorizationEntry.fromXDR(entry, 'base64')),
-            // if return value is missing ("falsy") we coalesce to void
-            retval: !!row.xdr
-              ? xdr.ScVal.fromXDR(row.xdr, 'base64')
-              : xdr.ScVal.scvVoid()
-          }
-        })[0],
-      }
-    )
-  };
-
-  if (!sim.restorePreamble || sim.restorePreamble.transactionData === '') {
-    return success;
-  }
-
-  // ...might have a restoration hint (if some state is expired)
-  return {
-    ...success,
-    restorePreamble: {
-      minResourceFee: sim.restorePreamble!.minResourceFee,
-      transactionData: new SorobanDataBuilder(
-        sim.restorePreamble!.transactionData
-      ),
-    }
-  };
-}
-
-export function isSimulationRaw(
-  sim:
-    | Api.SimulateTransactionResponse
-    | Api.RawSimulateTransactionResponse
-): sim is Api.RawSimulateTransactionResponse {
-  return !(sim as Api.SimulateTransactionResponse)._parsed;
-}
-
 function isSorobanTransaction(tx: Transaction): boolean {
   if (tx.operations.length !== 1) {
     return false;
   }
 
   switch (tx.operations[0].type) {
-    case "invokeHostFunction":
-    case "bumpFootprintExpiration":
-    case "restoreFootprint":
-      return true
+    case 'invokeHostFunction':
+    case 'bumpFootprintExpiration':
+    case 'restoreFootprint':
+      return true;
 
     default:
       return false;
