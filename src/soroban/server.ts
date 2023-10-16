@@ -13,7 +13,7 @@ import {
 } from 'stellar-base';
 
 import AxiosClient from './axios';
-import { Friendbot } from './friendbot';
+import { Api as FriendbotApi } from '../friendbot';
 import * as jsonrpc from './jsonrpc';
 import { Api } from './soroban_rpc';
 import { assembleTransaction } from './transaction';
@@ -695,7 +695,7 @@ export class Server {
     }
 
     try {
-      const response = await AxiosClient.post<Friendbot.Response>(
+      const response = await AxiosClient.post<FriendbotApi.Response>(
         `${friendbotUrl}?addr=${encodeURIComponent(account)}`
       );
 
