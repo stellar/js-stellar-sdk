@@ -55,18 +55,6 @@ export class BadResponseError extends NetworkError {
   }
 }
 
-export class InvalidSep10ChallengeError extends Error {
-  public __proto__: InvalidSep10ChallengeError;
-
-  constructor(message: string) {
-    const trueProto = new.target.prototype;
-    super(message);
-    this.__proto__ = trueProto;
-    this.constructor = InvalidSep10ChallengeError;
-    this.name = "InvalidSep10ChallengeError";
-  }
-}
-
 /**
  * AccountRequiresMemoError is raised when a transaction is trying to submit an
  * operation to an account which requires a memo. See

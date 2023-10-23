@@ -11,12 +11,12 @@ export const STELLAR_TOML_MAX_SIZE = 100 * 1024;
 // so we use the axios cancel token to ensure the timeout
 const CancelToken = axios.CancelToken;
 
-/** TomlResolver allows resolving `stellar.toml` files. */
-export class TomlResolver {
+/** Resolver allows resolving `stellar.toml` files. */
+export class Resolver {
   /**
    * Returns a parsed `stellar.toml` file for a given domain.
    * ```js
-   * StellarSdk.TomlResolver.resolve('acme.com')
+   * StellarSdk.Resolver.resolve('acme.com')
    *   .then(stellarToml => {
    *     // stellarToml in an object representing domain stellar.toml file.
    *   })
@@ -33,8 +33,8 @@ export class TomlResolver {
    */
   public static async resolve(
     domain: string,
-    opts: TomlResolver.StellarTomlResolveOptions = {},
-  ): Promise<TomlResolver.StellarToml> {
+    opts: Api.StellarTomlResolveOptions = {},
+  ): Promise<Api.StellarToml> {
     const allowHttp =
       typeof opts.allowHttp === "undefined"
         ? Config.isAllowHttp()
@@ -83,7 +83,7 @@ export class TomlResolver {
 }
 
 /* tslint:disable-next-line: no-namespace */
-export namespace TomlResolver {
+export namespace Api {
   export interface StellarTomlResolveOptions {
     allowHttp?: boolean;
     timeout?: number;

@@ -6,18 +6,18 @@ export * from './errors';
 export { Config } from './config';
 export { Utils } from './utils';
 
-// TOML and federation resolvers to expose
+// TOML (SEP-1), Federation (SEP-2), and WebAuth (SEP-10) helpers to expose
+export * as StellarToml from './stellartoml';
 export * as Federation from './federation';
+export * as WebAuth from './webauth';
+// SEP-10 related helpers to expose
 
 // Horizon-related classes to expose
 export * as Horizon from './horizon';
 
 // Soroban RPC-related classes to expose
 export * as SorobanRpc from './soroban';
-export { ContractSpec } from './soroban'; // not RPC related, so at top-level
-
-// SEP-10 related helpers to expose
-export * as Sep10 from './sep10';
+export { ContractSpec } from './contract_spec';
 
 // expose classes and functions from stellar-base
 export * from 'stellar-base';

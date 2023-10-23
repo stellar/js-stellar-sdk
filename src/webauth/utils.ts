@@ -14,7 +14,7 @@ import {
 } from "stellar-base";
 
 import { Utils } from "../utils";
-import { InvalidSep10ChallengeError } from "../errors";
+import { InvalidChallengeError } from "./errors";
 import { ServerApi } from "../horizon/server_api";
 
 /**
@@ -161,11 +161,11 @@ export function readChallengeTx(
     try {
       transaction = new FeeBumpTransaction(challengeTx, networkPassphrase);
     } catch {
-      throw new InvalidSep10ChallengeError(
+      throw new InvalidChallengeError(
         "Invalid challenge: unable to deserialize challengeTx transaction string",
       );
     }
-    throw new InvalidSep10ChallengeError(
+    throw new InvalidChallengeError(
       "Invalid challenge: expected a Transaction but received a FeeBumpTransaction",
     );
   }
@@ -174,21 +174,21 @@ export function readChallengeTx(
   const sequence = Number.parseInt(transaction.sequence, 10);
 
   if (sequence !== 0) {
-    throw new InvalidSep10ChallengeError(
+    throw new InvalidChallengeError(
       "The transaction sequence number should be zero",
     );
   }
 
   // verify transaction source
   if (transaction.source !== serverAccountID) {
-    throw new InvalidSep10ChallengeError(
+    throw new InvalidChallengeError(
       "The transaction source account is not equal to the server's account",
     );
   }
 
   // verify operation
   if (transaction.operations.length < 1) {
-    throw new InvalidSep10ChallengeError(
+    throw new InvalidChallengeError(
       "The transaction should contain at least one operation",
     );
   }
@@ -196,7 +196,7 @@ export function readChallengeTx(
   const [operation, ...subsequentOperations] = transaction.operations;
 
   if (!operation.source) {
-    throw new InvalidSep10ChallengeError(
+    throw new InvalidChallengeError(
       "The transaction's operation should contain a source account",
     );
   }
@@ -205,12 +205,12 @@ export function readChallengeTx(
   let memo: string | null = null;
   if (transaction.memo.type !== MemoNone) {
     if (clientAccountID.startsWith("M")) {
-      throw new InvalidSep10ChallengeError(
+      throw new InvalidChallengeError(
         "The transaction has a memo but the client account ID is a muxed account",
       );
     }
     if (transaction.memo.type !== MemoID) {
-      throw new InvalidSep10ChallengeError(
+      throw new InvalidChallengeError(
         "The transaction's memo must be of type `id`",
       );
     }
@@ -218,7 +218,7 @@ export function readChallengeTx(
   }
 
   if (operation.type !== "manageData") {
-    throw new InvalidSep10ChallengeError(
+    throw new InvalidChallengeError(
       "The transaction's operation type should be 'manageData'",
     );
   }
@@ -228,38 +228,38 @@ export function readChallengeTx(
     transaction.timeBounds &&
     Number.parseInt(transaction.timeBounds?.maxTime, 10) === TimeoutInfinite
   ) {
-    throw new InvalidSep10ChallengeError(
+    throw new InvalidChallengeError(
       "The transaction requires non-infinite timebounds",
     );
   }
 
   // give a small grace period for the transaction time to account for clock drift
   if (!Utils.validateTimebounds(transaction, 60 * 5)) {
-    throw new InvalidSep10ChallengeError("The transaction has expired");
+    throw new InvalidChallengeError("The transaction has expired");
   }
 
   if (operation.value === undefined) {
-    throw new InvalidSep10ChallengeError(
+    throw new InvalidChallengeError(
       "The transaction's operation values should not be null",
     );
   }
 
   // verify base64
   if (!operation.value) {
-    throw new InvalidSep10ChallengeError(
+    throw new InvalidChallengeError(
       "The transaction's operation value should not be null",
     );
   }
 
   if (Buffer.from(operation.value.toString(), "base64").length !== 48) {
-    throw new InvalidSep10ChallengeError(
+    throw new InvalidChallengeError(
       "The transaction's operation value should be a 64 bytes base64 random string",
     );
   }
 
   // verify homeDomains
   if (!homeDomains) {
-    throw new InvalidSep10ChallengeError(
+    throw new InvalidChallengeError(
       "Invalid homeDomains: a home domain must be provided for verification",
     );
   }
@@ -275,13 +275,13 @@ export function readChallengeTx(
       (domain) => `${domain} auth` === operation.name,
     );
   } else {
-    throw new InvalidSep10ChallengeError(
+    throw new InvalidChallengeError(
       `Invalid homeDomains: homeDomains type is ${typeof homeDomains} but should be a string or an array`,
     );
   }
 
   if (!matchedHomeDomain) {
-    throw new InvalidSep10ChallengeError(
+    throw new InvalidChallengeError(
       "Invalid homeDomains: the transaction's operation key name does not match the expected home domain",
     );
   }
@@ -289,23 +289,23 @@ export function readChallengeTx(
   // verify any subsequent operations are manage data ops and source account is the server
   for (const op of subsequentOperations) {
     if (op.type !== "manageData") {
-      throw new InvalidSep10ChallengeError(
+      throw new InvalidChallengeError(
         "The transaction has operations that are not of type 'manageData'",
       );
     }
     if (op.source !== serverAccountID && op.name !== "client_domain") {
-      throw new InvalidSep10ChallengeError(
+      throw new InvalidChallengeError(
         "The transaction has operations that are unrecognized",
       );
     }
     if (op.name === "web_auth_domain") {
       if (op.value === undefined) {
-        throw new InvalidSep10ChallengeError(
+        throw new InvalidChallengeError(
           "'web_auth_domain' operation value should not be null",
         );
       }
       if (op.value.compare(Buffer.from(webAuthDomain))) {
-        throw new InvalidSep10ChallengeError(
+        throw new InvalidChallengeError(
           `'web_auth_domain' operation value does not match ${webAuthDomain}`,
         );
       }
@@ -313,7 +313,7 @@ export function readChallengeTx(
   }
 
   if (!verifyTxSignedBy(transaction, serverAccountID)) {
-    throw new InvalidSep10ChallengeError(
+    throw new InvalidChallengeError(
       `Transaction not signed by server: '${serverAccountID}'`,
     );
   }
@@ -421,7 +421,7 @@ export function verifyChallengeTxThreshold(
   }
 
   if (weight < threshold) {
-    throw new InvalidSep10ChallengeError(
+    throw new InvalidChallengeError(
       `signers with weight ${weight} do not meet threshold ${threshold}"`,
     );
   }
@@ -537,7 +537,7 @@ export function verifyChallengeTxSigners(
 
   // Don't continue if none of the signers provided are in the final list.
   if (clientSigners.size === 0) {
-    throw new InvalidSep10ChallengeError(
+    throw new InvalidChallengeError(
       "No verifiable client signers provided, at least one G... address must be provided",
     );
   }
@@ -546,7 +546,7 @@ export function verifyChallengeTxSigners(
   for (const op of tx.operations) {
     if (op.type === "manageData" && op.name === "client_domain") {
       if (clientSigningKey) {
-        throw new InvalidSep10ChallengeError(
+        throw new InvalidChallengeError(
           "Found more than one client_domain operation",
         );
       }
@@ -581,14 +581,14 @@ export function verifyChallengeTxSigners(
 
   // Confirm we matched a signature to the server signer.
   if (!serverSignatureFound) {
-    throw new InvalidSep10ChallengeError(
+    throw new InvalidChallengeError(
       "Transaction not signed by server: '" + serverKP.publicKey() + "'",
     );
   }
 
   // Confirm we matched a signature to the client domain's signer
   if (clientSigningKey && !clientSigningKeySignatureFound) {
-    throw new InvalidSep10ChallengeError(
+    throw new InvalidChallengeError(
       "Transaction not signed by the source account of the 'client_domain' " +
         "ManageData operation",
     );
@@ -596,14 +596,14 @@ export function verifyChallengeTxSigners(
 
   // Confirm we matched at least one given signer with the transaction signatures
   if (signersFound.length === 1) {
-    throw new InvalidSep10ChallengeError(
+    throw new InvalidChallengeError(
       "None of the given signers match the transaction signatures",
     );
   }
 
   // Confirm all signatures, including the server signature, were consumed by a signer:
   if (signersFound.length !== tx.signatures.length) {
-    throw new InvalidSep10ChallengeError(
+    throw new InvalidChallengeError(
       "Transaction has unrecognized signatures",
     );
   }
@@ -685,7 +685,7 @@ export function gatherTxSigners(
     try {
       keypair = Keypair.fromPublicKey(signer); // This can throw a few different errors
     } catch (err: any) {
-      throw new InvalidSep10ChallengeError(
+      throw new InvalidChallengeError(
         "Signer is not a valid address: " + err.message,
       );
     }

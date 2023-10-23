@@ -113,9 +113,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
         .withArgs(sinon.match("https://acme.com/.well-known/stellar.toml"))
         .returns(Promise.reject());
 
-      TomlResolver.resolve("acme.com").should.be.rejected.and.notify(
-        done,
-      );
+      TomlResolver.resolve("acme.com").should.be.rejected.and.notify(done);
     });
 
     it("fails when response exceeds the limit", function (done) {

@@ -1,5 +1,5 @@
 const randomBytes = require("randombytes");
-const { Sep10 } = StellarSdk;
+const { WebAuth } = StellarSdk;
 
 function newClientSigner(key, weight) {
   return { key, weight };
@@ -20,7 +20,7 @@ describe("Utils", function () {
     clock.restore();
   });
 
-  describe("Sep10.buildChallengeTx", function () {
+  describe("WebAuth.buildChallengeTx", function () {
     it("allows non-muxed accounts", function () {
       let keypair = StellarSdk.Keypair.random();
       let muxedAddress =
@@ -28,7 +28,7 @@ describe("Utils", function () {
       let challenge;
       expect(
         () =>
-          (challenge = Sep10.buildChallengeTx(
+          (challenge = WebAuth.buildChallengeTx(
             keypair,
             "MAAAAAAAAAAAAAB7BQ2L7E5NBWMXDUCMZSIPOBKRDSBYVLMXGSSKF6YNPIB7Y77ITLVL6",
             "testanchor.stellar.org",
@@ -50,7 +50,7 @@ describe("Utils", function () {
       let challenge;
       expect(
         () =>
-          (challenge = Sep10.buildChallengeTx(
+          (challenge = WebAuth.buildChallengeTx(
             keypair,
             StellarSdk.Keypair.random().publicKey(),
             "testanchor.stellar.org",
@@ -72,7 +72,7 @@ describe("Utils", function () {
       let keypair = StellarSdk.Keypair.random();
       expect(
         () =>
-          (challenge = Sep10.buildChallengeTx(
+          (challenge = WebAuth.buildChallengeTx(
             keypair,
             StellarSdk.Keypair.random().publicKey(),
             "testanchor.stellar.org",
@@ -90,7 +90,7 @@ describe("Utils", function () {
         "MAAAAAAAAAAAAAB7BQ2L7E5NBWMXDUCMZSIPOBKRDSBYVLMXGSSKF6YNPIB7Y77ITLVL6";
       expect(
         () =>
-          (challenge = Sep10.buildChallengeTx(
+          (challenge = WebAuth.buildChallengeTx(
             keypair,
             muxedAddress,
             "testanchor.stellar.org",
@@ -106,7 +106,7 @@ describe("Utils", function () {
       let keypair = StellarSdk.Keypair.random();
       let clientSigningKeypair = StellarSdk.Keypair.random();
 
-      const challenge = Sep10.buildChallengeTx(
+      const challenge = WebAuth.buildChallengeTx(
         keypair,
         "GBDIT5GUJ7R5BXO3GJHFXJ6AZ5UQK6MNOIDMPQUSMXLIHTUNR2Q5CFNF",
         "testanchor.stellar.org",
@@ -157,7 +157,7 @@ describe("Utils", function () {
     it("uses the passed-in timeout", function () {
       let keypair = StellarSdk.Keypair.random();
 
-      const challenge = Sep10.buildChallengeTx(
+      const challenge = WebAuth.buildChallengeTx(
         keypair,
         "GBDIT5GUJ7R5BXO3GJHFXJ6AZ5UQK6MNOIDMPQUSMXLIHTUNR2Q5CFNF",
         "testanchor.stellar.org",
@@ -184,7 +184,7 @@ describe("Utils", function () {
       const muxedAddress =
         "MCQQMHTBRF2NPCEJWO2JMDT2HBQ2FGDCYREY2YIBSHLTXDG54Y3KTWX3R7NBER62VBELC";
       expect(() =>
-        Sep10.buildChallengeTx(
+        WebAuth.buildChallengeTx(
           keypair,
           muxedAddress,
           "testanchor.stellar.org",
@@ -198,7 +198,7 @@ describe("Utils", function () {
 
     it("throws an error if clientSigningKey is not passed", function () {
       expect(() =>
-        Sep10.buildChallengeTx(
+        WebAuth.buildChallengeTx(
           StellarSdk.Keypair.random(),
           StellarSdk.Keypair.random().publicKey(),
           "testanchor.stellar.org",
@@ -213,12 +213,12 @@ describe("Utils", function () {
     });
   });
 
-  describe("Sep10.readChallengeTx", function () {
+  describe("WebAuth.readChallengeTx", function () {
     it("requires a envelopeTypeTxV0 or envelopeTypeTx", function () {
       let serverKP = StellarSdk.Keypair.random();
       let clientKP = StellarSdk.Keypair.random();
 
-      const challenge = Sep10.buildChallengeTx(
+      const challenge = WebAuth.buildChallengeTx(
         serverKP,
         clientKP.publicKey(),
         "SDF",
@@ -255,7 +255,7 @@ describe("Utils", function () {
       ).toXDR();
 
       expect(() =>
-        Sep10.readChallengeTx(
+        WebAuth.readChallengeTx(
           feeBump,
           serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
@@ -263,34 +263,34 @@ describe("Utils", function () {
           "testanchor.stellar.org",
         ),
       ).to.throw(
-        StellarSdk.InvalidSep10ChallengeError,
+        WebAuth.InvalidChallengeError,
         /Invalid challenge: expected a Transaction but received a FeeBumpTransaction/,
       );
 
       expect(() =>
-        Sep10.readChallengeTx(
+        WebAuth.readChallengeTx(
           challenge,
           serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
           "SDF",
           "testanchor.stellar.org",
         ),
-      ).to.not.throw(StellarSdk.InvalidSep10ChallengeError);
+      ).to.not.throw(WebAuth.InvalidChallengeError);
       expect(() =>
-        Sep10.readChallengeTx(
+        WebAuth.readChallengeTx(
           feeBump.toXDR().toString("base64"),
           serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
           "SDF",
           "testanchor.stellar.org",
         ),
-      ).to.not.throw(StellarSdk.InvalidSep10ChallengeError);
+      ).to.not.throw(WebAuth.InvalidChallengeError);
     });
     it("returns the transaction and the clientAccountID (client's pubKey) if the challenge was created successfully", function () {
       let serverKP = StellarSdk.Keypair.random();
       let clientKP = StellarSdk.Keypair.random();
 
-      const challenge = Sep10.buildChallengeTx(
+      const challenge = WebAuth.buildChallengeTx(
         serverKP,
         clientKP.publicKey(),
         "SDF",
@@ -307,7 +307,7 @@ describe("Utils", function () {
       );
 
       expect(
-        Sep10.readChallengeTx(
+        WebAuth.readChallengeTx(
           challenge,
           serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
@@ -327,7 +327,7 @@ describe("Utils", function () {
       let clientKP = StellarSdk.Keypair.random();
       let clientMemo = "7659725268483412096";
 
-      const challenge = Sep10.buildChallengeTx(
+      const challenge = WebAuth.buildChallengeTx(
         serverKP,
         clientKP.publicKey(),
         "SDF",
@@ -345,7 +345,7 @@ describe("Utils", function () {
       );
 
       expect(
-        Sep10.readChallengeTx(
+        WebAuth.readChallengeTx(
           challenge,
           serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
@@ -365,7 +365,7 @@ describe("Utils", function () {
       let muxedAddress =
         "MCQQMHTBRF2NPCEJWO2JMDT2HBQ2FGDCYREY2YIBSHLTXDG54Y3KTWX3R7NBER62VBELC";
 
-      const challenge = Sep10.buildChallengeTx(
+      const challenge = WebAuth.buildChallengeTx(
         serverKP,
         muxedAddress,
         "SDF",
@@ -383,7 +383,7 @@ describe("Utils", function () {
       );
 
       expect(
-        Sep10.readChallengeTx(
+        WebAuth.readChallengeTx(
           challenge,
           serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
@@ -429,7 +429,7 @@ describe("Utils", function () {
       );
 
       expect(() =>
-        Sep10.readChallengeTx(
+        WebAuth.readChallengeTx(
           challenge,
           serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
@@ -437,7 +437,7 @@ describe("Utils", function () {
           "testanchor.stellar.org",
         ),
       ).to.throw(
-        StellarSdk.InvalidSep10ChallengeError,
+        WebAuth.InvalidChallengeError,
         /The transaction has a memo but the client account ID is a muxed account/,
       );
     });
@@ -463,7 +463,7 @@ describe("Utils", function () {
       const challenge = transaction.toEnvelope().toXDR("base64").toString();
 
       expect(() =>
-        Sep10.readChallengeTx(
+        WebAuth.readChallengeTx(
           challenge,
           serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
@@ -471,7 +471,7 @@ describe("Utils", function () {
           "testanchor.stellar.org",
         ),
       ).to.throw(
-        StellarSdk.InvalidSep10ChallengeError,
+        WebAuth.InvalidChallengeError,
         "Transaction not signed by server: '" + serverKP.publicKey() + "'",
       );
     });
@@ -490,7 +490,7 @@ describe("Utils", function () {
       let challenge = transaction.toEnvelope().toXDR("base64").toString();
 
       expect(() =>
-        Sep10.readChallengeTx(
+        WebAuth.readChallengeTx(
           challenge,
           keypair.publicKey(),
           StellarSdk.Networks.TESTNET,
@@ -498,7 +498,7 @@ describe("Utils", function () {
           "testanchor.stellar.org",
         ),
       ).to.throw(
-        StellarSdk.InvalidSep10ChallengeError,
+        WebAuth.InvalidChallengeError,
         /The transaction sequence number should be zero/,
       );
     });
@@ -506,7 +506,7 @@ describe("Utils", function () {
     it("throws an error if transaction source account is different to server account id", function () {
       let keypair = StellarSdk.Keypair.random();
 
-      const challenge = Sep10.buildChallengeTx(
+      const challenge = WebAuth.buildChallengeTx(
         keypair,
         "GBDIT5GUJ7R5BXO3GJHFXJ6AZ5UQK6MNOIDMPQUSMXLIHTUNR2Q5CFNF",
         "SDF",
@@ -518,7 +518,7 @@ describe("Utils", function () {
       let serverAccountId = StellarSdk.Keypair.random().publicKey();
 
       expect(() =>
-        Sep10.readChallengeTx(
+        WebAuth.readChallengeTx(
           challenge,
           serverAccountId,
           StellarSdk.Networks.TESTNET,
@@ -526,7 +526,7 @@ describe("Utils", function () {
           "testanchor.stellar.org",
         ),
       ).to.throw(
-        StellarSdk.InvalidSep10ChallengeError,
+        WebAuth.InvalidChallengeError,
         /The transaction source account is not equal to the server's account/,
       );
     });
@@ -545,7 +545,7 @@ describe("Utils", function () {
       const challenge = transaction.toEnvelope().toXDR("base64").toString();
 
       expect(() =>
-        Sep10.readChallengeTx(
+        WebAuth.readChallengeTx(
           challenge,
           keypair.publicKey(),
           StellarSdk.Networks.TESTNET,
@@ -553,7 +553,7 @@ describe("Utils", function () {
           "testanchor.stellar.org",
         ),
       ).to.throw(
-        StellarSdk.InvalidSep10ChallengeError,
+        WebAuth.InvalidChallengeError,
         /The transaction should contain at least one operation/,
       );
     });
@@ -578,7 +578,7 @@ describe("Utils", function () {
       const challenge = transaction.toEnvelope().toXDR("base64").toString();
 
       expect(() =>
-        Sep10.readChallengeTx(
+        WebAuth.readChallengeTx(
           challenge,
           keypair.publicKey(),
           StellarSdk.Networks.TESTNET,
@@ -586,7 +586,7 @@ describe("Utils", function () {
           "testanchor.stellar.org",
         ),
       ).to.throw(
-        StellarSdk.InvalidSep10ChallengeError,
+        WebAuth.InvalidChallengeError,
         /The transaction\'s operation should contain a source account/,
       );
     });
@@ -611,7 +611,7 @@ describe("Utils", function () {
       const challenge = transaction.toEnvelope().toXDR("base64").toString();
 
       expect(() =>
-        Sep10.readChallengeTx(
+        WebAuth.readChallengeTx(
           challenge,
           keypair.publicKey(),
           StellarSdk.Networks.TESTNET,
@@ -619,7 +619,7 @@ describe("Utils", function () {
           "testanchor.stellar.org",
         ),
       ).to.throw(
-        StellarSdk.InvalidSep10ChallengeError,
+        WebAuth.InvalidChallengeError,
         /The transaction\'s operation type should be \'manageData\'/,
       );
     });
@@ -668,7 +668,7 @@ describe("Utils", function () {
         .toString();
 
       expect(() =>
-        Sep10.readChallengeTx(
+        WebAuth.readChallengeTx(
           signedChallenge,
           serverKeypair.publicKey(),
           StellarSdk.Networks.TESTNET,
@@ -676,7 +676,7 @@ describe("Utils", function () {
           "testanchor.stellar.org",
         ),
       ).to.throw(
-        StellarSdk.InvalidSep10ChallengeError,
+        WebAuth.InvalidChallengeError,
         /The transaction requires non-infinite timebounds/,
       );
     });
@@ -702,7 +702,7 @@ describe("Utils", function () {
       const challenge = transaction.toEnvelope().toXDR("base64").toString();
 
       expect(() =>
-        Sep10.readChallengeTx(
+        WebAuth.readChallengeTx(
           challenge,
           keypair.publicKey(),
           StellarSdk.Networks.TESTNET,
@@ -710,7 +710,7 @@ describe("Utils", function () {
           "testanchor.stellar.org",
         ),
       ).to.throw(
-        StellarSdk.InvalidSep10ChallengeError,
+        WebAuth.InvalidChallengeError,
         /The transaction\'s operation value should be a 64 bytes base64 random string/,
       );
     });
@@ -736,13 +736,13 @@ describe("Utils", function () {
       const challenge = transaction.toEnvelope().toXDR("base64").toString();
 
       expect(() =>
-        Sep10.readChallengeTx(
+        WebAuth.readChallengeTx(
           challenge,
           keypair.publicKey(),
           StellarSdk.Networks.TESTNET,
         ),
       ).to.throw(
-        StellarSdk.InvalidSep10ChallengeError,
+        WebAuth.InvalidChallengeError,
         /The transaction\'s operation values should not be null/,
       );
     });
@@ -751,7 +751,7 @@ describe("Utils", function () {
       let keypair = StellarSdk.Keypair.random();
       let clientKeypair = StellarSdk.Keypair.random();
 
-      const challenge = Sep10.buildChallengeTx(
+      const challenge = WebAuth.buildChallengeTx(
         keypair,
         clientKeypair.publicKey(),
         "SDF",
@@ -775,7 +775,7 @@ describe("Utils", function () {
         .toString();
 
       expect(() =>
-        Sep10.readChallengeTx(
+        WebAuth.readChallengeTx(
           signedChallenge,
           keypair.publicKey(),
           StellarSdk.Networks.TESTNET,
@@ -783,7 +783,7 @@ describe("Utils", function () {
           "testanchor.stellar.org",
         ),
       ).to.throw(
-        StellarSdk.InvalidSep10ChallengeError,
+        WebAuth.InvalidChallengeError,
         /The transaction has expired/,
       );
     });
@@ -797,7 +797,7 @@ describe("Utils", function () {
         "AAAAAgAAAADZJunw2QO9LzjqagEjh/mpWG8Us5nOb+gc6wOex8G+IwAAAGQAAAAAAAAAAAAAAAEAAAAAYPhZ6gAAAXrKHz2UAAAAAAAAAAEAAAABAAAAAJyknd/qYHdzX6iV3TkHlh/usJUr5/U8cRsfVNqaruBAAAAACgAAAB50ZXN0bmV0LXNlcC5zdGFibGV4LmNsb3VkIGF1dGgAAAAAAAEAAABAaEs3QUZieUFCZzBEekx0WnpTVXJkcEhWOXdkdExXUkwxUHFFOW5QRVIrZVlaZzQvdDJlc3drclpBc0ZnTnp5UQAAAAAAAAABx8G+IwAAAEA8I5qQ+/HHXoHrULlg1ODTiCEQ92GQrVBFaB40OKxJhTf1c597AuKLHhJ3c4TNdSp1rjLGbk7qUuhjauxUuH0N";
 
       expect(() =>
-        Sep10.readChallengeTx(
+        WebAuth.readChallengeTx(
           signedChallenge,
           "GDMSN2PQ3EB32LZY5JVACI4H7GUVQ3YUWOM4437IDTVQHHWHYG7CGA5Z",
           StellarSdk.Networks.TESTNET,
@@ -805,7 +805,7 @@ describe("Utils", function () {
           "staging-transfer-server.zetl.network",
         ),
       ).not.to.throw(
-        StellarSdk.InvalidSep10ChallengeError,
+        WebAuth.InvalidChallengeError,
         /The transaction has expired/,
       );
     });
@@ -837,7 +837,7 @@ describe("Utils", function () {
       );
 
       expect(
-        Sep10.readChallengeTx(
+        WebAuth.readChallengeTx(
           challenge,
           serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
@@ -879,7 +879,7 @@ describe("Utils", function () {
       );
 
       expect(
-        Sep10.readChallengeTx(
+        WebAuth.readChallengeTx(
           challenge,
           serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
@@ -916,14 +916,14 @@ describe("Utils", function () {
       const challenge = transaction.toEnvelope().toXDR("base64").toString();
 
       expect(() =>
-        Sep10.readChallengeTx(
+        WebAuth.readChallengeTx(
           challenge,
           serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
           // home domain not provided
         ),
       ).to.throw(
-        StellarSdk.InvalidSep10ChallengeError,
+        WebAuth.InvalidChallengeError,
         /Invalid homeDomains: a home domain must be provided for verification/,
       );
     });
@@ -950,7 +950,7 @@ describe("Utils", function () {
       const challenge = transaction.toEnvelope().toXDR("base64").toString();
 
       expect(() =>
-        Sep10.readChallengeTx(
+        WebAuth.readChallengeTx(
           challenge,
           serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
@@ -958,7 +958,7 @@ describe("Utils", function () {
           1,
         ),
       ).to.throw(
-        StellarSdk.InvalidSep10ChallengeError,
+        WebAuth.InvalidChallengeError,
         /Invalid homeDomains: homeDomains type is number but should be a string or an array/,
       );
     });
@@ -985,7 +985,7 @@ describe("Utils", function () {
       const challenge = transaction.toEnvelope().toXDR("base64").toString();
 
       expect(() =>
-        Sep10.readChallengeTx(
+        WebAuth.readChallengeTx(
           challenge,
           serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
@@ -993,7 +993,7 @@ describe("Utils", function () {
           "testanchor.stellar.org",
         ),
       ).to.throw(
-        StellarSdk.InvalidSep10ChallengeError,
+        WebAuth.InvalidChallengeError,
         /Invalid homeDomains: the transaction\'s operation key name does not match the expected home domain/,
       );
     });
@@ -1020,7 +1020,7 @@ describe("Utils", function () {
       const challenge = transaction.toEnvelope().toXDR("base64").toString();
 
       expect(() =>
-        Sep10.readChallengeTx(
+        WebAuth.readChallengeTx(
           challenge,
           serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
@@ -1028,7 +1028,7 @@ describe("Utils", function () {
           "testanchor.stellar.org",
         ),
       ).to.throw(
-        StellarSdk.InvalidSep10ChallengeError,
+        WebAuth.InvalidChallengeError,
         /Invalid homeDomains: the transaction\'s operation key name does not match the expected home domain/,
       );
     });
@@ -1067,7 +1067,7 @@ describe("Utils", function () {
       );
 
       expect(
-        Sep10.readChallengeTx(
+        WebAuth.readChallengeTx(
           challenge,
           serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
@@ -1116,7 +1116,7 @@ describe("Utils", function () {
       );
 
       expect(() =>
-        Sep10.readChallengeTx(
+        WebAuth.readChallengeTx(
           challenge,
           serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
@@ -1124,7 +1124,7 @@ describe("Utils", function () {
           "testanchor.stellar.org",
         ),
       ).to.throw(
-        StellarSdk.InvalidSep10ChallengeError,
+        WebAuth.InvalidChallengeError,
         /The transaction has operations that are unrecognized/,
       );
     });
@@ -1162,7 +1162,7 @@ describe("Utils", function () {
       );
 
       expect(() =>
-        Sep10.readChallengeTx(
+        WebAuth.readChallengeTx(
           challenge,
           serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
@@ -1170,7 +1170,7 @@ describe("Utils", function () {
           "testanchor.stellar.org",
         ),
       ).to.throw(
-        StellarSdk.InvalidSep10ChallengeError,
+        WebAuth.InvalidChallengeError,
         /The transaction has operations that are not of type 'manageData'/,
       );
     });
@@ -1209,7 +1209,7 @@ describe("Utils", function () {
       );
 
       expect(() =>
-        Sep10.readChallengeTx(
+        WebAuth.readChallengeTx(
           challenge,
           serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
@@ -1217,7 +1217,7 @@ describe("Utils", function () {
           "testanchor.stellar.org",
         ),
       ).to.throw(
-        StellarSdk.InvalidSep10ChallengeError,
+        WebAuth.InvalidChallengeError,
         /'web_auth_domain' operation value does not match testanchor.stellar.org/,
       );
     });
@@ -1256,7 +1256,7 @@ describe("Utils", function () {
       );
 
       expect(() =>
-        Sep10.readChallengeTx(
+        WebAuth.readChallengeTx(
           challenge,
           serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
@@ -1264,7 +1264,7 @@ describe("Utils", function () {
           "testanchor.stellar.org",
         ),
       ).to.throw(
-        StellarSdk.InvalidSep10ChallengeError,
+        WebAuth.InvalidChallengeError,
         /The transaction has operations that are unrecognized/,
       );
     });
@@ -1296,7 +1296,7 @@ describe("Utils", function () {
       );
 
       expect(
-        Sep10.readChallengeTx(
+        WebAuth.readChallengeTx(
           challenge,
           serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
@@ -1345,7 +1345,7 @@ describe("Utils", function () {
       );
 
       expect(
-        Sep10.readChallengeTx(
+        WebAuth.readChallengeTx(
           challenge,
           serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
@@ -1394,7 +1394,7 @@ describe("Utils", function () {
       );
 
       expect(
-        Sep10.readChallengeTx(
+        WebAuth.readChallengeTx(
           challenge,
           serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
@@ -1439,7 +1439,7 @@ describe("Utils", function () {
       transaction.sign(serverKP);
       const challenge = transaction.toEnvelope().toXDR("base64").toString();
 
-      Sep10.readChallengeTx(
+      WebAuth.readChallengeTx(
         challenge,
         serverKP.publicKey(),
         StellarSdk.Networks.TESTNET,
@@ -1449,7 +1449,7 @@ describe("Utils", function () {
     });
   });
 
-  describe("Sep10.verifyChallengeTxThreshold", function () {
+  describe("WebAuth.verifyChallengeTxThreshold", function () {
     beforeEach(function () {
       this.serverKP = StellarSdk.Keypair.random();
       this.clientKP1 = StellarSdk.Keypair.random();
@@ -1497,7 +1497,7 @@ describe("Utils", function () {
       const challenge = transaction.toEnvelope().toXDR("base64").toString();
 
       expect(() =>
-        Sep10.verifyChallengeTxThreshold(
+        WebAuth.verifyChallengeTxThreshold(
           challenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
@@ -1507,13 +1507,13 @@ describe("Utils", function () {
           "testanchor.stellar.org",
         ),
       ).to.throw(
-        StellarSdk.InvalidSep10ChallengeError,
+        WebAuth.InvalidChallengeError,
         "Transaction not signed by server: '" + this.serverKP.publicKey() + "'",
       );
     });
 
     it("successfully validates server and client key meeting threshold", function () {
-      const challenge = Sep10.buildChallengeTx(
+      const challenge = WebAuth.buildChallengeTx(
         this.serverKP,
         this.clientKP1.publicKey(),
         "SDF",
@@ -1538,7 +1538,7 @@ describe("Utils", function () {
       const signerSummary = [newClientSigner(this.clientKP1.publicKey(), 1)];
 
       expect(
-        Sep10.verifyChallengeTxThreshold(
+        WebAuth.verifyChallengeTxThreshold(
           signedChallenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
@@ -1551,7 +1551,7 @@ describe("Utils", function () {
     });
 
     it("successfully validates server and multiple client keys, meeting threshold", function () {
-      const challenge = Sep10.buildChallengeTx(
+      const challenge = WebAuth.buildChallengeTx(
         this.serverKP,
         this.clientKP1.publicKey(),
         "SDF",
@@ -1579,7 +1579,7 @@ describe("Utils", function () {
       ];
 
       expect(
-        Sep10.verifyChallengeTxThreshold(
+        WebAuth.verifyChallengeTxThreshold(
           signedChallenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
@@ -1592,7 +1592,7 @@ describe("Utils", function () {
     });
 
     it("successfully validates server and multiple client keys, meeting threshold with more keys than needed", function () {
-      const challenge = Sep10.buildChallengeTx(
+      const challenge = WebAuth.buildChallengeTx(
         this.serverKP,
         this.clientKP1.publicKey(),
         "SDF",
@@ -1621,7 +1621,7 @@ describe("Utils", function () {
       ];
 
       expect(
-        Sep10.verifyChallengeTxThreshold(
+        WebAuth.verifyChallengeTxThreshold(
           signedChallenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
@@ -1640,7 +1640,7 @@ describe("Utils", function () {
       const unknownSignerType =
         "?ARPF6NZRR7EEVO7ESIWUDXHAOMM2QSKIQQBJK6I2FB7YKDZES5UCLWD";
 
-      const challenge = Sep10.buildChallengeTx(
+      const challenge = WebAuth.buildChallengeTx(
         this.serverKP,
         this.clientKP1.publicKey(),
         "SDF",
@@ -1672,7 +1672,7 @@ describe("Utils", function () {
       ];
 
       expect(
-        Sep10.verifyChallengeTxThreshold(
+        WebAuth.verifyChallengeTxThreshold(
           signedChallenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
@@ -1685,7 +1685,7 @@ describe("Utils", function () {
     });
 
     it("throws an error if multiple client keys were not enough to meet the threshold", function () {
-      const challenge = Sep10.buildChallengeTx(
+      const challenge = WebAuth.buildChallengeTx(
         this.serverKP,
         this.clientKP1.publicKey(),
         "SDF",
@@ -1714,7 +1714,7 @@ describe("Utils", function () {
       ];
 
       expect(() =>
-        Sep10.verifyChallengeTxThreshold(
+        WebAuth.verifyChallengeTxThreshold(
           signedChallenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
@@ -1724,13 +1724,13 @@ describe("Utils", function () {
           "testanchor.stellar.org",
         ),
       ).to.throw(
-        StellarSdk.InvalidSep10ChallengeError,
+        WebAuth.InvalidChallengeError,
         `signers with weight 3 do not meet threshold ${threshold}"`,
       );
     });
 
     it("throws an error if an unrecognized (not from the signerSummary) key has signed the transaction", function () {
-      const challenge = Sep10.buildChallengeTx(
+      const challenge = WebAuth.buildChallengeTx(
         this.serverKP,
         this.clientKP1.publicKey(),
         "SDF",
@@ -1758,7 +1758,7 @@ describe("Utils", function () {
       ];
 
       expect(() =>
-        Sep10.verifyChallengeTxThreshold(
+        WebAuth.verifyChallengeTxThreshold(
           signedChallenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
@@ -1768,13 +1768,13 @@ describe("Utils", function () {
           "testanchor.stellar.org",
         ),
       ).to.throw(
-        StellarSdk.InvalidSep10ChallengeError,
+        WebAuth.InvalidChallengeError,
         /Transaction has unrecognized signatures/,
       );
     });
 
     it("throws an error if the signerSummary is empty", function () {
-      const challenge = Sep10.buildChallengeTx(
+      const challenge = WebAuth.buildChallengeTx(
         this.serverKP,
         this.clientKP1.publicKey(),
         "SDF",
@@ -1798,7 +1798,7 @@ describe("Utils", function () {
       const threshold = 10;
 
       expect(() =>
-        Sep10.verifyChallengeTxThreshold(
+        WebAuth.verifyChallengeTxThreshold(
           signedChallenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
@@ -1808,13 +1808,13 @@ describe("Utils", function () {
           "testanchor.stellar.org",
         ),
       ).to.throw(
-        StellarSdk.InvalidSep10ChallengeError,
+        WebAuth.InvalidChallengeError,
         /No verifiable client signers provided, at least one G... address must be provided/,
       );
     });
   });
 
-  describe("Sep10.verifyChallengeTxSigners", function () {
+  describe("WebAuth.verifyChallengeTxSigners", function () {
     beforeEach(function () {
       this.serverKP = StellarSdk.Keypair.random();
       this.clientKP1 = StellarSdk.Keypair.random();
@@ -1845,7 +1845,7 @@ describe("Utils", function () {
     });
 
     it("successfully validates server and client master key signatures in the transaction", function () {
-      const challenge = Sep10.buildChallengeTx(
+      const challenge = WebAuth.buildChallengeTx(
         this.serverKP,
         this.clientKP1.publicKey(),
         "SDF",
@@ -1868,7 +1868,7 @@ describe("Utils", function () {
         .toString();
 
       expect(
-        Sep10.verifyChallengeTxSigners(
+        WebAuth.verifyChallengeTxSigners(
           signedChallenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
@@ -1896,7 +1896,7 @@ describe("Utils", function () {
         .toString();
 
       expect(() =>
-        Sep10.verifyChallengeTxSigners(
+        WebAuth.verifyChallengeTxSigners(
           invalidsServerSignedChallenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
@@ -1905,13 +1905,13 @@ describe("Utils", function () {
           "testanchor.stellar.org",
         ),
       ).to.throw(
-        StellarSdk.InvalidSep10ChallengeError,
+        WebAuth.InvalidChallengeError,
         "Transaction not signed by server: '" + this.serverKP.publicKey() + "'",
       );
     });
 
     it("throws an error if the list of signers is empty", function () {
-      const challenge = Sep10.buildChallengeTx(
+      const challenge = WebAuth.buildChallengeTx(
         this.serverKP,
         this.clientKP1.publicKey(),
         "SDF",
@@ -1923,7 +1923,7 @@ describe("Utils", function () {
       clock.tick(200);
 
       expect(() =>
-        Sep10.verifyChallengeTxSigners(
+        WebAuth.verifyChallengeTxSigners(
           challenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
@@ -1932,13 +1932,13 @@ describe("Utils", function () {
           "testanchor.stellar.org",
         ),
       ).to.throw(
-        StellarSdk.InvalidSep10ChallengeError,
+        WebAuth.InvalidChallengeError,
         /No verifiable client signers provided, at least one G... address must be provided/,
       );
     });
 
     it("throws an error if none of the given signers have signed the transaction", function () {
-      const challenge = Sep10.buildChallengeTx(
+      const challenge = WebAuth.buildChallengeTx(
         this.serverKP,
         this.clientKP1.publicKey(),
         "SDF",
@@ -1963,7 +1963,7 @@ describe("Utils", function () {
         .toString();
 
       expect(() =>
-        Sep10.verifyChallengeTxSigners(
+        WebAuth.verifyChallengeTxSigners(
           signedChallenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
@@ -1972,13 +1972,13 @@ describe("Utils", function () {
           "testanchor.stellar.org",
         ),
       ).to.throw(
-        StellarSdk.InvalidSep10ChallengeError,
+        WebAuth.InvalidChallengeError,
         /None of the given signers match the transaction signatures/,
       );
     });
 
     it("successfully validates server and multiple client signers in the transaction", function () {
-      const challenge = Sep10.buildChallengeTx(
+      const challenge = WebAuth.buildChallengeTx(
         this.serverKP,
         this.clientKP1.publicKey(),
         "SDF",
@@ -2003,7 +2003,7 @@ describe("Utils", function () {
         .toString();
 
       expect(
-        Sep10.verifyChallengeTxSigners(
+        WebAuth.verifyChallengeTxSigners(
           signedChallenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
@@ -2015,7 +2015,7 @@ describe("Utils", function () {
     });
 
     it("successfully validates server and multiple client signers, in reverse order", function () {
-      const challenge = Sep10.buildChallengeTx(
+      const challenge = WebAuth.buildChallengeTx(
         this.serverKP,
         this.clientKP1.publicKey(),
         "SDF",
@@ -2040,7 +2040,7 @@ describe("Utils", function () {
         .toString();
 
       expect(
-        Sep10.verifyChallengeTxSigners(
+        WebAuth.verifyChallengeTxSigners(
           signedChallenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
@@ -2052,7 +2052,7 @@ describe("Utils", function () {
     });
 
     it("successfully validates server and non-masterkey client signer", function () {
-      const challenge = Sep10.buildChallengeTx(
+      const challenge = WebAuth.buildChallengeTx(
         this.serverKP,
         this.clientKP1.publicKey(),
         "SDF",
@@ -2075,7 +2075,7 @@ describe("Utils", function () {
         .toString();
 
       expect(
-        Sep10.verifyChallengeTxSigners(
+        WebAuth.verifyChallengeTxSigners(
           signedChallenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
@@ -2087,7 +2087,7 @@ describe("Utils", function () {
     });
 
     it("successfully validates server and non-master key client signer, ignoring extra signer", function () {
-      const challenge = Sep10.buildChallengeTx(
+      const challenge = WebAuth.buildChallengeTx(
         this.serverKP,
         this.clientKP1.publicKey(),
         "SDF",
@@ -2110,7 +2110,7 @@ describe("Utils", function () {
         .toString();
 
       expect(
-        Sep10.verifyChallengeTxSigners(
+        WebAuth.verifyChallengeTxSigners(
           signedChallenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
@@ -2122,7 +2122,7 @@ describe("Utils", function () {
     });
 
     it("throws an error if no client but instead the server has signed the transaction", function () {
-      const challenge = Sep10.buildChallengeTx(
+      const challenge = WebAuth.buildChallengeTx(
         this.serverKP,
         this.clientKP1.publicKey(),
         "SDF",
@@ -2145,7 +2145,7 @@ describe("Utils", function () {
         .toString();
 
       expect(() =>
-        Sep10.verifyChallengeTxSigners(
+        WebAuth.verifyChallengeTxSigners(
           signedChallenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
@@ -2154,13 +2154,13 @@ describe("Utils", function () {
           "testanchor.stellar.org",
         ),
       ).to.throw(
-        StellarSdk.InvalidSep10ChallengeError,
+        WebAuth.InvalidChallengeError,
         /None of the given signers match the transaction signatures/,
       );
     });
 
     it("successfully validates server and non-masterkey client signer, ignoring duplicated client signers", function () {
-      const challenge = Sep10.buildChallengeTx(
+      const challenge = WebAuth.buildChallengeTx(
         this.serverKP,
         this.clientKP1.publicKey(),
         "SDF",
@@ -2183,7 +2183,7 @@ describe("Utils", function () {
         .toString();
 
       expect(
-        Sep10.verifyChallengeTxSigners(
+        WebAuth.verifyChallengeTxSigners(
           signedChallenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
@@ -2201,7 +2201,7 @@ describe("Utils", function () {
       const unknownSignerType =
         "?ARPF6NZRR7EEVO7ESIWUDXHAOMM2QSKIQQBJK6I2FB7YKDZES5UCLWD";
 
-      const challenge = Sep10.buildChallengeTx(
+      const challenge = WebAuth.buildChallengeTx(
         this.serverKP,
         this.clientKP1.publicKey(),
         "SDF",
@@ -2224,7 +2224,7 @@ describe("Utils", function () {
         .toString();
 
       expect(
-        Sep10.verifyChallengeTxSigners(
+        WebAuth.verifyChallengeTxSigners(
           signedChallenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
@@ -2236,7 +2236,7 @@ describe("Utils", function () {
     });
 
     it("throws an error if duplicated signers have been provided and they haven't actually signed the transaction", function () {
-      const challenge = Sep10.buildChallengeTx(
+      const challenge = WebAuth.buildChallengeTx(
         this.serverKP,
         this.clientKP1.publicKey(),
         "SDF",
@@ -2258,7 +2258,7 @@ describe("Utils", function () {
         .toString();
 
       expect(() =>
-        Sep10.verifyChallengeTxSigners(
+        WebAuth.verifyChallengeTxSigners(
           signedChallenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
@@ -2267,13 +2267,13 @@ describe("Utils", function () {
           "testanchor.stellar.org",
         ),
       ).to.throw(
-        StellarSdk.InvalidSep10ChallengeError,
+        WebAuth.InvalidChallengeError,
         /None of the given signers match the transaction signatures/,
       );
     });
 
     it("throws an error if the same KP has signed the transaction more than once", function () {
-      const challenge = Sep10.buildChallengeTx(
+      const challenge = WebAuth.buildChallengeTx(
         this.serverKP,
         this.clientKP1.publicKey(),
         "SDF",
@@ -2296,7 +2296,7 @@ describe("Utils", function () {
         .toString();
 
       expect(() =>
-        Sep10.verifyChallengeTxSigners(
+        WebAuth.verifyChallengeTxSigners(
           signedChallenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
@@ -2305,13 +2305,13 @@ describe("Utils", function () {
           "testanchor.stellar.org",
         ),
       ).to.throw(
-        StellarSdk.InvalidSep10ChallengeError,
+        WebAuth.InvalidChallengeError,
         /Transaction has unrecognized signatures/,
       );
     });
 
     it("throws an error if the client attempts to verify the transaction with a Seed instead of the Public Key", function () {
-      const challenge = Sep10.buildChallengeTx(
+      const challenge = WebAuth.buildChallengeTx(
         this.serverKP,
         this.clientKP1.publicKey(),
         "SDF",
@@ -2334,7 +2334,7 @@ describe("Utils", function () {
         .toString();
 
       expect(() =>
-        Sep10.verifyChallengeTxSigners(
+        WebAuth.verifyChallengeTxSigners(
           signedChallenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
@@ -2343,7 +2343,7 @@ describe("Utils", function () {
           "testanchor.stellar.org",
         ),
       ).to.throw(
-        StellarSdk.InvalidSep10ChallengeError,
+        WebAuth.InvalidChallengeError,
         /No verifiable client signers provided, at least one G... address must be provided/,
       );
     });
@@ -2366,7 +2366,7 @@ describe("Utils", function () {
       ];
 
       expect(() =>
-        Sep10.verifyChallengeTxSigners(
+        WebAuth.verifyChallengeTxSigners(
           challenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
@@ -2375,13 +2375,13 @@ describe("Utils", function () {
           "testanchor.stellar.org",
         ),
       ).to.throw(
-        StellarSdk.InvalidSep10ChallengeError,
+        WebAuth.InvalidChallengeError,
         /None of the given signers match the transaction signatures/,
       );
     });
 
     it("throws an error if no public keys were provided to verify signatires", function () {
-      const challenge = Sep10.buildChallengeTx(
+      const challenge = WebAuth.buildChallengeTx(
         this.serverKP,
         this.clientKP1.publicKey(),
         "SDF",
@@ -2404,7 +2404,7 @@ describe("Utils", function () {
         .toString();
 
       expect(() =>
-        Sep10.verifyChallengeTxSigners(
+        WebAuth.verifyChallengeTxSigners(
           signedChallenge,
           this.serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
@@ -2413,7 +2413,7 @@ describe("Utils", function () {
           "testanchor.stellar.org",
         ),
       ).to.throw(
-        StellarSdk.InvalidSep10ChallengeError,
+        WebAuth.InvalidChallengeError,
         /No verifiable client signers provided, at least one G... address must be provided/,
       );
     });
@@ -2422,7 +2422,7 @@ describe("Utils", function () {
       const serverKP = StellarSdk.Keypair.random();
       const clientKP = StellarSdk.Keypair.random();
       const clientSigningKey = StellarSdk.Keypair.random();
-      const challenge = Sep10.buildChallengeTx(
+      const challenge = WebAuth.buildChallengeTx(
         serverKP,
         clientKP.publicKey(),
         "SDF",
@@ -2449,7 +2449,7 @@ describe("Utils", function () {
         .toXDR("base64")
         .toString();
 
-      const signersFound = Sep10.verifyChallengeTxSigners(
+      const signersFound = WebAuth.verifyChallengeTxSigners(
         signedChallenge,
         serverKP.publicKey(),
         StellarSdk.Networks.TESTNET,
@@ -2465,7 +2465,7 @@ describe("Utils", function () {
       const serverKP = StellarSdk.Keypair.random();
       const clientKP = StellarSdk.Keypair.random();
       const clientSigningKeypair = StellarSdk.Keypair.random();
-      const challenge = Sep10.buildChallengeTx(
+      const challenge = WebAuth.buildChallengeTx(
         serverKP,
         clientKP.publicKey(),
         "SDF",
@@ -2492,7 +2492,7 @@ describe("Utils", function () {
         .toString();
 
       expect(() =>
-        Sep10.verifyChallengeTxSigners(
+        WebAuth.verifyChallengeTxSigners(
           signedChallenge,
           serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
@@ -2501,7 +2501,7 @@ describe("Utils", function () {
           "testanchor.stellar.org",
         ),
       ).to.throw(
-        StellarSdk.InvalidSep10ChallengeError,
+        WebAuth.InvalidChallengeError,
         /Transaction not signed by the source account of the 'client_domain' ManageData operation/,
       );
     });
@@ -2553,7 +2553,7 @@ describe("Utils", function () {
         .toString();
 
       expect(() =>
-        Sep10.verifyChallengeTxSigners(
+        WebAuth.verifyChallengeTxSigners(
           signedChallenge,
           serverKP.publicKey(),
           StellarSdk.Networks.TESTNET,
@@ -2562,13 +2562,13 @@ describe("Utils", function () {
           "testanchor.stellar.org",
         ),
       ).to.throw(
-        StellarSdk.InvalidSep10ChallengeError,
+        WebAuth.InvalidChallengeError,
         /Found more than one client_domain operation/,
       );
     });
   });
 
-  describe("Sep10.verifyTxSignedBy", function () {
+  describe("WebAuth.verifyTxSignedBy", function () {
     beforeEach(function () {
       this.keypair = StellarSdk.Keypair.random();
       this.account = new StellarSdk.Account(this.keypair.publicKey(), "-1");
@@ -2588,7 +2588,7 @@ describe("Utils", function () {
       this.transaction.sign(this.keypair);
 
       expect(
-        Sep10.verifyTxSignedBy(this.transaction, this.keypair.publicKey()),
+        WebAuth.verifyTxSignedBy(this.transaction, this.keypair.publicKey()),
       ).to.eql(true);
     });
 
@@ -2598,18 +2598,18 @@ describe("Utils", function () {
       let differentKeypair = StellarSdk.Keypair.random();
 
       expect(
-        Sep10.verifyTxSignedBy(this.transaction, differentKeypair.publicKey()),
+        WebAuth.verifyTxSignedBy(this.transaction, differentKeypair.publicKey()),
       ).to.eql(false);
     });
 
     it("works with an unsigned transaction", function () {
       expect(
-        Sep10.verifyTxSignedBy(this.transaction, this.keypair.publicKey()),
+        WebAuth.verifyTxSignedBy(this.transaction, this.keypair.publicKey()),
       ).to.eql(false);
     });
   });
 
-  describe("Sep10.gatherTxSigners", function () {
+  describe("WebAuth.gatherTxSigners", function () {
     beforeEach(function () {
       this.keypair1 = StellarSdk.Keypair.random();
       this.keypair2 = StellarSdk.Keypair.random();
@@ -2634,7 +2634,7 @@ describe("Utils", function () {
         this.keypair2.publicKey(),
       ];
       expect(
-        Sep10.gatherTxSigners(this.transaction, expectedSignatures),
+        WebAuth.gatherTxSigners(this.transaction, expectedSignatures),
       ).to.eql(expectedSignatures);
     });
 
@@ -2653,7 +2653,7 @@ describe("Utils", function () {
         this.keypair2.publicKey(),
       ];
       expect(
-        Sep10.gatherTxSigners(this.transaction, [
+        WebAuth.gatherTxSigners(this.transaction, [
           this.keypair1.publicKey(),
           this.keypair2.publicKey(),
         ]),
@@ -2669,14 +2669,14 @@ describe("Utils", function () {
         StellarSdk.Keypair.random().publicKey(),
       ];
 
-      expect(Sep10.gatherTxSigners(this.transaction, wrongSignatures)).to.eql(
+      expect(WebAuth.gatherTxSigners(this.transaction, wrongSignatures)).to.eql(
         [],
       );
     });
 
     it("calling gatherTxSigners with an unsigned transaction will return an empty list", function () {
       expect(
-        Sep10.gatherTxSigners(this.transaction, [
+        WebAuth.gatherTxSigners(this.transaction, [
           this.keypair1.publicKey(),
           this.keypair2.publicKey(),
         ]),
@@ -2688,12 +2688,12 @@ describe("Utils", function () {
       const preauthTxHash =
         "TAQCSRX2RIDJNHFIFHWD63X7D7D6TRT5Y2S6E3TEMXTG5W3OECHZ2OG4";
       expect(() =>
-        Sep10.gatherTxSigners(this.transaction, [
+        WebAuth.gatherTxSigners(this.transaction, [
           preauthTxHash,
           this.keypair1.publicKey(),
         ]),
       ).to.throw(
-        StellarSdk.InvalidSep10ChallengeError,
+        WebAuth.InvalidChallengeError,
         /Signer is not a valid address/,
       );
     });
@@ -2703,12 +2703,12 @@ describe("Utils", function () {
       const invalidGHash =
         "GBDIT5GUJ7R5BXO3GJHFXJ6AZ5UQK6MNOIDMPQUSMXLIHTUNR2Q5CAAA";
       expect(() =>
-        Sep10.gatherTxSigners(this.transaction, [
+        WebAuth.gatherTxSigners(this.transaction, [
           invalidGHash,
           this.keypair1.publicKey(),
         ]),
       ).to.throw(
-        StellarSdk.InvalidSep10ChallengeError,
+        WebAuth.InvalidChallengeError,
         /Signer is not a valid address/,
       );
     });
