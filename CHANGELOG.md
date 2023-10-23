@@ -5,6 +5,12 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Breaking Changes
+* The `soroban-client` library ([stellar/js-soroban-client](https://github.com/stellar/js-soroban-client)) has been merged into this package, causing significant breaking changes in the module structure ([#860](https://github.com/stellar/js-stellar-sdk/pull/860)):
+
+  - The namespaces have changed to move each server-dependent component into its own module. Shared components (e.g. `TransactionBuilder`) are still in the top level, Horizon-specific interactions are in the `Horizon` namespace (i.e. `Server` is now `Horizon.Server`), and new Soroban RPC interactions are in the `SorobanRpc` namespace.
+  - There is a [detailed migration guide](https://gist.github.com/Shaptic/5ce4f16d9cce7118f391fbde398c2f30) available to outline both the literal (i.e. necessary code changes) and philosophical (i.e. how to find certain functionality) changes needed to adapt to this merge.
+
 
 ## [v11.0.0-beta.4](https://github.com/stellar/js-stellar-sdk/compare/v11.0.0-beta.3...v11.0.0-beta.4)
 
@@ -103,7 +109,7 @@ This version is marked by a major version bump because of the significant upgrad
 
 ### Add
 
-- Add [SEP-1](https://stellar.org/protocol/sep-1) fields to `TomlResolver` for type checks ([#794](https://github.com/stellar/js-stellar-sdk/pull/794)).
+- Add [SEP-1](https://stellar.org/protocol/sep-1) fields to `StellarTomlResolver` for type checks ([#794](https://github.com/stellar/js-stellar-sdk/pull/794)).
 - Add support for passing `X-Auth-Token` as a custom header ([#795](https://github.com/stellar/js-stellar-sdk/pull/795)).
 
 ### Update
@@ -1142,7 +1148,7 @@ Many thanks to @Ffloriel and @Akuukis for their help with this release!
 
 ## 0.8.2
 
-- Added `timeout` option to `TomlResolver` and `FederationServer` calls
+- Added `timeout` option to `StellarTomlResolver` and `FederationServer` calls
   (https://github.com/stellar/js-stellar-sdk/issues/158).
 - Fixed adding random value to URLs multiple times
   (https://github.com/stellar/js-stellar-sdk/issues/169).
@@ -1210,7 +1216,7 @@ Many thanks to @Ffloriel and @Akuukis for their help with this release!
 - **Breaking change** Upgraded `stellar-base` to `0.6.0`. `ed25519` package is
   now an optional dependency. Check `StellarSdk.FastSigning` variable to check
   if `ed25519` package is available. More in README file.
-- New `TomlResolver` class that allows getting `stellar.toml` file for a
+- New `StellarTomlResolver` class that allows getting `stellar.toml` file for a
   domain.
 - New `Config` class to set global config values.
 
