@@ -10,7 +10,8 @@ export { Utils } from './utils';
 export * as StellarToml from './stellartoml';
 export * as Federation from './federation';
 export * as WebAuth from './webauth';
-// SEP-10 related helpers to expose
+
+export * as Friendbot from './friendbot';
 
 // Horizon-related classes to expose
 export * as Horizon from './horizon';

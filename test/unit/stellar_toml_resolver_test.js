@@ -1,6 +1,6 @@
 const http = require("http");
 
-const { TomlResolver, STELLAR_TOML_MAX_SIZE } = StellarSdk.Federation;
+const { Resolver, STELLAR_TOML_MAX_SIZE } = StellarSdk.StellarToml;
 
 describe("stellar_toml_resolver.js tests", function () {
   beforeEach(function () {
@@ -13,7 +13,7 @@ describe("stellar_toml_resolver.js tests", function () {
     this.axiosMock.restore();
   });
 
-  describe("TomlResolver.resolve", function () {
+  describe("Resolver.resolve", function () {
     afterEach(function () {
       StellarSdk.Config.setDefault();
     });
@@ -32,7 +32,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
           }),
         );
 
-      TomlResolver.resolve("acme.com").then((stellarToml) => {
+      Resolver.resolve("acme.com").then((stellarToml) => {
         expect(stellarToml.FEDERATION_SERVER).equals(
           "https://api.stellar.org/federation",
         );
@@ -54,7 +54,7 @@ FEDERATION_SERVER="http://api.stellar.org/federation"
           }),
         );
 
-      TomlResolver.resolve("acme.com", {
+      Resolver.resolve("acme.com", {
         allowHttp: true,
       }).then((stellarToml) => {
         expect(stellarToml.FEDERATION_SERVER).equals(
@@ -80,7 +80,7 @@ FEDERATION_SERVER="http://api.stellar.org/federation"
           }),
         );
 
-      TomlResolver.resolve("acme.com").then((stellarToml) => {
+      Resolver.resolve("acme.com").then((stellarToml) => {
         expect(stellarToml.FEDERATION_SERVER).equals(
           "http://api.stellar.org/federation",
         );
@@ -102,7 +102,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
           }),
         );
 
-      TomlResolver.resolve("acme.com")
+      Resolver.resolve("acme.com")
         .should.be.rejectedWith(/Parsing error on line/)
         .and.notify(done);
     });
@@ -113,7 +113,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
         .withArgs(sinon.match("https://acme.com/.well-known/stellar.toml"))
         .returns(Promise.reject());
 
-      TomlResolver.resolve("acme.com").should.be.rejected.and.notify(done);
+      Resolver.resolve("acme.com").should.be.rejected.and.notify(done);
     });
 
     it("fails when response exceeds the limit", function (done) {
@@ -128,7 +128,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
           res.end(response);
         })
         .listen(4444, () => {
-          TomlResolver.resolve("localhost:4444", {
+          Resolver.resolve("localhost:4444", {
             allowHttp: true,
           })
             .should.be.rejectedWith(
@@ -152,7 +152,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
           setTimeout(() => {}, 10000);
         })
         .listen(4444, () => {
-          TomlResolver.resolve("localhost:4444", {
+          Resolver.resolve("localhost:4444", {
             allowHttp: true,
           })
             .should.be.rejectedWith(/timeout of 1000ms exceeded/)
@@ -164,7 +164,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
         });
     });
 
-    it("rejects after given timeout when timeout specified in TomlResolver opts param", function (done) {
+    it("rejects after given timeout when timeout specified in Resolver opts param", function (done) {
       // Unable to create temp server in a browser
       if (typeof window != "undefined") {
         return done();
@@ -175,7 +175,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
           setTimeout(() => {}, 10000);
         })
         .listen(4444, () => {
-          TomlResolver.resolve("localhost:4444", {
+          Resolver.resolve("localhost:4444", {
             allowHttp: true,
             timeout: 1000,
           })

@@ -782,10 +782,7 @@ describe("Utils", function () {
           "SDF",
           "testanchor.stellar.org",
         ),
-      ).to.throw(
-        WebAuth.InvalidChallengeError,
-        /The transaction has expired/,
-      );
+      ).to.throw(WebAuth.InvalidChallengeError, /The transaction has expired/);
     });
 
     it("does NOT throw errors when the user is slightly out of minTime", function () {
@@ -2598,7 +2595,10 @@ describe("Utils", function () {
       let differentKeypair = StellarSdk.Keypair.random();
 
       expect(
-        WebAuth.verifyTxSignedBy(this.transaction, differentKeypair.publicKey()),
+        WebAuth.verifyTxSignedBy(
+          this.transaction,
+          differentKeypair.publicKey(),
+        ),
       ).to.eql(false);
     });
 
