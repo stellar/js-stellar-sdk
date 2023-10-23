@@ -5,6 +5,9 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+
+## [v11.0.0-beta.5](https://github.com/stellar/js-stellar-sdk/compare/v11.0.0-beta.4...v11.0.0-beta.5)
+
 ### Breaking Changes
 * The `soroban-client` library ([stellar/js-soroban-client](https://github.com/stellar/js-soroban-client)) has been merged into this package, causing significant breaking changes in the module structure ([#860](https://github.com/stellar/js-stellar-sdk/pull/860)):
 
