@@ -29,7 +29,6 @@ import { parseRawSimulation } from './parsers';
  */
 export function assembleTransaction(
   raw: Transaction | FeeBumpTransaction,
-  networkPassphrase: string,
   simulation:
     | Api.SimulateTransactionResponse
     | Api.RawSimulateTransactionResponse
@@ -38,7 +37,6 @@ export function assembleTransaction(
     // TODO: Handle feebump transactions
     return assembleTransaction(
       raw.innerTransaction,
-      networkPassphrase,
       simulation
     );
   }
@@ -70,7 +68,7 @@ export function assembleTransaction(
     fee: (classicFeeNum + minResourceFeeNum).toString(),
     // apply the pre-built Soroban Tx Data from simulation onto the Tx
     sorobanData: success.transactionData.build(),
-    networkPassphrase
+    networkPassphrase: raw.networkPassphrase
   });
 
   switch (raw.operations[0].type) {
