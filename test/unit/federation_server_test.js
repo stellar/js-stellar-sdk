@@ -1,11 +1,10 @@
 const http = require("http");
 
+const { Server, FEDERATION_RESPONSE_MAX_SIZE } = StellarSdk.Federation;
+
 describe("federation-server.js tests", function () {
   beforeEach(function () {
-    this.server = new StellarSdk.FederationServer(
-      "https://acme.com:1337/federation",
-      "stellar.org",
-    );
+    this.server = new Server("https://acme.com:1337/federation", "stellar.org");
 
     this.axiosMock = sinon.mock(axios);
     StellarSdk.Config.setDefault();
@@ -18,22 +17,16 @@ describe("federation-server.js tests", function () {
   describe("FederationServer.constructor", function () {
     it("throws error for insecure server", function () {
       expect(
-        () =>
-          new StellarSdk.FederationServer(
-            "http://acme.com:1337/federation",
-            "stellar.org",
-          ),
+        () => new Server("http://acme.com:1337/federation", "stellar.org"),
       ).to.throw(/Cannot connect to insecure federation server/);
     });
 
     it("allow insecure server when opts.allowHttp flag is set", function () {
       expect(
         () =>
-          new StellarSdk.FederationServer(
-            "http://acme.com:1337/federation",
-            "stellar.org",
-            { allowHttp: true },
-          ),
+          new Server("http://acme.com:1337/federation", "stellar.org", {
+            allowHttp: true,
+          }),
       ).to.not.throw();
     });
 
@@ -41,11 +34,9 @@ describe("federation-server.js tests", function () {
       StellarSdk.Config.setAllowHttp(true);
       expect(
         () =>
-          new StellarSdk.FederationServer(
-            "http://acme.com:1337/federation",
-            "stellar.org",
-            { allowHttp: true },
-          ),
+          new Server("http://acme.com:1337/federation", "stellar.org", {
+            allowHttp: true,
+          }),
       ).to.not.throw();
     });
   });
@@ -192,17 +183,13 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
           }),
         );
 
-      StellarSdk.FederationServer.createForDomain("acme.com").then(
-        (federationServer) => {
-          expect(federationServer.serverURL.protocol()).equals("https");
-          expect(federationServer.serverURL.hostname()).equals(
-            "api.stellar.org",
-          );
-          expect(federationServer.serverURL.path()).equals("/federation");
-          expect(federationServer.domain).equals("acme.com");
-          done();
-        },
-      );
+      Server.createForDomain("acme.com").then((federationServer) => {
+        expect(federationServer.serverURL.protocol()).equals("https");
+        expect(federationServer.serverURL.hostname()).equals("api.stellar.org");
+        expect(federationServer.serverURL.path()).equals("/federation");
+        expect(federationServer.domain).equals("acme.com");
+        done();
+      });
     });
 
     it("fails when stellar.toml does not contain federation server info", function (done) {
@@ -215,7 +202,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
           }),
         );
 
-      StellarSdk.FederationServer.createForDomain("acme.com")
+      Server.createForDomain("acme.com")
         .should.be.rejectedWith(
           /stellar.toml does not contain FEDERATION_SERVER field/,
         )
@@ -225,9 +212,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
 
   describe("FederationServer.resolve", function () {
     it("succeeds for a valid account ID", function (done) {
-      StellarSdk.FederationServer.resolve(
-        "GAFSZ3VPBC2H2DVKCEWLN3PQWZW6BVDMFROWJUDAJ3KWSOKQIJ4R5W4J",
-      )
+      Server.resolve("GAFSZ3VPBC2H2DVKCEWLN3PQWZW6BVDMFROWJUDAJ3KWSOKQIJ4R5W4J")
         .should.eventually.deep.equal({
           account_id:
             "GAFSZ3VPBC2H2DVKCEWLN3PQWZW6BVDMFROWJUDAJ3KWSOKQIJ4R5W4J",
@@ -236,7 +221,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
     });
 
     it("fails for invalid account ID", function (done) {
-      StellarSdk.FederationServer.resolve("invalid")
+      Server.resolve("invalid")
         .should.be.rejectedWith(/Invalid Account ID/)
         .notify(done);
     });
@@ -274,7 +259,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
           }),
         );
 
-      StellarSdk.FederationServer.resolve("bob*stellar.org")
+      Server.resolve("bob*stellar.org")
         .should.eventually.deep.equal({
           stellar_address: "bob*stellar.org",
           account_id:
@@ -286,7 +271,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
     });
 
     it("fails for invalid Stellar address", function (done) {
-      StellarSdk.FederationServer.resolve("bob*stellar.org*test")
+      Server.resolve("bob*stellar.org*test")
         .should.be.rejectedWith(/Invalid Stellar address/)
         .notify(done);
     });
@@ -322,20 +307,16 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
       if (typeof window != "undefined") {
         return done();
       }
-      var response = Array(StellarSdk.FEDERATION_RESPONSE_MAX_SIZE + 10).join(
-        "a",
-      );
+      var response = Array(FEDERATION_RESPONSE_MAX_SIZE + 10).join("a");
       let tempServer = http
         .createServer((req, res) => {
           res.setHeader("Content-Type", "application/json; charset=UTF-8");
           res.end(response);
         })
         .listen(4444, () => {
-          new StellarSdk.FederationServer(
-            "http://localhost:4444/federation",
-            "stellar.org",
-            { allowHttp: true },
-          )
+          new Server("http://localhost:4444/federation", "stellar.org", {
+            allowHttp: true,
+          })
             .resolveAddress("bob*stellar.org")
             .should.be.rejectedWith(
               /federation response exceeds allowed size of [0-9]+/,
@@ -373,11 +354,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
             setTimeout(() => {}, 10000);
           })
           .listen(4444, () => {
-            new StellarSdk.FederationServer(
-              "http://localhost:4444/federation",
-              "stellar.org",
-              opts,
-            )
+            new Server("http://localhost:4444/federation", "stellar.org", opts)
               .resolveAddress("bob*stellar.org")
               .should.be.rejectedWith(/timeout of 1000ms exceeded/)
               .notify(done)
@@ -395,11 +372,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
             setTimeout(() => {}, 10000);
           })
           .listen(4444, () => {
-            new StellarSdk.FederationServer(
-              "http://localhost:4444/federation",
-              "stellar.org",
-              opts,
-            )
+            new Server("http://localhost:4444/federation", "stellar.org", opts)
               .resolveAccountId(
                 "GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS",
               )
@@ -419,11 +392,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
             setTimeout(() => {}, 10000);
           })
           .listen(4444, () => {
-            new StellarSdk.FederationServer(
-              "http://localhost:4444/federation",
-              "stellar.org",
-              opts,
-            )
+            new Server("http://localhost:4444/federation", "stellar.org", opts)
               .resolveTransactionId(
                 "3389e9f0f1a65f19736cacf544c2e825313e8447f569233bb8db39aa607c8889",
               )
@@ -443,7 +412,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
             setTimeout(() => {}, 10000);
           })
           .listen(4444, () => {
-            StellarSdk.FederationServer.createForDomain("localhost:4444", opts)
+            Server.createForDomain("localhost:4444", opts)
               .should.be.rejectedWith(/timeout of 1000ms exceeded/)
               .notify(done)
               .then(() => tempServer.close());
@@ -461,7 +430,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
             setTimeout(() => {}, 10000);
           })
           .listen(4444, () => {
-            StellarSdk.FederationServer.resolve("bob*localhost:4444", opts)
+            Server.resolve("bob*localhost:4444", opts)
               .should.eventually.be.rejectedWith(/timeout of 1000ms exceeded/)
               .notify(done)
               .then(() => tempServer.close());

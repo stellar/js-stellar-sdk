@@ -1,36 +1,26 @@
 // tslint:disable-next-line: no-reference
 /// <reference path="../types/dom-monkeypatch.d.ts" />
 
-/* tslint:disable:no-var-requires */
-const version = require("../package.json").version;
-
 // Expose all types
-export * from "./horizon_api";
-export * from "./server_api";
+export * from './errors';
+export { Config } from './config';
+export { Utils } from './utils';
 
-// stellar-sdk classes to expose
-export * from "./account_response";
-export * from "./errors";
-export { Config } from "./config";
-export { Server } from "./server";
-export {
-  FederationServer,
-  FEDERATION_RESPONSE_MAX_SIZE
-} from "./federation_server";
-export {
-  StellarTomlResolver,
-  STELLAR_TOML_MAX_SIZE
-} from "./stellar_toml_resolver";
-export {
-  default as HorizonAxiosClient,
-  SERVER_TIME_MAP,
-  getCurrentServerTime
-} from "./horizon_axios_client";
-export * from "./utils";
+// TOML (SEP-1), Federation (SEP-2), and WebAuth (SEP-10) helpers to expose
+export * as StellarToml from './stellartoml';
+export * as Federation from './federation';
+export * as WebAuth from './webauth';
+
+export * as Friendbot from './friendbot';
+
+// Horizon-related classes to expose
+export * as Horizon from './horizon';
+
+// Soroban RPC-related classes to expose
+export * as SorobanRpc from './soroban';
+export { ContractSpec } from './contract_spec';
 
 // expose classes and functions from stellar-base
-export * from "stellar-base";
-
-export { version };
+export * from 'stellar-base';
 
 export default module.exports;

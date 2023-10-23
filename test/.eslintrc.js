@@ -8,7 +8,6 @@ module.exports = {
     chai: true,
     sinon: true,
     expect: true,
-    HorizonAxiosClient: true,
   },
   rules: {
     "no-unused-vars": 0,

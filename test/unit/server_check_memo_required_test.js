@@ -1,3 +1,5 @@
+const { Horizon } = StellarSdk;
+
 function buildTransaction(destination, operations = [], builderOpts = {}) {
   let txBuilderOpts = {
     fee: 100,
@@ -105,8 +107,8 @@ function mockAccountRequest(axiosMock, id, status, data = {}) {
 
 describe("server.js check-memo-required", function () {
   beforeEach(function () {
-    this.server = new StellarSdk.Server("https://horizon-testnet.stellar.org");
-    this.axiosMock = sinon.mock(HorizonAxiosClient);
+    this.server = new Horizon.Server("https://horizon-testnet.stellar.org");
+    this.axiosMock = sinon.mock(Horizon.AxiosClient);
   });
 
   afterEach(function () {

@@ -1,0 +1,15 @@
+{
+    "extends": "@stellar/tsconfig",
+    "compilerOptions": {
+      "declaration": false,
+      "sourceMap": false,
+      "removeComments": false,
+      "lib": ["es2015"],
+      "moduleResolution": "node",
+      "rootDir": "..",
+    //   "outDir": "./unit/build",
+      "target": "ES2020",
+      "strict": false,
+    },
+    "include": ["**/*.ts" ]
+  }

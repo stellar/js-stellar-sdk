@@ -1,3 +1,5 @@
+const { Horizon } = StellarSdk;
+
 const http = require("http");
 const url = require("url");
 const port = 3100;
@@ -27,7 +29,7 @@ describe("integration tests: client headers", function (done) {
         return;
       }
 
-      new StellarSdk.Server(`http://localhost:${port}`, { allowHttp: true })
+      new Horizon.Server(`http://localhost:${port}`, { allowHttp: true })
         .operations()
         .call();
     });
@@ -56,7 +58,7 @@ describe("integration tests: client headers", function (done) {
         return;
       }
 
-      closeStream = new StellarSdk.Server(`http://localhost:${port}`, {
+      closeStream = new Horizon.Server(`http://localhost:${port}`, {
         allowHttp: true,
       })
         .operations()

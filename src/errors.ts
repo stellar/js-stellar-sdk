@@ -1,11 +1,11 @@
-import { Horizon } from "./horizon_api";
+import { HorizonApi } from "./horizon/horizon_api";
 
 // For ES5 compatibility (https://stackoverflow.com/a/55066280).
 /* tslint:disable:variable-name max-classes-per-file */
 
 export class NetworkError extends Error {
   public response: {
-    data?: Horizon.ErrorResponseData;
+    data?: HorizonApi.ErrorResponseData;
     status?: number;
     statusText?: string;
     url?: string;
@@ -52,18 +52,6 @@ export class BadResponseError extends NetworkError {
     this.__proto__ = trueProto;
     this.constructor = BadResponseError;
     this.name = "BadResponseError";
-  }
-}
-
-export class InvalidSep10ChallengeError extends Error {
-  public __proto__: InvalidSep10ChallengeError;
-
-  constructor(message: string) {
-    const trueProto = new.target.prototype;
-    super(message);
-    this.__proto__ = trueProto;
-    this.constructor = InvalidSep10ChallengeError;
-    this.name = "InvalidSep10ChallengeError";
   }
 }
 

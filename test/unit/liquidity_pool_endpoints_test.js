@@ -1,15 +1,12 @@
-// Helper function to deep-copy JSON responses.
-function copyJson(js) {
-  return JSON.parse(JSON.stringify(js));
-}
+const { Horizon } = StellarSdk;
 
 const BASE_URL = "https://horizon-live.stellar.org:1337";
 const LP_URL = BASE_URL + "/liquidity_pools";
 
 describe("/liquidity_pools tests", function () {
   beforeEach(function () {
-    this.server = new StellarSdk.Server(BASE_URL);
-    this.axiosMock = sinon.mock(HorizonAxiosClient);
+    this.server = new Horizon.Server(BASE_URL);
+    this.axiosMock = sinon.mock(Horizon.AxiosClient);
     StellarSdk.Config.setDefault();
   });
 
@@ -1376,3 +1373,8 @@ describe("/liquidity_pools tests", function () {
     });
   });
 });
+
+// Helper function to deep-copy JSON responses.
+function copyJson(js) {
+  return JSON.parse(JSON.stringify(js));
+}

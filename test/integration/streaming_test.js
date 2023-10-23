@@ -1,5 +1,6 @@
+const { Horizon } = StellarSdk;
+
 const http = require("http");
-const url = require("url");
 const port = 3100;
 
 describe("integration tests: streaming", function (done) {
@@ -26,7 +27,7 @@ describe("integration tests: streaming", function (done) {
         return;
       }
 
-      closeStream = new StellarSdk.Server(`http://localhost:${port}`, {
+      closeStream = new Horizon.Server(`http://localhost:${port}`, {
         allowHttp: true,
       })
         .operations()
@@ -72,7 +73,7 @@ describe("integration tests: streaming", function (done) {
         return;
       }
 
-      closeStream = new StellarSdk.Server(`http://localhost:${port}`, {
+      closeStream = new Horizon.Server(`http://localhost:${port}`, {
         allowHttp: true,
       })
         .operations()
@@ -99,7 +100,7 @@ describe("end-to-end tests: real streaming", function (done) {
   // ledger's transaction batch).
   it("streams in perpetuity", function (done) {
     const DURATION = 30;
-    const server = new StellarSdk.Server("https://horizon.stellar.org");
+    const server = new Horizon.Server("https://horizon.stellar.org");
     this.timeout((DURATION + 5) * 1000); // pad timeout
 
     let transactions = [];

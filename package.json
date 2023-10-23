@@ -28,21 +28,22 @@
     "build:prod": "cross-env NODE_ENV=production yarn _build",
     "build:node": "yarn _babel && yarn build:ts",
     "build:ts": "tsc -p ./config/tsconfig.json",
+    "build:test": "tsc -p ./test/tsconfig.json",
     "build:browser": "webpack -c config/webpack.config.browser.js",
     "build:docs": "cross-env NODE_ENV=docs yarn _babel",
     "clean": "rm -rf lib/ dist/ coverage/ .nyc_output/ jsdoc/",
     "docs": "yarn build:docs && jsdoc -c ./config/.jsdoc.json --verbose",
-    "test": "yarn test:node && yarn test:integration && yarn test:browser",
+    "test": "yarn build:test && yarn test:node && yarn test:integration && yarn test:browser",
     "test:node": "yarn _nyc mocha --recursive 'test/unit/**/*.js'",
     "test:integration": "yarn _nyc mocha --recursive 'test/integration/**/*.js'",
     "test:browser": "karma start config/karma.conf.js",
     "fmt": "yarn eslint -c .eslintrc.js src/ --fix && yarn _prettier",
     "preversion": "yarn clean && yarn fmt && yarn build:prod && yarn test",
     "prepare": "yarn build:prod",
-    "_build": "yarn build:node && yarn build:browser",
+    "_build": "yarn build:node && yarn build:test && yarn build:browser",
     "_babel": "babel --extensions '.ts' --out-dir lib/ src/",
     "_nyc": "nyc --nycrc-path config/.nycrc",
-    "_prettier": "prettier --ignore-path config/.prettierignore --write './**/*.js'"
+    "_prettier": "prettier --ignore-path config/.prettierignore --write './test/**/*.js'"
   },
   "husky": {
     "hooks": {
@@ -51,8 +52,7 @@
   },
   "lint-staged": {
     "**/*.{js,json,ts}": [
-      "yarn fmt",
-      "yarn lint"
+      "yarn fmt"
     ]
   },
   "mocha": {
@@ -66,7 +66,7 @@
     ],
     "sort": true,
     "recursive": true,
-    "timeout": 60000
+    "timeout": 30000
   },
   "nyc": {
     "instrument": false,
@@ -86,11 +86,14 @@
     "@definitelytyped/dtslint": "^0.0.182",
     "@istanbuljs/nyc-config-babel": "3.0.0",
     "@stellar/tsconfig": "^1.0.2",
+    "@types/chai": "^4.3.6",
     "@types/detect-node": "^2.0.0",
     "@types/eventsource": "^1.1.12",
     "@types/lodash": "^4.14.199",
+    "@types/mocha": "^10.0.2",
     "@types/node": "^20.8.2",
     "@types/randombytes": "^2.0.1",
+    "@types/sinon": "^10.0.19",
     "@types/urijs": "^1.19.20",
     "@typescript-eslint/parser": "^6.7.4",
     "axios-mock-adapter": "^1.22.0",
@@ -143,7 +146,7 @@
     "bignumber.js": "^9.1.2",
     "eventsource": "^2.0.2",
     "randombytes": "^2.1.0",
-    "stellar-base": "10.0.0-beta.2",
+    "stellar-base": "10.0.0-beta.3",
     "toml": "^3.0.0",
     "urijs": "^1.19.1"
   }
