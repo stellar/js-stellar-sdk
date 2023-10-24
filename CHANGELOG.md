@@ -10,9 +10,9 @@ A breaking change will get clearly marked in this log.
 
 ### Breaking Changes
 * The `soroban-client` library ([stellar/js-soroban-client](https://github.com/stellar/js-soroban-client)) has been merged into this package, causing significant breaking changes in the module structure ([#860](https://github.com/stellar/js-stellar-sdk/pull/860)):
-
   - The namespaces have changed to move each server-dependent component into its own module. Shared components (e.g. `TransactionBuilder`) are still in the top level, Horizon-specific interactions are in the `Horizon` namespace (i.e. `Server` is now `Horizon.Server`), and new Soroban RPC interactions are in the `SorobanRpc` namespace.
   - There is a [detailed migration guide](https://gist.github.com/Shaptic/5ce4f16d9cce7118f391fbde398c2f30) available to outline both the literal (i.e. necessary code changes) and philosophical (i.e. how to find certain functionality) changes needed to adapt to this merge.
+* The `SorobanRpc.Server.prepareTransaction` and `SorobanRpc.assembleTransaction` methods no longer need an optional `networkPassphrase` parameter, because it is implicitly part of the transaction already ([#870](https://github.com/stellar/js-stellar-sdk/pull/870)).
 
 
 ## [v11.0.0-beta.4](https://github.com/stellar/js-stellar-sdk/compare/v11.0.0-beta.3...v11.0.0-beta.4)
