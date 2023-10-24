@@ -11,9 +11,7 @@ import { parseRawSimulation } from './parsers';
 /**
  * Combines the given raw transaction alongside the simulation results.
  *
- * @param raw   the initial transaction, w/o simulation applied
- * @param networkPassphrase  the network this simulation applies to (see
- *    {@link Networks} for options)
+ * @param raw         the initial transaction, w/o simulation applied
  * @param simulation  the Soroban RPC simulation result (see
  *    {@link Server.simulateTransaction})
  *
