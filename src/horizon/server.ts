@@ -322,9 +322,7 @@ export class Server {
           return response.data;
         }
 
-        // TODO: fix stellar-base types.
-        const responseXDR: xdr.TransactionResult = (xdr.TransactionResult
-          .fromXDR as any)(response.data.result_xdr, "base64");
+        const responseXDR = xdr.TransactionResult.fromXDR(response.data.result_xdr, "base64");
 
         // TODO: fix stellar-base types.
         const results = (responseXDR as any).result().value();

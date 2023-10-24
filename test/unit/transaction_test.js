@@ -61,7 +61,7 @@ describe("assembleTransaction", () => {
 
     function singleContractFnTransaction(auth) {
       return new StellarSdk.TransactionBuilder(source, { fee: 100 })
-        .setNetworkPassphrase("Test")
+        .setNetworkPassphrase(networkPassphrase)
         .setTimeout(StellarSdk.TimeoutInfinite)
         .addOperation(
           StellarSdk.Operation.invokeHostFunction({
@@ -82,7 +82,6 @@ describe("assembleTransaction", () => {
       const txn = singleContractFnTransaction();
       const result = SorobanRpc.assembleTransaction(
         txn,
-        networkPassphrase,
         simulationResponse,
       ).build();
 
@@ -100,7 +99,6 @@ describe("assembleTransaction", () => {
       const txn = singleContractFnTransaction();
       const result = SorobanRpc.assembleTransaction(
         txn,
-        networkPassphrase,
         simulationResponse,
       ).build();
 
@@ -143,11 +141,7 @@ describe("assembleTransaction", () => {
       const txn = singleContractFnTransaction();
       let simulateResp = JSON.parse(JSON.stringify(simulationResponse));
       simulateResp.results[0].auth = null;
-      const result = SorobanRpc.assembleTransaction(
-        txn,
-        networkPassphrase,
-        simulateResp,
-      ).build();
+      const result = SorobanRpc.assembleTransaction(txn, simulateResp).build();
 
       expect(
         result
@@ -176,7 +170,7 @@ describe("assembleTransaction", () => {
         .build();
 
       expect(() => {
-        SorobanRpc.assembleTransaction(txn, networkPassphrase, {
+        SorobanRpc.assembleTransaction(txn, {
           transactionData: {},
           events: [],
           minResourceFee: "0",
@@ -208,7 +202,6 @@ describe("assembleTransaction", () => {
 
         const tx = SorobanRpc.assembleTransaction(
           txn,
-          networkPassphrase,
           simulationResponse,
         ).build();
         expect(tx.operations[0].type).to.equal(op.body().switch().name);
@@ -219,7 +212,6 @@ describe("assembleTransaction", () => {
       const txn = singleContractFnTransaction([fnAuth, fnAuth, fnAuth]);
       const tx = SorobanRpc.assembleTransaction(
         txn,
-        networkPassphrase,
         simulationResponse,
       ).build();
 

@@ -532,9 +532,6 @@ export class Server {
    *    from the simulation. In other words, if you include auth entries, you
    *    don't care about the auth returned from the simulation. Other fields
    *    (footprint, etc.) will be filled as normal.
-   * @param {string} [networkPassphrase]  explicitly provide a network
-   *    passphrase (default: requested from the server via
-   *    {@link Server.getNetwork}).
    *
    * @returns {Promise<Transaction | FeeBumpTransaction>}   a copy of the
    *    transaction with the expected authorizations (in the case of
@@ -544,7 +541,8 @@ export class Server {
    *
    * @see assembleTransaction
    * @see https://soroban.stellar.org/api/methods/simulateTransaction
-   * @throws {jsonrpc.Error<any> | Error}   if simulation fails
+   * @throws {jsonrpc.Error<any>|Error|Api.SimulateTransactionErrorResponse}
+   *    if simulation fails
    * @example
    * const contractId = 'CA3D5KRYM6CB7OWQ6TWYRR3Z4T7GNZLKERYNZGGA5SOAOPIFY6YQGAXE';
    * const contract = new StellarSdk.Contract(contractId);
@@ -576,24 +574,13 @@ export class Server {
    *   console.log("errorResultXdr:", result.errorResultXdr);
    * });
    */
-  public async prepareTransaction(
-    transaction: Transaction | FeeBumpTransaction,
-    networkPassphrase?: string
-  ): Promise<Transaction | FeeBumpTransaction> {
-    const [{ passphrase }, simResponse] = await Promise.all([
-      networkPassphrase
-        ? Promise.resolve({ passphrase: networkPassphrase })
-        : this.getNetwork(),
-      this.simulateTransaction(transaction)
-    ]);
+  public async prepareTransaction(tx: Transaction | FeeBumpTransaction) {
+    const simResponse = await this.simulateTransaction(tx);
     if (Api.isSimulationError(simResponse)) {
       throw simResponse.error;
     }
-    if (!simResponse.result) {
-      throw new Error('transaction simulation failed');
-    }
 
-    return assembleTransaction(transaction, passphrase, simResponse).build();
+    return assembleTransaction(tx, simResponse).build();
   }
 
   /**
