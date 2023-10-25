@@ -5,6 +5,9 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+
+## [v11.0.0-beta.5](https://github.com/stellar/js-stellar-sdk/compare/v11.0.0-beta.4...v11.0.0-beta.5)
+
 ### Breaking Changes
 * The `soroban-client` library ([stellar/js-soroban-client](https://github.com/stellar/js-soroban-client)) has been merged into this package, causing significant breaking changes in the module structure ([#860](https://github.com/stellar/js-stellar-sdk/pull/860)):
   - The namespaces have changed to move each server-dependent component into its own module. Shared components (e.g. `TransactionBuilder`) are still in the top level, Horizon-specific interactions are in the `Horizon` namespace (i.e. `Server` is now `Horizon.Server`), and new Soroban RPC interactions are in the `SorobanRpc` namespace.
