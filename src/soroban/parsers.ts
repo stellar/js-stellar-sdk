@@ -1,5 +1,5 @@
 import { xdr, Contract, SorobanDataBuilder } from 'stellar-base';
-import { Api } from './soroban_rpc';
+import { Api } from './api';
 
 export function parseRawSendTransaction(
   r: Api.RawSendTransactionResponse
