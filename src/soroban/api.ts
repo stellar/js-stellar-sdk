@@ -96,6 +96,14 @@ export namespace Api {
   export interface GetFailedTransactionResponse
     extends GetAnyTransactionResponse {
     status: GetTransactionStatus.FAILED;
+
+    ledger: number;
+    createdAt: number;
+    applicationOrder: number;
+    feeBump: boolean;
+    envelopeXdr: xdr.TransactionEnvelope;
+    resultXdr: xdr.TransactionResult;
+    resultMetaXdr: xdr.TransactionMeta;
   }
 
   export interface GetSuccessfulTransactionResponse

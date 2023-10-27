@@ -2,7 +2,7 @@
 /// <reference path="../../types/dom-monkeypatch.d.ts" />
 
 // Expose all types
-export * from './soroban_rpc';
+export * from './api';
 
 // soroban-client classes to expose
 export { Server, Durability } from './server';
