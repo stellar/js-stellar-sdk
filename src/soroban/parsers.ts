@@ -27,7 +27,7 @@ export function parseRawEvents(
         ...evt,
         contractId: new Contract(evt.contractId),
         topic: evt.topic.map((topic) => xdr.ScVal.fromXDR(topic, 'base64')),
-        value: xdr.DiagnosticEvent.fromXDR(evt.value.xdr, 'base64')
+        value: xdr.ScVal.fromXDR(evt.value.xdr, 'base64')
       };
     })
   };
