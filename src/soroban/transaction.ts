@@ -5,7 +5,7 @@ import {
   TransactionBuilder
 } from 'stellar-base';
 
-import { Api } from './soroban_rpc';
+import { Api } from './api';
 import { parseRawSimulation } from './parsers';
 
 /**

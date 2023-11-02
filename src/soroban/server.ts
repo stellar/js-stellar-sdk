@@ -15,7 +15,7 @@ import {
 import AxiosClient from './axios';
 import { Api as FriendbotApi } from '../friendbot';
 import * as jsonrpc from './jsonrpc';
-import { Api } from './soroban_rpc';
+import { Api } from './api';
 import { assembleTransaction } from './transaction';
 import {
   parseRawSendTransaction,
@@ -307,14 +307,14 @@ export class Server {
     hash: string
   ): Promise<Api.GetTransactionResponse> {
     return this._getTransaction(hash).then((raw) => {
-      let successInfo: Omit<
+      let foundInfo: Omit<
         Api.GetSuccessfulTransactionResponse,
-        keyof Api.GetFailedTransactionResponse
+        keyof Api.GetMissingTransactionResponse
       > = {} as any;
 
-      if (raw.status === Api.GetTransactionStatus.SUCCESS) {
+      if (raw.status !== Api.GetTransactionStatus.NOT_FOUND) {
         const meta = xdr.TransactionMeta.fromXDR(raw.resultMetaXdr!, 'base64');
-        successInfo = {
+        foundInfo = {
           ledger: raw.ledger!,
           createdAt: raw.createdAt!,
           applicationOrder: raw.applicationOrder!,
@@ -326,7 +326,8 @@ export class Server {
           resultXdr: xdr.TransactionResult.fromXDR(raw.resultXdr!, 'base64'),
           resultMetaXdr: meta,
           ...(meta.switch() === 3 &&
-            meta.v3().sorobanMeta() !== null && {
+            meta.v3().sorobanMeta() !== null &&
+            raw.status === Api.GetTransactionStatus.SUCCESS && {
               returnValue: meta.v3().sorobanMeta()?.returnValue()
             })
         };
@@ -338,7 +339,7 @@ export class Server {
         latestLedgerCloseTime: raw.latestLedgerCloseTime,
         oldestLedger: raw.oldestLedger,
         oldestLedgerCloseTime: raw.oldestLedgerCloseTime,
-        ...successInfo
+        ...foundInfo
       };
 
       return result;
