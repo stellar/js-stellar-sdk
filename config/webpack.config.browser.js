@@ -65,6 +65,8 @@ const config = {
     }),
     // Ignore native modules (sodium-native)
     new webpack.IgnorePlugin({ resourceRegExp: /sodium-native/ }),
+    // Should be polyfilled
+    new webpack.IgnorePlugin({ resourceRegExp: /eventsource/ }),
     new NodePolyfillPlugin({
       includeAliases: ['http', 'https'] // others aren't needed
     }),
