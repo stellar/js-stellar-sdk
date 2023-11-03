@@ -20,9 +20,14 @@ export interface EventSourceOptions<T> {
 const anyGlobal = global as any;
 type Constructable<T> = new (e: string) => T;
 // require("eventsource") for Node and React Native environment
-let EventSource: Constructable<EventSource> = anyGlobal.EventSource ??
+const EventSource: Constructable<EventSource> = anyGlobal.EventSource ??
   anyGlobal.window?.EventSource ??
   require("eventsource");
+if (!EventSource) {
+  console.warn(
+    '⚠️ No EventSource provider found: either polyfill it (e.g. `npm i eventsource`) or you will not have streaming support.'
+  );
+}
 
 /**
  * Creates a new {@link CallBuilder} pointed to server defined by serverUrl.
