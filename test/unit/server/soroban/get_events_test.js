@@ -1,4 +1,4 @@
-const { SorobanRpc } = StellarSdk;
+const { nativeToScVal, SorobanRpc } = StellarSdk;
 const { Server, AxiosClient } = StellarSdk.SorobanRpc;
 
 describe("Server#getEvents", function () {
@@ -40,6 +40,7 @@ describe("Server#getEvents", function () {
       latestLedger: 1,
       events: filterEvents(getEventsResponseFixture, "*/*"),
     };
+    expect(result.events).to.not.have.lengthOf(0, JSON.stringify(result));
 
     setupMock(
       this.axiosMock,
@@ -76,9 +77,10 @@ describe("Server#getEvents", function () {
       latestLedger: 1,
       events: filterEvents(
         getEventsResponseFixture,
-        "AAAABQAAAAh0cmFuc2Zlcg==/AAAAAQB6Mcc=",
+        `${topicVals[0]}/${topicVals[1]}`,
       ),
     };
+    expect(result.events).to.not.have.lengthOf(0, JSON.stringify(result));
 
     setupMock(
       this.axiosMock,
@@ -86,7 +88,7 @@ describe("Server#getEvents", function () {
         startLedger: "1",
         filters: [
           {
-            topics: [["AAAABQAAAAh0cmFuc2Zlcg==", "AAAAAQB6Mcc="]],
+            topics: [[topicVals[0], topicVals[1]]],
           },
         ],
         pagination: {},
@@ -99,12 +101,12 @@ describe("Server#getEvents", function () {
         startLedger: 1,
         filters: [
           {
-            topics: [["AAAABQAAAAh0cmFuc2Zlcg==", "AAAAAQB6Mcc="]],
+            topics: [[topicVals[0], topicVals[1]]],
           },
         ],
       })
       .then(function (response) {
-        expect(response).to.be.deep.equal(result);
+        expect(response).to.be.deep.equal(parseEvents(result));
         done();
       })
       .catch(done);
@@ -112,20 +114,21 @@ describe("Server#getEvents", function () {
 
   it("can build mixed filters", function (done) {
     let result = {
-      latestLedger: 1,
+      latestLedger: 3,
       events: filterEventsByLedger(
-        filterEvents(getEventsResponseFixture, "AAAABQAAAAh0cmFuc2Zlcg==/*"),
-        1,
+        filterEvents(getEventsResponseFixture, `${topicVals[0]}/*`),
+        2,
       ),
     };
+    expect(result.events).to.not.have.lengthOf(0, JSON.stringify(result));
 
     setupMock(
       this.axiosMock,
       {
-        startLedger: "1",
+        startLedger: "2",
         filters: [
           {
-            topics: [["AAAABQAAAAh0cmFuc2Zlcg==", "*"]],
+            topics: [[topicVals[0], "*"]],
           },
         ],
         pagination: {},
@@ -135,15 +138,15 @@ describe("Server#getEvents", function () {
 
     this.server
       .getEvents({
-        startLedger: 1,
+        startLedger: 2,
         filters: [
           {
-            topics: [["AAAABQAAAAh0cmFuc2Zlcg==", "*"]],
+            topics: [[topicVals[0], "*"]],
           },
         ],
       })
       .then(function (response) {
-        expect(response).to.be.deep.equal(result);
+        expect(response).to.be.deep.equal(parseEvents(result));
         done();
       })
       .catch(done);
@@ -151,12 +154,13 @@ describe("Server#getEvents", function () {
 
   it("can paginate", function (done) {
     let result = {
-      latestLedger: 1,
+      latestLedger: 3,
       events: filterEventsByLedger(
         filterEvents(getEventsResponseFixture, "*/*"),
-        1,
+        2,
       ),
     };
+    expect(result.events).to.not.have.lengthOf(0, JSON.stringify(result));
 
     setupMock(
       this.axiosMock,
@@ -185,7 +189,7 @@ describe("Server#getEvents", function () {
         limit: 10,
       })
       .then(function (response) {
-        expect(response).to.be.deep.equal(result);
+        expect(response).to.be.deep.equal(parseEvents(result));
         done();
       })
       .catch(done);
@@ -193,16 +197,17 @@ describe("Server#getEvents", function () {
 });
 
 function filterEvents(events, filter) {
+  const parts = filter.split("/");
   return events.filter(
     (e, i) =>
-      e.topic.length == filter.length &&
-      e.topic.every((s, j) => s === filter[j] || s === "*"),
+      e.topic.length == parts.length &&
+      e.topic.every((s, j) => s === parts[j] || parts[j] === "*"),
   );
 }
 
 function filterEventsByLedger(events, start) {
   return events.filter((e) => {
-    return e.ledger.parseInt() >= start;
+    return parseInt(e.ledger) >= start;
   });
 }
 
@@ -219,67 +224,67 @@ function setupMock(axiosMock, params, result) {
 }
 
 function parseEvents(result) {
-  return {
-    ...result,
-    events: result.events.map(SorobanRpc.parseRawEvents),
-  };
+  return SorobanRpc.parseRawEvents(result);
 }
 
+const contractId = "CA3D5KRYM6CB7OWQ6TWYRR3Z4T7GNZLKERYNZGGA5SOAOPIFY6YQGAXE";
+const topicVals = [
+  nativeToScVal("transfer", { type: "symbol" }).toXDR("base64"),
+  nativeToScVal(contractId, { type: "address" }).toXDR("base64"),
+  nativeToScVal(1234).toXDR("base64"),
+];
+let eventVal = nativeToScVal("wassup").toXDR("base64");
 let getEventsResponseFixture = [
   {
     type: "system",
     ledger: "1",
     ledgerClosedAt: "2022-11-16T16:10:41Z",
-    contractId:
-      "e3e82a76cc316f6289fd1ffbdf315da0f2c6be9582b84b9983a402f02ea0fff7",
+    contractId,
     id: "0164090849041387521-0000000003",
     pagingToken: "164090849041387521-3",
-    topic: ["AAAABQAAAAh0cmFuc2Zlcg==", "AAAAAQB6Mcc="],
     inSuccessfulContractCall: true,
+    topic: topicVals.slice(0, 2),
     value: {
-      xdr: "AAAABQAAAApHaWJNb255UGxzAAA=",
+      xdr: eventVal,
     },
   },
   {
     type: "contract",
     ledger: "2",
     ledgerClosedAt: "2022-11-16T16:10:41Z",
-    contractId:
-      "e3e82a76cc316f6289fd1ffbdf315da0f2c6be9582b84b9983a402f02ea0fff7",
+    contractId,
     id: "0164090849041387521-0000000003",
     pagingToken: "164090849041387521-3",
-    topic: ["AAAAAQB6Mcc=", "AAAABQAAAAh0cmFuc2Zlcg=="],
     inSuccessfulContractCall: true,
+    topic: topicVals.slice(0, 2),
     value: {
-      xdr: "AAAABQAAAApHaWJNb255UGxzAAA=",
+      xdr: eventVal,
     },
   },
   {
     type: "diagnostic",
     ledger: "2",
     ledgerClosedAt: "2022-11-16T16:10:41Z",
-    contractId:
-      "a3e82a76cc316f6289fd1ffbdf315da0f2c6be9582b84b9983a402f02ea0fff7",
+    contractId,
     id: "0164090849041387521-0000000003",
     pagingToken: "164090849041387521-3",
     inSuccessfulContractCall: true,
-    topic: ["AAAAAQB6Mcc="],
+    topic: [topicVals[0]],
     value: {
-      xdr: "AAAABQAAAApHaWJNb255UGxzAAA=",
+      xdr: eventVal,
     },
   },
   {
     type: "contract",
     ledger: "3",
     ledgerClosedAt: "2022-12-14T01:01:20Z",
-    contractId:
-      "6ebe0114ae15f72f187f05d06dcb66b22bd97218755c9b4646b034ab961fc1d5",
+    contractId,
     id: "0000000171798695936-0000000001",
     pagingToken: "0000000171798695936-0000000001",
     inSuccessfulContractCall: true,
-    topic: ["AAAABQAAAAdDT1VOVEVSAA==", "AAAABQAAAAlpbmNyZW1lbnQAAAA="],
+    topic: topicVals,
     value: {
-      xdr: "AAAAAQAAAAE=",
+      xdr: eventVal,
     },
   },
 ];

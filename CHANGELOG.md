@@ -6,7 +6,8 @@ A breaking change will get clearly marked in this log.
 ## Unreleased
 
 ### Fixed
-* The `SorobanRpc.Server.getTransaction` method will now return the full response when encountering a `FAILED` transaction result ([#872](https://github.com/stellar/js-stellar-sdk/pull/872)).
+* The `SorobanRpc.Server.getTransaction()` method will now return the full response when encountering a `FAILED` transaction result ([#872](https://github.com/stellar/js-stellar-sdk/pull/872)).
+* The `SorobanRpc.Server.getEvents()` method will correctly parse the event value (which is an `xdr.ScVal` rather than an `xdr.DiagnosticEvent`, see the modified `SorobanRpc.Api.EventResponse.value`; [#876](https://github.com/stellar/js-stellar-sdk/pull/876)).
 
 
 ## [v11.0.0-beta.5](https://github.com/stellar/js-stellar-sdk/compare/v11.0.0-beta.4...v11.0.0-beta.5)
