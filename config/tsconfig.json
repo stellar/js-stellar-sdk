@@ -5,11 +5,11 @@
     "emitDeclarationOnly": true,
     "declarationDir": "../lib",
     "removeComments": false,
-    "lib": ["ES6"],
+    "lib": ["ES5"],
     "moduleResolution": "node",
     "rootDir": "../src",
     "outDir": "../lib",
-    "target": "es6"
+    "target": "ES5"
   },
   "include": ["../src"]
 }

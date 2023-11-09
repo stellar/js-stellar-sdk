@@ -1,26 +1,14 @@
 {
-    "comments": true, // for debugging & jsdocs
     "presets": [
         "@babel/preset-env",
         "@babel/typescript"
     ],
+    "plugins": [ 
+        "istanbul", 
+        "@babel/plugin-proposal-numeric-separator"
+    ],
     "targets": {
-        "browsers": [ "> 2%" ]          // target modern browsers and ES6
-    },
-    "env": {
-        "development": {
-            "plugins": [ "istanbul" ]   // for code coverage
-        },
-        "production": {
-            "comments": false,
-            "targets": {
-                "node": 16,
-                "browsers": [
-                    "> 2%",
-                    "ie 11",
-                    "not op_mini all"
-                ]
-            }
-        }
+        "android": 5,
+        "node": 16
     }
 }

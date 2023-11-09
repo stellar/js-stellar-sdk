@@ -111,7 +111,7 @@ export class Server {
       })
     );
 
-    const resp = await this.getLedgerEntries(ledgerKey);
+    const resp = await this.getLedgerEntries([ledgerKey]);
     if (resp.entries.length === 0) {
       return Promise.reject({
         code: 404,
@@ -213,7 +213,7 @@ export class Server {
       })
     );
 
-    return this.getLedgerEntries(contractKey).then(
+    return this.getLedgerEntries([contractKey]).then(
       (r: Api.GetLedgerEntriesResponse) => {
         if (r.entries.length === 0) {
           return Promise.reject({
@@ -265,12 +265,12 @@ export class Server {
    * });
    */
   public async getLedgerEntries(
-    ...keys: xdr.LedgerKey[]
+    keys: xdr.LedgerKey[]
   ): Promise<Api.GetLedgerEntriesResponse> {
-    return this._getLedgerEntries(...keys).then(parseRawLedgerEntries);
+    return this._getLedgerEntries(keys).then(parseRawLedgerEntries);
   }
 
-  public async _getLedgerEntries(...keys: xdr.LedgerKey[]) {
+  public async _getLedgerEntries(keys: xdr.LedgerKey[]) {
     return jsonrpc
       .post<Api.RawGetLedgerEntriesResponse>(
         this.serverURL.toString(),
@@ -789,7 +789,7 @@ function mergeResponseExpirationLedgers(
     }
   });
 
-  ledgerEntriesResponse.entries = [...expirationKeyToRawEntryResult.values()];
+  // ledgerEntriesResponse.entries = [...expirationKeyToRawEntryResult.values()];
   return ledgerEntriesResponse;
 }
 

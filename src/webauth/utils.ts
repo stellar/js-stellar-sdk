@@ -560,7 +560,7 @@ export function verifyChallengeTxSigners(
   // are consumed only once on the transaction.
   const allSigners: string[] = [
     serverKP.publicKey(),
-    ...Array.from(clientSigners),
+    // ...Array.from(clientSigners),
   ];
   if (clientSigningKey) {
     allSigners.push(clientSigningKey);
@@ -673,7 +673,7 @@ export function gatherTxSigners(
 ): string[] {
   const hashedSignatureBase = transaction.hash();
 
-  const txSignatures = [...transaction.signatures]; // shallow copy for safe splicing
+  const txSignatures = transaction.signatures; // shallow copy for safe splicing
   const signersFound = new Set<string>();
 
   for (const signer of signers) {

@@ -1,6 +1,6 @@
 module.exports = {
   env: {
-    es6: true,
+    es5: true,
   },
   rules: {
     // OFF
@@ -36,4 +36,5 @@ module.exports = {
     // ERROR
     "no-unused-expressions": [2, { allowTaggedTemplates: true }],
   },
+  parser: "babel-eslint"
 };

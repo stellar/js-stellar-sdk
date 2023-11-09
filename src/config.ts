@@ -39,6 +39,13 @@ let config = Object.assign({}, defaultConfig);
  */
 class Config {
   /**
+   * TEST 999
+   */
+    public static testLogValue(value: string): string {
+      return value + "999";
+    }
+
+  /**
    * Sets `allowHttp` flag globally. When set to `true`, connections to insecure http protocol servers will be allowed.
    * Must be set to `false` in production. Default: `false`.
    * @param {boolean} value new allowHttp value
