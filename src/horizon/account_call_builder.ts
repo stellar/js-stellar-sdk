@@ -37,7 +37,7 @@ export class AccountCallBuilder extends CallBuilder<
   /**
    * This endpoint filters accounts by signer account.
    * @see [Accounts](https://developers.stellar.org/api/resources/accounts/list/)
-   * @param {string} value For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
+   * @param {string} id For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
    * @returns {AccountCallBuilder} current AccountCallBuilder instance
    */
   public forSigner(id: string): this {
@@ -49,7 +49,7 @@ export class AccountCallBuilder extends CallBuilder<
    * This endpoint filters all accounts who are trustees to an asset.
    * @see [Accounts](https://developers.stellar.org/api/resources/accounts/list/)
    * @see Asset
-   * @param {Asset} value For example: `new Asset('USD','GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD')`
+   * @param {Asset} asset For example: `new Asset('USD','GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD')`
    * @returns {AccountCallBuilder} current AccountCallBuilder instance
    */
   public forAsset(asset: Asset): this {
@@ -60,7 +60,7 @@ export class AccountCallBuilder extends CallBuilder<
   /**
    * This endpoint filters accounts where the given account is sponsoring the account or any of its sub-entries..
    * @see [Accounts](https://developers.stellar.org/api/resources/accounts/list/)
-   * @param {string} value For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
+   * @param {string} id For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
    * @returns {AccountCallBuilder} current AccountCallBuilder instance
    */
   public sponsor(id: string): this {
