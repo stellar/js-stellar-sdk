@@ -17,6 +17,9 @@ export interface EventSourceOptions<T> {
   reconnectTimeout?: number;
 }
 
+// @ts-ignore
+let req = (__non_webpack_require__ ?? require);
+
 const anyGlobal = global as any;
 type Constructable<T> = new (e: string) => T;
 // require("eventsource") polyfill for Node and React Native environments
@@ -24,13 +27,13 @@ let EventSource: Constructable<EventSource>;
 try {
   EventSource = anyGlobal.EventSource ??
     anyGlobal.window?.EventSource ??
-    // @ts-ignore
-    (__non_webpack_require__ ?? require)("eventsource");
+    req("eventsource");
 } catch (e: any) {
   console.warn(
     '⚠️ No EventSource provider found: either polyfill it ' +
     '(e.g. `npm i eventsource`) or you will not have streaming support.'
   );
+  console.warn('⚠️ You are using: require =', req);
   console.warn('⚠️ The import error was:', e.stack || e);
   console.warn(
     "⚠️ You can ignore this message if you don't care about streaming."
