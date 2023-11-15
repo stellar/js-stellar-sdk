@@ -30,7 +30,10 @@ try {
     '⚠️ No EventSource provider found: either polyfill it ' +
     '(e.g. `npm i eventsource`) or you will not have streaming support.'
   );
-  console.warn('The import error was:', e.stack || e);
+  console.warn('⚠️ The import error was:', e.stack || e);
+  console.warn(
+    "⚠️ You can ignore this message if you don't care about streaming."
+  );
 }
 
 /**
