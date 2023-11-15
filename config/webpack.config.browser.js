@@ -65,7 +65,6 @@ const config = {
     }),
     // Ignore native modules (sodium-native) and opt-in polyfills
     new webpack.IgnorePlugin({ resourceRegExp: /(sodium-native|eventsource)/ }),
-    new webpack.IgnorePlugin({ resourceRegExp: /eventsource/ }),
     new NodePolyfillPlugin({
       includeAliases: ['http', 'https'] // others aren't needed
     }),
@@ -73,9 +72,7 @@ const config = {
       Buffer: ['buffer', 'Buffer']
     }),
   ],
-  externals: {
-    "eventsource": "require('eventsource')"
-  }
+  externals: "eventsource",
 };
 
 module.exports = config;

@@ -24,7 +24,8 @@ let EventSource: Constructable<EventSource>;
 try {
   EventSource = anyGlobal.EventSource ??
     anyGlobal.window?.EventSource ??
-    require("eventsource");
+    // @ts-ignore
+    (__non_webpack_require__ ?? require)("eventsource");
 } catch (e: any) {
   console.warn(
     '⚠️ No EventSource provider found: either polyfill it ' +
