@@ -20,14 +20,17 @@ export interface EventSourceOptions<T> {
 const anyGlobal = global as any;
 type Constructable<T> = new (e: string) => T;
 // require("eventsource") polyfill for Node and React Native environments
-const EventSource: Constructable<EventSource> = anyGlobal.EventSource ??
-  anyGlobal.window?.EventSource ??
-  require("eventsource");
-if (!EventSource) {
+let EventSource: Constructable<EventSource>;
+try {
+  EventSource = anyGlobal.EventSource ??
+    anyGlobal.window?.EventSource ??
+    require("eventsource");
+} catch (e: any) {
   console.warn(
     '⚠️ No EventSource provider found: either polyfill it ' +
     '(e.g. `npm i eventsource`) or you will not have streaming support.'
   );
+  console.warn('The import error was:', e.stack || e);
 }
 
 /**
