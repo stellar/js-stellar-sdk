@@ -23,12 +23,17 @@ export function parseRawEvents(
   return {
     latestLedger: r.latestLedger,
     events: (r.events ?? []).map((evt) => {
-      return {
-        ...evt,
-        contractId: new Contract(evt.contractId),
+      // the contractId may be empty so we omit the field in that case
+      const cid = evt.contractId;
+      delete (evt as any).contractId;
+      const rv = {
+        ...evt as Omit<Api.RawEventResponse, 'contractId'>,
+        ...(cid !== '' && { contractId: new Contract(cid) }),
         topic: evt.topic.map((topic) => xdr.ScVal.fromXDR(topic, 'base64')),
         value: xdr.ScVal.fromXDR(evt.value.xdr, 'base64')
       };
+      evt.contractId = cid; // put value back after parsing
+      return rv;
     })
   };
 }
