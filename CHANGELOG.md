@@ -5,6 +5,9 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Breaking Changes
+* The `PaymentCallBuilder` was incorrectly indicating that it would return a collection of `Payment` records, while [in reality](https://developers.stellar.org/api/horizon/resources/list-all-payments) it can return a handful of "payment-like" records ([#885](https://github.com/stellar/js-stellar-sdk/pull/885)).
+
 
 ## [v11.0.0-beta.6](https://github.com/stellar/js-stellar-sdk/compare/v11.0.0-beta.5...v11.0.0-beta.6)
 
