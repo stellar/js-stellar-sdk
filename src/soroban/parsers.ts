@@ -23,17 +23,16 @@ export function parseRawEvents(
   return {
     latestLedger: r.latestLedger,
     events: (r.events ?? []).map((evt) => {
+      const clone: Omit<Api.RawEventResponse, 'contractId'> = { ...evt };
+      delete (clone as any).contractId; // `as any` hack because contractId field isn't optional
+
       // the contractId may be empty so we omit the field in that case
-      const cid = evt.contractId;
-      delete (evt as any).contractId;
-      const rv = {
-        ...evt as Omit<Api.RawEventResponse, 'contractId'>,
-        ...(cid !== '' && { contractId: new Contract(cid) }),
+      return {
+        ...clone,
+        ...(evt.contractId !== '' && { contractId: new Contract(evt.contractId) }),
         topic: evt.topic.map((topic) => xdr.ScVal.fromXDR(topic, 'base64')),
         value: xdr.ScVal.fromXDR(evt.value.xdr, 'base64')
       };
-      evt.contractId = cid; // put value back after parsing
-      return rv;
     })
   };
 }
