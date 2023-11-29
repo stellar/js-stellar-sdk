@@ -5,6 +5,9 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Fixed
+* The `SorobanRpc.Server.getEvents` method now correctly parses responses without a `contractId` field set. The `events[i].contractId` field on an event is now optional, omitted if there was no ID for the event (e.g. system events;  ([#883](https://github.com/stellar/js-stellar-sdk/pull/883))).
+
 
 ## [v11.0.0-beta.6](https://github.com/stellar/js-stellar-sdk/compare/v11.0.0-beta.5...v11.0.0-beta.6)
 
