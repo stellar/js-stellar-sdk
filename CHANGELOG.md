@@ -5,6 +5,9 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Fixed
+* The `SorobanRpc.Server.getEvents` method now correctly parses responses without a `contractId` field set. The `events[i].contractId` field on an event is now optional, omitted if there was no ID for the event (e.g. system events;  ([#883](https://github.com/stellar/js-stellar-sdk/pull/883))).
+
 ### Breaking Changes
 * The `PaymentCallBuilder` was incorrectly indicating that it would return a collection of `Payment` records, while [in reality](https://developers.stellar.org/api/horizon/resources/list-all-payments) it can return a handful of "payment-like" records ([#885](https://github.com/stellar/js-stellar-sdk/pull/885)).
 

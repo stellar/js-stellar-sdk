@@ -67,6 +67,7 @@ describe("Server#getEvents", function () {
       })
       .then(function (response) {
         expect(response).to.be.deep.equal(parseEvents(result));
+        expect(response.events[0].contractId).to.be.undefined;
         done();
       })
       .catch(done);
@@ -239,7 +240,7 @@ let getEventsResponseFixture = [
     type: "system",
     ledger: "1",
     ledgerClosedAt: "2022-11-16T16:10:41Z",
-    contractId,
+    contractId: "",
     id: "0164090849041387521-0000000003",
     pagingToken: "164090849041387521-3",
     inSuccessfulContractCall: true,
