@@ -17,6 +17,7 @@ export class PaymentCallBuilder extends CallBuilder<
     | ServerApi.AccountMergeOperationRecord
     | ServerApi.PathPaymentOperationRecord
     | ServerApi.PathPaymentStrictSendOperationRecord
+    | ServerApi.InvokeHostFunctionOperationRecord
   >
 > {
   constructor(serverUrl: URI) {
