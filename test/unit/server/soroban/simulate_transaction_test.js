@@ -104,7 +104,7 @@ describe('Server#simulateTransaction', async function (done) {
 
     const parsed = parseRawSimulation(simResponse);
     expect(parsed).to.deep.equal(parsedCopy);
-    expect(StellarSdk.SorobanRpc.isSimulationSuccess(parsed)).to.be.true;
+    expect(SorobanRpc.Api.isSimulationSuccess(parsed)).to.be.true;
   });
 
   it('works with no auth', async function () {
@@ -116,7 +116,7 @@ describe('Server#simulateTransaction', async function (done) {
       const parsed = parseRawSimulation(simResponse);
 
       expect(parsed).to.be.deep.equal(parsedCopy);
-      expect(StellarSdk.SorobanRpc.isSimulationSuccess(parsed)).to.be.true;
+      expect(SorobanRpc.Api.isSimulationSuccess(parsed)).to.be.true;
     });
   });
 
@@ -130,7 +130,7 @@ describe('Server#simulateTransaction', async function (done) {
         };
 
         const parsed = parseRawSimulation(simResponse);
-        expect(StellarSdk.SorobanRpc.isSimulationRestore(parsed)).to.be.true;
+        expect(SorobanRpc.Api.isSimulationRestore(parsed)).to.be.true;
         expect(parsed).to.be.deep.equal(expected);
       }
     );
@@ -150,7 +150,7 @@ describe('Server#simulateTransaction', async function (done) {
 
     const parsed = parseRawSimulation(simResponse);
     expect(parsed).to.be.deep.equal(expected);
-    expect(StellarSdk.SorobanRpc.isSimulationError(parsed)).to.be.true;
+    expect(SorobanRpc.Api.isSimulationError(parsed)).to.be.true;
   });
 
   xit('simulates fee bump transactions');
@@ -272,7 +272,7 @@ describe('works with real responses', function () {
   };
 
   it('parses the schema', function () {
-    expect(StellarSdk.SorobanRpc.isSimulationRaw(schema)).to.be.true;
+    expect(SorobanRpc.Api.isSimulationRaw(schema)).to.be.true;
 
     const parsed = parseRawSimulation(schema);
 
