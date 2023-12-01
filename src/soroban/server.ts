@@ -8,8 +8,7 @@ import {
   FeeBumpTransaction,
   Keypair,
   Transaction,
-  xdr,
-  hash
+  xdr
 } from 'stellar-base';
 
 import AxiosClient from './axios';
@@ -169,7 +168,7 @@ export class Server {
    * const key = xdr.ScVal.scvSymbol("counter");
    * server.getContractData(contractId, key, Durability.Temporary).then(data => {
    *   console.log("value:", data.val);
-   *   console.log("expirationLedgerSeq:", data.expirationLedgerSeq);
+   *   console.log("liveUntilLedgerSeq:", data.liveUntilLedgerSeq);
    *   console.log("lastModified:", data.lastModifiedLedgerSeq);
    *   console.log("latestLedger:", data.latestLedger);
    * });
@@ -259,7 +258,7 @@ export class Server {
    *   const ledgerData = response.entries[0];
    *   console.log("key:", ledgerData.key);
    *   console.log("value:", ledgerData.val);
-   *   console.log("expirationLedgerSeq:", ledgerData.expirationLedgerSeq);
+   *   console.log("liveUntilLedgerSeq:", ledgerData.liveUntilLedgerSeq);
    *   console.log("lastModified:", ledgerData.lastModifiedLedgerSeq);
    *   console.log("latestLedger:", response.latestLedger);
    * });
@@ -275,11 +274,8 @@ export class Server {
       .post<Api.RawGetLedgerEntriesResponse>(
         this.serverURL.toString(),
         'getLedgerEntries',
-        expandRequestIncludeExpirationLedgers(keys).map((k) =>
-          k.toXDR('base64')
-        )
-      )
-      .then((response) => mergeResponseExpirationLedgers(response, keys));
+        keys.map((k) => k.toXDR('base64'))
+      );
   }
 
   /**
@@ -454,13 +450,13 @@ export class Server {
    *
    * @param {Transaction | FeeBumpTransaction} transaction  the transaction to
    *    simulate, which should include exactly one operation (one of
-   *    {@link xdr.InvokeHostFunctionOp}, {@link xdr.BumpFootprintExpirationOp},
-   *    or {@link xdr.RestoreFootprintOp}). Any provided footprint or auth
+   *    {@link xdr.InvokeHostFunctionOp}, {@link xdr.ExtendFootprintTTLOp}, or
+   *    {@link xdr.RestoreFootprintOp}). Any provided footprint or auth
    *    information will be ignored.
    *
-   * @returns {Promise<Api.SimulateTransactionResponse>}   an object with
-   *    the cost, footprint, result/auth requirements (if applicable), and error
-   *    of the transaction
+   * @returns {Promise<Api.SimulateTransactionResponse>}   an object with the
+   *    cost, footprint, result/auth requirements (if applicable), and error of
+   *    the transaction
    *
    * @see https://developers.stellar.org/docs/glossary/transactions/
    * @see https://soroban.stellar.org/api/methods/simulateTransaction
@@ -525,7 +521,7 @@ export class Server {
    *
    * @param {Transaction | FeeBumpTransaction} transaction  the transaction to
    *    prepare. It should include exactly one operation, which must be one of
-   *    {@link xdr.InvokeHostFunctionOp}, {@link xdr.BumpFootprintExpirationOp},
+   *    {@link xdr.InvokeHostFunctionOp}, {@link xdr.ExtendFootprintTTLOp},
    *    or {@link xdr.RestoreFootprintOp}.
    *
    *    Any provided footprint will be overwritten. However, if your operation
@@ -737,77 +733,4 @@ function findCreatedAccountSequenceInTransactionMeta(
   }
 
   throw new Error('No account created in transaction');
-}
-
-// TODO - remove once rpc updated to
-// append expiration entry per data LK requested onto server-side response
-// https://github.com/stellar/soroban-tools/issues/1010
-function mergeResponseExpirationLedgers(
-  ledgerEntriesResponse: Api.RawGetLedgerEntriesResponse,
-  requestedKeys: xdr.LedgerKey[]
-): Api.RawGetLedgerEntriesResponse {
-  const requestedKeyXdrs = new Set<String>(
-    requestedKeys.map((requestedKey) => requestedKey.toXDR('base64'))
-  );
-  const expirationKeyToRawEntryResult = new Map<
-    String,
-    Api.RawLedgerEntryResult
-  >();
-  (ledgerEntriesResponse.entries ?? []).forEach((rawEntryResult) => {
-    if (!rawEntryResult.key || !rawEntryResult.xdr) {
-      throw new TypeError(
-        `invalid ledger entry: ${JSON.stringify(rawEntryResult)}`
-      );
-    }
-    const parsedKey = xdr.LedgerKey.fromXDR(rawEntryResult.key, 'base64');
-    const isExpirationMeta =
-      parsedKey.switch().value === xdr.LedgerEntryType.expiration().value &&
-      !requestedKeyXdrs.has(rawEntryResult.key);
-    const keyHash = isExpirationMeta
-      ? parsedKey.expiration().keyHash().toString()
-      : hash(parsedKey.toXDR()).toString();
-
-    const rawEntry =
-      expirationKeyToRawEntryResult.get(keyHash) ?? rawEntryResult;
-
-    if (isExpirationMeta) {
-      const expirationLedgerSeq = xdr.LedgerEntryData.fromXDR(
-        rawEntryResult.xdr,
-        'base64'
-      )
-        .expiration()
-        .expirationLedgerSeq();
-      expirationKeyToRawEntryResult.set(keyHash, {
-        ...rawEntry,
-        expirationLedgerSeq
-      });
-    } else {
-      expirationKeyToRawEntryResult.set(keyHash, {
-        ...rawEntry,
-        ...rawEntryResult
-      });
-    }
-  });
-
-  ledgerEntriesResponse.entries = [...expirationKeyToRawEntryResult.values()];
-  return ledgerEntriesResponse;
-}
-
-// TODO - remove once rpc updated to
-// include expiration entry on responses for any data LK's requested
-// https://github.com/stellar/soroban-tools/issues/1010
-function expandRequestIncludeExpirationLedgers(
-  keys: xdr.LedgerKey[]
-): xdr.LedgerKey[] {
-  return keys.concat(
-    keys
-      .filter(
-        (key) => key.switch().value !== xdr.LedgerEntryType.expiration().value
-      )
-      .map((key) =>
-        xdr.LedgerKey.expiration(
-          new xdr.LedgerKeyExpiration({ keyHash: hash(key.toXDR()) })
-        )
-      )
-  );
 }

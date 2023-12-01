@@ -1,24 +1,24 @@
 const { Account, Keypair, StrKey, Networks, xdr, hash } = StellarSdk;
 const { Server, AxiosClient } = StellarSdk.SorobanRpc;
 
-describe("Server#requestAirdrop", function () {
+describe('Server#requestAirdrop', function () {
   function accountLedgerEntryData(accountId, sequence) {
     return new xdr.LedgerEntryData.account(
       new xdr.AccountEntry({
         accountId: xdr.AccountId.publicKeyTypeEd25519(
-          StrKey.decodeEd25519PublicKey(accountId),
+          StrKey.decodeEd25519PublicKey(accountId)
         ),
-        balance: xdr.Int64.fromString("1"),
+        balance: xdr.Int64.fromString('1'),
         seqNum: xdr.SequenceNumber.fromString(sequence),
         numSubEntries: 0,
         inflationDest: null,
         flags: 0,
-        homeDomain: "",
+        homeDomain: '',
         // Taken from a real response. idk.
-        thresholds: Buffer.from("AQAAAA==", "base64"),
+        thresholds: Buffer.from('AQAAAA==', 'base64'),
         signers: [],
-        ext: new xdr.AccountEntryExt(0),
-      }),
+        ext: new xdr.AccountEntryExt(0)
+      })
     );
   }
 
@@ -31,11 +31,11 @@ describe("Server#requestAirdrop", function () {
             new xdr.LedgerEntry({
               lastModifiedLedgerSeq: 0,
               data: accountLedgerEntryData(accountId, sequence),
-              ext: new xdr.LedgerEntryExt(0),
-            }),
-          ),
-        ],
-      }),
+              ext: new xdr.LedgerEntryExt(0)
+            })
+          )
+        ]
+      })
     ]);
   }
 
@@ -53,37 +53,37 @@ describe("Server#requestAirdrop", function () {
     const result = {
       friendbotUrl,
       passphrase: Networks.FUTURENET,
-      protocolVersion: 20,
+      protocolVersion: 20
     };
     this.axiosMock
-      .expects("post")
+      .expects('post')
       .withArgs(serverUrl, {
-        jsonrpc: "2.0",
+        jsonrpc: '2.0',
         id: 1,
-        method: "getNetwork",
-        params: null,
+        method: 'getNetwork',
+        params: null
       })
       .returns(Promise.resolve({ data: { result } }));
   }
 
-  it("returns true when the account is created", function (done) {
-    const friendbotUrl = "https://friendbot.stellar.org";
+  it('returns true when the account is created', function (done) {
+    const friendbotUrl = 'https://friendbot.stellar.org';
     const accountId =
-      "GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI";
+      'GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI';
     mockGetNetwork.call(this, friendbotUrl);
 
-    const result_meta_xdr = transactionMetaFor(accountId, "1234").toXDR(
-      "base64",
+    const result_meta_xdr = transactionMetaFor(accountId, '1234').toXDR(
+      'base64'
     );
     this.axiosMock
-      .expects("post")
+      .expects('post')
       .withArgs(`${friendbotUrl}?addr=${accountId}`)
       .returns(Promise.resolve({ data: { result_meta_xdr } }));
 
     this.server
       .requestAirdrop(accountId)
       .then(function (response) {
-        expect(response).to.be.deep.equal(new Account(accountId, "1234"));
+        expect(response).to.be.deep.equal(new Account(accountId, '1234'));
         done();
       })
       .catch(function (err) {
@@ -91,44 +91,42 @@ describe("Server#requestAirdrop", function () {
       });
   });
 
-  it("returns false if the account already exists", function (done) {
-    const friendbotUrl = "https://friendbot.stellar.org";
+  it('returns false if the account already exists', function (done) {
+    const friendbotUrl = 'https://friendbot.stellar.org';
     const accountId =
-      "GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI";
+      'GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI';
     mockGetNetwork.call(this, friendbotUrl);
 
     this.axiosMock
-      .expects("post")
+      .expects('post')
       .withArgs(`${friendbotUrl}?addr=${accountId}`)
       .returns(
         Promise.reject({
           response: {
             status: 400,
             detail:
-              "createAccountAlreadyExist (AAAAAAAAAGT/////AAAAAQAAAAAAAAAA/////AAAAAA=)",
-          },
-        }),
+              'createAccountAlreadyExist (AAAAAAAAAGT/////AAAAAQAAAAAAAAAA/////AAAAAA=)'
+          }
+        })
       );
 
     const accountKey = xdr.LedgerKey.account(
       new xdr.LedgerKeyAccount({
-        accountId: Keypair.fromPublicKey(accountId).xdrPublicKey(),
-      }),
+        accountId: Keypair.fromPublicKey(accountId).xdrPublicKey()
+      })
     );
 
-    const ledgerExpirationKey = xdr.LedgerKey.expiration(
-      new xdr.LedgerKeyExpiration({ keyHash: hash(accountKey.toXDR()) }),
+    const ledgerTtlKey = xdr.LedgerKey.ttl(
+      new xdr.LedgerKeyTtl({ keyHash: hash(accountKey.toXDR()) })
     );
 
     this.axiosMock
-      .expects("post")
+      .expects('post')
       .withArgs(serverUrl, {
-        jsonrpc: "2.0",
+        jsonrpc: '2.0',
         id: 1,
-        method: "getLedgerEntries",
-        params: [
-          [accountKey.toXDR("base64"), ledgerExpirationKey.toXDR("base64")],
-        ],
+        method: 'getLedgerEntries',
+        params: [[accountKey.toXDR('base64')]]
       })
       .returns(
         Promise.resolve({
@@ -136,21 +134,19 @@ describe("Server#requestAirdrop", function () {
             result: {
               entries: [
                 {
-                  key: accountKey.toXDR("base64"),
-                  xdr: accountLedgerEntryData(accountId, "1234").toXDR(
-                    "base64",
-                  ),
-                },
-              ],
-            },
-          },
-        }),
+                  key: accountKey.toXDR('base64'),
+                  xdr: accountLedgerEntryData(accountId, '1234').toXDR('base64')
+                }
+              ]
+            }
+          }
+        })
       );
 
     this.server
       .requestAirdrop(accountId)
       .then(function (response) {
-        expect(response).to.be.deep.equal(new Account(accountId, "1234"));
+        expect(response).to.be.deep.equal(new Account(accountId, '1234'));
         done();
       })
       .catch(function (err) {
@@ -158,23 +154,23 @@ describe("Server#requestAirdrop", function () {
       });
   });
 
-  it("uses custom friendbotUrl if passed", function (done) {
-    const friendbotUrl = "https://custom-friendbot.stellar.org";
+  it('uses custom friendbotUrl if passed', function (done) {
+    const friendbotUrl = 'https://custom-friendbot.stellar.org';
     const accountId =
-      "GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI";
+      'GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI';
 
-    const result_meta_xdr = transactionMetaFor(accountId, "1234").toXDR(
-      "base64",
+    const result_meta_xdr = transactionMetaFor(accountId, '1234').toXDR(
+      'base64'
     );
     this.axiosMock
-      .expects("post")
+      .expects('post')
       .withArgs(`${friendbotUrl}?addr=${accountId}`)
       .returns(Promise.resolve({ data: { result_meta_xdr } }));
 
     this.server
       .requestAirdrop(accountId, friendbotUrl)
       .then(function (response) {
-        expect(response).to.be.deep.equal(new Account(accountId, "1234"));
+        expect(response).to.be.deep.equal(new Account(accountId, '1234'));
         done();
       })
       .catch(function (err) {
@@ -182,76 +178,76 @@ describe("Server#requestAirdrop", function () {
       });
   });
 
-  it("rejects invalid addresses", function (done) {
-    const friendbotUrl = "https://friendbot.stellar.org";
-    const accountId = "addr&injected=1";
+  it('rejects invalid addresses', function (done) {
+    const friendbotUrl = 'https://friendbot.stellar.org';
+    const accountId = 'addr&injected=1';
     mockGetNetwork.call(this, friendbotUrl);
 
     this.axiosMock
-      .expects("post")
+      .expects('post')
       .withArgs(`${friendbotUrl}?addr=addr%26injected%3D1`)
       .returns(
         Promise.reject({
           response: {
             status: 400,
-            type: "https://stellar.org/horizon-errors/bad_request",
-            title: "Bad Request",
-            detail: "The request you sent was invalid in some way.",
+            type: 'https://stellar.org/horizon-errors/bad_request',
+            title: 'Bad Request',
+            detail: 'The request you sent was invalid in some way.',
             extras: {
-              invalid_field: "addr",
+              invalid_field: 'addr',
               reason:
-                "base32 decode failed: illegal base32 data at input byte 7",
-            },
-          },
-        }),
+                'base32 decode failed: illegal base32 data at input byte 7'
+            }
+          }
+        })
       );
 
     this.server
       .requestAirdrop(accountId)
       .then(function (_) {
-        done(new Error("Should have thrown"));
+        done(new Error('Should have thrown'));
       })
       .catch(function (err) {
-        expect(err.response.extras.reason).to.include("base32 decode failed");
+        expect(err.response.extras.reason).to.include('base32 decode failed');
         done();
       });
   });
 
-  it("throws if there is no friendbotUrl set", function (done) {
-    const accountId = "addr&injected=1";
+  it('throws if there is no friendbotUrl set', function (done) {
+    const accountId = 'addr&injected=1';
     mockGetNetwork.call(this, undefined);
 
     this.server
       .requestAirdrop(accountId)
       .then(function (_) {
-        done(new Error("Should have thrown"));
+        done(new Error('Should have thrown'));
       })
       .catch(function (err) {
         expect(err.message).to.be.equal(
-          "No friendbot URL configured for current network",
+          'No friendbot URL configured for current network'
         );
         done();
       });
   });
 
-  it("throws if the request fails", function (done) {
-    const friendbotUrl = "https://friendbot.stellar.org";
+  it('throws if the request fails', function (done) {
+    const friendbotUrl = 'https://friendbot.stellar.org';
     const accountId =
-      "GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI";
+      'GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI';
     mockGetNetwork.call(this, friendbotUrl);
 
     this.axiosMock
-      .expects("post")
+      .expects('post')
       .withArgs(`${friendbotUrl}?addr=${accountId}`)
-      .returns(Promise.reject(new Error("Request failed")));
+      .returns(Promise.reject(new Error('Request failed')));
 
     this.server
       .requestAirdrop(accountId)
       .then(function (_) {
-        done(new Error("Should have thrown"));
+        done(new Error('Should have thrown'));
       })
       .catch(function (err) {
-        expect(err.message).to.be.equal("Request failed");
+        expect(err.message).to.be.equal('Request failed');
         done();
       });
   });

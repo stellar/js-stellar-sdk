@@ -18,10 +18,10 @@ jobs:
           repository: stellar/js-stellar-base
           path: js-stellar-base
 
-      - name: Install Node (16.x)
+      - name: Install Node (20.x)
         uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: '20.x'
 
       - name: Install Dependencies
         run: yarn install
