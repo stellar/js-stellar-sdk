@@ -256,7 +256,7 @@ let getEventsResponseFixture = [
     pagingToken: "164090849041387521-3",
     inSuccessfulContractCall: true,
     topic: topicVals.slice(0, 2),
-    value: eventVal
+    value: eventVal,
   },
   {
     type: "diagnostic",
