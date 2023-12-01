@@ -13,8 +13,9 @@ jobs:
       - name: Install Node
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: '18.x'
           registry-url: 'https://registry.npmjs.org'
+          always-auth: true
 
       - name: Install Depencencies
         run: yarn install
@@ -23,6 +24,6 @@ jobs:
         run: yarn preversion
 
       - name: Publish npm package
-        run: yarn publish
+        run: yarn publish --tag beta
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
