@@ -146,7 +146,7 @@
     "bignumber.js": "^9.1.2",
     "eventsource": "^2.0.2",
     "randombytes": "^2.1.0",
-    "stellar-base": "git+https://github.com/stellar/js-stellar-base#8d8b09b",
+    "stellar-base": "git+https://github.com/stellar/js-stellar-base#master",
     "toml": "^3.0.0",
     "urijs": "^1.19.1"
   }
