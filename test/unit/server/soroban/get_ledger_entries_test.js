@@ -20,23 +20,12 @@ describe("Server#getLedgerEntries", function () {
       key: ledgerEntry.contractData().key(),
     }),
   );
-  const ledgerExpirationKey = xdr.LedgerKey.expiration(
-    new xdr.LedgerKeyExpiration({ keyHash: hash(ledgerKey.toXDR()) }),
-  );
-  const ledgerExpirationEntry = new xdr.ExpirationEntry({
+  const ledgerTtlEntry = new xdr.TtlEntry({
     keyHash: hash(ledgerKey.toXDR()),
-    expirationLedgerSeq: 1000,
+    liveUntilLedgerSeq: 1000,
   });
-  const ledgerExpirationEntryData = xdr.LedgerEntryData.expiration(
-    ledgerExpirationEntry,
-  );
-
-  const ledgerEntryXDR = ledgerEntry.toXDR("base64");
   const ledgerKeyXDR = ledgerKey.toXDR("base64");
-  const ledgerExpirationKeyXDR = ledgerExpirationKey.toXDR("base64");
-  const ledgerExpirationEntryXDR = ledgerExpirationEntry.toXDR("base64");
-  const ledgerExpirationEntryDataXDR =
-    ledgerExpirationEntryData.toXDR("base64");
+  const ledgerEntryXDR = ledgerEntry.toXDR("base64");
 
   beforeEach(function () {
     this.server = new Server(serverUrl);
@@ -69,45 +58,14 @@ describe("Server#getLedgerEntries", function () {
       );
   }
 
-  it("ledger entry found, includes expiration meta", function (done) {
+  it("ledger entry found, includes ttl meta in response", function (done) {
     mockRPC(
       this.axiosMock,
-      [ledgerKeyXDR, ledgerExpirationKeyXDR],
+      [ledgerKeyXDR],
       [
         {
-          lastModifiedLedgerSeq: 1,
-          key: ledgerKeyXDR,
-          xdr: ledgerEntryXDR,
-        },
-        {
+          liveUntilLedgerSeq: ledgerTtlEntry.liveUntilLedgerSeq(),
           lastModifiedLedgerSeq: 2,
-          key: ledgerExpirationKeyXDR,
-          xdr: ledgerExpirationEntryDataXDR,
-        },
-      ],
-    );
-
-    this.server
-      .getLedgerEntries(ledgerKey)
-      .then((response) => {
-        expect(response.entries).to.have.lengthOf(1);
-        let result = response.entries[0];
-        expect(result.lastModifiedLedgerSeq).to.eql(1);
-        expect(result.key.toXDR("base64")).to.eql(ledgerKeyXDR);
-        expect(result.val.toXDR("base64")).to.eql(ledgerEntryXDR);
-        expect(result.expirationLedgerSeq).to.eql(1000);
-        done();
-      })
-      .catch((err) => done(err));
-  });
-
-  it("ledger entry found, no expiration meta included in response", function (done) {
-    mockRPC(
-      this.axiosMock,
-      [ledgerKeyXDR, ledgerExpirationKeyXDR],
-      [
-        {
-          lastModifiedLedgerSeq: 1,
           key: ledgerKeyXDR,
           xdr: ledgerEntryXDR,
         },
@@ -116,72 +74,40 @@ describe("Server#getLedgerEntries", function () {
 
     this.server
       .getLedgerEntries(ledgerKey)
-      .then((response) => {
-        expect(response.entries).to.have.lengthOf(1);
-        let result = response.entries[0];
-        expect(result.lastModifiedLedgerSeq).to.eql(1);
-        expect(result.key.toXDR("base64")).to.eql(ledgerKeyXDR);
-        expect(result.val.toXDR("base64")).to.eql(ledgerEntryXDR);
-        expect(result.expirationLedgerSeq).to.be.undefined;
-        done();
-      })
-      .catch((err) => done(err));
-  });
-
-  it("ledger entry found, includes expiration meta from any order in response", function (done) {
-    mockRPC(
-      this.axiosMock,
-      [ledgerKeyXDR, ledgerExpirationKeyXDR],
-      [
-        {
-          lastModifiedLedgerSeq: 2,
-          key: ledgerExpirationKeyXDR,
-          xdr: ledgerExpirationEntryDataXDR,
-        },
-        {
-          lastModifiedLedgerSeq: 1,
-          key: ledgerKeyXDR,
-          xdr: ledgerEntryXDR,
-        },
-      ],
-    );
-
-    this.server
-      .getLedgerEntries(ledgerKey)
-      .then((response) => {
-        expect(response.entries).to.have.lengthOf(1);
-        let result = response.entries[0];
-        expect(result.lastModifiedLedgerSeq).to.eql(1);
-        expect(result.key.toXDR("base64")).to.eql(ledgerKeyXDR);
-        expect(result.val.toXDR("base64")).to.eql(ledgerEntryXDR);
-        expect(result.expirationLedgerSeq).to.eql(1000);
-        done();
-      })
-      .catch((err) => done(err));
-  });
-
-  it("ledger expiration key is requested by caller, no expiration meta needed on response", function (done) {
-    mockRPC(
-      this.axiosMock,
-      [ledgerExpirationKeyXDR],
-      [
-        {
-          lastModifiedLedgerSeq: 2,
-          key: ledgerExpirationKeyXDR,
-          xdr: ledgerExpirationEntryDataXDR,
-        },
-      ],
-    );
-
-    this.server
-      .getLedgerEntries(ledgerExpirationKey)
       .then((response) => {
         expect(response.entries).to.have.lengthOf(1);
         let result = response.entries[0];
         expect(result.lastModifiedLedgerSeq).to.eql(2);
-        expect(result.key.toXDR("base64")).to.eql(ledgerExpirationKeyXDR);
-        expect(result.val.toXDR("base64")).to.eql(ledgerExpirationEntryDataXDR);
-        expect(result.expirationLedgerSeq).to.be.undefined;
+        expect(result.key.toXDR("base64")).to.eql(ledgerKeyXDR);
+        expect(result.val.toXDR("base64")).to.eql(ledgerEntryXDR);
+        expect(result.liveUntilLedgerSeq).to.eql(1000);
+        done();
+      })
+      .catch((err) => done(err));
+  });
+
+  it("ledger entry found, no ttl in response", function (done) {
+    mockRPC(
+      this.axiosMock,
+      [ledgerKeyXDR],
+      [
+        {
+          lastModifiedLedgerSeq: 2,
+          key: ledgerKeyXDR,
+          xdr: ledgerEntryXDR,
+        },
+      ],
+    );
+
+    this.server
+      .getLedgerEntries(ledgerKey)
+      .then((response) => {
+        expect(response.entries).to.have.lengthOf(1);
+        let result = response.entries[0];
+        expect(result.lastModifiedLedgerSeq).to.eql(2);
+        expect(result.key.toXDR("base64")).to.eql(ledgerKeyXDR);
+        expect(result.val.toXDR("base64")).to.eql(ledgerEntryXDR);
+        expect(result.liveUntilLedgerSeq).to.be.undefined;
         done();
       })
       .catch((err) => done(err));
@@ -191,7 +117,7 @@ describe("Server#getLedgerEntries", function () {
     // these are simulating invalid json, missing `xdr` and `key`
     mockRPC(
       this.axiosMock,
-      [ledgerKeyXDR, ledgerExpirationKeyXDR],
+      [ledgerKeyXDR],
       [
         {
           lastModifiedLedgerSeq: 2,

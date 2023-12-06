@@ -5,6 +5,7 @@ const {
   SorobanRpc,
   SorobanDataBuilder,
   authorizeInvocation,
+  authorizeEntry,
   xdr,
 } = StellarSdk;
 const { Server, AxiosClient, parseRawSimulation } = StellarSdk.SorobanRpc;
@@ -104,7 +105,7 @@ describe("Server#simulateTransaction", async function (done) {
 
     const parsed = parseRawSimulation(simResponse);
     expect(parsed).to.deep.equal(parsedCopy);
-    expect(SorobanRpc.Api.assembleTransaction(parsed)).to.be.true;
+    expect(SorobanRpc.Api.isSimulationSuccess(parsed)).to.be.true;
   });
 
   it("works with no auth", async function () {
@@ -116,7 +117,7 @@ describe("Server#simulateTransaction", async function (done) {
       const parsed = parseRawSimulation(simResponse);
 
       expect(parsed).to.be.deep.equal(parsedCopy);
-      expect(SorobanRpc.Api.assembleTransaction(parsed)).to.be.true;
+      expect(SorobanRpc.Api.isSimulationSuccess(parsed)).to.be.true;
     });
   });
 
@@ -130,7 +131,7 @@ describe("Server#simulateTransaction", async function (done) {
         };
 
         const parsed = parseRawSimulation(simResponse);
-        expect(StellarSdk.Api.isSimulationRestore(parsed)).to.be.true;
+        expect(SorobanRpc.Api.isSimulationRestore(parsed)).to.be.true;
         expect(parsed).to.be.deep.equal(expected);
       },
     );
@@ -150,12 +151,10 @@ describe("Server#simulateTransaction", async function (done) {
 
     const parsed = parseRawSimulation(simResponse);
     expect(parsed).to.be.deep.equal(expected);
-    expect(StellarSdk.Api.isSimulationError(parsed)).to.be.true;
+    expect(SorobanRpc.Api.isSimulationError(parsed)).to.be.true;
   });
 
   xit("simulates fee bump transactions");
-
-  done();
 });
 
 function cloneSimulation(sim) {
@@ -196,10 +195,10 @@ async function buildAuthEntry(address) {
 
   // do some voodoo to make this return a deterministic auth entry
   const kp = Keypair.fromSecret(randomSecret);
-  let entry = authorizeInvocation(kp, 1, root);
-  entry.credentials().address().nonce(new xdr.Int64(0xdeadbeef));
-
-  return authorizeEntry(entry, kp, 1); // overwrites signature w/ above nonce
+  return authorizeInvocation(kp, 1, root).then((entry) => {
+    entry.credentials().address().nonce(new xdr.Int64(0xdeadbeef));
+    return authorizeEntry(entry, kp, 1); // overwrites signature w/ above nonce
+  });
 }
 
 async function invokeSimulationResponse(address) {

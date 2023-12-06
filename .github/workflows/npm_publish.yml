@@ -13,8 +13,9 @@ jobs:
       - name: Install Node
         uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: '18.x'
           registry-url: 'https://registry.npmjs.org'
+          always-auth: true
 
       - name: Install Depencencies
         run: yarn install
@@ -22,7 +23,16 @@ jobs:
       - name: Build, Test, and Package
         run: yarn preversion
 
-      - name: Publish npm package
-        run: yarn publish --tag beta
+      - name: Publish npm package to both places
+        run: |
+          yarn publish --access public
+          sed -i -e 's#"@stellar/stellar-sdk"#"stellar-sdk"#' package.json
+          yarn publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Deprecate the old package
+        run: |
+          npm deprecate stellar-sdk@latest "⚠️ This package has moved to @stellar/stellar-sdk! 🚚"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

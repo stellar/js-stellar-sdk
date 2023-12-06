@@ -9,10 +9,10 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Install Node.js 16
+      - name: Install Node.js 18
         uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 18
 
       # Workaround for some `yarn` nonsense, see:
       # https://github.com/yarnpkg/yarn/issues/6312#issuecomment-429685210
