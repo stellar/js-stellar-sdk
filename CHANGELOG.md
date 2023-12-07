@@ -3,6 +3,12 @@
 A breaking change will get clearly marked in this log.
 
 
+## [v11.0.1](https://github.com/stellar/js-stellar-sdk/compare/v10.2.1...v11.0.0)
+
+### Fixed
+* `SorobanRpc.Server.getEvents` uses the correct type for the start ledger.
+
+
 ## [v11.0.0](https://github.com/stellar/js-stellar-sdk/compare/v10.2.1...v11.0.0)
 
 ### Breaking Changes
