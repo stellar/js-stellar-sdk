@@ -11,7 +11,7 @@ import {
   TimeoutInfinite,
   Transaction,
   TransactionBuilder,
-} from "stellar-base";
+} from "@stellar/stellar-base";
 
 import { Utils } from "../utils";
 import { InvalidChallengeError } from "./errors";

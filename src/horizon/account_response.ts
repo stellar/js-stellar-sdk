@@ -1,6 +1,6 @@
 /* tslint:disable:variable-name */
 
-import { Account as BaseAccount } from "stellar-base";
+import { Account as BaseAccount } from "@stellar/stellar-base";
 import { HorizonApi } from "./horizon_api";
 import { ServerApi } from "./server_api";
 

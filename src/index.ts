@@ -21,6 +21,6 @@ export * as SorobanRpc from './soroban';
 export { ContractSpec } from './contract_spec';
 
 // expose classes and functions from stellar-base
-export * from 'stellar-base';
+export * from '@stellar/stellar-base';
 
 export default module.exports;

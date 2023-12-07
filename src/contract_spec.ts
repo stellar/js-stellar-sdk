@@ -5,7 +5,7 @@ import {
   XdrLargeInt,
   scValToBigInt,
   xdr
-} from 'stellar-base';
+} from '@stellar/stellar-base';
 
 export interface Union<T> {
   tag: string;

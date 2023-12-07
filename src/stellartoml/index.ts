@@ -1,6 +1,6 @@
 import axios from "axios";
 import toml from "toml";
-import { Networks } from "stellar-base";
+import { Networks } from "@stellar/stellar-base";
 
 import { Config } from "../config";
 
