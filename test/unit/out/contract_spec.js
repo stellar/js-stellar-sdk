@@ -1,4 +1,4 @@
-import { xdr, Address, ContractSpec, Keypair } from "../..";
+import { xdr, Address, ContractSpec, Keypair } from "../../../lib";
 import { JSONSchemaFaker } from "json-schema-faker";
 import spec from "../spec.json";
 import { expect } from "chai";
@@ -8,10 +8,6 @@ let SPEC;
 JSONSchemaFaker.format("address", () => {
     let keypair = Keypair.random();
     return keypair.publicKey();
-});
-JSONSchemaFaker.format("bigint", (value) => {
-    let s = JSONSchemaFaker.generate(value);
-    return BigInt(s.toString());
 });
 const ints = ["i64", "u64", "i128", "u128", "i256", "u256"];
 before(() => {
@@ -31,6 +27,50 @@ describe("Can round trip custom types", function () {
         }
         return fn.outputs()[0];
     }
+    async function jsonSchema_roundtrip(spec, funcName, num = 100) {
+        let funcSpec = spec.jsonSchema(funcName);
+        for (let i = 0; i < num; i++) {
+            let arg = await JSONSchemaFaker.resolve(funcSpec);
+            // @ts-ignore
+            let res = arg.args;
+            try {
+                let scVal = SPEC.funcArgsToScVals(funcName, res)[0];
+                let result = SPEC.funcResToNative(funcName, scVal);
+                if (ints.some((i) => funcName.includes(i))) {
+                    // res[funcName] = BigInt(res[funcName]);
+                    // result = result.toString();
+                    // if (result.startsWith("0") && result.length > 1) {
+                    //   result = result.slice(1);
+                    // }
+                }
+                if (funcName.startsWith("bytes")) {
+                    res[funcName] = Buffer.from(res[funcName], "base64");
+                }
+                let expected = res[funcName];
+                let actual = replaceBigIntWithStrings(result);
+                expect(expected).deep.equal(actual);
+            }
+            catch (e) {
+                console.error(funcName, JSON.stringify(arg, null, 2), "\n", 
+                //@ts-ignore
+                JSON.stringify(funcSpec.definitions[funcName]["properties"], null, 2));
+                throw e;
+            }
+        }
+    }
+    describe("Json Schema", () => {
+        SPEC = new ContractSpec(spec);
+        let names = SPEC.funcs().map((f) => f.name().toString());
+        const banned = ["strukt_hel", "not", "woid", "val", "multi_args"];
+        names
+            .filter((name) => !name.includes("fail"))
+            .filter((name) => !banned.includes(name))
+            .forEach((name) => {
+            it(name, async () => {
+                await jsonSchema_roundtrip(SPEC, name);
+            });
+        });
+    });
     function roundtrip(funcName, input, typeName) {
         let type = getResultType(funcName);
         let ty = typeName ?? funcName;
@@ -54,15 +94,15 @@ describe("Can round trip custom types", function () {
     });
     describe("simple", () => {
         it("first", () => {
-            const simple = { tag: "First", values: undefined };
+            const simple = { tag: "First" };
             roundtrip("simple", simple);
         });
         it("simple second", () => {
-            const simple = { tag: "Second", values: undefined };
+            const simple = { tag: "Second" };
             roundtrip("simple", simple);
         });
         it("simple third", () => {
-            const simple = { tag: "Third", values: undefined };
+            const simple = { tag: "Third" };
             roundtrip("simple", simple);
         });
     });
@@ -77,33 +117,28 @@ describe("Can round trip custom types", function () {
         it("tuple", () => {
             const complex = {
                 tag: "Tuple",
-                values: [
-                    [
-                        { a: 0, b: true, c: "hello" },
-                        { tag: "First", values: undefined },
-                    ],
-                ],
+                values: [[{ a: 0, b: true, c: "hello" }, { tag: "First" }]],
             };
             roundtrip("complex", complex);
         });
         it("enum", () => {
             const complex = {
                 tag: "Enum",
-                values: [{ tag: "First", values: undefined }],
+                values: [{ tag: "First" }],
             };
             roundtrip("complex", complex);
         });
         it("asset", () => {
-            const complex = { tag: "Asset", values: [addr, 1n] };
+            const complex = { tag: "Asset", values: [addr.toString(), 1n] };
             roundtrip("complex", complex);
         });
         it("void", () => {
-            const complex = { tag: "Void", values: undefined };
+            const complex = { tag: "Void" };
             roundtrip("complex", complex);
         });
     });
     it("addresse", () => {
-        roundtrip("addresse", addr);
+        roundtrip("addresse", addr.toString());
     });
     it("bytes", () => {
         const bytes = Buffer.from("hello");
@@ -133,9 +168,9 @@ describe("Can round trip custom types", function () {
         const map = new Map();
         map.set(1, true);
         map.set(2, false);
-        roundtrip("map", map);
+        roundtrip("map", [...map.entries()]);
         map.set(3, "hahaha");
-        expect(() => roundtrip("map", map)).to.throw(/invalid type scSpecTypeBool specified for string value/i);
+        expect(() => roundtrip("map", [...map.entries()])).to.throw(/invalid type scSpecTypeBool specified for string value/i);
     });
     it("vec", () => {
         const vec = [1, 2, 3];
@@ -160,10 +195,7 @@ describe("Can round trip custom types", function () {
         roundtrip("string", "hello");
     });
     it("tuple_strukt", () => {
-        const arg = [
-            { a: 0, b: true, c: "hello" },
-            { tag: "First", values: undefined },
-        ];
+        const arg = [{ a: 0, b: true, c: "hello" }, { tag: "First" }];
         roundtrip("tuple_strukt", arg);
     });
 });
@@ -251,3 +283,27 @@ let func = xdr.ScSpecEntry.scSpecEntryFunctionV0(new xdr.ScSpecFunctionV0({
     ],
     outputs: [GIGA_MAP_TYPE],
 }));
+function replaceBigIntWithStrings(obj) {
+    if (obj instanceof Buffer) {
+        return obj;
+    }
+    // If obj is an array, process each element
+    if (Array.isArray(obj)) {
+        return obj.map(replaceBigIntWithStrings);
+    }
+    // If obj is an object, process each property
+    else if (obj !== null && typeof obj === "object") {
+        const newObj = {};
+        for (const [key, value] of Object.entries(obj)) {
+            newObj[key] = replaceBigIntWithStrings(value);
+        }
+        return newObj;
+    }
+    // If obj is a BigInt, convert it to a string
+    else if (typeof obj === "bigint") {
+        return obj.toString();
+    }
+    // Otherwise, return the value as it is
+    return obj;
+}
+//# sourceMappingURL=contract_spec.js.map

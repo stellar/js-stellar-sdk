@@ -1,15 +1,25 @@
+import { JSONSchema7 } from "json-schema";
 import {
-  Address,
-  Contract,
   ScIntType,
   XdrLargeInt,
+  xdr,
+  Address,
+  Contract,
   scValToBigInt,
-  xdr
-} from '@stellar/stellar-base';
+} from ".";
 
 export interface Union<T> {
   tag: string;
   values?: T;
+}
+
+function readObj(args: object, input: xdr.ScSpecFunctionInputV0): any {
+  let inputName = input.name().toString();
+  let entry = Object.entries(args).find(([name, _]) => name === inputName);
+  if (!entry) {
+    throw new Error(`Missing field ${inputName}`);
+  }
+  return entry[1];
 }
 
 /**
@@ -17,6 +27,7 @@ export interface Union<T> {
  * This allows the class to be used to convert between native and raw `xdr.ScVal`s.
  *
  * @example
+ * ```js
  * const specEntries = [...]; // XDR spec entries of a smart contract
  * const contractSpec = new ContractSpec(specEntries);
  *
@@ -34,6 +45,7 @@ export interface Union<T> {
  * const result = contractSpec.funcResToNative('funcName', resultScv);
  *
  * console.log(result); // {success: true}
+ * ```
  */
 export class ContractSpec {
   public entries: xdr.ScSpecEntry[] = [];
@@ -47,16 +59,32 @@ export class ContractSpec {
    */
   constructor(entries: xdr.ScSpecEntry[] | string[]) {
     if (entries.length == 0) {
-      throw new Error('Contract spec must have at least one entry');
+      throw new Error("Contract spec must have at least one entry");
     }
     let entry = entries[0];
-    if (typeof entry === 'string') {
+    if (typeof entry === "string") {
       this.entries = (entries as string[]).map((s) =>
-        xdr.ScSpecEntry.fromXDR(s, 'base64')
+        xdr.ScSpecEntry.fromXDR(s, "base64")
       );
     } else {
       this.entries = entries as xdr.ScSpecEntry[];
     }
+  }
+
+  /**
+   * Gets the XDR functions from the spec.
+   *
+   * @returns {xdr.ScSpecFunctionV0[]} all contract functions
+   *
+   */
+  funcs(): xdr.ScSpecFunctionV0[] {
+    return this.entries
+      .filter(
+        (entry) =>
+          entry.switch().value ===
+          xdr.ScSpecEntryKind.scSpecEntryFunctionV0().value
+      )
+      .map((entry) => entry.value() as xdr.ScSpecFunctionV0);
   }
   /**
    * Gets the XDR function spec for the given function name.
@@ -118,8 +146,8 @@ export class ContractSpec {
    */
   funcResToNative(name: string, val_or_base64: xdr.ScVal | string): any {
     let val =
-      typeof val_or_base64 === 'string'
-        ? xdr.ScVal.fromXDR(val_or_base64, 'base64')
+      typeof val_or_base64 === "string"
+        ? xdr.ScVal.fromXDR(val_or_base64, "base64")
         : val_or_base64;
     let func = this.getFunc(name);
     let outputs = func.outputs();
@@ -135,7 +163,10 @@ export class ContractSpec {
     }
     let output = outputs[0];
     if (output.switch().value === xdr.ScSpecType.scSpecTypeResult().value) {
-      return this.scValToNative(val, output.result().okType());
+      return this.scValToNative(
+        val,
+        (output.value() as xdr.ScSpecTypeResult).okType()
+      );
     }
     return this.scValToNative(val, output);
   }
@@ -181,9 +212,8 @@ export class ContractSpec {
       }
       return this.nativeToScVal(val, opt.valueType());
     }
-
     switch (typeof val) {
-      case 'object': {
+      case "object": {
         if (val === null) {
           switch (value) {
             case xdr.ScSpecType.scSpecTypeVoid().value:
@@ -280,10 +310,11 @@ export class ContractSpec {
           return xdr.ScVal.scvMap(entries);
         }
 
-        if ((val.constructor?.name ?? '') !== 'Object') {
+        if ((val.constructor?.name ?? "") !== "Object") {
           throw new TypeError(
-            `cannot interpret ${val.constructor
-              ?.name} value as ScVal (${JSON.stringify(val)})`
+            `cannot interpret ${
+              val.constructor?.name
+            } value as ScVal (${JSON.stringify(val)})`
           );
         }
 
@@ -292,8 +323,8 @@ export class ContractSpec {
         );
       }
 
-      case 'number':
-      case 'bigint': {
+      case "number":
+      case "bigint": {
         switch (value) {
           case xdr.ScSpecType.scSpecTypeU32().value:
             return xdr.ScVal.scvU32(val as number);
@@ -312,16 +343,16 @@ export class ContractSpec {
             throw new TypeError(`invalid type (${ty}) specified for integer`);
         }
       }
-      case 'string':
+      case "string":
         return stringToScVal(val, t);
 
-      case 'boolean': {
+      case "boolean": {
         if (value !== xdr.ScSpecType.scSpecTypeBool().value) {
           throw TypeError(`Type ${ty} was not bool, but value was bool`);
         }
         return xdr.ScVal.scvBool(val);
       }
-      case 'undefined': {
+      case "undefined": {
         if (!ty) {
           return xdr.ScVal.scvVoid();
         }
@@ -336,7 +367,7 @@ export class ContractSpec {
         }
       }
 
-      case 'function': // FIXME: Is this too helpful?
+      case "function": // FIXME: Is this too helpful?
         return this.nativeToScVal(val(), ty);
 
       default:
@@ -348,7 +379,7 @@ export class ContractSpec {
     let entry = this.findEntry(name);
     switch (entry.switch()) {
       case xdr.ScSpecEntryKind.scSpecEntryUdtEnumV0():
-        if (typeof val !== 'number') {
+        if (typeof val !== "number") {
           throw new TypeError(
             `expected number for enum ${name}, but got ${typeof val}`
           );
@@ -417,7 +448,7 @@ export class ContractSpec {
     if (fields.some(isNumeric)) {
       if (!fields.every(isNumeric)) {
         throw new Error(
-          'mixed numeric and non-numeric field names are not allowed'
+          "mixed numeric and non-numeric field names are not allowed"
         );
       }
       return xdr.ScVal.scvVec(
@@ -429,7 +460,7 @@ export class ContractSpec {
         let name = field.name().toString();
         return new xdr.ScMapEntry({
           key: this.nativeToScVal(name, xdr.ScSpecTypeDef.scSpecTypeSymbol()),
-          val: this.nativeToScVal(val[name], field.type())
+          val: this.nativeToScVal(val[name], field.type()),
         });
       })
     );
@@ -452,7 +483,7 @@ export class ContractSpec {
    * @throws {Error} if ScVal cannot be converted to the given type
    */
   scValStrToNative<T>(scv: string, typeDef: xdr.ScSpecTypeDef): T {
-    return this.scValToNative<T>(xdr.ScVal.fromXDR(scv, 'base64'), typeDef);
+    return this.scValToNative<T>(xdr.ScVal.fromXDR(scv, "base64"), typeDef);
   }
 
   /**
@@ -506,7 +537,7 @@ export class ContractSpec {
       }
 
       case xdr.ScValType.scvAddress().value:
-        return Address.fromScVal(scv) as T;
+        return Address.fromScVal(scv).toString() as T;
 
       case xdr.ScValType.scvMap().value: {
         let map = scv.map() ?? [];
@@ -517,7 +548,7 @@ export class ContractSpec {
           return new Map(
             map.map((entry) => [
               this.scValToNative(entry.key(), keyType),
-              this.scValToNative(entry.val(), valueType)
+              this.scValToNative(entry.val(), valueType),
             ])
           ) as T;
         }
@@ -605,21 +636,15 @@ export class ContractSpec {
         `failed to find entry ${name} in union {udt.name().toString()}`
       );
     }
-    let res: Union<any> = { tag: name, values: undefined };
+    let res: Union<any> = { tag: name };
     if (
       entry.switch().value ===
       xdr.ScSpecUdtUnionCaseV0Kind.scSpecUdtUnionCaseTupleV0().value
     ) {
       let tuple = entry.value() as xdr.ScSpecUdtUnionCaseTupleV0;
       let ty = tuple.type();
-      //@ts-ignore
-      let values = [];
-      for (let i = 0; i < ty.length; i++) {
-        let v = this.scValToNative(vec[i + 1], ty[i]);
-        values.push(v);
-      }
-      let r = { tag: name, values };
-      return r;
+      let values = ty.map((entry, i) => this.scValToNative(vec![i + 1], entry));
+      res.values = values;
     }
     return res;
   }
@@ -651,6 +676,48 @@ export class ContractSpec {
     }
     return num;
   }
+
+  jsonSchema(funcName?: string): JSONSchema7 {
+    let definitions: any = {};
+    let properties: any = {};
+    for (let entry of this.entries) {
+      switch (entry.switch().value) {
+        case xdr.ScSpecEntryKind.scSpecEntryUdtEnumV0().value: {
+          let udt = entry.value() as xdr.ScSpecUdtEnumV0;
+          definitions[udt.name().toString()] = enumToJsonSchema(udt);
+          break;
+        }
+        case xdr.ScSpecEntryKind.scSpecEntryUdtStructV0().value: {
+          let udt = entry.value() as xdr.ScSpecUdtStructV0;
+          definitions[udt.name().toString()] = structToJsonSchema(udt);
+          break;
+        }
+        case xdr.ScSpecEntryKind.scSpecEntryUdtUnionV0().value:
+          let udt = entry.value() as xdr.ScSpecUdtUnionV0;
+          definitions[udt.name().toString()] = unionToJsonSchema(udt);
+          break;
+        case xdr.ScSpecEntryKind.scSpecEntryFunctionV0().value: {
+          let fn = entry.value() as xdr.ScSpecFunctionV0;
+          definitions[fn.name().toString()] = functionToJsonSchema(fn);
+          properties[fn.name().toString()] = {
+            $ref: `#/definitions/${fn.name().toString()}`,
+          };
+          break;
+        }
+        case xdr.ScSpecEntryKind.scSpecEntryUdtErrorEnumV0().value: {
+          // throw new Error('Error enums not supported yet');
+        }
+      }
+    }
+    let res: JSONSchema7 = {
+      $schema: "http://json-schema.org/draft-07/schema#",
+      definitions: { ...PRIMITIVE_DEFINITONS, ...definitions },
+    };
+    if (funcName) {
+      res["$ref"] = "#/definitions/" + funcName;
+    }
+    return res;
+  }
 }
 
 function stringToScVal(str: string, ty: xdr.ScSpecType): xdr.ScVal {
@@ -663,6 +730,21 @@ function stringToScVal(str: string, ty: xdr.ScSpecType): xdr.ScVal {
       let addr = Address.fromString(str as string);
       return xdr.ScVal.scvAddress(addr.toScAddress());
     }
+    case xdr.ScSpecType.scSpecTypeU64().value:
+      return new XdrLargeInt("u64", str).toScVal();
+    case xdr.ScSpecType.scSpecTypeI64().value:
+      return new XdrLargeInt("i64", str).toScVal();
+    case xdr.ScSpecType.scSpecTypeU128().value:
+      return new XdrLargeInt("u128", str).toScVal();
+    case xdr.ScSpecType.scSpecTypeI128().value:
+      return new XdrLargeInt("i128", str).toScVal();
+    case xdr.ScSpecType.scSpecTypeU256().value:
+      return new XdrLargeInt("u256", str).toScVal();
+    case xdr.ScSpecType.scSpecTypeI256().value:
+      return new XdrLargeInt("i256", str).toScVal();
+    case xdr.ScSpecType.scSpecTypeBytes().value:
+    case xdr.ScSpecType.scSpecTypeBytesN().value:
+      return xdr.ScVal.scvBytes(Buffer.from(str, "base64"));
 
     default:
       throw new TypeError(`invalid type ${ty.name} specified for string value`);
@@ -690,11 +772,346 @@ function findCase(name: string) {
   };
 }
 
-function readObj(args: object, input: xdr.ScSpecFunctionInputV0): any {
-  let inputName = input.name().toString();
-  let entry = Object.entries(args).find(([name, _]) => name === inputName);
-  if (!entry) {
-    throw new Error(`Missing field ${inputName}`);
+const PRIMITIVE_DEFINITONS = {
+  U64: {
+    type: "string",
+    pattern: "^[0-9]+$",
+    format: "bigint",
+    minLength: 1,
+    maxLength: 20, // 64-bit max value has 20 digits
+  },
+  I64: {
+    type: "string",
+    pattern: "^-?^[0-9]+$",
+    format: "bigint",
+    minLength: 1,
+    maxLength: 21, // Includes additional digit for the potential '-'
+  },
+  U32: {
+    type: "integer",
+    minimum: 0,
+    maximum: 4294967295,
+  },
+  I32: {
+    type: "integer",
+    minimum: -2147483648,
+    maximum: 2147483647,
+  },
+  U128: {
+    type: "string",
+    pattern: "^[0-9]+$",
+    format: "bigint",
+    minLength: 1,
+    maxLength: 39, // 128-bit max value has 39 digits
+  },
+  I128: {
+    type: "string",
+    pattern: "^-?[0-9]+$",
+    format: "bigint",
+    minLength: 1,
+    maxLength: 40, // Includes additional digit for the potential '-'
+  },
+  U256: {
+    type: "string",
+    pattern: "^[0-9]+$",
+    format: "bigint",
+    minLength: 1,
+    maxLength: 78, // 256-bit max value has 78 digits
+  },
+  I256: {
+    type: "string",
+    pattern: "^-?[0-9]+$",
+    format: "bigint",
+    minLength: 1,
+    maxLength: 79, // Includes additional digit for the potential '-'
+  },
+  Address: {
+    type: "string",
+    format: "address",
+    description: "Address can be a public key or contract id",
+  },
+  ScString: {
+    type: "string",
+    description: "ScString is a string",
+  },
+  ScSymbol: {
+    type: "string",
+    description: "ScString is a string",
+  },
+  DataUrl: {
+    type: "string",
+    pattern:
+      "^(?:[A-Za-z0-9+\\/]{4})*(?:[A-Za-z0-9+\\/]{2}==|[A-Za-z0-9+\\/]{3}=)?$",
+  },
+};
+
+/**
+ *
+ * @param typeDef type to convert to json schema reference
+ * @returns
+ */
+function typeRef(typeDef: xdr.ScSpecTypeDef): object {
+  let t = typeDef.switch();
+  let value = t.value;
+  let ref;
+  switch (value) {
+    case xdr.ScSpecType.scSpecTypeVal().value: {
+      ref = "Val";
+      break;
+    }
+    case xdr.ScSpecType.scSpecTypeBool().value: {
+      return { type: "boolean" };
+    }
+    case xdr.ScSpecType.scSpecTypeVoid().value: {
+      return { type: "null" };
+    }
+    case xdr.ScSpecType.scSpecTypeError().value: {
+      ref = "Error";
+      break;
+    }
+    case xdr.ScSpecType.scSpecTypeU32().value: {
+      ref = "U32";
+      break;
+    }
+    case xdr.ScSpecType.scSpecTypeI32().value: {
+      ref = "I32";
+      break;
+    }
+    case xdr.ScSpecType.scSpecTypeU64().value: {
+      ref = "U64";
+      break;
+    }
+    case xdr.ScSpecType.scSpecTypeI64().value: {
+      ref = "I64";
+      break;
+    }
+    case xdr.ScSpecType.scSpecTypeTimepoint().value: {
+      throw new Error("Timepoint type not supported");
+      ref = "Timepoint";
+      break;
+    }
+    case xdr.ScSpecType.scSpecTypeDuration().value: {
+      throw new Error("Duration not supported");
+      ref = "Duration";
+      break;
+    }
+    case xdr.ScSpecType.scSpecTypeU128().value: {
+      ref = "U128";
+      break;
+    }
+    case xdr.ScSpecType.scSpecTypeI128().value: {
+      ref = "I128";
+      break;
+    }
+    case xdr.ScSpecType.scSpecTypeU256().value: {
+      ref = "U256";
+      break;
+    }
+    case xdr.ScSpecType.scSpecTypeI256().value: {
+      ref = "I256";
+      break;
+    }
+    case xdr.ScSpecType.scSpecTypeBytes().value: {
+      ref = "DataUrl";
+      break;
+    }
+    case xdr.ScSpecType.scSpecTypeString().value: {
+      ref = "ScString";
+      break;
+    }
+    case xdr.ScSpecType.scSpecTypeSymbol().value: {
+      ref = "ScSymbol";
+      break;
+    }
+    case xdr.ScSpecType.scSpecTypeAddress().value: {
+      ref = "Address";
+      break;
+    }
+    case xdr.ScSpecType.scSpecTypeOption().value: {
+      let opt = typeDef.value() as xdr.ScSpecTypeOption;
+      return typeRef(opt.valueType());
+    }
+    case xdr.ScSpecType.scSpecTypeResult().value: {
+      // throw new Error('Result type not supported');
+      break;
+    }
+    case xdr.ScSpecType.scSpecTypeVec().value: {
+      let arr = typeDef.value() as xdr.ScSpecTypeVec;
+      let ref = typeRef(arr.elementType());
+      return {
+        type: "array",
+        items: ref,
+      };
+    }
+    case xdr.ScSpecType.scSpecTypeMap().value: {
+      let map = typeDef.value() as xdr.ScSpecTypeMap;
+      let ref = typeRef(map.valueType());
+      return {
+        type: "object",
+        patternProperties: {
+          "^[a-zA-Z0-9]+$": ref,
+        },
+        additionalProperties: false,
+      };
+    }
+    case xdr.ScSpecType.scSpecTypeTuple().value: {
+      let tuple = typeDef.value() as xdr.ScSpecTypeTuple;
+      let minItems = tuple.valueTypes().length;
+      let maxItems = minItems;
+      let items = tuple.valueTypes().map(typeRef);
+      return { type: "array", items, minItems, maxItems };
+    }
+    case xdr.ScSpecType.scSpecTypeBytesN().value: {
+      let arr = typeDef.value() as xdr.ScSpecTypeBytesN;
+      return {
+        $ref: "#/definitions/DataUrl",
+        maxLength: arr.n(),
+      };
+    }
+    case xdr.ScSpecType.scSpecTypeUdt().value: {
+      let udt = typeDef.value() as xdr.ScSpecTypeUdt;
+      ref = udt.name().toString();
+      break;
+    }
   }
-  return entry[1];
+  return { $ref: `#/definitions/${ref}` };
+}
+
+function isRequired(typeDef: xdr.ScSpecTypeDef): boolean {
+  return typeDef.switch().value != xdr.ScSpecType.scSpecTypeOption().value;
+}
+
+function structToJsonSchema(udt: xdr.ScSpecUdtStructV0): object {
+  let fields = udt.fields();
+  if (fields.some(isNumeric)) {
+    if (!fields.every(isNumeric)) {
+      throw new Error(
+        "mixed numeric and non-numeric field names are not allowed"
+      );
+    }
+    let items = fields.map((_, i) => typeRef(fields[i].type()));
+    return {
+      type: "array",
+      items,
+      minItems: fields.length,
+      maxItems: fields.length,
+    };
+  }
+  let description = udt.doc().toString();
+  let { properties, required }: any = args_and_required(fields);
+  properties["additionalProperties"] = false;
+  return {
+    description,
+    properties,
+    required,
+    type: "object",
+  };
+}
+
+function args_and_required(
+  input: { type: () => xdr.ScSpecTypeDef; name: () => string | Buffer }[]
+): { properties: object; required?: string[] } {
+  let properties: any = {};
+  let required: string[] = [];
+  for (let arg of input) {
+    let type_ = arg.type();
+    let name = arg.name().toString();
+    properties[name] = typeRef(type_);
+    if (isRequired(type_)) {
+      required.push(name);
+    }
+  }
+  let res: { properties: object; required?: string[] } = { properties };
+  if (required.length > 0) {
+    res.required = required;
+  }
+  return res;
+}
+
+function functionToJsonSchema(func: xdr.ScSpecFunctionV0): object {
+  let { properties, required }: any = args_and_required(func.inputs());
+  let description = func.doc().toString();
+  let args: any = {
+    additionalProperties: false,
+    properties,
+    type: "object",
+  };
+  if (required?.length > 0) {
+    args.required = required;
+  }
+  let input: any = {
+    additionalProperties: false,
+    /// Previous way of determining if this type is a function
+    contractMethod: "view",
+    properties: {
+      args,
+    },
+  };
+  // let output: any = {};
+  // let outputs = func.outputs();
+  // if (outputs.length !== 0) {
+  //   output[`${name}__Result`] = typeRef(func.outputs()[0]);
+  // }
+  if (description.length > 0) {
+    input.description = description;
+  }
+
+  return {
+    ...input,
+    // ...output
+  };
+}
+
+function unionToJsonSchema(udt: xdr.ScSpecUdtUnionV0): any {
+  let description = udt.doc().toString();
+  let cases = udt.cases();
+  let oneOf: any[] = [];
+  for (let case_ of cases) {
+    switch (case_.switch().value) {
+      case xdr.ScSpecUdtUnionCaseV0Kind.scSpecUdtUnionCaseVoidV0().value: {
+        let c = case_.value() as xdr.ScSpecUdtUnionCaseVoidV0;
+        oneOf.push({
+          tag: c.name().toString(),
+        });
+        break;
+      }
+      case xdr.ScSpecUdtUnionCaseV0Kind.scSpecUdtUnionCaseTupleV0().value: {
+        let c = case_.value() as xdr.ScSpecUdtUnionCaseTupleV0;
+        oneOf.push({
+          tag: c.name().toString(),
+          values: c.type().map(typeRef),
+        });
+      }
+    }
+  }
+
+  let res: any = {
+    oneOf,
+  };
+  if (description.length > 0) {
+    res.description = description;
+  }
+  return res;
+}
+
+function enumToJsonSchema(udt: xdr.ScSpecUdtEnumV0): any {
+  let description = udt.doc().toString();
+  let cases = udt.cases();
+  let oneOf: any[] = [];
+  for (let case_ of cases) {
+    let title = case_.name().toString();
+    let description = case_.doc().toString();
+    oneOf.push({
+      description,
+      title,
+      enum: [case_.value()],
+      type: "number",
+    });
+  }
+
+  let res: any = { oneOf };
+  if (description.length > 0) {
+    res.description = description;
+  }
+  return res;
 }
