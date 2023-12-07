@@ -1,4 +1,4 @@
-import { xdr, Contract, SorobanDataBuilder } from 'stellar-base';
+import { xdr, Contract, SorobanDataBuilder } from '@stellar/stellar-base';
 import { Api } from './api';
 
 export function parseRawSendTransaction(

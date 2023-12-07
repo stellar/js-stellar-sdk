@@ -1,5 +1,5 @@
 /* tslint:disable: variable-name */
-import { Asset } from "stellar-base";
+import { Asset } from "@stellar/stellar-base";
 import { CallBuilder } from "./call_builder";
 import { BadRequestError } from "../errors";
 import { HorizonApi } from "./horizon_api";

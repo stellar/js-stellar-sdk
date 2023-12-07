@@ -7,7 +7,7 @@ import {
   StrKey,
   Transaction,
   xdr,
-} from "stellar-base";
+} from "@stellar/stellar-base";
 import URI from "urijs";
 
 import { CallBuilder } from "./call_builder";

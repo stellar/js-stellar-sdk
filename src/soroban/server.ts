@@ -9,7 +9,7 @@ import {
   Keypair,
   Transaction,
   xdr
-} from 'stellar-base';
+} from '@stellar/stellar-base';
 
 import AxiosClient from './axios';
 import { Api as FriendbotApi } from '../friendbot';

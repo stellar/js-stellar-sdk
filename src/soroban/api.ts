@@ -1,4 +1,4 @@
-import { AssetType, Contract, SorobanDataBuilder, xdr } from 'stellar-base';
+import { AssetType, Contract, SorobanDataBuilder, xdr } from '@stellar/stellar-base';
 
 /* tslint:disable-next-line:no-namespace */
 /** @namespace Api */

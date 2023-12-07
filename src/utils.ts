@@ -1,4 +1,4 @@
-import { Transaction } from "stellar-base";
+import { Transaction } from "@stellar/stellar-base";
 
 export class Utils {
   /**
