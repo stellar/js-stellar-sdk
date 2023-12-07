@@ -365,7 +365,7 @@ export class Server {
    * @see https://soroban.stellar.org/api/methods/getEvents
    * @example
    * server.getEvents({
-   *    startLedger: "1000",
+   *    startLedger: 1000,
    *    filters: [
    *     {
    *      type: "contract",
@@ -402,7 +402,7 @@ export class Server {
         ...(request.limit && { limit: request.limit })
       },
       ...(request.startLedger && {
-        startLedger: request.startLedger.toString()
+        startLedger: request.startLedger
       })
     });
   }
