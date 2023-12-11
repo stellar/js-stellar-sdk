@@ -143,12 +143,12 @@
     "webpack-cli": "^5.0.1"
   },
   "dependencies": {
+    "@stellar/stellar-base": "10.0.0",
     "axios": "^1.6.0",
     "bignumber.js": "^9.1.2",
     "eventsource": "^2.0.2",
     "json-schema-faker": "^0.5.4",
     "randombytes": "^2.1.0",
-    "@stellar/stellar-base": "10.0.0",
     "toml": "^3.0.0",
     "urijs": "^1.19.1"
   }

@@ -1,4 +1,4 @@
-import { xdr, Address, ContractSpec, Keypair } from "../..";
+import { xdr, Address, ContractSpec, Keypair } from "../../../lib";
 import { JSONSchemaFaker } from "json-schema-faker";
 
 import spec from "../spec.json";
@@ -7,15 +7,10 @@ import { expect } from "chai";
 const publicKey = "GCBVOLOM32I7OD5TWZQCIXCXML3TK56MDY7ZMTAILIBQHHKPCVU42XYW";
 const addr = Address.fromString(publicKey);
 let SPEC: ContractSpec;
+
 JSONSchemaFaker.format("address", () => {
   let keypair = Keypair.random();
   return keypair.publicKey();
-});
-
-JSONSchemaFaker.format("bigint", (value) => {
-  let s = JSONSchemaFaker.generate(value);
-  return BigInt(s!.toString()!);
-  
 });
 
 const ints = ["i64", "u64", "i128", "u128", "i256", "u256"];
@@ -48,7 +43,7 @@ describe("Can round trip custom types", function () {
     num: number = 100
   ) {
     let funcSpec = spec.jsonSchema(funcName);
-    
+
     for (let i = 0; i < num; i++) {
       let arg = await JSONSchemaFaker.resolve(funcSpec)!;
       // @ts-ignore
@@ -57,7 +52,7 @@ describe("Can round trip custom types", function () {
         let scVal = SPEC.funcArgsToScVals(funcName, res)[0];
         let result = SPEC.funcResToNative(funcName, scVal);
         if (ints.some((i) => funcName.includes(i))) {
-          res[funcName] = BigInt(res[funcName]);
+          // res[funcName] = BigInt(res[funcName]);
           // result = result.toString();
           // if (result.startsWith("0") && result.length > 1) {
           //   result = result.slice(1);
@@ -66,16 +61,17 @@ describe("Can round trip custom types", function () {
         if (funcName.startsWith("bytes")) {
           res[funcName] = Buffer.from(res[funcName], "base64");
         }
-        expect(res[funcName]).deep.equal(result);
+        let expected = res[funcName];
+        let actual = replaceBigIntWithStrings(result);
+        expect(expected).deep.equal(actual);
       } catch (e) {
         console.error(
           funcName,
           JSON.stringify(arg, null, 2),
-          
+
           "\n",
           //@ts-ignore
           JSON.stringify(funcSpec.definitions![funcName]["properties"], null, 2)
-
         );
         throw e;
       }
@@ -213,10 +209,10 @@ describe("Can round trip custom types", function () {
     const map = new Map();
     map.set(1, true);
     map.set(2, false);
-    roundtrip("map", map);
+    roundtrip("map", [...map.entries()]);
 
     map.set(3, "hahaha");
-    expect(() => roundtrip("map", map)).to.throw(
+    expect(() => roundtrip("map", [...map.entries()])).to.throw(
       /invalid type scSpecTypeBool specified for string value/i
     );
   });
@@ -350,3 +346,30 @@ let func = xdr.ScSpecEntry.scSpecEntryFunctionV0(
     outputs: [GIGA_MAP_TYPE],
   })
 );
+
+function replaceBigIntWithStrings(obj: any): any {
+  if (obj instanceof Buffer) {
+    return obj;
+  }
+  // If obj is an array, process each element
+  if (Array.isArray(obj)) {
+    return obj.map(replaceBigIntWithStrings);
+  }
+
+  // If obj is an object, process each property
+  else if (obj !== null && typeof obj === "object") {
+    const newObj: any = {};
+    for (const [key, value] of Object.entries(obj)) {
+      newObj[key] = replaceBigIntWithStrings(value);
+    }
+    return newObj;
+  }
+
+  // If obj is a BigInt, convert it to a string
+  else if (typeof obj === "bigint") {
+    return obj.toString();
+  }
+
+  // Otherwise, return the value as it is
+  return obj;
+}

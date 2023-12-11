@@ -270,25 +270,64 @@ export class ContractSpec {
           }
         }
         if (Array.isArray(val)) {
-          if (xdr.ScSpecType.scSpecTypeVec().value === value) {
-            let vec = ty.value() as xdr.ScSpecTypeVec;
-            let elementType = vec.elementType();
-            return xdr.ScVal.scvVec(
-              val.map((v) => this.nativeToScVal(v, elementType))
-            );
-          } else if (xdr.ScSpecType.scSpecTypeTuple().value === value) {
-            let tup = ty.value() as xdr.ScSpecTypeTuple;
-            let valTypes = tup.valueTypes();
-            if (val.length !== valTypes.length) {
-              throw new TypeError(
-                `Tuple expects ${valTypes.length} values, but ${val.length} were provided`
+          // if (xdr.ScSpecType.scSpecTypeVec().value === value) {
+          //   let vec = ty.value() as xdr.ScSpecTypeVec;
+          //   let elementType = vec.elementType();
+          //   return xdr.ScVal.scvVec(
+          //     val.map((v) => this.nativeToScVal(v, elementType))
+          //   );
+          // } else if (xdr.ScSpecType.scSpecTypeTuple().value === value) {
+          //   let tup = ty.value() as xdr.ScSpecTypeTuple;
+          //   let valTypes = tup.valueTypes();
+          //   if (val.length !== valTypes.length) {
+          //     throw new TypeError(
+          //       `Tuple expects ${valTypes.length} values, but ${val.length} were provided`
+          //     );
+          //   }
+          //   return xdr.ScVal.scvVec(
+          //     val.map((v, i) => this.nativeToScVal(v, valTypes[i]))
+          //   );
+          // } else {
+          //   throw new TypeError(`Type ${ty} was not vec, but value was Array`);
+          // }
+          // This is converted to use a switch statement with a new case for the map type
+          switch (value) {
+            case xdr.ScSpecType.scSpecTypeVec().value: {
+              let vec = ty.value() as xdr.ScSpecTypeVec;
+              let elementType = vec.elementType();
+              return xdr.ScVal.scvVec(
+                val.map((v) => this.nativeToScVal(v, elementType))
               );
             }
-            return xdr.ScVal.scvVec(
-              val.map((v, i) => this.nativeToScVal(v, valTypes[i]))
-            );
-          } else {
-            throw new TypeError(`Type ${ty} was not vec, but value was Array`);
+            case xdr.ScSpecType.scSpecTypeTuple().value: {
+              let tup = ty.value() as xdr.ScSpecTypeTuple;
+              let valTypes = tup.valueTypes();
+              if (val.length !== valTypes.length) {
+                throw new TypeError(
+                  `Tuple expects ${valTypes.length} values, but ${val.length} were provided`
+                );
+              }
+              return xdr.ScVal.scvVec(
+                val.map((v, i) => this.nativeToScVal(v, valTypes[i]))
+              );
+            }
+            case xdr.ScSpecType.scSpecTypeMap().value: {
+              let map = ty.value() as xdr.ScSpecTypeMap;
+              let keyType = map.keyType();
+              let valueType = map.valueType();
+              return xdr.ScVal.scvMap(
+                val.map((entry) => {
+                  let key = this.nativeToScVal(entry[0], keyType);
+                  let val = this.nativeToScVal(entry[1], valueType);
+                  return new xdr.ScMapEntry({ key, val });
+                })
+              );
+            }
+
+            default:
+              throw new TypeError(
+                `Type ${ty} was not vec, but value was Array`
+              );
           }
         }
         if (val.constructor === Map) {
@@ -518,7 +557,7 @@ export class ContractSpec {
       case xdr.ScValType.scvI128().value:
       case xdr.ScValType.scvU256().value:
       case xdr.ScValType.scvI256().value:
-        return scValToBigInt(scv) as T;
+        return (scValToBigInt(scv) as T);
 
       case xdr.ScValType.scvVec().value: {
         if (value == xdr.ScSpecType.scSpecTypeVec().value) {
@@ -545,12 +584,12 @@ export class ContractSpec {
           let type_ = typeDef.value() as xdr.ScSpecTypeMap;
           let keyType = type_.keyType();
           let valueType = type_.valueType();
-          return new Map(
-            map.map((entry) => [
-              this.scValToNative(entry.key(), keyType),
-              this.scValToNative(entry.val(), valueType),
-            ])
-          ) as T;
+          
+          let res = map.map((entry) => [
+            this.scValToNative(entry.key(), keyType),
+            this.scValToNative(entry.val(), valueType),
+          ]) as T;
+          return res;
         }
         throw new TypeError(
           `ScSpecType ${t.name} was not map, but ${JSON.stringify(
@@ -773,20 +812,6 @@ function findCase(name: string) {
 }
 
 const PRIMITIVE_DEFINITONS = {
-  U64: {
-    type: "string",
-    pattern: "^[0-9]+$",
-    format: "bigint",
-    minLength: 1,
-    maxLength: 20, // 64-bit max value has 20 digits
-  },
-  I64: {
-    type: "string",
-    pattern: "^-?^[0-9]+$",
-    format: "bigint",
-    minLength: 1,
-    maxLength: 21, // Includes additional digit for the potential '-'
-  },
   U32: {
     type: "integer",
     minimum: 0,
@@ -797,31 +822,39 @@ const PRIMITIVE_DEFINITONS = {
     minimum: -2147483648,
     maximum: 2147483647,
   },
+  U64: {
+    type: "string",
+    pattern: "^([1-9][0-9]*|0)$",
+    minLength: 1,
+    maxLength: 20, // 64-bit max value has 20 digits
+  },
+  I64: {
+    type: "string",
+    pattern: "^(-?[1-9][0-9]*|0)$",
+    minLength: 1,
+    maxLength: 21, // Includes additional digit for the potential '-'
+  },
   U128: {
     type: "string",
-    pattern: "^[0-9]+$",
-    format: "bigint",
+    pattern: "^([1-9][0-9]*|0)$",
     minLength: 1,
     maxLength: 39, // 128-bit max value has 39 digits
   },
   I128: {
     type: "string",
-    pattern: "^-?[0-9]+$",
-    format: "bigint",
+    pattern: "^(-?[1-9][0-9]*|0)$",
     minLength: 1,
     maxLength: 40, // Includes additional digit for the potential '-'
   },
   U256: {
     type: "string",
-    pattern: "^[0-9]+$",
-    format: "bigint",
+    pattern: "^([1-9][0-9]*|0)$",
     minLength: 1,
     maxLength: 78, // 256-bit max value has 78 digits
   },
   I256: {
     type: "string",
-    pattern: "^-?[0-9]+$",
-    format: "bigint",
+    pattern: "^(-?[1-9][0-9]*|0)$",
     minLength: 1,
     maxLength: 79, // Includes additional digit for the potential '-'
   },
@@ -945,13 +978,15 @@ function typeRef(typeDef: xdr.ScSpecTypeDef): object {
     }
     case xdr.ScSpecType.scSpecTypeMap().value: {
       let map = typeDef.value() as xdr.ScSpecTypeMap;
-      let ref = typeRef(map.valueType());
+      let items = [typeRef(map.keyType()), typeRef(map.valueType())];
       return {
-        type: "object",
-        patternProperties: {
-          "^[a-zA-Z0-9]+$": ref,
+        type: "array",
+        items: {
+          type: "array",
+          items,
+          minItems: 2,
+          maxItems: 2,
         },
-        additionalProperties: false,
       };
     }
     case xdr.ScSpecType.scSpecTypeTuple().value: {
