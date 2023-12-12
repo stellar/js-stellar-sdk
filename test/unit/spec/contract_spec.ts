@@ -52,11 +52,7 @@ describe("Can round trip custom types", function () {
         let scVal = SPEC.funcArgsToScVals(funcName, res)[0];
         let result = SPEC.funcResToNative(funcName, scVal);
         if (ints.some((i) => funcName.includes(i))) {
-          // res[funcName] = BigInt(res[funcName]);
-          // result = result.toString();
-          // if (result.startsWith("0") && result.length > 1) {
-          //   result = result.slice(1);
-          // }
+         
         }
         if (funcName.startsWith("bytes")) {
           res[funcName] = Buffer.from(res[funcName], "base64");
