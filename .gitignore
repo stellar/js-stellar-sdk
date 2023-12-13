@@ -11,3 +11,4 @@
 js-stellar-base/
 
 test/unit/out/
+.vscode/launch.json

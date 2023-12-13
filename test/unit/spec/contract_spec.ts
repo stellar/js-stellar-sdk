@@ -13,8 +13,6 @@ JSONSchemaFaker.format("address", () => {
   return keypair.publicKey();
 });
 
-const ints = ["i64", "u64", "i128", "u128", "i256", "u256"];
-
 before(() => {
   SPEC = new ContractSpec(spec);
 });
@@ -51,9 +49,6 @@ describe("Can round trip custom types", function () {
       try {
         let scVal = SPEC.funcArgsToScVals(funcName, res)[0];
         let result = SPEC.funcResToNative(funcName, scVal);
-        if (ints.some((i) => funcName.includes(i))) {
-         
-        }
         if (funcName.startsWith("bytes")) {
           res[funcName] = Buffer.from(res[funcName], "base64");
         }
@@ -247,6 +242,13 @@ describe("Can round trip custom types", function () {
     const arg = [{ a: 0, b: true, c: "hello" }, { tag: "First" }] as const;
 
     roundtrip("tuple_strukt", arg);
+  });
+});
+
+describe.skip("Print contract spec", function () {
+  it("print", function () {
+    let res = JSON.stringify(SPEC.jsonSchema("complex"), null, 2);
+    console.log("complex schema: " + res);
   });
 });
 
