@@ -715,7 +715,7 @@ export class ContractSpec {
           break;
         }
         case xdr.ScSpecEntryKind.scSpecEntryUdtErrorEnumV0().value: {
-          console.info("Error enums not supported yet");
+          // console.debug("Error enums not supported yet");
         }
       }
     }
