@@ -35,7 +35,7 @@ export namespace Server {
   /** Describes the complex filter combinations available for event queries. */
   export interface GetEventsRequest {
     filters: Api.EventFilter[];
-    startLedger?: number; // either this or cursor
+    startLedger?: string; // either this or cursor
     cursor?: string; // either this or startLedger
     limit?: number;
   }
