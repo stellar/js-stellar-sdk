@@ -140,6 +140,7 @@
     "typescript": "^5.3.3",
     "utility-types": "^3.7.0",
     "webpack": "^5.88.2",
+    "json-schema-faker": "^0.5.4",
     "webpack-cli": "^5.0.1"
   },
   "dependencies": {
@@ -147,7 +148,6 @@
     "axios": "^1.6.0",
     "bignumber.js": "^9.1.2",
     "eventsource": "^2.0.2",
-    "json-schema-faker": "^0.5.4",
     "randombytes": "^2.1.0",
     "toml": "^3.0.0",
     "urijs": "^1.19.1"
