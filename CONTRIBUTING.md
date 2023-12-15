@@ -21,3 +21,5 @@ In fact, you should follow [the steps there](https://github.com/stellar/js-stell
 ```
 
   - [ ] Finally, run `yarn` so that the dependency is pulled (ensuring its a valid version) and the lockfile is updated with the latest integrity details. You can now commit the change and PR accordingly.
+
+Note that new versions will be published to npm **and** Bower by GitHub Actions.

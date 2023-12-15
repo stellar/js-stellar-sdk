@@ -13,22 +13,20 @@
   <a href="https://github.com/stellar/js-stellar-sdk/actions/workflows/tests.yml"><img alt="Test Status" src="https://github.com/stellar/js-stellar-sdk/actions/workflows/tests.yml/badge.svg" /></a>
 </p>
 
-js-stellar-sdk is a Javascript library for communicating with a
-[Stellar Horizon server](https://github.com/stellar/go/tree/master/services/horizon).
+js-stellar-sdk is a JavaScript library for communicating with a
+[Stellar Horizon server](https://github.com/stellar/go/tree/master/services/horizon) and [Soroban RPC](https://soroban.stellar.org/docs/reference/rpc).
 It is used for building Stellar apps either on Node.js or in the browser.
 
 It provides:
 
-- a networking layer API for Horizon endpoints.
+- a networking layer API for Horizon endpoints (REST-based) and Soroban RPC (JSON-RPC-based).
 - facilities for building and signing transactions, for communicating with a
   Stellar Horizon instance, and for submitting transactions or querying network
   history.
 
 ### stellar-sdk vs stellar-base
 
-stellar-sdk is a high-level library that serves as client-side API for Horizon.
-[stellar-base](https://github.com/stellar/js-stellar-base) is lower-level
-library for creating Stellar primitive constructs via XDR helpers and wrappers.
+`stellar-sdk` is a high-level library that serves as client-side API for Horizon and Soroban RPC, while [stellar-base](https://github.com/stellar/js-stellar-base) is lower-level library for creating Stellar primitive constructs via XDR helpers and wrappers.
 
 **Most people will want stellar-sdk instead of stellar-base.** You should only
 use stellar-base if you know what you're doing!
@@ -55,7 +53,7 @@ installs `stellar-base` and exposes all of its exports in case you need them.
 Using npm to include js-stellar-sdk in your own project:
 
 ```shell
-npm install --save stellar-sdk
+npm install --save @stellar/stellar-sdk
 ```
 
 Alternatively, you can use cdnjs in a browser:
@@ -77,7 +75,9 @@ npm install --save stellar-sdk
 2. require/import it in your JavaScript:
 
 ```js
-var StellarSdk = require('stellar-sdk');
+var StellarSdk = require('@stellar/stellar-sdk');
+// or
+import * as StellarSdk from '@stellar/stellar-sdk';
 ```
 
 ### To self host for use in the browser
@@ -85,7 +85,7 @@ var StellarSdk = require('stellar-sdk');
 1. Install it using [bower](http://bower.io):
 
 ```shell
-bower install stellar-sdk
+bower install @stellar/stellar-sdk
 ```
 
 2. Include it in the browser:
@@ -131,12 +131,12 @@ git clone https://github.com/stellar/js-stellar-sdk.git
 
 ```shell
 cd js-stellar-sdk
-npm install
+yarn
 ```
 
-3. Install Node 16
+3. Install Node 18
 
-Because we support the oldest maintenance version of Node, please install and develop on Node 16 so you don't get surprised when your code works locally but breaks in CI.
+Because we support the oldest maintenance version of Node, please install and develop on Node 18 so you don't get surprised when your code works locally but breaks in CI.
 
 Here's how to install `nvm` if you haven't: https://github.com/creationix/nvm
 
@@ -153,11 +153,11 @@ https://github.com/wbyoung/avn
 
 4. Observe the project's code style
 
-While you're making changes, make sure to run the linter-watcher to catch any
-   linting errors (in addition to making sure your text editor supports ESLint)
+While you're making changes, make sure to run the linter to catch any linting
+errors (in addition to making sure your text editor supports ESLint)
 
 ```shell
-node_modules/.bin/gulp watch
+yarn fmt
 ```
 
 
@@ -168,7 +168,7 @@ documentation](https://stellar.github.io/js-stellar-sdk/), or [the
 examples](https://github.com/stellar/js-stellar-sdk/tree/master/docs/reference).
 
 There is also Horizon REST API Documentation
-[here](https://developers.stellar.org/api/introduction/).
+[here](https://developers.stellar.org/api/introduction/) and Soroban JSON-RPC documentation [here](https://soroban.stellar.org/docs/reference/rpc).
 
 ### Usage with React-Native
 
@@ -188,7 +188,7 @@ module.exports = {
 };
 ```
 6. Add `import "./shim";` to the top of `index.js`
-7. `yarn add stellar-sdk`
+7. `yarn add @stellar/stellar-sdk`
 
 There is also a [sample](https://github.com/fnando/rn-stellar-sdk-sample) that you can follow.
 
@@ -200,14 +200,14 @@ There is also a [sample](https://github.com/fnando/rn-stellar-sdk-sample) that y
 yarn rn-nodeify --install process,url,events,https,http,util,stream,crypto,vm,buffer --hack --yarn
 ```
 3. Add `import "./shim";` to the your app's entry point (by default `./App.js`)
-4. `yarn add stellar-sdk`
+4. `yarn add @stellar/stellar-sdk`
 5. `expo install expo-random`
 
 At this point, the Stellar SDK will work, except that `StellarSdk.Keypair.random()` will throw an error. To work around this, you can create your own method to generate a random keypair like this:
 
 ```javascript
 import * as Random from 'expo-random';
-import StellarSdk from 'stellar-sdk';
+import StellarSdk from '@stellar/stellar-sdk';
 
 const generateRandomKeypair = () => {
   const randomBytes = Random.getRandomBytes(32);
@@ -251,21 +251,9 @@ cd jsdoc && serve .
 Documentation for this repo lives in
 [Developers site](https://github.com/stellar/js-stellar-sdk/blob/master/docs/reference/readme.md).
 
-## Contributing
+## Contributing and Publishing
 
-For information on how to contribute, please refer to our
-[contribution guide](https://github.com/stellar/js-stellar-sdk/blob/master/CONTRIBUTING.md).
-
-## Publishing to npm
-
-```
-npm version [<newversion> | major | minor | patch | premajor | preminor | prepatch | prerelease]
-```
-
-A new version will be published to npm **and** Bower by GitHub actions.
-
-npm >= 2.13.0 required. Read more about
-[npm version](https://docs.npmjs.com/cli/version).
+For information on how to contribute or publish new versions of this software to `npm`, please refer to our [contribution guide](https://github.com/stellar/js-stellar-sdk/blob/master/CONTRIBUTING.md).
 
 ## License
 
