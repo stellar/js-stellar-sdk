@@ -47,6 +47,10 @@ export namespace Server {
   }
 }
 
+export interface SimulationResources {
+  cpuInstructions: number;
+}
+
 /**
  * Handles the network connection to a Soroban RPC instance, exposing an
  * interface for requests to that instance.
@@ -487,18 +491,28 @@ export class Server {
    * });
    */
   public async simulateTransaction(
-    transaction: Transaction | FeeBumpTransaction
+    tx: Transaction | FeeBumpTransaction,
+    addlResources?: SimulationResources
   ): Promise<Api.SimulateTransactionResponse> {
-    return this._simulateTransaction(transaction).then(parseRawSimulation);
+    return this._simulateTransaction(tx, addlResources)
+      .then(parseRawSimulation);
   }
 
   public async _simulateTransaction(
-    transaction: Transaction | FeeBumpTransaction
+    transaction: Transaction | FeeBumpTransaction,
+    addlResources?: SimulationResources
   ): Promise<Api.RawSimulateTransactionResponse> {
-    return jsonrpc.post(
+    return jsonrpc.postObject(
       this.serverURL.toString(),
       'simulateTransaction',
-      transaction.toXDR()
+      {
+        transaction: transaction.toXDR(),
+        ...(addlResources !== undefined && {
+          resourceConfig: {
+            instructionLeeway: addlResources.cpuInstructions
+          }
+        })
+      }
     );
   }
 
