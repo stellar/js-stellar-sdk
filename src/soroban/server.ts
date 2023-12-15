@@ -40,6 +40,11 @@ export namespace Server {
     limit?: number;
   }
 
+  /** Describes additional resource leeways for transaction simulation. */
+  export interface ResourceLeeway {
+    cpuInstructions: number;
+  }
+
   export interface Options {
     allowHttp?: boolean;
     timeout?: number;
@@ -487,18 +492,28 @@ export class Server {
    * });
    */
   public async simulateTransaction(
-    transaction: Transaction | FeeBumpTransaction
+    tx: Transaction | FeeBumpTransaction,
+    addlResources?: Server.ResourceLeeway
   ): Promise<Api.SimulateTransactionResponse> {
-    return this._simulateTransaction(transaction).then(parseRawSimulation);
+    return this._simulateTransaction(tx, addlResources)
+      .then(parseRawSimulation);
   }
 
   public async _simulateTransaction(
-    transaction: Transaction | FeeBumpTransaction
+    transaction: Transaction | FeeBumpTransaction,
+    addlResources?: Server.ResourceLeeway
   ): Promise<Api.RawSimulateTransactionResponse> {
-    return jsonrpc.post(
+    return jsonrpc.postObject(
       this.serverURL.toString(),
       'simulateTransaction',
-      transaction.toXDR()
+      {
+        transaction: transaction.toXDR(),
+        ...(addlResources !== undefined && {
+          resourceConfig: {
+            instructionLeeway: addlResources.cpuInstructions
+          }
+        })
+      }
     );
   }
 

@@ -81,7 +81,9 @@ describe("Server#simulateTransaction", async function (done) {
         jsonrpc: "2.0",
         id: 1,
         method: "simulateTransaction",
-        params: [this.blob],
+        params: {
+          transaction: this.blob
+        }
       })
       .returns(
         Promise.resolve({ data: { id: 1, result: simulationResponse } }),
@@ -89,6 +91,33 @@ describe("Server#simulateTransaction", async function (done) {
 
     this.server
       .simulateTransaction(this.transaction)
+      .then(function (response) {
+        expect(response).to.be.deep.equal(parsedSimulationResponse);
+        done();
+      })
+      .catch(function (err) {
+        done(err);
+      });
+  });
+
+  it("simulates a transaction with add'l resource usage", function (done) {
+    this.axiosMock
+      .expects("post")
+      .withArgs(serverUrl, {
+        jsonrpc: "2.0",
+        id: 1,
+        method: "simulateTransaction",
+        params: {
+          transaction: this.blob,
+          resourceConfig: { instructionLeeway: 100 }
+        }
+      })
+      .returns(
+        Promise.resolve({ data: { id: 1, result: simulationResponse } }),
+      );
+
+    this.server
+      .simulateTransaction(this.transaction, { cpuInstructions: 100 })
       .then(function (response) {
         expect(response).to.be.deep.equal(parsedSimulationResponse);
         done();

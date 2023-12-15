@@ -3,6 +3,12 @@
 A breaking change will get clearly marked in this log.
 
 
+## Unreleased
+
+### Added
+* `SorobanRpc.Server.simulateTransaction` now supports an optional `addlResources` parameter to allow users to specify additional resources that they want to include in a simulation ([#896](https://github.com/stellar/js-stellar-sdk/pull/896)).
+
+
 ## [v11.0.1](https://github.com/stellar/js-stellar-sdk/compare/v10.2.1...v11.0.0)
 
 ### Fixed
