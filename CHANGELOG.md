@@ -3,6 +3,12 @@
 A breaking change will get clearly marked in this log.
 
 
+## [v11.1.0](https://github.com/stellar/js-stellar-sdk/compare/v11.0.1...v11.1.0)
+
+### Fixed
+* All dependencies have been updated to their latest versions, including `stellar-base` to [v10.0.1](https://github.com/stellar/js-stellar-base/releases/tag/v10.0.1) which included a small patch ([TODO]()).
+
+
 ## [v11.0.1](https://github.com/stellar/js-stellar-sdk/compare/v10.2.1...v11.0.0)
 
 ### Fixed
