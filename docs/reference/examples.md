@@ -28,54 +28,57 @@ using modern Javascript, but `await` calls can also be rendered with promises.
 // That site exposes a global StellarSdk object you can use.
 // To run this code in the Chrome, open the console tab in the DevTools.
 // The hotkey to open the DevTools console is Ctrl+Shift+J or (Cmd+Opt+J on Mac).
-const StellarSdk = require('stellar-sdk');
+const {
+  Horizon,
+  Networks,
+  Asset,
+  Keypair,
+  Operation,
+  TransactionBuilder,
+} = require('@stellar/stellar-sdk');
 
 // The source account is the account we will be signing and sending from.
 const sourceSecretKey = 'SCZANGBA5YHTNYVVV4C3U252E2B6P6F5T3U6MM63WBSBZATAQI3EBTQ4';
 
 // Derive Keypair object and public key (that starts with a G) from the secret
-const sourceKeypair = StellarSdk.Keypair.fromSecret(sourceSecretKey);
+const sourceKeypair = Keypair.fromSecret(sourceSecretKey);
 const sourcePublicKey = sourceKeypair.publicKey();
 
 const receiverPublicKey = 'GAIRISXKPLOWZBMFRPU5XRGUUX3VMA3ZEWKBM5MSNRU3CHV6P4PYZ74D';
 
-// Configure StellarSdk to talk to the horizon instance hosted by Stellar.org
+// Configure the server to the Horizon instance hosted by Stellar.org
 // To use the live network, set the hostname to 'horizon.stellar.org'
-const server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
+const server = new Horizon.Server('https://horizon-testnet.stellar.org');
 
 (async function main() {
   // Transactions require a valid sequence number that is specific to this account.
   // We can fetch the current sequence number for the source account from Horizon.
   const account = await server.loadAccount(sourcePublicKey);
 
-
   // Right now, there's one function that fetches the base fee.
-  // In the future, we'll have functions that are smarter about suggesting fees,
-  // e.g.: `fetchCheapFee`, `fetchAverageFee`, `fetchPriorityFee`, etc.
   const fee = await server.fetchBaseFee();
 
-
-  const transaction = new StellarSdk.TransactionBuilder(account, {
+  const transaction = new TransactionBuilder(account, {
       fee,
       // Uncomment the following line to build transactions for the live network. Be
       // sure to also change the horizon hostname.
       // networkPassphrase: StellarSdk.Networks.PUBLIC,
-      networkPassphrase: StellarSdk.Networks.TESTNET
+      networkPassphrase: Networks.TESTNET
     })
     // Add a payment operation to the transaction
-    .addOperation(StellarSdk.Operation.payment({
+    .addOperation(Operation.payment({
       destination: receiverPublicKey,
       // The term native asset refers to lumens
-      asset: StellarSdk.Asset.native(),
+      asset: Asset.native(),
       // Specify 350.1234567 lumens. Lumens are divisible to seven digits past
-      // the decimal. They are represented in JS Stellar SDK in string format
-      // to avoid errors from the use of the JavaScript Number data structure.
+      // the decimal. They are represented in the SDK in string format to avoid
+      // errors from the use of the JavaScript Number data structure.
       amount: '350.1234567',
     }))
     // Make this transaction valid for the next 30 seconds only
     .setTimeout(30)
     // Uncomment to add a memo (https://developers.stellar.org/docs/glossary/transactions/)
-    // .addMemo(StellarSdk.Memo.text('Hello world!'))
+    // .addMemo(Memo.text('Hello world!'))
     .build();
 
   // Sign this transaction with the secret key
@@ -106,8 +109,8 @@ const server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
 Let's say you want to look at an account's transaction history.  You can use the `transactions()` command and pass in the account address to `forAccount` as the resource you're interested in.
 
 ```javascript
-const StellarSdk = require('stellar-sdk')
-const server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
+const StellarSdk = require('@stellar/stellar-sdk')
+const server = new StellarSdk.Horizon.Server('https://horizon-testnet.stellar.org');
 const accountId = 'GBBORXCY3PQRRDLJ7G7DWHQBXPCJVFGJ4RGMJQVAX6ORAUH6RWSPP6FM';
 
 server.transactions()
@@ -129,12 +132,13 @@ server.transactions()
 
 ## Streaming payment events
 
-js-stellar-sdk provides streaming support for Horizon endpoints using `EventSource`.  You can pass a function to handle any events that occur on the stream.
+The SDK provides streaming support for Horizon endpoints using `EventSource`.  You can pass a function to handle any events that occur on the stream.
 
 Try submitting a transaction (via the guide above) while running the following code example.
+
 ```javascript
-const StellarSdk = require('stellar-sdk')
-const server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
+const StellarSdk = require('@stellar/stellar-sdk')
+const server = new StellarSdk.Horizon.Server('https://horizon-testnet.stellar.org');
 
 // Get a message any time a payment occurs. Cursor is set to "now" to be notified
 // of payments happening starting from when this script runs (as opposed to from
