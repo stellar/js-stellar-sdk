@@ -33,6 +33,8 @@ jobs:
 
       - name: Deprecate the old package
         run: |
-          npm deprecate stellar-sdk@latest "⚠️ This package has moved to @stellar/stellar-sdk! 🚚"
+          V=$(cat package.json | jq '.version' | sed -e 's/\"//g')
+          echo "Deprecating stellar-sdk@$V"
+          npm deprecate stellar-sdk@"<= $V"⚠️ This package has moved to @stellar/stellar-sdk! 🚚"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
