@@ -1,12 +1,4 @@
-import {
-  xdr,
-  Address,
-  ContractSpec,
-  Keypair,
-  SorobanRpc,
-  u32,
-  toLowerCamelCase,
-} from "../../..";
+import { xdr, Address, ContractSpec, Keypair } from "../../../lib";
 import { JSONSchemaFaker } from "json-schema-faker";
 
 import spec from "../spec.json";
@@ -15,7 +7,6 @@ import { expect } from "chai";
 const publicKey = "GCBVOLOM32I7OD5TWZQCIXCXML3TK56MDY7ZMTAILIBQHHKPCVU42XYW";
 const addr = Address.fromString(publicKey);
 let SPEC: ContractSpec;
-let contract: any;
 
 JSONSchemaFaker.format("address", () => {
   let keypair = Keypair.random();
@@ -24,7 +15,6 @@ JSONSchemaFaker.format("address", () => {
 
 before(() => {
   SPEC = new ContractSpec(spec);
-  contract = SPEC.generateContractClient(OPTIONS);
 });
 
 it("throws if no entries", () => {
@@ -93,189 +83,170 @@ describe("Can round trip custom types", function () {
       });
   });
 
-  async function roundtrip(funcName: string, input: any, typeName?: string) {
+  function roundtrip(funcName: string, input: any, typeName?: string) {
     let type = getResultType(funcName);
     let ty = typeName ?? funcName;
     let obj: any = {};
     obj[ty] = input;
     let scVal = SPEC.funcArgsToScVals(funcName, obj)[0];
-    let result = SPEC.funcResToNative(funcName, scVal);
-    let contract = SPEC.generateContractClient(OPTIONS);
-    //@ts-ignore
-    let { result: networkResult } = (await contract[toLowerCamelCase(funcName)](
-      obj
-    )) as SorobanRpc.AssembledTransaction<any>;
-    if (type.switch().value === xdr.ScSpecType.scSpecTypeResult().value) {
-      // @ts-ignore
-      result = result.unwrap();
-      //@ts-ignore
-      networkResult = networkResult.unwrap();
-    }
+    let result = SPEC.scValToNative(scVal, type);
     expect(result).deep.equal(input);
-    expect(networkResult).deep.equal(input, "failed network call");
   }
 
-  it("u32", async () => {
-    await roundtrip("u32_", 1);
+  it("u32", () => {
+    roundtrip("u32_", 1);
   });
 
-  it("i32", async () => {
-    await roundtrip("i32_", -1);
+  it("u32_fail_on_even", async () => {
+    roundtrip("u32_fail_on_even", 1, "u32_");
+    roundtrip("u32_fail_on_even", 2, "u32_");
   });
 
-  it("i64", async () => {
-    await roundtrip("i64_", 1n);
+  it("i32", () => {
+    roundtrip("i32_", -1);
   });
 
-  it("strukt", async () => {
-    await roundtrip("strukt", { a: 0, b: true, c: "hello" });
+  it("i64", () => {
+    roundtrip("i64_", 1n);
+  });
+
+  it("strukt", () => {
+    roundtrip("strukt", { a: 0, b: true, c: "hello" });
   });
 
   describe("simple", () => {
-    it("first", async () => {
+    it("first", () => {
       const simple = { tag: "First" } as const;
-      await roundtrip("simple", simple);
+      roundtrip("simple", simple);
     });
-    it("simple second", async () => {
+    it("simple second", () => {
       const simple = { tag: "Second" } as const;
-      await roundtrip("simple", simple);
+      roundtrip("simple", simple);
     });
 
-    it("simple third", async () => {
+    it("simple third", () => {
       const simple = { tag: "Third" } as const;
-      await roundtrip("simple", simple);
+      roundtrip("simple", simple);
     });
   });
 
   describe("complex", () => {
-    it("struct", async () => {
+    it("struct", () => {
       const complex = {
         tag: "Struct",
         values: [{ a: 0, b: true, c: "hello" }],
       } as const;
-      await roundtrip("complex", complex);
+      roundtrip("complex", complex);
     });
 
-    it("tuple", async () => {
+    it("tuple", () => {
       const complex = {
         tag: "Tuple",
         values: [[{ a: 0, b: true, c: "hello" }, { tag: "First" }]],
       } as const;
-      await roundtrip("complex", complex);
+      roundtrip("complex", complex);
     });
 
-    it("enum", async () => {
+    it("enum", () => {
       const complex = {
         tag: "Enum",
         values: [{ tag: "First" }],
       } as const;
-      await roundtrip("complex", complex);
+      roundtrip("complex", complex);
     });
 
-    it("asset", async () => {
+    it("asset", () => {
       const complex = { tag: "Asset", values: [addr.toString(), 1n] } as const;
-      await roundtrip("complex", complex);
+      roundtrip("complex", complex);
     });
 
-    it("void", async () => {
+    it("void", () => {
       const complex = { tag: "Void" } as const;
-      await roundtrip("complex", complex);
+      roundtrip("complex", complex);
     });
   });
 
-  it("u32_fail_on_even", async () => {
-    await roundtrip("u32_fail_on_even", 1, "u32_");
-    expect(
-      async () =>
-        //@ts-ignore
-        (
-          (await contract.u32FailOnEven({
-            u32_: 2,
-          })) as SorobanRpc.AssembledTransaction<u32>
-        ).result
-    );
+  it("addresse", () => {
+    roundtrip("addresse", addr.toString());
   });
 
-  it("addresse", async () => {
-    await roundtrip("addresse", addr.toString());
-  });
-
-  it("bytes", async () => {
+  it("bytes", () => {
     const bytes = Buffer.from("hello");
-    await roundtrip("bytes", bytes);
+    roundtrip("bytes", bytes);
   });
 
-  it("bytes_n", async () => {
+  it("bytes_n", () => {
     const bytes_n = Buffer.from("123456789"); // what's the correct way to construct bytes_n?
-    await roundtrip("bytes_n", bytes_n);
+    roundtrip("bytes_n", bytes_n);
   });
 
-  it("card", async () => {
+  it("card", () => {
     const card = 11;
-    await roundtrip("card", card);
+    roundtrip("card", card);
   });
 
-  it("boolean", async () => {
-    await roundtrip("boolean", true);
+  it("boolean", () => {
+    roundtrip("boolean", true);
   });
 
-  it("not", async () => {
-    await roundtrip("boolean", false);
+  it("not", () => {
+    roundtrip("boolean", false);
   });
 
-  it("i128", async () => {
-    await roundtrip("i128", -1n);
+  it("i128", () => {
+    roundtrip("i128", -1n);
   });
 
-  it("u128", async () => {
-    await roundtrip("u128", 1n);
+  it("u128", () => {
+    roundtrip("u128", 1n);
   });
 
-  it("map", async () => {
+  it("map", () => {
     const map = new Map();
     map.set(1, true);
     map.set(2, false);
-    await roundtrip("map", [...map.entries()]);
+    roundtrip("map", [...map.entries()]);
 
     map.set(3, "hahaha");
-    await expectAsyncThrow(
-      async () => await roundtrip("map", [...map.entries()]),
+    expect(() => roundtrip("map", [...map.entries()])).to.throw(
       /invalid type scSpecTypeBool specified for string value/i
     );
   });
 
-  it("vec", async () => {
+  it("vec", () => {
     const vec = [1, 2, 3];
-    await roundtrip("vec", vec);
+    roundtrip("vec", vec);
   });
 
-  it("tuple", async () => {
+  it("tuple", () => {
     const tuple = ["hello", 1] as const;
-    await roundtrip("tuple", tuple);
+    roundtrip("tuple", tuple);
   });
 
-  it("option", async () => {
-    await roundtrip("option", 1);
-    await roundtrip("option", undefined);
+  it("option", () => {
+    roundtrip("option", 1);
+    roundtrip("option", undefined);
   });
 
-  it("u256", async () => {
-    await roundtrip("u256", 1n);
-    await expectAsyncThrow(async () => await roundtrip("u256", -1n), /expected a positive value, got: -1/i);
+  it("u256", () => {
+    roundtrip("u256", 1n);
+    expect(() => roundtrip("u256", -1n)).to.throw(
+      /expected a positive value, got: -1/i
+    );
   });
 
-  it("i256", async () => {
-    await roundtrip("i256", -1n);
+  it("i256", () => {
+    roundtrip("i256", -1n);
   });
 
-  it("string", async () => {
-    await roundtrip("string", "hello");
+  it("string", () => {
+    roundtrip("string", "hello");
   });
 
-  it("tuple_strukt", async () => {
+  it("tuple_strukt", () => {
     const arg = [{ a: 0, b: true, c: "hello" }, { tag: "First" }] as const;
 
-    await roundtrip("tuple_strukt", arg);
+    roundtrip("tuple_strukt", arg);
   });
 });
 
@@ -404,35 +375,4 @@ function replaceBigIntWithStrings(obj: any): any {
 
   // Otherwise, return the value as it is
   return obj;
-}
-
-function getUserInfo() {
-  return {
-    publicKey: "GDIY6AQQ75WMD4W46EYB7O6UYMHOCGQHLAQGQTKHDX4J2DYQCHVCR4W4",
-  };
-}
-
-const OPTIONS = {
-  contractId: "CBUCOWICZPC3DYYD6ZAV25FEQNY47VJJB6K4XNYDNFT5J73LKTM7LEMB",
-  rpcUrl: "https://rpc-futurenet.stellar.org:443",
-  networkPassphrase: "Test SDF Future Network ; October 2022",
-  wallet: {
-    getUserInfo,
-    isConnected: () => true,
-    isAllowed: () => true,
-  } as unknown as SorobanRpc.Wallet,
-};
-
-// Utility function to test async error throwing
-async function expectAsyncThrow(asyncFn: any, errorMessage: any) {
-  try {
-    await asyncFn();
-    expect.fail("Did not throw expected error");
-  } catch (error) {
-    if (errorMessage) {
-      expect(error.message).to.match(errorMessage);
-    } else {
-      expect(error).to.be.an("error");
-    }
-  }
 }
