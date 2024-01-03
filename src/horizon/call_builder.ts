@@ -121,6 +121,13 @@ export class CallBuilder<
 
     let createEventSource = (): EventSource => {
       try {
+        if (!EventSource) {
+          console.warn(
+            '⚠️ No EventSource provider found: there is no streaming support ' +
+            'unless you polyfill it (e.g. `npm i eventsource`).'
+          );
+        }
+
         es = new EventSource(this.url.toString());
       } catch (err) {
         if (options.onerror) {
