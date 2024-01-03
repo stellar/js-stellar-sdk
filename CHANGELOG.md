@@ -6,7 +6,31 @@ A breaking change will get clearly marked in this log.
 ## Unreleased
 
 ### Breaking Changes
-* Downstream consumers must now polyfill an `EventSource` provider if they do not have native support or must opt-out of Horizon streaming support. This can be done via the [`eventsource`](https://www.npmjs.com/package/eventsource) package ([#878](https://github.com/stellar/js-stellar-sdk/pull/878)).
+* Downstream consumers must now polyfill an `EventSource` provider if they do not have native support or must opt-out of Horizon streaming. This can be done via the [`eventsource`](https://www.npmjs.com/package/eventsource) package ([#878](https://github.com/stellar/js-stellar-sdk/pull/878)).
+
+
+## [v11.1.0](https://github.com/stellar/js-stellar-sdk/compare/v11.0.0...v11.1.0)
+
+### Added
+* `SorobanRpc.Server.simulateTransaction` now supports an optional `addlResources` parameter to allow users to specify additional resources that they want to include in a simulation ([#896](https://github.com/stellar/js-stellar-sdk/pull/896)).
+
+
+## [v11.0.1](https://github.com/stellar/js-stellar-sdk/compare/v10.2.1...v11.0.0)
+
+### Fixed
+* `SorobanRpc.Server.getEvents` uses the correct type for the start ledger.
+
+
+## [v11.0.0](https://github.com/stellar/js-stellar-sdk/compare/v10.2.1...v11.0.0)
+
+### Breaking Changes
+
+* The package has been renamed to `@stellar/stellar-sdk`.
+* The new minimum supported version is Node 18.
+* The `PaymentCallBuilder` was incorrectly indicating that it would return a collection of `Payment` records, while [in reality](https://developers.stellar.org/api/horizon/resources/list-all-payments) it can return a handful of "payment-like" records ([#885](https://github.com/stellar/js-stellar-sdk/pull/885)).
+
+### Fixed
+* The `SorobanRpc.Server.getEvents` method now correctly parses responses without a `contractId` field set. The `events[i].contractId` field on an event is now optional, omitted if there was no ID for the event (e.g. system events;  ([#883](https://github.com/stellar/js-stellar-sdk/pull/883))).
 
 
 ## [v11.0.0-beta.6](https://github.com/stellar/js-stellar-sdk/compare/v11.0.0-beta.5...v11.0.0-beta.6)

@@ -17,9 +17,6 @@ describe("Server#getAccount", function () {
   const key = xdr.LedgerKey.account(new xdr.LedgerKeyAccount({ accountId }));
   const accountEntry =
     "AAAAAAAAAABzdv3ojkzWHMD7KUoXhrPx0GH18vHKV0ZfqpMiEblG1g3gtpoE608YAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAADAAAAAAAAAAQAAAAAY9D8iA";
-  const ledgerExpirationKey = xdr.LedgerKey.expiration(
-    new xdr.LedgerKeyExpiration({ keyHash: hash(key.toXDR()) }),
-  );
 
   it("requests the correct method", function (done) {
     this.axiosMock
@@ -28,7 +25,7 @@ describe("Server#getAccount", function () {
         jsonrpc: "2.0",
         id: 1,
         method: "getLedgerEntries",
-        params: [[key.toXDR("base64"), ledgerExpirationKey.toXDR("base64")]],
+        params: [[key.toXDR("base64")]],
       })
       .returns(
         Promise.resolve({
@@ -58,9 +55,6 @@ describe("Server#getAccount", function () {
 
   it("throws a useful error when the account is not found", function (done) {
     const address = "GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI";
-    const accountId = xdr.PublicKey.publicKeyTypeEd25519(
-      StrKey.decodeEd25519PublicKey(address),
-    );
 
     this.axiosMock
       .expects("post")
@@ -68,7 +62,7 @@ describe("Server#getAccount", function () {
         jsonrpc: "2.0",
         id: 1,
         method: "getLedgerEntries",
-        params: [[key.toXDR("base64"), ledgerExpirationKey.toXDR("base64")]],
+        params: [[key.toXDR("base64")]],
       })
       .returns(
         Promise.resolve({

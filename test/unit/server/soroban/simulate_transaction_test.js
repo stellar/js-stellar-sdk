@@ -5,6 +5,7 @@ const {
   SorobanRpc,
   SorobanDataBuilder,
   authorizeInvocation,
+  authorizeEntry,
   xdr,
 } = StellarSdk;
 const { Server, AxiosClient, parseRawSimulation } = StellarSdk.SorobanRpc;
@@ -80,7 +81,9 @@ describe("Server#simulateTransaction", async function (done) {
         jsonrpc: "2.0",
         id: 1,
         method: "simulateTransaction",
-        params: [this.blob],
+        params: {
+          transaction: this.blob
+        }
       })
       .returns(
         Promise.resolve({ data: { id: 1, result: simulationResponse } }),
@@ -97,6 +100,33 @@ describe("Server#simulateTransaction", async function (done) {
       });
   });
 
+  it("simulates a transaction with add'l resource usage", function (done) {
+    this.axiosMock
+      .expects("post")
+      .withArgs(serverUrl, {
+        jsonrpc: "2.0",
+        id: 1,
+        method: "simulateTransaction",
+        params: {
+          transaction: this.blob,
+          resourceConfig: { instructionLeeway: 100 }
+        }
+      })
+      .returns(
+        Promise.resolve({ data: { id: 1, result: simulationResponse } }),
+      );
+
+    this.server
+      .simulateTransaction(this.transaction, { cpuInstructions: 100 })
+      .then(function (response) {
+        expect(response).to.be.deep.equal(parsedSimulationResponse);
+        done();
+      })
+      .catch(function (err) {
+        done(err);
+      });
+  });
+
   it("works when there are no results", function () {
     const simResponse = baseSimulationResponse();
     const parsedCopy = cloneSimulation(parsedSimulationResponse);
@@ -104,7 +134,7 @@ describe("Server#simulateTransaction", async function (done) {
 
     const parsed = parseRawSimulation(simResponse);
     expect(parsed).to.deep.equal(parsedCopy);
-    expect(SorobanRpc.Api.assembleTransaction(parsed)).to.be.true;
+    expect(SorobanRpc.Api.isSimulationSuccess(parsed)).to.be.true;
   });
 
   it("works with no auth", async function () {
@@ -116,7 +146,7 @@ describe("Server#simulateTransaction", async function (done) {
       const parsed = parseRawSimulation(simResponse);
 
       expect(parsed).to.be.deep.equal(parsedCopy);
-      expect(SorobanRpc.Api.assembleTransaction(parsed)).to.be.true;
+      expect(SorobanRpc.Api.isSimulationSuccess(parsed)).to.be.true;
     });
   });
 
@@ -130,7 +160,7 @@ describe("Server#simulateTransaction", async function (done) {
         };
 
         const parsed = parseRawSimulation(simResponse);
-        expect(StellarSdk.Api.isSimulationRestore(parsed)).to.be.true;
+        expect(SorobanRpc.Api.isSimulationRestore(parsed)).to.be.true;
         expect(parsed).to.be.deep.equal(expected);
       },
     );
@@ -150,12 +180,10 @@ describe("Server#simulateTransaction", async function (done) {
 
     const parsed = parseRawSimulation(simResponse);
     expect(parsed).to.be.deep.equal(expected);
-    expect(StellarSdk.Api.isSimulationError(parsed)).to.be.true;
+    expect(SorobanRpc.Api.isSimulationError(parsed)).to.be.true;
   });
 
   xit("simulates fee bump transactions");
-
-  done();
 });
 
 function cloneSimulation(sim) {
@@ -196,10 +224,10 @@ async function buildAuthEntry(address) {
 
   // do some voodoo to make this return a deterministic auth entry
   const kp = Keypair.fromSecret(randomSecret);
-  let entry = authorizeInvocation(kp, 1, root);
-  entry.credentials().address().nonce(new xdr.Int64(0xdeadbeef));
-
-  return authorizeEntry(entry, kp, 1); // overwrites signature w/ above nonce
+  return authorizeInvocation(kp, 1, root).then((entry) => {
+    entry.credentials().address().nonce(new xdr.Int64(0xdeadbeef));
+    return authorizeEntry(entry, kp, 1); // overwrites signature w/ above nonce
+  });
 }
 
 async function invokeSimulationResponse(address) {

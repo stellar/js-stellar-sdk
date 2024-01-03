@@ -1,6 +1,4 @@
-import { AssetType, Contract, SorobanDataBuilder, xdr } from 'stellar-base';
-
-// TODO: Better parsing for hashes
+import { AssetType, Contract, SorobanDataBuilder, xdr } from '@stellar/stellar-base';
 
 /* tslint:disable-next-line:no-namespace */
 /** @namespace Api */
@@ -26,7 +24,7 @@ export namespace Api {
     lastModifiedLedgerSeq?: number;
     key: xdr.LedgerKey;
     val: xdr.LedgerEntryData;
-    expirationLedgerSeq?: number;
+    liveUntilLedgerSeq?: number;
   }
 
   export interface RawLedgerEntryResult {
@@ -38,7 +36,7 @@ export namespace Api {
     /** optional, a future ledger number upon which this entry will expire
      *  based on https://github.com/stellar/soroban-tools/issues/1010
      */
-    expirationLedgerSeq?: number;
+    liveUntilLedgerSeq?: number;
   }
 
   /** An XDR-parsed version of {@link RawLedgerEntryResult} */
@@ -53,16 +51,14 @@ export namespace Api {
     latestLedger: number;
   }
 
-  /* Response for jsonrpc method `getNetwork`
-   */
+  /** @see https://soroban.stellar.org/api/methods/getNetwork */
   export interface GetNetworkResponse {
     friendbotUrl?: string;
     passphrase: string;
     protocolVersion: string;
   }
 
-  /* Response for jsonrpc method `getLatestLedger`
-   */
+  /** @see https://soroban.stellar.org/api/methods/getLatestLedger */
   export interface GetLatestLedgerResponse {
     id: string;
     sequence: number;
@@ -75,6 +71,7 @@ export namespace Api {
     FAILED = 'FAILED'
   }
 
+  /** @see https://soroban.stellar.org/api/methods/getTransaction */
   export type GetTransactionResponse =
     | GetSuccessfulTransactionResponse
     | GetFailedTransactionResponse
@@ -82,9 +79,9 @@ export namespace Api {
 
   interface GetAnyTransactionResponse {
     status: GetTransactionStatus;
-    latestLedger: string;
+    latestLedger: number;
     latestLedgerCloseTime: number;
-    oldestLedger: string;
+    oldestLedger: number;
     oldestLedgerCloseTime: number;
   }
 
@@ -123,9 +120,9 @@ export namespace Api {
 
   export interface RawGetTransactionResponse {
     status: GetTransactionStatus;
-    latestLedger: string;
+    latestLedger: number;
     latestLedgerCloseTime: number;
-    oldestLedger: string;
+    oldestLedger: number;
     oldestLedgerCloseTime: number;
 
     // the fields below are set if status is SUCCESS
@@ -147,36 +144,34 @@ export namespace Api {
   }
 
   export interface GetEventsResponse {
-    latestLedger: string;
+    latestLedger: number;
     events: EventResponse[];
   }
 
   interface EventResponse extends BaseEventResponse {
-    contractId: Contract;
+    contractId?: Contract;
     topic: xdr.ScVal[];
     value: xdr.ScVal;
   }
 
   export interface RawGetEventsResponse {
-    latestLedger: string;
+    latestLedger: number;
     events: RawEventResponse[];
   }
 
   interface BaseEventResponse {
     id: string;
     type: EventType;
-    ledger: string;
+    ledger: number;
     ledgerClosedAt: string;
     pagingToken: string;
     inSuccessfulContractCall: boolean;
   }
 
-  interface RawEventResponse extends BaseEventResponse {
+  export interface RawEventResponse extends BaseEventResponse {
     contractId: string;
     topic: string[];
-    value: {
-      xdr: string;
-    };
+    value: string;
   }
 
   export interface RequestAirdropResponse {
@@ -238,7 +233,7 @@ export namespace Api {
     id: string;
 
     /** always present: the LCL known to the server when responding */
-    latestLedger: string;
+    latestLedger: number;
 
     /**
      * The field is always present, but may be empty in cases where:
@@ -328,7 +323,7 @@ export namespace Api {
   /** @see https://soroban.stellar.org/api/methods/simulateTransaction#returns */
   export interface RawSimulateTransactionResponse {
     id: string;
-    latestLedger: string;
+    latestLedger: number;
     error?: string;
     // this is an xdr.SorobanTransactionData in base64
     transactionData?: string;

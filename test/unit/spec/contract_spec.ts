@@ -1,6 +1,6 @@
-import { xdr, Address, ContractSpec } from "../../lib";
+import { xdr, Address, ContractSpec, Keypair } from "../../../lib";
+import { JSONSchemaFaker } from "json-schema-faker";
 
-//@ts-ignore
 import spec from "../spec.json";
 import { expect } from "chai";
 
@@ -8,16 +8,22 @@ const publicKey = "GCBVOLOM32I7OD5TWZQCIXCXML3TK56MDY7ZMTAILIBQHHKPCVU42XYW";
 const addr = Address.fromString(publicKey);
 let SPEC: ContractSpec;
 
+JSONSchemaFaker.format("address", () => {
+  let keypair = Keypair.random();
+  return keypair.publicKey();
+});
+
 before(() => {
   SPEC = new ContractSpec(spec);
-})
+});
 
 it("throws if no entries", () => {
-  expect(() => new ContractSpec([])).to.throw(/Contract spec must have at least one entry/i);
+  expect(() => new ContractSpec([])).to.throw(
+    /Contract spec must have at least one entry/i
+  );
 });
 
 describe("Can round trip custom types", function () {
-
   function getResultType(funcName: string): xdr.ScSpecTypeDef {
     let fn = SPEC.findEntry(funcName).value();
     if (!(fn instanceof xdr.ScSpecFunctionV0)) {
@@ -28,6 +34,54 @@ describe("Can round trip custom types", function () {
     }
     return fn.outputs()[0];
   }
+
+  async function jsonSchema_roundtrip(
+    spec: ContractSpec,
+    funcName: string,
+    num: number = 100
+  ) {
+    let funcSpec = spec.jsonSchema(funcName);
+
+    for (let i = 0; i < num; i++) {
+      let arg = await JSONSchemaFaker.resolve(funcSpec)!;
+      // @ts-ignore
+      let res = arg.args;
+      try {
+        let scVal = SPEC.funcArgsToScVals(funcName, res)[0];
+        let result = SPEC.funcResToNative(funcName, scVal);
+        if (funcName.startsWith("bytes")) {
+          res[funcName] = Buffer.from(res[funcName], "base64");
+        }
+        let expected = res[funcName];
+        let actual = replaceBigIntWithStrings(result);
+        expect(expected).deep.equal(actual);
+      } catch (e) {
+        console.error(
+          funcName,
+          JSON.stringify(arg, null, 2),
+
+          "\n",
+          //@ts-ignore
+          JSON.stringify(funcSpec.definitions![funcName]["properties"], null, 2)
+        );
+        throw e;
+      }
+    }
+  }
+
+  describe("Json Schema", () => {
+    SPEC = new ContractSpec(spec);
+    let names = SPEC.funcs().map((f) => f.name().toString());
+    const banned = ["strukt_hel", "not", "woid", "val", "multi_args"];
+    names
+      .filter((name) => !name.includes("fail"))
+      .filter((name) => !banned.includes(name))
+      .forEach((name) => {
+        it(name, async () => {
+          await jsonSchema_roundtrip(SPEC, name);
+        });
+      });
+  });
 
   function roundtrip(funcName: string, input: any, typeName?: string) {
     let type = getResultType(funcName);
@@ -57,16 +111,16 @@ describe("Can round trip custom types", function () {
 
   describe("simple", () => {
     it("first", () => {
-      const simple = { tag: "First", values: undefined } as const;
+      const simple = { tag: "First" } as const;
       roundtrip("simple", simple);
     });
     it("simple second", () => {
-      const simple = { tag: "Second", values: undefined } as const;
+      const simple = { tag: "Second" } as const;
       roundtrip("simple", simple);
     });
 
     it("simple third", () => {
-      const simple = { tag: "Third", values: undefined } as const;
+      const simple = { tag: "Third" } as const;
       roundtrip("simple", simple);
     });
   });
@@ -83,12 +137,7 @@ describe("Can round trip custom types", function () {
     it("tuple", () => {
       const complex = {
         tag: "Tuple",
-        values: [
-          [
-            { a: 0, b: true, c: "hello" },
-            { tag: "First", values: undefined },
-          ],
-        ],
+        values: [[{ a: 0, b: true, c: "hello" }, { tag: "First" }]],
       } as const;
       roundtrip("complex", complex);
     });
@@ -96,24 +145,24 @@ describe("Can round trip custom types", function () {
     it("enum", () => {
       const complex = {
         tag: "Enum",
-        values: [{ tag: "First", values: undefined }],
+        values: [{ tag: "First" }],
       } as const;
       roundtrip("complex", complex);
     });
 
     it("asset", () => {
-      const complex = { tag: "Asset", values: [addr, 1n] } as const;
+      const complex = { tag: "Asset", values: [addr.toString(), 1n] } as const;
       roundtrip("complex", complex);
     });
 
     it("void", () => {
-      const complex = { tag: "Void", values: undefined } as const;
+      const complex = { tag: "Void" } as const;
       roundtrip("complex", complex);
     });
   });
 
   it("addresse", () => {
-    roundtrip("addresse", addr);
+    roundtrip("addresse", addr.toString());
   });
 
   it("bytes", () => {
@@ -151,10 +200,12 @@ describe("Can round trip custom types", function () {
     const map = new Map();
     map.set(1, true);
     map.set(2, false);
-    roundtrip("map", map);
+    roundtrip("map", [...map.entries()]);
 
-    map.set(3, "hahaha")
-    expect(() => roundtrip("map", map)).to.throw(/invalid type scSpecTypeBool specified for string value/i);
+    map.set(3, "hahaha");
+    expect(() => roundtrip("map", [...map.entries()])).to.throw(
+      /invalid type scSpecTypeBool specified for string value/i
+    );
   });
 
   it("vec", () => {
@@ -174,7 +225,9 @@ describe("Can round trip custom types", function () {
 
   it("u256", () => {
     roundtrip("u256", 1n);
-    expect(() =>roundtrip("u256", -1n)).to.throw(/expected a positive value, got: -1/i)
+    expect(() => roundtrip("u256", -1n)).to.throw(
+      /expected a positive value, got: -1/i
+    );
   });
 
   it("i256", () => {
@@ -186,12 +239,16 @@ describe("Can round trip custom types", function () {
   });
 
   it("tuple_strukt", () => {
-    const arg = [
-      { a: 0, b: true, c: "hello" },
-      { tag: "First", values: undefined },
-    ] as const;
+    const arg = [{ a: 0, b: true, c: "hello" }, { tag: "First" }] as const;
 
     roundtrip("tuple_strukt", arg);
+  });
+});
+
+describe.skip("Print contract spec", function () {
+  it("print", function () {
+    let res = JSON.stringify(SPEC.jsonSchema("complex"), null, 2);
+    console.log("complex schema: " + res);
   });
 });
 
@@ -287,3 +344,30 @@ let func = xdr.ScSpecEntry.scSpecEntryFunctionV0(
     outputs: [GIGA_MAP_TYPE],
   })
 );
+
+function replaceBigIntWithStrings(obj: any): any {
+  if (obj instanceof Buffer) {
+    return obj;
+  }
+  // If obj is an array, process each element
+  if (Array.isArray(obj)) {
+    return obj.map(replaceBigIntWithStrings);
+  }
+
+  // If obj is an object, process each property
+  else if (obj !== null && typeof obj === "object") {
+    const newObj: any = {};
+    for (const [key, value] of Object.entries(obj)) {
+      newObj[key] = replaceBigIntWithStrings(value);
+    }
+    return newObj;
+  }
+
+  // If obj is a BigInt, convert it to a string
+  else if (typeof obj === "bigint") {
+    return obj.toString();
+  }
+
+  // Otherwise, return the value as it is
+  return obj;
+}

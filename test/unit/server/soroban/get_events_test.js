@@ -19,7 +19,7 @@ describe("Server#getEvents", function () {
       {
         filters: [],
         pagination: {},
-        startLedger: "1",
+        startLedger: 1,
       },
       result,
     );
@@ -45,7 +45,7 @@ describe("Server#getEvents", function () {
     setupMock(
       this.axiosMock,
       {
-        startLedger: "1",
+        startLedger: 1,
         filters: [
           {
             topics: [["*", "*"]],
@@ -67,6 +67,7 @@ describe("Server#getEvents", function () {
       })
       .then(function (response) {
         expect(response).to.be.deep.equal(parseEvents(result));
+        expect(response.events[0].contractId).to.be.undefined;
         done();
       })
       .catch(done);
@@ -85,7 +86,7 @@ describe("Server#getEvents", function () {
     setupMock(
       this.axiosMock,
       {
-        startLedger: "1",
+        startLedger: 1,
         filters: [
           {
             topics: [[topicVals[0], topicVals[1]]],
@@ -125,7 +126,7 @@ describe("Server#getEvents", function () {
     setupMock(
       this.axiosMock,
       {
-        startLedger: "2",
+        startLedger: 2,
         filters: [
           {
             topics: [[topicVals[0], "*"]],
@@ -239,14 +240,12 @@ let getEventsResponseFixture = [
     type: "system",
     ledger: "1",
     ledgerClosedAt: "2022-11-16T16:10:41Z",
-    contractId,
+    contractId: "",
     id: "0164090849041387521-0000000003",
     pagingToken: "164090849041387521-3",
     inSuccessfulContractCall: true,
     topic: topicVals.slice(0, 2),
-    value: {
-      xdr: eventVal,
-    },
+    value: eventVal,
   },
   {
     type: "contract",
@@ -257,9 +256,7 @@ let getEventsResponseFixture = [
     pagingToken: "164090849041387521-3",
     inSuccessfulContractCall: true,
     topic: topicVals.slice(0, 2),
-    value: {
-      xdr: eventVal,
-    },
+    value: eventVal,
   },
   {
     type: "diagnostic",
@@ -270,9 +267,7 @@ let getEventsResponseFixture = [
     pagingToken: "164090849041387521-3",
     inSuccessfulContractCall: true,
     topic: [topicVals[0]],
-    value: {
-      xdr: eventVal,
-    },
+    value: eventVal,
   },
   {
     type: "contract",
@@ -283,8 +278,6 @@ let getEventsResponseFixture = [
     pagingToken: "0000000171798695936-0000000001",
     inSuccessfulContractCall: true,
     topic: topicVals,
-    value: {
-      xdr: eventVal,
-    },
+    value: eventVal,
   },
 ];

@@ -186,9 +186,7 @@ describe("assembleTransaction", () => {
         StellarSdk.Operation.invokeHostFunction({
           func: xdr.HostFunction.hostFunctionTypeInvokeContract(),
         }),
-        StellarSdk.Operation.bumpFootprintExpiration({
-          ledgersToExpire: 27,
-        }),
+        StellarSdk.Operation.extendFootprintTtl({ extendTo: 27 }),
         StellarSdk.Operation.restoreFootprint(),
       ].forEach((op) => {
         const txn = new StellarSdk.TransactionBuilder(source, {

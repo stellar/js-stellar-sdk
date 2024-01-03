@@ -3,7 +3,7 @@ import {
   Operation,
   Transaction,
   TransactionBuilder
-} from 'stellar-base';
+} from '@stellar/stellar-base';
 
 import { Api } from './api';
 import { parseRawSimulation } from './parsers';
@@ -42,7 +42,7 @@ export function assembleTransaction(
   if (!isSorobanTransaction(raw)) {
     throw new TypeError(
       'unsupported transaction: must contain exactly one ' +
-        'invokeHostFunction, bumpFootprintExpiration, or restoreFootprint ' +
+        'invokeHostFunction, extendFootprintTtl, or restoreFootprint ' +
         'operation'
     );
   }
@@ -101,7 +101,7 @@ function isSorobanTransaction(tx: Transaction): boolean {
 
   switch (tx.operations[0].type) {
     case 'invokeHostFunction':
-    case 'bumpFootprintExpiration':
+    case 'extendFootprintTtl':
     case 'restoreFootprint':
       return true;
 

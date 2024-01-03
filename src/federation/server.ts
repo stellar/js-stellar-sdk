@@ -1,5 +1,5 @@
 import axios from "axios";
-import { StrKey } from "stellar-base";
+import { StrKey } from "@stellar/stellar-base";
 import URI from "urijs";
 
 import { Config } from "../config";
