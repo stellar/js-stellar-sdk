@@ -73,7 +73,7 @@ const config = {
     }),
   ],
   externals: {
-    "eventsource": ['umd', "EventSource"],
+    'eventsource': ['umd', 'EventSource'],
   }
 };
 
