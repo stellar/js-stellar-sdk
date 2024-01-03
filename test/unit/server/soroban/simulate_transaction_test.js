@@ -82,8 +82,8 @@ describe("Server#simulateTransaction", async function (done) {
         id: 1,
         method: "simulateTransaction",
         params: {
-          transaction: this.blob
-        }
+          transaction: this.blob,
+        },
       })
       .returns(
         Promise.resolve({ data: { id: 1, result: simulationResponse } }),
@@ -109,8 +109,8 @@ describe("Server#simulateTransaction", async function (done) {
         method: "simulateTransaction",
         params: {
           transaction: this.blob,
-          resourceConfig: { instructionLeeway: 100 }
-        }
+          resourceConfig: { instructionLeeway: 100 },
+        },
       })
       .returns(
         Promise.resolve({ data: { id: 1, result: simulationResponse } }),

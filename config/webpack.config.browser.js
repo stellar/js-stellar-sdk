@@ -72,7 +72,9 @@ const config = {
       Buffer: ['buffer', 'Buffer']
     }),
   ],
-  externals: "eventsource",
+  externals: {
+    "eventsource": ['umd', "EventSource"],
+  }
 };
 
 module.exports = config;
