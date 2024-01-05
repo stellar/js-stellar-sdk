@@ -7,6 +7,12 @@ import {
   Contract,
   scValToBigInt,
 } from ".";
+import {
+  AssembledTransaction,
+  ContractClient,
+  ContractClientOptions,
+  MethodOptions,
+} from './soroban';
 
 export interface Union<T> {
   tag: string;
@@ -163,7 +169,9 @@ export class ContractSpec {
     }
     let output = outputs[0];
     if (output.switch().value === xdr.ScSpecType.scSpecTypeResult().value) {
-      return this.scValToNative(val, output.result().okType());
+      return new AssembledTransaction.Result.Ok(
+        this.scValToNative(val, output.result().okType())
+      );
     }
     return this.scValToNative(val, output);
   }
@@ -679,6 +687,60 @@ export class ContractSpec {
   }
 
   /**
+   * Gets the XDR error cases from the spec.
+   *
+   * @returns {xdr.ScSpecFunctionV0[]} all contract functions
+   *
+   */
+  errorCases(): xdr.ScSpecUdtErrorEnumCaseV0[] {
+    return this.entries
+      .filter(
+        (entry) =>
+          entry.switch().value ===
+          xdr.ScSpecEntryKind.scSpecEntryUdtErrorEnumV0().value
+      )
+      .flatMap((entry) => (entry.value() as xdr.ScSpecUdtErrorEnumV0).cases());
+  }
+
+  /**
+   * Generate a class from the contract spec that where each contract method gets included with a possibly-JSified name.
+   *
+   * Each method returns an AssembledTransaction object that can be used to sign and submit the transaction.
+   */
+  generateContractClient(options: ContractClientOptions): ContractClient {
+    const spec = this;
+    let methods = this.funcs();
+    const contractClient = new ContractClient(spec, options);
+    for (let method of methods) {
+      let name = method.name().toString();
+      let jsName = toLowerCamelCase(name);
+      // @ts-ignore
+      contractClient[jsName] = async (
+        args: Record<string, any>,
+        options: MethodOptions
+      ) => {
+        return await AssembledTransaction.fromSimulation({
+          method: name,
+          args: spec.funcArgsToScVals(name, args),
+          ...options,
+          ...contractClient.options,
+          errorTypes: spec
+            .errorCases()
+            .reduce(
+              (acc, curr) => ({
+                ...acc,
+                [curr.value()]: { message: curr.doc().toString() },
+              }),
+              {} as Pick<ContractClientOptions, "errorTypes">
+            ),
+          parseResultXdr: (result: xdr.ScVal) => spec.funcResToNative(name, result),
+        });
+      };
+    }
+    return contractClient;
+  }
+
+  /**
    * Converts the contract spec to a JSON schema.
    *
    * If `funcName` is provided, the schema will be a reference to the function schema.
@@ -1138,3 +1200,23 @@ function enumToJsonSchema(udt: xdr.ScSpecUdtEnumV0): any {
   }
   return res;
 }
+
+/**
+ * converts a snake_case string to camelCase
+ */
+export function toLowerCamelCase(str: string): string {
+  return str.replace(/_\w/g, (m) => m[1].toUpperCase());
+}
+
+export type u32 = number;
+export type i32 = number;
+export type u64 = bigint;
+export type i64 = bigint;
+export type u128 = bigint;
+export type i128 = bigint;
+export type u256 = bigint;
+export type i256 = bigint;
+export type Option<T> = T | undefined;
+export type Typepoint = bigint;
+export type Duration = bigint;
+

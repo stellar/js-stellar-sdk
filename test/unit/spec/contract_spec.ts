@@ -97,6 +97,11 @@ describe("Can round trip custom types", function () {
     roundtrip("u32_", 1);
   });
 
+  it("u32_fail_on_even", async () => {
+    roundtrip("u32_fail_on_even", 1, "u32_");
+    roundtrip("u32_fail_on_even", 2, "u32_");
+  });
+
   it("i32", () => {
     roundtrip("i32_", -1);
   });
