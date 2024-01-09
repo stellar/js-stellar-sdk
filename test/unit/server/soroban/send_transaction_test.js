@@ -52,7 +52,12 @@ describe("Server#sendTransaction", function () {
 
     this.server
       .sendTransaction(this.transaction)
-      .then(function () {
+      .then(function (r) {
+        expect(r.status).to.eql("PENDING");
+        expect(r.errorResult).to.be.undefined;
+        expect(r.errorResultXdr).to.be.undefined;
+        expect(r.diagnosticEvents).to.be.undefined;
+        expect(r.diagnosticEventsXdr).to.be.undefined;
         done();
       })
       .catch(function (err) {
