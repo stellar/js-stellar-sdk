@@ -25,44 +25,30 @@ It provides:
   Stellar Horizon instance, and for submitting transactions or querying network
   history.
 
-Jump to:
+**Jump to:**
 
- * [Quick Start](#quick-start): hit the ground running
- * [Usage](#usage)
+ * [Installation](#installation): details on hitting the ground running
+ * [Usage](#usage): links to documentation and a variety of workarounds for non-traditional JavaScript environments
    - [...with React Native](#usage-with-react-native)
    - [...with Expo](#usage-with-expo-managed-workflows)
    - [...with CloudFlare Workers](#usage-with-cloudflare-workers)
- * [Developing]()
+ * [Developing](#developing): contribute to the project!
  * [Miscellaneous](#miscellaneous)
    - [Understanding `stellar-sdk` vs. `stellar-base`](#stellar-sdk-vs-stellar-base)
    - [Contribution Guide](#contributing-and-publishing)
    - [License](#license)
 
-## Quick start
+## Installation
 
-Using npm to include `stellar-sdk` in your own project:
+Using npm or yarn to include `stellar-sdk` in your own project:
 
 ```shell
 npm install --save @stellar/stellar-sdk
+# or
+yarn add @stellar/stellar-sdk
 ```
 
-Alternatively, you can use cdnjs in a browser:
-
-```html
-<script src="https://cdnjs.cloudflare.com/ajax/libs/stellar-sdk/{version}/stellar-sdk.js"></script>
-```
-
-## Install
-
-### To use as a module in a Node.js project
-
-1. Install it using npm:
-
-```shell
-npm install --save stellar-sdk
-```
-
-2. require/import it in your JavaScript:
+Then, require or import it in your JavaScript code:
 
 ```js
 var StellarSdk = require('@stellar/stellar-sdk');
@@ -70,15 +56,23 @@ var StellarSdk = require('@stellar/stellar-sdk');
 import * as StellarSdk from '@stellar/stellar-sdk';
 ```
 
-### To self host for use in the browser
+(Preferably, you would only import the pieces you need to enable tree-shaking and lower your final bundle sizes.)
 
-1. Install it using [bower](http://bower.io):
+### Browsers
+
+You can use a CDN:
+
+```html
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stellar-sdk/{version}/stellar-sdk.js"></script>
+```
+
+Note that this method relies using a third party to host the JS library. This may not be entirely secure. You can self-host it via [Bower](http://bower.io):
 
 ```shell
 bower install @stellar/stellar-sdk
 ```
 
-2. Include it in the browser:
+and include it in the browser:
 
 ```html
 <script src="./bower_components/stellar-sdk/stellar-sdk.js"></script>
@@ -87,27 +81,10 @@ bower install @stellar/stellar-sdk
 </script>
 ```
 
-If you don't want to use or install Bower, you can copy built JS files from the
-[bower-js-stellar-sdk repo](https://github.com/stellar/bower-js-stellar-sdk).
+If you don't want to use or install Bower, you can copy the packaged JS files from the [Bower repo](https://github.com/stellar/bower-js-stellar-sdk), or just build the package yourself locally (see [Developing :right_arrow: Building](#building)) and copy the bundle.
 
-### To use the [cdnjs](https://cdnjs.com/libraries/stellar-sdk) hosted script in the browser
-
-1. Instruct the browser to fetch the library from
-   [cdnjs](https://cdnjs.com/libraries/stellar-sdk), a 3rd party service that
-   hosts js libraries:
-
-```html
-<script src="https://cdnjs.cloudflare.com/ajax/libs/stellar-sdk/{version}/stellar-sdk.js"></script>
-<script>
-  console.log(StellarSdk);
-</script>
-```
-
-Note that this method relies using a third party to host the JS library. This
-may not be entirely secure.
-
-Make sure that you are using the latest version number. They can be found on the
-[releases page in Github](https://github.com/stellar/js-stellar-sdk/releases).
+| Always make sure that you are using the latest version number. They can be found on the [releases page](https://github.com/stellar/js-stellar-sdk/releases) in GitHub. |
+|----|
 
 ## Usage
 
@@ -169,10 +146,34 @@ const generateRandomKeypair = () => {
 
 #### Usage with CloudFlare Workers
 
+Both `eventsource` (needed for streaming) and `axios` (needed for making HTTP requests) are problematic dependencies in the CFW environment. The experimental branch [`make-eventsource-optional`](https://github.com/stellar/js-stellar-sdk/pull/901) is an attempt to resolve these issues.
+
+It requires the following additional tweaks to your project:
+ * the `axios-fetch-adapter` lets you use `axios` with `fetch` as a backend, which is available to CF workers
+ * it only works with `axios@"<= 1.0.0"` versions, so we need to force an override into the underlying dependency
+ * and this can be problematic with newer `yarn` versions, so we need to force the environment to use Yarn 1
+
+In summary, the `package.json` tweaks look something like this:
+
+```jsonc
+"dependencies": {
+  // ...
+  "@stellar/stellar-sdk": "git+https://github.com/stellar/js-stellar-sdk#make-eventsource-optional",
+  "@vespaiach/axios-fetch-adapter": "^0.3.1",
+  "axios": "^0.26.1"
+},
+"overrides": {
+  "@stellar/stellar-sdk": {
+    "axios": "$axios"
+  }
+},
+"packageManager": "yarn@1.22.19"
+```
+
 
 ## Developing
 
-### To develop and test js-stellar-sdk itself
+So you want to contribute to the library: welcome! Whether you're working on a fork or want to make an upstream request, the dev-test loop is pretty straightforward.
 
 1. Clone the repo:
 
@@ -194,23 +195,30 @@ Because we support the oldest maintenance version of Node, please install and de
 Here's how to install `nvm` if you haven't: https://github.com/creationix/nvm
 
 ```shell
-nvm install
+nvm install 18
 
-# if you've never installed 16 before you'll want to re-install yarn
+# if you've never installed 18 before you'll want to re-install yarn
 npm install -g yarn
 ```
 
-If you work on several projects that use different Node versions, you might it
-helpful to install this automatic version manager:
-https://github.com/wbyoung/avn
+If you work on several projects that use different Node versions, you might it helpful to install this automatic version manager: https://github.com/wbyoung/avn
 
 4. Observe the project's code style
 
 While you're making changes, make sure to run the linter to catch any linting
-errors (in addition to making sure your text editor supports ESLint)
+errors (in addition to making sure your text editor supports ESLint) and conform to the project's code style.
 
 ```shell
 yarn fmt
+```
+
+### Building
+You can build the developer version (unoptimized, commented, with source maps, etc.) or the production bundles:
+
+```shell
+yarn build
+# or
+yarn build:prod
 ```
 
 ### Testing
@@ -247,25 +255,23 @@ cd jsdoc && serve .
 # you'll be able to browse the docs at http://localhost:5000
 ```
 
+### Publishing
+
+For information on how to contribute or publish new versions of this software to `npm`, please refer to our [contribution guide](https://github.com/stellar/js-stellar-sdk/blob/master/CONTRIBUTING.md).
 
 ## Miscellaneous
 
 ### `stellar-sdk` vs `stellar-base`
 
-`stellar-sdk` is a high-level library that serves as client-side API for Horizon and Soroban RPC, while [stellar-base](https://github.com/stellar/js-stellar-base) is lower-level library for creating Stellar primitive constructs via XDR helpers and wrappers.
+`stellar-sdk` is a high-level library that serves as client-side API for Horizon and Soroban RPC, while [`stellar-base](https://github.com/stellar/js-stellar-base) is lower-level library for creating Stellar primitive constructs via XDR helpers and wrappers.
 
-**Most people will want stellar-sdk instead of stellar-base.** You should only
-use stellar-base if you know what you're doing!
+**Most people will want stellar-sdk instead of stellar-base.** You should only use stellar-base if you know what you're doing!
 
 If you add `stellar-sdk` to a project, **do not add `stellar-base`!** Mismatching versions could cause weird, hard-to-find bugs. `stellar-sdk` automatically installs `stellar-base` and exposes all of its exports in case you need them.
 
 > **Important!** The Node.js version of the `stellar-base` (`stellar-sdk` dependency) package uses the [`sodium-native`](https://www.npmjs.com/package/sodium-native) package as an [optional dependency](https://docs.npmjs.com/files/package.json#optionaldependencies). `sodium-native` is a low level binding to [libsodium](https://github.com/jedisct1/libsodium), (an implementation of [Ed25519](https://ed25519.cr.yp.to/) signatures).
-> If installation of `sodium-native` fails, or it is unavailable, `stellar-base` (and `stellar-sdk`) will fallback to using the [`tweetnacl`](https://www.npmjs.com/package/tweetnacl) package implementation. If you are using `stellar-sdk`/`stellar-base` in a browser, you can ignore this. However, for production backend deployments you should be using `sodium-native`.
+> If installation of `sodium-native` fails, or it is unavailable, `stellar-base` (and `stellar-sdk`) will fallback to using the [`tweetnacl`](https://www.npmjs.com/package/tweetnacl) package implementation. If you are using them in a browser, you can ignore this. However, for production backend deployments, you should be using `sodium-native`.
 > If `sodium-native` is successfully installed and working the `StellarSdk.FastSigning` variable will return `true`.
-
-### Contributing and Publishing
-
-For information on how to contribute or publish new versions of this software to `npm`, please refer to our [contribution guide](https://github.com/stellar/js-stellar-sdk/blob/master/CONTRIBUTING.md).
 
 ### License
 
