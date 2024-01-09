@@ -148,7 +148,7 @@ export namespace Api {
     events: EventResponse[];
   }
 
-  interface EventResponse extends BaseEventResponse {
+  export interface EventResponse extends BaseEventResponse {
     contractId?: Contract;
     topic: xdr.ScVal[];
     value: xdr.ScVal;
