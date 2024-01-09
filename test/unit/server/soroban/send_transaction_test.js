@@ -96,7 +96,7 @@ describe("Server#sendTransaction", function () {
         }),
       );
 
-      this.server
+    this.server
       .sendTransaction(this.transaction)
       .then(function (r) {
         expect(r.errorResult).to.be.instanceOf(xdr.TransactionResult);

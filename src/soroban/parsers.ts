@@ -4,21 +4,22 @@ import { Api } from './api';
 export function parseRawSendTransaction(
   r: Api.RawSendTransactionResponse
 ): Api.SendTransactionResponse {
-  const errResult = r.errorResultXdr;
+  const { errorResultXdr, diagnosticEventsXdr } = r;
   delete r.errorResultXdr;
-
-  const diagEvents = r.diagnosticEventsXdr;
   delete r.diagnosticEventsXdr;
 
-  if (!!errResult) {
+  if (!!errorResultXdr) {
     return {
       ...r,
-      ...(diagEvents !== undefined && diagEvents.length > 0 && {
-        diagnosticEvents: diagEvents.map(
-          evt => xdr.DiagnosticEvent.fromXDR(evt, 'base64')
-        )
-      }),
-      errorResult: xdr.TransactionResult.fromXDR(errResult, 'base64'),
+      ...(
+        diagnosticEventsXdr !== undefined &&
+        diagnosticEventsXdr.length > 0 && {
+          diagnosticEvents: diagnosticEventsXdr.map(
+            evt => xdr.DiagnosticEvent.fromXDR(evt, 'base64')
+          )
+        }
+      ),
+      errorResult: xdr.TransactionResult.fromXDR(errorResultXdr, 'base64'),
     };
   }
 

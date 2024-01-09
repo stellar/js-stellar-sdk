@@ -186,6 +186,7 @@ export namespace Api {
 
   export interface SendTransactionResponse extends BaseSendTransactionResponse {
     errorResult?: xdr.TransactionResult;
+    diagnosticEvents?: xdr.DiagnosticEvent[];
   }
 
   export interface RawSendTransactionResponse
