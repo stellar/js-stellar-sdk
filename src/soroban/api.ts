@@ -197,6 +197,12 @@ export namespace Api {
      * It contains details on why the network rejected the transaction.
      */
     errorResultXdr?: string;
+    /**
+     * This is a base64-encoded instance of an array of
+     * {@link xdr.DiagnosticEvent}s, set only when `status` is `"ERROR"` and
+     * diagnostic events are enabled on the server.
+     */
+    diagnosticEventsXdr?: string[];
   }
 
   export interface BaseSendTransactionResponse {

@@ -83,17 +83,23 @@ describe("Server#sendTransaction", function () {
               id: this.hash,
               status: "ERROR",
               errorResultXdr: txResult.toXDR("base64"),
+              diagnosticEventsXdr: [
+                "AAAAAQAAAAAAAAAAAAAAAgAAAAAAAAADAAAADwAAAAdmbl9jYWxsAAAAAA0AAAAgr/p6gt6h8MrmSw+WNJnu3+sCP9dHXx7jR8IH0sG6Cy0AAAAPAAAABWhlbGxvAAAAAAAADwAAAAVBbG9oYQAAAA==",
+              ],
             },
           },
         }),
       );
 
-    this.server
+      this.server
       .sendTransaction(this.transaction)
       .then(function (r) {
         expect(r.errorResult).to.be.instanceOf(xdr.TransactionResult);
         expect(r.errorResult).to.eql(txResult);
         expect(r.errorResultXdr).to.be.undefined;
+        expect(r.diagnosticEventsXdr).to.be.undefined;
+        expect(r.diagnosticEvents).to.have.lengthOf(1);
+        expect(r.diagnosticEvents[0]).to.be.instanceOf(xdr.DiagnosticEvent);
 
         done();
       })

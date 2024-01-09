@@ -7,10 +7,18 @@ export function parseRawSendTransaction(
   const errResult = r.errorResultXdr;
   delete r.errorResultXdr;
 
+  const diagEvents = r.diagnosticEventsXdr;
+  delete r.diagnosticEventsXdr;
+
   if (!!errResult) {
     return {
       ...r,
-      errorResult: xdr.TransactionResult.fromXDR(errResult, 'base64')
+      ...(diagEvents !== undefined && diagEvents.length > 0 && {
+        diagnosticEvents: diagEvents.map(
+          evt => xdr.DiagnosticEvent.fromXDR(evt, 'base64')
+        )
+      }),
+      errorResult: xdr.TransactionResult.fromXDR(errResult, 'base64'),
     };
   }
 
