@@ -15,42 +15,32 @@
 
 js-stellar-sdk is a JavaScript library for communicating with a
 [Stellar Horizon server](https://github.com/stellar/go/tree/master/services/horizon) and [Soroban RPC](https://soroban.stellar.org/docs/reference/rpc).
-It is used for building Stellar apps either on Node.js or in the browser.
+It is used for building Stellar apps either on Node.js or in the browser, though it can be used in other environments with some tinkering.
 
 It provides:
 
-- a networking layer API for Horizon endpoints (REST-based) and Soroban RPC (JSON-RPC-based).
+- a networking layer API for Horizon endpoints (REST-based),
+- a networking layer for Soroban RPC (JSONRPC-based).
 - facilities for building and signing transactions, for communicating with a
   Stellar Horizon instance, and for submitting transactions or querying network
   history.
 
-### stellar-sdk vs stellar-base
+Jump to:
 
-`stellar-sdk` is a high-level library that serves as client-side API for Horizon and Soroban RPC, while [stellar-base](https://github.com/stellar/js-stellar-base) is lower-level library for creating Stellar primitive constructs via XDR helpers and wrappers.
-
-**Most people will want stellar-sdk instead of stellar-base.** You should only
-use stellar-base if you know what you're doing!
-
-If you add `stellar-sdk` to a project, **do not add `stellar-base`!** Mis-matching
-versions could cause weird, hard-to-find bugs. `stellar-sdk` automatically
-installs `stellar-base` and exposes all of its exports in case you need them.
-
-> **Important!** The Node.js version of the `stellar-base` (`stellar-sdk` dependency) package
-> uses the [`sodium-native`](https://www.npmjs.com/package/sodium-native) package as
-> an [optional dependency](https://docs.npmjs.com/files/package.json#optionaldependencies). `sodium-native` is
-> a low level binding to [libsodium](https://github.com/jedisct1/libsodium),
-> (an implementation of [Ed25519](https://ed25519.cr.yp.to/) signatures).
-> If installation of `sodium-native` fails, or it is unavailable, `stellar-base` (and `stellar-sdk`) will
-> fallback to using the [`tweetnacl`](https://www.npmjs.com/package/tweetnacl) package implementation.
->
-> If you are using `stellar-sdk`/`stellar-base` in a browser you can ignore
-> this. However, for production backend deployments you should be
-> using `sodium-native`. If `sodium-native` is successfully installed and working the
-> `StellarSdk.FastSigning` variable will return `true`.
+ * [Quick Start](#quick-start): hit the ground running
+ * [Usage](#usage)
+   - [...with React Native](#usage-with-react-native)
+   - [...with Expo](#usage-with-expo-managed-workflows)
+   - [...with CloudFlare Workers](#usage-with-cloudflare-workers)
+ * [Developing]()
+ * [Miscellaneous](#miscellaneous)
+   - [Understanding `stellar-sdk` vs. `stellar-base`](#stellar-sdk-vs-stellar-base)
+   - [Contribution Guide](#contributing-and-publishing)
+   - [License](#license)
 
 ## Quick start
 
-Using npm to include js-stellar-sdk in your own project:
+Using npm to include `stellar-sdk` in your own project:
 
 ```shell
 npm install --save @stellar/stellar-sdk
@@ -60,7 +50,7 @@ Alternatively, you can use cdnjs in a browser:
 
 ```html
 <script src="https://cdnjs.cloudflare.com/ajax/libs/stellar-sdk/{version}/stellar-sdk.js"></script>
-````
+```
 
 ## Install
 
@@ -119,6 +109,69 @@ may not be entirely secure.
 Make sure that you are using the latest version number. They can be found on the
 [releases page in Github](https://github.com/stellar/js-stellar-sdk/releases).
 
+## Usage
+
+The usage documentation for this library lives in a handful of places:
+
+ * across the [Stellar Developer Docs](), which includes tutorials and examples,
+ * within [this repository itself](https://github.com/stellar/js-stellar-sdk/blob/master/docs/reference/readme.md), and
+ * on the generated [API doc site](https://stellar.github.io/js-stellar-sdk/).
+
+You can also refer to:
+
+ * the [documentation](https://developers.stellar.org/api/introduction/) for the Horizon REST API (if using the `Horizon` module) and
+ * the [documentation](https://soroban.stellar.org/docs/reference/rpc) for Soroban RPC's API (if using the `SorobanRpc` module)
+
+### Usage with React-Native
+
+1. Install `yarn add --dev rn-nodeify`
+2. Add the following postinstall script:
+```
+yarn rn-nodeify --install url,events,https,http,util,stream,crypto,vm,buffer --hack --yarn
+```
+3. Uncomment `require('crypto')` on shim.js
+4. `react-native link react-native-randombytes`
+5. Create file `rn-cli.config.js`
+```
+module.exports = {
+  resolver: {
+    extraNodeModules: require("node-libs-react-native"),
+  },
+};
+```
+6. Add `import "./shim";` to the top of `index.js`
+7. `yarn add @stellar/stellar-sdk`
+
+There is also a [sample](https://github.com/fnando/rn-stellar-sdk-sample) that you can follow.
+
+#### Usage with Expo managed workflows
+
+1. Install `yarn add --dev rn-nodeify`
+2. Add the following postinstall script:
+```
+yarn rn-nodeify --install process,url,events,https,http,util,stream,crypto,vm,buffer --hack --yarn
+```
+3. Add `import "./shim";` to the your app's entry point (by default `./App.js`)
+4. `yarn add @stellar/stellar-sdk`
+5. `expo install expo-random`
+
+At this point, the Stellar SDK will work, except that `StellarSdk.Keypair.random()` will throw an error. To work around this, you can create your own method to generate a random keypair like this:
+
+```javascript
+import * as Random from 'expo-random';
+import { Keypair } from '@stellar/stellar-sdk';
+
+const generateRandomKeypair = () => {
+  const randomBytes = Random.getRandomBytes(32);
+  return Keypair.fromRawEd25519Seed(Buffer.from(randomBytes));
+};
+```
+
+#### Usage with CloudFlare Workers
+
+
+## Developing
+
 ### To develop and test js-stellar-sdk itself
 
 1. Clone the repo:
@@ -160,63 +213,7 @@ errors (in addition to making sure your text editor supports ESLint)
 yarn fmt
 ```
 
-
-## Usage
-
-For information on how to use js-stellar-sdk, take a look at [the
-documentation](https://stellar.github.io/js-stellar-sdk/), or [the
-examples](https://github.com/stellar/js-stellar-sdk/tree/master/docs/reference).
-
-There is also Horizon REST API Documentation
-[here](https://developers.stellar.org/api/introduction/) and Soroban JSON-RPC documentation [here](https://soroban.stellar.org/docs/reference/rpc).
-
-### Usage with React-Native
-
-1. Install `yarn add --dev rn-nodeify`
-2. Add the following postinstall script:
-```
-yarn rn-nodeify --install url,events,https,http,util,stream,crypto,vm,buffer --hack --yarn
-```
-3. Uncomment `require('crypto')` on shim.js
-4. `react-native link react-native-randombytes`
-5. Create file `rn-cli.config.js`
-```
-module.exports = {
-  resolver: {
-    extraNodeModules: require("node-libs-react-native"),
-  },
-};
-```
-6. Add `import "./shim";` to the top of `index.js`
-7. `yarn add @stellar/stellar-sdk`
-
-There is also a [sample](https://github.com/fnando/rn-stellar-sdk-sample) that you can follow.
-
-#### Using in an Expo managed workflow
-
-1. Install `yarn add --dev rn-nodeify`
-2. Add the following postinstall script:
-```
-yarn rn-nodeify --install process,url,events,https,http,util,stream,crypto,vm,buffer --hack --yarn
-```
-3. Add `import "./shim";` to the your app's entry point (by default `./App.js`)
-4. `yarn add @stellar/stellar-sdk`
-5. `expo install expo-random`
-
-At this point, the Stellar SDK will work, except that `StellarSdk.Keypair.random()` will throw an error. To work around this, you can create your own method to generate a random keypair like this:
-
-```javascript
-import * as Random from 'expo-random';
-import StellarSdk from '@stellar/stellar-sdk';
-
-const generateRandomKeypair = () => {
-  const randomBytes = Random.getRandomBytes(32);
-
-  return StellarSdk.Keypair.fromRawEd25519Seed(Buffer.from(randomBytes));
-};
-```
-
-## Testing
+### Testing
 
 To run all tests:
 
@@ -229,13 +226,17 @@ To run a specific set of tests:
 ```shell
 yarn test:node
 yarn test:browser
+yarn test:integration
 ```
 
 To generate and check the documentation site:
 
 ```shell
 # install the `serve` command if you don't have it already
-npm install -g serve
+npm i -g serve
+
+# clone the base library for complete docs
+git clone https://github.com/stellar/js-stellar-base
 
 # generate the docs files
 yarn docs
@@ -246,16 +247,27 @@ cd jsdoc && serve .
 # you'll be able to browse the docs at http://localhost:5000
 ```
 
-## Documentation
 
-Documentation for this repo lives in
-[Developers site](https://github.com/stellar/js-stellar-sdk/blob/master/docs/reference/readme.md).
+## Miscellaneous
 
-## Contributing and Publishing
+### `stellar-sdk` vs `stellar-base`
+
+`stellar-sdk` is a high-level library that serves as client-side API for Horizon and Soroban RPC, while [stellar-base](https://github.com/stellar/js-stellar-base) is lower-level library for creating Stellar primitive constructs via XDR helpers and wrappers.
+
+**Most people will want stellar-sdk instead of stellar-base.** You should only
+use stellar-base if you know what you're doing!
+
+If you add `stellar-sdk` to a project, **do not add `stellar-base`!** Mismatching versions could cause weird, hard-to-find bugs. `stellar-sdk` automatically installs `stellar-base` and exposes all of its exports in case you need them.
+
+> **Important!** The Node.js version of the `stellar-base` (`stellar-sdk` dependency) package uses the [`sodium-native`](https://www.npmjs.com/package/sodium-native) package as an [optional dependency](https://docs.npmjs.com/files/package.json#optionaldependencies). `sodium-native` is a low level binding to [libsodium](https://github.com/jedisct1/libsodium), (an implementation of [Ed25519](https://ed25519.cr.yp.to/) signatures).
+> If installation of `sodium-native` fails, or it is unavailable, `stellar-base` (and `stellar-sdk`) will fallback to using the [`tweetnacl`](https://www.npmjs.com/package/tweetnacl) package implementation. If you are using `stellar-sdk`/`stellar-base` in a browser, you can ignore this. However, for production backend deployments you should be using `sodium-native`.
+> If `sodium-native` is successfully installed and working the `StellarSdk.FastSigning` variable will return `true`.
+
+### Contributing and Publishing
 
 For information on how to contribute or publish new versions of this software to `npm`, please refer to our [contribution guide](https://github.com/stellar/js-stellar-sdk/blob/master/CONTRIBUTING.md).
 
-## License
+### License
 
 js-stellar-sdk is licensed under an Apache-2.0 license. See the
 [LICENSE](https://github.com/stellar/js-stellar-sdk/blob/master/LICENSE) file
