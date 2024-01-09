@@ -33,10 +33,8 @@ It provides:
    - [...with Expo](#usage-with-expo-managed-workflows)
    - [...with CloudFlare Workers](#usage-with-cloudflare-workers)
  * [Developing](#developing): contribute to the project!
- * [Miscellaneous](#miscellaneous)
-   - [Understanding `stellar-sdk` vs. `stellar-base`](#stellar-sdk-vs-stellar-base)
-   - [Contribution Guide](#contributing-and-publishing)
-   - [License](#license)
+ * [Understanding `stellar-sdk` vs. `stellar-base`](#stellar-sdk-vs-stellar-base)
+ * [License](#license)
 
 ## Installation
 
@@ -81,7 +79,7 @@ and include it in the browser:
 </script>
 ```
 
-If you don't want to use or install Bower, you can copy the packaged JS files from the [Bower repo](https://github.com/stellar/bower-js-stellar-sdk), or just build the package yourself locally (see [Developing :right_arrow: Building](#building)) and copy the bundle.
+If you don't want to use or install Bower, you can copy the packaged JS files from the [Bower repo](https://github.com/stellar/bower-js-stellar-sdk), or just build the package yourself locally (see [Developing :arrow_right: Building](#building)) and copy the bundle.
 
 | Always make sure that you are using the latest version number. They can be found on the [releases page](https://github.com/stellar/js-stellar-sdk/releases) in GitHub. |
 |----|
