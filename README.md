@@ -248,6 +248,8 @@ yarn test:browser
 yarn test:integration
 ```
 
+In order to have a faster test loop, these suite-specific commands **do not** build the bundles first (unlike `yarn test`). If you make code changes, you will need to run `yarn build` (or a subset like `yarn build:node` corresponding to the test suite) before running the tests again to see your changes.
+
 To generate and check the documentation site:
 
 ```shell
