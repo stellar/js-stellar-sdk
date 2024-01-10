@@ -99,13 +99,16 @@ export function buildChallengeTx(
         source: clientAccountID,
       }),
     )
-    .addOperation(
+
+  if (webAuthDomain) {
+    builder.addOperation(
       Operation.manageData({
         name: "web_auth_domain",
         value: webAuthDomain,
         source: account.accountId(),
       }),
     );
+  }
 
   if (clientDomain) {
     if (!clientSigningKey) {
