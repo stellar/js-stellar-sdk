@@ -1,3 +1,4 @@
+
 <div align="center">
   <img alt="Stellar" src="https://github.com/stellar/.github/raw/master/stellar-logo.png" width="558" />
   <br/>
@@ -168,6 +169,18 @@ In summary, the `package.json` tweaks look something like this:
 "packageManager": "yarn@1.22.19"
 ```
 
+Then, you need to override the adapter in your codebase:
+
+```typescript
+import { Horizon } from '@stellar/stellar-sdk';
+import fetchAdapter from '@vespaiach/axios-fetch-adapter';
+
+Horizon.AxiosClient.defaults.adapter = fetchAdapter as any;
+
+// then, the rest of your code...
+```
+
+All HTTP calls will use `fetch`, now, meaning it should work in the CloudFlare Worker environment.
 
 ## Developing
 
