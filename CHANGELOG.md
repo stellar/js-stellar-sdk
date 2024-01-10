@@ -5,6 +5,10 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Added
+* Support for the new, optional `diagnosticEventsXdr` field on the `SorobanRpc.Server.sendTransaction` method. The raw field will be present when using the `_sendTransaction` method, while the normal method will have an already-parsed `diagnosticEvents: xdr.DiagnosticEvent[]` field, instead ([]()).
+* A new exported interface `SorobanRpc.Api.EventResponse` so that developers can type-check individual events ([#904](https://github.com/stellar/js-stellar-sdk/pull/904)).
+
 
 ## [v11.1.0](https://github.com/stellar/js-stellar-sdk/compare/v11.0.1...v11.1.0)
 
