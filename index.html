@@ -63,124 +63,74 @@
 </p>
 <p>js-stellar-sdk is a JavaScript library for communicating with a
 <a href="https://github.com/stellar/go/tree/master/services/horizon">Stellar Horizon server</a> and <a href="https://soroban.stellar.org/docs/reference/rpc">Soroban RPC</a>.
-It is used for building Stellar apps either on Node.js or in the browser.</p>
+It is used for building Stellar apps either on Node.js or in the browser, though it can be used in other environments with some tinkering.</p>
 <p>It provides:</p>
 <ul>
-<li>a networking layer API for Horizon endpoints (REST-based) and Soroban RPC (JSON-RPC-based).</li>
+<li>a networking layer API for Horizon endpoints (REST-based),</li>
+<li>a networking layer for Soroban RPC (JSONRPC-based).</li>
 <li>facilities for building and signing transactions, for communicating with a
 Stellar Horizon instance, and for submitting transactions or querying network
 history.</li>
 </ul>
-<h3>stellar-sdk vs stellar-base</h3>
-<p><code>stellar-sdk</code> is a high-level library that serves as client-side API for Horizon and Soroban RPC, while <a href="https://github.com/stellar/js-stellar-base">stellar-base</a> is lower-level library for creating Stellar primitive constructs via XDR helpers and wrappers.</p>
-<p><strong>Most people will want stellar-sdk instead of stellar-base.</strong> You should only
-use stellar-base if you know what you're doing!</p>
-<p>If you add <code>stellar-sdk</code> to a project, <strong>do not add <code>stellar-base</code>!</strong> Mis-matching
-versions could cause weird, hard-to-find bugs. <code>stellar-sdk</code> automatically
-installs <code>stellar-base</code> and exposes all of its exports in case you need them.</p>
-<blockquote>
-<p><strong>Important!</strong> The Node.js version of the <code>stellar-base</code> (<code>stellar-sdk</code> dependency) package
-uses the <a href="https://www.npmjs.com/package/sodium-native"><code>sodium-native</code></a> package as
-an <a href="https://docs.npmjs.com/files/package.json#optionaldependencies">optional dependency</a>. <code>sodium-native</code> is
-a low level binding to <a href="https://github.com/jedisct1/libsodium">libsodium</a>,
-(an implementation of <a href="https://ed25519.cr.yp.to/">Ed25519</a> signatures).
-If installation of <code>sodium-native</code> fails, or it is unavailable, <code>stellar-base</code> (and <code>stellar-sdk</code>) will
-fallback to using the <a href="https://www.npmjs.com/package/tweetnacl"><code>tweetnacl</code></a> package implementation.</p>
-<p>If you are using <code>stellar-sdk</code>/<code>stellar-base</code> in a browser you can ignore
-this. However, for production backend deployments you should be
-using <code>sodium-native</code>. If <code>sodium-native</code> is successfully installed and working the
-<code>StellarSdk.FastSigning</code> variable will return <code>true</code>.</p>
-</blockquote>
-<h2>Quick start</h2>
-<p>Using npm to include js-stellar-sdk in your own project:</p>
+<p><strong>Jump to:</strong></p>
+<ul>
+<li><a href="#installation">Installation</a>: details on hitting the ground running</li>
+<li><a href="#usage">Usage</a>: links to documentation and a variety of workarounds for non-traditional JavaScript environments
+<ul>
+<li><a href="#usage-with-react-native">...with React Native</a></li>
+<li><a href="#usage-with-expo-managed-workflows">...with Expo</a></li>
+<li><a href="#usage-with-cloudflare-workers">...with CloudFlare Workers</a></li>
+</ul>
+</li>
+<li><a href="#developing">Developing</a>: contribute to the project!</li>
+<li><a href="#stellar-sdk-vs-stellar-base">Understanding <code>stellar-sdk</code> vs. <code>stellar-base</code></a></li>
+<li><a href="#license">License</a></li>
+</ul>
+<h2>Installation</h2>
+<p>Using npm or yarn to include <code>stellar-sdk</code> in your own project:</p>
 <pre class="prettyprint source lang-shell"><code>npm install --save @stellar/stellar-sdk
+# or
+yarn add @stellar/stellar-sdk
 </code></pre>
-<p>Alternatively, you can use cdnjs in a browser:</p>
-<pre class="prettyprint source lang-html"><code>&lt;script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/stellar-sdk/{version}/stellar-sdk.js&quot;>&lt;/script>
-</code></pre>
-<h2>Install</h2>
-<h3>To use as a module in a Node.js project</h3>
-<ol>
-<li>Install it using npm:</li>
-</ol>
-<pre class="prettyprint source lang-shell"><code>npm install --save stellar-sdk
-</code></pre>
-<ol start="2">
-<li>require/import it in your JavaScript:</li>
-</ol>
+<p>Then, require or import it in your JavaScript code:</p>
 <pre class="prettyprint source lang-js"><code>var StellarSdk = require('@stellar/stellar-sdk');
 // or
 import * as StellarSdk from '@stellar/stellar-sdk';
 </code></pre>
-<h3>To self host for use in the browser</h3>
-<ol>
-<li>Install it using <a href="http://bower.io">bower</a>:</li>
-</ol>
+<p>(Preferably, you would only import the pieces you need to enable tree-shaking and lower your final bundle sizes.)</p>
+<h3>Browsers</h3>
+<p>You can use a CDN:</p>
+<pre class="prettyprint source lang-html"><code>&lt;script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/stellar-sdk/{version}/stellar-sdk.js&quot;>&lt;/script>
+</code></pre>
+<p>Note that this method relies using a third party to host the JS library. This may not be entirely secure. You can self-host it via <a href="http://bower.io">Bower</a>:</p>
 <pre class="prettyprint source lang-shell"><code>bower install @stellar/stellar-sdk
 </code></pre>
-<ol start="2">
-<li>Include it in the browser:</li>
-</ol>
+<p>and include it in the browser:</p>
 <pre class="prettyprint source lang-html"><code>&lt;script src=&quot;./bower_components/stellar-sdk/stellar-sdk.js&quot;>&lt;/script>
 &lt;script>
   console.log(StellarSdk);
 &lt;/script>
 </code></pre>
-<p>If you don't want to use or install Bower, you can copy built JS files from the
-<a href="https://github.com/stellar/bower-js-stellar-sdk">bower-js-stellar-sdk repo</a>.</p>
-<h3>To use the <a href="https://cdnjs.com/libraries/stellar-sdk">cdnjs</a> hosted script in the browser</h3>
-<ol>
-<li>Instruct the browser to fetch the library from
-<a href="https://cdnjs.com/libraries/stellar-sdk">cdnjs</a>, a 3rd party service that
-hosts js libraries:</li>
-</ol>
-<pre class="prettyprint source lang-html"><code>&lt;script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/stellar-sdk/{version}/stellar-sdk.js&quot;>&lt;/script>
-&lt;script>
-  console.log(StellarSdk);
-&lt;/script>
-</code></pre>
-<p>Note that this method relies using a third party to host the JS library. This
-may not be entirely secure.</p>
-<p>Make sure that you are using the latest version number. They can be found on the
-<a href="https://github.com/stellar/js-stellar-sdk/releases">releases page in Github</a>.</p>
-<h3>To develop and test js-stellar-sdk itself</h3>
-<ol>
-<li>Clone the repo:</li>
-</ol>
-<pre class="prettyprint source lang-shell"><code>git clone https://github.com/stellar/js-stellar-sdk.git
-</code></pre>
-<ol start="2">
-<li>Install dependencies inside js-stellar-sdk folder:</li>
-</ol>
-<pre class="prettyprint source lang-shell"><code>cd js-stellar-sdk
-yarn
-</code></pre>
-<ol start="3">
-<li>Install Node 18</li>
-</ol>
-<p>Because we support the oldest maintenance version of Node, please install and develop on Node 18 so you don't get surprised when your code works locally but breaks in CI.</p>
-<p>Here's how to install <code>nvm</code> if you haven't: https://github.com/creationix/nvm</p>
-<pre class="prettyprint source lang-shell"><code>nvm install
-
-# if you've never installed 16 before you'll want to re-install yarn
-npm install -g yarn
-</code></pre>
-<p>If you work on several projects that use different Node versions, you might it
-helpful to install this automatic version manager:
-https://github.com/wbyoung/avn</p>
-<ol start="4">
-<li>Observe the project's code style</li>
-</ol>
-<p>While you're making changes, make sure to run the linter to catch any linting
-errors (in addition to making sure your text editor supports ESLint)</p>
-<pre class="prettyprint source lang-shell"><code>yarn fmt
-</code></pre>
+<p>If you don't want to use or install Bower, you can copy the packaged JS files from the <a href="https://github.com/stellar/bower-js-stellar-sdk">Bower repo</a>, or just build the package yourself locally (see <a href="#building">Developing :arrow_right: Building</a>) and copy the bundle.</p>
+<table>
+<thead>
+<tr>
+<th>Always make sure that you are using the latest version number. They can be found on the <a href="https://github.com/stellar/js-stellar-sdk/releases">releases page</a> in GitHub.</th>
+</tr>
+</thead>
+</table>
 <h2>Usage</h2>
-<p>For information on how to use js-stellar-sdk, take a look at <a href="https://stellar.github.io/js-stellar-sdk/">the
-documentation</a>, or <a href="https://github.com/stellar/js-stellar-sdk/tree/master/docs/reference">the
-examples</a>.</p>
-<p>There is also Horizon REST API Documentation
-<a href="https://developers.stellar.org/api/introduction/">here</a> and Soroban JSON-RPC documentation <a href="https://soroban.stellar.org/docs/reference/rpc">here</a>.</p>
+<p>The usage documentation for this library lives in a handful of places:</p>
+<ul>
+<li>across the <a href="">Stellar Developer Docs</a>, which includes tutorials and examples,</li>
+<li>within <a href="https://github.com/stellar/js-stellar-sdk/blob/master/docs/reference/readme.md">this repository itself</a>, and</li>
+<li>on the generated <a href="https://stellar.github.io/js-stellar-sdk/">API doc site</a>.</li>
+</ul>
+<p>You can also refer to:</p>
+<ul>
+<li>the <a href="https://developers.stellar.org/api/introduction/">documentation</a> for the Horizon REST API (if using the <code>Horizon</code> module) and</li>
+<li>the <a href="https://soroban.stellar.org/docs/reference/rpc">documentation</a> for Soroban RPC's API (if using the <code>SorobanRpc</code> module)</li>
+</ul>
 <h3>Usage with React-Native</h3>
 <ol>
 <li>Install <code>yarn add --dev rn-nodeify</code></li>
@@ -204,7 +154,7 @@ examples</a>.</p>
 <li><code>yarn add @stellar/stellar-sdk</code></li>
 </ol>
 <p>There is also a <a href="https://github.com/fnando/rn-stellar-sdk-sample">sample</a> that you can follow.</p>
-<h4>Using in an Expo managed workflow</h4>
+<h4>Usage with Expo managed workflows</h4>
 <ol>
 <li>Install <code>yarn add --dev rn-nodeify</code></li>
 <li>Add the following postinstall script:</li>
@@ -218,25 +168,97 @@ examples</a>.</p>
 </ol>
 <p>At this point, the Stellar SDK will work, except that <code>StellarSdk.Keypair.random()</code> will throw an error. To work around this, you can create your own method to generate a random keypair like this:</p>
 <pre class="prettyprint source lang-javascript"><code>import * as Random from 'expo-random';
-import StellarSdk from '@stellar/stellar-sdk';
+import { Keypair } from '@stellar/stellar-sdk';
 
 const generateRandomKeypair = () => {
   const randomBytes = Random.getRandomBytes(32);
-
-  return StellarSdk.Keypair.fromRawEd25519Seed(Buffer.from(randomBytes));
+  return Keypair.fromRawEd25519Seed(Buffer.from(randomBytes));
 };
 </code></pre>
-<h2>Testing</h2>
+<h4>Usage with CloudFlare Workers</h4>
+<p>Both <code>eventsource</code> (needed for streaming) and <code>axios</code> (needed for making HTTP requests) are problematic dependencies in the CFW environment. The experimental branch <a href="https://github.com/stellar/js-stellar-sdk/pull/901"><code>make-eventsource-optional</code></a> is an attempt to resolve these issues.</p>
+<p>It requires the following additional tweaks to your project:</p>
+<ul>
+<li>the <code>axios-fetch-adapter</code> lets you use <code>axios</code> with <code>fetch</code> as a backend, which is available to CF workers</li>
+<li>it only works with <code>axios@&quot;&lt;= 1.0.0&quot;</code> versions, so we need to force an override into the underlying dependency</li>
+<li>and this can be problematic with newer <code>yarn</code> versions, so we need to force the environment to use Yarn 1</li>
+</ul>
+<p>In summary, the <code>package.json</code> tweaks look something like this:</p>
+<pre class="prettyprint source lang-jsonc"><code>&quot;dependencies&quot;: {
+  // ...
+  &quot;@stellar/stellar-sdk&quot;: &quot;git+https://github.com/stellar/js-stellar-sdk#make-eventsource-optional&quot;,
+  &quot;@vespaiach/axios-fetch-adapter&quot;: &quot;^0.3.1&quot;,
+  &quot;axios&quot;: &quot;^0.26.1&quot;
+},
+&quot;overrides&quot;: {
+  &quot;@stellar/stellar-sdk&quot;: {
+    &quot;axios&quot;: &quot;$axios&quot;
+  }
+},
+&quot;packageManager&quot;: &quot;yarn@1.22.19&quot;
+</code></pre>
+<p>Then, you need to override the adapter in your codebase:</p>
+<pre class="prettyprint source lang-typescript"><code>import { Horizon } from '@stellar/stellar-sdk';
+import fetchAdapter from '@vespaiach/axios-fetch-adapter';
+
+Horizon.AxiosClient.defaults.adapter = fetchAdapter as any;
+
+// then, the rest of your code...
+</code></pre>
+<p>All HTTP calls will use <code>fetch</code>, now, meaning it should work in the CloudFlare Worker environment.</p>
+<h2>Developing</h2>
+<p>So you want to contribute to the library: welcome! Whether you're working on a fork or want to make an upstream request, the dev-test loop is pretty straightforward.</p>
+<ol>
+<li>Clone the repo:</li>
+</ol>
+<pre class="prettyprint source lang-shell"><code>git clone https://github.com/stellar/js-stellar-sdk.git
+</code></pre>
+<ol start="2">
+<li>Install dependencies inside js-stellar-sdk folder:</li>
+</ol>
+<pre class="prettyprint source lang-shell"><code>cd js-stellar-sdk
+yarn
+</code></pre>
+<ol start="3">
+<li>Install Node 18</li>
+</ol>
+<p>Because we support the oldest maintenance version of Node, please install and develop on Node 18 so you don't get surprised when your code works locally but breaks in CI.</p>
+<p>Here's how to install <code>nvm</code> if you haven't: https://github.com/creationix/nvm</p>
+<pre class="prettyprint source lang-shell"><code>nvm install 18
+
+# if you've never installed 18 before you'll want to re-install yarn
+npm install -g yarn
+</code></pre>
+<p>If you work on several projects that use different Node versions, you might it helpful to install this automatic version manager: https://github.com/wbyoung/avn</p>
+<ol start="4">
+<li>Observe the project's code style</li>
+</ol>
+<p>While you're making changes, make sure to run the linter to catch any linting
+errors (in addition to making sure your text editor supports ESLint) and conform to the project's code style.</p>
+<pre class="prettyprint source lang-shell"><code>yarn fmt
+</code></pre>
+<h3>Building</h3>
+<p>You can build the developer version (unoptimized, commented, with source maps, etc.) or the production bundles:</p>
+<pre class="prettyprint source lang-shell"><code>yarn build
+# or
+yarn build:prod
+</code></pre>
+<h3>Testing</h3>
 <p>To run all tests:</p>
 <pre class="prettyprint source lang-shell"><code>yarn test
 </code></pre>
 <p>To run a specific set of tests:</p>
 <pre class="prettyprint source lang-shell"><code>yarn test:node
 yarn test:browser
+yarn test:integration
 </code></pre>
+<p>In order to have a faster test loop, these suite-specific commands <strong>do not</strong> build the bundles first (unlike <code>yarn test</code>). If you make code changes, you will need to run <code>yarn build</code> (or a subset like <code>yarn build:node</code> corresponding to the test suite) before running the tests again to see your changes.</p>
 <p>To generate and check the documentation site:</p>
 <pre class="prettyprint source lang-shell"><code># install the `serve` command if you don't have it already
-npm install -g serve
+npm i -g serve
+
+# clone the base library for complete docs
+git clone https://github.com/stellar/js-stellar-base
 
 # generate the docs files
 yarn docs
@@ -246,12 +268,19 @@ cd jsdoc && serve .
 
 # you'll be able to browse the docs at http://localhost:5000
 </code></pre>
-<h2>Documentation</h2>
-<p>Documentation for this repo lives in
-<a href="https://github.com/stellar/js-stellar-sdk/blob/master/docs/reference/readme.md">Developers site</a>.</p>
-<h2>Contributing and Publishing</h2>
+<h3>Publishing</h3>
 <p>For information on how to contribute or publish new versions of this software to <code>npm</code>, please refer to our <a href="https://github.com/stellar/js-stellar-sdk/blob/master/CONTRIBUTING.md">contribution guide</a>.</p>
-<h2>License</h2>
+<h2>Miscellaneous</h2>
+<h3><code>stellar-sdk</code> vs <code>stellar-base</code></h3>
+<p><code>stellar-sdk</code> is a high-level library that serves as client-side API for Horizon and Soroban RPC, while <a href="https://github.com/stellar/js-stellar-base">`stellar-base</a> is lower-level library for creating Stellar primitive constructs via XDR helpers and wrappers.</p>
+<p><strong>Most people will want stellar-sdk instead of stellar-base.</strong> You should only use stellar-base if you know what you're doing!</p>
+<p>If you add <code>stellar-sdk</code> to a project, <strong>do not add <code>stellar-base</code>!</strong> Mismatching versions could cause weird, hard-to-find bugs. <code>stellar-sdk</code> automatically installs <code>stellar-base</code> and exposes all of its exports in case you need them.</p>
+<blockquote>
+<p><strong>Important!</strong> The Node.js version of the <code>stellar-base</code> (<code>stellar-sdk</code> dependency) package uses the <a href="https://www.npmjs.com/package/sodium-native"><code>sodium-native</code></a> package as an <a href="https://docs.npmjs.com/files/package.json#optionaldependencies">optional dependency</a>. <code>sodium-native</code> is a low level binding to <a href="https://github.com/jedisct1/libsodium">libsodium</a>, (an implementation of <a href="https://ed25519.cr.yp.to/">Ed25519</a> signatures).
+If installation of <code>sodium-native</code> fails, or it is unavailable, <code>stellar-base</code> (and <code>stellar-sdk</code>) will fallback to using the <a href="https://www.npmjs.com/package/tweetnacl"><code>tweetnacl</code></a> package implementation. If you are using them in a browser, you can ignore this. However, for production backend deployments, you should be using <code>sodium-native</code>.
+If <code>sodium-native</code> is successfully installed and working the <code>StellarSdk.FastSigning</code> variable will return <code>true</code>.</p>
+</blockquote>
+<h3>License</h3>
 <p>js-stellar-sdk is licensed under an Apache-2.0 license. See the
 <a href="https://github.com/stellar/js-stellar-sdk/blob/master/LICENSE">LICENSE</a> file
 for details.</p></article>
@@ -267,7 +296,7 @@ for details.</p></article>
 <br class="clear">
 
 <footer>
-    Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.2</a> on Fri Dec 15 2023 22:51:27 GMT+0000 (Coordinated Universal Time) using the Minami theme.
+    Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.2</a> on Thu Jan 11 2024 21:40:36 GMT+0000 (Coordinated Universal Time) using the Minami theme.
 </footer>
 
 <script>prettyPrint();</script>
