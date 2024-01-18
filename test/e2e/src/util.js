@@ -1,9 +1,9 @@
 const { spawnSync } = require('node:child_process')
 const { Address, Keypair, TransactionBuilder, hash } = require('../../..')
 
-const rootKeypair = Keypair.fromSecret(spawnSync("./target/bin/soroban", ["config", "identity", "show"], { shell: true, encoding: "utf8" }).stdout.trim());
-const aliceKeypair = Keypair.fromSecret(spawnSync("./target/bin/soroban", ["config", "identity", "show", "alice"], { shell: true, encoding: "utf8" }).stdout.trim());
-const bobKeypair = Keypair.fromSecret(spawnSync("./target/bin/soroban", ["config", "identity", "show", "bob"], { shell: true, encoding: "utf8" }).stdout.trim());
+const rootKeypair = Keypair.fromSecret(spawnSync("./target/bin/soroban", ["keys", "show", "root"], { shell: true, encoding: "utf8" }).stdout.trim());
+const aliceKeypair = Keypair.fromSecret(spawnSync("./target/bin/soroban", ["keys", "show", "alice"], { shell: true, encoding: "utf8" }).stdout.trim());
+const bobKeypair = Keypair.fromSecret(spawnSync("./target/bin/soroban", ["keys", "show", "bob"], { shell: true, encoding: "utf8" }).stdout.trim());
 
 const root = {
   keypair: rootKeypair,
