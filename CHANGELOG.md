@@ -7,6 +7,13 @@ A breaking change will get clearly marked in this log.
 ## Unreleased
 
 
+## [v11.2.1](https://github.com/stellar/js-stellar-sdk/compare/v11.2.0...v11.2.1)
+
+### Fixed
+* An unnecessary dependency has been removed which was causing a TypeScript error in certain environments ([#912](https://github.com/stellar/js-stellar-sdk/pull/912)).
+* Dependencies have been upgraded (see [`stellar-base@v10.0.2`](https://github.com/stellar/js-stellar-base/releases/tag/v10.0.2) for release notes, [#913](https://github.com/stellar/js-stellar-sdk/pull/913)).
+
+
 ## [v11.2.0](https://github.com/stellar/js-stellar-sdk/compare/v11.1.0...v11.2.0)
 
 ### Added
