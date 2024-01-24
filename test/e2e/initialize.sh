@@ -39,17 +39,18 @@ fi
 exe() { echo"${@/eval/}" ; "$@" ; }
 
 function fund_all() {
-  exe eval "$soroban config identity fund"
-  exe eval "$soroban config identity generate alice"
-  exe eval "$soroban config identity fund alice"
-  exe eval "$soroban config identity generate bob"
-  exe eval "$soroban config identity fund bob"
+  exe eval "$soroban keys generate root"
+  exe eval "$soroban keys fund root"
+  exe eval "$soroban keys generate alice"
+  exe eval "$soroban keys fund alice"
+  exe eval "$soroban keys generate bob"
+  exe eval "$soroban keys fund bob"
 }
 function upload() {
-  exe eval "($soroban contract $1 --wasm $dirname/$2 --ignore-checks) > $dirname/$3"
+  exe eval "($soroban contract $1 --source root --wasm $dirname/$2 --ignore-checks) > $dirname/$3"
 }
 function deploy() {
-  exe eval "($soroban contract deploy --wasm-hash $(cat $dirname/$1) --ignore-checks) > $dirname/$2"
+  exe eval "($soroban contract deploy --source root --wasm-hash $(cat $dirname/$1) --ignore-checks) > $dirname/$2"
 }
 function deploy_all() {
   upload deploy  wasms/test_custom_types.wasm contract-id-custom-types.txt
@@ -60,7 +61,7 @@ function deploy_all() {
   deploy contract-token-hash.txt contract-id-token-b.txt
 }
 function initialize() {
-   exe eval "$soroban contract invoke --id $(cat $dirname/$1) -- initialize --admin $($soroban config identity address) --decimal 0 --name 'Token $2' --symbol '$2'"
+   exe eval "$soroban contract invoke --source root --id $(cat $dirname/$1) -- initialize --admin $($soroban keys address root) --decimal 0 --name 'Token $2' --symbol '$2'"
 }
 function initialize_all() {
   initialize contract-id-token-a.txt A
@@ -76,7 +77,7 @@ function generate_spec_all() {
   generate_spec test_token
 }
 function mint() {
-  exe eval "$soroban contract invoke --id $(cat $dirname/$1) -- mint --amount 2000000 --to $($soroban config identity address $2)"
+  exe eval "$soroban contract invoke --source root --id $(cat $dirname/$1) -- mint --amount 2000000 --to $($soroban keys address $2)"
 }
 function mint_all() {
   mint contract-id-token-a.txt alice
@@ -90,7 +91,7 @@ function check_balance() {
   if [ $? -eq 0 ]; then
     return 0
   fi
-  $soroban contract invoke --id $(cat $dirname/contract-id-token-$1.txt) -- balance --id $($soroban config identity address $2) | xargs
+  $soroban contract invoke --id $(cat $dirname/contract-id-token-$1.txt) -- balance --id $($soroban keys address $2) | xargs
 }
 
 if [ $(check_specs) == 4 ]; then

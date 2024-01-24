@@ -148,7 +148,7 @@ export namespace Api {
     events: EventResponse[];
   }
 
-  interface EventResponse extends BaseEventResponse {
+  export interface EventResponse extends BaseEventResponse {
     contractId?: Contract;
     topic: xdr.ScVal[];
     value: xdr.ScVal;
@@ -186,6 +186,7 @@ export namespace Api {
 
   export interface SendTransactionResponse extends BaseSendTransactionResponse {
     errorResult?: xdr.TransactionResult;
+    diagnosticEvents?: xdr.DiagnosticEvent[];
   }
 
   export interface RawSendTransactionResponse
@@ -197,6 +198,12 @@ export namespace Api {
      * It contains details on why the network rejected the transaction.
      */
     errorResultXdr?: string;
+    /**
+     * This is a base64-encoded instance of an array of
+     * {@link xdr.DiagnosticEvent}s, set only when `status` is `"ERROR"` and
+     * diagnostic events are enabled on the server.
+     */
+    diagnosticEventsXdr?: string[];
   }
 
   export interface BaseSendTransactionResponse {
