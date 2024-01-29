@@ -850,9 +850,8 @@ const PRIMITIVE_DEFINITONS: { [key: string]: JSONSchema7Definition } = {
 };
 
 /**
- *
  * @param typeDef type to convert to json schema reference
- * @returns
+ * @returns {JSONSchema7} a schema describing the type
  */
 function typeRef(typeDef: xdr.ScSpecTypeDef): JSONSchema7 {
   let t = typeDef.switch();
