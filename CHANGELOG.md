@@ -6,6 +6,9 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Fixed
+* Corrects the types in event source monkeypatching ([#916](https://github.com/stellar/js-stellar-sdk/pull/916)).
+
 
 ## [v11.2.1](https://github.com/stellar/js-stellar-sdk/compare/v11.2.0...v11.2.1)
 
