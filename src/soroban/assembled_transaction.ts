@@ -6,7 +6,6 @@ import {
   Operation,
   SorobanRpc,
   StrKey,
-  TimeoutInfinite,
   TransactionBuilder,
   authorizeEntry,
   hash,
@@ -54,7 +53,13 @@ export type MethodOptions = {
    * The fee to pay for the transaction. Default: BASE_FEE
    */
   fee?: number;
+  /**
+   * The maximum amount of time to wait for the transaction to complete. Default: {@link DEFAULT_TIMEOUT}
+   */
+  timeoutInSeconds?: number;
 };
+
+const DEFAULT_TIMEOUT = 10;
 
 export type AssembledTransactionOptions<T = string> = MethodOptions &
   ContractClientOptions & {
@@ -154,7 +159,7 @@ export class AssembledTransaction<T> {
       networkPassphrase: options.networkPassphrase,
     })
       .addOperation(contract.call(options.method, ...(options.args ?? [])))
-      .setTimeout(TimeoutInfinite)
+      .setTimeout(options.timeoutInSeconds ?? DEFAULT_TIMEOUT)
       .build();
 
     return await tx.simulate();
@@ -552,7 +557,7 @@ class SentTransaction<T> {
               networkPassphrase: this.options.networkPassphrase,
             }
           )
-            .setTimeout(TimeoutInfinite)
+            .setTimeout(this.assembled.options.timeoutInSeconds ?? DEFAULT_TIMEOUT)
             .addOperation(
               Operation.invokeHostFunction({ ...op, auth: op.auth ?? [] })
             )
