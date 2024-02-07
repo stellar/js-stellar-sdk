@@ -1,6 +1,11 @@
-import type { ContractClientOptions, XDR_BASE64 } from ".";
+import type {
+  ContractClientOptions,
+  AcceptsWalletOrAccount,
+  Wallet,
+  XDR_BASE64,
+} from ".";
+import { NULL_ACCOUNT } from ".";
 import {
-  Account,
   BASE_FEE,
   Contract,
   Operation,
@@ -11,7 +16,8 @@ import {
   hash,
   xdr,
 } from "..";
-import type { Memo, MemoType, Transaction } from "..";
+import { getAccount } from "./contract_client";
+import { Memo, MemoType, Transaction } from "..";
 
 type Tx = Transaction<Memo<MemoType>, Operation[]>;
 
@@ -48,7 +54,7 @@ class Err<E extends ErrorMessage> implements Result<never, E> {
   isErr() { return true }
 }
 
-export type MethodOptions = {
+export type MethodOptions = AcceptsWalletOrAccount & {
   /**
    * The fee to pay for the transaction. Default: BASE_FEE
    */
@@ -57,6 +63,11 @@ export type MethodOptions = {
    * The maximum amount of time to wait for the transaction to complete. Default: {@link DEFAULT_TIMEOUT}
    */
   timeoutInSeconds?: number;
+
+  /**
+   * Whether to automatically simulate the transaction when constructing the AssembledTransaction. Default: true
+   */
+  simulate?: boolean;
 };
 
 const DEFAULT_TIMEOUT = 10;
@@ -68,22 +79,53 @@ export type AssembledTransactionOptions<T = string> = MethodOptions &
     parseResultXdr: (xdr: xdr.ScVal) => T;
   };
 
-export const NULL_ACCOUNT =
-  "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF";
-
 export class AssembledTransaction<T> {
-  public raw?: Tx;
+  /**
+   * The TransactionBuilder as constructed in `{@link AssembledTransaction}.build`. Feel free set `simulate: false` to modify this object before calling `tx.simulate()` manually. Example:
+   *
+   * ```ts
+   * const tx = await myContract.myMethod(
+   *   { args: 'for', my: 'method', ... },
+   *   { simulate: false }
+   * );
+   * tx.raw.addMemo(Memo.text('Nice memo, friend!'))
+   * await tx.simulate();
+   * ```
+   */
+  public raw?: TransactionBuilder;
+  /**
+   * The Transaction as it was built with `raw.build()` right before simulation. Once this is set, modifying `raw` will have no effect unless you call `tx.simulate()` again.
+   */
+  public built?: Tx;
+  /**
+   * The result of the transaction simulation. This is set after the first call to `simulate`. It is difficult to serialize and deserialize, so it is not included in the `toJSON` and `fromJSON` methods. See `simulationResult` and `simulationTransactionData` for cached, serializable versions of the data needed by AssembledTransaction logic.
+   */
   private simulation?: SorobanRpc.Api.SimulateTransactionResponse;
+  /**
+   * Cached simulation result. This is set after the first call to `simulationData`, and is used to facilitate serialization and deserialization of the AssembledTransaction.
+   */
   private simulationResult?: SorobanRpc.Api.SimulateHostFunctionResult;
+  /**
+   * Cached simulation transaction data. This is set after the first call to `simulationData`, and is used to facilitate serialization and deserialization of the AssembledTransaction.
+   */
   private simulationTransactionData?: xdr.SorobanTransactionData;
+  /**
+   * The Soroban server to use for all RPC calls. This is constructed from the `rpcUrl` in the options.
+   */
   private server: SorobanRpc.Server;
 
-  static ExpiredStateError = class ExpiredStateError extends Error {}
-  static NeedsMoreSignaturesError = class NeedsMoreSignaturesError extends Error {}
-  static WalletDisconnectedError = class WalletDisconnectedError extends Error {}
-  static SendResultOnlyError = class SendResultOnlyError extends Error {}
-  static SendFailedError = class SendFailedError extends Error {}
-  static NoUnsignedNonInvokerAuthEntriesError = class NoUnsignedNonInvokerAuthEntriesError extends Error {}
+  /**
+   * A list of the most important errors that various AssembledTransaction methods can throw. Feel free to catch specific errors in your application logic.
+   */
+  static Errors = {
+    ExpiredState: class ExpiredStateError extends Error {},
+    NeedsMoreSignatures: class NeedsMoreSignaturesError extends Error {},
+    NoSignatureNeeded: class NoSignatureNeededError extends Error {},
+    NoUnsignedNonInvokerAuthEntries: class NoUnsignedNonInvokerAuthEntriesError extends Error {},
+    NoWallet: class NoWalletError extends Error {},
+    NotYetSimulated: class NotYetSimulatedError extends Error {},
+    WalletDisconnected: class WalletDisconnectedError extends Error {},
+  }
 
   /**
    * A minimal implementation of Rust's `Result` type. Used for contract methods that return Results, to maintain their distinction from methods that simply either return a value or throw.
@@ -94,15 +136,18 @@ export class AssembledTransaction<T> {
      */
     Ok,
     /**
-     * A minimal implementation of Rust's `Err` Result type. Used for contract methods that return unsuccessful Results, to maintain their distinction from methods that simply either return a value or throw.
+     * A minimal implementation of Rust's `Error` Result type. Used for contract methods that return unsuccessful Results, to maintain their distinction from methods that simply either return a value or throw.
      */
     Err
   }
 
+  /**
+   * Serialize the AssembledTransaction to a JSON string. This is useful for saving the transaction to a database or sending it over the wire for multi-auth workflows. `fromJSON` can be used to deserialize the transaction. This only works with transactions that have been simulated.
+   */
   toJSON() {
     return JSON.stringify({
       method: this.options.method,
-      tx: this.raw?.toXDR(),
+      tx: this.built?.toXDR(),
       simulationResult: {
         auth: this.simulationData.result.auth.map((a) => a.toXDR("base64")),
         retval: this.simulationData.result.retval.toXDR("base64"),
@@ -128,7 +173,7 @@ export class AssembledTransaction<T> {
     }
   ): AssembledTransaction<T> {
     const txn = new AssembledTransaction(options);
-    txn.raw = TransactionBuilder.fromXDR(tx, options.networkPassphrase) as Tx;
+    txn.built = TransactionBuilder.fromXDR(tx, options.networkPassphrase) as Tx
     txn.simulationResult = {
       auth: simulationResult.auth.map((a) =>
         xdr.SorobanAuthorizationEntry.fromXDR(a, "base64")
@@ -143,35 +188,46 @@ export class AssembledTransaction<T> {
   }
 
   private constructor(public options: AssembledTransactionOptions<T>) {
+    this.options.simulate = this.options.simulate ?? true;
     this.server = new SorobanRpc.Server(this.options.rpcUrl, {
       allowHttp: this.options.rpcUrl.startsWith("http://"),
     });
   }
 
-  static async fromSimulation<T>(
+  static async build<T>(
     options: AssembledTransactionOptions<T>
   ): Promise<AssembledTransaction<T>> {
     const tx = new AssembledTransaction(options);
     const contract = new Contract(options.contractId);
 
-    tx.raw = new TransactionBuilder(await tx.getAccount(), {
+    options.account = options.account ?? getAccount(tx.server, options.wallet);
+
+    tx.raw = new TransactionBuilder(await options.account, {
       fee: options.fee?.toString(10) ?? BASE_FEE,
       networkPassphrase: options.networkPassphrase,
     })
       .addOperation(contract.call(options.method, ...(options.args ?? [])))
-      .setTimeout(options.timeoutInSeconds ?? DEFAULT_TIMEOUT)
-      .build();
+      .setTimeout(options.timeoutInSeconds ?? DEFAULT_TIMEOUT);
 
-    return await tx.simulate();
+    if (options.simulate) await tx.simulate();
+
+    return tx;
   }
 
   simulate = async (): Promise<this> => {
-    if (!this.raw) throw new Error("Transaction has not yet been assembled");
-    this.simulation = await this.server.simulateTransaction(this.raw);
+    if (!this.raw) {
+      throw new Error(
+        'Transaction has not yet been assembled; ' +
+        'call `AssembledTransaction.build` first.'
+      );
+    }
+
+    this.built = this.raw.build();
+    this.simulation = await this.server.simulateTransaction(this.built);
 
     if (SorobanRpc.Api.isSimulationSuccess(this.simulation)) {
-      this.raw = SorobanRpc.assembleTransaction(
-        this.raw,
+      this.built = SorobanRpc.assembleTransaction(
+        this.built,
         this.simulation
       ).build();
     }
@@ -189,14 +245,16 @@ export class AssembledTransaction<T> {
         transactionData: this.simulationTransactionData,
       };
     }
-    // else, we know we just did the simulation on this machine
     const simulation = this.simulation!;
+    if (!simulation) {
+      throw new AssembledTransaction.Errors.NotYetSimulated("Transaction has not yet been simulated");
+    }
     if (SorobanRpc.Api.isSimulationError(simulation)) {
       throw new Error(`Transaction simulation failed: "${simulation.error}"`);
     }
 
     if (SorobanRpc.Api.isSimulationRestore(simulation)) {
-      throw new AssembledTransaction.ExpiredStateError(
+      throw new AssembledTransaction.Errors.ExpiredState(
         `You need to restore some contract state before you can invoke this method. ${JSON.stringify(
           simulation,
           null,
@@ -246,71 +304,55 @@ export class AssembledTransaction<T> {
     return new AssembledTransaction.Result.Err(err);
   }
 
-  getPublicKey = async (): Promise<string | undefined> => {
-    const wallet = this.options.wallet;
-    if (!(await wallet.isConnected()) || !(await wallet.isAllowed())) {
-      return undefined;
-    }
-    return (await wallet.getUserInfo()).publicKey;
-  };
-
   /**
-   * Get account details from the Soroban network for the publicKey currently
-   * selected in user's wallet. If not connected to Freighter, use placeholder
-   * null account.
-   */
-  getAccount = async (): Promise<Account> => {
-    const publicKey = await this.getPublicKey();
-    return publicKey
-      ? await this.server.getAccount(publicKey)
-      : new Account(NULL_ACCOUNT, "0");
-  };
-
-  /**
-   * Sign the transaction with the `wallet` (default Freighter), then send to
-   * the network and return a `SentTransaction` that keeps track of all the
-   * attempts to send and fetch the transaction from the network.
+   * Sign the transaction with the `wallet`, included previously. If you did
+   * not previously include one, you need to include one now that at least
+   * includes the `signTransaction` method. After signing, this method will
+   * send the transaction to the network and return a `SentTransaction` that
+   * keeps track of all the attempts to fetch the transaction.
    */
   signAndSend = async ({
-    secondsToWait = 10,
     force = false,
+    wallet = this.options.wallet,
   }: {
-    /**
-     * Wait `secondsToWait` seconds (default: 10) for both the transaction to SEND successfully (will keep trying if the server returns `TRY_AGAIN_LATER`), as well as for the transaction to COMPLETE (will keep checking if the server returns `PENDING`).
-     */
-    secondsToWait?: number;
     /**
      * If `true`, sign and send the transaction even if it is a read call.
      */
     force?: boolean;
+    /**
+     * The wallet to use for signing. If not provided, the wallet from the
+     * options will be used. You must provide a wallet here if you did not
+     * provide one before, but the only method it needs to include at this
+     * point is `signTransaction`.
+     */
+    wallet?: Pick<Wallet, "signTransaction">;
   } = {}): Promise<SentTransaction<T>> => {
-    if (!this.raw) {
+    if (!this.built) {
       throw new Error("Transaction has not yet been simulated");
     }
 
     if (!force && this.isReadCall) {
-      throw new Error(
+      throw new AssembledTransaction.Errors.NoSignatureNeeded(
         "This is a read call. It requires no signature or sending. Use `force: true` to sign and send anyway."
       );
     }
 
-    if (!(await this.hasRealInvoker())) {
-      throw new AssembledTransaction.WalletDisconnectedError("Wallet is not connected");
+    if (!wallet) {
+      throw new AssembledTransaction.Errors.NoWallet("No wallet provided");
     }
 
-    if (this.raw.source !== (await this.getAccount()).accountId()) {
-      throw new Error(
-        `You must submit the transaction with the account that originally created it. Please switch to the wallet with "${this.raw.source}" as its public key.`
-      );
+    if (!(await this.hasRealInvoker())) {
+      throw new AssembledTransaction.Errors.WalletDisconnected("Wallet is not connected");
     }
 
     if ((await this.needsNonInvokerSigningBy()).length) {
-      throw new AssembledTransaction.NeedsMoreSignaturesError(
+      throw new AssembledTransaction.Errors.NeedsMoreSignatures(
         "Transaction requires more signatures. See `needsNonInvokerSigningBy` for details."
       );
     }
 
-    return await SentTransaction.init(this.options, this, secondsToWait);
+    const typeChecked: AssembledTransaction<T> = this
+    return await SentTransaction.init(wallet, typeChecked);
   };
 
   getStorageExpiration = async () => {
@@ -353,21 +395,21 @@ export class AssembledTransaction<T> {
      */
     includeAlreadySigned?: boolean;
   } = {}): Promise<string[]> => {
-    if (!this.raw) {
+    if (!this.built) {
       throw new Error("Transaction has not yet been simulated");
     }
 
     // We expect that any transaction constructed by these libraries has a
     // single operation, which is an InvokeHostFunction operation. The host
     // function being invoked is the contract method call.
-    if (!("operations" in this.raw)) {
+    if (!("operations" in this.built)) {
       throw new Error(
         `Unexpected Transaction type; no operations: ${JSON.stringify(
-          this.raw
+          this.built
         )}`
       );
     }
-    const rawInvokeHostFunctionOp = this.raw
+    const rawInvokeHostFunctionOp = this.built
       .operations[0] as Operation.InvokeHostFunction;
 
     return [
@@ -420,33 +462,53 @@ export class AssembledTransaction<T> {
    * Sending to all `needsNonInvokerSigningBy` owners in parallel is not currently
    * supported!
    */
-  signAuthEntries = async (
+  signAuthEntries = async ({
+    expiration = this.getStorageExpiration(),
+    wallet = this.options.wallet,
+  }: {
     /**
      * When to set each auth entry to expire. Could be any number of blocks in
      * the future. Can be supplied as a promise or a raw number. Default:
      * contract's current `persistent` storage expiration date/ledger
      * number/block.
      */
-    expiration: number | Promise<number> = this.getStorageExpiration()
-  ): Promise<void> => {
-    if (!this.raw)
+    expiration?: number | Promise<number> 
+    /**
+     * The wallet to use for signing. If not provided, the wallet from the
+     * options will be used. You must provide a wallet here if you did not
+     * provide one before, but the only method it needs to include at this
+     * point is `signAuthEntry`.
+     */
+    wallet?: Pick<Wallet, "signAuthEntry">;
+  } = {}): Promise<void> => {
+    if (!this.built)
       throw new Error("Transaction has not yet been assembled or simulated");
     const needsNonInvokerSigningBy = await this.needsNonInvokerSigningBy();
 
-    if (!needsNonInvokerSigningBy)
-      throw new AssembledTransaction.NoUnsignedNonInvokerAuthEntriesError(
+    if (!needsNonInvokerSigningBy) {
+      throw new AssembledTransaction.Errors.NoUnsignedNonInvokerAuthEntries(
         "No unsigned non-invoker auth entries; maybe you already signed?"
       );
-    const publicKey = await this.getPublicKey();
-    if (!publicKey)
-      throw new Error(
+    }
+    const publicKey = (await this.options.account)!.accountId()
+    if (!publicKey) {
+      throw new AssembledTransaction.Errors.NoWallet(
         "Could not get public key from wallet; maybe not signed in?"
       );
-    if (needsNonInvokerSigningBy.indexOf(publicKey) === -1)
-      throw new Error(`No auth entries for public key "${publicKey}"`);
-    const wallet = this.options.wallet;
+    }
+    if (needsNonInvokerSigningBy.indexOf(publicKey) === -1) {
+      throw new AssembledTransaction.Errors.NoSignatureNeeded(
+        `No auth entries for public key "${publicKey}"`
+      );
+    }
+    if (!wallet) {
+      throw new AssembledTransaction.Errors.NoWallet(
+        'You must either provide a `wallet` when calling `signAuthEntries`, ' +
+        'or provide one when constructing the `AssembledTransaction`'
+      );
+    }
 
-    const rawInvokeHostFunctionOp = this.raw
+    const rawInvokeHostFunctionOp = this.built
       .operations[0] as Operation.InvokeHostFunction;
 
     const authEntries = rawInvokeHostFunctionOp.auth ?? [];
@@ -492,8 +554,7 @@ export class AssembledTransaction<T> {
   }
 
   hasRealInvoker = async (): Promise<boolean> => {
-    const account = await this.getAccount();
-    return account.accountId() !== NULL_ACCOUNT;
+    return (await this.options.account!).accountId() !== NULL_ACCOUNT;
   };
 }
 
@@ -515,88 +576,57 @@ class SentTransaction<T> {
   public server: SorobanRpc.Server;
   public signed?: Tx;
   public sendTransactionResponse?: SendTx;
-  public sendTransactionResponseAll?: SendTx[];
   public getTransactionResponse?: GetTx;
   public getTransactionResponseAll?: GetTx[];
 
+  static Errors = {
+    SendFailed: class SendFailedError extends Error {},
+    SendResultOnly: class SendResultOnlyError extends Error {},
+  }
+
   constructor(
-    public options: AssembledTransactionOptions<T>,
+    public wallet: Pick<Wallet, "signTransaction">,
     public assembled: AssembledTransaction<T>
   ) {
-    this.server = new SorobanRpc.Server(this.options.rpcUrl, {
-      allowHttp: this.options.rpcUrl.startsWith("http://"),
+    this.server = new SorobanRpc.Server(this.assembled.options.rpcUrl, {
+      allowHttp: this.assembled.options.rpcUrl.startsWith("http://"),
     });
-    this.assembled = assembled;
   }
 
   static init = async <T>(
-    options: AssembledTransactionOptions<T>,
+    wallet: Pick<Wallet, "signTransaction">,
     assembled: AssembledTransaction<T>,
-    secondsToWait: number = 10
   ): Promise<SentTransaction<T>> => {
-    const tx = new SentTransaction(options, assembled);
-    return await tx.send(secondsToWait);
+    const tx = new SentTransaction(wallet, assembled);
+    return await tx.send();
   };
 
-  private send = async (secondsToWait: number = 10): Promise<this> => {
-    const wallet = this.assembled.options.wallet;
+  private send = async (): Promise<this> => {
+    const timeoutInSeconds = this.assembled.options.timeoutInSeconds ?? DEFAULT_TIMEOUT
 
-    this.sendTransactionResponseAll = await withExponentialBackoff(
-      async (previousFailure) => {
-        if (previousFailure) {
-          // Increment transaction sequence number and resimulate before trying again
-
-          // Soroban transaction can only have 1 operation
-          const op = this.assembled.raw!
-            .operations[0] as Operation.InvokeHostFunction;
-
-          this.assembled.raw = new TransactionBuilder(
-            await this.assembled.getAccount(),
-            {
-              fee: this.assembled.raw!.fee,
-              networkPassphrase: this.options.networkPassphrase,
-            }
-          )
-            .setTimeout(this.assembled.options.timeoutInSeconds ?? DEFAULT_TIMEOUT)
-            .addOperation(
-              Operation.invokeHostFunction({ ...op, auth: op.auth ?? [] })
-            )
-            .build();
-
-          await this.assembled.simulate();
-        }
-
-        const signature = await wallet.signTransaction(
-          this.assembled.raw!.toXDR(),
-          {
-            networkPassphrase: this.options.networkPassphrase,
-          }
-        );
-
-        this.signed = TransactionBuilder.fromXDR(
-          signature,
-          this.options.networkPassphrase
-        ) as Tx;
-
-        return this.server.sendTransaction(this.signed);
-      },
-      (resp) => resp.status !== "PENDING",
-      secondsToWait
+    const signature = await this.wallet.signTransaction(
+      // `signAndSend` checks for `this.built` before calling `SentTransaction.init`
+      this.assembled.built!.toXDR(),
+      {
+        networkPassphrase: this.assembled.options.networkPassphrase,
+      }
     );
 
-    this.sendTransactionResponse =
-      this.sendTransactionResponseAll[
-        this.sendTransactionResponseAll.length - 1
-      ];
+    this.signed = TransactionBuilder.fromXDR(
+      signature,
+      this.assembled.options.networkPassphrase
+    ) as Tx;
+
+    this.sendTransactionResponse = await this.server.sendTransaction(this.signed);
 
     if (this.sendTransactionResponse.status !== "PENDING") {
-      throw new Error(
-        `Tried to resubmit transaction for ${secondsToWait} seconds, but it's still failing. ` +
-          `All attempts: ${JSON.stringify(
-            this.sendTransactionResponseAll,
+      throw new SentTransaction.Errors.SendFailed(
+        'Sending the transaction to the network failed!\n' +
+          JSON.stringify(
+            this.sendTransactionResponse,
             null,
             2
-          )}`
+          )
       );
     }
 
@@ -605,7 +635,7 @@ class SentTransaction<T> {
     this.getTransactionResponseAll = await withExponentialBackoff(
       () => this.server.getTransaction(hash),
       (resp) => resp.status === SorobanRpc.Api.GetTransactionStatus.NOT_FOUND,
-      secondsToWait
+      timeoutInSeconds
     );
 
     this.getTransactionResponse =
@@ -615,7 +645,7 @@ class SentTransaction<T> {
       SorobanRpc.Api.GetTransactionStatus.NOT_FOUND
     ) {
       console.error(
-        `Waited ${secondsToWait} seconds for transaction to complete, but it did not. ` +
+        `Waited ${timeoutInSeconds} seconds for transaction to complete, but it did not. ` +
           `Returning anyway. Check the transaction status manually. ` +
           `Sent transaction: ${JSON.stringify(
             this.sendTransactionResponse,
@@ -638,7 +668,7 @@ class SentTransaction<T> {
     if ("getTransactionResponse" in this && this.getTransactionResponse) {
       // getTransactionResponse has a `returnValue` field unless it failed
       if ("returnValue" in this.getTransactionResponse) {
-        return this.options.parseResultXdr(
+        return this.assembled.options.parseResultXdr(
           this.getTransactionResponse.returnValue!
         );
       }
@@ -651,11 +681,11 @@ class SentTransaction<T> {
     if (this.sendTransactionResponse) {
       const errorResult = this.sendTransactionResponse.errorResult?.result();
       if (errorResult) {
-        throw new AssembledTransaction.SendFailedError(
+        throw new SentTransaction.Errors.SendFailed(
           `Transaction simulation looked correct, but attempting to send the transaction failed. Check \`simulation\` and \`sendTransactionResponseAll\` to troubleshoot. Decoded \`sendTransactionResponse.errorResultXdr\`: ${errorResult}`
         );
       }
-      throw new AssembledTransaction.SendResultOnlyError(
+      throw new SentTransaction.Errors.SendResultOnly(
         `Transaction was sent to the network, but not yet awaited. No result to show. Await transaction completion with \`getTransaction(sendTransactionResponse.hash)\``
       );
     }
@@ -668,13 +698,13 @@ class SentTransaction<T> {
 }
 
 /**
- * Keep calling a `fn` for `secondsToWait` seconds, if `keepWaitingIf` is true.
+ * Keep calling a `fn` for `timeoutInSeconds` seconds, if `keepWaitingIf` is true.
  * Returns an array of all attempts to call the function.
  */
 async function withExponentialBackoff<T>(
   fn: (previousFailure?: T) => Promise<T>,
   keepWaitingIf: (result: T) => boolean,
-  secondsToWait: number,
+  timeoutInSeconds: number,
   exponentialFactor = 1.5,
   verbose = false
 ): Promise<T[]> {
@@ -684,7 +714,7 @@ async function withExponentialBackoff<T>(
   attempts.push(await fn());
   if (!keepWaitingIf(attempts[attempts.length - 1])) return attempts;
 
-  const waitUntil = new Date(Date.now() + secondsToWait * 1000).valueOf();
+  const waitUntil = new Date(Date.now() + timeoutInSeconds * 1000).valueOf();
   let waitTime = 1000;
   let totalWaitTime = waitTime;
 
@@ -697,7 +727,7 @@ async function withExponentialBackoff<T>(
     if (verbose) {
       console.info(
         `Waiting ${waitTime}ms before trying again (bringing the total wait time to ${totalWaitTime}ms so far, of total ${
-          secondsToWait * 1000
+          timeoutInSeconds * 1000
         }ms)`
       );
     }

@@ -36,6 +36,7 @@ module.exports.rpcUrl = rpcUrl
 const networkPassphrase = process.env.SOROBAN_NETWORK_PASSPHRASE ?? "Standalone Network ; February 2017";
 module.exports.networkPassphrase = networkPassphrase
 
+// TODO: export Wallet class from soroban-sdk
 class Wallet {
   constructor(publicKey) {
     this.publicKey = publicKey

@@ -40,11 +40,8 @@ exe() { echo"${@/eval/}" ; "$@" ; }
 
 function fund_all() {
   exe eval "$soroban keys generate root"
-  exe eval "$soroban keys fund root"
   exe eval "$soroban keys generate alice"
-  exe eval "$soroban keys fund alice"
   exe eval "$soroban keys generate bob"
-  exe eval "$soroban keys fund bob"
 }
 function upload() {
   exe eval "($soroban contract $1 --source root --wasm $dirname/$2 --ignore-checks) > $dirname/$3"

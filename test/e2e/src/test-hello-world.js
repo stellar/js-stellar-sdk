@@ -1,6 +1,6 @@
 const test = require('ava')
 const fs = require('node:fs')
-const { ContractSpec } = require('../../..')
+const { ContractSpec, SorobanRpc } = require('../../..')
 const { root, wallet, rpcUrl, networkPassphrase } = require('./util')
 const xdr = require('../wasms/specs/test_hello_world.json')
 

@@ -719,7 +719,7 @@ export class ContractSpec {
         args: Record<string, any>,
         options: MethodOptions
       ) => {
-        return await AssembledTransaction.fromSimulation({
+        return await AssembledTransaction.build({
           method: name,
           args: spec.funcArgsToScVals(name, args),
           ...options,
