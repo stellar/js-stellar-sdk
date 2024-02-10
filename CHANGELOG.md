@@ -6,6 +6,9 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Breaking Changes
+* Downstream consumers must now polyfill an `EventSource` provider if they do not have native support or they will be opted out of Horizon streaming. This can be done via the [`eventsource`](https://www.npmjs.com/package/eventsource) package, i.e. `npm i eventsource` ([#878](https://github.com/stellar/js-stellar-sdk/pull/878)).
+
 
 ## [v11.2.1](https://github.com/stellar/js-stellar-sdk/compare/v11.2.0...v11.2.1)
 

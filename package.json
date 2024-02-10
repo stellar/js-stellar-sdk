@@ -88,7 +88,7 @@
     "@stellar/tsconfig": "^1.0.2",
     "@types/chai": "^4.3.6",
     "@types/detect-node": "^2.0.0",
-    "@types/eventsource": "^1.1.12",
+    "@types/eventsource": "^1.1.15",
     "@types/json-schema": "^7.0.15",
     "@types/lodash": "^4.14.199",
     "@types/mocha": "^10.0.2",
@@ -113,6 +113,7 @@
     "eslint-plugin-prefer-import": "^0.0.1",
     "eslint-plugin-prettier": "^5.1.2",
     "eslint-webpack-plugin": "^4.0.1",
+    "eventsource": "^2.0.2",
     "ghooks": "^2.0.4",
     "husky": "^8.0.3",
     "jsdoc": "^4.0.2",
@@ -145,10 +146,10 @@
     "@stellar/stellar-base": "^10.0.2",
     "axios": "^1.6.5",
     "bignumber.js": "^9.1.2",
-    "eventsource": "^2.0.2",
     "randombytes": "^2.1.0",
     "toml": "^3.0.0",
     "typescript": "^5.3.3",
     "urijs": "^1.19.1"
-  }
+  },
+  "packageManager": "yarn@1.22.21"
 }
