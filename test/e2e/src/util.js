@@ -1,5 +1,5 @@
 const { spawnSync } = require('node:child_process')
-const { Address, Keypair, TransactionBuilder, hash } = require('../../..')
+const { Address, Keypair, SorobanRpc } = require('../../..')
 
 const rootKeypair = Keypair.fromSecret(spawnSync("./target/bin/soroban", ["keys", "show", "root"], { shell: true, encoding: "utf8" }).stdout.trim());
 const aliceKeypair = Keypair.fromSecret(spawnSync("./target/bin/soroban", ["keys", "show", "alice"], { shell: true, encoding: "utf8" }).stdout.trim());
@@ -23,43 +23,9 @@ const bob = {
 }
 module.exports.bob = bob
 
-function getKeypair(pk) {
-  return Keypair.fromSecret({
-    [root.keypair.publicKey()]: root.keypair.secret(),
-    [alice.keypair.publicKey()]: alice.keypair.secret(),
-    [bob.keypair.publicKey()]: bob.keypair.secret(),
-  }[pk])
-}
-
 const rpcUrl = process.env.SOROBAN_RPC_URL ?? "http://localhost:8000/";
 module.exports.rpcUrl = rpcUrl
 const networkPassphrase = process.env.SOROBAN_NETWORK_PASSPHRASE ?? "Standalone Network ; February 2017";
 module.exports.networkPassphrase = networkPassphrase
 
-// TODO: export Wallet class from soroban-sdk
-class Wallet {
-  constructor(publicKey) {
-    this.publicKey = publicKey
-  }
-
-  isConnected = () => Promise.resolve(true) // eslint-disable-line class-methods-use-this
-
-  isAllowed = () => Promise.resolve(true) // eslint-disable-line class-methods-use-this
-
-  getUserInfo = () => Promise.resolve({ publicKey: this.publicKey })
-
-  signTransaction = async (tx) => {
-    const t = TransactionBuilder.fromXDR(tx, networkPassphrase);
-    t.sign(getKeypair(this.publicKey));
-    return t.toXDR();
-  }
-
-  signAuthEntry = async (entryXdr, opts) => (
-    getKeypair(opts?.accountToSign ?? this.publicKey)
-      .sign(hash(Buffer.from(entryXdr, "base64")))
-      .toString('base64')
-  )
-}
-module.exports.Wallet = Wallet
-
-module.exports.wallet = new Wallet(root.keypair.publicKey())
+module.exports.wallet = new SorobanRpc.ExampleNodeWallet(root.keypair, networkPassphrase)

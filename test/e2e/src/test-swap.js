@@ -1,7 +1,7 @@
 const test = require('ava')
 const fs = require('node:fs')
 const { SorobanRpc, ContractSpec } = require('../../..')
-const { wallet, rpcUrl, alice, bob, networkPassphrase, root, Wallet } = require('./util')
+const { wallet, rpcUrl, alice, bob, networkPassphrase, root } = require('./util')
 const swapXdr = require('../wasms/specs/test_swap.json')
 const tokenXdr = require('../wasms/specs/test_token.json')
 
@@ -30,7 +30,7 @@ function swapContractAs(invoker) {
     contractId: swapId,
     networkPassphrase,
     rpcUrl,
-    wallet: new Wallet(invoker.keypair.publicKey()),
+    wallet: new SorobanRpc.ExampleNodeWallet(invoker.keypair, networkPassphrase),
   })
 }
 

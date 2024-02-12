@@ -1,5 +1,5 @@
 import { AssembledTransaction } from '.'
-import { Account, ContractSpec, SorobanRpc, xdr } from '..'
+import { Account, ContractSpec, Keypair, SorobanRpc, TransactionBuilder, hash, xdr } from '..'
 
 export type XDR_BASE64 = string;
 
@@ -21,6 +21,34 @@ export interface Wallet {
       accountToSign?: string;
     }
   ) => Promise<XDR_BASE64>;
+}
+
+/**
+ * An example Wallet implementation that can be used for testing and potentially some simple Node.js applications. Feel free to use this as a starting point for your own Wallet implementation.
+ */
+export class ExampleNodeWallet implements Wallet {
+  constructor(
+    private keypair: Keypair,
+    private networkPassphrase: string,
+  ) {}
+
+  isConnected = () => Promise.resolve(true)
+
+  isAllowed = () => Promise.resolve(true)
+
+  getUserInfo = () => Promise.resolve({ publicKey: this.keypair.publicKey() })
+
+  signTransaction = async (tx: string) => {
+    const t = TransactionBuilder.fromXDR(tx, this.networkPassphrase);
+    t.sign(this.keypair);
+    return t.toXDR();
+  }
+
+  signAuthEntry = async (entryXdr: string): Promise<string> => {
+    return this.keypair
+      .sign(hash(Buffer.from(entryXdr, "base64")))
+      .toString('base64')
+  }
 }
 
 export interface AcceptsWalletOrAccount {
