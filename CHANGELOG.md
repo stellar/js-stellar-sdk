@@ -6,6 +6,9 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Fixed
+* Event streaming tests now pass on Node 20, which seems to have tighter conformance to the spec ([#917](https://github.com/stellar/js-stellar-sdk/pull/917)).
+
 
 ## [v11.2.1](https://github.com/stellar/js-stellar-sdk/compare/v11.2.0...v11.2.1)
 
