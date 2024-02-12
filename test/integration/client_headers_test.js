@@ -44,7 +44,14 @@ describe("integration tests: client headers", function (done) {
       let query = url.parse(request.url, true).query;
       expect(query["X-Client-Name"]).to.be.equal("js-stellar-sdk");
       expect(query["X-Client-Version"]).to.match(versionPattern);
+
+      // write a valid event stream so that we don't error prematurely
+      response.writeHead(200, {
+        "Content-Type": "text/event-stream",
+      });
+      response.write("retry: 10\nevent: close\ndata: byebye\n\n");
       response.end();
+
       server.close(() => {
         closeStream();
         done();
@@ -62,11 +69,7 @@ describe("integration tests: client headers", function (done) {
         allowHttp: true,
       })
         .operations()
-        .stream({
-          onerror: (err) => {
-            done(err);
-          },
-        });
+        .stream({ onerror: (err) => done(err) });
     });
   });
 });
