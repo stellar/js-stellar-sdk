@@ -120,6 +120,8 @@ module.exports = {
 
 There is also a [sample](https://github.com/fnando/rn-stellar-sdk-sample) that you can follow.
 
+**Note**: Only the V8 compiler (on Android) and JSC (on iOS) have proper support for `Buffer` and `Uint8Array` as is needed by this library. Otherwise, you may see bizarre errors when doing XDR encoding/decoding such as `source not specified`.
+
 #### Usage with Expo managed workflows
 
 1. Install `yarn add --dev rn-nodeify`
