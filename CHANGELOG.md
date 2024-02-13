@@ -6,6 +6,9 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Fixed
+* `SorobanRpc`: remove all instances of array-based parsing to conform to future breaking changes in Soroban RPC ([#924](https://github.com/stellar/js-stellar-sdk/pull/924)).
+
 
 ## [v11.2.2](https://github.com/stellar/js-stellar-sdk/compare/v11.2.1...v11.2.2)
 
