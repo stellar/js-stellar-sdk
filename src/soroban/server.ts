@@ -141,7 +141,7 @@ export class Server {
    * });
    */
   public async getHealth(): Promise<Api.GetHealthResponse> {
-    return jsonrpc.post<Api.GetHealthResponse>(
+    return jsonrpc.postObject<Api.GetHealthResponse>(
       this.serverURL.toString(),
       'getHealth'
     );
@@ -276,10 +276,11 @@ export class Server {
 
   public async _getLedgerEntries(...keys: xdr.LedgerKey[]) {
     return jsonrpc
-      .post<Api.RawGetLedgerEntriesResponse>(
+      .postObject<Api.RawGetLedgerEntriesResponse>(
         this.serverURL.toString(),
-        'getLedgerEntries',
-        keys.map((k) => k.toXDR('base64'))
+        'getLedgerEntries', {
+          keys: keys.map((k) => k.toXDR('base64'))
+        }
       );
   }
 
@@ -350,7 +351,7 @@ export class Server {
   public async _getTransaction(
     hash: string
   ): Promise<Api.RawGetTransactionResponse> {
-    return jsonrpc.post(this.serverURL.toString(), 'getTransaction', hash);
+    return jsonrpc.postObject(this.serverURL.toString(), 'getTransaction', {hash});
   }
 
   /**
@@ -427,7 +428,7 @@ export class Server {
    * });
    */
   public async getNetwork(): Promise<Api.GetNetworkResponse> {
-    return await jsonrpc.post(this.serverURL.toString(), 'getNetwork');
+    return await jsonrpc.postObject(this.serverURL.toString(), 'getNetwork');
   }
 
   /**
@@ -446,7 +447,7 @@ export class Server {
    * });
    */
   public async getLatestLedger(): Promise<Api.GetLatestLedgerResponse> {
-    return jsonrpc.post(this.serverURL.toString(), 'getLatestLedger');
+    return jsonrpc.postObject(this.serverURL.toString(), 'getLatestLedger');
   }
 
   /**
@@ -647,10 +648,10 @@ export class Server {
   public async _sendTransaction(
     transaction: Transaction | FeeBumpTransaction
   ): Promise<Api.RawSendTransactionResponse> {
-    return jsonrpc.post(
+    return jsonrpc.postObject(
       this.serverURL.toString(),
       'sendTransaction',
-      transaction.toXDR()
+      { transaction: transaction.toXDR() }
     );
   }
 
