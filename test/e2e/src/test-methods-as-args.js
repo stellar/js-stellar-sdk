@@ -1,21 +1,13 @@
 const test = require('ava')
-const fs = require('node:fs')
-const { ContractSpec } = require('../../..')
-const { wallet, rpcUrl, networkPassphrase } = require('./util')
-const xdr = require('../wasms/specs/test_hello_world.json')
-
-const spec = new ContractSpec(xdr)
-const contractId = fs.readFileSync(`${__dirname}/../contract-id-hello-world.txt`, "utf8").trim()
-const contract = spec.generateContractClient({
-  networkPassphrase,
-  contractId,
-  rpcUrl,
-  wallet,
-});
+const { clientFor } = require('./util')
 
 // this test checks that apps can pass methods as arguments to other methods and have them still work
-const { hello } = contract
+function callMethod(method, args) {
+  return method(args)
+}
 
-test("hello", async (t) => {
-  t.deepEqual((await hello({ world: "tests" })).result, ["Hello", "tests"]);
+test("methods-as-args", async (t) => {
+  const { client } = await clientFor('helloWorld')
+  const { result } = await callMethod(client.hello, { world: "tests" })
+  t.deepEqual(result, ["Hello", "tests"]);
 });

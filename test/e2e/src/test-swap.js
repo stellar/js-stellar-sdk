@@ -1,51 +1,50 @@
 const test = require('ava')
-const fs = require('node:fs')
-const { SorobanRpc, ContractSpec } = require('../../..')
-const { wallet, rpcUrl, alice, bob, networkPassphrase, root } = require('./util')
-const swapXdr = require('../wasms/specs/test_swap.json')
-const tokenXdr = require('../wasms/specs/test_token.json')
-
-const swapSpec = new ContractSpec(swapXdr)
-const tokenSpec = new ContractSpec(tokenXdr)
-
-const swapId = fs.readFileSync(`${__dirname}/../contract-id-swap.txt`, "utf8").trim()
-const tokenAId = fs.readFileSync(`${__dirname}/../contract-id-token-a.txt`, "utf8").trim()
-const tokenBId = fs.readFileSync(`${__dirname}/../contract-id-token-b.txt`, "utf8").trim()
-
-// `root` is the invoker of all contracts
-const tokenA = tokenSpec.generateContractClient({
-  contractId: tokenAId,
-  networkPassphrase,
-  rpcUrl,
-  wallet,
-})
-const tokenB = tokenSpec.generateContractClient({
-  contractId: tokenBId,
-  networkPassphrase,
-  rpcUrl,
-  wallet,
-})
-function swapContractAs(invoker) {
-  return swapSpec.generateContractClient({
-    contractId: swapId,
-    networkPassphrase,
-    rpcUrl,
-    wallet: new SorobanRpc.ExampleNodeWallet(invoker.keypair, networkPassphrase),
-  })
-}
+const { SorobanRpc } = require('../../..')
+const { clientFor, generateFundedKeypair } = require('./util')
 
 const amountAToSwap = 2n
 const amountBToSwap = 1n
-const alicePk = alice.keypair.publicKey()
-const bobPk = bob.keypair.publicKey()
+
+test.before(async t => {
+  const alice = await generateFundedKeypair()
+  const bob = await generateFundedKeypair()
+
+  const { client: tokenA, contractId: tokenAId, keypair: root } = await clientFor('token')
+  const { client: tokenB, contractId: tokenBId } = await clientFor('token', { keypair: root })
+  const { client: swapContractAsRoot, contractId: swapId } = await clientFor('swap', { keypair: root })
+  await (
+    await tokenA.initialize({ admin: root.publicKey(), decimal: 0, name: 'Token A', symbol: 'A' })
+  ).signAndSend()
+  await (
+    await tokenA.mint({ amount: amountAToSwap, to: alice.publicKey() })
+  ).signAndSend()
+
+  await (
+    await tokenB.initialize({ admin: root.publicKey(), decimal: 0, name: 'Token B', symbol: 'B' })
+  ).signAndSend()
+  await (
+    await tokenB.mint({ amount: amountBToSwap, to: bob.publicKey() })
+  ).signAndSend()
+
+  t.context = { // eslint-disable-line no-param-reassign
+    root,
+    alice,
+    bob,
+    swapContractAsRoot,
+    swapId,
+    tokenA,
+    tokenAId,
+    tokenB,
+    tokenBId,
+  }
+})
 
 test('calling `signAndSend()` too soon throws descriptive error', async t => {
-  const swapContract = swapContractAs(root)
-  const tx = await swapContract.swap({
-    a: alicePk,
-    b: bobPk,
-    token_a: tokenAId,
-    token_b: tokenBId,
+  const tx = await t.context.swapContractAsRoot.swap({
+    a: t.context.alice.publicKey(),
+    b: t.context.bob.publicKey(),
+    token_a: t.context.tokenAId,
+    token_b: t.context.tokenBId,
     amount_a: amountAToSwap,
     min_a_for_b: amountAToSwap,
     amount_b: amountBToSwap,
@@ -57,26 +56,11 @@ test('calling `signAndSend()` too soon throws descriptive error', async t => {
 })
 
 test('alice swaps bob 10 A for 1 B', async t => {
-  const swapContractAsRoot = swapContractAs(root)
-  const [
-    { result: aliceStartingABalance },
-    { result: aliceStartingBBalance },
-    { result: bobStartingABalance },
-    { result: bobStartingBBalance },
-  ] = await Promise.all([
-    tokenA.balance({ id: alicePk }),
-    tokenB.balance({ id: alicePk }),
-    tokenA.balance({ id: bobPk }),
-    tokenB.balance({ id: bobPk }),
-  ])
-  t.true(aliceStartingABalance >= amountAToSwap, `alice does not have enough Token A! aliceStartingABalance: ${aliceStartingABalance}`)
-  t.true(bobStartingBBalance >= amountBToSwap, `bob does not have enough Token B! bobStartingBBalance: ${bobStartingBBalance}`)
-
-  const tx = await swapContractAsRoot.swap({
-    a: alicePk,
-    b: bobPk,
-    token_a: tokenAId,
-    token_b: tokenBId,
+  const tx = await t.context.swapContractAsRoot.swap({
+    a: t.context.alice.publicKey(),
+    b: t.context.bob.publicKey(),
+    token_a: t.context.tokenAId,
+    token_b: t.context.tokenBId,
     amount_a: amountAToSwap,
     min_a_for_b: amountAToSwap,
     amount_b: amountBToSwap,
@@ -85,23 +69,35 @@ test('alice swaps bob 10 A for 1 B', async t => {
 
   const needsNonInvokerSigningBy = await tx.needsNonInvokerSigningBy()
   t.is(needsNonInvokerSigningBy.length, 2)
-  t.is(needsNonInvokerSigningBy.indexOf(alicePk), 0, 'needsNonInvokerSigningBy does not have alice\'s public key!')
-  t.is(needsNonInvokerSigningBy.indexOf(bobPk), 1, 'needsNonInvokerSigningBy does not have bob\'s public key!')
-
+  t.is(needsNonInvokerSigningBy.indexOf(t.context.alice.publicKey()), 0, 'needsNonInvokerSigningBy does not have alice\'s public key!')
+  t.is(needsNonInvokerSigningBy.indexOf(t.context.bob.publicKey()), 1, 'needsNonInvokerSigningBy does not have bob\'s public key!')
 
   // root serializes & sends to alice
   const jsonFromRoot = tx.toJSON()
-  const txAlice = swapContractAs(alice).txFromJSON(jsonFromRoot)
+  const { client: clientAlice } = await clientFor('swap', {
+    keypair: t.context.alice,
+    contractId: t.context.swapId,
+  })
+  const txAlice = clientAlice.txFromJSON(jsonFromRoot)
   await txAlice.signAuthEntries()
 
   // alice serializes & sends to bob
   const jsonFromAlice = txAlice.toJSON()
-  const txBob = swapContractAs(bob).txFromJSON(jsonFromAlice)
+  const { client: clientBob } = await clientFor('swap', {
+    keypair: t.context.bob,
+    contractId: t.context.swapId,
+  })
+  const txBob = clientBob.txFromJSON(jsonFromAlice)
   await txBob.signAuthEntries()
 
   // bob serializes & sends back to root
   const jsonFromBob = txBob.toJSON()
-  const txRoot = swapContractAsRoot.txFromJSON(jsonFromBob)
+  const { client: clientRoot } = await clientFor('swap', {
+    keypair: t.context.root,
+    contractId: t.context.swapId,
+  })
+  const txRoot = clientRoot.txFromJSON(jsonFromBob)
+
   const result = await txRoot.signAndSend()
 
   t.truthy(result.sendTransactionResponse, `tx failed: ${JSON.stringify(result, null, 2)}`)
@@ -119,19 +115,19 @@ test('alice swaps bob 10 A for 1 B', async t => {
   )
 
   t.is(
-    (await tokenA.balance({ id: alicePk })).result,
-    aliceStartingABalance - amountAToSwap
+    (await t.context.tokenA.balance({ id: t.context.alice.publicKey() })).result,
+    0n
   )
   t.is(
-    (await tokenB.balance({ id: alicePk })).result,
-    aliceStartingBBalance + amountBToSwap
+    (await t.context.tokenB.balance({ id: t.context.alice.publicKey() })).result,
+    amountBToSwap
   )
   t.is(
-    (await tokenA.balance({ id: bobPk })).result,
-    bobStartingABalance + amountAToSwap
+    (await t.context.tokenA.balance({ id: t.context.bob.publicKey() })).result,
+    amountAToSwap
   )
   t.is(
-    (await tokenB.balance({ id: bobPk })).result,
-    bobStartingBBalance - amountBToSwap
+    (await t.context.tokenB.balance({ id: t.context.bob.publicKey() })).result,
+    0n
   )
 })

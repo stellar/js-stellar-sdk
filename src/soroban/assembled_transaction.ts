@@ -202,7 +202,12 @@ export class AssembledTransaction<T> {
 
     options.account = options.account ?? getAccount(tx.server, options.wallet);
 
-    tx.raw = new TransactionBuilder(await options.account, {
+    // re-fetch account to set correct sequenceNumber
+    const account = (await options.account).accountId() === NULL_ACCOUNT
+      ? await options.account
+      : await tx.server.getAccount((await options.account).accountId());
+
+    tx.raw = new TransactionBuilder(account, {
       fee: options.fee?.toString(10) ?? BASE_FEE,
       networkPassphrase: options.networkPassphrase,
     })

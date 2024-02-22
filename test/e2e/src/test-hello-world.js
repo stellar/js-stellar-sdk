@@ -1,35 +1,23 @@
 const test = require('ava')
-const fs = require('node:fs')
-const { ContractSpec, SorobanRpc } = require('../../..')
-const { root, wallet, rpcUrl, networkPassphrase } = require('./util')
-const xdr = require('../wasms/specs/test_hello_world.json')
-
-const spec = new ContractSpec(xdr)
-const contractId = fs.readFileSync(`${__dirname}/../contract-id-hello-world.txt`, "utf8").trim()
-const contract = spec.generateContractClient({
-  networkPassphrase,
-  contractId,
-  rpcUrl,
-  wallet,
-});
+const { clientFor } = require('./util')
 
 test("hello", async (t) => {
-  t.deepEqual((await contract.hello({ world: "tests" })).result, ["Hello", "tests"]);
+  const { client } = await clientFor('helloWorld')
+  t.deepEqual((await client.hello({ world: "tests" })).result, ["Hello", "tests"]);
 });
 
 test("auth", async (t) => {
-  t.deepEqual(
-    (await contract.auth({
-      addr: root.keypair.publicKey(),
-      world: 'lol'
-    })).result,
-    root.address.toString()
-  )
+  const { client, keypair } = await clientFor('helloWorld')
+  const publicKey = keypair.publicKey()
+  const { result } = await client.auth({ addr: publicKey, world: 'lol' })
+  t.deepEqual(result, publicKey)
 });
 
 test("inc", async (t) => {
-  const { result: startingBalance } = await contract.getCount()
-  const inc = await contract.inc()
+  const { client } = await clientFor('helloWorld')
+  const { result: startingBalance } = await client.getCount()
+  const inc = await client.inc()
   t.is((await inc.signAndSend()).result, startingBalance + 1)
-  t.is((await contract.getCount()).result, startingBalance + 1)
+  t.is(startingBalance, 0)
+  t.is((await client.getCount()).result, startingBalance + 1)
 });
