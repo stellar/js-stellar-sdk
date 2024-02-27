@@ -4,9 +4,7 @@ import { Account, ContractSpec, Keypair, SorobanRpc, TransactionBuilder, hash, x
 export type XDR_BASE64 = string;
 
 export interface Wallet {
-  isConnected: () => Promise<boolean>;
-  isAllowed: () => Promise<boolean>;
-  getUserInfo: () => Promise<{ publicKey?: string }>;
+  getPublicKey: () => Promise<string | undefined>;
   signTransaction: (
     tx: XDR_BASE64,
     opts?: {
@@ -32,11 +30,7 @@ export class ExampleNodeWallet implements Wallet {
     private networkPassphrase: string,
   ) {}
 
-  isConnected = () => Promise.resolve(true)
-
-  isAllowed = () => Promise.resolve(true)
-
-  getUserInfo = () => Promise.resolve({ publicKey: this.keypair.publicKey() })
+  getPublicKey = () => Promise.resolve(this.keypair.publicKey());
 
   signTransaction = async (tx: string) => {
     const t = TransactionBuilder.fromXDR(tx, this.networkPassphrase);
@@ -53,7 +47,8 @@ export class ExampleNodeWallet implements Wallet {
 
 export interface AcceptsWalletOrAccount {
   /**
-   * A Wallet interface, such as Freighter, that has the methods `isConnected`, `isAllowed`, `getUserInfo`, and `signTransaction`. If not provided, will attempt to import and use Freighter. Example:
+   * A Wallet interface, such as Freighter, that has the methods
+   * `getPublicKey`, `signTransaction`, and `signAuthEntry`. Example:
    *
    * @example
    * ```ts
@@ -75,14 +70,6 @@ export interface AcceptsWalletOrAccount {
   account?: Account | Promise<Account>;
 };
 
-async function getPublicKey(wallet?: Wallet): Promise<string | undefined> {
-  if (!wallet) return undefined;
-  if (!(await wallet.isConnected()) || !(await wallet.isAllowed())) {
-    return undefined;
-  }
-  return (await wallet.getUserInfo()).publicKey;
-};
-
 export const NULL_ACCOUNT =
   "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF";
 
@@ -95,7 +82,7 @@ export const NULL_ACCOUNT =
  * provide a connected wallet.
  */
 export async function getAccount(server: SorobanRpc.Server, wallet?: Wallet): Promise<Account> {
-  const publicKey = await getPublicKey(wallet);
+  const publicKey = await wallet?.getPublicKey();
   return publicKey
     ? await server.getAccount(publicKey)
     : new Account(NULL_ACCOUNT, "0");
