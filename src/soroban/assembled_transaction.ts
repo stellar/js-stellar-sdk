@@ -81,7 +81,9 @@ export type AssembledTransactionOptions<T = string> = MethodOptions &
 
 export class AssembledTransaction<T> {
   /**
-   * The TransactionBuilder as constructed in `{@link AssembledTransaction}.build`. Feel free set `simulate: false` to modify this object before calling `tx.simulate()` manually. Example:
+   * The TransactionBuilder as constructed in `{@link
+   * AssembledTransaction}.build`. Feel free set `simulate: false` to modify
+   * this object before calling `tx.simulate()` manually. Example:
    *
    * ```ts
    * const tx = await myContract.myMethod(
@@ -94,28 +96,41 @@ export class AssembledTransaction<T> {
    */
   public raw?: TransactionBuilder;
   /**
-   * The Transaction as it was built with `raw.build()` right before simulation. Once this is set, modifying `raw` will have no effect unless you call `tx.simulate()` again.
+   * The Transaction as it was built with `raw.build()` right before
+   * simulation. Once this is set, modifying `raw` will have no effect unless
+   * you call `tx.simulate()` again.
    */
   public built?: Tx;
   /**
-   * The result of the transaction simulation. This is set after the first call to `simulate`. It is difficult to serialize and deserialize, so it is not included in the `toJSON` and `fromJSON` methods. See `simulationResult` and `simulationTransactionData` for cached, serializable versions of the data needed by AssembledTransaction logic.
+   * The result of the transaction simulation. This is set after the first call
+   * to `simulate`. It is difficult to serialize and deserialize, so it is not
+   * included in the `toJSON` and `fromJSON` methods. See `simulationData`
+   * cached, serializable access to the data needed by AssembledTransaction
+   * logic.
    */
-  private simulation?: SorobanRpc.Api.SimulateTransactionResponse;
+  public simulation?: SorobanRpc.Api.SimulateTransactionResponse;
   /**
-   * Cached simulation result. This is set after the first call to `simulationData`, and is used to facilitate serialization and deserialization of the AssembledTransaction.
+   * Cached simulation result. This is set after the first call to
+   * `simulationData`, and is used to facilitate serialization and
+   * deserialization of the AssembledTransaction.
    */
   private simulationResult?: SorobanRpc.Api.SimulateHostFunctionResult;
   /**
-   * Cached simulation transaction data. This is set after the first call to `simulationData`, and is used to facilitate serialization and deserialization of the AssembledTransaction.
+   * Cached simulation transaction data. This is set after the first call to
+   * `simulationData`, and is used to facilitate serialization and
+   * deserialization of the AssembledTransaction.
    */
   private simulationTransactionData?: xdr.SorobanTransactionData;
   /**
-   * The Soroban server to use for all RPC calls. This is constructed from the `rpcUrl` in the options.
+   * The Soroban server to use for all RPC calls. This is constructed from the
+   * `rpcUrl` in the options.
    */
   private server: SorobanRpc.Server;
 
   /**
-   * A list of the most important errors that various AssembledTransaction methods can throw. Feel free to catch specific errors in your application logic.
+   * A list of the most important errors that various AssembledTransaction
+   * methods can throw. Feel free to catch specific errors in your application
+   * logic.
    */
   static Errors = {
     ExpiredState: class ExpiredStateError extends Error {},
