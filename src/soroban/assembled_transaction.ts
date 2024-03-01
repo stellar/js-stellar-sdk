@@ -1,10 +1,7 @@
 import type {
   ContractClientOptions,
-  AcceptsWalletOrAccount,
-  Wallet,
   XDR_BASE64,
 } from ".";
-import { NULL_ACCOUNT } from ".";
 import {
   BASE_FEE,
   Contract,
@@ -54,7 +51,7 @@ class Err<E extends ErrorMessage> implements Result<never, E> {
   isErr() { return true }
 }
 
-export type MethodOptions = AcceptsWalletOrAccount & {
+export type MethodOptions = {
   /**
    * The fee to pay for the transaction. Default: BASE_FEE
    */
@@ -122,9 +119,9 @@ export class AssembledTransaction<T> {
     NeedsMoreSignatures: class NeedsMoreSignaturesError extends Error {},
     NoSignatureNeeded: class NoSignatureNeededError extends Error {},
     NoUnsignedNonInvokerAuthEntries: class NoUnsignedNonInvokerAuthEntriesError extends Error {},
-    NoWallet: class NoWalletError extends Error {},
+    NoSigner: class NoSignerError extends Error {},
     NotYetSimulated: class NotYetSimulatedError extends Error {},
-    WalletDisconnected: class WalletDisconnectedError extends Error {},
+    FakeAccount: class FakeAccountError extends Error {},
   }
 
   /**
@@ -200,12 +197,7 @@ export class AssembledTransaction<T> {
     const tx = new AssembledTransaction(options);
     const contract = new Contract(options.contractId);
 
-    options.account = options.account ?? getAccount(tx.server, options.wallet);
-
-    // re-fetch account to set correct sequenceNumber
-    const account = (await options.account).accountId() === NULL_ACCOUNT
-      ? await options.account
-      : await tx.server.getAccount((await options.account).accountId());
+    const account = await getAccount(tx.server, await options.publicKey);
 
     tx.raw = new TransactionBuilder(account, {
       fee: options.fee?.toString(10) ?? BASE_FEE,
@@ -318,19 +310,16 @@ export class AssembledTransaction<T> {
    */
   signAndSend = async ({
     force = false,
-    wallet = this.options.wallet,
+    signTransaction = this.options.signTransaction,
   }: {
     /**
      * If `true`, sign and send the transaction even if it is a read call.
      */
     force?: boolean;
     /**
-     * The wallet to use for signing. If not provided, the wallet from the
-     * options will be used. You must provide a wallet here if you did not
-     * provide one before, but the only method it needs to include at this
-     * point is `signTransaction`.
+     * You must provide this here if you did not provide one before
      */
-    wallet?: Pick<Wallet, "signTransaction">;
+    signTransaction?: ContractClientOptions["signTransaction"];
   } = {}): Promise<SentTransaction<T>> => {
     if (!this.built) {
       throw new Error("Transaction has not yet been simulated");
@@ -338,26 +327,33 @@ export class AssembledTransaction<T> {
 
     if (!force && this.isReadCall) {
       throw new AssembledTransaction.Errors.NoSignatureNeeded(
-        "This is a read call. It requires no signature or sending. Use `force: true` to sign and send anyway."
+        "This is a read call. It requires no signature or sending. " +
+        "Use `force: true` to sign and send anyway."
       );
     }
 
-    if (!wallet) {
-      throw new AssembledTransaction.Errors.NoWallet("No wallet provided");
+    if (!signTransaction) {
+      throw new AssembledTransaction.Errors.NoSigner(
+        "You must provide a signTransaction function, either when calling " +
+        "`signAndSend` or when initializing your ContractClient"
+      );
     }
 
     if (!(await this.hasRealInvoker())) {
-      throw new AssembledTransaction.Errors.WalletDisconnected("Wallet is not connected");
+      throw new AssembledTransaction.Errors.FakeAccount(
+        "You must provide a real `publicKey` in order to sign transactions"
+      );
     }
 
     if ((await this.needsNonInvokerSigningBy()).length) {
       throw new AssembledTransaction.Errors.NeedsMoreSignatures(
-        "Transaction requires more signatures. See `needsNonInvokerSigningBy` for details."
+        "Transaction requires more signatures. " +
+        "See `needsNonInvokerSigningBy` for details."
       );
     }
 
     const typeChecked: AssembledTransaction<T> = this
-    return await SentTransaction.init(wallet, typeChecked);
+    return await SentTransaction.init(signTransaction, typeChecked);
   };
 
   getStorageExpiration = async () => {
@@ -469,7 +465,7 @@ export class AssembledTransaction<T> {
    */
   signAuthEntries = async ({
     expiration = this.getStorageExpiration(),
-    wallet = this.options.wallet,
+    signAuthEntry = this.options.signAuthEntry,
   }: {
     /**
      * When to set each auth entry to expire. Could be any number of blocks in
@@ -479,12 +475,9 @@ export class AssembledTransaction<T> {
      */
     expiration?: number | Promise<number> 
     /**
-     * The wallet to use for signing. If not provided, the wallet from the
-     * options will be used. You must provide a wallet here if you did not
-     * provide one before, but the only method it needs to include at this
-     * point is `signAuthEntry`.
+     * You must provide this here if you did not provide one before
      */
-    wallet?: Pick<Wallet, "signAuthEntry">;
+    signAuthEntry?: ContractClientOptions["signAuthEntry"];
   } = {}): Promise<void> => {
     if (!this.built)
       throw new Error("Transaction has not yet been assembled or simulated");
@@ -495,21 +488,21 @@ export class AssembledTransaction<T> {
         "No unsigned non-invoker auth entries; maybe you already signed?"
       );
     }
-    const publicKey = (await this.options.account)!.accountId()
-    if (!publicKey) {
-      throw new AssembledTransaction.Errors.NoWallet(
-        "Could not get public key from wallet; maybe not signed in?"
+    if (!(await this.hasRealInvoker())) {
+      throw new AssembledTransaction.Errors.FakeAccount(
+        "You must provide a real `publicKey` in order to sign transactions"
       );
     }
-    if (needsNonInvokerSigningBy.indexOf(publicKey) === -1) {
+    const publicKey = await this.options.publicKey
+    if (needsNonInvokerSigningBy.indexOf(publicKey ?? '') === -1) {
       throw new AssembledTransaction.Errors.NoSignatureNeeded(
         `No auth entries for public key "${publicKey}"`
       );
     }
-    if (!wallet) {
-      throw new AssembledTransaction.Errors.NoWallet(
-        'You must either provide a `wallet` when calling `signAuthEntries`, ' +
-        'or provide one when constructing the `AssembledTransaction`'
+    if (!signAuthEntry) {
+      throw new AssembledTransaction.Errors.NoSigner(
+        'You must provide `signAuthEntry` when calling `signAuthEntries`, ' +
+        'or when constructing the `ContractClient` or `AssembledTransaction`'
       );
     }
 
@@ -540,7 +533,7 @@ export class AssembledTransaction<T> {
         entry,
         async (preimage) =>
           Buffer.from(
-            await wallet.signAuthEntry(preimage.toXDR("base64")),
+            await signAuthEntry(preimage.toXDR("base64")),
             "base64"
           ),
         await expiration,
@@ -559,7 +552,7 @@ export class AssembledTransaction<T> {
   }
 
   hasRealInvoker = async (): Promise<boolean> => {
-    return (await this.options.account!).accountId() !== NULL_ACCOUNT;
+    return !!(await this.options.publicKey)
   };
 }
 
@@ -590,26 +583,31 @@ class SentTransaction<T> {
   }
 
   constructor(
-    public wallet: Pick<Wallet, "signTransaction">,
+    public signTransaction: ContractClientOptions["signTransaction"],
     public assembled: AssembledTransaction<T>
   ) {
+    if (!signTransaction) {
+      throw new Error(
+        "You must provide a `signTransaction` function to send a transaction"
+      );
+    }
     this.server = new SorobanRpc.Server(this.assembled.options.rpcUrl, {
       allowHttp: this.assembled.options.rpcUrl.startsWith("http://"),
     });
   }
 
   static init = async <T>(
-    wallet: Pick<Wallet, "signTransaction">,
+    signTransaction: ContractClientOptions["signTransaction"],
     assembled: AssembledTransaction<T>,
   ): Promise<SentTransaction<T>> => {
-    const tx = new SentTransaction(wallet, assembled);
+    const tx = new SentTransaction(signTransaction, assembled);
     return await tx.send();
   };
 
   private send = async (): Promise<this> => {
     const timeoutInSeconds = this.assembled.options.timeoutInSeconds ?? DEFAULT_TIMEOUT
 
-    const signature = await this.wallet.signTransaction(
+    const signature = await this.signTransaction!(
       // `signAndSend` checks for `this.built` before calling `SentTransaction.init`
       this.assembled.built!.toXDR(),
       {

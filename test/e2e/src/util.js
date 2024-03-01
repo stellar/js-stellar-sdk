@@ -76,7 +76,8 @@ async function clientFor(contract, { keypair = generateFundedKeypair(), contract
     networkPassphrase,
     contractId,
     rpcUrl,
-    wallet,
+    publicKey: keypair.publicKey(),
+    ...wallet,
   });
   return {
     keypair,

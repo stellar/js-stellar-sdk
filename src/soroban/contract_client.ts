@@ -3,34 +3,20 @@ import { Account, ContractSpec, Keypair, SorobanRpc, TransactionBuilder, hash, x
 
 export type XDR_BASE64 = string;
 
-export interface Wallet {
-  getPublicKey: () => Promise<string | undefined>;
-  signTransaction: (
-    tx: XDR_BASE64,
-    opts?: {
-      network?: string;
-      networkPassphrase?: string;
-      accountToSign?: string;
-    }
-  ) => Promise<XDR_BASE64>;
-  signAuthEntry: (
-    entryXdr: XDR_BASE64,
-    opts?: {
-      accountToSign?: string;
-    }
-  ) => Promise<XDR_BASE64>;
-}
-
 /**
- * An example Wallet implementation that can be used for testing and potentially some simple Node.js applications. Feel free to use this as a starting point for your own Wallet implementation.
+ * An example Wallet implementation that can be used for testing and
+ * potentially some simple Node applications, which provides `signTransaction`
+ * and `signAuthEntry` with the function signatures expected by ContractClient
+ * & AssembledTransaction.
+ *
+ * Feel free to use this as a starting point for your own
+ * Wallet/TransactionSigner implementation.
  */
-export class ExampleNodeWallet implements Wallet {
+export class ExampleNodeWallet {
   constructor(
     private keypair: Keypair,
     private networkPassphrase: string,
   ) {}
-
-  getPublicKey = () => Promise.resolve(this.keypair.publicKey());
 
   signTransaction = async (tx: string) => {
     const t = TransactionBuilder.fromXDR(tx, this.networkPassphrase);
@@ -45,50 +31,60 @@ export class ExampleNodeWallet implements Wallet {
   }
 }
 
-export interface AcceptsWalletOrAccount {
-  /**
-   * A Wallet interface, such as Freighter, that has the methods
-   * `getPublicKey`, `signTransaction`, and `signAuthEntry`. Example:
-   *
-   * @example
-   * ```ts
-   * import freighter from "@stellar/freighter-api";
-   * import { Contract } from "test_custom_types";
-   * const contract = new Contract({
-   *   …,
-   *   wallet: freighter,
-   * })
-   * ```
-   */
-  wallet?: Wallet;
-
-  /**
-   * You can pass in `wallet` OR `account`, but not both. If you only pass
-   * `wallet`, `account` will be derived from it. If you can bypass this
-   * behavior by passing in your own account object.
-   */
-  account?: Account | Promise<Account>;
-};
-
 export const NULL_ACCOUNT =
   "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF";
 
 /**
- * Get account details from the Soroban network for the publicKey currently
- * selected in user's wallet. If user is not connected to their wallet, {@link
- * getPublicKey} returns undefined, and this will return {@link NULL_ACCOUNT}.
- * This works for simulations, which is all that's needed for most view calls.
- * If you want the transaction to be included in the ledger, you will need to
- * provide a connected wallet.
+ * Get account details from the Soroban network for given publicKey. If no
+ * publicKey is provided, will return an Account object for
+ * {@link NULL_ACCOUNT}.
  */
-export async function getAccount(server: SorobanRpc.Server, wallet?: Wallet): Promise<Account> {
-  const publicKey = await wallet?.getPublicKey();
+export async function getAccount(server: SorobanRpc.Server, publicKey?: string): Promise<Account> {
   return publicKey
     ? await server.getAccount(publicKey)
     : new Account(NULL_ACCOUNT, "0");
 };
 
-export type ContractClientOptions = AcceptsWalletOrAccount & {
+export type ContractClientOptions = {
+  /**
+   * The account to use for signing transactions. If not provided, a null
+   * account will be used for the transaction simulation. If the transaction
+   * needs to be signed and sent, this is required.
+   */
+  publicKey?: string | Promise<string>;
+  /**
+   * A function to sign the transaction using the private key corresponding to
+   * the given `publicKey`. You do not need to provide this, for read-only
+   * calls, which only need to be simulated. If you do not need to sign and
+   * send, there is no need to provide this. If you do not provide it during
+   * initialization, you can provide it later when you call
+   * {@link AssembledTransaction#signAndSend}.
+   *
+   * Matches signature of `signTransaction` from Freighter.
+   */
+  signTransaction?: (
+    tx: XDR_BASE64,
+    opts?: {
+      network?: string;
+      networkPassphrase?: string;
+      accountToSign?: string;
+    }
+  ) => Promise<XDR_BASE64>;
+  /**
+   * A function to sign a specific auth entry for a transaction, using the
+   * private key corresponding to the provided `publicKey`. This is only needed
+   * for multi-auth transactions, in which one transaction is signed by
+   * multiple parties. If you do not provide it during initialization, you can
+   * provide it later when you call {@link AssembledTransaction#signAuthEntries}.
+   *
+   * Matches signature of `signAuthEntry` from Freighter.
+   */
+  signAuthEntry?: (
+    entryXdr: XDR_BASE64,
+    opts?: {
+      accountToSign?: string;
+    }
+  ) => Promise<XDR_BASE64>;
   contractId: string;
   networkPassphrase: string;
   rpcUrl: string;
@@ -96,17 +92,10 @@ export type ContractClientOptions = AcceptsWalletOrAccount & {
 };
 
 export class ContractClient {
-  private server: SorobanRpc.Server;
-
   constructor(
     public readonly spec: ContractSpec,
     public readonly options: ContractClientOptions,
-  ) {
-    this.server = new SorobanRpc.Server(this.options.rpcUrl, {
-      allowHttp: this.options.rpcUrl.startsWith("http://"),
-    });
-    options.account = options.account ?? getAccount(this.server, options.wallet);
-  }
+  ) {}
 
   txFromJSON = <T>(json: string): AssembledTransaction<T> => {
     const { method, ...tx } = JSON.parse(json)
