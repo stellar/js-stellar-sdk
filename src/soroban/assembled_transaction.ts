@@ -3,6 +3,7 @@ import type {
   XDR_BASE64,
 } from ".";
 import {
+  Account,
   BASE_FEE,
   Contract,
   Operation,
@@ -13,7 +14,6 @@ import {
   hash,
   xdr,
 } from "..";
-import { getAccount } from "./contract_client";
 import { Memo, MemoType, Transaction } from "..";
 
 type Tx = Transaction<Memo<MemoType>, Operation[]>;
@@ -50,6 +50,9 @@ class Err<E extends ErrorMessage> implements Result<never, E> {
   isOk() { return false }
   isErr() { return true }
 }
+
+export const NULL_ACCOUNT =
+  "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF";
 
 export type MethodOptions = {
   /**
@@ -197,7 +200,10 @@ export class AssembledTransaction<T> {
     const tx = new AssembledTransaction(options);
     const contract = new Contract(options.contractId);
 
-    const account = await getAccount(tx.server, await options.publicKey);
+    const pk = await options.publicKey;
+    const account = pk
+      ? await tx.server.getAccount(pk)
+      : new Account(NULL_ACCOUNT, "0");
 
     tx.raw = new TransactionBuilder(account, {
       fee: options.fee?.toString(10) ?? BASE_FEE,

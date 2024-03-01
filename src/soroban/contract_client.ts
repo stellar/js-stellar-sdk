@@ -1,5 +1,5 @@
 import { AssembledTransaction } from '.'
-import { Account, ContractSpec, Keypair, SorobanRpc, TransactionBuilder, hash, xdr } from '..'
+import { ContractSpec, Keypair, TransactionBuilder, hash, xdr } from '..'
 
 export type XDR_BASE64 = string;
 
@@ -30,20 +30,6 @@ export class ExampleNodeWallet {
       .toString('base64')
   }
 }
-
-export const NULL_ACCOUNT =
-  "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF";
-
-/**
- * Get account details from the Soroban network for given publicKey. If no
- * publicKey is provided, will return an Account object for
- * {@link NULL_ACCOUNT}.
- */
-export async function getAccount(server: SorobanRpc.Server, publicKey?: string): Promise<Account> {
-  return publicKey
-    ? await server.getAccount(publicKey)
-    : new Account(NULL_ACCOUNT, "0");
-};
 
 export type ContractClientOptions = {
   /**
