@@ -74,6 +74,11 @@ export type ContractClientOptions = {
   contractId: string;
   networkPassphrase: string;
   rpcUrl: string;
+  /**
+   * If true, will allow HTTP requests to the Soroban network. If false, will
+   * only allow HTTPS requests. @default false
+   */
+  allowHttp: boolean;
   errorTypes?: Record<number, { message: string }>;
 };
 
