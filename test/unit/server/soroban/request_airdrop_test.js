@@ -126,7 +126,7 @@ describe("Server#requestAirdrop", function () {
         jsonrpc: "2.0",
         id: 1,
         method: "getLedgerEntries",
-        params: [[accountKey.toXDR("base64")]],
+        params: { keys: [accountKey.toXDR("base64")] },
       })
       .returns(
         Promise.resolve({

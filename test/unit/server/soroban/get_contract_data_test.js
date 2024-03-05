@@ -55,7 +55,7 @@ describe("Server#getContractData", function () {
         jsonrpc: "2.0",
         id: 1,
         method: "getLedgerEntries",
-        params: [[ledgerKey.toXDR("base64")]],
+        params: { keys: [ledgerKey.toXDR("base64")] },
       })
       .returns(
         Promise.resolve({
@@ -99,7 +99,7 @@ describe("Server#getContractData", function () {
         jsonrpc: "2.0",
         id: 1,
         method: "getLedgerEntries",
-        params: [[ledgerKeyDupe.toXDR("base64")]],
+        params: { keys: [ledgerKeyDupe.toXDR("base64")] },
       })
       .returns(Promise.resolve({ data: { result: { entries: [] } } }));
 

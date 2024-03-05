@@ -42,7 +42,7 @@ describe("Server#sendTransaction", function () {
         jsonrpc: "2.0",
         id: 1,
         method: "sendTransaction",
-        params: [this.blob],
+        params: { transaction: this.blob },
       })
       .returns(
         Promise.resolve({
@@ -78,7 +78,7 @@ describe("Server#sendTransaction", function () {
         jsonrpc: "2.0",
         id: 1,
         method: "sendTransaction",
-        params: [this.blob],
+        params: { transaction: this.blob },
       })
       .returns(
         Promise.resolve({
