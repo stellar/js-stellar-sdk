@@ -138,6 +138,7 @@
     "taffydb": "^2.7.3",
     "terser-webpack-plugin": "^5.3.10",
     "ts-node": "^10.9.2",
+    "typescript": "^5.3.3",
     "webpack": "^5.90.1",
     "webpack-cli": "^5.0.1"
   },
@@ -148,7 +149,6 @@
     "eventsource": "^2.0.2",
     "randombytes": "^2.1.0",
     "toml": "^3.0.0",
-    "typescript": "^5.3.3",
     "urijs": "^1.19.1"
   }
 }
