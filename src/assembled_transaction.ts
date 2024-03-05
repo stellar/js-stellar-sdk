@@ -1,55 +1,28 @@
 import type {
   ContractClientOptions,
   XDR_BASE64,
-} from ".";
+} from "./contract_client";
 import {
   Account,
   BASE_FEE,
   Contract,
+  ContractSpec,
+  Memo,
+  MemoType,
   Operation,
   SorobanRpc,
   StrKey,
+  Transaction,
   TransactionBuilder,
   authorizeEntry,
   hash,
   xdr,
-} from "..";
-import { Memo, MemoType, Transaction } from "..";
+} from ".";
 
 type Tx = Transaction<Memo<MemoType>, Operation[]>;
 
 type SendTx = SorobanRpc.Api.SendTransactionResponse;
 type GetTx = SorobanRpc.Api.GetTransactionResponse;
-
-/**
- * Error interface containing the error message
- */
-interface ErrorMessage {
-  message: string;
-}
-
-interface Result<T, E extends ErrorMessage> {
-  unwrap(): T;
-  unwrapErr(): E;
-  isOk(): boolean;
-  isErr(): boolean;
-}
-
-class Ok<T> implements Result<T, never> {
-  constructor(readonly value: T) {}
-  unwrapErr(): never { throw new Error("No error") }
-  unwrap() { return this.value }
-  isOk() { return true }
-  isErr() { return false }
-}
-
-class Err<E extends ErrorMessage> implements Result<never, E> {
-  constructor(readonly error: E) {}
-  unwrapErr() { return this.error }
-  unwrap(): never { throw new Error(this.error.message) }
-  isOk() { return false }
-  isErr() { return true }
-}
 
 export const NULL_ACCOUNT =
   "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF";
@@ -143,21 +116,10 @@ export class AssembledTransaction<T> {
   }
 
   /**
-   * A minimal implementation of Rust's `Result` type. Used for contract methods that return Results, to maintain their distinction from methods that simply either return a value or throw.
-   */
-  static Result = {
-    /**
-     * A minimal implementation of Rust's `Ok` Result type. Used for contract methods that return successful Results, to maintain their distinction from methods that simply either return a value or throw.
-     */
-    Ok,
-    /**
-     * A minimal implementation of Rust's `Error` Result type. Used for contract methods that return unsuccessful Results, to maintain their distinction from methods that simply either return a value or throw.
-     */
-    Err
-  }
-
-  /**
-   * Serialize the AssembledTransaction to a JSON string. This is useful for saving the transaction to a database or sending it over the wire for multi-auth workflows. `fromJSON` can be used to deserialize the transaction. This only works with transactions that have been simulated.
+   * Serialize the AssembledTransaction to a JSON string. This is useful for
+   * saving the transaction to a database or sending it over the wire for
+   * multi-auth workflows. `fromJSON` can be used to deserialize the
+   * transaction. This only works with transactions that have been simulated.
    */
   toJSON() {
     return JSON.stringify({
@@ -312,14 +274,15 @@ export class AssembledTransaction<T> {
     }
   }
 
-  parseError(errorMessage: string): Result<never, ErrorMessage> | undefined {
+  parseError(errorMessage: string) {
     if (!this.options.errorTypes) return undefined;
     const match = errorMessage.match(contractErrorPattern);
     if (!match) return undefined;
     let i = parseInt(match[1], 10);
     let err = this.options.errorTypes[i];
     if (!err) return undefined;
-    return new AssembledTransaction.Result.Err(err);
+    const Err = ContractSpec.Result.Err;
+    return new Err(err);
   }
 
   /**

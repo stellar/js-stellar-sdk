@@ -7,12 +7,6 @@ import {
   Contract,
   scValToBigInt,
 } from ".";
-import {
-  AssembledTransaction,
-  ContractClient,
-  ContractClientOptions,
-  MethodOptions,
-} from './soroban';
 
 export interface Union<T> {
   tag: string;
@@ -26,6 +20,48 @@ function readObj(args: object, input: xdr.ScSpecFunctionInputV0): any {
     throw new Error(`Missing field ${inputName}`);
   }
   return entry[1];
+}
+
+/**
+ * A minimal implementation of Rust's `Result` type. Used for contract
+ * methods that return Results, to maintain their distinction from methods
+ * that simply either return a value or throw.
+ */
+interface Result<T, E extends ErrorMessage> {
+  unwrap(): T;
+  unwrapErr(): E;
+  isOk(): boolean;
+  isErr(): boolean;
+}
+
+/**
+ * Error interface containing the error message. Matches Rust's implementation.
+ * See reasoning in {@link Result}.
+ */
+interface ErrorMessage {
+  message: string;
+}
+
+/**
+ * Part of implementing {@link Result}.
+ */
+class Ok<T> implements Result<T, never> {
+  constructor(readonly value: T) {}
+  unwrapErr(): never { throw new Error("No error") }
+  unwrap() { return this.value }
+  isOk() { return true }
+  isErr() { return false }
+}
+
+/**
+ * Part of implementing {@link Result}.
+ */
+class Err<E extends ErrorMessage> implements Result<never, E> {
+  constructor(readonly error: E) {}
+  unwrapErr() { return this.error }
+  unwrap(): never { throw new Error(this.error.message) }
+  isOk() { return false }
+  isErr() { return true }
 }
 
 /**
@@ -54,6 +90,25 @@ function readObj(args: object, input: xdr.ScSpecFunctionInputV0): any {
  * ```
  */
 export class ContractSpec {
+  /**
+   * A minimal implementation of Rust's `Result` type. Used for contract
+   * methods that return Results, to maintain their distinction from methods
+   * that simply either return a value or throw.
+   */
+  static Result = {
+    /**
+     * A minimal implementation of Rust's `Ok` Result type. Used for contract
+     * methods that return successful Results, to maintain their distinction
+     * from methods that simply either return a value or throw.
+     */
+    Ok,
+    /**
+     * A minimal implementation of Rust's `Error` Result type. Used for
+     * contract methods that return unsuccessful Results, to maintain their
+     * distinction from methods that simply either return a value or throw.
+     */
+    Err
+  }
   public entries: xdr.ScSpecEntry[] = [];
 
   /**
@@ -169,7 +224,7 @@ export class ContractSpec {
     }
     let output = outputs[0];
     if (output.switch().value === xdr.ScSpecType.scSpecTypeResult().value) {
-      return new AssembledTransaction.Result.Ok(
+      return new ContractSpec.Result.Ok(
         this.scValToNative(val, output.result().okType())
       );
     }
@@ -703,44 +758,6 @@ export class ContractSpec {
   }
 
   /**
-   * Generate a class from the contract spec that where each contract method gets included with a possibly-JSified name.
-   *
-   * Each method returns an AssembledTransaction object that can be used to sign and submit the transaction.
-   */
-  generateContractClient(options: ContractClientOptions): ContractClient {
-    const spec = this;
-    let methods = this.funcs();
-    const contractClient = new ContractClient(spec, options);
-    for (let method of methods) {
-      let name = method.name().toString();
-      let jsName = toLowerCamelCase(name);
-      // @ts-ignore
-      contractClient[jsName] = async (
-        args: Record<string, any>,
-        options: MethodOptions
-      ) => {
-        return await AssembledTransaction.build({
-          method: name,
-          args: spec.funcArgsToScVals(name, args),
-          ...options,
-          ...contractClient.options,
-          errorTypes: spec
-            .errorCases()
-            .reduce(
-              (acc, curr) => ({
-                ...acc,
-                [curr.value()]: { message: curr.doc().toString() },
-              }),
-              {} as Pick<ContractClientOptions, "errorTypes">
-            ),
-          parseResultXdr: (result: xdr.ScVal) => spec.funcResToNative(name, result),
-        });
-      };
-    }
-    return contractClient;
-  }
-
-  /**
    * Converts the contract spec to a JSON schema.
    *
    * If `funcName` is provided, the schema will be a reference to the function schema.
@@ -1198,13 +1215,6 @@ function enumToJsonSchema(udt: xdr.ScSpecUdtEnumV0): any {
     res.description = description;
   }
   return res;
-}
-
-/**
- * converts a snake_case string to camelCase
- */
-export function toLowerCamelCase(str: string): string {
-  return str.replace(/_\w/g, (m) => m[1].toUpperCase());
 }
 
 export type u32 = number;

@@ -1,5 +1,6 @@
 const { spawnSync } = require('node:child_process')
 const { ContractSpec, Keypair } = require('../../..')
+const { ContractClient } = require('../../../lib/contract_client')
 const { ExampleNodeWallet } = require('../../../lib/example_node_wallet')
 
 const contracts = {
@@ -73,7 +74,7 @@ async function clientFor(contract, { keypair = generateFundedKeypair(), contract
     wasmHash,
   ], { shell: true, encoding: "utf8" }).stdout.trim();
 
-  const client = spec.generateContractClient({
+  const client = ContractClient.generate(spec, {
     networkPassphrase,
     contractId,
     rpcUrl,

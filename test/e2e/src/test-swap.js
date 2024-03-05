@@ -1,5 +1,6 @@
 const test = require('ava')
 const { SorobanRpc } = require('../../..')
+const { AssembledTransaction } = require('../../../lib/assembled_transaction')
 const { clientFor, generateFundedKeypair } = require('./util')
 
 const amountAToSwap = 2n
@@ -51,7 +52,7 @@ test('calling `signAndSend()` too soon throws descriptive error', async t => {
     min_b_for_a: amountBToSwap,
   })
   const error = await t.throwsAsync(tx.signAndSend())
-  t.true(error instanceof SorobanRpc.AssembledTransaction.Errors.NeedsMoreSignatures, `error is not of type 'NeedsMoreSignaturesError'; instead it is of type '${error?.constructor.name}'`)
+  t.true(error instanceof AssembledTransaction.Errors.NeedsMoreSignatures, `error is not of type 'NeedsMoreSignaturesError'; instead it is of type '${error?.constructor.name}'`)
   if (error) t.regex(error.message, /needsNonInvokerSigningBy/)
 })
 

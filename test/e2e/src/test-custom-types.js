@@ -1,5 +1,5 @@
 const test = require('ava')
-const { Address, SorobanRpc } = require('../../..')
+const { Address, ContractSpec } = require('../../..')
 const { clientFor } = require('./util')
 
 test.before(async t => {
@@ -21,11 +21,11 @@ test('woid', async t => {
 test('u32_fail_on_even', async t => {
   t.deepEqual(
     (await t.context.client.u32FailOnEven({ u32_: 1 })).result,
-    new SorobanRpc.AssembledTransaction.Result.Ok(1)
+    new ContractSpec.Result.Ok(1)
   )
   t.deepEqual(
     (await t.context.client.u32FailOnEven({ u32_: 2 })).result,
-    new SorobanRpc.AssembledTransaction.Result.Err({ message: "Please provide an odd number" })
+    new ContractSpec.Result.Err({ message: "Please provide an odd number" })
   )
 })
 
