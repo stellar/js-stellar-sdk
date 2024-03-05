@@ -1,5 +1,6 @@
 const { spawnSync } = require('node:child_process')
-const { ContractSpec, Keypair, SorobanRpc } = require('../../..')
+const { ContractSpec, Keypair } = require('../../..')
+const { ExampleNodeWallet } = require('../../../lib/example_node_wallet')
 
 const contracts = {
   customTypes: {
@@ -53,7 +54,7 @@ async function clientFor(contract, { keypair = generateFundedKeypair(), contract
   }
 
   keypair = await keypair // eslint-disable-line no-param-reassign
-  const wallet = new SorobanRpc.ExampleNodeWallet(keypair, networkPassphrase)
+  const wallet = new ExampleNodeWallet(keypair, networkPassphrase)
 
   const spec = new ContractSpec(contracts[contract].xdr)
 

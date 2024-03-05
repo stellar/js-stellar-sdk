@@ -1,35 +1,7 @@
 import { AssembledTransaction } from '.'
-import { ContractSpec, Keypair, TransactionBuilder, hash, xdr } from '..'
+import { ContractSpec, xdr } from '..'
 
 export type XDR_BASE64 = string;
-
-/**
- * An example Wallet implementation that can be used for testing and
- * potentially some simple Node applications, which provides `signTransaction`
- * and `signAuthEntry` with the function signatures expected by ContractClient
- * & AssembledTransaction.
- *
- * Feel free to use this as a starting point for your own
- * Wallet/TransactionSigner implementation.
- */
-export class ExampleNodeWallet {
-  constructor(
-    private keypair: Keypair,
-    private networkPassphrase: string,
-  ) {}
-
-  signTransaction = async (tx: string) => {
-    const t = TransactionBuilder.fromXDR(tx, this.networkPassphrase);
-    t.sign(this.keypair);
-    return t.toXDR();
-  }
-
-  signAuthEntry = async (entryXdr: string): Promise<string> => {
-    return this.keypair
-      .sign(hash(Buffer.from(entryXdr, "base64")))
-      .toString('base64')
-  }
-}
 
 export type ContractClientOptions = {
   /**
