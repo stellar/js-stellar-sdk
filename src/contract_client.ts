@@ -53,6 +53,23 @@ export type ContractClientOptions = {
    * only allow HTTPS requests. @default false
    */
   allowHttp: boolean;
+  /**
+   * This gets filled in automatically from the ContractSpec if you use
+   * {@link ContractClient.generate} to create your ContractClient.
+   *
+   * Background: If the contract you're calling uses the `#[contracterror]`
+   * macro to create an `Error` enum, then those errors get included in the
+   * on-chain XDR that also describes your contract's methods. Each error will
+   * have a specific number.
+   *
+   * A ContractClient makes method calls with an {@link AssembledTransaction}.
+   * When one of these method calls encounters an error, `AssembledTransaction`
+   * will first attempt to parse the error as an "official" `contracterror`
+   * error, by using this passed-in `errorTypes` object. See
+   * {@link AssembledTransaction#parseError}. If `errorTypes` is blank or no
+   * matching error is found,, then it will throw the raw error.
+   * @default {}
+   */
   errorTypes?: Record<number, { message: string }>;
 };
 
