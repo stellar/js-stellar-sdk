@@ -41,6 +41,7 @@ export type MethodOptions = {
    * Whether to automatically simulate the transaction when constructing the AssembledTransaction. Default: true
    */
   simulate?: boolean;
+  publicKey?: Promise<string> | string;
 };
 
 const DEFAULT_TIMEOUT = 10;
@@ -450,6 +451,7 @@ export class AssembledTransaction<T> {
   signAuthEntries = async ({
     expiration = this.getStorageExpiration(),
     signAuthEntry = this.options.signAuthEntry,
+    publicKey = this.options.publicKey,
   }: {
     /**
      * When to set each auth entry to expire. Could be any number of blocks in
@@ -459,7 +461,14 @@ export class AssembledTransaction<T> {
      */
     expiration?: number | Promise<number> 
     /**
-     * You must provide this here if you did not provide one before
+     * Sign all auth entries for this account. Default: the account that
+     * constructed the transaction
+     */
+    publicKey?: string | Promise<string>;
+    /**
+     * You must provide this here if you did not provide one before. Default:
+     * the `signAuthEntry` function from the `ContractClient` options. Must
+     * sign things as the given `publicKey`.
      */
     signAuthEntry?: ContractClientOptions["signAuthEntry"];
   } = {}): Promise<void> => {
@@ -477,7 +486,7 @@ export class AssembledTransaction<T> {
         "You must provide a real `publicKey` in order to sign transactions"
       );
     }
-    const publicKey = await this.options.publicKey
+    publicKey = await publicKey
     if (needsNonInvokerSigningBy.indexOf(publicKey ?? '') === -1) {
       throw new AssembledTransaction.Errors.NoSignatureNeeded(
         `No auth entries for public key "${publicKey}"`
