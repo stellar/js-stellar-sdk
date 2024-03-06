@@ -1,6 +1,6 @@
 const test = require('ava')
 const { SorobanRpc } = require('../../..')
-const { AssembledTransaction } = require('../../../lib/assembled_transaction')
+const { AssembledTransaction } = require('../../../lib/contract_client')
 const { clientFor, generateFundedKeypair } = require('./util')
 
 const amountAToSwap = 2n

@@ -1,4 +1,4 @@
-import { Keypair, TransactionBuilder, hash } from '.'
+import { Keypair, TransactionBuilder, hash } from '..'
 
 /**
  * For use with {@link ContractClient} and {@link AssembledTransaction}.
@@ -7,7 +7,7 @@ import { Keypair, TransactionBuilder, hash } from '.'
  * applications. Feel free to use this as a starting point for your own
  * Wallet/TransactionSigner implementation.
  */
-export class ExampleNodeWallet {
+export class BasicNodeSigner {
   constructor(
     private keypair: Keypair,
     private networkPassphrase: string,

@@ -1,7 +1,5 @@
-import { Networks } from '@stellar/stellar-base'
-import { AssembledTransaction, MethodOptions } from './assembled_transaction'
-import { ContractSpec, xdr } from '.'
-
+import { Networks } from '..'
+import { xdr } from '..'
 export type XDR_BASE64 = string;
 
 export type ContractClientOptions = {
@@ -73,65 +71,26 @@ export type ContractClientOptions = {
   errorTypes?: Record<number, { message: string }>;
 };
 
-/**
- * converts a snake_case string to camelCase
- */
-function toLowerCamelCase(str: string): string {
-  return str.replace(/_\w/g, (m) => m[1].toUpperCase());
-}
-
-export class ContractClient {
+export type MethodOptions = {
   /**
-   * Generate a class from the contract spec that where each contract method gets included with a possibly-JSified name.
-   *
-   * Each method returns an AssembledTransaction object that can be used to sign and submit the transaction.
+   * The fee to pay for the transaction. Default: BASE_FEE
    */
-  static generate(spec: ContractSpec, options: ContractClientOptions): ContractClient {
-    let methods = spec.funcs();
-    const contractClient = new ContractClient(spec, options);
-    for (let method of methods) {
-      let name = method.name().toString();
-      let jsName = toLowerCamelCase(name);
-      // @ts-ignore
-      contractClient[jsName] = async (
-        args: Record<string, any>,
-        options: MethodOptions
-      ) => {
-        return await AssembledTransaction.build({
-          method: name,
-          args: spec.funcArgsToScVals(name, args),
-          ...options,
-          ...contractClient.options,
-          errorTypes: spec
-            .errorCases()
-            .reduce(
-              (acc, curr) => ({
-                ...acc,
-                [curr.value()]: { message: curr.doc().toString() },
-              }),
-              {} as Pick<ContractClientOptions, "errorTypes">
-            ),
-          parseResultXdr: (result: xdr.ScVal) => spec.funcResToNative(name, result),
-        });
-      };
-    }
-    return contractClient;
-  }
+  fee?: number;
+  /**
+   * The maximum amount of time to wait for the transaction to complete. Default: {@link DEFAULT_TIMEOUT}
+   */
+  timeoutInSeconds?: number;
 
-  constructor(
-    public readonly spec: ContractSpec,
-    public readonly options: ContractClientOptions,
-  ) {}
+  /**
+   * Whether to automatically simulate the transaction when constructing the AssembledTransaction. Default: true
+   */
+  simulate?: boolean;
+};
 
-  txFromJSON = <T>(json: string): AssembledTransaction<T> => {
-    const { method, ...tx } = JSON.parse(json)
-    return AssembledTransaction.fromJSON(
-      {
-        ...this.options,
-        method,
-        parseResultXdr: (result: xdr.ScVal) => this.spec.funcResToNative(method, result),
-      },
-      tx,
-    );
-  }
-}
+export type AssembledTransactionOptions<T = string> = MethodOptions &
+  ContractClientOptions & {
+    method: string;
+    args?: any[];
+    parseResultXdr: (xdr: xdr.ScVal) => T;
+  };
+

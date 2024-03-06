@@ -1,7 +1,8 @@
 import type {
   ContractClientOptions,
   XDR_BASE64,
-} from "./contract_client";
+  AssembledTransactionOptions,
+} from "./types";
 import {
   BASE_FEE,
   Contract,
@@ -16,38 +17,14 @@ import {
   authorizeEntry,
   hash,
   xdr,
-} from ".";
+} from "..";
+
+const DEFAULT_TIMEOUT = 10;
 
 type Tx = Transaction<Memo<MemoType>, Operation[]>;
 
 type SendTx = SorobanRpc.Api.SendTransactionResponse;
 type GetTx = SorobanRpc.Api.GetTransactionResponse;
-
-export type MethodOptions = {
-  /**
-   * The fee to pay for the transaction. Default: BASE_FEE
-   */
-  fee?: number;
-  /**
-   * The maximum amount of time to wait for the transaction to complete. Default: {@link DEFAULT_TIMEOUT}
-   */
-  timeoutInSeconds?: number;
-
-  /**
-   * Whether to automatically simulate the transaction when constructing the AssembledTransaction. Default: true
-   */
-  simulate?: boolean;
-};
-
-const DEFAULT_TIMEOUT = 10;
-
-export type AssembledTransactionOptions<T = string> = MethodOptions &
-  ContractClientOptions & {
-    method: string;
-    args?: any[];
-    parseResultXdr: (xdr: xdr.ScVal) => T;
-  };
-
 export class AssembledTransaction<T> {
   /**
    * The TransactionBuilder as constructed in `{@link

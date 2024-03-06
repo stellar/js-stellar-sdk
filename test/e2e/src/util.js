@@ -1,8 +1,9 @@
-const { Networks } = require('@stellar/stellar-base')
 const { spawnSync } = require('node:child_process')
-const { ContractSpec, Keypair } = require('../../..')
-const { ContractClient } = require('../../../lib/contract_client')
-const { ExampleNodeWallet } = require('../../../lib/example_node_wallet')
+const { ContractSpec, Keypair, Networks } = require('../../..')
+const {
+  ContractClient,
+  BasicNodeSigner,
+} = require('../../../lib/contract_client')
 
 const contracts = {
   customTypes: {
@@ -56,7 +57,7 @@ async function clientFor(contract, { keypair = generateFundedKeypair(), contract
   }
 
   keypair = await keypair // eslint-disable-line no-param-reassign
-  const wallet = new ExampleNodeWallet(keypair, networkPassphrase)
+  const wallet = new BasicNodeSigner(keypair, networkPassphrase)
 
   const spec = new ContractSpec(contracts[contract].xdr)
 
