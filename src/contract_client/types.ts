@@ -65,7 +65,7 @@ export type ContractClientOptions = {
    * will first attempt to parse the error as an "official" `contracterror`
    * error, by using this passed-in `errorTypes` object. See
    * {@link AssembledTransaction#parseError}. If `errorTypes` is blank or no
-   * matching error is found,, then it will throw the raw error.
+   * matching error is found, then it will throw the raw error.
    * @default {}
    */
   errorTypes?: Record<number, { message: string }>;
