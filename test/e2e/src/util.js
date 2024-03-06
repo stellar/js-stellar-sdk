@@ -1,3 +1,4 @@
+const { Networks } = require('@stellar/stellar-base')
 const { spawnSync } = require('node:child_process')
 const { ContractSpec, Keypair } = require('../../..')
 const { ContractClient } = require('../../../lib/contract_client')
@@ -25,7 +26,7 @@ module.exports.contracts = contracts
 
 const rpcUrl = process.env.SOROBAN_RPC_URL ?? "http://localhost:8000/soroban/rpc";
 module.exports.rpcUrl = rpcUrl
-const networkPassphrase = process.env.SOROBAN_NETWORK_PASSPHRASE ?? "Standalone Network ; February 2017";
+const networkPassphrase = process.env.SOROBAN_NETWORK_PASSPHRASE ?? Networks.STANDALONE;
 module.exports.networkPassphrase = networkPassphrase
 const friendbotUrl = process.env.SOROBAN_FRIENDBOT_URL ?? "http://localhost:8000/friendbot";
 module.exports.friendbotUrl = friendbotUrl

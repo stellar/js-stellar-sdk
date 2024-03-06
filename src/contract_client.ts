@@ -1,3 +1,4 @@
+import { Networks } from '@stellar/stellar-base'
 import { AssembledTransaction, MethodOptions } from './assembled_transaction'
 import { ContractSpec, xdr } from '.'
 
@@ -45,7 +46,7 @@ export type ContractClientOptions = {
     }
   ) => Promise<XDR_BASE64>;
   contractId: string;
-  networkPassphrase: string;
+  networkPassphrase: Networks;
   rpcUrl: string;
   /**
    * If true, will allow HTTP requests to the Soroban network. If false, will
