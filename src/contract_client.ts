@@ -5,11 +5,12 @@ export type XDR_BASE64 = string;
 
 export type ContractClientOptions = {
   /**
-   * The account to use for signing transactions. If not provided, a null
-   * account will be used for the transaction simulation. If the transaction
-   * needs to be signed and sent, this is required.
+   * The public key of the account that will send this transaction. You can
+   * override this for specific methods later, like
+   * {@link AssembledTransaction#signAndSend} and
+   * {@link AssembledTransaction#signAuthEntries}.
    */
-  publicKey?: string | Promise<string>;
+  publicKey: string;
   /**
    * A function to sign the transaction using the private key corresponding to
    * the given `publicKey`. You do not need to provide this, for read-only

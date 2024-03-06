@@ -3,7 +3,6 @@ import type {
   XDR_BASE64,
 } from "./contract_client";
 import {
-  Account,
   BASE_FEE,
   Contract,
   ContractSpec,
@@ -24,9 +23,6 @@ type Tx = Transaction<Memo<MemoType>, Operation[]>;
 type SendTx = SorobanRpc.Api.SendTransactionResponse;
 type GetTx = SorobanRpc.Api.GetTransactionResponse;
 
-export const NULL_ACCOUNT =
-  "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF";
-
 export type MethodOptions = {
   /**
    * The fee to pay for the transaction. Default: BASE_FEE
@@ -41,7 +37,6 @@ export type MethodOptions = {
    * Whether to automatically simulate the transaction when constructing the AssembledTransaction. Default: true
    */
   simulate?: boolean;
-  publicKey?: Promise<string> | string;
 };
 
 const DEFAULT_TIMEOUT = 10;
@@ -178,10 +173,7 @@ export class AssembledTransaction<T> {
     const tx = new AssembledTransaction(options);
     const contract = new Contract(options.contractId);
 
-    const pk = await options.publicKey;
-    const account = pk
-      ? await tx.server.getAccount(pk)
-      : new Account(NULL_ACCOUNT, "0");
+    const account = await tx.server.getAccount(options.publicKey);
 
     tx.raw = new TransactionBuilder(account, {
       fee: options.fee?.toString(10) ?? BASE_FEE,
@@ -324,12 +316,6 @@ export class AssembledTransaction<T> {
       );
     }
 
-    if (!(await this.hasRealInvoker())) {
-      throw new AssembledTransaction.Errors.FakeAccount(
-        "You must provide a real `publicKey` in order to sign transactions"
-      );
-    }
-
     if ((await this.needsNonInvokerSigningBy()).length) {
       throw new AssembledTransaction.Errors.NeedsMoreSignatures(
         "Transaction requires more signatures. " +
@@ -464,7 +450,7 @@ export class AssembledTransaction<T> {
      * Sign all auth entries for this account. Default: the account that
      * constructed the transaction
      */
-    publicKey?: string | Promise<string>;
+    publicKey?: string;
     /**
      * You must provide this here if you did not provide one before. Default:
      * the `signAuthEntry` function from the `ContractClient` options. Must
@@ -481,12 +467,6 @@ export class AssembledTransaction<T> {
         "No unsigned non-invoker auth entries; maybe you already signed?"
       );
     }
-    if (!(await this.hasRealInvoker())) {
-      throw new AssembledTransaction.Errors.FakeAccount(
-        "You must provide a real `publicKey` in order to sign transactions"
-      );
-    }
-    publicKey = await publicKey
     if (needsNonInvokerSigningBy.indexOf(publicKey ?? '') === -1) {
       throw new AssembledTransaction.Errors.NoSignatureNeeded(
         `No auth entries for public key "${publicKey}"`
@@ -543,10 +523,6 @@ export class AssembledTransaction<T> {
       .readWrite().length;
     return authsCount === 0 && writeLength === 0;
   }
-
-  hasRealInvoker = async (): Promise<boolean> => {
-    return !!(await this.options.publicKey)
-  };
 }
 
 /**
