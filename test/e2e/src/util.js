@@ -76,7 +76,7 @@ async function clientFor(contract, { keypair = generateFundedKeypair(), contract
     wasmHash,
   ], { shell: true, encoding: "utf8" }).stdout.trim();
 
-  const client = ContractClient.generate(spec, {
+  const client = new ContractClient(spec, {
     networkPassphrase,
     contractId,
     rpcUrl,

@@ -11,18 +11,23 @@ function toLowerCamelCase(str: string): string {
 
 export class ContractClient {
   /**
-   * Generate a class from the contract spec that where each contract method gets included with a possibly-JSified name.
+   * Generate a class from the contract spec that where each contract method
+   * gets included with a JSified name.
    *
-   * Each method returns an AssembledTransaction object that can be used to sign and submit the transaction.
+   * Each method returns an {@link AssembledTransaction} that can be used to
+   * modify, simulate, decode results, and possibly sign, & submit the
+   * transaction.
    */
-  static generate(spec: ContractSpec, options: ContractClientOptions): ContractClient {
-    let methods = spec.funcs();
-    const contractClient = new ContractClient(spec, options);
+  constructor(
+    public readonly spec: ContractSpec,
+    public readonly options: ContractClientOptions,
+  ) {
+    let methods = this.spec.funcs();
     for (let method of methods) {
       let name = method.name().toString();
       let jsName = toLowerCamelCase(name);
       // @ts-ignore
-      contractClient[jsName] = async (
+      this[jsName] = async (
         args: Record<string, any>,
         options: MethodOptions
       ) => {
@@ -30,7 +35,7 @@ export class ContractClient {
           method: name,
           args: spec.funcArgsToScVals(name, args),
           ...options,
-          ...contractClient.options,
+          ...this.options,
           errorTypes: spec
             .errorCases()
             .reduce(
@@ -44,13 +49,7 @@ export class ContractClient {
         });
       };
     }
-    return contractClient;
   }
-
-  constructor(
-    public readonly spec: ContractSpec,
-    public readonly options: ContractClientOptions,
-  ) {}
 
   txFromJSON = <T>(json: string): AssembledTransaction<T> => {
     const { method, ...tx } = JSON.parse(json)
