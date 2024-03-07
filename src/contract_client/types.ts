@@ -1,6 +1,18 @@
 import { Networks } from '..'
 import { xdr } from '..'
+
 export type XDR_BASE64 = string;
+export type u32 = number;
+export type i32 = number;
+export type u64 = bigint;
+export type i64 = bigint;
+export type u128 = bigint;
+export type i128 = bigint;
+export type u256 = bigint;
+export type i256 = bigint;
+export type Option<T> = T | undefined;
+export type Typepoint = bigint;
+export type Duration = bigint;
 
 export type ContractClientOptions = {
   /**
