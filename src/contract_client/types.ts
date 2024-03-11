@@ -1,4 +1,3 @@
-import { Networks } from '..'
 import { xdr } from '..'
 
 export type XDR_BASE64 = string;
@@ -56,13 +55,13 @@ export type ContractClientOptions = {
     }
   ) => Promise<XDR_BASE64>;
   contractId: string;
-  networkPassphrase: Networks;
+  networkPassphrase: string;
   rpcUrl: string;
   /**
    * If true, will allow HTTP requests to the Soroban network. If false, will
    * only allow HTTPS requests. @default false
    */
-  allowHttp: boolean;
+  allowHttp?: boolean;
   /**
    * This gets filled in automatically from the ContractSpec if you use
    * {@link ContractClient.generate} to create your ContractClient.

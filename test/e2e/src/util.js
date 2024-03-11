@@ -1,5 +1,5 @@
 const { spawnSync } = require('node:child_process')
-const { ContractSpec, Keypair, Networks } = require('../../..')
+const { ContractSpec, Keypair } = require('../../..')
 const {
   ContractClient,
   BasicNodeSigner,
@@ -27,7 +27,7 @@ module.exports.contracts = contracts
 
 const rpcUrl = process.env.SOROBAN_RPC_URL ?? "http://localhost:8000/soroban/rpc";
 module.exports.rpcUrl = rpcUrl
-const networkPassphrase = process.env.SOROBAN_NETWORK_PASSPHRASE ?? Networks.STANDALONE;
+const networkPassphrase = process.env.SOROBAN_NETWORK_PASSPHRASE ?? "Standalone Network ; February 2017";
 module.exports.networkPassphrase = networkPassphrase
 const friendbotUrl = process.env.SOROBAN_FRIENDBOT_URL ?? "http://localhost:8000/friendbot";
 module.exports.friendbotUrl = friendbotUrl
