@@ -6,7 +6,6 @@ import type {
 import {
   BASE_FEE,
   Contract,
-  ContractSpec,
   Memo,
   MemoType,
   Operation,
@@ -18,6 +17,7 @@ import {
   hash,
   xdr,
 } from "..";
+import { Err } from "../rust_types";
 
 const DEFAULT_TIMEOUT = 10;
 
@@ -251,7 +251,6 @@ export class AssembledTransaction<T> {
     let i = parseInt(match[1], 10);
     let err = this.options.errorTypes[i];
     if (!err) return undefined;
-    const Err = ContractSpec.Result.Err;
     return new Err(err);
   }
 

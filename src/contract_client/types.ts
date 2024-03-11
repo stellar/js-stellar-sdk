@@ -85,9 +85,10 @@ export type ContractClientOptions = {
 
 export type MethodOptions = {
   /**
-   * The fee to pay for the transaction. Default: BASE_FEE
+   * The fee to pay for the transaction. Default: {@link BASE_FEE}
    */
   fee?: number;
+
   /**
    * The maximum amount of time to wait for the transaction to complete. Default: {@link DEFAULT_TIMEOUT}
    */

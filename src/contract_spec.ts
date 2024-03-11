@@ -7,6 +7,7 @@ import {
   Contract,
   scValToBigInt,
 } from ".";
+import { Ok } from "./rust_types";
 
 export interface Union<T> {
   tag: string;
@@ -20,48 +21,6 @@ function readObj(args: object, input: xdr.ScSpecFunctionInputV0): any {
     throw new Error(`Missing field ${inputName}`);
   }
   return entry[1];
-}
-
-/**
- * A minimal implementation of Rust's `Result` type. Used for contract
- * methods that return Results, to maintain their distinction from methods
- * that simply either return a value or throw.
- */
-interface Result<T, E extends ErrorMessage> {
-  unwrap(): T;
-  unwrapErr(): E;
-  isOk(): boolean;
-  isErr(): boolean;
-}
-
-/**
- * Error interface containing the error message. Matches Rust's implementation.
- * See reasoning in {@link Result}.
- */
-interface ErrorMessage {
-  message: string;
-}
-
-/**
- * Part of implementing {@link Result}.
- */
-class Ok<T> implements Result<T, never> {
-  constructor(readonly value: T) {}
-  unwrapErr(): never { throw new Error("No error") }
-  unwrap() { return this.value }
-  isOk() { return true }
-  isErr() { return false }
-}
-
-/**
- * Part of implementing {@link Result}.
- */
-class Err<E extends ErrorMessage> implements Result<never, E> {
-  constructor(readonly error: E) {}
-  unwrapErr() { return this.error }
-  unwrap(): never { throw new Error(this.error.message) }
-  isOk() { return false }
-  isErr() { return true }
 }
 
 /**
@@ -90,25 +49,6 @@ class Err<E extends ErrorMessage> implements Result<never, E> {
  * ```
  */
 export class ContractSpec {
-  /**
-   * A minimal implementation of Rust's `Result` type. Used for contract
-   * methods that return Results, to maintain their distinction from methods
-   * that simply either return a value or throw.
-   */
-  static Result = {
-    /**
-     * A minimal implementation of Rust's `Ok` Result type. Used for contract
-     * methods that return successful Results, to maintain their distinction
-     * from methods that simply either return a value or throw.
-     */
-    Ok,
-    /**
-     * A minimal implementation of Rust's `Error` Result type. Used for
-     * contract methods that return unsuccessful Results, to maintain their
-     * distinction from methods that simply either return a value or throw.
-     */
-    Err
-  }
   public entries: xdr.ScSpecEntry[] = [];
 
   /**
@@ -224,7 +164,7 @@ export class ContractSpec {
     }
     let output = outputs[0];
     if (output.switch().value === xdr.ScSpecType.scSpecTypeResult().value) {
-      return new ContractSpec.Result.Ok(
+      return new Ok(
         this.scValToNative(val, output.result().okType())
       );
     }
