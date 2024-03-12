@@ -2,7 +2,7 @@ const { spawnSync } = require('node:child_process')
 const { ContractSpec, Keypair } = require('../../..')
 const {
   ContractClient,
-  BasicNodeSigner,
+  basicNodeSigner,
 } = require('../../../lib/contract_client')
 
 const contracts = {
@@ -57,7 +57,7 @@ async function clientFor(contract, { keypair = generateFundedKeypair(), contract
   }
 
   keypair = await keypair // eslint-disable-line no-param-reassign
-  const wallet = new BasicNodeSigner(keypair, networkPassphrase)
+  const wallet = basicNodeSigner(keypair, networkPassphrase)
 
   const spec = new ContractSpec(contracts[contract].xdr)
 
