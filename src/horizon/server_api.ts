@@ -1,5 +1,4 @@
 import { Asset } from "@stellar/stellar-base";
-import { Omit } from "utility-types";
 import { HorizonApi } from "./horizon_api";
 
 // more types

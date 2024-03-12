@@ -6,6 +6,33 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Fixed
+* `SorobanRpc`: remove all instances of array-based parsing to conform to future breaking changes in Soroban RPC ([#924](https://github.com/stellar/js-stellar-sdk/pull/924)).
+
+
+## [v11.2.2](https://github.com/stellar/js-stellar-sdk/compare/v11.2.1...v11.2.2)
+
+### Fixed
+* Event streaming tests now pass on Node 20, which seems to have tighter conformance to the spec ([#917](https://github.com/stellar/js-stellar-sdk/pull/917)).
+* `@stellar/stellar-base` has been upgraded to its latest major version ([#918](https://github.com/stellar/js-stellar-sdk/pull/918), see [v11.0.0](https://github.com/stellar/js-stellar-base/releases/tag/v11.0.0) for release notes).
+
+
+## [v11.2.1](https://github.com/stellar/js-stellar-sdk/compare/v11.2.0...v11.2.1)
+
+### Fixed
+* An unnecessary dependency has been removed which was causing a TypeScript error in certain environments ([#912](https://github.com/stellar/js-stellar-sdk/pull/912)).
+* Dependencies have been upgraded (see [`stellar-base@v10.0.2`](https://github.com/stellar/js-stellar-base/releases/tag/v10.0.2) for release notes, [#913](https://github.com/stellar/js-stellar-sdk/pull/913)).
+
+
+## [v11.2.0](https://github.com/stellar/js-stellar-sdk/compare/v11.1.0...v11.2.0)
+
+### Added
+* Support for the new, optional `diagnosticEventsXdr` field on the `SorobanRpc.Server.sendTransaction` method. The raw field will be present when using the `_sendTransaction` method, while the normal method will have an already-parsed `diagnosticEvents: xdr.DiagnosticEvent[]` field, instead ([#905](https://github.com/stellar/js-stellar-sdk/pull/905)).
+* A new exported interface `SorobanRpc.Api.EventResponse` so that developers can type-check individual events ([#904](https://github.com/stellar/js-stellar-sdk/pull/904)).
+
+### Updated
+* Dependencies have been updated to their latest versions ([#906](https://github.com/stellar/js-stellar-sdk/pull/906), [#908](https://github.com/stellar/js-stellar-sdk/pull/908)).
+
 
 ## [v11.2.0](https://github.com/stellar/js-stellar-sdk/compare/v11.1.0...v11.2.0)
 
