@@ -15,9 +15,9 @@ test("auth", async (t) => {
 
 test("inc", async (t) => {
   const { client } = await clientFor('helloWorld')
-  const { result: startingBalance } = await client.getCount()
+  const { result: startingBalance } = await client.get_count()
   const inc = await client.inc()
   t.is((await inc.signAndSend()).result, startingBalance + 1)
   t.is(startingBalance, 0)
-  t.is((await client.getCount()).result, startingBalance + 1)
+  t.is((await client.get_count()).result, startingBalance + 1)
 });

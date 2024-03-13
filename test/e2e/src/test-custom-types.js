@@ -21,11 +21,11 @@ test('woid', async t => {
 
 test('u32_fail_on_even', async t => {
   t.deepEqual(
-    (await t.context.client.u32FailOnEven({ u32_: 1 })).result,
+    (await t.context.client.u32_fail_on_even({ u32_: 1 })).result,
     new Ok(1)
   )
   t.deepEqual(
-    (await t.context.client.u32FailOnEven({ u32_: 2 })).result,
+    (await t.context.client.u32_fail_on_even({ u32_: 2 })).result,
     new Err({ message: "Please provide an odd number" })
   )
 })
@@ -44,7 +44,7 @@ test('i64', async t => {
 
 test("strukt_hel", async (t) => {
   const strukt = { a: 0, b: true, c: "world" }
-  t.deepEqual((await t.context.client.struktHel({ strukt })).result, ["Hello", "world"])
+  t.deepEqual((await t.context.client.strukt_hel({ strukt })).result, ["Hello", "world"])
 })
 
 test("strukt", async (t) => {
@@ -109,7 +109,10 @@ test('bytes', async t => {
 
 test('bytesN', async t => {
   const bytesN = Buffer.from('123456789') // what's the correct way to construct bytesN?
-  t.deepEqual((await t.context.client.bytesN({ bytes_n: bytesN })).result, bytesN)
+  t.deepEqual(
+    (await t.context.client.bytes_n({ bytes_n: bytesN })).result,
+    bytesN
+  )
 })
 
 test('card', async t => {
@@ -134,8 +137,8 @@ test('u128', async t => {
 })
 
 test('multi_args', async t => {
-  t.is((await t.context.client.multiArgs({ a: 1, b: true })).result, 1)
-  t.is((await t.context.client.multiArgs({ a: 1, b: false })).result, 0)
+  t.is((await t.context.client.multi_args({ a: 1, b: true })).result, 1)
+  t.is((await t.context.client.multi_args({ a: 1, b: false })).result, 0)
 })
 
 test('map', async t => {
@@ -184,5 +187,5 @@ test('string', async t => {
 test('tuple_strukt', async t => {
   const arg = [{ a: 0, b: true, c: 'hello' }, { tag: 'First', values: undefined }]
   const res = [{ a: 0, b: true, c: 'hello' }, { tag: 'First' }]
-  t.deepEqual((await t.context.client.tupleStrukt({ tuple_strukt: arg })).result, res)
+  t.deepEqual((await t.context.client.tuple_strukt({ tuple_strukt: arg })).result, res)
 })

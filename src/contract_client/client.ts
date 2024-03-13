@@ -2,13 +2,6 @@ import { ContractSpec, xdr } from '..'
 import { AssembledTransaction } from './assembled_transaction'
 import type { ContractClientOptions, MethodOptions } from './types'
 
-/**
- * converts a snake_case string to camelCase
- */
-function toLowerCamelCase(str: string): string {
-  return str.replace(/_\w/g, (m) => m[1].toUpperCase());
-}
-
 export class ContractClient {
   /**
    * Generate a class from the contract spec that where each contract method
@@ -25,9 +18,8 @@ export class ContractClient {
     let methods = this.spec.funcs();
     for (let method of methods) {
       let name = method.name().toString();
-      let jsName = toLowerCamelCase(name);
       // @ts-ignore
-      this[jsName] = async (
+      this[name] = async (
         args: Record<string, any>,
         options: MethodOptions
       ) => {
