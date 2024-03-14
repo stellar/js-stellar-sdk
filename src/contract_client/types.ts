@@ -1,4 +1,11 @@
-import { xdr } from '..'
+import {
+  BASE_FEE,
+  Memo,
+  MemoType,
+  Operation,
+  Transaction,
+  xdr,
+} from "..";
 
 export type XDR_BASE64 = string;
 export type u32 = number;
@@ -12,6 +19,11 @@ export type i256 = bigint;
 export type Option<T> = T | undefined;
 export type Typepoint = bigint;
 export type Duration = bigint;
+
+/**
+ * A "regular" transaction, as opposed to a FeeBumpTransaction.
+ */
+export type Tx = Transaction<Memo<MemoType>, Operation[]>;
 
 export type ContractClientOptions = {
   /**
@@ -86,7 +98,7 @@ export type MethodOptions = {
   /**
    * The fee to pay for the transaction. Default: {@link BASE_FEE}
    */
-  fee?: number;
+  fee?: string;
 
   /**
    * The maximum amount of time to wait for the transaction to complete. Default: {@link DEFAULT_TIMEOUT}
