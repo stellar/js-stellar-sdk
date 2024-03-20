@@ -6,6 +6,18 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+## [v11.3.0](https://github.com/stellar/js-stellar-sdk/compare/v11.2.2...v11.3.0)
+
+### Added
+* Introduces an entire suite of helpers to assist with interacting with smart contracts ([#929](https://github.com/stellar/js-stellar-sdk/pull/929)):
+  - `ContractClient`: generate a class from the contract specification where each Rust contract method gets a matching method in this class. Each method returns an `AssembledTransaction` that can be used to modify, simulate, decode results, and possibly sign, & submit the transaction.
+  - `AssembledTransaction`: used to wrap a transaction-under-construction and provide high-level interfaces to the most common workflows, while still providing access to low-level transaction manipulation.
+  - `SentTransaction`: transaction sent to the Soroban network, in two steps - initial submission and waiting for it to finalize to get the result (retried with exponential backoff)
+
+### Fixed
+* Upgrade underlying dependencies, including `@stellar/js-xdr` which should broaden compatibility to pre-ES2016 environments ([#932](https://github.com/stellar/js-stellar-sdk/pull/932), [#930](https://github.com/stellar/js-stellar-sdk/pull/930)).
+
+
 ### Fixed
 * `SorobanRpc`: remove all instances of array-based parsing to conform to future breaking changes in Soroban RPC ([#924](https://github.com/stellar/js-stellar-sdk/pull/924)).
 

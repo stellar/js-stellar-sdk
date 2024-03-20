@@ -5,7 +5,7 @@ import type { ContractClientOptions, MethodOptions } from './types'
 export class ContractClient {
   /**
    * Generate a class from the contract spec that where each contract method
-   * gets included with a JSified name.
+   * gets included with an identical name.
    *
    * Each method returns an {@link AssembledTransaction} that can be used to
    * modify, simulate, decode results, and possibly sign, & submit the
