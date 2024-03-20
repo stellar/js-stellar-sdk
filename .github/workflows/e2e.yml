@@ -1,0 +1,39 @@
+name: ContractClient
+
+on:
+  push:
+    branches: [master, release/**]
+  pull_request:
+
+jobs:
+  test:
+    name: test generated ContractClient
+    runs-on: ubuntu-22.04
+    services:
+      rpc:
+        image: stellar/quickstart:soroban-dev@sha256:0ad51035cf7caba2fd99c7c1fad0945df6932be7d5c893e1520ccdef7d6a6ffe
+        ports:
+          - 8000:8000
+        env:
+          ENABLE_LOGS: true
+          NETWORK: local
+          ENABLE_SOROBAN_RPC: true
+        options: >-
+          --health-cmd "curl --no-progress-meter --fail-with-body -X POST \"http://localhost:8000/soroban/rpc\" -H 'Content-Type: application/json' -d '{\"jsonrpc\":\"2.0\",\"id\":8675309,\"method\":\"getNetwork\"}' && curl --no-progress-meter \"http://localhost:8000/friendbot\" | grep '\"invalid_field\": \"addr\"'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 50
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/cache@v3
+      with:
+        path: |
+          target/
+        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+    # Workaround for some `yarn` nonsense, see:
+    # https://github.com/yarnpkg/yarn/issues/6312#issuecomment-429685210
+    - run: yarn install --network-concurrency 1
+    - run: yarn build:prod
+    - run: yarn test:e2e
+
