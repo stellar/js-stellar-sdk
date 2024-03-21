@@ -1,6 +1,5 @@
 import { xdr, Address, ContractSpec, Keypair } from "../../../lib";
 import { JSONSchemaFaker } from "json-schema-faker";
-
 import spec from "../spec.json";
 import { expect } from "chai";
 
@@ -41,6 +40,7 @@ describe("Can round trip custom types", function () {
     num: number = 100
   ) {
     let funcSpec = spec.jsonSchema(funcName);
+    console.log(JSON.stringify(funcSpec, null, 2));
 
     for (let i = 0; i < num; i++) {
       let arg = await JSONSchemaFaker.resolve(funcSpec)!;
