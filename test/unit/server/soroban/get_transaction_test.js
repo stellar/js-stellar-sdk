@@ -42,7 +42,7 @@ describe("Server#getTransaction", function () {
           jsonrpc: "2.0",
           id: 1,
           method: "getTransaction",
-          params: [this.hash],
+          params: { hash: this.hash },
         })
         .returns(Promise.resolve({ data: { id: 1, result } }));
     };

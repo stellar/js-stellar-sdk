@@ -7,6 +7,7 @@ import {
   Contract,
   scValToBigInt,
 } from ".";
+import { Ok } from "./rust_types";
 
 export interface Union<T> {
   tag: string;
@@ -163,7 +164,9 @@ export class ContractSpec {
     }
     let output = outputs[0];
     if (output.switch().value === xdr.ScSpecType.scSpecTypeResult().value) {
-      return this.scValToNative(val, output.result().okType());
+      return new Ok(
+        this.scValToNative(val, output.result().okType())
+      );
     }
     return this.scValToNative(val, output);
   }
@@ -679,6 +682,22 @@ export class ContractSpec {
   }
 
   /**
+   * Gets the XDR error cases from the spec.
+   *
+   * @returns {xdr.ScSpecFunctionV0[]} all contract functions
+   *
+   */
+  errorCases(): xdr.ScSpecUdtErrorEnumCaseV0[] {
+    return this.entries
+      .filter(
+        (entry) =>
+          entry.switch().value ===
+          xdr.ScSpecEntryKind.scSpecEntryUdtErrorEnumV0().value
+      )
+      .flatMap((entry) => (entry.value() as xdr.ScSpecUdtErrorEnumV0).cases());
+  }
+
+  /**
    * Converts the contract spec to a JSON schema.
    *
    * If `funcName` is provided, the schema will be a reference to the function schema.
@@ -850,9 +869,8 @@ const PRIMITIVE_DEFINITONS: { [key: string]: JSONSchema7Definition } = {
 };
 
 /**
- *
  * @param typeDef type to convert to json schema reference
- * @returns
+ * @returns {JSONSchema7} a schema describing the type
  */
 function typeRef(typeDef: xdr.ScSpecTypeDef): JSONSchema7 {
   let t = typeDef.switch();
@@ -1138,3 +1156,4 @@ function enumToJsonSchema(udt: xdr.ScSpecUdtEnumV0): any {
   }
   return res;
 }
+

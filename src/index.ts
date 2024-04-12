@@ -18,7 +18,7 @@ export * as Horizon from './horizon';
 
 // Soroban RPC-related classes to expose
 export * as SorobanRpc from './soroban';
-export { ContractSpec } from './contract_spec';
+export * from './contract_spec';
 
 // expose classes and functions from stellar-base
 export * from '@stellar/stellar-base';
