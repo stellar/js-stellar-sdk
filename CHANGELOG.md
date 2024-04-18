@@ -6,6 +6,10 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Fixed
+* Each item in the `GetEventsResponse.events` list will now have a `txHash` item corresponding to the transaction hash that triggered a particular event ([#939](https://github.com/stellar/js-stellar-sdk/pull/939)).
+
+
 ## [v11.3.0](https://github.com/stellar/js-stellar-sdk/compare/v11.2.2...v11.3.0)
 
 ### Added
