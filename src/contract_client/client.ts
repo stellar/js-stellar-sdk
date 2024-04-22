@@ -1,6 +1,6 @@
-import { ContractSpec, xdr } from '..'
-import { AssembledTransaction } from './assembled_transaction'
-import type { ContractClientOptions, MethodOptions } from './types'
+import { ContractSpec, xdr } from "..";
+import { AssembledTransaction } from "./assembled_transaction";
+import type { ContractClientOptions, MethodOptions } from "./types";
 
 export class ContractClient {
   /**
@@ -15,43 +15,46 @@ export class ContractClient {
     public readonly spec: ContractSpec,
     public readonly options: ContractClientOptions,
   ) {
-    let methods = this.spec.funcs();
-    for (let method of methods) {
-      let name = method.name().toString();
-      // @ts-ignore
-      this[name] = async (
-        args: Record<string, any>,
-        options: MethodOptions
-      ) => {
-        return await AssembledTransaction.build({
-          method: name,
-          args: spec.funcArgsToScVals(name, args),
+    this.spec.funcs().forEach((xdrFn) => {
+      const method = xdrFn.name().toString();
+      const assembleTransaction = (
+        args?: Record<string, any>,
+        methodOptions?: MethodOptions,
+      ) =>
+        AssembledTransaction.build({
+          method,
+          args: args && spec.funcArgsToScVals(method, args),
           ...options,
-          ...this.options,
-          errorTypes: spec
-            .errorCases()
-            .reduce(
-              (acc, curr) => ({
-                ...acc,
-                [curr.value()]: { message: curr.doc().toString() },
-              }),
-              {} as Pick<ContractClientOptions, "errorTypes">
-            ),
-          parseResultXdr: (result: xdr.ScVal) => spec.funcResToNative(name, result),
+          ...methodOptions,
+          errorTypes: spec.errorCases().reduce(
+            (acc, curr) => ({
+              ...acc,
+              [curr.value()]: { message: curr.doc().toString() },
+            }),
+            {} as Pick<ContractClientOptions, "errorTypes">,
+          ),
+          parseResultXdr: (result: xdr.ScVal) =>
+            spec.funcResToNative(method, result),
         });
-      };
-    }
+
+      // @ts-ignore error TS7053: Element implicitly has an 'any' type
+      this[method] =
+        spec.getFunc(method).inputs().length === 0
+          ? (opts?: MethodOptions) => assembleTransaction(undefined, opts)
+          : assembleTransaction;
+    });
   }
 
   txFromJSON = <T>(json: string): AssembledTransaction<T> => {
-    const { method, ...tx } = JSON.parse(json)
+    const { method, ...tx } = JSON.parse(json);
     return AssembledTransaction.fromJSON(
       {
         ...this.options,
         method,
-        parseResultXdr: (result: xdr.ScVal) => this.spec.funcResToNative(method, result),
+        parseResultXdr: (result: xdr.ScVal) =>
+          this.spec.funcResToNative(method, result),
       },
       tx,
     );
-  }
+  };
 }
