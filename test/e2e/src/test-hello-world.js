@@ -1,5 +1,6 @@
 const test = require('ava')
 const { clientFor } = require('./util')
+const { Keypair } = require('../../..')
 
 test("hello", async (t) => {
   const { client } = await clientFor('helloWorld')
