@@ -5,6 +5,7 @@ import type {
   XDR_BASE64,
 } from "./types";
 import {
+  Account,
   BASE_FEE,
   Contract,
   Operation,
@@ -21,6 +22,8 @@ import {
   implementsToString
 } from "./utils";
 import { SentTransaction } from "./sent_transaction";
+
+export const NULL_ACCOUNT = "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF"
 
 /**
  * The main workhorse of {@link ContractClient}. This class is used to wrap a
@@ -364,7 +367,9 @@ export class AssembledTransaction<T> {
     const tx = new AssembledTransaction(options);
     const contract = new Contract(options.contractId);
 
-    const account = await tx.server.getAccount(options.publicKey);
+    const account = options.publicKey
+      ? await tx.server.getAccount(options.publicKey)
+      : new Account(NULL_ACCOUNT, "0");
 
     tx.raw = new TransactionBuilder(account, {
       fee: options.fee ?? BASE_FEE,

@@ -32,7 +32,7 @@ export type ContractClientOptions = {
    * {@link AssembledTransaction#signAndSend} and
    * {@link AssembledTransaction#signAuthEntries}.
    */
-  publicKey: string;
+  publicKey?: string;
   /**
    * A function to sign the transaction using the private key corresponding to
    * the given `publicKey`. You do not need to provide this, for read-only

@@ -4,7 +4,7 @@ module.exports = {
   },
   extends: ["airbnb-base", "prettier"],
   plugins: ["@babel", "prettier", "prefer-import"],
-  parser: "@babel/eslint-parser",
+  parser: "@typescript-eslint/parser",
   rules: {
     "node/no-unpublished-require": 0,
   },

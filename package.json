@@ -79,7 +79,6 @@
   "devDependencies": {
     "@babel/cli": "^7.24.1",
     "@babel/core": "^7.24.3",
-    "@babel/eslint-parser": "^7.24.1",
     "@babel/eslint-plugin": "^7.22.10",
     "@babel/preset-env": "^7.24.3",
     "@babel/preset-typescript": "^7.24.1",
@@ -97,7 +96,7 @@
     "@types/randombytes": "^2.0.1",
     "@types/sinon": "^17.0.2",
     "@types/urijs": "^1.19.20",
-    "@typescript-eslint/parser": "^6.20.0",
+    "@typescript-eslint/parser": "^7.7.1",
     "ava": "^5.3.1",
     "axios-mock-adapter": "^1.22.0",
     "babel-loader": "^9.1.3",
