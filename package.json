@@ -85,6 +85,7 @@
     "@babel/register": "^7.23.7",
     "@definitelytyped/dtslint": "^0.1.2",
     "@istanbuljs/nyc-config-babel": "3.0.0",
+    "@rjsf/validator-ajv8": "^5.17.1",
     "@stellar/tsconfig": "^1.0.2",
     "@types/chai": "^4.3.14",
     "@types/detect-node": "^2.0.0",
