@@ -166,6 +166,7 @@ export namespace Api {
     ledgerClosedAt: string;
     pagingToken: string;
     inSuccessfulContractCall: boolean;
+    txHash: string;
   }
 
   export interface RawEventResponse extends BaseEventResponse {
