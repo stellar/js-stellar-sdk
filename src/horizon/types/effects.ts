@@ -67,7 +67,7 @@ export enum EffectType {
   contract_credited = 96,
   contract_debited = 97
 }
-export interface BaseEffectRecord<T extends string> extends HorizonApi.BaseResponse {
+export interface BaseEffectRecord<T extends string = string> extends HorizonApi.BaseResponse {
   id: string;
   account: string;
   paging_token: string;
