@@ -264,7 +264,7 @@ export type SignerSponsorshipRemoved = Omit<
 > & { type_i: EffectType.signer_sponsorship_removed };
 
 export interface ClaimableBalanceClawedBack extends HorizonApi.BaseResponse {
-    balance_id: string
+  balance_id: string
 }
 
 export interface LiquidityPoolEffectRecord extends HorizonApi.BaseResponse {
