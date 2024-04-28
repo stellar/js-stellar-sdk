@@ -83,7 +83,7 @@ export interface AccountCredited extends BaseEffectRecord<'account_credited'>, O
   type_i: EffectType.account_credited;
   amount: string;
 }
-export interface AccountDebited extends BaseEffectRecord<'account_debited'> {
+export interface AccountDebited extends BaseEffectRecord<'account_debited'>, OfferAsset {
   type_i: EffectType.account_debited;
   amount: string;
 }
