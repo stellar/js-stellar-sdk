@@ -120,7 +120,7 @@ function makeTxResult(status, addSoroban = true) {
       operations: [],
       txChangesAfter: [],
       sorobanMeta: new xdr.SorobanTransactionMeta({
-        ext: new xdr.ExtensionPoint(0),
+        ext: new xdr.SorobanTransactionMetaExt(0),
         events: [],
         diagnosticEvents: [],
         returnValue: nativeToScVal(1234),
