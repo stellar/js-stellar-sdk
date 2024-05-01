@@ -1,7 +1,7 @@
 /**
  * The default timeout for waiting for a transaction to be included in a block.
  */
-export const DEFAULT_TIMEOUT = 10;
+export const DEFAULT_TIMEOUT = 60;
 
 /**
  * Keep calling a `fn` for `timeoutInSeconds` seconds, if `keepWaitingIf` is true.

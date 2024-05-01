@@ -1,5 +1,5 @@
 import type { ContractClientOptions, Tx } from "./types";
-import { SorobanRpc, TransactionBuilder } from "..";
+import { SorobanDataBuilder, SorobanRpc, TransactionBuilder } from "..";
 import { DEFAULT_TIMEOUT, withExponentialBackoff } from "./utils";
 import { AssembledTransaction } from "./assembled_transaction";
 
@@ -71,7 +71,12 @@ export class SentTransaction<T> {
   };
 
   private send = async (): Promise<this> => {
+
     const timeoutInSeconds = this.assembled.options.timeoutInSeconds ?? DEFAULT_TIMEOUT
+    this.assembled.built = TransactionBuilder.cloneFrom(this.assembled.built!)
+      .setTimeout(timeoutInSeconds)
+      .setSorobanData(new SorobanDataBuilder(this.assembled.simulationData.transactionData.toXDR("base64")).build())
+      .build();
 
     const signature = await this.signTransaction!(
       // `signAndSend` checks for `this.built` before calling `SentTransaction.init`
