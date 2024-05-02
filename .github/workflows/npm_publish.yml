@@ -21,7 +21,12 @@ jobs:
         run: yarn install
 
       - name: Build, Test, and Package
-        run: yarn preversion
+        run: |
+          npm unpublish @stellar/stellar-sdk@v12.0.0
+          npm unpublish stellar-sdk@v12.0.0
+          yarn preversion
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish npm package to both places
         run: |
