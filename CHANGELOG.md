@@ -7,6 +7,14 @@ A breaking change will get clearly marked in this log.
 ## Unreleased
 
 
+## [v12.0.0](https://github.com/stellar/js-stellar-sdk/compare/v12.0.0-rc.1...v12.0.0)
+
+Please refer to the release candidate ([v12.0.0-rc.1](#v12.0.0-rc.1)) for additional changes since the last major version.
+
+### Fixed
+* TODO.
+
+
 ## [v12.0.0-rc.1](https://github.com/stellar/js-stellar-sdk/compare/v11.3.0...v12.0.0-rc.1)
 
 ### Breaking Changes
