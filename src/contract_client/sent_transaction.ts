@@ -72,6 +72,7 @@ export class SentTransaction<T> {
 
   private send = async (): Promise<this> => {
 
+
     const timeoutInSeconds = this.assembled.options.timeoutInSeconds ?? DEFAULT_TIMEOUT
     this.assembled.built = TransactionBuilder.cloneFrom(this.assembled.built!)
       .setTimeout(timeoutInSeconds)
