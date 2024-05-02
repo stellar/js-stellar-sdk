@@ -40,3 +40,8 @@ jobs:
 
       - name: Browser Tests
         run: yarn test:browser
+
+      - name: Remove NPM package
+        run: npm unpublish @stellar/stellar-sdk@v12.0.0
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
