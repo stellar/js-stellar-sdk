@@ -73,13 +73,13 @@ export class SentTransaction<T> {
   private send = async (): Promise<this> => {
     const timeoutInSeconds = this.assembled.options.timeoutInSeconds ?? DEFAULT_TIMEOUT
     const timeoutTimestamp =
-        Math.floor(Date.now() / 1000) + timeoutInSeconds + 1;
+      Math.floor(Date.now() / 1000) + timeoutInSeconds + 1;
     this.assembled.built = TransactionBuilder.cloneFrom(this.assembled.built!, {
-        fee: this.assembled.built!.fee,
-        timebounds: {
-            minTime: 0,
-            maxTime: timeoutTimestamp,
-        },
+      fee: this.assembled.built!.fee,
+      timebounds: {
+        minTime: 0,
+        maxTime: timeoutTimestamp,
+      },
     })
       .setSorobanData(new SorobanDataBuilder(this.assembled.simulationData.transactionData.toXDR("base64")).build())
       .build();
