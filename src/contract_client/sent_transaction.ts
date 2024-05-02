@@ -81,7 +81,7 @@ export class SentTransaction<T> {
         maxTime: timeoutTimestamp,
       },
     })
-      .setSorobanData(new SorobanDataBuilder(this.assembled.simulationData.transactionData.toXDR("base64")).build())
+      .setSorobanData(new SorobanDataBuilder(this.assembled.simulationData.transactionData.toXDR()).build())
       .build();
 
     const signature = await this.signTransaction!(
