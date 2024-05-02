@@ -376,6 +376,7 @@ export class AssembledTransaction<T> {
       networkPassphrase: options.networkPassphrase,
     })
       .addOperation(contract.call(options.method, ...(options.args ?? [])))
+      .setTimeout(options.timeoutInSeconds ?? DEFAULT_TIMEOUT);
 
 
     if (options.simulate) await tx.simulate();
