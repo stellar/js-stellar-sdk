@@ -15,7 +15,7 @@ A breaking change will get clearly marked in this log.
 * The **default timeout for transaction calls is now set to 300 seconds (5 minutes)** from the previous default of 10 seconds. 10 seconds is often not enough time to review transactions before signing, especially in Freighter or using a hardware wallet like a Ledger, which would cause a `txTooLate` error response from the server. Five minutes is also the value used by the CLI, so this brings the two into alignment ([#956](https://github.com/stellar/js-stellar-sdk/pull/956)).
 
 ### Fixed
-* Dependencies have been properly updated to pull in Protocol 21 XDR.
+* Dependencies have been properly updated to pull in Protocol 21 XDR ([#959](https://github.com/stellar/js-stellar-sdk/pull/959)).
 
 
 ## [v12.0.0-rc.1](https://github.com/stellar/js-stellar-sdk/compare/v11.3.0...v12.0.0-rc.1)
