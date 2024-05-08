@@ -54,7 +54,7 @@ export class ContractClient {
     const wasmModule = await WebAssembly.compile(wasm);
     const xdrSections = WebAssembly.Module.customSections(wasmModule, "contractspecv0");
     if (xdrSections.length === 0) {
-      return Promise.reject(new Error('Could not obtain contract spec from wasm'));
+      throw new Error('Could not obtain contract spec from wasm');
     }
     const bufferSection = Buffer.from(xdrSections[0]);
     const specEntryArray = processSpecEntryStream(bufferSection);
@@ -67,7 +67,7 @@ export class ContractClient {
    */
   static async from(options: ContractClientOptions): Promise<ContractClient> {
     if (!options || !options.rpcUrl || !options.contractId) {
-      return Promise.reject(new TypeError('options must contain rpcUrl and contractId'));
+      throw new TypeError('options must contain rpcUrl and contractId');
     }
     const { rpcUrl, contractId, allowHttp } = options;
     const serverOpts: Server.Options = { allowHttp };
