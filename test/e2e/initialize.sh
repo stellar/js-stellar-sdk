@@ -22,7 +22,7 @@ else
   (cd "$dirname/../.." && cargo install_soroban)
 fi
 
-NETWORK_STATUS=$(curl -s -X POST "$SOROBAN_RPC_URL" -H "Content-Type: application/json" -d '{ "jsonrpc": "2.0", "id": 8675309, "method": "getHealth" }' | sed -n 's/.*"status":\s*"\([^"]*\)".*/\1/p')
+NETWORK_STATUS=$(curl -s -X POST "$SOROBAN_RPC_URL" -H "Content-Type: application/json" -d '{ "jsonrpc": "2.0", "id": 8675309, "method": "getHealth" }' | jq -r '.result.status')
 
 echo Network
 echo "  RPC:        $SOROBAN_RPC_URL"
