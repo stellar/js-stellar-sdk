@@ -6,6 +6,9 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Added
+* Added a from method in `ContractClient` which takes the `ContractClientOptions` and instantiates the `ContractClient` by utilizing the `contractId` to retrieve the contract wasm from the blockchain. The custom section is then extracted and used to create a `ContractSpec` which is then used to create the client.
+* Similarly adds a `fromWasm` method in `ContractClient` which can be used to initialize a `ContractClient` if you already have the wasm bytes along with the `ContractClientOptions`.
 
 ## [v12.0.0-rc.2](https://github.com/stellar/js-stellar-sdk/compare/v11.3.0...v12.0.0-rc.2)
 

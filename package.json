@@ -145,6 +145,7 @@
     "webpack-cli": "^5.0.1"
   },
   "dependencies": {
+    "@stellar/js-xdr": "^3.1.1",
     "@stellar/stellar-base": "11.1.0",
     "axios": "^1.6.8",
     "bignumber.js": "^9.1.2",

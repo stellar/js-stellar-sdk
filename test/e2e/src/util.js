@@ -91,3 +91,22 @@ async function clientFor(contract, { keypair = generateFundedKeypair(), contract
   }
 }
 module.exports.clientFor = clientFor
+
+/**
+ * Generates a ContractClient given the contractId using the from method.
+ */
+async function clientForFromTest(contractId, publicKey, keypair) {
+  keypair = await keypair; // eslint-disable-line no-param-reassign
+  const wallet = basicNodeSigner(keypair, networkPassphrase);
+  const options = {
+    networkPassphrase,
+    contractId,
+    rpcUrl,
+    allowHttp: true,
+    publicKey,
+    ...wallet,
+  };
+  const client = await ContractClient.from(options);
+  return client;
+}
+module.exports.clientForFromTest = clientForFromTest;
