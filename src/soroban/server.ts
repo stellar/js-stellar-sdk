@@ -242,9 +242,8 @@ export class Server {
    * deployed on the Soroban network. The WASM bytecode represents the executable
    * code of the contract.
    *
-   * @param {string|Address|Contract} contract    the contract ID containing the
-   *    WASM bytecode to retrieve, as a strkey (`C...` form), a {@link Contract},
-   *    or an {@link Address} instance
+   * @param {string} contractId    the contract ID containing the
+   *    WASM bytecode to retrieve
    *
    * @returns {Promise<Buffer>}   a Buffer containing the WASM bytecode
    *
@@ -261,27 +260,10 @@ export class Server {
    * });
    */
   public async getContractWasm(
-    contract: string | Address | Contract
+    contractId: string
   ): Promise<Buffer> {
     // coalesce `contract` param variants to an ScAddress
-    let scAddress: xdr.ScAddress;
-    if (typeof contract === 'string') {
-      scAddress = new Contract(contract).address().toScAddress();
-    } else if (contract instanceof Address) {
-      scAddress = contract.toScAddress();
-    } else if (contract instanceof Contract) {
-      scAddress = contract.address().toScAddress();
-    } else {
-      throw new TypeError(`unknown contract type: ${contract}`);
-    }
-
-    const contractLedgerKey = xdr.LedgerKey.contractData(
-      new xdr.LedgerKeyContractData({
-        contract: scAddress,
-        key: xdr.ScVal.scvSymbol('footprint'),
-        durability: xdr.ContractDataDurability.persistent()
-      })
-    );
+    const contractLedgerKey = new Contract(contractId).getFootprint();
 
     const response = await this.getLedgerEntries(contractLedgerKey);
     if (!response.entries.length || !response.entries[0]?.val) {

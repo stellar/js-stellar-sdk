@@ -1,4 +1,4 @@
-import { Contract, ContractSpec, xdr } from "..";
+import { ContractSpec, xdr } from "..";
 import { Server } from '../soroban';
 import { AssembledTransaction } from "./assembled_transaction";
 import type { ContractClientOptions, MethodOptions } from "./types";
