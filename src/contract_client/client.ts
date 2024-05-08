@@ -56,8 +56,7 @@ export class ContractClient {
     if (xdrSections.length === 0) {
       return Promise.reject(new Error('Could not obtain contract spec from wasm'));
     }
-    const section = xdrSections[0];
-    const bufferSection = Buffer.from(section);
+    const bufferSection = Buffer.from(xdrSections[0]);
     const specEntryArray = processSpecEntryStream(bufferSection);
     const spec = new ContractSpec(specEntryArray);
     return new ContractClient(spec, options);

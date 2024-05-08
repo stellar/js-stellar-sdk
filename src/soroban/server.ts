@@ -285,12 +285,14 @@ export class Server {
 
     const response = await this.getLedgerEntries(contractLedgerKey);
     if (!response.entries.length || !response.entries[0]?.val) {
-      throw new Error(`Could not obtain contract from server`);
+      throw new Error(`Could not obtain contract hash from server`);
     }
 
-    const wasmHash = ((response.entries[0].val.value() as xdr.ContractDataEntry)
+    const wasmHash = response.entries[0].val
+      .contractData()
       .val()
-      .value() as xdr.ScContractInstance).executable()
+      .instance()
+      .executable()
       .wasmHash();
 
     const ledgerKeyWasmHash = xdr.LedgerKey.contractCode(
@@ -300,8 +302,10 @@ export class Server {
     );
 
     const responseWasm = await this.getLedgerEntries(ledgerKeyWasmHash);
-    const wasmBuffer = (responseWasm.entries[0].val.value() as xdr.ContractCodeEntry)
-      .code();
+    if(!responseWasm.entries.length || !responseWasm.entries[0]?.val){
+      throw new Error(`Could not obtain contract wasm from server`);
+    }
+    const wasmBuffer = responseWasm.entries[0].val.contractCode().code();
 
     return Buffer.from(wasmBuffer);
   }
