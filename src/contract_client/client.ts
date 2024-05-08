@@ -70,7 +70,7 @@ export class ContractClient {
       return Promise.reject(new TypeError('options must contain rpcUrl and contractId'));
     }
     const { rpcUrl, contractId, allowHttp } = options;
-    const serverOpts: Server.Options = { allowHttp: allowHttp?? !rpcUrl.startsWith('https') };
+    const serverOpts: Server.Options = { allowHttp };
     const server = new Server(rpcUrl, serverOpts);
     const wasm = await server.getContractWasm(contractId);
     return ContractClient.fromWasm(wasm, options);
