@@ -106,7 +106,6 @@ async function clientForFromTest(contractId, publicKey, keypair) {
     publicKey,
     ...wallet,
   };
-  const client = await ContractClient.from(options);
-  return client;
+  return ContractClient.from(options);
 }
 module.exports.clientForFromTest = clientForFromTest;
