@@ -50,7 +50,7 @@ export class ContractClient {
   /**
    * Generate a ContractClient instance from the ContractClientOptions and the wasm binary
    */
-  static async fromWasm(options: ContractClientOptions, wasm: BufferSource): Promise<ContractClient> {
+  static async fromWasm(wasm: BufferSource, options: ContractClientOptions): Promise<ContractClient> {
     const wasmModule = await WebAssembly.compile(wasm);
     const xdrSections = WebAssembly.Module.customSections(wasmModule, "contractspecv0");
     if (xdrSections.length === 0) {
@@ -73,7 +73,7 @@ export class ContractClient {
     const serverOpts: Server.Options = { allowHttp: allowHttp?? !rpcUrl.startsWith('https') };
     const server = new Server(rpcUrl, serverOpts);
     const wasm = await server.getContractWasm(contractId);
-    return ContractClient.fromWasm(options, wasm);
+    return ContractClient.fromWasm(wasm, options);
   }
 
   txFromJSON = <T>(json: string): AssembledTransaction<T> => {
