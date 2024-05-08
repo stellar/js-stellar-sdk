@@ -236,6 +236,78 @@ export class Server {
   }
 
   /**
+   * Retrieves the WASM bytecode for a given contract.
+   *
+   * This method allows you to fetch the WASM bytecode associated with a contract
+   * deployed on the Soroban network. The WASM bytecode represents the executable
+   * code of the contract.
+   *
+   * @param {string|Address|Contract} contract    the contract ID containing the
+   *    WASM bytecode to retrieve, as a strkey (`C...` form), a {@link Contract},
+   *    or an {@link Address} instance
+   *
+   * @returns {Promise<Buffer>}   a Buffer containing the WASM bytecode
+   *
+   * @throws {Error} If the contract or its associated WASM bytecode cannot be
+   *    found on the network.
+   *
+   * @example
+   * const contractId = "CCJZ5DGASBWQXR5MPFCJXMBI333XE5U3FSJTNQU7RIKE3P5GN2K2WYD5";
+   * server.getContractWasm(contractId).then(wasmBuffer => {
+   *   console.log("WASM bytecode length:", wasmBuffer.length);
+   *   // ... do something with the WASM bytecode ...
+   * }).catch(err => {
+   *   console.error("Error fetching WASM bytecode:", err);
+   * });
+   */
+  public async getContractWasm(
+    contract: string | Address | Contract
+  ): Promise<Buffer> {
+    // coalesce `contract` param variants to an ScAddress
+    let scAddress: xdr.ScAddress;
+    if (typeof contract === 'string') {
+      scAddress = new Contract(contract).address().toScAddress();
+    } else if (contract instanceof Address) {
+      scAddress = contract.toScAddress();
+    } else if (contract instanceof Contract) {
+      scAddress = contract.address().toScAddress();
+    } else {
+      throw new TypeError(`unknown contract type: ${contract}`);
+    }
+
+    const contractLedgerKey = xdr.LedgerKey.contractData(
+      new xdr.LedgerKeyContractData({
+        contract: scAddress,
+        key: xdr.ScVal.scvSymbol('footprint'),
+        durability: xdr.ContractDataDurability.persistent()
+      })
+    );
+
+    const response = await this.getLedgerEntries(contractLedgerKey);
+    if (!response.entries.length || !response.entries[0]?.val) {
+      throw new Error(`Could not obtain contract from server`);
+    }
+
+    const wasmHash = ((response.entries[0].val.value() as xdr.ContractDataEntry)
+      .val()
+      .value() as xdr.ScContractInstance).executable()
+      .wasmHash();
+
+    const ledgerKeyWasmHash = xdr.LedgerKey.contractCode(
+      new xdr.LedgerKeyContractCode({
+        hash: wasmHash
+      })
+    );
+
+    const responseWasm = await this.getLedgerEntries(ledgerKeyWasmHash);
+    const wasmBuffer = (responseWasm.entries[0].val.value() as xdr.ContractCodeEntry)
+      .code();
+
+    return Buffer.from(wasmBuffer);
+  }
+
+
+  /**
    * Reads the current value of arbitrary ledger entries directly.
    *
    * Allows you to directly inspect the current state of contracts, contract's

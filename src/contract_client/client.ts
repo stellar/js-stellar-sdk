@@ -73,17 +73,8 @@ export class ContractClient {
     const { rpcUrl, contractId, allowHttp } = options;
     const serverOpts: Server.Options = { allowHttp: allowHttp?? !rpcUrl.startsWith('https') };
     const server = new Server(rpcUrl, serverOpts);
-    const contractLedgerKey = new Contract(contractId).getFootprint();
-    const response = await server.getLedgerEntries(contractLedgerKey);
-    if (!response.entries[0]?.val)
-      return Promise.reject(new Error(`Could not obtain contract from server`));
-    const wasmHash = ((response.entries[0].val.value() as xdr.ContractDataEntry).val().value() as xdr.ScContractInstance).executable().wasmHash();
-    const ledgerKeyWasmHash = xdr.LedgerKey.contractCode(new xdr.LedgerKeyContractCode({
-      hash: wasmHash,
-    }));
-    const responseWasm = await server.getLedgerEntries(ledgerKeyWasmHash);
-    const wasmBuffer = (responseWasm.entries[0].val.value() as xdr.ContractCodeEntry).code();
-    return ContractClient.fromWasm(options, wasmBuffer);
+    const wasm = await server.getContractWasm(contractId);
+    return ContractClient.fromWasm(options, wasm);
   }
 
   txFromJSON = <T>(json: string): AssembledTransaction<T> => {
