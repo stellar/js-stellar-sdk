@@ -48,9 +48,23 @@ export class ContractClient {
   }
 
   /**
+   * Generate a ContractClient instance from the ContractClientOptions and the wasm hash 
+   */
+  static async fromWasmHash(wasmHash: Buffer, options: ContractClientOptions): Promise<ContractClient> {
+    if (!options || !options.rpcUrl ) {
+      throw new TypeError('options must contain rpcUrl');
+    }
+    const { rpcUrl, allowHttp } = options;
+    const serverOpts: Server.Options = { allowHttp };
+    const server = new Server(rpcUrl, serverOpts);
+    const wasm = await server.getContractWasmByHash(wasmHash);
+    return ContractClient.fromWasm(wasm, options);
+  }
+
+  /**
    * Generate a ContractClient instance from the ContractClientOptions and the wasm binary
    */
-  static async fromWasm(wasm: BufferSource, options: ContractClientOptions): Promise<ContractClient> {
+  static async fromWasm(wasm: Buffer, options: ContractClientOptions): Promise<ContractClient> {
     const wasmModule = await WebAssembly.compile(wasm);
     const xdrSections = WebAssembly.Module.customSections(wasmModule, "contractspecv0");
     if (xdrSections.length === 0) {
@@ -72,7 +86,7 @@ export class ContractClient {
     const { rpcUrl, contractId, allowHttp } = options;
     const serverOpts: Server.Options = { allowHttp };
     const server = new Server(rpcUrl, serverOpts);
-    const wasm = await server.getContractWasm(contractId);
+    const wasm = await server.getContractWasmByContractId(contractId);
     return ContractClient.fromWasm(wasm, options);
   }
 

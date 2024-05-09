@@ -1,7 +1,7 @@
 const test = require('ava')
 const { Address } = require('../../..')
 const { Ok, Err } = require('../../../lib/rust_types')
-const { clientFor, clientForFromTest } = require('./util')
+const { clientFor, clientForFromTest, clientFromConstructor } = require('./util')
 
 test.before(async t => {
   const { client, keypair, contractId } = await clientFor('customTypes')
@@ -12,6 +12,12 @@ test.before(async t => {
 
 test('hello', async t => {
   const { result } = await t.context.client.hello({ hello: 'tests' })
+  t.is(result, 'tests')
+})
+
+test('hello from constructor', async t => {
+  const { client } = await clientFromConstructor('customTypes')
+  const { result } = await client.hello({ hello: 'tests' })
   t.is(result, 'tests')
 })
 

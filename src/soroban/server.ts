@@ -248,18 +248,19 @@ export class Server {
    * @returns {Promise<Buffer>}   a Buffer containing the WASM bytecode
    *
    * @throws {Error} If the contract or its associated WASM bytecode cannot be
+   * :
    *    found on the network.
    *
    * @example
    * const contractId = "CCJZ5DGASBWQXR5MPFCJXMBI333XE5U3FSJTNQU7RIKE3P5GN2K2WYD5";
-   * server.getContractWasm(contractId).then(wasmBuffer => {
+   * server.getContractWasmByContractId(contractId).then(wasmBuffer => {
    *   console.log("WASM bytecode length:", wasmBuffer.length);
    *   // ... do something with the WASM bytecode ...
    * }).catch(err => {
    *   console.error("Error fetching WASM bytecode:", err);
    * });
    */
-  public async getContractWasm(
+  public async getContractWasmByContractId(
     contractId: string
   ): Promise<Buffer> {
     const contractLedgerKey = new Contract(contractId).getFootprint();
@@ -275,6 +276,35 @@ export class Server {
       .executable()
       .wasmHash();
 
+    return this.getContractWasmByHash(wasmHash);
+  }
+
+  /**
+   * Retrieves the WASM bytecode for a given contract hash.
+   *
+   * This method allows you to fetch the WASM bytecode associated with a contract
+   * deployed on the Soroban network using the contract's WASM hash. The WASM bytecode
+   * represents the executable code of the contract.
+   *
+   * @param {Buffer} wasmHash    the WASM hash of the contract
+   *
+   * @returns {Promise<Buffer>}   a Buffer containing the WASM bytecode
+   *
+   * @throws {Error} If the contract or its associated WASM bytecode cannot be
+   *    found on the network.
+   *
+   * @example
+   * const wasmHash = Buffer.from("...");
+   * server.getContractWasmByHash(wasmHash).then(wasmBuffer => {
+   *   console.log("WASM bytecode length:", wasmBuffer.length);
+   *   // ... do something with the WASM bytecode ...
+   * }).catch(err => {
+   *   console.error("Error fetching WASM bytecode:", err);
+   * });
+   */
+  public async getContractWasmByHash(
+    wasmHash: Buffer
+  ): Promise<Buffer> {
     const ledgerKeyWasmHash = xdr.LedgerKey.contractCode(
       new xdr.LedgerKeyContractCode({
         hash: wasmHash
@@ -289,6 +319,7 @@ export class Server {
 
     return Buffer.from(wasmBuffer);
   }
+
 
 
   /**

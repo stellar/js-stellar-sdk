@@ -137,7 +137,7 @@ describe("Server#getContractWasm", () => {
       );
 
     this.server
-      .getContractWasm(contractId)
+      .getContractWasmByContractId(contractId)
       .then((wasmData) => {
         expect(wasmData).to.eql(wasmBuffer);
         done();
@@ -157,7 +157,7 @@ describe("Server#getContractWasm", () => {
       .returns(Promise.resolve({ data: { result: { entries: [] } } }));
 
     this.server
-      .getContractWasm(contractId)
+      .getContractWasmByContractId(contractId)
       .then(function (_response) {
         done(new Error("Expected error"));
       })
@@ -208,7 +208,7 @@ describe("Server#getContractWasm", () => {
       .returns(Promise.resolve({ data: { result: { entries: [] } } }));
 
     this.server
-      .getContractWasm(contractId)
+      .getContractWasmByContractId(contractId)
       .then(function (_response) {
         done(new Error("Expected error"));
       })

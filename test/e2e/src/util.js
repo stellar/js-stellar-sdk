@@ -8,19 +8,19 @@ const {
 const contracts = {
   customTypes: {
     hash: spawnSync("./target/bin/soroban", ["contract", "install", "--wasm", `${__dirname}/../wasms/test_custom_types.wasm`], { shell: true, encoding: "utf8" }).stdout.trim(),
-    xdr: JSON.parse(spawnSync("./target/bin/soroban", ["contract", "inspect", "--wasm", `${__dirname}/../wasms/test_custom_types.wasm`, "--output", "xdr-base64-array"], { shell: true, encoding: "utf8" }).stdout.trim()),
+    path: `${__dirname}/../wasms/test_custom_types.wasm`,
   },
   helloWorld: {
     hash: spawnSync("./target/bin/soroban", ["contract", "install", "--wasm", `${__dirname}/../wasms/test_hello_world.wasm`], { shell: true, encoding: "utf8" }).stdout.trim(),
-    xdr: JSON.parse(spawnSync("./target/bin/soroban", ["contract", "inspect", "--wasm", `${__dirname}/../wasms/test_hello_world.wasm`, "--output", "xdr-base64-array"], { shell: true, encoding: "utf8" }).stdout.trim()),
+    path: `${__dirname}/../wasms/test_hello_world.wasm`
   },
   swap: {
     hash: spawnSync("./target/bin/soroban", ["contract", "install", "--wasm", `${__dirname}/../wasms/test_swap.wasm`], { shell: true, encoding: "utf8" }).stdout.trim(),
-    xdr: JSON.parse(spawnSync("./target/bin/soroban", ["contract", "inspect", "--wasm", `${__dirname}/../wasms/test_swap.wasm`, "--output", "xdr-base64-array"], { shell: true, encoding: "utf8" }).stdout.trim()),
+    path: `${__dirname}/../wasms/test_swap.wasm`
   },
   token: {
     hash: spawnSync("./target/bin/soroban", ["contract", "install", "--wasm", `${__dirname}/../wasms/test_token.wasm`], { shell: true, encoding: "utf8" }).stdout.trim(),
-    xdr: JSON.parse(spawnSync("./target/bin/soroban", ["contract", "inspect", "--wasm", `${__dirname}/../wasms/test_token.wasm`, "--output", "xdr-base64-array"], { shell: true, encoding: "utf8" }).stdout.trim()),
+    path: `${__dirname}/../wasms/test_token.wasm`
   },
 };
 module.exports.contracts = contracts
@@ -59,8 +59,51 @@ async function clientFor(contract, { keypair = generateFundedKeypair(), contract
   keypair = await keypair // eslint-disable-line no-param-reassign
   const wallet = basicNodeSigner(keypair, networkPassphrase)
 
-  const spec = new ContractSpec(contracts[contract].xdr)
+  const wasmHash = contracts[contract].hash;
+  if (!wasmHash) {
+    throw new Error(`No wasm hash found for \`contracts[${contract}]\`! ${JSON.stringify(contracts[contract], null, 2)}`)
+  }
 
+  // TODO: do this with js-stellar-sdk, instead of shelling out to the CLI
+  contractId = contractId ?? spawnSync("./target/bin/soroban", [ // eslint-disable-line no-param-reassign
+    "contract",
+    "deploy",
+    "--source",
+    keypair.secret(),
+    "--wasm-hash",
+    wasmHash,
+  ], { shell: true, encoding: "utf8" }).stdout.trim();
+
+  const client = await ContractClient.fromWasmHash(Buffer.from(wasmHash, "hex"), {
+    networkPassphrase,
+    contractId,
+    rpcUrl,
+    allowHttp: true,
+    publicKey: keypair.publicKey(),
+    ...wallet,
+  });
+  return {
+    keypair,
+    client,
+    contractId,
+  }
+}
+module.exports.clientFor = clientFor
+
+async function clientFromConstructor(contract, { keypair = generateFundedKeypair(), contractId } = {}) {
+  if (!contracts[contract]) {
+    throw new Error(
+      `Contract ${contract} not found. ` +
+      `Pick one of: ${Object.keys(contracts).join(", ")}`
+    )
+  }
+  keypair = await keypair // eslint-disable-line no-param-reassign
+  const wallet = basicNodeSigner(keypair, networkPassphrase)
+
+  const {path} = contracts[contract];
+  const xdr = JSON.parse(spawnSync("./target/bin/soroban", ["contract", "inspect", "--wasm", path, "--output", "xdr-base64-array"], { shell: true, encoding: "utf8" }).stdout.trim())
+
+  const spec = new ContractSpec(xdr);
   const wasmHash = contracts[contract].hash;
   if (!wasmHash) {
     throw new Error(`No wasm hash found for \`contracts[${contract}]\`! ${JSON.stringify(contracts[contract], null, 2)}`)
@@ -90,7 +133,7 @@ async function clientFor(contract, { keypair = generateFundedKeypair(), contract
     contractId,
   }
 }
-module.exports.clientFor = clientFor
+module.exports.clientFromConstructor = clientFromConstructor
 
 /**
  * Generates a ContractClient given the contractId using the from method.
