@@ -262,12 +262,10 @@ export class Server {
   public async getContractWasm(
     contractId: string
   ): Promise<Buffer> {
-    // coalesce `contract` param variants to an ScAddress
     const contractLedgerKey = new Contract(contractId).getFootprint();
-
     const response = await this.getLedgerEntries(contractLedgerKey);
     if (!response.entries.length || !response.entries[0]?.val) {
-      throw new Error(`Could not obtain contract hash from server`);
+      return Promise.reject({code: 404, message: `Could not obtain contract hash from server`});
     }
 
     const wasmHash = response.entries[0].val
@@ -285,7 +283,7 @@ export class Server {
 
     const responseWasm = await this.getLedgerEntries(ledgerKeyWasmHash);
     if(!responseWasm.entries.length || !responseWasm.entries[0]?.val){
-      throw new Error(`Could not obtain contract wasm from server`);
+      return Promise.reject({code: 404, message: `Could not obtain contract wasm from server`});
     }
     const wasmBuffer = responseWasm.entries[0].val.contractCode().code();
 

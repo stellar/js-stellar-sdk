@@ -145,12 +145,13 @@ test('u128', async t => {
 })
 
 test('from', async (t) => {
-  function flattenInstance(object) {
+  // objects with different constructors will not pass deepEqual check
+  function constructorWorkaround(object) {
     return JSON.parse(JSON.stringify(object));
   }
 
   const clientFromFrom = await clientForFromTest(t.context.contractId, t.context.publicKey, t.context.keypair);
-  t.deepEqual(flattenInstance(clientFromFrom), flattenInstance(t.context.client));
+  t.deepEqual(constructorWorkaround(clientFromFrom), constructorWorkaround(t.context.client));
   t.deepEqual(t.context.client.spec.entries, clientFromFrom.spec.entries);
 });
 
