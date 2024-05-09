@@ -303,24 +303,37 @@ export class Server {
    * });
    */
   public async getContractWasmByHash(
-    wasmHash: Buffer
+    wasmHash: Buffer | string,
+    format: "hex" | "base64" = "hex"
   ): Promise<Buffer> {
+    let wasmHashBuffer: Buffer;
+
+    if (typeof wasmHash === "string") {
+      if (format === "hex") {
+        wasmHashBuffer = Buffer.from(wasmHash, "hex");
+      } else if (format === "base64") {
+        wasmHashBuffer = Buffer.from(wasmHash, "base64");
+      } else {
+        throw new TypeError("Invalid format. Supported formats: 'hex' or 'base64'" );
+      }
+    } else {
+      wasmHashBuffer = wasmHash;
+    }
+
     const ledgerKeyWasmHash = xdr.LedgerKey.contractCode(
       new xdr.LedgerKeyContractCode({
-        hash: wasmHash
+        hash: wasmHashBuffer,
       })
     );
 
     const responseWasm = await this.getLedgerEntries(ledgerKeyWasmHash);
-    if(!responseWasm.entries.length || !responseWasm.entries[0]?.val){
-      return Promise.reject({code: 404, message: `Could not obtain contract wasm from server`});
+    if (!responseWasm.entries.length || !responseWasm.entries[0]?.val) {
+      return Promise.reject({ code: 404, message: "Could not obtain contract wasm from server" });
     }
     const wasmBuffer = responseWasm.entries[0].val.contractCode().code();
 
-    return Buffer.from(wasmBuffer);
+    return wasmBuffer;
   }
-
-
 
   /**
    * Reads the current value of arbitrary ledger entries directly.

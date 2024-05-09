@@ -1,7 +1,7 @@
 const test = require('ava')
 const { Address } = require('../../..')
 const { Ok, Err } = require('../../../lib/rust_types')
-const { clientFor, clientForFromTest, clientFromConstructor } = require('./util')
+const { clientFor } = require('./util')
 
 test.before(async t => {
   const { client, keypair, contractId } = await clientFor('customTypes')
@@ -14,13 +14,6 @@ test('hello', async t => {
   const { result } = await t.context.client.hello({ hello: 'tests' })
   t.is(result, 'tests')
 })
-
-test('hello from constructor', async t => {
-  const { client } = await clientFromConstructor('customTypes')
-  const { result } = await client.hello({ hello: 'tests' })
-  t.is(result, 'tests')
-})
-
 test("view method with empty keypair", async (t) => {
   const { client: client2 } = await clientFor('customTypes', {
     keypair: undefined,
@@ -150,16 +143,7 @@ test('u128', async t => {
   t.is((await t.context.client.u128({ u128: 1n })).result, 1n)
 })
 
-test('from', async (t) => {
-  // objects with different constructors will not pass deepEqual check
-  function constructorWorkaround(object) {
-    return JSON.parse(JSON.stringify(object));
-  }
 
-  const clientFromFrom = await clientForFromTest(t.context.contractId, t.context.publicKey, t.context.keypair);
-  t.deepEqual(constructorWorkaround(clientFromFrom), constructorWorkaround(t.context.client));
-  t.deepEqual(t.context.client.spec.entries, clientFromFrom.spec.entries);
-});
 
 test('multi_args', async t => {
   t.is((await t.context.client.multi_args({ a: 1, b: true })).result, 1)

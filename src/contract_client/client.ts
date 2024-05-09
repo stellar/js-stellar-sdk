@@ -48,21 +48,36 @@ export class ContractClient {
   }
 
   /**
-   * Generate a ContractClient instance from the ContractClientOptions and the wasm hash 
+   * Generates a ContractClient instance from the provided ContractClientOptions and the contract's wasm hash.
+   * The wasmHash can be provided in either hex or base64 format.
+   * 
+   * @param wasmHash The hash of the contract's wasm binary, in either hex or base64 format.
+   * @param options The ContractClientOptions object containing the necessary configuration, including the rpcUrl.
+   * @param format The format of the provided wasmHash, either "hex" or "base64". Defaults to "hex".
+   * @returns A Promise that resolves to a ContractClient instance.
+   * @throws {TypeError} If the provided options object does not contain an rpcUrl.
    */
-  static async fromWasmHash(wasmHash: Buffer, options: ContractClientOptions): Promise<ContractClient> {
+  static async fromWasmHash(wasmHash: Buffer | string, 
+    options: ContractClientOptions, 
+    format: "hex" | "base64" = "hex"
+  ): Promise<ContractClient> {
     if (!options || !options.rpcUrl ) {
       throw new TypeError('options must contain rpcUrl');
     }
     const { rpcUrl, allowHttp } = options;
     const serverOpts: Server.Options = { allowHttp };
     const server = new Server(rpcUrl, serverOpts);
-    const wasm = await server.getContractWasmByHash(wasmHash);
+    const wasm = await server.getContractWasmByHash(wasmHash, format);
     return ContractClient.fromWasm(wasm, options);
   }
 
   /**
-   * Generate a ContractClient instance from the ContractClientOptions and the wasm binary
+   * Generates a ContractClient instance from the provided ContractClientOptions and the contract's wasm binary.
+   * 
+   * @param wasm The contract's wasm binary as a Buffer.
+   * @param options The ContractClientOptions object containing the necessary configuration.
+   * @returns A Promise that resolves to a ContractClient instance.
+   * @throws {Error} If the contract spec cannot be obtained from the provided wasm binary.
    */
   static async fromWasm(wasm: Buffer, options: ContractClientOptions): Promise<ContractClient> {
     const wasmModule = await WebAssembly.compile(wasm);
@@ -77,7 +92,11 @@ export class ContractClient {
   }
 
   /**
-   * Generate a ContractClient instance from the contractId and rpcUrl
+   * Generates a ContractClient instance from the provided ContractClientOptions, which must include the contractId and rpcUrl.
+   * 
+   * @param options The ContractClientOptions object containing the necessary configuration, including the contractId and rpcUrl.
+   * @returns A Promise that resolves to a ContractClient instance.
+   * @throws {TypeError} If the provided options object does not contain both rpcUrl and contractId.
    */
   static async from(options: ContractClientOptions): Promise<ContractClient> {
     if (!options || !options.rpcUrl || !options.contractId) {

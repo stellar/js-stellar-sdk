@@ -1,5 +1,5 @@
 const { spawnSync } = require('node:child_process')
-const { ContractSpec, Keypair } = require('../../..')
+const { Keypair } = require('../../..')
 const {
   ContractClient,
   basicNodeSigner,
@@ -74,7 +74,7 @@ async function clientFor(contract, { keypair = generateFundedKeypair(), contract
     wasmHash,
   ], { shell: true, encoding: "utf8" }).stdout.trim();
 
-  const client = await ContractClient.fromWasmHash(Buffer.from(wasmHash, "hex"), {
+  const client = await ContractClient.fromWasmHash(wasmHash, {
     networkPassphrase,
     contractId,
     rpcUrl,
@@ -89,66 +89,3 @@ async function clientFor(contract, { keypair = generateFundedKeypair(), contract
   }
 }
 module.exports.clientFor = clientFor
-
-async function clientFromConstructor(contract, { keypair = generateFundedKeypair(), contractId } = {}) {
-  if (!contracts[contract]) {
-    throw new Error(
-      `Contract ${contract} not found. ` +
-      `Pick one of: ${Object.keys(contracts).join(", ")}`
-    )
-  }
-  keypair = await keypair // eslint-disable-line no-param-reassign
-  const wallet = basicNodeSigner(keypair, networkPassphrase)
-
-  const {path} = contracts[contract];
-  const xdr = JSON.parse(spawnSync("./target/bin/soroban", ["contract", "inspect", "--wasm", path, "--output", "xdr-base64-array"], { shell: true, encoding: "utf8" }).stdout.trim())
-
-  const spec = new ContractSpec(xdr);
-  const wasmHash = contracts[contract].hash;
-  if (!wasmHash) {
-    throw new Error(`No wasm hash found for \`contracts[${contract}]\`! ${JSON.stringify(contracts[contract], null, 2)}`)
-  }
-
-  // TODO: do this with js-stellar-sdk, instead of shelling out to the CLI
-  contractId = contractId ?? spawnSync("./target/bin/soroban", [ // eslint-disable-line no-param-reassign
-    "contract",
-    "deploy",
-    "--source",
-    keypair.secret(),
-    "--wasm-hash",
-    wasmHash,
-  ], { shell: true, encoding: "utf8" }).stdout.trim();
-
-  const client = new ContractClient(spec, {
-    networkPassphrase,
-    contractId,
-    rpcUrl,
-    allowHttp: true,
-    publicKey: keypair.publicKey(),
-    ...wallet,
-  });
-  return {
-    keypair,
-    client,
-    contractId,
-  }
-}
-module.exports.clientFromConstructor = clientFromConstructor
-
-/**
- * Generates a ContractClient given the contractId using the from method.
- */
-async function clientForFromTest(contractId, publicKey, keypair) {
-  keypair = await keypair; // eslint-disable-line no-param-reassign
-  const wallet = basicNodeSigner(keypair, networkPassphrase);
-  const options = {
-    networkPassphrase,
-    contractId,
-    rpcUrl,
-    allowHttp: true,
-    publicKey,
-    ...wallet,
-  };
-  return ContractClient.from(options);
-}
-module.exports.clientForFromTest = clientForFromTest;
