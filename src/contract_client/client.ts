@@ -14,7 +14,9 @@ export class ContractClient {
    * transaction.
    */
   constructor(
+    /** {@link ContractSpec} to construct a Client for */
     public readonly spec: ContractSpec,
+    /** see {@link ContractClientOptions} */
     public readonly options: ContractClientOptions,
   ) {
     this.spec.funcs().forEach((xdrFn) => {

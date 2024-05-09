@@ -1,4 +1,6 @@
-import { Keypair, TransactionBuilder, hash } from '..'
+import { Keypair, TransactionBuilder, hash } from "..";
+import type { AssembledTransaction } from "./assembled_transaction";
+import type { ContractClient } from "./client";
 
 /**
  * For use with {@link ContractClient} and {@link AssembledTransaction}.
@@ -7,15 +9,19 @@ import { Keypair, TransactionBuilder, hash } from '..'
  * applications. Feel free to use this as a starting point for your own
  * Wallet/TransactionSigner implementation.
  */
-export const basicNodeSigner = (keypair: Keypair, networkPassphrase: string) => ({
+export const basicNodeSigner = (
+  /** {@link Keypair} to use to sign the transaction or auth entry */
+  keypair: Keypair,
+  /** passphrase of network to sign for */
+  networkPassphrase: string,
+) => ({
+  // eslint-disable-next-line require-await
   signTransaction: async (tx: string) => {
     const t = TransactionBuilder.fromXDR(tx, networkPassphrase);
     t.sign(keypair);
     return t.toXDR();
   },
-  signAuthEntry: async (entryXdr: string): Promise<string> => {
-    return keypair
-      .sign(hash(Buffer.from(entryXdr, "base64")))
-      .toString('base64')
-  }
-})
+  // eslint-disable-next-line require-await
+  signAuthEntry: async (entryXdr: string): Promise<string> =>
+    keypair.sign(hash(Buffer.from(entryXdr, "base64"))).toString("base64"),
+});

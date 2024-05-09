@@ -1,7 +1,9 @@
-import type { ContractClientOptions, Tx } from "./types";
+/* disable max-classes rule, because extending error shouldn't count! */
+/* eslint max-classes-per-file: 0 */
+import type { ContractClientOptions, MethodOptions, Tx } from "./types";
 import { SorobanDataBuilder, SorobanRpc, TransactionBuilder } from "..";
 import { DEFAULT_TIMEOUT, withExponentialBackoff } from "./utils";
-import { AssembledTransaction } from "./assembled_transaction";
+import type { AssembledTransaction } from "./assembled_transaction";
 
 /**
  * A transaction that has been sent to the Soroban network. This happens in two steps:
@@ -19,12 +21,15 @@ import { AssembledTransaction } from "./assembled_transaction";
  */
 export class SentTransaction<T> {
   public server: SorobanRpc.Server;
+
   public signed?: Tx;
+
   /**
    * The result of calling `sendTransaction` to broadcast the transaction to the
    * network.
    */
   public sendTransactionResponse?: SorobanRpc.Api.SendTransactionResponse;
+
   /**
    * If `sendTransaction` completes successfully (which means it has `status: 'PENDING'`),
    * then `getTransaction` will be called in a loop for
@@ -32,6 +37,7 @@ export class SentTransaction<T> {
    * the results of those calls.
    */
   public getTransactionResponseAll?: SorobanRpc.Api.GetTransactionResponse[];
+
   /**
    * The most recent result of calling `getTransaction`, from the
    * `getTransactionResponseAll` array.
@@ -39,8 +45,9 @@ export class SentTransaction<T> {
   public getTransactionResponse?: SorobanRpc.Api.GetTransactionResponse;
 
   static Errors = {
-    SendFailed: class SendFailedError extends Error {},
-    SendResultOnly: class SendResultOnlyError extends Error {},
+    SendFailed: class SendFailedError extends Error { },
+    SendResultOnly: class SendResultOnlyError extends Error { },
+    TransactionStillPending: class TransactionStillPendingError extends Error { },
   };
 
   constructor(
@@ -62,20 +69,26 @@ export class SentTransaction<T> {
    * a `signTransaction` function. This will also send the transaction to the
    * network.
    */
-  static init = async <T>(
+  static init = async <U>(
+    /** More info in {@link MethodOptions} */
     signTransaction: ContractClientOptions["signTransaction"],
-    assembled: AssembledTransaction<T>,
-  ): Promise<SentTransaction<T>> => {
+    /** {@link AssembledTransaction} from which this SentTransaction was initialized */
+    assembled: AssembledTransaction<U>,
+  ): Promise<SentTransaction<U>> => {
     const tx = new SentTransaction(signTransaction, assembled);
-    return await tx.send();
+    const sent = await tx.send();
+    return sent;
   };
 
   private send = async (): Promise<this> => {
-    const timeoutInSeconds = this.assembled.options.timeoutInSeconds ?? DEFAULT_TIMEOUT
+    const timeoutInSeconds =
+      this.assembled.options.timeoutInSeconds ?? DEFAULT_TIMEOUT;
     this.assembled.built = TransactionBuilder.cloneFrom(this.assembled.built!, {
       fee: this.assembled.built!.fee,
       timebounds: undefined,
-      sorobanData: new SorobanDataBuilder(this.assembled.simulationData.transactionData.toXDR()).build()
+      sorobanData: new SorobanDataBuilder(
+        this.assembled.simulationData.transactionData.toXDR(),
+      ).build(),
     })
       .setTimeout(timeoutInSeconds)
       .build();
@@ -99,8 +112,11 @@ export class SentTransaction<T> {
 
     if (this.sendTransactionResponse.status !== "PENDING") {
       throw new SentTransaction.Errors.SendFailed(
-        "Sending the transaction to the network failed!\n" +
-          JSON.stringify(this.sendTransactionResponse, null, 2),
+        `Sending the transaction to the network failed!\n${JSON.stringify(
+          this.sendTransactionResponse,
+          null,
+          2,
+        )}`,
       );
     }
 
@@ -118,19 +134,19 @@ export class SentTransaction<T> {
       this.getTransactionResponse.status ===
       SorobanRpc.Api.GetTransactionStatus.NOT_FOUND
     ) {
-      console.error(
+      throw new SentTransaction.Errors.TransactionStillPending(
         `Waited ${timeoutInSeconds} seconds for transaction to complete, but it did not. ` +
-          `Returning anyway. Check the transaction status manually. ` +
-          `Sent transaction: ${JSON.stringify(
-            this.sendTransactionResponse,
-            null,
-            2,
-          )}\n` +
-          `All attempts to get the result: ${JSON.stringify(
-            this.getTransactionResponseAll,
-            null,
-            2,
-          )}`,
+        `Returning anyway. Check the transaction status manually. ` +
+        `Sent transaction: ${JSON.stringify(
+          this.sendTransactionResponse,
+          null,
+          2,
+        )}\n` +
+        `All attempts to get the result: ${JSON.stringify(
+          this.getTransactionResponseAll,
+          null,
+          2,
+        )}`,
       );
     }
 
@@ -147,7 +163,8 @@ export class SentTransaction<T> {
         );
       }
 
-      // if "returnValue" not present, the transaction failed; return without parsing the result
+      // if "returnValue" not present, the transaction failed; return without
+      // parsing the result
       throw new Error("Transaction failed! Cannot parse result.");
     }
 
