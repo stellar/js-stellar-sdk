@@ -39,9 +39,9 @@ async function clientFromConstructor(contract, { keypair = generateFundedKeypair
   const xdr = JSON.parse(spawnSync("./target/bin/soroban", ["contract", "inspect", "--wasm", path, "--output", "xdr-base64-array"], { shell: true, encoding: "utf8" }).stdout.trim())
 
   const spec = new ContractSpec(xdr);
-  const wasmHash = contracts[contract].hash;
+  let wasmHash = contracts[contract].hash;
   if (!wasmHash) {
-    throw new Error(`No wasm hash found for \`contracts[${contract}]\`! ${JSON.stringify(contracts[contract], null, 2)}`)
+    wasmHash = spawnSync("./target/bin/soroban", ["contract", "install", "--wasm", path], { shell: true, encoding: "utf8" }).stdout.trim()
   }
 
   // TODO: do this with js-stellar-sdk, instead of shelling out to the CLI
