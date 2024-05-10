@@ -139,7 +139,18 @@ function parseSuccessful(
             : xdr.ScVal.scvVoid()
         };
       })[0]
-    })
+    }),
+
+    stateDiff: sim.stateDiff?.length ?? 0 > 0
+        ? sim.stateDiff!.map((entryDiff) => {
+          return {
+            type: entryDiff.type,
+            key: entryDiff.key,
+            before: xdr.LedgerEntry.fromXDR(entryDiff.before, 'base64'),
+            after: xdr.LedgerEntry.fromXDR(entryDiff.after, 'base64'),
+          };
+        })
+        : null,
   };
 
   if (!sim.restorePreamble || sim.restorePreamble.transactionData === '') {

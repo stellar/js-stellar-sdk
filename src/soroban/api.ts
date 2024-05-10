@@ -178,7 +178,9 @@ export namespace Api {
   interface RawLedgerEntryDiff {
     type: number;
     key: string;
+    // these are xdr.LedgerEntry in base64
     before?: string;
+    // these are xdr.LedgerEntry in base64
     after?: string;
   }
 
