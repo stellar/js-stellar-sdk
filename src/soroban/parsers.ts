@@ -146,11 +146,11 @@ function parseSuccessful(
           return {
             type: entryDiff.type,
             key: entryDiff.key,
-            before: xdr.LedgerEntry.fromXDR(entryDiff.before, 'base64'),
-            after: xdr.LedgerEntry.fromXDR(entryDiff.after, 'base64'),
+            before: !!entryDiff.before ? xdr.LedgerEntry.fromXDR(entryDiff.before, 'base64') : undefined,
+            after: !!entryDiff.after ? xdr.LedgerEntry.fromXDR(entryDiff.after, 'base64') : undefined,
           };
         })
-        : null,
+        : undefined,
   };
 
   if (!sim.restorePreamble || sim.restorePreamble.transactionData === '') {
