@@ -175,8 +175,18 @@ export namespace Api {
     value: string;
   }
 
-  export interface RequestAirdropResponse {
-    transaction_id: string;
+  interface RawLedgerEntryDiff {
+    type: number;
+    key: string;
+    before?: string;
+    after?: string;
+  }
+
+  interface LedgerEntryDiff{
+    type: number;
+    key: string;
+    before?: xdr.LedgerEntry;
+    after?: xdr.LedgerEntry;
   }
 
   export type SendTransactionStatus =
@@ -264,6 +274,9 @@ export namespace Api {
 
     /** present only for invocation simulation */
     result?: SimulateHostFunctionResult;
+
+    // State Difference information
+    stateDiff?: LedgerEntryDiff[];
   }
 
   /** Includes details about why the simulation failed */
@@ -347,5 +360,8 @@ export namespace Api {
       minResourceFee: string;
       transactionData: string;
     };
+
+    // State Difference information
+    stateDiff?: RawLedgerEntryDiff[];
   }
 }
