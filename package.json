@@ -23,6 +23,21 @@
     "/lib",
     "/dist"
   ],
+  "exports": {
+    ".": {
+      "browser": "./dist/stellar-sdk.min.js",
+      "types": "./lib/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./contract": {
+      "types": "./lib/contract/index.d.ts",
+      "default": "./lib/contract/index.js"
+    },
+    "./rpc": {
+      "types": "./lib/rpc/index.d.ts",
+      "default": "./lib/rpc/index.js"
+    }
+  },
   "scripts": {
     "build": "cross-env NODE_ENV=development yarn _build",
     "build:prod": "cross-env NODE_ENV=production yarn _build",

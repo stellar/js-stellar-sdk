@@ -1,4 +1,4 @@
-import { xdr, cereal } from "..";
+import { xdr, cereal } from "@stellar/stellar-base";
 import type { AssembledTransaction } from "./assembled_transaction";
 
 /**

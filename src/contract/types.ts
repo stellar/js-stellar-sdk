@@ -1,7 +1,7 @@
 /* disable PascalCase naming convention, to avoid breaking change */
 /* eslint-disable @typescript-eslint/naming-convention */
-import { BASE_FEE, Memo, MemoType, Operation, Transaction, xdr } from "..";
-import type { ContractClient } from "./client";
+import { BASE_FEE, Memo, MemoType, Operation, Transaction, xdr } from "@stellar/stellar-base";
+import type { Client } from "./client";
 import type { AssembledTransaction } from "./assembled_transaction";
 import { DEFAULT_TIMEOUT } from "./utils";
 
@@ -23,7 +23,7 @@ export type Duration = bigint;
  */
 export type Tx = Transaction<Memo<MemoType>, Operation[]>;
 
-export type ContractClientOptions = {
+export type ClientOptions = {
   /**
    * The public key of the account that will send this transaction. You can
    * override this for specific methods later, like
@@ -74,14 +74,14 @@ export type ContractClientOptions = {
   allowHttp?: boolean;
   /**
    * This gets filled in automatically from the ContractSpec when you
-   * instantiate a {@link ContractClient}.
+   * instantiate a {@link Client}.
    *
    * Background: If the contract you're calling uses the `#[contracterror]`
    * macro to create an `Error` enum, then those errors get included in the
    * on-chain XDR that also describes your contract's methods. Each error will
    * have a specific number.
    *
-   * A ContractClient makes method calls with an {@link AssembledTransaction}.
+   * A Client makes method calls with an {@link AssembledTransaction}.
    * When one of these method calls encounters an error, `AssembledTransaction`
    * will first attempt to parse the error as an "official" `contracterror`
    * error, by using this passed-in `errorTypes` object. See
@@ -112,7 +112,7 @@ export type MethodOptions = {
 };
 
 export type AssembledTransactionOptions<T = string> = MethodOptions &
-  ContractClientOptions & {
+  ClientOptions & {
     method: string;
     args?: any[];
     parseResultXdr: (xdr: xdr.ScVal) => T;

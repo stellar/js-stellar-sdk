@@ -1,5 +1,5 @@
 const { xdr } = StellarSdk;
-const { Server, AxiosClient } = StellarSdk.SorobanRpc;
+const { Server, AxiosClient } = StellarSdk.rpc;
 
 describe("Server#sendTransaction", function () {
   let keypair = StellarSdk.Keypair.random();
