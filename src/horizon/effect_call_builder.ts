@@ -5,9 +5,9 @@ import { ServerApi } from "./server_api";
  * Creates a new {@link EffectCallBuilder} pointed to server defined by serverUrl.
  * Do not create this object directly, use {@link Server#effects}.
  *
- * @class EffectCallBuilder
- * @extends CallBuilder
  * @see [All Effects](https://developers.stellar.org/api/resources/effects/)
+ *
+ * @extends CallBuilder
  * @constructor
  * @param {string} serverUrl Horizon server URL.
  */

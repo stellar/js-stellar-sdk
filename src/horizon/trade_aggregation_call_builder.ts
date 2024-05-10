@@ -16,9 +16,9 @@ const allowedResolutions = [
 
 /**
  * Trade Aggregations facilitate efficient gathering of historical trade data.
+ *
  * Do not create this object directly, use {@link Server#tradeAggregation}.
  *
- * @class TradeAggregationCallBuilder
  * @extends CallBuilder
  * @constructor
  * @param {string} serverUrl serverUrl Horizon server URL.

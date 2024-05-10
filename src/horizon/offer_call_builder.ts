@@ -4,12 +4,13 @@ import { ServerApi } from "./server_api";
 
 /**
  * Creates a new {@link OfferCallBuilder} pointed to server defined by serverUrl.
+ *
  * Do not create this object directly, use {@link Server#offers}.
  *
  * @see [Offers](https://developers.stellar.org/api/resources/offers/)
- * @class OfferCallBuilder
- * @constructor
+ *
  * @extends CallBuilder
+ * @constructor
  * @param {string} serverUrl Horizon server URL.
  */
 export class OfferCallBuilder extends CallBuilder<
