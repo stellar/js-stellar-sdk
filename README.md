@@ -7,9 +7,9 @@
 </div>
 
 <p align="center">
-  <a href="https://badge.fury.io/js/stellar-sdk"><img src="https://badge.fury.io/js/stellar-sdk.svg" alt="npm version" height="18"></a>
-  <a href="https://www.npmjs.com/package/stellar-sdk">
-    <img alt="Weekly Downloads" src="https://img.shields.io/npm/dw/stellar-sdk" />
+  <a href="https://badge.fury.io/js/@stellar%2Fstellar-sdk"><img src="https://badge.fury.io/js/@stellar%2Fstellar-sdk.svg" alt="npm version" height="18"></a>
+  <a href="https://www.npmjs.com/package/@stellar/stellar-sdk">
+    <img alt="Weekly Downloads" src="https://img.shields.io/npm/dw/@stellar/stellar-sdk" />
   </a>
   <a href="https://github.com/stellar/js-stellar-sdk/actions/workflows/tests.yml"><img alt="Test Status" src="https://github.com/stellar/js-stellar-sdk/actions/workflows/tests.yml/badge.svg" /></a>
 </p>
