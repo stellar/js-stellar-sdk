@@ -3,12 +3,13 @@ import { ServerApi } from "./server_api";
 
 /**
  * Creates a new {@link TransactionCallBuilder} pointed to server defined by serverUrl.
+ *
  * Do not create this object directly, use {@link Server#transactions}.
  *
- * @class TransactionCallBuilder
- * @extends CallBuilder
  * @see [All Transactions](https://developers.stellar.org/api/resources/transactions/)
+ *
  * @constructor
+ * @extends CallBuilder
  * @param {string} serverUrl Horizon server URL.
  */
 export class TransactionCallBuilder extends CallBuilder<

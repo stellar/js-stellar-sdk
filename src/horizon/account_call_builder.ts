@@ -3,11 +3,12 @@ import { CallBuilder } from "./call_builder";
 import { ServerApi } from "./server_api";
 
 /**
- * Creates a new {@link AccountCallBuilder} pointed to server defined by serverUrl.
+ * Creates a new {@link AccountCallBuilder} pointed to server defined by `serverUrl`.
+ *
  * Do not create this object directly, use {@link Server#accounts}.
  *
  * @see [All Accounts](https://developers.stellar.org/api/resources/accounts/)
- * @class AccountCallBuilder
+ *
  * @extends CallBuilder
  * @constructor
  * @param {string} serverUrl Horizon server URL.

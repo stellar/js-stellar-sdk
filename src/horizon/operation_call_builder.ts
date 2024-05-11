@@ -3,12 +3,13 @@ import { ServerApi } from "./server_api";
 
 /**
  * Creates a new {@link OperationCallBuilder} pointed to server defined by serverUrl.
+ *
  * Do not create this object directly, use {@link Server#operations}.
  *
  * @see [All Operations](https://developers.stellar.org/api/resources/operations/)
- * @class OperationCallBuilder
- * @constructor
+ *
  * @extends CallBuilder
+ * @constructor
  * @param {string} serverUrl Horizon server URL.
  */
 export class OperationCallBuilder extends CallBuilder<
