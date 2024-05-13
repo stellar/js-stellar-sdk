@@ -246,7 +246,7 @@ let getEventsResponseFixture = [
     inSuccessfulContractCall: true,
     topic: topicVals.slice(0, 2),
     value: eventVal,
-    txHash: "d7d09af2ca4f2929ee701cf86d05e4ca5f849a726d0db344785a8f9894e79e6c"
+    txHash: "d7d09af2ca4f2929ee701cf86d05e4ca5f849a726d0db344785a8f9894e79e6c",
   },
   {
     type: "contract",
@@ -258,7 +258,7 @@ let getEventsResponseFixture = [
     inSuccessfulContractCall: true,
     topic: topicVals.slice(0, 2),
     value: eventVal,
-    txHash: "d7d09af2ca4f2929ee701cf86d05e4ca5f849a726d0db344785a8f9894e79e6c"
+    txHash: "d7d09af2ca4f2929ee701cf86d05e4ca5f849a726d0db344785a8f9894e79e6c",
   },
   {
     type: "diagnostic",
@@ -270,7 +270,7 @@ let getEventsResponseFixture = [
     inSuccessfulContractCall: true,
     topic: [topicVals[0]],
     value: eventVal,
-    txHash: "d7d09af2ca4f2929ee701cf86d05e4ca5f849a726d0db344785a8f9894e79e6c"
+    txHash: "d7d09af2ca4f2929ee701cf86d05e4ca5f849a726d0db344785a8f9894e79e6c",
   },
   {
     type: "contract",
@@ -282,6 +282,6 @@ let getEventsResponseFixture = [
     inSuccessfulContractCall: true,
     topic: topicVals,
     value: eventVal,
-    txHash: "d7d09af2ca4f2929ee701cf86d05e4ca5f849a726d0db344785a8f9894e79e6c"
+    txHash: "d7d09af2ca4f2929ee701cf86d05e4ca5f849a726d0db344785a8f9894e79e6c",
   },
 ];
