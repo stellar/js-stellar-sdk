@@ -15,7 +15,7 @@
 </p>
 
 js-stellar-sdk is a JavaScript library for communicating with a
-[Stellar Horizon server](https://github.com/stellar/go/tree/master/services/horizon) and [Soroban RPC](https://soroban.stellar.org/docs/reference/rpc).
+[Stellar Horizon server](https://github.com/stellar/go/tree/master/services/horizon) and [Soroban RPC](https://developers.stellar.org/network/soroban-rpc).
 It is used for building Stellar apps either on Node.js or in the browser, though it can be used in other environments with some tinkering.
 
 It provides:
@@ -89,14 +89,14 @@ If you don't want to use or install Bower, you can copy the packaged JS files fr
 
 The usage documentation for this library lives in a handful of places:
 
- * across the [Stellar Developer Docs](), which includes tutorials and examples,
+ * across the [Stellar Developer Docs](https://developers.stellar.org), which includes tutorials and examples,
  * within [this repository itself](https://github.com/stellar/js-stellar-sdk/blob/master/docs/reference/readme.md), and
  * on the generated [API doc site](https://stellar.github.io/js-stellar-sdk/).
 
 You can also refer to:
 
  * the [documentation](https://developers.stellar.org/network/horizon) for the Horizon REST API (if using the `Horizon` module) and
- * the [documentation](https://soroban.stellar.org/docs/reference/rpc) for Soroban RPC's API (if using the `SorobanRpc` module)
+ * the [documentation](https://developers.stellar.org/network/soroban-rpc) for Soroban RPC's API (if using the `SorobanRpc` module)
 
 ### Usage with React-Native
 
