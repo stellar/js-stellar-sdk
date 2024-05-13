@@ -45,20 +45,20 @@ export namespace Api {
     latestLedger: number;
   }
 
-  /** @see https://soroban.stellar.org/api/methods/getLedgerEntries */
+  /** @see https://developers.stellar.org/network/soroban-rpc/api-reference/methods/getLedgerEntries */
   export interface RawGetLedgerEntriesResponse {
     entries?: RawLedgerEntryResult[];
     latestLedger: number;
   }
 
-  /** @see https://soroban.stellar.org/api/methods/getNetwork */
+  /** @see https://developers.stellar.org/network/soroban-rpc/api-reference/methods/getNetwork */
   export interface GetNetworkResponse {
     friendbotUrl?: string;
     passphrase: string;
     protocolVersion: string;
   }
 
-  /** @see https://soroban.stellar.org/api/methods/getLatestLedger */
+  /** @see https://developers.stellar.org/network/soroban-rpc/api-reference/methods/getLatestLedger */
   export interface GetLatestLedgerResponse {
     id: string;
     sequence: number;
@@ -71,7 +71,7 @@ export namespace Api {
     FAILED = 'FAILED'
   }
 
-  /** @see https://soroban.stellar.org/api/methods/getTransaction */
+  /** @see https://developers.stellar.org/network/soroban-rpc/api-reference/methods/getTransaction */
   export type GetTransactionResponse =
     | GetSuccessfulTransactionResponse
     | GetFailedTransactionResponse
@@ -229,7 +229,7 @@ export namespace Api {
    *     fields
    *   - for all other errors, this only includes error fields
    *
-   * @see https://soroban.stellar.org/api/methods/simulateTransaction#returns
+   * @see https://developers.stellar.org/network/soroban-rpc/api-reference/methods/simulateTransaction#returns
    */
   export type SimulateTransactionResponse =
     | SimulateTransactionSuccessResponse
@@ -328,7 +328,7 @@ export namespace Api {
     xdr: string;
   }
 
-  /** @see https://soroban.stellar.org/api/methods/simulateTransaction#returns */
+  /** @see https://developers.stellar.org/network/soroban-rpc/api-reference/methods/simulateTransaction#returns */
   export interface RawSimulateTransactionResponse {
     id: string;
     latestLedger: number;
