@@ -248,7 +248,6 @@ export class Server {
    * @returns {Promise<Buffer>}   a Buffer containing the WASM bytecode
    *
    * @throws {Error} If the contract or its associated WASM bytecode cannot be
-   * :
    *    found on the network.
    *
    * @example

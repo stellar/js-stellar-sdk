@@ -1,6 +1,4 @@
-// @ts-ignore
-import { XdrReader } from "@stellar/js-xdr";
-import { xdr } from "..";
+import { xdr, cereal } from "..";
 
 /**
  * The default timeout for waiting for a transaction to be included in a block.
@@ -89,9 +87,10 @@ export function implementsToString(obj: unknown): obj is { toString(): string } 
  * Reads a binary stream of ScSpecEntries into an array for processing by ContractSpec
  */
 export function processSpecEntryStream(buffer: Buffer) {
-  const reader = new XdrReader(buffer);
+  const reader = new cereal.XdrReader(buffer);
   const res: xdr.ScSpecEntry[] = [];
-  while (reader._index < reader._length) {
+  while (!reader.eof){
+    // @ts-ignore 
     res.push(xdr.ScSpecEntry.read(reader));
   }
   return res;

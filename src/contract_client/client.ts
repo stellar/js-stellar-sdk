@@ -61,7 +61,7 @@ export class ContractClient {
     options: ContractClientOptions, 
     format: "hex" | "base64" = "hex"
   ): Promise<ContractClient> {
-    if (!options || !options.rpcUrl ) {
+    if (!options || !options.rpcUrl) {
       throw new TypeError('options must contain rpcUrl');
     }
     const { rpcUrl, allowHttp } = options;
