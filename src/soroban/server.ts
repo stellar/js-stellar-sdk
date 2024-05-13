@@ -305,7 +305,7 @@ export class Server {
     wasmHash: Buffer | string,
     format: undefined | "hex" | "base64" = undefined
   ): Promise<Buffer> {
-    const wasmHashBuffer = Buffer.from(wasmHash, format);
+    const wasmHashBuffer = wasmHash instanceof String ? Buffer.from(wasmHash, format) : wasmHash as Buffer;
 
     const ledgerKeyWasmHash = xdr.LedgerKey.contractCode(
       new xdr.LedgerKeyContractCode({
