@@ -303,21 +303,9 @@ export class Server {
    */
   public async getContractWasmByHash(
     wasmHash: Buffer | string,
-    format: "hex" | "base64" = "hex"
+    format: undefined | "hex" | "base64" = undefined
   ): Promise<Buffer> {
-    let wasmHashBuffer: Buffer;
-
-    if (typeof wasmHash === "string") {
-      if (format === "hex") {
-        wasmHashBuffer = Buffer.from(wasmHash, "hex");
-      } else if (format === "base64") {
-        wasmHashBuffer = Buffer.from(wasmHash, "base64");
-      } else {
-        throw new TypeError("Invalid format. Supported formats: 'hex' or 'base64'" );
-      }
-    } else {
-      wasmHashBuffer = wasmHash;
-    }
+    const wasmHashBuffer = Buffer.from(wasmHash, format);
 
     const ledgerKeyWasmHash = xdr.LedgerKey.contractCode(
       new xdr.LedgerKeyContractCode({
