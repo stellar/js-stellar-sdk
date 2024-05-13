@@ -32,18 +32,20 @@ describe("Server#simulateTransaction", async function (done) {
       retval: xdr.ScVal.fromXDR(simulationResponse.results[0].xdr, "base64"),
     },
     cost: simulationResponse.cost,
-    stateDiff: [{
-      type:1,
-      key: 'example-key',
-      before: new xdr.LedgerEntry({
-        lastModifiedLedgerSeq: 0,
-        ext: new xdr.LedgerEntryExt(0),
-      }),
-      after: new xdr.LedgerEntry({
-        lastModifiedLedgerSeq: 0,
-        ext: new xdr.LedgerEntryExt(0),
-      }),
-    }],
+    stateDiff: [
+      {
+        type: 1,
+        key: "example-key",
+        before: new xdr.LedgerEntry({
+          lastModifiedLedgerSeq: 0,
+          ext: new xdr.LedgerEntryExt(0),
+        }),
+        after: new xdr.LedgerEntry({
+          lastModifiedLedgerSeq: 0,
+          ext: new xdr.LedgerEntryExt(0),
+        }),
+      },
+    ],
     _parsed: true,
   };
 
@@ -187,7 +189,7 @@ describe("Server#simulateTransaction", async function (done) {
     delete expected.cost;
     delete expected.transactionData;
     delete expected.minResourceFee;
-    delete expected.stateDiff
+    delete expected.stateDiff;
     expected.error = "This is an error";
     expected.events = [];
 
@@ -276,19 +278,20 @@ function baseSimulationResponse(results) {
       cpuInsns: "1",
       memBytes: "2",
     },
-    stateDiff:[{
-      type:1,
-      key: 'example-key',
-      before: new xdr.LedgerEntry({
-        lastModifiedLedgerSeq: 0,
-        ext: new xdr.LedgerEntryExt(0),
-      }).toXDR('base64'),
-      after: new xdr.LedgerEntry({
-        lastModifiedLedgerSeq: 0,
-        ext: new xdr.LedgerEntryExt(0),
-      }).toXDR('base64'),
-    }],
-
+    stateDiff: [
+      {
+        type: 1,
+        key: "example-key",
+        before: new xdr.LedgerEntry({
+          lastModifiedLedgerSeq: 0,
+          ext: new xdr.LedgerEntryExt(0),
+        }).toXDR("base64"),
+        after: new xdr.LedgerEntry({
+          lastModifiedLedgerSeq: 0,
+          ext: new xdr.LedgerEntryExt(0),
+        }).toXDR("base64"),
+      },
+    ],
   };
 }
 

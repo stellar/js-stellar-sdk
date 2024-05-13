@@ -145,7 +145,7 @@ function parseSuccessful(
         ? sim.stateDiff!.map((entryDiff) => {
           return {
             type: entryDiff.type,
-            key: entryDiff.key,
+            key: xdr.LedgerKey.fromXDR(entryDiff.key, 'base64'),
             before: !!entryDiff.before ? xdr.LedgerEntry.fromXDR(entryDiff.before, 'base64') : undefined,
             after: !!entryDiff.after ? xdr.LedgerEntry.fromXDR(entryDiff.after, 'base64') : undefined,
           };
