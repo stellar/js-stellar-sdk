@@ -81,7 +81,7 @@ async function clientFor(contract, { keypair = generateFundedKeypair(), contract
     allowHttp: true,
     publicKey: keypair.publicKey(),
     ...wallet,
-  });
+  }, "hex");
   return {
     keypair,
     client,
