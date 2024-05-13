@@ -17,6 +17,8 @@ import { Utils } from "../utils";
 import { InvalidChallengeError } from "./errors";
 import { ServerApi } from "../horizon/server_api";
 
+/** @namespace WebAuth */
+
 /**
  * Returns a valid [SEP-10](https://stellar.org/protocol/sep-10) challenge
  * transaction which you can use for Stellar Web Authentication.
@@ -46,7 +48,7 @@ import { ServerApi } from "../horizon/server_api";
  *
  * @returns {string} A base64 encoded string of the raw TransactionEnvelope xdr
  *    struct for the transaction.
- * @see [SEP-10: Stellar Web Auth](https://stellar.org/protocol/sep-10).
+ * @see {@link https://stellar.org/protocol/sep-10|SEP-10: Stellar Web Auth}
  *
  * @example
  * import { Keypair, Networks, WebAuth }  from 'stellar-sdk'
@@ -164,7 +166,7 @@ export function buildChallengeTx(
  *    the matched home domain, and the memo attached to the transaction, which
  *    will be null if not present.
  *
- * @see [SEP-10: Stellar Web Auth](https://stellar.org/protocol/sep-10).
+ * @see {@link https://stellar.org/protocol/sep-10|SEP-10: Stellar Web Auth}
  */
 export function readChallengeTx(
   challengeTx: string,
@@ -391,7 +393,7 @@ export function readChallengeTx(
  *    transaction, excluding the server account ID, given that the threshold was
  *    met.
  *
- * @see [SEP-10: Stellar Web Auth](https://stellar.org/protocol/sep-10).
+ * @see {@link https://stellar.org/protocol/sep-10|SEP-10: Stellar Web Auth}
  * @example
  * import { Networks, TransactionBuilder, WebAuth }  from 'stellar-sdk';
  *
@@ -513,7 +515,7 @@ export function verifyChallengeTxThreshold(
  * @returns {string[]} The list of signers public keys that have signed the
  *    transaction, excluding the server account ID.
  *
- * @see [SEP-10: Stellar Web Auth](https://stellar.org/protocol/sep-10).
+ * @see {@link https://stellar.org/protocol/sep-10|SEP-10: Stellar Web Auth}
  * @example
  * import { Networks, TransactionBuilder, WebAuth }  from 'stellar-sdk';
  *
