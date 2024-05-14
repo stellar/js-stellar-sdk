@@ -25,7 +25,14 @@ import {
 
 export const SUBMIT_TRANSACTION_TIMEOUT = 60 * 1000;
 
-/** Specifies the durability namespace of contract-related ledger entries. */
+/**
+ * Specifies the durability namespace of contract-related ledger entries.
+ * @enum {('temporary' | 'persistent')}
+ * @memberof SorobanRpc
+ *
+ * @see {@link https://developers.stellar.org/docs/learn/smart-contract-internals/state-archival|State Archival docs}
+ * @see {@link https://docs.rs/soroban-sdk/latest/soroban_sdk/storage/struct.Storage.html|Rust SDK Storage docs}
+ */
 export enum Durability {
   Temporary = 'temporary',
   Persistent = 'persistent'
