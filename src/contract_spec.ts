@@ -28,7 +28,6 @@ function readObj(args: object, input: xdr.ScSpecFunctionInputV0): any {
  * This allows the class to be used to convert between native and raw `xdr.ScVal`s.
  *
  * @example
- * ```js
  * const specEntries = [...]; // XDR spec entries of a smart contract
  * const contractSpec = new ContractSpec(specEntries);
  *
@@ -46,7 +45,6 @@ function readObj(args: object, input: xdr.ScSpecFunctionInputV0): any {
  * const result = contractSpec.funcResToNative('funcName', resultScv);
  *
  * console.log(result); // {success: true}
- * ```
  */
 export class ContractSpec {
   public entries: xdr.ScSpecEntry[] = [];
@@ -115,13 +113,11 @@ export class ContractSpec {
    * @throws {Error} if argument is missing or incorrect type
    *
    * @example
-   * ```js
    * const args = {
    *   arg1: 'value1',
    *   arg2: 1234
    * };
    * const scArgs = contractSpec.funcArgsToScVals('funcName', args);
-   * ```
    */
   funcArgsToScVals(name: string, args: object): xdr.ScVal[] {
     let fn = this.getFunc(name);
@@ -140,10 +136,8 @@ export class ContractSpec {
    * @throws {Error} if return type mismatch or invalid input
    *
    * @example
-   * ```js
    * const resultScv = 'AAA=='; // Base64 encoded ScVal
    * const result = contractSpec.funcResToNative('funcName', resultScv);
-   * ```
    */
   funcResToNative(name: string, val_or_base64: xdr.ScVal | string): any {
     let val =
