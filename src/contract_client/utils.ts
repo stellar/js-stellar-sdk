@@ -1,5 +1,7 @@
 /**
  * The default timeout for waiting for a transaction to be included in a block.
+ * @constant {number}
+ * @memberof ContractClient
  */
 export const DEFAULT_TIMEOUT = 5 * 60;
 
@@ -70,7 +72,10 @@ export async function withExponentialBackoff<T>(
  * errors get included in the on-chain XDR that also describes your contract's
  * methods. Each error will have a specific number. This Regular Expression
  * matches these "expected error types" that a contract may throw, and helps
- * @{link AssembledTransaction} parse these errors.
+ * {@link AssembledTransaction} parse these errors.
+ *
+ * @constant {RegExp}
+ * @memberof ContractClient
  */
 export const contractErrorPattern = /Error\(Contract, #(\d+)\)/;
 

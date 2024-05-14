@@ -8,7 +8,11 @@ import { Resolver } from "../stellartoml";
 
 import { Api } from "./api";
 
-// FEDERATION_RESPONSE_MAX_SIZE is the maximum size of response from a federation server
+/**
+ * The maximum size of response from a federation server
+ * @constant {number}
+ * @memberof FederationServer
+ */
 export const FEDERATION_RESPONSE_MAX_SIZE = 100 * 1024;
 
 /**

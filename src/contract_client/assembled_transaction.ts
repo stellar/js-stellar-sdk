@@ -23,6 +23,11 @@ import {
 } from "./utils";
 import { SentTransaction } from "./sent_transaction";
 
+/**
+ * An impossible account on the Stellar network
+ * @constant {string}
+ * @memberof ContractClient
+ */
 export const NULL_ACCOUNT = "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF"
 
 /**

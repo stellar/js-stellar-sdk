@@ -23,6 +23,11 @@ import {
   parseRawEvents
 } from './parsers';
 
+/**
+ * Default transaction submission timeout for RPC requests (60 seconds)
+ * @constant {number}
+ * @memberof SorobanRpc
+ */
 export const SUBMIT_TRANSACTION_TIMEOUT = 60 * 1000;
 
 /**

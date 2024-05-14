@@ -42,6 +42,11 @@ import AxiosClient, {
   getCurrentServerTime,
 } from "./horizon_axios_client";
 
+/**
+ * Default transaction submission timeout for Horizon requests (60 seconds)
+ * @constant {number}
+ * @memberof Horizon.Server
+ */
 export const SUBMIT_TRANSACTION_TIMEOUT = 60 * 1000;
 
 const STROOPS_IN_LUMEN = 10000000;
