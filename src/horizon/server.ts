@@ -58,6 +58,8 @@ function _getAmountInLumens(amt: BigNumber) {
  * Server handles the network connection to a [Horizon](https://developers.stellar.org/api/introduction/)
  * instance and exposes an interface for requests to that instance.
  * @constructor
+ * @memberof Horizon
+ *
  * @param {string} serverURL Horizon Server URL (ex. `https://horizon-testnet.stellar.org`).
  * @param {object} [opts] Options object
  * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments! You can also use {@link Config} class to set this globally.
