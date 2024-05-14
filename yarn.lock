@@ -1383,10 +1383,10 @@
   resolved "https://registry.yarnpkg.com/@stellar/js-xdr/-/js-xdr-3.1.1.tgz#be0ff90c8a861d6e1101bca130fa20e74d5599bb"
   integrity sha512-3gnPjAz78htgqsNEDkEsKHKosV2BF2iZkoHCNxpmZwUxiPsw+2VaXMed8RRMe0rGk3d5GZe7RrSba8zV80J3Ag==
 
-"@stellar/stellar-base@11.1.0":
-  version "11.1.0"
-  resolved "https://registry.yarnpkg.com/@stellar/stellar-base/-/stellar-base-11.1.0.tgz#4b561776cb102a87828379cd1ac5d3ce96db4fb3"
-  integrity sha512-nMg7QSpFqCZFq3Je/lG12+DY18y01QHRNyCxvjM8i4myS9tPRMDq7zqGcd215BGbCJxenckiOW45YJjQjzdcMQ==
+"@stellar/stellar-base@^12.0.0-rc.1":
+  version "12.0.0-rc.1"
+  resolved "https://registry.yarnpkg.com/@stellar/stellar-base/-/stellar-base-12.0.0-rc.1.tgz#1c290b36eff54cb6492ce7b5f8de523488a276ba"
+  integrity sha512-Nm2WeqAnhfsZ2ETTttIJy8epgxGb03EXmWkcmxhyRd0us0qz++i0ry/cSnWaNYDWKipZTuepITUc4nM7o/s1tA==
   dependencies:
     "@stellar/js-xdr" "^3.1.1"
     base32.js "^0.1.0"
@@ -7721,6 +7721,7 @@ typedarray@^0.0.6:
   integrity sha512-pXWcraxM0uxAS+tN0AG/BF2TyqmHO014Z070UsJ+pFvYuRSq8KH8DmWpnbXe0pEPDHXZV3FcAbJkijJ5oNEnWw==
 
 "typescript-5.4@npm:typescript@~5.4.0-0", typescript@^5.4.3:
+  name typescript-5.4
   version "5.4.5"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-5.4.5.tgz#42ccef2c571fdbd0f6718b1d1f5e6e5ef006f611"
   integrity sha512-vcI4UpRgg81oIRUFwR0WSIHKt11nJ7SAVlYNIu+QpqeyXP+gpQJy/Z4+F0aGxSE4MqwjyXvW/TzgkLAx2AGHwQ==
