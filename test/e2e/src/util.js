@@ -1,5 +1,5 @@
 const { spawnSync } = require('node:child_process')
-const { ContractSpec, Keypair } = require('../../..')
+const { Keypair } = require('../../..')
 const {
   ContractClient,
   basicNodeSigner,
@@ -8,19 +8,19 @@ const {
 const contracts = {
   customTypes: {
     hash: spawnSync("./target/bin/soroban", ["contract", "install", "--wasm", `${__dirname}/../wasms/test_custom_types.wasm`], { shell: true, encoding: "utf8" }).stdout.trim(),
-    xdr: JSON.parse(spawnSync("./target/bin/soroban", ["contract", "inspect", "--wasm", `${__dirname}/../wasms/test_custom_types.wasm`, "--output", "xdr-base64-array"], { shell: true, encoding: "utf8" }).stdout.trim()),
+    path: `${__dirname}/../wasms/test_custom_types.wasm`,
   },
   helloWorld: {
     hash: spawnSync("./target/bin/soroban", ["contract", "install", "--wasm", `${__dirname}/../wasms/test_hello_world.wasm`], { shell: true, encoding: "utf8" }).stdout.trim(),
-    xdr: JSON.parse(spawnSync("./target/bin/soroban", ["contract", "inspect", "--wasm", `${__dirname}/../wasms/test_hello_world.wasm`, "--output", "xdr-base64-array"], { shell: true, encoding: "utf8" }).stdout.trim()),
+    path: `${__dirname}/../wasms/test_hello_world.wasm`
   },
   swap: {
     hash: spawnSync("./target/bin/soroban", ["contract", "install", "--wasm", `${__dirname}/../wasms/test_swap.wasm`], { shell: true, encoding: "utf8" }).stdout.trim(),
-    xdr: JSON.parse(spawnSync("./target/bin/soroban", ["contract", "inspect", "--wasm", `${__dirname}/../wasms/test_swap.wasm`, "--output", "xdr-base64-array"], { shell: true, encoding: "utf8" }).stdout.trim()),
+    path: `${__dirname}/../wasms/test_swap.wasm`
   },
   token: {
     hash: spawnSync("./target/bin/soroban", ["contract", "install", "--wasm", `${__dirname}/../wasms/test_token.wasm`], { shell: true, encoding: "utf8" }).stdout.trim(),
-    xdr: JSON.parse(spawnSync("./target/bin/soroban", ["contract", "inspect", "--wasm", `${__dirname}/../wasms/test_token.wasm`, "--output", "xdr-base64-array"], { shell: true, encoding: "utf8" }).stdout.trim()),
+    path: `${__dirname}/../wasms/test_token.wasm`
   },
 };
 module.exports.contracts = contracts
@@ -59,8 +59,6 @@ async function clientFor(contract, { keypair = generateFundedKeypair(), contract
   keypair = await keypair // eslint-disable-line no-param-reassign
   const wallet = basicNodeSigner(keypair, networkPassphrase)
 
-  const spec = new ContractSpec(contracts[contract].xdr)
-
   const wasmHash = contracts[contract].hash;
   if (!wasmHash) {
     throw new Error(`No wasm hash found for \`contracts[${contract}]\`! ${JSON.stringify(contracts[contract], null, 2)}`)
@@ -76,14 +74,14 @@ async function clientFor(contract, { keypair = generateFundedKeypair(), contract
     wasmHash,
   ], { shell: true, encoding: "utf8" }).stdout.trim();
 
-  const client = new ContractClient(spec, {
+  const client = await ContractClient.fromWasmHash(wasmHash, {
     networkPassphrase,
     contractId,
     rpcUrl,
     allowHttp: true,
     publicKey: keypair.publicKey(),
     ...wallet,
-  });
+  }, "hex");
   return {
     keypair,
     client,

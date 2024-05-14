@@ -7,14 +7,13 @@ test.before(async t => {
   const { client, keypair, contractId } = await clientFor('customTypes')
   const publicKey = keypair.publicKey()
   const addr = Address.fromString(publicKey)
-  t.context = { client, publicKey, addr, contractId } // eslint-disable-line no-param-reassign
+  t.context = { client, publicKey, addr, contractId, keypair } // eslint-disable-line no-param-reassign
 });
 
 test('hello', async t => {
   const { result } = await t.context.client.hello({ hello: 'tests' })
   t.is(result, 'tests')
 })
-
 test("view method with empty keypair", async (t) => {
   const { client: client2 } = await clientFor('customTypes', {
     keypair: undefined,
@@ -143,6 +142,8 @@ test('i128', async t => {
 test('u128', async t => {
   t.is((await t.context.client.u128({ u128: 1n })).result, 1n)
 })
+
+
 
 test('multi_args', async t => {
   t.is((await t.context.client.multi_args({ a: 1, b: true })).result, 1)

@@ -1,3 +1,5 @@
+import { xdr, cereal } from "..";
+
 /**
  * The default timeout for waiting for a transaction to be included in a block.
  */
@@ -12,7 +14,7 @@ export async function withExponentialBackoff<T>(
   keepWaitingIf: (result: T) => boolean,
   timeoutInSeconds: number,
   exponentialFactor = 1.5,
-  verbose = false,
+  verbose = false
 ): Promise<T[]> {
   const attempts: T[] = [];
 
@@ -34,7 +36,7 @@ export async function withExponentialBackoff<T>(
       console.info(
         `Waiting ${waitTime}ms before trying again (bringing the total wait time to ${totalWaitTime}ms so far, of total ${
           timeoutInSeconds * 1000
-        }ms)`,
+        }ms)`
       );
     }
     await new Promise((res) => setTimeout(res, waitTime));
@@ -56,8 +58,8 @@ export async function withExponentialBackoff<T>(
         } prev attempts. Most recent: ${JSON.stringify(
           attempts[attempts.length - 1],
           null,
-          2,
-        )}`,
+          2
+        )}`
       );
     }
   }
@@ -77,8 +79,19 @@ export const contractErrorPattern = /Error\(Contract, #(\d+)\)/;
 /**
  * A TypeScript type guard that checks if an object has a `toString` method.
  */
-export function implementsToString(
-  obj: unknown,
-): obj is { toString(): string } {
+export function implementsToString(obj: unknown): obj is { toString(): string } {
   return typeof obj === "object" && obj !== null && "toString" in obj;
+}
+
+/**
+ * Reads a binary stream of ScSpecEntries into an array for processing by ContractSpec
+ */
+export function processSpecEntryStream(buffer: Buffer) {
+  const reader = new cereal.XdrReader(buffer);
+  const res: xdr.ScSpecEntry[] = [];
+  while (!reader.eof){
+    // @ts-ignore 
+    res.push(xdr.ScSpecEntry.read(reader));
+  }
+  return res;
 }
