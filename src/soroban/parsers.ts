@@ -1,16 +1,23 @@
 import { xdr, Contract, SorobanDataBuilder } from '@stellar/stellar-base';
 import { Api } from './api';
 
+/**
+ * Parse the response from invoking the `submitTransaction` method of a Soroban RPC server.
+ * @memberof SorobanRpc
+ *
+ * @param {Api.RawSendTransactionResponse} raw the raw `submitTransaction` response from the Soroban RPC server to parse
+ * @returns {Api.SendTransactionResponse} transaction response parsed from the Soroban RPC server's response
+ */
 export function parseRawSendTransaction(
-  r: Api.RawSendTransactionResponse
+  raw: Api.RawSendTransactionResponse
 ): Api.SendTransactionResponse {
-  const { errorResultXdr, diagnosticEventsXdr } = r;
-  delete r.errorResultXdr;
-  delete r.diagnosticEventsXdr;
+  const { errorResultXdr, diagnosticEventsXdr } = raw;
+  delete raw.errorResultXdr;
+  delete raw.diagnosticEventsXdr;
 
   if (!!errorResultXdr) {
     return {
-      ...r,
+      ...raw,
       ...(
         diagnosticEventsXdr !== undefined &&
         diagnosticEventsXdr.length > 0 && {
@@ -23,15 +30,22 @@ export function parseRawSendTransaction(
     };
   }
 
-  return { ...r } as Api.BaseSendTransactionResponse;
+  return { ...raw } as Api.BaseSendTransactionResponse;
 }
 
+/**
+ * Parse and return the retrieved events, if any, from a raw response from a Soroban RPC server.
+ * @memberof SorobanRpc
+ *
+ * @param {Api.RawGetEventsResponse} raw the raw `getEvents` response from the Soroban RPC server to parse
+ * @returns {Api.GetEventsResponse} events parsed from the Soroban RPC server's response
+ */
 export function parseRawEvents(
-  r: Api.RawGetEventsResponse
+  raw: Api.RawGetEventsResponse
 ): Api.GetEventsResponse {
   return {
-    latestLedger: r.latestLedger,
-    events: (r.events ?? []).map((evt) => {
+    latestLedger: raw.latestLedger,
+    events: (raw.events ?? []).map((evt) => {
       const clone: Omit<Api.RawEventResponse, 'contractId'> = { ...evt };
       delete (clone as any).contractId; // `as any` hack because contractId field isn't optional
 
@@ -46,6 +60,13 @@ export function parseRawEvents(
   };
 }
 
+/**
+ * Parse and return the retrieved ledger entries, if any, from a raw response from a Soroban RPC server.
+ * @memberof SorobanRpc
+ *
+ * @param {Api.RawGetLedgerEntriesResponse} raw he raw `getLedgerEntries` response from the Soroban RPC server to parse
+ * @returns {Api.GetLedgerEntriesResponse} ledger entries parsed from the Soroban RPC server's response
+ */
 export function parseRawLedgerEntries(
   raw: Api.RawGetLedgerEntriesResponse
 ): Api.GetLedgerEntriesResponse {
@@ -71,16 +92,13 @@ export function parseRawLedgerEntries(
 }
 
 /**
- * Converts a raw response schema into one with parsed XDR fields and a
- * simplified interface.
+ * Converts a raw response schema into one with parsed XDR fields and a simplified interface.
+ * @warning This API is only exported for testing purposes and should not be relied on or considered "stable".
+ * @memberof SorobanRpc
  *
- * @param raw   the raw response schema (parsed ones are allowed, best-effort
+ * @param {Api.SimulateTransactionResponse | Api.RawSimulateTransactionResponse} sim the raw response schema (parsed ones are allowed, best-effort
  *    detected, and returned untouched)
- *
- * @returns the original parameter (if already parsed), parsed otherwise
- *
- * @warning This API is only exported for testing purposes and should not be
- *          relied on or considered "stable".
+ * @returns {Api.SimulateTransactionResponse} the original parameter (if already parsed), parsed otherwise
  */
 export function parseRawSimulation(
   sim:
@@ -113,6 +131,15 @@ export function parseRawSimulation(
   return parseSuccessful(sim, base);
 }
 
+/**
+ * Parse whether or not the transaction simulation was successful, returning the relevant response.
+ * @memberof SorobanRpc
+ * @private
+ *
+ * @param {Api.RawSimulateTransactionResponse} sim a raw response from the `simulateTransaction` method of the Soroban RPC server to parse
+ * @param {Api.BaseSimulateTransactionResponse} partial a partially built simulate transaction response that will be used to build the return response
+ * @returns {Api.SimulateTransactionRestoreResponse | Api.SimulateTransactionSuccessResponse} Either a simulation response indicating what ledger entries should be restored, or if the simulation was successful.
+ */
 function parseSuccessful(
   sim: Api.RawSimulateTransactionResponse,
   partial: Api.BaseSimulateTransactionResponse

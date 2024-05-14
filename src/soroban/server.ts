@@ -57,10 +57,11 @@ export namespace Server {
  * interface for requests to that instance.
  *
  * @constructor
+ * @memberof SorobanRpc
  *
  * @param {string} serverURL Soroban-RPC Server URL (ex.
  *    `http://localhost:8000/soroban/rpc`).
- * @param {object} [opts] Options object
+ * @param {Server.Options} [opts] Options object
  * @param {boolean} [opts.allowHttp]  allows connecting to insecure http servers
  *    (default: `false`). This must be set to false in production deployments!
  *    You can also use {@link Config} class to set this globally.
@@ -672,8 +673,7 @@ export class Server {
    *
    * @throws if Friendbot is not configured on this network or request failure
    *
-   * @see
-   * https://developers.stellar.org/docs/fundamentals-and-concepts/testnet-and-pubnet#friendbot
+   * @see https://developers.stellar.org/docs/fundamentals-and-concepts/testnet-and-pubnet#friendbot
    * @see Friendbot.Response
    * @example
    * server

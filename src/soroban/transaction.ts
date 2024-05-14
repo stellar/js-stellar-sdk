@@ -11,19 +11,17 @@ import { parseRawSimulation } from './parsers';
 /**
  * Combines the given raw transaction alongside the simulation results.
  *
- * @param raw         the initial transaction, w/o simulation applied
- * @param simulation  the Soroban RPC simulation result (see
- *    {@link Server.simulateTransaction})
+ * If the given transaction already has authorization entries in a host function
+ * invocation (see {@link Operation.invokeHostFunction}), **the simulation
+ * entries are ignored**.
  *
- * @returns a new, cloned transaction with the proper auth and resource (fee,
- *    footprint) simulation data applied
+ * @param {Transaction|FeeBumpTransaction} raw the initial transaction, w/o simulation applied
+ * @param {Api.SimulateTransactionResponse|Api.RawSimulateTransactionResponse} simulation the Soroban RPC simulation result (see {@link Server.simulateTransaction})
+ * @returns {TransactionBuilder} a new, cloned transaction with the proper auth and resource (fee, footprint) simulation data applied
  *
- * @note if the given transaction already has authorization entries in a host
- *    function invocation (see {@link Operation.invokeHostFunction}), **the
- *    simulation entries are ignored**.
- *
- * @see {Server.simulateTransaction}
- * @see {Server.prepareTransaction}
+ * @memberof SorobanRpc
+ * @see {@link Server.simulateTransaction}
+ * @see {@link Server.prepareTransaction}
  */
 export function assembleTransaction(
   raw: Transaction | FeeBumpTransaction,
