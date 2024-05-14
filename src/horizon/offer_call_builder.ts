@@ -7,7 +7,7 @@ import { ServerApi } from "./server_api";
  *
  * Do not create this object directly, use {@link Server#offers}.
  *
- * @see [Offers](https://developers.stellar.org/api/resources/offers/)
+ * @see {@link https://developers.stellar.org/network/horizon/api-reference/resources/offers/|Offers}
  *
  * @extends CallBuilder
  * @constructor
@@ -24,7 +24,7 @@ export class OfferCallBuilder extends CallBuilder<
   /**
    * The offer details endpoint provides information on a single offer. The offer ID provided in the id
    * argument specifies which offer to load.
-   * @see [Offer Details](https://developers.stellar.org/api/resources/offers/single/)
+   * @see {@link https://developers.stellar.org/network/horizon/api-reference/resources/offers/single/|Offer Details}
    * @param {string} offerId Offer ID
    * @returns {CallBuilder<ServerApi.OfferRecord>} CallBuilder<ServerApi.OfferRecord> OperationCallBuilder instance
    */
@@ -37,7 +37,7 @@ export class OfferCallBuilder extends CallBuilder<
   /**
    * Returns all offers where the given account is involved.
    *
-   * @see [Offers](https://developers.stellar.org/api/resources/accounts/offers/)
+   * @see {@link https://developers.stellar.org/network/horizon/api-reference/resources/accounts/offers/|Offers}
    * @param {string} id For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
    * @returns {OfferCallBuilder} current OfferCallBuilder instance
    */
@@ -47,7 +47,7 @@ export class OfferCallBuilder extends CallBuilder<
 
   /**
    * Returns all offers buying an asset.
-   * @see [Offers](https://developers.stellar.org/api/resources/offers/list/)
+   * @see {@link https://developers.stellar.org/network/horizon/api-reference/resources/offers/list/|Offers}
    * @see Asset
    * @param {Asset} asset For example: `new Asset('USD','GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD')`
    * @returns {OfferCallBuilder} current OfferCallBuilder instance
@@ -65,7 +65,7 @@ export class OfferCallBuilder extends CallBuilder<
 
   /**
    * Returns all offers selling an asset.
-   * @see [Offers](https://developers.stellar.org/api/resources/offers/list/)
+   * @see {@link https://developers.stellar.org/network/horizon/api-reference/resources/offers/list/|Offers}
    * @see Asset
    * @param {Asset} asset For example: `new Asset('EUR','GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD')`
    * @returns {OfferCallBuilder} current OfferCallBuilder instance
@@ -83,7 +83,7 @@ export class OfferCallBuilder extends CallBuilder<
 
   /**
    * This endpoint filters offers where the given account is sponsoring the offer entry.
-   * @see [Offers](https://developers.stellar.org/api/resources/offers/list/)
+   * @see {@link https://developers.stellar.org/network/horizon/api-reference/resources/get-all-offers|Offers}
    * @param {string} id For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
    * @returns {OfferCallBuilder} current OfferCallBuilder instance
    */
@@ -95,7 +95,7 @@ export class OfferCallBuilder extends CallBuilder<
   /**
    * This endpoint filters offers where the given account is the seller.
    *
-   * @see [Offers](https://developers.stellar.org/api/resources/offers/list/)
+   * @see {@link https://developers.stellar.org/network/horizon/api-reference/resources/get-all-offers|Offers}
    * @param {string} seller For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
    * @returns {OfferCallBuilder} current OfferCallBuilder instance
    */

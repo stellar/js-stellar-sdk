@@ -55,7 +55,7 @@ function _getAmountInLumens(amt: BigNumber) {
 }
 
 /**
- * Server handles the network connection to a [Horizon](https://developers.stellar.org/api/introduction/)
+ * Server handles the network connection to a [Horizon](https://developers.stellar.org/network/horizon)
  * instance and exposes an interface for requests to that instance.
  * @constructor
  * @memberof Horizon
@@ -181,7 +181,7 @@ export class Server {
 
   /**
    * Fetch the fee stats endpoint.
-   * @see [Fee Stats](https://developers.stellar.org/api/aggregations/fee-stats/)
+   * @see {@link https://developers.stellar.org/network/horizon/api-reference/aggregations/fee-stats|Fee Stats}
    * @returns {Promise<HorizonApi.FeeStatsResponse>} Promise that resolves to the fee stats returned by Horizon.
    */
   public async feeStats(): Promise<HorizonApi.FeeStatsResponse> {
@@ -286,8 +286,7 @@ export class Server {
    * * If `wasPartiallyFilled` is true, you can tell the user that
    *   `amountBought` or `amountSold` have already been transferred.
    *
-   * @see [Post
-   * Transaction](https://developers.stellar.org/api/resources/transactions/post/)
+   * @see {@link https://developers.stellar.org/network/horizon/api-reference/resources/submit-a-transaction|Submit a Transaction}
    * @param {Transaction|FeeBumpTransaction} transaction - The transaction to submit.
    * @param {object} [opts] Options object
    * @param {boolean} [opts.skipMemoRequiredCheck] - Allow skipping memo
@@ -749,7 +748,7 @@ export class Server {
    * Each account is checked sequentially instead of loading multiple accounts
    * at the same time from Horizon.
    *
-   * @see https://stellar.org/protocol/sep-29
+   * @see {@link https://stellar.org/protocol/sep-29|SEP-29: Account Memo Requirements}
    * @param {Transaction} transaction - The transaction to check.
    * @returns {Promise<void, Error>} - If any of the destination account
    * requires a memo, the promise will throw {@link AccountRequiresMemoError}.

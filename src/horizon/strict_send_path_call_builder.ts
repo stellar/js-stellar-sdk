@@ -21,7 +21,7 @@ import { ServerApi } from "./server_api";
  * amount.
  *
  * Do not create this object directly, use {@link Server#strictSendPaths}.
- * @see [Find Payment Paths](https://developers.stellar.org/api/aggregations/paths/)
+ * @see {@link https://developers.stellar.org/network/horizon/api-reference/aggregations/paths|Find Payment Paths}
  * @extends CallBuilder
  * @param {string} serverUrl Horizon server URL.
  * @param {Asset} sourceAsset The asset to be sent.

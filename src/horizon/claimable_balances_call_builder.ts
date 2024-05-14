@@ -7,7 +7,7 @@ import { ServerApi } from "./server_api";
  *
  * Do not create this object directly, use {@link Server#claimableBalances}.
  *
- * @see [Claimable Balances](https://developers.stellar.org/api/resources/claimablebalances/)
+ * @see {@link https://developers.stellar.org/network/horizon/api-reference/resources/claimablebalances|Claimable Balances}
  *
  * @extends CallBuilder
  * @constructor
@@ -24,7 +24,7 @@ export class ClaimableBalanceCallBuilder extends CallBuilder<
   /**
    * The claimable balance details endpoint provides information on a single claimable balance.
    *
-   * @see [Claimable Balance Details](https://developers.stellar.org/api/resources/claimablebalances/single/)
+   * @see {@link https://developers.stellar.org/network/horizon/api-reference/resources/retrieve-a-claimable-balance|Claimable Balance Details}
    * @param {string} claimableBalanceId Claimable balance ID
    * @returns {CallBuilder<ServerApi.ClaimableBalanceRecord>} CallBuilder<ServerApi.ClaimableBalanceRecord> OperationCallBuilder instance
    */
@@ -41,7 +41,7 @@ export class ClaimableBalanceCallBuilder extends CallBuilder<
   /**
    * Returns all claimable balances which are sponsored by the given account ID.
    *
-   * @see [Claimable Balances](https://developers.stellar.org/api/resources/claimablebalances/list/)
+   * @see {@link https://developers.stellar.org/network/horizon/api-reference/resources/list-all-claimable-balances|Claimable Balances}
    * @param {string} sponsor For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
    * @returns {ClaimableBalanceCallBuilder} current ClaimableBalanceCallBuilder instance
    */
@@ -53,7 +53,7 @@ export class ClaimableBalanceCallBuilder extends CallBuilder<
   /**
    * Returns all claimable balances which can be claimed by the given account ID.
    *
-   * @see [Claimable Balances](https://developers.stellar.org/api/resources/claimablebalances/list/)
+   * @see {@link https://developers.stellar.org/network/horizon/api-reference/resources/list-all-claimable-balances|Claimable Balances}
    * @param {string} claimant For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
    * @returns {ClaimableBalanceCallBuilder} current ClaimableBalanceCallBuilder instance
    */
@@ -65,7 +65,7 @@ export class ClaimableBalanceCallBuilder extends CallBuilder<
   /**
    * Returns all claimable balances which provide a balance for the given asset.
    *
-   * @see [Claimable Balances](https://developers.stellar.org/api/resources/claimablebalances/list/)
+   * @see {@link https://developers.stellar.org/network/horizon/api-reference/resources/list-all-claimable-balances|Claimable Balances}
    * @param {Asset} The Asset held by the claimable balance
    * @returns {ClaimableBalanceCallBuilder} current ClaimableBalanceCallBuilder instance
    */

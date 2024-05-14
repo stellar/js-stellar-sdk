@@ -57,6 +57,8 @@ export default AxiosClient;
  * Given a hostname, get the current time of that server (i.e., use the last-
  * recorded server time and offset it by the time since then.) If there IS no
  * recorded server time, or it's been 5 minutes since the last, return null.
+ * @memberof Horizon
+ *
  * @param {string} hostname Hostname of a Horizon server.
  * @returns {number} The UNIX timestamp (in seconds, not milliseconds)
  * representing the current time on that server, or `null` if we don't have
