@@ -4,7 +4,7 @@ import { ServerApi } from "./server_api";
 /**
  * Creates a new {@link AssetsCallBuilder} pointed to server defined by serverUrl.
  *
- * Do not create this object directly, use {@link Server#assets}.
+ * Do not create this object directly, use {@link Horizon.Server#assets}.
  *
  * @constructor
  * @extends CallBuilder

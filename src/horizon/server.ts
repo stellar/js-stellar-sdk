@@ -195,7 +195,7 @@ export class Server {
   /**
    * Submits a transaction to the network.
    *
-   * By default this function calls {@link Server#checkMemoRequired}, you can
+   * By default this function calls {@link Horizon.Server#checkMemoRequired}, you can
    * skip this check by setting the option `skipMemoRequiredCheck` to `true`.
    *
    * If you submit any number of `manageOffer` operations, this will add an

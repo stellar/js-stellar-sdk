@@ -5,7 +5,7 @@ import { ServerApi } from "./server_api";
 /**
  * Creates a new {@link TradesCallBuilder} pointed to server defined by serverUrl.
  *
- * Do not create this object directly, use {@link Server#trades}.
+ * Do not create this object directly, use {@link Horizon.Server#trades}.
  *
  * @see {@link https://developers.stellar.org/network/horizon/api-reference/resources/trades|Trades}
  *

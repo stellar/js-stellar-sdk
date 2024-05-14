@@ -3,7 +3,7 @@ import { ServerApi } from "./server_api";
 
 /**
  * Creates a new {@link EffectCallBuilder} pointed to server defined by serverUrl.
- * Do not create this object directly, use {@link Server#effects}.
+ * Do not create this object directly, use {@link Horizon.Server#effects}.
  *
  * @see {@link https://developers.stellar.org/network/horizon/api-reference/resources/effects|All Effects}
  *

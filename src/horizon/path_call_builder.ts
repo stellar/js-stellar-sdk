@@ -17,7 +17,7 @@ import { ServerApi } from "./server_api";
  * payment paths from those source assets to the desired destination asset. The search's amount parameter will be
  * used to determine if there a given path can satisfy a payment of the desired amount.
  *
- * Do not create this object directly, use {@link Server#paths}.
+ * Do not create this object directly, use {@link Horizon.Server#paths}.
  * @see {@link https://developers.stellar.org/network/horizon/api-reference/aggregations/paths|Find Payment Paths}
  * @extends CallBuilder
  * @param {string} serverUrl Horizon server URL.

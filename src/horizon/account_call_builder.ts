@@ -5,7 +5,7 @@ import { ServerApi } from "./server_api";
 /**
  * Creates a new {@link AccountCallBuilder} pointed to server defined by `serverUrl`.
  *
- * Do not create this object directly, use {@link Server#accounts}.
+ * Do not create this object directly, use {@link Horizon.Server#accounts}.
  *
  * @see {@link https://developers.stellar.org/network/horizon/api-reference/resources/list-all-accounts|All Accounts}
  *

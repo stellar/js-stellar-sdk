@@ -5,7 +5,7 @@ import { HorizonApi } from "./horizon_api";
 import { ServerApi } from "./server_api";
 
 /**
- * Do not create this object directly, use {@link Server#loadAccount}.
+ * Do not create this object directly, use {@link Horizon.Server#loadAccount}.
  *
  * Returns information and links relating to a single account.
  * The balances section in the returned JSON will also list all the trust lines this account has set up.

@@ -4,7 +4,7 @@ import { ServerApi } from "./server_api";
 /**
  * Creates a new {@link OperationCallBuilder} pointed to server defined by serverUrl.
  *
- * Do not create this object directly, use {@link Server#operations}.
+ * Do not create this object directly, use {@link Horizon.Server#operations}.
  *
  * @see {@link https://developers.stellar.org/network/horizon/api-reference/resources/operations|All Operations}
  *

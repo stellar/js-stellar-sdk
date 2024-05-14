@@ -5,7 +5,7 @@ import { ServerApi } from "./server_api";
 /**
  * Creates a new {@link ClaimableBalanceCallBuilder} pointed to server defined by serverUrl.
  *
- * Do not create this object directly, use {@link Server#claimableBalances}.
+ * Do not create this object directly, use {@link Horizon.Server#claimableBalances}.
  *
  * @see {@link https://developers.stellar.org/network/horizon/api-reference/resources/claimablebalances|Claimable Balances}
  *

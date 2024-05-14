@@ -4,7 +4,7 @@ import { ServerApi } from "./server_api";
 /**
  * Creates a new {@link TransactionCallBuilder} pointed to server defined by serverUrl.
  *
- * Do not create this object directly, use {@link Server#transactions}.
+ * Do not create this object directly, use {@link Horizon.Server#transactions}.
  *
  * @see {@link https://developers.stellar.org/network/horizon/api-reference/resources/list-all-transactions|All Transactions}
  *

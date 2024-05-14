@@ -4,7 +4,7 @@ import { ServerApi } from "./server_api";
 /**
  * Creates a new {@link LedgerCallBuilder} pointed to server defined by serverUrl.
  *
- * Do not create this object directly, use {@link Server#ledgers}.
+ * Do not create this object directly, use {@link Horizon.Server#ledgers}.
  *
  * @see {@link https://developers.stellar.org/network/horizon/api-reference/resources/list-all-ledgers|All Ledgers}
  *

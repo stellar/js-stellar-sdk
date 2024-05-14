@@ -5,7 +5,7 @@ import { ServerApi } from "./server_api";
 /**
  * Creates a new {@link OfferCallBuilder} pointed to server defined by serverUrl.
  *
- * Do not create this object directly, use {@link Server#offers}.
+ * Do not create this object directly, use {@link Horizon.Server#offers}.
  *
  * @see {@link https://developers.stellar.org/network/horizon/api-reference/resources/offers/|Offers}
  *

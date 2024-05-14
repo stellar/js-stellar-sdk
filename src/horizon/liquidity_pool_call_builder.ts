@@ -6,7 +6,7 @@ import { ServerApi } from "./server_api";
 /**
  * Creates a new {@link LiquidityPoolCallBuilder} pointed to server defined by serverUrl.
  *
- * Do not create this object directly, use {@link Server#liquidityPools}.
+ * Do not create this object directly, use {@link Horizon.Server#liquidityPools}.
  *
  * @extends CallBuilder
  * @constructor
