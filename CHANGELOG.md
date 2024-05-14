@@ -76,6 +76,12 @@ A breaking change will get clearly marked in this log.
 * Similarly adds `fromWasm` and `fromWasmHash` methods in `Client` which can be used to initialize a `Client` if you already have the wasm bytes or the wasm hash along with the `ClientOptions`.
 * Added `getContractWasmByContractId` and `getContractWasmByHash` methods in `rpc.Server` which can be used to retrieve the wasm bytecode of a contract via its `contractId` and wasm hash respectively.
 
+## [v12.0.0-rc.3](https://github.com/stellar/js-stellar-sdk/compare/v11.3.0...v12.0.0-rc.3)
+
+**This update supports Protocol 21**. It is an additive change to the protocol so there are no true backwards incompatibilities, but your software may break if you encounter new unexpected fields from this Protocol ([#949](https://github.com/stellar/js-stellar-sdk/pull/949)).
+
+
+
 ## [v12.0.0-rc.2](https://github.com/stellar/js-stellar-sdk/compare/v11.3.0...v12.0.0-rc.2)
 
 **This update supports Protocol 21**. It is an additive change to the protocol so there are no true backwards incompatibilities, but your software may break if you encounter new unexpected fields from this Protocol ([#949](https://github.com/stellar/js-stellar-sdk/pull/949)).
