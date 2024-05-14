@@ -16,10 +16,14 @@ export interface ServerTime {
  * each entry will map the server domain to the last-known time and the local
  * time it was recorded, ex:
  *
- *     "horizon-testnet.stellar.org": {
- *       serverTime: 1552513039,
- *       localTimeRecorded: 1552513052
- *     }
+ * @example
+ * "horizon-testnet.stellar.org": {
+ *   serverTime: 1552513039,
+ *   localTimeRecorded: 1552513052
+ * }
+ *
+ * @constant {Record.<string, ServerTime>}
+ * @memberof Horizon
  */
 export const SERVER_TIME_MAP: Record<string, ServerTime> = {};
 
