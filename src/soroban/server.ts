@@ -160,7 +160,7 @@ export class Server {
    *
    * Allows you to directly inspect the current state of a contract. This is a
    * backup way to access your contract data which may not be available via
-   * events or {@link Server.simulateTransaction}.
+   * events or {@link SorobanRpc.Server#simulateTransaction}.
    *
    * @param {string|Address|Contract} contract    the contract ID containing the
    *    data to load as a strkey (`C...` form), a {@link Contract}, or an
@@ -539,7 +539,7 @@ export class Server {
    * and validate or take appropriate measures for interaction with user to
    * confirm it is acceptable.
    *
-   * You can call the {@link Server.simulateTransaction} method directly first
+   * You can call the {@link SorobanRpc.Server#simulateTransaction} method directly first
    * if you want to inspect estimated fees for a given transaction in detail
    * first, then re-assemble it manually or via {@link assembleTransaction}.
    *
@@ -609,7 +609,7 @@ export class Server {
    *
    * Unlike Horizon, Soroban RPC does not wait for transaction completion. It
    * simply validates the transaction and enqueues it. Clients should call
-   * {@link Server.getTransactionStatus} to learn about transaction
+   * {@link SorobanRpc.Server#getTransaction} to learn about transaction
    * success/failure.
    *
    * @param {Transaction | FeeBumpTransaction} transaction  to submit
@@ -670,7 +670,7 @@ export class Server {
    *    want to create and fund with friendbot
    * @param {string} [friendbotUrl]     optionally, an explicit address for
    *    friendbot (by default: this calls the Soroban RPC
-   *    {@link Server.getNetwork} method to try to discover this network's
+   *    {@link SorobanRpc.Server#getNetwork} method to try to discover this network's
    *    Friendbot url).
    *
    * @returns {Promise<Account>}  an {@link Account} object for the created
