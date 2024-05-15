@@ -175,7 +175,7 @@ export namespace Api {
     value: string;
   }
 
-  interface RawLedgerEntryDiff {
+  interface RawLedgerEntryChange {
     type: number;
     // This is LedgerKey in base64
     key: string;
@@ -185,7 +185,7 @@ export namespace Api {
     after?: string;
   }
 
-  interface LedgerEntryDiff{
+  interface LedgerEntryChange{
     type: number;
     key: xdr.LedgerKey;
     before?: xdr.LedgerEntry;
@@ -279,7 +279,7 @@ export namespace Api {
     result?: SimulateHostFunctionResult;
 
     // State Difference information
-    stateDiff?: LedgerEntryDiff[];
+    stateChanges?: LedgerEntryChange[];
   }
 
   /** Includes details about why the simulation failed */
@@ -365,6 +365,6 @@ export namespace Api {
     };
 
     // State Difference information
-    stateDiff?: RawLedgerEntryDiff[];
+    stateChanges?: RawLedgerEntryChange[];
   }
 }

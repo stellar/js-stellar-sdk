@@ -141,13 +141,13 @@ function parseSuccessful(
       })[0]
     }),
 
-    stateDiff: sim.stateDiff?.length ?? 0 > 0
-        ? sim.stateDiff!.map((entryDiff) => {
+    stateChanges: sim.stateChanges?.length ?? 0 > 0
+        ? sim.stateChanges!.map((entryChange) => {
           return {
-            type: entryDiff.type,
-            key: xdr.LedgerKey.fromXDR(entryDiff.key, 'base64'),
-            before: !!entryDiff.before ? xdr.LedgerEntry.fromXDR(entryDiff.before, 'base64') : undefined,
-            after: !!entryDiff.after ? xdr.LedgerEntry.fromXDR(entryDiff.after, 'base64') : undefined,
+            type: entryChange.type,
+            key: xdr.LedgerKey.fromXDR(entryChange.key, 'base64'),
+            before: !!entryChange.before ? xdr.LedgerEntry.fromXDR(entryChange.before, 'base64') : undefined,
+            after: !!entryChange.after ? xdr.LedgerEntry.fromXDR(entryChange.after, 'base64') : undefined,
           };
         })
         : undefined,

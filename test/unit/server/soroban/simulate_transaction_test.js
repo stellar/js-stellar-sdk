@@ -32,7 +32,7 @@ describe("Server#simulateTransaction", async function (done) {
       retval: xdr.ScVal.fromXDR(simulationResponse.results[0].xdr, "base64"),
     },
     cost: simulationResponse.cost,
-    stateDiff: [
+    stateChanges: [
       {
         type: 1,
         key: "example-key",
@@ -189,7 +189,7 @@ describe("Server#simulateTransaction", async function (done) {
     delete expected.cost;
     delete expected.transactionData;
     delete expected.minResourceFee;
-    delete expected.stateDiff;
+    delete expected.stateChanges;
     expected.error = "This is an error";
     expected.events = [];
 
@@ -215,7 +215,7 @@ function cloneSimulation(sim) {
       retval: xdr.ScVal.fromXDR(sim.result.retval.toXDR()),
     },
     cost: sim.cost,
-    stateDiff: sim.stateDiff,
+    stateChanges: sim.stateChanges,
     _parsed: sim._parsed,
   };
 }
@@ -278,7 +278,7 @@ function baseSimulationResponse(results) {
       cpuInsns: "1",
       memBytes: "2",
     },
-    stateDiff: [
+    stateChanges: [
       {
         type: 1,
         key: "example-key",
