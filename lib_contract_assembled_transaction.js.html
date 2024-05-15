@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>lib/contract/assembled_transaction.js - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <li class="nav-link nav-home-link"><a href="index.html">Home</a></li><li class="nav-heading">Classes</li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="Account.html">Account</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Account.html#accountId">accountId</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Account.html#incrementSequenceNumber">incrementSequenceNumber</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Account.html#sequenceNumber">sequenceNumber</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="AccountCallBuilder.html">AccountCallBuilder</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="AccountCallBuilder.html#accountId">accountId</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="AccountCallBuilder.html#call">call</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="AccountCallBuilder.html#cursor">cursor</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="AccountCallBuilder.html#forAsset">forAsset</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="AccountCallBuilder.html#forEndpoint">forEndpoint</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="AccountCallBuilder.html#forLiquidityPool">forLiquidityPool</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="AccountCallBuilder.html#forSigner">forSigner</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="AccountCallBuilder.html#join">join</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="AccountCallBuilder.html#limit">limit</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="AccountCallBuilder.html#order">order</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="AccountCallBuilder.html#sponsor">sponsor</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="AccountCallBuilder.html#stream">stream</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="AccountRequiresMemoError.html">AccountRequiresMemoError</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="AccountResponse.html">AccountResponse</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="AccountResponse.html#accountId">accountId</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="AccountResponse.html#incrementSequenceNumber">incrementSequenceNumber</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="AccountResponse.html#sequenceNumber">sequenceNumber</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="Address.html">Address</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Address.html#toBuffer">toBuffer</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Address.html#toScAddress">toScAddress</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Address.html#toScVal">toScVal</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Address.html#toString">toString</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Address.html#.account">account</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Address.html#.contract">contract</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Address.html#.fromScAddress">fromScAddress</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Address.html#.fromScVal">fromScVal</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Address.html#.fromString">fromString</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="AssembledTransaction.html">AssembledTransaction</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="AssembledTransaction.html#toJSON">toJSON</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="AssembledTransaction.html#.build">build</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="Asset.html">Asset</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Asset.html#_toXDRObject">_toXDRObject</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Asset.html#contractId">contractId</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Asset.html#equals">equals</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Asset.html#getAssetType">getAssetType</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Asset.html#getCode">getCode</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Asset.html#getIssuer">getIssuer</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Asset.html#getRawAssetType">getRawAssetType</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Asset.html#isNative">isNative</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Asset.html#toChangeTrustXDRObject">toChangeTrustXDRObject</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Asset.html#toTrustLineXDRObject">toTrustLineXDRObject</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Asset.html#toXDRObject">toXDRObject</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Asset.html#.compare">compare</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Asset.html#.fromOperation">fromOperation</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Asset.html#.native">native</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="AssetsCallBuilder.html">AssetsCallBuilder</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="AssetsCallBuilder.html#call">call</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="AssetsCallBuilder.html#cursor">cursor</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="AssetsCallBuilder.html#forCode">forCode</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="AssetsCallBuilder.html#forEndpoint">forEndpoint</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="AssetsCallBuilder.html#forIssuer">forIssuer</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="AssetsCallBuilder.html#join">join</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="AssetsCallBuilder.html#limit">limit</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="AssetsCallBuilder.html#order">order</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="AssetsCallBuilder.html#stream">stream</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="CallBuilder.html">CallBuilder</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="CallBuilder.html#call">call</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="CallBuilder.html#cursor">cursor</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="CallBuilder.html#forEndpoint">forEndpoint</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="CallBuilder.html#join">join</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="CallBuilder.html#limit">limit</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="CallBuilder.html#order">order</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="CallBuilder.html#stream">stream</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="ClaimableBalanceCallBuilder.html">ClaimableBalanceCallBuilder</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="ClaimableBalanceCallBuilder.html#asset">asset</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="ClaimableBalanceCallBuilder.html#call">call</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="ClaimableBalanceCallBuilder.html#claimableBalance">claimableBalance</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="ClaimableBalanceCallBuilder.html#claimant">claimant</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="ClaimableBalanceCallBuilder.html#cursor">cursor</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="ClaimableBalanceCallBuilder.html#forEndpoint">forEndpoint</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="ClaimableBalanceCallBuilder.html#join">join</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="ClaimableBalanceCallBuilder.html#limit">limit</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="ClaimableBalanceCallBuilder.html#order">order</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="ClaimableBalanceCallBuilder.html#sponsor">sponsor</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="ClaimableBalanceCallBuilder.html#stream">stream</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="Claimant.html">Claimant</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Claimant.html#toXDRObject">toXDRObject</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Claimant.html#.fromXDR">fromXDR</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Claimant.html#.predicateAnd">predicateAnd</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Claimant.html#.predicateBeforeAbsoluteTime">predicateBeforeAbsoluteTime</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Claimant.html#.predicateBeforeRelativeTime">predicateBeforeRelativeTime</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Claimant.html#.predicateNot">predicateNot</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Claimant.html#.predicateOr">predicateOr</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Claimant.html#.predicateUnconditional">predicateUnconditional</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="Client.html">Client</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Client.html#.from">from</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Client.html#.fromWasm">fromWasm</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Client.html#.fromWasmHash">fromWasmHash</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="Config.html">Config</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Config.html#.getTimeout">getTimeout</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Config.html#.isAllowHttp">isAllowHttp</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Config.html#.setAllowHttp">setAllowHttp</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Config.html#.setDefault">setDefault</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Config.html#.setTimeout">setTimeout</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="Contract.html">Contract</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Contract.html#address">address</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Contract.html#call">call</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Contract.html#contractId">contractId</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Contract.html#getFootprint">getFootprint</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Contract.html#toString">toString</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="EffectCallBuilder.html">EffectCallBuilder</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="EffectCallBuilder.html#call">call</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="EffectCallBuilder.html#cursor">cursor</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="EffectCallBuilder.html#forAccount">forAccount</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="EffectCallBuilder.html#forEndpoint">forEndpoint</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="EffectCallBuilder.html#forLedger">forLedger</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="EffectCallBuilder.html#forLiquidityPool">forLiquidityPool</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="EffectCallBuilder.html#forOperation">forOperation</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="EffectCallBuilder.html#forTransaction">forTransaction</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="EffectCallBuilder.html#join">join</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="EffectCallBuilder.html#limit">limit</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="EffectCallBuilder.html#order">order</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="EffectCallBuilder.html#stream">stream</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="FederationServer.html">FederationServer</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="FederationServer.html#resolveAccountId">resolveAccountId</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="FederationServer.html#resolveAddress">resolveAddress</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="FederationServer.html#resolveTransactionId">resolveTransactionId</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="FederationServer.html#.createForDomain">createForDomain</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="FederationServer.html#.resolve">resolve</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="FeeBumpTransaction.html">FeeBumpTransaction</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="FeeBumpTransaction.html#addDecoratedSignature">addDecoratedSignature</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="FeeBumpTransaction.html#addSignature">addSignature</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="FeeBumpTransaction.html#getKeypairSignature">getKeypairSignature</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="FeeBumpTransaction.html#hash">hash</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="FeeBumpTransaction.html#sign">sign</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="FeeBumpTransaction.html#signHashX">signHashX</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="FeeBumpTransaction.html#signatureBase">signatureBase</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="FeeBumpTransaction.html#toEnvelope">toEnvelope</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="FeeBumpTransaction.html#toXDR">toXDR</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="Int128_Int128.html">Int128</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="Int256_Int256.html">Int256</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="Keypair.html">Keypair</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Keypair.html#canSign">canSign</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Keypair.html#publicKey">publicKey</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Keypair.html#rawPublicKey">rawPublicKey</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Keypair.html#rawSecretKey">rawSecretKey</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Keypair.html#secret">secret</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Keypair.html#sign">sign</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Keypair.html#signDecorated">signDecorated</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Keypair.html#signPayloadDecorated">signPayloadDecorated</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Keypair.html#verify">verify</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Keypair.html#xdrMuxedAccount">xdrMuxedAccount</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Keypair.html#.fromPublicKey">fromPublicKey</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Keypair.html#.fromRawEd25519Seed">fromRawEd25519Seed</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Keypair.html#.fromSecret">fromSecret</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Keypair.html#.master">master</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Keypair.html#.random">random</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="LedgerCallBuilder.html">LedgerCallBuilder</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="LedgerCallBuilder.html#call">call</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="LedgerCallBuilder.html#cursor">cursor</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="LedgerCallBuilder.html#forEndpoint">forEndpoint</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="LedgerCallBuilder.html#join">join</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="LedgerCallBuilder.html#ledger">ledger</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="LedgerCallBuilder.html#limit">limit</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="LedgerCallBuilder.html#order">order</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="LedgerCallBuilder.html#stream">stream</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="LiquidityPoolAsset.html">LiquidityPoolAsset</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="LiquidityPoolAsset.html#equals">equals</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="LiquidityPoolAsset.html#getAssetType">getAssetType</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="LiquidityPoolAsset.html#getLiquidityPoolParameters">getLiquidityPoolParameters</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="LiquidityPoolAsset.html#toXDRObject">toXDRObject</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="LiquidityPoolAsset.html#.fromOperation">fromOperation</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="LiquidityPoolCallBuilder.html">LiquidityPoolCallBuilder</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="LiquidityPoolCallBuilder.html#call">call</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="LiquidityPoolCallBuilder.html#cursor">cursor</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="LiquidityPoolCallBuilder.html#forAccount">forAccount</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="LiquidityPoolCallBuilder.html#forAssets">forAssets</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="LiquidityPoolCallBuilder.html#forEndpoint">forEndpoint</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="LiquidityPoolCallBuilder.html#join">join</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="LiquidityPoolCallBuilder.html#limit">limit</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="LiquidityPoolCallBuilder.html#liquidityPoolId">liquidityPoolId</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="LiquidityPoolCallBuilder.html#order">order</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="LiquidityPoolCallBuilder.html#stream">stream</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="LiquidityPoolId.html">LiquidityPoolId</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="LiquidityPoolId.html#equals">equals</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="LiquidityPoolId.html#getAssetType">getAssetType</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="LiquidityPoolId.html#getLiquidityPoolId">getLiquidityPoolId</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="LiquidityPoolId.html#toXDRObject">toXDRObject</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="LiquidityPoolId.html#.fromOperation">fromOperation</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="Memo.html">Memo</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Memo.html#toXDRObject">toXDRObject</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Memo.html#.fromXDRObject">fromXDRObject</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Memo.html#.hash">hash</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Memo.html#.id">id</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Memo.html#.none">none</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Memo.html#.return">return</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Memo.html#.text">text</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="MuxedAccount.html">MuxedAccount</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="MuxedAccount.html#accountId">accountId</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="MuxedAccount.html#baseAccount">baseAccount</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="MuxedAccount.html#incrementSequenceNumber">incrementSequenceNumber</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="MuxedAccount.html#sequenceNumber">sequenceNumber</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="MuxedAccount.html#toXDRObject">toXDRObject</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="MuxedAccount.html#.fromAddress">fromAddress</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="OfferCallBuilder.html">OfferCallBuilder</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="OfferCallBuilder.html#buying">buying</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="OfferCallBuilder.html#call">call</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="OfferCallBuilder.html#cursor">cursor</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="OfferCallBuilder.html#forAccount">forAccount</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="OfferCallBuilder.html#forEndpoint">forEndpoint</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="OfferCallBuilder.html#join">join</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="OfferCallBuilder.html#limit">limit</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="OfferCallBuilder.html#offer">offer</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="OfferCallBuilder.html#order">order</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="OfferCallBuilder.html#seller">seller</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="OfferCallBuilder.html#selling">selling</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="OfferCallBuilder.html#sponsor">sponsor</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="OfferCallBuilder.html#stream">stream</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="global.html#Ok">Ok</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="Operation.html">Operation</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.accountMerge">accountMerge</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.allowTrust">allowTrust</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.beginSponsoringFutureReserves">beginSponsoringFutureReserves</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.bumpSequence">bumpSequence</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.changeTrust">changeTrust</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.claimClaimableBalance">claimClaimableBalance</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.clawback">clawback</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.clawbackClaimableBalance">clawbackClaimableBalance</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.createAccount">createAccount</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.createClaimableBalance">createClaimableBalance</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.createCustomContract">createCustomContract</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.createPassiveSellOffer">createPassiveSellOffer</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.createStellarAssetContract">createStellarAssetContract</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.endSponsoringFutureReserves">endSponsoringFutureReserves</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.extendFootprintTtl">extendFootprintTtl</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.fromXDRObject">fromXDRObject</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.inflation">inflation</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.invokeContractFunction">invokeContractFunction</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.invokeHostFunction">invokeHostFunction</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.isValidAmount">isValidAmount</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.liquidityPoolDeposit">liquidityPoolDeposit</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.liquidityPoolWithdraw">liquidityPoolWithdraw</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.manageBuyOffer">manageBuyOffer</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.manageData">manageData</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.manageSellOffer">manageSellOffer</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.pathPaymentStrictReceive">pathPaymentStrictReceive</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.pathPaymentStrictSend">pathPaymentStrictSend</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.payment">payment</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.restoreFootprint">restoreFootprint</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.revokeAccountSponsorship">revokeAccountSponsorship</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.revokeClaimableBalanceSponsorship">revokeClaimableBalanceSponsorship</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.revokeDataSponsorship">revokeDataSponsorship</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.revokeLiquidityPoolSponsorship">revokeLiquidityPoolSponsorship</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.revokeOfferSponsorship">revokeOfferSponsorship</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.revokeSignerSponsorship">revokeSignerSponsorship</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.revokeTrustlineSponsorship">revokeTrustlineSponsorship</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.setOptions">setOptions</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.setTrustLineFlags">setTrustLineFlags</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Operation.html#.uploadContractWasm">uploadContractWasm</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="OperationCallBuilder.html">OperationCallBuilder</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="OperationCallBuilder.html#call">call</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="OperationCallBuilder.html#cursor">cursor</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="OperationCallBuilder.html#forAccount">forAccount</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="OperationCallBuilder.html#forClaimableBalance">forClaimableBalance</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="OperationCallBuilder.html#forEndpoint">forEndpoint</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="OperationCallBuilder.html#forLedger">forLedger</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="OperationCallBuilder.html#forLiquidityPool">forLiquidityPool</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="OperationCallBuilder.html#forTransaction">forTransaction</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="OperationCallBuilder.html#includeFailed">includeFailed</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="OperationCallBuilder.html#join">join</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="OperationCallBuilder.html#limit">limit</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="OperationCallBuilder.html#operation">operation</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="OperationCallBuilder.html#order">order</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="OperationCallBuilder.html#stream">stream</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="OrderbookCallBuilder.html">OrderbookCallBuilder</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="PathCallBuilder.html">PathCallBuilder</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PathCallBuilder.html#call">call</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PathCallBuilder.html#cursor">cursor</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PathCallBuilder.html#forEndpoint">forEndpoint</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PathCallBuilder.html#join">join</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PathCallBuilder.html#limit">limit</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PathCallBuilder.html#order">order</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PathCallBuilder.html#stream">stream</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="PaymentCallBuilder.html">PaymentCallBuilder</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PaymentCallBuilder.html#call">call</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PaymentCallBuilder.html#cursor">cursor</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PaymentCallBuilder.html#forAccount">forAccount</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PaymentCallBuilder.html#forEndpoint">forEndpoint</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PaymentCallBuilder.html#forLedger">forLedger</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PaymentCallBuilder.html#forTransaction">forTransaction</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PaymentCallBuilder.html#join">join</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PaymentCallBuilder.html#limit">limit</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PaymentCallBuilder.html#order">order</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="PaymentCallBuilder.html#stream">stream</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="Resolver.html">Resolver</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Resolver.html#.resolve">resolve</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="ScInt.html">ScInt</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="SentTransaction.html">SentTransaction</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="Server.html">Server</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Server.html#accounts">accounts</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Server.html#assets">assets</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Server.html#checkMemoRequired">checkMemoRequired</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Server.html#claimableBalances">claimableBalances</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Server.html#effects">effects</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Server.html#feeStats">feeStats</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Server.html#fetchBaseFee">fetchBaseFee</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Server.html#fetchTimebounds">fetchTimebounds</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Server.html#getAccount">getAccount</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Server.html#getContractData">getContractData</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Server.html#getContractWasmByContractId">getContractWasmByContractId</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Server.html#getContractWasmByHash">getContractWasmByHash</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Server.html#getEvents">getEvents</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Server.html#getHealth">getHealth</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Server.html#getLatestLedger">getLatestLedger</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Server.html#getLedgerEntries">getLedgerEntries</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Server.html#getNetwork">getNetwork</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Server.html#getTransaction">getTransaction</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Server.html#ledgers">ledgers</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Server.html#liquidityPools">liquidityPools</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Server.html#loadAccount">loadAccount</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Server.html#offers">offers</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Server.html#operations">operations</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Server.html#orderbook">orderbook</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Server.html#payments">payments</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Server.html#prepareTransaction">prepareTransaction</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Server.html#requestAirdrop">requestAirdrop</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Server.html#sendTransaction">sendTransaction</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Server.html#simulateTransaction">simulateTransaction</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Server.html#strictReceivePaths">strictReceivePaths</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Server.html#strictSendPaths">strictSendPaths</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Server.html#submitTransaction">submitTransaction</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Server.html#tradeAggregation">tradeAggregation</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Server.html#trades">trades</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Server.html#transactions">transactions</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="SignerKey.html">SignerKey</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="SignerKey.html#.decodeAddress">decodeAddress</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="SignerKey.html#.encodeSignerKey">encodeSignerKey</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="SorobanDataBuilder.html">SorobanDataBuilder</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="SorobanDataBuilder.html#appendFootprint">appendFootprint</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="SorobanDataBuilder.html#build">build</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="SorobanDataBuilder.html#getFootprint">getFootprint</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="SorobanDataBuilder.html#getReadOnly">getReadOnly</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="SorobanDataBuilder.html#getReadWrite">getReadWrite</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="SorobanDataBuilder.html#setFootprint">setFootprint</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="SorobanDataBuilder.html#setReadOnly">setReadOnly</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="SorobanDataBuilder.html#setReadWrite">setReadWrite</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="SorobanDataBuilder.html#setResourceFee">setResourceFee</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="SorobanDataBuilder.html#setResources">setResources</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="SorobanDataBuilder.html#.fromXDR">fromXDR</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="Spec.html">Spec</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Spec.html#errorCases">errorCases</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Spec.html#findEntry">findEntry</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Spec.html#funcArgsToScVals">funcArgsToScVals</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Spec.html#funcResToNative">funcResToNative</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Spec.html#funcs">funcs</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Spec.html#getFunc">getFunc</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Spec.html#jsonSchema">jsonSchema</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Spec.html#nativeToScVal">nativeToScVal</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Spec.html#scValStrToNative">scValStrToNative</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Spec.html#scValToNative">scValToNative</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="StrKey.html">StrKey</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="StrKey.html#.decodeContract">decodeContract</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="StrKey.html#.decodeEd25519PublicKey">decodeEd25519PublicKey</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="StrKey.html#.decodeEd25519SecretSeed">decodeEd25519SecretSeed</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="StrKey.html#.decodeMed25519PublicKey">decodeMed25519PublicKey</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="StrKey.html#.decodePreAuthTx">decodePreAuthTx</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="StrKey.html#.decodeSha256Hash">decodeSha256Hash</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="StrKey.html#.decodeSignedPayload">decodeSignedPayload</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="StrKey.html#.encodeContract">encodeContract</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="StrKey.html#.encodeEd25519PublicKey">encodeEd25519PublicKey</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="StrKey.html#.encodeEd25519SecretSeed">encodeEd25519SecretSeed</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="StrKey.html#.encodeMed25519PublicKey">encodeMed25519PublicKey</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="StrKey.html#.encodePreAuthTx">encodePreAuthTx</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="StrKey.html#.encodeSha256Hash">encodeSha256Hash</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="StrKey.html#.encodeSignedPayload">encodeSignedPayload</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="StrKey.html#.isValidContract">isValidContract</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="StrKey.html#.isValidEd25519PublicKey">isValidEd25519PublicKey</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="StrKey.html#.isValidEd25519SecretSeed">isValidEd25519SecretSeed</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="StrKey.html#.isValidMed25519PublicKey">isValidMed25519PublicKey</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="StrKey.html#.isValidSignedPayload">isValidSignedPayload</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="StrictReceivePathCallBuilder.html">StrictReceivePathCallBuilder</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="StrictReceivePathCallBuilder.html#call">call</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="StrictReceivePathCallBuilder.html#cursor">cursor</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="StrictReceivePathCallBuilder.html#forEndpoint">forEndpoint</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="StrictReceivePathCallBuilder.html#join">join</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="StrictReceivePathCallBuilder.html#limit">limit</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="StrictReceivePathCallBuilder.html#order">order</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="StrictReceivePathCallBuilder.html#stream">stream</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="StrictSendPathCallBuilder.html">StrictSendPathCallBuilder</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="StrictSendPathCallBuilder.html#call">call</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="StrictSendPathCallBuilder.html#cursor">cursor</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="StrictSendPathCallBuilder.html#forEndpoint">forEndpoint</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="StrictSendPathCallBuilder.html#join">join</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="StrictSendPathCallBuilder.html#limit">limit</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="StrictSendPathCallBuilder.html#order">order</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="StrictSendPathCallBuilder.html#stream">stream</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="TradeAggregationCallBuilder.html">TradeAggregationCallBuilder</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TradeAggregationCallBuilder.html#call">call</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TradeAggregationCallBuilder.html#cursor">cursor</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TradeAggregationCallBuilder.html#forEndpoint">forEndpoint</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TradeAggregationCallBuilder.html#join">join</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TradeAggregationCallBuilder.html#limit">limit</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TradeAggregationCallBuilder.html#order">order</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TradeAggregationCallBuilder.html#stream">stream</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="TradesCallBuilder.html">TradesCallBuilder</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TradesCallBuilder.html#call">call</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TradesCallBuilder.html#cursor">cursor</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TradesCallBuilder.html#forAccount">forAccount</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TradesCallBuilder.html#forAssetPair">forAssetPair</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TradesCallBuilder.html#forEndpoint">forEndpoint</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TradesCallBuilder.html#forLiquidityPool">forLiquidityPool</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TradesCallBuilder.html#forOffer">forOffer</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TradesCallBuilder.html#forType">forType</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TradesCallBuilder.html#join">join</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TradesCallBuilder.html#limit">limit</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TradesCallBuilder.html#order">order</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TradesCallBuilder.html#stream">stream</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="Transaction.html">Transaction</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Transaction.html#addDecoratedSignature">addDecoratedSignature</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Transaction.html#addSignature">addSignature</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Transaction.html#getClaimableBalanceId">getClaimableBalanceId</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Transaction.html#getKeypairSignature">getKeypairSignature</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Transaction.html#hash">hash</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Transaction.html#sign">sign</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Transaction.html#signHashX">signHashX</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Transaction.html#signatureBase">signatureBase</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Transaction.html#toEnvelope">toEnvelope</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="Transaction.html#toXDR">toXDR</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="TransactionBuilder.html">TransactionBuilder</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TransactionBuilder.html#addMemo">addMemo</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TransactionBuilder.html#addOperation">addOperation</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TransactionBuilder.html#build">build</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TransactionBuilder.html#clearOperations">clearOperations</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TransactionBuilder.html#setExtraSigners">setExtraSigners</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TransactionBuilder.html#setLedgerbounds">setLedgerbounds</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TransactionBuilder.html#setMinAccountSequence">setMinAccountSequence</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TransactionBuilder.html#setMinAccountSequenceAge">setMinAccountSequenceAge</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TransactionBuilder.html#setMinAccountSequenceLedgerGap">setMinAccountSequenceLedgerGap</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TransactionBuilder.html#setNetworkPassphrase">setNetworkPassphrase</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TransactionBuilder.html#setSorobanData">setSorobanData</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TransactionBuilder.html#setTimebounds">setTimebounds</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TransactionBuilder.html#setTimeout">setTimeout</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TransactionBuilder.html#.buildFeeBumpTransaction">buildFeeBumpTransaction</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TransactionBuilder.html#.cloneFrom">cloneFrom</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TransactionBuilder.html#.fromXDR">fromXDR</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="TransactionCallBuilder.html">TransactionCallBuilder</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TransactionCallBuilder.html#call">call</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TransactionCallBuilder.html#cursor">cursor</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TransactionCallBuilder.html#forAccount">forAccount</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TransactionCallBuilder.html#forClaimableBalance">forClaimableBalance</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TransactionCallBuilder.html#forEndpoint">forEndpoint</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TransactionCallBuilder.html#forLedger">forLedger</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TransactionCallBuilder.html#forLiquidityPool">forLiquidityPool</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TransactionCallBuilder.html#includeFailed">includeFailed</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TransactionCallBuilder.html#join">join</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TransactionCallBuilder.html#limit">limit</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TransactionCallBuilder.html#order">order</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TransactionCallBuilder.html#stream">stream</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="TransactionCallBuilder.html#transaction">transaction</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="Uint128_Uint128.html">Uint128</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="Uint256_Uint256.html">Uint256</a></span></li><li class="nav-heading"><span class="nav-item-type type-class">C</span><span class="nav-item-name"><a href="XdrLargeInt.html">XdrLargeInt</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="XdrLargeInt.html#toBigInt">toBigInt</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="XdrLargeInt.html#toI128">toI128</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="XdrLargeInt.html#toI256">toI256</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="XdrLargeInt.html#toI64">toI64</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="XdrLargeInt.html#toNumber">toNumber</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="XdrLargeInt.html#toScVal">toScVal</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="XdrLargeInt.html#toU128">toU128</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="XdrLargeInt.html#toU256">toU256</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="XdrLargeInt.html#toU64">toU64</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="XdrLargeInt.html#.getType">getType</a></span></li><li class="nav-heading">Namespaces</li><li class="nav-heading"><span class="nav-item-type type-namespace">N</span><span class="nav-item-name"><a href="Api.html">Api</a></span></li><li class="nav-heading"><a href="global.html">Globals</a></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#AuthClawbackEnabledFlag">AuthClawbackEnabledFlag</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#AuthImmutableFlag">AuthImmutableFlag</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#AuthRequiredFlag">AuthRequiredFlag</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#AuthRevocableFlag">AuthRevocableFlag</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#BASE_FEE">BASE_FEE</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#BadResponseError">BadResponseError</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#DEFAULT_TIMEOUT">DEFAULT_TIMEOUT</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#Durability">Durability</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#FastSigning">FastSigning</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#MemoHash">MemoHash</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#MemoID">MemoID</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#MemoNone">MemoNone</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#MemoReturn">MemoReturn</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#MemoText">MemoText</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#Networks">Networks</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#SERVER_TIME_MAP">SERVER_TIME_MAP</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#STELLAR_TOML_MAX_SIZE">STELLAR_TOML_MAX_SIZE</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#TimeoutInfinite">TimeoutInfinite</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#_default">_default</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#asciiCompare">asciiCompare</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#assembleTransaction">assembleTransaction</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#authorizeEntry">authorizeEntry</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#authorizeInvocation">authorizeInvocation</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#basicNodeSigner">basicNodeSigner</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#buildInvocationTree">buildInvocationTree</a></span></li><li class="nav-item"><span class="nav-item-type type-member">M</span><span class="nav-item-name"><a href="global.html#contractErrorPattern">contractErrorPattern</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#decodeAddressToMuxedAccount">decodeAddressToMuxedAccount</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#encodeMuxedAccount">encodeMuxedAccount</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#encodeMuxedAccountToAddress">encodeMuxedAccountToAddress</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#extractBaseAddress">extractBaseAddress</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#getCurrentServerTime">getCurrentServerTime</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#getLiquidityPoolId">getLiquidityPoolId</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#getSalty">getSalty</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#humanizeEvents">humanizeEvents</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#implementsToString">implementsToString</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#isValid">isValid</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#isValidDate">isValidDate</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#nativeToScVal">nativeToScVal</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#parseRawSimulation">parseRawSimulation</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#postObject">postObject</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#processSpecEntryStream">processSpecEntryStream</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#scValToBigInt">scValToBigInt</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#scValToNative">scValToNative</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#typeRef">typeRef</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#walkInvocationTree">walkInvocationTree</a></span></li><li class="nav-item"><span class="nav-item-type type-function">F</span><span class="nav-item-name"><a href="global.html#withExponentialBackoff">withExponentialBackoff</a></span></li>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">lib/contract/assembled_transaction.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.NULL_ACCOUNT = exports.AssembledTransaction = void 0;
+var _stellarBase = require("@stellar/stellar-base");
+var _server = require("../rpc/server");
+var _api = require("../rpc/api");
+var _transaction = require("../rpc/transaction");
+var _rust_result = require("./rust_result");
+var _utils = require("./utils");
+var _sent_transaction = require("./sent_transaction");
+/* disable max-classes rule, because extending error shouldn't count! */
+/* eslint max-classes-per-file: 0 */
+
+const NULL_ACCOUNT = exports.NULL_ACCOUNT = "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF";
+
+/**
+ * The main workhorse of {@link Client}. This class is used to wrap a
+ * transaction-under-construction and provide high-level interfaces to the most
+ * common workflows, while still providing access to low-level stellar-sdk
+ * transaction manipulation.
+ *
+ * Most of the time, you will not construct an `AssembledTransaction` directly,
+ * but instead receive one as the return value of a `Client` method. If
+ * you're familiar with the libraries generated by soroban-cli's `contract
+ * bindings typescript` command, these also wraps `Client` and return
+ * `AssembledTransaction` instances.
+ *
+ * Let's look at examples of how to use `AssembledTransaction` for a variety of
+ * use-cases:
+ *
+ * # 1. Simple read call
+ *
+ * Since these only require simulation, you can get the `result` of the call
+ * right after constructing your `AssembledTransaction`:
+ *
+ * ```ts
+ * const { result } = await AssembledTransaction.build({
+ *   method: 'myReadMethod',
+ *   args: spec.funcArgsToScVals('myReadMethod', {
+ *     args: 'for',
+ *     my: 'method',
+ *     ...
+ *   }),
+ *   contractId: 'C123…',
+ *   networkPassphrase: '…',
+ *   rpcUrl: 'https://…',
+ *   publicKey: undefined, // irrelevant, for simulation-only read calls
+ *   parseResultXdr: (result: xdr.ScVal) =>
+ *     spec.funcResToNative('myReadMethod', result),
+ * })
+ * ```
+ *
+ * While that looks pretty complicated, most of the time you will use this in
+ * conjunction with {@link Client}, which simplifies it to:
+ *
+ * ```ts
+ * const { result }  = await client.myReadMethod({
+ *   args: 'for',
+ *   my: 'method',
+ *   ...
+ * })
+ * ```
+ *
+ * # 2. Simple write call
+ *
+ * For write calls that will be simulated and then sent to the network without
+ * further manipulation, only one more step is needed:
+ *
+ * ```ts
+ * const assembledTx = await client.myWriteMethod({
+ *   args: 'for',
+ *   my: 'method',
+ *   ...
+ * })
+ * const sentTx = await assembledTx.signAndSend()
+ * ```
+ *
+ * Here we're assuming that you're using a {@link Client}, rather than
+ * constructing `AssembledTransaction`'s directly.
+ *
+ * Note that `sentTx`, the return value of `signAndSend`, is a
+ * {@link SentTransaction}. `SentTransaction` is similar to
+ * `AssembledTransaction`, but is missing many of the methods and fields that
+ * are only relevant while assembling a transaction. It also has a few extra
+ * methods and fields that are only relevant after the transaction has been
+ * sent to the network.
+ *
+ * Like `AssembledTransaction`, `SentTransaction` also has a `result` getter,
+ * which contains the parsed final return value of the contract call. Most of
+ * the time, you may only be interested in this, so rather than getting the
+ * whole `sentTx` you may just want to:
+ *
+ * ```ts
+ * const tx = await client.myWriteMethod({ args: 'for', my: 'method', ... })
+ * const { result } = await tx.signAndSend()
+ * ```
+ *
+ * # 3. More fine-grained control over transaction construction
+ *
+ * If you need more control over the transaction before simulating it, you can
+ * set various {@link MethodOptions} when constructing your
+ * `AssembledTransaction`. With a {@link Client}, this is passed as a
+ * second object after the arguments (or the only object, if the method takes
+ * no arguments):
+ *
+ * ```ts
+ * const tx = await client.myWriteMethod(
+ *   {
+ *     args: 'for',
+ *     my: 'method',
+ *     ...
+ *   }, {
+ *     fee: '10000', // default: {@link BASE_FEE}
+ *     simulate: false,
+ *     timeoutInSeconds: 20, // default: {@link DEFAULT_TIMEOUT}
+ *   }
+ * )
+ * ```
+ *
+ * Since we've skipped simulation, we can now edit the `raw` transaction and
+ * then manually call `simulate`:
+ *
+ * ```ts
+ * tx.raw.addMemo(Memo.text('Nice memo, friend!'))
+ * await tx.simulate()
+ * ```
+ *
+ * If you need to inspect the simulation later, you can access it with
+ * `tx.simulation`.
+ *
+ * # 4. Multi-auth workflows
+ *
+ * Soroban, and Stellar in general, allows multiple parties to sign a
+ * transaction.
+ *
+ * Let's consider an Atomic Swap contract. Alice wants to give 10 of her Token
+ * A tokens to Bob for 5 of his Token B tokens.
+ *
+ * ```ts
+ * const ALICE = 'G123...'
+ * const BOB = 'G456...'
+ * const TOKEN_A = 'C123…'
+ * const TOKEN_B = 'C456…'
+ * const AMOUNT_A = 10n
+ * const AMOUNT_B = 5n
+ * ```
+ *
+ * Let's say Alice is also going to be the one signing the final transaction
+ * envelope, meaning she is the invoker. So your app, from Alice's browser,
+ * simulates the `swap` call:
+ *
+ * ```ts
+ * const tx = await swapClient.swap({
+ *   a: ALICE,
+ *   b: BOB,
+ *   token_a: TOKEN_A,
+ *   token_b: TOKEN_B,
+ *   amount_a: AMOUNT_A,
+ *   amount_b: AMOUNT_B,
+ * })
+ * ```
+ *
+ * But your app can't `signAndSend` this right away, because Bob needs to sign
+ * it first. You can check this:
+ *
+ * ```ts
+ * const whoElseNeedsToSign = tx.needsNonInvokerSigningBy()
+ * ```
+ *
+ * You can verify that `whoElseNeedsToSign` is an array of length `1`,
+ * containing only Bob's public key.
+ *
+ * Then, still on Alice's machine, you can serialize the
+ * transaction-under-assembly:
+ *
+ * ```ts
+ * const json = tx.toJSON()
+ * ```
+ *
+ * And now you need to send it to Bob's browser. How you do this depends on
+ * your app. Maybe you send it to a server first, maybe you use WebSockets, or
+ * maybe you have Alice text the JSON blob to Bob and have him paste it into
+ * your app in his browser (note: this option might be error-prone 😄).
+ *
+ * Once you get the JSON blob into your app on Bob's machine, you can
+ * deserialize it:
+ *
+ * ```ts
+ * const tx = swapClient.txFromJSON(json)
+ * ```
+ *
+ * Or, if you're using a client generated with `soroban contract bindings
+ * typescript`, this deserialization will look like:
+ *
+ * ```ts
+ * const tx = swapClient.fromJSON.swap(json)
+ * ```
+ *
+ * Then you can have Bob sign it. What Bob will actually need to sign is some
+ * _auth entries_ within the transaction, not the transaction itself or the
+ * transaction envelope. Your app can verify that Bob has the correct wallet
+ * selected, then:
+ *
+ * ```ts
+ * await tx.signAuthEntries()
+ * ```
+ *
+ * Under the hood, this uses `signAuthEntry`, which you either need to inject
+ * during initial construction of the `Client`/`AssembledTransaction`,
+ * or which you can pass directly to `signAuthEntries`.
+ *
+ * Now Bob can again serialize the transaction and send back to Alice, where
+ * she can finally call `signAndSend()`.
+ *
+ * To see an even more complicated example, where Alice swaps with Bob but the
+ * transaction is invoked by yet another party, check out
+ * [test-swap.js](../../test/e2e/src/test-swap.js).
+ */
+class AssembledTransaction {
+  /**
+   * The TransactionBuilder as constructed in `{@link
+   * AssembledTransaction}.build`. Feel free set `simulate: false` to modify
+   * this object before calling `tx.simulate()` manually. Example:
+   *
+   * ```ts
+   * const tx = await myContract.myMethod(
+   *   { args: 'for', my: 'method', ... },
+   *   { simulate: false }
+   * );
+   * tx.raw.addMemo(Memo.text('Nice memo, friend!'))
+   * await tx.simulate();
+   * ```
+   */
+
+  /**
+   * The Transaction as it was built with `raw.build()` right before
+   * simulation. Once this is set, modifying `raw` will have no effect unless
+   * you call `tx.simulate()` again.
+   */
+
+  /**
+   * The result of the transaction simulation. This is set after the first call
+   * to `simulate`. It is difficult to serialize and deserialize, so it is not
+   * included in the `toJSON` and `fromJSON` methods. See `simulationData`
+   * cached, serializable access to the data needed by AssembledTransaction
+   * logic.
+   */
+
+  /**
+   * Cached simulation result. This is set after the first call to
+   * {@link AssembledTransaction#simulationData}, and is used to facilitate
+   * serialization and deserialization of the AssembledTransaction.
+   *
+   * Most of the time, if you need this data, you can call
+   * `tx.simulation.result`.
+   *
+   * If you need access to this data after a transaction has been serialized
+   * and then deserialized, you can call `simulationData.result`.
+   */
+
+  /**
+   * Cached simulation transaction data. This is set after the first call to
+   * {@link AssembledTransaction#simulationData}, and is used to facilitate
+   * serialization and deserialization of the AssembledTransaction.
+   *
+   * Most of the time, if you need this data, you can call
+   * `simulation.transactionData`.
+   *
+   * If you need access to this data after a transaction has been serialized
+   * and then deserialized, you can call `simulationData.transactionData`.
+   */
+
+  /**
+   * The Soroban server to use for all RPC calls. This is constructed from the
+   * `rpcUrl` in the options.
+   */
+
+  /**
+   * A list of the most important errors that various AssembledTransaction
+   * methods can throw. Feel free to catch specific errors in your application
+   * logic.
+   */
+  static Errors = {
+    ExpiredState: class ExpiredStateError extends Error {},
+    NeedsMoreSignatures: class NeedsMoreSignaturesError extends Error {},
+    NoSignatureNeeded: class NoSignatureNeededError extends Error {},
+    NoUnsignedNonInvokerAuthEntries: class NoUnsignedNonInvokerAuthEntriesError extends Error {},
+    NoSigner: class NoSignerError extends Error {},
+    NotYetSimulated: class NotYetSimulatedError extends Error {},
+    FakeAccount: class FakeAccountError extends Error {}
+  };
+
+  /**
+   * Serialize the AssembledTransaction to a JSON string. This is useful for
+   * saving the transaction to a database or sending it over the wire for
+   * multi-auth workflows. `fromJSON` can be used to deserialize the
+   * transaction. This only works with transactions that have been simulated.
+   */
+  toJSON() {
+    return JSON.stringify({
+      method: this.options.method,
+      tx: this.built?.toXDR(),
+      simulationResult: {
+        auth: this.simulationData.result.auth.map(a => a.toXDR("base64")),
+        retval: this.simulationData.result.retval.toXDR("base64")
+      },
+      simulationTransactionData: this.simulationData.transactionData.toXDR("base64")
+    });
+  }
+  static fromJSON(options, {
+    tx,
+    simulationResult,
+    simulationTransactionData
+  }) {
+    const txn = new AssembledTransaction(options);
+    txn.built = _stellarBase.TransactionBuilder.fromXDR(tx, options.networkPassphrase);
+    txn.simulationResult = {
+      auth: simulationResult.auth.map(a => _stellarBase.xdr.SorobanAuthorizationEntry.fromXDR(a, "base64")),
+      retval: _stellarBase.xdr.ScVal.fromXDR(simulationResult.retval, "base64")
+    };
+    txn.simulationTransactionData = _stellarBase.xdr.SorobanTransactionData.fromXDR(simulationTransactionData, "base64");
+    return txn;
+  }
+  constructor(options) {
+    this.options = options;
+    this.options.simulate = this.options.simulate ?? true;
+    this.server = new _server.Server(this.options.rpcUrl, {
+      allowHttp: this.options.allowHttp ?? false
+    });
+  }
+
+  /**
+   * Construct a new AssembledTransaction. This is the only way to create a new
+   * AssembledTransaction; the main constructor is private.
+   *
+   * This is an asynchronous constructor for two reasons:
+   *
+   * 1. It needs to fetch the account from the network to get the current
+   *   sequence number.
+   * 2. It needs to simulate the transaction to get the expected fee.
+   *
+   * If you don't want to simulate the transaction, you can set `simulate` to
+   * `false` in the options.
+   *
+   *     const tx = await AssembledTransaction.build({
+   *       ...,
+   *       simulate: false,
+   *     })
+   */
+  static async build(options) {
+    const tx = new AssembledTransaction(options);
+    const contract = new _stellarBase.Contract(options.contractId);
+    const account = options.publicKey ? await tx.server.getAccount(options.publicKey) : new _stellarBase.Account(NULL_ACCOUNT, "0");
+    tx.raw = new _stellarBase.TransactionBuilder(account, {
+      fee: options.fee ?? _stellarBase.BASE_FEE,
+      networkPassphrase: options.networkPassphrase
+    }).addOperation(contract.call(options.method, ...(options.args ?? []))).setTimeout(options.timeoutInSeconds ?? _utils.DEFAULT_TIMEOUT);
+    if (options.simulate) await tx.simulate();
+    return tx;
+  }
+  simulate = async () => {
+    if (!this.raw) {
+      throw new Error("Transaction has not yet been assembled; " + "call `AssembledTransaction.build` first.");
+    }
+    this.built = this.raw.build();
+    this.simulation = await this.server.simulateTransaction(this.built);
+    if (_api.Api.isSimulationSuccess(this.simulation)) {
+      this.built = (0, _transaction.assembleTransaction)(this.built, this.simulation).build();
+    }
+    return this;
+  };
+  get simulationData() {
+    if (this.simulationResult &amp;&amp; this.simulationTransactionData) {
+      return {
+        result: this.simulationResult,
+        transactionData: this.simulationTransactionData
+      };
+    }
+    const simulation = this.simulation;
+    if (!simulation) {
+      throw new AssembledTransaction.Errors.NotYetSimulated("Transaction has not yet been simulated");
+    }
+    if (_api.Api.isSimulationError(simulation)) {
+      throw new Error(`Transaction simulation failed: "${simulation.error}"`);
+    }
+    if (_api.Api.isSimulationRestore(simulation)) {
+      throw new AssembledTransaction.Errors.ExpiredState(`You need to restore some contract state before you can invoke this method. ${JSON.stringify(simulation, null, 2)}`);
+    }
+    if (!simulation.result) {
+      throw new Error(`Expected an invocation simulation, but got no 'result' field. Simulation: ${JSON.stringify(simulation, null, 2)}`);
+    }
+
+    // add to object for serialization &amp; deserialization
+    this.simulationResult = simulation.result;
+    this.simulationTransactionData = simulation.transactionData.build();
+    return {
+      result: this.simulationResult,
+      transactionData: this.simulationTransactionData
+    };
+  }
+  get result() {
+    try {
+      return this.options.parseResultXdr(this.simulationData.result.retval);
+    } catch (e) {
+      if (!(0, _utils.implementsToString)(e)) throw e;
+      const err = this.parseError(e.toString());
+      if (err) return err;
+      throw e; // eslint-disable-line
+    }
+  }
+  parseError(errorMessage) {
+    if (!this.options.errorTypes) return undefined;
+    const match = errorMessage.match(_utils.contractErrorPattern);
+    if (!match) return undefined;
+    const i = parseInt(match[1], 10);
+    const err = this.options.errorTypes[i];
+    if (!err) return undefined;
+    return new _rust_result.Err(err);
+  }
+
+  /**
+   * Sign the transaction with the `wallet`, included previously. If you did
+   * not previously include one, you need to include one now that at least
+   * includes the `signTransaction` method. After signing, this method will
+   * send the transaction to the network and return a `SentTransaction` that
+   * keeps track of all the attempts to fetch the transaction.
+   */
+  signAndSend = async ({
+    force = false,
+    signTransaction = this.options.signTransaction
+  } = {}) => {
+    if (!this.built) {
+      throw new Error("Transaction has not yet been simulated");
+    }
+    if (!force &amp;&amp; this.isReadCall) {
+      throw new AssembledTransaction.Errors.NoSignatureNeeded("This is a read call. It requires no signature or sending. " + "Use `force: true` to sign and send anyway.");
+    }
+    if (!signTransaction) {
+      throw new AssembledTransaction.Errors.NoSigner("You must provide a signTransaction function, either when calling " + "`signAndSend` or when initializing your Client");
+    }
+    if (this.needsNonInvokerSigningBy().length) {
+      throw new AssembledTransaction.Errors.NeedsMoreSignatures("Transaction requires more signatures. " + "See `needsNonInvokerSigningBy` for details.");
+    }
+    const typeChecked = this;
+    const sent = await _sent_transaction.SentTransaction.init(signTransaction, typeChecked);
+    return sent;
+  };
+  getStorageExpiration = async () => {
+    const entryRes = await this.server.getLedgerEntries(new _stellarBase.Contract(this.options.contractId).getFootprint());
+    if (!entryRes.entries || !entryRes.entries.length || !entryRes.entries[0].liveUntilLedgerSeq) throw new Error("failed to get ledger entry");
+    return entryRes.entries[0].liveUntilLedgerSeq;
+  };
+
+  /**
+   * Get a list of accounts, other than the invoker of the simulation, that
+   * need to sign auth entries in this transaction.
+   *
+   * Soroban allows multiple people to sign a transaction. Someone needs to
+   * sign the final transaction envelope; this person/account is called the
+   * _invoker_, or _source_. Other accounts might need to sign individual auth
+   * entries in the transaction, if they're not also the invoker.
+   *
+   * This function returns a list of accounts that need to sign auth entries,
+   * assuming that the same invoker/source account will sign the final
+   * transaction envelope as signed the initial simulation.
+   *
+   * One at a time, for each public key in this array, you will need to
+   * serialize this transaction with `toJSON`, send to the owner of that key,
+   * deserialize the transaction with `txFromJson`, and call
+   * {@link AssembledTransaction#signAuthEntries}. Then re-serialize and send to
+   * the next account in this list.
+   */
+  needsNonInvokerSigningBy = ({
+    includeAlreadySigned = false
+  } = {}) => {
+    if (!this.built) {
+      throw new Error("Transaction has not yet been simulated");
+    }
+
+    // We expect that any transaction constructed by these libraries has a
+    // single operation, which is an InvokeHostFunction operation. The host
+    // function being invoked is the contract method call.
+    if (!("operations" in this.built)) {
+      throw new Error(`Unexpected Transaction type; no operations: ${JSON.stringify(this.built)}`);
+    }
+    const rawInvokeHostFunctionOp = this.built.operations[0];
+    return [...new Set((rawInvokeHostFunctionOp.auth ?? []).filter(entry => entry.credentials().switch() === _stellarBase.xdr.SorobanCredentialsType.sorobanCredentialsAddress() &amp;&amp; (includeAlreadySigned || entry.credentials().address().signature().switch().name === "scvVoid")).map(entry => _stellarBase.StrKey.encodeEd25519PublicKey(entry.credentials().address().address().accountId().ed25519())))];
+  };
+
+  /**
+   * If {@link AssembledTransaction#needsNonInvokerSigningBy} returns a
+   * non-empty list, you can serialize the transaction with `toJSON`, send it to
+   * the owner of one of the public keys in the map, deserialize with
+   * `txFromJSON`, and call this method on their machine. Internally, this will
+   * use `signAuthEntry` function from connected `wallet` for each.
+   *
+   * Then, re-serialize the transaction and either send to the next
+   * `needsNonInvokerSigningBy` owner, or send it back to the original account
+   * who simulated the transaction so they can {@link AssembledTransaction#sign}
+   * the transaction envelope and {@link AssembledTransaction#send} it to the
+   * network.
+   *
+   * Sending to all `needsNonInvokerSigningBy` owners in parallel is not
+   * currently supported!
+   */
+  signAuthEntries = async ({
+    expiration = this.getStorageExpiration(),
+    signAuthEntry = this.options.signAuthEntry,
+    publicKey = this.options.publicKey
+  } = {}) => {
+    if (!this.built) throw new Error("Transaction has not yet been assembled or simulated");
+    const needsNonInvokerSigningBy = this.needsNonInvokerSigningBy();
+    if (!needsNonInvokerSigningBy) {
+      throw new AssembledTransaction.Errors.NoUnsignedNonInvokerAuthEntries("No unsigned non-invoker auth entries; maybe you already signed?");
+    }
+    if (needsNonInvokerSigningBy.indexOf(publicKey ?? "") === -1) {
+      throw new AssembledTransaction.Errors.NoSignatureNeeded(`No auth entries for public key "${publicKey}"`);
+    }
+    if (!signAuthEntry) {
+      throw new AssembledTransaction.Errors.NoSigner("You must provide `signAuthEntry` when calling `signAuthEntries`, " + "or when constructing the `Client` or `AssembledTransaction`");
+    }
+    const rawInvokeHostFunctionOp = this.built.operations[0];
+    const authEntries = rawInvokeHostFunctionOp.auth ?? [];
+
+    // eslint-disable-next-line no-restricted-syntax
+    for (const [i, entry] of authEntries.entries()) {
+      if (entry.credentials().switch() !== _stellarBase.xdr.SorobanCredentialsType.sorobanCredentialsAddress()) {
+        // if the invoker/source account, then the entry doesn't need explicit
+        // signature, since the tx envelope is already signed by the source
+        // account, so only check for sorobanCredentialsAddress
+        continue; // eslint-disable-line no-continue
+      }
+      const pk = _stellarBase.StrKey.encodeEd25519PublicKey(entry.credentials().address().address().accountId().ed25519());
+
+      // this auth entry needs to be signed by a different account
+      // (or maybe already was!)
+      if (pk !== publicKey) continue; // eslint-disable-line no-continue
+
+      // eslint-disable-next-line no-await-in-loop
+      authEntries[i] = await (0, _stellarBase.authorizeEntry)(entry, async preimage => Buffer.from(await signAuthEntry(preimage.toXDR("base64")), "base64"), await expiration,
+      // eslint-disable-line no-await-in-loop
+      this.options.networkPassphrase);
+    }
+  };
+
+  /**
+   * Whether this transaction is a read call. This is determined by the
+   * simulation result and the transaction data. If the transaction is a read
+   * call, it will not need to be signed and sent to the network. If this
+   * returns `false`, then you need to call `signAndSend` on this transaction.
+   */
+  get isReadCall() {
+    const authsCount = this.simulationData.result.auth.length;
+    const writeLength = this.simulationData.transactionData.resources().footprint().readWrite().length;
+    return authsCount === 0 &amp;&amp; writeLength === 0;
+  }
+}
+exports.AssembledTransaction = AssembledTransaction;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.3</a> on Wed May 15 2024 21:17:46 GMT+0000 (Coordinated Universal Time) using the Minami theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>
