@@ -59,9 +59,9 @@ async function clientFor(contract, { keypair = generateFundedKeypair(), contract
   keypair = await keypair // eslint-disable-line no-param-reassign
   const wallet = basicNodeSigner(keypair, networkPassphrase)
 
-  const wasmHash = contracts[contract].hash;
+  let wasmHash = contracts[contract].hash;
   if (!wasmHash) {
-    throw new Error(`No wasm hash found for \`contracts[${contract}]\`! ${JSON.stringify(contracts[contract], null, 2)}`)
+    wasmHash = spawnSync("./target/bin/soroban", ["contract", "install", "--wasm", contracts[contract].path], { shell: true, encoding: "utf8" }).stdout.trim()
   }
 
   // TODO: do this with js-stellar-sdk, instead of shelling out to the CLI

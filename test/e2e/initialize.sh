@@ -16,7 +16,14 @@ echo "###################### Initializing e2e tests ########################"
 
 soroban="$dirname/../../target/bin/soroban"
 if [[ -f "$soroban" ]]; then
-  echo "Using soroban binary from ./target/bin"
+  current=$($soroban --version | head -n 1 | cut -d ' ' -f 2)
+  desired=$(cat .cargo/config.toml | grep -oE -- "--version\s+\S+" | awk '{print $2}')
+  if [[ "$current" != "$desired" ]]; then
+    echo "Current pinned soroban binary: $current. Desired: $desired. Building soroban binary."
+    (cd "$dirname/../.." && cargo install_soroban)
+  else
+    echo "Using soroban binary from ./target/bin"
+  fi
 else
   echo "Building pinned soroban binary"
   (cd "$dirname/../.." && cargo install_soroban)
