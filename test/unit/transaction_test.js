@@ -80,10 +80,7 @@ describe("assembleTransaction", () => {
 
     it("simulate updates the tx data from simulation response", () => {
       const txn = singleContractFnTransaction();
-      const result = rpc.assembleTransaction(
-        txn,
-        simulationResponse,
-      ).build();
+      const result = rpc.assembleTransaction(txn, simulationResponse).build();
 
       // validate it auto updated the tx fees from sim response fees
       // since it was greater than tx.fee
@@ -97,10 +94,7 @@ describe("assembleTransaction", () => {
 
     it("simulate adds the auth to the host function in tx operation", () => {
       const txn = singleContractFnTransaction();
-      const result = rpc.assembleTransaction(
-        txn,
-        simulationResponse,
-      ).build();
+      const result = rpc.assembleTransaction(txn, simulationResponse).build();
 
       expect(
         result
@@ -170,13 +164,15 @@ describe("assembleTransaction", () => {
         .build();
 
       expect(() => {
-        rpc.assembleTransaction(txn, {
-          transactionData: {},
-          events: [],
-          minResourceFee: "0",
-          results: [],
-          latestLedger: 3,
-        }).build();
+        rpc
+          .assembleTransaction(txn, {
+            transactionData: {},
+            events: [],
+            minResourceFee: "0",
+            results: [],
+            latestLedger: 3,
+          })
+          .build();
         expect.fail();
       }).to.throw(/unsupported transaction/i);
     });
@@ -198,20 +194,14 @@ describe("assembleTransaction", () => {
           .addOperation(op)
           .build();
 
-        const tx = rpc.assembleTransaction(
-          txn,
-          simulationResponse,
-        ).build();
+        const tx = rpc.assembleTransaction(txn, simulationResponse).build();
         expect(tx.operations[0].type).to.equal(op.body().switch().name);
       });
     });
 
     it("doesn't overwrite auth if it's present", function () {
       const txn = singleContractFnTransaction([fnAuth, fnAuth, fnAuth]);
-      const tx = rpc.assembleTransaction(
-        txn,
-        simulationResponse,
-      ).build();
+      const tx = rpc.assembleTransaction(txn, simulationResponse).build();
 
       expect(tx.operations[0].auth.length).to.equal(
         3,

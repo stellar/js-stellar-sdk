@@ -1,39 +1,74 @@
-const { spawnSync } = require('node:child_process')
-const { contract, Keypair } = require('../../..')
+const { spawnSync } = require("node:child_process");
+const { contract, Keypair } = require("../../..");
 
 const contracts = {
   customTypes: {
-    hash: spawnSync("./target/bin/soroban", ["contract", "install", "--wasm", `${__dirname}/../wasms/test_custom_types.wasm`], { shell: true, encoding: "utf8" }).stdout.trim(),
+    hash: spawnSync(
+      "./target/bin/soroban",
+      [
+        "contract",
+        "install",
+        "--wasm",
+        `${__dirname}/../wasms/test_custom_types.wasm`,
+      ],
+      { shell: true, encoding: "utf8" },
+    ).stdout.trim(),
     path: `${__dirname}/../wasms/test_custom_types.wasm`,
   },
   helloWorld: {
-    hash: spawnSync("./target/bin/soroban", ["contract", "install", "--wasm", `${__dirname}/../wasms/test_hello_world.wasm`], { shell: true, encoding: "utf8" }).stdout.trim(),
-    path: `${__dirname}/../wasms/test_hello_world.wasm`
+    hash: spawnSync(
+      "./target/bin/soroban",
+      [
+        "contract",
+        "install",
+        "--wasm",
+        `${__dirname}/../wasms/test_hello_world.wasm`,
+      ],
+      { shell: true, encoding: "utf8" },
+    ).stdout.trim(),
+    path: `${__dirname}/../wasms/test_hello_world.wasm`,
   },
   swap: {
-    hash: spawnSync("./target/bin/soroban", ["contract", "install", "--wasm", `${__dirname}/../wasms/test_swap.wasm`], { shell: true, encoding: "utf8" }).stdout.trim(),
-    path: `${__dirname}/../wasms/test_swap.wasm`
+    hash: spawnSync(
+      "./target/bin/soroban",
+      ["contract", "install", "--wasm", `${__dirname}/../wasms/test_swap.wasm`],
+      { shell: true, encoding: "utf8" },
+    ).stdout.trim(),
+    path: `${__dirname}/../wasms/test_swap.wasm`,
   },
   token: {
-    hash: spawnSync("./target/bin/soroban", ["contract", "install", "--wasm", `${__dirname}/../wasms/test_token.wasm`], { shell: true, encoding: "utf8" }).stdout.trim(),
-    path: `${__dirname}/../wasms/test_token.wasm`
+    hash: spawnSync(
+      "./target/bin/soroban",
+      [
+        "contract",
+        "install",
+        "--wasm",
+        `${__dirname}/../wasms/test_token.wasm`,
+      ],
+      { shell: true, encoding: "utf8" },
+    ).stdout.trim(),
+    path: `${__dirname}/../wasms/test_token.wasm`,
   },
 };
-module.exports.contracts = contracts
+module.exports.contracts = contracts;
 
-const rpcUrl = process.env.SOROBAN_RPC_URL ?? "http://localhost:8000/soroban/rpc";
-module.exports.rpcUrl = rpcUrl
-const networkPassphrase = process.env.SOROBAN_NETWORK_PASSPHRASE ?? "Standalone Network ; February 2017";
-module.exports.networkPassphrase = networkPassphrase
-const friendbotUrl = process.env.SOROBAN_FRIENDBOT_URL ?? "http://localhost:8000/friendbot";
-module.exports.friendbotUrl = friendbotUrl
+const rpcUrl =
+  process.env.SOROBAN_RPC_URL ?? "http://localhost:8000/soroban/rpc";
+module.exports.rpcUrl = rpcUrl;
+const networkPassphrase =
+  process.env.SOROBAN_NETWORK_PASSPHRASE ??
+  "Standalone Network ; February 2017";
+module.exports.networkPassphrase = networkPassphrase;
+const friendbotUrl =
+  process.env.SOROBAN_FRIENDBOT_URL ?? "http://localhost:8000/friendbot";
+module.exports.friendbotUrl = friendbotUrl;
 
 async function generateFundedKeypair() {
-  const keypair = Keypair.random()
-  await fetch(`${friendbotUrl}/friendbot?addr=${keypair.publicKey()}`)
-  return keypair
-};
-module.exports.generateFundedKeypair = generateFundedKeypair
+  const keypair = Keypair.random();
+  await fetch(`${friendbotUrl}/friendbot?addr=${keypair.publicKey()}`);
+  return keypair;
+}
+module.exports.generateFundedKeypair = generateFundedKeypair;
 
 /**
  * Generates a Client for the contract with the given name.
@@ -44,44 +79,62 @@ module.exports.generateFundedKeypair = generateFundedKeypair
  * By default, will re-deploy the contract every time. Pass in the same
  * `contractId` again if you want to re-use the a contract instance.
  */
-async function clientFor(name, { keypair = generateFundedKeypair(), contractId } = {}) {
+async function clientFor(
+  name,
+  { keypair = generateFundedKeypair(), contractId } = {},
+) {
   if (!contracts[name]) {
     throw new Error(
       `Contract ${name} not found. ` +
-      `Pick one of: ${Object.keys(contracts).join(", ")}`
-    )
+        `Pick one of: ${Object.keys(contracts).join(", ")}`,
+    );
   }
 
-  keypair = await keypair // eslint-disable-line no-param-reassign
-  const wallet = contract.basicNodeSigner(keypair, networkPassphrase)
+  keypair = await keypair; // eslint-disable-line no-param-reassign
+  const wallet = contract.basicNodeSigner(keypair, networkPassphrase);
 
   let wasmHash = contracts[name].hash;
   if (!wasmHash) {
-    wasmHash = spawnSync("./target/bin/soroban", ["contract", "install", "--wasm", contracts[name].path], { shell: true, encoding: "utf8" }).stdout.trim()
+    wasmHash = spawnSync(
+      "./target/bin/soroban",
+      ["contract", "install", "--wasm", contracts[name].path],
+      { shell: true, encoding: "utf8" },
+    ).stdout.trim();
   }
 
   // TODO: do this with js-stellar-sdk, instead of shelling out to the CLI
-  contractId = contractId ?? spawnSync("./target/bin/soroban", [ // eslint-disable-line no-param-reassign
-    "contract",
-    "deploy",
-    "--source",
-    keypair.secret(),
-    "--wasm-hash",
-    wasmHash,
-  ], { shell: true, encoding: "utf8" }).stdout.trim();
+  contractId =
+    contractId ??
+    spawnSync(
+      "./target/bin/soroban",
+      [
+        // eslint-disable-line no-param-reassign
+        "contract",
+        "deploy",
+        "--source",
+        keypair.secret(),
+        "--wasm-hash",
+        wasmHash,
+      ],
+      { shell: true, encoding: "utf8" },
+    ).stdout.trim();
 
-  const client = await contract.Client.fromWasmHash(wasmHash, {
-    networkPassphrase,
-    contractId,
-    rpcUrl,
-    allowHttp: true,
-    publicKey: keypair.publicKey(),
-    ...wallet,
-  }, "hex");
+  const client = await contract.Client.fromWasmHash(
+    wasmHash,
+    {
+      networkPassphrase,
+      contractId,
+      rpcUrl,
+      allowHttp: true,
+      publicKey: keypair.publicKey(),
+      ...wallet,
+    },
+    "hex",
+  );
   return {
     keypair,
     client,
     contractId,
-  }
+  };
 }
-module.exports.clientFor = clientFor
+module.exports.clientFor = clientFor;
