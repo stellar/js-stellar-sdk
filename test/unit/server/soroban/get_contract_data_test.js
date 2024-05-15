@@ -1,5 +1,5 @@
 const { Address, xdr, nativeToScVal, hash } = StellarSdk;
-const { Server, AxiosClient, Durability } = StellarSdk.SorobanRpc;
+const { Server, AxiosClient, Durability } = StellarSdk.rpc;
 
 describe("Server#getContractData", function () {
   beforeEach(function () {

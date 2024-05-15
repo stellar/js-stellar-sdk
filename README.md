@@ -96,7 +96,7 @@ The usage documentation for this library lives in a handful of places:
 You can also refer to:
 
  * the [documentation](https://developers.stellar.org/network/horizon) for the Horizon REST API (if using the `Horizon` module) and
- * the [documentation](https://soroban.stellar.org/docs/reference/rpc) for Soroban RPC's API (if using the `SorobanRpc` module)
+ * the [documentation](https://soroban.stellar.org/docs/reference/rpc) for Soroban RPC's API (if using the `rpc` module)
 
 ### Usage with React-Native
 

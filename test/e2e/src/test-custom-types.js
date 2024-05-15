@@ -1,6 +1,5 @@
 const test = require('ava')
-const { Address } = require('../../..')
-const { Ok, Err } = require('../../../lib/rust_types')
+const { Address, contract } = require('../../..')
 const { clientFor } = require('./util')
 
 test.before(async t => {
@@ -29,11 +28,11 @@ test('woid', async t => {
 test('u32_fail_on_even', async t => {
   t.deepEqual(
     (await t.context.client.u32_fail_on_even({ u32_: 1 })).result,
-    new Ok(1)
+    new contract.Ok(1)
   )
   t.deepEqual(
     (await t.context.client.u32_fail_on_even({ u32_: 2 })).result,
-    new Err({ message: "Please provide an odd number" })
+    new contract.Err({ message: "Please provide an odd number" })
   )
 })
 

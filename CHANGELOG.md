@@ -6,10 +6,75 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Breaking Changes
+
+- `ContractClient` functionality previously added in [v11.3.0](https://github.com/stellar/js-stellar-sdk/releases/tag/v11.3.0) was exported in a non-standard way. You can now import it as any other stellar-sdk module.
+
+  ```diff
+  - import { ContractClient } from '@stellar/stellar-sdk/lib/contract_client'
+  + import { contract } from '@stellar/stellar-sdk'
+  + const { Client } = contract
+  ```
+
+  Note that this top-level `contract` export is a container for ContractClient and related functionality. The ContractClient class is now available at `contract.Client`, as shown. Further note that there is a capitalized `Contract` export as well, which comes [from stellar-base](https://github.com/stellar/js-stellar-base/blob/b96281b9b3f94af23a913f93bdb62477f5434ccc/src/contract.js#L6-L19). You can remember which is which because capital-C `Contract` is a class, whereas lowercase-c `contract` is a container/module with a bunch of classes, functions, and types.
+
+  Additionally, this is available from the `/contract` entrypoint, if your version of Node [and TypeScript](https://stackoverflow.com/a/70020984/249801) support [the `exports` declaration](https://nodejs.org/api/packages.html#exports). Finally, some of its exports have been renamed.
+
+  ```diff
+   import {
+  -  ContractClient,
+  +  Client,
+     AssembledTransaction,
+  -  ContractClientOptions,
+  +  ClientOptions,
+     SentTransaction,
+  -} from '@stellar/stellar-sdk/lib/contract_client'
+  +} from '@stellar/stellar-sdk/contract'
+  ```
+
+
+- The `ContractSpec` class is now nested under the `contract` module, and has been renamed to `Spec`.
+
+  ```diff
+  -import { ContractSpec } from '@stellar/stellar-sdk'
+  +import { contract } from '@stellar/stellar-sdk'
+  +const { Spec } = contract
+  ```
+
+  Alternatively, you can import this from the `contract` entrypoint, if your version of Node [and TypeScript](https://stackoverflow.com/a/70020984/249801) support [the `exports` declaration](https://nodejs.org/api/packages.html#exports).
+
+  ```diff
+  -import { ContractSpec } from '@stellar/stellar-sdk'
+  +import { Spec } from '@stellar/stellar-sdk/contract'
+  ```
+
+- Previously, `AssembledTransaction.signAndSend()` would return a `SentTransaction` even if the transaction never finalized. That is, if it successfully sent the transaction to the network, but the transaction was still `status: 'PENDING'`, then it would `console.error` an error message, but return the indeterminate transaction anyhow.
+
+  It now throws a `SentTransaction.Errors.TransactionStillPending` error with that error message instead.
+
+### Deprecated
+
+- `SorobanRpc` module is now also exported as `rpc`. You can import it with either name for now, but `SorobanRpc` will be removed in a future release.
+
+  ```diff
+   import { SorobanRpc } from '@stellar/stellar-sdk'
+  +// OR
+  +import { rpc } from '@stellar/stellar-sdk'
+  ```
+
+  You can also now import it at the `/rpc` entrypoint, if your version of Node [and TypeScript](https://stackoverflow.com/a/70020984/249801) support [the `exports` declaration](https://nodejs.org/api/packages.html#exports).
+
+  ```diff
+  -import { SorobanRpc } from '@stellar/stellar-sdk'
+  -const { Api } = SorobanRpc
+  +import { Api } from '@stellar/stellar-sdk/rpc'
+  ```
+
 ### Added
-* Added a from method in `ContractClient` which takes the `ContractClientOptions` and instantiates the `ContractClient` by utilizing the `contractId` to retrieve the contract wasm from the blockchain. The custom section is then extracted and used to create a `ContractSpec` which is then used to create the client.
-* Similarly adds `fromWasm` and `fromWasmHash` methods in `ContractClient` which can be used to initialize a `ContractClient` if you already have the wasm bytes or the wasm hash along with the `ContractClientOptions`.
-* Added `getContractWasmByContractId` and `getContractWasmByHash` methods in `Server` which can be used to retrieve the wasm bytecode of a contract via its `contractId` and wasm hash respectively.
+
+* Added a `from` method in `contract.Client` which takes the `ClientOptions` and instantiates the `Client` by utilizing the `contractId` to retrieve the contract wasm from the blockchain. The custom section is then extracted and used to create a `contract.Spec` which is then used to create the client.
+* Similarly adds `fromWasm` and `fromWasmHash` methods in `Client` which can be used to initialize a `Client` if you already have the wasm bytes or the wasm hash along with the `ClientOptions`.
+* Added `getContractWasmByContractId` and `getContractWasmByHash` methods in `rpc.Server` which can be used to retrieve the wasm bytecode of a contract via its `contractId` and wasm hash respectively.
 
 ## [v12.0.0-rc.2](https://github.com/stellar/js-stellar-sdk/compare/v11.3.0...v12.0.0-rc.2)
 

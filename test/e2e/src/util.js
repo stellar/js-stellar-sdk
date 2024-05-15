@@ -1,9 +1,5 @@
 const { spawnSync } = require('node:child_process')
-const { Keypair } = require('../../..')
-const {
-  ContractClient,
-  basicNodeSigner,
-} = require('../../../lib/contract_client')
+const { contract, Keypair } = require('../../..')
 
 const contracts = {
   customTypes: {
@@ -40,7 +36,7 @@ async function generateFundedKeypair() {
 module.exports.generateFundedKeypair = generateFundedKeypair
 
 /**
- * Generates a ContractClient for the contract with the given name.
+ * Generates a Client for the contract with the given name.
  * Also generates a new account to use as as the keypair of this contract. This
  * account is funded by friendbot. You can pass in an account to re-use the
  * same account with multiple contract clients.
@@ -48,20 +44,20 @@ module.exports.generateFundedKeypair = generateFundedKeypair
  * By default, will re-deploy the contract every time. Pass in the same
  * `contractId` again if you want to re-use the a contract instance.
  */
-async function clientFor(contract, { keypair = generateFundedKeypair(), contractId } = {}) {
-  if (!contracts[contract]) {
+async function clientFor(name, { keypair = generateFundedKeypair(), contractId } = {}) {
+  if (!contracts[name]) {
     throw new Error(
-      `Contract ${contract} not found. ` +
+      `Contract ${name} not found. ` +
       `Pick one of: ${Object.keys(contracts).join(", ")}`
     )
   }
 
   keypair = await keypair // eslint-disable-line no-param-reassign
-  const wallet = basicNodeSigner(keypair, networkPassphrase)
+  const wallet = contract.basicNodeSigner(keypair, networkPassphrase)
 
-  let wasmHash = contracts[contract].hash;
+  let wasmHash = contracts[name].hash;
   if (!wasmHash) {
-    wasmHash = spawnSync("./target/bin/soroban", ["contract", "install", "--wasm", contracts[contract].path], { shell: true, encoding: "utf8" }).stdout.trim()
+    wasmHash = spawnSync("./target/bin/soroban", ["contract", "install", "--wasm", contracts[name].path], { shell: true, encoding: "utf8" }).stdout.trim()
   }
 
   // TODO: do this with js-stellar-sdk, instead of shelling out to the CLI
@@ -74,7 +70,7 @@ async function clientFor(contract, { keypair = generateFundedKeypair(), contract
     wasmHash,
   ], { shell: true, encoding: "utf8" }).stdout.trim();
 
-  const client = await ContractClient.fromWasmHash(wasmHash, {
+  const client = await contract.Client.fromWasmHash(wasmHash, {
     networkPassphrase,
     contractId,
     rpcUrl,

@@ -1,5 +1,5 @@
 const { Account, Keypair, StrKey, Networks, xdr, hash } = StellarSdk;
-const { Server, AxiosClient } = StellarSdk.SorobanRpc;
+const { Server, AxiosClient } = StellarSdk.rpc;
 
 describe("Server#requestAirdrop", function () {
   function accountLedgerEntryData(accountId, sequence) {

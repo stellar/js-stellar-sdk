@@ -1,14 +1,7 @@
 const test = require('ava')
 const { spawnSync } = require('node:child_process')
-const { Address } = require('../../..')
 const { contracts, networkPassphrase, rpcUrl, friendbotUrl } = require('./util')
-const { ContractSpec } = require('../../..')
-const { Keypair } = require('../../..')
-
-const {
-  ContractClient,
-  basicNodeSigner,
-} = require('../../../lib/contract_client')
+const { Address, contract, Keypair } = require('../../..')
 
 async function generateFundedKeypair() {
   const keypair = Keypair.random()
@@ -17,7 +10,7 @@ async function generateFundedKeypair() {
 };
 
 /**
- * Generates a ContractClient for the contract with the given name.
+ * Generates a Client for the contract with the given name.
  * Also generates a new account to use as as the keypair of this contract. This
  * account is funded by friendbot. You can pass in an account to re-use the
  * same account with multiple contract clients.
@@ -25,21 +18,21 @@ async function generateFundedKeypair() {
  * By default, will re-deploy the contract every time. Pass in the same
  * `contractId` again if you want to re-use the a contract instance.
  */
-async function clientFromConstructor(contract, { keypair = generateFundedKeypair(), contractId } = {}) {
-  if (!contracts[contract]) {
+async function clientFromConstructor(name, { keypair = generateFundedKeypair(), contractId } = {}) {
+  if (!contracts[name]) {
     throw new Error(
-      `Contract ${contract} not found. ` +
+      `Contract ${name} not found. ` +
       `Pick one of: ${Object.keys(contracts).join(", ")}`
     )
   }
   keypair = await keypair // eslint-disable-line no-param-reassign
-  const wallet = basicNodeSigner(keypair, networkPassphrase)
+  const wallet = contract.basicNodeSigner(keypair, networkPassphrase)
 
-  const {path} = contracts[contract];
+  const {path} = contracts[name];
   const xdr = JSON.parse(spawnSync("./target/bin/soroban", ["contract", "inspect", "--wasm", path, "--output", "xdr-base64-array"], { shell: true, encoding: "utf8" }).stdout.trim())
 
-  const spec = new ContractSpec(xdr);
-  let wasmHash = contracts[contract].hash;
+  const spec = new contract.Spec(xdr);
+  let wasmHash = contracts[name].hash;
   if (!wasmHash) {
     wasmHash = spawnSync("./target/bin/soroban", ["contract", "install", "--wasm", path], { shell: true, encoding: "utf8" }).stdout.trim()
   }
@@ -54,7 +47,7 @@ async function clientFromConstructor(contract, { keypair = generateFundedKeypair
     wasmHash,
   ], { shell: true, encoding: "utf8" }).stdout.trim();
 
-  const client = new ContractClient(spec, {
+  const client = new contract.Client(spec, {
     networkPassphrase,
     contractId,
     rpcUrl,
@@ -70,11 +63,11 @@ async function clientFromConstructor(contract, { keypair = generateFundedKeypair
 }
 
 /**
- * Generates a ContractClient given the contractId using the from method.
+ * Generates a Client given the contractId using the from method.
  */
 async function clientForFromTest(contractId, publicKey, keypair) {
   keypair = await keypair; // eslint-disable-line no-param-reassign
-  const wallet = basicNodeSigner(keypair, networkPassphrase);
+  const wallet = contract.basicNodeSigner(keypair, networkPassphrase);
   const options = {
     networkPassphrase,
     contractId,
@@ -83,7 +76,7 @@ async function clientForFromTest(contractId, publicKey, keypair) {
     publicKey,
     ...wallet,
   };
-  return ContractClient.from(options);
+  return contract.Client.from(options);
 }
 
 test.before(async t => {

@@ -23,6 +23,21 @@
     "/lib",
     "/dist"
   ],
+  "exports": {
+    ".": {
+      "browser": "./dist/stellar-sdk.min.js",
+      "types": "./lib/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./contract": {
+      "types": "./lib/contract/index.d.ts",
+      "default": "./lib/contract/index.js"
+    },
+    "./rpc": {
+      "types": "./lib/rpc/index.d.ts",
+      "default": "./lib/rpc/index.js"
+    }
+  },
   "scripts": {
     "build": "cross-env NODE_ENV=development yarn _build",
     "build:prod": "cross-env NODE_ENV=production yarn _build",
@@ -109,8 +124,10 @@
     "dotenv": "^16.4.5",
     "eslint": "^8.57.0",
     "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-airbnb-typescript": "^18.0.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-jsdoc": "^48.2.4",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prefer-import": "^0.0.1",
     "eslint-plugin-prettier": "^5.1.2",

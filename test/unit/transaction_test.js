@@ -1,4 +1,4 @@
-const { xdr, SorobanRpc } = StellarSdk;
+const { xdr, rpc } = StellarSdk;
 
 describe("assembleTransaction", () => {
   xit("works with keybump transactions");
@@ -80,7 +80,7 @@ describe("assembleTransaction", () => {
 
     it("simulate updates the tx data from simulation response", () => {
       const txn = singleContractFnTransaction();
-      const result = SorobanRpc.assembleTransaction(
+      const result = rpc.assembleTransaction(
         txn,
         simulationResponse,
       ).build();
@@ -97,7 +97,7 @@ describe("assembleTransaction", () => {
 
     it("simulate adds the auth to the host function in tx operation", () => {
       const txn = singleContractFnTransaction();
-      const result = SorobanRpc.assembleTransaction(
+      const result = rpc.assembleTransaction(
         txn,
         simulationResponse,
       ).build();
@@ -141,7 +141,7 @@ describe("assembleTransaction", () => {
       const txn = singleContractFnTransaction();
       let simulateResp = JSON.parse(JSON.stringify(simulationResponse));
       simulateResp.results[0].auth = null;
-      const result = SorobanRpc.assembleTransaction(txn, simulateResp).build();
+      const result = rpc.assembleTransaction(txn, simulateResp).build();
 
       expect(
         result
@@ -170,7 +170,7 @@ describe("assembleTransaction", () => {
         .build();
 
       expect(() => {
-        SorobanRpc.assembleTransaction(txn, {
+        rpc.assembleTransaction(txn, {
           transactionData: {},
           events: [],
           minResourceFee: "0",
@@ -198,7 +198,7 @@ describe("assembleTransaction", () => {
           .addOperation(op)
           .build();
 
-        const tx = SorobanRpc.assembleTransaction(
+        const tx = rpc.assembleTransaction(
           txn,
           simulationResponse,
         ).build();
@@ -208,7 +208,7 @@ describe("assembleTransaction", () => {
 
     it("doesn't overwrite auth if it's present", function () {
       const txn = singleContractFnTransaction([fnAuth, fnAuth, fnAuth]);
-      const tx = SorobanRpc.assembleTransaction(
+      const tx = rpc.assembleTransaction(
         txn,
         simulationResponse,
       ).build();

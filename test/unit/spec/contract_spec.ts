@@ -1,4 +1,4 @@
-import { xdr, Address, ContractSpec, Keypair } from "../../../lib";
+import { xdr, Address, contract, Keypair } from "../../../lib";
 import { JSONSchemaFaker } from "json-schema-faker";
 
 import spec from "../spec.json";
@@ -6,7 +6,7 @@ import { expect } from "chai";
 
 const publicKey = "GCBVOLOM32I7OD5TWZQCIXCXML3TK56MDY7ZMTAILIBQHHKPCVU42XYW";
 const addr = Address.fromString(publicKey);
-let SPEC: ContractSpec;
+let SPEC: contract.Spec;
 
 JSONSchemaFaker.format("address", () => {
   let keypair = Keypair.random();
@@ -14,11 +14,11 @@ JSONSchemaFaker.format("address", () => {
 });
 
 before(() => {
-  SPEC = new ContractSpec(spec);
+  SPEC = new contract.Spec(spec);
 });
 
 it("throws if no entries", () => {
-  expect(() => new ContractSpec([])).to.throw(
+  expect(() => new contract.Spec([])).to.throw(
     /Contract spec must have at least one entry/i
   );
 });
@@ -36,7 +36,7 @@ describe("Can round trip custom types", function () {
   }
 
   async function jsonSchema_roundtrip(
-    spec: ContractSpec,
+    spec: contract.Spec,
     funcName: string,
     num: number = 100
   ) {
@@ -70,7 +70,7 @@ describe("Can round trip custom types", function () {
   }
 
   describe("Json Schema", () => {
-    SPEC = new ContractSpec(spec);
+    SPEC = new contract.Spec(spec);
     let names = SPEC.funcs().map((f) => f.name().toString());
     const banned = ["strukt_hel", "not", "woid", "val", "multi_args"];
     names
@@ -259,7 +259,7 @@ describe.skip("Print contract spec", function () {
 
 describe("parsing and building ScVals", function () {
   it("Can parse entries", function () {
-    let spec = new ContractSpec([GIGA_MAP, func]);
+    let spec = new contract.Spec([GIGA_MAP, func]);
     let fn = spec.findEntry("giga_map");
     let gigaMap = spec.findEntry("GigaMap");
     expect(gigaMap).deep.equal(GIGA_MAP);

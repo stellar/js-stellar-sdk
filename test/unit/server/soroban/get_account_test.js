@@ -1,5 +1,5 @@
 const { Account, Keypair, StrKey, hash, xdr } = StellarSdk;
-const { Server, AxiosClient } = StellarSdk.SorobanRpc;
+const { Server, AxiosClient } = StellarSdk.rpc;
 
 describe("Server#getAccount", function () {
   beforeEach(function () {

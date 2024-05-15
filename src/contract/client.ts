@@ -1,10 +1,11 @@
-import { ContractSpec, xdr } from "..";
-import { Server } from '../soroban';
+import { xdr } from "@stellar/stellar-base";
+import { Spec } from "./spec";
+import { Server } from '../rpc';
 import { AssembledTransaction } from "./assembled_transaction";
-import type { ContractClientOptions, MethodOptions } from "./types";
+import type { ClientOptions, MethodOptions } from "./types";
 import { processSpecEntryStream } from './utils';
 
-export class ContractClient {
+export class Client {
   /**
    * Generate a class from the contract spec that where each contract method
    * gets included with an identical name.
@@ -14,8 +15,10 @@ export class ContractClient {
    * transaction.
    */
   constructor(
-    public readonly spec: ContractSpec,
-    public readonly options: ContractClientOptions,
+    /** {@link Spec} to construct a Client for */
+    public readonly spec: Spec,
+    /** see {@link ClientOptions} */
+    public readonly options: ClientOptions,
   ) {
     this.spec.funcs().forEach((xdrFn) => {
       const method = xdrFn.name().toString();
@@ -33,7 +36,7 @@ export class ContractClient {
               ...acc,
               [curr.value()]: { message: curr.doc().toString() },
             }),
-            {} as Pick<ContractClientOptions, "errorTypes">,
+            {} as Pick<ClientOptions, "errorTypes">,
           ),
           parseResultXdr: (result: xdr.ScVal) =>
             spec.funcResToNative(method, result),
@@ -48,19 +51,19 @@ export class ContractClient {
   }
 
   /**
-   * Generates a ContractClient instance from the provided ContractClientOptions and the contract's wasm hash.
+   * Generates a Client instance from the provided ClientOptions and the contract's wasm hash.
    * The wasmHash can be provided in either hex or base64 format.
    * 
    * @param wasmHash The hash of the contract's wasm binary, in either hex or base64 format.
-   * @param options The ContractClientOptions object containing the necessary configuration, including the rpcUrl.
+   * @param options The ClientOptions object containing the necessary configuration, including the rpcUrl.
    * @param format The format of the provided wasmHash, either "hex" or "base64". Defaults to "hex".
-   * @returns A Promise that resolves to a ContractClient instance.
+   * @returns A Promise that resolves to a Client instance.
    * @throws {TypeError} If the provided options object does not contain an rpcUrl.
    */
-  static async fromWasmHash(wasmHash: Buffer | string, 
-    options: ContractClientOptions, 
+  static async fromWasmHash(wasmHash: Buffer | string,
+    options: ClientOptions,
     format: "hex" | "base64" = "hex"
-  ): Promise<ContractClient> {
+  ): Promise<Client> {
     if (!options || !options.rpcUrl) {
       throw new TypeError('options must contain rpcUrl');
     }
@@ -68,18 +71,18 @@ export class ContractClient {
     const serverOpts: Server.Options = { allowHttp };
     const server = new Server(rpcUrl, serverOpts);
     const wasm = await server.getContractWasmByHash(wasmHash, format);
-    return ContractClient.fromWasm(wasm, options);
+    return Client.fromWasm(wasm, options);
   }
 
   /**
-   * Generates a ContractClient instance from the provided ContractClientOptions and the contract's wasm binary.
+   * Generates a Client instance from the provided ClientOptions and the contract's wasm binary.
    * 
    * @param wasm The contract's wasm binary as a Buffer.
-   * @param options The ContractClientOptions object containing the necessary configuration.
-   * @returns A Promise that resolves to a ContractClient instance.
+   * @param options The ClientOptions object containing the necessary configuration.
+   * @returns A Promise that resolves to a Client instance.
    * @throws {Error} If the contract spec cannot be obtained from the provided wasm binary.
    */
-  static async fromWasm(wasm: Buffer, options: ContractClientOptions): Promise<ContractClient> {
+  static async fromWasm(wasm: Buffer, options: ClientOptions): Promise<Client> {
     const wasmModule = await WebAssembly.compile(wasm);
     const xdrSections = WebAssembly.Module.customSections(wasmModule, "contractspecv0");
     if (xdrSections.length === 0) {
@@ -87,18 +90,18 @@ export class ContractClient {
     }
     const bufferSection = Buffer.from(xdrSections[0]);
     const specEntryArray = processSpecEntryStream(bufferSection);
-    const spec = new ContractSpec(specEntryArray);
-    return new ContractClient(spec, options);
+    const spec = new Spec(specEntryArray);
+    return new Client(spec, options);
   }
 
   /**
-   * Generates a ContractClient instance from the provided ContractClientOptions, which must include the contractId and rpcUrl.
+   * Generates a Client instance from the provided ClientOptions, which must include the contractId and rpcUrl.
    * 
-   * @param options The ContractClientOptions object containing the necessary configuration, including the contractId and rpcUrl.
-   * @returns A Promise that resolves to a ContractClient instance.
+   * @param options The ClientOptions object containing the necessary configuration, including the contractId and rpcUrl.
+   * @returns A Promise that resolves to a Client instance.
    * @throws {TypeError} If the provided options object does not contain both rpcUrl and contractId.
    */
-  static async from(options: ContractClientOptions): Promise<ContractClient> {
+  static async from(options: ClientOptions): Promise<Client> {
     if (!options || !options.rpcUrl || !options.contractId) {
       throw new TypeError('options must contain rpcUrl and contractId');
     }
@@ -106,7 +109,7 @@ export class ContractClient {
     const serverOpts: Server.Options = { allowHttp };
     const server = new Server(rpcUrl, serverOpts);
     const wasm = await server.getContractWasmByContractId(contractId);
-    return ContractClient.fromWasm(wasm, options);
+    return Client.fromWasm(wasm, options);
   }
 
   txFromJSON = <T>(json: string): AssembledTransaction<T> => {
