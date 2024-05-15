@@ -35,18 +35,13 @@ import {
 +} from '@stellar/stellar-sdk/contract'
 ```
 
-- The `ContractSpec` class is now nested under the `contract` module, and has been renamed to `Spec`.
+- The `ContractSpec` class is now nested under the `contract` module, and has been **renamed** to `Spec` ([#962](https://github.com/stellar/js-stellar-sdk/pull/962)). Alternatively, you can import this from the `contract` entrypoint, if your version of Node [and TypeScript](https://stackoverflow.com/a/70020984/249801) support [the `exports` declaration](https://nodejs.org/api/packages.html#exports):
 
 ```diff
 -import { ContractSpec } from '@stellar/stellar-sdk'
 +import { contract } from '@stellar/stellar-sdk'
 +const { Spec } = contract
-```
-
-  Alternatively, you can import this from the `contract` entrypoint, if your version of Node [and TypeScript](https://stackoverflow.com/a/70020984/249801) support [the `exports` declaration](https://nodejs.org/api/packages.html#exports).
-
-```diff
--import { ContractSpec } from '@stellar/stellar-sdk'
+// OR
 +import { Spec } from '@stellar/stellar-sdk/contract'
 ```
 
@@ -54,7 +49,7 @@ import {
 
 ### Deprecated
 
-- `SorobanRpc` module is now also exported as `rpc`. You can import it with either name for now, but `SorobanRpc` will be removed in a future release:
+- `SorobanRpc` module is now also exported as `rpc` ([#962](https://github.com/stellar/js-stellar-sdk/pull/962)). You can import it with either name for now, but `SorobanRpc` will be removed in a future release:
 
 ```diff
 -import { SorobanRpc } from '@stellar/stellar-sdk'
@@ -70,11 +65,14 @@ import {
 ```
 
 ### Added
-* New methods on `ContractClient` ([#960](https://github.com/stellar/js-stellar-sdk/pull/960)):
-  - `from(opts: ContractClientOptions)` instantiates the `ContractClient` by fetching the `contractId`'s WASM from the network to fill out the client's `ContractSpec`.
-  - `fromWasm` and `fromWasmHash` methods to instantiate a `ContractClient` when you already have the WASM bytes or hash alongside the `ContractClientOptions`.
-* New methods on `SorobanRpc.Server` ([#960](https://github.com/stellar/js-stellar-sdk/pull/960)):
+* New methods on `contract.Client` ([#960](https://github.com/stellar/js-stellar-sdk/pull/960)):
+  - `from(opts: ContractClientOptions)` instantiates `contract.Client` by fetching the `contractId`'s WASM from the network to fill out the client's `ContractSpec`.
+  - `fromWasm` and `fromWasmHash` methods to instantiate a `contract.Client` when you already have the WASM bytes or hash alongside the `contract.ClientOptions`.
+* New methods on `rpc.Server` ([#960](https://github.com/stellar/js-stellar-sdk/pull/960)):
   - `getContractWasmByContractId` and `getContractWasmByHash` to retrieve a contract's WASM bytecode via its `contractId` or `wasmHash`, respectively.
+
+### Fixed
+* The breaking changes above (strictly speaking, they are not breaking changes because importing from the inner guts of the SDK is not supported) enable the `contract` module to be used in non-Node environments.
 
 
 ## [v12.0.0-rc.2](https://github.com/stellar/js-stellar-sdk/compare/v11.3.0...v12.0.0-rc.2)

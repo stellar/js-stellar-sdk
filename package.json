@@ -54,7 +54,7 @@
     "test:integration": "yarn _nyc mocha --recursive 'test/integration/**/*.js'",
     "test:browser": "karma start config/karma.conf.js",
     "fmt": "yarn eslint -c .eslintrc.js src/ --fix && yarn _prettier",
-    "preversion": "yarn clean && yarn fmt && yarn build:prod && yarn test",
+    "preversion": "yarn clean && yarn _prettier && yarn build:prod && yarn test",
     "prepare": "yarn build:prod",
     "_build": "yarn build:node && yarn build:test && yarn build:browser",
     "_babel": "babel --extensions '.ts' --out-dir lib/ src/",

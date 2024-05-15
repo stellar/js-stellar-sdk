@@ -13,10 +13,17 @@ describe("Server#getContractWasm", () => {
   });
 
   const contractId = "CCN57TGC6EXFCYIQJ4UCD2UDZ4C3AQCHVMK74DGZ3JYCA5HD4BY7FNPC";
-  const wasmHash = Buffer.from("kh1dFBiUKv/lXkcD+XnVTsbzi+Lps96lfWEk3rFWNnI=", "base64");
-  const wasmBuffer = Buffer.from("0061730120c0800010ab818080000b20002035503082000336232636439000", "hex");
+  const wasmHash = Buffer.from(
+    "kh1dFBiUKv/lXkcD+XnVTsbzi+Lps96lfWEk3rFWNnI=",
+    "base64",
+  );
+  const wasmBuffer = Buffer.from(
+    "0061730120c0800010ab818080000b20002035503082000336232636439000",
+    "hex",
+  );
   const contractCodeEntryExtension = xdr.ContractCodeEntryExt.fromXDR(
-    "AAAAAQAAAAAAAAAAAAAVqAAAAJwAAAADAAAAAwAAABgAAAABAAAAAQAAABEAAAAgAAABpA==", "base64"
+    "AAAAAQAAAAAAAAAAAAAVqAAAAJwAAAADAAAAAwAAABgAAAABAAAAAQAAABEAAAAgAAABpA==",
+    "base64",
   );
 
   const contract = new Contract(contractId);
@@ -29,7 +36,12 @@ describe("Server#getContractWasm", () => {
       contract: address.toScAddress(),
       durability: xdr.ContractDataDurability.persistent(),
       key: xdr.ScVal.scvLedgerKeyContractInstance(),
-      val: xdr.ScVal.scvContractInstance(new xdr.ScContractInstance({executable: xdr.ContractExecutable.contractExecutableWasm(wasmHash), storage: null}))
+      val: xdr.ScVal.scvContractInstance(
+        new xdr.ScContractInstance({
+          executable: xdr.ContractExecutable.contractExecutableWasm(wasmHash),
+          storage: null,
+        }),
+      ),
     }),
   );
   const ledgerKeyWasmHash = xdr.LedgerKey.contractData(
@@ -53,18 +65,17 @@ describe("Server#getContractWasm", () => {
     liveUntilLedgerSeq: 1000,
   };
 
-
   const wasmLedgerKey = xdr.LedgerKey.contractCode(
     new xdr.LedgerKeyContractCode({
-      hash: wasmHash
-    })
+      hash: wasmHash,
+    }),
   );
   const wasmLedgerCode = xdr.LedgerEntryData.contractCode(
     new xdr.ContractCodeEntry({
       ext: contractCodeEntryExtension,
       hash: wasmHash,
       code: wasmBuffer,
-    })
+    }),
   );
 
   const wasmLedgerTtlEntry = xdr.LedgerEntryData.ttl(
@@ -82,8 +93,6 @@ describe("Server#getContractWasm", () => {
   };
 
   it("retrieves WASM bytecode for a contract", function (done) {
-
-
     this.axiosMock
       .expects("post")
       .withArgs(serverUrl, {
@@ -99,7 +108,9 @@ describe("Server#getContractWasm", () => {
               latestLedger: 18039,
               entries: [
                 {
-                  liveUntilLedgerSeq: ledgerTtlEntryWasmHash.ttl().liveUntilLedgerSeq(),
+                  liveUntilLedgerSeq: ledgerTtlEntryWasmHash
+                    .ttl()
+                    .liveUntilLedgerSeq(),
                   lastModifiedLedgerSeq: wasmHashResult.lastModifiedLedgerSeq,
                   xdr: ledgerEntryWasmHash.toXDR("base64"),
                   key: contractLedgerKey.toXDR("base64"),
@@ -107,7 +118,7 @@ describe("Server#getContractWasm", () => {
               ],
             },
           },
-        })
+        }),
       );
 
     this.axiosMock
@@ -125,7 +136,9 @@ describe("Server#getContractWasm", () => {
               latestLedger: 18039,
               entries: [
                 {
-                  liveUntilLedgerSeq: wasmLedgerTtlEntry.ttl().liveUntilLedgerSeq(),
+                  liveUntilLedgerSeq: wasmLedgerTtlEntry
+                    .ttl()
+                    .liveUntilLedgerSeq(),
                   lastModifiedLedgerSeq: wasmResult.lastModifiedLedgerSeq,
                   key: wasmLedgerKey.toXDR("base64"),
                   xdr: wasmLedgerCode.toXDR("base64"),
@@ -133,7 +146,7 @@ describe("Server#getContractWasm", () => {
               ],
             },
           },
-        })
+        }),
       );
 
     this.server
@@ -186,7 +199,9 @@ describe("Server#getContractWasm", () => {
               latestLedger: 18039,
               entries: [
                 {
-                  liveUntilLedgerSeq: ledgerTtlEntryWasmHash.ttl().liveUntilLedgerSeq(),
+                  liveUntilLedgerSeq: ledgerTtlEntryWasmHash
+                    .ttl()
+                    .liveUntilLedgerSeq(),
                   lastModifiedLedgerSeq: wasmHashResult.lastModifiedLedgerSeq,
                   xdr: ledgerEntryWasmHash.toXDR("base64"),
                   key: contractLedgerKey.toXDR("base64"),
@@ -194,7 +209,7 @@ describe("Server#getContractWasm", () => {
               ],
             },
           },
-        })
+        }),
       );
 
     this.axiosMock
@@ -220,6 +235,4 @@ describe("Server#getContractWasm", () => {
         );
       });
   });
-
-
 });
