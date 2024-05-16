@@ -63,17 +63,17 @@ const config = {
     new ESLintPlugin({
       overrideConfigFile: path.resolve(__dirname, '../.eslintrc.js')
     }),
-    // Ignore native modules (sodium-native)
-    new webpack.IgnorePlugin({ resourceRegExp: /sodium-native/ }),
+    // Ignore native modules (sodium-native) and opt-in polyfills
+    new webpack.IgnorePlugin({ resourceRegExp: /(sodium-native|eventsource)/ }),
     new NodePolyfillPlugin({
       includeAliases: ['http', 'https'] // others aren't needed
     }),
     new webpack.ProvidePlugin({
       Buffer: ['buffer', 'Buffer']
-    })
+    }),
   ],
-  watchOptions: {
-    ignored: /(node_modules|coverage|lib|dist)/
+  externals: {
+    'eventsource': ['umd', 'EventSource'],
   }
 };
 

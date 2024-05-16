@@ -3,9 +3,7 @@
 
 A breaking change will get clearly marked in this log.
 
-
 ## Unreleased
-
 
 ## [v12.0.0-rc.3](https://github.com/stellar/js-stellar-sdk/compare/v11.3.0...v12.0.0-rc.3)
 

@@ -30,7 +30,9 @@ jobs:
         run: yarn install --network-concurrency 1
 
       - name: Build
-        run: yarn build:prod
+        run: |
+          yarn build:prod
+          yarn add --dev eventsource
 
       - name: Unit Tests
         run: yarn test:node

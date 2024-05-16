@@ -103,7 +103,7 @@
     "@stellar/tsconfig": "^1.0.2",
     "@types/chai": "^4.3.14",
     "@types/detect-node": "^2.0.0",
-    "@types/eventsource": "^1.1.12",
+    "@types/eventsource": "^1.1.15",
     "@types/json-schema": "^7.0.15",
     "@types/lodash": "^4.17.0",
     "@types/mocha": "^10.0.2",
@@ -131,6 +131,7 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prefer-import": "^0.0.1",
     "eslint-plugin-prettier": "^5.1.2",
+    "eventsource": "^2.0.2",
     "eslint-webpack-plugin": "^4.1.0",
     "ghooks": "^2.0.4",
     "husky": "^9.0.11",
@@ -166,11 +167,11 @@
     "axios": "1.6.4",
     "konfig-axios-fetch-adapter": "^1.6.4",
     "bignumber.js": "^9.1.2",
-    "eventsource": "^2.0.2",
     "randombytes": "^2.1.0",
     "toml": "^3.0.0",
     "urijs": "^1.19.1"
   },
+  "packageManager": "yarn@1.22.21",
   "ava": {
     "files": [
       "./test/e2e/src/test-*"
