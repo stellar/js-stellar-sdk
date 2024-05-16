@@ -163,7 +163,8 @@
   },
   "dependencies": {
     "@stellar/stellar-base": "^12.0.0-rc.1",
-    "axios": "^1.6.8",
+    "axios": "1.6.4",
+    "konfig-axios-fetch-adapter": "^1.6.4",
     "bignumber.js": "^9.1.2",
     "eventsource": "^2.0.2",
     "randombytes": "^2.1.0",

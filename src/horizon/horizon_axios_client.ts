@@ -1,4 +1,5 @@
 import axios, { AxiosResponse } from "axios";
+import fetchAdapter from "konfig-axios-fetch-adapter";
 import URI from "urijs";
 
 /* tslint:disable-next-line:no-var-requires */
@@ -24,6 +25,7 @@ export interface ServerTime {
 export const SERVER_TIME_MAP: Record<string, ServerTime> = {};
 
 export const AxiosClient = axios.create({
+  adapter: fetchAdapter,
   headers: {
     "X-Client-Name": "js-stellar-sdk",
     "X-Client-Version": version,
