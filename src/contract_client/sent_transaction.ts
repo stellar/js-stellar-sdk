@@ -16,6 +16,8 @@ import { AssembledTransaction } from "./assembled_transaction";
  *    {@link MethodOptions.timeoutInSeconds} seconds. See all attempts in
  *    `getTransactionResponseAll` and the most recent attempt in
  *    `getTransactionResponse`.
+ *
+ * @memberof ContractClient
  */
 export class SentTransaction<T> {
   public server: SorobanRpc.Server;

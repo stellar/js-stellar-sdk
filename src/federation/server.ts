@@ -8,44 +8,41 @@ import { Resolver } from "../stellartoml";
 
 import { Api } from "./api";
 
+/** @module Federation */
+
 /**
  * The maximum size of response from a federation server
  * @constant {number}
- * @memberof FederationServer
  */
 export const FEDERATION_RESPONSE_MAX_SIZE = 100 * 1024;
 
 /**
- * FederationServer handles a network connection to a
+ * Server handles a network connection to a
  * [federation server](https://developers.stellar.org/docs/glossary/federation/)
  * instance and exposes an interface for requests to that instance.
  * @constructor
+ * @memberof module:Federation
  * @param {string} serverURL The federation server URL (ex. `https://acme.com/federation`).
  * @param {string} domain Domain this server represents
- * @param {object} [opts] options object
- * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments! You can also use {@link Config} class to set this globally.
- * @param {number} [opts.timeout] - Allow a timeout, default: 0. Allows user to avoid nasty lag due to TOML resolve issue. You can also use {@link Config} class to set this globally.
+ * @param {module:Federation.Api.Options} [opts] options object
  * @returns {void}
  */
-export class FederationServer {
+export class Server {
   /**
    * The federation server URL (ex. `https://acme.com/federation`).
    *
-   * @memberof FederationServer
    */
   private readonly serverURL: URI; // TODO: public or private? readonly?
   /**
    * Domain this server represents.
    *
    * @type {string}
-   * @memberof FederationServer
    */
   private readonly domain: string; // TODO: public or private? readonly?
   /**
    * Allow a timeout, default: 0. Allows user to avoid nasty lag due to TOML resolve issue.
    *
    * @type {number}
-   * @memberof FederationServer
    */
   private readonly timeout: number; // TODO: public or private? readonly?
 
@@ -75,13 +72,8 @@ export class FederationServer {
    * @see <a href="https://developers.stellar.org/docs/glossary/federation/" target="_blank">Federation doc</a>
    * @see <a href="https://developers.stellar.org/docs/issuing-assets/publishing-asset-info/" target="_blank">Stellar.toml doc</a>
    * @param {string} value Stellar Address (ex. `bob*stellar.org`)
-   * @param {object} [opts] Options object
-   * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments!
-   * @param {number} [opts.timeout] - Allow a timeout, default: 0. Allows user to avoid nasty lag due to TOML resolve issue.
-   * @returns {Promise} `Promise` that resolves to a JSON object with this shape:
-   * * `account_id` - Account ID of the destination,
-   * * `memo_type` (optional) - Memo type that needs to be attached to a transaction,
-   * * `memo` (optional) - Memo value that needs to be attached to a transaction.
+   * @param {module:Federation.Api.Options} [opts] Options object
+   * @returns {Promise<module:Federation.Api.Record>} A promise that resolves to the federation record
    */
   public static async resolve(
     value: string,
@@ -101,7 +93,7 @@ export class FederationServer {
     if (addressParts.length !== 2 || !domain) {
       return Promise.reject(new Error("Invalid Stellar address"));
     }
-    const federationServer = await FederationServer.createForDomain(
+    const federationServer = await Server.createForDomain(
       domain,
       opts,
     );
@@ -126,22 +118,20 @@ export class FederationServer {
    * ```
    * @see <a href="https://developers.stellar.org/docs/issuing-assets/publishing-asset-info/" target="_blank">Stellar.toml doc</a>
    * @param {string} domain Domain to get federation server for
-   * @param {object} [opts] Options object
-   * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments!
-   * @param {number} [opts.timeout] - Allow a timeout, default: 0. Allows user to avoid nasty lag due to TOML resolve issue.
-   * @returns {Promise} `Promise` that resolves to a FederationServer object
+   * @param {module:Federation.Api.Options} [opts] Options object
+   * @returns {Promise<module:Federation.Api.Record>} A promise that resolves to the federation record
    */
   public static async createForDomain(
     domain: string,
     opts: Api.Options = {},
-  ): Promise<FederationServer> {
+  ): Promise<Server> {
     const tomlObject = await Resolver.resolve(domain, opts);
     if (!tomlObject.FEDERATION_SERVER) {
       return Promise.reject(
         new Error("stellar.toml does not contain FEDERATION_SERVER field"),
       );
     }
-    return new FederationServer(tomlObject.FEDERATION_SERVER, domain, opts);
+    return new Server(tomlObject.FEDERATION_SERVER, domain, opts);
   }
 
   public constructor(
@@ -170,7 +160,7 @@ export class FederationServer {
    * Get the federation record if the user was found for a given Stellar address
    * @see <a href="https://developers.stellar.org/docs/glossary/federation/" target="_blank">Federation doc</a>
    * @param {string} address Stellar address (ex. `bob*stellar.org`). If `FederationServer` was instantiated with `domain` param only username (ex. `bob`) can be passed.
-   * @returns {Promise} Promise that resolves to the federation record
+   * @returns {Promise<module:Federation.Api.Record>} A promise that resolves to the federation record
    */
   public async resolveAddress(
     address: string,
@@ -194,7 +184,7 @@ export class FederationServer {
    * Given an account ID, get their federation record if the user was found
    * @see <a href="https://developers.stellar.org/docs/glossary/federation/" target="_blank">Federation doc</a>
    * @param {string} accountId Account ID (ex. `GBYNR2QJXLBCBTRN44MRORCMI4YO7FZPFBCNOKTOBCAAFC7KC3LNPRYS`)
-   * @returns {Promise} A promise that resolves to the federation record
+   * @returns {Promise<module:Federation.Api.Record>} A promise that resolves to the federation record
    */
   public async resolveAccountId(
     accountId: string,
@@ -207,7 +197,7 @@ export class FederationServer {
    * Given a transactionId, get the federation record if the sender of the transaction was found
    * @see <a href="https://developers.stellar.org/docs/glossary/federation/" target="_blank">Federation doc</a>
    * @param {string} transactionId Transaction ID (ex. `3389e9f0f1a65f19736cacf544c2e825313e8447f569233bb8db39aa607c8889`)
-   * @returns {Promise} A promise that resolves to the federation record
+   * @returns {Promise<module:Federation.Api.Record>} A promise that resolves to the federation record
    */
   public async resolveTransactionId(
     transactionId: string,
