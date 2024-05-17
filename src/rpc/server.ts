@@ -26,14 +26,14 @@ import {
 /**
  * Default transaction submission timeout for RPC requests (60 seconds)
  * @constant {number}
- * @memberof module:SorobanRpc.Server
+ * @memberof module:rpc.Server
  */
 export const SUBMIT_TRANSACTION_TIMEOUT = 60 * 1000;
 
 /**
  * Specifies the durability namespace of contract-related ledger entries.
  * @enum {('temporary' | 'persistent')}
- * @memberof module:SorobanRpc
+ * @memberof module:rpc
  *
  * @see {@link https://developers.stellar.org/docs/learn/smart-contract-internals/state-archival|State Archival docs}
  * @see {@link https://docs.rs/soroban-sdk/latest/soroban_sdk/storage/struct.Storage.html|Rust SDK Storage docs}
@@ -69,7 +69,7 @@ export namespace Server {
  * interface for requests to that instance.
  *
  * @constructor
- * @memberof module:SorobanRpc
+ * @memberof module:rpc
  *
  * @param {string} serverURL Soroban-RPC Server URL (ex.
  *    `http://localhost:8000/soroban/rpc`).
