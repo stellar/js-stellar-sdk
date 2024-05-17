@@ -28,8 +28,6 @@ export interface Error<E = any> {
 
 /**
  * Sends the jsonrpc 'params' as a single 'param' object (no array support).
- * @memberof SorobanRpc.Server
- * @private
  *
  * @param {string} url URL to the RPC instance
  * @param {string} method RPC method name that should be called

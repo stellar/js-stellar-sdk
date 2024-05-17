@@ -3,7 +3,7 @@ import { Api } from './api';
 
 /**
  * Parse the response from invoking the `submitTransaction` method of a Soroban RPC server.
- * @memberof SorobanRpc
+ * @memberof module:SorobanRpc
  *
  * @param {Api.RawSendTransactionResponse} raw the raw `submitTransaction` response from the Soroban RPC server to parse
  * @returns {Api.SendTransactionResponse} transaction response parsed from the Soroban RPC server's response
@@ -35,7 +35,7 @@ export function parseRawSendTransaction(
 
 /**
  * Parse and return the retrieved events, if any, from a raw response from a Soroban RPC server.
- * @memberof SorobanRpc
+ * @memberof module:SorobanRpc
  *
  * @param {Api.RawGetEventsResponse} raw the raw `getEvents` response from the Soroban RPC server to parse
  * @returns {Api.GetEventsResponse} events parsed from the Soroban RPC server's response
@@ -62,7 +62,7 @@ export function parseRawEvents(
 
 /**
  * Parse and return the retrieved ledger entries, if any, from a raw response from a Soroban RPC server.
- * @memberof SorobanRpc
+ * @memberof module:SorobanRpc
  *
  * @param {Api.RawGetLedgerEntriesResponse} raw he raw `getLedgerEntries` response from the Soroban RPC server to parse
  * @returns {Api.GetLedgerEntriesResponse} ledger entries parsed from the Soroban RPC server's response
@@ -94,7 +94,7 @@ export function parseRawLedgerEntries(
 /**
  * Converts a raw response schema into one with parsed XDR fields and a simplified interface.
  * @warning This API is only exported for testing purposes and should not be relied on or considered "stable".
- * @memberof SorobanRpc
+ * @memberof module:SorobanRpc
  *
  * @param {Api.SimulateTransactionResponse | Api.RawSimulateTransactionResponse} sim the raw response schema (parsed ones are allowed, best-effort
  *    detected, and returned untouched)
@@ -133,7 +133,7 @@ export function parseRawSimulation(
 
 /**
  * Parse whether or not the transaction simulation was successful, returning the relevant response.
- * @memberof SorobanRpc
+ * @memberof module:SorobanRpc
  * @private
  *
  * @param {Api.RawSimulateTransactionResponse} sim a raw response from the `simulateTransaction` method of the Soroban RPC server to parse

@@ -19,7 +19,7 @@ import { parseRawSimulation } from './parsers';
  * @param {Api.SimulateTransactionResponse|Api.RawSimulateTransactionResponse} simulation the Soroban RPC simulation result (see {@link SorobanRpc.Server#simulateTransaction})
  * @returns {TransactionBuilder} a new, cloned transaction with the proper auth and resource (fee, footprint) simulation data applied
  *
- * @memberof SorobanRpc
+ * @memberof module:SorobanRpc
  * @see {@link SorobanRpc.Server#simulateTransaction}
  * @see {@link SorobanRpc.Server#prepareTransaction}
  */

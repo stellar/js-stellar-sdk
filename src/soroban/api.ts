@@ -1,9 +1,6 @@
 import { AssetType, Contract, SorobanDataBuilder, xdr } from '@stellar/stellar-base';
 
 /* tslint:disable-next-line:no-namespace */
-/**
- * @memberof SorobanRpc
- */
 export namespace Api {
   export interface Balance {
     asset_type: AssetType.credit4 | AssetType.credit12;
