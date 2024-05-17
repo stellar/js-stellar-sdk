@@ -34,6 +34,7 @@ import { SentTransaction } from "./sent_transaction";
 /**
  * An impossible account on the Stellar network
  * @constant {string}
+ * @default GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF
  * @memberof module:contract
  */
 export const NULL_ACCOUNT =

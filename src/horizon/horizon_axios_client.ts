@@ -23,6 +23,7 @@ export interface ServerTime {
  * }
  *
  * @constant {Record.<string, ServerTime>}
+ * @default {}
  * @memberof module:Horizon
  */
 export const SERVER_TIME_MAP: Record<string, ServerTime> = {};

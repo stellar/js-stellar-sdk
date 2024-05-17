@@ -13,6 +13,7 @@ import { Api } from "./api";
 /**
  * The maximum size of response from a federation server
  * @constant {number}
+ * @default 102400
  */
 export const FEDERATION_RESPONSE_MAX_SIZE = 100 * 1024;
 

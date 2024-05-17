@@ -2,8 +2,9 @@ import { xdr, cereal } from "@stellar/stellar-base";
 import type { AssembledTransaction } from "./assembled_transaction";
 
 /**
- * The default timeout for waiting for a transaction to be included in a block.
+ * The default timebounds, in seconds, during which a transaction will be valid.
  * @constant {number}
+ * @default 300
  * @memberof module:contract.Client
  */
 export const DEFAULT_TIMEOUT = 5 * 60;
@@ -87,6 +88,7 @@ export async function withExponentialBackoff<T>(
  * {@link AssembledTransaction} parse these errors.
  *
  * @constant {RegExp}
+ * @default "/Error\(Contract, #(\d+)\)/"
  * @memberof module:contract.Client
  */
 export const contractErrorPattern = /Error\(Contract, #(\d+)\)/;

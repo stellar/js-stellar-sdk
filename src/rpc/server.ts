@@ -24,8 +24,9 @@ import {
 } from './parsers';
 
 /**
- * Default transaction submission timeout for RPC requests (60 seconds)
+ * Default transaction submission timeout for RPC requests, in milliseconds
  * @constant {number}
+ * @default 60000
  * @memberof module:rpc.Server
  */
 export const SUBMIT_TRANSACTION_TIMEOUT = 60 * 1000;
