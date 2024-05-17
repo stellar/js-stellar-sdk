@@ -33,6 +33,7 @@ export interface Error<E = any> {
  * @param {string} method RPC method name that should be called
  * @param {(any | null)} [param=null] params that should be supplied to the method
  * @returns {Promise<T>}
+ * @private
  */
 export async function postObject<T>(
   url: string,
