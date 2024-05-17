@@ -21,7 +21,11 @@ import type { AssembledTransaction } from "./assembled_transaction";
  *    `getTransactionResponseAll` and the most recent attempt in
  *    `getTransactionResponse`.
  *
- * @memberof ContractClient
+ * @memberof module:contract
+ * @constructor
+ *
+ * @param {function} signTransaction More info in {@link MethodOptions}
+ * @param {module:contract.AssembledTransaction<T>} assembled {@link AssembledTransaction} from which this SentTransaction was initialized
  */
 export class SentTransaction<T> {
   public server: Server;
@@ -63,6 +67,10 @@ export class SentTransaction<T> {
         "You must provide a `signTransaction` function to send a transaction",
       );
     }
+    /**
+     * An RPC server that will be used to send this transaction to the network.
+     * @type {module:rpc.Server}
+     */
     this.server = new Server(this.assembled.options.rpcUrl, {
       allowHttp: this.assembled.options.allowHttp ?? false,
     });
@@ -74,9 +82,7 @@ export class SentTransaction<T> {
    * network.
    */
   static init = async <U>(
-    /** More info in {@link MethodOptions} */
     signTransaction: ClientOptions["signTransaction"],
-    /** {@link AssembledTransaction} from which this SentTransaction was initialized */
     assembled: AssembledTransaction<U>,
   ): Promise<SentTransaction<U>> => {
     const tx = new SentTransaction(signTransaction, assembled);
@@ -105,6 +111,10 @@ export class SentTransaction<T> {
       },
     );
 
+    /**
+     * The transaction, signed by the necessary keypair(s), ready for submission to the network.
+     * @type {Types.Tx}
+     */
     this.signed = TransactionBuilder.fromXDR(
       signature,
       this.assembled.options.networkPassphrase,

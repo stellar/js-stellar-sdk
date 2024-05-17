@@ -4,7 +4,7 @@ import type { AssembledTransaction } from "./assembled_transaction";
 /**
  * The default timeout for waiting for a transaction to be included in a block.
  * @constant {number}
- * @memberof ContractClient
+ * @memberof module:contract.Client
  */
 export const DEFAULT_TIMEOUT = 5 * 60;
 
@@ -86,7 +86,7 @@ export async function withExponentialBackoff<T>(
  * {@link AssembledTransaction} parse these errors.
  *
  * @constant {RegExp}
- * @memberof ContractClient
+ * @memberof module:contract.Client
  */
 export const contractErrorPattern = /Error\(Contract, #(\d+)\)/;
 

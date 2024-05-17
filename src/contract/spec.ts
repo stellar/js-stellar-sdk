@@ -27,6 +27,11 @@ function readObj(args: object, input: xdr.ScSpecFunctionInputV0): any {
  * Provides a ContractSpec class which can contains the XDR types defined by the contract.
  * This allows the class to be used to convert between native and raw `xdr.ScVal`s.
  *
+ * @memberof module:contract
+ * @constructor
+ * @param {xdr.ScSpecEntry[] | string[]} entries the XDR spec entries
+ * @throws {Error} if entries is invalid
+ *
  * @example
  * const specEntries = [...]; // XDR spec entries of a smart contract
  * const contractSpec = new ContractSpec(specEntries);
@@ -51,10 +56,6 @@ export class Spec {
 
   /**
    * Constructs a new ContractSpec from an array of XDR spec entries.
-   *
-   * @param {xdr.ScSpecEntry[] | string[]} entries the XDR spec entries
-   *
-   * @throws {Error} if entries is invalid
    */
   constructor(entries: xdr.ScSpecEntry[] | string[]) {
     if (entries.length == 0) {
