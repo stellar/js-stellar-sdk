@@ -1,5 +1,5 @@
-const { nativeToScVal, SorobanRpc } = StellarSdk;
-const { Server, AxiosClient } = StellarSdk.SorobanRpc;
+const { nativeToScVal, rpc } = StellarSdk;
+const { Server, AxiosClient } = StellarSdk.rpc;
 
 describe("Server#getEvents", function () {
   beforeEach(function () {
@@ -225,7 +225,7 @@ function setupMock(axiosMock, params, result) {
 }
 
 function parseEvents(result) {
-  return SorobanRpc.parseRawEvents(result);
+  return rpc.parseRawEvents(result);
 }
 
 const contractId = "CA3D5KRYM6CB7OWQ6TWYRR3Z4T7GNZLKERYNZGGA5SOAOPIFY6YQGAXE";
@@ -246,7 +246,7 @@ let getEventsResponseFixture = [
     inSuccessfulContractCall: true,
     topic: topicVals.slice(0, 2),
     value: eventVal,
-    txHash: "d7d09af2ca4f2929ee701cf86d05e4ca5f849a726d0db344785a8f9894e79e6c"
+    txHash: "d7d09af2ca4f2929ee701cf86d05e4ca5f849a726d0db344785a8f9894e79e6c",
   },
   {
     type: "contract",
@@ -258,7 +258,7 @@ let getEventsResponseFixture = [
     inSuccessfulContractCall: true,
     topic: topicVals.slice(0, 2),
     value: eventVal,
-    txHash: "d7d09af2ca4f2929ee701cf86d05e4ca5f849a726d0db344785a8f9894e79e6c"
+    txHash: "d7d09af2ca4f2929ee701cf86d05e4ca5f849a726d0db344785a8f9894e79e6c",
   },
   {
     type: "diagnostic",
@@ -270,7 +270,7 @@ let getEventsResponseFixture = [
     inSuccessfulContractCall: true,
     topic: [topicVals[0]],
     value: eventVal,
-    txHash: "d7d09af2ca4f2929ee701cf86d05e4ca5f849a726d0db344785a8f9894e79e6c"
+    txHash: "d7d09af2ca4f2929ee701cf86d05e4ca5f849a726d0db344785a8f9894e79e6c",
   },
   {
     type: "contract",
@@ -282,6 +282,6 @@ let getEventsResponseFixture = [
     inSuccessfulContractCall: true,
     topic: topicVals,
     value: eventVal,
-    txHash: "d7d09af2ca4f2929ee701cf86d05e4ca5f849a726d0db344785a8f9894e79e6c"
+    txHash: "d7d09af2ca4f2929ee701cf86d05e4ca5f849a726d0db344785a8f9894e79e6c",
   },
 ];

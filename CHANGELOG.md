@@ -7,6 +7,74 @@ A breaking change will get clearly marked in this log.
 ## Unreleased
 
 
+## [v12.0.0-rc.3](https://github.com/stellar/js-stellar-sdk/compare/v11.3.0...v12.0.0-rc.3)
+
+### Breaking Changes
+
+- `ContractClient` functionality previously added in [v11.3.0](https://github.com/stellar/js-stellar-sdk/releases/tag/v11.3.0) was exported in a non-standard way. You can now import it as any other `stellar-sdk` module ([#962](https://github.com/stellar/js-stellar-sdk/pull/962)):
+
+```diff
+-import { ContractClient } from '@stellar/stellar-sdk/lib/contract_client'
++import { contract } from '@stellar/stellar-sdk'
++const { Client } = contract
+```
+
+  Note that this top-level `contract` export is a container for ContractClient and related functionality. The `ContractClient` class is now available at `contract.Client`, as shown. Further note that there is a capitalized `Contract` export as well, which comes [from stellar-base](https://github.com/stellar/js-stellar-base/blob/b96281b9b3f94af23a913f93bdb62477f5434ccc/src/contract.js#L6-L19). You can remember which is which because capital-C `Contract` is a class, whereas lowercase-c `contract` is a container/module with a bunch of classes, functions, and types.
+
+  Additionally, this is available from the `/contract` entrypoint, if your version of Node [and TypeScript](https://stackoverflow.com/a/70020984/249801) support [the `exports` declaration](https://nodejs.org/api/packages.html#exports). Finally, some of its exports have been renamed:
+
+```diff
+import {
+-  ContractClient,
++  Client,
+   AssembledTransaction,
+-  ContractClientOptions,
++  ClientOptions,
+   SentTransaction,
+-} from '@stellar/stellar-sdk/lib/contract_client'
++} from '@stellar/stellar-sdk/contract'
+```
+
+- The `ContractSpec` class is now nested under the `contract` module, and has been **renamed** to `Spec` ([#962](https://github.com/stellar/js-stellar-sdk/pull/962)). Alternatively, you can import this from the `contract` entrypoint, if your version of Node [and TypeScript](https://stackoverflow.com/a/70020984/249801) support [the `exports` declaration](https://nodejs.org/api/packages.html#exports):
+
+```diff
+-import { ContractSpec } from '@stellar/stellar-sdk'
++import { contract } from '@stellar/stellar-sdk'
++const { Spec } = contract
+// OR
++import { Spec } from '@stellar/stellar-sdk/contract'
+```
+
+- Previously, `AssembledTransaction.signAndSend()` would return a `SentTransaction` even if the transaction never finalized. That is, if it successfully sent the transaction to the network, but the transaction was still `status: 'PENDING'`, then it would `console.error` an error message, but return the indeterminate transaction anyhow. **It now throws** a `SentTransaction.Errors.TransactionStillPending` error with that error message instead ([#962](https://github.com/stellar/js-stellar-sdk/pull/962)).
+
+### Deprecated
+
+- `SorobanRpc` module is now also exported as `rpc` ([#962](https://github.com/stellar/js-stellar-sdk/pull/962)). You can import it with either name for now, but `SorobanRpc` will be removed in a future release:
+
+```diff
+-import { SorobanRpc } from '@stellar/stellar-sdk'
++import { rpc } from '@stellar/stellar-sdk'
+```
+
+  You can also now import it at the `/rpc` entrypoint, if your version of Node [and TypeScript](https://stackoverflow.com/a/70020984/249801) support [the `exports` declaration](https://nodejs.org/api/packages.html#exports).
+
+```diff
+-import { SorobanRpc } from '@stellar/stellar-sdk'
+-const { Api } = SorobanRpc
++import { Api } from '@stellar/stellar-sdk/rpc'
+```
+
+### Added
+* New methods on `contract.Client` ([#960](https://github.com/stellar/js-stellar-sdk/pull/960)):
+  - `from(opts: ContractClientOptions)` instantiates `contract.Client` by fetching the `contractId`'s WASM from the network to fill out the client's `ContractSpec`.
+  - `fromWasm` and `fromWasmHash` methods to instantiate a `contract.Client` when you already have the WASM bytes or hash alongside the `contract.ClientOptions`.
+* New methods on `rpc.Server` ([#960](https://github.com/stellar/js-stellar-sdk/pull/960)):
+  - `getContractWasmByContractId` and `getContractWasmByHash` to retrieve a contract's WASM bytecode via its `contractId` or `wasmHash`, respectively.
+
+### Fixed
+* The breaking changes above (strictly speaking, they are not breaking changes because importing from the inner guts of the SDK is not supported) enable the `contract` module to be used in non-Node environments.
+
+
 ## [v12.0.0-rc.2](https://github.com/stellar/js-stellar-sdk/compare/v11.3.0...v12.0.0-rc.2)
 
 **This update supports Protocol 21**. It is an additive change to the protocol so there are no true backwards incompatibilities, but your software may break if you encounter new unexpected fields from this Protocol ([#949](https://github.com/stellar/js-stellar-sdk/pull/949)).

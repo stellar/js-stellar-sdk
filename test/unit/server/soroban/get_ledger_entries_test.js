@@ -1,5 +1,5 @@
 const { xdr, nativeToScVal, Durability, hash } = StellarSdk;
-const { Server, AxiosClient } = StellarSdk.SorobanRpc;
+const { Server, AxiosClient } = StellarSdk.rpc;
 
 describe("Server#getLedgerEntries", function () {
   const address = "CCJZ5DGASBWQXR5MPFCJXMBI333XE5U3FSJTNQU7RIKE3P5GN2K2WYD5";
@@ -44,7 +44,7 @@ describe("Server#getLedgerEntries", function () {
         jsonrpc: "2.0",
         id: 1,
         method: "getLedgerEntries",
-        params: {keys: requests},
+        params: { keys: requests },
       })
       .returns(
         Promise.resolve({

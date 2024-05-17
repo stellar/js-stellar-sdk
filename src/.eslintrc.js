@@ -1,6 +1,13 @@
 module.exports = {
-  env: {
-    es6: true,
+  extends: [
+    "airbnb-base",
+    "airbnb-typescript/base",
+    "prettier",
+    "plugin:jsdoc/recommended",
+  ],
+  parserOptions: {
+    parser: "@typescript-eslint/parser",
+    project: "./config/tsconfig.json",
   },
   rules: {
     // OFF
@@ -10,6 +17,8 @@ module.exports = {
     camelcase: 0,
     "class-methods-use-this": 0,
     "linebreak-style": 0,
+    "jsdoc/require-returns": 0,
+    "jsdoc/require-param": 0,
     "new-cap": 0,
     "no-param-reassign": 0,
     "no-underscore-dangle": 0,
@@ -18,19 +27,12 @@ module.exports = {
     "lines-between-class-members": 0,
 
     // WARN
-    "prefer-import/prefer-import-over-require": [1],
+    "arrow-body-style": 1,
     "no-console": ["warn", { allow: ["assert"] }],
     "no-debugger": 1,
-    "no-unused-vars": 1,
-    "arrow-body-style": 1,
-    "valid-jsdoc": [
-      1,
-      {
-        requireReturnDescription: false,
-      },
-    ],
-    "prefer-const": 1,
     "object-shorthand": 1,
+    "prefer-const": 1,
+    "prefer-import/prefer-import-over-require": [1],
     "require-await": 1,
 
     // ERROR

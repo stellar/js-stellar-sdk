@@ -1,5 +1,5 @@
 const { Account, Keypair, StrKey, hash, xdr } = StellarSdk;
-const { Server, AxiosClient } = StellarSdk.SorobanRpc;
+const { Server, AxiosClient } = StellarSdk.rpc;
 
 describe("Server#getAccount", function () {
   beforeEach(function () {
@@ -25,7 +25,7 @@ describe("Server#getAccount", function () {
         jsonrpc: "2.0",
         id: 1,
         method: "getLedgerEntries",
-        params: { keys: [ key.toXDR("base64") ] },
+        params: { keys: [key.toXDR("base64")] },
       })
       .returns(
         Promise.resolve({
@@ -62,7 +62,7 @@ describe("Server#getAccount", function () {
         jsonrpc: "2.0",
         id: 1,
         method: "getLedgerEntries",
-        params: { keys: [ key.toXDR("base64") ] },
+        params: { keys: [key.toXDR("base64")] },
       })
       .returns(
         Promise.resolve({

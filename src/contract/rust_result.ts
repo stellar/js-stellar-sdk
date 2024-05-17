@@ -1,3 +1,6 @@
+/* disable max-classes rule, because extending error shouldn't count! */
+/* eslint max-classes-per-file: 0 */
+
 /**
  * A minimal implementation of Rust's `Result` type. Used for contract
  * methods that return Results, to maintain their distinction from methods
@@ -53,10 +56,22 @@ export interface ErrorMessage {
  */
 export class Ok<T> implements Result<T, never> {
   constructor(readonly value: T) {}
-  unwrapErr(): never { throw new Error("No error") }
-  unwrap() { return this.value }
-  isOk() { return true }
-  isErr() { return false }
+
+  unwrapErr(): never {
+    throw new Error("No error");
+  }
+
+  unwrap() {
+    return this.value;
+  }
+
+  isOk() {
+    return true;
+  }
+
+  isErr() {
+    return false;
+  }
 }
 
 /**
@@ -67,8 +82,20 @@ export class Ok<T> implements Result<T, never> {
  */
 export class Err<E extends ErrorMessage> implements Result<never, E> {
   constructor(readonly error: E) {}
-  unwrapErr() { return this.error }
-  unwrap(): never { throw new Error(this.error.message) }
-  isOk() { return false }
-  isErr() { return true }
+
+  unwrapErr() {
+    return this.error;
+  }
+
+  unwrap(): never {
+    throw new Error(this.error.message);
+  }
+
+  isOk() {
+    return false;
+  }
+
+  isErr() {
+    return true;
+  }
 }
