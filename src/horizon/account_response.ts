@@ -15,7 +15,7 @@ import { ServerApi } from "./server_api";
  * @param {string} response Response from horizon account endpoint.
  * @returns {AccountResponse} AccountResponse instance
  */
-export class AccountResponse {
+export class AccountResponse implements Omit<ServerApi.AccountRecord, `_${string}`> {
   public readonly id!: string;
   public readonly paging_token!: string;
   public readonly account_id!: string;
@@ -27,6 +27,8 @@ export class AccountResponse {
   public readonly inflation_destination?: string;
   public readonly last_modified_ledger!: number;
   public readonly last_modified_time!: string;
+  public readonly num_sponsored: number;
+  public readonly num_sponsoring: number;
   public readonly thresholds!: HorizonApi.AccountThresholds;
   public readonly flags!: HorizonApi.Flags;
   public readonly balances!: HorizonApi.BalanceLine[];
@@ -47,9 +49,11 @@ export class AccountResponse {
   public readonly payments!: ServerApi.CallCollectionFunction<
     ServerApi.PaymentOperationRecord
   >;
+  public readonly sponsor?: string;
   public readonly trades!: ServerApi.CallCollectionFunction<
     ServerApi.TradeRecord
   >;
+
   private readonly _baseAccount: BaseAccount;
 
   constructor(response: ServerApi.AccountRecord) {
