@@ -142,7 +142,7 @@ function parseSuccessful(
     }),
 
     stateChanges: sim.stateChanges?.length ?? 0 > 0
-        ? sim.stateChanges.map((entryChange) => {
+        ? sim.stateChanges?.map((entryChange) => {
           return {
             type: entryChange.type,
             key: xdr.LedgerKey.fromXDR(entryChange.key, 'base64'),
