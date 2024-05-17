@@ -1,5 +1,4 @@
 import { Keypair, TransactionBuilder, hash } from "@stellar/stellar-base";
-import type { AssembledTransaction } from "./assembled_transaction";
 import type { Client } from "./client";
 
 /**
