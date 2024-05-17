@@ -6,6 +6,10 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+Added:
+
+- Add stateChanges in SimulateTransaction API response ([#963](https://github.com/stellar/js-stellar-sdk/pull/963))
+
 
 ## [v12.0.0](https://github.com/stellar/js-stellar-sdk/compare/v11.3.0...v12.0.0)
 
