@@ -83,9 +83,9 @@ export class AccountRequiresMemoError extends Error {
 
   /**
    * Create an AccountRequiresMemoError
-   * @param {message} message - error message
-   * @param {string} accountId - The account which requires a memo.
-   * @param {number} operationIndex - The index of the operation where `accountId` is the destination.
+   * @param {string} message error message
+   * @param {string} accountId The account which requires a memo.
+   * @param {number} operationIndex The index of the operation where `accountId` is the destination.
    */
   constructor(message: string, accountId: string, operationIndex: number) {
     const trueProto = new.target.prototype;
