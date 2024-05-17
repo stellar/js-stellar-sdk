@@ -6,7 +6,7 @@ const {
   nativeToScVal,
   XdrLargeInt,
 } = StellarSdk;
-const { Server, AxiosClient } = StellarSdk.SorobanRpc;
+const { Server, AxiosClient } = StellarSdk.rpc;
 
 describe("Server#getTransaction", function () {
   let keypair = Keypair.random();

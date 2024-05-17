@@ -11,16 +11,96 @@ Added:
 - Add stateChanges in SimulateTransaction API response ([#963](https://github.com/stellar/js-stellar-sdk/pull/963))
 
 
-## [v12.0.0](https://github.com/stellar/js-stellar-sdk/compare/v11.3.0...v12.0.0)
+## [v12.0.0-rc.3](https://github.com/stellar/js-stellar-sdk/compare/v11.3.0...v12.0.0-rc.3)
 
 ### Breaking Changes
-* **This update supports Protocol 21** ([#949](https://github.com/stellar/js-stellar-sdk/pull/949)).
+
+- `ContractClient` functionality previously added in [v11.3.0](https://github.com/stellar/js-stellar-sdk/releases/tag/v11.3.0) was exported in a non-standard way. You can now import it as any other `stellar-sdk` module ([#962](https://github.com/stellar/js-stellar-sdk/pull/962)):
+
+```diff
+-import { ContractClient } from '@stellar/stellar-sdk/lib/contract_client'
++import { contract } from '@stellar/stellar-sdk'
++const { Client } = contract
+```
+
+  Note that this top-level `contract` export is a container for ContractClient and related functionality. The `ContractClient` class is now available at `contract.Client`, as shown. Further note that there is a capitalized `Contract` export as well, which comes [from stellar-base](https://github.com/stellar/js-stellar-base/blob/b96281b9b3f94af23a913f93bdb62477f5434ccc/src/contract.js#L6-L19). You can remember which is which because capital-C `Contract` is a class, whereas lowercase-c `contract` is a container/module with a bunch of classes, functions, and types.
+
+  Additionally, this is available from the `/contract` entrypoint, if your version of Node [and TypeScript](https://stackoverflow.com/a/70020984/249801) support [the `exports` declaration](https://nodejs.org/api/packages.html#exports). Finally, some of its exports have been renamed:
+
+```diff
+import {
+-  ContractClient,
++  Client,
+   AssembledTransaction,
+-  ContractClientOptions,
++  ClientOptions,
+   SentTransaction,
+-} from '@stellar/stellar-sdk/lib/contract_client'
++} from '@stellar/stellar-sdk/contract'
+```
+
+- The `ContractSpec` class is now nested under the `contract` module, and has been **renamed** to `Spec` ([#962](https://github.com/stellar/js-stellar-sdk/pull/962)). Alternatively, you can import this from the `contract` entrypoint, if your version of Node [and TypeScript](https://stackoverflow.com/a/70020984/249801) support [the `exports` declaration](https://nodejs.org/api/packages.html#exports):
+
+```diff
+-import { ContractSpec } from '@stellar/stellar-sdk'
++import { contract } from '@stellar/stellar-sdk'
++const { Spec } = contract
+// OR
++import { Spec } from '@stellar/stellar-sdk/contract'
+```
+
+- Previously, `AssembledTransaction.signAndSend()` would return a `SentTransaction` even if the transaction never finalized. That is, if it successfully sent the transaction to the network, but the transaction was still `status: 'PENDING'`, then it would `console.error` an error message, but return the indeterminate transaction anyhow. **It now throws** a `SentTransaction.Errors.TransactionStillPending` error with that error message instead ([#962](https://github.com/stellar/js-stellar-sdk/pull/962)).
+
+### Deprecated
+
+- `SorobanRpc` module is now also exported as `rpc` ([#962](https://github.com/stellar/js-stellar-sdk/pull/962)). You can import it with either name for now, but `SorobanRpc` will be removed in a future release:
+
+```diff
+-import { SorobanRpc } from '@stellar/stellar-sdk'
++import { rpc } from '@stellar/stellar-sdk'
+```
+
+  You can also now import it at the `/rpc` entrypoint, if your version of Node [and TypeScript](https://stackoverflow.com/a/70020984/249801) support [the `exports` declaration](https://nodejs.org/api/packages.html#exports).
+
+```diff
+-import { SorobanRpc } from '@stellar/stellar-sdk'
+-const { Api } = SorobanRpc
++import { Api } from '@stellar/stellar-sdk/rpc'
+```
+
+### Added
+* New methods on `contract.Client` ([#960](https://github.com/stellar/js-stellar-sdk/pull/960)):
+  - `from(opts: ContractClientOptions)` instantiates `contract.Client` by fetching the `contractId`'s WASM from the network to fill out the client's `ContractSpec`.
+  - `fromWasm` and `fromWasmHash` methods to instantiate a `contract.Client` when you already have the WASM bytes or hash alongside the `contract.ClientOptions`.
+* New methods on `rpc.Server` ([#960](https://github.com/stellar/js-stellar-sdk/pull/960)):
+  - `getContractWasmByContractId` and `getContractWasmByHash` to retrieve a contract's WASM bytecode via its `contractId` or `wasmHash`, respectively.
+
+### Fixed
+* The breaking changes above (strictly speaking, they are not breaking changes because importing from the inner guts of the SDK is not supported) enable the `contract` module to be used in non-Node environments.
+
+
+## [v12.0.0-rc.2](https://github.com/stellar/js-stellar-sdk/compare/v11.3.0...v12.0.0-rc.2)
+
+**This update supports Protocol 21**. It is an additive change to the protocol so there are no true backwards incompatibilities, but your software may break if you encounter new unexpected fields from this Protocol ([#949](https://github.com/stellar/js-stellar-sdk/pull/949)).
+
+### Breaking Changes
+* The **default timeout for transaction calls is now set to 300 seconds (5 minutes)** from the previous default of 10 seconds. 10 seconds is often not enough time to review transactions before signing, especially in Freighter or using a hardware wallet like a Ledger, which would cause a `txTooLate` error response from the server. Five minutes is also the value used by the CLI, so this brings the two into alignment ([#956](https://github.com/stellar/js-stellar-sdk/pull/956)).
+
+### Fixed
+* Dependencies have been properly updated to pull in Protocol 21 XDR ([#959](https://github.com/stellar/js-stellar-sdk/pull/959)).
+
+
+## [v12.0.0-rc.1](https://github.com/stellar/js-stellar-sdk/compare/v11.3.0...v12.0.0-rc.1)
+
+### Breaking Changes
+* **This update supports Protocol 21**. It is an additive change to the protocol so there are no true backwards incompatibilities, but your software may break if you encounter new unexpected fields from this Protocol ([#949](https://github.com/stellar/js-stellar-sdk/pull/949)).
 
 ### Fixed
 * Each item in the `GetEventsResponse.events` list will now have a `txHash` item corresponding to the transaction hash that triggered a particular event ([#939](https://github.com/stellar/js-stellar-sdk/pull/939)).
 * `ContractClient` now properly handles methods that take no arguments by making `MethodOptions` the only parameter, bringing it inline with the types generated by Soroban CLI's `soroban contract bindings typescript` ([#940](https://github.com/stellar/js-stellar-sdk/pull/940)).
 * `ContractClient` now allows `publicKey` to be undefined ([#941](https://github.com/stellar/js-stellar-sdk/pull/941)).
-
+* `SentTransaction` will only pass `allowHttp` if (and only if) its corresponding `AssembledTransaction#options` config allowed it ([#952](https://github.com/stellar/js-stellar-sdk/pull/952)).
+* `SentTransaction` will now modify the time bounds of the transaction to be `timeoutInSeconds` seconds after the transaction has been simulated. Previously this was set when the transaction is built, before the simulation. This makes the time bounds line up with the timeout retry logic in `SentTransaction`.
 
 ## [v11.3.0](https://github.com/stellar/js-stellar-sdk/compare/v11.2.2...v11.3.0)
 

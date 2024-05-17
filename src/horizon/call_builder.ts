@@ -99,7 +99,7 @@ export class CallBuilder<
     // in the last 15 seconds. The timeout is reset when a new message arrive.
     // It prevents closing EventSource object in case of 504 errors as `readyState`
     // property is not reliable.
-    let timeout: NodeJS.Timeout;
+    let timeout: ReturnType<typeof setTimeout>;
 
     const createTimeout = () => {
       timeout = setTimeout(() => {

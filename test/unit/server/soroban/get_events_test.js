@@ -1,5 +1,5 @@
-const { nativeToScVal, SorobanRpc } = StellarSdk;
-const { Server, AxiosClient } = StellarSdk.SorobanRpc;
+const { nativeToScVal, rpc } = StellarSdk;
+const { Server, AxiosClient } = StellarSdk.rpc;
 
 describe("Server#getEvents", function () {
   beforeEach(function () {
@@ -225,7 +225,7 @@ function setupMock(axiosMock, params, result) {
 }
 
 function parseEvents(result) {
-  return SorobanRpc.parseRawEvents(result);
+  return rpc.parseRawEvents(result);
 }
 
 const contractId = "CA3D5KRYM6CB7OWQ6TWYRR3Z4T7GNZLKERYNZGGA5SOAOPIFY6YQGAXE";

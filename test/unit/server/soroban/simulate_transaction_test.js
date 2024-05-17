@@ -2,13 +2,13 @@ const {
   Account,
   Keypair,
   Networks,
-  SorobanRpc,
+  rpc,
   SorobanDataBuilder,
   authorizeInvocation,
   authorizeEntry,
   xdr,
 } = StellarSdk;
-const { Server, AxiosClient, parseRawSimulation } = StellarSdk.SorobanRpc;
+const { Server, AxiosClient, parseRawSimulation } = StellarSdk.rpc;
 
 const randomSecret = Keypair.random().secret();
 
@@ -150,7 +150,7 @@ describe("Server#simulateTransaction", async function (done) {
 
     const parsed = parseRawSimulation(simResponse);
     expect(parsed).to.deep.equal(parsedCopy);
-    expect(SorobanRpc.Api.isSimulationSuccess(parsed)).to.be.true;
+    expect(rpc.Api.isSimulationSuccess(parsed)).to.be.true;
   });
 
   it("works with no auth", async function () {
@@ -162,7 +162,7 @@ describe("Server#simulateTransaction", async function (done) {
       const parsed = parseRawSimulation(simResponse);
 
       expect(parsed).to.be.deep.equal(parsedCopy);
-      expect(SorobanRpc.Api.isSimulationSuccess(parsed)).to.be.true;
+      expect(rpc.Api.isSimulationSuccess(parsed)).to.be.true;
     });
   });
 
@@ -176,7 +176,7 @@ describe("Server#simulateTransaction", async function (done) {
         };
 
         const parsed = parseRawSimulation(simResponse);
-        expect(SorobanRpc.Api.isSimulationRestore(parsed)).to.be.true;
+        expect(rpc.Api.isSimulationRestore(parsed)).to.be.true;
         expect(parsed).to.be.deep.equal(expected);
       },
     );
@@ -244,7 +244,7 @@ describe("Server#simulateTransaction", async function (done) {
 
     const parsed = parseRawSimulation(simResponse);
     expect(parsed).to.be.deep.equal(expected);
-    expect(SorobanRpc.Api.isSimulationError(parsed)).to.be.true;
+    expect(rpc.Api.isSimulationError(parsed)).to.be.true;
   });
 
   xit("simulates fee bump transactions");
@@ -426,7 +426,7 @@ describe("works with real responses", function () {
   };
 
   it("parses the schema", function () {
-    expect(SorobanRpc.Api.isSimulationRaw(schema)).to.be.true;
+    expect(rpc.Api.isSimulationRaw(schema)).to.be.true;
 
     const parsed = parseRawSimulation(schema);
 

@@ -236,6 +236,93 @@ export class Server {
   }
 
   /**
+   * Retrieves the WASM bytecode for a given contract.
+   *
+   * This method allows you to fetch the WASM bytecode associated with a contract
+   * deployed on the Soroban network. The WASM bytecode represents the executable
+   * code of the contract.
+   *
+   * @param {string} contractId    the contract ID containing the
+   *    WASM bytecode to retrieve
+   *
+   * @returns {Promise<Buffer>}   a Buffer containing the WASM bytecode
+   *
+   * @throws {Error} If the contract or its associated WASM bytecode cannot be
+   *    found on the network.
+   *
+   * @example
+   * const contractId = "CCJZ5DGASBWQXR5MPFCJXMBI333XE5U3FSJTNQU7RIKE3P5GN2K2WYD5";
+   * server.getContractWasmByContractId(contractId).then(wasmBuffer => {
+   *   console.log("WASM bytecode length:", wasmBuffer.length);
+   *   // ... do something with the WASM bytecode ...
+   * }).catch(err => {
+   *   console.error("Error fetching WASM bytecode:", err);
+   * });
+   */
+  public async getContractWasmByContractId(
+    contractId: string
+  ): Promise<Buffer> {
+    const contractLedgerKey = new Contract(contractId).getFootprint();
+    const response = await this.getLedgerEntries(contractLedgerKey);
+    if (!response.entries.length || !response.entries[0]?.val) {
+      return Promise.reject({code: 404, message: `Could not obtain contract hash from server`});
+    }
+
+    const wasmHash = response.entries[0].val
+      .contractData()
+      .val()
+      .instance()
+      .executable()
+      .wasmHash();
+
+    return this.getContractWasmByHash(wasmHash);
+  }
+
+  /**
+   * Retrieves the WASM bytecode for a given contract hash.
+   *
+   * This method allows you to fetch the WASM bytecode associated with a contract
+   * deployed on the Soroban network using the contract's WASM hash. The WASM bytecode
+   * represents the executable code of the contract.
+   *
+   * @param {Buffer} wasmHash    the WASM hash of the contract
+   *
+   * @returns {Promise<Buffer>}   a Buffer containing the WASM bytecode
+   *
+   * @throws {Error} If the contract or its associated WASM bytecode cannot be
+   *    found on the network.
+   *
+   * @example
+   * const wasmHash = Buffer.from("...");
+   * server.getContractWasmByHash(wasmHash).then(wasmBuffer => {
+   *   console.log("WASM bytecode length:", wasmBuffer.length);
+   *   // ... do something with the WASM bytecode ...
+   * }).catch(err => {
+   *   console.error("Error fetching WASM bytecode:", err);
+   * });
+   */
+  public async getContractWasmByHash(
+    wasmHash: Buffer | string,
+    format: undefined | "hex" | "base64" = undefined
+  ): Promise<Buffer> {
+    const wasmHashBuffer = typeof wasmHash === "string" ? Buffer.from(wasmHash, format) : wasmHash as Buffer;
+
+    const ledgerKeyWasmHash = xdr.LedgerKey.contractCode(
+      new xdr.LedgerKeyContractCode({
+        hash: wasmHashBuffer,
+      })
+    );
+
+    const responseWasm = await this.getLedgerEntries(ledgerKeyWasmHash);
+    if (!responseWasm.entries.length || !responseWasm.entries[0]?.val) {
+      return Promise.reject({ code: 404, message: "Could not obtain contract wasm from server" });
+    }
+    const wasmBuffer = responseWasm.entries[0].val.contractCode().code();
+
+    return wasmBuffer;
+  }
+
+  /**
    * Reads the current value of arbitrary ledger entries directly.
    *
    * Allows you to directly inspect the current state of contracts, contract's
