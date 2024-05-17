@@ -18,8 +18,13 @@ import { ServerApi } from "./server_api";
  * used to determine if there a given path can satisfy a payment of the desired amount.
  *
  * Do not create this object directly, use {@link Horizon.Server#paths}.
+ *
  * @see {@link https://developers.stellar.org/network/horizon/api-reference/aggregations/paths|Find Payment Paths}
+ *
  * @extends CallBuilder
+ * @private
+ * @constructor
+ *
  * @param {string} serverUrl Horizon server URL.
  * @param {string} source The sender's account ID. Any returned path must use a source that the sender can hold.
  * @param {string} destination The destination account ID that any returned path should use.

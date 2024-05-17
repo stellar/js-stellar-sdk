@@ -27,9 +27,11 @@ let EventSource: Constructable<EventSource> = anyGlobal.EventSource ??
 /**
  * Creates a new {@link CallBuilder} pointed to server defined by serverUrl.
  *
- * This is an **abstract** class. Do not create this object directly, use {@link Horizon.Server} class.
+ * This is an **abstract** class. Do not create this object directly, use {@link module:Horizon.Server | Horizon.Server} class.
  *
+ * @private
  * @constructor
+ *
  * @param {string} serverUrl URL of Horizon server
  */
 export class CallBuilder<

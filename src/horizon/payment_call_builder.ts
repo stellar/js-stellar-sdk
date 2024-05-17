@@ -5,9 +5,13 @@ import { ServerApi } from "./server_api";
  * Creates a new {@link PaymentCallBuilder} pointed to server defined by serverUrl.
  *
  * Do not create this object directly, use {@link Horizon.Server#payments}.
+ *
  * @see {@link https://developers.stellar.org/network/horizon/api-reference/horizon/resources/list-all-payments/|All Payments}
- * @constructor
+ *
  * @extends CallBuilder
+ * @private
+ * @constructor
+ *
  * @param {string} serverUrl Horizon server URL.
  */
 export class PaymentCallBuilder extends CallBuilder<

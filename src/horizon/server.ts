@@ -45,7 +45,7 @@ import AxiosClient, {
 /**
  * Default transaction submission timeout for Horizon requests (60 seconds)
  * @constant {number}
- * @memberof Horizon.Server
+ * @memberof module:Horizon~Server
  */
 export const SUBMIT_TRANSACTION_TIMEOUT = 60 * 1000;
 
@@ -62,15 +62,10 @@ function _getAmountInLumens(amt: BigNumber) {
 /**
  * Server handles the network connection to a [Horizon](https://developers.stellar.org/network/horizon)
  * instance and exposes an interface for requests to that instance.
- * @constructor
- * @memberof Horizon
+ * @memberof module:Horizon
  *
  * @param {string} serverURL Horizon Server URL (ex. `https://horizon-testnet.stellar.org`).
- * @param {object} [opts] Options object
- * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments! You can also use {@link Config} class to set this globally.
- * @param {string} [opts.appName] - Allow set custom header `X-App-Name`, default: `undefined`.
- * @param {string} [opts.appVersion] - Allow set custom header `X-App-Version`, default: `undefined`.
- * @param {string} [opts.authToken] - Allow set custom header `X-Auth-Token`, default: `undefined`.
+ * @param {Options} [opts] Options object
  */
 export class Server {
   /**
@@ -821,6 +816,16 @@ export class Server {
     }
   }
 }
+
+/**
+ * Options for configuring connections to Horizon servers.
+ * @typedef {Object} Options
+ * @memberof module:Horizon.Server
+ * @property {boolean} [allowHttp] Allow connecting to http servers, default: `false`. This must be set to false in production deployments! You can also use {@link Config} class to set this globally.
+ * @property {string} [appName] Allow set custom header `X-App-Name`, default: `undefined`.
+ * @property {string} [appVersion] Allow set custom header `X-App-Version`, default: `undefined`.
+ * @property {string} [authToken] Allow set custom header `X-Auth-Token`, default: `undefined`.
+ */
 
 export namespace Server {
   export interface Options {

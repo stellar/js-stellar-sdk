@@ -1,4 +1,4 @@
-/** @namespace Horizon */
+/** @module Horizon */
 
 // Expose all types
 export * from "./horizon_api";

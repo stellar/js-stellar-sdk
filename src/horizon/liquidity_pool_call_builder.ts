@@ -9,6 +9,7 @@ import { ServerApi } from "./server_api";
  * Do not create this object directly, use {@link Horizon.Server#liquidityPools}.
  *
  * @extends CallBuilder
+ * @private
  * @constructor
  * @param {string} serverUrl Horizon server URL.
  */

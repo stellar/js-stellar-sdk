@@ -10,6 +10,7 @@ import { ServerApi } from "./server_api";
  * @see {@link https://developers.stellar.org/network/horizon/api-reference/resources/list-all-accounts|All Accounts}
  *
  * @extends CallBuilder
+ * @private
  * @constructor
  * @param {string} serverUrl Horizon server URL.
  */

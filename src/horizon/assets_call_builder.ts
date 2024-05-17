@@ -8,6 +8,7 @@ import { ServerApi } from "./server_api";
  *
  * @constructor
  * @extends CallBuilder
+ * @private
  * @param {string} serverUrl Horizon server URL.
  */
 export class AssetsCallBuilder extends CallBuilder<
