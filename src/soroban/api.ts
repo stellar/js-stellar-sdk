@@ -3,13 +3,6 @@ import { AssetType, Contract, SorobanDataBuilder, xdr } from '@stellar/stellar-b
 /* tslint:disable-next-line:no-namespace */
 /** @namespace Api */
 export namespace Api {
-  export interface Balance {
-    asset_type: AssetType.credit4 | AssetType.credit12;
-    asset_code: string;
-    asset_issuer: string;
-    classic: string;
-    smart: string;
-  }
 
   export interface Cost {
     cpuInsns: string;
@@ -175,21 +168,21 @@ export namespace Api {
     value: string;
   }
 
-  interface RawLedgerEntryChange {
+  export interface RawLedgerEntryChange {
     type: number;
-    // This is LedgerKey in base64
+    /** This is LedgerKey in base64 */
     key: string;
-    // these are xdr.LedgerEntry in base64
-    before?: string;
-    // these are xdr.LedgerEntry in base64
-    after?: string;
+    /** This is xdr.LedgerEntry in base64 */
+    before: string | null;
+    /** This is xdr.LedgerEntry in base64 */
+    after: string | null;
   }
 
-  interface LedgerEntryChange{
+  export interface LedgerEntryChange{
     type: number;
     key: xdr.LedgerKey;
-    before?: xdr.LedgerEntry;
-    after?: xdr.LedgerEntry;
+    before: xdr.LedgerEntry | null;
+    after: xdr.LedgerEntry | null;
   }
 
   export type SendTransactionStatus =
@@ -278,7 +271,7 @@ export namespace Api {
     /** present only for invocation simulation */
     result?: SimulateHostFunctionResult;
 
-    // State Difference information
+    /** State Difference information */
     stateChanges?: LedgerEntryChange[];
   }
 
@@ -349,22 +342,23 @@ export namespace Api {
     id: string;
     latestLedger: number;
     error?: string;
-    // this is an xdr.SorobanTransactionData in base64
+    /** This is an xdr.SorobanTransactionData in base64 */
     transactionData?: string;
-    // these are xdr.DiagnosticEvents in base64
+    /** These are xdr.DiagnosticEvents in base64 */
     events?: string[];
     minResourceFee?: string;
-    // This will only contain a single element if present, because only a single
-    // invokeHostFunctionOperation is supported per transaction.
+    /** This will only contain a single element if present, because only a single
+     * invokeHostFunctionOperation is supported per transaction.
+     * */
     results?: RawSimulateHostFunctionResult[];
     cost?: Cost;
-    // present if succeeded but has expired ledger entries
+    /** Present if succeeded but has expired ledger entries */
     restorePreamble?: {
       minResourceFee: string;
       transactionData: string;
     };
 
-    // State Difference information
+    /** State Difference information */
     stateChanges?: RawLedgerEntryChange[];
   }
 }

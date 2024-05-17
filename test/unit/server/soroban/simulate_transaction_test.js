@@ -34,15 +34,17 @@ describe("Server#simulateTransaction", async function (done) {
     cost: simulationResponse.cost,
     stateChanges: [
       {
-        type: 1,
-        key: "example-key",
+        type: 2,
+        key: "example-key-2",
         before: new xdr.LedgerEntry({
           lastModifiedLedgerSeq: 0,
-          ext: new xdr.LedgerEntryExt(0),
+          data: new xdr.LedgerEntryData(),
+          ext: new xdr.LedgerEntryExt(),
         }),
         after: new xdr.LedgerEntry({
           lastModifiedLedgerSeq: 0,
-          ext: new xdr.LedgerEntryExt(0),
+          data: new xdr.LedgerEntryData(),
+          ext: new xdr.LedgerEntryExt(),
         }),
       },
     ],
@@ -180,6 +182,53 @@ describe("Server#simulateTransaction", async function (done) {
     );
   });
 
+  it("works with state changes", async function () {
+    return invokeSimulationResponseWithStateChanges(address).then(
+        (simResponse) => {
+          const expected = cloneSimulation(parsedSimulationResponse);
+          expected.stateChanges = [
+            {
+              type: 2,
+              key: "example-key-2",
+              before: new xdr.LedgerEntry({
+                lastModifiedLedgerSeq: 0,
+                data: new xdr.LedgerEntryData(),
+                ext: new xdr.LedgerEntryExt(),
+              }),
+              after: new xdr.LedgerEntry({
+                lastModifiedLedgerSeq: 0,
+                data: new xdr.LedgerEntryData(),
+                ext: new xdr.LedgerEntryExt(),
+              }),
+            },
+            {
+              type: 1,
+              key: "example-key-1",
+              before: null,
+              after: new xdr.LedgerEntry({
+                lastModifiedLedgerSeq: 0,
+                data: new xdr.LedgerEntryData(),
+                ext: new xdr.LedgerEntryExt(),
+              }),
+            },
+            {
+              type: 3,
+              key: "example-key-3",
+              before: new xdr.LedgerEntry({
+                lastModifiedLedgerSeq: 0,
+                data: new xdr.LedgerEntryData(),
+                ext: new xdr.LedgerEntryExt(),
+              }),
+              after: null,
+            },
+          ]
+
+          const parsed = parseRawSimulation(simResponse);
+          expect(parsed).to.be.deep.equal(expected);
+        },
+    );
+  });
+
   it("works with errors", function () {
     let simResponse = simulationResponseError();
 
@@ -280,17 +329,19 @@ function baseSimulationResponse(results) {
     },
     stateChanges: [
       {
-        type: 1,
-        key: "example-key",
+        type: 2,
+        key: "example-key-2",
         before: new xdr.LedgerEntry({
           lastModifiedLedgerSeq: 0,
-          ext: new xdr.LedgerEntryExt(0),
+          data: new xdr.LedgerEntryData(),
+          ext: new xdr.LedgerEntryExt(),
         }).toXDR("base64"),
         after: new xdr.LedgerEntry({
           lastModifiedLedgerSeq: 0,
-          ext: new xdr.LedgerEntryExt(0),
+          data: new xdr.LedgerEntryData(),
+          ext: new xdr.LedgerEntryExt(),
         }).toXDR("base64"),
-      },
+      }
     ],
   };
 }
@@ -304,6 +355,49 @@ async function invokeSimulationResponseWithRestoration(address) {
     },
   };
 }
+
+async function invokeSimulationResponseWithStateChanges(address) {
+  return {
+    ...(await invokeSimulationResponse(address)),
+    stateChanges: [
+      {
+        type: 2,
+        key: "example-key-2",
+        before: new xdr.LedgerEntry({
+          lastModifiedLedgerSeq: 0,
+          data: new xdr.LedgerEntryData(),
+          ext: new xdr.LedgerEntryExt(),
+        }).toXDR("base64"),
+        after: new xdr.LedgerEntry({
+          lastModifiedLedgerSeq: 0,
+          data: new xdr.LedgerEntryData(),
+          ext: new xdr.LedgerEntryExt(),
+        }).toXDR("base64"),
+      },
+      {
+        type: 1,
+        key: "example-key-1",
+        before: null,
+        after: new xdr.LedgerEntry({
+          lastModifiedLedgerSeq: 0,
+          data: new xdr.LedgerEntryData(),
+          ext: new xdr.LedgerEntryExt(),
+        }).toXDR("base64"),
+      },
+      {
+        type: 3,
+        key: "example-key-3",
+        before: new xdr.LedgerEntry({
+          lastModifiedLedgerSeq: 0,
+          data: new xdr.LedgerEntryData(),
+          ext: new xdr.LedgerEntryExt(),
+        }).toXDR("base64"),
+        after: null,
+      },
+    ],
+  };
+}
+
 
 describe("works with real responses", function () {
   const schema = {
