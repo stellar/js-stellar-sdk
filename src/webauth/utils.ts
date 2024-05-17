@@ -17,14 +17,13 @@ import { Utils } from "../utils";
 import { InvalidChallengeError } from "./errors";
 import { ServerApi } from "../horizon/server_api";
 
-/** @namespace WebAuth */
+/** @module WebAuth */
 
 /**
  * Returns a valid [SEP-10](https://stellar.org/protocol/sep-10) challenge
  * transaction which you can use for Stellar Web Authentication.
  *
  * @function
- * @memberof WebAuth
  *
  * @param {Keypair} serverKeypair Keypair for server's signing account.
  * @param {string} clientAccountID The stellar account (G...) or muxed account
@@ -148,7 +147,6 @@ export function buildChallengeTx(
  * - {@link verifyChallengeTxSigners}
  *
  * @function
- * @memberof WebAuth
  *
  * @param {string} challengeTx SEP0010 challenge transaction in base64.
  * @param {string} serverAccountID The server's stellar account (public key).
@@ -371,7 +369,6 @@ export function readChallengeTx(
  *  - The signatures are all valid but do not meet the threshold.
  *
  * @function
- * @memberof WebAuth
  *
  * @param {string} challengeTx SEP0010 challenge transaction in base64.
  * @param {string} serverAccountID The server's stellar account (public key).
@@ -498,7 +495,6 @@ export function verifyChallengeTxThreshold(
  *    server account or one of the signers provided in the arguments.
  *
  * @function
- * @memberof WebAuth
  *
  * @param {string} challengeTx SEP0010 challenge transaction in base64.
  * @param {string} serverAccountID The server's stellar account (public key).
@@ -687,7 +683,6 @@ export function verifyChallengeTxSigners(
  * Verifies if a transaction was signed by the given account id.
  *
  * @function
- * @memberof WebAuth
  * @param {Transaction} transaction
  * @param {string} accountID
  * @returns {boolean}.
@@ -716,7 +711,6 @@ export function verifyTxSignedBy(
  * given transaction.
  *
  * @function
- * @memberof WebAuth
  * @param {Transaction} transaction the signed transaction.
  * @param {string[]} signers The signers public keys.
  * @returns {string[]} a list of signers that were found to have signed the
