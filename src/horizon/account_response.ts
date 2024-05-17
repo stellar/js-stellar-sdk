@@ -12,6 +12,7 @@ import { ServerApi } from "./server_api";
  * It also contains {@link Account} object and exposes it's methods so can be used in {@link TransactionBuilder}.
  *
  * @memberof module:Horizon
+ * @private
  *
  * @see {@link https://developers.stellar.org/network/horizon/api-reference/resources/accounts/object|Account Details}
  * @param {string} response Response from horizon account endpoint.
