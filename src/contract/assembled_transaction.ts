@@ -394,10 +394,11 @@ export class AssembledTransaction<T> {
    * If you don't want to simulate the transaction, you can set `simulate` to
    * `false` in the options.
    *
-   *     const tx = await AssembledTransaction.build({
-   *       ...,
-   *       simulate: false,
-   *     })
+   * @example
+   * const tx = await AssembledTransaction.build({
+   *   ...,
+   *   simulate: false,
+   * })
    */
   static async build<T>(
     options: AssembledTransactionOptions<T>,

@@ -3,6 +3,8 @@ import type { AssembledTransaction } from "./assembled_transaction";
 
 /**
  * The default timebounds, in seconds, during which a transaction will be valid.
+ * This is attached to the transaction at the time it is built, which takes
+ * place _before_ transaction simulation, and _before_ transaction signing.
  * @constant {number}
  * @default 300
  * @memberof module:contract.Client
