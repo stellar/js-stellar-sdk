@@ -4,12 +4,11 @@ import { Networks } from "@stellar/stellar-base";
 
 import { Config } from "../config";
 
-/** @namespace StellarToml */
+/** @module StellarToml */
 
 /**
  * The maximum size of stellar.toml file (100 KB)
  * @const {number}
- * @memberof StellarToml
  */
 export const STELLAR_TOML_MAX_SIZE = 100 * 1024;
 
@@ -19,7 +18,6 @@ const CancelToken = axios.CancelToken;
 
 /**
  * Resolver allows resolving `stellar.toml` files.
- * @memberof StellarToml
  */
 export class Resolver {
   /**
