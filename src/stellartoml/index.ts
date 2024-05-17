@@ -7,8 +7,9 @@ import { Config } from "../config";
 /** @module StellarToml */
 
 /**
- * The maximum size of stellar.toml file (100 KB)
- * @const {number}
+ * The maximum size of stellar.toml file, in bytes
+ * @constant {number}
+ * @default 102400
  */
 export const STELLAR_TOML_MAX_SIZE = 100 * 1024;
 
