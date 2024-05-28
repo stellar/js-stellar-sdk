@@ -416,6 +416,21 @@ export class AssembledTransaction<T> {
     });
   }
 
+  private static async getAccount<T>(
+    options: AssembledTransactionOptions<T>,
+    server?: Server
+  ): Promise<Account> {
+    if (!server) {
+      server = new Server(options.rpcUrl, {
+        allowHttp: options.allowHttp ?? false,
+      });
+    }
+    const account = options.publicKey
+      ? await server.getAccount(options.publicKey)
+      : new Account(NULL_ACCOUNT, "0");
+    return account;
+  }
+
   /**
    * Construct a new AssembledTransaction. This is the only way to create a new
    * AssembledTransaction; the main constructor is private.
@@ -604,6 +619,7 @@ export class AssembledTransaction<T> {
   signAndSend = async ({
     force = false,
     signTransaction = this.options.signTransaction,
+    updateTimeout = true,
   }: {
     /**
      * If `true`, sign and send the transaction even if it is a read call
@@ -613,6 +629,11 @@ export class AssembledTransaction<T> {
      * You must provide this here if you did not provide one before
      */
     signTransaction?: ClientOptions["signTransaction"];
+    /**
+     * Whether or not to update the timeout value before signing
+     * and sending the transaction
+     */
+    updateTimeout?: boolean;
   } = {}): Promise<SentTransaction<T>> => {
     if (!this.built) {
       throw new Error("Transaction has not yet been simulated");
