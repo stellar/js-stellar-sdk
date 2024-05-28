@@ -1,18 +1,12 @@
-const test = require("ava");
+const assert = require("assert");
 const { spawnSync } = require("node:child_process");
 const {
   contracts,
   networkPassphrase,
   rpcUrl,
-  friendbotUrl,
+  generateFundedKeypair,
 } = require("./util");
-const { Address, contract, Keypair } = require("../../..");
-
-async function generateFundedKeypair() {
-  const keypair = Keypair.random();
-  await fetch(`${friendbotUrl}/friendbot?addr=${keypair.publicKey()}`);
-  return keypair;
-}
+const { Address, contract } = require("../../..");
 
 /**
  * Generates a Client for the contract with the given name.
@@ -56,6 +50,7 @@ async function clientFromConstructor(
   }
 
   // TODO: do this with js-stellar-sdk, instead of shelling out to the CLI
+
   contractId =
     contractId ??
     spawnSync(
@@ -104,33 +99,37 @@ async function clientForFromTest(contractId, publicKey, keypair) {
   return contract.Client.from(options);
 }
 
-test.before(async (t) => {
-  const { client, keypair, contractId } =
-    await clientFromConstructor("customTypes");
-  const publicKey = keypair.publicKey();
-  const addr = Address.fromString(publicKey);
-  t.context = { client, publicKey, addr, contractId, keypair }; // eslint-disable-line no-param-reassign
-});
+describe('Contract Tests', function() {
+  let context = {};
 
-test("hello from constructor", async (t) => {
-  const { result } = await t.context.client.hello({ hello: "tests" });
-  t.is(result, "tests");
-});
+  before(async function() {
+    const { client, keypair, contractId } =
+      await clientFromConstructor("customTypes");
+    const publicKey = keypair.publicKey();
+    const addr = Address.fromString(publicKey);
+    context = { client, publicKey, addr, contractId, keypair };
+  });
 
-test("from", async (t) => {
-  // objects with different constructors will not pass deepEqual check
-  function constructorWorkaround(object) {
-    return JSON.parse(JSON.stringify(object));
-  }
+  it("hello from constructor", async function() {
+    const { result } = await context.client.hello({ hello: "tests" });
+    assert.strictEqual(result, "tests");
+  });
 
-  const clientFromFrom = await clientForFromTest(
-    t.context.contractId,
-    t.context.publicKey,
-    t.context.keypair,
-  );
-  t.deepEqual(
-    constructorWorkaround(clientFromFrom),
-    constructorWorkaround(t.context.client),
-  );
-  t.deepEqual(t.context.client.spec.entries, clientFromFrom.spec.entries);
+  it("from", async function() {
+    // objects with different constructors will not pass deepEqual check
+    function constructorWorkaround(object) {
+      return JSON.parse(JSON.stringify(object));
+    }
+
+    const clientFromFrom = await clientForFromTest(
+      context.contractId,
+      context.publicKey,
+      context.keypair,
+    );
+    assert.deepStrictEqual(
+      constructorWorkaround(clientFromFrom),
+      constructorWorkaround(context.client),
+    );
+    assert.deepStrictEqual(context.client.spec.entries, clientFromFrom.spec.entries);
+  });
 });

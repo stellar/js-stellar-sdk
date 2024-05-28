@@ -1,183 +1,153 @@
-const test = require("ava");
+const { expect } = require('chai');
+const { describe, it, before } = require('mocha');
 const { contract, rpc } = require("../../..");
 const { clientFor, generateFundedKeypair } = require("./util");
 
 const amountAToSwap = 2n;
 const amountBToSwap = 1n;
 
-test.before(async (t) => {
-  const alice = await generateFundedKeypair();
-  const bob = await generateFundedKeypair();
+describe("Swap Contract Tests", function () {
+  let context = {};
 
-  const {
-    client: tokenA,
-    contractId: tokenAId,
-    keypair: root,
-  } = await clientFor("token");
-  const { client: tokenB, contractId: tokenBId } = await clientFor("token", {
-    keypair: root,
-  });
-  const { client: swapContractAsRoot, contractId: swapId } = await clientFor(
-    "swap",
-    { keypair: root },
-  );
-  await (
-    await tokenA.initialize({
-      admin: root.publicKey(),
-      decimal: 0,
-      name: "Token A",
-      symbol: "A",
-    })
-  ).signAndSend();
-  await (
-    await tokenA.mint({ amount: amountAToSwap, to: alice.publicKey() })
-  ).signAndSend();
+  before(async function () {
+    const alice = await generateFundedKeypair();
+    const bob = await generateFundedKeypair();
 
-  await (
-    await tokenB.initialize({
-      admin: root.publicKey(),
-      decimal: 0,
-      name: "Token B",
-      symbol: "B",
-    })
-  ).signAndSend();
-  await (
-    await tokenB.mint({ amount: amountBToSwap, to: bob.publicKey() })
-  ).signAndSend();
+    const {
+      client: tokenA,
+      contractId: tokenAId,
+      keypair: root,
+    } = await clientFor("token");
+    const { client: tokenB, contractId: tokenBId } = await clientFor("token", {
+      keypair: root,
+    });
+    const { client: swapContractAsRoot, contractId: swapId } = await clientFor(
+      "swap",
+      { keypair: root },
+    );
+    await (
+      await tokenA.initialize({
+        admin: root.publicKey(),
+        decimal: 0,
+        name: "Token A",
+        symbol: "A",
+      })
+    ).signAndSend();
+    await (
+      await tokenA.mint({ amount: amountAToSwap, to: alice.publicKey() })
+    ).signAndSend();
 
-  t.context = {
-    // eslint-disable-line no-param-reassign
-    root,
-    alice,
-    bob,
-    swapContractAsRoot,
-    swapId,
-    tokenA,
-    tokenAId,
-    tokenB,
-    tokenBId,
-  };
-});
+    await (
+      await tokenB.initialize({
+        admin: root.publicKey(),
+        decimal: 0,
+        name: "Token B",
+        symbol: "B",
+      })
+    ).signAndSend();
+    await (
+      await tokenB.mint({ amount: amountBToSwap, to: bob.publicKey() })
+    ).signAndSend();
 
-test("calling `signAndSend()` too soon throws descriptive error", async (t) => {
-  const tx = await t.context.swapContractAsRoot.swap({
-    a: t.context.alice.publicKey(),
-    b: t.context.bob.publicKey(),
-    token_a: t.context.tokenAId,
-    token_b: t.context.tokenBId,
-    amount_a: amountAToSwap,
-    min_a_for_b: amountAToSwap,
-    amount_b: amountBToSwap,
-    min_b_for_a: amountBToSwap,
-  });
-  const error = await t.throwsAsync(tx.signAndSend());
-  t.true(
-    error instanceof contract.AssembledTransaction.Errors.NeedsMoreSignatures,
-    `error is not of type 'NeedsMoreSignaturesError'; instead it is of type '${error?.constructor.name}'`,
-  );
-  if (error) t.regex(error.message, /needsNonInvokerSigningBy/);
-});
-
-test("alice swaps bob 10 A for 1 B", async (t) => {
-  const tx = await t.context.swapContractAsRoot.swap({
-    a: t.context.alice.publicKey(),
-    b: t.context.bob.publicKey(),
-    token_a: t.context.tokenAId,
-    token_b: t.context.tokenBId,
-    amount_a: amountAToSwap,
-    min_a_for_b: amountAToSwap,
-    amount_b: amountBToSwap,
-    min_b_for_a: amountBToSwap,
+    context = {
+      root,
+      alice,
+      bob,
+      swapContractAsRoot,
+      swapId,
+      tokenA,
+      tokenAId,
+      tokenB,
+      tokenBId,
+    };
   });
 
-  const needsNonInvokerSigningBy = await tx.needsNonInvokerSigningBy();
-  t.is(needsNonInvokerSigningBy.length, 2);
-  t.is(
-    needsNonInvokerSigningBy.indexOf(t.context.alice.publicKey()),
-    0,
-    "needsNonInvokerSigningBy does not have alice's public key!",
-  );
-  t.is(
-    needsNonInvokerSigningBy.indexOf(t.context.bob.publicKey()),
-    1,
-    "needsNonInvokerSigningBy does not have bob's public key!",
-  );
-
-  // root serializes & sends to alice
-  const jsonFromRoot = tx.toJSON();
-  const { client: clientAlice } = await clientFor("swap", {
-    keypair: t.context.alice,
-    contractId: t.context.swapId,
+  it("calling `signAndSend()` too soon throws descriptive error", async function() {
+    const tx = await context.swapContractAsRoot.swap({
+      a: context.alice.publicKey(),
+      b: context.bob.publicKey(),
+      token_a: context.tokenAId,
+      token_b: context.tokenBId,
+      amount_a: amountAToSwap,
+      min_a_for_b: amountAToSwap,
+      amount_b: amountBToSwap,
+      min_b_for_a: amountBToSwap,
+    });
+    await expect(tx.signAndSend()).to.be.rejectedWith(contract.AssembledTransaction.Errors.NeedsMoreSignatures).then((error) => {
+      // Further assertions on the error object
+      expect(error).to.be.instanceOf(contract.AssembledTransaction.Errors.NeedsMoreSignatures,
+        `error is not of type 'NeedsMoreSignaturesError'; instead it is of type '${error?.constructor.name}'`);
+      
+      if (error) {
+        // Using regex to check the error message
+        expect(error.message).to.match(/needsNonInvokerSigningBy/);
+      }
+    });
+    /*const error = await expect(await tx.signAndSend()).to.be.rejectedWith(contract.AssembledTransaction.Errors.NeedsMoreSignatures);
+    expect(error).to.be.an.instanceof(contract.AssembledTransaction.Errors.NeedsMoreSignatures, 
+      `error is not of type 'NeedsMoreSignaturesError'; instead it is of type '${error?.constructor.name}'`);
+    expect(error).to.have.property('message').that.matches(/needsNonInvokerSigningBy/);*/
   });
-  const txAlice = clientAlice.txFromJSON(jsonFromRoot);
-  await txAlice.signAuthEntries();
 
-  // alice serializes & sends to bob
-  const jsonFromAlice = txAlice.toJSON();
-  const { client: clientBob } = await clientFor("swap", {
-    keypair: t.context.bob,
-    contractId: t.context.swapId,
+  it("alice swaps bob 10 A for 1 B", async function() {
+    const tx = await context.swapContractAsRoot.swap({
+      a: context.alice.publicKey(),
+      b: context.bob.publicKey(),
+      token_a: context.tokenAId,
+      token_b: context.tokenBId,
+      amount_a: amountAToSwap,
+      min_a_for_b: amountAToSwap,
+      amount_b: amountBToSwap,
+      min_b_for_a: amountBToSwap,
+    });
+
+    const needsNonInvokerSigningBy = await tx.needsNonInvokerSigningBy();
+    expect(needsNonInvokerSigningBy).to.have.lengthOf(2);
+    expect(needsNonInvokerSigningBy.indexOf(context.alice.publicKey())).to.equal(0, "needsNonInvokerSigningBy does not have alice's public key!");
+    expect(needsNonInvokerSigningBy.indexOf(context.bob.publicKey())).to.equal(1, "needsNonInvokerSigningBy does not have bob's public key!");
+
+    // root serializes & sends to alice
+    const jsonFromRoot = tx.toJSON();
+    const { client: clientAlice } = await clientFor("swap", {
+      keypair: context.alice,
+      contractId: context.swapId,
+    });
+    const txAlice = clientAlice.txFromJSON(jsonFromRoot);
+    await txAlice.signAuthEntries();
+
+    // alice serializes & sends to bob
+    const jsonFromAlice = txAlice.toJSON();
+    const { client: clientBob } = await clientFor("swap", {
+      keypair: context.bob,
+      contractId: context.swapId,
+    });
+    const txBob = clientBob.txFromJSON(jsonFromAlice);
+    await txBob.signAuthEntries();
+
+    // bob serializes & sends back to root
+    const jsonFromBob = txBob.toJSON();
+    const { client: clientRoot } = await clientFor("swap", {
+      keypair: context.root,
+      contractId: context.swapId,
+    });
+    const txRoot = clientRoot.txFromJSON(jsonFromBob);
+
+    const result = await txRoot.signAndSend();
+
+    expect(result).to.have.property('sendTransactionResponse');
+    expect(result.sendTransactionResponse).to.have.property('status', 'PENDING');
+    expect(result).to.have.property('getTransactionResponseAll').that.is.an('array').that.is.not.empty;
+    expect(result.getTransactionResponse).to.have.property('status').that.is.not.equal('FAILED');
+    expect(result.getTransactionResponse).to.have.property('status', rpc.Api.GetTransactionStatus.SUCCESS);
+
+    const aliceTokenABalance = await context.tokenA.balance({ id: context.alice.publicKey() });
+    const aliceTokenBBalance = await context.tokenB.balance({ id: context.alice.publicKey() });
+    const bobTokenABalance = await context.tokenA.balance({ id: context.bob.publicKey() });
+    const bobTokenBBalance = await context.tokenB.balance({ id: context.bob.publicKey() });
+
+    expect(aliceTokenABalance.result).to.equal(0n);
+    expect(aliceTokenBBalance.result).to.equal(amountBToSwap);
+    expect(bobTokenABalance.result).to.equal(amountAToSwap);
+    expect(bobTokenBBalance.result).to.equal(0n);
   });
-  const txBob = clientBob.txFromJSON(jsonFromAlice);
-  await txBob.signAuthEntries();
-
-  // bob serializes & sends back to root
-  const jsonFromBob = txBob.toJSON();
-  const { client: clientRoot } = await clientFor("swap", {
-    keypair: t.context.root,
-    contractId: t.context.swapId,
-  });
-  const txRoot = clientRoot.txFromJSON(jsonFromBob);
-
-  const result = await txRoot.signAndSend();
-
-  t.truthy(
-    result.sendTransactionResponse,
-    `tx failed: ${JSON.stringify(result, null, 2)}`,
-  );
-  t.is(
-    result.sendTransactionResponse.status,
-    "PENDING",
-    `tx failed: ${JSON.stringify(result, null, 2)}`,
-  );
-  t.truthy(
-    result.getTransactionResponseAll?.length,
-    `tx failed: ${JSON.stringify(result.getTransactionResponseAll, null, 2)}`,
-  );
-  t.not(
-    result.getTransactionResponse.status,
-    "FAILED",
-    `tx failed: ${JSON.stringify(
-      result.getTransactionResponse.resultXdr
-        .result()
-        .value()
-        .map((op) => op.value()?.value().switch()),
-      null,
-      2,
-    )}`,
-  );
-  t.is(
-    result.getTransactionResponse.status,
-    rpc.Api.GetTransactionStatus.SUCCESS,
-    `tx failed: ${JSON.stringify(result.getTransactionResponse, null, 2)}`,
-  );
-
-  t.is(
-    (await t.context.tokenA.balance({ id: t.context.alice.publicKey() }))
-      .result,
-    0n,
-  );
-  t.is(
-    (await t.context.tokenB.balance({ id: t.context.alice.publicKey() }))
-      .result,
-    amountBToSwap,
-  );
-  t.is(
-    (await t.context.tokenA.balance({ id: t.context.bob.publicKey() })).result,
-    amountAToSwap,
-  );
-  t.is(
-    (await t.context.tokenB.balance({ id: t.context.bob.publicKey() })).result,
-    0n,
-  );
 });

@@ -49,7 +49,7 @@
     "clean": "rm -rf lib/ dist/ coverage/ .nyc_output/ jsdoc/ test/e2e/.soroban",
     "docs": "yarn build:docs && jsdoc -c ./config/.jsdoc.json --verbose",
     "test": "yarn build:test && yarn test:node && yarn test:integration && yarn test:browser",
-    "test:e2e": "./test/e2e/initialize.sh && ava",
+    "test:e2e": "./test/e2e/initialize.sh && yarn _nyc mocha --recursive 'test/e2e/src/test-*.js'",
     "test:node": "yarn _nyc mocha --recursive 'test/unit/**/*.js'",
     "test:integration": "yarn _nyc mocha --recursive 'test/integration/**/*.js'",
     "test:browser": "karma start config/karma.conf.js",
@@ -75,14 +75,15 @@
     "reporter": "spec",
     "require": [
       "@babel/register",
-      "test/test-nodejs.js"
+      "test/test-nodejs.js",
+      "dotenv/config"
     ],
     "exclude": [
       "test/test-browser.js"
     ],
     "sort": true,
     "recursive": true,
-    "timeout": 30000
+    "timeout": 120000
   },
   "nyc": {
     "instrument": false,
@@ -111,8 +112,7 @@
     "@types/randombytes": "^2.0.1",
     "@types/sinon": "^17.0.2",
     "@types/urijs": "^1.19.20",
-    "@typescript-eslint/parser": "^7.11.0",
-    "ava": "^5.3.1",
+    "@typescript-eslint/parser": "^7.7.1",
     "axios-mock-adapter": "^1.22.0",
     "babel-loader": "^9.1.3",
     "babel-plugin-istanbul": "^6.1.1",
@@ -169,14 +169,5 @@
     "randombytes": "^2.1.0",
     "toml": "^3.0.0",
     "urijs": "^1.19.1"
-  },
-  "ava": {
-    "files": [
-      "./test/e2e/src/test-*"
-    ],
-    "require": [
-      "dotenv/config"
-    ],
-    "timeout": "2m"
   }
 }
