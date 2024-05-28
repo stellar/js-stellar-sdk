@@ -66,6 +66,7 @@ export class SentTransaction<T> {
     });
   }
 
+
   /**
    * Initialize a `SentTransaction` from an existing `AssembledTransaction` and
    * a `signTransaction` function. This will also send the transaction to the
@@ -76,24 +77,27 @@ export class SentTransaction<T> {
     signTransaction: ClientOptions["signTransaction"],
     /** {@link AssembledTransaction} from which this SentTransaction was initialized */
     assembled: AssembledTransaction<U>,
+    updateTimeout: boolean = true,
   ): Promise<SentTransaction<U>> => {
     const tx = new SentTransaction(signTransaction, assembled);
-    const sent = await tx.send();
+    const sent = await tx.send(updateTimeout);
     return sent;
   };
 
-  private send = async (): Promise<this> => {
+  private send = async (updateTimeout: boolean = true): Promise<this> => {
     const timeoutInSeconds =
       this.assembled.options.timeoutInSeconds ?? DEFAULT_TIMEOUT;
-    this.assembled.built = TransactionBuilder.cloneFrom(this.assembled.built!, {
-      fee: this.assembled.built!.fee,
-      timebounds: undefined,
-      sorobanData: new SorobanDataBuilder(
-        this.assembled.simulationData.transactionData.toXDR(),
-      ).build(),
-    })
-      .setTimeout(timeoutInSeconds)
-      .build();
+    if(updateTimeout) {
+      this.assembled.built = TransactionBuilder.cloneFrom(this.assembled.built!, {
+        fee: this.assembled.built!.fee,
+        timebounds: undefined,
+        sorobanData: new SorobanDataBuilder(
+          this.assembled.simulationData.transactionData.toXDR(),
+        ).build(),
+      })
+        .setTimeout(timeoutInSeconds)
+        .build();
+    }
 
     const signature = await this.signTransaction!(
       // `signAndSend` checks for `this.built` before calling `SentTransaction.init`
