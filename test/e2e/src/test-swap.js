@@ -7,7 +7,6 @@ const amountAToSwap = 2n;
 const amountBToSwap = 1n;
 
 describe("Swap Contract Tests", function () {
-  let context = {};
 
   before(async function () {
     const alice = await generateFundedKeypair();
@@ -49,7 +48,7 @@ describe("Swap Contract Tests", function () {
       await tokenB.mint({ amount: amountBToSwap, to: bob.publicKey() })
     ).signAndSend();
 
-    context = {
+    this.context = {
       root,
       alice,
       bob,
@@ -63,11 +62,11 @@ describe("Swap Contract Tests", function () {
   });
 
   it("calling `signAndSend()` too soon throws descriptive error", async function() {
-    const tx = await context.swapContractAsRoot.swap({
-      a: context.alice.publicKey(),
-      b: context.bob.publicKey(),
-      token_a: context.tokenAId,
-      token_b: context.tokenBId,
+    const tx = await this.context.swapContractAsRoot.swap({
+      a: this.context.alice.publicKey(),
+      b: this.context.bob.publicKey(),
+      token_a: this.context.tokenAId,
+      token_b: this.context.tokenBId,
       amount_a: amountAToSwap,
       min_a_for_b: amountAToSwap,
       amount_b: amountBToSwap,
@@ -83,18 +82,14 @@ describe("Swap Contract Tests", function () {
         expect(error.message).to.match(/needsNonInvokerSigningBy/);
       }
     });
-    /*const error = await expect(await tx.signAndSend()).to.be.rejectedWith(contract.AssembledTransaction.Errors.NeedsMoreSignatures);
-    expect(error).to.be.an.instanceof(contract.AssembledTransaction.Errors.NeedsMoreSignatures, 
-      `error is not of type 'NeedsMoreSignaturesError'; instead it is of type '${error?.constructor.name}'`);
-    expect(error).to.have.property('message').that.matches(/needsNonInvokerSigningBy/);*/
   });
 
   it("alice swaps bob 10 A for 1 B", async function() {
-    const tx = await context.swapContractAsRoot.swap({
-      a: context.alice.publicKey(),
-      b: context.bob.publicKey(),
-      token_a: context.tokenAId,
-      token_b: context.tokenBId,
+    const tx = await this.context.swapContractAsRoot.swap({
+      a: this.context.alice.publicKey(),
+      b: this.context.bob.publicKey(),
+      token_a: this.context.tokenAId,
+      token_b: this.context.tokenBId,
       amount_a: amountAToSwap,
       min_a_for_b: amountAToSwap,
       amount_b: amountBToSwap,
@@ -103,14 +98,14 @@ describe("Swap Contract Tests", function () {
 
     const needsNonInvokerSigningBy = await tx.needsNonInvokerSigningBy();
     expect(needsNonInvokerSigningBy).to.have.lengthOf(2);
-    expect(needsNonInvokerSigningBy.indexOf(context.alice.publicKey())).to.equal(0, "needsNonInvokerSigningBy does not have alice's public key!");
-    expect(needsNonInvokerSigningBy.indexOf(context.bob.publicKey())).to.equal(1, "needsNonInvokerSigningBy does not have bob's public key!");
+    expect(needsNonInvokerSigningBy.indexOf(this.context.alice.publicKey())).to.equal(0, "needsNonInvokerSigningBy does not have alice's public key!");
+    expect(needsNonInvokerSigningBy.indexOf(this.context.bob.publicKey())).to.equal(1, "needsNonInvokerSigningBy does not have bob's public key!");
 
     // root serializes & sends to alice
     const jsonFromRoot = tx.toJSON();
     const { client: clientAlice } = await clientFor("swap", {
-      keypair: context.alice,
-      contractId: context.swapId,
+      keypair: this.context.alice,
+      contractId: this.context.swapId,
     });
     const txAlice = clientAlice.txFromJSON(jsonFromRoot);
     await txAlice.signAuthEntries();
@@ -118,8 +113,8 @@ describe("Swap Contract Tests", function () {
     // alice serializes & sends to bob
     const jsonFromAlice = txAlice.toJSON();
     const { client: clientBob } = await clientFor("swap", {
-      keypair: context.bob,
-      contractId: context.swapId,
+      keypair: this.context.bob,
+      contractId: this.context.swapId,
     });
     const txBob = clientBob.txFromJSON(jsonFromAlice);
     await txBob.signAuthEntries();
@@ -127,8 +122,8 @@ describe("Swap Contract Tests", function () {
     // bob serializes & sends back to root
     const jsonFromBob = txBob.toJSON();
     const { client: clientRoot } = await clientFor("swap", {
-      keypair: context.root,
-      contractId: context.swapId,
+      keypair: this.context.root,
+      contractId: this.context.swapId,
     });
     const txRoot = clientRoot.txFromJSON(jsonFromBob);
 
@@ -140,10 +135,10 @@ describe("Swap Contract Tests", function () {
     expect(result.getTransactionResponse).to.have.property('status').that.is.not.equal('FAILED');
     expect(result.getTransactionResponse).to.have.property('status', rpc.Api.GetTransactionStatus.SUCCESS);
 
-    const aliceTokenABalance = await context.tokenA.balance({ id: context.alice.publicKey() });
-    const aliceTokenBBalance = await context.tokenB.balance({ id: context.alice.publicKey() });
-    const bobTokenABalance = await context.tokenA.balance({ id: context.bob.publicKey() });
-    const bobTokenBBalance = await context.tokenB.balance({ id: context.bob.publicKey() });
+    const aliceTokenABalance = await this.context.tokenA.balance({ id: this.context.alice.publicKey() });
+    const aliceTokenBBalance = await this.context.tokenB.balance({ id: this.context.alice.publicKey() });
+    const bobTokenABalance = await this.context.tokenA.balance({ id: this.context.bob.publicKey() });
+    const bobTokenBBalance = await this.context.tokenB.balance({ id: this.context.bob.publicKey() });
 
     expect(aliceTokenABalance.result).to.equal(0n);
     expect(aliceTokenBBalance.result).to.equal(amountBToSwap);
