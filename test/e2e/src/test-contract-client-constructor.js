@@ -1,4 +1,4 @@
-const assert = require("assert");
+const { expect } = require("chai");
 const { spawnSync } = require("node:child_process");
 const {
   contracts,
@@ -111,7 +111,7 @@ describe('Contract Tests', function() {
 
   it("hello from constructor", async function() {
     const { result } = await context.client.hello({ hello: "tests" });
-    assert.strictEqual(result, "tests");
+    expect(result).to.equal("tests");
   });
 
   it("from", async function() {
@@ -125,10 +125,9 @@ describe('Contract Tests', function() {
       context.publicKey,
       context.keypair,
     );
-    assert.deepStrictEqual(
-      constructorWorkaround(clientFromFrom),
+    expect(constructorWorkaround(clientFromFrom)).to.deep.equal(
       constructorWorkaround(context.client),
     );
-    assert.deepStrictEqual(context.client.spec.entries, clientFromFrom.spec.entries);
+    expect(context.client.spec.entries).to.deep.equal(clientFromFrom.spec.entries);
   });
 });
