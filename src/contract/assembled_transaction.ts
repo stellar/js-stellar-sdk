@@ -821,27 +821,23 @@ export class AssembledTransaction<T> {
    *   transaction data.
    * - The `account` parameter should be an instance of a valid blockchain account.
    * 
-   * @param {Object} restorePreamble - The preamble object containing data required to 
-   * build the restore transaction.
-   * @param {string} restorePreamble.minResourceFee - The minimum fee required to restore 
-   * the necessary resources.
-   * @param {SorobanDataBuilder} restorePreamble.transactionData - The transaction data 
-   * required for the restoration process.
-   * @param {Account} account - The account that is executing the footprint restore operation.
-   * 
-   * @returns {Promise<Api.GetTransactionResponse>} - A promise resolving to the response 
-   * from the network after the restore transaction is submitted.
-   * 
    * @throws {Error} - Throws an error if no `signTransaction` function is provided during 
    * Client initialization.
    * @throws {AssembledTransaction.Errors.RestoreFailure} - Throws a custom error if the 
    * restore transaction fails, providing the details of the failure.
  */
   async restoreFootprint(
+    /**
+     * The preamble object containing data required to 
+     * build the restore transaction.
+     */
     restorePreamble: {
       minResourceFee: string;
       transactionData: SorobanDataBuilder;
     },
+    /**
+     * The account that is executing the footprint restore operation.
+     */
     account: Account
   ): Promise<Api.GetTransactionResponse> {
     if(!this.options.signTransaction){
