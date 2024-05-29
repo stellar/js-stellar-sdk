@@ -26,7 +26,7 @@ describe("helloWorld client", function() {
     expect(newBalance).to.equal(startingBalance + 1);
   });
 
-  it("should accept options object for methods with no arguments", async function() {
+  it("should accept only options object for methods with no arguments", async function() {
     const { client } = await clientFor("helloWorld");
     const inc = await client.inc({ simulate: false });
     expect(inc.simulation).to.be.undefined;
