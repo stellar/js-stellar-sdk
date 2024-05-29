@@ -27,6 +27,7 @@ import {
   DEFAULT_TIMEOUT,
   contractErrorPattern,
   implementsToString,
+  getAccount
 } from "./utils";
 import { SentTransaction } from "./sent_transaction";
 
@@ -373,20 +374,7 @@ export class AssembledTransaction<T> {
     });
   }
 
-  private static async getAccount<T>(
-    options: AssembledTransactionOptions<T>,
-    server?: Server
-  ): Promise<Account> {
-    if (!server) {
-      server = new Server(options.rpcUrl, {
-        allowHttp: options.allowHttp ?? false,
-      });
-    }
-    const account = options.publicKey
-      ? await server.getAccount(options.publicKey)
-      : new Account(NULL_ACCOUNT, "0");
-    return account;
-  }
+ 
 
   /**
    * Construct a new AssembledTransaction. This is the only way to create a new
@@ -412,7 +400,7 @@ export class AssembledTransaction<T> {
     const tx = new AssembledTransaction(options);
     const contract = new Contract(options.contractId);
 
-    const account = await AssembledTransaction.getAccount(
+    const account = await getAccount(
       options,
       tx.server
     );
@@ -460,7 +448,7 @@ export class AssembledTransaction<T> {
     this.simulation = await this.server.simulateTransaction(this.built);
 
     if (Api.isSimulationRestore(this.simulation) && restore) {
-      const account = await AssembledTransaction.getAccount(this.options, this.server);
+      const account = await getAccount(this.options, this.server);
       const result = await this.restoreFootprint(
         this.simulation.restorePreamble,
         account
