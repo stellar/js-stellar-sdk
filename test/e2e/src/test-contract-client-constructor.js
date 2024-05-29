@@ -98,36 +98,35 @@ async function clientForFromTest(contractId, publicKey, keypair) {
   return contract.Client.from(options);
 }
 
-describe('Contract Tests', function() {
-  let context = {};
+describe('Client', function() {
 
   before(async function() {
     const { client, keypair, contractId } =
       await clientFromConstructor("customTypes");
     const publicKey = keypair.publicKey();
     const addr = Address.fromString(publicKey);
-    context = { client, publicKey, addr, contractId, keypair };
+    this.context = { client, publicKey, addr, contractId, keypair };
   });
 
-  it("hello from constructor", async function() {
-    const { result } = await context.client.hello({ hello: "tests" });
+  it("can be constructed with `new Client`", async function() {
+    const { result } = await this.context.client.hello({ hello: "tests" });
     expect(result).to.equal("tests");
   });
 
-  it("from", async function() {
+  it("can be constructed with `from`", async function() {
     // objects with different constructors will not pass deepEqual check
     function constructorWorkaround(object) {
       return JSON.parse(JSON.stringify(object));
     }
 
     const clientFromFrom = await clientForFromTest(
-      context.contractId,
-      context.publicKey,
-      context.keypair,
+      this.context.contractId,
+      this.context.publicKey,
+      this.context.keypair,
     );
     expect(constructorWorkaround(clientFromFrom)).to.deep.equal(
-      constructorWorkaround(context.client),
+      constructorWorkaround(this.context.client),
     );
-    expect(context.client.spec.entries).to.deep.equal(clientFromFrom.spec.entries);
+    expect(this.context.client.spec.entries).to.deep.equal(clientFromFrom.spec.entries);
   });
 });
