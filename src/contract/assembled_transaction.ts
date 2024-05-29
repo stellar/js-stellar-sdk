@@ -416,20 +416,7 @@ export class AssembledTransaction<T> {
     });
   }
 
-  private static async getAccount<T>(
-    options: AssembledTransactionOptions<T>,
-    server?: Server
-  ): Promise<Account> {
-    if (!server) {
-      server = new Server(options.rpcUrl, {
-        allowHttp: options.allowHttp ?? false,
-      });
-    }
-    const account = options.publicKey
-      ? await server.getAccount(options.publicKey)
-      : new Account(NULL_ACCOUNT, "0");
-    return account;
-  }
+ 
 
   /**
    * Construct a new AssembledTransaction. This is the only way to create a new
