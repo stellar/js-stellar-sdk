@@ -865,7 +865,6 @@ export class AssembledTransaction<T> {
    * - A `signTransaction` function must be provided during the Client initialization.
    * - The provided `restorePreamble` should include a minimum resource fee and valid
    *   transaction data.
-   * - The `account` parameter should be an instance of a valid blockchain account.
    * 
    * @throws {Error} - Throws an error if no `signTransaction` function is provided during 
    * Client initialization.
@@ -884,11 +883,12 @@ export class AssembledTransaction<T> {
     /**
      * The account that is executing the footprint restore operation.
      */
-    account: Account
+    account?: Account
   ): Promise<Api.GetTransactionResponse> {
     if(!this.options.signTransaction){
       throw new Error("For automatic restore to work you must provide a signTransaction function when initializing your Client");
     }
+    account = account ?? await getAccount(this.options, this.server);
     // first try restoring the contract
     const restoreTx = await AssembledTransaction.buildFootprintRestoreTransaction(
       { ...this.options },
