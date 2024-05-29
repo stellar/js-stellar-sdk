@@ -473,11 +473,11 @@ export class AssembledTransaction<T> {
       .setSorobanData(sorobanData instanceof SorobanDataBuilder ? sorobanData.build() : sorobanData)
       .addOperation(Operation.restoreFootprint({}))
       .setTimeout(options.timeoutInSeconds ?? DEFAULT_TIMEOUT);
-    await tx.simulate(false);
+    await tx.simulate({ restore: false });
     return tx;
   }
 
-  simulate = async (restore?: boolean): Promise<this> => {
+  simulate = async ({ restore }: {restore?: boolean} = {}): Promise<this> => {
     if (!this.raw) {
       throw new Error(
         "Transaction has not yet been assembled; " +
