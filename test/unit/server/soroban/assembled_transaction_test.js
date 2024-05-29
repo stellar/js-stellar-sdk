@@ -38,7 +38,7 @@ describe("AssembledTransaction.buildFootprintRestoreTransaction", () => {
 
 
 
-  it("assembled transaction restore footprint works", function (done) {
+  it("makes expected RPC calls", function (done) {
     const simulateTransactionResponse = {
       transactionData: restoreTxnData,
       minResourceFee: "52641",
