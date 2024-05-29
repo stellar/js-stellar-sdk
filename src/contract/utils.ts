@@ -1,5 +1,8 @@
-import { xdr, cereal } from "@stellar/stellar-base";
-import type { AssembledTransaction } from "./assembled_transaction";
+import { xdr, cereal, Account } from "@stellar/stellar-base";
+import { Server } from "../rpc/server";
+import { NULL_ACCOUNT, type AssembledTransaction } from "./assembled_transaction";
+import { AssembledTransactionOptions } from "./types";
+
 
 /**
  * The default timeout for waiting for a transaction to be included in a block.
@@ -106,4 +109,13 @@ export function processSpecEntryStream(buffer: Buffer) {
     res.push(xdr.ScSpecEntry.read(reader));
   }
   return res;
+}
+
+export async function getAccount<T>(
+  options: AssembledTransactionOptions<T>,
+  server: Server
+): Promise<Account> {
+  return options.publicKey
+    ? await server.getAccount(options.publicKey)
+    : new Account(NULL_ACCOUNT, "0");
 }
