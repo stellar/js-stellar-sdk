@@ -18,6 +18,14 @@ describe("Server#simulateTransaction", async function (done) {
   let contract = new StellarSdk.Contract(contractId);
   let address = contract.address().toScAddress();
 
+  const accountId =
+      "GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI";
+  const accountKey = xdr.LedgerKey.account(
+      new xdr.LedgerKeyAccount({
+        accountId: Keypair.fromPublicKey(accountId).xdrPublicKey(),
+      }),
+  );
+
   const simulationResponse = await invokeSimulationResponse(address);
   const parsedSimulationResponse = {
     id: simulationResponse.id,
@@ -35,7 +43,7 @@ describe("Server#simulateTransaction", async function (done) {
     stateChanges: [
       {
         type: 2,
-        key: "example-key-2",
+        key: accountKey,
         before: new xdr.LedgerEntry({
           lastModifiedLedgerSeq: 0,
           data: new xdr.LedgerEntryData(),
@@ -189,7 +197,7 @@ describe("Server#simulateTransaction", async function (done) {
           expected.stateChanges = [
             {
               type: 2,
-              key: "example-key-2",
+              key: accountKey,
               before: new xdr.LedgerEntry({
                 lastModifiedLedgerSeq: 0,
                 data: new xdr.LedgerEntryData(),
@@ -203,7 +211,7 @@ describe("Server#simulateTransaction", async function (done) {
             },
             {
               type: 1,
-              key: "example-key-1",
+              key: accountKey,
               before: null,
               after: new xdr.LedgerEntry({
                 lastModifiedLedgerSeq: 0,
@@ -213,7 +221,7 @@ describe("Server#simulateTransaction", async function (done) {
             },
             {
               type: 3,
-              key: "example-key-3",
+              key: accountKey,
               before: new xdr.LedgerEntry({
                 lastModifiedLedgerSeq: 0,
                 data: new xdr.LedgerEntryData(),
@@ -316,6 +324,8 @@ function simulationResponseError(events) {
 }
 
 function baseSimulationResponse(results) {
+  const accountId = "GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI";
+
   return {
     id: 1,
     events: [],
@@ -330,7 +340,11 @@ function baseSimulationResponse(results) {
     stateChanges: [
       {
         type: 2,
-        key: "example-key-2",
+        key: xdr.LedgerKey.account(
+            new xdr.LedgerKeyAccount({
+              accountId: Keypair.fromPublicKey(accountId).xdrPublicKey(),
+            }),
+        ).toXDR("base64"),
         before: new xdr.LedgerEntry({
           lastModifiedLedgerSeq: 0,
           data: new xdr.LedgerEntryData(),
@@ -357,12 +371,19 @@ async function invokeSimulationResponseWithRestoration(address) {
 }
 
 async function invokeSimulationResponseWithStateChanges(address) {
+  const accountId = "GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI";
+
   return {
+
     ...(await invokeSimulationResponse(address)),
     stateChanges: [
       {
         type: 2,
-        key: "example-key-2",
+        key: xdr.LedgerKey.account(
+            new xdr.LedgerKeyAccount({
+              accountId: Keypair.fromPublicKey(accountId).xdrPublicKey(),
+            }),
+        ).toXDR("base64"),
         before: new xdr.LedgerEntry({
           lastModifiedLedgerSeq: 0,
           data: new xdr.LedgerEntryData(),
@@ -376,7 +397,11 @@ async function invokeSimulationResponseWithStateChanges(address) {
       },
       {
         type: 1,
-        key: "example-key-1",
+        key: xdr.LedgerKey.account(
+            new xdr.LedgerKeyAccount({
+              accountId: Keypair.fromPublicKey(accountId).xdrPublicKey(),
+            }),
+        ).toXDR("base64"),
         before: null,
         after: new xdr.LedgerEntry({
           lastModifiedLedgerSeq: 0,
@@ -386,7 +411,11 @@ async function invokeSimulationResponseWithStateChanges(address) {
       },
       {
         type: 3,
-        key: "example-key-3",
+        key: xdr.LedgerKey.account(
+            new xdr.LedgerKeyAccount({
+              accountId: Keypair.fromPublicKey(accountId).xdrPublicKey(),
+            }),
+        ).toXDR("base64"),
         before: new xdr.LedgerEntry({
           lastModifiedLedgerSeq: 0,
           data: new xdr.LedgerEntryData(),

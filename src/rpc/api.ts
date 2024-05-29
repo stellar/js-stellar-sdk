@@ -168,7 +168,7 @@ export namespace Api {
     value: string;
   }
 
-  export interface RawLedgerEntryChange {
+  interface RawLedgerEntryChange {
     type: number;
     /** This is LedgerKey in base64 */
     key: string;
