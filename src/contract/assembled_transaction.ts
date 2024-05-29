@@ -485,7 +485,7 @@ export class AssembledTransaction<T> {
         return this;
       }
       throw new AssembledTransaction.Errors.RestoreFailure(
-        `You need to restore some contract state before invoking this method. Automatic restore failed:\n${JSON.stringify(result)}`
+        `Automatic restore failed! You set 'restore: true' but the attempted restore did not work. Result:\n${JSON.stringify(result)}`
       );
     }
 
