@@ -50,7 +50,6 @@ async function clientFromConstructor(
   }
 
   // TODO: do this with js-stellar-sdk, instead of shelling out to the CLI
-
   contractId =
     contractId ??
     spawnSync(
