@@ -8,15 +8,6 @@ const {
 } = require("./util");
 const { Address, contract } = require("../../..");
 
-/**
- * Generates a Client for the contract with the given name.
- * Also generates a new account to use as as the keypair of this contract. This
- * account is funded by friendbot. You can pass in an account to re-use the
- * same account with multiple contract clients.
- *
- * By default, will re-deploy the contract every time. Pass in the same
- * `contractId` again if you want to re-use the a contract instance.
- */
 async function clientFromConstructor(
   name,
   { keypair = generateFundedKeypair(), contractId } = {},
