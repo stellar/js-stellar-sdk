@@ -178,7 +178,7 @@ export namespace Api {
     after: string | null;
   }
 
-  export interface LedgerEntryChange{
+  export interface LedgerEntryChange {
     type: number;
     key: xdr.LedgerKey;
     before: xdr.LedgerEntry | null;

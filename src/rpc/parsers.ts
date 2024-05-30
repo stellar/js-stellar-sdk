@@ -141,16 +141,17 @@ function parseSuccessful(
       })[0]
     }),
 
-    stateChanges: sim.stateChanges?.length ?? 0 > 0
-        ? sim.stateChanges?.map((entryChange) => {
-          return {
-            type: entryChange.type,
-            key: xdr.LedgerKey.fromXDR(entryChange.key, 'base64'),
-            before: entryChange.before ? xdr.LedgerEntry.fromXDR(entryChange.before, 'base64') : null,
-            after: entryChange.after ? xdr.LedgerEntry.fromXDR(entryChange.after, 'base64') : null,
-          };
-        })
-        : undefined,
+    ...(sim.stateChanges?.length ?? 0 > 0) && {
+      stateChanges: sim.stateChanges?.map((entryChange) => {
+        return {
+          type: entryChange.type,
+          key: xdr.LedgerKey.fromXDR(entryChange.key, 'base64'),
+          before: entryChange.before ? xdr.LedgerEntry.fromXDR(entryChange.before, 'base64') : null,
+          after: entryChange.after ? xdr.LedgerEntry.fromXDR(entryChange.after, 'base64') : null,
+        };
+      })
+    }
+
   };
 
   if (!sim.restorePreamble || sim.restorePreamble.transactionData === '') {
