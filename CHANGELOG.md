@@ -6,28 +6,23 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
-Added:
-
-- `rpc.server.simulateTransaction` now supports optional stateChanges as mentioned below  ([#963](https://github.com/stellar/js-stellar-sdk/pull/963))
-- If `Before` is omitted, it constitutes a creation, if `After` is omitted, it constitutes a deletions, note that `Before` and `After` cannot be be omitted at the same time.
-
-
-```
-/** State Difference information */
- stateChanges?: LedgerEntryChange[];
-
-interface LedgerEntryChange{
-    type: number;
-    key: xdr.LedgerKey;
-    before: xdr.LedgerEntry | null;
-    after: xdr.LedgerEntry | null;
-  }
-
-```
 
 ## [v12.0.1](https://github.com/stellar/js-stellar-sdk/compare/v11.3.0...v12.0.1)
 
-- This is a re-tag of `v12.0.0-rc.3` with only dependency updates.
+- This is a re-tag of `v12.0.0-rc.3` with dependency updates and a single new feature.
+
+### Added
+- `rpc.server.simulateTransaction` now supports an optional `stateChanges?: LedgerEntryChange[]` field ([#963](https://github.com/stellar/js-stellar-sdk/pull/963)):
+  * If `Before` is omitted, it constitutes a creation, if `After` is omitted, it constitutes a deletions, note that `Before` and `After` cannot be be omitted at the same time. Each item follows this schema:
+
+```typescript
+interface LedgerEntryChange {
+  type: number;
+  key: xdr.LedgerKey;
+  before: xdr.LedgerEntry | null;
+  after: xdr.LedgerEntry | null;
+}
+```
 
 
 ## [v12.0.0-rc.3](https://github.com/stellar/js-stellar-sdk/compare/v11.3.0...v12.0.0-rc.3)
