@@ -28,6 +28,7 @@ import {
   implementsToString,
 } from "./utils";
 import { SentTransaction } from "./sent_transaction";
+import { Spec } from "./spec";
 
 export const NULL_ACCOUNT =
   "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF";
@@ -364,6 +365,40 @@ export class AssembledTransaction<T> {
     return txn;
   }
 
+  /**
+   * Serialize the AssembledTransaction to a base64-encoded XDR string.
+   */
+  toXDR(): string {
+    if(!this.built) throw new Error(
+        "Transaction has not yet been simulated; " +
+        "call `AssembledTransaction.simulate` first.",
+      );
+    return this.built?.toEnvelope().toXDR('base64');
+  }
+
+  /**
+   * Deserialize the AssembledTransaction from a base64-encoded XDR string.
+   */
+  static fromXDR<T>(
+    options: Omit<AssembledTransactionOptions<T>, "args" | "method" | "parseResultXdr">,
+    encodedXDR: string,
+    spec: Spec
+  ): AssembledTransaction<T> {
+    const envelope = xdr.TransactionEnvelope.fromXDR(encodedXDR, "base64");
+    const built = TransactionBuilder.fromXDR(envelope, options.networkPassphrase) as Tx;
+    const method = ((built.operations[0] as Operation.InvokeHostFunction).func.value() as xdr.InvokeContractArgs).functionName().toString('utf-8');
+    console.log(`method name is ${method}`);
+    const txn = new AssembledTransaction(
+      { ...options, 
+        method,
+        parseResultXdr: (result: xdr.ScVal) =>
+          spec.funcResToNative(method, result),
+      }
+     );
+    txn.built = built;
+    return txn;
+  }
+
   private constructor(public options: AssembledTransactionOptions<T>) {
     this.options.simulate = this.options.simulate ?? true;
     this.server = new Server(this.options.rpcUrl, {
@@ -412,14 +447,16 @@ export class AssembledTransaction<T> {
   }
 
   simulate = async (): Promise<this> => {
-    if (!this.raw) {
-      throw new Error(
-        "Transaction has not yet been assembled; " +
-        "call `AssembledTransaction.build` first.",
-      );
-    }
+    if(!this.built){
+      if (!this.raw) {
+        throw new Error(
+          "Transaction has not yet been assembled; " +
+          "call `AssembledTransaction.build` first.",
+        );
+      }
 
-    this.built = this.raw.build();
+      this.built = this.raw.build();
+    }
     this.simulation = await this.server.simulateTransaction(this.built);
 
     if (Api.isSimulationSuccess(this.simulation)) {
