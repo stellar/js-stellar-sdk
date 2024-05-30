@@ -1,6 +1,10 @@
 import { xdr, Contract, SorobanDataBuilder } from '@stellar/stellar-base';
 import { Api } from './api';
 
+/**
+ *
+ * @param r
+ */
 export function parseRawSendTransaction(
   r: Api.RawSendTransactionResponse
 ): Api.SendTransactionResponse {
@@ -8,7 +12,7 @@ export function parseRawSendTransaction(
   delete r.errorResultXdr;
   delete r.diagnosticEventsXdr;
 
-  if (!!errorResultXdr) {
+  if (errorResultXdr) {
     return {
       ...r,
       ...(
@@ -26,6 +30,10 @@ export function parseRawSendTransaction(
   return { ...r } as Api.BaseSendTransactionResponse;
 }
 
+/**
+ *
+ * @param r
+ */
 export function parseRawEvents(
   r: Api.RawGetEventsResponse
 ): Api.GetEventsResponse {
@@ -46,6 +54,10 @@ export function parseRawEvents(
   };
 }
 
+/**
+ *
+ * @param raw
+ */
 export function parseRawLedgerEntries(
   raw: Api.RawGetLedgerEntriesResponse
 ): Api.GetLedgerEntriesResponse {
@@ -73,12 +85,10 @@ export function parseRawLedgerEntries(
 /**
  * Converts a raw response schema into one with parsed XDR fields and a
  * simplified interface.
- *
  * @param raw   the raw response schema (parsed ones are allowed, best-effort
  *    detected, and returned untouched)
- *
+ * @param sim
  * @returns the original parameter (if already parsed), parsed otherwise
- *
  * @warning This API is only exported for testing purposes and should not be
  *          relied on or considered "stable".
  */
@@ -94,7 +104,7 @@ export function parseRawSimulation(
   }
 
   // shared across all responses
-  let base: Api.BaseSimulateTransactionResponse = {
+  const base: Api.BaseSimulateTransactionResponse = {
     _parsed: true,
     id: sim.id,
     latestLedger: sim.latestLedger,
@@ -113,6 +123,11 @@ export function parseRawSimulation(
   return parseSuccessful(sim, base);
 }
 
+/**
+ *
+ * @param sim
+ * @param partial
+ */
 function parseSuccessful(
   sim: Api.RawSimulateTransactionResponse,
   partial: Api.BaseSimulateTransactionResponse
@@ -128,17 +143,15 @@ function parseSuccessful(
     ...// coalesce 0-or-1-element results[] list into a single result struct
     // with decoded fields if present
     ((sim.results?.length ?? 0 > 0) && {
-      result: sim.results!.map((row) => {
-        return {
+      result: sim.results!.map((row) => ({
           auth: (row.auth ?? []).map((entry) =>
             xdr.SorobanAuthorizationEntry.fromXDR(entry, 'base64')
           ),
           // if return value is missing ("falsy") we coalesce to void
-          retval: !!row.xdr
+          retval: row.xdr
             ? xdr.ScVal.fromXDR(row.xdr, 'base64')
             : xdr.ScVal.scvVoid()
-        };
-      })[0]
+        }))[0]
     })
   };
 

@@ -20,7 +20,7 @@ export interface EventSourceOptions<T> {
 const anyGlobal = global as any;
 type Constructable<T> = new (e: string) => T;
 // require("eventsource") for Node and React Native environment
-let EventSource: Constructable<EventSource> = anyGlobal.EventSource ??
+const EventSource: Constructable<EventSource> = anyGlobal.EventSource ??
   anyGlobal.window?.EventSource ??
   require("eventsource");
 
@@ -38,8 +38,11 @@ export class CallBuilder<
     | ServerApi.CollectionPage<HorizonApi.BaseResponse>
 > {
   protected url: URI;
+
   public filter: string[][];
+
   protected originalSegments: string[];
+
   protected neighborRoot: string;
 
   constructor(serverUrl: URI, neighborRoot: string = "") {
@@ -59,22 +62,22 @@ export class CallBuilder<
       this._parseResponse(r),
     );
   }
-  //// TODO: Migrate to async, BUT that's a change in behavior and tests "rejects two filters" will fail.
-  //// It's because async will check within promise, which makes more sense when using awaits instead of Promises.
+  /// / TODO: Migrate to async, BUT that's a change in behavior and tests "rejects two filters" will fail.
+  /// / It's because async will check within promise, which makes more sense when using awaits instead of Promises.
   // public async call(): Promise<T> {
   //   this.checkFilter();
   //   const r = await this._sendNormalRequest(this.url);
   //   return this._parseResponse(r);
   // }
-  //// /* actually equals */
-  //// public call(): Promise<T> {
-  ////   return Promise.resolve().then(() => {
-  ////     this.checkFilter();
-  ////     return this._sendNormalRequest(this.url)
-  ////   }).then((r) => {
-  ////     this._parseResponse(r)
-  ////   });
-  //// }
+  /// / /* actually equals */
+  /// / public call(): Promise<T> {
+  /// /   return Promise.resolve().then(() => {
+  /// /     this.checkFilter();
+  /// /     return this._sendNormalRequest(this.url)
+  /// /   }).then((r) => {
+  /// /     this._parseResponse(r)
+  /// /   });
+  /// / }
 
   /**
    * Creates an EventSource that listens for incoming messages from the server. To stop listening for new
@@ -82,10 +85,10 @@ export class CallBuilder<
    * @see [Horizon Response Format](https://developers.stellar.org/api/introduction/response-format/)
    * @see [MDN EventSource](https://developer.mozilla.org/en-US/docs/Web/API/EventSource)
    * @param {object} [options] EventSource options.
-   * @param {function} [options.onmessage] Callback function to handle incoming messages.
-   * @param {function} [options.onerror] Callback function to handle errors.
+   * @param {Function} [options.onmessage] Callback function to handle incoming messages.
+   * @param {Function} [options.onerror] Callback function to handle errors.
    * @param {number} [options.reconnectTimeout] Custom stream connection timeout in ms, default is 15 seconds.
-   * @returns {function} Close function. Run to close the connection and stop listening for new events.
+   * @returns {Function} Close function. Run to close the connection and stop listening for new events.
    */
   public stream(options: EventSourceOptions<T> = {}): () => void {
     this.checkFilter();
@@ -195,6 +198,7 @@ export class CallBuilder<
   /**
    * Sets `limit` parameter for the current call. Returns the CallBuilder object on which this method has been called.
    * @see [Paging](https://developers.stellar.org/api/introduction/pagination/)
+   * @param recordsNumber
    * @param {number} number Number of records the server should return.
    * @returns {object} current CallBuilder instance
    */
@@ -220,8 +224,8 @@ export class CallBuilder<
    * supported on the operations and payments endpoints. The response
    * will include a `transaction` field for each operation in the
    * response.
-   *
    * @param {"transactions"} join Records to be included in the response.
+   * @param include
    * @returns {object} current CallBuilder instance.
    */
   public join(include: "transactions"): this {
@@ -232,16 +236,14 @@ export class CallBuilder<
   /**
    * A helper method to craft queries to "neighbor" endpoints.
    *
-   *  For example, we have an `/effects` suffix endpoint on many different
-   *  "root" endpoints, such as `/transactions/:id` and `/accounts/:id`. So,
-   *  it's helpful to be able to conveniently create queries to the
-   *  `/accounts/:id/effects` endpoint:
+   * For example, we have an `/effects` suffix endpoint on many different
+   * "root" endpoints, such as `/transactions/:id` and `/accounts/:id`. So,
+   * it's helpful to be able to conveniently create queries to the
+   * `/accounts/:id/effects` endpoint:
    *
-   *    this.forEndpoint("accounts", accountId)`.
-   *
+   * this.forEndpoint("accounts", accountId)`.
    * @param  {string} endpoint neighbor endpoint in question, like /operations
    * @param  {string} param    filter parameter, like an operation ID
-   *
    * @returns {CallBuilder} this CallBuilder instance
    */
   protected forEndpoint(endpoint: string, param: string): this {
@@ -274,7 +276,7 @@ export class CallBuilder<
    * @param {object} link A link object
    * @param {bool} link.href the URI of the link
    * @param {bool} [link.templated] Whether the link is templated
-   * @returns {function} A function that requests the link
+   * @returns {Function} A function that requests the link
    */
   private _requestFnForLink(link: HorizonApi.ResponseLink): (opts?: any) => any {
     return async (opts: any = {}) => {

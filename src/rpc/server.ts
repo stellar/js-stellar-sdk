@@ -55,9 +55,7 @@ export namespace Server {
 /**
  * Handles the network connection to a Soroban RPC instance, exposing an
  * interface for requests to that instance.
- *
- * @constructor
- *
+ * @class
  * @param {string} serverURL Soroban-RPC Server URL (ex.
  *    `http://localhost:8000/soroban/rpc`).
  * @param {object} [opts] Options object
@@ -65,7 +63,6 @@ export namespace Server {
  *    (default: `false`). This must be set to false in production deployments!
  *    You can also use {@link Config} class to set this globally.
  * @param {Record<string, string>} [opts.headers] allows setting custom headers
- *
  * @see https://soroban.stellar.org/api/methods
  */
 export class Server {
@@ -95,12 +92,9 @@ export class Server {
    *
    * Needed to get the current sequence number for the account so you can build
    * a successful transaction with {@link TransactionBuilder}.
-   *
    * @param {string} address - The public address of the account to load.
-   *
    * @returns {Promise<Account>}  a promise to the {@link Account} object with
    *    a populated sequence number
-   *
    * @see https://soroban.stellar.org/api/methods/getLedgerEntries
    * @example
    * const accountId = "GBZC6Y2Y7Q3ZQ2Y4QZJ2XZ3Z5YXZ6Z7Z2Y4QZJ2XZ3Z5YXZ6Z7Z2Y4";
@@ -129,11 +123,9 @@ export class Server {
 
   /**
    * General node health check.
-   *
    * @returns {Promise<Api.GetHealthResponse>}   a promise to the
    *    {@link Api.GetHealthResponse} object with the status of the
    *    server (e.g. "healthy").
-   *
    * @see https://soroban.stellar.org/api/methods/getHealth
    * @example
    * server.getHealth().then((health) => {
@@ -153,20 +145,16 @@ export class Server {
    * Allows you to directly inspect the current state of a contract. This is a
    * backup way to access your contract data which may not be available via
    * events or {@link Server.simulateTransaction}.
-   *
    * @param {string|Address|Contract} contract    the contract ID containing the
    *    data to load as a strkey (`C...` form), a {@link Contract}, or an
    *    {@link Address} instance
    * @param {xdr.ScVal} key   the key of the contract data to load
-   * @param {Durability} [durability=Durability.Persistent]   the "durability
+   * @param {Durability} [durability]   the "durability
    *    keyspace" that this ledger key belongs to, which is either 'temporary'
    *    or 'persistent' (the default), see {@link Durability}.
-   *
    * @returns {Promise<Api.LedgerEntryResult>}   the current data value
-   *
    * @warning If the data entry in question is a 'temporary' entry, it's
    *    entirely possible that it has expired out of existence.
-   *
    * @see https://soroban.stellar.org/api/methods/getLedgerEntries
    * @example
    * const contractId = "CCJZ5DGASBWQXR5MPFCJXMBI333XE5U3FSJTNQU7RIKE3P5GN2K2WYD5";
@@ -209,7 +197,7 @@ export class Server {
         throw new TypeError(`invalid durability: ${durability}`);
     }
 
-    let contractKey = xdr.LedgerKey.contractData(
+    const contractKey = xdr.LedgerKey.contractData(
       new xdr.LedgerKeyContractData({
         key,
         contract: scAddress,
@@ -241,15 +229,11 @@ export class Server {
    * This method allows you to fetch the WASM bytecode associated with a contract
    * deployed on the Soroban network. The WASM bytecode represents the executable
    * code of the contract.
-   *
    * @param {string} contractId    the contract ID containing the
    *    WASM bytecode to retrieve
-   *
    * @returns {Promise<Buffer>}   a Buffer containing the WASM bytecode
-   *
    * @throws {Error} If the contract or its associated WASM bytecode cannot be
    *    found on the network.
-   *
    * @example
    * const contractId = "CCJZ5DGASBWQXR5MPFCJXMBI333XE5U3FSJTNQU7RIKE3P5GN2K2WYD5";
    * server.getContractWasmByContractId(contractId).then(wasmBuffer => {
@@ -284,14 +268,11 @@ export class Server {
    * This method allows you to fetch the WASM bytecode associated with a contract
    * deployed on the Soroban network using the contract's WASM hash. The WASM bytecode
    * represents the executable code of the contract.
-   *
    * @param {Buffer} wasmHash    the WASM hash of the contract
-   *
+   * @param format
    * @returns {Promise<Buffer>}   a Buffer containing the WASM bytecode
-   *
    * @throws {Error} If the contract or its associated WASM bytecode cannot be
    *    found on the network.
-   *
    * @example
    * const wasmHash = Buffer.from("...");
    * server.getContractWasmByHash(wasmHash).then(wasmBuffer => {
@@ -331,12 +312,9 @@ export class Server {
    * To fetch a contract's WASM byte-code, built the appropriate
    * {@link xdr.LedgerKeyContractCode} ledger entry key (or see
    * {@link Contract.getFootprint}).
-   *
    * @param {xdr.ScVal[]} keys  one or more ledger entry keys to load
-   *
    * @returns {Promise<Api.GetLedgerEntriesResponse>}  the current
    *    on-chain values for the given ledger keys
-   *
    * @see Server._getLedgerEntries
    * @see https://soroban.stellar.org/api/methods/getLedgerEntries
    * @example
@@ -376,12 +354,9 @@ export class Server {
    *
    * After submitting a transaction, clients should poll this to tell when the
    * transaction has completed.
-   *
    * @param {string} hash   hex-encoded hash of the transaction to check
-   *
    * @returns {Promise<Api.GetTransactionResponse>}  the status,
    *    result, and other details about the transaction
-   *
    * @see https://soroban.stellar.org/api/methods/getTransaction
    * @example
    * const transactionHash = "c4515e3bdc0897f21cc5dbec8c82cf0a936d4741cb74a8e158eb51b9fb00411a";
@@ -450,11 +425,9 @@ export class Server {
    *
    * To page through events, use the `pagingToken` field on the relevant
    * {@link Api.EventResponse} object to set the `cursor` parameter.
-   *
    * @param {Server.GetEventsRequest} request   event filters
    * @returns {Promise<Api.GetEventsResponse>}   a paginatable set of the
    *    events matching the given event filters
-   *
    * @see https://soroban.stellar.org/api/methods/getEvents
    * @example
    * server.getEvents({
@@ -502,10 +475,8 @@ export class Server {
 
   /**
    * Fetch metadata about the network this Soroban RPC server is connected to.
-   *
    * @returns {Promise<Api.GetNetworkResponse>}  metadata about the
    *    current network this RPC server is connected to
-   *
    * @see https://soroban.stellar.org/api/methods/getNetwork
    * @example
    * server.getNetwork().then((network) => {
@@ -515,16 +486,14 @@ export class Server {
    * });
    */
   public async getNetwork(): Promise<Api.GetNetworkResponse> {
-    return await jsonrpc.postObject(this.serverURL.toString(), 'getNetwork');
+    return jsonrpc.postObject(this.serverURL.toString(), 'getNetwork');
   }
 
   /**
    * Fetch the latest ledger meta info from network which this Soroban RPC
    * server is connected to.
-   *
    * @returns {Promise<Api.GetLatestLedgerResponse>}   metadata about the
    *    latest ledger on the network that this RPC server is connected to
-   *
    * @see https://soroban.stellar.org/api/methods/getLatestLedger
    * @example
    * server.getLatestLedger().then((response) => {
@@ -540,22 +509,20 @@ export class Server {
   /**
    * Submit a trial contract invocation to get back return values, expected
    * ledger footprint, expected authorizations, and expected costs.
-   *
    * @param {Transaction | FeeBumpTransaction} transaction  the transaction to
    *    simulate, which should include exactly one operation (one of
    *    {@link xdr.InvokeHostFunctionOp}, {@link xdr.ExtendFootprintTTLOp}, or
    *    {@link xdr.RestoreFootprintOp}). Any provided footprint or auth
    *    information will be ignored.
-   *
+   * @param tx
+   * @param addlResources
    * @returns {Promise<Api.SimulateTransactionResponse>}   an object with the
    *    cost, footprint, result/auth requirements (if applicable), and error of
    *    the transaction
-   *
    * @see https://developers.stellar.org/docs/glossary/transactions/
    * @see https://soroban.stellar.org/api/methods/simulateTransaction
    * @see Server.prepareTransaction
    * @see assembleTransaction
-   *
    * @example
    * const contractId = 'CA3D5KRYM6CB7OWQ6TWYRR3Z4T7GNZLKERYNZGGA5SOAOPIFY6YQGAXE';
    * const contract = new StellarSdk.Contract(contractId);
@@ -621,7 +588,6 @@ export class Server {
    * You can call the {@link Server.simulateTransaction} method directly first
    * if you want to inspect estimated fees for a given transaction in detail
    * first, then re-assemble it manually or via {@link assembleTransaction}.
-   *
    * @param {Transaction | FeeBumpTransaction} transaction  the transaction to
    *    prepare. It should include exactly one operation, which must be one of
    *    {@link xdr.InvokeHostFunctionOp}, {@link xdr.ExtendFootprintTTLOp},
@@ -632,13 +598,12 @@ export class Server {
    *    from the simulation. In other words, if you include auth entries, you
    *    don't care about the auth returned from the simulation. Other fields
    *    (footprint, etc.) will be filled as normal.
-   *
+   * @param tx
    * @returns {Promise<Transaction | FeeBumpTransaction>}   a copy of the
    *    transaction with the expected authorizations (in the case of
    *    invocation), resources, and ledger footprints added. The transaction fee
    *    will also automatically be padded with the contract's minimum resource
    *    fees discovered from the simulation.
-   *
    * @see assembleTransaction
    * @see https://soroban.stellar.org/api/methods/simulateTransaction
    * @throws {jsonrpc.Error<any>|Error|Api.SimulateTransactionErrorResponse}
@@ -690,11 +655,9 @@ export class Server {
    * simply validates the transaction and enqueues it. Clients should call
    * {@link Server.getTransactionStatus} to learn about transaction
    * success/failure.
-   *
    * @param {Transaction | FeeBumpTransaction} transaction  to submit
    * @returns {Promise<Api.SendTransactionResponse>}   the
    *    transaction id, status, and any error if available
-   *
    * @see https://developers.stellar.org/docs/glossary/transactions/
    * @see https://soroban.stellar.org/api/methods/sendTransaction
    * @example
@@ -744,21 +707,17 @@ export class Server {
 
   /**
    * Fund a new account using the network's friendbot faucet, if any.
-   *
    * @param {string | Account} address  the address or account instance that we
    *    want to create and fund with friendbot
    * @param {string} [friendbotUrl]     optionally, an explicit address for
    *    friendbot (by default: this calls the Soroban RPC
    *    {@link Server.getNetwork} method to try to discover this network's
    *    Friendbot url).
-   *
    * @returns {Promise<Account>}  an {@link Account} object for the created
    *    account, or the existing account if it's already funded with the
    *    populated sequence number (note that the account will not be "topped
    *    off" if it already exists)
-   *
    * @throws if Friendbot is not configured on this network or request failure
-   *
    * @see
    * https://developers.stellar.org/docs/fundamentals-and-concepts/testnet-and-pubnet#friendbot
    * @see Friendbot.Response
@@ -804,6 +763,10 @@ export class Server {
   }
 }
 
+/**
+ *
+ * @param meta
+ */
 function findCreatedAccountSequenceInTransactionMeta(
   meta: xdr.TransactionMeta
 ): string {

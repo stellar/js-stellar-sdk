@@ -4,11 +4,10 @@ import { ServerApi } from "./server_api";
 /**
  * Creates a new {@link OperationCallBuilder} pointed to server defined by serverUrl.
  * Do not create this object directly, use {@link Server#operations}.
- *
  * @see [All Operations](https://developers.stellar.org/api/resources/operations/)
  * @class OperationCallBuilder
- * @constructor
- * @extends CallBuilder
+ * @class
+ * @augments CallBuilder
  * @param {string} serverUrl Horizon server URL.
  */
 export class OperationCallBuilder extends CallBuilder<
@@ -58,7 +57,6 @@ export class OperationCallBuilder extends CallBuilder<
 
   /**
    * This endpoint returns all operations that occurred in a given ledger.
-   *
    * @see [Operations for Ledger](https://developers.stellar.org/api/resources/ledgers/operations/)
    * @param {number|string} sequence Ledger sequence
    * @returns {OperationCallBuilder} this OperationCallBuilder instance
@@ -79,7 +77,6 @@ export class OperationCallBuilder extends CallBuilder<
 
   /**
    * This endpoint represents all operations involving a particular liquidity pool.
-   *
    * @param {string} poolId   liquidity pool ID
    * @returns {OperationCallBuilder} this OperationCallBuilder instance
    */
@@ -89,8 +86,7 @@ export class OperationCallBuilder extends CallBuilder<
 
   /**
    * Adds a parameter defining whether to include failed transactions.
-   *   By default, only operations of successful transactions are returned.
-   *
+   * By default, only operations of successful transactions are returned.
    * @param {bool} value Set to `true` to include operations of failed transactions.
    * @returns {OperationCallBuilder} this OperationCallBuilder instance
    */

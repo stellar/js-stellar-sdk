@@ -20,16 +20,14 @@ import { ServerApi } from "../horizon/server_api";
 /**
  * Returns a valid [SEP-10](https://stellar.org/protocol/sep-10) challenge
  * transaction which you can use for Stellar Web Authentication.
- *
  * @function
  * @memberof WebAuth
- *
  * @param {Keypair} serverKeypair Keypair for server's signing account.
  * @param {string} clientAccountID The stellar account (G...) or muxed account
  *    (M...) that the wallet wishes to authenticate with the server.
  * @param {string} homeDomain The fully qualified domain name of the service
  *    requiring authentication
- * @param {number} [timeout=300] Challenge duration (default to 5 minutes).
+ * @param {number} [timeout] Challenge duration (default to 5 minutes).
  * @param {string} networkPassphrase The network passphrase. If you pass this
  *    argument then timeout is required.
  * @param {string} webAuthDomain The fully qualified domain name of the service
@@ -43,11 +41,9 @@ import { ServerApi } from "../horizon/server_api";
  * @param {string} [clientSigningKey] The public key assigned to the SIGNING_KEY
  *    attribute specified on the stellar.toml hosted on the client domain. Only
  *    necessary when the 'client_domain' parameter is passed.
- *
  * @returns {string} A base64 encoded string of the raw TransactionEnvelope xdr
  *    struct for the transaction.
  * @see [SEP-10: Stellar Web Auth](https://stellar.org/protocol/sep-10).
- *
  * @example
  * import { Keypair, Networks, WebAuth }  from 'stellar-sdk'
  *
@@ -144,10 +140,8 @@ export function buildChallengeTx(
  * of the following functions to completely verify the transaction:
  * - {@link verifyChallengeTxThreshold}
  * - {@link verifyChallengeTxSigners}
- *
  * @function
  * @memberof WebAuth
- *
  * @param {string} challengeTx SEP0010 challenge transaction in base64.
  * @param {string} serverAccountID The server's stellar account (public key).
  * @param {string} networkPassphrase The network passphrase, e.g.: 'Test SDF
@@ -158,12 +152,10 @@ export function buildChallengeTx(
  * @param {string} webAuthDomain The home domain that is expected to be included
  *    as the value of the Manage Data operation with the 'web_auth_domain' key.
  *    If no such operation is included, this parameter is not used.
- *
  * @returns {Transaction|string|string|string} The actual transaction and the
  *    stellar public key (master key) used to sign the Manage Data operation,
  *    the matched home domain, and the memo attached to the transaction, which
  *    will be null if not present.
- *
  * @see [SEP-10: Stellar Web Auth](https://stellar.org/protocol/sep-10).
  */
 export function readChallengeTx(
@@ -362,15 +354,13 @@ export function readChallengeTx(
  * ignored.
  *
  * Errors will be raised if:
- *  - The transaction is invalid according to {@link readChallengeTx}.
- *  - No client signatures are found on the transaction.
- *  - One or more signatures in the transaction are not identifiable as the
- *    server account or one of the signers provided in the arguments.
- *  - The signatures are all valid but do not meet the threshold.
- *
+ * - The transaction is invalid according to {@link readChallengeTx}.
+ * - No client signatures are found on the transaction.
+ * - One or more signatures in the transaction are not identifiable as the
+ * server account or one of the signers provided in the arguments.
+ * - The signatures are all valid but do not meet the threshold.
  * @function
  * @memberof WebAuth
- *
  * @param {string} challengeTx SEP0010 challenge transaction in base64.
  * @param {string} serverAccountID The server's stellar account (public key).
  * @param {string} networkPassphrase The network passphrase, e.g.: 'Test SDF
@@ -386,11 +376,9 @@ export function readChallengeTx(
  * @param {string} webAuthDomain The home domain that is expected to be included
  *    as the value of the Manage Data operation with the 'web_auth_domain' key,
  *    if present. Used in verifyChallengeTxSigners() => readChallengeTx().
- *
  * @returns {string[]} The list of signers public keys that have signed the
  *    transaction, excluding the server account ID, given that the threshold was
  *    met.
- *
  * @see [SEP-10: Stellar Web Auth](https://stellar.org/protocol/sep-10).
  * @example
  * import { Networks, TransactionBuilder, WebAuth }  from 'stellar-sdk';
@@ -490,14 +478,12 @@ export function verifyChallengeTxThreshold(
  * ignored.
  *
  * Errors will be raised if:
- *  - The transaction is invalid according to {@link readChallengeTx}.
- *  - No client signatures are found on the transaction.
- *  - One or more signatures in the transaction are not identifiable as the
- *    server account or one of the signers provided in the arguments.
- *
+ * - The transaction is invalid according to {@link readChallengeTx}.
+ * - No client signatures are found on the transaction.
+ * - One or more signatures in the transaction are not identifiable as the
+ * server account or one of the signers provided in the arguments.
  * @function
  * @memberof WebAuth
- *
  * @param {string} challengeTx SEP0010 challenge transaction in base64.
  * @param {string} serverAccountID The server's stellar account (public key).
  * @param {string} networkPassphrase The network passphrase, e.g.: 'Test SDF
@@ -512,7 +498,6 @@ export function verifyChallengeTxThreshold(
  *    if present. Used in readChallengeTx().
  * @returns {string[]} The list of signers public keys that have signed the
  *    transaction, excluding the server account ID.
- *
  * @see [SEP-10: Stellar Web Auth](https://stellar.org/protocol/sep-10).
  * @example
  * import { Networks, TransactionBuilder, WebAuth }  from 'stellar-sdk';
@@ -572,8 +557,8 @@ export function verifyChallengeTxSigners(
     serverKP = Keypair.fromPublicKey(serverAccountID); // can throw 'Invalid Stellar public key'
   } catch (err: any) {
     throw new Error(
-      "Couldn't infer keypair from the provided 'serverAccountID': " +
-        err.message,
+      `Couldn't infer keypair from the provided 'serverAccountID': ${ 
+        err.message}`,
     );
   }
 
@@ -645,7 +630,7 @@ export function verifyChallengeTxSigners(
   // Confirm we matched a signature to the server signer.
   if (!serverSignatureFound) {
     throw new InvalidChallengeError(
-      "Transaction not signed by server: '" + serverKP.publicKey() + "'",
+      `Transaction not signed by server: '${  serverKP.publicKey()  }'`,
     );
   }
 
@@ -683,13 +668,11 @@ export function verifyChallengeTxSigners(
 
 /**
  * Verifies if a transaction was signed by the given account id.
- *
  * @function
  * @memberof WebAuth
  * @param {Transaction} transaction
  * @param {string} accountID
  * @returns {boolean}.
- *
  * @example
  * let keypair = Keypair.random();
  * const account = new StellarSdk.Account(keypair.publicKey(), "-1");
@@ -712,14 +695,12 @@ export function verifyTxSignedBy(
  * Checks if a transaction has been signed by one or more of the given signers,
  * returning a list of non-repeated signers that were found to have signed the
  * given transaction.
- *
  * @function
  * @memberof WebAuth
  * @param {Transaction} transaction the signed transaction.
  * @param {string[]} signers The signers public keys.
  * @returns {string[]} a list of signers that were found to have signed the
  * transaction.
- *
  * @example
  * let keypair1 = Keypair.random();
  * let keypair2 = Keypair.random();
@@ -751,7 +732,7 @@ export function gatherTxSigners(
       keypair = Keypair.fromPublicKey(signer); // This can throw a few different errors
     } catch (err: any) {
       throw new InvalidChallengeError(
-        "Signer is not a valid address: " + err.message,
+        `Signer is not a valid address: ${  err.message}`,
       );
     }
 

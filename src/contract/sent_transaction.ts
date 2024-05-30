@@ -70,6 +70,8 @@ export class SentTransaction<T> {
    * Initialize a `SentTransaction` from an existing `AssembledTransaction` and
    * a `signTransaction` function. This will also send the transaction to the
    * network.
+   * @param signTransaction
+   * @param assembled
    */
   static init = async <U>(
     /** More info in {@link MethodOptions} */

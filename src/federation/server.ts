@@ -15,7 +15,7 @@ export const FEDERATION_RESPONSE_MAX_SIZE = 100 * 1024;
  * FederationServer handles a network connection to a
  * [federation server](https://developers.stellar.org/docs/glossary/federation/)
  * instance and exposes an interface for requests to that instance.
- * @constructor
+ * @class
  * @param {string} serverURL The federation server URL (ex. `https://acme.com/federation`).
  * @param {string} domain Domain this server represents
  * @param {object} [opts] options object
@@ -26,20 +26,19 @@ export const FEDERATION_RESPONSE_MAX_SIZE = 100 * 1024;
 export class FederationServer {
   /**
    * The federation server URL (ex. `https://acme.com/federation`).
-   *
    * @memberof FederationServer
    */
   private readonly serverURL: URI; // TODO: public or private? readonly?
+
   /**
    * Domain this server represents.
-   *
    * @type {string}
    * @memberof FederationServer
    */
   private readonly domain: string; // TODO: public or private? readonly?
+
   /**
    * Allow a timeout, default: 0. Allows user to avoid nasty lag due to TOML resolve issue.
-   *
    * @type {number}
    * @memberof FederationServer
    */
@@ -49,25 +48,24 @@ export class FederationServer {
    * A helper method for handling user inputs that contain `destination` value.
    * It accepts two types of values:
    *
-   * * For Stellar address (ex. `bob*stellar.org`) it splits Stellar address and then tries to find information about
+   * For Stellar address (ex. `bob*stellar.org`) it splits Stellar address and then tries to find information about
    * federation server in `stellar.toml` file for a given domain. It returns a `Promise` which resolves if federation
    * server exists and user has been found and rejects in all other cases.
-   * * For Account ID (ex. `GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS`) it returns a `Promise` which
+   * For Account ID (ex. `GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS`) it returns a `Promise` which
    * resolves if Account ID is valid and rejects in all other cases. Please note that this method does not check
    * if the account actually exists in a ledger.
    *
    * Example:
    * ```js
    * StellarSdk.FederationServer.resolve('bob*stellar.org')
-   *  .then(federationRecord => {
-   *    // {
-   *    //   account_id: 'GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS',
-   *    //   memo_type: 'id',
-   *    //   memo: 100
-   *    // }
-   *  });
+   * .then(federationRecord => {
+   * // {
+   * //   account_id: 'GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS',
+   * //   memo_type: 'id',
+   * //   memo: 100
+   * // }
+   * });
    * ```
-   *
    * @see <a href="https://developers.stellar.org/docs/glossary/federation/" target="_blank">Federation doc</a>
    * @see <a href="https://developers.stellar.org/docs/issuing-assets/publishing-asset-info/" target="_blank">Stellar.toml doc</a>
    * @param {string} value Stellar Address (ex. `bob*stellar.org`)
@@ -75,9 +73,9 @@ export class FederationServer {
    * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments!
    * @param {number} [opts.timeout] - Allow a timeout, default: 0. Allows user to avoid nasty lag due to TOML resolve issue.
    * @returns {Promise} `Promise` that resolves to a JSON object with this shape:
-   * * `account_id` - Account ID of the destination,
-   * * `memo_type` (optional) - Memo type that needs to be attached to a transaction,
-   * * `memo` (optional) - Memo value that needs to be attached to a transaction.
+   * `account_id` - Account ID of the destination,
+   * `memo_type` (optional) - Memo type that needs to be attached to a transaction,
+   * `memo` (optional) - Memo value that needs to be attached to a transaction.
    */
   public static async resolve(
     value: string,
@@ -213,7 +211,7 @@ export class FederationServer {
   }
 
   private async _sendRequest(url: URI) {
-    const timeout = this.timeout;
+    const {timeout} = this;
 
     return axios
       .get(url.toString(), {

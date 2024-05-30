@@ -6,10 +6,9 @@ import { ServerApi } from "./server_api";
 /**
  * Creates a new {@link LiquidityPoolCallBuilder} pointed to server defined by serverUrl.
  * Do not create this object directly, use {@link Server#liquidityPools}.
- *
  * @class LiquidityPoolCallBuilder
- * @extends CallBuilder
- * @constructor
+ * @augments CallBuilder
+ * @class
  * @param {string} serverUrl Horizon server URL.
  */
 export class LiquidityPoolCallBuilder extends CallBuilder<
@@ -22,7 +21,6 @@ export class LiquidityPoolCallBuilder extends CallBuilder<
 
   /**
    * Filters out pools whose reserves don't exactly match these assets.
-   *
    * @see Asset
    * @param {Asset[]} assets
    * @returns {LiquidityPoolCallBuilder} current LiquidityPoolCallBuilder instance
@@ -37,7 +35,6 @@ export class LiquidityPoolCallBuilder extends CallBuilder<
 
   /**
    * Retrieves all pools an account is participating in.
-   *
    * @param {string} id   the participant account to filter by
    * @returns {LiquidityPoolCallBuilder} current LiquidityPoolCallBuilder instance
    */
@@ -48,7 +45,6 @@ export class LiquidityPoolCallBuilder extends CallBuilder<
 
   /**
    * Retrieves a specific liquidity pool by ID.
-   *
    * @param {string} id   the hash/ID of the liquidity pool
    * @returns {CallBuilder} a new CallBuilder instance for the /liquidity_pools/:id endpoint
    */

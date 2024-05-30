@@ -4,11 +4,10 @@ import { ServerApi } from "./server_api";
 /**
  * Creates a new {@link TransactionCallBuilder} pointed to server defined by serverUrl.
  * Do not create this object directly, use {@link Server#transactions}.
- *
  * @class TransactionCallBuilder
- * @extends CallBuilder
+ * @augments CallBuilder
  * @see [All Transactions](https://developers.stellar.org/api/resources/transactions/)
- * @constructor
+ * @class
  * @param {string} serverUrl Horizon server URL.
  */
 export class TransactionCallBuilder extends CallBuilder<
@@ -67,7 +66,6 @@ export class TransactionCallBuilder extends CallBuilder<
 
   /**
    * This endpoint represents all transactions involving a particular liquidity pool.
-   *
    * @param {string} poolId   liquidity pool ID
    * @returns {TransactionCallBuilder} this TransactionCallBuilder instance
    */

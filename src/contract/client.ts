@@ -13,6 +13,8 @@ export class Client {
    * Each method returns an {@link AssembledTransaction} that can be used to
    * modify, simulate, decode results, and possibly sign, & submit the
    * transaction.
+   * @param spec
+   * @param options
    */
   constructor(
     /** {@link Spec} to construct a Client for */
@@ -53,7 +55,6 @@ export class Client {
   /**
    * Generates a Client instance from the provided ClientOptions and the contract's wasm hash.
    * The wasmHash can be provided in either hex or base64 format.
-   * 
    * @param wasmHash The hash of the contract's wasm binary, in either hex or base64 format.
    * @param options The ClientOptions object containing the necessary configuration, including the rpcUrl.
    * @param format The format of the provided wasmHash, either "hex" or "base64". Defaults to "hex".
@@ -76,7 +77,6 @@ export class Client {
 
   /**
    * Generates a Client instance from the provided ClientOptions and the contract's wasm binary.
-   * 
    * @param wasm The contract's wasm binary as a Buffer.
    * @param options The ClientOptions object containing the necessary configuration.
    * @returns A Promise that resolves to a Client instance.
@@ -96,7 +96,6 @@ export class Client {
 
   /**
    * Generates a Client instance from the provided ClientOptions, which must include the contractId and rpcUrl.
-   * 
    * @param options The ClientOptions object containing the necessary configuration, including the contractId and rpcUrl.
    * @returns A Promise that resolves to a Client instance.
    * @throws {TypeError} If the provided options object does not contain both rpcUrl and contractId.

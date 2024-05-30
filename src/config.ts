@@ -1,13 +1,11 @@
 interface Configuration {
   /**
    * Allow connecting to http servers, default: `false`. This must be set to false in production deployments!
-   *
    * @type {boolean}
    */
   allowHttp: boolean;
   /**
    * Allow a timeout, default: 0. Allows user to avoid nasty lag due to TOML resolve issue. You can also use {@link Config} class to set this globally.
-   *
    * @type {number}
    */
   timeout: number;
@@ -18,7 +16,7 @@ const defaultConfig: Configuration = {
   timeout: 0,
 };
 
-let config = Object.assign({}, defaultConfig);
+let config = { ...defaultConfig};
 
 /**
  * Global config class.
@@ -82,7 +80,7 @@ class Config {
    * @returns {void}
    */
   public static setDefault(): void {
-    config = Object.assign({}, defaultConfig);
+    config = { ...defaultConfig};
   }
 }
 

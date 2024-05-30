@@ -10,6 +10,7 @@ export class NetworkError extends Error {
     statusText?: string;
     url?: string;
   };
+
   public __proto__: NetworkError;
 
   constructor(message: string, response: any) {
@@ -72,10 +73,12 @@ export class BadResponseError extends NetworkError {
  */
 export class AccountRequiresMemoError extends Error {
   public __proto__: AccountRequiresMemoError;
+
   /**
    * accountId account which requires a memo.
    */
   public accountId: string;
+
   /**
    * operationIndex operation where accountId is the destination.
    */

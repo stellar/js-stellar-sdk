@@ -388,6 +388,7 @@ export class AssembledTransaction<T> {
    *       ...,
    *       simulate: false,
    *     })
+   * @param options
    */
   static async build<T>(
     options: AssembledTransactionOptions<T>,
@@ -509,6 +510,9 @@ export class AssembledTransaction<T> {
    * includes the `signTransaction` method. After signing, this method will
    * send the transaction to the network and return a `SentTransaction` that
    * keeps track of all the attempts to fetch the transaction.
+   * @param root0
+   * @param root0.force
+   * @param root0.signTransaction
    */
   signAndSend = async ({
     force = false,
@@ -584,6 +588,8 @@ export class AssembledTransaction<T> {
    * deserialize the transaction with `txFromJson`, and call
    * {@link AssembledTransaction#signAuthEntries}. Then re-serialize and send to
    * the next account in this list.
+   * @param root0
+   * @param root0.includeAlreadySigned
    */
   needsNonInvokerSigningBy = ({
     includeAlreadySigned = false,
@@ -646,6 +652,10 @@ export class AssembledTransaction<T> {
    *
    * Sending to all `needsNonInvokerSigningBy` owners in parallel is not
    * currently supported!
+   * @param root0
+   * @param root0.expiration
+   * @param root0.publicKey
+   * @param root0.signAuthEntry
    */
   signAuthEntries = async ({
     expiration = this.getStorageExpiration(),
