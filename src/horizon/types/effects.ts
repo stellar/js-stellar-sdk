@@ -1,4 +1,4 @@
-import { HorizonApi } from "../horizon_api";
+import { HorizonApi } from "./../horizon_api";
 import { OfferAsset } from "./offer";
 
 // Reference: GO SDK https://github.com/stellar/go/blob/ec5600bd6b2b6900d26988ff670b9ca7992313b8/services/horizon/internal/resourceadapter/effects.go

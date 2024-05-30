@@ -4,10 +4,11 @@ import { ServerApi } from "./server_api";
 /**
  * Creates a new {@link EffectCallBuilder} pointed to server defined by serverUrl.
  * Do not create this object directly, use {@link Server#effects}.
+ *
  * @class EffectCallBuilder
- * @augments CallBuilder
+ * @extends CallBuilder
  * @see [All Effects](https://developers.stellar.org/api/resources/effects/)
- * @class
+ * @constructor
  * @param {string} serverUrl Horizon server URL.
  */
 export class EffectCallBuilder extends CallBuilder<
@@ -62,6 +63,7 @@ export class EffectCallBuilder extends CallBuilder<
 
   /**
    * This endpoint represents all effects involving a particular liquidity pool.
+   *
    * @param {string} poolId   liquidity pool ID
    * @returns {EffectCallBuilder} this EffectCallBuilder instance
    */

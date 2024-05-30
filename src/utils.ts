@@ -3,8 +3,8 @@ import { Transaction } from "@stellar/stellar-base";
 export class Utils {
   /**
    * Verifies if the current date is within the transaction's timebonds
+   *
    * @static
-   * @param gracePeriod
    * @function
    * @param {Transaction} transaction the transaction whose timebonds will be validated.
    * @returns {boolean} returns true if the current time is within the transaction's [minTime, maxTime] range.

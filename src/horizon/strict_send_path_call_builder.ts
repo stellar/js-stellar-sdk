@@ -22,11 +22,12 @@ import { ServerApi } from "./server_api";
  *
  * Do not create this object directly, use {@link Server#strictSendPaths}.
  * @see [Find Payment Paths](https://developers.stellar.org/api/aggregations/paths/)
- * @augments CallBuilder
+ * @extends CallBuilder
  * @param {string} serverUrl Horizon server URL.
  * @param {Asset} sourceAsset The asset to be sent.
  * @param {string} sourceAmount The amount, denominated in the source asset, that any returned path should be able to satisfy.
  * @param {string|Asset[]} destination The destination account or the destination assets.
+ *
  */
 export class StrictSendPathCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.PaymentPathRecord>

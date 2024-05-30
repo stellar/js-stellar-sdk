@@ -8,8 +8,6 @@ import type { Client } from "./client";
  * those classes. This is useful for testing and maybe some simple Node
  * applications. Feel free to use this as a starting point for your own
  * Wallet/TransactionSigner implementation.
- * @param keypair
- * @param networkPassphrase
  */
 export const basicNodeSigner = (
   /** {@link Keypair} to use to sign the transaction or auth entry */

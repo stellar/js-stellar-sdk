@@ -26,12 +26,7 @@ export interface Error<E = any> {
   data?: E;
 }
 
-/**
- * Sends the jsonrpc 'params' as a single 'param' object (no array support).
- * @param url
- * @param method
- * @param param
- */
+/** Sends the jsonrpc 'params' as a single 'param' object (no array support). */
 export async function postObject<T>(
   url: string,
   method: string,
@@ -53,11 +48,6 @@ export async function postObject<T>(
 
 // Check if the given object X has a field Y, and make that available to
 // typescript typing.
-/**
- *
- * @param obj
- * @param prop
- */
 function hasOwnProperty<X extends {}, Y extends PropertyKey>(
   obj: X,
   prop: Y,

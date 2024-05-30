@@ -5,10 +5,11 @@ import { ServerApi } from "./server_api";
 /**
  * Creates a new {@link OfferCallBuilder} pointed to server defined by serverUrl.
  * Do not create this object directly, use {@link Server#offers}.
+ *
  * @see [Offers](https://developers.stellar.org/api/resources/offers/)
  * @class OfferCallBuilder
- * @class
- * @augments CallBuilder
+ * @constructor
+ * @extends CallBuilder
  * @param {string} serverUrl Horizon server URL.
  */
 export class OfferCallBuilder extends CallBuilder<
@@ -34,6 +35,7 @@ export class OfferCallBuilder extends CallBuilder<
 
   /**
    * Returns all offers where the given account is involved.
+   *
    * @see [Offers](https://developers.stellar.org/api/resources/accounts/offers/)
    * @param {string} id For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
    * @returns {OfferCallBuilder} current OfferCallBuilder instance
@@ -91,6 +93,7 @@ export class OfferCallBuilder extends CallBuilder<
 
   /**
    * This endpoint filters offers where the given account is the seller.
+   *
    * @see [Offers](https://developers.stellar.org/api/resources/offers/list/)
    * @param {string} seller For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
    * @returns {OfferCallBuilder} current OfferCallBuilder instance

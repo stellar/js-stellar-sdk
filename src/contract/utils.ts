@@ -9,11 +9,6 @@ export const DEFAULT_TIMEOUT = 5 * 60;
 /**
  * Keep calling a `fn` for `timeoutInSeconds` seconds, if `keepWaitingIf` is
  * true. Returns an array of all attempts to call the function.
- * @param fn
- * @param keepWaitingIf
- * @param timeoutInSeconds
- * @param exponentialFactor
- * @param verbose
  */
 export async function withExponentialBackoff<T>(
   /** Function to call repeatedly */
@@ -92,7 +87,6 @@ export const contractErrorPattern = /Error\(Contract, #(\d+)\)/;
 
 /**
  * A TypeScript type guard that checks if an object has a `toString` method.
- * @param obj
  */
 export function implementsToString(
   /** some object that may or may not have a `toString` method */
@@ -103,7 +97,6 @@ export function implementsToString(
 
 /**
  * Reads a binary stream of ScSpecEntries into an array for processing by ContractSpec
- * @param buffer
  */
 export function processSpecEntryStream(buffer: Buffer) {
   const reader = new cereal.XdrReader(buffer);

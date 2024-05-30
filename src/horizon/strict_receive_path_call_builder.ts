@@ -10,8 +10,8 @@ import { ServerApi } from "./server_api";
  *
  * A path search is specified using:
  *
- * The source address or source assets.
- * The asset and amount that the destination account should receive
+ * * The source address or source assets.
+ * * The asset and amount that the destination account should receive
  *
  * As part of the search, horizon will load a list of assets available to the
  * source address and will find any payment paths from those source assets to
@@ -23,7 +23,7 @@ import { ServerApi } from "./server_api";
  *
  * Do not create this object directly, use {@link Server#strictReceivePaths}.
  * @see [Find Payment Paths](https://developers.stellar.org/api/aggregations/paths/)
- * @augments CallBuilder
+ * @extends CallBuilder
  * @param {string} serverUrl Horizon server URL.
  * @param {string|Asset[]} source The sender's account ID or a list of Assets. Any returned path must use a source that the sender can hold.
  * @param {Asset} destinationAsset The destination asset.

@@ -33,8 +33,7 @@ export namespace Api {
     key: string;
     /** a base-64 encoded {@link xdr.LedgerEntryData} instance */
     xdr: string;
-    /**
-     * optional, a future ledger number upon which this entry will expire
+    /** optional, a future ledger number upon which this entry will expire
      *  based on https://github.com/stellar/soroban-tools/issues/1010
      */
     liveUntilLedgerSeq?: number;
@@ -223,12 +222,13 @@ export namespace Api {
   /**
    * Simplifies {@link RawSimulateTransactionResponse} into separate interfaces
    * based on status:
-   * - on success, this includes all fields, though `result` is only present
-   * if an invocation was simulated (since otherwise there's nothing to
-   * "resultify")
-   * - if there was an expiration error, this includes error and restoration
-   * fields
-   * - for all other errors, this only includes error fields
+   *   - on success, this includes all fields, though `result` is only present
+   *     if an invocation was simulated (since otherwise there's nothing to
+   *     "resultify")
+   *   - if there was an expiration error, this includes error and restoration
+   *     fields
+   *   - for all other errors, this only includes error fields
+   *
    * @see https://soroban.stellar.org/api/methods/simulateTransaction#returns
    */
   export type SimulateTransactionResponse =
@@ -291,30 +291,18 @@ export namespace Api {
     };
   }
 
-  /**
-   *
-   * @param sim
-   */
   export function isSimulationError(
     sim: SimulateTransactionResponse
   ): sim is SimulateTransactionErrorResponse {
     return 'error' in sim;
   }
 
-  /**
-   *
-   * @param sim
-   */
   export function isSimulationSuccess(
     sim: SimulateTransactionResponse
   ): sim is SimulateTransactionSuccessResponse {
     return 'transactionData' in sim;
   }
 
-  /**
-   *
-   * @param sim
-   */
   export function isSimulationRestore(
     sim: SimulateTransactionResponse
   ): sim is SimulateTransactionRestoreResponse {
@@ -325,10 +313,6 @@ export namespace Api {
     );
   }
 
-  /**
-   *
-   * @param sim
-   */
   export function isSimulationRaw(
     sim:
       | Api.SimulateTransactionResponse
