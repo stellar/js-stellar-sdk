@@ -27,8 +27,8 @@ export class AccountResponse implements Omit<ServerApi.AccountRecord, `_${string
   public readonly inflation_destination?: string;
   public readonly last_modified_ledger!: number;
   public readonly last_modified_time!: string;
-  public readonly num_sponsored: number;
-  public readonly num_sponsoring: number;
+  public readonly num_sponsored!: number;
+  public readonly num_sponsoring!: number;
   public readonly thresholds!: HorizonApi.AccountThresholds;
   public readonly flags!: HorizonApi.Flags;
   public readonly balances!: HorizonApi.BalanceLine[];
