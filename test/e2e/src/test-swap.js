@@ -36,14 +36,12 @@ describe("Swap Contract Tests", function () {
       await tokenA.mint({ amount: amountAToSwap, to: alice.publicKey() })
     ).signAndSend();
 
-    await (
-      await tokenB.initialize({
-        admin: root.publicKey(),
-        decimal: 0,
-        name: "Token B",
-        symbol: "B",
-      })
-    ).signAndSend();
+    await tokenB.initialize({
+      admin: root.publicKey(),
+      decimal: 0,
+      name: "Token B",
+      symbol: "B",
+    }).then(t => t.signAndSend());
     await (
       await tokenB.mint({ amount: amountBToSwap, to: bob.publicKey() })
     ).signAndSend();
