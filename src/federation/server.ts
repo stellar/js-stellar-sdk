@@ -18,14 +18,14 @@ import { Api } from "./api";
 export const FEDERATION_RESPONSE_MAX_SIZE = 100 * 1024;
 
 /**
- * Server handles a network connection to a
- * [federation server](https://developers.stellar.org/docs/glossary/federation/)
+ * Federation.Server handles a network connection to a
+ * [federation server](https://developers.stellar.org/docs/learn/encyclopedia/federation)
  * instance and exposes an interface for requests to that instance.
  * @constructor
  * @memberof module:Federation
  * @param {string} serverURL The federation server URL (ex. `https://acme.com/federation`).
  * @param {string} domain Domain this server represents
- * @param {module:Federation.Api.Options} [opts] options object
+ * @param {module:Federation.Api.Options} [opts] Options object
  * @returns {void}
  */
 export class Server {
@@ -68,8 +68,8 @@ export class Server {
    *    // }
    *  });
    *
-   * @see <a href="https://developers.stellar.org/docs/glossary/federation/" target="_blank">Federation doc</a>
-   * @see <a href="https://developers.stellar.org/docs/issuing-assets/publishing-asset-info/" target="_blank">Stellar.toml doc</a>
+   * @see <a href="https://developers.stellar.org/docs/learn/encyclopedia/federation" target="_blank">Federation doc</a>
+   * @see <a href="https://developers.stellar.org/docs/issuing-assets/publishing-asset-info" target="_blank">Stellar.toml doc</a>
    * @param {string} value Stellar Address (ex. `bob*stellar.org`)
    * @param {module:Federation.Api.Options} [opts] Options object
    * @returns {Promise<module:Federation.Api.Record>} A promise that resolves to the federation record
@@ -102,12 +102,13 @@ export class Server {
 
   /**
    * Creates a `FederationServer` instance based on information from
-   * [stellar.toml](https://developers.stellar.org/docs/issuing-assets/publishing-asset-info/)
+   * [stellar.toml](https://developers.stellar.org/docs/issuing-assets/publishing-asset-info)
    * file for a given domain.
    *
    * If `stellar.toml` file does not exist for a given domain or it does not
    * contain information about a federation server Promise will reject.
-   * ```js
+   *
+   * @example
    * StellarSdk.FederationServer.createForDomain('acme.com')
    *   .then(federationServer => {
    *     // federationServer.resolveAddress('bob').then(...)
@@ -115,8 +116,8 @@ export class Server {
    *   .catch(error => {
    *     // stellar.toml does not exist or it does not contain information about federation server.
    *   });
-   * ```
-   * @see <a href="https://developers.stellar.org/docs/issuing-assets/publishing-asset-info/" target="_blank">Stellar.toml doc</a>
+   *
+   * @see <a href="https://developers.stellar.org/docs/issuing-assets/publishing-asset-info" target="_blank">Stellar.toml doc</a>
    * @param {string} domain Domain to get federation server for
    * @param {module:Federation.Api.Options} [opts] Options object
    * @returns {Promise<module:Federation.Api.Record>} A promise that resolves to the federation record
@@ -159,7 +160,7 @@ export class Server {
 
   /**
    * Get the federation record if the user was found for a given Stellar address
-   * @see <a href="https://developers.stellar.org/docs/glossary/federation/" target="_blank">Federation doc</a>
+   * @see <a href="https://developers.stellar.org/docs/encyclopedia/federation" target="_blank">Federation doc</a>
    * @param {string} address Stellar address (ex. `bob*stellar.org`). If `FederationServer` was instantiated with `domain` param only username (ex. `bob`) can be passed.
    * @returns {Promise<module:Federation.Api.Record>} A promise that resolves to the federation record
    * @throws Will throw an error if the federated address does not contain a domain, or if the server object was not instantiated with a `domain` parameter
@@ -184,7 +185,7 @@ export class Server {
 
   /**
    * Given an account ID, get their federation record if the user was found
-   * @see <a href="https://developers.stellar.org/docs/glossary/federation/" target="_blank">Federation doc</a>
+   * @see <a href="https://developers.stellar.org/docs/encyclopedia/federation" target="_blank">Federation doc</a>
    * @param {string} accountId Account ID (ex. `GBYNR2QJXLBCBTRN44MRORCMI4YO7FZPFBCNOKTOBCAAFC7KC3LNPRYS`)
    * @returns {Promise<module:Federation.Api.Record>} A promise that resolves to the federation record
    * @throws Will throw an error if the federation server returns an invalid memo value.
