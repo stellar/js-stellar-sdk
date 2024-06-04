@@ -361,3 +361,16 @@ export namespace Api {
     stateChanges?: RawLedgerEntryChange[];
   }
 }
+
+/**
+ * @namespace Api
+ * @memberof module:rpc
+ */
+
+/**
+ * @typedef {Object} EventFilter
+ * @property {('contract' | 'system' | 'diagnostic')} [type] Type of contract event that must match in order for the event to pass through the filter.
+ * @property {Array.<string>} [contractIds] Contract addresses (`C...`) that must match in order for the event to pass through the filter.
+ * @property {Array.<Array<string>>} [topics] Array of topics arrays that must match in order for the event to pass through the filter.
+ * @memberof module:rpc.Api
+ */

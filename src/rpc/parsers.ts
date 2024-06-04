@@ -4,6 +4,7 @@ import { Api } from './api';
 /**
  * Parse the response from invoking the `submitTransaction` method of a Soroban RPC server.
  * @memberof module:rpc
+ * @private
  *
  * @param {Api.RawSendTransactionResponse} raw the raw `submitTransaction` response from the Soroban RPC server to parse
  * @returns {Api.SendTransactionResponse} transaction response parsed from the Soroban RPC server's response
@@ -63,6 +64,7 @@ export function parseRawEvents(
 /**
  * Parse and return the retrieved ledger entries, if any, from a raw response from a Soroban RPC server.
  * @memberof module:rpc
+ * @private
  *
  * @param {Api.RawGetLedgerEntriesResponse} raw he raw `getLedgerEntries` response from the Soroban RPC server to parse
  * @returns {Api.GetLedgerEntriesResponse} ledger entries parsed from the Soroban RPC server's response
