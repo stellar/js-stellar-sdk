@@ -513,16 +513,6 @@ export class AssembledTransaction<T> {
       );
     }
 
-    /*if (!simulation.result) {
-      throw new Error(
-        `Expected an invocation simulation, but got no 'result' field. Simulation: ${JSON.stringify(
-          simulation,
-          null,
-          2,
-        )}`,
-      );
-    }*/
-
     // add to object for serialization & deserialization
     this.simulationResult = simulation.result;
     this.simulationTransactionData = simulation.transactionData.build();
