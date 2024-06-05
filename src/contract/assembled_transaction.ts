@@ -309,7 +309,7 @@ export class AssembledTransaction<T> {
    */
   static Errors = {
     ExpiredState: class ExpiredStateError extends Error { },
-    RestoreFailure: class RestoreFailureError extends Error { },
+    RestorationFailure: class RestoreFailureError extends Error { },
     NeedsMoreSignatures: class NeedsMoreSignaturesError extends Error { },
     NoSignatureNeeded: class NoSignatureNeededError extends Error { },
     NoUnsignedNonInvokerAuthEntries: class NoUnsignedNonInvokerAuthEntriesError extends Error { },
@@ -329,8 +329,8 @@ export class AssembledTransaction<T> {
       method: this.options.method,
       tx: this.built?.toXDR(),
       simulationResult: {
-        auth: this.simulationData.result.auth.map((a) => a.toXDR("base64")),
-        retval: this.simulationData.result.retval.toXDR("base64"),
+        auth: this.simulationData.result?.auth.map((a) => a.toXDR("base64")),
+        retval: this.simulationData.result?.retval.toXDR("base64"),
       },
       simulationTransactionData:
         this.simulationData.transactionData.toXDR("base64"),
@@ -373,8 +373,6 @@ export class AssembledTransaction<T> {
       allowHttp: this.options.allowHttp ?? false,
     });
   }
-
- 
 
   /**
    * Construct a new AssembledTransaction. This is the only way to create a new
@@ -472,7 +470,7 @@ export class AssembledTransaction<T> {
         await this.simulate();
         return this;
       }
-      throw new AssembledTransaction.Errors.RestoreFailure(
+      throw new AssembledTransaction.Errors.RestorationFailure(
         `Automatic restore failed! You set 'restore: true' but the attempted restore did not work. Result:\n${JSON.stringify(result)}`
       );
     }
@@ -488,7 +486,7 @@ export class AssembledTransaction<T> {
   };
 
   get simulationData(): {
-    result: Api.SimulateHostFunctionResult;
+    result?: Api.SimulateHostFunctionResult;
     transactionData: xdr.SorobanTransactionData;
   } {
     if (this.simulationResult && this.simulationTransactionData) {
@@ -515,7 +513,7 @@ export class AssembledTransaction<T> {
       );
     }
 
-    if (!simulation.result) {
+    /*if (!simulation.result) {
       throw new Error(
         `Expected an invocation simulation, but got no 'result' field. Simulation: ${JSON.stringify(
           simulation,
@@ -523,7 +521,7 @@ export class AssembledTransaction<T> {
           2,
         )}`,
       );
-    }
+    }*/
 
     // add to object for serialization & deserialization
     this.simulationResult = simulation.result;
@@ -537,7 +535,10 @@ export class AssembledTransaction<T> {
 
   get result(): T {
     try {
-      return this.options.parseResultXdr(this.simulationData.result.retval);
+      if(!this.simulationData.result){
+        throw new Error("No simulation result!");
+      }
+      return this.options.parseResultXdr(this.simulationData.result?.retval);
     } catch (e) {
       if (!implementsToString(e)) throw e;
       const err = this.parseError(e.toString());
@@ -566,7 +567,6 @@ export class AssembledTransaction<T> {
   signAndSend = async ({
     force = false,
     signTransaction = this.options.signTransaction,
-    updateTimeout = true,
   }: {
     /**
      * If `true`, sign and send the transaction even if it is a read call
@@ -576,11 +576,6 @@ export class AssembledTransaction<T> {
      * You must provide this here if you did not provide one before
      */
     signTransaction?: ClientOptions["signTransaction"];
-    /**
-     * Whether or not to update the timeout value before signing
-     * and sending the transaction
-     */
-    updateTimeout?: boolean;
   } = {}): Promise<SentTransaction<T>> => {
     if (!this.built) {
       throw new Error("Transaction has not yet been simulated");
@@ -611,7 +606,6 @@ export class AssembledTransaction<T> {
     const sent = await SentTransaction.init(
       signTransaction,
       typeChecked,
-      updateTimeout
     );
     return sent;
   };
@@ -797,7 +791,7 @@ export class AssembledTransaction<T> {
    * returns `false`, then you need to call `signAndSend` on this transaction.
    */
   get isReadCall(): boolean {
-    const authsCount = this.simulationData.result.auth.length;
+    const authsCount = this.simulationData.result?.auth.length;
     const writeLength = this.simulationData.transactionData
       .resources()
       .footprint()
@@ -834,9 +828,7 @@ export class AssembledTransaction<T> {
       minResourceFee: string;
       transactionData: SorobanDataBuilder;
     },
-    /**
-     * The account that is executing the footprint restore operation.
-     */
+    /** The account that is executing the footprint restore operation. */
     account?: Account
   ): Promise<Api.GetTransactionResponse> {
     if(!this.options.signTransaction){
@@ -850,14 +842,10 @@ export class AssembledTransaction<T> {
       account,
       restorePreamble.minResourceFee
     );
-    const sentTransaction = await restoreTx.signAndSend({
-      updateTimeout: false,
-      force: true,
-    });
+    const sentTransaction = await restoreTx.signAndSend();
     if (!sentTransaction.getTransactionResponse) {
-      // todo make better error message
-      throw new AssembledTransaction.Errors.RestoreFailure(
-        `Failure during restore. \n${JSON.stringify(sentTransaction)}`
+      throw new AssembledTransaction.Errors.RestorationFailure(
+        `The attempt at automatic restore failed. \n${JSON.stringify(sentTransaction)}`
       );
     }
     return sentTransaction.getTransactionResponse;

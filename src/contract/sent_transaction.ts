@@ -1,6 +1,6 @@
 /* disable max-classes rule, because extending error shouldn't count! */
 /* eslint max-classes-per-file: 0 */
-import { SorobanDataBuilder, TransactionBuilder } from "@stellar/stellar-base";
+import { TransactionBuilder } from "@stellar/stellar-base";
 import type { ClientOptions, MethodOptions, Tx } from "./types";
 import { Server } from "../rpc/server"
 import { Api } from "../rpc/api"
@@ -76,27 +76,22 @@ export class SentTransaction<T> {
     signTransaction: ClientOptions["signTransaction"],
     /** {@link AssembledTransaction} from which this SentTransaction was initialized */
     assembled: AssembledTransaction<U>,
-    updateTimeout: boolean = true,
   ): Promise<SentTransaction<U>> => {
     const tx = new SentTransaction(signTransaction, assembled);
-    const sent = await tx.send({ updateTimeout });
+    const sent = await tx.send();
     return sent;
   };
 
-  private send = async ({ updateTimeout }: {updateTimeout?: boolean } =  { updateTimeout: true }): Promise<this> => {
+  private send = async (): Promise<this> => {
     const timeoutInSeconds =
       this.assembled.options.timeoutInSeconds ?? DEFAULT_TIMEOUT;
-    if(updateTimeout) {
-      this.assembled.built = TransactionBuilder.cloneFrom(this.assembled.built!, {
-        fee: this.assembled.built!.fee,
-        timebounds: undefined,
-        sorobanData: new SorobanDataBuilder(
-          this.assembled.simulationData.transactionData.toXDR(),
-        ).build(),
-      })
-        .setTimeout(timeoutInSeconds)
-        .build();
-    }
+    this.assembled.built = TransactionBuilder.cloneFrom(this.assembled.built!, {
+      fee: this.assembled.built!.fee,
+      timebounds: undefined, // intentionally don't clone timebounds
+      sorobanData: this.assembled.simulationData.transactionData
+    })
+      .setTimeout(timeoutInSeconds)
+      .build();
 
     const signature = await this.signTransaction!(
       // `signAndSend` checks for `this.built` before calling `SentTransaction.init`

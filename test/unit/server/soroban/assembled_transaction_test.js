@@ -107,9 +107,7 @@ describe("AssembledTransaction.buildFootprintRestoreTransaction", () => {
     ),
     52641,
   )
-    .then((txn) => txn.signAndSend({force: true, ...wallet,
-      updateTimeout: false
-    }))
+    .then((txn) => txn.signAndSend({ ...wallet }))
     .then((result) => {
       expect(result.getTransactionResponse.status).to.equal(rpc.Api.GetTransactionStatus.SUCCESS);
       done();
