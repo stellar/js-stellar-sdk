@@ -20,10 +20,8 @@ import { ServerApi } from "../horizon/server_api";
 /** @module WebAuth */
 
 /**
- * Returns a valid [SEP-10](https://stellar.org/protocol/sep-10) challenge
- * transaction which you can use for Stellar Web Authentication.
- *
- * @function
+ * Returns a valid {@link https://stellar.org/protocol/sep-10 | SEP-10}
+ * challenge transaction which you can use for Stellar Web Authentication.
  *
  * @param {Keypair} serverKeypair Keypair for server's signing account.
  * @param {string} clientAccountID The stellar account (G...) or muxed account
@@ -44,13 +42,17 @@ import { ServerApi } from "../horizon/server_api";
  * @param {string} [clientSigningKey] The public key assigned to the SIGNING_KEY
  *    attribute specified on the stellar.toml hosted on the client domain. Only
  *    necessary when the 'client_domain' parameter is passed.
- *
  * @returns {string} A base64 encoded string of the raw TransactionEnvelope xdr
  *    struct for the transaction.
- * @see {@link https://stellar.org/protocol/sep-10|SEP-10: Stellar Web Auth}
+ * @throws {Error} Will throw if `clientAccountID is a muxed account, and `memo`
+ *    is present.
+ * @throws {Error} Will throw if `clientDomain` is provided, but
+ *    `clientSigningKey` is missing
+ *
+ * @see {@link https://stellar.org/protocol/sep-10 | SEP-10: Stellar Web Auth}
  *
  * @example
- * import { Keypair, Networks, WebAuth }  from 'stellar-sdk'
+ * import { Keypair, Networks, WebAuth } from 'stellar-sdk'
  *
  * let serverKeyPair = Keypair.fromSecret("server-secret")
  * let challenge = WebAuth.buildChallengeTx(
@@ -135,7 +137,15 @@ export function buildChallengeTx(
 }
 
 /**
- * Reads a SEP 10 challenge transaction and returns the decoded transaction and
+ * @typedef {Object} ChallengeTxParts A parsed and validated challenge transaction, and some of its constituent details.
+ * @property {Transaction} tx The challenge transaction.
+ * @property {string} clientAccountID The Stellar public key (master key) used to sign the Manage Data operation.
+ * @property {string} matchedHomeDomain The matched home domain.
+ * @property {string | null} [memo=null] The memo attached to the transaction, which will be null if not present
+ */
+
+/**
+ * Reads a SEP-10 challenge transaction and returns the decoded transaction and
  * client account ID contained within.
  *
  * It also verifies that the transaction has been signed by the server.
@@ -143,28 +153,26 @@ export function buildChallengeTx(
  * It does not verify that the transaction has been signed by the client or that
  * any signatures other than the server's on the transaction are valid. Use one
  * of the following functions to completely verify the transaction:
- * - {@link verifyChallengeTxThreshold}
- * - {@link verifyChallengeTxSigners}
  *
- * @function
+ * - {@link module:WebAuth~verifyChallengeTxThreshold}
+ * - {@link module:WebAuth~verifyChallengeTxSigners}
  *
  * @param {string} challengeTx SEP0010 challenge transaction in base64.
  * @param {string} serverAccountID The server's stellar account (public key).
  * @param {string} networkPassphrase The network passphrase, e.g.: 'Test SDF
  *    Network ; September 2015' (see {@link Networks})
- * @param {string|string[]} [homeDomains] The home domain that is expected to be
- *    included in the first Manage Data operation's string key. If an array is
- *    provided, one of the domain names in the array must match.
+ * @param {string | Array.<string>} homeDomains The home domain that is expected
+ *    to be included in the first Manage Data operation's string key. If an
+ *    array is provided, one of the domain names in the array must match.
  * @param {string} webAuthDomain The home domain that is expected to be included
  *    as the value of the Manage Data operation with the 'web_auth_domain' key.
  *    If no such operation is included, this parameter is not used.
- *
- * @returns {Transaction|string|string|string} The actual transaction and the
- *    stellar public key (master key) used to sign the Manage Data operation,
+ * @returns {module:WebAuth~ChallengeTxParts} The actual transaction and the
+ *    Stellar public key (master key) used to sign the Manage Data operation,
  *    the matched home domain, and the memo attached to the transaction, which
  *    will be null if not present.
  *
- * @see {@link https://stellar.org/protocol/sep-10|SEP-10: Stellar Web Auth}
+ * @see {@link https://stellar.org/protocol/sep-10 | SEP-10: Stellar Web Auth}
  */
 export function readChallengeTx(
   challengeTx: string,
@@ -362,13 +370,12 @@ export function readChallengeTx(
  * ignored.
  *
  * Errors will be raised if:
- *  - The transaction is invalid according to {@link readChallengeTx}.
+ *  - The transaction is invalid according to
+ *    {@link module:WebAuth~readChallengeTx}.
  *  - No client signatures are found on the transaction.
  *  - One or more signatures in the transaction are not identifiable as the
  *    server account or one of the signers provided in the arguments.
  *  - The signatures are all valid but do not meet the threshold.
- *
- * @function
  *
  * @param {string} challengeTx SEP0010 challenge transaction in base64.
  * @param {string} serverAccountID The server's stellar account (public key).
@@ -376,23 +383,26 @@ export function readChallengeTx(
  *    Network ; September 2015' (see {@link Networks}).
  * @param {number} threshold The required signatures threshold for verifying
  *    this transaction.
- * @param {ServerApi.AccountRecordSigners[]} signerSummary a map of all
+ * @param {Array.<ServerApi.AccountRecordSigners>} signerSummary a map of all
  *    authorized signers to their weights. It's used to validate if the
  *    transaction signatures have met the given threshold.
- * @param {string|string[]} [homeDomains] The home domain(s) that should be
- *    included in the first Manage Data operation's string key. Required in
+ * @param {string | Array.<string>} homeDomains The home domain(s) that should
+ *    be included in the first Manage Data operation's string key. Required in
  *    verifyChallengeTxSigners() => readChallengeTx().
  * @param {string} webAuthDomain The home domain that is expected to be included
  *    as the value of the Manage Data operation with the 'web_auth_domain' key,
  *    if present. Used in verifyChallengeTxSigners() => readChallengeTx().
+ * @returns {Array.<string>} The list of signers public keys that have signed
+ *    the transaction, excluding the server account ID, given that the threshold
+ *    was met.
+ * @throws {module:WebAuth.InvalidChallengeError} Will throw if the collective
+ *    weight of the transaction's signers does not meet the necessary threshold
+ *    to verify this transaction.
  *
- * @returns {string[]} The list of signers public keys that have signed the
- *    transaction, excluding the server account ID, given that the threshold was
- *    met.
+ * @see {@link https://stellar.org/protocol/sep-10 | SEP-10: Stellar Web Auth}
  *
- * @see {@link https://stellar.org/protocol/sep-10|SEP-10: Stellar Web Auth}
  * @example
- * import { Networks, TransactionBuilder, WebAuth }  from 'stellar-sdk';
+ * import { Networks, TransactionBuilder, WebAuth } from 'stellar-sdk';
  *
  * const serverKP = Keypair.random();
  * const clientKP1 = Keypair.random();
@@ -489,27 +499,26 @@ export function verifyChallengeTxThreshold(
  * ignored.
  *
  * Errors will be raised if:
- *  - The transaction is invalid according to {@link readChallengeTx}.
+ *  - The transaction is invalid according to
+ *    {@link module:WebAuth~readChallengeTx}.
  *  - No client signatures are found on the transaction.
  *  - One or more signatures in the transaction are not identifiable as the
  *    server account or one of the signers provided in the arguments.
- *
- * @function
  *
  * @param {string} challengeTx SEP0010 challenge transaction in base64.
  * @param {string} serverAccountID The server's stellar account (public key).
  * @param {string} networkPassphrase The network passphrase, e.g.: 'Test SDF
  *    Network ; September 2015' (see {@link Networks}).
- * @param {string[]} signers The signers public keys. This list should contain
- *    the public keys for all signers that have signed the transaction.
- * @param {string|string[]} [homeDomains] The home domain(s) that should be
- *    included in the first Manage Data operation's string key. Required in
+ * @param {Array.<string>} signers The signers public keys. This list should
+ *    contain the public keys for all signers that have signed the transaction.
+ * @param {string | Array.<string>} [homeDomains] The home domain(s) that should
+ *    be included in the first Manage Data operation's string key. Required in
  *    readChallengeTx().
  * @param {string} webAuthDomain The home domain that is expected to be included
  *    as the value of the Manage Data operation with the 'web_auth_domain' key,
  *    if present. Used in readChallengeTx().
- * @returns {string[]} The list of signers public keys that have signed the
- *    transaction, excluding the server account ID.
+ * @returns {Array.<string>} The list of signers public keys that have signed
+ *    the transaction, excluding the server account ID.
  *
  * @see {@link https://stellar.org/protocol/sep-10|SEP-10: Stellar Web Auth}
  * @example
@@ -682,10 +691,10 @@ export function verifyChallengeTxSigners(
 /**
  * Verifies if a transaction was signed by the given account id.
  *
- * @function
- * @param {Transaction} transaction
- * @param {string} accountID
- * @returns {boolean}.
+ * @param {Transaction | FeeBumpTransaction} transaction The signed transaction.
+ * @param {string} accountID The signer's public key.
+ * @returns {boolean} Whether or not `accountID` was found to have signed the
+ *    transaction.
  *
  * @example
  * let keypair = Keypair.random();
@@ -710,11 +719,10 @@ export function verifyTxSignedBy(
  * returning a list of non-repeated signers that were found to have signed the
  * given transaction.
  *
- * @function
- * @param {Transaction} transaction the signed transaction.
- * @param {string[]} signers The signers public keys.
- * @returns {string[]} a list of signers that were found to have signed the
- * transaction.
+ * @param {Transaction | FeeBumpTransaction} transaction The signed transaction.
+ * @param {Array.<string>} signers The signer's public keys.
+ * @returns {Array.<string>} A list of signers that were found to have signed
+ *    the transaction.
  *
  * @example
  * let keypair1 = Keypair.random();
