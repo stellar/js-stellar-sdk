@@ -29,6 +29,14 @@ import {
 } from "./utils";
 import { SentTransaction } from "./sent_transaction";
 
+/** @module contract */
+
+/**
+ * An impossible account on the Stellar network
+ * @constant {string}
+ * @default GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF
+ * @memberof module:contract
+ */
 export const NULL_ACCOUNT =
   "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF";
 
@@ -47,7 +55,7 @@ export const NULL_ACCOUNT =
  * Let's look at examples of how to use `AssembledTransaction` for a variety of
  * use-cases:
  *
- * # 1. Simple read call
+ * #### 1. Simple read call
  *
  * Since these only require simulation, you can get the `result` of the call
  * right after constructing your `AssembledTransaction`:
@@ -80,7 +88,7 @@ export const NULL_ACCOUNT =
  * })
  * ```
  *
- * # 2. Simple write call
+ * #### 2. Simple write call
  *
  * For write calls that will be simulated and then sent to the network without
  * further manipulation, only one more step is needed:
@@ -114,7 +122,7 @@ export const NULL_ACCOUNT =
  * const { result } = await tx.signAndSend()
  * ```
  *
- * # 3. More fine-grained control over transaction construction
+ * #### 3. More fine-grained control over transaction construction
  *
  * If you need more control over the transaction before simulating it, you can
  * set various {@link MethodOptions} when constructing your
@@ -147,7 +155,7 @@ export const NULL_ACCOUNT =
  * If you need to inspect the simulation later, you can access it with
  * `tx.simulation`.
  *
- * # 4. Multi-auth workflows
+ * #### 4. Multi-auth workflows
  *
  * Soroban, and Stellar in general, allows multiple parties to sign a
  * transaction.
@@ -234,6 +242,8 @@ export const NULL_ACCOUNT =
  * To see an even more complicated example, where Alice swaps with Bob but the
  * transaction is invoked by yet another party, check out
  * [test-swap.js](../../test/e2e/src/test-swap.js).
+ *
+ * @memberof module:contract
  */
 export class AssembledTransaction<T> {
   /**
@@ -384,10 +394,11 @@ export class AssembledTransaction<T> {
    * If you don't want to simulate the transaction, you can set `simulate` to
    * `false` in the options.
    *
-   *     const tx = await AssembledTransaction.build({
-   *       ...,
-   *       simulate: false,
-   *     })
+   * @example
+   * const tx = await AssembledTransaction.build({
+   *   ...,
+   *   simulate: false,
+   * })
    */
   static async build<T>(
     options: AssembledTransactionOptions<T>,

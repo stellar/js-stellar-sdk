@@ -42,6 +42,7 @@ export * as SorobanRpc from './rpc';
  * ```ts
  * import { Client } from '@stellar/stellar-sdk/contract';
  * ```
+ * @private
  */
 export * as contract from './contract'
 

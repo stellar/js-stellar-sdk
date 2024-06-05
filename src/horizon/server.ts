@@ -42,6 +42,12 @@ import AxiosClient, {
   getCurrentServerTime,
 } from "./horizon_axios_client";
 
+/**
+ * Default transaction submission timeout for Horizon requests, in milliseconds
+ * @constant {number}
+ * @default 60000
+ * @memberof module:Horizon.Server
+ */
 export const SUBMIT_TRANSACTION_TIMEOUT = 60 * 1000;
 
 const STROOPS_IN_LUMEN = 10000000;
@@ -55,15 +61,12 @@ function _getAmountInLumens(amt: BigNumber) {
 }
 
 /**
- * Server handles the network connection to a [Horizon](https://developers.stellar.org/api/introduction/)
+ * Server handles the network connection to a [Horizon](https://developers.stellar.org/network/horizon)
  * instance and exposes an interface for requests to that instance.
- * @constructor
+ * @memberof module:Horizon
+ *
  * @param {string} serverURL Horizon Server URL (ex. `https://horizon-testnet.stellar.org`).
- * @param {object} [opts] Options object
- * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments! You can also use {@link Config} class to set this globally.
- * @param {string} [opts.appName] - Allow set custom header `X-App-Name`, default: `undefined`.
- * @param {string} [opts.appVersion] - Allow set custom header `X-App-Version`, default: `undefined`.
- * @param {string} [opts.authToken] - Allow set custom header `X-Auth-Token`, default: `undefined`.
+ * @param {Options} [opts] Options object
  */
 export class Server {
   /**
@@ -179,7 +182,7 @@ export class Server {
 
   /**
    * Fetch the fee stats endpoint.
-   * @see [Fee Stats](https://developers.stellar.org/api/aggregations/fee-stats/)
+   * @see {@link https://developers.stellar.org/network/horizon/api-reference/aggregations/fee-stats|Fee Stats}
    * @returns {Promise<HorizonApi.FeeStatsResponse>} Promise that resolves to the fee stats returned by Horizon.
    */
   public async feeStats(): Promise<HorizonApi.FeeStatsResponse> {
@@ -193,7 +196,7 @@ export class Server {
   /**
    * Submits a transaction to the network.
    *
-   * By default this function calls {@link Server#checkMemoRequired}, you can
+   * By default this function calls {@link Horizon.Server#checkMemoRequired}, you can
    * skip this check by setting the option `skipMemoRequiredCheck` to `true`.
    *
    * If you submit any number of `manageOffer` operations, this will add an
@@ -284,8 +287,7 @@ export class Server {
    * * If `wasPartiallyFilled` is true, you can tell the user that
    *   `amountBought` or `amountSold` have already been transferred.
    *
-   * @see [Post
-   * Transaction](https://developers.stellar.org/api/resources/transactions/post/)
+   * @see {@link https://developers.stellar.org/network/horizon/api-reference/resources/submit-a-transaction|Submit a Transaction}
    * @param {Transaction|FeeBumpTransaction} transaction - The transaction to submit.
    * @param {object} [opts] Options object
    * @param {boolean} [opts.skipMemoRequiredCheck] - Allow skipping memo
@@ -747,7 +749,7 @@ export class Server {
    * Each account is checked sequentially instead of loading multiple accounts
    * at the same time from Horizon.
    *
-   * @see https://stellar.org/protocol/sep-29
+   * @see {@link https://stellar.org/protocol/sep-29|SEP-29: Account Memo Requirements}
    * @param {Transaction} transaction - The transaction to check.
    * @returns {Promise<void, Error>} - If any of the destination account
    * requires a memo, the promise will throw {@link AccountRequiresMemoError}.
@@ -815,6 +817,16 @@ export class Server {
     }
   }
 }
+
+/**
+ * Options for configuring connections to Horizon servers.
+ * @typedef {Object} Options
+ * @memberof module:Horizon.Server
+ * @property {boolean} [allowHttp] Allow connecting to http servers, default: `false`. This must be set to false in production deployments! You can also use {@link Config} class to set this globally.
+ * @property {string} [appName] Allow set custom header `X-App-Name`, default: `undefined`.
+ * @property {string} [appVersion] Allow set custom header `X-App-Version`, default: `undefined`.
+ * @property {string} [authToken] Allow set custom header `X-Auth-Token`, default: `undefined`.
+ */
 
 export namespace Server {
   export interface Options {

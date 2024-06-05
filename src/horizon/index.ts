@@ -1,3 +1,5 @@
+/** @module Horizon */
+
 // Expose all types
 export * from "./horizon_api";
 export * from "./server_api";

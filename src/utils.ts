@@ -1,5 +1,6 @@
 import { Transaction } from "@stellar/stellar-base";
 
+/** @class Utils */
 export class Utils {
   /**
    * Verifies if the current date is within the transaction's timebonds
@@ -7,6 +8,7 @@ export class Utils {
    * @static
    * @function
    * @param {Transaction} transaction the transaction whose timebonds will be validated.
+   * @param {number} [gracePeriod=0] an additional window of time that should be considered valid on either end of the transaction's time range.
    * @returns {boolean} returns true if the current time is within the transaction's [minTime, maxTime] range.
    */
   static validateTimebounds(

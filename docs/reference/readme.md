@@ -1,7 +1,7 @@
 ---
 title: Overview
 ---
-The JavaScript Stellar SDK facilitates integration with the Stellar [Horizon API server](https://developers.stellar.org/api/), the Stellar [Soroban RPC server](https://soroban.stellar.org/docs/reference/rpc) and submission of Stellar transactions, either on Node.js or in the browser. It has three main uses: [querying Horizon](#querying-horizon), [interacting with Soroban RPC](), and [building, signing, and submitting transactions to the Stellar network](#building-transactions).
+The JavaScript Stellar SDK facilitates integration with the Stellar [Horizon API server](https://developers.stellar.org/api/), the Stellar [Soroban RPC server](https://developers.stellar.org/network/soroban-rpc) and submission of Stellar transactions, either on Node.js or in the browser. It has three main uses: [querying Horizon](#querying-horizon), [interacting with Soroban RPC](), and [building, signing, and submitting transactions to the Stellar network](#building-transactions).
 
  * [Building and installing the SDK](https://github.com/stellar/js-stellar-sdk)
  * [Examples of using the SDK](./examples.md)

@@ -4,14 +4,22 @@ import { Networks } from "@stellar/stellar-base";
 
 import { Config } from "../config";
 
-/** the maximum size of stellar.toml file */
+/** @module StellarToml */
+
+/**
+ * The maximum size of stellar.toml file, in bytes
+ * @constant {number}
+ * @default 102400
+ */
 export const STELLAR_TOML_MAX_SIZE = 100 * 1024;
 
 // axios timeout doesn't catch missing urls, e.g. those with no response
 // so we use the axios cancel token to ensure the timeout
 const CancelToken = axios.CancelToken;
 
-/** Resolver allows resolving `stellar.toml` files. */
+/**
+ * Resolver allows resolving `stellar.toml` files.
+ */
 export class Resolver {
   /**
    * Returns a parsed `stellar.toml` file for a given domain.
@@ -24,7 +32,8 @@ export class Resolver {
    *     // stellar.toml does not exist or is invalid
    *   });
    * ```
-   * @see <a href="https://developers.stellar.org/docs/issuing-assets/publishing-asset-info/" target="_blank">Stellar.toml doc</a>
+   * @see {@link https://developers.stellar.org/docs/issuing-assets/publishing-asset-info|Stellar.toml doc}
+   *
    * @param {string} domain Domain to get stellar.toml file for
    * @param {object} [opts] Options object
    * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments!

@@ -1,15 +1,12 @@
+/**
+ * @typedef {Object} Configuration
+ * @memberof Config
+ * @property {boolean} [allowHttp=false] Allow connecting to http servers, default: `false`. This must be set to false in production deployments!
+ * @property {number} [timeout=0] Allow a timeout, default: 0. Allows user to avoid nasty lag due to TOML resolve issue. You can also use {@link Config} class to set this globally.
+ */
+
 interface Configuration {
-  /**
-   * Allow connecting to http servers, default: `false`. This must be set to false in production deployments!
-   *
-   * @type {boolean}
-   */
   allowHttp: boolean;
-  /**
-   * Allow a timeout, default: 0. Allows user to avoid nasty lag due to TOML resolve issue. You can also use {@link Config} class to set this globally.
-   *
-   * @type {number}
-   */
   timeout: number;
 }
 
@@ -23,18 +20,13 @@ let config = Object.assign({}, defaultConfig);
 /**
  * Global config class.
  *
- * Usage node:
- * ```
+ * @example <caption>Usage in node</caption>
  * import {Config} from 'stellar-sdk';
  * Config.setAllowHttp(true);
  * Config.setTimeout(5000);
- * ```
- *
- * Usage browser:
- * ```
+ * @example <caption>Usage in the browser</caption>
  * StellarSdk.Config.setAllowHttp(true);
  * StellarSdk.Config.setTimeout(5000);
- * ```
  * @static
  */
 class Config {

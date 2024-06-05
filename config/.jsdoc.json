@@ -3,11 +3,38 @@
     "include": ["lib/", "js-stellar-base/src"],
     "exclude": "js-stellar-base/src/generated"
   },
+  "plugins": ["plugins/markdown"],
+  "template": {
+    "default": {
+      "useLongNameInNav": true
+    }
+  },
   "opts": {
+    "readme": "README.md",
     "destination": "jsdoc/",
     "recurse": true,
-    "template": "node_modules/minami",
-    "readme": "README.md"
+    "verbose": true,
+    "template": "node_modules/clean-jsdoc-theme",
+    "theme_opts": {
+      "default_theme": "fallback-light",
+      "title": "Home",
+      "menu": [
+        {
+          "title": "GitHub",
+          "link": "https://github.com/stellar/js-stellar-sdk",
+          "target": "_blank"
+        },
+        {
+          "title": "npm",
+          "link": "https://www.npmjs.com/package/@stellar/stellar-sdk",
+          "target": "_blank"
+        }
+      ],
+      "prefixModuleToSidebarItems_experimental": true
+    }
   },
-  "plugins": ["plugins/markdown"]
+  "markdown": {
+    "hardwrap": false,
+    "idInHeadings": true
+  }
 }
