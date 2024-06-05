@@ -24,6 +24,12 @@ interface LedgerEntryChange {
 }
 ```
 
+- `contract.AssembledTransaction` now has a `restoreFootprint` method which accepts the
+`restorePreamble` returned when a simulation call fails due to some contract state that
+has expired. When invoking a contract function, one can now set `restore` to `true` in the
+`MethodOptions`. When enabled, a `restoreFootprint` transaction will be created and await
+signing whenever contract state is required to be restored before a contract function can
+be invoked.
 
 ## [v12.0.0-rc.3](https://github.com/stellar/js-stellar-sdk/compare/v11.3.0...v12.0.0-rc.3)
 
