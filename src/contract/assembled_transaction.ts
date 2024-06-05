@@ -387,7 +387,6 @@ export class AssembledTransaction<T> {
     const envelope = xdr.TransactionEnvelope.fromXDR(encodedXDR, "base64");
     const built = TransactionBuilder.fromXDR(envelope, options.networkPassphrase) as Tx;
     const method = ((built.operations[0] as Operation.InvokeHostFunction).func.value() as xdr.InvokeContractArgs).functionName().toString('utf-8');
-    console.log(`method name is ${method}`);
     const txn = new AssembledTransaction(
       { ...options, 
         method,
