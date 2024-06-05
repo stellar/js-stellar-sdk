@@ -76,14 +76,13 @@ export class SentTransaction<T> {
     signTransaction: ClientOptions["signTransaction"],
     /** {@link AssembledTransaction} from which this SentTransaction was initialized */
     assembled: AssembledTransaction<U>,
-    updateTimeout: boolean = true,
   ): Promise<SentTransaction<U>> => {
     const tx = new SentTransaction(signTransaction, assembled);
-    const sent = await tx.send({ updateTimeout });
+    const sent = await tx.send();
     return sent;
   };
 
-  private send = async ({ updateTimeout }: {updateTimeout?: boolean } =  { updateTimeout: true }): Promise<this> => {
+  private send = async (): Promise<this> => {
     const timeoutInSeconds =
       this.assembled.options.timeoutInSeconds ?? DEFAULT_TIMEOUT;
     this.assembled.built = TransactionBuilder.cloneFrom(this.assembled.built!, {

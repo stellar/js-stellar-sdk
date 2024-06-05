@@ -330,8 +330,8 @@ export class AssembledTransaction<T> {
       method: this.options.method,
       tx: this.built?.toXDR(),
       simulationResult: {
-        auth: this.simulationData.result.auth.map((a) => a.toXDR("base64")),
-        retval: this.simulationData.result.retval.toXDR("base64"),
+        auth: this.simulationData.result?.auth.map((a) => a.toXDR("base64")),
+        retval: this.simulationData.result?.retval.toXDR("base64"),
       },
       simulationTransactionData:
         this.simulationData.transactionData.toXDR("base64"),
@@ -415,8 +415,6 @@ export class AssembledTransaction<T> {
       allowHttp: this.options.allowHttp ?? false,
     });
   }
-
- 
 
   /**
    * Construct a new AssembledTransaction. This is the only way to create a new
@@ -535,7 +533,7 @@ export class AssembledTransaction<T> {
   };
 
   get simulationData(): {
-    result: Api.SimulateHostFunctionResult;
+    result?: Api.SimulateHostFunctionResult;
     transactionData: xdr.SorobanTransactionData;
   } {
     if (this.simulationResult && this.simulationTransactionData) {
@@ -606,7 +604,6 @@ export class AssembledTransaction<T> {
   signAndSend = async ({
     force = false,
     signTransaction = this.options.signTransaction,
-    updateTimeout = true,
   }: {
     /**
      * If `true`, sign and send the transaction even if it is a read call
@@ -616,11 +613,6 @@ export class AssembledTransaction<T> {
      * You must provide this here if you did not provide one before
      */
     signTransaction?: ClientOptions["signTransaction"];
-    /**
-     * Whether or not to update the timeout value before signing
-     * and sending the transaction
-     */
-    updateTimeout?: boolean;
   } = {}): Promise<SentTransaction<T>> => {
     if (!this.built) {
       throw new Error("Transaction has not yet been simulated");
@@ -836,7 +828,7 @@ export class AssembledTransaction<T> {
    * returns `false`, then you need to call `signAndSend` on this transaction.
    */
   get isReadCall(): boolean {
-    const authsCount = this.simulationData.result.auth.length;
+    const authsCount = this.simulationData.result?.auth.length;
     const writeLength = this.simulationData.transactionData
       .resources()
       .footprint()
