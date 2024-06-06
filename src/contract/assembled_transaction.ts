@@ -446,7 +446,7 @@ export class AssembledTransaction<T> {
   }
 
   simulate = async (): Promise<this> => {
-    if(!this.built){
+    if (!this.built) {
       if (!this.raw) {
         throw new Error(
           "Transaction has not yet been assembled; " +
