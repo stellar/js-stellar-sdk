@@ -386,7 +386,15 @@ export class AssembledTransaction<T> {
   ): AssembledTransaction<T> {
     const envelope = xdr.TransactionEnvelope.fromXDR(encodedXDR, "base64");
     const built = TransactionBuilder.fromXDR(envelope, options.networkPassphrase) as Tx;
-    const method = ((built.operations[0] as Operation.InvokeHostFunction).func.value() as xdr.InvokeContractArgs).functionName().toString('utf-8');
+    const operation = built.operations[0] as Operation.InvokeHostFunction;
+    if (!operation?.func?.value || typeof operation.func.value !== 'function') {
+      throw new Error("Could not extract the method from the transaction envelope.");
+    }
+    const invokeContractArgs = operation.func.value() as xdr.InvokeContractArgs;
+    if (!invokeContractArgs?.functionName) {
+      throw new Error("Could not extract the method name from the transaction envelope.");
+    }
+    const method = invokeContractArgs.functionName().toString('utf-8');
     const txn = new AssembledTransaction(
       { ...options, 
         method,
