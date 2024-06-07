@@ -143,4 +143,22 @@ describe("Swap Contract Tests", function () {
     expect(bobTokenABalance.result).to.equal(amountAToSwap);
     expect(bobTokenBBalance.result).to.equal(0n);
   });
+
+  it("can swap 2nd time", async function() {
+    const tx = await this.context.swapContractAsRoot.swap({
+      a: this.context.alice.publicKey(),
+      b: this.context.bob.publicKey(),
+      token_a: this.context.tokenAId,
+      token_b: this.context.tokenBId,
+      amount_a: amountAToSwap,
+      min_a_for_b: amountAToSwap,
+      amount_b: amountBToSwap,
+      min_b_for_a: amountBToSwap,
+    });
+
+    const needsNonInvokerSigningBy = await tx.needsNonInvokerSigningBy();
+    expect(needsNonInvokerSigningBy).to.have.lengthOf(2);
+    expect(needsNonInvokerSigningBy.indexOf(this.context.alice.publicKey())).to.equal(0, "needsNonInvokerSigningBy does not have alice's public key!");
+    expect(needsNonInvokerSigningBy.indexOf(this.context.bob.publicKey())).to.equal(1, "needsNonInvokerSigningBy does not have bob's public key!");
+  });
 });
