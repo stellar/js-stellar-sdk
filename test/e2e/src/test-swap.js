@@ -1,7 +1,17 @@
-const { expect } = require('chai');
-const { describe, it, before } = require('mocha');
-const { contract, rpc } = require("../../..");
-const { clientFor, generateFundedKeypair } = require("./util");
+const { expect } = require("chai");
+const { describe, it, before } = require("mocha");
+const {
+  contract,
+  rpc,
+  SorobanDataBuilder,
+  xdr,
+  TransactionBuilder,
+} = require("../../..");
+const {
+  clientFor,
+  generateFundedKeypair,
+  networkPassphrase,
+} = require("./util");
 
 const amountAToSwap = 2n;
 const amountBToSwap = 1n;
@@ -79,7 +89,62 @@ describe("Swap Contract Tests", function () {
         // Using regex to check the error message
         expect(error.message).to.match(/needsNonInvokerSigningBy/);
       }
+  });
+
+  it("modified & re-simulated transactions show updated data", async function () {
+    let tx = await this.context.swapContractAsRoot.swap({
+      a: this.context.alice.publicKey(),
+      b: this.context.bob.publicKey(),
+      token_a: this.context.tokenAId,
+      token_b: this.context.tokenBId,
+      amount_a: amountAToSwap,
+      min_a_for_b: amountAToSwap,
+      amount_b: amountBToSwap,
+      min_b_for_a: amountBToSwap,
     });
+
+    const needsNonInvokerSigningBy = await tx.needsNonInvokerSigningBy();
+    expect(needsNonInvokerSigningBy).to.have.lengthOf(2);
+    expect(
+      needsNonInvokerSigningBy.indexOf(this.context.alice.publicKey())
+    ).to.equal(0, "needsNonInvokerSigningBy does not have alice's public key!");
+    expect(
+      needsNonInvokerSigningBy.indexOf(this.context.bob.publicKey())
+    ).to.equal(1, "needsNonInvokerSigningBy does not have bob's public key!");
+
+    await tx.signAuthEntries({
+      publicKey: this.context.alice.publicKey(),
+      ...contract.basicNodeSigner(this.context.alice, networkPassphrase),
+    });
+    await tx.signAuthEntries({
+      publicKey: this.context.bob.publicKey(),
+      ...contract.basicNodeSigner(this.context.bob, networkPassphrase),
+    });
+
+    const originalResourceFee = Number(
+      tx.simulationData.transactionData.resourceFee()
+    );
+    const bumpedResourceFee = originalResourceFee + 10000;
+
+    tx.raw = TransactionBuilder.cloneFrom(tx.built, {
+      fee: tx.built.fee,
+      sorobanData: new SorobanDataBuilder(
+        tx.simulationData.transactionData.toXDR()
+      )
+        .setResourceFee(
+          xdr.Int64.fromString(bumpedResourceFee.toString()).toBigInt()
+        )
+        .build(),
+    });
+
+    await tx.simulate();
+
+    const newSimulatedResourceFee = Number(
+      tx.simulationData.transactionData.resourceFee()
+    );
+
+    expect(originalResourceFee).to.not.equal(newSimulatedResourceFee);
+    expect(newSimulatedResourceFee).to.be.greaterThan(bumpedResourceFee);
   });
 
   it("alice swaps bob 10 A for 1 B", async function() {
