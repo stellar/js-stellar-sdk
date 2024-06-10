@@ -8,7 +8,7 @@ export function parseRawSendTransaction(
   delete r.errorResultXdr;
   delete r.diagnosticEventsXdr;
 
-  if (!!errorResultXdr) {
+  if (errorResultXdr) {
     return {
       ...r,
       ...(
@@ -94,7 +94,7 @@ export function parseRawSimulation(
   }
 
   // shared across all responses
-  let base: Api.BaseSimulateTransactionResponse = {
+  const base: Api.BaseSimulateTransactionResponse = {
     _parsed: true,
     id: sim.id,
     latestLedger: sim.latestLedger,
@@ -128,28 +128,24 @@ function parseSuccessful(
     ...// coalesce 0-or-1-element results[] list into a single result struct
     // with decoded fields if present
     ((sim.results?.length ?? 0 > 0) && {
-      result: sim.results!.map((row) => {
-        return {
+      result: sim.results!.map((row) => ({
           auth: (row.auth ?? []).map((entry) =>
             xdr.SorobanAuthorizationEntry.fromXDR(entry, 'base64')
           ),
           // if return value is missing ("falsy") we coalesce to void
-          retval: !!row.xdr
+          retval: row.xdr
             ? xdr.ScVal.fromXDR(row.xdr, 'base64')
             : xdr.ScVal.scvVoid()
-        };
-      })[0]
+        }))[0]
     }),
 
     ...(sim.stateChanges?.length ?? 0 > 0) && {
-      stateChanges: sim.stateChanges?.map((entryChange) => {
-        return {
+      stateChanges: sim.stateChanges?.map((entryChange) => ({
           type: entryChange.type,
           key: xdr.LedgerKey.fromXDR(entryChange.key, 'base64'),
           before: entryChange.before ? xdr.LedgerEntry.fromXDR(entryChange.before, 'base64') : null,
           after: entryChange.after ? xdr.LedgerEntry.fromXDR(entryChange.after, 'base64') : null,
-        };
-      })
+        }))
     }
 
   };

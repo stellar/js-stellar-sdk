@@ -7,8 +7,8 @@ import { ServerApi } from "./server_api";
  *
  * @see [All Operations](https://developers.stellar.org/api/resources/operations/)
  * @class OperationCallBuilder
- * @constructor
- * @extends CallBuilder
+ * @class
+ * @augments CallBuilder
  * @param {string} serverUrl Horizon server URL.
  */
 export class OperationCallBuilder extends CallBuilder<

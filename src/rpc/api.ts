@@ -26,7 +26,8 @@ export namespace Api {
     key: string;
     /** a base-64 encoded {@link xdr.LedgerEntryData} instance */
     xdr: string;
-    /** optional, a future ledger number upon which this entry will expire
+    /**
+     * optional, a future ledger number upon which this entry will expire
      *  based on https://github.com/stellar/soroban-tools/issues/1010
      */
     liveUntilLedgerSeq?: number;
@@ -347,7 +348,8 @@ export namespace Api {
     /** These are xdr.DiagnosticEvents in base64 */
     events?: string[];
     minResourceFee?: string;
-    /** This will only contain a single element if present, because only a single
+    /**
+     * This will only contain a single element if present, because only a single
      * invokeHostFunctionOperation is supported per transaction.
      * */
     results?: RawSimulateHostFunctionResult[];

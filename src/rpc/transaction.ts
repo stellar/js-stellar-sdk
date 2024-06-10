@@ -47,7 +47,7 @@ export function assembleTransaction(
     );
   }
 
-  let success = parseRawSimulation(simulation);
+  const success = parseRawSimulation(simulation);
   if (!Api.isSimulationSuccess(success)) {
     throw new Error(`simulation incorrect: ${JSON.stringify(success)}`);
   }

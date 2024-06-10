@@ -56,7 +56,7 @@ export namespace Server {
  * Handles the network connection to a Soroban RPC instance, exposing an
  * interface for requests to that instance.
  *
- * @constructor
+ * @class
  *
  * @param {string} serverURL Soroban-RPC Server URL (ex.
  *    `http://localhost:8000/soroban/rpc`).
@@ -158,7 +158,7 @@ export class Server {
    *    data to load as a strkey (`C...` form), a {@link Contract}, or an
    *    {@link Address} instance
    * @param {xdr.ScVal} key   the key of the contract data to load
-   * @param {Durability} [durability=Durability.Persistent]   the "durability
+   * @param {Durability} [durability]   the "durability
    *    keyspace" that this ledger key belongs to, which is either 'temporary'
    *    or 'persistent' (the default), see {@link Durability}.
    *
@@ -209,7 +209,7 @@ export class Server {
         throw new TypeError(`invalid durability: ${durability}`);
     }
 
-    let contractKey = xdr.LedgerKey.contractData(
+    const contractKey = xdr.LedgerKey.contractData(
       new xdr.LedgerKeyContractData({
         key,
         contract: scAddress,
@@ -515,7 +515,7 @@ export class Server {
    * });
    */
   public async getNetwork(): Promise<Api.GetNetworkResponse> {
-    return await jsonrpc.postObject(this.serverURL.toString(), 'getNetwork');
+    return jsonrpc.postObject(this.serverURL.toString(), 'getNetwork');
   }
 
   /**

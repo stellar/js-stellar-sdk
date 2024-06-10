@@ -6,9 +6,9 @@ import { ServerApi } from "./server_api";
  * Do not create this object directly, use {@link Server#transactions}.
  *
  * @class TransactionCallBuilder
- * @extends CallBuilder
+ * @augments CallBuilder
  * @see [All Transactions](https://developers.stellar.org/api/resources/transactions/)
- * @constructor
+ * @class
  * @param {string} serverUrl Horizon server URL.
  */
 export class TransactionCallBuilder extends CallBuilder<

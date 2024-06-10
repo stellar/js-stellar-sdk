@@ -15,7 +15,7 @@ export const FEDERATION_RESPONSE_MAX_SIZE = 100 * 1024;
  * FederationServer handles a network connection to a
  * [federation server](https://developers.stellar.org/docs/glossary/federation/)
  * instance and exposes an interface for requests to that instance.
- * @constructor
+ * @class
  * @param {string} serverURL The federation server URL (ex. `https://acme.com/federation`).
  * @param {string} domain Domain this server represents
  * @param {object} [opts] options object
@@ -30,6 +30,7 @@ export class FederationServer {
    * @memberof FederationServer
    */
   private readonly serverURL: URI; // TODO: public or private? readonly?
+
   /**
    * Domain this server represents.
    *
@@ -37,6 +38,7 @@ export class FederationServer {
    * @memberof FederationServer
    */
   private readonly domain: string; // TODO: public or private? readonly?
+
   /**
    * Allow a timeout, default: 0. Allows user to avoid nasty lag due to TOML resolve issue.
    *

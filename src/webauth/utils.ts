@@ -29,7 +29,7 @@ import { ServerApi } from "../horizon/server_api";
  *    (M...) that the wallet wishes to authenticate with the server.
  * @param {string} homeDomain The fully qualified domain name of the service
  *    requiring authentication
- * @param {number} [timeout=300] Challenge duration (default to 5 minutes).
+ * @param {number} [timeout] Challenge duration (default to 5 minutes).
  * @param {string} networkPassphrase The network passphrase. If you pass this
  *    argument then timeout is required.
  * @param {string} webAuthDomain The fully qualified domain name of the service
@@ -572,8 +572,8 @@ export function verifyChallengeTxSigners(
     serverKP = Keypair.fromPublicKey(serverAccountID); // can throw 'Invalid Stellar public key'
   } catch (err: any) {
     throw new Error(
-      "Couldn't infer keypair from the provided 'serverAccountID': " +
-        err.message,
+      `Couldn't infer keypair from the provided 'serverAccountID': ${ 
+        err.message}`,
     );
   }
 
@@ -645,7 +645,7 @@ export function verifyChallengeTxSigners(
   // Confirm we matched a signature to the server signer.
   if (!serverSignatureFound) {
     throw new InvalidChallengeError(
-      "Transaction not signed by server: '" + serverKP.publicKey() + "'",
+      `Transaction not signed by server: '${  serverKP.publicKey()  }'`,
     );
   }
 
@@ -751,7 +751,7 @@ export function gatherTxSigners(
       keypair = Keypair.fromPublicKey(signer); // This can throw a few different errors
     } catch (err: any) {
       throw new InvalidChallengeError(
-        "Signer is not a valid address: " + err.message,
+        `Signer is not a valid address: ${  err.message}`,
       );
     }
 

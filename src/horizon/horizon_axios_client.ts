@@ -35,7 +35,7 @@ function _toSeconds(ms: number): number {
 }
 
 AxiosClient.interceptors.response.use(
-  function interceptorHorizonResponse(response: AxiosResponse) {
+  (response: AxiosResponse) => {
     const hostname = URI(response.config.url!).hostname();
     const serverTime = _toSeconds(Date.parse(response.headers.date));
     const localTimeRecorded = _toSeconds(new Date().getTime());

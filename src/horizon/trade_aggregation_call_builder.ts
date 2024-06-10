@@ -19,8 +19,8 @@ const allowedResolutions = [
  * Do not create this object directly, use {@link Server#tradeAggregation}.
  *
  * @class TradeAggregationCallBuilder
- * @extends CallBuilder
- * @constructor
+ * @augments CallBuilder
+ * @class
  * @param {string} serverUrl serverUrl Horizon server URL.
  * @param {Asset} base base asset
  * @param {Asset} counter counter asset

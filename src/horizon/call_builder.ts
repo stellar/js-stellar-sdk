@@ -20,7 +20,7 @@ export interface EventSourceOptions<T> {
 const anyGlobal = global as any;
 type Constructable<T> = new (e: string) => T;
 // require("eventsource") for Node and React Native environment
-let EventSource: Constructable<EventSource> = anyGlobal.EventSource ??
+const EventSource: Constructable<EventSource> = anyGlobal.EventSource ??
   anyGlobal.window?.EventSource ??
   require("eventsource");
 
@@ -38,8 +38,11 @@ export class CallBuilder<
     | ServerApi.CollectionPage<HorizonApi.BaseResponse>
 > {
   protected url: URI;
+
   public filter: string[][];
+
   protected originalSegments: string[];
+
   protected neighborRoot: string;
 
   constructor(serverUrl: URI, neighborRoot: string = "") {
@@ -82,10 +85,10 @@ export class CallBuilder<
    * @see [Horizon Response Format](https://developers.stellar.org/api/introduction/response-format/)
    * @see [MDN EventSource](https://developer.mozilla.org/en-US/docs/Web/API/EventSource)
    * @param {object} [options] EventSource options.
-   * @param {function} [options.onmessage] Callback function to handle incoming messages.
-   * @param {function} [options.onerror] Callback function to handle errors.
+   * @param {Function} [options.onmessage] Callback function to handle incoming messages.
+   * @param {Function} [options.onerror] Callback function to handle errors.
    * @param {number} [options.reconnectTimeout] Custom stream connection timeout in ms, default is 15 seconds.
-   * @returns {function} Close function. Run to close the connection and stop listening for new events.
+   * @returns {Function} Close function. Run to close the connection and stop listening for new events.
    */
   public stream(options: EventSourceOptions<T> = {}): () => void {
     this.checkFilter();
@@ -274,7 +277,7 @@ export class CallBuilder<
    * @param {object} link A link object
    * @param {bool} link.href the URI of the link
    * @param {bool} [link.templated] Whether the link is templated
-   * @returns {function} A function that requests the link
+   * @returns {Function} A function that requests the link
    */
   private _requestFnForLink(link: HorizonApi.ResponseLink): (opts?: any) => any {
     return async (opts: any = {}) => {

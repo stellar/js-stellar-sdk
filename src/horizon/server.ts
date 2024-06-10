@@ -57,7 +57,7 @@ function _getAmountInLumens(amt: BigNumber) {
 /**
  * Server handles the network connection to a [Horizon](https://developers.stellar.org/api/introduction/)
  * instance and exposes an interface for requests to that instance.
- * @constructor
+ * @class
  * @param {string} serverURL Horizon Server URL (ex. `https://horizon-testnet.stellar.org`).
  * @param {object} [opts] Options object
  * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments! You can also use {@link Config} class to set this globally.
@@ -131,8 +131,8 @@ export class Server {
    *  // earlier does the trick!
    *  .build();
    * ```
-   * @argument {number} seconds Number of seconds past the current time to wait.
-   * @argument {bool} [_isRetry=false] True if this is a retry. Only set this internally!
+   * @param {number} seconds Number of seconds past the current time to wait.
+   * @param {bool} [_isRetry] True if this is a retry. Only set this internally!
    * This is to avoid a scenario where Horizon is horking up the wrong date.
    * @returns {Promise<Timebounds>} Promise that resolves a `timebounds` object
    * (with the shape `{ minTime: 0, maxTime: N }`) that you can set the `timebounds` option to.
@@ -162,7 +162,7 @@ export class Server {
     // otherwise, retry (by calling the root endpoint)
     // toString automatically adds the trailing slash
     await AxiosClient.get(URI(this.serverURL as any).toString());
-    return await this.fetchTimebounds(seconds, true);
+    return this.fetchTimebounds(seconds, true);
   }
 
   /**
@@ -377,8 +377,8 @@ export class Server {
                     // However, you can never be too careful.
                     default:
                       throw new Error(
-                        "Invalid offer result type: " +
-                          offerClaimedAtom.switch(),
+                        `Invalid offer result type: ${ 
+                          offerClaimedAtom.switch()}`,
                       );
                   }
 
@@ -488,9 +488,7 @@ export class Server {
             .filter((result: any) => !!result);
         }
 
-        return Object.assign({}, response.data, {
-          offerResults: hasManageOffer ? offerResults : undefined,
-        });
+        return { ...response.data, offerResults: hasManageOffer ? offerResults : undefined,};
       })
       .catch((response) => {
         if (response instanceof Error) {

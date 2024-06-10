@@ -11,5 +11,8 @@
     "outDir": "../lib",
     "target": "es6"
   },
-  "include": ["../src"]
+  "include": [
+    "../src",
+    "../src/.eslintrc.js"
+  ]
 }
