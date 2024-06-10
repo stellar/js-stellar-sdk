@@ -301,6 +301,11 @@ export class AssembledTransaction<T> {
   private server: Server;
 
   /**
+   * The signed transaction.
+   */
+  private signed?: Tx;
+
+  /**
    * A list of the most important errors that various AssembledTransaction
    * methods can throw. Feel free to catch specific errors in your application
    * logic.
@@ -506,11 +511,9 @@ export class AssembledTransaction<T> {
   /**
    * Sign the transaction with the `wallet`, included previously. If you did
    * not previously include one, you need to include one now that at least
-   * includes the `signTransaction` method. After signing, this method will
-   * send the transaction to the network and return a `SentTransaction` that
-   * keeps track of all the attempts to fetch the transaction.
+   * includes the `signTransaction` method. 
    */
-  signAndSend = async ({
+  sign = async ({
     force = false,
     signTransaction = this.options.signTransaction,
   }: {
@@ -522,7 +525,7 @@ export class AssembledTransaction<T> {
      * You must provide this here if you did not provide one before
      */
     signTransaction?: ClientOptions["signTransaction"];
-  } = {}): Promise<SentTransaction<T>> => {
+  } = {}): Promise<void> => {
     if (!this.built) {
       throw new Error("Transaction has not yet been simulated");
     }
@@ -548,9 +551,66 @@ export class AssembledTransaction<T> {
       );
     }
 
+    const timeoutInSeconds =
+      this.options.timeoutInSeconds ?? DEFAULT_TIMEOUT;
+    this.built = TransactionBuilder.cloneFrom(this.built!, {
+      fee: this.built!.fee,
+      timebounds: undefined,
+      sorobanData: this.simulationData.transactionData,
+    })
+      .setTimeout(timeoutInSeconds)
+      .build();
+
+    const signature = await signTransaction(
+      this.built.toXDR(),
+      {
+        networkPassphrase: this.options.networkPassphrase,
+      },
+    );
+
+    this.signed = TransactionBuilder.fromXDR(
+      signature,
+      this.options.networkPassphrase,
+    ) as Tx;
+  };
+
+  /**
+   * Sends the transaction to the network to return a `SentTransaction` that
+   * keeps track of all the attempts to fetch the transaction.
+   */
+  async send(){
+    if(!this.signed){
+      throw new Error("The transaction has not yet been signed. Run `sign` first.");
+    }
     const typeChecked: AssembledTransaction<T> = this;
-    const sent = await SentTransaction.init(signTransaction, typeChecked);
+    const sent = await SentTransaction.init(typeChecked, this.signed);
     return sent;
+  }
+
+  /**
+   * Sign the transaction with the `wallet`, included previously. If you did
+   * not previously include one, you need to include one now that at least
+   * includes the `signTransaction` method. After signing, this method will
+   * send the transaction to the network and return a `SentTransaction` that
+   * keeps track of all the attempts to fetch the transaction.
+   */
+  signAndSend = async ({
+    force = false,
+    signTransaction = this.options.signTransaction,
+  }: {
+    /**
+     * If `true`, sign and send the transaction even if it is a read call
+     */
+    force?: boolean;
+    /**
+     * You must provide this here if you did not provide one before
+     */
+    signTransaction?: ClientOptions["signTransaction"];
+  } = {}): Promise<SentTransaction<T>> => {
+    if(!this.signed){
+      await this.sign({ force, signTransaction });
+    }
+    return this.send();
   };
 
   private getStorageExpiration = async () => {

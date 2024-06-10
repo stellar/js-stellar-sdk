@@ -1,7 +1,6 @@
 /* disable max-classes rule, because extending error shouldn't count! */
 /* eslint max-classes-per-file: 0 */
-import { SorobanDataBuilder, TransactionBuilder } from "@stellar/stellar-base";
-import type { ClientOptions, MethodOptions, Tx } from "./types";
+import type { MethodOptions, Tx } from "./types";
 import { Server } from "../rpc/server"
 import { Api } from "../rpc/api"
 import { DEFAULT_TIMEOUT, withExponentialBackoff } from "./utils";
@@ -23,8 +22,6 @@ import type { AssembledTransaction } from "./assembled_transaction";
  */
 export class SentTransaction<T> {
   public server: Server;
-
-  public signed?: Tx;
 
   /**
    * The result of calling `sendTransaction` to broadcast the transaction to the
@@ -53,14 +50,10 @@ export class SentTransaction<T> {
   };
 
   constructor(
-    public signTransaction: ClientOptions["signTransaction"],
     public assembled: AssembledTransaction<T>,
+
+    public signed: Tx,
   ) {
-    if (!signTransaction) {
-      throw new Error(
-        "You must provide a `signTransaction` function to send a transaction",
-      );
-    }
     this.server = new Server(this.assembled.options.rpcUrl, {
       allowHttp: this.assembled.options.allowHttp ?? false,
     });
@@ -68,46 +61,21 @@ export class SentTransaction<T> {
 
   /**
    * Initialize a `SentTransaction` from an existing `AssembledTransaction` and
-   * a `signTransaction` function. This will also send the transaction to the
+   * a `signed` AssembledTransaction. This will also send the transaction to the
    * network.
    */
   static init = async <U>(
-    /** More info in {@link MethodOptions} */
-    signTransaction: ClientOptions["signTransaction"],
     /** {@link AssembledTransaction} from which this SentTransaction was initialized */
     assembled: AssembledTransaction<U>,
+    /** The signed transaction to send to the network */
+    signed: Tx,
   ): Promise<SentTransaction<U>> => {
-    const tx = new SentTransaction(signTransaction, assembled);
+    const tx = new SentTransaction(assembled, signed);
     const sent = await tx.send();
     return sent;
   };
 
   private send = async (): Promise<this> => {
-    const timeoutInSeconds =
-      this.assembled.options.timeoutInSeconds ?? DEFAULT_TIMEOUT;
-    this.assembled.built = TransactionBuilder.cloneFrom(this.assembled.built!, {
-      fee: this.assembled.built!.fee,
-      timebounds: undefined,
-      sorobanData: new SorobanDataBuilder(
-        this.assembled.simulationData.transactionData.toXDR(),
-      ).build(),
-    })
-      .setTimeout(timeoutInSeconds)
-      .build();
-
-    const signature = await this.signTransaction!(
-      // `signAndSend` checks for `this.built` before calling `SentTransaction.init`
-      this.assembled.built!.toXDR(),
-      {
-        networkPassphrase: this.assembled.options.networkPassphrase,
-      },
-    );
-
-    this.signed = TransactionBuilder.fromXDR(
-      signature,
-      this.assembled.options.networkPassphrase,
-    ) as Tx;
-
     this.sendTransactionResponse = await this.server.sendTransaction(
       this.signed,
     );
@@ -124,6 +92,8 @@ export class SentTransaction<T> {
 
     const { hash } = this.sendTransactionResponse;
 
+    const timeoutInSeconds =
+      this.assembled.options.timeoutInSeconds ?? DEFAULT_TIMEOUT;
     this.getTransactionResponseAll = await withExponentialBackoff(
       () => this.server.getTransaction(hash),
       (resp) => resp.status === Api.GetTransactionStatus.NOT_FOUND,
