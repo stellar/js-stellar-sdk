@@ -6,6 +6,9 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Added
+- `contract.AssembledTransaction` now supports separate `sign` and `send` methods so that you can sign a transaction without sending it.
+
 
 ## [v12.0.1](https://github.com/stellar/js-stellar-sdk/compare/v11.3.0...v12.0.1)
 
