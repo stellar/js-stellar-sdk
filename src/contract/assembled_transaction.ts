@@ -580,7 +580,7 @@ export class AssembledTransaction<T> {
    */
   async send(){
     if(!this.signed){
-      throw new Error("The transaction has not yet been signed. Run `sign` first.");
+      throw new Error("The transaction has not yet been signed. Run `sign` first, or use `signAndSend` instead.");
     }
     const typeChecked: AssembledTransaction<T> = this;
     const sent = await SentTransaction.init(typeChecked, this.signed);
