@@ -123,3 +123,10 @@ export type AssembledTransactionOptions<T = string> = MethodOptions &
     args?: any[];
     parseResultXdr: (xdr: xdr.ScVal) => T;
   };
+
+export type SentTransactionOptions<T> = {
+  timeoutInSeconds?: number,
+  rpcUrl: string,
+  allowHttp?: boolean,
+  parseResultXdr: (xdr: xdr.ScVal) => T,
+};

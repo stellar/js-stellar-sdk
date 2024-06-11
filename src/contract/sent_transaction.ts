@@ -1,10 +1,9 @@
 /* disable max-classes rule, because extending error shouldn't count! */
 /* eslint max-classes-per-file: 0 */
-import type { MethodOptions, Tx } from "./types";
+import type { MethodOptions, SentTransactionOptions, Tx } from "./types";
 import { Server } from "../rpc/server"
 import { Api } from "../rpc/api"
 import { DEFAULT_TIMEOUT, withExponentialBackoff } from "./utils";
-import type { AssembledTransaction } from "./assembled_transaction";
 
 /**
  * A transaction that has been sent to the Soroban network. This happens in two steps:
@@ -50,12 +49,11 @@ export class SentTransaction<T> {
   };
 
   constructor(
-    public assembled: AssembledTransaction<T>,
-
+    public options: SentTransactionOptions<T>,
     public signed: Tx,
   ) {
-    this.server = new Server(this.assembled.options.rpcUrl, {
-      allowHttp: this.assembled.options.allowHttp ?? false,
+    this.server = new Server(this.options.rpcUrl, {
+      allowHttp: this.options.allowHttp ?? false,
     });
   }
 
@@ -65,12 +63,12 @@ export class SentTransaction<T> {
    * network.
    */
   static init = async <U>(
-    /** {@link AssembledTransaction} from which this SentTransaction was initialized */
-    assembled: AssembledTransaction<U>,
+    /** {@link SentTransactionOptions} from which this SentTransaction was initialized */
+    options: SentTransactionOptions<U>,
     /** The signed transaction to send to the network */
     signed: Tx,
   ): Promise<SentTransaction<U>> => {
-    const tx = new SentTransaction(assembled, signed);
+    const tx = new SentTransaction(options, signed);
     const sent = await tx.send();
     return sent;
   };
@@ -93,7 +91,7 @@ export class SentTransaction<T> {
     const { hash } = this.sendTransactionResponse;
 
     const timeoutInSeconds =
-      this.assembled.options.timeoutInSeconds ?? DEFAULT_TIMEOUT;
+      this.options.timeoutInSeconds ?? DEFAULT_TIMEOUT;
     this.getTransactionResponseAll = await withExponentialBackoff(
       () => this.server.getTransaction(hash),
       (resp) => resp.status === Api.GetTransactionStatus.NOT_FOUND,
@@ -130,7 +128,7 @@ export class SentTransaction<T> {
     if ("getTransactionResponse" in this && this.getTransactionResponse) {
       // getTransactionResponse has a `returnValue` field unless it failed
       if ("returnValue" in this.getTransactionResponse) {
-        return this.assembled.options.parseResultXdr(
+        return this.options.parseResultXdr(
           this.getTransactionResponse.returnValue!,
         );
       }
@@ -155,7 +153,7 @@ export class SentTransaction<T> {
 
     // 3. finally, if neither of those are present, throw an error
     throw new Error(
-      `Sending transaction failed: ${JSON.stringify(this.assembled)}`,
+      `Sending transaction failed: ${JSON.stringify(this.signed)}`,
     );
   }
 }
