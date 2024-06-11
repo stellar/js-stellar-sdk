@@ -1,3 +1,4 @@
+/* eslint-disable require-await */
 import axios from "axios";
 import { StrKey } from "@stellar/stellar-base";
 import URI from "urijs";

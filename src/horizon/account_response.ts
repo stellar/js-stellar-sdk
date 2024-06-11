@@ -1,6 +1,7 @@
 /* tslint:disable:variable-name */
 
 import { Account as BaseAccount } from "@stellar/stellar-base";
+import type { TransactionBuilder } from "@stellar/stellar-base";
 import { HorizonApi } from "./horizon_api";
 import { ServerApi } from "./server_api";
 
@@ -9,7 +10,7 @@ import { ServerApi } from "./server_api";
  *
  * Returns information and links relating to a single account.
  * The balances section in the returned JSON will also list all the trust lines this account has set up.
- * It also contains {@link Account} object and exposes it's methods so can be used in {@link TransactionBuilder}.
+ * It also contains {@link BaseAccount} object and exposes it's methods so can be used in {@link TransactionBuilder}.
  *
  * @see [Account Details](https://developers.stellar.org/api/resources/accounts/object/)
  * @param {string} response Response from horizon account endpoint.

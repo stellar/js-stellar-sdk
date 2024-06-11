@@ -1,7 +1,9 @@
+/* eslint-disable max-classes-per-file */
 import { HorizonApi } from "./horizon/horizon_api";
 
 // For ES5 compatibility (https://stackoverflow.com/a/55066280).
 /* tslint:disable:variable-name max-classes-per-file */
+
 
 export class NetworkError extends Error {
   public response: {
