@@ -50,6 +50,10 @@ const STROOPS_IN_LUMEN = 10000000;
 // SEP 29 uses this value to define transaction memo requirements for incoming payments.
 const ACCOUNT_REQUIRES_MEMO = "MQ==";
 
+/**
+ *
+ * @param amt
+ */
 function _getAmountInLumens(amt: BigNumber) {
   return new BigNumber(amt).div(STROOPS_IN_LUMEN).toString();
 }
@@ -57,7 +61,7 @@ function _getAmountInLumens(amt: BigNumber) {
 /**
  * Server handles the network connection to a [Horizon](https://developers.stellar.org/api/introduction/)
  * instance and exposes an interface for requests to that instance.
- * @constructor
+ * @class
  * @param {string} serverURL Horizon Server URL (ex. `https://horizon-testnet.stellar.org`).
  * @param {object} [opts] Options object
  * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments! You can also use {@link Config} class to set this globally.
@@ -131,8 +135,10 @@ export class Server {
    *  // earlier does the trick!
    *  .build();
    * ```
-   * @argument {number} seconds Number of seconds past the current time to wait.
-   * @argument {bool} [_isRetry=false] True if this is a retry. Only set this internally!
+   * @param seconds
+   * @param {number} seconds Number of seconds past the current time to wait.
+   * @param _isRetry
+   * @param {bool} [_isRetry] True if this is a retry. Only set this internally!
    * This is to avoid a scenario where Horizon is horking up the wrong date.
    * @returns {Promise<Timebounds>} Promise that resolves a `timebounds` object
    * (with the shape `{ minTime: 0, maxTime: N }`) that you can set the `timebounds` option to.
@@ -162,7 +168,7 @@ export class Server {
     // otherwise, retry (by calling the root endpoint)
     // toString automatically adds the trailing slash
     await AxiosClient.get(URI(this.serverURL as any).toString());
-    return await this.fetchTimebounds(seconds, true);
+    return this.fetchTimebounds(seconds, true);
   }
 
   /**
@@ -203,87 +209,86 @@ export class Server {
    * Ex:
    * ```javascript
    * const res = {
-   *   ...response,
-   *   offerResults: [
-   *     {
-   *       // Exact ordered list of offers that executed, with the exception
-   *       // that the last one may not have executed entirely.
-   *       offersClaimed: [
-   *         sellerId: String,
-   *         offerId: String,
-   *         assetSold: {
-   *           type: 'native|credit_alphanum4|credit_alphanum12',
+   * ...response,
+   * offerResults: [
+   * {
+   * // Exact ordered list of offers that executed, with the exception
+   * // that the last one may not have executed entirely.
+   * offersClaimed: [
+   * sellerId: String,
+   * offerId: String,
+   * assetSold: {
+   * type: 'native|credit_alphanum4|credit_alphanum12',
    *
-   *           // these are only present if the asset is not native
-   *           assetCode: String,
-   *           issuer: String,
-   *         },
+   * // these are only present if the asset is not native
+   * assetCode: String,
+   * issuer: String,
+   * },
    *
-   *         // same shape as assetSold
-   *         assetBought: {}
-   *       ],
+   * // same shape as assetSold
+   * assetBought: {}
+   * ],
    *
-   *       // What effect your manageOffer op had
-   *       effect: "manageOfferCreated|manageOfferUpdated|manageOfferDeleted",
+   * // What effect your manageOffer op had
+   * effect: "manageOfferCreated|manageOfferUpdated|manageOfferDeleted",
    *
-   *       // Whether your offer immediately got matched and filled
-   *       wasImmediatelyFilled: Boolean,
+   * // Whether your offer immediately got matched and filled
+   * wasImmediatelyFilled: Boolean,
    *
-   *       // Whether your offer immediately got deleted, if for example the order was too small
-   *       wasImmediatelyDeleted: Boolean,
+   * // Whether your offer immediately got deleted, if for example the order was too small
+   * wasImmediatelyDeleted: Boolean,
    *
-   *       // Whether the offer was partially, but not completely, filled
-   *       wasPartiallyFilled: Boolean,
+   * // Whether the offer was partially, but not completely, filled
+   * wasPartiallyFilled: Boolean,
    *
-   *       // The full requested amount of the offer is open for matching
-   *       isFullyOpen: Boolean,
+   * // The full requested amount of the offer is open for matching
+   * isFullyOpen: Boolean,
    *
-   *       // The total amount of tokens bought / sold during transaction execution
-   *       amountBought: Number,
-   *       amountSold: Number,
+   * // The total amount of tokens bought / sold during transaction execution
+   * amountBought: Number,
+   * amountSold: Number,
    *
-   *       // if the offer was created, updated, or partially filled, this is
-   *       // the outstanding offer
-   *       currentOffer: {
-   *         offerId: String,
-   *         amount: String,
-   *         price: {
-   *           n: String,
-   *           d: String,
-   *         },
+   * // if the offer was created, updated, or partially filled, this is
+   * // the outstanding offer
+   * currentOffer: {
+   * offerId: String,
+   * amount: String,
+   * price: {
+   * n: String,
+   * d: String,
+   * },
    *
-   *         selling: {
-   *           type: 'native|credit_alphanum4|credit_alphanum12',
+   * selling: {
+   * type: 'native|credit_alphanum4|credit_alphanum12',
    *
-   *           // these are only present if the asset is not native
-   *           assetCode: String,
-   *           issuer: String,
-   *         },
+   * // these are only present if the asset is not native
+   * assetCode: String,
+   * issuer: String,
+   * },
    *
-   *         // same as `selling`
-   *         buying: {},
-   *       },
+   * // same as `selling`
+   * buying: {},
+   * },
    *
-   *       // the index of this particular operation in the op stack
-   *       operationIndex: Number
-   *     }
-   *   ]
+   * // the index of this particular operation in the op stack
+   * operationIndex: Number
+   * }
+   * ]
    * }
    * ```
    *
    * For example, you'll want to examine `offerResults` to add affordances like
    * these to your app:
-   * * If `wasImmediatelyFilled` is true, then no offer was created. So if you
-   *   normally watch the `Server.offers` endpoint for offer updates, you
-   *   instead need to check `Server.trades` to find the result of this filled
-   *   offer.
-   * * If `wasImmediatelyDeleted` is true, then the offer you submitted was
-   *   deleted without reaching the orderbook or being matched (possibly because
-   *   your amounts were rounded down to zero). So treat the just-submitted
-   *   offer request as if it never happened.
-   * * If `wasPartiallyFilled` is true, you can tell the user that
-   *   `amountBought` or `amountSold` have already been transferred.
-   *
+   * If `wasImmediatelyFilled` is true, then no offer was created. So if you
+   * normally watch the `Server.offers` endpoint for offer updates, you
+   * instead need to check `Server.trades` to find the result of this filled
+   * offer.
+   * If `wasImmediatelyDeleted` is true, then the offer you submitted was
+   * deleted without reaching the orderbook or being matched (possibly because
+   * your amounts were rounded down to zero). So treat the just-submitted
+   * offer request as if it never happened.
+   * If `wasPartiallyFilled` is true, you can tell the user that
+   * `amountBought` or `amountSold` have already been transferred.
    * @see [Post
    * Transaction](https://developers.stellar.org/api/resources/transactions/post/)
    * @param {Transaction|FeeBumpTransaction} transaction - The transaction to submit.
@@ -377,8 +382,8 @@ export class Server {
                     // However, you can never be too careful.
                     default:
                       throw new Error(
-                        "Invalid offer result type: " +
-                          offerClaimedAtom.switch(),
+                        `Invalid offer result type: ${ 
+                          offerClaimedAtom.switch()}`,
                       );
                   }
 
@@ -488,9 +493,7 @@ export class Server {
             .filter((result: any) => !!result);
         }
 
-        return Object.assign({}, response.data, {
-          offerResults: hasManageOffer ? offerResults : undefined,
-        });
+        return { ...response.data, offerResults: hasManageOffer ? offerResults : undefined,};
       })
       .catch((response) => {
         if (response instanceof Error) {
@@ -503,6 +506,42 @@ export class Server {
           ),
         );
       });
+  }
+
+  public async submitAsyncTransaction(
+      transaction: Transaction | FeeBumpTransaction,
+      opts: Server.SubmitTransactionOptions = { skipMemoRequiredCheck: false }
+  ): Promise<HorizonApi.SubmitAsyncTransactionResponse> {
+    // only check for memo required if skipMemoRequiredCheck is false and the transaction doesn't include a memo.
+    if (!opts.skipMemoRequiredCheck) {
+      await this.checkMemoRequired(transaction);
+    }
+
+    const tx = encodeURIComponent(
+        transaction
+            .toEnvelope()
+            .toXDR()
+            .toString("base64"),
+    );
+
+    return AxiosClient.post(
+        URI(this.serverURL as any)
+            .segment("transactions_async")
+            .toString(),
+        `tx=${tx}`,
+    ).then((response) => {
+      return response.data
+    }).catch((response) => {
+      if (response instanceof Error) {
+        return Promise.reject(response);
+      }
+      return Promise.reject(
+          new BadResponseError(
+              `Transaction submission failed. Server responded: ${response.status} ${response.statusText}`,
+              response.data,
+          ),
+      );
+    });
   }
 
   /**
@@ -595,9 +634,9 @@ export class Server {
    *
    * A strict receive path search is specified using:
    *
-   * * The destination address.
-   * * The source address or source assets.
-   * * The asset and amount that the destination account should receive.
+   * The destination address.
+   * The source address or source assets.
+   * The asset and amount that the destination account should receive.
    *
    * As part of the search, horizon will load a list of assets available to the
    * source address and will find any payment paths from those source assets to
@@ -607,7 +646,6 @@ export class Server {
    *
    * If a list of assets is passed as the source, horizon will find any payment
    * paths from those source assets to the desired destination asset.
-   *
    * @param {string|Asset[]} source The sender's account ID or a list of assets. Any returned path will use a source that the sender can hold.
    * @param {Asset} destinationAsset The destination asset.
    * @param {string} destinationAmount The amount, denominated in the destination asset, that any returned path should be able to satisfy.
@@ -635,7 +673,6 @@ export class Server {
    *
    * The asset and amount that is being sent.
    * The destination account or the destination assets.
-   *
    * @param {Asset} sourceAsset The asset to be sent.
    * @param {string} sourceAmount The amount, denominated in the source asset, that any returned path should be able to satisfy.
    * @param {string|Asset[]} destination The destination account or the destination assets.
@@ -692,9 +729,7 @@ export class Server {
   /**
    * Fetches an account's most current state in the ledger, then creates and
    * returns an {@link AccountResponse} object.
-   *
    * @param {string} accountId - The account to load.
-   *
    * @returns {Promise} Returns a promise to the {@link AccountResponse} object
    * with populated sequence number.
    */
@@ -746,7 +781,6 @@ export class Server {
    *
    * Each account is checked sequentially instead of loading multiple accounts
    * at the same time from Horizon.
-   *
    * @see https://stellar.org/protocol/sep-29
    * @param {Transaction} transaction - The transaction to check.
    * @returns {Promise<void, Error>} - If any of the destination account
@@ -778,7 +812,7 @@ export class Server {
         default:
           continue;
       }
-      const destination = operation.destination;
+      const {destination} = operation;
       if (destinations.has(destination)) {
         continue;
       }
