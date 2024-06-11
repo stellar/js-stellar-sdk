@@ -124,5 +124,8 @@ export class Client {
       tx,
     );
   };
+
+  txFromXDR = <T>(xdrBase64: string): AssembledTransaction<T> => AssembledTransaction.fromXDR(this.options, xdrBase64, this.spec);
+
 }
 
