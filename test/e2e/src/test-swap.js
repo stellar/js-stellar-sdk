@@ -100,31 +100,32 @@ describe("Swap Contract Tests", function () {
     expect(needsNonInvokerSigningBy.indexOf(this.context.bob.publicKey())).to.equal(1, "needsNonInvokerSigningBy does not have bob's public key!");
 
     // root serializes & sends to alice
-    const jsonFromRoot = tx.toJSON();
+    const xdrFromRoot = tx.toXDR();
     const { client: clientAlice } = await clientFor("swap", {
       keypair: this.context.alice,
       contractId: this.context.swapId,
     });
-    const txAlice = clientAlice.txFromJSON(jsonFromRoot);
+    const txAlice = clientAlice.txFromXDR(xdrFromRoot);
     await txAlice.signAuthEntries();
 
     // alice serializes & sends to bob
-    const jsonFromAlice = txAlice.toJSON();
+    const xdrFromAlice = txAlice.toXDR();
     const { client: clientBob } = await clientFor("swap", {
       keypair: this.context.bob,
       contractId: this.context.swapId,
     });
-    const txBob = clientBob.txFromJSON(jsonFromAlice);
+    const txBob = clientBob.txFromXDR(xdrFromAlice);
     await txBob.signAuthEntries();
 
     // bob serializes & sends back to root
-    const jsonFromBob = txBob.toJSON();
+    const xdrFromBob = txBob.toXDR();
     const { client: clientRoot } = await clientFor("swap", {
       keypair: this.context.root,
       contractId: this.context.swapId,
     });
-    const txRoot = clientRoot.txFromJSON(jsonFromBob);
+    const txRoot = clientRoot.txFromXDR(xdrFromBob);
 
+    await txRoot.simulate();
     const result = await txRoot.signAndSend();
 
     expect(result).to.have.property('sendTransactionResponse');
