@@ -509,9 +509,8 @@ export class AssembledTransaction<T> {
   }
 
   /**
-   * Sign the transaction with the `wallet`, included previously. If you did
-   * not previously include one, you need to include one now that at least
-   * includes the `signTransaction` method. 
+   * Sign the transaction with the signTransaction function included previously. 
+   * If you did not previously include one, you need to include one now.
    */
   sign = async ({
     force = false,
@@ -587,11 +586,10 @@ export class AssembledTransaction<T> {
   }
 
   /**
-   * Sign the transaction with the `wallet`, included previously. If you did
-   * not previously include one, you need to include one now that at least
-   * includes the `signTransaction` method. After signing, this method will
-   * send the transaction to the network and return a `SentTransaction` that
-   * keeps track of all the attempts to fetch the transaction.
+   * Sign the transaction with the `signTransaction` function included previously. 
+   * If you did not previously include one, you need to include one now. 
+   * After signing, this method will send the transaction to the network and 
+   * return a `SentTransaction` that keeps track * of all the attempts to fetch the transaction.
    */
   signAndSend = async ({
     force = false,

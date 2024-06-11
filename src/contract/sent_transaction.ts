@@ -58,12 +58,19 @@ export class SentTransaction<T> {
   }
 
   /**
-   * Initialize a `SentTransaction` from an existing `AssembledTransaction` and
-   * a `signed` AssembledTransaction. This will also send the transaction to the
-   * network.
+   * Initialize a `SentTransaction` from `options` and a `signed` 
+   * AssembledTransaction. This will also send the transaction to the network.
    */
   static init = async <U>(
-    /** {@link SentTransactionOptions} from which this SentTransaction was initialized */
+    /**
+     * Configuration options for initializing the SentTransaction.
+     * 
+     * @typedef {Object} SentTransactionOptions
+     * @property {number} [timeoutInSeconds] - Optional timeout duration in seconds for the transaction.
+     * @property {string} rpcUrl - The RPC URL of the network to which the transaction will be sent.
+     * @property {boolean} [allowHttp] - Optional flag to allow HTTP connections (default is false, HTTPS is preferred).
+     * @property {(xdr: xdr.ScVal) => U} parseResultXdr - Function to parse the XDR result returned by the network.
+     */
     options: SentTransactionOptions<U>,
     /** The signed transaction to send to the network */
     signed: Tx,
