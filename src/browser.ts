@@ -1,4 +1,5 @@
 /* tslint:disable:no-var-requires */
+/* eslint import/no-import-module-exports: 0 */
 
 import axios from "axios"; // idk why axios is weird
 
