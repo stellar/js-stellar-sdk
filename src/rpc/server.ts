@@ -24,8 +24,6 @@ import {
   parseRawLedgerEntries,
   parseRawEvents
 } from './parsers';
-import type { Config } from '../config';
-
 
 export const SUBMIT_TRANSACTION_TIMEOUT = 60 * 1000;
 

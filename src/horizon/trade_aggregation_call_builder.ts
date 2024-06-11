@@ -82,13 +82,7 @@ export class TradeAggregationCallBuilder extends CallBuilder<
    * @returns {boolean} true if the resolution is allowed
    */
   private isValidResolution(resolution: number): boolean {
-    // eslint-disable-next-line consistent-return
-    allowedResolutions.forEach((allowed) => {
-      if (allowed === resolution) {
-        return true;
-      }
-    });
-    return false;
+    return allowedResolutions.some((allowed) => allowed === resolution);
   }
 
   /**

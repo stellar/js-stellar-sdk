@@ -567,7 +567,7 @@ export function verifyChallengeTxSigners(
     );
   }
 
-  let clientSigningKey;
+  let clientSigningKey: string | undefined;
   tx.operations.forEach((op) => {
     if (op.type === "manageData" && op.name === "client_domain") {
       if (clientSigningKey) {
