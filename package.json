@@ -53,7 +53,7 @@
     "test:node": "yarn _nyc mocha --recursive 'test/unit/**/*.js'",
     "test:integration": "yarn _nyc mocha --recursive 'test/integration/**/*.js'",
     "test:browser": "karma start config/karma.conf.js",
-    "fmt": "yarn eslint -c src/.eslintrc.js src/ --fix && yarn _prettier",
+    "fmt": "yarn eslint -c .eslintrc.js src/ --fix && yarn _prettier",
     "preversion": "yarn clean && yarn _prettier && yarn build:prod && yarn test",
     "prepare": "yarn build:prod",
     "_build": "yarn build:node && yarn build:test && yarn build:browser",
