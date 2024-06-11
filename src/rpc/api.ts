@@ -33,7 +33,7 @@ export namespace Api {
     liveUntilLedgerSeq?: number;
   }
 
-  /** An XDR-parsed version of {@link RawLedgerEntryResult} */
+  /** An XDR-parsed version of {@link this.RawLedgerEntryResult} */
   export interface GetLedgerEntriesResponse {
     entries: LedgerEntryResult[];
     latestLedger: number;
@@ -227,7 +227,7 @@ export namespace Api {
   }
 
   /**
-   * Simplifies {@link RawSimulateTransactionResponse} into separate interfaces
+   * Simplifies {@link Api.RawSimulateTransactionResponse} into separate interfaces
    * based on status:
    *   - on success, this includes all fields, though `result` is only present
    *     if an invocation was simulated (since otherwise there's nothing to
@@ -254,7 +254,6 @@ export namespace Api {
      * The field is always present, but may be empty in cases where:
      *   - you didn't simulate an invocation or
      *   - there were no events
-     * @see {@link humanizeEvents}
      */
     events: xdr.DiagnosticEvent[];
 

@@ -10,6 +10,7 @@ import {
 } from "@stellar/stellar-base";
 import URI from "urijs";
 
+import type { TransactionBuilder } from "@stellar/stellar-base";
 import { CallBuilder } from "./call_builder";
 import { Config } from "../config";
 import {
@@ -37,7 +38,7 @@ import { StrictSendPathCallBuilder } from "./strict_send_path_call_builder";
 import { TradeAggregationCallBuilder } from "./trade_aggregation_call_builder";
 import { TradesCallBuilder } from "./trades_call_builder";
 import { TransactionCallBuilder } from "./transaction_call_builder";
-
+// eslint-disable-next-line import/no-named-as-default 
 import AxiosClient, {
   getCurrentServerTime,
 } from "./horizon_axios_client";
@@ -50,7 +51,7 @@ const STROOPS_IN_LUMEN = 10000000;
 // SEP 29 uses this value to define transaction memo requirements for incoming payments.
 const ACCOUNT_REQUIRES_MEMO = "MQ==";
 
-function _getAmountInLumens(amt: BigNumber) {
+function getAmountInLumens(amt: BigNumber) {
   return new BigNumber(amt).div(STROOPS_IN_LUMEN).toString();
 }
 
@@ -132,9 +133,9 @@ export class Server {
    *  .build();
    * ```
    * @param {number} seconds Number of seconds past the current time to wait.
-   * @param {bool} [_isRetry] True if this is a retry. Only set this internally!
+   * @param {boolean} [_isRetry] True if this is a retry. Only set this internally!
    * This is to avoid a scenario where Horizon is horking up the wrong date.
-   * @returns {Promise<Timebounds>} Promise that resolves a `timebounds` object
+   * @returns {Promise<Server.Timebounds>} Promise that resolves a `timebounds` object
    * (with the shape `{ minTime: 0, maxTime: N }`) that you can set the `timebounds` option to.
    */
   public async fetchTimebounds(
@@ -182,6 +183,7 @@ export class Server {
    * @see [Fee Stats](https://developers.stellar.org/api/aggregations/fee-stats/)
    * @returns {Promise<HorizonApi.FeeStatsResponse>} Promise that resolves to the fee stats returned by Horizon.
    */
+  // eslint-disable-next-line require-await
   public async feeStats(): Promise<HorizonApi.FeeStatsResponse> {
     const cb = new CallBuilder<HorizonApi.FeeStatsResponse>(
       URI(this.serverURL as any),
@@ -284,8 +286,7 @@ export class Server {
    * * If `wasPartiallyFilled` is true, you can tell the user that
    *   `amountBought` or `amountSold` have already been transferred.
    *
-   * @see [Post
-   * Transaction](https://developers.stellar.org/api/resources/transactions/post/)
+   * @see [PostTransaction](https://developers.stellar.org/api/resources/transactions/post/)
    * @param {Transaction|FeeBumpTransaction} transaction - The transaction to submit.
    * @param {object} [opts] Options object
    * @param {boolean} [opts.skipMemoRequiredCheck] - Allow skipping memo
@@ -420,9 +421,9 @@ export class Server {
                     sellerId,
                     offerId: offerClaimed.offerId().toString(),
                     assetSold,
-                    amountSold: _getAmountInLumens(claimedOfferAmountSold),
+                    amountSold: getAmountInLumens(claimedOfferAmountSold),
                     assetBought,
-                    amountBought: _getAmountInLumens(claimedOfferAmountBought),
+                    amountBought: getAmountInLumens(claimedOfferAmountBought),
                   };
                 });
 
@@ -440,7 +441,7 @@ export class Server {
                   offerId: offerXDR.offerId().toString(),
                   selling: {},
                   buying: {},
-                  amount: _getAmountInLumens(offerXDR.amount().toString()),
+                  amount: getAmountInLumens(offerXDR.amount().toString()),
                   price: {
                     n: offerXDR.price().n(),
                     d: offerXDR.price().d(),
@@ -471,8 +472,8 @@ export class Server {
                 currentOffer,
 
                 // this value is in stroops so divide it out
-                amountBought: _getAmountInLumens(amountBought),
-                amountSold: _getAmountInLumens(amountSold),
+                amountBought: getAmountInLumens(amountBought),
+                amountSold: getAmountInLumens(amountSold),
 
                 isFullyOpen:
                   !offersClaimed.length && effect !== "manageOfferDeleted",
@@ -708,10 +709,10 @@ export class Server {
    *
    * @param {Asset} base base asset
    * @param {Asset} counter counter asset
-   * @param {long} start_time lower time boundary represented as millis since epoch
-   * @param {long} end_time upper time boundary represented as millis since epoch
-   * @param {long} resolution segment duration as millis since epoch. *Supported values are 5 minutes (300000), 15 minutes (900000), 1 hour (3600000), 1 day (86400000) and 1 week (604800000).
-   * @param {long} offset segments can be offset using this parameter. Expressed in milliseconds. *Can only be used if the resolution is greater than 1 hour. Value must be in whole hours, less than the provided resolution, and less than 24 hours.
+   * @param {number} start_time lower time boundary represented as millis since epoch
+   * @param {number} end_time upper time boundary represented as millis since epoch
+   * @param {number} resolution segment duration as millis since epoch. *Supported values are 5 minutes (300000), 15 minutes (900000), 1 hour (3600000), 1 day (86400000) and 1 week (604800000).
+   * @param {number} offset segments can be offset using this parameter. Expressed in milliseconds. *Can only be used if the resolution is greater than 1 hour. Value must be in whole hours, less than the provided resolution, and less than 24 hours.
    * Returns new {@link TradeAggregationCallBuilder} object configured with the current Horizon server configuration.
    * @returns {TradeAggregationCallBuilder} New TradeAggregationCallBuilder instance
    */
@@ -764,7 +765,8 @@ export class Server {
 
     const destinations = new Set<string>();
 
-    for (let i = 0; i < transaction.operations.length; i++) {
+    /* eslint-disable no-continue */
+    for (let i = 0; i < transaction.operations.length; i+=1) {
       const operation = transaction.operations[i];
 
       switch (operation.type) {
@@ -788,6 +790,7 @@ export class Server {
       }
 
       try {
+        // eslint-disable-next-line no-await-in-loop
         const account = await this.loadAccount(destination);
         if (
           account.data_attr["config.memo_required"] === ACCOUNT_REQUIRES_MEMO
@@ -811,6 +814,7 @@ export class Server {
         continue;
       }
     }
+    /* eslint-enable no-continue */
   }
 }
 

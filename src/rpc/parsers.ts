@@ -70,17 +70,72 @@ export function parseRawLedgerEntries(
   };
 }
 
+function parseSuccessful(
+  sim: Api.RawSimulateTransactionResponse,
+  partial: Api.BaseSimulateTransactionResponse
+):
+  | Api.SimulateTransactionRestoreResponse
+  | Api.SimulateTransactionSuccessResponse {
+  // success type: might have a result (if invoking) and...
+  const success: Api.SimulateTransactionSuccessResponse = {
+    ...partial,
+    transactionData: new SorobanDataBuilder(sim.transactionData!),
+    minResourceFee: sim.minResourceFee!,
+    cost: sim.cost!,
+    ...// coalesce 0-or-1-element results[] list into a single result struct
+    // with decoded fields if present
+    // eslint-disable-next-line no-self-compare
+    ((sim.results?.length ?? 0 > 0) && {
+      result: sim.results!.map((row) => ({
+          auth: (row.auth ?? []).map((entry) =>
+            xdr.SorobanAuthorizationEntry.fromXDR(entry, 'base64')
+          ),
+          // if return value is missing ("falsy") we coalesce to void
+          retval: row.xdr
+            ? xdr.ScVal.fromXDR(row.xdr, 'base64')
+            : xdr.ScVal.scvVoid()
+        }))[0]
+    }),
+
+    // eslint-disable-next-line no-self-compare
+    ...(sim.stateChanges?.length ?? 0 > 0) && {
+      stateChanges: sim.stateChanges?.map((entryChange) => ({
+          type: entryChange.type,
+          key: xdr.LedgerKey.fromXDR(entryChange.key, 'base64'),
+          before: entryChange.before ? xdr.LedgerEntry.fromXDR(entryChange.before, 'base64') : null,
+          after: entryChange.after ? xdr.LedgerEntry.fromXDR(entryChange.after, 'base64') : null,
+        }))
+    }
+
+  };
+
+  if (!sim.restorePreamble || sim.restorePreamble.transactionData === '') {
+    return success;
+  }
+
+  // ...might have a restoration hint (if some state is expired)
+  return {
+    ...success,
+    restorePreamble: {
+      minResourceFee: sim.restorePreamble!.minResourceFee,
+      transactionData: new SorobanDataBuilder(
+        sim.restorePreamble!.transactionData
+      )
+    }
+  };
+}
+
 /**
  * Converts a raw response schema into one with parsed XDR fields and a
  * simplified interface.
+ * Warning: This API is only exported for testing purposes and should not be
+ *          relied on or considered "stable".
  *
- * @param raw   the raw response schema (parsed ones are allowed, best-effort
+ * @param {Api.SimulateTransactionResponse|Api.RawSimulateTransactionResponse} sim the raw response schema (parsed ones are allowed, best-effort
  *    detected, and returned untouched)
  *
  * @returns the original parameter (if already parsed), parsed otherwise
  *
- * @warning This API is only exported for testing purposes and should not be
- *          relied on or considered "stable".
  */
 export function parseRawSimulation(
   sim:
@@ -111,57 +166,4 @@ export function parseRawSimulation(
   }
 
   return parseSuccessful(sim, base);
-}
-
-function parseSuccessful(
-  sim: Api.RawSimulateTransactionResponse,
-  partial: Api.BaseSimulateTransactionResponse
-):
-  | Api.SimulateTransactionRestoreResponse
-  | Api.SimulateTransactionSuccessResponse {
-  // success type: might have a result (if invoking) and...
-  const success: Api.SimulateTransactionSuccessResponse = {
-    ...partial,
-    transactionData: new SorobanDataBuilder(sim.transactionData!),
-    minResourceFee: sim.minResourceFee!,
-    cost: sim.cost!,
-    ...// coalesce 0-or-1-element results[] list into a single result struct
-    // with decoded fields if present
-    ((sim.results?.length ?? 0 > 0) && {
-      result: sim.results!.map((row) => ({
-          auth: (row.auth ?? []).map((entry) =>
-            xdr.SorobanAuthorizationEntry.fromXDR(entry, 'base64')
-          ),
-          // if return value is missing ("falsy") we coalesce to void
-          retval: row.xdr
-            ? xdr.ScVal.fromXDR(row.xdr, 'base64')
-            : xdr.ScVal.scvVoid()
-        }))[0]
-    }),
-
-    ...(sim.stateChanges?.length ?? 0 > 0) && {
-      stateChanges: sim.stateChanges?.map((entryChange) => ({
-          type: entryChange.type,
-          key: xdr.LedgerKey.fromXDR(entryChange.key, 'base64'),
-          before: entryChange.before ? xdr.LedgerEntry.fromXDR(entryChange.before, 'base64') : null,
-          after: entryChange.after ? xdr.LedgerEntry.fromXDR(entryChange.after, 'base64') : null,
-        }))
-    }
-
-  };
-
-  if (!sim.restorePreamble || sim.restorePreamble.transactionData === '') {
-    return success;
-  }
-
-  // ...might have a restoration hint (if some state is expired)
-  return {
-    ...success,
-    restorePreamble: {
-      minResourceFee: sim.restorePreamble!.minResourceFee,
-      transactionData: new SorobanDataBuilder(
-        sim.restorePreamble!.transactionData
-      )
-    }
-  };
 }

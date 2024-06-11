@@ -7,9 +7,30 @@ import {
 
 import { Api } from './api';
 import { parseRawSimulation } from './parsers';
+import type { Server } from './server';
+
+function isSorobanTransaction(tx: Transaction): boolean {
+  if (tx.operations.length !== 1) {
+    return false;
+  }
+
+  switch (tx.operations[0].type) {
+    case 'invokeHostFunction':
+    case 'extendFootprintTtl':
+    case 'restoreFootprint':
+      return true;
+
+    default:
+      return false;
+  }
+}
+
 
 /**
  * Combines the given raw transaction alongside the simulation results.
+ * If the given transaction already has authorization entries in a host
+ *    function invocation (see {@link Operation.invokeHostFunction}), **the
+ *    simulation entries are ignored**.
  *
  * @param raw         the initial transaction, w/o simulation applied
  * @param simulation  the Soroban RPC simulation result (see
@@ -17,10 +38,6 @@ import { parseRawSimulation } from './parsers';
  *
  * @returns a new, cloned transaction with the proper auth and resource (fee,
  *    footprint) simulation data applied
- *
- * @note if the given transaction already has authorization entries in a host
- *    function invocation (see {@link Operation.invokeHostFunction}), **the
- *    simulation entries are ignored**.
  *
  * @see {Server.simulateTransaction}
  * @see {Server.prepareTransaction}
@@ -52,6 +69,7 @@ export function assembleTransaction(
     throw new Error(`simulation incorrect: ${JSON.stringify(success)}`);
   }
 
+  /* eslint-disable radix */
   const classicFeeNum = parseInt(raw.fee) || 0;
   const minResourceFeeNum = parseInt(success.minResourceFee) || 0;
   const txnBuilder = TransactionBuilder.cloneFrom(raw, {
@@ -69,43 +87,25 @@ export function assembleTransaction(
     networkPassphrase: raw.networkPassphrase
   });
 
-  switch (raw.operations[0].type) {
-    case 'invokeHostFunction':
-      // In this case, we don't want to clone the operation, so we drop it.
-      txnBuilder.clearOperations();
+  if (raw.operations[0].type === 'invokeHostFunction') {
+    // In this case, we don't want to clone the operation, so we drop it.
+    txnBuilder.clearOperations();
 
-      const invokeOp: Operation.InvokeHostFunction = raw.operations[0];
-      const existingAuth = invokeOp.auth ?? [];
-      txnBuilder.addOperation(
-        Operation.invokeHostFunction({
-          source: invokeOp.source,
-          func: invokeOp.func,
-          // if auth entries are already present, we consider this "advanced
-          // usage" and disregard ALL auth entries from the simulation
-          //
-          // the intuition is "if auth exists, this tx has probably been
-          // simulated before"
-          auth: existingAuth.length > 0 ? existingAuth : success.result!.auth
-        })
-      );
-      break;
+    const invokeOp: Operation.InvokeHostFunction = raw.operations[0];
+    const existingAuth = invokeOp.auth ?? [];
+    txnBuilder.addOperation(
+      Operation.invokeHostFunction({
+        source: invokeOp.source,
+        func: invokeOp.func,
+        // if auth entries are already present, we consider this "advanced
+        // usage" and disregard ALL auth entries from the simulation
+        //
+        // the intuition is "if auth exists, this tx has probably been
+        // simulated before"
+        auth: existingAuth.length > 0 ? existingAuth : success.result!.auth
+      })
+    );
   }
 
   return txnBuilder;
-}
-
-function isSorobanTransaction(tx: Transaction): boolean {
-  if (tx.operations.length !== 1) {
-    return false;
-  }
-
-  switch (tx.operations[0].type) {
-    case 'invokeHostFunction':
-    case 'extendFootprintTtl':
-    case 'restoreFootprint':
-      return true;
-
-    default:
-      return false;
-  }
 }
