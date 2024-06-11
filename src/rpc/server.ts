@@ -86,6 +86,7 @@ function findCreatedAccountSequenceInTransactionMeta(
   throw new Error('No account created in transaction');
 }
 
+/* eslint-disable jsdoc/no-undefined-types */
 /**
  * Handles the network connection to a Soroban RPC instance, exposing an
  * interface for requests to that instance.
