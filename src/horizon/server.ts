@@ -92,6 +92,9 @@ export class Server {
     if (opts.authToken) {
       customHeaders["X-Auth-Token"] = opts.authToken;
     }
+    if (opts.headers) {
+      Object.assign(customHeaders, opts.headers);
+    }
     if (Object.keys(customHeaders).length > 0) {
       AxiosClient.interceptors.request.use((config) => {
         // merge the custom headers with an existing headers, where customs
