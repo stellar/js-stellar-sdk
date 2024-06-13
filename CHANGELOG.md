@@ -6,8 +6,19 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
-### Fixed
+### Added
+- `contract.AssembledTransaction` now has a `toXDR` and `fromXDR` method for serializing the
+transaction to and from XDR. Additionally, `contract.Client` now has a `txFromXDR`. These methods
+should be used in place of `AssembledTransaction.toJSON`, `AssembledTransaction.fromJSON`, and
+`Client.txFromJSON` for multi-auth signing. The JSON methods are now deprecated. **Note you must now
+call `simulate` on the transaction before the final `signAndSend` call after all required signatures
+are gathered when using the XDR methods.
 
+### Deprecated
+- In `contract.AssembledTransaction`, `toJSON` and `fromJSON` should be replaced with `toXDR` and
+`fromXDR`. Similarly, in `contract.Client`, `txFromJSON` should be replaced with `txFromXDR`.
+
+### Fixed
 - Contract Client: if you edit an `AssembledTransaction` with `tx.raw = cloneFrom(tx.build)`, the `tx.simulationData` will now be updated correctly. `simulationData` is effectively a cache, and we now make sure we clear it when you re-simulate.
 
 
