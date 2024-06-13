@@ -330,8 +330,8 @@ export class AssembledTransaction<T> {
       method: this.options.method,
       tx: this.built?.toXDR(),
       simulationResult: {
-        auth: this.simulationData.result?.auth.map((a) => a.toXDR("base64")),
-        retval: this.simulationData.result?.retval.toXDR("base64"),
+        auth: this.simulationData.result.auth.map((a) => a.toXDR("base64")),
+        retval: this.simulationData.result.retval.toXDR("base64"),
       },
       simulationTransactionData:
         this.simulationData.transactionData.toXDR("base64"),
@@ -533,7 +533,7 @@ export class AssembledTransaction<T> {
   };
 
   get simulationData(): {
-    result?: Api.SimulateHostFunctionResult;
+    result: Api.SimulateHostFunctionResult;
     transactionData: xdr.SorobanTransactionData;
   } {
     if (this.simulationResult && this.simulationTransactionData) {
@@ -828,7 +828,7 @@ export class AssembledTransaction<T> {
    * returns `false`, then you need to call `signAndSend` on this transaction.
    */
   get isReadCall(): boolean {
-    const authsCount = this.simulationData.result?.auth.length;
+    const authsCount = this.simulationData.result.auth.length;
     const writeLength = this.simulationData.transactionData
       .resources()
       .footprint()
