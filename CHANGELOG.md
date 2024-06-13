@@ -18,6 +18,9 @@ are gathered when using the XDR methods.
 - In `contract.AssembledTransaction`, `toJSON` and `fromJSON` should be replaced with `toXDR` and
 `fromXDR`. Similarly, in `contract.Client`, `txFromJSON` should be replaced with `txFromXDR`.
 
+### Fixed
+- Contract Client: if you edit an `AssembledTransaction` with `tx.raw = cloneFrom(tx.build)`, the `tx.simulationData` will now be updated correctly. `simulationData` is effectively a cache, and we now make sure we clear it when you re-simulate.
+
 
 ## [v12.0.1](https://github.com/stellar/js-stellar-sdk/compare/v11.3.0...v12.0.1)
 
