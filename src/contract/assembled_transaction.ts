@@ -466,6 +466,10 @@ export class AssembledTransaction<T> {
     }
     this.simulation = await this.server.simulateTransaction(this.built);
 
+    // need to force re-calculation of simulationData for new simulation
+    delete this.simulationResult;
+    delete this.simulationTransactionData;
+
     if (Api.isSimulationSuccess(this.simulation)) {
       this.built = assembleTransaction(
         this.built,
