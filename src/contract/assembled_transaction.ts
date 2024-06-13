@@ -867,7 +867,7 @@ export class AssembledTransaction<T> {
     /** The account that is executing the footprint restore operation. */
     account?: Account
   ): Promise<Api.GetTransactionResponse> {
-    if(!this.options.signTransaction){
+    if (!this.options.signTransaction) {
       throw new Error("For automatic restore to work you must provide a signTransaction function when initializing your Client");
     }
     account = account ?? await getAccount(this.options, this.server);
