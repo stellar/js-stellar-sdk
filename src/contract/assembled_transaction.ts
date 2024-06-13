@@ -491,7 +491,7 @@ export class AssembledTransaction<T> {
     delete this.simulationTransactionData;
     this.simulation = await this.server.simulateTransaction(this.built);
 
-    if (Api.isSimulationRestore(this.simulation) && restore) {
+    if (restore && Api.isSimulationRestore(this.simulation)) {
       const account = await getAccount(this.options, this.server);
       const result = await this.restoreFootprint(
         this.simulation.restorePreamble,
