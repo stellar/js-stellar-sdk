@@ -825,6 +825,7 @@ export namespace Server {
     appName?: string;
     appVersion?: string;
     authToken?: string;
+    headers?: Record<string, string>;
   }
 
   export interface Timebounds {
