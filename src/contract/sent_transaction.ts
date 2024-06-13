@@ -1,9 +1,10 @@
 /* disable max-classes rule, because extending error shouldn't count! */
 /* eslint max-classes-per-file: 0 */
-import type { MethodOptions, SentTransactionOptions, Tx } from "./types";
+import type { MethodOptions } from "./types";
 import { Server } from "../rpc/server"
 import { Api } from "../rpc/api"
 import { DEFAULT_TIMEOUT, withExponentialBackoff } from "./utils";
+import type { AssembledTransaction } from "./assembled_transaction";
 
 /**
  * A transaction that has been sent to the Soroban network. This happens in two steps:
@@ -49,11 +50,11 @@ export class SentTransaction<T> {
   };
 
   constructor(
-    public options: SentTransactionOptions<T>,
-    public signed: Tx,
+    _: any, // deprecated: used to take sentTransaction, need to wait for major release for breaking change
+    public assembled: AssembledTransaction<T>,
   ) {
-    this.server = new Server(this.options.rpcUrl, {
-      allowHttp: this.options.allowHttp ?? false,
+    this.server = new Server(this.assembled.options.rpcUrl, {
+      allowHttp: this.assembled.options.allowHttp ?? false,
     });
   }
 
@@ -62,27 +63,19 @@ export class SentTransaction<T> {
    * AssembledTransaction. This will also send the transaction to the network.
    */
   static init = async <U>(
-    /**
-     * Configuration options for initializing the SentTransaction.
-     * 
-     * @typedef {Object} SentTransactionOptions
-     * @property {number} [timeoutInSeconds] - Optional timeout duration in seconds for the transaction.
-     * @property {string} rpcUrl - The RPC URL of the network to which the transaction will be sent.
-     * @property {boolean} [allowHttp] - Optional flag to allow HTTP connections (default is false, HTTPS is preferred).
-     * @property {(xdr: xdr.ScVal) => U} parseResultXdr - Function to parse the XDR result returned by the network.
-     */
-    options: SentTransactionOptions<U>,
-    /** The signed transaction to send to the network */
-    signed: Tx,
+    /** @deprecated variable is ignored. Now handled by AssembledTransaction. */
+    _: any, // eslint-disable-line @typescript-eslint/no-unused-vars
+    /** {@link AssembledTransaction} from which this SentTransaction was initialized */
+    assembled: AssembledTransaction<U>,
   ): Promise<SentTransaction<U>> => {
-    const tx = new SentTransaction(options, signed);
+    const tx = new SentTransaction(undefined, assembled);
     const sent = await tx.send();
     return sent;
   };
 
   private send = async (): Promise<this> => {
     this.sendTransactionResponse = await this.server.sendTransaction(
-      this.signed,
+      this.assembled.signed!,
     );
 
     if (this.sendTransactionResponse.status !== "PENDING") {
@@ -98,7 +91,7 @@ export class SentTransaction<T> {
     const { hash } = this.sendTransactionResponse;
 
     const timeoutInSeconds =
-      this.options.timeoutInSeconds ?? DEFAULT_TIMEOUT;
+      this.assembled.options.timeoutInSeconds ?? DEFAULT_TIMEOUT;
     this.getTransactionResponseAll = await withExponentialBackoff(
       () => this.server.getTransaction(hash),
       (resp) => resp.status === Api.GetTransactionStatus.NOT_FOUND,
@@ -135,7 +128,7 @@ export class SentTransaction<T> {
     if ("getTransactionResponse" in this && this.getTransactionResponse) {
       // getTransactionResponse has a `returnValue` field unless it failed
       if ("returnValue" in this.getTransactionResponse) {
-        return this.options.parseResultXdr(
+        return this.assembled.options.parseResultXdr(
           this.getTransactionResponse.returnValue!,
         );
       }
@@ -160,7 +153,7 @@ export class SentTransaction<T> {
 
     // 3. finally, if neither of those are present, throw an error
     throw new Error(
-      `Sending transaction failed: ${JSON.stringify(this.signed)}`,
+      `Sending transaction failed: ${JSON.stringify(this.assembled.signed)}`,
     );
   }
 }

@@ -306,7 +306,7 @@ export class AssembledTransaction<T> {
   /**
    * The signed transaction.
    */
-  private signed?: Tx;
+  public signed?: Tx;
 
   /**
    * A list of the most important errors that various AssembledTransaction
@@ -672,7 +672,7 @@ export class AssembledTransaction<T> {
     if(!this.signed){
       throw new Error("The transaction has not yet been signed. Run `sign` first, or use `signAndSend` instead.");
     }
-    const sent = await SentTransaction.init(this.options, this.signed);
+    const sent = await SentTransaction.init(undefined, this);
     return sent;
   }
 
