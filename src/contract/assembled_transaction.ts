@@ -864,7 +864,7 @@ export class AssembledTransaction<T> {
       minResourceFee: string;
       transactionData: SorobanDataBuilder;
     },
-    /** The account that is executing the footprint restore operation. */
+    /** The account that is executing the footprint restore operation. If omitted, will use the account from the AssembledTransaction. */
     account?: Account
   ): Promise<Api.GetTransactionResponse> {
     if (!this.options.signTransaction) {
