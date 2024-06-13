@@ -571,7 +571,7 @@ export class AssembledTransaction<T> {
 
   get result(): T {
     try {
-      if(!this.simulationData.result){
+      if (!this.simulationData.result) {
         throw new Error("No simulation result!");
       }
       return this.options.parseResultXdr(this.simulationData.result?.retval);
