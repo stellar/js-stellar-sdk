@@ -1,6 +1,6 @@
 /* disable max-classes rule, because extending error shouldn't count! */
 /* eslint max-classes-per-file: 0 */
-import { SorobanDataBuilder, TransactionBuilder } from "@stellar/stellar-base";
+import { TransactionBuilder } from "@stellar/stellar-base";
 import type { ClientOptions, MethodOptions, Tx } from "./types";
 import { Server } from "../rpc/server"
 import { Api } from "../rpc/api"
@@ -87,10 +87,8 @@ export class SentTransaction<T> {
       this.assembled.options.timeoutInSeconds ?? DEFAULT_TIMEOUT;
     this.assembled.built = TransactionBuilder.cloneFrom(this.assembled.built!, {
       fee: this.assembled.built!.fee,
-      timebounds: undefined,
-      sorobanData: new SorobanDataBuilder(
-        this.assembled.simulationData.transactionData.toXDR(),
-      ).build(),
+      timebounds: undefined, // intentionally don't clone timebounds
+      sorobanData: this.assembled.simulationData.transactionData
     })
       .setTimeout(timeoutInSeconds)
       .build();
