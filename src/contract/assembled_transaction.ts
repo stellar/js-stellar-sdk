@@ -561,7 +561,7 @@ export class AssembledTransaction<T> {
     }
 
     // add to object for serialization & deserialization
-    this.simulationResult = simulation.result ?? { auth: [], retval: new xdr.ScVal() };
+    this.simulationResult = simulation.result ?? { auth: [], retval: xdr.ScVal.scvVoid() };
     this.simulationTransactionData = simulation.transactionData.build();
 
     return {
