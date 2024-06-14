@@ -7,12 +7,9 @@ A breaking change will get clearly marked in this log.
 ## Unreleased
 
 ### Added
-- `contract.AssembledTransaction` now has a `toXDR` and `fromXDR` method for serializing the
-transaction to and from XDR. Additionally, `contract.Client` now has a `txFromXDR`. These methods
-should be used in place of `AssembledTransaction.toJSON`, `AssembledTransaction.fromJSON`, and
-`Client.txFromJSON` for multi-auth signing. The JSON methods are now deprecated. **Note you must now
-call `simulate` on the transaction before the final `signAndSend` call after all required signatures
-are gathered when using the XDR methods.
+- `contract.AssembledTransaction` now has:
+  - `toXDR` and `fromXDR` methods for serializing the transaction to and from XDR. Additionally, `contract.Client` now has a `txFromXDR`. These methods should be used in place of `AssembledTransaction.toJSON`, `AssembledTransaction.fromJSON`, and `Client.txFromJSON` for multi-auth signing. The JSON methods are now deprecated. **Note you must now call `simulate` on the transaction before the final `signAndSend` call after all required signatures are gathered when using the XDR methods.
+  -  a `restoreFootprint` method which accepts the `restorePreamble` returned when a simulation call fails due to some contract state that has expired. When invoking a contract function, one can now set `restore` to `true` in the `MethodOptions`. When enabled, a `restoreFootprint` transaction will be created and await signing when required.
 
 ### Deprecated
 - In `contract.AssembledTransaction`, `toJSON` and `fromJSON` should be replaced with `toXDR` and

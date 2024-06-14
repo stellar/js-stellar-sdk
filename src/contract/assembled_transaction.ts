@@ -5,6 +5,7 @@ import {
   BASE_FEE,
   Contract,
   Operation,
+  SorobanDataBuilder,
   StrKey,
   TransactionBuilder,
   authorizeEntry,
@@ -26,6 +27,7 @@ import {
   DEFAULT_TIMEOUT,
   contractErrorPattern,
   implementsToString,
+  getAccount
 } from "./utils";
 import { SentTransaction } from "./sent_transaction";
 import { Spec } from "./spec";
@@ -308,6 +310,7 @@ export class AssembledTransaction<T> {
    */
   static Errors = {
     ExpiredState: class ExpiredStateError extends Error { },
+    RestorationFailure: class RestoreFailureError extends Error { },
     NeedsMoreSignatures: class NeedsMoreSignaturesError extends Error { },
     NoSignatureNeeded: class NoSignatureNeededError extends Error { },
     NoUnsignedNonInvokerAuthEntries: class NoUnsignedNonInvokerAuthEntriesError extends Error { },
@@ -437,9 +440,10 @@ export class AssembledTransaction<T> {
     const tx = new AssembledTransaction(options);
     const contract = new Contract(options.contractId);
 
-    const account = options.publicKey
-      ? await tx.server.getAccount(options.publicKey)
-      : new Account(NULL_ACCOUNT, "0");
+    const account = await getAccount(
+      options,
+      tx.server
+    );
 
     tx.raw = new TransactionBuilder(account, {
       fee: options.fee ?? BASE_FEE,
@@ -453,27 +457,75 @@ export class AssembledTransaction<T> {
     return tx;
   }
 
-  simulate = async (): Promise<this> => {
-    if (!this.built) {
-      if (!this.raw) {
+  private static async buildFootprintRestoreTransaction<T>(
+    options: AssembledTransactionOptions<T>,
+    sorobanData: SorobanDataBuilder | xdr.SorobanTransactionData,
+    account: Account,
+    fee: string
+  ): Promise<AssembledTransaction<T>> {
+    const tx = new AssembledTransaction(options);
+    tx.raw = new TransactionBuilder(account, {
+      fee,
+      networkPassphrase: options.networkPassphrase,
+    })
+      .setSorobanData(sorobanData instanceof SorobanDataBuilder ? sorobanData.build() : sorobanData)
+      .addOperation(Operation.restoreFootprint({}))
+      .setTimeout(options.timeoutInSeconds ?? DEFAULT_TIMEOUT);
+    await tx.simulate({ restore: false });
+    return tx;
+  }
+
+  simulate = async ({ restore }: {restore?: boolean} = {}): Promise<this> => {
+    if (!this.built){
+      if(!this.raw) {
         throw new Error(
           "Transaction has not yet been assembled; " +
-          "call `AssembledTransaction.build` first.",
+          "call `AssembledTransaction.build` first."
         );
       }
-
       this.built = this.raw.build();
     }
-    this.simulation = await this.server.simulateTransaction(this.built);
+    restore = restore ?? this.options.restore;
 
     // need to force re-calculation of simulationData for new simulation
     delete this.simulationResult;
     delete this.simulationTransactionData;
+    this.simulation = await this.server.simulateTransaction(this.built);
+
+    if (restore && Api.isSimulationRestore(this.simulation)) {
+      const account = await getAccount(this.options, this.server);
+      const result = await this.restoreFootprint(
+        this.simulation.restorePreamble,
+        account
+      );
+      if (result.status === Api.GetTransactionStatus.SUCCESS) {
+        // need to rebuild the transaction with bumped account sequence number
+        const contract = new Contract(this.options.contractId);
+        this.raw = new TransactionBuilder(account, {
+          fee: this.options.fee ?? BASE_FEE,
+          networkPassphrase: this.options.networkPassphrase,
+        })
+          .addOperation(
+            contract.call(
+              this.options.method,
+              ...(this.options.args ?? [])
+            )
+          )
+          .setTimeout(
+            this.options.timeoutInSeconds ?? DEFAULT_TIMEOUT
+          );
+        await this.simulate();
+        return this;
+      }
+      throw new AssembledTransaction.Errors.RestorationFailure(
+        `Automatic restore failed! You set 'restore: true' but the attempted restore did not work. Result:\n${JSON.stringify(result)}`
+      );
+    }
 
     if (Api.isSimulationSuccess(this.simulation)) {
       this.built = assembleTransaction(
         this.built,
-        this.simulation,
+        this.simulation
       ).build();
     }
 
@@ -502,26 +554,14 @@ export class AssembledTransaction<T> {
 
     if (Api.isSimulationRestore(simulation)) {
       throw new AssembledTransaction.Errors.ExpiredState(
-        `You need to restore some contract state before you can invoke this method. ${JSON.stringify(
-          simulation,
-          null,
-          2,
-        )}`,
-      );
-    }
-
-    if (!simulation.result) {
-      throw new Error(
-        `Expected an invocation simulation, but got no 'result' field. Simulation: ${JSON.stringify(
-          simulation,
-          null,
-          2,
-        )}`,
+        `You need to restore some contract state before you can invoke this method.\n` +
+        'You can set `restore` to true in the method options in order to ' + 
+        'automatically restore the contract state when needed.'
       );
     }
 
     // add to object for serialization & deserialization
-    this.simulationResult = simulation.result;
+    this.simulationResult = simulation.result ?? { auth: [], retval: xdr.ScVal.scvVoid() };
     this.simulationTransactionData = simulation.transactionData.build();
 
     return {
@@ -532,6 +572,9 @@ export class AssembledTransaction<T> {
 
   get result(): T {
     try {
+      if (!this.simulationData.result) {
+        throw new Error("No simulation result!");
+      }
       return this.options.parseResultXdr(this.simulationData.result.retval);
     } catch (e) {
       if (!implementsToString(e)) throw e;
@@ -578,26 +621,29 @@ export class AssembledTransaction<T> {
     if (!force && this.isReadCall) {
       throw new AssembledTransaction.Errors.NoSignatureNeeded(
         "This is a read call. It requires no signature or sending. " +
-        "Use `force: true` to sign and send anyway.",
+        "Use `force: true` to sign and send anyway."
       );
     }
 
     if (!signTransaction) {
       throw new AssembledTransaction.Errors.NoSigner(
         "You must provide a signTransaction function, either when calling " +
-        "`signAndSend` or when initializing your Client",
+        "`signAndSend` or when initializing your Client"
       );
     }
 
     if (this.needsNonInvokerSigningBy().length) {
       throw new AssembledTransaction.Errors.NeedsMoreSignatures(
         "Transaction requires more signatures. " +
-        "See `needsNonInvokerSigningBy` for details.",
+        "See `needsNonInvokerSigningBy` for details."
       );
     }
 
     const typeChecked: AssembledTransaction<T> = this;
-    const sent = await SentTransaction.init(signTransaction, typeChecked);
+    const sent = await SentTransaction.init(
+      signTransaction,
+      typeChecked,
+    );
     return sent;
   };
 
@@ -789,4 +835,58 @@ export class AssembledTransaction<T> {
       .readWrite().length;
     return authsCount === 0 && writeLength === 0;
   }
+
+  /**
+   * Restores the footprint (resource ledger entries that can be read or written) 
+   * of an expired transaction. 
+   * 
+   * The method will:
+   * 1. Build a new transaction aimed at restoring the necessary resources.
+   * 2. Sign this new transaction if a `signTransaction` handler is provided.
+   * 3. Send the signed transaction to the network.
+   * 4. Await and return the response from the network.
+   * 
+   * Preconditions:
+   * - A `signTransaction` function must be provided during the Client initialization.
+   * - The provided `restorePreamble` should include a minimum resource fee and valid
+   *   transaction data.
+   * 
+   * @throws {Error} - Throws an error if no `signTransaction` function is provided during 
+   * Client initialization.
+   * @throws {AssembledTransaction.Errors.RestoreFailure} - Throws a custom error if the 
+   * restore transaction fails, providing the details of the failure.
+ */
+  async restoreFootprint(
+    /**
+     * The preamble object containing data required to 
+     * build the restore transaction.
+     */
+    restorePreamble: {
+      minResourceFee: string;
+      transactionData: SorobanDataBuilder;
+    },
+    /** The account that is executing the footprint restore operation. If omitted, will use the account from the AssembledTransaction. */
+    account?: Account
+  ): Promise<Api.GetTransactionResponse> {
+    if (!this.options.signTransaction) {
+      throw new Error("For automatic restore to work you must provide a signTransaction function when initializing your Client");
+    }
+    account = account ?? await getAccount(this.options, this.server);
+    // first try restoring the contract
+    const restoreTx = await AssembledTransaction.buildFootprintRestoreTransaction(
+      { ...this.options },
+      restorePreamble.transactionData,
+      account,
+      restorePreamble.minResourceFee
+    );
+    const sentTransaction = await restoreTx.signAndSend();
+    if (!sentTransaction.getTransactionResponse) {
+      throw new AssembledTransaction.Errors.RestorationFailure(
+        `The attempt at automatic restore failed. \n${JSON.stringify(sentTransaction)}`
+      );
+    }
+    return sentTransaction.getTransactionResponse;
+  }
+
+
 }
