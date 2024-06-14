@@ -476,15 +476,16 @@ export class AssembledTransaction<T> {
   }
 
   simulate = async ({ restore }: {restore?: boolean} = {}): Promise<this> => {
-    if (!this.raw) {
-      throw new Error(
-        "Transaction has not yet been assembled; " +
-        "call `AssembledTransaction.build` first."
-      );
+    if (!this.built){
+      if(!this.raw) {
+        throw new Error(
+          "Transaction has not yet been assembled; " +
+          "call `AssembledTransaction.build` first."
+        );
+      }
+      this.built = this.raw.build();
     }
-
     restore = restore ?? this.options.restore;
-    this.built = this.raw.build();
 
     // need to force re-calculation of simulationData for new simulation
     delete this.simulationResult;
