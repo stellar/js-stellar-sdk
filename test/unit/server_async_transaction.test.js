@@ -46,12 +46,8 @@ describe("server.js async transaction submission tests", function () {
 
         this.server
             .submitAsyncTransaction(this.transaction, { skipMemoRequiredCheck: true })
-            .then(function () {
-                done();
-            })
-            .catch(function (err) {
-                done(err);
-            });
+            .then(() => done())
+            .catch((err) => done(err));
     });
     it("sends an async transaction and gets a PENDING response", function (done) {
         const response = {
