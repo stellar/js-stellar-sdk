@@ -135,10 +135,8 @@ export class Server {
    *  // earlier does the trick!
    *  .build();
    * ```
-   * @param seconds
    * @param {number} seconds Number of seconds past the current time to wait.
-   * @param _isRetry
-   * @param {bool} [_isRetry] True if this is a retry. Only set this internally!
+   * @param {bool} [_isRetry=false] True if this is a retry. Only set this internally!
    * This is to avoid a scenario where Horizon is horking up the wrong date.
    * @returns {Promise<Timebounds>} Promise that resolves a `timebounds` object
    * (with the shape `{ minTime: 0, maxTime: N }`) that you can set the `timebounds` option to.
