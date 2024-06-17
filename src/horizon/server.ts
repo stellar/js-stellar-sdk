@@ -527,9 +527,8 @@ export class Server {
             .segment("transactions_async")
             .toString(),
         `tx=${tx}`,
-    ).then((response) => {
-      return response.data
-    }).catch((response) => {
+    ).then((response) => response.data
+    ).catch((response) => {
       if (response instanceof Error) {
         return Promise.reject(response);
       }
