@@ -66,8 +66,7 @@ describe("server.js async transaction submission tests", function () {
         this.server
             .submitAsyncTransaction(this.transaction, { skipMemoRequiredCheck: true })
             .then(function (res) {
-                expect(res.tx_status).to.equal("PENDING")
-                expect(res.hash).to.equal("db2c69a07be57eb5baefbfbb72b95c7c20d2c4d6f2a0e84e7c27dd0359055a2f")
+                expect(res).to.equal(response)
                 done();
             })
             .catch(function (err) {
@@ -100,15 +99,7 @@ describe("server.js async transaction submission tests", function () {
         this.server
             .submitAsyncTransaction(this.transaction, { skipMemoRequiredCheck: true })
             .then(function (res) {
-                expect(res.type).to.equal("transaction_submission_exception")
-                expect(res.title).to.equal("Transaction Submission Exception")
-                expect(res.status).to.equal(500)
-                expect(res.detail).to.equal("Received exception from stellar-core." +
-                    "The `extras.error` field on this response contains further " +
-                    "details.  Descriptions of each code can be found at: " +
-                    "https://developers.stellar.org/api/errors/http-status-codes/horizon-specific/transaction-submission-async/transaction_submission_exception")
-                expect(res.extras.envelope_xdr).to.equal("AAAAAIUAEW3jQt3+fbT6nCASA1/8RWdp9fJ2woxqPHZPQUH/AAAAZAEH/OgAAAAgAAAAAQAAAAAAAAAAAAAAAFyIDD0AAAAAAAAAAQAAAAAAAAADAAAAAAAAAAFCQVQAAAAAAEZK09vHmzOmEMoVWYtbbZcKv3ZOoo06ckzbhyDIFKfhAAAAAAExLQAAAAABAAAAAgAAAAAAAAAAAAAAAAAAAAFPQUH/AAAAQHk3Igj+JXqggsJBFl4mrzgACqxWpx87psxu5UHnSskbwRjHZz89NycCZmJL4gN5WN7twm+wK371K9XcRNDiBwQ=")
-                expect(res.extras.error).to.equal("There was an exception when submitting this transaction.")
+                expect(res).to.equal(response)
                 done();
             })
             .catch((err) => done(err));
