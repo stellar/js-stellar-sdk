@@ -81,16 +81,22 @@ describe("Swap Contract Tests", function () {
       amount_b: amountBToSwap,
       min_b_for_a: amountBToSwap,
     });
-    await expect(tx.signAndSend()).to.be.rejectedWith(contract.AssembledTransaction.Errors.NeedsMoreSignatures).then((error) => {
-      // Further assertions on the error object
-      expect(error).to.be.instanceOf(contract.AssembledTransaction.Errors.NeedsMoreSignatures,
-        `error is not of type 'NeedsMoreSignaturesError'; instead it is of type '${error?.constructor.name}'`);
+    await expect(tx.signAndSend())
+      .to.be.rejectedWith(
+        contract.AssembledTransaction.Errors.NeedsMoreSignatures,
+      )
+      .then((error) => {
+        // Further assertions on the error object
+        expect(error).to.be.instanceOf(
+          contract.AssembledTransaction.Errors.NeedsMoreSignatures,
+          `error is not of type 'NeedsMoreSignaturesError'; instead it is of type '${error?.constructor.name}'`,
+        );
 
-      if (error) {
-        // Using regex to check the error message
-        expect(error.message).to.match(/needsNonInvokerSigningBy/);
-      }
-    });
+        if (error) {
+          // Using regex to check the error message
+          expect(error.message).to.match(/needsNonInvokerSigningBy/);
+        }
+      });
   });
 
   it("modified & re-simulated transactions show updated data", async function () {
@@ -114,17 +120,17 @@ describe("Swap Contract Tests", function () {
     });
 
     const originalResourceFee = Number(
-      tx.simulationData.transactionData.resourceFee()
+      tx.simulationData.transactionData.resourceFee(),
     );
     const bumpedResourceFee = originalResourceFee + 10000;
 
     tx.raw = TransactionBuilder.cloneFrom(tx.built, {
       fee: tx.built.fee,
       sorobanData: new SorobanDataBuilder(
-        tx.simulationData.transactionData.toXDR()
+        tx.simulationData.transactionData.toXDR(),
       )
         .setResourceFee(
-          xdr.Int64.fromString(bumpedResourceFee.toString()).toBigInt()
+          xdr.Int64.fromString(bumpedResourceFee.toString()).toBigInt(),
         )
         .build(),
     });
@@ -132,7 +138,7 @@ describe("Swap Contract Tests", function () {
     await tx.simulate();
 
     const newSimulatedResourceFee = Number(
-      tx.simulationData.transactionData.resourceFee()
+      tx.simulationData.transactionData.resourceFee(),
     );
 
     expect(originalResourceFee).to.not.equal(newSimulatedResourceFee);
@@ -160,17 +166,17 @@ describe("Swap Contract Tests", function () {
     });
 
     const originalResourceFee = Number(
-      tx.simulationData.transactionData.resourceFee()
+      tx.simulationData.transactionData.resourceFee(),
     );
     const bumpedResourceFee = originalResourceFee + 10000;
 
     tx.raw = TransactionBuilder.cloneFrom(tx.built, {
       fee: tx.built.fee,
       sorobanData: new SorobanDataBuilder(
-        tx.simulationData.transactionData.toXDR()
+        tx.simulationData.transactionData.toXDR(),
       )
         .setResourceFee(
-          xdr.Int64.fromString(bumpedResourceFee.toString()).toBigInt()
+          xdr.Int64.fromString(bumpedResourceFee.toString()).toBigInt(),
         )
         .build(),
     });
@@ -178,7 +184,7 @@ describe("Swap Contract Tests", function () {
     await tx.simulate();
 
     const newSimulatedResourceFee = Number(
-      tx.simulationData.transactionData.resourceFee()
+      tx.simulationData.transactionData.resourceFee(),
     );
 
     expect(originalResourceFee).to.not.equal(newSimulatedResourceFee);
