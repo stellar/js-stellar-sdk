@@ -121,11 +121,10 @@ export type AssembledTransactionOptions<T = string> = MethodOptions &
     method: string;
     args?: any[];
     parseResultXdr: (xdr: xdr.ScVal) => T;
-  };/**
-     * The default timeout for waiting for a transaction to be included in a block.
-     */
-
-
+  };
+  
+/**
+ * The default timeout for waiting for a transaction to be included in a block.
+ */
 export const DEFAULT_TIMEOUT = 5 * 60;
 export const NULL_ACCOUNT = "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF";
-
