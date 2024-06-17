@@ -111,8 +111,6 @@ describe("server.js async transaction submission tests", function () {
                 expect(res.extras.error).to.equal("There was an exception when submitting this transaction.")
                 done();
             })
-            .catch(function (err) {
-                done(err);
-            });
+            .catch((err) => done(err));
     });
 });
