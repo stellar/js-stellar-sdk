@@ -165,6 +165,7 @@
   "dependencies": {
     "@stellar/stellar-base": "^12.0.0",
     "axios": "^1.7.2",
+    "better-docs": "^2.7.3",
     "bignumber.js": "^9.1.2",
     "eventsource": "^2.0.2",
     "randombytes": "^2.1.0",

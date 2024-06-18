@@ -19,26 +19,27 @@ const CancelToken = axios.CancelToken;
 
 /**
  * Resolver allows resolving `stellar.toml` files.
+ * @memberof module:StellarToml
  */
 export class Resolver {
   /**
    * Returns a parsed `stellar.toml` file for a given domain.
-   * ```js
-   * StellarSdk.Resolver.resolve('acme.com')
+   * @see {@link https://developers.stellar.org/docs/issuing-assets/publishing-asset-info|Stellar.toml doc}
+   *
+   * @param {string} domain Domain to get stellar.toml file for
+   * @param {Object} [opts] Options object
+   * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments!
+   * @param {number} [opts.timeout] - Allow a timeout, default: 0. Allows user to avoid nasty lag due to TOML resolve issue.
+   * @returns {Promise} A `Promise` that resolves to the parsed stellar.toml object
+   *
+   * @example
+   * StellarSdk.StellarToml.Resolver.resolve('acme.com')
    *   .then(stellarToml => {
    *     // stellarToml in an object representing domain stellar.toml file.
    *   })
    *   .catch(error => {
    *     // stellar.toml does not exist or is invalid
    *   });
-   * ```
-   * @see {@link https://developers.stellar.org/docs/issuing-assets/publishing-asset-info|Stellar.toml doc}
-   *
-   * @param {string} domain Domain to get stellar.toml file for
-   * @param {object} [opts] Options object
-   * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments!
-   * @param {number} [opts.timeout] - Allow a timeout, default: 0. Allows user to avoid nasty lag due to TOML resolve issue.
-   * @returns {Promise} A `Promise` that resolves to the parsed stellar.toml object
    */
   public static async resolve(
     domain: string,

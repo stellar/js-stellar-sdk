@@ -5,7 +5,15 @@ import type { Client } from "./client";
 import type { AssembledTransaction } from "./assembled_transaction";
 
 export type XDR_BASE64 = string;
+/**
+ * An unsigned 32-bit integer.
+ * @type {number}
+ */
 export type u32 = number;
+/**
+ * A signed 32-bit integer.
+ * @type {number}
+ */
 export type i32 = number;
 export type u64 = bigint;
 export type i64 = bigint;
@@ -19,15 +27,20 @@ export type Duration = bigint;
 
 /**
  * A "regular" transaction, as opposed to a FeeBumpTransaction.
+ * @memberof module:contract
  */
 export type Tx = Transaction<Memo<MemoType>, Operation[]>;
 
+/**
+ * Options for a smart contract client.
+ * @memberof module:contract
+ */
 export type ClientOptions = {
   /**
    * The public key of the account that will send this transaction. You can
    * override this for specific methods later, like
-   * {@link AssembledTransaction#signAndSend} and
-   * {@link AssembledTransaction#signAuthEntries}.
+   * {@link contract.AssembledTransaction#signAndSend} and
+   * {@link contract.AssembledTransaction#signAuthEntries}.
    */
   publicKey?: string;
   /**
@@ -36,7 +49,7 @@ export type ClientOptions = {
    * calls, which only need to be simulated. If you do not need to sign and
    * send, there is no need to provide this. If you do not provide it during
    * initialization, you can provide it later when you call
-   * {@link AssembledTransaction#signAndSend}.
+   * {@link contract.AssembledTransaction~signAndSend}.
    *
    * Matches signature of `signTransaction` from Freighter.
    */
@@ -63,12 +76,22 @@ export type ClientOptions = {
       accountToSign?: string;
     },
   ) => Promise<XDR_BASE64>;
+  /** The address of the contract the client will interact with. */
   contractId: string;
+  /**
+   * The network passphrase for the Stellar network this contract is deployed
+   * to.
+   */
   networkPassphrase: string;
+  /**
+   * The URL of the RPC instance that will be used to interact with this
+   * contract.
+   */
   rpcUrl: string;
   /**
    * If true, will allow HTTP requests to the Soroban network. If false, will
-   * only allow HTTPS requests. @default false
+   * only allow HTTPS requests.
+   * @default false
    */
   allowHttp?: boolean;
   /**
@@ -91,6 +114,10 @@ export type ClientOptions = {
   errorTypes?: Record<number, { message: string }>;
 };
 
+/**
+ * Options for a smart contract method invocation.
+ * @memberof module:contract
+ */
 export type MethodOptions = {
   /**
    * The fee to pay for the transaction. Default: {@link BASE_FEE}

@@ -1,36 +1,47 @@
 {
+  "tags": {
+    "allowUnknownTags": ["optional", "category", "warning"]
+  },
+  "plugins": [
+    "plugins/markdown",
+    "node_modules/better-docs/typescript",
+    "node_modules/better-docs/category"
+  ],
   "source": {
     "include": ["lib/", "js-stellar-base/src"],
+    "includePattern": "\\.(js|ts)$",
     "exclude": "js-stellar-base/src/generated"
   },
-  "plugins": ["plugins/markdown"],
-  "template": {
-    "default": {
-      "useLongNameInNav": true
-    }
-  },
   "opts": {
+    "encoding": "utf8",
     "readme": "README.md",
     "destination": "jsdoc/",
     "recurse": true,
     "verbose": true,
-    "template": "node_modules/clean-jsdoc-theme",
-    "theme_opts": {
-      "default_theme": "fallback-light",
-      "title": "Home",
-      "menu": [
+    "template": "node_modules/better-docs",
+    "private": true
+  },
+  "templates": {
+    "cleverLinks": false,
+    "monospaceLinks": false,
+    "search": true,
+    "default": {
+      "useLongnameInNav": true
+    },
+    "better-docs": {
+      "name": "@stellar/stellar-sdk",
+      "title": "@stellar/stellar-sdk Documentation",
+      "hideGenerator": false,
+      "navLinks": [
         {
-          "title": "GitHub",
-          "link": "https://github.com/stellar/js-stellar-sdk",
-          "target": "_blank"
+          "label": "GitHub",
+          "href": "https://github.com/stellar/stellar-sdk"
         },
         {
-          "title": "npm",
-          "link": "https://www.npmjs.com/package/@stellar/stellar-sdk",
-          "target": "_blank"
+          "label": "npm",
+          "href": "https://www.npmjs.com/package/@stellar/stellar-sdk"
         }
-      ],
-      "prefixModuleToSidebarItems_experimental": true
+      ]
     }
   },
   "markdown": {

@@ -5,13 +5,12 @@ import { NetworkError } from "./network";
  * unavailable.
  * @extends NetworkError
  * @inheritdoc
+ * @category Errors
+ *
+ * @param {string} message Human-readable error message
+ * @param {any} response Response details, received from the Horizon server
  */
 export class NotFoundError extends NetworkError {
-  /**
-   * Create a NotFoundError.
-   * @param {string} message Human-readable error message
-   * @param {any} response Response details, received from the Horizon server
-   */
   constructor(message: string, response: any) {
     const trueProto = new.target.prototype;
     super(message, response);

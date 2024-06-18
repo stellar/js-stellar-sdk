@@ -9,8 +9,8 @@ import { processSpecEntryStream } from './utils';
  * Generate a class from the contract spec that where each contract method
  * gets included with an identical name.
  *
- * Each method returns an {@link AssembledTransaction} that can be used to
- * modify, simulate, decode results, and possibly sign, & submit the
+ * Each method returns a {@link module:contract.AssembledTransaction} that can
+ * be used to modify, simulate, decode results, and possibly sign, & submit the
  * transaction.
  *
  * @memberof module:contract

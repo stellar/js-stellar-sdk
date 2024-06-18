@@ -5,6 +5,14 @@ import { HorizonApi } from "../horizon/horizon_api";
 /**
  * NetworkError is raised when an interaction with a Horizon server has caused
  * some kind of problem.
+ * @category Errors
+ *
+ * @param {string} message Human-readable error message
+ * @param {any} response Response details, received from the Horizon server.
+ * @param {HorizonApi.ErrorResponseData} [response.data] The data returned by Horizon as part of the error: {@link https://developers.stellar.org/network/horizon/api-reference/errors/response | Error Response}
+ * @param {number} [response.status] HTTP status code describing the basic issue with a submitted transaction {@link https://developers.stellar.org/network/horizon/api-reference/errors/http-status-codes/standard | Standard Status Codes}
+ * @param {string} [response.statusText] A human-readable description of what the status code means: {@link https://developers.stellar.org/network/horizon/api-reference/errors/http-status-codes/horizon-specific | Horizon-Specific Status Codes}
+ * @param {string} [response.url] URL which can provide more information about the problem that occurred.
  */
 export class NetworkError extends Error {
   public response: {
@@ -15,28 +23,24 @@ export class NetworkError extends Error {
   };
   public __proto__: NetworkError;
 
-  /**
-   * Create a NetworkError.
-   * @param {string} message Human-readable error message
-   * @param {any} response Response details, received from the Horizon server
-   */
   constructor(message: string, response: any) {
     const trueProto = new.target.prototype;
     super(message);
     this.__proto__ = trueProto;
     this.constructor = NetworkError;
     /**
-     * @typedef {Object}
-     * @property {HorizonApi.ErrorResponseData} [data] The data returned by Horizon as part of the error: {@link https://developers.stellar.org/network/horizon/api-reference/errors/response | Error Response}
-     * @property {number} [status] HTTP status code describing the basic issue with a submitted transaction {@link https://developers.stellar.org/network/horizon/api-reference/errors/http-status-codes/standard | Standard Status Codes}
-     * @property {string} [statusText] A human-readable description of what the status code means: {@link https://developers.stellar.org/network/horizon/api-reference/errors/http-status-codes/horizon-specific | Horizon-Specific Status Codes}
-     * @property {string} [url] URL which can provide more information about the problem that occurred.
+     * The response sent by the Horizon server.
+     * @type {Object} Response details, received from the Horizon server
+     * @property {HorizonApi.ErrorResponseData} [response.data] The data returned by Horizon as part of the error: {@link https://developers.stellar.org/network/horizon/api-reference/errors/response | Error Response}
+     * @property {number} [response.status] HTTP status code describing the basic issue with a submitted transaction {@link https://developers.stellar.org/network/horizon/api-reference/errors/http-status-codes/standard | Standard Status Codes}
+     * @property {string} [response.statusText] A human-readable description of what the status code means: {@link https://developers.stellar.org/network/horizon/api-reference/errors/http-status-codes/horizon-specific | Horizon-Specific Status Codes}
+     * @property {string} [response.url] URL which can provide more information about the problem that occurred.
      */
     this.response = response;
   }
 
   /**
-   * Get the response object that created this error.
+   * Returns the error response sent by the Horizon server.
    * @returns {any}
    */
   public getResponse() {
