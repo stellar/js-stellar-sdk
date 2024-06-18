@@ -1,226 +1,206 @@
-const test = require("ava");
+const { expect } = require('chai');
 const { Address, contract } = require("../../..");
 const { clientFor } = require("./util");
 
-test.before(async (t) => {
-  const { client, keypair, contractId } = await clientFor("customTypes");
-  const publicKey = keypair.publicKey();
-  const addr = Address.fromString(publicKey);
-  t.context = { client, publicKey, addr, contractId, keypair }; // eslint-disable-line no-param-reassign
-});
 
-test("hello", async (t) => {
-  const { result } = await t.context.client.hello({ hello: "tests" });
-  t.is(result, "tests");
-});
-test("view method with empty keypair", async (t) => {
-  const { client: client2 } = await clientFor("customTypes", {
-    keypair: undefined,
-    contractId: t.context.contractId,
+describe("Custom Types Tests", function() {
+  before(async function() {
+    const { client, keypair, contractId } = await clientFor("customTypes");
+    const publicKey = keypair.publicKey();
+    const addr = Address.fromString(publicKey);
+    this.context = { client, publicKey, addr, contractId, keypair };
   });
-  t.is((await client2.hello({ hello: "anonymous" })).result, "anonymous");
-});
 
-test("woid", async (t) => {
-  t.is((await t.context.client.woid()).result, null);
-});
+  it("hello", async function() {
+    expect((await this.context.client.hello({ hello: "tests" })).result).to.equal("tests");
+  });
 
-test("u32_fail_on_even", async (t) => {
-  t.deepEqual(
-    (await t.context.client.u32_fail_on_even({ u32_: 1 })).result,
-    new contract.Ok(1),
-  );
-  t.deepEqual(
-    (await t.context.client.u32_fail_on_even({ u32_: 2 })).result,
-    new contract.Err({ message: "Please provide an odd number" }),
-  );
-});
+  it("view method with empty keypair", async function() {
+    const { client: client2 } = await clientFor("customTypes", {
+      keypair: undefined,
+      contractId: this.context.contractId,
+    });
+    expect((await client2.hello({ hello: "anonymous" })).result).to.equal("anonymous");
+  });
 
-test("u32", async (t) => {
-  t.is((await t.context.client.u32_({ u32_: 1 })).result, 1); // eslint-disable-line no-underscore-dangle
-});
+  it("woid", async function() {
+    expect((await this.context.client.woid()).result).to.be.null;
+  });
 
-test("i32", async (t) => {
-  t.is((await t.context.client.i32_({ i32_: 1 })).result, 1); // eslint-disable-line no-underscore-dangle
-});
+  it("u32_fail_on_even", async function() {
+    let response = await this.context.client.u32_fail_on_even({ u32_: 1 });
+    expect(response.result).to.deep.equal(new contract.Ok(1));
 
-test("i64", async (t) => {
-  t.is((await t.context.client.i64_({ i64_: 1n })).result, 1n); // eslint-disable-line no-underscore-dangle
-});
+    response = await this.context.client.u32_fail_on_even({ u32_: 2 });
+    expect(response.result).to.deep.equal(new contract.Err({ message: "Please provide an odd number" }));
+  });
 
-test("strukt_hel", async (t) => {
-  const strukt = { a: 0, b: true, c: "world" };
-  t.deepEqual((await t.context.client.strukt_hel({ strukt })).result, [
-    "Hello",
-    "world",
-  ]);
-});
+  it("u32", async function() {
+    expect((await this.context.client.u32_({ u32_: 1 })).result).to.equal(1);
+  });
 
-test("strukt", async (t) => {
-  const strukt = { a: 0, b: true, c: "hello" };
-  t.deepEqual((await t.context.client.strukt({ strukt })).result, strukt);
-});
+  it("i32", async function() {
+    expect((await this.context.client.i32_({ i32_: 1 })).result).to.equal(1);
+  });
 
-test("simple first", async (t) => {
-  const simple = { tag: "First", values: undefined };
-  const ret = { tag: "First" };
-  t.deepEqual((await t.context.client.simple({ simple })).result, ret);
-});
+  it("i64", async function() {
+    expect((await this.context.client.i64_({ i64_: 1n })).result).to.equal(1n);
+  });
 
-test("simple second", async (t) => {
-  const simple = { tag: "Second", values: undefined };
-  const ret = { tag: "Second" };
-  t.deepEqual((await t.context.client.simple({ simple })).result, ret);
-});
+  it("strukt_hel", async function() {
+    const strukt = { a: 0, b: true, c: "world" };
+    expect((await this.context.client.strukt_hel({ strukt })).result).to.deep.equal(["Hello", "world"]);
+  });
 
-test("simple third", async (t) => {
-  const simple = { tag: "Third", values: undefined };
-  const ret = { tag: "Third" };
-  t.deepEqual((await t.context.client.simple({ simple })).result, ret);
-});
+  it("strukt", async function() {
+    const strukt = { a: 0, b: true, c: "hello" };
+    expect((await this.context.client.strukt({ strukt })).result).to.deep.equal(strukt);
+  });
 
-test("complex with struct", async (t) => {
-  const arg = { tag: "Struct", values: [{ a: 0, b: true, c: "hello" }] };
-  t.deepEqual((await t.context.client.complex({ complex: arg })).result, arg);
-});
+  it("simple first", async function() {
+    const simple = { tag: "First", values: undefined };
+    expect((await this.context.client.simple({ simple })).result).to.deep.equal({ tag: "First" });
+  });
 
-test("complex with tuple", async (t) => {
-  const arg = {
-    tag: "Tuple",
-    values: [
-      [
-        { a: 0, b: true, c: "hello" },
-        { tag: "First", values: undefined },
+  it("simple second", async function() {
+    const simple = { tag: "Second", values: undefined };
+    expect((await this.context.client.simple({ simple })).result).to.deep.equal({ tag: "Second" });
+  });
+
+  it("simple third", async function() {
+    const simple = { tag: "Third", values: undefined };
+    expect((await this.context.client.simple({ simple })).result).to.deep.equal({ tag: "Third" });
+  });
+
+  it("complex with struct", async function() {
+    const arg = { tag: "Struct", values: [{ a: 0, b: true, c: "hello" }] };
+    expect((await this.context.client.complex({ complex: arg })).result).to.deep.equal(arg);
+  });
+
+  it("complex with tuple", async function() {
+    const arg = {
+      tag: "Tuple",
+      values: [
+        [
+          { a: 0, b: true, c: "hello" },
+          { tag: "First", values: undefined },
+        ],
       ],
-    ],
-  };
-  const ret = {
-    tag: "Tuple",
-    values: [[{ a: 0, b: true, c: "hello" }, { tag: "First" }]],
-  };
-  t.deepEqual((await t.context.client.complex({ complex: arg })).result, ret);
-});
+    };
+    const ret = {
+      tag: "Tuple",
+      values: [[{ a: 0, b: true, c: "hello" }, { tag: "First" }]],
+    };
+    expect((await this.context.client.complex({ complex: arg })).result).to.deep.equal(ret);
+  });
 
-test("complex with enum", async (t) => {
-  const arg = { tag: "Enum", values: [{ tag: "First", values: undefined }] };
-  const ret = { tag: "Enum", values: [{ tag: "First" }] };
-  t.deepEqual((await t.context.client.complex({ complex: arg })).result, ret);
-});
+  it("complex with enum", async function() {
+    const arg = { tag: "Enum", values: [{ tag: "First", values: undefined }] };
+    const ret = { tag: "Enum", values: [{ tag: "First" }] };
+    expect((await this.context.client.complex({ complex: arg })).result).to.deep.equal(ret);
+  });
 
-test("complex with asset", async (t) => {
-  const arg = { tag: "Asset", values: [t.context.publicKey, 1n] };
-  t.deepEqual((await t.context.client.complex({ complex: arg })).result, arg);
-});
+  it("complex with asset", async function() {
+    const arg = { tag: "Asset", values: [this.context.publicKey, 1n] };
+    expect((await this.context.client.complex({ complex: arg })).result).to.deep.equal(arg);
+  });
 
-test("complex with void", async (t) => {
-  const complex = { tag: "Void", values: undefined };
-  const ret = { tag: "Void" };
-  t.deepEqual((await t.context.client.complex({ complex })).result, ret);
-});
+  it("complex with void", async function() {
+    const complex = { tag: "Void", values: undefined };
+    const ret = { tag: "Void" };
+    expect((await this.context.client.complex({ complex })).result).to.deep.equal(ret);
+  });
 
-test("addresse", async (t) => {
-  t.deepEqual(
-    (await t.context.client.addresse({ addresse: t.context.publicKey })).result,
-    t.context.addr.toString(),
-  );
-});
+  it("addresse", async function() {
+    expect((await this.context.client.addresse({ addresse: this.context.publicKey })).result).to.equal(this.context.addr.toString());
+  });
 
-test("bytes", async (t) => {
-  const bytes = Buffer.from("hello");
-  t.deepEqual((await t.context.client.bytes({ bytes })).result, bytes);
-});
+  it("bytes", async function() {
+    const bytes = Buffer.from("hello");
+    expect((await this.context.client.bytes({ bytes })).result).to.deep.equal(bytes);
+  });
 
-test("bytesN", async (t) => {
-  const bytesN = Buffer.from("123456789"); // what's the correct way to construct bytesN?
-  t.deepEqual(
-    (await t.context.client.bytes_n({ bytes_n: bytesN })).result,
-    bytesN,
-  );
-});
+  it("bytesN", async function() {
+    const bytesN = Buffer.from("123456789"); // what's the correct way to construct bytesN?
+    expect((await this.context.client.bytes_n({ bytes_n: bytesN })).result).to.deep.equal(bytesN);
+  });
 
-test("card", async (t) => {
-  const card = 11;
-  t.is((await t.context.client.card({ card })).result, card);
-});
+  it("card", async function() {
+    const card = 11;
+    expect((await this.context.client.card({ card })).result).to.equal(card);
+  });
 
-test("boolean", async (t) => {
-  t.is((await t.context.client.boolean({ boolean: true })).result, true);
-});
+  it("boolean", async function() {
+    expect((await this.context.client.boolean({ boolean: true })).result).to.equal(true);
+  });
 
-test("not", async (t) => {
-  t.is((await t.context.client.not({ boolean: true })).result, false);
-});
+  it("not", async function() {
+    expect((await this.context.client.not({ boolean: true })).result).to.equal(false);
+  });
 
-test("i128", async (t) => {
-  t.is((await t.context.client.i128({ i128: -1n })).result, -1n);
-});
+  it("i128", async function() {
+    expect((await this.context.client.i128({ i128: -1n })).result).to.equal(-1n);
+  });
 
-test("u128", async (t) => {
-  t.is((await t.context.client.u128({ u128: 1n })).result, 1n);
-});
+  it("u128", async function() {
+    expect((await this.context.client.u128({ u128: 1n })).result).to.equal(1n);
+  });
 
-test("multi_args", async (t) => {
-  t.is((await t.context.client.multi_args({ a: 1, b: true })).result, 1);
-  t.is((await t.context.client.multi_args({ a: 1, b: false })).result, 0);
-});
+  it("multi_args", async function() {
+    let response = await this.context.client.multi_args({ a: 1, b: true });
+    expect(response.result).to.equal(1);
 
-test("map", async (t) => {
-  const map = new Map();
-  map.set(1, true);
-  map.set(2, false);
-  // map.set(3, 'hahaha') // should throw an error
-  t.deepEqual(
-    (await t.context.client.map({ map })).result,
-    Array.from(map.entries()),
-  );
-});
+    response = await this.context.client.multi_args({ a: 1, b: false });
+    expect(response.result).to.equal(0);
+  });
 
-test("vec", async (t) => {
-  const vec = [1, 2, 3];
-  t.deepEqual((await t.context.client.vec({ vec })).result, vec);
-});
+  it("map", async function() {
+    const map = new Map();
+    map.set(1, true);
+    map.set(2, false);
+    expect((await this.context.client.map({ map })).result).to.deep.equal(Array.from(map.entries()));
+  });
 
-test("tuple", async (t) => {
-  const tuple = ["hello", 1];
-  t.deepEqual((await t.context.client.tuple({ tuple })).result, tuple);
-});
+  it("vec", async function() {
+    const vec = [1, 2, 3];
+    expect((await this.context.client.vec({ vec })).result).to.deep.equal(vec);
+  });
 
-test("option", async (t) => {
-  // this makes sense
-  t.deepEqual((await t.context.client.option({ option: 1 })).result, 1);
+  it("tuple", async function() {
+    const tuple = ["hello", 1];
+    expect((await this.context.client.tuple({ tuple })).result).to.deep.equal(tuple);
+  });
 
-  // this passes but shouldn't
-  t.deepEqual(
-    (await t.context.client.option({ option: undefined })).result,
-    undefined,
-  );
+  it("option", async function() {
+    let response = await this.context.client.option({ option: 1 });
+    expect(response.result).to.equal(1);
 
-  // this is the behavior we probably want, but fails
-  // t.deepEqual(await t.context.client.option(), undefined) // typing and implementation require the object
-  // t.deepEqual((await t.context.client.option({})).result, undefined) // typing requires argument; implementation would be fine with this
-  // t.deepEqual((await t.context.client.option({ option: undefined })).result, undefined)
-});
+    response = await this.context.client.option({ option: undefined });
+    expect(response.result).to.equal(undefined);
+    // this is the behavior we probably want, but fails
+    // t.deepEqual(await t.context.client.option(), undefined) // typing and implementation require the object
+    // t.deepEqual((await t.context.client.option({})).result, undefined) // typing requires argument; implementation would be fine with this
+    // t.deepEqual((await t.context.client.option({ option: undefined })).result, undefined)
+  });
 
-test("u256", async (t) => {
-  t.is((await t.context.client.u256({ u256: 1n })).result, 1n);
-});
+  it("u256", async function() {
+    expect((await this.context.client.u256({ u256: 1n })).result).to.equal(1n);
+  });
 
-test("i256", async (t) => {
-  t.is((await t.context.client.i256({ i256: -1n })).result, -1n);
-});
+  it("i256", async function() {
+    expect((await this.context.client.i256({ i256: -1n })).result).to.equal(-1n);
+  });
 
-test("string", async (t) => {
-  t.is((await t.context.client.string({ string: "hello" })).result, "hello");
-});
+  it("string", async function() {
+    expect((await this.context.client.string({ string: "hello" })).result).to.equal("hello");
+  });
 
-test("tuple_strukt", async (t) => {
-  const arg = [
-    { a: 0, b: true, c: "hello" },
-    { tag: "First", values: undefined },
-  ];
-  const res = [{ a: 0, b: true, c: "hello" }, { tag: "First" }];
-  t.deepEqual(
-    (await t.context.client.tuple_strukt({ tuple_strukt: arg })).result,
-    res,
-  );
+  it("tuple strukt", async function() {
+    const arg = [
+      { a: 0, b: true, c: "hello" },
+      { tag: "First", values: undefined },
+    ];
+    const res = [{ a: 0, b: true, c: "hello" }, { tag: "First" }];
+    expect((await this.context.client.tuple_strukt({ tuple_strukt: arg })).result).to.deep.equal(res);
+  });
 });

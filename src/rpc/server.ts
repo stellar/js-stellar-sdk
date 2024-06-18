@@ -112,7 +112,7 @@ export class Server {
      */
     this.serverURL = URI(serverURL);
 
-    if (opts.headers && Object.keys(opts.headers).length === 0) {
+    if (opts.headers && Object.keys(opts.headers).length !== 0) {
       AxiosClient.interceptors.request.use((config: any) => {
         // merge the custom headers into any existing headers
         config.headers = Object.assign(config.headers, opts.headers);

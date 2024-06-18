@@ -137,6 +137,12 @@ export type MethodOptions = {
    * AssembledTransaction. Default: true
    */
   simulate?: boolean;
+
+  /**
+   * If true, will automatically attempt to restore the transaction if there 
+   * are archived entries that need renewal. @default false
+   */
+  restore?: boolean;
 };
 
 export type AssembledTransactionOptions<T = string> = MethodOptions &
