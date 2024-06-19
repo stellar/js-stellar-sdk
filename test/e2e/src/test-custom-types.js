@@ -16,8 +16,8 @@ describe("Custom Types Tests", function () {
     ).to.equal("tests");
   });
 
-  it("view method with empty keypair", async function () {
-    const { client: client2 } = await clientFor("customTypes", {
+  it("view method with empty keypair", async function() {
+    const { client: client2 } = await clientFor("helloWorld", {
       keypair: undefined,
       contractId: this.context.contractId,
     });
