@@ -100,7 +100,7 @@ describe("Client", function () {
 
   it("can be constructed with `new Client`", async function() {
     const { result } = await this.context.client.hello({ to: "tests" });
-    expect(result).to.equal("tests");
+    expect(result).to.deep.equal(["Hello", "tests"]);
   });
 
   it("can be constructed with `from`", async function () {
