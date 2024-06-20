@@ -43,7 +43,7 @@ describe("Swap Contract Tests", function () {
       })
     ).signAndSend();
     await (
-      await tokenA.mint({ amount: amountAToSwap, to: alice.publicKey() })
+      await tokenA.mint({ amount: 10n, to: alice.publicKey() })
     ).signAndSend();
 
     await tokenB.initialize({
@@ -53,7 +53,7 @@ describe("Swap Contract Tests", function () {
       symbol: "B",
     }).then(t => t.signAndSend());
     await (
-      await tokenB.mint({ amount: amountBToSwap, to: bob.publicKey() })
+      await tokenB.mint({ amount: 10n, to: bob.publicKey() })
     ).signAndSend();
 
     this.context = {
@@ -195,10 +195,10 @@ describe("Swap Contract Tests", function () {
     const bobTokenABalance = await this.context.tokenA.balance({ id: this.context.bob.publicKey() });
     const bobTokenBBalance = await this.context.tokenB.balance({ id: this.context.bob.publicKey() });
 
-    expect(aliceTokenABalance.result).to.equal(0n);
+    expect(aliceTokenABalance.result).to.equal(8n);
     expect(aliceTokenBBalance.result).to.equal(amountBToSwap);
     expect(bobTokenABalance.result).to.equal(amountAToSwap);
-    expect(bobTokenBBalance.result).to.equal(0n);
+    expect(bobTokenBBalance.result).to.equal(9n);
   });
 
   it("can swap 2nd time", async function() {
