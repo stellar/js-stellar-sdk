@@ -38,6 +38,7 @@ module.exports = {
     "no-use-before-define": 0,
     "prefer-destructuring": 0,
     "lines-between-class-members": 0,
+    "@typescript-eslint/lines-between-class-members": "off",
     "spaced-comment": 0,
 
     // WARN

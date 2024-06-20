@@ -204,7 +204,7 @@ export class CallBuilder<
   /**
    * Sets `limit` parameter for the current call. Returns the CallBuilder object on which this method has been called.
    * @see [Paging](https://developers.stellar.org/api/introduction/pagination/)
-   * @param "recordsNumber" number Number of records the server should return.
+   * @param {number} recordsNumber Number of records the server should return.
    * @returns {object} current CallBuilder instance
    */
   public limit(recordsNumber: number): this {
