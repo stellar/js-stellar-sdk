@@ -30,6 +30,7 @@ module.exports = {
     "jsdoc/no-multi-asterisks": 0,
     "jsdoc/tag-lines": "off",
     "jsdoc/require-jsdoc": "off",
+    "jsdoc/no-defaults": "off",
     "valid-jsdoc": "off",
     "import/extensions": 0,
     "new-cap": 0,

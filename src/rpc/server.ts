@@ -197,7 +197,7 @@ export class Server {
    *    data to load as a strkey (`C...` form), a {@link Contract}, or an
    *    {@link Address} instance
    * @param {xdr.ScVal} key   the key of the contract data to load
-   * @param {Durability} [durability]   the "durability
+   * @param {Durability} [durability=Durability.Persistent]   the "durability
    *    keyspace" that this ledger key belongs to, which is either 'temporary'
    *    or 'persistent' (the default), see {@link Durability}.
    *
