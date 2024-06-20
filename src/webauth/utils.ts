@@ -13,12 +13,9 @@ import {
   TransactionBuilder,
 } from "@stellar/stellar-base";
 
-import type { Networks } from "@stellar/stellar-base";
 import { Utils } from "../utils";
 import { InvalidChallengeError } from "./errors";
 import { ServerApi } from "../horizon/server_api";
-
-/* eslint-disable jsdoc/no-undefined-types */
 
 /**
  * Returns a valid [SEP-10](https://stellar.org/protocol/sep-10) challenge
@@ -32,7 +29,7 @@ import { ServerApi } from "../horizon/server_api";
  *    (M...) that the wallet wishes to authenticate with the server.
  * @param {string} homeDomain The fully qualified domain name of the service
  *    requiring authentication
- * @param {number} [timeout] Challenge duration (default to 5 minutes).
+ * @param {number} [timeout=300] Challenge duration (default to 5 minutes).
  * @param {string} networkPassphrase The network passphrase. If you pass this
  *    argument then timeout is required.
  * @param {string} webAuthDomain The fully qualified domain name of the service
@@ -66,7 +63,6 @@ export function buildChallengeTx(
   serverKeypair: Keypair,
   clientAccountID: string,
   homeDomain: string,
-  // eslint-disable-next-line @typescript-eslint/default-param-last
   timeout: number = 300,
   networkPassphrase: string,
   webAuthDomain: string,
@@ -135,97 +131,6 @@ export function buildChallengeTx(
     .toEnvelope()
     .toXDR("base64")
     .toString();
-}
-
-/**
- * Checks if a transaction has been signed by one or more of the given signers,
- * returning a list of non-repeated signers that were found to have signed the
- * given transaction.
- *
- * @function
- * @memberof WebAuth
- * @param {Transaction} transaction the signed transaction.
- * @param {string[]} signers The signers public keys.
- * @returns {string[]} a list of signers that were found to have signed the
- * transaction.
- *
- * @example
- * let keypair1 = Keypair.random();
- * let keypair2 = Keypair.random();
- * const account = new StellarSdk.Account(keypair1.publicKey(), "-1");
- *
- * const transaction = new TransactionBuilder(account, { fee: 100 })
- *    .setTimeout(30)
- *    .build();
- *
- * transaction.sign(keypair1, keypair2)
- * WebAuth.gatherTxSigners(transaction, [keypair1.publicKey(), keypair2.publicKey()])
- */
-export function gatherTxSigners(
-  transaction: FeeBumpTransaction | Transaction,
-  signers: string[],
-): string[] {
-  const hashedSignatureBase = transaction.hash();
-
-  const txSignatures = [...transaction.signatures]; // shallow copy for safe splicing
-  const signersFound = new Set<string>();
-
-  // eslint-disable-next-line no-restricted-syntax
-  for (const signer of signers) {
-    if (txSignatures.length === 0) {
-      break;
-    }
-
-    let keypair: Keypair;
-    try {
-      keypair = Keypair.fromPublicKey(signer); // This can throw a few different errors
-    } catch (err: any) {
-      throw new InvalidChallengeError(
-        `Signer is not a valid address: ${  err.message}`,
-      );
-    }
-
-    for (let i = 0; i < txSignatures.length; i+=1) {
-      const decSig = txSignatures[i];
-
-      if (!decSig.hint().equals(keypair.signatureHint())) {
-        // eslint-disable-next-line no-continue
-        continue;
-      }
-
-      if (keypair.verify(hashedSignatureBase, decSig.signature())) {
-        signersFound.add(signer);
-        txSignatures.splice(i, 1);
-        break;
-      }
-    }
-  }
-
-  return Array.from(signersFound);
-}
-
-/**
- * Verifies if a transaction was signed by the given account id.
- *
- * @function
- * @memberof WebAuth
- *
- * @example
- * let keypair = Keypair.random();
- * const account = new StellarSdk.Account(keypair.publicKey(), "-1");
- *
- * const transaction = new TransactionBuilder(account, { fee: 100 })
- *    .setTimeout(30)
- *    .build();
- *
- * transaction.sign(keypair)
- * WebAuth.verifyTxSignedBy(transaction, keypair.publicKey())
- */
-export function verifyTxSignedBy(
-  transaction: FeeBumpTransaction | Transaction,
-  accountID: string,
-): boolean {
-  return gatherTxSigners(transaction, [accountID]).length !== 0;
 }
 
 /**
@@ -412,7 +317,7 @@ export function readChallengeTx(
   }
 
   // verify any subsequent operations are manage data ops and source account is the server
-  subsequentOperations.forEach((op) => {
+  for (const op of subsequentOperations) {
     if (op.type !== "manageData") {
       throw new InvalidChallengeError(
         "The transaction has operations that are not of type 'manageData'",
@@ -435,7 +340,7 @@ export function readChallengeTx(
         );
       }
     }
-  });
+  }
 
   if (!verifyTxSignedBy(transaction, serverAccountID)) {
     throw new InvalidChallengeError(
@@ -445,204 +350,6 @@ export function readChallengeTx(
 
   return { tx: transaction, clientAccountID, matchedHomeDomain, memo };
 }
-
-/**
- * Verifies that for a SEP 10 challenge transaction all signatures on the
- * transaction are accounted for. A transaction is verified if it is signed by
- * the server account, and all other signatures match a signer that has been
- * provided as an argument (as the accountIDs list). Additional signers can be
- * provided that do not have a signature, but all signatures must be matched to
- * a signer (accountIDs) for verification to succeed. If verification succeeds,
- * a list of signers that were found is returned, not including the server
- * account ID.
- *
- * Signers that are not prefixed as an address/account ID strkey (G...) will be
- * ignored.
- *
- * Errors will be raised if:
- *  - The transaction is invalid according to {@link readChallengeTx}.
- *  - No client signatures are found on the transaction.
- *  - One or more signatures in the transaction are not identifiable as the
- *    server account or one of the signers provided in the arguments.
- *
- * @function
- * @memberof WebAuth
- *
- * @param {string} challengeTx SEP0010 challenge transaction in base64.
- * @param {string} serverAccountID The server's stellar account (public key).
- * @param {string} networkPassphrase The network passphrase, e.g.: 'Test SDF
- *    Network ; September 2015' (see {@link Networks}).
- * @param {string[]} signers The signers public keys. This list should contain
- *    the public keys for all signers that have signed the transaction.
- * @param {string|string[]} [homeDomains] The home domain(s) that should be
- *    included in the first Manage Data operation's string key. Required in
- *    readChallengeTx().
- * @param {string} webAuthDomain The home domain that is expected to be included
- *    as the value of the Manage Data operation with the 'web_auth_domain' key,
- *    if present. Used in readChallengeTx().
- * @returns {string[]} The list of signers public keys that have signed the
- *    transaction, excluding the server account ID.
- *
- * @see [SEP-10: Stellar Web Auth](https://stellar.org/protocol/sep-10).
- * @example
- * import { Networks, TransactionBuilder, WebAuth }  from 'stellar-sdk';
- *
- * const serverKP = Keypair.random();
- * const clientKP1 = Keypair.random();
- * const clientKP2 = Keypair.random();
- *
- * // Challenge, possibly built in the server side
- * const challenge = WebAuth.buildChallengeTx(
- *   serverKP,
- *   clientKP1.publicKey(),
- *   "SDF",
- *   300,
- *   Networks.TESTNET
- * );
- *
- * // clock.tick(200);  // Simulates a 200 ms delay when communicating from server to client
- *
- * // Transaction gathered from a challenge, possibly from the client side
- * const transaction = TransactionBuilder.fromXDR(challenge, Networks.TESTNET);
- * transaction.sign(clientKP1, clientKP2);
- * const signedChallenge = transaction
- *         .toEnvelope()
- *         .toXDR("base64")
- *         .toString();
- *
- * // The result below should be equal to [clientKP1.publicKey(), clientKP2.publicKey()]
- * WebAuth.verifyChallengeTxSigners(
- *    signedChallenge,
- *    serverKP.publicKey(),
- *    Networks.TESTNET,
- *    threshold,
- *    [clientKP1.publicKey(), clientKP2.publicKey()]
- * );
- */
-export function verifyChallengeTxSigners(
-  challengeTx: string,
-  serverAccountID: string,
-  networkPassphrase: string,
-  signers: string[],
-  homeDomains: string | string[],
-  webAuthDomain: string,
-): string[] {
-  // Read the transaction which validates its structure.
-  const { tx } = readChallengeTx(
-    challengeTx,
-    serverAccountID,
-    networkPassphrase,
-    homeDomains,
-    webAuthDomain,
-  );
-
-  // Ensure the server account ID is an address and not a seed.
-  let serverKP: Keypair;
-  try {
-    serverKP = Keypair.fromPublicKey(serverAccountID); // can throw 'Invalid Stellar public key'
-  } catch (err: any) {
-    throw new Error(
-      `Couldn't infer keypair from the provided 'serverAccountID': ${ 
-        err.message}`,
-    );
-  }
-
-  // Deduplicate the client signers and ensure the server is not included
-  // anywhere we check or output the list of signers.
-  // Ignore the server signer if it is in the signers list. It's
-  // important when verifying signers of a challenge transaction that we
-  // only verify and return client signers. If an account has the server
-  // as a signer the server should not play a part in the authentication
-  // of the client.
-  const clientSigners = new Set<string>(
-    signers.filter(
-      (signer) => signer !== serverKP.publicKey() && signer.charAt(0) === "G"
-    )
-  );
-
-  // Don't continue if none of the signers provided are in the final list.
-  if (clientSigners.size === 0) {
-    throw new InvalidChallengeError(
-      "No verifiable client signers provided, at least one G... address must be provided",
-    );
-  }
-
-  let clientSigningKey: string | undefined;
-  tx.operations.forEach((op) => {
-    if (op.type === "manageData" && op.name === "client_domain") {
-      if (clientSigningKey) {
-        throw new InvalidChallengeError(
-          "Found more than one client_domain operation",
-        );
-      }
-      clientSigningKey = op.source;
-    }
-  });
-
-  // Verify all the transaction's signers (server and client) in one
-  // hit. We do this in one hit here even though the server signature was
-  // checked in the ReadChallengeTx to ensure that every signature and signer
-  // are consumed only once on the transaction.
-  const allSigners: string[] = [
-    serverKP.publicKey(),
-    ...Array.from(clientSigners),
-  ];
-  if (clientSigningKey) {
-    allSigners.push(clientSigningKey);
-  }
-
-  const signersFound: string[] = gatherTxSigners(tx, allSigners);
-
-  let serverSignatureFound = false;
-  let clientSigningKeySignatureFound = false;
-  signersFound.forEach((signer) => {
-    if (signer === serverKP.publicKey()) {
-      serverSignatureFound = true;
-    }
-    if (signer === clientSigningKey) {
-      clientSigningKeySignatureFound = true;
-    }
-  });
-
-  // Confirm we matched a signature to the server signer.
-  if (!serverSignatureFound) {
-    throw new InvalidChallengeError(
-      `Transaction not signed by server: '${  serverKP.publicKey()  }'`,
-    );
-  }
-
-  // Confirm we matched a signature to the client domain's signer
-  if (clientSigningKey && !clientSigningKeySignatureFound) {
-    throw new InvalidChallengeError(
-      "Transaction not signed by the source account of the 'client_domain' " +
-        "ManageData operation",
-    );
-  }
-
-  // Confirm we matched at least one given signer with the transaction signatures
-  if (signersFound.length === 1) {
-    throw new InvalidChallengeError(
-      "None of the given signers match the transaction signatures",
-    );
-  }
-
-  // Confirm all signatures, including the server signature, were consumed by a signer:
-  if (signersFound.length !== tx.signatures.length) {
-    throw new InvalidChallengeError(
-      "Transaction has unrecognized signatures",
-    );
-  }
-
-  // Remove the server public key before returning
-  signersFound.splice(signersFound.indexOf(serverKP.publicKey()), 1);
-  if (clientSigningKey) {
-    // Remove the client domain public key public key before returning
-    signersFound.splice(signersFound.indexOf(clientSigningKey), 1);
-  }
-
-  return signersFound;
-}
-
 
 /**
  * Verifies that for a SEP-10 challenge transaction all signatures on the
@@ -754,11 +461,11 @@ export function verifyChallengeTxThreshold(
   );
 
   let weight = 0;
-  signersFound.forEach((signer) => {
+  for (const signer of signersFound) {
     const sigWeight =
       signerSummary.find((s) => s.key === signer)?.weight || 0;
     weight += sigWeight;
-  });
+  }
 
   if (weight < threshold) {
     throw new InvalidChallengeError(
@@ -769,3 +476,299 @@ export function verifyChallengeTxThreshold(
   return signersFound;
 }
 
+/**
+ * Verifies that for a SEP 10 challenge transaction all signatures on the
+ * transaction are accounted for. A transaction is verified if it is signed by
+ * the server account, and all other signatures match a signer that has been
+ * provided as an argument (as the accountIDs list). Additional signers can be
+ * provided that do not have a signature, but all signatures must be matched to
+ * a signer (accountIDs) for verification to succeed. If verification succeeds,
+ * a list of signers that were found is returned, not including the server
+ * account ID.
+ *
+ * Signers that are not prefixed as an address/account ID strkey (G...) will be
+ * ignored.
+ *
+ * Errors will be raised if:
+ *  - The transaction is invalid according to {@link readChallengeTx}.
+ *  - No client signatures are found on the transaction.
+ *  - One or more signatures in the transaction are not identifiable as the
+ *    server account or one of the signers provided in the arguments.
+ *
+ * @function
+ * @memberof WebAuth
+ *
+ * @param {string} challengeTx SEP0010 challenge transaction in base64.
+ * @param {string} serverAccountID The server's stellar account (public key).
+ * @param {string} networkPassphrase The network passphrase, e.g.: 'Test SDF
+ *    Network ; September 2015' (see {@link Networks}).
+ * @param {string[]} signers The signers public keys. This list should contain
+ *    the public keys for all signers that have signed the transaction.
+ * @param {string|string[]} [homeDomains] The home domain(s) that should be
+ *    included in the first Manage Data operation's string key. Required in
+ *    readChallengeTx().
+ * @param {string} webAuthDomain The home domain that is expected to be included
+ *    as the value of the Manage Data operation with the 'web_auth_domain' key,
+ *    if present. Used in readChallengeTx().
+ * @returns {string[]} The list of signers public keys that have signed the
+ *    transaction, excluding the server account ID.
+ *
+ * @see [SEP-10: Stellar Web Auth](https://stellar.org/protocol/sep-10).
+ * @example
+ * import { Networks, TransactionBuilder, WebAuth }  from 'stellar-sdk';
+ *
+ * const serverKP = Keypair.random();
+ * const clientKP1 = Keypair.random();
+ * const clientKP2 = Keypair.random();
+ *
+ * // Challenge, possibly built in the server side
+ * const challenge = WebAuth.buildChallengeTx(
+ *   serverKP,
+ *   clientKP1.publicKey(),
+ *   "SDF",
+ *   300,
+ *   Networks.TESTNET
+ * );
+ *
+ * // clock.tick(200);  // Simulates a 200 ms delay when communicating from server to client
+ *
+ * // Transaction gathered from a challenge, possibly from the client side
+ * const transaction = TransactionBuilder.fromXDR(challenge, Networks.TESTNET);
+ * transaction.sign(clientKP1, clientKP2);
+ * const signedChallenge = transaction
+ *         .toEnvelope()
+ *         .toXDR("base64")
+ *         .toString();
+ *
+ * // The result below should be equal to [clientKP1.publicKey(), clientKP2.publicKey()]
+ * WebAuth.verifyChallengeTxSigners(
+ *    signedChallenge,
+ *    serverKP.publicKey(),
+ *    Networks.TESTNET,
+ *    threshold,
+ *    [clientKP1.publicKey(), clientKP2.publicKey()]
+ * );
+ */
+export function verifyChallengeTxSigners(
+  challengeTx: string,
+  serverAccountID: string,
+  networkPassphrase: string,
+  signers: string[],
+  homeDomains: string | string[],
+  webAuthDomain: string,
+): string[] {
+  // Read the transaction which validates its structure.
+  const { tx } = readChallengeTx(
+    challengeTx,
+    serverAccountID,
+    networkPassphrase,
+    homeDomains,
+    webAuthDomain,
+  );
+
+  // Ensure the server account ID is an address and not a seed.
+  let serverKP: Keypair;
+  try {
+    serverKP = Keypair.fromPublicKey(serverAccountID); // can throw 'Invalid Stellar public key'
+  } catch (err: any) {
+    throw new Error(
+      "Couldn't infer keypair from the provided 'serverAccountID': " +
+        err.message,
+    );
+  }
+
+  // Deduplicate the client signers and ensure the server is not included
+  // anywhere we check or output the list of signers.
+  const clientSigners = new Set<string>();
+  for (const signer of signers) {
+    // Ignore the server signer if it is in the signers list. It's
+    // important when verifying signers of a challenge transaction that we
+    // only verify and return client signers. If an account has the server
+    // as a signer the server should not play a part in the authentication
+    // of the client.
+    if (signer === serverKP.publicKey()) {
+      continue;
+    }
+
+    // Ignore non-G... account/address signers.
+    if (signer.charAt(0) !== "G") {
+      continue;
+    }
+
+    clientSigners.add(signer);
+  }
+
+  // Don't continue if none of the signers provided are in the final list.
+  if (clientSigners.size === 0) {
+    throw new InvalidChallengeError(
+      "No verifiable client signers provided, at least one G... address must be provided",
+    );
+  }
+
+  let clientSigningKey;
+  for (const op of tx.operations) {
+    if (op.type === "manageData" && op.name === "client_domain") {
+      if (clientSigningKey) {
+        throw new InvalidChallengeError(
+          "Found more than one client_domain operation",
+        );
+      }
+      clientSigningKey = op.source;
+    }
+  }
+
+  // Verify all the transaction's signers (server and client) in one
+  // hit. We do this in one hit here even though the server signature was
+  // checked in the ReadChallengeTx to ensure that every signature and signer
+  // are consumed only once on the transaction.
+  const allSigners: string[] = [
+    serverKP.publicKey(),
+    ...Array.from(clientSigners),
+  ];
+  if (clientSigningKey) {
+    allSigners.push(clientSigningKey);
+  }
+
+  const signersFound: string[] = gatherTxSigners(tx, allSigners);
+
+  let serverSignatureFound = false;
+  let clientSigningKeySignatureFound = false;
+  for (const signer of signersFound) {
+    if (signer === serverKP.publicKey()) {
+      serverSignatureFound = true;
+    }
+    if (signer === clientSigningKey) {
+      clientSigningKeySignatureFound = true;
+    }
+  }
+
+  // Confirm we matched a signature to the server signer.
+  if (!serverSignatureFound) {
+    throw new InvalidChallengeError(
+      "Transaction not signed by server: '" + serverKP.publicKey() + "'",
+    );
+  }
+
+  // Confirm we matched a signature to the client domain's signer
+  if (clientSigningKey && !clientSigningKeySignatureFound) {
+    throw new InvalidChallengeError(
+      "Transaction not signed by the source account of the 'client_domain' " +
+        "ManageData operation",
+    );
+  }
+
+  // Confirm we matched at least one given signer with the transaction signatures
+  if (signersFound.length === 1) {
+    throw new InvalidChallengeError(
+      "None of the given signers match the transaction signatures",
+    );
+  }
+
+  // Confirm all signatures, including the server signature, were consumed by a signer:
+  if (signersFound.length !== tx.signatures.length) {
+    throw new InvalidChallengeError(
+      "Transaction has unrecognized signatures",
+    );
+  }
+
+  // Remove the server public key before returning
+  signersFound.splice(signersFound.indexOf(serverKP.publicKey()), 1);
+  if (clientSigningKey) {
+    // Remove the client domain public key public key before returning
+    signersFound.splice(signersFound.indexOf(clientSigningKey), 1);
+  }
+
+  return signersFound;
+}
+
+/**
+ * Verifies if a transaction was signed by the given account id.
+ *
+ * @function
+ * @memberof WebAuth
+ * @param {Transaction} transaction
+ * @param {string} accountID
+ * @returns {boolean}.
+ *
+ * @example
+ * let keypair = Keypair.random();
+ * const account = new StellarSdk.Account(keypair.publicKey(), "-1");
+ *
+ * const transaction = new TransactionBuilder(account, { fee: 100 })
+ *    .setTimeout(30)
+ *    .build();
+ *
+ * transaction.sign(keypair)
+ * WebAuth.verifyTxSignedBy(transaction, keypair.publicKey())
+ */
+export function verifyTxSignedBy(
+  transaction: FeeBumpTransaction | Transaction,
+  accountID: string,
+): boolean {
+  return gatherTxSigners(transaction, [accountID]).length !== 0;
+}
+
+/**
+ * Checks if a transaction has been signed by one or more of the given signers,
+ * returning a list of non-repeated signers that were found to have signed the
+ * given transaction.
+ *
+ * @function
+ * @memberof WebAuth
+ * @param {Transaction} transaction the signed transaction.
+ * @param {string[]} signers The signers public keys.
+ * @returns {string[]} a list of signers that were found to have signed the
+ * transaction.
+ *
+ * @example
+ * let keypair1 = Keypair.random();
+ * let keypair2 = Keypair.random();
+ * const account = new StellarSdk.Account(keypair1.publicKey(), "-1");
+ *
+ * const transaction = new TransactionBuilder(account, { fee: 100 })
+ *    .setTimeout(30)
+ *    .build();
+ *
+ * transaction.sign(keypair1, keypair2)
+ * WebAuth.gatherTxSigners(transaction, [keypair1.publicKey(), keypair2.publicKey()])
+ */
+export function gatherTxSigners(
+  transaction: FeeBumpTransaction | Transaction,
+  signers: string[],
+): string[] {
+  const hashedSignatureBase = transaction.hash();
+
+  const txSignatures = [...transaction.signatures]; // shallow copy for safe splicing
+  const signersFound = new Set<string>();
+
+  for (const signer of signers) {
+    if (txSignatures.length === 0) {
+      break;
+    }
+
+    let keypair: Keypair;
+    try {
+      keypair = Keypair.fromPublicKey(signer); // This can throw a few different errors
+    } catch (err: any) {
+      throw new InvalidChallengeError(
+        "Signer is not a valid address: " + err.message,
+      );
+    }
+
+    for (let i = 0; i < txSignatures.length; i++) {
+      const decSig = txSignatures[i];
+
+      if (!decSig.hint().equals(keypair.signatureHint())) {
+        continue;
+      }
+
+      if (keypair.verify(hashedSignatureBase, decSig.signature())) {
+        signersFound.add(signer);
+        txSignatures.splice(i, 1);
+        break;
+      }
+    }
+  }
+
+  return Array.from(signersFound);
+}
