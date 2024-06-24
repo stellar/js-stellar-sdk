@@ -506,6 +506,24 @@ export class Server {
       });
   }
 
+  /**
+   * Submits an asynchronous transaction to the network. Unlike the synchronous version, which blocks
+   * and waits for the transaction to be ingested in Horizon, this endpoint relays the response from
+   * core directly back to the user.
+   *
+   * By default this function calls {@link Server#checkMemoRequired}, you can
+   * skip this check by setting the option `skipMemoRequiredCheck` to `true`.
+   *
+   * @see [Submit
+   * Async Transaction](https://developers.stellar.org/docs/data/horizon/api-reference/resources/submit-async-transaction)
+   * @param {Transaction|FeeBumpTransaction} transaction - The transaction to submit.
+   * @param {object} [opts] Options object
+   * @param {boolean} [opts.skipMemoRequiredCheck] - Allow skipping memo
+   * required check, default: `false`. See
+   * [SEP0029](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0029.md).
+   * @returns {Promise} Promise that resolves or rejects with response from
+   * horizon.
+   */
   public async submitAsyncTransaction(
       transaction: Transaction | FeeBumpTransaction,
       opts: Server.SubmitTransactionOptions = { skipMemoRequiredCheck: false }
