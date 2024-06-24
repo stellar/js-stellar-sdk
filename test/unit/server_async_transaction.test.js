@@ -10,7 +10,6 @@ describe("server.js async transaction submission tests", function () {
         let transaction = new StellarSdk.TransactionBuilder(account, {
             fee: StellarSdk.BASE_FEE,
             networkPassphrase: StellarSdk.Networks.TESTNET,
-            v1: true,
         })
             .addOperation(
                 StellarSdk.Operation.payment({
