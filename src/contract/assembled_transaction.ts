@@ -24,16 +24,13 @@ import { assembleTransaction } from "../rpc/transaction";
 import type { Client } from "./client";
 import { Err } from "./rust_result";
 import {
-  DEFAULT_TIMEOUT,
   contractErrorPattern,
   implementsToString,
   getAccount
 } from "./utils";
+import { DEFAULT_TIMEOUT } from "./types";
 import { SentTransaction } from "./sent_transaction";
 import { Spec } from "./spec";
-
-export const NULL_ACCOUNT =
-  "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF";
 
 /**
  * The main workhorse of {@link Client}. This class is used to wrap a
@@ -909,7 +906,7 @@ export class AssembledTransaction<T> {
    * Client initialization.
    * @throws {AssembledTransaction.Errors.RestoreFailure} - Throws a custom error if the 
    * restore transaction fails, providing the details of the failure.
- */
+   */
   async restoreFootprint(
     /**
      * The preamble object containing data required to 

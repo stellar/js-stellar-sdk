@@ -1,4 +1,4 @@
-
+/* eslint-disable no-proto */
 export class InvalidChallengeError extends Error {
     public __proto__: InvalidChallengeError;
 

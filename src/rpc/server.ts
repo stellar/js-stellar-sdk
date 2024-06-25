@@ -11,6 +11,8 @@ import {
   xdr
 } from '@stellar/stellar-base';
 
+import type { TransactionBuilder } from '@stellar/stellar-base';
+// eslint-disable-next-line import/no-named-as-default
 import AxiosClient from './axios';
 import { Api as FriendbotApi } from '../friendbot';
 import * as jsonrpc from './jsonrpc';
@@ -52,11 +54,44 @@ export namespace Server {
   }
 }
 
+function findCreatedAccountSequenceInTransactionMeta(
+  meta: xdr.TransactionMeta
+): string {
+  let operations: xdr.OperationMeta[] = [];
+  switch (meta.switch()) {
+    case 0:
+      operations = meta.operations();
+      break;
+    case 1:
+    case 2:
+    case 3: // all three have the same interface
+      operations = (meta.value() as xdr.TransactionMetaV3).operations();
+      break;
+    default:
+      throw new Error('Unexpected transaction meta switch value');
+  }
+  const sequenceNumber = operations
+    .flatMap(op => op.changes())
+    .find(c => c.switch() === xdr.LedgerEntryChangeType.ledgerEntryCreated() &&
+              c.created().data().switch() === xdr.LedgerEntryType.account())
+    ?.created()
+    ?.data()
+    ?.account()
+    ?.seqNum()
+    ?.toString();
+  
+  if (sequenceNumber) {
+    return sequenceNumber;
+  }
+  throw new Error('No account created in transaction');
+}
+
+/* eslint-disable jsdoc/no-undefined-types */
 /**
  * Handles the network connection to a Soroban RPC instance, exposing an
  * interface for requests to that instance.
  *
- * @constructor
+ * @class
  *
  * @param {string} serverURL Soroban-RPC Server URL (ex.
  *    `http://localhost:8000/soroban/rpc`).
@@ -117,6 +152,7 @@ export class Server {
 
     const resp = await this.getLedgerEntries(ledgerKey);
     if (resp.entries.length === 0) {
+      // eslint-disable-next-line prefer-promise-reject-errors
       return Promise.reject({
         code: 404,
         message: `Account not found: ${address}`
@@ -140,6 +176,7 @@ export class Server {
    *   console.log("status:", health.status);
    * });
    */
+  // eslint-disable-next-line require-await
   public async getHealth(): Promise<Api.GetHealthResponse> {
     return jsonrpc.postObject<Api.GetHealthResponse>(
       this.serverURL.toString(),
@@ -153,6 +190,8 @@ export class Server {
    * Allows you to directly inspect the current state of a contract. This is a
    * backup way to access your contract data which may not be available via
    * events or {@link Server.simulateTransaction}.
+   * Warning: If the data entry in question is a 'temporary' entry, it's
+   *    entirely possible that it has expired out of existence.
    *
    * @param {string|Address|Contract} contract    the contract ID containing the
    *    data to load as a strkey (`C...` form), a {@link Contract}, or an
@@ -163,9 +202,6 @@ export class Server {
    *    or 'persistent' (the default), see {@link Durability}.
    *
    * @returns {Promise<Api.LedgerEntryResult>}   the current data value
-   *
-   * @warning If the data entry in question is a 'temporary' entry, it's
-   *    entirely possible that it has expired out of existence.
    *
    * @see https://soroban.stellar.org/api/methods/getLedgerEntries
    * @example
@@ -178,6 +214,7 @@ export class Server {
    *   console.log("latestLedger:", data.latestLedger);
    * });
    */
+  // eslint-disable-next-line require-await
   public async getContractData(
     contract: string | Address | Contract,
     key: xdr.ScVal,
@@ -209,7 +246,7 @@ export class Server {
         throw new TypeError(`invalid durability: ${durability}`);
     }
 
-    let contractKey = xdr.LedgerKey.contractData(
+    const contractKey = xdr.LedgerKey.contractData(
       new xdr.LedgerKeyContractData({
         key,
         contract: scAddress,
@@ -220,6 +257,7 @@ export class Server {
     return this.getLedgerEntries(contractKey).then(
       (r: Api.GetLedgerEntriesResponse) => {
         if (r.entries.length === 0) {
+          // eslint-disable-next-line prefer-promise-reject-errors
           return Promise.reject({
             code: 404,
             message: `Contract data not found. Contract: ${Address.fromScAddress(
@@ -265,6 +303,7 @@ export class Server {
     const contractLedgerKey = new Contract(contractId).getFootprint();
     const response = await this.getLedgerEntries(contractLedgerKey);
     if (!response.entries.length || !response.entries[0]?.val) {
+      // eslint-disable-next-line prefer-promise-reject-errors
       return Promise.reject({code: 404, message: `Could not obtain contract hash from server`});
     }
 
@@ -315,6 +354,7 @@ export class Server {
 
     const responseWasm = await this.getLedgerEntries(ledgerKeyWasmHash);
     if (!responseWasm.entries.length || !responseWasm.entries[0]?.val) {
+      // eslint-disable-next-line prefer-promise-reject-errors
       return Promise.reject({ code: 404, message: "Could not obtain contract wasm from server" });
     }
     const wasmBuffer = responseWasm.entries[0].val.contractCode().code();
@@ -355,12 +395,14 @@ export class Server {
    *   console.log("latestLedger:", response.latestLedger);
    * });
    */
+  // eslint-disable-next-line require-await
   public async getLedgerEntries(
     ...keys: xdr.LedgerKey[]
   ): Promise<Api.GetLedgerEntriesResponse> {
     return this._getLedgerEntries(...keys).then(parseRawLedgerEntries);
   }
 
+  // eslint-disable-next-line require-await
   public async _getLedgerEntries(...keys: xdr.LedgerKey[]) {
     return jsonrpc
       .postObject<Api.RawGetLedgerEntriesResponse>(
@@ -392,6 +434,7 @@ export class Server {
    *   console.log("resultXdr:", tx.resultXdr);
    * });
    */
+  // eslint-disable-next-line require-await
   public async getTransaction(
     hash: string
   ): Promise<Api.GetTransactionResponse> {
@@ -435,6 +478,7 @@ export class Server {
     });
   }
 
+  // eslint-disable-next-line require-await
   public async _getTransaction(
     hash: string
   ): Promise<Api.RawGetTransactionResponse> {
@@ -479,12 +523,14 @@ export class Server {
    *    limit: 10,
    * });
    */
+  // eslint-disable-next-line require-await
   public async getEvents(
     request: Server.GetEventsRequest
   ): Promise<Api.GetEventsResponse> {
     return this._getEvents(request).then(parseRawEvents);
   }
 
+  // eslint-disable-next-line require-await
   public async _getEvents(
     request: Server.GetEventsRequest
   ): Promise<Api.RawGetEventsResponse> {
@@ -514,8 +560,9 @@ export class Server {
    *   console.log("protocolVersion:", network.protocolVersion);
    * });
    */
+  // eslint-disable-next-line require-await
   public async getNetwork(): Promise<Api.GetNetworkResponse> {
-    return await jsonrpc.postObject(this.serverURL.toString(), 'getNetwork');
+    return jsonrpc.postObject(this.serverURL.toString(), 'getNetwork');
   }
 
   /**
@@ -533,6 +580,7 @@ export class Server {
    *   console.log("protocolVersion:", response.protocolVersion);
    * });
    */
+  // eslint-disable-next-line require-await
   public async getLatestLedger(): Promise<Api.GetLatestLedgerResponse> {
     return jsonrpc.postObject(this.serverURL.toString(), 'getLatestLedger');
   }
@@ -541,7 +589,7 @@ export class Server {
    * Submit a trial contract invocation to get back return values, expected
    * ledger footprint, expected authorizations, and expected costs.
    *
-   * @param {Transaction | FeeBumpTransaction} transaction  the transaction to
+   * @param {Transaction | FeeBumpTransaction} tx the transaction to
    *    simulate, which should include exactly one operation (one of
    *    {@link xdr.InvokeHostFunctionOp}, {@link xdr.ExtendFootprintTTLOp}, or
    *    {@link xdr.RestoreFootprintOp}). Any provided footprint or auth
@@ -579,6 +627,7 @@ export class Server {
    *   console.log("latestLedger:", sim.latestLedger);
    * });
    */
+  // eslint-disable-next-line require-await
   public async simulateTransaction(
     tx: Transaction | FeeBumpTransaction,
     addlResources?: Server.ResourceLeeway
@@ -587,6 +636,7 @@ export class Server {
       .then(parseRawSimulation);
   }
 
+  // eslint-disable-next-line require-await
   public async _simulateTransaction(
     transaction: Transaction | FeeBumpTransaction,
     addlResources?: Server.ResourceLeeway
@@ -622,7 +672,7 @@ export class Server {
    * if you want to inspect estimated fees for a given transaction in detail
    * first, then re-assemble it manually or via {@link assembleTransaction}.
    *
-   * @param {Transaction | FeeBumpTransaction} transaction  the transaction to
+   * @param {Transaction | FeeBumpTransaction} tx  the transaction to
    *    prepare. It should include exactly one operation, which must be one of
    *    {@link xdr.InvokeHostFunctionOp}, {@link xdr.ExtendFootprintTTLOp},
    *    or {@link xdr.RestoreFootprintOp}.
@@ -677,7 +727,7 @@ export class Server {
   public async prepareTransaction(tx: Transaction | FeeBumpTransaction) {
     const simResponse = await this.simulateTransaction(tx);
     if (Api.isSimulationError(simResponse)) {
-      throw simResponse.error;
+      throw new Error(simResponse.error);
     }
 
     return assembleTransaction(tx, simResponse).build();
@@ -726,12 +776,14 @@ export class Server {
    *   console.log("errorResultXdr:", result.errorResultXdr);
    * });
    */
+  // eslint-disable-next-line require-await
   public async sendTransaction(
     transaction: Transaction | FeeBumpTransaction
   ): Promise<Api.SendTransactionResponse> {
     return this._sendTransaction(transaction).then(parseRawSendTransaction);
   }
 
+  // eslint-disable-next-line require-await
   public async _sendTransaction(
     transaction: Transaction | FeeBumpTransaction
   ): Promise<Api.RawSendTransactionResponse> {
@@ -802,38 +854,4 @@ export class Server {
       throw error;
     }
   }
-}
-
-function findCreatedAccountSequenceInTransactionMeta(
-  meta: xdr.TransactionMeta
-): string {
-  let operations: xdr.OperationMeta[] = [];
-  switch (meta.switch()) {
-    case 0:
-      operations = meta.operations();
-      break;
-    case 1:
-    case 2:
-    case 3: // all three have the same interface
-      operations = (meta.value() as xdr.TransactionMetaV3).operations();
-      break;
-    default:
-      throw new Error('Unexpected transaction meta switch value');
-  }
-
-  for (const op of operations) {
-    for (const c of op.changes()) {
-      if (c.switch() !== xdr.LedgerEntryChangeType.ledgerEntryCreated()) {
-        continue;
-      }
-      const data = c.created().data();
-      if (data.switch() !== xdr.LedgerEntryType.account()) {
-        continue;
-      }
-
-      return data.account().seqNum().toString();
-    }
-  }
-
-  throw new Error('No account created in transaction');
 }

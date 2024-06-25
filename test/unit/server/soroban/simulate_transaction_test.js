@@ -18,12 +18,11 @@ describe("Server#simulateTransaction", async function (done) {
   let contract = new StellarSdk.Contract(contractId);
   let address = contract.address().toScAddress();
 
-  const accountId =
-      "GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI";
+  const accountId = "GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI";
   const accountKey = xdr.LedgerKey.account(
-      new xdr.LedgerKeyAccount({
-        accountId: Keypair.fromPublicKey(accountId).xdrPublicKey(),
-      }),
+    new xdr.LedgerKeyAccount({
+      accountId: Keypair.fromPublicKey(accountId).xdrPublicKey(),
+    }),
   );
 
   const simulationResponse = await invokeSimulationResponse(address);
@@ -192,48 +191,48 @@ describe("Server#simulateTransaction", async function (done) {
 
   it("works with state changes", async function () {
     return invokeSimulationResponseWithStateChanges(address).then(
-        (simResponse) => {
-          const expected = cloneSimulation(parsedSimulationResponse);
-          expected.stateChanges = [
-            {
-              type: 2,
-              key: accountKey,
-              before: new xdr.LedgerEntry({
-                lastModifiedLedgerSeq: 0,
-                data: new xdr.LedgerEntryData(),
-                ext: new xdr.LedgerEntryExt(),
-              }),
-              after: new xdr.LedgerEntry({
-                lastModifiedLedgerSeq: 0,
-                data: new xdr.LedgerEntryData(),
-                ext: new xdr.LedgerEntryExt(),
-              }),
-            },
-            {
-              type: 1,
-              key: accountKey,
-              before: null,
-              after: new xdr.LedgerEntry({
-                lastModifiedLedgerSeq: 0,
-                data: new xdr.LedgerEntryData(),
-                ext: new xdr.LedgerEntryExt(),
-              }),
-            },
-            {
-              type: 3,
-              key: accountKey,
-              before: new xdr.LedgerEntry({
-                lastModifiedLedgerSeq: 0,
-                data: new xdr.LedgerEntryData(),
-                ext: new xdr.LedgerEntryExt(),
-              }),
-              after: null,
-            },
-          ]
+      (simResponse) => {
+        const expected = cloneSimulation(parsedSimulationResponse);
+        expected.stateChanges = [
+          {
+            type: 2,
+            key: accountKey,
+            before: new xdr.LedgerEntry({
+              lastModifiedLedgerSeq: 0,
+              data: new xdr.LedgerEntryData(),
+              ext: new xdr.LedgerEntryExt(),
+            }),
+            after: new xdr.LedgerEntry({
+              lastModifiedLedgerSeq: 0,
+              data: new xdr.LedgerEntryData(),
+              ext: new xdr.LedgerEntryExt(),
+            }),
+          },
+          {
+            type: 1,
+            key: accountKey,
+            before: null,
+            after: new xdr.LedgerEntry({
+              lastModifiedLedgerSeq: 0,
+              data: new xdr.LedgerEntryData(),
+              ext: new xdr.LedgerEntryExt(),
+            }),
+          },
+          {
+            type: 3,
+            key: accountKey,
+            before: new xdr.LedgerEntry({
+              lastModifiedLedgerSeq: 0,
+              data: new xdr.LedgerEntryData(),
+              ext: new xdr.LedgerEntryExt(),
+            }),
+            after: null,
+          },
+        ];
 
-          const parsed = parseRawSimulation(simResponse);
-          expect(parsed).to.be.deep.equal(expected);
-        },
+        const parsed = parseRawSimulation(simResponse);
+        expect(parsed).to.be.deep.equal(expected);
+      },
     );
   });
 
@@ -341,9 +340,9 @@ function baseSimulationResponse(results) {
       {
         type: 2,
         key: xdr.LedgerKey.account(
-            new xdr.LedgerKeyAccount({
-              accountId: Keypair.fromPublicKey(accountId).xdrPublicKey(),
-            }),
+          new xdr.LedgerKeyAccount({
+            accountId: Keypair.fromPublicKey(accountId).xdrPublicKey(),
+          }),
         ).toXDR("base64"),
         before: new xdr.LedgerEntry({
           lastModifiedLedgerSeq: 0,
@@ -355,7 +354,7 @@ function baseSimulationResponse(results) {
           data: new xdr.LedgerEntryData(),
           ext: new xdr.LedgerEntryExt(),
         }).toXDR("base64"),
-      }
+      },
     ],
   };
 }
@@ -374,15 +373,14 @@ async function invokeSimulationResponseWithStateChanges(address) {
   const accountId = "GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI";
 
   return {
-
     ...(await invokeSimulationResponse(address)),
     stateChanges: [
       {
         type: 2,
         key: xdr.LedgerKey.account(
-            new xdr.LedgerKeyAccount({
-              accountId: Keypair.fromPublicKey(accountId).xdrPublicKey(),
-            }),
+          new xdr.LedgerKeyAccount({
+            accountId: Keypair.fromPublicKey(accountId).xdrPublicKey(),
+          }),
         ).toXDR("base64"),
         before: new xdr.LedgerEntry({
           lastModifiedLedgerSeq: 0,
@@ -398,9 +396,9 @@ async function invokeSimulationResponseWithStateChanges(address) {
       {
         type: 1,
         key: xdr.LedgerKey.account(
-            new xdr.LedgerKeyAccount({
-              accountId: Keypair.fromPublicKey(accountId).xdrPublicKey(),
-            }),
+          new xdr.LedgerKeyAccount({
+            accountId: Keypair.fromPublicKey(accountId).xdrPublicKey(),
+          }),
         ).toXDR("base64"),
         before: null,
         after: new xdr.LedgerEntry({
@@ -412,9 +410,9 @@ async function invokeSimulationResponseWithStateChanges(address) {
       {
         type: 3,
         key: xdr.LedgerKey.account(
-            new xdr.LedgerKeyAccount({
-              accountId: Keypair.fromPublicKey(accountId).xdrPublicKey(),
-            }),
+          new xdr.LedgerKeyAccount({
+            accountId: Keypair.fromPublicKey(accountId).xdrPublicKey(),
+          }),
         ).toXDR("base64"),
         before: new xdr.LedgerEntry({
           lastModifiedLedgerSeq: 0,
@@ -426,7 +424,6 @@ async function invokeSimulationResponseWithStateChanges(address) {
     ],
   };
 }
-
 
 describe("works with real responses", function () {
   const schema = {

@@ -8,8 +8,8 @@ import { ServerApi } from "./server_api";
  *
  * @see [Claimable Balances](https://developers.stellar.org/api/resources/claimablebalances/)
  * @class ClaimableBalanceCallBuilder
- * @constructor
- * @extends CallBuilder
+ * @class
+ * @augments CallBuilder
  * @param {string} serverUrl Horizon server URL.
  */
 export class ClaimableBalanceCallBuilder extends CallBuilder<
@@ -65,7 +65,7 @@ export class ClaimableBalanceCallBuilder extends CallBuilder<
    * Returns all claimable balances which provide a balance for the given asset.
    *
    * @see [Claimable Balances](https://developers.stellar.org/api/resources/claimablebalances/list/)
-   * @param {Asset} The Asset held by the claimable balance
+   * @param {Asset} asset The Asset held by the claimable balance
    * @returns {ClaimableBalanceCallBuilder} current ClaimableBalanceCallBuilder instance
    */
   public asset(asset: Asset): this {

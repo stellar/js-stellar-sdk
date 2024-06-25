@@ -31,6 +31,7 @@ export class Resolver {
    * @param {number} [opts.timeout] - Allow a timeout, default: 0. Allows user to avoid nasty lag due to TOML resolve issue.
    * @returns {Promise} A `Promise` that resolves to the parsed stellar.toml object
    */
+  // eslint-disable-next-line require-await
   public static async resolve(
     domain: string,
     opts: Api.StellarTomlResolveOptions = {},

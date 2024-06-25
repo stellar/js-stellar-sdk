@@ -1,5 +1,5 @@
 import { AssetType } from "@stellar/stellar-base";
-import { HorizonApi } from "./../horizon_api";
+import { HorizonApi } from "../horizon_api";
 
 export interface AssetRecord extends HorizonApi.BaseResponse {
   asset_type: AssetType.credit4 | AssetType.credit12;

@@ -26,6 +26,16 @@ export interface Error<E = any> {
   data?: E;
 }
 
+// Check if the given object X has a field Y, and make that available to
+// typescript typing.
+function hasOwnProperty<X extends {}, Y extends PropertyKey>(
+  obj: X,
+  prop: Y,
+): obj is X & Record<Y, unknown> {
+  // eslint-disable-next-line no-prototype-builtins
+  return obj.hasOwnProperty(prop);
+}
+
 /** Sends the jsonrpc 'params' as a single 'param' object (no array support). */
 export async function postObject<T>(
   url: string,
@@ -44,13 +54,4 @@ export async function postObject<T>(
   } else {
     return response.data?.result;
   }
-}
-
-// Check if the given object X has a field Y, and make that available to
-// typescript typing.
-function hasOwnProperty<X extends {}, Y extends PropertyKey>(
-  obj: X,
-  prop: Y,
-): obj is X & Record<Y, unknown> {
-  return obj.hasOwnProperty(prop);
 }
