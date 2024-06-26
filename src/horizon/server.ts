@@ -508,6 +508,59 @@ export class Server {
   }
 
   /**
+   * Submits an asynchronous transaction to the network. Unlike the synchronous version, which blocks
+   * and waits for the transaction to be ingested in Horizon, this endpoint relays the response from
+   * core directly back to the user.
+   *
+   * By default, this function calls {@link Server#checkMemoRequired}, you can
+   * skip this check by setting the option `skipMemoRequiredCheck` to `true`.
+   *
+   * @see [Submit
+   * Async Transaction](https://developers.stellar.org/docs/data/horizon/api-reference/resources/submit-async-transaction)
+   * @param {Transaction|FeeBumpTransaction} transaction - The transaction to submit.
+   * @param {object} [opts] Options object
+   * @param {boolean} [opts.skipMemoRequiredCheck] - Allow skipping memo
+   * required check, default: `false`. See
+   * [SEP0029](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0029.md).
+   * @returns {Promise} Promise that resolves or rejects with response from
+   * horizon.
+   */
+  public async submitAsyncTransaction(
+      transaction: Transaction | FeeBumpTransaction,
+      opts: Server.SubmitTransactionOptions = { skipMemoRequiredCheck: false }
+  ): Promise<HorizonApi.SubmitAsyncTransactionResponse> {
+    // only check for memo required if skipMemoRequiredCheck is false and the transaction doesn't include a memo.
+    if (!opts.skipMemoRequiredCheck) {
+      await this.checkMemoRequired(transaction);
+    }
+
+    const tx = encodeURIComponent(
+        transaction
+            .toEnvelope()
+            .toXDR()
+            .toString("base64"),
+    );
+
+    return AxiosClient.post(
+        URI(this.serverURL as any)
+            .segment("transactions_async")
+            .toString(),
+        `tx=${tx}`,
+    ).then((response) => response.data
+    ).catch((response) => {
+      if (response instanceof Error) {
+        return Promise.reject(response);
+      }
+      return Promise.reject(
+          new BadResponseError(
+              `Transaction submission failed. Server responded: ${response.status} ${response.statusText}`,
+              response.data,
+          ),
+      );
+    });
+  }
+
+  /**
    * @returns {AccountCallBuilder} New {@link AccountCallBuilder} object configured by a current Horizon server configuration.
    */
   public accounts(): AccountCallBuilder {
