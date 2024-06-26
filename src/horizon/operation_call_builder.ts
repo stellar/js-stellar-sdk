@@ -7,8 +7,8 @@ import { ServerApi } from "./server_api";
  *
  * @see [All Operations](https://developers.stellar.org/api/resources/operations/)
  * @class OperationCallBuilder
- * @constructor
- * @extends CallBuilder
+ * @class
+ * @augments CallBuilder
  * @param {string} serverUrl Horizon server URL.
  */
 export class OperationCallBuilder extends CallBuilder<
@@ -91,7 +91,7 @@ export class OperationCallBuilder extends CallBuilder<
    * Adds a parameter defining whether to include failed transactions.
    *   By default, only operations of successful transactions are returned.
    *
-   * @param {bool} value Set to `true` to include operations of failed transactions.
+   * @param {boolean} value Set to `true` to include operations of failed transactions.
    * @returns {OperationCallBuilder} this OperationCallBuilder instance
    */
   public includeFailed(value: boolean): this {

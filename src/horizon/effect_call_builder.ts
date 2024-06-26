@@ -6,9 +6,9 @@ import { ServerApi } from "./server_api";
  * Do not create this object directly, use {@link Server#effects}.
  *
  * @class EffectCallBuilder
- * @extends CallBuilder
+ * @augments CallBuilder
  * @see [All Effects](https://developers.stellar.org/api/resources/effects/)
- * @constructor
+ * @class
  * @param {string} serverUrl Horizon server URL.
  */
 export class EffectCallBuilder extends CallBuilder<

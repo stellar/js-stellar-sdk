@@ -1,7 +1,9 @@
+/* eslint-disable max-classes-per-file */
 import { HorizonApi } from "./horizon/horizon_api";
 
 // For ES5 compatibility (https://stackoverflow.com/a/55066280).
 /* tslint:disable:variable-name max-classes-per-file */
+/* eslint-disable no-proto */
 
 export class NetworkError extends Error {
   public response: {
@@ -10,6 +12,7 @@ export class NetworkError extends Error {
     statusText?: string;
     url?: string;
   };
+
   public __proto__: NetworkError;
 
   constructor(message: string, response: any) {
@@ -72,10 +75,12 @@ export class BadResponseError extends NetworkError {
  */
 export class AccountRequiresMemoError extends Error {
   public __proto__: AccountRequiresMemoError;
+
   /**
    * accountId account which requires a memo.
    */
   public accountId: string;
+
   /**
    * operationIndex operation where accountId is the destination.
    */

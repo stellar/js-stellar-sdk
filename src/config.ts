@@ -18,7 +18,7 @@ const defaultConfig: Configuration = {
   timeout: 0,
 };
 
-let config = Object.assign({}, defaultConfig);
+let config = { ...defaultConfig};
 
 /**
  * Global config class.
@@ -82,7 +82,7 @@ class Config {
    * @returns {void}
    */
   public static setDefault(): void {
-    config = Object.assign({}, defaultConfig);
+    config = { ...defaultConfig};
   }
 }
 

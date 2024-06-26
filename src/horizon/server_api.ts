@@ -182,6 +182,7 @@ export namespace ServerApi {
 
   import OperationResponseType = HorizonApi.OperationResponseType;
   import OperationResponseTypeI = HorizonApi.OperationResponseTypeI;
+
   export interface BaseOperationRecord<
     T extends OperationResponseType = OperationResponseType,
     TI extends OperationResponseTypeI = OperationResponseTypeI

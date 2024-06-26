@@ -6,9 +6,9 @@ import { ServerApi } from "./server_api";
  * Do not create this object directly, use {@link Server#transactions}.
  *
  * @class TransactionCallBuilder
- * @extends CallBuilder
+ * @augments CallBuilder
  * @see [All Transactions](https://developers.stellar.org/api/resources/transactions/)
- * @constructor
+ * @class
  * @param {string} serverUrl Horizon server URL.
  */
 export class TransactionCallBuilder extends CallBuilder<
@@ -78,7 +78,7 @@ export class TransactionCallBuilder extends CallBuilder<
   /**
    * Adds a parameter defining whether to include failed transactions. By default only successful transactions are
    * returned.
-   * @param {bool} value Set to `true` to include failed transactions.
+   * @param {boolean} value Set to `true` to include failed transactions.
    * @returns {TransactionCallBuilder} current TransactionCallBuilder instance
    */
   public includeFailed(value: boolean): this {
