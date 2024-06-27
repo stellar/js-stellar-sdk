@@ -42,3 +42,37 @@ if [[ "$NETWORK_STATUS" != "healthy" ]]; then
 fi
 
 $soroban keys generate $SOROBAN_ACCOUNT
+
+# retrieve the contracts using soroban contract init then build them if they dont already exist
+# Define directory and WASM file paths
+target_dir="$dirname/test-contracts/target/wasm32-unknown-unknown/release"
+wasm_files=(
+    "soroban_custom_types_contract.wasm"
+    "soroban_atomic_swap_contract.wasm"
+    "soroban_token_contract.wasm"
+    "soroban_increment_contract.wasm"
+    "hello_world.wasm"
+)
+
+# Check if all WASM files exist
+all_exist=true
+for wasm_file in "${wasm_files[@]}"; do
+    if [ ! -f "$target_dir/$wasm_file" ]; then
+        all_exist=false
+        break
+    fi
+done
+
+# If any WASM file is missing, initialize and build the contracts
+if [ "$all_exist" = false ]; then
+    echo "One or more WASM files are missing. Initializing and building contracts..."
+    
+    # Initialize contracts
+    $soroban contract init "$dirname/test-contracts" --with-example increment custom_types atomic_swap token
+    
+    # Change directory to test-contracts and build the contracts
+    cd "$dirname/test-contracts" || { echo "Failed to change directory!"; exit 1; }
+    $soroban contract build
+else
+    echo "All WASM files are present."
+fi

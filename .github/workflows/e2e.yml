@@ -34,6 +34,7 @@ jobs:
 
     # Workaround for some `yarn` nonsense, see:
     # https://github.com/yarnpkg/yarn/issues/6312#issuecomment-429685210
+    - run: rustup target add wasm32-unknown-unknown
     - run: yarn install --network-concurrency 1
     - run: yarn build:prod
     - run: yarn test:e2e
