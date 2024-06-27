@@ -84,7 +84,7 @@ module.exports.friendbotUrl = friendbotUrl;
 
 async function generateFundedKeypair() {
   const keypair = Keypair.random();
-  await fetch(friendbotUrl.indexOf('friendbot.stellar.org') !== -1 ? `${friendbotUrl}/?addr=${keypair.publicKey()}` : `${friendbotUrl}/friendbot?addr=${keypair.publicKey()}`);
+  await fetch(friendbotUrl.indexOf('https://friendbot.stellar.org') !== -1 ? `${friendbotUrl}/?addr=${keypair.publicKey()}` : `${friendbotUrl}/friendbot?addr=${keypair.publicKey()}`);
   return keypair;
 }
 module.exports.generateFundedKeypair = generateFundedKeypair;
