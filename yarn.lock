@@ -1389,17 +1389,15 @@
   resolved "https://registry.yarnpkg.com/@socket.io/component-emitter/-/component-emitter-3.1.2.tgz#821f8442f4175d8f0467b9daf26e3a18e2d02af2"
   integrity sha512-9BCxFwvbGg/RsZK9tjXd8s4UcwR0MWeFQ1XEKIQVVvAGJyINdrqKMcTRyLoK8Rse1GjzLV9cwjWV1olXRWEXVA==
 
-"@stellar/js-xdr@^3.1.1":
+"@stellar/js-xdr@git+https://github.com/stellar/js-xdr#1b9701d2":
   version "3.1.1"
-  resolved "https://registry.yarnpkg.com/@stellar/js-xdr/-/js-xdr-3.1.1.tgz#be0ff90c8a861d6e1101bca130fa20e74d5599bb"
-  integrity sha512-3gnPjAz78htgqsNEDkEsKHKosV2BF2iZkoHCNxpmZwUxiPsw+2VaXMed8RRMe0rGk3d5GZe7RrSba8zV80J3Ag==
+  resolved "git+https://github.com/stellar/js-xdr#1b9701d2fcce944d4b032157633fffb15cd3ce50"
 
-"@stellar/stellar-base@^12.0.0":
-  version "12.0.0"
-  resolved "https://registry.yarnpkg.com/@stellar/stellar-base/-/stellar-base-12.0.0.tgz#d46e2a45b756c3e5b4b8f82f224fcc467dac3ade"
-  integrity sha512-uGpahDFFXbE39myOmBnEZSjVys4yUkQ/ASNuYENGyS8MNdfA0TS7DPWkiO6t17P+rW+FRV1zmumJtjRHwxxMdw==
+"@stellar/stellar-base@git+https://github.com/stellar/js-stellar-base.git#e657ab7":
+  version "12.0.1"
+  resolved "git+https://github.com/stellar/js-stellar-base.git#e657ab7506dd0852224636f5795124fa259d75d4"
   dependencies:
-    "@stellar/js-xdr" "^3.1.1"
+    "@stellar/js-xdr" "git+https://github.com/stellar/js-xdr#1b9701d2"
     base32.js "^0.1.0"
     bignumber.js "^9.1.2"
     buffer "^6.0.3"
