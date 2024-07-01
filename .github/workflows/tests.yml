@@ -40,3 +40,6 @@ jobs:
 
       - name: Browser Tests
         run: yarn test:browser
+
+      - name: Linter Tests
+        run: yarn _prettier && (git diff-index --quiet HEAD; git diff)
