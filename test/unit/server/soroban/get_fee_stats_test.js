@@ -30,11 +30,11 @@ describe("Server#getFeeStats", function () {
         transactionCount: "200",
         ledgerCount: "300",
     }
-    const feeStatResult = {
-        sorobanInclusionFee: innerFeeStat,
-        inclusionFee: innerFeeStat,
-        latestLedger: "12345678",
-    }
+    const result = {
+      sorobanInclusionFee: innerFeeStat,
+      inclusionFee: innerFeeStat,
+      latestLedger: "12345678",
+    };
 
     this.axiosMock
       .expects("post")
@@ -44,16 +44,14 @@ describe("Server#getFeeStats", function () {
         method: "getFeeStats",
         params: null,
       })
-      .returns(Promise.resolve({ data: { feeStatResult } }));
+      .returns(Promise.resolve({ data: { result } }));
 
     this.server
       .getFeeStats()
       .then(function (response) {
-        expect(response).to.be.deep.equal(feeStatResult);
+        expect(response).to.be.deep.equal(result);
         done();
       })
-      .catch(function (err) {
-        done(err);
-      });
+      .catch((err) => done(err));
   });
 });
