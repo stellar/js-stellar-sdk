@@ -6,6 +6,36 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Added
+- `rpc.Server` now has a `getFeeStats` method which retrieves fee statistics for a previous chunk of ledgers to provide users with a way to provide informed decisions about getting their transactions included in the following ledgers ([#998](https://github.com/stellar/js-stellar-sdk/issues/998)):
+
+```typescript
+export interface GetFeeStatsResponse {
+  sorobanInclusionFee: FeeDistribution;
+  inclusionFee: FeeDistribution;
+  latestLedger: number; // uint32
+}
+
+interface FeeDistribution {
+  max: string;  // uint64
+  min: string;  // uint64
+  mode: string; // uint64
+  p10: string;  // uint64
+  p20: string;  // uint64
+  p30: string;  // uint64
+  p40: string;  // uint64
+  p50: string;  // uint64
+  p60: string;  // uint64
+  p70: string;  // uint64
+  p80: string;  // uint64
+  p90: string;  // uint64
+  p95: string;  // uint64
+  p99: string;  // uint64
+  transactionCount: string; // uint32
+  ledgerCount: number;      // uint32
+}
+```
+
 
 ## [v12.1.0](https://github.com/stellar/js-stellar-sdk/compare/v12.0.1...v12.1.0)
 
