@@ -13,23 +13,23 @@ describe("Server#getFeeStats", function () {
 
   it("requests the correct endpoint", function (done) {
     const innerFeeStat = {
-        max: "100000000000000000000", // just > uint32
-        min: "100",
-        mode: "100",
-        p10: "100",
-        p20: "100",
-        p30: "100",
-        p40: "100",
-        p50: "100",
-        p60: "100",
-        p70: "100",
-        p80: "100",
-        p90: "100",
-        p95: "100",
-        p99: "100",
-        transactionCount: "200",
-        ledgerCount: "300",
-    }
+      max: "100000000000000000000", // just > uint32
+      min: "100",
+      mode: "100",
+      p10: "100",
+      p20: "100",
+      p30: "100",
+      p40: "100",
+      p50: "100",
+      p60: "100",
+      p70: "100",
+      p80: "100",
+      p90: "100",
+      p95: "100",
+      p99: "100",
+      transactionCount: "200",
+      ledgerCount: "300",
+    };
     const result = {
       sorobanInclusionFee: innerFeeStat,
       inclusionFee: innerFeeStat,
