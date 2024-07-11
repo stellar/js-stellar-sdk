@@ -362,4 +362,30 @@ export namespace Api {
     /** State Difference information */
     stateChanges?: RawLedgerEntryChange[];
   }
+
+  export interface GetFeeStatsResponse {
+    sorobanInclusionFee: FeeDistribution;
+    inclusionFee: FeeDistribution;
+    latestLedger: number; // uint32
+  }
+
+  interface FeeDistribution {
+    max: string;    // uint64
+    min: string;    // uint64
+    mode: string;   // uint64
+    p10: string;    // uint64
+    p20: string;    // uint64
+    p30: string;    // uint64
+    p40: string;    // uint64
+    p50: string;    // uint64
+    p60: string;    // uint64
+    p70: string;    // uint64
+    p80: string;    // uint64
+    p90: string;    // uint64
+    p95: string;    // uint64
+    p99: string;    // uint64
+
+    transactionCount: string; // uint32
+    ledgerCount: number; // uint32
+  }
 }
