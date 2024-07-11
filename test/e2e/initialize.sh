@@ -36,12 +36,12 @@ echo "  RPC:        $SOROBAN_RPC_URL"
 echo "  Passphrase: \"$SOROBAN_NETWORK_PASSPHRASE\""
 echo "  Status:     $NETWORK_STATUS"
 
-#if [[ "$NETWORK_STATUS" != "healthy" ]]; then
-#  echo "Network is not healthy (not running?), exiting"
-#  exit 1
-#fi
+if [[ "$NETWORK_STATUS" != "healthy" ]]; then
+  echo "Network is not healthy (not running?), exiting"
+  exit 1
+fi
 
-#$soroban keys generate $SOROBAN_ACCOUNT
+$soroban keys generate $SOROBAN_ACCOUNT
 
 # retrieve the contracts using soroban contract init then build them if they dont already exist
 # Define directory and WASM file paths
