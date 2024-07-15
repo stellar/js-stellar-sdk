@@ -8,8 +8,8 @@ import { ServerApi } from "./server_api";
  *
  * @see [Offers](https://developers.stellar.org/api/resources/offers/)
  * @class OfferCallBuilder
- * @constructor
- * @extends CallBuilder
+ * @class
+ * @augments CallBuilder
  * @param {string} serverUrl Horizon server URL.
  */
 export class OfferCallBuilder extends CallBuilder<

@@ -8,8 +8,8 @@ import { ServerApi } from "./server_api";
  *
  * @see [All Accounts](https://developers.stellar.org/api/resources/accounts/)
  * @class AccountCallBuilder
- * @extends CallBuilder
- * @constructor
+ * @augments CallBuilder
+ * @class
  * @param {string} serverUrl Horizon server URL.
  */
 export class AccountCallBuilder extends CallBuilder<

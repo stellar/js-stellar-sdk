@@ -1,28 +1,13 @@
-const test = require("ava");
+const { expect } = require("chai");
 const { spawnSync } = require("node:child_process");
 const {
   contracts,
   networkPassphrase,
   rpcUrl,
-  friendbotUrl,
+  generateFundedKeypair,
 } = require("./util");
-const { Address, contract, Keypair } = require("../../..");
+const { Address, contract } = require("../../..");
 
-async function generateFundedKeypair() {
-  const keypair = Keypair.random();
-  await fetch(`${friendbotUrl}/friendbot?addr=${keypair.publicKey()}`);
-  return keypair;
-}
-
-/**
- * Generates a Client for the contract with the given name.
- * Also generates a new account to use as as the keypair of this contract. This
- * account is funded by friendbot. You can pass in an account to re-use the
- * same account with multiple contract clients.
- *
- * By default, will re-deploy the contract every time. Pass in the same
- * `contractId` again if you want to re-use the a contract instance.
- */
 async function clientFromConstructor(
   name,
   { keypair = generateFundedKeypair(), contractId } = {},
@@ -104,33 +89,36 @@ async function clientForFromTest(contractId, publicKey, keypair) {
   return contract.Client.from(options);
 }
 
-test.before(async (t) => {
-  const { client, keypair, contractId } =
-    await clientFromConstructor("customTypes");
-  const publicKey = keypair.publicKey();
-  const addr = Address.fromString(publicKey);
-  t.context = { client, publicKey, addr, contractId, keypair }; // eslint-disable-line no-param-reassign
-});
+describe("Client", function () {
+  before(async function () {
+    const { client, keypair, contractId } =
+      await clientFromConstructor("customTypes");
+    const publicKey = keypair.publicKey();
+    const addr = Address.fromString(publicKey);
+    this.context = { client, publicKey, addr, contractId, keypair };
+  });
 
-test("hello from constructor", async (t) => {
-  const { result } = await t.context.client.hello({ hello: "tests" });
-  t.is(result, "tests");
-});
+  it("can be constructed with `new Client`", async function () {
+    const { result } = await this.context.client.hello({ hello: "tests" });
+    expect(result).to.equal("tests");
+  });
 
-test("from", async (t) => {
-  // objects with different constructors will not pass deepEqual check
-  function constructorWorkaround(object) {
-    return JSON.parse(JSON.stringify(object));
-  }
+  it("can be constructed with `from`", async function () {
+    // objects with different constructors will not pass deepEqual check
+    function constructorWorkaround(object) {
+      return JSON.parse(JSON.stringify(object));
+    }
 
-  const clientFromFrom = await clientForFromTest(
-    t.context.contractId,
-    t.context.publicKey,
-    t.context.keypair,
-  );
-  t.deepEqual(
-    constructorWorkaround(clientFromFrom),
-    constructorWorkaround(t.context.client),
-  );
-  t.deepEqual(t.context.client.spec.entries, clientFromFrom.spec.entries);
+    const clientFromFrom = await clientForFromTest(
+      this.context.contractId,
+      this.context.publicKey,
+      this.context.keypair,
+    );
+    expect(constructorWorkaround(clientFromFrom)).to.deep.equal(
+      constructorWorkaround(this.context.client),
+    );
+    expect(this.context.client.spec.entries).to.deep.equal(
+      clientFromFrom.spec.entries,
+    );
+  });
 });

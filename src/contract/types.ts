@@ -3,7 +3,6 @@
 import { BASE_FEE, Memo, MemoType, Operation, Transaction, xdr } from "@stellar/stellar-base";
 import type { Client } from "./client";
 import type { AssembledTransaction } from "./assembled_transaction";
-import { DEFAULT_TIMEOUT } from "./utils";
 
 export type XDR_BASE64 = string;
 export type u32 = number;
@@ -109,6 +108,12 @@ export type MethodOptions = {
    * AssembledTransaction. Default: true
    */
   simulate?: boolean;
+
+  /**
+   * If true, will automatically attempt to restore the transaction if there 
+   * are archived entries that need renewal. @default false
+   */
+  restore?: boolean;
 };
 
 export type AssembledTransactionOptions<T = string> = MethodOptions &
@@ -117,3 +122,9 @@ export type AssembledTransactionOptions<T = string> = MethodOptions &
     args?: any[];
     parseResultXdr: (xdr: xdr.ScVal) => T;
   };
+  
+/**
+ * The default timeout for waiting for a transaction to be included in a block.
+ */
+export const DEFAULT_TIMEOUT = 5 * 60;
+export const NULL_ACCOUNT = "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF";

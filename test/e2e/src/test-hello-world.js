@@ -1,33 +1,34 @@
-const test = require("ava");
+const { expect } = require("chai");
 const { clientFor } = require("./util");
 
-test("hello", async (t) => {
-  const { client } = await clientFor("helloWorld");
-  t.deepEqual((await client.hello({ world: "tests" })).result, [
-    "Hello",
-    "tests",
-  ]);
-});
+describe("helloWorld client", function () {
+  it("should return properly formed hello response", async function () {
+    const { client } = await clientFor("helloWorld");
+    const response = await client.hello({ world: "tests" });
+    expect(response.result).to.deep.equal(["Hello", "tests"]);
+  });
 
-test("auth", async (t) => {
-  const { client, keypair } = await clientFor("helloWorld");
-  const publicKey = keypair.publicKey();
-  const { result } = await client.auth({ addr: publicKey, world: "lol" });
-  t.deepEqual(result, publicKey);
-});
+  it("should authenticate the user correctly", async function () {
+    const { client, keypair } = await clientFor("helloWorld");
+    const publicKey = keypair.publicKey();
+    const { result } = await client.auth({ addr: publicKey, world: "lol" });
+    expect(result).to.equal(publicKey);
+  });
 
-test("inc", async (t) => {
-  const { client } = await clientFor("helloWorld");
-  const { result: startingBalance } = await client.get_count();
-  const inc = await client.inc();
-  t.is((await inc.signAndSend()).result, startingBalance + 1);
-  t.is(startingBalance, 0);
-  t.is((await client.get_count()).result, startingBalance + 1);
-});
+  it("should increment the counter correctly", async function () {
+    const { client } = await clientFor("helloWorld");
+    const { result: startingBalance } = await client.get_count();
+    const inc = await client.inc();
+    const incrementResponse = await inc.signAndSend();
+    expect(incrementResponse.result).to.equal(startingBalance + 1);
+    expect(startingBalance).to.equal(0); // Assuming the counter starts at 0
+    const { result: newBalance } = await client.get_count();
+    expect(newBalance).to.equal(startingBalance + 1);
+  });
 
-test("options for methods with no arguments", async (t) => {
-  const { client } = await clientFor("helloWorld");
-  // check that options object is FIRST, no need to pass `undefined` for the first argument
-  const inc = await client.inc({ simulate: false });
-  t.falsy(inc.simulation);
+  it("should accept only options object for methods with no arguments", async function () {
+    const { client } = await clientFor("helloWorld");
+    const inc = await client.inc({ simulate: false });
+    expect(inc.simulation).to.be.undefined;
+  });
 });

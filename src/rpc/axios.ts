@@ -1,8 +1,9 @@
 import axios from 'axios';
 import fetchAdapter from 'konfig-axios-fetch-adapter';
 
-/* tslint:disable-next-line:no-var-requires */
+// eslint-disable-next-line prefer-import/prefer-import-over-require
 export const version = require('../../package.json').version;
+
 export const AxiosClient = axios.create({
   adapter: fetchAdapter,
   headers: {

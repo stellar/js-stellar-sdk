@@ -1,8 +1,9 @@
+/* eslint-disable global-require */
 import axios, { AxiosResponse } from "axios";
 import fetchAdapter from "konfig-axios-fetch-adapter";
 import URI from "urijs";
 
-/* tslint:disable-next-line:no-var-requires */
+// eslint-disable-next-line prefer-import/prefer-import-over-require 
 export const version = require("../../package.json").version;
 
 export interface ServerTime {
@@ -32,17 +33,17 @@ export const AxiosClient = axios.create({
   },
 });
 
-function _toSeconds(ms: number): number {
+function toSeconds(ms: number): number {
   return Math.floor(ms / 1000);
 }
 
 AxiosClient.interceptors.response.use(
-  function interceptorHorizonResponse(response: AxiosResponse) {
+  (response: AxiosResponse) => {
     const hostname = URI(response.config.url!).hostname();
-    const serverTime = _toSeconds(Date.parse(response.headers.date));
-    const localTimeRecorded = _toSeconds(new Date().getTime());
+    const serverTime = toSeconds(Date.parse(response.headers.date));
+    const localTimeRecorded = toSeconds(new Date().getTime());
 
-    if (!isNaN(serverTime)) {
+    if (!Number.isNaN(serverTime)) {
       SERVER_TIME_MAP[hostname] = {
         serverTime,
         localTimeRecorded,
@@ -72,7 +73,7 @@ export function getCurrentServerTime(hostname: string): number | null {
   }
 
   const { serverTime, localTimeRecorded } = entry;
-  const currentTime = _toSeconds(new Date().getTime());
+  const currentTime = toSeconds(new Date().getTime());
 
   // if it's been more than 5 minutes from the last time, then null it out
   if (currentTime - localTimeRecorded > 60 * 5) {

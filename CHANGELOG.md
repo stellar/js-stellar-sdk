@@ -6,6 +6,24 @@ A breaking change will get clearly marked in this log.
 ## Unreleased
 
 
+## [v12.1.0](https://github.com/stellar/js-stellar-sdk/compare/v12.0.1...v12.1.0)
+
+### Added
+- `contract` now exports the `DEFAULT_TIMEOUT` ([#984](https://github.com/stellar/js-stellar-sdk/pull/984)).
+- `contract.AssembledTransaction` now has:
+  - `toXDR` and `fromXDR` methods for serializing the transaction to and from XDR. These methods should be used in place of `AssembledTransaction.toJSON` and `AssembledTransaction.fromJSON`for multi-auth signing. The JSON methods are now deprecated. **Note:** you must now call `simulate` on the transaction before the final `signAndSend` call after all required signatures are gathered when using the XDR methods ([#977](https://github.com/stellar/js-stellar-sdk/pull/977)).
+  - a `restoreFootprint` method which accepts the `restorePreamble` returned when a simulation call fails due to some contract state that has expired. When invoking a contract function, one can now set `restore` to `true` in the `MethodOptions`. When enabled, a `restoreFootprint` transaction will be created and await signing when required ([#991](https://github.com/stellar/js-stellar-sdk/pull/991)).
+  - separate `sign` and `send` methods so that you can sign a transaction without sending it (`signAndSend` still works as before; [#922](https://github.com/stellar/js-stellar-sdk/pull/992)).
+- `contract.Client` now has a `txFromXDR` method which should be used in place of `txFromJSON` for multi-auth signing ([#977](https://github.com/stellar/js-stellar-sdk/pull/977)).
+
+### Deprecated
+- In `contract.AssembledTransaction`, `toJSON` and `fromJSON` should be replaced with `toXDR` and `fromXDR`.
+- In `contract.Client`, `txFromJSON` should be replaced with `txFromXDR`.
+
+### Fixed
+- If you edit an `AssembledTransaction` with `tx.raw = cloneFrom(tx.build)`, the `tx.simulationData` will now be updated correctly ([#985](https://github.com/stellar/js-stellar-sdk/pull/985)).
+
+
 ## [v12.0.1](https://github.com/stellar/js-stellar-sdk/compare/v11.3.0...v12.0.1)
 
 - This is a re-tag of `v12.0.0-rc.3` with dependency updates and a single new feature.
