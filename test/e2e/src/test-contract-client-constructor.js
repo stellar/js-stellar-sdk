@@ -92,15 +92,15 @@ async function clientForFromTest(contractId, publicKey, keypair) {
 describe("Client", function () {
   before(async function () {
     const { client, keypair, contractId } =
-      await clientFromConstructor("customTypes");
+      await clientFromConstructor("helloWorld");
     const publicKey = keypair.publicKey();
     const addr = Address.fromString(publicKey);
     this.context = { client, publicKey, addr, contractId, keypair };
   });
 
-  it("can be constructed with `new Client`", async function () {
-    const { result } = await this.context.client.hello({ hello: "tests" });
-    expect(result).to.equal("tests");
+  it("can be constructed with `new Client`", async function() {
+    const { result } = await this.context.client.hello({ to: "tests" });
+    expect(result).to.deep.equal(["Hello", "tests"]);
   });
 
   it("can be constructed with `from`", async function () {
