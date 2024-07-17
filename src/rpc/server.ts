@@ -854,4 +854,15 @@ export class Server {
       throw error;
     }
   }
+
+  /**
+   * Provides an analysis of the recent fee stats for regular and smart 
+   * contract operations.
+   * 
+   * @returns {Promise<Api.GetFeeStatsResponse>}  the fee stats
+   * @see https://soroban.stellar.org/api/methods/getFeeStats
+   */
+  public async getFeeStats(): Promise<Api.GetFeeStatsResponse> {
+    return jsonrpc.postObject(this.serverURL.toString(), 'getFeeStats');
+  }
 }
