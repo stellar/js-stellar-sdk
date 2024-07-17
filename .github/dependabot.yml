@@ -15,10 +15,6 @@ updates:
         update-types:
         - "patch"
         - "minor"
-      major:
-        applies-to: version-updates
-        update-types:
-        - "major"
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
