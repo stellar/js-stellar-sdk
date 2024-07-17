@@ -19,12 +19,7 @@ const contracts = {
   helloWorld: {
     hash: spawnSync(
       "./target/bin/soroban",
-      [
-        "contract",
-        "install",
-        "--wasm",
-        `${basePath}/hello_world.wasm`,
-      ],
+      ["contract", "install", "--wasm", `${basePath}/hello_world.wasm`],
       { shell: true, encoding: "utf8" },
     ).stdout.trim(),
     path: `${basePath}/hello_world.wasm`,
@@ -84,7 +79,11 @@ module.exports.friendbotUrl = friendbotUrl;
 
 async function generateFundedKeypair() {
   const keypair = Keypair.random();
-  await fetch(friendbotUrl === 'https://friendbot.stellar.org' ? `${friendbotUrl}/?addr=${keypair.publicKey()}` : `${friendbotUrl}/friendbot?addr=${keypair.publicKey()}`);
+  await fetch(
+    friendbotUrl === "https://friendbot.stellar.org"
+      ? `${friendbotUrl}/?addr=${keypair.publicKey()}`
+      : `${friendbotUrl}/friendbot?addr=${keypair.publicKey()}`,
+  );
   return keypair;
 }
 module.exports.generateFundedKeypair = generateFundedKeypair;

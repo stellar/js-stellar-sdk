@@ -16,15 +16,15 @@ describe("Custom Types Tests", function () {
     ).to.equal("tests");
   });
 
-  it("view method with empty keypair", async function() {
+  it("view method with empty keypair", async function () {
     const { client: client2 } = await clientFor("customTypes", {
       keypair: undefined,
-      contractId: this.context.contractId
+      contractId: this.context.contractId,
     });
     expect((await client2.i32_({ i32_: 1 })).result).to.equal(1);
   });
 
-  it("should increment the counter correctly", async function() {
+  it("should increment the counter correctly", async function () {
     const { result: startingBalance } = await this.context.client.get_count();
     const inc = await this.context.client.inc();
     const incrementResponse = await inc.signAndSend();
@@ -34,7 +34,7 @@ describe("Custom Types Tests", function () {
     expect(newBalance).to.equal(startingBalance + 1);
   });
 
-  it("should accept only options object for methods with no arguments", async function() {
+  it("should accept only options object for methods with no arguments", async function () {
     const inc = await this.context.client.inc({ simulate: false });
     expect(inc.simulation).to.be.undefined;
   });
@@ -43,13 +43,19 @@ describe("Custom Types Tests", function () {
     expect((await this.context.client.woid()).result).to.be.null;
   });
 
-  it("should authenticate the user correctly", async function() {
-    const { result } = await this.context.client.auth({ addr: this.context.publicKey, world: "lol" });
+  it("should authenticate the user correctly", async function () {
+    const { result } = await this.context.client.auth({
+      addr: this.context.publicKey,
+      world: "lol",
+    });
     expect(result).to.equal(this.context.publicKey);
   });
 
-  it("should authenticate the user correctly", async function() {
-    const { result } = await this.context.client.auth({ addr: this.context.publicKey, world: "lol" });
+  it("should authenticate the user correctly", async function () {
+    const { result } = await this.context.client.auth({
+      addr: this.context.publicKey,
+      world: "lol",
+    });
     expect(result).to.equal(this.context.publicKey);
   });
 

@@ -98,7 +98,7 @@ describe("Client", function () {
     this.context = { client, publicKey, addr, contractId, keypair };
   });
 
-  it("can be constructed with `new Client`", async function() {
+  it("can be constructed with `new Client`", async function () {
     const { result } = await this.context.client.hello({ to: "tests" });
     expect(result).to.deep.equal(["Hello", "tests"]);
   });
