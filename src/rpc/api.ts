@@ -26,13 +26,14 @@ export namespace Api {
     key: string;
     /** a base-64 encoded {@link xdr.LedgerEntryData} instance */
     xdr: string;
-    /** optional, a future ledger number upon which this entry will expire
+    /**
+     * optional, a future ledger number upon which this entry will expire
      *  based on https://github.com/stellar/soroban-tools/issues/1010
      */
     liveUntilLedgerSeq?: number;
   }
 
-  /** An XDR-parsed version of {@link RawLedgerEntryResult} */
+  /** An XDR-parsed version of {@link this.RawLedgerEntryResult} */
   export interface GetLedgerEntriesResponse {
     entries: LedgerEntryResult[];
     latestLedger: number;
@@ -226,7 +227,7 @@ export namespace Api {
   }
 
   /**
-   * Simplifies {@link RawSimulateTransactionResponse} into separate interfaces
+   * Simplifies {@link Api.RawSimulateTransactionResponse} into separate interfaces
    * based on status:
    *   - on success, this includes all fields, though `result` is only present
    *     if an invocation was simulated (since otherwise there's nothing to
@@ -253,7 +254,6 @@ export namespace Api {
      * The field is always present, but may be empty in cases where:
      *   - you didn't simulate an invocation or
      *   - there were no events
-     * @see {@link humanizeEvents}
      */
     events: xdr.DiagnosticEvent[];
 
@@ -347,7 +347,8 @@ export namespace Api {
     /** These are xdr.DiagnosticEvents in base64 */
     events?: string[];
     minResourceFee?: string;
-    /** This will only contain a single element if present, because only a single
+    /**
+     * This will only contain a single element if present, because only a single
      * invokeHostFunctionOperation is supported per transaction.
      * */
     results?: RawSimulateHostFunctionResult[];

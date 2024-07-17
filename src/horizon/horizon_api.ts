@@ -20,6 +20,12 @@ export namespace HorizonApi {
     paging_token: string;
   }
 
+  export interface SubmitAsyncTransactionResponse {
+    hash: string;
+    tx_status: string;
+    error_result_xdr: string;
+  }
+
   export interface FeeBumpTransactionResponse {
     hash: string;
     signatures: string[];

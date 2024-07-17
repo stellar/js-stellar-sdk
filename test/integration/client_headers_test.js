@@ -72,4 +72,29 @@ describe("integration tests: client headers", function (done) {
         .stream({ onerror: (err) => done(err) });
     });
   });
+
+  it("sends client via custom headers", function (done) {
+    let server;
+
+    const requestHandler = (request, response) => {
+      expect(request.headers["authorization"]).to.be.equal("123456789");
+      response.end();
+      server.close(() => done());
+    };
+
+    server = http.createServer(requestHandler);
+    server.listen(port, (err) => {
+      if (err) {
+        done(err);
+        return;
+      }
+
+      new Horizon.Server(`http://localhost:${port}`, {
+        headers: { authorization: "123456789" },
+        allowHttp: true,
+      })
+        .operations()
+        .call();
+    });
+  });
 });

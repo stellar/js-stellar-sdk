@@ -10,6 +10,7 @@ import {
 } from "@stellar/stellar-base";
 import URI from "urijs";
 
+import type { TransactionBuilder } from "@stellar/stellar-base";
 import { CallBuilder } from "./call_builder";
 import { Config } from "../config";
 import {
@@ -37,7 +38,7 @@ import { StrictSendPathCallBuilder } from "./strict_send_path_call_builder";
 import { TradeAggregationCallBuilder } from "./trade_aggregation_call_builder";
 import { TradesCallBuilder } from "./trades_call_builder";
 import { TransactionCallBuilder } from "./transaction_call_builder";
-
+// eslint-disable-next-line import/no-named-as-default 
 import AxiosClient, {
   getCurrentServerTime,
 } from "./horizon_axios_client";
@@ -50,14 +51,14 @@ const STROOPS_IN_LUMEN = 10000000;
 // SEP 29 uses this value to define transaction memo requirements for incoming payments.
 const ACCOUNT_REQUIRES_MEMO = "MQ==";
 
-function _getAmountInLumens(amt: BigNumber) {
+function getAmountInLumens(amt: BigNumber) {
   return new BigNumber(amt).div(STROOPS_IN_LUMEN).toString();
 }
 
 /**
  * Server handles the network connection to a [Horizon](https://developers.stellar.org/api/introduction/)
  * instance and exposes an interface for requests to that instance.
- * @constructor
+ * @class
  * @param {string} serverURL Horizon Server URL (ex. `https://horizon-testnet.stellar.org`).
  * @param {object} [opts] Options object
  * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments! You can also use {@link Config} class to set this globally.
@@ -91,6 +92,9 @@ export class Server {
     }
     if (opts.authToken) {
       customHeaders["X-Auth-Token"] = opts.authToken;
+    }
+    if (opts.headers) {
+      Object.assign(customHeaders, opts.headers);
     }
     if (Object.keys(customHeaders).length > 0) {
       AxiosClient.interceptors.request.use((config) => {
@@ -131,10 +135,10 @@ export class Server {
    *  // earlier does the trick!
    *  .build();
    * ```
-   * @argument {number} seconds Number of seconds past the current time to wait.
-   * @argument {bool} [_isRetry=false] True if this is a retry. Only set this internally!
+   * @param {number} seconds Number of seconds past the current time to wait.
+   * @param {boolean} [_isRetry] True if this is a retry. Only set this internally!
    * This is to avoid a scenario where Horizon is horking up the wrong date.
-   * @returns {Promise<Timebounds>} Promise that resolves a `timebounds` object
+   * @returns {Promise<Server.Timebounds>} Promise that resolves a `timebounds` object
    * (with the shape `{ minTime: 0, maxTime: N }`) that you can set the `timebounds` option to.
    */
   public async fetchTimebounds(
@@ -162,7 +166,7 @@ export class Server {
     // otherwise, retry (by calling the root endpoint)
     // toString automatically adds the trailing slash
     await AxiosClient.get(URI(this.serverURL as any).toString());
-    return await this.fetchTimebounds(seconds, true);
+    return this.fetchTimebounds(seconds, true);
   }
 
   /**
@@ -182,6 +186,7 @@ export class Server {
    * @see [Fee Stats](https://developers.stellar.org/api/aggregations/fee-stats/)
    * @returns {Promise<HorizonApi.FeeStatsResponse>} Promise that resolves to the fee stats returned by Horizon.
    */
+  // eslint-disable-next-line require-await
   public async feeStats(): Promise<HorizonApi.FeeStatsResponse> {
     const cb = new CallBuilder<HorizonApi.FeeStatsResponse>(
       URI(this.serverURL as any),
@@ -284,8 +289,7 @@ export class Server {
    * * If `wasPartiallyFilled` is true, you can tell the user that
    *   `amountBought` or `amountSold` have already been transferred.
    *
-   * @see [Post
-   * Transaction](https://developers.stellar.org/api/resources/transactions/post/)
+   * @see [PostTransaction](https://developers.stellar.org/api/resources/transactions/post/)
    * @param {Transaction|FeeBumpTransaction} transaction - The transaction to submit.
    * @param {object} [opts] Options object
    * @param {boolean} [opts.skipMemoRequiredCheck] - Allow skipping memo
@@ -377,8 +381,8 @@ export class Server {
                     // However, you can never be too careful.
                     default:
                       throw new Error(
-                        "Invalid offer result type: " +
-                          offerClaimedAtom.switch(),
+                        `Invalid offer result type: ${ 
+                          offerClaimedAtom.switch()}`,
                       );
                   }
 
@@ -420,9 +424,9 @@ export class Server {
                     sellerId,
                     offerId: offerClaimed.offerId().toString(),
                     assetSold,
-                    amountSold: _getAmountInLumens(claimedOfferAmountSold),
+                    amountSold: getAmountInLumens(claimedOfferAmountSold),
                     assetBought,
-                    amountBought: _getAmountInLumens(claimedOfferAmountBought),
+                    amountBought: getAmountInLumens(claimedOfferAmountBought),
                   };
                 });
 
@@ -440,7 +444,7 @@ export class Server {
                   offerId: offerXDR.offerId().toString(),
                   selling: {},
                   buying: {},
-                  amount: _getAmountInLumens(offerXDR.amount().toString()),
+                  amount: getAmountInLumens(offerXDR.amount().toString()),
                   price: {
                     n: offerXDR.price().n(),
                     d: offerXDR.price().d(),
@@ -471,8 +475,8 @@ export class Server {
                 currentOffer,
 
                 // this value is in stroops so divide it out
-                amountBought: _getAmountInLumens(amountBought),
-                amountSold: _getAmountInLumens(amountSold),
+                amountBought: getAmountInLumens(amountBought),
+                amountSold: getAmountInLumens(amountSold),
 
                 isFullyOpen:
                   !offersClaimed.length && effect !== "manageOfferDeleted",
@@ -488,9 +492,7 @@ export class Server {
             .filter((result: any) => !!result);
         }
 
-        return Object.assign({}, response.data, {
-          offerResults: hasManageOffer ? offerResults : undefined,
-        });
+        return { ...response.data, offerResults: hasManageOffer ? offerResults : undefined,};
       })
       .catch((response) => {
         if (response instanceof Error) {
@@ -503,6 +505,59 @@ export class Server {
           ),
         );
       });
+  }
+
+  /**
+   * Submits an asynchronous transaction to the network. Unlike the synchronous version, which blocks
+   * and waits for the transaction to be ingested in Horizon, this endpoint relays the response from
+   * core directly back to the user.
+   *
+   * By default, this function calls {@link Server#checkMemoRequired}, you can
+   * skip this check by setting the option `skipMemoRequiredCheck` to `true`.
+   *
+   * @see [Submit
+   * Async Transaction](https://developers.stellar.org/docs/data/horizon/api-reference/resources/submit-async-transaction)
+   * @param {Transaction|FeeBumpTransaction} transaction - The transaction to submit.
+   * @param {object} [opts] Options object
+   * @param {boolean} [opts.skipMemoRequiredCheck] - Allow skipping memo
+   * required check, default: `false`. See
+   * [SEP0029](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0029.md).
+   * @returns {Promise} Promise that resolves or rejects with response from
+   * horizon.
+   */
+  public async submitAsyncTransaction(
+      transaction: Transaction | FeeBumpTransaction,
+      opts: Server.SubmitTransactionOptions = { skipMemoRequiredCheck: false }
+  ): Promise<HorizonApi.SubmitAsyncTransactionResponse> {
+    // only check for memo required if skipMemoRequiredCheck is false and the transaction doesn't include a memo.
+    if (!opts.skipMemoRequiredCheck) {
+      await this.checkMemoRequired(transaction);
+    }
+
+    const tx = encodeURIComponent(
+        transaction
+            .toEnvelope()
+            .toXDR()
+            .toString("base64"),
+    );
+
+    return AxiosClient.post(
+        URI(this.serverURL as any)
+            .segment("transactions_async")
+            .toString(),
+        `tx=${tx}`,
+    ).then((response) => response.data
+    ).catch((response) => {
+      if (response instanceof Error) {
+        return Promise.reject(response);
+      }
+      return Promise.reject(
+          new BadResponseError(
+              `Transaction submission failed. Server responded: ${response.status} ${response.statusText}`,
+              response.data,
+          ),
+      );
+    });
   }
 
   /**
@@ -710,10 +765,10 @@ export class Server {
    *
    * @param {Asset} base base asset
    * @param {Asset} counter counter asset
-   * @param {long} start_time lower time boundary represented as millis since epoch
-   * @param {long} end_time upper time boundary represented as millis since epoch
-   * @param {long} resolution segment duration as millis since epoch. *Supported values are 5 minutes (300000), 15 minutes (900000), 1 hour (3600000), 1 day (86400000) and 1 week (604800000).
-   * @param {long} offset segments can be offset using this parameter. Expressed in milliseconds. *Can only be used if the resolution is greater than 1 hour. Value must be in whole hours, less than the provided resolution, and less than 24 hours.
+   * @param {number} start_time lower time boundary represented as millis since epoch
+   * @param {number} end_time upper time boundary represented as millis since epoch
+   * @param {number} resolution segment duration as millis since epoch. *Supported values are 5 minutes (300000), 15 minutes (900000), 1 hour (3600000), 1 day (86400000) and 1 week (604800000).
+   * @param {number} offset segments can be offset using this parameter. Expressed in milliseconds. *Can only be used if the resolution is greater than 1 hour. Value must be in whole hours, less than the provided resolution, and less than 24 hours.
    * Returns new {@link TradeAggregationCallBuilder} object configured with the current Horizon server configuration.
    * @returns {TradeAggregationCallBuilder} New TradeAggregationCallBuilder instance
    */
@@ -766,7 +821,8 @@ export class Server {
 
     const destinations = new Set<string>();
 
-    for (let i = 0; i < transaction.operations.length; i++) {
+    /* eslint-disable no-continue */
+    for (let i = 0; i < transaction.operations.length; i+=1) {
       const operation = transaction.operations[i];
 
       switch (operation.type) {
@@ -790,6 +846,7 @@ export class Server {
       }
 
       try {
+        // eslint-disable-next-line no-await-in-loop
         const account = await this.loadAccount(destination);
         if (
           account.data_attr["config.memo_required"] === ACCOUNT_REQUIRES_MEMO
@@ -813,6 +870,7 @@ export class Server {
         continue;
       }
     }
+    /* eslint-enable no-continue */
   }
 }
 
@@ -822,6 +880,7 @@ export namespace Server {
     appName?: string;
     appVersion?: string;
     authToken?: string;
+    headers?: Record<string, string>;
   }
 
   export interface Timebounds {

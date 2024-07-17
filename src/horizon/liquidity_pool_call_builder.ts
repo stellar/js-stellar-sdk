@@ -8,8 +8,8 @@ import { ServerApi } from "./server_api";
  * Do not create this object directly, use {@link Server#liquidityPools}.
  *
  * @class LiquidityPoolCallBuilder
- * @extends CallBuilder
- * @constructor
+ * @augments CallBuilder
+ * @class
  * @param {string} serverUrl Horizon server URL.
  */
 export class LiquidityPoolCallBuilder extends CallBuilder<
@@ -24,7 +24,6 @@ export class LiquidityPoolCallBuilder extends CallBuilder<
    * Filters out pools whose reserves don't exactly match these assets.
    *
    * @see Asset
-   * @param {Asset[]} assets
    * @returns {LiquidityPoolCallBuilder} current LiquidityPoolCallBuilder instance
    */
   public forAssets(...assets: Asset[]): this {
