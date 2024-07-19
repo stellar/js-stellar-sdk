@@ -10,7 +10,7 @@ A breaking change will get clearly marked in this log.
 ## [v12.2.0](https://github.com/stellar/js-stellar-sdk/compare/v12.1.0...v12.2.0)
 
 ### Fixed
-- `@stellar/stellar-base` and its underlying dependency `@stellar/js-xdr` have been upgraded to their latest versions; reference their release notes ([v12.1.0](https://github.com/stellar/js-stellar-base/releases/tag/v12.1.0) and [v3.1.2](https://github.com/stellar/js-xdr/releases/tag/v3.1.2), respectively) for details ([]()).
+- `@stellar/stellar-base` and its underlying dependency `@stellar/js-xdr` have been upgraded to their latest versions; reference their release notes ([v12.1.0](https://github.com/stellar/js-stellar-base/releases/tag/v12.1.0) and [v3.1.2](https://github.com/stellar/js-xdr/releases/tag/v3.1.2), respectively) for details ([#1013](https://github.com/stellar/js-stellar-sdk/pull/1013)).
 
 ### Added
 - `rpc.Server` now has a `getFeeStats` method which retrieves fee statistics for a previous chunk of ledgers to provide users with a way to provide informed decisions about getting their transactions included in the following ledgers ([#998](https://github.com/stellar/js-stellar-sdk/issues/998)):
