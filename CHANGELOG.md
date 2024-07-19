@@ -13,8 +13,24 @@ A breaking change will get clearly marked in this log.
 - `@stellar/stellar-base` and its underlying dependency `@stellar/js-xdr` have been upgraded to their latest versions; reference their release notes ([v12.1.0](https://github.com/stellar/js-stellar-base/releases/tag/v12.1.0) and [v3.1.2](https://github.com/stellar/js-xdr/releases/tag/v3.1.2), respectively) for details ([#1013](https://github.com/stellar/js-stellar-sdk/pull/1013)).
 
 ### Added
-- `rpc.Server` now has a `getFeeStats` method which retrieves fee statistics for a previous chunk of ledgers to provide users with a way to provide informed decisions about getting their transactions included in the following ledgers ([#998](https://github.com/stellar/js-stellar-sdk/issues/998)):
+- You can now pass custom headers to both `rpc.Server` and `Horizon.Server` ([#1013](https://github.com/stellar/js-stellar-sdk/pull/1013)):
+```typescript
+import { Server } from "@stellar/stellar-sdk/rpc";
 
+const s = new Server("<some URL>", { headers: { "X-Custom-Header": "hello" }})
+```
+- `Horizon.Server` now supports the new `POST /transactions_async` endpoint via the `submitAsyncTransaction` method ([#989](https://github.com/stellar/js-stellar-sdk/pull/989)). Its purpose is to provide an immediate response to the submission rather than waiting for Horizon to determine its status. The response schema is as follows:
+```typescript
+interface SubmitAsyncTransactionResponse {
+  // the submitted transaction hash
+  hash: string;
+  // one of "PENDING", "DUPLICATE", "TRY_AGAIN_LATER", or "ERROR"
+  tx_status: string;
+  // a base64-encoded xdr.TransactionResult iff `tx_status` is "ERROR"
+  error_result_xdr: string;
+}
+```
+- `rpc.Server` now has a `getFeeStats` method which retrieves fee statistics for a previous chunk of ledgers to provide users with a way to provide informed decisions about getting their transactions included in the following ledgers ([#998](https://github.com/stellar/js-stellar-sdk/issues/998)):
 ```typescript
 export interface GetFeeStatsResponse {
   sorobanInclusionFee: FeeDistribution;
