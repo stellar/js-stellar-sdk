@@ -8,18 +8,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout SDK
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Checkout Base
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: stellar/js-stellar-base
           path: js-stellar-base
 
       - name: Install Node (20.x)
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '20.x'
 
@@ -30,7 +30,7 @@ jobs:
         run: yarn build:prod
 
       - name: Checkout GH pages
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: stellar/js-stellar-sdk
           ref: gh-pages
