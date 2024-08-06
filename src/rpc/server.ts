@@ -136,7 +136,7 @@ export class Server {
    * @returns {Promise<Account>}  a promise to the {@link Account} object with
    *    a populated sequence number
    *
-   * @see https://soroban.stellar.org/api/methods/getLedgerEntries
+   * @see https://developers.stellar.org/docs/data/rpc/api-reference/methods/getLedgerEntries
    * @example
    * const accountId = "GBZC6Y2Y7Q3ZQ2Y4QZJ2XZ3Z5YXZ6Z7Z2Y4QZJ2XZ3Z5YXZ6Z7Z2Y4";
    * server.getAccount(accountId).then((account) => {
@@ -170,7 +170,7 @@ export class Server {
    *    {@link Api.GetHealthResponse} object with the status of the
    *    server (e.g. "healthy").
    *
-   * @see https://soroban.stellar.org/api/methods/getHealth
+   * @see https://developers.stellar.org/docs/data/rpc/api-reference/methods/getHealth
    * @example
    * server.getHealth().then((health) => {
    *   console.log("status:", health.status);
@@ -203,7 +203,7 @@ export class Server {
    *
    * @returns {Promise<Api.LedgerEntryResult>}   the current data value
    *
-   * @see https://soroban.stellar.org/api/methods/getLedgerEntries
+   * @see https://developers.stellar.org/docs/data/rpc/api-reference/methods/getLedgerEntries
    * @example
    * const contractId = "CCJZ5DGASBWQXR5MPFCJXMBI333XE5U3FSJTNQU7RIKE3P5GN2K2WYD5";
    * const key = xdr.ScVal.scvSymbol("counter");
@@ -378,7 +378,7 @@ export class Server {
    *    on-chain values for the given ledger keys
    *
    * @see Server._getLedgerEntries
-   * @see https://soroban.stellar.org/api/methods/getLedgerEntries
+   * @see https://developers.stellar.org/docs/data/rpc/api-reference/methods/getLedgerEntries
    * @example
    * const contractId = "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM";
    * const key = xdr.LedgerKey.contractData(new xdr.LedgerKeyContractData({
@@ -424,7 +424,7 @@ export class Server {
    * @returns {Promise<Api.GetTransactionResponse>}  the status,
    *    result, and other details about the transaction
    *
-   * @see https://soroban.stellar.org/api/methods/getTransaction
+   * @see https://developers.stellar.org/docs/data/rpc/api-reference/methods/getTransaction
    * @example
    * const transactionHash = "c4515e3bdc0897f21cc5dbec8c82cf0a936d4741cb74a8e158eb51b9fb00411a";
    * server.getTransaction(transactionHash).then((tx) => {
@@ -499,7 +499,7 @@ export class Server {
    * @returns {Promise<Api.GetEventsResponse>}   a paginatable set of the
    *    events matching the given event filters
    *
-   * @see https://soroban.stellar.org/api/methods/getEvents
+   * @see https://developers.stellar.org/docs/data/rpc/api-reference/methods/getEvents
    * @example
    * server.getEvents({
    *    startLedger: 1000,
@@ -552,7 +552,7 @@ export class Server {
    * @returns {Promise<Api.GetNetworkResponse>}  metadata about the
    *    current network this RPC server is connected to
    *
-   * @see https://soroban.stellar.org/api/methods/getNetwork
+   * @see https://developers.stellar.org/docs/data/rpc/api-reference/methods/getNetwork
    * @example
    * server.getNetwork().then((network) => {
    *   console.log("friendbotUrl:", network.friendbotUrl);
@@ -572,7 +572,7 @@ export class Server {
    * @returns {Promise<Api.GetLatestLedgerResponse>}   metadata about the
    *    latest ledger on the network that this RPC server is connected to
    *
-   * @see https://soroban.stellar.org/api/methods/getLatestLedger
+   * @see https://developers.stellar.org/docs/data/rpc/api-reference/methods/getLatestLedger
    * @example
    * server.getLatestLedger().then((response) => {
    *   console.log("hash:", response.id);
@@ -600,7 +600,7 @@ export class Server {
    *    the transaction
    *
    * @see https://developers.stellar.org/docs/glossary/transactions/
-   * @see https://soroban.stellar.org/api/methods/simulateTransaction
+   * @see https://developers.stellar.org/docs/data/rpc/api-reference/methods/simulateTransaction
    * @see Server.prepareTransaction
    * @see assembleTransaction
    *
@@ -690,7 +690,7 @@ export class Server {
    *    fees discovered from the simulation.
    *
    * @see assembleTransaction
-   * @see https://soroban.stellar.org/api/methods/simulateTransaction
+   * @see https://developers.stellar.org/docs/data/rpc/api-reference/methods/simulateTransaction
    * @throws {jsonrpc.Error<any>|Error|Api.SimulateTransactionErrorResponse}
    *    if simulation fails
    * @example
@@ -746,7 +746,7 @@ export class Server {
    *    transaction id, status, and any error if available
    *
    * @see https://developers.stellar.org/docs/glossary/transactions/
-   * @see https://soroban.stellar.org/api/methods/sendTransaction
+   * @see https://developers.stellar.org/docs/data/rpc/api-reference/methods/sendTransaction
    * @example
    * const contractId = 'CA3D5KRYM6CB7OWQ6TWYRR3Z4T7GNZLKERYNZGGA5SOAOPIFY6YQGAXE';
    * const contract = new StellarSdk.Contract(contractId);
@@ -860,7 +860,7 @@ export class Server {
    * contract operations.
    * 
    * @returns {Promise<Api.GetFeeStatsResponse>}  the fee stats
-   * @see https://soroban.stellar.org/api/methods/getFeeStats
+   * @see https://developers.stellar.org/docs/data/rpc/api-reference/methods/getFeeStats
    */
   public async getFeeStats(): Promise<Api.GetFeeStatsResponse> {
     return jsonrpc.postObject(this.serverURL.toString(), 'getFeeStats');
