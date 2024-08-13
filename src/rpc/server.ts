@@ -865,4 +865,14 @@ export class Server {
   public async getFeeStats(): Promise<Api.GetFeeStatsResponse> {
     return jsonrpc.postObject(this.serverURL.toString(), 'getFeeStats');
   }
+
+  /**
+   *  Provides information about the current version details of the Soroban RPC and core
+   *  @returns {Promise<Api.GetVersionInfoResponse>} the version info
+   *  @see https://developers.stellar.org/docs/data/rpc/api-reference/methods/getVersionInfo
+   * */
+  public async getVersionInfo(): Promise<Api.GetVersionInfoResponse> {
+    return jsonrpc.postObject(this.serverURL.toString(), 'getVersionInfo');
+  }
+
 }

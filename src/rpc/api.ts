@@ -363,6 +363,14 @@ export namespace Api {
     stateChanges?: RawLedgerEntryChange[];
   }
 
+  export interface GetVersionInfoResponse {
+    version: string;
+    commit_hash: string;
+    build_time_stamp: string;
+    captive_core_version: string;
+    protocol_version: number; // uint32
+  }
+
   export interface GetFeeStatsResponse {
     sorobanInclusionFee: FeeDistribution;
     inclusionFee: FeeDistribution;
