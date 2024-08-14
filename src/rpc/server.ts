@@ -867,7 +867,7 @@ export class Server {
   }
 
   /**
-   *  Provides information about the current version details of the Soroban RPC and core
+   *  Provides information about the current version details of the Soroban RPC and captive-core
    *  @returns {Promise<Api.GetVersionInfoResponse>} the version info
    *  @see https://developers.stellar.org/docs/data/rpc/api-reference/methods/getVersionInfo
    * */
