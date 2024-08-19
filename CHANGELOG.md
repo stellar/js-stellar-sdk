@@ -8,7 +8,7 @@ A breaking change will get clearly marked in this log.
 
 
 ### Added
-- `rpc.Server` now has a `getVersionInfo` method which retrieves version information about the RPC and Captive core. RPC manages its own, pared-down version of Stellar Core optimized for its own subset of needs. we'll refer to this as a "Captive Core" instance. ([#997](https://github.com/stellar/js-stellar-sdk/issues/997)):
+- `rpc.Server` now has a `getVersionInfo` method which reports version information of the RPC instance it is connected to. ([#997](https://github.com/stellar/js-stellar-sdk/issues/997)):
 
 ```typescript
 

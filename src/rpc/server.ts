@@ -867,10 +867,11 @@ export class Server {
   }
 
   /**
-   *  Provides information about the current version details of the Soroban RPC and captive-core
-   *  @returns {Promise<Api.GetVersionInfoResponse>} the version info
-   *  @see https://developers.stellar.org/docs/data/rpc/api-reference/methods/getVersionInfo
-   * */
+   * Provides information about the current version details of the Soroban RPC and captive-core
+   *
+   * @returns {Promise<Api.GetVersionInfoResponse>} the version info
+   * @see https://developers.stellar.org/docs/data/rpc/api-reference/methods/getVersionInfo
+   */
   public async getVersionInfo(): Promise<Api.GetVersionInfoResponse> {
     return jsonrpc.postObject(this.serverURL.toString(), 'getVersionInfo');
   }
