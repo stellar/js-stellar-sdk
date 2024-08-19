@@ -7,6 +7,22 @@ A breaking change will get clearly marked in this log.
 ## Unreleased
 
 
+### Added
+- `rpc.Server` now has a `getVersionInfo` method which reports version information of the RPC instance it is connected to. ([#997](https://github.com/stellar/js-stellar-sdk/issues/997)):
+
+```typescript
+
+    export interface GetVersionInfoResponse {
+        version: string;
+        commit_hash: string;
+        build_time_stamp: string;
+        captive_core_version: string;
+        protocol_version: number;
+    }
+
+```
+
+
 ## [v12.2.0](https://github.com/stellar/js-stellar-sdk/compare/v12.1.0...v12.2.0)
 
 ### Fixed
