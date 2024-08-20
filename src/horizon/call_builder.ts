@@ -197,7 +197,7 @@ export class CallBuilder<
       return es;
     };
 
-  
+
 
     createEventSource();
     return () => {
@@ -415,15 +415,15 @@ export class CallBuilder<
    */
   // eslint-disable-next-line require-await
   private async _handleNetworkError(error: NetworkError): Promise<void> {
-    if (error.response && error.response.status && error.response.statusText) {
+    if (error.response && error.response.status) {
       switch (error.response.status) {
         case 404:
           return Promise.reject(
-            new NotFoundError(error.response.statusText, error.response.data),
+            new NotFoundError(error.response.statusText ?? "Not Found", error.response.data),
           );
         default:
           return Promise.reject(
-            new NetworkError(error.response.statusText, error.response.data),
+            new NetworkError(error.response.statusText ?? "Unknown", error.response.data),
           );
       }
     } else {

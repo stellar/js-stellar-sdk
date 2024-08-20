@@ -21,13 +21,42 @@ describe("Custom Types Tests", function () {
       keypair: undefined,
       contractId: this.context.contractId,
     });
-    expect((await client2.hello({ hello: "anonymous" })).result).to.equal(
-      "anonymous",
-    );
+    expect((await client2.i32_({ i32_: 1 })).result).to.equal(1);
+  });
+
+  it("should increment the counter correctly", async function () {
+    const { result: startingBalance } = await this.context.client.get_count();
+    const inc = await this.context.client.inc();
+    const incrementResponse = await inc.signAndSend();
+    expect(incrementResponse.result).to.equal(startingBalance + 1);
+    expect(startingBalance).to.equal(0); // Assuming the counter starts at 0
+    const { result: newBalance } = await this.context.client.get_count();
+    expect(newBalance).to.equal(startingBalance + 1);
+  });
+
+  it("should accept only options object for methods with no arguments", async function () {
+    const inc = await this.context.client.inc({ simulate: false });
+    expect(inc.simulation).to.be.undefined;
   });
 
   it("woid", async function () {
     expect((await this.context.client.woid()).result).to.be.null;
+  });
+
+  it("should authenticate the user correctly", async function () {
+    const { result } = await this.context.client.auth({
+      addr: this.context.publicKey,
+      world: "lol",
+    });
+    expect(result).to.equal(this.context.publicKey);
+  });
+
+  it("should authenticate the user correctly", async function () {
+    const { result } = await this.context.client.auth({
+      addr: this.context.publicKey,
+      world: "lol",
+    });
+    expect(result).to.equal(this.context.publicKey);
   });
 
   it("u32_fail_on_even", async function () {

@@ -4,3 +4,4 @@ yarn.lock
 contract-*.txt
 .soroban
 wasms/specs/*.json
+test-contracts
