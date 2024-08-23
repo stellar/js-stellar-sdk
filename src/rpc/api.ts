@@ -129,6 +129,55 @@ export namespace Api {
     createdAt?: number;
   }
 
+  export interface GetTransactionsRequest {
+    startLedger: number;
+    cursor?: string;
+    limit?: number;
+  }
+
+  export interface RawTransactionInfo {
+    status: GetTransactionStatus;
+    ledger: number;
+    createdAt: number;
+    applicationOrder: number;
+    feeBump: boolean;
+    envelopeXdr?: string;
+    resultXdr?: string;
+    resultMetaXdr?: string;
+    diagnosticEventsXdr?: string[];
+  }
+
+  export interface TransactionInfo {
+    status: GetTransactionStatus;
+    ledger: number;
+    createdAt: number;
+    applicationOrder: number;
+    feeBump: boolean;
+    envelopeXdr: xdr.TransactionEnvelope;
+    resultXdr: xdr.TransactionResult;
+    resultMetaXdr: xdr.TransactionMeta;
+    returnValue?: xdr.ScVal;
+    diagnosticEventsXdr?: string[];
+  }
+
+  export interface GetTransactionsResponse {
+    transactions: TransactionInfo[];
+    latestLedger: number;
+    latestLedgerCloseTimestamp: number;
+    oldestLedger: number;
+    oldestLedgerCloseTimestamp: number;
+    cursor: string;
+  }
+
+  export interface RawGetTransactionsResponse {
+    transactions: RawTransactionInfo[];
+    latestLedger: number;
+    latestLedgerCloseTimestamp: number;
+    oldestLedger: number;
+    oldestLedgerCloseTimestamp: number;
+    cursor: string;
+  }
+
   export type EventType = 'contract' | 'system' | 'diagnostic';
 
   export interface EventFilter {

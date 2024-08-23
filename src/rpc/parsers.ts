@@ -26,6 +26,32 @@ export function parseRawSendTransaction(
   return { ...r } as Api.BaseSendTransactionResponse;
 }
 
+export function parseRawTransactions(
+    r: Api.RawTransactionInfo
+): Api.TransactionInfo {
+  const info : Api.TransactionInfo = {
+    status: r.status,
+    ledger: r.ledger!,
+    createdAt: r.createdAt!,
+    applicationOrder: r.applicationOrder!,
+    feeBump: r.feeBump!,
+    envelopeXdr: xdr.TransactionEnvelope.fromXDR(r.envelopeXdr!, 'base64'),
+    resultXdr: xdr.TransactionResult.fromXDR(r.resultXdr!, 'base64'),
+    resultMetaXdr: xdr.TransactionMeta.fromXDR(r.resultMetaXdr!, 'base64'),
+  }
+
+  const meta = info.resultMetaXdr
+  if (meta.switch() === 3 && meta.v3().sorobanMeta() !== null && r.status === Api.GetTransactionStatus.SUCCESS) {
+      info.returnValue = meta.v3().sorobanMeta()?.returnValue();
+  }
+
+  if (r.diagnosticEventsXdr) {
+    info.diagnosticEventsXdr = r.diagnosticEventsXdr;
+  }
+
+  return info;
+}
+
 export function parseRawEvents(
   r: Api.RawGetEventsResponse
 ): Api.GetEventsResponse {
