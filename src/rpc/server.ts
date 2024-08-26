@@ -485,8 +485,6 @@ export class Server {
     return jsonrpc.postObject(this.serverURL.toString(), 'getTransaction', {hash});
   }
 
-  // Add this method to the Server class in server.ts
-
   /**
    * Fetch transactions starting from a given start ledger or a cursor. The end ledger is the latest ledger
    * in that RPC instance.
