@@ -1,4 +1,4 @@
-import http from "./http";
+import http from "./axios";
 
 export type Id = string | number;
 

@@ -4,7 +4,7 @@ import URITemplate from "urijs/src/URITemplate";
 import { BadRequestError, NetworkError, NotFoundError } from "../errors";
 
 import { HorizonApi } from "./horizon_api";
-import { HorizonHttpClient, version } from "./horizon_http_client";
+import { AxiosClient, version } from "./horizon_axios_client";
 import { ServerApi } from "./server_api";
 import type { Server } from "../federation";
 
@@ -353,7 +353,7 @@ export class CallBuilder<
       url = url.protocol(this.url.protocol());
     }
 
-    return HorizonHttpClient.get(url.toString())
+    return AxiosClient.get(url.toString())
       .then((response) => response.data)
       .catch(this._handleNetworkError);
   }

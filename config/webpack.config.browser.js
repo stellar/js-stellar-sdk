@@ -85,7 +85,7 @@ const config = {
       Buffer: ['buffer', 'Buffer']
     }),
     new webpack.DefinePlugin({
-      'process.env.USE_AXIOS': JSON.stringify(buildConfig.useAxios),
+      __USE_AXIOS__: JSON.stringify(buildConfig.useAxios),
     })
   ],
   watchOptions: {

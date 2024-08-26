@@ -58,14 +58,38 @@ function createFetchClient(fetchConfig: HttpClientRequestConfig = {}): HttpClien
     headers: fetchConfig.headers || {}
   };
   const instance: HttpClient = {
-    get: <T = any>(url: string, config?: HttpClientRequestConfig): Promise<HttpClientResponse<T>> =>
-      request<T>({ ...instance.defaults, ...config, url, method: 'GET' }),
-    post: <T = any>(url: string, data?: any, config?: HttpClientRequestConfig): Promise<HttpClientResponse<T>> =>
-      request<T>({ ...instance.defaults, ...config, url, method: 'POST', data }),
-    put: <T = any>(url: string, data?: any, config?: HttpClientRequestConfig): Promise<HttpClientResponse<T>> =>
-      request<T>({ ...instance.defaults, ...config, url, method: 'PUT', data }),
-    delete: <T = any>(url: string, config?: HttpClientRequestConfig): Promise<HttpClientResponse<T>> =>
-      request<T>({ ...instance.defaults, ...config, url, method: 'DELETE' }),
+    get: <T = any>(url: string, config?: HttpClientRequestConfig): Promise<HttpClientResponse<T>> => {
+      console.log(`GET request to ${url}`, config);
+      return request<T>({ ...instance.defaults, ...config, url, method: 'GET' })
+        .then(response => {
+          console.log(`GET response from ${url}`, response);
+          return response;
+        });
+    },
+    post: <T = any>(url: string, data?: any, config?: HttpClientRequestConfig): Promise<HttpClientResponse<T>> => {
+      console.log(`POST request to ${url}`, data, config);
+      return request<T>({ ...instance.defaults, ...config, url, method: 'POST', data })
+        .then(response => {
+          console.log(`POST response from ${url}`, response);
+          return response;
+        });
+    },
+    put: <T = any>(url: string, data?: any, config?: HttpClientRequestConfig): Promise<HttpClientResponse<T>> => {
+      console.log(`PUT request to ${url}`, data, config);
+      return request<T>({ ...instance.defaults, ...config, url, method: 'PUT', data })
+        .then(response => {
+          console.log(`PUT response from ${url}`, response);
+          return response;
+        });
+    },
+    delete: <T = any>(url: string, config?: HttpClientRequestConfig): Promise<HttpClientResponse<T>> => {
+      console.log(`DELETE request to ${url}`, config);
+      return request<T>({ ...instance.defaults, ...config, url, method: 'DELETE' })
+        .then(response => {
+          console.log(`DELETE response from ${url}`, response);
+          return response;
+        });
+    },
     interceptors: {
       request: new InterceptorManager(),
       response: new InterceptorManager(),
