@@ -85,6 +85,21 @@ If you don't want to use or install Bower, you can copy the packaged JS files fr
 | Always make sure that you are using the latest version number. They can be found on the [releases page](https://github.com/stellar/js-stellar-sdk/releases) in GitHub. |
 |----|
 
+### Custom Installation
+
+#### Build with default configuration (all features enabled)
+npm run build:browser
+
+#### Build without Axios
+USE_AXIOS=false npm run build:browser:custom
+
+#### Build without EventSource
+USE_EVENTSOURCE=false npm run build:browser:custom
+
+#### Build without both Axios and EventSource
+USE_AXIOS=false USE_EVENTSOURCE=false npm run build:browser:custom
+
+
 ## Usage
 
 The usage documentation for this library lives in a handful of places:

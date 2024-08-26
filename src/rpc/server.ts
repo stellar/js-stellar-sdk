@@ -13,7 +13,7 @@ import {
 
 import type { TransactionBuilder } from '@stellar/stellar-base';
 // eslint-disable-next-line import/no-named-as-default
-import AxiosClient from './axios';
+import RpcHttpClient from './http';
 import { Api as FriendbotApi } from '../friendbot';
 import * as jsonrpc from './jsonrpc';
 import { Api } from './api';
@@ -111,7 +111,7 @@ export class Server {
     this.serverURL = URI(serverURL);
 
     if (opts.headers && Object.keys(opts.headers).length !== 0) {
-      AxiosClient.interceptors.request.use((config: any) => {
+      RpcHttpClient.interceptors.request.use((config: any) => {
         // merge the custom headers into any existing headers
         config.headers = Object.assign(config.headers, opts.headers);
         return config;
@@ -834,7 +834,7 @@ export class Server {
     }
 
     try {
-      const response = await AxiosClient.post<FriendbotApi.Response>(
+      const response = await RpcHttpClient.post<FriendbotApi.Response>(
         `${friendbotUrl}?addr=${encodeURIComponent(account)}`
       );
 

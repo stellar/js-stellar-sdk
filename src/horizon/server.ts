@@ -39,9 +39,9 @@ import { TradeAggregationCallBuilder } from "./trade_aggregation_call_builder";
 import { TradesCallBuilder } from "./trades_call_builder";
 import { TransactionCallBuilder } from "./transaction_call_builder";
 // eslint-disable-next-line import/no-named-as-default 
-import AxiosClient, {
+import HorizonHttpClient, {
   getCurrentServerTime,
-} from "./horizon_axios_client";
+} from "./horizon_http_client";
 
 export const SUBMIT_TRANSACTION_TIMEOUT = 60 * 1000;
 
@@ -97,7 +97,7 @@ export class Server {
       Object.assign(customHeaders, opts.headers);
     }
     if (Object.keys(customHeaders).length > 0) {
-      AxiosClient.interceptors.request.use((config) => {
+      HorizonHttpClient.interceptors.request.use((config) => {
         // merge the custom headers with an existing headers, where customs
         // override defaults
         config.headers = Object.assign(config.headers, customHeaders);
@@ -165,7 +165,7 @@ export class Server {
 
     // otherwise, retry (by calling the root endpoint)
     // toString automatically adds the trailing slash
-    await AxiosClient.get(URI(this.serverURL as any).toString());
+    await HorizonHttpClient.get(URI(this.serverURL as any).toString());
     return this.fetchTimebounds(seconds, true);
   }
 
@@ -314,7 +314,7 @@ export class Server {
         .toString("base64"),
     );
 
-    return AxiosClient.post(
+    return HorizonHttpClient.post(
       URI(this.serverURL as any)
         .segment("transactions")
         .toString(),
@@ -541,7 +541,7 @@ export class Server {
             .toString("base64"),
     );
 
-    return AxiosClient.post(
+    return HorizonHttpClient.post(
         URI(this.serverURL as any)
             .segment("transactions_async")
             .toString(),

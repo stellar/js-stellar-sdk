@@ -1,5 +1,5 @@
 /* eslint-disable global-require */
-import axios, { AxiosResponse } from "axios";
+import { create, HttpClientResponse } from "../http-client";
 import URI from "urijs";
 
 // eslint-disable-next-line prefer-import/prefer-import-over-require 
@@ -24,7 +24,7 @@ export interface ServerTime {
  */
 export const SERVER_TIME_MAP: Record<string, ServerTime> = {};
 
-export const AxiosClient = axios.create({
+export const HorizonHttpClient = create({
   headers: {
     "X-Client-Name": "js-stellar-sdk",
     "X-Client-Version": version,
@@ -35,10 +35,13 @@ function toSeconds(ms: number): number {
   return Math.floor(ms / 1000);
 }
 
-AxiosClient.interceptors.response.use(
-  (response: AxiosResponse) => {
+HorizonHttpClient.interceptors.response.use(
+  (response: HttpClientResponse ) => {
     const hostname = URI(response.config.url!).hostname();
-    const serverTime = toSeconds(Date.parse(response.headers.date));
+    let serverTime = 0;
+    if (typeof response.headers.date === 'string') {
+      serverTime = toSeconds(Date.parse(response.headers.date));
+    }
     const localTimeRecorded = toSeconds(new Date().getTime());
 
     if (!Number.isNaN(serverTime)) {
@@ -52,7 +55,7 @@ AxiosClient.interceptors.response.use(
   },
 );
 
-export default AxiosClient;
+export default HorizonHttpClient;
 
 /**
  * Given a hostname, get the current time of that server (i.e., use the last-

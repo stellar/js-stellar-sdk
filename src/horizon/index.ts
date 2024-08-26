@@ -7,9 +7,9 @@ export * from "./account_response";
 
 export { Server } from "./server";
 export {
-  default as AxiosClient,
+  default as HorizonHttpClient,
   SERVER_TIME_MAP,
   getCurrentServerTime
-} from "./horizon_axios_client";
+} from "./horizon_http_client";
 
 export default module.exports;

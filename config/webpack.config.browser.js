@@ -4,6 +4,7 @@ var webpack = require('webpack');
 var ESLintPlugin = require('eslint-webpack-plugin');
 var TerserPlugin = require('terser-webpack-plugin');
 var NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
+var buildConfig = require('./build.config');
 
 const config = {
   target: 'web',
@@ -16,9 +17,11 @@ const config = {
     fallback: {
       crypto: require.resolve('crypto-browserify'),
       stream: require.resolve('stream-browserify'),
-      buffer: require.resolve('buffer')
+      buffer: require.resolve('buffer'),
+      querystring: require.resolve("querystring-es3"),
+      net: false,
     },
-    extensions: ['.ts', '.js']
+    extensions: ['.ts', '.js'],
   },
   output: {
     clean: true,
@@ -26,6 +29,12 @@ const config = {
       name: 'StellarSdk',
       type: 'umd',
       umdNamedDefine: true
+    },
+    filename: (pathData) => {
+      let name = pathData.chunk.name;
+      if (!buildConfig.useAxios) name += '-no-axios';
+      if (!buildConfig.useEventSource) name += '-no-eventsource';
+      return name + '.js';
     },
     path: path.resolve(__dirname, '../dist')
   },
@@ -42,7 +51,11 @@ const config = {
             cacheDirectory: true
           }
         }
-      }
+      },
+      {
+        test: /node_modules\/https-proxy-agent\//,
+        use: 'null-loader',
+      },
     ]
   },
   optimization: {
@@ -70,6 +83,9 @@ const config = {
     }),
     new webpack.ProvidePlugin({
       Buffer: ['buffer', 'Buffer']
+    }),
+    new webpack.DefinePlugin({
+      'process.env.USE_AXIOS': JSON.stringify(buildConfig.useAxios),
     })
   ],
   watchOptions: {

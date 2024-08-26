@@ -6,7 +6,7 @@ export * from "./api";
 
 // soroban-client classes to expose
 export { Server, Durability } from "./server";
-export { default as AxiosClient } from "./axios";
+export { default as RpcHttpClient } from "./http";
 export { parseRawSimulation, parseRawEvents } from "./parsers";
 export * from "./transaction";
 
