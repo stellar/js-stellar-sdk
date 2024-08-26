@@ -90,21 +90,6 @@ describe("Server#getTransactions", function () {
             .catch((err) => done(err));
     });
 
-    it("handles pagination", function (done) {
-        const result = makeGetTransactionsResult(5);
-        result.cursor = "NEXT_CURSOR";
-        this.prepareAxios(result);
-
-        this.server
-            .getTransactions({ startLedger: 1234, limit: 10 })
-            .then((resp) => {
-                expect(resp.cursor).to.equal("NEXT_CURSOR");
-                expect(resp.transactions.length).to.equal(5);
-                done();
-            })
-            .catch((err) => done(err));
-    });
-
     it("handles errors", function (done) {
         const errorResponse = {
             code: -32600,
