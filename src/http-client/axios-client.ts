@@ -1,5 +1,6 @@
-import axios, { AxiosInstance, AxiosResponse } from 'axios';
-import { HttpClient, HttpClientDefaults, HttpClientRequestConfig, HttpClientResponse, HttpResponseHeaders } from './types';
+import axios from 'axios';
+//import axios, { AxiosInstance, AxiosResponse } from 'axios';
+/*import { HttpClient, HttpClientDefaults, HttpClientRequestConfig, HttpClientResponse, HttpResponseHeaders } from './types';
 
 const transformResponse = <T>(axiosResponse: AxiosResponse<T>): HttpClientResponse<T> => ({
   data: axiosResponse.data,
@@ -48,8 +49,10 @@ function createAxiosClient(axiosConfig: HttpClientRequestConfig = {}): HttpClien
     defaults: axiosInstance.defaults as HttpClientDefaults,
   };
   return instance;
-}
+}*/
 
-export const axiosClient = createAxiosClient();
+//export const axiosClient = createAxiosClient();
+export const axiosClient = axios;
 
-export { createAxiosClient as create };
+//export { createAxiosClient as create };
+export const create = axios.create;
