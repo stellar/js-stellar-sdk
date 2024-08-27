@@ -1,4 +1,4 @@
-import axios from "axios";
+import { httpClient } from "../http-client";
 import toml from "toml";
 import { Networks } from "@stellar/stellar-base";
 
@@ -9,7 +9,7 @@ export const STELLAR_TOML_MAX_SIZE = 100 * 1024;
 
 // axios timeout doesn't catch missing urls, e.g. those with no response
 // so we use the axios cancel token to ensure the timeout
-const CancelToken = axios.CancelToken;
+const CancelToken = httpClient.CancelToken;
 
 /** Resolver allows resolving `stellar.toml` files. */
 export class Resolver {
@@ -46,7 +46,7 @@ export class Resolver {
 
     const protocol = allowHttp ? "http" : "https";
 
-    return axios
+    return httpClient
       .get(`${protocol}://${domain}/.well-known/stellar.toml`, {
         maxContentLength: STELLAR_TOML_MAX_SIZE,
         cancelToken: timeout

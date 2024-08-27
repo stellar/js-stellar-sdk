@@ -32,9 +32,19 @@ const config = {
     },
     filename: (pathData) => {
       let name = pathData.chunk.name;
+      let suffix = '';
+      
+      if (name.endsWith('.min')) {
+        name = name.slice(0, -4); // Remove .min
+        suffix = '.min.js';
+      } else {
+        suffix = '.js';
+      }
+
       if (!buildConfig.useAxios) name += '-no-axios';
       if (!buildConfig.useEventSource) name += '-no-eventsource';
-      return name + '.js';
+      
+      return name + suffix;
     },
     path: path.resolve(__dirname, '../dist')
   },

@@ -19,6 +19,10 @@ export interface HttpClientResponse<T = any> {
   config: any;
 }
 
+export interface CancelToken {
+  throwIfRequested(): void;
+}
+
 export interface HttpClientRequestConfig<D = any> {
   url?: string;
   method?: string;
@@ -29,6 +33,7 @@ export interface HttpClientRequestConfig<D = any> {
   headers?: Headers;
   params?: Record<string, any>;
   maxContentLength?: number;
+  cancelToken?: CancelToken;
 }
 export interface HttpClient {
   get: <T = any>(url: string, config?: HttpClientRequestConfig) => Promise<HttpClientResponse<T>>;
@@ -40,9 +45,37 @@ export interface HttpClient {
     response: InterceptorManager;
   };
   defaults: HttpClientDefaults;
+  CancelToken: typeof CancelToken;
+  isCancel: (value: any) => boolean;
 }
 
 export interface InterceptorManager {
   use: (onFulfilled?: (value: any) => any | Promise<any>, onRejected?: (error: any) => any) => number;
   eject: (id: number) => void;
+}
+
+export class CancelToken {
+  cancel: ((message?: string) => void) | null = null;
+
+  constructor(executor: (cancel: (message?: string) => void) => void) {
+    executor((message?: string) => {
+      if (this.cancel) {
+        this.cancel(message);
+      }
+    });
+  }
+
+  static source() {
+    let cancel: (message?: string) => void;
+    const token = new CancelToken((c) => {
+      cancel = c;
+    });
+    return { token, cancel: cancel! };
+  }
+
+  throwIfRequested() {
+    if (this.cancel) {
+      throw new Error('Request canceled');
+    }
+  }
 }

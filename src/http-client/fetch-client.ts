@@ -1,5 +1,6 @@
+// eslint-disable-next-line max-classes-per-file
 import { GaxiosOptions, GaxiosPromise, GaxiosResponse, request } from 'gaxios';
-import { HttpClient, HttpClientDefaults, HttpClientRequestConfig, HttpClientResponse } from './types';
+import { CancelToken, HttpClient, HttpClientDefaults, HttpClientRequestConfig, HttpClientResponse } from './types';
 
 export interface HttpResponse<T = any> extends GaxiosResponse<T> {
   // You can add any additional properties here if needed
@@ -7,6 +8,7 @@ export interface HttpResponse<T = any> extends GaxiosResponse<T> {
 
 export interface FetchClientConfig extends GaxiosOptions {
   // You can add any additional configuration options here
+  cancelToken?: CancelToken;
 }
 
 export interface FetchClient {
@@ -57,10 +59,37 @@ function createFetchClient(fetchConfig: HttpClientRequestConfig = {}): HttpClien
     ...fetchConfig,
     headers: fetchConfig.headers || {}
   };
+
+  const makeRequest = <T>(config: FetchClientConfig): Promise<HttpClientResponse<T>> => {
+    if (config.cancelToken) {
+      config.cancelToken.throwIfRequested();
+    }
+
+    return new Promise((resolve, reject) => {
+      const abortController = new AbortController();
+      config.signal = abortController.signal;
+
+      if (config.cancelToken) {
+        config.cancelToken.cancel = (message) => {
+          abortController.abort();
+          reject(new Error(message || 'Request canceled'));
+        };
+      }
+
+      request<T>(config)
+        .then(resolve)
+        .catch(reject);
+    });
+  };
+
+  function isCancel(value: any): boolean {
+    return value instanceof Error && value.message === 'Request canceled';
+  }
+
   const instance: HttpClient = {
     get: <T = any>(url: string, config?: HttpClientRequestConfig): Promise<HttpClientResponse<T>> => {
       console.log(`GET request to ${url}`, config);
-      return request<T>({ ...instance.defaults, ...config, url, method: 'GET' })
+      return makeRequest<T>({ ...instance.defaults, ...config, url, method: 'GET' })
         .then(response => {
           console.log(`GET response from ${url}`, response);
           return response;
@@ -68,7 +97,7 @@ function createFetchClient(fetchConfig: HttpClientRequestConfig = {}): HttpClien
     },
     post: <T = any>(url: string, data?: any, config?: HttpClientRequestConfig): Promise<HttpClientResponse<T>> => {
       console.log(`POST request to ${url}`, data, config);
-      return request<T>({ ...instance.defaults, ...config, url, method: 'POST', data })
+      return makeRequest<T>({ ...instance.defaults, ...config, url, method: 'POST', data })
         .then(response => {
           console.log(`POST response from ${url}`, response);
           return response;
@@ -76,7 +105,7 @@ function createFetchClient(fetchConfig: HttpClientRequestConfig = {}): HttpClien
     },
     put: <T = any>(url: string, data?: any, config?: HttpClientRequestConfig): Promise<HttpClientResponse<T>> => {
       console.log(`PUT request to ${url}`, data, config);
-      return request<T>({ ...instance.defaults, ...config, url, method: 'PUT', data })
+      return makeRequest<T>({ ...instance.defaults, ...config, url, method: 'PUT', data })
         .then(response => {
           console.log(`PUT response from ${url}`, response);
           return response;
@@ -84,12 +113,14 @@ function createFetchClient(fetchConfig: HttpClientRequestConfig = {}): HttpClien
     },
     delete: <T = any>(url: string, config?: HttpClientRequestConfig): Promise<HttpClientResponse<T>> => {
       console.log(`DELETE request to ${url}`, config);
-      return request<T>({ ...instance.defaults, ...config, url, method: 'DELETE' })
+      return makeRequest<T>({ ...instance.defaults, ...config, url, method: 'DELETE' })
         .then(response => {
           console.log(`DELETE response from ${url}`, response);
           return response;
         });
     },
+    CancelToken,
+    isCancel,
     interceptors: {
       request: new InterceptorManager(),
       response: new InterceptorManager(),
