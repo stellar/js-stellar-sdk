@@ -87,18 +87,10 @@ If you don't want to use or install Bower, you can copy the packaged JS files fr
 
 ### Custom Installation
 
-#### Build with default configuration (all features enabled)
-npm run build:browser
+You can configure whether or not to build the browser bundle with the axios dependency. In order to turn off the axios dependency, set the USE_AXIOS environment variable to false. 
 
 #### Build without Axios
-USE_AXIOS=false npm run build:browser:custom
-
-#### Build without EventSource
-USE_EVENTSOURCE=false npm run build:browser:custom
-
-#### Build without both Axios and EventSource
-USE_AXIOS=false USE_EVENTSOURCE=false npm run build:browser:custom
-
+USE_AXIOS=false npm run build:browser
 
 ## Usage
 
