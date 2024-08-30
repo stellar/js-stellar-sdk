@@ -1,134 +1,210 @@
-// eslint-disable-next-line max-classes-per-file
-import { GaxiosOptions, GaxiosPromise, GaxiosResponse, request } from 'gaxios';
-import { CancelToken, HttpClient, HttpClientDefaults, HttpClientRequestConfig, HttpClientResponse } from './types';
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, CreateAxiosDefaults, } from 'feaxios';
+import { CancelToken, HttpClient, HttpClientRequestConfig, HttpClientResponse, Interceptor, } from './types';
 
-export interface HttpResponse<T = any> extends GaxiosResponse<T> {
+export interface HttpResponse<T = any> extends AxiosResponse<T> {
   // You can add any additional properties here if needed
 }
 
-export interface FetchClientConfig extends GaxiosOptions {
+export interface FetchClientConfig<T = any> extends AxiosRequestConfig {
+  adapter?: (config: HttpClientRequestConfig) => Promise<HttpClientResponse<T>>;
   // You can add any additional configuration options here
   cancelToken?: CancelToken;
 }
 
-export interface FetchClient {
-  get: <T = any>(url: string, config?: GaxiosOptions) => GaxiosPromise<T>;
-  post: <T = any>(url: string, data?: any, config?: GaxiosOptions) => GaxiosPromise<T>;
-  put: <T = any>(url: string, data?: any, config?: GaxiosOptions) => GaxiosPromise<T>;
-  delete: <T = any>(url: string, config?: GaxiosOptions) => GaxiosPromise<T>;
-  interceptors: {
-    request: InterceptorManager;
-    response: InterceptorManager;
-  };
-  defaults: FetchClientConfig;
-}
 
-class InterceptorManager {
+type InterceptorFulfilled<V> = (value: V) => V | Promise<V>;
+type InterceptorRejected = (error: any) => any;
 
-  private handlers: Array<{
-    fulfilled: (value: any) => any | Promise<any>;
-    rejected: (error: any) => any;
-  }> = [];
+class InterceptorManager<V> {
+  handlers: Array<Interceptor<V> | null> = [];
 
-  use(onFulfilled?: (value: any) => any | Promise<any>, onRejected?: (error: any) => any): number {
+  use(fulfilled: InterceptorFulfilled<V>, rejected?: InterceptorRejected): number {
     this.handlers.push({
-      fulfilled: onFulfilled || ((value) => value),
-      rejected: onRejected || ((error) => Promise.reject(error)),
+      fulfilled,
+      rejected,
     });
     return this.handlers.length - 1;
   }
 
   eject(id: number): void {
     if (this.handlers[id]) {
-      this.handlers[id] = null as any;
+      this.handlers[id] = null;
     }
   }
 
-  forEach(fn: (handler: any) => void): void {
-    this.handlers.forEach((handler) => {
-      if (handler !== null) {
-        fn(handler);
+  forEach(fn: (interceptor: Interceptor<V>) => void): void {
+    this.handlers.forEach((h) => {
+      if (h !== null) {
+        fn(h);
       }
     });
   }
 }
+function getFormConfig(config?: HttpClientRequestConfig): HttpClientRequestConfig {
+  const formConfig = config || {};
+  formConfig.headers = new Headers(formConfig.headers || {});
+  formConfig.headers.set('Content-Type', 'application/x-www-form-urlencoded');
+  return formConfig;
+}
 
 function createFetchClient(fetchConfig: HttpClientRequestConfig = {}): HttpClient {
-  console.log("Creating fetch client");
-  const defaults: HttpClientDefaults = {
+  const defaults: CreateAxiosDefaults = {
     ...fetchConfig,
     headers: fetchConfig.headers || {}
   };
 
-  const makeRequest = <T>(config: FetchClientConfig): Promise<HttpClientResponse<T>> => {
-    if (config.cancelToken) {
-      config.cancelToken.throwIfRequested();
-    }
+  const instance: AxiosInstance = axios.create(defaults);
+  const requestInterceptors = new InterceptorManager<HttpClientRequestConfig>();
+  const responseInterceptors = new InterceptorManager<HttpClientResponse>();
 
-    return new Promise((resolve, reject) => {
-      const abortController = new AbortController();
-      config.signal = abortController.signal;
+  const httpClient: HttpClient = {
+    interceptors: {
+      request: requestInterceptors,
+      response: responseInterceptors
+    },
 
-      if (config.cancelToken) {
-        config.cancelToken.cancel = (message) => {
-          abortController.abort();
-          reject(new Error(message || 'Request canceled'));
-        };
-      }
+    defaults: {
+      ...defaults,
+      adapter: (config: HttpClientRequestConfig) => instance.request(config),
+    },
 
-      request<T>(config)
+    create(config?: HttpClientRequestConfig): HttpClient {
+      return createFetchClient({ ...this.defaults, ...config });
+    },
+
+    makeRequest<T>(config: FetchClientConfig): Promise<HttpClientResponse<T>> {
+      return new Promise((resolve, reject) => {
+        const abortController = new AbortController();
+        config.signal = abortController.signal;
+
+        if (config.cancelToken) {
+          config.cancelToken.promise.then(() => {
+            abortController.abort();
+            reject(new Error('Request canceled'));
+          });
+        }
+
+        // Apply request interceptors
+        let modifiedConfig = config;
+        if (requestInterceptors.handlers.length > 0) {
+          const chain = requestInterceptors.handlers
+            .filter((interceptor): interceptor is NonNullable<typeof interceptor> => interceptor !== null)
+            .flatMap((interceptor) => [
+              interceptor.fulfilled,
+              interceptor.rejected
+            ]);
+          for (let i = 0, len = chain.length; i < len; i += 2) {
+            const onFulfilled = chain[i];
+            const onRejected = chain[i + 1];
+            try {
+              if (onFulfilled) modifiedConfig = onFulfilled(modifiedConfig);
+            } catch (error) {
+              if (onRejected) (onRejected as InterceptorRejected)?.(error);
+              reject(error);
+              return;
+            }
+          }
+        }
+
+        const adapter = modifiedConfig.adapter || this.defaults.adapter;
+        if (!adapter) {
+          throw new Error('No adapter available');
+        }
+        let responsePromise = adapter(modifiedConfig).then((axiosResponse) => {
+          // Transform AxiosResponse to HttpClientResponse
+          const httpClientResponse: HttpClientResponse<T> = {
+            data: axiosResponse.data,
+            headers: axiosResponse.headers as any, // You might want to transform headers more carefully
+            config: axiosResponse.config,
+            status: axiosResponse.status,
+            statusText: axiosResponse.statusText,
+          };
+          return httpClientResponse;
+        });
+
+        // Apply response interceptors
+        if (responseInterceptors.handlers.length > 0) {
+          const chain = responseInterceptors.handlers
+            .filter((interceptor): interceptor is NonNullable<typeof interceptor> => interceptor !== null)
+            .flatMap((interceptor) => [interceptor.fulfilled, interceptor.rejected]);
+
+          for (let i = 0, len = chain.length; i < len; i += 2) {
+            responsePromise = responsePromise.then(
+              (response) => {
+                const fulfilledInterceptor = chain[i];
+                if (typeof fulfilledInterceptor === 'function') {
+                  return fulfilledInterceptor(response);
+                }
+                return response;
+              },
+              (error) => {
+                const rejectedInterceptor = chain[i + 1];
+                if (typeof rejectedInterceptor === 'function') {
+                  return rejectedInterceptor(error);
+                }
+                throw error;
+              }
+            ).then((interceptedResponse) => interceptedResponse);
+          }
+        }
+
+        // Resolve or reject the final promise
+        responsePromise
         .then(resolve)
         .catch(reject);
-    });
-  };
+      });
+    },
 
-  function isCancel(value: any): boolean {
-    return value instanceof Error && value.message === 'Request canceled';
-  }
 
-  const instance: HttpClient = {
-    get: <T = any>(url: string, config?: HttpClientRequestConfig): Promise<HttpClientResponse<T>> => {
-      console.log(`GET request to ${url}`, config);
-      return makeRequest<T>({ ...instance.defaults, ...config, url, method: 'GET' })
-        .then(response => {
-          console.log(`GET response from ${url}`, response);
-          return response;
-        });
+    get<T = any>(url: string, config?: HttpClientRequestConfig): Promise<HttpClientResponse<T>> {
+      return this.makeRequest({ ...this.defaults, ...config, url, method: 'get' });
     },
-    post: <T = any>(url: string, data?: any, config?: HttpClientRequestConfig): Promise<HttpClientResponse<T>> => {
-      console.log(`POST request to ${url}`, data, config);
-      return makeRequest<T>({ ...instance.defaults, ...config, url, method: 'POST', data })
-        .then(response => {
-          console.log(`POST response from ${url}`, response);
-          return response;
-        });
+
+    delete<T = any>(url: string, config?: HttpClientRequestConfig): Promise<HttpClientResponse<T>> {
+      return this.makeRequest({ ...this.defaults, ...config, url, method: 'delete' });
     },
-    put: <T = any>(url: string, data?: any, config?: HttpClientRequestConfig): Promise<HttpClientResponse<T>> => {
-      console.log(`PUT request to ${url}`, data, config);
-      return makeRequest<T>({ ...instance.defaults, ...config, url, method: 'PUT', data })
-        .then(response => {
-          console.log(`PUT response from ${url}`, response);
-          return response;
-        });
+
+    head<T = any>(url: string, config?: HttpClientRequestConfig): Promise<HttpClientResponse<T>> {
+      return this.makeRequest({ ...this.defaults, ...config, url, method: 'head' });
     },
-    delete: <T = any>(url: string, config?: HttpClientRequestConfig): Promise<HttpClientResponse<T>> => {
-      console.log(`DELETE request to ${url}`, config);
-      return makeRequest<T>({ ...instance.defaults, ...config, url, method: 'DELETE' })
-        .then(response => {
-          console.log(`DELETE response from ${url}`, response);
-          return response;
-        });
+
+    options<T = any>(url: string, config?: HttpClientRequestConfig): Promise<HttpClientResponse<T>> {
+      return this.makeRequest({ ...this.defaults, ...config, url, method: 'options' });
     },
+
+    post<T = any>(url: string, data?: any, config?: HttpClientRequestConfig): Promise<HttpClientResponse<T>> {
+      return this.makeRequest({ ...this.defaults, ...config, url, method: 'post', data });
+    },
+
+    put<T = any>(url: string, data?: any, config?: HttpClientRequestConfig): Promise<HttpClientResponse<T>> {
+      return this.makeRequest({ ...this.defaults, ...config, url, method: 'put', data });
+    },
+
+    patch<T = any>(url: string, data?: any, config?: HttpClientRequestConfig): Promise<HttpClientResponse<T>> {
+      return this.makeRequest({ ...this.defaults, ...config, url, method: 'patch', data });
+    },
+
+    postForm<T = any>(url: string, data?: any, config?: HttpClientRequestConfig): Promise<HttpClientResponse<T>> {
+      const formConfig = getFormConfig(config);
+      return this.makeRequest({ ...this.defaults, ...formConfig, url, method: 'post', data });
+    },
+
+    putForm<T = any>(url: string, data?: any, config?: HttpClientRequestConfig): Promise<HttpClientResponse<T>> {
+      const formConfig = getFormConfig(config);
+      return this.makeRequest({ ...this.defaults, ...formConfig, url, method: 'put', data });
+    },
+
+    patchForm<T = any>(url: string, data?: any, config?: HttpClientRequestConfig): Promise<HttpClientResponse<T>> {
+      const formConfig = getFormConfig(config);
+      return this.makeRequest({ ...this.defaults, ...formConfig, url, method: 'patch', data });
+    },
+
     CancelToken,
-    isCancel,
-    interceptors: {
-      request: new InterceptorManager(),
-      response: new InterceptorManager(),
-    },
-    defaults,
+    isCancel: (value: any): boolean => value instanceof Error && value.message === 'Request canceled',
   };
 
-  return instance;
+
+  return httpClient;
 }
 
 export const fetchClient = createFetchClient();

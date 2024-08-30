@@ -11,20 +11,16 @@ let httpClient: HttpClient;
 let create: (config?: HttpClientRequestConfig) => HttpClient;
 
 if (__USE_AXIOS__) {
-  console.log("Using Axios client");
-  // eslint-disable-next-line global-require
+  // eslint-disable-next-line global-require, prefer-import/prefer-import-over-require
   const axiosModule = require('./axios-client');
   httpClient = axiosModule.axiosClient;
   create = axiosModule.create;
 } else {
-  console.log("Using Fetch client");
-  // eslint-disable-next-line global-require
+  // eslint-disable-next-line global-require, prefer-import/prefer-import-over-require
   const fetchModule = require('./fetch-client');
   httpClient = fetchModule.fetchClient;
   create = fetchModule.create;
 }
-
-console.log(`Selected client type: ${httpClient.constructor.name}`);
 
 export { httpClient, create };
 export * from "./types";

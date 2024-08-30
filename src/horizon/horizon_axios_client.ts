@@ -1,6 +1,6 @@
 /* eslint-disable global-require */
-import { create, HttpClientResponse } from "../http-client";
 import URI from "urijs";
+import { create, HttpResponseHeaders } from "../http-client";
 
 // eslint-disable-next-line prefer-import/prefer-import-over-require 
 export const version = require("../../package.json").version;
@@ -36,11 +36,19 @@ function toSeconds(ms: number): number {
 }
 
 AxiosClient.interceptors.response.use(
-  (response: HttpClientResponse ) => {
+  (response) => {
     const hostname = URI(response.config.url!).hostname();
     let serverTime = 0;
-    if (typeof response.headers.date === 'string') {
-      serverTime = toSeconds(Date.parse(response.headers.date));
+    if (response.headers instanceof Headers) {
+      const dateHeader = response.headers.get('date');
+      if (dateHeader) {
+        serverTime = toSeconds(Date.parse(dateHeader));
+      }
+    } else if (typeof response.headers === 'object' && 'date' in response.headers) {
+      const headers = response.headers as HttpResponseHeaders; // Cast response.headers to the correct type
+      if (typeof headers.date === 'string') {
+        serverTime = toSeconds(Date.parse(headers.date));
+      }
     }
     const localTimeRecorded = toSeconds(new Date().getTime());
 
@@ -49,8 +57,7 @@ AxiosClient.interceptors.response.use(
         serverTime,
         localTimeRecorded,
       };
-    }
-
+    } 
     return response;
   },
 );

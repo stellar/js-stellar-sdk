@@ -18,8 +18,6 @@ const config = {
       crypto: require.resolve('crypto-browserify'),
       stream: require.resolve('stream-browserify'),
       buffer: require.resolve('buffer'),
-      querystring: require.resolve("querystring-es3"),
-      net: false,
     },
     extensions: ['.ts', '.js'],
   },

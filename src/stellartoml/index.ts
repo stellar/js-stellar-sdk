@@ -1,6 +1,6 @@
-import { httpClient } from "../http-client";
 import toml from "toml";
 import { Networks } from "@stellar/stellar-base";
+import { httpClient } from "../http-client";
 
 import { Config } from "../config";
 

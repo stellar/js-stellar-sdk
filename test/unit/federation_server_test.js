@@ -65,7 +65,6 @@ describe("federation-server.js tests", function () {
       this.server
         .resolveAddress("bob*stellar.org")
         .then((response) => {
-          console.log(JSON.stringify(response));
           expect(response.stellar_address).equals("bob*stellar.org");
           expect(response.account_id).equals(
             "GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS",
