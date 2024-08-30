@@ -56,7 +56,7 @@
     "test:node": "yarn _nyc mocha --recursive 'test/unit/**/*.js'",
     "test:integration": "yarn _nyc mocha --recursive 'test/integration/**/*.js'",
     "test:browser": "karma start config/karma.conf.js",
-    "test:browser:no-axios": "cross-env USE_AXIOS=false yarn build:browser && karma start config/karma.conf.js",
+    "test:browser:no-axios": "cross-env USE_AXIOS=false yarn build:browser && cross-env USE_AXIOS=false karma start config/karma.conf.js",
     "fmt": "yarn _prettier && yarn eslint -c .eslintrc.js src/ --fix",
     "preversion": "yarn clean && yarn _prettier && yarn build:prod && yarn test",
     "prepare": "yarn build:prod",

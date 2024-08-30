@@ -22,6 +22,7 @@ A breaking change will get clearly marked in this log.
 
 ```
 
+- New build target for creating a browser bundle without Axios dependency. Set USE_AXIOS=false environment variable to build stellar-sdk-no-axios.js and stellar-sdk-no-axios.min.js in the dist/ directory. Use yarn build:browser:no-axios to generate these files.
 
 ## [v12.2.0](https://github.com/stellar/js-stellar-sdk/compare/v12.1.0...v12.2.0)
 
