@@ -27,7 +27,8 @@ module.exports = function(api) {
   config.plugins.push([
     'transform-define',
     {
-      __USE_AXIOS__: buildConfig.useAxios
+      __USE_AXIOS__: buildConfig.useAxios,
+      __USE_EVENTSOURCE__: buildConfig.useEventSource,
     }
   ]);
 
