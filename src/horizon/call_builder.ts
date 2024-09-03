@@ -105,7 +105,7 @@ export class CallBuilder<
   public stream(options: EventSourceOptions<T> = {}): () => void {
     // Check if EventSource use is enabled
     if (EventSource === undefined){
-      throw new Error("EventSource is not available in this build.");
+      throw new Error("Streaming requires eventsource to be enabled. If you need this functionality, compile with USE_EVENTSOURCE=true.");
     }
 
     this.checkFilter();
