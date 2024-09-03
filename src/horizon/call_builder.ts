@@ -12,6 +12,9 @@ import type { Server } from "../federation";
 // query-param.
 const JOINABLE = ["transaction"];
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
+declare const __USE_EVENTSOURCE__: boolean;
+
 export interface EventSourceOptions<T> {
   onmessage?: (value: T) => void;
   onerror?: (event: MessageEvent) => void;
@@ -20,12 +23,18 @@ export interface EventSourceOptions<T> {
 
 const anyGlobal = global as any;
 type Constructable<T> = new (e: string) => T;
-// require("eventsource") for Node and React Native environment
-/* eslint-disable global-require */
-/* eslint-disable prefer-import/prefer-import-over-require */
-const EventSource: Constructable<EventSource> = anyGlobal.EventSource ??
-  anyGlobal.window?.EventSource ??
-  require("eventsource");
+
+// Declare EventSource as a potentially undefined variable
+let EventSource: Constructable<EventSource> | undefined;
+
+// Only define EventSource if __USE_EVENTSOURCE__ is true
+if (typeof __USE_EVENTSOURCE__ !== 'undefined' && __USE_EVENTSOURCE__) {
+  /* eslint-disable global-require */
+  /* eslint-disable prefer-import/prefer-import-over-require */
+  EventSource = anyGlobal.EventSource ??
+    anyGlobal.window?.EventSource ??
+    require("eventsource");
+}
 
 /**
  * Creates a new {@link CallBuilder} pointed to server defined by serverUrl.
@@ -36,9 +45,9 @@ const EventSource: Constructable<EventSource> = anyGlobal.EventSource ??
  */
 export class CallBuilder<
   T extends
-    | HorizonApi.FeeStatsResponse
-    | HorizonApi.BaseResponse
-    | ServerApi.CollectionPage<HorizonApi.BaseResponse>
+  | HorizonApi.FeeStatsResponse
+  | HorizonApi.BaseResponse
+  | ServerApi.CollectionPage<HorizonApi.BaseResponse>
 > {
   protected url: URI;
 
@@ -94,6 +103,11 @@ export class CallBuilder<
    * @returns {Function} Close function. Run to close the connection and stop listening for new events.
    */
   public stream(options: EventSourceOptions<T> = {}): () => void {
+    // Check if EventSource use is enabled
+    if (EventSource === undefined){
+      throw new Error("EventSource is not available in this build.");
+    }
+
     this.checkFilter();
 
     this.url.setQuery("X-Client-Name", "js-stellar-sdk");
