@@ -7,9 +7,6 @@ import { HorizonApi } from "./horizon_api";
 import { AxiosClient, version } from "./horizon_axios_client";
 import { ServerApi } from "./server_api";
 import type { Server } from "../federation";
-import { EventSourceClient } from "../events-client/eventsource-client";
-
-const EventSource = EventSourceClient;
 
 // Resources which can be included in the Horizon response via the `join`
 // query-param.
@@ -20,6 +17,15 @@ export interface EventSourceOptions<T> {
   onerror?: (event: MessageEvent) => void;
   reconnectTimeout?: number;
 }
+
+const anyGlobal = global as any;
+type Constructable<T> = new (e: string) => T;
+// require("eventsource") for Node and React Native environment
+/* eslint-disable global-require */
+/* eslint-disable prefer-import/prefer-import-over-require */
+const EventSource: Constructable<EventSource> = anyGlobal.EventSource ??
+  anyGlobal.window?.EventSource ??
+  require("eventsource");
 
 /**
  * Creates a new {@link CallBuilder} pointed to server defined by serverUrl.
