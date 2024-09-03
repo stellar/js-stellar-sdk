@@ -13,7 +13,7 @@ import type { Server } from "../federation";
 const JOINABLE = ["transaction"];
 
 export interface EventSourceOptions<T> {
-  onmessage?: (value: T) => void;
+  onmessage?: (value: T extends ServerApi.CollectionPage<infer U> ? U : T) => void;
   onerror?: (event: MessageEvent) => void;
   reconnectTimeout?: number;
 }
