@@ -2,8 +2,9 @@
 import URI from "urijs";
 import { create, HttpResponseHeaders } from "../http-client";
 
-// eslint-disable-next-line prefer-import/prefer-import-over-require 
-export const version = require("../../package.json").version;
+// eslint-disable-next-line prefer-import/prefer-import-over-require , @typescript-eslint/naming-convention
+declare const __PACKAGE_VERSION__: string;
+export const version = __PACKAGE_VERSION__;
 
 export interface ServerTime {
   serverTime: number;

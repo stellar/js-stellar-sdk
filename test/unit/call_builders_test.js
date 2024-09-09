@@ -1,6 +1,6 @@
 import URI from "urijs";
 // not exported by the library
-import { CallBuilder } from "../../lib/horizon/call_builder";
+import { CallBuilder } from "../../lib/default/horizon/call_builder";
 
 describe("CallBuilder functions", function () {
   it("doesn't mutate the constructor passed url argument (it clones it instead)", function () {

@@ -1,4 +1,8 @@
+const fs = require('fs');
+const path = require('path');
 const buildConfig = require('./config/build.config');
+const packageJson = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
+const version = packageJson.version;
 
 module.exports = function(api) {
   api.cache(true);
@@ -23,14 +27,25 @@ module.exports = function(api) {
       : { browsers: ["> 2%"] }
   };
 
-  // Add the __USE_AXIOS__ definition
   config.plugins.push([
     'transform-define',
     {
       __USE_AXIOS__: buildConfig.useAxios,
       __USE_EVENTSOURCE__: buildConfig.useEventSource,
+      __PACKAGE_VERSION__: version,
     }
   ]);
+
+  if (process.env.VARIANT_FILES_ONLY === 'true') {
+    const variantFiles = [
+      'http-client/index.ts',
+      'horizon/call_builder.ts'
+    ];
+
+    config.only = variantFiles.map(file => 
+      path.resolve(__dirname, 'src', file)
+    );
+  }
 
   return config;
 };
