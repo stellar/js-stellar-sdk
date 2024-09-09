@@ -1,5 +1,3 @@
-// src/http-client/index.ts
-
 import { HttpClient, HttpClientRequestConfig } from "./types";
 
 // eslint-disable-next-line @typescript-eslint/naming-convention

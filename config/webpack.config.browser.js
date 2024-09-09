@@ -1,10 +1,15 @@
 var path = require('path');
 var webpack = require('webpack');
+var fs = require('fs');
 
 var ESLintPlugin = require('eslint-webpack-plugin');
 var TerserPlugin = require('terser-webpack-plugin');
 var NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
 var buildConfig = require('./build.config');
+
+// Read the version from package.json
+const packageJson = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../package.json'), 'utf8'));
+const version = packageJson.version;
 
 const config = {
   target: 'web',
@@ -22,7 +27,7 @@ const config = {
     extensions: ['.ts', '.js'],
   },
   output: {
-    clean: true,
+    clean: process.env.no_clean ? false: true,
     library: {
       name: 'StellarSdk',
       type: 'umd',
@@ -39,8 +44,9 @@ const config = {
         suffix = '.js';
       }
 
-      if (!buildConfig.useAxios) name += '-no-axios';
-      if (!buildConfig.useEventSource) name += '-no-eventsource';
+      if (!buildConfig.useAxios && !buildConfig.useEventSource) name += '-minimal';
+      else if (!buildConfig.useAxios) name += '-no-axios';
+      else if (!buildConfig.useEventSource) name += '-no-eventsource';
       
       return name + suffix;
     },
@@ -94,6 +100,8 @@ const config = {
     }),
     new webpack.DefinePlugin({
       __USE_AXIOS__: JSON.stringify(buildConfig.useAxios),
+      __USE_EVENTSOURCE__: JSON.stringify(buildConfig.useEventSource),
+      __PACKAGE_VERSION__: version,
     })
   ],
   watchOptions: {

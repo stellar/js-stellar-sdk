@@ -26,28 +26,74 @@
   "exports": {
     ".": {
       "browser": "./dist/stellar-sdk.min.js",
-      "types": "./lib/index.d.ts",
-      "default": "./lib/index.js"
+      "types": "./lib/default/index.d.ts",
+      "default": "./lib/default/index.js"
     },
     "./contract": {
-      "types": "./lib/contract/index.d.ts",
-      "default": "./lib/contract/index.js"
+      "types": "./lib/default/contract/index.d.ts",
+      "default": "./lib/default/contract/index.js"
     },
     "./rpc": {
-      "types": "./lib/rpc/index.d.ts",
-      "default": "./lib/rpc/index.js"
+      "types": "./lib/default/rpc/index.d.ts",
+      "default": "./lib/default/rpc/index.js"
+    },
+    "./no-axios": {
+      "browser": "./dist/stellar-sdk-no-axios.min.js",
+      "types": "./lib/no-axios/index.d.ts",
+      "default": "./lib/no-axios/index.js"
+    },
+    "./no-axios/contract": {
+      "types": "./lib/no-axios/contract/index.d.ts",
+      "default": "./lib/no-axios/contract/index.js"
+    },
+    "./no-axios/rpc": {
+      "types": "./lib/no-axios/rpc/index.d.ts",
+      "default": "./lib/no-axios/rpc/index.js"
+    },
+    "./no-eventsource": {
+      "browser": "./dist/stellar-sdk-no-eventsource.min.js",
+      "types": "./lib/no-eventsource/index.d.ts",
+      "default": "./lib/no-eventsource/index.js"
+    },
+    "./no-eventsource/contract": {
+      "types": "./lib/no-eventsource/contract/index.d.ts",
+      "default": "./lib/no-eventsource/contract/index.js"
+    },
+    "./no-eventsource/rpc": {
+      "types": "./lib/no-eventsource/rpc/index.d.ts",
+      "default": "./lib/no-eventsource/rpc/index.js"
+    },
+    "./minimal": {
+      "browser": "./dist/stellar-sdk-minimal.min.js",
+      "types": "./lib/minimal/index.d.ts",
+      "default": "./lib/minimal/index.js"
+    },
+    "./minimal/contract": {
+      "types": "./lib/minimal/contract/index.d.ts",
+      "default": "./lib/minimal/contract/index.js"
+    },
+    "./minimal/rpc": {
+      "types": "./lib/minimal/rpc/index.d.ts",
+      "default": "./lib/minimal/rpc/index.js"
     }
   },
   "scripts": {
     "build": "cross-env NODE_ENV=development yarn _build",
     "build:prod": "cross-env NODE_ENV=production yarn _build",
-    "build:node": "yarn _babel && yarn build:ts",
-    "build:ts": "tsc -p ./config/tsconfig.json",
+    "build:node": "node config/set-output-dir.js && yarn _babel && yarn build:ts",
+    "build:node:default": "cross-env OUTPUT_DIR=lib/default yarn build:node",
+    "build:node:no-axios": "cross-env OUTPUT_DIR=lib/no-axios USE_AXIOS=false yarn build:node",
+    "build:node:no-eventsource": "cross-env OUTPUT_DIR=lib/no-eventsource USE_EVENTSOURCE=false yarn build:node",
+    "build:node:minimal": "cross-env OUTPUT_DIR=lib/minimal USE_AXIOS=false USE_EVENTSOURCE=false yarn build:node",
+    "build:node:all": "yarn build:node:default && cross-env VARIANT_FILES_ONLY=true yarn build:node:no-axios && cross-env VARIANT_FILES_ONLY=true yarn build:node:no-eventsource && cross-env VARIANT_FILES_ONLY=true yarn build:node:minimal && node config/symlink-builds.js",
+    "clean:temp": "rm -f ./config/tsconfig.tmp.json",
+    "build:ts": "tsc -p ./config/tsconfig.tmp.json && yarn clean:temp",
     "build:test": "tsc -p ./test/unit/tsconfig.json",
     "build:browser": "webpack -c config/webpack.config.browser.js",
     "build:browser:no-axios": "cross-env USE_AXIOS=false webpack -c config/webpack.config.browser.js",
     "build:browser:no-eventsource": "cross-env USE_EVENTSOURCE=false webpack -c config/webpack.config.browser.js",
     "build:browser:minimal": "cross-env USE_AXIOS=false USE_EVENTSOURCE=false webpack -c config/webpack.config.browser.js",
+    "build:browser:all": "yarn build:browser && cross-env no_clean=true yarn build:browser:no-axios && cross-env no_clean=true yarn build:browser:no-eventsource && cross-env no_clean=true yarn build:browser:minimal",
     "build:docs": "cross-env NODE_ENV=docs yarn _babel",
     "clean": "rm -rf lib/ dist/ coverage/ .nyc_output/ jsdoc/ test/e2e/.soroban",
     "docs": "yarn build:docs && jsdoc -c ./config/.jsdoc.json --verbose",
@@ -60,8 +106,8 @@
     "fmt": "yarn _prettier && yarn eslint -c .eslintrc.js src/ --fix",
     "preversion": "yarn clean && yarn _prettier && yarn build:prod && yarn test",
     "prepare": "yarn build:prod",
-    "_build": "yarn build:node && yarn build:test && yarn build:browser",
-    "_babel": "babel --extensions '.ts' --out-dir lib/ src/",
+    "_build": "yarn build:node:all && yarn build:test && yarn build:browser:all",
+    "_babel": "babel --extensions '.ts' --out-dir ${OUTPUT_DIR:-lib} src/",
     "_nyc": "nyc --nycrc-path config/.nycrc",
     "_prettier": "prettier --ignore-path config/.prettierignore --write './test/**/*.js'"
   },
