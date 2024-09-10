@@ -6,7 +6,7 @@ const {
   SorobanDataBuilder,
   xdr,
   TransactionBuilder,
-} = require("../../../lib/default");
+} = require("../../../lib");
 const {
   clientFor,
   generateFundedKeypair,

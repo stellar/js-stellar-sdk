@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
 
 require("@babel/register");
-global.StellarSdk = require("../lib/default");
+global.StellarSdk = require("../lib");
 
 global.axios = require("axios");
 global.serverUrl = "https://horizon-live.stellar.org:1337/api/v1/jsonrpc";
