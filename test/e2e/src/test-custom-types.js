@@ -1,5 +1,5 @@
 const { expect } = require("chai");
-const { Address, contract } = require("../../../lib/default");
+const { Address, contract } = require("../../../lib");
 const { clientFor } = require("./util");
 
 describe("Custom Types Tests", function () {

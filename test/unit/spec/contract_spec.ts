@@ -1,4 +1,4 @@
-import { xdr, Address, contract, Keypair } from "../../../lib/default";
+import { xdr, Address, contract, Keypair } from "../../../lib";
 import { JSONSchemaFaker } from "json-schema-faker";
 
 import spec from "../spec.json";

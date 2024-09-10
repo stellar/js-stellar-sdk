@@ -6,7 +6,7 @@ const {
   rpcUrl,
   generateFundedKeypair,
 } = require("./util");
-const { Address, contract } = require("../../../lib/default");
+const { Address, contract } = require("../../../lib");
 
 async function clientFromConstructor(
   name,
