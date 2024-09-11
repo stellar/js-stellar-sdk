@@ -1,6 +1,5 @@
 // tslint:disable-next-line: no-reference
 /// <reference path="../types/dom-monkeypatch.d.ts" />
-import './globalSetup';
 
 // Expose all types
 export * from './errors';

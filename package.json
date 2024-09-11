@@ -85,7 +85,7 @@
     "build:node:no-axios": "cross-env OUTPUT_DIR=lib/no-axios USE_AXIOS=false yarn build:node",
     "build:node:no-eventsource": "cross-env OUTPUT_DIR=lib/no-eventsource USE_EVENTSOURCE=false yarn build:node",
     "build:node:minimal": "cross-env OUTPUT_DIR=lib/minimal USE_AXIOS=false USE_EVENTSOURCE=false yarn build:node",
-    "build:node:all": "yarn build:node:default && cross-env yarn build:node:no-axios && yarn build:node:no-eventsource && yarn build:node:minimal",
+    "build:node:all": "yarn build:node:default && yarn build:node:no-axios && yarn build:node:no-eventsource && yarn build:node:minimal",
     "clean:temp": "rm -f ./config/tsconfig.tmp.json",
     "build:ts": "node config/set-output-dir.js && tsc -p ./config/tsconfig.tmp.json && yarn clean:temp",
     "build:test": "tsc -p ./test/unit/tsconfig.json",
