@@ -26,16 +26,16 @@
   "exports": {
     ".": {
       "browser": "./dist/stellar-sdk.min.js",
-      "types": "./lib/default/index.d.ts",
-      "default": "./lib/default/index.js"
+      "types": "./lib/index.d.ts",
+      "default": "./lib/index.js"
     },
     "./contract": {
-      "types": "./lib/default/contract/index.d.ts",
-      "default": "./lib/default/contract/index.js"
+      "types": "./lib/contract/index.d.ts",
+      "default": "./lib/contract/index.js"
     },
     "./rpc": {
-      "types": "./lib/default/rpc/index.d.ts",
-      "default": "./lib/default/rpc/index.js"
+      "types": "./lib/rpc/index.d.ts",
+      "default": "./lib/rpc/index.js"
     },
     "./no-axios": {
       "browser": "./dist/stellar-sdk-no-axios.min.js",
@@ -81,11 +81,10 @@
     "build": "cross-env NODE_ENV=development yarn _build",
     "build:prod": "cross-env NODE_ENV=production yarn _build",
     "build:node": "yarn _babel && yarn build:ts",
-    "build:node:default": "cross-env OUTPUT_DIR=lib yarn build:node",
     "build:node:no-axios": "cross-env OUTPUT_DIR=lib/no-axios USE_AXIOS=false yarn build:node",
     "build:node:no-eventsource": "cross-env OUTPUT_DIR=lib/no-eventsource USE_EVENTSOURCE=false yarn build:node",
     "build:node:minimal": "cross-env OUTPUT_DIR=lib/minimal USE_AXIOS=false USE_EVENTSOURCE=false yarn build:node",
-    "build:node:all": "yarn build:node:default && yarn build:node:no-axios && yarn build:node:no-eventsource && yarn build:node:minimal",
+    "build:node:all": "yarn build:node && yarn build:node:no-axios && yarn build:node:no-eventsource && yarn build:node:minimal",
     "clean:temp": "rm -f ./config/tsconfig.tmp.json",
     "build:ts": "node config/set-output-dir.js && tsc -p ./config/tsconfig.tmp.json && yarn clean:temp",
     "build:test": "tsc -p ./test/unit/tsconfig.json",
