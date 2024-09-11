@@ -1,10 +1,15 @@
 var path = require('path');
 var webpack = require('webpack');
+var fs = require('fs');
 
 var ESLintPlugin = require('eslint-webpack-plugin');
 var TerserPlugin = require('terser-webpack-plugin');
 var NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
 var buildConfig = require('./build.config');
+
+// Read the version from package.json
+const packageJson = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../package.json'), 'utf8'));
+const version = packageJson.version;
 
 const config = {
   target: 'web',
@@ -96,6 +101,7 @@ const config = {
     new webpack.DefinePlugin({
       __USE_AXIOS__: JSON.stringify(buildConfig.useAxios),
       __USE_EVENTSOURCE__: JSON.stringify(buildConfig.useEventSource),
+      __PACKAGE_VERSION__: version,
     })
   ],
   watchOptions: {
