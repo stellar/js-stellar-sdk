@@ -1,5 +1,7 @@
 // tslint:disable-next-line: no-reference
 /// <reference path="../types/dom-monkeypatch.d.ts" />
+// eslint-disable-next-line import/no-import-module-exports
+import './globalSetup';
 
 // Expose all types
 export * from './errors';
@@ -49,11 +51,3 @@ export * as contract from './contract'
 export * from '@stellar/stellar-base';
 
 export default module.exports;
-
-if (typeof (global as any).__USE_AXIOS__ === 'undefined') {
-    (global as any).__USE_AXIOS__ = true;
-}
-
-if (typeof (global as any).__USE_EVENTSOURCE__ === 'undefined') {
-    (global as any).__USE_EVENTSOURCE__ = false;
-}
