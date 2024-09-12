@@ -95,6 +95,7 @@ export namespace Api {
     envelopeXdr: xdr.TransactionEnvelope;
     resultXdr: xdr.TransactionResult;
     resultMetaXdr: xdr.TransactionMeta;
+    diagnosticEventsXdr?: xdr.DiagnosticEvent[];
   }
 
   export interface GetSuccessfulTransactionResponse
@@ -108,6 +109,7 @@ export namespace Api {
     envelopeXdr: xdr.TransactionEnvelope;
     resultXdr: xdr.TransactionResult;
     resultMetaXdr: xdr.TransactionMeta;
+    diagnosticEventsXdr?: xdr.DiagnosticEvent[];
 
     returnValue?: xdr.ScVal; // present iff resultMeta is a v3
   }
@@ -127,6 +129,7 @@ export namespace Api {
     resultMetaXdr?: string;
     ledger?: number;
     createdAt?: number;
+    diagnosticEventsXdr?: string[];
   }
 
   export interface GetTransactionsRequest {
