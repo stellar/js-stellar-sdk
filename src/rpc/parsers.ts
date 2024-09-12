@@ -26,30 +26,36 @@ export function parseRawSendTransaction(
   return { ...r } as Api.BaseSendTransactionResponse;
 }
 
-export function parseRawTransactions(
-    r: Api.RawTransactionInfo
-): Api.TransactionInfo {
-  const info : Api.TransactionInfo = {
-    status: r.status,
-    ledger: r.ledger!,
-    createdAt: r.createdAt!,
-    applicationOrder: r.applicationOrder!,
-    feeBump: r.feeBump!,
-    envelopeXdr: xdr.TransactionEnvelope.fromXDR(r.envelopeXdr!, 'base64'),
-    resultXdr: xdr.TransactionResult.fromXDR(r.resultXdr!, 'base64'),
-    resultMetaXdr: xdr.TransactionMeta.fromXDR(r.resultMetaXdr!, 'base64'),
+export function parseTransactionInfo(raw: Api.RawTransactionInfo | Api.RawGetTransactionResponse): Omit<Api.TransactionInfo, 'status'> {
+  const meta = xdr.TransactionMeta.fromXDR(raw.resultMetaXdr!, 'base64');
+  const info: Omit<Api.TransactionInfo, 'status'> = {
+    ledger: raw.ledger!,
+    createdAt: raw.createdAt!,
+    applicationOrder: raw.applicationOrder!,
+    feeBump: raw.feeBump!,
+    envelopeXdr: xdr.TransactionEnvelope.fromXDR(raw.envelopeXdr!, 'base64'),
+    resultXdr: xdr.TransactionResult.fromXDR(raw.resultXdr!, 'base64'),
+    resultMetaXdr: meta,
+  };
+
+  if (meta.switch() === 3 && meta.v3().sorobanMeta() !== null) {
+    info.returnValue = meta.v3().sorobanMeta()?.returnValue();
   }
 
-  const meta = info.resultMetaXdr
-  if (meta.switch() === 3 && meta.v3().sorobanMeta() !== null && r.status === Api.GetTransactionStatus.SUCCESS) {
-      info.returnValue = meta.v3().sorobanMeta()?.returnValue();
-  }
-
-  if (r.diagnosticEventsXdr) {
-    info.diagnosticEventsXdr = r.diagnosticEventsXdr;
+  if ('diagnosticEventsXdr' in raw && raw.diagnosticEventsXdr) {
+    info.diagnosticEventsXdr = raw.diagnosticEventsXdr;
   }
 
   return info;
+}
+
+export function parseRawTransactions(
+    r: Api.RawTransactionInfo
+): Api.TransactionInfo {
+  return {
+    status: r.status,
+    ...parseTransactionInfo(r),
+  };
 }
 
 export function parseRawEvents(

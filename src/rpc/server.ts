@@ -22,7 +22,7 @@ import {
   parseRawSendTransaction,
   parseRawSimulation,
   parseRawLedgerEntries,
-  parseRawEvents, parseRawTransactions,
+  parseRawEvents, parseRawTransactions, parseTransactionInfo,
 } from './parsers';
 
 export const SUBMIT_TRANSACTION_TIMEOUT = 60 * 1000;
@@ -440,29 +440,12 @@ export class Server {
   ): Promise<Api.GetTransactionResponse> {
     return this._getTransaction(hash).then((raw) => {
       let foundInfo: Omit<
-        Api.GetSuccessfulTransactionResponse,
-        keyof Api.GetMissingTransactionResponse
+          Api.GetSuccessfulTransactionResponse,
+          keyof Api.GetMissingTransactionResponse
       > = {} as any;
 
       if (raw.status !== Api.GetTransactionStatus.NOT_FOUND) {
-        const meta = xdr.TransactionMeta.fromXDR(raw.resultMetaXdr!, 'base64');
-        foundInfo = {
-          ledger: raw.ledger!,
-          createdAt: raw.createdAt!,
-          applicationOrder: raw.applicationOrder!,
-          feeBump: raw.feeBump!,
-          envelopeXdr: xdr.TransactionEnvelope.fromXDR(
-            raw.envelopeXdr!,
-            'base64'
-          ),
-          resultXdr: xdr.TransactionResult.fromXDR(raw.resultXdr!, 'base64'),
-          resultMetaXdr: meta,
-          ...(meta.switch() === 3 &&
-            meta.v3().sorobanMeta() !== null &&
-            raw.status === Api.GetTransactionStatus.SUCCESS && {
-              returnValue: meta.v3().sorobanMeta()?.returnValue()
-            })
-        };
+        Object.assign(foundInfo, parseTransactionInfo(raw));
       }
 
       const result: Api.GetTransactionResponse = {
@@ -505,9 +488,14 @@ export class Server {
    */
   public async getTransactions(request: Api.GetTransactionsRequest): Promise<Api.GetTransactionsResponse> {
     return this._getTransactions(request).then((raw: Api.RawGetTransactionsResponse) => {
-      const transactions = raw.transactions.map(parseRawTransactions);
-      delete raw.transactions; // remove from object
-      const result: Api.GetTransactionsResponse = { transactions, ...raw };
+      const result: Api.GetTransactionsResponse = {
+        transactions: raw.transactions.map(parseRawTransactions),
+        latestLedger: raw.latestLedger,
+        latestLedgerCloseTimestamp: raw.latestLedgerCloseTimestamp,
+        oldestLedger: raw.oldestLedger,
+        oldestLedgerCloseTimestamp: raw.oldestLedgerCloseTimestamp,
+        cursor: raw.cursor,
+      }
       return result
     });
   }

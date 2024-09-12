@@ -157,7 +157,7 @@ export namespace Api {
     resultXdr: xdr.TransactionResult;
     resultMetaXdr: xdr.TransactionMeta;
     returnValue?: xdr.ScVal;
-    diagnosticEventsXdr?: string[];
+    diagnosticEventsXdr?: xdr.DiagnosticEvent[];
   }
 
   export interface GetTransactionsResponse {
