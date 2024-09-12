@@ -7,7 +7,7 @@ A breaking change will get clearly marked in this log.
 ## Unreleased
 
 
-### ## [v12.3.0](https://github.com/stellar/js-stellar-sdk/compare/v12.2.0...v12.3.0)
+## [v12.3.0](https://github.com/stellar/js-stellar-sdk/compare/v12.2.0...v12.3.0)
 
 ### Fixed
 - Upgraded `stellar-base` which includes various fixes ([release notes](https://github.com/stellar/js-stellar-base/releases/tag/v12.1.1), [#1045](https://github.com/stellar/js-stellar-sdk/pull/1045)).
