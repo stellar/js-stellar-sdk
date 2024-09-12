@@ -698,19 +698,6 @@ export class AssembledTransaction<T> {
     return this.send();
   };
 
-  private getStorageExpiration = async () => {
-    const entryRes = await this.server.getLedgerEntries(
-      new Contract(this.options.contractId).getFootprint(),
-    );
-    if (
-      !entryRes.entries ||
-      !entryRes.entries.length ||
-      !entryRes.entries[0].liveUntilLedgerSeq
-    )
-      throw new Error("failed to get ledger entry");
-    return entryRes.entries[0].liveUntilLedgerSeq;
-  };
-
   /**
    * Get a list of accounts, other than the invoker of the simulation, that
    * need to sign auth entries in this transaction.
@@ -793,15 +780,15 @@ export class AssembledTransaction<T> {
    * currently supported!
    */
   signAuthEntries = async ({
-    expiration = this.getStorageExpiration(),
+    expiration = (async () =>
+      (await this.server.getLatestLedger()).sequence + 100)(),
     signAuthEntry = this.options.signAuthEntry,
     publicKey = this.options.publicKey,
   }: {
     /**
      * When to set each auth entry to expire. Could be any number of blocks in
      * the future. Can be supplied as a promise or a raw number. Default:
-     * contract's current `persistent` storage expiration date/ledger
-     * number/block.
+     * about 8.3 minutes from now.
      */
     expiration?: number | Promise<number>;
     /**
