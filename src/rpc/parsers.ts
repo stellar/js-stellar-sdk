@@ -44,7 +44,7 @@ export function parseTransactionInfo(raw: Api.RawTransactionInfo | Api.RawGetTra
 
   if ('diagnosticEventsXdr' in raw && raw.diagnosticEventsXdr) {
     info.diagnosticEventsXdr = raw.diagnosticEventsXdr.map(
-        evt => xdr.DiagnosticEvent.fromXDR(evt, 'base64')
+        diagnosticEvent => xdr.DiagnosticEvent.fromXDR(diagnosticEvent, 'base64')
     );
   }
 

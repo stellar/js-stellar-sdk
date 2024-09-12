@@ -441,7 +441,7 @@ export class Server {
     hash: string
   ): Promise<Api.GetTransactionResponse> {
     return this._getTransaction(hash).then((raw) => {
-      let foundInfo: Omit<
+      const foundInfo: Omit<
           Api.GetSuccessfulTransactionResponse,
           keyof Api.GetMissingTransactionResponse
       > = {} as any;
