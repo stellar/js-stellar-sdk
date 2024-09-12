@@ -22,7 +22,9 @@ import {
   parseRawSendTransaction,
   parseRawSimulation,
   parseRawLedgerEntries,
-  parseRawEvents, parseRawTransactions, parseTransactionInfo,
+  parseRawEvents,
+  parseRawTransactions,
+  parseTransactionInfo,
 } from './parsers';
 
 export const SUBMIT_TRANSACTION_TIMEOUT = 60 * 1000;
