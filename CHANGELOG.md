@@ -8,6 +8,7 @@ A breaking change will get clearly marked in this log.
 
 
 ### Added
+- Add `getTransactions` to RPC server. ([#1037](https://github.com/stellar/js-stellar-sdk/pull/1037))
 - `rpc.Server` now has a `getVersionInfo` method which reports version information of the RPC instance it is connected to. ([#997](https://github.com/stellar/js-stellar-sdk/issues/997)):
 
 ```typescript

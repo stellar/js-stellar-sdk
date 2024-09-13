@@ -22,7 +22,9 @@ import {
   parseRawSendTransaction,
   parseRawSimulation,
   parseRawLedgerEntries,
-  parseRawEvents
+  parseRawEvents,
+  parseRawTransactions,
+  parseTransactionInfo,
 } from './parsers';
 
 export const SUBMIT_TRANSACTION_TIMEOUT = 60 * 1000;
@@ -439,30 +441,13 @@ export class Server {
     hash: string
   ): Promise<Api.GetTransactionResponse> {
     return this._getTransaction(hash).then((raw) => {
-      let foundInfo: Omit<
-        Api.GetSuccessfulTransactionResponse,
-        keyof Api.GetMissingTransactionResponse
+      const foundInfo: Omit<
+          Api.GetSuccessfulTransactionResponse,
+          keyof Api.GetMissingTransactionResponse
       > = {} as any;
 
       if (raw.status !== Api.GetTransactionStatus.NOT_FOUND) {
-        const meta = xdr.TransactionMeta.fromXDR(raw.resultMetaXdr!, 'base64');
-        foundInfo = {
-          ledger: raw.ledger!,
-          createdAt: raw.createdAt!,
-          applicationOrder: raw.applicationOrder!,
-          feeBump: raw.feeBump!,
-          envelopeXdr: xdr.TransactionEnvelope.fromXDR(
-            raw.envelopeXdr!,
-            'base64'
-          ),
-          resultXdr: xdr.TransactionResult.fromXDR(raw.resultXdr!, 'base64'),
-          resultMetaXdr: meta,
-          ...(meta.switch() === 3 &&
-            meta.v3().sorobanMeta() !== null &&
-            raw.status === Api.GetTransactionStatus.SUCCESS && {
-              returnValue: meta.v3().sorobanMeta()?.returnValue()
-            })
-        };
+        Object.assign(foundInfo, parseTransactionInfo(raw));
       }
 
       const result: Api.GetTransactionResponse = {
@@ -483,6 +468,43 @@ export class Server {
     hash: string
   ): Promise<Api.RawGetTransactionResponse> {
     return jsonrpc.postObject(this.serverURL.toString(), 'getTransaction', {hash});
+  }
+
+  /**
+   * Fetch transactions starting from a given start ledger or a cursor. The end ledger is the latest ledger
+   * in that RPC instance.
+   *
+   * @param {Api.GetTransactionsRequest} request - The request parameters.
+   * @returns {Promise<Api.GetTransactionsResponse>} - A promise that resolves to the transactions response.
+   *
+   * @see https://developers.stellar.org/docs/data/rpc/api-reference/methods/getTransactions
+   * @example
+   * server.getTransactions({
+   *   startLedger: 10000,
+   *   limit: 10,
+   * }).then((response) => {
+   *   console.log("Transactions:", response.transactions);
+   *   console.log("Latest Ledger:", response.latestLedger);
+   *   console.log("Cursor:", response.cursor);
+   * });
+   */
+  public async getTransactions(request: Api.GetTransactionsRequest): Promise<Api.GetTransactionsResponse> {
+    return this._getTransactions(request).then((raw: Api.RawGetTransactionsResponse) => {
+      const result: Api.GetTransactionsResponse = {
+        transactions: raw.transactions.map(parseRawTransactions),
+        latestLedger: raw.latestLedger,
+        latestLedgerCloseTimestamp: raw.latestLedgerCloseTimestamp,
+        oldestLedger: raw.oldestLedger,
+        oldestLedgerCloseTimestamp: raw.oldestLedgerCloseTimestamp,
+        cursor: raw.cursor,
+      }
+      return result
+    });
+  }
+
+  // Add this private method to the Server class
+  private async _getTransactions(request: Api.GetTransactionsRequest): Promise<Api.RawGetTransactionsResponse> {
+    return jsonrpc.postObject(this.serverURL.toString(), 'getTransactions', request);
   }
 
   /**
