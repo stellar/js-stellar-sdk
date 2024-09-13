@@ -4,10 +4,14 @@ import URI from 'urijs';
 import {
   Account,
   Address,
+  Asset,
   Contract,
   FeeBumpTransaction,
   Keypair,
+  StrKey,
   Transaction,
+  nativeToScVal,
+  scValToNative,
   xdr
 } from '@stellar/stellar-base';
 
@@ -81,7 +85,7 @@ function findCreatedAccountSequenceInTransactionMeta(
     ?.account()
     ?.seqNum()
     ?.toString();
-  
+
   if (sequenceNumber) {
     return sequenceNumber;
   }
@@ -878,9 +882,9 @@ export class Server {
   }
 
   /**
-   * Provides an analysis of the recent fee stats for regular and smart 
+   * Provides an analysis of the recent fee stats for regular and smart
    * contract operations.
-   * 
+   *
    * @returns {Promise<Api.GetFeeStatsResponse>}  the fee stats
    * @see https://developers.stellar.org/docs/data/rpc/api-reference/methods/getFeeStats
    */
@@ -898,4 +902,103 @@ export class Server {
     return jsonrpc.postObject(this.serverURL.toString(), 'getVersionInfo');
   }
 
+  /**
+   * Returns a contract's balance of a particular token, if any.
+   *
+   * This is a convenience wrapper around {@link Server.getLedgerEntries}.
+   *
+   * @param {string}  contractId    the contract ID (string `C...`) whose
+   *    balance of `token` you want to know
+   * @param {Asset}   token     the token or asset (e.g. `USDC:GABC...`) that
+   *    you are querying from the given `contract`.
+   * @param {string}  [networkPassphrase] optionally, the network passphrase to
+   *    which this token applies. If omitted, a request about network
+   *    information will be made (see {@link getNetwork}), since contract IDs
+   *    for assets are specific to a network. You can refer to {@link Networks}
+   *    for a list of built-in passphrases, e.g., `Networks.TESTNET`.
+   *
+   * @returns {Promise<Api.ContractBalanceResponse>}, which will contain the
+   *    trustline details if and only if the request returned a valid balance
+   *    ledger entry. If it doesn't, the `trustline` field will not exist.
+   *
+   * @throws {TypeError} If `contractId` is not a valid contract strkey (C...).
+   *
+   * @warning This should not be used for fetching custom token contracts, only
+   *    SACs. Using them with custom tokens is a security concern because they
+   *    can format their balance entries in any way they want, and thus this
+   *    fetch can be very misleading.
+   *
+   * @see getLedgerEntries
+   */
+  public async getContractBalance(
+    contractId: string,
+    token: Asset,
+    networkPassphrase?: string
+  ): Promise<Api.ContractBalanceResponse> {
+      if (!StrKey.isValidContract(contractId)) {
+        throw new TypeError(`expected contract ID, got ${contractId}`);
+      }
+
+      // Call out to RPC if passphrase isn't provided.
+      const passphrase: string = networkPassphrase
+        ?? await this.getNetwork().then(n => n.passphrase);
+
+      // Turn token into predictable contract ID
+      const tokenId = token.contractId(passphrase);
+
+      // Rust union enum type with "Balance(ScAddress)" structure
+      const key = xdr.ScVal.scvVec([
+        nativeToScVal("Balance", { type: "symbol" }),
+        nativeToScVal(contractId, { type: "address" }),
+      ]);
+
+      // Note a quirk here: the contract address in the key is the *token*
+      // rather than the *holding contract*. This is because each token stores a
+      // balance entry for each contract, not the other way around (i.e. XLM
+      // holds a reserve for contract X, rather that contract X having a balance
+      // of N XLM).
+      const ledgerKey = xdr.LedgerKey.contractData(
+        new xdr.LedgerKeyContractData({
+          contract: new Address(tokenId).toScAddress(),
+          durability: xdr.ContractDataDurability.persistent(),
+          key
+        })
+      );
+
+      const response = await this.getLedgerEntries(ledgerKey);
+      if (response.entries.length === 0) {
+        return { latestLedger: response.latestLedger };
+      }
+
+      const {
+        lastModifiedLedgerSeq,
+        liveUntilLedgerSeq,
+        val
+      } = response.entries[0];
+
+      if (val.switch().value !== xdr.LedgerEntryType.contractData().value) {
+        return { latestLedger: response.latestLedger };
+      }
+
+      // If any field doesn't match *exactly* what we expect, we bail. This
+      // prevents confusion with "balance-like" entries (e.g., has `amount` but
+      // isn't a bigint), but still allows "looks like a duck" balance entries.
+      const entry = scValToNative(val.contractData().val());
+      if (typeof entry.amount === 'bigint' &&
+          typeof entry.authorized === 'boolean' &&
+          typeof entry.clawback === 'boolean') {
+        return {
+          latestLedger: response.latestLedger,
+          trustline: {
+            liveUntilLedgerSeq,
+            lastModifiedLedgerSeq,
+            balance: entry.amount.toString(),
+            authorized: entry.authorized,
+            clawback: entry.clawback,
+          }
+        };
+      }
+
+      return { latestLedger: response.latestLedger };
+  }
 }

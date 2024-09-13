@@ -448,4 +448,17 @@ export namespace Api {
     transactionCount: string; // uint32
     ledgerCount: number; // uint32
   }
+
+  export interface ContractBalanceResponse {
+    latestLedger: number;
+    // present only on success, otherwise request malformed or no balance
+    trustline?: {
+      balance: string;
+      authorized: boolean;
+      clawback: boolean;
+
+      lastModifiedLedgerSeq?: number;
+      liveUntilLedgerSeq?: number;
+    };
+  }
 }

@@ -1,0 +1,174 @@
+const { Address, xdr, nativeToScVal, hash } = StellarSdk;
+const { Server, AxiosClient, Durability } = StellarSdk.rpc;
+
+describe("Server#getContractBalance", function () {
+  beforeEach(function () {
+    this.server = new Server(serverUrl);
+    this.axiosMock = sinon.mock(AxiosClient);
+  });
+
+  afterEach(function () {
+    this.axiosMock.verify();
+    this.axiosMock.restore();
+  });
+
+  const token = StellarSdk.Asset.native();
+  const contract = "CCJZ5DGASBWQXR5MPFCJXMBI333XE5U3FSJTNQU7RIKE3P5GN2K2WYD5";
+  const contractAddress = new Address(
+    token.contractId(StellarSdk.Networks.TESTNET),
+  ).toScAddress();
+
+  const key = xdr.ScVal.scvVec([
+    nativeToScVal("Balance", { type: "symbol" }),
+    nativeToScVal(contract, { type: "address" }),
+  ]);
+  const val = nativeToScVal(
+    {
+      amount: 1_000_000_000_000n,
+      clawback: false,
+      authorized: true,
+    },
+    {
+      type: {
+        amount: ["symbol", "i128"],
+        clawback: ["symbol", "boolean"],
+        authorized: ["symbol", "boolean"],
+      },
+    },
+  );
+
+  const contractBalanceEntry = xdr.LedgerEntryData.contractData(
+    new xdr.ContractDataEntry({
+      ext: new xdr.ExtensionPoint(0),
+      contract: contractAddress,
+      durability: xdr.ContractDataDurability.persistent(),
+      key,
+      val,
+    }),
+  );
+
+  // key is just a subset of the entry
+  const contractBalanceKey = xdr.LedgerKey.contractData(
+    new xdr.LedgerKeyContractData({
+      contract: contractBalanceEntry.contractData().contract(),
+      durability: contractBalanceEntry.contractData().durability(),
+      key: contractBalanceEntry.contractData().key(),
+    }),
+  );
+
+  function buildMockResult(that, entry) {
+    let result = {
+      latestLedger: 1000,
+      entries: [
+        {
+          lastModifiedLedgerSeq: 1,
+          liveUntilLedgerSeq: 1000,
+          key: contractBalanceKey.toXDR("base64"),
+          xdr: entry.toXDR("base64"),
+        },
+      ],
+    };
+
+    that.axiosMock
+      .expects("post")
+      .withArgs(serverUrl, {
+        jsonrpc: "2.0",
+        id: 1,
+        method: "getLedgerEntries",
+        params: { keys: [contractBalanceKey.toXDR("base64")] },
+      })
+      .returns(
+        Promise.resolve({
+          data: { result },
+        }),
+      );
+  }
+
+  it("returns the correct trustline", function (done) {
+    buildMockResult(this, contractBalanceEntry);
+
+    this.server
+      .getContractBalance(contract, token, StellarSdk.Networks.TESTNET)
+      .then((response) => {
+        expect(response.latestLedger).to.equal(1000);
+        expect(response.trustline).to.not.be.undefined;
+        expect(response.trustline.balance).to.equal("1000000000000");
+        expect(response.trustline.authorized).to.be.true;
+        expect(response.trustline.clawback).to.be.false;
+        done();
+      })
+      .catch((err) => done(err));
+  });
+
+  it("infers the network passphrase", function (done) {
+    buildMockResult(this, contractBalanceEntry);
+
+    this.axiosMock
+      .expects("post")
+      .withArgs(serverUrl, {
+        jsonrpc: "2.0",
+        id: 1,
+        method: "getNetwork",
+        params: null,
+      })
+      .returns(
+        Promise.resolve({
+          data: {
+            result: {
+              passphrase: StellarSdk.Networks.TESTNET,
+            },
+          },
+        }),
+      );
+
+    this.server
+      .getContractBalance(contract, token)
+      .then((response) => {
+        expect(response.latestLedger).to.equal(1000);
+        expect(response.trustline).to.not.be.undefined;
+        expect(response.trustline.balance).to.equal("1000000000000");
+        expect(response.trustline.authorized).to.be.true;
+        expect(response.trustline.clawback).to.be.false;
+        done();
+      })
+      .catch((err) => done(err));
+  });
+
+  it("errors out when the entry isn't valid", function (done) {
+    // this doesn't conform to the expected format
+    const invalidVal = nativeToScVal(
+      {
+        amount: 1_000_000, // not an i128
+        clawback: "false", // not a bool
+        authorized: true,
+      },
+      {
+        type: {
+          amount: ["symbol", "u64"],
+          clawback: ["symbol", "string"],
+          authorized: ["symbol", "boolean"],
+        },
+      },
+    );
+    const invalidEntry = xdr.LedgerEntryData.contractData(
+      new xdr.ContractDataEntry({
+        ext: new xdr.ExtensionPoint(0),
+        contract: contractAddress,
+        durability: xdr.ContractDataDurability.persistent(),
+        val: invalidVal,
+        key,
+      }),
+    );
+
+    buildMockResult(this, invalidEntry);
+
+    this.server
+      .getContractBalance(contract, token, StellarSdk.Networks.TESTNET)
+      .then((response) => {
+        expect(response.latestLedger).to.equal(1000);
+        expect(response.trustline).to.be.undefined;
+        done();
+      })
+      .catch((err) => done(err));
+  });
+});
