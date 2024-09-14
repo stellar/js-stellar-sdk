@@ -11,7 +11,7 @@ A breaking change will get clearly marked in this log.
 
 ### Added
 - `rpc.Server` now has a `getTransactions`, which has the same response schema as `getTransactions` except with bundles of transactions ([#1037](https://github.com/stellar/js-stellar-sdk/pull/1037)).
-- `rpc.Server` now has a `getVersionInfo` method which reports version information of the RPC instance it is connected to ([#997](https://github.com/stellar/js-stellar-sdk/issues/997)):
+- `rpc.Server` now has a `getVersionInfo` method which reports version information of the RPC instance it is connected to ([#1028](https://github.com/stellar/js-stellar-sdk/issues/1028)):
 
 ```typescript
 export interface GetVersionInfoResponse {

@@ -81,7 +81,7 @@ function findCreatedAccountSequenceInTransactionMeta(
     ?.account()
     ?.seqNum()
     ?.toString();
-  
+
   if (sequenceNumber) {
     return sequenceNumber;
   }
@@ -878,9 +878,9 @@ export class Server {
   }
 
   /**
-   * Provides an analysis of the recent fee stats for regular and smart 
+   * Provides an analysis of the recent fee stats for regular and smart
    * contract operations.
-   * 
+   *
    * @returns {Promise<Api.GetFeeStatsResponse>}  the fee stats
    * @see https://developers.stellar.org/docs/data/rpc/api-reference/methods/getFeeStats
    */
@@ -897,5 +897,4 @@ export class Server {
   public async getVersionInfo(): Promise<Api.GetVersionInfoResponse> {
     return jsonrpc.postObject(this.serverURL.toString(), 'getVersionInfo');
   }
-
 }
