@@ -91,10 +91,10 @@ describe("Server#getContractBalance", function () {
       .getContractBalance(contract, token, StellarSdk.Networks.TESTNET)
       .then((response) => {
         expect(response.latestLedger).to.equal(1000);
-        expect(response.trustline).to.not.be.undefined;
-        expect(response.trustline.balance).to.equal("1000000000000");
-        expect(response.trustline.authorized).to.be.true;
-        expect(response.trustline.clawback).to.be.false;
+        expect(response.balanceEntry).to.not.be.undefined;
+        expect(response.balanceEntry.amount).to.equal("1000000000000");
+        expect(response.balanceEntry.authorized).to.be.true;
+        expect(response.balanceEntry.clawback).to.be.false;
         done();
       })
       .catch((err) => done(err));
@@ -125,10 +125,10 @@ describe("Server#getContractBalance", function () {
       .getContractBalance(contract, token)
       .then((response) => {
         expect(response.latestLedger).to.equal(1000);
-        expect(response.trustline).to.not.be.undefined;
-        expect(response.trustline.balance).to.equal("1000000000000");
-        expect(response.trustline.authorized).to.be.true;
-        expect(response.trustline.clawback).to.be.false;
+        expect(response.balanceEntry).to.not.be.undefined;
+        expect(response.balanceEntry.amount).to.equal("1000000000000");
+        expect(response.balanceEntry.authorized).to.be.true;
+        expect(response.balanceEntry.clawback).to.be.false;
         done();
       })
       .catch((err) => done(err));

@@ -982,10 +982,10 @@ export class Server {
       // these fields exist:
       return {
         latestLedger: response.latestLedger,
-        trustline: {
+        balanceEntry: {
           liveUntilLedgerSeq,
           lastModifiedLedgerSeq,
-          balance: entry.amount.toString(),
+          amount: entry.amount.toString(),
           authorized: entry.authorized,
           clawback: entry.clawback,
         }

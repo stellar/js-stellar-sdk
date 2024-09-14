@@ -452,8 +452,8 @@ export namespace Api {
   export interface ContractBalanceResponse {
     latestLedger: number;
     // present only on success, otherwise request malformed or no balance
-    trustline?: {
-      balance: string;
+    balanceEntry?: {
+      amount: string;
       authorized: boolean;
       clawback: boolean;
 
