@@ -909,7 +909,7 @@ export class Server {
    *
    * @param {string}  contractId    the contract ID (string `C...`) whose
    *    balance of `token` you want to know
-   * @param {Asset}   token     the token or asset (e.g. `USDC:GABC...`) that
+   * @param {Asset}   token     the token/asset (e.g. `USDC:GABC...`) that
    *    you are querying from the given `contract`.
    * @param {string}  [networkPassphrase] optionally, the network passphrase to
    *    which this token applies. If omitted, a request about network
@@ -922,11 +922,6 @@ export class Server {
    *    ledger entry. If it doesn't, the `trustline` field will not exist.
    *
    * @throws {TypeError} If `contractId` is not a valid contract strkey (C...).
-   *
-   * @warning This should not be used for fetching custom token contracts, only
-   *    SACs. Using them with custom tokens is a security concern because they
-   *    can format their balance entries in any way they want, and thus this
-   *    fetch can be very misleading.
    *
    * @see getLedgerEntries
    */
@@ -980,25 +975,20 @@ export class Server {
         return { latestLedger: response.latestLedger };
       }
 
-      // If any field doesn't match *exactly* what we expect, we bail. This
-      // prevents confusion with "balance-like" entries (e.g., has `amount` but
-      // isn't a bigint), but still allows "looks like a duck" balance entries.
       const entry = scValToNative(val.contractData().val());
-      if (typeof entry.amount === 'bigint' &&
-          typeof entry.authorized === 'boolean' &&
-          typeof entry.clawback === 'boolean') {
-        return {
-          latestLedger: response.latestLedger,
-          trustline: {
-            liveUntilLedgerSeq,
-            lastModifiedLedgerSeq,
-            balance: entry.amount.toString(),
-            authorized: entry.authorized,
-            clawback: entry.clawback,
-          }
-        };
-      }
 
-      return { latestLedger: response.latestLedger };
+      // Since we are requesting a SAC's contract data, we know for a fact that
+      // it should follow the expected structure format. Thus, we can presume
+      // these fields exist:
+      return {
+        latestLedger: response.latestLedger,
+        trustline: {
+          liveUntilLedgerSeq,
+          lastModifiedLedgerSeq,
+          balance: entry.amount.toString(),
+          authorized: entry.authorized,
+          clawback: entry.clawback,
+        }
+      };
   }
 }

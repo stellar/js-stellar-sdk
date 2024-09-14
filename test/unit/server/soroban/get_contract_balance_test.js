@@ -56,7 +56,7 @@ describe("Server#getContractBalance", function () {
     }),
   );
 
-  function buildMockResult(that, entry) {
+  function buildMockResult(that) {
     let result = {
       latestLedger: 1000,
       entries: [
@@ -64,7 +64,7 @@ describe("Server#getContractBalance", function () {
           lastModifiedLedgerSeq: 1,
           liveUntilLedgerSeq: 1000,
           key: contractBalanceKey.toXDR("base64"),
-          xdr: entry.toXDR("base64"),
+          xdr: contractBalanceEntry.toXDR("base64"),
         },
       ],
     };
@@ -85,7 +85,7 @@ describe("Server#getContractBalance", function () {
   }
 
   it("returns the correct trustline", function (done) {
-    buildMockResult(this, contractBalanceEntry);
+    buildMockResult(this);
 
     this.server
       .getContractBalance(contract, token, StellarSdk.Networks.TESTNET)
@@ -101,7 +101,7 @@ describe("Server#getContractBalance", function () {
   });
 
   it("infers the network passphrase", function (done) {
-    buildMockResult(this, contractBalanceEntry);
+    buildMockResult(this);
 
     this.axiosMock
       .expects("post")
@@ -129,44 +129,6 @@ describe("Server#getContractBalance", function () {
         expect(response.trustline.balance).to.equal("1000000000000");
         expect(response.trustline.authorized).to.be.true;
         expect(response.trustline.clawback).to.be.false;
-        done();
-      })
-      .catch((err) => done(err));
-  });
-
-  it("errors out when the entry isn't valid", function (done) {
-    // this doesn't conform to the expected format
-    const invalidVal = nativeToScVal(
-      {
-        amount: 1_000_000, // not an i128
-        clawback: "false", // not a bool
-        authorized: true,
-      },
-      {
-        type: {
-          amount: ["symbol", "u64"],
-          clawback: ["symbol", "string"],
-          authorized: ["symbol", "boolean"],
-        },
-      },
-    );
-    const invalidEntry = xdr.LedgerEntryData.contractData(
-      new xdr.ContractDataEntry({
-        ext: new xdr.ExtensionPoint(0),
-        contract: contractAddress,
-        durability: xdr.ContractDataDurability.persistent(),
-        val: invalidVal,
-        key,
-      }),
-    );
-
-    buildMockResult(this, invalidEntry);
-
-    this.server
-      .getContractBalance(contract, token, StellarSdk.Networks.TESTNET)
-      .then((response) => {
-        expect(response.latestLedger).to.equal(1000);
-        expect(response.trustline).to.be.undefined;
         done();
       })
       .catch((err) => done(err));
