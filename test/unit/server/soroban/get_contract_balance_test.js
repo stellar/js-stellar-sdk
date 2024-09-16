@@ -84,7 +84,7 @@ describe("Server#getContractBalance", function () {
       );
   }
 
-  it("returns the correct trustline", function (done) {
+  it("returns the correct balance entry", function (done) {
     buildMockResult(this);
 
     this.server

@@ -917,9 +917,9 @@ export class Server {
    *    for assets are specific to a network. You can refer to {@link Networks}
    *    for a list of built-in passphrases, e.g., `Networks.TESTNET`.
    *
-   * @returns {Promise<Api.BalanceResponse>}, which will contain the
-   *    trustline details if and only if the request returned a valid balance
-   *    ledger entry. If it doesn't, the `trustline` field will not exist.
+   * @returns {Promise<Api.BalanceResponse>}, which will contain the balance
+   *    entry details if and only if the request returned a valid balance ledger
+   *    entry. If it doesn't, the `balanceEntry` field will not exist.
    *
    * @throws {TypeError} If `contractId` is not a valid contract strkey (C...).
    *
@@ -1001,7 +1001,7 @@ export class Server {
         balanceEntry: {
           liveUntilLedgerSeq,
           lastModifiedLedgerSeq,
-          amount: entry.amount,
+          amount: entry.amount.toString(),
           authorized: entry.authorized,
           clawback: entry.clawback,
         }
