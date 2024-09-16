@@ -135,12 +135,19 @@ describe("Server#getContractBalance", function () {
   });
 
   it("throws on invalid addresses", function (done) {
-    expect(
-      this.server.getSACBalance(Keypair.random().publicKey(), token),
-    ).to.throw(/TypeError/);
+    this.server
+      .getSACBalance(Keypair.random().publicKey(), token)
+      .then(() => done(new Error("Error didn't occur")))
+      .catch((err) => {
+        expect(err).to.match(/TypeError/);
+      });
 
-    expect(
-      this.server.getSACBalance(contract.substring(0, -1), token),
-    ).to.throw(/TypeError/);
+    this.server
+      .getSACBalance(contract.substring(0, -1), token)
+      .then(() => done(new Error("Error didn't occur")))
+      .catch((err) => {
+        expect(err).to.match(/TypeError/);
+        done();
+      });
   });
 });
