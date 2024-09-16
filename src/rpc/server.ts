@@ -903,13 +903,13 @@ export class Server {
   }
 
   /**
-   * Returns a contract's balance of a particular token, if any.
+   * Returns a contract's balance of a particular SAC asset, if any.
    *
    * This is a convenience wrapper around {@link Server.getLedgerEntries}.
    *
    * @param {string}  contractId    the contract ID (string `C...`) whose
-   *    balance of `token` you want to know
-   * @param {Asset}   token     the token/asset (e.g. `USDC:GABC...`) that
+   *    balance of `sac` you want to know
+   * @param {Asset}   sac     the built-in SAC token (e.g. `USDC:GABC...`) that
    *    you are querying from the given `contract`.
    * @param {string}  [networkPassphrase] optionally, the network passphrase to
    *    which this token applies. If omitted, a request about network
@@ -924,10 +924,11 @@ export class Server {
    * @throws {TypeError} If `contractId` is not a valid contract strkey (C...).
    *
    * @see getLedgerEntries
+   * @see https://developers.stellar.org/docs/tokens/stellar-asset-contract
    */
-  public async getContractBalance(
+  public async getSACBalance(
     contractId: string,
-    token: Asset,
+    sac: Asset,
     networkPassphrase?: string
   ): Promise<Api.ContractBalanceResponse> {
       if (!StrKey.isValidContract(contractId)) {
@@ -938,8 +939,8 @@ export class Server {
       const passphrase: string = networkPassphrase
         ?? await this.getNetwork().then(n => n.passphrase);
 
-      // Turn token into predictable contract ID
-      const tokenId = token.contractId(passphrase);
+      // Turn SAC into predictable contract ID
+      const sacId = sac.contractId(passphrase);
 
       // Rust union enum type with "Balance(ScAddress)" structure
       const key = xdr.ScVal.scvVec([
@@ -954,7 +955,7 @@ export class Server {
       // of N XLM).
       const ledgerKey = xdr.LedgerKey.contractData(
         new xdr.LedgerKeyContractData({
-          contract: new Address(tokenId).toScAddress(),
+          contract: new Address(sacId).toScAddress(),
           durability: xdr.ContractDataDurability.persistent(),
           key
         })

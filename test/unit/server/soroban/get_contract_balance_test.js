@@ -88,7 +88,7 @@ describe("Server#getContractBalance", function () {
     buildMockResult(this);
 
     this.server
-      .getContractBalance(contract, token, StellarSdk.Networks.TESTNET)
+      .getSACBalance(contract, token, StellarSdk.Networks.TESTNET)
       .then((response) => {
         expect(response.latestLedger).to.equal(1000);
         expect(response.balanceEntry).to.not.be.undefined;
@@ -122,7 +122,7 @@ describe("Server#getContractBalance", function () {
       );
 
     this.server
-      .getContractBalance(contract, token)
+      .getSACBalance(contract, token)
       .then((response) => {
         expect(response.latestLedger).to.equal(1000);
         expect(response.balanceEntry).to.not.be.undefined;
