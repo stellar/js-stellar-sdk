@@ -6,6 +6,25 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Added
+- `rpc.Server` now has a `getSACBalance` helper which lets you fetch the balance of a built-in Stellar Asset Contract token held by a contract ([#1046](https://github.com/stellar/js-stellar-sdk/pull/1046)):
+
+```typescript
+export interface BalanceResponse {
+  latestLedger: number;
+  /** present only on success, otherwise request malformed or no balance */
+  balanceEntry?: {
+    /** a 64-bit integer */
+    amount: string;
+    authorized: boolean;
+    clawback: boolean;
+
+    lastModifiedLedgerSeq?: number;
+    liveUntilLedgerSeq?: number;
+  };
+}
+```
+
 
 ## [v12.3.0](https://github.com/stellar/js-stellar-sdk/compare/v12.2.0...v12.3.0)
 
