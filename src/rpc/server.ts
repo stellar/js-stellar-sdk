@@ -925,6 +925,21 @@ export class Server {
    *
    * @see getLedgerEntries
    * @see https://developers.stellar.org/docs/tokens/stellar-asset-contract
+   *
+   * @example
+   * // assume `contractId` is some contract with an XLM balance
+   * // assume server is an instantiated `Server` instance.
+   * const entry = (await server.getSACBalance(
+   *   new Address(contractId),
+   *   Asset.native(),
+   *   Networks.PUBLIC
+   * ));
+   *
+   * // assumes BigInt support:
+   * console.log(
+   *   entry.balanceEntry ?
+   *   BigInt(entry.balanceEntry.amount) :
+   *   "Contract has no XLM");
    */
   public async getSACBalance(
     contractId: string,
