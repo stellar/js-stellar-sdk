@@ -986,7 +986,7 @@ export class Server {
         balanceEntry: {
           liveUntilLedgerSeq,
           lastModifiedLedgerSeq,
-          amount: entry.amount.toString(),
+          amount: entry.amount,
           authorized: entry.authorized,
           clawback: entry.clawback,
         }
