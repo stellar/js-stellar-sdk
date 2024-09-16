@@ -1,4 +1,4 @@
-const { Address, xdr, nativeToScVal, hash } = StellarSdk;
+const { Address, Keypair, xdr, nativeToScVal, hash } = StellarSdk;
 const { Server, AxiosClient, Durability } = StellarSdk.rpc;
 
 describe("Server#getContractBalance", function () {
@@ -132,5 +132,15 @@ describe("Server#getContractBalance", function () {
         done();
       })
       .catch((err) => done(err));
+  });
+
+  it("throws on invalid addresses", function (done) {
+    expect(
+      this.server.getSACBalance(Keypair.random().publicKey(), token),
+    ).to.throw(/TypeError/);
+
+    expect(
+      this.server.getSACBalance(contract.substring(0, -1), token),
+    ).to.throw(/TypeError/);
   });
 });
