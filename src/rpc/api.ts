@@ -449,7 +449,7 @@ export namespace Api {
     ledgerCount: number; // uint32
   }
 
-  export interface ContractBalanceResponse {
+  export interface BalanceResponse {
     latestLedger: number;
     // present only on success, otherwise request malformed or no balance
     balanceEntry?: {

@@ -917,7 +917,7 @@ export class Server {
    *    for assets are specific to a network. You can refer to {@link Networks}
    *    for a list of built-in passphrases, e.g., `Networks.TESTNET`.
    *
-   * @returns {Promise<Api.ContractBalanceResponse>}, which will contain the
+   * @returns {Promise<Api.BalanceResponse>}, which will contain the
    *    trustline details if and only if the request returned a valid balance
    *    ledger entry. If it doesn't, the `trustline` field will not exist.
    *
@@ -930,7 +930,7 @@ export class Server {
     contractId: string,
     sac: Asset,
     networkPassphrase?: string
-  ): Promise<Api.ContractBalanceResponse> {
+  ): Promise<Api.BalanceResponse> {
       if (!StrKey.isValidContract(contractId)) {
         throw new TypeError(`expected contract ID, got ${contractId}`);
       }
