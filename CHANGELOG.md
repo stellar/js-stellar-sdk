@@ -7,21 +7,26 @@ A breaking change will get clearly marked in this log.
 ## Unreleased
 
 
+## [v12.3.0](https://github.com/stellar/js-stellar-sdk/compare/v12.2.0...v12.3.0)
+
 ### Added
-- Add `getTransactions` to RPC server. ([#1037](https://github.com/stellar/js-stellar-sdk/pull/1037))
-- `rpc.Server` now has a `getVersionInfo` method which reports version information of the RPC instance it is connected to. ([#997](https://github.com/stellar/js-stellar-sdk/issues/997)):
+- `rpc.Server` now has a `getTransactions`, which has the same response schema as `getTransactions` except with bundles of transactions ([#1037](https://github.com/stellar/js-stellar-sdk/pull/1037)).
+- `rpc.Server` now has a `getVersionInfo` method which reports version information of the RPC instance it is connected to ([#1028](https://github.com/stellar/js-stellar-sdk/issues/1028)):
 
 ```typescript
-
-    export interface GetVersionInfoResponse {
-        version: string;
-        commit_hash: string;
-        build_time_stamp: string;
-        captive_core_version: string;
-        protocol_version: number;
-    }
-
+export interface GetVersionInfoResponse {
+  version: string;
+  commit_hash: string;
+  build_time_stamp: string;
+  captive_core_version: string;
+  protocol_version: number;
+}
 ```
+
+### Fixed
+- Lower authorization entry's default signature expiration to ~8min for security reasons ([#1023](https://github.com/stellar/js-stellar-sdk/pull/1023)).
+- Remove `statusText` error check to broaden compatibility ([#1001](https://github.com/stellar/js-stellar-sdk/pull/1001)).
+- Upgraded `stellar-base` which includes various fixes ([release notes](https://github.com/stellar/js-stellar-base/releases/tag/v12.1.1), [#1045](https://github.com/stellar/js-stellar-sdk/pull/1045)).
 
 
 ## [v12.2.0](https://github.com/stellar/js-stellar-sdk/compare/v12.1.0...v12.2.0)
