@@ -24,24 +24,13 @@ import { assembleTransaction } from "../rpc/transaction";
 import type { Client } from "./client";
 import { Err } from "./rust_result";
 import {
-  DEFAULT_TIMEOUT,
   contractErrorPattern,
   implementsToString,
   getAccount
 } from "./utils";
+import { DEFAULT_TIMEOUT } from "./types";
 import { SentTransaction } from "./sent_transaction";
 import { Spec } from "./spec";
-
-/** @module contract */
-
-/**
- * An impossible account on the Stellar network
- * @constant {string}
- * @default GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF
- * @memberof module:contract
- */
-export const NULL_ACCOUNT =
-  "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF";
 
 /**
  * The main workhorse of {@link Client}. This class is used to wrap a
@@ -414,7 +403,7 @@ export class AssembledTransaction<T> {
     }
     const method = invokeContractArgs.functionName().toString('utf-8');
     const txn = new AssembledTransaction(
-      { ...options, 
+      { ...options,
         method,
         parseResultXdr: (result: xdr.ScVal) =>
           spec.funcResToNative(method, result),
@@ -571,7 +560,7 @@ export class AssembledTransaction<T> {
     if (Api.isSimulationRestore(simulation)) {
       throw new AssembledTransaction.Errors.ExpiredState(
         `You need to restore some contract state before you can invoke this method.\n` +
-        'You can set `restore` to true in the method options in order to ' + 
+        'You can set `restore` to true in the method options in order to ' +
         'automatically restore the contract state when needed.'
       );
     }
@@ -611,7 +600,7 @@ export class AssembledTransaction<T> {
   }
 
   /**
-   * Sign the transaction with the signTransaction function included previously. 
+   * Sign the transaction with the signTransaction function included previously.
    * If you did not previously include one, you need to include one now.
    */
   sign = async ({
@@ -688,9 +677,9 @@ export class AssembledTransaction<T> {
   }
 
   /**
-   * Sign the transaction with the `signTransaction` function included previously. 
-   * If you did not previously include one, you need to include one now. 
-   * After signing, this method will send the transaction to the network and 
+   * Sign the transaction with the `signTransaction` function included previously.
+   * If you did not previously include one, you need to include one now.
+   * After signing, this method will send the transaction to the network and
    * return a `SentTransaction` that keeps track * of all the attempts to fetch the transaction.
    */
   signAndSend = async ({
@@ -710,19 +699,6 @@ export class AssembledTransaction<T> {
       await this.sign({ force, signTransaction });
     }
     return this.send();
-  };
-
-  private getStorageExpiration = async () => {
-    const entryRes = await this.server.getLedgerEntries(
-      new Contract(this.options.contractId).getFootprint(),
-    );
-    if (
-      !entryRes.entries ||
-      !entryRes.entries.length ||
-      !entryRes.entries[0].liveUntilLedgerSeq
-    )
-      throw new Error("failed to get ledger entry");
-    return entryRes.entries[0].liveUntilLedgerSeq;
   };
 
   /**
@@ -807,15 +783,15 @@ export class AssembledTransaction<T> {
    * currently supported!
    */
   signAuthEntries = async ({
-    expiration = this.getStorageExpiration(),
+    expiration = (async () =>
+      (await this.server.getLatestLedger()).sequence + 100)(),
     signAuthEntry = this.options.signAuthEntry,
     publicKey = this.options.publicKey,
   }: {
     /**
      * When to set each auth entry to expire. Could be any number of blocks in
      * the future. Can be supplied as a promise or a raw number. Default:
-     * contract's current `persistent` storage expiration date/ledger
-     * number/block.
+     * about 8.3 minutes from now.
      */
     expiration?: number | Promise<number>;
     /**
@@ -902,28 +878,28 @@ export class AssembledTransaction<T> {
   }
 
   /**
-   * Restores the footprint (resource ledger entries that can be read or written) 
-   * of an expired transaction. 
-   * 
+   * Restores the footprint (resource ledger entries that can be read or written)
+   * of an expired transaction.
+   *
    * The method will:
    * 1. Build a new transaction aimed at restoring the necessary resources.
    * 2. Sign this new transaction if a `signTransaction` handler is provided.
    * 3. Send the signed transaction to the network.
    * 4. Await and return the response from the network.
-   * 
+   *
    * Preconditions:
    * - A `signTransaction` function must be provided during the Client initialization.
    * - The provided `restorePreamble` should include a minimum resource fee and valid
    *   transaction data.
-   * 
-   * @throws {Error} - Throws an error if no `signTransaction` function is provided during 
+   *
+   * @throws {Error} - Throws an error if no `signTransaction` function is provided during
    * Client initialization.
-   * @throws {AssembledTransaction.Errors.RestoreFailure} - Throws a custom error if the 
+   * @throws {AssembledTransaction.Errors.RestoreFailure} - Throws a custom error if the
    * restore transaction fails, providing the details of the failure.
- */
+   */
   async restoreFootprint(
     /**
-     * The preamble object containing data required to 
+     * The preamble object containing data required to
      * build the restore transaction.
      */
     restorePreamble: {

@@ -139,7 +139,7 @@ export type MethodOptions = {
   simulate?: boolean;
 
   /**
-   * If true, will automatically attempt to restore the transaction if there 
+   * If true, will automatically attempt to restore the transaction if there
    * are archived entries that need renewal. @default false
    */
   restore?: boolean;
@@ -151,3 +151,22 @@ export type AssembledTransactionOptions<T = string> = MethodOptions &
     args?: any[];
     parseResultXdr: (xdr: xdr.ScVal) => T;
   };
+
+/**
+ * The default timebounds, in seconds, during which a transaction will be valid.
+ * This is attached to the transaction _before_ transaction simulation (it is
+ * needed for simulation to succeed). It is also re-calculated and re-added
+ * _before_ transaction signing.
+ * @constant {number}
+ * @default 300
+ * @memberof module:contract.Client
+ */
+export const DEFAULT_TIMEOUT = 5 * 60;
+
+/**
+ * An impossible account on the Stellar network
+ * @constant {string}
+ * @default GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF
+ * @memberof module:contract
+ */
+export const NULL_ACCOUNT = "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF";

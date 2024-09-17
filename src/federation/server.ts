@@ -1,3 +1,4 @@
+/* eslint-disable require-await */
 import axios from "axios";
 import { StrKey } from "@stellar/stellar-base";
 import URI from "urijs";
@@ -34,12 +35,14 @@ export class Server {
    *
    */
   private readonly serverURL: URI; // TODO: public or private? readonly?
+
   /**
    * Domain this server represents.
    *
    * @type {string}
    */
   private readonly domain: string; // TODO: public or private? readonly?
+
   /**
    * Allow a timeout, default: 0. Allows user to avoid nasty lag due to TOML resolve issue.
    *

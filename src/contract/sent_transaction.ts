@@ -3,7 +3,8 @@
 import type { MethodOptions } from "./types";
 import { Server } from "../rpc/server"
 import { Api } from "../rpc/api"
-import { DEFAULT_TIMEOUT, withExponentialBackoff } from "./utils";
+import { withExponentialBackoff } from "./utils";
+import { DEFAULT_TIMEOUT } from "./types";
 import type { AssembledTransaction } from "./assembled_transaction";
 
 /**

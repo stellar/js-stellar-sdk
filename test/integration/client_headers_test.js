@@ -89,7 +89,10 @@ describe("integration tests: client headers", function (done) {
         return;
       }
 
-      new Horizon.Server(`http://localhost:${port}`, { headers: { "authorization": "123456789" }, allowHttp: true })
+      new Horizon.Server(`http://localhost:${port}`, {
+        headers: { authorization: "123456789" },
+        allowHttp: true,
+      })
         .operations()
         .call();
     });

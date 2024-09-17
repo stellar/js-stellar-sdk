@@ -81,7 +81,7 @@ export class TransactionCallBuilder extends CallBuilder<
   /**
    * Adds a parameter defining whether to include failed transactions. By default only successful transactions are
    * returned.
-   * @param {bool} value Set to `true` to include failed transactions.
+   * @param {boolean} value Set to `true` to include failed transactions.
    * @returns {TransactionCallBuilder} current TransactionCallBuilder instance
    */
   public includeFailed(value: boolean): this {

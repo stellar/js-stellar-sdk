@@ -20,7 +20,9 @@ export interface EventSourceOptions<T> {
 const anyGlobal = global as any;
 type Constructable<T> = new (e: string) => T;
 // require("eventsource") for Node and React Native environment
-let EventSource: Constructable<EventSource> = anyGlobal.EventSource ??
+/* eslint-disable global-require */
+/* eslint-disable prefer-import/prefer-import-over-require */
+const EventSource: Constructable<EventSource> = anyGlobal.EventSource ??
   anyGlobal.window?.EventSource ??
   require("eventsource");
 
@@ -41,8 +43,11 @@ export class CallBuilder<
     | ServerApi.CollectionPage<HorizonApi.BaseResponse>
 > {
   protected url: URI;
+
   public filter: string[][];
+
   protected originalSegments: string[];
+
   protected neighborRoot: string;
 
   constructor(serverUrl: URI, neighborRoot: string = "") {
@@ -85,10 +90,10 @@ export class CallBuilder<
    * @see {@link https://developers.stellar.org/network/horizon/api-reference/structure/response-format|Horizon Response Format}
    * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/EventSource|MDN EventSource}
    * @param {object} [options] EventSource options.
-   * @param {function} [options.onmessage] Callback function to handle incoming messages.
-   * @param {function} [options.onerror] Callback function to handle errors.
+   * @param {Function} [options.onmessage] Callback function to handle incoming messages.
+   * @param {Function} [options.onerror] Callback function to handle errors.
    * @param {number} [options.reconnectTimeout] Custom stream connection timeout in ms, default is 15 seconds.
-   * @returns {function} Close function. Run to close the connection and stop listening for new events.
+   * @returns {Function} Close function. Run to close the connection and stop listening for new events.
    */
   public stream(options: EventSourceOptions<T> = {}): () => void {
     this.checkFilter();
@@ -107,11 +112,12 @@ export class CallBuilder<
     const createTimeout = () => {
       timeout = setTimeout(() => {
         es?.close();
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
         es = createEventSource();
       }, options.reconnectTimeout || 15 * 1000);
     };
 
-    let createEventSource = (): EventSource => {
+    const createEventSource = (): EventSource => {
       try {
         es = new EventSource(this.url.toString());
       } catch (err) {
@@ -177,6 +183,8 @@ export class CallBuilder<
       return es;
     };
 
+
+
     createEventSource();
     return () => {
       clearTimeout(timeout);
@@ -198,7 +206,7 @@ export class CallBuilder<
   /**
    * Sets `limit` parameter for the current call. Returns the CallBuilder object on which this method has been called.
    * @see {@link https://developers.stellar.org/network/horizon/api-reference/structure/pagination|Paging}
-   * @param {number} number Number of records the server should return.
+   * @param {number} recordsNumber Number of records the server should return.
    * @returns {object} current CallBuilder instance
    */
   public limit(recordsNumber: number): this {
@@ -224,7 +232,7 @@ export class CallBuilder<
    * will include a `transaction` field for each operation in the
    * response.
    *
-   * @param {"transactions"} join Records to be included in the response.
+   * @param "include" join Records to be included in the response.
    * @returns {object} current CallBuilder instance.
    */
   public join(include: "transactions"): this {
@@ -275,9 +283,9 @@ export class CallBuilder<
    * Convert a link object to a function that fetches that link.
    * @private
    * @param {object} link A link object
-   * @param {bool} link.href the URI of the link
-   * @param {bool} [link.templated] Whether the link is templated
-   * @returns {function} A function that requests the link
+   * @param {boolean} link.href the URI of the link
+   * @param {boolean} [link.templated] Whether the link is templated
+   * @returns {Function} A function that requests the link
    */
   private _requestFnForLink(link: HorizonApi.ResponseLink): (opts?: any) => any {
     return async (opts: any = {}) => {
@@ -306,7 +314,7 @@ export class CallBuilder<
     if (!json._links) {
       return json;
     }
-    for (const key of Object.keys(json._links)) {
+    Object.keys(json._links).forEach((key) => {
       const n = json._links[key];
       let included = false;
       // If the key with the link name already exists, create a copy
@@ -326,14 +334,16 @@ export class CallBuilder<
         const record = this._parseRecord(json[key]);
         // Maintain a promise based API so the behavior is the same whether you
         // are loading from the server or in-memory (via join).
+        // eslint-disable-next-line require-await
         json[key] = async () => record;
       } else {
         json[key] = this._requestFnForLink(n as HorizonApi.ResponseLink);
       }
-    }
+    });
     return json;
   }
 
+  // eslint-disable-next-line require-await
   private async _sendNormalRequest(initialUrl: URI) {
     let url = initialUrl;
 
@@ -389,16 +399,17 @@ export class CallBuilder<
    * @param {object} error Network error object
    * @returns {Promise<Error>} Promise that rejects with a human-readable error
    */
+  // eslint-disable-next-line require-await
   private async _handleNetworkError(error: NetworkError): Promise<void> {
-    if (error.response && error.response.status && error.response.statusText) {
+    if (error.response && error.response.status) {
       switch (error.response.status) {
         case 404:
           return Promise.reject(
-            new NotFoundError(error.response.statusText, error.response.data),
+            new NotFoundError(error.response.statusText ?? "Not Found", error.response.data),
           );
         default:
           return Promise.reject(
-            new NetworkError(error.response.statusText, error.response.data),
+            new NetworkError(error.response.statusText ?? "Unknown", error.response.data),
           );
       }
     } else {

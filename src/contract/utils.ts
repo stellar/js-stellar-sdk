@@ -1,19 +1,7 @@
 import { xdr, cereal, Account } from "@stellar/stellar-base";
 import { Server } from "../rpc/server";
-import { NULL_ACCOUNT, type AssembledTransaction } from "./assembled_transaction";
-import { AssembledTransactionOptions } from "./types";
-
-
-/**
- * The default timebounds, in seconds, during which a transaction will be valid.
- * This is attached to the transaction _before_ transaction simulation (it is
- * needed for simulation to succeed). It is also re-calculated and re-added
- * _before_ transaction signing.
- * @constant {number}
- * @default 300
- * @memberof module:contract.Client
- */
-export const DEFAULT_TIMEOUT = 5 * 60;
+import { type AssembledTransaction } from "./assembled_transaction";
+import { NULL_ACCOUNT , AssembledTransactionOptions } from "./types";
 
 /**
  * Keep calling a `fn` for `timeoutInSeconds` seconds, if `keepWaitingIf` is
@@ -124,11 +112,12 @@ export function processSpecEntryStream(buffer: Buffer) {
   return res;
 }
 
+//eslint-disable-next-line require-await
 export async function getAccount<T>(
   options: AssembledTransactionOptions<T>,
   server: Server
 ): Promise<Account> {
   return options.publicKey
-    ? await server.getAccount(options.publicKey)
+    ? server.getAccount(options.publicKey)
     : new Account(NULL_ACCOUNT, "0");
 }

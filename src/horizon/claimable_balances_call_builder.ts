@@ -67,7 +67,7 @@ export class ClaimableBalanceCallBuilder extends CallBuilder<
    * Returns all claimable balances which provide a balance for the given asset.
    *
    * @see {@link https://developers.stellar.org/network/horizon/api-reference/resources/list-all-claimable-balances|Claimable Balances}
-   * @param {Asset} The Asset held by the claimable balance
+   * @param {Asset} asset The Asset held by the claimable balance
    * @returns {ClaimableBalanceCallBuilder} current ClaimableBalanceCallBuilder instance
    */
   public asset(asset: Asset): this {

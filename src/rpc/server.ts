@@ -11,6 +11,8 @@ import {
   xdr
 } from '@stellar/stellar-base';
 
+import type { TransactionBuilder } from '@stellar/stellar-base';
+// eslint-disable-next-line import/no-named-as-default
 import AxiosClient from './axios';
 import { Api as FriendbotApi } from '../friendbot';
 import * as jsonrpc from './jsonrpc';
@@ -20,7 +22,9 @@ import {
   parseRawSendTransaction,
   parseRawSimulation,
   parseRawLedgerEntries,
-  parseRawEvents
+  parseRawEvents,
+  parseRawTransactions,
+  parseTransactionInfo,
 } from './parsers';
 
 /**
@@ -86,6 +90,39 @@ export namespace Server {
   }
 }
 
+function findCreatedAccountSequenceInTransactionMeta(
+  meta: xdr.TransactionMeta
+): string {
+  let operations: xdr.OperationMeta[] = [];
+  switch (meta.switch()) {
+    case 0:
+      operations = meta.operations();
+      break;
+    case 1:
+    case 2:
+    case 3: // all three have the same interface
+      operations = (meta.value() as xdr.TransactionMetaV3).operations();
+      break;
+    default:
+      throw new Error('Unexpected transaction meta switch value');
+  }
+  const sequenceNumber = operations
+    .flatMap(op => op.changes())
+    .find(c => c.switch() === xdr.LedgerEntryChangeType.ledgerEntryCreated() &&
+              c.created().data().switch() === xdr.LedgerEntryType.account())
+    ?.created()
+    ?.data()
+    ?.account()
+    ?.seqNum()
+    ?.toString();
+
+  if (sequenceNumber) {
+    return sequenceNumber;
+  }
+  throw new Error('No account created in transaction');
+}
+
+/* eslint-disable jsdoc/no-undefined-types */
 /**
  * Handles the network connection to a Soroban RPC instance, exposing an
  * interface for requests to that instance.
@@ -154,6 +191,7 @@ export class Server {
 
     const resp = await this.getLedgerEntries(ledgerKey);
     if (resp.entries.length === 0) {
+      // eslint-disable-next-line prefer-promise-reject-errors
       return Promise.reject({
         code: 404,
         message: `Account not found: ${address}`
@@ -178,6 +216,7 @@ export class Server {
    *   console.log("status:", health.status);
    * });
    */
+  // eslint-disable-next-line require-await
   public async getHealth(): Promise<Api.GetHealthResponse> {
     return jsonrpc.postObject<Api.GetHealthResponse>(
       this.serverURL.toString(),
@@ -216,6 +255,7 @@ export class Server {
    *   console.log("latestLedger:", data.latestLedger);
    * });
    */
+  // eslint-disable-next-line require-await
   public async getContractData(
     contract: string | Address | Contract,
     key: xdr.ScVal,
@@ -247,7 +287,7 @@ export class Server {
         throw new TypeError(`invalid durability: ${durability}`);
     }
 
-    let contractKey = xdr.LedgerKey.contractData(
+    const contractKey = xdr.LedgerKey.contractData(
       new xdr.LedgerKeyContractData({
         key,
         contract: scAddress,
@@ -258,6 +298,7 @@ export class Server {
     return this.getLedgerEntries(contractKey).then(
       (r: Api.GetLedgerEntriesResponse) => {
         if (r.entries.length === 0) {
+          // eslint-disable-next-line prefer-promise-reject-errors
           return Promise.reject({
             code: 404,
             message: `Contract data not found. Contract: ${Address.fromScAddress(
@@ -300,6 +341,7 @@ export class Server {
     const contractLedgerKey = new Contract(contractId).getFootprint();
     const response = await this.getLedgerEntries(contractLedgerKey);
     if (!response.entries.length || !response.entries[0]?.val) {
+      // eslint-disable-next-line prefer-promise-reject-errors
       return Promise.reject({code: 404, message: `Could not obtain contract hash from server`});
     }
 
@@ -348,6 +390,7 @@ export class Server {
 
     const responseWasm = await this.getLedgerEntries(ledgerKeyWasmHash);
     if (!responseWasm.entries.length || !responseWasm.entries[0]?.val) {
+      // eslint-disable-next-line prefer-promise-reject-errors
       return Promise.reject({ code: 404, message: "Could not obtain contract wasm from server" });
     }
     const wasmBuffer = responseWasm.entries[0].val.contractCode().code();
@@ -370,7 +413,7 @@ export class Server {
    * values for the given ledger keys
    *
    * @see {@link https://developers.stellar.org/network/soroban-rpc/api-reference/methods/getLedgerEntries | getLedgerEntries docs}
-   *
+   * @see Server._getLedgerEntries
    * @example
    * const contractId = "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM";
    * const key = xdr.LedgerKey.contractData(new xdr.LedgerKeyContractData({
@@ -387,12 +430,14 @@ export class Server {
    *   console.log("latestLedger:", response.latestLedger);
    * });
    */
+  // eslint-disable-next-line require-await
   public async getLedgerEntries(
     ...keys: xdr.LedgerKey[]
   ): Promise<Api.GetLedgerEntriesResponse> {
     return this._getLedgerEntries(...keys).then(parseRawLedgerEntries);
   }
 
+  // eslint-disable-next-line require-await
   public async _getLedgerEntries(...keys: xdr.LedgerKey[]) {
     return jsonrpc
       .postObject<Api.RawGetLedgerEntriesResponse>(
@@ -424,34 +469,18 @@ export class Server {
    *   console.log("resultXdr:", tx.resultXdr);
    * });
    */
+  // eslint-disable-next-line require-await
   public async getTransaction(
     hash: string
   ): Promise<Api.GetTransactionResponse> {
     return this._getTransaction(hash).then((raw) => {
-      let foundInfo: Omit<
-        Api.GetSuccessfulTransactionResponse,
-        keyof Api.GetMissingTransactionResponse
+      const foundInfo: Omit<
+          Api.GetSuccessfulTransactionResponse,
+          keyof Api.GetMissingTransactionResponse
       > = {} as any;
 
       if (raw.status !== Api.GetTransactionStatus.NOT_FOUND) {
-        const meta = xdr.TransactionMeta.fromXDR(raw.resultMetaXdr!, 'base64');
-        foundInfo = {
-          ledger: raw.ledger!,
-          createdAt: raw.createdAt!,
-          applicationOrder: raw.applicationOrder!,
-          feeBump: raw.feeBump!,
-          envelopeXdr: xdr.TransactionEnvelope.fromXDR(
-            raw.envelopeXdr!,
-            'base64'
-          ),
-          resultXdr: xdr.TransactionResult.fromXDR(raw.resultXdr!, 'base64'),
-          resultMetaXdr: meta,
-          ...(meta.switch() === 3 &&
-            meta.v3().sorobanMeta() !== null &&
-            raw.status === Api.GetTransactionStatus.SUCCESS && {
-              returnValue: meta.v3().sorobanMeta()?.returnValue()
-            })
-        };
+        Object.assign(foundInfo, parseTransactionInfo(raw));
       }
 
       const result: Api.GetTransactionResponse = {
@@ -467,10 +496,48 @@ export class Server {
     });
   }
 
+  // eslint-disable-next-line require-await
   public async _getTransaction(
     hash: string
   ): Promise<Api.RawGetTransactionResponse> {
     return jsonrpc.postObject(this.serverURL.toString(), 'getTransaction', {hash});
+  }
+
+  /**
+   * Fetch transactions starting from a given start ledger or a cursor. The end ledger is the latest ledger
+   * in that RPC instance.
+   *
+   * @param {Api.GetTransactionsRequest} request - The request parameters.
+   * @returns {Promise<Api.GetTransactionsResponse>} - A promise that resolves to the transactions response.
+   *
+   * @see https://developers.stellar.org/docs/data/rpc/api-reference/methods/getTransactions
+   * @example
+   * server.getTransactions({
+   *   startLedger: 10000,
+   *   limit: 10,
+   * }).then((response) => {
+   *   console.log("Transactions:", response.transactions);
+   *   console.log("Latest Ledger:", response.latestLedger);
+   *   console.log("Cursor:", response.cursor);
+   * });
+   */
+  public async getTransactions(request: Api.GetTransactionsRequest): Promise<Api.GetTransactionsResponse> {
+    return this._getTransactions(request).then((raw: Api.RawGetTransactionsResponse) => {
+      const result: Api.GetTransactionsResponse = {
+        transactions: raw.transactions.map(parseRawTransactions),
+        latestLedger: raw.latestLedger,
+        latestLedgerCloseTimestamp: raw.latestLedgerCloseTimestamp,
+        oldestLedger: raw.oldestLedger,
+        oldestLedgerCloseTimestamp: raw.oldestLedgerCloseTimestamp,
+        cursor: raw.cursor,
+      }
+      return result
+    });
+  }
+
+  // Add this private method to the Server class
+  private async _getTransactions(request: Api.GetTransactionsRequest): Promise<Api.RawGetTransactionsResponse> {
+    return jsonrpc.postObject(this.serverURL.toString(), 'getTransactions', request);
   }
 
   /**
@@ -512,12 +579,14 @@ export class Server {
    *    limit: 10,
    * });
    */
+  // eslint-disable-next-line require-await
   public async getEvents(
     request: Server.GetEventsRequest
   ): Promise<Api.GetEventsResponse> {
     return this._getEvents(request).then(parseRawEvents);
   }
 
+  // eslint-disable-next-line require-await
   public async _getEvents(
     request: Server.GetEventsRequest
   ): Promise<Api.RawGetEventsResponse> {
@@ -548,8 +617,9 @@ export class Server {
    *   console.log("protocolVersion:", network.protocolVersion);
    * });
    */
+  // eslint-disable-next-line require-await
   public async getNetwork(): Promise<Api.GetNetworkResponse> {
-    return await jsonrpc.postObject(this.serverURL.toString(), 'getNetwork');
+    return jsonrpc.postObject(this.serverURL.toString(), 'getNetwork');
   }
 
   /**
@@ -568,6 +638,7 @@ export class Server {
    *   console.log("protocolVersion:", response.protocolVersion);
    * });
    */
+  // eslint-disable-next-line require-await
   public async getLatestLedger(): Promise<Api.GetLatestLedgerResponse> {
     return jsonrpc.postObject(this.serverURL.toString(), 'getLatestLedger');
   }
@@ -576,7 +647,7 @@ export class Server {
    * Submit a trial contract invocation to get back return values, expected
    * ledger footprint, expected authorizations, and expected costs.
    *
-   * @param {Transaction | FeeBumpTransaction} transaction The transaction to
+   * @param {Transaction | FeeBumpTransaction} tx the transaction to
    *    simulate, which should include exactly one operation (one of
    *    {@link xdr.InvokeHostFunctionOp}, {@link xdr.ExtendFootprintTTLOp}, or
    *    {@link xdr.RestoreFootprintOp}). Any provided footprint or auth
@@ -613,6 +684,7 @@ export class Server {
    *   console.log("latestLedger:", sim.latestLedger);
    * });
    */
+  // eslint-disable-next-line require-await
   public async simulateTransaction(
     tx: Transaction | FeeBumpTransaction,
     addlResources?: Server.ResourceLeeway
@@ -621,6 +693,7 @@ export class Server {
       .then(parseRawSimulation);
   }
 
+  // eslint-disable-next-line require-await
   public async _simulateTransaction(
     transaction: Transaction | FeeBumpTransaction,
     addlResources?: Server.ResourceLeeway
@@ -657,7 +730,7 @@ export class Server {
    * transaction in detail first, then re-assemble it manually or via
    * {@link module:rpc.assembleTransaction}.
    *
-   * @param {Transaction | FeeBumpTransaction} transaction The transaction to
+   * @param {Transaction | FeeBumpTransaction} tx  the transaction to
    *    prepare. It should include exactly one operation, which must be one of
    *    {@link xdr.InvokeHostFunctionOp}, {@link xdr.ExtendFootprintTTLOp},
    *    or {@link xdr.RestoreFootprintOp}.
@@ -712,7 +785,7 @@ export class Server {
   public async prepareTransaction(tx: Transaction | FeeBumpTransaction) {
     const simResponse = await this.simulateTransaction(tx);
     if (Api.isSimulationError(simResponse)) {
-      throw simResponse.error;
+      throw new Error(simResponse.error);
     }
 
     return assembleTransaction(tx, simResponse).build();
@@ -762,12 +835,14 @@ export class Server {
    *   console.log("errorResultXdr:", result.errorResultXdr);
    * });
    */
+  // eslint-disable-next-line require-await
   public async sendTransaction(
     transaction: Transaction | FeeBumpTransaction
   ): Promise<Api.SendTransactionResponse> {
     return this._sendTransaction(transaction).then(parseRawSendTransaction);
   }
 
+  // eslint-disable-next-line require-await
   public async _sendTransaction(
     transaction: Transaction | FeeBumpTransaction
   ): Promise<Api.RawSendTransactionResponse> {
@@ -836,38 +911,25 @@ export class Server {
       throw error;
     }
   }
-}
 
-function findCreatedAccountSequenceInTransactionMeta(
-  meta: xdr.TransactionMeta
-): string {
-  let operations: xdr.OperationMeta[] = [];
-  switch (meta.switch()) {
-    case 0:
-      operations = meta.operations();
-      break;
-    case 1:
-    case 2:
-    case 3: // all three have the same interface
-      operations = (meta.value() as xdr.TransactionMetaV3).operations();
-      break;
-    default:
-      throw new Error('Unexpected transaction meta switch value');
+  /**
+   * Provides an analysis of the recent fee stats for regular and smart
+   * contract operations.
+   *
+   * @returns {Promise<Api.GetFeeStatsResponse>}  the fee stats
+   * @see https://developers.stellar.org/docs/data/rpc/api-reference/methods/getFeeStats
+   */
+  public async getFeeStats(): Promise<Api.GetFeeStatsResponse> {
+    return jsonrpc.postObject(this.serverURL.toString(), 'getFeeStats');
   }
 
-  for (const op of operations) {
-    for (const c of op.changes()) {
-      if (c.switch() !== xdr.LedgerEntryChangeType.ledgerEntryCreated()) {
-        continue;
-      }
-      const data = c.created().data();
-      if (data.switch() !== xdr.LedgerEntryType.account()) {
-        continue;
-      }
-
-      return data.account().seqNum().toString();
-    }
+  /**
+   * Provides information about the current version details of the Soroban RPC and captive-core
+   *
+   * @returns {Promise<Api.GetVersionInfoResponse>} the version info
+   * @see https://developers.stellar.org/docs/data/rpc/api-reference/methods/getVersionInfo
+   */
+  public async getVersionInfo(): Promise<Api.GetVersionInfoResponse> {
+    return jsonrpc.postObject(this.serverURL.toString(), 'getVersionInfo');
   }
-
-  throw new Error('No account created in transaction');
 }

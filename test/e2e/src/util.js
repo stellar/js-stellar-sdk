@@ -1,6 +1,7 @@
 const { spawnSync } = require("node:child_process");
 const { contract, Keypair } = require("../../..");
 
+const basePath = `${__dirname}/../test-contracts/target/wasm32-unknown-unknown/release`;
 const contracts = {
   customTypes: {
     hash: spawnSync(
@@ -9,32 +10,45 @@ const contracts = {
         "contract",
         "install",
         "--wasm",
-        `${__dirname}/../wasms/test_custom_types.wasm`,
+        `${basePath}/soroban_other_custom_types_contract.wasm`,
       ],
       { shell: true, encoding: "utf8" },
     ).stdout.trim(),
-    path: `${__dirname}/../wasms/test_custom_types.wasm`,
+    path: `${basePath}/soroban_custom_types_contract.wasm`,
   },
   helloWorld: {
+    hash: spawnSync(
+      "./target/bin/soroban",
+      ["contract", "install", "--wasm", `${basePath}/hello_world.wasm`],
+      { shell: true, encoding: "utf8" },
+    ).stdout.trim(),
+    path: `${basePath}/hello_world.wasm`,
+  },
+  increment: {
     hash: spawnSync(
       "./target/bin/soroban",
       [
         "contract",
         "install",
         "--wasm",
-        `${__dirname}/../wasms/test_hello_world.wasm`,
+        `${basePath}/soroban_increment_contract.wasm`,
       ],
       { shell: true, encoding: "utf8" },
     ).stdout.trim(),
-    path: `${__dirname}/../wasms/test_hello_world.wasm`,
+    path: `${basePath}/soroban_increment_contract.wasm`,
   },
   swap: {
     hash: spawnSync(
       "./target/bin/soroban",
-      ["contract", "install", "--wasm", `${__dirname}/../wasms/test_swap.wasm`],
+      [
+        "contract",
+        "install",
+        "--wasm",
+        `${basePath}/soroban_atomic_swap_contract.wasm`,
+      ],
       { shell: true, encoding: "utf8" },
     ).stdout.trim(),
-    path: `${__dirname}/../wasms/test_swap.wasm`,
+    path: `${basePath}/soroban_atomic_swap_contract.wasm`,
   },
   token: {
     hash: spawnSync(
@@ -43,11 +57,11 @@ const contracts = {
         "contract",
         "install",
         "--wasm",
-        `${__dirname}/../wasms/test_token.wasm`,
+        `${basePath}/soroban_token_contract.wasm`,
       ],
       { shell: true, encoding: "utf8" },
     ).stdout.trim(),
-    path: `${__dirname}/../wasms/test_token.wasm`,
+    path: `${basePath}/soroban_token_contract.wasm`,
   },
 };
 module.exports.contracts = contracts;
@@ -65,7 +79,11 @@ module.exports.friendbotUrl = friendbotUrl;
 
 async function generateFundedKeypair() {
   const keypair = Keypair.random();
-  await fetch(`${friendbotUrl}/friendbot?addr=${keypair.publicKey()}`);
+  await fetch(
+    friendbotUrl === "https://friendbot.stellar.org"
+      ? `${friendbotUrl}/?addr=${keypair.publicKey()}`
+      : `${friendbotUrl}/friendbot?addr=${keypair.publicKey()}`,
+  );
   return keypair;
 }
 module.exports.generateFundedKeypair = generateFundedKeypair;

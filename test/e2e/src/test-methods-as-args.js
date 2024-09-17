@@ -6,10 +6,10 @@ function callMethod(method, args) {
   return method(args);
 }
 
-describe("methods-as-args", function() {
-  it("should pass methods as arguments and have them still work", async function() {
+describe("methods-as-args", function () {
+  it("should pass methods as arguments and have them still work", async function () {
     const { client } = await clientFor("helloWorld");
-    const { result } = await callMethod(client.hello, { world: "tests" });
+    const { result } = await callMethod(client.hello, { to: "tests" });
     expect(result).to.deep.equal(["Hello", "tests"]);
   });
 });

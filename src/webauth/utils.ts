@@ -579,8 +579,8 @@ export function verifyChallengeTxSigners(
     serverKP = Keypair.fromPublicKey(serverAccountID); // can throw 'Invalid Stellar public key'
   } catch (err: any) {
     throw new Error(
-      "Couldn't infer keypair from the provided 'serverAccountID': " +
-        err.message,
+      `Couldn't infer keypair from the provided 'serverAccountID': ${ 
+        err.message}`,
     );
   }
 
@@ -652,7 +652,7 @@ export function verifyChallengeTxSigners(
   // Confirm we matched a signature to the server signer.
   if (!serverSignatureFound) {
     throw new InvalidChallengeError(
-      "Transaction not signed by server: '" + serverKP.publicKey() + "'",
+      `Transaction not signed by server: '${  serverKP.publicKey()  }'`,
     );
   }
 
@@ -755,7 +755,7 @@ export function gatherTxSigners(
       keypair = Keypair.fromPublicKey(signer); // This can throw a few different errors
     } catch (err: any) {
       throw new InvalidChallengeError(
-        "Signer is not a valid address: " + err.message,
+        `Signer is not a valid address: ${  err.message}`,
       );
     }
 
