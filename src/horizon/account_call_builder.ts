@@ -9,9 +9,9 @@ import { ServerApi } from "./server_api";
  *
  * @see {@link https://developers.stellar.org/network/horizon/api-reference/resources/list-all-accounts|All Accounts}
  *
- * @extends CallBuilder
+ * @augments CallBuilder
  * @private
- * @constructor
+ * @class
  * @param {string} serverUrl Horizon server URL.
  */
 export class AccountCallBuilder extends CallBuilder<

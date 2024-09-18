@@ -49,7 +49,7 @@ export enum Durability {
 }
 
 /**
- * @typedef {Object} GetEventsRequest Describes the complex filter combinations available for event queries.
+ * @typedef {object} GetEventsRequest Describes the complex filter combinations available for event queries.
  * @property {Array.<module:rpc.Api.EventFilter>} filters Filters to use when querying events from the RPC server.
  * @property {number} [startLedger] Ledger number (inclusive) to begin querying events.
  * @property {string} [cursor] Page cursor (exclusive) to begin querying events.
@@ -58,13 +58,13 @@ export enum Durability {
  */
 
 /**
- * @typedef {Object} ResourceLeeway Describes additional resource leeways for transaction simulation.
+ * @typedef {object} ResourceLeeway Describes additional resource leeways for transaction simulation.
  * @property {number} cpuInstructions Simulate the transaction with more CPU instructions available.
  * @memberof module:rpc.Server
  */
 
 /**
- * @typedef {Object} Options Options for configuring connections to RPC servers.
+ * @typedef {object} Options Options for configuring connections to RPC servers.
  * @property {boolean} [allowHttp=false] Allow connecting to http servers, default: `false`. This must be set to false in production deployments!
  * @property {number} [timeout=0] Allow a timeout, default: 0. Allows user to avoid nasty lag. You can also use {@link Config} class to set this globally.
  * @property {Record<string, string>} [headers] Additional headers that should be added to any requests to the RPC server.
@@ -127,7 +127,7 @@ function findCreatedAccountSequenceInTransactionMeta(
  * Handles the network connection to a Soroban RPC instance, exposing an
  * interface for requests to that instance.
  *
- * @constructor
+ * @class
  * @memberof module:rpc
  *
  * @param {string} serverURL Soroban-RPC Server URL (ex. `http://localhost:8000/soroban/rpc`).

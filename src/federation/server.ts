@@ -22,7 +22,7 @@ export const FEDERATION_RESPONSE_MAX_SIZE = 100 * 1024;
  * Federation.Server handles a network connection to a
  * [federation server](https://developers.stellar.org/docs/learn/encyclopedia/federation)
  * instance and exposes an interface for requests to that instance.
- * @constructor
+ * @class
  * @memberof module:Federation
  * @param {string} serverURL The federation server URL (ex. `https://acme.com/federation`).
  * @param {string} domain Domain this server represents

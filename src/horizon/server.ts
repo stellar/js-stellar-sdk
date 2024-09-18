@@ -879,7 +879,7 @@ export class Server {
 
 /**
  * Options for configuring connections to Horizon servers.
- * @typedef {Object} Options
+ * @typedef {object} Options
  * @memberof module:Horizon.Server
  * @property {boolean} [allowHttp] Allow connecting to http servers, default: `false`. This must be set to false in production deployments! You can also use {@link Config} class to set this globally.
  * @property {string} [appName] Allow set custom header `X-App-Name`, default: `undefined`.

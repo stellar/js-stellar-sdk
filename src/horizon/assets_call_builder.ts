@@ -6,8 +6,8 @@ import { ServerApi } from "./server_api";
  *
  * Do not create this object directly, use {@link Horizon.Server#assets}.
  *
- * @constructor
- * @extends CallBuilder
+ * @class
+ * @augments CallBuilder
  * @private
  * @param {string} serverUrl Horizon server URL.
  */

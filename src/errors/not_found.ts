@@ -3,7 +3,7 @@ import { NetworkError } from "./network";
 /**
  * NotFoundError is raised when the resource requested from Horizon is
  * unavailable.
- * @extends NetworkError
+ * @augments NetworkError
  * @inheritdoc
  * @category Errors
  *

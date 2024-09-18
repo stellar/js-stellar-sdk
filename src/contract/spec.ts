@@ -441,7 +441,7 @@ function unionToJsonSchema(udt: xdr.ScSpecUdtUnionV0): any {
  * This allows the class to be used to convert between native and raw `xdr.ScVal`s.
  *
  * @memberof module:contract
- * @constructor
+ * @class
  * @param {xdr.ScSpecEntry[] | string[]} entries the XDR spec entries
  * @throws {Error} if entries is invalid
  *
@@ -517,7 +517,7 @@ export class Spec {
    * Converts native JS arguments to ScVals for calling a contract function.
    *
    * @param {string} name the name of the function
-   * @param {Object} args the arguments object
+   * @param {object} args the arguments object
    * @returns {xdr.ScVal[]} the converted arguments
    *
    * @throws {Error} if argument is missing or incorrect type

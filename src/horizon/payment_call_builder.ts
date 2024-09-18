@@ -8,9 +8,9 @@ import { ServerApi } from "./server_api";
  *
  * @see {@link https://developers.stellar.org/network/horizon/api-reference/horizon/resources/list-all-payments/|All Payments}
  *
- * @extends CallBuilder
+ * @augments CallBuilder
  * @private
- * @constructor
+ * @class
  *
  * @param {string} serverUrl Horizon server URL.
  */

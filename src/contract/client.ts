@@ -15,7 +15,7 @@ import { processSpecEntryStream } from './utils';
  *
  * @memberof module:contract
  *
- * @constructor
+ * @class
  * @param {module:contract.Spec} spec {@link Spec} to construct a Client for
  * @param {ClientOptions} options see {@link ClientOptions}
  */

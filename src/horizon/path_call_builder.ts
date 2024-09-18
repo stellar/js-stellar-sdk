@@ -21,9 +21,9 @@ import { ServerApi } from "./server_api";
  *
  * @see {@link https://developers.stellar.org/network/horizon/api-reference/aggregations/paths|Find Payment Paths}
  *
- * @extends CallBuilder
+ * @augments CallBuilder
  * @private
- * @constructor
+ * @class
  *
  * @param {string} serverUrl Horizon server URL.
  * @param {string} source The sender's account ID. Any returned path must use a source that the sender can hold.

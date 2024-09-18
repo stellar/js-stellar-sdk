@@ -22,9 +22,9 @@ import type { AssembledTransaction } from "./assembled_transaction";
  *    `getTransactionResponse`.
  *
  * @memberof module:contract
- * @constructor
+ * @class
  *
- * @param {function} signTransaction More info in {@link MethodOptions}
+ * @param {Function} signTransaction More info in {@link MethodOptions}
  * @param {module:contract.AssembledTransaction<T>} assembled {@link AssembledTransaction} from which this SentTransaction was initialized
  */
 export class SentTransaction<T> {

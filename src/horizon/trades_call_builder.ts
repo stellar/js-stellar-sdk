@@ -9,9 +9,9 @@ import { ServerApi } from "./server_api";
  *
  * @see {@link https://developers.stellar.org/network/horizon/api-reference/resources/trades|Trades}
  *
- * @extends CallBuilder
+ * @augments CallBuilder
  * @private
- * @constructor
+ * @class
  *
  * @param {string} serverUrl serverUrl Horizon server URL.
  */

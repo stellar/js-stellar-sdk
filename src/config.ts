@@ -1,5 +1,5 @@
 /**
- * @typedef {Object} Configuration
+ * @typedef {object} Configuration
  * @memberof Config
  * @property {boolean} [allowHttp=false] Allow connecting to http servers, default: `false`. This must be set to false in production deployments!
  * @property {number} [timeout=0] Allow a timeout, default: 0. Allows user to avoid nasty lag due to TOML resolve issue. You can also use {@link Config} class to set this globally.

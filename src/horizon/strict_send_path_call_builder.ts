@@ -24,9 +24,9 @@ import { ServerApi } from "./server_api";
  *
  * @see {@link https://developers.stellar.org/network/horizon/api-reference/aggregations/paths|Find Payment Paths}
  *
- * @extends CallBuilder
+ * @augments CallBuilder
  * @private
- * @constructor
+ * @class
  *
  * @param {string} serverUrl Horizon server URL.
  * @param {Asset} sourceAsset The asset to be sent.

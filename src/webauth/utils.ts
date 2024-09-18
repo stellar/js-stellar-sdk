@@ -137,7 +137,7 @@ export function buildChallengeTx(
 }
 
 /**
- * @typedef {Object} ChallengeTxParts A parsed and validated challenge transaction, and some of its constituent details.
+ * @typedef {object} ChallengeTxParts A parsed and validated challenge transaction, and some of its constituent details.
  * @property {Transaction} tx The challenge transaction.
  * @property {string} clientAccountID The Stellar public key (master key) used to sign the Manage Data operation.
  * @property {string} matchedHomeDomain The matched home domain.

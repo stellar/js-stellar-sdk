@@ -9,9 +9,9 @@ import { ServerApi } from "./server_api";
  *
  * @see {@link https://developers.stellar.org/network/horizon/api-reference/resources/claimablebalances|Claimable Balances}
  *
- * @extends CallBuilder
+ * @augments CallBuilder
  * @private
- * @constructor
+ * @class
  * @param {string} serverUrl Horizon server URL.
  */
 export class ClaimableBalanceCallBuilder extends CallBuilder<

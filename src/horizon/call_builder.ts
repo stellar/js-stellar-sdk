@@ -32,7 +32,7 @@ const EventSource: Constructable<EventSource> = anyGlobal.EventSource ??
  * This is an **abstract** class. Do not create this object directly, use {@link module:Horizon.Server | Horizon.Server} class.
  *
  * @private
- * @constructor
+ * @class
  *
  * @param {string} serverUrl URL of Horizon server
  */

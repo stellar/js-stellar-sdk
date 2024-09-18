@@ -27,7 +27,7 @@ export class Resolver {
    * @see {@link https://developers.stellar.org/docs/issuing-assets/publishing-asset-info|Stellar.toml doc}
    *
    * @param {string} domain Domain to get stellar.toml file for
-   * @param {Object} [opts] Options object
+   * @param {object} [opts] Options object
    * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments!
    * @param {number} [opts.timeout] - Allow a timeout, default: 0. Allows user to avoid nasty lag due to TOML resolve issue.
    * @returns {Promise} A `Promise` that resolves to the parsed stellar.toml object
