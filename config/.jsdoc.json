@@ -35,7 +35,7 @@
       "navLinks": [
         {
           "label": "GitHub",
-          "href": "https://github.com/stellar/stellar-sdk"
+          "href": "https://github.com/stellar/js-stellar-sdk"
         },
         {
           "label": "npm",
