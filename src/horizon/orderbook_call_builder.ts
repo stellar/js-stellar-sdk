@@ -7,7 +7,7 @@ import { ServerApi } from "./server_api";
  *
  * Do not create this object directly, use {@link Horizon.Server#orderbook}.
  *
- * @see {@link https://developers.stellar.org/network/horizon/api-reference/aggregations/order-books|Orderbook Details}
+ * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/aggregations/order-books|Orderbook Details}
  *
  * @augments CallBuilder
  * @private

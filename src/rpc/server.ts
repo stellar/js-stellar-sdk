@@ -137,7 +137,7 @@ function findCreatedAccountSequenceInTransactionMeta(
  *    You can also use {@link Config} class to set this globally.
  * @param {Record<string, string>} [opts.headers] Allows setting custom headers
  *
- * @see {@link https://developers.stellar.org/network/soroban-rpc/api-reference/methods | API reference docs}
+ * @see {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods | API reference docs}
  */
 export class Server {
   public readonly serverURL: URI;
@@ -174,7 +174,7 @@ export class Server {
    * @returns {Promise<Account>} A promise which resolves to the {@link Account}
    * object with a populated sequence number
    *
-   * @see {@link https://developers.stellar.org/network/soroban-rpc/api-reference/methods/getLedgerEntries | getLedgerEntries docs}
+   * @see {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods/getLedgerEntries | getLedgerEntries docs}
    *
    * @example
    * const accountId = "GBZC6Y2Y7Q3ZQ2Y4QZJ2XZ3Z5YXZ6Z7Z2Y4QZJ2XZ3Z5YXZ6Z7Z2Y4";
@@ -209,7 +209,7 @@ export class Server {
    * {@link Api.GetHealthResponse} object with the status of the
    * server (e.g. "healthy").
    *
-   * @see {@link https://developers.stellar.org/network/soroban-rpc/api-reference/methods/getHealth | getLedgerEntries docs}
+   * @see {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods/getHealth | getLedgerEntries docs}
    *
    * @example
    * server.getHealth().then((health) => {
@@ -243,7 +243,7 @@ export class Server {
    * @warning If the data entry in question is a 'temporary' entry, it's
    *    entirely possible that it has expired out of existence.
    *
-   * @see {@link https://developers.stellar.org/network/soroban-rpc/api-reference/methods/getLedgerEntries | getLedgerEntries docs}
+   * @see {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods/getLedgerEntries | getLedgerEntries docs}
    *
    * @example
    * const contractId = "CCJZ5DGASBWQXR5MPFCJXMBI333XE5U3FSJTNQU7RIKE3P5GN2K2WYD5";
@@ -412,7 +412,7 @@ export class Server {
    * @returns {Promise<Api.GetLedgerEntriesResponse>} The current on-chain
    * values for the given ledger keys
    *
-   * @see {@link https://developers.stellar.org/network/soroban-rpc/api-reference/methods/getLedgerEntries | getLedgerEntries docs}
+   * @see {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods/getLedgerEntries | getLedgerEntries docs}
    * @see Server._getLedgerEntries
    * @example
    * const contractId = "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM";
@@ -458,7 +458,7 @@ export class Server {
    * @returns {Promise<Api.GetTransactionResponse>} The status,
    *    result, and other details about the transaction
    *
-   * @see {@link https://developers.stellar.org/network/soroban-rpc/api-reference/methods/getTransaction | getTransaction docs}
+   * @see {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods/getTransaction | getTransaction docs}
    *
    * @example
    * const transactionHash = "c4515e3bdc0897f21cc5dbec8c82cf0a936d4741cb74a8e158eb51b9fb00411a";
@@ -554,7 +554,7 @@ export class Server {
    * @returns {Promise<Api.GetEventsResponse>} A paginatable set of the events
    * matching the given event filters
    *
-   * @see {@link https://developers.stellar.org/network/soroban-rpc/api-reference/methods/getEvents | getEvents docs}
+   * @see {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods/getEvents | getEvents docs}
    *
    * @example
    * server.getEvents({
@@ -608,7 +608,7 @@ export class Server {
    * @returns {Promise<Api.GetNetworkResponse>} Metadata about the current
    * network this RPC server is connected to
    *
-   * @see {@link https://developers.stellar.org/network/soroban-rpc/api-reference/methods/getNetwork | getNetwork docs}
+   * @see {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods/getNetwork | getNetwork docs}
    *
    * @example
    * server.getNetwork().then((network) => {
@@ -629,7 +629,7 @@ export class Server {
    * @returns {Promise<Api.GetLatestLedgerResponse>}   metadata about the
    *    latest ledger on the network that this RPC server is connected to
    *
-   * @see {@link https://developers.stellar.org/network/soroban-rpc/api-reference/methods/getLatestLedger | getLatestLedger docs}
+   * @see {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods/getLatestLedger | getLatestLedger docs}
    *
    * @example
    * server.getLatestLedger().then((response) => {
@@ -657,7 +657,7 @@ export class Server {
    *    the transaction
    *
    * @see {@link https://developers.stellar.org/docs/learn/fundamentals/stellar-data-structures/operations-and-transactions | transaction docs}
-   * @see {@link https://developers.stellar.org/network/soroban-rpc/api-reference/methods/simulateTransaction | simulateTransaction docs}
+   * @see {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods/simulateTransaction | simulateTransaction docs}
    * @see module:rpc.Server#prepareTransaction
    * @see module:rpc.assembleTransaction
    *
@@ -749,7 +749,7 @@ export class Server {
    *    If simulation fails
    *
    * @see module:rpc.assembleTransaction
-   * @see {@link https://developers.stellar.org/network/soroban-rpc/api-reference/methods/simulateTransaction | simulateTransaction docs}
+   * @see {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods/simulateTransaction | simulateTransaction docs}
    *
    * @example
    * const contractId = 'CA3D5KRYM6CB7OWQ6TWYRR3Z4T7GNZLKERYNZGGA5SOAOPIFY6YQGAXE';
@@ -804,7 +804,7 @@ export class Server {
    *    transaction id, status, and any error if available
    *
    * @see {@link https://developers.stellar.org/docs/learn/fundamentals/stellar-data-structures/operations-and-transactions | transaction docs}
-   * @see {@link https://developers.stellar.org/network/soroban-rpc/api-reference/methods/sendTransaction | sendTransaction docs}
+   * @see {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods/sendTransaction | sendTransaction docs}
    *
    * @example
    * const contractId = 'CA3D5KRYM6CB7OWQ6TWYRR3Z4T7GNZLKERYNZGGA5SOAOPIFY6YQGAXE';

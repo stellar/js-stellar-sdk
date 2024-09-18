@@ -19,7 +19,7 @@ import { ServerApi } from "./server_api";
  *
  * Do not create this object directly, use {@link Horizon.Server#paths}.
  *
- * @see {@link https://developers.stellar.org/network/horizon/api-reference/aggregations/paths|Find Payment Paths}
+ * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/aggregations/paths|Find Payment Paths}
  *
  * @augments CallBuilder
  * @private

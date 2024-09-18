@@ -15,7 +15,7 @@ import { ServerApi } from "./server_api";
  * @memberof module:Horizon
  * @private
  *
- * @see {@link https://developers.stellar.org/network/horizon/api-reference/resources/accounts/object|Account Details}
+ * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/accounts/object|Account Details}
  * @param {string} response Response from horizon account endpoint.
  * @returns {AccountResponse} AccountResponse instance
  */

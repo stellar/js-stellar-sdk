@@ -6,7 +6,7 @@ import { ServerApi } from "./server_api";
  *
  * Do not create this object directly, use {@link Horizon.Server#ledgers}.
  *
- * @see {@link https://developers.stellar.org/network/horizon/api-reference/resources/list-all-ledgers|All Ledgers}
+ * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/list-all-ledgers|All Ledgers}
  *
  * @augments CallBuilder
  * @private

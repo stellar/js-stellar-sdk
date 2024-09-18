@@ -7,7 +7,7 @@ import { ServerApi } from "./server_api";
  *
  * Do not create this object directly, use {@link Horizon.Server#accounts}.
  *
- * @see {@link https://developers.stellar.org/network/horizon/api-reference/resources/list-all-accounts|All Accounts}
+ * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/list-all-accounts|All Accounts}
  *
  * @augments CallBuilder
  * @private
@@ -26,7 +26,7 @@ export class AccountCallBuilder extends CallBuilder<
    * Returns information and links relating to a single account.
    * The balances section in the returned JSON will also list all the trust lines this account has set up.
    *
-   * @see {@link https://developers.stellar.org/network/horizon/api-reference/resources/retrieve-an-account|Account Details}
+   * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/retrieve-an-account|Account Details}
    * @param {string} id For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
    * @returns {CallBuilder} a new CallBuilder instance for the /accounts/:id endpoint
    */
@@ -38,7 +38,7 @@ export class AccountCallBuilder extends CallBuilder<
 
   /**
    * This endpoint filters accounts by signer account.
-   * @see {@link https://developers.stellar.org/network/horizon/api-reference/resources/list-all-accounts|Accounts}
+   * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/list-all-accounts|Accounts}
    * @param {string} id For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
    * @returns {AccountCallBuilder} current AccountCallBuilder instance
    */
@@ -49,7 +49,7 @@ export class AccountCallBuilder extends CallBuilder<
 
   /**
    * This endpoint filters all accounts who are trustees to an asset.
-   * @see {@link https://developers.stellar.org/network/horizon/api-reference/resources/list-all-accounts|Accounts}
+   * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/list-all-accounts|Accounts}
    * @see Asset
    * @param {Asset} asset For example: `new Asset('USD','GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD')`
    * @returns {AccountCallBuilder} current AccountCallBuilder instance
@@ -61,7 +61,7 @@ export class AccountCallBuilder extends CallBuilder<
 
   /**
    * This endpoint filters accounts where the given account is sponsoring the account or any of its sub-entries..
-   * @see {@link https://developers.stellar.org/network/horizon/api-reference/resources/list-all-accounts|Accounts}
+   * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/list-all-accounts|Accounts}
    * @param {string} id For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
    * @returns {AccountCallBuilder} current AccountCallBuilder instance
    */

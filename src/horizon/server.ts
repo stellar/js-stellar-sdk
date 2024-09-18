@@ -62,7 +62,7 @@ function getAmountInLumens(amt: BigNumber) {
 }
 
 /**
- * Server handles the network connection to a [Horizon](https://developers.stellar.org/network/horizon)
+ * Server handles the network connection to a [Horizon](https://developers.stellar.org/docs/data/horizon)
  * instance and exposes an interface for requests to that instance.
  * @memberof module:Horizon
  *
@@ -186,7 +186,7 @@ export class Server {
 
   /**
    * Fetch the fee stats endpoint.
-   * @see {@link https://developers.stellar.org/network/horizon/api-reference/aggregations/fee-stats|Fee Stats}
+   * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/aggregations/fee-stats|Fee Stats}
    * @returns {Promise<HorizonApi.FeeStatsResponse>} Promise that resolves to the fee stats returned by Horizon.
    */
   // eslint-disable-next-line require-await
@@ -292,7 +292,7 @@ export class Server {
    * * If `wasPartiallyFilled` is true, you can tell the user that
    *   `amountBought` or `amountSold` have already been transferred.
    *
-   * @see {@link https://developers.stellar.org/network/horizon/api-reference/resources/submit-a-transaction|Submit a Transaction}
+   * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/submit-a-transaction|Submit a Transaction}
    * @param {Transaction|FeeBumpTransaction} transaction - The transaction to submit.
    * @param {object} [opts] Options object
    * @param {boolean} [opts.skipMemoRequiredCheck] - Allow skipping memo
