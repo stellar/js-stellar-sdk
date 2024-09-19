@@ -1,6 +1,6 @@
 {
   "tags": {
-    "allowUnknownTags": ["optional", "category", "warning"]
+    "allowUnknownTags": ["optional", "category", "warning", "note", "link"]
   },
   "plugins": [
     "plugins/markdown",
