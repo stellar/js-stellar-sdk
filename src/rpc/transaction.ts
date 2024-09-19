@@ -28,8 +28,8 @@ function isSorobanTransaction(tx: Transaction): boolean {
 /**
  * Combines the given raw transaction alongside the simulation results.
  * If the given transaction already has authorization entries in a host
- *    function invocation (see {@link Operation.invokeHostFunction}), **the
- *    simulation entries are ignored**.
+ * function invocation (see {@link Operation.invokeHostFunction}), **the
+ * simulation entries are ignored**.
  *
  * If the given transaction already has authorization entries in a host function
  * invocation (see {@link Operation.invokeHostFunction}), **the simulation

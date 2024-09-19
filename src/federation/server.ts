@@ -13,40 +13,35 @@ import { Api } from "./api";
 
 /**
  * The maximum size of response from a federation server
- * @constant {number}
  * @default 102400
  */
-export const FEDERATION_RESPONSE_MAX_SIZE = 100 * 1024;
+export const FEDERATION_RESPONSE_MAX_SIZE: number = 100 * 1024;
 
 /**
  * Federation.Server handles a network connection to a
  * [federation server](https://developers.stellar.org/docs/learn/encyclopedia/federation)
  * instance and exposes an interface for requests to that instance.
- * @class
+ *
+ * @alias module:Federation.Server
  * @memberof module:Federation
  * @param {string} serverURL The federation server URL (ex. `https://acme.com/federation`).
  * @param {string} domain Domain this server represents
- * @param {module:Federation.Api.Options} [opts] Options object
+ * @param {Api.Options} [opts] Options object
  * @returns {void}
  */
-export class Server {
+export class FederationServer {
   /**
    * The federation server URL (ex. `https://acme.com/federation`).
-   *
    */
   private readonly serverURL: URI; // TODO: public or private? readonly?
 
   /**
    * Domain this server represents.
-   *
-   * @type {string}
    */
   private readonly domain: string; // TODO: public or private? readonly?
 
   /**
    * Allow a timeout, default: 0. Allows user to avoid nasty lag due to TOML resolve issue.
-   *
-   * @type {number}
    */
   private readonly timeout: number; // TODO: public or private? readonly?
 
@@ -74,7 +69,7 @@ export class Server {
    * @see <a href="https://developers.stellar.org/docs/learn/encyclopedia/federation" target="_blank">Federation doc</a>
    * @see <a href="https://developers.stellar.org/docs/issuing-assets/publishing-asset-info" target="_blank">Stellar.toml doc</a>
    * @param {string} value Stellar Address (ex. `bob*stellar.org`)
-   * @param {module:Federation.Api.Options} [opts] Options object
+   * @param {object} [opts] Options object
    * @returns {Promise<module:Federation.Api.Record>} A promise that resolves to the federation record
    * @throws Will throw an error if the provided account ID is not a valid Ed25519 public key.
    */
@@ -96,7 +91,7 @@ export class Server {
     if (addressParts.length !== 2 || !domain) {
       return Promise.reject(new Error("Invalid Stellar address"));
     }
-    const federationServer = await Server.createForDomain(
+    const federationServer = await FederationServer.createForDomain(
       domain,
       opts,
     );
@@ -129,14 +124,14 @@ export class Server {
   public static async createForDomain(
     domain: string,
     opts: Api.Options = {},
-  ): Promise<Server> {
+  ): Promise<FederationServer> {
     const tomlObject = await Resolver.resolve(domain, opts);
     if (!tomlObject.FEDERATION_SERVER) {
       return Promise.reject(
         new Error("stellar.toml does not contain FEDERATION_SERVER field"),
       );
     }
-    return new Server(tomlObject.FEDERATION_SERVER, domain, opts);
+    return new FederationServer(tomlObject.FEDERATION_SERVER, domain, opts);
   }
 
   public constructor(

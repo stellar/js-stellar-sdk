@@ -18,7 +18,7 @@ import type {
   Tx,
   XDR_BASE64,
 } from "./types";
-import { Server } from "../rpc/server";
+import { Server } from "../rpc";
 import { Api } from "../rpc/api";
 import { assembleTransaction } from "../rpc/transaction";
 import type { Client } from "./client";
@@ -31,6 +31,8 @@ import {
 import { DEFAULT_TIMEOUT } from "./types";
 import { SentTransaction } from "./sent_transaction";
 import { Spec } from "./spec";
+
+/** @module contract */
 
 /**
  * The main workhorse of {@link Client}. This class is used to wrap a

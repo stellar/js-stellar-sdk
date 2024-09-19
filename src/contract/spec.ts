@@ -465,8 +465,14 @@ function unionToJsonSchema(udt: xdr.ScSpecUdtUnionV0): any {
  * console.log(result); // {success: true}
  */
 export class Spec {
+  /**
+   * The XDR spec entries.
+   */
   public entries: xdr.ScSpecEntry[] = [];
 
+  /**
+   * Constructs a new ContractSpec from an array of XDR spec entries.
+   */
   constructor(entries: xdr.ScSpecEntry[] | string[]) {
     if (entries.length === 0) {
       throw new Error("Contract spec must have at least one entry");

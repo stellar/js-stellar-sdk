@@ -64,12 +64,14 @@ function getAmountInLumens(amt: BigNumber) {
 /**
  * Server handles the network connection to a [Horizon](https://developers.stellar.org/docs/data/horizon)
  * instance and exposes an interface for requests to that instance.
+ *
+ * @alias module:Horizon.Server
  * @memberof module:Horizon
  *
  * @param {string} serverURL Horizon Server URL (ex. `https://horizon-testnet.stellar.org`).
  * @param {Options} [opts] Options object
  */
-export class Server {
+export class HorizonServer {
   /**
    * serverURL Horizon Server URL (ex. `https://horizon-testnet.stellar.org`).
    *
@@ -77,7 +79,7 @@ export class Server {
    */
   public readonly serverURL: URI;
 
-  constructor(serverURL: string, opts: Server.Options = {}) {
+  constructor(serverURL: string, opts: HorizonServer.Options = {}) {
     this.serverURL = URI(serverURL);
 
     const allowHttp =
@@ -141,13 +143,13 @@ export class Server {
    * @param {number} seconds Number of seconds past the current time to wait.
    * @param {boolean} [_isRetry] True if this is a retry. Only set this internally!
    * This is to avoid a scenario where Horizon is horking up the wrong date.
-   * @returns {Promise<Server.Timebounds>} Promise that resolves a `timebounds` object
+   * @returns {Promise<HorizonServer.Timebounds>} Promise that resolves a `timebounds` object
    * (with the shape `{ minTime: 0, maxTime: N }`) that you can set the `timebounds` option to.
    */
   public async fetchTimebounds(
     seconds: number,
     _isRetry: boolean = false,
-  ): Promise<Server.Timebounds> {
+  ): Promise<HorizonServer.Timebounds> {
     // AxiosClient instead of this.ledgers so we can get at them headers
     const currentTime = getCurrentServerTime(this.serverURL.hostname());
 
@@ -208,8 +210,20 @@ export class Server {
    * attribute to the response that will help you analyze what happened with
    * your offers.
    *
-   * Ex:
-   * ```javascript
+   * For example, you'll want to examine `offerResults` to add affordances like
+   * these to your app:
+   * - If `wasImmediatelyFilled` is true, then no offer was created. So if you
+   *   normally watch the `Server.offers` endpoint for offer updates, you
+   *   instead need to check `Server.trades` to find the result of this filled
+   *   offer.
+   * - If `wasImmediatelyDeleted` is true, then the offer you submitted was
+   *   deleted without reaching the orderbook or being matched (possibly because
+   *   your amounts were rounded down to zero). So treat the just-submitted
+   *   offer request as if it never happened.
+   * - If `wasPartiallyFilled` is true, you can tell the user that
+   *   `amountBought` or `amountSold` have already been transferred.
+   *
+   * @example
    * const res = {
    *   ...response,
    *   offerResults: [
@@ -277,20 +291,6 @@ export class Server {
    *     }
    *   ]
    * }
-   * ```
-   *
-   * For example, you'll want to examine `offerResults` to add affordances like
-   * these to your app:
-   * * If `wasImmediatelyFilled` is true, then no offer was created. So if you
-   *   normally watch the `Server.offers` endpoint for offer updates, you
-   *   instead need to check `Server.trades` to find the result of this filled
-   *   offer.
-   * * If `wasImmediatelyDeleted` is true, then the offer you submitted was
-   *   deleted without reaching the orderbook or being matched (possibly because
-   *   your amounts were rounded down to zero). So treat the just-submitted
-   *   offer request as if it never happened.
-   * * If `wasPartiallyFilled` is true, you can tell the user that
-   *   `amountBought` or `amountSold` have already been transferred.
    *
    * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/submit-a-transaction|Submit a Transaction}
    * @param {Transaction|FeeBumpTransaction} transaction - The transaction to submit.
@@ -303,7 +303,7 @@ export class Server {
    */
   public async submitTransaction(
     transaction: Transaction | FeeBumpTransaction,
-    opts: Server.SubmitTransactionOptions = { skipMemoRequiredCheck: false },
+    opts: HorizonServer.SubmitTransactionOptions = { skipMemoRequiredCheck: false },
   ): Promise<HorizonApi.SubmitTransactionResponse> {
     // only check for memo required if skipMemoRequiredCheck is false and the transaction doesn't include a memo.
     if (!opts.skipMemoRequiredCheck) {
@@ -515,7 +515,7 @@ export class Server {
    * and waits for the transaction to be ingested in Horizon, this endpoint relays the response from
    * core directly back to the user.
    *
-   * By default, this function calls {@link Server#checkMemoRequired}, you can
+   * By default, this function calls {@link HorizonServer#checkMemoRequired}, you can
    * skip this check by setting the option `skipMemoRequiredCheck` to `true`.
    *
    * @see [Submit
@@ -530,7 +530,7 @@ export class Server {
    */
   public async submitAsyncTransaction(
       transaction: Transaction | FeeBumpTransaction,
-      opts: Server.SubmitTransactionOptions = { skipMemoRequiredCheck: false }
+      opts: HorizonServer.SubmitTransactionOptions = { skipMemoRequiredCheck: false }
   ): Promise<HorizonApi.SubmitAsyncTransactionResponse> {
     // only check for memo required if skipMemoRequiredCheck is false and the transaction doesn't include a memo.
     if (!opts.skipMemoRequiredCheck) {
@@ -887,7 +887,7 @@ export class Server {
  * @property {string} [authToken] Allow set custom header `X-Auth-Token`, default: `undefined`.
  */
 
-export namespace Server {
+export namespace HorizonServer {
   export interface Options {
     allowHttp?: boolean;
     appName?: string;

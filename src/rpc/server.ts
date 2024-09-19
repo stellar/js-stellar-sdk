@@ -71,7 +71,7 @@ export enum Durability {
  * @memberof module:rpc.Server
  */
 
-export namespace Server {
+export namespace RpcServer {
   export interface GetEventsRequest {
     filters: Api.EventFilter[];
     startLedger?: number; // either this or cursor
@@ -127,7 +127,7 @@ function findCreatedAccountSequenceInTransactionMeta(
  * Handles the network connection to a Soroban RPC instance, exposing an
  * interface for requests to that instance.
  *
- * @class
+ * @alias module:rpc.Server
  * @memberof module:rpc
  *
  * @param {string} serverURL Soroban-RPC Server URL (ex. `http://localhost:8000/soroban/rpc`).
@@ -139,10 +139,10 @@ function findCreatedAccountSequenceInTransactionMeta(
  *
  * @see {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods | API reference docs}
  */
-export class Server {
+export class RpcServer {
   public readonly serverURL: URI;
 
-  constructor(serverURL: string, opts: Server.Options = {}) {
+  constructor(serverURL: string, opts: RpcServer.Options = {}) {
     /**
      * RPC Server URL (ex. `http://localhost:8000/soroban/rpc`).
      * @member {URI}
@@ -413,7 +413,7 @@ export class Server {
    * values for the given ledger keys
    *
    * @see {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods/getLedgerEntries | getLedgerEntries docs}
-   * @see Server._getLedgerEntries
+   * @see RpcServer._getLedgerEntries
    * @example
    * const contractId = "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM";
    * const key = xdr.LedgerKey.contractData(new xdr.LedgerKeyContractData({
@@ -581,14 +581,14 @@ export class Server {
    */
   // eslint-disable-next-line require-await
   public async getEvents(
-    request: Server.GetEventsRequest
+    request: RpcServer.GetEventsRequest
   ): Promise<Api.GetEventsResponse> {
     return this._getEvents(request).then(parseRawEvents);
   }
 
   // eslint-disable-next-line require-await
   public async _getEvents(
-    request: Server.GetEventsRequest
+    request: RpcServer.GetEventsRequest
   ): Promise<Api.RawGetEventsResponse> {
     return jsonrpc.postObject(this.serverURL.toString(), 'getEvents', {
       filters: request.filters ?? [],
@@ -687,7 +687,7 @@ export class Server {
   // eslint-disable-next-line require-await
   public async simulateTransaction(
     tx: Transaction | FeeBumpTransaction,
-    addlResources?: Server.ResourceLeeway
+    addlResources?: RpcServer.ResourceLeeway
   ): Promise<Api.SimulateTransactionResponse> {
     return this._simulateTransaction(tx, addlResources)
       .then(parseRawSimulation);
@@ -696,7 +696,7 @@ export class Server {
   // eslint-disable-next-line require-await
   public async _simulateTransaction(
     transaction: Transaction | FeeBumpTransaction,
-    addlResources?: Server.ResourceLeeway
+    addlResources?: RpcServer.ResourceLeeway
   ): Promise<Api.RawSimulateTransactionResponse> {
     return jsonrpc.postObject(
       this.serverURL.toString(),

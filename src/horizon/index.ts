@@ -7,7 +7,7 @@ export * from "./server_api";
 // stellar-sdk classes to expose
 export * from "./account_response";
 
-export { Server } from "./server";
+export { HorizonServer as Server } from "./server";
 export {
   default as AxiosClient,
   SERVER_TIME_MAP,

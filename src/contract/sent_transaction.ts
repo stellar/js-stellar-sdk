@@ -1,7 +1,7 @@
 /* disable max-classes rule, because extending error shouldn't count! */
 /* eslint max-classes-per-file: 0 */
 import type { MethodOptions } from "./types";
-import { Server } from "../rpc/server"
+import { Server } from "../rpc"
 import { Api } from "../rpc/api"
 import { withExponentialBackoff } from "./utils";
 import { DEFAULT_TIMEOUT } from "./types";
