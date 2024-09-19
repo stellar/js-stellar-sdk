@@ -411,7 +411,7 @@ export namespace Api {
       transactionData: string;
     };
 
-    /** State Difference information */
+    /** State difference information */
     stateChanges?: RawLedgerEntryChange[];
   }
 
@@ -447,5 +447,19 @@ export namespace Api {
 
     transactionCount: string; // uint32
     ledgerCount: number; // uint32
+  }
+
+  export interface BalanceResponse {
+    latestLedger: number;
+    /** present only on success, otherwise request malformed or no balance */
+    balanceEntry?: {
+      /** a 64-bit integer */
+      amount: string;
+      authorized: boolean;
+      clawback: boolean;
+
+      lastModifiedLedgerSeq?: number;
+      liveUntilLedgerSeq?: number;
+    };
   }
 }
