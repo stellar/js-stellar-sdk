@@ -40,6 +40,7 @@ export namespace Server {
   export interface GetEventsRequest {
     filters: Api.EventFilter[];
     startLedger?: number; // either this or cursor
+    endLedger?: number; // either this or cursor
     cursor?: string; // either this or startLedger
     limit?: number;
   }
@@ -525,6 +526,7 @@ export class Server {
    * @example
    * server.getEvents({
    *    startLedger: 1000,
+   *    endLedger: 2000,
    *    filters: [
    *     {
    *      type: "contract",
@@ -564,6 +566,9 @@ export class Server {
       },
       ...(request.startLedger && {
         startLedger: request.startLedger
+      }),
+      ...(request.endLedger && {
+        endLedger: request.endLedger
       })
     });
   }
