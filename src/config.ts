@@ -1,12 +1,16 @@
 /**
- * @typedef {object} Configuration
- * @memberof Config
- * @property {boolean} [allowHttp=false] Allow connecting to http servers, default: `false`. This must be set to false in production deployments!
- * @property {number} [timeout=0] Allow a timeout, default: 0. Allows user to avoid nasty lag due to TOML resolve issue. You can also use {@link Config} class to set this globally.
+ * Global config parameters.
  */
-
-interface Configuration {
+export interface Configuration {
+  /**
+   * Allow connecting to http servers. This must be set to false in production deployments!
+   * @default false
+   */
   allowHttp: boolean;
+  /**
+   * Allow a timeout. Allows user to avoid nasty lag due network issues.
+   * @default 0
+   */
   timeout: number;
 }
 
@@ -21,48 +25,45 @@ let config = { ...defaultConfig};
  * Global config class.
  *
  * @example <caption>Usage in node</caption>
- * import {Config} from 'stellar-sdk';
+ * import { Config } from '@stellar/stellar-sdk';
  * Config.setAllowHttp(true);
  * Config.setTimeout(5000);
+ *
  * @example <caption>Usage in the browser</caption>
  * StellarSdk.Config.setAllowHttp(true);
  * StellarSdk.Config.setTimeout(5000);
- * @static
  */
 class Config {
   /**
-   * Sets `allowHttp` flag globally. When set to `true`, connections to insecure http protocol servers will be allowed.
-   * Must be set to `false` in production. Default: `false`.
-   * @param {boolean} value new allowHttp value
-   * @returns {void}
-   * @static
+   * Sets `allowHttp` flag globally. When set to `true`, connections to insecure
+   * http protocol servers will be allowed. Must be set to `false` in
+   * production.
+   * @default false
    */
   public static setAllowHttp(value: boolean): void {
     config.allowHttp = value;
   }
 
   /**
-   * Sets `timeout` flag globally. When set to anything besides 0, the request will timeout after specified time (ms).
-   * Default: 0.
-   * @param {number} value new timeout value
-   * @returns {void}
-   * @static
+   * Sets `timeout` flag globally. When set to anything besides 0, the request
+   * will timeout after specified time (ms).
+   * @default 0
    */
   public static setTimeout(value: number): void {
     config.timeout = value;
   }
 
   /**
-   * @static
-   * @returns {boolean} allowHttp flag
+   * Returns the configured `allowHttp` flag.
+   * @returns {boolean}
    */
   public static isAllowHttp(): boolean {
     return config.allowHttp;
   }
 
   /**
-   * @static
-   * @returns {number} timeout flag
+   * Returns the configured `timeout` flag.
+   * @returns {number}
    */
   public static getTimeout(): number {
     return config.timeout;
@@ -70,8 +71,6 @@ class Config {
 
   /**
    * Sets all global config flags to default values.
-   * @static
-   * @returns {void}
    */
   public static setDefault(): void {
     config = { ...defaultConfig};
