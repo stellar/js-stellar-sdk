@@ -6,10 +6,11 @@
  * methods that return Results, to maintain their distinction from methods
  * that simply either return a value or throw.
  *
- * **Why is this needed?**
+ * #### Why is this needed?
  *
- * This is used by `ContractSpec` and `AssembledTransaction` when parsing
- * values return by contracts.
+ * This is used by {@link module:contract.Spec | `ContractSpec`} and
+ * {@link module:contract.AssembledTransaction | `AssembledTransaction`} when
+ * parsing values return by contracts.
  *
  * Contract methods can be implemented to return simple values, in which case
  * they can also throw errors. This matches JavaScript's most idiomatic
@@ -30,6 +31,8 @@
  * In the future, if this feels too un-idiomatic for JavaScript, we can always
  * remove this and flatten all JS calls to `try...catch`. Easier to remove this
  * logic later than it would be to add it.
+ *
+ * @memberof module:contract
  */
 export interface Result<T, E extends ErrorMessage = ErrorMessage> {
   unwrap(): T;
@@ -40,18 +43,22 @@ export interface Result<T, E extends ErrorMessage = ErrorMessage> {
 
 /**
  * Error interface containing the error message. Matches Rust's implementation.
- * Part of implementing {@link Result}, a minimal implementation of Rust's
- * `Result` type. Used for contract methods that return Results, to maintain
- * their distinction from methods that simply either return a value or throw.
+ * Part of implementing {@link module:contract.Result | Result}, a minimal
+ * implementation of Rust's `Result` type. Used for contract methods that return
+ * Results, to maintain their distinction from methods that simply either return
+ * a value or throw.
+ *
+ * @memberof module:contract
  */
 export interface ErrorMessage {
   message: string;
 }
 
 /**
- * Part of implementing {@link Result}, a minimal implementation of Rust's
- * `Result` type. Used for contract methods that return Results, to maintain
- * their distinction from methods that simply either return a value or throw.
+ * Part of implementing {@link module:contract.Result | Result}, a minimal
+ * implementation of Rust's `Result` type. Used for contract methods that return
+ * Results, to maintain their distinction from methods that simply either return
+ * a value or throw.
  * @private
  */
 export class Ok<T> implements Result<T, never> {
@@ -75,9 +82,10 @@ export class Ok<T> implements Result<T, never> {
 }
 
 /**
- * Part of implementing {@link Result}, a minimal implementation of Rust's
- * `Result` type. Used for contract methods that return Results, to maintain
- * their distinction from methods that simply either return a value or throw.
+ * Part of implementing {@link module:contract.Result | Result}, a minimal
+ * implementation of Rust's `Result` type. Used for contract methods that return
+ * Results, to maintain their distinction from methods that simply either return
+ * a value or throw.
  * @private
  */
 export class Err<E extends ErrorMessage> implements Result<never, E> {
