@@ -1,6 +1,12 @@
 /* disable PascalCase naming convention, to avoid breaking change */
 /* eslint-disable @typescript-eslint/naming-convention */
-import { Memo, MemoType, Operation, Transaction, xdr } from "@stellar/stellar-base";
+import {
+  Memo,
+  MemoType,
+  Operation,
+  Transaction,
+  xdr,
+} from "@stellar/stellar-base";
 import type { Client } from "./client";
 
 export type XDR_BASE64 = string;
@@ -195,4 +201,5 @@ export const DEFAULT_TIMEOUT = 5 * 60;
  * @default GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF
  * @memberof module:contract
  */
-export const NULL_ACCOUNT = "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF";
+export const NULL_ACCOUNT =
+  "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF";

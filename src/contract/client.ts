@@ -1,9 +1,9 @@
 import { xdr } from "@stellar/stellar-base";
 import { Spec } from "./spec";
-import { Server } from '../rpc';
+import { Server } from "../rpc";
 import { AssembledTransaction } from "./assembled_transaction";
 import type { ClientOptions, MethodOptions } from "./types";
-import { processSpecEntryStream } from './utils';
+import { processSpecEntryStream } from "./utils";
 
 /**
  * Generate a class from the contract spec that where each contract method
@@ -64,12 +64,13 @@ export class Client {
    * @returns {Promise<module:contract.Client>} A Promise that resolves to a Client instance.
    * @throws {TypeError} If the provided options object does not contain an rpcUrl.
    */
-  static async fromWasmHash(wasmHash: Buffer | string,
+  static async fromWasmHash(
+    wasmHash: Buffer | string,
     options: ClientOptions,
-    format: "hex" | "base64" = "hex"
+    format: "hex" | "base64" = "hex",
   ): Promise<Client> {
     if (!options || !options.rpcUrl) {
-      throw new TypeError('options must contain rpcUrl');
+      throw new TypeError("options must contain rpcUrl");
     }
     const { rpcUrl, allowHttp } = options;
     const serverOpts: Server.Options = { allowHttp };
@@ -88,9 +89,12 @@ export class Client {
    */
   static async fromWasm(wasm: Buffer, options: ClientOptions): Promise<Client> {
     const wasmModule = await WebAssembly.compile(wasm);
-    const xdrSections = WebAssembly.Module.customSections(wasmModule, "contractspecv0");
+    const xdrSections = WebAssembly.Module.customSections(
+      wasmModule,
+      "contractspecv0",
+    );
     if (xdrSections.length === 0) {
-      throw new Error('Could not obtain contract spec from wasm');
+      throw new Error("Could not obtain contract spec from wasm");
     }
     const bufferSection = Buffer.from(xdrSections[0]);
     const specEntryArray = processSpecEntryStream(bufferSection);
@@ -107,7 +111,7 @@ export class Client {
    */
   static async from(options: ClientOptions): Promise<Client> {
     if (!options || !options.rpcUrl || !options.contractId) {
-      throw new TypeError('options must contain rpcUrl and contractId');
+      throw new TypeError("options must contain rpcUrl and contractId");
     }
     const { rpcUrl, contractId, allowHttp } = options;
     const serverOpts: Server.Options = { allowHttp };
@@ -129,7 +133,6 @@ export class Client {
     );
   };
 
-  txFromXDR = <T>(xdrBase64: string): AssembledTransaction<T> => AssembledTransaction.fromXDR(this.options, xdrBase64, this.spec);
-
+  txFromXDR = <T>(xdrBase64: string): AssembledTransaction<T> =>
+    AssembledTransaction.fromXDR(this.options, xdrBase64, this.spec);
 }
-

@@ -1,5 +1,5 @@
 /* tslint:disable:variable-name no-namespace */
-import URI from 'urijs';
+import URI from "urijs";
 
 import {
   Account,
@@ -12,16 +12,16 @@ import {
   Transaction,
   nativeToScVal,
   scValToNative,
-  xdr
-} from '@stellar/stellar-base';
+  xdr,
+} from "@stellar/stellar-base";
 
-import type { TransactionBuilder } from '@stellar/stellar-base';
+import type { TransactionBuilder } from "@stellar/stellar-base";
 // eslint-disable-next-line import/no-named-as-default
-import AxiosClient from './axios';
-import { Api as FriendbotApi } from '../friendbot';
-import * as jsonrpc from './jsonrpc';
-import { Api } from './api';
-import { assembleTransaction } from './transaction';
+import AxiosClient from "./axios";
+import { Api as FriendbotApi } from "../friendbot";
+import * as jsonrpc from "./jsonrpc";
+import { Api } from "./api";
+import { assembleTransaction } from "./transaction";
 import {
   parseRawSendTransaction,
   parseRawSimulation,
@@ -29,7 +29,7 @@ import {
   parseRawEvents,
   parseRawTransactions,
   parseTransactionInfo,
-} from './parsers';
+} from "./parsers";
 
 /**
  * Default transaction submission timeout for RPC requests, in milliseconds
@@ -48,8 +48,8 @@ export const SUBMIT_TRANSACTION_TIMEOUT = 60 * 1000;
  * @see {@link https://docs.rs/soroban-sdk/latest/soroban_sdk/storage/struct.Storage.html | Rust SDK Storage docs}
  */
 export enum Durability {
-  Temporary = 'temporary',
-  Persistent = 'persistent'
+  Temporary = "temporary",
+  Persistent = "persistent",
 }
 
 /**
@@ -95,7 +95,7 @@ export namespace RpcServer {
 }
 
 function findCreatedAccountSequenceInTransactionMeta(
-  meta: xdr.TransactionMeta
+  meta: xdr.TransactionMeta,
 ): string {
   let operations: xdr.OperationMeta[] = [];
   switch (meta.switch()) {
@@ -108,12 +108,15 @@ function findCreatedAccountSequenceInTransactionMeta(
       operations = (meta.value() as xdr.TransactionMetaV3).operations();
       break;
     default:
-      throw new Error('Unexpected transaction meta switch value');
+      throw new Error("Unexpected transaction meta switch value");
   }
   const sequenceNumber = operations
-    .flatMap(op => op.changes())
-    .find(c => c.switch() === xdr.LedgerEntryChangeType.ledgerEntryCreated() &&
-              c.created().data().switch() === xdr.LedgerEntryType.account())
+    .flatMap((op) => op.changes())
+    .find(
+      (c) =>
+        c.switch() === xdr.LedgerEntryChangeType.ledgerEntryCreated() &&
+        c.created().data().switch() === xdr.LedgerEntryType.account(),
+    )
     ?.created()
     ?.data()
     ?.account()
@@ -123,7 +126,7 @@ function findCreatedAccountSequenceInTransactionMeta(
   if (sequenceNumber) {
     return sequenceNumber;
   }
-  throw new Error('No account created in transaction');
+  throw new Error("No account created in transaction");
 }
 
 /* eslint-disable jsdoc/no-undefined-types */
@@ -161,9 +164,9 @@ export class RpcServer {
       });
     }
 
-    if (this.serverURL.protocol() !== 'https' && !opts.allowHttp) {
+    if (this.serverURL.protocol() !== "https" && !opts.allowHttp) {
       throw new Error(
-        "Cannot connect to insecure Soroban RPC server if `allowHttp` isn't set"
+        "Cannot connect to insecure Soroban RPC server if `allowHttp` isn't set",
       );
     }
   }
@@ -189,8 +192,8 @@ export class RpcServer {
   public async getAccount(address: string): Promise<Account> {
     const ledgerKey = xdr.LedgerKey.account(
       new xdr.LedgerKeyAccount({
-        accountId: Keypair.fromPublicKey(address).xdrPublicKey()
-      })
+        accountId: Keypair.fromPublicKey(address).xdrPublicKey(),
+      }),
     );
 
     const resp = await this.getLedgerEntries(ledgerKey);
@@ -198,7 +201,7 @@ export class RpcServer {
       // eslint-disable-next-line prefer-promise-reject-errors
       return Promise.reject({
         code: 404,
-        message: `Account not found: ${address}`
+        message: `Account not found: ${address}`,
       });
     }
 
@@ -224,7 +227,7 @@ export class RpcServer {
   public async getHealth(): Promise<Api.GetHealthResponse> {
     return jsonrpc.postObject<Api.GetHealthResponse>(
       this.serverURL.toString(),
-      'getHealth'
+      "getHealth",
     );
   }
 
@@ -263,11 +266,11 @@ export class RpcServer {
   public async getContractData(
     contract: string | Address | Contract,
     key: xdr.ScVal,
-    durability: Durability = Durability.Persistent
+    durability: Durability = Durability.Persistent,
   ): Promise<Api.LedgerEntryResult> {
     // coalesce `contract` param variants to an ScAddress
     let scAddress: xdr.ScAddress;
-    if (typeof contract === 'string') {
+    if (typeof contract === "string") {
       scAddress = new Contract(contract).address().toScAddress();
     } else if (contract instanceof Address) {
       scAddress = contract.toScAddress();
@@ -295,8 +298,8 @@ export class RpcServer {
       new xdr.LedgerKeyContractData({
         key,
         contract: scAddress,
-        durability: xdrDurability
-      })
+        durability: xdrDurability,
+      }),
     );
 
     return this.getLedgerEntries(contractKey).then(
@@ -306,15 +309,15 @@ export class RpcServer {
           return Promise.reject({
             code: 404,
             message: `Contract data not found. Contract: ${Address.fromScAddress(
-              scAddress
+              scAddress,
             ).toString()}, Key: ${key.toXDR(
-              'base64'
-            )}, Durability: ${durability}`
+              "base64",
+            )}, Durability: ${durability}`,
           });
         }
 
         return r.entries[0];
-      }
+      },
     );
   }
 
@@ -340,13 +343,16 @@ export class RpcServer {
    * });
    */
   public async getContractWasmByContractId(
-    contractId: string
+    contractId: string,
   ): Promise<Buffer> {
     const contractLedgerKey = new Contract(contractId).getFootprint();
     const response = await this.getLedgerEntries(contractLedgerKey);
     if (!response.entries.length || !response.entries[0]?.val) {
       // eslint-disable-next-line prefer-promise-reject-errors
-      return Promise.reject({code: 404, message: `Could not obtain contract hash from server`});
+      return Promise.reject({
+        code: 404,
+        message: `Could not obtain contract hash from server`,
+      });
     }
 
     const wasmHash = response.entries[0].val
@@ -382,20 +388,26 @@ export class RpcServer {
    */
   public async getContractWasmByHash(
     wasmHash: Buffer | string,
-    format: undefined | "hex" | "base64" = undefined
+    format: undefined | "hex" | "base64" = undefined,
   ): Promise<Buffer> {
-    const wasmHashBuffer = typeof wasmHash === "string" ? Buffer.from(wasmHash, format) : wasmHash as Buffer;
+    const wasmHashBuffer =
+      typeof wasmHash === "string"
+        ? Buffer.from(wasmHash, format)
+        : (wasmHash as Buffer);
 
     const ledgerKeyWasmHash = xdr.LedgerKey.contractCode(
       new xdr.LedgerKeyContractCode({
         hash: wasmHashBuffer,
-      })
+      }),
     );
 
     const responseWasm = await this.getLedgerEntries(ledgerKeyWasmHash);
     if (!responseWasm.entries.length || !responseWasm.entries[0]?.val) {
       // eslint-disable-next-line prefer-promise-reject-errors
-      return Promise.reject({ code: 404, message: "Could not obtain contract wasm from server" });
+      return Promise.reject({
+        code: 404,
+        message: "Could not obtain contract wasm from server",
+      });
     }
     const wasmBuffer = responseWasm.entries[0].val.contractCode().code();
 
@@ -443,13 +455,13 @@ export class RpcServer {
 
   // eslint-disable-next-line require-await
   public async _getLedgerEntries(...keys: xdr.LedgerKey[]) {
-    return jsonrpc
-      .postObject<Api.RawGetLedgerEntriesResponse>(
-        this.serverURL.toString(),
-        'getLedgerEntries', {
-          keys: keys.map((k) => k.toXDR('base64'))
-        }
-      );
+    return jsonrpc.postObject<Api.RawGetLedgerEntriesResponse>(
+      this.serverURL.toString(),
+      "getLedgerEntries",
+      {
+        keys: keys.map((k) => k.toXDR("base64")),
+      },
+    );
   }
 
   /**
@@ -475,12 +487,12 @@ export class RpcServer {
    */
   // eslint-disable-next-line require-await
   public async getTransaction(
-    hash: string
+    hash: string,
   ): Promise<Api.GetTransactionResponse> {
     return this._getTransaction(hash).then((raw) => {
       const foundInfo: Omit<
-          Api.GetSuccessfulTransactionResponse,
-          keyof Api.GetMissingTransactionResponse
+        Api.GetSuccessfulTransactionResponse,
+        keyof Api.GetMissingTransactionResponse
       > = {} as any;
 
       if (raw.status !== Api.GetTransactionStatus.NOT_FOUND) {
@@ -493,7 +505,7 @@ export class RpcServer {
         latestLedgerCloseTime: raw.latestLedgerCloseTime,
         oldestLedger: raw.oldestLedger,
         oldestLedgerCloseTime: raw.oldestLedgerCloseTime,
-        ...foundInfo
+        ...foundInfo,
       };
 
       return result;
@@ -502,9 +514,11 @@ export class RpcServer {
 
   // eslint-disable-next-line require-await
   public async _getTransaction(
-    hash: string
+    hash: string,
   ): Promise<Api.RawGetTransactionResponse> {
-    return jsonrpc.postObject(this.serverURL.toString(), 'getTransaction', {hash});
+    return jsonrpc.postObject(this.serverURL.toString(), "getTransaction", {
+      hash,
+    });
   }
 
   /**
@@ -525,23 +539,33 @@ export class RpcServer {
    *   console.log("Cursor:", response.cursor);
    * });
    */
-  public async getTransactions(request: Api.GetTransactionsRequest): Promise<Api.GetTransactionsResponse> {
-    return this._getTransactions(request).then((raw: Api.RawGetTransactionsResponse) => {
-      const result: Api.GetTransactionsResponse = {
-        transactions: raw.transactions.map(parseRawTransactions),
-        latestLedger: raw.latestLedger,
-        latestLedgerCloseTimestamp: raw.latestLedgerCloseTimestamp,
-        oldestLedger: raw.oldestLedger,
-        oldestLedgerCloseTimestamp: raw.oldestLedgerCloseTimestamp,
-        cursor: raw.cursor,
-      }
-      return result
-    });
+  public async getTransactions(
+    request: Api.GetTransactionsRequest,
+  ): Promise<Api.GetTransactionsResponse> {
+    return this._getTransactions(request).then(
+      (raw: Api.RawGetTransactionsResponse) => {
+        const result: Api.GetTransactionsResponse = {
+          transactions: raw.transactions.map(parseRawTransactions),
+          latestLedger: raw.latestLedger,
+          latestLedgerCloseTimestamp: raw.latestLedgerCloseTimestamp,
+          oldestLedger: raw.oldestLedger,
+          oldestLedgerCloseTimestamp: raw.oldestLedgerCloseTimestamp,
+          cursor: raw.cursor,
+        };
+        return result;
+      },
+    );
   }
 
   // Add this private method to the Server class
-  private async _getTransactions(request: Api.GetTransactionsRequest): Promise<Api.RawGetTransactionsResponse> {
-    return jsonrpc.postObject(this.serverURL.toString(), 'getTransactions', request);
+  private async _getTransactions(
+    request: Api.GetTransactionsRequest,
+  ): Promise<Api.RawGetTransactionsResponse> {
+    return jsonrpc.postObject(
+      this.serverURL.toString(),
+      "getTransactions",
+      request,
+    );
   }
 
   /**
@@ -585,24 +609,24 @@ export class RpcServer {
    */
   // eslint-disable-next-line require-await
   public async getEvents(
-    request: RpcServer.GetEventsRequest
+    request: RpcServer.GetEventsRequest,
   ): Promise<Api.GetEventsResponse> {
     return this._getEvents(request).then(parseRawEvents);
   }
 
   // eslint-disable-next-line require-await
   public async _getEvents(
-    request: RpcServer.GetEventsRequest
+    request: RpcServer.GetEventsRequest,
   ): Promise<Api.RawGetEventsResponse> {
-    return jsonrpc.postObject(this.serverURL.toString(), 'getEvents', {
+    return jsonrpc.postObject(this.serverURL.toString(), "getEvents", {
       filters: request.filters ?? [],
       pagination: {
         ...(request.cursor && { cursor: request.cursor }), // add if defined
-        ...(request.limit && { limit: request.limit })
+        ...(request.limit && { limit: request.limit }),
       },
       ...(request.startLedger && {
-        startLedger: request.startLedger
-      })
+        startLedger: request.startLedger,
+      }),
     });
   }
 
@@ -623,7 +647,7 @@ export class RpcServer {
    */
   // eslint-disable-next-line require-await
   public async getNetwork(): Promise<Api.GetNetworkResponse> {
-    return jsonrpc.postObject(this.serverURL.toString(), 'getNetwork');
+    return jsonrpc.postObject(this.serverURL.toString(), "getNetwork");
   }
 
   /**
@@ -644,7 +668,7 @@ export class RpcServer {
    */
   // eslint-disable-next-line require-await
   public async getLatestLedger(): Promise<Api.GetLatestLedgerResponse> {
-    return jsonrpc.postObject(this.serverURL.toString(), 'getLatestLedger');
+    return jsonrpc.postObject(this.serverURL.toString(), "getLatestLedger");
   }
 
   /**
@@ -691,28 +715,29 @@ export class RpcServer {
   // eslint-disable-next-line require-await
   public async simulateTransaction(
     tx: Transaction | FeeBumpTransaction,
-    addlResources?: RpcServer.ResourceLeeway
+    addlResources?: RpcServer.ResourceLeeway,
   ): Promise<Api.SimulateTransactionResponse> {
-    return this._simulateTransaction(tx, addlResources)
-      .then(parseRawSimulation);
+    return this._simulateTransaction(tx, addlResources).then(
+      parseRawSimulation,
+    );
   }
 
   // eslint-disable-next-line require-await
   public async _simulateTransaction(
     transaction: Transaction | FeeBumpTransaction,
-    addlResources?: RpcServer.ResourceLeeway
+    addlResources?: RpcServer.ResourceLeeway,
   ): Promise<Api.RawSimulateTransactionResponse> {
     return jsonrpc.postObject(
       this.serverURL.toString(),
-      'simulateTransaction',
+      "simulateTransaction",
       {
         transaction: transaction.toXDR(),
         ...(addlResources !== undefined && {
           resourceConfig: {
-            instructionLeeway: addlResources.cpuInstructions
-          }
-        })
-      }
+            instructionLeeway: addlResources.cpuInstructions,
+          },
+        }),
+      },
     );
   }
 
@@ -841,20 +866,18 @@ export class RpcServer {
    */
   // eslint-disable-next-line require-await
   public async sendTransaction(
-    transaction: Transaction | FeeBumpTransaction
+    transaction: Transaction | FeeBumpTransaction,
   ): Promise<Api.SendTransactionResponse> {
     return this._sendTransaction(transaction).then(parseRawSendTransaction);
   }
 
   // eslint-disable-next-line require-await
   public async _sendTransaction(
-    transaction: Transaction | FeeBumpTransaction
+    transaction: Transaction | FeeBumpTransaction,
   ): Promise<Api.RawSendTransactionResponse> {
-    return jsonrpc.postObject(
-      this.serverURL.toString(),
-      'sendTransaction',
-      { transaction: transaction.toXDR() }
-    );
+    return jsonrpc.postObject(this.serverURL.toString(), "sendTransaction", {
+      transaction: transaction.toXDR(),
+    });
   }
 
   /**
@@ -885,29 +908,29 @@ export class RpcServer {
    *    });
    */
   public async requestAirdrop(
-    address: string | Pick<Account, 'accountId'>,
-    friendbotUrl?: string
+    address: string | Pick<Account, "accountId">,
+    friendbotUrl?: string,
   ): Promise<Account> {
-    const account = typeof address === 'string' ? address : address.accountId();
+    const account = typeof address === "string" ? address : address.accountId();
     friendbotUrl = friendbotUrl || (await this.getNetwork()).friendbotUrl;
     if (!friendbotUrl) {
-      throw new Error('No friendbot URL configured for current network');
+      throw new Error("No friendbot URL configured for current network");
     }
 
     try {
       const response = await AxiosClient.post<FriendbotApi.Response>(
-        `${friendbotUrl}?addr=${encodeURIComponent(account)}`
+        `${friendbotUrl}?addr=${encodeURIComponent(account)}`,
       );
 
       const meta = xdr.TransactionMeta.fromXDR(
         response.data.result_meta_xdr,
-        'base64'
+        "base64",
       );
       const sequence = findCreatedAccountSequenceInTransactionMeta(meta);
       return new Account(account, sequence);
     } catch (error: any) {
       if (error.response?.status === 400) {
-        if (error.response.detail?.includes('createAccountAlreadyExist')) {
+        if (error.response.detail?.includes("createAccountAlreadyExist")) {
           // Account already exists, load the sequence number
           return this.getAccount(account);
         }
@@ -924,7 +947,7 @@ export class RpcServer {
    * @see https://developers.stellar.org/docs/data/rpc/api-reference/methods/getFeeStats
    */
   public async getFeeStats(): Promise<Api.GetFeeStatsResponse> {
-    return jsonrpc.postObject(this.serverURL.toString(), 'getFeeStats');
+    return jsonrpc.postObject(this.serverURL.toString(), "getFeeStats");
   }
 
   /**
@@ -934,7 +957,7 @@ export class RpcServer {
    * @see https://developers.stellar.org/docs/data/rpc/api-reference/methods/getVersionInfo
    */
   public async getVersionInfo(): Promise<Api.GetVersionInfoResponse> {
-    return jsonrpc.postObject(this.serverURL.toString(), 'getVersionInfo');
+    return jsonrpc.postObject(this.serverURL.toString(), "getVersionInfo");
   }
 
   /**
@@ -979,67 +1002,64 @@ export class RpcServer {
   public async getSACBalance(
     contractId: string,
     sac: Asset,
-    networkPassphrase?: string
+    networkPassphrase?: string,
   ): Promise<Api.BalanceResponse> {
-      if (!StrKey.isValidContract(contractId)) {
-        throw new TypeError(`expected contract ID, got ${contractId}`);
-      }
+    if (!StrKey.isValidContract(contractId)) {
+      throw new TypeError(`expected contract ID, got ${contractId}`);
+    }
 
-      // Call out to RPC if passphrase isn't provided.
-      const passphrase: string = networkPassphrase
-        ?? await this.getNetwork().then(n => n.passphrase);
+    // Call out to RPC if passphrase isn't provided.
+    const passphrase: string =
+      networkPassphrase ?? (await this.getNetwork().then((n) => n.passphrase));
 
-      // Turn SAC into predictable contract ID
-      const sacId = sac.contractId(passphrase);
+    // Turn SAC into predictable contract ID
+    const sacId = sac.contractId(passphrase);
 
-      // Rust union enum type with "Balance(ScAddress)" structure
-      const key = xdr.ScVal.scvVec([
-        nativeToScVal("Balance", { type: "symbol" }),
-        nativeToScVal(contractId, { type: "address" }),
-      ]);
+    // Rust union enum type with "Balance(ScAddress)" structure
+    const key = xdr.ScVal.scvVec([
+      nativeToScVal("Balance", { type: "symbol" }),
+      nativeToScVal(contractId, { type: "address" }),
+    ]);
 
-      // Note a quirk here: the contract address in the key is the *token*
-      // rather than the *holding contract*. This is because each token stores a
-      // balance entry for each contract, not the other way around (i.e. XLM
-      // holds a reserve for contract X, rather that contract X having a balance
-      // of N XLM).
-      const ledgerKey = xdr.LedgerKey.contractData(
-        new xdr.LedgerKeyContractData({
-          contract: new Address(sacId).toScAddress(),
-          durability: xdr.ContractDataDurability.persistent(),
-          key
-        })
-      );
+    // Note a quirk here: the contract address in the key is the *token*
+    // rather than the *holding contract*. This is because each token stores a
+    // balance entry for each contract, not the other way around (i.e. XLM
+    // holds a reserve for contract X, rather that contract X having a balance
+    // of N XLM).
+    const ledgerKey = xdr.LedgerKey.contractData(
+      new xdr.LedgerKeyContractData({
+        contract: new Address(sacId).toScAddress(),
+        durability: xdr.ContractDataDurability.persistent(),
+        key,
+      }),
+    );
 
-      const response = await this.getLedgerEntries(ledgerKey);
-      if (response.entries.length === 0) {
-        return { latestLedger: response.latestLedger };
-      }
+    const response = await this.getLedgerEntries(ledgerKey);
+    if (response.entries.length === 0) {
+      return { latestLedger: response.latestLedger };
+    }
 
-      const {
-        lastModifiedLedgerSeq,
+    const { lastModifiedLedgerSeq, liveUntilLedgerSeq, val } =
+      response.entries[0];
+
+    if (val.switch().value !== xdr.LedgerEntryType.contractData().value) {
+      return { latestLedger: response.latestLedger };
+    }
+
+    const entry = scValToNative(val.contractData().val());
+
+    // Since we are requesting a SAC's contract data, we know for a fact that
+    // it should follow the expected structure format. Thus, we can presume
+    // these fields exist:
+    return {
+      latestLedger: response.latestLedger,
+      balanceEntry: {
         liveUntilLedgerSeq,
-        val
-      } = response.entries[0];
-
-      if (val.switch().value !== xdr.LedgerEntryType.contractData().value) {
-        return { latestLedger: response.latestLedger };
-      }
-
-      const entry = scValToNative(val.contractData().val());
-
-      // Since we are requesting a SAC's contract data, we know for a fact that
-      // it should follow the expected structure format. Thus, we can presume
-      // these fields exist:
-      return {
-        latestLedger: response.latestLedger,
-        balanceEntry: {
-          liveUntilLedgerSeq,
-          lastModifiedLedgerSeq,
-          amount: entry.amount.toString(),
-          authorized: entry.authorized,
-          clawback: entry.clawback,
-        }
-      };
+        lastModifiedLedgerSeq,
+        amount: entry.amount.toString(),
+        authorized: entry.authorized,
+        clawback: entry.clawback,
+      },
+    };
   }
 }

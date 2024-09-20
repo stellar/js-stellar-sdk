@@ -19,7 +19,7 @@ const defaultConfig: Configuration = {
   timeout: 0,
 };
 
-let config = { ...defaultConfig};
+let config = { ...defaultConfig };
 
 /**
  * Global config class.
@@ -80,7 +80,7 @@ class Config {
    * @static
    */
   public static setDefault(): void {
-    config = { ...defaultConfig};
+    config = { ...defaultConfig };
   }
 }
 

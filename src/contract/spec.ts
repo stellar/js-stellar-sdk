@@ -6,8 +6,8 @@ import {
   Address,
   Contract,
   scValToBigInt,
-} from "@stellar/stellar-base"
-import { Ok } from "./rust_result"
+} from "@stellar/stellar-base";
+import { Ok } from "./rust_result";
 
 export interface Union<T> {
   tag: string;
@@ -435,7 +435,6 @@ function unionToJsonSchema(udt: xdr.ScSpecUdtUnionV0): any {
 }
 /* eslint-enable default-case */
 
-
 /**
  * Provides a ContractSpec class which can contains the XDR types defined by the contract.
  * This allows the class to be used to convert between native and raw `xdr.ScVal`s.
@@ -595,7 +594,6 @@ export class Spec {
     return entry;
   }
 
-
   /**
    * Converts a native JS value to an ScVal based on the given type.
    *
@@ -737,7 +735,8 @@ export class Spec {
 
         if ((val.constructor?.name ?? "") !== "Object") {
           throw new TypeError(
-            `cannot interpret ${val.constructor?.name
+            `cannot interpret ${
+              val.constructor?.name
             } value as ScVal (${JSON.stringify(val)})`,
           );
         }
@@ -940,7 +939,8 @@ export class Spec {
           return (scv.vec() ?? []).map((elm) =>
             this.scValToNative(elm, vec.elementType()),
           ) as T;
-        } if (value === xdr.ScSpecType.scSpecTypeTuple().value) {
+        }
+        if (value === xdr.ScSpecType.scSpecTypeTuple().value) {
           const tuple = typeDef.tuple();
           const valTypes = tuple.valueTypes();
           return (scv.vec() ?? []).map((elm, i) =>
@@ -988,7 +988,8 @@ export class Spec {
           value !== xdr.ScSpecType.scSpecTypeSymbol().value
         ) {
           throw new Error(
-            `ScSpecType ${t.name
+            `ScSpecType ${
+              t.name
             } was not string or symbol, but ${JSON.stringify(scv, null, 2)} is`,
           );
         }
@@ -1118,7 +1119,7 @@ export class Spec {
   jsonSchema(funcName?: string): JSONSchema7 {
     const definitions: { [key: string]: JSONSchema7Definition } = {};
     /* eslint-disable default-case */
-    this.entries.forEach(entry => {
+    this.entries.forEach((entry) => {
       switch (entry.switch().value) {
         case xdr.ScSpecEntryKind.scSpecEntryUdtEnumV0().value: {
           const udt = entry.udtEnumV0();
@@ -1159,4 +1160,3 @@ export class Spec {
     return res;
   }
 }
-

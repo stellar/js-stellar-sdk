@@ -2,7 +2,7 @@
 import axios, { AxiosResponse } from "axios";
 import URI from "urijs";
 
-// eslint-disable-next-line prefer-import/prefer-import-over-require 
+// eslint-disable-next-line prefer-import/prefer-import-over-require
 export const version = require("../../package.json").version;
 
 export interface ServerTime {
@@ -40,22 +40,20 @@ function toSeconds(ms: number): number {
   return Math.floor(ms / 1000);
 }
 
-AxiosClient.interceptors.response.use(
-  (response: AxiosResponse) => {
-    const hostname = URI(response.config.url!).hostname();
-    const serverTime = toSeconds(Date.parse(response.headers.date));
-    const localTimeRecorded = toSeconds(new Date().getTime());
+AxiosClient.interceptors.response.use((response: AxiosResponse) => {
+  const hostname = URI(response.config.url!).hostname();
+  const serverTime = toSeconds(Date.parse(response.headers.date));
+  const localTimeRecorded = toSeconds(new Date().getTime());
 
-    if (!Number.isNaN(serverTime)) {
-      SERVER_TIME_MAP[hostname] = {
-        serverTime,
-        localTimeRecorded,
-      };
-    }
+  if (!Number.isNaN(serverTime)) {
+    SERVER_TIME_MAP[hostname] = {
+      serverTime,
+      localTimeRecorded,
+    };
+  }
 
-    return response;
-  },
-);
+  return response;
+});
 
 export default AxiosClient;
 

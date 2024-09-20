@@ -14,7 +14,7 @@ export namespace ServerApi {
   export type AccountRecordSigners = AccountRecordSignersType;
   export type AssetRecord = AssetRecordType;
   export interface CollectionPage<
-    T extends HorizonApi.BaseResponse = HorizonApi.BaseResponse
+    T extends HorizonApi.BaseResponse = HorizonApi.BaseResponse,
   > {
     records: T[];
     next: () => Promise<CollectionPage<T>>;
@@ -28,10 +28,10 @@ export namespace ServerApi {
   }
 
   export type CallFunction<
-    T extends HorizonApi.BaseResponse = HorizonApi.BaseResponse
+    T extends HorizonApi.BaseResponse = HorizonApi.BaseResponse,
   > = () => Promise<T>;
   export type CallCollectionFunction<
-    T extends HorizonApi.BaseResponse = HorizonApi.BaseResponse
+    T extends HorizonApi.BaseResponse = HorizonApi.BaseResponse,
   > = (options?: CallFunctionTemplateOptions) => Promise<CollectionPage<T>>;
 
   type BaseEffectRecordFromTypes =
@@ -185,7 +185,7 @@ export namespace ServerApi {
 
   export interface BaseOperationRecord<
     T extends OperationResponseType = OperationResponseType,
-    TI extends OperationResponseTypeI = OperationResponseTypeI
+    TI extends OperationResponseTypeI = OperationResponseTypeI,
   > extends HorizonApi.BaseOperationResponse<T, TI> {
     self: CallFunction<OperationRecord>;
     succeeds: CallFunction<OperationRecord>;
@@ -306,52 +306,52 @@ export namespace ServerApi {
       HorizonApi.RevokeSponsorshipOperationResponse {}
   export interface ClawbackOperationRecord
     extends BaseOperationRecord<
-      OperationResponseType.clawback,
-      OperationResponseTypeI.clawback
-    >,
-    HorizonApi.ClawbackOperationResponse {}
+        OperationResponseType.clawback,
+        OperationResponseTypeI.clawback
+      >,
+      HorizonApi.ClawbackOperationResponse {}
   export interface ClawbackClaimableBalanceOperationRecord
     extends BaseOperationRecord<
-      OperationResponseType.clawbackClaimableBalance,
-      OperationResponseTypeI.clawbackClaimableBalance
-    >,
-    HorizonApi.ClawbackClaimableBalanceOperationResponse {}
+        OperationResponseType.clawbackClaimableBalance,
+        OperationResponseTypeI.clawbackClaimableBalance
+      >,
+      HorizonApi.ClawbackClaimableBalanceOperationResponse {}
   export interface SetTrustLineFlagsOperationRecord
     extends BaseOperationRecord<
-      OperationResponseType.setTrustLineFlags,
-      OperationResponseTypeI.setTrustLineFlags
-    >,
-    HorizonApi.SetTrustLineFlagsOperationResponse {}
+        OperationResponseType.setTrustLineFlags,
+        OperationResponseTypeI.setTrustLineFlags
+      >,
+      HorizonApi.SetTrustLineFlagsOperationResponse {}
   export interface DepositLiquidityOperationRecord
     extends BaseOperationRecord<
-      OperationResponseType.liquidityPoolDeposit,
-      OperationResponseTypeI.liquidityPoolDeposit
-    >,
-    HorizonApi.DepositLiquidityOperationResponse {}
+        OperationResponseType.liquidityPoolDeposit,
+        OperationResponseTypeI.liquidityPoolDeposit
+      >,
+      HorizonApi.DepositLiquidityOperationResponse {}
   export interface WithdrawLiquidityOperationRecord
     extends BaseOperationRecord<
-      OperationResponseType.liquidityPoolWithdraw,
-      OperationResponseTypeI.liquidityPoolWithdraw
-    >,
-    HorizonApi.WithdrawLiquidityOperationResponse {}
+        OperationResponseType.liquidityPoolWithdraw,
+        OperationResponseTypeI.liquidityPoolWithdraw
+      >,
+      HorizonApi.WithdrawLiquidityOperationResponse {}
   export interface InvokeHostFunctionOperationRecord
     extends BaseOperationRecord<
-      OperationResponseType.invokeHostFunction,
-      OperationResponseTypeI.invokeHostFunction
-    >,
-    HorizonApi.InvokeHostFunctionOperationResponse {}
+        OperationResponseType.invokeHostFunction,
+        OperationResponseTypeI.invokeHostFunction
+      >,
+      HorizonApi.InvokeHostFunctionOperationResponse {}
   export interface BumpFootprintExpirationOperationRecord
     extends BaseOperationRecord<
-      OperationResponseType.bumpFootprintExpiration,
-      OperationResponseTypeI.bumpFootprintExpiration
-    >,
-    HorizonApi.BumpFootprintExpirationOperationResponse {}
+        OperationResponseType.bumpFootprintExpiration,
+        OperationResponseTypeI.bumpFootprintExpiration
+      >,
+      HorizonApi.BumpFootprintExpirationOperationResponse {}
   export interface RestoreFootprintOperationRecord
     extends BaseOperationRecord<
-      OperationResponseType.restoreFootprint,
-      OperationResponseTypeI.restoreFootprint
-    >,
-    HorizonApi.RestoreFootprintOperationResponse {}
+        OperationResponseType.restoreFootprint,
+        OperationResponseTypeI.restoreFootprint
+      >,
+      HorizonApi.RestoreFootprintOperationResponse {}
 
   export type OperationRecord =
     | CreateAccountOperationRecord

@@ -101,7 +101,7 @@ export namespace HorizonApi {
   export interface BalanceLineAsset<
     T extends AssetType.credit4 | AssetType.credit12 =
       | AssetType.credit4
-      | AssetType.credit12
+      | AssetType.credit12,
   > {
     balance: string;
     limit: string;
@@ -116,15 +116,14 @@ export namespace HorizonApi {
     is_clawback_enabled: boolean;
     sponsor?: string;
   }
-  export type BalanceLine<
-    T extends AssetType = AssetType
-  > = T extends AssetType.native
-    ? BalanceLineNative
-    : T extends AssetType.credit4 | AssetType.credit12
-    ? BalanceLineAsset<T>
-    : T extends AssetType.liquidityPoolShares
-    ? BalanceLineLiquidityPool
-    : BalanceLineNative | BalanceLineAsset | BalanceLineLiquidityPool;
+  export type BalanceLine<T extends AssetType = AssetType> =
+    T extends AssetType.native
+      ? BalanceLineNative
+      : T extends AssetType.credit4 | AssetType.credit12
+        ? BalanceLineAsset<T>
+        : T extends AssetType.liquidityPoolShares
+          ? BalanceLineLiquidityPool
+          : BalanceLineNative | BalanceLineAsset | BalanceLineLiquidityPool;
 
   export interface AssetAccounts {
     authorized: number;
@@ -259,7 +258,7 @@ export namespace HorizonApi {
   }
   export interface BaseOperationResponse<
     T extends OperationResponseType = OperationResponseType,
-    TI extends OperationResponseTypeI = OperationResponseTypeI
+    TI extends OperationResponseTypeI = OperationResponseTypeI,
   > extends BaseResponse<"succeeds" | "precedes" | "effects" | "transaction"> {
     id: string;
     paging_token: string;
@@ -613,7 +612,7 @@ export namespace HorizonApi {
     extends BaseOperationResponse<
       OperationResponseType.restoreFootprint,
       OperationResponseTypeI.restoreFootprint
-    > {};
+    > {}
 
   export interface ResponseCollection<T extends BaseResponse = BaseResponse> {
     _links: {

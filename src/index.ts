@@ -2,19 +2,19 @@
 /// <reference path="../types/dom-monkeypatch.d.ts" />
 
 // Expose all types
-export * from './errors';
-export { Config } from './config';
-export { Utils } from './utils';
+export * from "./errors";
+export { Config } from "./config";
+export { Utils } from "./utils";
 
 // TOML (SEP-1), Federation (SEP-2), and WebAuth (SEP-10) helpers to expose
-export * as StellarToml from './stellartoml';
-export * as Federation from './federation';
-export * as WebAuth from './webauth';
+export * as StellarToml from "./stellartoml";
+export * as Federation from "./federation";
+export * as WebAuth from "./webauth";
 
-export * as Friendbot from './friendbot';
+export * as Friendbot from "./friendbot";
 
 // Horizon-related classes to expose
-export * as Horizon from './horizon';
+export * as Horizon from "./horizon";
 
 /**
  * Tools for interacting with the Soroban RPC server, such as `Server`,
@@ -25,12 +25,12 @@ export * as Horizon from './horizon';
  * @example
  * import { Server } from '@stellar/stellar-sdk/rpc';
  */
-export * as rpc from './rpc';
+export * as rpc from "./rpc";
 
 /**
  * @deprecated Use `rpc` instead
  */
-export * as SorobanRpc from './rpc';
+export * as SorobanRpc from "./rpc";
 
 /**
  * Tools for interacting with smart contracts, such as `Client`, `Spec`, and
@@ -42,9 +42,9 @@ export * as SorobanRpc from './rpc';
  * import { Client } from '@stellar/stellar-sdk/contract';
  * @private
  */
-export * as contract from './contract'
+export * as contract from "./contract";
 
 // expose classes and functions from stellar-base
-export * from '@stellar/stellar-base';
+export * from "@stellar/stellar-base";
 
 export default module.exports;
