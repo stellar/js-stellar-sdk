@@ -440,8 +440,9 @@ function unionToJsonSchema(udt: xdr.ScSpecUdtUnionV0): any {
  * Provides a ContractSpec class which can contains the XDR types defined by the contract.
  * This allows the class to be used to convert between native and raw `xdr.ScVal`s.
  *
+ * Constructs a new ContractSpec from an array of XDR spec entries.
+ *
  * @memberof module:contract
- * @class
  * @param {xdr.ScSpecEntry[] | string[]} entries the XDR spec entries
  * @throws {Error} if entries is invalid
  *
@@ -470,9 +471,6 @@ export class Spec {
    */
   public entries: xdr.ScSpecEntry[] = [];
 
-  /**
-   * Constructs a new ContractSpec from an array of XDR spec entries.
-   */
   constructor(entries: xdr.ScSpecEntry[] | string[]) {
     if (entries.length === 0) {
       throw new Error("Contract spec must have at least one entry");

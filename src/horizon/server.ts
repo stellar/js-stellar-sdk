@@ -49,7 +49,7 @@ import AxiosClient, {
  * @default 60000
  * @memberof module:Horizon.Server
  */
-export const SUBMIT_TRANSACTION_TIMEOUT = 60 * 1000;
+export const SUBMIT_TRANSACTION_TIMEOUT: number = 60 * 1000;
 
 const STROOPS_IN_LUMEN = 10000000;
 
@@ -64,18 +64,18 @@ function getAmountInLumens(amt: BigNumber) {
 /**
  * Server handles the network connection to a [Horizon](https://developers.stellar.org/docs/data/horizon)
  * instance and exposes an interface for requests to that instance.
- *
+ * @class
  * @alias module:Horizon.Server
  * @memberof module:Horizon
  *
  * @param {string} serverURL Horizon Server URL (ex. `https://horizon-testnet.stellar.org`).
- * @param {Options} [opts] Options object
+ * @param {module:Horizon.Server.Options} [opts] Options object
  */
 export class HorizonServer {
   /**
-   * serverURL Horizon Server URL (ex. `https://horizon-testnet.stellar.org`).
+   * Horizon Server URL (ex. `https://horizon-testnet.stellar.org`)
    *
-   * TODO: Solve `URI(this.serverURL as any)`.
+   * @todo Solve `URI(this.serverURL as any)`.
    */
   public readonly serverURL: URI;
 
@@ -128,22 +128,20 @@ export class HorizonServer {
    * not when you build or submit the transaction! So give yourself enough time to get
    * the transaction built and signed before submitting.
    *
-   * Example:
-   *
-   * ```javascript
+   * @example
    * const transaction = new StellarSdk.TransactionBuilder(accountId, {
-   *  fee: await StellarSdk.Server.fetchBaseFee(),
-   *  timebounds: await StellarSdk.Server.fetchTimebounds(100)
+   *   fee: await StellarSdk.Server.fetchBaseFee(),
+   *   timebounds: await StellarSdk.Server.fetchTimebounds(100)
    * })
-   *  .addOperation(operation)
-   *  // normally we would need to call setTimeout here, but setting timebounds
-   *  // earlier does the trick!
-   *  .build();
-   * ```
+   *   .addOperation(operation)
+   *   // normally we would need to call setTimeout here, but setting timebounds
+   *   // earlier does the trick!
+   *   .build();
+   *
    * @param {number} seconds Number of seconds past the current time to wait.
    * @param {boolean} [_isRetry] True if this is a retry. Only set this internally!
    * This is to avoid a scenario where Horizon is horking up the wrong date.
-   * @returns {Promise<HorizonServer.Timebounds>} Promise that resolves a `timebounds` object
+   * @returns {Promise<Timebounds>} Promise that resolves a `timebounds` object
    * (with the shape `{ minTime: 0, maxTime: N }`) that you can set the `timebounds` option to.
    */
   public async fetchTimebounds(
@@ -594,15 +592,15 @@ export class HorizonServer {
   /**
    * People on the Stellar network can make offers to buy or sell assets. This endpoint represents all the offers on the DEX.
    *
-   * You can query all offers for account using the function `.accountId`:
+   * You can query all offers for account using the function `.accountId`.
    *
-   * ```
+   * @example
    * server.offers()
-   *  .forAccount(accountId).call()
-   *  .then(function(offers) {
-   *    console.log(offers);
-   *  });
-   * ```
+   *   .forAccount(accountId).call()
+   *   .then(function(offers) {
+   *     console.log(offers);
+   *   });
+   *
    * @returns {OfferCallBuilder} New {@link OfferCallBuilder} object
    */
   public offers(): OfferCallBuilder {

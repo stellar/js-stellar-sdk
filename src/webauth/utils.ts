@@ -1,3 +1,9 @@
+/**
+ * Stellar Web Authentication
+ * @module WebAuth
+ * @see {@link https://stellar.org/protocol-10 | SEP-10 Specification}
+ */
+
 import randomBytes from "randombytes";
 import {
   Account,
@@ -16,8 +22,6 @@ import {
 import { Utils } from "../utils";
 import { InvalidChallengeError } from "./errors";
 import { ServerApi } from "../horizon/server_api";
-
-/** @module WebAuth */
 
 /**
  * Returns a valid {@link https://stellar.org/protocol/sep-10 | SEP-10}
@@ -137,12 +141,19 @@ export function buildChallengeTx(
 }
 
 /**
- * @typedef {object} ChallengeTxParts A parsed and validated challenge transaction, and some of its constituent details.
- * @property {Transaction} tx The challenge transaction.
- * @property {string} clientAccountID The Stellar public key (master key) used to sign the Manage Data operation.
- * @property {string} matchedHomeDomain The matched home domain.
- * @property {string | null} [memo=null] The memo attached to the transaction, which will be null if not present
+ * A parsed and validated challenge transaction, and some of its constituent details.
+ * @memberof module:WebAuth
  */
+export type ChallengeTxDetails = {
+  /** The challenge transaction. */
+  tx: Transaction;
+  /** The Stellar public key (master key) used to sign the Manage Data operation. */
+  clientAccountId: string;
+  /** The matched home domain. */
+  matchedHomeDomain: string;
+  /** The memo attached to the transaction, which will be null if not present */
+  memo?: string;
+}
 
 /**
  * Reads a SEP-10 challenge transaction and returns the decoded transaction and
@@ -167,7 +178,7 @@ export function buildChallengeTx(
  * @param {string} webAuthDomain The home domain that is expected to be included
  *    as the value of the Manage Data operation with the 'web_auth_domain' key.
  *    If no such operation is included, this parameter is not used.
- * @returns {module:WebAuth~ChallengeTxParts} The actual transaction and the
+ * @returns {module:WebAuth.ChallengeTxDetails} The actual transaction and the
  *    Stellar public key (master key) used to sign the Manage Data operation,
  *    the matched home domain, and the memo attached to the transaction, which
  *    will be null if not present.
@@ -579,7 +590,7 @@ export function verifyChallengeTxSigners(
     serverKP = Keypair.fromPublicKey(serverAccountID); // can throw 'Invalid Stellar public key'
   } catch (err: any) {
     throw new Error(
-      `Couldn't infer keypair from the provided 'serverAccountID': ${ 
+      `Couldn't infer keypair from the provided 'serverAccountID': ${
         err.message}`,
     );
   }
