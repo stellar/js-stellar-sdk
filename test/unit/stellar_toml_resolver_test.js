@@ -149,7 +149,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
 
       let tempServer = http
         .createServer((req, res) => {
-          setTimeout(() => {}, 10000);
+          setTimeout(() => { }, 10000);
         })
         .listen(4444, () => {
           Resolver.resolve("localhost:4444", {
@@ -172,7 +172,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
 
       let tempServer = http
         .createServer((req, res) => {
-          setTimeout(() => {}, 10000);
+          setTimeout(() => { }, 10000);
         })
         .listen(4444, () => {
           Resolver.resolve("localhost:4444", {
@@ -182,6 +182,56 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
             .should.be.rejectedWith(/timeout of 1000ms exceeded/)
             .notify(done)
             .then(() => tempServer.close());
+        });
+    });
+
+    it("rejects redirect response when allowedRedirects is not specified", function (done) {
+      if (typeof window != "undefined") {
+        return done();
+      }
+
+      let tempServer = http
+        .createServer((req, res) => {
+          res.writeHead(302, { location: "/redirect" });
+          return res.end();
+        })
+        .listen(4444, () => {
+          Resolver.resolve("localhost:4444", {
+            allowHttp: true,
+          })
+            .should.be.rejectedWith(/Maximum number of redirects exceeded/)
+            .notify(done)
+            .then(() => tempServer.close());
+        });
+    });
+
+    it("returns handled redirect when allowedRedirects is specified", function (done) {
+      if (typeof window != "undefined") {
+        return done();
+      }
+
+      let tempServer = http
+        .createServer((req, res) => {
+          if (req.url === "/redirect") {
+            res.writeHead(302, { location: "/redirect" });
+            return res.end();
+          }
+          res.setHeader("Content-Type", "text/x-toml; charset=UTF-8");
+          res.writeHead(200);
+          res.end(`
+          FEDERATION_SERVER="https://api.stellar.org/federation"
+          `);
+        })
+        .listen(4444, () => {
+          const res = Resolver.resolve("localhost:4444", {
+            allowHttp: true,
+          }).then((response) => {
+            expect(response.FEDERATION_SERVER).equals(
+              "https://api.stellar.org/federation",
+            );
+            tempServer.close();
+            done();
+          })
         });
     });
   });
