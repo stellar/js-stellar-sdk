@@ -79,6 +79,7 @@ export namespace RpcServer {
   export interface GetEventsRequest {
     filters: Api.EventFilter[];
     startLedger?: number; // either this or cursor
+    endLedger?: number; // either this or cursor
     cursor?: string; // either this or startLedger
     limit?: number;
   }
@@ -563,6 +564,7 @@ export class RpcServer {
    * @example
    * server.getEvents({
    *    startLedger: 1000,
+   *    endLedger: 2000,
    *    filters: [
    *     {
    *      type: "contract",
@@ -602,6 +604,9 @@ export class RpcServer {
       },
       ...(request.startLedger && {
         startLedger: request.startLedger
+      }),
+      ...(request.endLedger && {
+        endLedger: request.endLedger
       })
     });
   }
@@ -923,6 +928,7 @@ export class RpcServer {
    * @returns {Promise<Api.GetFeeStatsResponse>}  the fee stats
    * @see https://developers.stellar.org/docs/data/rpc/api-reference/methods/getFeeStats
    */
+  // eslint-disable-next-line require-await
   public async getFeeStats(): Promise<Api.GetFeeStatsResponse> {
     return jsonrpc.postObject(this.serverURL.toString(), 'getFeeStats');
   }
@@ -933,6 +939,7 @@ export class RpcServer {
    * @returns {Promise<Api.GetVersionInfoResponse>} the version info
    * @see https://developers.stellar.org/docs/data/rpc/api-reference/methods/getVersionInfo
    */
+  // eslint-disable-next-line require-await
   public async getVersionInfo(): Promise<Api.GetVersionInfoResponse> {
     return jsonrpc.postObject(this.serverURL.toString(), 'getVersionInfo');
   }

@@ -105,6 +105,7 @@ export class HorizonServer {
       AxiosClient.interceptors.request.use((config) => {
         // merge the custom headers with an existing headers, where customs
         // override defaults
+        config.headers = config.headers || {};
         config.headers = Object.assign(config.headers, customHeaders);
 
         return config;
@@ -516,8 +517,7 @@ export class HorizonServer {
    * By default, this function calls {@link HorizonServer#checkMemoRequired}, you can
    * skip this check by setting the option `skipMemoRequiredCheck` to `true`.
    *
-   * @see [Submit
-   * Async Transaction](https://developers.stellar.org/docs/data/horizon/api-reference/resources/submit-async-transaction)
+   * @see [Submit-Async-Transaction](https://developers.stellar.org/docs/data/horizon/api-reference/resources/submit-async-transaction)
    * @param {Transaction|FeeBumpTransaction} transaction - The transaction to submit.
    * @param {object} [opts] Options object
    * @param {boolean} [opts.skipMemoRequiredCheck] - Allow skipping memo
