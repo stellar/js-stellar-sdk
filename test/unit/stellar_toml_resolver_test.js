@@ -149,7 +149,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
 
       let tempServer = http
         .createServer((req, res) => {
-          setTimeout(() => { }, 10000);
+          setTimeout(() => {}, 10000);
         })
         .listen(4444, () => {
           Resolver.resolve("localhost:4444", {
@@ -172,7 +172,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
 
       let tempServer = http
         .createServer((req, res) => {
-          setTimeout(() => { }, 10000);
+          setTimeout(() => {}, 10000);
         })
         .listen(4444, () => {
           Resolver.resolve("localhost:4444", {
@@ -202,9 +202,11 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
           })
             .then((response) => {
               should.fail();
-            }).catch((e) => {
-              expect(e).to.match(/Maximum number of redirects exceeded/)
-            }).finally(() => {
+            })
+            .catch((e) => {
+              expect(e).to.match(/Maximum number of redirects exceeded/);
+            })
+            .finally(() => {
               tempServer.close();
               done();
             });
@@ -238,7 +240,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
             );
             tempServer.close();
             done();
-          })
+          });
         });
     });
   });
