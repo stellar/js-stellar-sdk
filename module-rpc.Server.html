@@ -1,0 +1,5029 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>@stellar/stellar-sdk Documentation Server</title>
+
+  <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="./build/entry.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,400,700|Inconsolata,700" rel="stylesheet">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+  <link type="text/css" rel="stylesheet" href="https://jmblog.github.io/color-themes-for-google-code-prettify/themes/tomorrow-night.min.css">
+  <link type="text/css" rel="stylesheet" href="styles/app.min.css">
+  <link type="text/css" rel="stylesheet" href="styles/iframe.css">
+  <link type="text/css" rel="stylesheet" href="">
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+
+  
+</head>
+
+
+
+<body class="layout small-header">
+    <div id="stickyNavbarOverlay"></div>
+    
+
+<div class="top-nav">
+    <div class="inner">
+        <a id="hamburger" role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </a>
+        <div class="logo">
+            
+             
+                <a href="index.html">
+                    <h1 class="navbar-item">@stellar/stellar-sdk</h1>
+                </a>
+            
+        </div>
+        <div class="menu">
+            
+            <div class="navigation">
+                <a
+                    href="index.html"
+                    class="link"
+                >
+                    Documentation
+                </a>
+                
+                 
+                    
+                        <a
+                            class="link user-link "
+                            href="https://github.com/stellar/js-stellar-sdk"
+                        >
+                            GitHub
+                        </a>
+                    
+                        <a
+                            class="link user-link "
+                            href="https://www.npmjs.com/package/@stellar/stellar-sdk"
+                        >
+                            npm
+                        </a>
+                    
+                
+                
+            </div>
+        </div>
+    </div>
+</div>
+    <div id="main">
+        <div
+            class="sidebar "
+            id="sidebarNav"
+        >
+            
+                <div class="search-wrapper">
+                    <input id="search" type="text" placeholder="Search docs..." class="input">
+                </div>
+            
+            <nav>
+                
+                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Modules</h3><ul><li><a href="module-Federation.html">Federation</a></li><li><a href="module-Horizon.html">Horizon</a></li><li><a href="module-StellarToml.html">StellarToml</a></li><li><a href="module-WebAuth.html">WebAuth</a></li><li><a href="module-contract.html">contract</a></li><li><a href="module-rpc.html">rpc</a></li></ul><h3>Classes</h3><ul><li><a href="Account.html">Account</a></li><li><a href="Address.html">Address</a></li><li><a href="Asset.html">Asset</a></li><li><a href="Claimant.html">Claimant</a></li><li><a href="Config.html">Config</a></li><li><a href="Contract.html">Contract</a></li><li><a href="FeeBumpTransaction.html">FeeBumpTransaction</a></li><li><a href="Int128_Int128.html">Int128#Int128</a></li><li><a href="Int256_Int256.html">Int256#Int256</a></li><li><a href="Keypair.html">Keypair</a></li><li><a href="LiquidityPoolAsset.html">LiquidityPoolAsset</a></li><li><a href="LiquidityPoolId.html">LiquidityPoolId</a></li><li><a href="Memo.html">Memo</a></li><li><a href="MuxedAccount.html">MuxedAccount</a></li><li><a href="Operation.html">Operation</a></li><li><a href="ScInt.html">ScInt</a></li><li><a href="SignerKey.html">SignerKey</a></li><li><a href="SorobanDataBuilder.html">SorobanDataBuilder</a></li><li><a href="StrKey.html">StrKey</a></li><li><a href="Transaction.html">Transaction</a></li><li><a href="TransactionBuilder.html">TransactionBuilder</a></li><li><a href="Uint128_Uint128.html">Uint128#Uint128</a></li><li><a href="Uint256_Uint256.html">Uint256#Uint256</a></li><li><a href="Utils.html">Utils</a></li><li><a href="XdrLargeInt.html">XdrLargeInt</a></li><li><a href="module-Federation.Server.html">Federation.Server</a></li><li><a href="module-Horizon.Server.html">Horizon.Server</a></li><li><a href="module-StellarToml.Resolver.html">StellarToml.Resolver</a></li><li><a href="module-contract.AssembledTransaction.html">contract.AssembledTransaction</a></li><li><a href="module-contract.Client.html">contract.Client</a></li><li><a href="module-contract.SentTransaction.html">contract.SentTransaction</a></li><li><a href="module-contract.Spec.html">contract.Spec</a></li><li><a href="module-rpc.Server.html">rpc.Server</a></li></ul><h3>Global</h3><ul><li><a href="global.html#AuthClawbackEnabledFlag">AuthClawbackEnabledFlag</a></li><li><a href="global.html#AuthImmutableFlag">AuthImmutableFlag</a></li><li><a href="global.html#AuthRequiredFlag">AuthRequiredFlag</a></li><li><a href="global.html#AuthRevocableFlag">AuthRevocableFlag</a></li><li><a href="global.html#BASE_FEE">BASE_FEE</a></li><li><a href="global.html#FastSigning">FastSigning</a></li><li><a href="global.html#MemoHash">MemoHash</a></li><li><a href="global.html#MemoID">MemoID</a></li><li><a href="global.html#MemoNone">MemoNone</a></li><li><a href="global.html#MemoReturn">MemoReturn</a></li><li><a href="global.html#MemoText">MemoText</a></li><li><a href="global.html#Networks">Networks</a></li><li><a href="global.html#TimeoutInfinite">TimeoutInfinite</a></li><li><a href="global.html#asciiCompare">asciiCompare</a></li><li><a href="global.html#authorizeEntry">authorizeEntry</a></li><li><a href="global.html#authorizeInvocation">authorizeInvocation</a></li><li><a href="global.html#buildInvocationTree">buildInvocationTree</a></li><li><a href="global.html#decodeAddressToMuxedAccount">decodeAddressToMuxedAccount</a></li><li><a href="global.html#defaultConfig">defaultConfig</a></li><li><a href="global.html#encodeMuxedAccount">encodeMuxedAccount</a></li><li><a href="global.html#encodeMuxedAccountToAddress">encodeMuxedAccountToAddress</a></li><li><a href="global.html#extractBaseAddress">extractBaseAddress</a></li><li><a href="global.html#getLiquidityPoolId">getLiquidityPoolId</a></li><li><a href="global.html#getSalty">getSalty</a></li><li><a href="global.html#humanizeEvents">humanizeEvents</a></li><li><a href="global.html#isValid">isValid</a></li><li><a href="global.html#isValidDate">isValidDate</a></li><li><a href="global.html#nativeToScVal">nativeToScVal</a></li><li><a href="global.html#scValToBigInt">scValToBigInt</a></li><li><a href="global.html#scValToNative">scValToNative</a></li><li><a href="global.html#walkInvocationTree">walkInvocationTree</a></li></ul></div><div class="category"><h2>Errors</h2><h3>Classes</h3><ul><li><a href="AccountRequiresMemoError.html">AccountRequiresMemoError</a></li><li><a href="BadRequestError.html">BadRequestError</a></li><li><a href="BadResponseError.html">BadResponseError</a></li><li><a href="NetworkError.html">NetworkError</a></li><li><a href="NotFoundError.html">NotFoundError</a></li><li><a href="module-WebAuth.InvalidChallengeError.html">WebAuth.InvalidChallengeError</a></li></ul></div>
+                
+            </nav>
+        </div>
+        <div class="core" id="main-content-wrapper">
+            <div class="content">
+                <header class="page-title">
+                    <p>Class</p>
+                    <h1>Server</h1>
+                </header>
+                
+
+
+
+
+<section>
+
+<header>
+    
+        <h2><span class="attribs"><span class="type-signature"></span></span>
+            <span class="ancestors"><a href="module-rpc.html">rpc</a>.</span>Server<span class="signature">(serverURL, opts<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h2>
+        
+            <div class="class-description"><p>Handles the network connection to a Soroban RPC instance, exposing an
+interface for requests to that instance.</p></div>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class='vertical-section'>
+                <div class="members">
+                    <div class="member">
+                        <div class=name>
+                            <span class="tag">Constructor</span>
+                        </div>
+                        
+
+
+    
+    <h4 class="name" id="Server">
+        <a class="href-link" href="#Server">#</a>
+        
+        <span class="code-name">
+            
+                new Server<span class="signature">(serverURL, opts<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+<div class="table-container">
+    <table class="params table">
+        <thead>
+        <tr>
+            
+            <th>Name</th>
+            
+
+            <th>Type</th>
+
+            
+            <th>Attributes</th>
+            
+
+            
+
+            <th class="last">Description</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        
+
+            
+<tr class="deep-level-0">
+  
+      <td class="name"><code>serverURL</code></td>
+  
+
+  <td class="type">
+  
+      
+<code class="param-type">string</code>
+
+
+  
+  </td>
+
+  
+      <td class="attributes">
+      
+
+      
+
+      
+      </td>
+  
+
+  
+
+  <td class="description last"><p>Soroban-RPC Server URL (ex. <code>http://localhost:8000/soroban/rpc</code>).</p></td>
+</tr>
+
+
+        
+
+            
+<tr class="deep-level-0">
+  
+      <td class="name"><code>opts</code></td>
+  
+
+  <td class="type">
+  
+      
+<code class="param-type"><a href="module-rpc.Server.html#.Options">module:rpc.Server.Options</a></code>
+
+
+  
+  </td>
+
+  
+      <td class="attributes">
+      
+          &lt;optional><br>
+      
+
+      
+
+      
+      </td>
+  
+
+  
+
+  <td class="description last"><p>Options object</p></td>
+</tr>
+
+  
+  
+    
+<tr class="deep-level-1">
+  
+      <td class="name"><code>allowHttp</code></td>
+  
+
+  <td class="type">
+  
+      
+<code class="param-type">boolean</code>
+
+
+  
+  </td>
+
+  
+      <td class="attributes">
+      
+          &lt;optional><br>
+      
+
+      
+
+      
+      </td>
+  
+
+  
+
+  <td class="description last"><p>Allows connecting to insecure http servers
+(default: <code>false</code>). This must be set to false in production deployments!
+You can also use <a href="Config.html">Config</a> class to set this globally.</p></td>
+</tr>
+
+  
+    
+<tr class="deep-level-1">
+  
+      <td class="name"><code>headers</code></td>
+  
+
+  <td class="type">
+  
+      
+<code class="param-type">Record.&lt;string, string></code>
+
+
+  
+  </td>
+
+  
+      <td class="attributes">
+      
+          &lt;optional><br>
+      
+
+      
+
+      
+      </td>
+  
+
+  
+
+  <td class="description last"><p>Allows setting custom headers</p></td>
+</tr>
+
+  
+
+
+        
+        </tbody>
+    </table>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="https://developers.stellar.org/docs/data/rpc/api-reference/methods">API reference docs</a></li>
+        </ul>
+    </dd>
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="lib_rpc_server.js.html" class="button">View Source</a>
+            <span>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line101">line 101</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    </div>
+                </div>
+            </div>
+        
+    
+    </div>
+    
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <div class='vertical-section'>
+            <h1>Members</h1>
+            <div class="members">
+            
+                <div class="member">
+
+    <span class="method-parameter is-pulled-right">
+        <label>Type:</label>
+        
+<code class="param-type">URI</code>
+
+
+    </span>
+
+<h4 class="name" id="serverURL">
+    <a class="href-link" href="#serverURL">#</a>
+    
+    <span class="code-name">
+        serverURL
+    </span>
+    
+</h4>
+
+
+
+
+<div class="description">
+    <p>RPC Server URL (ex. <code>http://localhost:8000/soroban/rpc</code>).</p>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="lib_rpc_server.js.html" class="button">View Source</a>
+            <span>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line107">line 107</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+    <span class="method-parameter is-pulled-right">
+        <label>Type:</label>
+        
+<code class="param-type">number</code>
+
+
+    </span>
+
+<h4 class="name" id=".SUBMIT_TRANSACTION_TIMEOUT">
+    <a class="href-link" href="#.SUBMIT_TRANSACTION_TIMEOUT">#</a>
+    
+        
+            <span class='tag'>static</span>
+        
+            <span class='tag'>constant</span>
+        
+    
+    <span class="code-name">
+        SUBMIT_TRANSACTION_TIMEOUT
+    </span>
+    
+</h4>
+
+
+
+
+<div class="description">
+    <p>Default transaction submission timeout for RPC requests, in milliseconds</p>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-default">Default Value:</dt>
+    <dd class="tag-default"><ul class="dummy">
+            <li>60000</li>
+        </ul></dd>
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="lib_rpc_server.js.html" class="button">View Source</a>
+            <span>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line27">line 27</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+</div>
+            
+            </div>
+        </div>
+    
+
+    
+        <div class='vertical-section'>
+            <h1>Methods</h1>
+            <div class="members">
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="getAccount">
+        <a class="href-link" href="#getAccount">#</a>
+        
+            
+                <span class='tag'>async</span>
+            
+        
+        <span class="code-name">
+            
+                getAccount<span class="signature">(address)</span><span class="type-signature"> &rarr; {Promise.&lt;<a href="Account.html">Account</a>>}</span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Fetch a minimal set of current info about a Stellar account.</p>
+<p>Needed to get the current sequence number for the account so you can build
+a successful transaction with <a href="TransactionBuilder.html">TransactionBuilder</a>.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+<div class="table-container">
+    <table class="params table">
+        <thead>
+        <tr>
+            
+            <th>Name</th>
+            
+
+            <th>Type</th>
+
+            
+
+            
+
+            <th class="last">Description</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        
+
+            
+<tr class="deep-level-0">
+  
+      <td class="name"><code>address</code></td>
+  
+
+  <td class="type">
+  
+      
+<code class="param-type">string</code>
+
+
+  
+  </td>
+
+  
+
+  
+
+  <td class="description last"><p>The public address of the account to load.</p></td>
+</tr>
+
+
+        
+        </tbody>
+    </table>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="https://developers.stellar.org/docs/data/rpc/api-reference/methods/getLedgerEntries">getLedgerEntries docs</a></li>
+        </ul>
+    </dd>
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="lib_rpc_server.js.html" class="button">View Source</a>
+            <span>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line138">line 138</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class='columns method-parameter'>
+        <div class="column is-2"><label>Returns:</label></div>
+        <div class="column is-10">
+            
+                    
+
+<div class="columns">
+    
+    <div class='param-desc column is-7'><p>A promise which resolves to the <a href="Account.html">Account</a>
+object with a populated sequence number</p></div>
+    
+    
+    <div class='column is-5 has-text-left'>
+        <label>Type: </label>
+        
+<code class="param-type">Promise.&lt;<a href="Account.html">Account</a>></code>
+
+
+    </div>
+    
+</div>
+
+                
+        </div>
+    </div>
+
+
+
+
+    <h5>Example</h5>
+    
+    
+        <pre class="prettyprint"><code>const accountId = "GBZC6Y2Y7Q3ZQ2Y4QZJ2XZ3Z5YXZ6Z7Z2Y4QZJ2XZ3Z5YXZ6Z7Z2Y4";
+server.getAccount(accountId).then((account) => {
+  console.log("sequence:", account.sequence);
+});</code></pre>
+    
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="getContractData">
+        <a class="href-link" href="#getContractData">#</a>
+        
+            
+                <span class='tag'>async</span>
+            
+        
+        <span class="code-name">
+            
+                getContractData<span class="signature">(contract, key, durability<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise.&lt;Api.LedgerEntryResult>}</span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Reads the current value of contract data ledger entries directly.</p>
+<p>Allows you to directly inspect the current state of a contract. This is a
+backup way to access your contract data which may not be available via
+events or <a href="module-rpc.Server.html#simulateTransaction">module:rpc.Server#simulateTransaction</a>.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+<div class="table-container">
+    <table class="params table">
+        <thead>
+        <tr>
+            
+            <th>Name</th>
+            
+
+            <th>Type</th>
+
+            
+            <th>Attributes</th>
+            
+
+            
+            <th>Default</th>
+            
+
+            <th class="last">Description</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        
+
+            
+<tr class="deep-level-0">
+  
+      <td class="name"><code>contract</code></td>
+  
+
+  <td class="type">
+  
+      
+<code class="param-type">string</code>
+|
+
+<code class="param-type"><a href="Address.html">Address</a></code>
+|
+
+<code class="param-type"><a href="Contract.html">Contract</a></code>
+
+
+  
+  </td>
+
+  
+      <td class="attributes">
+      
+
+      
+
+      
+      </td>
+  
+
+  
+      <td class="default">
+      
+      </td>
+  
+
+  <td class="description last"><p>The contract ID containing the
+data to load as a strkey (<code>C...</code> form), a <a href="Contract.html">Contract</a>, or an
+<a href="Address.html">Address</a> instance</p></td>
+</tr>
+
+
+        
+
+            
+<tr class="deep-level-0">
+  
+      <td class="name"><code>key</code></td>
+  
+
+  <td class="type">
+  
+      
+<code class="param-type">xdr.ScVal</code>
+
+
+  
+  </td>
+
+  
+      <td class="attributes">
+      
+
+      
+
+      
+      </td>
+  
+
+  
+      <td class="default">
+      
+      </td>
+  
+
+  <td class="description last"><p>The key of the contract data to load</p></td>
+</tr>
+
+
+        
+
+            
+<tr class="deep-level-0">
+  
+      <td class="name"><code>durability</code></td>
+  
+
+  <td class="type">
+  
+      
+<code class="param-type"><a href="module-rpc.html#.Durability">module:rpc.Durability</a></code>
+
+
+  
+  </td>
+
+  
+      <td class="attributes">
+      
+          &lt;optional><br>
+      
+
+      
+
+      
+      </td>
+  
+
+  
+      <td class="default">
+      
+          Durability.Persistent
+      
+      </td>
+  
+
+  <td class="description last"><p>The &quot;durability
+keyspace&quot; that this ledger key belongs to, which is either 'temporary'
+or 'persistent' (the default), see <a href="module-rpc.html#.Durability">module:rpc.Durability</a>.</p></td>
+</tr>
+
+
+        
+        </tbody>
+    </table>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="https://developers.stellar.org/docs/data/rpc/api-reference/methods/getLedgerEntries">getLedgerEntries docs</a></li>
+        </ul>
+    </dd>
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="lib_rpc_server.js.html" class="button">View Source</a>
+            <span>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line205">line 205</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class='columns method-parameter'>
+        <div class="column is-2"><label>Returns:</label></div>
+        <div class="column is-10">
+            
+                    
+
+<div class="columns">
+    
+    <div class='param-desc column is-7'><p>The current data value</p></div>
+    
+    
+    <div class='column is-5 has-text-left'>
+        <label>Type: </label>
+        
+<code class="param-type">Promise.&lt;Api.LedgerEntryResult></code>
+
+
+    </div>
+    
+</div>
+
+                
+        </div>
+    </div>
+
+
+
+
+    <h5>Example</h5>
+    
+    
+        <pre class="prettyprint"><code>const contractId = "CCJZ5DGASBWQXR5MPFCJXMBI333XE5U3FSJTNQU7RIKE3P5GN2K2WYD5";
+const key = xdr.ScVal.scvSymbol("counter");
+server.getContractData(contractId, key, Durability.Temporary).then(data => {
+  console.log("value:", data.val);
+  console.log("liveUntilLedgerSeq:", data.liveUntilLedgerSeq);
+  console.log("lastModified:", data.lastModifiedLedgerSeq);
+  console.log("latestLedger:", data.latestLedger);
+});</code></pre>
+    
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="getContractWasmByContractId">
+        <a class="href-link" href="#getContractWasmByContractId">#</a>
+        
+            
+                <span class='tag'>async</span>
+            
+        
+        <span class="code-name">
+            
+                getContractWasmByContractId<span class="signature">(contractId)</span><span class="type-signature"> &rarr; {Promise.&lt;Buffer>}</span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Retrieves the WASM bytecode for a given contract.</p>
+<p>This method allows you to fetch the WASM bytecode associated with a contract
+deployed on the Soroban network. The WASM bytecode represents the executable
+code of the contract.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+<div class="table-container">
+    <table class="params table">
+        <thead>
+        <tr>
+            
+            <th>Name</th>
+            
+
+            <th>Type</th>
+
+            
+
+            
+
+            <th class="last">Description</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        
+
+            
+<tr class="deep-level-0">
+  
+      <td class="name"><code>contractId</code></td>
+  
+
+  <td class="type">
+  
+      
+<code class="param-type">string</code>
+
+
+  
+  </td>
+
+  
+
+  
+
+  <td class="description last"><p>The contract ID containing the WASM bytecode to retrieve</p></td>
+</tr>
+
+
+        
+        </tbody>
+    </table>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="lib_rpc_server.js.html" class="button">View Source</a>
+            <span>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line266">line 266</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class='columns method-parameter'>
+        <div class="column is-2"><label>Throws:</label></div>
+        <div class="column is-10">
+            
+                    
+<div class="columns">
+    
+    <div class='param-desc column is-7'><p>If the contract or its associated WASM bytecode cannot be
+found on the network.</p></div>
+    <div class='column is-5 has-text-left'>
+        <label>Type: </label>
+<code class="param-type">Error</code>
+
+
+    </div>
+    
+</div>
+
+                
+        </div>
+    </div>
+
+
+
+    <div class='columns method-parameter'>
+        <div class="column is-2"><label>Returns:</label></div>
+        <div class="column is-10">
+            
+                    
+
+<div class="columns">
+    
+    <div class='param-desc column is-7'><p>A Buffer containing the WASM bytecode</p></div>
+    
+    
+    <div class='column is-5 has-text-left'>
+        <label>Type: </label>
+        
+<code class="param-type">Promise.&lt;Buffer></code>
+
+
+    </div>
+    
+</div>
+
+                
+        </div>
+    </div>
+
+
+
+
+    <h5>Example</h5>
+    
+    
+        <pre class="prettyprint"><code>const contractId = "CCJZ5DGASBWQXR5MPFCJXMBI333XE5U3FSJTNQU7RIKE3P5GN2K2WYD5";
+server.getContractWasmByContractId(contractId).then(wasmBuffer => {
+  console.log("WASM bytecode length:", wasmBuffer.length);
+  // ... do something with the WASM bytecode ...
+}).catch(err => {
+  console.error("Error fetching WASM bytecode:", err);
+});</code></pre>
+    
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="getContractWasmByHash">
+        <a class="href-link" href="#getContractWasmByHash">#</a>
+        
+            
+                <span class='tag'>async</span>
+            
+        
+        <span class="code-name">
+            
+                getContractWasmByHash<span class="signature">(wasmHash)</span><span class="type-signature"> &rarr; {Promise.&lt;Buffer>}</span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Retrieves the WASM bytecode for a given contract hash.</p>
+<p>This method allows you to fetch the WASM bytecode associated with a contract
+deployed on the Soroban network using the contract's WASM hash. The WASM bytecode
+represents the executable code of the contract.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+<div class="table-container">
+    <table class="params table">
+        <thead>
+        <tr>
+            
+            <th>Name</th>
+            
+
+            <th>Type</th>
+
+            
+
+            
+
+            <th class="last">Description</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        
+
+            
+<tr class="deep-level-0">
+  
+      <td class="name"><code>wasmHash</code></td>
+  
+
+  <td class="type">
+  
+      
+<code class="param-type">Buffer</code>
+
+
+  
+  </td>
+
+  
+
+  
+
+  <td class="description last"><p>The WASM hash of the contract</p></td>
+</tr>
+
+
+        
+        </tbody>
+    </table>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="lib_rpc_server.js.html" class="button">View Source</a>
+            <span>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line301">line 301</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class='columns method-parameter'>
+        <div class="column is-2"><label>Throws:</label></div>
+        <div class="column is-10">
+            
+                    
+<div class="columns">
+    
+    <div class='param-desc column is-7'><p>If the contract or its associated WASM bytecode cannot be
+found on the network.</p></div>
+    <div class='column is-5 has-text-left'>
+        <label>Type: </label>
+<code class="param-type">Error</code>
+
+
+    </div>
+    
+</div>
+
+                
+        </div>
+    </div>
+
+
+
+    <div class='columns method-parameter'>
+        <div class="column is-2"><label>Returns:</label></div>
+        <div class="column is-10">
+            
+                    
+
+<div class="columns">
+    
+    <div class='param-desc column is-7'><p>A Buffer containing the WASM bytecode</p></div>
+    
+    
+    <div class='column is-5 has-text-left'>
+        <label>Type: </label>
+        
+<code class="param-type">Promise.&lt;Buffer></code>
+
+
+    </div>
+    
+</div>
+
+                
+        </div>
+    </div>
+
+
+
+
+    <h5>Example</h5>
+    
+    
+        <pre class="prettyprint"><code>const wasmHash = Buffer.from("...");
+server.getContractWasmByHash(wasmHash).then(wasmBuffer => {
+  console.log("WASM bytecode length:", wasmBuffer.length);
+  // ... do something with the WASM bytecode ...
+}).catch(err => {
+  console.error("Error fetching WASM bytecode:", err);
+});</code></pre>
+    
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="getEvents">
+        <a class="href-link" href="#getEvents">#</a>
+        
+            
+                <span class='tag'>async</span>
+            
+        
+        <span class="code-name">
+            
+                getEvents<span class="signature">(request)</span><span class="type-signature"> &rarr; {Promise.&lt;Api.GetEventsResponse>}</span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Fetch all events that match a given set of filters.</p>
+<p>The given filters (see Api.EventFilter
+for detailed fields) are combined only in a logical OR fashion, and all of
+the fields in each filter are optional.</p>
+<p>To page through events, use the <code>pagingToken</code> field on the relevant
+Api.EventResponse object to set the <code>cursor</code> parameter.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+<div class="table-container">
+    <table class="params table">
+        <thead>
+        <tr>
+            
+            <th>Name</th>
+            
+
+            <th>Type</th>
+
+            
+
+            
+
+            <th class="last">Description</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        
+
+            
+<tr class="deep-level-0">
+  
+      <td class="name"><code>request</code></td>
+  
+
+  <td class="type">
+  
+      
+<code class="param-type"><a href="module-rpc.Server.html#.GetEventsRequest">module:rpc.Server.GetEventsRequest</a></code>
+
+
+  
+  </td>
+
+  
+
+  
+
+  <td class="description last"><p>Event filters</p></td>
+</tr>
+
+
+        
+        </tbody>
+    </table>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="https://developers.stellar.org/docs/data/rpc/api-reference/methods/getEvents">getEvents docs</a></li>
+        </ul>
+    </dd>
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="lib_rpc_server.js.html" class="button">View Source</a>
+            <span>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line487">line 487</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class='columns method-parameter'>
+        <div class="column is-2"><label>Returns:</label></div>
+        <div class="column is-10">
+            
+                    
+
+<div class="columns">
+    
+    <div class='param-desc column is-7'><p>A paginatable set of the events
+matching the given event filters</p></div>
+    
+    
+    <div class='column is-5 has-text-left'>
+        <label>Type: </label>
+        
+<code class="param-type">Promise.&lt;Api.GetEventsResponse></code>
+
+
+    </div>
+    
+</div>
+
+                
+        </div>
+    </div>
+
+
+
+
+    <h5>Example</h5>
+    
+    
+        <pre class="prettyprint"><code>server.getEvents({
+   startLedger: 1000,
+   endLedger: 2000,
+   filters: [
+    {
+     type: "contract",
+     contractIds: [ "deadb33f..." ],
+     topics: [[ "AAAABQAAAAh0cmFuc2Zlcg==", "AAAAAQB6Mcc=", "*" ]]
+    }, {
+     type: "system",
+     contractIds: [ "...c4f3b4b3..." ],
+     topics: [[ "*" ], [ "*", "AAAAAQB6Mcc=" ]]
+    }, {
+     contractIds: [ "...c4f3b4b3..." ],
+     topics: [[ "AAAABQAAAAh0cmFuc2Zlcg==" ]]
+    }, {
+     type: "diagnostic",
+     topics: [[ "AAAAAQB6Mcc=" ]]
+    }
+   ],
+   limit: 10,
+});</code></pre>
+    
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="getFeeStats">
+        <a class="href-link" href="#getFeeStats">#</a>
+        
+            
+                <span class='tag'>async</span>
+            
+        
+        <span class="code-name">
+            
+                getFeeStats<span class="signature">()</span><span class="type-signature"> &rarr; {Promise.&lt;Api.GetFeeStatsResponse>}</span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Provides an analysis of the recent fee stats for regular and smart
+contract operations.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="https://developers.stellar.org/docs/data/rpc/api-reference/methods/getFeeStats">https://developers.stellar.org/docs/data/rpc/api-reference/methods/getFeeStats</a></li>
+        </ul>
+    </dd>
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="lib_rpc_server.js.html" class="button">View Source</a>
+            <span>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line803">line 803</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class='columns method-parameter'>
+        <div class="column is-2"><label>Returns:</label></div>
+        <div class="column is-10">
+            
+                    
+
+<div class="columns">
+    
+    <div class='param-desc column is-7'><p>the fee stats</p></div>
+    
+    
+    <div class='column is-5 has-text-left'>
+        <label>Type: </label>
+        
+<code class="param-type">Promise.&lt;Api.GetFeeStatsResponse></code>
+
+
+    </div>
+    
+</div>
+
+                
+        </div>
+    </div>
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="getHealth">
+        <a class="href-link" href="#getHealth">#</a>
+        
+            
+                <span class='tag'>async</span>
+            
+        
+        <span class="code-name">
+            
+                getHealth<span class="signature">()</span><span class="type-signature"> &rarr; {Promise.&lt;Api.GetHealthResponse>}</span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>General node health check.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="https://developers.stellar.org/docs/data/rpc/api-reference/methods/getHealth">getLedgerEntries docs</a></li>
+        </ul>
+    </dd>
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="lib_rpc_server.js.html" class="button">View Source</a>
+            <span>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line169">line 169</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class='columns method-parameter'>
+        <div class="column is-2"><label>Returns:</label></div>
+        <div class="column is-10">
+            
+                    
+
+<div class="columns">
+    
+    <div class='param-desc column is-7'><p>A promise which resolves to the
+Api.GetHealthResponse object with the status of the
+server (e.g. &quot;healthy&quot;).</p></div>
+    
+    
+    <div class='column is-5 has-text-left'>
+        <label>Type: </label>
+        
+<code class="param-type">Promise.&lt;Api.GetHealthResponse></code>
+
+
+    </div>
+    
+</div>
+
+                
+        </div>
+    </div>
+
+
+
+
+    <h5>Example</h5>
+    
+    
+        <pre class="prettyprint"><code>server.getHealth().then((health) => {
+  console.log("status:", health.status);
+});</code></pre>
+    
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="getLatestLedger">
+        <a class="href-link" href="#getLatestLedger">#</a>
+        
+            
+                <span class='tag'>async</span>
+            
+        
+        <span class="code-name">
+            
+                getLatestLedger<span class="signature">()</span><span class="type-signature"> &rarr; {Promise.&lt;Api.GetLatestLedgerResponse>}</span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Fetch the latest ledger meta info from network which this Soroban RPC
+server is connected to.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="https://developers.stellar.org/docs/data/rpc/api-reference/methods/getLatestLedger">getLatestLedger docs</a></li>
+        </ul>
+    </dd>
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="lib_rpc_server.js.html" class="button">View Source</a>
+            <span>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line550">line 550</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class='columns method-parameter'>
+        <div class="column is-2"><label>Returns:</label></div>
+        <div class="column is-10">
+            
+                    
+
+<div class="columns">
+    
+    <div class='param-desc column is-7'><p>metadata about the
+latest ledger on the network that this RPC server is connected to</p></div>
+    
+    
+    <div class='column is-5 has-text-left'>
+        <label>Type: </label>
+        
+<code class="param-type">Promise.&lt;Api.GetLatestLedgerResponse></code>
+
+
+    </div>
+    
+</div>
+
+                
+        </div>
+    </div>
+
+
+
+
+    <h5>Example</h5>
+    
+    
+        <pre class="prettyprint"><code>server.getLatestLedger().then((response) => {
+  console.log("hash:", response.id);
+  console.log("sequence:", response.sequence);
+  console.log("protocolVersion:", response.protocolVersion);
+});</code></pre>
+    
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="getLedgerEntries">
+        <a class="href-link" href="#getLedgerEntries">#</a>
+        
+            
+                <span class='tag'>async</span>
+            
+        
+        <span class="code-name">
+            
+                getLedgerEntries<span class="signature">(&hellip;keys)</span><span class="type-signature"> &rarr; {Promise.&lt;Api.GetLedgerEntriesResponse>}</span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Reads the current value of arbitrary ledger entries directly.</p>
+<p>Allows you to directly inspect the current state of contracts, contract's
+code, accounts, or any other ledger entries.</p>
+<p>To fetch a contract's WASM byte-code, built the appropriate
+xdr.LedgerKeyContractCode ledger entry key (or see
+Contract.getFootprint).</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+<div class="table-container">
+    <table class="params table">
+        <thead>
+        <tr>
+            
+            <th>Name</th>
+            
+
+            <th>Type</th>
+
+            
+            <th>Attributes</th>
+            
+
+            
+
+            <th class="last">Description</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        
+
+            
+<tr class="deep-level-0">
+  
+      <td class="name"><code>keys</code></td>
+  
+
+  <td class="type">
+  
+      
+<code class="param-type">Array.&lt;xdr.ScVal></code>
+
+
+  
+  </td>
+
+  
+      <td class="attributes">
+      
+
+      
+
+      
+          &lt;repeatable><br>
+      
+      </td>
+  
+
+  
+
+  <td class="description last"><p>One or more ledger entry keys to load</p></td>
+</tr>
+
+
+        
+        </tbody>
+    </table>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="https://developers.stellar.org/docs/data/rpc/api-reference/methods/getLedgerEntries">getLedgerEntries docs</a></li>
+        
+            <li>RpcServer._getLedgerEntries</li>
+        </ul>
+    </dd>
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="lib_rpc_server.js.html" class="button">View Source</a>
+            <span>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line351">line 351</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class='columns method-parameter'>
+        <div class="column is-2"><label>Returns:</label></div>
+        <div class="column is-10">
+            
+                    
+
+<div class="columns">
+    
+    <div class='param-desc column is-7'><p>The current on-chain
+values for the given ledger keys</p></div>
+    
+    
+    <div class='column is-5 has-text-left'>
+        <label>Type: </label>
+        
+<code class="param-type">Promise.&lt;Api.GetLedgerEntriesResponse></code>
+
+
+    </div>
+    
+</div>
+
+                
+        </div>
+    </div>
+
+
+
+
+    <h5>Example</h5>
+    
+    
+        <pre class="prettyprint"><code>const contractId = "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM";
+const key = xdr.LedgerKey.contractData(new xdr.LedgerKeyContractData({
+  contractId: StrKey.decodeContract(contractId),
+  key: xdr.ScVal.scvSymbol("counter"),
+}));
+
+server.getLedgerEntries([key]).then(response => {
+  const ledgerData = response.entries[0];
+  console.log("key:", ledgerData.key);
+  console.log("value:", ledgerData.val);
+  console.log("liveUntilLedgerSeq:", ledgerData.liveUntilLedgerSeq);
+  console.log("lastModified:", ledgerData.lastModifiedLedgerSeq);
+  console.log("latestLedger:", response.latestLedger);
+});</code></pre>
+    
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="getNetwork">
+        <a class="href-link" href="#getNetwork">#</a>
+        
+            
+                <span class='tag'>async</span>
+            
+        
+        <span class="code-name">
+            
+                getNetwork<span class="signature">()</span><span class="type-signature"> &rarr; {Promise.&lt;Api.GetNetworkResponse>}</span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Fetch metadata about the network this Soroban RPC server is connected to.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="https://developers.stellar.org/docs/data/rpc/api-reference/methods/getNetwork">getNetwork docs</a></li>
+        </ul>
+    </dd>
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="lib_rpc_server.js.html" class="button">View Source</a>
+            <span>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line529">line 529</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class='columns method-parameter'>
+        <div class="column is-2"><label>Returns:</label></div>
+        <div class="column is-10">
+            
+                    
+
+<div class="columns">
+    
+    <div class='param-desc column is-7'><p>Metadata about the current
+network this RPC server is connected to</p></div>
+    
+    
+    <div class='column is-5 has-text-left'>
+        <label>Type: </label>
+        
+<code class="param-type">Promise.&lt;Api.GetNetworkResponse></code>
+
+
+    </div>
+    
+</div>
+
+                
+        </div>
+    </div>
+
+
+
+
+    <h5>Example</h5>
+    
+    
+        <pre class="prettyprint"><code>server.getNetwork().then((network) => {
+  console.log("friendbotUrl:", network.friendbotUrl);
+  console.log("passphrase:", network.passphrase);
+  console.log("protocolVersion:", network.protocolVersion);
+});</code></pre>
+    
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="getSACBalance">
+        <a class="href-link" href="#getSACBalance">#</a>
+        
+            
+                <span class='tag'>async</span>
+            
+        
+        <span class="code-name">
+            
+                getSACBalance<span class="signature">(contractId, sac, networkPassphrase<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise.&lt;Api.BalanceResponse>}</span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Returns a contract's balance of a particular SAC asset, if any.</p>
+<p>This is a convenience wrapper around Server.getLedgerEntries.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+<div class="table-container">
+    <table class="params table">
+        <thead>
+        <tr>
+            
+            <th>Name</th>
+            
+
+            <th>Type</th>
+
+            
+            <th>Attributes</th>
+            
+
+            
+
+            <th class="last">Description</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        
+
+            
+<tr class="deep-level-0">
+  
+      <td class="name"><code>contractId</code></td>
+  
+
+  <td class="type">
+  
+      
+<code class="param-type">string</code>
+
+
+  
+  </td>
+
+  
+      <td class="attributes">
+      
+
+      
+
+      
+      </td>
+  
+
+  
+
+  <td class="description last"><p>the contract ID (string <code>C...</code>) whose
+balance of <code>sac</code> you want to know</p></td>
+</tr>
+
+
+        
+
+            
+<tr class="deep-level-0">
+  
+      <td class="name"><code>sac</code></td>
+  
+
+  <td class="type">
+  
+      
+<code class="param-type"><a href="Asset.html">Asset</a></code>
+
+
+  
+  </td>
+
+  
+      <td class="attributes">
+      
+
+      
+
+      
+      </td>
+  
+
+  
+
+  <td class="description last"><p>the built-in SAC token (e.g. <code>USDC:GABC...</code>) that
+you are querying from the given <code>contract</code>.</p></td>
+</tr>
+
+
+        
+
+            
+<tr class="deep-level-0">
+  
+      <td class="name"><code>networkPassphrase</code></td>
+  
+
+  <td class="type">
+  
+      
+<code class="param-type">string</code>
+
+
+  
+  </td>
+
+  
+      <td class="attributes">
+      
+          &lt;optional><br>
+      
+
+      
+
+      
+      </td>
+  
+
+  
+
+  <td class="description last"><p>optionally, the network passphrase to
+which this token applies. If omitted, a request about network
+information will be made (see getNetwork), since contract IDs
+for assets are specific to a network. You can refer to <a href="global.html#Networks">Networks</a>
+for a list of built-in passphrases, e.g., <code>Networks.TESTNET</code>.</p></td>
+</tr>
+
+
+        
+        </tbody>
+    </table>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li>getLedgerEntries</li>
+        
+            <li><a href="https://developers.stellar.org/docs/tokens/stellar-asset-contract">https://developers.stellar.org/docs/tokens/stellar-asset-contract</a></li>
+        </ul>
+    </dd>
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="lib_rpc_server.js.html" class="button">View Source</a>
+            <span>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line857">line 857</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class='columns method-parameter'>
+        <div class="column is-2"><label>Throws:</label></div>
+        <div class="column is-10">
+            
+                    
+<div class="columns">
+    
+    <div class='param-desc column is-7'><p>If <code>contractId</code> is not a valid contract strkey (C...).</p></div>
+    <div class='column is-5 has-text-left'>
+        <label>Type: </label>
+<code class="param-type">TypeError</code>
+
+
+    </div>
+    
+</div>
+
+                
+        </div>
+    </div>
+
+
+
+    <div class='columns method-parameter'>
+        <div class="column is-2"><label>Returns:</label></div>
+        <div class="column is-10">
+            
+                    
+
+<div class="columns">
+    
+    <div class='param-desc column is-7'><p>, which will contain the balance
+entry details if and only if the request returned a valid balance ledger
+entry. If it doesn't, the <code>balanceEntry</code> field will not exist.</p></div>
+    
+    
+    <div class='column is-5 has-text-left'>
+        <label>Type: </label>
+        
+<code class="param-type">Promise.&lt;Api.BalanceResponse></code>
+
+
+    </div>
+    
+</div>
+
+                
+        </div>
+    </div>
+
+
+
+
+    <h5>Example</h5>
+    
+    
+        <pre class="prettyprint"><code>// assume `contractId` is some contract with an XLM balance
+// assume server is an instantiated `Server` instance.
+const entry = (await server.getSACBalance(
+  new Address(contractId),
+  Asset.native(),
+  Networks.PUBLIC
+));
+
+// assumes BigInt support:
+console.log(
+  entry.balanceEntry ?
+  BigInt(entry.balanceEntry.amount) :
+  "Contract has no XLM");</code></pre>
+    
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="getTransaction">
+        <a class="href-link" href="#getTransaction">#</a>
+        
+            
+                <span class='tag'>async</span>
+            
+        
+        <span class="code-name">
+            
+                getTransaction<span class="signature">(hash)</span><span class="type-signature"> &rarr; {Promise.&lt;Api.GetTransactionResponse>}</span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Fetch the details of a submitted transaction.</p>
+<p>After submitting a transaction, clients should poll this to tell when the
+transaction has completed.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+<div class="table-container">
+    <table class="params table">
+        <thead>
+        <tr>
+            
+            <th>Name</th>
+            
+
+            <th>Type</th>
+
+            
+
+            
+
+            <th class="last">Description</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        
+
+            
+<tr class="deep-level-0">
+  
+      <td class="name"><code>hash</code></td>
+  
+
+  <td class="type">
+  
+      
+<code class="param-type">string</code>
+
+
+  
+  </td>
+
+  
+
+  
+
+  <td class="description last"><p>Hex-encoded hash of the transaction to check</p></td>
+</tr>
+
+
+        
+        </tbody>
+    </table>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="https://developers.stellar.org/docs/data/rpc/api-reference/methods/getTransaction">getTransaction docs</a></li>
+        </ul>
+    </dd>
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="lib_rpc_server.js.html" class="button">View Source</a>
+            <span>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line384">line 384</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class='columns method-parameter'>
+        <div class="column is-2"><label>Returns:</label></div>
+        <div class="column is-10">
+            
+                    
+
+<div class="columns">
+    
+    <div class='param-desc column is-7'><p>The status,
+result, and other details about the transaction</p></div>
+    
+    
+    <div class='column is-5 has-text-left'>
+        <label>Type: </label>
+        
+<code class="param-type">Promise.&lt;Api.GetTransactionResponse></code>
+
+
+    </div>
+    
+</div>
+
+                
+        </div>
+    </div>
+
+
+
+
+    <h5>Example</h5>
+    
+    
+        <pre class="prettyprint"><code>const transactionHash = "c4515e3bdc0897f21cc5dbec8c82cf0a936d4741cb74a8e158eb51b9fb00411a";
+server.getTransaction(transactionHash).then((tx) => {
+  console.log("status:", tx.status);
+  console.log("envelopeXdr:", tx.envelopeXdr);
+  console.log("resultMetaXdr:", tx.resultMetaXdr);
+  console.log("resultXdr:", tx.resultXdr);
+});</code></pre>
+    
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="getTransactions">
+        <a class="href-link" href="#getTransactions">#</a>
+        
+            
+                <span class='tag'>async</span>
+            
+        
+        <span class="code-name">
+            
+                getTransactions<span class="signature">(request)</span><span class="type-signature"> &rarr; {Promise.&lt;Api.GetTransactionsResponse>}</span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Fetch transactions starting from a given start ledger or a cursor. The end ledger is the latest ledger
+in that RPC instance.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+<div class="table-container">
+    <table class="params table">
+        <thead>
+        <tr>
+            
+            <th>Name</th>
+            
+
+            <th>Type</th>
+
+            
+
+            
+
+            <th class="last">Description</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        
+
+            
+<tr class="deep-level-0">
+  
+      <td class="name"><code>request</code></td>
+  
+
+  <td class="type">
+  
+      
+<code class="param-type">Api.GetTransactionsRequest</code>
+
+
+  
+  </td>
+
+  
+
+  
+
+  <td class="description last"><p>The request parameters.</p></td>
+</tr>
+
+
+        
+        </tbody>
+    </table>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="https://developers.stellar.org/docs/data/rpc/api-reference/methods/getTransactions">https://developers.stellar.org/docs/data/rpc/api-reference/methods/getTransactions</a></li>
+        </ul>
+    </dd>
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="lib_rpc_server.js.html" class="button">View Source</a>
+            <span>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line427">line 427</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class='columns method-parameter'>
+        <div class="column is-2"><label>Returns:</label></div>
+        <div class="column is-10">
+            
+                    
+
+<div class="columns">
+    
+    <div class='param-desc column is-7'><ul>
+<li>A promise that resolves to the transactions response.</li>
+</ul></div>
+    
+    
+    <div class='column is-5 has-text-left'>
+        <label>Type: </label>
+        
+<code class="param-type">Promise.&lt;Api.GetTransactionsResponse></code>
+
+
+    </div>
+    
+</div>
+
+                
+        </div>
+    </div>
+
+
+
+
+    <h5>Example</h5>
+    
+    
+        <pre class="prettyprint"><code>server.getTransactions({
+  startLedger: 10000,
+  limit: 10,
+}).then((response) => {
+  console.log("Transactions:", response.transactions);
+  console.log("Latest Ledger:", response.latestLedger);
+  console.log("Cursor:", response.cursor);
+});</code></pre>
+    
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="getVersionInfo">
+        <a class="href-link" href="#getVersionInfo">#</a>
+        
+            
+                <span class='tag'>async</span>
+            
+        
+        <span class="code-name">
+            
+                getVersionInfo<span class="signature">()</span><span class="type-signature"> &rarr; {Promise.&lt;Api.GetVersionInfoResponse>}</span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Provides information about the current version details of the Soroban RPC and captive-core</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="https://developers.stellar.org/docs/data/rpc/api-reference/methods/getVersionInfo">https://developers.stellar.org/docs/data/rpc/api-reference/methods/getVersionInfo</a></li>
+        </ul>
+    </dd>
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="lib_rpc_server.js.html" class="button">View Source</a>
+            <span>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line814">line 814</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class='columns method-parameter'>
+        <div class="column is-2"><label>Returns:</label></div>
+        <div class="column is-10">
+            
+                    
+
+<div class="columns">
+    
+    <div class='param-desc column is-7'><p>the version info</p></div>
+    
+    
+    <div class='column is-5 has-text-left'>
+        <label>Type: </label>
+        
+<code class="param-type">Promise.&lt;Api.GetVersionInfoResponse></code>
+
+
+    </div>
+    
+</div>
+
+                
+        </div>
+    </div>
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="prepareTransaction">
+        <a class="href-link" href="#prepareTransaction">#</a>
+        
+            
+                <span class='tag'>async</span>
+            
+        
+        <span class="code-name">
+            
+                prepareTransaction<span class="signature">(tx)</span><span class="type-signature"> &rarr; {Promise.&lt;(<a href="Transaction.html">Transaction</a>|<a href="FeeBumpTransaction.html">FeeBumpTransaction</a>)>}</span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Submit a trial contract invocation, first run a simulation of the contract
+invocation as defined on the incoming transaction, and apply the results to
+a new copy of the transaction which is then returned. Setting the ledger
+footprint and authorization, so the resulting transaction is ready for
+signing &amp; sending.</p>
+<p>The returned transaction will also have an updated fee that is the sum of
+fee set on incoming transaction with the contract resource fees estimated
+from simulation. It is advisable to check the fee on returned transaction
+and validate or take appropriate measures for interaction with user to
+confirm it is acceptable.</p>
+<p>You can call the <a href="module-rpc.Server.html#simulateTransaction">module:rpc.Server#simulateTransaction</a> method
+directly first if you want to inspect estimated fees for a given
+transaction in detail first, then re-assemble it manually or via
+<a href="module-rpc.html#.assembleTransaction">module:rpc.assembleTransaction</a>.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+<div class="table-container">
+    <table class="params table">
+        <thead>
+        <tr>
+            
+            <th>Name</th>
+            
+
+            <th>Type</th>
+
+            
+
+            
+
+            <th class="last">Description</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        
+
+            
+<tr class="deep-level-0">
+  
+      <td class="name"><code>tx</code></td>
+  
+
+  <td class="type">
+  
+      
+<code class="param-type"><a href="Transaction.html">Transaction</a></code>
+|
+
+<code class="param-type"><a href="FeeBumpTransaction.html">FeeBumpTransaction</a></code>
+
+
+  
+  </td>
+
+  
+
+  
+
+  <td class="description last"><p>the transaction to
+prepare. It should include exactly one operation, which must be one of
+xdr.InvokeHostFunctionOp, xdr.ExtendFootprintTTLOp,
+or xdr.RestoreFootprintOp.</p>
+<p>Any provided footprint will be overwritten. However, if your operation
+has existing auth entries, they will be preferred over ALL auth entries
+from the simulation. In other words, if you include auth entries, you
+don't care about the auth returned from the simulation. Other fields
+(footprint, etc.) will be filled as normal.</p></td>
+</tr>
+
+
+        
+        </tbody>
+    </table>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="module-rpc.html#.assembleTransaction">module:rpc.assembleTransaction</a></li>
+        
+            <li><a href="https://developers.stellar.org/docs/data/rpc/api-reference/methods/simulateTransaction">simulateTransaction docs</a></li>
+        </ul>
+    </dd>
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="lib_rpc_server.js.html" class="button">View Source</a>
+            <span>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line682">line 682</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class='columns method-parameter'>
+        <div class="column is-2"><label>Throws:</label></div>
+        <div class="column is-10">
+            
+                    
+<div class="columns">
+    
+    <div class='param-desc column is-7'><p>If simulation fails</p></div>
+    <div class='column is-5 has-text-left'>
+        <label>Type: </label>
+<code class="param-type">jsonrpc.Error.&lt;any></code>
+|
+
+<code class="param-type">Error</code>
+|
+
+<code class="param-type">Api.SimulateTransactionErrorResponse</code>
+
+
+    </div>
+    
+</div>
+
+                
+        </div>
+    </div>
+
+
+
+    <div class='columns method-parameter'>
+        <div class="column is-2"><label>Returns:</label></div>
+        <div class="column is-10">
+            
+                    
+
+<div class="columns">
+    
+    <div class='param-desc column is-7'><p>A copy of the
+transaction with the expected authorizations (in the case of
+invocation), resources, and ledger footprints added. The transaction fee
+will also automatically be padded with the contract's minimum resource
+fees discovered from the simulation.</p></div>
+    
+    
+    <div class='column is-5 has-text-left'>
+        <label>Type: </label>
+        
+<code class="param-type">Promise.&lt;(<a href="Transaction.html">Transaction</a>|<a href="FeeBumpTransaction.html">FeeBumpTransaction</a>)></code>
+
+
+    </div>
+    
+</div>
+
+                
+        </div>
+    </div>
+
+
+
+
+    <h5>Example</h5>
+    
+    
+        <pre class="prettyprint"><code>const contractId = 'CA3D5KRYM6CB7OWQ6TWYRR3Z4T7GNZLKERYNZGGA5SOAOPIFY6YQGAXE';
+const contract = new StellarSdk.Contract(contractId);
+
+// Right now, this is just the default fee for this example.
+const fee = StellarSdk.BASE_FEE;
+const transaction = new StellarSdk.TransactionBuilder(account, { fee })
+  // Uncomment the following line to build transactions for the live network. Be
+  // sure to also change the horizon hostname.
+  //.setNetworkPassphrase(StellarSdk.Networks.PUBLIC)
+  .setNetworkPassphrase(StellarSdk.Networks.FUTURENET)
+  .setTimeout(30) // valid for the next 30s
+  // Add an operation to call increment() on the contract
+  .addOperation(contract.call("increment"))
+  .build();
+
+const preparedTransaction = await server.prepareTransaction(transaction);
+
+// Sign this transaction with the secret key
+// NOTE: signing is transaction is network specific. Test network transactions
+// won't work in the public network. To switch networks, use the Network object
+// as explained above (look for StellarSdk.Network).
+const sourceKeypair = StellarSdk.Keypair.fromSecret(sourceSecretKey);
+preparedTransaction.sign(sourceKeypair);
+
+server.sendTransaction(transaction).then(result => {
+  console.log("hash:", result.hash);
+  console.log("status:", result.status);
+  console.log("errorResultXdr:", result.errorResultXdr);
+});</code></pre>
+    
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="requestAirdrop">
+        <a class="href-link" href="#requestAirdrop">#</a>
+        
+            
+                <span class='tag'>async</span>
+            
+        
+        <span class="code-name">
+            
+                requestAirdrop<span class="signature">(address, friendbotUrl<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise.&lt;<a href="Account.html">Account</a>>}</span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Fund a new account using the network's Friendbot faucet, if any.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+<div class="table-container">
+    <table class="params table">
+        <thead>
+        <tr>
+            
+            <th>Name</th>
+            
+
+            <th>Type</th>
+
+            
+            <th>Attributes</th>
+            
+
+            
+
+            <th class="last">Description</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        
+
+            
+<tr class="deep-level-0">
+  
+      <td class="name"><code>address</code></td>
+  
+
+  <td class="type">
+  
+      
+<code class="param-type">string</code>
+|
+
+<code class="param-type"><a href="Account.html">Account</a></code>
+
+
+  
+  </td>
+
+  
+      <td class="attributes">
+      
+
+      
+
+      
+      </td>
+  
+
+  
+
+  <td class="description last"><p>The address or account instance that we
+want to create and fund with Friendbot</p></td>
+</tr>
+
+
+        
+
+            
+<tr class="deep-level-0">
+  
+      <td class="name"><code>friendbotUrl</code></td>
+  
+
+  <td class="type">
+  
+      
+<code class="param-type">string</code>
+
+
+  
+  </td>
+
+  
+      <td class="attributes">
+      
+          &lt;optional><br>
+      
+
+      
+
+      
+      </td>
+  
+
+  
+
+  <td class="description last"><p>Optionally, an explicit address for
+friendbot (by default: this calls the Soroban RPC
+<a href="module-rpc.Server.html#getNetwork">getNetwork</a> method to try to
+discover this network's Friendbot url).</p></td>
+</tr>
+
+
+        
+        </tbody>
+    </table>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="https://developers.stellar.org/docs/learn/networks#friendbot">Friendbot docs</a></li>
+        
+            <li>module:Friendbot.Api.Response</li>
+        </ul>
+    </dd>
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="lib_rpc_server.js.html" class="button">View Source</a>
+            <span>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line773">line 773</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class='columns method-parameter'>
+        <div class="column is-2"><label>Throws:</label></div>
+        <div class="column is-10">
+            
+                    
+<div class="columns">
+    
+        
+            <div class='param-desc column is-12'><p>If Friendbot is not configured on this network or request failure</p></div>
+        
+    
+</div>
+
+                
+        </div>
+    </div>
+
+
+
+    <div class='columns method-parameter'>
+        <div class="column is-2"><label>Returns:</label></div>
+        <div class="column is-10">
+            
+                    
+
+<div class="columns">
+    
+    <div class='param-desc column is-7'><p>An <a href="Account.html">Account</a> object for the created
+account, or the existing account if it's already funded with the
+populated sequence number (note that the account will not be &quot;topped
+off&quot; if it already exists)</p></div>
+    
+    
+    <div class='column is-5 has-text-left'>
+        <label>Type: </label>
+        
+<code class="param-type">Promise.&lt;<a href="Account.html">Account</a>></code>
+
+
+    </div>
+    
+</div>
+
+                
+        </div>
+    </div>
+
+
+
+
+    <h5>Example</h5>
+    
+    
+        <pre class="prettyprint"><code>server
+   .requestAirdrop("GBZC6Y2Y7Q3ZQ2Y4QZJ2XZ3Z5YXZ6Z7Z2Y4QZJ2XZ3Z5YXZ6Z7Z2Y4")
+   .then((accountCreated) => {
+     console.log("accountCreated:", accountCreated);
+   }).catch((error) => {
+     console.error("error:", error);
+   });</code></pre>
+    
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="sendTransaction">
+        <a class="href-link" href="#sendTransaction">#</a>
+        
+            
+                <span class='tag'>async</span>
+            
+        
+        <span class="code-name">
+            
+                sendTransaction<span class="signature">(transaction)</span><span class="type-signature"> &rarr; {Promise.&lt;Api.SendTransactionResponse>}</span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Submit a real transaction to the Stellar network.</p>
+<p>Unlike Horizon, Soroban RPC does not wait for transaction completion. It
+simply validates the transaction and enqueues it. Clients should call
+<a href="module-rpc.Server.html#getTransaction">module:rpc.Server#getTransaction</a> to learn about transaction
+success/failure.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+<div class="table-container">
+    <table class="params table">
+        <thead>
+        <tr>
+            
+            <th>Name</th>
+            
+
+            <th>Type</th>
+
+            
+
+            
+
+            <th class="last">Description</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        
+
+            
+<tr class="deep-level-0">
+  
+      <td class="name"><code>transaction</code></td>
+  
+
+  <td class="type">
+  
+      
+<code class="param-type"><a href="Transaction.html">Transaction</a></code>
+|
+
+<code class="param-type"><a href="FeeBumpTransaction.html">FeeBumpTransaction</a></code>
+
+
+  
+  </td>
+
+  
+
+  
+
+  <td class="description last"><p>to submit</p></td>
+</tr>
+
+
+        
+        </tbody>
+    </table>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="https://developers.stellar.org/docs/learn/fundamentals/stellar-data-structures/operations-and-transactions">transaction docs</a></li>
+        
+            <li><a href="https://developers.stellar.org/docs/data/rpc/api-reference/methods/sendTransaction">sendTransaction docs</a></li>
+        </ul>
+    </dd>
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="lib_rpc_server.js.html" class="button">View Source</a>
+            <span>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line735">line 735</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class='columns method-parameter'>
+        <div class="column is-2"><label>Returns:</label></div>
+        <div class="column is-10">
+            
+                    
+
+<div class="columns">
+    
+    <div class='param-desc column is-7'><p>the
+transaction id, status, and any error if available</p></div>
+    
+    
+    <div class='column is-5 has-text-left'>
+        <label>Type: </label>
+        
+<code class="param-type">Promise.&lt;Api.SendTransactionResponse></code>
+
+
+    </div>
+    
+</div>
+
+                
+        </div>
+    </div>
+
+
+
+
+    <h5>Example</h5>
+    
+    
+        <pre class="prettyprint"><code>const contractId = 'CA3D5KRYM6CB7OWQ6TWYRR3Z4T7GNZLKERYNZGGA5SOAOPIFY6YQGAXE';
+const contract = new StellarSdk.Contract(contractId);
+
+// Right now, this is just the default fee for this example.
+const fee = StellarSdk.BASE_FEE;
+const transaction = new StellarSdk.TransactionBuilder(account, { fee })
+  // Uncomment the following line to build transactions for the live network. Be
+  // sure to also change the horizon hostname.
+  //.setNetworkPassphrase(StellarSdk.Networks.PUBLIC)
+  .setNetworkPassphrase(StellarSdk.Networks.FUTURENET)
+  .setTimeout(30) // valid for the next 30s
+  // Add an operation to call increment() on the contract
+  .addOperation(contract.call("increment"))
+  .build();
+
+// Sign this transaction with the secret key
+// NOTE: signing is transaction is network specific. Test network transactions
+// won't work in the public network. To switch networks, use the Network object
+// as explained above (look for StellarSdk.Network).
+const sourceKeypair = StellarSdk.Keypair.fromSecret(sourceSecretKey);
+transaction.sign(sourceKeypair);
+
+server.sendTransaction(transaction).then((result) => {
+  console.log("hash:", result.hash);
+  console.log("status:", result.status);
+  console.log("errorResultXdr:", result.errorResultXdr);
+});</code></pre>
+    
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="simulateTransaction">
+        <a class="href-link" href="#simulateTransaction">#</a>
+        
+            
+                <span class='tag'>async</span>
+            
+        
+        <span class="code-name">
+            
+                simulateTransaction<span class="signature">(tx)</span><span class="type-signature"> &rarr; {Promise.&lt;Api.SimulateTransactionResponse>}</span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Submit a trial contract invocation to get back return values, expected
+ledger footprint, expected authorizations, and expected costs.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+<div class="table-container">
+    <table class="params table">
+        <thead>
+        <tr>
+            
+            <th>Name</th>
+            
+
+            <th>Type</th>
+
+            
+
+            
+
+            <th class="last">Description</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        
+
+            
+<tr class="deep-level-0">
+  
+      <td class="name"><code>tx</code></td>
+  
+
+  <td class="type">
+  
+      
+<code class="param-type"><a href="Transaction.html">Transaction</a></code>
+|
+
+<code class="param-type"><a href="FeeBumpTransaction.html">FeeBumpTransaction</a></code>
+
+
+  
+  </td>
+
+  
+
+  
+
+  <td class="description last"><p>the transaction to
+simulate, which should include exactly one operation (one of
+xdr.InvokeHostFunctionOp, xdr.ExtendFootprintTTLOp, or
+xdr.RestoreFootprintOp). Any provided footprint or auth
+information will be ignored.</p></td>
+</tr>
+
+
+        
+        </tbody>
+    </table>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="https://developers.stellar.org/docs/learn/fundamentals/stellar-data-structures/operations-and-transactions">transaction docs</a></li>
+        
+            <li><a href="https://developers.stellar.org/docs/data/rpc/api-reference/methods/simulateTransaction">simulateTransaction docs</a></li>
+        
+            <li><a href="module-rpc.Server.html#prepareTransaction">module:rpc.Server#prepareTransaction</a></li>
+        
+            <li><a href="module-rpc.html#.assembleTransaction">module:rpc.assembleTransaction</a></li>
+        </ul>
+    </dd>
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="lib_rpc_server.js.html" class="button">View Source</a>
+            <span>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line596">line 596</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class='columns method-parameter'>
+        <div class="column is-2"><label>Returns:</label></div>
+        <div class="column is-10">
+            
+                    
+
+<div class="columns">
+    
+    <div class='param-desc column is-7'><p>An object with the
+cost, footprint, result/auth requirements (if applicable), and error of
+the transaction</p></div>
+    
+    
+    <div class='column is-5 has-text-left'>
+        <label>Type: </label>
+        
+<code class="param-type">Promise.&lt;Api.SimulateTransactionResponse></code>
+
+
+    </div>
+    
+</div>
+
+                
+        </div>
+    </div>
+
+
+
+
+    <h5>Example</h5>
+    
+    
+        <pre class="prettyprint"><code>const contractId = 'CA3D5KRYM6CB7OWQ6TWYRR3Z4T7GNZLKERYNZGGA5SOAOPIFY6YQGAXE';
+const contract = new StellarSdk.Contract(contractId);
+
+// Right now, this is just the default fee for this example.
+const fee = StellarSdk.BASE_FEE;
+const transaction = new StellarSdk.TransactionBuilder(account, { fee })
+  // Uncomment the following line to build transactions for the live network. Be
+  // sure to also change the horizon hostname.
+  //.setNetworkPassphrase(StellarSdk.Networks.PUBLIC)
+  .setNetworkPassphrase(StellarSdk.Networks.FUTURENET)
+  .setTimeout(30) // valid for the next 30s
+  // Add an operation to call increment() on the contract
+  .addOperation(contract.call("increment"))
+  .build();
+
+server.simulateTransaction(transaction).then((sim) => {
+  console.log("cost:", sim.cost);
+  console.log("result:", sim.result);
+  console.log("error:", sim.error);
+  console.log("latestLedger:", sim.latestLedger);
+});</code></pre>
+    
+
+
+</div>
+            
+            </div>
+        </div>
+    
+
+    
+        <div class='vertical-section'>
+            <h1>Type Definitions</h1>
+            <div class="members">
+            
+                <div class="member">
+
+    <span class="method-parameter is-pulled-right">
+        <label>Type:</label>
+        
+<code class="param-type">object</code>
+
+
+    </span>
+
+<h4 class="name" id=".GetEventsRequest">
+    <a class="href-link" href="#.GetEventsRequest">#</a>
+    
+    <span class="code-name">
+        GetEventsRequest
+    </span>
+    
+</h4>
+
+
+
+
+<div class="description">
+    <p>Describes the complex filter combinations available for event queries.</p>
+</div>
+
+
+
+
+
+    <h5 class="subsection-title">Properties:</h5>
+
+    
+<div class="table-container">
+    <table class="props table">
+        <thead>
+        <tr>
+            
+            <th>Name</th>
+            
+
+            <th>Type</th>
+
+            
+            <th>Attributes</th>
+            
+
+            
+            <th>Default</th>
+            
+
+            <th class="last">Description</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        
+            
+<tr class="deep-level-0">
+    
+        <td class="name"><code>filters</code></td>
+    
+
+    <td class="type">
+    
+        
+<code class="param-type">Array.&lt;module:rpc.Api.EventFilter></code>
+
+
+    
+    </td>
+
+    
+        <td class="attributes">
+        
+
+        
+        </td>
+    
+
+    
+        <td class="default">
+        
+        </td>
+    
+
+    <td class="description last"><p>Filters to use when querying events from the RPC server.</p></td>
+</tr>
+
+        
+            
+<tr class="deep-level-0">
+    
+        <td class="name"><code>startLedger</code></td>
+    
+
+    <td class="type">
+    
+        
+<code class="param-type">number</code>
+
+
+    
+    </td>
+
+    
+        <td class="attributes">
+        
+            &lt;optional><br>
+        
+
+        
+        </td>
+    
+
+    
+        <td class="default">
+        
+        </td>
+    
+
+    <td class="description last"><p>Ledger number (inclusive) to begin querying events.</p></td>
+</tr>
+
+        
+            
+<tr class="deep-level-0">
+    
+        <td class="name"><code>cursor</code></td>
+    
+
+    <td class="type">
+    
+        
+<code class="param-type">string</code>
+
+
+    
+    </td>
+
+    
+        <td class="attributes">
+        
+            &lt;optional><br>
+        
+
+        
+        </td>
+    
+
+    
+        <td class="default">
+        
+        </td>
+    
+
+    <td class="description last"><p>Page cursor (exclusive) to begin querying events.</p></td>
+</tr>
+
+        
+            
+<tr class="deep-level-0">
+    
+        <td class="name"><code>limit</code></td>
+    
+
+    <td class="type">
+    
+        
+<code class="param-type">number</code>
+
+
+    
+    </td>
+
+    
+        <td class="attributes">
+        
+            &lt;optional><br>
+        
+
+        
+        </td>
+    
+
+    
+        <td class="default">
+        
+            100
+        
+        </td>
+    
+
+    <td class="description last"><p>The maximum number of events that should be returned in the RPC response.</p></td>
+</tr>
+
+        
+        </tbody>
+    </table>
+</div>
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="lib_rpc_server.js.html" class="button">View Source</a>
+            <span>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line42">line 42</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+    <span class="method-parameter is-pulled-right">
+        <label>Type:</label>
+        
+<code class="param-type">object</code>
+
+
+    </span>
+
+<h4 class="name" id=".Options">
+    <a class="href-link" href="#.Options">#</a>
+    
+    <span class="code-name">
+        Options
+    </span>
+    
+</h4>
+
+
+
+
+<div class="description">
+    <p>Options for configuring connections to RPC servers.</p>
+</div>
+
+
+
+
+
+    <h5 class="subsection-title">Properties:</h5>
+
+    
+<div class="table-container">
+    <table class="props table">
+        <thead>
+        <tr>
+            
+            <th>Name</th>
+            
+
+            <th>Type</th>
+
+            
+            <th>Attributes</th>
+            
+
+            
+            <th>Default</th>
+            
+
+            <th class="last">Description</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        
+            
+<tr class="deep-level-0">
+    
+        <td class="name"><code>allowHttp</code></td>
+    
+
+    <td class="type">
+    
+        
+<code class="param-type">boolean</code>
+
+
+    
+    </td>
+
+    
+        <td class="attributes">
+        
+            &lt;optional><br>
+        
+
+        
+        </td>
+    
+
+    
+        <td class="default">
+        
+            false
+        
+        </td>
+    
+
+    <td class="description last"><p>Allow connecting to http servers, default: <code>false</code>. This must be set to false in production deployments!</p></td>
+</tr>
+
+        
+            
+<tr class="deep-level-0">
+    
+        <td class="name"><code>timeout</code></td>
+    
+
+    <td class="type">
+    
+        
+<code class="param-type">number</code>
+
+
+    
+    </td>
+
+    
+        <td class="attributes">
+        
+            &lt;optional><br>
+        
+
+        
+        </td>
+    
+
+    
+        <td class="default">
+        
+            0
+        
+        </td>
+    
+
+    <td class="description last"><p>Allow a timeout, default: 0. Allows user to avoid nasty lag. You can also use <a href="Config.html">Config</a> class to set this globally.</p></td>
+</tr>
+
+        
+            
+<tr class="deep-level-0">
+    
+        <td class="name"><code>headers</code></td>
+    
+
+    <td class="type">
+    
+        
+<code class="param-type">Record.&lt;string, string></code>
+
+
+    
+    </td>
+
+    
+        <td class="attributes">
+        
+            &lt;optional><br>
+        
+
+        
+        </td>
+    
+
+    
+        <td class="default">
+        
+        </td>
+    
+
+    <td class="description last"><p>Additional headers that should be added to any requests to the RPC server.</p></td>
+</tr>
+
+        
+        </tbody>
+    </table>
+</div>
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="lib_rpc_server.js.html" class="button">View Source</a>
+            <span>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line55">line 55</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+    <span class="method-parameter is-pulled-right">
+        <label>Type:</label>
+        
+<code class="param-type">object</code>
+
+
+    </span>
+
+<h4 class="name" id=".ResourceLeeway">
+    <a class="href-link" href="#.ResourceLeeway">#</a>
+    
+    <span class="code-name">
+        ResourceLeeway
+    </span>
+    
+</h4>
+
+
+
+
+<div class="description">
+    <p>Describes additional resource leeways for transaction simulation.</p>
+</div>
+
+
+
+
+
+    <h5 class="subsection-title">Properties:</h5>
+
+    
+<div class="table-container">
+    <table class="props table">
+        <thead>
+        <tr>
+            
+            <th>Name</th>
+            
+
+            <th>Type</th>
+
+            
+
+            
+
+            <th class="last">Description</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        
+            
+<tr class="deep-level-0">
+    
+        <td class="name"><code>cpuInstructions</code></td>
+    
+
+    <td class="type">
+    
+        
+<code class="param-type">number</code>
+
+
+    
+    </td>
+
+    
+
+    
+
+    <td class="description last"><p>Simulate the transaction with more CPU instructions available.</p></td>
+</tr>
+
+        
+        </tbody>
+    </table>
+</div>
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="lib_rpc_server.js.html" class="button">View Source</a>
+            <span>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line50">line 50</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+</div>
+            
+            </div>
+        </div>
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+            </div>
+            
+            <footer class="footer">
+                <div class="content has-text-centered">
+                    <p>Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.3</a></p>
+                    <p class="sidebar-created-by">
+                        <a href="https://github.com/SoftwareBrothers/better-docs" target="_blank">BetterDocs theme</a> provided with <i class="fas fa-heart"></i> by
+                        <a href="http://softwarebrothers.co" target="_blank">SoftwareBrothers - JavaScript Development Agency</a>
+                    </p>
+                </div>
+            </footer>
+            
+        </div>
+        <div id="side-nav" class="side-nav">
+        </div>
+    </div>
+<script src="scripts/app.min.js"></script>
+<script>PR.prettyPrint();</script>
+<script src="scripts/linenumber.js"> </script>
+
+<script src="scripts/search.js"> </script>
+
+
+</body>
+</html>

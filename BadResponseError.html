@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>@stellar/stellar-sdk Documentation BadResponseError</title>
+
+  <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="./build/entry.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,400,700|Inconsolata,700" rel="stylesheet">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+  <link type="text/css" rel="stylesheet" href="https://jmblog.github.io/color-themes-for-google-code-prettify/themes/tomorrow-night.min.css">
+  <link type="text/css" rel="stylesheet" href="styles/app.min.css">
+  <link type="text/css" rel="stylesheet" href="styles/iframe.css">
+  <link type="text/css" rel="stylesheet" href="">
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+
+  
+</head>
+
+
+
+<body class="layout small-header">
+    <div id="stickyNavbarOverlay"></div>
+    
+
+<div class="top-nav">
+    <div class="inner">
+        <a id="hamburger" role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </a>
+        <div class="logo">
+            
+             
+                <a href="index.html">
+                    <h1 class="navbar-item">@stellar/stellar-sdk</h1>
+                </a>
+            
+        </div>
+        <div class="menu">
+            
+            <div class="navigation">
+                <a
+                    href="index.html"
+                    class="link"
+                >
+                    Documentation
+                </a>
+                
+                 
+                    
+                        <a
+                            class="link user-link "
+                            href="https://github.com/stellar/js-stellar-sdk"
+                        >
+                            GitHub
+                        </a>
+                    
+                        <a
+                            class="link user-link "
+                            href="https://www.npmjs.com/package/@stellar/stellar-sdk"
+                        >
+                            npm
+                        </a>
+                    
+                
+                
+            </div>
+        </div>
+    </div>
+</div>
+    <div id="main">
+        <div
+            class="sidebar "
+            id="sidebarNav"
+        >
+            
+                <div class="search-wrapper">
+                    <input id="search" type="text" placeholder="Search docs..." class="input">
+                </div>
+            
+            <nav>
+                
+                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Modules</h3><ul><li><a href="module-Federation.html">Federation</a></li><li><a href="module-Horizon.html">Horizon</a></li><li><a href="module-StellarToml.html">StellarToml</a></li><li><a href="module-WebAuth.html">WebAuth</a></li><li><a href="module-contract.html">contract</a></li><li><a href="module-rpc.html">rpc</a></li></ul><h3>Classes</h3><ul><li><a href="Account.html">Account</a></li><li><a href="Address.html">Address</a></li><li><a href="Asset.html">Asset</a></li><li><a href="Claimant.html">Claimant</a></li><li><a href="Config.html">Config</a></li><li><a href="Contract.html">Contract</a></li><li><a href="FeeBumpTransaction.html">FeeBumpTransaction</a></li><li><a href="Int128_Int128.html">Int128#Int128</a></li><li><a href="Int256_Int256.html">Int256#Int256</a></li><li><a href="Keypair.html">Keypair</a></li><li><a href="LiquidityPoolAsset.html">LiquidityPoolAsset</a></li><li><a href="LiquidityPoolId.html">LiquidityPoolId</a></li><li><a href="Memo.html">Memo</a></li><li><a href="MuxedAccount.html">MuxedAccount</a></li><li><a href="Operation.html">Operation</a></li><li><a href="ScInt.html">ScInt</a></li><li><a href="SignerKey.html">SignerKey</a></li><li><a href="SorobanDataBuilder.html">SorobanDataBuilder</a></li><li><a href="StrKey.html">StrKey</a></li><li><a href="Transaction.html">Transaction</a></li><li><a href="TransactionBuilder.html">TransactionBuilder</a></li><li><a href="Uint128_Uint128.html">Uint128#Uint128</a></li><li><a href="Uint256_Uint256.html">Uint256#Uint256</a></li><li><a href="Utils.html">Utils</a></li><li><a href="XdrLargeInt.html">XdrLargeInt</a></li><li><a href="module-Federation.Server.html">Federation.Server</a></li><li><a href="module-Horizon.Server.html">Horizon.Server</a></li><li><a href="module-StellarToml.Resolver.html">StellarToml.Resolver</a></li><li><a href="module-contract.AssembledTransaction.html">contract.AssembledTransaction</a></li><li><a href="module-contract.Client.html">contract.Client</a></li><li><a href="module-contract.SentTransaction.html">contract.SentTransaction</a></li><li><a href="module-contract.Spec.html">contract.Spec</a></li><li><a href="module-rpc.Server.html">rpc.Server</a></li></ul><h3>Global</h3><ul><li><a href="global.html#AuthClawbackEnabledFlag">AuthClawbackEnabledFlag</a></li><li><a href="global.html#AuthImmutableFlag">AuthImmutableFlag</a></li><li><a href="global.html#AuthRequiredFlag">AuthRequiredFlag</a></li><li><a href="global.html#AuthRevocableFlag">AuthRevocableFlag</a></li><li><a href="global.html#BASE_FEE">BASE_FEE</a></li><li><a href="global.html#FastSigning">FastSigning</a></li><li><a href="global.html#MemoHash">MemoHash</a></li><li><a href="global.html#MemoID">MemoID</a></li><li><a href="global.html#MemoNone">MemoNone</a></li><li><a href="global.html#MemoReturn">MemoReturn</a></li><li><a href="global.html#MemoText">MemoText</a></li><li><a href="global.html#Networks">Networks</a></li><li><a href="global.html#TimeoutInfinite">TimeoutInfinite</a></li><li><a href="global.html#asciiCompare">asciiCompare</a></li><li><a href="global.html#authorizeEntry">authorizeEntry</a></li><li><a href="global.html#authorizeInvocation">authorizeInvocation</a></li><li><a href="global.html#buildInvocationTree">buildInvocationTree</a></li><li><a href="global.html#decodeAddressToMuxedAccount">decodeAddressToMuxedAccount</a></li><li><a href="global.html#defaultConfig">defaultConfig</a></li><li><a href="global.html#encodeMuxedAccount">encodeMuxedAccount</a></li><li><a href="global.html#encodeMuxedAccountToAddress">encodeMuxedAccountToAddress</a></li><li><a href="global.html#extractBaseAddress">extractBaseAddress</a></li><li><a href="global.html#getLiquidityPoolId">getLiquidityPoolId</a></li><li><a href="global.html#getSalty">getSalty</a></li><li><a href="global.html#humanizeEvents">humanizeEvents</a></li><li><a href="global.html#isValid">isValid</a></li><li><a href="global.html#isValidDate">isValidDate</a></li><li><a href="global.html#nativeToScVal">nativeToScVal</a></li><li><a href="global.html#scValToBigInt">scValToBigInt</a></li><li><a href="global.html#scValToNative">scValToNative</a></li><li><a href="global.html#walkInvocationTree">walkInvocationTree</a></li></ul></div><div class="category"><h2>Errors</h2><h3>Classes</h3><ul><li><a href="AccountRequiresMemoError.html">AccountRequiresMemoError</a></li><li><a href="BadRequestError.html">BadRequestError</a></li><li><a href="BadResponseError.html">BadResponseError</a></li><li><a href="NetworkError.html">NetworkError</a></li><li><a href="NotFoundError.html">NotFoundError</a></li><li><a href="module-WebAuth.InvalidChallengeError.html">WebAuth.InvalidChallengeError</a></li></ul></div>
+                
+            </nav>
+        </div>
+        <div class="core" id="main-content-wrapper">
+            <div class="content">
+                <header class="page-title">
+                    <p>Class</p>
+                    <h1>BadResponseError</h1>
+                </header>
+                
+
+
+
+
+<section>
+
+<header>
+    
+        <h2><span class="attribs"><span class="type-signature"></span></span>BadResponseError<span class="signature">(message, response)</span><span class="type-signature"></span></h2>
+        
+            <div class="class-description"><p>BadResponseError is raised when a response from a
+<a href="module-Horizon.html">Horizon</a> or <a href="module-Federation.html">Federation</a>
+server is invalid in some way. For example, a federation response may exceed
+the maximum allowed size, or a transaction submission may have failed with
+Horizon.</p></div>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class='vertical-section'>
+                <div class="members">
+                    <div class="member">
+                        <div class=name>
+                            <span class="tag">Constructor</span>
+                        </div>
+                        
+
+
+    
+    <h4 class="name" id="BadResponseError">
+        <a class="href-link" href="#BadResponseError">#</a>
+        
+        <span class="code-name">
+            
+                new BadResponseError<span class="signature">(message, response)</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+<div class="table-container">
+    <table class="params table">
+        <thead>
+        <tr>
+            
+            <th>Name</th>
+            
+
+            <th>Type</th>
+
+            
+
+            
+
+            <th class="last">Description</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        
+
+            
+<tr class="deep-level-0">
+  
+      <td class="name"><code>message</code></td>
+  
+
+  <td class="type">
+  
+      
+<code class="param-type">string</code>
+
+
+  
+  </td>
+
+  
+
+  
+
+  <td class="description last"><p>Human-readable error message.</p></td>
+</tr>
+
+
+        
+
+            
+<tr class="deep-level-0">
+  
+      <td class="name"><code>response</code></td>
+  
+
+  <td class="type">
+  
+      
+<code class="param-type">any</code>
+
+
+  
+  </td>
+
+  
+
+  
+
+  <td class="description last"><p>Response details, received from the server.</p></td>
+</tr>
+
+
+        
+        </tbody>
+    </table>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="lib_errors_bad_response.js.html" class="button">View Source</a>
+            <span>
+                <a href="lib_errors_bad_response.js.html">lib/errors/bad_response.js</a>, <a href="lib_errors_bad_response.js.html#line21">line 21</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    </div>
+                </div>
+            </div>
+        
+    
+    </div>
+    
+    
+        <h3 class="subsection-title">Extends</h3>
+
+        
+
+
+    <ul>
+        <li><a href="NetworkError.html">NetworkError</a></li>
+    </ul>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <div class='vertical-section'>
+            <h1>Members</h1>
+            <div class="members">
+            
+                <div class="member">
+
+    <span class="method-parameter is-pulled-right">
+        <label>Type:</label>
+        
+<code class="param-type">object</code>
+
+
+    </span>
+
+<h4 class="name" id="response">
+    <a class="href-link" href="#response">#</a>
+    
+    <span class="code-name">
+        response
+    </span>
+    
+</h4>
+
+
+
+
+<div class="description">
+    <p>The response sent by the Horizon server.</p>
+</div>
+
+
+
+
+
+    <h5 class="subsection-title">Properties:</h5>
+
+    
+<div class="table-container">
+    <table class="props table">
+        <thead>
+        <tr>
+            
+            <th>Name</th>
+            
+
+            <th>Type</th>
+
+            
+            <th>Attributes</th>
+            
+
+            
+
+            <th class="last">Description</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        
+            
+<tr class="deep-level-0">
+    
+        <td class="name"><code>response.data</code></td>
+    
+
+    <td class="type">
+    
+        
+<code class="param-type">HorizonApi.ErrorResponseData</code>
+
+
+    
+    </td>
+
+    
+        <td class="attributes">
+        
+            &lt;optional><br>
+        
+
+        
+        </td>
+    
+
+    
+
+    <td class="description last"><p>The data returned by Horizon as part of the error: <a href="https://developers.stellar.org/docs/data/horizon/api-reference/errors/response">Error Response</a></p></td>
+</tr>
+
+        
+            
+<tr class="deep-level-0">
+    
+        <td class="name"><code>response.status</code></td>
+    
+
+    <td class="type">
+    
+        
+<code class="param-type">number</code>
+
+
+    
+    </td>
+
+    
+        <td class="attributes">
+        
+            &lt;optional><br>
+        
+
+        
+        </td>
+    
+
+    
+
+    <td class="description last"><p>HTTP status code describing the basic issue with a submitted transaction <a href="https://developers.stellar.org/docs/data/horizon/api-reference/errors/http-status-codes/standard">Standard Status Codes</a></p></td>
+</tr>
+
+        
+            
+<tr class="deep-level-0">
+    
+        <td class="name"><code>response.statusText</code></td>
+    
+
+    <td class="type">
+    
+        
+<code class="param-type">string</code>
+
+
+    
+    </td>
+
+    
+        <td class="attributes">
+        
+            &lt;optional><br>
+        
+
+        
+        </td>
+    
+
+    
+
+    <td class="description last"><p>A human-readable description of what the status code means: <a href="https://developers.stellar.org/docs/data/horizon/api-reference/errors/http-status-codes/horizon-specific">Horizon-Specific Status Codes</a></p></td>
+</tr>
+
+        
+            
+<tr class="deep-level-0">
+    
+        <td class="name"><code>response.url</code></td>
+    
+
+    <td class="type">
+    
+        
+<code class="param-type">string</code>
+
+
+    
+    </td>
+
+    
+        <td class="attributes">
+        
+            &lt;optional><br>
+        
+
+        
+        </td>
+    
+
+    
+
+    <td class="description last"><p>URL which can provide more information about the problem that occurred.</p></td>
+</tr>
+
+        
+        </tbody>
+    </table>
+</div>
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="NetworkError.html#response">NetworkError#response</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="lib_errors_network.js.html" class="button">View Source</a>
+            <span>
+                <a href="lib_errors_network.js.html">lib/errors/network.js</a>, <a href="lib_errors_network.js.html#line35">line 35</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+</div>
+            
+            </div>
+        </div>
+    
+
+    
+        <div class='vertical-section'>
+            <h1>Methods</h1>
+            <div class="members">
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="getResponse">
+        <a class="href-link" href="#getResponse">#</a>
+        
+        <span class="code-name">
+            
+                getResponse<span class="signature">()</span><span class="type-signature"> &rarr; {any}</span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Returns the error response sent by the Horizon server.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="NetworkError.html#getResponse">NetworkError#getResponse</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="lib_errors_network.js.html" class="button">View Source</a>
+            <span>
+                <a href="lib_errors_network.js.html">lib/errors/network.js</a>, <a href="lib_errors_network.js.html#line42">line 42</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class='columns method-parameter'>
+        <div class="column is-2"><label>Returns:</label></div>
+        <div class="column is-10">
+            
+                    
+
+<div class="columns">
+    
+    
+    <div class='column is-5 has-text-left'>
+        <label>Type: </label>
+        
+<code class="param-type">any</code>
+
+
+    </div>
+    
+</div>
+
+                
+        </div>
+    </div>
+
+
+
+
+</div>
+            
+            </div>
+        </div>
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+            </div>
+            
+            <footer class="footer">
+                <div class="content has-text-centered">
+                    <p>Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.3</a></p>
+                    <p class="sidebar-created-by">
+                        <a href="https://github.com/SoftwareBrothers/better-docs" target="_blank">BetterDocs theme</a> provided with <i class="fas fa-heart"></i> by
+                        <a href="http://softwarebrothers.co" target="_blank">SoftwareBrothers - JavaScript Development Agency</a>
+                    </p>
+                </div>
+            </footer>
+            
+        </div>
+        <div id="side-nav" class="side-nav">
+        </div>
+    </div>
+<script src="scripts/app.min.js"></script>
+<script>PR.prettyPrint();</script>
+<script src="scripts/linenumber.js"> </script>
+
+<script src="scripts/search.js"> </script>
+
+
+</body>
+</html>
