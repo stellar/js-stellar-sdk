@@ -6,23 +6,51 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
-
 ### Added
-- `rpc.Server` now has a `getVersionInfo` method which reports version information of the RPC instance it is connected to. ([#997](https://github.com/stellar/js-stellar-sdk/issues/997)):
+- `rpc.Server` now has a `getSACBalance` helper which lets you fetch the balance of a built-in Stellar Asset Contract token held by a contract ([#1046](https://github.com/stellar/js-stellar-sdk/pull/1046)):
 
 ```typescript
+export interface BalanceResponse {
+  latestLedger: number;
+  /** present only on success, otherwise request malformed or no balance */
+  balanceEntry?: {
+    /** a 64-bit integer */
+    amount: string;
+    authorized: boolean;
+    clawback: boolean;
 
-    export interface GetVersionInfoResponse {
-        version: string;
-        commit_hash: string;
-        build_time_stamp: string;
-        captive_core_version: string;
-        protocol_version: number;
-    }
-
+    lastModifiedLedgerSeq?: number;
+    liveUntilLedgerSeq?: number;
+  };
+}
 ```
 
 - New build target for creating a browser bundle without Axios dependency. Set USE_AXIOS=false environment variable to build stellar-sdk-no-axios.js and stellar-sdk-no-axios.min.js in the dist/ directory. Use yarn build:browser:no-axios to generate these files.
+- Similarly, a new import path for the node package without the Axios dependency can be used. Import the SDK using `@stellar/stellar-sdk/no-axios`. For Node.js environments that don't support the package.json `exports` configuration, use `@stellar/stellar-sdk/lib/no-axios/index`.
+## [Version Number] - YYYY-MM-DD
+- Updated the Node.js target in the Babel configuration from 16 to 18 for production builds.
+
+## [v12.3.0](https://github.com/stellar/js-stellar-sdk/compare/v12.2.0...v12.3.0)
+
+### Added
+- `rpc.Server` now has a `getTransactions`, which has the same response schema as `getTransactions` except with bundles of transactions ([#1037](https://github.com/stellar/js-stellar-sdk/pull/1037)).
+- `rpc.Server` now has a `getVersionInfo` method which reports version information of the RPC instance it is connected to ([#1028](https://github.com/stellar/js-stellar-sdk/issues/1028)):
+
+```typescript
+export interface GetVersionInfoResponse {
+  version: string;
+  commit_hash: string;
+  build_time_stamp: string;
+  captive_core_version: string;
+  protocol_version: number;
+}
+```
+
+### Fixed
+- Lower authorization entry's default signature expiration to ~8min for security reasons ([#1023](https://github.com/stellar/js-stellar-sdk/pull/1023)).
+- Remove `statusText` error check to broaden compatibility ([#1001](https://github.com/stellar/js-stellar-sdk/pull/1001)).
+- Upgraded `stellar-base` which includes various fixes ([release notes](https://github.com/stellar/js-stellar-base/releases/tag/v12.1.1), [#1045](https://github.com/stellar/js-stellar-sdk/pull/1045)).
+
 
 - New build target for creating a browser bundle without EventSource dependency. Set USE_EVENTSOURCE=false environment variable to build stellar-sdk-no-eventsource.js and stellar-sdk-no-eventsource.min.js in the dist/ directory. Use yarn build:browser:no-eventsource to generate these files. Note that removing EventSource disables the `stream` method of the various `CallBuilder` classes provided by `Horizon.Server`.
 

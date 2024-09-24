@@ -95,6 +95,7 @@ export namespace Api {
     envelopeXdr: xdr.TransactionEnvelope;
     resultXdr: xdr.TransactionResult;
     resultMetaXdr: xdr.TransactionMeta;
+    diagnosticEventsXdr?: xdr.DiagnosticEvent[];
   }
 
   export interface GetSuccessfulTransactionResponse
@@ -108,6 +109,7 @@ export namespace Api {
     envelopeXdr: xdr.TransactionEnvelope;
     resultXdr: xdr.TransactionResult;
     resultMetaXdr: xdr.TransactionMeta;
+    diagnosticEventsXdr?: xdr.DiagnosticEvent[];
 
     returnValue?: xdr.ScVal; // present iff resultMeta is a v3
   }
@@ -127,6 +129,56 @@ export namespace Api {
     resultMetaXdr?: string;
     ledger?: number;
     createdAt?: number;
+    diagnosticEventsXdr?: string[];
+  }
+
+  export interface GetTransactionsRequest {
+    startLedger: number;
+    cursor?: string;
+    limit?: number;
+  }
+
+  export interface RawTransactionInfo {
+    status: GetTransactionStatus;
+    ledger: number;
+    createdAt: number;
+    applicationOrder: number;
+    feeBump: boolean;
+    envelopeXdr?: string;
+    resultXdr?: string;
+    resultMetaXdr?: string;
+    diagnosticEventsXdr?: string[];
+  }
+
+  export interface TransactionInfo {
+    status: GetTransactionStatus;
+    ledger: number;
+    createdAt: number;
+    applicationOrder: number;
+    feeBump: boolean;
+    envelopeXdr: xdr.TransactionEnvelope;
+    resultXdr: xdr.TransactionResult;
+    resultMetaXdr: xdr.TransactionMeta;
+    returnValue?: xdr.ScVal;
+    diagnosticEventsXdr?: xdr.DiagnosticEvent[];
+  }
+
+  export interface GetTransactionsResponse {
+    transactions: TransactionInfo[];
+    latestLedger: number;
+    latestLedgerCloseTimestamp: number;
+    oldestLedger: number;
+    oldestLedgerCloseTimestamp: number;
+    cursor: string;
+  }
+
+  export interface RawGetTransactionsResponse {
+    transactions: RawTransactionInfo[];
+    latestLedger: number;
+    latestLedgerCloseTimestamp: number;
+    oldestLedger: number;
+    oldestLedgerCloseTimestamp: number;
+    cursor: string;
   }
 
   export type EventType = 'contract' | 'system' | 'diagnostic';
@@ -359,7 +411,7 @@ export namespace Api {
       transactionData: string;
     };
 
-    /** State Difference information */
+    /** State difference information */
     stateChanges?: RawLedgerEntryChange[];
   }
 
@@ -395,5 +447,19 @@ export namespace Api {
 
     transactionCount: string; // uint32
     ledgerCount: number; // uint32
+  }
+
+  export interface BalanceResponse {
+    latestLedger: number;
+    /** present only on success, otherwise request malformed or no balance */
+    balanceEntry?: {
+      /** a 64-bit integer */
+      amount: string;
+      authorized: boolean;
+      clawback: boolean;
+
+      lastModifiedLedgerSeq?: number;
+      liveUntilLedgerSeq?: number;
+    };
   }
 }

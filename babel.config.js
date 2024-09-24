@@ -32,7 +32,7 @@ module.exports = function(api) {
     presets,
     plugins,
     targets: process.env.NODE_ENV === 'production' 
-      ? { node: 16, browsers: ["> 2%", "ie 11", "not op_mini all"] }
+      ? { node: 18, browsers: ["> 2%", "ie 11", "not op_mini all"] }
       : { browsers: ["> 2%"] }
   };
 

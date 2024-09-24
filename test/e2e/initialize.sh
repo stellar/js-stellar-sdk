@@ -49,7 +49,7 @@ target_dir="$dirname/test-contracts/target/wasm32-unknown-unknown/release"
 contracts_dir="$dirname/test-contracts"
 repo_url="https://github.com/stellar/soroban-examples.git"
 wasm_files=(
-    "soroban_custom_types_contract.wasm"
+    "soroban_other_custom_types_contract.wasm"
     "soroban_atomic_swap_contract.wasm"
     "soroban_token_contract.wasm"
     "soroban_increment_contract.wasm"
@@ -84,7 +84,7 @@ done
 if [ "$all_exist" = false ] || [ "$current_hash" != "$stored_hash" ]; then
     echo "WASM files are missing or contracts have been updated. Initializing and building contracts..."
     # Initialize contracts
-    $soroban contract init "$dirname/test-contracts" --with-example increment custom_types atomic_swap token
+    $soroban contract init "$dirname/test-contracts" --with-example increment other_custom_types atomic_swap token
     
     # Change directory to test-contracts and build the contracts
     cd "$dirname/test-contracts" || { echo "Failed to change directory!"; exit 1; }

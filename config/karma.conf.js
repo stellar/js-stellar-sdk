@@ -9,7 +9,6 @@ function getStellarSdkFileName() {
   let name = 'stellar-sdk';
   if (!buildConfig.useAxios) name += '-no-axios';
   if (!buildConfig.useEventSource) name += '-no-eventsource';
-  console.log(`using ${name} for browser tests`);
   return name + '.js';
 }
 
