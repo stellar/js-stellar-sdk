@@ -186,6 +186,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
     });
 
     it("rejects redirect response when allowedRedirects is not specified", function (done) {
+      // Unable to create temp server in a browser
       if (typeof window != "undefined") {
         return done();
       }
@@ -199,9 +200,14 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
           Resolver.resolve("localhost:4444", {
             allowHttp: true,
           })
-            .should.be.rejectedWith(/Maximum number of redirects exceeded/)
-            .notify(done)
-            .then(() => tempServer.close());
+            .then((response) => {
+              should.fail();
+            }).catch((e) => {
+              expect(e).to.match(/Maximum number of redirects exceeded/)
+            }).finally(() => {
+              tempServer.close();
+              done();
+            });
         });
     });
 
@@ -212,7 +218,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
 
       let tempServer = http
         .createServer((req, res) => {
-          if (req.url === "/redirect") {
+          if (req.url !== "/redirect") {
             res.writeHead(302, { location: "/redirect" });
             return res.end();
           }
@@ -223,8 +229,9 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
           `);
         })
         .listen(4444, () => {
-          const res = Resolver.resolve("localhost:4444", {
+          Resolver.resolve("localhost:4444", {
             allowHttp: true,
+            allowedRedirects: 1,
           }).then((response) => {
             expect(response.FEDERATION_SERVER).equals(
               "https://api.stellar.org/federation",
