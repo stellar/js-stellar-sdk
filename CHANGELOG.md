@@ -23,6 +23,9 @@ A breaking change will get clearly marked in this log.
 ```
 
 - New build target for creating a browser bundle without Axios dependency. Set USE_AXIOS=false environment variable to build stellar-sdk-no-axios.js and stellar-sdk-no-axios.min.js in the dist/ directory. Use yarn build:browser:no-axios to generate these files.
+- Similarly, a new import path for the node package without the Axios dependency can be used. Import the SDK using `@stellar/stellar-sdk/no-axios`. For Node.js environments that don't support the package.json `exports` configuration, use `@stellar/stellar-sdk/lib/no-axios/index`.
+## [Version Number] - YYYY-MM-DD
+- Updated the Node.js target in the Babel configuration from 16 to 18 for production builds.
 
 ## [v12.2.0](https://github.com/stellar/js-stellar-sdk/compare/v12.1.0...v12.2.0)
 
