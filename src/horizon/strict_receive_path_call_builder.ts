@@ -21,9 +21,14 @@ import { ServerApi } from "./server_api";
  * If a list of assets is passed as the source, horizon will find any payment
  * paths from those source assets to the desired destination asset.
  *
- * Do not create this object directly, use {@link Server#strictReceivePaths}.
- * @see [Find Payment Paths](https://developers.stellar.org/api/aggregations/paths/)
+ * Do not create this object directly, use {@link Horizon.Server#strictReceivePaths}.
+ *
+ * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/aggregations/paths|Find Payment Paths}
+ *
  * @augments CallBuilder
+ * @private
+ * @class
+ *
  * @param {string} serverUrl Horizon server URL.
  * @param {string|Asset[]} source The sender's account ID or a list of Assets. Any returned path must use a source that the sender can hold.
  * @param {Asset} destinationAsset The destination asset.

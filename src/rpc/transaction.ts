@@ -7,7 +7,6 @@ import {
 
 import { Api } from './api';
 import { parseRawSimulation } from './parsers';
-import type { Server } from './server';
 
 function isSorobanTransaction(tx: Transaction): boolean {
   if (tx.operations.length !== 1) {
@@ -29,18 +28,20 @@ function isSorobanTransaction(tx: Transaction): boolean {
 /**
  * Combines the given raw transaction alongside the simulation results.
  * If the given transaction already has authorization entries in a host
- *    function invocation (see {@link Operation.invokeHostFunction}), **the
- *    simulation entries are ignored**.
+ * function invocation (see {@link Operation.invokeHostFunction}), **the
+ * simulation entries are ignored**.
  *
- * @param raw         the initial transaction, w/o simulation applied
- * @param simulation  the Soroban RPC simulation result (see
- *    {@link Server.simulateTransaction})
+ * If the given transaction already has authorization entries in a host function
+ * invocation (see {@link Operation.invokeHostFunction}), **the simulation
+ * entries are ignored**.
  *
- * @returns a new, cloned transaction with the proper auth and resource (fee,
- *    footprint) simulation data applied
+ * @param {Transaction|FeeBumpTransaction} raw the initial transaction, w/o simulation applied
+ * @param {Api.SimulateTransactionResponse|Api.RawSimulateTransactionResponse} simulation the Soroban RPC simulation result (see {@link module:rpc.Server#simulateTransaction})
+ * @returns {TransactionBuilder} a new, cloned transaction with the proper auth and resource (fee, footprint) simulation data applied
  *
- * @see {Server.simulateTransaction}
- * @see {Server.prepareTransaction}
+ * @memberof module:rpc
+ * @see {@link module:rpc.Server#simulateTransaction}
+ * @see {@link module:rpc.Server#prepareTransaction}
  */
 export function assembleTransaction(
   raw: Transaction | FeeBumpTransaction,

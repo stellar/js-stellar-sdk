@@ -36,7 +36,15 @@ function hasOwnProperty<X extends {}, Y extends PropertyKey>(
   return obj.hasOwnProperty(prop);
 }
 
-/** Sends the jsonrpc 'params' as a single 'param' object (no array support). */
+/**
+ * Sends the jsonrpc 'params' as a single 'param' object (no array support).
+ *
+ * @param {string} url URL to the RPC instance
+ * @param {string} method RPC method name that should be called
+ * @param {(any | null)} [param=null] params that should be supplied to the method
+ * @returns {Promise<T>}
+ * @private
+ */
 export async function postObject<T>(
   url: string,
   method: string,

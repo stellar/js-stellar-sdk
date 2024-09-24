@@ -4,32 +4,43 @@ import { httpClient } from "../http-client";
 
 import { Config } from "../config";
 
-/** the maximum size of stellar.toml file */
+/** @module StellarToml */
+
+/**
+ * The maximum size of stellar.toml file, in bytes
+ * @constant {number}
+ * @default 102400
+ */
 export const STELLAR_TOML_MAX_SIZE = 100 * 1024;
 
 // axios timeout doesn't catch missing urls, e.g. those with no response
 // so we use the axios cancel token to ensure the timeout
 const CancelToken = httpClient.CancelToken;
 
-/** Resolver allows resolving `stellar.toml` files. */
+/**
+ * Resolver allows resolving `stellar.toml` files.
+ * @memberof module:StellarToml
+ * @hideconstructor
+ */
 export class Resolver {
   /**
    * Returns a parsed `stellar.toml` file for a given domain.
-   * ```js
-   * StellarSdk.Resolver.resolve('acme.com')
+   * @see {@link https://developers.stellar.org/docs/tokens/publishing-asset-info | Stellar.toml doc}
+   *
+   * @param {string} domain Domain to get stellar.toml file for
+   * @param {object} [opts] Options object
+   * @param {boolean} [opts.allowHttp=false] - Allow connecting to http servers. This must be set to false in production deployments!
+   * @param {number} [opts.timeout=0] - Allow a timeout. Allows user to avoid nasty lag due to TOML resolve issue.
+   * @returns {Promise} A `Promise` that resolves to the parsed stellar.toml object
+   *
+   * @example
+   * StellarSdk.StellarToml.Resolver.resolve('acme.com')
    *   .then(stellarToml => {
    *     // stellarToml in an object representing domain stellar.toml file.
    *   })
    *   .catch(error => {
    *     // stellar.toml does not exist or is invalid
    *   });
-   * ```
-   * @see <a href="https://developers.stellar.org/docs/issuing-assets/publishing-asset-info/" target="_blank">Stellar.toml doc</a>
-   * @param {string} domain Domain to get stellar.toml file for
-   * @param {object} [opts] Options object
-   * @param {boolean} [opts.allowHttp] - Allow connecting to http servers, default: `false`. This must be set to false in production deployments!
-   * @param {number} [opts.timeout] - Allow a timeout, default: 0. Allows user to avoid nasty lag due to TOML resolve issue.
-   * @returns {Promise} A `Promise` that resolves to the parsed stellar.toml object
    */
   // eslint-disable-next-line require-await
   public static async resolve(

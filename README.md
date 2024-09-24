@@ -7,15 +7,15 @@
 </div>
 
 <p align="center">
-  <a href="https://badge.fury.io/js/stellar-sdk"><img src="https://badge.fury.io/js/stellar-sdk.svg" alt="npm version" height="18"></a>
+  <a href="https://badge.fury.io/js/@stellar%2Fstellar-sdk"><img src="https://badge.fury.io/js/@stellar%2Fstellar-sdk.svg" alt="npm version" height="18"></a>
   <a href="https://www.npmjs.com/package/@stellar/stellar-sdk">
-    <img alt="Weekly Downloads" src="https://img.shields.io/npm/dw/stellar-sdk" />
+    <img alt="Weekly Downloads" src="https://img.shields.io/npm/dw/@stellar/stellar-sdk" />
   </a>
   <a href="https://github.com/stellar/js-stellar-sdk/actions/workflows/tests.yml"><img alt="Test Status" src="https://github.com/stellar/js-stellar-sdk/actions/workflows/tests.yml/badge.svg" /></a>
 </p>
 
 js-stellar-sdk is a JavaScript library for communicating with a
-[Stellar Horizon server](https://github.com/stellar/go/tree/master/services/horizon) and [Soroban RPC](https://soroban.stellar.org/docs/reference/rpc).
+[Stellar Horizon server](https://github.com/stellar/go/tree/master/services/horizon) and [Soroban RPC](https://developers.stellar.org/docs/data/rpc).
 It is used for building Stellar apps either on Node.js or in the browser, though it can be used in other environments with some tinkering.
 
 It provides:
@@ -96,14 +96,14 @@ USE_AXIOS=false npm run build:browser
 
 The usage documentation for this library lives in a handful of places:
 
- * across the [Stellar Developer Docs](), which includes tutorials and examples,
+ * across the [Stellar Developer Docs](https://developers.stellar.org), which includes tutorials and examples,
  * within [this repository itself](https://github.com/stellar/js-stellar-sdk/blob/master/docs/reference/readme.md), and
  * on the generated [API doc site](https://stellar.github.io/js-stellar-sdk/).
 
 You can also refer to:
 
- * the [documentation](https://developers.stellar.org/network/horizon) for the Horizon REST API (if using the `Horizon` module) and
- * the [documentation](https://soroban.stellar.org/docs/reference/rpc) for Soroban RPC's API (if using the `rpc` module)
+ * the [documentation](https://developers.stellar.org/docs/data/horizon) for the Horizon REST API (if using the `Horizon` module) and
+ * the [documentation](https://developers.stellar.org/docs/data/rpc) for Soroban RPC's API (if using the `rpc` module)
 
 ### Usage with React-Native
 

@@ -1,7 +1,6 @@
 import { Contract, SorobanDataBuilder, xdr } from '@stellar/stellar-base';
 
 /* tslint:disable-next-line:no-namespace */
-/** @namespace Api */
 export namespace Api {
 
   export interface Cost {

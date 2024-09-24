@@ -1,7 +1,7 @@
 /* disable max-classes rule, because extending error shouldn't count! */
 /* eslint max-classes-per-file: 0 */
 import type { MethodOptions } from "./types";
-import { Server } from "../rpc/server"
+import { Server } from "../rpc"
 import { Api } from "../rpc/api"
 import { withExponentialBackoff } from "./utils";
 import { DEFAULT_TIMEOUT } from "./types";
@@ -20,6 +20,12 @@ import type { AssembledTransaction } from "./assembled_transaction";
  *    {@link MethodOptions.timeoutInSeconds} seconds. See all attempts in
  *    `getTransactionResponseAll` and the most recent attempt in
  *    `getTransactionResponse`.
+ *
+ * @memberof module:contract
+ * @class
+ *
+ * @param {Function} signTransaction More info in {@link MethodOptions}
+ * @param {module:contract.AssembledTransaction<T>} assembled {@link AssembledTransaction} from which this SentTransaction was initialized
  */
 export class SentTransaction<T> {
   public server: Server;
@@ -60,7 +66,7 @@ export class SentTransaction<T> {
   }
 
   /**
-   * Initialize a `SentTransaction` from `options` and a `signed` 
+   * Initialize a `SentTransaction` from `options` and a `signed`
    * AssembledTransaction. This will also send the transaction to the network.
    */
   static init = async <U>(

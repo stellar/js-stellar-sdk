@@ -3,3 +3,4 @@
 ../lib
 ../dist
 ../docs
+../test/unit/out/contract_spec.js

@@ -6,13 +6,16 @@ import { HorizonApi } from "./horizon_api";
 import { ServerApi } from "./server_api";
 
 /**
- * Do not create this object directly, use {@link Server#loadAccount}.
+ * Do not create this object directly, use {@link module:Horizon.Server#loadAccount | Horizon.Server#loadAccount}.
  *
  * Returns information and links relating to a single account.
  * The balances section in the returned JSON will also list all the trust lines this account has set up.
  * It also contains {@link BaseAccount} object and exposes it's methods so can be used in {@link TransactionBuilder}.
  *
- * @see [Account Details](https://developers.stellar.org/api/resources/accounts/object/)
+ * @memberof module:Horizon
+ * @private
+ *
+ * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/accounts/object|Account Details}
  * @param {string} response Response from horizon account endpoint.
  * @returns {AccountResponse} AccountResponse instance
  */
