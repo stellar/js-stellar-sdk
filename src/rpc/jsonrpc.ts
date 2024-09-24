@@ -1,4 +1,4 @@
-import axios from "./axios";
+import http from "./axios";
 
 export type Id = string | number;
 
@@ -42,7 +42,7 @@ export async function postObject<T>(
   method: string,
   param: any = null,
 ): Promise<T> {
-  const response = await axios.post<Response<T>>(url, {
+  const response = await http.post<Response<T>>(url, {
     jsonrpc: "2.0",
     // TODO: Generate a unique request id
     id: 1,

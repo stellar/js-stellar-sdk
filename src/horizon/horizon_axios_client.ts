@@ -1,9 +1,10 @@
 /* eslint-disable global-require */
-import axios, { AxiosResponse } from "axios";
 import URI from "urijs";
+import { create, HttpResponseHeaders } from "../http-client";
 
-// eslint-disable-next-line prefer-import/prefer-import-over-require 
-export const version = require("../../package.json").version;
+// eslint-disable-next-line prefer-import/prefer-import-over-require , @typescript-eslint/naming-convention
+declare const __PACKAGE_VERSION__: string;
+export const version = __PACKAGE_VERSION__;
 
 export interface ServerTime {
   serverTime: number;
@@ -24,7 +25,7 @@ export interface ServerTime {
  */
 export const SERVER_TIME_MAP: Record<string, ServerTime> = {};
 
-export const AxiosClient = axios.create({
+export const AxiosClient = create({
   headers: {
     "X-Client-Name": "js-stellar-sdk",
     "X-Client-Version": version,
@@ -36,9 +37,20 @@ function toSeconds(ms: number): number {
 }
 
 AxiosClient.interceptors.response.use(
-  (response: AxiosResponse) => {
+  (response) => {
     const hostname = URI(response.config.url!).hostname();
-    const serverTime = toSeconds(Date.parse(response.headers.date));
+    let serverTime = 0;
+    if (response.headers instanceof Headers) {
+      const dateHeader = response.headers.get('date');
+      if (dateHeader) {
+        serverTime = toSeconds(Date.parse(dateHeader));
+      }
+    } else if (typeof response.headers === 'object' && 'date' in response.headers) {
+      const headers = response.headers as HttpResponseHeaders; // Cast response.headers to the correct type
+      if (typeof headers.date === 'string') {
+        serverTime = toSeconds(Date.parse(headers.date));
+      }
+    }
     const localTimeRecorded = toSeconds(new Date().getTime());
 
     if (!Number.isNaN(serverTime)) {
@@ -46,8 +58,7 @@ AxiosClient.interceptors.response.use(
         serverTime,
         localTimeRecorded,
       };
-    }
-
+    } 
     return response;
   },
 );

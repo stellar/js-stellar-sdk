@@ -893,6 +893,7 @@ export class Server {
    * @returns {Promise<Api.GetFeeStatsResponse>}  the fee stats
    * @see https://developers.stellar.org/docs/data/rpc/api-reference/methods/getFeeStats
    */
+  // eslint-disable-next-line require-await
   public async getFeeStats(): Promise<Api.GetFeeStatsResponse> {
     return jsonrpc.postObject(this.serverURL.toString(), 'getFeeStats');
   }
@@ -903,6 +904,7 @@ export class Server {
    * @returns {Promise<Api.GetVersionInfoResponse>} the version info
    * @see https://developers.stellar.org/docs/data/rpc/api-reference/methods/getVersionInfo
    */
+  // eslint-disable-next-line require-await
   public async getVersionInfo(): Promise<Api.GetVersionInfoResponse> {
     return jsonrpc.postObject(this.serverURL.toString(), 'getVersionInfo');
   }

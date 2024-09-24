@@ -1,5 +1,4 @@
 /* eslint-disable require-await */
-import axios from "axios";
 import { StrKey } from "@stellar/stellar-base";
 import URI from "urijs";
 
@@ -8,6 +7,7 @@ import { BadResponseError } from "../errors";
 import { Resolver } from "../stellartoml";
 
 import { Api } from "./api";
+import { httpClient } from "../http-client";
 
 // FEDERATION_RESPONSE_MAX_SIZE is the maximum size of response from a federation server
 export const FEDERATION_RESPONSE_MAX_SIZE = 100 * 1024;
@@ -218,7 +218,7 @@ export class FederationServer {
   private async _sendRequest(url: URI) {
     const timeout = this.timeout;
 
-    return axios
+    return httpClient 
       .get(url.toString(), {
         maxContentLength: FEDERATION_RESPONSE_MAX_SIZE,
         timeout,

@@ -85,6 +85,13 @@ If you don't want to use or install Bower, you can copy the packaged JS files fr
 | Always make sure that you are using the latest version number. They can be found on the [releases page](https://github.com/stellar/js-stellar-sdk/releases) in GitHub. |
 |----|
 
+### Custom Installation
+
+You can configure whether or not to build the browser bundle with the axios dependency. In order to turn off the axios dependency, set the USE_AXIOS environment variable to false. 
+
+#### Build without Axios
+USE_AXIOS=false npm run build:browser
+
 ## Usage
 
 The usage documentation for this library lives in a handful of places:

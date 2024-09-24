@@ -36,15 +36,63 @@
     "./rpc": {
       "types": "./lib/rpc/index.d.ts",
       "default": "./lib/rpc/index.js"
+    },
+    "./no-axios": {
+      "browser": "./dist/stellar-sdk-no-axios.min.js",
+      "types": "./lib/no-axios/index.d.ts",
+      "default": "./lib/no-axios/index.js"
+    },
+    "./no-axios/contract": {
+      "types": "./lib/no-axios/contract/index.d.ts",
+      "default": "./lib/no-axios/contract/index.js"
+    },
+    "./no-axios/rpc": {
+      "types": "./lib/no-axios/rpc/index.d.ts",
+      "default": "./lib/no-axios/rpc/index.js"
+    },
+    "./no-eventsource": {
+      "browser": "./dist/stellar-sdk-no-eventsource.min.js",
+      "types": "./lib/no-eventsource/index.d.ts",
+      "default": "./lib/no-eventsource/index.js"
+    },
+    "./no-eventsource/contract": {
+      "types": "./lib/no-eventsource/contract/index.d.ts",
+      "default": "./lib/no-eventsource/contract/index.js"
+    },
+    "./no-eventsource/rpc": {
+      "types": "./lib/no-eventsource/rpc/index.d.ts",
+      "default": "./lib/no-eventsource/rpc/index.js"
+    },
+    "./minimal": {
+      "browser": "./dist/stellar-sdk-minimal.min.js",
+      "types": "./lib/minimal/index.d.ts",
+      "default": "./lib/minimal/index.js"
+    },
+    "./minimal/contract": {
+      "types": "./lib/minimal/contract/index.d.ts",
+      "default": "./lib/minimal/contract/index.js"
+    },
+    "./minimal/rpc": {
+      "types": "./lib/minimal/rpc/index.d.ts",
+      "default": "./lib/minimal/rpc/index.js"
     }
   },
   "scripts": {
     "build": "cross-env NODE_ENV=development yarn _build",
     "build:prod": "cross-env NODE_ENV=production yarn _build",
     "build:node": "yarn _babel && yarn build:ts",
-    "build:ts": "tsc -p ./config/tsconfig.json",
+    "build:node:no-axios": "cross-env OUTPUT_DIR=lib/no-axios USE_AXIOS=false yarn build:node",
+    "build:node:no-eventsource": "cross-env OUTPUT_DIR=lib/no-eventsource USE_EVENTSOURCE=false yarn build:node",
+    "build:node:minimal": "cross-env OUTPUT_DIR=lib/minimal USE_AXIOS=false USE_EVENTSOURCE=false yarn build:node",
+    "build:node:all": "yarn build:node && yarn build:node:no-axios && yarn build:node:no-eventsource && yarn build:node:minimal",
+    "clean:temp": "rm -f ./config/tsconfig.tmp.json",
+    "build:ts": "node config/set-output-dir.js && tsc -p ./config/tsconfig.tmp.json && yarn clean:temp",
     "build:test": "tsc -p ./test/unit/tsconfig.json",
     "build:browser": "webpack -c config/webpack.config.browser.js",
+    "build:browser:no-axios": "cross-env USE_AXIOS=false webpack -c config/webpack.config.browser.js",
+    "build:browser:no-eventsource": "cross-env USE_EVENTSOURCE=false webpack -c config/webpack.config.browser.js",
+    "build:browser:minimal": "cross-env USE_AXIOS=false USE_EVENTSOURCE=false webpack -c config/webpack.config.browser.js",
+    "build:browser:all": "yarn build:browser && cross-env no_clean=true yarn build:browser:no-axios && cross-env no_clean=true yarn build:browser:no-eventsource && cross-env no_clean=true yarn build:browser:minimal",
     "build:docs": "cross-env NODE_ENV=docs yarn _babel",
     "clean": "rm -rf lib/ dist/ coverage/ .nyc_output/ jsdoc/ test/e2e/.soroban",
     "docs": "yarn build:docs && jsdoc -c ./config/.jsdoc.json --verbose",
@@ -53,11 +101,12 @@
     "test:node": "yarn _nyc mocha --recursive 'test/unit/**/*.js'",
     "test:integration": "yarn _nyc mocha --recursive 'test/integration/**/*.js'",
     "test:browser": "karma start config/karma.conf.js",
+    "test:browser:no-axios": "cross-env USE_AXIOS=false yarn build:browser && cross-env USE_AXIOS=false karma start config/karma.conf.js",
     "fmt": "yarn _prettier && yarn eslint -c .eslintrc.js src/ --fix",
     "preversion": "yarn clean && yarn _prettier && yarn build:prod && yarn test",
     "prepare": "yarn build:prod",
-    "_build": "yarn build:node && yarn build:test && yarn build:browser",
-    "_babel": "babel --extensions '.ts' --out-dir lib/ src/",
+    "_build": "yarn build:node:all && yarn build:test && yarn build:browser:all",
+    "_babel": "babel --extensions '.ts' --out-dir ${OUTPUT_DIR:-lib} src/",
     "_nyc": "nyc --nycrc-path config/.nycrc",
     "_prettier": "prettier --ignore-path config/.prettierignore --write './test/**/*.js'"
   },
@@ -116,6 +165,7 @@
     "axios-mock-adapter": "^1.22.0",
     "babel-loader": "^9.1.3",
     "babel-plugin-istanbul": "^7.0.0",
+    "babel-plugin-transform-define": "^2.1.4",
     "buffer": "^6.0.3",
     "chai": "^4.3.10",
     "chai-as-promised": "^7.1.1",
@@ -149,6 +199,7 @@
     "minami": "^1.1.1",
     "mocha": "^10.6.0",
     "node-polyfill-webpack-plugin": "^3.0.0",
+    "null-loader": "^4.0.1",
     "nyc": "^17.0.0",
     "prettier": "^3.3.3",
     "randombytes": "^2.1.0",
@@ -166,6 +217,7 @@
     "axios": "^1.7.7",
     "bignumber.js": "^9.1.2",
     "eventsource": "^2.0.2",
+    "feaxios": "^0.0.20",
     "randombytes": "^2.1.0",
     "toml": "^3.0.0",
     "urijs": "^1.19.1"
