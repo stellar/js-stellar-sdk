@@ -52,11 +52,11 @@ export class Resolver {
         maxContentLength: STELLAR_TOML_MAX_SIZE,
         cancelToken: timeout
           ? new CancelToken((cancel) =>
-            setTimeout(
-              () => cancel(`timeout of ${timeout}ms exceeded`),
-              timeout,
-            ),
-          )
+              setTimeout(
+                () => cancel(`timeout of ${timeout}ms exceeded`),
+                timeout,
+              ),
+            )
           : undefined,
         timeout,
       })
