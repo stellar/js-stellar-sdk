@@ -138,14 +138,14 @@ export namespace Api {
     max_number?: number;
     is_asset_anchored?: boolean;
     anchor_asset_type?:
-    | "fiat"
-    | "crypto"
-    | "nft"
-    | "stock"
-    | "bond"
-    | "commodity"
-    | "realestate"
-    | "other";
+      | "fiat"
+      | "crypto"
+      | "nft"
+      | "stock"
+      | "bond"
+      | "commodity"
+      | "realestate"
+      | "other";
     anchor_asset?: string;
     attestation_of_reserve?: Url;
     attestation_of_reserve_amount?: string;
