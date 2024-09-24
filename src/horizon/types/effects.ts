@@ -65,7 +65,7 @@ export enum EffectType {
   liquidity_pool_revoked = 95,
   // contract effects
   contract_credited = 96,
-  contract_debited = 97,
+  contract_debited = 97
 }
 export interface BaseEffectRecord extends HorizonApi.BaseResponse {
   id: string;
@@ -264,7 +264,7 @@ export type SignerSponsorshipRemoved = Omit<
 > & { type_i: EffectType.signer_sponsorship_removed };
 
 export interface ClaimableBalanceClawedBack extends HorizonApi.BaseResponse {
-  balance_id: string;
+	balance_id: string
 }
 
 export interface LiquidityPoolEffectRecord extends HorizonApi.BaseResponse {

@@ -22,8 +22,7 @@ type Constructable<T> = new (e: string) => T;
 // require("eventsource") for Node and React Native environment
 /* eslint-disable global-require */
 /* eslint-disable prefer-import/prefer-import-over-require */
-const EventSource: Constructable<EventSource> =
-  anyGlobal.EventSource ??
+const EventSource: Constructable<EventSource> = anyGlobal.EventSource ??
   anyGlobal.window?.EventSource ??
   require("eventsource");
 
@@ -41,7 +40,7 @@ export class CallBuilder<
   T extends
     | HorizonApi.FeeStatsResponse
     | HorizonApi.BaseResponse
-    | ServerApi.CollectionPage<HorizonApi.BaseResponse>,
+    | ServerApi.CollectionPage<HorizonApi.BaseResponse>
 > {
   protected url: URI;
 
@@ -111,14 +110,11 @@ export class CallBuilder<
     let timeout: ReturnType<typeof setTimeout>;
 
     const createTimeout = () => {
-      timeout = setTimeout(
-        () => {
-          es?.close();
-          // eslint-disable-next-line @typescript-eslint/no-use-before-define
-          es = createEventSource();
-        },
-        options.reconnectTimeout || 15 * 1000,
-      );
+      timeout = setTimeout(() => {
+        es?.close();
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
+        es = createEventSource();
+      }, options.reconnectTimeout || 15 * 1000);
     };
 
     const createEventSource = (): EventSource => {
@@ -186,6 +182,8 @@ export class CallBuilder<
 
       return es;
     };
+
+
 
     createEventSource();
     return () => {
@@ -289,9 +287,7 @@ export class CallBuilder<
    * @param {boolean} [link.templated] Whether the link is templated
    * @returns {Function} A function that requests the link
    */
-  private _requestFnForLink(
-    link: HorizonApi.ResponseLink,
-  ): (opts?: any) => any {
+  private _requestFnForLink(link: HorizonApi.ResponseLink): (opts?: any) => any {
     return async (opts: any = {}) => {
       let uri;
 
@@ -409,17 +405,11 @@ export class CallBuilder<
       switch (error.response.status) {
         case 404:
           return Promise.reject(
-            new NotFoundError(
-              error.response.statusText ?? "Not Found",
-              error.response.data,
-            ),
+            new NotFoundError(error.response.statusText ?? "Not Found", error.response.data),
           );
         default:
           return Promise.reject(
-            new NetworkError(
-              error.response.statusText ?? "Unknown",
-              error.response.data,
-            ),
+            new NetworkError(error.response.statusText ?? "Unknown", error.response.data),
           );
       }
     } else {

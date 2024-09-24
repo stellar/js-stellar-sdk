@@ -134,7 +134,10 @@ export function buildChallengeTx(
   const transaction = builder.build();
   transaction.sign(serverKeypair);
 
-  return transaction.toEnvelope().toXDR("base64").toString();
+  return transaction
+    .toEnvelope()
+    .toXDR("base64")
+    .toString();
 }
 
 /**
@@ -150,7 +153,7 @@ export type ChallengeTxDetails = {
   matchedHomeDomain: string;
   /** The memo attached to the transaction, which will be null if not present */
   memo?: string;
-};
+}
 
 /**
  * Reads a SEP-10 challenge transaction and returns the decoded transaction and
@@ -479,7 +482,8 @@ export function verifyChallengeTxThreshold(
 
   let weight = 0;
   for (const signer of signersFound) {
-    const sigWeight = signerSummary.find((s) => s.key === signer)?.weight || 0;
+    const sigWeight =
+      signerSummary.find((s) => s.key === signer)?.weight || 0;
     weight += sigWeight;
   }
 
@@ -587,8 +591,7 @@ export function verifyChallengeTxSigners(
   } catch (err: any) {
     throw new Error(
       `Couldn't infer keypair from the provided 'serverAccountID': ${
-        err.message
-      }`,
+        err.message}`,
     );
   }
 
@@ -660,7 +663,7 @@ export function verifyChallengeTxSigners(
   // Confirm we matched a signature to the server signer.
   if (!serverSignatureFound) {
     throw new InvalidChallengeError(
-      `Transaction not signed by server: '${serverKP.publicKey()}'`,
+      `Transaction not signed by server: '${  serverKP.publicKey()  }'`,
     );
   }
 
@@ -681,7 +684,9 @@ export function verifyChallengeTxSigners(
 
   // Confirm all signatures, including the server signature, were consumed by a signer:
   if (signersFound.length !== tx.signatures.length) {
-    throw new InvalidChallengeError("Transaction has unrecognized signatures");
+    throw new InvalidChallengeError(
+      "Transaction has unrecognized signatures",
+    );
   }
 
   // Remove the server public key before returning
@@ -761,7 +766,7 @@ export function gatherTxSigners(
       keypair = Keypair.fromPublicKey(signer); // This can throw a few different errors
     } catch (err: any) {
       throw new InvalidChallengeError(
-        `Signer is not a valid address: ${err.message}`,
+        `Signer is not a valid address: ${  err.message}`,
       );
     }
 

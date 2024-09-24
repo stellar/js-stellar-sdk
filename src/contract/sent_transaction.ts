@@ -1,8 +1,8 @@
 /* disable max-classes rule, because extending error shouldn't count! */
 /* eslint max-classes-per-file: 0 */
 import type { MethodOptions } from "./types";
-import { Server } from "../rpc";
-import { Api } from "../rpc/api";
+import { Server } from "../rpc"
+import { Api } from "../rpc/api"
 import { withExponentialBackoff } from "./utils";
 import { DEFAULT_TIMEOUT } from "./types";
 import type { AssembledTransaction } from "./assembled_transaction";
@@ -51,9 +51,9 @@ export class SentTransaction<T> {
   public getTransactionResponse?: Api.GetTransactionResponse;
 
   static Errors = {
-    SendFailed: class SendFailedError extends Error {},
-    SendResultOnly: class SendResultOnlyError extends Error {},
-    TransactionStillPending: class TransactionStillPendingError extends Error {},
+    SendFailed: class SendFailedError extends Error { },
+    SendResultOnly: class SendResultOnlyError extends Error { },
+    TransactionStillPending: class TransactionStillPendingError extends Error { },
   };
 
   constructor(
@@ -108,21 +108,22 @@ export class SentTransaction<T> {
     this.getTransactionResponse =
       this.getTransactionResponseAll[this.getTransactionResponseAll.length - 1];
     if (
-      this.getTransactionResponse.status === Api.GetTransactionStatus.NOT_FOUND
+      this.getTransactionResponse.status ===
+      Api.GetTransactionStatus.NOT_FOUND
     ) {
       throw new SentTransaction.Errors.TransactionStillPending(
         `Waited ${timeoutInSeconds} seconds for transaction to complete, but it did not. ` +
-          `Returning anyway. Check the transaction status manually. ` +
-          `Sent transaction: ${JSON.stringify(
-            this.sendTransactionResponse,
-            null,
-            2,
-          )}\n` +
-          `All attempts to get the result: ${JSON.stringify(
-            this.getTransactionResponseAll,
-            null,
-            2,
-          )}`,
+        `Returning anyway. Check the transaction status manually. ` +
+        `Sent transaction: ${JSON.stringify(
+          this.sendTransactionResponse,
+          null,
+          2,
+        )}\n` +
+        `All attempts to get the result: ${JSON.stringify(
+          this.getTransactionResponseAll,
+          null,
+          2,
+        )}`,
       );
     }
 

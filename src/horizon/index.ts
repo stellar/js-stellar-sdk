@@ -11,7 +11,7 @@ export { HorizonServer as Server } from "./server";
 export {
   default as AxiosClient,
   SERVER_TIME_MAP,
-  getCurrentServerTime,
+  getCurrentServerTime
 } from "./horizon_axios_client";
 
 export default module.exports;

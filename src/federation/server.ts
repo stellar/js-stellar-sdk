@@ -163,7 +163,9 @@ export class FederationServer {
    * @returns {Promise<module:Federation.Api.Record>} A promise that resolves to the federation record
    * @throws Will throw an error if the federated address does not contain a domain, or if the server object was not instantiated with a `domain` parameter
    */
-  public async resolveAddress(address: string): Promise<Api.Record> {
+  public async resolveAddress(
+    address: string,
+  ): Promise<Api.Record> {
     let stellarAddress = address;
     if (address.indexOf("*") < 0) {
       if (!this.domain) {
@@ -188,7 +190,9 @@ export class FederationServer {
    * @throws Will throw an error if the federation server's response exceeds the allowed maximum size.
    * @throws {BadResponseError} Will throw an error if the server query fails with an improper response.
    */
-  public async resolveAccountId(accountId: string): Promise<Api.Record> {
+  public async resolveAccountId(
+    accountId: string,
+  ): Promise<Api.Record> {
     const url = this.serverURL.query({ type: "id", q: accountId });
     return this._sendRequest(url);
   }

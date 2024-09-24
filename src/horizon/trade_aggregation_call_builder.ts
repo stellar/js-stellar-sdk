@@ -6,7 +6,12 @@ import { HorizonApi } from "./horizon_api";
 import { ServerApi } from "./server_api";
 
 const allowedResolutions = [
-  60000, 300000, 900000, 3600000, 86400000, 604800000,
+  60000,
+  300000,
+  900000,
+  3600000,
+  86400000,
+  604800000,
 ];
 
 /**

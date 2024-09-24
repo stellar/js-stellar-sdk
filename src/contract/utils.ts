@@ -1,7 +1,7 @@
 import { xdr, cereal, Account } from "@stellar/stellar-base";
 import { Server } from "../rpc";
 import { type AssembledTransaction } from "./assembled_transaction";
-import { NULL_ACCOUNT, AssembledTransactionOptions } from "./types";
+import { NULL_ACCOUNT , AssembledTransactionOptions } from "./types";
 
 /**
  * Keep calling a `fn` for `timeoutInSeconds` seconds, if `keepWaitingIf` is
@@ -39,8 +39,7 @@ export async function withExponentialBackoff<T>(
     if (verbose) {
       // eslint-disable-next-line no-console
       console.info(
-        `Waiting ${waitTime}ms before trying again (bringing the total wait time to ${totalWaitTime}ms so far, of total ${
-          timeoutInSeconds * 1000
+        `Waiting ${waitTime}ms before trying again (bringing the total wait time to ${totalWaitTime}ms so far, of total ${timeoutInSeconds * 1000
         }ms)`,
       );
     }
@@ -62,13 +61,12 @@ export async function withExponentialBackoff<T>(
     if (verbose && keepWaitingIf(attempts[attempts.length - 1])) {
       // eslint-disable-next-line no-console
       console.info(
-        `${count}. Called ${fn}; ${
-          attempts.length
+        `${count}. Called ${fn}; ${attempts.length
         } prev attempts. Most recent: ${JSON.stringify(
           attempts[attempts.length - 1],
           null,
-          2,
-        )}`,
+          2
+        )}`
       );
     }
   }
@@ -117,7 +115,7 @@ export function processSpecEntryStream(buffer: Buffer) {
 //eslint-disable-next-line require-await
 export async function getAccount<T>(
   options: AssembledTransactionOptions<T>,
-  server: Server,
+  server: Server
 ): Promise<Account> {
   return options.publicKey
     ? server.getAccount(options.publicKey)

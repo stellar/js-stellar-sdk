@@ -39,7 +39,9 @@ import { TradeAggregationCallBuilder } from "./trade_aggregation_call_builder";
 import { TradesCallBuilder } from "./trades_call_builder";
 import { TransactionCallBuilder } from "./transaction_call_builder";
 // eslint-disable-next-line import/no-named-as-default
-import AxiosClient, { getCurrentServerTime } from "./horizon_axios_client";
+import AxiosClient, {
+  getCurrentServerTime,
+} from "./horizon_axios_client";
 
 /**
  * Default transaction submission timeout for Horizon requests, in milliseconds
@@ -299,9 +301,7 @@ export class HorizonServer {
    */
   public async submitTransaction(
     transaction: Transaction | FeeBumpTransaction,
-    opts: HorizonServer.SubmitTransactionOptions = {
-      skipMemoRequiredCheck: false,
-    },
+    opts: HorizonServer.SubmitTransactionOptions = { skipMemoRequiredCheck: false },
   ): Promise<HorizonApi.SubmitTransactionResponse> {
     // only check for memo required if skipMemoRequiredCheck is false and the transaction doesn't include a memo.
     if (!opts.skipMemoRequiredCheck) {
@@ -309,7 +309,10 @@ export class HorizonServer {
     }
 
     const tx = encodeURIComponent(
-      transaction.toEnvelope().toXDR().toString("base64"),
+      transaction
+        .toEnvelope()
+        .toXDR()
+        .toString("base64"),
     );
 
     return AxiosClient.post(
@@ -324,10 +327,7 @@ export class HorizonServer {
           return response.data;
         }
 
-        const responseXDR = xdr.TransactionResult.fromXDR(
-          response.data.result_xdr,
-          "base64",
-        );
+        const responseXDR = xdr.TransactionResult.fromXDR(response.data.result_xdr, "base64");
 
         // TODO: fix stellar-base types.
         const results = (responseXDR as any).result().value();
@@ -351,7 +351,10 @@ export class HorizonServer {
               let amountBought = new BigNumber(0);
               let amountSold = new BigNumber(0);
 
-              const offerSuccess = result.value().value().success();
+              const offerSuccess = result
+                .value()
+                .value()
+                .success();
 
               const offersClaimed = offerSuccess
                 .offersClaimed()
@@ -379,7 +382,8 @@ export class HorizonServer {
                     // However, you can never be too careful.
                     default:
                       throw new Error(
-                        `Invalid offer result type: ${offerClaimedAtom.switch()}`,
+                        `Invalid offer result type: ${
+                          offerClaimedAtom.switch()}`,
                       );
                   }
 
@@ -489,10 +493,7 @@ export class HorizonServer {
             .filter((result: any) => !!result);
         }
 
-        return {
-          ...response.data,
-          offerResults: hasManageOffer ? offerResults : undefined,
-        };
+        return { ...response.data, offerResults: hasManageOffer ? offerResults : undefined,};
       })
       .catch((response) => {
         if (response instanceof Error) {
@@ -526,10 +527,8 @@ export class HorizonServer {
    * horizon.
    */
   public async submitAsyncTransaction(
-    transaction: Transaction | FeeBumpTransaction,
-    opts: HorizonServer.SubmitTransactionOptions = {
-      skipMemoRequiredCheck: false,
-    },
+      transaction: Transaction | FeeBumpTransaction,
+      opts: HorizonServer.SubmitTransactionOptions = { skipMemoRequiredCheck: false }
   ): Promise<HorizonApi.SubmitAsyncTransactionResponse> {
     // only check for memo required if skipMemoRequiredCheck is false and the transaction doesn't include a memo.
     if (!opts.skipMemoRequiredCheck) {
@@ -537,27 +536,29 @@ export class HorizonServer {
     }
 
     const tx = encodeURIComponent(
-      transaction.toEnvelope().toXDR().toString("base64"),
+        transaction
+            .toEnvelope()
+            .toXDR()
+            .toString("base64"),
     );
 
     return AxiosClient.post(
-      URI(this.serverURL as any)
-        .segment("transactions_async")
-        .toString(),
-      `tx=${tx}`,
-    )
-      .then((response) => response.data)
-      .catch((response) => {
-        if (response instanceof Error) {
-          return Promise.reject(response);
-        }
-        return Promise.reject(
+        URI(this.serverURL as any)
+            .segment("transactions_async")
+            .toString(),
+        `tx=${tx}`,
+    ).then((response) => response.data
+    ).catch((response) => {
+      if (response instanceof Error) {
+        return Promise.reject(response);
+      }
+      return Promise.reject(
           new BadResponseError(
-            `Transaction submission failed. Server responded: ${response.status} ${response.statusText}`,
-            response.data,
+              `Transaction submission failed. Server responded: ${response.status} ${response.statusText}`,
+              response.data,
           ),
-        );
-      });
+      );
+    });
   }
 
   /**
@@ -754,7 +755,9 @@ export class HorizonServer {
    * with populated sequence number.
    */
   public async loadAccount(accountId: string): Promise<AccountResponse> {
-    const res = await this.accounts().accountId(accountId).call();
+    const res = await this.accounts()
+      .accountId(accountId)
+      .call();
 
     return new AccountResponse(res);
   }
@@ -820,7 +823,7 @@ export class HorizonServer {
     const destinations = new Set<string>();
 
     /* eslint-disable no-continue */
-    for (let i = 0; i < transaction.operations.length; i += 1) {
+    for (let i = 0; i < transaction.operations.length; i+=1) {
       const operation = transaction.operations[i];
 
       switch (operation.type) {

@@ -47,3 +47,4 @@ export class NetworkError extends Error {
     return this.response;
   }
 }
+
