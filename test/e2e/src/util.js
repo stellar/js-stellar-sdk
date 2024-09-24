@@ -10,7 +10,7 @@ const contracts = {
         "contract",
         "install",
         "--wasm",
-        `${basePath}/soroban_custom_types_contract.wasm`,
+        `${basePath}/soroban_other_custom_types_contract.wasm`,
       ],
       { shell: true, encoding: "utf8" },
     ).stdout.trim(),

@@ -4,10 +4,14 @@ import URI from 'urijs';
 import {
   Account,
   Address,
+  Asset,
   Contract,
   FeeBumpTransaction,
   Keypair,
+  StrKey,
   Transaction,
+  nativeToScVal,
+  scValToNative,
   xdr
 } from '@stellar/stellar-base';
 
@@ -22,7 +26,9 @@ import {
   parseRawSendTransaction,
   parseRawSimulation,
   parseRawLedgerEntries,
-  parseRawEvents
+  parseRawEvents,
+  parseRawTransactions,
+  parseTransactionInfo,
 } from './parsers';
 
 export const SUBMIT_TRANSACTION_TIMEOUT = 60 * 1000;
@@ -38,6 +44,7 @@ export namespace Server {
   export interface GetEventsRequest {
     filters: Api.EventFilter[];
     startLedger?: number; // either this or cursor
+    endLedger?: number; // either this or cursor
     cursor?: string; // either this or startLedger
     limit?: number;
   }
@@ -79,7 +86,7 @@ function findCreatedAccountSequenceInTransactionMeta(
     ?.account()
     ?.seqNum()
     ?.toString();
-  
+
   if (sequenceNumber) {
     return sequenceNumber;
   }
@@ -439,30 +446,13 @@ export class Server {
     hash: string
   ): Promise<Api.GetTransactionResponse> {
     return this._getTransaction(hash).then((raw) => {
-      let foundInfo: Omit<
-        Api.GetSuccessfulTransactionResponse,
-        keyof Api.GetMissingTransactionResponse
+      const foundInfo: Omit<
+          Api.GetSuccessfulTransactionResponse,
+          keyof Api.GetMissingTransactionResponse
       > = {} as any;
 
       if (raw.status !== Api.GetTransactionStatus.NOT_FOUND) {
-        const meta = xdr.TransactionMeta.fromXDR(raw.resultMetaXdr!, 'base64');
-        foundInfo = {
-          ledger: raw.ledger!,
-          createdAt: raw.createdAt!,
-          applicationOrder: raw.applicationOrder!,
-          feeBump: raw.feeBump!,
-          envelopeXdr: xdr.TransactionEnvelope.fromXDR(
-            raw.envelopeXdr!,
-            'base64'
-          ),
-          resultXdr: xdr.TransactionResult.fromXDR(raw.resultXdr!, 'base64'),
-          resultMetaXdr: meta,
-          ...(meta.switch() === 3 &&
-            meta.v3().sorobanMeta() !== null &&
-            raw.status === Api.GetTransactionStatus.SUCCESS && {
-              returnValue: meta.v3().sorobanMeta()?.returnValue()
-            })
-        };
+        Object.assign(foundInfo, parseTransactionInfo(raw));
       }
 
       const result: Api.GetTransactionResponse = {
@@ -486,6 +476,43 @@ export class Server {
   }
 
   /**
+   * Fetch transactions starting from a given start ledger or a cursor. The end ledger is the latest ledger
+   * in that RPC instance.
+   *
+   * @param {Api.GetTransactionsRequest} request - The request parameters.
+   * @returns {Promise<Api.GetTransactionsResponse>} - A promise that resolves to the transactions response.
+   *
+   * @see https://developers.stellar.org/docs/data/rpc/api-reference/methods/getTransactions
+   * @example
+   * server.getTransactions({
+   *   startLedger: 10000,
+   *   limit: 10,
+   * }).then((response) => {
+   *   console.log("Transactions:", response.transactions);
+   *   console.log("Latest Ledger:", response.latestLedger);
+   *   console.log("Cursor:", response.cursor);
+   * });
+   */
+  public async getTransactions(request: Api.GetTransactionsRequest): Promise<Api.GetTransactionsResponse> {
+    return this._getTransactions(request).then((raw: Api.RawGetTransactionsResponse) => {
+      const result: Api.GetTransactionsResponse = {
+        transactions: raw.transactions.map(parseRawTransactions),
+        latestLedger: raw.latestLedger,
+        latestLedgerCloseTimestamp: raw.latestLedgerCloseTimestamp,
+        oldestLedger: raw.oldestLedger,
+        oldestLedgerCloseTimestamp: raw.oldestLedgerCloseTimestamp,
+        cursor: raw.cursor,
+      }
+      return result
+    });
+  }
+
+  // Add this private method to the Server class
+  private async _getTransactions(request: Api.GetTransactionsRequest): Promise<Api.RawGetTransactionsResponse> {
+    return jsonrpc.postObject(this.serverURL.toString(), 'getTransactions', request);
+  }
+
+  /**
    * Fetch all events that match a given set of filters.
    *
    * The given filters (see {@link Api.EventFilter} for detailed fields)
@@ -503,6 +530,7 @@ export class Server {
    * @example
    * server.getEvents({
    *    startLedger: 1000,
+   *    endLedger: 2000,
    *    filters: [
    *     {
    *      type: "contract",
@@ -542,6 +570,9 @@ export class Server {
       },
       ...(request.startLedger && {
         startLedger: request.startLedger
+      }),
+      ...(request.endLedger && {
+        endLedger: request.endLedger
       })
     });
   }
@@ -856,9 +887,9 @@ export class Server {
   }
 
   /**
-   * Provides an analysis of the recent fee stats for regular and smart 
+   * Provides an analysis of the recent fee stats for regular and smart
    * contract operations.
-   * 
+   *
    * @returns {Promise<Api.GetFeeStatsResponse>}  the fee stats
    * @see https://developers.stellar.org/docs/data/rpc/api-reference/methods/getFeeStats
    */
@@ -878,4 +909,109 @@ export class Server {
     return jsonrpc.postObject(this.serverURL.toString(), 'getVersionInfo');
   }
 
+  /**
+   * Returns a contract's balance of a particular SAC asset, if any.
+   *
+   * This is a convenience wrapper around {@link Server.getLedgerEntries}.
+   *
+   * @param {string}  contractId    the contract ID (string `C...`) whose
+   *    balance of `sac` you want to know
+   * @param {Asset}   sac     the built-in SAC token (e.g. `USDC:GABC...`) that
+   *    you are querying from the given `contract`.
+   * @param {string}  [networkPassphrase] optionally, the network passphrase to
+   *    which this token applies. If omitted, a request about network
+   *    information will be made (see {@link getNetwork}), since contract IDs
+   *    for assets are specific to a network. You can refer to {@link Networks}
+   *    for a list of built-in passphrases, e.g., `Networks.TESTNET`.
+   *
+   * @returns {Promise<Api.BalanceResponse>}, which will contain the balance
+   *    entry details if and only if the request returned a valid balance ledger
+   *    entry. If it doesn't, the `balanceEntry` field will not exist.
+   *
+   * @throws {TypeError} If `contractId` is not a valid contract strkey (C...).
+   *
+   * @see getLedgerEntries
+   * @see https://developers.stellar.org/docs/tokens/stellar-asset-contract
+   *
+   * @example
+   * // assume `contractId` is some contract with an XLM balance
+   * // assume server is an instantiated `Server` instance.
+   * const entry = (await server.getSACBalance(
+   *   new Address(contractId),
+   *   Asset.native(),
+   *   Networks.PUBLIC
+   * ));
+   *
+   * // assumes BigInt support:
+   * console.log(
+   *   entry.balanceEntry ?
+   *   BigInt(entry.balanceEntry.amount) :
+   *   "Contract has no XLM");
+   */
+  public async getSACBalance(
+    contractId: string,
+    sac: Asset,
+    networkPassphrase?: string
+  ): Promise<Api.BalanceResponse> {
+      if (!StrKey.isValidContract(contractId)) {
+        throw new TypeError(`expected contract ID, got ${contractId}`);
+      }
+
+      // Call out to RPC if passphrase isn't provided.
+      const passphrase: string = networkPassphrase
+        ?? await this.getNetwork().then(n => n.passphrase);
+
+      // Turn SAC into predictable contract ID
+      const sacId = sac.contractId(passphrase);
+
+      // Rust union enum type with "Balance(ScAddress)" structure
+      const key = xdr.ScVal.scvVec([
+        nativeToScVal("Balance", { type: "symbol" }),
+        nativeToScVal(contractId, { type: "address" }),
+      ]);
+
+      // Note a quirk here: the contract address in the key is the *token*
+      // rather than the *holding contract*. This is because each token stores a
+      // balance entry for each contract, not the other way around (i.e. XLM
+      // holds a reserve for contract X, rather that contract X having a balance
+      // of N XLM).
+      const ledgerKey = xdr.LedgerKey.contractData(
+        new xdr.LedgerKeyContractData({
+          contract: new Address(sacId).toScAddress(),
+          durability: xdr.ContractDataDurability.persistent(),
+          key
+        })
+      );
+
+      const response = await this.getLedgerEntries(ledgerKey);
+      if (response.entries.length === 0) {
+        return { latestLedger: response.latestLedger };
+      }
+
+      const {
+        lastModifiedLedgerSeq,
+        liveUntilLedgerSeq,
+        val
+      } = response.entries[0];
+
+      if (val.switch().value !== xdr.LedgerEntryType.contractData().value) {
+        return { latestLedger: response.latestLedger };
+      }
+
+      const entry = scValToNative(val.contractData().val());
+
+      // Since we are requesting a SAC's contract data, we know for a fact that
+      // it should follow the expected structure format. Thus, we can presume
+      // these fields exist:
+      return {
+        latestLedger: response.latestLedger,
+        balanceEntry: {
+          liveUntilLedgerSeq,
+          lastModifiedLedgerSeq,
+          amount: entry.amount.toString(),
+          authorized: entry.authorized,
+          clawback: entry.clawback,
+        }
+      };
+  }
 }
