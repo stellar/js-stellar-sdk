@@ -24,11 +24,10 @@ export interface BalanceResponse {
   };
 }
 ```
+- You can now build the browser bundle without the `axios` dependency. Set `USE_AXIOS=false` `stellar-sdk-no-axios.js` and `stellar-sdk-no-axios.min.js` in the `dist/` directory, or just run `yarn build:browser:no-axios` to generate these files.
+- Similarly, you can import Node packages without the `axios` dependency via `@stellar/stellar-sdk/no-axios`. For Node environments that don't support modern imports, use `@stellar/stellar-sdk/lib/no-axios/index`.
+- The Node.js code will now Babelify to Node 18 instead of Node 16, but we stopped supporting Node 16 long ago so this shouldn't be a breaking change.
 
-- New build target for creating a browser bundle without Axios dependency. Set USE_AXIOS=false environment variable to build stellar-sdk-no-axios.js and stellar-sdk-no-axios.min.js in the dist/ directory. Use yarn build:browser:no-axios to generate these files.
-- Similarly, a new import path for the node package without the Axios dependency can be used. Import the SDK using `@stellar/stellar-sdk/no-axios`. For Node.js environments that don't support the package.json `exports` configuration, use `@stellar/stellar-sdk/lib/no-axios/index`.
-## [Version Number] - YYYY-MM-DD
-- Updated the Node.js target in the Babel configuration from 16 to 18 for production builds.
 
 ## [v12.3.0](https://github.com/stellar/js-stellar-sdk/compare/v12.2.0...v12.3.0)
 
