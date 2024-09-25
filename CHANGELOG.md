@@ -25,6 +25,8 @@ export interface BalanceResponse {
 }
 ```
 
+- `stellartoml-Resolver.resolve` now has a `allowedRedirects` option to configure the number of allowed redirects to follow when resolving a stellar toml file.
+
 
 ## [v12.3.0](https://github.com/stellar/js-stellar-sdk/compare/v12.2.0...v12.3.0)
 
