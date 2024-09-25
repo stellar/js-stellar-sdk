@@ -87,10 +87,25 @@ If you don't want to use or install Bower, you can copy the packaged JS files fr
 
 ### Custom Installation
 
-You can configure whether or not to build the browser bundle with the axios dependency. In order to turn off the axios dependency, set the USE_AXIOS environment variable to false. 
+You can configure whether or not to build the browser bundle with the axios dependency. In order to turn off the axios dependency, set the USE_AXIOS environment variable to false. You can also turn off the eventsource dependency by setting USE_EVENTSOURCE to false.
 
 #### Build without Axios
-USE_AXIOS=false npm run build:browser
+```
+npm run build:browser:no-axios
+```
+This will create `stellar-sdk-no-axios.js` in `dist/`.
+
+#### Build without EventSource
+```
+npm run build:browser:no-eventsource
+```
+This will create `stellar-sdk-no-eventsource.js` in `dist/`.
+
+#### Build without Axios and Eventsource
+```
+npm run build:browser:minimal
+```
+This will create `stellar-sdk-minimal.js` in `dist/`.
 
 ## Usage
 
