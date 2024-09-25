@@ -519,8 +519,8 @@ export class Server {
    * are combined only in a logical OR fashion, and all of the fields in each
    * filter are optional.
    *
-   * To page through events, use the `pagingToken` field on the relevant
-   * {@link Api.EventResponse} object to set the `cursor` parameter.
+   * To page through events, use the `cursor` field on the relevant
+   * {@link Api.GetEventsResponse} object to set the `cursor` parameter.
    *
    * @param {Server.GetEventsRequest} request   event filters
    * @returns {Promise<Api.GetEventsResponse>}   a paginatable set of the
