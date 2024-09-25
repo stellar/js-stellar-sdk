@@ -6,10 +6,14 @@ import { BadRequestError, NetworkError, NotFoundError } from "../errors";
 import { HorizonApi } from "./horizon_api";
 import { AxiosClient, version } from "./horizon_axios_client";
 import { ServerApi } from "./server_api";
+import type { Server } from "../federation";
 
 // Resources which can be included in the Horizon response via the `join`
 // query-param.
 const JOINABLE = ["transaction"];
+
+// eslint-disable-next-line @typescript-eslint/naming-convention
+declare const __USE_EVENTSOURCE__: boolean;
 
 export interface EventSourceOptions<T> {
   onmessage?: (value: T) => void;
@@ -19,28 +23,31 @@ export interface EventSourceOptions<T> {
 
 const anyGlobal = global as any;
 type Constructable<T> = new (e: string) => T;
-// require("eventsource") for Node and React Native environment
-/* eslint-disable global-require */
-/* eslint-disable prefer-import/prefer-import-over-require */
-const EventSource: Constructable<EventSource> = anyGlobal.EventSource ??
-  anyGlobal.window?.EventSource ??
-  require("eventsource");
+
+// Declare EventSource as a potentially undefined variable
+let EventSource: Constructable<EventSource> | undefined;
+
+// Only define EventSource if __USE_EVENTSOURCE__ is true
+if (typeof __USE_EVENTSOURCE__ !== 'undefined' && __USE_EVENTSOURCE__) {
+  /* eslint-disable global-require */
+  /* eslint-disable prefer-import/prefer-import-over-require */
+  EventSource = anyGlobal.EventSource ??
+    anyGlobal.window?.EventSource ??
+    require("eventsource");
+}
 
 /**
  * Creates a new {@link CallBuilder} pointed to server defined by serverUrl.
  *
- * This is an **abstract** class. Do not create this object directly, use {@link module:Horizon.Server | Horizon.Server} class.
- *
- * @private
- * @class
- *
+ * This is an **abstract** class. Do not create this object directly, use {@link Server} class.
  * @param {string} serverUrl URL of Horizon server
+ * @class CallBuilder
  */
 export class CallBuilder<
   T extends
-    | HorizonApi.FeeStatsResponse
-    | HorizonApi.BaseResponse
-    | ServerApi.CollectionPage<HorizonApi.BaseResponse>
+  | HorizonApi.FeeStatsResponse
+  | HorizonApi.BaseResponse
+  | ServerApi.CollectionPage<HorizonApi.BaseResponse>
 > {
   protected url: URI;
 
@@ -87,8 +94,8 @@ export class CallBuilder<
   /**
    * Creates an EventSource that listens for incoming messages from the server. To stop listening for new
    * events call the function returned by this method.
-   * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/structure/response-format|Horizon Response Format}
-   * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/EventSource|MDN EventSource}
+   * @see [Horizon Response Format](https://developers.stellar.org/api/introduction/response-format/)
+   * @see [MDN EventSource](https://developer.mozilla.org/en-US/docs/Web/API/EventSource)
    * @param {object} [options] EventSource options.
    * @param {Function} [options.onmessage] Callback function to handle incoming messages.
    * @param {Function} [options.onerror] Callback function to handle errors.
@@ -96,6 +103,11 @@ export class CallBuilder<
    * @returns {Function} Close function. Run to close the connection and stop listening for new events.
    */
   public stream(options: EventSourceOptions<T> = {}): () => void {
+    // Check if EventSource use is enabled
+    if (EventSource === undefined){
+      throw new Error("Streaming requires eventsource to be enabled. If you need this functionality, compile with USE_EVENTSOURCE=true.");
+    }
+
     this.checkFilter();
 
     this.url.setQuery("X-Client-Name", "js-stellar-sdk");
@@ -194,7 +206,7 @@ export class CallBuilder<
 
   /**
    * Sets `cursor` parameter for the current call. Returns the CallBuilder object on which this method has been called.
-   * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/structure/pagination|Paging}
+   * @see [Paging](https://developers.stellar.org/api/introduction/pagination/)
    * @param {string} cursor A cursor is a value that points to a specific location in a collection of resources.
    * @returns {object} current CallBuilder instance
    */
@@ -205,7 +217,7 @@ export class CallBuilder<
 
   /**
    * Sets `limit` parameter for the current call. Returns the CallBuilder object on which this method has been called.
-   * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/structure/pagination|Paging}
+   * @see [Paging](https://developers.stellar.org/api/introduction/pagination/)
    * @param {number} recordsNumber Number of records the server should return.
    * @returns {object} current CallBuilder instance
    */
