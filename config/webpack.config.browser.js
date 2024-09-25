@@ -1,9 +1,15 @@
 var path = require('path');
 var webpack = require('webpack');
+var fs = require('fs');
 
 var ESLintPlugin = require('eslint-webpack-plugin');
 var TerserPlugin = require('terser-webpack-plugin');
 var NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
+var buildConfig = require('./build.config');
+
+// Read the version from package.json
+const packageJson = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../package.json'), 'utf8'));
+const version = packageJson.version;
 
 const config = {
   target: 'web',
@@ -16,16 +22,33 @@ const config = {
     fallback: {
       crypto: require.resolve('crypto-browserify'),
       stream: require.resolve('stream-browserify'),
-      buffer: require.resolve('buffer')
+      buffer: require.resolve('buffer'),
     },
-    extensions: ['.ts', '.js']
+    extensions: ['.ts', '.js'],
   },
   output: {
-    clean: true,
+    clean: process.env.no_clean ? false: true,
     library: {
       name: 'StellarSdk',
       type: 'umd',
       umdNamedDefine: true
+    },
+    filename: (pathData) => {
+      let name = pathData.chunk.name;
+      let suffix = '';
+      
+      if (name.endsWith('.min')) {
+        name = name.slice(0, -4); // Remove .min
+        suffix = '.min.js';
+      } else {
+        suffix = '.js';
+      }
+
+      if (!buildConfig.useAxios && !buildConfig.useEventSource) name += '-minimal';
+      else if (!buildConfig.useAxios) name += '-no-axios';
+      else if (!buildConfig.useEventSource) name += '-no-eventsource';
+      
+      return name + suffix;
     },
     path: path.resolve(__dirname, '../dist')
   },
@@ -42,7 +65,11 @@ const config = {
             cacheDirectory: true
           }
         }
-      }
+      },
+      {
+        test: /node_modules\/https-proxy-agent\//,
+        use: 'null-loader',
+      },
     ]
   },
   optimization: {
@@ -70,6 +97,11 @@ const config = {
     }),
     new webpack.ProvidePlugin({
       Buffer: ['buffer', 'Buffer']
+    }),
+    new webpack.DefinePlugin({
+      __USE_AXIOS__: JSON.stringify(buildConfig.useAxios),
+      __USE_EVENTSOURCE__: JSON.stringify(buildConfig.useEventSource),
+      __PACKAGE_VERSION__: version,
     })
   ],
   watchOptions: {

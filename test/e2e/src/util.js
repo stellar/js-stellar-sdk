@@ -1,5 +1,5 @@
 const { spawnSync } = require("node:child_process");
-const { contract, Keypair } = require("../../..");
+const { contract, Keypair } = require("../../../lib");
 
 const basePath = `${__dirname}/../test-contracts/target/wasm32-unknown-unknown/release`;
 const contracts = {

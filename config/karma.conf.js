@@ -1,8 +1,16 @@
 const webpackConfig = require('./webpack.config.browser.js');
+const buildConfig = require('./build.config');
 
 delete webpackConfig.output;
 delete webpackConfig.entry; // karma fills these in
 webpackConfig.plugins.shift(); // drop eslinter plugin
+
+function getStellarSdkFileName() {
+  let name = 'stellar-sdk';
+  if (!buildConfig.useAxios) name += '-no-axios';
+  if (!buildConfig.useEventSource) name += '-no-eventsource';
+  return name + '.js';
+}
 
 module.exports = function (config) {
   config.set({
@@ -10,7 +18,7 @@ module.exports = function (config) {
     browsers: ['FirefoxHeadless', 'ChromeHeadless'],
 
     files: [
-      '../dist/stellar-sdk.js', // webpack should build this first
+      '../dist/' + getStellarSdkFileName(), 
       '../test/test-browser.js',
       '../test/unit/**/*.js'
     ],

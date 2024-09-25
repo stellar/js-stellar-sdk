@@ -167,6 +167,7 @@ const PRIMITIVE_DEFINITONS: { [key: string]: JSONSchema7Definition } = {
 /**
  * @param typeDef type to convert to json schema reference
  * @returns {JSONSchema7} a schema describing the type
+ * @private
  */
 function typeRef(typeDef: xdr.ScSpecTypeDef): JSONSchema7 {
   const t = typeDef.switch();
@@ -439,8 +440,13 @@ function unionToJsonSchema(udt: xdr.ScSpecUdtUnionV0): any {
  * Provides a ContractSpec class which can contains the XDR types defined by the contract.
  * This allows the class to be used to convert between native and raw `xdr.ScVal`s.
  *
+ * Constructs a new ContractSpec from an array of XDR spec entries.
+ *
+ * @memberof module:contract
+ * @param {xdr.ScSpecEntry[] | string[]} entries the XDR spec entries
+ * @throws {Error} if entries is invalid
+ *
  * @example
- * ```js
  * const specEntries = [...]; // XDR spec entries of a smart contract
  * const contractSpec = new ContractSpec(specEntries);
  *
@@ -458,18 +464,13 @@ function unionToJsonSchema(udt: xdr.ScSpecUdtUnionV0): any {
  * const result = contractSpec.funcResToNative('funcName', resultScv);
  *
  * console.log(result); // {success: true}
- * ```
  */
 export class Spec {
+  /**
+   * The XDR spec entries.
+   */
   public entries: xdr.ScSpecEntry[] = [];
 
-  /**
-   * Constructs a new ContractSpec from an array of XDR spec entries.
-   *
-   * @param {xdr.ScSpecEntry[] | string[]} entries the XDR spec entries
-   *
-   * @throws {Error} if entries is invalid
-   */
   constructor(entries: xdr.ScSpecEntry[] | string[]) {
     if (entries.length === 0) {
       throw new Error("Contract spec must have at least one entry");
@@ -486,9 +487,7 @@ export class Spec {
 
   /**
    * Gets the XDR functions from the spec.
-   *
    * @returns {xdr.ScSpecFunctionV0[]} all contract functions
-   *
    */
   funcs(): xdr.ScSpecFunctionV0[] {
     return this.entries
@@ -528,13 +527,11 @@ export class Spec {
    * @throws {Error} if argument is missing or incorrect type
    *
    * @example
-   * ```js
    * const args = {
    *   arg1: 'value1',
    *   arg2: 1234
    * };
    * const scArgs = contractSpec.funcArgsToScVals('funcName', args);
-   * ```
    */
   funcArgsToScVals(name: string, args: object): xdr.ScVal[] {
     const fn = this.getFunc(name);
@@ -553,10 +550,8 @@ export class Spec {
    * @throws {Error} if return type mismatch or invalid input
    *
    * @example
-   * ```js
    * const resultScv = 'AAA=='; // Base64 encoded ScVal
    * const result = contractSpec.funcResToNative('funcName', resultScv);
-   * ```
    */
   funcResToNative(name: string, val_or_base64: xdr.ScVal | string): any {
     const val =

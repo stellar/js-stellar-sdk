@@ -6,7 +6,6 @@ import { BadRequestError, NetworkError, NotFoundError } from "../errors";
 import { HorizonApi } from "./horizon_api";
 import { AxiosClient, version } from "./horizon_axios_client";
 import { ServerApi } from "./server_api";
-import type { Server } from "../federation";
 
 // Resources which can be included in the Horizon response via the `join`
 // query-param.
@@ -30,9 +29,12 @@ const EventSource: Constructable<EventSource> = anyGlobal.EventSource ??
 /**
  * Creates a new {@link CallBuilder} pointed to server defined by serverUrl.
  *
- * This is an **abstract** class. Do not create this object directly, use {@link Server} class.
+ * This is an **abstract** class. Do not create this object directly, use {@link module:Horizon.Server | Horizon.Server} class.
+ *
+ * @private
+ * @class
+ *
  * @param {string} serverUrl URL of Horizon server
- * @class CallBuilder
  */
 export class CallBuilder<
   T extends
@@ -85,8 +87,8 @@ export class CallBuilder<
   /**
    * Creates an EventSource that listens for incoming messages from the server. To stop listening for new
    * events call the function returned by this method.
-   * @see [Horizon Response Format](https://developers.stellar.org/api/introduction/response-format/)
-   * @see [MDN EventSource](https://developer.mozilla.org/en-US/docs/Web/API/EventSource)
+   * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/structure/response-format|Horizon Response Format}
+   * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/EventSource|MDN EventSource}
    * @param {object} [options] EventSource options.
    * @param {Function} [options.onmessage] Callback function to handle incoming messages.
    * @param {Function} [options.onerror] Callback function to handle errors.
@@ -192,7 +194,7 @@ export class CallBuilder<
 
   /**
    * Sets `cursor` parameter for the current call. Returns the CallBuilder object on which this method has been called.
-   * @see [Paging](https://developers.stellar.org/api/introduction/pagination/)
+   * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/structure/pagination|Paging}
    * @param {string} cursor A cursor is a value that points to a specific location in a collection of resources.
    * @returns {object} current CallBuilder instance
    */
@@ -203,7 +205,7 @@ export class CallBuilder<
 
   /**
    * Sets `limit` parameter for the current call. Returns the CallBuilder object on which this method has been called.
-   * @see [Paging](https://developers.stellar.org/api/introduction/pagination/)
+   * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/structure/pagination|Paging}
    * @param {number} recordsNumber Number of records the server should return.
    * @returns {object} current CallBuilder instance
    */

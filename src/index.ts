@@ -22,9 +22,8 @@ export * as Horizon from './horizon';
  * `/rpc` entrypoint, if your version of Node and your TypeScript configuration
  * allow it:
  *
- * ```ts
+ * @example
  * import { Server } from '@stellar/stellar-sdk/rpc';
- * ```
  */
 export * as rpc from './rpc';
 
@@ -39,9 +38,9 @@ export * as SorobanRpc from './rpc';
  * entrypoint, if your version of Node and your TypeScript configuration allow
  * it:
  *
- * ```ts
+ * @example
  * import { Client } from '@stellar/stellar-sdk/contract';
- * ```
+ * @private
  */
 export * as contract from './contract'
 
@@ -49,3 +48,11 @@ export * as contract from './contract'
 export * from '@stellar/stellar-base';
 
 export default module.exports;
+
+if (typeof (global as any).__USE_AXIOS__ === 'undefined') {
+    (global as any).__USE_AXIOS__ = true;
+}
+
+if (typeof (global as any).__USE_EVENTSOURCE__ === 'undefined') {
+    (global as any).__USE_EVENTSOURCE__ = false;
+}

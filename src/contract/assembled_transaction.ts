@@ -18,7 +18,7 @@ import type {
   Tx,
   XDR_BASE64,
 } from "./types";
-import { Server } from "../rpc/server";
+import { Server } from "../rpc";
 import { Api } from "../rpc/api";
 import { assembleTransaction } from "../rpc/transaction";
 import type { Client } from "./client";
@@ -31,6 +31,8 @@ import {
 import { DEFAULT_TIMEOUT } from "./types";
 import { SentTransaction } from "./sent_transaction";
 import { Spec } from "./spec";
+
+/** @module contract */
 
 /**
  * The main workhorse of {@link Client}. This class is used to wrap a
@@ -47,7 +49,7 @@ import { Spec } from "./spec";
  * Let's look at examples of how to use `AssembledTransaction` for a variety of
  * use-cases:
  *
- * # 1. Simple read call
+ * #### 1. Simple read call
  *
  * Since these only require simulation, you can get the `result` of the call
  * right after constructing your `AssembledTransaction`:
@@ -80,7 +82,7 @@ import { Spec } from "./spec";
  * })
  * ```
  *
- * # 2. Simple write call
+ * #### 2. Simple write call
  *
  * For write calls that will be simulated and then sent to the network without
  * further manipulation, only one more step is needed:
@@ -114,7 +116,7 @@ import { Spec } from "./spec";
  * const { result } = await tx.signAndSend()
  * ```
  *
- * # 3. More fine-grained control over transaction construction
+ * #### 3. More fine-grained control over transaction construction
  *
  * If you need more control over the transaction before simulating it, you can
  * set various {@link MethodOptions} when constructing your
@@ -147,7 +149,7 @@ import { Spec } from "./spec";
  * If you need to inspect the simulation later, you can access it with
  * `tx.simulation`.
  *
- * # 4. Multi-auth workflows
+ * #### 4. Multi-auth workflows
  *
  * Soroban, and Stellar in general, allows multiple parties to sign a
  * transaction.
@@ -234,6 +236,8 @@ import { Spec } from "./spec";
  * To see an even more complicated example, where Alice swaps with Bob but the
  * transaction is invoked by yet another party, check out
  * [test-swap.js](../../test/e2e/src/test-swap.js).
+ *
+ * @memberof module:contract
  */
 export class AssembledTransaction<T> {
   /**
@@ -401,7 +405,7 @@ export class AssembledTransaction<T> {
     }
     const method = invokeContractArgs.functionName().toString('utf-8');
     const txn = new AssembledTransaction(
-      { ...options, 
+      { ...options,
         method,
         parseResultXdr: (result: xdr.ScVal) =>
           spec.funcResToNative(method, result),
@@ -431,10 +435,11 @@ export class AssembledTransaction<T> {
    * If you don't want to simulate the transaction, you can set `simulate` to
    * `false` in the options.
    *
-   *     const tx = await AssembledTransaction.build({
-   *       ...,
-   *       simulate: false,
-   *     })
+   * @example
+   * const tx = await AssembledTransaction.build({
+   *   ...,
+   *   simulate: false,
+   * })
    */
   static async build<T>(
     options: AssembledTransactionOptions<T>,
@@ -557,7 +562,7 @@ export class AssembledTransaction<T> {
     if (Api.isSimulationRestore(simulation)) {
       throw new AssembledTransaction.Errors.ExpiredState(
         `You need to restore some contract state before you can invoke this method.\n` +
-        'You can set `restore` to true in the method options in order to ' + 
+        'You can set `restore` to true in the method options in order to ' +
         'automatically restore the contract state when needed.'
       );
     }
@@ -597,7 +602,7 @@ export class AssembledTransaction<T> {
   }
 
   /**
-   * Sign the transaction with the signTransaction function included previously. 
+   * Sign the transaction with the signTransaction function included previously.
    * If you did not previously include one, you need to include one now.
    */
   sign = async ({
@@ -674,9 +679,9 @@ export class AssembledTransaction<T> {
   }
 
   /**
-   * Sign the transaction with the `signTransaction` function included previously. 
-   * If you did not previously include one, you need to include one now. 
-   * After signing, this method will send the transaction to the network and 
+   * Sign the transaction with the `signTransaction` function included previously.
+   * If you did not previously include one, you need to include one now.
+   * After signing, this method will send the transaction to the network and
    * return a `SentTransaction` that keeps track * of all the attempts to fetch the transaction.
    */
   signAndSend = async ({
@@ -875,28 +880,28 @@ export class AssembledTransaction<T> {
   }
 
   /**
-   * Restores the footprint (resource ledger entries that can be read or written) 
-   * of an expired transaction. 
-   * 
+   * Restores the footprint (resource ledger entries that can be read or written)
+   * of an expired transaction.
+   *
    * The method will:
    * 1. Build a new transaction aimed at restoring the necessary resources.
    * 2. Sign this new transaction if a `signTransaction` handler is provided.
    * 3. Send the signed transaction to the network.
    * 4. Await and return the response from the network.
-   * 
+   *
    * Preconditions:
    * - A `signTransaction` function must be provided during the Client initialization.
    * - The provided `restorePreamble` should include a minimum resource fee and valid
    *   transaction data.
-   * 
-   * @throws {Error} - Throws an error if no `signTransaction` function is provided during 
+   *
+   * @throws {Error} - Throws an error if no `signTransaction` function is provided during
    * Client initialization.
-   * @throws {AssembledTransaction.Errors.RestoreFailure} - Throws a custom error if the 
+   * @throws {AssembledTransaction.Errors.RestoreFailure} - Throws a custom error if the
    * restore transaction fails, providing the details of the failure.
    */
   async restoreFootprint(
     /**
-     * The preamble object containing data required to 
+     * The preamble object containing data required to
      * build the restore transaction.
      */
     restorePreamble: {
