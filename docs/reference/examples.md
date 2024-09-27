@@ -26,7 +26,7 @@ using modern Javascript, but `await` calls can also be rendered with promises.
 
 // This code can be run in the browser at https://laboratory.stellar.org
 // That site exposes a global StellarSdk object you can use.
-// To run this code in the Chrome, open the console tab in the DevTools.
+// To run this code in Chrome, open the console tab in the DevTools.
 // The hotkey to open the DevTools console is Ctrl+Shift+J or (Cmd+Opt+J on Mac).
 const {
   Horizon,
