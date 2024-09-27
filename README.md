@@ -151,7 +151,7 @@ There is also a [sample](https://github.com/fnando/rn-stellar-sdk-sample) that y
 ```
 yarn rn-nodeify --install process,url,events,https,http,util,stream,crypto,vm,buffer --hack --yarn
 ```
-3. Add `import "./shim";` to the your app's entry point (by default `./App.js`)
+3. Add `import "./shim";` to your app's entry point (by default `./App.js`)
 4. `yarn add @stellar/stellar-sdk`
 5. `expo install expo-random`
 
