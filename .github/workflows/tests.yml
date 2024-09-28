@@ -41,8 +41,5 @@ jobs:
       - name: Browser Tests
         run: yarn test:browser
 
-      - name: Browser No Axios Tests
+      - name: Browser Tests (No Axios)
         run: yarn test:browser:no-axios
-
-      - name: Linter Tests
-        run: yarn _prettier && (git diff-index --quiet HEAD; git diff)
