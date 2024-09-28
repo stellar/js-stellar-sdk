@@ -238,6 +238,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
             expect(response.FEDERATION_SERVER).equals(
               "https://api.stellar.org/federation",
             );
+          }).finally(() => {
             tempServer.close();
             done();
           });
