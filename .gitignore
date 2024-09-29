@@ -13,7 +13,6 @@ js-stellar-base/
 test/unit/out/
 .vscode/launch.json
 
-target
-.soroban
+
 
 config/tsconfig.tmp.json
