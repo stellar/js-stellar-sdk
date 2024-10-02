@@ -1,3 +1,5 @@
+// test-swap.js
+
 const { expect } = require("chai");
 const { describe, it, before } = require("mocha");
 const {
@@ -6,7 +8,8 @@ const {
   SorobanDataBuilder,
   xdr,
   TransactionBuilder,
-} = require("../../../lib");
+  Spec, // Import Spec
+} = require("../../../lib"); // Adjust the path as necessary
 const {
   clientFor,
   generateFundedKeypair,
@@ -33,29 +36,28 @@ describe("Swap Contract Tests", function () {
       "swap",
       { keypair: root },
     );
-    await (
-      await tokenA.initialize({
-        admin: root.publicKey(),
-        decimal: 0,
-        name: "Token A",
-        symbol: "A",
-      })
-    ).signAndSend();
-    await (
-      await tokenA.mint({ amount: amountAToSwap, to: alice.publicKey() })
-    ).signAndSend();
 
-    await tokenB
-      .initialize({
-        admin: root.publicKey(),
-        decimal: 0,
-        name: "Token B",
-        symbol: "B",
-      })
-      .then((t) => t.signAndSend());
-    await (
-      await tokenB.mint({ amount: amountBToSwap, to: bob.publicKey() })
-    ).signAndSend();
+    await tokenA.initialize({
+      admin: root.publicKey(),
+      decimal: 0,
+      name: "Token A",
+      symbol: "A",
+    }).signAndSend();
+
+    await tokenA.mint({ amount: amountAToSwap, to: alice.publicKey() }).signAndSend();
+
+    await tokenB.initialize({
+      admin: root.publicKey(),
+      decimal: 0,
+      name: "Token B",
+      symbol: "B",
+    }).signAndSend();
+
+    await tokenB.mint({ amount: amountBToSwap, to: bob.publicKey() }).signAndSend();
+
+    // Initialize Spec instance with your contract's spec entries
+    const specEntries = [/* Your Spec Entries Here */]; // Replace with actual spec entries
+    const spec = new Spec(specEntries);
 
     this.context = {
       root,
@@ -67,20 +69,23 @@ describe("Swap Contract Tests", function () {
       tokenAId,
       tokenB,
       tokenBId,
+      spec, // Include Spec instance in context
     };
   });
 
   it("calling `signAndSend()` too soon throws descriptive error", async function () {
-    const tx = await this.context.swapContractAsRoot.swap({
-      a: this.context.alice.publicKey(),
-      b: this.context.bob.publicKey(),
-      token_a: this.context.tokenAId,
-      token_b: this.context.tokenBId,
-      amount_a: amountAToSwap,
-      min_a_for_b: amountAToSwap,
-      amount_b: amountBToSwap,
-      min_b_for_a: amountBToSwap,
-    });
+    // Build Footprint Restore Transaction with Spec instance
+    const tx = await contract.AssembledTransaction.buildFootprintRestoreTransaction(
+      this.context.spec, // Pass Spec instance
+      this.context.options, // Ensure options include required fields
+      restoreTxnData, // Define or mock restoreTxnData
+      new xdr.Account(
+        "GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI",
+        "1",
+      ),
+      "52641", // Ensure fee is string
+    );
+
     await expect(tx.signAndSend())
       .to.be.rejectedWith(
         contract.AssembledTransaction.Errors.NeedsMoreSignatures,

@@ -1,7 +1,8 @@
-import { xdr, cereal, Account } from "@stellar/stellar-base";
+/* eslint-disable no-else-return */
+import { xdr, cereal, Account, StrKey } from "@stellar/stellar-base";
 import { Server } from "../rpc";
 import { type AssembledTransaction } from "./assembled_transaction";
-import { NULL_ACCOUNT , AssembledTransactionOptions } from "./types";
+import {AssembledTransactionOptions } from "./types";
 
 /**
  * Keep calling a `fn` for `timeoutInSeconds` seconds, if `keepWaitingIf` is
@@ -117,7 +118,16 @@ export async function getAccount<T>(
   options: AssembledTransactionOptions<T>,
   server: Server
 ): Promise<Account> {
-  return options.publicKey
-    ? server.getAccount(options.publicKey)
-    : new Account(NULL_ACCOUNT, "0");
+  if (options.publicKey) {
+    // Validate the publicKey format
+    if (!StrKey.isValidEd25519PublicKey(options.publicKey)) {
+      throw new Error("Invalid `publicKey` format. Please provide a valid Stellar ed25519 public key.");
+    }
+    return server.getAccount(options.publicKey);
+  } else {
+    // For read-only operations, fetching the account might not be necessary.
+    // Decide based on your application's logic.
+    // If it's necessary, throw an error.
+    throw new Error("Public key is required to fetch the account. Please provide a valid `publicKey`.");
+  }
 }

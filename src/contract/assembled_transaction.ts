@@ -378,10 +378,10 @@ export class AssembledTransaction<T> {
    * Serialize the AssembledTransaction to a base64-encoded XDR string.
    */
   toXDR(): string {
-    if(!this.built) throw new Error(
-        "Transaction has not yet been simulated; " +
-        "call `AssembledTransaction.simulate` first.",
-      );
+    if (!this.built) throw new Error(
+      "Transaction has not yet been simulated; " +
+      "call `AssembledTransaction.simulate` first.",
+    );
     return this.built?.toEnvelope().toXDR('base64');
   }
 
@@ -405,17 +405,21 @@ export class AssembledTransaction<T> {
     }
     const method = invokeContractArgs.functionName().toString('utf-8');
     const txn = new AssembledTransaction(
-      { ...options,
+      {
+        ...options,
         method,
         parseResultXdr: (result: xdr.ScVal) =>
           spec.funcResToNative(method, result),
       }
-     );
+    );
     txn.built = built;
     return txn;
   }
 
   private constructor(public options: AssembledTransactionOptions<T>) {
+    if (!options.publicKey) {
+      throw new Error("Public key not provided. Have you forgotten to set the `publicKey` in AssembledTransactionOptions?");
+    }
     this.options.simulate = this.options.simulate ?? true;
     this.server = new Server(this.options.rpcUrl, {
       allowHttp: this.options.allowHttp ?? false,
@@ -441,16 +445,19 @@ export class AssembledTransaction<T> {
    *   simulate: false,
    * })
    */
+  // AssembledTransaction.ts
+
   static async build<T>(
     options: AssembledTransactionOptions<T>,
   ): Promise<AssembledTransaction<T>> {
+    if (!options.publicKey) {
+      throw new Error("Public key not provided. Have you forgotten to set the `publicKey` in AssembledTransactionOptions?");
+    }
+
     const tx = new AssembledTransaction(options);
     const contract = new Contract(options.contractId);
 
-    const account = await getAccount(
-      options,
-      tx.server
-    );
+    const account = await getAccount(options, tx.server);
 
     tx.raw = new TransactionBuilder(account, {
       fee: options.fee ?? BASE_FEE,
@@ -463,6 +470,7 @@ export class AssembledTransaction<T> {
 
     return tx;
   }
+
 
   private static async buildFootprintRestoreTransaction<T>(
     options: AssembledTransactionOptions<T>,
@@ -482,9 +490,9 @@ export class AssembledTransaction<T> {
     return tx;
   }
 
-  simulate = async ({ restore }: {restore?: boolean} = {}): Promise<this> => {
-    if (!this.built){
-      if(!this.raw) {
+  simulate = async ({ restore }: { restore?: boolean } = {}): Promise<this> => {
+    if (!this.built) {
+      if (!this.raw) {
         throw new Error(
           "Transaction has not yet been assembled; " +
           "call `AssembledTransaction.build` first."
@@ -609,42 +617,32 @@ export class AssembledTransaction<T> {
     force = false,
     signTransaction = this.options.signTransaction,
   }: {
-    /**
-     * If `true`, sign and send the transaction even if it is a read call
-     */
     force?: boolean;
-    /**
-     * You must provide this here if you did not provide one before
-     */
     signTransaction?: ClientOptions["signTransaction"];
   } = {}): Promise<void> => {
     if (!this.built) {
-      throw new Error("Transaction has not yet been simulated");
+      throw new Error("Transaction has not yet been simulated.");
     }
 
     if (!force && this.isReadCall) {
       throw new AssembledTransaction.Errors.NoSignatureNeeded(
-        "This is a read call. It requires no signature or sending. " +
-        "Use `force: true` to sign and send anyway."
+        "This is a read call. It requires no signature or sending. Use `force: true` to sign and send anyway."
       );
     }
 
     if (!signTransaction) {
       throw new AssembledTransaction.Errors.NoSigner(
-        "You must provide a signTransaction function, either when calling " +
-        "`signAndSend` or when initializing your Client"
+        "You must provide a `signTransaction` function, either when calling `signAndSend` or when initializing your Client."
       );
     }
 
     if (this.needsNonInvokerSigningBy().length) {
       throw new AssembledTransaction.Errors.NeedsMoreSignatures(
-        "Transaction requires more signatures. " +
-        "See `needsNonInvokerSigningBy` for details.",
+        "Transaction requires more signatures. See `needsNonInvokerSigningBy` for details."
       );
     }
 
-    const timeoutInSeconds =
-      this.options.timeoutInSeconds ?? DEFAULT_TIMEOUT;
+    const timeoutInSeconds = this.options.timeoutInSeconds ?? DEFAULT_TIMEOUT;
     this.built = TransactionBuilder.cloneFrom(this.built!, {
       fee: this.built!.fee,
       timebounds: undefined,
@@ -666,12 +664,13 @@ export class AssembledTransaction<T> {
     ) as Tx;
   };
 
+
   /**
    * Sends the transaction to the network to return a `SentTransaction` that
    * keeps track of all the attempts to fetch the transaction.
    */
-  async send(){
-    if(!this.signed){
+  async send() {
+    if (!this.signed) {
       throw new Error("The transaction has not yet been signed. Run `sign` first, or use `signAndSend` instead.");
     }
     const sent = await SentTransaction.init(undefined, this);
@@ -697,7 +696,7 @@ export class AssembledTransaction<T> {
      */
     signTransaction?: ClientOptions["signTransaction"];
   } = {}): Promise<SentTransaction<T>> => {
-    if(!this.signed){
+    if (!this.signed) {
       await this.sign({ force, signTransaction });
     }
     return this.send();

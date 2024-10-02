@@ -26,16 +26,22 @@ export class Client {
   ) {
     this.spec.funcs().forEach((xdrFn) => {
       const method = xdrFn.name().toString();
+      const isReadOnly = this.spec.isReadOnly(method);
       const assembleTransaction = (
         args?: Record<string, any>,
         methodOptions?: MethodOptions,
-      ) =>
-        AssembledTransaction.build({
+      ) => {
+        if (!isReadOnly && !this.options.publicKey) {
+          throw new Error(
+            `Public key not provided for write method "${method}". Have you forgotten to set the \`publicKey\` in ClientOptions?`
+          );
+        }
+        return AssembledTransaction.build({
           method,
-          args: args && spec.funcArgsToScVals(method, args),
-          ...options,
+          args: args && this.spec.funcArgsToScVals(method, args),
+          ...this.options,
           ...methodOptions,
-          errorTypes: spec.errorCases().reduce(
+          errorTypes: this.spec.errorCases().reduce(
             (acc, curr) => ({
               ...acc,
               [curr.value()]: { message: curr.doc().toString() },
@@ -43,17 +49,17 @@ export class Client {
             {} as Pick<ClientOptions, "errorTypes">,
           ),
           parseResultXdr: (result: xdr.ScVal) =>
-            spec.funcResToNative(method, result),
+            this.spec.funcResToNative(method, result),
         });
+      };
 
       // @ts-ignore error TS7053: Element implicitly has an 'any' type
       this[method] =
-        spec.getFunc(method).inputs().length === 0
+        this.spec.getFunc(method).inputs().length === 0
           ? (opts?: MethodOptions) => assembleTransaction(undefined, opts)
           : assembleTransaction;
     });
   }
-
   /**
    * Generates a Client instance from the provided ClientOptions and the contract's wasm hash.
    * The wasmHash can be provided in either hex or base64 format.
@@ -64,7 +70,8 @@ export class Client {
    * @returns {Promise<module:contract.Client>} A Promise that resolves to a Client instance.
    * @throws {TypeError} If the provided options object does not contain an rpcUrl.
    */
-  static async fromWasmHash(wasmHash: Buffer | string,
+  static async fromWasmHash(
+    wasmHash: Buffer | string,
     options: ClientOptions,
     format: "hex" | "base64" = "hex"
   ): Promise<Client> {
@@ -77,6 +84,7 @@ export class Client {
     const wasm = await server.getContractWasmByHash(wasmHash, format);
     return Client.fromWasm(wasm, options);
   }
+  
 
   /**
    * Generates a Client instance from the provided ClientOptions and the contract's wasm binary.
@@ -97,7 +105,7 @@ export class Client {
     const spec = new Spec(specEntryArray);
     return new Client(spec, options);
   }
-
+  
   /**
    * Generates a Client instance from the provided ClientOptions, which must include the contractId and rpcUrl.
    *
@@ -114,7 +122,7 @@ export class Client {
     const server = new Server(rpcUrl, serverOpts);
     const wasm = await server.getContractWasmByContractId(contractId);
     return Client.fromWasm(wasm, options);
-  }
+  }  
 
   txFromJSON = <T>(json: string): AssembledTransaction<T> => {
     const { method, ...tx } = JSON.parse(json);
