@@ -1385,10 +1385,10 @@
   resolved "https://registry.yarnpkg.com/@stellar/js-xdr/-/js-xdr-3.1.2.tgz#db7611135cf21e989602fd72f513c3bed621bc74"
   integrity sha512-VVolPL5goVEIsvuGqDc5uiKxV03lzfWdvYg1KikvwheDmTBO68CKDji3bAZ/kppZrx5iTA8z3Ld5yuytcvhvOQ==
 
-"@stellar/stellar-base@^12.1.1":
-  version "12.1.1"
-  resolved "https://registry.yarnpkg.com/@stellar/stellar-base/-/stellar-base-12.1.1.tgz#16a07e74995725c544510be7086723c28300ed11"
-  integrity sha512-gOBSOFDepihslcInlqnxKZdIW9dMUO1tpOm3AtJR33K2OvpXG6SaVHCzAmCFArcCqI9zXTEiSoh70T48TmiHJA==
+"@stellar/stellar-base@13.0.0-beta.1":
+  version "13.0.0-beta.1"
+  resolved "https://registry.yarnpkg.com/@stellar/stellar-base/-/stellar-base-13.0.0-beta.1.tgz#e703865c835106bd04b8a9f1e106ed65f6e249f4"
+  integrity sha512-S5c2FyKwUOc28/3sDoOfPIcdzcbUyfiYRmcUlscZrEX/VVzV12216XRkdWy2MYa8KQNK60MpR7wrGp2MamvVGg==
   dependencies:
     "@stellar/js-xdr" "^3.1.2"
     base32.js "^0.1.0"
