@@ -1,0 +1,323 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>@stellar/stellar-sdk Documentation lib/no-axios/contract/types.d.ts</title>
+
+  <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="./build/entry.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,400,700|Inconsolata,700" rel="stylesheet">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+  <link type="text/css" rel="stylesheet" href="https://jmblog.github.io/color-themes-for-google-code-prettify/themes/tomorrow-night.min.css">
+  <link type="text/css" rel="stylesheet" href="styles/app.min.css">
+  <link type="text/css" rel="stylesheet" href="styles/iframe.css">
+  <link type="text/css" rel="stylesheet" href="">
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+
+  
+</head>
+
+
+
+<body class="layout small-header">
+    <div id="stickyNavbarOverlay"></div>
+    
+
+<div class="top-nav">
+    <div class="inner">
+        <a id="hamburger" role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </a>
+        <div class="logo">
+            
+             
+                <a href="index.html">
+                    <h1 class="navbar-item">@stellar/stellar-sdk</h1>
+                </a>
+            
+        </div>
+        <div class="menu">
+            
+            <div class="navigation">
+                <a
+                    href="index.html"
+                    class="link"
+                >
+                    Documentation
+                </a>
+                
+                 
+                    
+                        <a
+                            class="link user-link "
+                            href="https://github.com/stellar/js-stellar-sdk"
+                        >
+                            GitHub
+                        </a>
+                    
+                        <a
+                            class="link user-link "
+                            href="https://www.npmjs.com/package/@stellar/stellar-sdk"
+                        >
+                            npm
+                        </a>
+                    
+                
+                
+            </div>
+        </div>
+    </div>
+</div>
+    <div id="main">
+        <div
+            class="sidebar "
+            id="sidebarNav"
+        >
+            
+                <div class="search-wrapper">
+                    <input id="search" type="text" placeholder="Search docs..." class="input">
+                </div>
+            
+            <nav>
+                
+                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Modules</h3><ul><li><a href="module-Federation.html">Federation</a></li><li><a href="module-Horizon.html">Horizon</a></li><li><a href="module-StellarToml.html">StellarToml</a></li><li><a href="module-WebAuth.html">WebAuth</a></li><li><a href="module-contract.html">contract</a></li><li><a href="module-rpc.html">rpc</a></li></ul><h3>Classes</h3><ul><li><a href="Account.html">Account</a></li><li><a href="Address.html">Address</a></li><li><a href="Asset.html">Asset</a></li><li><a href="CallBuilder.html">CallBuilder</a></li><li><a href="Claimant.html">Claimant</a></li><li><a href="Config.html">Config</a></li><li><a href="Contract.html">Contract</a></li><li><a href="FeeBumpTransaction.html">FeeBumpTransaction</a></li><li><a href="Int128_Int128.html">Int128#Int128</a></li><li><a href="Int256_Int256.html">Int256#Int256</a></li><li><a href="Keypair.html">Keypair</a></li><li><a href="LiquidityPoolAsset.html">LiquidityPoolAsset</a></li><li><a href="LiquidityPoolId.html">LiquidityPoolId</a></li><li><a href="Memo.html">Memo</a></li><li><a href="MuxedAccount.html">MuxedAccount</a></li><li><a href="Operation.html">Operation</a></li><li><a href="ScInt.html">ScInt</a></li><li><a href="SignerKey.html">SignerKey</a></li><li><a href="SorobanDataBuilder.html">SorobanDataBuilder</a></li><li><a href="StrKey.html">StrKey</a></li><li><a href="Transaction.html">Transaction</a></li><li><a href="TransactionBuilder.html">TransactionBuilder</a></li><li><a href="Uint128_Uint128.html">Uint128#Uint128</a></li><li><a href="Uint256_Uint256.html">Uint256#Uint256</a></li><li><a href="Utils.html">Utils</a></li><li><a href="XdrLargeInt.html">XdrLargeInt</a></li><li><a href="module-Federation.Server.html">Federation.Server</a></li><li><a href="module-Horizon.Server.html">Horizon.Server</a></li><li><a href="module-StellarToml.Resolver.html">StellarToml.Resolver</a></li><li><a href="module-contract.AssembledTransaction.html">contract.AssembledTransaction</a></li><li><a href="module-contract.Client.html">contract.Client</a></li><li><a href="module-contract.SentTransaction.html">contract.SentTransaction</a></li><li><a href="module-contract.Spec.html">contract.Spec</a></li><li><a href="module-rpc.Server.html">rpc.Server</a></li></ul><h3>Interfaces</h3><ul><li><a href="Configuration.html">Configuration</a></li><li><a href="module-contract.ErrorMessage.html">contract.ErrorMessage</a></li><li><a href="module-contract.Result.html">contract.Result</a></li></ul><h3>Global</h3><ul><li><a href="global.html#AuthClawbackEnabledFlag">AuthClawbackEnabledFlag</a></li><li><a href="global.html#AuthImmutableFlag">AuthImmutableFlag</a></li><li><a href="global.html#AuthRequiredFlag">AuthRequiredFlag</a></li><li><a href="global.html#AuthRevocableFlag">AuthRevocableFlag</a></li><li><a href="global.html#BASE_FEE">BASE_FEE</a></li><li><a href="global.html#FastSigning">FastSigning</a></li><li><a href="global.html#MemoHash">MemoHash</a></li><li><a href="global.html#MemoID">MemoID</a></li><li><a href="global.html#MemoNone">MemoNone</a></li><li><a href="global.html#MemoReturn">MemoReturn</a></li><li><a href="global.html#MemoText">MemoText</a></li><li><a href="global.html#Networks">Networks</a></li><li><a href="global.html#TimeoutInfinite">TimeoutInfinite</a></li><li><a href="global.html#asciiCompare">asciiCompare</a></li><li><a href="global.html#authorizeEntry">authorizeEntry</a></li><li><a href="global.html#authorizeInvocation">authorizeInvocation</a></li><li><a href="global.html#buildInvocationTree">buildInvocationTree</a></li><li><a href="global.html#decodeAddressToMuxedAccount">decodeAddressToMuxedAccount</a></li><li><a href="global.html#defaultConfig">defaultConfig</a></li><li><a href="global.html#encodeMuxedAccount">encodeMuxedAccount</a></li><li><a href="global.html#encodeMuxedAccountToAddress">encodeMuxedAccountToAddress</a></li><li><a href="global.html#extractBaseAddress">extractBaseAddress</a></li><li><a href="global.html#getLiquidityPoolId">getLiquidityPoolId</a></li><li><a href="global.html#getSalty">getSalty</a></li><li><a href="global.html#humanizeEvents">humanizeEvents</a></li><li><a href="global.html#isValid">isValid</a></li><li><a href="global.html#isValidDate">isValidDate</a></li><li><a href="global.html#nativeToScVal">nativeToScVal</a></li><li><a href="global.html#scValToBigInt">scValToBigInt</a></li><li><a href="global.html#scValToNative">scValToNative</a></li><li><a href="global.html#walkInvocationTree">walkInvocationTree</a></li></ul></div><div class="category"><h2>Errors</h2><h3>Classes</h3><ul><li><a href="AccountRequiresMemoError.html">AccountRequiresMemoError</a></li><li><a href="BadRequestError.html">BadRequestError</a></li><li><a href="BadResponseError.html">BadResponseError</a></li><li><a href="NetworkError.html">NetworkError</a></li><li><a href="NotFoundError.html">NotFoundError</a></li><li><a href="module-WebAuth.InvalidChallengeError.html">WebAuth.InvalidChallengeError</a></li></ul></div>
+                
+            </nav>
+        </div>
+        <div class="core" id="main-content-wrapper">
+            <div class="content">
+                <header class="page-title">
+                    <p>Source</p>
+                    <h1>lib/no-axios/contract/types.d.ts</h1>
+                </header>
+                
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { Memo, MemoType, Operation, Transaction, xdr } from "@stellar/stellar-base";
+export type XDR_BASE64 = string;
+/**
+ * An unsigned 32-bit integer.
+ * @memberof module:contract
+ */
+export type u32 = number;
+/**
+ * A signed 32-bit integer.
+ * @memberof module:contract
+ */
+export type i32 = number;
+/**
+ * An unsigned 64-bit integer.
+ * @memberof module:contract
+ */
+export type u64 = bigint;
+/**
+ * A signed 64-bit integer.
+ * @memberof module:contract
+ */
+export type i64 = bigint;
+/**
+ * An unsigned 128-bit integer.
+ * @memberof module:contract
+ */
+export type u128 = bigint;
+/**
+ * A signed 128-bit integer.
+ * @memberof module:contract
+ */
+export type i128 = bigint;
+/**
+ * An unsigned 256-bit integer.
+ * @memberof module:contract
+ */
+export type u256 = bigint;
+/**
+ * A signed 256-bit integer.
+ * @memberof module:contract
+ */
+export type i256 = bigint;
+export type Option&lt;T> = T | undefined;
+export type Typepoint = bigint;
+export type Duration = bigint;
+/**
+ * A "regular" transaction, as opposed to a FeeBumpTransaction.
+ * @memberof module:contract
+ * @type {Transaction&lt;Memo&lt;MemoType>, Operation[]>}
+ */
+export type Tx = Transaction&lt;Memo&lt;MemoType>, Operation[]>;
+/**
+ * Options for a smart contract client.
+ * @memberof module:contract
+ */
+export type ClientOptions = {
+    /**
+     * The public key of the account that will send this transaction. You can
+     * override this for specific methods later, like
+     * [signAndSend]{@link module:contract.AssembledTransaction#signAndSend} and
+     * [signAuthEntries]{@link module:contract.AssembledTransaction#signAuthEntries}.
+     */
+    publicKey?: string;
+    /**
+     * A function to sign the transaction using the private key corresponding to
+     * the given `publicKey`. You do not need to provide this, for read-only
+     * calls, which only need to be simulated. If you do not need to sign and
+     * send, there is no need to provide this. If you do not provide it during
+     * initialization, you can provide it later when you call
+     * {@link module:contract.AssembledTransaction#signAndSend signAndSend}.
+     *
+     * Matches signature of `signTransaction` from Freighter.
+     */
+    signTransaction?: (tx: XDR_BASE64, opts?: {
+        network?: string;
+        networkPassphrase?: string;
+        accountToSign?: string;
+    }) => Promise&lt;XDR_BASE64>;
+    /**
+     * A function to sign a specific auth entry for a transaction, using the
+     * private key corresponding to the provided `publicKey`. This is only needed
+     * for multi-auth transactions, in which one transaction is signed by
+     * multiple parties. If you do not provide it during initialization, you can
+     * provide it later when you call {@link module:contract.AssembledTransaction#signAuthEntries signAuthEntries}.
+     *
+     * Matches signature of `signAuthEntry` from Freighter.
+     */
+    signAuthEntry?: (entryXdr: XDR_BASE64, opts?: {
+        accountToSign?: string;
+    }) => Promise&lt;XDR_BASE64>;
+    /** The address of the contract the client will interact with. */
+    contractId: string;
+    /**
+     * The network passphrase for the Stellar network this contract is deployed
+     * to.
+     */
+    networkPassphrase: string;
+    /**
+     * The URL of the RPC instance that will be used to interact with this
+     * contract.
+     */
+    rpcUrl: string;
+    /**
+     * If true, will allow HTTP requests to the Soroban network. If false, will
+     * only allow HTTPS requests.
+     * @default false
+     */
+    allowHttp?: boolean;
+    /**
+     * This gets filled in automatically from the ContractSpec when you
+     * instantiate a {@link Client}.
+     *
+     * Background: If the contract you're calling uses the `#[contracterror]`
+     * macro to create an `Error` enum, then those errors get included in the
+     * on-chain XDR that also describes your contract's methods. Each error will
+     * have a specific number.
+     *
+     * A Client makes method calls with an {@link module:contract.AssembledTransaction AssembledTransaction}.
+     * When one of these method calls encounters an error, `AssembledTransaction`
+     * will first attempt to parse the error as an "official" `contracterror`
+     * error, by using this passed-in `errorTypes` object. See
+     * {@link module:contract.AssembledTransaction#parseError parseError}. If `errorTypes` is blank or no
+     * matching error is found, then it will throw the raw error.
+     * @default {}
+     */
+    errorTypes?: Record&lt;number, {
+        message: string;
+    }>;
+};
+/**
+ * Options for a smart contract method invocation.
+ * @memberof module:contract
+ */
+export type MethodOptions = {
+    /**
+     * The fee to pay for the transaction.
+     * @default 100
+     */
+    fee?: string;
+    /**
+     * The timebounds which should be set for transactions generated by this
+     * contract client. {@link module:contract#.DEFAULT_TIMEOUT}
+     * @default 300
+     */
+    timeoutInSeconds?: number;
+    /**
+     * Whether to automatically simulate the transaction when constructing the
+     * AssembledTransaction.
+     * @default true
+     */
+    simulate?: boolean;
+    /**
+     * If true, will automatically attempt to restore the transaction if there
+     * are archived entries that need renewal.
+     * @default false
+     */
+    restore?: boolean;
+};
+export type AssembledTransactionOptions&lt;T = string> = MethodOptions &amp; ClientOptions &amp; {
+    method: string;
+    args?: any[];
+    parseResultXdr: (xdr: xdr.ScVal) => T;
+};
+/**
+ * The default timebounds, in seconds, during which a transaction will be valid.
+ * This is attached to the transaction _before_ transaction simulation (it is
+ * needed for simulation to succeed). It is also re-calculated and re-added
+ * _before_ transaction signing.
+ * @constant {number}
+ * @default 300
+ * @memberof module:contract
+ */
+export declare const DEFAULT_TIMEOUT: number;
+/**
+ * An impossible account on the Stellar network
+ * @constant {string}
+ * @default GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF
+ * @memberof module:contract
+ */
+export declare const NULL_ACCOUNT = "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF";
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+            </div>
+            
+            <footer class="footer">
+                <div class="content has-text-centered">
+                    <p>Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.3</a></p>
+                    <p class="sidebar-created-by">
+                        <a href="https://github.com/SoftwareBrothers/better-docs" target="_blank">BetterDocs theme</a> provided with <i class="fas fa-heart"></i> by
+                        <a href="http://softwarebrothers.co" target="_blank">SoftwareBrothers - JavaScript Development Agency</a>
+                    </p>
+                </div>
+            </footer>
+            
+        </div>
+        <div id="side-nav" class="side-nav">
+        </div>
+    </div>
+<script src="scripts/app.min.js"></script>
+<script>PR.prettyPrint();</script>
+<script src="scripts/linenumber.js"> </script>
+
+<script src="scripts/search.js"> </script>
+
+
+</body>
+</html>
