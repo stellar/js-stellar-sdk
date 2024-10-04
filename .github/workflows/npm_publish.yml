@@ -27,9 +27,9 @@ jobs:
 
       - name: Publish npm package to both places
         run: |
-          yarn publish --access public
+          yarn publish --access public --tag protocol-22-beta
           sed -i -e 's#"@stellar/stellar-sdk"#"stellar-sdk"#' package.json
-          yarn publish
+          yarn publish --tag protocol-22-beta
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
