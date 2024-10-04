@@ -79,6 +79,11 @@ export type ClientOptions = {
    */
   signTransaction?: (
     tx: XDR_BASE64,
+    signer: ((tx: XDR_BASE64, opts?: {
+      network?: string;
+      networkPassphrase?: string;
+      accountToSign?: string;
+    }) => Promise<XDR_BASE64>) | KeyPair,
     opts?: {
       network?: string;
       networkPassphrase?: string;

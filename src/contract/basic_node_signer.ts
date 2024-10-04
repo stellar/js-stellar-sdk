@@ -18,10 +18,18 @@ export const basicNodeSigner = (
   networkPassphrase: string,
 ) => ({
   // eslint-disable-next-line require-await
-  signTransaction: async (tx: string) => {
-    const t = TransactionBuilder.fromXDR(tx, networkPassphrase);
-    t.sign(keypair);
-    return t.toXDR();
+  signTransaction: async (tx: string, signer?: () | KeyPair, opts?: {
+    network?: string;
+    networkPassphrase?: string;
+    accountToSign?: string;) => {
+    if(signer instanceof KeyPair){
+      const basicSigner = basicNodeSigner(signer, opts.networkPassphrase);
+      return basicSigner.signTransaction(tx);
+    } else{
+      const t = TransactionBuilder.fromXDR(tx, networkPassphrase);
+      t.sign(keypair);
+      return t.toXDR();
+    }
   },
   // eslint-disable-next-line require-await
   signAuthEntry: async (entryXdr: string): Promise<string> =>
