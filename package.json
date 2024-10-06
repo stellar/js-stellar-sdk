@@ -198,7 +198,7 @@
     "lint-staged": "^15.2.10",
     "lodash": "^4.17.21",
     "mocha": "^10.6.0",
-    "node-polyfill-webpack-plugin": "^3.0.0",
+    "node-polyfill-webpack-plugin": "^4.0.0",
     "null-loader": "^4.0.1",
     "nyc": "^17.0.0",
     "prettier": "^3.3.3",
