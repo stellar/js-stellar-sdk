@@ -11,4 +11,4 @@ COPY . .
 RUN yarn install --ignore-optional
 
 # Run the test script
-CMD ["node", "test.js"]
+CMD ["node", "test/test.js"]
