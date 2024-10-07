@@ -11,8 +11,6 @@ export interface AssetRecord extends HorizonApi.BaseResponse {
   num_claimable_balances: number;
   num_liquidity_pools: number;
   num_contracts: number;
-  num_accounts: number;
-  amount: string;
   claimable_balances_amount: string;
   liquidity_pools_amount: string;
   contracts_amount: string;
