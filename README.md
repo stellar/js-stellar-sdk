@@ -65,7 +65,7 @@ You can use a CDN:
 <script src="https://cdnjs.cloudflare.com/ajax/libs/stellar-sdk/{version}/stellar-sdk.js"></script>
 ```
 
-Note that this method relies using a third party to host the JS library. This may not be entirely secure. You can self-host it via [Bower](http://bower.io):
+Note that this method relies on using a third party to host the JS library. This may not be entirely secure. You can self-host it via [Bower](http://bower.io):
 
 ```shell
 bower install @stellar/stellar-sdk
