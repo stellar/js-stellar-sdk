@@ -19,10 +19,8 @@ export const basicNodeSigner = (
 ) => ({
   // eslint-disable-next-line require-await
   signTransaction: async (tx: string, signer?: () | KeyPair, opts?: {
-    network?: string;
-    networkPassphrase?: string;
-    accountToSign?: string;) => {
-    if(signer instanceof KeyPair){
+    networkPassphrase?: string;) => {
+    if (signer instanceof KeyPair){
       const basicSigner = basicNodeSigner(signer, opts.networkPassphrase);
       return basicSigner.signTransaction(tx);
     } else{

@@ -85,9 +85,7 @@ export type ClientOptions = {
       accountToSign?: string;
     }) => Promise<XDR_BASE64>) | KeyPair,
     opts?: {
-      network?: string;
       networkPassphrase?: string;
-      accountToSign?: string;
     },
   ) => Promise<XDR_BASE64>;
   /**
