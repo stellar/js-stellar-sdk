@@ -59,6 +59,7 @@ export class Resolver {
 
     return httpClient
       .get(`${protocol}://${domain}/.well-known/stellar.toml`, {
+        maxRedirects: opts.allowedRedirects ?? 0,
         maxContentLength: STELLAR_TOML_MAX_SIZE,
         cancelToken: timeout
           ? new CancelToken((cancel) =>
@@ -99,6 +100,7 @@ export namespace Api {
   export interface StellarTomlResolveOptions {
     allowHttp?: boolean;
     timeout?: number;
+    allowedRedirects?: number;
   }
   export type Url = string;
   export type PublicKey = string;
