@@ -65,6 +65,8 @@ function findCase(name: string) {
   };
 }
 
+
+
 function stringToScVal(str: string, ty: xdr.ScSpecType): xdr.ScVal {
   switch (ty.value) {
     case xdr.ScSpecType.scSpecTypeString().value:
@@ -484,7 +486,7 @@ export class Spec {
       this.entries = entries as xdr.ScSpecEntry[];
     }
   }
-
+  
   /**
    * Gets the XDR functions from the spec.
    * @returns {xdr.ScSpecFunctionV0[]} all contract functions
