@@ -486,22 +486,6 @@ export class Spec {
       this.entries = entries as xdr.ScSpecEntry[];
     }
   }
-
-
-    /**
-     * Determines if a given method is read-only.
-     * Implement this based on your contract's specifications.
-     *
-     * @param {string} methodName - The name of the method.
-     * @returns {boolean} - Returns true if the method is read-only, false otherwise.
-     */
-    isReadOnly(methodName: string): boolean {
-      // Implement logic to determine if the method is read-only.
-      // This could be based on naming conventions, annotations, or metadata.
-      // For example:
-      const readOnlyMethods = ["myReadMethod1", "myReadMethod2"]; // Example list
-      return readOnlyMethods.includes(methodName);
-    }
   
   /**
    * Gets the XDR functions from the spec.

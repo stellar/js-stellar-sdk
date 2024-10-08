@@ -445,7 +445,6 @@ export class AssembledTransaction<T> {
    *   simulate: false,
    * })
    */
-  // AssembledTransaction.ts
 
   static async build<T>(
     options: AssembledTransactionOptions<T>,
@@ -617,7 +616,13 @@ export class AssembledTransaction<T> {
     force = false,
     signTransaction = this.options.signTransaction,
   }: {
+    /**
+     * If `true`, sign and send the transaction even if it is a read call
+     */
     force?: boolean;
+    /**
+     * You must provide this here if you did not provide one before
+     */
     signTransaction?: ClientOptions["signTransaction"];
   } = {}): Promise<void> => {
     if (!this.built) {
