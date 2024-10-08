@@ -42,11 +42,21 @@ var txHandler = function (txResponse) {
     console.log(txResponse);
 };
 
+var errorHandler = function (error) {
+    console.error("Stream encountered an error:", error);
+
+    setTimeout(() => {
+        console.log("Reconnecting...");
+        es();
+    }, 5000);
+};
+
 var es = server.transactions()
     .forAccount(accountAddress)
     .cursor(lastCursor)
     .stream({
-        onmessage: txHandler
+        onmessage: txHandler,
+        onerror: errorHandler
     })
 ```
 

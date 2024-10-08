@@ -2,13 +2,13 @@
 /* eslint max-classes-per-file: 0 */
 import {
   Account,
+  Address,
   BASE_FEE,
   Contract,
   Operation,
   SorobanDataBuilder,
-  StrKey,
   TransactionBuilder,
-  authorizeEntry,
+  authorizeEntry as stellarBaseAuthorizeEntry,
   xdr,
 } from "@stellar/stellar-base";
 import type {
@@ -636,9 +636,11 @@ export class AssembledTransaction<T> {
       );
     }
 
-    if (this.needsNonInvokerSigningBy().length) {
+    // filter out contracts, as these are dealt with via cross contract calls
+    const sigsNeeded = this.needsNonInvokerSigningBy().filter(id => !id.startsWith('C'));
+    if (sigsNeeded.length) {
       throw new AssembledTransaction.Errors.NeedsMoreSignatures(
-        "Transaction requires more signatures. " +
+        `Transaction requires signatures from ${sigsNeeded}. ` +
         "See `needsNonInvokerSigningBy` for details.",
       );
     }
@@ -760,9 +762,9 @@ export class AssembledTransaction<T> {
                 "scvVoid"),
           )
           .map((entry) =>
-            StrKey.encodeEd25519PublicKey(
-              entry.credentials().address().address().accountId().ed25519(),
-            ),
+            Address.fromScAddress(
+              entry.credentials().address().address(),
+            ).toString(),
           ),
       ),
     ];
@@ -788,7 +790,8 @@ export class AssembledTransaction<T> {
     expiration = (async () =>
       (await this.server.getLatestLedger()).sequence + 100)(),
     signAuthEntry = this.options.signAuthEntry,
-    publicKey = this.options.publicKey,
+    address = this.options.publicKey,
+    authorizeEntry = stellarBaseAuthorizeEntry,
   }: {
     /**
      * When to set each auth entry to expire. Could be any number of blocks in
@@ -800,33 +803,40 @@ export class AssembledTransaction<T> {
      * Sign all auth entries for this account. Default: the account that
      * constructed the transaction
      */
-    publicKey?: string;
+    address?: string;
     /**
-     * You must provide this here if you did not provide one before. Default:
-     * the `signAuthEntry` function from the `Client` options. Must
-     * sign things as the given `publicKey`.
+     * You must provide this here if you did not provide one before and you are not passing `authorizeEntry`. Default: the `signAuthEntry` function from the `Client` options. Must sign things as the given `publicKey`.
      */
     signAuthEntry?: ClientOptions["signAuthEntry"];
+
+    /**
+     * If you have a pro use-case and need to override the default `authorizeEntry` function, rather than using the one in @stellar/stellar-base, you can do that! Your function needs to take at least the first argument, `entry: xdr.SorobanAuthorizationEntry`, and return a `Promise<xdr.SorobanAuthorizationEntry>`.
+     *
+     * Note that you if you pass this, then `signAuthEntry` will be ignored.
+    */
+    authorizeEntry?: typeof stellarBaseAuthorizeEntry;
   } = {}): Promise<void> => {
     if (!this.built)
       throw new Error("Transaction has not yet been assembled or simulated");
-    const needsNonInvokerSigningBy = this.needsNonInvokerSigningBy();
 
-    if (!needsNonInvokerSigningBy) {
-      throw new AssembledTransaction.Errors.NoUnsignedNonInvokerAuthEntries(
-        "No unsigned non-invoker auth entries; maybe you already signed?",
-      );
-    }
-    if (needsNonInvokerSigningBy.indexOf(publicKey ?? "") === -1) {
-      throw new AssembledTransaction.Errors.NoSignatureNeeded(
-        `No auth entries for public key "${publicKey}"`,
-      );
-    }
-    if (!signAuthEntry) {
-      throw new AssembledTransaction.Errors.NoSigner(
-        "You must provide `signAuthEntry` when calling `signAuthEntries`, " +
-        "or when constructing the `Client` or `AssembledTransaction`",
-      );
+    // Likely if we're using a custom authorizeEntry then we know better than the `needsNonInvokerSigningBy` logic.
+    if (authorizeEntry === stellarBaseAuthorizeEntry) {
+      const needsNonInvokerSigningBy = this.needsNonInvokerSigningBy();
+      if (needsNonInvokerSigningBy.length === 0) {
+        throw new AssembledTransaction.Errors.NoUnsignedNonInvokerAuthEntries(
+          "No unsigned non-invoker auth entries; maybe you already signed?",
+        );
+      }
+      if (needsNonInvokerSigningBy.indexOf(address ?? "") === -1) {
+        throw new AssembledTransaction.Errors.NoSignatureNeeded(
+          `No auth entries for public key "${address}"`,
+        );
+      }
+      if (!signAuthEntry) {
+        throw new AssembledTransaction.Errors.NoSigner(
+          "You must provide `signAuthEntry` or a custom `authorizeEntry`"
+        );
+      }
     }
 
     const rawInvokeHostFunctionOp = this.built
@@ -836,8 +846,10 @@ export class AssembledTransaction<T> {
 
     // eslint-disable-next-line no-restricted-syntax
     for (const [i, entry] of authEntries.entries()) {
+      // workaround for https://github.com/stellar/js-stellar-sdk/issues/1070
+      const credentials = xdr.SorobanCredentials.fromXDR(entry.credentials().toXDR())
       if (
-        entry.credentials().switch() !==
+        credentials.switch() !==
         xdr.SorobanCredentialsType.sorobanCredentialsAddress()
       ) {
         // if the invoker/source account, then the entry doesn't need explicit
@@ -845,19 +857,26 @@ export class AssembledTransaction<T> {
         // account, so only check for sorobanCredentialsAddress
         continue; // eslint-disable-line no-continue
       }
-      const pk = StrKey.encodeEd25519PublicKey(
-        entry.credentials().address().address().accountId().ed25519(),
-      );
+      const authEntryAddress = Address.fromScAddress(
+        credentials.address().address(),
+      ).toString();
 
       // this auth entry needs to be signed by a different account
       // (or maybe already was!)
-      if (pk !== publicKey) continue; // eslint-disable-line no-continue
+      if (authEntryAddress !== address) continue; // eslint-disable-line no-continue
+
+      const sign: typeof signAuthEntry = signAuthEntry ?? Promise.resolve;
 
       // eslint-disable-next-line no-await-in-loop
       authEntries[i] = await authorizeEntry(
         entry,
         async (preimage) =>
-          Buffer.from(await signAuthEntry(preimage.toXDR("base64")), "base64"),
+          Buffer.from(
+            await sign(preimage.toXDR("base64"), {
+              accountToSign: address,
+            }),
+            "base64",
+          ),
         await expiration, // eslint-disable-line no-await-in-loop
         this.options.networkPassphrase,
       );
