@@ -137,6 +137,8 @@ export namespace Api {
     createdAt: string;
     applicationOrder: number;
     feeBump: boolean;
+    txHash: string;
+
     envelopeXdr?: string;
     resultXdr?: string;
     resultMetaXdr?: string;
@@ -149,6 +151,8 @@ export namespace Api {
     createdAt: string;
     applicationOrder: number;
     feeBump: boolean;
+    txHash: string;
+
     envelopeXdr: xdr.TransactionEnvelope;
     resultXdr: xdr.TransactionResult;
     resultMetaXdr: xdr.TransactionMeta;
@@ -408,10 +412,10 @@ export namespace Api {
 
   export interface GetVersionInfoResponse {
     version: string;
-    commit_hash: string;
-    build_time_stamp: string;
-    captive_core_version: string;
-    protocol_version: number; // uint32
+    commitHash: string;
+    buildTimestamp: string;
+    captiveCoreVersion: string;
+    protocolVersion: number; // uint32
   }
 
   export interface GetFeeStatsResponse {
