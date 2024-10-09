@@ -203,7 +203,7 @@ export namespace Api {
     type: EventType;
     ledger: number;
     ledgerClosedAt: string;
-    pagingToken: string;
+    cursor: string;
     inSuccessfulContractCall: boolean;
     txHash: string;
   }
