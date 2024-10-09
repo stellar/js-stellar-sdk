@@ -167,11 +167,10 @@ function parseSuccessful(
     ...partial,
     transactionData: new SorobanDataBuilder(sim.transactionData!),
     minResourceFee: sim.minResourceFee!,
-    cost: sim.cost!,
-    ...// coalesce 0-or-1-element results[] list into a single result struct
+    // coalesce 0-or-1-element results[] list into a single result struct
     // with decoded fields if present
     // eslint-disable-next-line no-self-compare
-    ((sim.results?.length ?? 0 > 0) && {
+    ...((sim.results?.length ?? 0 > 0) && {
       result: sim.results!.map((row) => ({
           auth: (row.auth ?? []).map((entry) =>
             xdr.SorobanAuthorizationEntry.fromXDR(entry, 'base64')

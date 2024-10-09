@@ -2,12 +2,6 @@ import { Contract, SorobanDataBuilder, xdr } from '@stellar/stellar-base';
 
 /* tslint:disable-next-line:no-namespace */
 export namespace Api {
-
-  export interface Cost {
-    cpuInsns: string;
-    memBytes: string;
-  }
-
   export interface GetHealthResponse {
     status: 'healthy';
   }
@@ -317,7 +311,6 @@ export namespace Api {
     extends BaseSimulateTransactionResponse {
     transactionData: SorobanDataBuilder;
     minResourceFee: string;
-    cost: Cost;
 
     /** present only for invocation simulation */
     result?: SimulateHostFunctionResult;
@@ -403,7 +396,6 @@ export namespace Api {
      * invokeHostFunctionOperation is supported per transaction.
      * */
     results?: RawSimulateHostFunctionResult[];
-    cost?: Cost;
     /** Present if succeeded but has expired ledger entries */
     restorePreamble?: {
       minResourceFee: string;
