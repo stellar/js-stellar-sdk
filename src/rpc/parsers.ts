@@ -2,12 +2,16 @@ import { xdr, Contract, SorobanDataBuilder } from '@stellar/stellar-base';
 import { Api } from './api';
 
 /**
- * Parse the response from invoking the `submitTransaction` method of a Soroban RPC server.
+ * Parse the response from invoking the `submitTransaction` method of a Soroban
+ * RPC server.
  * @memberof module:rpc
  * @private
  *
- * @param {Api.RawSendTransactionResponse} raw the raw `submitTransaction` response from the Soroban RPC server to parse
- * @returns {Api.SendTransactionResponse} transaction response parsed from the Soroban RPC server's response
+ * @param {Api.RawSendTransactionResponse} raw the raw `submitTransaction`
+ *    response from the Soroban RPC server to parse
+ *
+ * @returns {Api.SendTransactionResponse} transaction response parsed from the
+ *    Soroban RPC server's response
  */
 export function parseRawSendTransaction(
   raw: Api.RawSendTransactionResponse
@@ -69,11 +73,15 @@ export function parseRawTransactions(
 }
 
 /**
- * Parse and return the retrieved events, if any, from a raw response from a Soroban RPC server.
+ * Parse and return the retrieved events, if any, from a raw response from a
+ * Soroban RPC server.
  * @memberof module:rpc
  *
- * @param {Api.RawGetEventsResponse} raw the raw `getEvents` response from the Soroban RPC server to parse
- * @returns {Api.GetEventsResponse} events parsed from the Soroban RPC server's response
+ * @param {Api.RawGetEventsResponse} raw the raw `getEvents` response from the
+ *    Soroban RPC server to parse
+ *
+ * @returns {Api.GetEventsResponse} events parsed from the Soroban RPC server's
+ *    response
  */
 export function parseRawEvents(
   raw: Api.RawGetEventsResponse
@@ -96,12 +104,16 @@ export function parseRawEvents(
 }
 
 /**
- * Parse and return the retrieved ledger entries, if any, from a raw response from a Soroban RPC server.
+ * Parse and return the retrieved ledger entries, if any, from a raw response
+ * from a Soroban RPC server.
  * @memberof module:rpc
  * @private
  *
- * @param {Api.RawGetLedgerEntriesResponse} raw he raw `getLedgerEntries` response from the Soroban RPC server to parse
- * @returns {Api.GetLedgerEntriesResponse} ledger entries parsed from the Soroban RPC server's response
+ * @param {Api.RawGetLedgerEntriesResponse} raw   the raw `getLedgerEntries`
+ *    response from the Soroban RPC server to parse
+ *
+ * @returns {Api.GetLedgerEntriesResponse} ledger entries parsed from the
+ *    Soroban RPC server's response
  */
 export function parseRawLedgerEntries(
   raw: Api.RawGetLedgerEntriesResponse
@@ -128,13 +140,21 @@ export function parseRawLedgerEntries(
 }
 
 /**
- * Parse whether or not the transaction simulation was successful, returning the relevant response.
+ * Parse whether or not the transaction simulation was successful, returning the
+ * relevant response.
  * @memberof module:rpc
  * @private
  *
- * @param {Api.RawSimulateTransactionResponse} sim a raw response from the `simulateTransaction` method of the Soroban RPC server to parse
- * @param {Api.BaseSimulateTransactionResponse} partial a partially built simulate transaction response that will be used to build the return response
- * @returns {Api.SimulateTransactionRestoreResponse | Api.SimulateTransactionSuccessResponse} Either a simulation response indicating what ledger entries should be restored, or if the simulation was successful.
+ * @param {Api.RawSimulateTransactionResponse} sim a raw response from the
+ *    `simulateTransaction` method of the Soroban RPC server to parse
+ * @param {Api.BaseSimulateTransactionResponse} partial a partially built
+ *    simulate transaction response that will be used to build the return
+ *    response
+ *
+ * @returns {Api.SimulateTransactionRestoreResponse |
+ *    Api.SimulateTransactionSuccessResponse} Either a simulation response
+ *    indicating what ledger entries should be restored, or if the simulation
+ *    was successful.
  */
 function parseSuccessful(
   sim: Api.RawSimulateTransactionResponse,
@@ -192,13 +212,20 @@ function parseSuccessful(
 }
 
 /**
- * Converts a raw response schema into one with parsed XDR fields and a simplified interface.
- * @warning This API is only exported for testing purposes and should not be relied on or considered "stable".
+ * Converts a raw response schema into one with parsed XDR fields and a
+ * simplified interface.
  * @memberof module:rpc
+ * @private
  *
- * @param {Api.SimulateTransactionResponse | Api.RawSimulateTransactionResponse} sim the raw response schema (parsed ones are allowed, best-effort
+ * @param {Api.SimulateTransactionResponse | Api.RawSimulateTransactionResponse}
+ *    sim the raw response schema (parsed ones are allowed, best-effort
  *    detected, and returned untouched)
- * @returns {Api.SimulateTransactionResponse} the original parameter (if already parsed), parsed otherwise
+ *
+ * @returns {Api.SimulateTransactionResponse} the original parameter (if already
+ *    parsed), parsed otherwise
+ *
+ * @warning This API is only exported for testing purposes and should not be
+ *    relied on or considered "stable".
  */
 export function parseRawSimulation(
   sim:

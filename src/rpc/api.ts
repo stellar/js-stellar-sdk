@@ -88,7 +88,7 @@ export namespace Api {
     status: GetTransactionStatus.FAILED;
 
     ledger: number;
-    createdAt: number;
+    createdAt: string;
     applicationOrder: number;
     feeBump: boolean;
     envelopeXdr: xdr.TransactionEnvelope;
@@ -102,7 +102,7 @@ export namespace Api {
     status: GetTransactionStatus.SUCCESS;
 
     ledger: number;
-    createdAt: number;
+    createdAt: string;
     applicationOrder: number;
     feeBump: boolean;
     envelopeXdr: xdr.TransactionEnvelope;
@@ -127,7 +127,7 @@ export namespace Api {
     resultXdr?: string;
     resultMetaXdr?: string;
     ledger?: number;
-    createdAt?: number;
+    createdAt?: string;
     diagnosticEventsXdr?: string[];
   }
 
@@ -140,7 +140,7 @@ export namespace Api {
   export interface RawTransactionInfo {
     status: GetTransactionStatus;
     ledger: number;
-    createdAt: number;
+    createdAt: string;
     applicationOrder: number;
     feeBump: boolean;
     envelopeXdr?: string;
@@ -152,7 +152,7 @@ export namespace Api {
   export interface TransactionInfo {
     status: GetTransactionStatus;
     ledger: number;
-    createdAt: number;
+    createdAt: string;
     applicationOrder: number;
     feeBump: boolean;
     envelopeXdr: xdr.TransactionEnvelope;
