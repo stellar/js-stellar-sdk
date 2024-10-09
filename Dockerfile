@@ -1,8 +1,8 @@
-# Use Node.js slim version instead of Alpine
-FROM node:16-slim
+# Use Node.js 18-slim version
+FROM node:18-slim
 
 # Set working directory
-WORKDIR /app
+WORKDIR /src
 
 # Copy the project files
 COPY . .
