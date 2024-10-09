@@ -45,6 +45,7 @@ export function parseTransactionInfo(raw: Api.RawTransactionInfo | Api.RawGetTra
     createdAt: raw.createdAt!,
     applicationOrder: raw.applicationOrder!,
     feeBump: raw.feeBump!,
+    txHash: raw.txHash,
     envelopeXdr: xdr.TransactionEnvelope.fromXDR(raw.envelopeXdr!, 'base64'),
     resultXdr: xdr.TransactionResult.fromXDR(raw.resultXdr!, 'base64'),
     resultMetaXdr: meta,

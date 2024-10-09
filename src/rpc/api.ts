@@ -117,11 +117,13 @@ export namespace Api {
     // the fields below are set if status is SUCCESS
     applicationOrder?: number;
     feeBump?: boolean;
+    ledger?: number;
+    createdAt?: string;
+    txHash: string;
+
     envelopeXdr?: string;
     resultXdr?: string;
     resultMetaXdr?: string;
-    ledger?: number;
-    createdAt?: string;
     diagnosticEventsXdr?: string[];
   }
 
