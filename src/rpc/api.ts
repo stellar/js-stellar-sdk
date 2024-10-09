@@ -2,12 +2,6 @@ import { Contract, SorobanDataBuilder, xdr } from '@stellar/stellar-base';
 
 /* tslint:disable-next-line:no-namespace */
 export namespace Api {
-
-  export interface Cost {
-    cpuInsns: string;
-    memBytes: string;
-  }
-
   export interface GetHealthResponse {
     status: 'healthy';
   }
@@ -88,7 +82,7 @@ export namespace Api {
     status: GetTransactionStatus.FAILED;
 
     ledger: number;
-    createdAt: number;
+    createdAt: string;
     applicationOrder: number;
     feeBump: boolean;
     envelopeXdr: xdr.TransactionEnvelope;
@@ -102,7 +96,7 @@ export namespace Api {
     status: GetTransactionStatus.SUCCESS;
 
     ledger: number;
-    createdAt: number;
+    createdAt: string;
     applicationOrder: number;
     feeBump: boolean;
     envelopeXdr: xdr.TransactionEnvelope;
@@ -123,11 +117,13 @@ export namespace Api {
     // the fields below are set if status is SUCCESS
     applicationOrder?: number;
     feeBump?: boolean;
+    ledger?: number;
+    createdAt?: string;
+    txHash: string;
+
     envelopeXdr?: string;
     resultXdr?: string;
     resultMetaXdr?: string;
-    ledger?: number;
-    createdAt?: number;
     diagnosticEventsXdr?: string[];
   }
 
@@ -140,9 +136,11 @@ export namespace Api {
   export interface RawTransactionInfo {
     status: GetTransactionStatus;
     ledger: number;
-    createdAt: number;
+    createdAt: string;
     applicationOrder: number;
     feeBump: boolean;
+    txHash: string;
+
     envelopeXdr?: string;
     resultXdr?: string;
     resultMetaXdr?: string;
@@ -152,9 +150,11 @@ export namespace Api {
   export interface TransactionInfo {
     status: GetTransactionStatus;
     ledger: number;
-    createdAt: number;
+    createdAt: string;
     applicationOrder: number;
     feeBump: boolean;
+    txHash: string;
+
     envelopeXdr: xdr.TransactionEnvelope;
     resultXdr: xdr.TransactionResult;
     resultMetaXdr: xdr.TransactionMeta;
@@ -209,7 +209,7 @@ export namespace Api {
     type: EventType;
     ledger: number;
     ledgerClosedAt: string;
-    pagingToken: string;
+    cursor: string;
     inSuccessfulContractCall: boolean;
     txHash: string;
   }
@@ -317,7 +317,6 @@ export namespace Api {
     extends BaseSimulateTransactionResponse {
     transactionData: SorobanDataBuilder;
     minResourceFee: string;
-    cost: Cost;
 
     /** present only for invocation simulation */
     result?: SimulateHostFunctionResult;
@@ -403,7 +402,6 @@ export namespace Api {
      * invokeHostFunctionOperation is supported per transaction.
      * */
     results?: RawSimulateHostFunctionResult[];
-    cost?: Cost;
     /** Present if succeeded but has expired ledger entries */
     restorePreamble?: {
       minResourceFee: string;
@@ -416,10 +414,10 @@ export namespace Api {
 
   export interface GetVersionInfoResponse {
     version: string;
-    commit_hash: string;
-    build_time_stamp: string;
-    captive_core_version: string;
-    protocol_version: number; // uint32
+    commitHash: string;
+    buildTimestamp: string;
+    captiveCoreVersion: string;
+    protocolVersion: number; // uint32
   }
 
   export interface GetFeeStatsResponse {

@@ -38,7 +38,6 @@ describe("Server#simulateTransaction", async function (done) {
       ),
       retval: xdr.ScVal.fromXDR(simulationResponse.results[0].xdr, "base64"),
     },
-    cost: simulationResponse.cost,
     stateChanges: [
       {
         type: 2,
@@ -242,7 +241,6 @@ describe("Server#simulateTransaction", async function (done) {
     const expected = cloneSimulation(parsedSimulationResponse);
     // drop fields that go away with errors
     delete expected.result;
-    delete expected.cost;
     delete expected.transactionData;
     delete expected.minResourceFee;
     delete expected.stateChanges;
@@ -270,7 +268,6 @@ function cloneSimulation(sim) {
       ),
       retval: xdr.ScVal.fromXDR(sim.result.retval.toXDR()),
     },
-    cost: sim.cost,
     stateChanges: sim.stateChanges,
     _parsed: sim._parsed,
   };
@@ -332,10 +329,6 @@ function baseSimulationResponse(results) {
     minResourceFee: "15",
     transactionData: new SorobanDataBuilder().build().toXDR("base64"),
     ...(results !== undefined && { results }),
-    cost: {
-      cpuInsns: "1",
-      memBytes: "2",
-    },
     stateChanges: [
       {
         type: 2,
@@ -440,10 +433,6 @@ describe("works with real responses", function () {
         xdr: "AAAAEAAAAAEAAAACAAAADwAAAAVIZWxsbwAAAAAAAA8AAAAFQWxvaGEAAAA=",
       },
     ],
-    cost: {
-      cpuInsns: "1322134",
-      memBytes: "1207047",
-    },
     restorePreamble: {
       transactionData: "",
       minResourceFee: "0",
