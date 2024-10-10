@@ -1,5 +1,8 @@
-# Use Node.js 18-slim version
-FROM node:18-slim
+# Use Node.js 16-alpine or 18-alpine
+FROM node:18-alpine
+
+# Install build tools and Python for compiling native dependencies
+RUN apk add --no-cache build-base python3
 
 # Set working directory
 WORKDIR /src
@@ -7,7 +10,7 @@ WORKDIR /src
 # Copy the project files
 COPY . .
 
-# Install dependencies without optional native modules
+# Install dependencies using yarn and ensure all native modules are compiled
 RUN yarn install --ignore-optional
 
 # Run the test script
