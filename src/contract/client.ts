@@ -24,16 +24,16 @@ export class Client {
     public readonly spec: Spec,
     public readonly options: ClientOptions,
   ) {
-    this.spec.funcs().forEach((xdrFn) => {
+    spec.funcs().forEach((xdrFn) => {
       const method = xdrFn.name().toString();
       const assembleTransaction = (
         args?: Record<string, any>,
         methodOptions?: MethodOptions,
-      ) =>
-        AssembledTransaction.build({
+      ) => {
+        return AssembledTransaction.build({
           method,
           args: args && spec.funcArgsToScVals(method, args),
-          ...options,
+          ...this.options,
           ...methodOptions,
           errorTypes: spec.errorCases().reduce(
             (acc, curr) => ({
@@ -45,6 +45,7 @@ export class Client {
           parseResultXdr: (result: xdr.ScVal) =>
             spec.funcResToNative(method, result),
         });
+      };
 
       // @ts-ignore error TS7053: Element implicitly has an 'any' type
       this[method] =
@@ -53,7 +54,6 @@ export class Client {
           : assembleTransaction;
     });
   }
-
   /**
    * Generates a Client instance from the provided ClientOptions and the contract's wasm hash.
    * The wasmHash can be provided in either hex or base64 format.
@@ -64,7 +64,8 @@ export class Client {
    * @returns {Promise<module:contract.Client>} A Promise that resolves to a Client instance.
    * @throws {TypeError} If the provided options object does not contain an rpcUrl.
    */
-  static async fromWasmHash(wasmHash: Buffer | string,
+  static async fromWasmHash(
+    wasmHash: Buffer | string,
     options: ClientOptions,
     format: "hex" | "base64" = "hex"
   ): Promise<Client> {
@@ -77,7 +78,7 @@ export class Client {
     const wasm = await server.getContractWasmByHash(wasmHash, format);
     return Client.fromWasm(wasm, options);
   }
-
+  
   /**
    * Generates a Client instance from the provided ClientOptions and the contract's wasm binary.
    *
@@ -129,7 +130,6 @@ export class Client {
     );
   };
 
-  txFromXDR = <T>(xdrBase64: string): AssembledTransaction<T> => AssembledTransaction.fromXDR(this.options, xdrBase64, this.spec);
-
+  txFromXDR = <T>(xdrBase64: string): AssembledTransaction<T> =>
+    AssembledTransaction.fromXDR(this.options, xdrBase64, this.spec);
 }
-
