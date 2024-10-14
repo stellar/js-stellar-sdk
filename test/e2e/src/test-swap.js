@@ -8,8 +8,8 @@ const {
   SorobanDataBuilder,
   xdr,
   TransactionBuilder,
-  Spec, // Import Spec
-} = require("../../../lib"); // Adjust the path as necessary
+  Spec,
+} = require("../../../lib");
 const {
   clientFor,
   generateFundedKeypair,
