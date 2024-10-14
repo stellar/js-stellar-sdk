@@ -24,24 +24,18 @@ export class Client {
     public readonly spec: Spec,
     public readonly options: ClientOptions,
   ) {
-    this.spec.funcs().forEach((xdrFn) => {
+    spec.funcs().forEach((xdrFn) => {
       const method = xdrFn.name().toString();
-      const isReadOnly = this.spec.isReadOnly(method);
       const assembleTransaction = (
         args?: Record<string, any>,
         methodOptions?: MethodOptions,
       ) => {
-        if (!isReadOnly && !this.options.publicKey) {
-          throw new Error(
-            `Public key not provided for write method "${method}". Have you forgotten to set the \`publicKey\` in ClientOptions?`
-          );
-        }
         return AssembledTransaction.build({
           method,
-          args: args && this.spec.funcArgsToScVals(method, args),
+          args: args && spec.funcArgsToScVals(method, args),
           ...this.options,
           ...methodOptions,
-          errorTypes: this.spec.errorCases().reduce(
+          errorTypes: spec.errorCases().reduce(
             (acc, curr) => ({
               ...acc,
               [curr.value()]: { message: curr.doc().toString() },
@@ -49,13 +43,13 @@ export class Client {
             {} as Pick<ClientOptions, "errorTypes">,
           ),
           parseResultXdr: (result: xdr.ScVal) =>
-            this.spec.funcResToNative(method, result),
+            spec.funcResToNative(method, result),
         });
       };
 
       // @ts-ignore error TS7053: Element implicitly has an 'any' type
       this[method] =
-        this.spec.getFunc(method).inputs().length === 0
+        spec.getFunc(method).inputs().length === 0
           ? (opts?: MethodOptions) => assembleTransaction(undefined, opts)
           : assembleTransaction;
     });
@@ -85,7 +79,6 @@ export class Client {
     return Client.fromWasm(wasm, options);
   }
   
-
   /**
    * Generates a Client instance from the provided ClientOptions and the contract's wasm binary.
    *
@@ -105,7 +98,7 @@ export class Client {
     const spec = new Spec(specEntryArray);
     return new Client(spec, options);
   }
-  
+
   /**
    * Generates a Client instance from the provided ClientOptions, which must include the contractId and rpcUrl.
    *
@@ -122,7 +115,7 @@ export class Client {
     const server = new Server(rpcUrl, serverOpts);
     const wasm = await server.getContractWasmByContractId(contractId);
     return Client.fromWasm(wasm, options);
-  }  
+  }
 
   txFromJSON = <T>(json: string): AssembledTransaction<T> => {
     const { method, ...tx } = JSON.parse(json);
@@ -137,7 +130,6 @@ export class Client {
     );
   };
 
-  txFromXDR = <T>(xdrBase64: string): AssembledTransaction<T> => AssembledTransaction.fromXDR(this.options, xdrBase64, this.spec);
-
+  txFromXDR = <T>(xdrBase64: string): AssembledTransaction<T> =>
+    AssembledTransaction.fromXDR(this.options, xdrBase64, this.spec);
 }
-

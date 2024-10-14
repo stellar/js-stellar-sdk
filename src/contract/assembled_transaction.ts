@@ -417,14 +417,11 @@ export class AssembledTransaction<T> {
   }
 
   private constructor(public options: AssembledTransactionOptions<T>) {
-    if (!options.publicKey) {
-      throw new Error("Public key not provided. Have you forgotten to set the `publicKey` in AssembledTransactionOptions?");
-    }
     this.options.simulate = this.options.simulate ?? true;
     this.server = new Server(this.options.rpcUrl, {
       allowHttp: this.options.allowHttp ?? false,
     });
-  }
+  }  
 
   /**
    * Construct a new AssembledTransaction. This is the only way to create a new
@@ -448,28 +445,23 @@ export class AssembledTransaction<T> {
 
   static async build<T>(
     options: AssembledTransactionOptions<T>,
-  ): Promise<AssembledTransaction<T>> {
-    if (!options.publicKey) {
-      throw new Error("Public key not provided. Have you forgotten to set the `publicKey` in AssembledTransactionOptions?");
-    }
-
+  ): Promise<AssembledTransaction<T>> {  
     const tx = new AssembledTransaction(options);
     const contract = new Contract(options.contractId);
-
+  
     const account = await getAccount(options, tx.server);
-
+  
     tx.raw = new TransactionBuilder(account, {
       fee: options.fee ?? BASE_FEE,
       networkPassphrase: options.networkPassphrase,
     })
       .addOperation(contract.call(options.method, ...(options.args ?? [])))
       .setTimeout(options.timeoutInSeconds ?? DEFAULT_TIMEOUT);
-
+  
     if (options.simulate) await tx.simulate();
-
+  
     return tx;
   }
-
 
   private static async buildFootprintRestoreTransaction<T>(
     options: AssembledTransactionOptions<T>,
@@ -616,11 +608,11 @@ export class AssembledTransaction<T> {
     force = false,
     signTransaction = this.options.signTransaction,
   }: {
-    /**
+        /**
      * If `true`, sign and send the transaction even if it is a read call
      */
     force?: boolean;
-    /**
+        /**
      * You must provide this here if you did not provide one before
      */
     signTransaction?: ClientOptions["signTransaction"];
@@ -628,19 +620,24 @@ export class AssembledTransaction<T> {
     if (!this.built) {
       throw new Error("Transaction has not yet been simulated.");
     }
-
+  
     if (!force && this.isReadCall) {
       throw new AssembledTransaction.Errors.NoSignatureNeeded(
         "This is a read call. It requires no signature or sending. Use `force: true` to sign and send anyway."
       );
     }
-
+  
     if (!signTransaction) {
       throw new AssembledTransaction.Errors.NoSigner(
         "You must provide a `signTransaction` function, either when calling `signAndSend` or when initializing your Client."
       );
     }
-
+    // Ensure publicKey is provided for non-read calls
+    if (!this.options.publicKey) {
+      throw new Error(
+        "Public key not provided. Have you forgotten to set the `publicKey` in AssembledTransactionOptions?"
+      );
+    }
     // filter out contracts, as these are dealt with via cross contract calls
     const sigsNeeded = this.needsNonInvokerSigningBy().filter(id => !id.startsWith('C'));
     if (sigsNeeded.length) {
@@ -772,7 +769,7 @@ export class AssembledTransaction<T> {
             ).toString(),
           ),
       ),
-    ];
+    ] as string[];
   };
 
   /**

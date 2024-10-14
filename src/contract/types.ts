@@ -176,7 +176,7 @@ export type AssembledTransactionOptions<T = string> = MethodOptions &
     method: string;
     args?: any[];
     parseResultXdr: (xdr: xdr.ScVal) => T;
-    publicKey?: string;
+    publicKey?: ClientOptions["publicKey"];
   };
 
 /**

@@ -65,8 +65,6 @@ function findCase(name: string) {
   };
 }
 
-
-
 function stringToScVal(str: string, ty: xdr.ScSpecType): xdr.ScVal {
   switch (ty.value) {
     case xdr.ScSpecType.scSpecTypeString().value:
@@ -468,6 +466,9 @@ function unionToJsonSchema(udt: xdr.ScSpecUdtUnionV0): any {
  * console.log(result); // {success: true}
  */
 export class Spec {
+  isReadOnly(method: any) {
+    throw new Error("Method not implemented.");
+  }
   /**
    * The XDR spec entries.
    */
@@ -486,7 +487,6 @@ export class Spec {
       this.entries = entries as xdr.ScSpecEntry[];
     }
   }
-  
   /**
    * Gets the XDR functions from the spec.
    * @returns {xdr.ScSpecFunctionV0[]} all contract functions
