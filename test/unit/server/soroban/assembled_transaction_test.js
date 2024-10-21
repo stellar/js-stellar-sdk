@@ -23,13 +23,16 @@ describe("AssembledTransaction Tests", function () {
 
   before(function () {
     // Initialize Spec instance with your contract's spec entries
-    const specEntries = [/* Your Spec Entries Here */]; // Replace with actual spec entries
+    const specEntries = [
+      /* Your Spec Entries Here */
+    ]; // Replace with actual spec entries
     spec = new Spec(specEntries);
   });
 
   describe("buildFootprintRestoreTransaction", function () {
     const keypair = StellarSdk.Keypair.random();
-    const contractId = "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM";
+    const contractId =
+      "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM";
     const networkPassphrase = "Standalone Network ; February 2017";
     const wallet = contract.basicNodeSigner(keypair, networkPassphrase);
     const options = {
@@ -108,7 +111,7 @@ describe("AssembledTransaction Tests", function () {
           }),
         )
         .returns(Promise.resolve({ data: { result: getTransactionResponse } }));
-  
+
       this.axiosMock
         .expects("post")
         .withArgs(
@@ -119,8 +122,10 @@ describe("AssembledTransaction Tests", function () {
             method: "sendTransaction",
           }),
         )
-        .returns(Promise.resolve({ data: { result: sendTransactionResponse } }));
-  
+        .returns(
+          Promise.resolve({ data: { result: sendTransactionResponse } }),
+        );
+
       contract.AssembledTransaction.buildFootprintRestoreTransaction(
         spec, // Pass Spec instance
         options,

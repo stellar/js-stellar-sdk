@@ -37,26 +37,36 @@ describe("Swap Contract Tests", function () {
       { keypair: root },
     );
 
-    await tokenA.initialize({
-      admin: root.publicKey(),
-      decimal: 0,
-      name: "Token A",
-      symbol: "A",
-    }).signAndSend();
+    await tokenA
+      .initialize({
+        admin: root.publicKey(),
+        decimal: 0,
+        name: "Token A",
+        symbol: "A",
+      })
+      .signAndSend();
 
-    await tokenA.mint({ amount: amountAToSwap, to: alice.publicKey() }).signAndSend();
+    await tokenA
+      .mint({ amount: amountAToSwap, to: alice.publicKey() })
+      .signAndSend();
 
-    await tokenB.initialize({
-      admin: root.publicKey(),
-      decimal: 0,
-      name: "Token B",
-      symbol: "B",
-    }).signAndSend();
+    await tokenB
+      .initialize({
+        admin: root.publicKey(),
+        decimal: 0,
+        name: "Token B",
+        symbol: "B",
+      })
+      .signAndSend();
 
-    await tokenB.mint({ amount: amountBToSwap, to: bob.publicKey() }).signAndSend();
+    await tokenB
+      .mint({ amount: amountBToSwap, to: bob.publicKey() })
+      .signAndSend();
 
     // Initialize Spec instance with your contract's spec entries
-    const specEntries = [/* Your Spec Entries Here */]; // Replace with actual spec entries
+    const specEntries = [
+      /* Your Spec Entries Here */
+    ]; // Replace with actual spec entries
     const spec = new Spec(specEntries);
 
     this.context = {
@@ -75,16 +85,17 @@ describe("Swap Contract Tests", function () {
 
   it("calling `signAndSend()` too soon throws descriptive error", async function () {
     // Build Footprint Restore Transaction with Spec instance
-    const tx = await contract.AssembledTransaction.buildFootprintRestoreTransaction(
-      this.context.spec, // Pass Spec instance
-      this.context.options, // Ensure options include required fields
-      restoreTxnData, // Define or mock restoreTxnData
-      new xdr.Account(
-        "GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI",
-        "1",
-      ),
-      "52641", // Ensure fee is string
-    );
+    const tx =
+      await contract.AssembledTransaction.buildFootprintRestoreTransaction(
+        this.context.spec, // Pass Spec instance
+        this.context.options, // Ensure options include required fields
+        restoreTxnData, // Define or mock restoreTxnData
+        new xdr.Account(
+          "GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI",
+          "1",
+        ),
+        "52641", // Ensure fee is string
+      );
 
     await expect(tx.signAndSend())
       .to.be.rejectedWith(

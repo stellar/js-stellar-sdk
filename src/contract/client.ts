@@ -24,7 +24,7 @@ export class Client {
     public readonly spec: Spec,
     public readonly options: ClientOptions,
   ) {
-    this.spec.funcs().forEach((xdrFn) => {
+      spec.funcs().forEach((xdrFn) => {
       const method = xdrFn.name().toString();
       const isReadOnly = this.spec.isReadOnly(method);
       const assembleTransaction = (
@@ -39,7 +39,7 @@ export class Client {
         return AssembledTransaction.build({
           method,
           args: args && this.spec.funcArgsToScVals(method, args),
-          ...this.options,
+          ...options,
           ...methodOptions,
           errorTypes: this.spec.errorCases().reduce(
             (acc, curr) => ({

@@ -635,6 +635,12 @@ export class AssembledTransaction<T> {
         "You must provide a `signTransaction` function, either when calling `signAndSend` or when initializing your Client."
       );
     }
+    // Ensure publicKey is provided for non-read calls
+    if (!this.options.publicKey) {
+      throw new Error(
+        "Public key not provided. Have you forgotten to set the `publicKey` in AssembledTransactionOptions?"
+        );
+    }
 
     // filter out contracts, as these are dealt with via cross contract calls
     const sigsNeeded = this.needsNonInvokerSigningBy().filter(id => !id.startsWith('C'));
@@ -813,7 +819,7 @@ export class AssembledTransaction<T> {
      * If you have a pro use-case and need to override the default `authorizeEntry` function, rather than using the one in @stellar/stellar-base, you can do that! Your function needs to take at least the first argument, `entry: xdr.SorobanAuthorizationEntry`, and return a `Promise<xdr.SorobanAuthorizationEntry>`.
      *
      * Note that you if you pass this, then `signAuthEntry` will be ignored.
-    */
+     */
     authorizeEntry?: typeof stellarBaseAuthorizeEntry;
   } = {}): Promise<void> => {
     if (!this.built)
