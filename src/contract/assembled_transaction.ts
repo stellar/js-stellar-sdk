@@ -418,7 +418,7 @@ export class AssembledTransaction<T> {
 
   private constructor(public options: AssembledTransactionOptions<T>) {
     if (!options.publicKey) {
-      throw new Error("Public key not provided. Have you forgotten to set the `publicKey` in AssembledTransactionOptions?");
+      throw new Error("Public key not provided");
     }
     this.options.simulate = this.options.simulate ?? true;
     this.server = new Server(this.options.rpcUrl, {
