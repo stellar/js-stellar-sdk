@@ -65,6 +65,8 @@ function findCase(name: string) {
   };
 }
 
+
+
 function stringToScVal(str: string, ty: xdr.ScSpecType): xdr.ScVal {
   switch (ty.value) {
     case xdr.ScSpecType.scSpecTypeString().value:
@@ -485,6 +487,22 @@ export class Spec {
     }
   }
 
+
+    /**
+     * Determines if a given method is read-only.
+     * Implement this based on your contract's specifications.
+     *
+     * @param {string} methodName - The name of the method.
+     * @returns {boolean} - Returns true if the method is read-only, false otherwise.
+     */
+    isReadOnly(methodName: string): boolean {
+      // Implement logic to determine if the method is read-only.
+      // This could be based on naming conventions, annotations, or metadata.
+      // For example:
+      const readOnlyMethods = ["myReadMethod1", "myReadMethod2"]; // Example list
+      return readOnlyMethods.includes(methodName);
+    }
+  
   /**
    * Gets the XDR functions from the spec.
    * @returns {xdr.ScSpecFunctionV0[]} all contract functions
