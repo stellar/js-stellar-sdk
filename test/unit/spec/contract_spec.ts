@@ -1,12 +1,14 @@
-import { xdr, Address, contract, Keypair } from "../../../lib";
+import { xdr, Address, contract, Keypair, hash } from "../../../lib";
 import { JSONSchemaFaker } from "json-schema-faker";
 
 import spec from "../spec.json";
+import spec_contstructor from "../spec_constructor.json";
 import { expect } from "chai";
 
 const publicKey = "GCBVOLOM32I7OD5TWZQCIXCXML3TK56MDY7ZMTAILIBQHHKPCVU42XYW";
 const addr = Address.fromString(publicKey);
 let SPEC: contract.Spec;
+let SPEC_CONSTRUCTOR: contract.Spec;
 
 JSONSchemaFaker.format("address", () => {
   let keypair = Keypair.random();
@@ -15,6 +17,7 @@ JSONSchemaFaker.format("address", () => {
 
 before(() => {
   SPEC = new contract.Spec(spec);
+  SPEC_CONSTRUCTOR = new contract.Spec(spec_contstructor);
 });
 
 it("throws if no entries", () => {
@@ -264,6 +267,27 @@ describe("parsing and building ScVals", function () {
     let gigaMap = spec.findEntry("GigaMap");
     expect(gigaMap).deep.equal(GIGA_MAP);
     expect(fn).deep.equal(func);
+  });
+});
+
+describe("Constructor", function () {
+  it("Can round trip constructor", async function () {
+    let names = SPEC_CONSTRUCTOR.funcs().map((f) => f.name().toString());
+    console.log(names);
+    let keypair = Keypair.random();
+    const networkPassphrase = "Standalone Network ; February 2017";
+    const rpcUrl = process.env.SOROBAN_RPC_URL ?? "http://localhost:8000/soroban/rpc";
+    let deployAndConstructTx = await contract.Client.deploy(
+      { counter: 42 },
+      {
+        networkPassphrase,
+        rpcUrl,
+        wasmHash: "",
+        salt: hash(Buffer.from("salt")),
+        publicKey: keypair.publicKey(),
+      },
+    );
+    console.log(deployAndConstructTx.toXDR());
   });
 });
 

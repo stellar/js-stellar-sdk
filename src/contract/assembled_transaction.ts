@@ -442,22 +442,31 @@ export class AssembledTransaction<T> {
    * })
    */
   static async build<T>(
-    options: AssembledTransactionOptions<T>,
+    options: AssembledTransactionOptions<T>
+  ): Promise<AssembledTransaction<T>> {
+    const contract = new Contract(options.contractId);
+    return AssembledTransaction.buildWithOp(
+      contract.call(options.method, ...(options.args ?? [])),
+      options
+    );
+  }
+
+  //TODO: Docs
+  static async buildWithOp<T>(
+    // TODO: Docs either CreateContractArgsV2 
+    // or CreateContractArgs 
+    // or InvokeContractArgs
+    operation: xdr.Operation,
+    options: AssembledTransactionOptions<T>
   ): Promise<AssembledTransaction<T>> {
     const tx = new AssembledTransaction(options);
-    const contract = new Contract(options.contractId);
-
-    const account = await getAccount(
-      options,
-      tx.server
-    );
-
+    const account = await getAccount(options, tx.server);
     tx.raw = new TransactionBuilder(account, {
       fee: options.fee ?? BASE_FEE,
       networkPassphrase: options.networkPassphrase,
     })
-      .addOperation(contract.call(options.method, ...(options.args ?? [])))
-      .setTimeout(options.timeoutInSeconds ?? DEFAULT_TIMEOUT);
+      .setTimeout(options.timeoutInSeconds ?? DEFAULT_TIMEOUT)
+      .addOperation(operation);
 
     if (options.simulate) await tx.simulate();
 
