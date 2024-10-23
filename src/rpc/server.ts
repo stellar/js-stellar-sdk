@@ -17,7 +17,7 @@ import {
 
 import type { TransactionBuilder } from '@stellar/stellar-base';
 // eslint-disable-next-line import/no-named-as-default
-import AxiosClient from './axios';
+import AxiosClient, { DEFAULT_HEADERS } from './axios';
 import { Api as FriendbotApi } from '../friendbot';
 import * as jsonrpc from './jsonrpc';
 import { Api } from './api';
@@ -145,19 +145,17 @@ function findCreatedAccountSequenceInTransactionMeta(
  * @see {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods | API reference docs}
  */
 export class RpcServer {
+  /** RPC Server URL (ex. `http://localhost:8000/soroban/rpc`) */
   public readonly serverURL: URI;
 
   constructor(serverURL: string, opts: RpcServer.Options = {}) {
-    /**
-     * RPC Server URL (ex. `http://localhost:8000/soroban/rpc`).
-     * @member {URI}
-     */
     this.serverURL = URI(serverURL);
 
     if (opts.headers && Object.keys(opts.headers).length !== 0) {
-      AxiosClient.interceptors.request.use((config: any) => {
-        // merge the custom headers into any existing headers
-        config.headers = Object.assign(config.headers, opts.headers);
+      AxiosClient.interceptors.request.use((config) => {
+        // merge any custom headers into the default headers
+        // note that this intentionally ignores config.headers
+        config.headers = Object.assign(DEFAULT_HEADERS, opts.headers);
         return config;
       });
     }

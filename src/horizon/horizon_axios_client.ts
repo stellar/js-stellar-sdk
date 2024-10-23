@@ -29,12 +29,13 @@ export interface ServerTime {
  * @memberof module:Horizon
  */
 export const SERVER_TIME_MAP: Record<string, ServerTime> = {};
+export const DEFAULT_HEADERS: Record<string, string> = {
+  "X-Client-Name": "js-stellar-sdk",
+  "X-Client-Version": version,
+};
 
 export const AxiosClient = create({
-  headers: {
-    "X-Client-Name": "js-stellar-sdk",
-    "X-Client-Version": version,
-  },
+  headers: DEFAULT_HEADERS,
 });
 
 function toSeconds(ms: number): number {
@@ -63,7 +64,7 @@ AxiosClient.interceptors.response.use(
         serverTime,
         localTimeRecorded,
       };
-    } 
+    }
     return response;
   },
 );

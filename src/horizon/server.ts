@@ -40,6 +40,7 @@ import { TradesCallBuilder } from "./trades_call_builder";
 import { TransactionCallBuilder } from "./transaction_call_builder";
 // eslint-disable-next-line import/no-named-as-default
 import AxiosClient, {
+  DEFAULT_HEADERS,
   getCurrentServerTime,
 } from "./horizon_axios_client";
 
@@ -87,8 +88,11 @@ export class HorizonServer {
         ? Config.isAllowHttp()
         : opts.allowHttp;
 
-    const customHeaders: Record<string, string> = {};
+    if (this.serverURL.protocol() !== "https" && !allowHttp) {
+      throw new Error("Cannot connect to insecure horizon server");
+    }
 
+    let customHeaders: Record<string, string> = {};
     if (opts.appName) {
       customHeaders["X-App-Name"] = opts.appName;
     }
@@ -99,21 +103,16 @@ export class HorizonServer {
       customHeaders["X-Auth-Token"] = opts.authToken;
     }
     if (opts.headers) {
-      Object.assign(customHeaders, opts.headers);
+      customHeaders = Object.assign(customHeaders, opts.headers);
     }
+
     if (Object.keys(customHeaders).length > 0) {
       AxiosClient.interceptors.request.use((config) => {
-        // merge the custom headers with an existing headers, where customs
-        // override defaults
-        config.headers = config.headers || {};
-        config.headers = Object.assign(config.headers, customHeaders);
-
+        // merge any custom headers into the default headers
+        // note that this intentionally ignores config.headers
+        config.headers = Object.assign(DEFAULT_HEADERS, opts.headers);
         return config;
       });
-    }
-
-    if (this.serverURL.protocol() !== "https" && !allowHttp) {
-      throw new Error("Cannot connect to insecure horizon server");
     }
   }
 
