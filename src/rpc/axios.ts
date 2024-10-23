@@ -8,8 +8,6 @@ export const DEFAULT_HEADERS = {
   'X-Client-Version': version
 }
 
-export const AxiosClient: HttpClient = create({
-  headers: DEFAULT_HEADERS
-});
-
-export default AxiosClient;
+export function createHttpClient(): HttpClient {
+  return create({ headers: DEFAULT_HEADERS });
+};

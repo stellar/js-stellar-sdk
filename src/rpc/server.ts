@@ -17,7 +17,7 @@ import {
 
 import type { TransactionBuilder } from '@stellar/stellar-base';
 // eslint-disable-next-line import/no-named-as-default
-import AxiosClient, { DEFAULT_HEADERS } from './axios';
+import { createHttpClient, DEFAULT_HEADERS } from './axios';
 import { Api as FriendbotApi } from '../friendbot';
 import * as jsonrpc from './jsonrpc';
 import { Api } from './api';
@@ -30,6 +30,7 @@ import {
   parseRawTransactions,
   parseTransactionInfo,
 } from './parsers';
+import { HttpClient } from '../http-client';
 
 /**
  * Default transaction submission timeout for RPC requests, in milliseconds
@@ -147,12 +148,14 @@ function findCreatedAccountSequenceInTransactionMeta(
 export class RpcServer {
   /** RPC Server URL (ex. `http://localhost:8000/soroban/rpc`) */
   public readonly serverURL: URI;
+  private readonly httpClient: HttpClient;
 
   constructor(serverURL: string, opts: RpcServer.Options = {}) {
     this.serverURL = URI(serverURL);
+    this.httpClient = createHttpClient();
 
     if (opts.headers && Object.keys(opts.headers).length !== 0) {
-      AxiosClient.interceptors.request.use((config) => {
+      this.httpClient.interceptors.request.use((config) => {
         // merge any custom headers into the default headers
         // note that this intentionally ignores config.headers
         config.headers = Object.assign({...DEFAULT_HEADERS}, opts.headers);
@@ -222,6 +225,7 @@ export class RpcServer {
   // eslint-disable-next-line require-await
   public async getHealth(): Promise<Api.GetHealthResponse> {
     return jsonrpc.postObject<Api.GetHealthResponse>(
+      this.httpClient,
       this.serverURL.toString(),
       'getHealth'
     );
@@ -444,6 +448,7 @@ export class RpcServer {
   public async _getLedgerEntries(...keys: xdr.LedgerKey[]) {
     return jsonrpc
       .postObject<Api.RawGetLedgerEntriesResponse>(
+        this.httpClient,
         this.serverURL.toString(),
         'getLedgerEntries', {
           keys: keys.map((k) => k.toXDR('base64'))
@@ -503,7 +508,11 @@ export class RpcServer {
   public async _getTransaction(
     hash: string
   ): Promise<Api.RawGetTransactionResponse> {
-    return jsonrpc.postObject(this.serverURL.toString(), 'getTransaction', {hash});
+    return jsonrpc.postObject(
+      this.httpClient,
+      this.serverURL.toString(),
+      'getTransaction',
+      { hash });
   }
 
   /**
@@ -540,7 +549,11 @@ export class RpcServer {
 
   // Add this private method to the Server class
   private async _getTransactions(request: Api.GetTransactionsRequest): Promise<Api.RawGetTransactionsResponse> {
-    return jsonrpc.postObject(this.serverURL.toString(), 'getTransactions', request);
+    return jsonrpc.postObject(
+      this.httpClient,
+      this.serverURL.toString(),
+      'getTransactions',
+      request);
   }
 
   /**
@@ -594,19 +607,23 @@ export class RpcServer {
   public async _getEvents(
     request: RpcServer.GetEventsRequest
   ): Promise<Api.RawGetEventsResponse> {
-    return jsonrpc.postObject(this.serverURL.toString(), 'getEvents', {
-      filters: request.filters ?? [],
-      pagination: {
-        ...(request.cursor && { cursor: request.cursor }), // add if defined
-        ...(request.limit && { limit: request.limit })
-      },
-      ...(request.startLedger && {
-        startLedger: request.startLedger
-      }),
-      ...(request.endLedger && {
-        endLedger: request.endLedger
-      })
-    });
+    return jsonrpc.postObject(
+      this.httpClient,
+      this.serverURL.toString(),
+      'getEvents',
+      {
+        filters: request.filters ?? [],
+        pagination: {
+          ...(request.cursor && { cursor: request.cursor }), // add if defined
+          ...(request.limit && { limit: request.limit })
+        },
+        ...(request.startLedger && {
+          startLedger: request.startLedger
+        }),
+        ...(request.endLedger && {
+          endLedger: request.endLedger
+        })
+      });
   }
 
   /**
@@ -626,7 +643,10 @@ export class RpcServer {
    */
   // eslint-disable-next-line require-await
   public async getNetwork(): Promise<Api.GetNetworkResponse> {
-    return jsonrpc.postObject(this.serverURL.toString(), 'getNetwork');
+    return jsonrpc.postObject(
+      this.httpClient,
+      this.serverURL.toString(),
+      'getNetwork');
   }
 
   /**
@@ -647,7 +667,10 @@ export class RpcServer {
    */
   // eslint-disable-next-line require-await
   public async getLatestLedger(): Promise<Api.GetLatestLedgerResponse> {
-    return jsonrpc.postObject(this.serverURL.toString(), 'getLatestLedger');
+    return jsonrpc.postObject(
+      this.httpClient,
+      this.serverURL.toString(),
+      'getLatestLedger');
   }
 
   /**
@@ -706,6 +729,7 @@ export class RpcServer {
     addlResources?: RpcServer.ResourceLeeway
   ): Promise<Api.RawSimulateTransactionResponse> {
     return jsonrpc.postObject(
+      this.httpClient,
       this.serverURL.toString(),
       'simulateTransaction',
       {
@@ -854,6 +878,7 @@ export class RpcServer {
     transaction: Transaction | FeeBumpTransaction
   ): Promise<Api.RawSendTransactionResponse> {
     return jsonrpc.postObject(
+      this.httpClient,
       this.serverURL.toString(),
       'sendTransaction',
       { transaction: transaction.toXDR() }
@@ -898,7 +923,7 @@ export class RpcServer {
     }
 
     try {
-      const response = await AxiosClient.post<FriendbotApi.Response>(
+      const response = await this.httpClient.post<FriendbotApi.Response>(
         `${friendbotUrl}?addr=${encodeURIComponent(account)}`
       );
 
@@ -928,7 +953,10 @@ export class RpcServer {
    */
   // eslint-disable-next-line require-await
   public async getFeeStats(): Promise<Api.GetFeeStatsResponse> {
-    return jsonrpc.postObject(this.serverURL.toString(), 'getFeeStats');
+    return jsonrpc.postObject(
+      this.httpClient,
+      this.serverURL.toString(),
+      'getFeeStats');
   }
 
   /**
@@ -939,7 +967,10 @@ export class RpcServer {
    */
   // eslint-disable-next-line require-await
   public async getVersionInfo(): Promise<Api.GetVersionInfoResponse> {
-    return jsonrpc.postObject(this.serverURL.toString(), 'getVersionInfo');
+    return jsonrpc.postObject(
+      this.httpClient,
+      this.serverURL.toString(),
+      'getVersionInfo');
   }
 
   /**
