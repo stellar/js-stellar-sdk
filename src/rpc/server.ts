@@ -155,7 +155,7 @@ export class RpcServer {
       AxiosClient.interceptors.request.use((config) => {
         // merge any custom headers into the default headers
         // note that this intentionally ignores config.headers
-        config.headers = Object.assign(DEFAULT_HEADERS, opts.headers);
+        config.headers = Object.assign({...DEFAULT_HEADERS}, opts.headers);
         return config;
       });
     }

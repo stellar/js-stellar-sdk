@@ -103,14 +103,14 @@ export class HorizonServer {
       customHeaders["X-Auth-Token"] = opts.authToken;
     }
     if (opts.headers) {
-      customHeaders = Object.assign(customHeaders, opts.headers);
+      Object.assign(customHeaders, opts.headers);
     }
 
     if (Object.keys(customHeaders).length > 0) {
       AxiosClient.interceptors.request.use((config) => {
         // merge any custom headers into the default headers
         // note that this intentionally ignores config.headers
-        config.headers = Object.assign(DEFAULT_HEADERS, opts.headers);
+        config.headers = Object.assign({...DEFAULT_HEADERS}, opts.headers);
         return config;
       });
     }
