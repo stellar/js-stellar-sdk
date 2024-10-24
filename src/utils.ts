@@ -32,4 +32,8 @@ export class Utils {
       now <= Number.parseInt(maxTime, 10) + gracePeriod
     );
   }
+
+  static sleep(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
 }

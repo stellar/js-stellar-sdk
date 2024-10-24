@@ -30,6 +30,7 @@ import {
   parseRawTransactions,
   parseTransactionInfo,
 } from './parsers';
+import { Utils } from '../utils';
 
 /**
  * Default transaction submission timeout for RPC requests, in milliseconds
@@ -84,6 +85,17 @@ export namespace RpcServer {
     limit?: number;
   }
 
+  /**
+   * A function that returns the number of *milliseconds* to sleep
+   * on a given `iter`ation.
+   */
+  export type SleepStrategy = (iter: number) => number;
+
+  export interface PollingOptions {
+    attempts?: number;
+    sleepStrategy?: SleepStrategy;
+  }
+
   export interface ResourceLeeway {
     cpuInstructions: number;
   }
@@ -94,6 +106,14 @@ export namespace RpcServer {
     headers?: Record<string, string>;
   }
 }
+
+/// A strategy that will sleep 1 second each time
+export const BasicSleepStrategy: RpcServer.SleepStrategy =
+(_iter: number) => 1000;
+
+/// A strategy that will sleep 1 second longer on each attempt
+export const LinearSleepStrategy: RpcServer.SleepStrategy =
+  (iter: number) => 1000 * iter;
 
 function findCreatedAccountSequenceInTransactionMeta(
   meta: xdr.TransactionMeta
@@ -453,6 +473,51 @@ export class RpcServer {
       );
   }
 
+
+  /**
+   * Poll for a particular transaction with certain parameters.
+   *
+   * After submitting a transaction, clients can use this to poll for
+   * transaction completion and return a definitive state of success or failure.
+   *
+   * @param {string} hash   the transaction you're polling for
+   * @param {number} [opts.attempts] (optional) the number of attempts to make
+   *    before returning the last-seen status. By default, try 5 times.
+   * @param {SleepStrategy} [opts.sleepStrategy] (optional) the amount of time
+   *    to wait for between each attempt. By default, sleep for 1 second between
+   *    each attempt.
+   *
+   * @return {Promise<Api.GetTransactionsResponse>} the response after a "found"
+   *    response (which may be success or failure) or the last response obtained
+   *    after polling the maximum number of specified attempts.
+   *
+   * @example
+   * const txStatus = await server.pollTransaction("cafebabe", {
+   *    attempts: 100, // I'm a maniac
+   *    sleepStrategy: rpc.LinearSleepStrategy
+   * }); // this will take 5,050 seconds to complete
+   */
+  public async pollTransaction(
+    hash: string,
+    opts?: RpcServer.PollingOptions
+  ): Promise<Api.GetTransactionResponse> {
+    let foundInfo: Api.GetTransactionResponse;
+    let maxAttempts: number = (
+      (opts?.attempts ?? 0) < 1 ? 5 : (opts?.attempts ?? 5)
+    );
+
+    for (let attempt = 1; attempt < maxAttempts; attempt++) {
+      foundInfo = await this.getTransaction(hash);
+      if (foundInfo.status !== Api.GetTransactionStatus.NOT_FOUND) {
+        return foundInfo;
+      }
+
+      await Utils.sleep((opts?.sleepStrategy ?? BasicSleepStrategy)(attempt));
+    }
+
+    return foundInfo!;
+  }
+
   /**
    * Fetch the details of a submitted transaction.
    *
@@ -460,10 +525,11 @@ export class RpcServer {
    * transaction has completed.
    *
    * @param {string} hash Hex-encoded hash of the transaction to check
-   * @returns {Promise<Api.GetTransactionResponse>} The status,
-   *    result, and other details about the transaction
+   * @returns {Promise<Api.GetTransactionResponse>} The status, result, and
+   *    other details about the transaction
    *
-   * @see {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods/getTransaction | getTransaction docs}
+   * @see
+   * {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods/getTransaction | getTransaction docs}
    *
    * @example
    * const transactionHash = "c4515e3bdc0897f21cc5dbec8c82cf0a936d4741cb74a8e158eb51b9fb00411a";
@@ -480,8 +546,8 @@ export class RpcServer {
   ): Promise<Api.GetTransactionResponse> {
     return this._getTransaction(hash).then((raw) => {
       const foundInfo: Omit<
-          Api.GetSuccessfulTransactionResponse,
-          keyof Api.GetMissingTransactionResponse
+        Api.GetSuccessfulTransactionResponse,
+        keyof Api.GetMissingTransactionResponse
       > = {} as any;
 
       if (raw.status !== Api.GetTransactionStatus.NOT_FOUND) {
