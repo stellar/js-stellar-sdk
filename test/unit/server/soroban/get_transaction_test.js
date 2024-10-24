@@ -134,7 +134,7 @@ function makeTxResult(status, addSoroban = true) {
   // aa6a8e198abe53c7e852e4870413b29fe9ef04da1415a97a5de1a4ae489e11e2
   const successInfo = {
     ledger: 1234,
-    createdAt: 123456789010,
+    createdAt: "123456789010",
     applicationOrder: 2,
     feeBump: false,
     envelopeXdr:

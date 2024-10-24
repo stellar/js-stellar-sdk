@@ -162,7 +162,7 @@ function makeTxResult(ledger, applicationOrder, status) {
   return {
     status: status,
     ledger: ledger,
-    createdAt: ledger * 25 + 100,
+    createdAt: (ledger * 25 + 100).toString(),
     applicationOrder: applicationOrder,
     feeBump: false,
     envelopeXdr:
