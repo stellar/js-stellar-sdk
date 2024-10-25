@@ -3,6 +3,7 @@
 import type { MethodOptions } from "./types";
 import { Server } from "../rpc"
 import { Api } from "../rpc/api"
+import { withExponentialBackoff } from "./utils";
 import { DEFAULT_TIMEOUT } from "./types";
 import type { AssembledTransaction } from "./assembled_transaction";
 
@@ -93,20 +94,22 @@ export class SentTransaction<T> {
 
     const { hash } = this.sendTransactionResponse;
 
-    // The transaction will last for this many seconds:
-    const timeoutSec = this.assembled.options.timeoutInSeconds ?? DEFAULT_TIMEOUT;
-    this.getTransactionResponse = await this.server.pollTransaction(hash, {
-      // 4s baseline + 0.5s per iteration linear backoff
-      sleepStrategy: (iter: number) => 4000 + (500 * iter),
-      attempts: Math.ceil(timeoutSec / 4),
-    });
+    const timeoutInSeconds =
+      this.assembled.options.timeoutInSeconds ?? DEFAULT_TIMEOUT;
+    this.getTransactionResponseAll = await withExponentialBackoff(
+      () => this.server.getTransaction(hash),
+      (resp) => resp.status === Api.GetTransactionStatus.NOT_FOUND,
+      timeoutInSeconds,
+    );
 
+    this.getTransactionResponse =
+      this.getTransactionResponseAll[this.getTransactionResponseAll.length - 1];
     if (
       this.getTransactionResponse.status ===
       Api.GetTransactionStatus.NOT_FOUND
     ) {
       throw new SentTransaction.Errors.TransactionStillPending(
-        `Waited ${timeoutSec} seconds for transaction to complete, but it did not. ` +
+        `Waited ${timeoutInSeconds} seconds for transaction to complete, but it did not. ` +
         `Returning anyway. Check the transaction status manually. ` +
         `Sent transaction: ${JSON.stringify(
           this.sendTransactionResponse,
