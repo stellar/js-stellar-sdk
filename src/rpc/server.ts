@@ -85,12 +85,6 @@ export namespace RpcServer {
     limit?: number;
   }
 
-  /**
-   * A function that returns the number of *milliseconds* to sleep
-   * on a given `iter`ation.
-   */
-  export type SleepStrategy = (iter: number) => number;
-
   export interface PollingOptions {
     attempts?: number;
     sleepStrategy?: SleepStrategy;
@@ -108,12 +102,18 @@ export namespace RpcServer {
 }
 
 /// A strategy that will sleep 1 second each time
-export const BasicSleepStrategy: RpcServer.SleepStrategy =
+export const BasicSleepStrategy: SleepStrategy =
 (_iter: number) => 1000;
 
 /// A strategy that will sleep 1 second longer on each attempt
-export const LinearSleepStrategy: RpcServer.SleepStrategy =
+export const LinearSleepStrategy: SleepStrategy =
   (iter: number) => 1000 * iter;
+
+/**
+ * A function that returns the number of *milliseconds* to sleep
+ * on a given `iter`ation.
+ */
+export type SleepStrategy = (iter: number) => number;
 
 function findCreatedAccountSequenceInTransactionMeta(
   meta: xdr.TransactionMeta
@@ -482,7 +482,8 @@ export class RpcServer {
    *
    * @param {string} hash   the transaction you're polling for
    * @param {number} [opts.attempts] (optional) the number of attempts to make
-   *    before returning the last-seen status. By default, try 5 times.
+   *    before returning the last-seen status. By default or on invalid inputs,
+   *    try 5 times.
    * @param {SleepStrategy} [opts.sleepStrategy] (optional) the amount of time
    *    to wait for between each attempt. By default, sleep for 1 second between
    *    each attempt.
@@ -492,7 +493,8 @@ export class RpcServer {
    *    after polling the maximum number of specified attempts.
    *
    * @example
-   * const txStatus = await server.pollTransaction("cafebabe", {
+   * const h = "c4515e3bdc0897f21cc5dbec8c82cf0a936d4741cb74a8e158eb51b9fb00411a";
+   * const txStatus = await server.pollTransaction(h, {
    *    attempts: 100, // I'm a maniac
    *    sleepStrategy: rpc.LinearSleepStrategy
    * }); // this will take 5,050 seconds to complete
@@ -501,11 +503,11 @@ export class RpcServer {
     hash: string,
     opts?: RpcServer.PollingOptions
   ): Promise<Api.GetTransactionResponse> {
-    let foundInfo: Api.GetTransactionResponse;
     let maxAttempts: number = (
       (opts?.attempts ?? 0) < 1 ? 5 : (opts?.attempts ?? 5)
-    );
+    ); // "positive and defined user value or 5"
 
+    let foundInfo: Api.GetTransactionResponse;
     for (let attempt = 1; attempt < maxAttempts; attempt++) {
       foundInfo = await this.getTransaction(hash);
       if (foundInfo.status !== Api.GetTransactionStatus.NOT_FOUND) {
