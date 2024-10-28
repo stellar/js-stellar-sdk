@@ -1,9 +1,6 @@
 import {
   Operation,
-  Transaction,
-  TransactionBuilder,
   xdr,
-  Account,
   hash,
   Address,
 } from "@stellar/stellar-base";
@@ -12,10 +9,38 @@ import { Server } from '../rpc';
 import { AssembledTransaction } from "./assembled_transaction";
 import type { ClientOptions, MethodOptions } from "./types";
 import { processSpecEntryStream } from './utils';
-import { DEFAULT_TIMEOUT } from "./types";
 
 const CONSTRUCTOR_FUNC = "__constructor";
 
+async function specFromWasm(wasm: Buffer) {
+  const wasmModule = await WebAssembly.compile(wasm);
+  const xdrSections = WebAssembly.Module.customSections(
+    wasmModule,
+    "contractspecv0"
+  );
+  if (xdrSections.length === 0) {
+    throw new Error("Could not obtain contract spec from wasm");
+  }
+  const bufferSection = Buffer.from(xdrSections[0]);
+  const specEntryArray = processSpecEntryStream(bufferSection);
+  const spec = new Spec(specEntryArray);
+  return spec;
+}
+
+async function specFromWasmHash(
+  wasmHash: Buffer | string,
+  options: Server.Options & { rpcUrl: string },
+  format: "hex" | "base64" = "hex"
+): Promise<Spec> {
+  if (!options || !options.rpcUrl) {
+    throw new TypeError("options must contain rpcUrl");
+  }
+  const { rpcUrl, allowHttp } = options;
+  const serverOpts: Server.Options = { allowHttp };
+  const server = new Server(rpcUrl, serverOpts);
+  const wasm = await server.getContractWasmByHash(wasmHash, format);
+  return specFromWasm(wasm);
+}
 
 /**
  * Generate a class from the contract spec that where each contract method
@@ -82,7 +107,7 @@ export class Client {
       ...options,
       contractId,
       method: CONSTRUCTOR_FUNC,
-      parseResultXdr: (result: xdr.ScVal) =>
+      parseResultXdr: () =>
         new Client(spec, { ...options, contractId }),
     }) as unknown as AssembledTransaction<T>;
   }
@@ -193,34 +218,4 @@ export class Client {
   };
 
   txFromXDR = <T>(xdrBase64: string): AssembledTransaction<T> => AssembledTransaction.fromXDR(this.options, xdrBase64, this.spec);
-
-}
-async function specFromWasm(wasm: Buffer) {
-  const wasmModule = await WebAssembly.compile(wasm);
-  const xdrSections = WebAssembly.Module.customSections(
-    wasmModule,
-    "contractspecv0"
-  );
-  if (xdrSections.length === 0) {
-    throw new Error("Could not obtain contract spec from wasm");
-  }
-  const bufferSection = Buffer.from(xdrSections[0]);
-  const specEntryArray = processSpecEntryStream(bufferSection);
-  const spec = new Spec(specEntryArray);
-  return spec;
-}
-
-async function specFromWasmHash(
-  wasmHash: Buffer | string,
-  options: Server.Options & { rpcUrl: string },
-  format: "hex" | "base64" = "hex"
-): Promise<Spec> {
-  if (!options || !options.rpcUrl) {
-    throw new TypeError("options must contain rpcUrl");
-  }
-  const { rpcUrl, allowHttp } = options;
-  const serverOpts: Server.Options = { allowHttp };
-  const server = new Server(rpcUrl, serverOpts);
-  const wasm = await server.getContractWasmByHash(wasmHash, format);
-  return specFromWasm(wasm);
 }
