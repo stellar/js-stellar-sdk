@@ -54,6 +54,12 @@ const contracts = {
     ).stdout,
     path: `${basePath}/this_one_signs.wasm`,
   },
+  constructorArgs: {
+    hash: run(
+      `${stellar} contract install --wasm ${basePath}/constructor_args.wasm`,
+    ).stdout,
+    path: `${basePath}/constructor_args.wasm`,
+  },
 };
 module.exports.contracts = contracts;
 
@@ -89,22 +95,13 @@ module.exports.generateFundedKeypair = generateFundedKeypair;
  * `contractId` again if you want to re-use the a contract instance.
  */
 async function clientFor(name, { keypair, contractId } = {}) {
-  if (!contracts[name]) {
-    throw new Error(
-      `Contract ${name} not found. ` +
-        `Pick one of: ${Object.keys(contracts).join(", ")}`,
-    );
-  }
-
-  const internalKeypair = keypair ?? (await generateFundedKeypair());
-  const wallet = contract.basicNodeSigner(internalKeypair, networkPassphrase);
-
-  let wasmHash = contracts[name].hash;
-  if (!wasmHash) {
-    wasmHash = run(
-      `${stellar} contract install --wasm ${contracts[name].path}`,
-    ).stdout;
-  }
+  const {
+    keypair: internalKeypair,
+    wasmHash,
+    wallet,
+  } = await installContract(name, {
+    keypair,
+  });
 
   // TODO: do this with js-stellar-sdk, instead of shelling out to the CLI
   contractId =
@@ -132,3 +129,24 @@ async function clientFor(name, { keypair, contractId } = {}) {
   };
 }
 module.exports.clientFor = clientFor;
+
+async function installContract(name, { keypair } = {}) {
+  if (!contracts[name]) {
+    throw new Error(
+      `Contract ${name} not found. ` +
+        `Pick one of: ${Object.keys(contracts).join(", ")}`,
+    );
+  }
+
+  const internalKeypair = keypair ?? (await generateFundedKeypair());
+  const wallet = contract.basicNodeSigner(internalKeypair, networkPassphrase);
+
+  let wasmHash = contracts[name].hash;
+  if (!wasmHash) {
+    wasmHash = run(
+      `${stellar} contract install --wasm ${contracts[name].path}`,
+    ).stdout;
+  }
+  return { keypair: internalKeypair, wasmHash, wallet };
+}
+module.exports.installContract = installContract;

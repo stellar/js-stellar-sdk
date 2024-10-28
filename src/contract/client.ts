@@ -73,7 +73,7 @@ export class Client {
     );
     const wasmHashBuffer =
       typeof options.wasmHash === "string"
-        ? Buffer.from(options.wasmHash, options.format)
+        ? Buffer.from(options.wasmHash, options.format ?? "hex")
         : (options.wasmHash as Buffer);
     let constructorArgs: xdr.ScVal[] = args
       ? spec.funcArgsToScVals(CONSTRUCTOR_FUNC, args)
@@ -89,7 +89,6 @@ export class Client {
     let contractId = Address.contract(
       hash(contractIdPreimage.toXDR())
     ).toString();
-    console.log("contractId", contractId);
     let func = xdr.HostFunction.hostFunctionTypeCreateContractV2(
       new xdr.CreateContractArgsV2({
         constructorArgs,

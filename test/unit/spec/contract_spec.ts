@@ -282,9 +282,11 @@ describe("Constructor", function () {
       {
         networkPassphrase,
         rpcUrl,
-        wasmHash: "",
+        allowHttp: true,
+        wasmHash: hash(Buffer.from("lol")),
         salt: hash(Buffer.from("salt")),
         publicKey: keypair.publicKey(),
+        simulate: false,
       },
     );
     console.log(deployAndConstructTx.toXDR());

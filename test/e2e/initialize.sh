@@ -54,6 +54,7 @@ wasm_files=(
     "increment.wasm"
     "needs_a_signature.wasm"
     "this_one_signs.wasm"
+    "constructor_args.wasm"
 )
 
 get_test_contracts_git_hash() {
