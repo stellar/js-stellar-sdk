@@ -101,6 +101,8 @@ export namespace RpcServer {
   }
 }
 
+const DEFAULT_GET_TRANSACTION_TIMEOUT: number = 30;
+
 /// A strategy that will sleep 1 second each time
 export const BasicSleepStrategy: SleepStrategy =
 (_iter: number) => 1000;
@@ -504,8 +506,10 @@ export class RpcServer {
     opts?: RpcServer.PollingOptions
   ): Promise<Api.GetTransactionResponse> {
     let maxAttempts: number = (
-      (opts?.attempts ?? 0) < 1 ? 5 : (opts?.attempts ?? 5)
-    ); // "positive and defined user value or 5"
+      (opts?.attempts ?? 0) < 1
+      ? DEFAULT_GET_TRANSACTION_TIMEOUT
+      : (opts?.attempts ?? DEFAULT_GET_TRANSACTION_TIMEOUT)
+    ); // "positive and defined user value or default"
 
     let foundInfo: Api.GetTransactionResponse;
     for (let attempt = 1; attempt < maxAttempts; attempt++) {
