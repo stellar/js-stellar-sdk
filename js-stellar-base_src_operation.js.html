@@ -202,7 +202,12 @@ export const AuthClawbackEnabledFlag = 1 &lt;&lt; 3;
  * * `{@link Operation.setTrustLineFlags}`
  * * `{@link Operation.liquidityPoolDeposit}`
  * * `{@link Operation.liquidityPoolWithdraw}`
- * * `{@link Operation.invokeHostFunction}`
+ * * `{@link Operation.invokeHostFunction}`, which has the following additional
+ *   "pseudo-operations" that make building host functions easier:
+ *   - `{@link Operation.createStellarAssetContract}`
+ *   - `{@link Operation.invokeContractFunction}`
+ *   - `{@link Operation.createCustomContract}`
+ *   - `{@link Operation.uploadContractWasm}`
  * * `{@link Operation.extendFootprintTtlOp}`
  * * `{@link Operation.restoreFootprint}`
  *

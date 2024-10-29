@@ -177,7 +177,15 @@ Stellar network.</p>
 <li><code><a href="Operation.html#.setTrustLineFlags">Operation.setTrustLineFlags</a></code></li>
 <li><code><a href="Operation.html#.liquidityPoolDeposit">Operation.liquidityPoolDeposit</a></code></li>
 <li><code><a href="Operation.html#.liquidityPoolWithdraw">Operation.liquidityPoolWithdraw</a></code></li>
-<li><code><a href="Operation.html#.invokeHostFunction">Operation.invokeHostFunction</a></code></li>
+<li><code><a href="Operation.html#.invokeHostFunction">Operation.invokeHostFunction</a></code>, which has the following additional
+&quot;pseudo-operations&quot; that make building host functions easier:
+<ul>
+<li><code><a href="Operation.html#.createStellarAssetContract">Operation.createStellarAssetContract</a></code></li>
+<li><code><a href="Operation.html#.invokeContractFunction">Operation.invokeContractFunction</a></code></li>
+<li><code><a href="Operation.html#.createCustomContract">Operation.createCustomContract</a></code></li>
+<li><code><a href="Operation.html#.uploadContractWasm">Operation.uploadContractWasm</a></code></li>
+</ul>
+</li>
 <li><code>Operation.extendFootprintTtlOp</code></li>
 <li><code><a href="Operation.html#.restoreFootprint">Operation.restoreFootprint</a></code></li>
 </ul>
@@ -3165,7 +3173,8 @@ const op = Operation.createClaimableBalance({
     
     
     <div class="description">
-        <p>Returns an operation that creates a custom WASM contract.</p>
+        <p>Returns an operation that creates a custom WASM contract and atomically
+invokes its constructor.</p>
     </div>
     
 
@@ -3298,6 +3307,41 @@ const op = Operation.createClaimableBalance({
   <td class="description last"><p>the SHA-256 hash of the contract
 WASM you're uploading (see hash and
 <a href="Operation.html#.uploadContractWasm">Operation.uploadContractWasm</a>)</p></td>
+</tr>
+
+  
+    
+<tr class="deep-level-1">
+  
+      <td class="name"><code>constructorArgs</code></td>
+  
+
+  <td class="type">
+  
+      
+<code class="param-type">Array.&lt;xdr.ScVal></code>
+
+
+  
+  </td>
+
+  
+      <td class="attributes">
+      
+          &lt;optional><br>
+      
+
+      
+
+      
+      </td>
+  
+
+  
+
+  <td class="description last"><p>the optional parameters to pass
+to the constructor of this contract (see <a href="global.html#nativeToScVal">nativeToScVal</a> for ways to
+easily create these parameters from native JS values)</p></td>
 </tr>
 
   
@@ -3459,7 +3503,7 @@ outlining the tree of authorizations required for the call</p></td>
         <p class="tag-source">
             <a href="js-stellar-base_src_operations_invoke_host_function.js.html" class="button">View Source</a>
             <span>
-                <a href="js-stellar-base_src_operations_invoke_host_function.js.html">js-stellar-base/src/operations/invoke_host_function.js</a>, <a href="js-stellar-base_src_operations_invoke_host_function.js.html#line116">line 116</a>
+                <a href="js-stellar-base_src_operations_invoke_host_function.js.html">js-stellar-base/src/operations/invoke_host_function.js</a>, <a href="js-stellar-base_src_operations_invoke_host_function.js.html#line120">line 120</a>
             </span>
         </p>
     
@@ -4207,7 +4251,7 @@ outlining the tree of authorizations required for the call</p></td>
         <p class="tag-source">
             <a href="js-stellar-base_src_operations_invoke_host_function.js.html" class="button">View Source</a>
             <span>
-                <a href="js-stellar-base_src_operations_invoke_host_function.js.html">js-stellar-base/src/operations/invoke_host_function.js</a>, <a href="js-stellar-base_src_operations_invoke_host_function.js.html#line173">line 173</a>
+                <a href="js-stellar-base_src_operations_invoke_host_function.js.html">js-stellar-base/src/operations/invoke_host_function.js</a>, <a href="js-stellar-base_src_operations_invoke_host_function.js.html#line178">line 178</a>
             </span>
         </p>
     
@@ -4885,7 +4929,7 @@ was used to create the operation (i.e. the <code>opts</code> parameter to most o
         <p class="tag-source">
             <a href="js-stellar-base_src_operation.js.html" class="button">View Source</a>
             <span>
-                <a href="js-stellar-base_src_operation.js.html">js-stellar-base/src/operation.js</a>, <a href="js-stellar-base_src_operation.js.html#line118">line 118</a>
+                <a href="js-stellar-base_src_operation.js.html">js-stellar-base/src/operation.js</a>, <a href="js-stellar-base_src_operation.js.html#line123">line 123</a>
             </span>
         </p>
     
@@ -5998,7 +6042,7 @@ towards validating the standard Stellar operations.</p>
         <p class="tag-source">
             <a href="js-stellar-base_src_operation.js.html" class="button">View Source</a>
             <span>
-                <a href="js-stellar-base_src_operation.js.html">js-stellar-base/src/operation.js</a>, <a href="js-stellar-base_src_operation.js.html#line415">line 415</a>
+                <a href="js-stellar-base_src_operation.js.html">js-stellar-base/src/operation.js</a>, <a href="js-stellar-base_src_operation.js.html#line420">line 420</a>
             </span>
         </p>
     
@@ -13061,7 +13105,7 @@ outlining the tree of authorizations required for the call</p></td>
         <p class="tag-source">
             <a href="js-stellar-base_src_operations_invoke_host_function.js.html" class="button">View Source</a>
             <span>
-                <a href="js-stellar-base_src_operations_invoke_host_function.js.html">js-stellar-base/src/operations/invoke_host_function.js</a>, <a href="js-stellar-base_src_operations_invoke_host_function.js.html#line216">line 216</a>
+                <a href="js-stellar-base_src_operations_invoke_host_function.js.html">js-stellar-base/src/operations/invoke_host_function.js</a>, <a href="js-stellar-base_src_operations_invoke_host_function.js.html#line221">line 221</a>
             </span>
         </p>
     
