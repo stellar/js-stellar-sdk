@@ -66,6 +66,7 @@ export namespace Api {
 
   interface GetAnyTransactionResponse {
     status: GetTransactionStatus;
+    txHash: string;
     latestLedger: number;
     latestLedgerCloseTime: number;
     oldestLedger: number;
@@ -113,13 +114,13 @@ export namespace Api {
     latestLedgerCloseTime: number;
     oldestLedger: number;
     oldestLedgerCloseTime: number;
+    txHash: string;
 
     // the fields below are set if status is SUCCESS
     applicationOrder?: number;
     feeBump?: boolean;
     ledger?: number;
     createdAt?: number;
-    txHash: string;
 
     envelopeXdr?: string;
     resultXdr?: string;

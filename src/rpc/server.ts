@@ -480,8 +480,8 @@ export class RpcServer {
   ): Promise<Api.GetTransactionResponse> {
     return this._getTransaction(hash).then((raw) => {
       const foundInfo: Omit<
-          Api.GetSuccessfulTransactionResponse,
-          keyof Api.GetMissingTransactionResponse
+        Api.GetSuccessfulTransactionResponse,
+        keyof Api.GetMissingTransactionResponse
       > = {} as any;
 
       if (raw.status !== Api.GetTransactionStatus.NOT_FOUND) {
@@ -490,6 +490,7 @@ export class RpcServer {
 
       const result: Api.GetTransactionResponse = {
         status: raw.status,
+        txHash: hash,
         latestLedger: raw.latestLedger,
         latestLedgerCloseTime: raw.latestLedgerCloseTime,
         oldestLedger: raw.oldestLedger,

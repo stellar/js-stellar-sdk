@@ -34,14 +34,15 @@ export function parseRawSendTransaction(
   return { ...raw } as Api.BaseSendTransactionResponse;
 }
 
-export function parseTransactionInfo(raw: Api.RawTransactionInfo | Api.RawGetTransactionResponse): Omit<Api.TransactionInfo, 'status'> {
+export function parseTransactionInfo(
+  raw: Api.RawTransactionInfo | Api.RawGetTransactionResponse
+): Omit<Api.TransactionInfo, 'status' | 'txHash'> {
   const meta = xdr.TransactionMeta.fromXDR(raw.resultMetaXdr!, 'base64');
-  const info: Omit<Api.TransactionInfo, 'status'> = {
+  const info: Omit<Api.TransactionInfo, 'status' | 'txHash'> = {
     ledger: raw.ledger!,
     createdAt: raw.createdAt!,
     applicationOrder: raw.applicationOrder!,
     feeBump: raw.feeBump!,
-    txHash: raw.txHash,
     envelopeXdr: xdr.TransactionEnvelope.fromXDR(raw.envelopeXdr!, 'base64'),
     resultXdr: xdr.TransactionResult.fromXDR(raw.resultXdr!, 'base64'),
     resultMetaXdr: meta,
@@ -65,6 +66,7 @@ export function parseRawTransactions(
 ): Api.TransactionInfo {
   return {
     status: r.status,
+    txHash: r.txHash,
     ...parseTransactionInfo(r),
   };
 }

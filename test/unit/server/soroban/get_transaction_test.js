@@ -33,7 +33,6 @@ describe("Server#getTransaction", function () {
     transaction.sign(keypair);
 
     this.transaction = transaction;
-    this.hash = this.transaction.hash().toString("hex");
     this.blob = transaction.toEnvelope().toXDR().toString("base64");
     this.prepareAxios = (result) => {
       this.axiosMock
@@ -42,7 +41,7 @@ describe("Server#getTransaction", function () {
           jsonrpc: "2.0",
           id: 1,
           method: "getTransaction",
-          params: { hash: this.hash },
+          params: { hash: result.txHash },
         })
         .returns(Promise.resolve({ data: { id: 1, result } }));
     };
@@ -58,7 +57,7 @@ describe("Server#getTransaction", function () {
     this.prepareAxios(result);
 
     this.server
-      .getTransaction(this.hash)
+      .getTransaction(result.txHash)
       .then(function (response) {
         expect(response).to.be.deep.equal(result);
         done();
@@ -84,7 +83,7 @@ describe("Server#getTransaction", function () {
       .returnValue();
 
     this.server
-      .getTransaction(this.hash)
+      .getTransaction(result.txHash)
       .then((resp) => {
         expect(Object.keys(resp)).to.eql(Object.keys(expected));
         expect(resp).to.eql(expected);
@@ -99,7 +98,7 @@ describe("Server#getTransaction", function () {
     this.prepareAxios(result);
 
     this.server
-      .getTransaction(this.hash)
+      .getTransaction(result.txHash)
       .then((resp) => {
         expect(resp).to.be.deep.equal(result);
         done();
@@ -152,7 +151,7 @@ function makeTxResult(status, addSoroban = true) {
 
   return {
     status,
-    txHash: "aa6a8e198abe53c7e852e4870413b29fe9ef04da1415a97a5de1a4ae489e11e2",
+    txHash: "ae9f315c048d87a5f853bc15bf284a2c3c89eb0e1cb38c10409b77a877b830a8",
     latestLedger: 100,
     latestLedgerCloseTime: 12345,
     oldestLedger: 50,
