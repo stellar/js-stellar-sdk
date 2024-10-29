@@ -418,6 +418,15 @@ export namespace Api {
     buildTimestamp: string;
     captiveCoreVersion: string;
     protocolVersion: number; // uint32
+
+    /// @deprecated
+    commit_hash: string;
+    /// @deprecated
+    build_timestamp: string;
+    /// @deprecated
+    captive_core_version: string;
+    /// @deprecated
+    protocol_version: number; // uint32
   }
 
   export interface GetFeeStatsResponse {
