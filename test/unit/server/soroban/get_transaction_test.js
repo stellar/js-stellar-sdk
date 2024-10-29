@@ -152,6 +152,7 @@ function makeTxResult(status, addSoroban = true) {
 
   return {
     status,
+    txHash: "aa6a8e198abe53c7e852e4870413b29fe9ef04da1415a97a5de1a4ae489e11e2",
     latestLedger: 100,
     latestLedgerCloseTime: 12345,
     oldestLedger: 50,
