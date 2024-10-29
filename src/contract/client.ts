@@ -62,12 +62,13 @@ export class Client {
     args: Record<string, any> | null,
     options: MethodOptions &
       Omit<ClientOptions, "contractId"> & {
+        /** The hash of the wasm blob, which must already be deployed on-chain. */
         wasmHash: Buffer | string;
         salt?: Buffer;
         format?: "hex" | "base64";
       }
   ): Promise<AssembledTransaction<T>> {
-    let spec = await specFromWasmHash(
+    const spec = await specFromWasmHash(
       options.wasmHash,
       options,
       options.format
@@ -76,21 +77,21 @@ export class Client {
       typeof options.wasmHash === "string"
         ? Buffer.from(options.wasmHash, options.format ?? "hex")
         : (options.wasmHash as Buffer);
-    let constructorArgs: xdr.ScVal[] = args
+    const constructorArgs: xdr.ScVal[] = args
       ? spec.funcArgsToScVals(CONSTRUCTOR_FUNC, args)
       : [];
-    let address = new Address(options.publicKey!);
-    let contractIdPreimage =
+    const address = new Address(options.publicKey!);
+    const contractIdPreimage =
       xdr.ContractIdPreimage.contractIdPreimageFromAddress(
         new xdr.ContractIdPreimageFromAddress({
           salt: options.salt ?? hash(randomBytes(48)),
           address: address.toScAddress(),
         })
       );
-    let contractId = Address.contract(
+    const contractId = Address.contract(
       hash(contractIdPreimage.toXDR())
     ).toString();
-    let func = xdr.HostFunction.hostFunctionTypeCreateContractV2(
+    const func = xdr.HostFunction.hostFunctionTypeCreateContractV2(
       new xdr.CreateContractArgsV2({
         constructorArgs,
         contractIdPreimage,
@@ -98,7 +99,7 @@ export class Client {
           xdr.ContractExecutable.contractExecutableWasm(wasmHashBuffer),
       })
     );
-    let operation = Operation.invokeHostFunction({
+    const operation = Operation.invokeHostFunction({
       func,
       source: address.toString(),
     });

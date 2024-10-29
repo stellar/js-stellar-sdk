@@ -270,29 +270,6 @@ describe("parsing and building ScVals", function () {
   });
 });
 
-describe("Constructor", function () {
-  it("Can round trip constructor", async function () {
-    let names = SPEC_CONSTRUCTOR.funcs().map((f) => f.name().toString());
-    console.log(names);
-    let keypair = Keypair.random();
-    const networkPassphrase = "Standalone Network ; February 2017";
-    const rpcUrl = process.env.SOROBAN_RPC_URL ?? "http://localhost:8000/soroban/rpc";
-    let deployAndConstructTx = await contract.Client.deploy(
-      { counter: 42 },
-      {
-        networkPassphrase,
-        rpcUrl,
-        allowHttp: true,
-        wasmHash: hash(Buffer.from("lol")),
-        salt: hash(Buffer.from("salt")),
-        publicKey: keypair.publicKey(),
-        simulate: false,
-      },
-    );
-    console.log(deployAndConstructTx.toXDR());
-  });
-});
-
 export const GIGA_MAP = xdr.ScSpecEntry.scSpecEntryUdtStructV0(
   new xdr.ScSpecUdtStructV0({
     doc: "This is a kitchen sink of all the types",
