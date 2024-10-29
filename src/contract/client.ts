@@ -9,6 +9,7 @@ import { Server } from '../rpc';
 import { AssembledTransaction } from "./assembled_transaction";
 import type { ClientOptions, MethodOptions } from "./types";
 import { processSpecEntryStream } from './utils';
+import randomBytes from "randombytes";
 
 const CONSTRUCTOR_FUNC = "__constructor";
 
@@ -62,7 +63,7 @@ export class Client {
     options: MethodOptions &
       Omit<ClientOptions, "contractId"> & {
         wasmHash: Buffer | string;
-        salt: Buffer;
+        salt?: Buffer;
         format?: "hex" | "base64";
       }
   ): Promise<AssembledTransaction<T>> {
@@ -82,7 +83,7 @@ export class Client {
     let contractIdPreimage =
       xdr.ContractIdPreimage.contractIdPreimageFromAddress(
         new xdr.ContractIdPreimageFromAddress({
-          salt: options.salt,
+          salt: options.salt ?? hash(randomBytes(48)),
           address: address.toScAddress(),
         })
       );
@@ -106,8 +107,9 @@ export class Client {
       ...options,
       contractId,
       method: CONSTRUCTOR_FUNC,
-      parseResultXdr: () =>
-        new Client(spec, { ...options, contractId }),
+      parseResultXdr: (result) =>
+        new Client(spec, { ...options, contractId: Address.fromScVal(result).toString() })
+
     }) as unknown as AssembledTransaction<T>;
   }
 

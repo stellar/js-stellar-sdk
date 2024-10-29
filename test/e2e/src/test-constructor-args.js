@@ -3,28 +3,40 @@ const { Address, contract, hash } = require("../../../lib");
 const { installContract, rpcUrl, networkPassphrase } = require("./util");
 const { basicNodeSigner } = require("../../../lib/contract");
 
-describe("Constructor Args", function () {
+const INIT_VALUE = 42;
+
+describe("contract with constructor args", function () {
   before(async function () {
     const { wasmHash, keypair } = await installContract("constructorArgs");
     this.context = { wasmHash, keypair };
   });
 
-  it("does things", async function () {
-    expect(this.context.wasmHash).not.to.be.empty;
+  it("can be instantiated when deployed", async function () {
     const tx = await contract.Client.deploy(
-      { counter: 42 },
+      { counter: INIT_VALUE },
       {
         networkPassphrase,
         rpcUrl,
         allowHttp: true,
         wasmHash: this.context.wasmHash,
-        salt: hash(Buffer.from("salt")),
         publicKey: this.context.keypair.publicKey(),
-        ...basicNodeSigner(this.context.keypair),
+        ...basicNodeSigner(this.context.keypair, networkPassphrase),
       },
     );
-    console.log(tx);
-    const { result } = await tx.signAndSend();
-    console.log(result);
+    const { result: client } = await tx.signAndSend();
+    const t = await client.counter();
+    expect(t.result, INIT_VALUE);
+  });
+
+  it("fails deploy if not given arguments", async function () {
+    const tx = await contract.Client.deploy(null, {
+      networkPassphrase,
+      rpcUrl,
+      allowHttp: true,
+      wasmHash: this.context.wasmHash,
+      publicKey: this.context.keypair.publicKey(),
+      ...basicNodeSigner(this.context.keypair, networkPassphrase),
+    });
+    expect(tx.signAndSend().then((t) => t.result)).to.eventually.throw();
   });
 });
