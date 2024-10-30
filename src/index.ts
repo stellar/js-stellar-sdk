@@ -28,11 +28,6 @@ export * as Horizon from './horizon';
 export * as rpc from './rpc';
 
 /**
- * @deprecated Use `rpc` instead
- */
-export * as SorobanRpc from './rpc';
-
-/**
  * Tools for interacting with smart contracts, such as `Client`, `Spec`, and
  * `AssembledTransaction`. You can import these from the `/contract`
  * entrypoint, if your version of Node and your TypeScript configuration allow

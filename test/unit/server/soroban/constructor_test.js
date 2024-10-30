@@ -1,4 +1,4 @@
-const { Server, AxiosClient } = StellarSdk.SorobanRpc;
+const { Server, AxiosClient } = StellarSdk.rpc;
 
 describe("Server.constructor", function () {
   beforeEach(function () {
