@@ -44,6 +44,24 @@ async function specFromWasmHash(
 }
 
 /**
+ * Deterministically calculate a contract ID from a source account public key and salt.
+ * TODO: not currently working
+ */
+function calculateDetermisticContractId(sourceAccountPk: string, salt: Buffer): string { // eslint-disable-line
+  // const contractIdPreimage =
+  //   xdr.ContractIdPreimage.contractIdPreimageFromAddress(
+  //     new xdr.ContractIdPreimageFromAddress({
+  //       salt,
+  //       address: new Address(sourceAccountPk).toScAddress(),
+  //     })
+  //   );
+  // return Address.contract(
+  //   hash(contractIdPreimage.toXDR())
+  // ).toString();
+  return "ignored"
+}
+
+/**
  * Generate a class from the contract spec that where each contract method
  * gets included with an identical name.
  *
@@ -80,36 +98,23 @@ export class Client {
     const constructorArgs: xdr.ScVal[] = args
       ? spec.funcArgsToScVals(CONSTRUCTOR_FUNC, args)
       : [];
-    const address = new Address(options.publicKey!);
-    const contractIdPreimage =
-      xdr.ContractIdPreimage.contractIdPreimageFromAddress(
-        new xdr.ContractIdPreimageFromAddress({
-          salt: options.salt ?? hash(randomBytes(48)),
-          address: address.toScAddress(),
-        })
-      );
-    const contractId = Address.contract(
-      hash(contractIdPreimage.toXDR())
-    ).toString();
-    const func = xdr.HostFunction.hostFunctionTypeCreateContractV2(
-      new xdr.CreateContractArgsV2({
-        constructorArgs,
-        contractIdPreimage,
-        executable:
-          xdr.ContractExecutable.contractExecutableWasm(wasmHashBuffer),
-      })
-    );
-    const operation = Operation.invokeHostFunction({
-      func,
-      source: address.toString(),
+    const salt = hash(options.salt ?? randomBytes(48))
+    const contractId = calculateDetermisticContractId(options.publicKey!, salt);
+    const operation = Operation.createCustomContract({
+      address: new Address(options.publicKey!),
+      wasmHash: wasmHashBuffer,
+      salt,
+      constructorArgs
     });
 
     return AssembledTransaction.buildWithOp(operation, {
       ...options,
       contractId,
       method: CONSTRUCTOR_FUNC,
-      parseResultXdr: (result) =>
-        new Client(spec, { ...options, contractId: Address.fromScVal(result).toString() })
+      parseResultXdr: (result) => {
+        const realContractId = Address.fromScVal(result).toString();
+        return new Client(spec, { ...options, contractId: realContractId })
+      }
     }) as unknown as AssembledTransaction<T>;
   }
 

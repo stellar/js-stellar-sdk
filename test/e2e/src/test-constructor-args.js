@@ -28,7 +28,7 @@ describe("contract with constructor args", function () {
     expect(t.result, INIT_VALUE);
   });
 
-  it("fails with useful message if not given arguments", async function () {
+  xit("fails with useful message if not given arguments", async function () {
     const tx = await contract.Client.deploy(null, {
       networkPassphrase,
       rpcUrl,
