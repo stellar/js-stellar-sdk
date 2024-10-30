@@ -71,18 +71,16 @@ export class Client {
       options,
       options.format
     );
-    const wasmHashBuffer =
-      typeof options.wasmHash === "string"
-        ? Buffer.from(options.wasmHash, options.format ?? "hex")
-        : (options.wasmHash as Buffer);
-    const constructorArgs: xdr.ScVal[] = args
-      ? spec.funcArgsToScVals(CONSTRUCTOR_FUNC, args)
-      : [];
+
     const operation = Operation.createCustomContract({
       address: new Address(options.publicKey!),
-      wasmHash: wasmHashBuffer,
+      wasmHash: typeof options.wasmHash === "string"
+        ? Buffer.from(options.wasmHash, options.format ?? "hex")
+        : (options.wasmHash as Buffer),
       salt: options.salt,
-      constructorArgs
+      constructorArgs: args
+        ? spec.funcArgsToScVals(CONSTRUCTOR_FUNC, args)
+        : []
     });
 
     return AssembledTransaction.buildWithOp(operation, {
@@ -91,7 +89,6 @@ export class Client {
       method: CONSTRUCTOR_FUNC,
       parseResultXdr: (result) =>
         new Client(spec, { ...options, contractId: Address.fromScVal(result).toString() })
-
     }) as unknown as AssembledTransaction<T>;
   }
 
