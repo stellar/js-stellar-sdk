@@ -1,7 +1,6 @@
 import {
   Operation,
   xdr,
-  hash,
   Address,
 } from "@stellar/stellar-base";
 import { Spec } from "./spec";
@@ -9,7 +8,6 @@ import { Server } from '../rpc';
 import { AssembledTransaction } from "./assembled_transaction";
 import type { ClientOptions, MethodOptions } from "./types";
 import { processSpecEntryStream } from './utils';
-import randomBytes from "randombytes";
 
 const CONSTRUCTOR_FUNC = "__constructor";
 
@@ -44,24 +42,6 @@ async function specFromWasmHash(
 }
 
 /**
- * Deterministically calculate a contract ID from a source account public key and salt.
- * TODO: not currently working
- */
-function calculateDetermisticContractId(sourceAccountPk: string, salt: Buffer): string { // eslint-disable-line
-  // const contractIdPreimage =
-  //   xdr.ContractIdPreimage.contractIdPreimageFromAddress(
-  //     new xdr.ContractIdPreimageFromAddress({
-  //       salt,
-  //       address: new Address(sourceAccountPk).toScAddress(),
-  //     })
-  //   );
-  // return Address.contract(
-  //   hash(contractIdPreimage.toXDR())
-  // ).toString();
-  return "ignored"
-}
-
-/**
  * Generate a class from the contract spec that where each contract method
  * gets included with an identical name.
  *
@@ -82,7 +62,7 @@ export class Client {
       Omit<ClientOptions, "contractId"> & {
         /** The hash of the wasm blob, which must already be deployed on-chain. */
         wasmHash: Buffer | string;
-        salt?: Buffer;
+        salt?: Buffer | Uint8Array;
         format?: "hex" | "base64";
       }
   ): Promise<AssembledTransaction<T>> {
@@ -98,23 +78,20 @@ export class Client {
     const constructorArgs: xdr.ScVal[] = args
       ? spec.funcArgsToScVals(CONSTRUCTOR_FUNC, args)
       : [];
-    const salt = hash(options.salt ?? randomBytes(48))
-    const contractId = calculateDetermisticContractId(options.publicKey!, salt);
     const operation = Operation.createCustomContract({
       address: new Address(options.publicKey!),
       wasmHash: wasmHashBuffer,
-      salt,
+      salt: options.salt,
       constructorArgs
     });
 
     return AssembledTransaction.buildWithOp(operation, {
       ...options,
-      contractId,
+      contractId: "ignored",
       method: CONSTRUCTOR_FUNC,
-      parseResultXdr: (result) => {
-        const realContractId = Address.fromScVal(result).toString();
-        return new Client(spec, { ...options, contractId: realContractId })
-      }
+      parseResultXdr: (result) =>
+        new Client(spec, { ...options, contractId: Address.fromScVal(result).toString() })
+
     }) as unknown as AssembledTransaction<T>;
   }
 
