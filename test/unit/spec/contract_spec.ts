@@ -2,7 +2,7 @@ import { xdr, Address, contract, Keypair, hash } from "../../../lib";
 import { JSONSchemaFaker } from "json-schema-faker";
 
 import spec from "../spec.json";
-import spec_contstructor from "../spec_constructor.json";
+import spec_constructor from "../spec_constructor.json";
 import { expect } from "chai";
 
 const publicKey = "GCBVOLOM32I7OD5TWZQCIXCXML3TK56MDY7ZMTAILIBQHHKPCVU42XYW";
@@ -17,7 +17,7 @@ JSONSchemaFaker.format("address", () => {
 
 before(() => {
   SPEC = new contract.Spec(spec);
-  SPEC_CONSTRUCTOR = new contract.Spec(spec_contstructor);
+  SPEC_CONSTRUCTOR = new contract.Spec(spec_constructor);
 });
 
 it("throws if no entries", () => {

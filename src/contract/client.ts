@@ -110,7 +110,6 @@ export class Client {
       method: CONSTRUCTOR_FUNC,
       parseResultXdr: (result) =>
         new Client(spec, { ...options, contractId: Address.fromScVal(result).toString() })
-
     }) as unknown as AssembledTransaction<T>;
   }
 
