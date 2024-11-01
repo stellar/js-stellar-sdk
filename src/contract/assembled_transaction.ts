@@ -323,6 +323,7 @@ export class AssembledTransaction<T> {
     NoSigner: class NoSignerError extends Error { },
     NotYetSimulated: class NotYetSimulatedError extends Error { },
     FakeAccount: class FakeAccountError extends Error { },
+    SimulationFailed: class SimulationFailedError extends Error { },
   };
 
   /**
@@ -565,7 +566,9 @@ export class AssembledTransaction<T> {
       );
     }
     if (Api.isSimulationError(simulation)) {
-      throw new Error(`Transaction simulation failed: "${simulation.error}"`);
+      throw new AssembledTransaction.Errors.SimulationFailed(
+        `Transaction simulation failed: "${simulation.error}"`
+      );
     }
 
     if (Api.isSimulationRestore(simulation)) {

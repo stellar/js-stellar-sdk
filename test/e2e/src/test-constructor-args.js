@@ -28,7 +28,7 @@ describe("contract with constructor args", function () {
     expect(t.result, INIT_VALUE);
   });
 
-  xit("fails with useful message if not given arguments", async function () {
+  it("fails with useful message if not given arguments", async function () {
     const tx = await contract.Client.deploy(null, {
       networkPassphrase,
       rpcUrl,
@@ -40,18 +40,18 @@ describe("contract with constructor args", function () {
     await expect(tx.signAndSend())
       .to.be.rejectedWith(
         // placeholder error type
-        contract.AssembledTransaction.Errors.NeedsMoreSignatures,
+        contract.AssembledTransaction.Errors.SimulationFailed,
       )
       .then((error) => {
         // Further assertions on the error object
         expect(error).to.be.instanceOf(
-          contract.AssembledTransaction.Errors.NeedsMoreSignatures,
+          contract.AssembledTransaction.Errors.SimulationFailed,
           `error is not of type 'NeedMoreArgumentsError'; instead it is of type '${error?.constructor.name}'`,
         );
 
         if (error) {
           // Using regex to check the error message
-          expect(error.message).to.match(/missing arguments/);
+          expect(error.message).to.match(/MismatchingParameterLen/);
         }
       });
   });
