@@ -66,29 +66,29 @@ export class Client {
         format?: "hex" | "base64";
       }
   ): Promise<AssembledTransaction<T>> {
-    const spec = await specFromWasmHash(
-      options.wasmHash,
-      options,
-      options.format
-    );
+    const { wasmHash, salt, format, fee, timeoutInSeconds, simulate, ...clientOptions } = options;
+    const spec = await specFromWasmHash(wasmHash, clientOptions, format);
 
     const operation = Operation.createCustomContract({
       address: new Address(options.publicKey!),
-      wasmHash: typeof options.wasmHash === "string"
-        ? Buffer.from(options.wasmHash, options.format ?? "hex")
-        : (options.wasmHash as Buffer),
-      salt: options.salt,
+      wasmHash: typeof wasmHash === "string"
+        ? Buffer.from(wasmHash, format ?? "hex")
+        : (wasmHash as Buffer),
+      salt,
       constructorArgs: args
         ? spec.funcArgsToScVals(CONSTRUCTOR_FUNC, args)
         : []
     });
 
     return AssembledTransaction.buildWithOp(operation, {
-      ...options,
+      fee,
+      timeoutInSeconds,
+      simulate,
+      ...clientOptions,
       contractId: "ignored",
       method: CONSTRUCTOR_FUNC,
       parseResultXdr: (result) =>
-        new Client(spec, { ...options, contractId: Address.fromScVal(result).toString() })
+        new Client(spec, { ...clientOptions, contractId: Address.fromScVal(result).toString() })
     }) as unknown as AssembledTransaction<T>;
   }
 

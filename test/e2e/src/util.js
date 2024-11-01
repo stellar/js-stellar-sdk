@@ -103,29 +103,20 @@ async function clientFor(name, { keypair, contractId } = {}) {
     keypair,
   });
 
-  // TODO: do this with js-stellar-sdk, instead of shelling out to the CLI
-  contractId =
-    contractId ??
-    run(
-      `${stellar} contract deploy --source ${internalKeypair.secret()} --wasm-hash ${wasmHash}`,
-    ).stdout;
+  const deploy = await contract.Client.deploy(null, {
+    networkPassphrase,
+    rpcUrl,
+    allowHttp: true,
+    wasmHash: wasmHash,
+    publicKey: internalKeypair.publicKey(),
+    ...wallet,
+  });
+  const { result: client } = await deploy.signAndSend();
 
-  const client = await contract.Client.fromWasmHash(
-    wasmHash,
-    {
-      networkPassphrase,
-      contractId,
-      rpcUrl,
-      allowHttp: true,
-      publicKey: internalKeypair.publicKey(),
-      ...wallet,
-    },
-    "hex",
-  );
   return {
     keypair: internalKeypair,
     client,
-    contractId,
+    contractId: client.options.contractId,
   };
 }
 module.exports.clientFor = clientFor;
