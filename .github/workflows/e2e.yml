@@ -11,14 +11,14 @@ jobs:
     runs-on: ubuntu-22.04
     services:
       rpc:
-        image: stellar/quickstart:testing@sha256:bef5c451e305c914e91964ec22e7a25b9f5276a706fe0357ac23125569d93f05
+        image: stellar/quickstart:testing@sha256:5333ec87069efd7bb61f6654a801dc093bf0aad91f43a5ba84806d3efe4a6322
         ports:
           - 8000:8000
         env:
           ENABLE_LOGS: true
           NETWORK: local
           ENABLE_SOROBAN_RPC: true
-          PROTOCOL_VERSION: 21
+          PROTOCOL_VERSION: 22
         options: >-
           --health-cmd "curl --no-progress-meter --fail-with-body -X POST \"http://localhost:8000/soroban/rpc\" -H 'Content-Type: application/json' -d '{\"jsonrpc\":\"2.0\",\"id\":8675309,\"method\":\"getNetwork\"}' && curl --no-progress-meter \"http://localhost:8000/friendbot\" | grep '\"invalid_field\": \"addr\"'"
           --health-interval 10s
