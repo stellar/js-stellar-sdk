@@ -60,7 +60,7 @@ export class Client {
     args: Record<string, any> | null,
     options: MethodOptions &
       Omit<ClientOptions, "contractId"> & {
-        /** The hash of the wasm blob, which must already be deployed on-chain. */
+        /** The hash of the Wasm blob, which must already be installed on-chain. */
         wasmHash: Buffer | string;
         salt?: Buffer | Uint8Array;
         format?: "hex" | "base64";
