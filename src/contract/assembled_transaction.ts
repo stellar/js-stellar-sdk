@@ -424,8 +424,8 @@ export class AssembledTransaction<T> {
   }
 
   /**
-   * Construct a new AssembledTransaction. This is the only way to create a new
-   * AssembledTransaction; the main constructor is private.
+   * Construct a new AssembledTransaction. This is the main way to create a new
+   * AssembledTransaction; the constructor is private.
    *
    * This is an asynchronous constructor for two reasons:
    *
@@ -436,13 +436,16 @@ export class AssembledTransaction<T> {
    * If you don't want to simulate the transaction, you can set `simulate` to
    * `false` in the options.
    *
+   * If you need to create an operation other than `invokeHostFunction`, you
+   * can use {@link AssembledTransaction.buildWithOp} instead.
+   *
    * @example
    * const tx = await AssembledTransaction.build({
    *   ...,
    *   simulate: false,
    * })
    */
-  static async build<T>(
+  static build<T>(
     options: AssembledTransactionOptions<T>
   ): Promise<AssembledTransaction<T>> {
     const contract = new Contract(options.contractId);
@@ -452,11 +455,24 @@ export class AssembledTransaction<T> {
     );
   }
 
-  //TODO: Docs
+  /**
+   * Construct a new AssembledTransaction, specifying an Operation other than
+   * `invokeHostFunction` (the default used by {@link AssembledTransaction.build}).
+   *
+   * Note: `AssembledTransaction` currently assumes these operations can be
+   * simulated. This is not true for classic operations; only for those used by
+   * Soroban Smart Contracts like `invokeHostFunction` and `createCustomContract`.
+   *
+   * @example
+   * const tx = await AssembledTransaction.buildWithOp(
+   *   Operation.createCustomContract({ ... });
+   *   {
+   *     ...,
+   *     simulate: false,
+   *   }
+   * )
+   */
   static async buildWithOp<T>(
-    // TODO: Docs either CreateContractArgsV2 
-    // or CreateContractArgs 
-    // or InvokeContractArgs
     operation: xdr.Operation,
     options: AssembledTransactionOptions<T>
   ): Promise<AssembledTransaction<T>> {
