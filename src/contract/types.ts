@@ -1,6 +1,6 @@
 /* disable PascalCase naming convention, to avoid breaking change */
 /* eslint-disable @typescript-eslint/naming-convention */
-import { Memo, MemoType, Operation, Transaction, xdr } from "@stellar/stellar-base";
+import { Keypair, Memo, MemoType, Operation, Transaction, xdr } from "@stellar/stellar-base";
 import type { Client } from "./client";
 
 export type XDR_BASE64 = string;
@@ -79,14 +79,12 @@ export type ClientOptions = {
    */
   signTransaction?: (
     tx: XDR_BASE64,
-    signer: ((tx: XDR_BASE64, opts?: {
+    opts?: {
       network?: string;
       networkPassphrase?: string;
       accountToSign?: string;
-    }) => Promise<XDR_BASE64>) | KeyPair,
-    opts?: {
-      networkPassphrase?: string;
     },
+    signer?: Keypair,
   ) => Promise<XDR_BASE64>;
   /**
    * A function to sign a specific auth entry for a transaction, using the
