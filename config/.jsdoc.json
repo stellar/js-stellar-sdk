@@ -10,7 +10,13 @@
   "source": {
     "include": ["lib/", "js-stellar-base/src"],
     "includePattern": "\\.(js|ts)$",
-    "exclude": "js-stellar-base/src/generated"
+    "exclude": [
+      "js-stellar-base/src/generated",
+      "lib/minimal",
+      "lib/no-axios",
+      "lib/no-eventsource",
+      "lib/contract/utils.d.ts"
+    ]
   },
   "opts": {
     "encoding": "utf8",

@@ -7,6 +7,9 @@ A breaking change will get clearly marked in this log.
 ## Unreleased
 
 
+## [v13.0.0-rc.1](https://github.com/stellar/js-stellar-sdk/compare/v12.3.0...v13.0.0-rc.1)
+
+
 ## [v13.0.0-beta.1](https://github.com/stellar/js-stellar-sdk/compare/v12.3.0...v13.0.0-beta.1)
 
 ### Breaking Changes
@@ -15,7 +18,7 @@ A breaking change will get clearly marked in this log.
 - The Node.js code will now Babelify to Node 18 instead of Node 16, but we stopped supporting Node 16 long ago so this shouldn't be a breaking change.
 
 - `SentTransaction.init` and `new SentTransaction` now take _one_ (1) argument instead of _two_ (2). The first argument had previously been deprecated and ignored. To update:
-  
+
   ```diff
   -SentTransaction(nonsense, realStuff)
   +SentTransaction(realStuff)
