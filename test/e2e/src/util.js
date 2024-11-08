@@ -95,12 +95,26 @@ module.exports.generateFundedKeypair = generateFundedKeypair;
  * `contractId` again if you want to re-use the a contract instance.
  */
 async function clientFor(name, { keypair, contractId } = {}) {
-  const {
+  const internalKeypair = keypair ?? (await generateFundedKeypair());
+  const signer = contract.basicNodeSigner(internalKeypair, networkPassphrase);
+
+  if (contractId) {
+    return {
+      client: await contract.Client.from({
+        contractId,
+        networkPassphrase,
+        rpcUrl,
+        allowHttp: true,
+        publicKey: internalKeypair.publicKey(),
+        ...signer,
+      }),
+      contractId,
+      keypair,
+    };
+  }
+
+  const { wasmHash } = await installContract(name, {
     keypair: internalKeypair,
-    wasmHash,
-    wallet,
-  } = await installContract(name, {
-    keypair,
   });
 
   const deploy = await contract.Client.deploy(null, {
@@ -109,7 +123,7 @@ async function clientFor(name, { keypair, contractId } = {}) {
     allowHttp: true,
     wasmHash: wasmHash,
     publicKey: internalKeypair.publicKey(),
-    ...wallet,
+    ...signer,
   });
   const { result: client } = await deploy.signAndSend();
 
@@ -130,7 +144,6 @@ async function installContract(name, { keypair } = {}) {
   }
 
   const internalKeypair = keypair ?? (await generateFundedKeypair());
-  const wallet = contract.basicNodeSigner(internalKeypair, networkPassphrase);
 
   let wasmHash = contracts[name].hash;
   if (!wasmHash) {
@@ -138,6 +151,6 @@ async function installContract(name, { keypair } = {}) {
       `${stellar} contract install --wasm ${contracts[name].path}`,
     ).stdout;
   }
-  return { keypair: internalKeypair, wasmHash, wallet };
+  return { keypair: internalKeypair, wasmHash };
 }
 module.exports.installContract = installContract;
