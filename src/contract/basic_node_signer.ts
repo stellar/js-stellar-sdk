@@ -18,12 +18,46 @@ export const basicNodeSigner = (
   networkPassphrase: string,
 ) => ({
   // eslint-disable-next-line require-await
-  signTransaction: async (tx: string) => {
-    const t = TransactionBuilder.fromXDR(tx, networkPassphrase);
-    t.sign(keypair);
-    return t.toXDR();
+  signTransaction: async (
+    xdr: string,
+    opts?: {
+      networkPassphrase?: string;
+      address?: string;
+      submit?: boolean;
+      submitUrl?: string;
+    }
+  ): Promise<{ signedTxXdr: string; signerAddress: string; error?: Error }> => {
+    try {
+      const t = TransactionBuilder.fromXDR(xdr, opts?.networkPassphrase || networkPassphrase);
+      t.sign(keypair);
+      return {
+        signedTxXdr: t.toXDR(),
+        signerAddress: keypair.publicKey(),
+      };
+    } catch (error) {
+      return {
+        signedTxXdr: '',
+        signerAddress: keypair.publicKey(),
+        error: error instanceof Error ? error : new Error(String(error)),
+      };
+    }
   },
   // eslint-disable-next-line require-await
-  signAuthEntry: async (entryXdr: string): Promise<string> =>
-    keypair.sign(hash(Buffer.from(entryXdr, "base64"))).toString("base64"),
+  signAuthEntry: async (
+    authEntry: string,
+  ): Promise<{ signedAuthEntry: string; signerAddress: string; error?: Error }> => {
+    try {
+      const signedAuthEntry = keypair.sign(hash(Buffer.from(authEntry, "base64"))).toString("base64");
+      return {
+        signedAuthEntry,
+        signerAddress: keypair.publicKey(),
+      };
+    } catch (error) {
+      return {
+        signedAuthEntry: '',
+        signerAddress: keypair.publicKey(),
+        error: error instanceof Error ? error : new Error(String(error)),
+      };
+    }
+  },
 });
