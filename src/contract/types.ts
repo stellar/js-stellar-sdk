@@ -1,7 +1,9 @@
 /* disable PascalCase naming convention, to avoid breaking change */
 /* eslint-disable @typescript-eslint/naming-convention */
 import { Memo, MemoType, Operation, Transaction, xdr } from "@stellar/stellar-base";
+import { KitActions } from "@creit.tech/stellar-wallets-kit";
 import type { Client } from "./client";
+
 
 export type XDR_BASE64 = string;
 /**
@@ -77,14 +79,7 @@ export type ClientOptions = {
    *
    * Matches signature of `signTransaction` from Freighter.
    */
-  signTransaction?: (
-    tx: XDR_BASE64,
-    opts?: {
-      network?: string;
-      networkPassphrase?: string;
-      accountToSign?: string;
-    },
-  ) => Promise<XDR_BASE64>;
+  signTransaction?: KitActions['signTransaction'];
   /**
    * A function to sign a specific auth entry for a transaction, using the
    * private key corresponding to the provided `publicKey`. This is only needed
@@ -94,12 +89,7 @@ export type ClientOptions = {
    *
    * Matches signature of `signAuthEntry` from Freighter.
    */
-  signAuthEntry?: (
-    entryXdr: XDR_BASE64,
-    opts?: {
-      accountToSign?: string;
-    },
-  ) => Promise<XDR_BASE64>;
+  signAuthEntry?: KitActions['signAuthEntry'];
   /** The address of the contract the client will interact with. */
   contractId: string;
   /**
@@ -176,6 +166,10 @@ export type AssembledTransactionOptions<T = string> = MethodOptions &
     method: string;
     args?: any[];
     parseResultXdr: (xdr: xdr.ScVal) => T;
+
+    address?: string;
+    submit?: boolean;
+    submitUrl?: string;
   };
 
 /**

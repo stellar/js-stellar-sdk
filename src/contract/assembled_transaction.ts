@@ -683,11 +683,17 @@ export class AssembledTransaction<T> {
       .setTimeout(timeoutInSeconds)
       .build();
 
-    const signature = await signTransaction(
-      this.built.toXDR(),
-      {
+      const signOpts: Parameters<NonNullable<ClientOptions['signTransaction']>>[1] = {
         networkPassphrase: this.options.networkPassphrase,
-      },
+      };
+    
+      if (this.options.address) signOpts.address = this.options.address;
+      if (this.options.submit !== undefined) signOpts.submit = this.options.submit;
+      if (this.options.submitUrl) signOpts.submitUrl = this.options.submitUrl;
+
+    const { signedTxXdr: signature } = await signTransaction(
+      this.built.toXDR(),
+      signOpts,
     );
 
     this.signed = TransactionBuilder.fromXDR(
@@ -728,6 +734,8 @@ export class AssembledTransaction<T> {
     signTransaction?: ClientOptions["signTransaction"];
   } = {}): Promise<SentTransaction<T>> => {
     if(!this.signed){
+      // Prevent the wallet from submitting a transaction that we are about to submit
+      if(this.options.submit) this.options.submit = false;
       await this.sign({ force, signTransaction });
     }
     return this.send();
@@ -898,13 +906,13 @@ export class AssembledTransaction<T> {
       // eslint-disable-next-line no-await-in-loop
       authEntries[i] = await authorizeEntry(
         entry,
-        async (preimage) =>
-          Buffer.from(
-            await sign(preimage.toXDR("base64"), {
-              accountToSign: address,
-            }),
+        async (preimage) => {
+          const { signedAuthEntry } = await sign(preimage.toXDR("base64"), {
+               address, })
+          return Buffer.from(
+            signedAuthEntry,
             "base64",
-          ),
+          ) },
         await expiration, // eslint-disable-line no-await-in-loop
         this.options.networkPassphrase,
       );
