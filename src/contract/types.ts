@@ -167,8 +167,22 @@ export type AssembledTransactionOptions<T = string> = MethodOptions &
     args?: any[];
     parseResultXdr: (xdr: xdr.ScVal) => T;
 
+    /**
+     * The address of the account that should sign the transaction. Useful when
+     * a wallet holds multiple addresses to ensure signing with the intended one.
+     */
     address?: string;
+
+    /**
+     * If true, the transaction will be signed and immediately submitted to the network.
+     * @default false
+     */
     submit?: boolean;
+
+    /**
+     * The URL of the network to which the transaction should be submitted.
+     * Only applicable when 'submit' is set to true.
+     */
     submitUrl?: string;
   };
 
