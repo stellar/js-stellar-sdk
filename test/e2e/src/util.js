@@ -31,6 +31,9 @@ const contracts = {
     hash: run(`${stellar} contract install --wasm ${basePath}/increment.wasm`)
       .stdout,
     path: `${basePath}/increment.wasm`,
+    constructorArgs: {
+      counter: 0,
+    },
   },
   swap: {
     hash: run(`${stellar} contract install --wasm ${basePath}/atomic_swap.wasm`)
@@ -53,12 +56,6 @@ const contracts = {
       `${stellar} contract install --wasm ${basePath}/this_one_signs.wasm`,
     ).stdout,
     path: `${basePath}/this_one_signs.wasm`,
-  },
-  constructorArgs: {
-    hash: run(
-      `${stellar} contract install --wasm ${basePath}/constructor_args.wasm`,
-    ).stdout,
-    path: `${basePath}/constructor_args.wasm`,
   },
 };
 module.exports.contracts = contracts;
@@ -117,14 +114,17 @@ async function clientFor(name, { keypair, contractId } = {}) {
     keypair: internalKeypair,
   });
 
-  const deploy = await contract.Client.deploy(null, {
-    networkPassphrase,
-    rpcUrl,
-    allowHttp: true,
-    wasmHash: wasmHash,
-    publicKey: internalKeypair.publicKey(),
-    ...signer,
-  });
+  const deploy = await contract.Client.deploy(
+    contracts[name].constructorArgs ?? null,
+    {
+      networkPassphrase,
+      rpcUrl,
+      allowHttp: true,
+      wasmHash: wasmHash,
+      publicKey: internalKeypair.publicKey(),
+      ...signer,
+    }
+  );
   const { result: client } = await deploy.signAndSend();
 
   return {

@@ -1,5 +1,5 @@
 const { expect } = require("chai");
-const { Address, contract, hash } = require("../../../lib");
+const { contract } = require("../../../lib");
 const { installContract, rpcUrl, networkPassphrase } = require("./util");
 const { basicNodeSigner } = require("../../../lib/contract");
 
@@ -7,7 +7,7 @@ const INIT_VALUE = 42;
 
 describe("contract with constructor args", function () {
   before(async function () {
-    const { wasmHash, keypair } = await installContract("constructorArgs");
+    const { wasmHash, keypair } = await installContract("increment");
     this.context = { wasmHash, keypair };
   });
 
@@ -24,7 +24,7 @@ describe("contract with constructor args", function () {
       },
     );
     const { result: client } = await tx.signAndSend();
-    const t = await client.counter();
+    const t = await client.get();
     expect(t.result, INIT_VALUE);
   });
 
