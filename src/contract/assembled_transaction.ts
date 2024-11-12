@@ -683,13 +683,13 @@ export class AssembledTransaction<T> {
       .setTimeout(timeoutInSeconds)
       .build();
 
-      const signOpts: Parameters<NonNullable<ClientOptions['signTransaction']>>[1] = {
-        networkPassphrase: this.options.networkPassphrase,
-      };
-    
-      if (this.options.address) signOpts.address = this.options.address;
-      if (this.options.submit !== undefined) signOpts.submit = this.options.submit;
-      if (this.options.submitUrl) signOpts.submitUrl = this.options.submitUrl;
+    const signOpts: Parameters<NonNullable<ClientOptions['signTransaction']>>[1] = {
+      networkPassphrase: this.options.networkPassphrase,
+    };
+  
+    if (this.options.address) signOpts.address = this.options.address;
+    if (this.options.submit !== undefined) signOpts.submit = this.options.submit;
+    if (this.options.submitUrl) signOpts.submitUrl = this.options.submitUrl;
 
     const { signedTxXdr: signature } = await signTransaction(
       this.built.toXDR(),
@@ -849,7 +849,7 @@ export class AssembledTransaction<T> {
      * If you have a pro use-case and need to override the default `authorizeEntry` function, rather than using the one in @stellar/stellar-base, you can do that! Your function needs to take at least the first argument, `entry: xdr.SorobanAuthorizationEntry`, and return a `Promise<xdr.SorobanAuthorizationEntry>`.
      *
      * Note that you if you pass this, then `signAuthEntry` will be ignored.
-    */
+     */
     authorizeEntry?: typeof stellarBaseAuthorizeEntry;
   } = {}): Promise<void> => {
     if (!this.built)
