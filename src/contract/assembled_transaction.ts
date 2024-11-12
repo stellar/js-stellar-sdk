@@ -923,7 +923,7 @@ export class AssembledTransaction<T> {
           return Buffer.from(
             signedAuthEntry,
             "base64",
-          ) },
+          )},
         await expiration, // eslint-disable-line no-await-in-loop
         this.options.networkPassphrase,
       );
