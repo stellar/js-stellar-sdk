@@ -1,11 +1,6 @@
+import { KitActions } from "@creit.tech/stellar-wallets-kit";
 import { Keypair, TransactionBuilder, hash } from "@stellar/stellar-base";
 import type { Client } from "./client";
-
-interface WalletError {
-  message: string,    // general description message returned to the client app
-  code: number,       // unique error code
-  ext?: Array<string>  // optional extended details
-}
 
 /**
  * For use with {@link Client} and {@link module:contract.AssembledTransaction}.
@@ -22,66 +17,25 @@ interface WalletError {
 export const basicNodeSigner = (
   keypair: Keypair,
   networkPassphrase: string,
-) => ({
+): {
+  signTransaction: KitActions['signTransaction'];
+  signAuthEntry: KitActions['signAuthEntry'];
+} => ({
   // eslint-disable-next-line require-await
-  signTransaction: async (
-    xdr: string,
-    opts?: {
-      networkPassphrase?: string;
-      address?: string;
-      submit?: boolean;
-      submitUrl?: string;
-    }
-  ): Promise<
-    | {
-        signedTxXdr: string;
-        signerAddress: string;
-      }
-    | {
-        error: WalletError;
-      }
-  > => {
-    try {
-      const t = TransactionBuilder.fromXDR(xdr, opts?.networkPassphrase || networkPassphrase);
-      t.sign(keypair);
-      return {
-        signedTxXdr: t.toXDR(),
-        signerAddress: keypair.publicKey(),
-      };
-    } catch (error) {
-      return {
-        error: {
-          message: error instanceof Error ? error.message : String(error),
-          code: 0 
-        }
-      };
-    }
+  signTransaction: async (xdr, opts) => {
+    const t = TransactionBuilder.fromXDR(xdr, opts?.networkPassphrase || networkPassphrase);
+    t.sign(keypair);
+    return {
+      signedTxXdr: t.toXDR(),
+      signerAddress: keypair.publicKey(),
+    };
   },
   // eslint-disable-next-line require-await
-  signAuthEntry: async (
-    authEntry: string,
-  ): Promise<
-    | {
-        signedAuthEntry: string;
-        signerAddress: string;
-      }
-    | {
-        error: WalletError;
-      }
-  > => {
-    try {
-      const signedAuthEntry = keypair.sign(hash(Buffer.from(authEntry, "base64"))).toString("base64");
-      return {
-        signedAuthEntry,
-        signerAddress: keypair.publicKey(),
-      };
-    } catch (error) {
-      return {
-        error: {
-          message: error instanceof Error ? error.message : String(error),
-          code: 0 
-        }
-      };
-    }
+  signAuthEntry: async (authEntry) => {
+    const signedAuthEntry = keypair.sign(hash(Buffer.from(authEntry, "base64"))).toString("base64");
+    return {
+      signedAuthEntry,
+      signerAddress: keypair.publicKey(),
+    };
   },
 });
