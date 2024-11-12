@@ -9,6 +9,13 @@ A breaking change will get clearly marked in this log.
 ### Added
 - `stellartoml-Resolver.resolve` now has a `allowedRedirects` option to configure the number of allowed redirects to follow when resolving a stellar toml file.
 
+### Breaking Changes
+- The `ClientOptions.signTransaction` type has been updated to reflect the latest [SEP 43](https://github.com/stellar/stellar-protocol/blob/eb401f932258c827a5b4a2e14aea939affcd2b02/ecosystem/sep-0043.md#wallet-interface-format) protocol. It now accepts `address`, `submit`, and `submitUrl` options, and it returns a promise containing the `signedTxXdr` and the `signerAddress`. It now also returns an `Error` type if an error occurs during signing.
+  * `basicNodeSigner` has been updated to reflect the new type.
+- `ClientOptions.signAuthEntry` type has also been updated to reflect the SEP 43 protocol, which also returns a promise containing the`signerAddress` in addition to the `signAuthEntry` that was returned previously. It also can return an `Error` type. 
+
+### Added
+- `stellartoml-Resolver.resolve` now has a `allowedRedirects` option to configure the number of allowed redirects to follow when resolving a stellar toml file.
 
 ## [v13.0.0-rc.1](https://github.com/stellar/js-stellar-sdk/compare/v12.3.0...v13.0.0-rc.1)
 

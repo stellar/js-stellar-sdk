@@ -1,6 +1,12 @@
 import { Keypair, TransactionBuilder, hash } from "@stellar/stellar-base";
 import type { Client } from "./client";
 
+interface WalletError {
+  message: string,    // general description message returned to the client app
+  code: number,       // unique error code
+  ext?: Array<string>  // optional extended details
+}
+
 /**
  * For use with {@link Client} and {@link module:contract.AssembledTransaction}.
  * Implements `signTransaction` and `signAuthEntry` with signatures expected by
@@ -26,7 +32,15 @@ export const basicNodeSigner = (
       submit?: boolean;
       submitUrl?: string;
     }
-  ): Promise<{ signedTxXdr: string; signerAddress: string; error?: Error }> => {
+  ): Promise<
+    | {
+        signedTxXdr: string;
+        signerAddress: string;
+      }
+    | {
+        error: WalletError;
+      }
+  > => {
     try {
       const t = TransactionBuilder.fromXDR(xdr, opts?.networkPassphrase || networkPassphrase);
       t.sign(keypair);
@@ -36,16 +50,25 @@ export const basicNodeSigner = (
       };
     } catch (error) {
       return {
-        signedTxXdr: '',
-        signerAddress: keypair.publicKey(),
-        error: error instanceof Error ? error : new Error(String(error)),
+        error: {
+          message: error instanceof Error ? error.message : String(error),
+          code: 0 
+        }
       };
     }
   },
   // eslint-disable-next-line require-await
   signAuthEntry: async (
     authEntry: string,
-  ): Promise<{ signedAuthEntry: string; signerAddress: string; error?: Error }> => {
+  ): Promise<
+    | {
+        signedAuthEntry: string;
+        signerAddress: string;
+      }
+    | {
+        error: WalletError;
+      }
+  > => {
     try {
       const signedAuthEntry = keypair.sign(hash(Buffer.from(authEntry, "base64"))).toString("base64");
       return {
@@ -54,9 +77,10 @@ export const basicNodeSigner = (
       };
     } catch (error) {
       return {
-        signedAuthEntry: '',
-        signerAddress: keypair.publicKey(),
-        error: error instanceof Error ? error : new Error(String(error)),
+        error: {
+          message: error instanceof Error ? error.message : String(error),
+          code: 0 
+        }
       };
     }
   },
