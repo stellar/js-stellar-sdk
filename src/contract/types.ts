@@ -4,7 +4,6 @@ import { Memo, MemoType, Operation, Transaction, xdr } from "@stellar/stellar-ba
 import { KitActions } from "@creit.tech/stellar-wallets-kit";
 import type { Client } from "./client";
 
-
 export type XDR_BASE64 = string;
 /**
  * An unsigned 32-bit integer.
