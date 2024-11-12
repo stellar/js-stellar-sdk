@@ -173,7 +173,7 @@ export type AssembledTransactionOptions<T = string> = MethodOptions &
     address?: string;
 
     /**
-     * If true, the transaction will be signed and immediately submitted to the network.
+     * This option will be passed through to the SEP43-compatible wallet extension. If true, and if the wallet supports it, the transaction will be signed and immediately submitted to the network by the wallet, bypassing the submit logic in {@link SentTransaction}.
      * @default false
      */
     submit?: boolean;
