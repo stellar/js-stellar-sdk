@@ -34,9 +34,11 @@ export function parseRawSendTransaction(
   return { ...raw } as Api.BaseSendTransactionResponse;
 }
 
-export function parseTransactionInfo(raw: Api.RawTransactionInfo | Api.RawGetTransactionResponse): Omit<Api.TransactionInfo, 'status'> {
+export function parseTransactionInfo(
+  raw: Api.RawTransactionInfo | Api.RawGetTransactionResponse
+): Omit<Api.TransactionInfo, 'status' | 'txHash'> {
   const meta = xdr.TransactionMeta.fromXDR(raw.resultMetaXdr!, 'base64');
-  const info: Omit<Api.TransactionInfo, 'status'> = {
+  const info: Omit<Api.TransactionInfo, 'status' | 'txHash'> = {
     ledger: raw.ledger!,
     createdAt: raw.createdAt!,
     applicationOrder: raw.applicationOrder!,
@@ -64,6 +66,7 @@ export function parseRawTransactions(
 ): Api.TransactionInfo {
   return {
     status: r.status,
+    txHash: r.txHash,
     ...parseTransactionInfo(r),
   };
 }
@@ -147,11 +150,10 @@ function parseSuccessful(
     ...partial,
     transactionData: new SorobanDataBuilder(sim.transactionData!),
     minResourceFee: sim.minResourceFee!,
-    cost: sim.cost!,
-    ...// coalesce 0-or-1-element results[] list into a single result struct
+    // coalesce 0-or-1-element results[] list into a single result struct
     // with decoded fields if present
     // eslint-disable-next-line no-self-compare
-    ((sim.results?.length ?? 0 > 0) && {
+    ...((sim.results?.length ?? 0 > 0) && {
       result: sim.results!.map((row) => ({
           auth: (row.auth ?? []).map((entry) =>
             xdr.SorobanAuthorizationEntry.fromXDR(entry, 'base64')
