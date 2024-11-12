@@ -123,7 +123,7 @@ async function clientFor(name, { keypair, contractId } = {}) {
       wasmHash: wasmHash,
       publicKey: internalKeypair.publicKey(),
       ...signer,
-    }
+    },
   );
   const { result: client } = await deploy.signAndSend();
 
