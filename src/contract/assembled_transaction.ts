@@ -734,9 +734,20 @@ export class AssembledTransaction<T> {
     signTransaction?: ClientOptions["signTransaction"];
   } = {}): Promise<SentTransaction<T>> => {
     if(!this.signed){
-      // Prevent the wallet from submitting a transaction that we are about to submit
-      if(this.options.submit) this.options.submit = false;
-      await this.sign({ force, signTransaction });
+      // Store the original submit option
+      const originalSubmit = this.options.submit;
+
+      // Temporarily disable submission in signTransaction to prevent double submission
+      if (this.options.submit) {
+        this.options.submit = false;
+      }
+
+      try {
+        await this.sign({ force, signTransaction });
+      } finally {
+        // Restore the original submit option
+        this.options.submit = originalSubmit;
+      }
     }
     return this.send();
   };
