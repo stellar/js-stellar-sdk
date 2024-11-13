@@ -1,6 +1,7 @@
-import { BaseEffectRecord } from "./effects";
+import { BaseEffectRecord, EffectType } from "./effects";
 
 export interface Trade extends BaseEffectRecord {
+  type_i: EffectType.trade;
   seller: string;
   offer_id: number | string;
   bought_amount: string;
