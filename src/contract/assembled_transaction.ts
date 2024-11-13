@@ -33,7 +33,6 @@ import { DEFAULT_TIMEOUT } from "./types";
 import { SentTransaction } from "./sent_transaction";
 import { Spec } from "./spec";
 
-
 /** @module contract */
 
 /**
