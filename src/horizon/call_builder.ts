@@ -102,7 +102,7 @@ export class CallBuilder<
    * @param {number} [options.reconnectTimeout] Custom stream connection timeout in ms, default is 15 seconds.
    * @returns {Function} Close function. Run to close the connection and stop listening for new events.
    */
-  public stream(options: EventSourceOptions<T> = {}): () => void {
+  public stream(options: EventSourceOptions<T extends ServerApi.CollectionPage ? T["records"][number] : T> = {}): () => void {
     // Check if EventSource use is enabled
     if (EventSource === undefined){
       throw new Error("Streaming requires eventsource to be enabled. If you need this functionality, compile with USE_EVENTSOURCE=true.");
