@@ -55,21 +55,37 @@ A breaking change will get clearly marked in this log.
   * To use a minimal build without both Axios and EventSource, use `stellar-sdk-minimal.js` for the browser build and import from `@stellar/stellar-sdk/minimal` for the Node package.
 - `contract.AssembledTransaction#signAuthEntries` now allows you to override `authorizeEntry`. This can be used to streamline novel workflows using cross-contract auth. (#1044)
 - `rpc.Server` now has a `getSACBalance` helper which lets you fetch the balance of a built-in Stellar Asset Contract token held by a contract ([#1046](https://github.com/stellar/js-stellar-sdk/pull/1046)):
-```typescript
-export interface BalanceResponse {
-  latestLedger: number;
-  /** present only on success, otherwise request malformed or no balance */
-  balanceEntry?: {
-    /** a 64-bit integer */
-    amount: string;
-    authorized: boolean;
-    clawback: boolean;
+  ```typescript
+  export interface BalanceResponse {
+    latestLedger: number;
+    /** present only on success, otherwise request malformed or no balance */
+    balanceEntry?: {
+      /** a 64-bit integer */
+      amount: string;
+      authorized: boolean;
+      clawback: boolean;
 
-    lastModifiedLedgerSeq?: number;
-    liveUntilLedgerSeq?: number;
-  };
-}
-```
+      lastModifiedLedgerSeq?: number;
+      liveUntilLedgerSeq?: number;
+    };
+  }
+  ```
+- `contract.Client` now has a static `deploy` method that can be used to deploy a contract instance from an existing uploaded/"installed" Wasm hash. The first arguments to this method are the arguments for the contract's `__constructor` method. For example, using the `increment` test contract as modified in https://github.com/stellar/soroban-test-examples/pull/2/files#diff-8734809100be3803c3ce38064730b4578074d7c2dc5fb7c05ca802b2248b18afR10-R45:
+  ```ts
+  const tx = await contract.Client.deploy(
+    { counter: 42 },
+    {
+      networkPassphrase,
+      rpcUrl,
+      wasmHash: uploadedWasmHash,
+      publicKey: someKeypair.publicKey(),
+      ...basicNodeSigner(someKeypair, networkPassphrase),
+    },
+  );
+  const { result: client } = await tx.signAndSend();
+  const t = await client.get();
+  expect(t.result, 42);
+  ```
 
 ### Fixed
 - `contract.AssembledTransaction#nonInvokerSigningBy` now correctly returns contract addresses, in instances of cross-contract auth, rather than throwing an error. `sign` will ignore these contract addresses, since auth happens via cross-contract call ([#1044](https://github.com/stellar/js-stellar-sdk/pull/1044)).

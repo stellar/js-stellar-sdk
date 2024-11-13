@@ -27,9 +27,7 @@ async function clientFromConstructor(
   const inspected = run(
     `./target/bin/stellar contract inspect --wasm ${path} --output xdr-base64-array`,
   ).stdout;
-  const xdr = JSON.parse(inspected);
 
-  const spec = new contract.Spec(xdr);
   let wasmHash = contracts[name].hash;
   if (!wasmHash) {
     wasmHash = run(
@@ -37,25 +35,20 @@ async function clientFromConstructor(
     ).stdout;
   }
 
-  // TODO: do this with js-stellar-sdk, instead of shelling out to the CLI
-  contractId =
-    contractId ??
-    run(
-      `./target/bin/stellar contract deploy --source ${keypair.secret()} --wasm-hash ${wasmHash}`,
-    ).stdout;
-
-  const client = new contract.Client(spec, {
+  const deploy = await contract.Client.deploy(null, {
     networkPassphrase,
-    contractId,
     rpcUrl,
     allowHttp: true,
+    wasmHash,
     publicKey: keypair.publicKey(),
     ...wallet,
   });
+  const { result: client } = await deploy.signAndSend();
+
   return {
     keypair,
     client,
-    contractId,
+    contractId: client.options.contractId,
   };
 }
 

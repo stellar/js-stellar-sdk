@@ -323,6 +323,7 @@ export class AssembledTransaction<T> {
     NoSigner: class NoSignerError extends Error { },
     NotYetSimulated: class NotYetSimulatedError extends Error { },
     FakeAccount: class FakeAccountError extends Error { },
+    SimulationFailed: class SimulationFailedError extends Error { },
   };
 
   /**
@@ -423,8 +424,8 @@ export class AssembledTransaction<T> {
   }
 
   /**
-   * Construct a new AssembledTransaction. This is the only way to create a new
-   * AssembledTransaction; the main constructor is private.
+   * Construct a new AssembledTransaction. This is the main way to create a new
+   * AssembledTransaction; the constructor is private.
    *
    * This is an asynchronous constructor for two reasons:
    *
@@ -435,29 +436,54 @@ export class AssembledTransaction<T> {
    * If you don't want to simulate the transaction, you can set `simulate` to
    * `false` in the options.
    *
+   * If you need to create an operation other than `invokeHostFunction`, you
+   * can use {@link AssembledTransaction.buildWithOp} instead.
+   *
    * @example
    * const tx = await AssembledTransaction.build({
    *   ...,
    *   simulate: false,
    * })
    */
-  static async build<T>(
-    options: AssembledTransactionOptions<T>,
+  static build<T>(
+    options: AssembledTransactionOptions<T>
+  ): Promise<AssembledTransaction<T>> {
+    const contract = new Contract(options.contractId);
+    return AssembledTransaction.buildWithOp(
+      contract.call(options.method, ...(options.args ?? [])),
+      options
+    );
+  }
+
+  /**
+   * Construct a new AssembledTransaction, specifying an Operation other than
+   * `invokeHostFunction` (the default used by {@link AssembledTransaction.build}).
+   *
+   * Note: `AssembledTransaction` currently assumes these operations can be
+   * simulated. This is not true for classic operations; only for those used by
+   * Soroban Smart Contracts like `invokeHostFunction` and `createCustomContract`.
+   *
+   * @example
+   * const tx = await AssembledTransaction.buildWithOp(
+   *   Operation.createCustomContract({ ... });
+   *   {
+   *     ...,
+   *     simulate: false,
+   *   }
+   * )
+   */
+  static async buildWithOp<T>(
+    operation: xdr.Operation,
+    options: AssembledTransactionOptions<T>
   ): Promise<AssembledTransaction<T>> {
     const tx = new AssembledTransaction(options);
-    const contract = new Contract(options.contractId);
-
-    const account = await getAccount(
-      options,
-      tx.server
-    );
-
+    const account = await getAccount(options, tx.server);
     tx.raw = new TransactionBuilder(account, {
       fee: options.fee ?? BASE_FEE,
       networkPassphrase: options.networkPassphrase,
     })
-      .addOperation(contract.call(options.method, ...(options.args ?? [])))
-      .setTimeout(options.timeoutInSeconds ?? DEFAULT_TIMEOUT);
+      .setTimeout(options.timeoutInSeconds ?? DEFAULT_TIMEOUT)
+      .addOperation(operation);
 
     if (options.simulate) await tx.simulate();
 
@@ -556,7 +582,9 @@ export class AssembledTransaction<T> {
       );
     }
     if (Api.isSimulationError(simulation)) {
-      throw new Error(`Transaction simulation failed: "${simulation.error}"`);
+      throw new AssembledTransaction.Errors.SimulationFailed(
+        `Transaction simulation failed: "${simulation.error}"`
+      );
     }
 
     if (Api.isSimulationRestore(simulation)) {
