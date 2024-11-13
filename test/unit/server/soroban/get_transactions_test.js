@@ -162,6 +162,7 @@ function makeTxResult(ledger, applicationOrder, status) {
   return {
     status: status,
     ledger: ledger,
+    txHash: "ae9f315c048d87a5f853bc15bf284a2c3c89eb0e1cb38c10409b77a877b830a8",
     createdAt: ledger * 25 + 100,
     applicationOrder: applicationOrder,
     feeBump: false,

@@ -1,5 +1,5 @@
 const { Address, xdr, hash, Contract } = StellarSdk;
-const { Server, AxiosClient } = StellarSdk.SorobanRpc;
+const { Server, AxiosClient } = StellarSdk.rpc;
 
 describe("Server#getContractWasm", () => {
   beforeEach(function () {

@@ -57,7 +57,6 @@ export class SentTransaction<T> {
   };
 
   constructor(
-    _: any, // deprecated: used to take sentTransaction, need to wait for major release for breaking change
     public assembled: AssembledTransaction<T>,
   ) {
     this.server = new Server(this.assembled.options.rpcUrl, {
@@ -70,12 +69,10 @@ export class SentTransaction<T> {
    * AssembledTransaction. This will also send the transaction to the network.
    */
   static init = async <U>(
-    /** @deprecated variable is ignored. Now handled by AssembledTransaction. */
-    _: any, // eslint-disable-line @typescript-eslint/no-unused-vars
     /** {@link AssembledTransaction} from which this SentTransaction was initialized */
     assembled: AssembledTransaction<U>,
   ): Promise<SentTransaction<U>> => {
-    const tx = new SentTransaction(undefined, assembled);
+    const tx = new SentTransaction(assembled);
     const sent = await tx.send();
     return sent;
   };

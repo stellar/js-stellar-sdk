@@ -5,6 +5,7 @@ const {
   networkPassphrase,
   rpcUrl,
   generateFundedKeypair,
+  run,
 } = require("./util");
 const { Address, contract } = require("../../../lib");
 
@@ -15,60 +16,39 @@ async function clientFromConstructor(
   if (!contracts[name]) {
     throw new Error(
       `Contract ${name} not found. ` +
-        `Pick one of: ${Object.keys(contracts).join(", ")}`,
+        `Pick one of: ${Object.keys(contracts).join()}`,
     );
   }
   keypair = await keypair; // eslint-disable-line no-param-reassign
   const wallet = contract.basicNodeSigner(keypair, networkPassphrase);
 
   const { path } = contracts[name];
-  const xdr = JSON.parse(
-    spawnSync(
-      "./target/bin/soroban",
-      ["contract", "inspect", "--wasm", path, "--output", "xdr-base64-array"],
-      { shell: true, encoding: "utf8" },
-    ).stdout.trim(),
-  );
+  // TODO: use newer interface instead, `stellar contract info interface` (doesn't yet support xdr-base64-array output)
+  const inspected = run(
+    `./target/bin/stellar contract inspect --wasm ${path} --output xdr-base64-array`,
+  ).stdout;
 
-  const spec = new contract.Spec(xdr);
   let wasmHash = contracts[name].hash;
   if (!wasmHash) {
-    wasmHash = spawnSync(
-      "./target/bin/soroban",
-      ["contract", "install", "--wasm", path],
-      { shell: true, encoding: "utf8" },
-    ).stdout.trim();
+    wasmHash = run(
+      `./target/bin/stellar contract install --wasm ${path}`,
+    ).stdout;
   }
 
-  // TODO: do this with js-stellar-sdk, instead of shelling out to the CLI
-  contractId =
-    contractId ??
-    spawnSync(
-      "./target/bin/soroban",
-      [
-        // eslint-disable-line no-param-reassign
-        "contract",
-        "deploy",
-        "--source",
-        keypair.secret(),
-        "--wasm-hash",
-        wasmHash,
-      ],
-      { shell: true, encoding: "utf8" },
-    ).stdout.trim();
-
-  const client = new contract.Client(spec, {
+  const deploy = await contract.Client.deploy(null, {
     networkPassphrase,
-    contractId,
     rpcUrl,
     allowHttp: true,
+    wasmHash,
     publicKey: keypair.publicKey(),
     ...wallet,
   });
+  const { result: client } = await deploy.signAndSend();
+
   return {
     keypair,
     client,
-    contractId,
+    contractId: client.options.contractId,
   };
 }
 
@@ -92,15 +72,15 @@ async function clientForFromTest(contractId, publicKey, keypair) {
 describe("Client", function () {
   before(async function () {
     const { client, keypair, contractId } =
-      await clientFromConstructor("helloWorld");
+      await clientFromConstructor("customTypes");
     const publicKey = keypair.publicKey();
     const addr = Address.fromString(publicKey);
     this.context = { client, publicKey, addr, contractId, keypair };
   });
 
   it("can be constructed with `new Client`", async function () {
-    const { result } = await this.context.client.hello({ to: "tests" });
-    expect(result).to.deep.equal(["Hello", "tests"]);
+    const { result } = await this.context.client.hello({ hello: "tests" });
+    expect(result).to.equal("tests");
   });
 
   it("can be constructed with `from`", async function () {

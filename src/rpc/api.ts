@@ -2,12 +2,6 @@ import { Contract, SorobanDataBuilder, xdr } from '@stellar/stellar-base';
 
 /* tslint:disable-next-line:no-namespace */
 export namespace Api {
-
-  export interface Cost {
-    cpuInsns: string;
-    memBytes: string;
-  }
-
   export interface GetHealthResponse {
     status: 'healthy';
   }
@@ -72,6 +66,7 @@ export namespace Api {
 
   interface GetAnyTransactionResponse {
     status: GetTransactionStatus;
+    txHash: string;
     latestLedger: number;
     latestLedgerCloseTime: number;
     oldestLedger: number;
@@ -119,15 +114,17 @@ export namespace Api {
     latestLedgerCloseTime: number;
     oldestLedger: number;
     oldestLedgerCloseTime: number;
+    txHash: string;
 
     // the fields below are set if status is SUCCESS
     applicationOrder?: number;
     feeBump?: boolean;
+    ledger?: number;
+    createdAt?: number;
+
     envelopeXdr?: string;
     resultXdr?: string;
     resultMetaXdr?: string;
-    ledger?: number;
-    createdAt?: number;
     diagnosticEventsXdr?: string[];
   }
 
@@ -143,6 +140,8 @@ export namespace Api {
     createdAt: number;
     applicationOrder: number;
     feeBump: boolean;
+    txHash: string;
+
     envelopeXdr?: string;
     resultXdr?: string;
     resultMetaXdr?: string;
@@ -155,6 +154,8 @@ export namespace Api {
     createdAt: number;
     applicationOrder: number;
     feeBump: boolean;
+    txHash: string;
+
     envelopeXdr: xdr.TransactionEnvelope;
     resultXdr: xdr.TransactionResult;
     resultMetaXdr: xdr.TransactionMeta;
@@ -209,6 +210,7 @@ export namespace Api {
     type: EventType;
     ledger: number;
     ledgerClosedAt: string;
+    cursor: string;
     pagingToken: string;
     inSuccessfulContractCall: boolean;
     txHash: string;
@@ -317,7 +319,6 @@ export namespace Api {
     extends BaseSimulateTransactionResponse {
     transactionData: SorobanDataBuilder;
     minResourceFee: string;
-    cost: Cost;
 
     /** present only for invocation simulation */
     result?: SimulateHostFunctionResult;
@@ -403,7 +404,6 @@ export namespace Api {
      * invokeHostFunctionOperation is supported per transaction.
      * */
     results?: RawSimulateHostFunctionResult[];
-    cost?: Cost;
     /** Present if succeeded but has expired ledger entries */
     restorePreamble?: {
       minResourceFee: string;
@@ -416,9 +416,18 @@ export namespace Api {
 
   export interface GetVersionInfoResponse {
     version: string;
+    commitHash: string;
+    buildTimestamp: string;
+    captiveCoreVersion: string;
+    protocolVersion: number; // uint32
+
+    /// @deprecated
     commit_hash: string;
-    build_time_stamp: string;
+    /// @deprecated
+    build_timestamp: string;
+    /// @deprecated
     captive_core_version: string;
+    /// @deprecated
     protocol_version: number; // uint32
   }
 

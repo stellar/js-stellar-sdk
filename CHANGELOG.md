@@ -7,31 +7,92 @@ A breaking change will get clearly marked in this log.
 ## Unreleased
 
 ### Added
-- `rpc.Server` now has a `getSACBalance` helper which lets you fetch the balance of a built-in Stellar Asset Contract token held by a contract ([#1046](https://github.com/stellar/js-stellar-sdk/pull/1046)):
+- `stellartoml-Resolver.resolve` now has a `allowedRedirects` option to configure the number of allowed redirects to follow when resolving a stellar toml file.
 
-```typescript
-export interface BalanceResponse {
-  latestLedger: number;
-  /** present only on success, otherwise request malformed or no balance */
-  balanceEntry?: {
-    /** a 64-bit integer */
-    amount: string;
-    authorized: boolean;
-    clawback: boolean;
 
-    lastModifiedLedgerSeq?: number;
-    liveUntilLedgerSeq?: number;
-  };
-}
-```
-- You can now build the browser bundle without the `axios` dependency. Set `USE_AXIOS=false` `stellar-sdk-no-axios.js` and `stellar-sdk-no-axios.min.js` in the `dist/` directory, or just run `yarn build:browser:no-axios` to generate these files.
-- Similarly, you can import Node packages without the `axios` dependency via `@stellar/stellar-sdk/no-axios`. For Node environments that don't support modern imports, use `@stellar/stellar-sdk/lib/no-axios/index`.
-- There is also a new build target for creating a browser bundle without EventSource dependency. Set USE_EVENTSOURCE=false environment variable to build stellar-sdk-no-eventsource.js and stellar-sdk-no-eventsource.min.js in the dist/ directory. Use yarn build:browser:no-eventsource to generate these files.
-- A new import path for the node package without the EventSource dependency can be used with `@stellar/stellar-sdk/no-eventsource`. For Node.js environments that don't support the package.json `exports` configuration, use `@stellar/stellar-sdk/lib/no-eventsource/index`.
-- To use a minimal build without Axios and EventSource, use `stellar-sdk-minimal.js` for the browser build and import from `@stellar/stellar-sdk/minimal` for the node package.
+## [v13.0.0-rc.1](https://github.com/stellar/js-stellar-sdk/compare/v12.3.0...v13.0.0-rc.1)
+
+### Breaking Changes
+- Deprecated RPC APIs have been removed ([#1084](https://github.com/stellar/js-stellar-sdk/pull/1084)):
+  * `simulateTransaction`'s `cost` field is removed
+  * `getEvents` returns a `cursor` field that matches `pagingToken` and `id`
+  * `getTransactions` returns a `txHash` field
+- Horizon Server API types: removed fields `transaction_count`, `base_fee`, and `base_reserve` (deprecated since [v10.0.1](https://github.com/stellar/js-stellar-sdk/releases/tag/v10.0.1))
+- `SentTransaction.init` and `new SentTransaction` now take _one_ (1) argument instead of _two_ (2). The first argument had previously been deprecated and ignored. To update:
+  ```diff
+  -SentTransaction(nonsense, realStuff)
+  +SentTransaction(realStuff)
+  -new SentTransaction(nonsense, realStuff)
+  +new SentTransaction(realStuff)
+  ```
+- `SorobanRpc` import, previously deprecated, has been removed. You can import `rpc` instead:
+  ```diff
+  -import { SorobanRpc } from '@stellar/stellar-sdk'
+  +import { rpc } from '@stellar/stellar-sdk'
+  ```
+
+  As an alternative, you can also import from the `rpc` entrypoint:
+
+  ```ts
+  import { Server } from '@stellar/stellar-sdk/rpc'
+  ```
+
+
+### Added
+- `rpc.Server` now has a `pollTransaction` method to retry transaction retrieval ([#1092]https://github.com/stellar/js-stellar-sdk/pull/1092).
+
+
+## [v13.0.0-beta.1](https://github.com/stellar/js-stellar-sdk/compare/v12.3.0...v13.0.0-beta.1)
+
+### Breaking Changes
+- `contract.AssembledTransaction#signAuthEntries` now takes an `address` instead of a `publicKey`. This brings the API more inline with its actual functionality: It can be used to sign all the auth entries for a particular _address_, whether that is the address of an account (public key) or a contract. ([#1044](https://github.com/stellar/js-stellar-sdk/pull/1044)).
+
 - The Node.js code will now Babelify to Node 18 instead of Node 16, but we stopped supporting Node 16 long ago so this shouldn't be a breaking change.
 
-- `stellartoml-Resolver.resolve` now has a `allowedRedirects` option to configure the number of allowed redirects to follow when resolving a stellar toml file.
+### Added
+- You can now build the browser bundle without various dependencies:
+  * Set `USE_AXIOS=false` to build without the `axios` dependency: this will build `stellar-sdk-no-axios.js` and `stellar-sdk-no-axios.min.js` in the `dist/` directory, or just run `yarn build:browser:no-axios` to generate these files.
+  * You can import Node packages without the `axios` dependency via `@stellar/stellar-sdk/no-axios`. For Node environments that don't support modern imports, use `@stellar/stellar-sdk/lib/no-axios/index`.
+  * Set `USE_EVENTSOURCE=false` to build without the `eventsource` dependency: this will build `stellar-sdk-no-eventsource.js` and `stellar-sdk-no-eventsource.min.js` in the `dist/` directory, or just run `yarn build:browser:no-eventsource` to generate these files.
+  * You can import Node packages without the `eventsource` dependency via `@stellar/stellar-sdk/no-eventsource`. For Node.js environments that don't support modern imports, use `@stellar/stellar-sdk/lib/no-eventsource/index`.
+  * To use a minimal build without both Axios and EventSource, use `stellar-sdk-minimal.js` for the browser build and import from `@stellar/stellar-sdk/minimal` for the Node package.
+- `contract.AssembledTransaction#signAuthEntries` now allows you to override `authorizeEntry`. This can be used to streamline novel workflows using cross-contract auth. (#1044)
+- `rpc.Server` now has a `getSACBalance` helper which lets you fetch the balance of a built-in Stellar Asset Contract token held by a contract ([#1046](https://github.com/stellar/js-stellar-sdk/pull/1046)):
+  ```typescript
+  export interface BalanceResponse {
+    latestLedger: number;
+    /** present only on success, otherwise request malformed or no balance */
+    balanceEntry?: {
+      /** a 64-bit integer */
+      amount: string;
+      authorized: boolean;
+      clawback: boolean;
+
+      lastModifiedLedgerSeq?: number;
+      liveUntilLedgerSeq?: number;
+    };
+  }
+  ```
+- `contract.Client` now has a static `deploy` method that can be used to deploy a contract instance from an existing uploaded/"installed" Wasm hash. The first arguments to this method are the arguments for the contract's `__constructor` method. For example, using the `increment` test contract as modified in https://github.com/stellar/soroban-test-examples/pull/2/files#diff-8734809100be3803c3ce38064730b4578074d7c2dc5fb7c05ca802b2248b18afR10-R45:
+  ```ts
+  const tx = await contract.Client.deploy(
+    { counter: 42 },
+    {
+      networkPassphrase,
+      rpcUrl,
+      wasmHash: uploadedWasmHash,
+      publicKey: someKeypair.publicKey(),
+      ...basicNodeSigner(someKeypair, networkPassphrase),
+    },
+  );
+  const { result: client } = await tx.signAndSend();
+  const t = await client.get();
+  expect(t.result, 42);
+  ```
+
+### Fixed
+- `contract.AssembledTransaction#nonInvokerSigningBy` now correctly returns contract addresses, in instances of cross-contract auth, rather than throwing an error. `sign` will ignore these contract addresses, since auth happens via cross-contract call ([#1044](https://github.com/stellar/js-stellar-sdk/pull/1044)).
+
 
 ## [v12.3.0](https://github.com/stellar/js-stellar-sdk/compare/v12.2.0...v12.3.0)
 

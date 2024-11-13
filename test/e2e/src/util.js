@@ -1,67 +1,61 @@
 const { spawnSync } = require("node:child_process");
 const { contract, Keypair } = require("../../../lib");
+const path = require("node:path");
 
-const basePath = `${__dirname}/../test-contracts/target/wasm32-unknown-unknown/release`;
+/*
+ * Run a Bash command, returning stdout, stderr, and status code.
+ */
+function run(command) {
+  const [cmd, ...args] = command.split(" ");
+  const result = spawnSync(cmd, args, { shell: true, encoding: "utf8" });
+  return {
+    stdout: result.stdout.trim(),
+    stderr: result.stderr.trim(),
+    status: result.status,
+  };
+}
+module.exports.run = run;
+
+const stellar = "./target/bin/stellar";
+const basePath = path.resolve(
+  `${__dirname}/../test-contracts/target/wasm32-unknown-unknown/release`,
+);
 const contracts = {
   customTypes: {
-    hash: spawnSync(
-      "./target/bin/soroban",
-      [
-        "contract",
-        "install",
-        "--wasm",
-        `${basePath}/soroban_other_custom_types_contract.wasm`,
-      ],
-      { shell: true, encoding: "utf8" },
-    ).stdout.trim(),
-    path: `${basePath}/soroban_custom_types_contract.wasm`,
-  },
-  helloWorld: {
-    hash: spawnSync(
-      "./target/bin/soroban",
-      ["contract", "install", "--wasm", `${basePath}/hello_world.wasm`],
-      { shell: true, encoding: "utf8" },
-    ).stdout.trim(),
-    path: `${basePath}/hello_world.wasm`,
+    hash: run(
+      `${stellar} contract install --wasm ${basePath}/custom_types.wasm`,
+    ).stdout,
+    path: `${basePath}/custom_types.wasm`,
   },
   increment: {
-    hash: spawnSync(
-      "./target/bin/soroban",
-      [
-        "contract",
-        "install",
-        "--wasm",
-        `${basePath}/soroban_increment_contract.wasm`,
-      ],
-      { shell: true, encoding: "utf8" },
-    ).stdout.trim(),
-    path: `${basePath}/soroban_increment_contract.wasm`,
+    hash: run(`${stellar} contract install --wasm ${basePath}/increment.wasm`)
+      .stdout,
+    path: `${basePath}/increment.wasm`,
+    constructorArgs: {
+      counter: 0,
+    },
   },
   swap: {
-    hash: spawnSync(
-      "./target/bin/soroban",
-      [
-        "contract",
-        "install",
-        "--wasm",
-        `${basePath}/soroban_atomic_swap_contract.wasm`,
-      ],
-      { shell: true, encoding: "utf8" },
-    ).stdout.trim(),
-    path: `${basePath}/soroban_atomic_swap_contract.wasm`,
+    hash: run(`${stellar} contract install --wasm ${basePath}/atomic_swap.wasm`)
+      .stdout,
+    path: `${basePath}/atomic_swap.wasm`,
   },
   token: {
-    hash: spawnSync(
-      "./target/bin/soroban",
-      [
-        "contract",
-        "install",
-        "--wasm",
-        `${basePath}/soroban_token_contract.wasm`,
-      ],
-      { shell: true, encoding: "utf8" },
-    ).stdout.trim(),
-    path: `${basePath}/soroban_token_contract.wasm`,
+    hash: run(`${stellar} contract install --wasm ${basePath}/token.wasm`)
+      .stdout,
+    path: `${basePath}/token.wasm`,
+  },
+  needsSignature: {
+    hash: run(
+      `${stellar} contract install --wasm ${basePath}/needs_a_signature.wasm`,
+    ).stdout,
+    path: `${basePath}/needs_a_signature.wasm`,
+  },
+  doesSigning: {
+    hash: run(
+      `${stellar} contract install --wasm ${basePath}/this_one_signs.wasm`,
+    ).stdout,
+    path: `${basePath}/this_one_signs.wasm`,
   },
 };
 module.exports.contracts = contracts;
@@ -97,10 +91,51 @@ module.exports.generateFundedKeypair = generateFundedKeypair;
  * By default, will re-deploy the contract every time. Pass in the same
  * `contractId` again if you want to re-use the a contract instance.
  */
-async function clientFor(
-  name,
-  { keypair = generateFundedKeypair(), contractId } = {},
-) {
+async function clientFor(name, { keypair, contractId } = {}) {
+  const internalKeypair = keypair ?? (await generateFundedKeypair());
+  const signer = contract.basicNodeSigner(internalKeypair, networkPassphrase);
+
+  if (contractId) {
+    return {
+      client: await contract.Client.from({
+        contractId,
+        networkPassphrase,
+        rpcUrl,
+        allowHttp: true,
+        publicKey: internalKeypair.publicKey(),
+        ...signer,
+      }),
+      contractId,
+      keypair,
+    };
+  }
+
+  const { wasmHash } = await installContract(name, {
+    keypair: internalKeypair,
+  });
+
+  const deploy = await contract.Client.deploy(
+    contracts[name].constructorArgs ?? null,
+    {
+      networkPassphrase,
+      rpcUrl,
+      allowHttp: true,
+      wasmHash: wasmHash,
+      publicKey: internalKeypair.publicKey(),
+      ...signer,
+    },
+  );
+  const { result: client } = await deploy.signAndSend();
+
+  return {
+    keypair: internalKeypair,
+    client,
+    contractId: client.options.contractId,
+  };
+}
+module.exports.clientFor = clientFor;
+
+async function installContract(name, { keypair } = {}) {
   if (!contracts[name]) {
     throw new Error(
       `Contract ${name} not found. ` +
@@ -108,51 +143,14 @@ async function clientFor(
     );
   }
 
-  keypair = await keypair; // eslint-disable-line no-param-reassign
-  const wallet = contract.basicNodeSigner(keypair, networkPassphrase);
+  const internalKeypair = keypair ?? (await generateFundedKeypair());
 
   let wasmHash = contracts[name].hash;
   if (!wasmHash) {
-    wasmHash = spawnSync(
-      "./target/bin/soroban",
-      ["contract", "install", "--wasm", contracts[name].path],
-      { shell: true, encoding: "utf8" },
-    ).stdout.trim();
+    wasmHash = run(
+      `${stellar} contract install --wasm ${contracts[name].path}`,
+    ).stdout;
   }
-
-  // TODO: do this with js-stellar-sdk, instead of shelling out to the CLI
-  contractId =
-    contractId ??
-    spawnSync(
-      "./target/bin/soroban",
-      [
-        // eslint-disable-line no-param-reassign
-        "contract",
-        "deploy",
-        "--source",
-        keypair.secret(),
-        "--wasm-hash",
-        wasmHash,
-      ],
-      { shell: true, encoding: "utf8" },
-    ).stdout.trim();
-
-  const client = await contract.Client.fromWasmHash(
-    wasmHash,
-    {
-      networkPassphrase,
-      contractId,
-      rpcUrl,
-      allowHttp: true,
-      publicKey: keypair.publicKey(),
-      ...wallet,
-    },
-    "hex",
-  );
-  return {
-    keypair,
-    client,
-    contractId,
-  };
+  return { keypair: internalKeypair, wasmHash };
 }
-module.exports.clientFor = clientFor;
+module.exports.installContract = installContract;

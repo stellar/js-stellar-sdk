@@ -2,13 +2,13 @@
 /* eslint max-classes-per-file: 0 */
 import {
   Account,
+  Address,
   BASE_FEE,
   Contract,
   Operation,
   SorobanDataBuilder,
-  StrKey,
   TransactionBuilder,
-  authorizeEntry,
+  authorizeEntry as stellarBaseAuthorizeEntry,
   xdr,
 } from "@stellar/stellar-base";
 import type {
@@ -323,6 +323,7 @@ export class AssembledTransaction<T> {
     NoSigner: class NoSignerError extends Error { },
     NotYetSimulated: class NotYetSimulatedError extends Error { },
     FakeAccount: class FakeAccountError extends Error { },
+    SimulationFailed: class SimulationFailedError extends Error { },
   };
 
   /**
@@ -423,8 +424,8 @@ export class AssembledTransaction<T> {
   }
 
   /**
-   * Construct a new AssembledTransaction. This is the only way to create a new
-   * AssembledTransaction; the main constructor is private.
+   * Construct a new AssembledTransaction. This is the main way to create a new
+   * AssembledTransaction; the constructor is private.
    *
    * This is an asynchronous constructor for two reasons:
    *
@@ -435,29 +436,54 @@ export class AssembledTransaction<T> {
    * If you don't want to simulate the transaction, you can set `simulate` to
    * `false` in the options.
    *
+   * If you need to create an operation other than `invokeHostFunction`, you
+   * can use {@link AssembledTransaction.buildWithOp} instead.
+   *
    * @example
    * const tx = await AssembledTransaction.build({
    *   ...,
    *   simulate: false,
    * })
    */
-  static async build<T>(
-    options: AssembledTransactionOptions<T>,
+  static build<T>(
+    options: AssembledTransactionOptions<T>
+  ): Promise<AssembledTransaction<T>> {
+    const contract = new Contract(options.contractId);
+    return AssembledTransaction.buildWithOp(
+      contract.call(options.method, ...(options.args ?? [])),
+      options
+    );
+  }
+
+  /**
+   * Construct a new AssembledTransaction, specifying an Operation other than
+   * `invokeHostFunction` (the default used by {@link AssembledTransaction.build}).
+   *
+   * Note: `AssembledTransaction` currently assumes these operations can be
+   * simulated. This is not true for classic operations; only for those used by
+   * Soroban Smart Contracts like `invokeHostFunction` and `createCustomContract`.
+   *
+   * @example
+   * const tx = await AssembledTransaction.buildWithOp(
+   *   Operation.createCustomContract({ ... });
+   *   {
+   *     ...,
+   *     simulate: false,
+   *   }
+   * )
+   */
+  static async buildWithOp<T>(
+    operation: xdr.Operation,
+    options: AssembledTransactionOptions<T>
   ): Promise<AssembledTransaction<T>> {
     const tx = new AssembledTransaction(options);
-    const contract = new Contract(options.contractId);
-
-    const account = await getAccount(
-      options,
-      tx.server
-    );
-
+    const account = await getAccount(options, tx.server);
     tx.raw = new TransactionBuilder(account, {
       fee: options.fee ?? BASE_FEE,
       networkPassphrase: options.networkPassphrase,
     })
-      .addOperation(contract.call(options.method, ...(options.args ?? [])))
-      .setTimeout(options.timeoutInSeconds ?? DEFAULT_TIMEOUT);
+      .setTimeout(options.timeoutInSeconds ?? DEFAULT_TIMEOUT)
+      .addOperation(operation);
 
     if (options.simulate) await tx.simulate();
 
@@ -556,7 +582,9 @@ export class AssembledTransaction<T> {
       );
     }
     if (Api.isSimulationError(simulation)) {
-      throw new Error(`Transaction simulation failed: "${simulation.error}"`);
+      throw new AssembledTransaction.Errors.SimulationFailed(
+        `Transaction simulation failed: "${simulation.error}"`
+      );
     }
 
     if (Api.isSimulationRestore(simulation)) {
@@ -636,9 +664,11 @@ export class AssembledTransaction<T> {
       );
     }
 
-    if (this.needsNonInvokerSigningBy().length) {
+    // filter out contracts, as these are dealt with via cross contract calls
+    const sigsNeeded = this.needsNonInvokerSigningBy().filter(id => !id.startsWith('C'));
+    if (sigsNeeded.length) {
       throw new AssembledTransaction.Errors.NeedsMoreSignatures(
-        "Transaction requires more signatures. " +
+        `Transaction requires signatures from ${sigsNeeded}. ` +
         "See `needsNonInvokerSigningBy` for details.",
       );
     }
@@ -674,7 +704,7 @@ export class AssembledTransaction<T> {
     if(!this.signed){
       throw new Error("The transaction has not yet been signed. Run `sign` first, or use `signAndSend` instead.");
     }
-    const sent = await SentTransaction.init(undefined, this);
+    const sent = await SentTransaction.init(this);
     return sent;
   }
 
@@ -760,9 +790,9 @@ export class AssembledTransaction<T> {
                 "scvVoid"),
           )
           .map((entry) =>
-            StrKey.encodeEd25519PublicKey(
-              entry.credentials().address().address().accountId().ed25519(),
-            ),
+            Address.fromScAddress(
+              entry.credentials().address().address(),
+            ).toString(),
           ),
       ),
     ];
@@ -788,7 +818,8 @@ export class AssembledTransaction<T> {
     expiration = (async () =>
       (await this.server.getLatestLedger()).sequence + 100)(),
     signAuthEntry = this.options.signAuthEntry,
-    publicKey = this.options.publicKey,
+    address = this.options.publicKey,
+    authorizeEntry = stellarBaseAuthorizeEntry,
   }: {
     /**
      * When to set each auth entry to expire. Could be any number of blocks in
@@ -800,33 +831,40 @@ export class AssembledTransaction<T> {
      * Sign all auth entries for this account. Default: the account that
      * constructed the transaction
      */
-    publicKey?: string;
+    address?: string;
     /**
-     * You must provide this here if you did not provide one before. Default:
-     * the `signAuthEntry` function from the `Client` options. Must
-     * sign things as the given `publicKey`.
+     * You must provide this here if you did not provide one before and you are not passing `authorizeEntry`. Default: the `signAuthEntry` function from the `Client` options. Must sign things as the given `publicKey`.
      */
     signAuthEntry?: ClientOptions["signAuthEntry"];
+
+    /**
+     * If you have a pro use-case and need to override the default `authorizeEntry` function, rather than using the one in @stellar/stellar-base, you can do that! Your function needs to take at least the first argument, `entry: xdr.SorobanAuthorizationEntry`, and return a `Promise<xdr.SorobanAuthorizationEntry>`.
+     *
+     * Note that you if you pass this, then `signAuthEntry` will be ignored.
+    */
+    authorizeEntry?: typeof stellarBaseAuthorizeEntry;
   } = {}): Promise<void> => {
     if (!this.built)
       throw new Error("Transaction has not yet been assembled or simulated");
-    const needsNonInvokerSigningBy = this.needsNonInvokerSigningBy();
 
-    if (!needsNonInvokerSigningBy) {
-      throw new AssembledTransaction.Errors.NoUnsignedNonInvokerAuthEntries(
-        "No unsigned non-invoker auth entries; maybe you already signed?",
-      );
-    }
-    if (needsNonInvokerSigningBy.indexOf(publicKey ?? "") === -1) {
-      throw new AssembledTransaction.Errors.NoSignatureNeeded(
-        `No auth entries for public key "${publicKey}"`,
-      );
-    }
-    if (!signAuthEntry) {
-      throw new AssembledTransaction.Errors.NoSigner(
-        "You must provide `signAuthEntry` when calling `signAuthEntries`, " +
-        "or when constructing the `Client` or `AssembledTransaction`",
-      );
+    // Likely if we're using a custom authorizeEntry then we know better than the `needsNonInvokerSigningBy` logic.
+    if (authorizeEntry === stellarBaseAuthorizeEntry) {
+      const needsNonInvokerSigningBy = this.needsNonInvokerSigningBy();
+      if (needsNonInvokerSigningBy.length === 0) {
+        throw new AssembledTransaction.Errors.NoUnsignedNonInvokerAuthEntries(
+          "No unsigned non-invoker auth entries; maybe you already signed?",
+        );
+      }
+      if (needsNonInvokerSigningBy.indexOf(address ?? "") === -1) {
+        throw new AssembledTransaction.Errors.NoSignatureNeeded(
+          `No auth entries for public key "${address}"`,
+        );
+      }
+      if (!signAuthEntry) {
+        throw new AssembledTransaction.Errors.NoSigner(
+          "You must provide `signAuthEntry` or a custom `authorizeEntry`"
+        );
+      }
     }
 
     const rawInvokeHostFunctionOp = this.built
@@ -836,8 +874,10 @@ export class AssembledTransaction<T> {
 
     // eslint-disable-next-line no-restricted-syntax
     for (const [i, entry] of authEntries.entries()) {
+      // workaround for https://github.com/stellar/js-stellar-sdk/issues/1070
+      const credentials = xdr.SorobanCredentials.fromXDR(entry.credentials().toXDR())
       if (
-        entry.credentials().switch() !==
+        credentials.switch() !==
         xdr.SorobanCredentialsType.sorobanCredentialsAddress()
       ) {
         // if the invoker/source account, then the entry doesn't need explicit
@@ -845,19 +885,26 @@ export class AssembledTransaction<T> {
         // account, so only check for sorobanCredentialsAddress
         continue; // eslint-disable-line no-continue
       }
-      const pk = StrKey.encodeEd25519PublicKey(
-        entry.credentials().address().address().accountId().ed25519(),
-      );
+      const authEntryAddress = Address.fromScAddress(
+        credentials.address().address(),
+      ).toString();
 
       // this auth entry needs to be signed by a different account
       // (or maybe already was!)
-      if (pk !== publicKey) continue; // eslint-disable-line no-continue
+      if (authEntryAddress !== address) continue; // eslint-disable-line no-continue
+
+      const sign: typeof signAuthEntry = signAuthEntry ?? Promise.resolve;
 
       // eslint-disable-next-line no-await-in-loop
       authEntries[i] = await authorizeEntry(
         entry,
         async (preimage) =>
-          Buffer.from(await signAuthEntry(preimage.toXDR("base64")), "base64"),
+          Buffer.from(
+            await sign(preimage.toXDR("base64"), {
+              accountToSign: address,
+            }),
+            "base64",
+          ),
         await expiration, // eslint-disable-line no-await-in-loop
         this.options.networkPassphrase,
       );
