@@ -16,6 +16,7 @@ import type {
   ClientOptions,
   MethodOptions,
   Tx,
+  WalletError,
   XDR_BASE64,
 } from "./types";
 import { Server } from "../rpc";
@@ -324,6 +325,10 @@ export class AssembledTransaction<T> {
     NotYetSimulated: class NotYetSimulatedError extends Error { },
     FakeAccount: class FakeAccountError extends Error { },
     SimulationFailed: class SimulationFailedError extends Error { },
+    InternalWalletError: class InternalWalletError extends Error { },
+    ExternalServiceError: class ExternalServiceError extends Error { },
+    InvalidClientRequest: class InvalidClientRequestError extends Error { },
+    UserRejected: class UserRejectedError extends Error { },
   };
 
   /**
@@ -414,6 +419,26 @@ export class AssembledTransaction<T> {
      );
     txn.built = built;
     return txn;
+  }
+
+  private handleWalletError(error?: WalletError): void {
+    if (!error) return;
+
+    const { message, code } = error;
+    const fullMessage = `${message}${error.ext ? ` (${  error.ext.join(', ')  })` : ''}`;
+
+    switch (code) {
+      case -1:
+        throw new AssembledTransaction.Errors.InternalWalletError(fullMessage);
+      case -2:
+        throw new AssembledTransaction.Errors.ExternalServiceError(fullMessage);
+      case -3:
+        throw new AssembledTransaction.Errors.InvalidClientRequest(fullMessage);
+      case -4:
+        throw new AssembledTransaction.Errors.UserRejected(fullMessage);
+      default:
+        throw new Error(`Unhandled error: ${fullMessage}`);
+    }
   }
 
   private constructor(public options: AssembledTransactionOptions<T>) {
@@ -683,12 +708,20 @@ export class AssembledTransaction<T> {
       .setTimeout(timeoutInSeconds)
       .build();
 
-    const signature = await signTransaction(
+    const signOpts: Parameters<NonNullable<ClientOptions['signTransaction']>>[1] = {
+      networkPassphrase: this.options.networkPassphrase,
+    };
+  
+    if (this.options.address) signOpts.address = this.options.address;
+    if (this.options.submit !== undefined) signOpts.submit = this.options.submit;
+    if (this.options.submitUrl) signOpts.submitUrl = this.options.submitUrl;
+
+    const { signedTxXdr: signature, error } = await signTransaction(
       this.built.toXDR(),
-      {
-        networkPassphrase: this.options.networkPassphrase,
-      },
+      signOpts,
     );
+
+    this.handleWalletError(error);
 
     this.signed = TransactionBuilder.fromXDR(
       signature,
@@ -728,7 +761,20 @@ export class AssembledTransaction<T> {
     signTransaction?: ClientOptions["signTransaction"];
   } = {}): Promise<SentTransaction<T>> => {
     if(!this.signed){
-      await this.sign({ force, signTransaction });
+      // Store the original submit option
+      const originalSubmit = this.options.submit;
+
+      // Temporarily disable submission in signTransaction to prevent double submission
+      if (this.options.submit) {
+        this.options.submit = false;
+      }
+
+      try {
+        await this.sign({ force, signTransaction });
+      } finally {
+        // Restore the original submit option
+        this.options.submit = originalSubmit;
+      }
     }
     return this.send();
   };
@@ -841,7 +887,7 @@ export class AssembledTransaction<T> {
      * If you have a pro use-case and need to override the default `authorizeEntry` function, rather than using the one in @stellar/stellar-base, you can do that! Your function needs to take at least the first argument, `entry: xdr.SorobanAuthorizationEntry`, and return a `Promise<xdr.SorobanAuthorizationEntry>`.
      *
      * Note that you if you pass this, then `signAuthEntry` will be ignored.
-    */
+     */
     authorizeEntry?: typeof stellarBaseAuthorizeEntry;
   } = {}): Promise<void> => {
     if (!this.built)
@@ -898,13 +944,13 @@ export class AssembledTransaction<T> {
       // eslint-disable-next-line no-await-in-loop
       authEntries[i] = await authorizeEntry(
         entry,
-        async (preimage) =>
-          Buffer.from(
-            await sign(preimage.toXDR("base64"), {
-              accountToSign: address,
-            }),
-            "base64",
-          ),
+        async (preimage) => {
+          const { signedAuthEntry, error } = await sign(preimage.toXDR("base64"), {
+            address,
+          });
+          this.handleWalletError(error);
+          return Buffer.from(signedAuthEntry, "base64");
+        },
         await expiration, // eslint-disable-line no-await-in-loop
         this.options.networkPassphrase,
       );
