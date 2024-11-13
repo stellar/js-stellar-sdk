@@ -7,13 +7,12 @@ A breaking change will get clearly marked in this log.
 ## Unreleased
 
 ### Added
-- `stellartoml-Resolver.resolve` now has a `allowedRedirects` option to configure the number of allowed redirects to follow when resolving a stellar toml file.
 
 
 ## [v13.0.0-rc.2](https://github.com/stellar/js-stellar-sdk/compare/v12.3.0...v13.0.0-rc.2)
 
 ### Added
-- `contract.Client` now has a static `deploy` method that can be used to deploy a contract instance from an existing uploaded/"installed" Wasm hash. The first arguments to this method are the arguments for the contract's `__constructor` method in accordance with CAP-42 ([#1086](https://github.com/stellar/js-stellar-sdk/pull/1086/)).
+* `contract.Client` now has a static `deploy` method that can be used to deploy a contract instance from an existing uploaded/"installed" Wasm hash. The first arguments to this method are the arguments for the contract's `__constructor` method in accordance with CAP-42 ([#1086](https://github.com/stellar/js-stellar-sdk/pull/1086/)).
 
 For example, using the `increment` test contract as modified in https://github.com/stellar/soroban-test-examples/pull/2/files#diff-8734809100be3803c3ce38064730b4578074d7c2dc5fb7c05ca802b2248b18afR10-R45:
 ```typescript
@@ -34,6 +33,7 @@ For example, using the `increment` test contract as modified in https://github.c
 * `Horizon.ServerApi` now has an `EffectType` exported so that you can compare and infer effect types directly ([#1099](https://github.com/stellar/js-stellar-sdk/pull/1099)).
 * `Horizon.ServerApi.Trade` type now has a `type_i` field for type inference.
 * All effects now expose their type as an exact string ([#947](https://github.com/stellar/js-stellar-sdk/pull/947)).
+* `stellartoml-Resolver.resolve` now has a `allowedRedirects` option to configure the number of allowed redirects to follow when resolving a stellar toml file.
 
 
 ## [v13.0.0-rc.1](https://github.com/stellar/js-stellar-sdk/compare/v12.3.0...v13.0.0-rc.1)
