@@ -1,6 +1,6 @@
-import { KitActions } from "@creit.tech/stellar-wallets-kit";
 import { Keypair, TransactionBuilder, hash } from "@stellar/stellar-base";
 import type { Client } from "./client";
+import { SignAuthEntry, SignTransaction } from "./types";
 
 /**
  * For use with {@link Client} and {@link module:contract.AssembledTransaction}.
@@ -18,8 +18,8 @@ export const basicNodeSigner = (
   keypair: Keypair,
   networkPassphrase: string,
 ): {
-  signTransaction: KitActions['signTransaction'];
-  signAuthEntry: KitActions['signAuthEntry'];
+  signTransaction: SignTransaction;
+  signAuthEntry: SignAuthEntry;
 } => ({
   // eslint-disable-next-line require-await
   signTransaction: async (xdr, opts) => {

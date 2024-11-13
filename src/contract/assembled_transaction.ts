@@ -16,6 +16,7 @@ import type {
   ClientOptions,
   MethodOptions,
   Tx,
+  WalletError,
   XDR_BASE64,
 } from "./types";
 import { Server } from "../rpc";
@@ -31,6 +32,7 @@ import {
 import { DEFAULT_TIMEOUT } from "./types";
 import { SentTransaction } from "./sent_transaction";
 import { Spec } from "./spec";
+
 
 /** @module contract */
 
@@ -324,6 +326,10 @@ export class AssembledTransaction<T> {
     NotYetSimulated: class NotYetSimulatedError extends Error { },
     FakeAccount: class FakeAccountError extends Error { },
     SimulationFailed: class SimulationFailedError extends Error { },
+    InternalWalletError: class InternalWalletError extends Error { },
+    ExternalServiceError: class ExternalServiceError extends Error { },
+    InvalidClientRequest: class InvalidClientRequestError extends Error { },
+    UserRejected: class UserRejectedError extends Error { },
   };
 
   /**
@@ -414,6 +420,26 @@ export class AssembledTransaction<T> {
      );
     txn.built = built;
     return txn;
+  }
+
+  private handleWalletError(error?: WalletError): void {
+    if (!error) return;
+
+    const { message, code } = error;
+    const fullMessage = `${message}${error.ext ? ` (${  error.ext.join(', ')  })` : ''}`;
+
+    switch (code) {
+      case -1:
+        throw new AssembledTransaction.Errors.InternalWalletError(fullMessage);
+      case -2:
+        throw new AssembledTransaction.Errors.ExternalServiceError(fullMessage);
+      case -3:
+        throw new AssembledTransaction.Errors.InvalidClientRequest(fullMessage);
+      case -4:
+        throw new AssembledTransaction.Errors.UserRejected(fullMessage);
+      default:
+        throw new Error(`Unhandled error: ${fullMessage}`);
+    }
   }
 
   private constructor(public options: AssembledTransactionOptions<T>) {
@@ -691,10 +717,12 @@ export class AssembledTransaction<T> {
     if (this.options.submit !== undefined) signOpts.submit = this.options.submit;
     if (this.options.submitUrl) signOpts.submitUrl = this.options.submitUrl;
 
-    const { signedTxXdr: signature } = await signTransaction(
+    const { signedTxXdr: signature, error } = await signTransaction(
       this.built.toXDR(),
       signOpts,
     );
+
+    this.handleWalletError(error);
 
     this.signed = TransactionBuilder.fromXDR(
       signature,
@@ -918,12 +946,12 @@ export class AssembledTransaction<T> {
       authEntries[i] = await authorizeEntry(
         entry,
         async (preimage) => {
-          const { signedAuthEntry } = await sign(preimage.toXDR("base64"), {
-               address, })
-          return Buffer.from(
-            signedAuthEntry,
-            "base64",
-          )},
+          const { signedAuthEntry, error } = await sign(preimage.toXDR("base64"), {
+            address,
+          });
+          this.handleWalletError(error);
+          return Buffer.from(signedAuthEntry, "base64");
+        },
         await expiration, // eslint-disable-line no-await-in-loop
         this.options.networkPassphrase,
       );
