@@ -234,14 +234,16 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
           Resolver.resolve("localhost:4444", {
             allowHttp: true,
             allowedRedirects: 1,
-          }).then((response) => {
-            expect(response.FEDERATION_SERVER).equals(
-              "https://api.stellar.org/federation",
-            );
-          }).finally(() => {
-            tempServer.close();
-            done();
-          });
+          })
+            .then((response) => {
+              expect(response.FEDERATION_SERVER).equals(
+                "https://api.stellar.org/federation",
+              );
+            })
+            .finally(() => {
+              tempServer.close();
+              done();
+            });
         });
     });
   });
