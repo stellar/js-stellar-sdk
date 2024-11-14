@@ -6,15 +6,12 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
-### Breaking Changes
-- The `ClientOptions.signTransaction` type has been updated to reflect the latest [SEP 43](https://github.com/stellar/stellar-protocol/blob/eb401f932258c827a5b4a2e14aea939affcd2b02/ecosystem/sep-0043.md#wallet-interface-format) protocol, which matches the latest major version of Freighter and other wallets. It now accepts `address`, `submit`, and `submitUrl` options, and it returns a promise containing the `signedTxXdr` and the `signerAddress`. It now also returns an `Error` type if an error occurs during signing.
-  * `basicNodeSigner` has been updated to reflect the new type.
-- `ClientOptions.signAuthEntry` type has also been updated to reflect the SEP 43 protocol, which also returns a promise containing the`signerAddress` in addition to the `signAuthEntry` that was returned previously. It also can return an `Error` type. 
-
-### Added
-
-
 ## [v13.0.0-rc.2](https://github.com/stellar/js-stellar-sdk/compare/v12.3.0...v13.0.0-rc.2)
+
+### Breaking Changes
+- The `ClientOptions.signTransaction` type has been updated to reflect the latest [SEP-43](https://stellar.org/protocol/sep-43#wallet-interface-format) protocol, which matches the latest major version of Freighter and other wallets. It now accepts `address`, `submit`, and `submitUrl` options, and it returns a promise containing the `signedTxXdr` and the `signerAddress`. It now also returns an `Error` type if an error occurs during signing.
+  * `basicNodeSigner` has been updated to reflect the new type.
+- `ClientOptions.signAuthEntry` type has also been updated to reflect the [SEP-43](https://stellar.org/protocol/sep-43#wallet-interface-format) protocol, which also returns a promise containing the `signerAddress` in addition to the `signAuthEntry` that was returned previously. It also can return an `Error` type. 
 
 ### Added
 * `contract.Client` now has a static `deploy` method that can be used to deploy a contract instance from an existing uploaded/"installed" Wasm hash. The first arguments to this method are the arguments for the contract's `__constructor` method in accordance with CAP-42 ([#1086](https://github.com/stellar/js-stellar-sdk/pull/1086/)).
