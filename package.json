@@ -17,7 +17,7 @@
   "author": "Stellar Development Foundation <hello@stellar.org>",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
-  "browser": "./dist/stellar-sdk.min.js",
+  "browser": "./dist/stellar-sdk.js",
   "files": [
     "/types",
     "/lib",
@@ -25,7 +25,7 @@
   ],
   "exports": {
     ".": {
-      "browser": "./dist/stellar-sdk.min.js",
+      "browser": "./dist/stellar-sdk.js",
       "types": "./lib/index.d.ts",
       "default": "./lib/index.js"
     },
