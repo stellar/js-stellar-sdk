@@ -977,14 +977,18 @@ export class RpcServer {
         `${friendbotUrl}?addr=${encodeURIComponent(account)}`
       );
 
-      const txMeta = await this.getTransaction(response.data.hash)
-      if (txMeta.status !== Api.GetTransactionStatus.SUCCESS) {
-        throw new Error(`Funding account ${address} failed`);
+      let meta: xdr.TransactionMeta;
+      if (!response.data.result_meta_xdr) {
+        const txMeta = await this.getTransaction(response.data.hash)
+        if (txMeta.status !== Api.GetTransactionStatus.SUCCESS) {
+          throw new Error(`Funding account ${address} failed`);
+        }
+        meta = txMeta.resultMetaXdr;
+      } else {
+        meta = xdr.TransactionMeta.fromXDR(response.data.result_meta_xdr, 'base64');
       }
 
-      const sequence = findCreatedAccountSequenceInTransactionMeta(
-        txMeta.resultMetaXdr
-      );
+      const sequence = findCreatedAccountSequenceInTransactionMeta(meta);
       return new Account(account, sequence);
     } catch (error: any) {
       if (error.response?.status === 400) {
