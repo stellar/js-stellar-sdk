@@ -1115,7 +1115,9 @@ export class RpcServer {
 
       console.log(val, val.contractData(), val.contractData().val());
 
-      const entry = scValToNative(val.contractData().val());
+      return val.contractData().val();
+
+      const entry = scValToNative();
 
       // Since we are requesting a SAC's contract data, we know for a fact that
       // it should follow the expected structure format. Thus, we can presume
