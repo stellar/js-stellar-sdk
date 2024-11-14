@@ -1113,6 +1113,8 @@ export class RpcServer {
         return { latestLedger: response.latestLedger };
       }
 
+      console.log(val, val.contractData(), val.contractData().val());
+
       const entry = scValToNative(val.contractData().val());
 
       // Since we are requesting a SAC's contract data, we know for a fact that
