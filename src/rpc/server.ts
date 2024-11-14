@@ -1115,22 +1115,22 @@ export class RpcServer {
 
       console.log(val, val.contractData(), val.contractData().val());
 
-      return val.contractData().val();
+      return val.contractData().val() as any;
 
-      const entry = scValToNative();
+      // const entry = scValToNative();
 
-      // Since we are requesting a SAC's contract data, we know for a fact that
-      // it should follow the expected structure format. Thus, we can presume
-      // these fields exist:
-      return {
-        latestLedger: response.latestLedger,
-        balanceEntry: {
-          liveUntilLedgerSeq,
-          lastModifiedLedgerSeq,
-          amount: entry.amount.toString(),
-          authorized: entry.authorized,
-          clawback: entry.clawback,
-        }
-      };
+      // // Since we are requesting a SAC's contract data, we know for a fact that
+      // // it should follow the expected structure format. Thus, we can presume
+      // // these fields exist:
+      // return {
+      //   latestLedger: response.latestLedger,
+      //   balanceEntry: {
+      //     liveUntilLedgerSeq,
+      //     lastModifiedLedgerSeq,
+      //     amount: entry.amount.toString(),
+      //     authorized: entry.authorized,
+      //     clawback: entry.clawback,
+      //   }
+      // };
   }
 }
