@@ -1,0 +1,22 @@
+name: npm mark latest
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+          registry-url: 'https://registry.npmjs.org'
+          always-auth: true
+
+      - name: Publish npm package to both places
+        run: npm dist-tag add "@stellar/stellar-sdk"@v13.0.0 latest
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
