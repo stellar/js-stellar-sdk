@@ -126,6 +126,9 @@ import { scValToNative } from './scval';
  * @prop {string} wasm.address  contract address of this deployment
  * @prop {string} wasm.salt     hex salt that the user consumed when creating
  *    this contract (encoded in the resulting address)
+ * @prop {any[]}  [wasm.constructorArgs] a list of natively-represented values
+ *    (see {@link scValToNative}) that are passed to the constructor when
+ *    creating this contract
  */
 
 /**
@@ -134,8 +137,8 @@ import { scValToNative } from './scval';
  * @prop {string} source    the strkey of the contract (C...) being invoked
  * @prop {string} function  the name of the function being invoked
  * @prop {any[]}  args      the natively-represented parameters to the function
- *    invocation (see {@link scValToNative}) for rules on how they're
- *    represented a JS types
+ *    invocation (see {@link scValToNative} for rules on how they're
+ *    represented a JS types)
  */
 
 /**
@@ -196,7 +199,7 @@ export function buildInvocationTree(root) {
   /** @type {InvocationTree} */
   const output = {};
 
-  /** @type {xdr.CreateContractArgs | xdr.InvokeContractArgs} */
+  /** @type {xdr.CreateContractArgs|xdr.CreateContractArgsV2|xdr.InvokeContractArgs} */
   const inner = fn.value();
 
   switch (fn.switch().value) {
@@ -211,7 +214,10 @@ export function buildInvocationTree(root) {
       break;
 
     // sorobanAuthorizedFunctionTypeCreateContractHostFn
-    case 1: {
+    // sorobanAuthorizedFunctionTypeCreateContractV2HostFn
+    case 1: // fallthrough: just no ctor args in V1
+    case 2: {
+      const createV2 = fn.switch().value === 2;
       output.type = 'create';
       output.args = {};
 
@@ -241,7 +247,13 @@ export function buildInvocationTree(root) {
           output.args.wasm = {
             salt: details.salt().toString('hex'),
             hash: exec.wasmHash().toString('hex'),
-            address: Address.fromScAddress(details.address()).toString()
+            address: Address.fromScAddress(details.address()).toString(),
+            // only apply constructor args for WASM+CreateV2 scenario
+            ...(createV2 &amp;&amp; {
+              constructorArgs: inner
+                .constructorArgs()
+                .map((arg) => scValToNative(arg))
+            }) // empty indicates V2 and no ctor, undefined indicates V1
           };
           break;
         }
