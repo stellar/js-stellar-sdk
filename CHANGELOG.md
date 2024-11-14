@@ -12,7 +12,33 @@ A breaking change will get clearly marked in this log.
 - `ClientOptions.signAuthEntry` type has also been updated to reflect the SEP 43 protocol, which also returns a promise containing the`signerAddress` in addition to the `signAuthEntry` that was returned previously. It also can return an `Error` type. 
 
 ### Added
-- `stellartoml-Resolver.resolve` now has a `allowedRedirects` option to configure the number of allowed redirects to follow when resolving a stellar toml file.
+
+
+## [v13.0.0-rc.2](https://github.com/stellar/js-stellar-sdk/compare/v12.3.0...v13.0.0-rc.2)
+
+### Added
+* `contract.Client` now has a static `deploy` method that can be used to deploy a contract instance from an existing uploaded/"installed" Wasm hash. The first arguments to this method are the arguments for the contract's `__constructor` method in accordance with CAP-42 ([#1086](https://github.com/stellar/js-stellar-sdk/pull/1086/)).
+
+For example, using the `increment` test contract as modified in https://github.com/stellar/soroban-test-examples/pull/2/files#diff-8734809100be3803c3ce38064730b4578074d7c2dc5fb7c05ca802b2248b18afR10-R45:
+```typescript
+  const tx = await contract.Client.deploy(
+    { counter: 42 },
+    {
+      networkPassphrase,
+      rpcUrl,
+      wasmHash: uploadedWasmHash,
+      publicKey: someKeypair.publicKey(),
+      ...basicNodeSigner(someKeypair, networkPassphrase),
+    },
+  );
+  const { result: client } = await tx.signAndSend();
+  const t = await client.get();
+  expect(t.result, 42);
+```
+* `Horizon.ServerApi` now has an `EffectType` exported so that you can compare and infer effect types directly ([#1099](https://github.com/stellar/js-stellar-sdk/pull/1099)).
+* `Horizon.ServerApi.Trade` type now has a `type_i` field for type inference.
+* All effects now expose their type as an exact string ([#947](https://github.com/stellar/js-stellar-sdk/pull/947)).
+* `stellartoml-Resolver.resolve` now has a `allowedRedirects` option to configure the number of allowed redirects to follow when resolving a stellar toml file.
 
 
 ## [v13.0.0-rc.1](https://github.com/stellar/js-stellar-sdk/compare/v12.3.0...v13.0.0-rc.1)
@@ -51,7 +77,6 @@ A breaking change will get clearly marked in this log.
 
 ### Breaking Changes
 - `contract.AssembledTransaction#signAuthEntries` now takes an `address` instead of a `publicKey`. This brings the API more inline with its actual functionality: It can be used to sign all the auth entries for a particular _address_, whether that is the address of an account (public key) or a contract. ([#1044](https://github.com/stellar/js-stellar-sdk/pull/1044)).
-
 - The Node.js code will now Babelify to Node 18 instead of Node 16, but we stopped supporting Node 16 long ago so this shouldn't be a breaking change.
 
 ### Added
@@ -63,37 +88,21 @@ A breaking change will get clearly marked in this log.
   * To use a minimal build without both Axios and EventSource, use `stellar-sdk-minimal.js` for the browser build and import from `@stellar/stellar-sdk/minimal` for the Node package.
 - `contract.AssembledTransaction#signAuthEntries` now allows you to override `authorizeEntry`. This can be used to streamline novel workflows using cross-contract auth. (#1044)
 - `rpc.Server` now has a `getSACBalance` helper which lets you fetch the balance of a built-in Stellar Asset Contract token held by a contract ([#1046](https://github.com/stellar/js-stellar-sdk/pull/1046)):
-  ```typescript
-  export interface BalanceResponse {
-    latestLedger: number;
-    /** present only on success, otherwise request malformed or no balance */
-    balanceEntry?: {
-      /** a 64-bit integer */
-      amount: string;
-      authorized: boolean;
-      clawback: boolean;
+```typescript
+export interface BalanceResponse {
+  latestLedger: number;
+  /** present only on success, otherwise request malformed or no balance */
+  balanceEntry?: {
+    /** a 64-bit integer */
+    amount: string;
+    authorized: boolean;
+    clawback: boolean;
 
-      lastModifiedLedgerSeq?: number;
-      liveUntilLedgerSeq?: number;
-    };
-  }
-  ```
-- `contract.Client` now has a static `deploy` method that can be used to deploy a contract instance from an existing uploaded/"installed" Wasm hash. The first arguments to this method are the arguments for the contract's `__constructor` method. For example, using the `increment` test contract as modified in https://github.com/stellar/soroban-test-examples/pull/2/files#diff-8734809100be3803c3ce38064730b4578074d7c2dc5fb7c05ca802b2248b18afR10-R45:
-  ```ts
-  const tx = await contract.Client.deploy(
-    { counter: 42 },
-    {
-      networkPassphrase,
-      rpcUrl,
-      wasmHash: uploadedWasmHash,
-      publicKey: someKeypair.publicKey(),
-      ...basicNodeSigner(someKeypair, networkPassphrase),
-    },
-  );
-  const { result: client } = await tx.signAndSend();
-  const t = await client.get();
-  expect(t.result, 42);
-  ```
+    lastModifiedLedgerSeq?: number;
+    liveUntilLedgerSeq?: number;
+  };
+}
+```
 
 ### Fixed
 - `contract.AssembledTransaction#nonInvokerSigningBy` now correctly returns contract addresses, in instances of cross-contract auth, rather than throwing an error. `sign` will ignore these contract addresses, since auth happens via cross-contract call ([#1044](https://github.com/stellar/js-stellar-sdk/pull/1044)).
