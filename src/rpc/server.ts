@@ -11,7 +11,6 @@ import {
   StrKey,
   Transaction,
   nativeToScVal,
-  scValToNative,
   xdr
 } from '@stellar/stellar-base';
 
@@ -1115,22 +1114,21 @@ export class RpcServer {
 
       console.log(val, val.contractData(), val.contractData().val());
 
-      return val.contractData().val() as any;
+      // const entry = scValToNative(val.contractData().val());
 
-      // const entry = scValToNative();
-
-      // // Since we are requesting a SAC's contract data, we know for a fact that
-      // // it should follow the expected structure format. Thus, we can presume
-      // // these fields exist:
-      // return {
-      //   latestLedger: response.latestLedger,
-      //   balanceEntry: {
-      //     liveUntilLedgerSeq,
-      //     lastModifiedLedgerSeq,
-      //     amount: entry.amount.toString(),
-      //     authorized: entry.authorized,
-      //     clawback: entry.clawback,
-      //   }
-      // };
+      // Since we are requesting a SAC's contract data, we know for a fact that
+      // it should follow the expected structure format. Thus, we can presume
+      // these fields exist:
+      return {
+        latestLedger: response.latestLedger,
+        balanceEntry: {
+          liveUntilLedgerSeq,
+          lastModifiedLedgerSeq,
+          direct: val.contractData().val(),
+          // amount: entry.amount.toString(),
+          // authorized: entry.authorized,
+          // clawback: entry.clawback,
+        }
+      } as any;
   }
 }
