@@ -146,7 +146,7 @@ export declare class CallBuilder&lt;T extends HorizonApi.FeeStatsResponse | Hori
      * @param {number} [options.reconnectTimeout] Custom stream connection timeout in ms, default is 15 seconds.
      * @returns {Function} Close function. Run to close the connection and stop listening for new events.
      */
-    stream(options?: EventSourceOptions&lt;T>): () => void;
+    stream(options?: EventSourceOptions&lt;T extends ServerApi.CollectionPage&lt;infer U> ? U : T>): () => void;
     /**
      * Sets `cursor` parameter for the current call. Returns the CallBuilder object on which this method has been called.
      * @see [Paging](https://developers.stellar.org/api/introduction/pagination/)

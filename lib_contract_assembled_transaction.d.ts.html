@@ -470,6 +470,56 @@ export declare class AssembledTransaction&lt;T> {
             prepareStackTrace?: ((err: Error, stackTraces: NodeJS.CallSite[]) => any) | undefined;
             stackTraceLimit: number;
         };
+        SimulationFailed: {
+            new (message?: string): {
+                name: string;
+                message: string;
+                stack?: string;
+            };
+            captureStackTrace(targetObject: object, constructorOpt?: Function): void;
+            prepareStackTrace?: ((err: Error, stackTraces: NodeJS.CallSite[]) => any) | undefined;
+            stackTraceLimit: number;
+        };
+        InternalWalletError: {
+            new (message?: string): {
+                name: string;
+                message: string;
+                stack?: string;
+            };
+            captureStackTrace(targetObject: object, constructorOpt?: Function): void;
+            prepareStackTrace?: ((err: Error, stackTraces: NodeJS.CallSite[]) => any) | undefined;
+            stackTraceLimit: number;
+        };
+        ExternalServiceError: {
+            new (message?: string): {
+                name: string;
+                message: string;
+                stack?: string;
+            };
+            captureStackTrace(targetObject: object, constructorOpt?: Function): void;
+            prepareStackTrace?: ((err: Error, stackTraces: NodeJS.CallSite[]) => any) | undefined;
+            stackTraceLimit: number;
+        };
+        InvalidClientRequest: {
+            new (message?: string): {
+                name: string;
+                message: string;
+                stack?: string;
+            };
+            captureStackTrace(targetObject: object, constructorOpt?: Function): void;
+            prepareStackTrace?: ((err: Error, stackTraces: NodeJS.CallSite[]) => any) | undefined;
+            stackTraceLimit: number;
+        };
+        UserRejected: {
+            new (message?: string): {
+                name: string;
+                message: string;
+                stack?: string;
+            };
+            captureStackTrace(targetObject: object, constructorOpt?: Function): void;
+            prepareStackTrace?: ((err: Error, stackTraces: NodeJS.CallSite[]) => any) | undefined;
+            stackTraceLimit: number;
+        };
     };
     /**
      * Serialize the AssembledTransaction to a JSON string. This is useful for
@@ -494,10 +544,11 @@ export declare class AssembledTransaction&lt;T> {
      * Deserialize the AssembledTransaction from a base64-encoded XDR string.
      */
     static fromXDR&lt;T>(options: Omit&lt;AssembledTransactionOptions&lt;T>, "args" | "method" | "parseResultXdr">, encodedXDR: string, spec: Spec): AssembledTransaction&lt;T>;
+    private handleWalletError;
     private constructor();
     /**
-     * Construct a new AssembledTransaction. This is the only way to create a new
-     * AssembledTransaction; the main constructor is private.
+     * Construct a new AssembledTransaction. This is the main way to create a new
+     * AssembledTransaction; the constructor is private.
      *
      * This is an asynchronous constructor for two reasons:
      *
@@ -508,6 +559,9 @@ export declare class AssembledTransaction&lt;T> {
      * If you don't want to simulate the transaction, you can set `simulate` to
      * `false` in the options.
      *
+     * If you need to create an operation other than `invokeHostFunction`, you
+     * can use {@link AssembledTransaction.buildWithOp} instead.
+     *
      * @example
      * const tx = await AssembledTransaction.build({
      *   ...,
@@ -515,6 +569,24 @@ export declare class AssembledTransaction&lt;T> {
      * })
      */
     static build&lt;T>(options: AssembledTransactionOptions&lt;T>): Promise&lt;AssembledTransaction&lt;T>>;
+    /**
+     * Construct a new AssembledTransaction, specifying an Operation other than
+     * `invokeHostFunction` (the default used by {@link AssembledTransaction.build}).
+     *
+     * Note: `AssembledTransaction` currently assumes these operations can be
+     * simulated. This is not true for classic operations; only for those used by
+     * Soroban Smart Contracts like `invokeHostFunction` and `createCustomContract`.
+     *
+     * @example
+     * const tx = await AssembledTransaction.buildWithOp(
+     *   Operation.createCustomContract({ ... });
+     *   {
+     *     ...,
+     *     simulate: false,
+     *   }
+     * )
+     */
+    static buildWithOp&lt;T>(operation: xdr.Operation, options: AssembledTransactionOptions&lt;T>): Promise&lt;AssembledTransaction&lt;T>>;
     private static buildFootprintRestoreTransaction;
     simulate: ({ restore }?: {
         restore?: boolean;
@@ -622,7 +694,7 @@ export declare class AssembledTransaction&lt;T> {
          * If you have a pro use-case and need to override the default `authorizeEntry` function, rather than using the one in @stellar/stellar-base, you can do that! Your function needs to take at least the first argument, `entry: xdr.SorobanAuthorizationEntry`, and return a `Promise&lt;xdr.SorobanAuthorizationEntry>`.
          *
          * Note that you if you pass this, then `signAuthEntry` will be ignored.
-        */
+         */
         authorizeEntry?: typeof stellarBaseAuthorizeEntry;
     }) => Promise&lt;void>;
     /**

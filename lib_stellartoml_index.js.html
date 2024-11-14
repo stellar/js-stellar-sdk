@@ -163,6 +163,7 @@ class Resolver {
     const timeout = typeof opts.timeout === "undefined" ? _config.Config.getTimeout() : opts.timeout;
     const protocol = allowHttp ? "http" : "https";
     return _httpClient.httpClient.get(`${protocol}://${domain}/.well-known/stellar.toml`, {
+      maxRedirects: opts.allowedRedirects ?? 0,
       maxContentLength: STELLAR_TOML_MAX_SIZE,
       cancelToken: timeout ? new CancelToken(cancel => setTimeout(() => cancel(`timeout of ${timeout}ms exceeded`), timeout)) : undefined,
       timeout

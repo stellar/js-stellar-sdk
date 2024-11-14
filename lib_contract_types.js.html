@@ -115,6 +115,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.NULL_ACCOUNT = exports.DEFAULT_TIMEOUT = void 0;
+var _stellarBase = require("@stellar/stellar-base");
 /* disable PascalCase naming convention, to avoid breaking change */
 /* eslint-disable @typescript-eslint/naming-convention */
 
@@ -162,6 +163,38 @@ exports.NULL_ACCOUNT = exports.DEFAULT_TIMEOUT = void 0;
  * A "regular" transaction, as opposed to a FeeBumpTransaction.
  * @memberof module:contract
  * @type {Transaction&lt;Memo&lt;MemoType>, Operation[]>}
+ */
+
+/**
+ * A function to request a wallet to sign a built transaction
+ * 
+ * This function takes an XDR provided by the requester and applies a signature to it.
+ * It returns a base64-encoded string XDR-encoded Transaction Envelope with Decorated Signatures 
+ * and the signer address back to the requester.
+ *
+ * @param xdr - The XDR string representing the transaction to be signed.
+ * @param opts - Options for signing the transaction.
+ *   @param opts.networkPassphrase - The network's passphrase on which the transaction is intended to be signed.
+ *   @param opts.address - The public key of the account that should be used to sign.
+ *   @param opts.submit - If set to true, submits the transaction immediately after signing.
+ *   @param opts.submitUrl - The URL of the network to which the transaction should be submitted, if applicable.
+ *
+ * @returns A promise resolving to an object with the signed transaction XDR and optional signer address and error.
+ */
+
+/**
+ * A function to request a wallet to sign an authorization entry preimage.
+ *
+ * Similar to signing a transaction, this function takes an authorization entry preimage provided by the 
+ * requester and applies a signature to it.
+ * It returns a signed hash of the same authorization entry and the signer address back to the requester.
+ *
+ * @param authEntry - The authorization entry preimage to be signed.
+ * @param opts - Options for signing the authorization entry.
+ *   @param opts.networkPassphrase - The network's passphrase on which the authorization entry is intended to be signed.
+ *   @param opts.address - The public key of the account that should be used to sign.
+ *
+ * @returns A promise resolving to an object with the signed authorization entry and optional signer address and error.
  */
 
 /**

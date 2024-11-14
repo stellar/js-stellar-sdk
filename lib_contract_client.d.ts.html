@@ -111,7 +111,7 @@
         <article>
             <pre class="prettyprint source linenums"><code>import { Spec } from "./spec";
 import { AssembledTransaction } from "./assembled_transaction";
-import type { ClientOptions } from "./types";
+import type { ClientOptions, MethodOptions } from "./types";
 /**
  * Generate a class from the contract spec that where each contract method
  * gets included with an identical name.
@@ -129,6 +129,18 @@ import type { ClientOptions } from "./types";
 export declare class Client {
     readonly spec: Spec;
     readonly options: ClientOptions;
+    static deploy&lt;T = Client>(
+    /** Constructor/Initialization Args for the contract's `__constructor` method */
+    args: Record&lt;string, any> | null, 
+    /** Options for initalizing a Client as well as for calling a method, with extras specific to deploying. */
+    options: MethodOptions &amp; Omit&lt;ClientOptions, "contractId"> &amp; {
+        /** The hash of the Wasm blob, which must already be installed on-chain. */
+        wasmHash: Buffer | string;
+        /** Salt used to generate the contract's ID. Passed through to {@link Operation.createCustomContract}. Default: random. */
+        salt?: Buffer | Uint8Array;
+        /** The format used to decode `wasmHash`, if it's provided as a string. */
+        format?: "hex" | "base64";
+    }): Promise&lt;AssembledTransaction&lt;T>>;
     constructor(spec: Spec, options: ClientOptions);
     /**
      * Generates a Client instance from the provided ClientOptions and the contract's wasm hash.

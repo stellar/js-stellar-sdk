@@ -115,10 +115,39 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.Client = void 0;
+var _stellarBase = require("@stellar/stellar-base");
 var _spec = require("./spec");
 var _rpc = require("../rpc");
 var _assembled_transaction = require("./assembled_transaction");
 var _utils = require("./utils");
+const CONSTRUCTOR_FUNC = "__constructor";
+async function specFromWasm(wasm) {
+  const wasmModule = await WebAssembly.compile(wasm);
+  const xdrSections = WebAssembly.Module.customSections(wasmModule, "contractspecv0");
+  if (xdrSections.length === 0) {
+    throw new Error("Could not obtain contract spec from wasm");
+  }
+  const bufferSection = Buffer.from(xdrSections[0]);
+  const specEntryArray = (0, _utils.processSpecEntryStream)(bufferSection);
+  const spec = new _spec.Spec(specEntryArray);
+  return spec;
+}
+async function specFromWasmHash(wasmHash, options, format = "hex") {
+  if (!options || !options.rpcUrl) {
+    throw new TypeError("options must contain rpcUrl");
+  }
+  const {
+    rpcUrl,
+    allowHttp
+  } = options;
+  const serverOpts = {
+    allowHttp
+  };
+  const server = new _rpc.Server(rpcUrl, serverOpts);
+  const wasm = await server.getContractWasmByHash(wasmHash, format);
+  return specFromWasm(wasm);
+}
+
 /**
  * Generate a class from the contract spec that where each contract method
  * gets included with an identical name.
@@ -134,11 +163,46 @@ var _utils = require("./utils");
  * @param {ClientOptions} options see {@link ClientOptions}
  */
 class Client {
+  static async deploy(/** Constructor/Initialization Args for the contract's `__constructor` method */
+  args, /** Options for initalizing a Client as well as for calling a method, with extras specific to deploying. */
+  options) {
+    const {
+      wasmHash,
+      salt,
+      format,
+      fee,
+      timeoutInSeconds,
+      simulate,
+      ...clientOptions
+    } = options;
+    const spec = await specFromWasmHash(wasmHash, clientOptions, format);
+    const operation = _stellarBase.Operation.createCustomContract({
+      address: new _stellarBase.Address(options.publicKey),
+      wasmHash: typeof wasmHash === "string" ? Buffer.from(wasmHash, format ?? "hex") : wasmHash,
+      salt,
+      constructorArgs: args ? spec.funcArgsToScVals(CONSTRUCTOR_FUNC, args) : []
+    });
+    return _assembled_transaction.AssembledTransaction.buildWithOp(operation, {
+      fee,
+      timeoutInSeconds,
+      simulate,
+      ...clientOptions,
+      contractId: "ignored",
+      method: CONSTRUCTOR_FUNC,
+      parseResultXdr: result => new Client(spec, {
+        ...clientOptions,
+        contractId: _stellarBase.Address.fromScVal(result).toString()
+      })
+    });
+  }
   constructor(spec, options) {
     this.spec = spec;
     this.options = options;
     this.spec.funcs().forEach(xdrFn => {
       const method = xdrFn.name().toString();
+      if (method === CONSTRUCTOR_FUNC) {
+        return;
+      }
       const assembleTransaction = (args, methodOptions) => _assembled_transaction.AssembledTransaction.build({
         method,
         args: args &amp;&amp; spec.funcArgsToScVals(method, args),
@@ -193,14 +257,7 @@ class Client {
    * @throws {Error} If the contract spec cannot be obtained from the provided wasm binary.
    */
   static async fromWasm(wasm, options) {
-    const wasmModule = await WebAssembly.compile(wasm);
-    const xdrSections = WebAssembly.Module.customSections(wasmModule, "contractspecv0");
-    if (xdrSections.length === 0) {
-      throw new Error('Could not obtain contract spec from wasm');
-    }
-    const bufferSection = Buffer.from(xdrSections[0]);
-    const specEntryArray = (0, _utils.processSpecEntryStream)(bufferSection);
-    const spec = new _spec.Spec(specEntryArray);
+    const spec = await specFromWasm(wasm);
     return new Client(spec, options);
   }
 

@@ -130,13 +130,22 @@ var _stellarBase = require("@stellar/stellar-base");
  */
 const basicNodeSigner = (keypair, networkPassphrase) => ({
   // eslint-disable-next-line require-await
-  signTransaction: async tx => {
-    const t = _stellarBase.TransactionBuilder.fromXDR(tx, networkPassphrase);
+  signTransaction: async (xdr, opts) => {
+    const t = _stellarBase.TransactionBuilder.fromXDR(xdr, opts?.networkPassphrase || networkPassphrase);
     t.sign(keypair);
-    return t.toXDR();
+    return {
+      signedTxXdr: t.toXDR(),
+      signerAddress: keypair.publicKey()
+    };
   },
   // eslint-disable-next-line require-await
-  signAuthEntry: async entryXdr => keypair.sign((0, _stellarBase.hash)(Buffer.from(entryXdr, "base64"))).toString("base64")
+  signAuthEntry: async authEntry => {
+    const signedAuthEntry = keypair.sign((0, _stellarBase.hash)(Buffer.from(authEntry, "base64"))).toString("base64");
+    return {
+      signedAuthEntry,
+      signerAddress: keypair.publicKey()
+    };
+  }
 });
 exports.basicNodeSigner = basicNodeSigner;</code></pre>
         </article>

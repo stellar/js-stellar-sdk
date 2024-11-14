@@ -518,7 +518,7 @@ returns <code>false</code>, then you need to call <code>signAndSend</code> on th
         <p class="tag-source">
             <a href="lib_contract_assembled_transaction.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_contract_assembled_transaction.js.html">lib/contract/assembled_transaction.js</a>, <a href="lib_contract_assembled_transaction.js.html#line678">line 678</a>
+                <a href="lib_contract_assembled_transaction.js.html">lib/contract/assembled_transaction.js</a>, <a href="lib_contract_assembled_transaction.js.html#line754">line 754</a>
             </span>
         </p>
     
@@ -600,7 +600,7 @@ the next account in this list.</p>
         <p class="tag-source">
             <a href="lib_contract_assembled_transaction.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_contract_assembled_transaction.js.html">lib/contract/assembled_transaction.js</a>, <a href="lib_contract_assembled_transaction.js.html#line588">line 588</a>
+                <a href="lib_contract_assembled_transaction.js.html">lib/contract/assembled_transaction.js</a>, <a href="lib_contract_assembled_transaction.js.html#line657">line 657</a>
             </span>
         </p>
     
@@ -670,7 +670,7 @@ If you did not previously include one, you need to include one now.</p>
         <p class="tag-source">
             <a href="lib_contract_assembled_transaction.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_contract_assembled_transaction.js.html">lib/contract/assembled_transaction.js</a>, <a href="lib_contract_assembled_transaction.js.html#line507">line 507</a>
+                <a href="lib_contract_assembled_transaction.js.html">lib/contract/assembled_transaction.js</a>, <a href="lib_contract_assembled_transaction.js.html#line556">line 556</a>
             </span>
         </p>
     
@@ -742,7 +742,7 @@ return a <code>SentTransaction</code> that keeps track * of all the attempts to 
         <p class="tag-source">
             <a href="lib_contract_assembled_transaction.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_contract_assembled_transaction.js.html">lib/contract/assembled_transaction.js</a>, <a href="lib_contract_assembled_transaction.js.html#line556">line 556</a>
+                <a href="lib_contract_assembled_transaction.js.html">lib/contract/assembled_transaction.js</a>, <a href="lib_contract_assembled_transaction.js.html#line613">line 613</a>
             </span>
         </p>
     
@@ -822,7 +822,7 @@ currently supported!</p>
         <p class="tag-source">
             <a href="lib_contract_assembled_transaction.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_contract_assembled_transaction.js.html">lib/contract/assembled_transaction.js</a>, <a href="lib_contract_assembled_transaction.js.html#line621">line 621</a>
+                <a href="lib_contract_assembled_transaction.js.html">lib/contract/assembled_transaction.js</a>, <a href="lib_contract_assembled_transaction.js.html#line690">line 690</a>
             </span>
         </p>
     
@@ -930,7 +930,7 @@ transaction data.</li>
         <p class="tag-source">
             <a href="lib_contract_assembled_transaction.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_contract_assembled_transaction.js.html">lib/contract/assembled_transaction.js</a>, <a href="lib_contract_assembled_transaction.js.html#line704">line 704</a>
+                <a href="lib_contract_assembled_transaction.js.html">lib/contract/assembled_transaction.js</a>, <a href="lib_contract_assembled_transaction.js.html#line780">line 780</a>
             </span>
         </p>
     
@@ -1073,7 +1073,7 @@ keeps track of all the attempts to fetch the transaction.</p>
         <p class="tag-source">
             <a href="lib_contract_assembled_transaction.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_contract_assembled_transaction.js.html">lib/contract/assembled_transaction.js</a>, <a href="lib_contract_assembled_transaction.js.html#line542">line 542</a>
+                <a href="lib_contract_assembled_transaction.js.html">lib/contract/assembled_transaction.js</a>, <a href="lib_contract_assembled_transaction.js.html#line599">line 599</a>
             </span>
         </p>
     
@@ -1173,7 +1173,7 @@ transaction. This only works with transactions that have been simulated.</p>
         <p class="tag-source">
             <a href="lib_contract_assembled_transaction.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_contract_assembled_transaction.js.html">lib/contract/assembled_transaction.js</a>, <a href="lib_contract_assembled_transaction.js.html#line310">line 310</a>
+                <a href="lib_contract_assembled_transaction.js.html">lib/contract/assembled_transaction.js</a>, <a href="lib_contract_assembled_transaction.js.html#line315">line 315</a>
             </span>
         </p>
     
@@ -1270,7 +1270,7 @@ transaction. This only works with transactions that have been simulated.</p>
         <p class="tag-source">
             <a href="lib_contract_assembled_transaction.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_contract_assembled_transaction.js.html">lib/contract/assembled_transaction.js</a>, <a href="lib_contract_assembled_transaction.js.html#line339">line 339</a>
+                <a href="lib_contract_assembled_transaction.js.html">lib/contract/assembled_transaction.js</a>, <a href="lib_contract_assembled_transaction.js.html#line344">line 344</a>
             </span>
         </p>
     
@@ -1306,8 +1306,6 @@ transaction. This only works with transactions that have been simulated.</p>
         <a class="href-link" href="#.build">#</a>
         
             
-                <span class='tag'>async</span>
-            
                 <span class='tag'>static</span>
             
         
@@ -1322,8 +1320,8 @@ transaction. This only works with transactions that have been simulated.</p>
     
     
     <div class="description">
-        <p>Construct a new AssembledTransaction. This is the only way to create a new
-AssembledTransaction; the main constructor is private.</p>
+        <p>Construct a new AssembledTransaction. This is the main way to create a new
+AssembledTransaction; the constructor is private.</p>
 <p>This is an asynchronous constructor for two reasons:</p>
 <ol>
 <li>It needs to fetch the account from the network to get the current
@@ -1332,6 +1330,8 @@ sequence number.</li>
 </ol>
 <p>If you don't want to simulate the transaction, you can set <code>simulate</code> to
 <code>false</code> in the options.</p>
+<p>If you need to create an operation other than <code>invokeHostFunction</code>, you
+can use <a href="AssembledTransaction.html#.buildWithOp">AssembledTransaction.buildWithOp</a> instead.</p>
     </div>
     
 
@@ -1382,7 +1382,7 @@ sequence number.</li>
         <p class="tag-source">
             <a href="lib_contract_assembled_transaction.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_contract_assembled_transaction.js.html">lib/contract/assembled_transaction.js</a>, <a href="lib_contract_assembled_transaction.js.html#line394">line 394</a>
+                <a href="lib_contract_assembled_transaction.js.html">lib/contract/assembled_transaction.js</a>, <a href="lib_contract_assembled_transaction.js.html#line422">line 422</a>
             </span>
         </p>
     
@@ -1415,6 +1415,126 @@ sequence number.</li>
   ...,
   simulate: false,
 })</code></pre>
+    
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id=".buildWithOp">
+        <a class="href-link" href="#.buildWithOp">#</a>
+        
+            
+                <span class='tag'>async</span>
+            
+                <span class='tag'>static</span>
+            
+        
+        <span class="code-name">
+            
+                buildWithOp<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Construct a new AssembledTransaction, specifying an Operation other than
+<code>invokeHostFunction</code> (the default used by <a href="AssembledTransaction.html#.build">AssembledTransaction.build</a>).</p>
+<p>Note: <code>AssembledTransaction</code> currently assumes these operations can be
+simulated. This is not true for classic operations; only for those used by
+Soroban Smart Contracts like <code>invokeHostFunction</code> and <code>createCustomContract</code>.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="lib_contract_assembled_transaction.js.html" class="button">View Source</a>
+            <span>
+                <a href="lib_contract_assembled_transaction.js.html">lib/contract/assembled_transaction.js</a>, <a href="lib_contract_assembled_transaction.js.html#line444">line 444</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Example</h5>
+    
+    
+        <pre class="prettyprint"><code>const tx = await AssembledTransaction.buildWithOp(
+  Operation.createCustomContract({ ... });
+  {
+    ...,
+    simulate: false,
+  }
+)</code></pre>
     
 
 
@@ -1493,7 +1613,7 @@ sequence number.</li>
         <p class="tag-source">
             <a href="lib_contract_assembled_transaction.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_contract_assembled_transaction.js.html">lib/contract/assembled_transaction.js</a>, <a href="lib_contract_assembled_transaction.js.html#line347">line 347</a>
+                <a href="lib_contract_assembled_transaction.js.html">lib/contract/assembled_transaction.js</a>, <a href="lib_contract_assembled_transaction.js.html#line352">line 352</a>
             </span>
         </p>
     
