@@ -22,47 +22,22 @@ export const basicNodeSigner = (
   signAuthEntry: SignAuthEntry;
 } => ({
   // eslint-disable-next-line require-await
-  signTransaction: async (
-    tx: string,
-    clientOptions: ClientOptions,
-    opts?: {
-      network?: string;
-      networkPassphrase?: string;
-      accountToSign?: string;
-    }
-  ): Promise<string> => {
-    const { signTransaction } = clientOptions;
-    const networkPassphraseUsed = opts?.networkPassphrase || networkPassphrase;
-
-    if (signTransaction instanceof Keypair) {
-      const signer = basicNodeSigner(signTransaction, networkPassphraseUsed);
-
-        const updatedOptions: ClientOptions = {
-          ...clientOptions,
-          networkPassphrase: networkPassphraseUsed,
-        };
-
-      return signer.signTransaction(tx, updatedOptions, opts);
-    }
-
-    if (typeof signTransaction === 'function') {
-    // eslint-disable-next-line require-await
   signTransaction: async (xdr, opts) => {
-    const t = TransactionBuilder.fromXDR(xdr, opts?.networkPassphrase || networkPassphrase);
+    const t = TransactionBuilder.fromXDR(
+      xdr,
+      opts?.networkPassphrase || networkPassphrase
+    );
     t.sign(keypair);
     return {
       signedTxXdr: t.toXDR(),
       signerAddress: keypair.publicKey(),
     };
   },
-    }
-
-    throw new Error('No valid signTransaction method provided');
-  },
-
   // eslint-disable-next-line require-await
   signAuthEntry: async (authEntry) => {
-    const signedAuthEntry = keypair.sign(hash(Buffer.from(authEntry, "base64"))).toString("base64");
+    const signedAuthEntry = keypair
+      .sign(hash(Buffer.from(authEntry, "base64")))
+      .toString("base64");
     return {
       signedAuthEntry,
       signerAddress: keypair.publicKey(),

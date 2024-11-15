@@ -5,6 +5,7 @@ import {
   Address,
   BASE_FEE,
   Contract,
+  Keypair,
   Operation,
   SorobanDataBuilder,
   TransactionBuilder,
@@ -28,6 +29,7 @@ import { contractErrorPattern, implementsToString, getAccount } from "./utils";
 import { DEFAULT_TIMEOUT } from "./types";
 import { SentTransaction } from "./sent_transaction";
 import { Spec } from "./spec";
+import { basicNodeSigner } from "./basic_node_signer";
 
 /** @module contract */
 
@@ -312,19 +314,19 @@ export class AssembledTransaction<T> {
    * logic.
    */
   static Errors = {
-    ExpiredState: class ExpiredStateError extends Error { },
-    RestorationFailure: class RestoreFailureError extends Error { },
-    NeedsMoreSignatures: class NeedsMoreSignaturesError extends Error { },
-    NoSignatureNeeded: class NoSignatureNeededError extends Error { },
-    NoUnsignedNonInvokerAuthEntries: class NoUnsignedNonInvokerAuthEntriesError extends Error { },
-    NoSigner: class NoSignerError extends Error { },
-    NotYetSimulated: class NotYetSimulatedError extends Error { },
-    FakeAccount: class FakeAccountError extends Error { },
-    SimulationFailed: class SimulationFailedError extends Error { },
-    InternalWalletError: class InternalWalletError extends Error { },
-    ExternalServiceError: class ExternalServiceError extends Error { },
-    InvalidClientRequest: class InvalidClientRequestError extends Error { },
-    UserRejected: class UserRejectedError extends Error { },
+    ExpiredState: class ExpiredStateError extends Error {},
+    RestorationFailure: class RestoreFailureError extends Error {},
+    NeedsMoreSignatures: class NeedsMoreSignaturesError extends Error {},
+    NoSignatureNeeded: class NoSignatureNeededError extends Error {},
+    NoUnsignedNonInvokerAuthEntries: class NoUnsignedNonInvokerAuthEntriesError extends Error {},
+    NoSigner: class NoSignerError extends Error {},
+    NotYetSimulated: class NotYetSimulatedError extends Error {},
+    FakeAccount: class FakeAccountError extends Error {},
+    SimulationFailed: class SimulationFailedError extends Error {},
+    InternalWalletError: class InternalWalletError extends Error {},
+    ExternalServiceError: class ExternalServiceError extends Error {},
+    InvalidClientRequest: class InvalidClientRequestError extends Error {},
+    UserRejected: class UserRejectedError extends Error {},
   };
 
   /**
@@ -431,7 +433,7 @@ export class AssembledTransaction<T> {
     if (!error) return;
 
     const { message, code } = error;
-    const fullMessage = `${message}${error.ext ? ` (${  error.ext.join(', ')  })` : ''}`;
+    const fullMessage = `${message}${error.ext ? ` (${error.ext.join(", ")})` : ""}`;
 
     switch (code) {
       case -1:
@@ -476,7 +478,7 @@ export class AssembledTransaction<T> {
    *   simulate: false,
    * })
    */
-  static async build<T>(
+  static build<T>(
     options: AssembledTransactionOptions<T>
   ): Promise<AssembledTransaction<T>> {
     const contract = new Contract(options.contractId);
@@ -485,7 +487,7 @@ export class AssembledTransaction<T> {
       options
     );
   }
-  
+
   /**
    * Construct a new AssembledTransaction, specifying an Operation other than
    * `invokeHostFunction` (the default used by {@link AssembledTransaction.build}).
@@ -694,6 +696,20 @@ export class AssembledTransaction<T> {
       );
     }
 
+    if (signTransaction instanceof Keypair) {
+      const { signTransaction: signer } = basicNodeSigner(
+        signTransaction,
+        this.options.networkPassphrase
+      );
+      signTransaction = signer;
+    }
+
+    if (typeof signTransaction !== "function") {
+      throw new Error(
+        "`signTransaction` must be a function or a Keypair. Received invalid type."
+      );
+    }
+
     // filter out contracts, as these are dealt with via cross contract calls
     const sigsNeeded = this.needsNonInvokerSigningBy().filter(
       (id) => !id.startsWith("C")
@@ -714,25 +730,25 @@ export class AssembledTransaction<T> {
       .setTimeout(timeoutInSeconds)
       .build();
 
+     const signOpts: Parameters<typeof signTransaction>[1] = {
+       networkPassphrase: this.options.networkPassphrase,
+     };
 
-    const signOpts: Parameters<NonNullable<ClientOptions['signTransaction']>>[1] = {
-      networkPassphrase: this.options.networkPassphrase,
-    };
-  
     if (this.options.address) signOpts.address = this.options.address;
-    if (this.options.submit !== undefined) signOpts.submit = this.options.submit;
+    if (this.options.submit !== undefined)
+      signOpts.submit = this.options.submit;
     if (this.options.submitUrl) signOpts.submitUrl = this.options.submitUrl;
 
     const { signedTxXdr: signature, error } = await signTransaction(
       this.built.toXDR(),
-      signOpts,
+      signOpts
     );
 
     this.handleWalletError(error);
 
     this.signed = TransactionBuilder.fromXDR(
       signature,
-      this.options.networkPassphrase,
+      this.options.networkPassphrase
     ) as Tx;
   };
 
@@ -769,8 +785,7 @@ export class AssembledTransaction<T> {
      */
     signTransaction?: ClientOptions["signTransaction"];
   } = {}): Promise<SentTransaction<T>> => {
-
-    if(!this.signed){
+    if (!this.signed) {
       // Store the original submit option
       const originalSubmit = this.options.submit;
 
@@ -958,9 +973,12 @@ export class AssembledTransaction<T> {
         entry,
 
         async (preimage) => {
-          const { signedAuthEntry, error } = await sign(preimage.toXDR("base64"), {
-            address,
-          });
+          const { signedAuthEntry, error } = await sign(
+            preimage.toXDR("base64"),
+            {
+              address,
+            }
+          );
           this.handleWalletError(error);
           return Buffer.from(signedAuthEntry, "base64");
         },

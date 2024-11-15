@@ -7,8 +7,8 @@ import {
   Operation,
   Transaction,
   xdr,
-} from '@stellar/stellar-base';
-import type { Client } from './client';
+} from "@stellar/stellar-base";
+import type { Client } from "./client";
 
 export type XDR_BASE64 = string;
 /**
@@ -70,9 +70,9 @@ export interface WalletError {
 
 /**
  * A function to request a wallet to sign a built transaction
- * 
+ *
  * This function takes an XDR provided by the requester and applies a signature to it.
- * It returns a base64-encoded string XDR-encoded Transaction Envelope with Decorated Signatures 
+ * It returns a base64-encoded string XDR-encoded Transaction Envelope with Decorated Signatures
  * and the signer address back to the requester.
  *
  * @param xdr - The XDR string representing the transaction to be signed.
@@ -84,22 +84,27 @@ export interface WalletError {
  *
  * @returns A promise resolving to an object with the signed transaction XDR and optional signer address and error.
  */
-export type SignTransaction = (
-  (xdr: string, opts?: {
-  networkPassphrase?: string;
-  address?: string;
-  submit?: boolean;
-  submitUrl?: string;
-}) => Promise<{
-  signedTxXdr: string;
-  signerAddress?: string;
-} & { error?: WalletError }> | Keypair
-);
+export type SignTransaction =
+  | ((
+      xdr: string,
+      opts?: {
+        networkPassphrase?: string;
+        address?: string;
+        submit?: boolean;
+        submitUrl?: string;
+      }
+    ) => Promise<
+      {
+        signedTxXdr: string;
+        signerAddress?: string;
+      } & { error?: WalletError }
+    >)
+  | Keypair;
 
 /**
  * A function to request a wallet to sign an authorization entry preimage.
  *
- * Similar to signing a transaction, this function takes an authorization entry preimage provided by the 
+ * Similar to signing a transaction, this function takes an authorization entry preimage provided by the
  * requester and applies a signature to it.
  * It returns a signed hash of the same authorization entry and the signer address back to the requester.
  *
@@ -110,13 +115,18 @@ export type SignTransaction = (
  *
  * @returns A promise resolving to an object with the signed authorization entry and optional signer address and error.
  */
-export type SignAuthEntry = (authEntry: string, opts?: {
-  networkPassphrase?: string;
-  address?: string;
-}) => Promise<{
-  signedAuthEntry: string;
-  signerAddress?: string;
-} & { error?: WalletError }>; 
+export type SignAuthEntry = (
+  authEntry: string,
+  opts?: {
+    networkPassphrase?: string;
+    address?: string;
+  }
+) => Promise<
+  {
+    signedAuthEntry: string;
+    signerAddress?: string;
+  } & { error?: WalletError }
+>;
 
 /**
  * Options for a smart contract client.
@@ -142,7 +152,7 @@ export type ClientOptions = {
    */
 
   signTransaction?: SignTransaction;
-  
+
   /**
    * A function to sign a specific auth entry for a transaction, using the
    * private key corresponding to the provided `publicKey`. This is only needed
@@ -154,7 +164,7 @@ export type ClientOptions = {
    */
 
   signAuthEntry?: SignAuthEntry;
-  
+
   /** The address of the contract the client will interact with. */
   contractId: string;
   /**
@@ -269,4 +279,4 @@ export const DEFAULT_TIMEOUT = 5 * 60;
  * @memberof module:contract
  */
 export const NULL_ACCOUNT =
-  'GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF';
+  "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF";
