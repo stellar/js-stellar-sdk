@@ -31,6 +31,9 @@ const contracts = {
     hash: run(`${stellar} contract install --wasm ${basePath}/increment.wasm`)
       .stdout,
     path: `${basePath}/increment.wasm`,
+    constructorArgs: {
+      counter: 0,
+    },
   },
   swap: {
     hash: run(`${stellar} contract install --wasm ${basePath}/atomic_swap.wasm`)
@@ -89,6 +92,50 @@ module.exports.generateFundedKeypair = generateFundedKeypair;
  * `contractId` again if you want to re-use the a contract instance.
  */
 async function clientFor(name, { keypair, contractId } = {}) {
+  const internalKeypair = keypair ?? (await generateFundedKeypair());
+  const signer = contract.basicNodeSigner(internalKeypair, networkPassphrase);
+
+  if (contractId) {
+    return {
+      client: await contract.Client.from({
+        contractId,
+        networkPassphrase,
+        rpcUrl,
+        allowHttp: true,
+        publicKey: internalKeypair.publicKey(),
+        ...signer,
+      }),
+      contractId,
+      keypair,
+    };
+  }
+
+  const { wasmHash } = await installContract(name, {
+    keypair: internalKeypair,
+  });
+
+  const deploy = await contract.Client.deploy(
+    contracts[name].constructorArgs ?? null,
+    {
+      networkPassphrase,
+      rpcUrl,
+      allowHttp: true,
+      wasmHash: wasmHash,
+      publicKey: internalKeypair.publicKey(),
+      ...signer,
+    },
+  );
+  const { result: client } = await deploy.signAndSend();
+
+  return {
+    keypair: internalKeypair,
+    client,
+    contractId: client.options.contractId,
+  };
+}
+module.exports.clientFor = clientFor;
+
+async function installContract(name, { keypair } = {}) {
   if (!contracts[name]) {
     throw new Error(
       `Contract ${name} not found. ` +
@@ -97,7 +144,6 @@ async function clientFor(name, { keypair, contractId } = {}) {
   }
 
   const internalKeypair = keypair ?? (await generateFundedKeypair());
-  const wallet = contract.basicNodeSigner(internalKeypair, networkPassphrase);
 
   let wasmHash = contracts[name].hash;
   if (!wasmHash) {
@@ -105,30 +151,6 @@ async function clientFor(name, { keypair, contractId } = {}) {
       `${stellar} contract install --wasm ${contracts[name].path}`,
     ).stdout;
   }
-
-  // TODO: do this with js-stellar-sdk, instead of shelling out to the CLI
-  contractId =
-    contractId ??
-    run(
-      `${stellar} contract deploy --source ${internalKeypair.secret()} --wasm-hash ${wasmHash}`,
-    ).stdout;
-
-  const client = await contract.Client.fromWasmHash(
-    wasmHash,
-    {
-      networkPassphrase,
-      contractId,
-      rpcUrl,
-      allowHttp: true,
-      publicKey: internalKeypair.publicKey(),
-      ...wallet,
-    },
-    "hex",
-  );
-  return {
-    keypair: internalKeypair,
-    client,
-    contractId,
-  };
+  return { keypair: internalKeypair, wasmHash };
 }
-module.exports.clientFor = clientFor;
+module.exports.installContract = installContract;

@@ -83,6 +83,7 @@ export namespace ServerApi {
     | Trade;
 
   export type EffectRecord = BaseEffectRecordFromTypes & EffectRecordMethods;
+  export const EffectType = Effects.EffectType;
   export interface ClaimableBalanceRecord extends HorizonApi.BaseResponse {
     id: string;
     paging_token: string;

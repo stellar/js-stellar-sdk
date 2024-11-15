@@ -1,6 +1,6 @@
-import { Keypair, TransactionBuilder, hash } from '@stellar/stellar-base';
-import { ClientOptions } from './types';
-import type { Client } from './client';
+import { Keypair, TransactionBuilder, hash } from "@stellar/stellar-base";
+import type { Client } from "./client";
+import { SignAuthEntry, SignTransaction } from "./types";
 
 /**
  * For use with {@link Client} and {@link module:contract.AssembledTransaction}.
@@ -17,7 +17,10 @@ import type { Client } from './client';
 export const basicNodeSigner = (
   keypair: Keypair,
   networkPassphrase: string
-) => ({
+): {
+  signTransaction: SignTransaction;
+  signAuthEntry: SignAuthEntry;
+} => ({
   // eslint-disable-next-line require-await
   signTransaction: async (
     tx: string,
@@ -43,14 +46,26 @@ export const basicNodeSigner = (
     }
 
     if (typeof signTransaction === 'function') {
-      const t = TransactionBuilder.fromXDR(tx, networkPassphraseUsed);
-      t.sign(keypair);
-      return t.toXDR();
+    // eslint-disable-next-line require-await
+  signTransaction: async (xdr, opts) => {
+    const t = TransactionBuilder.fromXDR(xdr, opts?.networkPassphrase || networkPassphrase);
+    t.sign(keypair);
+    return {
+      signedTxXdr: t.toXDR(),
+      signerAddress: keypair.publicKey(),
+    };
+  },
     }
 
     throw new Error('No valid signTransaction method provided');
   },
+
   // eslint-disable-next-line require-await
-  signAuthEntry: async (entryXdr: string): Promise<string> =>
-    keypair.sign(hash(Buffer.from(entryXdr, 'base64'))).toString('base64'),
+  signAuthEntry: async (authEntry) => {
+    const signedAuthEntry = keypair.sign(hash(Buffer.from(authEntry, "base64"))).toString("base64");
+    return {
+      signedAuthEntry,
+      signerAddress: keypair.publicKey(),
+    };
+  },
 });

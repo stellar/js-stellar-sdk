@@ -16,6 +16,7 @@ import type {
   ClientOptions,
   MethodOptions,
   Tx,
+  WalletError,
   XDR_BASE64,
 } from "./types";
 import { Server } from "../rpc";
@@ -311,14 +312,19 @@ export class AssembledTransaction<T> {
    * logic.
    */
   static Errors = {
-    ExpiredState: class ExpiredStateError extends Error {},
-    RestorationFailure: class RestoreFailureError extends Error {},
-    NeedsMoreSignatures: class NeedsMoreSignaturesError extends Error {},
-    NoSignatureNeeded: class NoSignatureNeededError extends Error {},
-    NoUnsignedNonInvokerAuthEntries: class NoUnsignedNonInvokerAuthEntriesError extends Error {},
-    NoSigner: class NoSignerError extends Error {},
-    NotYetSimulated: class NotYetSimulatedError extends Error {},
-    FakeAccount: class FakeAccountError extends Error {},
+    ExpiredState: class ExpiredStateError extends Error { },
+    RestorationFailure: class RestoreFailureError extends Error { },
+    NeedsMoreSignatures: class NeedsMoreSignaturesError extends Error { },
+    NoSignatureNeeded: class NoSignatureNeededError extends Error { },
+    NoUnsignedNonInvokerAuthEntries: class NoUnsignedNonInvokerAuthEntriesError extends Error { },
+    NoSigner: class NoSignerError extends Error { },
+    NotYetSimulated: class NotYetSimulatedError extends Error { },
+    FakeAccount: class FakeAccountError extends Error { },
+    SimulationFailed: class SimulationFailedError extends Error { },
+    InternalWalletError: class InternalWalletError extends Error { },
+    ExternalServiceError: class ExternalServiceError extends Error { },
+    InvalidClientRequest: class InvalidClientRequestError extends Error { },
+    UserRejected: class UserRejectedError extends Error { },
   };
 
   /**
@@ -421,6 +427,26 @@ export class AssembledTransaction<T> {
     return txn;
   }
 
+  private handleWalletError(error?: WalletError): void {
+    if (!error) return;
+
+    const { message, code } = error;
+    const fullMessage = `${message}${error.ext ? ` (${  error.ext.join(', ')  })` : ''}`;
+
+    switch (code) {
+      case -1:
+        throw new AssembledTransaction.Errors.InternalWalletError(fullMessage);
+      case -2:
+        throw new AssembledTransaction.Errors.ExternalServiceError(fullMessage);
+      case -3:
+        throw new AssembledTransaction.Errors.InvalidClientRequest(fullMessage);
+      case -4:
+        throw new AssembledTransaction.Errors.UserRejected(fullMessage);
+      default:
+        throw new Error(`Unhandled error: ${fullMessage}`);
+    }
+  }
+
   private constructor(public options: AssembledTransactionOptions<T>) {
     this.options.simulate = this.options.simulate ?? true;
     this.server = new Server(this.options.rpcUrl, {
@@ -429,8 +455,8 @@ export class AssembledTransaction<T> {
   }
 
   /**
-   * Construct a new AssembledTransaction. This is the only way to create a new
-   * AssembledTransaction; the main constructor is private.
+   * Construct a new AssembledTransaction. This is the main way to create a new
+   * AssembledTransaction; the constructor is private.
    *
    * This is an asynchronous constructor for two reasons:
    *
@@ -441,6 +467,9 @@ export class AssembledTransaction<T> {
    * If you don't want to simulate the transaction, you can set `simulate` to
    * `false` in the options.
    *
+   * If you need to create an operation other than `invokeHostFunction`, you
+   * can use {@link AssembledTransaction.buildWithOp} instead.
+   *
    * @example
    * const tx = await AssembledTransaction.build({
    *   ...,
@@ -450,17 +479,42 @@ export class AssembledTransaction<T> {
   static async build<T>(
     options: AssembledTransactionOptions<T>
   ): Promise<AssembledTransaction<T>> {
-    const tx = new AssembledTransaction(options);
     const contract = new Contract(options.contractId);
-
+    return AssembledTransaction.buildWithOp(
+      contract.call(options.method, ...(options.args ?? [])),
+      options
+    );
+  }
+  
+  /**
+   * Construct a new AssembledTransaction, specifying an Operation other than
+   * `invokeHostFunction` (the default used by {@link AssembledTransaction.build}).
+   *
+   * Note: `AssembledTransaction` currently assumes these operations can be
+   * simulated. This is not true for classic operations; only for those used by
+   * Soroban Smart Contracts like `invokeHostFunction` and `createCustomContract`.
+   *
+   * @example
+   * const tx = await AssembledTransaction.buildWithOp(
+   *   Operation.createCustomContract({ ... });
+   *   {
+   *     ...,
+   *     simulate: false,
+   *   }
+   * )
+   */
+  static async buildWithOp<T>(
+    operation: xdr.Operation,
+    options: AssembledTransactionOptions<T>
+  ): Promise<AssembledTransaction<T>> {
+    const tx = new AssembledTransaction(options);
     const account = await getAccount(options, tx.server);
-
     tx.raw = new TransactionBuilder(account, {
       fee: options.fee ?? BASE_FEE,
       networkPassphrase: options.networkPassphrase,
     })
-      .addOperation(contract.call(options.method, ...(options.args ?? [])))
-      .setTimeout(options.timeoutInSeconds ?? DEFAULT_TIMEOUT);
+      .setTimeout(options.timeoutInSeconds ?? DEFAULT_TIMEOUT)
+      .addOperation(operation);
 
     if (options.simulate) await tx.simulate();
 
@@ -555,7 +609,9 @@ export class AssembledTransaction<T> {
       );
     }
     if (Api.isSimulationError(simulation)) {
-      throw new Error(`Transaction simulation failed: "${simulation.error}"`);
+      throw new AssembledTransaction.Errors.SimulationFailed(
+        `Transaction simulation failed: "${simulation.error}"`
+      );
     }
 
     if (Api.isSimulationRestore(simulation)) {
@@ -658,17 +714,26 @@ export class AssembledTransaction<T> {
       .setTimeout(timeoutInSeconds)
       .build();
 
-    if (typeof signTransaction === "function") {
-      const signature = await signTransaction(this.built.toXDR(), {
-        networkPassphrase: this.options.networkPassphrase,
-      });
-      this.signed = TransactionBuilder.fromXDR(
-        signature,
-        this.options.networkPassphrase
-      ) as Tx;
-    }
 
+    const signOpts: Parameters<NonNullable<ClientOptions['signTransaction']>>[1] = {
+      networkPassphrase: this.options.networkPassphrase,
+    };
+  
+    if (this.options.address) signOpts.address = this.options.address;
+    if (this.options.submit !== undefined) signOpts.submit = this.options.submit;
+    if (this.options.submitUrl) signOpts.submitUrl = this.options.submitUrl;
 
+    const { signedTxXdr: signature, error } = await signTransaction(
+      this.built.toXDR(),
+      signOpts,
+    );
+
+    this.handleWalletError(error);
+
+    this.signed = TransactionBuilder.fromXDR(
+      signature,
+      this.options.networkPassphrase,
+    ) as Tx;
   };
 
   /**
@@ -704,8 +769,22 @@ export class AssembledTransaction<T> {
      */
     signTransaction?: ClientOptions["signTransaction"];
   } = {}): Promise<SentTransaction<T>> => {
-    if (!this.signed) {
-      await this.sign({ force, signTransaction });
+
+    if(!this.signed){
+      // Store the original submit option
+      const originalSubmit = this.options.submit;
+
+      // Temporarily disable submission in signTransaction to prevent double submission
+      if (this.options.submit) {
+        this.options.submit = false;
+      }
+
+      try {
+        await this.sign({ force, signTransaction });
+      } finally {
+        // Restore the original submit option
+        this.options.submit = originalSubmit;
+      }
     }
     return this.send();
   };
@@ -877,13 +956,14 @@ export class AssembledTransaction<T> {
       // eslint-disable-next-line no-await-in-loop
       authEntries[i] = await authorizeEntry(
         entry,
-        async (preimage) =>
-          Buffer.from(
-            await sign(preimage.toXDR("base64"), {
-              accountToSign: address,
-            }),
-            "base64"
-          ),
+
+        async (preimage) => {
+          const { signedAuthEntry, error } = await sign(preimage.toXDR("base64"), {
+            address,
+          });
+          this.handleWalletError(error);
+          return Buffer.from(signedAuthEntry, "base64");
+        },
         await expiration, // eslint-disable-line no-await-in-loop
         this.options.networkPassphrase
       );

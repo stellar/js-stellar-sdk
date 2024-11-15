@@ -184,5 +184,67 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
             .then(() => tempServer.close());
         });
     });
+
+    it("rejects redirect response when allowedRedirects is not specified", function (done) {
+      // Unable to create temp server in a browser
+      if (typeof window != "undefined") {
+        return done();
+      }
+
+      let tempServer = http
+        .createServer((req, res) => {
+          res.writeHead(302, { location: "/redirect" });
+          return res.end();
+        })
+        .listen(4444, () => {
+          Resolver.resolve("localhost:4444", {
+            allowHttp: true,
+          })
+            .then((response) => {
+              should.fail();
+            })
+            .catch((e) => {
+              expect(e).to.match(/Maximum number of redirects exceeded/);
+            })
+            .finally(() => {
+              tempServer.close();
+              done();
+            });
+        });
+    });
+
+    it("returns handled redirect when allowedRedirects is specified", function (done) {
+      if (typeof window != "undefined") {
+        return done();
+      }
+
+      let tempServer = http
+        .createServer((req, res) => {
+          if (req.url !== "/redirect") {
+            res.writeHead(302, { location: "/redirect" });
+            return res.end();
+          }
+          res.setHeader("Content-Type", "text/x-toml; charset=UTF-8");
+          res.writeHead(200);
+          res.end(`
+          FEDERATION_SERVER="https://api.stellar.org/federation"
+          `);
+        })
+        .listen(4444, () => {
+          Resolver.resolve("localhost:4444", {
+            allowHttp: true,
+            allowedRedirects: 1,
+          })
+            .then((response) => {
+              expect(response.FEDERATION_SERVER).equals(
+                "https://api.stellar.org/federation",
+              );
+            })
+            .finally(() => {
+              tempServer.close();
+              done();
+            });
+        });
+    });
   });
 });
