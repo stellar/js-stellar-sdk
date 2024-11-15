@@ -7,24 +7,22 @@ A breaking change will get clearly marked in this log.
 ## Unreleased
 
 
-## [v13.0.0-beta.1](https://github.com/stellar/js-stellar-sdk/compare/v12.3.0...v13.0.0-beta.1)
+## [v13.0.0-rc.1](https://github.com/stellar/js-stellar-sdk/compare/v12.3.0...v13.0.0-rc.1)
 
 ### Breaking Changes
-- `contract.AssembledTransaction#signAuthEntries` now takes an `address` instead of a `publicKey`. This brings the API more inline with its actual functionality: It can be used to sign all the auth entries for a particular _address_, whether that is the address of an account (public key) or a contract. ([#1044](https://github.com/stellar/js-stellar-sdk/pull/1044)).
-
-- The Node.js code will now Babelify to Node 18 instead of Node 16, but we stopped supporting Node 16 long ago so this shouldn't be a breaking change.
-
+- Deprecated RPC APIs have been removed ([#1084](https://github.com/stellar/js-stellar-sdk/pull/1084)):
+  * `simulateTransaction`'s `cost` field is removed
+  * `getEvents` returns a `cursor` field that matches `pagingToken` and `id`
+  * `getTransactions` returns a `txHash` field
+- Horizon Server API types: removed fields `transaction_count`, `base_fee`, and `base_reserve` (deprecated since [v10.0.1](https://github.com/stellar/js-stellar-sdk/releases/tag/v10.0.1))
 - `SentTransaction.init` and `new SentTransaction` now take _one_ (1) argument instead of _two_ (2). The first argument had previously been deprecated and ignored. To update:
-  
   ```diff
   -SentTransaction(nonsense, realStuff)
   +SentTransaction(realStuff)
   -new SentTransaction(nonsense, realStuff)
   +new SentTransaction(realStuff)
   ```
-
 - `SorobanRpc` import, previously deprecated, has been removed. You can import `rpc` instead:
-
   ```diff
   -import { SorobanRpc } from '@stellar/stellar-sdk'
   +import { rpc } from '@stellar/stellar-sdk'
@@ -36,7 +34,17 @@ A breaking change will get clearly marked in this log.
   import { Server } from '@stellar/stellar-sdk/rpc'
   ```
 
-- Horizon Server API types: removed fields `transaction_count`, `base_fee`, and `base_reserve` (deprecated since [v10.0.1](https://github.com/stellar/js-stellar-sdk/releases/tag/v10.0.1))
+
+### Added
+- `rpc.Server` now has a `pollTransaction` method to retry transaction retrieval ([#1092]https://github.com/stellar/js-stellar-sdk/pull/1092).
+
+
+## [v13.0.0-beta.1](https://github.com/stellar/js-stellar-sdk/compare/v12.3.0...v13.0.0-beta.1)
+
+### Breaking Changes
+- `contract.AssembledTransaction#signAuthEntries` now takes an `address` instead of a `publicKey`. This brings the API more inline with its actual functionality: It can be used to sign all the auth entries for a particular _address_, whether that is the address of an account (public key) or a contract. ([#1044](https://github.com/stellar/js-stellar-sdk/pull/1044)).
+
+- The Node.js code will now Babelify to Node 18 instead of Node 16, but we stopped supporting Node 16 long ago so this shouldn't be a breaking change.
 
 ### Added
 - You can now build the browser bundle without various dependencies:

@@ -562,6 +562,7 @@ export class RpcServer {
 
       const result: Api.GetTransactionResponse = {
         status: raw.status,
+        txHash: hash,
         latestLedger: raw.latestLedger,
         latestLedgerCloseTime: raw.latestLedgerCloseTime,
         oldestLedger: raw.oldestLedger,
