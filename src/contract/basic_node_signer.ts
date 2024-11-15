@@ -1,5 +1,6 @@
-import { Keypair, TransactionBuilder, hash } from "@stellar/stellar-base";
-import type { Client } from "./client";
+import { Keypair, TransactionBuilder, hash } from '@stellar/stellar-base';
+import { ClientOptions } from './types';
+import type { Client } from './client';
 
 /**
  * For use with {@link Client} and {@link module:contract.AssembledTransaction}.
@@ -15,21 +16,41 @@ import type { Client } from "./client";
  */
 export const basicNodeSigner = (
   keypair: Keypair,
-  networkPassphrase: string,
+  networkPassphrase: string
 ) => ({
   // eslint-disable-next-line require-await
-  signTransaction: async (tx: string, opts?: {
-    networkPassphrase?: string;}, signer?: Keypair): Promise<string> => {
-    if (signer instanceof Keypair){
-      const basicSigner = basicNodeSigner(signer, opts?.networkPassphrase!);
-      return basicSigner.signTransaction(tx);
-    } else{
-      const t = TransactionBuilder.fromXDR(tx, networkPassphrase);
+  signTransaction: async (
+    tx: string,
+    clientOptions: ClientOptions,
+    opts?: {
+      network?: string;
+      networkPassphrase?: string;
+      accountToSign?: string;
+    }
+  ): Promise<string> => {
+    const { signTransaction } = clientOptions;
+    const networkPassphraseUsed = opts?.networkPassphrase || networkPassphrase;
+
+    if (signTransaction instanceof Keypair) {
+      const signer = basicNodeSigner(signTransaction, networkPassphraseUsed);
+
+        const updatedOptions: ClientOptions = {
+          ...clientOptions,
+          networkPassphrase: networkPassphraseUsed,
+        };
+
+      return signer.signTransaction(tx, updatedOptions, opts);
+    }
+
+    if (typeof signTransaction === 'function') {
+      const t = TransactionBuilder.fromXDR(tx, networkPassphraseUsed);
       t.sign(keypair);
       return t.toXDR();
     }
+
+    throw new Error('No valid signTransaction method provided');
   },
   // eslint-disable-next-line require-await
   signAuthEntry: async (entryXdr: string): Promise<string> =>
-    keypair.sign(hash(Buffer.from(entryXdr, "base64"))).toString("base64"),
+    keypair.sign(hash(Buffer.from(entryXdr, 'base64'))).toString('base64'),
 });

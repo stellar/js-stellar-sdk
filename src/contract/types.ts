@@ -1,7 +1,14 @@
 /* disable PascalCase naming convention, to avoid breaking change */
 /* eslint-disable @typescript-eslint/naming-convention */
-import { Keypair, Memo, MemoType, Operation, Transaction, xdr } from "@stellar/stellar-base";
-import type { Client } from "./client";
+import {
+  Keypair,
+  Memo,
+  MemoType,
+  Operation,
+  Transaction,
+  xdr,
+} from '@stellar/stellar-base';
+import type { Client } from './client';
 
 export type XDR_BASE64 = string;
 /**
@@ -77,15 +84,16 @@ export type ClientOptions = {
    *
    * Matches signature of `signTransaction` from Freighter.
    */
-  signTransaction?: (
-    tx: XDR_BASE64,
-    opts?: {
-      network?: string;
-      networkPassphrase?: string;
-      accountToSign?: string;
-    },
-    signer?: Keypair,
-  ) => Promise<XDR_BASE64>;
+  signTransaction?:
+    | ((
+        tx: XDR_BASE64,
+        opts?: {
+          network?: string;
+          networkPassphrase?: string;
+          accountToSign?: string;
+        }
+      ) => Promise<XDR_BASE64>)
+    | Keypair;
   /**
    * A function to sign a specific auth entry for a transaction, using the
    * private key corresponding to the provided `publicKey`. This is only needed
@@ -99,7 +107,7 @@ export type ClientOptions = {
     entryXdr: XDR_BASE64,
     opts?: {
       accountToSign?: string;
-    },
+    }
   ) => Promise<XDR_BASE64>;
   /** The address of the contract the client will interact with. */
   contractId: string;
@@ -196,4 +204,5 @@ export const DEFAULT_TIMEOUT = 5 * 60;
  * @default GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF
  * @memberof module:contract
  */
-export const NULL_ACCOUNT = "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF";
+export const NULL_ACCOUNT =
+  'GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF';
