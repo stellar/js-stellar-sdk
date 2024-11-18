@@ -1,5 +1,6 @@
 name: npm publish
 on:
+  workflow_dispatch:
   release:
     types: [published]
 
@@ -27,9 +28,9 @@ jobs:
 
       - name: Publish npm package to both places
         run: |
-          yarn publish --access public --tag protocol-22-beta
+          yarn publish --access public
           sed -i -e 's#"@stellar/stellar-sdk"#"stellar-sdk"#' package.json
-          yarn publish --tag protocol-22-beta
+          yarn publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 

@@ -32,6 +32,7 @@ export interface HttpClientRequestConfig<D = any> {
   headers?: HeadersInit;
   params?: Record<string, any>;
   maxContentLength?: number;
+  maxRedirects?: number;
   cancelToken?: CancelToken;
   adapter?: (config: HttpClientRequestConfig) => Promise<HttpClientResponse>;
 }
