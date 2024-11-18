@@ -730,9 +730,9 @@ export class AssembledTransaction<T> {
       .setTimeout(timeoutInSeconds)
       .build();
 
-     const signOpts: Parameters<typeof signTransaction>[1] = {
-       networkPassphrase: this.options.networkPassphrase,
-     };
+    const signOpts: Parameters<typeof signTransaction>[1] = {
+      networkPassphrase: this.options.networkPassphrase,
+    };
 
     if (this.options.address) signOpts.address = this.options.address;
     if (this.options.submit !== undefined)
