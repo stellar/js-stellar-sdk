@@ -84,8 +84,7 @@ export interface WalletError {
  *
  * @returns A promise resolving to an object with the signed transaction XDR and optional signer address and error.
  */
-export type SignTransaction =
-  | ((
+export type SignTransaction = | ((
       xdr: string,
       opts?: {
         networkPassphrase?: string;

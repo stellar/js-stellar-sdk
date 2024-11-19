@@ -701,12 +701,13 @@ export class AssembledTransaction<T> {
         signTransaction,
         this.options.networkPassphrase
       );
+
       signTransaction = signer;
     }
 
     if (typeof signTransaction !== "function") {
       throw new Error(
-        "`signTransaction` must be a function or a Keypair. Received invalid type."
+        "signTransaction must be a function or a Keypair. Received invalid type."
       );
     }
 
