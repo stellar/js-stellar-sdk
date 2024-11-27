@@ -217,7 +217,7 @@
     "axios": "^1.7.7",
     "bignumber.js": "^9.1.2",
     "eventsource": "^2.0.2",
-    "feaxios": "^0.0.20",
+    "feaxios": "^0.0.23",
     "randombytes": "^2.1.0",
     "toml": "^3.0.0",
     "urijs": "^1.19.1"
