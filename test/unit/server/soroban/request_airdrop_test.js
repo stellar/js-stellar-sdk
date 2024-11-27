@@ -1,4 +1,5 @@
-const { Account, Keypair, StrKey, Networks, xdr, hash, nativeToScVal } = StellarSdk;
+const { Account, Keypair, StrKey, Networks, xdr, hash, nativeToScVal } =
+  StellarSdk;
 const { Server, AxiosClient } = StellarSdk.rpc;
 
 describe("Server#requestAirdrop", function () {
@@ -267,7 +268,9 @@ describe("Server#requestAirdrop", function () {
 
     const txResult = makeTxResult("SUCCESS");
     txResult.txHash = "deadbeef";
-    txResult.resultMetaXdr = transactionMetaFor(accountId, "1234").toXDR("base64");
+    txResult.resultMetaXdr = transactionMetaFor(accountId, "1234").toXDR(
+      "base64",
+    );
 
     this.axiosMock
       .expects("post")
@@ -276,7 +279,7 @@ describe("Server#requestAirdrop", function () {
         id: 1,
         method: "getTransaction",
         params: {
-          "hash": "deadbeef"
+          hash: "deadbeef",
         },
       })
       .returns(Promise.resolve({ data: { result: txResult } }));
