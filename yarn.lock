@@ -919,15 +919,15 @@
     "@jridgewell/trace-mapping" "0.3.9"
 
 "@definitelytyped/dtslint@^0.2.27":
-  version "0.2.27"
-  resolved "https://registry.yarnpkg.com/@definitelytyped/dtslint/-/dtslint-0.2.27.tgz#46aae2ab228ed2ea1b860f598c4b57a15d714a77"
-  integrity sha512-0/Bn5UnLCiPZZ/1XjXVCDgwp7nq5uvXf65d9oFiVxZ+cOqRdlWNUucVFOOxdnQtFY8vsQS12I2p+yvFRfFO1DQ==
+  version "0.2.28"
+  resolved "https://registry.yarnpkg.com/@definitelytyped/dtslint/-/dtslint-0.2.28.tgz#22e54d0823c81b66afb26ebdc43ccc4fcaf436a7"
+  integrity sha512-2F3mM1VODRqgjDvp9dRuJxRF7cerZcFzDXsFcvZ9UAuVb4kjAwi3WUYf/mDj/vUCzXPOfhwDyiOf8JT8MRClUA==
   dependencies:
     "@arethetypeswrong/cli" "0.15.1"
     "@arethetypeswrong/core" "0.15.1"
-    "@definitelytyped/header-parser" "0.2.15"
-    "@definitelytyped/typescript-packages" "0.1.5"
-    "@definitelytyped/typescript-versions" "0.1.5"
+    "@definitelytyped/header-parser" "0.2.16"
+    "@definitelytyped/typescript-packages" "0.1.6"
+    "@definitelytyped/typescript-versions" "0.1.6"
     "@definitelytyped/utils" "0.1.8"
     "@typescript-eslint/eslint-plugin" "^8.13.0"
     "@typescript-eslint/parser" "^8.13.0"
@@ -939,22 +939,21 @@
     semver "^7.6.3"
     strip-json-comments "^3.1.1"
 
-"@definitelytyped/header-parser@0.2.15":
-  version "0.2.15"
-  resolved "https://registry.yarnpkg.com/@definitelytyped/header-parser/-/header-parser-0.2.15.tgz#cd4116a1e783ffe4abb1e855cc054ff785c5c666"
-  integrity sha512-SRUpmhQ7QZpsjLiA9SlwaD2Ct1xOc5Vt8cpZAqQ+P/puu4nNIsibCW87NKkyjCXG+MCUVFWEK7rVCTd12m2hTw==
+"@definitelytyped/header-parser@0.2.16":
+  version "0.2.16"
+  resolved "https://registry.yarnpkg.com/@definitelytyped/header-parser/-/header-parser-0.2.16.tgz#0d5982d22245719f2054c221412997f24b85cc62"
+  integrity sha512-UFsgPft5bhZn07UNGz/9ck4AhdKgLFEOmi2DNr7gXcGL89zbe3u5oVafKUT8j1HOtSBjT8ZEQsXHKlbq+wwF/Q==
   dependencies:
-    "@definitelytyped/typescript-versions" "0.1.5"
+    "@definitelytyped/typescript-versions" "0.1.6"
     "@definitelytyped/utils" "0.1.8"
     semver "^7.6.3"
 
-"@definitelytyped/typescript-packages@0.1.5":
-  version "0.1.5"
-  resolved "https://registry.yarnpkg.com/@definitelytyped/typescript-packages/-/typescript-packages-0.1.5.tgz#40f02e7a979dfaaa004764c7976a944fbec841f0"
-  integrity sha512-6OijhxzPH07c1XMgbPFwjE7pT1KkadIrwobfw4Tm1Xt63YsLSknsu4b/myU8JEZDCL4m/l7CxNQrVaYF/Cu8Pg==
+"@definitelytyped/typescript-packages@0.1.6":
+  version "0.1.6"
+  resolved "https://registry.yarnpkg.com/@definitelytyped/typescript-packages/-/typescript-packages-0.1.6.tgz#4ef31c8fbbe58e79736ca7224bfb0948a8a66945"
+  integrity sha512-ZK/hAJd7xAM0ds4jp4RVfE64hKTmVJgpFCE05qlmw2dOpqbhcWls3p5dD3iabNiiXlGSX8mqWni7k7XcTLidNQ==
   dependencies:
-    "@definitelytyped/typescript-versions" "0.1.5"
-    typescript-4.9 "npm:typescript@~4.9.0-0"
+    "@definitelytyped/typescript-versions" "0.1.6"
     typescript-5.0 "npm:typescript@~5.0.0-0"
     typescript-5.1 "npm:typescript@~5.1.0-0"
     typescript-5.2 "npm:typescript@~5.2.0-0"
@@ -965,10 +964,10 @@
     typescript-5.7 "npm:typescript@~5.7.0-0"
     typescript-5.8 "npm:typescript@~5.8.0-0"
 
-"@definitelytyped/typescript-versions@0.1.5":
-  version "0.1.5"
-  resolved "https://registry.yarnpkg.com/@definitelytyped/typescript-versions/-/typescript-versions-0.1.5.tgz#94335d16e3468b086b6a2386939c18bbd53d7446"
-  integrity sha512-XdLx3+S6zZCcG4jnG6Kqv/PlKBRTkz5M/xZUEEN9R2g6BlzbxyE+z5EzlezJqkUls53zjuOzgbkNNP4HQIfbJQ==
+"@definitelytyped/typescript-versions@0.1.6":
+  version "0.1.6"
+  resolved "https://registry.yarnpkg.com/@definitelytyped/typescript-versions/-/typescript-versions-0.1.6.tgz#92d469945339fcfa13983baafd83dd1601578961"
+  integrity sha512-gQpXFteIKrOw4ldmBZQfBrD3WobaIG1SwOr/3alXWkcYbkOWa2NRxQbiaYQ2IvYTGaZK26miJw0UOAFiuIs4gA==
 
 "@definitelytyped/utils@0.1.8":
   version "0.1.8"
@@ -2139,9 +2138,9 @@ axios-mock-adapter@^1.22.0:
     is-buffer "^2.0.5"
 
 axios@^1.7.7:
-  version "1.7.7"
-  resolved "https://registry.yarnpkg.com/axios/-/axios-1.7.7.tgz#2f554296f9892a72ac8d8e4c5b79c14a91d0a47f"
-  integrity sha512-S4kL7XrjgBmvdGut0sN3yJxqYzrDOnivkBiN0OFs6hLiUam3UPvswUo0kqGyhqUZGEOytHyumEdXsAkgCOUf3Q==
+  version "1.7.8"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-1.7.8.tgz#1997b1496b394c21953e68c14aaa51b7b5de3d6e"
+  integrity sha512-Uu0wb7KNqK2t5K+YQyVCLM76prD5sRFjKHbJYCP1J7JFGEQ6nN7HWn9+04LAeiJ3ji54lgS/gZCH1oxyrf1SPw==
   dependencies:
     follow-redirects "^1.15.6"
     form-data "^4.0.0"
@@ -6301,9 +6300,9 @@ prettier-linter-helpers@^1.0.0:
     fast-diff "^1.1.2"
 
 prettier@^3.3.3:
-  version "3.3.3"
-  resolved "https://registry.yarnpkg.com/prettier/-/prettier-3.3.3.tgz#30c54fe0be0d8d12e6ae61dbb10109ea00d53105"
-  integrity sha512-i2tDNA0O5IrMO757lfrdQZCc2jPNDVntV0m/+4whiDfWaTKfMNgR7Qz0NAeGz/nRqF4m5/6CLzbP4/liHt12Ew==
+  version "3.4.1"
+  resolved "https://registry.yarnpkg.com/prettier/-/prettier-3.4.1.tgz#e211d451d6452db0a291672ca9154bc8c2579f7b"
+  integrity sha512-G+YdqtITVZmOJje6QkXQWzl3fSfMxFwm1tjTyo9exhkmWSqC4Yhd1+lug++IlR2mvRVAxEDDWYkQdeSztajqgg==
 
 private@^0.1.8:
   version "0.1.8"
@@ -7739,11 +7738,6 @@ typedarray@^0.0.6:
   version "0.0.6"
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
   integrity sha512-/aCDEGatGvZ2BIk+HmLf4ifCJFwvKFNb9/JeZPMulfgFracn9QFcAf5GO8B/mweUjSoblS5In0cWhqpfs/5PQA==
-
-"typescript-4.9@npm:typescript@~4.9.0-0":
-  version "4.9.5"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.9.5.tgz#095979f9bcc0d09da324d58d03ce8f8374cbe65a"
-  integrity sha512-1FXk9E2Hm+QzZQ7z+McJiHL4NW1F2EzMu9Nq9i3zAaGqibafqYwCVU6WyWAuyQRRzOlxou8xZSyXLEN8oKj24g==
 
 "typescript-5.0@npm:typescript@~5.0.0-0":
   version "5.0.4"
