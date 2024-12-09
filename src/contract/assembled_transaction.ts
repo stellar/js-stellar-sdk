@@ -16,8 +16,8 @@ import type {
   AssembledTransactionOptions,
   ClientOptions,
   MethodOptions,
-  Tx,
   WalletError,
+  Tx,
   XDR_BASE64,
 } from "./types";
 import { Server } from "../rpc";
@@ -25,7 +25,11 @@ import { Api } from "../rpc/api";
 import { assembleTransaction } from "../rpc/transaction";
 import type { Client } from "./client";
 import { Err } from "./rust_result";
-import { contractErrorPattern, implementsToString, getAccount } from "./utils";
+import {
+  contractErrorPattern,
+  implementsToString,
+  getAccount
+} from "./utils";
 import { DEFAULT_TIMEOUT } from "./types";
 import { SentTransaction } from "./sent_transaction";
 import { Spec } from "./spec";
@@ -314,14 +318,14 @@ export class AssembledTransaction<T> {
    * logic.
    */
   static Errors = {
-    ExpiredState: class ExpiredStateError extends Error {},
-    RestorationFailure: class RestoreFailureError extends Error {},
-    NeedsMoreSignatures: class NeedsMoreSignaturesError extends Error {},
-    NoSignatureNeeded: class NoSignatureNeededError extends Error {},
-    NoUnsignedNonInvokerAuthEntries: class NoUnsignedNonInvokerAuthEntriesError extends Error {},
-    NoSigner: class NoSignerError extends Error {},
-    NotYetSimulated: class NotYetSimulatedError extends Error {},
-    FakeAccount: class FakeAccountError extends Error {},
+    ExpiredState: class ExpiredStateError extends Error { },
+    RestorationFailure: class RestoreFailureError extends Error { },
+    NeedsMoreSignatures: class NeedsMoreSignaturesError extends Error { },
+    NoSignatureNeeded: class NoSignatureNeededError extends Error { },
+    NoUnsignedNonInvokerAuthEntries: class NoUnsignedNonInvokerAuthEntriesError extends Error { },
+    NoSigner: class NoSignerError extends Error { },
+    NotYetSimulated: class NotYetSimulatedError extends Error { },
+    FakeAccount: class FakeAccountError extends Error { },
     SimulationFailed: class SimulationFailedError extends Error {},
     InternalWalletError: class InternalWalletError extends Error {},
     ExternalServiceError: class ExternalServiceError extends Error {},
@@ -361,19 +365,19 @@ export class AssembledTransaction<T> {
         retval: XDR_BASE64;
       };
       simulationTransactionData: XDR_BASE64;
-    }
+    },
   ): AssembledTransaction<T> {
     const txn = new AssembledTransaction(options);
     txn.built = TransactionBuilder.fromXDR(tx, options.networkPassphrase) as Tx;
     txn.simulationResult = {
       auth: simulationResult.auth.map((a) =>
-        xdr.SorobanAuthorizationEntry.fromXDR(a, "base64")
+        xdr.SorobanAuthorizationEntry.fromXDR(a, "base64"),
       ),
       retval: xdr.ScVal.fromXDR(simulationResult.retval, "base64"),
     };
     txn.simulationTransactionData = xdr.SorobanTransactionData.fromXDR(
       simulationTransactionData,
-      "base64"
+      "base64",
     );
     return txn;
   }
@@ -382,49 +386,39 @@ export class AssembledTransaction<T> {
    * Serialize the AssembledTransaction to a base64-encoded XDR string.
    */
   toXDR(): string {
-    if (!this.built)
-      throw new Error(
+    if(!this.built) throw new Error(
         "Transaction has not yet been simulated; " +
-          "call `AssembledTransaction.simulate` first."
+        "call `AssembledTransaction.simulate` first.",
       );
-    return this.built?.toEnvelope().toXDR("base64");
+    return this.built?.toEnvelope().toXDR('base64');
   }
 
   /**
    * Deserialize the AssembledTransaction from a base64-encoded XDR string.
    */
   static fromXDR<T>(
-    options: Omit<
-      AssembledTransactionOptions<T>,
-      "args" | "method" | "parseResultXdr"
-    >,
+    options: Omit<AssembledTransactionOptions<T>, "args" | "method" | "parseResultXdr">,
     encodedXDR: string,
     spec: Spec
   ): AssembledTransaction<T> {
     const envelope = xdr.TransactionEnvelope.fromXDR(encodedXDR, "base64");
-    const built = TransactionBuilder.fromXDR(
-      envelope,
-      options.networkPassphrase
-    ) as Tx;
+    const built = TransactionBuilder.fromXDR(envelope, options.networkPassphrase) as Tx;
     const operation = built.operations[0] as Operation.InvokeHostFunction;
-    if (!operation?.func?.value || typeof operation.func.value !== "function") {
-      throw new Error(
-        "Could not extract the method from the transaction envelope."
-      );
+    if (!operation?.func?.value || typeof operation.func.value !== 'function') {
+      throw new Error("Could not extract the method from the transaction envelope.");
     }
     const invokeContractArgs = operation.func.value() as xdr.InvokeContractArgs;
     if (!invokeContractArgs?.functionName) {
-      throw new Error(
-        "Could not extract the method name from the transaction envelope."
-      );
+      throw new Error("Could not extract the method name from the transaction envelope.");
     }
-    const method = invokeContractArgs.functionName().toString("utf-8");
-    const txn = new AssembledTransaction({
-      ...options,
-      method,
-      parseResultXdr: (result: xdr.ScVal) =>
-        spec.funcResToNative(method, result),
-    });
+    const method = invokeContractArgs.functionName().toString('utf-8');
+    const txn = new AssembledTransaction(
+      { ...options,
+        method,
+        parseResultXdr: (result: xdr.ScVal) =>
+          spec.funcResToNative(method, result),
+      }
+     );
     txn.built = built;
     return txn;
   }
@@ -457,8 +451,8 @@ export class AssembledTransaction<T> {
   }
 
   /**
-   * Construct a new AssembledTransaction. This is the main way to create a new
-   * AssembledTransaction; the constructor is private.
+   * Construct a new AssembledTransaction. This is the only way to create a new
+   * AssembledTransaction; the main constructor is private.
    *
    * This is an asynchronous constructor for two reasons:
    *
@@ -469,54 +463,29 @@ export class AssembledTransaction<T> {
    * If you don't want to simulate the transaction, you can set `simulate` to
    * `false` in the options.
    *
-   * If you need to create an operation other than `invokeHostFunction`, you
-   * can use {@link AssembledTransaction.buildWithOp} instead.
-   *
    * @example
    * const tx = await AssembledTransaction.build({
    *   ...,
    *   simulate: false,
    * })
    */
-  static build<T>(
-    options: AssembledTransactionOptions<T>
-  ): Promise<AssembledTransaction<T>> {
-    const contract = new Contract(options.contractId);
-    return AssembledTransaction.buildWithOp(
-      contract.call(options.method, ...(options.args ?? [])),
-      options
-    );
-  }
-
-  /**
-   * Construct a new AssembledTransaction, specifying an Operation other than
-   * `invokeHostFunction` (the default used by {@link AssembledTransaction.build}).
-   *
-   * Note: `AssembledTransaction` currently assumes these operations can be
-   * simulated. This is not true for classic operations; only for those used by
-   * Soroban Smart Contracts like `invokeHostFunction` and `createCustomContract`.
-   *
-   * @example
-   * const tx = await AssembledTransaction.buildWithOp(
-   *   Operation.createCustomContract({ ... });
-   *   {
-   *     ...,
-   *     simulate: false,
-   *   }
-   * )
-   */
-  static async buildWithOp<T>(
-    operation: xdr.Operation,
-    options: AssembledTransactionOptions<T>
+  static async build<T>(
+    options: AssembledTransactionOptions<T>,
   ): Promise<AssembledTransaction<T>> {
     const tx = new AssembledTransaction(options);
-    const account = await getAccount(options, tx.server);
+    const contract = new Contract(options.contractId);
+
+    const account = await getAccount(
+      options,
+      tx.server
+    );
+
     tx.raw = new TransactionBuilder(account, {
       fee: options.fee ?? BASE_FEE,
       networkPassphrase: options.networkPassphrase,
     })
-      .setTimeout(options.timeoutInSeconds ?? DEFAULT_TIMEOUT)
-      .addOperation(operation);
+      .addOperation(contract.call(options.method, ...(options.args ?? [])))
+      .setTimeout(options.timeoutInSeconds ?? DEFAULT_TIMEOUT);
 
     if (options.simulate) await tx.simulate();
 
@@ -534,23 +503,19 @@ export class AssembledTransaction<T> {
       fee,
       networkPassphrase: options.networkPassphrase,
     })
-      .setSorobanData(
-        sorobanData instanceof SorobanDataBuilder
-          ? sorobanData.build()
-          : sorobanData
-      )
+      .setSorobanData(sorobanData instanceof SorobanDataBuilder ? sorobanData.build() : sorobanData)
       .addOperation(Operation.restoreFootprint({}))
       .setTimeout(options.timeoutInSeconds ?? DEFAULT_TIMEOUT);
     await tx.simulate({ restore: false });
     return tx;
   }
 
-  simulate = async ({ restore }: { restore?: boolean } = {}): Promise<this> => {
-    if (!this.built) {
-      if (!this.raw) {
+  simulate = async ({ restore }: {restore?: boolean} = {}): Promise<this> => {
+    if (!this.built){
+      if(!this.raw) {
         throw new Error(
           "Transaction has not yet been assembled; " +
-            "call `AssembledTransaction.build` first."
+          "call `AssembledTransaction.build` first."
         );
       }
       this.built = this.raw.build();
@@ -576,9 +541,14 @@ export class AssembledTransaction<T> {
           networkPassphrase: this.options.networkPassphrase,
         })
           .addOperation(
-            contract.call(this.options.method, ...(this.options.args ?? []))
+            contract.call(
+              this.options.method,
+              ...(this.options.args ?? [])
+            )
           )
-          .setTimeout(this.options.timeoutInSeconds ?? DEFAULT_TIMEOUT);
+          .setTimeout(
+            this.options.timeoutInSeconds ?? DEFAULT_TIMEOUT
+          );
         await this.simulate();
         return this;
       }
@@ -588,7 +558,10 @@ export class AssembledTransaction<T> {
     }
 
     if (Api.isSimulationSuccess(this.simulation)) {
-      this.built = assembleTransaction(this.built, this.simulation).build();
+      this.built = assembleTransaction(
+        this.built,
+        this.simulation
+      ).build();
     }
 
     return this;
@@ -607,28 +580,23 @@ export class AssembledTransaction<T> {
     const simulation = this.simulation!;
     if (!simulation) {
       throw new AssembledTransaction.Errors.NotYetSimulated(
-        "Transaction has not yet been simulated"
+        "Transaction has not yet been simulated",
       );
     }
     if (Api.isSimulationError(simulation)) {
-      throw new AssembledTransaction.Errors.SimulationFailed(
-        `Transaction simulation failed: "${simulation.error}"`
-      );
+      throw new Error(`Transaction simulation failed: "${simulation.error}"`);
     }
 
     if (Api.isSimulationRestore(simulation)) {
       throw new AssembledTransaction.Errors.ExpiredState(
         `You need to restore some contract state before you can invoke this method.\n` +
-          "You can set `restore` to true in the method options in order to " +
-          "automatically restore the contract state when needed."
+        'You can set `restore` to true in the method options in order to ' +
+        'automatically restore the contract state when needed.'
       );
     }
 
     // add to object for serialization & deserialization
-    this.simulationResult = simulation.result ?? {
-      auth: [],
-      retval: xdr.ScVal.scvVoid(),
-    };
+    this.simulationResult = simulation.result ?? { auth: [], retval: xdr.ScVal.scvVoid() };
     this.simulationTransactionData = simulation.transactionData.build();
 
     return {
@@ -757,11 +725,9 @@ export class AssembledTransaction<T> {
    * Sends the transaction to the network to return a `SentTransaction` that
    * keeps track of all the attempts to fetch the transaction.
    */
-  async send() {
-    if (!this.signed) {
-      throw new Error(
-        "The transaction has not yet been signed. Run `sign` first, or use `signAndSend` instead."
-      );
+  async send(){
+    if(!this.signed){
+      throw new Error("The transaction has not yet been signed. Run `sign` first, or use `signAndSend` instead.");
     }
     const sent = await SentTransaction.init(this);
     return sent;
@@ -786,21 +752,8 @@ export class AssembledTransaction<T> {
      */
     signTransaction?: ClientOptions["signTransaction"];
   } = {}): Promise<SentTransaction<T>> => {
-    if (!this.signed) {
-      // Store the original submit option
-      const originalSubmit = this.options.submit;
-
-      // Temporarily disable submission in signTransaction to prevent double submission
-      if (this.options.submit) {
-        this.options.submit = false;
-      }
-
-      try {
-        await this.sign({ force, signTransaction });
-      } finally {
-        // Restore the original submit option
-        this.options.submit = originalSubmit;
-      }
+    if(!this.signed){
+      await this.sign({ force, signTransaction });
     }
     return this.send();
   };
@@ -843,8 +796,8 @@ export class AssembledTransaction<T> {
     if (!("operations" in this.built)) {
       throw new Error(
         `Unexpected Transaction type; no operations: ${JSON.stringify(
-          this.built
-        )}`
+          this.built,
+        )}`,
       );
     }
     const rawInvokeHostFunctionOp = this.built
@@ -856,16 +809,16 @@ export class AssembledTransaction<T> {
           .filter(
             (entry) =>
               entry.credentials().switch() ===
-                xdr.SorobanCredentialsType.sorobanCredentialsAddress() &&
+              xdr.SorobanCredentialsType.sorobanCredentialsAddress() &&
               (includeAlreadySigned ||
                 entry.credentials().address().signature().switch().name ===
-                  "scvVoid")
+                "scvVoid"),
           )
           .map((entry) =>
             Address.fromScAddress(
-              entry.credentials().address().address()
-            ).toString()
-          )
+              entry.credentials().address().address(),
+            ).toString(),
+          ),
       ),
     ];
   };
@@ -924,12 +877,12 @@ export class AssembledTransaction<T> {
       const needsNonInvokerSigningBy = this.needsNonInvokerSigningBy();
       if (needsNonInvokerSigningBy.length === 0) {
         throw new AssembledTransaction.Errors.NoUnsignedNonInvokerAuthEntries(
-          "No unsigned non-invoker auth entries; maybe you already signed?"
+          "No unsigned non-invoker auth entries; maybe you already signed?",
         );
       }
       if (needsNonInvokerSigningBy.indexOf(address ?? "") === -1) {
         throw new AssembledTransaction.Errors.NoSignatureNeeded(
-          `No auth entries for public key "${address}"`
+          `No auth entries for public key "${address}"`,
         );
       }
       if (!signAuthEntry) {
@@ -947,9 +900,7 @@ export class AssembledTransaction<T> {
     // eslint-disable-next-line no-restricted-syntax
     for (const [i, entry] of authEntries.entries()) {
       // workaround for https://github.com/stellar/js-stellar-sdk/issues/1070
-      const credentials = xdr.SorobanCredentials.fromXDR(
-        entry.credentials().toXDR()
-      );
+      const credentials = xdr.SorobanCredentials.fromXDR(entry.credentials().toXDR())
       if (
         credentials.switch() !==
         xdr.SorobanCredentialsType.sorobanCredentialsAddress()
@@ -960,7 +911,7 @@ export class AssembledTransaction<T> {
         continue; // eslint-disable-line no-continue
       }
       const authEntryAddress = Address.fromScAddress(
-        credentials.address().address()
+        credentials.address().address(),
       ).toString();
 
       // this auth entry needs to be signed by a different account
@@ -970,7 +921,7 @@ export class AssembledTransaction<T> {
       const sign: typeof signAuthEntry = signAuthEntry ?? Promise.resolve;
 
       // eslint-disable-next-line no-await-in-loop
-      authEntries[i] = await authorizeEntry(
+            authEntries[i] = await authorizeEntry(
         entry,
 
         async (preimage) => {
@@ -986,6 +937,18 @@ export class AssembledTransaction<T> {
         await expiration, // eslint-disable-line no-await-in-loop
         this.options.networkPassphrase
       );
+      // authEntries[i] = await authorizeEntry(
+      //   entry,
+      //   async (preimage) =>
+      //     Buffer.from(
+      //       await sign(preimage.toXDR("base64"), {
+      //         accountToSign: address,
+      //       }),
+      //       "base64",
+      //     ),
+      //   await expiration, // eslint-disable-line no-await-in-loop
+      //   this.options.networkPassphrase,
+      // );
     }
   };
 
@@ -1037,19 +1000,16 @@ export class AssembledTransaction<T> {
     account?: Account
   ): Promise<Api.GetTransactionResponse> {
     if (!this.options.signTransaction) {
-      throw new Error(
-        "For automatic restore to work you must provide a signTransaction function when initializing your Client"
-      );
+      throw new Error("For automatic restore to work you must provide a signTransaction function when initializing your Client");
     }
-    account = account ?? (await getAccount(this.options, this.server));
+    account = account ?? await getAccount(this.options, this.server);
     // first try restoring the contract
-    const restoreTx =
-      await AssembledTransaction.buildFootprintRestoreTransaction(
-        { ...this.options },
-        restorePreamble.transactionData,
-        account,
-        restorePreamble.minResourceFee
-      );
+    const restoreTx = await AssembledTransaction.buildFootprintRestoreTransaction(
+      { ...this.options },
+      restorePreamble.transactionData,
+      account,
+      restorePreamble.minResourceFee
+    );
     const sentTransaction = await restoreTx.signAndSend();
     if (!sentTransaction.getTransactionResponse) {
       throw new AssembledTransaction.Errors.RestorationFailure(
@@ -1058,4 +1018,6 @@ export class AssembledTransaction<T> {
     }
     return sentTransaction.getTransactionResponse;
   }
+
+
 }
