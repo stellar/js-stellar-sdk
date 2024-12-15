@@ -47,6 +47,7 @@ export class CallBuilder<
   T extends
   | HorizonApi.FeeStatsResponse
   | HorizonApi.BaseResponse
+  | HorizonApi.RootResponse
   | ServerApi.CollectionPage<HorizonApi.BaseResponse>
 > {
   protected url: URI;

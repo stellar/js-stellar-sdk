@@ -37,6 +37,132 @@ describe("server.js non-transaction tests", function () {
     });
   });
 
+  describe("Server.root", function () {
+    let response = {
+      _links: {
+        account: {
+          href: "https://horizon.stellar.org/accounts/{account_id}",
+          templated: true,
+        },
+        accounts: {
+          href: "https://horizon.stellar.org/accounts{?signer,sponsor,asset,liquidity_pool,cursor,limit,order}",
+          templated: true,
+        },
+        account_transactions: {
+          href: "https://horizon.stellar.org/accounts/{account_id}/transactions{?cursor,limit,order}",
+          templated: true,
+        },
+        claimable_balances: {
+          href: "https://horizon.stellar.org/claimable_balances{?asset,sponsor,claimant,cursor,limit,order}",
+          templated: true,
+        },
+        assets: {
+          href: "https://horizon.stellar.org/assets{?asset_code,asset_issuer,cursor,limit,order}",
+          templated: true,
+        },
+        effects: {
+          href: "https://horizon.stellar.org/effects{?cursor,limit,order}",
+          templated: true,
+        },
+        fee_stats: {
+          href: "https://horizon.stellar.org/fee_stats",
+        },
+        ledger: {
+          href: "https://horizon.stellar.org/ledgers/{sequence}",
+          templated: true,
+        },
+        ledgers: {
+          href: "https://horizon.stellar.org/ledgers{?cursor,limit,order}",
+          templated: true,
+        },
+        liquidity_pools: {
+          href: "https://horizon.stellar.org/liquidity_pools{?reserves,account,cursor,limit,order}",
+          templated: true,
+        },
+        offer: {
+          href: "https://horizon.stellar.org/offers/{offer_id}",
+          templated: true,
+        },
+        offers: {
+          href: "https://horizon.stellar.org/offers{?selling,buying,seller,sponsor,cursor,limit,order}",
+          templated: true,
+        },
+        operation: {
+          href: "https://horizon.stellar.org/operations/{id}",
+          templated: true,
+        },
+        operations: {
+          href: "https://horizon.stellar.org/operations{?cursor,limit,order,include_failed}",
+          templated: true,
+        },
+        order_book: {
+          href: "https://horizon.stellar.org/order_book{?selling_asset_type,selling_asset_code,selling_asset_issuer,buying_asset_type,buying_asset_code,buying_asset_issuer,limit}",
+          templated: true,
+        },
+        payments: {
+          href: "https://horizon.stellar.org/payments{?cursor,limit,order,include_failed}",
+          templated: true,
+        },
+        self: {
+          href: "https://horizon.stellar.org/",
+        },
+        strict_receive_paths: {
+          href: "https://horizon.stellar.org/paths/strict-receive{?source_assets,source_account,destination_account,destination_asset_type,destination_asset_issuer,destination_asset_code,destination_amount}",
+          templated: true,
+        },
+        strict_send_paths: {
+          href: "https://horizon.stellar.org/paths/strict-send{?destination_account,destination_assets,source_asset_type,source_asset_issuer,source_asset_code,source_amount}",
+          templated: true,
+        },
+        trade_aggregations: {
+          href: "https://horizon.stellar.org/trade_aggregations?base_asset_type={base_asset_type}\u0026base_asset_code={base_asset_code}\u0026base_asset_issuer={base_asset_issuer}\u0026counter_asset_type={counter_asset_type}\u0026counter_asset_code={counter_asset_code}\u0026counter_asset_issuer={counter_asset_issuer}",
+          templated: true,
+        },
+        trades: {
+          href: "https://horizon.stellar.org/trades?base_asset_type={base_asset_type}\u0026base_asset_code={base_asset_code}\u0026base_asset_issuer={base_asset_issuer}\u0026counter_asset_type={counter_asset_type}\u0026counter_asset_code={counter_asset_code}\u0026counter_asset_issuer={counter_asset_issuer}",
+          templated: true,
+        },
+        transaction: {
+          href: "https://horizon.stellar.org/transactions/{hash}",
+          templated: true,
+        },
+        transactions: {
+          href: "https://horizon.stellar.org/transactions{?cursor,limit,order}",
+          templated: true,
+        },
+      },
+      horizon_version: "22.0.1-dd8a9b473a303cfcdd383d1db45dace93ea0861c",
+      core_version:
+        "stellar-core 22.1.0.rc1 (fdd833d57c86cfe0c5057da5b2319953ab841de0)",
+      ingest_latest_ledger: 54837706,
+      history_latest_ledger: 54837706,
+      history_latest_ledger_closed_at: "2024-12-15T11:39:19Z",
+      history_elder_ledger: 48530161,
+      core_latest_ledger: 54837706,
+      network_passphrase: "Public Global Stellar Network ; September 2015",
+      current_protocol_version: 22,
+      supported_protocol_version: 22,
+      core_supported_protocol_version: 22,
+    };
+
+    it("returns the root endpoint", function (done) {
+      this.axiosMock
+        .expects("get")
+        .withArgs(sinon.match("https://horizon-live.stellar.org:1337/"))
+        .returns(Promise.resolve({ data: response }));
+
+      this.server
+        .feeStats()
+        .then((feeStats) => {
+          expect(feeStats).to.be.equal(response);
+          done();
+        })
+        .catch(function (err) {
+          done(err);
+        });
+    });
+  });
+
   describe("Server.fetchTimebounds", function () {
     let clock;
 
