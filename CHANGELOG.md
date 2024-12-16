@@ -6,11 +6,15 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+
+## [v13.1.0](https://github.com/stellar/js-stellar-sdk/compare/v13.0.0...v13.1.0)
+
+### Added
+* Added `Horizon.Server.root` to obtain information from the Horizon root endpoint ([#1122](https://github.com/stellar/js-stellar-sdk/pull/1122/)).
+
 ### Fixed
 * When using a friendbot that points to a Horizon instance that has ledger metadata disabled, you can no longer extract the account sequence from the response. Instead, we hit RPC directly ([#1107](https://github.com/stellar/js-stellar-sdk/pull/1107/)).
 
-### Added
-* Added `Horizon.Server.root` to obtain information from the Horizon root endpoint. ([#1122](https://github.com/stellar/js-stellar-sdk/pull/1122/))
 
 ## [v13.0.0](https://github.com/stellar/js-stellar-sdk/compare/v12.3.0...v13.0.0)
 This is a direct re-tag of rc.2 with the only change being an upgrade to the `stellar-base` library to incorporate a patch release. Nonetheless, the entire changelog from the prior major version here is replicated for a comprehensive view on what's broken, added, and fixed.
