@@ -152,9 +152,9 @@ describe("server.js non-transaction tests", function () {
         .returns(Promise.resolve({ data: response }));
 
       this.server
-        .feeStats()
-        .then((feeStats) => {
-          expect(feeStats).to.be.equal(response);
+        .root()
+        .then((root) => {
+          expect(root).to.be.equal(response);
           done();
         })
         .catch(function (err) {
