@@ -707,4 +707,18 @@ export namespace HorizonApi {
     };
     result_xdr: string;
   }
+
+  export interface RootResponse {
+    horizon_version: string;
+    core_version: string;
+    ingest_latest_ledger: number;
+    history_latest_ledger: number;
+    history_latest_ledger_closed_at: string;
+    history_elder_ledger: number;
+    core_latest_ledger: number;
+    network_passphrase: string;
+    current_protocol_version: number;
+    supported_protocol_version: number;
+    core_supported_protocol_version: number;
+  }
 }
