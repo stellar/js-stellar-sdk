@@ -14,6 +14,7 @@ A breaking change will get clearly marked in this log.
 
 ### Fixed
 * When using a friendbot that points to a Horizon instance that has ledger metadata disabled, you can no longer extract the account sequence from the response. Instead, we hit RPC directly ([#1107](https://github.com/stellar/js-stellar-sdk/pull/1107/)).
+* `rpc.Server.getEvents()` now correctly returns the `cursor` field at the top-level response ([#1124](https://github.com/stellar/js-stellar-sdk/pull/1124)).
 
 
 ## [v13.0.0](https://github.com/stellar/js-stellar-sdk/compare/v12.3.0...v13.0.0)
