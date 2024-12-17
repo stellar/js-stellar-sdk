@@ -187,6 +187,7 @@ function parseRawTransactions(r) {
 function parseRawEvents(raw) {
   return {
     latestLedger: raw.latestLedger,
+    cursor: raw.cursor,
     events: (raw.events ?? []).map(evt => {
       const clone = {
         ...evt

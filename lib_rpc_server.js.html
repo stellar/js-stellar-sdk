@@ -945,7 +945,16 @@ class RpcServer {
     }
     try {
       const response = await _axios.default.post(`${friendbotUrl}?addr=${encodeURIComponent(account)}`);
-      const meta = _stellarBase.xdr.TransactionMeta.fromXDR(response.data.result_meta_xdr, 'base64');
+      let meta;
+      if (!response.data.result_meta_xdr) {
+        const txMeta = await this.getTransaction(response.data.hash);
+        if (txMeta.status !== _api.Api.GetTransactionStatus.SUCCESS) {
+          throw new Error(`Funding account ${address} failed`);
+        }
+        meta = txMeta.resultMetaXdr;
+      } else {
+        meta = _stellarBase.xdr.TransactionMeta.fromXDR(response.data.result_meta_xdr, 'base64');
+      }
       const sequence = findCreatedAccountSequenceInTransactionMeta(meta);
       return new _stellarBase.Account(account, sequence);
     } catch (error) {

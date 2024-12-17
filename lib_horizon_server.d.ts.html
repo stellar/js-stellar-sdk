@@ -196,6 +196,11 @@ export declare class HorizonServer {
      */
     feeStats(): Promise&lt;HorizonApi.FeeStatsResponse>;
     /**
+     * Fetch the Horizon server's root endpoint.
+     * @returns {Promise&lt;HorizonApi.RootResponse>} Promise that resolves to the root endpoint returned by Horizon.
+     */
+    root(): Promise&lt;HorizonApi.RootResponse>;
+    /**
      * Submits a transaction to the network.
      *
      * By default this function calls {@link Horizon.Server#checkMemoRequired}, you can

@@ -124,7 +124,7 @@ export interface EventSourceOptions&lt;T> {
  * @param {string} serverUrl URL of Horizon server
  * @class CallBuilder
  */
-export declare class CallBuilder&lt;T extends HorizonApi.FeeStatsResponse | HorizonApi.BaseResponse | ServerApi.CollectionPage&lt;HorizonApi.BaseResponse>> {
+export declare class CallBuilder&lt;T extends HorizonApi.FeeStatsResponse | HorizonApi.BaseResponse | HorizonApi.RootResponse | ServerApi.CollectionPage&lt;HorizonApi.BaseResponse>> {
     protected url: URI;
     filter: string[][];
     protected originalSegments: string[];
