@@ -192,6 +192,7 @@ export namespace Api {
   export interface GetEventsResponse {
     latestLedger: number;
     events: EventResponse[];
+    cursor: string;
   }
 
   export interface EventResponse extends BaseEventResponse {
@@ -203,6 +204,7 @@ export namespace Api {
   export interface RawGetEventsResponse {
     latestLedger: number;
     events: RawEventResponse[];
+    cursor: string;
   }
 
   interface BaseEventResponse {
@@ -210,7 +212,6 @@ export namespace Api {
     type: EventType;
     ledger: number;
     ledgerClosedAt: string;
-    cursor: string;
     pagingToken: string;
     inSuccessfulContractCall: boolean;
     txHash: string;
