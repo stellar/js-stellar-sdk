@@ -16,14 +16,17 @@ import { SignAuthEntry, SignTransaction } from "./types";
  */
 export const basicNodeSigner = (
   keypair: Keypair,
-  networkPassphrase: string,
+  networkPassphrase: string
 ): {
   signTransaction: SignTransaction;
   signAuthEntry: SignAuthEntry;
 } => ({
   // eslint-disable-next-line require-await
   signTransaction: async (xdr, opts) => {
-    const t = TransactionBuilder.fromXDR(xdr, opts?.networkPassphrase || networkPassphrase);
+    const t = TransactionBuilder.fromXDR(
+      xdr,
+      opts?.networkPassphrase || networkPassphrase
+    );
     t.sign(keypair);
     return {
       signedTxXdr: t.toXDR(),
@@ -32,7 +35,9 @@ export const basicNodeSigner = (
   },
   // eslint-disable-next-line require-await
   signAuthEntry: async (authEntry) => {
-    const signedAuthEntry = keypair.sign(hash(Buffer.from(authEntry, "base64"))).toString("base64");
+    const signedAuthEntry = keypair
+      .sign(hash(Buffer.from(authEntry, "base64")))
+      .toString("base64");
     return {
       signedAuthEntry,
       signerAddress: keypair.publicKey(),

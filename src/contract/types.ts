@@ -1,6 +1,6 @@
 /* disable PascalCase naming convention, to avoid breaking change */
 /* eslint-disable @typescript-eslint/naming-convention */
-import { Memo, MemoType, Operation, Transaction, xdr } from "@stellar/stellar-base";
+import { Keypair, Memo, MemoType, Operation, Transaction, xdr } from "@stellar/stellar-base";
 import type { Client } from "./client";
 
 export type XDR_BASE64 = string;
@@ -56,16 +56,16 @@ export type Duration = bigint;
 export type Tx = Transaction<Memo<MemoType>, Operation[]>;
 
 export interface WalletError {
-  message: string; // general description message returned to the client app
-  code: number; // unique error code
+  message: string;
+  code: number;
   ext?: Array<string>; // optional extended details
 }
 
 /**
  * A function to request a wallet to sign a built transaction
- * 
+ *
  * This function takes an XDR provided by the requester and applies a signature to it.
- * It returns a base64-encoded string XDR-encoded Transaction Envelope with Decorated Signatures 
+ * It returns a base64-encoded string XDR-encoded Transaction Envelope with Decorated Signatures
  * and the signer address back to the requester.
  *
  * @param xdr - The XDR string representing the transaction to be signed.
@@ -77,20 +77,26 @@ export interface WalletError {
  *
  * @returns A promise resolving to an object with the signed transaction XDR and optional signer address and error.
  */
-export type SignTransaction = (xdr: string, opts?: {
-  networkPassphrase?: string;
-  address?: string;
-  submit?: boolean;
-  submitUrl?: string;
-}) => Promise<{
-  signedTxXdr: string;
-  signerAddress?: string;
-} & { error?: WalletError }>;
+export type SignTransaction = | ((
+      xdr: string,
+      opts?: {
+        networkPassphrase?: string;
+        address?: string;
+        submit?: boolean;
+        submitUrl?: string;
+      }
+    ) => Promise<
+      {
+        signedTxXdr: string;
+        signerAddress?: string;
+      } & { error?: WalletError }
+    >)
+  | Keypair;
 
 /**
  * A function to request a wallet to sign an authorization entry preimage.
  *
- * Similar to signing a transaction, this function takes an authorization entry preimage provided by the 
+ * Similar to signing a transaction, this function takes an authorization entry preimage provided by the
  * requester and applies a signature to it.
  * It returns a signed hash of the same authorization entry and the signer address back to the requester.
  *
@@ -101,13 +107,19 @@ export type SignTransaction = (xdr: string, opts?: {
  *
  * @returns A promise resolving to an object with the signed authorization entry and optional signer address and error.
  */
-export type SignAuthEntry = (authEntry: string, opts?: {
-  networkPassphrase?: string;
-  address?: string;
-}) => Promise<{
-  signedAuthEntry: string;
-  signerAddress?: string;
-} & { error?: WalletError }>; 
+export type SignAuthEntry = (
+  authEntry: string,
+  opts?: {
+    networkPassphrase?: string;
+    address?: string;
+  }
+) => Promise<
+  {
+    signedAuthEntry: string;
+    signerAddress?: string;
+  } & { error?: WalletError }
+>;
+
 
 /**
  * Options for a smart contract client.
@@ -131,7 +143,18 @@ export type ClientOptions = {
    *
    * Matches signature of `signTransaction` from Freighter.
    */
-  signTransaction?: SignTransaction;
+
+    signTransaction?: SignTransaction;
+
+  // signTransaction?: (
+  //   tx: XDR_BASE64,
+  //   opts?: {
+  //     network?: string;
+  //     networkPassphrase?: string;
+  //     accountToSign?: string;
+  //   },
+  //   signer?: Keypair,
+  // ) => Promise<XDR_BASE64>;
   /**
    * A function to sign a specific auth entry for a transaction, using the
    * private key corresponding to the provided `publicKey`. This is only needed
@@ -141,7 +164,15 @@ export type ClientOptions = {
    *
    * Matches signature of `signAuthEntry` from Freighter.
    */
-  signAuthEntry?: SignAuthEntry;
+    
+      signAuthEntry?: SignAuthEntry;
+
+  // signAuthEntry?: (
+  //   entryXdr: XDR_BASE64,
+  //   opts?: {
+  //     accountToSign?: string;
+  //   },
+  // ) => Promise<XDR_BASE64>;
   /** The address of the contract the client will interact with. */
   contractId: string;
   /**
@@ -218,24 +249,11 @@ export type AssembledTransactionOptions<T = string> = MethodOptions &
     method: string;
     args?: any[];
     parseResultXdr: (xdr: xdr.ScVal) => T;
-
-    /**
-     * The address of the account that should sign the transaction. Useful when
-     * a wallet holds multiple addresses to ensure signing with the intended one.
-     */
+    
     address?: string;
-
-    /**
-     * This option will be passed through to the SEP43-compatible wallet extension. If true, and if the wallet supports it, the transaction will be signed and immediately submitted to the network by the wallet, bypassing the submit logic in {@link SentTransaction}.
-     * @default false
-     */
     submit?: boolean;
-
-    /**
-     * The URL of the network to which the transaction should be submitted.
-     * Only applicable when 'submit' is set to true.
-     */
     submitUrl?: string;
+
   };
 
 /**
