@@ -1,5 +1,5 @@
 const { spawnSync } = require("node:child_process");
-const { contract, Keypair } = require("../../../lib");
+const { contract, Keypair, rpc } = require("../../../lib");
 const path = require("node:path");
 
 /*
@@ -67,17 +67,13 @@ const networkPassphrase =
   process.env.SOROBAN_NETWORK_PASSPHRASE ??
   "Standalone Network ; February 2017";
 module.exports.networkPassphrase = networkPassphrase;
-const friendbotUrl =
-  process.env.SOROBAN_FRIENDBOT_URL ?? "http://localhost:8000/friendbot";
-module.exports.friendbotUrl = friendbotUrl;
 
 async function generateFundedKeypair() {
   const keypair = Keypair.random();
-  await fetch(
-    friendbotUrl === "https://friendbot.stellar.org"
-      ? `${friendbotUrl}/?addr=${keypair.publicKey()}`
-      : `${friendbotUrl}/friendbot?addr=${keypair.publicKey()}`,
-  );
+  const server = new rpc.Server(rpcUrl, {
+    allowHttp: rpcUrl.startsWith("http://") ?? false,
+  });
+  await server.requestAirdrop(keypair.publicKey());
   return keypair;
 }
 module.exports.generateFundedKeypair = generateFundedKeypair;
