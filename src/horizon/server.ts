@@ -200,6 +200,17 @@ export class HorizonServer {
   }
 
   /**
+   * Fetch the Horizon server's root endpoint.
+   * @returns {Promise<HorizonApi.RootResponse>} Promise that resolves to the root endpoint returned by Horizon.
+   */
+  public async root(): Promise<HorizonApi.RootResponse> {
+    const cb = new CallBuilder<HorizonApi.RootResponse>(
+      URI(this.serverURL as any),
+    );
+    return cb.call();
+  }
+
+  /**
    * Submits a transaction to the network.
    *
    * By default this function calls {@link Horizon.Server#checkMemoRequired}, you can

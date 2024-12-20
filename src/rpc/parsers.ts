@@ -83,6 +83,7 @@ export function parseRawEvents(
 ): Api.GetEventsResponse {
   return {
     latestLedger: raw.latestLedger,
+    cursor: raw.cursor,
     events: (raw.events ?? []).map((evt) => {
       const clone: Omit<Api.RawEventResponse, 'contractId'> = { ...evt };
       delete (clone as any).contractId; // `as any` hack because contractId field isn't optional
