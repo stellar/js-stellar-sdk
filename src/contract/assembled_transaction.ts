@@ -690,7 +690,7 @@ export class AssembledTransaction<T> {
 
     if (signTransaction instanceof Keypair) {
       const keypair = signTransaction;
-      signTransaction = basicNodeSigner(keypair, this.options.networkPassphrase).signTransaction;
+      signFunction = basicNodeSigner(keypair, this.options.networkPassphrase).signTransaction;
     } else if (typeof signTransaction === 'function') {
       signFunction = signTransaction;
     }
