@@ -7,6 +7,16 @@ A breaking change will get clearly marked in this log.
 ## Unreleased
 
 
+## [v13.1.0](https://github.com/stellar/js-stellar-sdk/compare/v13.0.0...v13.1.0)
+
+### Added
+* Added `Horizon.Server.root` to obtain information from the Horizon root endpoint ([#1122](https://github.com/stellar/js-stellar-sdk/pull/1122/)).
+
+### Fixed
+* When using a friendbot that points to a Horizon instance that has ledger metadata disabled, you can no longer extract the account sequence from the response. Instead, we hit RPC directly ([#1107](https://github.com/stellar/js-stellar-sdk/pull/1107/)).
+* `rpc.Server.getEvents()` now correctly returns the `cursor` field at the top-level response ([#1124](https://github.com/stellar/js-stellar-sdk/pull/1124)).
+
+
 ## [v13.0.0](https://github.com/stellar/js-stellar-sdk/compare/v12.3.0...v13.0.0)
 This is a direct re-tag of rc.2 with the only change being an upgrade to the `stellar-base` library to incorporate a patch release. Nonetheless, the entire changelog from the prior major version here is replicated for a comprehensive view on what's broken, added, and fixed.
 
@@ -298,7 +308,7 @@ interface FeeDistribution {
 
 ### Added
 - `rpc.server.simulateTransaction` now supports an optional `stateChanges?: LedgerEntryChange[]` field ([#963](https://github.com/stellar/js-stellar-sdk/pull/963)):
-  * If `Before` is omitted, it constitutes a creation, if `After` is omitted, it constitutes a deletions, note that `Before` and `After` cannot be be omitted at the same time. Each item follows this schema:
+  * If `Before` is omitted, it constitutes a creation, if `After` is omitted, it constitutes a deletions, note that `Before` and `After` cannot be omitted at the same time. Each item follows this schema:
 
 ```typescript
 interface LedgerEntryChange {
@@ -348,7 +358,7 @@ import {
 +import { Spec } from '@stellar/stellar-sdk/contract'
 ```
 
-- Previously, `AssembledTransaction.signAndSend()` would return a `SentTransaction` even if the transaction never finalized. That is, if it successfully sent the transaction to the network, but the transaction was still `status: 'PENDING'`, then it would `console.error` an error message, but return the indeterminate transaction anyhow. **It now throws** a `SentTransaction.Errors.TransactionStillPending` error with that error message instead ([#962](https://github.com/stellar/js-stellar-sdk/pull/962)).
+- Previously, `AssembledTransaction.signAndSend()` would return a `SentTransaction` even if the transaction was never finalized. That is, if it successfully sent the transaction to the network, but the transaction was still `status: 'PENDING'`, then it would `console.error` an error message, but return the indeterminate transaction anyhow. **It now throws** a `SentTransaction.Errors.TransactionStillPending` error with that error message instead ([#962](https://github.com/stellar/js-stellar-sdk/pull/962)).
 
 ### Deprecated
 
@@ -732,7 +742,7 @@ Refer to the release notes for the betas (e.g. [v9.0.0-beta.0](https://github.co
 
 ### Updates
 
-- Updates the following SEP-10 utility functions to be compilant with the protocols ([#709](https://github.com/stellar/js-stellar-sdk/pull/709/), [stellar-protocol/#1036](https://github.com/stellar/stellar-protocol/pull/1036))
+- Updates the following SEP-10 utility functions to be compliant with the protocols ([#709](https://github.com/stellar/js-stellar-sdk/pull/709/), [stellar-protocol/#1036](https://github.com/stellar/stellar-protocol/pull/1036))
     - Updated `utils.buildChallengeTx()` to accept muxed accounts (`M...`) for client account IDs
     - Updated `utils.buildChallengeTx()` to accept a `memo` parameter to attach to the challenge transaction
     - Updated `utils.readChallengeTx()` to provide a `memo` property in the returned object
@@ -1052,7 +1062,7 @@ The following functions were renamed:
 - `xdr.OperationType.setOption()` -> `xdr.OperationType.setOptions()`
 - `xdr.OperationType.manageDatum()` -> `xdr.OperationType.manageData()`
 
-The following enum values were rename in `OperationType`:
+The following enum values were renamed in `OperationType`:
 
 - `setOption` -> `setOptions`
 - `manageDatum` -> `manageData`

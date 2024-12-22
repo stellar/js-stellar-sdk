@@ -13,7 +13,11 @@ describe("Server#getEvents", function () {
   });
 
   it("requests the correct endpoint", function (done) {
-    let result = { latestLedger: 0, events: [] };
+    let result = {
+      cursor: "164090849041387521-3",
+      latestLedger: 0,
+      events: [],
+    };
     setupMock(
       this.axiosMock,
       {
@@ -38,6 +42,7 @@ describe("Server#getEvents", function () {
   it("can build wildcard filters", function (done) {
     let result = {
       latestLedger: 1,
+      cursor: "164090849041387521-3",
       events: filterEvents(getEventsResponseFixture, "*/*"),
     };
     expect(result.events).to.not.have.lengthOf(0, JSON.stringify(result));
@@ -76,6 +81,7 @@ describe("Server#getEvents", function () {
   it("can build matching filters", function (done) {
     let result = {
       latestLedger: 1,
+      cursor: "164090849041387521-3",
       events: filterEvents(
         getEventsResponseFixture,
         `${topicVals[0]}/${topicVals[1]}`,
@@ -116,6 +122,7 @@ describe("Server#getEvents", function () {
   it("can build mixed filters", function (done) {
     let result = {
       latestLedger: 3,
+      cursor: "164090849041387521-3",
       events: filterEventsByLedger(
         filterEvents(getEventsResponseFixture, `${topicVals[0]}/*`),
         2,
@@ -156,6 +163,7 @@ describe("Server#getEvents", function () {
   it("can paginate", function (done) {
     let result = {
       latestLedger: 3,
+      cursor: "164090849041387521-3",
       events: filterEventsByLedger(
         filterEvents(getEventsResponseFixture, "*/*"),
         2,
