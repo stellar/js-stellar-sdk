@@ -290,6 +290,8 @@ export namespace HorizonApi {
     asset_code?: string;
     asset_issuer?: string;
     amount: string;
+    to_muxed?: string;
+    to_muxed_id?: string;
   }
   export interface PathPaymentOperationResponse
     extends BaseOperationResponse<
