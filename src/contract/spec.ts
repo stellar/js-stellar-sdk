@@ -154,7 +154,7 @@ const PRIMITIVE_DEFINITONS: { [key: string]: JSONSchema7Definition } = {
   },
   ScSymbol: {
     type: "string",
-    description: "ScString is a string",
+    description: "ScSymbol is a string",
   },
   DataUrl: {
     type: "string",
