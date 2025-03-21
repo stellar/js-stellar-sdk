@@ -121,6 +121,9 @@
     ]
   },
   "mocha": {
+    "node-option": [
+      "no-experimental-detect-module"
+    ],
     "reporter": "spec",
     "require": [
       "@babel/register",
