@@ -26,7 +26,18 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Publish npm package
-        run: yarn publish --access public
+      - name: Publish npm package to both places
+        run: |
+          yarn publish --access public
+          sed -i -e 's#"@stellar/stellar-sdk"#"stellar-sdk"#' package.json
+          yarn publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Deprecate the old package
+        run: |
+          V=$(cat package.json | jq '.version' | sed -e 's/\"//g')
+          echo "Deprecating stellar-sdk@$V"
+          npm deprecate stellar-sdk@"<= $V" "⚠️ This package has moved to @stellar/stellar-sdk! 🚚"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
