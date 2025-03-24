@@ -18,6 +18,9 @@
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
   "browser": "./dist/stellar-sdk.min.js",
+  "bin": {
+    "stellar-contract-bindings-typescript": "./lib/cli/index.js"
+  },
   "files": [
     "/types",
     "/lib",
@@ -216,6 +219,7 @@
     "@stellar/stellar-base": "^13.0.1",
     "axios": "^1.7.9",
     "bignumber.js": "^9.1.2",
+    "commander": "^11.1.0",
     "eventsource": "^2.0.2",
     "feaxios": "^0.0.23",
     "randombytes": "^2.1.0",
