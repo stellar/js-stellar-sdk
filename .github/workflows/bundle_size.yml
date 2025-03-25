@@ -5,14 +5,16 @@ on:
 
 jobs:
   build:
+    env:
+      NODE: "20"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Node.js 20
+      - name: Install Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: ${{ env.NODE }}
 
       # Workaround for some `yarn` nonsense, see:
       # https://github.com/yarnpkg/yarn/issues/6312#issuecomment-429685210
