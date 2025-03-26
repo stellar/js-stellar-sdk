@@ -7,6 +7,8 @@ on:
 
 jobs:
   test:
+    env:
+      NODE: "20"
     name: test contract.Client
     runs-on: ubuntu-22.04
     services:
@@ -33,6 +35,9 @@ jobs:
         path: |
           target/
         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+    - uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE }}
 
     # Workaround for some `yarn` nonsense, see:
     # https://github.com/yarnpkg/yarn/issues/6312#issuecomment-429685210
@@ -40,4 +45,3 @@ jobs:
     - run: yarn install --network-concurrency 1
     - run: yarn build:prod
     - run: yarn test:e2e
-
