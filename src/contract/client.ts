@@ -68,13 +68,15 @@ export class Client {
         salt?: Buffer | Uint8Array;
         /** The format used to decode `wasmHash`, if it's provided as a string. */
         format?: "hex" | "base64";
+        /** The address to use to deploy the custom contract */
+        address?: string;
       }
   ): Promise<AssembledTransaction<T>> {
     const { wasmHash, salt, format, fee, timeoutInSeconds, simulate, ...clientOptions } = options;
     const spec = await specFromWasmHash(wasmHash, clientOptions, format);
 
     const operation = Operation.createCustomContract({
-      address: new Address(options.publicKey!),
+      address: new Address(options.address || options.publicKey!),
       wasmHash: typeof wasmHash === "string"
         ? Buffer.from(wasmHash, format ?? "hex")
         : (wasmHash as Buffer),
