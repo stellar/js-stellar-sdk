@@ -6,6 +6,9 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Fixed
+* Extend support for parsing contract specifications in environments that don't have WebAssembly compilers ([#1157](https://github.com/stellar/js-stellar-sdk/pull/1157)).
+
 
 ## [v13.1.0](https://github.com/stellar/js-stellar-sdk/compare/v13.0.0...v13.1.0)
 

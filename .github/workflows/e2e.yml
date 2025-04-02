@@ -9,8 +9,13 @@ jobs:
   test:
     env:
       NODE: "20"
-    name: test contract.Client
+    name: Test contract.Client (${{ matrix.job }})
     runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        job: ["test:e2e", "test:e2e:noeval"]
     services:
       rpc:
         image: stellar/quickstart:testing@sha256:5333ec87069efd7bb61f6654a801dc093bf0aad91f43a5ba84806d3efe4a6322
@@ -44,4 +49,4 @@ jobs:
     - run: rustup target add wasm32-unknown-unknown
     - run: yarn install --network-concurrency 1
     - run: yarn build:prod
-    - run: yarn test:e2e
+    - run: yarn ${{ matrix.job }}
