@@ -6,6 +6,13 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+## [v13.2.0](https://github.com/stellar/js-stellar-sdk/compare/v13.1.0...v13.2.0)
+
+### Added
+
+### Fixed
+* Upgraded `@stellar/stellar-base` dependency to latest version ([]()).
+
 
 ## [v13.1.0](https://github.com/stellar/js-stellar-sdk/compare/v13.0.0...v13.1.0)
 
