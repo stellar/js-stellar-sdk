@@ -9,6 +9,7 @@ A breaking change will get clearly marked in this log.
 ## [v13.2.0](https://github.com/stellar/js-stellar-sdk/compare/v13.1.0...v13.2.0)
 
 ### Added
+* Support passing in an optional `options.address` to the `contract.Client.deploy` method ([#1158](https://github.com/stellar/js-stellar-sdk/pull/1158)).
 
 ### Fixed
 * Upgraded `@stellar/stellar-base` dependency to latest version ([]()).
