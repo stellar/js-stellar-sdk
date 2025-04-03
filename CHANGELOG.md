@@ -6,8 +6,15 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+
+## [v13.2.0](https://github.com/stellar/js-stellar-sdk/compare/v13.1.0...v13.2.0)
+
+### Added
+* Support passing in an optional `options.address` to the `contract.Client.deploy` method ([#1158](https://github.com/stellar/js-stellar-sdk/pull/1158)).
+
 ### Fixed
 * Extend support for parsing contract specifications in environments that don't have WebAssembly compilers ([#1157](https://github.com/stellar/js-stellar-sdk/pull/1157)).
+* Upgraded `@stellar/stellar-base` dependency to latest version ([#1159](https://github.com/stellar/js-stellar-sdk/pull/1159)).
 
 
 ## [v13.1.0](https://github.com/stellar/js-stellar-sdk/compare/v13.0.0...v13.1.0)
