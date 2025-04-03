@@ -189,7 +189,9 @@ export declare class SentTransaction&lt;T> {
      * Initialize a `SentTransaction` from `options` and a `signed`
      * AssembledTransaction. This will also send the transaction to the network.
      */
-    static init: &lt;U>(assembled: AssembledTransaction&lt;U>) => Promise&lt;SentTransaction&lt;U>>;
+    static init: &lt;U>(
+    /** {@link AssembledTransaction} from which this SentTransaction was initialized */
+    assembled: AssembledTransaction&lt;U>) => Promise&lt;SentTransaction&lt;U>>;
     private send;
     get result(): T;
 }

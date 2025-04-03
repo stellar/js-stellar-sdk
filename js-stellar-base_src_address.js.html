@@ -185,10 +185,10 @@ export class Address {
    * @returns {Address}
    */
   static fromScAddress(scAddress) {
-    switch (scAddress.switch()) {
-      case xdr.ScAddressType.scAddressTypeAccount():
+    switch (scAddress.switch().value) {
+      case xdr.ScAddressType.scAddressTypeAccount().value:
         return Address.account(scAddress.accountId().ed25519());
-      case xdr.ScAddressType.scAddressTypeContract():
+      case xdr.ScAddressType.scAddressTypeContract().value:
         return Address.contract(scAddress.contractId());
       default:
         throw new Error('Unsupported address type');

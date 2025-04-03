@@ -1676,10 +1676,16 @@ anything with a <code>sign(Buffer): Buffer</code> method) or a callback function
   
 
   <td class="description last"><p>either a <a href="Keypair.html">Keypair</a> instance
-or a function which takes a payload (a
-xdr.HashIdPreimageSorobanAuthorization instance) input and returns
-the signature of the hash of the raw payload bytes (where the signing key
-should correspond to the address in the <code>entry</code>)</p></td>
+or a function which takes a xdr.HashIdPreimageSorobanAuthorization
+input payload and returns EITHER</p>
+<pre><code> (a) an object containing a `signature` of the hash of the raw payload bytes
+     as a Buffer-like and a `publicKey` string representing who just
+     created this signature, or
+ (b) just the naked signature of the hash of the raw payload bytes (where
+     the signing key is implied to be the address in the `entry`).
+</code></pre>
+<p>The latter option (b) is JUST for backwards compatibility and will be
+removed in the future.</p></td>
 </tr>
 
 
@@ -1805,7 +1811,7 @@ into the signature (see <a href="global.html#Networks">Networks</a> for options)
         <p class="tag-source">
             <a href="js-stellar-base_src_auth.js.html" class="button">View Source</a>
             <span>
-                <a href="js-stellar-base_src_auth.js.html">js-stellar-base/src/auth.js</a>, <a href="js-stellar-base_src_auth.js.html#line106">line 106</a>
+                <a href="js-stellar-base_src_auth.js.html">js-stellar-base/src/auth.js</a>, <a href="js-stellar-base_src_auth.js.html#line116">line 116</a>
             </span>
         </p>
     
@@ -2203,7 +2209,7 @@ Networks.FUTURENET)</p></td>
         <p class="tag-source">
             <a href="js-stellar-base_src_auth.js.html" class="button">View Source</a>
             <span>
-                <a href="js-stellar-base_src_auth.js.html">js-stellar-base/src/auth.js</a>, <a href="js-stellar-base_src_auth.js.html#line209">line 209</a>
+                <a href="js-stellar-base_src_auth.js.html">js-stellar-base/src/auth.js</a>, <a href="js-stellar-base_src_auth.js.html#line226">line 226</a>
             </span>
         </p>
     
@@ -4422,7 +4428,7 @@ return an <code>scvSymbol</code>, whereas without the type it would have been an
         <p class="tag-source">
             <a href="js-stellar-base_src_scval.js.html" class="button">View Source</a>
             <span>
-                <a href="js-stellar-base_src_scval.js.html">js-stellar-base/src/scval.js</a>, <a href="js-stellar-base_src_scval.js.html#line139">line 139</a>
+                <a href="js-stellar-base_src_scval.js.html">js-stellar-base/src/scval.js</a>, <a href="js-stellar-base_src_scval.js.html#line140">line 140</a>
             </span>
         </p>
     
@@ -4920,7 +4926,7 @@ value to return its underlying XDR value.</p>
         <p class="tag-source">
             <a href="js-stellar-base_src_scval.js.html" class="button">View Source</a>
             <span>
-                <a href="js-stellar-base_src_scval.js.html">js-stellar-base/src/scval.js</a>, <a href="js-stellar-base_src_scval.js.html#line296">line 296</a>
+                <a href="js-stellar-base_src_scval.js.html">js-stellar-base/src/scval.js</a>, <a href="js-stellar-base_src_scval.js.html#line294">line 294</a>
             </span>
         </p>
     
@@ -6800,7 +6806,7 @@ and the signer address back to the requester.</p>
         
         <span class="code-name">
             
-                SigningCallback<span class="signature">(preimage)</span><span class="type-signature"> &rarr; {Promise.&lt;Uint8Array>}</span>
+                SigningCallback<span class="signature">(preimage)</span><span class="type-signature"></span>
             
         </span>
     </h4>
@@ -6940,20 +6946,6 @@ if necessary (rather than blindly signing a hash)</p></td>
 
 <div class="columns">
     
-    <div class='param-desc column is-7'><p>the signature of the raw payload (which is
-the sha256 hash of the preimage bytes, so <code>hash(preimage.toXDR())</code>) signed
-by the key corresponding to the public key in the entry you pass to
-<a href="global.html#authorizeEntry">authorizeEntry</a> (decipherable from its
-<code>credentials().address().address()</code>)</p></div>
-    
-    
-    <div class='column is-5 has-text-left'>
-        <label>Type: </label>
-        
-<code class="param-type">Promise.&lt;Uint8Array></code>
-
-
-    </div>
     
 </div>
 
