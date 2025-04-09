@@ -602,7 +602,7 @@ export class RpcServer {
   public async getTransactions(request: Api.GetTransactionsRequest): Promise<Api.GetTransactionsResponse> {
     return this._getTransactions(request).then((raw: Api.RawGetTransactionsResponse) => {
       const result: Api.GetTransactionsResponse = {
-        transactions: raw.transactions.map(parseRawTransactions),
+        transactions: (raw.transactions || []).map(parseRawTransactions),
         latestLedger: raw.latestLedger,
         latestLedgerCloseTimestamp: raw.latestLedgerCloseTimestamp,
         oldestLedger: raw.oldestLedger,
