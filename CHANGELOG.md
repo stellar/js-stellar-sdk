@@ -6,8 +6,15 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+
+## [v13.3.0](https://github.com/stellar/js-stellar-sdk/compare/v13.2.0...v13.3.0)
+
 ### Added
 * Add `includeFailed` to `PaymentCallBuilder` for including failed transactions in calls ([#1168](https://github.com/stellar/js-stellar-sdk/pull/1168)).
+
+### Fixed
+* Ensure that `rpc.Api.GetTransactionsResponse.transactions` is always a valid array ([#1162](https://github.com/stellar/js-stellar-sdk/pull/1162)).
+
 
 ## [v13.2.0](https://github.com/stellar/js-stellar-sdk/compare/v13.1.0...v13.2.0)
 
