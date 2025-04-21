@@ -71,10 +71,8 @@ function stringToScVal(str: string, ty: xdr.ScSpecType): xdr.ScVal {
       return xdr.ScVal.scvString(str);
     case xdr.ScSpecType.scSpecTypeSymbol().value:
       return xdr.ScVal.scvSymbol(str);
-    case xdr.ScSpecType.scSpecTypeAddress().value: {
-      const addr = Address.fromString(str as string);
-      return xdr.ScVal.scvAddress(addr.toScAddress());
-    }
+    case xdr.ScSpecType.scSpecTypeAddress().value:
+      return Address.fromString(str).toScVal();
     case xdr.ScSpecType.scSpecTypeU64().value:
       return new XdrLargeInt("u64", str).toScVal();
     case xdr.ScSpecType.scSpecTypeI64().value:
@@ -1159,4 +1157,3 @@ export class Spec {
     return res;
   }
 }
-

@@ -1,6 +1,6 @@
 {
   "name": "@stellar/stellar-sdk",
-  "version": "13.2.0",
+  "version": "13.3.0",
   "description": "A library for working with the Stellar network, including communication with the Horizon and Soroban RPC servers.",
   "keywords": [
     "stellar"
@@ -176,7 +176,7 @@
     "chai-as-promised": "^7.1.1",
     "chai-http": "^4.3.0",
     "cross-env": "^7.0.3",
-    "dotenv": "^16.4.7",
+    "dotenv": "^16.5.0",
     "eslint": "^8.57.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-airbnb-typescript": "^18.0.0",
@@ -190,7 +190,7 @@
     "ghooks": "^2.0.4",
     "husky": "^9.1.6",
     "jsdoc": "^4.0.4",
-    "json-schema-faker": "^0.5.8",
+    "json-schema-faker": "^0.5.9",
     "karma": "^6.4.3",
     "karma-chai": "^0.1.0",
     "karma-chrome-launcher": "^3.1.0",
@@ -199,7 +199,7 @@
     "karma-mocha": "^2.0.0",
     "karma-sinon-chai": "^2.0.2",
     "karma-webpack": "^5.0.1",
-    "lint-staged": "^15.5.0",
+    "lint-staged": "^15.5.1",
     "lodash": "^4.17.21",
     "mocha": "^10.8.2",
     "node-polyfill-webpack-plugin": "^3.0.0",
@@ -212,14 +212,14 @@
     "taffydb": "^2.7.3",
     "terser-webpack-plugin": "^5.3.14",
     "ts-node": "^10.9.2",
-    "typescript": "^5.8.2",
-    "webpack": "^5.98.0",
+    "typescript": "^5.8.3",
+    "webpack": "^5.99.6",
     "webpack-cli": "^5.0.1"
   },
   "dependencies": {
     "@stellar/stellar-base": "^13.1.0",
     "axios": "^1.8.4",
-    "bignumber.js": "^9.1.2",
+    "bignumber.js": "^9.3.0",
     "eventsource": "^2.0.2",
     "feaxios": "^0.0.23",
     "randombytes": "^2.1.0",
