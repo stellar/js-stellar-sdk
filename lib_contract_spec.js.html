@@ -175,10 +175,7 @@ function stringToScVal(str, ty) {
     case _stellarBase.xdr.ScSpecType.scSpecTypeSymbol().value:
       return _stellarBase.xdr.ScVal.scvSymbol(str);
     case _stellarBase.xdr.ScSpecType.scSpecTypeAddress().value:
-      {
-        const addr = _stellarBase.Address.fromString(str);
-        return _stellarBase.xdr.ScVal.scvAddress(addr.toScAddress());
-      }
+      return _stellarBase.Address.fromString(str).toScVal();
     case _stellarBase.xdr.ScSpecType.scSpecTypeU64().value:
       return new _stellarBase.XdrLargeInt("u64", str).toScVal();
     case _stellarBase.xdr.ScSpecType.scSpecTypeI64().value:

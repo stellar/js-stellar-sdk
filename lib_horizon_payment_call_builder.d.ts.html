@@ -147,6 +147,14 @@ export declare class PaymentCallBuilder extends CallBuilder&lt;ServerApi.Collect
      * @returns {PaymentCallBuilder} this PaymentCallBuilder instance
      */
     forTransaction(transactionId: string): this;
+    /**
+     * Adds a parameter defining whether to include failed transactions.
+     *   By default, only operations of successful transactions are returned.
+     *
+     * @param {boolean} value Set to `true` to include operations of failed transactions.
+     * @returns {PaymentCallBuilder} this PaymentCallBuilder instance
+     */
+    includeFailed(value: boolean): this;
 }
 </code></pre>
         </article>

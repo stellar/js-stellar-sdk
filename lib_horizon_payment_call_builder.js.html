@@ -164,6 +164,18 @@ class PaymentCallBuilder extends _call_builder.CallBuilder {
   forTransaction(transactionId) {
     return this.forEndpoint("transactions", transactionId);
   }
+
+  /**
+   * Adds a parameter defining whether to include failed transactions.
+   *   By default, only operations of successful transactions are returned.
+   *
+   * @param {boolean} value Set to `true` to include operations of failed transactions.
+   * @returns {PaymentCallBuilder} this PaymentCallBuilder instance
+   */
+  includeFailed(value) {
+    this.url.setQuery("include_failed", value.toString());
+    return this;
+  }
 }
 exports.PaymentCallBuilder = PaymentCallBuilder;</code></pre>
         </article>
