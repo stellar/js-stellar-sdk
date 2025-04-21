@@ -6,6 +6,8 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Added
+* Add `includeFailed` to `PaymentCallBuilder` for including failed transactions in calls ([#1168](https://github.com/stellar/js-stellar-sdk/pull/1168)).
 
 ## [v13.2.0](https://github.com/stellar/js-stellar-sdk/compare/v13.1.0...v13.2.0)
 

@@ -84,6 +84,16 @@ describe("horizon path tests", function () {
         .notify(done);
     });
 
+    it("server.payments().includeFailed(true) " + serverUrl, function (done) {
+      prepareAxios(this.axiosMock, "/payments?include_failed=true");
+      server
+        .payments()
+        .includeFailed(true)
+        .call()
+        .should.eventually.deep.equal(randomResult.data)
+        .notify(done);
+    });
+
     it(
       "server.transactions().transaction('fooTransactionId') " + serverUrl,
       function (done) {
