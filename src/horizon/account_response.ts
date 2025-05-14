@@ -35,6 +35,9 @@ export class AccountResponse {
   public readonly flags!: HorizonApi.Flags;
   public readonly balances!: HorizonApi.BalanceLine[];
   public readonly signers!: ServerApi.AccountRecordSigners[];
+  public readonly num_sponsoring!: number;
+  public readonly num_sponsored!: number;
+  public readonly sponsor?: string;
   public readonly data!: (options: {
     value: string;
   }) => Promise<{ value: string }>;
