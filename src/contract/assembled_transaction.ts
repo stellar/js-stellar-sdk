@@ -30,7 +30,7 @@ import {
   getAccount
 } from "./utils";
 import { DEFAULT_TIMEOUT } from "./types";
-import { SentTransaction } from "./sent_transaction";
+import { SentTransaction, Watcher } from "./sent_transaction";
 import { Spec } from "./spec";
 
 /** @module contract */
@@ -731,13 +731,15 @@ export class AssembledTransaction<T> {
 
   /**
    * Sends the transaction to the network to return a `SentTransaction` that
-   * keeps track of all the attempts to fetch the transaction.
+   * keeps track of all the attempts to fetch the transaction. Optionally pass
+   * a {@link Watcher} that allows you to keep track of the progress as the
+   * transaction is sent and processed.
    */
-  async send(){
+  async send(watcher?: Watcher){
     if(!this.signed){
       throw new Error("The transaction has not yet been signed. Run `sign` first, or use `signAndSend` instead.");
     }
-    const sent = await SentTransaction.init(this);
+    const sent = await SentTransaction.init(this, watcher);
     return sent;
   }
 
@@ -745,11 +747,14 @@ export class AssembledTransaction<T> {
    * Sign the transaction with the `signTransaction` function included previously.
    * If you did not previously include one, you need to include one now.
    * After signing, this method will send the transaction to the network and
-   * return a `SentTransaction` that keeps track * of all the attempts to fetch the transaction.
+   * return a `SentTransaction` that keeps track of all the attempts to fetch
+   * the transaction. You may pass a {@link Watcher} to keep
+   * track of this progress.
    */
   signAndSend = async ({
     force = false,
     signTransaction = this.options.signTransaction,
+    watcher,
   }: {
     /**
      * If `true`, sign and send the transaction even if it is a read call
@@ -759,6 +764,12 @@ export class AssembledTransaction<T> {
      * You must provide this here if you did not provide one before
      */
     signTransaction?: ClientOptions["signTransaction"];
+    /**
+     * A {@link Watcher} to notify after the transaction is successfully
+     * submitted to the network (`onSubmitted`) and as the transaction is
+     * processed (`onProgress`).
+     */
+    watcher?: Watcher,
   } = {}): Promise<SentTransaction<T>> => {
     if(!this.signed){
       // Store the original submit option
@@ -776,7 +787,7 @@ export class AssembledTransaction<T> {
         this.options.submit = originalSubmit;
       }
     }
-    return this.send();
+    return this.send(watcher);
   };
 
   /**
