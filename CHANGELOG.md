@@ -11,6 +11,43 @@ A breaking change will get clearly marked in this log.
 
 ### Added
 * Add `includeFailed` to `PaymentCallBuilder` for including failed transactions in calls ([#1168](https://github.com/stellar/js-stellar-sdk/pull/1168)).
+* `AssembledTransaction#signAndSend` now takes a `watcher` argument ([#1174](https://github.com/stellar/js-stellar-sdk/pull/1174)). This `watcher` is an abstract class with two optional methods: 
+
+  - `onSubmitted`: called with the return value from the `sendTransaction` call that submits the transaction to the network for processing
+  - `onProgress`: called with each return value of `getTransaction` that checks on the ongoing status of the transaction
+
+  For example, a `watcher` like this:
+
+  ```ts
+  await tx.signAndSend({ watcher: {
+    onSubmitted: ({ status, hash, latestLedger }) => {
+      console.log({ status, hash, latestLedger });
+    },
+    onProgress: ({ status, txHash, latestLedger }) => {
+      console.log({ status, txHash, latestLedger });
+    }
+  }});
+  ```
+
+  ...will result in output like:
+
+  ```
+  {
+    status: 'PENDING',
+    hash: '8239a5c6a3248966291a202bab2ba393dabc872947b5ee4224921b071850b021',
+    latestLedger: 25076
+  }
+  {
+    status: 'NOT_FOUND',
+    txHash: '8239a5c6a3248966291a202bab2ba393dabc872947b5ee4224921b071850b021',
+    latestLedger: 25076
+  }
+  {
+    status: 'SUCCESS',
+    txHash: '8239a5c6a3248966291a202bab2ba393dabc872947b5ee4224921b071850b021',
+    latestLedger: 25077
+  }
+  ```
 
 ### Fixed
 * Ensure that `rpc.Api.GetTransactionsResponse.transactions` is always a valid array ([#1162](https://github.com/stellar/js-stellar-sdk/pull/1162)).
