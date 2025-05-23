@@ -65,19 +65,21 @@ export class SentTransaction<T> {
   }
 
   /**
-   * Initialize a `SentTransaction` from `options` and a `signed`
-   * AssembledTransaction. This will also send the transaction to the network.
+   * Initialize a `SentTransaction` from {@link AssembledTransaction}
+   * `assembled`, passing an optional {@link Watcher} `watcher`. This will also
+   * send the transaction to the network.
    */
   static init = async <U>(
     /** {@link AssembledTransaction} from which this SentTransaction was initialized */
     assembled: AssembledTransaction<U>,
+    watcher?: Watcher,
   ): Promise<SentTransaction<U>> => {
     const tx = new SentTransaction(assembled);
-    const sent = await tx.send();
+    const sent = await tx.send(watcher);
     return sent;
   };
 
-  private send = async (): Promise<this> => {
+  private send = async (watcher?: Watcher): Promise<this> => {
     this.sendTransactionResponse = await this.server.sendTransaction(
       this.assembled.signed!,
     );
@@ -92,12 +94,18 @@ export class SentTransaction<T> {
       );
     }
 
+    if (watcher?.onSubmitted) watcher.onSubmitted(this.sendTransactionResponse)
+
     const { hash } = this.sendTransactionResponse;
 
     const timeoutInSeconds =
       this.assembled.options.timeoutInSeconds ?? DEFAULT_TIMEOUT;
     this.getTransactionResponseAll = await withExponentialBackoff(
-      () => this.server.getTransaction(hash),
+      async () => {
+        const tx = await this.server.getTransaction(hash)
+        if (watcher?.onProgress) watcher.onProgress(tx)
+        return tx
+      },
       (resp) => resp.status === Api.GetTransactionStatus.NOT_FOUND,
       timeoutInSeconds,
     );
@@ -160,4 +168,18 @@ export class SentTransaction<T> {
       `Sending transaction failed: ${JSON.stringify(this.assembled.signed)}`,
     );
   }
+}
+
+export abstract class Watcher {
+  /**
+   * Function to call after transaction has been submitted successfully to
+   * the network for processing
+   */
+  abstract onSubmitted?(response?: Api.SendTransactionResponse): void
+
+  /**
+   * Function to call every time the submitted transaction's status is
+   * checked while awaiting its full inclusion in the ledger
+   */
+  abstract onProgress?(response?: Api.GetTransactionResponse): void
 }

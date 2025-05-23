@@ -147,7 +147,14 @@ describe("Swap Contract Tests", function () {
     const txRoot = clientRoot.txFromXDR(xdrFromBob);
 
     await txRoot.simulate();
-    const result = await txRoot.signAndSend();
+    const result = await txRoot.signAndSend({ watcher: {
+      onSubmitted: ({ status, hash, latestLedger }) => {
+        console.log({ status, hash, latestLedger });
+      },
+      onProgress: ({ status, txHash, latestLedger }) => {
+        console.log({ status, txHash, latestLedger });
+      }
+    }});
 
     expect(result).to.have.property("sendTransactionResponse");
     expect(result.sendTransactionResponse).to.have.property(
