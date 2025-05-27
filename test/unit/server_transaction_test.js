@@ -377,4 +377,27 @@ describe("server.js transaction tests", function () {
         done(err);
       });
   });
+  it("sends a transaction and check the request headers", function (done) {
+    this.axiosMock
+      .expects("post")
+      .withArgs(
+        "https://horizon-live.stellar.org:1337/transactions",
+        `tx=${this.blob}`,
+        sinon.match({
+          headers: sinon.match({
+            "Content-Type": "application/x-www-form-urlencoded",
+          }),
+        }),
+      )
+      .returns(Promise.resolve({ data: {} }));
+
+    this.server
+      .submitTransaction(this.transaction, { skipMemoRequiredCheck: true })
+      .then(function () {
+        done();
+      })
+      .catch(function (err) {
+        done(err);
+      });
+  });
 });

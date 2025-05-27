@@ -332,7 +332,7 @@ export class HorizonServer {
         .segment("transactions")
         .toString(),
       `tx=${tx}`,
-      { timeout: SUBMIT_TRANSACTION_TIMEOUT },
+      { timeout: SUBMIT_TRANSACTION_TIMEOUT, headers: { "Content-Type": "application/x-www-form-urlencoded" } },
     )
       .then((response) => {
         if (!response.data.result_xdr) {
@@ -558,6 +558,7 @@ export class HorizonServer {
             .segment("transactions_async")
             .toString(),
         `tx=${tx}`,
+        { headers: {"Content-Type": "application/x-www-form-urlencoded"} }
     ).then((response) => response.data
     ).catch((response) => {
       if (response instanceof Error) {
