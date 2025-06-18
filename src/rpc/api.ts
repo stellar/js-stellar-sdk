@@ -126,12 +126,20 @@ export namespace Api {
     resultXdr?: string;
     resultMetaXdr?: string;
     diagnosticEventsXdr?: string[];
+
+    events?: RawGetTransactionEvents;
   }
 
   export interface GetTransactionsRequest {
     startLedger: number;
     cursor?: string;
     limit?: number;
+  }
+
+  export interface RawGetTransactionEvents {
+    diagnosticEventsXdr: string[];
+    transactionEventsXdr: string[];
+    contractEventsXdr: string[];
   }
 
   export interface RawTransactionInfo {
@@ -146,6 +154,14 @@ export namespace Api {
     resultXdr?: string;
     resultMetaXdr?: string;
     diagnosticEventsXdr?: string[];
+
+    events?: RawGetTransactionEvents;
+  }
+
+  export interface GetTransactionEvents {
+    diagnosticEvents: xdr.DiagnosticEvent[];
+    transactionEvents: xdr.TransactionEvent[];
+    contractEvents: xdr.ContractEvent[];
   }
 
   export interface TransactionInfo {
@@ -161,6 +177,8 @@ export namespace Api {
     resultMetaXdr: xdr.TransactionMeta;
     returnValue?: xdr.ScVal;
     diagnosticEventsXdr?: xdr.DiagnosticEvent[];
+
+    events: GetTransactionEvents;
   }
 
   export interface GetTransactionsResponse {
@@ -279,6 +297,8 @@ export namespace Api {
     auth: xdr.SorobanAuthorizationEntry[];
     retval: xdr.ScVal;
   }
+
+  export type SimulationAuthMode = "enforce" | "record" | "record_allow_nonroot";
 
   /**
    * Simplifies {@link Api.RawSimulateTransactionResponse} into separate interfaces

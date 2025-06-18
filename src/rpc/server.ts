@@ -127,8 +127,9 @@ function findCreatedAccountSequenceInTransactionMeta(
       break;
     case 1:
     case 2:
-    case 3: // all three have the same interface
-      operations = (meta.value() as xdr.TransactionMetaV3).operations();
+    case 3:
+    case 4: // all four have the same interface
+      operations = (meta.value() as xdr.TransactionMetaV4).operations();
       break;
     default:
       throw new Error('Unexpected transaction meta switch value');
@@ -613,8 +614,7 @@ export class RpcServer {
     });
   }
 
-  // Add this private method to the Server class
-  private async _getTransactions(request: Api.GetTransactionsRequest): Promise<Api.RawGetTransactionsResponse> {
+  async _getTransactions(request: Api.GetTransactionsRequest): Promise<Api.RawGetTransactionsResponse> {
     return jsonrpc.postObject(this.serverURL.toString(), 'getTransactions', request);
   }
 
@@ -729,17 +729,29 @@ export class RpcServer {
    * Submit a trial contract invocation to get back return values, expected
    * ledger footprint, expected authorizations, and expected costs.
    *
-   * @param {Transaction | FeeBumpTransaction} tx the transaction to
-   *    simulate, which should include exactly one operation (one of
+   * @param {Transaction | FeeBumpTransaction} tx the transaction to simulate,
+   *    which should include exactly one operation (one of
    *    {@link xdr.InvokeHostFunctionOp}, {@link xdr.ExtendFootprintTTLOp}, or
    *    {@link xdr.RestoreFootprintOp}). Any provided footprint or auth
    *    information will be ignored.
+   * @param {RpcServer.ResourceLeeway} [addlResources] any additional resources
+   *    to add to the simulation-provided ones, for example if you know you will
+   *    need extra CPU instructions
+   * @param {Api.SimulationAuthMode} [authMode] optionally, specify the type of
+   *    auth mode to use for simulation: `enforce` for enforcement mode,
+   *    `record` for recording mode, or `record_allow_nonroot` for recording
+   *    mode that allows non-root authorization
+   *
    * @returns {Promise<Api.SimulateTransactionResponse>} An object with the
    *    cost, footprint, result/auth requirements (if applicable), and error of
    *    the transaction
    *
-   * @see {@link https://developers.stellar.org/docs/learn/fundamentals/stellar-data-structures/operations-and-transactions | transaction docs}
-   * @see {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods/simulateTransaction | simulateTransaction docs}
+   * @see
+   * {@link https://developers.stellar.org/docs/learn/fundamentals/stellar-data-structures/operations-and-transactions | transaction docs}
+   * @see
+   * {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods/simulateTransaction | simulateTransaction docs}
+   * @see
+   * {@link https://developers.stellar.org/docs/learn/fundamentals/contract-development/contract-interactions/transaction-simulation#authorization | authorization modes}
    * @see module:rpc.Server#prepareTransaction
    * @see module:rpc.assembleTransaction
    *
@@ -769,27 +781,30 @@ export class RpcServer {
   // eslint-disable-next-line require-await
   public async simulateTransaction(
     tx: Transaction | FeeBumpTransaction,
-    addlResources?: RpcServer.ResourceLeeway
+    addlResources?: RpcServer.ResourceLeeway,
+    authMode?: Api.SimulationAuthMode,
   ): Promise<Api.SimulateTransactionResponse> {
-    return this._simulateTransaction(tx, addlResources)
+    return this._simulateTransaction(tx, addlResources, authMode)
       .then(parseRawSimulation);
   }
 
   // eslint-disable-next-line require-await
   public async _simulateTransaction(
     transaction: Transaction | FeeBumpTransaction,
-    addlResources?: RpcServer.ResourceLeeway
+    addlResources?: RpcServer.ResourceLeeway,
+    authMode?: Api.SimulationAuthMode,
   ): Promise<Api.RawSimulateTransactionResponse> {
     return jsonrpc.postObject(
       this.serverURL.toString(),
       'simulateTransaction',
       {
         transaction: transaction.toXDR(),
+        authMode: authMode ?? "",
         ...(addlResources !== undefined && {
           resourceConfig: {
             instructionLeeway: addlResources.cpuInstructions
           }
-        })
+        }),
       }
     );
   }
@@ -876,7 +891,7 @@ export class RpcServer {
   /**
    * Submit a real transaction to the Stellar network.
    *
-   * Unlike Horizon, Soroban RPC does not wait for transaction completion. It
+   * Unlike Horizon, RPC does not wait for transaction completion. It
    * simply validates the transaction and enqueues it. Clients should call
    * {@link module:rpc.Server#getTransaction} to learn about transaction
    * success/failure.
