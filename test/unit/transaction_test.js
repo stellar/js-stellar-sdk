@@ -179,8 +179,10 @@ describe("assembleTransaction", () => {
 
     it("works for all Soroban ops", function () {
       [
-        StellarSdk.Operation.invokeHostFunction({
-          func: xdr.HostFunction.hostFunctionTypeInvokeContract(),
+        StellarSdk.Operation.invokeContractFunction({
+          contract: StellarSdk.Asset.native().contractId(StellarSdk.Networks.TESTNET),
+          function: "hello",
+          args: [],
         }),
         StellarSdk.Operation.extendFootprintTtl({ extendTo: 27 }),
         StellarSdk.Operation.restoreFootprint(),
