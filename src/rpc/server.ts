@@ -491,7 +491,7 @@ export class RpcServer {
    *    to wait for between each attempt. By default, sleep for 1 second between
    *    each attempt.
    *
-   * @return {Promise<Api.GetTransactionsResponse>} the response after a "found"
+   * @returns {Promise<Api.GetTransactionsResponse>} the response after a "found"
    *    response (which may be success or failure) or the last response obtained
    *    after polling the maximum number of specified attempts.
    *
@@ -506,7 +506,7 @@ export class RpcServer {
     hash: string,
     opts?: RpcServer.PollingOptions
   ): Promise<Api.GetTransactionResponse> {
-    let maxAttempts: number = (
+    const maxAttempts: number = (
       (opts?.attempts ?? 0) < 1
       ? DEFAULT_GET_TRANSACTION_TIMEOUT
       : (opts?.attempts ?? DEFAULT_GET_TRANSACTION_TIMEOUT)
