@@ -201,7 +201,7 @@ export namespace Api {
     cursor: string;
   }
 
-  export type EventType = 'contract' | 'system' | 'diagnostic';
+  export type EventType = 'contract' | 'system';
 
   export interface EventFilter {
     type?: EventType;

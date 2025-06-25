@@ -586,6 +586,8 @@ export namespace HorizonApi {
     from: string;
     to: string;
     amount: string;
+    destination_muxed_id_type?: "uint64" | "string" | "bytes";
+    destination_muxed_id?: string;
   }
 
   export interface InvokeHostFunctionOperationResponse
