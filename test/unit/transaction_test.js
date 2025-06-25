@@ -180,7 +180,9 @@ describe("assembleTransaction", () => {
     it("works for all Soroban ops", function () {
       [
         StellarSdk.Operation.invokeContractFunction({
-          contract: StellarSdk.Asset.native().contractId(StellarSdk.Networks.TESTNET),
+          contract: StellarSdk.Asset.native().contractId(
+            StellarSdk.Networks.TESTNET,
+          ),
           function: "hello",
           args: [],
         }),

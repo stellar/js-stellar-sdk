@@ -1095,10 +1095,9 @@ export class RpcServer {
       const sacId = sac.contractId(passphrase);
 
       // Rust union enum type with "Balance(ScAddress)" structure
-      const key = xdr.ScVal.scvVec([
-        nativeToScVal("Balance", { type: "symbol" }),
-        nativeToScVal(contractId, { type: "address" }),
-      ]);
+      const key = nativeToScVal(["Balance", contractId], {
+        type: [ "symbol", "address" ]
+      });
 
       // Note a quirk here: the contract address in the key is the *token*
       // rather than the *holding contract*. This is because each token stores a
