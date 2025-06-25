@@ -1140,7 +1140,7 @@
   resolved "https://registry.yarnpkg.com/@nicolo-ribaudo/chokidar-2/-/chokidar-2-2.1.8-no-fsevents.3.tgz#323d72dd25103d0c4fbdce89dadf574a787b1f9b"
   integrity sha512-s88O1aVtXftvp5bCPB7WnmXc5IwOZZ7YPuwNPt+GtOOXpPvad1LfbmjYv+qII7zP6RU2QGnqve27dnLycEnyEQ==
 
-"@noble/curves@^1.9.1":
+"@noble/curves@^1.9.2":
   version "1.9.2"
   resolved "https://registry.yarnpkg.com/@noble/curves/-/curves-1.9.2.tgz#73388356ce733922396214a933ff7c95afcef911"
   integrity sha512-HxngEd2XUcg9xi20JkwlLCtYwfoFw4JGkuZpT+WlsPD4gB/cxkvTD8fSsoAnphGZhFdZYKeQIPCuFlWPm1uE0g==
@@ -1255,14 +1255,15 @@
   resolved "https://registry.yarnpkg.com/@stellar/js-xdr/-/js-xdr-3.1.2.tgz#db7611135cf21e989602fd72f513c3bed621bc74"
   integrity sha512-VVolPL5goVEIsvuGqDc5uiKxV03lzfWdvYg1KikvwheDmTBO68CKDji3bAZ/kppZrx5iTA8z3Ld5yuytcvhvOQ==
 
-"@stellar/stellar-base@git+https://github.com/stellar/js-stellar-base.git#protocol-23":
-  version "13.1.0"
-  resolved "git+https://github.com/stellar/js-stellar-base.git#2031ac9649f4be7562432778e137f1f8e0f13801"
+"@stellar/stellar-base@^14.0.0-rc.1":
+  version "14.0.0-rc.1"
+  resolved "https://registry.yarnpkg.com/@stellar/stellar-base/-/stellar-base-14.0.0-rc.1.tgz#69d19578264d8e76bbb2892aad1f35094e7e137a"
+  integrity sha512-N7/PRXiqkCdix4QiSY0UZjki4a7lggdVHG50F1YF28DQr6oKlpxbp/USL4Yx44crfCQsDJlEk9FMDGdJ2CaXmg==
   dependencies:
-    "@noble/curves" "^1.9.1"
+    "@noble/curves" "^1.9.2"
     "@stellar/js-xdr" "^3.1.2"
     base32.js "^0.1.0"
-    bignumber.js "^9.1.2"
+    bignumber.js "^9.3.0"
     buffer "^6.0.3"
     sha.js "^2.3.6"
 
@@ -2276,6 +2277,11 @@ bignumber.js@^9.1.2:
   version "9.1.2"
   resolved "https://registry.yarnpkg.com/bignumber.js/-/bignumber.js-9.1.2.tgz#b7c4242259c008903b13707983b5f4bbd31eda0c"
   integrity sha512-2/mKyZH9K85bzOEfhXDBFZTGd1CTs+5IHpeFQo9luiBG7hghdC851Pj2WAhb6E3R6b9tZj/XKhbg4fum+Kepug==
+
+bignumber.js@^9.3.0:
+  version "9.3.0"
+  resolved "https://registry.yarnpkg.com/bignumber.js/-/bignumber.js-9.3.0.tgz#bdba7e2a4c1a2eba08290e8dcad4f36393c92acd"
+  integrity sha512-EM7aMFTXbptt/wZdMlBv2t8IViwQL+h6SLHosp8Yf0dqJMTnY6iL32opnAB6kAdL0SZPuvcAzFr31o0c/R3/RA==
 
 binary-extensions@^2.0.0:
   version "2.3.0"
