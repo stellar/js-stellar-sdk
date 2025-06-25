@@ -211,7 +211,7 @@
     "taffydb": "^2.7.3",
     "terser-webpack-plugin": "^5.3.14",
     "ts-node": "^10.9.2",
-    "typescript": "^5.8.3",
+    "typescript": "5.6.3",
     "webpack": "^5.98.0",
     "webpack-cli": "^5.0.1"
   },
