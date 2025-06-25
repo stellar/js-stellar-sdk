@@ -102,6 +102,10 @@ export function parseRawEvents(
 ): Api.GetEventsResponse {
   return {
     latestLedger: raw.latestLedger,
+    oldestLedger: raw.oldestLedger,
+    latestLedgerCloseTime: raw.latestLedgerCloseTime,
+    oldestLedgerCloseTime: raw.oldestLedgerCloseTime,
+
     cursor: raw.cursor,
     events: (raw.events ?? []).map((evt) => {
       const clone: Omit<Api.RawEventResponse, 'contractId'> = { ...evt };

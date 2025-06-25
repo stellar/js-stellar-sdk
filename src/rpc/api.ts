@@ -211,6 +211,10 @@ export namespace Api {
 
   export interface GetEventsResponse {
     latestLedger: number;
+    oldestLedger: number;
+    latestLedgerCloseTime: string;
+    oldestLedgerCloseTime: string;
+
     events: EventResponse[];
     cursor: string;
   }
@@ -223,6 +227,10 @@ export namespace Api {
 
   export interface RawGetEventsResponse {
     latestLedger: number;
+    oldestLedger: number;
+    latestLedgerCloseTime: string;
+    oldestLedgerCloseTime: string;
+
     events: RawEventResponse[];
     cursor: string;
   }
