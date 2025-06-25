@@ -51,7 +51,7 @@ export function parseTransactionInfo(
         e => xdr.DiagnosticEvent.fromXDR(e, "base64")
       ) ?? [],
       contractEventsXdr: raw.events?.contractEventsXdr.map(
-        e => xdr.ContractEvent.fromXDR(e, "base64")
+        lst => lst.map(e => xdr.ContractEvent.fromXDR(e, "base64"))
       ) ?? [],
       transactionEventsXdr: raw.events?.transactionEventsXdr.map(
         e => xdr.TransactionEvent.fromXDR(e, "base64")
