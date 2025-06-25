@@ -90,6 +90,7 @@ export namespace Api {
     resultXdr: xdr.TransactionResult;
     resultMetaXdr: xdr.TransactionMeta;
     diagnosticEventsXdr?: xdr.DiagnosticEvent[];
+    events: GetTransactionEvents;
   }
 
   export interface GetSuccessfulTransactionResponse
@@ -105,7 +106,8 @@ export namespace Api {
     resultMetaXdr: xdr.TransactionMeta;
     diagnosticEventsXdr?: xdr.DiagnosticEvent[];
 
-    returnValue?: xdr.ScVal; // present iff resultMeta is a v3
+    returnValue?: xdr.ScVal; // present iff resultMeta is a v3|v4
+    events: GetTransactionEvents;
   }
 
   export interface RawGetTransactionResponse {
@@ -159,9 +161,9 @@ export namespace Api {
   }
 
   export interface GetTransactionEvents {
-    diagnosticEvents: xdr.DiagnosticEvent[];
-    transactionEvents: xdr.TransactionEvent[];
-    contractEvents: xdr.ContractEvent[];
+    diagnosticEventsXdr: xdr.DiagnosticEvent[];
+    transactionEventsXdr: xdr.TransactionEvent[];
+    contractEventsXdr: xdr.ContractEvent[];
   }
 
   export interface TransactionInfo {
