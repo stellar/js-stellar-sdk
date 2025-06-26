@@ -223,14 +223,14 @@ cd js-stellar-sdk
 yarn
 ```
 
-3. Install Node 18
+3. Install Node 20
 
-Because we support the oldest maintenance version of Node, please install and develop on Node 18 so you don't get surprised when your code works locally but breaks in CI.
+Because we support the oldest maintenance version of Node, please install and develop on Node 20 so you don't get surprised when your code works locally but breaks in CI.
 
 Here's how to install `nvm` if you haven't: https://github.com/creationix/nvm
 
 ```shell
-nvm install 18
+nvm install 20
 
 # if you've never installed 18 before you'll want to re-install yarn
 npm install -g yarn
