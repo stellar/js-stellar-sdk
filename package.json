@@ -211,12 +211,12 @@
     "taffydb": "^2.7.3",
     "terser-webpack-plugin": "^5.3.14",
     "ts-node": "^10.9.2",
-    "typescript": "^5.8.2",
+    "typescript": "5.6.3",
     "webpack": "^5.98.0",
     "webpack-cli": "^5.0.1"
   },
   "dependencies": {
-    "@stellar/stellar-base": "^13.0.1",
+    "@stellar/stellar-base": "^14.0.0-rc.1",
     "axios": "^1.8.4",
     "bignumber.js": "^9.1.2",
     "eventsource": "^2.0.2",

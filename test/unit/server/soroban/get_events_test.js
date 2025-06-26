@@ -16,6 +16,9 @@ describe("Server#getEvents", function () {
     let result = {
       cursor: "164090849041387521-3",
       latestLedger: 0,
+      oldestLedger: 0,
+      oldestLedgerCloseTime: "0",
+      latestLedgerCloseTime: "0",
       events: [],
     };
     setupMock(
@@ -41,7 +44,10 @@ describe("Server#getEvents", function () {
 
   it("can build wildcard filters", function (done) {
     let result = {
-      latestLedger: 1,
+      latestLedger: 0,
+      oldestLedger: 0,
+      oldestLedgerCloseTime: "0",
+      latestLedgerCloseTime: "0",
       cursor: "164090849041387521-3",
       events: filterEvents(getEventsResponseFixture, "*/*"),
     };
@@ -80,7 +86,10 @@ describe("Server#getEvents", function () {
 
   it("can build matching filters", function (done) {
     let result = {
-      latestLedger: 1,
+      latestLedger: 0,
+      oldestLedger: 0,
+      oldestLedgerCloseTime: "0",
+      latestLedgerCloseTime: "0",
       cursor: "164090849041387521-3",
       events: filterEvents(
         getEventsResponseFixture,
@@ -122,6 +131,9 @@ describe("Server#getEvents", function () {
   it("can build mixed filters", function (done) {
     let result = {
       latestLedger: 3,
+      oldestLedger: 3,
+      oldestLedgerCloseTime: "0",
+      latestLedgerCloseTime: "0",
       cursor: "164090849041387521-3",
       events: filterEventsByLedger(
         filterEvents(getEventsResponseFixture, `${topicVals[0]}/*`),
@@ -163,6 +175,9 @@ describe("Server#getEvents", function () {
   it("can paginate", function (done) {
     let result = {
       latestLedger: 3,
+      oldestLedger: 3,
+      oldestLedgerCloseTime: "0",
+      latestLedgerCloseTime: "0",
       cursor: "164090849041387521-3",
       events: filterEventsByLedger(
         filterEvents(getEventsResponseFixture, "*/*"),

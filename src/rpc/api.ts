@@ -90,6 +90,7 @@ export namespace Api {
     resultXdr: xdr.TransactionResult;
     resultMetaXdr: xdr.TransactionMeta;
     diagnosticEventsXdr?: xdr.DiagnosticEvent[];
+    events: TransactionEvents;
   }
 
   export interface GetSuccessfulTransactionResponse
@@ -105,7 +106,8 @@ export namespace Api {
     resultMetaXdr: xdr.TransactionMeta;
     diagnosticEventsXdr?: xdr.DiagnosticEvent[];
 
-    returnValue?: xdr.ScVal; // present iff resultMeta is a v3
+    returnValue?: xdr.ScVal; // present iff resultMeta is a v3|v4
+    events: TransactionEvents;
   }
 
   export interface RawGetTransactionResponse {
@@ -126,12 +128,20 @@ export namespace Api {
     resultXdr?: string;
     resultMetaXdr?: string;
     diagnosticEventsXdr?: string[];
+
+    events?: RawTransactionEvents;
   }
 
   export interface GetTransactionsRequest {
     startLedger: number;
     cursor?: string;
     limit?: number;
+  }
+
+  export interface RawTransactionEvents {
+    diagnosticEventsXdr: string[];
+    transactionEventsXdr: string[];
+    contractEventsXdr: string[][];
   }
 
   export interface RawTransactionInfo {
@@ -146,6 +156,14 @@ export namespace Api {
     resultXdr?: string;
     resultMetaXdr?: string;
     diagnosticEventsXdr?: string[];
+
+    events?: RawTransactionEvents;
+  }
+
+  export interface TransactionEvents {
+    diagnosticEventsXdr: xdr.DiagnosticEvent[];
+    transactionEventsXdr: xdr.TransactionEvent[];
+    contractEventsXdr: xdr.ContractEvent[][];
   }
 
   export interface TransactionInfo {
@@ -161,6 +179,8 @@ export namespace Api {
     resultMetaXdr: xdr.TransactionMeta;
     returnValue?: xdr.ScVal;
     diagnosticEventsXdr?: xdr.DiagnosticEvent[];
+
+    events: TransactionEvents;
   }
 
   export interface GetTransactionsResponse {
@@ -181,7 +201,7 @@ export namespace Api {
     cursor: string;
   }
 
-  export type EventType = 'contract' | 'system' | 'diagnostic';
+  export type EventType = 'contract' | 'system';
 
   export interface EventFilter {
     type?: EventType;
@@ -189,8 +209,14 @@ export namespace Api {
     topics?: string[][];
   }
 
-  export interface GetEventsResponse {
+  interface RetentionState {
     latestLedger: number;
+    oldestLedger: number;
+    latestLedgerCloseTime: string;
+    oldestLedgerCloseTime: string;
+  }
+
+  export interface GetEventsResponse extends RetentionState {
     events: EventResponse[];
     cursor: string;
   }
@@ -201,8 +227,7 @@ export namespace Api {
     value: xdr.ScVal;
   }
 
-  export interface RawGetEventsResponse {
-    latestLedger: number;
+  export interface RawGetEventsResponse extends RetentionState {
     events: RawEventResponse[];
     cursor: string;
   }
@@ -279,6 +304,8 @@ export namespace Api {
     auth: xdr.SorobanAuthorizationEntry[];
     retval: xdr.ScVal;
   }
+
+  export type SimulationAuthMode = "enforce" | "record" | "record_allow_nonroot";
 
   /**
    * Simplifies {@link Api.RawSimulateTransactionResponse} into separate interfaces

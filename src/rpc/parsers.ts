@@ -2,12 +2,12 @@ import { xdr, Contract, SorobanDataBuilder } from '@stellar/stellar-base';
 import { Api } from './api';
 
 /**
- * Parse the response from invoking the `submitTransaction` method of a Soroban RPC server.
+ * Parse the response from invoking the `submitTransaction` method of a RPC server.
  * @memberof module:rpc
  * @private
  *
- * @param {Api.RawSendTransactionResponse} raw the raw `submitTransaction` response from the Soroban RPC server to parse
- * @returns {Api.SendTransactionResponse} transaction response parsed from the Soroban RPC server's response
+ * @param {Api.RawSendTransactionResponse} raw the raw `submitTransaction` response from the RPC server to parse
+ * @returns {Api.SendTransactionResponse} transaction response parsed from the RPC server's response
  */
 export function parseRawSendTransaction(
   raw: Api.RawSendTransactionResponse
@@ -46,15 +46,31 @@ export function parseTransactionInfo(
     envelopeXdr: xdr.TransactionEnvelope.fromXDR(raw.envelopeXdr!, 'base64'),
     resultXdr: xdr.TransactionResult.fromXDR(raw.resultXdr!, 'base64'),
     resultMetaXdr: meta,
+    events: {
+      diagnosticEventsXdr: raw.events?.diagnosticEventsXdr.map(
+        e => xdr.DiagnosticEvent.fromXDR(e, "base64")
+      ) ?? [],
+      contractEventsXdr: raw.events?.contractEventsXdr.map(
+        lst => lst.map(e => xdr.ContractEvent.fromXDR(e, "base64"))
+      ) ?? [],
+      transactionEventsXdr: raw.events?.transactionEventsXdr.map(
+        e => xdr.TransactionEvent.fromXDR(e, "base64")
+      ) ?? [],
+    }
   };
 
-  if (meta.switch() === 3 && meta.v3().sorobanMeta() !== null) {
-    info.returnValue = meta.v3().sorobanMeta()?.returnValue();
+  switch (meta.switch()) {
+    case 3:
+    case 4:
+      const metaV = meta.value() as xdr.TransactionMetaV3 | xdr.TransactionMetaV4;
+      if (metaV.sorobanMeta() !== null) {
+        info.returnValue = metaV.sorobanMeta()?.returnValue() ?? undefined;
+      }
   }
 
-  if ('diagnosticEventsXdr' in raw && raw.diagnosticEventsXdr) {
+  if (raw.diagnosticEventsXdr) {
     info.diagnosticEventsXdr = raw.diagnosticEventsXdr.map(
-        diagnosticEvent => xdr.DiagnosticEvent.fromXDR(diagnosticEvent, 'base64')
+        e => xdr.DiagnosticEvent.fromXDR(e, 'base64')
     );
   }
 
@@ -72,17 +88,24 @@ export function parseRawTransactions(
 }
 
 /**
- * Parse and return the retrieved events, if any, from a raw response from a Soroban RPC server.
+ * Parse and return the retrieved events, if any, from a raw response from a
+ * RPC server.
  * @memberof module:rpc
  *
- * @param {Api.RawGetEventsResponse} raw the raw `getEvents` response from the Soroban RPC server to parse
- * @returns {Api.GetEventsResponse} events parsed from the Soroban RPC server's response
+ * @param {Api.RawGetEventsResponse} raw the raw `getEvents` response from the
+ *    RPC server to parse
+ * @returns {Api.GetEventsResponse} events parsed from the RPC server's
+ *    response
  */
 export function parseRawEvents(
   raw: Api.RawGetEventsResponse
 ): Api.GetEventsResponse {
   return {
     latestLedger: raw.latestLedger,
+    oldestLedger: raw.oldestLedger,
+    latestLedgerCloseTime: raw.latestLedgerCloseTime,
+    oldestLedgerCloseTime: raw.oldestLedgerCloseTime,
+
     cursor: raw.cursor,
     events: (raw.events ?? []).map((evt) => {
       const clone: Omit<Api.RawEventResponse, 'contractId'> = { ...evt };
@@ -100,12 +123,15 @@ export function parseRawEvents(
 }
 
 /**
- * Parse and return the retrieved ledger entries, if any, from a raw response from a Soroban RPC server.
+ * Parse and return the retrieved ledger entries, if any, from a raw response
+ * from a RPC server.
  * @memberof module:rpc
  * @private
  *
- * @param {Api.RawGetLedgerEntriesResponse} raw he raw `getLedgerEntries` response from the Soroban RPC server to parse
- * @returns {Api.GetLedgerEntriesResponse} ledger entries parsed from the Soroban RPC server's response
+ * @param {Api.RawGetLedgerEntriesResponse} raw the raw `getLedgerEntries`
+ *    response from the RPC server to parse
+ * @returns {Api.GetLedgerEntriesResponse} ledger entries parsed from the
+ *    RPC server's response
  */
 export function parseRawLedgerEntries(
   raw: Api.RawGetLedgerEntriesResponse
@@ -132,13 +158,20 @@ export function parseRawLedgerEntries(
 }
 
 /**
- * Parse whether or not the transaction simulation was successful, returning the relevant response.
+ * Parse whether or not the transaction simulation was successful, returning the
+ * relevant response.
  * @memberof module:rpc
  * @private
  *
- * @param {Api.RawSimulateTransactionResponse} sim a raw response from the `simulateTransaction` method of the Soroban RPC server to parse
- * @param {Api.BaseSimulateTransactionResponse} partial a partially built simulate transaction response that will be used to build the return response
- * @returns {Api.SimulateTransactionRestoreResponse | Api.SimulateTransactionSuccessResponse} Either a simulation response indicating what ledger entries should be restored, or if the simulation was successful.
+ * @param {Api.RawSimulateTransactionResponse} sim a raw response from the
+ *    `simulateTransaction` method of the RPC server to parse
+ * @param {Api.BaseSimulateTransactionResponse} partial a partially built
+ *    simulate transaction response that will be used to build the return
+ *    response
+ * @returns {Api.SimulateTransactionRestoreResponse |
+ *    Api.SimulateTransactionSuccessResponse} Either a simulation response
+ *    indicating what ledger entries should be restored, or if the simulation
+ *    was successful.
  */
 function parseSuccessful(
   sim: Api.RawSimulateTransactionResponse,
