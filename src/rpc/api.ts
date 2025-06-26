@@ -90,7 +90,7 @@ export namespace Api {
     resultXdr: xdr.TransactionResult;
     resultMetaXdr: xdr.TransactionMeta;
     diagnosticEventsXdr?: xdr.DiagnosticEvent[];
-    events: GetTransactionEvents;
+    events: TransactionEvents;
   }
 
   export interface GetSuccessfulTransactionResponse
@@ -107,7 +107,7 @@ export namespace Api {
     diagnosticEventsXdr?: xdr.DiagnosticEvent[];
 
     returnValue?: xdr.ScVal; // present iff resultMeta is a v3|v4
-    events: GetTransactionEvents;
+    events: TransactionEvents;
   }
 
   export interface RawGetTransactionResponse {
@@ -129,7 +129,7 @@ export namespace Api {
     resultMetaXdr?: string;
     diagnosticEventsXdr?: string[];
 
-    events?: RawGetTransactionEvents;
+    events?: RawTransactionEvents;
   }
 
   export interface GetTransactionsRequest {
@@ -138,7 +138,7 @@ export namespace Api {
     limit?: number;
   }
 
-  export interface RawGetTransactionEvents {
+  export interface RawTransactionEvents {
     diagnosticEventsXdr: string[];
     transactionEventsXdr: string[];
     contractEventsXdr: string[][];
@@ -157,10 +157,10 @@ export namespace Api {
     resultMetaXdr?: string;
     diagnosticEventsXdr?: string[];
 
-    events?: RawGetTransactionEvents;
+    events?: RawTransactionEvents;
   }
 
-  export interface GetTransactionEvents {
+  export interface TransactionEvents {
     diagnosticEventsXdr: xdr.DiagnosticEvent[];
     transactionEventsXdr: xdr.TransactionEvent[];
     contractEventsXdr: xdr.ContractEvent[][];
@@ -180,7 +180,7 @@ export namespace Api {
     returnValue?: xdr.ScVal;
     diagnosticEventsXdr?: xdr.DiagnosticEvent[];
 
-    events: GetTransactionEvents;
+    events: TransactionEvents;
   }
 
   export interface GetTransactionsResponse {
@@ -209,12 +209,14 @@ export namespace Api {
     topics?: string[][];
   }
 
-  export interface GetEventsResponse {
+  interface RetentionState {
     latestLedger: number;
     oldestLedger: number;
     latestLedgerCloseTime: string;
     oldestLedgerCloseTime: string;
+  }
 
+  export interface GetEventsResponse extends RetentionState {
     events: EventResponse[];
     cursor: string;
   }
@@ -225,12 +227,7 @@ export namespace Api {
     value: xdr.ScVal;
   }
 
-  export interface RawGetEventsResponse {
-    latestLedger: number;
-    oldestLedger: number;
-    latestLedgerCloseTime: string;
-    oldestLedgerCloseTime: string;
-
+  export interface RawGetEventsResponse extends RetentionState {
     events: RawEventResponse[];
     cursor: string;
   }

@@ -799,7 +799,7 @@ export class RpcServer {
       'simulateTransaction',
       {
         transaction: transaction.toXDR(),
-        authMode: authMode ?? "",
+        authMode,
         ...(addlResources !== undefined && {
           resourceConfig: {
             instructionLeeway: addlResources.cpuInstructions
