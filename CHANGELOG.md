@@ -7,6 +7,46 @@ A breaking change will get clearly marked in this log.
 ## Unreleased
 
 
+## [v14.0.0-rc.1](https://github.com/stellar/js-stellar-sdk/compare/v13.1.0...v14.0.0-rc.1)
+
+### Breaking Changes
+* **This package requires Node 20.**
+* XDR has been upgraded to support **Protocol 23**, please refer to the [`@stellar/stellar-base`](https://github.com/stellar/js-stellar-base/releases/tag/v14.0.0-rc.1) release notes for details and other breaking changes.
+* **Deprecated**: `getTransaction` and `getTransactions` top-level `diagnosticEventsXdr` field.
+
+### Added
+* The Horizon API's `BalanceChange` object for operations now optionally has details about muxed information if the invocation involved a muxed destination address:
+```typescript
+export type MuxedIdType = "uint64" | "string" | "bytes";
+export interface BalanceChange {
+  // ...
+  destination_muxed_id_type?: MuxedIdType;
+  destination_muxed_id?: string;
+}
+```
+* The RPC server's `getTransaction` and `getTransactions` responses now include a top-level `events` object containing a disjoint breakdown of the events:
+```typescript
+export interface TransactionEvents {
+  diagnosticEventsXdr: xdr.DiagnosticEvent[];
+  transactionEventsXdr: xdr.TransactionEvent[];
+  contractEventsXdr: xdr.ContractEvent[][];
+}
+```
+* The RPC server's `getEvents` now includes retention state information:
+```typescript
+export interface GetEventsResponse {
+  // ...
+  oldestLedger: number;
+  latestLedgerCloseTime: string;
+  oldestLedgerCloseTime: string;
+}
+```
+* The RPC server's `simulateTransaction` method now includes an optional `authMode` parameter to specify the type of authorization to simulate:
+```typescript
+export type SimulationAuthMode = "enforce" | "record" | "record_allow_nonroot";
+```
+
+
 ## [v13.1.0](https://github.com/stellar/js-stellar-sdk/compare/v13.0.0...v13.1.0)
 
 ### Added
