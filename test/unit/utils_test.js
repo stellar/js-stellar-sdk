@@ -1469,12 +1469,12 @@ describe("Utils", function () {
     });
 
     afterEach(function () {
-      this.serverKP,
+      (this.serverKP,
         this.clientKP1,
         this.clientKP2,
         this.txAccount,
         this.opAccount,
-        (this.operation = null);
+        (this.operation = null));
     });
 
     it("throws an error if the server hasn't signed the transaction", function () {
@@ -1833,12 +1833,12 @@ describe("Utils", function () {
     });
 
     afterEach(function () {
-      this.serverKP,
+      (this.serverKP,
         this.clientKP1,
         this.clientKP2,
         this.txAccount,
         this.opAccount,
-        (this.operation = null);
+        (this.operation = null));
     });
 
     it("successfully validates server and client master key signatures in the transaction", function () {
@@ -2578,7 +2578,7 @@ describe("Utils", function () {
     });
 
     afterEach(function () {
-      this.keypair, this.account, (this.transaction = null);
+      (this.keypair, this.account, (this.transaction = null));
     });
 
     it("returns true if the transaction was signed by the given account", function () {
@@ -2623,7 +2623,7 @@ describe("Utils", function () {
     });
 
     afterEach(function () {
-      this.keypair1, this.keypair2, this.account, (this.transaction = null);
+      (this.keypair1, this.keypair2, this.account, (this.transaction = null));
     });
 
     it("returns a list with the signatures used in the transaction", function () {
