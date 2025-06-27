@@ -31,8 +31,8 @@ module.exports = function(api) {
     comments: process.env.NODE_ENV !== 'production',
     presets,
     plugins,
-    targets: process.env.NODE_ENV === 'production' 
-      ? { node: 18, browsers: ["> 2%", "ie 11", "not op_mini all"] }
+    targets: process.env.NODE_ENV === 'production'
+      ? { node: 20, browsers: ["> 2%", "ie 11", "not op_mini all"] }
       : { browsers: ["> 2%"] }
   };
 
