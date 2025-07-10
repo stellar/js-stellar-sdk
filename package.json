@@ -98,7 +98,7 @@
     "docs": "yarn build:docs && jsdoc -c ./config/.jsdoc.json",
     "test": "yarn build:test && yarn test:node && yarn test:integration && yarn test:browser",
     "test:e2e": "./test/e2e/initialize.sh && yarn _nyc mocha --recursive 'test/e2e/src/test-*.js'",
-    "test:node": "NODE_OPTIONS=$(test ! $(node -v | awk -F'.' '{printf substr($1,2)}') = '18' && echo '--no-experimental-detect-module') yarn _nyc mocha --recursive 'test/unit/**/*.js'",
+    "test:node": "yarn _nyc mocha --recursive 'test/unit/**/*.js'",
     "test:integration": "yarn _nyc mocha --recursive 'test/integration/**/*.js'",
     "test:browser": "karma start config/karma.conf.js",
     "test:browser:no-axios": "cross-env USE_AXIOS=false yarn build:browser && cross-env USE_AXIOS=false karma start config/karma.conf.js",
