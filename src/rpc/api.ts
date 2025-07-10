@@ -139,7 +139,6 @@ export namespace Api {
   }
 
   export interface RawTransactionEvents {
-    diagnosticEventsXdr: string[];
     transactionEventsXdr: string[];
     contractEventsXdr: string[][];
   }
@@ -161,7 +160,6 @@ export namespace Api {
   }
 
   export interface TransactionEvents {
-    diagnosticEventsXdr: xdr.DiagnosticEvent[];
     transactionEventsXdr: xdr.TransactionEvent[];
     contractEventsXdr: xdr.ContractEvent[][];
   }
