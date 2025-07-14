@@ -6,6 +6,9 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+
+## [v14.0.0-rc.2](https://github.com/stellar/js-stellar-sdk/compare/v13.1.0...v14.0.0-rc.2)
+
 ### Breaking Changes
 * The RPC server's `getTransaction` and `getTransactions` responses have dropped the `events.diagnosticEventsXdr` field ([#1183](https://github.com/stellar/js-stellar-sdk/pull/1183)):
 ```diff
@@ -14,6 +17,10 @@ export interface TransactionEvents {
   transactionEventsXdr: xdr.TransactionEvent[];
 }
 ```
+
+### Fixed
+* Fixed type for Horizon streaming endpoints, namely `EventSourceOptions.onmessage` now extends `CollectionPage` ([#1100](https://github.com/stellar/js-stellar-sdk/pull/1100)).
+
 
 ## [v14.0.0-rc.1](https://github.com/stellar/js-stellar-sdk/compare/v13.1.0...v14.0.0-rc.1)
 
