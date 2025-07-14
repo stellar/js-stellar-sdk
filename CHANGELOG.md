@@ -6,6 +6,14 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Breaking Changes
+* The RPC server's `getTransaction` and `getTransactions` responses have dropped the `events.diagnosticEventsXdr` field ([#1183](https://github.com/stellar/js-stellar-sdk/pull/1183)):
+```diff
+export interface TransactionEvents {
+-  diagnosticEventsXdr: xdr.DiagnosticEvent[];
+  transactionEventsXdr: xdr.TransactionEvent[];
+}
+```
 
 ## [v14.0.0-rc.1](https://github.com/stellar/js-stellar-sdk/compare/v13.1.0...v14.0.0-rc.1)
 
