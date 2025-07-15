@@ -284,12 +284,22 @@ export class Address {
         );
       case 'contract':
         return xdr.ScAddress.scAddressTypeContract(this._key);
-      case 'claimableBalance':
-        return xdr.ScAddress.scAddressTypeClaimableBalance(this._key);
       case 'liquidityPool':
         return xdr.ScAddress.scAddressTypeLiquidityPool(this._key);
+
+      case 'claimableBalance':
+        return xdr.ScAddress.scAddressTypeClaimableBalance(
+          new xdr.ClaimableBalanceId(
+            `claimableBalanceIdTypeV${this._key.at(0)}`, // future-proof for cb v1
+            this._key.subarray(1)
+          )
+        );
+
       case 'muxedAccount':
-        return xdr.ScAddress.scAddressTypeMuxedAccount(this._key);
+        return xdr.ScAddress.scAddressTypeMuxedAccount(
+          xdr.MuxedEd25519Account.fromXDR(this._key)
+        );
+
       default:
         throw new Error(`Unsupported address type: ${this._type}`);
     }

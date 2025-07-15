@@ -113,7 +113,7 @@
 import { HorizonApi } from "./horizon_api";
 import { ServerApi } from "./server_api";
 export interface EventSourceOptions&lt;T> {
-    onmessage?: (value: T) => void;
+    onmessage?: (value: T extends ServerApi.CollectionPage&lt;infer U> ? U : T) => void;
     onerror?: (event: MessageEvent) => void;
     reconnectTimeout?: number;
 }

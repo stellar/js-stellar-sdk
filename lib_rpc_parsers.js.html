@@ -161,7 +161,6 @@ function parseTransactionInfo(raw) {
     resultXdr: _stellarBase.xdr.TransactionResult.fromXDR(raw.resultXdr, 'base64'),
     resultMetaXdr: meta,
     events: {
-      diagnosticEventsXdr: raw.events?.diagnosticEventsXdr.map(e => _stellarBase.xdr.DiagnosticEvent.fromXDR(e, "base64")) ?? [],
       contractEventsXdr: raw.events?.contractEventsXdr.map(lst => lst.map(e => _stellarBase.xdr.ContractEvent.fromXDR(e, "base64"))) ?? [],
       transactionEventsXdr: raw.events?.transactionEventsXdr.map(e => _stellarBase.xdr.TransactionEvent.fromXDR(e, "base64")) ?? []
     }
