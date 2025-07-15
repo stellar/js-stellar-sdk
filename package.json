@@ -1,6 +1,6 @@
 {
   "name": "@stellar/stellar-sdk",
-  "version": "14.0.0-rc.1",
+  "version": "14.0.0-rc.2",
   "description": "A library for working with the Stellar network, including communication with the Horizon and Soroban RPC servers.",
   "keywords": [
     "stellar"
@@ -145,10 +145,10 @@
     ]
   },
   "devDependencies": {
-    "@babel/cli": "^7.26.4",
-    "@babel/core": "^7.26.10",
+    "@babel/cli": "^7.28.0",
+    "@babel/core": "^7.28.0",
     "@babel/eslint-plugin": "^7.26.10",
-    "@babel/preset-env": "^7.26.9",
+    "@babel/preset-env": "^7.28.0",
     "@babel/preset-typescript": "^7.26.0",
     "@babel/register": "^7.25.9",
     "@definitelytyped/dtslint": "^0.2.29",
@@ -158,7 +158,7 @@
     "@types/detect-node": "^2.0.0",
     "@types/eventsource": "^1.1.12",
     "@types/json-schema": "^7.0.15",
-    "@types/lodash": "^4.17.19",
+    "@types/lodash": "^4.17.20",
     "@types/mocha": "^10.0.9",
     "@types/node": "^20.14.11",
     "@types/randombytes": "^2.0.1",
@@ -204,7 +204,7 @@
     "node-polyfill-webpack-plugin": "^3.0.0",
     "null-loader": "^4.0.1",
     "nyc": "^17.0.0",
-    "prettier": "^3.6.1",
+    "prettier": "^3.6.2",
     "randombytes": "^2.1.0",
     "sinon": "^17.0.1",
     "sinon-chai": "^3.7.0",
@@ -212,13 +212,13 @@
     "terser-webpack-plugin": "^5.3.14",
     "ts-node": "^10.9.2",
     "typescript": "5.6.3",
-    "webpack": "^5.98.0",
+    "webpack": "^5.100.1",
     "webpack-cli": "^5.0.1"
   },
   "dependencies": {
     "@stellar/stellar-base": "^14.0.0-rc.2",
     "axios": "^1.8.4",
-    "bignumber.js": "^9.1.2",
+    "bignumber.js": "^9.3.1",
     "eventsource": "^2.0.2",
     "feaxios": "^0.0.23",
     "randombytes": "^2.1.0",
