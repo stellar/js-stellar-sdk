@@ -6,10 +6,11 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+
 ## [v14.0.0-rc.3](https://github.com/stellar/js-stellar-sdk/compare/v13.1.0...v14.0.0-rc.3)
 
 ### Fixed
-* Fixes a bug in `Rpc.Server.getTransaction` where the new `events` field was not present.
+* Fixes a bug in `Rpc.Server.getTransaction` where either `transactionEventsXdr` and/or `contractEventsXdr` may not be present in the new `events` field.
 
 
 ## [v14.0.0-rc.2](https://github.com/stellar/js-stellar-sdk/compare/v13.1.0...v14.0.0-rc.2)
