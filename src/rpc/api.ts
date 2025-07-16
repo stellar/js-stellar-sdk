@@ -139,8 +139,8 @@ export namespace Api {
   }
 
   export interface RawTransactionEvents {
-    transactionEventsXdr: string[];
-    contractEventsXdr: string[][];
+    transactionEventsXdr?: string[];
+    contractEventsXdr?: string[][];
   }
 
   export interface RawTransactionInfo {

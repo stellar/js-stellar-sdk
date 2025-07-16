@@ -47,13 +47,13 @@ export function parseTransactionInfo(
     resultXdr: xdr.TransactionResult.fromXDR(raw.resultXdr!, 'base64'),
     resultMetaXdr: meta,
     events: {
-      contractEventsXdr: raw.events?.contractEventsXdr.map(
+      contractEventsXdr: (raw.events?.contractEventsXdr ?? []).map(
         lst => lst.map(e => xdr.ContractEvent.fromXDR(e, "base64"))
-      ) ?? [],
-      transactionEventsXdr: raw.events?.transactionEventsXdr.map(
+      ),
+      transactionEventsXdr: (raw.events?.transactionEventsXdr ?? []).map(
         e => xdr.TransactionEvent.fromXDR(e, "base64")
-      ) ?? [],
-    }
+      ),
+    },
   };
 
   switch (meta.switch()) {
