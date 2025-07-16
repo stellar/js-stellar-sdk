@@ -178,7 +178,7 @@ export namespace Api {
     returnValue?: xdr.ScVal;
     diagnosticEventsXdr?: xdr.DiagnosticEvent[];
 
-    events: TransactionEvents;
+    events?: TransactionEvents;
   }
 
   export interface GetTransactionsResponse {

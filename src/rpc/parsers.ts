@@ -46,14 +46,16 @@ export function parseTransactionInfo(
     envelopeXdr: xdr.TransactionEnvelope.fromXDR(raw.envelopeXdr!, 'base64'),
     resultXdr: xdr.TransactionResult.fromXDR(raw.resultXdr!, 'base64'),
     resultMetaXdr: meta,
-    events: {
-      contractEventsXdr: raw.events?.contractEventsXdr.map(
-        lst => lst.map(e => xdr.ContractEvent.fromXDR(e, "base64"))
-      ) ?? [],
-      transactionEventsXdr: raw.events?.transactionEventsXdr.map(
-        e => xdr.TransactionEvent.fromXDR(e, "base64")
-      ) ?? [],
-    }
+    ...(raw.events !== undefined && {
+      events: {
+        contractEventsXdr: raw.events?.contractEventsXdr.map(
+          lst => lst.map(e => xdr.ContractEvent.fromXDR(e, "base64"))
+        ) ?? [],
+        transactionEventsXdr: raw.events?.transactionEventsXdr.map(
+          e => xdr.TransactionEvent.fromXDR(e, "base64")
+        ) ?? [],
+      }
+    }),
   };
 
   switch (meta.switch()) {
