@@ -6,6 +6,9 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Breaking Changes
+* Removes the defunct `destination_muxed_id_type` field for balance changes.
+
 
 ## [v14.0.0-rc.3](https://github.com/stellar/js-stellar-sdk/compare/v13.1.0...v14.0.0-rc.3)
 
