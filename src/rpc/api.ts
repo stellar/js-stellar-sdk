@@ -128,11 +128,15 @@ export namespace Api {
     diagnosticEventsXdr?: string[];
   }
 
-  export interface GetTransactionsRequest {
+  export type GetTransactionsRequest = {
     startLedger: number;
-    cursor?: string;
+    cursor?: never;
     limit?: number;
-  }
+  } | {
+    startLedger?: never;
+    cursor: string;
+    limit?: number;
+  };
 
   export interface RawTransactionInfo {
     status: GetTransactionStatus;
