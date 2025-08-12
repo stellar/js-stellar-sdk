@@ -130,12 +130,16 @@ export namespace Api {
 
   export type GetTransactionsRequest = {
     startLedger: number;
-    cursor?: never;
-    limit?: number;
+    pagination?: {
+      cursor?: never;
+      limit?: number;
+    };
   } | {
     startLedger?: never;
-    cursor: string;
-    limit?: number;
+    pagination: {
+      cursor: string;
+      limit?: number;
+    };
   };
 
   export interface RawTransactionInfo {
