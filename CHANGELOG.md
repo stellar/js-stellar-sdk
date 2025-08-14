@@ -6,8 +6,82 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+## [v14.0.0](https://github.com/stellar/js-stellar-sdk/compare/v13.1.0...v14.0.0)
+
 ### Breaking Changes
-* Removes the defunct `destination_muxed_id_type` field for balance changes.
+* **This package requires Node 20.**
+* XDR has been upgraded to support **Protocol 23**, please refer to the [`@stellar/stellar-base`](https://github.com/stellar/js-stellar-base/releases/tag/v14.0.0-rc.1) release notes for details and other breaking changes.
+* Removes the defunct `destination_muxed_id_type` field for Horizon balance changes ([#1187](https://github.com/stellar/js-stellar-sdk/pull/1187)).
+
+### Added
+* The Horizon API's `BalanceChange` object for operations now optionally has details about muxed information if the invocation involved a muxed destination address:
+```typescript
+export type MuxedIdType = "uint64" | "string" | "bytes";
+export interface BalanceChange {
+  // ...
+  destination_muxed_id_type?: MuxedIdType;
+  destination_muxed_id?: string;
+}
+```
+* The RPC server's `getTransaction` and `getTransactions` responses now include a top-level `events` object containing a disjoint breakdown of the events:
+```typescript
+export interface TransactionEvents {
+  transactionEventsXdr: xdr.TransactionEvent[];
+  contractEventsXdr: xdr.ContractEvent[][];
+}
+```
+* The RPC server's `getEvents` now includes retention state information:
+```typescript
+export interface GetEventsResponse {
+  // ...
+  oldestLedger: number;
+  latestLedgerCloseTime: string;
+  oldestLedgerCloseTime: string;
+}
+```
+* The RPC server's `simulateTransaction` method now includes an optional `authMode` parameter to specify the type of authorization to simulate:
+```typescript
+export type SimulationAuthMode = "enforce" | "record" | "record_allow_nonroot";
+```
+* `AssembledTransaction#signAndSend` now takes a `watcher` argument ([#1174](https://github.com/stellar/js-stellar-sdk/pull/1174)). This `watcher` is an abstract class with two optional methods:
+  - `onSubmitted`: called with the return value from the `sendTransaction` call that submits the transaction to the network for processing
+  - `onProgress`: called with each return value of `getTransaction` that checks on the ongoing status of the transaction
+
+For example, a `watcher` like this:
+```typescript
+await tx.signAndSend({ watcher: {
+  onSubmitted: ({ status, hash, latestLedger }) => {
+    console.log({ status, hash, latestLedger });
+  },
+  onProgress: ({ status, txHash, latestLedger }) => {
+    console.log({ status, txHash, latestLedger });
+  }
+}});
+```
+
+...will result in output like:
+
+```
+{
+  status: 'PENDING',
+  hash: '8239a5c6a3248966291a202bab2ba393dabc872947b5ee4224921b071850b021',
+  latestLedger: 25076
+}
+{
+  status: 'NOT_FOUND',
+  txHash: '8239a5c6a3248966291a202bab2ba393dabc872947b5ee4224921b071850b021',
+  latestLedger: 25076
+}
+{
+  status: 'SUCCESS',
+  txHash: '8239a5c6a3248966291a202bab2ba393dabc872947b5ee4224921b071850b021',
+  latestLedger: 25077
+}
+```
+
+### Fixed
+* Fixed type for Horizon streaming endpoints, namely `EventSourceOptions.onmessage` now extends `CollectionPage` ([#1100](https://github.com/stellar/js-stellar-sdk/pull/1100)).
+* Fix the issue of transaction submission failure in a no axios environment ([#1176](https://github.com/stellar/js-stellar-sdk/pull/1176)).
 
 
 ## [v14.0.0-rc.3](https://github.com/stellar/js-stellar-sdk/compare/v13.1.0...v14.0.0-rc.3)
