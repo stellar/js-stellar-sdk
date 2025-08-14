@@ -132,11 +132,19 @@ export namespace Api {
     events?: RawTransactionEvents;
   }
 
-  export interface GetTransactionsRequest {
+  export type GetTransactionsRequest = {
     startLedger: number;
-    cursor?: string;
-    limit?: number;
-  }
+    pagination?: {
+      cursor?: never;
+      limit?: number;
+    };
+  } | {
+    startLedger?: never;
+    pagination: {
+      cursor: string;
+      limit?: number;
+    };
+  };
 
   export interface RawTransactionEvents {
     transactionEventsXdr?: string[];
