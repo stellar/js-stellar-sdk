@@ -112,7 +112,7 @@
             <pre class="prettyprint source linenums"><code>import { Account, SorobanDataBuilder, TransactionBuilder, authorizeEntry as stellarBaseAuthorizeEntry, xdr } from "@stellar/stellar-base";
 import type { AssembledTransactionOptions, ClientOptions, Tx, XDR_BASE64 } from "./types";
 import { Api } from "../rpc/api";
-import { SentTransaction } from "./sent_transaction";
+import { SentTransaction, Watcher } from "./sent_transaction";
 import { Spec } from "./spec";
 /** @module contract */
 /**
@@ -613,16 +613,20 @@ export declare class AssembledTransaction&lt;T> {
     }) => Promise&lt;void>;
     /**
      * Sends the transaction to the network to return a `SentTransaction` that
-     * keeps track of all the attempts to fetch the transaction.
+     * keeps track of all the attempts to fetch the transaction. Optionally pass
+     * a {@link Watcher} that allows you to keep track of the progress as the
+     * transaction is sent and processed.
      */
-    send(): Promise&lt;SentTransaction&lt;T>>;
+    send(watcher?: Watcher): Promise&lt;SentTransaction&lt;T>>;
     /**
      * Sign the transaction with the `signTransaction` function included previously.
      * If you did not previously include one, you need to include one now.
      * After signing, this method will send the transaction to the network and
-     * return a `SentTransaction` that keeps track * of all the attempts to fetch the transaction.
+     * return a `SentTransaction` that keeps track of all the attempts to fetch
+     * the transaction. You may pass a {@link Watcher} to keep
+     * track of this progress.
      */
-    signAndSend: ({ force, signTransaction, }?: {
+    signAndSend: ({ force, signTransaction, watcher, }?: {
         /**
          * If `true`, sign and send the transaction even if it is a read call
          */
@@ -631,6 +635,12 @@ export declare class AssembledTransaction&lt;T> {
          * You must provide this here if you did not provide one before
          */
         signTransaction?: ClientOptions["signTransaction"];
+        /**
+         * A {@link Watcher} to notify after the transaction is successfully
+         * submitted to the network (`onSubmitted`) and as the transaction is
+         * processed (`onProgress`).
+         */
+        watcher?: Watcher;
     }) => Promise&lt;SentTransaction&lt;T>>;
     /**
      * Get a list of accounts, other than the invoker of the simulation, that

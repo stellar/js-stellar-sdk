@@ -402,7 +402,10 @@ class HorizonServer {
     }
     const tx = encodeURIComponent(transaction.toEnvelope().toXDR().toString("base64"));
     return _horizon_axios_client.default.post((0, _urijs.default)(this.serverURL).segment("transactions").toString(), `tx=${tx}`, {
-      timeout: SUBMIT_TRANSACTION_TIMEOUT
+      timeout: SUBMIT_TRANSACTION_TIMEOUT,
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      }
     }).then(response => {
       if (!response.data.result_xdr) {
         return response.data;
@@ -561,7 +564,11 @@ class HorizonServer {
       await this.checkMemoRequired(transaction);
     }
     const tx = encodeURIComponent(transaction.toEnvelope().toXDR().toString("base64"));
-    return _horizon_axios_client.default.post((0, _urijs.default)(this.serverURL).segment("transactions_async").toString(), `tx=${tx}`).then(response => response.data).catch(response => {
+    return _horizon_axios_client.default.post((0, _urijs.default)(this.serverURL).segment("transactions_async").toString(), `tx=${tx}`, {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      }
+    }).then(response => response.data).catch(response => {
       if (response instanceof Error) {
         return Promise.reject(response);
       }

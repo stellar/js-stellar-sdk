@@ -518,7 +518,7 @@ returns <code>false</code>, then you need to call <code>signAndSend</code> on th
         <p class="tag-source">
             <a href="lib_contract_assembled_transaction.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_contract_assembled_transaction.js.html">lib/contract/assembled_transaction.js</a>, <a href="lib_contract_assembled_transaction.js.html#line754">line 754</a>
+                <a href="lib_contract_assembled_transaction.js.html">lib/contract/assembled_transaction.js</a>, <a href="lib_contract_assembled_transaction.js.html#line759">line 759</a>
             </span>
         </p>
     
@@ -600,7 +600,7 @@ the next account in this list.</p>
         <p class="tag-source">
             <a href="lib_contract_assembled_transaction.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_contract_assembled_transaction.js.html">lib/contract/assembled_transaction.js</a>, <a href="lib_contract_assembled_transaction.js.html#line657">line 657</a>
+                <a href="lib_contract_assembled_transaction.js.html">lib/contract/assembled_transaction.js</a>, <a href="lib_contract_assembled_transaction.js.html#line662">line 662</a>
             </span>
         </p>
     
@@ -700,7 +700,9 @@ If you did not previously include one, you need to include one now.</p>
     <p>Sign the transaction with the <code>signTransaction</code> function included previously.
 If you did not previously include one, you need to include one now.
 After signing, this method will send the transaction to the network and
-return a <code>SentTransaction</code> that keeps track * of all the attempts to fetch the transaction.</p>
+return a <code>SentTransaction</code> that keeps track of all the attempts to fetch
+the transaction. You may pass a Watcher to keep
+track of this progress.</p>
 </div>
 
 
@@ -742,7 +744,7 @@ return a <code>SentTransaction</code> that keeps track * of all the attempts to 
         <p class="tag-source">
             <a href="lib_contract_assembled_transaction.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_contract_assembled_transaction.js.html">lib/contract/assembled_transaction.js</a>, <a href="lib_contract_assembled_transaction.js.html#line613">line 613</a>
+                <a href="lib_contract_assembled_transaction.js.html">lib/contract/assembled_transaction.js</a>, <a href="lib_contract_assembled_transaction.js.html#line617">line 617</a>
             </span>
         </p>
     
@@ -822,7 +824,7 @@ currently supported!</p>
         <p class="tag-source">
             <a href="lib_contract_assembled_transaction.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_contract_assembled_transaction.js.html">lib/contract/assembled_transaction.js</a>, <a href="lib_contract_assembled_transaction.js.html#line690">line 690</a>
+                <a href="lib_contract_assembled_transaction.js.html">lib/contract/assembled_transaction.js</a>, <a href="lib_contract_assembled_transaction.js.html#line695">line 695</a>
             </span>
         </p>
     
@@ -930,7 +932,7 @@ transaction data.</li>
         <p class="tag-source">
             <a href="lib_contract_assembled_transaction.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_contract_assembled_transaction.js.html">lib/contract/assembled_transaction.js</a>, <a href="lib_contract_assembled_transaction.js.html#line780">line 780</a>
+                <a href="lib_contract_assembled_transaction.js.html">lib/contract/assembled_transaction.js</a>, <a href="lib_contract_assembled_transaction.js.html#line785">line 785</a>
             </span>
         </p>
     
@@ -1022,7 +1024,9 @@ restore transaction fails, providing the details of the failure.</li>
     
     <div class="description">
         <p>Sends the transaction to the network to return a <code>SentTransaction</code> that
-keeps track of all the attempts to fetch the transaction.</p>
+keeps track of all the attempts to fetch the transaction. Optionally pass
+a Watcher that allows you to keep track of the progress as the
+transaction is sent and processed.</p>
     </div>
     
 
@@ -1073,7 +1077,7 @@ keeps track of all the attempts to fetch the transaction.</p>
         <p class="tag-source">
             <a href="lib_contract_assembled_transaction.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_contract_assembled_transaction.js.html">lib/contract/assembled_transaction.js</a>, <a href="lib_contract_assembled_transaction.js.html#line599">line 599</a>
+                <a href="lib_contract_assembled_transaction.js.html">lib/contract/assembled_transaction.js</a>, <a href="lib_contract_assembled_transaction.js.html#line601">line 601</a>
             </span>
         </p>
     

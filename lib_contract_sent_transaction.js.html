@@ -114,7 +114,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.SentTransaction = void 0;
+exports.Watcher = exports.SentTransaction = void 0;
 var _rpc = require("../rpc");
 var _api = require("../rpc/api");
 var _utils = require("./utils");
@@ -173,25 +173,31 @@ class SentTransaction {
   }
 
   /**
-   * Initialize a `SentTransaction` from `options` and a `signed`
-   * AssembledTransaction. This will also send the transaction to the network.
+   * Initialize a `SentTransaction` from {@link AssembledTransaction}
+   * `assembled`, passing an optional {@link Watcher} `watcher`. This will also
+   * send the transaction to the network.
    */
   static init = async (/** {@link AssembledTransaction} from which this SentTransaction was initialized */
-  assembled) => {
+  assembled, watcher) => {
     const tx = new SentTransaction(assembled);
-    const sent = await tx.send();
+    const sent = await tx.send(watcher);
     return sent;
   };
-  send = async () => {
+  send = async watcher => {
     this.sendTransactionResponse = await this.server.sendTransaction(this.assembled.signed);
     if (this.sendTransactionResponse.status !== "PENDING") {
       throw new SentTransaction.Errors.SendFailed(`Sending the transaction to the network failed!\n${JSON.stringify(this.sendTransactionResponse, null, 2)}`);
     }
+    if (watcher?.onSubmitted) watcher.onSubmitted(this.sendTransactionResponse);
     const {
       hash
     } = this.sendTransactionResponse;
     const timeoutInSeconds = this.assembled.options.timeoutInSeconds ?? _types.DEFAULT_TIMEOUT;
-    this.getTransactionResponseAll = await (0, _utils.withExponentialBackoff)(() => this.server.getTransaction(hash), resp => resp.status === _api.Api.GetTransactionStatus.NOT_FOUND, timeoutInSeconds);
+    this.getTransactionResponseAll = await (0, _utils.withExponentialBackoff)(async () => {
+      const tx = await this.server.getTransaction(hash);
+      if (watcher?.onProgress) watcher.onProgress(tx);
+      return tx;
+    }, resp => resp.status === _api.Api.GetTransactionStatus.NOT_FOUND, timeoutInSeconds);
     this.getTransactionResponse = this.getTransactionResponseAll[this.getTransactionResponseAll.length - 1];
     if (this.getTransactionResponse.status === _api.Api.GetTransactionStatus.NOT_FOUND) {
       throw new SentTransaction.Errors.TransactionStillPending(`Waited ${timeoutInSeconds} seconds for transaction to complete, but it did not. ` + `Returning anyway. Check the transaction status manually. ` + `Sent transaction: ${JSON.stringify(this.sendTransactionResponse, null, 2)}\n` + `All attempts to get the result: ${JSON.stringify(this.getTransactionResponseAll, null, 2)}`);
@@ -224,7 +230,9 @@ class SentTransaction {
     throw new Error(`Sending transaction failed: ${JSON.stringify(this.assembled.signed)}`);
   }
 }
-exports.SentTransaction = SentTransaction;</code></pre>
+exports.SentTransaction = SentTransaction;
+class Watcher {}
+exports.Watcher = Watcher;</code></pre>
         </article>
     </section>
 

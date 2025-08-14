@@ -140,6 +140,8 @@ export declare class Client {
         salt?: Buffer | Uint8Array;
         /** The format used to decode `wasmHash`, if it's provided as a string. */
         format?: "hex" | "base64";
+        /** The address to use to deploy the custom contract */
+        address?: string;
     }): Promise&lt;AssembledTransaction&lt;T>>;
     constructor(spec: Spec, options: ClientOptions);
     /**

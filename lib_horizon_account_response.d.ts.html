@@ -141,6 +141,9 @@ export declare class AccountResponse {
     readonly flags: HorizonApi.Flags;
     readonly balances: HorizonApi.BalanceLine[];
     readonly signers: ServerApi.AccountRecordSigners[];
+    readonly num_sponsoring: number;
+    readonly num_sponsored: number;
+    readonly sponsor?: string;
     readonly data: (options: {
         value: string;
     }) => Promise&lt;{

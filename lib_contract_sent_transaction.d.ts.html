@@ -186,12 +186,25 @@ export declare class SentTransaction&lt;T> {
     };
     constructor(assembled: AssembledTransaction&lt;T>);
     /**
-     * Initialize a `SentTransaction` from `options` and a `signed`
-     * AssembledTransaction. This will also send the transaction to the network.
+     * Initialize a `SentTransaction` from {@link AssembledTransaction}
+     * `assembled`, passing an optional {@link Watcher} `watcher`. This will also
+     * send the transaction to the network.
      */
-    static init: &lt;U>(assembled: AssembledTransaction&lt;U>) => Promise&lt;SentTransaction&lt;U>>;
+    static init: &lt;U>(assembled: AssembledTransaction&lt;U>, watcher?: Watcher) => Promise&lt;SentTransaction&lt;U>>;
     private send;
     get result(): T;
+}
+export declare abstract class Watcher {
+    /**
+     * Function to call after transaction has been submitted successfully to
+     * the network for processing
+     */
+    abstract onSubmitted?(response?: Api.SendTransactionResponse): void;
+    /**
+     * Function to call every time the submitted transaction's status is
+     * checked while awaiting its full inclusion in the ledger
+     */
+    abstract onProgress?(response?: Api.GetTransactionResponse): void;
 }
 </code></pre>
         </article>

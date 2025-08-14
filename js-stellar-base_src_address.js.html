@@ -229,8 +229,13 @@ export class Address {
         return Address.account(scAddress.accountId().ed25519());
       case xdr.ScAddressType.scAddressTypeContract().value:
         return Address.contract(scAddress.contractId());
-      case xdr.ScAddressType.scAddressTypeMuxedAccount().value:
-        return Address.muxedAccount(scAddress.muxedAccount());
+      case xdr.ScAddressType.scAddressTypeMuxedAccount().value: {
+        const raw = Buffer.concat([
+          scAddress.muxedAccount().ed25519(),
+          scAddress.muxedAccount().id().toXDR('raw')
+        ]);
+        return Address.muxedAccount(raw);
+      }
       case xdr.ScAddressType.scAddressTypeClaimableBalance().value:
         return Address.claimableBalance(scAddress.claimableBalanceId());
       case xdr.ScAddressType.scAddressTypeLiquidityPool().value:
@@ -297,7 +302,10 @@ export class Address {
 
       case 'muxedAccount':
         return xdr.ScAddress.scAddressTypeMuxedAccount(
-          xdr.MuxedEd25519Account.fromXDR(this._key)
+          new xdr.MuxedEd25519Account({
+            ed25519: this._key.subarray(0, 32),
+            id: xdr.Uint64.fromXDR(this._key.subarray(32, 40), 'raw')
+          })
         );
 
       default:

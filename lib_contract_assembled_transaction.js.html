@@ -454,7 +454,7 @@ class AssembledTransaction {
    */
   toXDR() {
     if (!this.built) throw new Error("Transaction has not yet been simulated; " + "call `AssembledTransaction.simulate` first.");
-    return this.built?.toEnvelope().toXDR('base64');
+    return this.built?.toEnvelope().toXDR("base64");
   }
 
   /**
@@ -464,14 +464,14 @@ class AssembledTransaction {
     const envelope = _stellarBase.xdr.TransactionEnvelope.fromXDR(encodedXDR, "base64");
     const built = _stellarBase.TransactionBuilder.fromXDR(envelope, options.networkPassphrase);
     const operation = built.operations[0];
-    if (!operation?.func?.value || typeof operation.func.value !== 'function') {
+    if (!operation?.func?.value || typeof operation.func.value !== "function") {
       throw new Error("Could not extract the method from the transaction envelope.");
     }
     const invokeContractArgs = operation.func.value();
     if (!invokeContractArgs?.functionName) {
       throw new Error("Could not extract the method name from the transaction envelope.");
     }
-    const method = invokeContractArgs.functionName().toString('utf-8');
+    const method = invokeContractArgs.functionName().toString("utf-8");
     const txn = new AssembledTransaction({
       ...options,
       method,
@@ -486,7 +486,7 @@ class AssembledTransaction {
       message,
       code
     } = error;
-    const fullMessage = `${message}${error.ext ? ` (${error.ext.join(', ')})` : ''}`;
+    const fullMessage = `${message}${error.ext ? ` (${error.ext.join(", ")})` : ""}`;
     switch (code) {
       case -1:
         throw new AssembledTransaction.Errors.InternalWalletError(fullMessage);
@@ -623,7 +623,7 @@ class AssembledTransaction {
       throw new AssembledTransaction.Errors.SimulationFailed(`Transaction simulation failed: "${simulation.error}"`);
     }
     if (_api.Api.isSimulationRestore(simulation)) {
-      throw new AssembledTransaction.Errors.ExpiredState(`You need to restore some contract state before you can invoke this method.\n` + 'You can set `restore` to true in the method options in order to ' + 'automatically restore the contract state when needed.');
+      throw new AssembledTransaction.Errors.ExpiredState(`You need to restore some contract state before you can invoke this method.\n` + "You can set `restore` to true in the method options in order to " + "automatically restore the contract state when needed.");
     }
 
     // add to object for serialization &amp; deserialization
@@ -679,7 +679,7 @@ class AssembledTransaction {
     }
 
     // filter out contracts, as these are dealt with via cross contract calls
-    const sigsNeeded = this.needsNonInvokerSigningBy().filter(id => !id.startsWith('C'));
+    const sigsNeeded = this.needsNonInvokerSigningBy().filter(id => !id.startsWith("C"));
     if (sigsNeeded.length) {
       throw new AssembledTransaction.Errors.NeedsMoreSignatures(`Transaction requires signatures from ${sigsNeeded}. ` + "See `needsNonInvokerSigningBy` for details.");
     }
@@ -705,13 +705,15 @@ class AssembledTransaction {
 
   /**
    * Sends the transaction to the network to return a `SentTransaction` that
-   * keeps track of all the attempts to fetch the transaction.
+   * keeps track of all the attempts to fetch the transaction. Optionally pass
+   * a {@link Watcher} that allows you to keep track of the progress as the
+   * transaction is sent and processed.
    */
-  async send() {
+  async send(watcher) {
     if (!this.signed) {
       throw new Error("The transaction has not yet been signed. Run `sign` first, or use `signAndSend` instead.");
     }
-    const sent = await _sent_transaction.SentTransaction.init(this);
+    const sent = await _sent_transaction.SentTransaction.init(this, watcher);
     return sent;
   }
 
@@ -719,11 +721,14 @@ class AssembledTransaction {
    * Sign the transaction with the `signTransaction` function included previously.
    * If you did not previously include one, you need to include one now.
    * After signing, this method will send the transaction to the network and
-   * return a `SentTransaction` that keeps track * of all the attempts to fetch the transaction.
+   * return a `SentTransaction` that keeps track of all the attempts to fetch
+   * the transaction. You may pass a {@link Watcher} to keep
+   * track of this progress.
    */
   signAndSend = async ({
     force = false,
-    signTransaction = this.options.signTransaction
+    signTransaction = this.options.signTransaction,
+    watcher
   } = {}) => {
     if (!this.signed) {
       // Store the original submit option
@@ -743,7 +748,7 @@ class AssembledTransaction {
         this.options.submit = originalSubmit;
       }
     }
-    return this.send();
+    return this.send(watcher);
   };
 
   /**
