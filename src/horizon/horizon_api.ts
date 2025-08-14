@@ -577,8 +577,6 @@ export namespace HorizonApi {
     reserves_received: Reserve[];
   }
 
-  export type MuxedIdType = "uint64" | "string" | "bytes";
-
   export interface BalanceChange {
     asset_type: string;
     asset_code?: string;
@@ -588,7 +586,6 @@ export namespace HorizonApi {
     from: string;
     to: string;
     amount: string;
-    destination_muxed_id_type?: MuxedIdType;
     destination_muxed_id?: string;
   }
 
