@@ -105,4 +105,23 @@ describe("server.js async transaction submission tests", function () {
       })
       .catch((err) => done(err));
   });
+  it("sends an async transaction and check the request headers", function (done) {
+    this.axiosMock
+      .expects("post")
+      .withArgs(
+        "https://horizon-live.stellar.org:1337/transactions_async",
+        `tx=${this.blob}`,
+        sinon.match({
+          headers: sinon.match({
+            "Content-Type": "application/x-www-form-urlencoded",
+          }),
+        }),
+      )
+      .returns(Promise.resolve({ data: {} }));
+
+    this.server
+      .submitAsyncTransaction(this.transaction, { skipMemoRequiredCheck: true })
+      .then(() => done())
+      .catch((err) => done(err));
+  });
 });

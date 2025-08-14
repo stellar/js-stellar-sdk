@@ -1,8 +1,8 @@
 /* disable max-classes rule, because extending error shouldn't count! */
 /* eslint max-classes-per-file: 0 */
 import type { MethodOptions } from "./types";
-import { Server } from "../rpc"
-import { Api } from "../rpc/api"
+import { Server } from "../rpc";
+import { Api } from "../rpc/api";
 import { withExponentialBackoff } from "./utils";
 import { DEFAULT_TIMEOUT } from "./types";
 import type { AssembledTransaction } from "./assembled_transaction";
@@ -51,33 +51,33 @@ export class SentTransaction<T> {
   public getTransactionResponse?: Api.GetTransactionResponse;
 
   static Errors = {
-    SendFailed: class SendFailedError extends Error { },
-    SendResultOnly: class SendResultOnlyError extends Error { },
-    TransactionStillPending: class TransactionStillPendingError extends Error { },
+    SendFailed: class SendFailedError extends Error {},
+    SendResultOnly: class SendResultOnlyError extends Error {},
+    TransactionStillPending: class TransactionStillPendingError extends Error {},
   };
 
-  constructor(
-    public assembled: AssembledTransaction<T>,
-  ) {
+  constructor(public assembled: AssembledTransaction<T>) {
     this.server = new Server(this.assembled.options.rpcUrl, {
       allowHttp: this.assembled.options.allowHttp ?? false,
     });
   }
 
   /**
-   * Initialize a `SentTransaction` from `options` and a `signed`
-   * AssembledTransaction. This will also send the transaction to the network.
+   * Initialize a `SentTransaction` from {@link AssembledTransaction}
+   * `assembled`, passing an optional {@link Watcher} `watcher`. This will also
+   * send the transaction to the network.
    */
   static init = async <U>(
     /** {@link AssembledTransaction} from which this SentTransaction was initialized */
     assembled: AssembledTransaction<U>,
+    watcher?: Watcher,
   ): Promise<SentTransaction<U>> => {
     const tx = new SentTransaction(assembled);
-    const sent = await tx.send();
+    const sent = await tx.send(watcher);
     return sent;
   };
 
-  private send = async (): Promise<this> => {
+  private send = async (watcher?: Watcher): Promise<this> => {
     this.sendTransactionResponse = await this.server.sendTransaction(
       this.assembled.signed!,
     );
@@ -92,12 +92,18 @@ export class SentTransaction<T> {
       );
     }
 
+    if (watcher?.onSubmitted) watcher.onSubmitted(this.sendTransactionResponse);
+
     const { hash } = this.sendTransactionResponse;
 
     const timeoutInSeconds =
       this.assembled.options.timeoutInSeconds ?? DEFAULT_TIMEOUT;
     this.getTransactionResponseAll = await withExponentialBackoff(
-      () => this.server.getTransaction(hash),
+      async () => {
+        const tx = await this.server.getTransaction(hash);
+        if (watcher?.onProgress) watcher.onProgress(tx);
+        return tx;
+      },
       (resp) => resp.status === Api.GetTransactionStatus.NOT_FOUND,
       timeoutInSeconds,
     );
@@ -105,22 +111,21 @@ export class SentTransaction<T> {
     this.getTransactionResponse =
       this.getTransactionResponseAll[this.getTransactionResponseAll.length - 1];
     if (
-      this.getTransactionResponse.status ===
-      Api.GetTransactionStatus.NOT_FOUND
+      this.getTransactionResponse.status === Api.GetTransactionStatus.NOT_FOUND
     ) {
       throw new SentTransaction.Errors.TransactionStillPending(
         `Waited ${timeoutInSeconds} seconds for transaction to complete, but it did not. ` +
-        `Returning anyway. Check the transaction status manually. ` +
-        `Sent transaction: ${JSON.stringify(
-          this.sendTransactionResponse,
-          null,
-          2,
-        )}\n` +
-        `All attempts to get the result: ${JSON.stringify(
-          this.getTransactionResponseAll,
-          null,
-          2,
-        )}`,
+          `Returning anyway. Check the transaction status manually. ` +
+          `Sent transaction: ${JSON.stringify(
+            this.sendTransactionResponse,
+            null,
+            2,
+          )}\n` +
+          `All attempts to get the result: ${JSON.stringify(
+            this.getTransactionResponseAll,
+            null,
+            2,
+          )}`,
       );
     }
 
@@ -160,4 +165,18 @@ export class SentTransaction<T> {
       `Sending transaction failed: ${JSON.stringify(this.assembled.signed)}`,
     );
   }
+}
+
+export abstract class Watcher {
+  /**
+   * Function to call after transaction has been submitted successfully to
+   * the network for processing
+   */
+  abstract onSubmitted?(response?: Api.SendTransactionResponse): void;
+
+  /**
+   * Function to call every time the submitted transaction's status is
+   * checked while awaiting its full inclusion in the ledger
+   */
+  abstract onProgress?(response?: Api.GetTransactionResponse): void;
 }

@@ -191,7 +191,7 @@ export namespace Api {
   }
 
   export interface RawGetTransactionsResponse {
-    transactions: RawTransactionInfo[];
+    transactions: RawTransactionInfo[] | null;
     latestLedger: number;
     latestLedgerCloseTimestamp: number;
     oldestLedger: number;

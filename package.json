@@ -99,6 +99,7 @@
     "test": "yarn build:test && yarn test:node && yarn test:integration && yarn test:browser",
     "test:e2e": "./test/e2e/initialize.sh && yarn _nyc mocha --recursive 'test/e2e/src/test-*.js'",
     "test:node": "NODE_OPTIONS=--no-experimental-detect-module yarn _nyc mocha --recursive 'test/unit/**/*.js'",
+    "test:e2e:noeval": "NODE_ARGS='--disable-eval' yarn test:e2e",
     "test:integration": "yarn _nyc mocha --recursive 'test/integration/**/*.js'",
     "test:browser": "karma start config/karma.conf.js",
     "test:browser:no-axios": "cross-env USE_AXIOS=false yarn build:browser && cross-env USE_AXIOS=false karma start config/karma.conf.js",
@@ -107,7 +108,7 @@
     "prepare": "yarn build:prod",
     "_build": "yarn build:node:all && yarn build:test && yarn build:browser:all",
     "_babel": "babel --extensions '.ts' --out-dir ${OUTPUT_DIR:-lib} src/",
-    "_nyc": "nyc --nycrc-path config/.nycrc",
+    "_nyc": "node $(NODE_ARGS) node_modules/.bin/nyc --nycrc-path config/.nycrc",
     "_prettier": "prettier --ignore-path config/.prettierignore --write './test/**/*.js'"
   },
   "husky": {
@@ -198,7 +199,7 @@
     "karma-mocha": "^2.0.0",
     "karma-sinon-chai": "^2.0.2",
     "karma-webpack": "^5.0.1",
-    "lint-staged": "^15.5.0",
+    "lint-staged": "^15.5.1",
     "lodash": "^4.17.21",
     "mocha": "^10.8.2",
     "node-polyfill-webpack-plugin": "^3.0.0",

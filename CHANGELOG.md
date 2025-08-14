@@ -69,6 +69,65 @@ export interface GetEventsResponse {
 ```typescript
 export type SimulationAuthMode = "enforce" | "record" | "record_allow_nonroot";
 ```
+* `AssembledTransaction#signAndSend` now takes a `watcher` argument ([#1174](https://github.com/stellar/js-stellar-sdk/pull/1174)). This `watcher` is an abstract class with two optional methods:
+
+  - `onSubmitted`: called with the return value from the `sendTransaction` call that submits the transaction to the network for processing
+  - `onProgress`: called with each return value of `getTransaction` that checks on the ongoing status of the transaction
+
+  For example, a `watcher` like this:
+
+  ```ts
+  await tx.signAndSend({ watcher: {
+    onSubmitted: ({ status, hash, latestLedger }) => {
+      console.log({ status, hash, latestLedger });
+    },
+    onProgress: ({ status, txHash, latestLedger }) => {
+      console.log({ status, txHash, latestLedger });
+    }
+  }});
+  ```
+
+  ...will result in output like:
+
+  ```
+  {
+    status: 'PENDING',
+    hash: '8239a5c6a3248966291a202bab2ba393dabc872947b5ee4224921b071850b021',
+    latestLedger: 25076
+  }
+  {
+    status: 'NOT_FOUND',
+    txHash: '8239a5c6a3248966291a202bab2ba393dabc872947b5ee4224921b071850b021',
+    latestLedger: 25076
+  }
+  {
+    status: 'SUCCESS',
+    txHash: '8239a5c6a3248966291a202bab2ba393dabc872947b5ee4224921b071850b021',
+    latestLedger: 25077
+  }
+  ```
+
+### Fixed
+* Fix the issue of transaction submission failure in a no axios environment ([#1176](https://github.com/stellar/js-stellar-sdk/pull/1176)).
+
+
+## [v13.3.0](https://github.com/stellar/js-stellar-sdk/compare/v13.2.0...v13.3.0)
+
+### Added
+* Add `includeFailed` to `PaymentCallBuilder` for including failed transactions in calls ([#1168](https://github.com/stellar/js-stellar-sdk/pull/1168)).
+
+### Fixed
+* Ensure that `rpc.Api.GetTransactionsResponse.transactions` is always a valid array ([#1162](https://github.com/stellar/js-stellar-sdk/pull/1162)).
+
+
+## [v13.2.0](https://github.com/stellar/js-stellar-sdk/compare/v13.1.0...v13.2.0)
+
+### Added
+* Support passing in an optional `options.address` to the `contract.Client.deploy` method ([#1158](https://github.com/stellar/js-stellar-sdk/pull/1158)).
+
+### Fixed
+* Extend support for parsing contract specifications in environments that don't have WebAssembly compilers ([#1157](https://github.com/stellar/js-stellar-sdk/pull/1157)).
+* Upgraded `@stellar/stellar-base` dependency to latest version ([#1159](https://github.com/stellar/js-stellar-sdk/pull/1159)).
 
 
 ## [v13.1.0](https://github.com/stellar/js-stellar-sdk/compare/v13.0.0...v13.1.0)
