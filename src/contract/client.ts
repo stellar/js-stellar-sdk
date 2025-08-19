@@ -7,7 +7,6 @@ import { Spec } from "./spec";
 import { Server } from '../rpc';
 import { AssembledTransaction } from "./assembled_transaction";
 import type { ClientOptions, MethodOptions } from "./types";
-import { specFromWasm } from './utils';
 
 const CONSTRUCTOR_FUNC = "__constructor";
 

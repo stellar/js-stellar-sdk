@@ -116,10 +116,7 @@ export async function specFromWasm(wasm: Buffer) {
     throw new Error("Could not obtain contract spec from wasm");
   }
 
-  const bufferSection = Buffer.from(xdrSections[0]);  
-  const specEntryArray = processSpecEntryStream(bufferSection);
-
-  return specEntryArray;
+  return Buffer.from(xdrSections[0]);  
 }
 
 function parseWasmCustomSections(buffer: Buffer): Map<string, Uint8Array[]> {
