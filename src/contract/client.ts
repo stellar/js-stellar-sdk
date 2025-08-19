@@ -7,105 +7,9 @@ import { Spec } from "./spec";
 import { Server } from '../rpc';
 import { AssembledTransaction } from "./assembled_transaction";
 import type { ClientOptions, MethodOptions } from "./types";
-import { processSpecEntryStream } from './utils';
+import { specFromWasm } from './utils';
 
 const CONSTRUCTOR_FUNC = "__constructor";
-
-async function specFromWasm(wasm: Buffer) {
-  let xdrSections: ArrayBuffer[] | undefined;
-
-  try {
-    const wasmModule = await WebAssembly.compile(wasm);
-    xdrSections = WebAssembly.Module.customSections(
-      wasmModule,
-      "contractspecv0"
-    );
-  } catch {
-    const customData = parseWasmCustomSections(wasm);
-    xdrSections = customData.get('contractspecv0');
-  }
-
-  if (!xdrSections || xdrSections.length === 0) {
-    throw new Error("Could not obtain contract spec from wasm");
-  }
-
-  const bufferSection = Buffer.from(xdrSections[0]);  
-  const specEntryArray = processSpecEntryStream(bufferSection);
-  const spec = new Spec(specEntryArray);
-
-  return spec;
-}
-
-function parseWasmCustomSections(buffer: Buffer): Map<string, Uint8Array[]> {
-  const sections = new Map<string, Uint8Array[]>();
-  const arrayBuffer = buffer.buffer.slice(
-    buffer.byteOffset,
-    buffer.byteOffset + buffer.byteLength
-  );
-
-  let offset = 0;
-
-  // Helper to read bytes with bounds checking
-  const read = (length: number): Uint8Array => {
-    if (offset + length > buffer.byteLength) throw new Error('Buffer overflow');
-    const bytes = new Uint8Array(arrayBuffer, offset, length);
-    offset += length;
-    return bytes;
-  };
-
-  // Validate header
-  if ([...read(4)].join() !== '0,97,115,109') throw new Error('Invalid WASM magic');
-  if ([...read(4)].join() !== '1,0,0,0') throw new Error('Invalid WASM version');
-
-  while (offset < buffer.byteLength) {
-    const sectionId = read(1)[0];
-    const sectionLength = readVarUint32();
-    const start = offset;
-
-    if (sectionId === 0) { // Custom section
-      const nameLen = readVarUint32();
-
-      if (nameLen === 0 || offset + nameLen > start + sectionLength) continue;
-
-      const nameBytes = read(nameLen);
-      const payload = read(sectionLength - (offset - start));
-
-      try {
-        const name = new TextDecoder('utf-8', { fatal: true }).decode(nameBytes);
-        if (payload.length > 0) {
-          sections.set(name, (sections.get(name) || []).concat(payload));
-        }
-      } catch { /* Invalid UTF-8 */ }
-    } else {
-      offset += sectionLength; // Skip other sections
-    }
-  }
-
-  /**
-   * Decodes a variable-length encoded unsigned 32-bit integer (LEB128 format) from the WASM binary.
-   * 
-   * This function implements the WebAssembly LEB128 (Little Endian Base 128) variable-length 
-   * encoding scheme for unsigned integers. In this encoding:
-   * - Each byte uses 7 bits for the actual value
-   * - The most significant bit (MSB) indicates if more bytes follow (1) or not (0)
-   * - Values are stored with the least significant bytes first
-   * 
-   * @returns {number} The decoded 32-bit unsigned integer
-   * @throws {Error} If the encoding is invalid or exceeds 32 bits
-   */
-  function readVarUint32(): number {
-    let value = 0, shift = 0;
-    while (true) {
-      const byte = read(1)[0];         // Read a single byte from the buffer
-      value |= (byte & 0x7F) << shift; // Extract 7 bits and shift to correct position
-      if ((byte & 0x80) === 0) break;  // If MSB is 0, we've reached the last byte
-      if ((shift += 7) >= 32) throw new Error('Invalid WASM value'); // Ensure we don't exceed 32 bits
-    }
-    return value >>> 0;  // Force conversion to unsigned 32-bit integer
-  }
-
-  return sections;
-}
 
 async function specFromWasmHash(
   wasmHash: Buffer | string,
@@ -119,7 +23,7 @@ async function specFromWasmHash(
   const serverOpts: Server.Options = { allowHttp };
   const server = new Server(rpcUrl, serverOpts);
   const wasm = await server.getContractWasmByHash(wasmHash, format);
-  return specFromWasm(wasm);
+  return Spec.fromWasm(wasm);
 }
 
 /**
@@ -249,7 +153,7 @@ export class Client {
    * @throws {Error} If the contract spec cannot be obtained from the provided wasm binary.
    */
   static async fromWasm(wasm: Buffer, options: ClientOptions): Promise<Client> {
-    const spec = await specFromWasm(wasm);
+    const spec = await Spec.fromWasm(wasm);
     return new Client(spec, options);
   }
 

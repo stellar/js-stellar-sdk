@@ -8,6 +8,7 @@ import {
   scValToBigInt,
 } from "@stellar/stellar-base"
 import { Ok } from "./rust_result"
+import { specFromWasm } from './utils';
 
 export interface Union<T> {
   tag: string;
@@ -468,6 +469,18 @@ export class Spec {
    * The XDR spec entries.
    */
   public entries: xdr.ScSpecEntry[] = [];
+
+  /**
+   * Generates a Spec instance from the contract's wasm binary.
+   *
+   * @param {Buffer} wasm The contract's wasm binary as a Buffer.
+   * @returns {Promise<module:contract.Spec>} A Promise that resolves to a Spec instance.
+   * @throws {Error} If the contract spec cannot be obtained from the provided wasm binary.
+   */
+  static async fromWasm(wasm: Buffer): Promise<Spec> {
+    const spec = await specFromWasm(wasm);
+    return new Spec(spec);
+  }
 
   constructor(entries: xdr.ScSpecEntry[] | string[]) {
     if (entries.length === 0) {
