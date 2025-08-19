@@ -18,15 +18,17 @@ before(() => {
   SPEC = new contract.Spec(spec);
 });
 
-it("loading the spec entries separately is the same result as loading the spec entries from a stream", () => {
-  const spec_from_xdr = new contract.Spec(readFileSync("../spec.xdr"));
-  expect(spec_from_xdr).deep.equal(SPEC);
-});
+describe("Spec constructor", function () {
+  it("loading the spec entries separately is the same result as loading the spec entries from a stream", () => {
+    const spec_from_xdr = new contract.Spec(readFileSync("test/unit/spec.xdr"));
+    expect(spec_from_xdr).deep.equal(SPEC);
+  });
 
-it("throws if no entries", () => {
-  expect(() => new contract.Spec([])).to.throw(
-    /Contract spec must have at least one entry/i
-  );
+  it("throws if no entries", () => {
+    expect(() => new contract.Spec([])).to.throw(
+      /Contract spec must have at least one entry/i
+    );
+  });
 });
 
 describe("Can round trip custom types", function () {
