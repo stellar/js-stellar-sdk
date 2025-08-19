@@ -489,7 +489,6 @@ export class Spec {
    * - An array of xdr.ScSpecEntry.
    * - An array of base64 XDR encoded xdr.ScSpecEntry.
    *
-   * @param {Buffer} wasm The contract's wasm binary as a Buffer.
    * @returns {Promise<module:contract.Client>} A Promise that resolves to a Client instance.
    * @throws {Error} If the contract spec cannot be obtained from the provided wasm binary.
    */

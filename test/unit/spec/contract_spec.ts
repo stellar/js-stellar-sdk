@@ -1,8 +1,8 @@
 import { xdr, Address, contract, Keypair } from "../../../lib";
 import { JSONSchemaFaker } from "json-schema-faker";
-import { readFileSync } from "fs";
 
 import spec from "../spec.json";
+import spec_stream from "../spec_stream.json";
 import { expect } from "chai";
 
 const publicKey = "GCBVOLOM32I7OD5TWZQCIXCXML3TK56MDY7ZMTAILIBQHHKPCVU42XYW";
@@ -19,8 +19,9 @@ before(() => {
 });
 
 describe("Spec constructor", function () {
-  it("loading the spec entries separately is the same result as loading the spec entries from a stream", () => {
-    const spec_from_xdr = new contract.Spec(readFileSync("test/unit/spec.xdr"));
+  it("loading the spec entries separately is the same result as loading the spec entries from a stream", async () => {
+    const xdr_stream = Buffer.from(spec_stream, "base64");
+    const spec_from_xdr = new contract.Spec(xdr_stream);
     expect(spec_from_xdr).deep.equal(SPEC);
   });
 
