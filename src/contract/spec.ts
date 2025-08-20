@@ -8,6 +8,7 @@ import {
   scValToBigInt,
 } from "@stellar/stellar-base"
 import { Ok } from "./rust_result"
+import { specFromWasm, processSpecEntryStream } from './utils';
 
 export interface Union<T> {
   tag: string;
@@ -469,17 +470,46 @@ export class Spec {
    */
   public entries: xdr.ScSpecEntry[] = [];
 
-  constructor(entries: xdr.ScSpecEntry[] | string[]) {
-    if (entries.length === 0) {
-      throw new Error("Contract spec must have at least one entry");
-    }
-    const entry = entries[0];
-    if (typeof entry === "string") {
-      this.entries = (entries as string[]).map((s) =>
-        xdr.ScSpecEntry.fromXDR(s, "base64"),
-      );
+  /**
+   * Generates a Spec instance from the contract's wasm binary.
+   *
+   * @param {Buffer} wasm The contract's wasm binary as a Buffer.
+   * @returns {Promise<module:contract.Spec>} A Promise that resolves to a Spec instance.
+   * @throws {Error} If the contract spec cannot be obtained from the provided wasm binary.
+   */
+  static async fromWasm(wasm: Buffer): Promise<Spec> {
+    const spec = await specFromWasm(wasm);
+    return new Spec(spec);
+  }
+
+  /**
+   * Generates a Spec instance from contract specs in any of the following forms:
+   * - An XDR encoded stream of xdr.ScSpecEntry entries, the format of the spec
+   *   stored inside Wasm files.
+   * - A base64 XDR encoded stream of xdr.ScSpecEntry entries.
+   * - An array of xdr.ScSpecEntry.
+   * - An array of base64 XDR encoded xdr.ScSpecEntry.
+   *
+   * @returns {Promise<module:contract.Client>} A Promise that resolves to a Client instance.
+   * @throws {Error} If the contract spec cannot be obtained from the provided wasm binary.
+   */
+  constructor(entries: Buffer | string | xdr.ScSpecEntry[] | string[]) {
+    if (Buffer.isBuffer(entries)) {
+      this.entries = processSpecEntryStream(entries as Buffer);
+    } else if (typeof entries === "string") {
+      this.entries = processSpecEntryStream(Buffer.from(entries, "base64"));
     } else {
-      this.entries = entries as xdr.ScSpecEntry[];
+      if (entries.length === 0) {
+        throw new Error("Contract spec must have at least one entry");
+      }
+      const entry = entries[0];
+      if (typeof entry === "string") {
+        this.entries = (entries as string[]).map((s) =>
+          xdr.ScSpecEntry.fromXDR(s, "base64"),
+        );
+      } else {
+        this.entries = entries as xdr.ScSpecEntry[];
+      }
     }
   }
 

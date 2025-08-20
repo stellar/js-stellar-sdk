@@ -2,6 +2,7 @@ import { xdr, Address, contract, Keypair } from "../../../lib";
 import { JSONSchemaFaker } from "json-schema-faker";
 
 import spec from "../spec.json";
+import spec_stream from "../spec_stream.json";
 import { expect } from "chai";
 
 const publicKey = "GCBVOLOM32I7OD5TWZQCIXCXML3TK56MDY7ZMTAILIBQHHKPCVU42XYW";
@@ -17,10 +18,23 @@ before(() => {
   SPEC = new contract.Spec(spec);
 });
 
-it("throws if no entries", () => {
-  expect(() => new contract.Spec([])).to.throw(
-    /Contract spec must have at least one entry/i
-  );
+describe("Spec constructor", function () {
+  it("loading the spec entries separately is the same result as loading the spec entries from a stream", async () => {
+    const xdr_stream = Buffer.from(spec_stream, "base64");
+    const spec_from_xdr = new contract.Spec(xdr_stream);
+    expect(spec_from_xdr).deep.equal(SPEC);
+  });
+
+  it("loading the spec entries separately is the same result as loading the spec entries from a base64 stream", async () => {
+    const spec_from_xdr = new contract.Spec(spec_stream);
+    expect(spec_from_xdr).deep.equal(SPEC);
+  });
+
+  it("throws if no entries", () => {
+    expect(() => new contract.Spec([])).to.throw(
+      /Contract spec must have at least one entry/i
+    );
+  });
 });
 
 describe("Can round trip custom types", function () {
