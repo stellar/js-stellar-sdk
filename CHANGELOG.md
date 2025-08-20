@@ -6,6 +6,10 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Added
+* Add support to `new contract.Spec(...)` for constructing from a stream of `ScSpecEntry` XDR entries (base64, or binary) ([#1198](https://github.com/stellar/js-stellar-sdk/pull/1198)).
+* Add `contract.Spec.fromWasm(wasmFile)` for extracting contract spec from contract Wasm files. ([#1198](https://github.com/stellar/js-stellar-sdk/pull/1198)).
+
 ## [v14.0.0](https://github.com/stellar/js-stellar-sdk/compare/v13.1.0...v14.0.0)
 
 ### Breaking Changes

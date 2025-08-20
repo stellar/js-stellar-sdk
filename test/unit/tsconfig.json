@@ -9,6 +9,7 @@
       "outDir": "./out",
       "target": "ES2020",
       "strict": false,
+      "resolveJsonModule": true,
     },
     "allowSyntheticDefaultImports": true,
     "include": ["**/*.ts" ]
