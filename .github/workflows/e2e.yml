@@ -1,0 +1,52 @@
+name: e2e
+
+on:
+  push:
+    branches: [master, release/**]
+  pull_request:
+
+jobs:
+  test:
+    env:
+      NODE: "20"
+    name: Test contract.Client (${{ matrix.job }})
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        job: ["test:e2e", "test:e2e:noeval"]
+    services:
+      rpc:
+        image: stellar/quickstart:testing@sha256:5333ec87069efd7bb61f6654a801dc093bf0aad91f43a5ba84806d3efe4a6322
+        ports:
+          - 8000:8000
+        env:
+          ENABLE_LOGS: true
+          NETWORK: local
+          ENABLE_SOROBAN_RPC: true
+          PROTOCOL_VERSION: 22
+        options: >-
+          --health-cmd "curl --no-progress-meter --fail-with-body -X POST \"http://localhost:8000/soroban/rpc\" -H 'Content-Type: application/json' -d '{\"jsonrpc\":\"2.0\",\"id\":8675309,\"method\":\"getNetwork\"}' && curl --no-progress-meter \"http://localhost:8000/friendbot\" | grep '\"invalid_field\": \"addr\"'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 50
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: true
+    - uses: actions/cache@v4
+      with:
+        path: |
+          target/
+        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+    - uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE }}
+
+    # Workaround for some `yarn` nonsense, see:
+    # https://github.com/yarnpkg/yarn/issues/6312#issuecomment-429685210
+    - run: rustup target add wasm32-unknown-unknown
+    - run: yarn install --network-concurrency 1
+    - run: yarn build:prod
+    - run: yarn ${{ matrix.job }}

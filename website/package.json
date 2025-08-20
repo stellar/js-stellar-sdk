@@ -1,0 +1,8 @@
+{
+  "scripts": {
+    "docs": "./node_modules/.bin/jsdoc ../src/ -d docs/ -r ../docs/readme.md"
+  },
+  "dependencies": {
+    "jsdoc": "jsdoc3/jsdoc#master"
+  }
+}

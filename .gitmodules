@@ -1,0 +1,3 @@
+[submodule "test/e2e/test-contracts"]
+	path = test/e2e/test-contracts
+	url = git@github.com:stellar/soroban-test-examples.git

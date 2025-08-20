@@ -1,0 +1,51 @@
+name: Github Pages
+on:
+  release:
+    types: [published]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout SDK
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Checkout Base
+        uses: actions/checkout@v4
+        with:
+          repository: stellar/js-stellar-base
+          path: js-stellar-base
+
+      - name: Install Node (20.x)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+
+      - name: Install Dependencies
+        run: yarn install
+
+      - name: Build
+        run: yarn build:prod
+
+      - name: Checkout GH pages
+        uses: actions/checkout@v4
+        with:
+          repository: stellar/js-stellar-sdk
+          ref: gh-pages
+          path: jsdoc
+
+      - name: Generate JS docs
+        continue-on-error: true
+        run: yarn docs
+
+      - name: Publish JS docs
+        run: |
+          TAG=`git describe --tags`
+          cd jsdoc/
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add .
+          git commit -m $TAG
+          git push origin gh-pages

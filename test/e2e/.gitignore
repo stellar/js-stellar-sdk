@@ -1,0 +1,7 @@
+build
+node_modules
+yarn.lock
+contract-*.txt
+.soroban
+wasms/specs/*.json
+.last_build_hash

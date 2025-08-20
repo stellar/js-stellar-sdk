@@ -1,0 +1,15 @@
+{
+  "extends": "@stellar/tsconfig",
+  "compilerOptions": {
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "declarationDir": "../lib",
+    "removeComments": false,
+    "lib": ["ES6"],
+    "moduleResolution": "node",
+    "rootDir": "../src",
+    "outDir": "../lib",
+    "target": "es6"
+  },
+  "include": ["../src"]
+}

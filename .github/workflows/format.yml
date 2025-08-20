@@ -1,0 +1,26 @@
+name: Code Formatting
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # Workaround for some `yarn` nonsense, see:
+      # https://github.com/yarnpkg/yarn/issues/6312#issuecomment-429685210
+      - name: Install Dependencies
+        run: yarn install --network-concurrency 1
+
+      - name: Run Linter Checks
+        run: yarn _prettier && (git diff-index --quiet HEAD; git diff)
