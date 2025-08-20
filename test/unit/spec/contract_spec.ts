@@ -25,6 +25,11 @@ describe("Spec constructor", function () {
     expect(spec_from_xdr).deep.equal(SPEC);
   });
 
+  it("loading the spec entries separately is the same result as loading the spec entries from a base64 stream", async () => {
+    const spec_from_xdr = new contract.Spec(spec_stream);
+    expect(spec_from_xdr).deep.equal(SPEC);
+  });
+
   it("throws if no entries", () => {
     expect(() => new contract.Spec([])).to.throw(
       /Contract spec must have at least one entry/i
