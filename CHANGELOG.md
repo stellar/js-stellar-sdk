@@ -6,6 +6,9 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Added
+* Support creating `Spec` instances from Buffer of spec entries or directly from Wasm buffer ([#1198](https://github.com/stellar/js-stellar-sdk/pull/1198)).
+
 ## [v14.0.0](https://github.com/stellar/js-stellar-sdk/compare/v13.1.0...v14.0.0)
 
 ### Breaking Changes
