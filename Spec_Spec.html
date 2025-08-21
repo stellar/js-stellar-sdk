@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -7,7 +5,7 @@
   
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>@stellar/stellar-sdk Documentation js-stellar-base/src/memo.js</title>
+  <title>@stellar/stellar-sdk Documentation Spec</title>
 
   <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -99,264 +97,271 @@
         <div class="core" id="main-content-wrapper">
             <div class="content">
                 <header class="page-title">
-                    <p>Source</p>
-                    <h1>js-stellar-base/src/memo.js</h1>
+                    <p>Class</p>
+                    <h1>Spec</h1>
                 </header>
                 
 
 
 
+
+<section>
+
+<header>
     
-    <section>
-        <article>
-            <pre class="prettyprint source linenums"><code>import { UnsignedHyper } from '@stellar/js-xdr';
-import BigNumber from './util/bignumber';
-import xdr from './xdr';
+        <h2><span class="attribs"><span class="type-signature"></span></span>Spec<span class="signature">(entries)</span><span class="type-signature"> &rarr; {Promise.&lt;<a href="module-contract.Client.html">module:contract.Client</a>>}</span></h2>
+        
+    
+</header>
 
-/**
- * Type of {@link Memo}.
- */
-export const MemoNone = 'none';
-/**
- * Type of {@link Memo}.
- */
-export const MemoID = 'id';
-/**
- * Type of {@link Memo}.
- */
-export const MemoText = 'text';
-/**
- * Type of {@link Memo}.
- */
-export const MemoHash = 'hash';
-/**
- * Type of {@link Memo}.
- */
-export const MemoReturn = 'return';
+<article>
+    <div class="container-overview">
+    
+        
+            <div class='vertical-section'>
+                <div class="members">
+                    <div class="member">
+                        <div class=name>
+                            <span class="tag">Constructor</span>
+                        </div>
+                        
 
-/**
- * `Memo` represents memos attached to transactions.
- *
- * @param {string} type - `MemoNone`, `MemoID`, `MemoText`, `MemoHash` or `MemoReturn`
- * @param {*} value - `string` for `MemoID`, `MemoText`, buffer of hex string for `MemoHash` or `MemoReturn`
- * @see [Transactions concept](https://developers.stellar.org/docs/glossary/transactions/)
- * @class Memo
- */
-export class Memo {
-  constructor(type, value = null) {
-    this._type = type;
-    this._value = value;
 
-    switch (this._type) {
-      case MemoNone:
-        break;
-      case MemoID:
-        Memo._validateIdValue(value);
-        break;
-      case MemoText:
-        Memo._validateTextValue(value);
-        break;
-      case MemoHash:
-      case MemoReturn:
-        Memo._validateHashValue(value);
-        // We want MemoHash and MemoReturn to have Buffer as a value
-        if (typeof value === 'string') {
-          this._value = Buffer.from(value, 'hex');
-        }
-        break;
-      default:
-        throw new Error('Invalid memo type');
-    }
-  }
+    
+    <h4 class="name" id="Spec">
+        <a class="href-link" href="#Spec">#</a>
+        
+        <span class="code-name">
+            
+                new Spec<span class="signature">(entries)</span><span class="type-signature"> &rarr; {Promise.&lt;<a href="module-contract.Client.html">module:contract.Client</a>>}</span>
+            
+        </span>
+    </h4>
+    
 
-  /**
-   * Contains memo type: `MemoNone`, `MemoID`, `MemoText`, `MemoHash` or `MemoReturn`
-   */
-  get type() {
-    return this._type;
-  }
+    
+    
+    <div class="description">
+        <p>Generates a Spec instance from contract specs in any of the following forms:</p>
+<ul>
+<li>An XDR encoded stream of xdr.ScSpecEntry entries, the format of the spec
+stored inside Wasm files.</li>
+<li>A base64 XDR encoded stream of xdr.ScSpecEntry entries.</li>
+<li>An array of xdr.ScSpecEntry.</li>
+<li>An array of base64 XDR encoded xdr.ScSpecEntry.</li>
+</ul>
+    </div>
+    
 
-  set type(type) {
-    throw new Error('Memo is immutable');
-  }
 
-  /**
-   * Contains memo value:
-   * * `null` for `MemoNone`,
-   * * `string` for `MemoID`,
-   * * `Buffer` for `MemoText` after decoding using `fromXDRObject`, original value otherwise,
-   * * `Buffer` for `MemoHash`, `MemoReturn`.
-   */
-  get value() {
-    switch (this._type) {
-      case MemoNone:
-        return null;
-      case MemoID:
-      case MemoText:
-        return this._value;
-      case MemoHash:
-      case MemoReturn:
-        return Buffer.from(this._value);
-      default:
-        throw new Error('Invalid memo type');
-    }
-  }
 
-  set value(value) {
-    throw new Error('Memo is immutable');
-  }
 
-  static _validateIdValue(value) {
-    const error = new Error(`Expects a int64 as a string. Got ${value}`);
 
-    if (typeof value !== 'string') {
-      throw error;
-    }
 
-    let number;
-    try {
-      number = new BigNumber(value);
-    } catch (e) {
-      throw error;
-    }
 
-    // Infinity
-    if (!number.isFinite()) {
-      throw error;
-    }
 
-    // NaN
-    if (number.isNaN()) {
-      throw error;
-    }
-  }
 
-  static _validateTextValue(value) {
-    if (!xdr.Memo.armTypeForArm('text').isValid(value)) {
-      throw new Error('Expects string, array or buffer, max 28 bytes');
-    }
-  }
+    <h5>Parameters:</h5>
+    
+<div class="table-container">
+    <table class="params table">
+        <thead>
+        <tr>
+            
+            <th>Name</th>
+            
 
-  static _validateHashValue(value) {
-    const error = new Error(
-      `Expects a 32 byte hash value or hex encoded string. Got ${value}`
-    );
+            <th>Type</th>
 
-    if (value === null || typeof value === 'undefined') {
-      throw error;
-    }
+            
 
-    let valueBuffer;
-    if (typeof value === 'string') {
-      if (!/^[0-9A-Fa-f]{64}$/g.test(value)) {
-        throw error;
-      }
-      valueBuffer = Buffer.from(value, 'hex');
-    } else if (Buffer.isBuffer(value)) {
-      valueBuffer = Buffer.from(value);
-    } else {
-      throw error;
-    }
+            
 
-    if (!valueBuffer.length || valueBuffer.length !== 32) {
-      throw error;
-    }
-  }
+            <th class="last">Description</th>
+        </tr>
+        </thead>
 
-  /**
-   * Returns an empty memo (`MemoNone`).
-   * @returns {Memo}
-   */
-  static none() {
-    return new Memo(MemoNone);
-  }
+        <tbody>
+        
 
-  /**
-   * Creates and returns a `MemoText` memo.
-   * @param {string} text - memo text
-   * @returns {Memo}
-   */
-  static text(text) {
-    return new Memo(MemoText, text);
-  }
+            
+<tr class="deep-level-0">
+  
+      <td class="name"><code>entries</code></td>
+  
 
-  /**
-   * Creates and returns a `MemoID` memo.
-   * @param {string} id - 64-bit number represented as a string
-   * @returns {Memo}
-   */
-  static id(id) {
-    return new Memo(MemoID, id);
-  }
+  <td class="type">
+  
+      
+<code class="param-type">Buffer</code>
+|
 
-  /**
-   * Creates and returns a `MemoHash` memo.
-   * @param {array|string} hash - 32 byte hash or hex encoded string
-   * @returns {Memo}
-   */
-  static hash(hash) {
-    return new Memo(MemoHash, hash);
-  }
+<code class="param-type">string</code>
+|
 
-  /**
-   * Creates and returns a `MemoReturn` memo.
-   * @param {array|string} hash - 32 byte hash or hex encoded string
-   * @returns {Memo}
-   */
-  static return(hash) {
-    return new Memo(MemoReturn, hash);
-  }
+<code class="param-type">Array</code>
+|
 
-  /**
-   * Returns XDR memo object.
-   * @returns {xdr.Memo}
-   */
-  toXDRObject() {
-    switch (this._type) {
-      case MemoNone:
-        return xdr.Memo.memoNone();
-      case MemoID:
-        return xdr.Memo.memoId(UnsignedHyper.fromString(this._value));
-      case MemoText:
-        return xdr.Memo.memoText(this._value);
-      case MemoHash:
-        return xdr.Memo.memoHash(this._value);
-      case MemoReturn:
-        return xdr.Memo.memoReturn(this._value);
-      default:
-        return null;
-    }
-  }
+<code class="param-type">Array</code>
 
-  /**
-   * Returns {@link Memo} from XDR memo object.
-   * @param {xdr.Memo} object XDR memo object
-   * @returns {Memo}
-   */
-  static fromXDRObject(object) {
-    switch (object.arm()) {
-      case 'id':
-        return Memo.id(object.value().toString());
-      case 'text':
-        return Memo.text(object.value());
-      case 'hash':
-        return Memo.hash(object.value());
-      case 'retHash':
-        return Memo.return(object.value());
-      default:
-        break;
-    }
 
-    if (typeof object.value() === 'undefined') {
-      return Memo.none();
-    }
+  
+  </td>
 
-    throw new Error('Unknown type');
-  }
-}
-</code></pre>
-        </article>
-    </section>
+  
+
+  
+
+  <td class="description last"></td>
+</tr>
+
+
+        
+        </tbody>
+    </table>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="lib_contract_spec.d.ts.html" class="button">View Source</a>
+            <span>
+                <a href="lib_contract_spec.d.ts.html">lib/contract/spec.d.ts</a>, <a href="lib_contract_spec.d.ts.html#line36">line 36</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class='columns method-parameter'>
+        <div class="column is-2"><label>Throws:</label></div>
+        <div class="column is-10">
+            
+                    
+<div class="columns">
+    
+    <div class='param-desc column is-7'><p>If the contract spec cannot be obtained from the provided wasm binary.</p></div>
+    <div class='column is-5 has-text-left'>
+        <label>Type: </label>
+<code class="param-type">Error</code>
+
+
+    </div>
+    
+</div>
+
+                
+        </div>
+    </div>
+
+
+
+    <div class='columns method-parameter'>
+        <div class="column is-2"><label>Returns:</label></div>
+        <div class="column is-10">
+            
+                    
+
+<div class="columns">
+    
+    <div class='param-desc column is-7'><p>A Promise that resolves to a Client instance.</p></div>
+    
+    
+    <div class='column is-5 has-text-left'>
+        <label>Type: </label>
+        
+<code class="param-type">Promise.&lt;<a href="module-contract.Client.html">module:contract.Client</a>></code>
+
+
+    </div>
+    
+</div>
+
+                
+        </div>
+    </div>
+
+
+
+
+
+                    </div>
+                </div>
+            </div>
+        
+    
+    </div>
+    
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
 
 
 
