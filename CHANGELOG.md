@@ -11,6 +11,7 @@ A breaking change will get clearly marked in this log.
 
 ### Fixed
 * Added missing `transactionIndex` and `operationIndex` to `getEvents` return schema ([#1206](https://github.com/stellar/js-stellar-sdk/pull/1206)).
+* Remove previously-deprecated and now-removed `pagingToken` from `getEvents` (use `id` instead or the top-level `cursor`, depending on pagination needs) ([#1207](https://github.com/stellar/js-stellar-sdk/pull/1207)).
 
 
 ## [v14.1.0](https://github.com/stellar/js-stellar-sdk/compare/v14.0.0...v14.1.0)
