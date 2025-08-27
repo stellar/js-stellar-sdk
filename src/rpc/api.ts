@@ -235,7 +235,6 @@ export namespace Api {
     type: EventType;
     ledger: number;
     ledgerClosedAt: string;
-    pagingToken: string;
     transactionIndex: number;
     operationIndex: number;
     inSuccessfulContractCall: boolean;
