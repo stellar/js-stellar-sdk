@@ -237,6 +237,7 @@ export namespace Api {
     ledgerClosedAt: string;
     pagingToken: string;
     transactionIndex: number;
+    operationIndex: number;
     inSuccessfulContractCall: boolean;
     txHash: string;
   }
