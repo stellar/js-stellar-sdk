@@ -8,12 +8,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout SDK
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
       - name: Checkout Base
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: stellar/js-stellar-base
           path: js-stellar-base
@@ -30,7 +30,7 @@ jobs:
         run: yarn build:prod
 
       - name: Checkout GH pages
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: stellar/js-stellar-sdk
           ref: gh-pages
