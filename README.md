@@ -1,24 +1,18 @@
+# Stellar JS SDK (js-stellar-sdk)
 
-<div align="center">
-  <img alt="Stellar" src="https://github.com/stellar/.github/raw/master/stellar-logo.png" width="558" />
-  <br/>
-  <strong>Creating equitable access to the global financial system</strong>
-  <h1>js-stellar-sdk</h1>
-</div>
 
-<p align="center">
-  <a href="https://badge.fury.io/js/@stellar%2Fstellar-sdk"><img src="https://badge.fury.io/js/@stellar%2Fstellar-sdk.svg" alt="npm version" height="18"></a>
-  <a href="https://www.npmjs.com/package/@stellar/stellar-sdk">
-    <img alt="Weekly Downloads" src="https://img.shields.io/npm/dw/@stellar/stellar-sdk" />
-  </a>
-  <a href="https://github.com/stellar/js-stellar-sdk/actions/workflows/tests.yml"><img alt="Test Status" src="https://github.com/stellar/js-stellar-sdk/actions/workflows/tests.yml/badge.svg" /></a>
-</p>
+<a href="https://badge.fury.io/js/@stellar%2Fstellar-sdk"><img src="https://badge.fury.io/js/@stellar%2Fstellar-sdk.svg" alt="npm version" height="18"></a>
+<a href="https://www.npmjs.com/package/@stellar/stellar-sdk">
+  <img alt="Weekly Downloads" src="https://img.shields.io/npm/dw/@stellar/stellar-sdk" />
+</a>
+<a href="https://github.com/stellar/js-stellar-sdk/actions/workflows/tests.yml"><img alt="Test Status" src="https://github.com/stellar/js-stellar-sdk/actions/workflows/tests.yml/badge.svg" /></a>
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/stellar/js-stellar-sdk)
 
-js-stellar-sdk is a JavaScript library for communicating with a
-[Stellar Horizon server](https://github.com/stellar/go/tree/master/services/horizon) and [Soroban RPC](https://developers.stellar.org/docs/data/rpc).
-It is used for building Stellar apps either on Node.js or in the browser, though it can be used in other environments with some tinkering.
+`js-stellar-sdk` is a JavaScript library for communicating with a
+[Stellar Horizon server](https://developers.stellar.org/docs/data/apis/horizon) and [Stellar RPC](https://developers.stellar.org/docs/data/apis/rpc).
+While primarily intended for applications built on Node.js or in the browser, it can be adapted for use in other environments with some tinkering.
 
-It provides:
+The library provides:
 
 - a networking layer API for Horizon endpoints (REST-based),
 - a networking layer for Soroban RPC (JSONRPC-based).
