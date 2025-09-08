@@ -7,6 +7,12 @@ A breaking change will get clearly marked in this log.
 ## Unreleased
 
 
+## [v14.1.2](https://github.com/stellar/js-stellar-sdk/compare/v14.1.1...v14.1.2)
+
+### Security Fix
+* Pin dependencies to specific versions.
+
+
 ## [v14.1.1](https://github.com/stellar/js-stellar-sdk/compare/v14.1.0...v14.1.1)
 
 ### Fixed

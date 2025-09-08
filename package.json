@@ -1,6 +1,6 @@
 {
   "name": "@stellar/stellar-sdk",
-  "version": "14.1.1",
+  "version": "14.1.2",
   "description": "A library for working with the Stellar network, including communication with the Horizon and Soroban RPC servers.",
   "keywords": [
     "stellar"
@@ -225,5 +225,12 @@
     "randombytes": "^2.1.0",
     "toml": "^3.0.0",
     "urijs": "^1.19.1"
+  },
+  "overrides": {
+    "chalk": "5.3.0",
+    "strip-ansi": "7.1.0",
+    "color-convert": "2.0.1",
+    "color-name": "1.1.4",
+    "is-core-module": "2.13.1"
   }
 }
