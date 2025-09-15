@@ -211,6 +211,26 @@ export class RpcServer {
    * });
    */
   public async getAccount(address: string): Promise<Account> {
+    const entry = await this.getAccountEntry(address);
+    return new Account(address, entry.seqNum().toString());
+  }
+
+  /**
+   * Fetch the full account entry for a Stellar account.
+   *
+   * @param {string} address The public address of the account to load.
+   * @returns {Promise<xdr.AccountEntry>} A promise which resolves to the
+   *    {@link Account} object with a populated sequence number
+   *
+   * @see {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods/getLedgerEntries | getLedgerEntries docs}
+   *
+   * @example
+   * const accountId = "GBZC6Y2Y7Q3ZQ2Y4QZJ2XZ3Z5YXZ6Z7Z2Y4QZJ2XZ3Z5YXZ6Z7Z2Y4";
+   * server.getAccountEntry(accountId).then((account) => {
+   *   console.log("sequence:", account.balance().toString());
+   * });
+   */
+  public async getAccountEntry(address: string): Promise<xdr.AccountEntry> {
     const ledgerKey = xdr.LedgerKey.account(
       new xdr.LedgerKeyAccount({
         accountId: Keypair.fromPublicKey(address).xdrPublicKey()
@@ -226,8 +246,27 @@ export class RpcServer {
       });
     }
 
-    const accountEntry = resp.entries[0].val.account();
-    return new Account(address, accountEntry.seqNum().toString());
+    return resp.entries[0].val.account();
+  }
+
+  public async getTrustline(account: string, asset: Asset): Promise<xdr.TrustLineEntry> {
+    const trustlineLedgerKey = xdr.LedgerKey.trustline(
+      new xdr.LedgerKeyTrustLine({
+        accountId: Keypair.fromPublicKey(account).xdrAccountId(),
+        asset: asset.toTrustLineXDRObject(),
+      })
+    );
+
+    const resp = await this.getLedgerEntries(trustlineLedgerKey);
+    if (resp.entries.length === 0) {
+      // eslint-disable-next-line prefer-promise-reject-errors
+      return Promise.reject({
+        code: 404,
+        message: `Account not found: ${account}`
+      });
+    }
+
+    return resp.entries[0].val.trustLine();
   }
 
   /**
