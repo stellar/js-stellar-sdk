@@ -237,16 +237,12 @@ export class RpcServer {
       })
     );
 
-    const resp = await this.getLedgerEntries(ledgerKey);
-    if (resp.entries.length === 0) {
-      // eslint-disable-next-line prefer-promise-reject-errors
-      return Promise.reject({
-        code: 404,
-        message: `Account not found: ${address}`
-      });
+    try {
+      const resp = await this.getLedgerEntry(ledgerKey);
+      return resp.val.account();
+    } catch (e) {
+      throw new Error(`Account not found: ${address}`);
     }
-
-    return resp.entries[0].val.account();
   }
 
   public async getTrustline(account: string, asset: Asset): Promise<xdr.TrustLineEntry> {
@@ -257,16 +253,12 @@ export class RpcServer {
       })
     );
 
-    const resp = await this.getLedgerEntries(trustlineLedgerKey);
-    if (resp.entries.length === 0) {
-      // eslint-disable-next-line prefer-promise-reject-errors
-      return Promise.reject({
-        code: 404,
-        message: `Account not found: ${account}`
-      });
+    try {
+      const entry = await this.getLedgerEntry(trustlineLedgerKey);
+      return entry.val.trustLine();
+    } catch (e) {
+      throw new Error(`Trustline for ${asset.getCode()}:${asset.getIssuer()} not found for ${account}`);
     }
-
-    return resp.entries[0].val.trustLine();
   }
 
   /**
@@ -362,23 +354,15 @@ export class RpcServer {
       })
     );
 
-    return this.getLedgerEntries(contractKey).then(
-      (r: Api.GetLedgerEntriesResponse) => {
-        if (r.entries.length === 0) {
-          // eslint-disable-next-line prefer-promise-reject-errors
-          return Promise.reject({
-            code: 404,
-            message: `Contract data not found. Contract: ${Address.fromScAddress(
-              scAddress
-            ).toString()}, Key: ${key.toXDR(
-              'base64'
-            )}, Durability: ${durability}`
-          });
-        }
-
-        return r.entries[0];
-      }
-    );
+    try {
+      return await this.getLedgerEntry(contractKey);
+    } catch (e) {
+      throw new Error(
+        `Contract data not found for ${
+          Address.fromScAddress(scAddress).toString()
+        } with key ${key.toXDR('base64')} and durability: ${durability}`
+      );
+    }
   }
 
   /**
@@ -497,15 +481,11 @@ export class RpcServer {
    *   console.log("latestLedger:", response.latestLedger);
    * });
    */
-  // eslint-disable-next-line require-await
-  public async getLedgerEntries(
-    ...keys: xdr.LedgerKey[]
-  ): Promise<Api.GetLedgerEntriesResponse> {
+  public getLedgerEntries(...keys: xdr.LedgerKey[]) {
     return this._getLedgerEntries(...keys).then(parseRawLedgerEntries);
   }
 
-  // eslint-disable-next-line require-await
-  public async _getLedgerEntries(...keys: xdr.LedgerKey[]) {
+  public _getLedgerEntries(...keys: xdr.LedgerKey[]) {
     return jsonrpc
       .postObject<Api.RawGetLedgerEntriesResponse>(
         this.serverURL.toString(),
@@ -515,6 +495,13 @@ export class RpcServer {
       );
   }
 
+  public async getLedgerEntry(key: xdr.LedgerKey) {
+    const results = await this._getLedgerEntries(key).then(parseRawLedgerEntries);
+    if (results.entries.length !== 1) {
+      throw new Error(`failed to find an entry for key ${key.toXDR("base64")}`);
+    }
+    return results.entries[0];
+  }
 
   /**
    * Poll for a particular transaction with certain parameters.
