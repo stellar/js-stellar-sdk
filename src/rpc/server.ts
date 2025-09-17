@@ -357,11 +357,12 @@ export class RpcServer {
     try {
       return await this.getLedgerEntry(contractKey);
     } catch (e) {
-      throw new Error(
-        `Contract data not found for ${
+      throw {
+        code: 404,
+        message: `Contract data not found for ${
           Address.fromScAddress(scAddress).toString()
-        } with key ${key.toXDR('base64')} and durability: ${durability}`
-      );
+        } with key ${key.toXDR('base64')} and durability: ${durability}`,
+      };
     }
   }
 
@@ -1084,16 +1085,17 @@ export class RpcServer {
    *    entry details if and only if the request returned a valid balance ledger
    *    entry. If it doesn't, the `balanceEntry` field will not exist.
    *
-   * @throws {TypeError} If `contractId` is not a valid contract strkey (C...).
+   * @throws {TypeError} If `address` is not a valid contract ID (C...) or
+   *    ed25519 public key (G...).
    *
    * @see getLedgerEntries
    * @see https://developers.stellar.org/docs/tokens/stellar-asset-contract
    *
    * @example
-   * // assume `contractId` is some contract with an XLM balance
+   * // assume `address` is some contract or account with an XLM balance
    * // assume server is an instantiated `Server` instance.
    * const entry = (await server.getSACBalance(
-   *   new Address(contractId),
+   *   new Address(address),
    *   Asset.native(),
    *   Networks.PUBLIC
    * ));
@@ -1102,15 +1104,20 @@ export class RpcServer {
    * console.log(
    *   entry.balanceEntry ?
    *   BigInt(entry.balanceEntry.amount) :
-   *   "Contract has no XLM");
+   *   "Address has no XLM");
    */
   public async getSACBalance(
-    contractId: string,
+    address: string,
     sac: Asset,
     networkPassphrase?: string
   ): Promise<Api.BalanceResponse> {
-      if (!StrKey.isValidContract(contractId)) {
-        throw new TypeError(`expected contract ID, got ${contractId}`);
+      if (
+        !StrKey.isValidContract(address) &&
+        !StrKey.isValidEd25519PublicKey(address)
+      ) {
+        throw new TypeError(
+          `expected contract ID or ed25519 public key, got ${address}`
+        );
       }
 
       // Call out to RPC if passphrase isn't provided.
@@ -1121,7 +1128,7 @@ export class RpcServer {
       const sacId = sac.contractId(passphrase);
 
       // Rust union enum type with "Balance(ScAddress)" structure
-      const key = nativeToScVal(["Balance", contractId], {
+      const key = nativeToScVal(["Balance", address], {
         type: [ "symbol", "address" ]
       });
 
