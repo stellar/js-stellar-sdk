@@ -6,6 +6,9 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+
+## [v14.2.0](https://github.com/stellar/js-stellar-sdk/compare/v14.1.1...v14.2.0)
+
 ### Added
 * `rpc.Server` now includes `getAccountEntry`, `getTrustlineEntry`, and `getClaimableBalance` methods to facilitate retrieving those entries without manually constructing the ledger keys ([#1218](https://github.com/stellar/js-stellar-sdk/pull/1218), [#1221](https://github.com/stellar/js-stellar-sdk/pull/1221)).
 * `rpc.Server`'s
