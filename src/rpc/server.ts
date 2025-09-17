@@ -211,23 +211,54 @@ export class RpcServer {
    * });
    */
   public async getAccount(address: string): Promise<Account> {
+    const entry = await this.getAccountEntry(address);
+    return new Account(address, entry.seqNum().toString());
+  }
+
+  /**
+   * Fetch the full account entry for a Stellar account.
+   *
+   * @param {string} address The public address of the account to load.
+   * @returns {Promise<xdr.AccountEntry>} A promise which resolves to the
+   *    {@link Account} object with a populated sequence number
+   *
+   * @see {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods/getLedgerEntries | getLedgerEntries docs}
+   *
+   * @example
+   * const accountId = "GBZC6Y2Y7Q3ZQ2Y4QZJ2XZ3Z5YXZ6Z7Z2Y4QZJ2XZ3Z5YXZ6Z7Z2Y4";
+   * server.getAccountEntry(accountId).then((account) => {
+   *   console.log("sequence:", account.balance().toString());
+   * });
+   */
+  public async getAccountEntry(address: string): Promise<xdr.AccountEntry> {
     const ledgerKey = xdr.LedgerKey.account(
       new xdr.LedgerKeyAccount({
         accountId: Keypair.fromPublicKey(address).xdrPublicKey()
       })
     );
 
-    const resp = await this.getLedgerEntries(ledgerKey);
-    if (resp.entries.length === 0) {
-      // eslint-disable-next-line prefer-promise-reject-errors
-      return Promise.reject({
-        code: 404,
-        message: `Account not found: ${address}`
-      });
+    try {
+      const resp = await this.getLedgerEntry(ledgerKey);
+      return resp.val.account();
+    } catch (e) {
+      throw new Error(`Account not found: ${address}`);
     }
+  }
 
-    const accountEntry = resp.entries[0].val.account();
-    return new Account(address, accountEntry.seqNum().toString());
+  public async getTrustline(account: string, asset: Asset): Promise<xdr.TrustLineEntry> {
+    const trustlineLedgerKey = xdr.LedgerKey.trustline(
+      new xdr.LedgerKeyTrustLine({
+        accountId: Keypair.fromPublicKey(account).xdrAccountId(),
+        asset: asset.toTrustLineXDRObject(),
+      })
+    );
+
+    try {
+      const entry = await this.getLedgerEntry(trustlineLedgerKey);
+      return entry.val.trustLine();
+    } catch (e) {
+      throw new Error(`Trustline for ${asset.getCode()}:${asset.getIssuer()} not found for ${account}`);
+    }
   }
 
   /**
@@ -323,23 +354,16 @@ export class RpcServer {
       })
     );
 
-    return this.getLedgerEntries(contractKey).then(
-      (r: Api.GetLedgerEntriesResponse) => {
-        if (r.entries.length === 0) {
-          // eslint-disable-next-line prefer-promise-reject-errors
-          return Promise.reject({
-            code: 404,
-            message: `Contract data not found. Contract: ${Address.fromScAddress(
-              scAddress
-            ).toString()}, Key: ${key.toXDR(
-              'base64'
-            )}, Durability: ${durability}`
-          });
-        }
-
-        return r.entries[0];
-      }
-    );
+    try {
+      return await this.getLedgerEntry(contractKey);
+    } catch (e) {
+      throw {
+        code: 404,
+        message: `Contract data not found for ${
+          Address.fromScAddress(scAddress).toString()
+        } with key ${key.toXDR('base64')} and durability: ${durability}`,
+      };
+    }
   }
 
   /**
@@ -458,15 +482,11 @@ export class RpcServer {
    *   console.log("latestLedger:", response.latestLedger);
    * });
    */
-  // eslint-disable-next-line require-await
-  public async getLedgerEntries(
-    ...keys: xdr.LedgerKey[]
-  ): Promise<Api.GetLedgerEntriesResponse> {
+  public getLedgerEntries(...keys: xdr.LedgerKey[]) {
     return this._getLedgerEntries(...keys).then(parseRawLedgerEntries);
   }
 
-  // eslint-disable-next-line require-await
-  public async _getLedgerEntries(...keys: xdr.LedgerKey[]) {
+  public _getLedgerEntries(...keys: xdr.LedgerKey[]) {
     return jsonrpc
       .postObject<Api.RawGetLedgerEntriesResponse>(
         this.serverURL.toString(),
@@ -476,6 +496,13 @@ export class RpcServer {
       );
   }
 
+  public async getLedgerEntry(key: xdr.LedgerKey) {
+    const results = await this._getLedgerEntries(key).then(parseRawLedgerEntries);
+    if (results.entries.length !== 1) {
+      throw new Error(`failed to find an entry for key ${key.toXDR("base64")}`);
+    }
+    return results.entries[0];
+  }
 
   /**
    * Poll for a particular transaction with certain parameters.
@@ -1058,16 +1085,17 @@ export class RpcServer {
    *    entry details if and only if the request returned a valid balance ledger
    *    entry. If it doesn't, the `balanceEntry` field will not exist.
    *
-   * @throws {TypeError} If `contractId` is not a valid contract strkey (C...).
+   * @throws {TypeError} If `address` is not a valid contract ID (C...) or
+   *    ed25519 public key (G...).
    *
    * @see getLedgerEntries
    * @see https://developers.stellar.org/docs/tokens/stellar-asset-contract
    *
    * @example
-   * // assume `contractId` is some contract with an XLM balance
+   * // assume `address` is some contract or account with an XLM balance
    * // assume server is an instantiated `Server` instance.
    * const entry = (await server.getSACBalance(
-   *   new Address(contractId),
+   *   new Address(address),
    *   Asset.native(),
    *   Networks.PUBLIC
    * ));
@@ -1076,15 +1104,20 @@ export class RpcServer {
    * console.log(
    *   entry.balanceEntry ?
    *   BigInt(entry.balanceEntry.amount) :
-   *   "Contract has no XLM");
+   *   "Address has no XLM");
    */
   public async getSACBalance(
-    contractId: string,
+    address: string,
     sac: Asset,
     networkPassphrase?: string
   ): Promise<Api.BalanceResponse> {
-      if (!StrKey.isValidContract(contractId)) {
-        throw new TypeError(`expected contract ID, got ${contractId}`);
+      if (
+        !StrKey.isValidContract(address) &&
+        !StrKey.isValidEd25519PublicKey(address)
+      ) {
+        throw new TypeError(
+          `expected contract ID or ed25519 public key, got ${address}`
+        );
       }
 
       // Call out to RPC if passphrase isn't provided.
@@ -1095,7 +1128,7 @@ export class RpcServer {
       const sacId = sac.contractId(passphrase);
 
       // Rust union enum type with "Balance(ScAddress)" structure
-      const key = nativeToScVal(["Balance", contractId], {
+      const key = nativeToScVal(["Balance", address], {
         type: [ "symbol", "address" ]
       });
 

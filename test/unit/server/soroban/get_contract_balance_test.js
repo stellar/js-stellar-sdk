@@ -18,10 +18,6 @@ describe("Server#getContractBalance", function () {
     token.contractId(StellarSdk.Networks.TESTNET),
   ).toScAddress();
 
-  const key = xdr.ScVal.scvVec([
-    nativeToScVal("Balance", { type: "symbol" }),
-    nativeToScVal(contract, { type: "address" }),
-  ]);
   const val = nativeToScVal(
     {
       amount: 1_000_000_000_000n,
@@ -37,34 +33,43 @@ describe("Server#getContractBalance", function () {
     },
   );
 
-  const contractBalanceEntry = xdr.LedgerEntryData.contractData(
-    new xdr.ContractDataEntry({
-      ext: new xdr.ExtensionPoint(0),
-      contract: contractAddress,
-      durability: xdr.ContractDataDurability.persistent(),
-      key,
-      val,
-    }),
-  );
+  function buildBalanceArtifacts(holder) {
+    const key = xdr.ScVal.scvVec([
+      nativeToScVal("Balance", { type: "symbol" }),
+      nativeToScVal(holder, { type: "address" }),
+    ]);
 
-  // key is just a subset of the entry
-  const contractBalanceKey = xdr.LedgerKey.contractData(
-    new xdr.LedgerKeyContractData({
-      contract: contractBalanceEntry.contractData().contract(),
-      durability: contractBalanceEntry.contractData().durability(),
-      key: contractBalanceEntry.contractData().key(),
-    }),
-  );
+    const entry = xdr.LedgerEntryData.contractData(
+      new xdr.ContractDataEntry({
+        ext: new xdr.ExtensionPoint(0),
+        contract: contractAddress,
+        durability: xdr.ContractDataDurability.persistent(),
+        key,
+        val,
+      }),
+    );
 
-  function buildMockResult(that) {
+    const ledgerKey = xdr.LedgerKey.contractData(
+      new xdr.LedgerKeyContractData({
+        contract: entry.contractData().contract(),
+        durability: entry.contractData().durability(),
+        key: entry.contractData().key(),
+      }),
+    );
+
+    return { entry, ledgerKey };
+  }
+
+  function buildMockResult(that, holder = contract) {
+    const { entry, ledgerKey } = buildBalanceArtifacts(holder);
     let result = {
       latestLedger: 1000,
       entries: [
         {
           lastModifiedLedgerSeq: 1,
           liveUntilLedgerSeq: 1000,
-          key: contractBalanceKey.toXDR("base64"),
-          xdr: contractBalanceEntry.toXDR("base64"),
+          key: ledgerKey.toXDR("base64"),
+          xdr: entry.toXDR("base64"),
         },
       ],
     };
@@ -75,7 +80,7 @@ describe("Server#getContractBalance", function () {
         jsonrpc: "2.0",
         id: 1,
         method: "getLedgerEntries",
-        params: { keys: [contractBalanceKey.toXDR("base64")] },
+        params: { keys: [ledgerKey.toXDR("base64")] },
       })
       .returns(
         Promise.resolve({
@@ -89,6 +94,23 @@ describe("Server#getContractBalance", function () {
 
     this.server
       .getSACBalance(contract, token, StellarSdk.Networks.TESTNET)
+      .then((response) => {
+        expect(response.latestLedger).to.equal(1000);
+        expect(response.balanceEntry).to.not.be.undefined;
+        expect(response.balanceEntry.amount).to.equal("1000000000000");
+        expect(response.balanceEntry.authorized).to.be.true;
+        expect(response.balanceEntry.clawback).to.be.false;
+        done();
+      })
+      .catch((err) => done(err));
+  });
+
+  it("returns the correct balance entry for accounts", function (done) {
+    const account = Keypair.random().publicKey();
+    buildMockResult(this, account);
+
+    this.server
+      .getSACBalance(account, token, StellarSdk.Networks.TESTNET)
       .then((response) => {
         expect(response.latestLedger).to.equal(1000);
         expect(response.balanceEntry).to.not.be.undefined;
@@ -135,13 +157,6 @@ describe("Server#getContractBalance", function () {
   });
 
   it("throws on invalid addresses", function (done) {
-    this.server
-      .getSACBalance(Keypair.random().publicKey(), token)
-      .then(() => done(new Error("Error didn't occur")))
-      .catch((err) => {
-        expect(err).to.match(/TypeError/);
-      });
-
     this.server
       .getSACBalance(contract.substring(0, -1), token)
       .then(() => done(new Error("Error didn't occur")))
