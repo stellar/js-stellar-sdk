@@ -286,7 +286,8 @@ export class RpcServer {
   /**
    * Fetch the full claimable balance entry for a Stellar account.
    *
-   * @param {string} id   The strkey (`B...`) or hex (`00000000abcde...`) of the
+   * @param {string} id   The strkey (`B...`) or hex (`00000000abcde...`) (both
+   *    IDs with and without the 000... version prefix are accepted) of the
    *    claimable balance to load
    * @returns {Promise<xdr.ClaimableBalanceEntry>} Resolves to the full on-chain
    *    claimable balance entry
@@ -316,6 +317,8 @@ export class RpcServer {
       );
     } else if (id.match(/[a-f0-9]{72}/i)) {
       balanceId = xdr.ClaimableBalanceId.fromXDR(id, "hex")
+    } else if (id.match(/[a-f0-9]{64}/i)) {
+      balanceId = xdr.ClaimableBalanceId.fromXDR(id.padStart(72, '0'), "hex")
     } else {
       throw new TypeError(`expected 72-char hex ID or strkey, not ${id}`)
     }
