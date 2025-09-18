@@ -186,11 +186,11 @@ describe("Server#getClaimableBalance", function () {
     this.axiosMock.restore();
   });
 
-  const claimantAccount = "GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI";
+  const claimantAccount =
+    "GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI";
   const balanceIdBytes = hash(Buffer.from("claimable-balance-test"));
-  const balanceId = xdr.ClaimableBalanceId.claimableBalanceIdTypeV0(
-    balanceIdBytes,
-  );
+  const balanceId =
+    xdr.ClaimableBalanceId.claimableBalanceIdTypeV0(balanceIdBytes);
   const ledgerKey = xdr.LedgerKey.claimableBalance(
     new xdr.LedgerKeyClaimableBalance({ balanceId }),
   );
@@ -214,10 +214,7 @@ describe("Server#getClaimableBalance", function () {
   const ledgerEntryXDR = ledgerEntry.toXDR("base64");
   const balanceIdHex = balanceId.toXDR("hex");
   const balanceIdStrKey = StrKey.encodeClaimableBalance(
-    Buffer.concat([
-      Buffer.from([balanceId.switch().value]),
-      balanceId.value(),
-    ]),
+    Buffer.concat([Buffer.from([balanceId.switch().value]), balanceId.value()]),
   );
 
   it("returns the claimable balance entry when found", function () {
@@ -245,14 +242,12 @@ describe("Server#getClaimableBalance", function () {
         }),
       );
 
-    return this.server
-      .getClaimableBalance(balanceIdStrKey)
-      .then((entry) => {
-        expect(entry).to.be.instanceof(xdr.ClaimableBalanceEntry);
-        expect(entry.toXDR("base64")).to.equal(
-          claimableBalanceEntry.toXDR("base64"),
-        );
-      });
+    return this.server.getClaimableBalance(balanceIdStrKey).then((entry) => {
+      expect(entry).to.be.instanceof(xdr.ClaimableBalanceEntry);
+      expect(entry.toXDR("base64")).to.equal(
+        claimableBalanceEntry.toXDR("base64"),
+      );
+    });
   });
 
   it("throws an error when the claimable balance does not exist", function () {

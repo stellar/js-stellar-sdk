@@ -284,7 +284,7 @@ export class RpcServer {
   }
 
   /**
-   * Fetch the full trustline entry for a Stellar account.
+   * Fetch the full claimable balance entry for a Stellar account.
    *
    * @param {string} id   The strkey (`B...`) or hex (`00000000abcde...`) of the
    *    claimable balance to load
