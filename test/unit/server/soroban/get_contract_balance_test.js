@@ -1,7 +1,7 @@
 const { Address, Keypair, xdr, nativeToScVal, hash } = StellarSdk;
 const { Server, AxiosClient, Durability } = StellarSdk.rpc;
 
-describe("Server#getContractBalance", function () {
+describe("Server#getSACBalance", function () {
   beforeEach(function () {
     this.server = new Server(serverUrl);
     this.axiosMock = sinon.mock(AxiosClient);

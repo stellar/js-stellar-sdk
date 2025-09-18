@@ -7,11 +7,12 @@ A breaking change will get clearly marked in this log.
 ## Unreleased
 
 ### Added
-* `rpc.Server` now includes `getAccountEntry` and `getTrustlineEntry` methods to facilitate retrieving those entries without manually constructing the ledger keys ([#1218](https://github.com/stellar/js-stellar-sdk/pull/1218)).
+* `rpc.Server` now includes `getAccountEntry`, `getTrustlineEntry`, and `getClaimableBalance` methods to facilitate retrieving those entries without manually constructing the ledger keys ([#1218](https://github.com/stellar/js-stellar-sdk/pull/1218), [#TODO]()).
 * `rpc.Server`'s `getSACBalance` now allows retrieving an account ID's balance (`G...`) of an asset within a contract (for example, how much XLM a user holds in a contract, ([#1218](https://github.com/stellar/js-stellar-sdk/pull/1218))).
+* `rpc.Server`'s
 
 ### Fixed
-* Added missing `Asset.toString()` TypeScript definition ([#1218](https://github.com/stellar/js-stellar-sdk/pull/1218)).
+* Updated `@stellar/stellar-base` to latest patch (see its [release notes](https://github.com/stellar/js-stellar-base/releases/tag/v14.0.1), [TODO]()).
 
 
 ## [v14.1.1](https://github.com/stellar/js-stellar-sdk/compare/v14.1.0...v14.1.1)
