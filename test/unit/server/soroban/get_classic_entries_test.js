@@ -1,6 +1,44 @@
 const { Asset, Keypair, StrKey, xdr, hash } = StellarSdk;
 const { Server, AxiosClient } = StellarSdk.rpc;
 
+function expectLedgerEntryFound(
+  axiosMock,
+  ledgerKeyXDR,
+  ledgerEntryXDR,
+  call,
+  expectedType,
+  expectedXDR,
+) {
+  axiosMock
+    .expects("post")
+    .withArgs(serverUrl, {
+      jsonrpc: "2.0",
+      id: 1,
+      method: "getLedgerEntries",
+      params: { keys: [ledgerKeyXDR] },
+    })
+    .returns(
+      Promise.resolve({
+        data: {
+          result: {
+            latestLedger: 0,
+            entries: [
+              {
+                key: ledgerKeyXDR,
+                xdr: ledgerEntryXDR,
+              },
+            ],
+          },
+        },
+      }),
+    );
+
+  return call().then((entry) => {
+    expect(entry).to.be.instanceof(expectedType);
+    expect(entry.toXDR("base64")).to.equal(expectedXDR);
+  });
+}
+
 function expectLedgerEntryNotFound(axiosMock, ledgerKeyXDR, call, message) {
   axiosMock
     .expects("post")
@@ -61,34 +99,14 @@ describe("Server#getAccountEntry", function () {
   const ledgerEntryXDR = ledgerEntry.toXDR("base64");
 
   it("returns the account entry when one is found", function () {
-    this.axiosMock
-      .expects("post")
-      .withArgs(serverUrl, {
-        jsonrpc: "2.0",
-        id: 1,
-        method: "getLedgerEntries",
-        params: { keys: [ledgerKeyXDR] },
-      })
-      .returns(
-        Promise.resolve({
-          data: {
-            result: {
-              latestLedger: 0,
-              entries: [
-                {
-                  key: ledgerKeyXDR,
-                  xdr: ledgerEntryXDR,
-                },
-              ],
-            },
-          },
-        }),
-      );
-
-    return this.server.getAccountEntry(account).then((entry) => {
-      expect(entry).to.be.instanceof(xdr.AccountEntry);
-      expect(entry.toXDR("base64")).to.equal(accountEntry.toXDR("base64"));
-    });
+    return expectLedgerEntryFound(
+      this.axiosMock,
+      ledgerKeyXDR,
+      ledgerEntryXDR,
+      () => this.server.getAccountEntry(account),
+      xdr.AccountEntry,
+      accountEntry.toXDR("base64"),
+    );
   });
 
   it("throws a helpful error when the account is missing", function () {
@@ -135,34 +153,14 @@ describe("Server#getTrustline", function () {
   const trustlineEntryXDR = trustlineLedgerEntry.toXDR("base64");
 
   it("returns the trustline entry when it exists", function () {
-    this.axiosMock
-      .expects("post")
-      .withArgs(serverUrl, {
-        jsonrpc: "2.0",
-        id: 1,
-        method: "getLedgerEntries",
-        params: { keys: [trustlineKeyXDR] },
-      })
-      .returns(
-        Promise.resolve({
-          data: {
-            result: {
-              latestLedger: 0,
-              entries: [
-                {
-                  key: trustlineKeyXDR,
-                  xdr: trustlineEntryXDR,
-                },
-              ],
-            },
-          },
-        }),
-      );
-
-    return this.server.getTrustline(account, asset).then((entry) => {
-      expect(entry).to.be.instanceof(xdr.TrustLineEntry);
-      expect(entry.toXDR("base64")).to.equal(trustlineEntry.toXDR("base64"));
-    });
+    return expectLedgerEntryFound(
+      this.axiosMock,
+      trustlineKeyXDR,
+      trustlineEntryXDR,
+      () => this.server.getTrustline(account, asset),
+      xdr.TrustLineEntry,
+      trustlineEntry.toXDR("base64"),
+    );
   });
 
   it("throws an error when the trustline is missing", function () {
@@ -218,36 +216,14 @@ describe("Server#getClaimableBalance", function () {
   );
 
   it("returns the claimable balance entry when found", function () {
-    this.axiosMock
-      .expects("post")
-      .withArgs(serverUrl, {
-        jsonrpc: "2.0",
-        id: 1,
-        method: "getLedgerEntries",
-        params: { keys: [ledgerKeyXDR] },
-      })
-      .returns(
-        Promise.resolve({
-          data: {
-            result: {
-              latestLedger: 0,
-              entries: [
-                {
-                  key: ledgerKeyXDR,
-                  xdr: ledgerEntryXDR,
-                },
-              ],
-            },
-          },
-        }),
-      );
-
-    return this.server.getClaimableBalance(balanceIdStrKey).then((entry) => {
-      expect(entry).to.be.instanceof(xdr.ClaimableBalanceEntry);
-      expect(entry.toXDR("base64")).to.equal(
-        claimableBalanceEntry.toXDR("base64"),
-      );
-    });
+    return expectLedgerEntryFound(
+      this.axiosMock,
+      ledgerKeyXDR,
+      ledgerEntryXDR,
+      () => this.server.getClaimableBalance(balanceIdStrKey),
+      xdr.ClaimableBalanceEntry,
+      claimableBalanceEntry.toXDR("base64"),
+    );
   });
 
   it("throws an error when the claimable balance does not exist", function () {
