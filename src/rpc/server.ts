@@ -1159,8 +1159,7 @@ export class RpcServer {
    *    entry details if and only if the request returned a valid balance ledger
    *    entry. If it doesn't, the `balanceEntry` field will not exist.
    *
-   * @throws {TypeError} If `address` is not a valid contract ID (C...) or
-   *    ed25519 public key (G...).
+   * @throws {TypeError} If `address` is not a valid contract ID (C...).
    *
    * @see getLedgerEntries
    * @see https://developers.stellar.org/docs/tokens/stellar-asset-contract
@@ -1181,17 +1180,16 @@ export class RpcServer {
    *   "Address has no XLM");
    */
   public async getSACBalance(
-    address: string,
+    address: string | Address,
     sac: Asset,
     networkPassphrase?: string
   ): Promise<Api.BalanceResponse> {
-      if (
-        !StrKey.isValidContract(address) &&
-        !StrKey.isValidEd25519PublicKey(address)
-      ) {
-        throw new TypeError(
-          `expected contract ID or ed25519 public key, got ${address}`
-        );
+      const addressString = (address instanceof Address)
+        ? address.toString()
+        : address;
+
+      if (!StrKey.isValidContract(addressString)) {
+        throw new TypeError(`expected contract ID, got ${addressString}`);
       }
 
       // Call out to RPC if passphrase isn't provided.
@@ -1202,7 +1200,7 @@ export class RpcServer {
       const sacId = sac.contractId(passphrase);
 
       // Rust union enum type with "Balance(ScAddress)" structure
-      const key = nativeToScVal(["Balance", address], {
+      const key = nativeToScVal(["Balance", addressString], {
         type: [ "symbol", "address" ]
       });
 
