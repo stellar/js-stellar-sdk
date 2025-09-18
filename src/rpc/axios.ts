@@ -4,12 +4,11 @@ import { create, HttpClient } from "../http-client";
 declare const __PACKAGE_VERSION__: string;
 export const version = __PACKAGE_VERSION__;
 
-
 export const AxiosClient: HttpClient = create({
   headers: {
-    'X-Client-Name': 'js-soroban-client',
-    'X-Client-Version': version
-  }
+    "X-Client-Name": "js-soroban-client",
+    "X-Client-Version": version,
+  },
 });
 
 export default AxiosClient;

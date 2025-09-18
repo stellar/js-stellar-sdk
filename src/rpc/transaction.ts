@@ -2,11 +2,11 @@ import {
   FeeBumpTransaction,
   Operation,
   Transaction,
-  TransactionBuilder
-} from '@stellar/stellar-base';
+  TransactionBuilder,
+} from "@stellar/stellar-base";
 
-import { Api } from './api';
-import { parseRawSimulation } from './parsers';
+import { Api } from "./api";
+import { parseRawSimulation } from "./parsers";
 
 function isSorobanTransaction(tx: Transaction): boolean {
   if (tx.operations.length !== 1) {
@@ -14,16 +14,15 @@ function isSorobanTransaction(tx: Transaction): boolean {
   }
 
   switch (tx.operations[0].type) {
-    case 'invokeHostFunction':
-    case 'extendFootprintTtl':
-    case 'restoreFootprint':
+    case "invokeHostFunction":
+    case "extendFootprintTtl":
+    case "restoreFootprint":
       return true;
 
     default:
       return false;
   }
 }
-
 
 /**
  * Combines the given raw transaction alongside the simulation results.
@@ -47,21 +46,18 @@ export function assembleTransaction(
   raw: Transaction | FeeBumpTransaction,
   simulation:
     | Api.SimulateTransactionResponse
-    | Api.RawSimulateTransactionResponse
+    | Api.RawSimulateTransactionResponse,
 ): TransactionBuilder {
-  if ('innerTransaction' in raw) {
+  if ("innerTransaction" in raw) {
     // TODO: Handle feebump transactions
-    return assembleTransaction(
-      raw.innerTransaction,
-      simulation
-    );
+    return assembleTransaction(raw.innerTransaction, simulation);
   }
 
   if (!isSorobanTransaction(raw)) {
     throw new TypeError(
-      'unsupported transaction: must contain exactly one ' +
-        'invokeHostFunction, extendFootprintTtl, or restoreFootprint ' +
-        'operation'
+      "unsupported transaction: must contain exactly one " +
+        "invokeHostFunction, extendFootprintTtl, or restoreFootprint " +
+        "operation",
     );
   }
 
@@ -85,10 +81,10 @@ export function assembleTransaction(
     fee: (classicFeeNum + minResourceFeeNum).toString(),
     // apply the pre-built Soroban Tx Data from simulation onto the Tx
     sorobanData: success.transactionData.build(),
-    networkPassphrase: raw.networkPassphrase
+    networkPassphrase: raw.networkPassphrase,
   });
 
-  if (raw.operations[0].type === 'invokeHostFunction') {
+  if (raw.operations[0].type === "invokeHostFunction") {
     // In this case, we don't want to clone the operation, so we drop it.
     txnBuilder.clearOperations();
 
@@ -103,8 +99,8 @@ export function assembleTransaction(
         //
         // the intuition is "if auth exists, this tx has probably been
         // simulated before"
-        auth: existingAuth.length > 0 ? existingAuth : success.result!.auth
-      })
+        auth: existingAuth.length > 0 ? existingAuth : success.result!.auth,
+      }),
     );
   }
 
