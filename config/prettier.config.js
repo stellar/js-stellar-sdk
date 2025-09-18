@@ -5,9 +5,8 @@ module.exports = {
   printWidth: 80,
   proseWrap: 'always',
   semi: true,
-  singleQuote: true,
+  singleQuote: false,
   tabWidth: 2,
-  parser: 'babel',
-  trailingComma: 'none',
+  trailingComma: 'all',
   useTabs: false
 };
