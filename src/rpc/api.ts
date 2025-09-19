@@ -1,9 +1,9 @@
-import { Contract, SorobanDataBuilder, xdr } from '@stellar/stellar-base';
+import { Contract, SorobanDataBuilder, xdr } from "@stellar/stellar-base";
 
 /* tslint:disable-next-line:no-namespace */
 export namespace Api {
   export interface GetHealthResponse {
-    status: 'healthy';
+    status: "healthy";
   }
 
   export interface LedgerEntryResult {
@@ -53,9 +53,9 @@ export namespace Api {
   }
 
   export enum GetTransactionStatus {
-    SUCCESS = 'SUCCESS',
-    NOT_FOUND = 'NOT_FOUND',
-    FAILED = 'FAILED'
+    SUCCESS = "SUCCESS",
+    NOT_FOUND = "NOT_FOUND",
+    FAILED = "FAILED",
   }
 
   /** @see https://developers.stellar.org/docs/data/rpc/api-reference/methods/getTransaction */
@@ -132,19 +132,21 @@ export namespace Api {
     events?: RawTransactionEvents;
   }
 
-  export type GetTransactionsRequest = {
-    startLedger: number;
-    pagination?: {
-      cursor?: never;
-      limit?: number;
-    };
-  } | {
-    startLedger?: never;
-    pagination: {
-      cursor: string;
-      limit?: number;
-    };
-  };
+  export type GetTransactionsRequest =
+    | {
+        startLedger: number;
+        pagination?: {
+          cursor?: never;
+          limit?: number;
+        };
+      }
+    | {
+        startLedger?: never;
+        pagination: {
+          cursor: string;
+          limit?: number;
+        };
+      };
 
   export interface RawTransactionEvents {
     transactionEventsXdr?: string[];
@@ -207,7 +209,7 @@ export namespace Api {
     cursor: string;
   }
 
-  export type EventType = 'contract' | 'system';
+  export type EventType = "contract" | "system";
 
   export interface EventFilter {
     type?: EventType;
@@ -273,10 +275,10 @@ export namespace Api {
   }
 
   export type SendTransactionStatus =
-    | 'PENDING'
-    | 'DUPLICATE'
-    | 'TRY_AGAIN_LATER'
-    | 'ERROR';
+    | "PENDING"
+    | "DUPLICATE"
+    | "TRY_AGAIN_LATER"
+    | "ERROR";
 
   export interface SendTransactionResponse extends BaseSendTransactionResponse {
     errorResult?: xdr.TransactionResult;
@@ -312,7 +314,10 @@ export namespace Api {
     retval: xdr.ScVal;
   }
 
-  export type SimulationAuthMode = "enforce" | "record" | "record_allow_nonroot";
+  export type SimulationAuthMode =
+    | "enforce"
+    | "record"
+    | "record_allow_nonroot";
 
   /**
    * Simplifies {@link Api.RawSimulateTransactionResponse} into separate interfaces
@@ -388,31 +393,29 @@ export namespace Api {
   }
 
   export function isSimulationError(
-    sim: SimulateTransactionResponse
+    sim: SimulateTransactionResponse,
   ): sim is SimulateTransactionErrorResponse {
-    return 'error' in sim;
+    return "error" in sim;
   }
 
   export function isSimulationSuccess(
-    sim: SimulateTransactionResponse
+    sim: SimulateTransactionResponse,
   ): sim is SimulateTransactionSuccessResponse {
-    return 'transactionData' in sim;
+    return "transactionData" in sim;
   }
 
   export function isSimulationRestore(
-    sim: SimulateTransactionResponse
+    sim: SimulateTransactionResponse,
   ): sim is SimulateTransactionRestoreResponse {
     return (
       isSimulationSuccess(sim) &&
-      'restorePreamble' in sim &&
+      "restorePreamble" in sim &&
       !!sim.restorePreamble.transactionData
     );
   }
 
   export function isSimulationRaw(
-    sim:
-      | Api.SimulateTransactionResponse
-      | Api.RawSimulateTransactionResponse
+    sim: Api.SimulateTransactionResponse | Api.RawSimulateTransactionResponse,
   ): sim is Api.RawSimulateTransactionResponse {
     return !(sim as Api.SimulateTransactionResponse)._parsed;
   }
@@ -473,20 +476,20 @@ export namespace Api {
   }
 
   interface FeeDistribution {
-    max: string;    // uint64
-    min: string;    // uint64
-    mode: string;   // uint64
-    p10: string;    // uint64
-    p20: string;    // uint64
-    p30: string;    // uint64
-    p40: string;    // uint64
-    p50: string;    // uint64
-    p60: string;    // uint64
-    p70: string;    // uint64
-    p80: string;    // uint64
-    p90: string;    // uint64
-    p95: string;    // uint64
-    p99: string;    // uint64
+    max: string; // uint64
+    min: string; // uint64
+    mode: string; // uint64
+    p10: string; // uint64
+    p20: string; // uint64
+    p30: string; // uint64
+    p40: string; // uint64
+    p50: string; // uint64
+    p60: string; // uint64
+    p70: string; // uint64
+    p80: string; // uint64
+    p90: string; // uint64
+    p95: string; // uint64
+    p99: string; // uint64
 
     transactionCount: string; // uint32
     ledgerCount: number; // uint32

@@ -1,5 +1,16 @@
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, CreateAxiosDefaults, } from 'feaxios';
-import { CancelToken, HttpClient, HttpClientRequestConfig, HttpClientResponse, Interceptor, } from './types';
+import axios, {
+  AxiosInstance,
+  AxiosRequestConfig,
+  AxiosResponse,
+  CreateAxiosDefaults,
+} from "feaxios";
+import {
+  CancelToken,
+  HttpClient,
+  HttpClientRequestConfig,
+  HttpClientResponse,
+  Interceptor,
+} from "./types";
 
 export interface HttpResponse<T = any> extends AxiosResponse<T> {
   // You can add any additional properties here if needed
@@ -11,14 +22,16 @@ export interface FetchClientConfig<T = any> extends AxiosRequestConfig {
   cancelToken?: CancelToken;
 }
 
-
 type InterceptorFulfilled<V> = (value: V) => V | Promise<V>;
 type InterceptorRejected = (error: any) => any;
 
 class InterceptorManager<V> {
   handlers: Array<Interceptor<V> | null> = [];
 
-  use(fulfilled: InterceptorFulfilled<V>, rejected?: InterceptorRejected): number {
+  use(
+    fulfilled: InterceptorFulfilled<V>,
+    rejected?: InterceptorRejected,
+  ): number {
     this.handlers.push({
       fulfilled,
       rejected,
@@ -40,17 +53,21 @@ class InterceptorManager<V> {
     });
   }
 }
-function getFormConfig(config?: HttpClientRequestConfig): HttpClientRequestConfig {
+function getFormConfig(
+  config?: HttpClientRequestConfig,
+): HttpClientRequestConfig {
   const formConfig = config || {};
   formConfig.headers = new Headers(formConfig.headers || {});
-  formConfig.headers.set('Content-Type', 'application/x-www-form-urlencoded');
+  formConfig.headers.set("Content-Type", "application/x-www-form-urlencoded");
   return formConfig;
 }
 
-function createFetchClient(fetchConfig: HttpClientRequestConfig = {}): HttpClient {
+function createFetchClient(
+  fetchConfig: HttpClientRequestConfig = {},
+): HttpClient {
   const defaults: CreateAxiosDefaults = {
     ...fetchConfig,
-    headers: fetchConfig.headers || {}
+    headers: fetchConfig.headers || {},
   };
 
   const instance: AxiosInstance = axios.create(defaults);
@@ -60,7 +77,7 @@ function createFetchClient(fetchConfig: HttpClientRequestConfig = {}): HttpClien
   const httpClient: HttpClient = {
     interceptors: {
       request: requestInterceptors,
-      response: responseInterceptors
+      response: responseInterceptors,
     },
 
     defaults: {
@@ -80,7 +97,7 @@ function createFetchClient(fetchConfig: HttpClientRequestConfig = {}): HttpClien
         if (config.cancelToken) {
           config.cancelToken.promise.then(() => {
             abortController.abort();
-            reject(new Error('Request canceled'));
+            reject(new Error("Request canceled"));
           });
         }
 
@@ -88,10 +105,13 @@ function createFetchClient(fetchConfig: HttpClientRequestConfig = {}): HttpClien
         let modifiedConfig = config;
         if (requestInterceptors.handlers.length > 0) {
           const chain = requestInterceptors.handlers
-            .filter((interceptor): interceptor is NonNullable<typeof interceptor> => interceptor !== null)
+            .filter(
+              (interceptor): interceptor is NonNullable<typeof interceptor> =>
+                interceptor !== null,
+            )
             .flatMap((interceptor) => [
               interceptor.fulfilled,
-              interceptor.rejected
+              interceptor.rejected,
             ]);
           for (let i = 0, len = chain.length; i < len; i += 2) {
             const onFulfilled = chain[i];
@@ -108,7 +128,7 @@ function createFetchClient(fetchConfig: HttpClientRequestConfig = {}): HttpClien
 
         const adapter = modifiedConfig.adapter || this.defaults.adapter;
         if (!adapter) {
-          throw new Error('No adapter available');
+          throw new Error("No adapter available");
         }
         let responsePromise = adapter(modifiedConfig).then((axiosResponse) => {
           // Transform AxiosResponse to HttpClientResponse
@@ -125,84 +145,181 @@ function createFetchClient(fetchConfig: HttpClientRequestConfig = {}): HttpClien
         // Apply response interceptors
         if (responseInterceptors.handlers.length > 0) {
           const chain = responseInterceptors.handlers
-            .filter((interceptor): interceptor is NonNullable<typeof interceptor> => interceptor !== null)
-            .flatMap((interceptor) => [interceptor.fulfilled, interceptor.rejected]);
+            .filter(
+              (interceptor): interceptor is NonNullable<typeof interceptor> =>
+                interceptor !== null,
+            )
+            .flatMap((interceptor) => [
+              interceptor.fulfilled,
+              interceptor.rejected,
+            ]);
 
           for (let i = 0, len = chain.length; i < len; i += 2) {
-            responsePromise = responsePromise.then(
-              (response) => {
-                const fulfilledInterceptor = chain[i];
-                if (typeof fulfilledInterceptor === 'function') {
-                  return fulfilledInterceptor(response);
-                }
-                return response;
-              },
-              (error) => {
-                const rejectedInterceptor = chain[i + 1];
-                if (typeof rejectedInterceptor === 'function') {
-                  return rejectedInterceptor(error);
-                }
-                throw error;
-              }
-            ).then((interceptedResponse) => interceptedResponse);
+            responsePromise = responsePromise
+              .then(
+                (response) => {
+                  const fulfilledInterceptor = chain[i];
+                  if (typeof fulfilledInterceptor === "function") {
+                    return fulfilledInterceptor(response);
+                  }
+                  return response;
+                },
+                (error) => {
+                  const rejectedInterceptor = chain[i + 1];
+                  if (typeof rejectedInterceptor === "function") {
+                    return rejectedInterceptor(error);
+                  }
+                  throw error;
+                },
+              )
+              .then((interceptedResponse) => interceptedResponse);
           }
         }
 
         // Resolve or reject the final promise
-        responsePromise
-        .then(resolve)
-        .catch(reject);
+        responsePromise.then(resolve).catch(reject);
       });
     },
 
-
-    get<T = any>(url: string, config?: HttpClientRequestConfig): Promise<HttpClientResponse<T>> {
-      return this.makeRequest({ ...this.defaults, ...config, url, method: 'get' });
+    get<T = any>(
+      url: string,
+      config?: HttpClientRequestConfig,
+    ): Promise<HttpClientResponse<T>> {
+      return this.makeRequest({
+        ...this.defaults,
+        ...config,
+        url,
+        method: "get",
+      });
     },
 
-    delete<T = any>(url: string, config?: HttpClientRequestConfig): Promise<HttpClientResponse<T>> {
-      return this.makeRequest({ ...this.defaults, ...config, url, method: 'delete' });
+    delete<T = any>(
+      url: string,
+      config?: HttpClientRequestConfig,
+    ): Promise<HttpClientResponse<T>> {
+      return this.makeRequest({
+        ...this.defaults,
+        ...config,
+        url,
+        method: "delete",
+      });
     },
 
-    head<T = any>(url: string, config?: HttpClientRequestConfig): Promise<HttpClientResponse<T>> {
-      return this.makeRequest({ ...this.defaults, ...config, url, method: 'head' });
+    head<T = any>(
+      url: string,
+      config?: HttpClientRequestConfig,
+    ): Promise<HttpClientResponse<T>> {
+      return this.makeRequest({
+        ...this.defaults,
+        ...config,
+        url,
+        method: "head",
+      });
     },
 
-    options<T = any>(url: string, config?: HttpClientRequestConfig): Promise<HttpClientResponse<T>> {
-      return this.makeRequest({ ...this.defaults, ...config, url, method: 'options' });
+    options<T = any>(
+      url: string,
+      config?: HttpClientRequestConfig,
+    ): Promise<HttpClientResponse<T>> {
+      return this.makeRequest({
+        ...this.defaults,
+        ...config,
+        url,
+        method: "options",
+      });
     },
 
-    post<T = any>(url: string, data?: any, config?: HttpClientRequestConfig): Promise<HttpClientResponse<T>> {
-      return this.makeRequest({ ...this.defaults, ...config, url, method: 'post', data });
+    post<T = any>(
+      url: string,
+      data?: any,
+      config?: HttpClientRequestConfig,
+    ): Promise<HttpClientResponse<T>> {
+      return this.makeRequest({
+        ...this.defaults,
+        ...config,
+        url,
+        method: "post",
+        data,
+      });
     },
 
-    put<T = any>(url: string, data?: any, config?: HttpClientRequestConfig): Promise<HttpClientResponse<T>> {
-      return this.makeRequest({ ...this.defaults, ...config, url, method: 'put', data });
+    put<T = any>(
+      url: string,
+      data?: any,
+      config?: HttpClientRequestConfig,
+    ): Promise<HttpClientResponse<T>> {
+      return this.makeRequest({
+        ...this.defaults,
+        ...config,
+        url,
+        method: "put",
+        data,
+      });
     },
 
-    patch<T = any>(url: string, data?: any, config?: HttpClientRequestConfig): Promise<HttpClientResponse<T>> {
-      return this.makeRequest({ ...this.defaults, ...config, url, method: 'patch', data });
+    patch<T = any>(
+      url: string,
+      data?: any,
+      config?: HttpClientRequestConfig,
+    ): Promise<HttpClientResponse<T>> {
+      return this.makeRequest({
+        ...this.defaults,
+        ...config,
+        url,
+        method: "patch",
+        data,
+      });
     },
 
-    postForm<T = any>(url: string, data?: any, config?: HttpClientRequestConfig): Promise<HttpClientResponse<T>> {
+    postForm<T = any>(
+      url: string,
+      data?: any,
+      config?: HttpClientRequestConfig,
+    ): Promise<HttpClientResponse<T>> {
       const formConfig = getFormConfig(config);
-      return this.makeRequest({ ...this.defaults, ...formConfig, url, method: 'post', data });
+      return this.makeRequest({
+        ...this.defaults,
+        ...formConfig,
+        url,
+        method: "post",
+        data,
+      });
     },
 
-    putForm<T = any>(url: string, data?: any, config?: HttpClientRequestConfig): Promise<HttpClientResponse<T>> {
+    putForm<T = any>(
+      url: string,
+      data?: any,
+      config?: HttpClientRequestConfig,
+    ): Promise<HttpClientResponse<T>> {
       const formConfig = getFormConfig(config);
-      return this.makeRequest({ ...this.defaults, ...formConfig, url, method: 'put', data });
+      return this.makeRequest({
+        ...this.defaults,
+        ...formConfig,
+        url,
+        method: "put",
+        data,
+      });
     },
 
-    patchForm<T = any>(url: string, data?: any, config?: HttpClientRequestConfig): Promise<HttpClientResponse<T>> {
+    patchForm<T = any>(
+      url: string,
+      data?: any,
+      config?: HttpClientRequestConfig,
+    ): Promise<HttpClientResponse<T>> {
       const formConfig = getFormConfig(config);
-      return this.makeRequest({ ...this.defaults, ...formConfig, url, method: 'patch', data });
+      return this.makeRequest({
+        ...this.defaults,
+        ...formConfig,
+        url,
+        method: "patch",
+        data,
+      });
     },
 
     CancelToken,
-    isCancel: (value: any): boolean => value instanceof Error && value.message === 'Request canceled',
+    isCancel: (value: any): boolean =>
+      value instanceof Error && value.message === "Request canceled",
   };
-
 
   return httpClient;
 }

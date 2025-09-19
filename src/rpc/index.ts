@@ -8,10 +8,10 @@ export * from "./api";
 
 // soroban-client classes to expose
 export {
-    RpcServer as Server,
-    BasicSleepStrategy,
-    LinearSleepStrategy,
-    Durability
+  RpcServer as Server,
+  BasicSleepStrategy,
+  LinearSleepStrategy,
+  Durability,
 } from "./server";
 export { default as AxiosClient } from "./axios";
 export { parseRawSimulation, parseRawEvents } from "./parsers";

@@ -41,32 +41,33 @@ function toSeconds(ms: number): number {
   return Math.floor(ms / 1000);
 }
 
-AxiosClient.interceptors.response.use(
-  (response) => {
-    const hostname = URI(response.config.url!).hostname();
-    let serverTime = 0;
-    if (response.headers instanceof Headers) {
-      const dateHeader = response.headers.get('date');
-      if (dateHeader) {
-        serverTime = toSeconds(Date.parse(dateHeader));
-      }
-    } else if (typeof response.headers === 'object' && 'date' in response.headers) {
-      const headers = response.headers as HttpResponseHeaders; // Cast response.headers to the correct type
-      if (typeof headers.date === 'string') {
-        serverTime = toSeconds(Date.parse(headers.date));
-      }
+AxiosClient.interceptors.response.use((response) => {
+  const hostname = URI(response.config.url!).hostname();
+  let serverTime = 0;
+  if (response.headers instanceof Headers) {
+    const dateHeader = response.headers.get("date");
+    if (dateHeader) {
+      serverTime = toSeconds(Date.parse(dateHeader));
     }
-    const localTimeRecorded = toSeconds(new Date().getTime());
+  } else if (
+    typeof response.headers === "object" &&
+    "date" in response.headers
+  ) {
+    const headers = response.headers as HttpResponseHeaders; // Cast response.headers to the correct type
+    if (typeof headers.date === "string") {
+      serverTime = toSeconds(Date.parse(headers.date));
+    }
+  }
+  const localTimeRecorded = toSeconds(new Date().getTime());
 
-    if (!Number.isNaN(serverTime)) {
-      SERVER_TIME_MAP[hostname] = {
-        serverTime,
-        localTimeRecorded,
-      };
-    } 
-    return response;
-  },
-);
+  if (!Number.isNaN(serverTime)) {
+    SERVER_TIME_MAP[hostname] = {
+      serverTime,
+      localTimeRecorded,
+    };
+  }
+  return response;
+});
 
 export default AxiosClient;
 

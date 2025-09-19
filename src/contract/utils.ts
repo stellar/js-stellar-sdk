@@ -1,7 +1,7 @@
 import { xdr, cereal, Account } from "@stellar/stellar-base";
 import { Server } from "../rpc";
 import { type AssembledTransaction } from "./assembled_transaction";
-import { NULL_ACCOUNT , AssembledTransactionOptions } from "./types";
+import { NULL_ACCOUNT, AssembledTransactionOptions } from "./types";
 
 /**
  * Keep calling a `fn` for `timeoutInSeconds` seconds, if `keepWaitingIf` is
@@ -39,7 +39,8 @@ export async function withExponentialBackoff<T>(
     if (verbose) {
       // eslint-disable-next-line no-console
       console.info(
-        `Waiting ${waitTime}ms before trying again (bringing the total wait time to ${totalWaitTime}ms so far, of total ${timeoutInSeconds * 1000
+        `Waiting ${waitTime}ms before trying again (bringing the total wait time to ${totalWaitTime}ms so far, of total ${
+          timeoutInSeconds * 1000
         }ms)`,
       );
     }
@@ -61,12 +62,13 @@ export async function withExponentialBackoff<T>(
     if (verbose && keepWaitingIf(attempts[attempts.length - 1])) {
       // eslint-disable-next-line no-console
       console.info(
-        `${count}. Called ${fn}; ${attempts.length
+        `${count}. Called ${fn}; ${
+          attempts.length
         } prev attempts. Most recent: ${JSON.stringify(
           attempts[attempts.length - 1],
           null,
-          2
-        )}`
+          2,
+        )}`,
       );
     }
   }
@@ -105,47 +107,50 @@ export async function specFromWasm(wasm: Buffer) {
     const wasmModule = await WebAssembly.compile(wasm);
     xdrSections = WebAssembly.Module.customSections(
       wasmModule,
-      "contractspecv0"
+      "contractspecv0",
     );
   } catch {
     const customData = parseWasmCustomSections(wasm);
-    xdrSections = customData.get('contractspecv0');
+    xdrSections = customData.get("contractspecv0");
   }
 
   if (!xdrSections || xdrSections.length === 0) {
     throw new Error("Could not obtain contract spec from wasm");
   }
 
-  return Buffer.from(xdrSections[0]);  
+  return Buffer.from(xdrSections[0]);
 }
 
 function parseWasmCustomSections(buffer: Buffer): Map<string, Uint8Array[]> {
   const sections = new Map<string, Uint8Array[]>();
   const arrayBuffer = buffer.buffer.slice(
     buffer.byteOffset,
-    buffer.byteOffset + buffer.byteLength
+    buffer.byteOffset + buffer.byteLength,
   );
 
   let offset = 0;
 
   // Helper to read bytes with bounds checking
   const read = (length: number): Uint8Array => {
-    if (offset + length > buffer.byteLength) throw new Error('Buffer overflow');
+    if (offset + length > buffer.byteLength) throw new Error("Buffer overflow");
     const bytes = new Uint8Array(arrayBuffer, offset, length);
     offset += length;
     return bytes;
   };
 
   // Validate header
-  if ([...read(4)].join() !== '0,97,115,109') throw new Error('Invalid WASM magic');
-  if ([...read(4)].join() !== '1,0,0,0') throw new Error('Invalid WASM version');
+  if ([...read(4)].join() !== "0,97,115,109")
+    throw new Error("Invalid WASM magic");
+  if ([...read(4)].join() !== "1,0,0,0")
+    throw new Error("Invalid WASM version");
 
   while (offset < buffer.byteLength) {
     const sectionId = read(1)[0];
     const sectionLength = readVarUint32();
     const start = offset;
 
-    if (sectionId === 0) { // Custom section
+    if (sectionId === 0) {
+      // Custom section
       const nameLen = readVarUint32();
 
       if (nameLen === 0 || offset + nameLen > start + sectionLength) continue;
@@ -154,11 +159,15 @@ function parseWasmCustomSections(buffer: Buffer): Map<string, Uint8Array[]> {
       const payload = read(sectionLength - (offset - start));
 
       try {
-        const name = new TextDecoder('utf-8', { fatal: true }).decode(nameBytes);
+        const name = new TextDecoder("utf-8", { fatal: true }).decode(
+          nameBytes,
+        );
         if (payload.length > 0) {
           sections.set(name, (sections.get(name) || []).concat(payload));
         }
-      } catch { /* Invalid UTF-8 */ }
+      } catch {
+        /* Invalid UTF-8 */
+      }
     } else {
       offset += sectionLength; // Skip other sections
     }
@@ -166,25 +175,26 @@ function parseWasmCustomSections(buffer: Buffer): Map<string, Uint8Array[]> {
 
   /**
    * Decodes a variable-length encoded unsigned 32-bit integer (LEB128 format) from the WASM binary.
-   * 
-   * This function implements the WebAssembly LEB128 (Little Endian Base 128) variable-length 
+   *
+   * This function implements the WebAssembly LEB128 (Little Endian Base 128) variable-length
    * encoding scheme for unsigned integers. In this encoding:
    * - Each byte uses 7 bits for the actual value
    * - The most significant bit (MSB) indicates if more bytes follow (1) or not (0)
    * - Values are stored with the least significant bytes first
-   * 
+   *
    * @returns {number} The decoded 32-bit unsigned integer
    * @throws {Error} If the encoding is invalid or exceeds 32 bits
    */
   function readVarUint32(): number {
-    let value = 0, shift = 0;
+    let value = 0,
+      shift = 0;
     while (true) {
-      const byte = read(1)[0];         // Read a single byte from the buffer
-      value |= (byte & 0x7F) << shift; // Extract 7 bits and shift to correct position
-      if ((byte & 0x80) === 0) break;  // If MSB is 0, we've reached the last byte
-      if ((shift += 7) >= 32) throw new Error('Invalid WASM value'); // Ensure we don't exceed 32 bits
+      const byte = read(1)[0]; // Read a single byte from the buffer
+      value |= (byte & 0x7f) << shift; // Extract 7 bits and shift to correct position
+      if ((byte & 0x80) === 0) break; // If MSB is 0, we've reached the last byte
+      if ((shift += 7) >= 32) throw new Error("Invalid WASM value"); // Ensure we don't exceed 32 bits
     }
-    return value >>> 0;  // Force conversion to unsigned 32-bit integer
+    return value >>> 0; // Force conversion to unsigned 32-bit integer
   }
 
   return sections;
@@ -207,7 +217,7 @@ export function processSpecEntryStream(buffer: Buffer) {
 //eslint-disable-next-line require-await
 export async function getAccount<T>(
   options: AssembledTransactionOptions<T>,
-  server: Server
+  server: Server,
 ): Promise<Account> {
   return options.publicKey
     ? server.getAccount(options.publicKey)

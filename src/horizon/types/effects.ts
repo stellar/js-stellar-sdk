@@ -65,9 +65,10 @@ export enum EffectType {
   liquidity_pool_revoked = 95,
   // contract effects
   contract_credited = 96,
-  contract_debited = 97
+  contract_debited = 97,
 }
-export interface BaseEffectRecord<T extends string = string> extends HorizonApi.BaseResponse {
+export interface BaseEffectRecord<T extends string = string>
+  extends HorizonApi.BaseResponse {
   id: string;
   account: string;
   paging_token: string;
@@ -75,29 +76,36 @@ export interface BaseEffectRecord<T extends string = string> extends HorizonApi.
   type: T;
   created_at: string;
 }
-export interface AccountCreated extends BaseEffectRecord<'account_created'> {
+export interface AccountCreated extends BaseEffectRecord<"account_created"> {
   type_i: EffectType.account_created;
   starting_balance: string;
 }
-export interface AccountCredited extends BaseEffectRecord<'account_credited'>, OfferAsset {
+export interface AccountCredited
+  extends BaseEffectRecord<"account_credited">,
+    OfferAsset {
   type_i: EffectType.account_credited;
   amount: string;
 }
-export interface AccountDebited extends BaseEffectRecord<'account_debited'>, OfferAsset {
+export interface AccountDebited
+  extends BaseEffectRecord<"account_debited">,
+    OfferAsset {
   type_i: EffectType.account_debited;
   amount: string;
 }
-export interface AccountThresholdsUpdated extends BaseEffectRecord<'account_thresholds_updated'> {
+export interface AccountThresholdsUpdated
+  extends BaseEffectRecord<"account_thresholds_updated"> {
   type_i: EffectType.account_thresholds_updated;
   low_threshold: number;
   med_threshold: number;
   high_threshold: number;
 }
-export interface AccountHomeDomainUpdated extends BaseEffectRecord<'account_home_domain_updated'> {
+export interface AccountHomeDomainUpdated
+  extends BaseEffectRecord<"account_home_domain_updated"> {
   type_i: EffectType.account_home_domain_updated;
   home_domain: string;
 }
-export interface AccountFlagsUpdated extends BaseEffectRecord<'account_flags_updated'> {
+export interface AccountFlagsUpdated
+  extends BaseEffectRecord<"account_flags_updated"> {
   type_i: EffectType.account_flags_updated;
   auth_required_flag: boolean;
   auth_revokable_flag: boolean;
@@ -106,16 +114,16 @@ interface DataEvents<T extends string> extends BaseEffectRecord<T> {
   name: boolean;
   value: boolean;
 }
-export interface DataCreated extends DataEvents<'data_created'> {
+export interface DataCreated extends DataEvents<"data_created"> {
   type_i: EffectType.data_created;
 }
-export interface DataUpdated extends DataEvents<'data_updated'> {
+export interface DataUpdated extends DataEvents<"data_updated"> {
   type_i: EffectType.data_updated;
 }
-export interface DataRemoved extends DataEvents<'data_removed'> {
+export interface DataRemoved extends DataEvents<"data_removed"> {
   type_i: EffectType.data_removed;
 }
-export interface SequenceBumped extends BaseEffectRecord<'sequence_bumped'> {
+export interface SequenceBumped extends BaseEffectRecord<"sequence_bumped"> {
   type_i: EffectType.sequence_bumped;
   new_seq: number | string;
 }
@@ -124,29 +132,32 @@ interface SignerEvents<T extends string> extends BaseEffectRecord<T> {
   key: string;
   public_key: string;
 }
-export interface SignerCreated extends SignerEvents<'signer_created'> {
+export interface SignerCreated extends SignerEvents<"signer_created"> {
   type_i: EffectType.signer_created;
 }
-export interface SignerRemoved extends SignerEvents<'signer_removed'> {
+export interface SignerRemoved extends SignerEvents<"signer_removed"> {
   type_i: EffectType.signer_removed;
 }
-export interface SignerUpdated extends SignerEvents<'signer_updated'> {
+export interface SignerUpdated extends SignerEvents<"signer_updated"> {
   type_i: EffectType.signer_updated;
 }
-interface TrustlineEvents<T extends string> extends BaseEffectRecord<T>, OfferAsset {
+interface TrustlineEvents<T extends string>
+  extends BaseEffectRecord<T>,
+    OfferAsset {
   limit: string;
   liquidity_pool_id?: string;
 }
-export interface TrustlineCreated extends TrustlineEvents<'trustline_created'> {
+export interface TrustlineCreated extends TrustlineEvents<"trustline_created"> {
   type_i: EffectType.trustline_created;
 }
-export interface TrustlineRemoved extends TrustlineEvents<'trustline_removed'> {
+export interface TrustlineRemoved extends TrustlineEvents<"trustline_removed"> {
   type_i: EffectType.trustline_removed;
 }
-export interface TrustlineUpdated extends TrustlineEvents<'trustline_updated'> {
+export interface TrustlineUpdated extends TrustlineEvents<"trustline_updated"> {
   type_i: EffectType.trustline_updated;
 }
-export interface TrustlineAuthorized extends BaseEffectRecord<'trustline_authorized'> {
+export interface TrustlineAuthorized
+  extends BaseEffectRecord<"trustline_authorized"> {
   type_i: EffectType.trustline_authorized;
   asset_type: OfferAsset["asset_type"];
   asset_code: OfferAsset["asset_code"];
@@ -160,7 +171,8 @@ export interface TrustlineAuthorizedToMaintainLiabilities
   extends Omit<TrustlineAuthorized, "type_i"> {
   type_i: EffectType.trustline_authorized_to_maintain_liabilities;
 }
-export interface ClaimableBalanceCreated extends BaseEffectRecord<'claimable_balance_created'> {
+export interface ClaimableBalanceCreated
+  extends BaseEffectRecord<"claimable_balance_created"> {
   type_i: EffectType.claimable_balance_created;
   amount: string;
   balance_type_i: string;
@@ -185,15 +197,15 @@ interface AccountSponsorshipEvents<T extends string>
     SponsorshipFields {}
 
 export type AccountSponsorshipCreated = Omit<
-  AccountSponsorshipEvents<'account_sponsorship_created'>,
+  AccountSponsorshipEvents<"account_sponsorship_created">,
   "new_sponsor" | "former_sponsor"
 > & { type_i: EffectType.account_sponsorship_created };
 export type AccountSponsorshipUpdated = Omit<
-  AccountSponsorshipEvents<'account_sponsorship_updated'>,
+  AccountSponsorshipEvents<"account_sponsorship_updated">,
   "sponsor"
 > & { type_i: EffectType.account_sponsorship_updated };
 export type AccountSponsorshipRemoved = Omit<
-  AccountSponsorshipEvents<'account_sponsorship_removed'>,
+  AccountSponsorshipEvents<"account_sponsorship_removed">,
   "new_sponsor" | "sponsor"
 > & { type_i: EffectType.account_sponsorship_removed };
 interface TrustlineSponsorshipEvents<T extends string>
@@ -203,29 +215,34 @@ interface TrustlineSponsorshipEvents<T extends string>
   liquidity_pool_id?: string;
 }
 export type TrustlineSponsorshipCreated = Omit<
-  TrustlineSponsorshipEvents<'trustline_sponsorship_created'>,
+  TrustlineSponsorshipEvents<"trustline_sponsorship_created">,
   "new_sponsor" | "former_sponsor"
 > & { type_i: EffectType.trustline_sponsorship_created };
 export type TrustlineSponsorshipUpdated = Omit<
-  TrustlineSponsorshipEvents<'trustline_sponsorship_updated'>,
+  TrustlineSponsorshipEvents<"trustline_sponsorship_updated">,
   "sponsor"
 > & { type_i: EffectType.trustline_sponsorship_updated };
 export type TrustlineSponsorshipRemoved = Omit<
-  TrustlineSponsorshipEvents<'trustline_sponsorship_removed'>,
+  TrustlineSponsorshipEvents<"trustline_sponsorship_removed">,
   "new_sponsor" | "sponsor"
 > & { type_i: EffectType.trustline_sponsorship_removed };
-interface DataSponsorshipEvents<T extends string> extends BaseEffectRecord<T>, SponsorshipFields {
+interface DataSponsorshipEvents<T extends string>
+  extends BaseEffectRecord<T>,
+    SponsorshipFields {
   data_name: string;
 }
 export type DateSponsorshipCreated = Omit<
-  DataSponsorshipEvents<'data_sponsorship_created'>,
+  DataSponsorshipEvents<"data_sponsorship_created">,
   "new_sponsor" | "former_sponsor"
 > & { type_i: EffectType.data_sponsorship_created };
-export type DateSponsorshipUpdated = Omit<DataSponsorshipEvents<'data_sponsorship_updated'>, "sponsor"> & {
+export type DateSponsorshipUpdated = Omit<
+  DataSponsorshipEvents<"data_sponsorship_updated">,
+  "sponsor"
+> & {
   type_i: EffectType.data_sponsorship_updated;
 };
 export type DateSponsorshipRemoved = Omit<
-  DataSponsorshipEvents<'data_sponsorship_removed'>,
+  DataSponsorshipEvents<"data_sponsorship_removed">,
   "new_sponsor" | "sponsor"
 > & { type_i: EffectType.data_sponsorship_removed };
 interface ClaimableBalanceSponsorshipEvents<T extends string>
@@ -235,36 +252,38 @@ interface ClaimableBalanceSponsorshipEvents<T extends string>
 }
 
 export type ClaimableBalanceSponsorshipCreated = Omit<
-  ClaimableBalanceSponsorshipEvents<'claimable_balance_sponsorship_created'>,
+  ClaimableBalanceSponsorshipEvents<"claimable_balance_sponsorship_created">,
   "new_sponsor" | "former_sponsor"
 > & { type_i: EffectType.claimable_balance_sponsorship_created };
 export type ClaimableBalanceSponsorshipUpdated = Omit<
-  ClaimableBalanceSponsorshipEvents<'claimable_balance_sponsorship_updated'>,
+  ClaimableBalanceSponsorshipEvents<"claimable_balance_sponsorship_updated">,
   "sponsor"
 > & { type_i: EffectType.claimable_balance_sponsorship_updated };
 export type ClaimableBalanceSponsorshipRemoved = Omit<
-  ClaimableBalanceSponsorshipEvents<'claimable_balance_sponsorship_removed'>,
+  ClaimableBalanceSponsorshipEvents<"claimable_balance_sponsorship_removed">,
   "new_sponsor" | "sponsor"
 > & { type_i: EffectType.claimable_balance_sponsorship_removed };
-interface SignerSponsorshipEvents<T extends string> extends BaseEffectRecord<T>, SponsorshipFields {
+interface SignerSponsorshipEvents<T extends string>
+  extends BaseEffectRecord<T>,
+    SponsorshipFields {
   signer: string;
 }
 
 export type SignerSponsorshipCreated = Omit<
-  SignerSponsorshipEvents<'signer_sponsorship_created'>,
+  SignerSponsorshipEvents<"signer_sponsorship_created">,
   "new_sponsor" | "former_sponsor"
 > & { type_i: EffectType.signer_sponsorship_created };
 export type SignerSponsorshipUpdated = Omit<
-  SignerSponsorshipEvents<'signer_sponsorship_updated'>,
+  SignerSponsorshipEvents<"signer_sponsorship_updated">,
   "sponsor"
 > & { type_i: EffectType.signer_sponsorship_updated };
 export type SignerSponsorshipRemoved = Omit<
-  SignerSponsorshipEvents<'signer_sponsorship_removed'>,
+  SignerSponsorshipEvents<"signer_sponsorship_removed">,
   "new_sponsor" | "sponsor"
 > & { type_i: EffectType.signer_sponsorship_removed };
 
 export interface ClaimableBalanceClawedBack extends HorizonApi.BaseResponse {
-  balance_id: string
+  balance_id: string;
 }
 
 export interface LiquidityPoolEffectRecord extends HorizonApi.BaseResponse {
@@ -275,33 +294,39 @@ export interface LiquidityPoolEffectRecord extends HorizonApi.BaseResponse {
   total_shares: string;
   reserves: HorizonApi.Reserve[];
 }
-export interface LiquidityPoolDeposited extends BaseEffectRecord<'liquidity_pool_deposited'> {
+export interface LiquidityPoolDeposited
+  extends BaseEffectRecord<"liquidity_pool_deposited"> {
   type_i: EffectType.liquidity_pool_deposited;
   liquidity_pool: LiquidityPoolEffectRecord;
   reserves_deposited: HorizonApi.Reserve[];
   shares_received: string;
 }
-export interface LiquidityPoolWithdrew extends BaseEffectRecord<'liquidity_pool_withdrew'> {
+export interface LiquidityPoolWithdrew
+  extends BaseEffectRecord<"liquidity_pool_withdrew"> {
   type_i: EffectType.liquidity_pool_withdrew;
   liquidity_pool: LiquidityPoolEffectRecord;
   reserves_received: HorizonApi.Reserve[];
   shares_redeemed: string;
 }
-export interface LiquidityPoolTrade extends BaseEffectRecord<'liquidity_pool_trade'> {
+export interface LiquidityPoolTrade
+  extends BaseEffectRecord<"liquidity_pool_trade"> {
   type_i: EffectType.liquidity_pool_trade;
   liquidity_pool: LiquidityPoolEffectRecord;
   sold: HorizonApi.Reserve;
   bought: HorizonApi.Reserve;
 }
-export interface LiquidityPoolCreated extends BaseEffectRecord<'liquidity_pool_created'> {
+export interface LiquidityPoolCreated
+  extends BaseEffectRecord<"liquidity_pool_created"> {
   type_i: EffectType.liquidity_pool_created;
   liquidity_pool: LiquidityPoolEffectRecord;
 }
-export interface LiquidityPoolRemoved extends BaseEffectRecord<'liquidity_pool_removed'> {
+export interface LiquidityPoolRemoved
+  extends BaseEffectRecord<"liquidity_pool_removed"> {
   type_i: EffectType.liquidity_pool_removed;
   liquidity_pool_id: string;
 }
-export interface LiquidityPoolRevoked extends BaseEffectRecord<'liquidity_pool_revoked'> {
+export interface LiquidityPoolRevoked
+  extends BaseEffectRecord<"liquidity_pool_revoked"> {
   type_i: EffectType.liquidity_pool_revoked;
   liquidity_pool: LiquidityPoolEffectRecord;
   reserves_revoked: [
@@ -314,12 +339,16 @@ export interface LiquidityPoolRevoked extends BaseEffectRecord<'liquidity_pool_r
   shares_revoked: string;
 }
 
-export interface ContractCredited extends BaseEffectRecord<'contract_credited'>, OfferAsset {
+export interface ContractCredited
+  extends BaseEffectRecord<"contract_credited">,
+    OfferAsset {
   type_i: EffectType.contract_credited;
   contract: string;
   amount: string;
 }
-export interface ContractDebited extends BaseEffectRecord<'contract_debited'>, OfferAsset {
+export interface ContractDebited
+  extends BaseEffectRecord<"contract_debited">,
+    OfferAsset {
   type_i: EffectType.contract_debited;
   contract: string;
   amount: string;

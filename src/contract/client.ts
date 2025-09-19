@@ -1,10 +1,6 @@
-import {
-  Operation,
-  xdr,
-  Address,
-} from "@stellar/stellar-base";
+import { Operation, xdr, Address } from "@stellar/stellar-base";
 import { Spec } from "./spec";
-import { Server } from '../rpc';
+import { Server } from "../rpc";
 import { AssembledTransaction } from "./assembled_transaction";
 import type { ClientOptions, MethodOptions } from "./types";
 
@@ -13,7 +9,7 @@ const CONSTRUCTOR_FUNC = "__constructor";
 async function specFromWasmHash(
   wasmHash: Buffer | string,
   options: Server.Options & { rpcUrl: string },
-  format: "hex" | "base64" = "hex"
+  format: "hex" | "base64" = "hex",
 ): Promise<Spec> {
   if (!options || !options.rpcUrl) {
     throw new TypeError("options must contain rpcUrl");
@@ -54,20 +50,29 @@ export class Client {
         format?: "hex" | "base64";
         /** The address to use to deploy the custom contract */
         address?: string;
-      }
+      },
   ): Promise<AssembledTransaction<T>> {
-    const { wasmHash, salt, format, fee, timeoutInSeconds, simulate, ...clientOptions } = options;
+    const {
+      wasmHash,
+      salt,
+      format,
+      fee,
+      timeoutInSeconds,
+      simulate,
+      ...clientOptions
+    } = options;
     const spec = await specFromWasmHash(wasmHash, clientOptions, format);
 
     const operation = Operation.createCustomContract({
       address: new Address(options.address || options.publicKey!),
-      wasmHash: typeof wasmHash === "string"
-        ? Buffer.from(wasmHash, format ?? "hex")
-        : (wasmHash as Buffer),
+      wasmHash:
+        typeof wasmHash === "string"
+          ? Buffer.from(wasmHash, format ?? "hex")
+          : (wasmHash as Buffer),
       salt,
       constructorArgs: args
         ? spec.funcArgsToScVals(CONSTRUCTOR_FUNC, args)
-        : []
+        : [],
     });
 
     return AssembledTransaction.buildWithOp(operation, {
@@ -78,13 +83,16 @@ export class Client {
       contractId: "ignored",
       method: CONSTRUCTOR_FUNC,
       parseResultXdr: (result) =>
-        new Client(spec, { ...clientOptions, contractId: Address.fromScVal(result).toString() })
+        new Client(spec, {
+          ...clientOptions,
+          contractId: Address.fromScVal(result).toString(),
+        }),
     }) as unknown as AssembledTransaction<T>;
   }
 
   constructor(
     public readonly spec: Spec,
-    public readonly options: ClientOptions
+    public readonly options: ClientOptions,
   ) {
     this.spec.funcs().forEach((xdrFn) => {
       const method = xdrFn.name().toString();
@@ -93,7 +101,7 @@ export class Client {
       }
       const assembleTransaction = (
         args?: Record<string, any>,
-        methodOptions?: MethodOptions
+        methodOptions?: MethodOptions,
       ) =>
         AssembledTransaction.build({
           method,
@@ -129,12 +137,13 @@ export class Client {
    * @returns {Promise<module:contract.Client>} A Promise that resolves to a Client instance.
    * @throws {TypeError} If the provided options object does not contain an rpcUrl.
    */
-  static async fromWasmHash(wasmHash: Buffer | string,
+  static async fromWasmHash(
+    wasmHash: Buffer | string,
     options: ClientOptions,
-    format: "hex" | "base64" = "hex"
+    format: "hex" | "base64" = "hex",
   ): Promise<Client> {
     if (!options || !options.rpcUrl) {
-      throw new TypeError('options must contain rpcUrl');
+      throw new TypeError("options must contain rpcUrl");
     }
     const { rpcUrl, allowHttp } = options;
     const serverOpts: Server.Options = { allowHttp };
@@ -165,7 +174,7 @@ export class Client {
    */
   static async from(options: ClientOptions): Promise<Client> {
     if (!options || !options.rpcUrl || !options.contractId) {
-      throw new TypeError('options must contain rpcUrl and contractId');
+      throw new TypeError("options must contain rpcUrl and contractId");
     }
     const { rpcUrl, contractId, allowHttp } = options;
     const serverOpts: Server.Options = { allowHttp };
@@ -187,5 +196,6 @@ export class Client {
     );
   };
 
-  txFromXDR = <T>(xdrBase64: string): AssembledTransaction<T> => AssembledTransaction.fromXDR(this.options, xdrBase64, this.spec);
+  txFromXDR = <T>(xdrBase64: string): AssembledTransaction<T> =>
+    AssembledTransaction.fromXDR(this.options, xdrBase64, this.spec);
 }

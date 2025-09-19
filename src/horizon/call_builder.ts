@@ -16,7 +16,9 @@ const JOINABLE = ["transaction"];
 declare const __USE_EVENTSOURCE__: boolean;
 
 export interface EventSourceOptions<T> {
-  onmessage?: (value: T extends ServerApi.CollectionPage<infer U> ? U : T) => void;
+  onmessage?: (
+    value: T extends ServerApi.CollectionPage<infer U> ? U : T,
+  ) => void;
   onerror?: (event: MessageEvent) => void;
   reconnectTimeout?: number;
 }
@@ -28,10 +30,11 @@ type Constructable<T> = new (e: string) => T;
 let EventSource: Constructable<EventSource> | undefined;
 
 // Only define EventSource if __USE_EVENTSOURCE__ is true
-if (typeof __USE_EVENTSOURCE__ !== 'undefined' && __USE_EVENTSOURCE__) {
+if (typeof __USE_EVENTSOURCE__ !== "undefined" && __USE_EVENTSOURCE__) {
   /* eslint-disable global-require */
   /* eslint-disable prefer-import/prefer-import-over-require */
-  EventSource = anyGlobal.EventSource ??
+  EventSource =
+    anyGlobal.EventSource ??
     anyGlobal.window?.EventSource ??
     require("eventsource");
 }
@@ -45,10 +48,10 @@ if (typeof __USE_EVENTSOURCE__ !== 'undefined' && __USE_EVENTSOURCE__) {
  */
 export class CallBuilder<
   T extends
-  | HorizonApi.FeeStatsResponse
-  | HorizonApi.BaseResponse
-  | HorizonApi.RootResponse
-  | ServerApi.CollectionPage<HorizonApi.BaseResponse>
+    | HorizonApi.FeeStatsResponse
+    | HorizonApi.BaseResponse
+    | HorizonApi.RootResponse
+    | ServerApi.CollectionPage<HorizonApi.BaseResponse>,
 > {
   protected url: URI;
 
@@ -103,12 +106,16 @@ export class CallBuilder<
    * @param {number} [options.reconnectTimeout] Custom stream connection timeout in ms, default is 15 seconds.
    * @returns {Function} Close function. Run to close the connection and stop listening for new events.
    */
-  public stream(options: EventSourceOptions<
-    T extends ServerApi.CollectionPage<infer U> ? U : T
-  > = {}): () => void {
+  public stream(
+    options: EventSourceOptions<
+      T extends ServerApi.CollectionPage<infer U> ? U : T
+    > = {},
+  ): () => void {
     // Check if EventSource use is enabled
-    if (EventSource === undefined){
-      throw new Error("Streaming requires eventsource to be enabled. If you need this functionality, compile with USE_EVENTSOURCE=true.");
+    if (EventSource === undefined) {
+      throw new Error(
+        "Streaming requires eventsource to be enabled. If you need this functionality, compile with USE_EVENTSOURCE=true.",
+      );
     }
 
     this.checkFilter();
@@ -125,11 +132,14 @@ export class CallBuilder<
     let timeout: ReturnType<typeof setTimeout>;
 
     const createTimeout = () => {
-      timeout = setTimeout(() => {
-        es?.close();
-        // eslint-disable-next-line @typescript-eslint/no-use-before-define
-        es = createEventSource();
-      }, options.reconnectTimeout || 15 * 1000);
+      timeout = setTimeout(
+        () => {
+          es?.close();
+          // eslint-disable-next-line @typescript-eslint/no-use-before-define
+          es = createEventSource();
+        },
+        options.reconnectTimeout || 15 * 1000,
+      );
     };
 
     const createEventSource = (): EventSource => {
@@ -197,8 +207,6 @@ export class CallBuilder<
 
       return es;
     };
-
-
 
     createEventSource();
     return () => {
@@ -302,7 +310,9 @@ export class CallBuilder<
    * @param {boolean} [link.templated] Whether the link is templated
    * @returns {Function} A function that requests the link
    */
-  private _requestFnForLink(link: HorizonApi.ResponseLink): (opts?: any) => any {
+  private _requestFnForLink(
+    link: HorizonApi.ResponseLink,
+  ): (opts?: any) => any {
     return async (opts: any = {}) => {
       let uri;
 
@@ -420,11 +430,17 @@ export class CallBuilder<
       switch (error.response.status) {
         case 404:
           return Promise.reject(
-            new NotFoundError(error.response.statusText ?? "Not Found", error.response.data),
+            new NotFoundError(
+              error.response.statusText ?? "Not Found",
+              error.response.data,
+            ),
           );
         default:
           return Promise.reject(
-            new NetworkError(error.response.statusText ?? "Unknown", error.response.data),
+            new NetworkError(
+              error.response.statusText ?? "Unknown",
+              error.response.data,
+            ),
           );
       }
     } else {

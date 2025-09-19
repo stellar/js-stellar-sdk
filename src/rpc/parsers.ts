@@ -1,5 +1,5 @@
-import { xdr, Contract, SorobanDataBuilder } from '@stellar/stellar-base';
-import { Api } from './api';
+import { xdr, Contract, SorobanDataBuilder } from "@stellar/stellar-base";
+import { Api } from "./api";
 
 /**
  * Parse the response from invoking the `submitTransaction` method of a RPC server.
@@ -10,7 +10,7 @@ import { Api } from './api';
  * @returns {Api.SendTransactionResponse} transaction response parsed from the RPC server's response
  */
 export function parseRawSendTransaction(
-  raw: Api.RawSendTransactionResponse
+  raw: Api.RawSendTransactionResponse,
 ): Api.SendTransactionResponse {
   const { errorResultXdr, diagnosticEventsXdr } = raw;
   delete raw.errorResultXdr;
@@ -19,15 +19,13 @@ export function parseRawSendTransaction(
   if (errorResultXdr) {
     return {
       ...raw,
-      ...(
-        diagnosticEventsXdr !== undefined &&
+      ...(diagnosticEventsXdr !== undefined &&
         diagnosticEventsXdr.length > 0 && {
-          diagnosticEvents: diagnosticEventsXdr.map(
-            evt => xdr.DiagnosticEvent.fromXDR(evt, 'base64')
-          )
-        }
-      ),
-      errorResult: xdr.TransactionResult.fromXDR(errorResultXdr, 'base64'),
+          diagnosticEvents: diagnosticEventsXdr.map((evt) =>
+            xdr.DiagnosticEvent.fromXDR(evt, "base64"),
+          ),
+        }),
+      errorResult: xdr.TransactionResult.fromXDR(errorResultXdr, "base64"),
     };
   }
 
@@ -35,23 +33,23 @@ export function parseRawSendTransaction(
 }
 
 export function parseTransactionInfo(
-  raw: Api.RawTransactionInfo | Api.RawGetTransactionResponse
-): Omit<Api.TransactionInfo, 'status' | 'txHash'> {
-  const meta = xdr.TransactionMeta.fromXDR(raw.resultMetaXdr!, 'base64');
-  const info: Omit<Api.TransactionInfo, 'status' | 'txHash'> = {
+  raw: Api.RawTransactionInfo | Api.RawGetTransactionResponse,
+): Omit<Api.TransactionInfo, "status" | "txHash"> {
+  const meta = xdr.TransactionMeta.fromXDR(raw.resultMetaXdr!, "base64");
+  const info: Omit<Api.TransactionInfo, "status" | "txHash"> = {
     ledger: raw.ledger!,
     createdAt: raw.createdAt!,
     applicationOrder: raw.applicationOrder!,
     feeBump: raw.feeBump!,
-    envelopeXdr: xdr.TransactionEnvelope.fromXDR(raw.envelopeXdr!, 'base64'),
-    resultXdr: xdr.TransactionResult.fromXDR(raw.resultXdr!, 'base64'),
+    envelopeXdr: xdr.TransactionEnvelope.fromXDR(raw.envelopeXdr!, "base64"),
+    resultXdr: xdr.TransactionResult.fromXDR(raw.resultXdr!, "base64"),
     resultMetaXdr: meta,
     events: {
-      contractEventsXdr: (raw.events?.contractEventsXdr ?? []).map(
-        lst => lst.map(e => xdr.ContractEvent.fromXDR(e, "base64"))
+      contractEventsXdr: (raw.events?.contractEventsXdr ?? []).map((lst) =>
+        lst.map((e) => xdr.ContractEvent.fromXDR(e, "base64")),
       ),
-      transactionEventsXdr: (raw.events?.transactionEventsXdr ?? []).map(
-        e => xdr.TransactionEvent.fromXDR(e, "base64")
+      transactionEventsXdr: (raw.events?.transactionEventsXdr ?? []).map((e) =>
+        xdr.TransactionEvent.fromXDR(e, "base64"),
       ),
     },
   };
@@ -59,15 +57,17 @@ export function parseTransactionInfo(
   switch (meta.switch()) {
     case 3:
     case 4:
-      const metaV = meta.value() as xdr.TransactionMetaV3 | xdr.TransactionMetaV4;
+      const metaV = meta.value() as
+        | xdr.TransactionMetaV3
+        | xdr.TransactionMetaV4;
       if (metaV.sorobanMeta() !== null) {
         info.returnValue = metaV.sorobanMeta()?.returnValue() ?? undefined;
       }
   }
 
   if (raw.diagnosticEventsXdr) {
-    info.diagnosticEventsXdr = raw.diagnosticEventsXdr.map(
-        e => xdr.DiagnosticEvent.fromXDR(e, 'base64')
+    info.diagnosticEventsXdr = raw.diagnosticEventsXdr.map((e) =>
+      xdr.DiagnosticEvent.fromXDR(e, "base64"),
     );
   }
 
@@ -75,7 +75,7 @@ export function parseTransactionInfo(
 }
 
 export function parseRawTransactions(
-    r: Api.RawTransactionInfo
+  r: Api.RawTransactionInfo,
 ): Api.TransactionInfo {
   return {
     status: r.status,
@@ -95,7 +95,7 @@ export function parseRawTransactions(
  *    response
  */
 export function parseRawEvents(
-  raw: Api.RawGetEventsResponse
+  raw: Api.RawGetEventsResponse,
 ): Api.GetEventsResponse {
   return {
     latestLedger: raw.latestLedger,
@@ -105,17 +105,19 @@ export function parseRawEvents(
 
     cursor: raw.cursor,
     events: (raw.events ?? []).map((evt) => {
-      const clone: Omit<Api.RawEventResponse, 'contractId'> = { ...evt };
+      const clone: Omit<Api.RawEventResponse, "contractId"> = { ...evt };
       delete (clone as any).contractId; // `as any` hack because contractId field isn't optional
 
       // the contractId may be empty so we omit the field in that case
       return {
         ...clone,
-        ...(evt.contractId !== '' && { contractId: new Contract(evt.contractId) }),
-        topic: evt.topic.map((topic) => xdr.ScVal.fromXDR(topic, 'base64')),
-        value: xdr.ScVal.fromXDR(evt.value, 'base64')
+        ...(evt.contractId !== "" && {
+          contractId: new Contract(evt.contractId),
+        }),
+        topic: evt.topic.map((topic) => xdr.ScVal.fromXDR(topic, "base64")),
+        value: xdr.ScVal.fromXDR(evt.value, "base64"),
       };
-    })
+    }),
   };
 }
 
@@ -131,26 +133,26 @@ export function parseRawEvents(
  *    RPC server's response
  */
 export function parseRawLedgerEntries(
-  raw: Api.RawGetLedgerEntriesResponse
+  raw: Api.RawGetLedgerEntriesResponse,
 ): Api.GetLedgerEntriesResponse {
   return {
     latestLedger: raw.latestLedger,
     entries: (raw.entries ?? []).map((rawEntry) => {
       if (!rawEntry.key || !rawEntry.xdr) {
         throw new TypeError(
-          `invalid ledger entry: ${JSON.stringify(rawEntry)}`
+          `invalid ledger entry: ${JSON.stringify(rawEntry)}`,
         );
       }
 
       return {
         lastModifiedLedgerSeq: rawEntry.lastModifiedLedgerSeq,
-        key: xdr.LedgerKey.fromXDR(rawEntry.key, 'base64'),
-        val: xdr.LedgerEntryData.fromXDR(rawEntry.xdr, 'base64'),
+        key: xdr.LedgerKey.fromXDR(rawEntry.key, "base64"),
+        val: xdr.LedgerEntryData.fromXDR(rawEntry.xdr, "base64"),
         ...(rawEntry.liveUntilLedgerSeq !== undefined && {
-          liveUntilLedgerSeq: rawEntry.liveUntilLedgerSeq
-        })
+          liveUntilLedgerSeq: rawEntry.liveUntilLedgerSeq,
+        }),
       };
-    })
+    }),
   };
 }
 
@@ -172,7 +174,7 @@ export function parseRawLedgerEntries(
  */
 function parseSuccessful(
   sim: Api.RawSimulateTransactionResponse,
-  partial: Api.BaseSimulateTransactionResponse
+  partial: Api.BaseSimulateTransactionResponse,
 ):
   | Api.SimulateTransactionRestoreResponse
   | Api.SimulateTransactionSuccessResponse {
@@ -186,29 +188,32 @@ function parseSuccessful(
     // eslint-disable-next-line no-self-compare
     ...((sim.results?.length ?? 0 > 0) && {
       result: sim.results!.map((row) => ({
-          auth: (row.auth ?? []).map((entry) =>
-            xdr.SorobanAuthorizationEntry.fromXDR(entry, 'base64')
-          ),
-          // if return value is missing ("falsy") we coalesce to void
-          retval: row.xdr
-            ? xdr.ScVal.fromXDR(row.xdr, 'base64')
-            : xdr.ScVal.scvVoid()
-        }))[0]
+        auth: (row.auth ?? []).map((entry) =>
+          xdr.SorobanAuthorizationEntry.fromXDR(entry, "base64"),
+        ),
+        // if return value is missing ("falsy") we coalesce to void
+        retval: row.xdr
+          ? xdr.ScVal.fromXDR(row.xdr, "base64")
+          : xdr.ScVal.scvVoid(),
+      }))[0],
     }),
 
     // eslint-disable-next-line no-self-compare
-    ...(sim.stateChanges?.length ?? 0 > 0) && {
+    ...((sim.stateChanges?.length ?? 0 > 0) && {
       stateChanges: sim.stateChanges?.map((entryChange) => ({
-          type: entryChange.type,
-          key: xdr.LedgerKey.fromXDR(entryChange.key, 'base64'),
-          before: entryChange.before ? xdr.LedgerEntry.fromXDR(entryChange.before, 'base64') : null,
-          after: entryChange.after ? xdr.LedgerEntry.fromXDR(entryChange.after, 'base64') : null,
-        }))
-    }
-
+        type: entryChange.type,
+        key: xdr.LedgerKey.fromXDR(entryChange.key, "base64"),
+        before: entryChange.before
+          ? xdr.LedgerEntry.fromXDR(entryChange.before, "base64")
+          : null,
+        after: entryChange.after
+          ? xdr.LedgerEntry.fromXDR(entryChange.after, "base64")
+          : null,
+      })),
+    }),
   };
 
-  if (!sim.restorePreamble || sim.restorePreamble.transactionData === '') {
+  if (!sim.restorePreamble || sim.restorePreamble.transactionData === "") {
     return success;
   }
 
@@ -218,9 +223,9 @@ function parseSuccessful(
     restorePreamble: {
       minResourceFee: sim.restorePreamble!.minResourceFee,
       transactionData: new SorobanDataBuilder(
-        sim.restorePreamble!.transactionData
-      )
-    }
+        sim.restorePreamble!.transactionData,
+      ),
+    },
   };
 }
 
@@ -234,9 +239,7 @@ function parseSuccessful(
  * @returns {Api.SimulateTransactionResponse} the original parameter (if already parsed), parsed otherwise
  */
 export function parseRawSimulation(
-  sim:
-    | Api.SimulateTransactionResponse
-    | Api.RawSimulateTransactionResponse
+  sim: Api.SimulateTransactionResponse | Api.RawSimulateTransactionResponse,
 ): Api.SimulateTransactionResponse {
   const looksRaw = Api.isSimulationRaw(sim);
   if (!looksRaw) {
@@ -250,14 +253,15 @@ export function parseRawSimulation(
     id: sim.id,
     latestLedger: sim.latestLedger,
     events:
-      sim.events?.map((evt) => xdr.DiagnosticEvent.fromXDR(evt, 'base64')) ?? []
+      sim.events?.map((evt) => xdr.DiagnosticEvent.fromXDR(evt, "base64")) ??
+      [],
   };
 
   // error type: just has error string
-  if (typeof sim.error === 'string') {
+  if (typeof sim.error === "string") {
     return {
       ...base,
-      error: sim.error
+      error: sim.error,
     };
   }
 

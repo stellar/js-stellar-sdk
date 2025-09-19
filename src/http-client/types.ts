@@ -1,8 +1,12 @@
-export type HttpResponseHeaders = Record<string, string | boolean | undefined> & {
-  'set-cookie'?: string[];
+export type HttpResponseHeaders = Record<
+  string,
+  string | boolean | undefined
+> & {
+  "set-cookie"?: string[];
 };
 
-export interface HttpClientDefaults extends Omit<HttpClientRequestConfig, 'headers'> {
+export interface HttpClientDefaults
+  extends Omit<HttpClientRequestConfig, "headers"> {
   headers?: [string, string][] | Record<string, string> | Headers | undefined;
 }
 
@@ -38,25 +42,62 @@ export interface HttpClientRequestConfig<D = any> {
 }
 
 export interface HttpClient {
-  get: <T = any>(url: string, config?: HttpClientRequestConfig) => Promise<HttpClientResponse<T>>;
-  delete: <T = any>(url: string, config?: HttpClientRequestConfig) => Promise<HttpClientResponse<T>>;
-  head: <T = any>(url: string, config?: HttpClientRequestConfig) => Promise<HttpClientResponse<T>>;
-  options: <T = any>(url: string, config?: HttpClientRequestConfig) => Promise<HttpClientResponse<T>>;
-  post: <T = any>(url: string, data?: any, config?: HttpClientRequestConfig) => Promise<HttpClientResponse<T>>;
-  put: <T = any>(url: string, data?: any, config?: HttpClientRequestConfig) => Promise<HttpClientResponse<T>>;
-  patch: <T = any>(url: string, data?: any, config?: HttpClientRequestConfig) => Promise<HttpClientResponse<T>>;
-  postForm: <T = any>(url: string, data?: any, config?: HttpClientRequestConfig) => Promise<HttpClientResponse<T>>;
-  putForm: <T = any>(url: string, data?: any, config?: HttpClientRequestConfig) => Promise<HttpClientResponse<T>>;
-  patchForm: <T = any>(url: string, data?: any, config?: HttpClientRequestConfig) => Promise<HttpClientResponse<T>>;
-  interceptors: 
-  {
+  get: <T = any>(
+    url: string,
+    config?: HttpClientRequestConfig,
+  ) => Promise<HttpClientResponse<T>>;
+  delete: <T = any>(
+    url: string,
+    config?: HttpClientRequestConfig,
+  ) => Promise<HttpClientResponse<T>>;
+  head: <T = any>(
+    url: string,
+    config?: HttpClientRequestConfig,
+  ) => Promise<HttpClientResponse<T>>;
+  options: <T = any>(
+    url: string,
+    config?: HttpClientRequestConfig,
+  ) => Promise<HttpClientResponse<T>>;
+  post: <T = any>(
+    url: string,
+    data?: any,
+    config?: HttpClientRequestConfig,
+  ) => Promise<HttpClientResponse<T>>;
+  put: <T = any>(
+    url: string,
+    data?: any,
+    config?: HttpClientRequestConfig,
+  ) => Promise<HttpClientResponse<T>>;
+  patch: <T = any>(
+    url: string,
+    data?: any,
+    config?: HttpClientRequestConfig,
+  ) => Promise<HttpClientResponse<T>>;
+  postForm: <T = any>(
+    url: string,
+    data?: any,
+    config?: HttpClientRequestConfig,
+  ) => Promise<HttpClientResponse<T>>;
+  putForm: <T = any>(
+    url: string,
+    data?: any,
+    config?: HttpClientRequestConfig,
+  ) => Promise<HttpClientResponse<T>>;
+  patchForm: <T = any>(
+    url: string,
+    data?: any,
+    config?: HttpClientRequestConfig,
+  ) => Promise<HttpClientResponse<T>>;
+  interceptors: {
     request: InterceptorManager<HttpClientRequestConfig>;
     response: InterceptorManager<HttpClientResponse>;
-  },
+  };
   defaults: HttpClientDefaults;
   CancelToken: typeof CancelToken;
   isCancel: (value: any) => boolean;
-  makeRequest: <T = any>(config: HttpClientRequestConfig) => Promise<HttpClientResponse<T>>;
+  makeRequest: <T = any>(
+    config: HttpClientRequestConfig,
+  ) => Promise<HttpClientResponse<T>>;
   create: (config?: HttpClientRequestConfig) => HttpClient;
 }
 
@@ -66,7 +107,10 @@ export interface Interceptor<V> {
 }
 
 export interface InterceptorManager<V> {
-  use(fulfilled: (value: V) => V | Promise<V>, rejected?: (error: any) => any): number;
+  use(
+    fulfilled: (value: V) => V | Promise<V>,
+    rejected?: (error: any) => any,
+  ): number;
   eject(id: number): void;
   forEach(fn: (interceptor: Interceptor<V>) => void): void;
   handlers: Array<Interceptor<V> | null>;
