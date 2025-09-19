@@ -15,10 +15,8 @@ import { NetworkError } from "./network";
  */
 export class BadResponseError extends NetworkError {
   constructor(message: string, response: any) {
-    const trueProto = new.target.prototype;
     super(message, response);
-    this.__proto__ = trueProto;
-    this.constructor = BadResponseError;
     this.name = "BadResponseError";
+    Object.setPrototypeOf(this, BadResponseError.prototype);
   }
 }

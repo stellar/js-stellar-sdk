@@ -12,10 +12,8 @@ import { NetworkError } from "./network";
  */
 export class NotFoundError extends NetworkError {
   constructor(message: string, response: any) {
-    const trueProto = new.target.prototype;
     super(message, response);
-    this.__proto__ = trueProto;
-    this.constructor = NotFoundError;
     this.name = "NotFoundError";
+    Object.setPrototypeOf(this, NotFoundError.prototype);
   }
 }
