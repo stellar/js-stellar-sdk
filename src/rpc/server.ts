@@ -219,10 +219,11 @@ export class RpcServer {
    * Fetch the full account entry for a Stellar account.
    *
    * @param {string} address The public address of the account to load.
-   * @returns {Promise<xdr.AccountEntry>} A promise which resolves to the
-   *    {@link Account} object with a populated sequence number
+   * @returns {Promise<xdr.AccountEntry>} Resolves to the full on-chain account
+   *    entry
    *
-   * @see {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods/getLedgerEntries | getLedgerEntries docs}
+   * @see
+   * {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods/getLedgerEntries | getLedgerEntries docs}
    *
    * @example
    * const accountId = "GBZC6Y2Y7Q3ZQ2Y4QZJ2XZ3Z5YXZ6Z7Z2Y4QZJ2XZ3Z5YXZ6Z7Z2Y4";
@@ -245,6 +246,27 @@ export class RpcServer {
     }
   }
 
+  /**
+   * Fetch the full trustline entry for a Stellar account.
+   *
+   * @param {string} account  The public address of the account whose trustline it is
+   * @param {string} asset    The trustline's asset
+   * @returns {Promise<xdr.TrustLineEntry>} Resolves to the full on-chain trustline
+   *    entry
+   *
+   * @see
+   * {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods/getLedgerEntries | getLedgerEntries docs}
+   *
+   * @example
+   * const accountId = "GBZC6Y2Y7Q3ZQ2Y4QZJ2XZ3Z5YXZ6Z7Z2Y4QZJ2XZ3Z5YXZ6Z7Z2Y4";
+   * const asset = new Asset(
+   *  "USDC",
+   *  "GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5"
+   * );
+   * server.getTrustline(accountId, asset).then((entry) => {
+   *   console.log(`{asset.toString()} balance for ${accountId}:", entry.balance().toString());
+   * });
+   */
   public async getTrustline(account: string, asset: Asset): Promise<xdr.TrustLineEntry> {
     const trustlineLedgerKey = xdr.LedgerKey.trustline(
       new xdr.LedgerKeyTrustLine({
@@ -258,6 +280,58 @@ export class RpcServer {
       return entry.val.trustLine();
     } catch (e) {
       throw new Error(`Trustline for ${asset.getCode()}:${asset.getIssuer()} not found for ${account}`);
+    }
+  }
+
+  /**
+   * Fetch the full claimable balance entry for a Stellar account.
+   *
+   * @param {string} id   The strkey (`B...`) or hex (`00000000abcde...`) (both
+   *    IDs with and without the 000... version prefix are accepted) of the
+   *    claimable balance to load
+   * @returns {Promise<xdr.ClaimableBalanceEntry>} Resolves to the full on-chain
+   *    claimable balance entry
+   *
+   * @see
+   * {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods/getLedgerEntries | getLedgerEntries docs}
+   *
+   * @example
+   * const id = "00000000178826fbfe339e1f5c53417c6fedfe2c05e8bec14303143ec46b38981b09c3f9";
+   * server.getClaimableBalance(id).then((entry) => {
+   *   console.log(`Claimable balance {id.substr(0, 12)} has:`);
+   *   console.log(`  asset:  ${Asset.fromXDRObject(entry.asset()).toString()}`;
+   *   console.log(`  amount: ${entry.amount().toString()}`;
+   * });
+   */
+  public async getClaimableBalance(id: string): Promise<xdr.ClaimableBalanceEntry> {
+    let balanceId;
+    if (StrKey.isValidClaimableBalance(id)) {
+      let buffer = StrKey.decodeClaimableBalance(id);
+
+      // Pad the version byte to be a full int32 like in the XDR spec
+      let v = Buffer.concat([ Buffer.from('\x00\x00\x00'), buffer.subarray(0, 1) ])
+
+      // Slap on the rest of it and decode it
+      balanceId = xdr.ClaimableBalanceId.fromXDR(
+        Buffer.concat([ v, buffer.subarray(1) ])
+      );
+    } else if (id.match(/[a-f0-9]{72}/i)) {
+      balanceId = xdr.ClaimableBalanceId.fromXDR(id, "hex")
+    } else if (id.match(/[a-f0-9]{64}/i)) {
+      balanceId = xdr.ClaimableBalanceId.fromXDR(id.padStart(72, '0'), "hex")
+    } else {
+      throw new TypeError(`expected 72-char hex ID or strkey, not ${id}`)
+    }
+
+    const trustlineLedgerKey = xdr.LedgerKey.claimableBalance(
+      new xdr.LedgerKeyClaimableBalance({ balanceId })
+    );
+
+    try {
+      const entry = await this.getLedgerEntry(trustlineLedgerKey);
+      return entry.val.claimableBalance();
+    } catch (e) {
+      throw new Error(`Claimable balance ${id} not found`);
     }
   }
 
@@ -1071,8 +1145,8 @@ export class RpcServer {
    *
    * This is a convenience wrapper around {@link Server.getLedgerEntries}.
    *
-   * @param {string}  contractId    the contract ID (string `C...`) whose
-   *    balance of `sac` you want to know
+   * @param {string}  address the contract (string `C...`) or account ID
+   *    (`G...`) whose balance of `sac` you want to know
    * @param {Asset}   sac     the built-in SAC token (e.g. `USDC:GABC...`) that
    *    you are querying from the given `contract`.
    * @param {string}  [networkPassphrase] optionally, the network passphrase to
@@ -1085,8 +1159,7 @@ export class RpcServer {
    *    entry details if and only if the request returned a valid balance ledger
    *    entry. If it doesn't, the `balanceEntry` field will not exist.
    *
-   * @throws {TypeError} If `address` is not a valid contract ID (C...) or
-   *    ed25519 public key (G...).
+   * @throws {TypeError} If `address` is not a valid contract ID (C...).
    *
    * @see getLedgerEntries
    * @see https://developers.stellar.org/docs/tokens/stellar-asset-contract
@@ -1107,17 +1180,16 @@ export class RpcServer {
    *   "Address has no XLM");
    */
   public async getSACBalance(
-    address: string,
+    address: string | Address,
     sac: Asset,
     networkPassphrase?: string
   ): Promise<Api.BalanceResponse> {
-      if (
-        !StrKey.isValidContract(address) &&
-        !StrKey.isValidEd25519PublicKey(address)
-      ) {
-        throw new TypeError(
-          `expected contract ID or ed25519 public key, got ${address}`
-        );
+      const addressString = (address instanceof Address)
+        ? address.toString()
+        : address;
+
+      if (!StrKey.isValidContract(addressString)) {
+        throw new TypeError(`expected contract ID, got ${addressString}`);
       }
 
       // Call out to RPC if passphrase isn't provided.
@@ -1128,7 +1200,7 @@ export class RpcServer {
       const sacId = sac.contractId(passphrase);
 
       // Rust union enum type with "Balance(ScAddress)" structure
-      const key = nativeToScVal(["Balance", address], {
+      const key = nativeToScVal(["Balance", addressString], {
         type: [ "symbol", "address" ]
       });
 
