@@ -1222,6 +1222,7 @@ export class RpcServer {
     const addressString =
       address instanceof Address ? address.toString() : address;
 
+
     if (!StrKey.isValidContract(addressString)) {
       throw new TypeError(`expected contract ID, got ${addressString}`);
     }

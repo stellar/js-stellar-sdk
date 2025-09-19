@@ -1,7 +1,7 @@
 const { Address, Keypair, xdr, nativeToScVal, hash } = StellarSdk;
 const { Server, AxiosClient, Durability } = StellarSdk.rpc;
 
-describe("Server#getContractBalance", function () {
+describe("Server#getSACBalance", function () {
   beforeEach(function () {
     this.server = new Server(serverUrl);
     this.axiosMock = sinon.mock(AxiosClient);
@@ -33,10 +33,10 @@ describe("Server#getContractBalance", function () {
     },
   );
 
-  function buildBalanceArtifacts(holder) {
+  function buildBalanceArtifacts() {
     const key = xdr.ScVal.scvVec([
       nativeToScVal("Balance", { type: "symbol" }),
-      nativeToScVal(holder, { type: "address" }),
+      nativeToScVal(contract, { type: "address" }),
     ]);
 
     const entry = xdr.LedgerEntryData.contractData(
@@ -60,8 +60,8 @@ describe("Server#getContractBalance", function () {
     return { entry, ledgerKey };
   }
 
-  function buildMockResult(that, holder = contract) {
-    const { entry, ledgerKey } = buildBalanceArtifacts(holder);
+  function buildMockResult(that) {
+    const { entry, ledgerKey } = buildBalanceArtifacts();
     let result = {
       latestLedger: 1000,
       entries: [
@@ -105,23 +105,6 @@ describe("Server#getContractBalance", function () {
       .catch((err) => done(err));
   });
 
-  it("returns the correct balance entry for accounts", function (done) {
-    const account = Keypair.random().publicKey();
-    buildMockResult(this, account);
-
-    this.server
-      .getSACBalance(account, token, StellarSdk.Networks.TESTNET)
-      .then((response) => {
-        expect(response.latestLedger).to.equal(1000);
-        expect(response.balanceEntry).to.not.be.undefined;
-        expect(response.balanceEntry.amount).to.equal("1000000000000");
-        expect(response.balanceEntry.authorized).to.be.true;
-        expect(response.balanceEntry.clawback).to.be.false;
-        done();
-      })
-      .catch((err) => done(err));
-  });
-
   it("infers the network passphrase", function (done) {
     buildMockResult(this);
 
@@ -154,6 +137,18 @@ describe("Server#getContractBalance", function () {
         done();
       })
       .catch((err) => done(err));
+  });
+
+  it("throws on account addresses", function (done) {
+    const account = Keypair.random().publicKey();
+
+    this.server
+      .getSACBalance(account, token)
+      .then(() => done(new Error("Error didn't occur")))
+      .catch((err) => {
+        expect(err).to.match(/TypeError/);
+        done();
+      });
   });
 
   it("throws on invalid addresses", function (done) {
