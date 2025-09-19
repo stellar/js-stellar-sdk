@@ -11,9 +11,9 @@ A breaking change will get clearly marked in this log.
 
 ### Added
 * `rpc.Server` now includes `getAccountEntry`, `getTrustlineEntry`, and `getClaimableBalance` methods to facilitate retrieving those entries without manually constructing the ledger keys ([#1218](https://github.com/stellar/js-stellar-sdk/pull/1218), [#1221](https://github.com/stellar/js-stellar-sdk/pull/1221)).
-* `rpc.Server`'s
 
 ### Fixed
+* The `getTransactions` API no longer requires `startLedger` when providing `cursor` because they are mutually exclusive ([#1192](https://github.com/stellar/js-stellar-sdk/pull/1192)).
 * Updated `@stellar/stellar-base` to latest patch (see its [release notes](https://github.com/stellar/js-stellar-base/releases/tag/v14.0.1), [#1221](https://github.com/stellar/js-stellar-sdk/pull/1221)).
 
 
