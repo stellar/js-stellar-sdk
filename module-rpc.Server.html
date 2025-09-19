@@ -793,6 +793,400 @@ server.getAccount(accountId).then((account) => {
 
 
     
+    <h4 class="name" id="getAccountEntry">
+        <a class="href-link" href="#getAccountEntry">#</a>
+        
+            
+                <span class='tag'>async</span>
+            
+        
+        <span class="code-name">
+            
+                getAccountEntry<span class="signature">(address)</span><span class="type-signature"> &rarr; {Promise.&lt;xdr.AccountEntry>}</span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Fetch the full account entry for a Stellar account.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+<div class="table-container">
+    <table class="params table">
+        <thead>
+        <tr>
+            
+            <th>Name</th>
+            
+
+            <th>Type</th>
+
+            
+
+            
+
+            <th class="last">Description</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        
+
+            
+<tr class="deep-level-0">
+  
+      <td class="name"><code>address</code></td>
+  
+
+  <td class="type">
+  
+      
+<code class="param-type">string</code>
+
+
+  
+  </td>
+
+  
+
+  
+
+  <td class="description last"><p>The public address of the account to load.</p></td>
+</tr>
+
+
+        
+        </tbody>
+    </table>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="https://developers.stellar.org/docs/data/rpc/api-reference/methods/getLedgerEntries">getLedgerEntries docs</a></li>
+        </ul>
+    </dd>
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="lib_rpc_server.js.html" class="button">View Source</a>
+            <span>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line174">line 174</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class='columns method-parameter'>
+        <div class="column is-2"><label>Returns:</label></div>
+        <div class="column is-10">
+            
+                    
+
+<div class="columns">
+    
+    <div class='param-desc column is-7'><p>Resolves to the full on-chain account
+entry</p></div>
+    
+    
+    <div class='column is-5 has-text-left'>
+        <label>Type: </label>
+        
+<code class="param-type">Promise.&lt;xdr.AccountEntry></code>
+
+
+    </div>
+    
+</div>
+
+                
+        </div>
+    </div>
+
+
+
+
+    <h5>Example</h5>
+    
+    
+        <pre class="prettyprint"><code>const accountId = "GBZC6Y2Y7Q3ZQ2Y4QZJ2XZ3Z5YXZ6Z7Z2Y4QZJ2XZ3Z5YXZ6Z7Z2Y4";
+server.getAccountEntry(accountId).then((account) => {
+  console.log("sequence:", account.balance().toString());
+});</code></pre>
+    
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="getClaimableBalance">
+        <a class="href-link" href="#getClaimableBalance">#</a>
+        
+            
+                <span class='tag'>async</span>
+            
+        
+        <span class="code-name">
+            
+                getClaimableBalance<span class="signature">(id)</span><span class="type-signature"> &rarr; {Promise.&lt;xdr.ClaimableBalanceEntry>}</span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Fetch the full claimable balance entry for a Stellar account.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+<div class="table-container">
+    <table class="params table">
+        <thead>
+        <tr>
+            
+            <th>Name</th>
+            
+
+            <th>Type</th>
+
+            
+
+            
+
+            <th class="last">Description</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        
+
+            
+<tr class="deep-level-0">
+  
+      <td class="name"><code>id</code></td>
+  
+
+  <td class="type">
+  
+      
+<code class="param-type">string</code>
+
+
+  
+  </td>
+
+  
+
+  
+
+  <td class="description last"><p>The strkey (<code>B...</code>) or hex (<code>00000000abcde...</code>) (both
+IDs with and without the 000... version prefix are accepted) of the
+claimable balance to load</p></td>
+</tr>
+
+
+        
+        </tbody>
+    </table>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="https://developers.stellar.org/docs/data/rpc/api-reference/methods/getLedgerEntries">getLedgerEntries docs</a></li>
+        </ul>
+    </dd>
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="lib_rpc_server.js.html" class="button">View Source</a>
+            <span>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line240">line 240</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class='columns method-parameter'>
+        <div class="column is-2"><label>Returns:</label></div>
+        <div class="column is-10">
+            
+                    
+
+<div class="columns">
+    
+    <div class='param-desc column is-7'><p>Resolves to the full on-chain
+claimable balance entry</p></div>
+    
+    
+    <div class='column is-5 has-text-left'>
+        <label>Type: </label>
+        
+<code class="param-type">Promise.&lt;xdr.ClaimableBalanceEntry></code>
+
+
+    </div>
+    
+</div>
+
+                
+        </div>
+    </div>
+
+
+
+
+    <h5>Example</h5>
+    
+    
+        <pre class="prettyprint"><code>const id = "00000000178826fbfe339e1f5c53417c6fedfe2c05e8bec14303143ec46b38981b09c3f9";
+server.getClaimableBalance(id).then((entry) => {
+  console.log(`Claimable balance {id.substr(0, 12)} has:`);
+  console.log(`  asset:  ${Asset.fromXDRObject(entry.asset()).toString()}`;
+  console.log(`  amount: ${entry.amount().toString()}`;
+});</code></pre>
+    
+
+
+</div>
+            
+                <div class="member">
+
+
+    
     <h4 class="name" id="getContractData">
         <a class="href-link" href="#getContractData">#</a>
         
@@ -1027,7 +1421,7 @@ or 'persistent' (the default), see <a href="module-rpc.html#.Durability">module:
         <p class="tag-source">
             <a href="lib_rpc_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line220">line 220</a>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line319">line 319</a>
             </span>
         </p>
     
@@ -1221,7 +1615,7 @@ code of the contract.</p>
         <p class="tag-source">
             <a href="lib_rpc_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line281">line 281</a>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line378">line 378</a>
             </span>
         </p>
     
@@ -1436,7 +1830,7 @@ represents the executable code of the contract.</p>
         <p class="tag-source">
             <a href="lib_rpc_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line316">line 316</a>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line413">line 413</a>
             </span>
         </p>
     
@@ -1660,7 +2054,7 @@ Api.EventResponse object to set the <code>cursor</code> parameter.</p>
         <p class="tag-source">
             <a href="lib_rpc_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line541">line 541</a>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line642">line 642</a>
             </span>
         </p>
     
@@ -1823,7 +2217,7 @@ contract operations.</p>
         <p class="tag-source">
             <a href="lib_rpc_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line879">line 879</a>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line980">line 980</a>
             </span>
         </p>
     
@@ -1956,7 +2350,7 @@ contract operations.</p>
         <p class="tag-source">
             <a href="lib_rpc_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line184">line 184</a>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line283">line 283</a>
             </span>
         </p>
     
@@ -2101,7 +2495,7 @@ server is connected to.</p>
         <p class="tag-source">
             <a href="lib_rpc_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line604">line 604</a>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line705">line 705</a>
             </span>
         </p>
     
@@ -2172,10 +2566,6 @@ latest ledger on the network that this RPC server is connected to</p></div>
     
     <h4 class="name" id="getLedgerEntries">
         <a class="href-link" href="#getLedgerEntries">#</a>
-        
-            
-                <span class='tag'>async</span>
-            
         
         <span class="code-name">
             
@@ -2316,7 +2706,7 @@ Contract.getFootprint).</p>
         <p class="tag-source">
             <a href="lib_rpc_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line366">line 366</a>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line462">line 462</a>
             </span>
         </p>
     
@@ -2470,7 +2860,7 @@ server.getLedgerEntries([key]).then(response => {
         <p class="tag-source">
             <a href="lib_rpc_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line583">line 583</a>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line684">line 684</a>
             </span>
         </p>
     
@@ -2548,7 +2938,7 @@ network this RPC server is connected to</p></div>
         
         <span class="code-name">
             
-                getSACBalance<span class="signature">(contractId, sac, networkPassphrase<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise.&lt;Api.BalanceResponse>}</span>
+                getSACBalance<span class="signature">(address, sac, networkPassphrase<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise.&lt;Api.BalanceResponse>}</span>
             
         </span>
     </h4>
@@ -2598,7 +2988,7 @@ network this RPC server is connected to</p></div>
             
 <tr class="deep-level-0">
   
-      <td class="name"><code>contractId</code></td>
+      <td class="name"><code>address</code></td>
   
 
   <td class="type">
@@ -2622,8 +3012,8 @@ network this RPC server is connected to</p></div>
 
   
 
-  <td class="description last"><p>the contract ID (string <code>C...</code>) whose
-balance of <code>sac</code> you want to know</p></td>
+  <td class="description last"><p>the contract (string <code>C...</code>) or account ID
+(<code>G...</code>) whose balance of <code>sac</code> you want to know</p></td>
 </tr>
 
 
@@ -2753,7 +3143,7 @@ for a list of built-in passphrases, e.g., <code>Networks.TESTNET</code>.</p></td
         <p class="tag-source">
             <a href="lib_rpc_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line933">line 933</a>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line1034">line 1034</a>
             </span>
         </p>
     
@@ -2781,7 +3171,7 @@ for a list of built-in passphrases, e.g., <code>Networks.TESTNET</code>.</p></td
                     
 <div class="columns">
     
-    <div class='param-desc column is-7'><p>If <code>contractId</code> is not a valid contract strkey (C...).</p></div>
+    <div class='param-desc column is-7'><p>If <code>address</code> is not a valid contract ID (C...).</p></div>
     <div class='column is-5 has-text-left'>
         <label>Type: </label>
 <code class="param-type">TypeError</code>
@@ -2830,10 +3220,10 @@ entry. If it doesn't, the <code>balanceEntry</code> field will not exist.</p></d
     <h5>Example</h5>
     
     
-        <pre class="prettyprint"><code>// assume `contractId` is some contract with an XLM balance
+        <pre class="prettyprint"><code>// assume `address` is some contract or account with an XLM balance
 // assume server is an instantiated `Server` instance.
 const entry = (await server.getSACBalance(
-  new Address(contractId),
+  new Address(address),
   Asset.native(),
   Networks.PUBLIC
 ));
@@ -2842,7 +3232,7 @@ const entry = (await server.getSACBalance(
 console.log(
   entry.balanceEntry ?
   BigInt(entry.balanceEntry.amount) :
-  "Contract has no XLM");</code></pre>
+  "Address has no XLM");</code></pre>
     
 
 
@@ -2981,7 +3371,7 @@ transaction has completed.</p>
         <p class="tag-source">
             <a href="lib_rpc_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line439">line 439</a>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line540">line 540</a>
             </span>
         </p>
     
@@ -3180,7 +3570,7 @@ in that RPC instance.</p>
         <p class="tag-source">
             <a href="lib_rpc_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line483">line 483</a>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line584">line 584</a>
             </span>
         </p>
     
@@ -3243,6 +3633,230 @@ in that RPC instance.</p>
   console.log("Transactions:", response.transactions);
   console.log("Latest Ledger:", response.latestLedger);
   console.log("Cursor:", response.cursor);
+});</code></pre>
+    
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="getTrustline">
+        <a class="href-link" href="#getTrustline">#</a>
+        
+            
+                <span class='tag'>async</span>
+            
+        
+        <span class="code-name">
+            
+                getTrustline<span class="signature">(account, asset)</span><span class="type-signature"> &rarr; {Promise.&lt;xdr.TrustLineEntry>}</span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Fetch the full trustline entry for a Stellar account.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+<div class="table-container">
+    <table class="params table">
+        <thead>
+        <tr>
+            
+            <th>Name</th>
+            
+
+            <th>Type</th>
+
+            
+
+            
+
+            <th class="last">Description</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        
+
+            
+<tr class="deep-level-0">
+  
+      <td class="name"><code>account</code></td>
+  
+
+  <td class="type">
+  
+      
+<code class="param-type">string</code>
+
+
+  
+  </td>
+
+  
+
+  
+
+  <td class="description last"><p>The public address of the account whose trustline it is</p></td>
+</tr>
+
+
+        
+
+            
+<tr class="deep-level-0">
+  
+      <td class="name"><code>asset</code></td>
+  
+
+  <td class="type">
+  
+      
+<code class="param-type">string</code>
+
+
+  
+  </td>
+
+  
+
+  
+
+  <td class="description last"><p>The trustline's asset</p></td>
+</tr>
+
+
+        
+        </tbody>
+    </table>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="https://developers.stellar.org/docs/data/rpc/api-reference/methods/getLedgerEntries">getLedgerEntries docs</a></li>
+        </ul>
+    </dd>
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="lib_rpc_server.js.html" class="button">View Source</a>
+            <span>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line207">line 207</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class='columns method-parameter'>
+        <div class="column is-2"><label>Returns:</label></div>
+        <div class="column is-10">
+            
+                    
+
+<div class="columns">
+    
+    <div class='param-desc column is-7'><p>Resolves to the full on-chain trustline
+entry</p></div>
+    
+    
+    <div class='column is-5 has-text-left'>
+        <label>Type: </label>
+        
+<code class="param-type">Promise.&lt;xdr.TrustLineEntry></code>
+
+
+    </div>
+    
+</div>
+
+                
+        </div>
+    </div>
+
+
+
+
+    <h5>Example</h5>
+    
+    
+        <pre class="prettyprint"><code>const accountId = "GBZC6Y2Y7Q3ZQ2Y4QZJ2XZ3Z5YXZ6Z7Z2Y4QZJ2XZ3Z5YXZ6Z7Z2Y4";
+const asset = new Asset(
+ "USDC",
+ "GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5"
+);
+server.getTrustline(accountId, asset).then((entry) => {
+  console.log(`{asset.toString()} balance for ${accountId}:", entry.balance().toString());
 });</code></pre>
     
 
@@ -3329,7 +3943,7 @@ in that RPC instance.</p>
         <p class="tag-source">
             <a href="lib_rpc_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line890">line 890</a>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line991">line 991</a>
             </span>
         </p>
     
@@ -3592,7 +4206,7 @@ each attempt.</p></td>
         <p class="tag-source">
             <a href="lib_rpc_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line402">line 402</a>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line503">line 503</a>
             </span>
         </p>
     
@@ -3815,7 +4429,7 @@ don't care about the auth returned from the simulation. Other fields
         <p class="tag-source">
             <a href="lib_rpc_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line749">line 749</a>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line850">line 850</a>
             </span>
         </p>
     
@@ -4119,7 +4733,7 @@ discover this network's Friendbot url).</p></td>
         <p class="tag-source">
             <a href="lib_rpc_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line840">line 840</a>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line941">line 941</a>
             </span>
         </p>
     
@@ -4345,7 +4959,7 @@ success/failure.</p>
         <p class="tag-source">
             <a href="lib_rpc_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line802">line 802</a>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line903">line 903</a>
             </span>
         </p>
     
@@ -4664,7 +5278,7 @@ mode that allows non-root authorization</p></td>
         <p class="tag-source">
             <a href="lib_rpc_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line662">line 662</a>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line763">line 763</a>
             </span>
         </p>
     

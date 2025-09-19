@@ -222,7 +222,7 @@ class Client {
    */
   static async fromWasmHash(wasmHash, options, format = "hex") {
     if (!options || !options.rpcUrl) {
-      throw new TypeError('options must contain rpcUrl');
+      throw new TypeError("options must contain rpcUrl");
     }
     const {
       rpcUrl,
@@ -258,7 +258,7 @@ class Client {
    */
   static async from(options) {
     if (!options || !options.rpcUrl || !options.contractId) {
-      throw new TypeError('options must contain rpcUrl and contractId');
+      throw new TypeError("options must contain rpcUrl and contractId");
     }
     const {
       rpcUrl,

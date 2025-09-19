@@ -141,9 +141,9 @@ function parseRawSendTransaction(raw) {
     return {
       ...raw,
       ...(diagnosticEventsXdr !== undefined &amp;&amp; diagnosticEventsXdr.length > 0 &amp;&amp; {
-        diagnosticEvents: diagnosticEventsXdr.map(evt => _stellarBase.xdr.DiagnosticEvent.fromXDR(evt, 'base64'))
+        diagnosticEvents: diagnosticEventsXdr.map(evt => _stellarBase.xdr.DiagnosticEvent.fromXDR(evt, "base64"))
       }),
-      errorResult: _stellarBase.xdr.TransactionResult.fromXDR(errorResultXdr, 'base64')
+      errorResult: _stellarBase.xdr.TransactionResult.fromXDR(errorResultXdr, "base64")
     };
   }
   return {
@@ -151,14 +151,14 @@ function parseRawSendTransaction(raw) {
   };
 }
 function parseTransactionInfo(raw) {
-  const meta = _stellarBase.xdr.TransactionMeta.fromXDR(raw.resultMetaXdr, 'base64');
+  const meta = _stellarBase.xdr.TransactionMeta.fromXDR(raw.resultMetaXdr, "base64");
   const info = {
     ledger: raw.ledger,
     createdAt: raw.createdAt,
     applicationOrder: raw.applicationOrder,
     feeBump: raw.feeBump,
-    envelopeXdr: _stellarBase.xdr.TransactionEnvelope.fromXDR(raw.envelopeXdr, 'base64'),
-    resultXdr: _stellarBase.xdr.TransactionResult.fromXDR(raw.resultXdr, 'base64'),
+    envelopeXdr: _stellarBase.xdr.TransactionEnvelope.fromXDR(raw.envelopeXdr, "base64"),
+    resultXdr: _stellarBase.xdr.TransactionResult.fromXDR(raw.resultXdr, "base64"),
     resultMetaXdr: meta,
     events: {
       contractEventsXdr: (raw.events?.contractEventsXdr ?? []).map(lst => lst.map(e => _stellarBase.xdr.ContractEvent.fromXDR(e, "base64"))),
@@ -174,7 +174,7 @@ function parseTransactionInfo(raw) {
       }
   }
   if (raw.diagnosticEventsXdr) {
-    info.diagnosticEventsXdr = raw.diagnosticEventsXdr.map(e => _stellarBase.xdr.DiagnosticEvent.fromXDR(e, 'base64'));
+    info.diagnosticEventsXdr = raw.diagnosticEventsXdr.map(e => _stellarBase.xdr.DiagnosticEvent.fromXDR(e, "base64"));
   }
   return info;
 }
@@ -212,11 +212,11 @@ function parseRawEvents(raw) {
       // the contractId may be empty so we omit the field in that case
       return {
         ...clone,
-        ...(evt.contractId !== '' &amp;&amp; {
+        ...(evt.contractId !== "" &amp;&amp; {
           contractId: new _stellarBase.Contract(evt.contractId)
         }),
-        topic: evt.topic.map(topic => _stellarBase.xdr.ScVal.fromXDR(topic, 'base64')),
-        value: _stellarBase.xdr.ScVal.fromXDR(evt.value, 'base64')
+        topic: evt.topic.map(topic => _stellarBase.xdr.ScVal.fromXDR(topic, "base64")),
+        value: _stellarBase.xdr.ScVal.fromXDR(evt.value, "base64")
       };
     })
   };
@@ -242,8 +242,8 @@ function parseRawLedgerEntries(raw) {
       }
       return {
         lastModifiedLedgerSeq: rawEntry.lastModifiedLedgerSeq,
-        key: _stellarBase.xdr.LedgerKey.fromXDR(rawEntry.key, 'base64'),
-        val: _stellarBase.xdr.LedgerEntryData.fromXDR(rawEntry.xdr, 'base64'),
+        key: _stellarBase.xdr.LedgerKey.fromXDR(rawEntry.key, "base64"),
+        val: _stellarBase.xdr.LedgerEntryData.fromXDR(rawEntry.xdr, "base64"),
         ...(rawEntry.liveUntilLedgerSeq !== undefined &amp;&amp; {
           liveUntilLedgerSeq: rawEntry.liveUntilLedgerSeq
         })
@@ -279,22 +279,22 @@ function parseSuccessful(sim, partial) {
     // eslint-disable-next-line no-self-compare
     ...((sim.results?.length ?? 0 > 0) &amp;&amp; {
       result: sim.results.map(row => ({
-        auth: (row.auth ?? []).map(entry => _stellarBase.xdr.SorobanAuthorizationEntry.fromXDR(entry, 'base64')),
+        auth: (row.auth ?? []).map(entry => _stellarBase.xdr.SorobanAuthorizationEntry.fromXDR(entry, "base64")),
         // if return value is missing ("falsy") we coalesce to void
-        retval: row.xdr ? _stellarBase.xdr.ScVal.fromXDR(row.xdr, 'base64') : _stellarBase.xdr.ScVal.scvVoid()
+        retval: row.xdr ? _stellarBase.xdr.ScVal.fromXDR(row.xdr, "base64") : _stellarBase.xdr.ScVal.scvVoid()
       }))[0]
     }),
     // eslint-disable-next-line no-self-compare
     ...((sim.stateChanges?.length ?? 0 > 0) &amp;&amp; {
       stateChanges: sim.stateChanges?.map(entryChange => ({
         type: entryChange.type,
-        key: _stellarBase.xdr.LedgerKey.fromXDR(entryChange.key, 'base64'),
-        before: entryChange.before ? _stellarBase.xdr.LedgerEntry.fromXDR(entryChange.before, 'base64') : null,
-        after: entryChange.after ? _stellarBase.xdr.LedgerEntry.fromXDR(entryChange.after, 'base64') : null
+        key: _stellarBase.xdr.LedgerKey.fromXDR(entryChange.key, "base64"),
+        before: entryChange.before ? _stellarBase.xdr.LedgerEntry.fromXDR(entryChange.before, "base64") : null,
+        after: entryChange.after ? _stellarBase.xdr.LedgerEntry.fromXDR(entryChange.after, "base64") : null
       }))
     })
   };
-  if (!sim.restorePreamble || sim.restorePreamble.transactionData === '') {
+  if (!sim.restorePreamble || sim.restorePreamble.transactionData === "") {
     return success;
   }
 
@@ -329,11 +329,11 @@ function parseRawSimulation(sim) {
     _parsed: true,
     id: sim.id,
     latestLedger: sim.latestLedger,
-    events: sim.events?.map(evt => _stellarBase.xdr.DiagnosticEvent.fromXDR(evt, 'base64')) ?? []
+    events: sim.events?.map(evt => _stellarBase.xdr.DiagnosticEvent.fromXDR(evt, "base64")) ?? []
   };
 
   // error type: just has error string
-  if (typeof sim.error === 'string') {
+  if (typeof sim.error === "string") {
     return {
       ...base,
       error: sim.error

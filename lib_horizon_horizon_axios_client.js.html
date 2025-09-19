@@ -124,7 +124,7 @@ function _interopRequireDefault(e) { return e &amp;&amp; e.__esModule ? e : { de
 
 // eslint-disable-next-line prefer-import/prefer-import-over-require , @typescript-eslint/naming-convention
 
-const version = exports.version = "14.1.1";
+const version = exports.version = "14.2.0";
 /**
  * keep a local map of server times
  * (export this purely for testing purposes)
@@ -156,13 +156,13 @@ AxiosClient.interceptors.response.use(response => {
   const hostname = (0, _urijs.default)(response.config.url).hostname();
   let serverTime = 0;
   if (response.headers instanceof Headers) {
-    const dateHeader = response.headers.get('date');
+    const dateHeader = response.headers.get("date");
     if (dateHeader) {
       serverTime = toSeconds(Date.parse(dateHeader));
     }
-  } else if (typeof response.headers === 'object' &amp;&amp; 'date' in response.headers) {
+  } else if (typeof response.headers === "object" &amp;&amp; "date" in response.headers) {
     const headers = response.headers; // Cast response.headers to the correct type
-    if (typeof headers.date === 'string') {
+    if (typeof headers.date === "string") {
       serverTime = toSeconds(Date.parse(headers.date));
     }
   }

@@ -167,9 +167,9 @@ var _stellarBase = require("@stellar/stellar-base");
 
 /**
  * A function to request a wallet to sign a built transaction
- * 
+ *
  * This function takes an XDR provided by the requester and applies a signature to it.
- * It returns a base64-encoded string XDR-encoded Transaction Envelope with Decorated Signatures 
+ * It returns a base64-encoded string XDR-encoded Transaction Envelope with Decorated Signatures
  * and the signer address back to the requester.
  *
  * @param xdr - The XDR string representing the transaction to be signed.
@@ -185,7 +185,7 @@ var _stellarBase = require("@stellar/stellar-base");
 /**
  * A function to request a wallet to sign an authorization entry preimage.
  *
- * Similar to signing a transaction, this function takes an authorization entry preimage provided by the 
+ * Similar to signing a transaction, this function takes an authorization entry preimage provided by the
  * requester and applies a signature to it.
  * It returns a signed hash of the same authorization entry and the signer address back to the requester.
  *

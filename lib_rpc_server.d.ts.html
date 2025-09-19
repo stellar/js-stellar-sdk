@@ -109,9 +109,9 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import URI from 'urijs';
-import { Account, Address, Asset, Contract, FeeBumpTransaction, Transaction, xdr } from '@stellar/stellar-base';
-import { Api } from './api';
+            <pre class="prettyprint source linenums"><code>import URI from "urijs";
+import { Account, Address, Asset, Contract, FeeBumpTransaction, Transaction, xdr } from "@stellar/stellar-base";
+import { Api } from "./api";
 /**
  * Default transaction submission timeout for RPC requests, in milliseconds
  * @constant {number}
@@ -217,6 +217,66 @@ export declare class RpcServer {
      * });
      */
     getAccount(address: string): Promise&lt;Account>;
+    /**
+     * Fetch the full account entry for a Stellar account.
+     *
+     * @param {string} address The public address of the account to load.
+     * @returns {Promise&lt;xdr.AccountEntry>} Resolves to the full on-chain account
+     *    entry
+     *
+     * @see
+     * {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods/getLedgerEntries | getLedgerEntries docs}
+     *
+     * @example
+     * const accountId = "GBZC6Y2Y7Q3ZQ2Y4QZJ2XZ3Z5YXZ6Z7Z2Y4QZJ2XZ3Z5YXZ6Z7Z2Y4";
+     * server.getAccountEntry(accountId).then((account) => {
+     *   console.log("sequence:", account.balance().toString());
+     * });
+     */
+    getAccountEntry(address: string): Promise&lt;xdr.AccountEntry>;
+    /**
+     * Fetch the full trustline entry for a Stellar account.
+     *
+     * @param {string} account  The public address of the account whose trustline it is
+     * @param {string} asset    The trustline's asset
+     * @returns {Promise&lt;xdr.TrustLineEntry>} Resolves to the full on-chain trustline
+     *    entry
+     *
+     * @see
+     * {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods/getLedgerEntries | getLedgerEntries docs}
+     *
+     * @example
+     * const accountId = "GBZC6Y2Y7Q3ZQ2Y4QZJ2XZ3Z5YXZ6Z7Z2Y4QZJ2XZ3Z5YXZ6Z7Z2Y4";
+     * const asset = new Asset(
+     *  "USDC",
+     *  "GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5"
+     * );
+     * server.getTrustline(accountId, asset).then((entry) => {
+     *   console.log(`{asset.toString()} balance for ${accountId}:", entry.balance().toString());
+     * });
+     */
+    getTrustline(account: string, asset: Asset): Promise&lt;xdr.TrustLineEntry>;
+    /**
+     * Fetch the full claimable balance entry for a Stellar account.
+     *
+     * @param {string} id   The strkey (`B...`) or hex (`00000000abcde...`) (both
+     *    IDs with and without the 000... version prefix are accepted) of the
+     *    claimable balance to load
+     * @returns {Promise&lt;xdr.ClaimableBalanceEntry>} Resolves to the full on-chain
+     *    claimable balance entry
+     *
+     * @see
+     * {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods/getLedgerEntries | getLedgerEntries docs}
+     *
+     * @example
+     * const id = "00000000178826fbfe339e1f5c53417c6fedfe2c05e8bec14303143ec46b38981b09c3f9";
+     * server.getClaimableBalance(id).then((entry) => {
+     *   console.log(`Claimable balance {id.substr(0, 12)} has:`);
+     *   console.log(`  asset:  ${Asset.fromXDRObject(entry.asset()).toString()}`;
+     *   console.log(`  amount: ${entry.amount().toString()}`;
+     * });
+     */
+    getClaimableBalance(id: string): Promise&lt;xdr.ClaimableBalanceEntry>;
     /**
      * General node health check.
      *
@@ -342,6 +402,7 @@ export declare class RpcServer {
      */
     getLedgerEntries(...keys: xdr.LedgerKey[]): Promise&lt;Api.GetLedgerEntriesResponse>;
     _getLedgerEntries(...keys: xdr.LedgerKey[]): Promise&lt;Api.RawGetLedgerEntriesResponse>;
+    getLedgerEntry(key: xdr.LedgerKey): Promise&lt;Api.LedgerEntryResult>;
     /**
      * Poll for a particular transaction with certain parameters.
      *
@@ -686,7 +747,7 @@ export declare class RpcServer {
      *      console.error("error:", error);
      *    });
      */
-    requestAirdrop(address: string | Pick&lt;Account, 'accountId'>, friendbotUrl?: string): Promise&lt;Account>;
+    requestAirdrop(address: string | Pick&lt;Account, "accountId">, friendbotUrl?: string): Promise&lt;Account>;
     /**
      * Provides an analysis of the recent fee stats for regular and smart
      * contract operations.
@@ -707,8 +768,8 @@ export declare class RpcServer {
      *
      * This is a convenience wrapper around {@link Server.getLedgerEntries}.
      *
-     * @param {string}  contractId    the contract ID (string `C...`) whose
-     *    balance of `sac` you want to know
+     * @param {string}  address the contract (string `C...`) or account ID
+     *    (`G...`) whose balance of `sac` you want to know
      * @param {Asset}   sac     the built-in SAC token (e.g. `USDC:GABC...`) that
      *    you are querying from the given `contract`.
      * @param {string}  [networkPassphrase] optionally, the network passphrase to
@@ -721,16 +782,16 @@ export declare class RpcServer {
      *    entry details if and only if the request returned a valid balance ledger
      *    entry. If it doesn't, the `balanceEntry` field will not exist.
      *
-     * @throws {TypeError} If `contractId` is not a valid contract strkey (C...).
+     * @throws {TypeError} If `address` is not a valid contract ID (C...).
      *
      * @see getLedgerEntries
      * @see https://developers.stellar.org/docs/tokens/stellar-asset-contract
      *
      * @example
-     * // assume `contractId` is some contract with an XLM balance
+     * // assume `address` is some contract or account with an XLM balance
      * // assume server is an instantiated `Server` instance.
      * const entry = (await server.getSACBalance(
-     *   new Address(contractId),
+     *   new Address(address),
      *   Asset.native(),
      *   Networks.PUBLIC
      * ));
@@ -739,9 +800,9 @@ export declare class RpcServer {
      * console.log(
      *   entry.balanceEntry ?
      *   BigInt(entry.balanceEntry.amount) :
-     *   "Contract has no XLM");
+     *   "Address has no XLM");
      */
-    getSACBalance(contractId: string, sac: Asset, networkPassphrase?: string): Promise&lt;Api.BalanceResponse>;
+    getSACBalance(address: string | Address, sac: Asset, networkPassphrase?: string): Promise&lt;Api.BalanceResponse>;
 }
 </code></pre>
         </article>

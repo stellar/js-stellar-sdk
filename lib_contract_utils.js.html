@@ -198,7 +198,7 @@ async function specFromWasm(wasm) {
     xdrSections = WebAssembly.Module.customSections(wasmModule, "contractspecv0");
   } catch {
     const customData = parseWasmCustomSections(wasm);
-    xdrSections = customData.get('contractspecv0');
+    xdrSections = customData.get("contractspecv0");
   }
   if (!xdrSections || xdrSections.length === 0) {
     throw new Error("Could not obtain contract spec from wasm");
@@ -212,15 +212,15 @@ function parseWasmCustomSections(buffer) {
 
   // Helper to read bytes with bounds checking
   const read = length => {
-    if (offset + length > buffer.byteLength) throw new Error('Buffer overflow');
+    if (offset + length > buffer.byteLength) throw new Error("Buffer overflow");
     const bytes = new Uint8Array(arrayBuffer, offset, length);
     offset += length;
     return bytes;
   };
 
   // Validate header
-  if ([...read(4)].join() !== '0,97,115,109') throw new Error('Invalid WASM magic');
-  if ([...read(4)].join() !== '1,0,0,0') throw new Error('Invalid WASM version');
+  if ([...read(4)].join() !== "0,97,115,109") throw new Error("Invalid WASM magic");
+  if ([...read(4)].join() !== "1,0,0,0") throw new Error("Invalid WASM version");
   while (offset &lt; buffer.byteLength) {
     const sectionId = read(1)[0];
     const sectionLength = readVarUint32();
@@ -232,13 +232,15 @@ function parseWasmCustomSections(buffer) {
       const nameBytes = read(nameLen);
       const payload = read(sectionLength - (offset - start));
       try {
-        const name = new TextDecoder('utf-8', {
+        const name = new TextDecoder("utf-8", {
           fatal: true
         }).decode(nameBytes);
         if (payload.length > 0) {
           sections.set(name, (sections.get(name) || []).concat(payload));
         }
-      } catch {/* Invalid UTF-8 */}
+      } catch {
+        /* Invalid UTF-8 */
+      }
     } else {
       offset += sectionLength; // Skip other sections
     }
@@ -246,13 +248,13 @@ function parseWasmCustomSections(buffer) {
 
   /**
    * Decodes a variable-length encoded unsigned 32-bit integer (LEB128 format) from the WASM binary.
-   * 
-   * This function implements the WebAssembly LEB128 (Little Endian Base 128) variable-length 
+   *
+   * This function implements the WebAssembly LEB128 (Little Endian Base 128) variable-length
    * encoding scheme for unsigned integers. In this encoding:
    * - Each byte uses 7 bits for the actual value
    * - The most significant bit (MSB) indicates if more bytes follow (1) or not (0)
    * - Values are stored with the least significant bytes first
-   * 
+   *
    * @returns {number} The decoded 32-bit unsigned integer
    * @throws {Error} If the encoding is invalid or exceeds 32 bits
    */
@@ -261,9 +263,9 @@ function parseWasmCustomSections(buffer) {
       shift = 0;
     while (true) {
       const byte = read(1)[0]; // Read a single byte from the buffer
-      value |= (byte &amp; 0x7F) &lt;&lt; shift; // Extract 7 bits and shift to correct position
+      value |= (byte &amp; 0x7f) &lt;&lt; shift; // Extract 7 bits and shift to correct position
       if ((byte &amp; 0x80) === 0) break; // If MSB is 0, we've reached the last byte
-      if ((shift += 7) >= 32) throw new Error('Invalid WASM value'); // Ensure we don't exceed 32 bits
+      if ((shift += 7) >= 32) throw new Error("Invalid WASM value"); // Ensure we don't exceed 32 bits
     }
     return value >>> 0; // Force conversion to unsigned 32-bit integer
   }

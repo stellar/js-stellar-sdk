@@ -131,7 +131,7 @@ const anyGlobal = global;
 let EventSource;
 
 // Only define EventSource if __USE_EVENTSOURCE__ is true
-if (typeof true !== 'undefined' &amp;&amp; true) {
+if (typeof true !== "undefined" &amp;&amp; true) {
   /* eslint-disable global-require */
   /* eslint-disable prefer-import/prefer-import-over-require */
   EventSource = anyGlobal.EventSource ?? anyGlobal.window?.EventSource ?? require("eventsource");

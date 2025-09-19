@@ -123,9 +123,9 @@ function isSorobanTransaction(tx) {
     return false;
   }
   switch (tx.operations[0].type) {
-    case 'invokeHostFunction':
-    case 'extendFootprintTtl':
-    case 'restoreFootprint':
+    case "invokeHostFunction":
+    case "extendFootprintTtl":
+    case "restoreFootprint":
       return true;
     default:
       return false;
@@ -151,12 +151,12 @@ function isSorobanTransaction(tx) {
  * @see {@link module:rpc.Server#prepareTransaction}
  */
 function assembleTransaction(raw, simulation) {
-  if ('innerTransaction' in raw) {
+  if ("innerTransaction" in raw) {
     // TODO: Handle feebump transactions
     return assembleTransaction(raw.innerTransaction, simulation);
   }
   if (!isSorobanTransaction(raw)) {
-    throw new TypeError('unsupported transaction: must contain exactly one ' + 'invokeHostFunction, extendFootprintTtl, or restoreFootprint ' + 'operation');
+    throw new TypeError("unsupported transaction: must contain exactly one " + "invokeHostFunction, extendFootprintTtl, or restoreFootprint " + "operation");
   }
   const success = (0, _parsers.parseRawSimulation)(simulation);
   if (!_api.Api.isSimulationSuccess(success)) {
@@ -180,7 +180,7 @@ function assembleTransaction(raw, simulation) {
     sorobanData: success.transactionData.build(),
     networkPassphrase: raw.networkPassphrase
   });
-  if (raw.operations[0].type === 'invokeHostFunction') {
+  if (raw.operations[0].type === "invokeHostFunction") {
     // In this case, we don't want to clone the operation, so we drop it.
     txnBuilder.clearOperations();
     const invokeOp = raw.operations[0];

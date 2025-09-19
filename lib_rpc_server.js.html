@@ -198,13 +198,13 @@ function findCreatedAccountSequenceInTransactionMeta(meta) {
       operations = meta.value().operations();
       break;
     default:
-      throw new Error('Unexpected transaction meta switch value');
+      throw new Error("Unexpected transaction meta switch value");
   }
   const sequenceNumber = operations.flatMap(op => op.changes()).find(c => c.switch() === _stellarBase.xdr.LedgerEntryChangeType.ledgerEntryCreated() &amp;&amp; c.created().data().switch() === _stellarBase.xdr.LedgerEntryType.account())?.created()?.data()?.account()?.seqNum()?.toString();
   if (sequenceNumber) {
     return sequenceNumber;
   }
-  throw new Error('No account created in transaction');
+  throw new Error("No account created in transaction");
 }
 
 /* eslint-disable jsdoc/no-undefined-types */
@@ -238,7 +238,7 @@ class RpcServer {
         return config;
       });
     }
-    if (this.serverURL.protocol() !== 'https' &amp;&amp; !opts.allowHttp) {
+    if (this.serverURL.protocol() !== "https" &amp;&amp; !opts.allowHttp) {
       throw new Error("Cannot connect to insecure Soroban RPC server if `allowHttp` isn't set");
     }
   }
@@ -262,19 +262,118 @@ class RpcServer {
    * });
    */
   async getAccount(address) {
+    const entry = await this.getAccountEntry(address);
+    return new _stellarBase.Account(address, entry.seqNum().toString());
+  }
+
+  /**
+   * Fetch the full account entry for a Stellar account.
+   *
+   * @param {string} address The public address of the account to load.
+   * @returns {Promise&lt;xdr.AccountEntry>} Resolves to the full on-chain account
+   *    entry
+   *
+   * @see
+   * {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods/getLedgerEntries | getLedgerEntries docs}
+   *
+   * @example
+   * const accountId = "GBZC6Y2Y7Q3ZQ2Y4QZJ2XZ3Z5YXZ6Z7Z2Y4QZJ2XZ3Z5YXZ6Z7Z2Y4";
+   * server.getAccountEntry(accountId).then((account) => {
+   *   console.log("sequence:", account.balance().toString());
+   * });
+   */
+  async getAccountEntry(address) {
     const ledgerKey = _stellarBase.xdr.LedgerKey.account(new _stellarBase.xdr.LedgerKeyAccount({
       accountId: _stellarBase.Keypair.fromPublicKey(address).xdrPublicKey()
     }));
-    const resp = await this.getLedgerEntries(ledgerKey);
-    if (resp.entries.length === 0) {
-      // eslint-disable-next-line prefer-promise-reject-errors
-      return Promise.reject({
-        code: 404,
-        message: `Account not found: ${address}`
-      });
+    try {
+      const resp = await this.getLedgerEntry(ledgerKey);
+      return resp.val.account();
+    } catch (e) {
+      throw new Error(`Account not found: ${address}`);
     }
-    const accountEntry = resp.entries[0].val.account();
-    return new _stellarBase.Account(address, accountEntry.seqNum().toString());
+  }
+
+  /**
+   * Fetch the full trustline entry for a Stellar account.
+   *
+   * @param {string} account  The public address of the account whose trustline it is
+   * @param {string} asset    The trustline's asset
+   * @returns {Promise&lt;xdr.TrustLineEntry>} Resolves to the full on-chain trustline
+   *    entry
+   *
+   * @see
+   * {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods/getLedgerEntries | getLedgerEntries docs}
+   *
+   * @example
+   * const accountId = "GBZC6Y2Y7Q3ZQ2Y4QZJ2XZ3Z5YXZ6Z7Z2Y4QZJ2XZ3Z5YXZ6Z7Z2Y4";
+   * const asset = new Asset(
+   *  "USDC",
+   *  "GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5"
+   * );
+   * server.getTrustline(accountId, asset).then((entry) => {
+   *   console.log(`{asset.toString()} balance for ${accountId}:", entry.balance().toString());
+   * });
+   */
+  async getTrustline(account, asset) {
+    const trustlineLedgerKey = _stellarBase.xdr.LedgerKey.trustline(new _stellarBase.xdr.LedgerKeyTrustLine({
+      accountId: _stellarBase.Keypair.fromPublicKey(account).xdrAccountId(),
+      asset: asset.toTrustLineXDRObject()
+    }));
+    try {
+      const entry = await this.getLedgerEntry(trustlineLedgerKey);
+      return entry.val.trustLine();
+    } catch (e) {
+      throw new Error(`Trustline for ${asset.getCode()}:${asset.getIssuer()} not found for ${account}`);
+    }
+  }
+
+  /**
+   * Fetch the full claimable balance entry for a Stellar account.
+   *
+   * @param {string} id   The strkey (`B...`) or hex (`00000000abcde...`) (both
+   *    IDs with and without the 000... version prefix are accepted) of the
+   *    claimable balance to load
+   * @returns {Promise&lt;xdr.ClaimableBalanceEntry>} Resolves to the full on-chain
+   *    claimable balance entry
+   *
+   * @see
+   * {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods/getLedgerEntries | getLedgerEntries docs}
+   *
+   * @example
+   * const id = "00000000178826fbfe339e1f5c53417c6fedfe2c05e8bec14303143ec46b38981b09c3f9";
+   * server.getClaimableBalance(id).then((entry) => {
+   *   console.log(`Claimable balance {id.substr(0, 12)} has:`);
+   *   console.log(`  asset:  ${Asset.fromXDRObject(entry.asset()).toString()}`;
+   *   console.log(`  amount: ${entry.amount().toString()}`;
+   * });
+   */
+  async getClaimableBalance(id) {
+    let balanceId;
+    if (_stellarBase.StrKey.isValidClaimableBalance(id)) {
+      let buffer = _stellarBase.StrKey.decodeClaimableBalance(id);
+
+      // Pad the version byte to be a full int32 like in the XDR spec
+      let v = Buffer.concat([Buffer.from("\x00\x00\x00"), buffer.subarray(0, 1)]);
+
+      // Slap on the rest of it and decode it
+      balanceId = _stellarBase.xdr.ClaimableBalanceId.fromXDR(Buffer.concat([v, buffer.subarray(1)]));
+    } else if (id.match(/[a-f0-9]{72}/i)) {
+      balanceId = _stellarBase.xdr.ClaimableBalanceId.fromXDR(id, "hex");
+    } else if (id.match(/[a-f0-9]{64}/i)) {
+      balanceId = _stellarBase.xdr.ClaimableBalanceId.fromXDR(id.padStart(72, "0"), "hex");
+    } else {
+      throw new TypeError(`expected 72-char hex ID or strkey, not ${id}`);
+    }
+    const trustlineLedgerKey = _stellarBase.xdr.LedgerKey.claimableBalance(new _stellarBase.xdr.LedgerKeyClaimableBalance({
+      balanceId
+    }));
+    try {
+      const entry = await this.getLedgerEntry(trustlineLedgerKey);
+      return entry.val.claimableBalance();
+    } catch (e) {
+      throw new Error(`Claimable balance ${id} not found`);
+    }
   }
 
   /**
@@ -293,7 +392,7 @@ class RpcServer {
    */
   // eslint-disable-next-line require-await
   async getHealth() {
-    return jsonrpc.postObject(this.serverURL.toString(), 'getHealth');
+    return jsonrpc.postObject(this.serverURL.toString(), "getHealth");
   }
 
   /**
@@ -331,7 +430,7 @@ class RpcServer {
   async getContractData(contract, key, durability = Durability.Persistent) {
     // coalesce `contract` param variants to an ScAddress
     let scAddress;
-    if (typeof contract === 'string') {
+    if (typeof contract === "string") {
       scAddress = new _stellarBase.Contract(contract).address().toScAddress();
     } else if (contract instanceof _stellarBase.Address) {
       scAddress = contract.toScAddress();
@@ -356,16 +455,14 @@ class RpcServer {
       contract: scAddress,
       durability: xdrDurability
     }));
-    return this.getLedgerEntries(contractKey).then(r => {
-      if (r.entries.length === 0) {
-        // eslint-disable-next-line prefer-promise-reject-errors
-        return Promise.reject({
-          code: 404,
-          message: `Contract data not found. Contract: ${_stellarBase.Address.fromScAddress(scAddress).toString()}, Key: ${key.toXDR('base64')}, Durability: ${durability}`
-        });
-      }
-      return r.entries[0];
-    });
+    try {
+      return await this.getLedgerEntry(contractKey);
+    } catch (e) {
+      throw {
+        code: 404,
+        message: `Contract data not found for ${_stellarBase.Address.fromScAddress(scAddress).toString()} with key ${key.toXDR("base64")} and durability: ${durability}`
+      };
+    }
   }
 
   /**
@@ -473,16 +570,20 @@ class RpcServer {
    *   console.log("latestLedger:", response.latestLedger);
    * });
    */
-  // eslint-disable-next-line require-await
-  async getLedgerEntries(...keys) {
+  getLedgerEntries(...keys) {
     return this._getLedgerEntries(...keys).then(_parsers.parseRawLedgerEntries);
   }
-
-  // eslint-disable-next-line require-await
-  async _getLedgerEntries(...keys) {
-    return jsonrpc.postObject(this.serverURL.toString(), 'getLedgerEntries', {
-      keys: keys.map(k => k.toXDR('base64'))
+  _getLedgerEntries(...keys) {
+    return jsonrpc.postObject(this.serverURL.toString(), "getLedgerEntries", {
+      keys: keys.map(k => k.toXDR("base64"))
     });
+  }
+  async getLedgerEntry(key) {
+    const results = await this._getLedgerEntries(key).then(_parsers.parseRawLedgerEntries);
+    if (results.entries.length !== 1) {
+      throw new Error(`failed to find an entry for key ${key.toXDR("base64")}`);
+    }
+    return results.entries[0];
   }
 
   /**
@@ -568,7 +669,7 @@ class RpcServer {
 
   // eslint-disable-next-line require-await
   async _getTransaction(hash) {
-    return jsonrpc.postObject(this.serverURL.toString(), 'getTransaction', {
+    return jsonrpc.postObject(this.serverURL.toString(), "getTransaction", {
       hash
     });
   }
@@ -605,7 +706,7 @@ class RpcServer {
     });
   }
   async _getTransactions(request) {
-    return jsonrpc.postObject(this.serverURL.toString(), 'getTransactions', request);
+    return jsonrpc.postObject(this.serverURL.toString(), "getTransactions", request);
   }
 
   /**
@@ -655,7 +756,7 @@ class RpcServer {
 
   // eslint-disable-next-line require-await
   async _getEvents(request) {
-    return jsonrpc.postObject(this.serverURL.toString(), 'getEvents', {
+    return jsonrpc.postObject(this.serverURL.toString(), "getEvents", {
       filters: request.filters ?? [],
       pagination: {
         ...(request.cursor &amp;&amp; {
@@ -692,7 +793,7 @@ class RpcServer {
    */
   // eslint-disable-next-line require-await
   async getNetwork() {
-    return jsonrpc.postObject(this.serverURL.toString(), 'getNetwork');
+    return jsonrpc.postObject(this.serverURL.toString(), "getNetwork");
   }
 
   /**
@@ -713,7 +814,7 @@ class RpcServer {
    */
   // eslint-disable-next-line require-await
   async getLatestLedger() {
-    return jsonrpc.postObject(this.serverURL.toString(), 'getLatestLedger');
+    return jsonrpc.postObject(this.serverURL.toString(), "getLatestLedger");
   }
 
   /**
@@ -776,7 +877,7 @@ class RpcServer {
 
   // eslint-disable-next-line require-await
   async _simulateTransaction(transaction, addlResources, authMode) {
-    return jsonrpc.postObject(this.serverURL.toString(), 'simulateTransaction', {
+    return jsonrpc.postObject(this.serverURL.toString(), "simulateTransaction", {
       transaction: transaction.toXDR(),
       authMode,
       ...(addlResources !== undefined &amp;&amp; {
@@ -916,7 +1017,7 @@ class RpcServer {
 
   // eslint-disable-next-line require-await
   async _sendTransaction(transaction) {
-    return jsonrpc.postObject(this.serverURL.toString(), 'sendTransaction', {
+    return jsonrpc.postObject(this.serverURL.toString(), "sendTransaction", {
       transaction: transaction.toXDR()
     });
   }
@@ -949,10 +1050,10 @@ class RpcServer {
    *    });
    */
   async requestAirdrop(address, friendbotUrl) {
-    const account = typeof address === 'string' ? address : address.accountId();
+    const account = typeof address === "string" ? address : address.accountId();
     friendbotUrl = friendbotUrl || (await this.getNetwork()).friendbotUrl;
     if (!friendbotUrl) {
-      throw new Error('No friendbot URL configured for current network');
+      throw new Error("No friendbot URL configured for current network");
     }
     try {
       const response = await _axios.default.post(`${friendbotUrl}?addr=${encodeURIComponent(account)}`);
@@ -964,13 +1065,13 @@ class RpcServer {
         }
         meta = txMeta.resultMetaXdr;
       } else {
-        meta = _stellarBase.xdr.TransactionMeta.fromXDR(response.data.result_meta_xdr, 'base64');
+        meta = _stellarBase.xdr.TransactionMeta.fromXDR(response.data.result_meta_xdr, "base64");
       }
       const sequence = findCreatedAccountSequenceInTransactionMeta(meta);
       return new _stellarBase.Account(account, sequence);
     } catch (error) {
       if (error.response?.status === 400) {
-        if (error.response.detail?.includes('createAccountAlreadyExist')) {
+        if (error.response.detail?.includes("createAccountAlreadyExist")) {
           // Account already exists, load the sequence number
           return this.getAccount(account);
         }
@@ -988,7 +1089,7 @@ class RpcServer {
    */
   // eslint-disable-next-line require-await
   async getFeeStats() {
-    return jsonrpc.postObject(this.serverURL.toString(), 'getFeeStats');
+    return jsonrpc.postObject(this.serverURL.toString(), "getFeeStats");
   }
 
   /**
@@ -999,7 +1100,7 @@ class RpcServer {
    */
   // eslint-disable-next-line require-await
   async getVersionInfo() {
-    return jsonrpc.postObject(this.serverURL.toString(), 'getVersionInfo');
+    return jsonrpc.postObject(this.serverURL.toString(), "getVersionInfo");
   }
 
   /**
@@ -1007,8 +1108,8 @@ class RpcServer {
    *
    * This is a convenience wrapper around {@link Server.getLedgerEntries}.
    *
-   * @param {string}  contractId    the contract ID (string `C...`) whose
-   *    balance of `sac` you want to know
+   * @param {string}  address the contract (string `C...`) or account ID
+   *    (`G...`) whose balance of `sac` you want to know
    * @param {Asset}   sac     the built-in SAC token (e.g. `USDC:GABC...`) that
    *    you are querying from the given `contract`.
    * @param {string}  [networkPassphrase] optionally, the network passphrase to
@@ -1021,16 +1122,16 @@ class RpcServer {
    *    entry details if and only if the request returned a valid balance ledger
    *    entry. If it doesn't, the `balanceEntry` field will not exist.
    *
-   * @throws {TypeError} If `contractId` is not a valid contract strkey (C...).
+   * @throws {TypeError} If `address` is not a valid contract ID (C...).
    *
    * @see getLedgerEntries
    * @see https://developers.stellar.org/docs/tokens/stellar-asset-contract
    *
    * @example
-   * // assume `contractId` is some contract with an XLM balance
+   * // assume `address` is some contract or account with an XLM balance
    * // assume server is an instantiated `Server` instance.
    * const entry = (await server.getSACBalance(
-   *   new Address(contractId),
+   *   new Address(address),
    *   Asset.native(),
    *   Networks.PUBLIC
    * ));
@@ -1039,11 +1140,12 @@ class RpcServer {
    * console.log(
    *   entry.balanceEntry ?
    *   BigInt(entry.balanceEntry.amount) :
-   *   "Contract has no XLM");
+   *   "Address has no XLM");
    */
-  async getSACBalance(contractId, sac, networkPassphrase) {
-    if (!_stellarBase.StrKey.isValidContract(contractId)) {
-      throw new TypeError(`expected contract ID, got ${contractId}`);
+  async getSACBalance(address, sac, networkPassphrase) {
+    const addressString = address instanceof _stellarBase.Address ? address.toString() : address;
+    if (!_stellarBase.StrKey.isValidContract(addressString)) {
+      throw new TypeError(`expected contract ID, got ${addressString}`);
     }
 
     // Call out to RPC if passphrase isn't provided.
@@ -1053,7 +1155,7 @@ class RpcServer {
     const sacId = sac.contractId(passphrase);
 
     // Rust union enum type with "Balance(ScAddress)" structure
-    const key = (0, _stellarBase.nativeToScVal)(["Balance", contractId], {
+    const key = (0, _stellarBase.nativeToScVal)(["Balance", addressString], {
       type: ["symbol", "address"]
     });
 
