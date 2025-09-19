@@ -21,13 +21,11 @@ export class NetworkError extends Error {
     statusText?: string;
     url?: string;
   };
-  public __proto__: NetworkError;
 
   constructor(message: string, response: any) {
-    const trueProto = new.target.prototype;
     super(message);
-    this.__proto__ = trueProto;
-    this.constructor = NetworkError;
+    this.name = "NetworkError";
+    Object.setPrototypeOf(this, NetworkError.prototype);
     /**
      * The response sent by the Horizon server.
      * @type {object} Response details, received from the Horizon server
