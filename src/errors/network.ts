@@ -24,8 +24,6 @@ export class NetworkError extends Error {
 
   constructor(message: string, response: any) {
     super(message);
-    this.name = "NetworkError";
-    Object.setPrototypeOf(this, NetworkError.prototype);
     /**
      * The response sent by the Horizon server.
      * @type {object} Response details, received from the Horizon server

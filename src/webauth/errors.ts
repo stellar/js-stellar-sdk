@@ -7,10 +7,4 @@
  *
  * @param {string} message Human-readable error message.
  */
-export class InvalidChallengeError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "InvalidChallengeError";
-    Object.setPrototypeOf(this, InvalidChallengeError.prototype);
-  }
-}
+export class InvalidChallengeError extends Error {}

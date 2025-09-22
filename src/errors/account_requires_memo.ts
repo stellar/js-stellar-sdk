@@ -22,8 +22,6 @@ export class AccountRequiresMemoError extends Error {
 
   constructor(message: string, accountId: string, operationIndex: number) {
     super(message);
-    this.name = "AccountRequiresMemoError";
-    Object.setPrototypeOf(this, AccountRequiresMemoError.prototype);
 
     /**
      * The account which requires a memo.

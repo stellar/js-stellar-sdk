@@ -13,10 +13,4 @@ import { NetworkError } from "./network";
  * @param {string} message Human-readable error message.
  * @param {any} response Response details, received from the server.
  */
-export class BadResponseError extends NetworkError {
-  constructor(message: string, response: any) {
-    super(message, response);
-    this.name = "BadResponseError";
-    Object.setPrototypeOf(this, BadResponseError.prototype);
-  }
-}
+export class BadResponseError extends NetworkError {}

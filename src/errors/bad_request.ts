@@ -10,10 +10,4 @@ import { NetworkError } from "./network";
  * @param {string} message Human-readable error message
  * @param {any} response Response details, received from the Horizon server
  */
-export class BadRequestError extends NetworkError {
-  constructor(message: string, response: any) {
-    super(message, response);
-    this.name = "BadRequestError";
-    Object.setPrototypeOf(this, BadRequestError.prototype);
-  }
-}
+export class BadRequestError extends NetworkError {}
