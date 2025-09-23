@@ -75,8 +75,8 @@ describe("Can round trip custom types", function () {
           JSON.stringify(arg, null, 2),
 
           "\n",
-          //@ts-ignore
           JSON.stringify(
+            //@ts-ignore
             funcSpec.definitions![funcName]["properties"],
             null,
             2,
