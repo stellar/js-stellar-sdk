@@ -938,6 +938,16 @@ export class Spec {
   scValToNative<T>(scv: xdr.ScVal, typeDef: xdr.ScSpecTypeDef): T {
     const t = typeDef.switch();
     const value = t.value;
+
+    if (value === xdr.ScSpecType.scSpecTypeOption().value) {
+      switch (scv.switch().value) {
+        case xdr.ScValType.scvVoid().value:
+          return undefined as T;
+        default:
+          return this.scValToNative(scv, typeDef.option().valueType());
+      }
+    }
+
     if (value === xdr.ScSpecType.scSpecTypeUdt().value) {
       return this.scValUdtToNative(scv, typeDef.udt());
     }
