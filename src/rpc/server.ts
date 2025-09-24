@@ -1098,7 +1098,7 @@ export class RpcServer {
    *    off" if it already exists)
    * @throws If Friendbot is not configured on this network or request failure
    *
-   * @see {@link https://developers.stellar.org/docs/learn/networks#friendbot | Friendbot docs}
+   * @see {@link https://developers.stellar.org/docs/learn/fundamentals/networks#friendbot | Friendbot docs}
    * @see {@link module:Friendbot.Api.Response}
    *
    * @example
