@@ -942,7 +942,7 @@ export class Spec {
     if (value === xdr.ScSpecType.scSpecTypeOption().value) {
       switch (scv.switch().value) {
         case xdr.ScValType.scvVoid().value:
-          return undefined as T;
+          return null as T;
         default:
           return this.scValToNative(scv, typeDef.option().valueType());
       }
@@ -957,7 +957,7 @@ export class Spec {
     // updated
     switch (scv.switch().value) {
       case xdr.ScValType.scvVoid().value:
-        return undefined as T;
+        return null as T;
 
       // these can be converted to bigints directly
       case xdr.ScValType.scvU64().value:
