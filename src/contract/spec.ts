@@ -640,7 +640,7 @@ export class Spec {
     }
     if (value === xdr.ScSpecType.scSpecTypeOption().value) {
       const opt = ty.option();
-      if (val === undefined) {
+      if (val === null || val === undefined) {
         return xdr.ScVal.scvVoid();
       }
       return this.nativeToScVal(val, opt.valueType());
