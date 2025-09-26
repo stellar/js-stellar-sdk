@@ -111,7 +111,7 @@
     "_build": "yarn build:node:all && yarn build:test && yarn build:browser:all",
     "_babel": "babel --extensions '.ts' --out-dir ${OUTPUT_DIR:-lib} src/",
     "_nyc": "node node_modules/.bin/nyc --nycrc-path config/.nycrc",
-    "_prettier": "prettier --config config/prettier.config.js --ignore-path config/.prettierignore --write './src/**/*.ts' './test/**/*.js'"
+    "_prettier": "prettier --config config/prettier.config.js --ignore-path config/.prettierignore --write './src/**/*.ts' './test/**/*.{js,ts}'"
   },
   "husky": {
     "hooks": {

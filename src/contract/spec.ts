@@ -640,7 +640,7 @@ export class Spec {
     }
     if (value === xdr.ScSpecType.scSpecTypeOption().value) {
       const opt = ty.option();
-      if (val === undefined) {
+      if (val === null || val === undefined) {
         return xdr.ScVal.scvVoid();
       }
       return this.nativeToScVal(val, opt.valueType());
@@ -938,6 +938,16 @@ export class Spec {
   scValToNative<T>(scv: xdr.ScVal, typeDef: xdr.ScSpecTypeDef): T {
     const t = typeDef.switch();
     const value = t.value;
+
+    if (value === xdr.ScSpecType.scSpecTypeOption().value) {
+      switch (scv.switch().value) {
+        case xdr.ScValType.scvVoid().value:
+          return null as T;
+        default:
+          return this.scValToNative(scv, typeDef.option().valueType());
+      }
+    }
+
     if (value === xdr.ScSpecType.scSpecTypeUdt().value) {
       return this.scValUdtToNative(scv, typeDef.udt());
     }
@@ -947,7 +957,7 @@ export class Spec {
     // updated
     switch (scv.switch().value) {
       case xdr.ScValType.scvVoid().value:
-        return undefined as T;
+        return null as T;
 
       // these can be converted to bigints directly
       case xdr.ScValType.scvU64().value:

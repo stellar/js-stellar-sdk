@@ -32,7 +32,7 @@ describe("Spec constructor", function () {
 
   it("throws if no entries", () => {
     expect(() => new contract.Spec([])).to.throw(
-      /Contract spec must have at least one entry/i
+      /Contract spec must have at least one entry/i,
     );
   });
 });
@@ -52,7 +52,7 @@ describe("Can round trip custom types", function () {
   async function jsonSchema_roundtrip(
     spec: contract.Spec,
     funcName: string,
-    num: number = 100
+    num: number = 100,
   ) {
     let funcSpec = spec.jsonSchema(funcName);
 
@@ -75,8 +75,12 @@ describe("Can round trip custom types", function () {
           JSON.stringify(arg, null, 2),
 
           "\n",
-          //@ts-ignore
-          JSON.stringify(funcSpec.definitions![funcName]["properties"], null, 2)
+          JSON.stringify(
+            //@ts-ignore
+            funcSpec.definitions![funcName]["properties"],
+            null,
+            2,
+          ),
         );
         throw e;
       }
@@ -223,7 +227,7 @@ describe("Can round trip custom types", function () {
 
     map.set(3, "hahaha");
     expect(() => roundtrip("map", [...map.entries()])).to.throw(
-      /invalid type scSpecTypeBool specified for string value/i
+      /invalid type scSpecTypeBool specified for string value/i,
     );
   });
 
@@ -239,13 +243,22 @@ describe("Can round trip custom types", function () {
 
   it("option", () => {
     roundtrip("option", 1);
-    roundtrip("option", undefined);
+    roundtrip("option", null);
+
+    roundtrip("option_struct", { a: 0, b: true, c: "hello" });
+    roundtrip("option_struct", null);
+
+    roundtrip("option_option_struct", { a: 0, b: true, c: "hello" });
+    roundtrip("option_option_struct", null);
+
+    roundtrip("option_vec_struct", [{ a: 0, b: true, c: "hello" }]);
+    roundtrip("option_vec_struct", null);
   });
 
   it("u256", () => {
     roundtrip("u256", 1n);
     expect(() => roundtrip("u256", -1n)).to.throw(
-      /expected a positive value, got: -1/i
+      /expected a positive value, got: -1/i,
     );
   });
 
@@ -343,10 +356,10 @@ export const GIGA_MAP = xdr.ScSpecEntry.scSpecEntryUdtStructV0(
         type: xdr.ScSpecTypeDef.scSpecTypeString(),
       }),
     ],
-  })
+  }),
 );
 const GIGA_MAP_TYPE = xdr.ScSpecTypeDef.scSpecTypeUdt(
-  new xdr.ScSpecTypeUdt({ name: "GigaMap" })
+  new xdr.ScSpecTypeUdt({ name: "GigaMap" }),
 );
 
 let func = xdr.ScSpecEntry.scSpecEntryFunctionV0(
@@ -361,7 +374,7 @@ let func = xdr.ScSpecEntry.scSpecEntryFunctionV0(
       }),
     ],
     outputs: [GIGA_MAP_TYPE],
-  })
+  }),
 );
 
 function replaceBigIntWithStrings(obj: any): any {
