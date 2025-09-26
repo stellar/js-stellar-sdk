@@ -17,16 +17,11 @@
  * console.log('The account is used in operation: ', err.operationIndex)
  */
 export class AccountRequiresMemoError extends Error {
-  public __proto__: AccountRequiresMemoError;
   public accountId: string;
   public operationIndex: number;
 
   constructor(message: string, accountId: string, operationIndex: number) {
-    const trueProto = new.target.prototype;
     super(message);
-    this.__proto__ = trueProto;
-    this.constructor = AccountRequiresMemoError;
-    this.name = "AccountRequiresMemoError";
 
     /**
      * The account which requires a memo.
