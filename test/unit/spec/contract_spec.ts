@@ -243,16 +243,16 @@ describe("Can round trip custom types", function () {
 
   it("option", () => {
     roundtrip("option", 1);
-    roundtrip("option", undefined);
+    roundtrip("option", null);
 
     roundtrip("option_struct", { a: 0, b: true, c: "hello" });
-    roundtrip("option_struct", undefined);
+    roundtrip("option_struct", null);
 
     roundtrip("option_option_struct", { a: 0, b: true, c: "hello" });
-    roundtrip("option_option_struct", undefined);
+    roundtrip("option_option_struct", null);
 
     roundtrip("option_vec_struct", [{ a: 0, b: true, c: "hello" }]);
-    roundtrip("option_vec_struct", undefined);
+    roundtrip("option_vec_struct", null);
   });
 
   it("u256", () => {

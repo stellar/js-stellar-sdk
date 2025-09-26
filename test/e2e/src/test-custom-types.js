@@ -247,7 +247,7 @@ describe("Custom Types Tests", function () {
     expect(response.result).to.equal(1);
 
     response = await this.context.client.option({ option: undefined });
-    expect(response.result).to.equal(undefined);
+    expect(response.result).to.equal(null);
     // this is the behavior we probably want, but fails
     // t.deepEqual(await t.context.client.option(), undefined) // typing and implementation require the object
     // t.deepEqual((await t.context.client.option({})).result, undefined) // typing requires argument; implementation would be fine with this
