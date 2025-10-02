@@ -224,6 +224,58 @@ export namespace Api {
     oldestLedgerCloseTime: string;
   }
 
+  /**
+   * Request parameters for fetching events from the Stellar network.
+   *
+   * **Important**: This type enforces mutually exclusive pagination modes:
+   * - **Ledger range mode**: Use `startLedger` and `endLedger` (cursor must be omitted)
+   * - **Cursor pagination mode**: Use `cursor` (startLedger and endLedger must be omitted)
+   *
+   * @example
+   * // ✅ Correct: Ledger range mode
+   * const rangeRequest: GetEventsRequest = {
+   *   filters: [],
+   *   startLedger: 1000,
+   *   endLedger: 2000,
+   *   limit: 100
+   * };
+   *
+   * @example
+   * // ✅ Correct: Cursor pagination mode
+   * const cursorRequest: GetEventsRequest = {
+   *   filters: [],
+   *   cursor: "some-cursor-value",
+   *   limit: 100
+   * };
+   *
+   * @example
+   * // ❌ Invalid: Cannot mix cursor with ledger range
+   * const invalidRequest = {
+   *   filters: [],
+   *   startLedger: 1000,  // ❌ Cannot use with cursor
+   *   endLedger: 2000,    // ❌ Cannot use with cursor
+   *   cursor: "cursor",   // ❌ Cannot use with ledger range
+   *   limit: 100
+   * };
+   *
+   * @see {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods/getEvents | getEvents API reference}
+   */
+  export type GetEventsRequest =
+    | {
+        filters: Api.EventFilter[];
+        startLedger: number;
+        endLedger: number;
+        cursor?: never; // explicitly exclude cursor
+        limit?: number;
+      }
+    | {
+        filters: Api.EventFilter[];
+        cursor: string;
+        startLedger?: never; // explicitly exclude startLedger
+        endLedger?: never; // explicitly exclude endLedger
+        limit?: number;
+      };
+
   export interface GetEventsResponse extends RetentionState {
     events: EventResponse[];
     cursor: string;
