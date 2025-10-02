@@ -29,6 +29,7 @@ import {
   parseRawEvents,
   parseRawTransactions,
   parseTransactionInfo,
+  parseRawLedger,
 } from "./parsers";
 import { Utils } from "../utils";
 
@@ -1278,5 +1279,67 @@ export class RpcServer {
         clawback: entry.clawback,
       },
     };
+  }
+
+  /**
+   * Fetch a detailed list of ledgers starting from a specified point.
+   *
+   * Returns ledger data with support for pagination as long as the requested
+   * pages fall within the history retention of the RPC provider.
+   *
+   * @param {Api.GetLedgersRequest} request - The request parameters for fetching ledgers. {@link Api.GetLedgersRequest}
+   * @returns {Promise<Api.GetLedgersResponse>} A promise that resolves to the
+   *    ledgers response containing an array of ledger data and pagination info. {@link Api.GetLedgersResponse}
+   *
+   * @throws {Error} If startLedger is less than the oldest ledger stored in this
+   *    node, or greater than the latest ledger seen by this node.
+   *
+   * @see {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods/getLedgers | getLedgers docs}
+   *
+   * @example
+   * // Fetch ledgers starting from a specific sequence number
+   * server.getLedgers({
+   *   startLedger: 36233,
+   *   limit: 10
+   * }).then((response) => {
+   *   console.log("Ledgers:", response.ledgers);
+   *   console.log("Latest Ledger:", response.latestLedger);
+   *   console.log("Cursor:", response.cursor);
+   * });
+   *
+   * @example
+   * // Paginate through ledgers using cursor
+   * const firstPage = await server.getLedgers({
+   *   startLedger: 36233,
+   *   limit: 5
+   * });
+   *
+   * const nextPage = await server.getLedgers({
+   *   cursor: firstPage.cursor,
+   *   limit: 5
+   * });
+   */
+  // eslint-disable-next-line require-await
+  public async getLedgers(
+    request: Api.GetLedgersRequest,
+  ): Promise<Api.GetLedgersResponse> {
+    return this._getLedgers(request).then((raw) => {
+      const result: Api.GetLedgersResponse = {
+        ledgers: (raw.ledgers || []).map(parseRawLedger),
+        latestLedger: raw.latestLedger,
+        latestLedgerCloseTime: raw.latestLedgerCloseTime,
+        oldestLedger: raw.oldestLedger,
+        oldestLedgerCloseTime: raw.oldestLedgerCloseTime,
+        cursor: raw.cursor,
+      };
+      return result;
+    });
+  }
+
+  // eslint-disable-next-line require-await
+  public async _getLedgers(
+    request: Api.GetLedgersRequest,
+  ): Promise<Api.RawGetLedgersResponse> {
+    return jsonrpc.postObject(this.serverURL.toString(), "getLedgers", request);
   }
 }

@@ -267,3 +267,30 @@ export function parseRawSimulation(
 
   return parseSuccessful(sim, base);
 }
+
+export function parseRawLedger(raw: Api.RawLedgerResponse): Api.LedgerResponse {
+  if (!raw.metadataXdr || !raw.headerXdr) {
+    let missingFields: string;
+    if (!raw.metadataXdr && !raw.headerXdr) {
+      missingFields = "metadataXdr and headerXdr";
+    } else if (!raw.metadataXdr) {
+      missingFields = "metadataXdr";
+    } else {
+      missingFields = "headerXdr";
+    }
+    throw new TypeError(`invalid ledger missing fields: ${missingFields}`);
+  }
+
+  const metadataXdr = xdr.LedgerCloseMeta.fromXDR(raw.metadataXdr, "base64");
+  const headerXdr = xdr.LedgerHeaderHistoryEntry.fromXDR(
+    raw.headerXdr,
+    "base64",
+  );
+  return {
+    hash: raw.hash,
+    sequence: raw.sequence,
+    ledgerCloseTime: raw.ledgerCloseTime,
+    metadataXdr,
+    headerXdr,
+  };
+}
