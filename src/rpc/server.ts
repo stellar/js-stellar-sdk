@@ -69,6 +69,12 @@ export enum Durability {
  */
 
 export namespace RpcServer {
+  /**
+   * @deprecated Use `Api.GetEventsRequest` instead.
+   * @see {@link Api.GetEventsRequest}
+   */
+  export type GetEventsRequest = Api.GetEventsRequest;
+
   export interface PollingOptions {
     attempts?: number;
     sleepStrategy?: SleepStrategy;
