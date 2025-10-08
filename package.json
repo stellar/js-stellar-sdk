@@ -157,12 +157,12 @@
     "@definitelytyped/dtslint": "^0.2.29",
     "@istanbuljs/nyc-config-babel": "3.0.0",
     "@stellar/tsconfig": "^1.0.2",
-    "@types/chai": "^4.3.19",
+    "@types/chai": "^5.2.2",
     "@types/detect-node": "^2.0.0",
     "@types/eventsource": "^1.1.12",
     "@types/json-schema": "^7.0.15",
     "@types/lodash": "^4.17.20",
-    "@types/mocha": "^10.0.9",
+    "@types/mocha": "^10.0.10",
     "@types/node": "^20.14.11",
     "@types/randombytes": "^2.0.1",
     "@types/sinon": "^17.0.4",
@@ -220,13 +220,17 @@
   },
   "dependencies": {
     "@stellar/stellar-base": "^14.0.1",
+    "@vitest/coverage-v8": "^3.2.4",
+    "@vitest/ui": "^3.2.4",
     "axios": "^1.12.2",
     "bignumber.js": "^9.3.1",
     "eventsource": "^2.0.2",
     "feaxios": "^0.0.23",
+    "jsdom": "^27.0.0",
     "randombytes": "^2.1.0",
     "toml": "^3.0.0",
-    "urijs": "^1.19.1"
+    "urijs": "^1.19.1",
+    "vitest": "^3.2.4"
   },
   "overrides": {
     "chalk": "5.3.0",

@@ -1,13 +1,10 @@
 module.exports = {
   env: {
-    mocha: true,
+    node: true,
   },
-  globals: {
-    StellarSdk: true,
-    axios: true,
-    chai: true,
-    sinon: true,
-    expect: true,
+  parserOptions: {
+    ecmaVersion: 2020,
+    sourceType: 'module',
   },
   rules: {
     "no-unused-vars": 0,
