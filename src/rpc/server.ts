@@ -29,6 +29,7 @@ import {
   parseRawEvents,
   parseRawTransactions,
   parseTransactionInfo,
+  parseRawLedger,
 } from "./parsers";
 import { Utils } from "../utils";
 
@@ -54,15 +55,6 @@ export enum Durability {
 }
 
 /**
- * @typedef {object} GetEventsRequest Describes the complex filter combinations available for event queries.
- * @property {Array.<module:rpc.Api.EventFilter>} filters Filters to use when querying events from the RPC server.
- * @property {number} [startLedger] Ledger number (inclusive) to begin querying events.
- * @property {string} [cursor] Page cursor (exclusive) to begin querying events.
- * @property {number} [limit=100] The maximum number of events that should be returned in the RPC response.
- * @memberof module:rpc.Server
- */
-
-/**
  * @typedef {object} ResourceLeeway Describes additional resource leeways for transaction simulation.
  * @property {number} cpuInstructions Simulate the transaction with more CPU instructions available.
  * @memberof module:rpc.Server
@@ -77,13 +69,11 @@ export enum Durability {
  */
 
 export namespace RpcServer {
-  export interface GetEventsRequest {
-    filters: Api.EventFilter[];
-    startLedger?: number; // either this or cursor
-    endLedger?: number; // either this or cursor
-    cursor?: string; // either this or startLedger
-    limit?: number;
-  }
+  /**
+   * @deprecated Use `Api.GetEventsRequest` instead.
+   * @see {@link Api.GetEventsRequest}
+   */
+  export type GetEventsRequest = Api.GetEventsRequest;
 
   export interface PollingOptions {
     attempts?: number;
@@ -755,20 +745,21 @@ export class RpcServer {
   /**
    * Fetch all events that match a given set of filters.
    *
-   * The given filters (see {@link module:rpc.Api.EventFilter | Api.EventFilter}
+   * The given filters (see {@link Api.EventFilter}
    * for detailed fields) are combined only in a logical OR fashion, and all of
    * the fields in each filter are optional.
    *
    * To page through events, use the `pagingToken` field on the relevant
    * {@link Api.EventResponse} object to set the `cursor` parameter.
    *
-   * @param {module:rpc.Server.GetEventsRequest} request Event filters
+   * @param {Api.GetEventsRequest} request Event filters {@link Api.GetEventsRequest},
    * @returns {Promise<Api.GetEventsResponse>} A paginatable set of the events
    * matching the given event filters
    *
    * @see {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods/getEvents | getEvents docs}
    *
    * @example
+   *
    * server.getEvents({
    *    startLedger: 1000,
    *    endLedger: 2000,
@@ -794,14 +785,14 @@ export class RpcServer {
    */
   // eslint-disable-next-line require-await
   public async getEvents(
-    request: RpcServer.GetEventsRequest,
+    request: Api.GetEventsRequest,
   ): Promise<Api.GetEventsResponse> {
     return this._getEvents(request).then(parseRawEvents);
   }
 
   // eslint-disable-next-line require-await
   public async _getEvents(
-    request: RpcServer.GetEventsRequest,
+    request: Api.GetEventsRequest,
   ): Promise<Api.RawGetEventsResponse> {
     return jsonrpc.postObject(this.serverURL.toString(), "getEvents", {
       filters: request.filters ?? [],
@@ -1278,5 +1269,67 @@ export class RpcServer {
         clawback: entry.clawback,
       },
     };
+  }
+
+  /**
+   * Fetch a detailed list of ledgers starting from a specified point.
+   *
+   * Returns ledger data with support for pagination as long as the requested
+   * pages fall within the history retention of the RPC provider.
+   *
+   * @param {Api.GetLedgersRequest} request - The request parameters for fetching ledgers. {@link Api.GetLedgersRequest}
+   * @returns {Promise<Api.GetLedgersResponse>} A promise that resolves to the
+   *    ledgers response containing an array of ledger data and pagination info. {@link Api.GetLedgersResponse}
+   *
+   * @throws {Error} If startLedger is less than the oldest ledger stored in this
+   *    node, or greater than the latest ledger seen by this node.
+   *
+   * @see {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods/getLedgers | getLedgers docs}
+   *
+   * @example
+   * // Fetch ledgers starting from a specific sequence number
+   * server.getLedgers({
+   *   startLedger: 36233,
+   *   limit: 10
+   * }).then((response) => {
+   *   console.log("Ledgers:", response.ledgers);
+   *   console.log("Latest Ledger:", response.latestLedger);
+   *   console.log("Cursor:", response.cursor);
+   * });
+   *
+   * @example
+   * // Paginate through ledgers using cursor
+   * const firstPage = await server.getLedgers({
+   *   startLedger: 36233,
+   *   limit: 5
+   * });
+   *
+   * const nextPage = await server.getLedgers({
+   *   cursor: firstPage.cursor,
+   *   limit: 5
+   * });
+   */
+  // eslint-disable-next-line require-await
+  public async getLedgers(
+    request: Api.GetLedgersRequest,
+  ): Promise<Api.GetLedgersResponse> {
+    return this._getLedgers(request).then((raw) => {
+      const result: Api.GetLedgersResponse = {
+        ledgers: (raw.ledgers || []).map(parseRawLedger),
+        latestLedger: raw.latestLedger,
+        latestLedgerCloseTime: raw.latestLedgerCloseTime,
+        oldestLedger: raw.oldestLedger,
+        oldestLedgerCloseTime: raw.oldestLedgerCloseTime,
+        cursor: raw.cursor,
+      };
+      return result;
+    });
+  }
+
+  // eslint-disable-next-line require-await
+  public async _getLedgers(
+    request: Api.GetLedgersRequest,
+  ): Promise<Api.RawGetLedgersResponse> {
+    return jsonrpc.postObject(this.serverURL.toString(), "getLedgers", request);
   }
 }

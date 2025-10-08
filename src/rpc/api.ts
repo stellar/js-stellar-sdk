@@ -224,6 +224,58 @@ export namespace Api {
     oldestLedgerCloseTime: string;
   }
 
+  /**
+   * Request parameters for fetching events from the Stellar network.
+   *
+   * **Important**: This type enforces mutually exclusive pagination modes:
+   * - **Ledger range mode**: Use `startLedger` and `endLedger` (cursor must be omitted)
+   * - **Cursor pagination mode**: Use `cursor` (startLedger and endLedger must be omitted)
+   *
+   * @example
+   * // ✅ Correct: Ledger range mode
+   * const rangeRequest: GetEventsRequest = {
+   *   filters: [],
+   *   startLedger: 1000,
+   *   endLedger: 2000,
+   *   limit: 100
+   * };
+   *
+   * @example
+   * // ✅ Correct: Cursor pagination mode
+   * const cursorRequest: GetEventsRequest = {
+   *   filters: [],
+   *   cursor: "some-cursor-value",
+   *   limit: 100
+   * };
+   *
+   * @example
+   * // ❌ Invalid: Cannot mix cursor with ledger range
+   * const invalidRequest = {
+   *   filters: [],
+   *   startLedger: 1000,  // ❌ Cannot use with cursor
+   *   endLedger: 2000,    // ❌ Cannot use with cursor
+   *   cursor: "cursor",   // ❌ Cannot use with ledger range
+   *   limit: 100
+   * };
+   *
+   * @see {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods/getEvents | getEvents API reference}
+   */
+  export type GetEventsRequest =
+    | {
+        filters: Api.EventFilter[];
+        startLedger: number;
+        endLedger: number;
+        cursor?: never; // explicitly exclude cursor
+        limit?: number;
+      }
+    | {
+        filters: Api.EventFilter[];
+        cursor: string;
+        startLedger?: never; // explicitly exclude startLedger
+        endLedger?: never; // explicitly exclude endLedger
+        limit?: number;
+      };
+
   export interface GetEventsResponse extends RetentionState {
     events: EventResponse[];
     cursor: string;
@@ -507,5 +559,95 @@ export namespace Api {
       lastModifiedLedgerSeq?: number;
       liveUntilLedgerSeq?: number;
     };
+  }
+
+  /**
+   * Request parameters for fetching a sequential list of ledgers.
+   *
+   * This type supports two distinct pagination modes that are mutually exclusive:
+   * - **Ledger-based pagination**: Use `startLedger` to begin fetching from a specific ledger sequence
+   * - **Cursor-based pagination**: Use `cursor` to continue from a previous response's pagination token
+   *
+   * @typedef {object} GetLedgersRequest
+   * @property {number} [startLedger] - Ledger sequence number to start fetching from (inclusive).
+   *   Must be omitted if cursor is provided. Cannot be less than the oldest ledger or greater
+   *   than the latest ledger stored on the RPC node.
+   * @property {object} [pagination] - Pagination configuration for the request.
+   * @property {string} [pagination.cursor] - Page cursor for continuing pagination from a previous
+   *   response. Must be omitted if startLedger is provided.
+   * @property {number} [pagination.limit=100] - Maximum number of ledgers to return per page.
+   *   Valid range: 1-10000. Defaults to 100 if not specified.
+   *
+   * @example
+   * // Ledger-based pagination - start from specific ledger
+   * const ledgerRequest: GetLedgersRequest = {
+   *   startLedger: 36233,
+   *   pagination: {
+   *     limit: 10
+   *   }
+   * };
+   *
+   * @example
+   * // Cursor-based pagination - continue from previous response
+   * const cursorRequest: GetLedgersRequest = {
+   *   pagination: {
+   *     cursor: "36234",
+   *     limit: 5
+   *   }
+   * };
+   *
+   * @see {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods/getLedgers | getLedgers API reference}
+   */
+  export type GetLedgersRequest =
+    | {
+        startLedger: number;
+        pagination?: {
+          cursor?: never;
+          limit?: number;
+        };
+      }
+    | {
+        startLedger?: never;
+        pagination: {
+          cursor: string;
+          limit?: number;
+        };
+      };
+
+  /** @see https://developers.stellar.org/docs/data/rpc/api-reference/methods/getLedgers */
+  export interface GetLedgersResponse {
+    ledgers: LedgerResponse[];
+    latestLedger: number;
+    latestLedgerCloseTime: number;
+    oldestLedger: number;
+    oldestLedgerCloseTime: number;
+    cursor: string;
+  }
+
+  export interface RawGetLedgersResponse {
+    ledgers: RawLedgerResponse[];
+    latestLedger: number;
+    latestLedgerCloseTime: number;
+    oldestLedger: number;
+    oldestLedgerCloseTime: number;
+    cursor: string;
+  }
+
+  export interface LedgerResponse {
+    hash: string;
+    sequence: number;
+    ledgerCloseTime: string;
+    headerXdr: xdr.LedgerHeaderHistoryEntry;
+    metadataXdr: xdr.LedgerCloseMeta;
+  }
+
+  export interface RawLedgerResponse {
+    hash: string;
+    sequence: number;
+    ledgerCloseTime: string;
+    /** a base-64 encoded {@link xdr.LedgerHeaderHistoryEntry} instance */
+    headerXdr: string;
+    /** a base-64 encoded {@link xdr.LedgerCloseMeta} instance */
+    metadataXdr: string;
   }
 }

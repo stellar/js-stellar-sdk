@@ -8,8 +8,14 @@ A breaking change will get clearly marked in this log.
 
 ### Added
 * `Spec.scValToNative` now supports parsing `Option`s ([#1228](https://github.com/stellar/js-stellar-sdk/pull/1228)).
+*  Added `getLedgers` method to `rpc.Server` for retreiving ledger data. ([#1231](https://github.com/stellar/js-stellar-sdk/pull/1231)).
+
 ### Fixed
 * `Spec.scValToNative` returns `null` for `void`s or `Option`als instead of the ambiguous `undefined` ([#1228](https://github.com/stellar/js-stellar-sdk/pull/1228)).
+* The `getEvents` API now requires either a start and end ledger or a cursor to be provided ([#1231](https://github.com/stellar/js-stellar-sdk/pull/1231)).
+
+### Deprecated
+* `GetEventsRequest` interface moved from `server.ts` to `api.ts` ([#1231](https://github.com/stellar/js-stellar-sdk/pull/1231)).
 
 ## [v14.2.0](https://github.com/stellar/js-stellar-sdk/compare/v14.1.1...v14.2.0)
 
