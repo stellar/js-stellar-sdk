@@ -1,6 +1,6 @@
 /* eslint-disable global-require */
 import URI from "urijs";
-import { create, HttpResponseHeaders } from "../http-client";
+import { create, HttpClient, HttpResponseHeaders } from "../http-client";
 
 // eslint-disable-next-line prefer-import/prefer-import-over-require , @typescript-eslint/naming-convention
 declare const __PACKAGE_VERSION__: string;
@@ -30,46 +30,49 @@ export interface ServerTime {
  */
 export const SERVER_TIME_MAP: Record<string, ServerTime> = {};
 
-export const AxiosClient = create({
-  headers: {
-    "X-Client-Name": "js-stellar-sdk",
-    "X-Client-Version": version,
-  },
-});
-
 function toSeconds(ms: number): number {
   return Math.floor(ms / 1000);
 }
 
-AxiosClient.interceptors.response.use((response) => {
-  const hostname = URI(response.config.url!).hostname();
-  let serverTime = 0;
-  if (response.headers instanceof Headers) {
-    const dateHeader = response.headers.get("date");
-    if (dateHeader) {
-      serverTime = toSeconds(Date.parse(dateHeader));
-    }
-  } else if (
-    typeof response.headers === "object" &&
-    "date" in response.headers
-  ) {
-    const headers = response.headers as HttpResponseHeaders; // Cast response.headers to the correct type
-    if (typeof headers.date === "string") {
-      serverTime = toSeconds(Date.parse(headers.date));
-    }
-  }
-  const localTimeRecorded = toSeconds(new Date().getTime());
+export function createHttpClient(headers?: Record<string, string>): HttpClient {
+  const httpClient = create({
+    headers: {
+      ...headers,
+      "X-Client-Name": "js-stellar-sdk",
+      "X-Client-Version": version,
+    },
+  });
 
-  if (!Number.isNaN(serverTime)) {
-    SERVER_TIME_MAP[hostname] = {
-      serverTime,
-      localTimeRecorded,
-    };
-  }
-  return response;
-});
+  httpClient.interceptors.response.use((response) => {
+    const hostname = URI(response.config.url!).hostname();
+    let serverTime = 0;
+    if (response.headers instanceof Headers) {
+      const dateHeader = response.headers.get("date");
+      if (dateHeader) {
+        serverTime = toSeconds(Date.parse(dateHeader));
+      }
+    } else if (
+      typeof response.headers === "object" &&
+      "date" in response.headers
+    ) {
+      const responseHeader = response.headers as HttpResponseHeaders; // Cast response.headers to the correct type
+      if (typeof responseHeader.date === "string") {
+        serverTime = toSeconds(Date.parse(responseHeader.date));
+      }
+    }
+    const localTimeRecorded = toSeconds(new Date().getTime());
 
-export default AxiosClient;
+    if (!Number.isNaN(serverTime)) {
+      SERVER_TIME_MAP[hostname] = {
+        serverTime,
+        localTimeRecorded,
+      };
+    }
+    return response;
+  });
+
+  return httpClient;
+}
 
 /**
  * Given a hostname, get the current time of that server (i.e., use the last-

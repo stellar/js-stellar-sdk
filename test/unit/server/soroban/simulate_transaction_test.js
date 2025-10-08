@@ -59,7 +59,7 @@ describe("Server#simulateTransaction", async function (done) {
 
   beforeEach(function () {
     this.server = new Server(serverUrl);
-    this.axiosMock = sinon.mock(AxiosClient);
+    this.axiosMock = sinon.mock(this.server.httpClient);
     const source = new Account(
       "GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI",
       "1",

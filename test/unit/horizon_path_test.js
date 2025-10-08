@@ -1,18 +1,26 @@
 const { Horizon } = StellarSdk;
 
-describe("horizon path tests", function () {
-  beforeEach(function () {
-    this.axiosMock = sinon.mock(Horizon.AxiosClient);
-    StellarSdk.Config.setDefault();
-  });
+const serverUrls = [
+  "https://acme.com:1337",
+  "https://acme.com:1337/folder",
+  "https://acme.com:1337/folder/subfolder",
+];
 
-  afterEach(function () {
-    this.axiosMock.verify();
-    this.axiosMock.restore();
-  });
+serverUrls.forEach((serverUrl) => {
+  describe(`horizon path tests for ${serverUrl}`, function () {
+    let server;
+    let axiosMock;
 
-  function test_horizon_paths(serverUrl) {
-    let server = new Horizon.Server(serverUrl);
+    beforeEach(function () {
+      StellarSdk.Config.setDefault();
+      server = new Horizon.Server(serverUrl);
+      axiosMock = sinon.mock(server.httpClient);
+    });
+
+    afterEach(function () {
+      axiosMock.verify();
+      axiosMock.restore();
+    });
 
     let randomResult = {
       data: {
@@ -22,7 +30,7 @@ describe("horizon path tests", function () {
       },
     };
 
-    function prepareAxios(axiosMock, endpoint) {
+    function prepareAxios(endpoint) {
       randomResult.endpoint = endpoint;
       axiosMock
         .expects("get")
@@ -30,8 +38,8 @@ describe("horizon path tests", function () {
         .returns(Promise.resolve(randomResult));
     }
 
-    it("server.accounts() " + serverUrl, function (done) {
-      prepareAxios(this.axiosMock, "/accounts");
+    it("server.accounts()", function (done) {
+      prepareAxios("/accounts");
       server
         .accounts()
         .call()
@@ -39,21 +47,18 @@ describe("horizon path tests", function () {
         .notify(done);
     });
 
-    it(
-      "server.accounts().accountId('fooAccountId') " + serverUrl,
-      function (done) {
-        prepareAxios(this.axiosMock, "/accounts/fooAccountId");
-        server
-          .accounts()
-          .accountId("fooAccountId")
-          .call()
-          .should.eventually.deep.equal(randomResult.data)
-          .notify(done);
-      },
-    );
+    it("server.accounts().accountId('fooAccountId')", function (done) {
+      prepareAxios("/accounts/fooAccountId");
+      server
+        .accounts()
+        .accountId("fooAccountId")
+        .call()
+        .should.eventually.deep.equal(randomResult.data)
+        .notify(done);
+    });
 
-    it("server.transactions() " + serverUrl, function (done) {
-      prepareAxios(this.axiosMock, "/transactions");
+    it("server.transactions()", function (done) {
+      prepareAxios("/transactions");
       server
         .transactions()
         .call()
@@ -61,21 +66,18 @@ describe("horizon path tests", function () {
         .notify(done);
     });
 
-    it(
-      "server.transactions().includeFailed(true) " + serverUrl,
-      function (done) {
-        prepareAxios(this.axiosMock, "/transactions?include_failed=true");
-        server
-          .transactions()
-          .includeFailed(true)
-          .call()
-          .should.eventually.deep.equal(randomResult.data)
-          .notify(done);
-      },
-    );
+    it("server.transactions().includeFailed(true)", function (done) {
+      prepareAxios("/transactions?include_failed=true");
+      server
+        .transactions()
+        .includeFailed(true)
+        .call()
+        .should.eventually.deep.equal(randomResult.data)
+        .notify(done);
+    });
 
-    it("server.operations().includeFailed(true) " + serverUrl, function (done) {
-      prepareAxios(this.axiosMock, "/operations?include_failed=true");
+    it("server.operations().includeFailed(true)", function (done) {
+      prepareAxios("/operations?include_failed=true");
       server
         .operations()
         .includeFailed(true)
@@ -84,8 +86,8 @@ describe("horizon path tests", function () {
         .notify(done);
     });
 
-    it("server.payments().includeFailed(true) " + serverUrl, function (done) {
-      prepareAxios(this.axiosMock, "/payments?include_failed=true");
+    it("server.payments().includeFailed(true)", function (done) {
+      prepareAxios("/payments?include_failed=true");
       server
         .payments()
         .includeFailed(true)
@@ -94,33 +96,27 @@ describe("horizon path tests", function () {
         .notify(done);
     });
 
-    it(
-      "server.transactions().transaction('fooTransactionId') " + serverUrl,
-      function (done) {
-        prepareAxios(this.axiosMock, "/transactions/fooTransactionId");
-        server
-          .transactions()
-          .transaction("fooTransactionId")
-          .call()
-          .should.eventually.deep.equal(randomResult.data)
-          .notify(done);
-      },
-    );
+    it("server.transactions().transaction('fooTransactionId')", function (done) {
+      prepareAxios("/transactions/fooTransactionId");
+      server
+        .transactions()
+        .transaction("fooTransactionId")
+        .call()
+        .should.eventually.deep.equal(randomResult.data)
+        .notify(done);
+    });
 
-    it(
-      "server.transactions().forAccount('fooAccountId') " + serverUrl,
-      function (done) {
-        prepareAxios(this.axiosMock, "/accounts/fooAccountId/transactions");
-        server
-          .transactions()
-          .forAccount("fooAccountId")
-          .call()
-          .should.eventually.deep.equal(randomResult.data)
-          .notify(done);
-      },
-    );
+    it("server.transactions().forAccount('fooAccountId')", function (done) {
+      prepareAxios("/accounts/fooAccountId/transactions");
+      server
+        .transactions()
+        .forAccount("fooAccountId")
+        .call()
+        .should.eventually.deep.equal(randomResult.data)
+        .notify(done);
+    });
 
-    it("server.submitTransaction() " + serverUrl, function (done) {
+    it("server.submitTransaction()", function (done) {
       randomResult.endpoint = "post";
 
       let keypair = StellarSdk.Keypair.random();
@@ -147,7 +143,7 @@ describe("horizon path tests", function () {
         fakeTransaction.toEnvelope().toXDR().toString("base64"),
       );
 
-      this.axiosMock
+      axiosMock
         .expects("post")
         .withArgs(sinon.match(serverUrl + "/transactions", `tx=${tx}`))
         .returns(Promise.resolve(randomResult));
@@ -157,21 +153,5 @@ describe("horizon path tests", function () {
         .should.eventually.deep.equal(randomResult.data)
         .notify(done);
     });
-  }
-
-  let serverUrls = [];
-
-  //server url without folder path.
-  serverUrls.push("https://acme.com:1337");
-
-  //server url folder path.
-  serverUrls.push("https://acme.com:1337/folder");
-
-  //server url folder and subfolder path.
-  serverUrls.push("https://acme.com:1337/folder/subfolder");
-
-  for (var index = 0; index < serverUrls.length; index++) {
-    var serverUrl = serverUrls[index];
-    test_horizon_paths(serverUrl);
-  }
+  });
 });

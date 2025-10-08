@@ -8,10 +8,6 @@ export * from "./server_api";
 export * from "./account_response";
 
 export { HorizonServer as Server } from "./server";
-export {
-  default as AxiosClient,
-  SERVER_TIME_MAP,
-  getCurrentServerTime,
-} from "./horizon_axios_client";
+export { SERVER_TIME_MAP, getCurrentServerTime } from "./horizon_axios_client";
 
 export default module.exports;
