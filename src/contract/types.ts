@@ -8,6 +8,7 @@ import {
   xdr,
 } from "@stellar/stellar-base";
 import type { Client } from "./client";
+import { Server } from "../rpc";
 
 export type XDR_BASE64 = string;
 /**
@@ -171,11 +172,13 @@ export type ClientOptions = {
    */
   rpcUrl: string;
   /**
-   * If true, will allow HTTP requests to the Soroban network. If false, will
+   * If true, will allow HTTP requests to the RPC. If false, will
    * only allow HTTPS requests.
    * @default false
    */
   allowHttp?: boolean;
+  /** Optional headers to include in requests to the RPC. */
+  headers?: Record<string, string>;
   /**
    * This gets filled in automatically from the ContractSpec when you
    * instantiate a {@link Client}.
@@ -194,6 +197,11 @@ export type ClientOptions = {
    * @default {}
    */
   errorTypes?: Record<number, { message: string }>;
+  /**
+   * The Server instance to use for RPC calls. If not provided, one will be
+   * created automatically from `rpcUrl` and `serverOptions`.
+   */
+  server?: Server;
 };
 
 /**

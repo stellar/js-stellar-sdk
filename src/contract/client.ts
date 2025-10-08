@@ -14,8 +14,8 @@ async function specFromWasmHash(
   if (!options || !options.rpcUrl) {
     throw new TypeError("options must contain rpcUrl");
   }
-  const { rpcUrl, allowHttp } = options;
-  const serverOpts: Server.Options = { allowHttp };
+  const { rpcUrl, allowHttp, headers } = options;
+  const serverOpts: Server.Options = { allowHttp, headers };
   const server = new Server(rpcUrl, serverOpts);
   const wasm = await server.getContractWasmByHash(wasmHash, format);
   return Spec.fromWasm(wasm);
@@ -33,7 +33,7 @@ async function specFromWasmHash(
  *
  * @class
  * @param {module:contract.Spec} spec {@link Spec} to construct a Client for
- * @param {ClientOptions} options see {@link ClientOptions}
+ * @param {module:contract.ClientOptions} options see {@link ClientOptions}
  */
 export class Client {
   static async deploy<T = Client>(
@@ -94,6 +94,15 @@ export class Client {
     public readonly spec: Spec,
     public readonly options: ClientOptions,
   ) {
+    // Ensure we have a server to reuse for all AssembledTransactions
+    if (options.server === undefined) {
+      const { allowHttp, headers } = options;
+      options.server = new Server(options.rpcUrl, {
+        allowHttp,
+        headers,
+      });
+    }
+
     this.spec.funcs().forEach((xdrFn) => {
       const method = xdrFn.name().toString();
       if (method === CONSTRUCTOR_FUNC) {
@@ -145,10 +154,15 @@ export class Client {
     if (!options || !options.rpcUrl) {
       throw new TypeError("options must contain rpcUrl");
     }
-    const { rpcUrl, allowHttp } = options;
-    const serverOpts: Server.Options = { allowHttp };
-    const server = new Server(rpcUrl, serverOpts);
+    const { rpcUrl, allowHttp, headers } = options;
+    const server =
+      options.server ??
+      new Server(rpcUrl, {
+        allowHttp,
+        headers,
+      });
     const wasm = await server.getContractWasmByHash(wasmHash, format);
+
     return Client.fromWasm(wasm, options);
   }
 
@@ -176,9 +190,11 @@ export class Client {
     if (!options || !options.rpcUrl || !options.contractId) {
       throw new TypeError("options must contain rpcUrl and contractId");
     }
-    const { rpcUrl, contractId, allowHttp } = options;
-    const serverOpts: Server.Options = { allowHttp };
-    const server = new Server(rpcUrl, serverOpts);
+    const { rpcUrl, contractId, allowHttp, headers } = options;
+    const server = new Server(rpcUrl, {
+      allowHttp,
+      headers,
+    });
     const wasm = await server.getContractWasmByContractId(contractId);
     return Client.fromWasm(wasm, options);
   }
