@@ -43,10 +43,17 @@ jobs:
     - uses: actions/setup-node@v4
       with:
         node-version: ${{ env.NODE }}
+    - uses: stellar/stellar-cli@v23.1.4
+
+    # Install system dependencies required for Stellar CLI
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libdbus-1-dev pkg-config
 
     # Workaround for some `yarn` nonsense, see:
     # https://github.com/yarnpkg/yarn/issues/6312#issuecomment-429685210
-    - run: rustup target add wasm32-unknown-unknown
+    - run: rustup target add wasm32v1-none
     - run: yarn install --network-concurrency 1
     - run: yarn build:prod
     - run: yarn ${{ matrix.job }}

@@ -4,8 +4,10 @@ const {
   contracts,
   networkPassphrase,
   rpcUrl,
+  server,
   generateFundedKeypair,
   run,
+  stellar,
 } = require("./util");
 const { Address, contract } = require("../../../lib");
 
@@ -25,20 +27,19 @@ async function clientFromConstructor(
   const { path } = contracts[name];
   // TODO: use newer interface instead, `stellar contract info interface` (doesn't yet support xdr-base64-array output)
   const inspected = run(
-    `./target/bin/stellar contract inspect --wasm ${path} --output xdr-base64-array`,
+    `${stellar} contract info --wasm ${path} --output xdr-base64-array`,
   ).stdout;
 
   let wasmHash = contracts[name].hash;
   if (!wasmHash) {
-    wasmHash = run(
-      `./target/bin/stellar contract install --wasm ${path}`,
-    ).stdout;
+    wasmHash = run(`${stellar} contract upload --wasm ${path}`).stdout;
   }
 
   const deploy = await contract.Client.deploy(null, {
     networkPassphrase,
     rpcUrl,
     allowHttp: true,
+    server,
     wasmHash,
     publicKey: keypair.publicKey(),
     ...wallet,
@@ -63,6 +64,7 @@ async function clientForFromTest(contractId, publicKey, keypair) {
     contractId,
     rpcUrl,
     allowHttp: true,
+    server,
     publicKey,
     ...wallet,
   };
