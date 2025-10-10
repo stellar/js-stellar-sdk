@@ -450,14 +450,7 @@ export class AssembledTransaction<T> {
   private constructor(public options: AssembledTransactionOptions<T>) {
     this.options.simulate = this.options.simulate ?? true;
     const { server, allowHttp, headers, rpcUrl } = this.options;
-    if (server === undefined) {
-      this.server = new Server(rpcUrl, {
-        allowHttp,
-        headers,
-      });
-    } else {
-      this.server = server;
-    }
+    this.server = server ?? new Server(rpcUrl, { allowHttp, headers });
   }
 
   /**

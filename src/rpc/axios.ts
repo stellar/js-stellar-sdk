@@ -8,7 +8,7 @@ export function createHttpClient(headers?: Record<string, string>): HttpClient {
   return create({
     headers: {
       ...headers,
-      "X-Client-Name": "js-soroban-client",
+      "X-Client-Name": "js-stellar-sdk",
       "X-Client-Version": version,
     },
   });
