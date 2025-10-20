@@ -131,10 +131,7 @@ exports.NetworkError = void 0;
  */
 class NetworkError extends Error {
   constructor(message, response) {
-    const trueProto = new.target.prototype;
     super(message);
-    this.__proto__ = trueProto;
-    this.constructor = NetworkError;
     /**
      * The response sent by the Horizon server.
      * @type {object} Response details, received from the Horizon server

@@ -126,15 +126,7 @@ var _network = require("./network");
  * @param {string} message Human-readable error message
  * @param {any} response Response details, received from the Horizon server
  */
-class NotFoundError extends _network.NetworkError {
-  constructor(message, response) {
-    const trueProto = new.target.prototype;
-    super(message, response);
-    this.__proto__ = trueProto;
-    this.constructor = NotFoundError;
-    this.name = "NotFoundError";
-  }
-}
+class NotFoundError extends _network.NetworkError {}
 exports.NotFoundError = NotFoundError;</code></pre>
         </article>
     </section>

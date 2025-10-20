@@ -129,15 +129,7 @@ var _network = require("./network");
  * @param {string} message Human-readable error message.
  * @param {any} response Response details, received from the server.
  */
-class BadResponseError extends _network.NetworkError {
-  constructor(message, response) {
-    const trueProto = new.target.prototype;
-    super(message, response);
-    this.__proto__ = trueProto;
-    this.constructor = BadResponseError;
-    this.name = "BadResponseError";
-  }
-}
+class BadResponseError extends _network.NetworkError {}
 exports.BadResponseError = BadResponseError;</code></pre>
         </article>
     </section>

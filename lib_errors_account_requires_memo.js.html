@@ -135,11 +135,7 @@ exports.AccountRequiresMemoError = void 0;
  */
 class AccountRequiresMemoError extends Error {
   constructor(message, accountId, operationIndex) {
-    const trueProto = new.target.prototype;
     super(message);
-    this.__proto__ = trueProto;
-    this.constructor = AccountRequiresMemoError;
-    this.name = "AccountRequiresMemoError";
 
     /**
      * The account which requires a memo.

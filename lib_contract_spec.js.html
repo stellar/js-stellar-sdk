@@ -756,7 +756,7 @@ class Spec {
     }
     if (value === _stellarBase.xdr.ScSpecType.scSpecTypeOption().value) {
       const opt = ty.option();
-      if (val === undefined) {
+      if (val === null || val === undefined) {
         return _stellarBase.xdr.ScVal.scvVoid();
       }
       return this.nativeToScVal(val, opt.valueType());
@@ -1014,6 +1014,14 @@ class Spec {
   scValToNative(scv, typeDef) {
     const t = typeDef.switch();
     const value = t.value;
+    if (value === _stellarBase.xdr.ScSpecType.scSpecTypeOption().value) {
+      switch (scv.switch().value) {
+        case _stellarBase.xdr.ScValType.scvVoid().value:
+          return null;
+        default:
+          return this.scValToNative(scv, typeDef.option().valueType());
+      }
+    }
     if (value === _stellarBase.xdr.ScSpecType.scSpecTypeUdt().value) {
       return this.scValUdtToNative(scv, typeDef.udt());
     }
@@ -1023,7 +1031,7 @@ class Spec {
     // updated
     switch (scv.switch().value) {
       case _stellarBase.xdr.ScValType.scvVoid().value:
-        return undefined;
+        return null;
 
       // these can be converted to bigints directly
       case _stellarBase.xdr.ScValType.scvU64().value:
