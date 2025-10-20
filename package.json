@@ -1,6 +1,6 @@
 {
   "name": "@stellar/stellar-sdk",
-  "version": "14.2.0",
+  "version": "14.3.0",
   "description": "A library for working with the Stellar network, including communication with the Horizon and Soroban RPC servers.",
   "keywords": [
     "stellar"
@@ -215,7 +215,7 @@
     "terser-webpack-plugin": "^5.3.14",
     "ts-node": "^10.9.2",
     "typescript": "5.6.3",
-    "webpack": "^5.101.3",
+    "webpack": "^5.102.1",
     "webpack-cli": "^5.0.1"
   },
   "dependencies": {
