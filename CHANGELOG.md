@@ -7,14 +7,20 @@ A breaking change will get clearly marked in this log.
 ## Unreleased
 
 ### Added
+*  Added optional `server: rpc.Server` field to `ClientOption` for HttpClient reuse. ([#1234](https://github.com/stellar/js-stellar-sdk/pull/1234)). 
+
+### Fixed
+* Replaced global `HttpClient` with per-instance clients in `horizon.Server` and `rpc.Server` to prevent cross-instance header contamination ([#1234](https://github.com/stellar/js-stellar-sdk/pull/1234)).
+
+## [v14.3.0](https://github.com/stellar/js-stellar-sdk/compare/v14.2.0...v14.3.0)
+
+### Added
 * `Spec.scValToNative` now supports parsing `Option`s ([#1228](https://github.com/stellar/js-stellar-sdk/pull/1228)).
 *  Added `getLedgers` method to `rpc.Server` for retreiving ledger data. ([#1231](https://github.com/stellar/js-stellar-sdk/pull/1231)).
-*  Added optional `server: rpc.Server` field to `ClientOption` for HttpClient reuse. ([#1234](https://github.com/stellar/js-stellar-sdk/pull/1234)). 
 
 ### Fixed
 * `Spec.scValToNative` returns `null` for `void`s or `Option`als instead of the ambiguous `undefined` ([#1228](https://github.com/stellar/js-stellar-sdk/pull/1228)).
 * The `getEvents` API now requires either a start and end ledger or a cursor to be provided ([#1231](https://github.com/stellar/js-stellar-sdk/pull/1231)).
-* Replaced global `HttpClient` with per-instance clients in `horizon.Server` and `rpc.Server` to prevent cross-instance header contamination ([#1234](https://github.com/stellar/js-stellar-sdk/pull/1234)).
 
 ### Deprecated
 * `GetEventsRequest` interface moved from `server.ts` to `api.ts` ([#1231](https://github.com/stellar/js-stellar-sdk/pull/1231)).
