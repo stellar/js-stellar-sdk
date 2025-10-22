@@ -4,7 +4,7 @@ const MockAdapter = require("axios-mock-adapter");
 describe("server.js non-transaction tests", function () {
   beforeEach(function () {
     this.server = new Horizon.Server("https://horizon-live.stellar.org:1337");
-    this.axiosMock = sinon.mock(Horizon.AxiosClient);
+    this.axiosMock = sinon.mock(this.server.httpClient);
     StellarSdk.Config.setDefault();
   });
 
@@ -34,6 +34,40 @@ describe("server.js non-transaction tests", function () {
       expect(
         () => new Horizon.Server("http://horizon-live.stellar.org:1337"),
       ).to.not.throw();
+    });
+
+    it("creates an HttpClient instance with the provided headers", function () {
+      let serverA = new Horizon.Server(
+        "https://horizon-live.stellar.org:1337",
+        {
+          headers: { "Custom-A": "test-value" },
+        },
+      );
+
+      let serverB = new Horizon.Server(
+        "https://horizon-live.stellar.org:1337",
+        {
+          headers: { "Custom-B": "test-value" },
+        },
+      );
+      expect(serverA.httpClient.defaults.headers["Custom-A"]).to.equal(
+        "test-value",
+      );
+      expect(serverB.httpClient.defaults.headers["Custom-B"]).to.equal(
+        "test-value",
+      );
+
+      serverA.httpClient.defaults.headers["Custom-A"] = "modified-value";
+      expect(serverA.httpClient.defaults.headers["Custom-A"]).to.equal(
+        "modified-value",
+      );
+      serverA.httpClient.defaults.headers["Additional-A"] = "added-value";
+      expect(serverA.httpClient.defaults.headers["Additional-A"]).to.equal(
+        "added-value",
+      );
+
+      expect(serverA.httpClient.defaults.headers["Custom-B"]).to.be.undefined;
+      expect(serverB.httpClient.defaults.headers["Custom-A"]).to.be.undefined;
     });
   });
 
@@ -165,14 +199,14 @@ describe("server.js non-transaction tests", function () {
 
   describe("Server.fetchTimebounds", function () {
     let clock;
-
     beforeEach(function () {
       // set now to 10050 seconds
       clock = sinon.useFakeTimers(10050 * 1000);
       // use MockAdapter instead of this.axiosMock
       // because we don't want to replace the get function
       // we need to use axios's one so interceptors run!!
-      this.axiosMockAdapter = new MockAdapter(Horizon.AxiosClient);
+      this.server = new Horizon.Server("https://horizon-live.stellar.org:1337");
+      this.axiosMockAdapter = new MockAdapter(this.server.httpClient);
     });
 
     afterEach(function () {

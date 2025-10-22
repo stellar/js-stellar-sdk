@@ -108,7 +108,7 @@ function mockAccountRequest(axiosMock, id, status, data = {}) {
 describe("server.js check-memo-required", function () {
   beforeEach(function () {
     this.server = new Horizon.Server("https://horizon-testnet.stellar.org");
-    this.axiosMock = sinon.mock(Horizon.AxiosClient);
+    this.axiosMock = sinon.mock(this.server.httpClient);
   });
 
   afterEach(function () {

@@ -4,6 +4,7 @@ import { CallBuilder } from "./call_builder";
 import { BadRequestError } from "../errors";
 import { HorizonApi } from "./horizon_api";
 import { ServerApi } from "./server_api";
+import { HttpClient } from "../http-client";
 
 const allowedResolutions = [
   60000, 300000, 900000, 3600000, 86400000, 604800000,
@@ -31,6 +32,7 @@ export class TradeAggregationCallBuilder extends CallBuilder<
 > {
   constructor(
     serverUrl: URI,
+    httpClient: HttpClient,
     base: Asset,
     counter: Asset,
     start_time: number,
@@ -38,7 +40,7 @@ export class TradeAggregationCallBuilder extends CallBuilder<
     resolution: number,
     offset: number,
   ) {
-    super(serverUrl);
+    super(serverUrl, httpClient);
 
     this.url.segment("trade_aggregations");
     if (!base.isNative()) {

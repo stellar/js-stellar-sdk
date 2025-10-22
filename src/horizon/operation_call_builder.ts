@@ -1,5 +1,6 @@
 import { CallBuilder } from "./call_builder";
 import { ServerApi } from "./server_api";
+import { HttpClient } from "../http-client";
 
 /**
  * Creates a new {@link OperationCallBuilder} pointed to server defined by serverUrl.
@@ -16,8 +17,8 @@ import { ServerApi } from "./server_api";
 export class OperationCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.OperationRecord>
 > {
-  constructor(serverUrl: URI) {
-    super(serverUrl, "operations");
+  constructor(serverUrl: URI, httpClient: HttpClient) {
+    super(serverUrl, httpClient, "operations");
     this.url.segment("operations");
   }
 
@@ -33,6 +34,7 @@ export class OperationCallBuilder extends CallBuilder<
   ): CallBuilder<ServerApi.OperationRecord> {
     const builder = new CallBuilder<ServerApi.OperationRecord>(
       this.url.clone(),
+      this.httpClient,
     );
     builder.filter.push([operationId]);
     return builder;

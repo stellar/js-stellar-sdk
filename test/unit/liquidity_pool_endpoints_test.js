@@ -6,7 +6,7 @@ const LP_URL = BASE_URL + "/liquidity_pools";
 describe("/liquidity_pools tests", function () {
   beforeEach(function () {
     this.server = new Horizon.Server(BASE_URL);
-    this.axiosMock = sinon.mock(Horizon.AxiosClient);
+    this.axiosMock = sinon.mock(this.server.httpClient);
     StellarSdk.Config.setDefault();
   });
 

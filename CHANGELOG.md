@@ -10,6 +10,14 @@ A breaking change will get clearly marked in this log.
 ## [v14.3.0](https://github.com/stellar/js-stellar-sdk/compare/v14.2.0...v14.3.0)
 
 ### Added
+*  Added optional `server: rpc.Server` field to `ClientOption` for HttpClient reuse. ([#1234](https://github.com/stellar/js-stellar-sdk/pull/1234)). 
+
+### Fixed
+* Replaced global `HttpClient` with per-instance clients in `horizon.Server` and `rpc.Server` to prevent cross-instance header contamination ([#1234](https://github.com/stellar/js-stellar-sdk/pull/1234)).
+
+## [v14.3.0](https://github.com/stellar/js-stellar-sdk/compare/v14.2.0...v14.3.0)
+
+### Added
 * `Spec.scValToNative` now supports parsing `Option`s ([#1228](https://github.com/stellar/js-stellar-sdk/pull/1228)).
 *  Added `getLedgers` method to `rpc.Server` for retreiving ledger data. ([#1231](https://github.com/stellar/js-stellar-sdk/pull/1231)).
 

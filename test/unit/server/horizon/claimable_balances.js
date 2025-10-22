@@ -3,7 +3,7 @@ const { Horizon } = StellarSdk;
 describe("ClaimableBalanceCallBuilder", function () {
   beforeEach(function () {
     this.server = new Horizon.Server("https://horizon-live.stellar.org:1337");
-    this.axiosMock = sinon.mock(Horizon.AxiosClient);
+    this.axiosMock = sinon.mock(this.server.httpClient);
     StellarSdk.Config.setDefault();
   });
 

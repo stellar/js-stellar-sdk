@@ -1,5 +1,6 @@
 import { CallBuilder } from "./call_builder";
 import { ServerApi } from "./server_api";
+import { HttpClient } from "../http-client";
 
 /**
  * Creates a new {@link EffectCallBuilder} pointed to server defined by serverUrl.
@@ -15,8 +16,8 @@ import { ServerApi } from "./server_api";
 export class EffectCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.EffectRecord>
 > {
-  constructor(serverUrl: URI) {
-    super(serverUrl, "effects");
+  constructor(serverUrl: URI, httpClient: HttpClient) {
+    super(serverUrl, httpClient, "effects");
     this.url.segment("effects");
   }
 

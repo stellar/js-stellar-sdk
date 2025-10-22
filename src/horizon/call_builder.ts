@@ -4,7 +4,8 @@ import URITemplate from "urijs/src/URITemplate";
 import { BadRequestError, NetworkError, NotFoundError } from "../errors";
 
 import { HorizonApi } from "./horizon_api";
-import { AxiosClient, version } from "./horizon_axios_client";
+import { version } from "./horizon_axios_client";
+import { HttpClient } from "../http-client";
 import { ServerApi } from "./server_api";
 import type { Server } from "../federation";
 
@@ -61,11 +62,18 @@ export class CallBuilder<
 
   protected neighborRoot: string;
 
-  constructor(serverUrl: URI, neighborRoot: string = "") {
+  protected httpClient: HttpClient;
+
+  constructor(
+    serverUrl: URI,
+    httpClient: HttpClient,
+    neighborRoot: string = "",
+  ) {
     this.url = serverUrl.clone();
     this.filter = [];
     this.originalSegments = this.url.segment() || [];
     this.neighborRoot = neighborRoot;
+    this.httpClient = httpClient;
   }
 
   /**
@@ -380,7 +388,8 @@ export class CallBuilder<
       url = url.protocol(this.url.protocol());
     }
 
-    return AxiosClient.get(url.toString())
+    return this.httpClient
+      .get(url.toString())
       .then((response) => response.data)
       .catch(this._handleNetworkError);
   }

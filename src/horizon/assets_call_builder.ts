@@ -1,5 +1,6 @@
 import { CallBuilder } from "./call_builder";
 import { ServerApi } from "./server_api";
+import { HttpClient } from "../http-client";
 
 /**
  * Creates a new {@link AssetsCallBuilder} pointed to server defined by serverUrl.
@@ -14,8 +15,8 @@ import { ServerApi } from "./server_api";
 export class AssetsCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.AssetRecord>
 > {
-  constructor(serverUrl: URI) {
-    super(serverUrl);
+  constructor(serverUrl: URI, httpClient: HttpClient) {
+    super(serverUrl, httpClient);
     this.url.segment("assets");
   }
 

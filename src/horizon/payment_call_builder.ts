@@ -1,5 +1,6 @@
 import { CallBuilder } from "./call_builder";
 import { ServerApi } from "./server_api";
+import { HttpClient } from "../http-client";
 
 /**
  * Creates a new {@link PaymentCallBuilder} pointed to server defined by serverUrl.
@@ -24,8 +25,8 @@ export class PaymentCallBuilder extends CallBuilder<
     | ServerApi.InvokeHostFunctionOperationRecord
   >
 > {
-  constructor(serverUrl: URI) {
-    super(serverUrl, "payments");
+  constructor(serverUrl: URI, httpClient: HttpClient) {
+    super(serverUrl, httpClient, "payments");
     this.url.segment("payments");
   }
 

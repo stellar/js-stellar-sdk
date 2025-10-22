@@ -4,7 +4,7 @@ const { Server, AxiosClient, Durability } = StellarSdk.rpc;
 describe("Server#getContractData", function () {
   beforeEach(function () {
     this.server = new Server(serverUrl);
-    this.axiosMock = sinon.mock(AxiosClient);
+    this.axiosMock = sinon.mock(this.server.httpClient);
   });
 
   afterEach(function () {

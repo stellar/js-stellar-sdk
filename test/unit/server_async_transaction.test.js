@@ -6,7 +6,7 @@ describe("server.js async transaction submission tests", function () {
 
   beforeEach(function () {
     this.server = new Horizon.Server("https://horizon-live.stellar.org:1337");
-    this.axiosMock = sinon.mock(Horizon.AxiosClient);
+    this.axiosMock = sinon.mock(this.server.httpClient);
     let transaction = new StellarSdk.TransactionBuilder(account, {
       fee: StellarSdk.BASE_FEE,
       networkPassphrase: StellarSdk.Networks.TESTNET,

@@ -69,7 +69,7 @@ function expectLedgerEntryNotFound(axiosMock, ledgerKeyXDR, call, message) {
 describe("Server#getAccountEntry", function () {
   beforeEach(function () {
     this.server = new Server(serverUrl);
-    this.axiosMock = sinon.mock(AxiosClient);
+    this.axiosMock = sinon.mock(this.server.httpClient);
   });
 
   afterEach(function () {
@@ -122,7 +122,7 @@ describe("Server#getAccountEntry", function () {
 describe("Server#getTrustline", function () {
   beforeEach(function () {
     this.server = new Server(serverUrl);
-    this.axiosMock = sinon.mock(AxiosClient);
+    this.axiosMock = sinon.mock(this.server.httpClient);
   });
 
   afterEach(function () {
@@ -176,7 +176,7 @@ describe("Server#getTrustline", function () {
 describe("Server#getClaimableBalance", function () {
   beforeEach(function () {
     this.server = new Server(serverUrl);
-    this.axiosMock = sinon.mock(AxiosClient);
+    this.axiosMock = sinon.mock(this.server.httpClient);
   });
 
   afterEach(function () {

@@ -1,6 +1,7 @@
 import { Asset } from "@stellar/stellar-base";
 import { CallBuilder } from "./call_builder";
 import { ServerApi } from "./server_api";
+import { HttpClient } from "../http-client";
 
 /**
  * The Stellar Network allows payments to be made across assets through path
@@ -39,11 +40,12 @@ export class StrictSendPathCallBuilder extends CallBuilder<
 > {
   constructor(
     serverUrl: URI,
+    httpClient: HttpClient,
     sourceAsset: Asset,
     sourceAmount: string,
     destination: string | Asset[],
   ) {
-    super(serverUrl);
+    super(serverUrl, httpClient);
 
     this.url.segment("paths/strict-send");
 

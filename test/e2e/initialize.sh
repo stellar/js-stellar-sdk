@@ -14,20 +14,28 @@ dirname="$(CDPATH= cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 echo "###################### Initializing e2e tests ########################"
 
-stellar="$dirname/../../target/bin/stellar"
-if [[ -f "$stellar" ]]; then
-  current=$($stellar --version | head -n 1 | cut -d ' ' -f 2)
-  desired=$(cat .cargo/config.toml | grep -oE -- "--version\s+\S+" | awk '{print $2}')
-  if [[ "$current" != "$desired" ]]; then
-    echo "Current pinned stellar binary: $current. Desired: $desired. Building stellar binary."
-    (cd "$dirname/../.." && cargo install_stellar)
-  else
-    echo "Using stellar binary from ./target/bin"
-  fi
+# Use global stellar in CI, local build for development
+if [[ -n "$GITHUB_ACTIONS" ]]; then
+    stellar="stellar"
+    echo "Using global stellar command (CI environment)"
 else
-  echo "Building pinned stellar binary"
-  (cd "$dirname/../.." && cargo install_stellar)
+    stellar="$dirname/../../target/bin/stellar"
+    echo "Using local stellar binary for development"
+    if [[ -f "$stellar" ]]; then
+      current=$($stellar --version | head -n 1 | cut -d ' ' -f 2)
+      desired=$(cat .cargo/config.toml | grep -oE -- "--version\s+\S+" | awk '{print $2}')
+      if [[ "$current" != "$desired" ]]; then
+        echo "Current pinned stellar binary: $current. Desired: $desired. Building stellar binary."
+        (cd "$dirname/../.." && cargo install_stellar)
+      else
+        echo "Using stellar binary from ./target/bin"
+      fi
+      else
+        echo "Building pinned stellar binary"
+        (cd "$dirname/../.." && cargo install_stellar)
+    fi
 fi
+
 
 NETWORK_STATUS=$(curl -s -X POST "$STELLAR_RPC_URL" -H "Content-Type: application/json" -d '{ "jsonrpc": "2.0", "id": 8675309, "method": "getHealth" }' | sed -n 's/.*"status":\s*"\([^"]*\)".*/\1/p')
 
@@ -42,10 +50,13 @@ if [[ "$NETWORK_STATUS" != "healthy" ]]; then
 fi
 
 $stellar keys generate $STELLAR_ACCOUNT
+$stellar keys fund $STELLAR_ACCOUNT
+
+
 
 # retrieve the contracts using stellar contract init then build them if they dont already exist
 # Define directory and WASM file paths
-target_dir="$dirname/test-contracts/target/wasm32-unknown-unknown/release"
+target_dir="$dirname/test-contracts/target/wasm32v1-none/release"
 contracts_dir="$dirname/test-contracts"
 wasm_files=(
     "custom_types.wasm"

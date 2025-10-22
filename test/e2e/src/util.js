@@ -15,20 +15,20 @@ function run(command) {
   };
 }
 module.exports.run = run;
-
-const stellar = "./target/bin/stellar";
+export const stellar = process.env.GITHUB_ACTIONS
+  ? "stellar"
+  : "./target/bin/stellar";
 const basePath = path.resolve(
-  `${__dirname}/../test-contracts/target/wasm32-unknown-unknown/release`,
+  `${__dirname}/../test-contracts/target/wasm32v1-none/release`,
 );
 const contracts = {
   customTypes: {
-    hash: run(
-      `${stellar} contract install --wasm ${basePath}/custom_types.wasm`,
-    ).stdout,
+    hash: run(`${stellar} contract upload --wasm ${basePath}/custom_types.wasm`)
+      .stdout,
     path: `${basePath}/custom_types.wasm`,
   },
   increment: {
-    hash: run(`${stellar} contract install --wasm ${basePath}/increment.wasm`)
+    hash: run(`${stellar} contract upload --wasm ${basePath}/increment.wasm`)
       .stdout,
     path: `${basePath}/increment.wasm`,
     constructorArgs: {
@@ -36,24 +36,24 @@ const contracts = {
     },
   },
   swap: {
-    hash: run(`${stellar} contract install --wasm ${basePath}/atomic_swap.wasm`)
+    hash: run(`${stellar} contract upload --wasm ${basePath}/atomic_swap.wasm`)
       .stdout,
     path: `${basePath}/atomic_swap.wasm`,
   },
   token: {
-    hash: run(`${stellar} contract install --wasm ${basePath}/token.wasm`)
+    hash: run(`${stellar} contract upload --wasm ${basePath}/token.wasm`)
       .stdout,
     path: `${basePath}/token.wasm`,
   },
   needsSignature: {
     hash: run(
-      `${stellar} contract install --wasm ${basePath}/needs_a_signature.wasm`,
+      `${stellar} contract upload --wasm ${basePath}/needs_a_signature.wasm`,
     ).stdout,
     path: `${basePath}/needs_a_signature.wasm`,
   },
   doesSigning: {
     hash: run(
-      `${stellar} contract install --wasm ${basePath}/this_one_signs.wasm`,
+      `${stellar} contract upload --wasm ${basePath}/this_one_signs.wasm`,
     ).stdout,
     path: `${basePath}/this_one_signs.wasm`,
   },
@@ -67,12 +67,13 @@ const networkPassphrase =
   process.env.SOROBAN_NETWORK_PASSPHRASE ??
   "Standalone Network ; February 2017";
 module.exports.networkPassphrase = networkPassphrase;
+const server = new rpc.Server(rpcUrl, {
+  allowHttp: rpcUrl.startsWith("http://") ?? false,
+});
+module.exports.server = server;
 
 async function generateFundedKeypair() {
   const keypair = Keypair.random();
-  const server = new rpc.Server(rpcUrl, {
-    allowHttp: rpcUrl.startsWith("http://") ?? false,
-  });
   await server.requestAirdrop(keypair.publicKey());
   return keypair;
 }
@@ -144,7 +145,7 @@ async function installContract(name, { keypair } = {}) {
   let wasmHash = contracts[name].hash;
   if (!wasmHash) {
     wasmHash = run(
-      `${stellar} contract install --wasm ${contracts[name].path}`,
+      `${stellar} contract upload --wasm ${contracts[name].path}`,
     ).stdout;
   }
   return { keypair: internalKeypair, wasmHash };

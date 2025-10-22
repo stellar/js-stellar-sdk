@@ -1,6 +1,6 @@
 const { Account, Keypair, Networks, rpc, SorobanDataBuilder, xdr, contract } =
   StellarSdk;
-const { Server, AxiosClient, parseRawSimulation } = StellarSdk.rpc;
+const { Server, parseRawSimulation } = StellarSdk.rpc;
 
 const restoreTxnData = StellarSdk.SorobanDataBuilder.fromXDR(
   "AAAAAAAAAAAAAAAEAAAABgAAAAHZ4Y4l0GNoS97QH0fa5Jbbm61Ou3t9McQ09l7wREKJYwAAAA8AAAAJUEVSU19DTlQxAAAAAAAAAQAAAAYAAAAB2eGOJdBjaEve0B9H2uSW25utTrt7fTHENPZe8ERCiWMAAAAPAAAACVBFUlNfQ05UMgAAAAAAAAEAAAAGAAAAAdnhjiXQY2hL3tAfR9rkltubrU67e30xxDT2XvBEQoljAAAAFAAAAAEAAAAH+BoQswzzGTKRzrdC6axxKaM4qnyDP8wgQv8Id3S4pbsAAAAAAAAGNAAABjQAAAAAAADNoQ==",
@@ -11,18 +11,21 @@ describe("AssembledTransaction.buildFootprintRestoreTransaction", () => {
   const contractId = "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM";
   const networkPassphrase = "Standalone Network ; February 2017";
   const wallet = contract.basicNodeSigner(keypair, networkPassphrase);
-  const options = {
-    networkPassphrase,
-    contractId,
-    rpcUrl: serverUrl,
-    allowHttp: true,
-    publicKey: keypair.publicKey(),
-    ...wallet,
-  };
+  let options; // Declare but don't initialize
 
   beforeEach(function () {
     this.server = new Server(serverUrl);
-    this.axiosMock = sinon.mock(AxiosClient);
+    this.axiosMock = sinon.mock(this.server.httpClient);
+
+    options = {
+      networkPassphrase,
+      contractId,
+      rpcUrl: serverUrl,
+      allowHttp: true,
+      publicKey: keypair.publicKey(),
+      server: this.server,
+      ...wallet,
+    };
   });
 
   afterEach(function () {

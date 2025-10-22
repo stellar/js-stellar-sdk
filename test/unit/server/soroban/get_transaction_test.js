@@ -14,7 +14,7 @@ describe("Server#getTransaction", function () {
 
   beforeEach(function () {
     this.server = new Server(serverUrl);
-    this.axiosMock = sinon.mock(AxiosClient);
+    this.axiosMock = sinon.mock(this.server.httpClient);
     let transaction = new TransactionBuilder(account, {
       fee: 100,
       networkPassphrase: StellarSdk.Networks.TESTNET,
