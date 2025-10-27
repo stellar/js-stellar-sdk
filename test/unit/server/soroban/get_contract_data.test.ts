@@ -1,15 +1,22 @@
-const { Address, xdr, nativeToScVal, hash } = StellarSdk;
-const { Server, AxiosClient, Durability } = StellarSdk.rpc;
+import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
 
-describe("Server#getContractData", function () {
-  beforeEach(function () {
-    this.server = new Server(serverUrl);
-    this.axiosMock = sinon.mock(this.server.httpClient);
+import { StellarSdk } from "../../../test-utils/stellar-sdk-import";
+import { serverUrl } from "../../../constants";
+
+const { Address, xdr, nativeToScVal, hash } = StellarSdk;
+const { Server, Durability } = StellarSdk.rpc;
+
+describe("Server#getContractData", () => {
+  let server: any;
+  let mockPost: any;
+
+  beforeEach(() => {
+    server = new Server(serverUrl);
+    mockPost = vi.spyOn(server.httpClient, "post");
   });
 
-  afterEach(function () {
-    this.axiosMock.verify();
-    this.axiosMock.restore();
+  afterEach(() => {
+    vi.clearAllMocks();
   });
 
   const address = "CCJZ5DGASBWQXR5MPFCJXMBI333XE5U3FSJTNQU7RIKE3P5GN2K2WYD5";
@@ -17,7 +24,7 @@ describe("Server#getContractData", function () {
 
   const ledgerEntry = xdr.LedgerEntryData.contractData(
     new xdr.ContractDataEntry({
-      ext: new xdr.ExtensionPoint(0),
+      ext: new (xdr.ExtensionPoint as any)(0),
       contract: new Address(address).toScAddress(),
       durability: xdr.ContractDataDurability.persistent(),
       key,
@@ -41,90 +48,76 @@ describe("Server#getContractData", function () {
     }),
   );
 
-  it("contract data key found", function (done) {
-    let result = {
+  it("contract data key found", async () => {
+    const result = {
       lastModifiedLedgerSeq: 1,
       key: ledgerKey,
       val: ledgerEntry,
       liveUntilLedgerSeq: 1000,
     };
 
-    this.axiosMock
-      .expects("post")
-      .withArgs(serverUrl, {
-        jsonrpc: "2.0",
-        id: 1,
-        method: "getLedgerEntries",
-        params: { keys: [ledgerKey.toXDR("base64")] },
-      })
-      .returns(
-        Promise.resolve({
-          data: {
-            result: {
-              latestLedger: 420,
-              entries: [
-                {
-                  liveUntilLedgerSeq: ledgerTtlEntry.ttl().liveUntilLedgerSeq(),
-                  lastModifiedLedgerSeq: result.lastModifiedLedgerSeq,
-                  key: ledgerKey.toXDR("base64"),
-                  xdr: ledgerEntry.toXDR("base64"),
-                },
-              ],
+    const mockResponse = {
+      data: {
+        result: {
+          latestLedger: 420,
+          entries: [
+            {
+              liveUntilLedgerSeq: ledgerTtlEntry.ttl().liveUntilLedgerSeq(),
+              lastModifiedLedgerSeq: result.lastModifiedLedgerSeq,
+              key: ledgerKey.toXDR("base64"),
+              xdr: ledgerEntry.toXDR("base64"),
             },
-          },
-        }),
-      );
+          ],
+        },
+      },
+    };
 
-    this.server
-      .getContractData(address, key, Durability.Persistent)
-      .then(function (response) {
-        expect(response.key.toXDR("base64")).to.eql(result.key.toXDR("base64"));
-        expect(response.val.toXDR("base64")).to.eql(result.val.toXDR("base64"));
-        expect(response.liveUntilLedgerSeq).to.eql(1000);
-        done();
-      })
-      .catch((err) => done(err));
+    mockPost.mockResolvedValue(mockResponse);
+
+    const response = await server.getContractData(
+      address,
+      key,
+      Durability.Persistent,
+    );
+    expect(response.key.toXDR("base64")).toEqual(result.key.toXDR("base64"));
+    expect(response.val.toXDR("base64")).toEqual(result.val.toXDR("base64"));
+    expect(response.liveUntilLedgerSeq).toEqual(1000);
+    expect(mockPost).toHaveBeenCalledWith(serverUrl, {
+      jsonrpc: "2.0",
+      id: 1,
+      method: "getLedgerEntries",
+      params: { keys: [ledgerKey.toXDR("base64")] },
+    });
+    expect(mockPost).toHaveBeenCalledTimes(1);
   });
 
-  it("contract data key not found", function (done) {
+  it("contract data key not found", async () => {
     // clone and change durability to test this case
     const ledgerKeyDupe = xdr.LedgerKey.fromXDR(ledgerKey.toXDR());
     ledgerKeyDupe
       .contractData()
       .durability(xdr.ContractDataDurability.temporary());
 
-    this.axiosMock
-      .expects("post")
-      .withArgs(serverUrl, {
-        jsonrpc: "2.0",
-        id: 1,
-        method: "getLedgerEntries",
-        params: { keys: [ledgerKeyDupe.toXDR("base64")] },
-      })
-      .returns(Promise.resolve({ data: { result: { entries: [] } } }));
+    const mockResponse = { data: { result: { entries: [] } } };
+    mockPost.mockResolvedValue(mockResponse);
 
-    this.server
-      .getContractData(address, key, Durability.Temporary)
-      .then(function (_response) {
-        done(new Error("Expected error"));
-      })
-      .catch(function (err) {
-        done(
-          err.code == 404
-            ? null
-            : new Error("Expected error code 404, got: " + err.code),
-        );
-      });
+    await expect(
+      server.getContractData(address, key, Durability.Temporary),
+    ).rejects.toMatchObject({
+      code: 404,
+    });
+    expect(mockPost).toHaveBeenCalledWith(serverUrl, {
+      jsonrpc: "2.0",
+      id: 1,
+      method: "getLedgerEntries",
+      params: { keys: [ledgerKeyDupe.toXDR("base64")] },
+    });
   });
 
-  it("fails on hex address (was deprecated now unsupported)", function (done) {
-    let hexAddress = "0".repeat(63) + "1";
-    this.server
-      .getContractData(hexAddress, key, Durability.Persistent)
-      .then((reply) => done(new Error(`should fail, got: ${reply}`)))
-      .catch((error) => {
-        expect(error).to.contain(/unsupported contract id/i);
-        done();
-      });
+  it("fails on hex address (was deprecated now unsupported)", async () => {
+    const hexAddress = `${"0".repeat(63)}1`;
+    await expect(
+      server.getContractData(hexAddress, key, Durability.Persistent),
+    ).rejects.toThrow(/Invalid contract ID/);
   });
 });

@@ -1,13 +1,22 @@
+import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
+
+import { StellarSdk } from "../test-utils/stellar-sdk-import";
+
 const { Horizon } = StellarSdk;
 
-describe("server.js async transaction submission tests", function () {
-  let keypair = StellarSdk.Keypair.random();
-  let account = new StellarSdk.Account(keypair.publicKey(), "56199647068161");
+describe("server.js async transaction submission tests", () => {
+  let server: any;
+  let mockPost: any;
+  let transaction: any;
+  let blob: string;
 
-  beforeEach(function () {
-    this.server = new Horizon.Server("https://horizon-live.stellar.org:1337");
-    this.axiosMock = sinon.mock(this.server.httpClient);
-    let transaction = new StellarSdk.TransactionBuilder(account, {
+  const keypair = StellarSdk.Keypair.random();
+  const account = new StellarSdk.Account(keypair.publicKey(), "56199647068161");
+
+  beforeEach(() => {
+    server = new Horizon.Server("https://horizon-live.stellar.org:1337");
+    mockPost = vi.spyOn(server.httpClient, "post");
+    transaction = new StellarSdk.TransactionBuilder(account, {
       fee: StellarSdk.BASE_FEE,
       networkPassphrase: StellarSdk.Networks.TESTNET,
     })
@@ -23,56 +32,53 @@ describe("server.js async transaction submission tests", function () {
       .build();
     transaction.sign(keypair);
 
-    this.transaction = transaction;
-    this.blob = encodeURIComponent(
+    blob = encodeURIComponent(
       transaction.toEnvelope().toXDR().toString("base64"),
     );
   });
 
-  afterEach(function () {
-    this.axiosMock.verify();
-    this.axiosMock.restore();
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
-  it("sends an async transaction", function (done) {
-    this.axiosMock
-      .expects("post")
-      .withArgs(
-        "https://horizon-live.stellar.org:1337/transactions_async",
-        `tx=${this.blob}`,
-      )
-      .returns(Promise.resolve({ data: {} }));
+  it("sends an async transaction", async () => {
+    mockPost.mockImplementation((url: string, data: string) => {
+      if (
+        url === "https://horizon-live.stellar.org:1337/transactions_async" &&
+        data === `tx=${blob}`
+      ) {
+        return Promise.resolve({ data: {} });
+      }
+      return Promise.reject(new Error(`Unexpected call: ${url}, ${data}`));
+    });
 
-    this.server
-      .submitAsyncTransaction(this.transaction, { skipMemoRequiredCheck: true })
-      .then(() => done())
-      .catch((err) => done(err));
+    await server.submitAsyncTransaction(transaction, {
+      skipMemoRequiredCheck: true,
+    });
   });
-  it("sends an async transaction and gets a PENDING response", function (done) {
+  it("sends an async transaction and gets a PENDING response", async () => {
     const response = {
       tx_status: "PENDING",
       hash: "db2c69a07be57eb5baefbfbb72b95c7c20d2c4d6f2a0e84e7c27dd0359055a2f",
     };
 
-    this.axiosMock
-      .expects("post")
-      .withArgs(
-        "https://horizon-live.stellar.org:1337/transactions_async",
-        `tx=${this.blob}`,
-      )
-      .returns(Promise.resolve({ data: response }));
+    mockPost.mockImplementation((url: string, data: string) => {
+      if (
+        url === "https://horizon-live.stellar.org:1337/transactions_async" &&
+        data === `tx=${blob}`
+      ) {
+        return Promise.resolve({ data: response });
+      }
+      return Promise.reject(new Error(`Unexpected call: ${url}, ${data}`));
+    });
 
-    this.server
-      .submitAsyncTransaction(this.transaction, { skipMemoRequiredCheck: true })
-      .then(function (res) {
-        expect(res).to.equal(response);
-        done();
-      })
-      .catch(function (err) {
-        done(err);
-      });
+    const res = await server.submitAsyncTransaction(transaction, {
+      skipMemoRequiredCheck: true,
+    });
+
+    expect(res).toEqual(response);
   });
-  it("sends an async transaction and gets a Problem response", function (done) {
+  it("sends an async transaction and gets a Problem response", async () => {
     const response = {
       type: "transaction_submission_exception",
       title: "Transaction Submission Exception",
@@ -89,39 +95,41 @@ describe("server.js async transaction submission tests", function () {
       },
     };
 
-    this.axiosMock
-      .expects("post")
-      .withArgs(
-        "https://horizon-live.stellar.org:1337/transactions_async",
-        `tx=${this.blob}`,
-      )
-      .returns(Promise.resolve({ data: response }));
+    mockPost.mockImplementation((url: string, data: string) => {
+      if (
+        url === "https://horizon-live.stellar.org:1337/transactions_async" &&
+        data === `tx=${blob}`
+      ) {
+        return Promise.resolve({ data: response });
+      }
+      return Promise.reject(new Error(`Unexpected call: ${url}, ${data}`));
+    });
 
-    this.server
-      .submitAsyncTransaction(this.transaction, { skipMemoRequiredCheck: true })
-      .then(function (res) {
-        expect(res).to.equal(response);
-        done();
-      })
-      .catch((err) => done(err));
+    const res = await server.submitAsyncTransaction(transaction, {
+      skipMemoRequiredCheck: true,
+    });
+
+    expect(res).toBe(response);
   });
-  it("sends an async transaction and check the request headers", function (done) {
-    this.axiosMock
-      .expects("post")
-      .withArgs(
-        "https://horizon-live.stellar.org:1337/transactions_async",
-        `tx=${this.blob}`,
-        sinon.match({
-          headers: sinon.match({
-            "Content-Type": "application/x-www-form-urlencoded",
-          }),
-        }),
-      )
-      .returns(Promise.resolve({ data: {} }));
+  it("sends an async transaction and check the request headers", async () => {
+    mockPost.mockImplementation((url: string, data: string, config: any) => {
+      if (
+        url === "https://horizon-live.stellar.org:1337/transactions_async" &&
+        data === `tx=${blob}` &&
+        config?.headers?.["Content-Type"] ===
+          "application/x-www-form-urlencoded"
+      ) {
+        return Promise.resolve({ data: {} });
+      }
+      return Promise.reject(
+        new Error(
+          `Unexpected call: ${url}, ${data}, ${JSON.stringify(config)}`,
+        ),
+      );
+    });
 
-    this.server
-      .submitAsyncTransaction(this.transaction, { skipMemoRequiredCheck: true })
-      .then(() => done())
-      .catch((err) => done(err));
+    await server.submitAsyncTransaction(transaction, {
+      skipMemoRequiredCheck: true,
+    });
   });
 });

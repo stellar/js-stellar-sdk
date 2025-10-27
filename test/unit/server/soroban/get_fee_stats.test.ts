@@ -1,17 +1,24 @@
-const { Server, AxiosClient } = StellarSdk.rpc;
+import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
+import { StellarSdk } from "../../../test-utils/stellar-sdk-import";
 
-describe("Server#getFeeStats", function () {
-  beforeEach(function () {
-    this.server = new Server(serverUrl);
-    this.axiosMock = sinon.mock(this.server.httpClient);
+import { serverUrl } from "../../../constants";
+
+const { Server } = StellarSdk.rpc;
+
+describe("Server#getFeeStats", () => {
+  let server: any;
+  let mockPost: any;
+
+  beforeEach(() => {
+    server = new Server(serverUrl);
+    mockPost = vi.spyOn(server.httpClient, "post");
   });
 
-  afterEach(function () {
-    this.axiosMock.verify();
-    this.axiosMock.restore();
+  afterEach(() => {
+    vi.clearAllMocks();
   });
 
-  it("requests the correct endpoint", function (done) {
+  it("requests the correct endpoint", async () => {
     const innerFeeStat = {
       max: "100000000000000000000", // just > uint32
       min: "100",
@@ -36,22 +43,17 @@ describe("Server#getFeeStats", function () {
       latestLedger: "12345678",
     };
 
-    this.axiosMock
-      .expects("post")
-      .withArgs(serverUrl, {
-        jsonrpc: "2.0",
-        id: 1,
-        method: "getFeeStats",
-        params: null,
-      })
-      .returns(Promise.resolve({ data: { result } }));
+    const mockResponse = { data: { result } };
+    mockPost.mockResolvedValue(mockResponse);
 
-    this.server
-      .getFeeStats()
-      .then(function (response) {
-        expect(response).to.be.deep.equal(result);
-        done();
-      })
-      .catch((err) => done(err));
+    const response = await server.getFeeStats();
+    expect(response).toEqual(result);
+    expect(mockPost).toHaveBeenCalledWith(serverUrl, {
+      jsonrpc: "2.0",
+      id: 1,
+      method: "getFeeStats",
+      params: null,
+    });
+    expect(mockPost).toHaveBeenCalledTimes(1);
   });
 });

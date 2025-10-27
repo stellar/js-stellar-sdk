@@ -86,7 +86,7 @@ const config = {
     ]
   },
   plugins: [
-    // this must be first for karma to work (see line 5 of karma.conf.js)
+    // ESLint plugin for code quality checks
     new ESLintPlugin({
       overrideConfigFile: path.resolve(__dirname, '../.eslintrc.js')
     }),

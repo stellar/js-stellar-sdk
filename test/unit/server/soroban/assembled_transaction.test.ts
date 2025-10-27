@@ -1,39 +1,44 @@
-const { Account, Keypair, Networks, rpc, SorobanDataBuilder, xdr, contract } =
+import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
+
+import { serverUrl } from "../../../constants";
+import { StellarSdk } from "../../../test-utils/stellar-sdk-import";
+
+const { Account, Keypair, rpc, contract } =
   StellarSdk;
-const { Server, parseRawSimulation } = StellarSdk.rpc;
+const { Server } = StellarSdk.rpc;
 
 const restoreTxnData = StellarSdk.SorobanDataBuilder.fromXDR(
   "AAAAAAAAAAAAAAAEAAAABgAAAAHZ4Y4l0GNoS97QH0fa5Jbbm61Ou3t9McQ09l7wREKJYwAAAA8AAAAJUEVSU19DTlQxAAAAAAAAAQAAAAYAAAAB2eGOJdBjaEve0B9H2uSW25utTrt7fTHENPZe8ERCiWMAAAAPAAAACVBFUlNfQ05UMgAAAAAAAAEAAAAGAAAAAdnhjiXQY2hL3tAfR9rkltubrU67e30xxDT2XvBEQoljAAAAFAAAAAEAAAAH+BoQswzzGTKRzrdC6axxKaM4qnyDP8wgQv8Id3S4pbsAAAAAAAAGNAAABjQAAAAAAADNoQ==",
 );
 
 describe("AssembledTransaction.buildFootprintRestoreTransaction", () => {
+  let mockPost: any;
+  let server: any;
   const keypair = Keypair.random();
   const contractId = "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM";
   const networkPassphrase = "Standalone Network ; February 2017";
   const wallet = contract.basicNodeSigner(keypair, networkPassphrase);
-  let options; // Declare but don't initialize
+  let options: any; // Declare but don't initialize
 
-  beforeEach(function () {
-    this.server = new Server(serverUrl);
-    this.axiosMock = sinon.mock(this.server.httpClient);
-
+  beforeEach(() => {
+    server = new Server(serverUrl);
+    mockPost = vi.spyOn(server.httpClient, "post");
     options = {
       networkPassphrase,
       contractId,
       rpcUrl: serverUrl,
       allowHttp: true,
       publicKey: keypair.publicKey(),
-      server: this.server,
+      server,
       ...wallet,
     };
   });
 
-  afterEach(function () {
-    this.axiosMock.verify();
-    this.axiosMock.restore();
+  afterEach(() => {
+    vi.clearAllMocks();
   });
 
-  it("makes expected RPC calls", function (done) {
+  it("makes expected RPC calls", async () => {
     const simulateTransactionResponse = {
       transactionData: restoreTxnData,
       minResourceFee: "52641",
@@ -62,62 +67,50 @@ describe("AssembledTransaction.buildFootprintRestoreTransaction", () => {
       ledger: 17036,
       createdAt: "1716483575",
     };
-    this.axiosMock
-      .expects("post")
-      .withArgs(
-        serverUrl,
-        sinon.match({
-          jsonrpc: "2.0",
-          id: 1,
-          method: "simulateTransaction",
-        }),
-      )
-      .returns(
-        Promise.resolve({ data: { result: simulateTransactionResponse } }),
+
+    // Mock the sequence of calls
+    mockPost
+      .mockResolvedValueOnce({ data: { result: simulateTransactionResponse } }) // simulateTransaction
+      .mockResolvedValueOnce({ data: { result: sendTransactionResponse } }) // sendTransaction
+      .mockResolvedValueOnce({ data: { result: getTransactionResponse } }); // getTransaction
+
+      // eslint-disable-next-line @typescript-eslint/dot-notation
+      const txn = await contract.AssembledTransaction["buildFootprintRestoreTransaction"](
+        options,
+        restoreTxnData,
+        new Account("GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI", "1"),
+        52641,
       );
-    this.axiosMock
-      .expects("post")
-      .withArgs(
-        serverUrl,
-        sinon.match({
-          jsonrpc: "2.0",
-          id: 1,
-          method: "getTransaction",
-        }),
-      )
-      .returns(Promise.resolve({ data: { result: getTransactionResponse } }));
+    const result = await txn.signAndSend({ ...wallet });
+    expect(result.getTransactionResponse.status).toBe(
+      rpc.Api.GetTransactionStatus.SUCCESS,
+    );
 
-    this.axiosMock
-      .expects("post")
-      .withArgs(
-        serverUrl,
-        sinon.match({
-          jsonrpc: "2.0",
-          id: 1,
-          method: "sendTransaction",
-        }),
-      )
-      .returns(Promise.resolve({ data: { result: sendTransactionResponse } }));
-
-    contract.AssembledTransaction.buildFootprintRestoreTransaction(
-      options,
-      restoreTxnData,
-      new StellarSdk.Account(
-        "GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI",
-        "1",
-      ),
-      52641,
-    )
-      .then((txn) => txn.signAndSend({ ...wallet }))
-      .then((result) => {
-        expect(result.getTransactionResponse.status).to.equal(
-          rpc.Api.GetTransactionStatus.SUCCESS,
-        );
-        done();
-      })
-      .catch((error) => {
-        // handle any errors that occurred during the promise chain
-        done(error);
-      });
+    // Verify the calls were made with correct parameters
+    expect(mockPost).toHaveBeenCalledWith(
+      serverUrl,
+      expect.objectContaining({
+        jsonrpc: "2.0",
+        id: 1,
+        method: "simulateTransaction",
+      }),
+    );
+    expect(mockPost).toHaveBeenCalledWith(
+      serverUrl,
+      expect.objectContaining({
+        jsonrpc: "2.0",
+        id: 1,
+        method: "sendTransaction",
+      }),
+    );
+    expect(mockPost).toHaveBeenCalledWith(
+      serverUrl,
+      expect.objectContaining({
+        jsonrpc: "2.0",
+        id: 1,
+        method: "getTransaction",
+      }),
+    );
+    expect(mockPost).toHaveBeenCalledTimes(3);
   });
 });

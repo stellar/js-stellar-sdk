@@ -1,26 +1,30 @@
-const { spawnSync } = require("node:child_process");
-const { contract, Keypair, rpc } = require("../../../lib");
-const path = require("node:path");
+import { spawnSync } from "node:child_process";
+import path from "node:path";
+import { contract, Keypair, rpc } from "../../../lib";
 
 /*
  * Run a Bash command, returning stdout, stderr, and status code.
  */
-function run(command) {
-  const [cmd, ...args] = command.split(" ");
-  const result = spawnSync(cmd, args, { shell: true, encoding: "utf8" });
+const run = (command: string) => {
+  const [cmd, ...args]: string[] = command.split(" ");
+  const result = spawnSync(cmd as string, args, { shell: true, encoding: "utf8" });
   return {
     stdout: result.stdout.trim(),
     stderr: result.stderr.trim(),
     status: result.status,
   };
 }
-module.exports.run = run;
+
 export const stellar = process.env.GITHUB_ACTIONS
   ? "stellar"
   : "./target/bin/stellar";
+
+  export { run };
+
 const basePath = path.resolve(
   `${__dirname}/../test-contracts/target/wasm32v1-none/release`,
 );
+
 const contracts = {
   customTypes: {
     hash: run(`${stellar} contract upload --wasm ${basePath}/custom_types.wasm`)
@@ -58,26 +62,27 @@ const contracts = {
     path: `${basePath}/this_one_signs.wasm`,
   },
 };
-module.exports.contracts = contracts;
+export { contracts };
 
 const rpcUrl =
   process.env.SOROBAN_RPC_URL ?? "http://localhost:8000/soroban/rpc";
-module.exports.rpcUrl = rpcUrl;
+export { rpcUrl };
 const networkPassphrase =
   process.env.SOROBAN_NETWORK_PASSPHRASE ??
   "Standalone Network ; February 2017";
-module.exports.networkPassphrase = networkPassphrase;
-const server = new rpc.Server(rpcUrl, {
+
+export const server = new rpc.Server(rpcUrl, {
   allowHttp: rpcUrl.startsWith("http://") ?? false,
 });
-module.exports.server = server;
 
-async function generateFundedKeypair() {
+export { networkPassphrase };
+
+const generateFundedKeypair = async () => {
   const keypair = Keypair.random();
   await server.requestAirdrop(keypair.publicKey());
   return keypair;
-}
-module.exports.generateFundedKeypair = generateFundedKeypair;
+};
+export { generateFundedKeypair };
 
 /**
  * Generates a Client for the contract with the given name.
@@ -88,7 +93,26 @@ module.exports.generateFundedKeypair = generateFundedKeypair;
  * By default, will re-deploy the contract every time. Pass in the same
  * `contractId` again if you want to re-use the a contract instance.
  */
-async function clientFor(name, { keypair, contractId } = {}) {
+const installContract = async (name: keyof typeof contracts, { keypair }: { keypair?: Keypair } = {}) => {
+  if (!contracts[name]) {
+    throw new Error(
+      `Contract ${name} not found. ` +
+        `Pick one of: ${Object.keys(contracts).join(", ")}`,
+    );
+  }
+
+  const internalKeypair = keypair ?? (await generateFundedKeypair());
+
+  let wasmHash = contracts[name].hash;
+  if (!wasmHash) {
+    wasmHash = run(
+      `${stellar} contract upload --wasm ${contracts[name].path}`,
+    ).stdout;
+  }
+  return { keypair: internalKeypair, wasmHash };
+};
+
+const clientFor = async (name: keyof typeof contracts, { keypair, contractId }: { keypair?: Keypair, contractId?: string } = {}) => {
   const internalKeypair = keypair ?? (await generateFundedKeypair());
   const signer = contract.basicNodeSigner(internalKeypair, networkPassphrase);
 
@@ -112,12 +136,12 @@ async function clientFor(name, { keypair, contractId } = {}) {
   });
 
   const deploy = await contract.Client.deploy(
-    contracts[name].constructorArgs ?? null,
+    (contracts[name] as any).constructorArgs ?? null,
     {
       networkPassphrase,
       rpcUrl,
       allowHttp: true,
-      wasmHash: wasmHash,
+      wasmHash,
       publicKey: internalKeypair.publicKey(),
       ...signer,
     },
@@ -129,25 +153,8 @@ async function clientFor(name, { keypair, contractId } = {}) {
     client,
     contractId: client.options.contractId,
   };
-}
-module.exports.clientFor = clientFor;
+};
+export { clientFor };
 
-async function installContract(name, { keypair } = {}) {
-  if (!contracts[name]) {
-    throw new Error(
-      `Contract ${name} not found. ` +
-        `Pick one of: ${Object.keys(contracts).join(", ")}`,
-    );
-  }
 
-  const internalKeypair = keypair ?? (await generateFundedKeypair());
-
-  let wasmHash = contracts[name].hash;
-  if (!wasmHash) {
-    wasmHash = run(
-      `${stellar} contract upload --wasm ${contracts[name].path}`,
-    ).stdout;
-  }
-  return { keypair: internalKeypair, wasmHash };
-}
-module.exports.installContract = installContract;
+export { installContract };

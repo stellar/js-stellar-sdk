@@ -1,17 +1,22 @@
+import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
+import { StellarSdk } from "../../../test-utils/stellar-sdk-import";
+
 const { Horizon } = StellarSdk;
 
-describe("Server - CallBuilder#join", function () {
-  beforeEach(function () {
-    this.server = new Horizon.Server("https://horizon-live.stellar.org:1337");
-    this.axiosMock = sinon.mock(this.server.httpClient);
+describe("Server - CallBuilder#join", () => {
+  let server: any;
+  let mockGet: any;
+
+  beforeEach(() => {
+    server = new Horizon.Server("https://horizon-live.stellar.org:1337");
+    mockGet = vi.spyOn(server.httpClient, "get");
   });
 
-  afterEach(function () {
-    this.axiosMock.verify();
-    this.axiosMock.restore();
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
-  describe("#join", function () {
+  describe("#join", () => {
     const transaction = {
       memo: "",
       _links: {
@@ -139,32 +144,25 @@ describe("Server - CallBuilder#join", function () {
       },
     };
 
-    it("loads resources in join and avoids extra call to server", function (done) {
-      this.axiosMock
-        .expects("get")
-        .withArgs(
-          sinon.match(
+    it("loads resources in join and avoids extra call to server", async () => {
+      mockGet.mockImplementation((url: string) => {
+        if (
+          url.includes(
             "https://horizon-live.stellar.org:1337/operations?join=transactions",
-          ),
-        )
-        .returns(Promise.resolve({ data: operationsResponse }));
+          )
+        ) {
+          return Promise.resolve({ data: operationsResponse });
+        }
+        return Promise.reject(new Error(`Unexpected URL: ${url}`));
+      });
 
-      this.server
-        .operations()
-        .join("transactions")
-        .call()
-        .then((response) => {
-          const record = response.records[0];
-          expect(record.transaction).to.be.a("function");
+      const response = await server.operations().join("transactions").call();
 
-          record.transaction().then((transaction) => {
-            expect(transaction).to.deep.equal(transaction);
-            done();
-          });
-        })
-        .catch((e) => {
-          done(e);
-        });
+      const record = response.records[0];
+      expect(record.transaction).toBeTypeOf("function");
+
+      const tx = await record.transaction();
+      expect(tx).toEqual(transaction);
     });
   });
 });

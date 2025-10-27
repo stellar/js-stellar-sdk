@@ -1,14 +1,22 @@
-const { Server, AxiosClient } = StellarSdk.rpc;
+import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
+import { StellarSdk } from "../../../test-utils/stellar-sdk-import";
+
+const { Server } = StellarSdk.rpc;
 const { xdr } = StellarSdk;
-describe("Server#getLedgers", function () {
-  beforeEach(function () {
-    this.server = new Server(serverUrl);
-    this.axiosMock = sinon.mock(this.server.httpClient);
+
+const serverUrl = "https://soroban-testnet.stellar.org:443";
+
+describe("Server#getLedgers", () => {
+  let server: any;
+  let axiosMock: any;
+
+  beforeEach(() => {
+    server = new Server(serverUrl);
+    axiosMock = vi.spyOn(server.httpClient, "post");
   });
 
-  afterEach(function () {
-    this.axiosMock.verify();
-    this.axiosMock.restore();
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   const mockLedgerResult = {
@@ -57,67 +65,54 @@ describe("Server#getLedgers", function () {
     cursor: mockLedgerResult.cursor,
   };
 
-  function mockGetLedgers(axiosMock, params, result) {
-    axiosMock
-      .expects("post")
-      .withArgs(serverUrl, {
-        jsonrpc: "2.0",
-        id: 1,
-        method: "getLedgers",
-        params,
-      })
-      .returns(Promise.resolve({ data: { result } }));
+  function mockGetLedgers(mock: any, params: any, result: any) {
+    mock.mockImplementation((url: string, data: { jsonrpc: string; id: number; method: string; params: any; }) => {
+      if (url.startsWith(serverUrl) && 
+          data.jsonrpc === "2.0" && 
+          data.id === 1 && 
+          data.method === "getLedgers" && 
+          JSON.stringify(data.params) === JSON.stringify(params)) {
+        return Promise.resolve({ data: { result } });
+      }
+      return Promise.reject(new Error(`Unexpected call: ${url}, ${JSON.stringify(data)}`));
+    });
   }
 
-  it("requests the correct method with startLedger", function (done) {
+  it("requests the correct method with startLedger", async () => {
     const params = {
       startLedger: 848581,
       pagination: { limit: 2 },
     };
 
-    mockGetLedgers(this.axiosMock, params, mockLedgerResult);
+    mockGetLedgers(axiosMock, params, mockLedgerResult);
 
-    this.server
-      .getLedgers({ startLedger: 848581, pagination: { limit: 2 } })
-      .then(function (response) {
-        expect(response).to.be.deep.equal(expectedMockLedgerResult);
-        expect(response.ledgers).to.have.length(2);
-        done();
-      })
-      .catch(function (err) {
-        done(err);
-      });
+    const response = await server.getLedgers({ startLedger: 848581, pagination: { limit: 2 } });
+    expect(response).toEqual(expectedMockLedgerResult);
+    expect(response.ledgers).toHaveLength(2);
   });
 
-  it("handles empty ledger list", function (done) {
+  it("handles empty ledger list", async () => {
     const emptyResult = {
       ledgers: [],
       latestLedger: 36379,
       latestLedgerCloseTime: 1734033188,
       oldestLedger: 29312,
       oldestLedgerCloseTime: 1733997822,
-      cursor: null,
+      cursor: '',
     };
 
     const params = {
       startLedger: 99999,
     };
 
-    mockGetLedgers(this.axiosMock, params, emptyResult);
+    mockGetLedgers(axiosMock, params, emptyResult);
 
-    this.server
-      .getLedgers({ startLedger: 99999 })
-      .then(function (response) {
-        expect(response).to.be.deep.equal(emptyResult);
-        expect(response.ledgers).to.have.length(0);
-        done();
-      })
-      .catch(function (err) {
-        done(err);
-      });
+    const response = await server.getLedgers({ startLedger: 99999 });
+    expect(response).toEqual(emptyResult);
+    expect(response.ledgers).toHaveLength(0);
   });
 
-  it("validates ledger data structure", function (done) {
+  it("validates ledger data structure", async () => {
     const params = {
       startLedger: 848581,
       pagination: { limit: 1 },
@@ -125,38 +120,30 @@ describe("Server#getLedgers", function () {
 
     const singleLedgerResult = {
       ...mockLedgerResult,
-      ledgers: [mockLedgerResult.ledgers[0]],
+      ledgers: [mockLedgerResult.ledgers[0]!],
     };
 
-    mockGetLedgers(this.axiosMock, params, singleLedgerResult);
+    mockGetLedgers(axiosMock, params, singleLedgerResult);
 
-    this.server
-      .getLedgers({ startLedger: 848581, pagination: { limit: 1 } })
-      .then(function (response) {
-        const ledger = response.ledgers[0];
+    const response = await server.getLedgers({ startLedger: 848581, pagination: { limit: 1 } });
+    const ledger = response.ledgers[0]!;
 
-        // Validate ledger structure
-        expect(ledger).to.have.property("hash");
-        expect(ledger).to.have.property("sequence");
-        expect(ledger).to.have.property("ledgerCloseTime");
-        expect(ledger).to.have.property("headerXdr");
-        expect(ledger).to.have.property("metadataXdr");
+    // Validate ledger structure
+    expect(ledger).toHaveProperty("hash");
+    expect(ledger).toHaveProperty("sequence");
+    expect(ledger).toHaveProperty("ledgerCloseTime");
+    expect(ledger).toHaveProperty("headerXdr");
+    expect(ledger).toHaveProperty("metadataXdr");
 
-        // Validate types
-        expect(ledger.sequence).to.be.a("number");
-        expect(ledger.hash).to.be.a("string");
-        expect(ledger.ledgerCloseTime).to.be.a("string");
-        expect(ledger.headerXdr).to.be.instanceOf(xdr.LedgerHeaderHistoryEntry);
-        expect(ledger.metadataXdr).to.be.instanceOf(xdr.LedgerCloseMeta);
-
-        done();
-      })
-      .catch(function (err) {
-        done(err);
-      });
+    // Validate types
+    expect(typeof ledger.sequence).toBe("number");
+    expect(typeof ledger.hash).toBe("string");
+    expect(typeof ledger.ledgerCloseTime).toBe("string");
+    expect(ledger.headerXdr).toBeInstanceOf(xdr.LedgerHeaderHistoryEntry);
+    expect(ledger.metadataXdr).toBeInstanceOf(xdr.LedgerCloseMeta);
   });
 
-  it("throws error when ledger is missing required XDR fields", async function () {
+  it("throws error when ledger is missing required XDR fields", async () => {
     const invalidLedgerResults = [
       {
         // Missing both metadataXdr and headerXdr
@@ -221,11 +208,11 @@ describe("Server#getLedgers", function () {
 
     const promises = invalidLedgerResults.map(async (invalidResult, index) => {
       const params = { startLedger: 848581 };
-      mockGetLedgers(this.axiosMock, params, invalidResult);
+      mockGetLedgers(axiosMock, params, invalidResult);
 
       await expect(
-        this.server.getLedgers({ startLedger: 848581 }),
-      ).to.be.rejectedWith(TypeError, expectedErrors[index]);
+        server.getLedgers({ startLedger: 848581 }),
+      ).rejects.toThrow(expectedErrors[index]);
     });
 
     await Promise.all(promises);

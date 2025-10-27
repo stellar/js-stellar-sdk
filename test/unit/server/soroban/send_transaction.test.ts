@@ -1,17 +1,27 @@
+import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
+import { StellarSdk } from "../../../test-utils/stellar-sdk-import";
+
+import { serverUrl } from "../../../constants";
+
 const { xdr } = StellarSdk;
-const { Server, AxiosClient } = StellarSdk.rpc;
+const { Server } = StellarSdk.rpc;
 
-describe("Server#sendTransaction", function () {
-  let keypair = StellarSdk.Keypair.random();
-  let account = new StellarSdk.Account(keypair.publicKey(), "56199647068161");
+describe("Server#sendTransaction", () => {
+  let server: any;
+  let mockPost: any;
+  let transaction: any;
+  let hash: string;
+  let blob: string;
 
-  beforeEach(function () {
-    this.server = new Server(serverUrl);
-    this.axiosMock = sinon.mock(this.server.httpClient);
-    let transaction = new StellarSdk.TransactionBuilder(account, {
-      fee: 100,
+  const keypair = StellarSdk.Keypair.random();
+  const account = new StellarSdk.Account(keypair.publicKey(), "56199647068161");
+
+  beforeEach(() => {
+    server = new Server(serverUrl);
+    mockPost = vi.spyOn(server.httpClient, "post");
+    transaction = new StellarSdk.TransactionBuilder(account, {
+      fee: "100",
       networkPassphrase: StellarSdk.Networks.TESTNET,
-      v1: true,
     })
       .addOperation(
         StellarSdk.Operation.payment({
@@ -25,97 +35,78 @@ describe("Server#sendTransaction", function () {
       .build();
     transaction.sign(keypair);
 
-    this.transaction = transaction;
-    this.hash = this.transaction.hash().toString("hex");
-    this.blob = transaction.toEnvelope().toXDR().toString("base64");
+    hash = transaction.hash().toString("hex");
+    blob = transaction.toEnvelope().toXDR().toString("base64");
   });
 
-  afterEach(function () {
-    this.axiosMock.verify();
-    this.axiosMock.restore();
+  afterEach(() => {
+    vi.clearAllMocks();
   });
 
-  it("sends a transaction", function (done) {
-    this.axiosMock
-      .expects("post")
-      .withArgs(serverUrl, {
-        jsonrpc: "2.0",
-        id: 1,
-        method: "sendTransaction",
-        params: { transaction: this.blob },
-      })
-      .returns(
-        Promise.resolve({
-          data: { id: 1, result: { id: this.hash, status: "PENDING" } },
-        }),
-      );
+  it("sends a transaction", async () => {
+    const mockResponse = {
+      data: { id: 1, result: { id: hash, status: "PENDING" } },
+    };
+    mockPost.mockResolvedValue(mockResponse);
 
-    this.server
-      .sendTransaction(this.transaction)
-      .then(function (r) {
-        expect(r.status).to.eql("PENDING");
-        expect(r.errorResult).to.be.undefined;
-        expect(r.errorResultXdr).to.be.undefined;
-        expect(r.diagnosticEvents).to.be.undefined;
-        expect(r.diagnosticEventsXdr).to.be.undefined;
-        done();
-      })
-      .catch(function (err) {
-        done(err);
-      });
+    const r = await server.sendTransaction(transaction);
+    expect(r.status).toEqual("PENDING");
+    expect(r.errorResult).toBeUndefined();
+    expect(r.errorResultXdr).toBeUndefined();
+    expect(r.diagnosticEvents).toBeUndefined();
+    expect(r.diagnosticEventsXdr).toBeUndefined();
+    expect(mockPost).toHaveBeenCalledWith(serverUrl, {
+      jsonrpc: "2.0",
+      id: 1,
+      method: "sendTransaction",
+      params: { transaction: blob },
+    });
+    expect(mockPost).toHaveBeenCalledTimes(1);
   });
 
-  it("encodes the error result", function (done) {
+  it("encodes the error result", async () => {
     const txResult = new xdr.TransactionResult({
       feeCharged: new xdr.Int64(1),
       result: xdr.TransactionResultResult.txSorobanInvalid(),
-      ext: new xdr.TransactionResultExt(0),
+      ext: new (xdr.TransactionResultExt as any)(0),
     });
 
-    this.axiosMock
-      .expects("post")
-      .withArgs(serverUrl, {
-        jsonrpc: "2.0",
+    const mockResponse = {
+      data: {
         id: 1,
-        method: "sendTransaction",
-        params: { transaction: this.blob },
-      })
-      .returns(
-        Promise.resolve({
-          data: {
-            id: 1,
-            result: {
-              id: this.hash,
-              status: "ERROR",
-              errorResultXdr: txResult.toXDR("base64"),
-              diagnosticEventsXdr: [
-                "AAAAAQAAAAAAAAAAAAAAAgAAAAAAAAADAAAADwAAAAdmbl9jYWxsAAAAAA0AAAAgr/p6gt6h8MrmSw+WNJnu3+sCP9dHXx7jR8IH0sG6Cy0AAAAPAAAABWhlbGxvAAAAAAAADwAAAAVBbG9oYQAAAA==",
-              ],
-            },
-          },
-        }),
-      );
+        result: {
+          id: hash,
+          status: "ERROR",
+          errorResultXdr: txResult.toXDR("base64"),
+          diagnosticEventsXdr: [
+            "AAAAAQAAAAAAAAAAAAAAAgAAAAAAAAADAAAADwAAAAdmbl9jYWxsAAAAAA0AAAAgr/p6gt6h8MrmSw+WNJnu3+sCP9dHXx7jR8IH0sG6Cy0AAAAPAAAABWhlbGxvAAAAAAAADwAAAAVBbG9oYQAAAA==",
+          ],
+        },
+      },
+    };
+    mockPost.mockResolvedValue(mockResponse);
 
-    this.server
-      .sendTransaction(this.transaction)
-      .then(function (r) {
-        expect(r.errorResult).to.be.instanceOf(xdr.TransactionResult);
-        expect(r.errorResult).to.eql(txResult);
-        expect(r.errorResultXdr).to.be.undefined;
-        expect(r.diagnosticEventsXdr).to.be.undefined;
-        expect(r.diagnosticEvents).to.have.lengthOf(1);
-        expect(r.diagnosticEvents[0]).to.be.instanceOf(xdr.DiagnosticEvent);
-
-        done();
-      })
-      .catch(done);
+    const r = await server.sendTransaction(transaction);
+    expect(r.errorResult).toBeInstanceOf(xdr.TransactionResult);
+    expect(r.errorResult).toEqual(txResult);
+    expect(r.errorResultXdr).toBeUndefined();
+    expect(r.diagnosticEventsXdr).toBeUndefined();
+    expect(r.diagnosticEvents).toHaveLength(1);
+    expect(r.diagnosticEvents[0]).toBeInstanceOf(xdr.DiagnosticEvent);
+    expect(mockPost).toHaveBeenCalledWith(serverUrl, {
+      jsonrpc: "2.0",
+      id: 1,
+      method: "sendTransaction",
+      params: { transaction: blob },
+    });
+    expect(mockPost).toHaveBeenCalledTimes(1);
   });
 
-  xit("adds metadata - tx was too small and was immediately deleted");
-  xit("adds metadata, order immediately fills");
-  xit("adds metadata, order is open");
-  xit("adds metadata, partial fill");
-  xit("doesnt add metadata to non-offers");
-  xit("adds metadata about offers, even if some ops are not");
-  xit("submits fee bump transactions");
+  it("adds metadata - tx was too small and was immediately deleted");
+  it("adds metadata, order immediately fills");
+  it("adds metadata, order is open");
+  it("adds metadata, partial fill");
+  it("doesnt add metadata to non-offers");
+  it("adds metadata about offers, even if some ops are not");
+  it("submits fee bump transactions");
 });

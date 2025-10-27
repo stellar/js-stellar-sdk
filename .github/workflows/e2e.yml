@@ -55,5 +55,7 @@ jobs:
     # https://github.com/yarnpkg/yarn/issues/6312#issuecomment-429685210
     - run: rustup target add wasm32v1-none
     - run: yarn install --network-concurrency 1
+    - run: yarn playwright install
+    - run: yarn playwright install-deps
     - run: yarn build:prod
     - run: yarn ${{ matrix.job }}

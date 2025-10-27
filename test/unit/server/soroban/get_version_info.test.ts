@@ -1,18 +1,25 @@
-const { Server, AxiosClient } = StellarSdk.rpc;
+import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
+import { StellarSdk } from "../../../test-utils/stellar-sdk-import";
 
-describe("Server#getVersionInfo", function () {
-  beforeEach(function () {
-    this.server = new Server(serverUrl);
-    this.axiosMock = sinon.mock(this.server.httpClient);
+import { serverUrl } from "../../../constants";
+
+const { Server } = StellarSdk.rpc;
+
+describe("Server#getVersionInfo", () => {
+  let server: any;
+  let mockPost: any;
+
+  beforeEach(() => {
+    server = new Server(serverUrl);
+    mockPost = vi.spyOn(server.httpClient, "post");
   });
 
-  afterEach(function () {
-    this.axiosMock.verify();
-    this.axiosMock.restore();
+  afterEach(() => {
+    vi.clearAllMocks();
   });
 
-  it("requests the correct endpoint", function (done) {
-    let result = {
+  it("requests the correct endpoint", async () => {
+    const result = {
       version: "21.4.0-dbb390c6bb99024122fccb12c8219af67d50db04",
       commit_hash: "dbb390c6bb99024122fccb12c8219af67d50db04",
       build_time_stamp: "2024-07-10T14:50:09",
@@ -21,24 +28,17 @@ describe("Server#getVersionInfo", function () {
       protocol_version: 21,
     };
 
-    this.axiosMock
-      .expects("post")
-      .withArgs(serverUrl, {
-        jsonrpc: "2.0",
-        id: 1,
-        method: "getVersionInfo",
-        params: null,
-      })
-      .returns(Promise.resolve({ data: { result } }));
+    const mockResponse = { data: { result } };
+    mockPost.mockResolvedValue(mockResponse);
 
-    this.server
-      .getVersionInfo()
-      .then(function (response) {
-        expect(response).to.be.deep.equal(result);
-        done();
-      })
-      .catch(function (err) {
-        done(err);
-      });
+    const response = await server.getVersionInfo();
+    expect(response).toEqual(result);
+    expect(mockPost).toHaveBeenCalledWith(serverUrl, {
+      jsonrpc: "2.0",
+      id: 1,
+      method: "getVersionInfo",
+      params: null,
+    });
+    expect(mockPost).toHaveBeenCalledTimes(1);
   });
 });

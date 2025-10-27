@@ -1,16 +1,28 @@
+import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
+
+import { StellarSdk } from "../test-utils/stellar-sdk-import";
+
+const { NotFoundError } = StellarSdk;
+
 const { Horizon } = StellarSdk;
 
-describe("server.js transaction tests", function () {
-  let keypair = StellarSdk.Keypair.random();
-  let account = new StellarSdk.Account(keypair.publicKey(), "56199647068161");
+describe("server.js transaction tests", () => {
+  let server: any;
+  let mockPost: any;
+  let mockGet: any;
+  let transaction: any;
+  let blob: string;
 
-  beforeEach(function () {
-    this.server = new Horizon.Server("https://horizon-live.stellar.org:1337");
-    this.axiosMock = sinon.mock(this.server.httpClient);
-    let transaction = new StellarSdk.TransactionBuilder(account, {
-      fee: 100,
+  const keypair = StellarSdk.Keypair.random();
+  const account = new StellarSdk.Account(keypair.publicKey(), "56199647068161");
+
+  beforeEach(() => {
+    server = new Horizon.Server("https://horizon-live.stellar.org:1337");
+    mockPost = vi.spyOn(server.httpClient, "post");
+    mockGet = vi.spyOn(server.httpClient, "get");
+    transaction = new StellarSdk.TransactionBuilder(account, {
+      fee: "100",
       networkPassphrase: StellarSdk.Networks.TESTNET,
-      v1: true,
     })
       .addOperation(
         StellarSdk.Operation.payment({
@@ -24,36 +36,31 @@ describe("server.js transaction tests", function () {
       .build();
     transaction.sign(keypair);
 
-    this.transaction = transaction;
-    this.blob = encodeURIComponent(
+    blob = encodeURIComponent(
       transaction.toEnvelope().toXDR().toString("base64"),
     );
   });
 
-  afterEach(function () {
-    this.axiosMock.verify();
-    this.axiosMock.restore();
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
-  it("sends a transaction", function (done) {
-    this.axiosMock
-      .expects("post")
-      .withArgs(
-        "https://horizon-live.stellar.org:1337/transactions",
-        `tx=${this.blob}`,
-      )
-      .returns(Promise.resolve({ data: {} }));
+  it("sends a transaction", async () => {
+    mockPost.mockImplementation((url: string, data: string) => {
+      if (
+        url === "https://horizon-live.stellar.org:1337/transactions" &&
+        data === `tx=${blob}`
+      ) {
+        return Promise.resolve({ data: {} });
+      }
+      return Promise.reject(new Error(`Unexpected call: ${url}, ${data}`));
+    });
 
-    this.server
-      .submitTransaction(this.transaction, { skipMemoRequiredCheck: true })
-      .then(function () {
-        done();
-      })
-      .catch(function (err) {
-        done(err);
-      });
+    await server.submitTransaction(transaction, {
+      skipMemoRequiredCheck: true,
+    });
   });
-  it("adds metadata - tx was too small and was immediately deleted", function (done) {
+  it("adds metadata - tx was too small and was immediately deleted", async () => {
     const response = {
       _links: {
         transaction: {
@@ -69,36 +76,33 @@ describe("server.js transaction tests", function () {
         "AAAAAQAAAAIAAAADAV1cFQAAAAAAAAAAhQARbeNC3f59tPqcIBIDX/xFZ2n18nbCjGo8dk9BQf8AAAACU4RoUgEH/OgAAAAiAAAABQAAAAEAAAAAhD8BLsZFQEF33rKS6YopQUT3b6iLBG4nspe68/DBNBYAAAAAAAAAAAEAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBXVwVAAAAAAAAAACFABFt40Ld/n20+pwgEgNf/EVnafXydsKMajx2T0FB/wAAAAJThGhSAQf86AAAACMAAAAFAAAAAQAAAACEPwEuxkVAQXfespLpiilBRPdvqIsEbieyl7rz8ME0FgAAAAAAAAAAAQAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAA=",
     };
 
-    this.axiosMock
-      .expects("post")
-      .withArgs(
-        "https://horizon-live.stellar.org:1337/transactions",
-        `tx=${this.blob}`,
-      )
-      .returns(Promise.resolve({ data: response }));
+    mockPost.mockImplementation((url: string, data: string) => {
+      if (
+        url === "https://horizon-live.stellar.org:1337/transactions" &&
+        data === `tx=${blob}`
+      ) {
+        return Promise.resolve({ data: response });
+      }
+      return Promise.reject(new Error(`Unexpected call: ${url}, ${data}`));
+    });
 
-    this.server
-      .submitTransaction(this.transaction, { skipMemoRequiredCheck: true })
-      .then(function (res) {
-        expect(res.offerResults).to.be.an.instanceOf(Array);
-        expect(res.offerResults[0].offersClaimed).to.be.an.instanceOf(Array);
-        expect(typeof res.offerResults[0].effect).to.equal("string");
-        expect(res.offerResults[0].wasImmediatelyFilled).to.equal(false);
-        expect(res.offerResults[0].wasImmediatelyDeleted).to.equal(true);
-        expect(res.offerResults[0].wasPartiallyFilled).to.equal(false);
+    const res = await server.submitTransaction(transaction, {
+      skipMemoRequiredCheck: true,
+    });
 
-        expect(res.offerResults[0].operationIndex).to.equal(0);
-        expect(res.offerResults[0].amountBought).to.equal("0");
-        expect(res.offerResults[0].amountSold).to.equal("0");
-        expect(res.offerResults[0].currentOffer).to.equal(undefined);
+    expect(res.offerResults).toBeInstanceOf(Array);
+    expect(res.offerResults[0].offersClaimed).toBeInstanceOf(Array);
+    expect(typeof res.offerResults[0].effect).toBe("string");
+    expect(res.offerResults[0].wasImmediatelyFilled).toBe(false);
+    expect(res.offerResults[0].wasImmediatelyDeleted).toBe(true);
+    expect(res.offerResults[0].wasPartiallyFilled).toBe(false);
 
-        done();
-      })
-      .catch(function (err) {
-        done(err);
-      });
+    expect(res.offerResults[0].operationIndex).toBe(0);
+    expect(res.offerResults[0].amountBought).toBe("0");
+    expect(res.offerResults[0].amountSold).toBe("0");
+    expect(res.offerResults[0].currentOffer).toBe(undefined);
   });
-  it("adds metadata, order immediately fills", function (done) {
+  it("adds metadata, order immediately fills", async () => {
     const response = {
       _links: {
         transaction: {
@@ -115,34 +119,31 @@ describe("server.js transaction tests", function () {
         "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",
     };
 
-    this.axiosMock
-      .expects("post")
-      .withArgs(
-        "https://horizon-live.stellar.org:1337/transactions",
-        `tx=${this.blob}`,
-      )
-      .returns(Promise.resolve({ data: response }));
+    mockPost.mockImplementation((url: string, data: string) => {
+      if (
+        url === "https://horizon-live.stellar.org:1337/transactions" &&
+        data === `tx=${blob}`
+      ) {
+        return Promise.resolve({ data: response });
+      }
+      return Promise.reject(new Error(`Unexpected call: ${url}, ${data}`));
+    });
 
-    this.server
-      .submitTransaction(this.transaction, { skipMemoRequiredCheck: true })
-      .then(function (res) {
-        expect(res.offerResults).to.be.an.instanceOf(Array);
-        expect(res.offerResults[0].offersClaimed).to.be.an.instanceOf(Array);
-        expect(typeof res.offerResults[0].effect).to.equal("string");
-        expect(res.offerResults[0].wasImmediatelyFilled).to.equal(true);
-        expect(res.offerResults[0].wasImmediatelyDeleted).to.equal(false);
-        expect(res.offerResults[0].wasPartiallyFilled).to.equal(false);
+    const res = await server.submitTransaction(transaction, {
+      skipMemoRequiredCheck: true,
+    });
 
-        expect(res.offerResults[0].operationIndex).to.equal(0);
-        expect(res.offerResults[0].amountSold).to.equal("1.9999999");
+    expect(res.offerResults).toBeInstanceOf(Array);
+    expect(res.offerResults[0].offersClaimed).toBeInstanceOf(Array);
+    expect(typeof res.offerResults[0].effect).toBe("string");
+    expect(res.offerResults[0].wasImmediatelyFilled).toBe(true);
+    expect(res.offerResults[0].wasImmediatelyDeleted).toBe(false);
+    expect(res.offerResults[0].wasPartiallyFilled).toBe(false);
 
-        done();
-      })
-      .catch(function (err) {
-        done(err);
-      });
+    expect(res.offerResults[0].operationIndex).toBe(0);
+    expect(res.offerResults[0].amountSold).toBe("1.9999999");
   });
-  it("adds metadata, order is open", function (done) {
+  it("adds metadata, order is open", async () => {
     const response = {
       _links: {
         transaction: {
@@ -159,34 +160,31 @@ describe("server.js transaction tests", function () {
         "AAAAAQAAAAIAAAADAV1eAQAAAAAAAAAAhQARbeNC3f59tPqcIBIDX/xFZ2n18nbCjGo8dk9BQf8AAAACU4Rn7gEH/OgAAAAjAAAABQAAAAEAAAAAhD8BLsZFQEF33rKS6YopQUT3b6iLBG4nspe68/DBNBYAAAAAAAAAAAEAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBXV4BAAAAAAAAAACFABFt40Ld/n20+pwgEgNf/EVnafXydsKMajx2T0FB/wAAAAJThGfuAQf86AAAACQAAAAFAAAAAQAAAACEPwEuxkVAQXfespLpiilBRPdvqIsEbieyl7rz8ME0FgAAAAAAAAAAAQAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAUAAAADAV1cAgAAAAEAAAAAhQARbeNC3f59tPqcIBIDX/xFZ2n18nbCjGo8dk9BQf8AAAABQkFUAAAAAABGStPbx5szphDKFVmLW22XCr92TqKNOnJM24cgyBSn4QAAAAAAo9f5f/////////8AAAABAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBXV4BAAAAAQAAAACFABFt40Ld/n20+pwgEgNf/EVnafXydsKMajx2T0FB/wAAAAFCQVQAAAAAAEZK09vHmzOmEMoVWYtbbZcKv3ZOoo06ckzbhyDIFKfhAAAAAACj1/l//////////wAAAAEAAAABAAAAAACYloAAAAAAAAAAAAAAAAAAAAAAAAAAAwFdXgEAAAAAAAAAAIUAEW3jQt3+fbT6nCASA1/8RWdp9fJ2woxqPHZPQUH/AAAAAlOEZ+4BB/zoAAAAJAAAAAUAAAABAAAAAIQ/AS7GRUBBd96ykumKKUFE92+oiwRuJ7KXuvPwwTQWAAAAAAAAAAABAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAV1eAQAAAAAAAAAAhQARbeNC3f59tPqcIBIDX/xFZ2n18nbCjGo8dk9BQf8AAAACU4Rn7gEH/OgAAAAkAAAABgAAAAEAAAAAhD8BLsZFQEF33rKS6YopQUT3b6iLBG4nspe68/DBNBYAAAAAAAAAAAEAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAACYloAAAAAAAAAAAAAAAAABXV4BAAAAAgAAAACFABFt40Ld/n20+pwgEgNf/EVnafXydsKMajx2T0FB/wAAAAAEZqfGAAAAAAAAAAFCQVQAAAAAAEZK09vHmzOmEMoVWYtbbZcKv3ZOoo06ckzbhyDIFKfhAAAAAACYloAAAAABAAAAAQAAAAAAAAAAAAAAAA==",
     };
 
-    this.axiosMock
-      .expects("post")
-      .withArgs(
-        "https://horizon-live.stellar.org:1337/transactions",
-        `tx=${this.blob}`,
-      )
-      .returns(Promise.resolve({ data: response }));
+    mockPost.mockImplementation((url: string, data: string) => {
+      if (
+        url === "https://horizon-live.stellar.org:1337/transactions" &&
+        data === `tx=${blob}`
+      ) {
+        return Promise.resolve({ data: response });
+      }
+      return Promise.reject(new Error(`Unexpected call: ${url}, ${data}`));
+    });
 
-    this.server
-      .submitTransaction(this.transaction, { skipMemoRequiredCheck: true })
-      .then(function (res) {
-        expect(res.offerResults).to.be.an.instanceOf(Array);
-        expect(res.offerResults[0].offersClaimed).to.be.an.instanceOf(Array);
-        expect(typeof res.offerResults[0].effect).to.equal("string");
-        expect(res.offerResults[0].wasImmediatelyFilled).to.equal(false);
-        expect(res.offerResults[0].amountBought).to.equal("0");
-        expect(res.offerResults[0].wasImmediatelyDeleted).to.equal(false);
-        expect(res.offerResults[0].wasPartiallyFilled).to.equal(false);
-        expect(res.offerResults[0].isFullyOpen).to.equal(true);
-        expect(res.offerResults[0].operationIndex).to.equal(0);
+    const res = await server.submitTransaction(transaction, {
+      skipMemoRequiredCheck: true,
+    });
 
-        done();
-      })
-      .catch(function (err) {
-        done(err);
-      });
+    expect(res.offerResults).toBeInstanceOf(Array);
+    expect(res.offerResults[0].offersClaimed).toBeInstanceOf(Array);
+    expect(typeof res.offerResults[0].effect).toBe("string");
+    expect(res.offerResults[0].wasImmediatelyFilled).toBe(false);
+    expect(res.offerResults[0].amountBought).toBe("0");
+    expect(res.offerResults[0].wasImmediatelyDeleted).toBe(false);
+    expect(res.offerResults[0].wasPartiallyFilled).toBe(false);
+    expect(res.offerResults[0].isFullyOpen).toBe(true);
+    expect(res.offerResults[0].operationIndex).toBe(0);
   });
-  it("adds metadata, partial fill", function (done) {
+  it("adds metadata, partial fill", async () => {
     const response = {
       _links: {
         transaction: {
@@ -203,45 +201,38 @@ describe("server.js transaction tests", function () {
         "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",
     };
 
-    this.axiosMock
-      .expects("post")
-      .withArgs(
-        "https://horizon-live.stellar.org:1337/transactions",
-        `tx=${this.blob}`,
-      )
-      .returns(Promise.resolve({ data: response }));
+    mockPost.mockImplementation((url: string, data: string) => {
+      if (
+        url === "https://horizon-live.stellar.org:1337/transactions" &&
+        data === `tx=${blob}`
+      ) {
+        return Promise.resolve({ data: response });
+      }
+      return Promise.reject(new Error(`Unexpected call: ${url}, ${data}`));
+    });
 
-    this.server
-      .submitTransaction(this.transaction, { skipMemoRequiredCheck: true })
-      .then(function (res) {
-        expect(res.offerResults).to.be.an.instanceOf(Array);
-        expect(res.offerResults[0].offersClaimed).to.be.an.instanceOf(Array);
-        expect(res.offerResults[0].offersClaimed).to.have.lengthOf(1);
-        expect(res.offerResults[0].effect).to.equal("manageOfferCreated");
-        expect(typeof res.offerResults[0].effect).to.equal("string");
-        expect(res.offerResults[0].wasImmediatelyFilled).to.equal(false);
-        expect(res.offerResults[0].amountBought).to.equal("53.8299095");
-        expect(res.offerResults[0].wasImmediatelyDeleted).to.equal(false);
-        expect(res.offerResults[0].wasPartiallyFilled).to.equal(true);
-        expect(res.offerResults[0].isFullyOpen).to.equal(false);
-        expect(res.offerResults[0].operationIndex).to.equal(0);
-        expect(res.offerResults[0].currentOffer.selling.type).to.equal(
-          "native",
-        );
-        expect(res.offerResults[0].currentOffer.buying.assetCode).to.equal(
-          "BAT",
-        );
-        expect(res.offerResults[0].currentOffer.buying.issuer).to.equal(
-          "GBDEVU63Y6NTHJQQZIKVTC23NWLQVP3WJ2RI2OTSJTNYOIGICST6DUXR",
-        );
+    const res = await server.submitTransaction(transaction, {
+      skipMemoRequiredCheck: true,
+    });
 
-        done();
-      })
-      .catch(function (err) {
-        done(err);
-      });
+    expect(res.offerResults).toBeInstanceOf(Array);
+    expect(res.offerResults[0].offersClaimed).toBeInstanceOf(Array);
+    expect(res.offerResults[0].offersClaimed).toHaveLength(1);
+    expect(res.offerResults[0].effect).toBe("manageOfferCreated");
+    expect(typeof res.offerResults[0].effect).toBe("string");
+    expect(res.offerResults[0].wasImmediatelyFilled).toBe(false);
+    expect(res.offerResults[0].amountBought).toBe("53.8299095");
+    expect(res.offerResults[0].wasImmediatelyDeleted).toBe(false);
+    expect(res.offerResults[0].wasPartiallyFilled).toBe(true);
+    expect(res.offerResults[0].isFullyOpen).toBe(false);
+    expect(res.offerResults[0].operationIndex).toBe(0);
+    expect(res.offerResults[0].currentOffer.selling.type).toBe("native");
+    expect(res.offerResults[0].currentOffer.buying.assetCode).toBe("BAT");
+    expect(res.offerResults[0].currentOffer.buying.issuer).toBe(
+      "GBDEVU63Y6NTHJQQZIKVTC23NWLQVP3WJ2RI2OTSJTNYOIGICST6DUXR",
+    );
   });
-  it("doesn't add metadata to non-offers", function (done) {
+  it("doesn't add metadata to non-offers", async () => {
     const response = {
       _links: {
         transaction: {
@@ -257,25 +248,23 @@ describe("server.js transaction tests", function () {
         "AAAAAQAAAAIAAAADAV1VkQAAAAAAAAAAhQARbeNC3f59tPqcIBIDX/xFZ2n18nbCjGo8dk9BQf8AAAACVLWYcQEH/OgAAAAdAAAABgAAAAEAAAAAhD8BLsZFQEF33rKS6YopQUT3b6iLBG4nspe68/DBNBYAAAAAAAAAAAEAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBXVWRAAAAAAAAAACFABFt40Ld/n20+pwgEgNf/EVnafXydsKMajx2T0FB/wAAAAJUtZhxAQf86AAAAB4AAAAGAAAAAQAAAACEPwEuxkVAQXfespLpiilBRPdvqIsEbieyl7rz8ME0FgAAAAAAAAAAAQAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAQAAAADAQpf6AAAAAEAAAAAhQARbeNC3f59tPqcIBIDX/xFZ2n18nbCjGo8dk9BQf8AAAABQlRDAAAAAAApOmMamdZfyMiYysumuD7WccmGIBUg0177NK+Ddu82JQAAAAAAAAAAf/////////8AAAABAAAAAAAAAAAAAAACAAAAAQAAAACFABFt40Ld/n20+pwgEgNf/EVnafXydsKMajx2T0FB/wAAAAFCVEMAAAAAACk6YxqZ1l/IyJjKy6a4PtZxyYYgFSDTXvs0r4N27zYlAAAAAwFdVZEAAAAAAAAAAIUAEW3jQt3+fbT6nCASA1/8RWdp9fJ2woxqPHZPQUH/AAAAAlS1mHEBB/zoAAAAHgAAAAYAAAABAAAAAIQ/AS7GRUBBd96ykumKKUFE92+oiwRuJ7KXuvPwwTQWAAAAAAAAAAABAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAV1VkQAAAAAAAAAAhQARbeNC3f59tPqcIBIDX/xFZ2n18nbCjGo8dk9BQf8AAAACVLWYcQEH/OgAAAAeAAAABQAAAAEAAAAAhD8BLsZFQEF33rKS6YopQUT3b6iLBG4nspe68/DBNBYAAAAAAAAAAAEAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
     };
 
-    this.axiosMock
-      .expects("post")
-      .withArgs(
-        "https://horizon-live.stellar.org:1337/transactions",
-        `tx=${this.blob}`,
-      )
-      .returns(Promise.resolve({ data: response }));
+    mockPost.mockImplementation((url: string, data: string) => {
+      if (
+        url === "https://horizon-live.stellar.org:1337/transactions" &&
+        data === `tx=${blob}`
+      ) {
+        return Promise.resolve({ data: response });
+      }
+      return Promise.reject(new Error(`Unexpected call: ${url}, ${data}`));
+    });
 
-    this.server
-      .submitTransaction(this.transaction, { skipMemoRequiredCheck: true })
-      .then(function (res) {
-        expect(res.offerResults).to.be.undefined;
-        done();
-      })
-      .catch(function (err) {
-        done(err);
-      });
+    const res = await server.submitTransaction(transaction, {
+      skipMemoRequiredCheck: true,
+    });
+
+    expect(res.offerResults).toBeUndefined();
   });
-  it("adds metadata about offers, even if some ops are not", function (done) {
+  it("adds metadata about offers, even if some ops are not", async () => {
     const response = {
       _links: {
         transaction: {
@@ -292,112 +281,103 @@ describe("server.js transaction tests", function () {
         "AAAAAQAAAAIAAAADAV1ZggAAAAAAAAAAhQARbeNC3f59tPqcIBIDX/xFZ2n18nbCjGo8dk9BQf8AAAACVLWW4QEH/OgAAAAeAAAABQAAAAEAAAAAhD8BLsZFQEF33rKS6YopQUT3b6iLBG4nspe68/DBNBYAAAAAAAAAAAEAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBXVmCAAAAAAAAAACFABFt40Ld/n20+pwgEgNf/EVnafXydsKMajx2T0FB/wAAAAJUtZbhAQf86AAAAB8AAAAFAAAAAQAAAACEPwEuxkVAQXfespLpiilBRPdvqIsEbieyl7rz8ME0FgAAAAAAAAAAAQAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAIAAAADAVqyvQAAAAEAAAAAhQARbeNC3f59tPqcIBIDX/xFZ2n18nbCjGo8dk9BQf8AAAABQkFUAAAAAABGStPbx5szphDKFVmLW22XCr92TqKNOnJM24cgyBSn4QAAAAAAAAAAf/////////8AAAABAAAAAAAAAAAAAAABAV1ZggAAAAEAAAAAhQARbeNC3f59tPqcIBIDX/xFZ2n18nbCjGo8dk9BQf8AAAABQkFUAAAAAABGStPbx5szphDKFVmLW22XCr92TqKNOnJM24cgyBSn4QAAAAAAAAAAf/////////8AAAABAAAAAAAAAAAAAAACAAAAAwFdWYIAAAAAAAAAAIUAEW3jQt3+fbT6nCASA1/8RWdp9fJ2woxqPHZPQUH/AAAAAlS1luEBB/zoAAAAHwAAAAUAAAABAAAAAIQ/AS7GRUBBd96ykumKKUFE92+oiwRuJ7KXuvPwwTQWAAAAAAAAAAABAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAV1ZggAAAAAAAAAAhQARbeNC3f59tPqcIBIDX/xFZ2n18nbCjGo8dk9BQf8AAAACVLWW4QEH/OgAAAAfAAAABQAAAAEAAAAAhD8BLsZFQEF33rKS6YopQUT3b6iLBG4nspe68/DBNBYAAAAAAAAAAAEAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     };
 
-    this.axiosMock
-      .expects("post")
-      .withArgs(
-        "https://horizon-live.stellar.org:1337/transactions",
-        `tx=${this.blob}`,
-      )
-      .returns(Promise.resolve({ data: response }));
+    mockPost.mockImplementation((url: string, data: string) => {
+      if (
+        url === "https://horizon-live.stellar.org:1337/transactions" &&
+        data === `tx=${blob}`
+      ) {
+        return Promise.resolve({ data: response });
+      }
+      return Promise.reject(new Error(`Unexpected call: ${url}, ${data}`));
+    });
 
-    this.server
-      .submitTransaction(this.transaction, { skipMemoRequiredCheck: true })
-      .then(function (res) {
-        expect(res.offerResults).to.be.an.instanceOf(Array);
-        expect(res.offerResults).to.have.lengthOf(2);
-        expect(res.offerResults[0].offersClaimed).to.be.an.instanceOf(Array);
-        expect(typeof res.offerResults[0].effect).to.equal("string");
-        expect(res.offerResults[0].operationIndex).to.equal(2);
-        expect(res.offerResults[1].offersClaimed).to.be.an.instanceOf(Array);
-        expect(typeof res.offerResults[1].effect).to.equal("string");
-        expect(res.offerResults[1].operationIndex).to.equal(3);
-        done();
-      })
-      .catch(function (err) {
-        done(err);
-      });
-  });
-  it("checks for memo required by default", function (done) {
-    this.axiosMock
-      .expects("post")
-      .withArgs(
-        "https://horizon-live.stellar.org:1337/transactions",
-        `tx=${this.blob}`,
-      )
-      .returns(Promise.resolve({ data: {} }));
-    this.axiosMock
-      .expects("get")
-      .withArgs(
-        sinon.match(
-          "https://horizon-live.stellar.org:1337/accounts/GASOCNHNNLYFNMDJYQ3XFMI7BYHIOCFW3GJEOWRPEGK2TDPGTG2E5EDW",
-        ),
-      )
-      .returns(
-        Promise.reject({
-          response: { status: 404, statusText: "NotFound", data: {} },
-        }),
-      )
-      .once();
+    const res = await server.submitTransaction(transaction, {
+      skipMemoRequiredCheck: true,
+    });
 
-    this.server
-      .submitTransaction(this.transaction, { skipMemoRequiredCheck: false })
-      .then(function () {
-        done();
-      })
-      .catch(function (err) {
-        done(err);
-      });
+    expect(res.offerResults).toBeInstanceOf(Array);
+    expect(res.offerResults).toHaveLength(2);
+    expect(res.offerResults[0].offersClaimed).toBeInstanceOf(Array);
+    expect(typeof res.offerResults[0].effect).toBe("string");
+    expect(res.offerResults[0].operationIndex).toBe(2);
+    expect(res.offerResults[1].offersClaimed).toBeInstanceOf(Array);
+    expect(typeof res.offerResults[1].effect).toBe("string");
+    expect(res.offerResults[1].operationIndex).toBe(3);
   });
-  it("submits fee bump transactions", function (done) {
+  it("checks for memo required by default", async () => {
+    mockPost.mockImplementation((url: string, data: string) => {
+      if (
+        url === "https://horizon-live.stellar.org:1337/transactions" &&
+        data === `tx=${blob}`
+      ) {
+        return Promise.resolve({ data: {} });
+      }
+      return Promise.reject(new Error(`Unexpected call: ${url}, ${data}`));
+    });
+
+    mockGet.mockImplementation((url: string) => {
+      if (
+        url ===
+        "https://horizon-live.stellar.org:1337/accounts/GASOCNHNNLYFNMDJYQ3XFMI7BYHIOCFW3GJEOWRPEGK2TDPGTG2E5EDW"
+      ) {
+        return Promise.reject(
+          new NotFoundError("Account not found", {
+            status: 404,
+            statusText: "NotFound",
+            data: {},
+          }),
+        );
+      }
+      return Promise.reject(new Error(`Unexpected URL: ${url}`));
+    });
+
+    await server.submitTransaction(transaction, {
+      skipMemoRequiredCheck: false,
+    });
+  });
+  it("submits fee bump transactions", async () => {
     const feeBumpTx = StellarSdk.TransactionBuilder.buildFeeBumpTransaction(
       keypair,
       "200",
-      this.transaction,
+      transaction,
       StellarSdk.Networks.TESTNET,
     );
 
-    this.blob = encodeURIComponent(
+    blob = encodeURIComponent(
       feeBumpTx.toEnvelope().toXDR().toString("base64"),
     );
 
-    this.axiosMock
-      .expects("post")
-      .withArgs(
-        "https://horizon-live.stellar.org:1337/transactions",
-        `tx=${this.blob}`,
-      )
-      .returns(Promise.resolve({ data: {} }));
+    mockPost.mockImplementation((url: string, data: string) => {
+      if (
+        url === "https://horizon-live.stellar.org:1337/transactions" &&
+        data === `tx=${blob}`
+      ) {
+        return Promise.resolve({ data: {} });
+      }
+      return Promise.reject(new Error(`Unexpected call: ${url}, ${data}`));
+    });
 
-    this.server
-      .submitTransaction(feeBumpTx, { skipMemoRequiredCheck: true })
-      .then(function () {
-        done();
-      })
-      .catch(function (err) {
-        done(err);
-      });
+    await server.submitTransaction(feeBumpTx, { skipMemoRequiredCheck: true });
   });
-  it("sends a transaction and check the request headers", function (done) {
-    this.axiosMock
-      .expects("post")
-      .withArgs(
-        "https://horizon-live.stellar.org:1337/transactions",
-        `tx=${this.blob}`,
-        sinon.match({
-          headers: sinon.match({
-            "Content-Type": "application/x-www-form-urlencoded",
-          }),
-        }),
-      )
-      .returns(Promise.resolve({ data: {} }));
+  it("sends a transaction and check the request headers", async () => {
+    mockPost.mockImplementation((url: string, data: string, config: any) => {
+      if (
+        url === "https://horizon-live.stellar.org:1337/transactions" &&
+        data === `tx=${blob}` &&
+        config?.headers?.["Content-Type"] ===
+          "application/x-www-form-urlencoded"
+      ) {
+        return Promise.resolve({ data: {} });
+      }
+      return Promise.reject(
+        new Error(
+          `Unexpected call: ${url}, ${data}, ${JSON.stringify(config)}`,
+        ),
+      );
+    });
 
-    this.server
-      .submitTransaction(this.transaction, { skipMemoRequiredCheck: true })
-      .then(function () {
-        done();
-      })
-      .catch(function (err) {
-        done(err);
-      });
+    await server.submitTransaction(transaction, {
+      skipMemoRequiredCheck: true,
+    });
   });
 });

@@ -1,24 +1,28 @@
+import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
+import { StellarSdk } from "../test-utils/stellar-sdk-import";
+
 const { SERVER_TIME_MAP, getCurrentServerTime } = StellarSdk.Horizon;
 
 describe("getCurrentServerTime", () => {
-  let clock;
-
   beforeEach(() => {
     // set it to 50 seconds
-    clock = sinon.useFakeTimers(5050000);
+    vi.useFakeTimers({ now: 5050000 });
   });
 
   afterEach(() => {
-    clock.restore();
+    vi.useRealTimers();
   });
 
   it("returns null when the hostname hasn't been hit", () => {
-    expect(getCurrentServerTime("host")).to.be.null;
+    expect(getCurrentServerTime("host")).toBeNull();
   });
 
   it("returns null when no time is available", () => {
-    SERVER_TIME_MAP.host = {};
-    expect(getCurrentServerTime("host")).to.be.null;
+    SERVER_TIME_MAP.host = {
+      serverTime: 0,
+      localTimeRecorded: 0,
+    };
+    expect(getCurrentServerTime("host")).toBeNull();
   });
 
   it("returns null when the old time is too old", () => {
@@ -26,7 +30,7 @@ describe("getCurrentServerTime", () => {
       serverTime: 10,
       localTimeRecorded: 5,
     };
-    expect(getCurrentServerTime("host")).to.be.null;
+    expect(getCurrentServerTime("host")).toBeNull();
   });
 
   it("returns the delta between then and now", () => {
@@ -34,6 +38,6 @@ describe("getCurrentServerTime", () => {
       serverTime: 10,
       localTimeRecorded: 5005,
     };
-    expect(getCurrentServerTime("host")).to.equal(55);
+    expect(getCurrentServerTime("host")).toBe(55);
   });
 });

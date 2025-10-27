@@ -6,18 +6,31 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     coverage: {
-      provider: 'v8',
+      provider: 'istanbul',
       reporter: ['text', 'html', 'lcov'],
+      include: ['lib/**/*.js'],
+      exclude: ['test/**', 'dist/**', 'coverage/**', '**/*.d.ts', 'lib/**/*.d.ts', ],
+      all: true,
     },
     browser: {
       enabled: true,
-      name: 'chromium',
+      provider: 'playwright',
+      instances: [
+        { browser: "chromium"},
+        { browser: "firefox"},
+      ],
       headless: true,
+      screenshotFailures: false
     },
+    // Run all unit tests in browser
+    include: ['test/unit/**/*.test.ts'],
+    exclude: ['test/unit/call_builders.test.ts'],
+    // Setup files to load the browser bundle
+    setupFiles: [resolve(__dirname, '../test/setup-browser.ts')],
   },
   resolve: {
     alias: {
-      '@': resolve(__dirname, './src'),
+      '@': resolve(__dirname, '../src'),
     },
   },
   define: {

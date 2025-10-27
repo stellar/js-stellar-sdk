@@ -12,10 +12,18 @@ export default defineConfig({
       exclude: ['test/**', 'dist/**', 'coverage/**', '**/*.d.ts', 'lib/**/*.d.ts', 'lib/minimal', 'lib/no-axios', 'lib/no-eventsource', '**/*/browser.js'],
       all: true,
     },
-    testTimeout: 20000,
-    // Only include non-browser tests in Node.js test runs
-    include: ['test/unit/**/*.test.ts', 'test/integration/**/*.test.ts'],
+    testTimeout: 120000, // 2 minutes timeout for e2e tests (same as original Mocha config)
+    hookTimeout: 120000, // 2 minutes timeout for hooks (beforeAll, afterAll, etc.)
+    // Include only e2e tests
+    include: ['test/e2e/src/**/*.test.ts'],
     exclude: ['**/browser.test.ts'],
+    // Run tests in sequence to avoid conflicts with shared resources
+    pool: 'forks',
+    poolOptions: {
+      forks: {
+        singleFork: true,
+      },
+    },
   },
   resolve: {
     alias: {

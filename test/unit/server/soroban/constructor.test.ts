@@ -1,35 +1,40 @@
+import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
+import { StellarSdk } from "../../../test-utils/stellar-sdk-import";
+
+import { serverUrl } from "../../../constants";
+
 const { Server } = StellarSdk.rpc;
 
-describe("Server.constructor", function () {
-  beforeEach(function () {
-    this.server = new Server(serverUrl);
-    this.axiosMock = sinon.mock(this.server.httpClient);
+describe("Server.constructor", () => {
+  let server: any;
+  beforeEach(() => {
+    server = new Server(serverUrl);
+    vi.spyOn(server.httpClient, "post");
   });
 
-  afterEach(function () {
-    this.axiosMock.verify();
-    this.axiosMock.restore();
+  afterEach(() => {
+    vi.clearAllMocks();
   });
 
-  let insecureServerUrl = serverUrl.replace("https://", "http://");
+  const insecureServerUrl = serverUrl.replace("https://", "http://");
 
-  it("throws error for insecure server", function () {
-    expect(() => new Server(insecureServerUrl)).to.throw(
+  it("throws error for insecure server", () => {
+    expect(() => new Server(insecureServerUrl)).toThrow(
       /Cannot connect to insecure Soroban RPC server/i,
     );
   });
 
-  it("allow insecure server when opts.allowHttp flag is set", function () {
+  it("allow insecure server when opts.allowHttp flag is set", () => {
     expect(
       () => new Server(insecureServerUrl, { allowHttp: true }),
-    ).to.not.throw();
+    ).not.toThrow();
   });
 
-  it("creates HttpClient instance with provided headers", function () {
+  it("creates HttpClient instance with provided headers", () => {
     const headersA = { "Custom-Header-A": "CustomValue" };
     const headersB = { "Custom-Header-B": "CustomValue" };
-    const serverA = new Server(serverUrl, { headers: headersA });
-    const serverB = new Server(serverUrl, { headers: headersB });
+    const serverA = new Server(serverUrl, { headers: headersA }) as any;
+    const serverB = new Server(serverUrl, { headers: headersB }) as any;
 
     expect(serverA.httpClient.defaults.headers["Custom-Header-A"]).to.equal(
       "CustomValue",
@@ -47,9 +52,7 @@ describe("Server.constructor", function () {
       "added-value",
     );
 
-    expect(serverA.httpClient.defaults.headers["Custom-Header-B"]).to.be
-      .undefined;
-    expect(serverB.httpClient.defaults.headers["Custom-Header-A"]).to.be
-      .undefined;
+    expect(serverA.httpClient.defaults.headers["Custom-Header-B"]).toBeUndefined();
+    expect(serverB.httpClient.defaults.headers["Custom-Header-A"]).toBeUndefined();
   });
 });

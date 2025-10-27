@@ -1,15 +1,22 @@
-const { Address, Keypair, xdr, nativeToScVal, hash } = StellarSdk;
-const { Server, AxiosClient, Durability } = StellarSdk.rpc;
+import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
+import { StellarSdk } from "../../../test-utils/stellar-sdk-import";
 
-describe("Server#getSACBalance", function () {
-  beforeEach(function () {
-    this.server = new Server(serverUrl);
-    this.axiosMock = sinon.mock(this.server.httpClient);
+import { serverUrl } from "../../../constants";
+
+const { Address, Keypair, xdr, nativeToScVal } = StellarSdk;
+const { Server } = StellarSdk.rpc;
+
+describe("Server#getSACBalance", () => {
+  let server: any;
+  let mockPost: any;
+
+  beforeEach(() => {
+    server = new Server(serverUrl);
+    mockPost = vi.spyOn(server.httpClient, "post");
   });
 
-  afterEach(function () {
-    this.axiosMock.verify();
-    this.axiosMock.restore();
+  afterEach(() => {
+    vi.clearAllMocks();
   });
 
   const token = StellarSdk.Asset.native();
@@ -41,7 +48,7 @@ describe("Server#getSACBalance", function () {
 
     const entry = xdr.LedgerEntryData.contractData(
       new xdr.ContractDataEntry({
-        ext: new xdr.ExtensionPoint(0),
+        ext: new (xdr.ExtensionPoint as any)(0),
         contract: contractAddress,
         durability: xdr.ContractDataDurability.persistent(),
         key,
@@ -60,9 +67,9 @@ describe("Server#getSACBalance", function () {
     return { entry, ledgerKey };
   }
 
-  function buildMockResult(that) {
+  function buildMockResult() {
     const { entry, ledgerKey } = buildBalanceArtifacts();
-    let result = {
+    const result = {
       latestLedger: 1000,
       entries: [
         {
@@ -74,90 +81,93 @@ describe("Server#getSACBalance", function () {
       ],
     };
 
-    that.axiosMock
-      .expects("post")
-      .withArgs(serverUrl, {
-        jsonrpc: "2.0",
-        id: 1,
-        method: "getLedgerEntries",
-        params: { keys: [ledgerKey.toXDR("base64")] },
-      })
-      .returns(
-        Promise.resolve({
-          data: { result },
-        }),
-      );
+    const mockResponse = {
+      data: { result },
+    };
+
+    mockPost.mockResolvedValue(mockResponse);
+    return { entry, ledgerKey, result };
   }
 
-  it("returns the correct balance entry", function (done) {
-    buildMockResult(this);
+  it("returns the correct balance entry", async () => {
+    const { ledgerKey } = buildMockResult();
 
-    this.server
-      .getSACBalance(contract, token, StellarSdk.Networks.TESTNET)
-      .then((response) => {
-        expect(response.latestLedger).to.equal(1000);
-        expect(response.balanceEntry).to.not.be.undefined;
-        expect(response.balanceEntry.amount).to.equal("1000000000000");
-        expect(response.balanceEntry.authorized).to.be.true;
-        expect(response.balanceEntry.clawback).to.be.false;
-        done();
-      })
-      .catch((err) => done(err));
+    const response = await server.getSACBalance(
+      contract,
+      token,
+      StellarSdk.Networks.TESTNET,
+    );
+    expect(response.latestLedger).toBe(1000);
+    expect(response.balanceEntry).toBeDefined();
+    expect(response.balanceEntry.amount).toBe("1000000000000");
+    expect(response.balanceEntry.authorized).toBeTruthy();
+    expect(response.balanceEntry.clawback).toBeFalsy();
+    expect(mockPost).toHaveBeenCalledWith(serverUrl, {
+      jsonrpc: "2.0",
+      id: 1,
+      method: "getLedgerEntries",
+      params: { keys: [ledgerKey.toXDR("base64")] },
+    });
+    expect(mockPost).toHaveBeenCalledTimes(1);
   });
 
-  it("infers the network passphrase", function (done) {
-    buildMockResult(this);
+  it("infers the network passphrase", async () => {
+    const { entry, ledgerKey } = buildBalanceArtifacts();
+    const balanceResult = {
+      latestLedger: 1000,
+      entries: [
+        {
+          lastModifiedLedgerSeq: 1,
+          liveUntilLedgerSeq: 1000,
+          key: ledgerKey.toXDR("base64"),
+          xdr: entry.toXDR("base64"),
+        },
+      ],
+    };
 
-    this.axiosMock
-      .expects("post")
-      .withArgs(serverUrl, {
-        jsonrpc: "2.0",
-        id: 1,
-        method: "getNetwork",
-        params: null,
-      })
-      .returns(
-        Promise.resolve({
-          data: {
-            result: {
-              passphrase: StellarSdk.Networks.TESTNET,
-            },
-          },
-        }),
-      );
+    const networkResponse = {
+      data: {
+        result: {
+          passphrase: StellarSdk.Networks.TESTNET,
+        },
+      },
+    };
 
-    this.server
-      .getSACBalance(contract, token)
-      .then((response) => {
-        expect(response.latestLedger).to.equal(1000);
-        expect(response.balanceEntry).to.not.be.undefined;
-        expect(response.balanceEntry.amount).to.equal("1000000000000");
-        expect(response.balanceEntry.authorized).to.be.true;
-        expect(response.balanceEntry.clawback).to.be.false;
-        done();
-      })
-      .catch((err) => done(err));
+    const balanceResponse = {
+      data: { result: balanceResult },
+    };
+
+    // Mock both calls in sequence
+    mockPost
+      .mockResolvedValueOnce(networkResponse) // First call for getNetwork
+      .mockResolvedValueOnce(balanceResponse); // Second call for getLedgerEntries
+
+    const response = await server.getSACBalance(contract, token);
+    expect(response.latestLedger).toBe(1000);
+    expect(response.balanceEntry).toBeDefined();
+    expect(response.balanceEntry.amount).toBe("1000000000000");
+    expect(response.balanceEntry.authorized).toBeTruthy();
+    expect(response.balanceEntry.clawback).toBeFalsy();
+    expect(mockPost).toHaveBeenCalledWith(serverUrl, {
+      jsonrpc: "2.0",
+      id: 1,
+      method: "getNetwork",
+      params: null,
+    });
+    expect(mockPost).toHaveBeenCalledTimes(2);
   });
 
-  it("throws on account addresses", function (done) {
+  it("throws on account addresses", async () => {
     const account = Keypair.random().publicKey();
 
-    this.server
-      .getSACBalance(account, token)
-      .then(() => done(new Error("Error didn't occur")))
-      .catch((err) => {
-        expect(err).to.match(/TypeError/);
-        done();
-      });
+    await expect(server.getSACBalance(account, token)).rejects.toThrow(
+      /expected contract ID/,
+    );
   });
 
-  it("throws on invalid addresses", function (done) {
-    this.server
-      .getSACBalance(contract.substring(0, -1), token)
-      .then(() => done(new Error("Error didn't occur")))
-      .catch((err) => {
-        expect(err).to.match(/TypeError/);
-        done();
-      });
+  it("throws on invalid addresses", async () => {
+    await expect(
+      server.getSACBalance(contract.substring(0, -1), token),
+    ).rejects.toThrow(/expected contract ID/);
   });
 });

@@ -1,25 +1,30 @@
-const { Address, xdr, hash, Contract } = StellarSdk;
-const { Server, AxiosClient } = StellarSdk.rpc;
+import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
+import { StellarSdk } from "../../../test-utils/stellar-sdk-import";
+
+import { serverUrl } from "../../../constants";
+
+const { xdr, hash, Contract } = StellarSdk;
+
+const { Server } = StellarSdk.rpc;
 
 describe("Server#getContractWasm", () => {
-  beforeEach(function () {
-    this.server = new Server(serverUrl);
-    this.axiosMock = sinon.mock(this.server.httpClient);
+  let server: any;
+  let mockPost: any;
+
+  beforeEach(() => {
+    server = new Server(serverUrl);
+    mockPost = vi.spyOn(server.httpClient, "post");
   });
 
-  afterEach(function () {
-    this.axiosMock.verify();
-    this.axiosMock.restore();
+  afterEach(() => {
+    vi.clearAllMocks();
   });
 
   const contractId = "CCN57TGC6EXFCYIQJ4UCD2UDZ4C3AQCHVMK74DGZ3JYCA5HD4BY7FNPC";
-  const wasmHash = Buffer.from(
-    "kh1dFBiUKv/lXkcD+XnVTsbzi+Lps96lfWEk3rFWNnI=",
-    "base64",
-  );
+  const wasmHash = Buffer.from("kh1dFBiUKv/lXkcD+XnVTsbzi+Lps96lfWEk3rFWNnI=", "base64");
   const wasmBuffer = Buffer.from(
     "0061730120c0800010ab818080000b20002035503082000336232636439000",
-    "hex",
+    "hex"
   );
   const contractCodeEntryExtension = xdr.ContractCodeEntryExt.fromXDR(
     "AAAAAQAAAAAAAAAAAAAVqAAAAJwAAAADAAAAAwAAABgAAAABAAAAAQAAABEAAAAgAAABpA==",
@@ -32,7 +37,7 @@ describe("Server#getContractWasm", () => {
 
   const ledgerEntryWasmHash = xdr.LedgerEntryData.contractData(
     new xdr.ContractDataEntry({
-      ext: new xdr.ExtensionPoint(0),
+      ext: new (xdr.ExtensionPoint as any)(0),
       contract: address.toScAddress(),
       durability: xdr.ContractDataDurability.persistent(),
       key: xdr.ScVal.scvLedgerKeyContractInstance(),
@@ -92,147 +97,122 @@ describe("Server#getContractWasm", () => {
     liveUntilLedgerSeq: 1000,
   };
 
-  it("retrieves WASM bytecode for a contract", function (done) {
-    this.axiosMock
-      .expects("post")
-      .withArgs(serverUrl, {
-        jsonrpc: "2.0",
-        id: 1,
-        method: "getLedgerEntries",
-        params: { keys: [contractLedgerKey.toXDR("base64")] },
-      })
-      .returns(
-        Promise.resolve({
-          data: {
-            result: {
-              latestLedger: 18039,
-              entries: [
-                {
-                  liveUntilLedgerSeq: ledgerTtlEntryWasmHash
-                    .ttl()
-                    .liveUntilLedgerSeq(),
-                  lastModifiedLedgerSeq: wasmHashResult.lastModifiedLedgerSeq,
-                  xdr: ledgerEntryWasmHash.toXDR("base64"),
-                  key: contractLedgerKey.toXDR("base64"),
-                },
-              ],
+  it("retrieves WASM bytecode for a contract", async () => {
+    const firstResponse = {
+      data: {
+        result: {
+          latestLedger: 18039,
+          entries: [
+            {
+              liveUntilLedgerSeq: ledgerTtlEntryWasmHash
+                .ttl()
+                .liveUntilLedgerSeq(),
+              lastModifiedLedgerSeq: wasmHashResult.lastModifiedLedgerSeq,
+              xdr: ledgerEntryWasmHash.toXDR("base64"),
+              key: contractLedgerKey.toXDR("base64"),
             },
-          },
-        }),
-      );
+          ],
+        },
+      },
+    };
 
-    this.axiosMock
-      .expects("post")
-      .withArgs(serverUrl, {
-        jsonrpc: "2.0",
-        id: 1,
-        method: "getLedgerEntries",
-        params: { keys: [wasmLedgerKey.toXDR("base64")] },
-      })
-      .returns(
-        Promise.resolve({
-          data: {
-            result: {
-              latestLedger: 18039,
-              entries: [
-                {
-                  liveUntilLedgerSeq: wasmLedgerTtlEntry
-                    .ttl()
-                    .liveUntilLedgerSeq(),
-                  lastModifiedLedgerSeq: wasmResult.lastModifiedLedgerSeq,
-                  key: wasmLedgerKey.toXDR("base64"),
-                  xdr: wasmLedgerCode.toXDR("base64"),
-                },
-              ],
+    const secondResponse = {
+      data: {
+        result: {
+          latestLedger: 18039,
+          entries: [
+            {
+              liveUntilLedgerSeq: wasmLedgerTtlEntry.ttl().liveUntilLedgerSeq(),
+              lastModifiedLedgerSeq: wasmResult.lastModifiedLedgerSeq,
+              xdr: wasmLedgerCode.toXDR("base64"),
+              key: wasmLedgerKey.toXDR("base64"),
             },
-          },
-        }),
-      );
+          ],
+        },
+      },
+    };
 
-    this.server
-      .getContractWasmByContractId(contractId)
-      .then((wasmData) => {
-        expect(wasmData).to.eql(wasmBuffer);
-        done();
-      })
-      .catch((err) => done(err));
+    mockPost
+      .mockResolvedValueOnce(firstResponse)
+      .mockResolvedValueOnce(secondResponse);
+
+    const wasmData = await server.getContractWasmByContractId(contractId);
+    expect(Uint8Array.from(wasmData)).toEqual(Uint8Array.from(wasmBuffer));
+    expect(mockPost).toHaveBeenCalledWith(serverUrl, {
+      jsonrpc: "2.0",
+      id: 1,
+      method: "getLedgerEntries",
+      params: { keys: [contractLedgerKey.toXDR("base64")] },
+    });
+    expect(mockPost).toHaveBeenCalledWith(serverUrl, {
+      jsonrpc: "2.0",
+      id: 1,
+      method: "getLedgerEntries",
+      params: { keys: [wasmLedgerKey.toXDR("base64")] },
+    });
+    expect(mockPost).toHaveBeenCalledTimes(2);
   });
 
-  it("fails when wasmHash is not found", function (done) {
-    this.axiosMock
-      .expects("post")
-      .withArgs(serverUrl, {
-        jsonrpc: "2.0",
-        id: 1,
-        method: "getLedgerEntries",
-        params: { keys: [contractLedgerKey.toXDR("base64")] },
-      })
-      .returns(Promise.resolve({ data: { result: { entries: [] } } }));
+  it("fails when wasmHash is not found", async () => {
+    const mockResponse = { data: { result: { entries: [] } } };
+    mockPost.mockResolvedValue(mockResponse);
 
-    this.server
-      .getContractWasmByContractId(contractId)
-      .then(function (_response) {
-        done(new Error("Expected error"));
-      })
-      .catch(function (err) {
-        done(
-          err.code == 404
-            ? null
-            : new Error("Expected error code 404, got: " + err.code),
-        );
-      });
+    await expect(
+      server.getContractWasmByContractId(contractId),
+    ).rejects.toMatchObject({
+      code: 404,
+    });
+    expect(mockPost).toHaveBeenCalledWith(serverUrl, {
+      jsonrpc: "2.0",
+      id: 1,
+      method: "getLedgerEntries",
+      params: { keys: [contractLedgerKey.toXDR("base64")] },
+    });
+    expect(mockPost).toHaveBeenCalledTimes(1);
   });
 
-  it("fails when wasm is not found", function (done) {
-    this.axiosMock
-      .expects("post")
-      .withArgs(serverUrl, {
-        jsonrpc: "2.0",
-        id: 1,
-        method: "getLedgerEntries",
-        params: { keys: [contractLedgerKey.toXDR("base64")] },
-      })
-      .returns(
-        Promise.resolve({
-          data: {
-            result: {
-              latestLedger: 18039,
-              entries: [
-                {
-                  liveUntilLedgerSeq: ledgerTtlEntryWasmHash
-                    .ttl()
-                    .liveUntilLedgerSeq(),
-                  lastModifiedLedgerSeq: wasmHashResult.lastModifiedLedgerSeq,
-                  xdr: ledgerEntryWasmHash.toXDR("base64"),
-                  key: contractLedgerKey.toXDR("base64"),
-                },
-              ],
+  it("fails when wasm is not found", async () => {
+    const firstResponse = {
+      data: {
+        result: {
+          latestLedger: 18039,
+          entries: [
+            {
+              liveUntilLedgerSeq: ledgerTtlEntryWasmHash
+                .ttl()
+                .liveUntilLedgerSeq(),
+              lastModifiedLedgerSeq: wasmHashResult.lastModifiedLedgerSeq,
+              xdr: ledgerEntryWasmHash.toXDR("base64"),
+              key: contractLedgerKey.toXDR("base64"),
             },
-          },
-        }),
-      );
+          ],
+        },
+      },
+    };
 
-    this.axiosMock
-      .expects("post")
-      .withArgs(serverUrl, {
-        jsonrpc: "2.0",
-        id: 1,
-        method: "getLedgerEntries",
-        params: { keys: [wasmLedgerKey.toXDR("base64")] },
-      })
-      .returns(Promise.resolve({ data: { result: { entries: [] } } }));
+    const secondResponse = { data: { result: { entries: [] } } };
 
-    this.server
-      .getContractWasmByContractId(contractId)
-      .then(function (_response) {
-        done(new Error("Expected error"));
-      })
-      .catch(function (err) {
-        done(
-          err.code == 404
-            ? null
-            : new Error("Expected error code 404, got: " + err.code),
-        );
-      });
+    mockPost
+      .mockResolvedValueOnce(firstResponse)
+      .mockResolvedValueOnce(secondResponse);
+
+    await expect(
+      server.getContractWasmByContractId(contractId),
+    ).rejects.toMatchObject({
+      code: 404,
+    });
+    expect(mockPost).toHaveBeenCalledWith(serverUrl, {
+      jsonrpc: "2.0",
+      id: 1,
+      method: "getLedgerEntries",
+      params: { keys: [contractLedgerKey.toXDR("base64")] },
+    });
+    expect(mockPost).toHaveBeenCalledWith(serverUrl, {
+      jsonrpc: "2.0",
+      id: 1,
+      method: "getLedgerEntries",
+      params: { keys: [wasmLedgerKey.toXDR("base64")] },
+    });
+    expect(mockPost).toHaveBeenCalledTimes(2);
   });
 });

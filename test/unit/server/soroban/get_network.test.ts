@@ -1,40 +1,40 @@
-const { Server, AxiosClient } = StellarSdk.rpc;
+import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
+import { StellarSdk } from "../../../test-utils/stellar-sdk-import";
 
-describe("Server#getNetwork", function () {
-  beforeEach(function () {
-    this.server = new Server(serverUrl);
-    this.axiosMock = sinon.mock(this.server.httpClient);
+import { serverUrl } from "../../../constants";
+
+const { Server } = StellarSdk.rpc;
+
+describe("Server#getNetwork", () => {
+  let server: any;
+  let mockPost: any;
+
+  beforeEach(() => {
+    server = new Server(serverUrl);
+    mockPost = vi.spyOn(server.httpClient, "post");
   });
 
-  afterEach(function () {
-    this.axiosMock.verify();
-    this.axiosMock.restore();
+  afterEach(() => {
+    vi.clearAllMocks();
   });
 
-  it("requests the correct method", function (done) {
+  it("requests the correct method", async () => {
     const result = {
       friendbotUrl: "https://friendbot.stellar.org",
       passphrase: "Soroban Testnet ; December 2018",
       protocolVersion: 20,
     };
-    this.axiosMock
-      .expects("post")
-      .withArgs(serverUrl, {
-        jsonrpc: "2.0",
-        id: 1,
-        method: "getNetwork",
-        params: null,
-      })
-      .returns(Promise.resolve({ data: { result } }));
+    const mockResponse = { data: { result } };
+    mockPost.mockResolvedValue(mockResponse);
 
-    this.server
-      .getNetwork()
-      .then(function (response) {
-        expect(response).to.be.deep.equal(result);
-        done();
-      })
-      .catch(function (err) {
-        done(err);
-      });
+    const response = await server.getNetwork();
+    expect(response).toEqual(result);
+    expect(mockPost).toHaveBeenCalledWith(serverUrl, {
+      jsonrpc: "2.0",
+      id: 1,
+      method: "getNetwork",
+      params: null,
+    });
+    expect(mockPost).toHaveBeenCalledTimes(1);
   });
 });

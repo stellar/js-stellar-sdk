@@ -1,55 +1,70 @@
-const { Horizon } = StellarSdk;
-const MockAdapter = require("axios-mock-adapter");
+import {
+  describe,
+  it,
+  beforeEach,
+  afterEach,
+  expect,
+  assert,
+  vi,
+} from "vitest";
+import MockAdapter from "axios-mock-adapter";
+import { StellarSdk } from "../../../test-utils/stellar-sdk-import";
 
-describe("server.js non-transaction tests", function () {
-  beforeEach(function () {
-    this.server = new Horizon.Server("https://horizon-live.stellar.org:1337");
-    this.axiosMock = sinon.mock(this.server.httpClient);
+
+const { Horizon } = StellarSdk;
+const { SERVER_TIME_MAP } = StellarSdk.Horizon;
+
+describe("server.js non-transaction tests", () => {
+  let server: any;
+  let mockGet: any;
+  let mockGetAdapter: any;
+  beforeEach(() => {
+    server = new Horizon.Server("https://horizon-live.stellar.org:1337");
+    mockGet = vi.spyOn(server.httpClient, "get");
     StellarSdk.Config.setDefault();
   });
 
-  afterEach(function () {
-    this.axiosMock.verify();
-    this.axiosMock.restore();
+  afterEach(() => {
+    vi.clearAllMocks();
   });
 
-  describe("Server.constructor", function () {
-    it("throws error for insecure server", function () {
+  describe("Server.constructor", () => {
+    it("throws error for insecure server", () => {
       expect(
         () => new Horizon.Server("http://horizon-live.stellar.org:1337"),
-      ).to.throw(/Cannot connect to insecure horizon server/);
+      ).toThrow(/Cannot connect to insecure horizon server/);
     });
 
-    it("allow insecure server when opts.allowHttp flag is set", function () {
+    it("allow insecure server when opts.allowHttp flag is set", () => {
       expect(
         () =>
           new Horizon.Server("http://horizon-live.stellar.org:1337", {
             allowHttp: true,
           }),
-      ).to.not.throw();
+      ).not.toThrow();
     });
 
-    it("allow insecure server when global Config.allowHttp flag is set", function () {
+    it("allow insecure server when global Config.allowHttp flag is set", () => {
       StellarSdk.Config.setAllowHttp(true);
       expect(
         () => new Horizon.Server("http://horizon-live.stellar.org:1337"),
-      ).to.not.throw();
+      ).not.toThrow();
     });
 
-    it("creates an HttpClient instance with the provided headers", function () {
+    it("creates an HttpClient instance with the provided headers", () => {
       let serverA = new Horizon.Server(
         "https://horizon-live.stellar.org:1337",
         {
           headers: { "Custom-A": "test-value" },
         },
-      );
+      ) as any;
 
       let serverB = new Horizon.Server(
         "https://horizon-live.stellar.org:1337",
         {
           headers: { "Custom-B": "test-value" },
         },
-      );
+      ) as any;
       expect(serverA.httpClient.defaults.headers["Custom-A"]).to.equal(
         "test-value",
       );
@@ -66,13 +81,13 @@ describe("server.js non-transaction tests", function () {
         "added-value",
       );
 
-      expect(serverA.httpClient.defaults.headers["Custom-B"]).to.be.undefined;
-      expect(serverB.httpClient.defaults.headers["Custom-A"]).to.be.undefined;
+      expect(serverA.httpClient.defaults.headers["Custom-B"]).toBeUndefined();
+      expect(serverB.httpClient.defaults.headers["Custom-A"]).toBeUndefined();
     });
   });
 
-  describe("Server.root", function () {
-    let response = {
+  describe("Server.root", () => {
+    const response = {
       _links: {
         account: {
           href: "https://horizon.stellar.org/accounts/{account_id}",
@@ -179,89 +194,77 @@ describe("server.js non-transaction tests", function () {
       core_supported_protocol_version: 22,
     };
 
-    it("returns the root endpoint", function (done) {
-      this.axiosMock
-        .expects("get")
-        .withArgs(sinon.match("https://horizon-live.stellar.org:1337/"))
-        .returns(Promise.resolve({ data: response }));
+    it("returns the root endpoint", async () => {
+      mockGet.mockResolvedValue({ data: response });
 
-      this.server
-        .root()
-        .then((root) => {
-          expect(root).to.be.equal(response);
-          done();
-        })
-        .catch(function (err) {
-          done(err);
-        });
+      const root = await server.root();
+      expect(root).toEqual(response);
+      expect(mockGet).toHaveBeenCalledWith(
+        expect.stringMatching("https://horizon-live.stellar.org:1337/"),
+      );
     });
   });
 
-  describe("Server.fetchTimebounds", function () {
-    let clock;
-    beforeEach(function () {
+  describe("Server.fetchTimebounds", () => {
+    beforeEach(() => {
       // set now to 10050 seconds
-      clock = sinon.useFakeTimers(10050 * 1000);
-      // use MockAdapter instead of this.axiosMock
+      vi.useFakeTimers({ now: 10050 * 1000 });
+      // use MockAdapter instead of mockGet
       // because we don't want to replace the get function
       // we need to use axios's one so interceptors run!!
-      this.server = new Horizon.Server("https://horizon-live.stellar.org:1337");
-      this.axiosMockAdapter = new MockAdapter(this.server.httpClient);
+      mockGetAdapter = new MockAdapter(server.httpClient as any);
     });
 
-    afterEach(function () {
-      clock.restore();
-      this.axiosMockAdapter.restore();
+    afterEach(() => {
+      vi.useRealTimers(); 
+      mockGetAdapter.restore();
     });
 
     // the next two tests are run in a deliberate order!!
     // don't change the order!!
-    it("fetches falls back to local time if fetch is bad", function (done) {
-      this.axiosMockAdapter
+    it("fetches falls back to local time if fetch is bad", async () => {
+      mockGetAdapter
         .onGet("https://horizon-live.stellar.org:1337/")
         .reply(200, {}, {});
 
-      this.server
-        .fetchTimebounds(20)
-        .then((serverTime) => {
-          expect(serverTime).to.eql({ minTime: 0, maxTime: 10070 });
-          done();
-        })
-        .catch((e) => {
-          done(e);
-        });
+      const serverTime = await server.fetchTimebounds(20);
+      expect(serverTime).toEqual({ minTime: 0, maxTime: 10070 });
     });
 
-    it("fetches if nothing is recorded", function (done) {
-      this.axiosMockAdapter
-        .onGet("https://horizon-live.stellar.org:1337/")
-        .reply(
-          200,
-          {},
-          {
-            date: "Wed, 13 Mar 2019 22:15:07 GMT",
-          },
-        );
+    it("fetches if nothing is recorded", async () => {
+      // Use real timers for this test so Date.parse works correctly
+      vi.useRealTimers();
 
-      this.server
-        .fetchTimebounds(20)
-        .then((serverTime) => {
-          expect(serverTime).to.eql({
-            minTime: 0,
-            // this is server time 1552515307 plus 20
-            maxTime: 1552515327,
-          });
+      // Clear SERVER_TIME_MAP to ensure nothing is recorded from previous tests
+      const hostname = "horizon-live.stellar.org:1337";
+      if (SERVER_TIME_MAP[hostname]) {
+        delete SERVER_TIME_MAP[hostname];
+      }
 
-          done();
-        })
-        .catch((e) => {
-          done(e);
-        });
+      // Ensure MockAdapter is properly set up for this test
+      mockGetAdapter.restore();
+      mockGetAdapter = new MockAdapter(server.httpClient)
+
+      mockGetAdapter.onGet("https://horizon-live.stellar.org:1337/").reply(
+        200,
+        {},
+        {
+          date: "Wed, 13 Mar 2019 22:15:07 GMT",
+        },
+      );
+
+      const serverTime = await server.fetchTimebounds(20);
+      
+      expect(serverTime).toEqual({
+        minTime: 0,
+        // this is server time 1552515307 plus 20
+        maxTime: 1552515327
+      });
     });
   });
 
-  describe("Server.fetchBaseFee", function () {
-    let response = {
+  describe("Server.fetchBaseFee", () => {
+    const response = {
       last_ledger: "256736",
       last_ledger_base_fee: "888",
       ledger_capacity_usage: "0.18",
@@ -299,47 +302,33 @@ describe("server.js non-transaction tests", function () {
       },
     };
 
-    it("returns the base reserve", function (done) {
-      this.axiosMock
-        .expects("get")
-        .withArgs(
-          sinon.match("https://horizon-live.stellar.org:1337/fee_stats"),
-        )
-        .returns(Promise.resolve({ data: response }));
+    it("returns the base reserve", async () => {
+      mockGet.mockResolvedValue({ data: response });
 
-      this.server
-        .fetchBaseFee()
-        .then((fee) => {
-          expect(fee).to.be.equal(888);
-          done();
-        })
-        .catch(function (err) {
-          done(err);
-        });
+      const fee = await server.fetchBaseFee();
+      expect(fee).toEqual(888);
+      expect(mockGet).toHaveBeenCalledWith(
+        expect.stringMatching(
+          "https://horizon-live.stellar.org:1337/fee_stats",
+        ),
+      );
     });
 
-    it("returns default value (100) if last_ledger_base_fee is missing", function (done) {
-      this.axiosMock
-        .expects("get")
-        .withArgs(
-          sinon.match("https://horizon-live.stellar.org:1337/fee_stats"),
-        )
-        .returns(Promise.resolve({ data: {} }));
+    it("returns default value (100) if last_ledger_base_fee is missing", async () => {
+      mockGet.mockResolvedValue({ data: {} });
 
-      this.server
-        .fetchBaseFee()
-        .then((fee) => {
-          expect(fee).to.be.equal(100);
-          done();
-        })
-        .catch(function (err) {
-          done(err);
-        });
+      const fee = await server.fetchBaseFee();
+      expect(fee).toEqual(100);
+      expect(mockGet).toHaveBeenCalledWith(
+        expect.stringMatching(
+          "https://horizon-live.stellar.org:1337/fee_stats",
+        ),
+      );
     });
   });
 
-  describe("Server.feeStats", function () {
-    let response = {
+  describe("Server.feeStats", () => {
+    const response = {
       last_ledger: "256736",
       last_ledger_base_fee: "100",
       ledger_capacity_usage: "0.18",
@@ -377,29 +366,22 @@ describe("server.js non-transaction tests", function () {
       },
     };
 
-    it("returns the base reserve", function (done) {
-      this.axiosMock
-        .expects("get")
-        .withArgs(
-          sinon.match("https://horizon-live.stellar.org:1337/fee_stats"),
-        )
-        .returns(Promise.resolve({ data: response }));
+    it("returns the base reserve", async () => {
+      mockGet.mockResolvedValue({ data: response });
 
-      this.server
-        .feeStats()
-        .then((feeStats) => {
-          expect(feeStats).to.be.equal(response);
-          done();
-        })
-        .catch(function (err) {
-          done(err);
-        });
+      const feeStats = await server.feeStats();
+      expect(feeStats).toEqual(response);
+      expect(mockGet).toHaveBeenCalledWith(
+        expect.stringMatching(
+          "https://horizon-live.stellar.org:1337/fee_stats",
+        ),
+      );
     });
   });
 
-  describe("Server.loadAccount", function () {
+  describe("Server.loadAccount", () => {
     //prettier-ignore
-    let accountResponse = {
+    const accountResponse = {
       "_links": {
         "self": {
           "href": "https://horizon-testnet.stellar.org/accounts/GBAH7FQMC3CZJ4WD6GE7G7YXCIU36LC2IHXQ7D5MQAUO4PODOWIVLSFS"
@@ -479,47 +461,45 @@ describe("server.js non-transaction tests", function () {
       "data": {}
     };
 
-    it("returns AccountResponse object", function (done) {
-      this.axiosMock
-        .expects("get")
-        .withArgs(
-          sinon.match(
+    it("returns AccountResponse object", async () => {
+      mockGet.mockImplementation((url: string) => {
+        if (
+          url.includes(
             "https://horizon-live.stellar.org:1337/accounts/GBAH7FQMC3CZJ4WD6GE7G7YXCIU36LC2IHXQ7D5MQAUO4PODOWIVLSFS",
-          ),
-        )
-        .returns(Promise.resolve({ data: accountResponse }));
+          )
+        ) {
+          return Promise.resolve({ data: accountResponse });
+        }
+        return Promise.reject(new Error(`Unexpected URL: ${url}`));
+      });
 
-      this.server
-        .loadAccount("GBAH7FQMC3CZJ4WD6GE7G7YXCIU36LC2IHXQ7D5MQAUO4PODOWIVLSFS")
-        .then((response) => {
-          // Response data
-          expect(response.account_id).to.be.equal(
-            "GBAH7FQMC3CZJ4WD6GE7G7YXCIU36LC2IHXQ7D5MQAUO4PODOWIVLSFS",
-          );
-          expect(response.subentry_count).to.be.equal(5);
-          expect(response.transactions).to.be.a("function");
-          expect(response.operations).to.be.a("function");
-          expect(response.payments).to.be.a("function");
-          expect(response.effects).to.be.a("function");
-          expect(response.offers).to.be.a("function");
-          expect(Object.keys(response.flags).length).to.be.equal(4);
-          // AccountResponse methods
-          expect(response.sequenceNumber()).to.be.equal("5387216134078475");
-          expect(response.sequence).to.be.equal("5387216134078475");
-          response.incrementSequenceNumber();
-          expect(response.sequenceNumber()).to.be.equal("5387216134078476");
-          expect(response.sequence).to.be.equal("5387216134078476");
-          done();
-        })
-        .catch(function (err) {
-          done(err);
-        });
+      const response = await server.loadAccount(
+        "GBAH7FQMC3CZJ4WD6GE7G7YXCIU36LC2IHXQ7D5MQAUO4PODOWIVLSFS",
+      );
+
+      // Response data
+      expect(response.account_id).toEqual(
+        "GBAH7FQMC3CZJ4WD6GE7G7YXCIU36LC2IHXQ7D5MQAUO4PODOWIVLSFS",
+      );
+      expect(response.subentry_count).toEqual(5);
+      expect(response.transactions).toBeTypeOf("function");
+      expect(response.operations).toBeTypeOf("function");
+      expect(response.payments).toBeTypeOf("function");
+      expect(response.effects).toBeTypeOf("function");
+      expect(response.offers).toBeTypeOf("function");
+      expect(Object.keys(response.flags).length).toEqual(4);
+      // AccountResponse methods
+      expect(response.sequenceNumber()).toEqual("5387216134078475");
+      expect(response.sequence).toEqual("5387216134078475");
+      response.incrementSequenceNumber();
+      expect(response.sequenceNumber()).toEqual("5387216134078476");
+      expect(response.sequence).toEqual("5387216134078476");
     });
   });
 
-  describe("Server._sendResourceRequest", function () {
-    describe("requests all ledgers", function () {
-      let ledgersResponse = {
+  describe("Server._sendResourceRequest", () => {
+    describe("requests all ledgers", () => {
+      const ledgersResponse = {
         _embedded: {
           records: [
             {
@@ -564,93 +544,89 @@ describe("server.js non-transaction tests", function () {
         },
       };
 
-      describe("without options", function () {
-        it("requests the correct endpoint", function (done) {
-          this.axiosMock
-            .expects("get")
-            .withArgs(
-              sinon.match("https://horizon-live.stellar.org:1337/ledgers"),
-            )
-            .returns(Promise.resolve({ data: ledgersResponse }));
+      describe("without options", () => {
+        it("requests the correct endpoint", async () => {
+          mockGet.mockImplementation((url: string) => {
+            if (
+              url.includes("https://horizon-live.stellar.org:1337/ledgers") &&
+              !url.includes("?")
+            ) {
+              return Promise.resolve({ data: ledgersResponse });
+            }
+            return Promise.reject(new Error(`Unexpected URL: ${url}`));
+          });
 
-          this.server
-            .ledgers()
-            .call()
-            .then((response) => {
-              expect(response.records).to.be.deep.equal(
-                ledgersResponse._embedded.records,
-              );
-              expect(response.next).to.be.a("function");
-              expect(response.prev).to.be.a("function");
-              done();
-            })
-            .catch(function (err) {
-              done(err);
-            });
+          const response = await server.ledgers().call();
+
+          expect(response.records).toEqual(ledgersResponse._embedded.records);
+          expect(response.next).toBeTypeOf("function");
+          expect(response.prev).toBeTypeOf("function");
         });
       });
 
-      describe("with options", function () {
-        beforeEach(function () {
-          this.axiosMock
-            .expects("get")
-            .withArgs(
-              sinon.match(
+      describe("with options", () => {
+        beforeEach(() => {
+          mockGet.mockImplementation((url: string) => {
+            if (
+              url.includes(
                 "https://horizon-live.stellar.org:1337/ledgers?limit=1&cursor=b&order=asc",
-              ),
-            )
-            .returns(Promise.resolve({ data: ledgersResponse }));
+              )
+            ) {
+              return Promise.resolve({ data: ledgersResponse });
+            }
+            return Promise.reject(new Error(`Unexpected URL: ${url}`));
+          });
         });
 
-        it("requests the correct endpoint", function (done) {
-          this.server
+        it("requests the correct endpoint", async () => {
+          const response = await server
             .ledgers()
             .limit("1")
             .cursor("b")
             .order("asc")
-            .call()
-            .then((response) => {
-              expect(response.records).to.be.deep.equal(
-                ledgersResponse._embedded.records,
-              );
-              expect(response.next).to.be.a("function");
-              expect(response.prev).to.be.a("function");
-              done();
-            });
+            .call();
+
+          expect(response.records).toEqual(ledgersResponse._embedded.records);
+          expect(response.next).toBeTypeOf("function");
+          expect(response.prev).toBeTypeOf("function");
         });
 
-        it("can call .next() on the result to retrieve the next page", function (done) {
-          this.axiosMock
-            .expects("get")
-            .withArgs(
-              sinon.match(
+        it("can call .next() on the result to retrieve the next page", async () => {
+          mockGet.mockImplementation((url: string) => {
+            if (
+              url.includes(
+                "https://horizon-live.stellar.org:1337/ledgers?limit=1&cursor=b&order=asc",
+              )
+            ) {
+              return Promise.resolve({ data: ledgersResponse });
+            }
+            if (
+              url.includes(
                 "https://horizon-live.stellar.org:1337/ledgers?order=asc&limit=1&cursor=4294967296",
-              ),
-            )
-            .returns(Promise.resolve({ data: ledgersResponse }));
+              )
+            ) {
+              return Promise.resolve({ data: ledgersResponse });
+            }
+            return Promise.reject(new Error(`Unexpected URL: ${url}`));
+          });
 
-          this.server
+          const page = await server
             .ledgers()
             .limit("1")
             .cursor("b")
             .order("asc")
-            .call()
-            .then(function (page) {
-              page.next().then(function (response) {
-                expect(response.records).to.be.deep.equal(
-                  ledgersResponse._embedded.records,
-                );
-                expect(response.next).to.be.a("function");
-                expect(response.prev).to.be.a("function");
-                done();
-              });
-            });
+            .call();
+
+          const response = await page.next();
+          expect(response.records).toEqual(ledgersResponse._embedded.records);
+          expect(response.next).toBeTypeOf("function");
+          expect(response.prev).toBeTypeOf("function");
         });
       });
     });
 
-    describe("requests a single ledger", function () {
-      let singleLedgerResponse = {
+    describe("requests a single ledger", () => {
+      const singleLedgerResponse = {
         _links: {
           effects: {
             href: "/ledgers/1/effects{?cursor,limit,order}",
@@ -678,89 +654,75 @@ describe("server.js non-transaction tests", function () {
         closed_at: "1970-01-01T00:00:00Z",
       };
 
-      describe("for a non existent ledger", function () {
-        it("throws a NotFoundError", function (done) {
-          this.axiosMock
-            .expects("get")
-            .withArgs(
-              sinon.match("https://horizon-live.stellar.org:1337/ledgers/1"),
-            )
-            .returns(
-              Promise.reject({
-                response: { status: 404, statusText: "NotFound", data: {} },
-              }),
-            );
+      describe("for a non existent ledger", () => {
+        it("throws a NotFoundError", async () => {
+          const axiosError = new Error("Not Found");
+          (axiosError as any).response = {
+            status: 404,
+            statusText: "Not Found",
+            data: {},
+          };
 
-          this.server
-            .ledgers()
-            .ledger(1)
-            .call()
-            .then(function () {
-              done("didn't throw an error");
-            })
-            .catch(function (err) {
-              if (err instanceof StellarSdk.NotFoundError) {
-                done();
-              } else {
-                done(err);
-              }
-            });
+          mockGet.mockImplementation((url: string) => {
+            if (
+              url.includes("https://horizon-live.stellar.org:1337/ledgers/1")
+            ) {
+              return Promise.reject(axiosError);
+            }
+            return Promise.reject(new Error(`Unexpected URL: ${url}`));
+          });
+
+          await expect(server.ledgers().ledger(1).call()).rejects.toThrow(
+            StellarSdk.NotFoundError,
+          );
         });
       });
-      describe("without options", function () {
-        it("requests the correct endpoint", function (done) {
-          this.axiosMock
-            .expects("get")
-            .withArgs(
-              sinon.match("https://horizon-live.stellar.org:1337/ledgers/1"),
-            )
-            .returns(Promise.resolve({ data: singleLedgerResponse }));
+      describe("without options", () => {
+        it("requests the correct endpoint", async () => {
+          mockGet.mockImplementation((url: string) => {
+            if (
+              url.includes("https://horizon-live.stellar.org:1337/ledgers/1") &&
+              !url.includes("?")
+            ) {
+              return Promise.resolve({ data: singleLedgerResponse });
+            }
+            return Promise.reject(new Error(`Unexpected URL: ${url}`));
+          });
 
-          this.server
-            .ledgers()
-            .ledger("1")
-            .call()
-            .then(function (response) {
-              expect(response).to.be.deep.equal(singleLedgerResponse);
-              done();
-            })
-            .catch(function (err) {
-              done(err);
-            });
+          const response = await server.ledgers().ledger("1").call();
+
+          expect(response).toEqual(singleLedgerResponse);
         });
       });
 
-      describe("with options", function () {
-        it("requests the correct endpoint", function (done) {
-          this.axiosMock
-            .expects("get")
-            .withArgs(
-              sinon.match(
+      describe("with options", () => {
+        it("requests the correct endpoint", async () => {
+          mockGet.mockImplementation((url: string) => {
+            if (
+              url.includes(
                 "https://horizon-live.stellar.org:1337/ledgers/1?limit=1&cursor=b&order=asc",
-              ),
-            )
-            .returns(Promise.resolve({ data: singleLedgerResponse }));
+              )
+            ) {
+              return Promise.resolve({ data: singleLedgerResponse });
+            }
+            return Promise.reject(new Error(`Unexpected URL: ${url}`));
+          });
 
-          this.server
+          const response = await server
             .ledgers()
             .ledger("1")
             .limit("1")
             .cursor("b")
             .order("asc")
-            .call()
-            .then(function (response) {
-              expect(response).to.be.deep.equal(singleLedgerResponse);
-              done();
-            })
-            .catch(function (err) {
-              done(err);
-            });
+            .call();
+
+          expect(response).toEqual(singleLedgerResponse);
         });
       });
     });
 
-    describe("requests a sub resource", function (done) {
-      let transactionsResponse = {
+    describe("requests a sub resource", () => {
+      const transactionsResponse = {
         _links: {
           self: {
             href: "https://horizon.stellar.org/transactions?order=desc\u0026limit=1\u0026cursor=",
@@ -828,123 +790,103 @@ describe("server.js non-transaction tests", function () {
         },
       };
 
-      describe("without options", function () {
-        it("requests the correct endpoint", function (done) {
-          this.axiosMock
-            .expects("get")
-            .withArgs(
-              sinon.match(
+      describe("without options", () => {
+        it("requests the correct endpoint", async () => {
+          mockGet.mockImplementation((url: string) => {
+            if (
+              url.includes(
                 "https://horizon-live.stellar.org:1337/ledgers/7952722/transactions",
-              ),
-            )
-            .returns(Promise.resolve({ data: transactionsResponse }));
-
-          this.axiosMock
-            .expects("get")
-            .withArgs(
-              sinon.match(
+              ) &&
+              !url.includes("?")
+            ) {
+              return Promise.resolve({ data: transactionsResponse });
+            }
+            if (
+              url.match(
                 /^https:\/\/horizon.stellar.org\/transactions\/c585b8764b28be678c482f8b6e87e76e4b5f28043c53f4dcb7b724b4b2efebc1\/operations/,
-              ),
-            )
-            .returns(Promise.resolve({ data: { operations: [] } }));
+              )
+            ) {
+              return Promise.resolve({ data: { operations: [] } });
+            }
+            return Promise.reject(new Error(`Unexpected URL: ${url}`));
+          });
 
-          this.server
+          const response = await server
             .transactions()
             .forLedger(7952722)
-            .call()
-            .then(function (response) {
-              expect(response.records).to.be.deep.equal(
-                transactionsResponse._embedded.records,
-              );
-              expect(response.records[0].ledger).to.be.a("function");
-              expect(response.records[0].ledger_attr).to.be.equal(7952722);
-              expect(response.next).to.be.a("function");
-              expect(response.prev).to.be.a("function");
+            .call();
 
-              response.records[0]
-                .operations()
-                .then(function (response) {
-                  expect(response.operations).to.not.be.undefined;
-                  done();
-                })
-                .catch(function (err) {
-                  done(err);
-                });
-            })
-            .catch(function (err) {
-              done(err);
-            });
+          expect(response.records).toEqual(
+            transactionsResponse._embedded.records,
+          );
+          expect(response.records[0].ledger).toBeTypeOf("function");
+          expect(response.records[0].ledger_attr).toEqual(7952722);
+          expect(response.next).toBeTypeOf("function");
+          expect(response.prev).toBeTypeOf("function");
+
+          const operationsResponse = await response.records[0].operations();
+          assert.deepEqual(operationsResponse.operations, []);
         });
       });
-      describe("with options", function () {
-        it("requests the correct endpoint", function (done) {
-          this.axiosMock
-            .expects("get")
-            .withArgs(
-              sinon.match(
+      describe("with options", () => {
+        it("requests the correct endpoint", async () => {
+          mockGet.mockImplementation((url: string) => {
+            if (
+              url.includes(
                 "https://horizon-live.stellar.org:1337/ledgers/7952722/transactions?cursor=b&limit=1&order=asc",
-              ),
-            )
-            .returns(Promise.resolve({ data: transactionsResponse }));
-
-          this.axiosMock
-            .expects("get")
-            .withArgs(
-              sinon.match(
+              )
+            ) {
+              return Promise.resolve({ data: transactionsResponse });
+            }
+            if (
+              url.match(
                 /^https:\/\/horizon.stellar.org\/transactions\/c585b8764b28be678c482f8b6e87e76e4b5f28043c53f4dcb7b724b4b2efebc1\/operations\?limit=1/,
-              ),
-            )
-            .returns(Promise.resolve({ data: { operations: [] } }));
+              )
+            ) {
+              return Promise.resolve({ data: { operations: [] } });
+            }
+            return Promise.reject(new Error(`Unexpected URL: ${url}`));
+          });
 
-          this.server
+          const response = await server
             .transactions()
             .forLedger("7952722")
             .cursor("b")
             .limit("1")
             .order("asc")
-            .call()
-            .then(function (response) {
-              expect(response.records).to.be.deep.equal(
-                transactionsResponse._embedded.records,
-              );
-              expect(response.next).to.be.a("function");
-              expect(response.prev).to.be.a("function");
-              response.records[0]
-                .operations({ limit: 1 })
-                .then(function (response) {
-                  expect(response.operations).to.not.be.undefined;
-                  done();
-                })
-                .catch(function (err) {
-                  done(err);
-                });
-            })
-            .catch(function (err) {
-              done(err);
-            });
+            .call();
+
+          expect(response.records).toEqual(
+            transactionsResponse._embedded.records,
+          );
+          expect(response.next).toBeTypeOf("function");
+          expect(response.prev).toBeTypeOf("function");
+
+          const operationsResponse = await response.records[0].operations({
+            limit: 1,
+          });
+          assert.deepEqual(operationsResponse.operations, []);
         });
       });
     });
   });
 
-  describe("Server._parseResult", function () {
-    it("creates link functions", function () {
-      var callBuilder = this.server.ledgers();
-      var json = callBuilder._parseResponse({
+  describe("Server._parseResult", () => {
+    it("creates link functions", () => {
+      const callBuilder = server.ledgers();
+      const json = callBuilder._parseResponse({
         _links: {
-          test: function () {
-            return "hi";
-          },
+          test: () => "hi",
         },
       });
-      expect(typeof json.test).to.be.equal("function");
+      expect(typeof json.test).toEqual("function");
     });
   });
 
-  describe("Smoke tests for the rest of the builders", function () {
-    describe("TransactionCallBuilder", function () {
-      it("#transaction - requests the correct endpoint", function (done) {
-        let singleTranssactionResponse = {
+  describe("Smoke tests for the rest of the builders", () => {
+    describe("TransactionCallBuilder", () => {
+      it("#transaction - requests the correct endpoint", async () => {
+        const singleTranssactionResponse = {
           _links: {
             self: {
               href: "https://horizon-testnet.stellar.org/transactions/6bbd8cbd90498a26210a21ec599702bead8f908f412455da300318aba36831b0",
@@ -996,28 +938,25 @@ describe("server.js non-transaction tests", function () {
           ],
         };
 
-        this.axiosMock
-          .expects("get")
-          .withArgs(
-            sinon.match(
+        mockGet.mockImplementation((url: string) => {
+          if (
+            url.includes(
               "https://horizon-live.stellar.org:1337/transactions/6bbd8cbd90498a26210a21ec599702bead8f908f412455da300318aba36831b0",
-            ),
-          )
-          .returns(Promise.resolve({ data: singleTranssactionResponse }));
+            )
+          ) {
+            return Promise.resolve({ data: singleTranssactionResponse });
+          }
+          return Promise.reject(new Error(`Unexpected URL: ${url}`));
+        });
 
-        this.server
+        const response = await server
           .transactions()
           .transaction(
             "6bbd8cbd90498a26210a21ec599702bead8f908f412455da300318aba36831b0",
           )
-          .call()
-          .then(function (response) {
-            expect(response).to.be.deep.equal(singleTranssactionResponse);
-            done();
-          })
-          .catch(function (err) {
-            done(err);
-          });
+          .call();
+
+        expect(response).toEqual(singleTranssactionResponse);
       });
 
       const transactionsResponse = {
@@ -1193,39 +1132,36 @@ describe("server.js non-transaction tests", function () {
         },
       };
 
-      it("forClaimableBalance() requests the correct endpoint", function (done) {
-        this.axiosMock
-          .expects("get")
-          .withArgs(
-            sinon.match(
+      it("forClaimableBalance() requests the correct endpoint", async () => {
+        mockGet.mockImplementation((url: string) => {
+          if (
+            url.includes(
               "https://horizon-live.stellar.org:1337/claimable_balances/000000000102030000000000000000000000000000000000000000000000000000000000/transactions",
-            ),
-          )
-          .returns(Promise.resolve({ data: transactionsResponse }));
+            )
+          ) {
+            return Promise.resolve({ data: transactionsResponse });
+          }
+          return Promise.reject(new Error(`Unexpected URL: ${url}`));
+        });
 
-        this.server
+        const response = await server
           .transactions()
           .forClaimableBalance(
             "000000000102030000000000000000000000000000000000000000000000000000000000",
           )
-          .call()
-          .then(function (response) {
-            expect(response.records).to.be.deep.equal(
-              transactionsResponse._embedded.records,
-            );
-            expect(response.next).to.be.a("function");
-            expect(response.prev).to.be.a("function");
-            done();
-          })
-          .catch(function (err) {
-            done(err);
-          });
+          .call();
+
+        expect(response.records).toEqual(
+          transactionsResponse._embedded.records,
+        );
+        expect(response.next).toBeTypeOf("function");
+        expect(response.prev).toBeTypeOf("function");
       });
     });
 
-    describe("AccountCallBuilder", function () {
-      it("requests the correct endpoint", function (done) {
-        let singleAccountResponse = {
+    describe("AccountCallBuilder", () => {
+      it("requests the correct endpoint", async () => {
+        const singleAccountResponse = {
           _links: {
             effects: {
               href: "/accounts/GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K/effects{?cursor,limit,order}",
@@ -1281,30 +1217,27 @@ describe("server.js non-transaction tests", function () {
           ],
         };
 
-        this.axiosMock
-          .expects("get")
-          .withArgs(
-            sinon.match(
+        mockGet.mockImplementation((url: string) => {
+          if (
+            url.includes(
               "https://horizon-live.stellar.org:1337/accounts/GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K",
-            ),
-          )
-          .returns(Promise.resolve({ data: singleAccountResponse }));
+            )
+          ) {
+            return Promise.resolve({ data: singleAccountResponse });
+          }
+          return Promise.reject(new Error(`Unexpected URL: ${url}`));
+        });
 
-        this.server
+        const response = await server
           .accounts()
           .accountId("GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K")
-          .call()
-          .then(function (response) {
-            expect(response).to.be.deep.equal(singleAccountResponse);
-            done();
-          })
-          .catch(function (err) {
-            done(err);
-          });
+          .call();
+
+        expect(response).toEqual(singleAccountResponse);
       });
 
-      it('adds a "signer" query to the endpoint', function (done) {
-        let accountsForSignerResponse = {
+      it('adds a "signer" query to the endpoint', async () => {
+        const accountsForSignerResponse = {
           _links: {
             self: {
               href: "/accounts?cursor=&limit=10&order=asc&signer=GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42",
@@ -1405,34 +1338,31 @@ describe("server.js non-transaction tests", function () {
           },
         };
 
-        this.axiosMock
-          .expects("get")
-          .withArgs(
-            sinon.match(
+        mockGet.mockImplementation((url: string) => {
+          if (
+            url.includes(
               "https://horizon-live.stellar.org:1337/accounts?signer=GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42",
-            ),
-          )
-          .returns(Promise.resolve({ data: accountsForSignerResponse }));
+            )
+          ) {
+            return Promise.resolve({ data: accountsForSignerResponse });
+          }
+          return Promise.reject(new Error(`Unexpected URL: ${url}`));
+        });
 
-        this.server
+        const response = await server
           .accounts()
           .forSigner("GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42")
-          .call()
-          .then(function (response) {
-            expect(response.records).to.be.deep.equal(
-              accountsForSignerResponse._embedded.records,
-            );
-            expect(response.next).to.be.a("function");
-            expect(response.prev).to.be.a("function");
-            done();
-          })
-          .catch(function (err) {
-            done(err);
-          });
+          .call();
+
+        expect(response.records).toEqual(
+          accountsForSignerResponse._embedded.records,
+        );
+        expect(response.next).toBeTypeOf("function");
+        expect(response.prev).toBeTypeOf("function");
       });
 
-      it('adds an "asset" query to the endpoint', function (done) {
-        let accountsForAssetResponse = {
+      it('adds an "asset" query to the endpoint', async () => {
+        const accountsForAssetResponse = {
           _links: {
             self: {
               href: "/accounts?asset=USD%3AGDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD\u0026cursor=\u0026limit=10\u0026order=asc",
@@ -1533,16 +1463,18 @@ describe("server.js non-transaction tests", function () {
           },
         };
 
-        this.axiosMock
-          .expects("get")
-          .withArgs(
-            sinon.match(
+        mockGet.mockImplementation((url: string) => {
+          if (
+            url.includes(
               "https://horizon-live.stellar.org:1337/accounts?asset=USD%3AGDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD",
-            ),
-          )
-          .returns(Promise.resolve({ data: accountsForAssetResponse }));
+            )
+          ) {
+            return Promise.resolve({ data: accountsForAssetResponse });
+          }
+          return Promise.reject(new Error(`Unexpected URL: ${url}`));
+        });
 
-        this.server
+        const response = await server
           .accounts()
           .forAsset(
             new StellarSdk.Asset(
@@ -1550,22 +1482,17 @@ describe("server.js non-transaction tests", function () {
               "GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD",
             ),
           )
-          .call()
-          .then(function (response) {
-            expect(response.records).to.be.deep.equal(
-              accountsForAssetResponse._embedded.records,
-            );
-            expect(response.next).to.be.a("function");
-            expect(response.prev).to.be.a("function");
-            done();
-          })
-          .catch(function (err) {
-            done(err);
-          });
+          .call();
+
+        expect(response.records).toEqual(
+          accountsForAssetResponse._embedded.records,
+        );
+        expect(response.next).toBeTypeOf("function");
+        expect(response.prev).toBeTypeOf("function");
       });
 
-      it('adds a "sponsor" query to the endpoint', function (done) {
-        let accountsForSponsor = {
+      it('adds a "sponsor" query to the endpoint', async () => {
+        const accountsForSponsor = {
           _links: {
             self: {
               href: "/accounts?cursor=&limit=10&order=asc&sponsor=GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42",
@@ -1670,33 +1597,28 @@ describe("server.js non-transaction tests", function () {
           },
         };
 
-        this.axiosMock
-          .expects("get")
-          .withArgs(
-            sinon.match(
+        mockGet.mockImplementation((url: string) => {
+          if (
+            url.includes(
               "https://horizon-live.stellar.org:1337/accounts?sponsor=GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42",
-            ),
-          )
-          .returns(Promise.resolve({ data: accountsForSponsor }));
+            )
+          ) {
+            return Promise.resolve({ data: accountsForSponsor });
+          }
+          return Promise.reject(new Error(`Unexpected URL: ${url}`));
+        });
 
-        this.server
+        const response = await server
           .accounts()
           .sponsor("GBCR5OVQ54S2EKHLBZMK6VYMTXZHXN3T45Y6PRX4PX4FXDMJJGY4FD42")
-          .call()
-          .then(function (response) {
-            expect(response.records).to.be.deep.equal(
-              accountsForSponsor._embedded.records,
-            );
-            expect(response.next).to.be.a("function");
-            expect(response.prev).to.be.a("function");
-            done();
-          })
-          .catch(function (err) {
-            done(err);
-          });
+          .call();
+
+        expect(response.records).toEqual(accountsForSponsor._embedded.records);
+        expect(response.next).toBeTypeOf("function");
+        expect(response.prev).toBeTypeOf("function");
       });
 
-      it('adds a "liquidity_pool" filter to the endpoint', function (done) {
+      it('adds a "liquidity_pool" filter to the endpoint', async () => {
         const accountsForAssetResponse = {
           _links: {
             self: {
@@ -1825,36 +1747,33 @@ describe("server.js non-transaction tests", function () {
           },
         };
 
-        this.axiosMock
-          .expects("get")
-          .withArgs(
-            sinon.match(
+        mockGet.mockImplementation((url: string) => {
+          if (
+            url.includes(
               "https://horizon-live.stellar.org:1337/accounts?liquidity_pool=dd7b1ab831c273310ddbec6f97870aa83c2fbd78ce22aded37ecbf4f3380fac7",
-            ),
-          )
-          .returns(Promise.resolve({ data: accountsForAssetResponse }));
+            )
+          ) {
+            return Promise.resolve({ data: accountsForAssetResponse });
+          }
+          return Promise.reject(new Error(`Unexpected URL: ${url}`));
+        });
 
-        this.server
+        const response = await server
           .accounts()
           .forLiquidityPool(
             "dd7b1ab831c273310ddbec6f97870aa83c2fbd78ce22aded37ecbf4f3380fac7",
           )
-          .call()
-          .then(function (response) {
-            expect(response.records).to.be.deep.equal(
-              accountsForAssetResponse._embedded.records,
-            );
-            expect(response.next).to.be.a("function");
-            expect(response.prev).to.be.a("function");
-            done();
-          })
-          .catch(function (err) {
-            done(err);
-          });
+          .call();
+
+        expect(response.records).toEqual(
+          accountsForAssetResponse._embedded.records,
+        );
+        expect(response.next).toBeTypeOf("function");
+        expect(response.prev).toBeTypeOf("function");
       });
     });
 
-    describe("OfferCallBuilder", function () {
+    describe("OfferCallBuilder", () => {
       const offersResponse = {
         _embedded: {
           records: [],
@@ -1872,33 +1791,25 @@ describe("server.js non-transaction tests", function () {
         },
       };
 
-      it("without params requests the correct endpoint", function (done) {
-        this.axiosMock
-          .expects("get")
-          .withArgs(
-            sinon.match(
+      it("without params requests the correct endpoint", async () => {
+        mockGet.mockImplementation((url: string) => {
+          if (
+            url.includes(
               "https://horizon-live.stellar.org:1337/offers?order=asc",
-            ),
-          )
-          .returns(Promise.resolve({ data: offersResponse }));
-        this.server
-          .offers()
-          .order("asc")
-          .call()
-          .then(function (response) {
-            expect(response.records).to.be.deep.equal(
-              offersResponse._embedded.records,
-            );
-            expect(response.next).to.be.a("function");
-            expect(response.prev).to.be.a("function");
-            done();
-          })
-          .catch(function (err) {
-            done(err);
-          });
+            )
+          ) {
+            return Promise.resolve({ data: offersResponse });
+          }
+          return Promise.reject(new Error(`Unexpected URL: ${url}`));
+        });
+        const response = await server.offers().order("asc").call();
+
+        expect(response.records).toEqual(offersResponse._embedded.records);
+        expect(response.next).toBeTypeOf("function");
+        expect(response.prev).toBeTypeOf("function");
       });
 
-      it("single offer requests the correct endpoint", function (done) {
+      it("single offer requests the correct endpoint", async () => {
         const offerResponse = {
           _links: {
             self: {
@@ -1930,151 +1841,125 @@ describe("server.js non-transaction tests", function () {
           last_modified_time: "2020-02-18T17:00:56Z",
         };
 
-        this.axiosMock
-          .expects("get")
-          .withArgs(
-            sinon.match("https://horizon-live.stellar.org:1337/offers/12345"),
-          )
-          .returns(Promise.resolve({ data: offerResponse }));
+        mockGet.mockImplementation((url: string) => {
+          if (
+            url.includes("https://horizon-live.stellar.org:1337/offers/12345")
+          ) {
+            return Promise.resolve({ data: offerResponse });
+          }
+          return Promise.reject(new Error(`Unexpected URL: ${url}`));
+        });
 
-        this.server
-          .offers()
-          .offer("12345")
-          .call()
-          .then(function (response) {
-            expect(response).to.be.deep.equal(offerResponse);
-            expect(response.self).to.be.a("function");
-            done();
-          })
-          .catch(function (err) {
-            done(err);
-          });
+        const response = await server.offers().offer("12345").call();
+
+        expect(response).toEqual(offerResponse);
+        expect(response.self).toBeTypeOf("function");
       });
 
-      it("forAccount requests the correct endpoint", function (done) {
-        this.axiosMock
-          .expects("get")
-          .withArgs(
-            sinon.match(
+      it("forAccount requests the correct endpoint", async () => {
+        mockGet.mockImplementation((url: string) => {
+          if (
+            url.includes(
               "https://horizon-live.stellar.org:1337/accounts/GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K/offers?order=asc",
-            ),
-          )
-          .returns(Promise.resolve({ data: offersResponse }));
+            )
+          ) {
+            return Promise.resolve({ data: offersResponse });
+          }
+          return Promise.reject(new Error(`Unexpected URL: ${url}`));
+        });
 
-        this.server
+        const response = await server
           .offers()
           .forAccount(
             "GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K",
           )
           .order("asc")
-          .call()
-          .then(function (response) {
-            expect(response.records).to.be.deep.equal(
-              offersResponse._embedded.records,
-            );
-            expect(response.next).to.be.a("function");
-            expect(response.prev).to.be.a("function");
-            done();
-          })
-          .catch(function (err) {
-            done(err);
-          });
+          .call();
+
+        expect(response.records).toEqual(offersResponse._embedded.records);
+        expect(response.next).toBeTypeOf("function");
+        expect(response.prev).toBeTypeOf("function");
       });
-      it("selling requests the correct endpoint", function (done) {
+      it("selling requests the correct endpoint", async () => {
         const selling = new StellarSdk.Asset(
           "USD",
           "GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG",
         );
 
-        this.axiosMock
-          .expects("get")
-          .withArgs(
-            sinon.match(
+        mockGet.mockImplementation((url: string) => {
+          if (
+            url.includes(
               "https://horizon-live.stellar.org:1337/offers?selling_asset_type=credit_alphanum4&selling_asset_code=USD&selling_asset_issuer=GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG&order=asc",
-            ),
-          )
-          .returns(Promise.resolve({ data: offersResponse }));
+            )
+          ) {
+            return Promise.resolve({ data: offersResponse });
+          }
+          return Promise.reject(new Error(`Unexpected URL: ${url}`));
+        });
 
-        this.server
+        const response = await server
           .offers()
           .selling(selling)
           .order("asc")
-          .call()
-          .then(function (response) {
-            expect(response.records).to.be.deep.equal(
-              offersResponse._embedded.records,
-            );
-            expect(response.next).to.be.a("function");
-            expect(response.prev).to.be.a("function");
-            done();
-          })
-          .catch(function (err) {
-            done(err);
-          });
+          .call();
+
+        expect(response.records).toEqual(offersResponse._embedded.records);
+        expect(response.next).toBeTypeOf("function");
+        expect(response.prev).toBeTypeOf("function");
       });
-      it("buying requests the correct endpoint", function (done) {
+      it("buying requests the correct endpoint", async () => {
         const buying = new StellarSdk.Asset(
           "COP",
           "GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG",
         );
 
-        this.axiosMock
-          .expects("get")
-          .withArgs(
-            sinon.match(
+        mockGet.mockImplementation((url: string) => {
+          if (
+            url.includes(
               "https://horizon-live.stellar.org:1337/offers?buying_asset_type=credit_alphanum4&buying_asset_code=COP&buying_asset_issuer=GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG&order=asc",
-            ),
-          )
-          .returns(Promise.resolve({ data: offersResponse }));
+            )
+          ) {
+            return Promise.resolve({ data: offersResponse });
+          }
+          return Promise.reject(new Error(`Unexpected URL: ${url}`));
+        });
 
-        this.server
+        const response = await server
           .offers()
           .buying(buying)
           .order("asc")
-          .call()
-          .then(function (response) {
-            expect(response.records).to.be.deep.equal(
-              offersResponse._embedded.records,
-            );
-            expect(response.next).to.be.a("function");
-            expect(response.prev).to.be.a("function");
-            done();
-          })
-          .catch(function (err) {
-            done(err);
-          });
-      });
-      it("sponsor requests the correct endpoint", function (done) {
-        this.axiosMock
-          .expects("get")
-          .withArgs(
-            sinon.match(
-              "https://horizon-live.stellar.org:1337/offers?sponsor=GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG&order=asc",
-            ),
-          )
-          .returns(Promise.resolve({ data: offersResponse }));
+          .call();
 
-        this.server
+        expect(response.records).toEqual(offersResponse._embedded.records);
+        expect(response.next).toBeTypeOf("function");
+        expect(response.prev).toBeTypeOf("function");
+      });
+      it("sponsor requests the correct endpoint", async () => {
+        mockGet.mockImplementation((url: string) => {
+          if (
+            url.includes(
+              "https://horizon-live.stellar.org:1337/offers?sponsor=GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG&order=asc",
+            )
+          ) {
+            return Promise.resolve({ data: offersResponse });
+          }
+          return Promise.reject(new Error(`Unexpected URL: ${url}`));
+        });
+
+        const response = await server
           .offers()
           .sponsor("GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG")
           .order("asc")
-          .call()
-          .then(function (response) {
-            expect(response.records).to.be.deep.equal(
-              offersResponse._embedded.records,
-            );
-            expect(response.next).to.be.a("function");
-            expect(response.prev).to.be.a("function");
-            done();
-          })
-          .catch(function (err) {
-            done(err);
-          });
+          .call();
+
+        expect(response.records).toEqual(offersResponse._embedded.records);
+        expect(response.next).toBeTypeOf("function");
+        expect(response.prev).toBeTypeOf("function");
       });
     });
 
-    describe("OrderbookCallBuilder", function () {
-      let orderBookResponse = {
+    describe("OrderbookCallBuilder", () => {
+      const orderBookResponse = {
         bids: [],
         asks: [],
         base: {
@@ -2090,17 +1975,19 @@ describe("server.js non-transaction tests", function () {
         },
       };
 
-      it("requests the correct endpoint native/credit", function (done) {
-        this.axiosMock
-          .expects("get")
-          .withArgs(
-            sinon.match(
+      it("requests the correct endpoint native/credit", async () => {
+        mockGet.mockImplementation((url: string) => {
+          if (
+            url.includes(
               "https://horizon-live.stellar.org:1337/order_book?selling_asset_type=native&buying_asset_type=credit_alphanum4&buying_asset_code=USD&buying_asset_issuer=GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG",
-            ),
-          )
-          .returns(Promise.resolve({ data: orderBookResponse }));
+            )
+          ) {
+            return Promise.resolve({ data: orderBookResponse });
+          }
+          return Promise.reject(new Error(`Unexpected URL: ${url}`));
+        });
 
-        this.server
+        const response = await server
           .orderbook(
             StellarSdk.Asset.native(),
             new StellarSdk.Asset(
@@ -2108,27 +1995,24 @@ describe("server.js non-transaction tests", function () {
               "GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG",
             ),
           )
-          .call()
-          .then(function (response) {
-            expect(response).to.be.deep.equal(orderBookResponse);
-            done();
-          })
-          .catch(function (err) {
-            done(err);
-          });
+          .call();
+
+        expect(response).toEqual(orderBookResponse);
       });
 
-      it("requests the correct endpoint credit/native", function (done) {
-        this.axiosMock
-          .expects("get")
-          .withArgs(
-            sinon.match(
+      it("requests the correct endpoint credit/native", async () => {
+        mockGet.mockImplementation((url: string) => {
+          if (
+            url.includes(
               "https://horizon-live.stellar.org:1337/order_book?selling_asset_type=credit_alphanum4&selling_asset_code=USD&selling_asset_issuer=GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG&buying_asset_type=native",
-            ),
-          )
-          .returns(Promise.resolve({ data: orderBookResponse }));
+            )
+          ) {
+            return Promise.resolve({ data: orderBookResponse });
+          }
+          return Promise.reject(new Error(`Unexpected URL: ${url}`));
+        });
 
-        this.server
+        const response = await server
           .orderbook(
             new StellarSdk.Asset(
               "USD",
@@ -2136,20 +2020,15 @@ describe("server.js non-transaction tests", function () {
             ),
             StellarSdk.Asset.native(),
           )
-          .call()
-          .then(function (response) {
-            expect(response).to.be.deep.equal(orderBookResponse);
-            done();
-          })
-          .catch(function (err) {
-            done(err);
-          });
+          .call();
+
+        expect(response).toEqual(orderBookResponse);
       });
     });
 
-    describe("TradesCallBuilder", function () {
-      it("trades() requests the correct endpoint (no filters)", function (done) {
-        let tradesResponse = {
+    describe("TradesCallBuilder", () => {
+      it("trades() requests the correct endpoint (no filters)", async () => {
+        const tradesResponse = {
           _links: {
             self: {
               href: "https://horizon-live.stellar.org:1337/trades?order=asc&limit=200&cursor=",
@@ -2201,27 +2080,20 @@ describe("server.js non-transaction tests", function () {
           },
         };
 
-        this.axiosMock
-          .expects("get")
-          .withArgs(sinon.match("https://horizon-live.stellar.org:1337/trades"))
-          .returns(Promise.resolve({ data: tradesResponse }));
+        mockGet.mockImplementation((url: string) => {
+          if (url.includes("https://horizon-live.stellar.org:1337/trades")) {
+            return Promise.resolve({ data: tradesResponse });
+          }
+          return Promise.reject(new Error(`Unexpected URL: ${url}`));
+        });
 
-        this.server
-          .trades()
-          .call()
-          .then(function (response) {
-            expect(response.records).to.be.deep.equal(
-              tradesResponse._embedded.records,
-            );
-            done();
-          })
-          .catch(function (err) {
-            done(err);
-          });
+        const response = await server.trades().call();
+
+        expect(response.records).toEqual(tradesResponse._embedded.records);
       });
 
-      it("trades() requests the correct endpoint for assets", function (done) {
-        let tradesResponse = {
+      it("trades() requests the correct endpoint for assets", async () => {
+        const tradesResponse = {
           _links: {
             self: {
               href: "https://horizon-live.stellar.org:1337/trades?base_asset_type=native&counter_asset_type=credit_alphanum4&counter_asset_code=JPY&counter_asset_issuer=GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM&order=asc&limit=10&cursor=",
@@ -2273,16 +2145,18 @@ describe("server.js non-transaction tests", function () {
           },
         };
 
-        this.axiosMock
-          .expects("get")
-          .withArgs(
-            sinon.match(
+        mockGet.mockImplementation((url: string) => {
+          if (
+            url.includes(
               "https://horizon-live.stellar.org:1337/trades?base_asset_type=native&counter_asset_type=credit_alphanum4&counter_asset_code=JPY&counter_asset_issuer=GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM",
-            ),
-          )
-          .returns(Promise.resolve({ data: tradesResponse }));
+            )
+          ) {
+            return Promise.resolve({ data: tradesResponse });
+          }
+          return Promise.reject(new Error(`Unexpected URL: ${url}`));
+        });
 
-        this.server
+        const response = await server
           .trades()
           .forAssetPair(
             StellarSdk.Asset.native(),
@@ -2291,20 +2165,13 @@ describe("server.js non-transaction tests", function () {
               "GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM",
             ),
           )
-          .call()
-          .then(function (response) {
-            expect(response.records).to.be.deep.equal(
-              tradesResponse._embedded.records,
-            );
-            done();
-          })
-          .catch(function (err) {
-            done(err);
-          });
+          .call();
+
+        expect(response.records).toEqual(tradesResponse._embedded.records);
       });
 
-      it("trades() requests the correct endpoint for offer", function (done) {
-        let tradesResponse = {
+      it("trades() requests the correct endpoint for offer", async () => {
+        const tradesResponse = {
           _links: {
             self: {
               href: "https://horizon-live.stellar.org:1337/trades?offer_id=278232&order=asc&limit=10&cursor=",
@@ -2356,32 +2223,24 @@ describe("server.js non-transaction tests", function () {
           },
         };
 
-        this.axiosMock
-          .expects("get")
-          .withArgs(
-            sinon.match(
+        mockGet.mockImplementation((url: string) => {
+          if (
+            url.includes(
               "https://horizon-live.stellar.org:1337/trades?offer_id=278232",
-            ),
-          )
-          .returns(Promise.resolve({ data: tradesResponse }));
+            )
+          ) {
+            return Promise.resolve({ data: tradesResponse });
+          }
+          return Promise.reject(new Error(`Unexpected URL: ${url}`));
+        });
 
-        this.server
-          .trades()
-          .forOffer("278232")
-          .call()
-          .then(function (response) {
-            expect(response.records).to.be.deep.equal(
-              tradesResponse._embedded.records,
-            );
-            done();
-          })
-          .catch(function (err) {
-            done(err);
-          });
+        const response = await server.trades().forOffer("278232").call();
+
+        expect(response.records).toEqual(tradesResponse._embedded.records);
       });
 
-      it("trades() requests the correct endpoint for account", function (done) {
-        let tradesResponse = {
+      it("trades() requests the correct endpoint for account", async () => {
+        const tradesResponse = {
           _links: {
             self: {
               href: "https://horizon-live.stellar.org:1337/accounts/GABJBA4HI4LVKWAYORE7SOAAZMVXDHI566JBSD25O5TRDM7LVID6YOXY/trades?cursor=&limit=10&order=asc",
@@ -2428,34 +2287,29 @@ describe("server.js non-transaction tests", function () {
           },
         };
 
-        this.axiosMock
-          .expects("get")
-          .withArgs(
-            sinon.match(
+        mockGet.mockImplementation((url: string) => {
+          if (
+            url.includes(
               "https://horizon-live.stellar.org:1337/accounts/GABJBA4HI4LVKWAYORE7SOAAZMVXDHI566JBSD25O5TRDM7LVID6YOXY/trades",
-            ),
-          )
-          .returns(Promise.resolve({ data: tradesResponse }));
+            )
+          ) {
+            return Promise.resolve({ data: tradesResponse });
+          }
+          return Promise.reject(new Error(`Unexpected URL: ${url}`));
+        });
 
-        this.server
+        const response = await server
           .trades()
           .forAccount(
             "GABJBA4HI4LVKWAYORE7SOAAZMVXDHI566JBSD25O5TRDM7LVID6YOXY",
           )
-          .call()
-          .then(function (response) {
-            expect(response.records).to.be.deep.equal(
-              tradesResponse._embedded.records,
-            );
-            done();
-          })
-          .catch(function (err) {
-            done(err);
-          });
+          .call();
+
+        expect(response.records).toEqual(tradesResponse._embedded.records);
       });
 
-      it("trades() requests the correct endpoint for paging", function (done) {
-        let tradesResponse = {
+      it("trades() requests the correct endpoint for paging", async () => {
+        const tradesResponse = {
           _links: {
             self: {
               href: "https://horizon-live.stellar.org:1337/trades?order=asc&limit=1&cursor=64199539053039617-0",
@@ -2510,34 +2364,29 @@ describe("server.js non-transaction tests", function () {
           },
         };
 
-        this.axiosMock
-          .expects("get")
-          .withArgs(
-            sinon.match(
+        mockGet.mockImplementation((url: string) => {
+          if (
+            url.includes(
               "https://horizon-live.stellar.org:1337/trades?order=asc&limit=1&cursor=64199539053039617-0",
-            ),
-          )
-          .returns(Promise.resolve({ data: tradesResponse }));
+            )
+          ) {
+            return Promise.resolve({ data: tradesResponse });
+          }
+          return Promise.reject(new Error(`Unexpected URL: ${url}`));
+        });
 
-        this.server
+        const response = await server
           .trades()
           .order("asc")
           .limit("1")
           .cursor("64199539053039617-0")
-          .call()
-          .then(function (response) {
-            expect(response.records).to.be.deep.equal(
-              tradesResponse._embedded.records,
-            );
-            done();
-          })
-          .catch(function (err) {
-            done(err);
-          });
+          .call();
+
+        expect(response.records).toEqual(tradesResponse._embedded.records);
       });
 
-      it("trades() requests the correct endpoint for type orderbook", function (done) {
-        let tradesResponse = {
+      it("trades() requests the correct endpoint for type orderbook", async () => {
+        const tradesResponse = {
           _links: {
             self: {
               href: "https://horizon-live.stellar.org:1337/trades?order=asc&limit=200&trade_type=orderbook&cursor=",
@@ -2589,32 +2438,24 @@ describe("server.js non-transaction tests", function () {
           },
         };
 
-        this.axiosMock
-          .expects("get")
-          .withArgs(
-            sinon.match(
+        mockGet.mockImplementation((url: string) => {
+          if (
+            url.includes(
               "https://horizon-live.stellar.org:1337/trades?trade_type=orderbook",
-            ),
-          )
-          .returns(Promise.resolve({ data: tradesResponse }));
+            )
+          ) {
+            return Promise.resolve({ data: tradesResponse });
+          }
+          return Promise.reject(new Error(`Unexpected URL: ${url}`));
+        });
 
-        this.server
-          .trades()
-          .forType("orderbook")
-          .call()
-          .then(function (response) {
-            expect(response.records).to.be.deep.equal(
-              tradesResponse._embedded.records,
-            );
-            done();
-          })
-          .catch(function (err) {
-            done(err);
-          });
+        const response = await server.trades().forType("orderbook").call();
+
+        expect(response.records).toEqual(tradesResponse._embedded.records);
       });
 
-      it("trades() requests the correct endpoint for type liquidity_pool", function (done) {
-        let tradesResponse = {
+      it("trades() requests the correct endpoint for type liquidity_pool", async () => {
+        const tradesResponse = {
           _links: {
             self: {
               href: "https://horizon-live.stellar.org:1337/trades?order=asc&limit=200&trade_type=liquidity_pool&cursor=",
@@ -2667,33 +2508,25 @@ describe("server.js non-transaction tests", function () {
           },
         };
 
-        this.axiosMock
-          .expects("get")
-          .withArgs(
-            sinon.match(
+        mockGet.mockImplementation((url: string) => {
+          if (
+            url.includes(
               "https://horizon-live.stellar.org:1337/trades?trade_type=liquidity_pool",
-            ),
-          )
-          .returns(Promise.resolve({ data: tradesResponse }));
+            )
+          ) {
+            return Promise.resolve({ data: tradesResponse });
+          }
+          return Promise.reject(new Error(`Unexpected URL: ${url}`));
+        });
 
-        this.server
-          .trades()
-          .forType("liquidity_pool")
-          .call()
-          .then(function (response) {
-            expect(response.records).to.be.deep.equal(
-              tradesResponse._embedded.records,
-            );
-            done();
-          })
-          .catch(function (err) {
-            done(err);
-          });
+        const response = await server.trades().forType("liquidity_pool").call();
+
+        expect(response.records).toEqual(tradesResponse._embedded.records);
       });
     });
 
-    describe("StrictReceivePathCallBuilder", function () {
-      let pathsResponse = {
+    describe("StrictReceivePathCallBuilder", () => {
+      const pathsResponse = {
         _embedded: {
           records: [
             {
@@ -2764,17 +2597,19 @@ describe("server.js non-transaction tests", function () {
         },
       };
 
-      it("requests the correct endpoint when source is an account", function (done) {
-        this.axiosMock
-          .expects("get")
-          .withArgs(
-            sinon.match(
+      it("requests the correct endpoint when source is an account", async () => {
+        mockGet.mockImplementation((url: string) => {
+          if (
+            url.includes(
               "https://horizon-live.stellar.org:1337/paths/strict-receive?source_account=GARSFJNXJIHO6ULUBK3DBYKVSIZE7SC72S5DYBCHU7DKL22UXKVD7MXP&destination_amount=20.0&destination_asset_type=credit_alphanum4&destination_asset_code=EUR&destination_asset_issuer=GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN",
-            ),
-          )
-          .returns(Promise.resolve({ data: pathsResponse }));
+            )
+          ) {
+            return Promise.resolve({ data: pathsResponse });
+          }
+          return Promise.reject(new Error(`Unexpected URL: ${url}`));
+        });
 
-        this.server
+        const response = await server
           .strictReceivePaths(
             "GARSFJNXJIHO6ULUBK3DBYKVSIZE7SC72S5DYBCHU7DKL22UXKVD7MXP",
             new StellarSdk.Asset(
@@ -2783,33 +2618,28 @@ describe("server.js non-transaction tests", function () {
             ),
             "20.0",
           )
-          .call()
-          .then(function (response) {
-            expect(response.records).to.be.deep.equal(
-              pathsResponse._embedded.records,
-            );
-            expect(response.next).to.be.a("function");
-            expect(response.prev).to.be.a("function");
-            done();
-          })
-          .catch(function (err) {
-            done(err);
-          });
+          .call();
+
+        expect(response.records).toEqual(pathsResponse._embedded.records);
+        expect(response.next).toBeTypeOf("function");
+        expect(response.prev).toBeTypeOf("function");
       });
-      it("requests the correct endpoint when source is a list of assets", function (done) {
-        let destinationAssets = encodeURIComponent(
+      it("requests the correct endpoint when source is a list of assets", async () => {
+        const destinationAssets = encodeURIComponent(
           "native,EUR:GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN,USD:GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN",
         );
-        this.axiosMock
-          .expects("get")
-          .withArgs(
-            sinon.match(
+        mockGet.mockImplementation((url: string) => {
+          if (
+            url.includes(
               `https://horizon-live.stellar.org:1337/paths/strict-receive?source_assets=${destinationAssets}&destination_amount=20.0&destination_asset_type=credit_alphanum4&destination_asset_code=EUR&destination_asset_issuer=GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN`,
-            ),
-          )
-          .returns(Promise.resolve({ data: pathsResponse }));
+            )
+          ) {
+            return Promise.resolve({ data: pathsResponse });
+          }
+          return Promise.reject(new Error(`Unexpected URL: ${url}`));
+        });
 
-        let assets = [
+        const assets = [
           StellarSdk.Asset.native(),
           new StellarSdk.Asset(
             "EUR",
@@ -2821,7 +2651,7 @@ describe("server.js non-transaction tests", function () {
           ),
         ];
 
-        this.server
+        const response = await server
           .strictReceivePaths(
             assets,
             new StellarSdk.Asset(
@@ -2830,23 +2660,16 @@ describe("server.js non-transaction tests", function () {
             ),
             "20.0",
           )
-          .call()
-          .then(function (response) {
-            expect(response.records).to.be.deep.equal(
-              pathsResponse._embedded.records,
-            );
-            expect(response.next).to.be.a("function");
-            expect(response.prev).to.be.a("function");
-            done();
-          })
-          .catch(function (err) {
-            done(err);
-          });
+          .call();
+
+        expect(response.records).toEqual(pathsResponse._embedded.records);
+        expect(response.next).toBeTypeOf("function");
+        expect(response.prev).toBeTypeOf("function");
       });
     });
 
-    describe("PathStrictSendCallBuilder", function () {
-      let pathsResponse = {
+    describe("PathStrictSendCallBuilder", () => {
+      const pathsResponse = {
         _embedded: {
           records: [
             {
@@ -2917,17 +2740,19 @@ describe("server.js non-transaction tests", function () {
         },
       };
 
-      it("requests the correct endpoint when destination is account", function (done) {
-        this.axiosMock
-          .expects("get")
-          .withArgs(
-            sinon.match(
+      it("requests the correct endpoint when destination is account", async () => {
+        mockGet.mockImplementation((url: string) => {
+          if (
+            url.includes(
               "https://horizon-live.stellar.org:1337/paths/strict-send?source_asset_type=credit_alphanum4&source_asset_code=EUR&source_asset_issuer=GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN&source_amount=20.0&destination_account=GAEDTJ4PPEFVW5XV2S7LUXBEHNQMX5Q2GM562RJGOQG7GVCE5H3HIB4V",
-            ),
-          )
-          .returns(Promise.resolve({ data: pathsResponse }));
+            )
+          ) {
+            return Promise.resolve({ data: pathsResponse });
+          }
+          return Promise.reject(new Error(`Unexpected URL: ${url}`));
+        });
 
-        this.server
+        const response = await server
           .strictSendPaths(
             new StellarSdk.Asset(
               "EUR",
@@ -2936,33 +2761,28 @@ describe("server.js non-transaction tests", function () {
             "20.0",
             "GAEDTJ4PPEFVW5XV2S7LUXBEHNQMX5Q2GM562RJGOQG7GVCE5H3HIB4V",
           )
-          .call()
-          .then(function (response) {
-            expect(response.records).to.be.deep.equal(
-              pathsResponse._embedded.records,
-            );
-            expect(response.next).to.be.a("function");
-            expect(response.prev).to.be.a("function");
-            done();
-          })
-          .catch(function (err) {
-            done(err);
-          });
+          .call();
+
+        expect(response.records).toEqual(pathsResponse._embedded.records);
+        expect(response.next).toBeTypeOf("function");
+        expect(response.prev).toBeTypeOf("function");
       });
-      it("requests the correct endpoint when destination is a list of assets", function (done) {
-        let destinationAssets = encodeURIComponent(
+      it("requests the correct endpoint when destination is a list of assets", async () => {
+        const destinationAssets = encodeURIComponent(
           "native,EUR:GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN,USD:GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN",
         );
-        this.axiosMock
-          .expects("get")
-          .withArgs(
-            sinon.match(
+        mockGet.mockImplementation((url: string) => {
+          if (
+            url.includes(
               `https://horizon-live.stellar.org:1337/paths/strict-send?source_asset_type=credit_alphanum4&source_asset_code=EUR&source_asset_issuer=GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN&source_amount=20.0&destination_assets=${destinationAssets}`,
-            ),
-          )
-          .returns(Promise.resolve({ data: pathsResponse }));
+            )
+          ) {
+            return Promise.resolve({ data: pathsResponse });
+          }
+          return Promise.reject(new Error(`Unexpected URL: ${url}`));
+        });
 
-        let assets = [
+        const assets = [
           StellarSdk.Asset.native(),
           new StellarSdk.Asset(
             "EUR",
@@ -2974,7 +2794,7 @@ describe("server.js non-transaction tests", function () {
           ),
         ];
 
-        this.server
+        const response = await server
           .strictSendPaths(
             new StellarSdk.Asset(
               "EUR",
@@ -2983,23 +2803,16 @@ describe("server.js non-transaction tests", function () {
             "20.0",
             assets,
           )
-          .call()
-          .then(function (response) {
-            expect(response.records).to.be.deep.equal(
-              pathsResponse._embedded.records,
-            );
-            expect(response.next).to.be.a("function");
-            expect(response.prev).to.be.a("function");
-            done();
-          })
-          .catch(function (err) {
-            done(err);
-          });
+          .call();
+
+        expect(response.records).toEqual(pathsResponse._embedded.records);
+        expect(response.next).toBeTypeOf("function");
+        expect(response.prev).toBeTypeOf("function");
       });
     });
 
-    describe("EffectCallBuilder", function () {
-      let effectsResponse = {
+    describe("EffectCallBuilder", () => {
+      const effectsResponse = {
         _embedded: {
           records: [
             {
@@ -3036,101 +2849,82 @@ describe("server.js non-transaction tests", function () {
         },
       };
 
-      it("requests the correct endpoint", function (done) {
-        this.axiosMock
-          .expects("get")
-          .withArgs(
-            sinon.match(
+      it("requests the correct endpoint", async () => {
+        mockGet.mockImplementation((url: string) => {
+          if (
+            url.includes(
               "https://horizon-live.stellar.org:1337/effects?cursor=b",
-            ),
-          )
-          .returns(Promise.resolve({ data: effectsResponse }));
+            )
+          ) {
+            return Promise.resolve({ data: effectsResponse });
+          }
+          return Promise.reject(new Error(`Unexpected URL: ${url}`));
+        });
 
-        this.server
-          .effects()
-          .cursor("b")
-          .call()
-          .then(function (response) {
-            expect(response.records).to.be.deep.equal(
-              effectsResponse._embedded.records,
-            );
-            expect(response.next).to.be.a("function");
-            expect(response.prev).to.be.a("function");
-            done();
-          })
-          .catch(function (err) {
-            done(err);
-          });
+        const response = await server.effects().cursor("b").call();
+
+        expect(response.records).toEqual(effectsResponse._embedded.records);
+        expect(response.next).toBeTypeOf("function");
+        expect(response.prev).toBeTypeOf("function");
       });
 
-      it("forAccount() requests the correct endpoint", function (done) {
-        this.axiosMock
-          .expects("get")
-          .withArgs(
-            sinon.match(
+      it("forAccount() requests the correct endpoint", async () => {
+        mockGet.mockImplementation((url: string) => {
+          if (
+            url.includes(
               "https://horizon-live.stellar.org:1337/accounts/GCGHCFUB6JKQE42C76BK2LYB3EHKP4WQJE624WTSL3CU2PPDYE5RBMJE/effects",
-            ),
-          )
-          .returns(Promise.resolve({ data: effectsResponse }));
+            )
+          ) {
+            return Promise.resolve({ data: effectsResponse });
+          }
+          return Promise.reject(new Error(`Unexpected URL: ${url}`));
+        });
 
-        this.server
+        const response = await server
           .effects()
           .forAccount(
             "GCGHCFUB6JKQE42C76BK2LYB3EHKP4WQJE624WTSL3CU2PPDYE5RBMJE",
           )
-          .call()
-          .then(function (response) {
-            expect(response.records).to.be.deep.equal(
-              effectsResponse._embedded.records,
-            );
-            expect(response.next).to.be.a("function");
-            expect(response.prev).to.be.a("function");
-            done();
-          })
-          .catch(function (err) {
-            done(err);
-          });
+          .call();
+
+        expect(response.records).toEqual(effectsResponse._embedded.records);
+        expect(response.next).toBeTypeOf("function");
+        expect(response.prev).toBeTypeOf("function");
       });
 
-      it("forTransaction() requests the correct endpoint", function (done) {
-        this.axiosMock
-          .expects("get")
-          .withArgs(
-            sinon.match(
+      it("forTransaction() requests the correct endpoint", async () => {
+        mockGet.mockImplementation((url: string) => {
+          if (
+            url.includes(
               "https://horizon-live.stellar.org:1337/transactions/ef37d6770c40c3bdb6adba80759f2819971396d1c3dfb7b5611f63ad72a9a4ae/effects",
-            ),
-          )
-          .returns(Promise.resolve({ data: effectsResponse }));
+            )
+          ) {
+            return Promise.resolve({ data: effectsResponse });
+          }
+          return Promise.reject(new Error(`Unexpected URL: ${url}`));
+        });
 
-        this.server
+        const response = await server
           .effects()
           .forTransaction(
             "ef37d6770c40c3bdb6adba80759f2819971396d1c3dfb7b5611f63ad72a9a4ae",
           )
-          .call()
-          .then(function (response) {
-            expect(response.records).to.be.deep.equal(
-              effectsResponse._embedded.records,
-            );
-            expect(response.next).to.be.a("function");
-            expect(response.prev).to.be.a("function");
-            done();
-          })
-          .catch(function (err) {
-            done(err);
-          });
+          .call();
+
+        expect(response.records).toEqual(effectsResponse._embedded.records);
+        expect(response.next).toBeTypeOf("function");
+        expect(response.prev).toBeTypeOf("function");
       });
 
-      it("rejects two filters", function (done) {
+      it("rejects two filters", () => {
         expect(() =>
-          this.server.effects().forOperation("blah").forLedger("234").call(),
-        ).to.throw(/Too many filters/);
-        done();
+          server.effects().forOperation("blah").forLedger("234").call(),
+        ).toThrow(/Too many filters/);
       });
     });
 
-    describe("OperationCallBuilder", function () {
-      let operationsResponse = {
+    describe("OperationCallBuilder", () => {
+      const operationsResponse = {
         _embedded: {
           records: [
             {
@@ -3177,148 +2971,120 @@ describe("server.js non-transaction tests", function () {
         },
       };
 
-      it("operation() requests the correct endpoint", function (done) {
-        this.axiosMock
-          .expects("get")
-          .withArgs(
-            sinon.match(
+      it("operation() requests the correct endpoint", async () => {
+        mockGet.mockImplementation((url: string) => {
+          if (
+            url.includes(
               "https://horizon-live.stellar.org:1337/operations/123456789",
-            ),
-          )
-          .returns(Promise.resolve({ data: operationsResponse }));
+            )
+          ) {
+            return Promise.resolve({ data: operationsResponse });
+          }
+          return Promise.reject(new Error(`Unexpected URL: ${url}`));
+        });
 
-        this.server
+        const response = await server
           .operations()
           .operation("123456789")
-          .call()
-          .then(function (response) {
-            expect(response.records).to.be.deep.equal(
-              operationsResponse._embedded.records,
-            );
-            expect(response.next).to.be.a("function");
-            expect(response.prev).to.be.a("function");
-            done();
-          })
-          .catch(function (err) {
-            done(err);
-          });
+          .call();
+
+        expect(response.records).toEqual(operationsResponse._embedded.records);
+        expect(response.next).toBeTypeOf("function");
+        expect(response.prev).toBeTypeOf("function");
       });
 
-      it("forAccount() requests the correct endpoint", function (done) {
-        this.axiosMock
-          .expects("get")
-          .withArgs(
-            sinon.match(
+      it("forAccount() requests the correct endpoint", async () => {
+        mockGet.mockImplementation((url: string) => {
+          if (
+            url.includes(
               "https://horizon-live.stellar.org:1337/accounts/GCGHCFUB6JKQE42C76BK2LYB3EHKP4WQJE624WTSL3CU2PPDYE5RBMJE/operations",
-            ),
-          )
-          .returns(Promise.resolve({ data: operationsResponse }));
+            )
+          ) {
+            return Promise.resolve({ data: operationsResponse });
+          }
+          return Promise.reject(new Error(`Unexpected URL: ${url}`));
+        });
 
-        this.server
+        const response = await server
           .operations()
           .forAccount(
             "GCGHCFUB6JKQE42C76BK2LYB3EHKP4WQJE624WTSL3CU2PPDYE5RBMJE",
           )
-          .call()
-          .then(function (response) {
-            expect(response.records).to.be.deep.equal(
-              operationsResponse._embedded.records,
-            );
-            expect(response.next).to.be.a("function");
-            expect(response.prev).to.be.a("function");
-            done();
-          })
-          .catch(function (err) {
-            done(err);
-          });
+          .call();
+
+        expect(response.records).toEqual(operationsResponse._embedded.records);
+        expect(response.next).toBeTypeOf("function");
+        expect(response.prev).toBeTypeOf("function");
       });
 
-      it("forClaimableBalance() requests the correct endpoint", function (done) {
-        this.axiosMock
-          .expects("get")
-          .withArgs(
-            sinon.match(
+      it("forClaimableBalance() requests the correct endpoint", async () => {
+        mockGet.mockImplementation((url: string) => {
+          if (
+            url.includes(
               "https://horizon-live.stellar.org:1337/claimable_balances/000000000102030000000000000000000000000000000000000000000000000000000000/operations",
-            ),
-          )
-          .returns(Promise.resolve({ data: operationsResponse }));
+            )
+          ) {
+            return Promise.resolve({ data: operationsResponse });
+          }
+          return Promise.reject(new Error(`Unexpected URL: ${url}`));
+        });
 
-        this.server
+        const response = await server
           .operations()
           .forClaimableBalance(
             "000000000102030000000000000000000000000000000000000000000000000000000000",
           )
-          .call()
-          .then(function (response) {
-            expect(response.records).to.be.deep.equal(
-              operationsResponse._embedded.records,
-            );
-            expect(response.next).to.be.a("function");
-            expect(response.prev).to.be.a("function");
-            done();
-          })
-          .catch(function (err) {
-            done(err);
-          });
+          .call();
+
+        expect(response.records).toEqual(operationsResponse._embedded.records);
+        expect(response.next).toBeTypeOf("function");
+        expect(response.prev).toBeTypeOf("function");
       });
 
-      it("forLedger() requests the correct endpoint", function (done) {
-        this.axiosMock
-          .expects("get")
-          .withArgs(
-            sinon.match(
+      it("forLedger() requests the correct endpoint", async () => {
+        mockGet.mockImplementation((url: string) => {
+          if (
+            url.includes(
               "https://horizon-live.stellar.org:1337/ledgers/123456789/operations",
-            ),
-          )
-          .returns(Promise.resolve({ data: operationsResponse }));
+            )
+          ) {
+            return Promise.resolve({ data: operationsResponse });
+          }
+          return Promise.reject(new Error(`Unexpected URL: ${url}`));
+        });
 
-        this.server
-          .operations()
-          .forLedger(123456789)
-          .call()
-          .then(function (response) {
-            expect(response.records).to.be.deep.equal(
-              operationsResponse._embedded.records,
-            );
-            expect(response.next).to.be.a("function");
-            expect(response.prev).to.be.a("function");
-            done();
-          })
-          .catch(function (err) {
-            done(err);
-          });
+        const response = await server.operations().forLedger(123456789).call();
+
+        expect(response.records).toEqual(operationsResponse._embedded.records);
+        expect(response.next).toBeTypeOf("function");
+        expect(response.prev).toBeTypeOf("function");
       });
 
-      it("forTransaction() requests the correct endpoint", function (done) {
-        this.axiosMock
-          .expects("get")
-          .withArgs(
-            sinon.match(
+      it("forTransaction() requests the correct endpoint", async () => {
+        mockGet.mockImplementation((url: string) => {
+          if (
+            url.includes(
               "https://horizon-live.stellar.org:1337/transactions/blah/operations",
-            ),
-          )
-          .returns(Promise.resolve({ data: operationsResponse }));
+            )
+          ) {
+            return Promise.resolve({ data: operationsResponse });
+          }
+          return Promise.reject(new Error(`Unexpected URL: ${url}`));
+        });
 
-        this.server
+        const response = await server
           .operations()
           .forTransaction("blah")
-          .call()
-          .then(function (response) {
-            expect(response.records).to.be.deep.equal(
-              operationsResponse._embedded.records,
-            );
-            expect(response.next).to.be.a("function");
-            expect(response.prev).to.be.a("function");
-            done();
-          })
-          .catch(function (err) {
-            done(err);
-          });
+          .call();
+
+        expect(response.records).toEqual(operationsResponse._embedded.records);
+        expect(response.next).toBeTypeOf("function");
+        expect(response.prev).toBeTypeOf("function");
       });
     });
 
-    describe("PaymentCallBuilder", function () {
-      let paymentsResponse = {
+    describe("PaymentCallBuilder", () => {
+      const paymentsResponse = {
         _embedded: {
           records: [
             {
@@ -3365,122 +3131,101 @@ describe("server.js non-transaction tests", function () {
         },
       };
 
-      it("forAccount() requests the correct endpoint", function (done) {
-        this.axiosMock
-          .expects("get")
-          .withArgs(
-            sinon.match(
+      it("forAccount() requests the correct endpoint", async () => {
+        mockGet.mockImplementation((url: string) => {
+          if (
+            url.includes(
               "https://horizon-live.stellar.org:1337/accounts/GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K/payments",
-            ),
-          )
-          .returns(Promise.resolve({ data: paymentsResponse }));
+            )
+          ) {
+            return Promise.resolve({ data: paymentsResponse });
+          }
+          return Promise.reject(new Error(`Unexpected URL: ${url}`));
+        });
 
-        this.server
+        const response = await server
           .payments()
           .forAccount(
             "GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K",
           )
-          .call()
-          .then(function (response) {
-            expect(response.records).to.be.deep.equal(
-              paymentsResponse._embedded.records,
-            );
-            expect(response.next).to.be.a("function");
-            expect(response.prev).to.be.a("function");
-            done();
-          })
-          .catch(function (err) {
-            done(err);
-          });
+          .call();
+
+        expect(response.records).toEqual(paymentsResponse._embedded.records);
+        expect(response.next).toBeTypeOf("function");
+        expect(response.prev).toBeTypeOf("function");
       });
 
-      it("forLedger() requests the correct endpoint", function (done) {
-        this.axiosMock
-          .expects("get")
-          .withArgs(
-            sinon.match(
+      it("forLedger() requests the correct endpoint", async () => {
+        mockGet.mockImplementation((url: string) => {
+          if (
+            url.includes(
               "https://horizon-live.stellar.org:1337/ledgers/123456789/payments",
-            ),
-          )
-          .returns(Promise.resolve({ data: paymentsResponse }));
+            )
+          ) {
+            return Promise.resolve({ data: paymentsResponse });
+          }
+          return Promise.reject(new Error(`Unexpected URL: ${url}`));
+        });
 
-        this.server
-          .payments()
-          .forLedger("123456789")
-          .call()
-          .then(function (response) {
-            expect(response.records).to.be.deep.equal(
-              paymentsResponse._embedded.records,
-            );
-            expect(response.next).to.be.a("function");
-            expect(response.prev).to.be.a("function");
-            done();
-          })
-          .catch(function (err) {
-            done(err);
-          });
+        const response = await server.payments().forLedger("123456789").call();
+
+        expect(response.records).toEqual(paymentsResponse._embedded.records);
+        expect(response.next).toBeTypeOf("function");
+        expect(response.prev).toBeTypeOf("function");
       });
 
-      it("forTransaction() requests the correct endpoint", function (done) {
-        this.axiosMock
-          .expects("get")
-          .withArgs(
-            sinon.match(
+      it("forTransaction() requests the correct endpoint", async () => {
+        mockGet.mockImplementation((url: string) => {
+          if (
+            url.includes(
               "https://horizon-live.stellar.org:1337/transactions/77277606902d80a03a892536ebff8466726a4e55c3923ec2d3eeb3aa5bdc3731/payments",
-            ),
-          )
-          .returns(Promise.resolve({ data: paymentsResponse }));
+            )
+          ) {
+            return Promise.resolve({ data: paymentsResponse });
+          }
+          return Promise.reject(new Error(`Unexpected URL: ${url}`));
+        });
 
-        this.server
+        const response = await server
           .payments()
           .forTransaction(
             "77277606902d80a03a892536ebff8466726a4e55c3923ec2d3eeb3aa5bdc3731",
           )
-          .call()
-          .then(function (response) {
-            expect(response.records).to.be.deep.equal(
-              paymentsResponse._embedded.records,
-            );
-            expect(response.next).to.be.a("function");
-            expect(response.prev).to.be.a("function");
-            done();
-          })
-          .catch(function (err) {
-            done(err);
-          });
+          .call();
+
+        expect(response.records).toEqual(paymentsResponse._embedded.records);
+        expect(response.next).toBeTypeOf("function");
+        expect(response.prev).toBeTypeOf("function");
       });
     });
 
-    describe("FriendbotCallBuilder", function () {
-      let friendbotResponse = {
+    describe("FriendbotCallBuilder", () => {
+      const friendbotResponse = {
         ledger: 2,
       };
 
-      it("requests the correct endpoint", function (done) {
-        this.axiosMock
-          .expects("get")
-          .withArgs(
-            sinon.match(
+      it("requests the correct endpoint", async () => {
+        mockGet.mockImplementation((url: string) => {
+          if (
+            url.includes(
               "https://horizon-live.stellar.org:1337/friendbot?addr=GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K",
-            ),
-          )
-          .returns(Promise.resolve({ data: friendbotResponse }));
+            )
+          ) {
+            return Promise.resolve({ data: friendbotResponse });
+          }
+          return Promise.reject(new Error(`Unexpected URL: ${url}`));
+        });
 
-        this.server
+        const response = await server
           .friendbot("GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K")
-          .call()
-          .then(function (response) {
-            expect(response.ledger).to.be.equal(friendbotResponse.ledger);
-            done();
-          })
-          .catch(function (err) {
-            done(err);
-          });
+          .call();
+
+        expect(response.ledger).toEqual(friendbotResponse.ledger);
       });
     });
 
-    describe("TradeAggregationCallBuilder", function () {
-      let tradeAggregationResponse = {
+    describe("TradeAggregationCallBuilder", () => {
+      const tradeAggregationResponse = {
         _links: {
           self: {
             href: "https://horizon.stellar.org/trade_aggregations?base_asset_type=native\u0026counter_asset_type=credit_alphanum4\u0026counter_asset_code=BTC\u0026counter_asset_issuer=GATEMHCCKCY67ZUCKTROYN24ZYT5GK4EQZ65JJLDHKHRUZI3EUEKMTCH\u0026start_time=1512689100000\u0026end_time=1512775500000\u0026resolution=300000",
@@ -3531,17 +3276,19 @@ describe("server.js non-transaction tests", function () {
         },
       };
 
-      it("requests the correct endpoint native/credit", function (done) {
-        this.axiosMock
-          .expects("get")
-          .withArgs(
-            sinon.match(
+      it("requests the correct endpoint native/credit", async () => {
+        mockGet.mockImplementation((url: string) => {
+          if (
+            url.includes(
               "https://horizon-live.stellar.org:1337/trade_aggregations?base_asset_type=native&counter_asset_type=credit_alphanum4&counter_asset_code=BTC&counter_asset_issuer=GATEMHCCKCY67ZUCKTROYN24ZYT5GK4EQZ65JJLDHKHRUZI3EUEKMTCH&start_time=1512689100000&end_time=1512775500000&resolution=300000",
-            ),
-          )
-          .returns(Promise.resolve({ data: tradeAggregationResponse }));
+            )
+          ) {
+            return Promise.resolve({ data: tradeAggregationResponse });
+          }
+          return Promise.reject(new Error(`Unexpected URL: ${url}`));
+        });
 
-        this.server
+        const response = await server
           .tradeAggregation(
             StellarSdk.Asset.native(),
             new StellarSdk.Asset(
@@ -3553,31 +3300,28 @@ describe("server.js non-transaction tests", function () {
             300000,
             0,
           )
-          .call()
-          .then(function (response) {
-            expect(response.records).to.be.deep.equal(
-              tradeAggregationResponse._embedded.records,
-            );
-            expect(response.next).to.be.a("function");
-            expect(response.prev).to.be.a("function");
-            done();
-          })
-          .catch(function (err) {
-            done(err);
-          });
+          .call();
+
+        expect(response.records).toEqual(
+          tradeAggregationResponse._embedded.records,
+        );
+        expect(response.next).toBeTypeOf("function");
+        expect(response.prev).toBeTypeOf("function");
       });
 
-      it("requests the correct endpoint credit/native", function (done) {
-        this.axiosMock
-          .expects("get")
-          .withArgs(
-            sinon.match(
+      it("requests the correct endpoint credit/native", async () => {
+        mockGet.mockImplementation((url: string) => {
+          if (
+            url.includes(
               "https://horizon-live.stellar.org:1337/trade_aggregations?base_asset_type=credit_alphanum4&base_asset_code=BTC&base_asset_issuer=GATEMHCCKCY67ZUCKTROYN24ZYT5GK4EQZ65JJLDHKHRUZI3EUEKMTCH&counter_asset_type=native&start_time=1512689100000&end_time=1512775500000&resolution=300000",
-            ),
-          )
-          .returns(Promise.resolve({ data: tradeAggregationResponse }));
+            )
+          ) {
+            return Promise.resolve({ data: tradeAggregationResponse });
+          }
+          return Promise.reject(new Error(`Unexpected URL: ${url}`));
+        });
 
-        this.server
+        const response = await server
           .tradeAggregation(
             new StellarSdk.Asset(
               "BTC",
@@ -3589,24 +3333,19 @@ describe("server.js non-transaction tests", function () {
             300000,
             0,
           )
-          .call()
-          .then(function (response) {
-            expect(response.records).to.be.deep.equal(
-              tradeAggregationResponse._embedded.records,
-            );
-            expect(response.next).to.be.a("function");
-            expect(response.prev).to.be.a("function");
-            done();
-          })
-          .catch(function (err) {
-            done(err);
-          });
+          .call();
+
+        expect(response.records).toEqual(
+          tradeAggregationResponse._embedded.records,
+        );
+        expect(response.next).toBeTypeOf("function");
+        expect(response.prev).toBeTypeOf("function");
       });
     });
 
-    describe("AssetsCallBuilder", function () {
-      it("requests the correct endpoint", function (done) {
-        let assetsResponse = {
+    describe("AssetsCallBuilder", () => {
+      it("requests the correct endpoint", async () => {
+        const assetsResponse = {
           _links: {
             self: {
               href: "https://horizon-live.stellar.org:1337/assets?order=asc\u0026limit=1\u0026cursor=",
@@ -3659,30 +3398,22 @@ describe("server.js non-transaction tests", function () {
           },
         };
 
-        this.axiosMock
-          .expects("get")
-          .withArgs(
-            sinon.match("https://horizon-live.stellar.org:1337/assets?limit=1"),
-          )
-          .returns(Promise.resolve({ data: assetsResponse }));
+        mockGet.mockImplementation((url: string) => {
+          if (
+            url.includes("https://horizon-live.stellar.org:1337/assets?limit=1")
+          ) {
+            return Promise.resolve({ data: assetsResponse });
+          }
+          return Promise.reject(new Error(`Unexpected URL: ${url}`));
+        });
 
-        this.server
-          .assets()
-          .limit("1")
-          .call()
-          .then(function (response) {
-            expect(response.records).to.be.equal(
-              assetsResponse._embedded.records,
-            );
-            done();
-          })
-          .catch(function (err) {
-            done(err);
-          });
+        const response = await server.assets().limit("1").call();
+
+        expect(response.records).toEqual(assetsResponse._embedded.records);
       });
 
-      it("requests the correct endpoint (asset_code)", function (done) {
-        let assetsCodeResponse = {
+      it("requests the correct endpoint (asset_code)", async () => {
+        const assetsCodeResponse = {
           _links: {
             self: {
               href: "https://horizon-live.stellar.org:1337/assets?order=asc\u0026limit=1\u0026cursor=\u0026asset_code=USD",
@@ -3734,33 +3465,24 @@ describe("server.js non-transaction tests", function () {
             ],
           },
         };
-        this.axiosMock
-          .expects("get")
-          .withArgs(
-            sinon.match(
+        mockGet.mockImplementation((url: string) => {
+          if (
+            url.includes(
               "https://horizon-live.stellar.org:1337/assets?asset_code=USD&limit=1",
-            ),
-          )
-          .returns(Promise.resolve({ data: assetsCodeResponse }));
+            )
+          ) {
+            return Promise.resolve({ data: assetsCodeResponse });
+          }
+          return Promise.reject(new Error(`Unexpected URL: ${url}`));
+        });
 
-        this.server
-          .assets()
-          .forCode("USD")
-          .limit("1")
-          .call()
-          .then(function (response) {
-            expect(response.records).to.be.equal(
-              assetsCodeResponse._embedded.records,
-            );
-            done();
-          })
-          .catch(function (err) {
-            done(err);
-          });
+        const response = await server.assets().forCode("USD").limit("1").call();
+
+        expect(response.records).toEqual(assetsCodeResponse._embedded.records);
       });
 
-      it("requests the correct endpoint (asset_issuer)", function (done) {
-        let assetIssuerResponse = {
+      it("requests the correct endpoint (asset_issuer)", async () => {
+        const assetIssuerResponse = {
           _links: {
             self: {
               href: "http://horizon-testnet.stellar.org:1337/assets?order=asc\u0026limit=10\u0026cursor=\u0026asset_issuer=GCOGPF7IRVXUCJZAQWXVFQEE4HAOCTDGZI2QZSMKLM5BTTGRLY6GDOJN",
@@ -3812,32 +3534,27 @@ describe("server.js non-transaction tests", function () {
             ],
           },
         };
-        this.axiosMock
-          .expects("get")
-          .withArgs(
-            sinon.match(
+        mockGet.mockImplementation((url: string) => {
+          if (
+            url.includes(
               "https://horizon-live.stellar.org:1337/assets?asset_issuer=GCOGPF7IRVXUCJZAQWXVFQEE4HAOCTDGZI2QZSMKLM5BTTGRLY6GDOJN&limit=1",
-            ),
-          )
-          .returns(Promise.resolve({ data: assetIssuerResponse }));
+            )
+          ) {
+            return Promise.resolve({ data: assetIssuerResponse });
+          }
+          return Promise.reject(new Error(`Unexpected URL: ${url}`));
+        });
 
-        this.server
+        const response = await server
           .assets()
           .forIssuer("GCOGPF7IRVXUCJZAQWXVFQEE4HAOCTDGZI2QZSMKLM5BTTGRLY6GDOJN")
           .limit("1")
-          .call()
-          .then(function (response) {
-            expect(response.records).to.be.equal(
-              assetIssuerResponse._embedded.records,
-            );
-            done();
-          })
-          .catch(function (err) {
-            done(err);
-          });
+          .call();
+
+        expect(response.records).toEqual(assetIssuerResponse._embedded.records);
       });
 
-      let assetCodeIssuerResponse = {
+      const assetCodeIssuerResponse = {
         _links: {
           self: {
             href: "http://horizon-testnet.stellar.org/assets?order=asc\u0026limit=10\u0026cursor=\u0026asset_code=USD\u0026asset_issuer=GBW3EZBZKRERB4JUDWGQPIBGHKJ4XPOFG2VQ2WTFR4F7TYC5WS7F3XGR",
@@ -3889,86 +3606,71 @@ describe("server.js non-transaction tests", function () {
           ],
         },
       };
-      it("requests the correct endpoint (asset_code then asset_issuer)", function (done) {
-        this.axiosMock
-          .expects("get")
-          .withArgs(
-            sinon.match(
+      it("requests the correct endpoint (asset_code then asset_issuer)", async () => {
+        mockGet.mockImplementation((url: string) => {
+          if (
+            url.includes(
               "https://horizon-live.stellar.org:1337/assets?asset_issuer=GBW3EZBZKRERB4JUDWGQPIBGHKJ4XPOFG2VQ2WTFR4F7TYC5WS7F3XGR&asset_code=USD",
-            ),
-          )
-          .returns(Promise.resolve({ data: assetCodeIssuerResponse }));
+            )
+          ) {
+            return Promise.resolve({ data: assetCodeIssuerResponse });
+          }
+          return Promise.reject(new Error(`Unexpected URL: ${url}`));
+        });
 
-        this.server
+        const response = await server
           .assets()
           .forIssuer("GBW3EZBZKRERB4JUDWGQPIBGHKJ4XPOFG2VQ2WTFR4F7TYC5WS7F3XGR")
           .forCode("USD")
-          .call()
-          .then(function (response) {
-            expect(response.records).to.be.equal(
-              assetCodeIssuerResponse._embedded.records,
-            );
-            done();
-          })
-          .catch(function (err) {
-            done(err);
-          });
+          .call();
+
+        expect(response.records).toEqual(
+          assetCodeIssuerResponse._embedded.records,
+        );
       });
 
-      it("requests the correct endpoint (asset_issuer then asset_code)", function (done) {
-        this.axiosMock
-          .expects("get")
-          .withArgs(
-            sinon.match(
+      it("requests the correct endpoint (asset_issuer then asset_code)", async () => {
+        mockGet.mockImplementation((url: string) => {
+          if (
+            url.includes(
               "https://horizon-live.stellar.org:1337/assets?asset_code=USD&asset_issuer=GBW3EZBZKRERB4JUDWGQPIBGHKJ4XPOFG2VQ2WTFR4F7TYC5WS7F3XGR",
-            ),
-          )
-          .returns(Promise.resolve({ data: assetCodeIssuerResponse }));
+            )
+          ) {
+            return Promise.resolve({ data: assetCodeIssuerResponse });
+          }
+          return Promise.reject(new Error(`Unexpected URL: ${url}`));
+        });
 
-        this.server
+        const response = await server
           .assets()
           .forCode("USD")
           .forIssuer("GBW3EZBZKRERB4JUDWGQPIBGHKJ4XPOFG2VQ2WTFR4F7TYC5WS7F3XGR")
-          .call()
-          .then(function (response) {
-            expect(response.records).to.be.equal(
-              assetCodeIssuerResponse._embedded.records,
-            );
-            done();
-          })
-          .catch(function (err) {
-            done(err);
-          });
+          .call();
+
+        expect(response.records).toEqual(
+          assetCodeIssuerResponse._embedded.records,
+        );
       });
     });
 
-    describe("Regressions", function () {
-      it("offers callBuilder does not pollute Server instance URI #379", function (done) {
-        this.axiosMock
-          .expects("get")
-          .withArgs(
-            sinon.match(
+    describe("Regressions", () => {
+      it("offers callBuilder does not pollute Server instance URI #379", async () => {
+        mockGet.mockImplementation((url: string) => {
+          if (
+            url.includes(
               "https://horizon-live.stellar.org:1337/accounts/GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K/effects",
-            ),
-          )
-          .returns(Promise.resolve({ data: {} }));
+            )
+          ) {
+            return Promise.resolve({ data: {} });
+          }
+          return Promise.reject(new Error(`Unexpected URL: ${url}`));
+        });
 
         const account =
           "GBS43BF24ENNS3KPACUZVKK2VYPOZVBQO2CISGZ777RYGOPYC2FT6S3K";
 
-        const offerCallBuilder = this.server.offers("accounts", account);
-        const effectCallBuilder = this.server
-          .effects()
-          .forAccount(account)
-          .limit(1);
-        effectCallBuilder
-          .call()
-          .then(function (response) {
-            done();
-          })
-          .catch(function (err) {
-            done(err);
-          });
+        const effectCallBuilder = server.effects().forAccount(account).limit(1);
+        await effectCallBuilder.call();
       });
     });
   });

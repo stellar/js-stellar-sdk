@@ -1,6 +1,5 @@
-const { expect } = require("chai");
-const { spawnSync } = require("node:child_process");
-const {
+import { expect, beforeAll } from "vitest";
+import {
   contracts,
   networkPassphrase,
   rpcUrl,
@@ -8,21 +7,22 @@ const {
   generateFundedKeypair,
   run,
   stellar,
-} = require("./util");
-const { Address, contract } = require("../../../lib");
+} from "./util";
+import { Address, contract, Keypair } from "../../../lib";
+
+let context: { client: any; publicKey: string; addr: any; contractId: string; keypair: any };
 
 async function clientFromConstructor(
-  name,
-  { keypair = generateFundedKeypair(), contractId } = {},
+  name: keyof typeof contracts,
+  { keypair = generateFundedKeypair() } = {},
 ) {
-  if (!contracts[name]) {
+  if (!(name in contracts)) {
     throw new Error(
       `Contract ${name} not found. ` +
         `Pick one of: ${Object.keys(contracts).join()}`,
     );
   }
-  keypair = await keypair; // eslint-disable-line no-param-reassign
-  const wallet = contract.basicNodeSigner(keypair, networkPassphrase);
+  const wallet = contract.basicNodeSigner(await keypair, networkPassphrase);
 
   const { path } = contracts[name];
   // TODO: use newer interface instead, `stellar contract info interface` (doesn't yet support xdr-base64-array output)
@@ -39,15 +39,14 @@ async function clientFromConstructor(
     networkPassphrase,
     rpcUrl,
     allowHttp: true,
-    server,
     wasmHash,
-    publicKey: keypair.publicKey(),
+    publicKey: (await keypair).publicKey(),
     ...wallet,
   });
   const { result: client } = await deploy.signAndSend();
 
   return {
-    keypair,
+    keypair: await keypair,
     client,
     contractId: client.options.contractId,
   };
@@ -56,8 +55,7 @@ async function clientFromConstructor(
 /**
  * Generates a Client given the contractId using the from method.
  */
-async function clientForFromTest(contractId, publicKey, keypair) {
-  keypair = await keypair; // eslint-disable-line no-param-reassign
+function clientForFromTest(contractId: string, publicKey: string, keypair: Keypair) {
   const wallet = contract.basicNodeSigner(keypair, networkPassphrase);
   const options = {
     networkPassphrase,
@@ -71,35 +69,33 @@ async function clientForFromTest(contractId, publicKey, keypair) {
   return contract.Client.from(options);
 }
 
-describe("Client", function () {
-  before(async function () {
+describe("Client", () => {
+  beforeAll(async () => {
     const { client, keypair, contractId } =
       await clientFromConstructor("customTypes");
     const publicKey = keypair.publicKey();
     const addr = Address.fromString(publicKey);
-    this.context = { client, publicKey, addr, contractId, keypair };
+    context = { client, publicKey, addr, contractId, keypair };
   });
 
-  it("can be constructed with `new Client`", async function () {
-    const { result } = await this.context.client.hello({ hello: "tests" });
-    expect(result).to.equal("tests");
+  it("can be constructed with `new Client`", async () => {
+    const { result } = await context.client.hello({ hello: "tests" });
+    expect(result).toBe("tests");
   });
 
-  it("can be constructed with `from`", async function () {
+  it("can be constructed with `from`", async () => {
     // objects with different constructors will not pass deepEqual check
-    function constructorWorkaround(object) {
-      return JSON.parse(JSON.stringify(object));
-    }
+    const constructorWorkaround = (object: contract.Client) => JSON.parse(JSON.stringify(object));
 
     const clientFromFrom = await clientForFromTest(
-      this.context.contractId,
-      this.context.publicKey,
-      this.context.keypair,
+      context.contractId,
+      context.publicKey,
+      context.keypair,
     );
-    expect(constructorWorkaround(clientFromFrom)).to.deep.equal(
-      constructorWorkaround(this.context.client),
+    expect(constructorWorkaround(clientFromFrom)).toEqual(
+      constructorWorkaround(context.client),
     );
-    expect(this.context.client.spec.entries).to.deep.equal(
+    expect(context.client.spec.entries).toEqual(
       clientFromFrom.spec.entries,
     );
   });

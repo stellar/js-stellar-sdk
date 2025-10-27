@@ -29,6 +29,12 @@ jobs:
       - name: Install Dependencies
         run: yarn install --network-concurrency 1
 
+      - name: Install Playwright
+        run: yarn playwright install
+
+      - name: Install Playwright Dependencies
+        run: yarn playwright install-deps
+
       - name: Build
         run: yarn build:prod
 
