@@ -245,4 +245,127 @@ describe("Server#requestAirdrop", () => {
     });
     expect(mockPost).toHaveBeenCalledTimes(1);
   });
+
+  it("uses passed in friendbot url if provided", async () => {
+    const customFriendbotUrl = "https://custom-friendbot.example.com";
+    const accountId =
+      "GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI";
+
+    const resultMetaXdr = transactionMetaFor().toXDR("base64");
+
+    // Mock the friendbot call with result_meta_xdr
+    const friendbotResponse = {
+      status: 200,
+      data: {
+        result_meta_xdr: resultMetaXdr,
+      },
+    };
+
+    mockPost.mockResolvedValueOnce(friendbotResponse);
+
+    const result = await server.requestAirdrop(accountId, customFriendbotUrl);
+    expect(result).toBeInstanceOf(StellarSdk.Account);
+    expect(result.accountId()).toBe(accountId);
+    expect(result.sequence.toNumber()).toEqual(1234);
+    // Should not call getNetwork
+    expect(mockPost).not.toHaveBeenCalledWith(serverUrl, {
+      jsonrpc: "2.0",
+      id: 1,
+      method: "getNetwork",
+      params: null,
+    });
+    // Should call custom friendbot URL
+    expect(mockPost).toHaveBeenCalledWith(
+      `${customFriendbotUrl}?addr=${accountId}`,
+    );
+    expect(mockPost).toHaveBeenCalledTimes(1);
+  });
+
+  it("rejects invalid addresses", async () => {
+    const invalidAddress = "INVALID_ADDRESS";
+
+    await expect(server.requestAirdrop(invalidAddress)).rejects.toThrow();
+  });
+
+  it("falls back to RPC if no meta is present", async () => {
+    const friendbotUrl = "https://friendbot.stellar.org";
+    const accountId =
+      "GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI";
+    const hash = "ae9f315c048d87a5f853bc15bf284a2c3c89eb0e1cb38c10409b77a877b830a8";
+
+    const networkResult = {
+      friendbotUrl,
+      passphrase: Networks.FUTURENET,
+      protocolVersion: 20,
+    };
+    const networkResponse = { data: { result: networkResult } };
+
+    // Mock the friendbot call WITHOUT result_meta_xdr
+    const friendbotResponse = {
+      status: 200,
+      data: {
+        hash,
+        // No result_meta_xdr field
+      },
+    };
+
+    // Mock the getTransaction call - use meta with account creation info
+    const resultMetaXdr = transactionMetaFor().toXDR("base64");
+    
+    const successInfo = {
+      ledger: 12345,
+      createdAt: 123456789010,
+      applicationOrder: 2,
+      feeBump: false,
+      envelopeXdr:
+        "AAAAAgAAAAAT/LQZdYz0FcQ4Xwyg8IM17rkUx3pPCCWLu+SowQ/T+gBLB24poiQa9iwAngAAAAEAAAAAAAAAAAAAAABkwdeeAAAAAAAAAAEAAAABAAAAAC/9E8hDhnktyufVBS5tqA734Yz5XrLX2XNgBgH/YEkiAAAADQAAAAAAAAAAAAA1/gAAAAAv/RPIQ4Z5Lcrn1QUubagO9+GM+V6y19lzYAYB/2BJIgAAAAAAAAAAAAA1/gAAAAQAAAACU0lMVkVSAAAAAAAAAAAAAFDutWuu6S6UPJBrotNSgfmXa27M++63OT7TYn1qjgy+AAAAAVNHWAAAAAAAUO61a67pLpQ8kGui01KB+Zdrbsz77rc5PtNifWqODL4AAAACUEFMTEFESVVNAAAAAAAAAFDutWuu6S6UPJBrotNSgfmXa27M++63OT7TYn1qjgy+AAAAAlNJTFZFUgAAAAAAAAAAAABQ7rVrrukulDyQa6LTUoH5l2tuzPvutzk+02J9ao4MvgAAAAAAAAACwQ/T+gAAAEA+ztVEKWlqHXNnqy6FXJeHr7TltHzZE6YZm5yZfzPIfLaqpp+5cyKotVkj3d89uZCQNsKsZI48uoyERLne+VwL/2BJIgAAAEA7323gPSaezVSa7Vi0J4PqsnklDH1oHLqNBLwi5EWo5W7ohLGObRVQZ0K0+ufnm4hcm9J4Cuj64gEtpjq5j5cM",
+      resultXdr:
+        "AAAAAAAAAGQAAAAAAAAAAQAAAAAAAAANAAAAAAAAAAUAAAACZ4W6fmN63uhVqYRcHET+D2NEtJvhCIYflFh9GqtY+AwAAAACU0lMVkVSAAAAAAAAAAAAAFDutWuu6S6UPJBrotNSgfmXa27M++63OT7TYn1qjgy+AAAYW0toL2gAAAAAAAAAAAAANf4AAAACcgyAkXD5kObNTeRYciLh7R6ES/zzKp0n+cIK3Y6TjBkAAAABU0dYAAAAAABQ7rVrrukulDyQa6LTUoH5l2tuzPvutzk+02J9ao4MvgAAGlGnIJrXAAAAAlNJTFZFUgAAAAAAAAAAAABQ7rVrrukulDyQa6LTUoH5l2tuzPvutzk+02J9ao4MvgAAGFtLaC9oAAAAApmc7UgUBInrDvij8HMSridx2n1w3I8TVEn4sLr1LSpmAAAAAlBBTExBRElVTQAAAAAAAABQ7rVrrukulDyQa6LTUoH5l2tuzPvutzk+02J9ao4MvgAAIUz88EqYAAAAAVNHWAAAAAAAUO61a67pLpQ8kGui01KB+Zdrbsz77rc5PtNifWqODL4AABpRpyCa1wAAAAKYUsaaCZ233xB1p+lG7YksShJWfrjsmItbokiR3ifa0gAAAAJTSUxWRVIAAAAAAAAAAAAAUO61a67pLpQ8kGui01KB+Zdrbsz77rc5PtNifWqODL4AABv52PPa5wAAAAJQQUxMQURJVU0AAAAAAAAAUO61a67pLpQ8kGui01KB+Zdrbsz77rc5PtNifWqODL4AACFM/PBKmAAAAAJnhbp+Y3re6FWphFwcRP4PY0S0m+EIhh+UWH0aq1j4DAAAAAAAAAAAAAA9pAAAAAJTSUxWRVIAAAAAAAAAAAAAUO61a67pLpQ8kGui01KB+Zdrbsz77rc5PtNifWqODL4AABv52PPa5wAAAAAv/RPIQ4Z5Lcrn1QUubagO9+GM+V6y19lzYAYB/2BJIgAAAAAAAAAAAAA9pAAAAAA=",
+      resultMetaXdr,
+      events: {
+        contractEventsXdr: [],
+        transactionEventsXdr: [],
+      },
+    };
+
+    const getTransactionResponse = {
+      data: {
+        id: 1,
+        result: {
+          status: "SUCCESS",
+          txHash: hash,
+          latestLedger: 100,
+          latestLedgerCloseTime: 12345,
+          oldestLedger: 50,
+          oldestLedgerCloseTime: 500,
+          ...successInfo,
+        },
+      },
+    };
+
+    // Mock the sequence of calls
+    mockPost
+      .mockResolvedValueOnce(networkResponse) // getNetwork call
+      .mockResolvedValueOnce(friendbotResponse) // friendbot call without meta
+      .mockResolvedValueOnce(getTransactionResponse); // getTransaction call
+
+    const result = await server.requestAirdrop(accountId);
+    expect(result).toBeInstanceOf(StellarSdk.Account);
+    expect(result.accountId()).toBe(accountId);
+    expect(result.sequence.toNumber()).toEqual(1234);
+    expect(mockPost).toHaveBeenCalledWith(serverUrl, {
+      jsonrpc: "2.0",
+      id: 1,
+      method: "getNetwork",
+      params: null,
+    });
+    expect(mockPost).toHaveBeenCalledWith(`${friendbotUrl}?addr=${accountId}`);
+    expect(mockPost).toHaveBeenCalledWith(serverUrl, {
+      jsonrpc: "2.0",
+      id: 1,
+      method: "getTransaction",
+      params: { hash },
+    });
+    expect(mockPost).toHaveBeenCalledTimes(3);
+  });
 });
