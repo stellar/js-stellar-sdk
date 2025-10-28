@@ -98,7 +98,7 @@ function generateTestData(funcName: string, index: number): any {
 }
 
 function replaceBigIntWithStrings(obj: any): any {
-  if (obj instanceof Uint8Array) {
+  if (Buffer.isBuffer(obj)) {
     return obj;
   }
   // If obj is an array, process each element
@@ -272,13 +272,7 @@ describe("Can round trip custom types", () => {
         }
         const result = SPEC.funcResToNative(funcName, scVal);
         if (funcName.startsWith("bytes")) {
-          // Convert base64 string to Uint8Array for browser compatibility
-          const binaryString = atob(res[funcName]);
-          const bytes = new Uint8Array(binaryString.length);
-          for (let i = 0; i < binaryString.length; i += 1) {
-            bytes[i] = binaryString.charCodeAt(i);
-          }
-          res[funcName] = bytes;
+          res[funcName] = Buffer.from(res[funcName], "base64");
         }
         const expected = res[funcName];
         const actual = replaceBigIntWithStrings(result);

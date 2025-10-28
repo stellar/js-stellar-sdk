@@ -1,4 +1,4 @@
-import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
+import { describe, it, beforeEach, afterEach, expect, vi, assert } from "vitest";
 import { StellarSdk } from "../../../test-utils/stellar-sdk-import";
 
 import { serverUrl } from "../../../constants";
@@ -137,7 +137,7 @@ describe("Server#getContractWasm", () => {
       .mockResolvedValueOnce(secondResponse);
 
     const wasmData = await server.getContractWasmByContractId(contractId);
-    expect(Uint8Array.from(wasmData)).toEqual(Uint8Array.from(wasmBuffer));
+    assert.deepEqual(wasmData, wasmBuffer);
     expect(mockPost).toHaveBeenCalledWith(serverUrl, {
       jsonrpc: "2.0",
       id: 1,

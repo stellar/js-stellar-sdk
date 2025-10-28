@@ -389,7 +389,8 @@ describe("Server#simulateTransaction", () => {
     mockPost.mockResolvedValue(mockResponse);
 
     const response = await server.simulateTransaction(transaction);
-    expect(Uint8Array.from(response)).toEqual(Uint8Array.from(parsedSimulationResponse));
+    const expected = cloneSimulation(parsedSimulationResponse);
+    assert.deepEqual(response, expected)
     expect(mockPost).toHaveBeenCalledWith(serverUrl, {
       jsonrpc: "2.0",
       id: 1,
@@ -409,7 +410,7 @@ describe("Server#simulateTransaction", () => {
     const response = await server.simulateTransaction(transaction, {
       cpuInstructions: 100,
     });
-    expect(Uint8Array.from(response)).toEqual(Uint8Array.from(parsedSimulationResponse));
+    assert.deepEqual(response, parsedSimulationResponse);
     expect(mockPost).toHaveBeenCalledWith(serverUrl, {
       jsonrpc: "2.0",
       id: 1,
