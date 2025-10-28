@@ -37,7 +37,16 @@ function cloneSimulation(sim: any) {
       ),
       retval: xdr.ScVal.fromXDR(sim.result.retval.toXDR()),
     },
-    stateChanges: sim.stateChanges,
+    stateChanges: sim.stateChanges?.map((change: any) => ({  
+      type: change.type,  
+      key: xdr.LedgerKey.fromXDR(change.key.toXDR()),  
+      before: change.before  
+        ? xdr.LedgerEntry.fromXDR(change.before.toXDR())  
+        : null,  
+      after: change.after  
+        ? xdr.LedgerEntry.fromXDR(change.after.toXDR())  
+        : null,  
+    })),
     _parsed: sim._parsed,
   };
 }
