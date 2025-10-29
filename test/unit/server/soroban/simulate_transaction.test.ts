@@ -37,20 +37,19 @@ function cloneSimulation(sim: any) {
       ),
       retval: xdr.ScVal.fromXDR(sim.result.retval.toXDR()),
     },
-    stateChanges: sim.stateChanges?.map((change: any) => ({  
-      type: change.type,  
-      key: xdr.LedgerKey.fromXDR(change.key.toXDR()),  
-      before: change.before  
-        ? xdr.LedgerEntry.fromXDR(change.before.toXDR())  
-        : null,  
-      after: change.after  
-        ? xdr.LedgerEntry.fromXDR(change.after.toXDR())  
-        : null,  
+    stateChanges: sim.stateChanges?.map((change: any) => ({
+      type: change.type,
+      key: xdr.LedgerKey.fromXDR(change.key.toXDR()),
+      before: change.before
+        ? xdr.LedgerEntry.fromXDR(change.before.toXDR())
+        : null,
+      after: change.after
+        ? xdr.LedgerEntry.fromXDR(change.after.toXDR())
+        : null,
     })),
     _parsed: sim._parsed,
   };
 }
-
 
 function baseSimulationResponse(results?: any) {
   const accountId = "GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI";
@@ -399,11 +398,11 @@ describe("Server#simulateTransaction", () => {
 
     const response = await server.simulateTransaction(transaction);
     const expected = cloneSimulation(parsedSimulationResponse);
-    assert.deepEqual(response, expected)
+    assert.deepEqual(response, expected);
     expect(mockPost).toHaveBeenCalledWith(serverUrl, {
       jsonrpc: "2.0",
       id: 1,
-      method: "simulateTransaction",  
+      method: "simulateTransaction",
       params: {
         transaction: blob,
         authMode: undefined,

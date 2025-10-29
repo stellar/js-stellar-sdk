@@ -66,16 +66,25 @@ describe("Server#getLedgers", () => {
   };
 
   function mockGetLedgers(mock: any, params: any, result: any) {
-    mock.mockImplementation((url: string, data: { jsonrpc: string; id: number; method: string; params: any; }) => {
-      if (url.startsWith(serverUrl) && 
-          data.jsonrpc === "2.0" && 
-          data.id === 1 && 
-          data.method === "getLedgers" && 
-          JSON.stringify(data.params) === JSON.stringify(params)) {
-        return Promise.resolve({ data: { result } });
-      }
-      return Promise.reject(new Error(`Unexpected call: ${url}, ${JSON.stringify(data)}`));
-    });
+    mock.mockImplementation(
+      (
+        url: string,
+        data: { jsonrpc: string; id: number; method: string; params: any },
+      ) => {
+        if (
+          url.startsWith(serverUrl) &&
+          data.jsonrpc === "2.0" &&
+          data.id === 1 &&
+          data.method === "getLedgers" &&
+          JSON.stringify(data.params) === JSON.stringify(params)
+        ) {
+          return Promise.resolve({ data: { result } });
+        }
+        return Promise.reject(
+          new Error(`Unexpected call: ${url}, ${JSON.stringify(data)}`),
+        );
+      },
+    );
   }
 
   it("requests the correct method with startLedger", async () => {
@@ -86,7 +95,10 @@ describe("Server#getLedgers", () => {
 
     mockGetLedgers(axiosMock, params, mockLedgerResult);
 
-    const response = await server.getLedgers({ startLedger: 848581, pagination: { limit: 2 } });
+    const response = await server.getLedgers({
+      startLedger: 848581,
+      pagination: { limit: 2 },
+    });
     expect(response).toEqual(expectedMockLedgerResult);
     expect(response.ledgers).toHaveLength(2);
   });
@@ -98,7 +110,7 @@ describe("Server#getLedgers", () => {
       latestLedgerCloseTime: 1734033188,
       oldestLedger: 29312,
       oldestLedgerCloseTime: 1733997822,
-      cursor: '',
+      cursor: "",
     };
 
     const params = {
@@ -125,7 +137,10 @@ describe("Server#getLedgers", () => {
 
     mockGetLedgers(axiosMock, params, singleLedgerResult);
 
-    const response = await server.getLedgers({ startLedger: 848581, pagination: { limit: 1 } });
+    const response = await server.getLedgers({
+      startLedger: 848581,
+      pagination: { limit: 1 },
+    });
     const ledger = response.ledgers[0]!;
 
     // Validate ledger structure
@@ -210,9 +225,9 @@ describe("Server#getLedgers", () => {
       const params = { startLedger: 848581 };
       mockGetLedgers(axiosMock, params, invalidResult);
 
-      await expect(
-        server.getLedgers({ startLedger: 848581 }),
-      ).rejects.toThrow(expectedErrors[index]);
+      await expect(server.getLedgers({ startLedger: 848581 })).rejects.toThrow(
+        expectedErrors[index],
+      );
     });
 
     await Promise.all(promises);

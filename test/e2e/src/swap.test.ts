@@ -1,12 +1,6 @@
 import { expect, describe, it, beforeAll } from "vitest";
-import {
-  contract,
-  rpc,
-} from "../../../lib";
-import {
-  clientFor,
-  generateFundedKeypair,
-} from "./util";
+import { contract, rpc } from "../../../lib";
+import { clientFor, generateFundedKeypair } from "./util";
 
 const amountAToSwap = 2n;
 const amountBToSwap = 1n;
@@ -49,11 +43,14 @@ describe("Swap Contract Tests", () => {
       })
     ).signAndSend();
     await (
-      await (tokenA as any).mint({ amount: amountAToSwap, to: alice.publicKey() })
+      await (tokenA as any).mint({
+        amount: amountAToSwap,
+        to: alice.publicKey(),
+      })
     ).signAndSend();
 
     const tokenBInit = await (tokenB as any).initialize({
-        admin: root!.publicKey(),
+      admin: root!.publicKey(),
       decimal: 0,
       name: "Token B",
       symbol: "B",
@@ -90,7 +87,7 @@ describe("Swap Contract Tests", () => {
     await expect(tx.signAndSend()).rejects.toThrow(
       contract.AssembledTransaction.Errors.NeedsMoreSignatures,
     );
-    
+
     // Test the specific error details
     try {
       await tx.signAndSend();
@@ -116,12 +113,8 @@ describe("Swap Contract Tests", () => {
 
     const needsNonInvokerSigningBy = await tx.needsNonInvokerSigningBy();
     expect(needsNonInvokerSigningBy).toHaveLength(2);
-    expect(
-      needsNonInvokerSigningBy.indexOf(context.alice.publicKey()),
-    ).toBe(0);
-    expect(
-      needsNonInvokerSigningBy.indexOf(context.bob.publicKey()),
-    ).toBe(1);
+    expect(needsNonInvokerSigningBy.indexOf(context.alice.publicKey())).toBe(0);
+    expect(needsNonInvokerSigningBy.indexOf(context.bob.publicKey())).toBe(1);
 
     // root serializes & sends to alice
     const xdrFromRoot = tx.toXDR();
@@ -154,7 +147,7 @@ describe("Swap Contract Tests", () => {
       watcher: {
         onSubmitted: () => {
           // console.log(response);
-        },  
+        },
         onProgress: () => {
           // console.log(response);
         },
@@ -162,10 +155,7 @@ describe("Swap Contract Tests", () => {
     });
 
     expect(result).toHaveProperty("sendTransactionResponse");
-    expect(result.sendTransactionResponse).toHaveProperty(
-      "status",
-      "PENDING",
-    );
+    expect(result.sendTransactionResponse).toHaveProperty("status", "PENDING");
     expect(result).toHaveProperty("getTransactionResponseAll");
     expect(Array.isArray(result.getTransactionResponseAll)).toBe(true);
     expect(result.getTransactionResponseAll!.length).toBeGreaterThan(0);

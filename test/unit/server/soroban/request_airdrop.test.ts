@@ -291,7 +291,8 @@ describe("Server#requestAirdrop", () => {
     const friendbotUrl = "https://friendbot.stellar.org";
     const accountId =
       "GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI";
-    const hash = "ae9f315c048d87a5f853bc15bf284a2c3c89eb0e1cb38c10409b77a877b830a8";
+    const hash =
+      "ae9f315c048d87a5f853bc15bf284a2c3c89eb0e1cb38c10409b77a877b830a8";
 
     const networkResult = {
       friendbotUrl,
@@ -311,7 +312,7 @@ describe("Server#requestAirdrop", () => {
 
     // Mock the getTransaction call - use meta with account creation info
     const resultMetaXdr = transactionMetaFor().toXDR("base64");
-    
+
     const successInfo = {
       ledger: 12345,
       createdAt: 123456789010,

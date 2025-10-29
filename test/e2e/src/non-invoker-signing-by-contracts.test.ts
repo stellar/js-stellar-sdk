@@ -29,9 +29,7 @@ describe("cross-contract auth", () => {
 
   describe("sign", () => {
     it("doesn't throw error when nonInvokerSigningBy returns a contract", async () => {
-      await expect(
-        context.tx.sign({ force: true }),
-      ).resolves.not.toThrow();
+      await expect(context.tx.sign({ force: true })).resolves.not.toThrow();
     });
   });
 

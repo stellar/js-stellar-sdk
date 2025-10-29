@@ -10,7 +10,13 @@ import {
 } from "./util";
 import { Address, contract, Keypair } from "../../../lib";
 
-let context: { client: any; publicKey: string; addr: any; contractId: string; keypair: any };
+let context: {
+  client: any;
+  publicKey: string;
+  addr: any;
+  contractId: string;
+  keypair: any;
+};
 
 async function clientFromConstructor(
   name: keyof typeof contracts,
@@ -55,7 +61,11 @@ async function clientFromConstructor(
 /**
  * Generates a Client given the contractId using the from method.
  */
-function clientForFromTest(contractId: string, publicKey: string, keypair: Keypair) {
+function clientForFromTest(
+  contractId: string,
+  publicKey: string,
+  keypair: Keypair,
+) {
   const wallet = contract.basicNodeSigner(keypair, networkPassphrase);
   const options = {
     networkPassphrase,
@@ -85,7 +95,8 @@ describe("Client", () => {
 
   it("can be constructed with `from`", async () => {
     // objects with different constructors will not pass deepEqual check
-    const constructorWorkaround = (object: contract.Client) => JSON.parse(JSON.stringify(object));
+    const constructorWorkaround = (object: contract.Client) =>
+      JSON.parse(JSON.stringify(object));
 
     const clientFromFrom = await clientForFromTest(
       context.contractId,
@@ -95,8 +106,6 @@ describe("Client", () => {
     expect(constructorWorkaround(clientFromFrom)).toEqual(
       constructorWorkaround(context.client),
     );
-    expect(context.client.spec.entries).toEqual(
-      clientFromFrom.spec.entries,
-    );
+    expect(context.client.spec.entries).toEqual(clientFromFrom.spec.entries);
   });
 });

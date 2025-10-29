@@ -16,82 +16,142 @@ let SPEC: Spec;
 
 function generateTestData(funcName: string, index: number): any {
   const baseValue = index + 1;
-  
+
   switch (funcName) {
-    case 'hello':
+    case "hello":
       return { args: { hello: `test${baseValue}` } };
-    case 'u32_':
+    case "u32_":
       return { args: { u32_: baseValue } };
-    case 'i32_':
+    case "i32_":
       return { args: { i32_: baseValue } };
-    case 'i64_':
+    case "i64_":
       return { args: { i64_: baseValue.toString() } };
-    case 'u64_':
+    case "u64_":
       return { args: { u64_: baseValue.toString() } };
-    case 'i128':
+    case "i128":
       return { args: { i128: baseValue.toString() } };
-    case 'u128':
+    case "u128":
       return { args: { u128: baseValue.toString() } };
-    case 'i256':
+    case "i256":
       return { args: { i256: baseValue.toString() } };
-    case 'u256':
+    case "u256":
       return { args: { u256: baseValue.toString() } };
-    case 'strukt':
-      return { args: { strukt: { a: baseValue, b: true, c: `test${baseValue}` } } };
-    case 'simple': {
-      const simpleOptions = ['First', 'Second', 'Third'];
+    case "strukt":
+      return {
+        args: { strukt: { a: baseValue, b: true, c: `test${baseValue}` } },
+      };
+    case "simple": {
+      const simpleOptions = ["First", "Second", "Third"];
       return { args: { simple: { tag: simpleOptions[index % 3] } } };
     }
-    case 'complex': {
-      const complexOptions = ['Struct', 'Tuple', 'Enum', 'Asset', 'Void'];
+    case "complex": {
+      const complexOptions = ["Struct", "Tuple", "Enum", "Asset", "Void"];
       const choice = complexOptions[index % 5];
-      if (choice === 'Void') {
-        return { args: { complex: { tag: 'Void' } } };
+      if (choice === "Void") {
+        return { args: { complex: { tag: "Void" } } };
       }
-      if (choice === 'Asset') {
-        return { args: { complex: { tag: 'Asset', values: [publicKey, baseValue.toString()] } } };
+      if (choice === "Asset") {
+        return {
+          args: {
+            complex: {
+              tag: "Asset",
+              values: [publicKey, baseValue.toString()],
+            },
+          },
+        };
       }
-      if (choice === 'Tuple') {
-        return { args: { complex: { tag: 'Tuple', values: [[{ a: baseValue, b: true, c: `test${baseValue}` }, { tag: 'First' }]] } } };
+      if (choice === "Tuple") {
+        return {
+          args: {
+            complex: {
+              tag: "Tuple",
+              values: [
+                [
+                  { a: baseValue, b: true, c: `test${baseValue}` },
+                  { tag: "First" },
+                ],
+              ],
+            },
+          },
+        };
       }
-      if (choice === 'Enum') {
-        return { args: { complex: { tag: 'Enum', values: [{ tag: 'First' }] } } };
+      if (choice === "Enum") {
+        return {
+          args: { complex: { tag: "Enum", values: [{ tag: "First" }] } },
+        };
       }
-      return { args: { complex: { tag: 'Struct', values: [{ a: baseValue, b: true, c: `test${baseValue}` }] } } };
+      return {
+        args: {
+          complex: {
+            tag: "Struct",
+            values: [{ a: baseValue, b: true, c: `test${baseValue}` }],
+          },
+        },
+      };
     }
-    case 'addresse':
+    case "addresse":
       return { args: { addresse: publicKey } };
-    case 'bytes':
+    case "bytes":
       return { args: { bytes: btoa(`test${baseValue}`) } };
-    case 'bytes_n': {
+    case "bytes_n": {
       const shortString = `t${baseValue}`;
       const base64 = btoa(shortString);
       return { args: { bytes_n: base64.substring(0, 9) } };
     }
-    case 'card': {
+    case "card": {
       const cardValues = [11, 12, 13];
       return { args: { card: cardValues[index % 3] } };
     }
-    case 'boolean':
+    case "boolean":
       return { args: { boolean: index % 2 === 0 } };
-    case 'map':
-      return { args: { map: [[baseValue, true], [baseValue + 1, false]] } };
-    case 'vec':
+    case "map":
+      return {
+        args: {
+          map: [
+            [baseValue, true],
+            [baseValue + 1, false],
+          ],
+        },
+      };
+    case "vec":
       return { args: { vec: [baseValue, baseValue + 1, baseValue + 2] } };
-    case 'tuple':
+    case "tuple":
       return { args: { tuple: [`test${baseValue}`, baseValue] } };
-    case 'option':
+    case "option":
       return { args: { option: baseValue } };
-    case 'option_struct':
-      return { args: { option_struct: { a: baseValue, b: true, c: `test${baseValue}` } } };
-    case 'option_option_struct':
-      return { args: { option_option_struct: { a: baseValue, b: true, c: `test${baseValue}` } } };
-    case 'option_vec_struct':
-      return { args: { option_vec_struct: [{ a: baseValue, b: true, c: `test${baseValue}` }] } };
-    case 'string':
+    case "option_struct":
+      return {
+        args: {
+          option_struct: { a: baseValue, b: true, c: `test${baseValue}` },
+        },
+      };
+    case "option_option_struct":
+      return {
+        args: {
+          option_option_struct: {
+            a: baseValue,
+            b: true,
+            c: `test${baseValue}`,
+          },
+        },
+      };
+    case "option_vec_struct":
+      return {
+        args: {
+          option_vec_struct: [{ a: baseValue, b: true, c: `test${baseValue}` }],
+        },
+      };
+    case "string":
       return { args: { string: `test${baseValue}` } };
-    case 'tuple_strukt':
-      return { args: { tuple_strukt: [{ a: baseValue, b: true, c: `test${baseValue}` }, { tag: 'First' }] } };
+    case "tuple_strukt":
+      return {
+        args: {
+          tuple_strukt: [
+            { a: baseValue, b: true, c: `test${baseValue}` },
+            { tag: "First" },
+          ],
+        },
+      };
     default:
       return { args: {} };
   }
@@ -212,13 +272,10 @@ beforeAll(() => {
 });
 
 describe("Spec constructor", () => {
-  it(
-    "loading the spec entries separately is the same result as loading the spec entries from a stream",
-    () => {
-      const specFromXdr = new contract.Spec(specStream);
-      expect(specFromXdr).deep.equal(SPEC);
-    },
-  );
+  it("loading the spec entries separately is the same result as loading the spec entries from a stream", () => {
+    const specFromXdr = new contract.Spec(specStream);
+    expect(specFromXdr).deep.equal(SPEC);
+  });
 
   it("loading the spec entries separately is the same result as loading the spec entries from a base64 stream", () => {
     const specFromXdr = new contract.Spec(specStream);

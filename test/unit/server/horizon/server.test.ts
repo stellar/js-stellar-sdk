@@ -10,7 +10,6 @@ import {
 import MockAdapter from "axios-mock-adapter";
 import { StellarSdk } from "../../../test-utils/stellar-sdk-import";
 
-
 const { Horizon } = StellarSdk;
 const { SERVER_TIME_MAP } = StellarSdk.Horizon;
 
@@ -216,7 +215,7 @@ describe("server.js non-transaction tests", () => {
     });
 
     afterEach(() => {
-      vi.useRealTimers(); 
+      vi.useRealTimers();
       mockGetAdapter.restore();
     });
 
@@ -243,7 +242,7 @@ describe("server.js non-transaction tests", () => {
 
       // Ensure MockAdapter is properly set up for this test
       mockGetAdapter.restore();
-      mockGetAdapter = new MockAdapter(server.httpClient)
+      mockGetAdapter = new MockAdapter(server.httpClient);
 
       mockGetAdapter.onGet("https://horizon-live.stellar.org:1337/").reply(
         200,
@@ -254,11 +253,11 @@ describe("server.js non-transaction tests", () => {
       );
 
       const serverTime = await server.fetchTimebounds(20);
-      
+
       expect(serverTime).toEqual({
         minTime: 0,
         // this is server time 1552515307 plus 20
-        maxTime: 1552515327
+        maxTime: 1552515327,
       });
     });
   });

@@ -7,19 +7,22 @@ import { contract, Keypair, rpc } from "../../../lib";
  */
 const run = (command: string) => {
   const [cmd, ...args]: string[] = command.split(" ");
-  const result = spawnSync(cmd as string, args, { shell: true, encoding: "utf8" });
+  const result = spawnSync(cmd as string, args, {
+    shell: true,
+    encoding: "utf8",
+  });
   return {
     stdout: result.stdout.trim(),
     stderr: result.stderr.trim(),
     status: result.status,
   };
-}
+};
 
 export const stellar = process.env.GITHUB_ACTIONS
   ? "stellar"
   : "./target/bin/stellar";
 
-  export { run };
+export { run };
 
 const basePath = path.resolve(
   `${__dirname}/../test-contracts/target/wasm32v1-none/release`,
@@ -93,7 +96,10 @@ export { generateFundedKeypair };
  * By default, will re-deploy the contract every time. Pass in the same
  * `contractId` again if you want to re-use the a contract instance.
  */
-const installContract = async (name: keyof typeof contracts, { keypair }: { keypair?: Keypair } = {}) => {
+const installContract = async (
+  name: keyof typeof contracts,
+  { keypair }: { keypair?: Keypair } = {},
+) => {
   if (!contracts[name]) {
     throw new Error(
       `Contract ${name} not found. ` +
@@ -112,7 +118,10 @@ const installContract = async (name: keyof typeof contracts, { keypair }: { keyp
   return { keypair: internalKeypair, wasmHash };
 };
 
-const clientFor = async (name: keyof typeof contracts, { keypair, contractId }: { keypair?: Keypair, contractId?: string } = {}) => {
+const clientFor = async (
+  name: keyof typeof contracts,
+  { keypair, contractId }: { keypair?: Keypair; contractId?: string } = {},
+) => {
   const internalKeypair = keypair ?? (await generateFundedKeypair());
   const signer = contract.basicNodeSigner(internalKeypair, networkPassphrase);
 
@@ -155,6 +164,5 @@ const clientFor = async (name: keyof typeof contracts, { keypair, contractId }: 
   };
 };
 export { clientFor };
-
 
 export { installContract };

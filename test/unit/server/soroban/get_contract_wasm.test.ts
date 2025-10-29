@@ -1,4 +1,12 @@
-import { describe, it, beforeEach, afterEach, expect, vi, assert } from "vitest";
+import {
+  describe,
+  it,
+  beforeEach,
+  afterEach,
+  expect,
+  vi,
+  assert,
+} from "vitest";
 import { StellarSdk } from "../../../test-utils/stellar-sdk-import";
 
 import { serverUrl } from "../../../constants";
@@ -21,10 +29,13 @@ describe("Server#getContractWasm", () => {
   });
 
   const contractId = "CCN57TGC6EXFCYIQJ4UCD2UDZ4C3AQCHVMK74DGZ3JYCA5HD4BY7FNPC";
-  const wasmHash = Buffer.from("kh1dFBiUKv/lXkcD+XnVTsbzi+Lps96lfWEk3rFWNnI=", "base64");
+  const wasmHash = Buffer.from(
+    "kh1dFBiUKv/lXkcD+XnVTsbzi+Lps96lfWEk3rFWNnI=",
+    "base64",
+  );
   const wasmBuffer = Buffer.from(
     "0061730120c0800010ab818080000b20002035503082000336232636439000",
-    "hex"
+    "hex",
   );
   const contractCodeEntryExtension = xdr.ContractCodeEntryExt.fromXDR(
     "AAAAAQAAAAAAAAAAAAAVqAAAAJwAAAADAAAAAwAAABgAAAABAAAAAQAAABEAAAAgAAABpA==",

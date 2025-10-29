@@ -1,7 +1,7 @@
 // Browser setup file for Vitest browser testing
 // This file loads the built browser bundle and makes it available globally
 
-import { Buffer } from 'buffer';
+import { Buffer } from "buffer";
 
 export {}; // Make this file a module to allow top-level await
 

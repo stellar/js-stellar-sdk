@@ -162,7 +162,11 @@ describe("server.js check-memo-required", () => {
     const transaction = buildTransaction(accountId);
 
     await expect(server.checkMemoRequired(transaction)).rejects.toThrow(
-      new StellarSdk.AccountRequiresMemoError("account requires memo", accountId, 0)
+      new StellarSdk.AccountRequiresMemoError(
+        "account requires memo",
+        accountId,
+        0,
+      ),
     );
   });
 

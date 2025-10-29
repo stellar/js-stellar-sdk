@@ -1,7 +1,5 @@
 import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
-import {
-  StellarSdk
-} from "../../../test-utils/stellar-sdk-import";
+import { StellarSdk } from "../../../test-utils/stellar-sdk-import";
 
 const { Horizon } = StellarSdk;
 
@@ -46,7 +44,8 @@ describe("ClaimableBalanceCallBuilder", () => {
 
     mockGet.mockImplementation((url: string) => {
       if (
-        url === "https://horizon-live.stellar.org:1337/claimable_balances/00000000929b20b72e5890ab51c24f1cc46fa01c4f318d8d33367d24dd614cfdf5491072" 
+        url ===
+        "https://horizon-live.stellar.org:1337/claimable_balances/00000000929b20b72e5890ab51c24f1cc46fa01c4f318d8d33367d24dd614cfdf5491072"
       ) {
         return Promise.resolve({ data: singleBalanceResponse });
       }

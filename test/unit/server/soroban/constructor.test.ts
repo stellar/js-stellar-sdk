@@ -52,7 +52,11 @@ describe("Server.constructor", () => {
       "added-value",
     );
 
-    expect(serverA.httpClient.defaults.headers["Custom-Header-B"]).toBeUndefined();
-    expect(serverB.httpClient.defaults.headers["Custom-Header-A"]).toBeUndefined();
+    expect(
+      serverA.httpClient.defaults.headers["Custom-Header-B"],
+    ).toBeUndefined();
+    expect(
+      serverB.httpClient.defaults.headers["Custom-Header-A"],
+    ).toBeUndefined();
   });
 });

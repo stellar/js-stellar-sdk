@@ -6,7 +6,6 @@ import { serverUrl } from "../../../constants";
 const { xdr } = StellarSdk;
 const { Server } = StellarSdk.rpc;
 
-
 function makeTxResult(
   ledger: number,
   applicationOrder: number,

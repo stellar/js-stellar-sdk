@@ -3,8 +3,7 @@ import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
 import { serverUrl } from "../../../constants";
 import { StellarSdk } from "../../../test-utils/stellar-sdk-import";
 
-const { Account, Keypair, rpc, contract } =
-  StellarSdk;
+const { Account, Keypair, rpc, contract } = StellarSdk;
 const { Server } = StellarSdk.rpc;
 
 const restoreTxnData = StellarSdk.SorobanDataBuilder.fromXDR(
@@ -74,13 +73,18 @@ describe("AssembledTransaction.buildFootprintRestoreTransaction", () => {
       .mockResolvedValueOnce({ data: { result: sendTransactionResponse } }) // sendTransaction
       .mockResolvedValueOnce({ data: { result: getTransactionResponse } }); // getTransaction
 
-      // eslint-disable-next-line @typescript-eslint/dot-notation
-      const txn = await contract.AssembledTransaction["buildFootprintRestoreTransaction"](
-        options,
-        restoreTxnData,
-        new Account("GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI", "1"),
-        52641,
-      );
+    // eslint-disable-next-line @typescript-eslint/dot-notation
+    const txn = await contract.AssembledTransaction[
+      "buildFootprintRestoreTransaction"
+    ](
+      options,
+      restoreTxnData,
+      new Account(
+        "GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI",
+        "1",
+      ),
+      52641,
+    );
     const result = await txn.signAndSend({ ...wallet });
     expect(result.getTransactionResponse.status).toBe(
       rpc.Api.GetTransactionStatus.SUCCESS,

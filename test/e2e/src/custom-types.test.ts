@@ -2,7 +2,13 @@ import { expect, beforeAll } from "vitest";
 import { Address, contract } from "../../../lib";
 import { clientFor } from "./util";
 
-let context: { client: any; publicKey: string; addr: any; contractId: string; keypair: any };
+let context: {
+  client: any;
+  publicKey: string;
+  addr: any;
+  contractId: string;
+  keypair: any;
+};
 
 describe("Custom Types Tests", () => {
   beforeAll(async () => {
@@ -13,9 +19,9 @@ describe("Custom Types Tests", () => {
   });
 
   it("hello", async () => {
-    expect(
-      (await context.client.hello({ hello: "tests" })).result,
-    ).toBe("tests");
+    expect((await context.client.hello({ hello: "tests" })).result).toBe(
+      "tests",
+    );
   });
 
   it("view method with empty keypair", async () => {
@@ -84,44 +90,43 @@ describe("Custom Types Tests", () => {
 
   it("strukt_hel", async () => {
     const strukt = { a: 0, b: true, c: "world" };
-    expect(
-      (await context.client.strukt_hel({ strukt })).result,
-    ).toEqual(["Hello", "world"]);
+    expect((await context.client.strukt_hel({ strukt })).result).toEqual([
+      "Hello",
+      "world",
+    ]);
   });
 
   it("strukt", async () => {
     const strukt = { a: 0, b: true, c: "hello" };
-    expect((await context.client.strukt({ strukt })).result).toEqual(
-      strukt,
-    );
+    expect((await context.client.strukt({ strukt })).result).toEqual(strukt);
   });
 
   it("simple first", async () => {
     const simple = { tag: "First", values: undefined };
-    expect((await context.client.simple({ simple })).result).toEqual(
-      { tag: "First" },
-    );
+    expect((await context.client.simple({ simple })).result).toEqual({
+      tag: "First",
+    });
   });
 
   it("simple second", async () => {
     const simple = { tag: "Second", values: undefined };
-    expect((await context.client.simple({ simple })).result).toEqual(
-      { tag: "Second" },
-    );
+    expect((await context.client.simple({ simple })).result).toEqual({
+      tag: "Second",
+    });
   });
 
   it("simple third", async () => {
     const simple = { tag: "Third", values: undefined };
-    expect((await context.client.simple({ simple })).result).toEqual(
-      { tag: "Third" },
-    );
+    expect((await context.client.simple({ simple })).result).toEqual({
+      tag: "Third",
+    });
   });
 
   it("complex with struct", async () => {
     const arg = { tag: "Struct", values: [{ a: 0, b: true, c: "hello" }] };
-    expect(
-      (await context.client.complex({ complex: arg })).result,
-    ).toEqual(arg);
+    expect((await context.client.complex({ complex: arg })).result).toEqual(
+      arg,
+    );
   });
 
   it("complex with tuple", async () => {
@@ -138,53 +143,48 @@ describe("Custom Types Tests", () => {
       tag: "Tuple",
       values: [[{ a: 0, b: true, c: "hello" }, { tag: "First" }]],
     };
-    expect(
-      (await context.client.complex({ complex: arg })).result,
-    ).toEqual(ret);
+    expect((await context.client.complex({ complex: arg })).result).toEqual(
+      ret,
+    );
   });
 
   it("complex with enum", async () => {
     const arg = { tag: "Enum", values: [{ tag: "First", values: undefined }] };
     const ret = { tag: "Enum", values: [{ tag: "First" }] };
-    expect(
-      (await context.client.complex({ complex: arg })).result,
-    ).toEqual(ret);
+    expect((await context.client.complex({ complex: arg })).result).toEqual(
+      ret,
+    );
   });
 
   it("complex with asset", async () => {
     const arg = { tag: "Asset", values: [context.publicKey, 1n] };
-    expect(
-      (await context.client.complex({ complex: arg })).result,
-    ).toEqual(arg);
+    expect((await context.client.complex({ complex: arg })).result).toEqual(
+      arg,
+    );
   });
 
   it("complex with void", async () => {
     const complex = { tag: "Void", values: undefined };
     const ret = { tag: "Void" };
-    expect(
-      (await context.client.complex({ complex })).result,
-    ).toEqual(ret);
+    expect((await context.client.complex({ complex })).result).toEqual(ret);
   });
 
   it("addresse", async () => {
     expect(
-      (await context.client.addresse({ addresse: context.publicKey }))
-        .result,
+      (await context.client.addresse({ addresse: context.publicKey })).result,
     ).toBe(context.addr.toString());
   });
 
   it("bytes", async () => {
     const bytes = Buffer.from("hello");
-    expect((await context.client.bytes({ bytes })).result).toEqual(
-      bytes,
-    );
+    expect((await context.client.bytes({ bytes })).result).toEqual(bytes);
   });
 
   it("bytesN", async () => {
     const bytesN = Buffer.from("123456789"); // what's the correct way to construct bytesN?
-    expect(
-      (await context.client.bytes_n({ bytes_n: bytesN })).result,
-    ).toEqual(bytesN);
+    expect((await context.client.bytes_n({ bytes_n: bytesN })).result).toEqual(
+      bytesN,
+    );
   });
 
   it("card", async () => {
@@ -193,21 +193,15 @@ describe("Custom Types Tests", () => {
   });
 
   it("boolean", async () => {
-    expect(
-      (await context.client.boolean({ boolean: true })).result,
-    ).toBe(true);
+    expect((await context.client.boolean({ boolean: true })).result).toBe(true);
   });
 
   it("not", async () => {
-    expect((await context.client.not({ boolean: true })).result).toBe(
-      false,
-    );
+    expect((await context.client.not({ boolean: true })).result).toBe(false);
   });
 
   it("i128", async () => {
-    expect((await context.client.i128({ i128: -1n })).result).toBe(
-      -1n,
-    );
+    expect((await context.client.i128({ i128: -1n })).result).toBe(-1n);
   });
 
   it("u128", async () => {
@@ -238,9 +232,7 @@ describe("Custom Types Tests", () => {
 
   it("tuple", async () => {
     const tuple = ["hello", 1];
-    expect((await context.client.tuple({ tuple })).result).toEqual(
-      tuple,
-    );
+    expect((await context.client.tuple({ tuple })).result).toEqual(tuple);
   });
 
   it("option", async () => {
@@ -260,15 +252,13 @@ describe("Custom Types Tests", () => {
   });
 
   it("i256", async () => {
-    expect((await context.client.i256({ i256: -1n })).result).toBe(
-      -1n,
-    );
+    expect((await context.client.i256({ i256: -1n })).result).toBe(-1n);
   });
 
   it("string", async () => {
-    expect(
-      (await context.client.string({ string: "hello" })).result,
-    ).toBe("hello");
+    expect((await context.client.string({ string: "hello" })).result).toBe(
+      "hello",
+    );
   });
 
   it("tuple strukt", async () => {
