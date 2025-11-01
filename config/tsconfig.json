@@ -5,7 +5,7 @@
     "emitDeclarationOnly": true,
     "declarationDir": "../lib",
     "removeComments": false,
-    "lib": ["ES6"],
+    "lib": ["ES6", "DOM"],
     "moduleResolution": "node",
     "rootDir": "../src",
     "outDir": "../lib",
