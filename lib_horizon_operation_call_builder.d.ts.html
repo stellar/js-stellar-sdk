@@ -111,6 +111,7 @@
         <article>
             <pre class="prettyprint source linenums"><code>import { CallBuilder } from "./call_builder";
 import { ServerApi } from "./server_api";
+import { HttpClient } from "../http-client";
 /**
  * Creates a new {@link OperationCallBuilder} pointed to server defined by serverUrl.
  *
@@ -124,7 +125,7 @@ import { ServerApi } from "./server_api";
  * @param {string} serverUrl Horizon server URL.
  */
 export declare class OperationCallBuilder extends CallBuilder&lt;ServerApi.CollectionPage&lt;ServerApi.OperationRecord>> {
-    constructor(serverUrl: URI);
+    constructor(serverUrl: URI, httpClient: HttpClient);
     /**
      * The operation details endpoint provides information on a single operation. The operation ID provided in the id
      * argument specifies which operation to load.

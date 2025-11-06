@@ -113,6 +113,7 @@
 import { CallBuilder } from "./call_builder";
 import { HorizonApi } from "./horizon_api";
 import { ServerApi } from "./server_api";
+import { HttpClient } from "../http-client";
 /**
  * Trade Aggregations facilitate efficient gathering of historical trade data.
  *
@@ -131,7 +132,7 @@ import { ServerApi } from "./server_api";
  * @param {number} offset segments can be offset using this parameter. Expressed in milliseconds. *Can only be used if the resolution is greater than 1 hour. Value must be in whole hours, less than the provided resolution, and less than 24 hours.
  */
 export declare class TradeAggregationCallBuilder extends CallBuilder&lt;ServerApi.CollectionPage&lt;TradeAggregationRecord>> {
-    constructor(serverUrl: URI, base: Asset, counter: Asset, start_time: number, end_time: number, resolution: number, offset: number);
+    constructor(serverUrl: URI, httpClient: HttpClient, base: Asset, counter: Asset, start_time: number, end_time: number, resolution: number, offset: number);
     /**
      * @private
      * @param {number} resolution Trade data resolution in milliseconds

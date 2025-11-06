@@ -127,8 +127,8 @@ var _call_builder = require("./call_builder");
  * @param {string} serverUrl Horizon server URL.
  */
 class LiquidityPoolCallBuilder extends _call_builder.CallBuilder {
-  constructor(serverUrl) {
-    super(serverUrl);
+  constructor(serverUrl, httpClient) {
+    super(serverUrl, httpClient);
     this.url.segment("liquidity_pools");
   }
 
@@ -165,7 +165,7 @@ class LiquidityPoolCallBuilder extends _call_builder.CallBuilder {
     if (!id.match(/[a-fA-F0-9]{64}/)) {
       throw new TypeError(`${id} does not look like a liquidity pool ID`);
     }
-    const builder = new _call_builder.CallBuilder(this.url.clone());
+    const builder = new _call_builder.CallBuilder(this.url.clone(), this.httpClient);
     builder.filter.push([id.toLowerCase()]);
     return builder;
   }

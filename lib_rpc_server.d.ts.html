@@ -112,6 +112,7 @@
             <pre class="prettyprint source linenums"><code>import URI from "urijs";
 import { Account, Address, Asset, Contract, FeeBumpTransaction, Transaction, xdr } from "@stellar/stellar-base";
 import { Api } from "./api";
+import { HttpClient } from "../http-client";
 /**
  * Default transaction submission timeout for RPC requests, in milliseconds
  * @constant {number}
@@ -153,9 +154,24 @@ export declare namespace RpcServer {
         attempts?: number;
         sleepStrategy?: SleepStrategy;
     }
+    /**
+     * Describes additional resource leeways for transaction simulation.
+     * @property {number} cpuInstructions Simulate the transaction with more CPU instructions available.
+     * @memberof module:rpc.Server
+     */
     interface ResourceLeeway {
         cpuInstructions: number;
     }
+    /**
+     * Options for configuring connections to RPC servers.
+     *
+     * @property {boolean} allowHttp - Allow connecting to http servers, default: `false`. This must be set to false in production deployments!
+     * @property {number} timeout - Allow a timeout, default: 0. Allows user to avoid nasty lag.
+     * @property {Record&lt;string, string>} headers - Additional headers that should be added to any requests to the RPC server.
+     *
+     * @alias module:rpc.Server.Options
+     * @memberof module:rpc.Server
+     */
     interface Options {
         allowHttp?: boolean;
         timeout?: number;
@@ -187,6 +203,21 @@ export type SleepStrategy = (iter: number) => number;
  */
 export declare class RpcServer {
     readonly serverURL: URI;
+    /**
+     * HTTP client instance for making requests to Horizon.
+     * Exposes interceptors, defaults, and other configuration options.
+     *
+     * @example
+     * // Add authentication header
+     * server.httpClient.defaults.headers['Authorization'] = 'Bearer token';
+     *
+     * // Add request interceptor
+     * server.httpClient.interceptors.request.use((config) => {
+     *   console.log('Request:', config.url);
+     *   return config;
+     * });
+     */
+    readonly httpClient: HttpClient;
     constructor(serverURL: string, opts?: RpcServer.Options);
     /**
      * Fetch a minimal set of current info about a Stellar account.

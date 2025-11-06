@@ -119,16 +119,9 @@ var _exportNames = {
   BasicSleepStrategy: true,
   LinearSleepStrategy: true,
   Durability: true,
-  AxiosClient: true,
   parseRawSimulation: true,
   parseRawEvents: true
 };
-Object.defineProperty(exports, "AxiosClient", {
-  enumerable: true,
-  get: function () {
-    return _axios.default;
-  }
-});
 Object.defineProperty(exports, "BasicSleepStrategy", {
   enumerable: true,
   get: function () {
@@ -179,7 +172,6 @@ Object.keys(_api).forEach(function (key) {
   });
 });
 var _server = require("./server");
-var _axios = _interopRequireDefault(require("./axios"));
 var _parsers = require("./parsers");
 var _transaction = require("./transaction");
 Object.keys(_transaction).forEach(function (key) {
@@ -193,7 +185,6 @@ Object.keys(_transaction).forEach(function (key) {
     }
   });
 });
-function _interopRequireDefault(e) { return e &amp;&amp; e.__esModule ? e : { default: e }; }
 /** @module rpc */
 // tslint:disable-next-line: no-reference
 /// &lt;reference path="../../types/dom-monkeypatch.d.ts" />

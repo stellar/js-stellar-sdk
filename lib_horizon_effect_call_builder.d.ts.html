@@ -111,6 +111,7 @@
         <article>
             <pre class="prettyprint source linenums"><code>import { CallBuilder } from "./call_builder";
 import { ServerApi } from "./server_api";
+import { HttpClient } from "../http-client";
 /**
  * Creates a new {@link EffectCallBuilder} pointed to server defined by serverUrl.
  * Do not create this object directly, use {@link Horizon.Server#effects}.
@@ -123,7 +124,7 @@ import { ServerApi } from "./server_api";
  * @param {string} serverUrl Horizon server URL.
  */
 export declare class EffectCallBuilder extends CallBuilder&lt;ServerApi.CollectionPage&lt;ServerApi.EffectRecord>> {
-    constructor(serverUrl: URI);
+    constructor(serverUrl: URI, httpClient: HttpClient);
     /**
      * This endpoint represents all effects that changed a given account. It will return relevant effects from the creation of the account to the current ledger.
      * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/get-effects-by-account-id|Effects for Account}

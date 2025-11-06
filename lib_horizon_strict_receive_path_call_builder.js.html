@@ -149,8 +149,8 @@ var _call_builder = require("./call_builder");
  * @param {string} destinationAmount The amount, denominated in the destination asset, that any returned path should be able to satisfy.
  */
 class StrictReceivePathCallBuilder extends _call_builder.CallBuilder {
-  constructor(serverUrl, source, destinationAsset, destinationAmount) {
-    super(serverUrl);
+  constructor(serverUrl, httpClient, source, destinationAsset, destinationAmount) {
+    super(serverUrl, httpClient);
     this.url.segment("paths/strict-receive");
     if (typeof source === "string") {
       this.url.setQuery("source_account", source);

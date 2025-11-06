@@ -146,7 +146,8 @@ instance and exposes an interface for requests to that instance.</p></div>
     
     
     <div class="description">
-        <p>Horizon Server URL (ex. <code>https://horizon-testnet.stellar.org</code>)</p>
+        <p>HTTP client instance for making requests to Horizon.
+Exposes interceptors, defaults, and other configuration options.</p>
     </div>
     
 
@@ -225,7 +226,7 @@ instance and exposes an interface for requests to that instance.</p></div>
   <td class="type">
   
       
-<code class="param-type"><a href="module-Horizon.Server.html#.Options">module:Horizon.Server.Options</a></code>
+<code class="param-type">module:Horizon.Server.Options</code>
 
 
   
@@ -288,19 +289,12 @@ instance and exposes an interface for requests to that instance.</p></div>
     
 
     
-    <dt class="tag-todo">To Do:</dt>
-    <dd class="tag-todo">
-        <ul>
-            <li>Solve `URI(this.serverURL as any)`.</li>
-        </ul>
-    </dd>
-    
 
     
         <p class="tag-source">
             <a href="lib_horizon_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_horizon_server.js.html">lib/horizon/server.js</a>, <a href="lib_horizon_server.js.html#line63">line 63</a>
+                <a href="lib_horizon_server.js.html">lib/horizon/server.js</a>, <a href="lib_horizon_server.js.html#line62">line 62</a>
             </span>
         </p>
     
@@ -324,6 +318,20 @@ instance and exposes an interface for requests to that instance.</p></div>
 
 
 
+
+
+    <h5>Example</h5>
+    
+    
+        <pre class="prettyprint"><code>// Add authentication header
+server.httpClient.defaults.headers['Authorization'] = 'Bearer token';
+
+// Add request interceptor
+server.httpClient.interceptors.request.use((config) => {
+  console.log('Request:', config.url);
+  return config;
+});</code></pre>
+    
 
 
 
@@ -427,7 +435,7 @@ instance and exposes an interface for requests to that instance.</p></div>
         <p class="tag-source">
             <a href="lib_horizon_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_horizon_server.js.html">lib/horizon/server.js</a>, <a href="lib_horizon_server.js.html#line43">line 43</a>
+                <a href="lib_horizon_server.js.html">lib/horizon/server.js</a>, <a href="lib_horizon_server.js.html#line42">line 42</a>
             </span>
         </p>
     
@@ -513,7 +521,7 @@ instance and exposes an interface for requests to that instance.</p></div>
         <p class="tag-source">
             <a href="lib_horizon_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_horizon_server.js.html">lib/horizon/server.js</a>, <a href="lib_horizon_server.js.html#line471">line 471</a>
+                <a href="lib_horizon_server.js.html">lib/horizon/server.js</a>, <a href="lib_horizon_server.js.html#line477">line 477</a>
             </span>
         </p>
     
@@ -636,7 +644,7 @@ Horizon server configuration.</p>
         <p class="tag-source">
             <a href="lib_horizon_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_horizon_server.js.html">lib/horizon/server.js</a>, <a href="lib_horizon_server.js.html#line626">line 626</a>
+                <a href="lib_horizon_server.js.html">lib/horizon/server.js</a>, <a href="lib_horizon_server.js.html#line632">line 632</a>
             </span>
         </p>
     
@@ -826,7 +834,7 @@ at the same time from Horizon.</p>
         <p class="tag-source">
             <a href="lib_horizon_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_horizon_server.js.html">lib/horizon/server.js</a>, <a href="lib_horizon_server.js.html#line676">line 676</a>
+                <a href="lib_horizon_server.js.html">lib/horizon/server.js</a>, <a href="lib_horizon_server.js.html#line682">line 682</a>
             </span>
         </p>
     
@@ -969,7 +977,7 @@ requires a memo, the promise will throw <a href="AccountRequiresMemoError.html">
         <p class="tag-source">
             <a href="lib_horizon_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_horizon_server.js.html">lib/horizon/server.js</a>, <a href="lib_horizon_server.js.html#line478">line 478</a>
+                <a href="lib_horizon_server.js.html">lib/horizon/server.js</a>, <a href="lib_horizon_server.js.html#line484">line 484</a>
             </span>
         </p>
     
@@ -1087,7 +1095,7 @@ requires a memo, the promise will throw <a href="AccountRequiresMemoError.html">
         <p class="tag-source">
             <a href="lib_horizon_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_horizon_server.js.html">lib/horizon/server.js</a>, <a href="lib_horizon_server.js.html#line607">line 607</a>
+                <a href="lib_horizon_server.js.html">lib/horizon/server.js</a>, <a href="lib_horizon_server.js.html#line613">line 613</a>
             </span>
         </p>
     
@@ -1221,7 +1229,7 @@ Horizon server configuration</p></div>
         <p class="tag-source">
             <a href="lib_horizon_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_horizon_server.js.html">lib/horizon/server.js</a>, <a href="lib_horizon_server.js.html#line169">line 169</a>
+                <a href="lib_horizon_server.js.html">lib/horizon/server.js</a>, <a href="lib_horizon_server.js.html#line175">line 175</a>
             </span>
         </p>
     
@@ -1349,7 +1357,7 @@ that happens!</p>
         <p class="tag-source">
             <a href="lib_horizon_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_horizon_server.js.html">lib/horizon/server.js</a>, <a href="lib_horizon_server.js.html#line158">line 158</a>
+                <a href="lib_horizon_server.js.html">lib/horizon/server.js</a>, <a href="lib_horizon_server.js.html#line164">line 164</a>
             </span>
         </p>
     
@@ -1591,7 +1599,7 @@ This is to avoid a scenario where Horizon is horking up the wrong date.</p></td>
         <p class="tag-source">
             <a href="lib_horizon_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_horizon_server.js.html">lib/horizon/server.js</a>, <a href="lib_horizon_server.js.html#line128">line 128</a>
+                <a href="lib_horizon_server.js.html">lib/horizon/server.js</a>, <a href="lib_horizon_server.js.html#line134">line 134</a>
             </span>
         </p>
     
@@ -1724,7 +1732,7 @@ This is to avoid a scenario where Horizon is horking up the wrong date.</p></td>
         <p class="tag-source">
             <a href="lib_horizon_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_horizon_server.js.html">lib/horizon/server.js</a>, <a href="lib_horizon_server.js.html#line485">line 485</a>
+                <a href="lib_horizon_server.js.html">lib/horizon/server.js</a>, <a href="lib_horizon_server.js.html#line491">line 491</a>
             </span>
         </p>
     
@@ -1842,7 +1850,7 @@ This is to avoid a scenario where Horizon is horking up the wrong date.</p></td>
         <p class="tag-source">
             <a href="lib_horizon_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_horizon_server.js.html">lib/horizon/server.js</a>, <a href="lib_horizon_server.js.html#line542">line 542</a>
+                <a href="lib_horizon_server.js.html">lib/horizon/server.js</a>, <a href="lib_horizon_server.js.html#line548">line 548</a>
             </span>
         </p>
     
@@ -2021,7 +2029,7 @@ returns an <a href="AccountResponse.html">AccountResponse</a> object.</p>
         <p class="tag-source">
             <a href="lib_horizon_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_horizon_server.js.html">lib/horizon/server.js</a>, <a href="lib_horizon_server.js.html#line639">line 639</a>
+                <a href="lib_horizon_server.js.html">lib/horizon/server.js</a>, <a href="lib_horizon_server.js.html#line645">line 645</a>
             </span>
         </p>
     
@@ -2145,7 +2153,7 @@ with populated sequence number.</p></div>
         <p class="tag-source">
             <a href="lib_horizon_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_horizon_server.js.html">lib/horizon/server.js</a>, <a href="lib_horizon_server.js.html#line510">line 510</a>
+                <a href="lib_horizon_server.js.html">lib/horizon/server.js</a>, <a href="lib_horizon_server.js.html#line516">line 516</a>
             </span>
         </p>
     
@@ -2274,7 +2282,7 @@ with populated sequence number.</p></div>
         <p class="tag-source">
             <a href="lib_horizon_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_horizon_server.js.html">lib/horizon/server.js</a>, <a href="lib_horizon_server.js.html#line534">line 534</a>
+                <a href="lib_horizon_server.js.html">lib/horizon/server.js</a>, <a href="lib_horizon_server.js.html#line540">line 540</a>
             </span>
         </p>
     
@@ -2468,7 +2476,7 @@ with populated sequence number.</p></div>
         <p class="tag-source">
             <a href="lib_horizon_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_horizon_server.js.html">lib/horizon/server.js</a>, <a href="lib_horizon_server.js.html#line519">line 519</a>
+                <a href="lib_horizon_server.js.html">lib/horizon/server.js</a>, <a href="lib_horizon_server.js.html#line525">line 525</a>
             </span>
         </p>
     
@@ -2586,7 +2594,7 @@ with populated sequence number.</p></div>
         <p class="tag-source">
             <a href="lib_horizon_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_horizon_server.js.html">lib/horizon/server.js</a>, <a href="lib_horizon_server.js.html#line599">line 599</a>
+                <a href="lib_horizon_server.js.html">lib/horizon/server.js</a>, <a href="lib_horizon_server.js.html#line605">line 605</a>
             </span>
         </p>
     
@@ -2713,7 +2721,7 @@ Horizon server configuration.</p></div>
         <p class="tag-source">
             <a href="lib_horizon_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_horizon_server.js.html">lib/horizon/server.js</a>, <a href="lib_horizon_server.js.html#line179">line 179</a>
+                <a href="lib_horizon_server.js.html">lib/horizon/server.js</a>, <a href="lib_horizon_server.js.html#line185">line 185</a>
             </span>
         </p>
     
@@ -2955,7 +2963,7 @@ paths from those source assets to the desired destination asset.</p>
         <p class="tag-source">
             <a href="lib_horizon_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_horizon_server.js.html">lib/horizon/server.js</a>, <a href="lib_horizon_server.js.html#line572">line 572</a>
+                <a href="lib_horizon_server.js.html">lib/horizon/server.js</a>, <a href="lib_horizon_server.js.html#line578">line 578</a>
             </span>
         </p>
     
@@ -3186,7 +3194,7 @@ The destination account or the destination assets.</p>
         <p class="tag-source">
             <a href="lib_horizon_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_horizon_server.js.html">lib/horizon/server.js</a>, <a href="lib_horizon_server.js.html#line591">line 591</a>
+                <a href="lib_horizon_server.js.html">lib/horizon/server.js</a>, <a href="lib_horizon_server.js.html#line597">line 597</a>
             </span>
         </p>
     
@@ -3460,7 +3468,7 @@ required check, default: <code>false</code>. See
         <p class="tag-source">
             <a href="lib_horizon_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_horizon_server.js.html">lib/horizon/server.js</a>, <a href="lib_horizon_server.js.html#line448">line 448</a>
+                <a href="lib_horizon_server.js.html">lib/horizon/server.js</a>, <a href="lib_horizon_server.js.html#line454">line 454</a>
             </span>
         </p>
     
@@ -3750,7 +3758,7 @@ required check, default: <code>false</code>. See
         <p class="tag-source">
             <a href="lib_horizon_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_horizon_server.js.html">lib/horizon/server.js</a>, <a href="lib_horizon_server.js.html#line285">line 285</a>
+                <a href="lib_horizon_server.js.html">lib/horizon/server.js</a>, <a href="lib_horizon_server.js.html#line291">line 291</a>
             </span>
         </p>
     
@@ -4119,7 +4127,7 @@ Returns new <a href="TradeAggregationCallBuilder.html">TradeAggregationCallBuild
         <p class="tag-source">
             <a href="lib_horizon_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_horizon_server.js.html">lib/horizon/server.js</a>, <a href="lib_horizon_server.js.html#line655">line 655</a>
+                <a href="lib_horizon_server.js.html">lib/horizon/server.js</a>, <a href="lib_horizon_server.js.html#line661">line 661</a>
             </span>
         </p>
     
@@ -4241,7 +4249,7 @@ Returns new <a href="TradeAggregationCallBuilder.html">TradeAggregationCallBuild
         <p class="tag-source">
             <a href="lib_horizon_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_horizon_server.js.html">lib/horizon/server.js</a>, <a href="lib_horizon_server.js.html#line527">line 527</a>
+                <a href="lib_horizon_server.js.html">lib/horizon/server.js</a>, <a href="lib_horizon_server.js.html#line533">line 533</a>
             </span>
         </p>
     
@@ -4359,7 +4367,7 @@ Returns new <a href="TradeAggregationCallBuilder.html">TradeAggregationCallBuild
         <p class="tag-source">
             <a href="lib_horizon_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_horizon_server.js.html">lib/horizon/server.js</a>, <a href="lib_horizon_server.js.html#line492">line 492</a>
+                <a href="lib_horizon_server.js.html">lib/horizon/server.js</a>, <a href="lib_horizon_server.js.html#line498">line 498</a>
             </span>
         </p>
     
@@ -4416,245 +4424,6 @@ Returns new <a href="TradeAggregationCallBuilder.html">TradeAggregationCallBuild
         </div>
     
 
-    
-        <div class='vertical-section'>
-            <h1>Type Definitions</h1>
-            <div class="members">
-            
-                <div class="member">
-
-    <span class="method-parameter is-pulled-right">
-        <label>Type:</label>
-        
-<code class="param-type">object</code>
-
-
-    </span>
-
-<h4 class="name" id=".Options">
-    <a class="href-link" href="#.Options">#</a>
-    
-    <span class="code-name">
-        Options
-    </span>
-    
-</h4>
-
-
-
-
-<div class="description">
-    <p>Options for configuring connections to Horizon servers.</p>
-</div>
-
-
-
-
-
-    <h5 class="subsection-title">Properties:</h5>
-
-    
-<div class="table-container">
-    <table class="props table">
-        <thead>
-        <tr>
-            
-            <th>Name</th>
-            
-
-            <th>Type</th>
-
-            
-            <th>Attributes</th>
-            
-
-            
-
-            <th class="last">Description</th>
-        </tr>
-        </thead>
-
-        <tbody>
-        
-            
-<tr class="deep-level-0">
-    
-        <td class="name"><code>allowHttp</code></td>
-    
-
-    <td class="type">
-    
-        
-<code class="param-type">boolean</code>
-
-
-    
-    </td>
-
-    
-        <td class="attributes">
-        
-            &lt;optional><br>
-        
-
-        
-        </td>
-    
-
-    
-
-    <td class="description last"><p>Allow connecting to http servers, default: <code>false</code>. This must be set to false in production deployments! You can also use <a href="Config.html">Config</a> class to set this globally.</p></td>
-</tr>
-
-        
-            
-<tr class="deep-level-0">
-    
-        <td class="name"><code>appName</code></td>
-    
-
-    <td class="type">
-    
-        
-<code class="param-type">string</code>
-
-
-    
-    </td>
-
-    
-        <td class="attributes">
-        
-            &lt;optional><br>
-        
-
-        
-        </td>
-    
-
-    
-
-    <td class="description last"><p>Allow set custom header <code>X-App-Name</code>, default: <code>undefined</code>.</p></td>
-</tr>
-
-        
-            
-<tr class="deep-level-0">
-    
-        <td class="name"><code>appVersion</code></td>
-    
-
-    <td class="type">
-    
-        
-<code class="param-type">string</code>
-
-
-    
-    </td>
-
-    
-        <td class="attributes">
-        
-            &lt;optional><br>
-        
-
-        
-        </td>
-    
-
-    
-
-    <td class="description last"><p>Allow set custom header <code>X-App-Version</code>, default: <code>undefined</code>.</p></td>
-</tr>
-
-        
-            
-<tr class="deep-level-0">
-    
-        <td class="name"><code>authToken</code></td>
-    
-
-    <td class="type">
-    
-        
-<code class="param-type">string</code>
-
-
-    
-    </td>
-
-    
-        <td class="attributes">
-        
-            &lt;optional><br>
-        
-
-        
-        </td>
-    
-
-    
-
-    <td class="description last"><p>Allow set custom header <code>X-Auth-Token</code>, default: <code>undefined</code>.</p></td>
-</tr>
-
-        
-        </tbody>
-    </table>
-</div>
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    
-
-    
-
-    
-
-    
-        <p class="tag-source">
-            <a href="lib_horizon_server.js.html" class="button">View Source</a>
-            <span>
-                <a href="lib_horizon_server.js.html">lib/horizon/server.js</a>, <a href="lib_horizon_server.js.html#line729">line 729</a>
-            </span>
-        </p>
-    
-</dl>
-
-
-
-
-
-</div>
-            
-            </div>
-        </div>
     
 
     

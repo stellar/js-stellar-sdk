@@ -167,8 +167,15 @@ class SentTransaction {
   };
   constructor(assembled) {
     this.assembled = assembled;
-    this.server = new _rpc.Server(this.assembled.options.rpcUrl, {
-      allowHttp: this.assembled.options.allowHttp ?? false
+    const {
+      server,
+      allowHttp,
+      headers,
+      rpcUrl
+    } = this.assembled.options;
+    this.server = server ?? new _rpc.Server(rpcUrl, {
+      allowHttp,
+      headers
     });
   }
 

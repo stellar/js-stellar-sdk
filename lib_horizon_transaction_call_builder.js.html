@@ -130,8 +130,8 @@ var _call_builder = require("./call_builder");
  * @param {string} serverUrl Horizon server URL.
  */
 class TransactionCallBuilder extends _call_builder.CallBuilder {
-  constructor(serverUrl) {
-    super(serverUrl, "transactions");
+  constructor(serverUrl, httpClient) {
+    super(serverUrl, httpClient, "transactions");
     this.url.segment("transactions");
   }
 
@@ -142,7 +142,7 @@ class TransactionCallBuilder extends _call_builder.CallBuilder {
    * @returns {CallBuilder} a CallBuilder instance
    */
   transaction(transactionId) {
-    const builder = new _call_builder.CallBuilder(this.url.clone());
+    const builder = new _call_builder.CallBuilder(this.url.clone(), this.httpClient);
     builder.filter.push([transactionId]);
     return builder;
   }

@@ -126,10 +126,12 @@ async function specFromWasmHash(wasmHash, options, format = "hex") {
   }
   const {
     rpcUrl,
-    allowHttp
+    allowHttp,
+    headers
   } = options;
   const serverOpts = {
-    allowHttp
+    allowHttp,
+    headers
   };
   const server = new _rpc.Server(rpcUrl, serverOpts);
   const wasm = await server.getContractWasmByHash(wasmHash, format);
@@ -148,7 +150,7 @@ async function specFromWasmHash(wasmHash, options, format = "hex") {
  *
  * @class
  * @param {module:contract.Spec} spec {@link Spec} to construct a Client for
- * @param {ClientOptions} options see {@link ClientOptions}
+ * @param {module:contract.ClientOptions} options see {@link ClientOptions}
  */
 class Client {
   static async deploy(/** Constructor/Initialization Args for the contract's `__constructor` method */
@@ -186,6 +188,17 @@ class Client {
   constructor(spec, options) {
     this.spec = spec;
     this.options = options;
+    // Ensure we have a server to reuse for all AssembledTransactions
+    if (options.server === undefined) {
+      const {
+        allowHttp,
+        headers
+      } = options;
+      options.server = new _rpc.Server(options.rpcUrl, {
+        allowHttp,
+        headers
+      });
+    }
     this.spec.funcs().forEach(xdrFn => {
       const method = xdrFn.name().toString();
       if (method === CONSTRUCTOR_FUNC) {
@@ -226,12 +239,13 @@ class Client {
     }
     const {
       rpcUrl,
-      allowHttp
+      allowHttp,
+      headers
     } = options;
-    const serverOpts = {
-      allowHttp
-    };
-    const server = new _rpc.Server(rpcUrl, serverOpts);
+    const server = options.server ?? new _rpc.Server(rpcUrl, {
+      allowHttp,
+      headers
+    });
     const wasm = await server.getContractWasmByHash(wasmHash, format);
     return Client.fromWasm(wasm, options);
   }
@@ -263,12 +277,13 @@ class Client {
     const {
       rpcUrl,
       contractId,
-      allowHttp
+      allowHttp,
+      headers
     } = options;
-    const serverOpts = {
-      allowHttp
-    };
-    const server = new _rpc.Server(rpcUrl, serverOpts);
+    const server = new _rpc.Server(rpcUrl, {
+      allowHttp,
+      headers
+    });
     const wasm = await server.getContractWasmByContractId(contractId);
     return Client.fromWasm(wasm, options);
   }

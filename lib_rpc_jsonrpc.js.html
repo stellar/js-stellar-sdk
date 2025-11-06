@@ -115,8 +115,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.postObject = postObject;
-var _axios = _interopRequireDefault(require("./axios"));
-function _interopRequireDefault(e) { return e &amp;&amp; e.__esModule ? e : { default: e }; }
 // Check if the given object X has a field Y, and make that available to
 // typescript typing.
 function hasOwnProperty(obj, prop) {
@@ -133,8 +131,8 @@ function hasOwnProperty(obj, prop) {
  * @returns {Promise&lt;T>}
  * @private
  */
-async function postObject(url, method, param = null) {
-  const response = await _axios.default.post(url, {
+async function postObject(client, url, method, param = null) {
+  const response = await client.post(url, {
     jsonrpc: "2.0",
     // TODO: Generate a unique request id
     id: 1,

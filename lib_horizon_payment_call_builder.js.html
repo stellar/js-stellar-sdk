@@ -130,8 +130,8 @@ var _call_builder = require("./call_builder");
  * @param {string} serverUrl Horizon server URL.
  */
 class PaymentCallBuilder extends _call_builder.CallBuilder {
-  constructor(serverUrl) {
-    super(serverUrl, "payments");
+  constructor(serverUrl, httpClient) {
+    super(serverUrl, httpClient, "payments");
     this.url.segment("payments");
   }
 

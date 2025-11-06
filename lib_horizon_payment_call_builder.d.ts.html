@@ -111,6 +111,7 @@
         <article>
             <pre class="prettyprint source linenums"><code>import { CallBuilder } from "./call_builder";
 import { ServerApi } from "./server_api";
+import { HttpClient } from "../http-client";
 /**
  * Creates a new {@link PaymentCallBuilder} pointed to server defined by serverUrl.
  *
@@ -125,7 +126,7 @@ import { ServerApi } from "./server_api";
  * @param {string} serverUrl Horizon server URL.
  */
 export declare class PaymentCallBuilder extends CallBuilder&lt;ServerApi.CollectionPage&lt;ServerApi.PaymentOperationRecord | ServerApi.CreateAccountOperationRecord | ServerApi.AccountMergeOperationRecord | ServerApi.PathPaymentOperationRecord | ServerApi.PathPaymentStrictSendOperationRecord | ServerApi.InvokeHostFunctionOperationRecord>> {
-    constructor(serverUrl: URI);
+    constructor(serverUrl: URI, httpClient: HttpClient);
     /**
      * This endpoint responds with a collection of Payment operations where the given account was either the sender or receiver.
      * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/horizon/resources/get-payments-by-account-id|Payments for Account}

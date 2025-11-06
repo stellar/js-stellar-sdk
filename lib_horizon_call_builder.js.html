@@ -145,11 +145,12 @@ if (typeof true !== "undefined" &amp;&amp; true) {
  * @class CallBuilder
  */
 class CallBuilder {
-  constructor(serverUrl, neighborRoot = "") {
+  constructor(serverUrl, httpClient, neighborRoot = "") {
     this.url = serverUrl.clone();
     this.filter = [];
     this.originalSegments = this.url.segment() || [];
     this.neighborRoot = neighborRoot;
+    this.httpClient = httpClient;
   }
 
   /**
@@ -430,7 +431,7 @@ class CallBuilder {
     if (url.protocol() === "") {
       url = url.protocol(this.url.protocol());
     }
-    return _horizon_axios_client.AxiosClient.get(url.toString()).then(response => response.data).catch(this._handleNetworkError);
+    return this.httpClient.get(url.toString()).then(response => response.data).catch(this._handleNetworkError);
   }
 
   /**

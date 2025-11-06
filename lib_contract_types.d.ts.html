@@ -110,6 +110,7 @@
     <section>
         <article>
             <pre class="prettyprint source linenums"><code>import { Memo, MemoType, Operation, Transaction, xdr } from "@stellar/stellar-base";
+import { Server } from "../rpc";
 export type XDR_BASE64 = string;
 /**
  * An unsigned 32-bit integer.
@@ -261,11 +262,13 @@ export type ClientOptions = {
      */
     rpcUrl: string;
     /**
-     * If true, will allow HTTP requests to the Soroban network. If false, will
+     * If true, will allow HTTP requests to the RPC. If false, will
      * only allow HTTPS requests.
      * @default false
      */
     allowHttp?: boolean;
+    /** Optional headers to include in requests to the RPC. */
+    headers?: Record&lt;string, string>;
     /**
      * This gets filled in automatically from the ContractSpec when you
      * instantiate a {@link Client}.
@@ -286,6 +289,11 @@ export type ClientOptions = {
     errorTypes?: Record&lt;number, {
         message: string;
     }>;
+    /**
+     * The Server instance to use for RPC calls. If not provided, one will be
+     * created automatically from `rpcUrl` and `serverOptions`.
+     */
+    server?: Server;
 };
 /**
  * Options for a smart contract method invocation.

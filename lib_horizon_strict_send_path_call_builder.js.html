@@ -149,8 +149,8 @@ var _call_builder = require("./call_builder");
  *
  */
 class StrictSendPathCallBuilder extends _call_builder.CallBuilder {
-  constructor(serverUrl, sourceAsset, sourceAmount, destination) {
-    super(serverUrl);
+  constructor(serverUrl, httpClient, sourceAsset, sourceAmount, destination) {
+    super(serverUrl, httpClient);
     this.url.segment("paths/strict-send");
     if (sourceAsset.isNative()) {
       this.url.setQuery("source_asset_type", "native");

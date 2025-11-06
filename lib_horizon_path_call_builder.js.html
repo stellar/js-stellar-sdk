@@ -146,8 +146,8 @@ var _call_builder = require("./call_builder");
  * @param {string} destinationAmount The amount, denominated in the destination asset, that any returned path should be able to satisfy.
  */
 class PathCallBuilder extends _call_builder.CallBuilder {
-  constructor(serverUrl, source, destination, destinationAsset, destinationAmount) {
-    super(serverUrl);
+  constructor(serverUrl, httpClient, source, destination, destinationAsset, destinationAmount) {
+    super(serverUrl, httpClient);
     this.url.segment("paths");
     this.url.setQuery("destination_account", destination);
     this.url.setQuery("source_account", source);

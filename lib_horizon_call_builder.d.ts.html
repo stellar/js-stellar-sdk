@@ -111,6 +111,7 @@
         <article>
             <pre class="prettyprint source linenums"><code>import URI from "urijs";
 import { HorizonApi } from "./horizon_api";
+import { HttpClient } from "../http-client";
 import { ServerApi } from "./server_api";
 export interface EventSourceOptions&lt;T> {
     onmessage?: (value: T extends ServerApi.CollectionPage&lt;infer U> ? U : T) => void;
@@ -129,7 +130,8 @@ export declare class CallBuilder&lt;T extends HorizonApi.FeeStatsResponse | Hori
     filter: string[][];
     protected originalSegments: string[];
     protected neighborRoot: string;
-    constructor(serverUrl: URI, neighborRoot?: string);
+    protected httpClient: HttpClient;
+    constructor(serverUrl: URI, httpClient: HttpClient, neighborRoot?: string);
     /**
      * Triggers a HTTP request using this builder's current configuration.
      * @returns {Promise} a Promise that resolves to the server's response.

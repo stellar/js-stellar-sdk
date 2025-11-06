@@ -823,8 +823,39 @@ contract.</p></td>
 
     
 
-    <td class="description last"><p>If true, will allow HTTP requests to the Soroban network. If false, will,
+    <td class="description last"><p>If true, will allow HTTP requests to the RPC. If false, will,
 only allow HTTPS requests.</p></td>
+</tr>
+
+        
+            
+<tr class="deep-level-0">
+    
+        <td class="name"><code>headers</code></td>
+    
+
+    <td class="type">
+    
+        
+<code class="param-type">Record.&lt;string, string></code>
+
+
+    
+    </td>
+
+    
+        <td class="attributes">
+        
+            &lt;optional><br>
+        
+
+        
+        </td>
+    
+
+    
+
+    <td class="description last"><p>Optional headers to include in requests to the RPC.</p></td>
 </tr>
 
         
@@ -872,6 +903,38 @@ matching error is found, then it will throw the raw error.</p></td>
 </tr>
 
         
+            
+<tr class="deep-level-0">
+    
+        <td class="name"><code>server</code></td>
+    
+
+    <td class="type">
+    
+        
+<code class="param-type">Server</code>
+
+
+    
+    </td>
+
+    
+        <td class="attributes">
+        
+            &lt;optional><br>
+        
+
+        
+        </td>
+    
+
+    
+
+    <td class="description last"><p>The Server instance to use for RPC calls. If not provided, one will be,
+created automatically from <code>rpcUrl</code> and <code>serverOptions</code>.</p></td>
+</tr>
+
+        
         </tbody>
     </table>
 </div>
@@ -913,7 +976,7 @@ matching error is found, then it will throw the raw error.</p></td>
         <p class="tag-source">
             <a href="lib_contract_types.d.ts.html" class="button">View Source</a>
             <span>
-                <a href="lib_contract_types.d.ts.html">lib/contract/types.d.ts</a>, <a href="lib_contract_types.d.ts.html#line87">line 87</a>
+                <a href="lib_contract_types.d.ts.html">lib/contract/types.d.ts</a>, <a href="lib_contract_types.d.ts.html#line88">line 88</a>
             </span>
         </p>
     
@@ -1148,7 +1211,7 @@ are archived entries that need renewal.</p></td>
         <p class="tag-source">
             <a href="lib_contract_types.d.ts.html" class="button">View Source</a>
             <span>
-                <a href="lib_contract_types.d.ts.html">lib/contract/types.d.ts</a>, <a href="lib_contract_types.d.ts.html#line132">line 132</a>
+                <a href="lib_contract_types.d.ts.html">lib/contract/types.d.ts</a>, <a href="lib_contract_types.d.ts.html#line136">line 136</a>
             </span>
         </p>
     
@@ -1225,7 +1288,7 @@ are archived entries that need renewal.</p></td>
         <p class="tag-source">
             <a href="lib_contract_types.d.ts.html" class="button">View Source</a>
             <span>
-                <a href="lib_contract_types.d.ts.html">lib/contract/types.d.ts</a>, <a href="lib_contract_types.d.ts.html#line31">line 31</a>
+                <a href="lib_contract_types.d.ts.html">lib/contract/types.d.ts</a>, <a href="lib_contract_types.d.ts.html#line32">line 32</a>
             </span>
         </p>
     
@@ -1302,7 +1365,7 @@ are archived entries that need renewal.</p></td>
         <p class="tag-source">
             <a href="lib_contract_types.d.ts.html" class="button">View Source</a>
             <span>
-                <a href="lib_contract_types.d.ts.html">lib/contract/types.d.ts</a>, <a href="lib_contract_types.d.ts.html#line41">line 41</a>
+                <a href="lib_contract_types.d.ts.html">lib/contract/types.d.ts</a>, <a href="lib_contract_types.d.ts.html#line42">line 42</a>
             </span>
         </p>
     
@@ -1379,7 +1442,7 @@ are archived entries that need renewal.</p></td>
         <p class="tag-source">
             <a href="lib_contract_types.d.ts.html" class="button">View Source</a>
             <span>
-                <a href="lib_contract_types.d.ts.html">lib/contract/types.d.ts</a>, <a href="lib_contract_types.d.ts.html#line11">line 11</a>
+                <a href="lib_contract_types.d.ts.html">lib/contract/types.d.ts</a>, <a href="lib_contract_types.d.ts.html#line12">line 12</a>
             </span>
         </p>
     
@@ -1456,7 +1519,7 @@ are archived entries that need renewal.</p></td>
         <p class="tag-source">
             <a href="lib_contract_types.d.ts.html" class="button">View Source</a>
             <span>
-                <a href="lib_contract_types.d.ts.html">lib/contract/types.d.ts</a>, <a href="lib_contract_types.d.ts.html#line21">line 21</a>
+                <a href="lib_contract_types.d.ts.html">lib/contract/types.d.ts</a>, <a href="lib_contract_types.d.ts.html#line22">line 22</a>
             </span>
         </p>
     
@@ -1533,7 +1596,7 @@ are archived entries that need renewal.</p></td>
         <p class="tag-source">
             <a href="lib_contract_types.d.ts.html" class="button">View Source</a>
             <span>
-                <a href="lib_contract_types.d.ts.html">lib/contract/types.d.ts</a>, <a href="lib_contract_types.d.ts.html#line26">line 26</a>
+                <a href="lib_contract_types.d.ts.html">lib/contract/types.d.ts</a>, <a href="lib_contract_types.d.ts.html#line27">line 27</a>
             </span>
         </p>
     
@@ -1610,7 +1673,7 @@ are archived entries that need renewal.</p></td>
         <p class="tag-source">
             <a href="lib_contract_types.d.ts.html" class="button">View Source</a>
             <span>
-                <a href="lib_contract_types.d.ts.html">lib/contract/types.d.ts</a>, <a href="lib_contract_types.d.ts.html#line36">line 36</a>
+                <a href="lib_contract_types.d.ts.html">lib/contract/types.d.ts</a>, <a href="lib_contract_types.d.ts.html#line37">line 37</a>
             </span>
         </p>
     
@@ -1687,7 +1750,7 @@ are archived entries that need renewal.</p></td>
         <p class="tag-source">
             <a href="lib_contract_types.d.ts.html" class="button">View Source</a>
             <span>
-                <a href="lib_contract_types.d.ts.html">lib/contract/types.d.ts</a>, <a href="lib_contract_types.d.ts.html#line6">line 6</a>
+                <a href="lib_contract_types.d.ts.html">lib/contract/types.d.ts</a>, <a href="lib_contract_types.d.ts.html#line7">line 7</a>
             </span>
         </p>
     
@@ -1764,7 +1827,7 @@ are archived entries that need renewal.</p></td>
         <p class="tag-source">
             <a href="lib_contract_types.d.ts.html" class="button">View Source</a>
             <span>
-                <a href="lib_contract_types.d.ts.html">lib/contract/types.d.ts</a>, <a href="lib_contract_types.d.ts.html#line16">line 16</a>
+                <a href="lib_contract_types.d.ts.html">lib/contract/types.d.ts</a>, <a href="lib_contract_types.d.ts.html#line17">line 17</a>
             </span>
         </p>
     

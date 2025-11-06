@@ -128,8 +128,8 @@ var _call_builder = require("./call_builder");
  * @param {string} serverUrl Horizon server URL.
  */
 class EffectCallBuilder extends _call_builder.CallBuilder {
-  constructor(serverUrl) {
-    super(serverUrl, "effects");
+  constructor(serverUrl, httpClient) {
+    super(serverUrl, httpClient, "effects");
     this.url.segment("effects");
   }
 

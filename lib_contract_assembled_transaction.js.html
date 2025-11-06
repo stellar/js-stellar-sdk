@@ -503,8 +503,15 @@ class AssembledTransaction {
   constructor(options) {
     this.options = options;
     this.options.simulate = this.options.simulate ?? true;
-    this.server = new _rpc.Server(this.options.rpcUrl, {
-      allowHttp: this.options.allowHttp ?? false
+    const {
+      server,
+      allowHttp,
+      headers,
+      rpcUrl
+    } = this.options;
+    this.server = server ?? new _rpc.Server(rpcUrl, {
+      allowHttp,
+      headers
     });
   }
 

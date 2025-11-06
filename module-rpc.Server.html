@@ -145,6 +145,11 @@ interface for requests to that instance.</p></div>
 
     
     
+    <div class="description">
+        <p>HTTP client instance for making requests to Horizon.
+Exposes interceptors, defaults, and other configuration options.</p>
+    </div>
+    
 
 
 
@@ -393,6 +398,20 @@ You can also use <a href="Config.html">Config</a> class to set this globally.</p
 
 
 
+    <h5>Example</h5>
+    
+    
+        <pre class="prettyprint"><code>// Add authentication header
+server.httpClient.defaults.headers['Authorization'] = 'Bearer token';
+
+// Add request interceptor
+server.httpClient.interceptors.request.use((config) => {
+  console.log('Request:', config.url);
+  return config;
+});</code></pre>
+    
+
+
 
                     </div>
                 </div>
@@ -483,7 +502,7 @@ You can also use <a href="Config.html">Config</a> class to set this globally.</p
         <p class="tag-source">
             <a href="lib_rpc_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line114">line 114</a>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line129">line 129</a>
             </span>
         </p>
     
@@ -725,7 +744,7 @@ a successful transaction with <a href="TransactionBuilder.html">TransactionBuild
         <p class="tag-source">
             <a href="lib_rpc_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line145">line 145</a>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line154">line 154</a>
             </span>
         </p>
     
@@ -920,7 +939,7 @@ server.getAccount(accountId).then((account) => {
         <p class="tag-source">
             <a href="lib_rpc_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line166">line 166</a>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line175">line 175</a>
             </span>
         </p>
     
@@ -1117,7 +1136,7 @@ claimable balance to load</p></td>
         <p class="tag-source">
             <a href="lib_rpc_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line232">line 232</a>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line241">line 241</a>
             </span>
         </p>
     
@@ -1421,7 +1440,7 @@ or 'persistent' (the default), see <a href="module-rpc.html#.Durability">module:
         <p class="tag-source">
             <a href="lib_rpc_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line311">line 311</a>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line320">line 320</a>
             </span>
         </p>
     
@@ -1615,7 +1634,7 @@ code of the contract.</p>
         <p class="tag-source">
             <a href="lib_rpc_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line370">line 370</a>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line379">line 379</a>
             </span>
         </p>
     
@@ -1830,7 +1849,7 @@ represents the executable code of the contract.</p>
         <p class="tag-source">
             <a href="lib_rpc_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line405">line 405</a>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line414">line 414</a>
             </span>
         </p>
     
@@ -2054,7 +2073,7 @@ Api.EventResponse object to set the <code>cursor</code> parameter.</p>
         <p class="tag-source">
             <a href="lib_rpc_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line635">line 635</a>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line644">line 644</a>
             </span>
         </p>
     
@@ -2217,7 +2236,7 @@ contract operations.</p>
         <p class="tag-source">
             <a href="lib_rpc_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line973">line 973</a>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line982">line 982</a>
             </span>
         </p>
     
@@ -2350,7 +2369,7 @@ contract operations.</p>
         <p class="tag-source">
             <a href="lib_rpc_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line275">line 275</a>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line284">line 284</a>
             </span>
         </p>
     
@@ -2495,7 +2514,7 @@ server is connected to.</p>
         <p class="tag-source">
             <a href="lib_rpc_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line698">line 698</a>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line707">line 707</a>
             </span>
         </p>
     
@@ -2706,7 +2725,7 @@ Contract.getFootprint).</p>
         <p class="tag-source">
             <a href="lib_rpc_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line454">line 454</a>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line463">line 463</a>
             </span>
         </p>
     
@@ -2913,7 +2932,7 @@ pages fall within the history retention of the RPC provider.</p>
         <p class="tag-source">
             <a href="lib_rpc_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line1126">line 1126</a>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line1135">line 1135</a>
             </span>
         </p>
     
@@ -3097,7 +3116,7 @@ const nextPage = await server.getLedgers({
         <p class="tag-source">
             <a href="lib_rpc_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line677">line 677</a>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line686">line 686</a>
             </span>
         </p>
     
@@ -3380,7 +3399,7 @@ for a list of built-in passphrases, e.g., <code>Networks.TESTNET</code>.</p></td
         <p class="tag-source">
             <a href="lib_rpc_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line1027">line 1027</a>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line1036">line 1036</a>
             </span>
         </p>
     
@@ -3608,7 +3627,7 @@ transaction has completed.</p>
         <p class="tag-source">
             <a href="lib_rpc_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line532">line 532</a>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line541">line 541</a>
             </span>
         </p>
     
@@ -3807,7 +3826,7 @@ in that RPC instance.</p>
         <p class="tag-source">
             <a href="lib_rpc_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line576">line 576</a>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line585">line 585</a>
             </span>
         </p>
     
@@ -4032,7 +4051,7 @@ in that RPC instance.</p>
         <p class="tag-source">
             <a href="lib_rpc_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line199">line 199</a>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line208">line 208</a>
             </span>
         </p>
     
@@ -4180,7 +4199,7 @@ server.getTrustline(accountId, asset).then((entry) => {
         <p class="tag-source">
             <a href="lib_rpc_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line984">line 984</a>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line993">line 993</a>
             </span>
         </p>
     
@@ -4443,7 +4462,7 @@ each attempt.</p></td>
         <p class="tag-source">
             <a href="lib_rpc_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line495">line 495</a>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line504">line 504</a>
             </span>
         </p>
     
@@ -4666,7 +4685,7 @@ don't care about the auth returned from the simulation. Other fields
         <p class="tag-source">
             <a href="lib_rpc_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line843">line 843</a>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line852">line 852</a>
             </span>
         </p>
     
@@ -4970,7 +4989,7 @@ discover this network's Friendbot url).</p></td>
         <p class="tag-source">
             <a href="lib_rpc_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line934">line 934</a>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line943">line 943</a>
             </span>
         </p>
     
@@ -5196,7 +5215,7 @@ success/failure.</p>
         <p class="tag-source">
             <a href="lib_rpc_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line896">line 896</a>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line905">line 905</a>
             </span>
         </p>
     
@@ -5515,7 +5534,7 @@ mode that allows non-root authorization</p></td>
         <p class="tag-source">
             <a href="lib_rpc_server.js.html" class="button">View Source</a>
             <span>
-                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line756">line 756</a>
+                <a href="lib_rpc_server.js.html">lib/rpc/server.js</a>, <a href="lib_rpc_server.js.html#line765">line 765</a>
             </span>
         </p>
     

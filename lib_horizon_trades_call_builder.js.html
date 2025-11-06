@@ -130,8 +130,8 @@ var _call_builder = require("./call_builder");
  * @param {string} serverUrl serverUrl Horizon server URL.
  */
 class TradesCallBuilder extends _call_builder.CallBuilder {
-  constructor(serverUrl) {
-    super(serverUrl, "trades");
+  constructor(serverUrl, httpClient) {
+    super(serverUrl, httpClient, "trades");
     this.url.segment("trades");
   }
 

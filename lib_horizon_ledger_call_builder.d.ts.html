@@ -111,6 +111,7 @@
         <article>
             <pre class="prettyprint source linenums"><code>import { CallBuilder } from "./call_builder";
 import { ServerApi } from "./server_api";
+import { HttpClient } from "../http-client";
 /**
  * Creates a new {@link LedgerCallBuilder} pointed to server defined by serverUrl.
  *
@@ -124,7 +125,7 @@ import { ServerApi } from "./server_api";
  * @param {string} serverUrl Horizon server URL.
  */
 export declare class LedgerCallBuilder extends CallBuilder&lt;ServerApi.CollectionPage&lt;ServerApi.LedgerRecord>> {
-    constructor(serverUrl: URI);
+    constructor(serverUrl: URI, httpClient: HttpClient);
     /**
      * Provides information on a single ledger.
      * @param {number|string} sequence Ledger sequence

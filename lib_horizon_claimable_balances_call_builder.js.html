@@ -129,8 +129,8 @@ var _call_builder = require("./call_builder");
  * @param {string} serverUrl Horizon server URL.
  */
 class ClaimableBalanceCallBuilder extends _call_builder.CallBuilder {
-  constructor(serverUrl) {
-    super(serverUrl);
+  constructor(serverUrl, httpClient) {
+    super(serverUrl, httpClient);
     this.url.segment("claimable_balances");
   }
 
@@ -142,7 +142,7 @@ class ClaimableBalanceCallBuilder extends _call_builder.CallBuilder {
    * @returns {CallBuilder&lt;ServerApi.ClaimableBalanceRecord>} CallBuilder&lt;ServerApi.ClaimableBalanceRecord> OperationCallBuilder instance
    */
   claimableBalance(claimableBalanceId) {
-    const builder = new _call_builder.CallBuilder(this.url.clone());
+    const builder = new _call_builder.CallBuilder(this.url.clone(), this.httpClient);
     builder.filter.push([claimableBalanceId]);
     return builder;
   }

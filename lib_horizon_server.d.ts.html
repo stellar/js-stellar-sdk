@@ -128,6 +128,7 @@ import { PaymentCallBuilder } from "./payment_call_builder";
 import { TradeAggregationCallBuilder } from "./trade_aggregation_call_builder";
 import { TradesCallBuilder } from "./trades_call_builder";
 import { TransactionCallBuilder } from "./transaction_call_builder";
+import { HttpClient } from "../http-client";
 /**
  * Default transaction submission timeout for Horizon requests, in milliseconds
  * @constant {number}
@@ -149,9 +150,24 @@ export declare class HorizonServer {
     /**
      * Horizon Server URL (ex. `https://horizon-testnet.stellar.org`)
      *
-     * @todo Solve `URI(this.serverURL as any)`.
+     * @todo Solve `this.serverURL`.
      */
     readonly serverURL: URI;
+    /**
+     * HTTP client instance for making requests to Horizon.
+     * Exposes interceptors, defaults, and other configuration options.
+     *
+     * @example
+     * // Add authentication header
+     * server.httpClient.defaults.headers['Authorization'] = 'Bearer token';
+     *
+     * // Add request interceptor
+     * server.httpClient.interceptors.request.use((config) => {
+     *   console.log('Request:', config.url);
+     *   return config;
+     * });
+     */
+    readonly httpClient: HttpClient;
     constructor(serverURL: string, opts?: HorizonServer.Options);
     /**
      * Get timebounds for N seconds from now, when you're creating a transaction
@@ -478,16 +494,15 @@ export declare class HorizonServer {
      */
     checkMemoRequired(transaction: Transaction | FeeBumpTransaction): Promise&lt;void>;
 }
-/**
- * Options for configuring connections to Horizon servers.
- * @typedef {object} Options
- * @memberof module:Horizon.Server
- * @property {boolean} [allowHttp] Allow connecting to http servers, default: `false`. This must be set to false in production deployments! You can also use {@link Config} class to set this globally.
- * @property {string} [appName] Allow set custom header `X-App-Name`, default: `undefined`.
- * @property {string} [appVersion] Allow set custom header `X-App-Version`, default: `undefined`.
- * @property {string} [authToken] Allow set custom header `X-Auth-Token`, default: `undefined`.
- */
 export declare namespace HorizonServer {
+    /**
+     * Options for configuring connections to Horizon servers.
+     * @memberof module:Horizon.Server
+     * @property {boolean} [allowHttp] Allow connecting to http servers, default: `false`. This must be set to false in production deployments! You can also use {@link Config} class to set this globally.
+     * @property {string} [appName] Allow set custom header `X-App-Name`, default: `undefined`.
+     * @property {string} [appVersion] Allow set custom header `X-App-Version`, default: `undefined`.
+     * @property {string} [authToken] Allow set custom header `X-Auth-Token`, default: `undefined`.
+     */
     interface Options {
         allowHttp?: boolean;
         appName?: string;

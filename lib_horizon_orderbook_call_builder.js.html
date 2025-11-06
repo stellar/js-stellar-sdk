@@ -131,8 +131,8 @@ var _call_builder = require("./call_builder");
  * @param {Asset} buying Asset being bought
  */
 class OrderbookCallBuilder extends _call_builder.CallBuilder {
-  constructor(serverUrl, selling, buying) {
-    super(serverUrl);
+  constructor(serverUrl, httpClient, selling, buying) {
+    super(serverUrl, httpClient);
     this.url.segment("order_book");
     if (!selling.isNative()) {
       this.url.setQuery("selling_asset_type", selling.getAssetType());

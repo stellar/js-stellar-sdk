@@ -117,7 +117,7 @@ Object.defineProperty(exports, "__esModule", {
 exports.SUBMIT_TRANSACTION_TIMEOUT = exports.RpcServer = exports.LinearSleepStrategy = exports.Durability = exports.BasicSleepStrategy = void 0;
 var _urijs = _interopRequireDefault(require("urijs"));
 var _stellarBase = require("@stellar/stellar-base");
-var _axios = _interopRequireDefault(require("./axios"));
+var _axios = require("./axios");
 var jsonrpc = _interopRequireWildcard(require("./jsonrpc"));
 var _api = require("./api");
 var _transaction = require("./transaction");
@@ -217,19 +217,28 @@ function findCreatedAccountSequenceInTransactionMeta(meta) {
  * @see {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods | API reference docs}
  */
 class RpcServer {
+  /**
+   * HTTP client instance for making requests to Horizon.
+   * Exposes interceptors, defaults, and other configuration options.
+   *
+   * @example
+   * // Add authentication header
+   * server.httpClient.defaults.headers['Authorization'] = 'Bearer token';
+   *
+   * // Add request interceptor
+   * server.httpClient.interceptors.request.use((config) => {
+   *   console.log('Request:', config.url);
+   *   return config;
+   * });
+   */
+
   constructor(serverURL, opts = {}) {
     /**
      * RPC Server URL (ex. `http://localhost:8000/soroban/rpc`).
      * @member {URI}
      */
     this.serverURL = (0, _urijs.default)(serverURL);
-    if (opts.headers &amp;&amp; Object.keys(opts.headers).length !== 0) {
-      _axios.default.interceptors.request.use(config => {
-        // merge the custom headers into any existing headers
-        config.headers = Object.assign(config.headers, opts.headers);
-        return config;
-      });
-    }
+    this.httpClient = (0, _axios.createHttpClient)(opts.headers);
     if (this.serverURL.protocol() !== "https" &amp;&amp; !opts.allowHttp) {
       throw new Error("Cannot connect to insecure Soroban RPC server if `allowHttp` isn't set");
     }
@@ -384,7 +393,7 @@ class RpcServer {
    */
   // eslint-disable-next-line require-await
   async getHealth() {
-    return jsonrpc.postObject(this.serverURL.toString(), "getHealth");
+    return jsonrpc.postObject(this.httpClient, this.serverURL.toString(), "getHealth");
   }
 
   /**
@@ -566,7 +575,7 @@ class RpcServer {
     return this._getLedgerEntries(...keys).then(_parsers.parseRawLedgerEntries);
   }
   _getLedgerEntries(...keys) {
-    return jsonrpc.postObject(this.serverURL.toString(), "getLedgerEntries", {
+    return jsonrpc.postObject(this.httpClient, this.serverURL.toString(), "getLedgerEntries", {
       keys: keys.map(k => k.toXDR("base64"))
     });
   }
@@ -661,7 +670,7 @@ class RpcServer {
 
   // eslint-disable-next-line require-await
   async _getTransaction(hash) {
-    return jsonrpc.postObject(this.serverURL.toString(), "getTransaction", {
+    return jsonrpc.postObject(this.httpClient, this.serverURL.toString(), "getTransaction", {
       hash
     });
   }
@@ -698,7 +707,7 @@ class RpcServer {
     });
   }
   async _getTransactions(request) {
-    return jsonrpc.postObject(this.serverURL.toString(), "getTransactions", request);
+    return jsonrpc.postObject(this.httpClient, this.serverURL.toString(), "getTransactions", request);
   }
 
   /**
@@ -749,7 +758,7 @@ class RpcServer {
 
   // eslint-disable-next-line require-await
   async _getEvents(request) {
-    return jsonrpc.postObject(this.serverURL.toString(), "getEvents", {
+    return jsonrpc.postObject(this.httpClient, this.serverURL.toString(), "getEvents", {
       filters: request.filters ?? [],
       pagination: {
         ...(request.cursor &amp;&amp; {
@@ -786,7 +795,7 @@ class RpcServer {
    */
   // eslint-disable-next-line require-await
   async getNetwork() {
-    return jsonrpc.postObject(this.serverURL.toString(), "getNetwork");
+    return jsonrpc.postObject(this.httpClient, this.serverURL.toString(), "getNetwork");
   }
 
   /**
@@ -807,7 +816,7 @@ class RpcServer {
    */
   // eslint-disable-next-line require-await
   async getLatestLedger() {
-    return jsonrpc.postObject(this.serverURL.toString(), "getLatestLedger");
+    return jsonrpc.postObject(this.httpClient, this.serverURL.toString(), "getLatestLedger");
   }
 
   /**
@@ -870,7 +879,7 @@ class RpcServer {
 
   // eslint-disable-next-line require-await
   async _simulateTransaction(transaction, addlResources, authMode) {
-    return jsonrpc.postObject(this.serverURL.toString(), "simulateTransaction", {
+    return jsonrpc.postObject(this.httpClient, this.serverURL.toString(), "simulateTransaction", {
       transaction: transaction.toXDR(),
       authMode,
       ...(addlResources !== undefined &amp;&amp; {
@@ -1010,7 +1019,7 @@ class RpcServer {
 
   // eslint-disable-next-line require-await
   async _sendTransaction(transaction) {
-    return jsonrpc.postObject(this.serverURL.toString(), "sendTransaction", {
+    return jsonrpc.postObject(this.httpClient, this.serverURL.toString(), "sendTransaction", {
       transaction: transaction.toXDR()
     });
   }
@@ -1049,7 +1058,7 @@ class RpcServer {
       throw new Error("No friendbot URL configured for current network");
     }
     try {
-      const response = await _axios.default.post(`${friendbotUrl}?addr=${encodeURIComponent(account)}`);
+      const response = await this.httpClient.post(`${friendbotUrl}?addr=${encodeURIComponent(account)}`);
       let meta;
       if (!response.data.result_meta_xdr) {
         const txMeta = await this.getTransaction(response.data.hash);
@@ -1082,7 +1091,7 @@ class RpcServer {
    */
   // eslint-disable-next-line require-await
   async getFeeStats() {
-    return jsonrpc.postObject(this.serverURL.toString(), "getFeeStats");
+    return jsonrpc.postObject(this.httpClient, this.serverURL.toString(), "getFeeStats");
   }
 
   /**
@@ -1093,7 +1102,7 @@ class RpcServer {
    */
   // eslint-disable-next-line require-await
   async getVersionInfo() {
-    return jsonrpc.postObject(this.serverURL.toString(), "getVersionInfo");
+    return jsonrpc.postObject(this.httpClient, this.serverURL.toString(), "getVersionInfo");
   }
 
   /**
@@ -1250,7 +1259,7 @@ class RpcServer {
 
   // eslint-disable-next-line require-await
   async _getLedgers(request) {
-    return jsonrpc.postObject(this.serverURL.toString(), "getLedgers", request);
+    return jsonrpc.postObject(this.httpClient, this.serverURL.toString(), "getLedgers", request);
   }
 }
 exports.RpcServer = RpcServer;</code></pre>

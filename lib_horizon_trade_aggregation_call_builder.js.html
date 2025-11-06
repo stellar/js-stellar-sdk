@@ -139,8 +139,8 @@ const allowedResolutions = [60000, 300000, 900000, 3600000, 86400000, 604800000]
  * @param {number} offset segments can be offset using this parameter. Expressed in milliseconds. *Can only be used if the resolution is greater than 1 hour. Value must be in whole hours, less than the provided resolution, and less than 24 hours.
  */
 class TradeAggregationCallBuilder extends _call_builder.CallBuilder {
-  constructor(serverUrl, base, counter, start_time, end_time, resolution, offset) {
-    super(serverUrl);
+  constructor(serverUrl, httpClient, base, counter, start_time, end_time, resolution, offset) {
+    super(serverUrl, httpClient);
     this.url.segment("trade_aggregations");
     if (!base.isNative()) {
       this.url.setQuery("base_asset_type", base.getAssetType());

@@ -129,8 +129,8 @@ var _call_builder = require("./call_builder");
  * @param {string} serverUrl Horizon server URL.
  */
 class AccountCallBuilder extends _call_builder.CallBuilder {
-  constructor(serverUrl) {
-    super(serverUrl);
+  constructor(serverUrl, httpClient) {
+    super(serverUrl, httpClient);
     this.url.segment("accounts");
   }
 
@@ -143,7 +143,7 @@ class AccountCallBuilder extends _call_builder.CallBuilder {
    * @returns {CallBuilder} a new CallBuilder instance for the /accounts/:id endpoint
    */
   accountId(id) {
-    const builder = new _call_builder.CallBuilder(this.url.clone());
+    const builder = new _call_builder.CallBuilder(this.url.clone(), this.httpClient);
     builder.filter.push([id]);
     return builder;
   }

@@ -138,8 +138,7 @@ var _strict_send_path_call_builder = require("./strict_send_path_call_builder");
 var _trade_aggregation_call_builder = require("./trade_aggregation_call_builder");
 var _trades_call_builder = require("./trades_call_builder");
 var _transaction_call_builder = require("./transaction_call_builder");
-var _horizon_axios_client = _interopRequireWildcard(require("./horizon_axios_client"));
-function _interopRequireWildcard(e, t) { if ("function" == typeof WeakMap) var r = new WeakMap(), n = new WeakMap(); return (_interopRequireWildcard = function (e, t) { if (!t &amp;&amp; e &amp;&amp; e.__esModule) return e; var o, i, f = { __proto__: null, default: e }; if (null === e || "object" != typeof e &amp;&amp; "function" != typeof e) return f; if (o = t ? n : r) { if (o.has(e)) return o.get(e); o.set(e, f); } for (const t in e) "default" !== t &amp;&amp; {}.hasOwnProperty.call(e, t) &amp;&amp; ((i = (o = Object.defineProperty) &amp;&amp; Object.getOwnPropertyDescriptor(e, t)) &amp;&amp; (i.get || i.set) ? o(f, t, i) : f[t] = e[t]); return f; })(e, t); }
+var _horizon_axios_client = require("./horizon_axios_client");
 function _interopRequireDefault(e) { return e &amp;&amp; e.__esModule ? e : { default: e }; }
 /* tslint:disable:variable-name no-namespace */
 
@@ -175,7 +174,22 @@ class HorizonServer {
   /**
    * Horizon Server URL (ex. `https://horizon-testnet.stellar.org`)
    *
-   * @todo Solve `URI(this.serverURL as any)`.
+   * @todo Solve `this.serverURL`.
+   */
+
+  /**
+   * HTTP client instance for making requests to Horizon.
+   * Exposes interceptors, defaults, and other configuration options.
+   *
+   * @example
+   * // Add authentication header
+   * server.httpClient.defaults.headers['Authorization'] = 'Bearer token';
+   *
+   * // Add request interceptor
+   * server.httpClient.interceptors.request.use((config) => {
+   *   console.log('Request:', config.url);
+   *   return config;
+   * });
    */
 
   constructor(serverURL, opts = {}) {
@@ -194,15 +208,7 @@ class HorizonServer {
     if (opts.headers) {
       Object.assign(customHeaders, opts.headers);
     }
-    if (Object.keys(customHeaders).length > 0) {
-      _horizon_axios_client.default.interceptors.request.use(config => {
-        // merge the custom headers with an existing headers, where customs
-        // override defaults
-        config.headers = config.headers || {};
-        config.headers = Object.assign(config.headers, customHeaders);
-        return config;
-      });
-    }
+    this.httpClient = (0, _horizon_axios_client.createHttpClient)(customHeaders);
     if (this.serverURL.protocol() !== "https" &amp;&amp; !allowHttp) {
       throw new Error("Cannot connect to insecure horizon server");
     }
@@ -237,7 +243,7 @@ class HorizonServer {
    * (with the shape `{ minTime: 0, maxTime: N }`) that you can set the `timebounds` option to.
    */
   async fetchTimebounds(seconds, _isRetry = false) {
-    // AxiosClient instead of this.ledgers so we can get at them headers
+    // httpClient instead of this.ledgers so we can get at them headers
     const currentTime = (0, _horizon_axios_client.getCurrentServerTime)(this.serverURL.hostname());
     if (currentTime) {
       return {
@@ -256,7 +262,7 @@ class HorizonServer {
 
     // otherwise, retry (by calling the root endpoint)
     // toString automatically adds the trailing slash
-    await _horizon_axios_client.default.get((0, _urijs.default)(this.serverURL).toString());
+    await this.httpClient.get(this.serverURL.toString());
     return this.fetchTimebounds(seconds, true);
   }
 
@@ -278,7 +284,7 @@ class HorizonServer {
    */
   // eslint-disable-next-line require-await
   async feeStats() {
-    const cb = new _call_builder.CallBuilder((0, _urijs.default)(this.serverURL));
+    const cb = new _call_builder.CallBuilder(this.serverURL, this.httpClient);
     cb.filter.push(["fee_stats"]);
     return cb.call();
   }
@@ -288,7 +294,7 @@ class HorizonServer {
    * @returns {Promise&lt;HorizonApi.RootResponse>} Promise that resolves to the root endpoint returned by Horizon.
    */
   async root() {
-    const cb = new _call_builder.CallBuilder((0, _urijs.default)(this.serverURL));
+    const cb = new _call_builder.CallBuilder(this.serverURL, this.httpClient);
     return cb.call();
   }
 
@@ -401,7 +407,7 @@ class HorizonServer {
       await this.checkMemoRequired(transaction);
     }
     const tx = encodeURIComponent(transaction.toEnvelope().toXDR().toString("base64"));
-    return _horizon_axios_client.default.post((0, _urijs.default)(this.serverURL).segment("transactions").toString(), `tx=${tx}`, {
+    return this.httpClient.post(this.serverURL.segment("transactions").toString(), `tx=${tx}`, {
       timeout: SUBMIT_TRANSACTION_TIMEOUT,
       headers: {
         "Content-Type": "application/x-www-form-urlencoded"
@@ -564,7 +570,7 @@ class HorizonServer {
       await this.checkMemoRequired(transaction);
     }
     const tx = encodeURIComponent(transaction.toEnvelope().toXDR().toString("base64"));
-    return _horizon_axios_client.default.post((0, _urijs.default)(this.serverURL).segment("transactions_async").toString(), `tx=${tx}`, {
+    return this.httpClient.post(this.serverURL.segment("transactions_async").toString(), `tx=${tx}`, {
       headers: {
         "Content-Type": "application/x-www-form-urlencoded"
       }
@@ -580,28 +586,28 @@ class HorizonServer {
    * @returns {AccountCallBuilder} New {@link AccountCallBuilder} object configured by a current Horizon server configuration.
    */
   accounts() {
-    return new _account_call_builder.AccountCallBuilder((0, _urijs.default)(this.serverURL));
+    return new _account_call_builder.AccountCallBuilder(this.serverURL, this.httpClient);
   }
 
   /**
    * @returns {ClaimableBalanceCallBuilder} New {@link ClaimableBalanceCallBuilder} object configured by a current Horizon server configuration.
    */
   claimableBalances() {
-    return new _claimable_balances_call_builder.ClaimableBalanceCallBuilder((0, _urijs.default)(this.serverURL));
+    return new _claimable_balances_call_builder.ClaimableBalanceCallBuilder(this.serverURL, this.httpClient);
   }
 
   /**
    * @returns {LedgerCallBuilder} New {@link LedgerCallBuilder} object configured by a current Horizon server configuration.
    */
   ledgers() {
-    return new _ledger_call_builder.LedgerCallBuilder((0, _urijs.default)(this.serverURL));
+    return new _ledger_call_builder.LedgerCallBuilder(this.serverURL, this.httpClient);
   }
 
   /**
    * @returns {TransactionCallBuilder} New {@link TransactionCallBuilder} object configured by a current Horizon server configuration.
    */
   transactions() {
-    return new _transaction_call_builder.TransactionCallBuilder((0, _urijs.default)(this.serverURL));
+    return new _transaction_call_builder.TransactionCallBuilder(this.serverURL, this.httpClient);
   }
 
   /**
@@ -619,7 +625,7 @@ class HorizonServer {
    * @returns {OfferCallBuilder} New {@link OfferCallBuilder} object
    */
   offers() {
-    return new _offer_call_builder.OfferCallBuilder((0, _urijs.default)(this.serverURL));
+    return new _offer_call_builder.OfferCallBuilder(this.serverURL, this.httpClient);
   }
 
   /**
@@ -628,7 +634,7 @@ class HorizonServer {
    * @returns {OrderbookCallBuilder} New {@link OrderbookCallBuilder} object configured by a current Horizon server configuration.
    */
   orderbook(selling, buying) {
-    return new _orderbook_call_builder.OrderbookCallBuilder((0, _urijs.default)(this.serverURL), selling, buying);
+    return new _orderbook_call_builder.OrderbookCallBuilder(this.serverURL, this.httpClient, selling, buying);
   }
 
   /**
@@ -636,14 +642,14 @@ class HorizonServer {
    * @returns {TradesCallBuilder} New {@link TradesCallBuilder} object configured by a current Horizon server configuration.
    */
   trades() {
-    return new _trades_call_builder.TradesCallBuilder((0, _urijs.default)(this.serverURL));
+    return new _trades_call_builder.TradesCallBuilder(this.serverURL, this.httpClient);
   }
 
   /**
    * @returns {OperationCallBuilder} New {@link OperationCallBuilder} object configured by a current Horizon server configuration.
    */
   operations() {
-    return new _operation_call_builder.OperationCallBuilder((0, _urijs.default)(this.serverURL));
+    return new _operation_call_builder.OperationCallBuilder(this.serverURL, this.httpClient);
   }
 
   /**
@@ -651,7 +657,7 @@ class HorizonServer {
    *     object configured to the current Horizon server settings.
    */
   liquidityPools() {
-    return new _liquidity_pool_call_builder.LiquidityPoolCallBuilder((0, _urijs.default)(this.serverURL));
+    return new _liquidity_pool_call_builder.LiquidityPoolCallBuilder(this.serverURL, this.httpClient);
   }
 
   /**
@@ -681,7 +687,7 @@ class HorizonServer {
    * @returns {StrictReceivePathCallBuilder} New {@link StrictReceivePathCallBuilder} object configured with the current Horizon server configuration.
    */
   strictReceivePaths(source, destinationAsset, destinationAmount) {
-    return new _strict_receive_path_call_builder.StrictReceivePathCallBuilder((0, _urijs.default)(this.serverURL), source, destinationAsset, destinationAmount);
+    return new _strict_receive_path_call_builder.StrictReceivePathCallBuilder(this.serverURL, this.httpClient, source, destinationAsset, destinationAmount);
   }
 
   /**
@@ -700,7 +706,7 @@ class HorizonServer {
    * @returns {StrictSendPathCallBuilder} New {@link StrictSendPathCallBuilder} object configured with the current Horizon server configuration.
    */
   strictSendPaths(sourceAsset, sourceAmount, destination) {
-    return new _strict_send_path_call_builder.StrictSendPathCallBuilder((0, _urijs.default)(this.serverURL), sourceAsset, sourceAmount, destination);
+    return new _strict_send_path_call_builder.StrictSendPathCallBuilder(this.serverURL, this.httpClient, sourceAsset, sourceAmount, destination);
   }
 
   /**
@@ -708,7 +714,7 @@ class HorizonServer {
    * Horizon server configuration.
    */
   payments() {
-    return new _payment_call_builder.PaymentCallBuilder((0, _urijs.default)(this.serverURL));
+    return new _payment_call_builder.PaymentCallBuilder(this.serverURL, this.httpClient);
   }
 
   /**
@@ -716,7 +722,7 @@ class HorizonServer {
    * Horizon server configuration
    */
   effects() {
-    return new _effect_call_builder.EffectCallBuilder((0, _urijs.default)(this.serverURL));
+    return new _effect_call_builder.EffectCallBuilder(this.serverURL, this.httpClient);
   }
 
   /**
@@ -726,7 +732,7 @@ class HorizonServer {
    * @private
    */
   friendbot(address) {
-    return new _friendbot_builder.FriendbotBuilder((0, _urijs.default)(this.serverURL), address);
+    return new _friendbot_builder.FriendbotBuilder(this.serverURL, this.httpClient, address);
   }
 
   /**
@@ -735,7 +741,7 @@ class HorizonServer {
    * @returns {AssetsCallBuilder} New AssetsCallBuilder instance
    */
   assets() {
-    return new _assets_call_builder.AssetsCallBuilder((0, _urijs.default)(this.serverURL));
+    return new _assets_call_builder.AssetsCallBuilder(this.serverURL, this.httpClient);
   }
 
   /**
@@ -764,7 +770,7 @@ class HorizonServer {
    * @returns {TradeAggregationCallBuilder} New TradeAggregationCallBuilder instance
    */
   tradeAggregation(base, counter, start_time, end_time, resolution, offset) {
-    return new _trade_aggregation_call_builder.TradeAggregationCallBuilder((0, _urijs.default)(this.serverURL), base, counter, start_time, end_time, resolution, offset);
+    return new _trade_aggregation_call_builder.TradeAggregationCallBuilder(this.serverURL, this.httpClient, base, counter, start_time, end_time, resolution, offset);
   }
 
   /**
@@ -836,16 +842,6 @@ class HorizonServer {
     /* eslint-enable no-continue */
   }
 }
-
-/**
- * Options for configuring connections to Horizon servers.
- * @typedef {object} Options
- * @memberof module:Horizon.Server
- * @property {boolean} [allowHttp] Allow connecting to http servers, default: `false`. This must be set to false in production deployments! You can also use {@link Config} class to set this globally.
- * @property {string} [appName] Allow set custom header `X-App-Name`, default: `undefined`.
- * @property {string} [appVersion] Allow set custom header `X-App-Version`, default: `undefined`.
- * @property {string} [authToken] Allow set custom header `X-Auth-Token`, default: `undefined`.
- */
 exports.HorizonServer = HorizonServer;</code></pre>
         </article>
     </section>

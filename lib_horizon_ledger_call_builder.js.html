@@ -129,8 +129,8 @@ var _call_builder = require("./call_builder");
  * @param {string} serverUrl Horizon server URL.
  */
 class LedgerCallBuilder extends _call_builder.CallBuilder {
-  constructor(serverUrl) {
-    super(serverUrl);
+  constructor(serverUrl, httpClient) {
+    super(serverUrl, httpClient);
     this.url.segment("ledgers");
   }
 

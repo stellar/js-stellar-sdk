@@ -112,6 +112,7 @@
             <pre class="prettyprint source linenums"><code>import { Asset } from "@stellar/stellar-base";
 import { CallBuilder } from "./call_builder";
 import { ServerApi } from "./server_api";
+import { HttpClient } from "../http-client";
 /**
  * Creates a new {@link LiquidityPoolCallBuilder} pointed to server defined by serverUrl.
  *
@@ -123,7 +124,7 @@ import { ServerApi } from "./server_api";
  * @param {string} serverUrl Horizon server URL.
  */
 export declare class LiquidityPoolCallBuilder extends CallBuilder&lt;ServerApi.CollectionPage&lt;ServerApi.LiquidityPoolRecord>> {
-    constructor(serverUrl: URI);
+    constructor(serverUrl: URI, httpClient: HttpClient);
     /**
      * Filters out pools whose reserves don't exactly match these assets.
      *
