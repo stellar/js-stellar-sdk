@@ -30,9 +30,6 @@ jobs:
         run: yarn install --network-concurrency 1
 
       - name: Install Playwright
-        run: yarn playwright install
-
-      - name: Install Playwright Dependencies
         run: yarn playwright install --with-deps chromium firefox
 
       - name: Build
