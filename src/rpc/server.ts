@@ -173,6 +173,7 @@ function findCreatedAccountSequenceInTransactionMeta(
  * @param {Record<string, string>} [opts.headers] Allows setting custom headers
  *
  * @see {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods | API reference docs}
+ * @see {@link https://github.com/stellar/js-stellar-sdk/blob/master/docs/reference/rpc-examples.md | Server Examples}
  */
 export class RpcServer {
   public readonly serverURL: URI;
