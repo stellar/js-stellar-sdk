@@ -31,9 +31,8 @@ jobs:
 
       - name: Install Playwright
         run: yarn playwright install
-
-      - name: Install Playwright Dependencies
-        run: yarn playwright install-deps
+        run: yarn playwright install-deps chromium
+        run: yarn playwright install-deps firefox
 
       - name: Build
         run: yarn build:prod

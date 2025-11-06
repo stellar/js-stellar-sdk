@@ -21,6 +21,11 @@ jobs:
       - name: Install Depencencies
         run: yarn install
 
+      - name: Install Playwright
+        run: yarn playwright install
+        run: yarn playwright install-deps chromium
+        run: yarn playwright install-deps firefox
+
       - name: Build, Test, and Package
         run: yarn preversion
         env:
