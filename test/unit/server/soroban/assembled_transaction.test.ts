@@ -11,7 +11,7 @@ const restoreTxnData = StellarSdk.SorobanDataBuilder.fromXDR(
   "AAAAAAAAAAAAAAAEAAAABgAAAAHZ4Y4l0GNoS97QH0fa5Jbbm61Ou3t9McQ09l7wREKJYwAAAA8AAAAJUEVSU19DTlQxAAAAAAAAAQAAAAYAAAAB2eGOJdBjaEve0B9H2uSW25utTrt7fTHENPZe8ERCiWMAAAAPAAAACVBFUlNfQ05UMgAAAAAAAAEAAAAGAAAAAdnhjiXQY2hL3tAfR9rkltubrU67e30xxDT2XvBEQoljAAAAFAAAAAEAAAAH+BoQswzzGTKRzrdC6axxKaM4qnyDP8wgQv8Id3S4pbsAAAAAAAAGNAAABjQAAAAAAADNoQ==",
 );
 
-describe("AssembledTransaction.buildFootprintRestoreTransaction", () => {
+describe("AssembledTransaction", () => {
   let mockPost: any;
   let server: any;
   const keypair = Keypair.random();
@@ -38,7 +38,7 @@ describe("AssembledTransaction.buildFootprintRestoreTransaction", () => {
     vi.clearAllMocks();
   });
 
-  it("makes expected RPC calls", async () => {
+  it("buildFootprintRestoreTransaction makes expected RPC calls", async () => {
     const simulateTransactionResponse = {
       transactionData: restoreTxnData,
       minResourceFee: "52641",
@@ -117,34 +117,6 @@ describe("AssembledTransaction.buildFootprintRestoreTransaction", () => {
       }),
     );
     expect(mockPost).toHaveBeenCalledTimes(3);
-  });
-});
-
-describe("AssembledTransaction", () => {
-  let mockPost: any;
-  let server: any;
-  const keypair = Keypair.random();
-  const contractId = "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM";
-  const networkPassphrase = "Standalone Network ; February 2017";
-  const wallet = contract.basicNodeSigner(keypair, networkPassphrase);
-  let options: any; // Declare but don't initialize
-
-  beforeEach(() => {
-    server = new Server(serverUrl);
-    mockPost = vi.spyOn(server.httpClient, "post");
-    options = {
-      networkPassphrase,
-      contractId,
-      rpcUrl: serverUrl,
-      allowHttp: true,
-      publicKey: keypair.publicKey(),
-      server,
-      ...wallet,
-    };
-  });
-
-  afterEach(() => {
-    vi.clearAllMocks();
   });
 
   it("throws an error if signing transaction without providing a public key", async () => {
