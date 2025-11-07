@@ -693,6 +693,12 @@ export class AssembledTransaction<T> {
       );
     }
 
+    if (!this.options.publicKey) {
+      throw new AssembledTransaction.Errors.FakeAccount(
+        "This transaction was constructed using a default account. Provide a valid publicKey in the AssembledTransactionOptions.",
+      );
+    }
+
     // filter out contracts, as these are dealt with via cross contract calls
     const sigsNeeded = this.needsNonInvokerSigningBy().filter(
       (id) => !id.startsWith("C"),
