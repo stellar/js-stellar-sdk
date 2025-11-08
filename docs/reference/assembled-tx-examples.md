@@ -106,16 +106,17 @@ console.log('Simulated result:', tx.result);
 
 ## Custom Operations with `buildWithOp()`
 
-Use `buildWithOp()` when you need to create transactions with operations other than `invokeHostFunction`, such as deploying contracts or extending TTL.
+Use `buildWithOp()` for non-contract-invoking transactions such as restoring, contract uploading and deploying.
 
 The following `Operations` are allowed
 - invokeHostFunction
-- createCustomContract
-- createStellarAssetContract
-- extendFootprintTtl
-- invokeContractFunction
+  - createCustomContract
+  - createStellarAssetContract
+  - uploadContractWasm
+  - invokeContractFunction
 - restoreFootprint
-- uploadContractWasm
+- extendFootprintTtl
+
 
 ### Deploying a Contract
 
