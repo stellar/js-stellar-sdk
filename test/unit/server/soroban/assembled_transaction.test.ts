@@ -3,14 +3,15 @@ import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
 import { serverUrl } from "../../../constants";
 import { StellarSdk } from "../../../test-utils/stellar-sdk-import";
 
-const { Account, Keypair, rpc, contract } = StellarSdk;
+const { Account, Keypair, rpc, contract, SorobanDataBuilder, xdr, Address } =
+  StellarSdk;
 const { Server } = StellarSdk.rpc;
 
 const restoreTxnData = StellarSdk.SorobanDataBuilder.fromXDR(
   "AAAAAAAAAAAAAAAEAAAABgAAAAHZ4Y4l0GNoS97QH0fa5Jbbm61Ou3t9McQ09l7wREKJYwAAAA8AAAAJUEVSU19DTlQxAAAAAAAAAQAAAAYAAAAB2eGOJdBjaEve0B9H2uSW25utTrt7fTHENPZe8ERCiWMAAAAPAAAACVBFUlNfQ05UMgAAAAAAAAEAAAAGAAAAAdnhjiXQY2hL3tAfR9rkltubrU67e30xxDT2XvBEQoljAAAAFAAAAAEAAAAH+BoQswzzGTKRzrdC6axxKaM4qnyDP8wgQv8Id3S4pbsAAAAAAAAGNAAABjQAAAAAAADNoQ==",
 );
 
-describe("AssembledTransaction.buildFootprintRestoreTransaction", () => {
+describe("AssembledTransaction", () => {
   let mockPost: any;
   let server: any;
   const keypair = Keypair.random();
@@ -37,7 +38,7 @@ describe("AssembledTransaction.buildFootprintRestoreTransaction", () => {
     vi.clearAllMocks();
   });
 
-  it("makes expected RPC calls", async () => {
+  it("buildFootprintRestoreTransaction makes expected RPC calls", async () => {
     const simulateTransactionResponse = {
       transactionData: restoreTxnData,
       minResourceFee: "52641",
@@ -73,8 +74,8 @@ describe("AssembledTransaction.buildFootprintRestoreTransaction", () => {
       .mockResolvedValueOnce({ data: { result: sendTransactionResponse } }) // sendTransaction
       .mockResolvedValueOnce({ data: { result: getTransactionResponse } }); // getTransaction
 
-    // eslint-disable-next-line @typescript-eslint/dot-notation
     const txn = await contract.AssembledTransaction[
+      // eslint-disable-next-line @typescript-eslint/dot-notation
       "buildFootprintRestoreTransaction"
     ](
       options,
@@ -116,5 +117,41 @@ describe("AssembledTransaction.buildFootprintRestoreTransaction", () => {
       }),
     );
     expect(mockPost).toHaveBeenCalledTimes(3);
+  });
+
+  it("throws an error if signing transaction without providing a public key", async () => {
+    const simulateTransactionResponse = {
+      id: "1",
+      events: [],
+      latestLedger: 3,
+      minResourceFee: "15",
+      transactionData: new SorobanDataBuilder()
+        .setReadWrite([
+          xdr.LedgerKey.contractData(
+            new xdr.LedgerKeyContractData({
+              contract: Address.fromString(contractId).toScAddress(),
+              key: xdr.ScVal.scvU32(0),
+              durability: xdr.ContractDataDurability.persistent(),
+            }),
+          ),
+        ])
+        .build(),
+      results: [{ auth: [], xdr: xdr.ScVal.scvU32(0).toXDR("base64") }],
+      stateChanges: [],
+    };
+
+    // Mock the sequence of calls
+    mockPost.mockResolvedValueOnce({
+      data: { result: simulateTransactionResponse },
+    }); // simulateTransaction
+
+    delete options.publicKey;
+    options.method = "test";
+    options.args = [];
+    options.contractId = contractId;
+    const txn = await contract.AssembledTransaction.build(options);
+    expect(txn.sign({ ...wallet })).rejects.toThrow(
+      contract.AssembledTransaction.Errors.FakeAccount,
+    );
   });
 });
