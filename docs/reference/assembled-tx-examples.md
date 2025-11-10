@@ -217,10 +217,11 @@ const bob = Keypair.random();
 // Deserialize back to AssembledTransaction
 const tx = AssembledTransaction.fromJSON(
   {
+    contractId: '', // Not required
+    method: '', // Not required
     networkPassphrase: Networks.TESTNET,
     rpcUrl: 'https://soroban-testnet.stellar.org',
     publicKey: bob.publicKey(),
-    contractId: 'CCONT...',
     parseResultXdr: (xdr) => scValToNative(xdr),
     signAuthEntry: basicNodeSigner(bob, Networks.TESTNET).signAuthEntry
   },
@@ -308,12 +309,42 @@ const tx = await AssembledTransaction.build({
 // Check who needs to sign (excluding the invoker)
 const signers = tx.needsNonInvokerSigningBy();
 console.log('Required signatures:', signers);
-// ['GPARTY2...', 'GPARTY3...']
+// ['GPARTY1...', 'GPARTY2...', 'GPARTY3...']
 
 // Include already-signed entries if needed
 const allSigners = tx.needsNonInvokerSigningBy({
   includeAlreadySigned: true
 });
+
+// Send the transaction to GPARTY1 for signing
+await sendToGparty1(tx.toJSON());
+
+const jsonTx = await receiveTxFromInvoker();
+const tx = AssembledTransaction.fromJSON(
+  {
+    
+    contractId: '', // Not required
+    methid: '', // Not required
+    networkPassphrase: Networks.TESTNET,
+    rpcUrl: 'https://soroban-testnet.stellar.org',
+    publicKey: gParty1Pubkey.publicKey(),
+    parseResultXdr: (xdr) => scValToNative(xdr),
+    signAuthEntry: basicNodeSigner(gParty1Pubkey, Networks.TESTNET).signAuthEntry
+  },
+  JSON.parse(jsonTx)
+);
+
+// GPARTY1 signs the auth entries
+await tx.signAuthEntries();
+
+const signedTx = tx.toJSON();
+
+// ...The transaction then gets sent to the remaining signers needed
+
+// NOTE: the transaction must be sent back to the invoker to sign and then send the fully authorized transaction.
+
+
+
 ```
 
 ---
