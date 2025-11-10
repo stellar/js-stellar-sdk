@@ -6,9 +6,10 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+## [v14.3.2](https://github.com/stellar/js-stellar-sdk/compare/v14.3.1...v14.3.2)
+
 ### Added
 * `AssembledTransaction.sign()` throws an error if `publicKey` was not provided when instantiated ([#1269](https://github.com/stellar/js-stellar-sdk/pull/1269)).
-
 
 ## [v14.3.1](https://github.com/stellar/js-stellar-sdk/compare/v14.3.0...v14.3.1)
 
