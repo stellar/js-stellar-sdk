@@ -87,8 +87,9 @@ const config = {
   },
   plugins: [
     // ESLint plugin for code quality checks
+    // TODO: this is not working, needs investigation
     new ESLintPlugin({
-      overrideConfigFile: path.resolve(__dirname, '../.eslintrc.js')
+      overrideConfigFile: path.resolve(__dirname, "../eslint.config.js"),
     }),
     // Ignore native modules (sodium-native)
     new webpack.IgnorePlugin({ resourceRegExp: /sodium-native/ }),
