@@ -108,7 +108,7 @@
     "fmt": "yarn _prettier && yarn eslint src/ --fix",
     "preversion": "yarn clean && yarn _prettier && yarn build:prod && yarn test",
     "prepare": "yarn build:prod",
-    "_build": "yarn build:node:all && yarn build:browser:all",
+    "_build": "yarn fmt && yarn build:node:all && yarn build:browser:all",
     "_babel": "babel --extensions '.ts' --out-dir ${OUTPUT_DIR:-lib} src/",
     "_nyc": "node node_modules/.bin/nyc --nycrc-path config/.nycrc",
     "_prettier": "prettier --ignore-path config/.prettierignore --write './src/**/*.ts' './test/**/*.{js,ts}'"
