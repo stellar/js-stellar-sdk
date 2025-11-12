@@ -93,7 +93,6 @@ const importConfig = [
   },
 ];
 const ignoreFiles = includeIgnoreFile(gitignorePath);
-// console.log(ignoreFiles);
 ignoreFiles.ignores.push(...["eslint.config.js", "config/**/*"]);
 module.exports = [
   // Ignore .gitignore files/folder in eslint
