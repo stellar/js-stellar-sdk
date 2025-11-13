@@ -42,7 +42,6 @@ export class Resolver {
    *     // stellar.toml does not exist or is invalid
    *   });
    */
-  // eslint-disable-next-line require-await
   public static async resolve(
     domain: string,
     opts: Api.StellarTomlResolveOptions = {},

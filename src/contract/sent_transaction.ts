@@ -25,7 +25,7 @@ import type { AssembledTransaction } from "./assembled_transaction";
  * @class
  *
  * @param {Function} signTransaction More info in {@link MethodOptions}
- * @param {module:contract.AssembledTransaction<T>} assembled {@link AssembledTransaction} from which this SentTransaction was initialized
+ * @param {module:contract.AssembledTransaction} assembled {@link AssembledTransaction} from which this SentTransaction was initialized
  */
 export class SentTransaction<T> {
   public server: Server;

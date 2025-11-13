@@ -56,13 +56,14 @@ export function parseTransactionInfo(
 
   switch (meta.switch()) {
     case 3:
-    case 4:
+    case 4: {
       const metaV = meta.value() as
         | xdr.TransactionMetaV3
         | xdr.TransactionMetaV4;
       if (metaV.sorobanMeta() !== null) {
         info.returnValue = metaV.sorobanMeta()?.returnValue() ?? undefined;
       }
+    }
   }
 
   if (raw.diagnosticEventsXdr) {
@@ -185,7 +186,6 @@ function parseSuccessful(
     minResourceFee: sim.minResourceFee!,
     // coalesce 0-or-1-element results[] list into a single result struct
     // with decoded fields if present
-    // eslint-disable-next-line no-self-compare
     ...((sim.results?.length ?? 0 > 0) && {
       result: sim.results!.map((row) => ({
         auth: (row.auth ?? []).map((entry) =>
@@ -198,7 +198,6 @@ function parseSuccessful(
       }))[0],
     }),
 
-    // eslint-disable-next-line no-self-compare
     ...((sim.stateChanges?.length ?? 0 > 0) && {
       stateChanges: sim.stateChanges?.map((entryChange) => ({
         type: entryChange.type,

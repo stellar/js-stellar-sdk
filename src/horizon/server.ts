@@ -38,7 +38,6 @@ import { StrictSendPathCallBuilder } from "./strict_send_path_call_builder";
 import { TradeAggregationCallBuilder } from "./trade_aggregation_call_builder";
 import { TradesCallBuilder } from "./trades_call_builder";
 import { TransactionCallBuilder } from "./transaction_call_builder";
-// eslint-disable-next-line import/no-named-as-default
 import { createHttpClient, getCurrentServerTime } from "./horizon_axios_client";
 import { HttpClient } from "../http-client";
 
@@ -196,7 +195,6 @@ export class HorizonServer {
    * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/aggregations/fee-stats|Fee Stats}
    * @returns {Promise<HorizonApi.FeeStatsResponse>} Promise that resolves to the fee stats returned by Horizon.
    */
-  // eslint-disable-next-line require-await
   public async feeStats(): Promise<HorizonApi.FeeStatsResponse> {
     const cb = new CallBuilder<HorizonApi.FeeStatsResponse>(
       this.serverURL,
@@ -843,7 +841,6 @@ export class HorizonServer {
 
     const destinations = new Set<string>();
 
-    /* eslint-disable no-continue */
     for (let i = 0; i < transaction.operations.length; i += 1) {
       const operation = transaction.operations[i];
 
@@ -868,7 +865,6 @@ export class HorizonServer {
       }
 
       try {
-        // eslint-disable-next-line no-await-in-loop
         const account = await this.loadAccount(destination);
         if (
           account.data_attr["config.memo_required"] === ACCOUNT_REQUIRES_MEMO
@@ -892,7 +888,6 @@ export class HorizonServer {
         continue;
       }
     }
-    /* eslint-enable no-continue */
   }
 }
 
