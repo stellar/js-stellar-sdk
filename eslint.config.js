@@ -7,10 +7,24 @@ const prettierPlugin = require("eslint-plugin-prettier");
 const importPlugin = require("eslint-plugin-import");
 const jsdoc = require("eslint-plugin-jsdoc");
 const gitignorePath = path.resolve(".", ".gitignore");
-
+const js = require("@eslint/js");
+const globals = require("globals");
 configs.base.typescript[0].languageOptions.parserOptions.projectService = false;
 configs.base.typescript[0].languageOptions.parserOptions.project = [
   "./config/tsconfig.json",
+];
+
+const javascriptConfig = [
+  js.configs.recommended,
+  {
+    name: "javascript/node-globals",
+    files: ["**/*.js", "**/*.ts"],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+      },
+    },
+  },
 ];
 const typescriptConfig = [
   // Airbnb Base TypeScript Config
@@ -20,6 +34,7 @@ const typescriptConfig = [
     files: ["**/*.ts", "**/*.tsx"],
     rules: {
       "@typescript-eslint/require-await": "error",
+      "no-fallthrough": "off",
     },
   },
 ];
@@ -99,6 +114,8 @@ module.exports = [
   ignoreFiles,
   // Import Plugin Config
   ...importConfig,
+  // JavaScript Config
+  ...javascriptConfig,
   // TypeScript Config
   ...typescriptConfig,
   // JSDoc Config
