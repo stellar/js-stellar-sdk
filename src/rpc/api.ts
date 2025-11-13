@@ -372,7 +372,7 @@ export namespace Api {
     | "record_allow_nonroot";
 
   /**
-   * Simplifies {@link Api.RawSimulateTransactionResponse} into separate interfaces
+   * Simplifies {@link RawSimulateTransactionResponse} into separate interfaces
    * based on status:
    *   - on success, this includes all fields, though `result` is only present
    *     if an invocation was simulated (since otherwise there's nothing to
@@ -444,18 +444,33 @@ export namespace Api {
     };
   }
 
+  /**
+   * Checks if a simulation response indicates an error.
+   * @param sim The simulation response to check.
+   * @returns True if the response indicates an error, false otherwise.
+   */
   export function isSimulationError(
     sim: SimulateTransactionResponse,
   ): sim is SimulateTransactionErrorResponse {
     return "error" in sim;
   }
 
+  /**
+   * Checks if a simulation response indicates success.
+   * @param sim The simulation response to check.
+   * @returns True if the response indicates success, false otherwise.
+   */
   export function isSimulationSuccess(
     sim: SimulateTransactionResponse,
   ): sim is SimulateTransactionSuccessResponse {
     return "transactionData" in sim;
   }
 
+  /**
+   * Checks if a simulation response indicates that a restoration is needed.
+   * @param sim The simulation response to check.
+   * @returns True if the response indicates a restoration is needed, false otherwise.
+   */
   export function isSimulationRestore(
     sim: SimulateTransactionResponse,
   ): sim is SimulateTransactionRestoreResponse {
@@ -466,6 +481,11 @@ export namespace Api {
     );
   }
 
+  /**
+   * Checks if a simulation response is in raw (unparsed) form.
+   * @param sim The simulation response to check.
+   * @returns True if the response is raw, false otherwise.
+   */
   export function isSimulationRaw(
     sim: Api.SimulateTransactionResponse | Api.RawSimulateTransactionResponse,
   ): sim is Api.RawSimulateTransactionResponse {

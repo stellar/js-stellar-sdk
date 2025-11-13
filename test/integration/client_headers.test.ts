@@ -56,7 +56,6 @@ describe("integration tests: client headers", () => {
       request: http.IncomingMessage,
       response: http.ServerResponse,
     ) => {
-      // eslint-disable-next-line @typescript-eslint/no-deprecated
       const query = url.parse(request.url!, true).query;
       expect(query["X-Client-Name"]).toBe("js-stellar-sdk");
       expect(query["X-Client-Version"]).toMatch(versionPattern);

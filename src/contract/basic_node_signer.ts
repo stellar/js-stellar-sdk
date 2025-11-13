@@ -21,7 +21,7 @@ export const basicNodeSigner = (
   signTransaction: SignTransaction;
   signAuthEntry: SignAuthEntry;
 } => ({
-  // eslint-disable-next-line require-await
+  // eslint-disable-next-line @typescript-eslint/require-await
   signTransaction: async (xdr, opts) => {
     const t = TransactionBuilder.fromXDR(
       xdr,
@@ -33,7 +33,7 @@ export const basicNodeSigner = (
       signerAddress: keypair.publicKey(),
     };
   },
-  // eslint-disable-next-line require-await
+  // eslint-disable-next-line @typescript-eslint/require-await
   signAuthEntry: async (authEntry) => {
     const signedAuthEntry = keypair
       .sign(hash(Buffer.from(authEntry, "base64")))

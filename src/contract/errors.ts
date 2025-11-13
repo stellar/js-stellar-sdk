@@ -1,0 +1,13 @@
+export class ExpiredStateError extends Error {}
+export class RestoreFailureError extends Error {}
+export class NeedsMoreSignaturesError extends Error {}
+export class NoSignatureNeededError extends Error {}
+export class NoUnsignedNonInvokerAuthEntriesError extends Error {}
+export class NoSignerError extends Error {}
+export class NotYetSimulatedError extends Error {}
+export class FakeAccountError extends Error {}
+export class SimulationFailedError extends Error {}
+export class InternalWalletError extends Error {}
+export class ExternalServiceError extends Error {}
+export class InvalidClientRequestError extends Error {}
+export class UserRejectedError extends Error {}
