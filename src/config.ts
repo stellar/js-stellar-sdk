@@ -23,14 +23,11 @@ let config = { ...defaultConfig };
 
 /**
  * Global config class.
- *
  * @hideconstructor
- *
  * @example <caption>Usage in node</caption>
  * import { Config } from '@stellar/stellar-sdk';
  * Config.setAllowHttp(true);
  * Config.setTimeout(5000);
- *
  * @example <caption>Usage in the browser</caption>
  * StellarSdk.Config.setAllowHttp(true);
  * StellarSdk.Config.setTimeout(5000);
@@ -60,7 +57,7 @@ class Config {
   /**
    * Returns the configured `allowHttp` flag.
    * @static
-   * @returns {boolean}
+   * @returns {boolean} The allowHttp value.
    */
   public static isAllowHttp(): boolean {
     return config.allowHttp;
@@ -68,8 +65,7 @@ class Config {
 
   /**
    * Returns the configured `timeout` flag.
-   * @static
-   * @returns {number}
+   * @returns {number} The timeout value.
    */
   public static getTimeout(): number {
     return config.timeout;

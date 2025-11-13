@@ -1,8 +1,7 @@
-/* eslint-disable global-require */
 import URI from "urijs";
 import { create, HttpClient, HttpResponseHeaders } from "../http-client";
 
-// eslint-disable-next-line prefer-import/prefer-import-over-require , @typescript-eslint/naming-convention
+// eslint-disable-next-line @typescript-eslint/naming-convention
 declare const __PACKAGE_VERSION__: string;
 export const version = __PACKAGE_VERSION__;
 

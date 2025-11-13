@@ -32,8 +32,6 @@ let EventSource: Constructable<EventSource> | undefined;
 
 // Only define EventSource if __USE_EVENTSOURCE__ is true
 if (typeof __USE_EVENTSOURCE__ !== "undefined" && __USE_EVENTSOURCE__) {
-  /* eslint-disable global-require */
-  /* eslint-disable prefer-import/prefer-import-over-require */
   EventSource =
     anyGlobal.EventSource ??
     anyGlobal.window?.EventSource ??
@@ -367,7 +365,7 @@ export class CallBuilder<
         const record = this._parseRecord(json[key]);
         // Maintain a promise based API so the behavior is the same whether you
         // are loading from the server or in-memory (via join).
-        // eslint-disable-next-line require-await
+        // eslint-disable-next-line @typescript-eslint/require-await
         json[key] = async () => record;
       } else {
         json[key] = this._requestFnForLink(n as HorizonApi.ResponseLink);
@@ -376,7 +374,6 @@ export class CallBuilder<
     return json;
   }
 
-  // eslint-disable-next-line require-await
   private async _sendNormalRequest(initialUrl: URI) {
     let url = initialUrl;
 
@@ -433,7 +430,6 @@ export class CallBuilder<
    * @param {object} error Network error object
    * @returns {Promise<Error>} Promise that rejects with a human-readable error
    */
-  // eslint-disable-next-line require-await
   private async _handleNetworkError(error: NetworkError): Promise<void> {
     if (error.response && error.response.status) {
       switch (error.response.status) {
