@@ -23,6 +23,8 @@ const config = {
       crypto: require.resolve('crypto-browserify'),
       stream: require.resolve('stream-browserify'),
       buffer: require.resolve('buffer'),
+      vm: require.resolve('vm-browserify'),
+      process: require.resolve('process/browser'),
     },
     extensions: ['.ts', '.js'],
   },
@@ -87,16 +89,19 @@ const config = {
   },
   plugins: [
     // ESLint plugin for code quality checks
+    // TODO: this is not working, needs investigation
     new ESLintPlugin({
-      overrideConfigFile: path.resolve(__dirname, '../.eslintrc.js')
+      overrideConfigFile: path.resolve(__dirname, "../eslint.config.js"),
     }),
     // Ignore native modules (sodium-native)
     new webpack.IgnorePlugin({ resourceRegExp: /sodium-native/ }),
     new NodePolyfillPlugin({
       includeAliases: ['http', 'https'] // others aren't needed
+    
     }),
     new webpack.ProvidePlugin({
-      Buffer: ['buffer', 'Buffer']
+      Buffer: ['buffer', 'Buffer'],
+      process: 'process/browser.js',
     }),
     new webpack.DefinePlugin({
       __USE_AXIOS__: JSON.stringify(buildConfig.useAxios),
