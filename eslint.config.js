@@ -78,6 +78,10 @@ const jsDocConfig = [
       "jsdoc/tag-lines": "off",
       "jsdoc/require-jsdoc": "off",
       "jsdoc/no-defaults": "off",
+      "jsdoc/no-types": "off",  
+      "jsdoc/reject-function-type": "off",
+      "jsdoc/reject-any-type": "off", 
+      "jsdoc/require-description": "off",
     },
   },
 ];
