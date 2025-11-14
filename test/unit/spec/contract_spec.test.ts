@@ -11,7 +11,10 @@ import {
 const { xdr, Address, contract } = StellarSdk;
 
 const publicKey = "GCBVOLOM32I7OD5TWZQCIXCXML3TK56MDY7ZMTAILIBQHHKPCVU42XYW";
+const muxedKey =
+  "MA2T2WYMPAPG3PGXIHA7H6BZDBX24ZHFXZFQ7PLAGIHKN5IFB4JBOAAAAAAAAAAAAEJLO";
 const addr = Address.fromString(publicKey);
+const muxedAddr = Address.fromString(muxedKey);
 let SPEC: Spec;
 
 function generateTestData(funcName: string, index: number): any {
@@ -91,6 +94,8 @@ function generateTestData(funcName: string, index: number): any {
     }
     case "addresse":
       return { args: { addresse: publicKey } };
+    case "muxed_address":
+      return { args: { muxed_address: muxedKey } };
     case "bytes":
       return { args: { bytes: btoa(`test${baseValue}`) } };
     case "bytes_n": {
@@ -246,10 +251,10 @@ export const GIGA_MAP = xdr.ScSpecEntry.scSpecEntryUdtStructV0(
         type: xdr.ScSpecTypeDef.scSpecTypeString(),
       }),
     ],
-  }),
+  })
 );
 const GIGA_MAP_TYPE = xdr.ScSpecTypeDef.scSpecTypeUdt(
-  new xdr.ScSpecTypeUdt({ name: "GigaMap" }),
+  new xdr.ScSpecTypeUdt({ name: "GigaMap" })
 );
 
 const func = xdr.ScSpecEntry.scSpecEntryFunctionV0(
@@ -264,7 +269,7 @@ const func = xdr.ScSpecEntry.scSpecEntryFunctionV0(
       }),
     ],
     outputs: [GIGA_MAP_TYPE],
-  }),
+  })
 );
 
 beforeAll(() => {
@@ -284,7 +289,7 @@ describe("Spec constructor", () => {
 
   it("throws if no entries", () => {
     expect(() => new contract.Spec([])).toThrow(
-      /Contract spec must have at least one entry/i,
+      /Contract spec must have at least one entry/i
     );
   });
 });
@@ -308,7 +313,7 @@ describe("Can round trip custom types", () => {
   function jsonSchemaRoundtrip(
     contractSpec: Spec,
     funcName: string,
-    num: number = 100,
+    num: number = 100
   ) {
     const funcSpec = contractSpec.jsonSchema(funcName);
 
@@ -345,8 +350,8 @@ describe("Can round trip custom types", () => {
             //@ts-ignore
             funcSpec.definitions![funcName].properties,
             null,
-            2,
-          ),
+            2
+          )
         );
         throw e;
       }
@@ -458,6 +463,10 @@ describe("Can round trip custom types", () => {
     roundtrip("addresse", addr.toString());
   });
 
+  it("muxed_address", () => {
+    roundtrip("muxed_address", muxedAddr.toString());
+  });
+
   it("bytes", () => {
     const bytes = new TextEncoder().encode("hello");
     roundtrip("bytes", bytes);
@@ -497,7 +506,7 @@ describe("Can round trip custom types", () => {
 
     map.set(3, "hahaha");
     expect(() => roundtrip("map", [...map.entries()])).toThrow(
-      /invalid type scSpecTypeBool specified for string value/i,
+      /invalid type scSpecTypeBool specified for string value/i
     );
   });
 
@@ -528,7 +537,7 @@ describe("Can round trip custom types", () => {
   it("u256", () => {
     roundtrip("u256", 1n);
     expect(() => roundtrip("u256", -1n)).toThrow(
-      /expected a positive value, got: -1/i,
+      /expected a positive value, got: -1/i
     );
   });
 

@@ -74,6 +74,8 @@ function stringToScVal(str: string, ty: xdr.ScSpecType): xdr.ScVal {
       return xdr.ScVal.scvSymbol(str);
     case xdr.ScSpecType.scSpecTypeAddress().value:
       return Address.fromString(str).toScVal();
+    case xdr.ScSpecType.scSpecTypeMuxedAddress().value:
+      return Address.fromString(str).toScVal();
     case xdr.ScSpecType.scSpecTypeU64().value:
       return new XdrLargeInt("u64", str).toScVal();
     case xdr.ScSpecType.scSpecTypeI64().value:
@@ -147,6 +149,12 @@ const PRIMITIVE_DEFINITONS: { [key: string]: JSONSchema7Definition } = {
     format: "address",
     description: "Address can be a public key or contract id",
   },
+  MuxedAddress: {
+    type: "string",
+    format: "address",
+    description:
+      "Stellar public key with M prefix combining a G address and unique ID",
+  },
   ScString: {
     type: "string",
     description: "ScString is a string",
@@ -204,14 +212,12 @@ function typeRef(typeDef: xdr.ScSpecTypeDef): JSONSchema7 {
       break;
     }
     case xdr.ScSpecType.scSpecTypeTimepoint().value: {
-      throw new Error("Timepoint type not supported");
       ref = "Timepoint";
-      break;
+      throw new Error("Timepoint type not supported");
     }
     case xdr.ScSpecType.scSpecTypeDuration().value: {
-      throw new Error("Duration not supported");
       ref = "Duration";
-      break;
+      throw new Error("Duration not supported");
     }
     case xdr.ScSpecType.scSpecTypeU128().value: {
       ref = "U128";
@@ -243,6 +249,10 @@ function typeRef(typeDef: xdr.ScSpecTypeDef): JSONSchema7 {
     }
     case xdr.ScSpecType.scSpecTypeAddress().value: {
       ref = "Address";
+      break;
+    }
+    case xdr.ScSpecType.scSpecTypeMuxedAddress().value: {
+      ref = "MuxedAddress";
       break;
     }
     case xdr.ScSpecType.scSpecTypeOption().value: {
@@ -305,7 +315,7 @@ function isRequired(typeDef: xdr.ScSpecTypeDef): boolean {
 }
 
 function argsAndRequired(
-  input: { type: () => xdr.ScSpecTypeDef; name: () => string | Buffer }[],
+  input: { type: () => xdr.ScSpecTypeDef; name: () => string | Buffer }[]
 ): { properties: object; required?: string[] } {
   const properties: any = {};
   const required: string[] = [];
@@ -329,7 +339,7 @@ function structToJsonSchema(udt: xdr.ScSpecUdtStructV0): object {
   if (fields.some(isNumeric)) {
     if (!fields.every(isNumeric)) {
       throw new Error(
-        "mixed numeric and non-numeric field names are not allowed",
+        "mixed numeric and non-numeric field names are not allowed"
       );
     }
     const items = fields.map((_, i) => typeRef(fields[i].type()));
@@ -504,7 +514,7 @@ export class Spec {
       const entry = entries[0];
       if (typeof entry === "string") {
         this.entries = (entries as string[]).map((s) =>
-          xdr.ScSpecEntry.fromXDR(s, "base64"),
+          xdr.ScSpecEntry.fromXDR(s, "base64")
         );
       } else {
         this.entries = entries as xdr.ScSpecEntry[];
@@ -521,7 +531,7 @@ export class Spec {
       .filter(
         (entry) =>
           entry.switch().value ===
-          xdr.ScSpecEntryKind.scSpecEntryFunctionV0().value,
+          xdr.ScSpecEntryKind.scSpecEntryFunctionV0().value
       )
       .map((entry) => entry.functionV0());
   }
@@ -614,7 +624,7 @@ export class Spec {
    */
   findEntry(name: string): xdr.ScSpecEntry {
     const entry = this.entries.find(
-      (e) => e.value().name().toString() === name,
+      (e) => e.value().name().toString() === name
     );
     if (!entry) {
       throw new Error(`no such entry: ${name}`);
@@ -653,7 +663,7 @@ export class Spec {
               return xdr.ScVal.scvVoid();
             default:
               throw new TypeError(
-                `Type ${ty} was not void, but value was null`,
+                `Type ${ty} was not void, but value was null`
               );
           }
         }
@@ -665,7 +675,7 @@ export class Spec {
         if (val instanceof Address) {
           if (ty.switch().value !== xdr.ScSpecType.scSpecTypeAddress().value) {
             throw new TypeError(
-              `Type ${ty} was not address, but value was Address`,
+              `Type ${ty} was not address, but value was Address`
             );
           }
           return val.toScVal();
@@ -674,7 +684,7 @@ export class Spec {
         if (val instanceof Contract) {
           if (ty.switch().value !== xdr.ScSpecType.scSpecTypeAddress().value) {
             throw new TypeError(
-              `Type ${ty} was not address, but value was Address`,
+              `Type ${ty} was not address, but value was Address`
             );
           }
           return val.address().toScVal();
@@ -687,7 +697,7 @@ export class Spec {
               const bytesN = ty.bytesN();
               if (copy.length !== bytesN.n()) {
                 throw new TypeError(
-                  `expected ${bytesN.n()} bytes, but got ${copy.length}`,
+                  `expected ${bytesN.n()} bytes, but got ${copy.length}`
                 );
               }
               //@ts-ignore
@@ -698,7 +708,7 @@ export class Spec {
               return xdr.ScVal.scvBytes(copy);
             default:
               throw new TypeError(
-                `invalid type (${ty}) specified for Bytes and BytesN`,
+                `invalid type (${ty}) specified for Bytes and BytesN`
               );
           }
         }
@@ -708,7 +718,7 @@ export class Spec {
               const vec = ty.vec();
               const elementType = vec.elementType();
               return xdr.ScVal.scvVec(
-                val.map((v) => this.nativeToScVal(v, elementType)),
+                val.map((v) => this.nativeToScVal(v, elementType))
               );
             }
             case xdr.ScSpecType.scSpecTypeTuple().value: {
@@ -716,11 +726,11 @@ export class Spec {
               const valTypes = tup.valueTypes();
               if (val.length !== valTypes.length) {
                 throw new TypeError(
-                  `Tuple expects ${valTypes.length} values, but ${val.length} were provided`,
+                  `Tuple expects ${valTypes.length} values, but ${val.length} were provided`
                 );
               }
               return xdr.ScVal.scvVec(
-                val.map((v, i) => this.nativeToScVal(v, valTypes[i])),
+                val.map((v, i) => this.nativeToScVal(v, valTypes[i]))
               );
             }
             case xdr.ScSpecType.scSpecTypeMap().value: {
@@ -732,13 +742,13 @@ export class Spec {
                   const key = this.nativeToScVal(entry[0], keyType);
                   const mapVal = this.nativeToScVal(entry[1], valueType);
                   return new xdr.ScMapEntry({ key, val: mapVal });
-                }),
+                })
               );
             }
 
             default:
               throw new TypeError(
-                `Type ${ty} was not vec, but value was Array`,
+                `Type ${ty} was not vec, but value was Array`
               );
           }
         }
@@ -765,12 +775,12 @@ export class Spec {
           throw new TypeError(
             `cannot interpret ${
               val.constructor?.name
-            } value as ScVal (${JSON.stringify(val)})`,
+            } value as ScVal (${JSON.stringify(val)})`
           );
         }
 
         throw new TypeError(
-          `Received object ${val}  did not match the provided type ${ty}`,
+          `Received object ${val}  did not match the provided type ${ty}`
         );
       }
 
@@ -813,7 +823,7 @@ export class Spec {
             return xdr.ScVal.scvVoid();
           default:
             throw new TypeError(
-              `Type ${ty} was not void, but value was undefined`,
+              `Type ${ty} was not void, but value was undefined`
             );
         }
       }
@@ -832,7 +842,7 @@ export class Spec {
       case xdr.ScSpecEntryKind.scSpecEntryUdtEnumV0():
         if (typeof val !== "number") {
           throw new TypeError(
-            `expected number for enum ${name}, but got ${typeof val}`,
+            `expected number for enum ${name}, but got ${typeof val}`
           );
         }
         return this.nativeToEnum(val as number, entry.udtEnumV0());
@@ -847,7 +857,7 @@ export class Spec {
 
   private nativeToUnion(
     val: Union<any>,
-    union_: xdr.ScSpecUdtUnionV0,
+    union_: xdr.ScSpecUdtUnionV0
   ): xdr.ScVal {
     const entryName = val.tag;
     const caseFound = union_.cases().find((entry) => {
@@ -867,11 +877,11 @@ export class Spec {
         if (Array.isArray(val.values)) {
           if (val.values.length !== types.length) {
             throw new TypeError(
-              `union ${union_} expects ${types.length} values, but got ${val.values.length}`,
+              `union ${union_} expects ${types.length} values, but got ${val.values.length}`
             );
           }
           const scvals = val.values.map((v, i) =>
-            this.nativeToScVal(v, types[i]),
+            this.nativeToScVal(v, types[i])
           );
           scvals.unshift(key);
           return xdr.ScVal.scvVec(scvals);
@@ -888,11 +898,11 @@ export class Spec {
     if (fields.some(isNumeric)) {
       if (!fields.every(isNumeric)) {
         throw new Error(
-          "mixed numeric and non-numeric field names are not allowed",
+          "mixed numeric and non-numeric field names are not allowed"
         );
       }
       return xdr.ScVal.scvVec(
-        fields.map((_, i) => this.nativeToScVal(val[i], fields[i].type())),
+        fields.map((_, i) => this.nativeToScVal(val[i], fields[i].type()))
       );
     }
     return xdr.ScVal.scvMap(
@@ -902,7 +912,7 @@ export class Spec {
           key: this.nativeToScVal(name, xdr.ScSpecTypeDef.scSpecTypeSymbol()),
           val: this.nativeToScVal(val[name], field.type()),
         });
-      }),
+      })
     );
   }
 
@@ -975,14 +985,14 @@ export class Spec {
         if (value === xdr.ScSpecType.scSpecTypeVec().value) {
           const vec = typeDef.vec();
           return (scv.vec() ?? []).map((elm) =>
-            this.scValToNative(elm, vec.elementType()),
+            this.scValToNative(elm, vec.elementType())
           ) as T;
         }
         if (value === xdr.ScSpecType.scSpecTypeTuple().value) {
           const tuple = typeDef.tuple();
           const valTypes = tuple.valueTypes();
           return (scv.vec() ?? []).map((elm, i) =>
-            this.scValToNative(elm, valTypes[i]),
+            this.scValToNative(elm, valTypes[i])
           ) as T;
         }
         throw new TypeError(`Type ${typeDef} was not vec, but ${scv} is`);
@@ -1007,8 +1017,8 @@ export class Spec {
           `ScSpecType ${t.name} was not map, but ${JSON.stringify(
             scv,
             null,
-            2,
-          )} is`,
+            2
+          )} is`
         );
       }
 
@@ -1028,7 +1038,7 @@ export class Spec {
           throw new Error(
             `ScSpecType ${
               t.name
-            } was not string or symbol, but ${JSON.stringify(scv, null, 2)} is`,
+            } was not string or symbol, but ${JSON.stringify(scv, null, 2)} is`
           );
         }
         return scv.value()?.toString() as T;
@@ -1045,8 +1055,8 @@ export class Spec {
           `failed to convert ${JSON.stringify(
             scv,
             null,
-            2,
-          )} to native type from type ${t.name}`,
+            2
+          )} to native type from type ${t.name}`
         );
     }
     /* eslint-enable no-fallthrough*/
@@ -1063,7 +1073,7 @@ export class Spec {
         return this.unionToNative(scv, entry.udtUnionV0());
       default:
         throw new Error(
-          `failed to parse udt ${udt.name().toString()}: ${entry}`,
+          `failed to parse udt ${udt.name().toString()}: ${entry}`
         );
     }
   }
@@ -1075,7 +1085,7 @@ export class Spec {
     }
     if (vec.length === 0 && udt.cases.length !== 0) {
       throw new Error(
-        `${val} has length 0, but the there are at least one case in the union`,
+        `${val} has length 0, but the there are at least one case in the union`
       );
     }
     const name = vec[0].sym().toString();
@@ -1085,7 +1095,7 @@ export class Spec {
     const entry = udt.cases().find(findCase(name));
     if (!entry) {
       throw new Error(
-        `failed to find entry ${name} in union {udt.name().toString()}`,
+        `failed to find entry ${name} in union {udt.name().toString()}`
       );
     }
     const res: Union<any> = { tag: name };
@@ -1114,7 +1124,7 @@ export class Spec {
       const field = fields[i];
       res[field.name().toString()] = this.scValToNative(
         entry.val(),
-        field.type(),
+        field.type()
       );
     });
     return res;
@@ -1139,7 +1149,7 @@ export class Spec {
       .filter(
         (entry) =>
           entry.switch().value ===
-          xdr.ScSpecEntryKind.scSpecEntryUdtErrorEnumV0().value,
+          xdr.ScSpecEntryKind.scSpecEntryUdtErrorEnumV0().value
       )
       .flatMap((entry) => (entry.value() as xdr.ScSpecUdtErrorEnumV0).cases());
   }
