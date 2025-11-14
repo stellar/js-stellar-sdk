@@ -75,6 +75,8 @@ function stringToScVal(str: string, ty: xdr.ScSpecType): xdr.ScVal {
     case xdr.ScSpecType.scSpecTypeAddress().value:
     case xdr.ScSpecType.scSpecTypeMuxedAddress().value:
       return Address.fromString(str).toScVal();
+    case xdr.ScSpecType.scSpecTypeMuxedAddress().value:
+      return Address.fromString(str).toScVal();
     case xdr.ScSpecType.scSpecTypeU64().value:
       return new XdrLargeInt("u64", str).toScVal();
     case xdr.ScSpecType.scSpecTypeI64().value:
@@ -148,6 +150,12 @@ const PRIMITIVE_DEFINITONS: { [key: string]: JSONSchema7Definition } = {
     format: "address",
     description: "Address can be a public key or contract id",
   },
+  MuxedAddress: {
+    type: "string",
+    format: "address",
+    description:
+      "Stellar public key with M prefix combining a G address and unique ID",
+  },
   ScString: {
     type: "string",
     description: "ScString is a string",
@@ -205,14 +213,12 @@ function typeRef(typeDef: xdr.ScSpecTypeDef): JSONSchema7 {
       break;
     }
     case xdr.ScSpecType.scSpecTypeTimepoint().value: {
-      throw new Error("Timepoint type not supported");
       ref = "Timepoint";
-      break;
+      throw new Error("Timepoint type not supported");
     }
     case xdr.ScSpecType.scSpecTypeDuration().value: {
-      throw new Error("Duration not supported");
       ref = "Duration";
-      break;
+      throw new Error("Duration not supported");
     }
     case xdr.ScSpecType.scSpecTypeU128().value: {
       ref = "U128";
@@ -244,6 +250,10 @@ function typeRef(typeDef: xdr.ScSpecTypeDef): JSONSchema7 {
     }
     case xdr.ScSpecType.scSpecTypeAddress().value: {
       ref = "Address";
+      break;
+    }
+    case xdr.ScSpecType.scSpecTypeMuxedAddress().value: {
+      ref = "MuxedAddress";
       break;
     }
     case xdr.ScSpecType.scSpecTypeOption().value: {
