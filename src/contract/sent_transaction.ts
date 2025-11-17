@@ -57,7 +57,7 @@ export class SentTransaction<T> {
   };
 
   constructor(public assembled: AssembledTransaction<T>) {
-    const { server, allowHttp, headers, rpcUrl } = this.assembled.options;
+    const { server, allowHttp, headers, rpcUrl } = this.assembled.options.client.options;
     this.server = server ?? new Server(rpcUrl, { allowHttp, headers });
   }
 

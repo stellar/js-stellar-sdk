@@ -362,7 +362,7 @@ export class AssembledTransaction<T> {
     },
   ): AssembledTransaction<T> {
     const txn = new AssembledTransaction(options);
-    txn.built = TransactionBuilder.fromXDR(tx, options.networkPassphrase) as Tx;
+    txn.built = TransactionBuilder.fromXDR(tx, options.client.options.networkPassphrase) as Tx;
     txn.simulationResult = {
       auth: simulationResult.auth.map((a) =>
         xdr.SorobanAuthorizationEntry.fromXDR(a, "base64"),
@@ -402,7 +402,7 @@ export class AssembledTransaction<T> {
     const envelope = xdr.TransactionEnvelope.fromXDR(encodedXDR, "base64");
     const built = TransactionBuilder.fromXDR(
       envelope,
-      options.networkPassphrase,
+      options.client.options.networkPassphrase,
     ) as Tx;
     const operation = built.operations[0] as Operation.InvokeHostFunction;
     if (!operation?.func?.value || typeof operation.func.value !== "function") {
@@ -449,7 +449,8 @@ export class AssembledTransaction<T> {
 
   private constructor(public options: AssembledTransactionOptions<T>) {
     this.options.simulate = this.options.simulate ?? true;
-    const { server, allowHttp, headers, rpcUrl } = this.options;
+    this.options.publicKey = this.options.client.options.publicKey;
+    const { server, allowHttp, headers, rpcUrl } = this.options.client.options;
     this.server = server ?? new Server(rpcUrl, { allowHttp, headers });
   }
 
@@ -478,7 +479,7 @@ export class AssembledTransaction<T> {
   static build<T>(
     options: AssembledTransactionOptions<T>,
   ): Promise<AssembledTransaction<T>> {
-    const contract = new Contract(options.contractId);
+    const contract = new Contract(options.client.options.contractId);
     return AssembledTransaction.buildWithOp(
       contract.call(options.method, ...(options.args ?? [])),
       options,
@@ -510,7 +511,7 @@ export class AssembledTransaction<T> {
     const account = await getAccount(options, tx.server);
     tx.raw = new TransactionBuilder(account, {
       fee: options.fee ?? BASE_FEE,
-      networkPassphrase: options.networkPassphrase,
+      networkPassphrase: options.client.options.networkPassphrase,
     })
       .setTimeout(options.timeoutInSeconds ?? DEFAULT_TIMEOUT)
       .addOperation(operation);
@@ -529,7 +530,7 @@ export class AssembledTransaction<T> {
     const tx = new AssembledTransaction(options);
     tx.raw = new TransactionBuilder(account, {
       fee,
-      networkPassphrase: options.networkPassphrase,
+      networkPassphrase: options.client.options.networkPassphrase,
     })
       .setSorobanData(
         sorobanData instanceof SorobanDataBuilder
@@ -567,10 +568,10 @@ export class AssembledTransaction<T> {
       );
       if (result.status === Api.GetTransactionStatus.SUCCESS) {
         // need to rebuild the transaction with bumped account sequence number
-        const contract = new Contract(this.options.contractId);
+        const contract = new Contract(this.options.client.options.contractId);
         this.raw = new TransactionBuilder(account, {
           fee: this.options.fee ?? BASE_FEE,
-          networkPassphrase: this.options.networkPassphrase,
+          networkPassphrase: this.options.client.options.networkPassphrase,
         })
           .addOperation(
             contract.call(this.options.method, ...(this.options.args ?? [])),
@@ -649,11 +650,11 @@ export class AssembledTransaction<T> {
   }
 
   private parseError(errorMessage: string) {
-    if (!this.options.errorTypes) return undefined;
+    if (!this.options.client.options.errorTypes) return undefined;
     const match = errorMessage.match(contractErrorPattern);
     if (!match) return undefined;
     const i = parseInt(match[1], 10);
-    const err = this.options.errorTypes[i];
+    const err = this.options.client.options.errorTypes[i];
     if (!err) return undefined;
     return new Err(err);
   }
@@ -664,7 +665,7 @@ export class AssembledTransaction<T> {
    */
   sign = async ({
     force = false,
-    signTransaction = this.options.signTransaction,
+    signTransaction = this.options.client.options.signTransaction,
   }: {
     /**
      * If `true`, sign and send the transaction even if it is a read call
@@ -722,7 +723,7 @@ export class AssembledTransaction<T> {
     const signOpts: Parameters<
       NonNullable<ClientOptions["signTransaction"]>
     >[1] = {
-      networkPassphrase: this.options.networkPassphrase,
+      networkPassphrase: this.options.client.options.networkPassphrase,
     };
 
     if (this.options.address) signOpts.address = this.options.address;
@@ -739,7 +740,7 @@ export class AssembledTransaction<T> {
 
     this.signed = TransactionBuilder.fromXDR(
       signature,
-      this.options.networkPassphrase,
+      this.options.client.options.networkPassphrase,
     ) as Tx;
   };
 
@@ -769,7 +770,7 @@ export class AssembledTransaction<T> {
    */
   signAndSend = async ({
     force = false,
-    signTransaction = this.options.signTransaction,
+    signTransaction = this.options.client.options.signTransaction,
     watcher,
   }: {
     /**
@@ -890,7 +891,7 @@ export class AssembledTransaction<T> {
   signAuthEntries = async ({
     expiration = (async () =>
       (await this.server.getLatestLedger()).sequence + 100)(),
-    signAuthEntry = this.options.signAuthEntry,
+    signAuthEntry = this.options.client.options.signAuthEntry,
     address = this.options.publicKey,
     authorizeEntry = stellarBaseAuthorizeEntry,
   }: {
@@ -984,7 +985,7 @@ export class AssembledTransaction<T> {
           return Buffer.from(signedAuthEntry, "base64");
         },
         await expiration, // eslint-disable-line no-await-in-loop
-        this.options.networkPassphrase,
+        this.options.client.options.networkPassphrase,
       );
     }
   };
@@ -1036,7 +1037,7 @@ export class AssembledTransaction<T> {
     /** The account that is executing the footprint restore operation. If omitted, will use the account from the AssembledTransaction. */
     account?: Account,
   ): Promise<Api.GetTransactionResponse> {
-    if (!this.options.signTransaction) {
+    if (!this.options.client.options.signTransaction) {
       throw new Error(
         "For automatic restore to work you must provide a signTransaction function when initializing your Client",
       );

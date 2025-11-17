@@ -7,7 +7,8 @@ import {
   Transaction,
   xdr,
 } from "@stellar/stellar-base";
-import type { Client } from "./client";
+import { Client } from "./client";
+import type { SentTransaction } from "./sent_transaction";
 import { Server } from "../rpc";
 
 export type XDR_BASE64 = string;
@@ -133,16 +134,13 @@ export type SignAuthEntry = (
 export type ClientOptions = {
   /**
    * The public key of the account that will send this transaction. You can
-   * override this for specific methods later, like
-   * [signAndSend]{@link module:contract.AssembledTransaction#signAndSend} and
-   * [signAuthEntries]{@link module:contract.AssembledTransaction#signAuthEntries}.
+   * override this for specific methods later; see {@link AssembledTransactionOptions}.
    */
   publicKey?: string;
   /**
    * A function to sign the transaction using the private key corresponding to
    * the given `publicKey`. You do not need to provide this, for read-only
-   * calls, which only need to be simulated. If you do not need to sign and
-   * send, there is no need to provide this. If you do not provide it during
+   * calls, which only need to be simulated. If you do not provide it during
    * initialization, you can provide it later when you call
    * {@link module:contract.AssembledTransaction#signAndSend signAndSend}.
    *
@@ -237,30 +235,40 @@ export type MethodOptions = {
   restore?: boolean;
 };
 
-export type AssembledTransactionOptions<T = string> = MethodOptions &
-  ClientOptions & {
-    method: string;
-    args?: any[];
-    parseResultXdr: (xdr: xdr.ScVal) => T;
+export type AssembledTransactionOptions<T = string> = MethodOptions & {
+  /**
+   * AssembledTransactions are most often created BY a Client. If you create
+   * one manually, you still need to instantiate a Client and attach it so the
+   * AssembledTransaction has access to contractId, rpcUrl, etc.
+   */
+  client: Client;
+  /**
+   * The public key of the account that will send this transaction. Inherited from
+   * `client` by default.
+   */
+  publicKey?: string;
+  method: string;
+  args?: any[];
+  parseResultXdr: (xdr: xdr.ScVal) => T;
 
-    /**
-     * The address of the account that should sign the transaction. Useful when
-     * a wallet holds multiple addresses to ensure signing with the intended one.
-     */
-    address?: string;
+  /**
+   * The address of the account that should sign the transaction. Useful when
+   * a wallet holds multiple addresses to ensure signing with the intended one.
+   */
+  address?: string;
 
-    /**
-     * This option will be passed through to the SEP43-compatible wallet extension. If true, and if the wallet supports it, the transaction will be signed and immediately submitted to the network by the wallet, bypassing the submit logic in {@link SentTransaction}.
-     * @default false
-     */
-    submit?: boolean;
+  /**
+   * This option will be passed through to the SEP43-compatible wallet extension. If true, and if the wallet supports it, the transaction will be signed and immediately submitted to the network by the wallet, bypassing the submit logic in {@link SentTransaction}.
+   * @default false
+   */
+  submit?: boolean;
 
-    /**
-     * The URL of the network to which the transaction should be submitted.
-     * Only applicable when 'submit' is set to true.
-     */
-    submitUrl?: string;
-  };
+  /**
+   * The URL of the network to which the transaction should be submitted.
+   * Only applicable when 'submit' is set to true.
+   */
+  submitUrl?: string;
+};
 
 /**
  * The default timebounds, in seconds, during which a transaction will be valid.

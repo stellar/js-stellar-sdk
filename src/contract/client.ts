@@ -75,12 +75,16 @@ export class Client {
         : [],
     });
 
+    const client = new Client(spec, {
+      contractId: "ignored",
+      ...clientOptions
+    });
+
     return AssembledTransaction.buildWithOp(operation, {
       fee,
       timeoutInSeconds,
       simulate,
-      ...clientOptions,
-      contractId: "ignored",
+      client,
       method: CONSTRUCTOR_FUNC,
       parseResultXdr: (result) =>
         new Client(spec, {
@@ -97,11 +101,19 @@ export class Client {
     // Ensure we have a server to reuse for all AssembledTransactions
     if (options.server === undefined) {
       const { allowHttp, headers } = options;
-      options.server = new Server(options.rpcUrl, {
+      this.options.server = new Server(options.rpcUrl, {
         allowHttp,
         headers,
       });
     }
+
+    this.options.errorTypes = spec.errorCases().reduce(
+      (acc, curr) => ({
+        ...acc,
+        [curr.value()]: { message: curr.doc().toString() },
+      }),
+      {} as Pick<ClientOptions, "errorTypes">,
+    );
 
     this.spec.funcs().forEach((xdrFn) => {
       const method = xdrFn.name().toString();
@@ -115,15 +127,8 @@ export class Client {
         AssembledTransaction.build({
           method,
           args: args && spec.funcArgsToScVals(method, args),
-          ...options,
+          client: this,
           ...methodOptions,
-          errorTypes: spec.errorCases().reduce(
-            (acc, curr) => ({
-              ...acc,
-              [curr.value()]: { message: curr.doc().toString() },
-            }),
-            {} as Pick<ClientOptions, "errorTypes">,
-          ),
           parseResultXdr: (result: xdr.ScVal) =>
             spec.funcResToNative(method, result),
         });
@@ -203,7 +208,7 @@ export class Client {
     const { method, ...tx } = JSON.parse(json);
     return AssembledTransaction.fromJSON(
       {
-        ...this.options,
+        client: this,
         method,
         parseResultXdr: (result: xdr.ScVal) =>
           this.spec.funcResToNative(method, result),
@@ -213,5 +218,5 @@ export class Client {
   };
 
   txFromXDR = <T>(xdrBase64: string): AssembledTransaction<T> =>
-    AssembledTransaction.fromXDR(this.options, xdrBase64, this.spec);
+    AssembledTransaction.fromXDR({ client: this }, xdrBase64, this.spec);
 }
