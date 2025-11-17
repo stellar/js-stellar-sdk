@@ -240,8 +240,10 @@ export type AssembledTransactionOptions<T = string> = MethodOptions & {
    * AssembledTransactions are most often created BY a Client. If you create
    * one manually, you still need to instantiate a Client and attach it so the
    * AssembledTransaction has access to contractId, rpcUrl, etc.
+   *
+   * In the future this will be required.
    */
-  client: Client;
+  client?: Client;
   /**
    * The public key of the account that will send this transaction. Inherited from
    * `client` by default.
@@ -268,6 +270,43 @@ export type AssembledTransactionOptions<T = string> = MethodOptions & {
    * Only applicable when 'submit' is set to true.
    */
   submitUrl?: string;
+
+  /**
+   * @deprecated use `client` instead
+   */
+  signTransaction?: SignTransaction;
+  /**
+   * @deprecated use `client` instead
+   */
+  signAuthEntry?: SignAuthEntry;
+  /**
+   * @deprecated use `client` instead
+   */
+  contractId?: string;
+  /**
+   * @deprecated use `client` instead
+   */
+  networkPassphrase?: string;
+  /**
+   * @deprecated use `client` instead
+   */
+  rpcUrl?: string;
+  /**
+   * @deprecated use `client` instead
+   */
+  allowHttp?: boolean;
+  /**
+   * @deprecated use `client` instead
+   */
+  headers?: Record<string, string>;
+  /**
+   * @deprecated use `client` instead
+   */
+  errorTypes?: Record<number, { message: string }>;
+  /**
+   * @deprecated use `client` instead
+   */
+  server?: Server;
 };
 
 /**
