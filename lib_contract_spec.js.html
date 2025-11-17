@@ -176,6 +176,7 @@ function stringToScVal(str, ty) {
     case _stellarBase.xdr.ScSpecType.scSpecTypeSymbol().value:
       return _stellarBase.xdr.ScVal.scvSymbol(str);
     case _stellarBase.xdr.ScSpecType.scSpecTypeAddress().value:
+    case _stellarBase.xdr.ScSpecType.scSpecTypeMuxedAddress().value:
       return _stellarBase.Address.fromString(str).toScVal();
     case _stellarBase.xdr.ScSpecType.scSpecTypeU64().value:
       return new _stellarBase.XdrLargeInt("u64", str).toScVal();
@@ -248,6 +249,11 @@ const PRIMITIVE_DEFINITONS = {
     format: "address",
     description: "Address can be a public key or contract id"
   },
+  MuxedAddress: {
+    type: "string",
+    format: "address",
+    description: "Stellar public key with M prefix combining a G address and unique ID"
+  },
   ScString: {
     type: "string",
     description: "ScString is a string"
@@ -317,15 +323,13 @@ function typeRef(typeDef) {
       }
     case _stellarBase.xdr.ScSpecType.scSpecTypeTimepoint().value:
       {
-        throw new Error("Timepoint type not supported");
         ref = "Timepoint";
-        break;
+        throw new Error("Timepoint type not supported");
       }
     case _stellarBase.xdr.ScSpecType.scSpecTypeDuration().value:
       {
-        throw new Error("Duration not supported");
         ref = "Duration";
-        break;
+        throw new Error("Duration not supported");
       }
     case _stellarBase.xdr.ScSpecType.scSpecTypeU128().value:
       {
@@ -365,6 +369,11 @@ function typeRef(typeDef) {
     case _stellarBase.xdr.ScSpecType.scSpecTypeAddress().value:
       {
         ref = "Address";
+        break;
+      }
+    case _stellarBase.xdr.ScSpecType.scSpecTypeMuxedAddress().value:
+      {
+        ref = "MuxedAddress";
         break;
       }
     case _stellarBase.xdr.ScSpecType.scSpecTypeOption().value:
