@@ -362,7 +362,10 @@ export class AssembledTransaction<T> {
     },
   ): AssembledTransaction<T> {
     const txn = new AssembledTransaction(options);
-    txn.built = TransactionBuilder.fromXDR(tx, options.client!.options.networkPassphrase) as Tx;
+    txn.built = TransactionBuilder.fromXDR(
+      tx,
+      options.client!.options.networkPassphrase,
+    ) as Tx;
     txn.simulationResult = {
       auth: simulationResult.auth.map((a) =>
         xdr.SorobanAuthorizationEntry.fromXDR(a, "base64"),
@@ -450,7 +453,7 @@ export class AssembledTransaction<T> {
   private constructor(public options: AssembledTransactionOptions<T>) {
     this.options.simulate = this.options.simulate ?? true;
     if (!this.options.client) {
-      console.warn('Deprecation warning: AssembledTransaction must be initialized with an associated `client`'); // eslint-disable-line no-console
+      console.warn("Deprecation warning: must initialize with a `client`"); // eslint-disable-line no-console
       // @ts-expect-error we really only need `client.options`
       this.options.client = {
         options: {
@@ -463,10 +466,11 @@ export class AssembledTransaction<T> {
           headers: this.options.headers,
           errorTypes: this.options.errorTypes,
           server: this.options.server,
-        }
+        },
       };
     }
-    this.options.publicKey = this.options.publicKey ?? this.options.client!.options.publicKey;
+    this.options.publicKey =
+      this.options.publicKey ?? this.options.client!.options.publicKey;
     const { server, allowHttp, headers, rpcUrl } = this.options.client!.options;
     this.server = server ?? new Server(rpcUrl, { allowHttp, headers });
   }

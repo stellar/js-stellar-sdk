@@ -77,7 +77,7 @@ export class Client {
 
     const client = new Client(spec, {
       contractId: "ignored",
-      ...clientOptions
+      ...clientOptions,
     });
 
     return AssembledTransaction.buildWithOp(operation, {
