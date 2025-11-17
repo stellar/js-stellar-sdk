@@ -75,8 +75,6 @@ function stringToScVal(str: string, ty: xdr.ScSpecType): xdr.ScVal {
     case xdr.ScSpecType.scSpecTypeAddress().value:
     case xdr.ScSpecType.scSpecTypeMuxedAddress().value:
       return Address.fromString(str).toScVal();
-    case xdr.ScSpecType.scSpecTypeMuxedAddress().value:
-      return Address.fromString(str).toScVal();
     case xdr.ScSpecType.scSpecTypeU64().value:
       return new XdrLargeInt("u64", str).toScVal();
     case xdr.ScSpecType.scSpecTypeI64().value:
