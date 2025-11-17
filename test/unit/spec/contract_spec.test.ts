@@ -11,7 +11,10 @@ import {
 const { xdr, Address, contract } = StellarSdk;
 
 const publicKey = "GCBVOLOM32I7OD5TWZQCIXCXML3TK56MDY7ZMTAILIBQHHKPCVU42XYW";
+const muxedKey =
+  "MA2T2WYMPAPG3PGXIHA7H6BZDBX24ZHFXZFQ7PLAGIHKN5IFB4JBOAAAAAAAAAAAAEJLO";
 const addr = Address.fromString(publicKey);
+const muxedAddr = Address.fromString(muxedKey);
 let SPEC: Spec;
 
 function generateTestData(funcName: string, index: number): any {
@@ -91,6 +94,8 @@ function generateTestData(funcName: string, index: number): any {
     }
     case "addresse":
       return { args: { addresse: publicKey } };
+    case "muxed_address":
+      return { args: { muxed_address: muxedKey } };
     case "bytes":
       return { args: { bytes: btoa(`test${baseValue}`) } };
     case "bytes_n": {
@@ -456,6 +461,10 @@ describe("Can round trip custom types", () => {
 
   it("addresse", () => {
     roundtrip("addresse", addr.toString());
+  });
+
+  it("muxed_address", () => {
+    roundtrip("muxed_address", muxedAddr.toString());
   });
 
   it("bytes", () => {
