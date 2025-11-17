@@ -11,7 +11,6 @@ A breaking change will get clearly marked in this log.
 ### Added
 * `Spec.nativeToScVal` supports parsing Muxed Address([#1274](https://github.com/stellar/js-stellar-sdk/pull/1274)),
 
-
 ## [v14.3.2](https://github.com/stellar/js-stellar-sdk/compare/v14.3.1...v14.3.2)
 
 ### Added
