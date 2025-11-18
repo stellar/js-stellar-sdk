@@ -620,7 +620,7 @@ export class RpcServer {
    * transaction completion and return a definitive state of success or failure.
    *
    * @param {string} hash   the transaction you're polling for
-   * @param {RpcServer.PollingOptions} [opts] (optional) polling options
+   * @param {[RpcServer.PollingOptions]} [opts] polling options
    * @param {number} [opts.attempts] (optional) the number of attempts to make
    *    before returning the last-seen status. By default or on invalid inputs,
    *    try 5 times.
