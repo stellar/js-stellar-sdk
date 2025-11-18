@@ -1,7 +1,35 @@
 import { xdr, cereal, Account } from "@stellar/stellar-base";
 import { Server } from "../rpc";
 import { type AssembledTransaction } from "./assembled_transaction";
-import { NULL_ACCOUNT, AssembledTransactionOptions } from "./types";
+import {
+  NULL_ACCOUNT,
+  AssembledTransactionOptions,
+  ClientOptions,
+} from "./types";
+import { Client } from "./client";
+import { Spec } from "./spec";
+
+export function fixDeprecatedClientOptions(
+  options: Pick<AssembledTransactionOptions, "client" | keyof ClientOptions>,
+): Client {
+  if (options.client) return options.client; // all good
+  console.warn("Deprecation warning: must initialize with a `client`"); // eslint-disable-line no-console
+  return new Client(
+    new Spec(["AAAAAAAAAAAAAAABeAAAAAAAAAAAAAAA"]), // dummy Spec for contract with one `x` method. Unused here! Don't worry!
+    {
+      contractId: options.contractId!,
+      networkPassphrase: options.networkPassphrase!,
+      rpcUrl: options.rpcUrl!,
+      publicKey: options.publicKey,
+      signTransaction: options.signTransaction,
+      signAuthEntry: options.signAuthEntry,
+      allowHttp: options.allowHttp,
+      headers: options.headers,
+      errorTypes: options.errorTypes,
+      server: options.server,
+    },
+  );
+}
 
 /**
  * Keep calling a `fn` for `timeoutInSeconds` seconds, if `keepWaitingIf` is

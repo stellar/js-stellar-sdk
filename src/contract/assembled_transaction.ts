@@ -24,10 +24,15 @@ import { Api } from "../rpc/api";
 import { assembleTransaction } from "../rpc/transaction";
 import type { Client } from "./client";
 import { Err } from "./rust_result";
-import { contractErrorPattern, implementsToString, getAccount } from "./utils";
+import {
+  contractErrorPattern,
+  fixDeprecatedClientOptions,
+  implementsToString,
+  getAccount,
+} from "./utils";
 import { DEFAULT_TIMEOUT } from "./types";
 import { SentTransaction, Watcher } from "./sent_transaction";
-import { Spec } from "./spec";
+import type { Spec } from "./spec";
 
 /** @module contract */
 
@@ -361,6 +366,7 @@ export class AssembledTransaction<T> {
       simulationTransactionData: XDR_BASE64;
     },
   ): AssembledTransaction<T> {
+    options.client = fixDeprecatedClientOptions(options);
     const txn = new AssembledTransaction(options);
     txn.built = TransactionBuilder.fromXDR(
       tx,
@@ -402,6 +408,7 @@ export class AssembledTransaction<T> {
     encodedXDR: string,
     spec: Spec,
   ): AssembledTransaction<T> {
+    options.client = fixDeprecatedClientOptions(options);
     const envelope = xdr.TransactionEnvelope.fromXDR(encodedXDR, "base64");
     const built = TransactionBuilder.fromXDR(
       envelope,
@@ -452,23 +459,7 @@ export class AssembledTransaction<T> {
 
   private constructor(public options: AssembledTransactionOptions<T>) {
     this.options.simulate = this.options.simulate ?? true;
-    if (!this.options.client) {
-      console.warn("Deprecation warning: must initialize with a `client`"); // eslint-disable-line no-console
-      // @ts-expect-error we really only need `client.options`
-      this.options.client = {
-        options: {
-          contractId: this.options.contractId!,
-          networkPassphrase: this.options.networkPassphrase!,
-          rpcUrl: this.options.rpcUrl!,
-          signTransaction: this.options.signTransaction,
-          signAuthEntry: this.options.signAuthEntry,
-          allowHttp: this.options.allowHttp,
-          headers: this.options.headers,
-          errorTypes: this.options.errorTypes,
-          server: this.options.server,
-        },
-      };
-    }
+    this.options.client = fixDeprecatedClientOptions(options);
     this.options.publicKey =
       this.options.publicKey ?? this.options.client!.options.publicKey;
     const { server, allowHttp, headers, rpcUrl } = this.options.client!.options;
@@ -500,7 +491,8 @@ export class AssembledTransaction<T> {
   static build<T>(
     options: AssembledTransactionOptions<T>,
   ): Promise<AssembledTransaction<T>> {
-    const contract = new Contract(options.client!.options.contractId);
+    options.client = fixDeprecatedClientOptions(options);
+    const contract = new Contract(options.client.options.contractId);
     return AssembledTransaction.buildWithOp(
       contract.call(options.method, ...(options.args ?? [])),
       options,
@@ -528,6 +520,7 @@ export class AssembledTransaction<T> {
     operation: xdr.Operation,
     options: AssembledTransactionOptions<T>,
   ): Promise<AssembledTransaction<T>> {
+    options.client = fixDeprecatedClientOptions(options);
     const tx = new AssembledTransaction(options);
     const account = await getAccount(options, tx.server);
     tx.raw = new TransactionBuilder(account, {
@@ -548,6 +541,7 @@ export class AssembledTransaction<T> {
     account: Account,
     fee: string,
   ): Promise<AssembledTransaction<T>> {
+    options.client = fixDeprecatedClientOptions(options);
     const tx = new AssembledTransaction(options);
     tx.raw = new TransactionBuilder(account, {
       fee,
