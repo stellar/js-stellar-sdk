@@ -460,7 +460,7 @@ export class AssembledTransaction<T> {
         }
       };
     }
-    this.options.publicKey = this.options.client!.options.publicKey;
+    this.options.publicKey = this.options.publicKey ?? this.options.client!.options.publicKey;
     const { server, allowHttp, headers, rpcUrl } = this.options.client!.options;
     this.server = server ?? new Server(rpcUrl, { allowHttp, headers });
   }
