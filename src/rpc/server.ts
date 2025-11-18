@@ -403,6 +403,8 @@ export class RpcServer {
       addr = address.toString();
     } else if (address instanceof Contract) {
       addr = address.toString();
+    } else { // shouldn't happen, but be defensive
+      throw new TypeError(`invalid address: ${address}`);
     }
 
     if (StrKey.isValidEd25519PublicKey(addr)) {
