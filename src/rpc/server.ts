@@ -5,6 +5,8 @@ import {
   Account,
   Address,
   Asset,
+  AuthClawbackEnabledFlag,
+  AuthRequiredFlag,
   Contract,
   FeeBumpTransaction,
   Keypair,
@@ -270,6 +272,7 @@ export class RpcServer {
    * @see
    * {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods/getLedgerEntries | getLedgerEntries docs}
    *
+   * @deprecated Use {@link getAssetBalance}, instead
    * @example
    * const accountId = "GBZC6Y2Y7Q3ZQ2Y4QZJ2XZ3Z5YXZ6Z7Z2Y4QZJ2XZ3Z5YXZ6Z7Z2Y4";
    * const asset = new Asset(
@@ -356,6 +359,65 @@ export class RpcServer {
     } catch (e) {
       throw new Error(`Claimable balance ${id} not found`);
     }
+  }
+
+  /**
+   * Fetch the balance of an asset held by an account or contract.
+   *
+   * The `address` argument may be provided as a string (as a {@link StrKey}),
+   * {@link Address}, or {@link Contract}.
+   *
+   * @param {string|Address|Contract} address The account or contract whose
+   *    balance should be fetched.
+   * @param {Asset} asset The asset whose balance you want to inspect.
+   * @returns {Promise<Api.BalanceResponse>} Resolves with balance entry details
+   *    when available.
+   *
+   * @throws {Error} If the supplied `address` is not a valid account or
+   *    contract strkey.
+   *
+   * @example
+   * const usdc = new Asset(
+   *   "USDC",
+   *   "GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5"
+   * );
+   * const balance = await server.getAssetBalance("GD...", usdc);
+   * console.log(balance.balanceEntry?.amount);
+   */
+  public async getAssetBalance(
+    address: string | Address | Contract,
+    asset: Asset,
+  ): Promise<Api.BalanceResponse> {
+    let addr = "";
+
+    // Coalesce to a strkey
+    if (typeof address === "string") {
+    } else if (address instanceof Address) {
+      addr = address.toString();
+    } else if (address instanceof Contract) {
+      addr = address.toString();
+    }
+
+    if (StrKey.isValidEd25519PublicKey(addr)) {
+      const [tl, ll] = await Promise.all([
+        this.getTrustline(addr, asset),
+        this.getLatestLedger(),
+      ]);
+
+      return {
+        latestLedger: ll.sequence,
+        balanceEntry: {
+          amount: tl.balance().toString(),
+          // Extract actual flags from the coalesced value.
+          authorized: Boolean(tl.flags() & AuthRequiredFlag),
+          clawback: Boolean(tl.flags() & AuthClawbackEnabledFlag),
+        },
+      };
+    } else if (StrKey.isValidContract(addr)) {
+      return this.getSACBalance(addr, asset);
+    }
+
+    throw new Error(`invalid address: ${address}`);
   }
 
   /**
@@ -1228,8 +1290,8 @@ export class RpcServer {
    *
    * This is a convenience wrapper around {@link Server.getLedgerEntries}.
    *
-   * @param {string}  address the contract (string `C...`) or account ID
-   *    (`G...`) whose balance of `sac` you want to know
+   * @param {string}  address the contract (string `C...`) whose balance of
+   *    `sac` you want to know
    * @param {Asset}   sac     the built-in SAC token (e.g. `USDC:GABC...`) that
    *    you are querying from the given `contract`.
    * @param {string}  [networkPassphrase] optionally, the network passphrase to
@@ -1247,6 +1309,7 @@ export class RpcServer {
    * @see getLedgerEntries
    * @see https://developers.stellar.org/docs/tokens/stellar-asset-contract
    *
+   * @deprecated Use {@link getAssetBalance}, instead
    * @example
    * // assume `address` is some contract or account with an XLM balance
    * // assume server is an instantiated `Server` instance.
