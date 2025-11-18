@@ -370,6 +370,12 @@ export class RpcServer {
    * @param {string|Address|Contract} address The account or contract whose
    *    balance should be fetched.
    * @param {Asset} asset The asset whose balance you want to inspect.
+   * @param {string}  [networkPassphrase] optionally, when requesting the
+   *    balance of a contract, the network passphrase to which this token
+   *    applies. If omitted and necessary, a request about network information
+   *    will be made (see {@link getNetwork}), since contract IDs for assets are
+   *    specific to a network. You can refer to {@link Networks} for a list of
+   *    built-in passphrases, e.g., `Networks.TESTNET`.
    * @returns {Promise<Api.BalanceResponse>} Resolves with balance entry details
    *    when available.
    *
@@ -387,8 +393,9 @@ export class RpcServer {
   public async getAssetBalance(
     address: string | Address | Contract,
     asset: Asset,
+    networkPassphrase?: string
   ): Promise<Api.BalanceResponse> {
-    let addr = "";
+    let addr: string = address as string;
 
     // Coalesce to a strkey
     if (typeof address === "string") {
@@ -414,7 +421,7 @@ export class RpcServer {
         },
       };
     } else if (StrKey.isValidContract(addr)) {
-      return this.getSACBalance(addr, asset);
+      return this.getSACBalance(addr, asset, networkPassphrase);
     }
 
     throw new Error(`invalid address: ${address}`);

@@ -6,7 +6,8 @@ import { serverUrl } from "../../../constants";
 const { Address, Keypair, xdr, nativeToScVal } = StellarSdk;
 const { Server } = StellarSdk.rpc;
 
-describe("Server#getSACBalance", () => {
+
+describe("Server#getSACBalance|getAssetBalance", () => {
   let server: any;
   let mockPost: any;
 
@@ -109,6 +110,14 @@ describe("Server#getSACBalance", () => {
       params: { keys: [ledgerKey.toXDR("base64")] },
     });
     expect(mockPost).toHaveBeenCalledTimes(1);
+
+    const assetResponse = await server.getAssetBalance(
+      contract,
+      token,
+      StellarSdk.Networks.TESTNET,
+    );
+    expect(assetResponse).to.deep.equal(response);
+    expect(mockPost).toHaveBeenCalledTimes(2);
   });
 
   it("infers the network passphrase", async () => {
