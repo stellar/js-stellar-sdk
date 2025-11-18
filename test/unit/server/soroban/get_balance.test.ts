@@ -6,7 +6,6 @@ import { serverUrl } from "../../../constants";
 const { Address, Keypair, xdr, nativeToScVal } = StellarSdk;
 const { Server } = StellarSdk.rpc;
 
-
 describe("Server#getSACBalance|getAssetBalance", () => {
   let server: any;
   let mockPost: any;

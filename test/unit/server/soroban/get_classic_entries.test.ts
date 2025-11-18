@@ -14,7 +14,7 @@ function expectLedgerEntryFound(
   call: () => Promise<any>,
   expectedType: any,
   expectedXDR: string,
-  times: number=1
+  times: number = 1,
 ) {
   const mockResponse = {
     data: {
@@ -167,13 +167,19 @@ describe("Server#getTrustline", () => {
       trustlineKeyXDR,
       trustlineEntryXDR,
       async () => {
-        const tl: Api.BalanceResponse = await server.getAssetBalance(account, asset);
+        const tl: Api.BalanceResponse = await server.getAssetBalance(
+          account,
+          asset,
+        );
         return new xdr.TrustLineEntry({
           accountId,
           asset: asset.toTrustLineXDRObject(),
           balance: xdr.Int64.fromString(tl.balanceEntry!.amount),
           limit: xdr.Int64.fromString("1000"),
-          flags: Number(tl.balanceEntry!.authorized) | Number(tl.balanceEntry!.clawback),
+          flags:
+            Number(tl.balanceEntry!.authorized) |
+            Number(tl.balanceEntry!.clawback) |
+            Number(tl.balanceEntry!.revocable!),
           ext: new (xdr.TrustLineEntryExt as any)(0),
         });
       },

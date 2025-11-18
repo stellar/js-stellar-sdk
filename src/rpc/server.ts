@@ -7,6 +7,7 @@ import {
   Asset,
   AuthClawbackEnabledFlag,
   AuthRequiredFlag,
+  AuthRevocableFlag,
   Contract,
   FeeBumpTransaction,
   Keypair,
@@ -393,7 +394,7 @@ export class RpcServer {
   public async getAssetBalance(
     address: string | Address | Contract,
     asset: Asset,
-    networkPassphrase?: string
+    networkPassphrase?: string,
   ): Promise<Api.BalanceResponse> {
     let addr: string = address as string;
 
@@ -403,7 +404,8 @@ export class RpcServer {
       addr = address.toString();
     } else if (address instanceof Contract) {
       addr = address.toString();
-    } else { // shouldn't happen, but be defensive
+    } else {
+      // shouldn't happen, but be defensive
       throw new TypeError(`invalid address: ${address}`);
     }
 
@@ -420,6 +422,7 @@ export class RpcServer {
           // Extract actual flags from the coalesced value.
           authorized: Boolean(tl.flags() & AuthRequiredFlag),
           clawback: Boolean(tl.flags() & AuthClawbackEnabledFlag),
+          revocable: Boolean(tl.flags() & AuthRevocableFlag),
         },
       };
     } else if (StrKey.isValidContract(addr)) {
