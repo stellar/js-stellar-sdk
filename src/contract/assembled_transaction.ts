@@ -457,6 +457,12 @@ export class AssembledTransaction<T> {
           contractId: this.options.contractId!,
           networkPassphrase: this.options.networkPassphrase!,
           rpcUrl: this.options.rpcUrl!,
+          signTransaction: this.options.signTransaction,
+          signAuthEntry: this.options.signAuthEntry,
+          allowHttp: this.options.allowHttp,
+          headers: this.options.headers,
+          errorTypes: this.options.errorTypes,
+          server: this.options.server,
         }
       };
     }
