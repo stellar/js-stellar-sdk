@@ -5,4 +5,3 @@ export * from "./rust_result";
 export * from "./sent_transaction";
 export * from "./spec";
 export * from "./types";
-export * from "./wasm_spec_parser";
