@@ -33,6 +33,21 @@ import {
 import { DEFAULT_TIMEOUT } from "./types";
 import { SentTransaction, Watcher } from "./sent_transaction";
 import type { Spec } from "./spec";
+import {
+  ExpiredStateError,
+  ExternalServiceError,
+  FakeAccountError,
+  InternalWalletError,
+  InvalidClientRequestError,
+  NeedsMoreSignaturesError,
+  NoSignatureNeededError,
+  NoSignerError,
+  NotYetSimulatedError,
+  NoUnsignedNonInvokerAuthEntriesError,
+  RestoreFailureError,
+  SimulationFailedError,
+  UserRejectedError,
+} from "./errors";
 
 /** @module contract */
 
@@ -317,19 +332,19 @@ export class AssembledTransaction<T> {
    * logic.
    */
   static Errors = {
-    ExpiredState: class ExpiredStateError extends Error {},
-    RestorationFailure: class RestoreFailureError extends Error {},
-    NeedsMoreSignatures: class NeedsMoreSignaturesError extends Error {},
-    NoSignatureNeeded: class NoSignatureNeededError extends Error {},
-    NoUnsignedNonInvokerAuthEntries: class NoUnsignedNonInvokerAuthEntriesError extends Error {},
-    NoSigner: class NoSignerError extends Error {},
-    NotYetSimulated: class NotYetSimulatedError extends Error {},
-    FakeAccount: class FakeAccountError extends Error {},
-    SimulationFailed: class SimulationFailedError extends Error {},
-    InternalWalletError: class InternalWalletError extends Error {},
-    ExternalServiceError: class ExternalServiceError extends Error {},
-    InvalidClientRequest: class InvalidClientRequestError extends Error {},
-    UserRejected: class UserRejectedError extends Error {},
+    ExpiredState: ExpiredStateError,
+    RestorationFailure: RestoreFailureError,
+    NeedsMoreSignatures: NeedsMoreSignaturesError,
+    NoSignatureNeeded: NoSignatureNeededError,
+    NoUnsignedNonInvokerAuthEntries: NoUnsignedNonInvokerAuthEntriesError,
+    NoSigner: NoSignerError,
+    NotYetSimulated: NotYetSimulatedError,
+    FakeAccount: FakeAccountError,
+    SimulationFailed: SimulationFailedError,
+    InternalWalletError,
+    ExternalServiceError,
+    InvalidClientRequest: InvalidClientRequestError,
+    UserRejected: UserRejectedError,
   };
 
   /**
@@ -660,7 +675,7 @@ export class AssembledTransaction<T> {
       if (!implementsToString(e)) throw e;
       const err = this.parseError(e.toString());
       if (err) return err as T;
-      throw e; // eslint-disable-line
+      throw e;
     }
   }
 
@@ -927,7 +942,7 @@ export class AssembledTransaction<T> {
     signAuthEntry?: ClientOptions["signAuthEntry"];
 
     /**
-     * If you have a pro use-case and need to override the default `authorizeEntry` function, rather than using the one in @stellar/stellar-base, you can do that! Your function needs to take at least the first argument, `entry: xdr.SorobanAuthorizationEntry`, and return a `Promise<xdr.SorobanAuthorizationEntry>`.
+     * If you have a pro use-case and need to override the default `authorizeEntry` function, rather than using the one in `@stellar/stellar-base`, you can do that! Your function needs to take at least the first argument, `entry: xdr.SorobanAuthorizationEntry`, and return a `Promise<xdr.SorobanAuthorizationEntry>`.
      *
      * Note that you if you pass this, then `signAuthEntry` will be ignored.
      */
@@ -961,7 +976,6 @@ export class AssembledTransaction<T> {
 
     const authEntries = rawInvokeHostFunctionOp.auth ?? [];
 
-    // eslint-disable-next-line no-restricted-syntax
     for (const [i, entry] of authEntries.entries()) {
       // workaround for https://github.com/stellar/js-stellar-sdk/issues/1070
       const credentials = xdr.SorobanCredentials.fromXDR(
@@ -974,7 +988,7 @@ export class AssembledTransaction<T> {
         // if the invoker/source account, then the entry doesn't need explicit
         // signature, since the tx envelope is already signed by the source
         // account, so only check for sorobanCredentialsAddress
-        continue; // eslint-disable-line no-continue
+        continue;
       }
       const authEntryAddress = Address.fromScAddress(
         credentials.address().address(),
@@ -982,11 +996,10 @@ export class AssembledTransaction<T> {
 
       // this auth entry needs to be signed by a different account
       // (or maybe already was!)
-      if (authEntryAddress !== address) continue; // eslint-disable-line no-continue
+      if (authEntryAddress !== address) continue;
 
       const sign: typeof signAuthEntry = signAuthEntry ?? Promise.resolve;
 
-      // eslint-disable-next-line no-await-in-loop
       authEntries[i] = await authorizeEntry(
         entry,
         async (preimage) => {
@@ -999,7 +1012,7 @@ export class AssembledTransaction<T> {
           this.handleWalletError(error);
           return Buffer.from(signedAuthEntry, "base64");
         },
-        await expiration, // eslint-disable-line no-await-in-loop
+        await expiration,
         this.options.client!.options.networkPassphrase,
       );
     }
@@ -1037,7 +1050,7 @@ export class AssembledTransaction<T> {
    *
    * @throws {Error} - Throws an error if no `signTransaction` function is provided during
    * Client initialization.
-   * @throws {AssembledTransaction.Errors.RestoreFailure} - Throws a custom error if the
+   * @throws {RestoreFailureError} - Throws a custom error if the
    * restore transaction fails, providing the details of the failure.
    */
   async restoreFootprint(

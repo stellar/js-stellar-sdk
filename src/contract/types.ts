@@ -7,8 +7,8 @@ import {
   Transaction,
   xdr,
 } from "@stellar/stellar-base";
-import { Client } from "./client";
 import type { SentTransaction } from "./sent_transaction";
+import type { Client } from "./client";
 import { Server } from "../rpc";
 
 export type XDR_BASE64 = string;

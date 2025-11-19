@@ -1,6 +1,6 @@
 {
   "name": "@stellar/stellar-sdk",
-  "version": "14.3.2",
+  "version": "14.3.3",
   "description": "A library for working with the Stellar network, including communication with the Horizon and Soroban RPC servers.",
   "keywords": [
     "stellar"
@@ -105,13 +105,13 @@
     "test:integration": "vitest run test/integration --config config/vitest.config.ts --coverage",
     "test:browser": "yarn build:browser && vitest run --config config/vitest.config.browser.ts test/unit --coverage",
     "test:browser:no-axios": "cross-env USE_AXIOS=false yarn build:browser && cross-env USE_AXIOS=false vitest run --config config/vitest.config.browser.ts test/unit",
-    "fmt": "yarn _prettier && yarn eslint -c .eslintrc.js src/ --fix",
+    "fmt": "yarn _prettier && yarn eslint src/ --fix",
     "preversion": "yarn clean && yarn _prettier && yarn build:prod && yarn test",
     "prepare": "yarn build:prod",
     "_build": "yarn build:node:all && yarn build:browser:all",
     "_babel": "babel --extensions '.ts' --out-dir ${OUTPUT_DIR:-lib} src/",
     "_nyc": "node node_modules/.bin/nyc --nycrc-path config/.nycrc",
-    "_prettier": "prettier --config config/prettier.config.js --ignore-path config/.prettierignore --write './src/**/*.ts' './test/**/*.{js,ts}'"
+    "_prettier": "prettier --ignore-path config/.prettierignore --write './src/**/*.ts' './test/**/*.{js,ts}'"
   },
   "husky": {
     "hooks": {
@@ -141,6 +141,7 @@
     "@babel/preset-typescript": "^7.26.0",
     "@babel/register": "^7.25.9",
     "@definitelytyped/dtslint": "^0.2.29",
+    "@eslint/compat": "^1.4.1",
     "@istanbuljs/nyc-config-babel": "3.0.0",
     "@stellar/tsconfig": "^1.0.2",
     "@types/detect-node": "^2.0.0",
@@ -150,7 +151,7 @@
     "@types/node": "^20.14.11",
     "@types/randombytes": "^2.0.1",
     "@types/urijs": "^1.19.20",
-    "@typescript-eslint/parser": "^7.16.1",
+    "@typescript-eslint/parser": "^8.46.4",
     "@vitest/browser": "^3.2.4",
     "@vitest/coverage-istanbul": "3.2.4",
     "@vitest/coverage-v8": "^3.2.4",
@@ -163,16 +164,14 @@
     "buffer": "^6.0.3",
     "cross-env": "^7.0.3",
     "dotenv": "^16.6.0",
-    "eslint": "^8.57.0",
-    "eslint-config-airbnb-base": "^15.0.0",
-    "eslint-config-airbnb-typescript": "^18.0.0",
-    "eslint-config-prettier": "^9.0.0",
+    "eslint": "^9.39.1",
+    "eslint-config-airbnb-extended": "^2.3.2",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-import-resolver-typescript": "^4.4.4",
     "eslint-plugin-import": "^2.32.0",
-    "eslint-plugin-jsdoc": "^48.8.0",
-    "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-prefer-import": "^0.0.1",
-    "eslint-plugin-prettier": "^5.5.1",
-    "eslint-webpack-plugin": "^4.2.0",
+    "eslint-plugin-jsdoc": "^61.1.12",
+    "eslint-plugin-prettier": "^5.5.4",
+    "eslint-webpack-plugin": "^5.0.2",
     "ghooks": "^2.0.4",
     "husky": "^9.1.6",
     "jsdoc": "^4.0.4",
@@ -189,6 +188,7 @@
     "terser-webpack-plugin": "^5.3.14",
     "ts-node": "^10.9.2",
     "typescript": "5.6.3",
+    "typescript-eslint": "^8.46.4",
     "vitest": "^3.2.4",
     "webpack": "^5.102.1",
     "webpack-cli": "^5.0.1"

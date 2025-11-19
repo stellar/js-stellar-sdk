@@ -1,3 +1,5 @@
+import type { Config } from "../config";
+
 export namespace Api {
   /**
    * Record returned from a federation server.

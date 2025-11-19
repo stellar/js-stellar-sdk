@@ -51,14 +51,14 @@ describe("server.js non-transaction tests", () => {
     });
 
     it("creates an HttpClient instance with the provided headers", () => {
-      let serverA = new Horizon.Server(
+      const serverA = new Horizon.Server(
         "https://horizon-live.stellar.org:1337",
         {
           headers: { "Custom-A": "test-value" },
         },
       ) as any;
 
-      let serverB = new Horizon.Server(
+      const serverB = new Horizon.Server(
         "https://horizon-live.stellar.org:1337",
         {
           headers: { "Custom-B": "test-value" },
@@ -379,7 +379,7 @@ describe("server.js non-transaction tests", () => {
   });
 
   describe("Server.loadAccount", () => {
-    //prettier-ignore
+    // prettier-ignore
     const accountResponse = {
       "_links": {
         "self": {

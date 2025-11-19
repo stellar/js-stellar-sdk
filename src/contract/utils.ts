@@ -65,7 +65,6 @@ export async function withExponentialBackoff<T>(
     count += 1;
     // Wait a beat
     if (verbose) {
-      // eslint-disable-next-line no-console
       console.info(
         `Waiting ${waitTime}ms before trying again (bringing the total wait time to ${totalWaitTime}ms so far, of total ${
           timeoutInSeconds * 1000
@@ -79,16 +78,14 @@ export async function withExponentialBackoff<T>(
     if (new Date(Date.now() + waitTime).valueOf() > waitUntil) {
       waitTime = waitUntil - Date.now();
       if (verbose) {
-        // eslint-disable-next-line no-console
         console.info(`was gonna wait too long; new waitTime: ${waitTime}ms`);
       }
     }
     totalWaitTime = waitTime + totalWaitTime;
     // Try again
-    // eslint-disable-next-line no-await-in-loop
+
     attempts.push(await fn(attempts[attempts.length - 1]));
     if (verbose && keepWaitingIf(attempts[attempts.length - 1])) {
-      // eslint-disable-next-line no-console
       console.info(
         `${count}. Called ${fn}; ${
           attempts.length
@@ -128,28 +125,9 @@ export function implementsToString(
   return typeof obj === "object" && obj !== null && "toString" in obj;
 }
 
-export async function specFromWasm(wasm: Buffer) {
-  let xdrSections: ArrayBuffer[] | undefined;
-
-  try {
-    const wasmModule = await WebAssembly.compile(wasm);
-    xdrSections = WebAssembly.Module.customSections(
-      wasmModule,
-      "contractspecv0",
-    );
-  } catch {
-    const customData = parseWasmCustomSections(wasm);
-    xdrSections = customData.get("contractspecv0");
-  }
-
-  if (!xdrSections || xdrSections.length === 0) {
-    throw new Error("Could not obtain contract spec from wasm");
-  }
-
-  return Buffer.from(xdrSections[0]);
-}
-
-function parseWasmCustomSections(buffer: Buffer): Map<string, Uint8Array[]> {
+export function parseWasmCustomSections(
+  buffer: Buffer,
+): Map<string, Uint8Array[]> {
   const sections = new Map<string, Uint8Array[]>();
   const arrayBuffer = buffer.buffer.slice(
     buffer.byteOffset,
@@ -165,7 +143,29 @@ function parseWasmCustomSections(buffer: Buffer): Map<string, Uint8Array[]> {
     offset += length;
     return bytes;
   };
-
+  /**
+   * Decodes a variable-length encoded unsigned 32-bit integer (LEB128 format) from the WASM binary.
+   *
+   * This function implements the WebAssembly LEB128 (Little Endian Base 128) variable-length
+   * encoding scheme for unsigned integers. In this encoding:
+   * - Each byte uses 7 bits for the actual value
+   * - The most significant bit (MSB) indicates if more bytes follow (1) or not (0)
+   * - Values are stored with the least significant bytes first
+   *
+   * @returns The decoded 32-bit unsigned integer
+   * @throws {Error} If the encoding is invalid or exceeds 32 bits
+   */
+  function readVarUint32(): number {
+    let value = 0;
+    let shift = 0;
+    while (true) {
+      const byte = read(1)[0]; // Read a single byte from the buffer
+      value |= (byte & 0x7f) << shift; // Extract 7 bits and shift to correct position
+      if ((byte & 0x80) === 0) break; // If MSB is 0, we've reached the last byte
+      if ((shift += 7) >= 32) throw new Error("Invalid WASM value"); // Ensure we don't exceed 32 bits
+    }
+    return value >>> 0; // Force conversion to unsigned 32-bit integer
+  }
   // Validate header
   if ([...read(4)].join() !== "0,97,115,109")
     throw new Error("Invalid WASM magic");
@@ -201,30 +201,6 @@ function parseWasmCustomSections(buffer: Buffer): Map<string, Uint8Array[]> {
     }
   }
 
-  /**
-   * Decodes a variable-length encoded unsigned 32-bit integer (LEB128 format) from the WASM binary.
-   *
-   * This function implements the WebAssembly LEB128 (Little Endian Base 128) variable-length
-   * encoding scheme for unsigned integers. In this encoding:
-   * - Each byte uses 7 bits for the actual value
-   * - The most significant bit (MSB) indicates if more bytes follow (1) or not (0)
-   * - Values are stored with the least significant bytes first
-   *
-   * @returns {number} The decoded 32-bit unsigned integer
-   * @throws {Error} If the encoding is invalid or exceeds 32 bits
-   */
-  function readVarUint32(): number {
-    let value = 0,
-      shift = 0;
-    while (true) {
-      const byte = read(1)[0]; // Read a single byte from the buffer
-      value |= (byte & 0x7f) << shift; // Extract 7 bits and shift to correct position
-      if ((byte & 0x80) === 0) break; // If MSB is 0, we've reached the last byte
-      if ((shift += 7) >= 32) throw new Error("Invalid WASM value"); // Ensure we don't exceed 32 bits
-    }
-    return value >>> 0; // Force conversion to unsigned 32-bit integer
-  }
-
   return sections;
 }
 
@@ -242,7 +218,6 @@ export function processSpecEntryStream(buffer: Buffer) {
   return res;
 }
 
-//eslint-disable-next-line require-await
 export async function getAccount<T>(
   options: AssembledTransactionOptions<T>,
   server: Server,

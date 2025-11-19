@@ -32,9 +32,6 @@ async function clientFromConstructor(
 
   const { path } = contracts[name];
   // TODO: use newer interface instead, `stellar contract info interface` (doesn't yet support xdr-base64-array output)
-  const inspected = run(
-    `${stellar} contract info --wasm ${path} --output xdr-base64-array`,
-  ).stdout;
 
   let wasmHash = contracts[name].hash;
   if (!wasmHash) {

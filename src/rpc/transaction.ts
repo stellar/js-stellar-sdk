@@ -66,7 +66,6 @@ export function assembleTransaction(
     throw new Error(`simulation incorrect: ${JSON.stringify(success)}`);
   }
 
-  /* eslint-disable radix */
   const classicFeeNum = parseInt(raw.fee) || 0;
   const minResourceFeeNum = parseInt(success.minResourceFee) || 0;
   const txnBuilder = TransactionBuilder.cloneFrom(raw, {
