@@ -12,7 +12,7 @@ import {
   Transaction,
   Networks,
 } from "@stellar/stellar-base";
-import { randomBytes } from "crypto";
+import randomBytes from "randombytes";
 import { InvalidChallengeError } from "./errors";
 import { gatherTxSigners, verifyTxSignedBy } from "./utils";
 import { Utils } from "../utils";
