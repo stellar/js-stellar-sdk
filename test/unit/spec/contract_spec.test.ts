@@ -340,14 +340,13 @@ describe("Can round trip custom types", () => {
         const actual = replaceBigIntWithStrings(result);
         assert.deepEqual(expected, actual);
       } catch (e) {
-        // eslint-disable-next-line no-console
         console.error(
           funcName,
           JSON.stringify(arg, null, 2),
 
           "\n",
           JSON.stringify(
-            //@ts-ignore
+            // @ts-ignore
             funcSpec.definitions![funcName].properties,
             null,
             2,
@@ -559,7 +558,7 @@ describe("Can round trip custom types", () => {
 describe.skip("Print contract spec", () => {
   it("print", () => {
     const res = JSON.stringify(SPEC.jsonSchema("complex"), null, 2);
-    // eslint-disable-next-line no-console
+
     console.log(`complex schema: ${res}`);
   });
 });

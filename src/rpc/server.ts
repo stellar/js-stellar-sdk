@@ -16,7 +16,7 @@ import {
 } from "@stellar/stellar-base";
 
 import type { TransactionBuilder } from "@stellar/stellar-base";
-// eslint-disable-next-line import/no-named-as-default
+import type { Config } from "../config";
 import { createHttpClient } from "./axios";
 import { Api as FriendbotApi } from "../friendbot";
 import * as jsonrpc from "./jsonrpc";
@@ -110,6 +110,7 @@ export namespace RpcServer {
 const DEFAULT_GET_TRANSACTION_TIMEOUT: number = 30;
 
 /// A strategy that will sleep 1 second each time
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const BasicSleepStrategy: SleepStrategy = (_iter: number) => 1000;
 
 /// A strategy that will sleep 1 second longer on each attempt
@@ -254,7 +255,7 @@ export class RpcServer {
     try {
       const resp = await this.getLedgerEntry(ledgerKey);
       return resp.val.account();
-    } catch (e) {
+    } catch {
       throw new Error(`Account not found: ${address}`);
     }
   }
@@ -294,7 +295,7 @@ export class RpcServer {
     try {
       const entry = await this.getLedgerEntry(trustlineLedgerKey);
       return entry.val.trustLine();
-    } catch (e) {
+    } catch {
       throw new Error(
         `Trustline for ${asset.getCode()}:${asset.getIssuer()} not found for ${account}`,
       );
@@ -353,7 +354,7 @@ export class RpcServer {
     try {
       const entry = await this.getLedgerEntry(trustlineLedgerKey);
       return entry.val.claimableBalance();
-    } catch (e) {
+    } catch {
       throw new Error(`Claimable balance ${id} not found`);
     }
   }
@@ -372,7 +373,7 @@ export class RpcServer {
    *   console.log("status:", health.status);
    * });
    */
-  // eslint-disable-next-line require-await
+
   public async getHealth(): Promise<Api.GetHealthResponse> {
     return jsonrpc.postObject<Api.GetHealthResponse>(
       this.httpClient,
@@ -412,7 +413,7 @@ export class RpcServer {
    *   console.log("latestLedger:", data.latestLedger);
    * });
    */
-  // eslint-disable-next-line require-await
+
   public async getContractData(
     contract: string | Address | Contract,
     key: xdr.ScVal,
@@ -454,7 +455,7 @@ export class RpcServer {
 
     try {
       return await this.getLedgerEntry(contractKey);
-    } catch (e) {
+    } catch {
       throw {
         code: 404,
         message: `Contract data not found for ${Address.fromScAddress(
@@ -491,7 +492,6 @@ export class RpcServer {
     const contractLedgerKey = new Contract(contractId).getFootprint();
     const response = await this.getLedgerEntries(contractLedgerKey);
     if (!response.entries.length || !response.entries[0]?.val) {
-      // eslint-disable-next-line prefer-promise-reject-errors
       return Promise.reject({
         code: 404,
         message: `Could not obtain contract hash from server`,
@@ -546,7 +546,6 @@ export class RpcServer {
 
     const responseWasm = await this.getLedgerEntries(ledgerKeyWasmHash);
     if (!responseWasm.entries.length || !responseWasm.entries[0]?.val) {
-      // eslint-disable-next-line prefer-promise-reject-errors
       return Promise.reject({
         code: 404,
         message: "Could not obtain contract wasm from server",
@@ -621,6 +620,7 @@ export class RpcServer {
    * transaction completion and return a definitive state of success or failure.
    *
    * @param {string} hash   the transaction you're polling for
+   * @param {[RpcServer.PollingOptions]} [opts] polling options
    * @param {number} [opts.attempts] (optional) the number of attempts to make
    *    before returning the last-seen status. By default or on invalid inputs,
    *    try 5 times.
@@ -683,7 +683,7 @@ export class RpcServer {
    *   console.log("resultXdr:", tx.resultXdr);
    * });
    */
-  // eslint-disable-next-line require-await
+
   public async getTransaction(
     hash: string,
   ): Promise<Api.GetTransactionResponse> {
@@ -711,7 +711,6 @@ export class RpcServer {
     });
   }
 
-  // eslint-disable-next-line require-await
   public async _getTransaction(
     hash: string,
   ): Promise<Api.RawGetTransactionResponse> {
@@ -813,14 +812,13 @@ export class RpcServer {
    *    limit: 10,
    * });
    */
-  // eslint-disable-next-line require-await
+
   public async getEvents(
     request: Api.GetEventsRequest,
   ): Promise<Api.GetEventsResponse> {
     return this._getEvents(request).then(parseRawEvents);
   }
 
-  // eslint-disable-next-line require-await
   public async _getEvents(
     request: Api.GetEventsRequest,
   ): Promise<Api.RawGetEventsResponse> {
@@ -859,7 +857,7 @@ export class RpcServer {
    *   console.log("protocolVersion:", network.protocolVersion);
    * });
    */
-  // eslint-disable-next-line require-await
+
   public async getNetwork(): Promise<Api.GetNetworkResponse> {
     return jsonrpc.postObject(
       this.httpClient,
@@ -884,7 +882,7 @@ export class RpcServer {
    *   console.log("protocolVersion:", response.protocolVersion);
    * });
    */
-  // eslint-disable-next-line require-await
+
   public async getLatestLedger(): Promise<Api.GetLatestLedgerResponse> {
     return jsonrpc.postObject(
       this.httpClient,
@@ -946,7 +944,7 @@ export class RpcServer {
    *   console.log("latestLedger:", sim.latestLedger);
    * });
    */
-  // eslint-disable-next-line require-await
+
   public async simulateTransaction(
     tx: Transaction | FeeBumpTransaction,
     addlResources?: RpcServer.ResourceLeeway,
@@ -957,7 +955,6 @@ export class RpcServer {
     );
   }
 
-  // eslint-disable-next-line require-await
   public async _simulateTransaction(
     transaction: Transaction | FeeBumpTransaction,
     addlResources?: RpcServer.ResourceLeeway,
@@ -1102,14 +1099,12 @@ export class RpcServer {
    *   console.log("errorResultXdr:", result.errorResultXdr);
    * });
    */
-  // eslint-disable-next-line require-await
   public async sendTransaction(
     transaction: Transaction | FeeBumpTransaction,
   ): Promise<Api.SendTransactionResponse> {
     return this._sendTransaction(transaction).then(parseRawSendTransaction);
   }
 
-  // eslint-disable-next-line require-await
   public async _sendTransaction(
     transaction: Transaction | FeeBumpTransaction,
   ): Promise<Api.RawSendTransactionResponse> {
@@ -1136,7 +1131,7 @@ export class RpcServer {
    *    account, or the existing account if it's already funded with the
    *    populated sequence number (note that the account will not be "topped
    *    off" if it already exists)
-   * @throws If Friendbot is not configured on this network or request failure
+   * @throws {Error} If Friendbot is not configured on this network or request failure
    *
    * @see {@link https://developers.stellar.org/docs/learn/fundamentals/networks#friendbot | Friendbot docs}
    * @see {@link module:Friendbot.Api.Response}
@@ -1199,7 +1194,6 @@ export class RpcServer {
    * @returns {Promise<Api.GetFeeStatsResponse>}  the fee stats
    * @see https://developers.stellar.org/docs/data/rpc/api-reference/methods/getFeeStats
    */
-  // eslint-disable-next-line require-await
   public async getFeeStats(): Promise<Api.GetFeeStatsResponse> {
     return jsonrpc.postObject(
       this.httpClient,
@@ -1214,7 +1208,6 @@ export class RpcServer {
    * @returns {Promise<Api.GetVersionInfoResponse>} the version info
    * @see https://developers.stellar.org/docs/data/rpc/api-reference/methods/getVersionInfo
    */
-  // eslint-disable-next-line require-await
   public async getVersionInfo(): Promise<Api.GetVersionInfoResponse> {
     return jsonrpc.postObject(
       this.httpClient,
@@ -1366,7 +1359,7 @@ export class RpcServer {
    *   limit: 5
    * });
    */
-  // eslint-disable-next-line require-await
+
   public async getLedgers(
     request: Api.GetLedgersRequest,
   ): Promise<Api.GetLedgersResponse> {
@@ -1383,7 +1376,6 @@ export class RpcServer {
     });
   }
 
-  // eslint-disable-next-line require-await
   public async _getLedgers(
     request: Api.GetLedgersRequest,
   ): Promise<Api.RawGetLedgersResponse> {

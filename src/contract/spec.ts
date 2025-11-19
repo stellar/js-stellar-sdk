@@ -8,7 +8,8 @@ import {
   scValToBigInt,
 } from "@stellar/stellar-base";
 import { Ok } from "./rust_result";
-import { specFromWasm, processSpecEntryStream } from "./utils";
+import { processSpecEntryStream } from "./utils";
+import { specFromWasm } from "./wasm_spec_parser";
 
 export interface Union<T> {
   tag: string;
@@ -169,8 +170,8 @@ const PRIMITIVE_DEFINITONS: { [key: string]: JSONSchema7Definition } = {
   },
 };
 
-/* eslint-disable default-case */
 /**
+ * Converts an XDR type definition to a JSON schema reference.
  * @param typeDef type to convert to json schema reference
  * @returns {JSONSchema7} a schema describing the type
  * @private
@@ -305,7 +306,6 @@ function typeRef(typeDef: xdr.ScSpecTypeDef): JSONSchema7 {
   }
   return { $ref: `#/definitions/${ref}` };
 }
-/* eslint-enable default-case */
 
 type Func = { input: JSONSchema7; output: JSONSchema7 };
 
@@ -392,7 +392,6 @@ function functionToJsonSchema(func: xdr.ScSpecFunctionV0): Func {
   };
 }
 
-/* eslint-disable default-case */
 function unionToJsonSchema(udt: xdr.ScSpecUdtUnionV0): any {
   const description = udt.doc().toString();
   const cases = udt.cases();
@@ -441,7 +440,6 @@ function unionToJsonSchema(udt: xdr.ScSpecUdtUnionV0): any {
   }
   return res;
 }
-/* eslint-enable default-case */
 
 /**
  * Provides a ContractSpec class which can contains the XDR types defined by the contract.
@@ -960,7 +958,7 @@ export class Spec {
     if (value === xdr.ScSpecType.scSpecTypeUdt().value) {
       return this.scValUdtToNative(scv, typeDef.udt());
     }
-    /* eslint-disable no-fallthrough*/
+
     // we use the verbose xdr.ScValType.<type>.value form here because it's faster
     // than string comparisons and the underlying constants never need to be
     // updated
@@ -1058,7 +1056,6 @@ export class Spec {
           )} to native type from type ${t.name}`,
         );
     }
-    /* eslint-enable no-fallthrough*/
   }
 
   private scValUdtToNative(scv: xdr.ScVal, udt: xdr.ScSpecTypeUdt): any {
@@ -1140,7 +1137,7 @@ export class Spec {
   /**
    * Gets the XDR error cases from the spec.
    *
-   * @returns {xdr.ScSpecFunctionV0[]} all contract functions
+   * @returns all contract functions
    *
    */
   errorCases(): xdr.ScSpecUdtErrorEnumCaseV0[] {
@@ -1165,7 +1162,7 @@ export class Spec {
    */
   jsonSchema(funcName?: string): JSONSchema7 {
     const definitions: { [key: string]: JSONSchema7Definition } = {};
-    /* eslint-disable default-case */
+
     this.entries.forEach((entry) => {
       switch (entry.switch().value) {
         case xdr.ScSpecEntryKind.scSpecEntryUdtEnumV0().value: {
@@ -1196,7 +1193,7 @@ export class Spec {
         }
       }
     });
-    /* eslint-enable default-case */
+
     const res: JSONSchema7 = {
       $schema: "http://json-schema.org/draft-07/schema#",
       definitions: { ...PRIMITIVE_DEFINITONS, ...definitions },
