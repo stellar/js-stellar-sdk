@@ -571,10 +571,11 @@ export namespace Api {
     latestLedger: number;
     /** present only on success, otherwise request malformed or no balance */
     balanceEntry?: {
-      /** a 64-bit integer */
+      /** a 64-bit integer for trustlines, 128-bit value for contracts */
       amount: string;
       authorized: boolean;
       clawback: boolean;
+      revocable?: boolean; // only present for trustlines
 
       lastModifiedLedgerSeq?: number;
       liveUntilLedgerSeq?: number;
