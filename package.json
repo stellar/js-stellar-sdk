@@ -21,8 +21,12 @@
   "files": [
     "/types",
     "/lib",
-    "/dist"
+    "/dist",
+    "/bin"
   ],
+  "bin": {
+    "stellar": "./bin/stellar"
+  },
   "exports": {
     ".": {
       "browser": "./dist/stellar-sdk.min.js",
@@ -197,6 +201,7 @@
     "@stellar/stellar-base": "^14.0.2",
     "axios": "^1.12.2",
     "bignumber.js": "^9.3.1",
+    "commander": "^14.0.2",
     "eventsource": "^2.0.2",
     "feaxios": "^0.0.23",
     "randombytes": "^2.1.0",

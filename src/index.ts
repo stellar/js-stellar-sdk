@@ -38,7 +38,7 @@ export * as rpc from "./rpc";
  * @private
  */
 export * as contract from "./contract";
-
+export * as bindings from "./bindings";
 // expose classes and functions from stellar-base
 export * from "@stellar/stellar-base";
 
