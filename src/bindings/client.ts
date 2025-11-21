@@ -207,7 +207,7 @@ export class Client extends ContractClient {
       case xdr.ScSpecType.scSpecTypeString():
         return "string";
       case xdr.ScSpecType.scSpecTypeSymbol():
-        return "symbol";
+        return "string";
       case xdr.ScSpecType.scSpecTypeAddress():
       case xdr.ScSpecType.scSpecTypeMuxedAddress():
         return "string";
