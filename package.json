@@ -25,7 +25,7 @@
     "/bin"
   ],
   "bin": {
-    "stellar": "./bin/stellar"
+    "stellar-js": "./bin/stellar-js"
   },
   "exports": {
     ".": {
