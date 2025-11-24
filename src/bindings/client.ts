@@ -179,9 +179,7 @@ export class Client extends ContractClient {
       );
     }
 
-    params.push(
-      "options?: { fee?: number; timeoutInSeconds?: number; simulate?: boolean; }",
-    );
+    params.push("options?: MethodOptions");
 
     return params.join(", ");
   }
