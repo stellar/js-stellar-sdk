@@ -43,22 +43,17 @@ export class TypeGenerator {
    * Generate all TypeScript type definitions
    */
   generate(): string {
-    const types: string[] = [];
-
     // Generate types for each entry in the spec
-    this.spec.entries.forEach((entry) => {
-      const generated = this.generateEntry(entry);
-      if (generated) {
-        types.push(generated);
-      }
-    });
-
+    const types = this.spec.entries
+      .map((entry) => this.generateEntry(entry))
+      .filter((t) => t)
+      .join("\n\n");
     // Generate imports for all types
     const imports = this.generateImports();
 
     return `${imports}
 
-    ${types.join("\n\n")}
+    ${types}
     `;
   }
 
