@@ -34,7 +34,7 @@ export function parseTypeFromTypeDef(typeDef: xdr.ScSpecTypeDef): string {
       return "string";
     case xdr.ScSpecType.scSpecTypeAddress():
     case xdr.ScSpecType.scSpecTypeMuxedAddress():
-      return "string";
+      return "string | Address";
     case xdr.ScSpecType.scSpecTypeVec(): {
       const vecType = parseTypeFromTypeDef(typeDef.vec().elementType());
       return `Array<${vecType}>`;
@@ -53,7 +53,7 @@ export function parseTypeFromTypeDef(typeDef: xdr.ScSpecTypeDef): string {
     }
     case xdr.ScSpecType.scSpecTypeOption(): {
       const optionType = parseTypeFromTypeDef(typeDef.option().valueType());
-      return `${optionType} | undefined`;
+      return `${optionType} | undefined | null`;
     }
     case xdr.ScSpecType.scSpecTypeResult(): {
       const okType = parseTypeFromTypeDef(typeDef.result().okType());
