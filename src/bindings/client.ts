@@ -1,6 +1,10 @@
 import { xdr } from "@stellar/stellar-base";
 import { Spec } from "../contract";
-import { parseTypeFromTypeDef, generateTypeImports } from "./utils";
+import {
+  parseTypeFromTypeDef,
+  generateTypeImports,
+  sanitizeName,
+} from "./utils";
 
 /**
  * Generates TypeScript client class for contract methods
@@ -113,7 +117,7 @@ export class Client extends ContractClient {
    * Generate interface method signature
    */
   private generateInterfaceMethod(func: xdr.ScSpecFunctionV0): string {
-    const name = func.name().toString();
+    const name = sanitizeName(func.name().toString());
     const inputs = func.inputs().map((input: any) => ({
       name: input.name().toString(),
       type: parseTypeFromTypeDef(input.type()),
@@ -157,10 +161,10 @@ export class Client extends ContractClient {
 
     const params = this.formatConstructorParameters(inputs);
     const inputsDestructure =
-      inputs.length > 0 ? `{ ${inputs.map((i) => i.name).join(", ")} }` : "";
+      inputs.length > 0 ? `{ ${inputs.map((i) => i.name).join(", ")} }, ` : "";
 
     return `  static deploy<T = Client>(${params}): Promise<AssembledTransaction<T>> {
-    return ContractClient.deploy(${inputs.length > 0 ? inputsDestructure + ", " : ""}options);
+    return ContractClient.deploy(${inputsDestructure}options);
   }`;
   }
 

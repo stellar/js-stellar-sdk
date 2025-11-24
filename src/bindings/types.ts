@@ -1,6 +1,10 @@
 import { xdr } from "@stellar/stellar-base";
 import { Spec } from "../contract";
-import { parseTypeFromTypeDef, generateTypeImports } from "./utils";
+import {
+  parseTypeFromTypeDef,
+  generateTypeImports,
+  sanitizeName,
+} from "./utils";
 
 /**
  * Interface for struct fields
@@ -132,7 +136,7 @@ export class TypeGenerator {
    * Generate TypeScript interface for a struct
    */
   private generateStruct(struct: xdr.ScSpecUdtStructV0): string {
-    const name = struct.name().toString();
+    const name = sanitizeName(struct.name().toString());
     const doc = struct.doc().toString() || `Struct: ${name}`;
 
     const fields = struct
@@ -161,7 +165,7 @@ ${fields}
    * Generate TypeScript union type
    */
   private generateUnion(union: xdr.ScSpecUdtUnionV0): string {
-    const name = union.name().toString();
+    const name = sanitizeName(union.name().toString());
     const doc = union.doc().toString() || `Union: ${name}`;
     const cases = union
       .cases()
@@ -187,7 +191,7 @@ ${caseTypes};`;
    * Generate TypeScript enum
    */
   private generateEnum(enumEntry: xdr.ScSpecUdtEnumV0): string {
-    const name = enumEntry.name().toString();
+    const name = sanitizeName(enumEntry.name().toString());
     const doc = enumEntry.doc().toString() || `Enum: ${name}`;
 
     const members = enumEntry
@@ -216,7 +220,7 @@ ${members}
    * Generate TypeScript error enum
    */
   private generateErrorEnum(errorEnum: xdr.ScSpecUdtErrorEnumV0): string {
-    const name = errorEnum.name().toString();
+    const name = sanitizeName(errorEnum.name().toString());
     const doc = errorEnum.doc().toString() || `Error Enum: ${name}`;
     const cases = errorEnum
       .cases()

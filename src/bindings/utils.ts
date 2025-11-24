@@ -61,7 +61,7 @@ export function parseTypeFromTypeDef(typeDef: xdr.ScSpecTypeDef): string {
       return `Result<${okType}, ${errorType}>`;
     }
     case xdr.ScSpecType.scSpecTypeUdt():
-      const udtName = typeDef.udt().name().toString();
+      const udtName = sanitizeName(typeDef.udt().name().toString());
       return udtName;
     default:
       return "unknown";
@@ -92,7 +92,7 @@ export function generateTypeImports(
     switch (typeDef.switch()) {
       case xdr.ScSpecType.scSpecTypeUdt():
         // These are contract interfaces/structs/enums/errors that need to imported from types.ts
-        typeFileImports.add(typeDef.udt().name().toString());
+        typeFileImports.add(sanitizeName(typeDef.udt().name().toString()));
         break;
       case xdr.ScSpecType.scSpecTypeAddress():
       case xdr.ScSpecType.scSpecTypeMuxedAddress():
@@ -185,4 +185,80 @@ export function generateTypeImports(
     stellarImports: Array.from(stellarImports),
     needsBufferImport,
   };
+}
+
+/**
+ * Sanitize a name to avoid reserved keywords
+ * @param name
+ * @returns
+ */
+export function sanitizeName(name: string): string {
+  if (isNameReserved(name)) {
+    // Append underscore to reserved
+    return name + "_";
+  }
+  return name;
+}
+export function isNameReserved(name: string): boolean {
+  const reservedNames = [
+    // Keywords
+    "break",
+    "case",
+    "catch",
+    "class",
+    "const",
+    "continue",
+    "debugger",
+    "default",
+    "delete",
+    "do",
+    "else",
+    "export",
+    "extends",
+    "finally",
+    "for",
+    "function",
+    "if",
+    "import",
+    "in",
+    "instanceof",
+    "new",
+    "return",
+    "super",
+    "switch",
+    "this",
+    "throw",
+    "try",
+    "typeof",
+    "var",
+    "void",
+    "while",
+    "with",
+    "yield",
+    // Future reserved words
+    "enum",
+    // Strict mode reserved words
+    "implements",
+    "interface",
+    "let",
+    "package",
+    "private",
+    "protected",
+    "public",
+    "static",
+    // Contextual keywords
+    "async",
+    "await",
+    "constructor",
+    // Literals
+    "null",
+    "true",
+    "false",
+  ];
+  return reservedNames.includes(name);
+}
+export class test {
+  extends() {
+    return;
+  }
 }
