@@ -1,12 +1,12 @@
 import { xdr } from "@stellar/stellar-base";
 import { Spec } from "../contract";
+import { parseTypeFromTypeDef, generateTypeImports } from "./utils";
 
 /**
  * Generates TypeScript client class for contract methods
  */
 export class ClientGenerator {
   private spec: Spec;
-  private interfaceImports: Set<string> = new Set<string>();
 
   constructor(spec: Spec) {
     this.spec = spec;
@@ -32,11 +32,7 @@ export class ClientGenerator {
       .map((func) => this.generateInterfaceMethod(func))
       .join("\n");
 
-    // Build imports
-    const typeImports =
-      Array.from(this.interfaceImports).length > 0
-        ? `import { ${Array.from(this.interfaceImports).join(", ")} } from './types.js';`
-        : "";
+    const imports = this.generateImports();
 
     const specEntries = this.spec.entries.map(
       (entry) => `"${entry.toXDR("base64")}"`,
@@ -48,16 +44,8 @@ export class ClientGenerator {
       .map((func) => this.generateFromJSONMethod(func))
       .join(",");
 
-    return `import {
-  AssembledTransaction,
-  Client as ContractClient,
-  ClientOptions as ContractClientOptions,
-  Result,
-  MethodOptions,
-  Spec,
-} from '@stellar/stellar-sdk/contract';
-${typeImports}
-import { Buffer } from 'buffer';
+    return `${imports}
+
 export interface Client {
 ${interfaceMethods}
 }
@@ -77,18 +65,62 @@ export class Client extends ContractClient {
 }`;
   }
 
+  private generateImports(): string {
+    const { stellarContractImports, typeFileImports, stellarImports } =
+      generateTypeImports(
+        this.spec.funcs().flatMap((func) => {
+          const inputs = func.inputs();
+          const outputs = func.outputs();
+          const defs = inputs.map((input) => input.type()).concat(outputs);
+          return defs;
+        }),
+      );
+    // Ensure necessary imports for Client class
+    stellarContractImports.push(
+      "Spec",
+      "AssembledTransaction",
+      "Client as ContractClient",
+      "ClientOptions as ContractClientOptions",
+      "MethodOptions",
+    );
+    // Build imports
+    const importLines: string[] = [];
+    if (typeFileImports.length > 0) {
+      importLines.push(
+        `import {\n${typeFileImports.join(",\n")}\n} from './types.js';`,
+      );
+    }
+    if (stellarContractImports.length > 0) {
+      importLines.push(
+        `import {\n${stellarContractImports.join(
+          ",\n",
+        )}\n} from '@stellar/stellar-sdk/contract';`,
+      );
+    }
+    if (stellarImports.length > 0) {
+      importLines.push(
+        `import {\n${stellarImports.join(
+          ",\n",
+        )}\n} from '@stellar/stellar-sdk';`,
+      );
+    }
+    importLines.push(`import { Buffer } from 'buffer';`);
+    const imports = importLines.join("\n");
+    return imports;
+  }
+
   /**
    * Generate interface method signature
    */
-  private generateInterfaceMethod(func: any): string {
+  private generateInterfaceMethod(func: xdr.ScSpecFunctionV0): string {
     const name = func.name().toString();
     const inputs = func.inputs().map((input: any) => ({
       name: input.name().toString(),
-      type: this.generateTypeFromTypeDef(input.type()),
+      type: parseTypeFromTypeDef(input.type()),
     }));
     const outputType =
       func.outputs().length > 0
-        ? this.generateTypeFromTypeDef(func.outputs()[0])
+        ? parseTypeFromTypeDef(func.outputs()[0])
         : "void";
 
     const params = this.formatMethodParameters(inputs);
@@ -96,11 +128,11 @@ export class Client extends ContractClient {
     return `  ${name}(${params}): Promise<AssembledTransaction<${outputType}>>;`;
   }
 
-  private generateFromJSONMethod(func: any): string {
+  private generateFromJSONMethod(func: xdr.ScSpecFunctionV0): string {
     const name = func.name().toString();
     const outputType =
       func.outputs().length > 0
-        ? this.generateTypeFromTypeDef(func.outputs()[0])
+        ? parseTypeFromTypeDef(func.outputs()[0])
         : "void";
 
     return `  ${name} : this.txFromJSON<${outputType}>`;
@@ -120,7 +152,7 @@ export class Client extends ContractClient {
     }
     const inputs = constructorFunc.inputs().map((input: any) => ({
       name: input.name().toString(),
-      type: this.generateTypeFromTypeDef(input.type()),
+      type: parseTypeFromTypeDef(input.type()),
     }));
 
     const params = this.formatConstructorParameters(inputs);
@@ -174,82 +206,5 @@ export class Client extends ContractClient {
     );
 
     return params.join(", ");
-  }
-
-  /**
-   * Generate TypeScript type from XDR type definition
-   */
-  private generateTypeFromTypeDef(typeDef: xdr.ScSpecTypeDef): string {
-    switch (typeDef.switch()) {
-      case xdr.ScSpecType.scSpecTypeVal():
-        return "xdr.ScVal";
-      case xdr.ScSpecType.scSpecTypeBool():
-        return "boolean";
-      case xdr.ScSpecType.scSpecTypeVoid():
-        return "void";
-      case xdr.ScSpecType.scSpecTypeError():
-        return "Error";
-      case xdr.ScSpecType.scSpecTypeU32():
-      case xdr.ScSpecType.scSpecTypeI32():
-        return "number";
-      case xdr.ScSpecType.scSpecTypeU64():
-      case xdr.ScSpecType.scSpecTypeI64():
-      case xdr.ScSpecType.scSpecTypeTimepoint():
-      case xdr.ScSpecType.scSpecTypeDuration():
-      case xdr.ScSpecType.scSpecTypeU128():
-      case xdr.ScSpecType.scSpecTypeI128():
-      case xdr.ScSpecType.scSpecTypeU256():
-      case xdr.ScSpecType.scSpecTypeI256():
-        return "bigint";
-      case xdr.ScSpecType.scSpecTypeBytes():
-      case xdr.ScSpecType.scSpecTypeBytesN():
-        return "Buffer";
-      case xdr.ScSpecType.scSpecTypeString():
-        return "string";
-      case xdr.ScSpecType.scSpecTypeSymbol():
-        return "string";
-      case xdr.ScSpecType.scSpecTypeAddress():
-      case xdr.ScSpecType.scSpecTypeMuxedAddress():
-        return "string";
-      case xdr.ScSpecType.scSpecTypeVec(): {
-        const vecType = this.generateTypeFromTypeDef(
-          typeDef.vec().elementType(),
-        );
-        return `Array<${vecType}>`;
-      }
-      case xdr.ScSpecType.scSpecTypeMap(): {
-        const keyType = this.generateTypeFromTypeDef(typeDef.map().keyType());
-        const valueType = this.generateTypeFromTypeDef(
-          typeDef.map().valueType(),
-        );
-        return `Map<${keyType}, ${valueType}>`;
-      }
-      case xdr.ScSpecType.scSpecTypeTuple(): {
-        const tupleTypes = typeDef
-          .tuple()
-          .valueTypes()
-          .map((t: xdr.ScSpecTypeDef) => this.generateTypeFromTypeDef(t));
-        return `[${tupleTypes.join(", ")}]`;
-      }
-      case xdr.ScSpecType.scSpecTypeOption(): {
-        const optionType = this.generateTypeFromTypeDef(
-          typeDef.option().valueType(),
-        );
-        return `${optionType} | undefined`;
-      }
-      case xdr.ScSpecType.scSpecTypeResult(): {
-        const okType = this.generateTypeFromTypeDef(typeDef.result().okType());
-        const errorType = this.generateTypeFromTypeDef(
-          typeDef.result().errorType(),
-        );
-        return `Result<${okType}, ${errorType}>`;
-      }
-      case xdr.ScSpecType.scSpecTypeUdt():
-        const udtName = typeDef.udt().name().toString();
-        this.interfaceImports.add(udtName);
-        return udtName;
-      default:
-        return "unknown";
-    }
   }
 }
