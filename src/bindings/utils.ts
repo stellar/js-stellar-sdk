@@ -10,7 +10,7 @@ export function parseTypeFromTypeDef(typeDef: xdr.ScSpecTypeDef): string {
     case xdr.ScSpecType.scSpecTypeBool():
       return "boolean";
     case xdr.ScSpecType.scSpecTypeVoid():
-      return "void";
+      return "undefined | null";
     case xdr.ScSpecType.scSpecTypeError():
       return "Error";
     case xdr.ScSpecType.scSpecTypeU32():
