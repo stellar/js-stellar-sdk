@@ -2,7 +2,7 @@ import { Spec } from "../contract";
 import { ConfigGenerator } from "./config";
 import { TypeGenerator } from "./types";
 import { ClientGenerator } from "./client";
-import { specFromWasm } from "../contract/utils";
+import { specFromWasm } from "../contract/wasm_spec_parser";
 
 // import { format } from "prettier/standalone";
 // import * as prettierPluginTypeScript from "prettier/plugins/typescript";
