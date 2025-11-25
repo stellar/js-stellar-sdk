@@ -79,8 +79,6 @@ export async function writeBindings(
   }
 
   // Create output directory
-  await fs.mkdir(outputDir, { recursive: true });
-
   await fs.mkdir(path.join(outputDir, "src"), { recursive: true });
 
   // Write all files
@@ -94,7 +92,7 @@ export async function writeBindings(
   ];
 
   // Only write types file if it's not empty
-  if (bindings.types && bindings.types.trim() !== "") {
+  if (bindings.types.trim() !== "") {
     writePromises.push(
       fs.writeFile(path.join(outputDir, "src/types.ts"), bindings.types),
     );
