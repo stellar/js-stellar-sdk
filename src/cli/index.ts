@@ -4,7 +4,12 @@ import * as path from "path";
 import { BindingGenerator } from "../bindings/generator";
 import { WasmFetchError } from "../bindings/wasm_fetcher";
 import { Spec } from "../contract/spec";
-import { fetchWasm, generateAndWrite } from "./util";
+import {
+  deriveContractName,
+  fetchWasm,
+  generateAndWrite,
+  logSourceInfo,
+} from "./util";
 import { SAC_SPEC } from "../bindings";
 import { Networks } from "@stellar/stellar-base";
 
@@ -118,47 +123,6 @@ function runCli() {
       }
     });
   program.parse();
-}
-
-/**
- * Log information about the contract source
- */
-function logSourceInfo(source: any): void {
-  console.log("\nSource:");
-  switch (source.type) {
-    case "file":
-      console.log(`  Type: Local file`);
-      console.log(`  Path: ${source.path}`);
-      break;
-    case "wasm-hash":
-      console.log(`  Type: WASM hash`);
-      console.log(`  Hash: ${source.hash}`);
-      console.log(`  RPC: ${source.rpcUrl}`);
-      console.log(`  Network: ${source.networkPassphrase}`);
-      break;
-    case "contract-id":
-      console.log(`  Type: Contract ID`);
-      console.log(`  Address: ${source.resolvedAddress}`);
-      console.log(`  RPC: ${source.rpcUrl}`);
-      console.log(`  Network: ${source.networkPassphrase}`);
-      break;
-  }
-}
-
-/**
- * Derive a contract name from the source
- */
-function deriveContractName(source: any): string | null {
-  if (source.type === "file") {
-    const basename = path.basename(source.path, path.extname(source.path));
-    // Convert kebab-case or snake_case to PascalCase
-    return basename
-      .split(/[-_]/)
-      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-      .join("");
-  }
-
-  return null;
 }
 
 export { runCli };

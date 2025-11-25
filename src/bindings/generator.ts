@@ -108,7 +108,7 @@ export class BindingGenerator {
   /**
    * Generate TypeScript bindings (returns strings, does not write to disk)
    */
-  async generate(options: GenerateOptions): Promise<GeneratedBindings> {
+  generate(options: GenerateOptions): GeneratedBindings {
     this.validateOptions(options);
 
     // Generate type and client code using template strings (no ts-morph!)

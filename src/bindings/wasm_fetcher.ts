@@ -108,6 +108,17 @@ async function getRemoteWasmFromHash(
 }
 
 /**
+ * Check if a contract is a Stellar Asset Contract
+ */
+function isStellarAssetContract(instance: xdr.ScContractInstance): boolean {
+  // Check if it's a Stellar Asset Contract (has no WASM hash)
+  return (
+    instance.executable().switch() ===
+    xdr.ContractExecutableType.contractExecutableStellarAsset()
+  );
+}
+
+/**
  * Fetch WASM bytes from a deployed contract
  */
 async function fetchWasmFromContract(
@@ -173,17 +184,6 @@ async function fetchWasmFromContract(
 }
 
 /**
- * Check if a contract is a Stellar Asset Contract
- */
-function isStellarAssetContract(instance: xdr.ScContractInstance): boolean {
-  // Check if it's a Stellar Asset Contract (has no WASM hash)
-  return (
-    instance.executable().switch() ===
-    xdr.ContractExecutableType.contractExecutableStellarAsset()
-  );
-}
-
-/**
  * Fetch WASM from network using WASM hash
  */
 export async function fetchFromWasmHash(
@@ -246,11 +246,7 @@ export async function fetchFromContractId(
     const contractAddress = Address.fromString(contractId);
 
     // Try to get WASM from contract
-    try {
-      return await fetchWasmFromContract(server, contractAddress);
-    } catch (error) {
-      throw error;
-    }
+    return await fetchWasmFromContract(server, contractAddress);
   } catch (error) {
     throw new WasmFetchError(
       `Failed to fetch WASM from contract ${contractId}`,

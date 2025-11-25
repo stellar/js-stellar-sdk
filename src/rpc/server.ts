@@ -398,9 +398,9 @@ export class RpcServer {
     networkPassphrase?: string,
   ): Promise<Api.BalanceResponse> {
     let addr: string = address as string;
-
     // Coalesce to a strkey
     if (typeof address === "string") {
+      addr = address;
     } else if (address instanceof Address) {
       addr = address.toString();
     } else if (address instanceof Contract) {

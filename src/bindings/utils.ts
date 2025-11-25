@@ -1,4 +1,74 @@
 import { xdr } from "@stellar/stellar-base";
+export function isNameReserved(name: string): boolean {
+  const reservedNames = [
+    // Keywords
+    "break",
+    "case",
+    "catch",
+    "class",
+    "const",
+    "continue",
+    "debugger",
+    "default",
+    "delete",
+    "do",
+    "else",
+    "export",
+    "extends",
+    "finally",
+    "for",
+    "function",
+    "if",
+    "import",
+    "in",
+    "instanceof",
+    "new",
+    "return",
+    "super",
+    "switch",
+    "this",
+    "throw",
+    "try",
+    "typeof",
+    "var",
+    "void",
+    "while",
+    "with",
+    "yield",
+    // Future reserved words
+    "enum",
+    // Strict mode reserved words
+    "implements",
+    "interface",
+    "let",
+    "package",
+    "private",
+    "protected",
+    "public",
+    "static",
+    // Contextual keywords
+    "async",
+    "await",
+    "constructor",
+    // Literals
+    "null",
+    "true",
+    "false",
+  ];
+  return reservedNames.includes(name);
+}
+/**
+ * Sanitize a name to avoid reserved keywords
+ * @param name
+ * @returns
+ */
+export function sanitizeName(name: string): string {
+  if (isNameReserved(name)) {
+    // Append underscore to reserved
+    return name + "_";
+  }
+  return name;
+}
 
 /**
  * Generate TypeScript type from XDR type definition
@@ -60,9 +130,10 @@ export function parseTypeFromTypeDef(typeDef: xdr.ScSpecTypeDef): string {
       const errorType = parseTypeFromTypeDef(typeDef.result().errorType());
       return `Result<${okType}, ${errorType}>`;
     }
-    case xdr.ScSpecType.scSpecTypeUdt():
+    case xdr.ScSpecType.scSpecTypeUdt(): {
       const udtName = sanitizeName(typeDef.udt().name().toString());
       return udtName;
+    }
     default:
       return "unknown";
   }
@@ -185,77 +256,6 @@ export function generateTypeImports(
     stellarImports: Array.from(stellarImports),
     needsBufferImport,
   };
-}
-
-/**
- * Sanitize a name to avoid reserved keywords
- * @param name
- * @returns
- */
-export function sanitizeName(name: string): string {
-  if (isNameReserved(name)) {
-    // Append underscore to reserved
-    return name + "_";
-  }
-  return name;
-}
-export function isNameReserved(name: string): boolean {
-  const reservedNames = [
-    // Keywords
-    "break",
-    "case",
-    "catch",
-    "class",
-    "const",
-    "continue",
-    "debugger",
-    "default",
-    "delete",
-    "do",
-    "else",
-    "export",
-    "extends",
-    "finally",
-    "for",
-    "function",
-    "if",
-    "import",
-    "in",
-    "instanceof",
-    "new",
-    "return",
-    "super",
-    "switch",
-    "this",
-    "throw",
-    "try",
-    "typeof",
-    "var",
-    "void",
-    "while",
-    "with",
-    "yield",
-    // Future reserved words
-    "enum",
-    // Strict mode reserved words
-    "implements",
-    "interface",
-    "let",
-    "package",
-    "private",
-    "protected",
-    "public",
-    "static",
-    // Contextual keywords
-    "async",
-    "await",
-    "constructor",
-    // Literals
-    "null",
-    "true",
-    "false",
-  ];
-  return reservedNames.includes(name);
 }
 
 export function formatJSDocComment(comment: string, indentLevel = 0): string {

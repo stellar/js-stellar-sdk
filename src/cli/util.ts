@@ -35,22 +35,6 @@ export async function fromWasmFile(wasmPath: string): Promise<Buffer> {
 }
 
 /**
- * Generate TypeScript bindings and write to disk (Node.js only)
- */
-export async function generateAndWrite(
-  generator: BindingGenerator,
-  options: GenerateAndWriteOptions,
-): Promise<void> {
-  const { outputDir, overwrite = false, ...genOptions } = options;
-
-  // Generate bindings
-  const bindings = await generator.generate(genOptions);
-
-  // Write to disk
-  await writeBindings(outputDir, bindings, overwrite);
-}
-
-/**
  * Write generated bindings to disk (Node.js only)
  */
 export async function writeBindings(
@@ -100,6 +84,21 @@ export async function writeBindings(
 
   await Promise.all(writePromises);
 }
+/**
+ * Generate TypeScript bindings and write to disk (Node.js only)
+ */
+export async function generateAndWrite(
+  generator: BindingGenerator,
+  options: GenerateAndWriteOptions,
+): Promise<void> {
+  const { outputDir, overwrite = false, ...genOptions } = options;
+
+  // Generate bindings
+  const bindings = generator.generate(genOptions);
+
+  // Write to disk
+  await writeBindings(outputDir, bindings, overwrite);
+}
 
 /**
  * Fetches contract WASM from local file, network hash, or contract ID
@@ -113,7 +112,6 @@ export async function fetchWasm(args: WasmFetchArgs): Promise<FetchedContract> {
     );
   }
   if (sources.length > 1) {
-    ``;
     throw new WasmFetchError(
       "Must provide only one of the following: --wasm, --wasm-hash, or --contract-id",
     );
@@ -159,4 +157,45 @@ export async function fetchWasm(args: WasmFetchArgs): Promise<FetchedContract> {
   }
 
   throw new WasmFetchError("Invalid arguments provided");
+}
+
+/**
+ * Log information about the contract source
+ */
+export function logSourceInfo(source: any): void {
+  console.log("\nSource:");
+  switch (source.type) {
+    case "file":
+      console.log(`  Type: Local file`);
+      console.log(`  Path: ${source.path}`);
+      break;
+    case "wasm-hash":
+      console.log(`  Type: WASM hash`);
+      console.log(`  Hash: ${source.hash}`);
+      console.log(`  RPC: ${source.rpcUrl}`);
+      console.log(`  Network: ${source.networkPassphrase}`);
+      break;
+    case "contract-id":
+      console.log(`  Type: Contract ID`);
+      console.log(`  Address: ${source.resolvedAddress}`);
+      console.log(`  RPC: ${source.rpcUrl}`);
+      console.log(`  Network: ${source.networkPassphrase}`);
+      break;
+  }
+}
+
+/**
+ * Derive a contract name from the source
+ */
+export function deriveContractName(source: any): string | null {
+  if (source.type === "file") {
+    const basename = path.basename(source.path, path.extname(source.path));
+    // Convert kebab-case or snake_case to PascalCase
+    return basename
+      .split(/[-_]/)
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+      .join("");
+  }
+
+  return null;
 }
