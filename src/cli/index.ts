@@ -6,6 +6,7 @@ import { WasmFetchError } from "../bindings/wasm_fetcher";
 import { Spec } from "../contract/spec";
 import { fetchWasm, generateAndWrite } from "./util";
 import { SAC_SPEC } from "../bindings";
+import { Networks } from "@stellar/stellar-base";
 
 function runCli() {
   const program = new Command();
@@ -23,7 +24,10 @@ function runCli() {
     .option("--wasm-hash <hash>", "Hash of WASM blob on network")
     .option("--contract-id <id>", "Contract ID on network")
     .option("--rpc-url <url>", "RPC server URL")
-    .option("--network-passphrase <passphrase>", "Network passphrase")
+    .option(
+      "--network <network>",
+      "Network options to use: testnet, mainnet, or futurenet",
+    )
     .option("--output-dir <dir>", "Output directory for generated bindings")
     .option(
       "--contract-name <name>",
@@ -32,6 +36,26 @@ function runCli() {
     .option("--overwrite", "Overwrite existing files", false)
     .action(async (options) => {
       try {
+        // Map network to passphrase
+        let networkPassphrase: string | undefined;
+        if (options.network) {
+          const network = options.network.toLowerCase();
+          switch (network) {
+            case "testnet":
+              networkPassphrase = Networks.TESTNET;
+              break;
+            case "mainnet":
+              networkPassphrase = Networks.PUBLIC;
+              break;
+            case "futurenet":
+              networkPassphrase = Networks.FUTURENET;
+              break;
+            default:
+              throw new Error(
+                `\n✗ Invalid network: ${options.network}. Must be testnet, mainnet, or futurenet`,
+              );
+          }
+        }
         if (options.outputDir === undefined) {
           throw new Error("Output directory (--output-dir) is required");
         }
@@ -40,7 +64,7 @@ function runCli() {
           wasmHash: options.wasmHash,
           contractId: options.contractId,
           rpcUrl: options.rpcUrl,
-          networkPassphrase: options.networkPassphrase,
+          networkPassphrase,
         });
         console.log("Fetching contract WASM...");
 
@@ -72,7 +96,7 @@ function runCli() {
           overwrite: options.overwrite,
           contractAddress: options.contractId,
           rpcUrl: options.rpcUrl,
-          networkPassphrase: options.networkPassphrase,
+          networkPassphrase,
         });
 
         console.log(
