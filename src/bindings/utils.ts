@@ -80,7 +80,7 @@ export function parseTypeFromTypeDef(typeDef: xdr.ScSpecTypeDef): string {
     case xdr.ScSpecType.scSpecTypeBool():
       return "boolean";
     case xdr.ScSpecType.scSpecTypeVoid():
-      return "undefined | null";
+      return "null";
     case xdr.ScSpecType.scSpecTypeError():
       return "Error";
     case xdr.ScSpecType.scSpecTypeU32():
@@ -123,7 +123,7 @@ export function parseTypeFromTypeDef(typeDef: xdr.ScSpecTypeDef): string {
     }
     case xdr.ScSpecType.scSpecTypeOption(): {
       const optionType = parseTypeFromTypeDef(typeDef.option().valueType());
-      return `${optionType} | undefined | null`;
+      return `${optionType} | null`;
     }
     case xdr.ScSpecType.scSpecTypeResult(): {
       const okType = parseTypeFromTypeDef(typeDef.result().okType());
