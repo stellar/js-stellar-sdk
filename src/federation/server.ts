@@ -1,4 +1,3 @@
-/* eslint-disable require-await */
 import { StrKey } from "@stellar/stellar-base";
 import URI from "urijs";
 
@@ -71,7 +70,7 @@ export class FederationServer {
    * @param {string} value Stellar Address (ex. `bob*stellar.org`)
    * @param {object} [opts] Options object
    * @returns {Promise<module:Federation.Api.Record>} A promise that resolves to the federation record
-   * @throws Will throw an error if the provided account ID is not a valid Ed25519 public key.
+   * @throws {Error} Will throw an error if the provided account ID is not a valid Ed25519 public key.
    */
   public static async resolve(
     value: string,
@@ -119,7 +118,7 @@ export class FederationServer {
    * @param {string} domain Domain to get federation server for
    * @param {module:Federation.Api.Options} [opts] Options object
    * @returns {Promise<module:Federation.Api.Record>} A promise that resolves to the federation record
-   * @throws Will throw an error if the domain's stellar.toml file does not contain a federation server field.
+   * @throws {Error} Will throw an error if the domain's stellar.toml file does not contain a federation server field.
    */
   public static async createForDomain(
     domain: string,
@@ -161,7 +160,7 @@ export class FederationServer {
    * @see <a href="https://developers.stellar.org/docs/encyclopedia/federation" target="_blank">Federation doc</a>
    * @param {string} address Stellar address (ex. `bob*stellar.org`). If `FederationServer` was instantiated with `domain` param only username (ex. `bob`) can be passed.
    * @returns {Promise<module:Federation.Api.Record>} A promise that resolves to the federation record
-   * @throws Will throw an error if the federated address does not contain a domain, or if the server object was not instantiated with a `domain` parameter
+   * @throws {Error} Will throw an error if the federated address does not contain a domain, or if the server object was not instantiated with a `domain` parameter
    */
   public async resolveAddress(address: string): Promise<Api.Record> {
     let stellarAddress = address;
@@ -184,8 +183,8 @@ export class FederationServer {
    * @see <a href="https://developers.stellar.org/docs/encyclopedia/federation" target="_blank">Federation doc</a>
    * @param {string} accountId Account ID (ex. `GBYNR2QJXLBCBTRN44MRORCMI4YO7FZPFBCNOKTOBCAAFC7KC3LNPRYS`)
    * @returns {Promise<module:Federation.Api.Record>} A promise that resolves to the federation record
-   * @throws Will throw an error if the federation server returns an invalid memo value.
-   * @throws Will throw an error if the federation server's response exceeds the allowed maximum size.
+   * @throws {Error} Will throw an error if the federation server returns an invalid memo value.
+   * @throws {Error} Will throw an error if the federation server's response exceeds the allowed maximum size.
    * @throws {BadResponseError} Will throw an error if the server query fails with an improper response.
    */
   public async resolveAccountId(accountId: string): Promise<Api.Record> {
@@ -198,8 +197,8 @@ export class FederationServer {
    * @see <a href="https://developers.stellar.org/docs/glossary/federation/" target="_blank">Federation doc</a>
    * @param {string} transactionId Transaction ID (ex. `3389e9f0f1a65f19736cacf544c2e825313e8447f569233bb8db39aa607c8889`)
    * @returns {Promise<module:Federation.Api.Record>} A promise that resolves to the federation record
-   * @throws Will throw an error if the federation server returns an invalid memo value.
-   * @throws Will throw an error if the federation server's response exceeds the allowed maximum size.
+   * @throws {Error} Will throw an error if the federation server returns an invalid memo value.
+   * @throws {Error} Will throw an error if the federation server's response exceeds the allowed maximum size.
    * @throws {BadResponseError} Will throw an error if the server query fails with an improper response.
    */
   public async resolveTransactionId(

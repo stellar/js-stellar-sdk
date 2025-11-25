@@ -2,6 +2,7 @@ import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
 import { StellarSdk } from "../../../test-utils/stellar-sdk-import";
 
 import { serverUrl } from "../../../constants";
+import { Api } from "../../../../lib/rpc";
 
 const { Asset, Keypair, StrKey, xdr, hash } = StellarSdk;
 const { Server } = StellarSdk.rpc;
@@ -13,6 +14,7 @@ function expectLedgerEntryFound(
   call: () => Promise<any>,
   expectedType: any,
   expectedXDR: string,
+  times: number = 1,
 ) {
   const mockResponse = {
     data: {
@@ -38,7 +40,7 @@ function expectLedgerEntryFound(
       method: "getLedgerEntries",
       params: { keys: [ledgerKeyXDR] },
     });
-    expect(mockPost).toHaveBeenCalledTimes(1);
+    expect(mockPost).toHaveBeenCalledTimes(times);
   });
 }
 
@@ -164,9 +166,26 @@ describe("Server#getTrustline", () => {
       mockPost,
       trustlineKeyXDR,
       trustlineEntryXDR,
-      () => server.getTrustline(account, asset),
+      async () => {
+        const tl: Api.BalanceResponse = await server.getAssetBalance(
+          account,
+          asset,
+        );
+        return new xdr.TrustLineEntry({
+          accountId,
+          asset: asset.toTrustLineXDRObject(),
+          balance: xdr.Int64.fromString(tl.balanceEntry!.amount),
+          limit: xdr.Int64.fromString("1000"),
+          flags:
+            Number(tl.balanceEntry!.authorized) |
+            Number(tl.balanceEntry!.clawback) |
+            Number(tl.balanceEntry!.revocable!),
+          ext: new (xdr.TrustLineEntryExt as any)(0),
+        });
+      },
       xdr.TrustLineEntry,
       trustlineEntry.toXDR("base64"),
+      2, // extra for getLatestLedger call
     ));
 
   it("throws an error when the trustline is missing", () =>

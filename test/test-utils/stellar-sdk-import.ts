@@ -7,7 +7,10 @@
  */
 
 // Import the types from the lib directory to get proper TypeScript support
+import type { xdr } from "@stellar/stellar-base";
 import type * as StellarSdkTypes from "../../lib";
+
+// Import ScSpecTypeDef from stellar-base xdr namespace
 
 // Type definition for the StellarSdk module
 type StellarSdkModule = typeof StellarSdkTypes;
@@ -27,11 +30,9 @@ export function getStellarSdk(): StellarSdkModule {
   if (typeof window !== "undefined" && window.StellarSdk) {
     // Browser environment - use the global StellarSdk
     return window.StellarSdk;
-  } else {
-    // Node.js environment - require the lib module
-    // eslint-disable-next-line global-require, prefer-import/prefer-import-over-require
-    return require("../../lib");
   }
+  // Node.js environment - require the lib module
+  return require("../../lib");
 }
 
 // Export the StellarSdk instance with proper typing
@@ -54,9 +55,6 @@ export type {
 // Export specific types that are commonly used in tests
 // Import Spec from the contract module
 export type { Spec } from "../../lib/contract/spec";
-
-// Import ScSpecTypeDef from stellar-base xdr namespace
-import type { xdr } from "@stellar/stellar-base";
 export type ScSpecTypeDef = xdr.ScSpecTypeDef;
 
 // Import commonly used Horizon types
@@ -83,12 +81,10 @@ export function getHttpClient() {
   ) {
     // In browser environment, get httpClient from global StellarSdk
     return (window as any).StellarSdk.httpClient;
-  } else {
-    // In Node.js environment, import directly
-    // eslint-disable-next-line global-require, prefer-import/prefer-import-over-require
-    const httpClientModule = require("../../lib/http-client");
-    return httpClientModule.httpClient;
   }
+  // In Node.js environment, import directly
+  const httpClientModule = require("../../lib/http-client");
+  return httpClientModule.httpClient;
 }
 
 // Export the httpClient instance

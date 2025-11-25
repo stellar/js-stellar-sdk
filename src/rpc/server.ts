@@ -5,6 +5,9 @@ import {
   Account,
   Address,
   Asset,
+  AuthClawbackEnabledFlag,
+  AuthRequiredFlag,
+  AuthRevocableFlag,
   Contract,
   FeeBumpTransaction,
   Keypair,
@@ -16,7 +19,7 @@ import {
 } from "@stellar/stellar-base";
 
 import type { TransactionBuilder } from "@stellar/stellar-base";
-// eslint-disable-next-line import/no-named-as-default
+import type { Config } from "../config";
 import { createHttpClient } from "./axios";
 import { Api as FriendbotApi } from "../friendbot";
 import * as jsonrpc from "./jsonrpc";
@@ -110,6 +113,7 @@ export namespace RpcServer {
 const DEFAULT_GET_TRANSACTION_TIMEOUT: number = 30;
 
 /// A strategy that will sleep 1 second each time
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const BasicSleepStrategy: SleepStrategy = (_iter: number) => 1000;
 
 /// A strategy that will sleep 1 second longer on each attempt
@@ -254,7 +258,7 @@ export class RpcServer {
     try {
       const resp = await this.getLedgerEntry(ledgerKey);
       return resp.val.account();
-    } catch (e) {
+    } catch {
       throw new Error(`Account not found: ${address}`);
     }
   }
@@ -270,6 +274,7 @@ export class RpcServer {
    * @see
    * {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods/getLedgerEntries | getLedgerEntries docs}
    *
+   * @deprecated Use {@link getAssetBalance}, instead
    * @example
    * const accountId = "GBZC6Y2Y7Q3ZQ2Y4QZJ2XZ3Z5YXZ6Z7Z2Y4QZJ2XZ3Z5YXZ6Z7Z2Y4";
    * const asset = new Asset(
@@ -294,7 +299,7 @@ export class RpcServer {
     try {
       const entry = await this.getLedgerEntry(trustlineLedgerKey);
       return entry.val.trustLine();
-    } catch (e) {
+    } catch {
       throw new Error(
         `Trustline for ${asset.getCode()}:${asset.getIssuer()} not found for ${account}`,
       );
@@ -353,9 +358,79 @@ export class RpcServer {
     try {
       const entry = await this.getLedgerEntry(trustlineLedgerKey);
       return entry.val.claimableBalance();
-    } catch (e) {
+    } catch {
       throw new Error(`Claimable balance ${id} not found`);
     }
+  }
+
+  /**
+   * Fetch the balance of an asset held by an account or contract.
+   *
+   * The `address` argument may be provided as a string (as a {@link StrKey}),
+   * {@link Address}, or {@link Contract}.
+   *
+   * @param {string|Address|Contract} address The account or contract whose
+   *    balance should be fetched.
+   * @param {Asset} asset The asset whose balance you want to inspect.
+   * @param {string}  [networkPassphrase] optionally, when requesting the
+   *    balance of a contract, the network passphrase to which this token
+   *    applies. If omitted and necessary, a request about network information
+   *    will be made (see {@link getNetwork}), since contract IDs for assets are
+   *    specific to a network. You can refer to {@link Networks} for a list of
+   *    built-in passphrases, e.g., `Networks.TESTNET`.
+   * @returns {Promise<Api.BalanceResponse>} Resolves with balance entry details
+   *    when available.
+   *
+   * @throws {Error} If the supplied `address` is not a valid account or
+   *    contract strkey.
+   *
+   * @example
+   * const usdc = new Asset(
+   *   "USDC",
+   *   "GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5"
+   * );
+   * const balance = await server.getAssetBalance("GD...", usdc);
+   * console.log(balance.balanceEntry?.amount);
+   */
+  public async getAssetBalance(
+    address: string | Address | Contract,
+    asset: Asset,
+    networkPassphrase?: string,
+  ): Promise<Api.BalanceResponse> {
+    let addr: string = address as string;
+
+    // Coalesce to a strkey
+    if (typeof address === "string") {
+    } else if (address instanceof Address) {
+      addr = address.toString();
+    } else if (address instanceof Contract) {
+      addr = address.toString();
+    } else {
+      // shouldn't happen, but be defensive
+      throw new TypeError(`invalid address: ${address}`);
+    }
+
+    if (StrKey.isValidEd25519PublicKey(addr)) {
+      const [tl, ll] = await Promise.all([
+        this.getTrustline(addr, asset),
+        this.getLatestLedger(),
+      ]);
+
+      return {
+        latestLedger: ll.sequence,
+        balanceEntry: {
+          amount: tl.balance().toString(),
+          // Extract actual flags from the coalesced value.
+          authorized: Boolean(tl.flags() & AuthRequiredFlag),
+          clawback: Boolean(tl.flags() & AuthClawbackEnabledFlag),
+          revocable: Boolean(tl.flags() & AuthRevocableFlag),
+        },
+      };
+    } else if (StrKey.isValidContract(addr)) {
+      return this.getSACBalance(addr, asset, networkPassphrase);
+    }
+
+    throw new Error(`invalid address: ${address}`);
   }
 
   /**
@@ -372,7 +447,7 @@ export class RpcServer {
    *   console.log("status:", health.status);
    * });
    */
-  // eslint-disable-next-line require-await
+
   public async getHealth(): Promise<Api.GetHealthResponse> {
     return jsonrpc.postObject<Api.GetHealthResponse>(
       this.httpClient,
@@ -412,7 +487,7 @@ export class RpcServer {
    *   console.log("latestLedger:", data.latestLedger);
    * });
    */
-  // eslint-disable-next-line require-await
+
   public async getContractData(
     contract: string | Address | Contract,
     key: xdr.ScVal,
@@ -454,7 +529,7 @@ export class RpcServer {
 
     try {
       return await this.getLedgerEntry(contractKey);
-    } catch (e) {
+    } catch {
       throw {
         code: 404,
         message: `Contract data not found for ${Address.fromScAddress(
@@ -491,7 +566,6 @@ export class RpcServer {
     const contractLedgerKey = new Contract(contractId).getFootprint();
     const response = await this.getLedgerEntries(contractLedgerKey);
     if (!response.entries.length || !response.entries[0]?.val) {
-      // eslint-disable-next-line prefer-promise-reject-errors
       return Promise.reject({
         code: 404,
         message: `Could not obtain contract hash from server`,
@@ -546,7 +620,6 @@ export class RpcServer {
 
     const responseWasm = await this.getLedgerEntries(ledgerKeyWasmHash);
     if (!responseWasm.entries.length || !responseWasm.entries[0]?.val) {
-      // eslint-disable-next-line prefer-promise-reject-errors
       return Promise.reject({
         code: 404,
         message: "Could not obtain contract wasm from server",
@@ -621,6 +694,7 @@ export class RpcServer {
    * transaction completion and return a definitive state of success or failure.
    *
    * @param {string} hash   the transaction you're polling for
+   * @param {[RpcServer.PollingOptions]} [opts] polling options
    * @param {number} [opts.attempts] (optional) the number of attempts to make
    *    before returning the last-seen status. By default or on invalid inputs,
    *    try 5 times.
@@ -683,7 +757,7 @@ export class RpcServer {
    *   console.log("resultXdr:", tx.resultXdr);
    * });
    */
-  // eslint-disable-next-line require-await
+
   public async getTransaction(
     hash: string,
   ): Promise<Api.GetTransactionResponse> {
@@ -711,7 +785,6 @@ export class RpcServer {
     });
   }
 
-  // eslint-disable-next-line require-await
   public async _getTransaction(
     hash: string,
   ): Promise<Api.RawGetTransactionResponse> {
@@ -813,14 +886,13 @@ export class RpcServer {
    *    limit: 10,
    * });
    */
-  // eslint-disable-next-line require-await
+
   public async getEvents(
     request: Api.GetEventsRequest,
   ): Promise<Api.GetEventsResponse> {
     return this._getEvents(request).then(parseRawEvents);
   }
 
-  // eslint-disable-next-line require-await
   public async _getEvents(
     request: Api.GetEventsRequest,
   ): Promise<Api.RawGetEventsResponse> {
@@ -859,7 +931,7 @@ export class RpcServer {
    *   console.log("protocolVersion:", network.protocolVersion);
    * });
    */
-  // eslint-disable-next-line require-await
+
   public async getNetwork(): Promise<Api.GetNetworkResponse> {
     return jsonrpc.postObject(
       this.httpClient,
@@ -884,7 +956,7 @@ export class RpcServer {
    *   console.log("protocolVersion:", response.protocolVersion);
    * });
    */
-  // eslint-disable-next-line require-await
+
   public async getLatestLedger(): Promise<Api.GetLatestLedgerResponse> {
     return jsonrpc.postObject(
       this.httpClient,
@@ -946,7 +1018,7 @@ export class RpcServer {
    *   console.log("latestLedger:", sim.latestLedger);
    * });
    */
-  // eslint-disable-next-line require-await
+
   public async simulateTransaction(
     tx: Transaction | FeeBumpTransaction,
     addlResources?: RpcServer.ResourceLeeway,
@@ -957,7 +1029,6 @@ export class RpcServer {
     );
   }
 
-  // eslint-disable-next-line require-await
   public async _simulateTransaction(
     transaction: Transaction | FeeBumpTransaction,
     addlResources?: RpcServer.ResourceLeeway,
@@ -1102,14 +1173,12 @@ export class RpcServer {
    *   console.log("errorResultXdr:", result.errorResultXdr);
    * });
    */
-  // eslint-disable-next-line require-await
   public async sendTransaction(
     transaction: Transaction | FeeBumpTransaction,
   ): Promise<Api.SendTransactionResponse> {
     return this._sendTransaction(transaction).then(parseRawSendTransaction);
   }
 
-  // eslint-disable-next-line require-await
   public async _sendTransaction(
     transaction: Transaction | FeeBumpTransaction,
   ): Promise<Api.RawSendTransactionResponse> {
@@ -1136,7 +1205,7 @@ export class RpcServer {
    *    account, or the existing account if it's already funded with the
    *    populated sequence number (note that the account will not be "topped
    *    off" if it already exists)
-   * @throws If Friendbot is not configured on this network or request failure
+   * @throws {Error} If Friendbot is not configured on this network or request failure
    *
    * @see {@link https://developers.stellar.org/docs/learn/fundamentals/networks#friendbot | Friendbot docs}
    * @see {@link module:Friendbot.Api.Response}
@@ -1199,7 +1268,6 @@ export class RpcServer {
    * @returns {Promise<Api.GetFeeStatsResponse>}  the fee stats
    * @see https://developers.stellar.org/docs/data/rpc/api-reference/methods/getFeeStats
    */
-  // eslint-disable-next-line require-await
   public async getFeeStats(): Promise<Api.GetFeeStatsResponse> {
     return jsonrpc.postObject(
       this.httpClient,
@@ -1214,7 +1282,6 @@ export class RpcServer {
    * @returns {Promise<Api.GetVersionInfoResponse>} the version info
    * @see https://developers.stellar.org/docs/data/rpc/api-reference/methods/getVersionInfo
    */
-  // eslint-disable-next-line require-await
   public async getVersionInfo(): Promise<Api.GetVersionInfoResponse> {
     return jsonrpc.postObject(
       this.httpClient,
@@ -1228,8 +1295,8 @@ export class RpcServer {
    *
    * This is a convenience wrapper around {@link Server.getLedgerEntries}.
    *
-   * @param {string}  address the contract (string `C...`) or account ID
-   *    (`G...`) whose balance of `sac` you want to know
+   * @param {string}  address the contract (string `C...`) whose balance of
+   *    `sac` you want to know
    * @param {Asset}   sac     the built-in SAC token (e.g. `USDC:GABC...`) that
    *    you are querying from the given `contract`.
    * @param {string}  [networkPassphrase] optionally, the network passphrase to
@@ -1247,6 +1314,7 @@ export class RpcServer {
    * @see getLedgerEntries
    * @see https://developers.stellar.org/docs/tokens/stellar-asset-contract
    *
+   * @deprecated Use {@link getAssetBalance}, instead
    * @example
    * // assume `address` is some contract or account with an XLM balance
    * // assume server is an instantiated `Server` instance.
@@ -1366,7 +1434,7 @@ export class RpcServer {
    *   limit: 5
    * });
    */
-  // eslint-disable-next-line require-await
+
   public async getLedgers(
     request: Api.GetLedgersRequest,
   ): Promise<Api.GetLedgersResponse> {
@@ -1383,7 +1451,6 @@ export class RpcServer {
     });
   }
 
-  // eslint-disable-next-line require-await
   public async _getLedgers(
     request: Api.GetLedgersRequest,
   ): Promise<Api.RawGetLedgersResponse> {

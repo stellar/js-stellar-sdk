@@ -6,6 +6,17 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Added
+* Introduced an `rpc.Server.getAssetBalance()` helper to fetch asset balances both for contracts and accounts ([#1286](https://github.com/stellar/js-stellar-sdk/pull/1286/)).
+* `rpc.Api.BalanceResponse` now can include a `revocable` field in its `balanceEntry` for when trustlines are fetched ([#1286](https://github.com/stellar/js-stellar-sdk/pull/1286/)).
+
+
+## [v14.3.3](https://github.com/stellar/js-stellar-sdk/compare/v14.3.2...v14.3.3)
+
+### Added
+* `Spec.nativeToScVal` supports parsing Muxed Address([#1274](https://github.com/stellar/js-stellar-sdk/pull/1274)),
+
+
 ## [v14.3.2](https://github.com/stellar/js-stellar-sdk/compare/v14.3.1...v14.3.2)
 
 ### Added
@@ -14,7 +25,7 @@ A breaking change will get clearly marked in this log.
 ## [v14.3.1](https://github.com/stellar/js-stellar-sdk/compare/v14.3.0...v14.3.1)
 
 ### Added
-*  Added optional `server: rpc.Server` field to `ClientOption` for HttpClient reuse. ([#1234](https://github.com/stellar/js-stellar-sdk/pull/1234)). 
+*  Added optional `server: rpc.Server` field to `ClientOption` for HttpClient reuse. ([#1234](https://github.com/stellar/js-stellar-sdk/pull/1234)).
 
 ### Fixed
 * Replaced global `HttpClient` with per-instance clients in `horizon.Server` and `rpc.Server` to prevent cross-instance header contamination ([#1234](https://github.com/stellar/js-stellar-sdk/pull/1234)).

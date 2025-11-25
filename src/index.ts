@@ -21,7 +21,6 @@ export * as Horizon from "./horizon";
  * `assembleTransaction`, and the `Api` types. You can import these from the
  * `/rpc` entrypoint, if your version of Node and your TypeScript configuration
  * allow it:
- *
  * @example
  * import { Server } from '@stellar/stellar-sdk/rpc';
  */
@@ -32,10 +31,8 @@ export * as rpc from "./rpc";
  * `AssembledTransaction`. You can import these from the `/contract`
  * entrypoint, if your version of Node and your TypeScript configuration allow
  * it:
- *
  * @example
  * import { Client } from '@stellar/stellar-sdk/contract';
- * @private
  */
 export * as contract from "./contract";
 export * as bindings from "./bindings";
