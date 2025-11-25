@@ -257,8 +257,12 @@ export function isNameReserved(name: string): boolean {
   ];
   return reservedNames.includes(name);
 }
-export class test {
-  extends() {
-    return;
+
+export function formatJSDocComment(comment: string, indentLevel = 0): string {
+  if (comment.trim() === "") {
+    return "";
   }
+  const indent = " ".repeat(indentLevel);
+  const lines = comment.split("\n").map((line) => `${indent} * ${line}`);
+  return `${indent}/**\n${lines.join("\n")}\n${indent} */\n`;
 }

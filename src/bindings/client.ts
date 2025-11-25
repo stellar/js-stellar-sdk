@@ -4,6 +4,7 @@ import {
   parseTypeFromTypeDef,
   generateTypeImports,
   sanitizeName,
+  formatJSDocComment,
 } from "./utils";
 
 /**
@@ -126,10 +127,10 @@ export class Client extends ContractClient {
       func.outputs().length > 0
         ? parseTypeFromTypeDef(func.outputs()[0])
         : "void";
-
+    const docs = formatJSDocComment(func.doc().toString(), 2);
     const params = this.formatMethodParameters(inputs);
 
-    return `  ${name}(${params}): Promise<AssembledTransaction<${outputType}>>;`;
+    return `${docs}  ${name}(${params}): Promise<AssembledTransaction<${outputType}>>;`;
   }
 
   private generateFromJSONMethod(func: xdr.ScSpecFunctionV0): string {
@@ -154,7 +155,7 @@ export class Client extends ContractClient {
     return ContractClient.deploy(null, options);
   }`;
     }
-    const inputs = constructorFunc.inputs().map((input: any) => ({
+    const inputs = constructorFunc.inputs().map((input) => ({
       name: input.name().toString(),
       type: parseTypeFromTypeDef(input.type()),
     }));

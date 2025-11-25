@@ -4,6 +4,7 @@ import {
   parseTypeFromTypeDef,
   generateTypeImports,
   sanitizeName,
+  formatJSDocComment,
 } from "./utils";
 
 /**
@@ -137,26 +138,23 @@ export class TypeGenerator {
    */
   private generateStruct(struct: xdr.ScSpecUdtStructV0): string {
     const name = sanitizeName(struct.name().toString());
-    const doc = struct.doc().toString() || `Struct: ${name}`;
+    const doc = formatJSDocComment(
+      struct.doc().toString() || `Struct: ${name}`,
+      0,
+    );
 
     const fields = struct
       .fields()
       .map((field) => {
         const fieldName = field.name().toString();
         const fieldType = parseTypeFromTypeDef(field.type());
-        const fieldDoc = field.doc().toString();
+        const fieldDoc = formatJSDocComment(field.doc().toString(), 2);
 
-        if (fieldDoc) {
-          return `  /**\n   * ${fieldDoc}\n   */\n  ${fieldName}: ${fieldType};`;
-        }
-        return `  ${fieldName}: ${fieldType};`;
+        return `${fieldDoc}  ${fieldName}: ${fieldType};`;
       })
       .join("\n");
 
-    return `/**
- * ${doc}
- */
-export interface ${name} {
+    return `${doc}export interface ${name} {
 ${fields}
 }`;
   }
@@ -166,7 +164,10 @@ ${fields}
    */
   private generateUnion(union: xdr.ScSpecUdtUnionV0): string {
     const name = sanitizeName(union.name().toString());
-    const doc = union.doc().toString() || `Union: ${name}`;
+    const doc = formatJSDocComment(
+      union.doc().toString() || `Union: ${name}`,
+      0,
+    );
     const cases = union
       .cases()
       .map((unionCase) => this.generateUnionCase(unionCase));
@@ -174,16 +175,13 @@ ${fields}
     const caseTypes = cases
       .map((c) => {
         if (c.types.length > 0) {
-          return `  { tag: "${c.name}"; values: [${c.types.join(", ")}] }`;
+          return `${formatJSDocComment(c.doc, 2)}  { tag: "${c.name}"; values: [${c.types.join(", ")}] }`;
         }
-        return `  { tag: "${c.name}" }`;
+        return `${formatJSDocComment(c.doc, 2)}  { tag: "${c.name}" }`;
       })
       .join(" |\n");
 
-    return `/**
- * ${doc}
- */
-export type ${name} =
+    return `${doc} export type ${name} =
 ${caseTypes};`;
   }
 
@@ -192,7 +190,10 @@ ${caseTypes};`;
    */
   private generateEnum(enumEntry: xdr.ScSpecUdtEnumV0): string {
     const name = sanitizeName(enumEntry.name().toString());
-    const doc = enumEntry.doc().toString() || `Enum: ${name}`;
+    const doc = formatJSDocComment(
+      enumEntry.doc().toString() || `Enum: ${name}`,
+      0,
+    );
 
     const members = enumEntry
       .cases()
@@ -201,17 +202,11 @@ ${caseTypes};`;
         const caseValue = enumCase.value();
         const caseDoc = enumCase.doc().toString() || `Enum Case: ${caseName}`;
 
-        return `  /**
-   * ${caseDoc}
-   */
-  ${caseName} = ${caseValue}`;
+        return `${formatJSDocComment(caseDoc, 2)}  ${caseName} = ${caseValue}`;
       })
       .join(",\n");
 
-    return `/**
- * ${doc}
- */
-export enum ${name} {
+    return `${doc}export enum ${name} {
 ${members}
 }`;
   }
@@ -221,27 +216,21 @@ ${members}
    */
   private generateErrorEnum(errorEnum: xdr.ScSpecUdtErrorEnumV0): string {
     const name = sanitizeName(errorEnum.name().toString());
-    const doc = errorEnum.doc().toString() || `Error Enum: ${name}`;
+    const doc = formatJSDocComment(
+      errorEnum.doc().toString() || `Error Enum: ${name}`,
+      0,
+    );
     const cases = errorEnum
       .cases()
       .map((enumCase) => this.generateEnumCase(enumCase));
 
     const members = cases
       .map((c) => {
-        if (c.doc) {
-          return `  /**
-   * ${c.doc}
-   */
-  ${c.value} : {message: "${c.name}" }`;
-        }
-        return `  ${c.value} : {message: "${c.name}" }`;
+        return `${formatJSDocComment(c.doc, 2)}  ${c.value} : {message: "${c.name}" }`;
       })
       .join(",\n");
 
-    return `/**
- * ${doc}
- */
-export const ${name} = {
+    return `${doc}export const ${name} = {
 ${members}
 }`;
   }
