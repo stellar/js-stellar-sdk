@@ -122,7 +122,15 @@ export function parseTypeFromTypeDef(typeDef: xdr.ScSpecTypeDef): string {
       return `[${tupleTypes.join(", ")}]`;
     }
     case xdr.ScSpecType.scSpecTypeOption(): {
+      // Handle nested options
+      while (
+        typeDef.option().valueType().switch() ===
+        xdr.ScSpecType.scSpecTypeOption()
+      ) {
+        typeDef = typeDef.option().valueType();
+      }
       const optionType = parseTypeFromTypeDef(typeDef.option().valueType());
+
       return `${optionType} | null`;
     }
     case xdr.ScSpecType.scSpecTypeResult(): {
