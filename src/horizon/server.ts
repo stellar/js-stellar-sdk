@@ -333,7 +333,7 @@ export class HorizonServer {
     );
 
     return this.httpClient
-      .post(this.serverURL.segment("transactions").toString(), `tx=${tx}`, {
+      .post(this.serverURL.clone().segment("transactions").toString(), `tx=${tx}`, {
         timeout: SUBMIT_TRANSACTION_TIMEOUT,
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
       })
@@ -559,7 +559,7 @@ export class HorizonServer {
 
     return this.httpClient
       .post(
-        this.serverURL.segment("transactions_async").toString(),
+        this.serverURL.clone().segment("transactions_async").toString(),
         `tx=${tx}`,
         { headers: { "Content-Type": "application/x-www-form-urlencoded" } },
       )
