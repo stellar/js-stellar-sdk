@@ -1415,7 +1415,9 @@ export class RpcServer {
    * // Fetch ledgers starting from a specific sequence number
    * server.getLedgers({
    *   startLedger: 36233,
-   *   limit: 10
+   *   pagination: {
+   *     limit: 10
+   *   }
    * }).then((response) => {
    *   console.log("Ledgers:", response.ledgers);
    *   console.log("Latest Ledger:", response.latestLedger);
@@ -1426,12 +1428,16 @@ export class RpcServer {
    * // Paginate through ledgers using cursor
    * const firstPage = await server.getLedgers({
    *   startLedger: 36233,
-   *   limit: 5
+   *   pagination: {
+   *     limit: 5
+   *   }
    * });
    *
    * const nextPage = await server.getLedgers({
-   *   cursor: firstPage.cursor,
-   *   limit: 5
+   *   pagination: {
+   *     cursor: firstPage.cursor,
+   *     limit: 5
+   *   }
    * });
    */
 
