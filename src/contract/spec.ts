@@ -500,8 +500,8 @@ export class Spec {
    * @returns {Promise<module:contract.Spec>} A Promise that resolves to a Spec instance.
    * @throws {Error} If the contract spec cannot be obtained from the provided wasm binary.
    */
-  static async fromWasm(wasm: Buffer): Promise<Spec> {
-    const spec = await specFromWasm(wasm);
+  static fromWasm(wasm: Buffer): Spec {
+    const spec = specFromWasm(wasm);
     return new Spec(spec);
   }
 
