@@ -53,7 +53,7 @@ export type u256 = bigint;
  */
 export type i256 = bigint;
 export type Option<T> = T | undefined;
-export type Typepoint = bigint;
+export type Timepoint = bigint;
 export type Duration = bigint;
 
 /**

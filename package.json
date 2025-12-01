@@ -194,7 +194,7 @@
     "webpack-cli": "^5.0.1"
   },
   "dependencies": {
-    "@stellar/stellar-base": "^14.0.2",
+    "@stellar/stellar-base": "^14.0.3",
     "axios": "^1.12.2",
     "bignumber.js": "^9.3.1",
     "eventsource": "^2.0.2",
