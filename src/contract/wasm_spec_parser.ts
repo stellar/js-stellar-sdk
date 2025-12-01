@@ -5,7 +5,7 @@ import { parseWasmCustomSections } from "./utils";
  * @returns The XDR buffer representing the contract spec.
  * @throws {Error} If the contract spec cannot be obtained from the provided wasm binary.
  */
-export async function specFromWasm(wasm: Buffer) {
+export function specFromWasm(wasm: Buffer) {
   const customData = parseWasmCustomSections(wasm);
   let xdrSections = customData.get("contractspecv0");
 

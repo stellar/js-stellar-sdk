@@ -333,10 +333,14 @@ export class HorizonServer {
     );
 
     return this.httpClient
-      .post(this.serverURL.clone().segment("transactions").toString(), `tx=${tx}`, {
-        timeout: SUBMIT_TRANSACTION_TIMEOUT,
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      })
+      .post(
+        this.serverURL.clone().segment("transactions").toString(),
+        `tx=${tx}`,
+        {
+          timeout: SUBMIT_TRANSACTION_TIMEOUT,
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        },
+      )
       .then((response) => {
         if (!response.data.result_xdr) {
           return response.data;
