@@ -11,6 +11,8 @@ A breaking change will get clearly marked in this log.
 * `rpc.Api.BalanceResponse` now can include a `revocable` field in its `balanceEntry` for when trustlines are fetched ([#1286](https://github.com/stellar/js-stellar-sdk/pull/1286/)).
 * Added Timepoint and Duration support to `Spec` ([#1288](https://github.com/stellar/js-stellar-sdk/pull/1288))
 
+### Fixed
+* Remove `WebAssembly` usage in favor of manual wasm parsing
 
 ## [v14.3.3](https://github.com/stellar/js-stellar-sdk/compare/v14.3.2...v14.3.3)
 
