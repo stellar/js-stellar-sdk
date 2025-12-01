@@ -82,12 +82,6 @@ const jsDocConfig = [
       "jsdoc/reject-function-type": "off",
       "jsdoc/reject-any-type": "off",
       "jsdoc/require-description": "off",
-      "jsdoc/no-undefined-types": [
-        "warn",
-        {
-          definedTypes: ["HorizonServer.Timebounds"],
-        },
-      ],
     },
   },
 ];
