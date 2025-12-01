@@ -91,7 +91,12 @@ function stringToScVal(str: string, ty: xdr.ScSpecType): xdr.ScVal {
     case xdr.ScSpecType.scSpecTypeBytes().value:
     case xdr.ScSpecType.scSpecTypeBytesN().value:
       return xdr.ScVal.scvBytes(Buffer.from(str, "base64"));
-
+    case xdr.ScSpecType.scSpecTypeTimepoint().value: {
+      return xdr.ScVal.scvTimepoint(new xdr.Uint64(str));
+    }
+    case xdr.ScSpecType.scSpecTypeDuration().value: {
+      return xdr.ScVal.scvDuration(new xdr.Uint64(str));
+    }
     default:
       throw new TypeError(`invalid type ${ty.name} specified for string value`);
   }
@@ -109,6 +114,18 @@ const PRIMITIVE_DEFINITONS: { [key: string]: JSONSchema7Definition } = {
     maximum: 2147483647,
   },
   U64: {
+    type: "string",
+    pattern: "^([1-9][0-9]*|0)$",
+    minLength: 1,
+    maxLength: 20, // 64-bit max value has 20 digits
+  },
+  Timepoint: {
+    type: "string",
+    pattern: "^([1-9][0-9]*|0)$",
+    minLength: 1,
+    maxLength: 20, // 64-bit max value has 20 digits
+  },
+  Duration: {
     type: "string",
     pattern: "^([1-9][0-9]*|0)$",
     minLength: 1,
@@ -213,11 +230,11 @@ function typeRef(typeDef: xdr.ScSpecTypeDef): JSONSchema7 {
     }
     case xdr.ScSpecType.scSpecTypeTimepoint().value: {
       ref = "Timepoint";
-      throw new Error("Timepoint type not supported");
+      break;
     }
     case xdr.ScSpecType.scSpecTypeDuration().value: {
       ref = "Duration";
-      throw new Error("Duration not supported");
+      break;
     }
     case xdr.ScSpecType.scSpecTypeU128().value: {
       ref = "U128";
@@ -793,7 +810,9 @@ export class Spec {
           case xdr.ScSpecType.scSpecTypeU128().value:
           case xdr.ScSpecType.scSpecTypeI128().value:
           case xdr.ScSpecType.scSpecTypeU256().value:
-          case xdr.ScSpecType.scSpecTypeI256().value: {
+          case xdr.ScSpecType.scSpecTypeI256().value:
+          case xdr.ScSpecType.scSpecTypeTimepoint().value:
+          case xdr.ScSpecType.scSpecTypeDuration().value: {
             const intType = t.name.substring(10).toLowerCase() as ScIntType;
             return new XdrLargeInt(intType, val as bigint).toScVal();
           }
@@ -969,6 +988,8 @@ export class Spec {
       // these can be converted to bigints directly
       case xdr.ScValType.scvU64().value:
       case xdr.ScValType.scvI64().value:
+      case xdr.ScValType.scvTimepoint().value:
+      case xdr.ScValType.scvDuration().value:
       // these can be parsed by internal abstractions note that this can also
       // handle the above two cases, but it's not as efficient (another
       // type-check, parsing, etc.)
@@ -1040,11 +1061,6 @@ export class Spec {
         }
         return scv.value()?.toString() as T;
       }
-
-      // these can be converted to bigint
-      case xdr.ScValType.scvTimepoint().value:
-      case xdr.ScValType.scvDuration().value:
-        return scValToBigInt(xdr.ScVal.scvU64(scv.u64())) as T;
 
       // in the fallthrough case, just return the underlying value directly
       default:
