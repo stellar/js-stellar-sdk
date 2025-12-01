@@ -3,6 +3,9 @@ import { Contract, SorobanDataBuilder, xdr } from "@stellar/stellar-base";
 /* tslint:disable-next-line:no-namespace */
 export namespace Api {
   export interface GetHealthResponse {
+    latestLedger: number;
+    ledgerRetentionWindow: number;
+    oldestLedger: number;
     status: "healthy";
   }
 
