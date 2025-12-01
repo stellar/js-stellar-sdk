@@ -9,7 +9,7 @@ A breaking change will get clearly marked in this log.
 ### Added
 * Introduced an `rpc.Server.getAssetBalance()` helper to fetch asset balances both for contracts and accounts ([#1286](https://github.com/stellar/js-stellar-sdk/pull/1286/)).
 * `rpc.Api.BalanceResponse` now can include a `revocable` field in its `balanceEntry` for when trustlines are fetched ([#1286](https://github.com/stellar/js-stellar-sdk/pull/1286/)).
-
+* `Api.GetHealthResponse` interface now includes `latestLedger`, `ledgerRetentionWindow`, and `oldestLedger` fields ([#1297](https://github.com/stellar/js-stellar-sdk/pull/1297)).
 
 ## [v14.3.3](https://github.com/stellar/js-stellar-sdk/compare/v14.3.2...v14.3.3)
 
