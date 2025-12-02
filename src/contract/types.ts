@@ -133,18 +133,16 @@ export type SignAuthEntry = (
  */
 export type ClientOptions = {
   /**
-   * The public key of the account that will send this transaction. You can
-   * override this for specific methods later, like
-   * [signAndSend]{@link module:contract.AssembledTransaction#signAndSend} and
-   * [signAuthEntries]{@link module:contract.AssembledTransaction#signAuthEntries}.
+   * The public key of the source account for this transaction. You can
+   * override this for specific methods later; see {@link MethodOptions}.
    */
   publicKey?: string;
   /**
    * A function to sign the transaction using the private key corresponding to
    * the given `publicKey`. You do not need to provide this, for read-only
-   * calls, which only need to be simulated. If you do not need to sign and
-   * send, there is no need to provide this. If you do not provide it during
-   * initialization, you can provide it later when you call
+   * calls, which only need to be simulated. If you do not provide it during
+   * initialization, you can provide it later, either when you initialize a
+   * method (see {@link MethodOptions}) or when you call
    * {@link module:contract.AssembledTransaction#signAndSend signAndSend}.
    *
    * Matches signature of `signTransaction` from Freighter.
@@ -155,7 +153,8 @@ export type ClientOptions = {
    * private key corresponding to the provided `publicKey`. This is only needed
    * for multi-auth transactions, in which one transaction is signed by
    * multiple parties. If you do not provide it during initialization, you can
-   * provide it later when you call {@link module:contract.AssembledTransaction#signAuthEntries signAuthEntries}.
+   * provide it later either when you initialize a method (see {@link MethodOptions})
+   * or when you call {@link module:contract.AssembledTransaction#signAuthEntries signAuthEntries}.
    *
    * Matches signature of `signAuthEntry` from Freighter.
    */
@@ -236,6 +235,34 @@ export type MethodOptions = {
    * @default false
    */
   restore?: boolean;
+
+  /**
+   * The public key of the source account for this transaction.
+   *
+   * Default: the one provided to the {@link Client} in {@link ClientOptions}
+   */
+  publicKey?: string;
+  /**
+   * A function to sign the transaction using the private key corresponding to
+   * the given `publicKey`. You do not need to provide this, for read-only
+   * calls, which only need to be simulated.
+   *
+   * Matches signature of `signTransaction` from Freighter.
+   *
+   * Default: the one provided to the {@link Client} in {@link ClientOptions}
+   */
+  signTransaction?: SignTransaction;
+  /**
+   * A function to sign a specific auth entry for a transaction, using the
+   * private key corresponding to the provided `publicKey`. This is only needed
+   * for multi-auth transactions, in which one transaction is signed by
+   * multiple parties.
+   *
+   * Matches signature of `signAuthEntry` from Freighter.
+   *
+   * Default: the one provided to the {@link Client} in {@link ClientOptions}
+   */
+  signAuthEntry?: SignAuthEntry;
 };
 
 export type AssembledTransactionOptions<T = string> = MethodOptions &
