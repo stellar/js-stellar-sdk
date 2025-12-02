@@ -7,7 +7,7 @@
   
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>@stellar/stellar-sdk Documentation lib/horizon/path_call_builder.js</title>
+  <title>@stellar/stellar-sdk Documentation lib/contract/wasm_spec_parser.js</title>
 
   <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -100,7 +100,7 @@
             <div class="content">
                 <header class="page-title">
                     <p>Source</p>
-                    <h1>lib/horizon/path_call_builder.js</h1>
+                    <h1>lib/contract/wasm_spec_parser.js</h1>
                 </header>
                 
 
@@ -114,54 +114,22 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.PathCallBuilder = void 0;
-var _call_builder = require("./call_builder");
+exports.specFromWasm = specFromWasm;
+var _utils = require("./utils");
 /**
- * The Stellar Network allows payments to be made across assets through path payments. A path payment specifies a
- * series of assets to route a payment through, from source asset (the asset debited from the payer) to destination
- * asset (the asset credited to the payee).
- *
- * A path search is specified using:
- *
- * * The destination address
- * * The source address
- * * The asset and amount that the destination account should receive
- *
- * As part of the search, horizon will load a list of assets available to the source address and will find any
- * payment paths from those source assets to the desired destination asset. The search's amount parameter will be
- * used to determine if there a given path can satisfy a payment of the desired amount.
- *
- * Do not create this object directly, use {@link Horizon.Server#paths}.
- *
- * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/aggregations/paths|Find Payment Paths}
- *
- * @augments CallBuilder
- * @private
- * @class
- *
- * @param {string} serverUrl Horizon server URL.
- * @param {string} source The sender's account ID. Any returned path must use a source that the sender can hold.
- * @param {string} destination The destination account ID that any returned path should use.
- * @param {Asset} destinationAsset The destination asset.
- * @param {string} destinationAmount The amount, denominated in the destination asset, that any returned path should be able to satisfy.
+ * Obtains the contract spec XDR from a contract's wasm binary.
+ * @param wasm The contract's wasm binary as a Buffer.
+ * @returns The XDR buffer representing the contract spec.
+ * @throws {Error} If the contract spec cannot be obtained from the provided wasm binary.
  */
-class PathCallBuilder extends _call_builder.CallBuilder {
-  constructor(serverUrl, httpClient, source, destination, destinationAsset, destinationAmount) {
-    super(serverUrl, httpClient);
-    this.url.segment("paths");
-    this.url.setQuery("destination_account", destination);
-    this.url.setQuery("source_account", source);
-    this.url.setQuery("destination_amount", destinationAmount);
-    if (!destinationAsset.isNative()) {
-      this.url.setQuery("destination_asset_type", destinationAsset.getAssetType());
-      this.url.setQuery("destination_asset_code", destinationAsset.getCode());
-      this.url.setQuery("destination_asset_issuer", destinationAsset.getIssuer());
-    } else {
-      this.url.setQuery("destination_asset_type", "native");
-    }
+function specFromWasm(wasm) {
+  const customData = (0, _utils.parseWasmCustomSections)(wasm);
+  let xdrSections = customData.get("contractspecv0");
+  if (!xdrSections || xdrSections.length === 0) {
+    throw new Error("Could not obtain contract spec from wasm");
   }
-}
-exports.PathCallBuilder = PathCallBuilder;</code></pre>
+  return Buffer.from(xdrSections[0]);
+}</code></pre>
         </article>
     </section>
 
