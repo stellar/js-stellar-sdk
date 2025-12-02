@@ -12,7 +12,7 @@ A breaking change will get clearly marked in this log.
 * Added Timepoint and Duration support to `Spec` ([#1288](https://github.com/stellar/js-stellar-sdk/pull/1288))
 
 ### Fixed
-* Remove `WebAssembly` usage in favor of manual wasm parsing
+* Remove `WebAssembly` usage in favor of manual wasm parsing ([#1300](https://github.com/stellar/js-stellar-sdk/pull/1300)).
 
 ## [v14.3.3](https://github.com/stellar/js-stellar-sdk/compare/v14.3.2...v14.3.3)
 
