@@ -115,7 +115,9 @@ export function parseRawEvents(
         ...(evt.contractId !== "" && {
           contractId: new Contract(evt.contractId),
         }),
-        topic: evt.topic.map((topic) => xdr.ScVal.fromXDR(topic, "base64")),
+        topic: (evt.topic ?? []).map((topic) =>
+          xdr.ScVal.fromXDR(topic, "base64"),
+        ),
         value: xdr.ScVal.fromXDR(evt.value, "base64"),
       };
     }),
