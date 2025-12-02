@@ -5,19 +5,9 @@ import { parseWasmCustomSections } from "./utils";
  * @returns The XDR buffer representing the contract spec.
  * @throws {Error} If the contract spec cannot be obtained from the provided wasm binary.
  */
-export async function specFromWasm(wasm: Buffer) {
-  let xdrSections: ArrayBuffer[] | undefined;
-
-  try {
-    const wasmModule = await WebAssembly.compile(wasm);
-    xdrSections = WebAssembly.Module.customSections(
-      wasmModule,
-      "contractspecv0",
-    );
-  } catch {
-    const customData = parseWasmCustomSections(wasm);
-    xdrSections = customData.get("contractspecv0");
-  }
+export function specFromWasm(wasm: Buffer) {
+  const customData = parseWasmCustomSections(wasm);
+  let xdrSections = customData.get("contractspecv0");
 
   if (!xdrSections || xdrSections.length === 0) {
     throw new Error("Could not obtain contract spec from wasm");
