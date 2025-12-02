@@ -305,7 +305,7 @@ export namespace Api {
 
   export interface RawEventResponse extends BaseEventResponse {
     contractId: string;
-    topic: string[];
+    topic?: string[];
     value: string;
   }
 
