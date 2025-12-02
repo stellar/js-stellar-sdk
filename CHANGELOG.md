@@ -13,13 +13,14 @@ A breaking change will get clearly marked in this log.
 * `Api.GetHealthResponse` interface now includes `latestLedger`, `ledgerRetentionWindow`, and `oldestLedger` fields ([#1297](https://github.com/stellar/js-stellar-sdk/pull/1297)).
 
 ### Fixed
+* `Api.RawEventResponse.topics` is now optional to reflect topicless events ([#1292](https://github.com/stellar/js-stellar-sdk/pull/1292)).
+* `parseRawEvents` correctly checks if `Api.RawEventResponse.topics` is undefined ([#1292](https://github.com/stellar/js-stellar-sdk/pull/1292)).
 * Remove `WebAssembly` usage in favor of manual wasm parsing ([#1300](https://github.com/stellar/js-stellar-sdk/pull/1300)).
 
 ## [v14.3.3](https://github.com/stellar/js-stellar-sdk/compare/v14.3.2...v14.3.3)
 
 ### Added
 * `Spec.nativeToScVal` supports parsing Muxed Address([#1274](https://github.com/stellar/js-stellar-sdk/pull/1274)),
-
 
 ## [v14.3.2](https://github.com/stellar/js-stellar-sdk/compare/v14.3.1...v14.3.2)
 
