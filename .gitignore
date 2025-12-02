@@ -18,3 +18,4 @@ target
 .soroban
 
 config/tsconfig.tmp.json
+package-lock.json
