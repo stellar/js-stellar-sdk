@@ -378,7 +378,6 @@ describe("Server#getEvents", () => {
       cursor: "164090849041387521-3",
       events: filterEventsByLedger(getEventsResponseFixture, 4),
     };
-    console.log(result);
     setupMock(mockPost, { startLedger: 4 }, result);
 
     const response = await server.getEvents({ startLedger: 4 });
