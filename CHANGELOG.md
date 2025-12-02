@@ -10,12 +10,14 @@ A breaking change will get clearly marked in this log.
 * Introduced an `rpc.Server.getAssetBalance()` helper to fetch asset balances both for contracts and accounts ([#1286](https://github.com/stellar/js-stellar-sdk/pull/1286/)).
 * `rpc.Api.BalanceResponse` now can include a `revocable` field in its `balanceEntry` for when trustlines are fetched ([#1286](https://github.com/stellar/js-stellar-sdk/pull/1286/)).
 
+### Fixed
+* `Api.RawEventResponse.topics` is now optional to reflect topicless events ([#1292](https://github.com/stellar/js-stellar-sdk/pull/1292)).
+* `parseRawEvents` correctly checks if `Api.RawEventResponse.topics` is undefined ([#1292](https://github.com/stellar/js-stellar-sdk/pull/1292)).
 
 ## [v14.3.3](https://github.com/stellar/js-stellar-sdk/compare/v14.3.2...v14.3.3)
 
 ### Added
 * `Spec.nativeToScVal` supports parsing Muxed Address([#1274](https://github.com/stellar/js-stellar-sdk/pull/1274)),
-
 
 ## [v14.3.2](https://github.com/stellar/js-stellar-sdk/compare/v14.3.1...v14.3.2)
 

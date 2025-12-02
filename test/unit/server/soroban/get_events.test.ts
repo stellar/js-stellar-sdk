@@ -89,7 +89,7 @@ const getEventsResponseFixture = [
   },
   {
     type: "contract",
-    ledger: "1263568",
+    ledger: "4",
     ledgerClosedAt: "2025-10-26T22:19:10Z",
     contractId: "CC5E2AZW4DRFDYZHI7M25QKCSMFPUD7C3425BUOW54RU3TQRKUPA64W5",
     id: "0005426983236280320-0000000000",
@@ -371,31 +371,17 @@ describe("Server#getEvents", () => {
 
   it("handles events with undefined topic field", async () => {
     const result = {
-      latestLedger: 1263568,
-      oldestLedger: 1263568,
+      latestLedger: 3,
+      oldestLedger: 3,
       oldestLedgerCloseTime: "0",
       latestLedgerCloseTime: "0",
-      cursor: "0005426983236280320-0000000000",
-      events: [
-        {
-          type: "contract",
-          ledger: "1263568",
-          ledgerClosedAt: "2025-10-26T22:19:10Z",
-          contractId: "CC5E2AZW4DRFDYZHI7M25QKCSMFPUD7C3425BUOW54RU3TQRKUPA64W5",
-          id: "0005426983236280320-0000000000",
-          operationIndex: 0,
-          transactionIndex: 2,
-          inSuccessfulContractCall: true,
-          txHash: "8735d2c7e31b1f10037f41d723072fbfacd0bbf74ed48f71f8e4211132017123",
-          // topic is undefined to test the fix for the bug
-          value: eventVal,
-        },
-      ],
+      cursor: "164090849041387521-3",
+      events: filterEventsByLedger(getEventsResponseFixture, 4),
     };
+    console.log(result);
+    setupMock(mockPost, { startLedger: 4 }, result);
 
-    setupMock(mockPost, { startLedger: 1263568 }, result);
-
-    const response = await server.getEvents({ startLedger: 1263568 });
+    const response = await server.getEvents({ startLedger: 4 });
     const parsed = parseEvents(result);
     expect(response).toEqual(parsed);
     expect(response.events[0].topic).toEqual([]);

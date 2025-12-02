@@ -401,6 +401,7 @@ export class RpcServer {
 
     // Coalesce to a strkey
     if (typeof address === "string") {
+      addr = address;
     } else if (address instanceof Address) {
       addr = address.toString();
     } else if (address instanceof Contract) {
