@@ -39,6 +39,10 @@ function generateTestData(funcName: string, index: number): any {
       return { args: { i256: baseValue.toString() } };
     case "u256":
       return { args: { u256: baseValue.toString() } };
+    case "timepoint":
+      return { args: { timepoint: baseValue.toString() } };
+    case "duration":
+      return { args: { duration: baseValue.toString() } };
     case "strukt":
       return {
         args: { strukt: { a: baseValue, b: true, c: `test${baseValue}` } },
@@ -400,6 +404,14 @@ describe("Can round trip custom types", () => {
 
   it("i64", () => {
     roundtrip("i64_", 1n);
+  });
+
+  it("timepoint", () => {
+    roundtrip("timepoint", BigInt(Date.now()) / 1000n);
+  });
+
+  it("duration", () => {
+    roundtrip("duration", BigInt(Date.now()) / 1000n);
   });
 
   it("strukt", () => {
