@@ -6,6 +6,9 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Fixed
+* Added back `Typepoint` and marked it _deprecated_ in favor of `Timepoint` ([#1303](https://github.com/stellar/js-stellar-sdk/pull/1303))
+
 ## [v14.4.0](https://github.com/stellar/js-stellar-sdk/compare/v14.3.3...v14.4.0)
 
 ### Added
