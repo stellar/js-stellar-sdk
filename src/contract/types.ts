@@ -53,7 +53,20 @@ export type u256 = bigint;
  */
 export type i256 = bigint;
 export type Option<T> = T | undefined;
+/**
+ * @deprecated Use {@link Timepoint} instead.
+ * @memberof module:contract
+ */
+export type Typepoint = bigint;
+/**
+ * An unsigned 64-bit integer.
+ * @memberof module:contract
+ */
 export type Timepoint = bigint;
+/**
+ * An unsigned 64-bit integer.
+ * @memberof module:contract
+ */
 export type Duration = bigint;
 
 /**
