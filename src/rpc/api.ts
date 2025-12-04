@@ -267,7 +267,7 @@ export namespace Api {
     | {
         filters: Api.EventFilter[];
         startLedger: number;
-        endLedger: number;
+        endLedger?: number;
         cursor?: never; // explicitly exclude cursor
         limit?: number;
       }
