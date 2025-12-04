@@ -125,6 +125,7 @@ export class Soroban {
    * @throws {TypeError} if the given amount has a decimal point already
    * @example
    * formatTokenAmount("123000", 4) === "12.3";
+   * formatTokenAmount("123000", 3) === "123.0";
    */
   static formatTokenAmount(amount, decimals) {
     if (amount.includes('.')) {
@@ -145,8 +146,8 @@ export class Soroban {
       }
     }
 
-    // remove trailing zero if any
-    return formatted.replace(/(\.\d*?)0+$/, '$1');
+    // remove trailing zero, if any, but keep one after the decimal
+    return formatted.replace(/(\.\d*?)0+$/, '$1').replace(/\.$/, '.0');
   }
 
   /**
