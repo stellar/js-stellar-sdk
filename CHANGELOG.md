@@ -6,6 +6,8 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+## [v14.4.1](https://github.com/stellar/js-stellar-sdk/compare/v14.4.0...v14.4.1)
+
 ### Fixed
 * Set `Api.GetEventsRequest.endLedger` to be optional to align with RPC behavior ([#1304](https://github.com/stellar/js-stellar-sdk/pull/1304/))
 * Added back `Typepoint` and marked it _deprecated_ in favor of `Timepoint` ([#1303](https://github.com/stellar/js-stellar-sdk/pull/1303))
