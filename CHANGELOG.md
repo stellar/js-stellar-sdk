@@ -6,6 +6,9 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Fixed
+* Set `Api.GetEventsRequest.endLedger` to be optional to align with RPC behavior ([#1304](https://github.com/stellar/js-stellar-sdk/pull/1304/))
+
 ## [v14.4.0](https://github.com/stellar/js-stellar-sdk/compare/v14.3.3...v14.4.0)
 
 ### Added
