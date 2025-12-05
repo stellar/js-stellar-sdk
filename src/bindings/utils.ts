@@ -326,11 +326,37 @@ export function formatImports(
   return importLines.join("\n");
 }
 
+/**
+ * Escape special characters in JSDoc comment content
+ */
+function escapeJSDocContent(text: string): string {
+  return (
+    text
+      // Escape closing comment sequences that would break the JSDoc block
+      .replace(/\*\//g, "*\\/")
+      // Escape @ symbols at word boundaries to prevent accidental JSDoc tags
+      // We allow common JSDoc tags to pass through
+      .replace(
+        /@(?!(param|returns?|type|throws?|example|deprecated|see|link|since|author|version|description|summary)\b)/g,
+        "\\@",
+      )
+  );
+}
+
+/**
+ * Format a comment string as JSDoc with proper escaping
+ */
 export function formatJSDocComment(comment: string, indentLevel = 0): string {
   if (comment.trim() === "") {
     return "";
   }
   const indent = " ".repeat(indentLevel);
-  const lines = comment.split("\n").map((line) => `${indent} * ${line}`);
+
+  // Escape special characters and split into lines
+  const escapedComment = escapeJSDocContent(comment);
+  const lines = escapedComment
+    .split("\n")
+    .map((line) => `${indent} * ${line}`.trimEnd());
+
   return `${indent}/**\n${lines.join("\n")}\n${indent} */\n`;
 }
