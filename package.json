@@ -147,7 +147,7 @@
     "@types/eventsource": "^1.1.12",
     "@types/json-schema": "^7.0.15",
     "@types/lodash": "^4.17.20",
-    "@types/node": "^20.14.11",
+    "@types/node": "^24.10.1",
     "@types/randombytes": "^2.0.1",
     "@types/urijs": "^1.19.20",
     "@typescript-eslint/parser": "^8.46.4",
