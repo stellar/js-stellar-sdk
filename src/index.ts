@@ -35,7 +35,7 @@ export * as rpc from "./rpc";
  * import { Client } from '@stellar/stellar-sdk/contract';
  */
 export * as contract from "./contract";
-
+export * as bindings from "./bindings";
 // expose classes and functions from stellar-base
 export * from "@stellar/stellar-base";
 

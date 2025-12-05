@@ -21,8 +21,12 @@
   "files": [
     "/types",
     "/lib",
-    "/dist"
+    "/dist",
+    "/bin"
   ],
+  "bin": {
+    "stellar-js": "./bin/stellar-js"
+  },
   "exports": {
     ".": {
       "browser": "./dist/stellar-sdk.min.js",
@@ -108,6 +112,7 @@
     "fmt": "yarn _prettier && yarn eslint src/ --fix",
     "preversion": "yarn clean && yarn _prettier && yarn build:prod && yarn test",
     "prepare": "yarn build:prod",
+    "download-sac-spec": "node scripts/download-sac-spec.js",
     "_build": "yarn build:node:all && yarn build:browser:all",
     "_babel": "babel --extensions '.ts' --out-dir ${OUTPUT_DIR:-lib} src/",
     "_nyc": "node node_modules/.bin/nyc --nycrc-path config/.nycrc",
@@ -197,6 +202,7 @@
     "@stellar/stellar-base": "^14.0.3",
     "axios": "^1.12.2",
     "bignumber.js": "^9.3.1",
+    "commander": "^14.0.2",
     "eventsource": "^2.0.2",
     "feaxios": "^0.0.23",
     "randombytes": "^2.1.0",
