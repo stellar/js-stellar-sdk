@@ -5,6 +5,7 @@ import {
   generateTypeImports,
   sanitizeName,
   formatJSDocComment,
+  formatImports,
 } from "./utils";
 
 /**
@@ -81,7 +82,7 @@ export class TypeGenerator {
   }
 
   private generateImports(): string {
-    let imports = generateTypeImports(
+    const imports = generateTypeImports(
       this.spec.entries.flatMap((entry) => {
         switch (entry.switch()) {
           case xdr.ScSpecEntryKind.scSpecEntryUdtStructV0():
@@ -114,23 +115,9 @@ export class TypeGenerator {
       }),
     );
 
-    const importLines: string[] = [];
-
-    if (imports.needsBufferImport) {
-      importLines.push(`import { Buffer } from 'buffer';`);
-    }
-    if (imports.stellarContractImports.length > 0) {
-      importLines.push(
-        `import {\n${imports.stellarContractImports.join(",\n")}\n} from '@stellar/stellar-sdk';`,
-      );
-    }
-    if (imports.stellarImports.length > 0) {
-      importLines.push(
-        `import {\n${imports.stellarImports.join(",\n")}\n} from '@stellar/stellar-sdk';`,
-      );
-    }
-
-    return importLines.join("\n");
+    return formatImports(imports, {
+      includeTypeFileImports: false, // Types file doesn't import from itself
+    });
   }
 
   /**

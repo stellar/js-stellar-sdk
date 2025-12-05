@@ -266,6 +266,68 @@ export function generateTypeImports(
   };
 }
 
+/**
+ * Options for formatting imports
+ */
+export interface FormatImportsOptions {
+  /** Whether to include imports from types.ts */
+  includeTypeFileImports?: boolean;
+  /** Additional imports needed from @stellar/stellar-sdk/contract */
+  additionalStellarContractImports?: string[];
+  /** Additional imports needed from @stellar/stellar-sdk */
+  additionalStellarImports?: string[];
+}
+
+/**
+ * Format imports into import statement strings
+ */
+export function formatImports(
+  imports: BindingImports,
+  options?: FormatImportsOptions,
+): string {
+  const importLines: string[] = [];
+
+  const typeFileImports = imports.typeFileImports;
+  const stellarContractImports = [
+    ...imports.stellarContractImports,
+    ...(options?.additionalStellarContractImports || []),
+  ];
+  const stellarImports = [
+    ...imports.stellarImports,
+    ...(options?.additionalStellarImports || []),
+  ];
+
+  // Type file imports (only if enabled)
+  if (options?.includeTypeFileImports && typeFileImports.length > 0) {
+    importLines.push(
+      `import {\n${typeFileImports.join(",\n")}\n} from './types.js';`,
+    );
+  }
+
+  // Stellar contract imports
+  if (stellarContractImports.length > 0) {
+    const uniqueContractImports = Array.from(new Set(stellarContractImports));
+    importLines.push(
+      `import {\n${uniqueContractImports.join(",\n")}\n} from '@stellar/stellar-sdk/contract';`,
+    );
+  }
+
+  // Stellar SDK imports
+  if (stellarImports.length > 0) {
+    const uniqueStellarImports = Array.from(new Set(stellarImports));
+    importLines.push(
+      `import {\n${uniqueStellarImports.join(",\n")}\n} from '@stellar/stellar-sdk';`,
+    );
+  }
+
+  // Buffer import
+  if (imports.needsBufferImport) {
+    importLines.push(`import { Buffer } from 'buffer';`);
+  }
+
+  return importLines.join("\n");
+}
+
 export function formatJSDocComment(comment: string, indentLevel = 0): string {
   if (comment.trim() === "") {
     return "";

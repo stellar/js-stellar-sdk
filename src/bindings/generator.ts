@@ -3,10 +3,8 @@ import { ConfigGenerator } from "./config";
 import { TypeGenerator } from "./types";
 import { ClientGenerator } from "./client";
 import { specFromWasm } from "../contract/wasm_spec_parser";
-
 import { fetchFromContractId, fetchFromWasmHash } from "./wasm_fetcher";
 import { SAC_SPEC } from "./sac-spec";
-// import { Options } from "prettier";
 
 export type GenerateOptions = {
   contractName: string;

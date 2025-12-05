@@ -5,6 +5,7 @@ import {
   generateTypeImports,
   sanitizeName,
   formatJSDocComment,
+  formatImports,
 } from "./utils";
 
 /**
@@ -71,47 +72,25 @@ export class Client extends ContractClient {
   }
 
   private generateImports(): string {
-    const { stellarContractImports, typeFileImports, stellarImports } =
-      generateTypeImports(
-        this.spec.funcs().flatMap((func) => {
-          const inputs = func.inputs();
-          const outputs = func.outputs();
-          const defs = inputs.map((input) => input.type()).concat(outputs);
-          return defs;
-        }),
-      );
-    // Ensure necessary imports for Client class
-    stellarContractImports.push(
-      "Spec",
-      "AssembledTransaction",
-      "Client as ContractClient",
-      "ClientOptions as ContractClientOptions",
-      "MethodOptions",
+    const imports = generateTypeImports(
+      this.spec.funcs().flatMap((func) => {
+        const inputs = func.inputs();
+        const outputs = func.outputs();
+        const defs = inputs.map((input) => input.type()).concat(outputs);
+        return defs;
+      }),
     );
-    // Build imports
-    const importLines: string[] = [];
-    if (typeFileImports.length > 0) {
-      importLines.push(
-        `import {\n${typeFileImports.join(",\n")}\n} from './types.js';`,
-      );
-    }
-    if (stellarContractImports.length > 0) {
-      importLines.push(
-        `import {\n${stellarContractImports.join(
-          ",\n",
-        )}\n} from '@stellar/stellar-sdk/contract';`,
-      );
-    }
-    if (stellarImports.length > 0) {
-      importLines.push(
-        `import {\n${stellarImports.join(
-          ",\n",
-        )}\n} from '@stellar/stellar-sdk';`,
-      );
-    }
-    importLines.push(`import { Buffer } from 'buffer';`);
-    const imports = importLines.join("\n");
-    return imports;
+
+    return formatImports(imports, {
+      includeTypeFileImports: true, // Client imports types
+      additionalStellarContractImports: [
+        "Spec",
+        "AssembledTransaction",
+        "Client as ContractClient",
+        "ClientOptions as ContractClientOptions",
+        "MethodOptions",
+      ],
+    });
   }
 
   /**
