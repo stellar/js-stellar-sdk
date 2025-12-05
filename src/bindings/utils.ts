@@ -152,118 +152,117 @@ export function parseTypeFromTypeDef(typeDef: xdr.ScSpecTypeDef): string {
  */
 export interface BindingImports {
   /** Imports needed from type definitions */
-  typeFileImports: string[];
+  typeFileImports: Set<string>;
   /** Imports needed from the Stellar SDK in the contract namespace */
-  stellarContractImports: string[];
+  stellarContractImports: Set<string>;
   /** Imports needed from Stellar SDK in the global namespace */
-  stellarImports: string[];
+  stellarImports: Set<string>;
   /** Whether Buffer import is needed */
   needsBufferImport: boolean;
 }
+
+/**
+ * Extract nested type definitions from container types
+ */
+function extractNestedTypes(typeDef: xdr.ScSpecTypeDef): xdr.ScSpecTypeDef[] {
+  switch (typeDef.switch()) {
+    case xdr.ScSpecType.scSpecTypeVec():
+      return [typeDef.vec().elementType()];
+
+    case xdr.ScSpecType.scSpecTypeMap():
+      return [typeDef.map().keyType(), typeDef.map().valueType()];
+
+    case xdr.ScSpecType.scSpecTypeTuple():
+      return typeDef.tuple().valueTypes();
+
+    case xdr.ScSpecType.scSpecTypeOption():
+      return [typeDef.option().valueType()];
+
+    case xdr.ScSpecType.scSpecTypeResult():
+      return [typeDef.result().okType(), typeDef.result().errorType()];
+
+    default:
+      return [];
+  }
+}
+
+/**
+ * Visitor to collect imports from a single type definition
+ */
+function visitTypeDef(
+  typeDef: xdr.ScSpecTypeDef,
+  accumulator: BindingImports,
+): void {
+  const typeSwitch = typeDef.switch();
+
+  // Handle leaf types (no nested types)
+  switch (typeSwitch) {
+    case xdr.ScSpecType.scSpecTypeUdt():
+      accumulator.typeFileImports.add(
+        sanitizeName(typeDef.udt().name().toString()),
+      );
+      return;
+
+    case xdr.ScSpecType.scSpecTypeAddress():
+    case xdr.ScSpecType.scSpecTypeMuxedAddress():
+      accumulator.stellarImports.add("Address");
+      return;
+
+    case xdr.ScSpecType.scSpecTypeBytes():
+    case xdr.ScSpecType.scSpecTypeBytesN():
+      accumulator.needsBufferImport = true;
+      return;
+
+    case xdr.ScSpecType.scSpecTypeVal():
+      accumulator.stellarImports.add("xdr");
+      return;
+
+    case xdr.ScSpecType.scSpecTypeResult():
+      accumulator.stellarContractImports.add("Result");
+      // Fall through to handle nested types
+      break;
+
+    // Primitive types that need no imports
+    case xdr.ScSpecType.scSpecTypeBool():
+    case xdr.ScSpecType.scSpecTypeVoid():
+    case xdr.ScSpecType.scSpecTypeError():
+    case xdr.ScSpecType.scSpecTypeU32():
+    case xdr.ScSpecType.scSpecTypeI32():
+    case xdr.ScSpecType.scSpecTypeU64():
+    case xdr.ScSpecType.scSpecTypeI64():
+    case xdr.ScSpecType.scSpecTypeTimepoint():
+    case xdr.ScSpecType.scSpecTypeDuration():
+    case xdr.ScSpecType.scSpecTypeU128():
+    case xdr.ScSpecType.scSpecTypeI128():
+    case xdr.ScSpecType.scSpecTypeU256():
+    case xdr.ScSpecType.scSpecTypeI256():
+    case xdr.ScSpecType.scSpecTypeString():
+    case xdr.ScSpecType.scSpecTypeSymbol():
+      return;
+  }
+
+  // Handle container types (have nested types)
+  const nestedTypes = extractNestedTypes(typeDef);
+  nestedTypes.forEach((nested) => visitTypeDef(nested, accumulator));
+}
+
+/**
+ * Generate imports needed for a list of type definitions
+ */
 export function generateTypeImports(
   typeDefs: xdr.ScSpecTypeDef[],
 ): BindingImports {
-  const typeFileImports = new Set<string>();
-  const stellarContractImports = new Set<string>();
-  const stellarImports = new Set<string>();
-  let needsBufferImport = false;
-  typeDefs.forEach((typeDef) => {
-    switch (typeDef.switch()) {
-      case xdr.ScSpecType.scSpecTypeUdt():
-        // These are contract interfaces/structs/enums/errors that need to imported from types.ts
-        typeFileImports.add(sanitizeName(typeDef.udt().name().toString()));
-        break;
-      case xdr.ScSpecType.scSpecTypeAddress():
-      case xdr.ScSpecType.scSpecTypeMuxedAddress():
-        stellarImports.add("Address");
-        break;
-      case xdr.ScSpecType.scSpecTypeBytes():
-      case xdr.ScSpecType.scSpecTypeBytesN():
-        needsBufferImport = true;
-        break;
-      case xdr.ScSpecType.scSpecTypeVal():
-        stellarImports.add("xdr");
-        break;
-      case xdr.ScSpecType.scSpecTypeVec():
-        {
-          const vecImports = generateTypeImports([typeDef.vec().elementType()]);
-          vecImports.typeFileImports.forEach((imp) => typeFileImports.add(imp));
-          vecImports.stellarContractImports.forEach((imp) =>
-            stellarContractImports.add(imp),
-          );
-          vecImports.stellarImports.forEach((imp) => stellarImports.add(imp));
-        }
-        break;
-      case xdr.ScSpecType.scSpecTypeMap():
-        {
-          const mapImports = generateTypeImports([
-            typeDef.map().keyType(),
-            typeDef.map().valueType(),
-          ]);
-          mapImports.typeFileImports.forEach((imp) => typeFileImports.add(imp));
-          mapImports.stellarContractImports.forEach((imp) =>
-            stellarContractImports.add(imp),
-          );
-          mapImports.stellarImports.forEach((imp) => stellarImports.add(imp));
-        }
-        break;
-      case xdr.ScSpecType.scSpecTypeTuple():
-        {
-          const tupleImports = generateTypeImports(
-            typeDef.tuple().valueTypes(),
-          );
-          tupleImports.typeFileImports.forEach((imp) =>
-            typeFileImports.add(imp),
-          );
-          tupleImports.stellarContractImports.forEach((imp) =>
-            stellarContractImports.add(imp),
-          );
-          tupleImports.stellarImports.forEach((imp) => stellarImports.add(imp));
-        }
-        break;
-      case xdr.ScSpecType.scSpecTypeOption():
-        {
-          const optionImports = generateTypeImports([
-            typeDef.option().valueType(),
-          ]);
-          optionImports.typeFileImports.forEach((imp) =>
-            typeFileImports.add(imp),
-          );
-          optionImports.stellarContractImports.forEach((imp) =>
-            stellarContractImports.add(imp),
-          );
-          optionImports.stellarImports.forEach((imp) =>
-            stellarImports.add(imp),
-          );
-        }
-        break;
-      case xdr.ScSpecType.scSpecTypeResult():
-        {
-          stellarContractImports.add("Result");
-          const resultImports = generateTypeImports([
-            typeDef.result().okType(),
-            typeDef.result().errorType(),
-          ]);
-          resultImports.typeFileImports.forEach((imp) =>
-            typeFileImports.add(imp),
-          );
-          resultImports.stellarContractImports.forEach((imp) =>
-            stellarContractImports.add(imp),
-          );
-          resultImports.stellarImports.forEach((imp) =>
-            stellarImports.add(imp),
-          );
-        }
-        break;
-    }
-  });
-
-  return {
-    typeFileImports: Array.from(typeFileImports),
-    stellarContractImports: Array.from(stellarContractImports),
-    stellarImports: Array.from(stellarImports),
-    needsBufferImport,
+  const imports: BindingImports = {
+    typeFileImports: new Set<string>(),
+    stellarContractImports: new Set<string>(),
+    stellarImports: new Set<string>(),
+    needsBufferImport: false,
   };
+
+  // Visit each type definition
+  typeDefs.forEach((typeDef) => visitTypeDef(typeDef, imports));
+
+  return imports;
 }
 
 /**
@@ -272,9 +271,9 @@ export function generateTypeImports(
 export interface FormatImportsOptions {
   /** Whether to include imports from types.ts */
   includeTypeFileImports?: boolean;
-  /** Additional imports needed from @stellar/stellar-sdk/contract */
+  /** Additional imports needed from stellar/stellar-sdk/contract */
   additionalStellarContractImports?: string[];
-  /** Additional imports needed from @stellar/stellar-sdk */
+  /** Additional imports needed from stellar/stellar-sdk */
   additionalStellarImports?: string[];
 }
 
@@ -296,11 +295,10 @@ export function formatImports(
     ...imports.stellarImports,
     ...(options?.additionalStellarImports || []),
   ];
-
   // Type file imports (only if enabled)
-  if (options?.includeTypeFileImports && typeFileImports.length > 0) {
+  if (options?.includeTypeFileImports && typeFileImports.size > 0) {
     importLines.push(
-      `import {\n${typeFileImports.join(",\n")}\n} from './types.js';`,
+      `import {${Array.from(typeFileImports).join(", ")}} from './types.js';`,
     );
   }
 
@@ -308,7 +306,7 @@ export function formatImports(
   if (stellarContractImports.length > 0) {
     const uniqueContractImports = Array.from(new Set(stellarContractImports));
     importLines.push(
-      `import {\n${uniqueContractImports.join(",\n")}\n} from '@stellar/stellar-sdk/contract';`,
+      `import {${uniqueContractImports.join(", ")}} from '@stellar/stellar-sdk/contract';`,
     );
   }
 
@@ -316,7 +314,7 @@ export function formatImports(
   if (stellarImports.length > 0) {
     const uniqueStellarImports = Array.from(new Set(stellarImports));
     importLines.push(
-      `import {\n${uniqueStellarImports.join(",\n")}\n} from '@stellar/stellar-sdk';`,
+      `import {${uniqueStellarImports.join(", ")}} from '@stellar/stellar-sdk';`,
     );
   }
 
