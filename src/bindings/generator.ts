@@ -4,9 +4,6 @@ import { TypeGenerator } from "./types";
 import { ClientGenerator } from "./client";
 import { specFromWasm } from "../contract/wasm_spec_parser";
 
-// import { format } from "prettier/standalone";
-// import * as prettierPluginTypeScript from "prettier/plugins/typescript";
-// import * as prettierPluginEstree from "prettier/plugins/estree";
 import { fetchFromContractId, fetchFromWasmHash } from "./wasm_fetcher";
 import { SAC_SPEC } from "./sac-spec";
 // import { Options } from "prettier";
@@ -111,16 +108,15 @@ export class BindingGenerator {
   generate(options: GenerateOptions): GeneratedBindings {
     this.validateOptions(options);
 
-    // Generate type and client code using template strings (no ts-morph!)
     const typeGenerator = new TypeGenerator(this.spec);
     const clientGenerator = new ClientGenerator(this.spec);
 
     const types = typeGenerator.generate();
     const client = clientGenerator.generate();
 
-    const index = `export { Client } from "./client.js";`;
+    let index = `export { Client } from "./client.js";`;
     if (types !== "") {
-      index.concat(`\nexport * from "./types.js";`);
+      index = index.concat(`\nexport * from "./types.js";`);
     }
 
     // Generate config files
