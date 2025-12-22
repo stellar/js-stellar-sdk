@@ -236,8 +236,12 @@ export class Address {
         ]);
         return Address.muxedAccount(raw);
       }
-      case xdr.ScAddressType.scAddressTypeClaimableBalance().value:
-        return Address.claimableBalance(scAddress.claimableBalanceId());
+      case xdr.ScAddressType.scAddressTypeClaimableBalance().value: {
+        const cbi = scAddress.claimableBalanceId();
+        return Address.claimableBalance(
+          Buffer.concat([Buffer.from([cbi.switch().value]), cbi.v0()])
+        );
+      }
       case xdr.ScAddressType.scAddressTypeLiquidityPool().value:
         return Address.liquidityPool(scAddress.liquidityPoolId());
       default:
