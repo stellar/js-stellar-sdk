@@ -48,6 +48,14 @@ export namespace Api {
     protocolVersion: string;
   }
 
+  /**
+   * Result returned when funding a contract address via friendbot.
+   */
+  export interface ContractFundingResult {
+    contractId: string;
+    hash: string;
+  }
+
   /** @see https://developers.stellar.org/docs/data/rpc/api-reference/methods/getLatestLedger */
   export interface GetLatestLedgerResponse {
     id: string;

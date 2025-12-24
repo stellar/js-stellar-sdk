@@ -369,4 +369,72 @@ describe("Server#requestAirdrop", () => {
     });
     expect(mockPost).toHaveBeenCalledTimes(3);
   });
+
+  it("returns ContractFundingResult for contract addresses (C...)", async () => {
+    const friendbotUrl = "https://friendbot.stellar.org";
+    // Valid contract address (C...)
+    const contractId = StellarSdk.StrKey.encodeContract(
+      Buffer.from("0".repeat(64), "hex"),
+    );
+    const hash =
+      "ae9f315c048d87a5f853bc15bf284a2c3c89eb0e1cb38c10409b77a877b830a8";
+
+    const networkResult = {
+      friendbotUrl,
+      passphrase: Networks.FUTURENET,
+      protocolVersion: 20,
+    };
+    const networkResponse = { data: { result: networkResult } };
+
+    // Mock the friendbot call - contract funding returns hash but no account creation
+    const friendbotResponse = {
+      status: 200,
+      data: {
+        hash,
+        result_meta_xdr: "someXdr", // Doesn't matter - should not be parsed for contracts
+      },
+    };
+
+    mockPost
+      .mockResolvedValueOnce(networkResponse) // getNetwork call
+      .mockResolvedValueOnce(friendbotResponse); // friendbot call
+
+    const result = await server.requestAirdrop(contractId);
+
+    // Should return ContractFundingResult, not Account
+    expect(result).not.toBeInstanceOf(StellarSdk.Account);
+    expect(result).toHaveProperty("contractId", contractId);
+    expect(result).toHaveProperty("hash", hash);
+    expect(mockPost).toHaveBeenCalledWith(serverUrl, {
+      jsonrpc: "2.0",
+      id: 1,
+      method: "getNetwork",
+      params: null,
+    });
+    expect(mockPost).toHaveBeenCalledWith(`${friendbotUrl}?addr=${contractId}`);
+    expect(mockPost).toHaveBeenCalledTimes(2);
+  });
+
+  it("does not throw 'No account created' for contract addresses", async () => {
+    const customFriendbotUrl = "https://custom-friendbot.example.com";
+    const contractId = StellarSdk.StrKey.encodeContract(
+      Buffer.from("1".repeat(64), "hex"),
+    );
+    const hash = "somehash123";
+
+    const friendbotResponse = {
+      status: 200,
+      data: { hash },
+    };
+
+    mockPost.mockResolvedValueOnce(friendbotResponse);
+
+    // Should NOT throw "No account created in transaction"
+    const result = await server.requestAirdrop(contractId, customFriendbotUrl);
+
+    expect(result).toEqual({
+      contractId,
+      hash,
+    });
+  });
 });
