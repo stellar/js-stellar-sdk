@@ -32,18 +32,18 @@ jobs:
           --health-timeout 5s
           --health-retries 50
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
       with:
         submodules: true
-    - uses: actions/cache@v4
+    - uses: actions/cache@v5
       with:
         path: |
           target/
         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-    - uses: actions/setup-node@v4
+    - uses: actions/setup-node@v6
       with:
         node-version: ${{ env.NODE }}
-    - uses: stellar/stellar-cli@v23.1.4
+    - uses: stellar/stellar-cli@v23.4.0
 
     # Install system dependencies required for Stellar CLI
     - name: Install system dependencies
