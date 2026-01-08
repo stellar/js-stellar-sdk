@@ -200,7 +200,7 @@ export async function fetchFromWasmHash(
       );
     }
 
-    const server = new RpcServer(rpcUrl);
+    const server = new RpcServer(rpcUrl, { allowHttp: true });
 
     // Verify network
     await verifyNetwork(server, networkPassphrase);
@@ -234,7 +234,7 @@ export async function fetchFromContractId(
   networkPassphrase: string,
 ): Promise<FetchedContract> {
   try {
-    const server = new RpcServer(rpcUrl);
+    const server = new RpcServer(rpcUrl, { allowHttp: true });
 
     // Verify network
     await verifyNetwork(server, networkPassphrase);

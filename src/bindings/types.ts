@@ -3,7 +3,7 @@ import { Spec } from "../contract";
 import {
   parseTypeFromTypeDef,
   generateTypeImports,
-  sanitizeName,
+  sanitizeIdentifier,
   formatJSDocComment,
   formatImports,
 } from "./utils";
@@ -124,7 +124,7 @@ export class TypeGenerator {
    * Generate TypeScript interface for a struct
    */
   private generateStruct(struct: xdr.ScSpecUdtStructV0): string {
-    const name = sanitizeName(struct.name().toString());
+    const name = sanitizeIdentifier(struct.name().toString());
     const doc = formatJSDocComment(
       struct.doc().toString() || `Struct: ${name}`,
       0,
@@ -150,7 +150,7 @@ ${fields}
    * Generate TypeScript union type
    */
   private generateUnion(union: xdr.ScSpecUdtUnionV0): string {
-    const name = sanitizeName(union.name().toString());
+    const name = sanitizeIdentifier(union.name().toString());
     const doc = formatJSDocComment(
       union.doc().toString() || `Union: ${name}`,
       0,
@@ -176,7 +176,7 @@ ${caseTypes};`;
    * Generate TypeScript enum
    */
   private generateEnum(enumEntry: xdr.ScSpecUdtEnumV0): string {
-    const name = sanitizeName(enumEntry.name().toString());
+    const name = sanitizeIdentifier(enumEntry.name().toString());
     const doc = formatJSDocComment(
       enumEntry.doc().toString() || `Enum: ${name}`,
       0,
@@ -202,7 +202,7 @@ ${members}
    * Generate TypeScript error enum
    */
   private generateErrorEnum(errorEnum: xdr.ScSpecUdtErrorEnumV0): string {
-    const name = sanitizeName(errorEnum.name().toString());
+    const name = sanitizeIdentifier(errorEnum.name().toString());
     const doc = formatJSDocComment(
       errorEnum.doc().toString() || `Error Enum: ${name}`,
       0,

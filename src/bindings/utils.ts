@@ -59,21 +59,21 @@ export function isNameReserved(name: string): boolean {
 }
 /**
  * Sanitize a name to avoid reserved keywords
- * @param name
- * @returns
+ * @param identifier - The identifier to sanitize
+ * @returns The sanitized identifier
  */
-export function sanitizeName(name: string): string {
-  if (isNameReserved(name)) {
+export function sanitizeIdentifier(identifier: string): string {
+  if (isNameReserved(identifier)) {
     // Append underscore to reserved
-    return name + "_";
+    return identifier + "_";
   }
 
-  if (/^\d/.test(name)) {
+  if (/^\d/.test(identifier)) {
     // Prefix leading digit with underscore
-    return "_" + name;
+    return "_" + identifier;
   }
 
-  return name;
+  return identifier;
 }
 
 /**
@@ -145,7 +145,7 @@ export function parseTypeFromTypeDef(typeDef: xdr.ScSpecTypeDef): string {
       return `Result<${okType}, ${errorType}>`;
     }
     case xdr.ScSpecType.scSpecTypeUdt(): {
-      const udtName = sanitizeName(typeDef.udt().name().toString());
+      const udtName = sanitizeIdentifier(typeDef.udt().name().toString());
       return udtName;
     }
     default:
@@ -205,7 +205,7 @@ function visitTypeDef(
   switch (typeSwitch) {
     case xdr.ScSpecType.scSpecTypeUdt():
       accumulator.typeFileImports.add(
-        sanitizeName(typeDef.udt().name().toString()),
+        sanitizeIdentifier(typeDef.udt().name().toString()),
       );
       return;
 

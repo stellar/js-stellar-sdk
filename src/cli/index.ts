@@ -55,9 +55,12 @@ function runCli() {
             case "futurenet":
               networkPassphrase = Networks.FUTURENET;
               break;
+            case "localnet":
+              networkPassphrase = Networks.STANDALONE;
+              break;
             default:
               throw new Error(
-                `\n✗ Invalid network: ${options.network}. Must be testnet, mainnet, or futurenet`,
+                `\n✗ Invalid network: ${options.network}. Must be testnet, mainnet, futurenet, or localnet`,
               );
           }
         }
@@ -85,13 +88,13 @@ function runCli() {
           );
           const spec = new Spec(SAC_SPEC);
           generator = BindingGenerator.fromSpec(spec);
-          contractName = options.contractName || "StellarAssetContract";
+          contractName = options.contractName || "stellar-asset-contract";
         } else {
           // Generate from WASM
           console.log("\n✓ Generating TypeScript bindings...");
           generator = await BindingGenerator.fromWasm(contract.wasmBytes);
           contractName =
-            options.contractName || deriveContractName(source) || "Contract";
+            options.contractName || deriveContractName(source) || "contract";
         }
 
         // Generate and write bindings using helper

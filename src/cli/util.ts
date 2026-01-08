@@ -10,6 +10,7 @@ import {
   WasmFetchError,
   fetchFromWasmHash,
   fetchFromContractId,
+  ContractSource,
 } from "../bindings";
 
 export type GenerateAndWriteOptions = GenerateOptions & {
@@ -134,7 +135,7 @@ export async function fetchWasm(args: WasmFetchArgs): Promise<FetchedContract> {
   }
   if (!args.networkPassphrase) {
     throw new WasmFetchError(
-      "--network-passphrase is required when fetching from network",
+      "--network is required when fetching from network",
     );
   }
 
@@ -162,7 +163,7 @@ export async function fetchWasm(args: WasmFetchArgs): Promise<FetchedContract> {
 /**
  * Log information about the contract source
  */
-export function logSourceInfo(source: any): void {
+export function logSourceInfo(source: ContractSource): void {
   console.log("\nSource:");
   switch (source.type) {
     case "file":
@@ -187,14 +188,18 @@ export function logSourceInfo(source: any): void {
 /**
  * Derive a contract name from the source
  */
-export function deriveContractName(source: any): string | null {
+export function deriveContractName(source: ContractSource): string | null {
   if (source.type === "file") {
     const basename = path.basename(source.path, path.extname(source.path));
-    // Convert kebab-case or snake_case to PascalCase
-    return basename
-      .split(/[-_]/)
-      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-      .join("");
+    // Normalize to kebab-case
+    return (
+      basename
+        // Insert hyphen before uppercase letters (PascalCase/camelCase → kebab)
+        .replace(/([a-z])([A-Z])/g, "$1-$2")
+        // Replace underscores with hyphens (snake_case → kebab)
+        .replace(/_/g, "-")
+        .toLowerCase()
+    );
   }
 
   return null;
