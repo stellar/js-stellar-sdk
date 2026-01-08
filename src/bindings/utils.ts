@@ -67,6 +67,12 @@ export function sanitizeName(name: string): string {
     // Append underscore to reserved
     return name + "_";
   }
+
+  if (/^\d/.test(name)) {
+    // Prefix leading digit with underscore
+    return "_" + name;
+  }
+
   return name;
 }
 
