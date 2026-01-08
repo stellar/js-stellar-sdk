@@ -11,6 +11,7 @@ function filterEvents(events: any[], filter: string): any[] {
   const parts = filter.split("/");
   return events.filter(
     (e: any) =>
+      e.topic &&
       e.topic.length === parts.length &&
       e.topic.every((s: any, j: number) => s === parts[j] || parts[j] === "*"),
   );
@@ -85,6 +86,20 @@ const getEventsResponseFixture = [
     topic: topicVals,
     value: eventVal,
     txHash: "d7d09af2ca4f2929ee701cf86d05e4ca5f849a726d0db344785a8f9894e79e6c",
+  },
+  {
+    type: "contract",
+    ledger: "4",
+    ledgerClosedAt: "2025-10-26T22:19:10Z",
+    contractId: "CC5E2AZW4DRFDYZHI7M25QKCSMFPUD7C3425BUOW54RU3TQRKUPA64W5",
+    id: "0005426983236280320-0000000000",
+    cursor: "0005426983236280320-0000000000",
+    operationIndex: 0,
+    transactionIndex: 2,
+    inSuccessfulContractCall: true,
+    txHash: "8735d2c7e31b1f10037f41d723072fbfacd0bbf74ed48f71f8e4211132017123",
+    // topic is undefined to test the fix for the bug
+    value: eventVal,
   },
 ];
 
@@ -351,6 +366,24 @@ describe("Server#getEvents", () => {
         },
       },
     });
+    expect(mockPost).toHaveBeenCalledTimes(1);
+  });
+
+  it("handles events with undefined topic field", async () => {
+    const result = {
+      latestLedger: 3,
+      oldestLedger: 3,
+      oldestLedgerCloseTime: "0",
+      latestLedgerCloseTime: "0",
+      cursor: "164090849041387521-3",
+      events: filterEventsByLedger(getEventsResponseFixture, 4),
+    };
+    setupMock(mockPost, { startLedger: 4 }, result);
+
+    const response = await server.getEvents({ startLedger: 4 });
+    const parsed = parseEvents(result);
+    expect(response).toEqual(parsed);
+    expect(response.events[0].topic).toEqual([]);
     expect(mockPost).toHaveBeenCalledTimes(1);
   });
 });

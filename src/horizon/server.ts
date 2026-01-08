@@ -147,7 +147,7 @@ export class HorizonServer {
    * @param {number} seconds Number of seconds past the current time to wait.
    * @param {boolean} [_isRetry] True if this is a retry. Only set this internally!
    * This is to avoid a scenario where Horizon is horking up the wrong date.
-   * @returns {Promise<Timebounds>} Promise that resolves a `timebounds` object
+   * @returns {Promise<module:HorizonServer.Timebounds>} Promise that resolves a `Timebounds` object
    * (with the shape `{ minTime: 0, maxTime: N }`) that you can set the `timebounds` option to.
    */
   public async fetchTimebounds(
@@ -333,10 +333,14 @@ export class HorizonServer {
     );
 
     return this.httpClient
-      .post(this.serverURL.segment("transactions").toString(), `tx=${tx}`, {
-        timeout: SUBMIT_TRANSACTION_TIMEOUT,
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      })
+      .post(
+        this.serverURL.clone().segment("transactions").toString(),
+        `tx=${tx}`,
+        {
+          timeout: SUBMIT_TRANSACTION_TIMEOUT,
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        },
+      )
       .then((response) => {
         if (!response.data.result_xdr) {
           return response.data;
@@ -559,7 +563,7 @@ export class HorizonServer {
 
     return this.httpClient
       .post(
-        this.serverURL.segment("transactions_async").toString(),
+        this.serverURL.clone().segment("transactions_async").toString(),
         `tx=${tx}`,
         { headers: { "Content-Type": "application/x-www-form-urlencoded" } },
       )

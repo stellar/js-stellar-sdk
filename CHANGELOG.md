@@ -6,16 +6,43 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+
+## [v14.4.3](https://github.com/stellar/js-stellar-sdk/compare/v14.4.2...v14.4.3)
+
+### Fixed
+* Upgraded underlying `@stellar/stellar-base` library to include its fixes ([release notes](https://github.com/stellar/js-stellar-base/releases/tag/v14.0.4)).
+
+
+## [v14.4.2](https://github.com/stellar/js-stellar-sdk/compare/v14.4.1...v14.4.2)
+
+### Fixed
+* Fixed package installation for Windows environments ([#1306](https://github.com/stellar/js-stellar-sdk/pull/1306))
+
+## [v14.4.1](https://github.com/stellar/js-stellar-sdk/compare/v14.4.0...v14.4.1)
+
+### Fixed
+* Set `Api.GetEventsRequest.endLedger` to be optional to align with RPC behavior ([#1304](https://github.com/stellar/js-stellar-sdk/pull/1304/))
+* Added back `Typepoint` and marked it _deprecated_ in favor of `Timepoint` ([#1303](https://github.com/stellar/js-stellar-sdk/pull/1303))
+
+## [v14.4.0](https://github.com/stellar/js-stellar-sdk/compare/v14.3.3...v14.4.0)
+
 ### Added
 * Introduced an `rpc.Server.getAssetBalance()` helper to fetch asset balances both for contracts and accounts ([#1286](https://github.com/stellar/js-stellar-sdk/pull/1286/)).
 * `rpc.Api.BalanceResponse` now can include a `revocable` field in its `balanceEntry` for when trustlines are fetched ([#1286](https://github.com/stellar/js-stellar-sdk/pull/1286/)).
+* Added Timepoint and Duration support to `Spec` ([#1288](https://github.com/stellar/js-stellar-sdk/pull/1288))
+* `Api.GetHealthResponse` interface now includes `latestLedger`, `ledgerRetentionWindow`, and `oldestLedger` fields ([#1297](https://github.com/stellar/js-stellar-sdk/pull/1297)).
+* Added `publicKey`, `signTransaction`, and `signAuthEntry` as optional fields to `contract.MethodOptions` ([#1293](https://github.com/stellar/js-stellar-sdk/pull/1293)).
 
+### Fixed
+* `Api.RawEventResponse.topics` is now optional to reflect topicless events ([#1292](https://github.com/stellar/js-stellar-sdk/pull/1292)).
+* `parseRawEvents` correctly checks if `Api.RawEventResponse.topics` is undefined ([#1292](https://github.com/stellar/js-stellar-sdk/pull/1292)).
+* Remove `WebAssembly` usage in favor of manual wasm parsing ([#1300](https://github.com/stellar/js-stellar-sdk/pull/1300)).
+* Fixed URL contamination in `Horizon.Server` methods ([#1296](https://github.com/stellar/js-stellar-sdk/pull/1296)).
 
 ## [v14.3.3](https://github.com/stellar/js-stellar-sdk/compare/v14.3.2...v14.3.3)
 
 ### Added
 * `Spec.nativeToScVal` supports parsing Muxed Address([#1274](https://github.com/stellar/js-stellar-sdk/pull/1274)),
-
 
 ## [v14.3.2](https://github.com/stellar/js-stellar-sdk/compare/v14.3.1...v14.3.2)
 

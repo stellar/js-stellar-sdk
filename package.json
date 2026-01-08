@@ -1,6 +1,6 @@
 {
   "name": "@stellar/stellar-sdk",
-  "version": "14.3.3",
+  "version": "14.4.3",
   "description": "A library for working with the Stellar network, including communication with the Horizon and Soroban RPC servers.",
   "keywords": [
     "stellar"
@@ -83,7 +83,6 @@
   },
   "scripts": {
     "setup": "git config blame.ignoreRevsFile .git-blame-ignore-revs",
-    "postinstall": "yarn setup || true",
     "build": "cross-env NODE_ENV=development yarn _build",
     "build:prod": "cross-env NODE_ENV=production yarn _build",
     "build:node": "yarn _babel && yarn build:ts",
@@ -111,7 +110,7 @@
     "test:browser:no-axios": "cross-env USE_AXIOS=false yarn build:browser && cross-env USE_AXIOS=false vitest run --config config/vitest.config.browser.ts test/unit",
     "fmt": "yarn _prettier && yarn eslint src/ --fix",
     "preversion": "yarn clean && yarn _prettier && yarn build:prod && yarn test",
-    "prepare": "yarn build:prod",
+    "prepare": "yarn build:prod && yarn setup",
     "download-sac-spec": "node scripts/download-sac-spec.js",
     "_build": "yarn build:node:all && yarn build:browser:all",
     "_babel": "babel --extensions '.ts' --out-dir ${OUTPUT_DIR:-lib} src/",
@@ -199,8 +198,8 @@
     "webpack-cli": "^5.0.1"
   },
   "dependencies": {
-    "@stellar/stellar-base": "^14.0.2",
-    "axios": "^1.12.2",
+    "@stellar/stellar-base": "^14.0.4",
+    "axios": "^1.13.2",
     "bignumber.js": "^9.3.1",
     "commander": "^14.0.2",
     "eventsource": "^2.0.2",

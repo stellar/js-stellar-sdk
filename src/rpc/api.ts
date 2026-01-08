@@ -3,6 +3,9 @@ import { Contract, SorobanDataBuilder, xdr } from "@stellar/stellar-base";
 /* tslint:disable-next-line:no-namespace */
 export namespace Api {
   export interface GetHealthResponse {
+    latestLedger: number;
+    ledgerRetentionWindow: number;
+    oldestLedger: number;
     status: "healthy";
   }
 
@@ -264,7 +267,7 @@ export namespace Api {
     | {
         filters: Api.EventFilter[];
         startLedger: number;
-        endLedger: number;
+        endLedger?: number;
         cursor?: never; // explicitly exclude cursor
         limit?: number;
       }
@@ -305,7 +308,7 @@ export namespace Api {
 
   export interface RawEventResponse extends BaseEventResponse {
     contractId: string;
-    topic: string[];
+    topic?: string[];
     value: string;
   }
 
