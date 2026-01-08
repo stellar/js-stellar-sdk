@@ -162,7 +162,7 @@ ${fields}
     const caseTypes = cases
       .map((c) => {
         if (c.types.length > 0) {
-          return `${formatJSDocComment(c.doc, 2)}  { tag: "${c.name}"; values: [${c.types.join(", ")}] }`;
+          return `${formatJSDocComment(c.doc, 2)}  { tag: "${c.name}"; values: readonly [${c.types.join(", ")}] }`;
         }
         return `${formatJSDocComment(c.doc, 2)}  { tag: "${c.name}" }`;
       })
@@ -213,7 +213,7 @@ ${members}
 
     const members = cases
       .map((c) => {
-        return `${formatJSDocComment(c.doc, 2)}  ${c.value} : {message: "${c.name}" }`;
+        return `${formatJSDocComment(c.doc, 2)}  ${c.value} : { message: "${c.name}" }`;
       })
       .join(",\n");
 

@@ -113,7 +113,7 @@ export class BindingGenerator {
     const client = clientGenerator.generate();
 
     let index = `export { Client } from "./client.js";`;
-    if (types !== "") {
+    if (types.trim() !== "") {
       index = index.concat(`\nexport * from "./types.js";`);
     }
 
