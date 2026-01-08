@@ -3,7 +3,6 @@ import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
 import { StellarSdk } from "../test-utils/stellar-sdk-import";
 
 const { Horizon } = StellarSdk;
-
 describe("server.js async transaction submission tests", () => {
   let server: any;
   let mockPost: any;
