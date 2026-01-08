@@ -27,6 +27,7 @@ The library provides:
    - [...with React Native](#usage-with-react-native)
    - [...with Expo](#usage-with-expo-managed-workflows)
    - [...with CloudFlare Workers](#usage-with-cloudflare-workers)
+ * [CLI](#cli): generate TypeScript bindings for Stellar smart contracts
  * [Developing](#developing): contribute to the project!
  * [Understanding `stellar-sdk` vs. `stellar-base`](#stellar-sdk-vs-stellar-base)
  * [License](#license)
@@ -199,6 +200,106 @@ Horizon.AxiosClient.defaults.adapter = fetchAdapter as any;
 ```
 
 All HTTP calls will use `fetch`, now, meaning it should work in the CloudFlare Worker environment.
+
+## CLI
+
+The SDK includes a command-line tool for generating TypeScript bindings from Stellar smart contracts. These bindings provide fully-typed client code with IDE autocompletion and compile-time type checking.
+
+### Running the CLI
+
+```shell
+# Using npx (no installation required)
+npx @stellar/stellar-sdk generate [options]
+
+# Or if installed globally
+stellar-js generate [options]
+```
+
+### Generating Bindings
+
+You can generate bindings from three different sources:
+
+#### From a local WASM file
+
+```shell
+npx @stellar/stellar-sdk generate \
+  --wasm ./path/to/wasm_file/my_contract.wasm \
+  --output-dir ./my-contract-client \
+  --contract-name my-contract
+```
+
+#### From a WASM hash on the network
+
+```shell
+npx @stellar/stellar-sdk generate \
+  --wasm-hash <hex-encoded-hash> \
+  --rpc-url https://soroban-testnet.stellar.org \
+  --network testnet \
+  --output-dir ./my-contract-client \
+  --contract-name my-contract
+```
+
+#### From a deployed contract ID
+
+```shell
+npx @stellar/stellar-sdk generate \
+  --contract-id CABC...XYZ \
+  --rpc-url https://soroban-testnet.stellar.org \
+  --network testnet \
+  --output-dir ./my-contract-client
+```
+
+### CLI Options
+
+| Option | Description |
+|--------|-------------|
+| `--wasm <path>` | Path to a local WASM file |
+| `--wasm-hash <hash>` | Hex-encoded hash of WASM blob on the network |
+| `--contract-id <id>` | Contract ID of a deployed contract |
+| `--rpc-url <url>` | Soroban RPC server URL (required for network sources) |
+| `--network <network>` | Network to use: `testnet`, `mainnet`, `futurenet`, or `localnet` (required for network sources) |
+| `--output-dir <dir>` | Output directory for generated bindings (required) |
+| `--contract-name <name>` | Name for the generated package (derived from filename if not provided) |
+| `--overwrite` | Overwrite existing files in the output directory |
+
+### Generated Output
+
+The CLI generates a complete npm package structure:
+
+```
+my-contract-client/
+├── src/
+│   ├── index.ts      # Barrel exports
+│   ├── client.ts     # Typed Client class with contract methods
+│   └── types.ts      # TypeScript interfaces for contract types
+├── package.json
+├── tsconfig.json
+├── README.md
+└── .gitignore
+```
+
+### Using Generated Bindings
+
+After generating, you can use the bindings in your project:
+
+```typescript
+import { Client } from './my-contract-client';
+
+const client = new Client({
+  contractId: 'CABC...XYZ',
+  networkPassphrase: Networks.TESTNET,
+  rpcUrl: 'https://soroban-testnet.stellar.org',
+  publicKey: keypair.publicKey(),
+  ...basicNodeSigner(keypair, Networks.TESTNET),
+});
+
+// Fully typed method calls with IDE autocompletion
+const result = await client.transfer({
+  from: 'GABC...',
+  to: 'GDEF...',
+  amount: 1000n,
+});
+```
 
 ## Developing
 
