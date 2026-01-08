@@ -3,7 +3,7 @@ import { Spec } from "../contract";
 import {
   parseTypeFromTypeDef,
   generateTypeImports,
-  sanitizeName,
+  sanitizeIdentifier,
   formatJSDocComment,
   formatImports,
 } from "./utils";
@@ -97,7 +97,7 @@ export class Client extends ContractClient {
    * Generate interface method signature
    */
   private generateInterfaceMethod(func: xdr.ScSpecFunctionV0): string {
-    const name = sanitizeName(func.name().toString());
+    const name = sanitizeIdentifier(func.name().toString());
     const inputs = func.inputs().map((input: any) => ({
       name: input.name().toString(),
       type: parseTypeFromTypeDef(input.type()),
