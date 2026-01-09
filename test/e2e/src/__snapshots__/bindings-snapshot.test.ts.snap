@@ -1,59 +1,59 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`Bindings Generation Snapshot Tests > custom-types contract bindings > client.ts matches snapshot > custom-types-client.ts 1`] = `
-"import {Test, SimpleEnum, ComplexEnum, RoyalCard, TupleStruct} from './types.js';
-import {Result, Spec, AssembledTransaction, Client as ContractClient, ClientOptions as ContractClientOptions, MethodOptions} from '@stellar/stellar-sdk/contract';
+"import {ComplexEnum, RoyalCard, SimpleEnum, Test, TupleStruct} from './types.js';
+import {AssembledTransaction, Client as ContractClient, ClientOptions as ContractClientOptions, MethodOptions, Result, Spec} from '@stellar/stellar-sdk/contract';
 import {Address, xdr} from '@stellar/stellar-sdk';
 import { Buffer } from 'buffer';
 
 export interface Client {
-  hello({ hello }: { hello: string }, options?: MethodOptions): Promise<AssembledTransaction<string>>;
-  auth({ addr, world }: { addr: string | Address; world: string }, options?: MethodOptions): Promise<AssembledTransaction<string | Address>>;
-  get_count(options?: MethodOptions): Promise<AssembledTransaction<number>>;
-  inc(options?: MethodOptions): Promise<AssembledTransaction<number>>;
-  woid(options?: MethodOptions): Promise<AssembledTransaction<void>>;
-  val(options?: MethodOptions): Promise<AssembledTransaction<xdr.ScVal>>;
-  u32_fail_on_even({ u32_ }: { u32_: number }, options?: MethodOptions): Promise<AssembledTransaction<Result<number, Error>>>;
-  u32_({ u32_ }: { u32_: number }, options?: MethodOptions): Promise<AssembledTransaction<number>>;
-  i32_({ i32_ }: { i32_: number }, options?: MethodOptions): Promise<AssembledTransaction<number>>;
-  i64_({ i64_ }: { i64_: bigint }, options?: MethodOptions): Promise<AssembledTransaction<bigint>>;
-  /**
-   * Example contract method which takes a struct
-   */
-  strukt_hel({ strukt }: { strukt: Test }, options?: MethodOptions): Promise<AssembledTransaction<Array<string>>>;
-  strukt({ strukt }: { strukt: Test }, options?: MethodOptions): Promise<AssembledTransaction<Test>>;
-  simple({ simple }: { simple: SimpleEnum }, options?: MethodOptions): Promise<AssembledTransaction<SimpleEnum>>;
-  complex({ complex }: { complex: ComplexEnum }, options?: MethodOptions): Promise<AssembledTransaction<ComplexEnum>>;
   addresse({ addresse }: { addresse: string | Address }, options?: MethodOptions): Promise<AssembledTransaction<string | Address>>;
+  auth({ addr, world }: { addr: string | Address; world: string }, options?: MethodOptions): Promise<AssembledTransaction<string | Address>>;
+  boolean({ boolean }: { boolean: boolean }, options?: MethodOptions): Promise<AssembledTransaction<boolean>>;
   bytes({ bytes }: { bytes: Buffer }, options?: MethodOptions): Promise<AssembledTransaction<Buffer>>;
   bytes_n({ bytes_n }: { bytes_n: Buffer }, options?: MethodOptions): Promise<AssembledTransaction<Buffer>>;
   card({ card }: { card: RoyalCard }, options?: MethodOptions): Promise<AssembledTransaction<RoyalCard>>;
-  boolean({ boolean }: { boolean: boolean }, options?: MethodOptions): Promise<AssembledTransaction<boolean>>;
+  complex({ complex }: { complex: ComplexEnum }, options?: MethodOptions): Promise<AssembledTransaction<ComplexEnum>>;
+  get_count(options?: MethodOptions): Promise<AssembledTransaction<number>>;
+  get_object_vec_option(options?: MethodOptions): Promise<AssembledTransaction<Array<Test> | null>>;
+  hello({ hello }: { hello: string }, options?: MethodOptions): Promise<AssembledTransaction<string>>;
+  i128({ i128 }: { i128: bigint }, options?: MethodOptions): Promise<AssembledTransaction<bigint>>;
+  i256({ i256 }: { i256: bigint }, options?: MethodOptions): Promise<AssembledTransaction<bigint>>;
+  i32_({ i32_ }: { i32_: number }, options?: MethodOptions): Promise<AssembledTransaction<number>>;
+  i64_({ i64_ }: { i64_: bigint }, options?: MethodOptions): Promise<AssembledTransaction<bigint>>;
+  inc(options?: MethodOptions): Promise<AssembledTransaction<number>>;
+  map({ map }: { map: Map<number, boolean> }, options?: MethodOptions): Promise<AssembledTransaction<Map<number, boolean>>>;
+  multi_args({ a, b }: { a: number; b: boolean }, options?: MethodOptions): Promise<AssembledTransaction<number>>;
   /**
    * Negates a boolean value
    */
   not({ boolean }: { boolean: boolean }, options?: MethodOptions): Promise<AssembledTransaction<boolean>>;
-  i128({ i128 }: { i128: bigint }, options?: MethodOptions): Promise<AssembledTransaction<bigint>>;
-  u128({ u128 }: { u128: bigint }, options?: MethodOptions): Promise<AssembledTransaction<bigint>>;
-  multi_args({ a, b }: { a: number; b: boolean }, options?: MethodOptions): Promise<AssembledTransaction<number>>;
-  map({ map }: { map: Map<number, boolean> }, options?: MethodOptions): Promise<AssembledTransaction<Map<number, boolean>>>;
-  vec({ vec }: { vec: Array<number> }, options?: MethodOptions): Promise<AssembledTransaction<Array<number>>>;
-  tuple({ tuple }: { tuple: [string, number] }, options?: MethodOptions): Promise<AssembledTransaction<[string, number]>>;
   /**
    * Example of an optional argument
    */
   option({ option }: { option: number | null }, options?: MethodOptions): Promise<AssembledTransaction<number | null>>;
-  get_object_vec_option(options?: MethodOptions): Promise<AssembledTransaction<Array<Test> | null>>;
-  u256({ u256 }: { u256: bigint }, options?: MethodOptions): Promise<AssembledTransaction<bigint>>;
-  i256({ i256 }: { i256: bigint }, options?: MethodOptions): Promise<AssembledTransaction<bigint>>;
+  simple({ simple }: { simple: SimpleEnum }, options?: MethodOptions): Promise<AssembledTransaction<SimpleEnum>>;
   string({ string }: { string: string }, options?: MethodOptions): Promise<AssembledTransaction<string>>;
+  strukt({ strukt }: { strukt: Test }, options?: MethodOptions): Promise<AssembledTransaction<Test>>;
+  /**
+   * Example contract method which takes a struct
+   */
+  strukt_hel({ strukt }: { strukt: Test }, options?: MethodOptions): Promise<AssembledTransaction<Array<string>>>;
+  tuple({ tuple }: { tuple: [string, number] }, options?: MethodOptions): Promise<AssembledTransaction<[string, number]>>;
   tuple_strukt({ tuple_strukt }: { tuple_strukt: TupleStruct }, options?: MethodOptions): Promise<AssembledTransaction<TupleStruct>>;
+  u128({ u128 }: { u128: bigint }, options?: MethodOptions): Promise<AssembledTransaction<bigint>>;
+  u256({ u256 }: { u256: bigint }, options?: MethodOptions): Promise<AssembledTransaction<bigint>>;
+  u32_({ u32_ }: { u32_: number }, options?: MethodOptions): Promise<AssembledTransaction<number>>;
+  u32_fail_on_even({ u32_ }: { u32_: number }, options?: MethodOptions): Promise<AssembledTransaction<Result<number, Error>>>;
+  val(options?: MethodOptions): Promise<AssembledTransaction<xdr.ScVal>>;
+  vec({ vec }: { vec: Array<number> }, options?: MethodOptions): Promise<AssembledTransaction<Array<number>>>;
+  woid(options?: MethodOptions): Promise<AssembledTransaction<void>>;
 }
 
 export class Client extends ContractClient {
   constructor(public readonly options: ContractClientOptions) {
     super(
-      new Spec(["AAAAAQAAAC9UaGlzIGlzIGZyb20gdGhlIHJ1c3QgZG9jIGFib3ZlIHRoZSBzdHJ1Y3QgVGVzdAAAAAAAAAAABFRlc3QAAAADAAAAAAAAAAFhAAAAAAAABAAAAAAAAAABYgAAAAAAAAEAAAAAAAAAAWMAAAAAAAAR", "AAAAAgAAAAAAAAAAAAAAClNpbXBsZUVudW0AAAAAAAMAAAAAAAAAAAAAAAVGaXJzdAAAAAAAAAAAAAAAAAAABlNlY29uZAAAAAAAAAAAAAAAAAAFVGhpcmQAAAA=", "AAAAAwAAAAAAAAAAAAAACVJveWFsQ2FyZAAAAAAAAAMAAAAAAAAABEphY2sAAAALAAAAAAAAAAVRdWVlbgAAAAAAAAwAAAAAAAAABEtpbmcAAAAN", "AAAAAQAAAAAAAAAAAAAAC1R1cGxlU3RydWN0AAAAAAIAAAAAAAAAATAAAAAAAAfQAAAABFRlc3QAAAAAAAAAATEAAAAAAAfQAAAAClNpbXBsZUVudW0AAA==", "AAAAAgAAAAAAAAAAAAAAC0NvbXBsZXhFbnVtAAAAAAUAAAABAAAAAAAAAAZTdHJ1Y3QAAAAAAAEAAAfQAAAABFRlc3QAAAABAAAAAAAAAAVUdXBsZQAAAAAAAAEAAAfQAAAAC1R1cGxlU3RydWN0AAAAAAEAAAAAAAAABEVudW0AAAABAAAH0AAAAApTaW1wbGVFbnVtAAAAAAABAAAAAAAAAAVBc3NldAAAAAAAAAIAAAATAAAACwAAAAAAAAAAAAAABFZvaWQ=", "AAAABAAAAAAAAAAAAAAABUVycm9yAAAAAAAAAQAAABxQbGVhc2UgcHJvdmlkZSBhbiBvZGQgbnVtYmVyAAAAD051bWJlck11c3RCZU9kZAAAAAAB", "AAAAAAAAAAAAAAAFaGVsbG8AAAAAAAABAAAAAAAAAAVoZWxsbwAAAAAAABEAAAABAAAAEQ==", "AAAAAAAAAAAAAAAEYXV0aAAAAAIAAAAAAAAABGFkZHIAAAATAAAAAAAAAAV3b3JsZAAAAAAAABEAAAABAAAAEw==", "AAAAAAAAAAAAAAAJZ2V0X2NvdW50AAAAAAAAAAAAAAEAAAAE", "AAAAAAAAAAAAAAADaW5jAAAAAAAAAAABAAAABA==", "AAAAAAAAAAAAAAAEd29pZAAAAAAAAAAA", "AAAAAAAAAAAAAAADdmFsAAAAAAAAAAABAAAAAA==", "AAAAAAAAAAAAAAAQdTMyX2ZhaWxfb25fZXZlbgAAAAEAAAAAAAAABHUzMl8AAAAEAAAAAQAAA+kAAAAEAAAAAw==", "AAAAAAAAAAAAAAAEdTMyXwAAAAEAAAAAAAAABHUzMl8AAAAEAAAAAQAAAAQ=", "AAAAAAAAAAAAAAAEaTMyXwAAAAEAAAAAAAAABGkzMl8AAAAFAAAAAQAAAAU=", "AAAAAAAAAAAAAAAEaTY0XwAAAAEAAAAAAAAABGk2NF8AAAAHAAAAAQAAAAc=", "AAAAAAAAACxFeGFtcGxlIGNvbnRyYWN0IG1ldGhvZCB3aGljaCB0YWtlcyBhIHN0cnVjdAAAAApzdHJ1a3RfaGVsAAAAAAABAAAAAAAAAAZzdHJ1a3QAAAAAB9AAAAAEVGVzdAAAAAEAAAPqAAAAEQ==", "AAAAAAAAAAAAAAAGc3RydWt0AAAAAAABAAAAAAAAAAZzdHJ1a3QAAAAAB9AAAAAEVGVzdAAAAAEAAAfQAAAABFRlc3Q=", "AAAAAAAAAAAAAAAGc2ltcGxlAAAAAAABAAAAAAAAAAZzaW1wbGUAAAAAB9AAAAAKU2ltcGxlRW51bQAAAAAAAQAAB9AAAAAKU2ltcGxlRW51bQAA", "AAAAAAAAAAAAAAAHY29tcGxleAAAAAABAAAAAAAAAAdjb21wbGV4AAAAB9AAAAALQ29tcGxleEVudW0AAAAAAQAAB9AAAAALQ29tcGxleEVudW0A", "AAAAAAAAAAAAAAAIYWRkcmVzc2UAAAABAAAAAAAAAAhhZGRyZXNzZQAAABMAAAABAAAAEw==", "AAAAAAAAAAAAAAAFYnl0ZXMAAAAAAAABAAAAAAAAAAVieXRlcwAAAAAAAA4AAAABAAAADg==", "AAAAAAAAAAAAAAAHYnl0ZXNfbgAAAAABAAAAAAAAAAdieXRlc19uAAAAA+4AAAAJAAAAAQAAA+4AAAAJ", "AAAAAAAAAAAAAAAEY2FyZAAAAAEAAAAAAAAABGNhcmQAAAfQAAAACVJveWFsQ2FyZAAAAAAAAAEAAAfQAAAACVJveWFsQ2FyZAAAAA==", "AAAAAAAAAAAAAAAHYm9vbGVhbgAAAAABAAAAAAAAAAdib29sZWFuAAAAAAEAAAABAAAAAQ==", "AAAAAAAAABdOZWdhdGVzIGEgYm9vbGVhbiB2YWx1ZQAAAAADbm90AAAAAAEAAAAAAAAAB2Jvb2xlYW4AAAAAAQAAAAEAAAAB", "AAAAAAAAAAAAAAAEaTEyOAAAAAEAAAAAAAAABGkxMjgAAAALAAAAAQAAAAs=", "AAAAAAAAAAAAAAAEdTEyOAAAAAEAAAAAAAAABHUxMjgAAAAKAAAAAQAAAAo=", "AAAAAAAAAAAAAAAKbXVsdGlfYXJncwAAAAAAAgAAAAAAAAABYQAAAAAAAAQAAAAAAAAAAWIAAAAAAAABAAAAAQAAAAQ=", "AAAAAAAAAAAAAAADbWFwAAAAAAEAAAAAAAAAA21hcAAAAAPsAAAABAAAAAEAAAABAAAD7AAAAAQAAAAB", "AAAAAAAAAAAAAAADdmVjAAAAAAEAAAAAAAAAA3ZlYwAAAAPqAAAABAAAAAEAAAPqAAAABA==", "AAAAAAAAAAAAAAAFdHVwbGUAAAAAAAABAAAAAAAAAAV0dXBsZQAAAAAAA+0AAAACAAAAEQAAAAQAAAABAAAD7QAAAAIAAAARAAAABA==", "AAAAAAAAAB9FeGFtcGxlIG9mIGFuIG9wdGlvbmFsIGFyZ3VtZW50AAAAAAZvcHRpb24AAAAAAAEAAAAAAAAABm9wdGlvbgAAAAAD6AAAAAQAAAABAAAD6AAAAAQ=", "AAAAAAAAAAAAAAAVZ2V0X29iamVjdF92ZWNfb3B0aW9uAAAAAAAAAAAAAAEAAAPoAAAD6gAAB9AAAAAEVGVzdA==", "AAAAAAAAAAAAAAAEdTI1NgAAAAEAAAAAAAAABHUyNTYAAAAMAAAAAQAAAAw=", "AAAAAAAAAAAAAAAEaTI1NgAAAAEAAAAAAAAABGkyNTYAAAANAAAAAQAAAA0=", "AAAAAAAAAAAAAAAGc3RyaW5nAAAAAAABAAAAAAAAAAZzdHJpbmcAAAAAABAAAAABAAAAEA==", "AAAAAAAAAAAAAAAMdHVwbGVfc3RydWt0AAAAAQAAAAAAAAAMdHVwbGVfc3RydWt0AAAH0AAAAAtUdXBsZVN0cnVjdAAAAAABAAAH0AAAAAtUdXBsZVN0cnVjdAA="]),
+      new Spec(["AAAAAAAAAAAAAAADaW5jAAAAAAAAAAABAAAABA==", "AAAAAAAAAAAAAAADbWFwAAAAAAEAAAAAAAAAA21hcAAAAAPsAAAABAAAAAEAAAABAAAD7AAAAAQAAAAB", "AAAAAAAAAAAAAAADdmFsAAAAAAAAAAABAAAAAA==", "AAAAAAAAAAAAAAADdmVjAAAAAAEAAAAAAAAAA3ZlYwAAAAPqAAAABAAAAAEAAAPqAAAABA==", "AAAAAAAAAAAAAAAEY2FyZAAAAAEAAAAAAAAABGNhcmQAAAfQAAAACVJveWFsQ2FyZAAAAAAAAAEAAAfQAAAACVJveWFsQ2FyZAAAAA==", "AAAAAAAAAAAAAAAEYXV0aAAAAAIAAAAAAAAABGFkZHIAAAATAAAAAAAAAAV3b3JsZAAAAAAAABEAAAABAAAAEw==", "AAAAAAAAAAAAAAAEaTEyOAAAAAEAAAAAAAAABGkxMjgAAAALAAAAAQAAAAs=", "AAAAAAAAAAAAAAAEaTI1NgAAAAEAAAAAAAAABGkyNTYAAAANAAAAAQAAAA0=", "AAAAAAAAAAAAAAAEaTMyXwAAAAEAAAAAAAAABGkzMl8AAAAFAAAAAQAAAAU=", "AAAAAAAAAAAAAAAEaTY0XwAAAAEAAAAAAAAABGk2NF8AAAAHAAAAAQAAAAc=", "AAAAAAAAAAAAAAAEd29pZAAAAAAAAAAA", "AAAAAAAAAAAAAAAEdTEyOAAAAAEAAAAAAAAABHUxMjgAAAAKAAAAAQAAAAo=", "AAAAAAAAAAAAAAAEdTI1NgAAAAEAAAAAAAAABHUyNTYAAAAMAAAAAQAAAAw=", "AAAAAAAAAAAAAAAEdTMyXwAAAAEAAAAAAAAABHUzMl8AAAAEAAAAAQAAAAQ=", "AAAAAAAAAAAAAAAFYnl0ZXMAAAAAAAABAAAAAAAAAAVieXRlcwAAAAAAAA4AAAABAAAADg==", "AAAAAAAAAAAAAAAFaGVsbG8AAAAAAAABAAAAAAAAAAVoZWxsbwAAAAAAABEAAAABAAAAEQ==", "AAAAAAAAAAAAAAAFdHVwbGUAAAAAAAABAAAAAAAAAAV0dXBsZQAAAAAAA+0AAAACAAAAEQAAAAQAAAABAAAD7QAAAAIAAAARAAAABA==", "AAAAAAAAAAAAAAAGc2ltcGxlAAAAAAABAAAAAAAAAAZzaW1wbGUAAAAAB9AAAAAKU2ltcGxlRW51bQAAAAAAAQAAB9AAAAAKU2ltcGxlRW51bQAA", "AAAAAAAAAAAAAAAGc3RyaW5nAAAAAAABAAAAAAAAAAZzdHJpbmcAAAAAABAAAAABAAAAEA==", "AAAAAAAAAAAAAAAGc3RydWt0AAAAAAABAAAAAAAAAAZzdHJ1a3QAAAAAB9AAAAAEVGVzdAAAAAEAAAfQAAAABFRlc3Q=", "AAAAAAAAAAAAAAAHY29tcGxleAAAAAABAAAAAAAAAAdjb21wbGV4AAAAB9AAAAALQ29tcGxleEVudW0AAAAAAQAAB9AAAAALQ29tcGxleEVudW0A", "AAAAAAAAAAAAAAAHYm9vbGVhbgAAAAABAAAAAAAAAAdib29sZWFuAAAAAAEAAAABAAAAAQ==", "AAAAAAAAAAAAAAAHYnl0ZXNfbgAAAAABAAAAAAAAAAdieXRlc19uAAAAA+4AAAAJAAAAAQAAA+4AAAAJ", "AAAAAAAAAAAAAAAIYWRkcmVzc2UAAAABAAAAAAAAAAhhZGRyZXNzZQAAABMAAAABAAAAEw==", "AAAAAAAAAAAAAAAJZ2V0X2NvdW50AAAAAAAAAAAAAAEAAAAE", "AAAAAAAAAAAAAAAKbXVsdGlfYXJncwAAAAAAAgAAAAAAAAABYQAAAAAAAAQAAAAAAAAAAWIAAAAAAAABAAAAAQAAAAQ=", "AAAAAAAAAAAAAAAMdHVwbGVfc3RydWt0AAAAAQAAAAAAAAAMdHVwbGVfc3RydWt0AAAH0AAAAAtUdXBsZVN0cnVjdAAAAAABAAAH0AAAAAtUdXBsZVN0cnVjdAA=", "AAAAAAAAAAAAAAAQdTMyX2ZhaWxfb25fZXZlbgAAAAEAAAAAAAAABHUzMl8AAAAEAAAAAQAAA+kAAAAEAAAAAw==", "AAAAAAAAAAAAAAAVZ2V0X29iamVjdF92ZWNfb3B0aW9uAAAAAAAAAAAAAAEAAAPoAAAD6gAAB9AAAAAEVGVzdA==", "AAAAAAAAAB9FeGFtcGxlIG9mIGFuIG9wdGlvbmFsIGFyZ3VtZW50AAAAAAZvcHRpb24AAAAAAAEAAAAAAAAABm9wdGlvbgAAAAAD6AAAAAQAAAABAAAD6AAAAAQ=", "AAAAAAAAABdOZWdhdGVzIGEgYm9vbGVhbiB2YWx1ZQAAAAADbm90AAAAAAEAAAAAAAAAB2Jvb2xlYW4AAAAAAQAAAAEAAAAB", "AAAAAAAAACxFeGFtcGxlIGNvbnRyYWN0IG1ldGhvZCB3aGljaCB0YWtlcyBhIHN0cnVjdAAAAApzdHJ1a3RfaGVsAAAAAAABAAAAAAAAAAZzdHJ1a3QAAAAAB9AAAAAEVGVzdAAAAAEAAAPqAAAAEQ==", "AAAAAQAAAAAAAAAAAAAAC1R1cGxlU3RydWN0AAAAAAIAAAAAAAAAATAAAAAAAAfQAAAABFRlc3QAAAAAAAAAATEAAAAAAAfQAAAAClNpbXBsZUVudW0AAA==", "AAAAAQAAAC9UaGlzIGlzIGZyb20gdGhlIHJ1c3QgZG9jIGFib3ZlIHRoZSBzdHJ1Y3QgVGVzdAAAAAAAAAAABFRlc3QAAAADAAAAAAAAAAFhAAAAAAAABAAAAAAAAAABYgAAAAAAAAEAAAAAAAAAAWMAAAAAAAAR", "AAAAAgAAAAAAAAAAAAAAC0NvbXBsZXhFbnVtAAAAAAUAAAABAAAAAAAAAAZTdHJ1Y3QAAAAAAAEAAAfQAAAABFRlc3QAAAABAAAAAAAAAAVUdXBsZQAAAAAAAAEAAAfQAAAAC1R1cGxlU3RydWN0AAAAAAEAAAAAAAAABEVudW0AAAABAAAH0AAAAApTaW1wbGVFbnVtAAAAAAABAAAAAAAAAAVBc3NldAAAAAAAAAIAAAATAAAACwAAAAAAAAAAAAAABFZvaWQ=", "AAAAAgAAAAAAAAAAAAAAClNpbXBsZUVudW0AAAAAAAMAAAAAAAAAAAAAAAVGaXJzdAAAAAAAAAAAAAAAAAAABlNlY29uZAAAAAAAAAAAAAAAAAAFVGhpcmQAAAA=", "AAAAAwAAAAAAAAAAAAAACVJveWFsQ2FyZAAAAAAAAAMAAAAAAAAABEphY2sAAAALAAAAAAAAAAVRdWVlbgAAAAAAAAwAAAAAAAAABEtpbmcAAAAN", "AAAABAAAAAAAAAAAAAAABUVycm9yAAAAAAAAAQAAABxQbGVhc2UgcHJvdmlkZSBhbiBvZGQgbnVtYmVyAAAAD051bWJlck11c3RCZU9kZAAAAAAB"]),
       options
     );
   }
@@ -62,7 +62,7 @@ export class Client extends ContractClient {
     return ContractClient.deploy(null, options);
   }
   public readonly fromJSON = {
-    hello : this.txFromJSON<string>,  auth : this.txFromJSON<string | Address>,  get_count : this.txFromJSON<number>,  inc : this.txFromJSON<number>,  woid : this.txFromJSON<void>,  val : this.txFromJSON<xdr.ScVal>,  u32_fail_on_even : this.txFromJSON<Result<number, Error>>,  u32_ : this.txFromJSON<number>,  i32_ : this.txFromJSON<number>,  i64_ : this.txFromJSON<bigint>,  strukt_hel : this.txFromJSON<Array<string>>,  strukt : this.txFromJSON<Test>,  simple : this.txFromJSON<SimpleEnum>,  complex : this.txFromJSON<ComplexEnum>,  addresse : this.txFromJSON<string | Address>,  bytes : this.txFromJSON<Buffer>,  bytes_n : this.txFromJSON<Buffer>,  card : this.txFromJSON<RoyalCard>,  boolean : this.txFromJSON<boolean>,  not : this.txFromJSON<boolean>,  i128 : this.txFromJSON<bigint>,  u128 : this.txFromJSON<bigint>,  multi_args : this.txFromJSON<number>,  map : this.txFromJSON<Map<number, boolean>>,  vec : this.txFromJSON<Array<number>>,  tuple : this.txFromJSON<[string, number]>,  option : this.txFromJSON<number | null>,  get_object_vec_option : this.txFromJSON<Array<Test> | null>,  u256 : this.txFromJSON<bigint>,  i256 : this.txFromJSON<bigint>,  string : this.txFromJSON<string>,  tuple_strukt : this.txFromJSON<TupleStruct>
+    addresse : this.txFromJSON<string | Address>,  auth : this.txFromJSON<string | Address>,  boolean : this.txFromJSON<boolean>,  bytes : this.txFromJSON<Buffer>,  bytes_n : this.txFromJSON<Buffer>,  card : this.txFromJSON<RoyalCard>,  complex : this.txFromJSON<ComplexEnum>,  get_count : this.txFromJSON<number>,  get_object_vec_option : this.txFromJSON<Array<Test> | null>,  hello : this.txFromJSON<string>,  i128 : this.txFromJSON<bigint>,  i256 : this.txFromJSON<bigint>,  i32_ : this.txFromJSON<number>,  i64_ : this.txFromJSON<bigint>,  inc : this.txFromJSON<number>,  map : this.txFromJSON<Map<number, boolean>>,  multi_args : this.txFromJSON<number>,  not : this.txFromJSON<boolean>,  option : this.txFromJSON<number | null>,  simple : this.txFromJSON<SimpleEnum>,  string : this.txFromJSON<string>,  strukt : this.txFromJSON<Test>,  strukt_hel : this.txFromJSON<Array<string>>,  tuple : this.txFromJSON<[string, number]>,  tuple_strukt : this.txFromJSON<TupleStruct>,  u128 : this.txFromJSON<bigint>,  u256 : this.txFromJSON<bigint>,  u32_ : this.txFromJSON<number>,  u32_fail_on_even : this.txFromJSON<Result<number, Error>>,  val : this.txFromJSON<xdr.ScVal>,  vec : this.txFromJSON<Array<number>>,  woid : this.txFromJSON<void>
   };
 }"
 `;
@@ -76,21 +76,24 @@ exports[`Bindings Generation Snapshot Tests > custom-types contract bindings > t
 "import {Address} from '@stellar/stellar-sdk';
 
     /**
- * This is from the rust doc above the struct Test
+ * Union: ComplexEnum
  */
-export interface Test {
-  a: number;
-  b: boolean;
-  c: string;
-}
+ export type ComplexEnum =
+  { tag: "Struct"; values: readonly [Test] } |
+  { tag: "Tuple"; values: readonly [TupleStruct] } |
+  { tag: "Enum"; values: readonly [SimpleEnum] } |
+  { tag: "Asset"; values: readonly [string | Address, bigint] } |
+  { tag: "Void" };
 
 /**
- * Union: SimpleEnum
+ * Error Enum: Error
  */
- export type SimpleEnum =
-  { tag: "First" } |
-  { tag: "Second" } |
-  { tag: "Third" };
+export const Error = {
+  /**
+   * Please provide an odd number
+   */
+  1 : { message: "NumberMustBeOdd" }
+}
 
 /**
  * Enum: RoyalCard
@@ -111,53 +114,50 @@ export enum RoyalCard {
 }
 
 /**
+ * Union: SimpleEnum
+ */
+ export type SimpleEnum =
+  { tag: "First" } |
+  { tag: "Second" } |
+  { tag: "Third" };
+
+/**
+ * This is from the rust doc above the struct Test
+ */
+export interface Test {
+  a: number;
+  b: boolean;
+  c: string;
+}
+
+/**
  * Struct: TupleStruct
  */
 export interface TupleStruct {
   0: Test;
   1: SimpleEnum;
 }
-
-/**
- * Union: ComplexEnum
- */
- export type ComplexEnum =
-  { tag: "Struct"; values: readonly [Test] } |
-  { tag: "Tuple"; values: readonly [TupleStruct] } |
-  { tag: "Enum"; values: readonly [SimpleEnum] } |
-  { tag: "Asset"; values: readonly [string | Address, bigint] } |
-  { tag: "Void" };
-
-/**
- * Error Enum: Error
- */
-export const Error = {
-  /**
-   * Please provide an odd number
-   */
-  1 : { message: "NumberMustBeOdd" }
-}
     "
 `;
 
 exports[`Bindings Generation Snapshot Tests > increment contract bindings > client.ts matches snapshot > increment-client.ts 1`] = `
-"import {Spec, AssembledTransaction, Client as ContractClient, ClientOptions as ContractClientOptions, MethodOptions} from '@stellar/stellar-sdk/contract';
+"import {AssembledTransaction, Client as ContractClient, ClientOptions as ContractClientOptions, MethodOptions, Spec} from '@stellar/stellar-sdk/contract';
 
 export interface Client {
-  /**
-   * Increment internal counter, return the value
-   */
-  increment(options?: MethodOptions): Promise<AssembledTransaction<number>>;
   /**
    * Get current counter value
    */
   get(options?: MethodOptions): Promise<AssembledTransaction<number>>;
+  /**
+   * Increment internal counter, return the value
+   */
+  increment(options?: MethodOptions): Promise<AssembledTransaction<number>>;
 }
 
 export class Client extends ContractClient {
   constructor(public readonly options: ContractClientOptions) {
     super(
-      new Spec(["AAAAAAAAACNJbml0aWFsaXplIHRoZSBjb3VudGVyIHdpdGggYSB2YWx1ZQAAAAANX19jb25zdHJ1Y3RvcgAAAAAAAAEAAAAAAAAAB2NvdW50ZXIAAAAABAAAAAA=", "AAAAAAAAACxJbmNyZW1lbnQgaW50ZXJuYWwgY291bnRlciwgcmV0dXJuIHRoZSB2YWx1ZQAAAAlpbmNyZW1lbnQAAAAAAAAAAAAAAQAAAAQ=", "AAAAAAAAABlHZXQgY3VycmVudCBjb3VudGVyIHZhbHVlAAAAAAAAA2dldAAAAAAAAAAAAQAAAAQ="]),
+      new Spec(["AAAAAAAAABlHZXQgY3VycmVudCBjb3VudGVyIHZhbHVlAAAAAAAAA2dldAAAAAAAAAAAAQAAAAQ=", "AAAAAAAAACNJbml0aWFsaXplIHRoZSBjb3VudGVyIHdpdGggYSB2YWx1ZQAAAAANX19jb25zdHJ1Y3RvcgAAAAAAAAEAAAAAAAAAB2NvdW50ZXIAAAAABAAAAAA=", "AAAAAAAAACxJbmNyZW1lbnQgaW50ZXJuYWwgY291bnRlciwgcmV0dXJuIHRoZSB2YWx1ZQAAAAlpbmNyZW1lbnQAAAAAAAAAAAAAAQAAAAQ="]),
       options
     );
   }
@@ -166,7 +166,7 @@ export class Client extends ContractClient {
     return ContractClient.deploy({ counter }, options);
   }
   public readonly fromJSON = {
-    increment : this.txFromJSON<number>,  get : this.txFromJSON<number>
+    get : this.txFromJSON<number>,  increment : this.txFromJSON<number>
   };
 }"
 `;

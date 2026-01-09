@@ -31,22 +31,27 @@ export class ClientGenerator {
       // For specs without a constructor, generate a deploy method without params
       deployMethod = this.generateDeployMethod(undefined);
     }
-    // Generate interface methods
+    // Generate interface methods - sorted by name for deterministic output
     const interfaceMethods = this.spec
       .funcs()
       .filter((func) => func.name().toString() !== "__constructor")
+      .sort((a, b) => a.name().toString().localeCompare(b.name().toString()))
       .map((func) => this.generateInterfaceMethod(func))
       .join("\n");
 
     const imports = this.generateImports();
 
-    const specEntries = this.spec.entries.map(
-      (entry) => `"${entry.toXDR("base64")}"`,
-    );
+    // Sort spec entries by their base64 representation for deterministic output
+    const specEntries = this.spec.entries
+      .map((entry) => entry.toXDR("base64"))
+      .sort()
+      .map((xdrStr) => `"${xdrStr}"`);
 
+    // Sort fromJSON entries by function name for deterministic output
     const fromJSON = this.spec
       .funcs()
       .filter((func) => func.name().toString() !== "__constructor")
+      .sort((a, b) => a.name().toString().localeCompare(b.name().toString()))
       .map((func) => this.generateFromJSONMethod(func))
       .join(",");
 
