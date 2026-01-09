@@ -249,6 +249,29 @@ npx @stellar/stellar-sdk generate \
   --output-dir ./my-contract-client
 ```
 
+#### With custom RPC server options
+
+For local development or when connecting to RPC servers that require authentication:
+
+```shell
+# Allow HTTP connections (useful for local development)
+npx @stellar/stellar-sdk generate \
+  --contract-id CABC...XYZ \
+  --rpc-url http://localhost:8000/soroban/rpc \
+  --network localnet \
+  --output-dir ./my-contract-client \
+  --allow-http
+
+# With custom timeout and headers
+npx @stellar/stellar-sdk generate \
+  --contract-id CABC...XYZ \
+  --rpc-url https://my-rpc-server.com \
+  --network mainnet \
+  --output-dir ./my-contract-client \
+  --timeout 30000 \
+  --headers '{"Authorization": "Bearer my-token"}'
+```
+
 ### CLI Options
 
 | Option | Description |
@@ -261,6 +284,9 @@ npx @stellar/stellar-sdk generate \
 | `--output-dir <dir>` | Output directory for generated bindings (required) |
 | `--contract-name <name>` | Name for the generated package (derived from filename if not provided) |
 | `--overwrite` | Overwrite existing files in the output directory |
+| `--allow-http` | Allow insecure HTTP connections to RPC server (default: false) |
+| `--timeout <ms>` | RPC request timeout in milliseconds |
+| `--headers <json>` | Custom headers as JSON object (e.g., `'{"Authorization": "Bearer token"}'`) |
 
 ### Generated Output
 
