@@ -43,7 +43,7 @@ jobs:
     - uses: actions/setup-node@v4
       with:
         node-version: ${{ env.NODE }}
-    - uses: stellar/stellar-cli@v23.1.4
+    - uses: stellar/stellar-cli@v23.4.0
 
     # Install system dependencies required for Stellar CLI
     - name: Install system dependencies
