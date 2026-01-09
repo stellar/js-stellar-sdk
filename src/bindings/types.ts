@@ -49,12 +49,9 @@ export class TypeGenerator {
    * Generate all TypeScript type definitions
    */
   generate(): string {
-    // Generate types for each entry in the spec - sorted by name for deterministic output
+    // Generate types for each entry in the spec
     const types = this.spec.entries
-      .map((entry) => ({ entry, name: this.getEntryName(entry) }))
-      .filter((item) => item.name !== null)
-      .sort((a, b) => a.name!.localeCompare(b.name!))
-      .map((item) => this.generateEntry(item.entry))
+      .map((entry) => this.generateEntry(entry))
       .filter((t) => t)
       .join("\n\n");
     // Generate imports for all types
@@ -79,24 +76,6 @@ export class TypeGenerator {
         return this.generateEnum(entry.udtEnumV0());
       case xdr.ScSpecEntryKind.scSpecEntryUdtErrorEnumV0():
         return this.generateErrorEnum(entry.udtErrorEnumV0());
-      default:
-        return null;
-    }
-  }
-
-  /**
-   * Get the name of a spec entry for sorting purposes
-   */
-  private getEntryName(entry: xdr.ScSpecEntry): string | null {
-    switch (entry.switch()) {
-      case xdr.ScSpecEntryKind.scSpecEntryUdtStructV0():
-        return entry.udtStructV0().name().toString();
-      case xdr.ScSpecEntryKind.scSpecEntryUdtUnionV0():
-        return entry.udtUnionV0().name().toString();
-      case xdr.ScSpecEntryKind.scSpecEntryUdtEnumV0():
-        return entry.udtEnumV0().name().toString();
-      case xdr.ScSpecEntryKind.scSpecEntryUdtErrorEnumV0():
-        return entry.udtErrorEnumV0().name().toString();
       default:
         return null;
     }

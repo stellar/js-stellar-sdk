@@ -301,26 +301,24 @@ export function formatImports(
     ...imports.stellarImports,
     ...(options?.additionalStellarImports || []),
   ];
-  // Type file imports (only if enabled) - sorted for deterministic output
+  // Type file imports (only if enabled)
   if (options?.includeTypeFileImports && typeFileImports.size > 0) {
     importLines.push(
-      `import {${Array.from(typeFileImports).sort().join(", ")}} from './types.js';`,
+      `import {${Array.from(typeFileImports).join(", ")}} from './types.js';`,
     );
   }
 
-  // Stellar contract imports - sorted for deterministic output
+  // Stellar contract imports
   if (stellarContractImports.length > 0) {
-    const uniqueContractImports = Array.from(
-      new Set(stellarContractImports),
-    ).sort();
+    const uniqueContractImports = Array.from(new Set(stellarContractImports));
     importLines.push(
       `import {${uniqueContractImports.join(", ")}} from '@stellar/stellar-sdk/contract';`,
     );
   }
 
-  // Stellar SDK imports - sorted for deterministic output
+  // Stellar SDK imports
   if (stellarImports.length > 0) {
-    const uniqueStellarImports = Array.from(new Set(stellarImports)).sort();
+    const uniqueStellarImports = Array.from(new Set(stellarImports));
     importLines.push(
       `import {${uniqueStellarImports.join(", ")}} from '@stellar/stellar-sdk';`,
     );
