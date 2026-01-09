@@ -35,6 +35,16 @@ function runCli() {
     )
     .option("--output-dir <dir>", "Output directory for generated bindings")
     .option(
+      "--allow-http",
+      "Allow insecure HTTP connections to RPC server",
+      false,
+    )
+    .option("--timeout <ms>", "RPC request timeout in milliseconds")
+    .option(
+      "--headers <json>",
+      'Custom headers as JSON object (e.g., \'{"Authorization": "Bearer token"}\')',
+    )
+    .option(
       "--contract-name <name>",
       "Name for the generated contract client class",
     )
@@ -67,12 +77,39 @@ function runCli() {
         if (options.outputDir === undefined) {
           throw new Error("Output directory (--output-dir) is required");
         }
+
+        // Parse headers JSON if provided
+        let headers: Record<string, string> | undefined;
+        if (options.headers) {
+          try {
+            headers = JSON.parse(options.headers);
+          } catch {
+            throw new Error(`Invalid JSON for --headers: ${options.headers}`);
+          }
+        }
+
+        // Parse timeout if provided
+        let timeout: number | undefined;
+        if (options.timeout) {
+          timeout = parseInt(options.timeout, 10);
+          if (Number.isNaN(timeout) || timeout <= 0) {
+            throw new Error(
+              `Invalid timeout value: ${options.timeout}. Must be a positive integer.`,
+            );
+          }
+        }
+
         const { contract, source } = await fetchWasm({
           wasm: options.wasm,
           wasmHash: options.wasmHash,
           contractId: options.contractId,
           rpcUrl: options.rpcUrl,
           networkPassphrase,
+          serverOptions: {
+            allowHttp: options.allowHttp,
+            timeout,
+            headers,
+          },
         });
         console.log("Fetching contract WASM...");
 

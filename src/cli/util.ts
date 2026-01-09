@@ -12,6 +12,7 @@ import {
   fetchFromContractId,
   ContractSource,
 } from "../bindings";
+import { RpcServer } from "../rpc/server";
 
 export type GenerateAndWriteOptions = GenerateOptions & {
   outputDir: string;
@@ -24,6 +25,7 @@ type WasmFetchArgs = {
   contractId?: string;
   rpcUrl?: string;
   networkPassphrase?: string;
+  serverOptions?: RpcServer.Options;
 };
 /**
  * Create a generator from a WASM file (Node.js only)
@@ -145,6 +147,7 @@ export async function fetchWasm(args: WasmFetchArgs): Promise<FetchedContract> {
       args.wasmHash,
       args.rpcUrl,
       args.networkPassphrase,
+      args.serverOptions,
     );
   }
 
@@ -154,6 +157,7 @@ export async function fetchWasm(args: WasmFetchArgs): Promise<FetchedContract> {
       args.contractId,
       args.rpcUrl,
       args.networkPassphrase,
+      args.serverOptions,
     );
   }
 

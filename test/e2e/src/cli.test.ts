@@ -44,6 +44,9 @@ describe("CLI generate command", () => {
     expect(result.stdout).toContain("--wasm-hash");
     expect(result.stdout).toContain("--contract-id");
     expect(result.stdout).toContain("--output-dir");
+    expect(result.stdout).toContain("--allow-http");
+    expect(result.stdout).toContain("--timeout");
+    expect(result.stdout).toContain("--headers");
   });
 
   it("generates bindings from local WASM file", () => {
@@ -82,7 +85,7 @@ describe("CLI generate command", () => {
     const testOutputDir = path.join(outputDir, "from-hash");
 
     const result = runCli(
-      `generate --wasm-hash ${wasmHash} --rpc-url ${rpcUrl} --network localnet --output-dir ${testOutputDir} --contract-name HashContract --overwrite`,
+      `generate --wasm-hash ${wasmHash} --output-dir ${testOutputDir} --contract-name HashContract --rpc-url ${rpcUrl} --network localnet --allow-http --overwrite`,
     );
     expect(result.status).toBe(0);
     expect(fs.existsSync(path.join(testOutputDir, "src/client.ts"))).toBe(true);
@@ -96,7 +99,7 @@ describe("CLI generate command", () => {
     const testOutputDir = path.join(outputDir, "from-id");
 
     const result = runCli(
-      `generate --contract-id ${contractId} --rpc-url ${rpcUrl} --network localnet --output-dir ${testOutputDir} --overwrite`,
+      `generate --contract-id ${contractId} --output-dir ${testOutputDir} --rpc-url ${rpcUrl} --network localnet --allow-http --overwrite`,
     );
     expect(result.status).toBe(0);
     expect(fs.existsSync(path.join(testOutputDir, "src/client.ts"))).toBe(true);
@@ -259,5 +262,71 @@ describe("CLI generate command", () => {
       "utf8",
     );
     expect(indexContent).toContain("export { Client }");
+  });
+
+  describe("server options", () => {
+    it("accepts --allow-http flag with network sources", async () => {
+      const { contractId } = await clientFor("customTypes");
+      const testOutputDir = path.join(outputDir, "allow-http");
+
+      const result = runCli(
+        `generate --contract-id ${contractId} --rpc-url ${rpcUrl} --network localnet --output-dir ${testOutputDir} --allow-http --overwrite`,
+      );
+
+      expect(result.status).toBe(0);
+      expect(fs.existsSync(path.join(testOutputDir, "src/client.ts"))).toBe(
+        true,
+      );
+    });
+
+    it("accepts --timeout option", async () => {
+      const { contractId } = await clientFor("customTypes");
+      const testOutputDir = path.join(outputDir, "with-timeout");
+
+      const result = runCli(
+        `generate --contract-id ${contractId} --rpc-url ${rpcUrl} --network localnet --output-dir ${testOutputDir} --timeout 30000 --allow-http --overwrite`,
+      );
+
+      expect(result.status).toBe(0);
+      expect(fs.existsSync(path.join(testOutputDir, "src/client.ts"))).toBe(
+        true,
+      );
+    });
+
+    it("fails with invalid timeout value", () => {
+      const wasmPath = contracts.customTypes.path;
+      const testOutputDir = path.join(outputDir, "invalid-timeout");
+
+      const result = runCli(
+        `generate --wasm ${wasmPath} --output-dir ${testOutputDir} --timeout invalid`,
+      );
+
+      expect(result.status).toBe(1);
+      expect(result.stderr).toContain("Invalid timeout");
+    });
+
+    it("fails with negative timeout value", () => {
+      const wasmPath = contracts.customTypes.path;
+      const testOutputDir = path.join(outputDir, "negative-timeout");
+
+      const result = runCli(
+        `generate --wasm ${wasmPath} --output-dir ${testOutputDir} --timeout -1000`,
+      );
+
+      expect(result.status).toBe(1);
+      expect(result.stderr).toContain("Invalid timeout");
+    });
+
+    it("fails with invalid JSON for --headers", () => {
+      const wasmPath = contracts.customTypes.path;
+      const testOutputDir = path.join(outputDir, "invalid-headers");
+
+      const result = runCli(
+        `generate --wasm ${wasmPath} --output-dir ${testOutputDir} --headers not-valid-json`,
+      );
+
+      expect(result.status).toBe(1);
+      expect(result.stderr).toContain("Invalid JSON");
+    });
   });
 });
