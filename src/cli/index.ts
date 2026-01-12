@@ -31,7 +31,7 @@ function runCli() {
     .option("--rpc-url <url>", "RPC server URL")
     .option(
       "--network <network>",
-      "Network options to use: testnet, mainnet, or futurenet",
+      "Network options to use: mainnet, testnet, futurenet, or localnet",
     )
     .option("--output-dir <dir>", "Output directory for generated bindings")
     .option(
