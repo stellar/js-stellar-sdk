@@ -84,10 +84,12 @@ describe("CLI generate command", () => {
 
     const testOutputDir = path.join(outputDir, "from-hash");
 
+    // localnet uses default RPC URL and auto-enables allowHttp
     const result = runCli(
-      `generate --wasm-hash ${wasmHash} --output-dir ${testOutputDir} --contract-name HashContract --rpc-url ${rpcUrl} --network localnet --allow-http --overwrite`,
+      `generate --wasm-hash ${wasmHash} --output-dir ${testOutputDir} --contract-name HashContract --network localnet --overwrite`,
     );
     expect(result.status).toBe(0);
+    expect(result.stdout).toContain("Using default RPC URL");
     expect(fs.existsSync(path.join(testOutputDir, "src/client.ts"))).toBe(true);
   });
 
@@ -98,8 +100,9 @@ describe("CLI generate command", () => {
 
     const testOutputDir = path.join(outputDir, "from-id");
 
+    // localnet uses default RPC URL and auto-enables allowHttp
     const result = runCli(
-      `generate --contract-id ${contractId} --output-dir ${testOutputDir} --rpc-url ${rpcUrl} --network localnet --allow-http --overwrite`,
+      `generate --contract-id ${contractId} --output-dir ${testOutputDir} --network localnet --overwrite`,
     );
     expect(result.status).toBe(0);
     expect(fs.existsSync(path.join(testOutputDir, "src/client.ts"))).toBe(true);
@@ -133,15 +136,17 @@ describe("CLI generate command", () => {
     expect(result.status).toBe(1);
   });
 
-  it("fails with --wasm-hash but without --rpc-url", () => {
-    const testOutputDir = path.join(outputDir, "hash-no-rpc");
+  it("fails with mainnet without --rpc-url", () => {
+    const testOutputDir = path.join(outputDir, "mainnet-no-rpc");
 
+    // mainnet requires explicit --rpc-url (no default)
     const result = runCli(
-      `generate --wasm-hash abc123 --network testnet --output-dir ${testOutputDir}`,
+      `generate --wasm-hash abc123 --network mainnet --output-dir ${testOutputDir}`,
     );
 
     expect(result.status).toBe(1);
     expect(result.stderr).toContain("rpc-url");
+    expect(result.stderr).toContain("mainnet");
   });
 
   it("fails with --wasm-hash but without --network", () => {
@@ -153,17 +158,6 @@ describe("CLI generate command", () => {
 
     expect(result.status).toBe(1);
     expect(result.stderr).toContain("network");
-  });
-
-  it("fails with --contract-id but without --rpc-url", () => {
-    const testOutputDir = path.join(outputDir, "id-no-rpc");
-
-    const result = runCli(
-      `generate --contract-id CABC123 --network testnet --output-dir ${testOutputDir}`,
-    );
-
-    expect(result.status).toBe(1);
-    expect(result.stderr).toContain("rpc-url");
   });
 
   it("fails with --contract-id but without --network", () => {
@@ -265,12 +259,13 @@ describe("CLI generate command", () => {
   });
 
   describe("server options", () => {
-    it("accepts --allow-http flag with network sources", async () => {
+    it("auto-enables --allow-http for localnet", async () => {
       const { contractId } = await clientFor("customTypes");
       const testOutputDir = path.join(outputDir, "allow-http");
 
+      // localnet auto-enables allowHttp, no need to specify
       const result = runCli(
-        `generate --contract-id ${contractId} --rpc-url ${rpcUrl} --network localnet --output-dir ${testOutputDir} --allow-http --overwrite`,
+        `generate --contract-id ${contractId} --network localnet --output-dir ${testOutputDir} --overwrite`,
       );
 
       expect(result.status).toBe(0);
@@ -284,12 +279,47 @@ describe("CLI generate command", () => {
       const testOutputDir = path.join(outputDir, "with-timeout");
 
       const result = runCli(
-        `generate --contract-id ${contractId} --rpc-url ${rpcUrl} --network localnet --output-dir ${testOutputDir} --timeout 30000 --allow-http --overwrite`,
+        `generate --contract-id ${contractId} --network localnet --output-dir ${testOutputDir} --timeout 30000 --overwrite`,
       );
 
       expect(result.status).toBe(0);
       expect(fs.existsSync(path.join(testOutputDir, "src/client.ts"))).toBe(
         true,
+      );
+    });
+
+    it("allows overriding default RPC URL", async () => {
+      const { contractId } = await clientFor("customTypes");
+      const testOutputDir = path.join(outputDir, "custom-rpc");
+
+      // Can override default RPC URL with explicit --rpc-url
+      // Note: rpcUrl from util.ts is HTTP, so we need --allow-http
+      const result = runCli(
+        `generate --contract-id ${contractId} --rpc-url ${rpcUrl} --network localnet --output-dir ${testOutputDir} --allow-http --overwrite`,
+      );
+
+      expect(result.status).toBe(0);
+      // Should NOT print "Using default RPC URL" when explicit URL is provided
+      expect(result.stdout).not.toContain("Using default RPC URL");
+      expect(fs.existsSync(path.join(testOutputDir, "src/client.ts"))).toBe(
+        true,
+      );
+    });
+
+    it("does not auto-enable allowHttp when custom rpc-url is provided for localnet", async () => {
+      const { contractId } = await clientFor("customTypes");
+      const testOutputDir = path.join(outputDir, "custom-rpc-no-allow-http");
+
+      // When providing custom --rpc-url (even for localnet), allowHttp is NOT auto-enabled
+      // This should fail because rpcUrl is HTTP but --allow-http is not specified
+      const result = runCli(
+        `generate --contract-id ${contractId} --rpc-url ${rpcUrl} --network localnet --output-dir ${testOutputDir} --overwrite`,
+      );
+
+      // Should fail because HTTP is not allowed without --allow-http
+      expect(result.status).toBe(1);
+      expect(result.stderr).toContain(
+        "Cannot connect to insecure Soroban RPC server if `allowHttp` isn't set",
       );
     });
 

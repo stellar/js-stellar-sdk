@@ -13,6 +13,29 @@ import {
 import { SAC_SPEC } from "../bindings";
 import { Networks } from "@stellar/stellar-base";
 
+// Default RPC URLs for each network
+const NETWORK_CONFIG: Record<
+  string,
+  { passphrase: string; rpcUrl: string | null }
+> = {
+  testnet: {
+    passphrase: Networks.TESTNET,
+    rpcUrl: "https://soroban-testnet.stellar.org",
+  },
+  mainnet: {
+    passphrase: Networks.PUBLIC,
+    rpcUrl: null, // User must provide their own
+  },
+  futurenet: {
+    passphrase: Networks.FUTURENET,
+    rpcUrl: "https://rpc-futurenet.stellar.org",
+  },
+  localnet: {
+    passphrase: Networks.STANDALONE,
+    rpcUrl: "http://localhost:8000/rpc",
+  },
+};
+
 function runCli() {
   const program = new Command();
 
@@ -51,29 +74,42 @@ function runCli() {
     .option("--overwrite", "Overwrite existing files", false)
     .action(async (options) => {
       try {
-        // Map network to passphrase
+        // Map network to passphrase and default RPC URL
         let networkPassphrase: string | undefined;
+        let rpcUrl: string | undefined = options.rpcUrl;
+        let allowHttp: boolean = options.allowHttp;
+
         if (options.network) {
           const network = options.network.toLowerCase();
-          switch (network) {
-            case "testnet":
-              networkPassphrase = Networks.TESTNET;
-              break;
-            case "mainnet":
-              networkPassphrase = Networks.PUBLIC;
-              break;
-            case "futurenet":
-              networkPassphrase = Networks.FUTURENET;
-              break;
-            case "localnet":
-              networkPassphrase = Networks.STANDALONE;
-              break;
-            default:
+          const config = NETWORK_CONFIG[network];
+
+          if (!config) {
+            throw new Error(
+              `\n✗ Invalid network: ${options.network}. Must be mainnet, testnet, futurenet, or localnet`,
+            );
+          }
+
+          networkPassphrase = config.passphrase;
+
+          // Use default RPC URL if not provided (only needed for network sources)
+          const needsRpcUrl = options.wasmHash || options.contractId;
+          if (!rpcUrl && needsRpcUrl) {
+            if (config.rpcUrl) {
+              rpcUrl = config.rpcUrl;
+              console.log(`Using default RPC URL for ${network}: ${rpcUrl}`);
+
+              // Auto-enable allowHttp for localnet when using default HTTP URL
+              if (network === "localnet" && !options.allowHttp) {
+                allowHttp = true;
+              }
+            } else if (network === "mainnet") {
               throw new Error(
-                `\n✗ Invalid network: ${options.network}. Must be testnet, mainnet, futurenet, or localnet`,
+                `\n✗ --rpc-url is required for mainnet. Find RPC providers at: https://developers.stellar.org/docs/data/rpc/rpc-providers`,
               );
+            }
           }
         }
+
         if (options.outputDir === undefined) {
           throw new Error("Output directory (--output-dir) is required");
         }
@@ -103,10 +139,10 @@ function runCli() {
           wasm: options.wasm,
           wasmHash: options.wasmHash,
           contractId: options.contractId,
-          rpcUrl: options.rpcUrl,
+          rpcUrl,
           networkPassphrase,
           serverOptions: {
-            allowHttp: options.allowHttp,
+            allowHttp,
             timeout,
             headers,
           },
@@ -140,7 +176,7 @@ function runCli() {
           outputDir: path.resolve(options.outputDir),
           overwrite: options.overwrite,
           contractAddress: options.contractId,
-          rpcUrl: options.rpcUrl,
+          rpcUrl,
           networkPassphrase,
         });
 

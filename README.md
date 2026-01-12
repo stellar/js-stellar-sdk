@@ -231,9 +231,9 @@ npx @stellar/stellar-sdk generate \
 #### From a WASM hash on the network
 
 ```shell
+# testnet, futurenet, and localnet have default RPC URLs
 npx @stellar/stellar-sdk generate \
   --wasm-hash <hex-encoded-hash> \
-  --rpc-url https://soroban-testnet.stellar.org \
   --network testnet \
   --output-dir ./my-contract-client \
   --contract-name my-contract
@@ -244,25 +244,23 @@ npx @stellar/stellar-sdk generate \
 ```shell
 npx @stellar/stellar-sdk generate \
   --contract-id CABC...XYZ \
-  --rpc-url https://soroban-testnet.stellar.org \
   --network testnet \
   --output-dir ./my-contract-client
 ```
 
 #### With custom RPC server options
 
-For local development or when connecting to RPC servers that require authentication:
+For mainnet or when connecting to RPC servers that require authentication:
 
 ```shell
-# Allow HTTP connections (useful for local development)
+# Mainnet requires --rpc-url (no default)
 npx @stellar/stellar-sdk generate \
   --contract-id CABC...XYZ \
-  --rpc-url http://localhost:8000/soroban/rpc \
-  --network localnet \
-  --output-dir ./my-contract-client \
-  --allow-http
+  --rpc-url https://my-rpc-provider.com \
+  --network mainnet \
+  --output-dir ./my-contract-client
 
-# With custom timeout and headers
+# With custom timeout and headers for authenticated RPC servers
 npx @stellar/stellar-sdk generate \
   --contract-id CABC...XYZ \
   --rpc-url https://my-rpc-server.com \
@@ -270,6 +268,20 @@ npx @stellar/stellar-sdk generate \
   --output-dir ./my-contract-client \
   --timeout 30000 \
   --headers '{"Authorization": "Bearer my-token"}'
+
+# localnet with default RPC URL auto-enables --allow-http
+npx @stellar/stellar-sdk generate \
+  --contract-id CABC...XYZ \
+  --network localnet \
+  --output-dir ./my-contract-client
+
+# When overriding the default URL, you must specify --allow-http if using HTTP
+npx @stellar/stellar-sdk generate \
+  --contract-id CABC...XYZ \
+  --rpc-url http://my-local-server:8000/rpc \
+  --network localnet \
+  --output-dir ./my-contract-client \
+  --allow-http
 ```
 
 ### CLI Options
@@ -279,7 +291,7 @@ npx @stellar/stellar-sdk generate \
 | `--wasm <path>` | Path to a local WASM file |
 | `--wasm-hash <hash>` | Hex-encoded hash of WASM blob on the network |
 | `--contract-id <id>` | Contract ID of a deployed contract |
-| `--rpc-url <url>` | Soroban RPC server URL (required for network sources) |
+| `--rpc-url <url>` | Soroban RPC server URL (has defaults for testnet/futurenet/localnet, required for mainnet) |
 | `--network <network>` | Network to use: `testnet`, `mainnet`, `futurenet`, or `localnet` (required for network sources) |
 | `--output-dir <dir>` | Output directory for generated bindings (required) |
 | `--contract-name <name>` | Name for the generated package (derived from filename if not provided) |
@@ -287,6 +299,17 @@ npx @stellar/stellar-sdk generate \
 | `--allow-http` | Allow insecure HTTP connections to RPC server (default: false) |
 | `--timeout <ms>` | RPC request timeout in milliseconds |
 | `--headers <json>` | Custom headers as JSON object (e.g., `'{"Authorization": "Bearer token"}'`) |
+
+#### Default RPC URLs
+
+When using `--network`, the CLI provides default RPC URLs for most networks:
+
+| Network | Default RPC URL |
+|---------|-----------------|
+| `testnet` | `https://soroban-testnet.stellar.org` |
+| `futurenet` | `https://rpc-futurenet.stellar.org` |
+| `localnet` | `http://localhost:8000/rpc` (auto-enables `--allow-http` only when using default URL) |
+| `mainnet` | None - you must provide `--rpc-url` ([find providers](https://developers.stellar.org/docs/data/rpc/rpc-providers)) |
 
 ### Generated Output
 
