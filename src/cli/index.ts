@@ -154,6 +154,9 @@ function runCli() {
       } catch (error) {
         if (error instanceof WasmFetchError) {
           console.error(`\n✗ Error: ${error.message}`);
+          if (error.cause) {
+            console.error(`  Caused by: ${error.cause.message}`);
+          }
         } else if (error instanceof Error) {
           console.error(`\n✗ Error: ${error.message}`);
         } else {
