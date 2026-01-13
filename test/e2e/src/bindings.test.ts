@@ -1,4 +1,4 @@
-import { expect, beforeAll, afterAll } from "vitest";
+import { expect, beforeAll, afterAll, describe, it } from "vitest";
 import { spawnSync } from "node:child_process";
 import * as fs from "node:fs";
 import * as path from "node:path";
@@ -222,5 +222,59 @@ describe("Generated Bindings E2E Test", () => {
     // Test multi_args method
     const multiResult = await client.multi_args({ a: 10, b: true });
     expect(multiResult.result).toBe(10);
+
+    const timepoint = await client.timepoint({ timepoint: 1625077800n });
+    expect(timepoint.result).toBe(1625077800n);
+
+    const duration = await client.duration({ duration: 3600n });
+    expect(duration.result).toBe(3600n);
   }, 120000); // 2 minute timeout for deployment
+});
+
+describe("Bindings Snapshot Test", () => {
+  const snapshotOutputDir = path.resolve(
+    __dirname,
+    "../temp-bindings-snapshot",
+  );
+
+  beforeAll(() => {
+    if (fs.existsSync(snapshotOutputDir)) {
+      fs.rmSync(snapshotOutputDir, { recursive: true });
+    }
+  });
+
+  afterAll(() => {
+    if (fs.existsSync(snapshotOutputDir)) {
+      fs.rmSync(snapshotOutputDir, { recursive: true });
+    }
+  });
+
+  it("generates bindings that match snapshot for custom-types contract", () => {
+    const wasmPath = contracts.customTypes.path;
+    const genResult = runCli(
+      `generate --wasm ${wasmPath} --output-dir ${snapshotOutputDir} --contract-name custom-types --overwrite`,
+    );
+
+    expect(genResult.status).toBe(0);
+    expect(genResult.stdout).toContain("Successfully generated bindings");
+
+    // Read generated files
+    const indexTs = fs.readFileSync(
+      path.join(snapshotOutputDir, "src/index.ts"),
+      "utf8",
+    );
+    const typesTs = fs.readFileSync(
+      path.join(snapshotOutputDir, "src/types.ts"),
+      "utf8",
+    );
+    const clientTs = fs.readFileSync(
+      path.join(snapshotOutputDir, "src/client.ts"),
+      "utf8",
+    );
+
+    // Snapshot the generated TypeScript files
+    expect(indexTs).toMatchSnapshot("custom-types-index.ts");
+    expect(typesTs).toMatchSnapshot("custom-types-types.ts");
+    expect(clientTs).toMatchSnapshot("custom-types-client.ts");
+  });
 });
