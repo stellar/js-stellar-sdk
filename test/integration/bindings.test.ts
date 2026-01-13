@@ -841,8 +841,8 @@ describe("BindingGenerator", () => {
         const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
 
         expect(result.types).toContain("export type MyResult");
-        expect(result.types).toContain('{ tag: "Success" }');
-        expect(result.types).toContain('{ tag: "Failure" }');
+        expect(result.types).toContain('{ tag: "Success"; values: void }');
+        expect(result.types).toContain('{ tag: "Failure"; values: void }');
       });
 
       it("generates union with tuple cases", () => {
@@ -872,7 +872,7 @@ describe("BindingGenerator", () => {
         expect(result.types).toContain(
           '{ tag: "Some"; values: readonly [number] }',
         );
-        expect(result.types).toContain('{ tag: "None" }');
+        expect(result.types).toContain('{ tag: "None"; values: void }');
       });
     });
 

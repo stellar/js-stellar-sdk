@@ -164,7 +164,7 @@ ${fields}
         if (c.types.length > 0) {
           return `${formatJSDocComment(c.doc, 2)}  { tag: "${c.name}"; values: readonly [${c.types.join(", ")}] }`;
         }
-        return `${formatJSDocComment(c.doc, 2)}  { tag: "${c.name}" }`;
+        return `${formatJSDocComment(c.doc, 2)}  { tag: "${c.name}"; values: void }`;
       })
       .join(" |\n");
 

@@ -91,9 +91,9 @@ export interface Test {
  * Union: SimpleEnum
  */
  export type SimpleEnum =
-  { tag: "First" } |
-  { tag: "Second" } |
-  { tag: "Third" };
+  { tag: "First"; values: void } |
+  { tag: "Second"; values: void } |
+  { tag: "Third"; values: void };
 
 /**
  * Enum: RoyalCard
@@ -129,14 +129,14 @@ export interface TupleStruct {
   { tag: "Tuple"; values: readonly [TupleStruct] } |
   { tag: "Enum"; values: readonly [SimpleEnum] } |
   { tag: "Asset"; values: readonly [string | Address, bigint] } |
-  { tag: "Void" };
+  { tag: "Void"; values: void };
 
 /**
  * Union: RecursiveEnum
  */
  export type RecursiveEnum =
   { tag: "List"; values: readonly [Array<RecursiveEnum>] } |
-  { tag: "Void" };
+  { tag: "Void"; values: void };
 
 /**
  * Error Enum: Error
