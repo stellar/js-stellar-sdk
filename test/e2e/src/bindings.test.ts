@@ -250,7 +250,10 @@ describe("Bindings Snapshot Test", () => {
   });
 
   it("generates bindings that match snapshot for custom-types contract", () => {
-    const wasmPath = contracts.customTypes.path;
+    const wasmPath = path.resolve(
+      __dirname,
+      "../wasm-fixtures/custom_types.wasm",
+    );
     const genResult = runCli(
       `generate --wasm ${wasmPath} --output-dir ${snapshotOutputDir} --contract-name custom-types --overwrite`,
     );
