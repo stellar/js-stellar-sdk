@@ -82,7 +82,7 @@ export function sanitizeIdentifier(identifier: string): string {
 export function parseTypeFromTypeDef(typeDef: xdr.ScSpecTypeDef): string {
   switch (typeDef.switch()) {
     case xdr.ScSpecType.scSpecTypeVal():
-      return "xdr.ScVal";
+      return "any";
     case xdr.ScSpecType.scSpecTypeBool():
       return "boolean";
     case xdr.ScSpecType.scSpecTypeVoid():

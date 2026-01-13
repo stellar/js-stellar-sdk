@@ -300,6 +300,11 @@ describe("BindingGenerator", () => {
           ),
           expected: "[boolean, number]",
         },
+        {
+          name: "val",
+          type: xdr.ScSpecTypeDef.scSpecTypeVal(),
+          expected: "any",
+        },
       ];
 
       primitiveTypes.forEach(({ name, type, expected }) => {
