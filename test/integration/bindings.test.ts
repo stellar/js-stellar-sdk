@@ -782,6 +782,34 @@ describe("BindingGenerator", () => {
           "data: Array<Map<string, number | null>>",
         );
       });
+
+      it("generates struct with tuple field", () => {
+        const structSpec = createStructSpec("TupleStruct", [
+          {
+            name: "0",
+            type: xdr.ScSpecTypeDef.scSpecTypeUdt(
+              new xdr.ScSpecTypeUdt({
+                name: "FirstTupleElement",
+              }),
+            ),
+          },
+          {
+            name: "1",
+            type: xdr.ScSpecTypeDef.scSpecTypeUdt(
+              new xdr.ScSpecTypeUdt({
+                name: "SecondTupleElement",
+              }),
+            ),
+          },
+        ]);
+        const spec = new contract.Spec([structSpec.toXDR("base64")]);
+        const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
+
+        expect(result.types).toContain("export type TupleStruct");
+        expect(result.types).toContain(
+          "readonly [FirstTupleElement, SecondTupleElement]",
+        );
+      });
     });
 
     describe("enums", () => {

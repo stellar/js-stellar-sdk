@@ -366,3 +366,11 @@ export function formatJSDocComment(comment: string, indentLevel = 0): string {
 
   return `${indent}/**\n${lines.join("\n")}\n${indent} */\n`;
 }
+
+export function isTupleStruct(udtStruct: xdr.ScSpecUdtStructV0): boolean {
+  const fields = udtStruct.fields();
+  // A tuple struct has unnamed fields
+  return fields.every(
+    (field, index) => field.name().toString().trim() === index.toString(),
+  );
+}

@@ -114,12 +114,9 @@ export enum RoyalCard {
 }
 
 /**
- * Struct: TupleStruct
+ * Tuple Struct: TupleStruct
  */
-export interface TupleStruct {
-  0: Test;
-  1: SimpleEnum;
-}
+export type TupleStruct = readonly [Test, SimpleEnum];
 
 /**
  * Union: ComplexEnum

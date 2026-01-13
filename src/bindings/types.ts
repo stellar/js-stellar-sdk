@@ -6,6 +6,7 @@ import {
   sanitizeIdentifier,
   formatJSDocComment,
   formatImports,
+  isTupleStruct,
 } from "./utils";
 
 /**
@@ -69,6 +70,9 @@ export class TypeGenerator {
   private generateEntry(entry: xdr.ScSpecEntry): string | null {
     switch (entry.switch()) {
       case xdr.ScSpecEntryKind.scSpecEntryUdtStructV0():
+        if (isTupleStruct(entry.udtStructV0())) {
+          return this.generateTupleStruct(entry.udtStructV0());
+        }
         return this.generateStruct(entry.udtStructV0());
       case xdr.ScSpecEntryKind.scSpecEntryUdtUnionV0():
         return this.generateUnion(entry.udtUnionV0());
@@ -257,5 +261,20 @@ ${members}
       name: enumCase.name().toString(),
       value: enumCase.value(),
     };
+  }
+
+  private generateTupleStruct(udtStruct: xdr.ScSpecUdtStructV0): string {
+    const name = sanitizeIdentifier(udtStruct.name().toString());
+    const doc = formatJSDocComment(
+      udtStruct.doc().toString() || `Tuple Struct: ${name}`,
+      0,
+    );
+
+    const types = udtStruct
+      .fields()
+      .map((field) => parseTypeFromTypeDef(field.type()))
+      .join(", ");
+
+    return `${doc}export type ${name} = readonly [${types}];`;
   }
 }
