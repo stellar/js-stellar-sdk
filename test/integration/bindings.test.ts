@@ -612,7 +612,7 @@ describe("BindingGenerator", () => {
       const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
 
       // Should escape */ to prevent breaking the JSDoc block
-      expect(result.client).toContain("*\\/");
+      expect(result.client).toContain("* /");
       expect(result.client).not.toMatch(/\* This doc has \*\//);
     });
 
@@ -663,7 +663,7 @@ describe("BindingGenerator", () => {
       const spec = new contract.Spec([structSpec.toXDR("base64")]);
       const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
 
-      expect(result.types).toContain("*\\/");
+      expect(result.types).toContain("* /");
     });
 
     it("escapes closing comment sequences in field docs", () => {
@@ -684,7 +684,7 @@ describe("BindingGenerator", () => {
       const spec = new contract.Spec([structSpec.toXDR("base64")]);
       const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
 
-      expect(result.types).toContain("*\\/");
+      expect(result.types).toContain("* /");
     });
 
     it("escapes closing comment sequences in enum variant docs", () => {
@@ -706,7 +706,7 @@ describe("BindingGenerator", () => {
       const spec = new contract.Spec([enumSpec.toXDR("base64")]);
       const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
 
-      expect(result.types).toContain("*\\/");
+      expect(result.types).toContain("* /");
     });
   });
 

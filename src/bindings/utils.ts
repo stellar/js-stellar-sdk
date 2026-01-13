@@ -339,7 +339,7 @@ function escapeJSDocContent(text: string): string {
   return (
     text
       // Escape closing comment sequences that would break the JSDoc block
-      .replace(/\*\//g, "*\\/")
+      .replace(/\*\//g, "* /")
       // Escape @ symbols at word boundaries to prevent accidental JSDoc tags
       // We allow common JSDoc tags to pass through
       .replace(
