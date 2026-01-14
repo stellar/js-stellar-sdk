@@ -2,11 +2,12 @@
 import { describe, it, expect } from "vitest";
 import URI from "urijs";
 import { CallBuilder } from "../../lib/horizon/call_builder";
+import { httpClient } from "../test-utils/stellar-sdk-import";
 
 describe("CallBuilder functions", () => {
   it("doesn't mutate the constructor passed url argument (it clones it instead)", () => {
     const arg = URI("https://onedom.ain/");
-    const builder = new CallBuilder(arg);
+    const builder = new CallBuilder(arg, httpClient);
     builder["url"].segment("one_segment");
     builder["checkFilter"]();
 
