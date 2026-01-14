@@ -240,16 +240,17 @@ export class BindingGenerator {
 
     // Generate config files
     const configGenerator = new ConfigGenerator();
-    const configs = configGenerator.generate(options);
+    const { packageJson, tsConfig, readme, gitignore } =
+      configGenerator.generate(options);
 
     return {
-      index: index,
-      types: types,
-      client: client,
-      packageJson: configs.packageJson,
-      tsConfig: configs.tsConfig,
-      readme: configs.readme,
-      gitignore: configs.gitignore,
+      index,
+      types,
+      client,
+      packageJson,
+      tsConfig,
+      readme,
+      gitignore,
     };
   }
 
