@@ -126,4 +126,89 @@ describe("integration tests: client headers", () => {
       .operations()
       .call();
   });
+
+  it("uses configured server URL for pagination links (reverse proxy support)", async () => {
+    let server: http.Server;
+    let requestCount = 0;
+
+    const requestHandler = (
+      _request: http.IncomingMessage,
+      response: http.ServerResponse,
+    ) => {
+      requestCount++;
+
+      if (requestCount === 1) {
+        // First request: return a response with _links pointing to a DIFFERENT host
+        // This simulates what Horizon does - it returns its own hostname in links
+        response.setHeader("Content-Type", "application/json");
+        response.end(
+          JSON.stringify({
+            _embedded: {
+              records: [{ id: "1", paging_token: "token1" }],
+            },
+            _links: {
+              // These links point to a different host (horizon.stellar.org)
+              // The SDK should rewrite these to use localhost:${port}
+              next: {
+                href: `https://horizon.stellar.org/operations?cursor=token1`,
+              },
+              prev: {
+                href: `https://horizon.stellar.org/operations?cursor=token0`,
+              },
+            },
+          }),
+        );
+      } else if (requestCount === 2) {
+        // Second request (pagination): verify it came to our server, not horizon.stellar.org
+        response.setHeader("Content-Type", "application/json");
+        response.end(
+          JSON.stringify({
+            _embedded: {
+              records: [{ id: "2", paging_token: "token2" }],
+            },
+            _links: {
+              next: {
+                href: `https://horizon.stellar.org/operations?cursor=token2`,
+              },
+              prev: {
+                href: `https://horizon.stellar.org/operations?cursor=token1`,
+              },
+            },
+          }),
+        );
+        server.close();
+      }
+    };
+
+    server = http.createServer(requestHandler);
+
+    await new Promise<void>((resolve, reject) => {
+      server.listen(port, (err?: Error) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+        resolve();
+      });
+    });
+
+    const horizonServer = new Horizon.Server(`http://localhost:${port}`, {
+      allowHttp: true,
+    });
+
+    // First request
+    const firstPage = await horizonServer.operations().call();
+    expect(firstPage.records).toHaveLength(1);
+    expect(firstPage.records[0]!.id).toBe("1");
+
+    // Second request via .next() - this should go to localhost, not horizon.stellar.org
+    // If the fix works, requestCount will be 2. If not, this will timeout/fail
+    // because the request would go to horizon.stellar.org instead of our mock server
+    const secondPage = await firstPage.next();
+    expect(secondPage.records).toHaveLength(1);
+    expect(secondPage.records[0]!.id).toBe("2");
+
+    // Verify both requests came to our server
+    expect(requestCount).toBe(2);
+  });
 });

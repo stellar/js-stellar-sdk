@@ -6,6 +6,8 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Fixed
+* `CallBuilder` now correctly uses the configured server URL for all requests, including pagination and linked resources. Previously, URLs returned by Horizon in `_links` would bypass reverse proxies ([#1314](https://github.com/stellar/js-stellar-sdk/pull/1314)).
 
 ## [v14.4.3](https://github.com/stellar/js-stellar-sdk/compare/v14.4.2...v14.4.3)
 
