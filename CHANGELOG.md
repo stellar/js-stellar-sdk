@@ -6,6 +6,10 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Fixed
+
+* X-App-Name and X-App-Version headers are now included when using `CallBuilder.stream()` 
+
 
 ## [v14.4.3](https://github.com/stellar/js-stellar-sdk/compare/v14.4.2...v14.4.3)
 
