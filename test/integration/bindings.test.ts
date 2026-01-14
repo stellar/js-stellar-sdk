@@ -117,7 +117,6 @@ describe("BindingGenerator", () => {
       const spec = new contract.Spec([funcSpec.toXDR("base64")]);
       const generator = BindingGenerator.fromSpec(spec);
       const result = generator.generate(defaultOptions);
-      console.log(result.types == "", result.types, "---");
       expect(result.index).not.toContain('export * from "./types.js"');
     });
   });
