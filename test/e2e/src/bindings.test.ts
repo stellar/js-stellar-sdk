@@ -197,6 +197,14 @@ describe("Generated Bindings E2E Test", () => {
     const woidResult = await client.woid();
     expect(woidResult.result).toBeNull();
 
+    const u32FailOnEven = await client.u32_fail_on_even({ u32_: 3 });
+    expect(u32FailOnEven.result).toEqual(new contract.Ok(3));
+
+    const u32FailOnEvenEven = await client.u32_fail_on_even({ u32_: 4 });
+    expect(u32FailOnEvenEven.result).toEqual(
+      new contract.Err({ message: "Please provide an odd number" }),
+    );
+
     // Test u32_ method
     const u32Result = await client.u32_({ u32_: 42 });
     expect(u32Result.result).toBe(42);
@@ -228,6 +236,162 @@ describe("Generated Bindings E2E Test", () => {
 
     const duration = await client.duration({ duration: 3600n });
     expect(duration.result).toBe(3600n);
+
+    const optionSome = await client.option({
+      option: 11,
+    });
+    expect(optionSome.result).toEqual(11);
+
+    const optionNone = await client.option({
+      option: null,
+    });
+    expect(optionNone.result).toBeNull();
+
+    const optionUndefined = await client.option({
+      option: undefined,
+    });
+    expect(optionUndefined.result).toBeNull();
+
+    // Test i32_ method
+    const i32Result = await client.i32_({ i32_: -42 });
+    expect(i32Result.result).toBe(-42);
+
+    // Test i64_ method
+    const i64Result = await client.i64_({ i64_: 9007199254740993n });
+    expect(i64Result.result).toBe(9007199254740993n);
+
+    // Test strukt_hel method
+    const struktHelResult = await client.strukt_hel({
+      strukt: { a: 0, b: true, c: "world" },
+    });
+    expect(struktHelResult.result).toEqual(["Hello", "world"]);
+
+    // Test simple enum - Second variant
+    const simpleSecond = await client.simple({ simple: { tag: "Second" } });
+    expect(simpleSecond.result).toEqual({ tag: "Second" });
+
+    // Test simple enum - Third variant
+    const simpleThird = await client.simple({ simple: { tag: "Third" } });
+    expect(simpleThird.result).toEqual({ tag: "Third" });
+
+    // Test complex enum - Struct variant
+    const complexStruct = await client.complex({
+      complex: { tag: "Struct", values: [{ a: 0, b: true, c: "hello" }] },
+    });
+    expect(complexStruct.result).toEqual({
+      tag: "Struct",
+      values: [{ a: 0, b: true, c: "hello" }],
+    });
+
+    // Test complex enum - Tuple variant
+    const complexTuple = await client.complex({
+      complex: {
+        tag: "Tuple",
+        values: [[{ a: 0, b: true, c: "hello" }, { tag: "First" }]],
+      },
+    });
+    expect(complexTuple.result).toEqual({
+      tag: "Tuple",
+      values: [[{ a: 0, b: true, c: "hello" }, { tag: "First" }]],
+    });
+
+    // Test complex enum - Enum variant
+    const complexEnum = await client.complex({
+      complex: { tag: "Enum", values: [{ tag: "First" }] },
+    });
+    expect(complexEnum.result).toEqual({
+      tag: "Enum",
+      values: [{ tag: "First" }],
+    });
+
+    // Test complex enum - Asset variant
+    const complexAsset = await client.complex({
+      complex: { tag: "Asset", values: [keypair.publicKey(), 1n] },
+    });
+    expect(complexAsset.result).toEqual({
+      tag: "Asset",
+      values: [keypair.publicKey(), 1n],
+    });
+
+    // Test complex enum - Void variant
+    const complexVoid = await client.complex({
+      complex: { tag: "Void" },
+    });
+    expect(complexVoid.result).toEqual({ tag: "Void" });
+
+    // Test addresse method
+    const addresseResult = await client.addresse({
+      addresse: keypair.publicKey(),
+    });
+    expect(addresseResult.result).toBe(keypair.publicKey());
+
+    // Test bytes method
+    const bytesInput = Buffer.from("hello");
+    const bytesResult = await client.bytes({ bytes: bytesInput });
+    expect(bytesResult.result).toEqual(bytesInput);
+
+    // Test bytes_n method
+    const bytesNInput = Buffer.from("123456789");
+    const bytesNResult = await client.bytes_n({ bytes_n: bytesNInput });
+    expect(bytesNResult.result).toEqual(bytesNInput);
+
+    // Test card method
+    const cardResult = await client.card({ card: 11 });
+    expect(cardResult.result).toBe(11);
+
+    // Test i128 method
+    const i128Result = await client.i128({ i128: -1n });
+    expect(i128Result.result).toBe(-1n);
+
+    // Test u128 method
+    const u128Result = await client.u128({ u128: 1n });
+    expect(u128Result.result).toBe(1n);
+
+    // Test i256 method
+    const i256Result = await client.i256({ i256: -1n });
+    expect(i256Result.result).toBe(-1n);
+
+    // Test u256 method
+    const u256Result = await client.u256({ u256: 1n });
+    expect(u256Result.result).toBe(1n);
+
+    // Test multi_args with b=false
+    const multiResultFalse = await client.multi_args({ a: 10, b: false });
+    expect(multiResultFalse.result).toBe(0);
+
+    // Test map method
+    const mapInput = new Map<number, boolean>();
+    mapInput.set(1, true);
+    mapInput.set(2, false);
+    const mapResult = await client.map({ map: mapInput });
+    expect(mapResult.result).toEqual(Array.from(mapInput.entries()));
+
+    // Test vec method
+    const vecInput = [1, 2, 3];
+    const vecResult = await client.vec({ vec: vecInput });
+    expect(vecResult.result).toEqual(vecInput);
+
+    // Test tuple method
+    const tupleInput: readonly [string, number] = ["hello", 1];
+    const tupleResult = await client.tuple({ tuple: tupleInput });
+    expect(tupleResult.result).toEqual(tupleInput);
+
+    // Test string method
+    const stringResult = await client.string({ string: "hello" });
+    expect(stringResult.result).toBe("hello");
+
+    // Test tuple_strukt method
+    const tupleStruktInput: readonly [
+      { a: number; b: boolean; c: string },
+      { tag: "First" },
+    ] = [{ a: 0, b: true, c: "hello" }, { tag: "First" }];
+    const tupleStruktResult = await client.tuple_strukt({
+      tuple_strukt: tupleStruktInput,
+    });
+    expect(tupleStruktResult.result).toEqual([
+      { a: 0, b: true, c: "hello" },
+      { tag: "First" },
+    ]);
   }, 120000); // 2 minute timeout for deployment
 });
 
