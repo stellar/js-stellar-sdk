@@ -802,7 +802,7 @@ describe("server.js non-transaction tests", () => {
             }
             if (
               url.match(
-                /^https:\/\/horizon.stellar.org\/transactions\/c585b8764b28be678c482f8b6e87e76e4b5f28043c53f4dcb7b724b4b2efebc1\/operations/,
+                /^https:\/\/horizon-live.stellar.org:1337\/transactions\/c585b8764b28be678c482f8b6e87e76e4b5f28043c53f4dcb7b724b4b2efebc1\/operations/,
               )
             ) {
               return Promise.resolve({ data: { operations: [] } });
@@ -830,6 +830,7 @@ describe("server.js non-transaction tests", () => {
       describe("with options", () => {
         it("requests the correct endpoint", async () => {
           mockGet.mockImplementation((url: string) => {
+            console.log("URL called:", url);
             if (
               url.includes(
                 "https://horizon-live.stellar.org:1337/ledgers/7952722/transactions?cursor=b&limit=1&order=asc",
@@ -839,7 +840,7 @@ describe("server.js non-transaction tests", () => {
             }
             if (
               url.match(
-                /^https:\/\/horizon.stellar.org\/transactions\/c585b8764b28be678c482f8b6e87e76e4b5f28043c53f4dcb7b724b4b2efebc1\/operations\?limit=1/,
+                /^https:\/\/horizon-live.stellar.org:1337\/transactions\/c585b8764b28be678c482f8b6e87e76e4b5f28043c53f4dcb7b724b4b2efebc1\/operations\?limit=1/,
               )
             ) {
               return Promise.resolve({ data: { operations: [] } });
