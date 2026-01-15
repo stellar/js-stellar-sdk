@@ -39,13 +39,16 @@ export * as contract from "./contract";
 // expose classes and functions from stellar-base
 export * from "@stellar/stellar-base";
 
-// Re-export key functions with JSDoc for better IDE support
+// Re-export key functions with JSDoc for better IDE support.
+// These explicit exports shadow the wildcard export above, allowing us to add
+// comprehensive JSDoc documentation that doesn't exist in stellar-base's .d.ts files.
 import {
   nativeToScVal as _nativeToScVal,
   scValToNative as _scValToNative,
   scValToBigInt as _scValToBigInt,
   xdr,
 } from "@stellar/stellar-base";
+
 
 /**
  * Attempts to convert native JavaScript types into smart contract values
