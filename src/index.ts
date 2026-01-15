@@ -49,7 +49,6 @@ import {
   xdr,
 } from "@stellar/stellar-base";
 
-
 /**
  * Attempts to convert native JavaScript types into smart contract values
  * ({@link xdr.ScVal}).
@@ -66,7 +65,7 @@ import {
  *    types for `val`:
  *
  *     - when `val` is an integer-like type (i.e. number|bigint), this will be
- *       forwarded to {@link ScInt} or forced to be u32/i32.
+ *       forwarded to `ScInt` or forced to be u32/i32.
  *
  *     - when `val` is an array type, this is forwarded to the recursion
  *
@@ -176,7 +175,7 @@ export const nativeToScVal = _nativeToScVal;
  *
  * @example
  * import { nativeToScVal, scValToNative } from '@stellar/stellar-sdk';
- * 
+ *
  * const scVal = nativeToScVal(1234n);
  * const native = scValToNative(scVal); // returns 1234n
  */
@@ -195,7 +194,7 @@ export const scValToNative = _scValToNative;
  *
  * @example
  * import { nativeToScVal, scValToBigInt } from '@stellar/stellar-sdk';
- * 
+ *
  * const scVal = nativeToScVal(123456789n);
  * const value = scValToBigInt(scVal); // returns 123456789n
  */
