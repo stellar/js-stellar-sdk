@@ -1,10 +1,15 @@
 /**
- * This test validates that JSDoc documentation is properly exported
- * for stellar-base functions when re-exported from stellar-sdk.
+ * This test validates that the scval conversion functions work correctly.
+ * These functions are re-exported from @stellar/stellar-base with added JSDoc.
  * 
- * Note: This test primarily validates that the functions are exported
- * and maintain their functionality. The JSDoc comments can be verified
- * by checking the generated lib/index.d.ts file.
+ * Note: This test imports from stellar-base directly to test functionality.
+ * The JSDoc improvements can be verified by checking the generated lib/index.d.ts
+ * file or by using an IDE with the built package.
+ * 
+ * To verify JSDoc appears in IDE tooltips:
+ * 1. Build the package: yarn build:node
+ * 2. Import from the built lib: import { nativeToScVal } from './lib/index'
+ * 3. Hover over the function in your IDE to see the full documentation
  */
 
 import { describe, it, expect } from 'vitest';
@@ -50,4 +55,3 @@ describe('stellar-base re-exports with JSDoc', () => {
     expect(native).toBeDefined();
   });
 });
-
