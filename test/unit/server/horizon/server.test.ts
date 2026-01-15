@@ -802,7 +802,7 @@ describe("server.js non-transaction tests", () => {
             }
             if (
               url.match(
-                /^https:\/\/horizon-live.stellar.org:1337\/transactions\/c585b8764b28be678c482f8b6e87e76e4b5f28043c53f4dcb7b724b4b2efebc1\/operations/,
+                /^https:\/\/horizon-live\.stellar\.org:1337\/transactions\/c585b8764b28be678c482f8b6e87e76e4b5f28043c53f4dcb7b724b4b2efebc1\/operations/,
               )
             ) {
               return Promise.resolve({ data: { operations: [] } });
@@ -840,7 +840,7 @@ describe("server.js non-transaction tests", () => {
             }
             if (
               url.match(
-                /^https:\/\/horizon-live.stellar.org:1337\/transactions\/c585b8764b28be678c482f8b6e87e76e4b5f28043c53f4dcb7b724b4b2efebc1\/operations\?limit=1/,
+                /^https:\/\/horizon-live\.stellar\.org:1337\/transactions\/c585b8764b28be678c482f8b6e87e76e4b5f28043c53f4dcb7b724b4b2efebc1\/operations\?limit=1/,
               )
             ) {
               return Promise.resolve({ data: { operations: [] } });
@@ -941,7 +941,7 @@ describe("server.js non-transaction tests", () => {
         mockGet.mockImplementation((url: string) => {
           if (
             url.includes(
-              "https://horizon-live.stellar.org:1337/transactions/6bbd8cbd90498a26210a21ec599702bead8f908f412455da300318aba36831b0",
+              "https://horizon-live.stellar\.org:1337/transactions/6bbd8cbd90498a26210a21ec599702bead8f908f412455da300318aba36831b0",
             )
           ) {
             return Promise.resolve({ data: singleTranssactionResponse });
