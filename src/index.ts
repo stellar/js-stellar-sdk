@@ -51,9 +51,9 @@ import {
  * Attempts to convert native JavaScript types into smart contract values
  * ({@link xdr.ScVal}).
  *
- * Provides conversions from smart contract XDR values ({@link xdr.ScVal}) to
- * native types. This is a best-effort conversion, so you should always verify
- * the type of the returned value (or just use TypeScript).
+ * This function converts JavaScript values to their XDR ScVal equivalents
+ * for use with Soroban smart contracts. It performs a best-effort conversion
+ * based on the input type and optional type hints.
  *
  * @param {any} val - a native (or convertible) JavaScript value you'd like to
  *    convert into a smart contract value (xdr.ScVal)
