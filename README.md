@@ -291,7 +291,7 @@ npx @stellar/stellar-sdk generate \
 | `--wasm <path>` | Path to a local WASM file |
 | `--wasm-hash <hash>` | Hex-encoded hash of WASM blob on the network |
 | `--contract-id <id>` | Contract ID of a deployed contract |
-| `--rpc-url <url>` | Soroban RPC server URL (has defaults for testnet/futurenet/localnet, required for mainnet) |
+| `--rpc-url <url>` | Stellar RPC server URL (has defaults for testnet/futurenet/localnet, required for mainnet) |
 | `--network <network>` | Network to use: `testnet`, `mainnet`, `futurenet`, or `localnet` (required for network sources) |
 | `--output-dir <dir>` | Output directory for generated bindings (required) |
 | `--contract-name <name>` | Name for the generated package (derived from filename if not provided) |
