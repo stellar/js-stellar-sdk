@@ -1194,52 +1194,40 @@ export class RpcServer {
   }
 
   /**
-   * Fund a new account or contract using the network's Friendbot faucet, if any.
+   * Fund a new account using the network's Friendbot faucet, if any.
    *
    * @param {string | Account} address The address or account instance that we
-   *    want to create and fund with Friendbot. Supports both G... (account) and
-   *    C... (contract) addresses.
+   *    want to create and fund with Friendbot
    * @param {string} [friendbotUrl] Optionally, an explicit address for
    *    friendbot (by default: this calls the Soroban RPC
    *    {@link module:rpc.Server#getNetwork | getNetwork} method to try to
    *    discover this network's Friendbot url).
-   * @returns {Promise<Account | Api.ContractFundingResult>} An {@link Account}
-   *    object for the created account (G... addresses), or a
-   *    {@link Api.ContractFundingResult} for contract addresses (C...). For
-   *    existing accounts, returns the account with populated sequence number
-   *    (note that accounts will not be "topped off" if they already exist).
+   * @returns {Promise<Account>} An {@link Account} object for the created
+   *    account, or the existing account if it's already funded with the
+   *    populated sequence number (note that the account will not be "topped
+   *    off" if it already exists)
    * @throws {Error} If Friendbot is not configured on this network or request failure
    *
    * @see {@link https://developers.stellar.org/docs/learn/fundamentals/networks#friendbot | Friendbot docs}
    * @see {@link module:Friendbot.Api.Response}
    *
-   * @example
-   * // Funding an account (G... address)
-   * server
-   *    .requestAirdrop("GBZC6Y2Y7Q3ZQ2Y4QZJ2XZ3Z5YXZ6Z7Z2Y4QZJ2XZ3Z5YXZ6Z7Z2Y4")
-   *    .then((result) => {
-   *      if (result instanceof Account) {
-   *        console.log("accountCreated:", result.accountId());
-   *      }
-   *    });
+   * @deprecated Use {@link Server.fundAddress} instead, which supports both
+   *    account (G...) and contract (C...) addresses.
    *
    * @example
-   * // Funding a contract (C... address)
    * server
-   *    .requestAirdrop("CBZC6Y2Y7Q3ZQ2Y4QZJ2XZ3Z5YXZ6Z7Z2Y4QZJ2XZ3Z5YXZ6Z7Z2Y4")
-   *    .then((result) => {
-   *      if ('contractId' in result) {
-   *        console.log("contractFunded:", result.contractId, "hash:", result.hash);
-   *      }
+   *    .requestAirdrop("GBZC6Y2Y7Q3ZQ2Y4QZJ2XZ3Z5YXZ6Z7Z2Y4QZJ2XZ3Z5YXZ6Z7Z2Y4")
+   *    .then((accountCreated) => {
+   *      console.log("accountCreated:", accountCreated);
+   *    }).catch((error) => {
+   *      console.error("error:", error);
    *    });
    */
   public async requestAirdrop(
     address: string | Pick<Account, "accountId">,
     friendbotUrl?: string,
-  ): Promise<Account | Api.ContractFundingResult> {
+  ): Promise<Account> {
     const account = typeof address === "string" ? address : address.accountId();
-    const isContract = StrKey.isValidContract(account);
-
     friendbotUrl = friendbotUrl || (await this.getNetwork()).friendbotUrl;
     if (!friendbotUrl) {
       throw new Error("No friendbot URL configured for current network");
@@ -1249,14 +1237,6 @@ export class RpcServer {
       const response = await this.httpClient.post<FriendbotApi.Response>(
         `${friendbotUrl}?addr=${encodeURIComponent(account)}`,
       );
-
-      // Contract addresses don't create accounts - they receive funds via SAC transfer
-      if (isContract) {
-        return {
-          contractId: account,
-          hash: response.data.hash,
-        };
-      }
 
       let meta: xdr.TransactionMeta;
       if (!response.data.result_meta_xdr) {
@@ -1283,6 +1263,57 @@ export class RpcServer {
       }
       throw error;
     }
+  }
+
+  /**
+   * Fund an address using the network's Friendbot faucet, if any.
+   *
+   * This method supports both account (G...) and contract (C...) addresses.
+   *
+   * @param {string} address The address to fund. Can be either a Stellar
+   *    account (G...) or contract (C...) address.
+   * @param {string} [friendbotUrl] Optionally, an explicit Friendbot URL
+   *    (by default: this calls the Soroban RPC
+   *    {@link module:rpc.Server#getNetwork | getNetwork} method to try to
+   *    discover this network's Friendbot url).
+   * @returns {Promise<Api.GetSuccessfulTransactionResponse>} The transaction
+   *    response from the Friendbot funding transaction.
+   * @throws {Error} If Friendbot is not configured on this network or the
+   *    funding transaction fails.
+   *
+   * @see {@link https://developers.stellar.org/docs/learn/fundamentals/networks#friendbot | Friendbot docs}
+   *
+   * @example
+   * // Funding an account (G... address)
+   * const tx = await server.fundAddress("GBZC6Y2Y7...");
+   * console.log("Funded! Hash:", tx.txHash);
+   * // If you need the Account object:
+   * const account = await server.getAccount("GBZC6Y2Y7...");
+   *
+   * @example
+   * // Funding a contract (C... address)
+   * const tx = await server.fundAddress("CBZC6Y2Y7...");
+   * console.log("Contract funded! Hash:", tx.txHash);
+   */
+  public async fundAddress(
+    address: string,
+    friendbotUrl?: string,
+  ): Promise<Api.GetSuccessfulTransactionResponse> {
+    friendbotUrl = friendbotUrl || (await this.getNetwork()).friendbotUrl;
+    if (!friendbotUrl) {
+      throw new Error("No friendbot URL configured for current network");
+    }
+
+    const response = await this.httpClient.post<FriendbotApi.Response>(
+      `${friendbotUrl}?addr=${encodeURIComponent(address)}`,
+    );
+
+    const txResponse = await this.getTransaction(response.data.hash);
+    if (txResponse.status !== Api.GetTransactionStatus.SUCCESS) {
+      throw new Error(`Funding address ${address} failed`);
+    }
+
+    return txResponse;
   }
 
   /**
