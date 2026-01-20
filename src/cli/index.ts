@@ -1,16 +1,13 @@
 import { Command } from "commander";
 import * as path from "path";
 
-import { BindingGenerator } from "../bindings/generator";
 import { WasmFetchError } from "../bindings/wasm_fetcher";
-import { Spec } from "../contract/spec";
 import {
-  deriveContractName,
-  fetchWasm,
+  createGenerator,
   generateAndWrite,
   logSourceInfo,
+  deriveContractName,
 } from "./util";
-import { SAC_SPEC } from "../bindings";
 import { Networks } from "@stellar/stellar-base";
 
 // Default RPC URLs for each network
@@ -135,49 +132,30 @@ function runCli() {
           }
         }
 
-        const { contract, source } = await fetchWasm({
+        console.log("Fetching contract...");
+
+        const { generator, source } = await createGenerator({
           wasm: options.wasm,
           wasmHash: options.wasmHash,
           contractId: options.contractId,
           rpcUrl,
           networkPassphrase,
-          serverOptions: {
-            allowHttp,
-            timeout,
-            headers,
-          },
+          serverOptions: { allowHttp, timeout, headers },
         });
-        console.log("Fetching contract WASM...");
 
         logSourceInfo(source);
 
-        let generator: BindingGenerator;
-        let contractName: string;
+        // Derive contract name from source or use provided/default
+        const contractName =
+          options.contractName || deriveContractName(source) || "contract";
+        console.log(
+          `\n✓ Generating TypeScript bindings for "${contractName}"...`,
+        );
 
-        // Handle Stellar Asset Contract
-        if (contract.type === "stellar-asset-contract") {
-          console.log(
-            "\n✓ Detected Stellar Asset Contract, generating SAC bindings...",
-          );
-          const spec = new Spec(SAC_SPEC);
-          generator = BindingGenerator.fromSpec(spec);
-          contractName = options.contractName || "stellar-asset-contract";
-        } else {
-          // Generate from WASM
-          console.log("\n✓ Generating TypeScript bindings...");
-          generator = await BindingGenerator.fromWasm(contract.wasmBytes);
-          contractName =
-            options.contractName || deriveContractName(source) || "contract";
-        }
-
-        // Generate and write bindings using helper
         await generateAndWrite(generator, {
           contractName,
           outputDir: path.resolve(options.outputDir),
           overwrite: options.overwrite,
-          contractAddress: options.contractId,
-          rpcUrl,
-          networkPassphrase,
         });
 
         console.log(
