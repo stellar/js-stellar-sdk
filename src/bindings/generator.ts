@@ -156,11 +156,11 @@ export class BindingGenerator {
    *
    * @param contractId - The contract ID (C... address) of the deployed contract
    * @param rpcServer - The Stellar RPC server instance
-   * @returns A Promise resolving to an object with the generator and whether it's a SAC
+   * @returns A Promise resolving to a new BindingGenerator instance
    * @throws {Error} If the contract cannot be found or fetched
    *
    * @example
-   * const { generator, isSAC } = await BindingGenerator.fromContractId(
+   * const generator = await BindingGenerator.fromContractId(
    *   "CABC123...XYZ",
    *   rpcServer
    * );
