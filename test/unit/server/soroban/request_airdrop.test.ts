@@ -369,7 +369,6 @@ describe("Server#requestAirdrop", () => {
     });
     expect(mockPost).toHaveBeenCalledTimes(3);
   });
-
 });
 
 describe("Server#fundAddress", () => {
@@ -420,7 +419,8 @@ describe("Server#fundAddress", () => {
     const friendbotUrl = "https://friendbot.stellar.org";
     const accountId =
       "GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI";
-    const hash = "ae9f315c048d87a5f853bc15bf284a2c3c89eb0e1cb38c10409b77a877b830a8";
+    const hash =
+      "ae9f315c048d87a5f853bc15bf284a2c3c89eb0e1cb38c10409b77a877b830a8";
 
     const networkResult = {
       friendbotUrl,
@@ -452,7 +452,8 @@ describe("Server#fundAddress", () => {
     const contractId = StellarSdk.StrKey.encodeContract(
       Buffer.from("0".repeat(64), "hex"),
     );
-    const hash = "ae9f315c048d87a5f853bc15bf284a2c3c89eb0e1cb38c10409b77a877b830a8";
+    const hash =
+      "ae9f315c048d87a5f853bc15bf284a2c3c89eb0e1cb38c10409b77a877b830a8";
 
     const networkResult = {
       friendbotUrl,
@@ -522,7 +523,7 @@ describe("Server#fundAddress", () => {
     mockPost.mockResolvedValueOnce(networkResponse);
 
     await expect(server.fundAddress(accountId)).rejects.toThrow(
-      "No friendbot URL configured",
+      "No friendbot URL configured for current network",
     );
   });
 
@@ -573,7 +574,36 @@ describe("Server#fundAddress", () => {
       .mockResolvedValueOnce(failedTxResponse);
 
     await expect(server.fundAddress(accountId)).rejects.toThrow(
-      `Funding address ${accountId} failed`,
+      `Funding address ${accountId} failed: transaction status FAILED`,
+    );
+  });
+
+  it("throws error when HTTP request fails", async () => {
+    const friendbotUrl = "https://friendbot.stellar.org";
+    const accountId =
+      "GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI";
+
+    const networkResult = {
+      friendbotUrl,
+      passphrase: Networks.FUTURENET,
+      protocolVersion: 20,
+    };
+    const networkResponse = { data: { result: networkResult } };
+
+    mockPost
+      .mockResolvedValueOnce(networkResponse)
+      .mockRejectedValueOnce(new Error("Network error"));
+
+    await expect(server.fundAddress(accountId)).rejects.toThrow(
+      "Network error",
+    );
+  });
+
+  it("rejects invalid addresses", async () => {
+    const invalidAddress = "INVALID_ADDRESS";
+
+    await expect(server.fundAddress(invalidAddress)).rejects.toThrow(
+      "Invalid address: INVALID_ADDRESS. Expected a Stellar account (G...) or contract (C...) address.",
     );
   });
 });

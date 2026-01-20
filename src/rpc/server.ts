@@ -1299,6 +1299,15 @@ export class RpcServer {
     address: string,
     friendbotUrl?: string,
   ): Promise<Api.GetSuccessfulTransactionResponse> {
+    if (
+      !StrKey.isValidEd25519PublicKey(address) &&
+      !StrKey.isValidContract(address)
+    ) {
+      throw new Error(
+        `Invalid address: ${address}. Expected a Stellar account (G...) or contract (C...) address.`,
+      );
+    }
+
     friendbotUrl = friendbotUrl || (await this.getNetwork()).friendbotUrl;
     if (!friendbotUrl) {
       throw new Error("No friendbot URL configured for current network");
@@ -1310,7 +1319,9 @@ export class RpcServer {
 
     const txResponse = await this.getTransaction(response.data.hash);
     if (txResponse.status !== Api.GetTransactionStatus.SUCCESS) {
-      throw new Error(`Funding address ${address} failed`);
+      throw new Error(
+        `Funding address ${address} failed: transaction status ${txResponse.status}`,
+      );
     }
 
     return txResponse;
