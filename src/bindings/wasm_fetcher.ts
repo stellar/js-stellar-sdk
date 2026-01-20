@@ -1,14 +1,7 @@
-import { Address, StrKey, xdr } from "@stellar/stellar-base";
+import { Address, Contract, StrKey, xdr } from "@stellar/stellar-base";
+import { Server } from "../rpc";
 
 import { RpcServer } from "../rpc/server";
-
-/**
- * Result of fetching contract WASM
- */
-export interface FetchedContract {
-  contract: ContractData;
-  source: ContractSource;
-}
 
 /**
  * Types of contract data that can be fetched
@@ -16,24 +9,6 @@ export interface FetchedContract {
 export type ContractData =
   | { type: "wasm"; wasmBytes: Buffer }
   | { type: "stellar-asset-contract" };
-
-/**
- * Source information about where the contract was fetched from
- */
-export type ContractSource =
-  | { type: "file"; path: string }
-  | {
-      type: "wasm-hash";
-      hash: string;
-      rpcUrl: string;
-      networkPassphrase: string;
-    }
-  | {
-      type: "contract-id";
-      resolvedAddress: string;
-      rpcUrl: string;
-      networkPassphrase: string;
-    };
 
 /**
  * Errors that can occur during WASM fetching
@@ -45,28 +20,6 @@ export class WasmFetchError extends Error {
   ) {
     super(message);
     this.name = "WasmFetchError";
-  }
-}
-
-/**
- * Verify that the server is on the expected network
- */
-async function verifyNetwork(
-  server: RpcServer,
-  expectedPassphrase: string,
-): Promise<void> {
-  try {
-    const networkResponse = await server.getNetwork();
-    if (networkResponse.passphrase !== expectedPassphrase) {
-      throw new WasmFetchError(
-        `Network mismatch: expected "${expectedPassphrase}", got "${networkResponse.passphrase}"`,
-      );
-    }
-  } catch (error) {
-    if (error instanceof WasmFetchError) {
-      throw error;
-    }
-    throw new WasmFetchError("Failed to verify network", error as Error);
   }
 }
 
@@ -124,19 +77,11 @@ function isStellarAssetContract(instance: xdr.ScContractInstance): boolean {
 async function fetchWasmFromContract(
   server: RpcServer,
   contractAddress: Address,
-): Promise<FetchedContract> {
+): Promise<ContractData> {
   try {
-    // Get contract instance
-    const contractInstanceKey = xdr.LedgerKey.contractData(
-      new xdr.LedgerKeyContractData({
-        contract: contractAddress.toScAddress(),
-        key: xdr.ScVal.scvLedgerKeyContractInstance(),
-        durability: xdr.ContractDataDurability.persistent(),
-      }),
-    );
+    const contract = new Contract(contractAddress.toString());
 
-    const response = await server.getLedgerEntries(contractInstanceKey);
-
+    const response = await server.getLedgerEntries(contract.getFootprint());
     if (!response.entries || response.entries.length === 0) {
       throw new WasmFetchError("Contract instance not found");
     }
@@ -150,28 +95,12 @@ async function fetchWasmFromContract(
     const instance = contractData.val().instance();
 
     if (isStellarAssetContract(instance)) {
-      return {
-        contract: { type: "stellar-asset-contract" },
-        source: {
-          type: "contract-id",
-          resolvedAddress: contractAddress.toString(),
-          rpcUrl: server.serverURL.toString(),
-          networkPassphrase: "", // Unknown in this context
-        },
-      };
+      return { type: "stellar-asset-contract" };
     }
 
     const wasmHash = instance.executable().wasmHash();
     let wasmBytes = await getRemoteWasmFromHash(server, wasmHash);
-    return {
-      contract: { type: "wasm", wasmBytes },
-      source: {
-        type: "contract-id",
-        resolvedAddress: contractAddress.toString(),
-        rpcUrl: server.serverURL.toString(),
-        networkPassphrase: "", // Unknown in this context
-      },
-    };
+    return { type: "wasm", wasmBytes };
   } catch (error) {
     if (error instanceof WasmFetchError) {
       throw error;
@@ -188,10 +117,8 @@ async function fetchWasmFromContract(
  */
 export async function fetchFromWasmHash(
   wasmHash: string,
-  rpcUrl: string,
-  networkPassphrase: string,
-  serverOptions?: RpcServer.Options,
-): Promise<FetchedContract> {
+  rpcServer: Server,
+): Promise<ContractData> {
   try {
     // Validate and decode the hash
     const hashBuffer = Buffer.from(wasmHash, "hex");
@@ -201,23 +128,10 @@ export async function fetchFromWasmHash(
       );
     }
 
-    const server = new RpcServer(rpcUrl, serverOptions);
-
-    // Verify network
-    await verifyNetwork(server, networkPassphrase);
-
     // Get WASM from hash
-    const wasmBytes = await getRemoteWasmFromHash(server, hashBuffer);
+    const wasmBytes = await getRemoteWasmFromHash(rpcServer, hashBuffer);
 
-    return {
-      contract: { type: "wasm", wasmBytes },
-      source: {
-        type: "wasm-hash",
-        hash: wasmHash,
-        rpcUrl,
-        networkPassphrase,
-      },
-    };
+    return { type: "wasm", wasmBytes };
   } catch (error) {
     throw new WasmFetchError(
       `Failed to fetch WASM from hash ${wasmHash}`,
@@ -231,16 +145,9 @@ export async function fetchFromWasmHash(
  */
 export async function fetchFromContractId(
   contractId: string,
-  rpcUrl: string,
-  networkPassphrase: string,
-  serverOptions?: RpcServer.Options,
-): Promise<FetchedContract> {
+  rpcServer: Server,
+): Promise<ContractData> {
   try {
-    const server = new RpcServer(rpcUrl, serverOptions);
-
-    // Verify network
-    await verifyNetwork(server, networkPassphrase);
-
     if (!StrKey.isValidContract(contractId)) {
       throw new WasmFetchError(`Invalid contract ID: ${contractId}`);
     }
@@ -248,7 +155,7 @@ export async function fetchFromContractId(
     const contractAddress = Address.fromString(contractId);
 
     // Try to get WASM from contract
-    return await fetchWasmFromContract(server, contractAddress);
+    return await fetchWasmFromContract(rpcServer, contractAddress);
   } catch (error) {
     throw new WasmFetchError(
       `Failed to fetch WASM from contract ${contractId}`,

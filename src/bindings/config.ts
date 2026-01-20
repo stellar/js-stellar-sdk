@@ -2,9 +2,6 @@ import packageJson from "../../package.json";
 
 export interface ConfigGenerateOptions {
   contractName: string;
-  contractAddress?: string;
-  rpcUrl?: string;
-  networkPassphrase?: string;
 }
 
 export interface Configs {
@@ -22,20 +19,14 @@ export class ConfigGenerator {
    * Generate the complete TypeScript project
    */
   generate(options: ConfigGenerateOptions): Configs {
-    const { contractName, contractAddress, rpcUrl, networkPassphrase } =
-      options;
+    const { contractName } = options;
 
     // Generate all project files
     return {
       packageJson: this.generatePackageJson(contractName),
       tsConfig: this.generateTsConfig(),
       gitignore: this.generateGitignore(),
-      readme: this.generateReadme(
-        contractName,
-        contractAddress,
-        rpcUrl,
-        networkPassphrase,
-      ),
+      readme: this.generateReadme(contractName),
     };
   }
 
@@ -120,12 +111,7 @@ export class ConfigGenerator {
   /**
    * Generate README.md
    */
-  private generateReadme(
-    contractName: string,
-    contractAddress?: string,
-    rpcUrl?: string,
-    networkPassphrase?: string,
-  ): string {
+  private generateReadme(contractName: string): string {
     const readme = [
       `# ${contractName} Contract Bindings`,
       "",
@@ -149,30 +135,14 @@ export class ConfigGenerator {
       'import { Client } from "./src";',
       "",
       "const client = new Client({",
-      contractAddress
-        ? `  contractId: "${contractAddress}",`
-        : '  contractId: "YOUR_CONTRACT_ID",',
-      rpcUrl
-        ? `  rpcUrl: "${rpcUrl}",`
-        : '  rpcUrl: "https://soroban-testnet.stellar.org:443",',
-      networkPassphrase
-        ? `  networkPassphrase: "${networkPassphrase}",`
-        : '  networkPassphrase: "Test SDF Network ; September 2015",',
+      '  contractId: "YOUR_CONTRACT_ID",',
+      '  rpcUrl: "https://soroban-testnet.stellar.org:443",',
+      '  networkPassphrase: "Test SDF Network ; September 2015",',
       "});",
       "",
       "// Call contract methods",
       "// const result = await client.methodName();",
       "```",
-      "",
-      "## Contract Information",
-      "",
-      contractAddress
-        ? `**Contract Address:** \`${contractAddress}\``
-        : "**Contract Address:** _Not embedded_",
-      rpcUrl ? `**RPC URL:** \`${rpcUrl}\`` : "**RPC URL:** _Not embedded_",
-      networkPassphrase
-        ? `**Network:** \`${networkPassphrase}\``
-        : "**Network:** _Not embedded_",
       "",
       "## Generated Files",
       "",
