@@ -5,21 +5,16 @@ import { ClientGenerator } from "./client";
 import { specFromWasm } from "../contract/wasm_spec_parser";
 import { fetchFromContractId, fetchFromWasmHash } from "./wasm_fetcher";
 import { SAC_SPEC } from "./sac-spec";
+import { Server } from "../rpc";
 
 /**
  * Options for generating TypeScript bindings.
  *
  * @property contractName - The name used for the generated package and client class.
  *   Should be in kebab-case (e.g., "my-contract").
- * @property contractAddress - Optional contract address to embed in the generated client.
- * @property rpcUrl - Optional RPC URL to embed in the generated client for network calls.
- * @property networkPassphrase - Optional network passphrase to embed in the generated client.
  */
 export type GenerateOptions = {
   contractName: string;
-  contractAddress?: string;
-  rpcUrl?: string;
-  networkPassphrase?: string;
 };
 
 /**
@@ -117,21 +112,20 @@ export class BindingGenerator {
    * const wasmBuffer = fs.readFileSync("./target/wasm32-unknown-unknown/release/my_contract.wasm");
    * const generator = await BindingGenerator.fromWasm(wasmBuffer);
    */
-  static async fromWasm(wasmBuffer: Buffer): Promise<BindingGenerator> {
-    const spec = new Spec(await specFromWasm(wasmBuffer));
+  static fromWasm(wasmBuffer: Buffer): BindingGenerator {
+    const spec = new Spec(specFromWasm(wasmBuffer));
     return new BindingGenerator(spec);
   }
 
   /**
    * Creates a BindingGenerator by fetching WASM from the network using its hash.
    *
-   * Retrieves the WASM bytecode from Soroban RPC using the WASM hash,
+   * Retrieves the WASM bytecode from Stellar RPC using the WASM hash,
    * then parses the contract specification from it. Useful when you know
    * the hash of an installed WASM but don't have the binary locally.
    *
    * @param wasmHash - The hex-encoded hash of the installed WASM blob
-   * @param rpcUrl - The Soroban RPC server URL (e.g., "https://soroban-testnet.stellar.org")
-   * @param networkPassphrase - The network passphrase (e.g., Networks.TESTNET)
+   * @param rpcServer - The Stellar RPC server instance
    * @returns A Promise resolving to a new BindingGenerator instance
    * @throws {Error} If the WASM cannot be fetched or doesn't contain a valid spec
    *
@@ -144,14 +138,13 @@ export class BindingGenerator {
    */
   static async fromWasmHash(
     wasmHash: string,
-    rpcUrl: string,
-    networkPassphrase: string,
+    rpcServer: Server,
   ): Promise<BindingGenerator> {
-    const wasm = await fetchFromWasmHash(wasmHash, rpcUrl, networkPassphrase);
-    if (wasm.contract.type !== "wasm") {
+    const wasm = await fetchFromWasmHash(wasmHash, rpcServer);
+    if (wasm.type !== "wasm") {
       throw new Error("Fetched contract is not of type 'wasm'");
     }
-    return BindingGenerator.fromWasm(wasm.contract.wasmBytes);
+    return BindingGenerator.fromWasm(wasm.wasmBytes);
   }
 
   /**
@@ -162,32 +155,25 @@ export class BindingGenerator {
    * returns a generator with the standard SAC specification.
    *
    * @param contractId - The contract ID (C... address) of the deployed contract
-   * @param rpcUrl - The Soroban RPC server URL (e.g., "https://soroban-testnet.stellar.org")
-   * @param networkPassphrase - The network passphrase (e.g., Networks.TESTNET)
-   * @returns A Promise resolving to a new BindingGenerator instance
+   * @param rpcServer - The Stellar RPC server instance
+   * @returns A Promise resolving to an object with the generator and whether it's a SAC
    * @throws {Error} If the contract cannot be found or fetched
    *
    * @example
-   * const generator = await BindingGenerator.fromContractId(
+   * const { generator, isSAC } = await BindingGenerator.fromContractId(
    *   "CABC123...XYZ",
-   *   "https://soroban-testnet.stellar.org",
-   *   Networks.TESTNET
+   *   rpcServer
    * );
    */
   static async fromContractId(
     contractId: string,
-    rpcUrl: string,
-    networkPassphrase: string,
+    rpcServer: Server,
   ): Promise<BindingGenerator> {
-    const wasm = await fetchFromContractId(
-      contractId,
-      rpcUrl,
-      networkPassphrase,
-    );
-    if (wasm.contract.type === "wasm") {
-      return BindingGenerator.fromWasm(wasm.contract.wasmBytes);
+    const result = await fetchFromContractId(contractId, rpcServer);
+    if (result.type === "wasm") {
+      return BindingGenerator.fromWasm(result.wasmBytes);
     }
-    // If it's not a wasm contract, assume it's SAC
+    // Stellar Asset Contract
     const spec = new Spec(SAC_SPEC);
     return BindingGenerator.fromSpec(spec);
   }
@@ -206,9 +192,6 @@ export class BindingGenerator {
    *
    * @param options - Configuration options for generation
    * @param options.contractName - Required. The name for the generated package (kebab-case recommended)
-   * @param options.contractAddress - Optional. Embeds the contract address in the generated client
-   * @param options.rpcUrl - Optional. Embeds the RPC URL in the generated client
-   * @param options.networkPassphrase - Optional. Embeds the network passphrase in the generated client
    * @returns An object containing all generated file contents as strings
    * @throws {Error} If contractName is missing or empty
    *
