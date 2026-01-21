@@ -1273,7 +1273,7 @@ export class RpcServer {
    * @param {string} address The address to fund. Can be either a Stellar
    *    account (G...) or contract (C...) address.
    * @param {string} [friendbotUrl] Optionally, an explicit Friendbot URL
-   *    (by default: this calls the Soroban RPC
+   *    (by default: this calls the Stellar RPC
    *    {@link module:rpc.Server#getNetwork | getNetwork} method to try to
    *    discover this network's Friendbot url).
    * @returns {Promise<Api.GetSuccessfulTransactionResponse>} The transaction
@@ -1313,18 +1313,25 @@ export class RpcServer {
       throw new Error("No friendbot URL configured for current network");
     }
 
-    const response = await this.httpClient.post<FriendbotApi.Response>(
-      `${friendbotUrl}?addr=${encodeURIComponent(address)}`,
-    );
-
-    const txResponse = await this.getTransaction(response.data.hash);
-    if (txResponse.status !== Api.GetTransactionStatus.SUCCESS) {
-      throw new Error(
-        `Funding address ${address} failed: transaction status ${txResponse.status}`,
+    try {
+      const response = await this.httpClient.post<FriendbotApi.Response>(
+        `${friendbotUrl}?addr=${encodeURIComponent(address)}`,
       );
-    }
 
-    return txResponse;
+      const txResponse = await this.getTransaction(response.data.hash);
+      if (txResponse.status !== Api.GetTransactionStatus.SUCCESS) {
+        throw new Error(
+          `Funding address ${address} failed: transaction status ${txResponse.status}`,
+        );
+      }
+
+      return txResponse;
+    } catch (error: any) {
+      if (error.response?.status === 400) {
+        throw new Error(error.response.data?.detail ?? "Bad Request");
+      }
+      throw error;
+    }
   }
 
   /**
