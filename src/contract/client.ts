@@ -3,6 +3,7 @@ import { Spec } from "./spec";
 import { Server } from "../rpc";
 import { AssembledTransaction } from "./assembled_transaction";
 import type { ClientOptions, MethodOptions } from "./types";
+import { sanitizeIdentifier } from "../bindings/utils";
 
 const CONSTRUCTOR_FUNC = "__constructor";
 
@@ -129,7 +130,7 @@ export class Client {
         });
 
       // @ts-ignore error TS7053: Element implicitly has an 'any' type
-      this[method] =
+      this[sanitizeIdentifier(method)] =
         spec.getFunc(method).inputs().length === 0
           ? (opts?: MethodOptions) => assembleTransaction(undefined, opts)
           : assembleTransaction;

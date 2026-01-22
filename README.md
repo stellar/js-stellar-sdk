@@ -27,6 +27,7 @@ The library provides:
    - [...with React Native](#usage-with-react-native)
    - [...with Expo](#usage-with-expo-managed-workflows)
    - [...with CloudFlare Workers](#usage-with-cloudflare-workers)
+ * [CLI](#cli): generate TypeScript bindings for Stellar smart contracts
  * [Developing](#developing): contribute to the project!
  * [Understanding `stellar-sdk` vs. `stellar-base`](#stellar-sdk-vs-stellar-base)
  * [License](#license)
@@ -199,6 +200,155 @@ Horizon.AxiosClient.defaults.adapter = fetchAdapter as any;
 ```
 
 All HTTP calls will use `fetch`, now, meaning it should work in the CloudFlare Worker environment.
+
+## CLI
+
+The SDK includes a command-line tool for generating TypeScript bindings from Stellar smart contracts. These bindings provide fully-typed client code with IDE autocompletion and compile-time type checking.
+
+### Running the CLI
+
+```shell
+# Using npx (no installation required)
+npx @stellar/stellar-sdk generate [options]
+
+# Or if installed globally
+stellar-js generate [options]
+```
+
+### Generating Bindings
+
+You can generate bindings from three different sources:
+
+#### From a local WASM file
+
+```shell
+npx @stellar/stellar-sdk generate \
+  --wasm ./path/to/wasm_file/my_contract.wasm \
+  --output-dir ./my-contract-client \
+  --contract-name my-contract
+```
+
+#### From a WASM hash on the network
+
+```shell
+# testnet, futurenet, and localnet have default RPC URLs
+npx @stellar/stellar-sdk generate \
+  --wasm-hash <hex-encoded-hash> \
+  --network testnet \
+  --output-dir ./my-contract-client \
+  --contract-name my-contract
+```
+
+#### From a deployed contract ID
+
+```shell
+npx @stellar/stellar-sdk generate \
+  --contract-id CABC...XYZ \
+  --network testnet \
+  --output-dir ./my-contract-client
+```
+
+#### With custom RPC server options
+
+For mainnet or when connecting to RPC servers that require authentication:
+
+```shell
+# Mainnet requires --rpc-url (no default)
+npx @stellar/stellar-sdk generate \
+  --contract-id CABC...XYZ \
+  --rpc-url https://my-rpc-provider.com \
+  --network mainnet \
+  --output-dir ./my-contract-client
+
+# With custom timeout and headers for authenticated RPC servers
+npx @stellar/stellar-sdk generate \
+  --contract-id CABC...XYZ \
+  --rpc-url https://my-rpc-server.com \
+  --network mainnet \
+  --output-dir ./my-contract-client \
+  --timeout 30000 \
+  --headers '{"Authorization": "Bearer my-token"}'
+
+# localnet with default RPC URL auto-enables --allow-http
+npx @stellar/stellar-sdk generate \
+  --contract-id CABC...XYZ \
+  --network localnet \
+  --output-dir ./my-contract-client
+
+# When overriding the default URL, you must specify --allow-http if using HTTP
+npx @stellar/stellar-sdk generate \
+  --contract-id CABC...XYZ \
+  --rpc-url http://my-local-server:8000/rpc \
+  --network localnet \
+  --output-dir ./my-contract-client \
+  --allow-http
+```
+
+### CLI Options
+
+| Option | Description |
+|--------|-------------|
+| `--wasm <path>` | Path to a local WASM file |
+| `--wasm-hash <hash>` | Hex-encoded hash of WASM blob on the network |
+| `--contract-id <id>` | Contract ID of a deployed contract |
+| `--rpc-url <url>` | Stellar RPC server URL (has defaults for testnet/futurenet/localnet, required for mainnet) |
+| `--network <network>` | Network to use: `testnet`, `mainnet`, `futurenet`, or `localnet` (required for network sources) |
+| `--output-dir <dir>` | Output directory for generated bindings (required) |
+| `--contract-name <name>` | Name for the generated package (derived from filename if not provided) |
+| `--overwrite` | Overwrite existing files in the output directory |
+| `--allow-http` | Allow insecure HTTP connections to RPC server (default: false) |
+| `--timeout <ms>` | RPC request timeout in milliseconds |
+| `--headers <json>` | Custom headers as JSON object (e.g., `'{"Authorization": "Bearer token"}'`) |
+
+#### Default RPC URLs
+
+When using `--network`, the CLI provides default RPC URLs for most networks:
+
+| Network | Default RPC URL |
+|---------|-----------------|
+| `testnet` | `https://soroban-testnet.stellar.org` |
+| `futurenet` | `https://rpc-futurenet.stellar.org` |
+| `localnet` | `http://localhost:8000/rpc` (auto-enables `--allow-http` only when using default URL) |
+| `mainnet` | None - you must provide `--rpc-url` ([find providers](https://developers.stellar.org/docs/data/rpc/rpc-providers)) |
+
+### Generated Output
+
+The CLI generates a complete npm package structure:
+
+```
+my-contract-client/
+├── src/
+│   ├── index.ts      # Barrel exports
+│   ├── client.ts     # Typed Client class with contract methods
+│   └── types.ts      # TypeScript interfaces for contract types
+├── package.json
+├── tsconfig.json
+├── README.md
+└── .gitignore
+```
+
+### Using Generated Bindings
+
+After generating, you can use the bindings in your project:
+
+```typescript
+import { Client } from './my-contract-client';
+
+const client = new Client({
+  contractId: 'CABC...XYZ',
+  networkPassphrase: Networks.TESTNET,
+  rpcUrl: 'https://soroban-testnet.stellar.org',
+  publicKey: keypair.publicKey(),
+  ...basicNodeSigner(keypair, Networks.TESTNET),
+});
+
+// Fully typed method calls with IDE autocompletion
+const result = await client.transfer({
+  from: 'GABC...',
+  to: 'GDEF...',
+  amount: 1000n,
+});
+```
 
 ## Developing
 
