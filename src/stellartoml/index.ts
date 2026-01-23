@@ -103,6 +103,7 @@ export namespace Api {
   }
   export type Url = string;
   export type PublicKey = string;
+  export type ContractAddress = string;
   export type ISODateTime = string;
   export interface Documentation {
     ORG_NAME?: string;
@@ -191,6 +192,8 @@ export namespace Api {
     TRANSFER_SERVER?: Url;
     KYC_SERVER?: Url;
     WEB_AUTH_ENDPOINT?: Url;
+    WEB_AUTH_FOR_CONTRACTS_ENDPOINT?: Url;
+    WEB_AUTH_CONTRACT_ID?: ContractAddress;
     FEDERATION_SERVER?: Url;
     SIGNING_KEY?: PublicKey;
     HORIZON_URL?: Url;
