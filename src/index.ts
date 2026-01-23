@@ -35,7 +35,16 @@ export * as rpc from "./rpc";
  * import { Client } from '@stellar/stellar-sdk/contract';
  */
 export * as contract from "./contract";
-export { BindingGenerator } from "./bindings";
+
+/**
+ * Beta features that are still in development. The interfaces in this
+ * namespace may change in future releases without following semver.
+ * @example
+ * import { beta } from '@stellar/stellar-sdk';
+ * const generator = new beta.BindingGenerator(...);
+ */
+export * as beta from "./beta";
+
 // expose classes and functions from stellar-base
 export * from "@stellar/stellar-base";
 

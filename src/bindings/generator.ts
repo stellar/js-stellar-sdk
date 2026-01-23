@@ -18,6 +18,7 @@ export type GenerateOptions = {
 };
 
 /**
+ *
  * The output of the binding generation process.
  *
  * Contains all generated TypeScript source files and configuration files
@@ -47,6 +48,8 @@ export type GeneratedBindings = {
  * This class creates fully-typed TypeScript client code from a contract's specification,
  * allowing developers to interact with Stellar smart contracts with full IDE support
  * and compile-time type checking.
+ *
+ * This class is part of the beta API and its interfaces may change in future releases.
  *
  * @example
  * // Create from a local WASM file

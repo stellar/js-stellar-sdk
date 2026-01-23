@@ -8,7 +8,8 @@ A breaking change will get clearly marked in this log.
 
 ### Added
 * Add CLI support for generating smart contract bindings ([#1287](https://github.com/stellar/js-stellar-sdk/pull/1287)).
-* Add `BindingGeneration` class for parsing contract specs into fully typed TypeScript libraries for calling contract methods ([#1287](https://github.com/stellar/js-stellar-sdk/pull/1287)).
+* Add `BindingGenerator` class for parsing contract specs into fully typed TypeScript libraries for calling contract methods ([#1287](https://github.com/stellar/js-stellar-sdk/pull/1287)).
+  * Exported under the `beta` namespace to indicate the interface may change in future releases.
 
 ### Fixed
 * X-App-Name and X-App-Version headers are now included when using `CallBuilder.stream()` ([#1317](https://github.com/stellar/js-stellar-sdk/pull/1317)).

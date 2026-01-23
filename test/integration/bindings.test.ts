@@ -1,8 +1,8 @@
 import { StellarSdk } from "../test-utils/stellar-sdk-import";
 import { describe, it, expect } from "vitest";
 
-const { BindingGenerator, xdr, contract } = StellarSdk;
-
+const { beta, xdr, contract } = StellarSdk;
+const { BindingGenerator } = beta;
 describe("BindingGenerator", () => {
   const defaultOptions = { contractName: "test-contract" };
 
