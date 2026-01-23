@@ -1210,6 +1210,9 @@ export class RpcServer {
    * @see {@link https://developers.stellar.org/docs/learn/fundamentals/networks#friendbot | Friendbot docs}
    * @see {@link module:Friendbot.Api.Response}
    *
+   * @deprecated Use {@link Server.fundAddress} instead, which supports both
+   *    account (G...) and contract (C...) addresses.
+   *
    * @example
    * server
    *    .requestAirdrop("GBZC6Y2Y7Q3ZQ2Y4QZJ2XZ3Z5YXZ6Z7Z2Y4QZJ2XZ3Z5YXZ6Z7Z2Y4")
@@ -1256,6 +1259,75 @@ export class RpcServer {
           // Account already exists, load the sequence number
           return this.getAccount(account);
         }
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Fund an address using the network's Friendbot faucet, if any.
+   *
+   * This method supports both account (G...) and contract (C...) addresses.
+   *
+   * @param {string} address The address to fund. Can be either a Stellar
+   *    account (G...) or contract (C...) address.
+   * @param {string} [friendbotUrl] Optionally, an explicit Friendbot URL
+   *    (by default: this calls the Stellar RPC
+   *    {@link module:rpc.Server#getNetwork | getNetwork} method to try to
+   *    discover this network's Friendbot url).
+   * @returns {Promise<Api.GetSuccessfulTransactionResponse>} The transaction
+   *    response from the Friendbot funding transaction.
+   * @throws {Error} If Friendbot is not configured on this network or the
+   *    funding transaction fails.
+   *
+   * @see {@link https://developers.stellar.org/docs/learn/fundamentals/networks#friendbot | Friendbot docs}
+   *
+   * @example
+   * // Funding an account (G... address)
+   * const tx = await server.fundAddress("GBZC6Y2Y7...");
+   * console.log("Funded! Hash:", tx.txHash);
+   * // If you need the Account object:
+   * const account = await server.getAccount("GBZC6Y2Y7...");
+   *
+   * @example
+   * // Funding a contract (C... address)
+   * const tx = await server.fundAddress("CBZC6Y2Y7...");
+   * console.log("Contract funded! Hash:", tx.txHash);
+   */
+  public async fundAddress(
+    address: string,
+    friendbotUrl?: string,
+  ): Promise<Api.GetSuccessfulTransactionResponse> {
+    if (
+      !StrKey.isValidEd25519PublicKey(address) &&
+      !StrKey.isValidContract(address)
+    ) {
+      throw new Error(
+        `Invalid address: ${address}. Expected a Stellar account (G...) or contract (C...) address.`,
+      );
+    }
+
+    friendbotUrl = friendbotUrl || (await this.getNetwork()).friendbotUrl;
+    if (!friendbotUrl) {
+      throw new Error("No friendbot URL configured for current network");
+    }
+
+    try {
+      const response = await this.httpClient.post<FriendbotApi.Response>(
+        `${friendbotUrl}?addr=${encodeURIComponent(address)}`,
+      );
+
+      const txResponse = await this.getTransaction(response.data.hash);
+      if (txResponse.status !== Api.GetTransactionStatus.SUCCESS) {
+        throw new Error(
+          `Funding address ${address} failed: transaction status ${txResponse.status}`,
+        );
+      }
+
+      return txResponse;
+    } catch (error: any) {
+      if (error.response?.status === 400) {
+        throw new Error(error.response.data?.detail ?? "Bad Request");
       }
       throw error;
     }
