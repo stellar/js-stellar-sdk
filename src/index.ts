@@ -41,7 +41,6 @@ export * as contract from "./contract";
  * namespace may change in future releases without following semver.
  * @example
  * import { beta } from '@stellar/stellar-sdk';
- * const generator = new beta.BindingGenerator(...);
  */
 export * as beta from "./beta";
 

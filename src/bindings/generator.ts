@@ -18,7 +18,6 @@ export type GenerateOptions = {
 };
 
 /**
- *
  * The output of the binding generation process.
  *
  * Contains all generated TypeScript source files and configuration files
