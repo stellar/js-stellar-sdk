@@ -100,7 +100,7 @@ export class Client extends ContractClient {
     const name = sanitizeIdentifier(func.name().toString());
     const inputs = func.inputs().map((input: any) => ({
       name: input.name().toString(),
-      type: parseTypeFromTypeDef(input.type()),
+      type: parseTypeFromTypeDef(input.type(), true),
     }));
     const outputType =
       func.outputs().length > 0
@@ -136,7 +136,7 @@ export class Client extends ContractClient {
     }
     const inputs = constructorFunc.inputs().map((input) => ({
       name: input.name().toString(),
-      type: parseTypeFromTypeDef(input.type()),
+      type: parseTypeFromTypeDef(input.type(), true),
     }));
 
     const params = this.formatConstructorParameters(inputs);

@@ -79,7 +79,10 @@ export function sanitizeIdentifier(identifier: string): string {
 /**
  * Generate TypeScript type from XDR type definition
  */
-export function parseTypeFromTypeDef(typeDef: xdr.ScSpecTypeDef): string {
+export function parseTypeFromTypeDef(
+  typeDef: xdr.ScSpecTypeDef,
+  isFunctionInput = false,
+): string {
   switch (typeDef.switch()) {
     case xdr.ScSpecType.scSpecTypeVal():
       return "any";
@@ -109,22 +112,39 @@ export function parseTypeFromTypeDef(typeDef: xdr.ScSpecTypeDef): string {
     case xdr.ScSpecType.scSpecTypeSymbol():
       return "string";
     case xdr.ScSpecType.scSpecTypeAddress():
-    case xdr.ScSpecType.scSpecTypeMuxedAddress():
-      return "string | Address";
+    case xdr.ScSpecType.scSpecTypeMuxedAddress(): {
+      // function inputs can accept either string or Address
+      if (isFunctionInput) {
+        return "string | Address";
+      }
+      // Otherwise for backward compatibility use string
+      return "string";
+    }
     case xdr.ScSpecType.scSpecTypeVec(): {
-      const vecType = parseTypeFromTypeDef(typeDef.vec().elementType());
+      const vecType = parseTypeFromTypeDef(
+        typeDef.vec().elementType(),
+        isFunctionInput,
+      );
       return `Array<${vecType}>`;
     }
     case xdr.ScSpecType.scSpecTypeMap(): {
-      const keyType = parseTypeFromTypeDef(typeDef.map().keyType());
-      const valueType = parseTypeFromTypeDef(typeDef.map().valueType());
+      const keyType = parseTypeFromTypeDef(
+        typeDef.map().keyType(),
+        isFunctionInput,
+      );
+      const valueType = parseTypeFromTypeDef(
+        typeDef.map().valueType(),
+        isFunctionInput,
+      );
       return `Map<${keyType}, ${valueType}>`;
     }
     case xdr.ScSpecType.scSpecTypeTuple(): {
       const tupleTypes = typeDef
         .tuple()
         .valueTypes()
-        .map((t: xdr.ScSpecTypeDef) => parseTypeFromTypeDef(t));
+        .map((t: xdr.ScSpecTypeDef) =>
+          parseTypeFromTypeDef(t, isFunctionInput),
+        );
       return `[${tupleTypes.join(", ")}]`;
     }
     case xdr.ScSpecType.scSpecTypeOption(): {
@@ -135,13 +155,22 @@ export function parseTypeFromTypeDef(typeDef: xdr.ScSpecTypeDef): string {
       ) {
         typeDef = typeDef.option().valueType();
       }
-      const optionType = parseTypeFromTypeDef(typeDef.option().valueType());
+      const optionType = parseTypeFromTypeDef(
+        typeDef.option().valueType(),
+        isFunctionInput,
+      );
 
       return `${optionType} | null`;
     }
     case xdr.ScSpecType.scSpecTypeResult(): {
-      const okType = parseTypeFromTypeDef(typeDef.result().okType());
-      const errorType = parseTypeFromTypeDef(typeDef.result().errorType());
+      const okType = parseTypeFromTypeDef(
+        typeDef.result().okType(),
+        isFunctionInput,
+      );
+      const errorType = parseTypeFromTypeDef(
+        typeDef.result().errorType(),
+        isFunctionInput,
+      );
       return `Result<${okType}, ${errorType}>`;
     }
     case xdr.ScSpecType.scSpecTypeUdt(): {
