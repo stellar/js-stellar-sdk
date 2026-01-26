@@ -1,0 +1,1653 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>@stellar/stellar-sdk Documentation BindingGenerator</title>
+
+  <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="./build/entry.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,400,700|Inconsolata,700" rel="stylesheet">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+  <link type="text/css" rel="stylesheet" href="https://jmblog.github.io/color-themes-for-google-code-prettify/themes/tomorrow-night.min.css">
+  <link type="text/css" rel="stylesheet" href="styles/app.min.css">
+  <link type="text/css" rel="stylesheet" href="styles/iframe.css">
+  <link type="text/css" rel="stylesheet" href="">
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+
+  
+</head>
+
+
+
+<body class="layout small-header">
+    <div id="stickyNavbarOverlay"></div>
+    
+
+<div class="top-nav">
+    <div class="inner">
+        <a id="hamburger" role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </a>
+        <div class="logo">
+            
+             
+                <a href="index.html">
+                    <h1 class="navbar-item">@stellar/stellar-sdk</h1>
+                </a>
+            
+        </div>
+        <div class="menu">
+            
+            <div class="navigation">
+                <a
+                    href="index.html"
+                    class="link"
+                >
+                    Documentation
+                </a>
+                
+                 
+                    
+                        <a
+                            class="link user-link "
+                            href="https://github.com/stellar/js-stellar-sdk"
+                        >
+                            GitHub
+                        </a>
+                    
+                        <a
+                            class="link user-link "
+                            href="https://www.npmjs.com/package/@stellar/stellar-sdk"
+                        >
+                            npm
+                        </a>
+                    
+                
+                
+            </div>
+        </div>
+    </div>
+</div>
+    <div id="main">
+        <div
+            class="sidebar "
+            id="sidebarNav"
+        >
+            
+                <div class="search-wrapper">
+                    <input id="search" type="text" placeholder="Search docs..." class="input">
+                </div>
+            
+            <nav>
+                
+                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Modules</h3><ul><li><a href="module-Federation.html">Federation</a></li><li><a href="module-Horizon.html">Horizon</a></li><li><a href="module-StellarToml.html">StellarToml</a></li><li><a href="module-WebAuth.html">WebAuth</a></li><li><a href="module-contract.html">contract</a></li><li><a href="module-rpc.html">rpc</a></li></ul><h3>Classes</h3><ul><li><a href="Account.html">Account</a></li><li><a href="Address.html">Address</a></li><li><a href="Asset.html">Asset</a></li><li><a href="BindingGenerator.html">BindingGenerator</a></li><li><a href="CallBuilder.html">CallBuilder</a></li><li><a href="Claimant.html">Claimant</a></li><li><a href="ClientGenerator.html">ClientGenerator</a></li><li><a href="Config.html">Config</a></li><li><a href="ConfigGenerator.html">ConfigGenerator</a></li><li><a href="Contract.html">Contract</a></li><li><a href="FeeBumpTransaction.html">FeeBumpTransaction</a></li><li><a href="Int128_Int128.html">Int128#Int128</a></li><li><a href="Int256_Int256.html">Int256#Int256</a></li><li><a href="Keypair.html">Keypair</a></li><li><a href="LiquidityPoolAsset.html">LiquidityPoolAsset</a></li><li><a href="LiquidityPoolId.html">LiquidityPoolId</a></li><li><a href="Memo.html">Memo</a></li><li><a href="MuxedAccount.html">MuxedAccount</a></li><li><a href="Operation.html">Operation</a></li><li><a href="ScInt.html">ScInt</a></li><li><a href="SignerKey.html">SignerKey</a></li><li><a href="SorobanDataBuilder.html">SorobanDataBuilder</a></li><li><a href="Spec_Spec.html">Spec#Spec</a></li><li><a href="StrKey.html">StrKey</a></li><li><a href="Transaction.html">Transaction</a></li><li><a href="TransactionBuilder.html">TransactionBuilder</a></li><li><a href="TypeGenerator.html">TypeGenerator</a></li><li><a href="Uint128_Uint128.html">Uint128#Uint128</a></li><li><a href="Uint256_Uint256.html">Uint256#Uint256</a></li><li><a href="Utils.html">Utils</a></li><li><a href="global.html#WasmFetchError">WasmFetchError</a></li><li><a href="XdrLargeInt.html">XdrLargeInt</a></li><li><a href="module-Federation.Server.html">Federation.Server</a></li><li><a href="module-Horizon.Server.html">Horizon.Server</a></li><li><a href="module-StellarToml.Resolver.html">StellarToml.Resolver</a></li><li><a href="module-contract.AssembledTransaction.html">contract.AssembledTransaction</a></li><li><a href="module-contract.Client.html">contract.Client</a></li><li><a href="module-contract.SentTransaction.html">contract.SentTransaction</a></li><li><a href="module-contract.Spec.html">contract.Spec</a></li><li><a href="module-rpc.Server.html">rpc.Server</a></li></ul><h3>Interfaces</h3><ul><li><a href="BindingImports.html">BindingImports</a></li><li><a href="Configuration.html">Configuration</a></li><li><a href="EnumCase.html">EnumCase</a></li><li><a href="FormatImportsOptions.html">FormatImportsOptions</a></li><li><a href="StructField.html">StructField</a></li><li><a href="UnionCase.html">UnionCase</a></li><li><a href="module-contract.ErrorMessage.html">contract.ErrorMessage</a></li><li><a href="module-contract.Result.html">contract.Result</a></li></ul><h3>Global</h3><ul><li><a href="global.html#AuthClawbackEnabledFlag">AuthClawbackEnabledFlag</a></li><li><a href="global.html#AuthImmutableFlag">AuthImmutableFlag</a></li><li><a href="global.html#AuthRequiredFlag">AuthRequiredFlag</a></li><li><a href="global.html#AuthRevocableFlag">AuthRevocableFlag</a></li><li><a href="global.html#BASE_FEE">BASE_FEE</a></li><li><a href="global.html#LinearSleepStrategy">LinearSleepStrategy</a></li><li><a href="global.html#MemoHash">MemoHash</a></li><li><a href="global.html#MemoID">MemoID</a></li><li><a href="global.html#MemoNone">MemoNone</a></li><li><a href="global.html#MemoReturn">MemoReturn</a></li><li><a href="global.html#MemoText">MemoText</a></li><li><a href="global.html#Networks">Networks</a></li><li><a href="global.html#TimeoutInfinite">TimeoutInfinite</a></li><li><a href="global.html#_default">_default</a></li><li><a href="global.html#asciiCompare">asciiCompare</a></li><li><a href="global.html#authorizeEntry">authorizeEntry</a></li><li><a href="global.html#authorizeInvocation">authorizeInvocation</a></li><li><a href="global.html#buildChallengeTx">buildChallengeTx</a></li><li><a href="global.html#buildInvocationTree">buildInvocationTree</a></li><li><a href="global.html#createGenerator">createGenerator</a></li><li><a href="global.html#decodeAddressToMuxedAccount">decodeAddressToMuxedAccount</a></li><li><a href="global.html#defaultConfig">defaultConfig</a></li><li><a href="global.html#deriveContractName">deriveContractName</a></li><li><a href="global.html#encodeMuxedAccount">encodeMuxedAccount</a></li><li><a href="global.html#encodeMuxedAccountToAddress">encodeMuxedAccountToAddress</a></li><li><a href="global.html#escapeJSDocContent">escapeJSDocContent</a></li><li><a href="global.html#extractBaseAddress">extractBaseAddress</a></li><li><a href="global.html#extractNestedTypes">extractNestedTypes</a></li><li><a href="global.html#fetchFromContractId">fetchFromContractId</a></li><li><a href="global.html#fetchFromWasmHash">fetchFromWasmHash</a></li><li><a href="global.html#fetchWasmFromContract">fetchWasmFromContract</a></li><li><a href="global.html#formatImports">formatImports</a></li><li><a href="global.html#formatJSDocComment">formatJSDocComment</a></li><li><a href="global.html#generateAndWrite">generateAndWrite</a></li><li><a href="global.html#generateTypeImports">generateTypeImports</a></li><li><a href="global.html#getLiquidityPoolId">getLiquidityPoolId</a></li><li><a href="global.html#humanizeEvents">humanizeEvents</a></li><li><a href="global.html#isStellarAssetContract">isStellarAssetContract</a></li><li><a href="global.html#isValid">isValid</a></li><li><a href="global.html#isValidDate">isValidDate</a></li><li><a href="global.html#logSourceInfo">logSourceInfo</a></li><li><a href="global.html#nativeToScVal">nativeToScVal</a></li><li><a href="global.html#parseTypeFromTypeDef">parseTypeFromTypeDef</a></li><li><a href="global.html#readChallengeTx">readChallengeTx</a></li><li><a href="global.html#sanitizeIdentifier">sanitizeIdentifier</a></li><li><a href="global.html#scValToBigInt">scValToBigInt</a></li><li><a href="global.html#scValToNative">scValToNative</a></li><li><a href="global.html#specFromWasm">specFromWasm</a></li><li><a href="global.html#verifyChallengeTxSigners">verifyChallengeTxSigners</a></li><li><a href="global.html#verifyChallengeTxThreshold">verifyChallengeTxThreshold</a></li><li><a href="global.html#verifyNetwork">verifyNetwork</a></li><li><a href="global.html#visitTypeDef">visitTypeDef</a></li><li><a href="global.html#walkInvocationTree">walkInvocationTree</a></li><li><a href="global.html#writeBindings">writeBindings</a></li></ul></div><div class="category"><h2>Errors</h2><h3>Classes</h3><ul><li><a href="AccountRequiresMemoError.html">AccountRequiresMemoError</a></li><li><a href="BadRequestError.html">BadRequestError</a></li><li><a href="BadResponseError.html">BadResponseError</a></li><li><a href="NetworkError.html">NetworkError</a></li><li><a href="NotFoundError.html">NotFoundError</a></li><li><a href="module-WebAuth.InvalidChallengeError.html">WebAuth.InvalidChallengeError</a></li></ul></div>
+                
+            </nav>
+        </div>
+        <div class="core" id="main-content-wrapper">
+            <div class="content">
+                <header class="page-title">
+                    <p>Class</p>
+                    <h1>BindingGenerator</h1>
+                </header>
+                
+
+
+
+
+<section>
+
+<header>
+    
+        <h2><span class="attribs"><span class="type-signature"></span></span>BindingGenerator<span class="signature">(spec)</span><span class="type-signature"></span></h2>
+        
+            <div class="class-description"><p>Generates TypeScript bindings for Stellar smart contracts.</p>
+<p>This class creates fully-typed TypeScript client code from a contract's specification,
+allowing developers to interact with Stellar smart contracts with full IDE support
+and compile-time type checking.</p></div>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class='vertical-section'>
+                <div class="members">
+                    <div class="member">
+                        <div class=name>
+                            <span class="tag">Constructor</span>
+                        </div>
+                        
+
+
+    
+    <h4 class="name" id="BindingGenerator">
+        <a class="href-link" href="#BindingGenerator">#</a>
+        
+        <span class="code-name">
+            
+                new BindingGenerator<span class="signature">(spec)</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Private constructor - use static factory methods instead.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+<div class="table-container">
+    <table class="params table">
+        <thead>
+        <tr>
+            
+            <th>Name</th>
+            
+
+            <th>Type</th>
+
+            
+
+            
+
+            <th class="last">Description</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        
+
+            
+<tr class="deep-level-0">
+  
+      <td class="name"><code>spec</code></td>
+  
+
+  <td class="type">
+  
+  </td>
+
+  
+
+  
+
+  <td class="description last"><p>The parsed contract specification</p></td>
+</tr>
+
+
+        
+        </tbody>
+    </table>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="lib_bindings_generator.js.html" class="button">View Source</a>
+            <span>
+                <a href="lib_bindings_generator.js.html">lib/bindings/generator.js</a>, <a href="lib_bindings_generator.js.html#line64">line 64</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Examples</h5>
+    
+    
+        <pre class="prettyprint"><code>// Create from a local WASM file
+const wasmBuffer = fs.readFileSync("./my_contract.wasm");
+const generator = await BindingGenerator.fromWasm(wasmBuffer);
+const bindings = generator.generate({ contractName: "my-contract" });</code></pre>
+    
+
+    
+        <pre class="prettyprint"><code>// Create from a contract deployed on the network
+const generator = await BindingGenerator.fromContractId(
+  "CABC...XYZ",
+  "https://soroban-testnet.stellar.org",
+  Networks.TESTNET
+);
+const bindings = generator.generate({ contractName: "my-contract" });</code></pre>
+    
+
+    
+        <pre class="prettyprint"><code>// Create from a Spec object directly
+const spec = new Spec(specEntries);
+const generator = BindingGenerator.fromSpec(spec);
+const bindings = generator.generate({ contractName: "my-contract" });</code></pre>
+    
+
+
+
+                    </div>
+                </div>
+            </div>
+        
+    
+    </div>
+    
+    
+
+    
+
+    
+        <h3 class="subsection-title">Classes</h3>
+
+        <dl>
+            <dt><a href="BindingGenerator_BindingGenerator.html">BindingGenerator</a></dt>
+            <dd></dd>
+        </dl>
+    
+
+    
+
+    
+
+    
+
+    
+        <div class='vertical-section'>
+            <h1>Members</h1>
+            <div class="members">
+            
+                <div class="member">
+
+<h4 class="name" id="validateOptions">
+    <a class="href-link" href="#validateOptions">#</a>
+    
+        
+            <span class='tag'>private</span>
+        
+    
+    <span class="code-name">
+        validateOptions
+    </span>
+    
+</h4>
+
+
+
+
+<div class="description">
+    <p>Validates that required generation options are provided.</p>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="lib_bindings_generator.d.ts.html" class="button">View Source</a>
+            <span>
+                <a href="lib_bindings_generator.d.ts.html">lib/bindings/generator.d.ts</a>, <a href="lib_bindings_generator.d.ts.html#line156">line 156</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+</div>
+            
+            </div>
+        </div>
+    
+
+    
+        <div class='vertical-section'>
+            <h1>Methods</h1>
+            <div class="members">
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="generate">
+        <a class="href-link" href="#generate">#</a>
+        
+        <span class="code-name">
+            
+                generate<span class="signature">(options)</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Generates TypeScript bindings for the contract.</p>
+<p>Produces all the files needed for a standalone npm package:</p>
+<ul>
+<li><code>client.ts</code>: A typed Client class with methods for each contract function</li>
+<li><code>types.ts</code>: TypeScript interfaces for all contract types (structs, enums, unions)</li>
+<li><code>index.ts</code>: Barrel export file</li>
+<li><code>package.json</code>, <code>tsconfig.json</code>, <code>README.md</code>, <code>.gitignore</code>: Package configuration</li>
+</ul>
+<p>The generated code does not write to disk - use the returned strings
+to write files as needed.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+<div class="table-container">
+    <table class="params table">
+        <thead>
+        <tr>
+            
+            <th>Name</th>
+            
+
+            <th>Type</th>
+
+            
+
+            
+
+            <th class="last">Description</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        
+
+            
+<tr class="deep-level-0">
+  
+      <td class="name"><code>options</code></td>
+  
+
+  <td class="type">
+  
+  </td>
+
+  
+
+  
+
+  <td class="description last"><p>Configuration options for generation</p></td>
+</tr>
+
+  
+  
+    
+<tr class="deep-level-1">
+  
+      <td class="name"><code>contractName</code></td>
+  
+
+  <td class="type">
+  
+  </td>
+
+  
+
+  
+
+  <td class="description last"><p>Required. The name for the generated package (kebab-case recommended)</p></td>
+</tr>
+
+  
+
+
+        
+        </tbody>
+    </table>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="lib_bindings_generator.js.html" class="button">View Source</a>
+            <span>
+                <a href="lib_bindings_generator.js.html">lib/bindings/generator.js</a>, <a href="lib_bindings_generator.js.html#line194">line 194</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class='columns method-parameter'>
+        <div class="column is-2"><label>Throws:</label></div>
+        <div class="column is-10">
+            
+                    
+<div class="columns">
+    
+    <div class='param-desc column is-7'><p>If contractName is missing or empty</p></div>
+    <div class='column is-5 has-text-left'>
+        <label>Type: </label>
+<code class="param-type">Error</code>
+
+
+    </div>
+    
+</div>
+
+                
+        </div>
+    </div>
+
+
+
+    <div class='columns method-parameter'>
+        <div class="column is-2"><label>Returns:</label></div>
+        <div class="column is-10">
+            
+                    
+
+<div class="columns">
+    
+    <div class='param-desc column is-7'><p>An object containing all generated file contents as strings</p></div>
+    
+    
+</div>
+
+                
+        </div>
+    </div>
+
+
+
+
+    <h5>Example</h5>
+    
+    
+        <pre class="prettyprint"><code>const bindings = generator.generate({
+  contractName: "my-token",
+  contractAddress: "CABC...XYZ",
+  rpcUrl: "https://soroban-testnet.stellar.org",
+  networkPassphrase: Networks.TESTNET
+});
+
+// Write files to disk
+fs.writeFileSync("./src/client.ts", bindings.client);
+fs.writeFileSync("./src/types.ts", bindings.types);</code></pre>
+    
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="validateOptions">
+        <a class="href-link" href="#validateOptions">#</a>
+        
+        <span class="code-name">
+            
+                validateOptions<span class="signature">(options)</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Validates that required generation options are provided.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+<div class="table-container">
+    <table class="params table">
+        <thead>
+        <tr>
+            
+            <th>Name</th>
+            
+
+            <th>Type</th>
+
+            
+
+            
+
+            <th class="last">Description</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        
+
+            
+<tr class="deep-level-0">
+  
+      <td class="name"><code>options</code></td>
+  
+
+  <td class="type">
+  
+  </td>
+
+  
+
+  
+
+  <td class="description last"><p>The options to validate</p></td>
+</tr>
+
+
+        
+        </tbody>
+    </table>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="lib_bindings_generator.js.html" class="button">View Source</a>
+            <span>
+                <a href="lib_bindings_generator.js.html">lib/bindings/generator.js</a>, <a href="lib_bindings_generator.js.html#line230">line 230</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class='columns method-parameter'>
+        <div class="column is-2"><label>Throws:</label></div>
+        <div class="column is-10">
+            
+                    
+<div class="columns">
+    
+    <div class='param-desc column is-7'><p>If contractName is missing or empty</p></div>
+    <div class='column is-5 has-text-left'>
+        <label>Type: </label>
+<code class="param-type">Error</code>
+
+
+    </div>
+    
+</div>
+
+                
+        </div>
+    </div>
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id=".fromContractId">
+        <a class="href-link" href="#.fromContractId">#</a>
+        
+            
+                <span class='tag'>async</span>
+            
+                <span class='tag'>static</span>
+            
+        
+        <span class="code-name">
+            
+                fromContractId<span class="signature">(contractId, rpcServer)</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Creates a BindingGenerator by fetching contract info from a deployed contract ID.</p>
+<p>Retrieves the contract's WASM from the network using the contract ID,
+then parses the specification. If the contract is a Stellar Asset Contract (SAC),
+returns a generator with the standard SAC specification.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+<div class="table-container">
+    <table class="params table">
+        <thead>
+        <tr>
+            
+            <th>Name</th>
+            
+
+            <th>Type</th>
+
+            
+
+            
+
+            <th class="last">Description</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        
+
+            
+<tr class="deep-level-0">
+  
+      <td class="name"><code>contractId</code></td>
+  
+
+  <td class="type">
+  
+  </td>
+
+  
+
+  
+
+  <td class="description last"><p>The contract ID (C... address) of the deployed contract</p></td>
+</tr>
+
+
+        
+
+            
+<tr class="deep-level-0">
+  
+      <td class="name"><code>rpcServer</code></td>
+  
+
+  <td class="type">
+  
+  </td>
+
+  
+
+  
+
+  <td class="description last"><p>The Stellar RPC server instance</p></td>
+</tr>
+
+
+        
+        </tbody>
+    </table>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="lib_bindings_generator.js.html" class="button">View Source</a>
+            <span>
+                <a href="lib_bindings_generator.js.html">lib/bindings/generator.js</a>, <a href="lib_bindings_generator.js.html#line155">line 155</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class='columns method-parameter'>
+        <div class="column is-2"><label>Throws:</label></div>
+        <div class="column is-10">
+            
+                    
+<div class="columns">
+    
+    <div class='param-desc column is-7'><p>If the contract cannot be found or fetched</p></div>
+    <div class='column is-5 has-text-left'>
+        <label>Type: </label>
+<code class="param-type">Error</code>
+
+
+    </div>
+    
+</div>
+
+                
+        </div>
+    </div>
+
+
+
+    <div class='columns method-parameter'>
+        <div class="column is-2"><label>Returns:</label></div>
+        <div class="column is-10">
+            
+                    
+
+<div class="columns">
+    
+    <div class='param-desc column is-7'><p>A Promise resolving to a new BindingGenerator instance</p></div>
+    
+    
+</div>
+
+                
+        </div>
+    </div>
+
+
+
+
+    <h5>Example</h5>
+    
+    
+        <pre class="prettyprint"><code>const generator = await BindingGenerator.fromContractId(
+  "CABC123...XYZ",
+  rpcServer
+);</code></pre>
+    
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id=".fromSpec">
+        <a class="href-link" href="#.fromSpec">#</a>
+        
+            
+                <span class='tag'>static</span>
+            
+        
+        <span class="code-name">
+            
+                fromSpec<span class="signature">(spec)</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Creates a BindingGenerator from an existing Spec object.</p>
+<p>Use this when you already have a parsed contract specification,
+such as from manually constructed spec entries or from another source.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+<div class="table-container">
+    <table class="params table">
+        <thead>
+        <tr>
+            
+            <th>Name</th>
+            
+
+            <th>Type</th>
+
+            
+
+            
+
+            <th class="last">Description</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        
+
+            
+<tr class="deep-level-0">
+  
+      <td class="name"><code>spec</code></td>
+  
+
+  <td class="type">
+  
+  </td>
+
+  
+
+  
+
+  <td class="description last"><p>The contract specification containing function and type definitions</p></td>
+</tr>
+
+
+        
+        </tbody>
+    </table>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="lib_bindings_generator.js.html" class="button">View Source</a>
+            <span>
+                <a href="lib_bindings_generator.js.html">lib/bindings/generator.js</a>, <a href="lib_bindings_generator.js.html#line87">line 87</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class='columns method-parameter'>
+        <div class="column is-2"><label>Returns:</label></div>
+        <div class="column is-10">
+            
+                    
+
+<div class="columns">
+    
+    <div class='param-desc column is-7'><p>A new BindingGenerator instance</p></div>
+    
+    
+</div>
+
+                
+        </div>
+    </div>
+
+
+
+
+    <h5>Example</h5>
+    
+    
+        <pre class="prettyprint"><code>const spec = new Spec(specEntries);
+const generator = BindingGenerator.fromSpec(spec);</code></pre>
+    
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id=".fromWasm">
+        <a class="href-link" href="#.fromWasm">#</a>
+        
+            
+                <span class='tag'>static</span>
+            
+        
+        <span class="code-name">
+            
+                fromWasm<span class="signature">(wasmBuffer)</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Creates a BindingGenerator from a WASM binary buffer.</p>
+<p>Parses the contract specification directly from the WASM file's custom section.
+This is the most common method when working with locally compiled contracts.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+<div class="table-container">
+    <table class="params table">
+        <thead>
+        <tr>
+            
+            <th>Name</th>
+            
+
+            <th>Type</th>
+
+            
+
+            
+
+            <th class="last">Description</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        
+
+            
+<tr class="deep-level-0">
+  
+      <td class="name"><code>wasmBuffer</code></td>
+  
+
+  <td class="type">
+  
+  </td>
+
+  
+
+  
+
+  <td class="description last"><p>The raw WASM binary as a Buffer</p></td>
+</tr>
+
+
+        
+        </tbody>
+    </table>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="lib_bindings_generator.js.html" class="button">View Source</a>
+            <span>
+                <a href="lib_bindings_generator.js.html">lib/bindings/generator.js</a>, <a href="lib_bindings_generator.js.html#line105">line 105</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class='columns method-parameter'>
+        <div class="column is-2"><label>Throws:</label></div>
+        <div class="column is-10">
+            
+                    
+<div class="columns">
+    
+    <div class='param-desc column is-7'><p>If the WASM file doesn't contain a valid contract spec</p></div>
+    <div class='column is-5 has-text-left'>
+        <label>Type: </label>
+<code class="param-type">Error</code>
+
+
+    </div>
+    
+</div>
+
+                
+        </div>
+    </div>
+
+
+
+    <div class='columns method-parameter'>
+        <div class="column is-2"><label>Returns:</label></div>
+        <div class="column is-10">
+            
+                    
+
+<div class="columns">
+    
+    <div class='param-desc column is-7'><p>A Promise resolving to a new BindingGenerator instance</p></div>
+    
+    
+</div>
+
+                
+        </div>
+    </div>
+
+
+
+
+    <h5>Example</h5>
+    
+    
+        <pre class="prettyprint"><code>const wasmBuffer = fs.readFileSync("./target/wasm32-unknown-unknown/release/my_contract.wasm");
+const generator = await BindingGenerator.fromWasm(wasmBuffer);</code></pre>
+    
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id=".fromWasmHash">
+        <a class="href-link" href="#.fromWasmHash">#</a>
+        
+            
+                <span class='tag'>async</span>
+            
+                <span class='tag'>static</span>
+            
+        
+        <span class="code-name">
+            
+                fromWasmHash<span class="signature">(wasmHash, rpcServer)</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Creates a BindingGenerator by fetching WASM from the network using its hash.</p>
+<p>Retrieves the WASM bytecode from Stellar RPC using the WASM hash,
+then parses the contract specification from it. Useful when you know
+the hash of an installed WASM but don't have the binary locally.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+<div class="table-container">
+    <table class="params table">
+        <thead>
+        <tr>
+            
+            <th>Name</th>
+            
+
+            <th>Type</th>
+
+            
+
+            
+
+            <th class="last">Description</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        
+
+            
+<tr class="deep-level-0">
+  
+      <td class="name"><code>wasmHash</code></td>
+  
+
+  <td class="type">
+  
+  </td>
+
+  
+
+  
+
+  <td class="description last"><p>The hex-encoded hash of the installed WASM blob</p></td>
+</tr>
+
+
+        
+
+            
+<tr class="deep-level-0">
+  
+      <td class="name"><code>rpcServer</code></td>
+  
+
+  <td class="type">
+  
+  </td>
+
+  
+
+  
+
+  <td class="description last"><p>The Stellar RPC server instance</p></td>
+</tr>
+
+
+        
+        </tbody>
+    </table>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="lib_bindings_generator.js.html" class="button">View Source</a>
+            <span>
+                <a href="lib_bindings_generator.js.html">lib/bindings/generator.js</a>, <a href="lib_bindings_generator.js.html#line129">line 129</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class='columns method-parameter'>
+        <div class="column is-2"><label>Throws:</label></div>
+        <div class="column is-10">
+            
+                    
+<div class="columns">
+    
+    <div class='param-desc column is-7'><p>If the WASM cannot be fetched or doesn't contain a valid spec</p></div>
+    <div class='column is-5 has-text-left'>
+        <label>Type: </label>
+<code class="param-type">Error</code>
+
+
+    </div>
+    
+</div>
+
+                
+        </div>
+    </div>
+
+
+
+    <div class='columns method-parameter'>
+        <div class="column is-2"><label>Returns:</label></div>
+        <div class="column is-10">
+            
+                    
+
+<div class="columns">
+    
+    <div class='param-desc column is-7'><p>A Promise resolving to a new BindingGenerator instance</p></div>
+    
+    
+</div>
+
+                
+        </div>
+    </div>
+
+
+
+
+    <h5>Example</h5>
+    
+    
+        <pre class="prettyprint"><code>const generator = await BindingGenerator.fromWasmHash(
+  "a1b2c3...xyz",
+  "https://soroban-testnet.stellar.org",
+  Networks.TESTNET
+);</code></pre>
+    
+
+
+</div>
+            
+            </div>
+        </div>
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+            </div>
+            
+            <footer class="footer">
+                <div class="content has-text-centered">
+                    <p>Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.4</a></p>
+                    <p class="sidebar-created-by">
+                        <a href="https://github.com/SoftwareBrothers/better-docs" target="_blank">BetterDocs theme</a> provided with <i class="fas fa-heart"></i> by
+                        <a href="http://softwarebrothers.co" target="_blank">SoftwareBrothers - JavaScript Development Agency</a>
+                    </p>
+                </div>
+            </footer>
+            
+        </div>
+        <div id="side-nav" class="side-nav">
+        </div>
+    </div>
+<script src="scripts/app.min.js"></script>
+<script>PR.prettyPrint();</script>
+<script src="scripts/linenumber.js"> </script>
+
+<script src="scripts/search.js"> </script>
+
+
+</body>
+</html>
