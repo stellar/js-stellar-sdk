@@ -6,13 +6,19 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+## [v14.5.0](https://github.com/stellar/js-stellar-sdk/compare/v14.4.3...v14.5.0)
+
 ### Added
-* Add CLI support for generating smart contract bindings ([#1287](https://github.com/stellar/js-stellar-sdk/pull/1287)).
-* Add `BindingGeneration` class for parsing contract specs into fully typed TypeScript libraries for calling contract methods ([#1287](https://github.com/stellar/js-stellar-sdk/pull/1287)).
+* Introduced CLI functionality for generating smart contract bindings ([#1287](https://github.com/stellar/js-stellar-sdk/pull/1287)).
+* Added `BindingGeneration` class for parsing contract specs into fully typed TypeScript libraries for calling contract methods ([#1287](https://github.com/stellar/js-stellar-sdk/pull/1287)).
+* Introduced `rpc.Server.fundAddress` that supports funding contract and account addresses via Friendbot ([#1314](https://github.com/stellar/js-stellar-sdk/pull/1314)).
 
 ### Fixed
 * X-App-Name and X-App-Version headers are now included when using `CallBuilder.stream()` ([#1317](https://github.com/stellar/js-stellar-sdk/pull/1317)).
 * `CallBuilder` now correctly uses the configured server URL for all requests, including pagination and linked resources. Previously, URLs returned by Horizon in `_links` would bypass reverse proxies ([#1318](https://github.com/stellar/js-stellar-sdk/pull/1318)).
+
+### Deprecated
+* `rpc.Server.requestAirdrop` is deprecated in favor of `rpc.Server.fundAddress` ([#1314](https://github.com/stellar/js-stellar-sdk/pull/1314)).
 
 ## [v14.4.3](https://github.com/stellar/js-stellar-sdk/compare/v14.4.2...v14.4.3)
 
