@@ -12,6 +12,7 @@ A breaking change will get clearly marked in this log.
 * Introduced CLI functionality for generating smart contract bindings ([#1287](https://github.com/stellar/js-stellar-sdk/pull/1287)).
 * Added `BindingGeneration` class for parsing contract specs into fully typed TypeScript libraries for calling contract methods ([#1287](https://github.com/stellar/js-stellar-sdk/pull/1287)).
 * Introduced `rpc.Server.fundAddress` that supports funding contract and account addresses via Friendbot ([#1314](https://github.com/stellar/js-stellar-sdk/pull/1314)).
+* Updated the `StellarToml` interface with SEP 45 fields `WEB_AUTH_FOR_CONTRACTS_ENDPOINT` and `WEB_AUTH_CONTRACT_ID` ([#1326](https://github.com/stellar/js-stellar-sdk/pull/1326)).
 
 ### Fixed
 * X-App-Name and X-App-Version headers are now included when using `CallBuilder.stream()` ([#1317](https://github.com/stellar/js-stellar-sdk/pull/1317)).
