@@ -170,84 +170,100 @@ describe("BindingGenerator", () => {
         {
           name: "address",
           type: xdr.ScSpecTypeDef.scSpecTypeAddress(),
-          expected: "string | Address",
+          expectedOutput: "string",
+          expectedInput: "string | Address",
         },
         {
           name: "bool",
           type: xdr.ScSpecTypeDef.scSpecTypeBool(),
-          expected: "boolean",
+          expectedOutput: "boolean",
+          expectedInput: "boolean",
         },
         {
           name: "bytes",
           type: xdr.ScSpecTypeDef.scSpecTypeBytes(),
-          expected: "Buffer",
+          expectedOutput: "Buffer",
+          expectedInput: "Buffer",
         },
         {
           name: "bytesN",
           type: xdr.ScSpecTypeDef.scSpecTypeBytesN(
             new xdr.ScSpecTypeBytesN({ n: 32 }),
           ),
-          expected: "Buffer",
+          expectedOutput: "Buffer",
+          expectedInput: "Buffer",
         },
         {
           name: "duration",
           type: xdr.ScSpecTypeDef.scSpecTypeDuration(),
-          expected: "bigint",
+          expectedOutput: "bigint",
+          expectedInput: "bigint",
         },
         {
           name: "i128",
           type: xdr.ScSpecTypeDef.scSpecTypeI128(),
-          expected: "bigint",
+          expectedOutput: "bigint",
+          expectedInput: "bigint",
         },
         {
           name: "i256",
           type: xdr.ScSpecTypeDef.scSpecTypeI256(),
-          expected: "bigint",
+          expectedOutput: "bigint",
+          expectedInput: "bigint",
         },
         {
           name: "i32",
           type: xdr.ScSpecTypeDef.scSpecTypeI32(),
-          expected: "number",
+          expectedOutput: "number",
+          expectedInput: "number",
         },
         {
           name: "i64",
           type: xdr.ScSpecTypeDef.scSpecTypeI64(),
-          expected: "bigint",
+          expectedOutput: "bigint",
+          expectedInput: "bigint",
         },
         {
           name: "string",
           type: xdr.ScSpecTypeDef.scSpecTypeString(),
-          expected: "string",
+          expectedOutput: "string",
+          expectedInput: "string",
         },
         {
           name: "symbol",
           type: xdr.ScSpecTypeDef.scSpecTypeSymbol(),
-          expected: "string",
+          expectedOutput: "string",
+          expectedInput: "string",
         },
         {
           name: "timepoint",
           type: xdr.ScSpecTypeDef.scSpecTypeTimepoint(),
-          expected: "bigint",
+          expectedOutput: "bigint",
+          expectedInput: "bigint",
         },
         {
           name: "u128",
           type: xdr.ScSpecTypeDef.scSpecTypeU128(),
-          expected: "bigint",
+          expectedOutput: "bigint",
+          expectedInput: "bigint",
         },
         {
           name: "u256",
           type: xdr.ScSpecTypeDef.scSpecTypeU256(),
-          expected: "bigint",
+          expectedOutput: "bigint",
+          expectedInput: "bigint",
         },
         {
           name: "u32",
           type: xdr.ScSpecTypeDef.scSpecTypeU32(),
-          expected: "number",
+          expectedOutput: "number",
+          expectedInput: "number",
         },
         {
           name: "u64",
           type: xdr.ScSpecTypeDef.scSpecTypeU64(),
-          expected: "bigint",
+          expectedOutput: "bigint",
+          expectedInput: "bigint",
         },
         {
           name: "vec",
@@ -256,7 +272,8 @@ describe("BindingGenerator", () => {
               elementType: xdr.ScSpecTypeDef.scSpecTypeU32(),
             }),
           ),
-          expected: "Array<number>",
+          expectedOutput: "Array<number>",
+          expectedInput: "Array<number>",
         },
         {
           name: "map",
@@ -266,7 +283,8 @@ describe("BindingGenerator", () => {
               valueType: xdr.ScSpecTypeDef.scSpecTypeU32(),
             }),
           ),
-          expected: "Map<string, number>",
+          expectedOutput: "Map<string, number>",
+          expectedInput: "Map<string, number>",
         },
         {
           name: "option",
@@ -275,7 +293,8 @@ describe("BindingGenerator", () => {
               valueType: xdr.ScSpecTypeDef.scSpecTypeU32(),
             }),
           ),
-          expected: "number | null",
+          expectedOutput: "number | null",
+          expectedInput: "number | null",
         },
         {
           name: "result",
@@ -285,7 +304,8 @@ describe("BindingGenerator", () => {
               errorType: xdr.ScSpecTypeDef.scSpecTypeString(),
             }),
           ),
-          expected: "Result<boolean, string>",
+          expectedOutput: "Result<boolean, string>",
+          expectedInput: "Result<boolean, string>",
         },
         {
           name: "tuple",
@@ -297,36 +317,40 @@ describe("BindingGenerator", () => {
               ],
             }),
           ),
-          expected: "[boolean, number]",
+          expectedOutput: "[boolean, number]",
+          expectedInput: "[boolean, number]",
         },
         {
           name: "val",
           type: xdr.ScSpecTypeDef.scSpecTypeVal(),
-          expected: "any",
+          expectedOutput: "any",
+          expectedInput: "any",
         },
       ];
 
-      primitiveTypes.forEach(({ name, type, expected }) => {
-        it(`maps ${name} input to ${expected}`, () => {
-          const funcSpec = createFunctionSpec("test_fn", [
-            { name: "input", type },
-          ]);
-          const spec = new contract.Spec([funcSpec.toXDR("base64")]);
-          const result =
-            BindingGenerator.fromSpec(spec).generate(defaultOptions);
-          expect(result.client).toContain(`input: ${expected}`);
-        });
+      primitiveTypes.forEach(
+        ({ name, type, expectedOutput, expectedInput }) => {
+          it(`maps ${name} input to ${expectedInput}`, () => {
+            const funcSpec = createFunctionSpec("test_fn", [
+              { name: "input", type },
+            ]);
+            const spec = new contract.Spec([funcSpec.toXDR("base64")]);
+            const result =
+              BindingGenerator.fromSpec(spec).generate(defaultOptions);
+            expect(result.client).toContain(`input: ${expectedInput}`);
+          });
 
-        it(`maps ${name} output to ${expected}`, () => {
-          const funcSpec = createFunctionSpec("test_fn", [], [type]);
-          const spec = new contract.Spec([funcSpec.toXDR("base64")]);
-          const result =
-            BindingGenerator.fromSpec(spec).generate(defaultOptions);
-          expect(result.client).toContain(
-            `Promise<AssembledTransaction<${expected}>>`,
-          );
-        });
-      });
+          it(`maps ${name} output to ${expectedOutput}`, () => {
+            const funcSpec = createFunctionSpec("test_fn", [], [type]);
+            const spec = new contract.Spec([funcSpec.toXDR("base64")]);
+            const result =
+              BindingGenerator.fromSpec(spec).generate(defaultOptions);
+            expect(result.client).toContain(
+              `Promise<AssembledTransaction<${expectedOutput}>>`,
+            );
+          });
+        },
+      );
 
       it("maps void output to null", () => {
         const funcSpec = createFunctionSpec(

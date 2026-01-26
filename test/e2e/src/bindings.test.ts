@@ -9,7 +9,7 @@ import {
   generateFundedKeypair,
   installContract,
 } from "./util";
-import { contract } from "../../../lib";
+import { Address, contract } from "../../../lib";
 
 const CLI_PATH = path.resolve(__dirname, "../../../bin/stellar-js");
 
@@ -323,7 +323,11 @@ describe("Generated Bindings E2E Test", () => {
     const addresseResult = await client.addresse({
       addresse: keypair.publicKey(),
     });
+    const addresseResultWithAddress = await client.addresse({
+      addresse: Address.fromString(keypair.publicKey()),
+    });
     expect(addresseResult.result).toBe(keypair.publicKey());
+    expect(addresseResultWithAddress.result).toBe(keypair.publicKey());
 
     // Test bytes method
     const bytesInput = Buffer.from("hello");
