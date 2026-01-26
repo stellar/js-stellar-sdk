@@ -6,7 +6,12 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Added
+* Add CLI support for generating smart contract bindings ([#1287](https://github.com/stellar/js-stellar-sdk/pull/1287)).
+* Add `BindingGeneration` class for parsing contract specs into fully typed TypeScript libraries for calling contract methods ([#1287](https://github.com/stellar/js-stellar-sdk/pull/1287)).
+
 ### Fixed
+* X-App-Name and X-App-Version headers are now included when using `CallBuilder.stream()` ([#1317](https://github.com/stellar/js-stellar-sdk/pull/1317)).
 * `CallBuilder` now correctly uses the configured server URL for all requests, including pagination and linked resources. Previously, URLs returned by Horizon in `_links` would bypass reverse proxies ([#1318](https://github.com/stellar/js-stellar-sdk/pull/1318)).
 
 ## [v14.4.3](https://github.com/stellar/js-stellar-sdk/compare/v14.4.2...v14.4.3)

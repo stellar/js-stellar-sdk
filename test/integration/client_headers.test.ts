@@ -211,4 +211,86 @@ describe("integration tests: client headers", () => {
     // Verify both requests came to our server
     expect(requestCount).toBe(2);
   });
+
+  it("sends appName and appVersion via headers for HTTP requests", async () => {
+    let server: http.Server;
+
+    const requestHandler = (
+      request: http.IncomingMessage,
+      response: http.ServerResponse,
+    ) => {
+      expect(request.headers["x-app-name"]).toBe("my-app");
+      expect(request.headers["x-app-version"]).toBe("1.0.0");
+      response.end();
+      server.close();
+    };
+
+    server = http.createServer(requestHandler);
+
+    await new Promise<void>((resolve, reject) => {
+      server.listen(port, (err?: Error) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+        resolve();
+      });
+    });
+
+    await new Horizon.Server(`http://localhost:${port}`, {
+      appName: "my-app",
+      appVersion: "1.0.0",
+      allowHttp: true,
+    })
+      .operations()
+      .call();
+  });
+
+  it("sends appName and appVersion via query params when streaming", async () => {
+    let server: http.Server;
+    let closeStream: () => void;
+
+    const requestHandler = (
+      request: http.IncomingMessage,
+      response: http.ServerResponse,
+    ) => {
+      const query = url.parse(request.url!, true).query;
+      expect(query["X-App-Name"]).toBe("my-app");
+      expect(query["X-App-Version"]).toBe("1.0.0");
+
+      response.writeHead(200, {
+        "Content-Type": "text/event-stream",
+      });
+      response.write("retry: 10\nevent: close\ndata: byebye\n\n");
+      response.end();
+
+      server.close(() => {
+        closeStream();
+      });
+    };
+
+    server = http.createServer(requestHandler);
+
+    await new Promise<void>((resolve, reject) => {
+      server.listen(port, (err?: Error) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+        resolve();
+      });
+    });
+
+    closeStream = new Horizon.Server(`http://localhost:${port}`, {
+      appName: "my-app",
+      appVersion: "1.0.0",
+      allowHttp: true,
+    })
+      .operations()
+      .stream({
+        onerror: (err) => {
+          throw err;
+        },
+      });
+  });
 });

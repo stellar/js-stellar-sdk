@@ -129,6 +129,27 @@ export class CallBuilder<
     this.url.setQuery("X-Client-Name", "js-stellar-sdk");
     this.url.setQuery("X-Client-Version", version);
 
+    // Extract custom app headers from httpClient defaults and add as query params
+    // (EventSource doesn't support custom headers, so we use query params)
+    const { headers } = this.httpClient.defaults;
+    if (headers) {
+      const headerNames = ["X-App-Name", "X-App-Version"];
+      headerNames.forEach((name) => {
+        let value: string | undefined;
+        if (headers instanceof Headers) {
+          value = headers.get(name) ?? undefined;
+        } else if (Array.isArray(headers)) {
+          const entry = headers.find(([key]) => key === name);
+          value = entry?.[1];
+        } else {
+          value = headers[name];
+        }
+        if (value) {
+          this.url.setQuery(name, value);
+        }
+      });
+    }
+
     // EventSource object
     let es: EventSource;
     // timeout is the id of the timeout to be triggered if there were no new messages
