@@ -398,13 +398,9 @@ export class CallBuilder<
   private async _sendNormalRequest(initialUrl: URI) {
     let url = initialUrl;
 
-    if (url.authority() === "") {
-      url = url.authority(this.url.authority());
-    }
-
-    if (url.protocol() === "") {
-      url = url.protocol(this.url.protocol());
-    }
+    // Always use the configured server's authority and protocol.
+    // Horizon returns absolute URLs in _links that would bypass reverse proxies.
+    url = url.authority(this.url.authority()).protocol(this.url.protocol());
 
     return this.httpClient
       .get(url.toString())
