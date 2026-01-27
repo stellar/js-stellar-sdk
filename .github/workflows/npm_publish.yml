@@ -34,4 +34,4 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish npm package to both places
-        run: yarn publish --access public --provenance
+        run: npm publish --access public --provenance
