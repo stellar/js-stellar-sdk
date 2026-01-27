@@ -21,6 +21,9 @@ jobs:
           node-version: '20.x'
           registry-url: 'https://registry.npmjs.org'
 
+      - name: Upgrade npm for OICD trusted publishing
+        run: npm install -g npm@^11.5.1
+
       - name: Install Dependencies
         run: yarn install
 
