@@ -20,7 +20,6 @@ jobs:
         with:
           node-version: '20.x'
           registry-url: 'https://registry.npmjs.org'
-          always-auth: true
 
       - name: Install Dependencies
         run: yarn install
@@ -30,8 +29,6 @@ jobs:
 
       - name: Build, Test, and Package
         run: yarn preversion
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish npm package to both places
         run: npm publish --access public --provenance
