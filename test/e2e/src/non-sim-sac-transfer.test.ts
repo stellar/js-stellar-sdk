@@ -31,14 +31,32 @@ async function submitTx(
   builder.addOperation(op);
 
   const tx = builder.build();
-  tx.sign(sourceKeypair);
+  if (
+    op.body().switch().name === "changeTrust" ||
+    op.body().switch().name === "payment"
+  ) {
+    // Classic operations can not be simulated, so we send them directly without simulation to ensure the test setup is complete.
+    tx.sign(sourceKeypair);
+    const classicResp = await server.sendTransaction(tx);
+    const classicResult = await server.pollTransaction(classicResp.hash, {
+      attempts: 15,
+    });
+    if (classicResult.status !== rpc.Api.GetTransactionStatus.SUCCESS) {
+      throw new Error(`Classic transaction failed: ${classicResult.status}`);
+    }
+    return classicResult;
+  }
+  const sim = await server.simulateTransaction(tx);
+  if (rpc.Api.isSimulationError(sim)) {
+    throw new Error(`Simulation failed: ${sim.error}`);
+  }
+  const assembled = rpc.assembleTransaction(tx, sim).build();
+  assembled.sign(sourceKeypair);
 
-  const resp = await server.sendTransaction(tx);
-  const result = await server.pollTransaction(resp.hash, {
-    attempts: 15,
-  });
+  const resp = await server.sendTransaction(assembled);
+  const result = await server.pollTransaction(resp.hash, { attempts: 15 });
   if (result.status !== rpc.Api.GetTransactionStatus.SUCCESS) {
-    throw new Error(`Classic transaction failed: ${result.status}`);
+    throw new Error(`Transaction failed: ${result.status}`);
   }
   return result;
 }
