@@ -1756,10 +1756,10 @@
   resolved "https://registry.yarnpkg.com/@stellar/js-xdr/-/js-xdr-3.1.2.tgz#db7611135cf21e989602fd72f513c3bed621bc74"
   integrity sha512-VVolPL5goVEIsvuGqDc5uiKxV03lzfWdvYg1KikvwheDmTBO68CKDji3bAZ/kppZrx5iTA8z3Ld5yuytcvhvOQ==
 
-"@stellar/stellar-base@^14.0.4":
-  version "14.0.4"
-  resolved "https://registry.yarnpkg.com/@stellar/stellar-base/-/stellar-base-14.0.4.tgz#530511679588e8440277ded071e3a46a387c9fff"
-  integrity sha512-UbNW6zbdOBXJwLAV2mMak0bIC9nw3IZVlQXkv2w2dk1jgCbJjy3oRVC943zeGE5JAm0Z9PHxrIjmkpGhayY7kw==
+"@stellar/stellar-base@14.1.0":
+  version "14.1.0"
+  resolved "https://registry.yarnpkg.com/@stellar/stellar-base/-/stellar-base-14.1.0.tgz#5093aaabd03eb1364833fb88c26a9e20f857e7d8"
+  integrity sha512-A8kFli6QGy22SRF45IjgPAJfUNGjnI+R7g4DF5NZYVsD1kGf7B4ITyc4OPclLV9tqNI4/lXxafGEw0JEUbHixw==
   dependencies:
     "@noble/curves" "^1.9.6"
     "@stellar/js-xdr" "^3.1.2"
