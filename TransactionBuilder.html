@@ -822,7 +822,7 @@ non-contract(non-Soroban) transactions, this has no effect.</p></td>
         <p class="tag-source">
             <a href="js-stellar-base_src_transaction_builder.js.html" class="button">View Source</a>
             <span>
-                <a href="js-stellar-base_src_transaction_builder.js.html">js-stellar-base/src/transaction_builder.js</a>, <a href="js-stellar-base_src_transaction_builder.js.html#line126">line 126</a>
+                <a href="js-stellar-base_src_transaction_builder.js.html">js-stellar-base/src/transaction_builder.js</a>, <a href="js-stellar-base_src_transaction_builder.js.html#line140">line 140</a>
             </span>
         </p>
     
@@ -1002,7 +1002,7 @@ non-contract(non-Soroban) transactions, this has no effect.</p></td>
         <p class="tag-source">
             <a href="js-stellar-base_src_transaction_builder.js.html" class="button">View Source</a>
             <span>
-                <a href="js-stellar-base_src_transaction_builder.js.html">js-stellar-base/src/transaction_builder.js</a>, <a href="js-stellar-base_src_transaction_builder.js.html#line270">line 270</a>
+                <a href="js-stellar-base_src_transaction_builder.js.html">js-stellar-base/src/transaction_builder.js</a>, <a href="js-stellar-base_src_transaction_builder.js.html#line284">line 284</a>
             </span>
         </p>
     
@@ -1173,7 +1173,7 @@ non-contract(non-Soroban) transactions, this has no effect.</p></td>
         <p class="tag-source">
             <a href="js-stellar-base_src_transaction_builder.js.html" class="button">View Source</a>
             <span>
-                <a href="js-stellar-base_src_transaction_builder.js.html">js-stellar-base/src/transaction_builder.js</a>, <a href="js-stellar-base_src_transaction_builder.js.html#line226">line 226</a>
+                <a href="js-stellar-base_src_transaction_builder.js.html">js-stellar-base/src/transaction_builder.js</a>, <a href="js-stellar-base_src_transaction_builder.js.html#line240">line 240</a>
             </span>
         </p>
     
@@ -1369,7 +1369,7 @@ non-contract(non-Soroban) transactions, this has no effect.</p></td>
         <p class="tag-source">
             <a href="js-stellar-base_src_transaction_builder.js.html" class="button">View Source</a>
             <span>
-                <a href="js-stellar-base_src_transaction_builder.js.html">js-stellar-base/src/transaction_builder.js</a>, <a href="js-stellar-base_src_transaction_builder.js.html#line239">line 239</a>
+                <a href="js-stellar-base_src_transaction_builder.js.html">js-stellar-base/src/transaction_builder.js</a>, <a href="js-stellar-base_src_transaction_builder.js.html#line253">line 253</a>
             </span>
         </p>
     
@@ -1403,6 +1403,290 @@ non-contract(non-Soroban) transactions, this has no effect.</p></td>
     <div class='param-desc column is-7'><ul>
 <li>The TransactionBuilder instance for method chaining.</li>
 </ul></div>
+    
+    
+    <div class='column is-5 has-text-left'>
+        <label>Type: </label>
+        
+<code class="param-type"><a href="TransactionBuilder.html">TransactionBuilder</a></code>
+
+
+    </div>
+    
+</div>
+
+                
+        </div>
+    </div>
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="addSacTransferOperation">
+        <a class="href-link" href="#addSacTransferOperation">#</a>
+        
+        <span class="code-name">
+            
+                addSacTransferOperation<span class="signature">(destination, asset, amount, sorobanFees<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {<a href="TransactionBuilder.html">TransactionBuilder</a>}</span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Creates and adds an invoke host function operation for transferring SAC tokens.
+This method removes the need for simulation by handling the creation of the
+appropriate authorization entries and ledger footprint for the transfer operation.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+<div class="table-container">
+    <table class="params table">
+        <thead>
+        <tr>
+            
+            <th>Name</th>
+            
+
+            <th>Type</th>
+
+            
+            <th>Attributes</th>
+            
+
+            
+
+            <th class="last">Description</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        
+
+            
+<tr class="deep-level-0">
+  
+      <td class="name"><code>destination</code></td>
+  
+
+  <td class="type">
+  
+      
+<code class="param-type">string</code>
+
+
+  
+  </td>
+
+  
+      <td class="attributes">
+      
+
+      
+
+      
+      </td>
+  
+
+  
+
+  <td class="description last"><p>the address of the recipient of the SAC transfer (should be a valid Stellar address or contract ID)</p></td>
+</tr>
+
+
+        
+
+            
+<tr class="deep-level-0">
+  
+      <td class="name"><code>asset</code></td>
+  
+
+  <td class="type">
+  
+      
+<code class="param-type"><a href="Asset.html">Asset</a></code>
+
+
+  
+  </td>
+
+  
+      <td class="attributes">
+      
+
+      
+
+      
+      </td>
+  
+
+  
+
+  <td class="description last"><p>the SAC asset to be transferred</p></td>
+</tr>
+
+
+        
+
+            
+<tr class="deep-level-0">
+  
+      <td class="name"><code>amount</code></td>
+  
+
+  <td class="type">
+  
+      
+<code class="param-type">BigInt</code>
+
+
+  
+  </td>
+
+  
+      <td class="attributes">
+      
+
+      
+
+      
+      </td>
+  
+
+  
+
+  <td class="description last"><p>the amount of tokens to be transferred in 7 decimals. IE 1 token with 7 decimals of precision would be represented as &quot;1_0000000&quot;</p></td>
+</tr>
+
+
+        
+
+            
+<tr class="deep-level-0">
+  
+      <td class="name"><code>sorobanFees</code></td>
+  
+
+  <td class="type">
+  
+      
+<code class="param-type"><a href="global.html#SorobanFees">SorobanFees</a></code>
+
+
+  
+  </td>
+
+  
+      <td class="attributes">
+      
+          &lt;optional><br>
+      
+
+      
+
+      
+      </td>
+  
+
+  
+
+  <td class="description last"><p>optional Soroban fees for the transaction to override the default fees used</p></td>
+</tr>
+
+
+        
+        </tbody>
+    </table>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="js-stellar-base_src_transaction_builder.js.html" class="button">View Source</a>
+            <span>
+                <a href="js-stellar-base_src_transaction_builder.js.html">js-stellar-base/src/transaction_builder.js</a>, <a href="js-stellar-base_src_transaction_builder.js.html#line605">line 605</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class='columns method-parameter'>
+        <div class="column is-2"><label>Returns:</label></div>
+        <div class="column is-10">
+            
+                    
+
+<div class="columns">
     
     
     <div class='column is-5 has-text-left'>
@@ -1494,7 +1778,7 @@ It will also increment the source account's sequence number by 1.</p>
         <p class="tag-source">
             <a href="js-stellar-base_src_transaction_builder.js.html" class="button">View Source</a>
             <span>
-                <a href="js-stellar-base_src_transaction_builder.js.html">js-stellar-base/src/transaction_builder.js</a>, <a href="js-stellar-base_src_transaction_builder.js.html#line584">line 584</a>
+                <a href="js-stellar-base_src_transaction_builder.js.html">js-stellar-base/src/transaction_builder.js</a>, <a href="js-stellar-base_src_transaction_builder.js.html#line796">line 796</a>
             </span>
         </p>
     
@@ -1667,7 +1951,7 @@ It will also increment the source account's sequence number by 1.</p>
         <p class="tag-source">
             <a href="js-stellar-base_src_transaction_builder.js.html" class="button">View Source</a>
             <span>
-                <a href="js-stellar-base_src_transaction_builder.js.html">js-stellar-base/src/transaction_builder.js</a>, <a href="js-stellar-base_src_transaction_builder.js.html#line260">line 260</a>
+                <a href="js-stellar-base_src_transaction_builder.js.html">js-stellar-base/src/transaction_builder.js</a>, <a href="js-stellar-base_src_transaction_builder.js.html#line274">line 274</a>
             </span>
         </p>
     
@@ -1789,7 +2073,7 @@ It will also increment the source account's sequence number by 1.</p>
         <p class="tag-source">
             <a href="js-stellar-base_src_transaction_builder.js.html" class="button">View Source</a>
             <span>
-                <a href="js-stellar-base_src_transaction_builder.js.html">js-stellar-base/src/transaction_builder.js</a>, <a href="js-stellar-base_src_transaction_builder.js.html#line248">line 248</a>
+                <a href="js-stellar-base_src_transaction_builder.js.html">js-stellar-base/src/transaction_builder.js</a>, <a href="js-stellar-base_src_transaction_builder.js.html#line262">line 262</a>
             </span>
         </p>
     
@@ -1965,7 +2249,7 @@ by the sourceAccount or operations. Internally this will set the
         <p class="tag-source">
             <a href="js-stellar-base_src_transaction_builder.js.html" class="button">View Source</a>
             <span>
-                <a href="js-stellar-base_src_transaction_builder.js.html">js-stellar-base/src/transaction_builder.js</a>, <a href="js-stellar-base_src_transaction_builder.js.html#line522">line 522</a>
+                <a href="js-stellar-base_src_transaction_builder.js.html">js-stellar-base/src/transaction_builder.js</a>, <a href="js-stellar-base_src_transaction_builder.js.html#line536">line 536</a>
             </span>
         </p>
     
@@ -2167,7 +2451,7 @@ valid indefinitely.</p></td>
         <p class="tag-source">
             <a href="js-stellar-base_src_transaction_builder.js.html" class="button">View Source</a>
             <span>
-                <a href="js-stellar-base_src_transaction_builder.js.html">js-stellar-base/src/transaction_builder.js</a>, <a href="js-stellar-base_src_transaction_builder.js.html#line402">line 402</a>
+                <a href="js-stellar-base_src_transaction_builder.js.html">js-stellar-base/src/transaction_builder.js</a>, <a href="js-stellar-base_src_transaction_builder.js.html#line416">line 416</a>
             </span>
         </p>
     
@@ -2346,7 +2630,7 @@ default), the transaction is valid when <code>sourceAccount's sequence     numbe
         <p class="tag-source">
             <a href="js-stellar-base_src_transaction_builder.js.html" class="button">View Source</a>
             <span>
-                <a href="js-stellar-base_src_transaction_builder.js.html">js-stellar-base/src/transaction_builder.js</a>, <a href="js-stellar-base_src_transaction_builder.js.html#line441">line 441</a>
+                <a href="js-stellar-base_src_transaction_builder.js.html">js-stellar-base/src/transaction_builder.js</a>, <a href="js-stellar-base_src_transaction_builder.js.html#line455">line 455</a>
             </span>
         </p>
     
@@ -2522,7 +2806,7 @@ by the account sequence age. Cannot be negative.</p></td>
         <p class="tag-source">
             <a href="js-stellar-base_src_transaction_builder.js.html" class="button">View Source</a>
             <span>
-                <a href="js-stellar-base_src_transaction_builder.js.html">js-stellar-base/src/transaction_builder.js</a>, <a href="js-stellar-base_src_transaction_builder.js.html#line465">line 465</a>
+                <a href="js-stellar-base_src_transaction_builder.js.html">js-stellar-base/src/transaction_builder.js</a>, <a href="js-stellar-base_src_transaction_builder.js.html#line479">line 479</a>
             </span>
         </p>
     
@@ -2698,7 +2982,7 @@ sequence ledger. Cannot be negative.</p></td>
         <p class="tag-source">
             <a href="js-stellar-base_src_transaction_builder.js.html" class="button">View Source</a>
             <span>
-                <a href="js-stellar-base_src_transaction_builder.js.html">js-stellar-base/src/transaction_builder.js</a>, <a href="js-stellar-base_src_transaction_builder.js.html#line496">line 496</a>
+                <a href="js-stellar-base_src_transaction_builder.js.html">js-stellar-base/src/transaction_builder.js</a>, <a href="js-stellar-base_src_transaction_builder.js.html#line510">line 510</a>
             </span>
         </p>
     
@@ -2870,7 +3154,7 @@ network (e.g. &quot;Public Global Stellar Network ; September 2015&quot;).</p></
         <p class="tag-source">
             <a href="js-stellar-base_src_transaction_builder.js.html" class="button">View Source</a>
             <span>
-                <a href="js-stellar-base_src_transaction_builder.js.html">js-stellar-base/src/transaction_builder.js</a>, <a href="js-stellar-base_src_transaction_builder.js.html#line550">line 550</a>
+                <a href="js-stellar-base_src_transaction_builder.js.html">js-stellar-base/src/transaction_builder.js</a>, <a href="js-stellar-base_src_transaction_builder.js.html#line564">line 564</a>
             </span>
         </p>
     
@@ -3061,7 +3345,7 @@ string to be decoded</p></td>
         <p class="tag-source">
             <a href="js-stellar-base_src_transaction_builder.js.html" class="button">View Source</a>
             <span>
-                <a href="js-stellar-base_src_transaction_builder.js.html">js-stellar-base/src/transaction_builder.js</a>, <a href="js-stellar-base_src_transaction_builder.js.html#line574">line 574</a>
+                <a href="js-stellar-base_src_transaction_builder.js.html">js-stellar-base/src/transaction_builder.js</a>, <a href="js-stellar-base_src_transaction_builder.js.html#line588">line 588</a>
             </span>
         </p>
     
@@ -3272,7 +3556,7 @@ indefinitely.</p></td>
         <p class="tag-source">
             <a href="js-stellar-base_src_transaction_builder.js.html" class="button">View Source</a>
             <span>
-                <a href="js-stellar-base_src_transaction_builder.js.html">js-stellar-base/src/transaction_builder.js</a>, <a href="js-stellar-base_src_transaction_builder.js.html#line354">line 354</a>
+                <a href="js-stellar-base_src_transaction_builder.js.html">js-stellar-base/src/transaction_builder.js</a>, <a href="js-stellar-base_src_transaction_builder.js.html#line368">line 368</a>
             </span>
         </p>
     
@@ -3468,7 +3752,7 @@ transaction is good indefinitely.</p></td>
         <p class="tag-source">
             <a href="js-stellar-base_src_transaction_builder.js.html" class="button">View Source</a>
             <span>
-                <a href="js-stellar-base_src_transaction_builder.js.html">js-stellar-base/src/transaction_builder.js</a>, <a href="js-stellar-base_src_transaction_builder.js.html#line306">line 306</a>
+                <a href="js-stellar-base_src_transaction_builder.js.html">js-stellar-base/src/transaction_builder.js</a>, <a href="js-stellar-base_src_transaction_builder.js.html#line320">line 320</a>
             </span>
         </p>
     
@@ -3744,7 +4028,7 @@ see <a href="global.html#Networks">Networks</a>)</p></td>
         <p class="tag-source">
             <a href="js-stellar-base_src_transaction_builder.js.html" class="button">View Source</a>
             <span>
-                <a href="js-stellar-base_src_transaction_builder.js.html">js-stellar-base/src/transaction_builder.js</a>, <a href="js-stellar-base_src_transaction_builder.js.html#line717">line 717</a>
+                <a href="js-stellar-base_src_transaction_builder.js.html">js-stellar-base/src/transaction_builder.js</a>, <a href="js-stellar-base_src_transaction_builder.js.html#line933">line 933</a>
             </span>
         </p>
     
@@ -3979,7 +4263,7 @@ the <a href="TransactionBuilder.html">TransactionBuilder</a> constructor for det
         <p class="tag-source">
             <a href="js-stellar-base_src_transaction_builder.js.html" class="button">View Source</a>
             <span>
-                <a href="js-stellar-base_src_transaction_builder.js.html">js-stellar-base/src/transaction_builder.js</a>, <a href="js-stellar-base_src_transaction_builder.js.html#line179">line 179</a>
+                <a href="js-stellar-base_src_transaction_builder.js.html">js-stellar-base/src/transaction_builder.js</a>, <a href="js-stellar-base_src_transaction_builder.js.html#line193">line 193</a>
             </span>
         </p>
     
@@ -4189,7 +4473,7 @@ Stellar network (e.g. &quot;Public Global Stellar Network ; September
         <p class="tag-source">
             <a href="js-stellar-base_src_transaction_builder.js.html" class="button">View Source</a>
             <span>
-                <a href="js-stellar-base_src_transaction_builder.js.html">js-stellar-base/src/transaction_builder.js</a>, <a href="js-stellar-base_src_transaction_builder.js.html#line827">line 827</a>
+                <a href="js-stellar-base_src_transaction_builder.js.html">js-stellar-base/src/transaction_builder.js</a>, <a href="js-stellar-base_src_transaction_builder.js.html#line1041">line 1041</a>
             </span>
         </p>
     
