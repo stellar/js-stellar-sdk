@@ -6,6 +6,10 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Fixed
+* Fix `assembleTransaction` double-counting the resource fee when the input transaction already has Soroban data attached (e.g. when re-assembling a previously simulated transaction).
+* Removed `resourceFee` adding in `assembleTransaction` as its now handled by `TransactionBuilder.build()`.
+
 ## [v14.6.0](https://github.com/stellar/js-stellar-sdk/compare/v14.5.0...v14.6.0)
 
 ### Added
