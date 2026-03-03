@@ -36,6 +36,7 @@ describe("assembleTransaction", () => {
 
   const sorobanTransactionData = new StellarSdk.SorobanDataBuilder()
     .setResources(0, 5, 0)
+    .setResourceFee("115")
     .build();
 
   const simulationResponse = {
