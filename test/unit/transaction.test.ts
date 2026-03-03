@@ -36,6 +36,7 @@ describe("assembleTransaction", () => {
 
   const sorobanTransactionData = new StellarSdk.SorobanDataBuilder()
     .setResources(0, 5, 0)
+    .setResourceFee("115")
     .build();
 
   const simulationResponse = {
@@ -219,6 +220,83 @@ describe("assembleTransaction", () => {
         (tx.operations[0] as any).auth.length,
         `auths aren't preserved after simulation: ${simulationResponse}, ${tx}`,
       ).toEqual(3);
+    });
+
+    describe("fee handling with pre-existing soroban data", () => {
+      const oldResourceFee = 500;
+      const newResourceFee = 115; // from simulationResponse.minResourceFee
+
+      // Build soroban data with a non-zero resourceFee to simulate
+      // a transaction that was previously assembled/simulated
+      const preExistingSorobanData = new StellarSdk.SorobanDataBuilder()
+        .setResources(0, 5, 0)
+        .setResourceFee(oldResourceFee)
+        .build();
+
+      function txWithPreExistingSorobanData(fee: string) {
+        return new StellarSdk.TransactionBuilder(source, {
+          fee,
+          networkPassphrase,
+        })
+          .setTimeout(StellarSdk.TimeoutInfinite)
+          .setSorobanData(preExistingSorobanData)
+          .addOperation(
+            StellarSdk.Operation.invokeHostFunction({
+              func: xdr.HostFunction.hostFunctionTypeInvokeContract(
+                new xdr.InvokeContractArgs({
+                  contractAddress: scAddress,
+                  functionName: "hello",
+                  args: [xdr.ScVal.scvString("hello")],
+                }),
+              ),
+              auth: [],
+            }),
+          )
+          .build();
+      }
+
+      it("subtracts old resourceFee from raw.fee to avoid double-counting", () => {
+        // Build with fee=100. After build(), the tx.fee = 100 + oldResourceFee = 600.
+        const txn = txWithPreExistingSorobanData("100");
+        expect(parseInt(txn.fee)).toBe(100 + oldResourceFee);
+
+        const result = rpc.assembleTransaction(txn, simulationResponse).build();
+        const finalFee = result.toEnvelope().v1().tx().fee();
+
+        // assembleTransaction should strip old resourceFee from tx.fee (600 - 500 = 100),
+        // then build() adds the new resourceFee (100 + 115 = 215)
+        expect(finalFee).toBe(100 + newResourceFee);
+      });
+
+      it("handles re-assembly with a higher classic fee", () => {
+        const txn = txWithPreExistingSorobanData("300");
+        // tx.fee = 300 + oldResourceFee = 800
+        expect(parseInt(txn.fee)).toBe(300 + oldResourceFee);
+
+        const result = rpc.assembleTransaction(txn, simulationResponse).build();
+        const finalFee = result.toEnvelope().v1().tx().fee();
+
+        // 800 - 500 = 300 classic, then build() adds 115 = 415
+        expect(finalFee).toBe(300 + newResourceFee);
+      });
+
+      it("assembling twice produces the same fee as assembling once", () => {
+        // First assembly: no pre-existing soroban data
+        const freshTxn = singleContractFnTransaction(undefined);
+        const firstAssembly = rpc
+          .assembleTransaction(freshTxn, simulationResponse)
+          .build();
+        const feeAfterFirst = firstAssembly.toEnvelope().v1().tx().fee();
+
+        // Second assembly: re-assemble the already-assembled transaction
+        const secondAssembly = rpc
+          .assembleTransaction(firstAssembly, simulationResponse)
+          .build();
+        const feeAfterSecond = secondAssembly.toEnvelope().v1().tx().fee();
+
+        // Should be identical — no double-counting
+        expect(feeAfterSecond).toBe(feeAfterFirst);
+      });
     });
   });
 });
