@@ -6,6 +6,9 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Fixed
+* Sanitize identifiers and escape string literals in generated TypeScript bindings to prevent code injection via malicious contract spec names. `sanitizeIdentifier` now strips non-identifier characters, and a new `escapeStringLiteral` helper escapes quotes and newlines in string contexts ([#1345](https://github.com/stellar/js-stellar-sdk/pull/1345)).
+
 ## [v14.6.1](https://github.com/stellar/js-stellar-sdk/compare/v14.6.0...v14.6.1)
 
 ### Fixed
