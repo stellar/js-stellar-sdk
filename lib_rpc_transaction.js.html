@@ -162,8 +162,21 @@ function assembleTransaction(raw, simulation) {
   if (!_api.Api.isSimulationSuccess(success)) {
     throw new Error(`simulation incorrect: ${JSON.stringify(success)}`);
   }
-  const classicFeeNum = parseInt(raw.fee) || 0;
-  const minResourceFeeNum = parseInt(success.minResourceFee) || 0;
+  let classicFeeNum;
+  try {
+    classicFeeNum = BigInt(raw.fee);
+  } catch {
+    classicFeeNum = BigInt(0);
+  }
+  const rawSorobanData = raw.toEnvelope().v1().tx().ext().value();
+
+  // If the incoming raw transaction already has Soroban data,
+  // we need to be careful to handle the fee to prevent double-counting,
+  if (rawSorobanData) {
+    if (classicFeeNum - rawSorobanData.resourceFee().toBigInt() > BigInt(0)) {
+      classicFeeNum -= rawSorobanData.resourceFee().toBigInt();
+    }
+  }
   const txnBuilder = _stellarBase.TransactionBuilder.cloneFrom(raw, {
     // automatically update the tx fee that will be set on the resulting tx to
     // the sum of 'classic' fee provided from incoming tx.fee and minResourceFee
@@ -173,7 +186,7 @@ function assembleTransaction(raw, simulation) {
     // operations', In soroban contract tx, there can only be single operation
     // in the tx, so can make simplification of total classic fees for the
     // soroban transaction will be equal to incoming tx.fee + minResourceFee.
-    fee: (classicFeeNum + minResourceFeeNum).toString(),
+    fee: classicFeeNum.toString(),
     // apply the pre-built Soroban Tx Data from simulation onto the Tx
     sorobanData: success.transactionData.build(),
     networkPassphrase: raw.networkPassphrase

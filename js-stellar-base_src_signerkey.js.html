@@ -151,7 +151,7 @@ export class SignerKey {
         return encoder(
           new xdr.SignerKeyEd25519SignedPayload({
             ed25519: raw.slice(0, 32),
-            payload: raw.slice(32 + 4)
+            payload: raw.slice(36, 36 + raw.readUInt32BE(32))
           })
         );
 

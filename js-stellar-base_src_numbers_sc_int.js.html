@@ -184,7 +184,8 @@
  */
 export class ScInt extends XdrLargeInt {
   constructor(value, opts) {
-    const signed = value &lt; 0;
+    const bigValue = BigInt(value);
+    const signed = bigValue &lt; 0n;
     let type = opts?.type ?? '';
     if (type.startsWith('u') &amp;&amp; signed) {
       throw TypeError(`specified type ${opts.type} yet negative (${value})`);
@@ -194,7 +195,7 @@ export class ScInt extends XdrLargeInt {
     // of the value, treating 64 as a minimum and 256 as a maximum.
     if (type === '') {
       type = signed ? 'i' : 'u';
-      const bitlen = nearestBigIntSize(value);
+      const bitlen = nearestBigIntSize(bigValue);
 
       switch (bitlen) {
         case 64:
@@ -210,7 +211,7 @@ export class ScInt extends XdrLargeInt {
       }
     }
 
-    super(type, value);
+    super(type, bigValue);
   }
 }
 

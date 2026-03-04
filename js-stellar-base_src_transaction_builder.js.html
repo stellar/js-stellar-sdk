@@ -320,7 +320,7 @@ export class TransactionBuilder {
 
     // the initial fee passed to the builder gets scaled up based on the number
     // of operations at the end, so we have to down-scale first
-    const unscaledFee = parseInt(tx.fee, 10) / tx.operations.length;
+    const unscaledFee = Math.floor(parseInt(tx.fee, 10) / tx.operations.length);
 
     const builder = new TransactionBuilder(source, {
       fee: (unscaledFee || BASE_FEE).toString(),
@@ -331,7 +331,7 @@ export class TransactionBuilder {
       minAccountSequence: tx.minAccountSequence,
       minAccountSequenceAge: tx.minAccountSequenceAge,
       minAccountSequenceLedgerGap: tx.minAccountSequenceLedgerGap,
-      extraSigners: tx.extraSigners,
+      extraSigners: tx.extraSigners?.map(SignerKey.encodeSignerKey),
       ...opts
     });
 
@@ -926,10 +926,14 @@ export class TransactionBuilder {
     }
 
     if (isValidDate(this.timebounds.minTime)) {
-      this.timebounds.minTime = this.timebounds.minTime.getTime() / 1000;
+      this.timebounds.minTime = Math.floor(
+        this.timebounds.minTime.getTime() / 1000
+      );
     }
     if (isValidDate(this.timebounds.maxTime)) {
-      this.timebounds.maxTime = this.timebounds.maxTime.getTime() / 1000;
+      this.timebounds.maxTime = Math.floor(
+        this.timebounds.maxTime.getTime() / 1000
+      );
     }
 
     this.timebounds.minTime = UnsignedHyper.fromString(

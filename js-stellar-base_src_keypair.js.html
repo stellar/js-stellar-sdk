@@ -337,7 +337,11 @@ export class Keypair {
    * @returns {boolean}
    */
   verify(data, signature) {
-    return verify(data, signature, this._publicKey);
+    try {
+      return verify(data, signature, this._publicKey);
+    } catch (e) {
+      return false;
+    }
   }
 
   /**

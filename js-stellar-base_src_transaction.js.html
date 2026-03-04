@@ -301,8 +301,9 @@ export class Transaction extends TransactionBase {
   }
 
   /**
-   * array of extra signers ({@link StrKey}s)
-   * @type {string[]}
+   * array of extra signers as XDR objects; use {@link SignerKey.encodeSignerKey}
+   * to convert to StrKey strings
+   * @type {xdr.SignerKey[]}
    * @readonly
    */
   get extraSigners() {
