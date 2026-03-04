@@ -1024,6 +1024,151 @@ describe("BindingGenerator", () => {
     });
   });
 
+  describe("generate - identifier and string literal sanitization", () => {
+    it("escapes double quotes in error enum case names", () => {
+      const errorSpec = xdr.ScSpecEntry.scSpecEntryUdtErrorEnumV0(
+        new xdr.ScSpecUdtErrorEnumV0({
+          doc: "",
+          lib: "",
+          name: "Errors",
+          cases: [
+            new xdr.ScSpecUdtErrorEnumCaseV0({
+              doc: "",
+              name: 'has "quotes" inside',
+              value: 0,
+            }),
+          ],
+        }),
+      );
+      const spec = new contract.Spec([errorSpec.toXDR("base64")]);
+      const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
+
+      expect(result.types).toContain("export const Errors");
+      // Double quotes should be escaped in the string literal
+      expect(result.types).toContain('has \\"quotes\\" inside');
+    });
+
+    it("strips non-identifier characters from struct field names", () => {
+      const structSpec = createStructSpec("MyStruct", [
+        {
+          name: "field;name{bad}",
+          type: xdr.ScSpecTypeDef.scSpecTypeU32(),
+        },
+      ]);
+      const spec = new contract.Spec([structSpec.toXDR("base64")]);
+      const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
+
+      // Special characters should be replaced with underscores
+      expect(result.types).toContain("field_name_bad_: number");
+      expect(result.types).toContain("export interface MyStruct");
+    });
+
+    it("escapes special characters in union case tag strings", () => {
+      const unionSpec = xdr.ScSpecEntry.scSpecEntryUdtUnionV0(
+        new xdr.ScSpecUdtUnionV0({
+          doc: "",
+          lib: "",
+          name: "MyUnion",
+          cases: [
+            xdr.ScSpecUdtUnionCaseV0.scSpecUdtUnionCaseVoidV0(
+              new xdr.ScSpecUdtUnionCaseVoidV0({
+                doc: "",
+                name: 'case"with"quotes',
+              }),
+            ),
+          ],
+        }),
+      );
+      const spec = new contract.Spec([unionSpec.toXDR("base64")]);
+      const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
+
+      expect(result.types).toContain('case\\"with\\"quotes');
+      expect(result.types).toContain("export type MyUnion");
+    });
+
+    it("strips non-identifier characters from enum case names", () => {
+      const enumSpec = xdr.ScSpecEntry.scSpecEntryUdtEnumV0(
+        new xdr.ScSpecUdtEnumV0({
+          doc: "",
+          lib: "",
+          name: "MyEnum",
+          cases: [
+            new xdr.ScSpecUdtEnumCaseV0({
+              doc: "",
+              name: "Case = 0; extra",
+              value: 0,
+            }),
+          ],
+        }),
+      );
+      const spec = new contract.Spec([enumSpec.toXDR("base64")]);
+      const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
+
+      expect(result.types).toContain("Case___0__extra = 0");
+      expect(result.types).toContain("export enum MyEnum");
+    });
+
+    it("escapes JS line terminators U+2028 and U+2029 in string literals", () => {
+      const errorSpec = xdr.ScSpecEntry.scSpecEntryUdtErrorEnumV0(
+        new xdr.ScSpecUdtErrorEnumV0({
+          doc: "",
+          lib: "",
+          name: "Errors",
+          cases: [
+            new xdr.ScSpecUdtErrorEnumCaseV0({
+              doc: "",
+              name: "line\u2028sep\u2029end",
+              value: 0,
+            }),
+          ],
+        }),
+      );
+      const spec = new contract.Spec([errorSpec.toXDR("base64")]);
+      const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
+
+      expect(result.types).toContain("\\u2028");
+      expect(result.types).toContain("\\u2029");
+      // Raw line terminators should not appear in the output
+      expect(result.types).not.toContain("\u2028");
+      expect(result.types).not.toContain("\u2029");
+    });
+
+    it("escapes backslashes in string literals", () => {
+      const errorSpec = xdr.ScSpecEntry.scSpecEntryUdtErrorEnumV0(
+        new xdr.ScSpecUdtErrorEnumV0({
+          doc: "",
+          lib: "",
+          name: "Errors",
+          cases: [
+            new xdr.ScSpecUdtErrorEnumCaseV0({
+              doc: "",
+              name: "path\\to\\file",
+              value: 0,
+            }),
+          ],
+        }),
+      );
+      const spec = new contract.Spec([errorSpec.toXDR("base64")]);
+      const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
+
+      // Backslashes should be double-escaped
+      expect(result.types).toContain("path\\\\to\\\\file");
+    });
+
+    it("falls back to _unnamed for identifiers with only special characters", () => {
+      const structSpec = createStructSpec("MyStruct", [
+        {
+          name: '";{}',
+          type: xdr.ScSpecTypeDef.scSpecTypeU32(),
+        },
+      ]);
+      const spec = new contract.Spec([structSpec.toXDR("base64")]);
+      const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
+
+      expect(result.types).toContain("_unnamed: number");
+    });
+  });
+
   describe("generate - full contract scenario", () => {
     it("generates complete bindings for token-like contract", () => {
       const specs = [

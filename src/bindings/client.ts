@@ -99,7 +99,7 @@ export class Client extends ContractClient {
   private generateInterfaceMethod(func: xdr.ScSpecFunctionV0): string {
     const name = sanitizeIdentifier(func.name().toString());
     const inputs = func.inputs().map((input: any) => ({
-      name: input.name().toString(),
+      name: sanitizeIdentifier(input.name().toString()),
       type: parseTypeFromTypeDef(input.type(), true),
     }));
     const outputType =
@@ -113,7 +113,7 @@ export class Client extends ContractClient {
   }
 
   private generateFromJSONMethod(func: xdr.ScSpecFunctionV0): string {
-    const name = func.name().toString();
+    const name = sanitizeIdentifier(func.name().toString());
     const outputType =
       func.outputs().length > 0
         ? parseTypeFromTypeDef(func.outputs()[0])
@@ -135,7 +135,7 @@ export class Client extends ContractClient {
   }`;
     }
     const inputs = constructorFunc.inputs().map((input) => ({
-      name: input.name().toString(),
+      name: sanitizeIdentifier(input.name().toString()),
       type: parseTypeFromTypeDef(input.type(), true),
     }));
 

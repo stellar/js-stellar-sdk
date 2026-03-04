@@ -4,6 +4,7 @@ import {
   parseTypeFromTypeDef,
   generateTypeImports,
   sanitizeIdentifier,
+  escapeStringLiteral,
   formatJSDocComment,
   formatImports,
   isTupleStruct,
@@ -137,7 +138,7 @@ export class TypeGenerator {
     const fields = struct
       .fields()
       .map((field) => {
-        const fieldName = field.name().toString();
+        const fieldName = sanitizeIdentifier(field.name().toString());
         const fieldType = parseTypeFromTypeDef(field.type());
         const fieldDoc = formatJSDocComment(field.doc().toString(), 2);
 
@@ -166,9 +167,9 @@ ${fields}
     const caseTypes = cases
       .map((c) => {
         if (c.types.length > 0) {
-          return `${formatJSDocComment(c.doc, 2)}  { tag: "${c.name}"; values: readonly [${c.types.join(", ")}] }`;
+          return `${formatJSDocComment(c.doc, 2)}  { tag: "${escapeStringLiteral(c.name)}"; values: readonly [${c.types.join(", ")}] }`;
         }
-        return `${formatJSDocComment(c.doc, 2)}  { tag: "${c.name}"; values: void }`;
+        return `${formatJSDocComment(c.doc, 2)}  { tag: "${escapeStringLiteral(c.name)}"; values: void }`;
       })
       .join(" |\n");
 
@@ -189,7 +190,7 @@ ${caseTypes};`;
     const members = enumEntry
       .cases()
       .map((enumCase) => {
-        const caseName = enumCase.name().toString();
+        const caseName = sanitizeIdentifier(enumCase.name().toString());
         const caseValue = enumCase.value();
         const caseDoc = enumCase.doc().toString() || `Enum Case: ${caseName}`;
 
@@ -217,7 +218,7 @@ ${members}
 
     const members = cases
       .map((c) => {
-        return `${formatJSDocComment(c.doc, 2)}  ${c.value} : { message: "${c.name}" }`;
+        return `${formatJSDocComment(c.doc, 2)}  ${c.value} : { message: "${escapeStringLiteral(c.name)}" }`;
       })
       .join(",\n");
 
