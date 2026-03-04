@@ -63,17 +63,34 @@ export function isNameReserved(name: string): boolean {
  * @returns The sanitized identifier
  */
 export function sanitizeIdentifier(identifier: string): string {
-  if (isNameReserved(identifier)) {
-    // Append underscore to reserved
-    return identifier + "_";
+  // Strip any characters that are not valid in JS/TS identifiers
+  const sanitized = identifier.replace(/[^a-zA-Z0-9_$]/g, "_");
+
+  if (isNameReserved(sanitized)) {
+    return sanitized + "_";
   }
 
-  if (/^\d/.test(identifier)) {
-    // Prefix leading digit with underscore
-    return "_" + identifier;
+  if (/^\d/.test(sanitized)) {
+    return "_" + sanitized;
   }
 
-  return identifier;
+  // If the identifier was entirely special characters, provide a fallback
+  if (sanitized === "" || /^_+$/.test(sanitized)) {
+    return "_unnamed";
+  }
+
+  return sanitized;
+}
+
+/**
+ * Escape a string for safe interpolation inside a double-quoted JavaScript string literal.
+ */
+export function escapeStringLiteral(str: string): string {
+  return str
+    .replace(/\\/g, "\\\\")
+    .replace(/"/g, '\\"')
+    .replace(/\n/g, "\\n")
+    .replace(/\r/g, "\\r");
 }
 
 /**
