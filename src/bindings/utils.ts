@@ -63,7 +63,7 @@ export function isNameReserved(name: string): boolean {
  * @returns The sanitized identifier
  */
 export function sanitizeIdentifier(identifier: string): string {
-  // Strip any characters that are not valid in JS/TS identifiers
+  // Strip any characters outside the ASCII identifier-safe set [a-zA-Z0-9_$]
   const sanitized = identifier.replace(/[^a-zA-Z0-9_$]/g, "_");
 
   if (isNameReserved(sanitized)) {
@@ -90,7 +90,9 @@ export function escapeStringLiteral(str: string): string {
     .replace(/\\/g, "\\\\")
     .replace(/"/g, '\\"')
     .replace(/\n/g, "\\n")
-    .replace(/\r/g, "\\r");
+    .replace(/\r/g, "\\r")
+    .replace(/\u2028/g, "\\u2028")
+    .replace(/\u2029/g, "\\u2029");
 }
 
 /**
