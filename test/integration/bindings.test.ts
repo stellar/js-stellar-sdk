@@ -1108,6 +1108,53 @@ describe("BindingGenerator", () => {
       expect(result.types).toContain("export enum MyEnum");
     });
 
+    it("escapes JS line terminators U+2028 and U+2029 in string literals", () => {
+      const errorSpec = xdr.ScSpecEntry.scSpecEntryUdtErrorEnumV0(
+        new xdr.ScSpecUdtErrorEnumV0({
+          doc: "",
+          lib: "",
+          name: "Errors",
+          cases: [
+            new xdr.ScSpecUdtErrorEnumCaseV0({
+              doc: "",
+              name: "line\u2028sep\u2029end",
+              value: 0,
+            }),
+          ],
+        }),
+      );
+      const spec = new contract.Spec([errorSpec.toXDR("base64")]);
+      const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
+
+      expect(result.types).toContain("\\u2028");
+      expect(result.types).toContain("\\u2029");
+      // Raw line terminators should not appear in the output
+      expect(result.types).not.toContain("\u2028");
+      expect(result.types).not.toContain("\u2029");
+    });
+
+    it("escapes backslashes in string literals", () => {
+      const errorSpec = xdr.ScSpecEntry.scSpecEntryUdtErrorEnumV0(
+        new xdr.ScSpecUdtErrorEnumV0({
+          doc: "",
+          lib: "",
+          name: "Errors",
+          cases: [
+            new xdr.ScSpecUdtErrorEnumCaseV0({
+              doc: "",
+              name: "path\\to\\file",
+              value: 0,
+            }),
+          ],
+        }),
+      );
+      const spec = new contract.Spec([errorSpec.toXDR("base64")]);
+      const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
+
+      // Backslashes should be double-escaped
+      expect(result.types).toContain("path\\\\to\\\\file");
+    });
+
     it("falls back to _unnamed for identifiers with only special characters", () => {
       const structSpec = createStructSpec("MyStruct", [
         {
