@@ -1,6 +1,6 @@
----
-title: Basic Examples
----
+
+# Basic Examples
+
 
 - [Creating a payment Transaction](#creating-a-payment-transaction)
 - [Loading an account's transaction history](#loading-an-accounts-transaction-history)
