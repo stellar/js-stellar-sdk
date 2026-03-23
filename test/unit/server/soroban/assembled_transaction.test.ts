@@ -307,4 +307,39 @@ describe("Contract ID validation on deserialization", () => {
       `Transaction envelope targets contract ${attackerContractId}, but this Client is configured for ${victimContractId}.`,
     );
   });
+
+  it("fromJSON() rejects a transaction with a spoofed method name", () => {
+    const tx = buildInvokeTx(victimContractId, "transfer");
+    const simulationResult = {
+      auth: [],
+      retval: xdr.ScVal.scvU32(0).toXDR("base64"),
+    };
+    const simulationTransactionData = new SorobanDataBuilder()
+      .build()
+      .toXDR("base64");
+
+    const json = JSON.stringify({
+      method: "safe_operation",
+      tx: tx.toEnvelope().toXDR("base64"),
+      simulationResult,
+      simulationTransactionData,
+    });
+
+    const { method, ...txData } = JSON.parse(json);
+
+    expect(() =>
+      contract.AssembledTransaction.fromJSON(
+        {
+          contractId: victimContractId,
+          networkPassphrase,
+          rpcUrl: "https://example.com",
+          method,
+          parseResultXdr: () => {},
+        },
+        txData,
+      ),
+    ).toThrow(
+      "Transaction envelope calls method 'transfer', but the provided method is 'safe_operation'.",
+    );
+  });
 });
