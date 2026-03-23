@@ -378,6 +378,26 @@ export class AssembledTransaction<T> {
   ): AssembledTransaction<T> {
     const txn = new AssembledTransaction(options);
     txn.built = TransactionBuilder.fromXDR(tx, options.networkPassphrase) as Tx;
+
+    const operation = txn.built.operations[0] as Operation.InvokeHostFunction;
+
+    if (operation?.func?.value && typeof operation.func.value === "function") {
+      const invokeContractArgs =
+        operation.func.value() as xdr.InvokeContractArgs;
+
+      if (invokeContractArgs?.contractAddress) {
+        const xdrContractId = Address.fromScAddress(
+          invokeContractArgs.contractAddress(),
+        ).toString();
+
+        if (xdrContractId !== options.contractId) {
+          throw new Error(
+            `Transaction envelope targets contract ${xdrContractId}, but this Client is configured for ${options.contractId}.`,
+          );
+        }
+      }
+    }
+
     txn.simulationResult = {
       auth: simulationResult.auth.map((a) =>
         xdr.SorobanAuthorizationEntry.fromXDR(a, "base64"),
@@ -431,6 +451,17 @@ export class AssembledTransaction<T> {
         "Could not extract the method name from the transaction envelope.",
       );
     }
+
+    const xdrContractId = Address.fromScAddress(
+      invokeContractArgs.contractAddress(),
+    ).toString();
+
+    if (xdrContractId !== options.contractId) {
+      throw new Error(
+        `Transaction envelope targets contract ${xdrContractId}, but this Client is configured for ${options.contractId}.`,
+      );
+    }
+
     const method = invokeContractArgs.functionName().toString("utf-8");
     const txn = new AssembledTransaction({
       ...options,

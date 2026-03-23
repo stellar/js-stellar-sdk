@@ -3,8 +3,18 @@ import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
 import { serverUrl } from "../../../constants";
 import { StellarSdk } from "../../../test-utils/stellar-sdk-import";
 
-const { Account, Keypair, rpc, contract, SorobanDataBuilder, xdr, Address } =
-  StellarSdk;
+const {
+  Account,
+  Keypair,
+  Operation,
+  TransactionBuilder,
+  TimeoutInfinite,
+  rpc,
+  contract,
+  SorobanDataBuilder,
+  xdr,
+  Address,
+} = StellarSdk;
 const { Server } = StellarSdk.rpc;
 
 const restoreTxnData = StellarSdk.SorobanDataBuilder.fromXDR(
@@ -152,6 +162,149 @@ describe("AssembledTransaction", () => {
     const txn = await contract.AssembledTransaction.build(options);
     expect(txn.sign({ ...wallet })).rejects.toThrow(
       contract.AssembledTransaction.Errors.FakeAccount,
+    );
+  });
+});
+
+describe("Contract ID validation on deserialization", () => {
+  const networkPassphrase = "Standalone Network ; February 2017";
+  const keypair = Keypair.random();
+  const source = new Account(keypair.publicKey(), "0");
+
+  const victimContractId =
+    "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM";
+  const attackerContractId =
+    "CC53XO53XO53XO53XO53XO53XO53XO53XO53XO53XO53XO53XO53WQD5";
+
+  const createSpec = (methodName: string) => {
+    const funcSpec = xdr.ScSpecEntry.scSpecEntryFunctionV0(
+      new xdr.ScSpecFunctionV0({
+        doc: "",
+        name: methodName,
+        inputs: [],
+        outputs: [xdr.ScSpecTypeDef.scSpecTypeU32()],
+      }),
+    );
+    return new contract.Spec([funcSpec.toXDR("base64")]);
+  };
+
+  function buildInvokeTx(targetContractId: string, methodName: string) {
+    return new TransactionBuilder(source, {
+      fee: "100",
+      networkPassphrase,
+    })
+      .setTimeout(TimeoutInfinite)
+      .addOperation(
+        Operation.invokeContractFunction({
+          contract: targetContractId,
+          function: methodName,
+          args: [],
+        }),
+      )
+      .build();
+  }
+
+  it("fromXDR() accepts a transaction targeting the configured contract", () => {
+    const tx = buildInvokeTx(victimContractId, "test");
+    const xdrBase64 = tx.toEnvelope().toXDR("base64");
+    const spec = createSpec("test");
+
+    const assembled = contract.AssembledTransaction.fromXDR(
+      {
+        contractId: victimContractId,
+        networkPassphrase,
+        rpcUrl: "https://example.com",
+      },
+      xdrBase64,
+      spec,
+    );
+    expect(assembled.built).toBeDefined();
+  });
+
+  it("fromXDR() rejects a transaction targeting a different contract", () => {
+    const tx = buildInvokeTx(attackerContractId, "drain");
+    const xdrBase64 = tx.toEnvelope().toXDR("base64");
+    const spec = createSpec("drain");
+
+    expect(() =>
+      contract.AssembledTransaction.fromXDR(
+        {
+          contractId: victimContractId,
+          networkPassphrase,
+          rpcUrl: "https://example.com",
+        },
+        xdrBase64,
+        spec,
+      ),
+    ).toThrow(
+      `Transaction envelope targets contract ${attackerContractId}, but this Client is configured for ${victimContractId}.`,
+    );
+  });
+
+  it("fromJSON() accepts a transaction targeting the configured contract", () => {
+    const tx = buildInvokeTx(victimContractId, "test");
+    const spec = createSpec("test");
+    const simulationResult = {
+      auth: [],
+      retval: xdr.ScVal.scvU32(0).toXDR("base64"),
+    };
+    const simulationTransactionData = new SorobanDataBuilder()
+      .build()
+      .toXDR("base64");
+
+    const json = JSON.stringify({
+      method: "test",
+      tx: tx.toEnvelope().toXDR("base64"),
+      simulationResult,
+      simulationTransactionData,
+    });
+
+    const { method, ...txData } = JSON.parse(json);
+    const assembled = contract.AssembledTransaction.fromJSON(
+      {
+        contractId: victimContractId,
+        networkPassphrase,
+        rpcUrl: "https://example.com",
+        method,
+        parseResultXdr: (result: any) => spec.funcResToNative(method, result),
+      },
+      txData,
+    );
+    expect(assembled.built).toBeDefined();
+  });
+
+  it("fromJSON() rejects a transaction targeting a different contract", () => {
+    const tx = buildInvokeTx(attackerContractId, "drain");
+    const simulationResult = {
+      auth: [],
+      retval: xdr.ScVal.scvU32(0).toXDR("base64"),
+    };
+    const simulationTransactionData = new SorobanDataBuilder()
+      .build()
+      .toXDR("base64");
+
+    const json = JSON.stringify({
+      method: "drain",
+      tx: tx.toEnvelope().toXDR("base64"),
+      simulationResult,
+      simulationTransactionData,
+    });
+
+    const { method, ...txData } = JSON.parse(json);
+
+    expect(() =>
+      contract.AssembledTransaction.fromJSON(
+        {
+          contractId: victimContractId,
+          networkPassphrase,
+          rpcUrl: "https://example.com",
+          method,
+          parseResultXdr: () => {},
+        },
+        txData,
+      ),
+    ).toThrow(
+      `Transaction envelope targets contract ${attackerContractId}, but this Client is configured for ${victimContractId}.`,
     );
   });
 });

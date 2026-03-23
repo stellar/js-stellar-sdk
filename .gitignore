@@ -17,3 +17,6 @@ target
 .soroban
 
 config/tsconfig.tmp.json
+
+.claude/
+.copilot/
