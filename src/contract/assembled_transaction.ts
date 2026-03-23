@@ -375,35 +375,43 @@ export class AssembledTransaction<T> {
       );
     }
 
-    const operation = built.operations[0] as Operation.InvokeHostFunction;
+    const operation = built.operations[0];
 
-    if (!operation?.func?.switch) {
+    if (operation.type !== "invokeHostFunction") {
       throw new Error(
         "Transaction envelope does not contain an invokeHostFunction operation.",
       );
     }
 
-    if (operation.func.switch().name !== "hostFunctionTypeInvokeContract") {
+    const invokeOp = operation as Operation.InvokeHostFunction;
+
+    if (invokeOp.func.switch().name !== "hostFunctionTypeInvokeContract") {
       throw new Error(
         "Transaction envelope does not contain an invokeContract host function.",
       );
     }
 
-    const invokeContractArgs = operation.func.value() as xdr.InvokeContractArgs;
+    const invokeContractArgs = invokeOp.func.value() as xdr.InvokeContractArgs;
 
-    if (
-      !invokeContractArgs?.contractAddress ||
-      !invokeContractArgs?.functionName
-    ) {
+    let contractAddress: xdr.ScAddress;
+    let functionName: string;
+
+    try {
+      contractAddress = invokeContractArgs.contractAddress();
+      functionName = invokeContractArgs.functionName().toString("utf-8");
+    } catch {
       throw new Error(
         "Could not extract contract address or method name from the transaction envelope.",
       );
     }
 
-    const xdrContractId = Address.fromScAddress(
-      invokeContractArgs.contractAddress(),
-    ).toString();
+    if (!contractAddress || !functionName) {
+      throw new Error(
+        "Could not extract contract address or method name from the transaction envelope.",
+      );
+    }
 
+    const xdrContractId = Address.fromScAddress(contractAddress).toString();
     if (xdrContractId !== expectedContractId) {
       throw new Error(
         `Transaction envelope targets contract ${xdrContractId}, but this Client is configured for ${expectedContractId}.`,
