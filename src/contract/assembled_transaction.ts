@@ -379,23 +379,36 @@ export class AssembledTransaction<T> {
     const txn = new AssembledTransaction(options);
     txn.built = TransactionBuilder.fromXDR(tx, options.networkPassphrase) as Tx;
 
+    if (txn.built.operations.length !== 1) {
+      throw new Error(
+        "Transaction envelope must contain exactly one operation.",
+      );
+    }
+
     const operation = txn.built.operations[0] as Operation.InvokeHostFunction;
 
-    if (operation?.func?.value && typeof operation.func.value === "function") {
-      const invokeContractArgs =
-        operation.func.value() as xdr.InvokeContractArgs;
+    if (!operation?.func?.value || typeof operation.func.value !== "function") {
+      throw new Error(
+        "Could not extract the method from the transaction envelope.",
+      );
+    }
 
-      if (invokeContractArgs?.contractAddress) {
-        const xdrContractId = Address.fromScAddress(
-          invokeContractArgs.contractAddress(),
-        ).toString();
+    const invokeContractArgs = operation.func.value() as xdr.InvokeContractArgs;
 
-        if (xdrContractId !== options.contractId) {
-          throw new Error(
-            `Transaction envelope targets contract ${xdrContractId}, but this Client is configured for ${options.contractId}.`,
-          );
-        }
-      }
+    if (!invokeContractArgs?.functionName) {
+      throw new Error(
+        "Could not extract the method name from the transaction envelope.",
+      );
+    }
+
+    const xdrContractId = Address.fromScAddress(
+      invokeContractArgs.contractAddress(),
+    ).toString();
+
+    if (xdrContractId !== options.contractId) {
+      throw new Error(
+        `Transaction envelope targets contract ${xdrContractId}, but this Client is configured for ${options.contractId}.`,
+      );
     }
 
     txn.simulationResult = {
@@ -439,6 +452,13 @@ export class AssembledTransaction<T> {
       envelope,
       options.networkPassphrase,
     ) as Tx;
+
+    if (built.operations.length !== 1) {
+      throw new Error(
+        "Transaction envelope must contain exactly one operation.",
+      );
+    }
+
     const operation = built.operations[0] as Operation.InvokeHostFunction;
     if (!operation?.func?.value || typeof operation.func.value !== "function") {
       throw new Error(
