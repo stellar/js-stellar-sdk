@@ -361,6 +361,66 @@ export class AssembledTransaction<T> {
     });
   }
 
+  /**
+   * Validate that a built transaction is a single invokeContract operation
+   * targeting the expected contract, and return the parsed InvokeContractArgs.
+   */
+  private static validateInvokeContractOp(
+    built: Tx,
+    expectedContractId: string,
+  ): xdr.InvokeContractArgs {
+    if (built.operations.length !== 1) {
+      throw new Error(
+        "Transaction envelope must contain exactly one operation.",
+      );
+    }
+
+    const operation = built.operations[0];
+
+    if (operation.type !== "invokeHostFunction") {
+      throw new Error(
+        "Transaction envelope does not contain an invokeHostFunction operation.",
+      );
+    }
+
+    const invokeOp = operation as Operation.InvokeHostFunction;
+
+    if (invokeOp.func.switch().name !== "hostFunctionTypeInvokeContract") {
+      throw new Error(
+        "Transaction envelope does not contain an invokeContract host function.",
+      );
+    }
+
+    const invokeContractArgs = invokeOp.func.value() as xdr.InvokeContractArgs;
+
+    let contractAddress: xdr.ScAddress;
+    let functionName: string;
+
+    try {
+      contractAddress = invokeContractArgs.contractAddress();
+      functionName = invokeContractArgs.functionName().toString("utf-8");
+    } catch {
+      throw new Error(
+        "Could not extract contract address or method name from the transaction envelope.",
+      );
+    }
+
+    if (!contractAddress || !functionName) {
+      throw new Error(
+        "Could not extract contract address or method name from the transaction envelope.",
+      );
+    }
+
+    const xdrContractId = Address.fromScAddress(contractAddress).toString();
+    if (xdrContractId !== expectedContractId) {
+      throw new Error(
+        `Transaction envelope targets contract ${xdrContractId}, but this Client is configured for ${expectedContractId}.`,
+      );
+    }
+
+    return invokeContractArgs;
+  }
+
   static fromJSON<T>(
     options: Omit<AssembledTransactionOptions<T>, "args">,
     {
@@ -378,6 +438,20 @@ export class AssembledTransaction<T> {
   ): AssembledTransaction<T> {
     const txn = new AssembledTransaction(options);
     txn.built = TransactionBuilder.fromXDR(tx, options.networkPassphrase) as Tx;
+
+    const invokeContractArgs = AssembledTransaction.validateInvokeContractOp(
+      txn.built,
+      options.contractId,
+    );
+
+    const xdrMethod = invokeContractArgs.functionName().toString("utf-8");
+
+    if (xdrMethod !== options.method) {
+      throw new Error(
+        `Transaction envelope calls method '${xdrMethod}', but the provided method is '${options.method}'.`,
+      );
+    }
+
     txn.simulationResult = {
       auth: simulationResult.auth.map((a) =>
         xdr.SorobanAuthorizationEntry.fromXDR(a, "base64"),
@@ -419,18 +493,12 @@ export class AssembledTransaction<T> {
       envelope,
       options.networkPassphrase,
     ) as Tx;
-    const operation = built.operations[0] as Operation.InvokeHostFunction;
-    if (!operation?.func?.value || typeof operation.func.value !== "function") {
-      throw new Error(
-        "Could not extract the method from the transaction envelope.",
-      );
-    }
-    const invokeContractArgs = operation.func.value() as xdr.InvokeContractArgs;
-    if (!invokeContractArgs?.functionName) {
-      throw new Error(
-        "Could not extract the method name from the transaction envelope.",
-      );
-    }
+
+    const invokeContractArgs = AssembledTransaction.validateInvokeContractOp(
+      built,
+      options.contractId,
+    );
+
     const method = invokeContractArgs.functionName().toString("utf-8");
     const txn = new AssembledTransaction({
       ...options,
