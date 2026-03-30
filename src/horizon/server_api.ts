@@ -180,13 +180,15 @@ export namespace ServerApi {
     transaction: CallFunction<TransactionRecord>;
   }
   export interface CreateAccountOperationRecord
-    extends BaseOperationRecord<
+    extends
+      BaseOperationRecord<
         OperationResponseType.createAccount,
         OperationResponseTypeI.createAccount
       >,
       HorizonApi.CreateAccountOperationResponse {}
   export interface PaymentOperationRecord
-    extends BaseOperationRecord<
+    extends
+      BaseOperationRecord<
         OperationResponseType.payment,
         OperationResponseTypeI.payment
       >,
@@ -195,145 +197,169 @@ export namespace ServerApi {
     receiver: CallFunction<AccountRecord>;
   }
   export interface PathPaymentOperationRecord
-    extends BaseOperationRecord<
+    extends
+      BaseOperationRecord<
         OperationResponseType.pathPayment,
         OperationResponseTypeI.pathPayment
       >,
       HorizonApi.PathPaymentOperationResponse {}
   export interface PathPaymentStrictSendOperationRecord
-    extends BaseOperationRecord<
+    extends
+      BaseOperationRecord<
         OperationResponseType.pathPaymentStrictSend,
         OperationResponseTypeI.pathPaymentStrictSend
       >,
       HorizonApi.PathPaymentStrictSendOperationResponse {}
   export interface ManageOfferOperationRecord
-    extends BaseOperationRecord<
+    extends
+      BaseOperationRecord<
         OperationResponseType.manageOffer,
         OperationResponseTypeI.manageOffer
       >,
       HorizonApi.ManageOfferOperationResponse {}
   export interface PassiveOfferOperationRecord
-    extends BaseOperationRecord<
+    extends
+      BaseOperationRecord<
         OperationResponseType.createPassiveOffer,
         OperationResponseTypeI.createPassiveOffer
       >,
       HorizonApi.PassiveOfferOperationResponse {}
   export interface SetOptionsOperationRecord
-    extends BaseOperationRecord<
+    extends
+      BaseOperationRecord<
         OperationResponseType.setOptions,
         OperationResponseTypeI.setOptions
       >,
       HorizonApi.SetOptionsOperationResponse {}
   export interface ChangeTrustOperationRecord
-    extends BaseOperationRecord<
+    extends
+      BaseOperationRecord<
         OperationResponseType.changeTrust,
         OperationResponseTypeI.changeTrust
       >,
       HorizonApi.ChangeTrustOperationResponse {}
   export interface AllowTrustOperationRecord
-    extends BaseOperationRecord<
+    extends
+      BaseOperationRecord<
         OperationResponseType.allowTrust,
         OperationResponseTypeI.allowTrust
       >,
       HorizonApi.AllowTrustOperationResponse {}
   export interface AccountMergeOperationRecord
-    extends BaseOperationRecord<
+    extends
+      BaseOperationRecord<
         OperationResponseType.accountMerge,
         OperationResponseTypeI.accountMerge
       >,
       HorizonApi.AccountMergeOperationResponse {}
   export interface InflationOperationRecord
-    extends BaseOperationRecord<
+    extends
+      BaseOperationRecord<
         OperationResponseType.inflation,
         OperationResponseTypeI.inflation
       >,
       HorizonApi.InflationOperationResponse {}
   export interface ManageDataOperationRecord
-    extends BaseOperationRecord<
+    extends
+      BaseOperationRecord<
         OperationResponseType.manageData,
         OperationResponseTypeI.manageData
       >,
       HorizonApi.ManageDataOperationResponse {}
   export interface BumpSequenceOperationRecord
-    extends BaseOperationRecord<
+    extends
+      BaseOperationRecord<
         OperationResponseType.bumpSequence,
         OperationResponseTypeI.bumpSequence
       >,
       HorizonApi.BumpSequenceOperationResponse {}
   export interface CreateClaimableBalanceOperationRecord
-    extends BaseOperationRecord<
+    extends
+      BaseOperationRecord<
         OperationResponseType.createClaimableBalance,
         OperationResponseTypeI.createClaimableBalance
       >,
       HorizonApi.CreateClaimableBalanceOperationResponse {}
   export interface ClaimClaimableBalanceOperationRecord
-    extends BaseOperationRecord<
+    extends
+      BaseOperationRecord<
         OperationResponseType.claimClaimableBalance,
         OperationResponseTypeI.claimClaimableBalance
       >,
       HorizonApi.ClaimClaimableBalanceOperationResponse {}
   export interface BeginSponsoringFutureReservesOperationRecord
-    extends BaseOperationRecord<
+    extends
+      BaseOperationRecord<
         OperationResponseType.beginSponsoringFutureReserves,
         OperationResponseTypeI.beginSponsoringFutureReserves
       >,
       HorizonApi.BeginSponsoringFutureReservesOperationResponse {}
   export interface EndSponsoringFutureReservesOperationRecord
-    extends BaseOperationRecord<
+    extends
+      BaseOperationRecord<
         OperationResponseType.endSponsoringFutureReserves,
         OperationResponseTypeI.endSponsoringFutureReserves
       >,
       HorizonApi.EndSponsoringFutureReservesOperationResponse {}
   export interface RevokeSponsorshipOperationRecord
-    extends BaseOperationRecord<
+    extends
+      BaseOperationRecord<
         OperationResponseType.revokeSponsorship,
         OperationResponseTypeI.revokeSponsorship
       >,
       HorizonApi.RevokeSponsorshipOperationResponse {}
   export interface ClawbackOperationRecord
-    extends BaseOperationRecord<
+    extends
+      BaseOperationRecord<
         OperationResponseType.clawback,
         OperationResponseTypeI.clawback
       >,
       HorizonApi.ClawbackOperationResponse {}
   export interface ClawbackClaimableBalanceOperationRecord
-    extends BaseOperationRecord<
+    extends
+      BaseOperationRecord<
         OperationResponseType.clawbackClaimableBalance,
         OperationResponseTypeI.clawbackClaimableBalance
       >,
       HorizonApi.ClawbackClaimableBalanceOperationResponse {}
   export interface SetTrustLineFlagsOperationRecord
-    extends BaseOperationRecord<
+    extends
+      BaseOperationRecord<
         OperationResponseType.setTrustLineFlags,
         OperationResponseTypeI.setTrustLineFlags
       >,
       HorizonApi.SetTrustLineFlagsOperationResponse {}
   export interface DepositLiquidityOperationRecord
-    extends BaseOperationRecord<
+    extends
+      BaseOperationRecord<
         OperationResponseType.liquidityPoolDeposit,
         OperationResponseTypeI.liquidityPoolDeposit
       >,
       HorizonApi.DepositLiquidityOperationResponse {}
   export interface WithdrawLiquidityOperationRecord
-    extends BaseOperationRecord<
+    extends
+      BaseOperationRecord<
         OperationResponseType.liquidityPoolWithdraw,
         OperationResponseTypeI.liquidityPoolWithdraw
       >,
       HorizonApi.WithdrawLiquidityOperationResponse {}
   export interface InvokeHostFunctionOperationRecord
-    extends BaseOperationRecord<
+    extends
+      BaseOperationRecord<
         OperationResponseType.invokeHostFunction,
         OperationResponseTypeI.invokeHostFunction
       >,
       HorizonApi.InvokeHostFunctionOperationResponse {}
   export interface BumpFootprintExpirationOperationRecord
-    extends BaseOperationRecord<
+    extends
+      BaseOperationRecord<
         OperationResponseType.bumpFootprintExpiration,
         OperationResponseTypeI.bumpFootprintExpiration
       >,
       HorizonApi.BumpFootprintExpirationOperationResponse {}
   export interface RestoreFootprintOperationRecord
-    extends BaseOperationRecord<
+    extends
+      BaseOperationRecord<
         OperationResponseType.restoreFootprint,
         OperationResponseTypeI.restoreFootprint
       >,
@@ -412,8 +438,10 @@ export namespace ServerApi {
     }
   }
   export type TradeRecord = TradeRecord.Orderbook | TradeRecord.LiquidityPool;
-  export interface TransactionRecord
-    extends Omit<HorizonApi.TransactionResponse, "ledger"> {
+  export interface TransactionRecord extends Omit<
+    HorizonApi.TransactionResponse,
+    "ledger"
+  > {
     ledger_attr: HorizonApi.TransactionResponse["ledger"];
 
     account: CallFunction<AccountRecord>;

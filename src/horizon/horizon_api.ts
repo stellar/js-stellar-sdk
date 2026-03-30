@@ -53,7 +53,8 @@ export namespace HorizonApi {
   }
 
   export interface TransactionResponse
-    extends SubmitTransactionResponse,
+    extends
+      SubmitTransactionResponse,
       BaseResponse<
         | "account"
         | "ledger"
@@ -163,16 +164,15 @@ export namespace HorizonApi {
     type: string;
     sponsor?: string;
   }
-  export interface AccountResponse
-    extends BaseResponse<
-      | "transactions"
-      | "operations"
-      | "payments"
-      | "effects"
-      | "offers"
-      | "trades"
-      | "data"
-    > {
+  export interface AccountResponse extends BaseResponse<
+    | "transactions"
+    | "operations"
+    | "payments"
+    | "effects"
+    | "offers"
+    | "trades"
+    | "data"
+  > {
     id: string;
     paging_token: string;
     account_id: string;
@@ -269,20 +269,18 @@ export namespace HorizonApi {
     transaction_hash: string;
     transaction_successful: boolean;
   }
-  export interface CreateAccountOperationResponse
-    extends BaseOperationResponse<
-      OperationResponseType.createAccount,
-      OperationResponseTypeI.createAccount
-    > {
+  export interface CreateAccountOperationResponse extends BaseOperationResponse<
+    OperationResponseType.createAccount,
+    OperationResponseTypeI.createAccount
+  > {
     account: string;
     funder: string;
     starting_balance: string;
   }
-  export interface PaymentOperationResponse
-    extends BaseOperationResponse<
-      OperationResponseType.payment,
-      OperationResponseTypeI.payment
-    > {
+  export interface PaymentOperationResponse extends BaseOperationResponse<
+    OperationResponseType.payment,
+    OperationResponseTypeI.payment
+  > {
     from: string;
     to: string;
     asset_type: AssetType;
@@ -292,11 +290,10 @@ export namespace HorizonApi {
     to_muxed?: string;
     to_muxed_id?: string;
   }
-  export interface PathPaymentOperationResponse
-    extends BaseOperationResponse<
-      OperationResponseType.pathPayment,
-      OperationResponseTypeI.pathPayment
-    > {
+  export interface PathPaymentOperationResponse extends BaseOperationResponse<
+    OperationResponseType.pathPayment,
+    OperationResponseTypeI.pathPayment
+  > {
     amount: string;
     asset_code?: string;
     asset_issuer?: string;
@@ -314,11 +311,10 @@ export namespace HorizonApi {
     source_max: string;
     to: string;
   }
-  export interface PathPaymentStrictSendOperationResponse
-    extends BaseOperationResponse<
-      OperationResponseType.pathPaymentStrictSend,
-      OperationResponseTypeI.pathPaymentStrictSend
-    > {
+  export interface PathPaymentStrictSendOperationResponse extends BaseOperationResponse<
+    OperationResponseType.pathPaymentStrictSend,
+    OperationResponseTypeI.pathPaymentStrictSend
+  > {
     amount: string;
     asset_code?: string;
     asset_issuer?: string;
@@ -336,11 +332,10 @@ export namespace HorizonApi {
     source_asset_type: AssetType;
     to: string;
   }
-  export interface ManageOfferOperationResponse
-    extends BaseOperationResponse<
-      OperationResponseType.manageOffer,
-      OperationResponseTypeI.manageOffer
-    > {
+  export interface ManageOfferOperationResponse extends BaseOperationResponse<
+    OperationResponseType.manageOffer,
+    OperationResponseTypeI.manageOffer
+  > {
     offer_id: number | string;
     amount: string;
     buying_asset_type: AssetType;
@@ -352,11 +347,10 @@ export namespace HorizonApi {
     selling_asset_code?: string;
     selling_asset_issuer?: string;
   }
-  export interface PassiveOfferOperationResponse
-    extends BaseOperationResponse<
-      OperationResponseType.createPassiveOffer,
-      OperationResponseTypeI.createPassiveOffer
-    > {
+  export interface PassiveOfferOperationResponse extends BaseOperationResponse<
+    OperationResponseType.createPassiveOffer,
+    OperationResponseTypeI.createPassiveOffer
+  > {
     offer_id: number | string;
     amount: string;
     buying_asset_type: AssetType;
@@ -368,11 +362,10 @@ export namespace HorizonApi {
     selling_asset_code?: string;
     selling_asset_issuer?: string;
   }
-  export interface SetOptionsOperationResponse
-    extends BaseOperationResponse<
-      OperationResponseType.setOptions,
-      OperationResponseTypeI.setOptions
-    > {
+  export interface SetOptionsOperationResponse extends BaseOperationResponse<
+    OperationResponseType.setOptions,
+    OperationResponseTypeI.setOptions
+  > {
     signer_key?: string;
     signer_weight?: number;
     master_key_weight?: number;
@@ -393,11 +386,10 @@ export namespace HorizonApi {
       | "auth_clawback_enabled_flag"
     >;
   }
-  export interface ChangeTrustOperationResponse
-    extends BaseOperationResponse<
-      OperationResponseType.changeTrust,
-      OperationResponseTypeI.changeTrust
-    > {
+  export interface ChangeTrustOperationResponse extends BaseOperationResponse<
+    OperationResponseType.changeTrust,
+    OperationResponseTypeI.changeTrust
+  > {
     asset_type:
       | AssetType.credit4
       | AssetType.credit12
@@ -409,11 +401,10 @@ export namespace HorizonApi {
     trustor: string;
     limit: string;
   }
-  export interface AllowTrustOperationResponse
-    extends BaseOperationResponse<
-      OperationResponseType.allowTrust,
-      OperationResponseTypeI.allowTrust
-    > {
+  export interface AllowTrustOperationResponse extends BaseOperationResponse<
+    OperationResponseType.allowTrust,
+    OperationResponseTypeI.allowTrust
+  > {
     asset_type: AssetType;
     asset_code: string;
     asset_issuer: string;
@@ -422,31 +413,27 @@ export namespace HorizonApi {
     trustee: string;
     trustor: string;
   }
-  export interface AccountMergeOperationResponse
-    extends BaseOperationResponse<
-      OperationResponseType.accountMerge,
-      OperationResponseTypeI.accountMerge
-    > {
+  export interface AccountMergeOperationResponse extends BaseOperationResponse<
+    OperationResponseType.accountMerge,
+    OperationResponseTypeI.accountMerge
+  > {
     into: string;
   }
-  export interface InflationOperationResponse
-    extends BaseOperationResponse<
-      OperationResponseType.inflation,
-      OperationResponseTypeI.inflation
-    > {}
-  export interface ManageDataOperationResponse
-    extends BaseOperationResponse<
-      OperationResponseType.manageData,
-      OperationResponseTypeI.manageData
-    > {
+  export interface InflationOperationResponse extends BaseOperationResponse<
+    OperationResponseType.inflation,
+    OperationResponseTypeI.inflation
+  > {}
+  export interface ManageDataOperationResponse extends BaseOperationResponse<
+    OperationResponseType.manageData,
+    OperationResponseTypeI.manageData
+  > {
     name: string;
     value: Buffer;
   }
-  export interface BumpSequenceOperationResponse
-    extends BaseOperationResponse<
-      OperationResponseType.bumpSequence,
-      OperationResponseTypeI.bumpSequence
-    > {
+  export interface BumpSequenceOperationResponse extends BaseOperationResponse<
+    OperationResponseType.bumpSequence,
+    OperationResponseTypeI.bumpSequence
+  > {
     bump_to: string;
   }
   export interface Predicate {
@@ -462,47 +449,42 @@ export namespace HorizonApi {
     predicate: Predicate;
   }
 
-  export interface CreateClaimableBalanceOperationResponse
-    extends BaseOperationResponse<
-      OperationResponseType.createClaimableBalance,
-      OperationResponseTypeI.createClaimableBalance
-    > {
+  export interface CreateClaimableBalanceOperationResponse extends BaseOperationResponse<
+    OperationResponseType.createClaimableBalance,
+    OperationResponseTypeI.createClaimableBalance
+  > {
     asset: string;
     amount: string;
     sponsor: string;
     claimants: Claimant[];
   }
 
-  export interface ClaimClaimableBalanceOperationResponse
-    extends BaseOperationResponse<
-      OperationResponseType.claimClaimableBalance,
-      OperationResponseTypeI.claimClaimableBalance
-    > {
+  export interface ClaimClaimableBalanceOperationResponse extends BaseOperationResponse<
+    OperationResponseType.claimClaimableBalance,
+    OperationResponseTypeI.claimClaimableBalance
+  > {
     balance_id: string;
     claimant: string;
   }
 
-  export interface BeginSponsoringFutureReservesOperationResponse
-    extends BaseOperationResponse<
-      OperationResponseType.beginSponsoringFutureReserves,
-      OperationResponseTypeI.beginSponsoringFutureReserves
-    > {
+  export interface BeginSponsoringFutureReservesOperationResponse extends BaseOperationResponse<
+    OperationResponseType.beginSponsoringFutureReserves,
+    OperationResponseTypeI.beginSponsoringFutureReserves
+  > {
     sponsored_id: string;
   }
 
-  export interface EndSponsoringFutureReservesOperationResponse
-    extends BaseOperationResponse<
-      OperationResponseType.endSponsoringFutureReserves,
-      OperationResponseTypeI.endSponsoringFutureReserves
-    > {
+  export interface EndSponsoringFutureReservesOperationResponse extends BaseOperationResponse<
+    OperationResponseType.endSponsoringFutureReserves,
+    OperationResponseTypeI.endSponsoringFutureReserves
+  > {
     begin_sponsor: string;
   }
 
-  export interface RevokeSponsorshipOperationResponse
-    extends BaseOperationResponse<
-      OperationResponseType.revokeSponsorship,
-      OperationResponseTypeI.revokeSponsorship
-    > {
+  export interface RevokeSponsorshipOperationResponse extends BaseOperationResponse<
+    OperationResponseType.revokeSponsorship,
+    OperationResponseTypeI.revokeSponsorship
+  > {
     account_id?: string;
     claimable_balance_id?: string;
     data_account_id?: string;
@@ -515,11 +497,10 @@ export namespace HorizonApi {
     signer_key?: string;
   }
 
-  export interface ClawbackOperationResponse
-    extends BaseOperationResponse<
-      OperationResponseType.clawback,
-      OperationResponseTypeI.clawback
-    > {
+  export interface ClawbackOperationResponse extends BaseOperationResponse<
+    OperationResponseType.clawback,
+    OperationResponseTypeI.clawback
+  > {
     asset_type: AssetType;
     asset_code: string;
     asset_issuer: string;
@@ -527,19 +508,17 @@ export namespace HorizonApi {
     amount: string;
   }
 
-  export interface ClawbackClaimableBalanceOperationResponse
-    extends BaseOperationResponse<
-      OperationResponseType.clawbackClaimableBalance,
-      OperationResponseTypeI.clawbackClaimableBalance
-    > {
+  export interface ClawbackClaimableBalanceOperationResponse extends BaseOperationResponse<
+    OperationResponseType.clawbackClaimableBalance,
+    OperationResponseTypeI.clawbackClaimableBalance
+  > {
     balance_id: string;
   }
 
-  export interface SetTrustLineFlagsOperationResponse
-    extends BaseOperationResponse<
-      OperationResponseType.setTrustLineFlags,
-      OperationResponseTypeI.setTrustLineFlags
-    > {
+  export interface SetTrustLineFlagsOperationResponse extends BaseOperationResponse<
+    OperationResponseType.setTrustLineFlags,
+    OperationResponseTypeI.setTrustLineFlags
+  > {
     asset_type: AssetType;
     asset_code: string;
     asset_issuer: string;
@@ -551,11 +530,10 @@ export namespace HorizonApi {
     asset: string;
     amount: string;
   }
-  export interface DepositLiquidityOperationResponse
-    extends BaseOperationResponse<
-      OperationResponseType.liquidityPoolDeposit,
-      OperationResponseTypeI.liquidityPoolDeposit
-    > {
+  export interface DepositLiquidityOperationResponse extends BaseOperationResponse<
+    OperationResponseType.liquidityPoolDeposit,
+    OperationResponseTypeI.liquidityPoolDeposit
+  > {
     liquidity_pool_id: string;
     reserves_max: Reserve[];
     min_price: string;
@@ -565,11 +543,10 @@ export namespace HorizonApi {
     reserves_deposited: Reserve[];
     shares_received: string;
   }
-  export interface WithdrawLiquidityOperationResponse
-    extends BaseOperationResponse<
-      OperationResponseType.liquidityPoolWithdraw,
-      OperationResponseTypeI.liquidityPoolWithdraw
-    > {
+  export interface WithdrawLiquidityOperationResponse extends BaseOperationResponse<
+    OperationResponseType.liquidityPoolWithdraw,
+    OperationResponseTypeI.liquidityPoolWithdraw
+  > {
     liquidity_pool_id: string;
     reserves_min: Reserve[];
     shares: string;
@@ -588,11 +565,10 @@ export namespace HorizonApi {
     destination_muxed_id?: string;
   }
 
-  export interface InvokeHostFunctionOperationResponse
-    extends BaseOperationResponse<
-      OperationResponseType.invokeHostFunction,
-      OperationResponseTypeI.invokeHostFunction
-    > {
+  export interface InvokeHostFunctionOperationResponse extends BaseOperationResponse<
+    OperationResponseType.invokeHostFunction,
+    OperationResponseTypeI.invokeHostFunction
+  > {
     function: string;
     parameters: {
       value: string;
@@ -603,19 +579,17 @@ export namespace HorizonApi {
     asset_balance_changes: BalanceChange[];
   }
 
-  export interface BumpFootprintExpirationOperationResponse
-    extends BaseOperationResponse<
-      OperationResponseType.bumpFootprintExpiration,
-      OperationResponseTypeI.bumpFootprintExpiration
-    > {
+  export interface BumpFootprintExpirationOperationResponse extends BaseOperationResponse<
+    OperationResponseType.bumpFootprintExpiration,
+    OperationResponseTypeI.bumpFootprintExpiration
+  > {
     ledgers_to_expire: number;
   }
 
-  export interface RestoreFootprintOperationResponse
-    extends BaseOperationResponse<
-      OperationResponseType.restoreFootprint,
-      OperationResponseTypeI.restoreFootprint
-    > {}
+  export interface RestoreFootprintOperationResponse extends BaseOperationResponse<
+    OperationResponseType.restoreFootprint,
+    OperationResponseTypeI.restoreFootprint
+  > {}
 
   export interface ResponseCollection<T extends BaseResponse = BaseResponse> {
     _links: {
@@ -627,8 +601,7 @@ export namespace HorizonApi {
       records: T[];
     };
   }
-  export interface TransactionResponseCollection
-    extends ResponseCollection<TransactionResponse> {}
+  export interface TransactionResponseCollection extends ResponseCollection<TransactionResponse> {}
 
   export interface FeeDistribution {
     max: string;

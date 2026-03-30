@@ -5,8 +5,10 @@ export type HttpResponseHeaders = Record<
   "set-cookie"?: string[];
 };
 
-export interface HttpClientDefaults
-  extends Omit<HttpClientRequestConfig, "headers"> {
+export interface HttpClientDefaults extends Omit<
+  HttpClientRequestConfig,
+  "headers"
+> {
   headers?: [string, string][] | Record<string, string> | Headers | undefined;
 }
 

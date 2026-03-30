@@ -76,13 +76,11 @@ export namespace Api {
     oldestLedgerCloseTime: number;
   }
 
-  export interface GetMissingTransactionResponse
-    extends GetAnyTransactionResponse {
+  export interface GetMissingTransactionResponse extends GetAnyTransactionResponse {
     status: GetTransactionStatus.NOT_FOUND;
   }
 
-  export interface GetFailedTransactionResponse
-    extends GetAnyTransactionResponse {
+  export interface GetFailedTransactionResponse extends GetAnyTransactionResponse {
     status: GetTransactionStatus.FAILED;
 
     ledger: number;
@@ -96,8 +94,7 @@ export namespace Api {
     events: TransactionEvents;
   }
 
-  export interface GetSuccessfulTransactionResponse
-    extends GetAnyTransactionResponse {
+  export interface GetSuccessfulTransactionResponse extends GetAnyTransactionResponse {
     status: GetTransactionStatus.SUCCESS;
 
     ledger: number;
@@ -340,8 +337,7 @@ export namespace Api {
     diagnosticEvents?: xdr.DiagnosticEvent[];
   }
 
-  export interface RawSendTransactionResponse
-    extends BaseSendTransactionResponse {
+  export interface RawSendTransactionResponse extends BaseSendTransactionResponse {
     /**
      * This is a base64-encoded instance of {@link xdr.TransactionResult}, set
      * only when `status` is `"ERROR"`.
@@ -410,8 +406,7 @@ export namespace Api {
   }
 
   /** Includes simplified fields only present on success. */
-  export interface SimulateTransactionSuccessResponse
-    extends BaseSimulateTransactionResponse {
+  export interface SimulateTransactionSuccessResponse extends BaseSimulateTransactionResponse {
     transactionData: SorobanDataBuilder;
     minResourceFee: string;
 
@@ -423,14 +418,12 @@ export namespace Api {
   }
 
   /** Includes details about why the simulation failed */
-  export interface SimulateTransactionErrorResponse
-    extends BaseSimulateTransactionResponse {
+  export interface SimulateTransactionErrorResponse extends BaseSimulateTransactionResponse {
     error: string;
     events: xdr.DiagnosticEvent[];
   }
 
-  export interface SimulateTransactionRestoreResponse
-    extends SimulateTransactionSuccessResponse {
+  export interface SimulateTransactionRestoreResponse extends SimulateTransactionSuccessResponse {
     result: SimulateHostFunctionResult; // not optional now
 
     /**

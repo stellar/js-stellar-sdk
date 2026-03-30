@@ -6,6 +6,11 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+## [v15.0.0](https://github.com/stellar/js-stellar-sdk/compare/v14.6.1...v15.0.0)
+
+### Breaking Changes
+* XDR has been upgraded to support **Protocol 26**, please refer to the [`@stellar/stellar-base`](https://github.com/stellar/js-stellar-base/releases/tag/v15.0.0) release notes for details and other breaking changes.
+
 ### Fixed
 * Sanitize identifiers and escape string literals in generated TypeScript bindings to prevent code injection via malicious contract spec names. `sanitizeIdentifier` now strips non-identifier characters, and a new `escapeStringLiteral` helper escapes quotes and newlines in string contexts ([#1345](https://github.com/stellar/js-stellar-sdk/pull/1345)).
 * `AssembledTransaction.fromXDR()` and `fromJSON()` now validate that the deserialized transaction targets the expected contract, rejecting mismatched contract IDs and non-invokeContract operations. ([#1349](https://github.com/stellar/js-stellar-sdk/pull/1349)).

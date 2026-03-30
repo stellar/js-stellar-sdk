@@ -81,31 +81,26 @@ export interface AccountCreated extends BaseEffectRecord<"account_created"> {
   starting_balance: string;
 }
 export interface AccountCredited
-  extends BaseEffectRecord<"account_credited">,
-    OfferAsset {
+  extends BaseEffectRecord<"account_credited">, OfferAsset {
   type_i: EffectType.account_credited;
   amount: string;
 }
 export interface AccountDebited
-  extends BaseEffectRecord<"account_debited">,
-    OfferAsset {
+  extends BaseEffectRecord<"account_debited">, OfferAsset {
   type_i: EffectType.account_debited;
   amount: string;
 }
-export interface AccountThresholdsUpdated
-  extends BaseEffectRecord<"account_thresholds_updated"> {
+export interface AccountThresholdsUpdated extends BaseEffectRecord<"account_thresholds_updated"> {
   type_i: EffectType.account_thresholds_updated;
   low_threshold: number;
   med_threshold: number;
   high_threshold: number;
 }
-export interface AccountHomeDomainUpdated
-  extends BaseEffectRecord<"account_home_domain_updated"> {
+export interface AccountHomeDomainUpdated extends BaseEffectRecord<"account_home_domain_updated"> {
   type_i: EffectType.account_home_domain_updated;
   home_domain: string;
 }
-export interface AccountFlagsUpdated
-  extends BaseEffectRecord<"account_flags_updated"> {
+export interface AccountFlagsUpdated extends BaseEffectRecord<"account_flags_updated"> {
   type_i: EffectType.account_flags_updated;
   auth_required_flag: boolean;
   auth_revokable_flag: boolean;
@@ -142,8 +137,7 @@ export interface SignerUpdated extends SignerEvents<"signer_updated"> {
   type_i: EffectType.signer_updated;
 }
 interface TrustlineEvents<T extends string>
-  extends BaseEffectRecord<T>,
-    OfferAsset {
+  extends BaseEffectRecord<T>, OfferAsset {
   limit: string;
   liquidity_pool_id?: string;
 }
@@ -156,35 +150,41 @@ export interface TrustlineRemoved extends TrustlineEvents<"trustline_removed"> {
 export interface TrustlineUpdated extends TrustlineEvents<"trustline_updated"> {
   type_i: EffectType.trustline_updated;
 }
-export interface TrustlineAuthorized
-  extends BaseEffectRecord<"trustline_authorized"> {
+export interface TrustlineAuthorized extends BaseEffectRecord<"trustline_authorized"> {
   type_i: EffectType.trustline_authorized;
   asset_type: OfferAsset["asset_type"];
   asset_code: OfferAsset["asset_code"];
   trustor: string;
 }
-export interface TrustlineDeauthorized
-  extends Omit<TrustlineAuthorized, "type_i"> {
+export interface TrustlineDeauthorized extends Omit<
+  TrustlineAuthorized,
+  "type_i"
+> {
   type_i: EffectType.trustline_deauthorized;
 }
-export interface TrustlineAuthorizedToMaintainLiabilities
-  extends Omit<TrustlineAuthorized, "type_i"> {
+export interface TrustlineAuthorizedToMaintainLiabilities extends Omit<
+  TrustlineAuthorized,
+  "type_i"
+> {
   type_i: EffectType.trustline_authorized_to_maintain_liabilities;
 }
-export interface ClaimableBalanceCreated
-  extends BaseEffectRecord<"claimable_balance_created"> {
+export interface ClaimableBalanceCreated extends BaseEffectRecord<"claimable_balance_created"> {
   type_i: EffectType.claimable_balance_created;
   amount: string;
   balance_type_i: string;
   asset: string;
 }
-export interface ClaimableBalanceClaimed
-  extends Omit<ClaimableBalanceCreated, "type_i"> {
+export interface ClaimableBalanceClaimed extends Omit<
+  ClaimableBalanceCreated,
+  "type_i"
+> {
   type_i: EffectType.claimable_balance_claimed;
 }
 
-export interface ClaimableBalanceClaimantCreated
-  extends Omit<ClaimableBalanceCreated, "type_i"> {
+export interface ClaimableBalanceClaimantCreated extends Omit<
+  ClaimableBalanceCreated,
+  "type_i"
+> {
   type_i: EffectType.claimable_balance_claimant_created;
 }
 interface SponsorshipFields {
@@ -193,8 +193,7 @@ interface SponsorshipFields {
   former_sponsor: string;
 }
 interface AccountSponsorshipEvents<T extends string>
-  extends BaseEffectRecord<T>,
-    SponsorshipFields {}
+  extends BaseEffectRecord<T>, SponsorshipFields {}
 
 export type AccountSponsorshipCreated = Omit<
   AccountSponsorshipEvents<"account_sponsorship_created">,
@@ -209,8 +208,7 @@ export type AccountSponsorshipRemoved = Omit<
   "new_sponsor" | "sponsor"
 > & { type_i: EffectType.account_sponsorship_removed };
 interface TrustlineSponsorshipEvents<T extends string>
-  extends BaseEffectRecord<T>,
-    SponsorshipFields {
+  extends BaseEffectRecord<T>, SponsorshipFields {
   asset?: string;
   liquidity_pool_id?: string;
 }
@@ -227,8 +225,7 @@ export type TrustlineSponsorshipRemoved = Omit<
   "new_sponsor" | "sponsor"
 > & { type_i: EffectType.trustline_sponsorship_removed };
 interface DataSponsorshipEvents<T extends string>
-  extends BaseEffectRecord<T>,
-    SponsorshipFields {
+  extends BaseEffectRecord<T>, SponsorshipFields {
   data_name: string;
 }
 export type DateSponsorshipCreated = Omit<
@@ -246,8 +243,7 @@ export type DateSponsorshipRemoved = Omit<
   "new_sponsor" | "sponsor"
 > & { type_i: EffectType.data_sponsorship_removed };
 interface ClaimableBalanceSponsorshipEvents<T extends string>
-  extends BaseEffectRecord<T>,
-    SponsorshipFields {
+  extends BaseEffectRecord<T>, SponsorshipFields {
   balance_type_i: string;
 }
 
@@ -264,8 +260,7 @@ export type ClaimableBalanceSponsorshipRemoved = Omit<
   "new_sponsor" | "sponsor"
 > & { type_i: EffectType.claimable_balance_sponsorship_removed };
 interface SignerSponsorshipEvents<T extends string>
-  extends BaseEffectRecord<T>,
-    SponsorshipFields {
+  extends BaseEffectRecord<T>, SponsorshipFields {
   signer: string;
 }
 
@@ -294,39 +289,33 @@ export interface LiquidityPoolEffectRecord extends HorizonApi.BaseResponse {
   total_shares: string;
   reserves: HorizonApi.Reserve[];
 }
-export interface LiquidityPoolDeposited
-  extends BaseEffectRecord<"liquidity_pool_deposited"> {
+export interface LiquidityPoolDeposited extends BaseEffectRecord<"liquidity_pool_deposited"> {
   type_i: EffectType.liquidity_pool_deposited;
   liquidity_pool: LiquidityPoolEffectRecord;
   reserves_deposited: HorizonApi.Reserve[];
   shares_received: string;
 }
-export interface LiquidityPoolWithdrew
-  extends BaseEffectRecord<"liquidity_pool_withdrew"> {
+export interface LiquidityPoolWithdrew extends BaseEffectRecord<"liquidity_pool_withdrew"> {
   type_i: EffectType.liquidity_pool_withdrew;
   liquidity_pool: LiquidityPoolEffectRecord;
   reserves_received: HorizonApi.Reserve[];
   shares_redeemed: string;
 }
-export interface LiquidityPoolTrade
-  extends BaseEffectRecord<"liquidity_pool_trade"> {
+export interface LiquidityPoolTrade extends BaseEffectRecord<"liquidity_pool_trade"> {
   type_i: EffectType.liquidity_pool_trade;
   liquidity_pool: LiquidityPoolEffectRecord;
   sold: HorizonApi.Reserve;
   bought: HorizonApi.Reserve;
 }
-export interface LiquidityPoolCreated
-  extends BaseEffectRecord<"liquidity_pool_created"> {
+export interface LiquidityPoolCreated extends BaseEffectRecord<"liquidity_pool_created"> {
   type_i: EffectType.liquidity_pool_created;
   liquidity_pool: LiquidityPoolEffectRecord;
 }
-export interface LiquidityPoolRemoved
-  extends BaseEffectRecord<"liquidity_pool_removed"> {
+export interface LiquidityPoolRemoved extends BaseEffectRecord<"liquidity_pool_removed"> {
   type_i: EffectType.liquidity_pool_removed;
   liquidity_pool_id: string;
 }
-export interface LiquidityPoolRevoked
-  extends BaseEffectRecord<"liquidity_pool_revoked"> {
+export interface LiquidityPoolRevoked extends BaseEffectRecord<"liquidity_pool_revoked"> {
   type_i: EffectType.liquidity_pool_revoked;
   liquidity_pool: LiquidityPoolEffectRecord;
   reserves_revoked: [
@@ -340,15 +329,13 @@ export interface LiquidityPoolRevoked
 }
 
 export interface ContractCredited
-  extends BaseEffectRecord<"contract_credited">,
-    OfferAsset {
+  extends BaseEffectRecord<"contract_credited">, OfferAsset {
   type_i: EffectType.contract_credited;
   contract: string;
   amount: string;
 }
 export interface ContractDebited
-  extends BaseEffectRecord<"contract_debited">,
-    OfferAsset {
+  extends BaseEffectRecord<"contract_debited">, OfferAsset {
   type_i: EffectType.contract_debited;
   contract: string;
   amount: string;
