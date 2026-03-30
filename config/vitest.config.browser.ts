@@ -1,36 +1,39 @@
-import { defineConfig } from 'vitest/config'
-import { resolve } from 'path'
+import { defineConfig } from "vitest/config";
+import { resolve } from "path";
+import { playwright } from "@vitest/browser-playwright";
 
 export default defineConfig({
   test: {
     globals: true,
-    environment: 'jsdom',
+    environment: "jsdom",
     coverage: {
-      provider: 'istanbul',
-      reporter: ['text', 'html', 'lcov'],
-      include: ['lib/**/*.js'],
-      exclude: ['test/**', 'dist/**', 'coverage/**', '**/*.d.ts', 'lib/**/*.d.ts', ],
-      all: true,
+      provider: "istanbul",
+      reporter: ["text", "html", "lcov"],
+      include: ["lib/**/*.js"],
+      exclude: [
+        "test/**",
+        "dist/**",
+        "coverage/**",
+        "**/*.d.ts",
+        "lib/**/*.d.ts",
+      ],
     },
     browser: {
       enabled: true,
-      provider: 'playwright',
-      instances: [
-        { browser: "chromium"},
-        { browser: "firefox"},
-      ],
+      provider: playwright(),
+      instances: [{ browser: "chromium" }, { browser: "firefox" }],
       headless: true,
-      screenshotFailures: false
+      screenshotFailures: false,
     },
     // Run all unit tests in browser
-    include: ['test/unit/**/*.test.ts'],
-    exclude: ['test/unit/call_builders.test.ts'],
+    include: ["test/unit/**/*.test.ts"],
+    exclude: ["test/unit/call_builders.test.ts"],
     // Setup files to load the browser bundle
-    setupFiles: [resolve(__dirname, '../test/setup-browser.ts')],
+    setupFiles: [resolve(__dirname, "../test/setup-browser.ts")],
   },
   resolve: {
     alias: {
-      '@': resolve(__dirname, '../src'),
+      "@": resolve(__dirname, "../src"),
     },
   },
   define: {
@@ -38,4 +41,4 @@ export default defineConfig({
     __USE_EVENTSOURCE__: true,
     __PACKAGE_VERSION__: JSON.stringify(process.env.npm_package_version),
   },
-})
+});
