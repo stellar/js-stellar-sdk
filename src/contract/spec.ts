@@ -7,7 +7,7 @@ import {
   Contract,
   scValToBigInt,
 } from "@stellar/stellar-base";
-import { Ok } from "./rust_result";
+import { Ok, Err } from "./rust_result";
 import { processSpecEntryStream } from "./utils";
 import { specFromWasm } from "./wasm_spec_parser";
 
@@ -623,6 +623,9 @@ export class Spec {
     }
     const output = outputs[0];
     if (output.switch().value === xdr.ScSpecType.scSpecTypeResult().value) {
+      if (val.switch().value === xdr.ScValType.scvError().value) {
+        return new Err({ message: val.error().toXDR("base64") });
+      }
       return new Ok(this.scValToNative(val, output.result().okType()));
     }
     return this.scValToNative(val, output);
