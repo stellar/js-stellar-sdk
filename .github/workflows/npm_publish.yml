@@ -34,6 +34,4 @@ jobs:
         run: yarn preversion
 
       - name: Publish npm package to both places
-        run: |
-          npm publish --access public --provenance
-          npm unpublish @stellar/stellar-sdk@15.0.0
+        run: npm publish --access public --provenance
