@@ -6,6 +6,13 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+
+## [v15.0.1](https://github.com/stellar/js-stellar-sdk/compare/v15.0.0...v15.0.1)
+
+### Fixed
+* Pin axios to a specific version.
+
+
 ## [v15.0.0](https://github.com/stellar/js-stellar-sdk/compare/v14.6.1...v15.0.0)
 
 ### Breaking Changes
