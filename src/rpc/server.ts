@@ -723,7 +723,7 @@ export class RpcServer {
         : (opts?.attempts ?? DEFAULT_GET_TRANSACTION_TIMEOUT); // "positive and defined user value or default"
 
     let foundInfo: Api.GetTransactionResponse;
-    for (let attempt = 1; attempt < maxAttempts; attempt++) {
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       foundInfo = await this.getTransaction(hash);
       if (foundInfo.status !== Api.GetTransactionStatus.NOT_FOUND) {
         return foundInfo;
@@ -1255,7 +1255,9 @@ export class RpcServer {
       return new Account(account, sequence);
     } catch (error: any) {
       if (error.response?.status === 400) {
-        if (error.response.detail?.includes("createAccountAlreadyExist")) {
+        if (
+          error.response.data?.detail?.includes("createAccountAlreadyExist")
+        ) {
           // Account already exists, load the sequence number
           return this.getAccount(account);
         }

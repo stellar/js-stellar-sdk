@@ -141,7 +141,7 @@ describe("Server#requestAirdrop", () => {
     const friendbotError = {
       response: {
         status: 400,
-        detail: "createAccountAlreadyExist",
+        data: { detail: "createAccountAlreadyExist" },
       },
     };
 
