@@ -91,6 +91,69 @@ function createFetchClient(
 
     makeRequest<T>(config: FetchClientConfig): Promise<HttpClientResponse<T>> {
       return new Promise((resolve, reject) => {
+        // Extracted into a helper so it can be called from two sites:
+        // 1. After the async request-interceptor chain resolves.
+        // 2. Directly when there are no request interceptors (fast path).
+        function processRequest(
+          this: HttpClient,
+          finalConfig: HttpClientRequestConfig,
+          res: (value: HttpClientResponse<T>) => void,
+          rej: (reason?: any) => void,
+        ) {
+          const adapter = finalConfig.adapter || this.defaults.adapter;
+          if (!adapter) {
+            throw new Error("No adapter available");
+          }
+          let responsePromise = adapter(finalConfig).then((axiosResponse) => {
+            // Transform AxiosResponse to HttpClientResponse
+            const httpClientResponse: HttpClientResponse<T> = {
+              data: axiosResponse.data,
+              headers: axiosResponse.headers as any, // You might want to transform headers more carefully
+              config: axiosResponse.config,
+              status: axiosResponse.status,
+              statusText: axiosResponse.statusText,
+            };
+            return httpClientResponse;
+          });
+
+          // Apply response interceptors
+          if (responseInterceptors.handlers.length > 0) {
+            const chain = responseInterceptors.handlers
+              .filter(
+                (interceptor): interceptor is NonNullable<typeof interceptor> =>
+                  interceptor !== null,
+              )
+              .flatMap((interceptor) => [
+                interceptor.fulfilled,
+                interceptor.rejected,
+              ]);
+
+            for (let i = 0, len = chain.length; i < len; i += 2) {
+              responsePromise = responsePromise
+                .then(
+                  (response) => {
+                    const fulfilledInterceptor = chain[i];
+                    if (typeof fulfilledInterceptor === "function") {
+                      return fulfilledInterceptor(response);
+                    }
+                    return response;
+                  },
+                  (error) => {
+                    const rejectedInterceptor = chain[i + 1];
+                    if (typeof rejectedInterceptor === "function") {
+                      return rejectedInterceptor(error);
+                    }
+                    throw error;
+                  },
+                )
+                .then((interceptedResponse) => interceptedResponse);
+            }
+          }
+
+          // Resolve or reject the final promise
+          responsePromise.then(res).catch(rej);
+        }
+
         const abortController = new AbortController();
         config.signal = abortController.signal;
 
@@ -101,7 +164,16 @@ function createFetchClient(
           });
         }
 
-        // Apply request interceptors
+        // Apply request interceptors using a promise chain so that async
+        // interceptors (returning Promise<HttpClientRequestConfig>) are
+        // properly awaited before the config is passed downstream. A previous
+        // implementation used a synchronous try/catch loop which silently
+        // passed unresolved promise objects as the config when an interceptor
+        // was async.
+        //
+        // The chain is built as [fulfilled, rejected, fulfilled, rejected, ...]
+        // and wired via .then(onFulfilled, onRejected) so each pair can
+        // recover from an upstream error (matching Axios interceptor semantics).
         let modifiedConfig = config;
         if (requestInterceptors.handlers.length > 0) {
           const chain = requestInterceptors.handlers
@@ -113,71 +185,30 @@ function createFetchClient(
               interceptor.fulfilled,
               interceptor.rejected,
             ]);
+          let configPromise = Promise.resolve(modifiedConfig);
           for (let i = 0, len = chain.length; i < len; i += 2) {
-            const onFulfilled = chain[i];
-            const onRejected = chain[i + 1];
-            try {
-              if (onFulfilled) modifiedConfig = onFulfilled(modifiedConfig);
-            } catch (error) {
-              if (onRejected) (onRejected as InterceptorRejected)?.(error);
-              reject(error);
-              return;
-            }
+            configPromise = configPromise.then(
+              chain[i] as
+                | ((
+                    val: HttpClientRequestConfig,
+                  ) =>
+                    | HttpClientRequestConfig
+                    | Promise<HttpClientRequestConfig>)
+                | undefined,
+              chain[i + 1] as InterceptorRejected | undefined,
+            );
           }
+
+          configPromise
+            .then((resolvedConfig) => {
+              processRequest.call(this, resolvedConfig, resolve, reject);
+            })
+            .catch(reject);
+          return;
         }
 
-        const adapter = modifiedConfig.adapter || this.defaults.adapter;
-        if (!adapter) {
-          throw new Error("No adapter available");
-        }
-        let responsePromise = adapter(modifiedConfig).then((axiosResponse) => {
-          // Transform AxiosResponse to HttpClientResponse
-          const httpClientResponse: HttpClientResponse<T> = {
-            data: axiosResponse.data,
-            headers: axiosResponse.headers as any, // You might want to transform headers more carefully
-            config: axiosResponse.config,
-            status: axiosResponse.status,
-            statusText: axiosResponse.statusText,
-          };
-          return httpClientResponse;
-        });
-
-        // Apply response interceptors
-        if (responseInterceptors.handlers.length > 0) {
-          const chain = responseInterceptors.handlers
-            .filter(
-              (interceptor): interceptor is NonNullable<typeof interceptor> =>
-                interceptor !== null,
-            )
-            .flatMap((interceptor) => [
-              interceptor.fulfilled,
-              interceptor.rejected,
-            ]);
-
-          for (let i = 0, len = chain.length; i < len; i += 2) {
-            responsePromise = responsePromise
-              .then(
-                (response) => {
-                  const fulfilledInterceptor = chain[i];
-                  if (typeof fulfilledInterceptor === "function") {
-                    return fulfilledInterceptor(response);
-                  }
-                  return response;
-                },
-                (error) => {
-                  const rejectedInterceptor = chain[i + 1];
-                  if (typeof rejectedInterceptor === "function") {
-                    return rejectedInterceptor(error);
-                  }
-                  throw error;
-                },
-              )
-              .then((interceptedResponse) => interceptedResponse);
-          }
-        }
-
-        // Resolve or reject the final promise
-        responsePromise.then(resolve).catch(reject);
+        // No request interceptors — skip the chain and process immediately.
+        processRequest.call(this, modifiedConfig, resolve, reject);
       });
     },
 
