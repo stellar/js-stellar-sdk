@@ -540,6 +540,12 @@ export function verifyChallengeTxSigners(
     signersFound.splice(signersFound.indexOf(clientSigningKey), 1);
   }
 
+  if (signersFound.length === 0) {
+    throw new InvalidChallengeError(
+      "None of the given signers match the transaction signatures",
+    );
+  }
+
   return signersFound;
 }
 

@@ -2356,6 +2356,53 @@ describe("Utils", () => {
       expect(signersFound.indexOf(clientSigningKey.publicKey())).toEqual(-1);
     });
 
+    it("throws an error if challenge is signed only by server and client_domain key but no client signer", () => {
+      serverKP = StellarSdk.Keypair.random();
+      const clientKP = StellarSdk.Keypair.random();
+      const clientSigningKey = StellarSdk.Keypair.random();
+      const challenge = WebAuth.buildChallengeTx(
+        serverKP,
+        clientKP.publicKey(),
+        "SDF",
+        300,
+        StellarSdk.Networks.TESTNET,
+        "testanchor.stellar.org",
+        null,
+        "testdomain",
+        clientSigningKey.publicKey(),
+      );
+
+      vi.advanceTimersByTime(200);
+
+      const transaction = new StellarSdk.Transaction(
+        challenge,
+        StellarSdk.Networks.TESTNET,
+      );
+
+      // Only sign with clientSigningKey, NOT clientKP (no actual client signer)
+      transaction.sign(clientSigningKey);
+
+      const signedChallenge = transaction
+        .toEnvelope()
+        .toXDR("base64")
+        .toString();
+
+      expect(() =>
+        WebAuth.verifyChallengeTxSigners(
+          signedChallenge,
+          serverKP.publicKey(),
+          StellarSdk.Networks.TESTNET,
+          [clientKP.publicKey()],
+          "SDF",
+          "testanchor.stellar.org",
+        ),
+      ).toThrow(
+        new StellarSdk.WebAuth.InvalidChallengeError(
+          "None of the given signers match the transaction signatures",
+        ),
+      );
+    });
+
     it("throws an error if a challenge with a client_domain operation doesn't have a matching signature", () => {
       serverKP = StellarSdk.Keypair.random();
       const clientKP = StellarSdk.Keypair.random();
