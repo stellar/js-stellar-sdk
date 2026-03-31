@@ -188,7 +188,7 @@ function parseSuccessful(
     minResourceFee: sim.minResourceFee!,
     // coalesce 0-or-1-element results[] list into a single result struct
     // with decoded fields if present
-    ...((sim.results?.length ?? 0 > 0) && {
+    ...((sim.results?.length ?? 0) > 0 && {
       result: sim.results!.map((row) => ({
         auth: (row.auth ?? []).map((entry) =>
           xdr.SorobanAuthorizationEntry.fromXDR(entry, "base64"),
@@ -200,7 +200,7 @@ function parseSuccessful(
       }))[0],
     }),
 
-    ...((sim.stateChanges?.length ?? 0 > 0) && {
+    ...((sim.stateChanges?.length ?? 0) > 0 && {
       stateChanges: sim.stateChanges?.map((entryChange) => ({
         type: entryChange.type,
         key: xdr.LedgerKey.fromXDR(entryChange.key, "base64"),
