@@ -659,6 +659,7 @@ export class AssembledTransaction<T> {
             contract.call(this.options.method, ...(this.options.args ?? [])),
           )
           .setTimeout(this.options.timeoutInSeconds ?? DEFAULT_TIMEOUT);
+        delete this.built;
         await this.simulate();
         return this;
       }
@@ -667,7 +668,10 @@ export class AssembledTransaction<T> {
       );
     }
 
-    if (Api.isSimulationSuccess(this.simulation)) {
+    if (
+      Api.isSimulationSuccess(this.simulation) &&
+      !Api.isSimulationRestore(this.simulation)
+    ) {
       this.built = assembleTransaction(this.built, this.simulation).build();
     }
 
@@ -871,20 +875,15 @@ export class AssembledTransaction<T> {
     watcher?: Watcher;
   } = {}): Promise<SentTransaction<T>> => {
     if (!this.signed) {
-      // Store the original submit option
-      const originalSubmit = this.options.submit;
+      // Wrap signTransaction to disable submit and prevent double submission,
+      // without mutating the shared this.options object
+      const signer = signTransaction || this.options.signTransaction;
+      const wrappedSignTransaction: typeof signTransaction =
+        this.options.submit && signer
+          ? (tx, opts) => signer(tx, { ...opts, submit: false })
+          : signTransaction;
 
-      // Temporarily disable submission in signTransaction to prevent double submission
-      if (this.options.submit) {
-        this.options.submit = false;
-      }
-
-      try {
-        await this.sign({ force, signTransaction });
-      } finally {
-        // Restore the original submit option
-        this.options.submit = originalSubmit;
-      }
+      await this.sign({ force, signTransaction: wrappedSignTransaction });
     }
     return this.send(watcher);
   };
