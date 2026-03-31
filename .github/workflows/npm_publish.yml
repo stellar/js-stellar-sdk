@@ -33,5 +33,5 @@ jobs:
       - name: Build, Test, and Package
         run: yarn preversion
 
-      - name: Publish npm package to both places
+      - name: Publish npm package
         run: npm publish --access public --provenance
