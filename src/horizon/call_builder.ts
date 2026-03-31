@@ -126,8 +126,9 @@ export class CallBuilder<
 
     this.checkFilter();
 
-    this.url.setQuery("X-Client-Name", "js-stellar-sdk");
-    this.url.setQuery("X-Client-Version", version);
+    const streamUrl = this.url.clone();
+    streamUrl.setQuery("X-Client-Name", "js-stellar-sdk");
+    streamUrl.setQuery("X-Client-Version", version);
 
     // Extract custom app headers from httpClient defaults and add as query params
     // (EventSource doesn't support custom headers, so we use query params)
@@ -145,7 +146,7 @@ export class CallBuilder<
           value = headers[name];
         }
         if (value) {
-          this.url.setQuery(name, value);
+          streamUrl.setQuery(name, value);
         }
       });
     }
@@ -171,7 +172,7 @@ export class CallBuilder<
 
     const createEventSource = (): EventSource => {
       try {
-        es = new EventSource(this.url.toString());
+        es = new EventSource(streamUrl.toString());
       } catch (err) {
         if (options.onerror) {
           options.onerror(err as MessageEvent);
@@ -208,7 +209,7 @@ export class CallBuilder<
           ? this._parseRecord(JSON.parse(message.data))
           : message;
         if (result.paging_token) {
-          this.url.setQuery("cursor", result.paging_token);
+          streamUrl.setQuery("cursor", result.paging_token);
         }
         clearTimeout(timeout);
         createTimeout();
