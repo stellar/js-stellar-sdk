@@ -5,9 +5,6 @@ import {
   Account,
   Address,
   Asset,
-  AuthClawbackEnabledFlag,
-  AuthRequiredFlag,
-  AuthRevocableFlag,
   Contract,
   FeeBumpTransaction,
   Keypair,
@@ -421,9 +418,9 @@ export class RpcServer {
         balanceEntry: {
           amount: tl.balance().toString(),
           // Extract actual flags from the coalesced value.
-          authorized: Boolean(tl.flags() & AuthRequiredFlag),
-          clawback: Boolean(tl.flags() & AuthClawbackEnabledFlag),
-          revocable: Boolean(tl.flags() & AuthRevocableFlag),
+          authorized: Boolean(tl.flags() & 0x1), // AUTHORIZED_FLAG
+          clawback: Boolean(tl.flags() & 0x4), // TRUSTLINE_CLAWBACK_ENABLED_FLAG
+          authorizedToMaintainLiabilities: Boolean(tl.flags() & 0x2), // AUTHORIZED_TO_MAINTAIN_LIABILITIES_FLAG
         },
       };
     } else if (StrKey.isValidContract(addr)) {
