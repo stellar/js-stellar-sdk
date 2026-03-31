@@ -277,8 +277,8 @@ function typeRef(typeDef: xdr.ScSpecTypeDef): JSONSchema7 {
       return typeRef(opt.valueType());
     }
     case xdr.ScSpecType.scSpecTypeResult().value: {
-      // throw new Error('Result type not supported');
-      break;
+      const result = typeDef.result();
+      return typeRef(result.okType());
     }
     case xdr.ScSpecType.scSpecTypeVec().value: {
       const arr = typeDef.vec();
@@ -368,11 +368,11 @@ function structToJsonSchema(udt: xdr.ScSpecUdtStructV0): object {
   }
   const description = udt.doc().toString();
   const { properties, required }: any = argsAndRequired(fields);
-  properties.additionalProperties = false;
   return {
     description,
     properties,
     required,
+    additionalProperties: false,
     type: "object",
   };
 }
@@ -802,9 +802,9 @@ export class Spec {
       case "bigint": {
         switch (value) {
           case xdr.ScSpecType.scSpecTypeU32().value:
-            return xdr.ScVal.scvU32(val as number);
+            return xdr.ScVal.scvU32(Number(val));
           case xdr.ScSpecType.scSpecTypeI32().value:
-            return xdr.ScVal.scvI32(val as number);
+            return xdr.ScVal.scvI32(Number(val));
           case xdr.ScSpecType.scSpecTypeU64().value:
           case xdr.ScSpecType.scSpecTypeI64().value:
           case xdr.ScSpecType.scSpecTypeU128().value:
@@ -1102,12 +1102,12 @@ export class Spec {
     }
     const name = vec[0].sym().toString();
     if (vec[0].switch().value !== xdr.ScValType.scvSymbol().value) {
-      throw new Error(`{vec[0]} is not a symbol`);
+      throw new Error(`${vec[0]} is not a symbol`);
     }
     const entry = udt.cases().find(findCase(name));
     if (!entry) {
       throw new Error(
-        `failed to find entry ${name} in union {udt.name().toString()}`,
+        `failed to find entry ${name} in union ${udt.name().toString()}`,
       );
     }
     const res: Union<any> = { tag: name };
