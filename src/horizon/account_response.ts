@@ -52,10 +52,31 @@ export class AccountResponse {
   constructor(response: ServerApi.AccountRecord) {
     this._baseAccount = new BaseAccount(response.account_id, response.sequence);
     // Extract response fields
-    // TODO: do it in type-safe manner.
-    Object.entries(response).forEach(([key, value]) => {
-      (this as any)[key] = value;
-    });
+    this.effects = response.effects;
+    this.offers = response.offers;
+    this.operations = response.operations;
+    this.payments = response.payments;
+    this.trades = response.trades;
+    this.data = response.data;
+    this.id = response.id;
+    this.paging_token = response.paging_token;
+    this.account_id = response.account_id;
+    this.sequence = response.sequence;
+    this.sequence_ledger = response.sequence_ledger;
+    this.sequence_time = response.sequence_time;
+    this.subentry_count = response.subentry_count;
+    this.home_domain = response.home_domain;
+    this.inflation_destination = response.inflation_destination;
+    this.last_modified_ledger = response.last_modified_ledger;
+    this.last_modified_time = response.last_modified_time;
+    this.thresholds = response.thresholds;
+    this.flags = response.flags;
+    this.balances = response.balances;
+    this.signers = response.signers;
+    this.data_attr = response.data_attr;
+    this.sponsor = response.sponsor;
+    this.num_sponsoring = response.num_sponsoring;
+    this.num_sponsored = response.num_sponsored;
   }
 
   /**
