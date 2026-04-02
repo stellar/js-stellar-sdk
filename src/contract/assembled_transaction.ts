@@ -668,10 +668,7 @@ export class AssembledTransaction<T> {
       );
     }
 
-    if (
-      Api.isSimulationSuccess(this.simulation) &&
-      !Api.isSimulationRestore(this.simulation)
-    ) {
+    if (Api.isSimulationSuccess(this.simulation)) {
       this.built = assembleTransaction(this.built, this.simulation).build();
     }
 
