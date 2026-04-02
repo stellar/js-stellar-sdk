@@ -197,7 +197,8 @@ describe("Server#getTrustline", () => {
       flags: 5, // authorized (0x1) + clawback (0x4)
       ext: new (xdr.TrustLineEntryExt as any)(0),
     });
-    const clawbackEntryXDR = xdr.LedgerEntryData.trustline(clawbackEntry).toXDR("base64");
+    const clawbackEntryXDR =
+      xdr.LedgerEntryData.trustline(clawbackEntry).toXDR("base64");
 
     return expectLedgerEntryFound(
       mockPost,
