@@ -421,6 +421,7 @@ export class RpcServer {
           authorized: Boolean(tl.flags() & 0x1), // AUTHORIZED_FLAG
           clawback: Boolean(tl.flags() & 0x4), // TRUSTLINE_CLAWBACK_ENABLED_FLAG
           authorizedToMaintainLiabilities: Boolean(tl.flags() & 0x2), // AUTHORIZED_TO_MAINTAIN_LIABILITIES_FLAG
+          revocable: Boolean(tl.flags() & 0x2), // AUTHORIZED_TO_MAINTAIN_LIABILITIES_FLAG (deprecated, will be removed in a future major release)
         },
       };
     } else if (StrKey.isValidContract(addr)) {
