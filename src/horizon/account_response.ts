@@ -47,6 +47,7 @@ export class AccountResponse {
   public readonly operations!: ServerApi.CallCollectionFunction<ServerApi.OperationRecord>;
   public readonly payments!: ServerApi.CallCollectionFunction<ServerApi.PaymentOperationRecord>;
   public readonly trades!: ServerApi.CallCollectionFunction<ServerApi.TradeRecord>;
+  public readonly transactions!: ServerApi.CallCollectionFunction<ServerApi.TransactionRecord>;
   private readonly _baseAccount: BaseAccount;
 
   constructor(response: ServerApi.AccountRecord) {
@@ -58,6 +59,7 @@ export class AccountResponse {
     this.payments = response.payments;
     this.trades = response.trades;
     this.data = response.data;
+    this.transactions = response.transactions;
     this.id = response.id;
     this.paging_token = response.paging_token;
     this.account_id = response.account_id;

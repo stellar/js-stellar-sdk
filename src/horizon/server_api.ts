@@ -116,6 +116,7 @@ export namespace ServerApi {
     sponsor?: string;
     num_sponsoring: number;
     num_sponsored: number;
+    transactions: CallCollectionFunction<TransactionRecord>;
     effects: CallCollectionFunction<EffectRecord>;
     offers: CallCollectionFunction<OfferRecord>;
     operations: CallCollectionFunction<OperationRecord>;
