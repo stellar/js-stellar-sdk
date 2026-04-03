@@ -6,6 +6,35 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Fixed
+* `RpcServer.pollTransaction` off-by-one: the polling loop used `<` instead of `<=`, causing one fewer attempt than configured([#1373](https://github.com/stellar/js-stellar-sdk/pull/1373)).
+* `requestAirdrop` error path: fixed incorrect property access (`error.response.detail` instead of `error.response.data.detail`) when checking for `createAccountAlreadyExist` ([#1373](https://github.com/stellar/js-stellar-sdk/pull/1373)).
+* Operator precedence bug in `parseSuccessful`: `sim.results?.length ?? 0 > 0` was parsed as `?? (0 > 0)`, causing simulation results and state changes to never be included in the parsed response ([#1373](https://github.com/stellar/js-stellar-sdk/pull/1373)).
+* `Spec.typeRef` now properly handles `scSpecTypeResult` by returning the JSON schema for the `okType`, instead of silently breaking out of the switch ([#1373](https://github.com/stellar/js-stellar-sdk/pull/1373)).
+* `structToJsonSchema` now places `additionalProperties: false` on the schema object itself rather than incorrectly nesting it inside `properties` ([#1373](https://github.com/stellar/js-stellar-sdk/pull/1373)).
+* Fixed bigint-to-U32/I32 conversion in `Spec` using `Number(val)` instead of `val as number` (a no-op for bigints) ([#1373](https://github.com/stellar/js-stellar-sdk/pull/1373)).
+* Fixed missing template literal `$` in two `Spec` error messages that were not interpolated ([#1373](https://github.com/stellar/js-stellar-sdk/pull/1373)).
+* WASM custom section parser: when a section was skipped (invalid name length), the offset was not advanced, causing an infinite loop or incorrect parsing of subsequent sections ([#1373](https://github.com/stellar/js-stellar-sdk/pull/1373)).
+* `FederationServer.resolve` now validates domains per RFC 1035, rejecting malformed domains. Port numbers are also accepted in the domain ([#1373](https://github.com/stellar/js-stellar-sdk/pull/1373)).
+* `FederationServer` URL mutation: `resolveAddress`, `resolveAccountId`, and `resolveTransactionId` mutated the shared `serverURL` by appending query params on each call. Fixed by cloning the URL before modifying ([#1373](https://github.com/stellar/js-stellar-sdk/pull/1373)).
+* `CallBuilder.stream()` URL mutation: `stream()` mutated the shared `this.url` by adding query params, corrupting the builder for subsequent calls. Fixed by cloning the URL ([#1373](https://github.com/stellar/js-stellar-sdk/pull/1373)).
+* `AssembledTransaction` restore path: when `buildWithOp` was used and automatic state restoration was needed, the rebuild incorrectly reconstructed the operation via `contract.call()` instead of reusing the original operation ([#1373](https://github.com/stellar/js-stellar-sdk/pull/1373)).
+* `SERVER_TIME_MAP` port collision: the Horizon time-sync cache keyed entries by hostname only, so two servers on different ports of the same host shared a cache entry. Fixed by including the port in the key ([#1373](https://github.com/stellar/js-stellar-sdk/pull/1373)).
+* `Spec.funcResToNative` now correctly returns an `Err` instance when a contract function with a `Result` return type returns an error, instead of throwing while decoding it as the `Ok` type ([#1373](https://github.com/stellar/js-stellar-sdk/pull/1373)).
+* SEP-10: `verifyChallengeTxSigners` now rejects challenges signed only by the server and `client_domain` key with no actual client signer, instead of returning an empty signers list ([#1372](https://github.com/stellar/js-stellar-sdk/pull/1372)).
+* `getAssetBalance` used incorrect flag bitmask constants (`AuthRequiredFlag`, `AuthRevocableFlag`, `AuthClawbackEnabledFlag`) which are account-level flags, not trustline-level flags. Replaced with the correct trustline flag bitmasks (`0x1`, `0x2`, `0x4`) ([#1372](https://github.com/stellar/js-stellar-sdk/pull/1372)).
+* `AssembledTransaction.simulate` did not clear `this.built` before re-simulating after a state restoration rebuild, causing it to assemble stale transaction data ([#1372](https://github.com/stellar/js-stellar-sdk/pull/1372)).
+* `AssembledTransaction.signAndSend` mutated the shared `this.options.submit` flag to prevent double submission. Replaced with a wrapper around `signTransaction` that injects `submit: false` without mutating shared state ([#1372](https://github.com/stellar/js-stellar-sdk/pull/1372)).
+* Fetch HTTP client: async request interceptors were not awaited — the synchronous `try/catch` loop passed unresolved promise objects as the config. Replaced with a proper `.then()` chain matching Axios interceptor semantics ([#1372](https://github.com/stellar/js-stellar-sdk/pull/1372)).
+
+### Added
+* `AccountResponse` constructor now uses explicit field-by-field assignment instead of `Object.entries` dynamic assignment for type safety ([#1373](https://github.com/stellar/js-stellar-sdk/pull/1373)).
+* Added `transactions` collection to `Api.AccountRecord` and `AccountResponse` ([#1373](https://github.com/stellar/js-stellar-sdk/pull/1373)).
+* Added range checks for U32/I32 values in `Spec`: bigint values are now validated against min/max bounds before conversion, throwing a `RangeError` instead of silently truncating ([#1373](https://github.com/stellar/js-stellar-sdk/pull/1373)).
+
+### Deprecated
+* `BalanceResponse.revocable` is deprecated in favor of `authorizedToMaintainLiabilities`, which correctly reflects the trustline flag semantics ([#1372](https://github.com/stellar/js-stellar-sdk/pull/1372)).
+
 
 ## [v15.0.1](https://github.com/stellar/js-stellar-sdk/compare/v15.0.0...v15.0.1)
 
