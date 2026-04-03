@@ -805,8 +805,21 @@ export class Spec {
       case "bigint": {
         switch (value) {
           case xdr.ScSpecType.scSpecTypeU32().value:
+            if (
+              BigInt(val) < BigInt(xdr.Uint32.MIN_VALUE) ||
+              BigInt(val) > BigInt(xdr.Uint32.MAX_VALUE)
+            ) {
+              throw new RangeError(`Value ${val} is out of range for U32`);
+            }
             return xdr.ScVal.scvU32(Number(val));
           case xdr.ScSpecType.scSpecTypeI32().value:
+            if (
+              // TODO: remove the `-` cast on the min value once js-xdr fixes the issue where it treats the min value as unsigned
+              BigInt(val) < -BigInt(xdr.Int32.MIN_VALUE) ||
+              BigInt(val) > BigInt(xdr.Int32.MAX_VALUE)
+            ) {
+              throw new RangeError(`Value ${val} is out of range for I32`);
+            }
             return xdr.ScVal.scvI32(Number(val));
           case xdr.ScSpecType.scSpecTypeU64().value:
           case xdr.ScSpecType.scSpecTypeI64().value:
