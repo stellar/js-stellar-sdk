@@ -269,6 +269,12 @@ export class AssembledTransaction<T> {
   public raw?: TransactionBuilder;
 
   /**
+   * Stores the original operation from `buildWithOp` for reuse during
+   * automatic state restoration rebuilds.
+   */
+  private originalOp?: xdr.Operation;
+
+  /**
    * The Transaction as it was built with `raw.build()` right before
    * simulation. Once this is set, modifying `raw` will have no effect unless
    * you call `tx.simulate()` again.
@@ -590,6 +596,7 @@ export class AssembledTransaction<T> {
     options: AssembledTransactionOptions<T>,
   ): Promise<AssembledTransaction<T>> {
     const tx = new AssembledTransaction(options);
+    tx.originalOp = operation;
     const account = await getAccount(options, tx.server);
     tx.raw = new TransactionBuilder(account, {
       fee: options.fee ?? BASE_FEE,
@@ -650,14 +657,17 @@ export class AssembledTransaction<T> {
       );
       if (result.status === Api.GetTransactionStatus.SUCCESS) {
         // need to rebuild the transaction with bumped account sequence number
-        const contract = new Contract(this.options.contractId);
+        const op = this.originalOp
+          ? this.originalOp
+          : new Contract(this.options.contractId).call(
+              this.options.method,
+              ...(this.options.args ?? []),
+            );
         this.raw = new TransactionBuilder(account, {
           fee: this.options.fee ?? BASE_FEE,
           networkPassphrase: this.options.networkPassphrase,
         })
-          .addOperation(
-            contract.call(this.options.method, ...(this.options.args ?? [])),
-          )
+          .addOperation(op)
           .setTimeout(this.options.timeoutInSeconds ?? DEFAULT_TIMEOUT);
         delete this.built;
         await this.simulate();

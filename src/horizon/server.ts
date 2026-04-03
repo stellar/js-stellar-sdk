@@ -155,7 +155,10 @@ export class HorizonServer {
     _isRetry: boolean = false,
   ): Promise<HorizonServer.Timebounds> {
     // httpClient instead of this.ledgers so we can get at them headers
-    const currentTime = getCurrentServerTime(this.serverURL.hostname());
+    const serverKey = this.serverURL.port()
+      ? `${this.serverURL.hostname()}:${this.serverURL.port()}`
+      : this.serverURL.hostname();
+    const currentTime = getCurrentServerTime(serverKey);
 
     if (currentTime) {
       return {

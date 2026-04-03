@@ -153,24 +153,24 @@ export function parseWasmCustomSections(
       // Custom section
       const nameLen = readVarUint32();
 
-      if (nameLen === 0 || offset + nameLen > start + sectionLength) continue;
+      if (nameLen > 0 && offset + nameLen <= start + sectionLength) {
+        const nameBytes = read(nameLen);
+        const payload = read(sectionLength - (offset - start));
 
-      const nameBytes = read(nameLen);
-      const payload = read(sectionLength - (offset - start));
-
-      try {
-        const name = new TextDecoder("utf-8", { fatal: true }).decode(
-          nameBytes,
-        );
-        if (payload.length > 0) {
-          sections.set(name, (sections.get(name) || []).concat(payload));
+        try {
+          const name = new TextDecoder("utf-8", { fatal: true }).decode(
+            nameBytes,
+          );
+          if (payload.length > 0) {
+            sections.set(name, (sections.get(name) || []).concat(payload));
+          }
+        } catch {
+          /* Invalid UTF-8 */
         }
-      } catch {
-        /* Invalid UTF-8 */
       }
-    } else {
-      offset += sectionLength; // Skip other sections
     }
+    // Always advance to end of section
+    offset = start + sectionLength;
   }
 
   return sections;

@@ -90,6 +90,17 @@ export class FederationServer {
     if (addressParts.length !== 2 || !domain) {
       return Promise.reject(new Error("Invalid Stellar address"));
     }
+
+    // Validate domain per RFC 1035 (as required by SEP-0002): each dot-separated
+    // label must start with a letter, end with a letter or digit, and contain only
+    // letters, digits, or hyphens.
+    if (
+      !/^(?:[A-Za-z](?:[A-Za-z0-9-]*[A-Za-z0-9])?\.)*[A-Za-z](?:[A-Za-z0-9-]*[A-Za-z0-9])?(?::\d+)?$/.test(
+        domain,
+      )
+    ) {
+      return Promise.reject(new Error("Invalid domain in Stellar address"));
+    }
     const federationServer = await FederationServer.createForDomain(
       domain,
       opts,
@@ -174,7 +185,9 @@ export class FederationServer {
       }
       stellarAddress = `${address}*${this.domain}`;
     }
-    const url = this.serverURL.query({ type: "name", q: stellarAddress });
+    const url = this.serverURL
+      .clone()
+      .query({ type: "name", q: stellarAddress });
     return this._sendRequest(url);
   }
 
@@ -188,7 +201,7 @@ export class FederationServer {
    * @throws {BadResponseError} Will throw an error if the server query fails with an improper response.
    */
   public async resolveAccountId(accountId: string): Promise<Api.Record> {
-    const url = this.serverURL.query({ type: "id", q: accountId });
+    const url = this.serverURL.clone().query({ type: "id", q: accountId });
     return this._sendRequest(url);
   }
 
@@ -204,7 +217,9 @@ export class FederationServer {
   public async resolveTransactionId(
     transactionId: string,
   ): Promise<Api.Record> {
-    const url = this.serverURL.query({ type: "txid", q: transactionId });
+    const url = this.serverURL
+      .clone()
+      .query({ type: "txid", q: transactionId });
     return this._sendRequest(url);
   }
 

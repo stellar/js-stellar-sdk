@@ -43,7 +43,10 @@ export function createHttpClient(headers?: Record<string, string>): HttpClient {
   });
 
   httpClient.interceptors.response.use((response) => {
-    const hostname = URI(response.config.url!).hostname();
+    const uri = URI(response.config.url!);
+    const hostname = uri.port()
+      ? `${uri.hostname()}:${uri.port()}`
+      : uri.hostname();
     let serverTime = 0;
     if (response.headers instanceof Headers) {
       const dateHeader = response.headers.get("date");
