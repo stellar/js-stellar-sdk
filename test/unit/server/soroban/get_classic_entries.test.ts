@@ -178,8 +178,8 @@ describe("Server#getTrustline", () => {
           limit: xdr.Int64.fromString("1000"),
           flags:
             Number(tl.balanceEntry!.authorized) |
-            Number(tl.balanceEntry!.clawback) |
-            Number(tl.balanceEntry!.revocable!),
+            (Number(tl.balanceEntry!.authorizedToMaintainLiabilities) << 1) |
+            (Number(tl.balanceEntry!.clawback) << 2),
           ext: new (xdr.TrustLineEntryExt as any)(0),
         });
       },
@@ -187,6 +187,38 @@ describe("Server#getTrustline", () => {
       trustlineEntry.toXDR("base64"),
       2, // extra for getLatestLedger call
     ));
+
+  it("correctly decodes trustline flags including clawback", () => {
+    const clawbackEntry = new xdr.TrustLineEntry({
+      accountId,
+      asset: asset.toTrustLineXDRObject(),
+      balance: xdr.Int64.fromString("500"),
+      limit: xdr.Int64.fromString("1000"),
+      flags: 5, // authorized (0x1) + clawback (0x4)
+      ext: new (xdr.TrustLineEntryExt as any)(0),
+    });
+    const clawbackEntryXDR =
+      xdr.LedgerEntryData.trustline(clawbackEntry).toXDR("base64");
+
+    return expectLedgerEntryFound(
+      mockPost,
+      trustlineKeyXDR,
+      clawbackEntryXDR,
+      async () => {
+        const tl: Api.BalanceResponse = await server.getAssetBalance(
+          account,
+          asset,
+        );
+        expect(tl.balanceEntry!.authorized).toBe(true);
+        expect(tl.balanceEntry!.clawback).toBe(true);
+        expect(tl.balanceEntry!.authorizedToMaintainLiabilities).toBe(false);
+        return clawbackEntry;
+      },
+      xdr.TrustLineEntry,
+      clawbackEntry.toXDR("base64"),
+      2,
+    );
+  });
 
   it("throws an error when the trustline is missing", () =>
     expectLedgerEntryNotFound(

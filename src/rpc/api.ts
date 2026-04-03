@@ -571,8 +571,9 @@ export namespace Api {
       amount: string;
       authorized: boolean;
       clawback: boolean;
-      revocable?: boolean; // only present for trustlines
-
+      authorizedToMaintainLiabilities?: boolean; // only present for trustlines
+      /** @deprecated Please use `authorizedToMaintainLiabilities` instead */
+      revocable?: boolean;
       lastModifiedLedgerSeq?: number;
       liveUntilLedgerSeq?: number;
     };
