@@ -130,9 +130,14 @@ function buildAuthEntry(address: any) {
 
   // do some voodoo to make this return a deterministic auth entry
   const kp = Keypair.fromSecret(randomSecret);
-  return authorizeInvocation(kp, 1, root).then((entry: any) => {
+  return authorizeInvocation({
+    signer: kp,
+    invocation: root,
+    validUntilLedgerSeq: 1,
+    networkPassphrase: "Test SDF Network ; September 2015",
+  }).then((entry: any) => {
     entry.credentials().address().nonce(new xdr.Int64(0xdeadbeef));
-    return authorizeEntry(entry, kp, 1); // overwrites signature w/ above nonce
+    return authorizeEntry(entry, kp, 1, "Test SDF Network ; September 2015"); // overwrites signature w/ above nonce
   });
 }
 

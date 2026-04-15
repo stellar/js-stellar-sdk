@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/dot-notation */
 import { describe, it, expect } from "vitest";
 import URI from "urijs";
-import { CallBuilder } from "../../lib/horizon/call_builder";
+import { CallBuilder } from "../../lib/esm/horizon/call_builder.mjs";
 import { httpClient } from "../test-utils/stellar-sdk-import";
 
 describe("CallBuilder functions", () => {
