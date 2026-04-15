@@ -7,6 +7,7 @@ export {};
 // Hidden namespace as hack to work around name collision.
 declare namespace xdrHidden {
   // tslint:disable-line:strict-export-declare-modifiers
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   class Operation2<T extends OperationRecord = OperationRecord> {
     constructor(attributes: {
       sourceAccount: null | xdr.MuxedAccount;

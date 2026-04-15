@@ -1,12 +1,6 @@
 /* disable PascalCase naming convention, to avoid breaking change */
 /* eslint-disable @typescript-eslint/naming-convention */
-import {
-  Memo,
-  MemoType,
-  Operation,
-  Transaction,
-  xdr,
-} from "@stellar/stellar-base";
+import { Transaction, xdr } from "../base";
 import type { SentTransaction } from "./sent_transaction";
 import type { Client } from "./client";
 import { Server } from "../rpc";
@@ -74,7 +68,7 @@ export type Duration = bigint;
  * @memberof module:contract
  * @type {Transaction<Memo<MemoType>, Operation[]>}
  */
-export type Tx = Transaction<Memo<MemoType>, Operation[]>;
+export type Tx = Transaction;
 
 export interface WalletError {
   message: string; // general description message returned to the client app

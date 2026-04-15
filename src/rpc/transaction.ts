@@ -3,7 +3,7 @@ import {
   Operation,
   Transaction,
   TransactionBuilder,
-} from "@stellar/stellar-base";
+} from "../base";
 
 import { Api } from "./api";
 import { parseRawSimulation } from "./parsers";

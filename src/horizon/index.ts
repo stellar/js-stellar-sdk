@@ -9,5 +9,3 @@ export * from "./account_response";
 
 export { HorizonServer as Server } from "./server";
 export { SERVER_TIME_MAP, getCurrentServerTime } from "./horizon_axios_client";
-
-export default module.exports;

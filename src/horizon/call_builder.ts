@@ -1,5 +1,6 @@
 import URI from "urijs";
-import URITemplate from "urijs/src/URITemplate";
+import URITemplate from "urijs/src/URITemplate.js";
+import EventSourceLib from "eventsource";
 
 import { BadRequestError, NetworkError, NotFoundError } from "../errors";
 
@@ -24,18 +25,21 @@ export interface EventSourceOptions<T> {
   reconnectTimeout?: number;
 }
 
-const anyGlobal = global as any;
+const anyGlobal = globalThis as any;
 type Constructable<T> = new (e: string) => T;
 
 // Declare EventSource as a potentially undefined variable
 let EventSource: Constructable<EventSource> | undefined;
 
-// Only define EventSource if __USE_EVENTSOURCE__ is true
+// Only define EventSource if __USE_EVENTSOURCE__ is true. The static import at
+// the top of the file is kept so that rollup can eliminate it via DCE for the
+// no-eventsource/minimal variants (where `__USE_EVENTSOURCE__` inlines as
+// `false`).
 if (typeof __USE_EVENTSOURCE__ !== "undefined" && __USE_EVENTSOURCE__) {
   EventSource =
     anyGlobal.EventSource ??
     anyGlobal.window?.EventSource ??
-    require("eventsource");
+    EventSourceLib;
 }
 
 /**

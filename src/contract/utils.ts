@@ -1,4 +1,4 @@
-import { xdr, cereal, Account } from "@stellar/stellar-base";
+import { xdr, cereal, Account } from "../base";
 import { Server } from "../rpc";
 import { type AssembledTransaction } from "./assembled_transaction";
 import { NULL_ACCOUNT, AssembledTransactionOptions } from "./types";

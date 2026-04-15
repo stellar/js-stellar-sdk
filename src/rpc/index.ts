@@ -15,5 +15,3 @@ export {
 } from "./server";
 export { parseRawSimulation, parseRawEvents } from "./parsers";
 export * from "./transaction";
-
-export default module.exports;

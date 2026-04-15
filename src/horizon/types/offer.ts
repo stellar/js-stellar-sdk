@@ -1,4 +1,4 @@
-import { AssetType } from "@stellar/stellar-base";
+import { AssetType } from "../../base";
 import { HorizonApi } from "../horizon_api";
 
 export interface OfferAsset {

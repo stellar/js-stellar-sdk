@@ -1,4 +1,4 @@
-import { Keypair, TransactionBuilder, hash } from "@stellar/stellar-base";
+import { Keypair, TransactionBuilder, hash } from "../base";
 import type { Client } from "./client";
 import { SignAuthEntry, SignTransaction } from "./types";
 

@@ -1,4 +1,4 @@
-import { Transaction } from "@stellar/stellar-base";
+import { Transaction } from "./base";
 
 /**
  * Miscellaneous utilities.

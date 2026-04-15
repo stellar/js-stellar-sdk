@@ -1,4 +1,4 @@
-import { Address, Contract, StrKey, xdr } from "@stellar/stellar-base";
+import { Address, Contract, StrKey, xdr } from "../base";
 import { Server } from "../rpc";
 
 import { RpcServer } from "../rpc/server";

@@ -1,4 +1,5 @@
-export { UnsignedHyper, Hyper } from "@stellar/js-xdr";
+import jsXdr from "@stellar/js-xdr";
+export const { UnsignedHyper, Hyper } = jsXdr;
 
 import xdr from "./xdr.js";
 import cereal from "./jsxdr.js";

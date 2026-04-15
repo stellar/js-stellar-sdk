@@ -1,4 +1,5 @@
-import { LargeInt } from "@stellar/js-xdr";
+import jsXdr from "@stellar/js-xdr";
+const { LargeInt } = jsXdr;
 
 export class Int256 extends LargeInt {
   /**

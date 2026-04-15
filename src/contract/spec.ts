@@ -6,7 +6,7 @@ import {
   Address,
   Contract,
   scValToBigInt,
-} from "@stellar/stellar-base";
+} from "../base";
 import { Ok, Err } from "./rust_result";
 import { processSpecEntryStream } from "./utils";
 import { specFromWasm } from "./wasm_spec_parser";
@@ -805,18 +805,15 @@ export class Spec {
       case "bigint": {
         switch (value) {
           case xdr.ScSpecType.scSpecTypeU32().value:
-            if (
-              BigInt(val) < BigInt(xdr.Uint32.MIN_VALUE) ||
-              BigInt(val) > BigInt(xdr.Uint32.MAX_VALUE)
-            ) {
+            if (BigInt(val) < BigInt(0) || BigInt(val) > BigInt("4294967295")) {
               throw new RangeError(`Value ${val} is out of range for U32`);
             }
             return xdr.ScVal.scvU32(Number(val));
           case xdr.ScSpecType.scSpecTypeI32().value:
             if (
               // TODO: remove the `-` cast on the min value once js-xdr fixes the issue where it treats the min value as unsigned
-              BigInt(val) < -BigInt(xdr.Int32.MIN_VALUE) ||
-              BigInt(val) > BigInt(xdr.Int32.MAX_VALUE)
+              BigInt(val) < -BigInt("2147483648") ||
+              BigInt(val) > BigInt("2147483647")
             ) {
               throw new RangeError(`Value ${val} is out of range for I32`);
             }

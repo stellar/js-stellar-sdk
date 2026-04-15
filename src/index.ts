@@ -37,14 +37,9 @@ export * as rpc from "./rpc";
 export * as contract from "./contract";
 export { BindingGenerator } from "./bindings";
 // expose classes and functions from stellar-base
-export * from "@stellar/stellar-base";
+export * from "./base";
 
-export default module.exports;
-
-if (typeof (global as any).__USE_AXIOS__ === "undefined") {
-  (global as any).__USE_AXIOS__ = true;
-}
-
-if (typeof (global as any).__USE_EVENTSOURCE__ === "undefined") {
-  (global as any).__USE_EVENTSOURCE__ = false;
-}
+// `__USE_AXIOS__` and `__USE_EVENTSOURCE__` are substituted at build time by
+// the rollup + esbuild pipeline (see rollup.config.mjs). No runtime globals
+// are needed — the legacy `global.__USE_AXIOS__` fallback here would crash in
+// the browser (where `global` is undefined) and is no longer necessary.

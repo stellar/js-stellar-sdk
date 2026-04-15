@@ -1,4 +1,6 @@
-import { Hyper, LargeInt, UnsignedHyper } from "@stellar/js-xdr";
+import jsXdr from "@stellar/js-xdr";
+import type { LargeInt } from "@stellar/js-xdr";
+const { Hyper, UnsignedHyper } = jsXdr;
 
 import { Uint128 } from "./uint128.js";
 import { Uint256 } from "./uint256.js";

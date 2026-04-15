@@ -1,4 +1,4 @@
-import { xdr } from "@stellar/stellar-base";
+import { xdr } from "../base";
 import { Spec } from "../contract";
 import {
   parseTypeFromTypeDef,

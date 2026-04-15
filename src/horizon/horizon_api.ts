@@ -1,4 +1,4 @@
-import { AssetType, MemoType } from "@stellar/stellar-base";
+import { AssetType, MemoType } from "../base";
 
 /* tslint:disable-next-line:no-namespace */
 export namespace HorizonApi {
@@ -84,13 +84,13 @@ export namespace HorizonApi {
 
   export interface BalanceLineNative {
     balance: string;
-    asset_type: AssetType.native;
+    asset_type: typeof AssetType.native;
     buying_liabilities: string;
     selling_liabilities: string;
   }
   export interface BalanceLineLiquidityPool {
     liquidity_pool_id: string;
-    asset_type: AssetType.liquidityPoolShares;
+    asset_type: typeof AssetType.liquidityPoolShares;
     balance: string;
     limit: string;
     last_modified_ledger: number;
@@ -100,9 +100,9 @@ export namespace HorizonApi {
     sponsor?: string;
   }
   export interface BalanceLineAsset<
-    T extends AssetType.credit4 | AssetType.credit12 =
-      | AssetType.credit4
-      | AssetType.credit12,
+    T extends typeof AssetType.credit4 | typeof AssetType.credit12 =
+      | typeof AssetType.credit4
+      | typeof AssetType.credit12,
   > {
     balance: string;
     limit: string;
@@ -118,11 +118,11 @@ export namespace HorizonApi {
     sponsor?: string;
   }
   export type BalanceLine<T extends AssetType = AssetType> =
-    T extends AssetType.native
+    T extends typeof AssetType.native
       ? BalanceLineNative
-      : T extends AssetType.credit4 | AssetType.credit12
+      : T extends typeof AssetType.credit4 | typeof AssetType.credit12
         ? BalanceLineAsset<T>
-        : T extends AssetType.liquidityPoolShares
+        : T extends typeof AssetType.liquidityPoolShares
           ? BalanceLineLiquidityPool
           : BalanceLineNative | BalanceLineAsset | BalanceLineLiquidityPool;
 
@@ -391,9 +391,9 @@ export namespace HorizonApi {
     OperationResponseTypeI.changeTrust
   > {
     asset_type:
-      | AssetType.credit4
-      | AssetType.credit12
-      | AssetType.liquidityPoolShares;
+      | typeof AssetType.credit4
+      | typeof AssetType.credit12
+      | typeof AssetType.liquidityPoolShares;
     asset_code?: string;
     asset_issuer?: string;
     liquidity_pool_id?: string;

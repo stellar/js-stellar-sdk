@@ -1,4 +1,4 @@
-import { Asset } from "@stellar/stellar-base";
+import { Asset } from "../base";
 import { CallBuilder } from "./call_builder";
 import { ServerApi } from "./server_api";
 import { HttpClient } from "../http-client";

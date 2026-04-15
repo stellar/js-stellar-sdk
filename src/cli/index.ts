@@ -8,7 +8,7 @@ import {
   logSourceInfo,
   deriveContractName,
 } from "./util";
-import { Networks } from "@stellar/stellar-base";
+import { Networks } from "../base";
 
 // Default RPC URLs for each network
 const NETWORK_CONFIG: Record<

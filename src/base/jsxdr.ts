@@ -1,4 +1,5 @@
-import { XdrWriter, XdrReader } from "@stellar/js-xdr";
+import jsXdr from "@stellar/js-xdr";
+const { XdrWriter, XdrReader } = jsXdr;
 
 // Named exports for better tree shaking
 export { XdrWriter, XdrReader };
