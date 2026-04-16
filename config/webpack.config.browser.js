@@ -104,7 +104,7 @@ const config = {
     new webpack.DefinePlugin({
       __USE_AXIOS__: JSON.stringify(buildConfig.useAxios),
       __USE_EVENTSOURCE__: JSON.stringify(buildConfig.useEventSource),
-      __PACKAGE_VERSION__: version,
+      __PACKAGE_VERSION__: JSON.stringify(version),
     })
   ],
   watchOptions: {

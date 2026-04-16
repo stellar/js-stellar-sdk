@@ -1,4 +1,10 @@
-import packageJson from "../../package.json";
+// The SDK version is baked in at build time via babel-plugin-transform-define.
+// Previously this was `import packageJson from "../../package.json"`, which
+// failed at runtime in deeper build outputs (lib/no-axios, lib/minimal) because
+// the relative path `../../package.json` resolved into the output tree rather
+// than the project root.
+// eslint-disable-next-line @typescript-eslint/naming-convention
+declare const __PACKAGE_VERSION__: string;
 
 export interface ConfigGenerateOptions {
   contractName: string;
@@ -45,7 +51,7 @@ export class ConfigGenerator {
         build: "tsc",
       },
       dependencies: {
-        "@stellar/stellar-sdk": `^${packageJson.version}`,
+        "@stellar/stellar-sdk": `^${__PACKAGE_VERSION__}`,
         buffer: "6.0.3",
       },
       devDependencies: {
