@@ -25,6 +25,19 @@ export interface FetchClientConfig<T = any> extends AxiosRequestConfig {
 type InterceptorFulfilled<V> = (value: V) => V | Promise<V>;
 type InterceptorRejected = (error: any) => any;
 
+// Marker used so `isCancel` can identify cancellations by tag rather than
+// message text. Without this, a caller that passed a custom reason via
+// `cancel("timeout of 1000ms exceeded")` would see `isCancel(err) === false`.
+const CANCELED_MARKER = Symbol.for("@stellar/stellar-sdk.canceled");
+
+function makeCanceledError(reason?: string): Error {
+  const err = new Error(reason || "Request canceled") as Error & {
+    [CANCELED_MARKER]?: true;
+  };
+  err[CANCELED_MARKER] = true;
+  return err;
+}
+
 class InterceptorManager<V> {
   handlers: Array<Interceptor<V> | null> = [];
 
@@ -61,6 +74,251 @@ function getFormConfig(
   formConfig.headers.set("Content-Type", "application/x-www-form-urlencoded");
   return formConfig;
 }
+function buildBoundedUrl(config: HttpClientRequestConfig): string {
+  let url = config.url || "";
+  if (config.baseURL && url && !/^https?:\/\//i.test(url)) {
+    url = url.replace(/^\/?/, `${config.baseURL.replace(/\/$/, "")}/`);
+  }
+  if (config.params && Object.keys(config.params).length > 0) {
+    const serialize = (config as { paramsSerializer?: (p: any) => string })
+      .paramsSerializer;
+    const qs = serialize
+      ? serialize(config.params)
+      : new URLSearchParams(config.params as Record<string, string>).toString();
+    url += (url.includes("?") ? "&" : "?") + qs;
+  }
+  return url;
+}
+
+// Mirrors feaxios's defaultTransformer: serialize request bodies based on
+// their JS type and set an appropriate Content-Type when one isn't already
+// present. Without this, a caller using the bounded adapter on POST/PUT with
+// an object body would send [object Object] instead of JSON.
+function encodeRequestBody(data: any, headers: Headers): BodyInit | undefined {
+  if (data === undefined || data === null) return undefined;
+  if (typeof data === "string") return data;
+  if (data instanceof URLSearchParams) {
+    if (!headers.has("content-type")) {
+      headers.set("content-type", "application/x-www-form-urlencoded");
+    }
+    return data;
+  }
+  if (
+    data instanceof Blob ||
+    data instanceof ArrayBuffer ||
+    ArrayBuffer.isView(data)
+  ) {
+    if (!headers.has("content-type")) {
+      headers.set("content-type", "application/octet-stream");
+    }
+    return data as BodyInit;
+  }
+  if (typeof FormData !== "undefined" && data instanceof FormData) {
+    // Let fetch set the multipart boundary.
+    return data;
+  }
+  // Default: JSON-encode plain objects.
+  if (!headers.has("content-type")) {
+    headers.set("content-type", "application/json");
+  }
+  return JSON.stringify(data);
+}
+
+async function readBodyBounded(
+  response: Response,
+  maxContentLength?: number,
+): Promise<Uint8Array> {
+  if (maxContentLength !== undefined) {
+    const headerLen = response.headers.get("content-length");
+    if (headerLen && Number(headerLen) > maxContentLength) {
+      throw new Error(`maxContentLength size of ${maxContentLength} exceeded`);
+    }
+  }
+
+  if (!response.body) return new Uint8Array(0);
+
+  const reader = response.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+  // Streamed enforcement: abort as soon as running total exceeds the cap,
+  // before the full body reaches memory.
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    if (value) {
+      total += value.byteLength;
+      if (maxContentLength !== undefined && total > maxContentLength) {
+        await reader.cancel();
+        throw new Error(
+          `maxContentLength size of ${maxContentLength} exceeded`,
+        );
+      }
+      chunks.push(value);
+    }
+  }
+
+  const out = new Uint8Array(total);
+  let offset = 0;
+  for (const c of chunks) {
+    out.set(c, offset);
+    offset += c.byteLength;
+  }
+  return out;
+}
+function buildHttpError(
+  response: Response,
+  config: HttpClientRequestConfig,
+  data?: any,
+): Error {
+  const err = new Error(
+    `Request failed with status code ${response.status}`,
+  ) as Error & {
+    response: {
+      status: number;
+      statusText: string;
+      headers: Headers;
+      data: any;
+      config: HttpClientRequestConfig;
+    };
+  };
+  err.response = {
+    status: response.status,
+    statusText: response.statusText,
+    headers: response.headers,
+    data,
+    config,
+  };
+  return err;
+}
+// feaxios ignores maxRedirects and maxContentLength. When either is set,
+// perform the request via native fetch with explicit enforcement — otherwise
+// the "security" config is silently a no-op, allowing redirect-based SSRF and
+// unbounded-response DoS. Keep the error message prefix "maxContentLength size"
+// identical to axios's Node adapter — callers (stellartoml, federation) match
+// on it in their catch blocks.
+async function boundedFetchAdapter<T>(
+  config: HttpClientRequestConfig,
+): Promise<HttpClientResponse<T>> {
+  const { maxRedirects, maxContentLength } = config;
+
+  const signals: AbortSignal[] = [];
+  const incomingSignal = (config as { signal?: AbortSignal }).signal;
+  if (incomingSignal) signals.push(incomingSignal);
+  if (config.timeout && config.timeout > 0) {
+    signals.push(AbortSignal.timeout(config.timeout));
+  }
+  const signal = signals.length > 1 ? AbortSignal.any(signals) : signals[0];
+
+  // Redirect policy:
+  //   undefined → let fetch follow freely (caller doesn't care)
+  //   0         → refuse to follow any redirect (SSRF-safe default)
+  //   N > 0     → manually chain up to N hops, then refuse
+  // We can't delegate N>0 to `redirect: "follow"` because fetch's default cap
+  // is 20, not N — a caller asking for 1 must actually get 1.
+  const managedRedirects = maxRedirects !== undefined;
+  const redirect: RequestInit["redirect"] = managedRedirects
+    ? "manual"
+    : "follow";
+
+  const headers = new Headers(config.headers || {});
+  const body = encodeRequestBody(config.data, headers);
+  const withCredentials = (config as { withCredentials?: boolean })
+    .withCredentials;
+
+  // IMPORTANT: spread fetchOptions FIRST, then overlay the enforced fields.
+  // If fetchOptions came last, a caller could set `fetchOptions.redirect:
+  // "follow"` and silently bypass maxRedirects — the adapter exists to make
+  // these controls non-optional.
+  const baseInit: RequestInit = {
+    ...config.fetchOptions,
+    method: (config.method || "get").toUpperCase(),
+    headers,
+    body,
+    redirect,
+    ...(signal ? { signal } : {}),
+    ...(withCredentials !== undefined
+      ? { credentials: withCredentials ? "include" : "same-origin" }
+      : {}),
+  };
+
+  let currentUrl = buildBoundedUrl(config);
+  let redirectsRemaining = maxRedirects ?? 0;
+  let response: Response;
+
+  while (true) {
+    try {
+      response = await fetch(currentUrl, baseInit);
+    } catch (err: any) {
+      if (err?.name === "TimeoutError") {
+        throw new Error(`timeout of ${config.timeout}ms exceeded`);
+      }
+      throw err;
+    }
+
+    const isRedirect = response.status >= 300 && response.status < 400;
+    if (!managedRedirects || !isRedirect) break;
+
+    if (redirectsRemaining <= 0) {
+      // maxRedirects === 0: "Request failed with status code 30x" (matches
+      // axios's message on a refused-first-hop rejection, which stellartoml
+      // tests already assert against).
+      // maxRedirects > 0 exhausted: "Maximum number of redirects exceeded"
+      // (matches axios's native message for the same condition).
+      if (maxRedirects === 0) throw buildHttpError(response, config);
+      throw new Error("Maximum number of redirects exceeded");
+    }
+    const location = response.headers.get("location");
+    if (!location) break;
+    currentUrl = new URL(location, currentUrl).toString();
+    redirectsRemaining -= 1;
+  }
+
+  const validateStatus = (
+    config as { validateStatus?: (status: number) => boolean }
+  ).validateStatus;
+  const statusOk = validateStatus
+    ? validateStatus(response.status)
+    : response.ok;
+  if (!statusOk) {
+    // Read the (bounded) body so the thrown error carries the server's
+    // payload. Axios/feaxios attach `.response.data` on non-2xx errors; we
+    // preserve that contract — notably federation's caller can still inspect
+    // status/body when a 4xx/5xx comes back, matching the axios-build shape.
+    let errBody: any;
+    // eslint-disable-next-line no-useless-catch
+    try {
+      const errBytes = await readBodyBounded(response, maxContentLength);
+      const errText = new TextDecoder().decode(errBytes);
+      try {
+        errBody = JSON.parse(errText);
+      } catch {
+        errBody = errText;
+      }
+    } catch (readErr) {
+      // If body reading itself violated the cap, surface that error first.
+      throw readErr;
+    }
+    throw buildHttpError(response, config, errBody);
+  }
+
+  const bytes = await readBodyBounded(response, maxContentLength);
+  const text = new TextDecoder().decode(bytes);
+
+  let data: any = text;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    // leave as string (e.g. TOML)
+  }
+
+  return {
+    data,
+    headers: response.headers as any,
+    config,
+    status: response.status,
+    statusText: response.statusText,
+  };
+}
 
 function createFetchClient(
   fetchConfig: HttpClientRequestConfig = {},
@@ -82,7 +340,15 @@ function createFetchClient(
 
     defaults: {
       ...defaults,
-      adapter: (config: HttpClientRequestConfig) => instance.request(config),
+      adapter: (config: HttpClientRequestConfig) => {
+        if (
+          config.maxRedirects !== undefined ||
+          config.maxContentLength !== undefined
+        ) {
+          return boundedFetchAdapter(config);
+        }
+        return instance.request(config);
+      },
     },
 
     create(config?: HttpClientRequestConfig): HttpClient {
@@ -158,9 +424,13 @@ function createFetchClient(
         config.signal = abortController.signal;
 
         if (config.cancelToken) {
-          config.cancelToken.promise.then(() => {
+          const { cancelToken } = config;
+          cancelToken.promise.then(() => {
             abortController.abort();
-            reject(new Error("Request canceled"));
+            // Propagate the cancel reason so callers that pass a reason via
+            // `cancel(reason)` — e.g. stellartoml's timeout wrapper — see
+            // their original message rather than a generic "Request canceled".
+            reject(makeCanceledError(cancelToken.reason));
           });
         }
 
@@ -349,7 +619,8 @@ function createFetchClient(
 
     CancelToken,
     isCancel: (value: any): boolean =>
-      value instanceof Error && value.message === "Request canceled",
+      value instanceof Error &&
+      (value as { [CANCELED_MARKER]?: true })[CANCELED_MARKER] === true,
   };
 
   return httpClient;
