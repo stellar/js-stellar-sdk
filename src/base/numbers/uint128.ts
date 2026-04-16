@@ -1,5 +1,4 @@
-import jsXdr from "@stellar/js-xdr";
-const { LargeInt } = jsXdr;
+import { LargeInt } from "@stellar/js-xdr";
 
 export class Uint128 extends LargeInt {
   /**
