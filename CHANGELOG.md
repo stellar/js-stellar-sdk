@@ -6,6 +6,9 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Added
+* Added
+
 ### Fixed
 * `RpcServer.pollTransaction` off-by-one: the polling loop used `<` instead of `<=`, causing one fewer attempt than configured([#1373](https://github.com/stellar/js-stellar-sdk/pull/1373)).
 * `requestAirdrop` error path: fixed incorrect property access (`error.response.detail` instead of `error.response.data.detail`) when checking for `createAccountAlreadyExist` ([#1373](https://github.com/stellar/js-stellar-sdk/pull/1373)).
@@ -31,6 +34,8 @@ A breaking change will get clearly marked in this log.
 * `AccountResponse` constructor now uses explicit field-by-field assignment instead of `Object.entries` dynamic assignment for type safety ([#1373](https://github.com/stellar/js-stellar-sdk/pull/1373)).
 * Added `transactions` collection to `Api.AccountRecord` and `AccountResponse` ([#1373](https://github.com/stellar/js-stellar-sdk/pull/1373)).
 * Added range checks for U32/I32 values in `Spec`: bigint values are now validated against min/max bounds before conversion, throwing a `RangeError` instead of silently truncating ([#1373](https://github.com/stellar/js-stellar-sdk/pull/1373)).
+* `rpc.Server.getLatestLedger()` now includes `closeTime`, `headerXdr`, and `metadataXdr` in the typed response, with `headerXdr`/`metadataXdr` parsed into XDR objects instead of raw base64 strings ([#1389
+](https://github.com/stellar/js-stellar-sdk/pull/1389)).
 
 ### Deprecated
 * `BalanceResponse.revocable` is deprecated in favor of `authorizedToMaintainLiabilities`, which correctly reflects the trustline flag semantics ([#1372](https://github.com/stellar/js-stellar-sdk/pull/1372)).
