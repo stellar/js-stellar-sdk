@@ -26,11 +26,15 @@ A breaking change will get clearly marked in this log.
 * `AssembledTransaction.simulate` did not clear `this.built` before re-simulating after a state restoration rebuild, causing it to assemble stale transaction data ([#1372](https://github.com/stellar/js-stellar-sdk/pull/1372)).
 * `AssembledTransaction.signAndSend` mutated the shared `this.options.submit` flag to prevent double submission. Replaced with a wrapper around `signTransaction` that injects `submit: false` without mutating shared state ([#1372](https://github.com/stellar/js-stellar-sdk/pull/1372)).
 * Fetch HTTP client: async request interceptors were not awaited — the synchronous `try/catch` loop passed unresolved promise objects as the config. Replaced with a proper `.then()` chain matching Axios interceptor semantics ([#1372](https://github.com/stellar/js-stellar-sdk/pull/1372)).
+* Fetch HTTP client: `maxRedirects` and `maxContentLength` were silently ignored on the no-axios / minimal builds, turning SDK-set SSRF and DoS guards (`StellarToml.Resolver.resolve`, `FederationServer`) into no-ops. A new bounded adapter activates when either option is set, refusing redirects past `maxRedirects` and streaming the response body with a running-total check so oversized responses abort mid-stream ([#1390](https://github.com/stellar/js-stellar-sdk/pull/1390)).
+* `src/bindings/config.ts` imported `../../package.json` with a relative path that resolved incorrectly for the `lib/no-axios/` and `lib/minimal/` build outputs, making those libs unloadable. Replaced with the `__PACKAGE_VERSION__` compile-time define ([#1390](https://github.com/stellar/js-stellar-sdk/pull/1390)).
 
 ### Added
 * `AccountResponse` constructor now uses explicit field-by-field assignment instead of `Object.entries` dynamic assignment for type safety ([#1373](https://github.com/stellar/js-stellar-sdk/pull/1373)).
 * Added `transactions` collection to `Api.AccountRecord` and `AccountResponse` ([#1373](https://github.com/stellar/js-stellar-sdk/pull/1373)).
 * Added range checks for U32/I32 values in `Spec`: bigint values are now validated against min/max bounds before conversion, throwing a `RangeError` instead of silently truncating ([#1373](https://github.com/stellar/js-stellar-sdk/pull/1373)).
+
+
 
 ### Deprecated
 * `BalanceResponse.revocable` is deprecated in favor of `authorizedToMaintainLiabilities`, which correctly reflects the trustline flag semantics ([#1372](https://github.com/stellar/js-stellar-sdk/pull/1372)).
