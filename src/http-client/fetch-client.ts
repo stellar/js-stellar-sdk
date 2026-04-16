@@ -170,7 +170,10 @@ async function readBodyBounded(
 // AbortController + setTimeout so the no-axios browser bundle works on older
 // runtimes.
 function createTimeoutSignal(ms: number): AbortSignal {
-  if (typeof AbortSignal !== "undefined" && typeof AbortSignal.timeout === "function") {
+  if (
+    typeof AbortSignal !== "undefined" &&
+    typeof AbortSignal.timeout === "function"
+  ) {
     return AbortSignal.timeout(ms);
   }
   const controller = new AbortController();
@@ -181,7 +184,10 @@ function createTimeoutSignal(ms: number): AbortSignal {
 function composeSignals(signals: AbortSignal[]): AbortSignal | undefined {
   if (signals.length === 0) return undefined;
   if (signals.length === 1) return signals[0];
-  if (typeof AbortSignal !== "undefined" && typeof AbortSignal.any === "function") {
+  if (
+    typeof AbortSignal !== "undefined" &&
+    typeof AbortSignal.any === "function"
+  ) {
     return AbortSignal.any(signals);
   }
   const controller = new AbortController();
@@ -190,7 +196,9 @@ function composeSignals(signals: AbortSignal[]): AbortSignal | undefined {
       controller.abort(s.reason);
       break;
     }
-    s.addEventListener("abort", () => controller.abort(s.reason), { once: true });
+    s.addEventListener("abort", () => controller.abort(s.reason), {
+      once: true,
+    });
   }
   return controller.signal;
 }
@@ -330,9 +338,7 @@ async function boundedFetchAdapter<T>(
     // Only Node's `redirect: "manual"` exposes 3xx status; browsers either
     // already followed (redirect: "follow") or threw (redirect: "error").
     const isManualRedirectResponse =
-      redirect === "manual" &&
-      response.status >= 300 &&
-      response.status < 400;
+      redirect === "manual" && response.status >= 300 && response.status < 400;
     if (!isManualRedirectResponse) break;
 
     if (redirectsRemaining <= 0) {
