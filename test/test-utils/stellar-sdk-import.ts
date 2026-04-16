@@ -22,6 +22,18 @@ declare global {
   }
 }
 
+// When USE_AXIOS=false is set, Node tests must load the no-axios build so
+// they exercise the fetch path rather than the pre-baked axios build under
+// lib/. Without this redirect, the __USE_AXIOS__ define in vitest config has
+// no effect because the test harness imports pre-compiled JS from lib/.
+// Evaluated lazily so browser bundles (where `process` is undefined) don't
+// crash at module load.
+function getNodeLibPath(): string {
+  return typeof process !== "undefined" && process.env?.USE_AXIOS === "false"
+    ? "../../lib/no-axios"
+    : "../../lib";
+}
+
 /**
  * Get the StellarSdk module with proper TypeScript types
  * Works in both browser and Node.js environments
@@ -32,7 +44,8 @@ export function getStellarSdk(): StellarSdkModule {
     return window.StellarSdk;
   }
   // Node.js environment - require the lib module
-  return require("../../lib");
+  // eslint-disable-next-line import/no-dynamic-require, global-require
+  return require(getNodeLibPath());
 }
 
 // Export the StellarSdk instance with proper typing
@@ -83,7 +96,8 @@ export function getHttpClient() {
     return (window as any).StellarSdk.httpClient;
   }
   // In Node.js environment, import directly
-  const httpClientModule = require("../../lib/http-client");
+  // eslint-disable-next-line import/no-dynamic-require, global-require
+  const httpClientModule = require(`${getNodeLibPath()}/http-client`);
   return httpClientModule.httpClient;
 }
 
