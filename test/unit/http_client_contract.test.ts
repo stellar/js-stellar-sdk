@@ -45,9 +45,18 @@ function startServer(handler: Handler): Promise<{
           body,
         };
         requests.push(rec);
-        Promise.resolve(handler(req, res, rec)).catch(() => {
-          if (!res.writableEnded) res.end();
-        });
+        // Re-throw handler errors on the next tick so vitest sees them as a
+        // test failure rather than silently ending the response. Previously
+        // we swallowed the error, which could let a broken handler produce
+        // a green test.
+        Promise.resolve()
+          .then(() => handler(req, res, rec))
+          .catch((error) => {
+            if (!res.writableEnded) res.end();
+            setImmediate(() => {
+              throw error;
+            });
+          });
       });
     });
     server.listen(0, () => {
@@ -288,6 +297,57 @@ describe("HttpClient contract", () => {
           maxContentLength: 10_000,
         }),
       ).rejects.toThrow();
+    });
+
+    it("follows 302 with GET and drops the body (per HTTP spec)", async () => {
+      const seen: Array<{ method: string; url: string; body: string }> = [];
+      respond = (req, res, rec) => {
+        seen.push({ method: rec.method, url: rec.url, body: rec.body });
+        if (req.url === "/start") {
+          res.writeHead(302, { location: "/after" });
+          return res.end();
+        }
+        res.setHeader("Content-Type", "application/json");
+        res.writeHead(200);
+        return res.end('{"ok":true}');
+      };
+      await httpClient.post(
+        `${baseUrl}/start`,
+        { sensitive: "payload" },
+        { maxRedirects: 1, maxContentLength: 10_000 },
+      );
+      expect(seen[0]).toEqual({
+        method: "POST",
+        url: "/start",
+        body: '{"sensitive":"payload"}',
+      });
+      // After the 302, the request must switch to GET with no body — otherwise
+      // a naive re-POST would leak payload to the redirect target.
+      expect(seen[1].method).toBe("GET");
+      expect(seen[1].url).toBe("/after");
+      expect(seen[1].body).toBe("");
+    });
+
+    it("follows 307 while preserving method and body", async () => {
+      const seen: Array<{ method: string; body: string }> = [];
+      respond = (req, res, rec) => {
+        seen.push({ method: rec.method, body: rec.body });
+        if (req.url === "/start") {
+          res.writeHead(307, { location: "/after" });
+          return res.end();
+        }
+        res.setHeader("Content-Type", "application/json");
+        res.writeHead(200);
+        return res.end('{"ok":true}');
+      };
+      await httpClient.post(
+        `${baseUrl}/start`,
+        { keep: "this" },
+        { maxRedirects: 1, maxContentLength: 10_000 },
+      );
+      expect(seen[0]).toEqual({ method: "POST", body: '{"keep":"this"}' });
+      // 307/308 must preserve the method AND body.
+      expect(seen[1]).toEqual({ method: "POST", body: '{"keep":"this"}' });
     });
 
     it("fetchOptions cannot override the enforced redirect policy", async () => {

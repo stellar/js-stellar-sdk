@@ -165,6 +165,67 @@ async function readBodyBounded(
   }
   return out;
 }
+// AbortSignal.timeout and AbortSignal.any are relatively recent (Safari 17.4,
+// Firefox 124, Chrome 116; Node 20.3). Feature-detect and fall back to
+// AbortController + setTimeout so the no-axios browser bundle works on older
+// runtimes.
+function createTimeoutSignal(ms: number): AbortSignal {
+  if (typeof AbortSignal !== "undefined" && typeof AbortSignal.timeout === "function") {
+    return AbortSignal.timeout(ms);
+  }
+  const controller = new AbortController();
+  setTimeout(() => controller.abort(new Error("TimeoutError")), ms);
+  return controller.signal;
+}
+
+function composeSignals(signals: AbortSignal[]): AbortSignal | undefined {
+  if (signals.length === 0) return undefined;
+  if (signals.length === 1) return signals[0];
+  if (typeof AbortSignal !== "undefined" && typeof AbortSignal.any === "function") {
+    return AbortSignal.any(signals);
+  }
+  const controller = new AbortController();
+  for (const s of signals) {
+    if (s.aborted) {
+      controller.abort(s.reason);
+      break;
+    }
+    s.addEventListener("abort", () => controller.abort(s.reason), { once: true });
+  }
+  return controller.signal;
+}
+
+// Node is the only environment where `redirect: "manual"` reliably exposes
+// status and Location. In browsers a cross-origin manual redirect yields an
+// opaqueredirect response (status 0, no Location), so hop-by-hop enforcement
+// can't work. There we use `redirect: "error"` for strict zero-redirect and
+// fall back to normal following otherwise — matching axios/XHR browser behavior.
+function canInspectManualRedirects(): boolean {
+  return (
+    typeof process !== "undefined" &&
+    !!process.versions &&
+    !!process.versions.node
+  );
+}
+
+// Per fetch spec, 301/302/303 redirects MUST switch the method to GET and
+// drop the body; 307/308 preserve both. Applying the same method/body across
+// every hop is a common footgun that silently POSTs to redirect targets.
+function applyRedirectSemantics(
+  init: RequestInit,
+  status: number,
+): RequestInit {
+  if (status === 307 || status === 308) return init;
+  const next: RequestInit = { ...init, method: "GET", body: undefined };
+  // Drop body-related headers when switching to GET.
+  const headers = new Headers(init.headers || {});
+  headers.delete("content-type");
+  headers.delete("content-length");
+  headers.delete("transfer-encoding");
+  next.headers = headers;
+  return next;
+}
+
 function buildHttpError(
   response: Response,
   config: HttpClientRequestConfig,
@@ -205,20 +266,31 @@ async function boundedFetchAdapter<T>(
   const incomingSignal = (config as { signal?: AbortSignal }).signal;
   if (incomingSignal) signals.push(incomingSignal);
   if (config.timeout && config.timeout > 0) {
-    signals.push(AbortSignal.timeout(config.timeout));
+    signals.push(createTimeoutSignal(config.timeout));
   }
-  const signal = signals.length > 1 ? AbortSignal.any(signals) : signals[0];
+  const signal = composeSignals(signals);
 
   // Redirect policy:
-  //   undefined → let fetch follow freely (caller doesn't care)
-  //   0         → refuse to follow any redirect (SSRF-safe default)
-  //   N > 0     → manually chain up to N hops, then refuse
-  // We can't delegate N>0 to `redirect: "follow"` because fetch's default cap
-  // is 20, not N — a caller asking for 1 must actually get 1.
+  //   undefined   → let fetch follow freely (caller doesn't care)
+  //   0  in Node  → "manual": read the 3xx, reject before the next hop
+  //   0  in brwsr → "error":  fetch throws on the first 3xx (manual would
+  //                           yield an opaqueredirect with no status/Location,
+  //                           which we can't interpret)
+  //   N>0 in Node → manually chain up to N hops, then refuse
+  //   N>0 in brwsr → "follow": we can't count hops cross-origin, so match
+  //                            axios/XHR browser behavior (follow to 20)
   const managedRedirects = maxRedirects !== undefined;
-  const redirect: RequestInit["redirect"] = managedRedirects
-    ? "manual"
-    : "follow";
+  const canManage = canInspectManualRedirects();
+  let redirect: RequestInit["redirect"];
+  if (!managedRedirects) {
+    redirect = "follow";
+  } else if (canManage) {
+    redirect = "manual";
+  } else if (maxRedirects === 0) {
+    redirect = "error";
+  } else {
+    redirect = "follow";
+  }
 
   const headers = new Headers(config.headers || {});
   const body = encodeRequestBody(config.data, headers);
@@ -229,7 +301,7 @@ async function boundedFetchAdapter<T>(
   // If fetchOptions came last, a caller could set `fetchOptions.redirect:
   // "follow"` and silently bypass maxRedirects — the adapter exists to make
   // these controls non-optional.
-  const baseInit: RequestInit = {
+  let currentInit: RequestInit = {
     ...config.fetchOptions,
     method: (config.method || "get").toUpperCase(),
     headers,
@@ -247,7 +319,7 @@ async function boundedFetchAdapter<T>(
 
   while (true) {
     try {
-      response = await fetch(currentUrl, baseInit);
+      response = await fetch(currentUrl, currentInit);
     } catch (err: any) {
       if (err?.name === "TimeoutError") {
         throw new Error(`timeout of ${config.timeout}ms exceeded`);
@@ -255,8 +327,13 @@ async function boundedFetchAdapter<T>(
       throw err;
     }
 
-    const isRedirect = response.status >= 300 && response.status < 400;
-    if (!managedRedirects || !isRedirect) break;
+    // Only Node's `redirect: "manual"` exposes 3xx status; browsers either
+    // already followed (redirect: "follow") or threw (redirect: "error").
+    const isManualRedirectResponse =
+      redirect === "manual" &&
+      response.status >= 300 &&
+      response.status < 400;
+    if (!isManualRedirectResponse) break;
 
     if (redirectsRemaining <= 0) {
       // maxRedirects === 0: "Request failed with status code 30x" (matches
@@ -270,6 +347,7 @@ async function boundedFetchAdapter<T>(
     const location = response.headers.get("location");
     if (!location) break;
     currentUrl = new URL(location, currentUrl).toString();
+    currentInit = applyRedirectSemantics(currentInit, response.status);
     redirectsRemaining -= 1;
   }
 
