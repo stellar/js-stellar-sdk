@@ -295,3 +295,21 @@ export function parseRawLedger(raw: Api.RawLedgerResponse): Api.LedgerResponse {
     headerXdr,
   };
 }
+
+export function parseRawLatestLedger(
+  raw: Api.RawGetLatestLedgerResponse,
+): Api.GetLatestLedgerResponse {
+  if (!raw.headerXdr || !raw.metadataXdr) {
+    throw new TypeError(`invalid response missing fields`);
+  }
+  const headerXdr = xdr.LedgerHeader.fromXDR(raw.headerXdr, "base64");
+  const metadataXdr = xdr.LedgerCloseMeta.fromXDR(raw.metadataXdr, "base64");
+  return {
+    id: raw.id,
+    sequence: raw.sequence,
+    protocolVersion: raw.protocolVersion,
+    closeTime: raw.closeTime,
+    headerXdr,
+    metadataXdr,
+  };
+}

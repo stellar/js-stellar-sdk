@@ -53,6 +53,22 @@ export namespace Api {
     id: string;
     sequence: number;
     protocolVersion: string;
+    closeTime: string;
+    /** a base-64 encoded {@link xdr.LedgerHeaderHistoryEntry} instance */
+    headerXdr: xdr.LedgerHeader;
+    /** a base-64 encoded {@link xdr.LedgerCloseMeta} instance */
+    metadataXdr: xdr.LedgerCloseMeta;
+  }
+
+  export interface RawGetLatestLedgerResponse {
+    id: string;
+    sequence: number;
+    protocolVersion: string;
+    closeTime: string;
+    /** a base-64 encoded {@link xdr.LedgerHeaderHistoryEntry} instance */
+    headerXdr: string;
+    /** a base-64 encoded {@link xdr.LedgerCloseMeta} instance */
+    metadataXdr: string;
   }
 
   export enum GetTransactionStatus {
