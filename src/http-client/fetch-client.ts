@@ -38,6 +38,36 @@ function makeCanceledError(reason?: string): Error {
   return err;
 }
 
+// Axios exposes response headers as a plain object keyed by lowercased
+// header names, so callers can write `resp.headers['content-type']`.
+// fetch's native `Headers` requires `.get("content-type")` and silently
+// returns `undefined` under indexed access. To keep the two builds in
+// parity we flatten `Headers` to a lowercase-keyed plain object while
+// preserving `.get`/`.has` methods (non-enumerable) for any caller that
+// already uses the Headers API. AxiosHeaders (from real axios) already
+// supports indexed access, so it's passed through unchanged.
+function normalizeHeaders(headers: any): any {
+  if (headers instanceof Headers) {
+    const obj: Record<string, string> = {};
+    headers.forEach((value, key) => {
+      obj[key.toLowerCase()] = value;
+    });
+    Object.defineProperty(obj, "get", {
+      value: (k: string) => obj[k.toLowerCase()] ?? null,
+      enumerable: false,
+      writable: false,
+    });
+    Object.defineProperty(obj, "has", {
+      value: (k: string) =>
+        Object.prototype.hasOwnProperty.call(obj, k.toLowerCase()),
+      enumerable: false,
+      writable: false,
+    });
+    return obj;
+  }
+  return headers;
+}
+
 class InterceptorManager<V> {
   handlers: Array<Interceptor<V> | null> = [];
 
@@ -73,6 +103,30 @@ function getFormConfig(
   formConfig.headers = new Headers(formConfig.headers || {});
   formConfig.headers.set("Content-Type", "application/x-www-form-urlencoded");
   return formConfig;
+}
+
+// Deep-merges instance defaults with a per-call config so defaults.headers
+// and defaults.params aren't wiped out when the caller supplies their own.
+// The feaxios path merges internally, but the bounded adapter uses the
+// config directly — without this, `create({headers: X}).get(url, {headers: Y})`
+// sent only Y whenever the call also set maxContentLength/maxRedirects.
+function mergeWithDefaults(
+  defaults: any,
+  config?: HttpClientRequestConfig,
+): HttpClientRequestConfig {
+  if (!config) return { ...defaults };
+  const merged: any = { ...defaults, ...config };
+  if (defaults?.headers !== undefined || config.headers !== undefined) {
+    const headers = new Headers((defaults?.headers as any) || {});
+    new Headers((config.headers as any) || {}).forEach((v, k) => {
+      headers.set(k, v);
+    });
+    merged.headers = headers;
+  }
+  if (defaults?.params !== undefined || config.params !== undefined) {
+    merged.params = { ...(defaults?.params || {}), ...(config.params || {}) };
+  }
+  return merged;
 }
 function buildBoundedUrl(config: HttpClientRequestConfig): string {
   let url = config.url || "";
@@ -122,6 +176,32 @@ function encodeRequestBody(data: any, headers: Headers): BodyInit | undefined {
     headers.set("content-type", "application/json");
   }
   return JSON.stringify(data);
+}
+
+// Runs caller-provided config.transformRequest (axios-style: single fn or
+// array) over the outgoing body. Each transform receives the running body
+// and the mutable Headers so it can set content-type/signature headers
+// alongside the transformed payload. If no transform is given we fall
+// back to the default type dispatch in encodeRequestBody, preserving the
+// existing behavior for callers that don't opt in.
+function applyTransformRequest(
+  data: any,
+  headers: Headers,
+  transformRequest: any,
+): BodyInit | undefined {
+  if (transformRequest === undefined || data === undefined || data === null) {
+    return encodeRequestBody(data, headers);
+  }
+  const transforms = Array.isArray(transformRequest)
+    ? transformRequest
+    : [transformRequest];
+  let current = data;
+  for (const fn of transforms) {
+    current = fn(current, headers);
+  }
+  // Transforms are expected to yield a fetch-compatible BodyInit; don't
+  // second-guess by running encodeRequestBody on the result.
+  return current as BodyInit;
 }
 
 async function readBodyBounded(
@@ -234,6 +314,30 @@ function applyRedirectSemantics(
   return next;
 }
 
+// Axios's Node adapter strips credential-bearing headers on cross-origin
+// redirects so a malicious/compromised hop can't harvest bearer tokens
+// intended for the original host. Without this the bounded adapter would
+// happily hand "Authorization: Bearer …" to whatever URL Location points
+function stripCrossOriginAuth(
+  init: RequestInit,
+  fromUrl: string,
+  toUrl: string,
+): RequestInit {
+  let sameOrigin: boolean;
+  try {
+    sameOrigin = new URL(fromUrl).origin === new URL(toUrl).origin;
+  } catch {
+    // Malformed URL: treat as cross-origin (the safer default).
+    sameOrigin = false;
+  }
+  if (sameOrigin) return init;
+  const headers = new Headers(init.headers || {});
+  headers.delete("authorization");
+  headers.delete("proxy-authorization");
+  headers.delete("cookie");
+  return { ...init, headers };
+}
+
 function buildHttpError(
   response: Response,
   config: HttpClientRequestConfig,
@@ -258,6 +362,37 @@ function buildHttpError(
     config,
   };
   return err;
+}
+
+// Honors config.responseType on the bounded path. Without this, a caller
+// that asks for binary ("arraybuffer"/"blob") silently gets a UTF-8 string
+// because the adapter used to always run TextDecoder + JSON.parse.
+function copyToArrayBuffer(bytes: Uint8Array): ArrayBuffer {
+  const buffer = new ArrayBuffer(bytes.byteLength);
+  new Uint8Array(buffer).set(bytes);
+  return buffer;
+}
+
+function decodeBoundedBody(bytes: Uint8Array, responseType?: string): any {
+  if (responseType === "arraybuffer") {
+    // Copy into a fresh ArrayBuffer so the returned buffer doesn't alias
+    // the pooled bytes the reader used internally.
+    return copyToArrayBuffer(bytes);
+  }
+  if (responseType === "blob" && typeof Blob !== "undefined") {
+    return new Blob([copyToArrayBuffer(bytes)], {
+      type: "application/octet-stream",
+    });
+  }
+  const text = new TextDecoder().decode(bytes);
+  if (responseType === "text") return text;
+  // Default (no responseType or "json"): try JSON, fall back to text so a
+  // non-JSON body like TOML still round-trips as a string.
+  try {
+    return JSON.parse(text);
+  } catch {
+    return text;
+  }
 }
 // feaxios ignores maxRedirects and maxContentLength. When either is set,
 // perform the request via native fetch with explicit enforcement — otherwise
@@ -301,7 +436,11 @@ async function boundedFetchAdapter<T>(
   }
 
   const headers = new Headers(config.headers || {});
-  const body = encodeRequestBody(config.data, headers);
+  const body = applyTransformRequest(
+    config.data,
+    headers,
+    (config as { transformRequest?: any }).transformRequest,
+  );
   const withCredentials = (config as { withCredentials?: boolean })
     .withCredentials;
 
@@ -352,8 +491,10 @@ async function boundedFetchAdapter<T>(
     }
     const location = response.headers.get("location");
     if (!location) break;
-    currentUrl = new URL(location, currentUrl).toString();
+    const nextUrl = new URL(location, currentUrl).toString();
     currentInit = applyRedirectSemantics(currentInit, response.status);
+    currentInit = stripCrossOriginAuth(currentInit, currentUrl, nextUrl);
+    currentUrl = nextUrl;
     redirectsRemaining -= 1;
   }
 
@@ -386,14 +527,8 @@ async function boundedFetchAdapter<T>(
   }
 
   const bytes = await readBodyBounded(response, maxContentLength);
-  const text = new TextDecoder().decode(bytes);
-
-  let data: any = text;
-  try {
-    data = JSON.parse(text);
-  } catch {
-    // leave as string (e.g. TOML)
-  }
+  const responseType = (config as { responseType?: string }).responseType;
+  const data = decodeBoundedBody(bytes, responseType);
 
   return {
     data,
@@ -455,10 +590,9 @@ function createFetchClient(
             throw new Error("No adapter available");
           }
           let responsePromise = adapter(finalConfig).then((axiosResponse) => {
-            // Transform AxiosResponse to HttpClientResponse
             const httpClientResponse: HttpClientResponse<T> = {
               data: axiosResponse.data,
-              headers: axiosResponse.headers as any, // You might want to transform headers more carefully
+              headers: normalizeHeaders(axiosResponse.headers),
               config: axiosResponse.config,
               status: axiosResponse.status,
               statusText: axiosResponse.statusText,
@@ -530,11 +664,19 @@ function createFetchClient(
         // recover from an upstream error (matching Axios interceptor semantics).
         let modifiedConfig = config;
         if (requestInterceptors.handlers.length > 0) {
+          // Axios runs request interceptors LIFO (the interceptor
+          // registered last runs first). Reversing before flattening
+          // matches that contract so that callers who compose multiple
+          // request interceptors — e.g. an auth-injector registered
+          // last to run first — see the same execution order on the
+          // no-axios build as on the axios build.
           const chain = requestInterceptors.handlers
             .filter(
               (interceptor): interceptor is NonNullable<typeof interceptor> =>
                 interceptor !== null,
             )
+            .slice()
+            .reverse()
             .flatMap((interceptor) => [
               interceptor.fulfilled,
               interceptor.rejected,
@@ -571,8 +713,7 @@ function createFetchClient(
       config?: HttpClientRequestConfig,
     ): Promise<HttpClientResponse<T>> {
       return this.makeRequest({
-        ...this.defaults,
-        ...config,
+        ...mergeWithDefaults(this.defaults, config),
         url,
         method: "get",
       });
@@ -583,8 +724,7 @@ function createFetchClient(
       config?: HttpClientRequestConfig,
     ): Promise<HttpClientResponse<T>> {
       return this.makeRequest({
-        ...this.defaults,
-        ...config,
+        ...mergeWithDefaults(this.defaults, config),
         url,
         method: "delete",
       });
@@ -595,8 +735,7 @@ function createFetchClient(
       config?: HttpClientRequestConfig,
     ): Promise<HttpClientResponse<T>> {
       return this.makeRequest({
-        ...this.defaults,
-        ...config,
+        ...mergeWithDefaults(this.defaults, config),
         url,
         method: "head",
       });
@@ -607,8 +746,7 @@ function createFetchClient(
       config?: HttpClientRequestConfig,
     ): Promise<HttpClientResponse<T>> {
       return this.makeRequest({
-        ...this.defaults,
-        ...config,
+        ...mergeWithDefaults(this.defaults, config),
         url,
         method: "options",
       });
@@ -620,8 +758,7 @@ function createFetchClient(
       config?: HttpClientRequestConfig,
     ): Promise<HttpClientResponse<T>> {
       return this.makeRequest({
-        ...this.defaults,
-        ...config,
+        ...mergeWithDefaults(this.defaults, config),
         url,
         method: "post",
         data,
@@ -634,8 +771,7 @@ function createFetchClient(
       config?: HttpClientRequestConfig,
     ): Promise<HttpClientResponse<T>> {
       return this.makeRequest({
-        ...this.defaults,
-        ...config,
+        ...mergeWithDefaults(this.defaults, config),
         url,
         method: "put",
         data,
@@ -648,8 +784,7 @@ function createFetchClient(
       config?: HttpClientRequestConfig,
     ): Promise<HttpClientResponse<T>> {
       return this.makeRequest({
-        ...this.defaults,
-        ...config,
+        ...mergeWithDefaults(this.defaults, config),
         url,
         method: "patch",
         data,
@@ -663,8 +798,7 @@ function createFetchClient(
     ): Promise<HttpClientResponse<T>> {
       const formConfig = getFormConfig(config);
       return this.makeRequest({
-        ...this.defaults,
-        ...formConfig,
+        ...mergeWithDefaults(this.defaults, formConfig),
         url,
         method: "post",
         data,
@@ -678,8 +812,7 @@ function createFetchClient(
     ): Promise<HttpClientResponse<T>> {
       const formConfig = getFormConfig(config);
       return this.makeRequest({
-        ...this.defaults,
-        ...formConfig,
+        ...mergeWithDefaults(this.defaults, formConfig),
         url,
         method: "put",
         data,
@@ -693,8 +826,7 @@ function createFetchClient(
     ): Promise<HttpClientResponse<T>> {
       const formConfig = getFormConfig(config);
       return this.makeRequest({
-        ...this.defaults,
-        ...formConfig,
+        ...mergeWithDefaults(this.defaults, formConfig),
         url,
         method: "patch",
         data,
