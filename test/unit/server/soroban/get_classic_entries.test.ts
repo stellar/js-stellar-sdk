@@ -36,7 +36,7 @@ function expectLedgerEntryFound(
           result: {
             id: "hashed_id",
             sequence: 123,
-            protocolVersion: 20,
+            protocolVersion: "20",
             closeTime: "124",
             headerXdr:
               "AAAAGrP0s/PGggfZROfm4UrD2ul0kjwslx8W5YhzlGrP1kmlLqJv3aMl3XEf5FOicCD8tDOT0RNfC5huOz82oO+R2lYAAAAAaeEr4gAAAAAAAAABAAAAALVdELK7fShO1cA6R6XhtZDJD1eDVUccxFB7voIE0jyLAAAAQEMyjPK8bIfQbIrUCHW40CP4+YvCImxg16wuSIjEl43NwDbpsGwu3wQmbi/u8WIZsL6MSTLMXlyXYJDZsRM1pQVU05gS2Au4O3vlO2eyFYdtVS8dCHe0xpQYHXySoXVMo7cVZULv/3jAlcjIvlsAn9k0QMOkSYl3lWBCxEKVK785AB+dnA3gtrOnZAAAAAABMFvNhVUAAAAAAAAAAAABiJMAAABkAExLQAAAAMgQFSWR4kocJqxbAsjAStNr1C1FPlc8QXXsjTfs9IydXFT0EtE8W/9jSNRWmLdX985erJs28eCPXUKZpEvoEx+1H5C0OqNqUACzQFS756EBZ0pgw/b3mKoBb8yYOXC9yWGOFIykqWNbxH+1ZyiD369YvoPJhDkeL1vb0PUdGO+NuAAAAAA=",
