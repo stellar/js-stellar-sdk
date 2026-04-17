@@ -254,6 +254,29 @@ describe("HttpClient contract", () => {
         expect(err.response?.data).toEqual({ error: "boom" });
       }
     });
+
+    // The success branch already returns a lowercased-object header map
+    // (see response.headers object-style test). Errors should match:
+    // catching code that reads `err.response.headers['content-type']`
+    // shouldn't silently regress just because the request failed.
+    it("error .response.headers supports object-style access", async () => {
+      respond = (_req, res) => {
+        res.setHeader("Content-Type", "application/json");
+        res.setHeader("X-Err-Id", "e-123");
+        res.writeHead(500);
+        res.end('{"err":"boom"}');
+      };
+      // maxContentLength forces the bounded adapter path.
+      try {
+        await httpClient.get(`${baseUrl}/`, { maxContentLength: 10_000 });
+        throw new Error("expected rejection");
+      } catch (err: any) {
+        expect((err.response.headers as any)["content-type"]).toMatch(
+          /application\/json/,
+        );
+        expect((err.response.headers as any)["x-err-id"]).toBe("e-123");
+      }
+    });
   });
 
   describe("timeout", () => {
@@ -471,6 +494,56 @@ describe("HttpClient contract", () => {
         }),
       ).rejects.toThrow(/timeout of 150ms exceeded/i);
     }, 5000);
+
+    // Covers the AbortSignal.timeout-unavailable branch in createTimeoutSignal.
+    // In Node 20 and modern browsers the native helper exists, so this path
+    // is dead at test-time unless we unset it explicitly. Without the fix,
+    // the fallback aborts with `new Error("TimeoutError")` whose .name is
+    // "Error", the adapter's catch misses the rewrite, and the caller sees
+    // a raw AbortError instead of the axios-shaped message.
+    it("bounded-path timeout fallback produces axios-shaped error when AbortSignal.timeout is missing", async () => {
+      respond = () => {
+        // never respond
+      };
+      const original = (AbortSignal as any).timeout;
+      (AbortSignal as any).timeout = undefined;
+      try {
+        await expect(
+          httpClient.get(`${baseUrl}/`, {
+            timeout: 150,
+            maxContentLength: 10_000,
+          }),
+        ).rejects.toThrow(/timeout of 150ms exceeded/i);
+      } finally {
+        (AbortSignal as any).timeout = original;
+      }
+    }, 5000);
+
+    // The bounded adapter is a security boundary: maxContentLength +
+    // maxRedirects exist to stop SSRF/DoS. A caller-provided config.adapter
+    // must not be able to bypass that enforcement silently. On the axios
+    // build `httpClient` is raw axios (no wrapper), so this clamp only
+    // applies to the no-axios build where the bounded path lives.
+    (process.env.USE_AXIOS === "false" ? it : it.skip)(
+      "config.adapter does not bypass the bounded path when bounded options are set",
+      async () => {
+        const rogueAdapter = async () => ({
+          data: "rogue",
+          headers: {},
+          status: 200,
+          statusText: "OK",
+          config: {},
+        });
+        await httpClient.get(`${baseUrl}/clamp`, {
+          maxContentLength: 10_000,
+          adapter: rogueAdapter as any,
+        } as any);
+        // If the clamp works, the real server sees the request and the
+        // rogue adapter is never consulted.
+        expect(requests).toHaveLength(1);
+        expect(requests[0].url).toBe("/clamp");
+      },
+    );
 
     // baseURL joining behavior on the bounded path. Documented but untested
     // before — any regression in buildBoundedUrl would land silently.
