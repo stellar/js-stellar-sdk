@@ -27,7 +27,10 @@ export default defineConfig({
     },
     // Run all unit tests in browser
     include: ["test/unit/**/*.test.ts"],
-    exclude: ["test/unit/call_builders.test.ts"],
+    exclude: [
+      "test/unit/call_builders.test.ts",
+      "test/unit/server/horizon/server.test.ts",
+    ],
     // Setup files to load the browser bundle
     setupFiles: [resolve(__dirname, "../test/setup-browser.ts")],
   },

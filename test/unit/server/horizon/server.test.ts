@@ -1,13 +1,16 @@
 import {
   describe,
   it,
+  beforeAll,
   beforeEach,
+  afterAll,
   afterEach,
   expect,
   assert,
   vi,
 } from "vitest";
-import MockAdapter from "axios-mock-adapter";
+import { http, HttpResponse } from "msw";
+import { setupServer } from "msw/node";
 import { StellarSdk } from "../../../test-utils/stellar-sdk-import";
 
 const { Horizon } = StellarSdk;
@@ -16,7 +19,6 @@ const { SERVER_TIME_MAP } = StellarSdk.Horizon;
 describe("server.js non-transaction tests", () => {
   let server: any;
   let mockGet: any;
-  let mockGetAdapter: any;
   beforeEach(() => {
     server = new Horizon.Server("https://horizon-live.stellar.org:1337");
     mockGet = vi.spyOn(server.httpClient, "get");
@@ -205,26 +207,33 @@ describe("server.js non-transaction tests", () => {
   });
 
   describe("Server.fetchTimebounds", () => {
+    // Intercept the request at the wire layer (fetch on the no-axios build,
+    // http.ClientRequest on the axios build) so the real response-interceptor
+    // chain runs. Previously this block used axios-mock-adapter, which only
+    // hooks the adapter slot and therefore never exercises feaxios/fetch.
+    const mswServer = setupServer();
+
+    beforeAll(() => mswServer.listen({ onUnhandledRequest: "error" }));
+    afterAll(() => mswServer.close());
+
     beforeEach(() => {
       // set now to 10050 seconds
       vi.useFakeTimers({ now: 10050 * 1000 });
-      // use MockAdapter instead of mockGet
-      // because we don't want to replace the get function
-      // we need to use axios's one so interceptors run!!
-      mockGetAdapter = new MockAdapter(server.httpClient as any);
     });
 
     afterEach(() => {
       vi.useRealTimers();
-      mockGetAdapter.restore();
+      mswServer.resetHandlers();
     });
 
     // the next two tests are run in a deliberate order!!
     // don't change the order!!
     it("fetches falls back to local time if fetch is bad", async () => {
-      mockGetAdapter
-        .onGet("https://horizon-live.stellar.org:1337/")
-        .reply(200, {}, {});
+      mswServer.use(
+        http.get("https://horizon-live.stellar.org:1337/", () =>
+          HttpResponse.json({}, { status: 200 }),
+        ),
+      );
 
       const serverTime = await server.fetchTimebounds(20);
       expect(serverTime).toEqual({ minTime: 0, maxTime: 10070 });
@@ -240,16 +249,16 @@ describe("server.js non-transaction tests", () => {
         delete SERVER_TIME_MAP[hostname];
       }
 
-      // Ensure MockAdapter is properly set up for this test
-      mockGetAdapter.restore();
-      mockGetAdapter = new MockAdapter(server.httpClient);
-
-      mockGetAdapter.onGet("https://horizon-live.stellar.org:1337/").reply(
-        200,
-        {},
-        {
-          date: "Wed, 13 Mar 2019 22:15:07 GMT",
-        },
+      mswServer.use(
+        http.get("https://horizon-live.stellar.org:1337/", () =>
+          HttpResponse.json(
+            {},
+            {
+              status: 200,
+              headers: { date: "Wed, 13 Mar 2019 22:15:07 GMT" },
+            },
+          ),
+        ),
       );
 
       const serverTime = await server.fetchTimebounds(20);
@@ -941,7 +950,7 @@ describe("server.js non-transaction tests", () => {
         mockGet.mockImplementation((url: string) => {
           if (
             url.includes(
-              "https://horizon-live.stellar\.org:1337/transactions/6bbd8cbd90498a26210a21ec599702bead8f908f412455da300318aba36831b0",
+              "https://horizon-live.stellar.org:1337/transactions/6bbd8cbd90498a26210a21ec599702bead8f908f412455da300318aba36831b0",
             )
           ) {
             return Promise.resolve({ data: singleTranssactionResponse });

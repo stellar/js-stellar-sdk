@@ -24,8 +24,7 @@ export default defineConfig({
     },
     testTimeout: 20000,
     include: ["test/unit/**/*.test.ts"],
-    // horizon_axios_client is wired to axios-mock-adapter and cannot run on the fetch path.
-    exclude: ["**/browser.test.ts", "test/unit/horizon_axios_client.test.ts"],
+    exclude: ["**/browser.test.ts"],
   },
   resolve: {
     alias: {
