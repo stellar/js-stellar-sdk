@@ -257,7 +257,16 @@ function createTimeoutSignal(ms: number): AbortSignal {
     return AbortSignal.timeout(ms);
   }
   const controller = new AbortController();
-  setTimeout(() => controller.abort(new Error("TimeoutError")), ms);
+  setTimeout(() => {
+    // Must set .name = "TimeoutError" (not .message), because the bounded
+    // adapter's catch rewrites to the axios-shaped message based on the
+    // error's name. An Error whose message happens to be "TimeoutError"
+    // but whose name is "Error" silently falls through to the generic
+    // rethrow branch.
+    const err = new Error("Timeout") as Error;
+    err.name = "TimeoutError";
+    controller.abort(err);
+  }, ms);
   return controller.signal;
 }
 
@@ -349,15 +358,19 @@ function buildHttpError(
     response: {
       status: number;
       statusText: string;
-      headers: Headers;
+      headers: any;
       data: any;
       config: HttpClientRequestConfig;
     };
   };
+  // Normalize so `err.response.headers[key]` works (see normalizeHeaders).
+  // The success path runs this mapping at the wrapper — the error path
+  // has to do it here because the error object is thrown directly and
+  // never reaches that wrapper mapping step.
   err.response = {
     status: response.status,
     statusText: response.statusText,
-    headers: response.headers,
+    headers: normalizeHeaders(response.headers),
     data,
     config,
   };
@@ -585,7 +598,18 @@ function createFetchClient(
           res: (value: HttpClientResponse<T>) => void,
           rej: (reason?: any) => void,
         ) {
-          const adapter = finalConfig.adapter || this.defaults.adapter;
+          // The bounded adapter is a security boundary: maxContentLength
+          // and maxRedirects exist to stop SSRF and unbounded-response DoS.
+          // If a caller sets either, they get the bounded path regardless
+          // of what config.adapter is — otherwise a rogue interceptor or a
+          // misconfigured call could silently swap it out and bypass the
+          // enforcement we were asked for.
+          const boundedEnforced =
+            finalConfig.maxRedirects !== undefined ||
+            finalConfig.maxContentLength !== undefined;
+          const adapter = boundedEnforced
+            ? (cfg: HttpClientRequestConfig) => boundedFetchAdapter<T>(cfg)
+            : finalConfig.adapter || this.defaults.adapter;
           if (!adapter) {
             throw new Error("No adapter available");
           }
