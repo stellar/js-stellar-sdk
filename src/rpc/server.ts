@@ -30,6 +30,7 @@ import {
   parseRawTransactions,
   parseTransactionInfo,
   parseRawLedger,
+  parseRawLatestLedger,
 } from "./parsers";
 import { Utils } from "../utils";
 import { HttpClient } from "../http-client";
@@ -954,8 +955,11 @@ export class RpcServer {
    *   console.log("protocolVersion:", response.protocolVersion);
    * });
    */
-
   public async getLatestLedger(): Promise<Api.GetLatestLedgerResponse> {
+    return this._getLatestLedger().then(parseRawLatestLedger);
+  }
+
+  public async _getLatestLedger(): Promise<Api.RawGetLatestLedgerResponse> {
     return jsonrpc.postObject(
       this.httpClient,
       this.serverURL.toString(),

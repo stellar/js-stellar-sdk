@@ -295,3 +295,32 @@ export function parseRawLedger(raw: Api.RawLedgerResponse): Api.LedgerResponse {
     headerXdr,
   };
 }
+
+export function parseRawLatestLedger(
+  raw: Api.RawGetLatestLedgerResponse,
+): Api.GetLatestLedgerResponse {
+  const headerXdr = xdr.LedgerHeader.fromXDR(raw.headerXdr, "base64");
+  const metadataXdr = xdr.LedgerCloseMeta.fromXDR(raw.metadataXdr, "base64");
+  let missingFields;
+  if (!raw.metadataXdr && !raw.headerXdr) {
+    missingFields = "metadataXdr and headerXdr";
+  } else if (!raw.metadataXdr) {
+    missingFields = "metadataXdr";
+  } else if (!raw.headerXdr) {
+    missingFields = "headerXdr";
+  }
+  if (missingFields) {
+    throw new TypeError(
+      `invalid getLatestLedger response missing fields: ${missingFields}`,
+    );
+  }
+
+  return {
+    id: raw.id,
+    sequence: raw.sequence,
+    protocolVersion: raw.protocolVersion,
+    closeTime: raw.closeTime,
+    headerXdr,
+    metadataXdr,
+  };
+}
