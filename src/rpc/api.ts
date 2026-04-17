@@ -54,9 +54,7 @@ export namespace Api {
     sequence: number;
     protocolVersion: string;
     closeTime: string;
-    /** a base-64 encoded {@link xdr.LedgerHeaderHistoryEntry} instance */
     headerXdr: xdr.LedgerHeader;
-    /** a base-64 encoded {@link xdr.LedgerCloseMeta} instance */
     metadataXdr: xdr.LedgerCloseMeta;
   }
 
@@ -65,7 +63,7 @@ export namespace Api {
     sequence: number;
     protocolVersion: string;
     closeTime: string;
-    /** a base-64 encoded {@link xdr.LedgerHeaderHistoryEntry} instance */
+    /** a base-64 encoded {@link xdr.LedgerHeader} instance */
     headerXdr: string;
     /** a base-64 encoded {@link xdr.LedgerCloseMeta} instance */
     metadataXdr: string;
