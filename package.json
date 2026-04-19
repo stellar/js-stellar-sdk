@@ -158,7 +158,7 @@
     "@typescript-eslint/parser": "^8.58.0",
     "@vitest/browser": "^4.1.2",
     "@vitest/browser-playwright": "^4.1.2",
-    "@vitest/coverage-istanbul": "4.1.2",
+    "@vitest/coverage-istanbul": "4.1.4",
     "@vitest/coverage-v8": "^4.1.2",
     "@vitest/ui": "^4.1.2",
     "axios-mock-adapter": "^1.22.0",
