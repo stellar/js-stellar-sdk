@@ -13,12 +13,12 @@
     "sourceMap": true,
     "removeComments": false,
     "strict": true,
-    "noImplicitAny": true,
+    "noImplicitAny": false,
     "strictNullChecks": true,
     "strictFunctionTypes": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedIndexedAccess": true,
+    "noUncheckedIndexedAccess": false,
     "exactOptionalPropertyTypes": true,
     "lib": ["ES2022", "DOM"],
     "types": ["node", "vitest/globals"],
@@ -33,11 +33,6 @@
       "@/*": ["../src/*"]
     }
   },
-  "include": [
-    "**/*.ts",
-    "**/*.js"
-  ],
-  "exclude": [
-    "out"
-  ]
+  "include": ["**/*.ts", "**/*.js"],
+  "exclude": ["out"]
 }

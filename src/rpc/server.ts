@@ -111,7 +111,7 @@ export namespace RpcServer {
 const DEFAULT_GET_TRANSACTION_TIMEOUT: number = 30;
 
 /// A strategy that will sleep 1 second each time
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+
 export const BasicSleepStrategy: SleepStrategy = (_iter: number) => 1000;
 
 /// A strategy that will sleep 1 second longer on each attempt
