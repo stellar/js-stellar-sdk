@@ -181,7 +181,7 @@
     "husky": "^9.1.7",
     "jsdoc": "^4.0.4",
     "jsdom": "^27.0.0",
-    "lint-staged": "^15.5.1",
+    "lint-staged": "^16.4.0",
     "lodash": "^4.17.21",
     "msw": "^2.13.4",
     "node-polyfill-webpack-plugin": "^3.0.0",
