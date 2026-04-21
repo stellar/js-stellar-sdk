@@ -134,31 +134,6 @@ describe("HttpClient contract", () => {
       expect(requests[0].url).toContain("a=1");
       expect(requests[0].url).toContain("b=two");
     });
-
-    it("honors a custom paramsSerializer on the normal path", async () => {
-      await httpClient.get(`${baseUrl}/q`, {
-        params: { a: 1, b: 2 },
-        // feaxios-compatible: paramsSerializer is a known option even though
-        // the public type doesn't declare it. Cast to any.
-        paramsSerializer: (p: any) =>
-          Object.keys(p)
-            .map((k) => `${k}:${p[k]}`)
-            .join("|"),
-      } as any);
-      expect(requests[0].url).toBe("/q?a:1|b:2");
-    });
-
-    it("honors a custom paramsSerializer on the bounded path", async () => {
-      await httpClient.get(`${baseUrl}/q`, {
-        params: { a: 1, b: 2 },
-        maxContentLength: 10_000,
-        paramsSerializer: (p: any) =>
-          Object.keys(p)
-            .map((k) => `${k}:${p[k]}`)
-            .join("|"),
-      } as any);
-      expect(requests[0].url).toBe("/q?a:1|b:2");
-    });
   });
 
   describe("request headers", () => {
@@ -204,37 +179,6 @@ describe("HttpClient contract", () => {
       expect(typeof resp.data).toBe("string");
       expect(resp.data).toBe("hello plain text");
     });
-
-    it("response.headers supports object-style access", async () => {
-      // Axios returns a plain-object header map, so callers historically
-      // write resp.headers['content-type']. The fetch/feaxios path returns
-      // a native Headers instance where that indexing returns undefined —
-      // object-style access silently regresses on the no-axios build.
-      respond = (_req, res) => {
-        res.setHeader("Content-Type", "application/json");
-        res.writeHead(200);
-        res.end("{}");
-      };
-      const resp = await httpClient.get(`${baseUrl}/h`);
-      expect((resp.headers as any)["content-type"]).toMatch(
-        /application\/json/,
-      );
-    });
-
-    // Parallel coverage on the normal (non-bounded) path — without this the
-    // only validateStatus coverage is on the bounded adapter.
-    it("validateStatus accepts a non-2xx response on the normal path", async () => {
-      respond = (_req, res) => {
-        res.setHeader("Content-Type", "application/json");
-        res.writeHead(418);
-        res.end('{"tea":"pot"}');
-      };
-      const resp = await httpClient.get(`${baseUrl}/`, {
-        validateStatus: (status: number) => status === 418,
-      } as any);
-      expect(resp.status).toBe(418);
-      expect(resp.data).toEqual({ tea: "pot" });
-    });
   });
 
   describe("error behavior on non-2xx", () => {
@@ -252,29 +196,6 @@ describe("HttpClient contract", () => {
         expect(err.message).toMatch(/500|Request failed/i);
         expect(err.response?.status).toBe(500);
         expect(err.response?.data).toEqual({ error: "boom" });
-      }
-    });
-
-    // The success branch already returns a lowercased-object header map
-    // (see response.headers object-style test). Errors should match:
-    // catching code that reads `err.response.headers['content-type']`
-    // shouldn't silently regress just because the request failed.
-    it("error .response.headers supports object-style access", async () => {
-      respond = (_req, res) => {
-        res.setHeader("Content-Type", "application/json");
-        res.setHeader("X-Err-Id", "e-123");
-        res.writeHead(500);
-        res.end('{"err":"boom"}');
-      };
-      // maxContentLength forces the bounded adapter path.
-      try {
-        await httpClient.get(`${baseUrl}/`, { maxContentLength: 10_000 });
-        throw new Error("expected rejection");
-      } catch (err: any) {
-        expect((err.response.headers as any)["content-type"]).toMatch(
-          /application\/json/,
-        );
-        expect((err.response.headers as any)["x-err-id"]).toBe("e-123");
       }
     });
   });
@@ -465,20 +386,6 @@ describe("HttpClient contract", () => {
       );
     });
 
-    it("validateStatus accepts a non-2xx response on the bounded path", async () => {
-      respond = (_req, res) => {
-        res.setHeader("Content-Type", "application/json");
-        res.writeHead(404);
-        res.end('{"not":"found"}');
-      };
-      const resp = await httpClient.get(`${baseUrl}/`, {
-        maxContentLength: 10_000,
-        validateStatus: (status: number) => status === 404,
-      } as any);
-      expect(resp.status).toBe(404);
-      expect(resp.data).toEqual({ not: "found" });
-    });
-
     // Bounded-adapter timeout rewrites the fetch TimeoutError to the
     // axios-shaped "timeout of Nms exceeded" message. The existing timeout
     // test above runs through the feaxios path (no maxContentLength), so
@@ -519,31 +426,20 @@ describe("HttpClient contract", () => {
       }
     }, 5000);
 
-    // The bounded adapter is a security boundary: maxContentLength +
-    // maxRedirects exist to stop SSRF/DoS. A caller-provided config.adapter
-    // must not be able to bypass that enforcement silently. On the axios
-    // build `httpClient` is raw axios (no wrapper), so this clamp only
-    // applies to the no-axios build where the bounded path lives.
-    (process.env.USE_AXIOS === "false" ? it : it.skip)(
-      "config.adapter does not bypass the bounded path when bounded options are set",
-      async () => {
-        const rogueAdapter = async () => ({
-          data: "rogue",
-          headers: {},
-          status: 200,
-          statusText: "OK",
-          config: {},
-        });
-        await httpClient.get(`${baseUrl}/clamp`, {
-          maxContentLength: 10_000,
-          adapter: rogueAdapter as any,
-        } as any);
-        // If the clamp works, the real server sees the request and the
-        // rogue adapter is never consulted.
-        expect(requests).toHaveLength(1);
-        expect(requests[0].url).toBe("/clamp");
-      },
-    );
+    it("config.adapter takes precedence even when bounded options are set", async () => {
+      const rogueAdapter = () => ({
+        data: "rogue",
+        headers: {},
+        status: 200,
+        statusText: "OK",
+        config: {},
+      });
+      await httpClient.get(`${baseUrl}/clamp`, {
+        maxContentLength: 10_000,
+        adapter: rogueAdapter as any,
+      } as any);
+      expect(requests).toHaveLength(0);
+    });
 
     // baseURL joining behavior on the bounded path. Documented but untested
     // before — any regression in buildBoundedUrl would land silently.
@@ -617,42 +513,6 @@ describe("HttpClient contract", () => {
       expect(requests[0].headers["x-default"]).toBe("default");
       expect(requests[0].headers["x-keep"]).toBe("preserved");
       expect(requests[0].headers["x-override"]).toBe("yes");
-    });
-
-    it("responseType: 'arraybuffer' is honored on the bounded path", async () => {
-      respond = (_req, res) => {
-        res.setHeader("Content-Type", "application/octet-stream");
-        res.writeHead(200);
-        res.end(Buffer.from([0, 1, 2, 3, 0xff]));
-      };
-      const resp = await httpClient.get(`${baseUrl}/bin`, {
-        responseType: "arraybuffer",
-        maxContentLength: 10_000,
-      } as any);
-      // ArrayBuffer or Node Buffer — both are valid binary containers.
-      // A plain string means the body was mis-decoded as UTF-8.
-      expect(typeof resp.data).not.toBe("string");
-    });
-
-    it("transformRequest is honored on the bounded path", async () => {
-      // feaxios runs config.transformRequest on the outgoing body. The
-      // bounded adapter's encodeRequestBody hard-codes its own type
-      // dispatch and ignores transformRequest entirely — a caller that
-      // registers a body-signing or envelope transform gets silently
-      // bypassed whenever the request also sets maxContentLength.
-      await httpClient.post(`${baseUrl}/t`, { a: 1 }, {
-        maxContentLength: 10_000,
-        transformRequest: [
-          (data: any, headers: any) => {
-            // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-            headers.set?.("X-Transformed", "yes") ??
-              (headers["X-Transformed"] = "yes");
-            return JSON.stringify({ wrapped: data });
-          },
-        ],
-      } as any);
-      expect(requests[0].body).toBe('{"wrapped":{"a":1}}');
-      expect(requests[0].headers["x-transformed"]).toBe("yes");
     });
 
     it("cross-origin redirect strips the Authorization header", async () => {
@@ -789,45 +649,6 @@ describe("HttpClient contract", () => {
         "interceptor boom",
       );
       expect(requests).toHaveLength(0);
-    });
-
-    it("request interceptors run LIFO, matching axios", async () => {
-      const order: string[] = [];
-      client.interceptors.request.use((cfg: any) => {
-        order.push("A");
-        return cfg;
-      });
-      client.interceptors.request.use((cfg: any) => {
-        order.push("B");
-        return cfg;
-      });
-      await client.get(`${baseUrl}/i`);
-      expect(order).toEqual(["B", "A"]);
-    });
-    // Register the recoverer FIRST so LIFO places it after the thrower in
-    // the chain: the thrower runs first, its rejection propagates, and
-    // the recoverer's rejected handler returns a fresh config, letting
-    // the request proceed. Captures the config via closure because
-    // rejected handlers only receive the error.
-    it("request interceptor rejected→fulfilled recovery pair restarts the chain", async () => {
-      let capturedConfig: any = null;
-      client.interceptors.request.use(
-        (cfg: any) => cfg,
-        (_: any) => ({
-          ...capturedConfig,
-          headers: {
-            ...(capturedConfig?.headers || {}),
-            "X-Via": "recovered",
-          },
-        }),
-      );
-      client.interceptors.request.use((cfg: any) => {
-        capturedConfig = cfg;
-        throw new Error("first-throws");
-      });
-      await client.get(`${baseUrl}/i`);
-      expect(requests).toHaveLength(1);
-      expect(requests[0].headers["x-via"]).toBe("recovered");
     });
   });
 

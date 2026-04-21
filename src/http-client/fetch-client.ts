@@ -38,36 +38,6 @@ function makeCanceledError(reason?: string): Error {
   return err;
 }
 
-// Axios exposes response headers as a plain object keyed by lowercased
-// header names, so callers can write `resp.headers['content-type']`.
-// fetch's native `Headers` requires `.get("content-type")` and silently
-// returns `undefined` under indexed access. To keep the two builds in
-// parity we flatten `Headers` to a lowercase-keyed plain object while
-// preserving `.get`/`.has` methods (non-enumerable) for any caller that
-// already uses the Headers API. AxiosHeaders (from real axios) already
-// supports indexed access, so it's passed through unchanged.
-function normalizeHeaders(headers: any): any {
-  if (headers instanceof Headers) {
-    const obj: Record<string, string> = {};
-    headers.forEach((value, key) => {
-      obj[key.toLowerCase()] = value;
-    });
-    Object.defineProperty(obj, "get", {
-      value: (k: string) => obj[k.toLowerCase()] ?? null,
-      enumerable: false,
-      writable: false,
-    });
-    Object.defineProperty(obj, "has", {
-      value: (k: string) =>
-        Object.prototype.hasOwnProperty.call(obj, k.toLowerCase()),
-      enumerable: false,
-      writable: false,
-    });
-    return obj;
-  }
-  return headers;
-}
-
 class InterceptorManager<V> {
   handlers: Array<Interceptor<V> | null> = [];
 
@@ -128,17 +98,16 @@ function mergeWithDefaults(
   }
   return merged;
 }
+
 function buildBoundedUrl(config: HttpClientRequestConfig): string {
   let url = config.url || "";
   if (config.baseURL && url && !/^https?:\/\//i.test(url)) {
     url = url.replace(/^\/?/, `${config.baseURL.replace(/\/$/, "")}/`);
   }
   if (config.params && Object.keys(config.params).length > 0) {
-    const serialize = (config as { paramsSerializer?: (p: any) => string })
-      .paramsSerializer;
-    const qs = serialize
-      ? serialize(config.params)
-      : new URLSearchParams(config.params as Record<string, string>).toString();
+    const qs = new URLSearchParams(
+      config.params as Record<string, string>,
+    ).toString();
     url += (url.includes("?") ? "&" : "?") + qs;
   }
   return url;
@@ -176,32 +145,6 @@ function encodeRequestBody(data: any, headers: Headers): BodyInit | undefined {
     headers.set("content-type", "application/json");
   }
   return JSON.stringify(data);
-}
-
-// Runs caller-provided config.transformRequest (axios-style: single fn or
-// array) over the outgoing body. Each transform receives the running body
-// and the mutable Headers so it can set content-type/signature headers
-// alongside the transformed payload. If no transform is given we fall
-// back to the default type dispatch in encodeRequestBody, preserving the
-// existing behavior for callers that don't opt in.
-function applyTransformRequest(
-  data: any,
-  headers: Headers,
-  transformRequest: any,
-): BodyInit | undefined {
-  if (transformRequest === undefined || data === undefined || data === null) {
-    return encodeRequestBody(data, headers);
-  }
-  const transforms = Array.isArray(transformRequest)
-    ? transformRequest
-    : [transformRequest];
-  let current = data;
-  for (const fn of transforms) {
-    current = fn(current, headers);
-  }
-  // Transforms are expected to yield a fetch-compatible BodyInit; don't
-  // second-guess by running encodeRequestBody on the result.
-  return current as BodyInit;
 }
 
 async function readBodyBounded(
@@ -358,55 +301,21 @@ function buildHttpError(
     response: {
       status: number;
       statusText: string;
-      headers: any;
+      headers: Headers;
       data: any;
       config: HttpClientRequestConfig;
     };
   };
-  // Normalize so `err.response.headers[key]` works (see normalizeHeaders).
-  // The success path runs this mapping at the wrapper — the error path
-  // has to do it here because the error object is thrown directly and
-  // never reaches that wrapper mapping step.
   err.response = {
     status: response.status,
     statusText: response.statusText,
-    headers: normalizeHeaders(response.headers),
+    headers: response.headers,
     data,
     config,
   };
   return err;
 }
 
-// Honors config.responseType on the bounded path. Without this, a caller
-// that asks for binary ("arraybuffer"/"blob") silently gets a UTF-8 string
-// because the adapter used to always run TextDecoder + JSON.parse.
-function copyToArrayBuffer(bytes: Uint8Array): ArrayBuffer {
-  const buffer = new ArrayBuffer(bytes.byteLength);
-  new Uint8Array(buffer).set(bytes);
-  return buffer;
-}
-
-function decodeBoundedBody(bytes: Uint8Array, responseType?: string): any {
-  if (responseType === "arraybuffer") {
-    // Copy into a fresh ArrayBuffer so the returned buffer doesn't alias
-    // the pooled bytes the reader used internally.
-    return copyToArrayBuffer(bytes);
-  }
-  if (responseType === "blob" && typeof Blob !== "undefined") {
-    return new Blob([copyToArrayBuffer(bytes)], {
-      type: "application/octet-stream",
-    });
-  }
-  const text = new TextDecoder().decode(bytes);
-  if (responseType === "text") return text;
-  // Default (no responseType or "json"): try JSON, fall back to text so a
-  // non-JSON body like TOML still round-trips as a string.
-  try {
-    return JSON.parse(text);
-  } catch {
-    return text;
-  }
-}
 // feaxios ignores maxRedirects and maxContentLength. When either is set,
 // perform the request via native fetch with explicit enforcement — otherwise
 // the "security" config is silently a no-op, allowing redirect-based SSRF and
@@ -416,13 +325,11 @@ function decodeBoundedBody(bytes: Uint8Array, responseType?: string): any {
 async function boundedFetchAdapter<T>(
   config: HttpClientRequestConfig,
 ): Promise<HttpClientResponse<T>> {
-  const { maxRedirects, maxContentLength } = config;
-
+  const { maxRedirects, maxContentLength, timeout } = config;
   const signals: AbortSignal[] = [];
-  const incomingSignal = (config as { signal?: AbortSignal }).signal;
-  if (incomingSignal) signals.push(incomingSignal);
-  if (config.timeout && config.timeout > 0) {
-    signals.push(createTimeoutSignal(config.timeout));
+
+  if (timeout && timeout > 0) {
+    signals.push(createTimeoutSignal(timeout));
   }
   const signal = composeSignals(signals);
 
@@ -449,13 +356,7 @@ async function boundedFetchAdapter<T>(
   }
 
   const headers = new Headers(config.headers || {});
-  const body = applyTransformRequest(
-    config.data,
-    headers,
-    (config as { transformRequest?: any }).transformRequest,
-  );
-  const withCredentials = (config as { withCredentials?: boolean })
-    .withCredentials;
+  const body = encodeRequestBody(config.data, headers);
 
   // IMPORTANT: spread fetchOptions FIRST, then overlay the enforced fields.
   // If fetchOptions came last, a caller could set `fetchOptions.redirect:
@@ -468,9 +369,6 @@ async function boundedFetchAdapter<T>(
     body,
     redirect,
     ...(signal ? { signal } : {}),
-    ...(withCredentials !== undefined
-      ? { credentials: withCredentials ? "include" : "same-origin" }
-      : {}),
   };
 
   let currentUrl = buildBoundedUrl(config);
@@ -511,13 +409,7 @@ async function boundedFetchAdapter<T>(
     redirectsRemaining -= 1;
   }
 
-  const validateStatus = (
-    config as { validateStatus?: (status: number) => boolean }
-  ).validateStatus;
-  const statusOk = validateStatus
-    ? validateStatus(response.status)
-    : response.ok;
-  if (!statusOk) {
+  if (!response.ok) {
     // Read the (bounded) body so the thrown error carries the server's
     // payload. Axios/feaxios attach `.response.data` on non-2xx errors; we
     // preserve that contract — notably federation's caller can still inspect
@@ -540,8 +432,13 @@ async function boundedFetchAdapter<T>(
   }
 
   const bytes = await readBodyBounded(response, maxContentLength);
-  const responseType = (config as { responseType?: string }).responseType;
-  const data = decodeBoundedBody(bytes, responseType);
+  const text = new TextDecoder().decode(bytes);
+  let data: any = text;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    // leave as string (e.g. TOML)
+  }
 
   return {
     data,
@@ -598,25 +495,14 @@ function createFetchClient(
           res: (value: HttpClientResponse<T>) => void,
           rej: (reason?: any) => void,
         ) {
-          // The bounded adapter is a security boundary: maxContentLength
-          // and maxRedirects exist to stop SSRF and unbounded-response DoS.
-          // If a caller sets either, they get the bounded path regardless
-          // of what config.adapter is — otherwise a rogue interceptor or a
-          // misconfigured call could silently swap it out and bypass the
-          // enforcement we were asked for.
-          const boundedEnforced =
-            finalConfig.maxRedirects !== undefined ||
-            finalConfig.maxContentLength !== undefined;
-          const adapter = boundedEnforced
-            ? (cfg: HttpClientRequestConfig) => boundedFetchAdapter<T>(cfg)
-            : finalConfig.adapter || this.defaults.adapter;
+          const adapter = finalConfig.adapter || this.defaults.adapter;
           if (!adapter) {
             throw new Error("No adapter available");
           }
           let responsePromise = adapter(finalConfig).then((axiosResponse) => {
             const httpClientResponse: HttpClientResponse<T> = {
               data: axiosResponse.data,
-              headers: normalizeHeaders(axiosResponse.headers),
+              headers: axiosResponse.headers as any,
               config: axiosResponse.config,
               status: axiosResponse.status,
               statusText: axiosResponse.statusText,
@@ -688,19 +574,11 @@ function createFetchClient(
         // recover from an upstream error (matching Axios interceptor semantics).
         let modifiedConfig = config;
         if (requestInterceptors.handlers.length > 0) {
-          // Axios runs request interceptors LIFO (the interceptor
-          // registered last runs first). Reversing before flattening
-          // matches that contract so that callers who compose multiple
-          // request interceptors — e.g. an auth-injector registered
-          // last to run first — see the same execution order on the
-          // no-axios build as on the axios build.
           const chain = requestInterceptors.handlers
             .filter(
               (interceptor): interceptor is NonNullable<typeof interceptor> =>
                 interceptor !== null,
             )
-            .slice()
-            .reverse()
             .flatMap((interceptor) => [
               interceptor.fulfilled,
               interceptor.rejected,
