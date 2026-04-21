@@ -7,6 +7,7 @@ import { Resolver } from "../stellartoml";
 
 import { Api } from "./api";
 import { httpClient } from "../http-client";
+import { validateDomain } from "./utils";
 
 /** @module Federation */
 
@@ -125,20 +126,7 @@ export class FederationServer {
     domain: string,
     opts: Api.Options = {},
   ): Promise<FederationServer> {
-    // Validate domain per RFC 1035 (as required by SEP-0002): each dot-separated
-    // label must start with a letter, end with a letter or digit, and contain only
-    // letters, digits, or hyphens.
-    if (
-      !/^(?:[A-Za-z](?:[A-Za-z0-9-]*[A-Za-z0-9])?\.)*[A-Za-z](?:[A-Za-z0-9-]*[A-Za-z0-9])?(?::\d+)?$/.test(
-        domain,
-      )
-    ) {
-      return Promise.reject(
-        new Error(
-          "The provided domain is invalid. Ensure that the domain adheres to RFC 1035",
-        ),
-      );
-    }
+    validateDomain(domain);
     const tomlObject = await Resolver.resolve(domain, opts);
     if (!tomlObject.FEDERATION_SERVER) {
       return Promise.reject(
@@ -153,21 +141,10 @@ export class FederationServer {
     domain: string,
     opts: Api.Options = {},
   ) {
-    // TODO `domain` regexp
     this.serverURL = URI(serverURL);
     this.domain = domain;
-    // Validate domain per RFC 1035 (as required by SEP-0002): each dot-separated
-    // label must start with a letter, end with a letter or digit, and contain only
-    // letters, digits, or hyphens.
-    if (
-      !/^(?:[A-Za-z](?:[A-Za-z0-9-]*[A-Za-z0-9])?\.)*[A-Za-z](?:[A-Za-z0-9-]*[A-Za-z0-9])?(?::\d+)?$/.test(
-        domain,
-      )
-    ) {
-      throw new Error(
-        "The provided domain is invalid. Ensure that the domain adheres to RFC 1035",
-      );
-    }
+    validateDomain(domain);
+
     const allowHttp =
       typeof opts.allowHttp === "undefined"
         ? Config.isAllowHttp()
