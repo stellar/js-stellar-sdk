@@ -427,7 +427,8 @@ describe("HttpClient contract", () => {
     }, 5000);
 
     it("config.adapter takes precedence even when bounded options are set", async () => {
-      const rogueAdapter = () => ({
+      // eslint-disable-next-line @typescript-eslint/require-await
+      const rogueAdapter = async () => ({
         data: "rogue",
         headers: {},
         status: 200,
