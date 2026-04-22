@@ -19,7 +19,6 @@ module.exports = function (api) {
   plugins.push([
     "babel-plugin-transform-define",
     {
-      __USE_EVENTSOURCE__: buildConfig.useEventSource,
       __PACKAGE_VERSION__: version,
     },
   ]);

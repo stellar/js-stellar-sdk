@@ -16,14 +16,11 @@ if (typeof global === "undefined") {
 // Make Buffer available globally
 (window as any).Buffer = Buffer;
 
-// Try to load different bundle variants in order of preference. The axios
-// variant is listed first when TRANSPORT=axios is set so that test:browser:axios
-// exercises the axios adapter; otherwise the default fetch bundle is loaded.
+// Pick the bundle variant to exercise. TRANSPORT=axios loads the axios build
+// (test:browser:axios); otherwise the default fetch build is used.
 const transport = import.meta.env.VITE_TRANSPORT;
 const bundleVariants =
-  transport === "axios"
-    ? ["stellar-sdk-axios", "stellar-sdk"]
-    : ["stellar-sdk-no-eventsource", "stellar-sdk"];
+  transport === "axios" ? ["stellar-sdk-axios"] : ["stellar-sdk"];
 
 let bundleLoaded = false;
 let lastError: Error | null = null;
