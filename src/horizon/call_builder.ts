@@ -1,8 +1,8 @@
 import URI from "urijs";
 import URITemplate from "urijs/src/URITemplate";
+import { EventSource } from "eventsource";
 
 import { BadRequestError, NetworkError, NotFoundError } from "../errors";
-
 import { HorizonApi } from "./horizon_api";
 import { version } from "./horizon_axios_client";
 import { HttpClient } from "../http-client";
@@ -13,29 +13,12 @@ import type { Server } from "../federation";
 // query-param.
 const JOINABLE = ["transaction"];
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
-declare const __USE_EVENTSOURCE__: boolean;
-
 export interface EventSourceOptions<T> {
   onmessage?: (
     value: T extends ServerApi.CollectionPage<infer U> ? U : T,
   ) => void;
   onerror?: (event: MessageEvent) => void;
   reconnectTimeout?: number;
-}
-
-const anyGlobal = global as any;
-type Constructable<T> = new (e: string) => T;
-
-// Declare EventSource as a potentially undefined variable
-let EventSource: Constructable<EventSource> | undefined;
-
-// Only define EventSource if __USE_EVENTSOURCE__ is true
-if (typeof __USE_EVENTSOURCE__ !== "undefined" && __USE_EVENTSOURCE__) {
-  EventSource =
-    anyGlobal.EventSource ??
-    anyGlobal.window?.EventSource ??
-    require("eventsource");
 }
 
 /**
@@ -117,13 +100,6 @@ export class CallBuilder<
       T extends ServerApi.CollectionPage<infer U> ? U : T
     > = {},
   ): () => void {
-    // Check if EventSource use is enabled
-    if (EventSource === undefined) {
-      throw new Error(
-        "Streaming requires eventsource to be enabled. If you need this functionality, compile with USE_EVENTSOURCE=true.",
-      );
-    }
-
     this.checkFilter();
 
     const streamUrl = this.url.clone();
