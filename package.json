@@ -41,18 +41,18 @@
       "types": "./lib/rpc/index.d.ts",
       "default": "./lib/rpc/index.js"
     },
-    "./no-axios": {
-      "browser": "./dist/stellar-sdk-no-axios.min.js",
-      "types": "./lib/no-axios/index.d.ts",
-      "default": "./lib/no-axios/index.js"
+    "./axios": {
+      "browser": "./dist/stellar-sdk-axios.min.js",
+      "types": "./lib/axios/index.d.ts",
+      "default": "./lib/axios/index.js"
     },
-    "./no-axios/contract": {
-      "types": "./lib/no-axios/contract/index.d.ts",
-      "default": "./lib/no-axios/contract/index.js"
+    "./axios/contract": {
+      "types": "./lib/axios/contract/index.d.ts",
+      "default": "./lib/axios/contract/index.js"
     },
-    "./no-axios/rpc": {
-      "types": "./lib/no-axios/rpc/index.d.ts",
-      "default": "./lib/no-axios/rpc/index.js"
+    "./axios/rpc": {
+      "types": "./lib/axios/rpc/index.d.ts",
+      "default": "./lib/axios/rpc/index.js"
     },
     "./no-eventsource": {
       "browser": "./dist/stellar-sdk-no-eventsource.min.js",
@@ -67,18 +67,9 @@
       "types": "./lib/no-eventsource/rpc/index.d.ts",
       "default": "./lib/no-eventsource/rpc/index.js"
     },
-    "./minimal": {
-      "browser": "./dist/stellar-sdk-minimal.min.js",
-      "types": "./lib/minimal/index.d.ts",
-      "default": "./lib/minimal/index.js"
-    },
-    "./minimal/contract": {
-      "types": "./lib/minimal/contract/index.d.ts",
-      "default": "./lib/minimal/contract/index.js"
-    },
-    "./minimal/rpc": {
-      "types": "./lib/minimal/rpc/index.d.ts",
-      "default": "./lib/minimal/rpc/index.js"
+    "./http-client/axios": {
+      "types": "./lib/http-client/axios.d.ts",
+      "default": "./lib/http-client/axios.js"
     }
   },
   "scripts": {
@@ -86,29 +77,27 @@
     "build": "cross-env NODE_ENV=development yarn _build",
     "build:prod": "cross-env NODE_ENV=production yarn _build",
     "build:node": "yarn _babel && yarn build:ts",
-    "build:node:no-axios": "cross-env OUTPUT_DIR=lib/no-axios USE_AXIOS=false yarn build:node",
+    "build:node:axios": "cross-env OUTPUT_DIR=lib/axios USE_AXIOS=true yarn build:node",
     "build:node:no-eventsource": "cross-env OUTPUT_DIR=lib/no-eventsource USE_EVENTSOURCE=false yarn build:node",
-    "build:node:minimal": "cross-env OUTPUT_DIR=lib/minimal USE_AXIOS=false USE_EVENTSOURCE=false yarn build:node",
-    "build:node:all": "yarn build:node && yarn build:node:no-axios && yarn build:node:no-eventsource && yarn build:node:minimal",
+    "build:node:all": "yarn build:node && yarn build:node:axios && yarn build:node:no-eventsource",
     "clean:temp": "rm -f ./config/tsconfig.tmp.json",
     "build:ts": "node config/set-output-dir.js && tsc -p ./config/tsconfig.tmp.json && yarn clean:temp",
     "build:browser": "webpack -c config/webpack.config.browser.js",
-    "build:browser:no-axios": "cross-env USE_AXIOS=false webpack -c config/webpack.config.browser.js",
+    "build:browser:axios": "cross-env USE_AXIOS=true webpack -c config/webpack.config.browser.js",
     "build:browser:no-eventsource": "cross-env USE_EVENTSOURCE=false webpack -c config/webpack.config.browser.js",
-    "build:browser:minimal": "cross-env USE_AXIOS=false USE_EVENTSOURCE=false webpack -c config/webpack.config.browser.js",
-    "build:browser:all": "yarn build:browser && cross-env no_clean=true yarn build:browser:no-axios && cross-env no_clean=true yarn build:browser:no-eventsource && cross-env no_clean=true yarn build:browser:minimal",
+    "build:browser:all": "yarn build:browser && cross-env no_clean=true yarn build:browser:axios && cross-env no_clean=true yarn build:browser:no-eventsource",
     "build:docs": "cross-env NODE_ENV=docs yarn _babel",
     "clean": "rm -rf lib/ dist/ coverage/ .nyc_output/ jsdoc/ test/e2e/.soroban",
     "docs": "yarn build:docs && jsdoc -c ./config/.jsdoc.json",
-    "test": "yarn test:node && yarn test:node:no-axios && yarn test:integration && yarn test:browser",
-    "test:all": "yarn test:node && yarn test:node:no-axios && yarn test:integration && yarn test:browser && yarn test:e2e",
+    "test": "yarn test:node && yarn test:node:axios && yarn test:integration && yarn test:browser",
+    "test:all": "yarn test:node && yarn test:node:axios && yarn test:integration && yarn test:browser && yarn test:e2e",
     "test:e2e": "./test/e2e/initialize.sh && vitest run --config config/vitest.config.e2e.ts --coverage",
     "test:node": "vitest run test/unit --config config/vitest.config.ts --coverage",
-    "test:node:no-axios": "cross-env USE_AXIOS=false vitest run test/unit --config config/vitest.config.no-axios.ts",
+    "test:node:axios": "cross-env TRANSPORT=axios vitest run test/unit --config config/vitest.config.axios.ts",
     "test:e2e:noeval": "NODE_OPTIONS=--disallow-code-generation-from-strings yarn test:e2e",
     "test:integration": "vitest run test/integration --config config/vitest.config.ts --coverage",
     "test:browser": "yarn build:browser && vitest run --config config/vitest.config.browser.ts test/unit --coverage",
-    "test:browser:no-axios": "cross-env USE_AXIOS=false yarn build:browser && cross-env USE_AXIOS=false vitest run --config config/vitest.config.browser.ts test/unit",
+    "test:browser:axios": "cross-env USE_AXIOS=true yarn build:browser:axios && cross-env TRANSPORT=axios vitest run --config config/vitest.config.browser.ts test/unit",
     "fmt": "yarn _prettier && yarn eslint src/ --fix",
     "preversion": "yarn clean && yarn _prettier && yarn build:prod && yarn test",
     "prepare": "yarn build:prod && yarn setup",

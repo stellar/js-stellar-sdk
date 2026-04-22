@@ -1,8 +1,8 @@
 // The SDK version is baked in at build time via babel-plugin-transform-define.
 // Previously this was `import packageJson from "../../package.json"`, which
-// failed at runtime in deeper build outputs (lib/no-axios, lib/minimal) because
-// the relative path `../../package.json` resolved into the output tree rather
-// than the project root.
+// failed at runtime in deeper build outputs (e.g. lib/axios, lib/no-eventsource)
+// because the relative path `../../package.json` resolved into the output tree
+// rather than the project root.
 // eslint-disable-next-line @typescript-eslint/naming-convention
 declare const __PACKAGE_VERSION__: string;
 

@@ -4,6 +4,9 @@ import { playwright } from "@vitest/browser-playwright";
 
 export default defineConfig({
   test: {
+    env: {
+      VITE_TRANSPORT: process.env.TRANSPORT || "fetch",
+    },
     globals: true,
     environment: "jsdom",
     coverage: {
@@ -40,7 +43,6 @@ export default defineConfig({
     },
   },
   define: {
-    __USE_AXIOS__: true,
     __USE_EVENTSOURCE__: true,
     __PACKAGE_VERSION__: JSON.stringify(process.env.npm_package_version),
   },

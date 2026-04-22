@@ -12,8 +12,7 @@
     "includePattern": "\\.(js|ts)$",
     "exclude": [
       "js-stellar-base/src/generated",
-      "lib/minimal",
-      "lib/no-axios",
+      "lib/axios",
       "lib/no-eventsource",
       "lib/contract/utils.d.ts"
     ]
