@@ -22,15 +22,14 @@ declare global {
   }
 }
 
-// When USE_AXIOS=false is set, Node tests must load the no-axios build so
-// they exercise the fetch path rather than the pre-baked axios build under
-// lib/. Without this redirect, the __USE_AXIOS__ define in vitest config has
-// no effect because the test harness imports pre-compiled JS from lib/.
-// Evaluated lazily so browser bundles (where `process` is undefined) don't
-// crash at module load.
+// When TRANSPORT=axios is set, Node tests must load the axios build so they
+// exercise the axios adapter rather than the default fetch build under lib/.
+// Without this redirect the harness would always import pre-compiled JS from
+// lib/ (fetch-backed) regardless of the env flag. Evaluated lazily so browser
+// bundles (where `process` is undefined) don't crash at module load.
 function getNodeLibPath(): string {
-  return typeof process !== "undefined" && process.env?.USE_AXIOS === "false"
-    ? "../../lib/no-axios"
+  return typeof process !== "undefined" && process.env?.TRANSPORT === "axios"
+    ? "../../lib/axios"
     : "../../lib";
 }
 
@@ -95,9 +94,16 @@ export function getHttpClient() {
     // In browser environment, get httpClient from global StellarSdk
     return (window as any).StellarSdk.httpClient;
   }
-  // In Node.js environment, import directly
+  // In Node.js environment, import directly. The axios lib tree still has a
+  // fetch-backed `http-client/index.js` (the file itself isn't aliased — only
+  // downstream imports of `../http-client` are). So to get the axios client
+  // we must reach for the explicit `http-client/axios` subpath.
+  const subpath =
+    typeof process !== "undefined" && process.env?.TRANSPORT === "axios"
+      ? "/http-client/axios"
+      : "/http-client";
   // eslint-disable-next-line import/no-dynamic-require, global-require
-  const httpClientModule = require(`${getNodeLibPath()}/http-client`);
+  const httpClientModule = require(`${getNodeLibPath()}${subpath}`);
   return httpClientModule.httpClient;
 }
 

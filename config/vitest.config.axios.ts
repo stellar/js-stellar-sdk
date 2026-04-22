@@ -8,11 +8,11 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       reporter: ["text", "html", "lcov"],
-      // This config runs tests against lib/no-axios (USE_AXIOS=false routes
-      // the test harness there). Scope coverage to that build so the report
-      // reflects what's actually under test; the default axios build is
+      // This config runs tests against lib/axios (TRANSPORT=axios routes the
+      // test harness there). Scope coverage to that build so the report
+      // reflects what's actually under test; the default fetch build is
       // covered by vitest.config.ts.
-      include: ["lib/no-axios/**/*.js"],
+      include: ["lib/axios/**/*.js"],
       exclude: [
         "test/**",
         "dist/**",
@@ -34,7 +34,6 @@ export default defineConfig({
   },
 
   define: {
-    __USE_AXIOS__: false,
     __USE_EVENTSOURCE__: true,
     __PACKAGE_VERSION__: JSON.stringify(process.env.npm_package_version),
   },
