@@ -1,6 +1,6 @@
-// The `axios` HTTP client implementation for the Stellar SDK. This module re-exports the SDK's built-in HTTP client,
-//  but with the `axios` implementation. This allows users to
-// inject the `axios` client without switching bundles (e.g. from `stellar-sdk/axios` to
-// `stellar-sdk`).
+// This file serves as an entry point for the axios-based HTTP client build.
+// It is utilized by the build system to create a separate bundle that uses axios instead of fetch.
+// By re-exporting from the main http-client index, it ensures that all types and the create function are available
+// in the axios build without duplication.
 export { axiosClient as httpClient, create } from "./axios-client";
 export * from "./types";
