@@ -19,8 +19,9 @@ if (typeof global === "undefined") {
 // Try to load different bundle variants in order of preference. The axios
 // variant is listed first when TRANSPORT=axios is set so that test:browser:axios
 // exercises the axios adapter; otherwise the default fetch bundle is loaded.
+const transport = import.meta.env.VITE_TRANSPORT;
 const bundleVariants =
-  typeof process !== "undefined" && process.env?.TRANSPORT === "axios"
+  transport === "axios"
     ? ["stellar-sdk-axios", "stellar-sdk"]
     : ["stellar-sdk-no-eventsource", "stellar-sdk"];
 
