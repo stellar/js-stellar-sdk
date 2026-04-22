@@ -11,12 +11,21 @@ var buildConfig = require('./build.config');
 const packageJson = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../package.json'), 'utf8'));
 const version = packageJson.version;
 
+// For the axios variant, the browser entry imports from `src/browser-axios.ts`
+// so the initial `httpClient` re-export resolves to the axios adapter. The
+// NormalModuleReplacementPlugin below then rewrites every downstream relative
+// import of `./http-client` (or `../http-client`) to `./http-client/axios`,
+// so Horizon/rpc/stellartoml/federation all pick up axios in the same bundle.
+const entryPath = buildConfig.useAxios
+  ? path.resolve(__dirname, '../src/browser-axios.ts')
+  : path.resolve(__dirname, '../src/browser.ts');
+
 const config = {
   target: 'web',
   // https://stackoverflow.com/a/34018909
   entry: {
-    'stellar-sdk': path.resolve(__dirname, '../src/browser.ts'),
-    'stellar-sdk.min': path.resolve(__dirname, '../src/browser.ts')
+    'stellar-sdk': entryPath,
+    'stellar-sdk.min': entryPath
   },
   resolve: {
     fallback: {
@@ -36,7 +45,7 @@ const config = {
     filename: (pathData) => {
       let name = pathData.chunk.name;
       let suffix = '';
-      
+
       if (name.endsWith('.min')) {
         name = name.slice(0, -4); // Remove .min
         suffix = '.min.js';
@@ -44,10 +53,9 @@ const config = {
         suffix = '.js';
       }
 
-      if (!buildConfig.useAxios && !buildConfig.useEventSource) name += '-minimal';
-      else if (!buildConfig.useAxios) name += '-no-axios';
+      if (buildConfig.useAxios) name += '-axios';
       else if (!buildConfig.useEventSource) name += '-no-eventsource';
-      
+
       return name + suffix;
     },
     path: path.resolve(__dirname, '../dist')
@@ -95,17 +103,33 @@ const config = {
     new webpack.IgnorePlugin({ resourceRegExp: /sodium-native/ }),
     new NodePolyfillPlugin({
       includeAliases: ['http', 'https'] // others aren't needed
-    
+
     }),
     new webpack.ProvidePlugin({
       Buffer: ['buffer', 'Buffer'],
       // process: 'process/browser.js',
     }),
     new webpack.DefinePlugin({
-      __USE_AXIOS__: JSON.stringify(buildConfig.useAxios),
       __USE_EVENTSOURCE__: JSON.stringify(buildConfig.useEventSource),
       __PACKAGE_VERSION__: JSON.stringify(version),
-    })
+    }),
+    ...(buildConfig.useAxios
+      ? [
+          new webpack.NormalModuleReplacementPlugin(
+            /(^|\/)http-client$/,
+            (resource) => {
+              // `resource.request` is the import specifier as written in the
+              // source file (e.g. "../http-client"). Only rewrite the bare
+              // directory import; `../http-client/axios` and
+              // `../http-client/types` don't match the regex and pass through.
+              resource.request = resource.request.replace(
+                /(^|\/)http-client$/,
+                '$1http-client/axios',
+              );
+            },
+          ),
+        ]
+      : []),
   ],
   watchOptions: {
     ignored: /(node_modules|coverage|lib|dist)/

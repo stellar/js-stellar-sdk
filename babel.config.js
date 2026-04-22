@@ -1,3 +1,4 @@
+const path = require("path");
 const buildConfig = require("./config/build.config");
 const fs = require("fs");
 const packageJson = JSON.parse(fs.readFileSync("./package.json", "utf8"));
@@ -18,11 +19,16 @@ module.exports = function (api) {
   plugins.push([
     "babel-plugin-transform-define",
     {
-      __USE_AXIOS__: buildConfig.useAxios,
       __USE_EVENTSOURCE__: buildConfig.useEventSource,
       __PACKAGE_VERSION__: version,
     },
   ]);
+
+  if (buildConfig.useAxios) {
+    plugins.push(
+      path.resolve(__dirname, "config/babel-plugin-alias-http-client.js"),
+    );
+  }
 
   const config = {
     comments: process.env.NODE_ENV !== "production",
