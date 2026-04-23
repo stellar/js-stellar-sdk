@@ -37,18 +37,19 @@ function getNodeLibPath(): string {
  * Get the StellarSdk module with proper TypeScript types
  * Works in both browser and Node.js environments
  */
-export function getStellarSdk(): StellarSdkModule {
+export async function getStellarSdk(): Promise<StellarSdkModule> {
   if (typeof window !== "undefined" && window.StellarSdk) {
     // Browser environment - use the global StellarSdk
     return window.StellarSdk;
   }
-  // Node.js environment - require the lib module
-  // eslint-disable-next-line import/no-dynamic-require, global-require
-  return require(getNodeLibPath());
+  // Node.js environment - dynamically import the lib module. Top-level await
+  // in this file's module body makes this usable as a synchronous const below,
+  // and vitest handles the propagated async boundary transparently.
+  return (await import(getNodeLibPath())) as unknown as StellarSdkModule;
 }
 
 // Export the StellarSdk instance with proper typing
-export const StellarSdk = getStellarSdk();
+export const StellarSdk = await getStellarSdk();
 
 // Re-export commonly used types for convenience
 export type {
@@ -86,7 +87,7 @@ export type {
  * Get the httpClient with proper TypeScript types
  * Works in both browser and Node.js environments
  */
-export function getHttpClient() {
+export async function getHttpClient() {
   if (
     typeof window !== "undefined" &&
     (window as any).__STELLAR_SDK_BROWSER_TEST__
@@ -102,10 +103,9 @@ export function getHttpClient() {
     typeof process !== "undefined" && process.env?.TRANSPORT === "axios"
       ? "/http-client/axios"
       : "/http-client";
-  // eslint-disable-next-line import/no-dynamic-require, global-require
-  const httpClientModule = require(`${getNodeLibPath()}${subpath}`);
+  const httpClientModule = await import(`${getNodeLibPath()}${subpath}`);
   return httpClientModule.httpClient;
 }
 
 // Export the httpClient instance
-export const httpClient = getHttpClient();
+export const httpClient = await getHttpClient();
