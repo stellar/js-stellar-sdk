@@ -13,7 +13,6 @@
     "exclude": [
       "js-stellar-base/src/generated",
       "lib/axios",
-      "lib/no-eventsource",
       "lib/contract/utils.d.ts"
     ]
   },

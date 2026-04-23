@@ -1,6 +1,3 @@
-// tslint:disable-next-line: no-reference
-/// <reference path="../types/dom-monkeypatch.d.ts" />
-
 // Expose all types
 export * from "./errors";
 export { Config } from "./config";
@@ -40,7 +37,3 @@ export { BindingGenerator } from "./bindings";
 export * from "@stellar/stellar-base";
 
 export default module.exports;
-
-if (typeof (global as any).__USE_EVENTSOURCE__ === "undefined") {
-  (global as any).__USE_EVENTSOURCE__ = false;
-}

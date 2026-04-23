@@ -82,19 +82,13 @@ If you don't want to use or install Bower, you can copy the packaged JS files fr
 
 ### Custom Installation
 
-The default bundle uses a native-fetch HTTP client with no axios dependency. If you need the axios transport (for example, to match the behavior of older SDK versions), set the `USE_AXIOS` environment variable to `true` when building. You can also turn off the eventsource dependency by setting `USE_EVENTSOURCE=false`.
+The default bundle uses a native-fetch HTTP client with no axios dependency. If you need the axios transport (for example, to match the behavior of older SDK versions), set the `USE_AXIOS` environment variable to `true` when building.
 
 #### Build with Axios
 ```
 npm run build:browser:axios
 ```
 This will create `stellar-sdk-axios.js` in `dist/`. Consumers can also import the axios-backed entry from Node via `@stellar/stellar-sdk/axios`.
-
-#### Build without EventSource
-```
-npm run build:browser:no-eventsource
-```
-This will create `stellar-sdk-no-eventsource.js` in `dist/`.
 
 ## Usage
 

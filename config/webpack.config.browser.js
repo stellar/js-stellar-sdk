@@ -54,7 +54,6 @@ const config = {
       }
 
       if (buildConfig.useAxios) name += '-axios';
-      else if (!buildConfig.useEventSource) name += '-no-eventsource';
 
       return name + suffix;
     },
@@ -110,7 +109,6 @@ const config = {
       // process: 'process/browser.js',
     }),
     new webpack.DefinePlugin({
-      __USE_EVENTSOURCE__: JSON.stringify(buildConfig.useEventSource),
       __PACKAGE_VERSION__: JSON.stringify(version),
     }),
     ...(buildConfig.useAxios

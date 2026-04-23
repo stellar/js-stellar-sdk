@@ -1,8 +1,5 @@
 /** @module rpc */
 
-// tslint:disable-next-line: no-reference
-/// <reference path="../../types/dom-monkeypatch.d.ts" />
-
 // Expose all types
 export * from "./api";
 

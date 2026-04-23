@@ -54,19 +54,6 @@
       "types": "./lib/axios/rpc/index.d.ts",
       "default": "./lib/axios/rpc/index.js"
     },
-    "./no-eventsource": {
-      "browser": "./dist/stellar-sdk-no-eventsource.min.js",
-      "types": "./lib/no-eventsource/index.d.ts",
-      "default": "./lib/no-eventsource/index.js"
-    },
-    "./no-eventsource/contract": {
-      "types": "./lib/no-eventsource/contract/index.d.ts",
-      "default": "./lib/no-eventsource/contract/index.js"
-    },
-    "./no-eventsource/rpc": {
-      "types": "./lib/no-eventsource/rpc/index.d.ts",
-      "default": "./lib/no-eventsource/rpc/index.js"
-    },
     "./http-client/axios": {
       "types": "./lib/http-client/axios.d.ts",
       "default": "./lib/http-client/axios.js"
@@ -78,14 +65,12 @@
     "build:prod": "cross-env NODE_ENV=production yarn _build",
     "build:node": "yarn _babel && yarn build:ts",
     "build:node:axios": "cross-env OUTPUT_DIR=lib/axios USE_AXIOS=true yarn build:node",
-    "build:node:no-eventsource": "cross-env OUTPUT_DIR=lib/no-eventsource USE_EVENTSOURCE=false yarn build:node",
-    "build:node:all": "yarn build:node && yarn build:node:axios && yarn build:node:no-eventsource",
+    "build:node:all": "yarn build:node && yarn build:node:axios",
     "clean:temp": "rm -f ./config/tsconfig.tmp.json",
     "build:ts": "node config/set-output-dir.js && tsc -p ./config/tsconfig.tmp.json && yarn clean:temp",
     "build:browser": "webpack -c config/webpack.config.browser.js",
     "build:browser:axios": "cross-env USE_AXIOS=true webpack -c config/webpack.config.browser.js",
-    "build:browser:no-eventsource": "cross-env USE_EVENTSOURCE=false webpack -c config/webpack.config.browser.js",
-    "build:browser:all": "yarn build:browser && cross-env no_clean=true yarn build:browser:axios && cross-env no_clean=true yarn build:browser:no-eventsource",
+    "build:browser:all": "yarn build:browser && cross-env no_clean=true yarn build:browser:axios",
     "build:docs": "cross-env NODE_ENV=docs yarn _babel",
     "clean": "rm -rf lib/ dist/ coverage/ .nyc_output/ jsdoc/ test/e2e/.soroban",
     "docs": "yarn build:docs && jsdoc -c ./config/.jsdoc.json",
@@ -138,7 +123,6 @@
     "@istanbuljs/nyc-config-babel": "3.0.0",
     "@stellar/tsconfig": "^1.0.2",
     "@types/detect-node": "^2.0.2",
-    "@types/eventsource": "^1.1.12",
     "@types/json-schema": "^7.0.15",
     "@types/lodash": "^4.17.24",
     "@types/node": "^20.14.11",
@@ -192,7 +176,7 @@
     "axios": "1.15.0",
     "bignumber.js": "^9.3.1",
     "commander": "^14.0.3",
-    "eventsource": "^2.0.2",
+    "eventsource": "^4.1.0",
     "feaxios": "^0.0.23",
     "randombytes": "^2.1.0",
     "toml": "^3.0.0",
