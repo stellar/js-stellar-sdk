@@ -1,4 +1,5 @@
 #!/usr/bin/env node
 
 // Entry point for the stellar CLI
-require("../lib/cli/index.js").runCli();
+import { runCli } from "../lib/cli/index.js";
+runCli();

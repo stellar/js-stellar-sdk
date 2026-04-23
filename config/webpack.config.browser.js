@@ -1,14 +1,16 @@
-var path = require('path');
-var webpack = require('webpack');
-var fs = require('fs');
+import path from "path";
+import webpack from "webpack";
+import fs from "fs";
 
-var ESLintPlugin = require('eslint-webpack-plugin');
-var TerserPlugin = require('terser-webpack-plugin');
-var NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
-var buildConfig = require('./build.config');
+import ESLintPlugin from "eslint-webpack-plugin";
+import TerserPlugin from "terser-webpack-plugin";
+import NodePolyfillPlugin from "node-polyfill-webpack-plugin";
+import buildConfig from "./build.config.js";
 
 // Read the version from package.json
-const packageJson = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../package.json'), 'utf8'));
+const packageJson = JSON.parse(
+fs.readFileSync(path.resolve(import.meta.dirname, "../package.json"), "utf8"),
+);
 const version = packageJson.version;
 
 // For the axios variant, the browser entry imports from `src/browser-axios.ts`
@@ -17,8 +19,8 @@ const version = packageJson.version;
 // import of `./http-client` (or `../http-client`) to `./http-client/axios`,
 // so Horizon/rpc/stellartoml/federation all pick up axios in the same bundle.
 const entryPath = buildConfig.useAxios
-  ? path.resolve(__dirname, '../src/browser-axios.ts')
-  : path.resolve(__dirname, '../src/browser.ts');
+  ? path.resolve(import.meta.dirname, "../src/browser-axios.ts")
+  : path.resolve(import.meta.dirname, "../src/browser.ts");
 
 const config = {
   target: 'web',
@@ -29,9 +31,9 @@ const config = {
   },
   resolve: {
     fallback: {
-      crypto: require.resolve('crypto-browserify'),
-      stream: require.resolve('stream-browserify'),
-      buffer: require.resolve('buffer'),
+      crypto: import.meta.resolve("crypto-browserify"),
+      stream: import.meta.resolve("stream-browserify"),
+      buffer: import.meta.resolve("buffer"),
     },
     extensions: ['.ts', '.js'],
   },
@@ -57,7 +59,7 @@ const config = {
 
       return name + suffix;
     },
-    path: path.resolve(__dirname, '../dist')
+    path: path.resolve(import.meta.dirname, "../dist"),
   },
   mode: process.env.NODE_ENV ?? 'development',
   devtool: process.env.NODE_ENV === 'production' ? false : 'inline-source-map',
@@ -96,7 +98,10 @@ const config = {
     // ESLint plugin for code quality checks
     // TODO: this is not working, needs investigation
     new ESLintPlugin({
-      overrideConfigFile: path.resolve(__dirname, "../eslint.config.js"),
+      overrideConfigFile: path.resolve(
+        import.meta.dirname,
+        "../eslint.config.js",
+      ),
     }),
     // Ignore native modules (sodium-native)
     new webpack.IgnorePlugin({ resourceRegExp: /sodium-native/ }),
@@ -134,4 +139,4 @@ const config = {
   }
 };
 
-module.exports = config;
+export default config;

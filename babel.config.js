@@ -1,13 +1,10 @@
-const path = require("path");
-const buildConfig = require("./config/build.config");
-const fs = require("fs");
+import path from "path";
+import buildConfig from "./config/build.config.js";
+import fs from "fs";
 const packageJson = JSON.parse(fs.readFileSync("./package.json", "utf8"));
 const version = packageJson.version;
 
-module.exports = function (api) {
-  api.cache(true);
-
-  const presets = ["@babel/preset-env", "@babel/typescript"];
+export default function (api) {
 
   const plugins = [];
 
@@ -25,7 +22,10 @@ module.exports = function (api) {
 
   if (buildConfig.useAxios) {
     plugins.push(
-      path.resolve(__dirname, "config/babel-plugin-alias-http-client.js"),
+      path.resolve(
+        import.meta.dirname,
+        "config/babel-plugin-alias-http-client.js",
+      ),
     );
   }
 

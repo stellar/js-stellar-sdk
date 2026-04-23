@@ -1,13 +1,4 @@
-// Rewrites relative imports of `./http-client` (or `../http-client`, etc.) to
-// `./http-client/axios` so the axios variant of the Node/browser build wires
-// every downstream consumer to the axios re-export without runtime branching.
-// Applied only when USE_AXIOS=true. Paths already pointing inside the
-// http-client directory (e.g. `./http-client/types`, `./http-client/axios`)
-// are left untouched.
-module.exports = function aliasHttpClient() {
-  const isHttpClientIndex = (value) => /(^|\/)http-client$/.test(value);
-  const rewrite = (value) =>
-    isHttpClientIndex(value) ? `${value}/axios` : value;
+export default function aliasHttpClient() {
 
   return {
     name: "alias-http-client",
