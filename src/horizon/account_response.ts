@@ -2,8 +2,8 @@
 
 import { Account as BaseAccount } from "@stellar/stellar-base";
 import type { TransactionBuilder } from "@stellar/stellar-base";
-import { HorizonApi } from "./horizon_api";
-import { ServerApi } from "./server_api";
+import { HorizonApi } from "./horizon_api.js";
+import { ServerApi } from "./server_api.js";
 
 /**
  * Do not create this object directly, use {@link module:Horizon.Server#loadAccount | Horizon.Server#loadAccount}.

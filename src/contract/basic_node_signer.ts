@@ -1,6 +1,6 @@
 import { Keypair, TransactionBuilder, hash } from "@stellar/stellar-base";
-import type { Client } from "./client";
-import { SignAuthEntry, SignTransaction } from "./types";
+import type { Client } from "./client.js";
+import type { SignAuthEntry, SignTransaction } from "./types.js";
 
 /**
  * For use with {@link Client} and {@link module:contract.AssembledTransaction}.

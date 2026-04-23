@@ -1,4 +1,4 @@
-import { HttpClient } from "../http-client";
+import type { HttpClient } from "../http-client/index.js";
 
 export type Id = string | number;
 

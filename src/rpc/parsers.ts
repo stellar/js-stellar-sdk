@@ -1,5 +1,5 @@
 import { xdr, Contract, SorobanDataBuilder } from "@stellar/stellar-base";
-import { Api } from "./api";
+import { Api } from "./api.js";
 
 /**
  * Parse the response from invoking the `submitTransaction` method of a RPC server.

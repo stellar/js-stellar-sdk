@@ -1,13 +1,17 @@
 import URI from "urijs";
-import URITemplate from "urijs/src/URITemplate";
+import URITemplate from "urijs/src/URITemplate.js";
 import { EventSource } from "eventsource";
 
-import { BadRequestError, NetworkError, NotFoundError } from "../errors";
-import { HorizonApi } from "./horizon_api";
-import { version } from "./horizon_axios_client";
-import { HttpClient } from "../http-client";
-import { ServerApi } from "./server_api";
-import type { Server } from "../federation";
+import {
+  BadRequestError,
+  NetworkError,
+  NotFoundError,
+} from "../errors/index.js";
+import { HorizonApi } from "./horizon_api.js";
+import { version } from "./horizon_axios_client.js";
+import type { HttpClient } from "../http-client/index.js";
+import { ServerApi } from "./server_api.js";
+import type { Server } from "../federation/index.js";
 
 // Resources which can be included in the Horizon response via the `join`
 // query-param.

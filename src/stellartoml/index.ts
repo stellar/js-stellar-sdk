@@ -1,8 +1,8 @@
 import toml from "toml";
 import { Networks } from "@stellar/stellar-base";
-import { httpClient } from "../http-client";
+import { httpClient } from "../http-client/index.js";
 
-import { Config } from "../config";
+import { Config } from "../config.js";
 
 /** @module StellarToml */
 

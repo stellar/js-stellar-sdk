@@ -1,4 +1,4 @@
-import { NetworkError } from "./network";
+import { NetworkError } from "./network.js";
 
 /**
  * BadRequestError is raised when a request made to Horizon is invalid in some

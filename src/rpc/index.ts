@@ -1,7 +1,7 @@
 /** @module rpc */
 
 // Expose all types
-export * from "./api";
+export * from "./api.js";
 
 // soroban-client classes to expose
 export {
@@ -9,8 +9,6 @@ export {
   BasicSleepStrategy,
   LinearSleepStrategy,
   Durability,
-} from "./server";
-export { parseRawSimulation, parseRawEvents } from "./parsers";
-export * from "./transaction";
-
-export default module.exports;
+} from "./server.js";
+export { parseRawSimulation, parseRawEvents } from "./parsers.js";
+export * from "./transaction.js";

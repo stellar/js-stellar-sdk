@@ -1,7 +1,7 @@
 import { Address, Contract, StrKey, xdr } from "@stellar/stellar-base";
-import { Server } from "../rpc";
+import { Server } from "../rpc/index.js";
 
-import { RpcServer } from "../rpc/server";
+import { RpcServer } from "../rpc/server.js";
 
 /**
  * Types of contract data that can be fetched

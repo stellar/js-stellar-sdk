@@ -1,15 +1,15 @@
 import type { JSONSchema7, JSONSchema7Definition } from "json-schema";
 import {
-  ScIntType,
+  type ScIntType,
   XdrLargeInt,
   xdr,
   Address,
   Contract,
   scValToBigInt,
 } from "@stellar/stellar-base";
-import { Ok, Err } from "./rust_result";
-import { processSpecEntryStream } from "./utils";
-import { specFromWasm } from "./wasm_spec_parser";
+import { Ok, Err } from "./rust_result.js";
+import { processSpecEntryStream } from "./utils.js";
+import { specFromWasm } from "./wasm_spec_parser.js";
 
 export interface Union<T> {
   tag: string;

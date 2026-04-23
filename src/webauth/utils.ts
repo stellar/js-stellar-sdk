@@ -9,7 +9,7 @@ import {
   Keypair,
   Transaction,
 } from "@stellar/stellar-base";
-import { InvalidChallengeError } from "./errors";
+import { InvalidChallengeError } from "./errors.js";
 /**
  * Checks if a transaction has been signed by one or more of the given signers,
  * returning a list of non-repeated signers that were found to have signed the

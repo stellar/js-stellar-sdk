@@ -2,14 +2,14 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import {
   Memo,
-  MemoType,
+  type MemoType,
   Operation,
   Transaction,
   xdr,
 } from "@stellar/stellar-base";
-import type { SentTransaction } from "./sent_transaction";
-import type { Client } from "./client";
-import { Server } from "../rpc";
+import type { SentTransaction } from "./sent_transaction.js";
+import type { Client } from "./client.js";
+import { Server } from "../rpc/index.js";
 
 export type XDR_BASE64 = string;
 /**

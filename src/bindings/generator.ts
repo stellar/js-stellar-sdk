@@ -1,11 +1,11 @@
-import { Spec } from "../contract";
-import { ConfigGenerator } from "./config";
-import { TypeGenerator } from "./types";
-import { ClientGenerator } from "./client";
-import { specFromWasm } from "../contract/wasm_spec_parser";
-import { fetchFromContractId, fetchFromWasmHash } from "./wasm_fetcher";
-import { SAC_SPEC } from "./sac-spec";
-import { Server } from "../rpc";
+import { Spec } from "../contract/index.js";
+import { ConfigGenerator } from "./config.js";
+import { TypeGenerator } from "./types.js";
+import { ClientGenerator } from "./client.js";
+import { specFromWasm } from "../contract/wasm_spec_parser.js";
+import { fetchFromContractId, fetchFromWasmHash } from "./wasm_fetcher.js";
+import { SAC_SPEC } from "./sac-spec.js";
+import { Server } from "../rpc/index.js";
 
 /**
  * Options for generating TypeScript bindings.

@@ -1,4 +1,4 @@
-import { NetworkError } from "./network";
+import { NetworkError } from "./network.js";
 
 /**
  * BadResponseError is raised when a response from a

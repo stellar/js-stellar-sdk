@@ -1,3 +1,3 @@
-export * from "./utils";
-export { InvalidChallengeError } from "./errors";
-export * from "./challenge_transaction";
+export * from "./utils.js";
+export { InvalidChallengeError } from "./errors.js";
+export * from "./challenge_transaction.js";

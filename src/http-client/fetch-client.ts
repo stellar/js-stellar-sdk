@@ -1,16 +1,18 @@
-import axios, {
+import type {
   AxiosInstance,
   AxiosRequestConfig,
   AxiosResponse,
+  AxiosStatic,
   CreateAxiosDefaults,
 } from "feaxios";
+import axios from "feaxios";
 import {
   CancelToken,
-  HttpClient,
-  HttpClientRequestConfig,
-  HttpClientResponse,
-  Interceptor,
-} from "./types";
+  type HttpClient,
+  type HttpClientRequestConfig,
+  type HttpClientResponse,
+  type Interceptor,
+} from "./types.js";
 
 export interface HttpResponse<T = any> extends AxiosResponse<T> {
   // You can add any additional properties here if needed
@@ -457,7 +459,15 @@ function createFetchClient(
     headers: fetchConfig.headers || {},
   };
 
-  const instance: AxiosInstance = axios.create(defaults);
+  // feaxios doesn't declare "type":"module" or ship .d.mts, so TypeScript under
+  // nodenext models it as CJS — `import axios from "feaxios"` types as the
+  // module namespace with a `.default` hop. At ESM runtime, Node resolves the
+  // same import to `AxiosStatic` directly (no hop), and under CJS, Babel's
+  // __importDefault wrapper adds its own hop, so `.default.create` doubles up.
+  // Normalize both shapes here; remove once feaxios is dropped (see #1388).
+
+  const axiosStatic: AxiosStatic = (axios as any).default ?? axios;
+  const instance: AxiosInstance = axiosStatic.create(defaults);
   const requestInterceptors = new InterceptorManager<HttpClientRequestConfig>();
   const responseInterceptors = new InterceptorManager<HttpClientResponse>();
 

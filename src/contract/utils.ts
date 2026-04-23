@@ -1,7 +1,7 @@
 import { xdr, cereal, Account } from "@stellar/stellar-base";
-import { Server } from "../rpc";
-import { type AssembledTransaction } from "./assembled_transaction";
-import { NULL_ACCOUNT, AssembledTransactionOptions } from "./types";
+import { Server } from "../rpc/index.js";
+import { type AssembledTransaction } from "./assembled_transaction.js";
+import { NULL_ACCOUNT, type AssembledTransactionOptions } from "./types.js";
 
 /**
  * Keep calling a `fn` for `timeoutInSeconds` seconds, if `keepWaitingIf` is

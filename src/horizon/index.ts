@@ -1,13 +1,14 @@
 /** @module Horizon */
 
 // Expose all types
-export * from "./horizon_api";
-export * from "./server_api";
+export * from "./horizon_api.js";
+export * from "./server_api.js";
 
 // stellar-sdk classes to expose
-export * from "./account_response";
+export * from "./account_response.js";
 
-export { HorizonServer as Server } from "./server";
-export { SERVER_TIME_MAP, getCurrentServerTime } from "./horizon_axios_client";
-
-export default module.exports;
+export { HorizonServer as Server } from "./server.js";
+export {
+  SERVER_TIME_MAP,
+  getCurrentServerTime,
+} from "./horizon_axios_client.js";

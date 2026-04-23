@@ -1,4 +1,4 @@
-import { HorizonApi } from "../horizon/horizon_api";
+import { HorizonApi } from "../horizon/horizon_api.js";
 
 // For ES5 compatibility (https://stackoverflow.com/a/55066280).
 

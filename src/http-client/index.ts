@@ -1,2 +1,2 @@
-export { fetchClient as httpClient, create } from "./fetch-client";
-export * from "./types";
+export { fetchClient as httpClient, create } from "./fetch-client.js";
+export * from "./types.js";

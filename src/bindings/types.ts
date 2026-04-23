@@ -1,5 +1,5 @@
 import { xdr } from "@stellar/stellar-base";
-import { Spec } from "../contract";
+import { Spec } from "../contract/index.js";
 import {
   parseTypeFromTypeDef,
   generateTypeImports,
@@ -8,7 +8,7 @@ import {
   formatJSDocComment,
   formatImports,
   isTupleStruct,
-} from "./utils";
+} from "./utils.js";
 
 /**
  * Interface for struct fields

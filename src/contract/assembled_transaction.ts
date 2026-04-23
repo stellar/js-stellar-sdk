@@ -18,16 +18,20 @@ import type {
   Tx,
   WalletError,
   XDR_BASE64,
-} from "./types";
-import { Server } from "../rpc";
-import { Api } from "../rpc/api";
-import { assembleTransaction } from "../rpc/transaction";
-import type { Client } from "./client";
-import { Err } from "./rust_result";
-import { contractErrorPattern, implementsToString, getAccount } from "./utils";
-import { DEFAULT_TIMEOUT } from "./types";
-import { SentTransaction, Watcher } from "./sent_transaction";
-import { Spec } from "./spec";
+} from "./types.js";
+import { Server } from "../rpc/index.js";
+import { Api } from "../rpc/api.js";
+import { assembleTransaction } from "../rpc/transaction.js";
+import type { Client } from "./client.js";
+import { Err } from "./rust_result.js";
+import {
+  contractErrorPattern,
+  implementsToString,
+  getAccount,
+} from "./utils.js";
+import { DEFAULT_TIMEOUT } from "./types.js";
+import { SentTransaction, Watcher } from "./sent_transaction.js";
+import { Spec } from "./spec.js";
 import {
   ExpiredStateError,
   ExternalServiceError,
@@ -42,7 +46,7 @@ import {
   RestoreFailureError,
   SimulationFailedError,
   UserRejectedError,
-} from "./errors";
+} from "./errors.js";
 
 /** @module contract */
 
