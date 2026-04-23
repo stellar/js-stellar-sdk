@@ -165,7 +165,6 @@
     "eslint-plugin-jsdoc": "^61.1.12",
     "eslint-plugin-prettier": "^5.5.5",
     "eslint-webpack-plugin": "^5.0.3",
-    "ghooks": "^2.0.4",
     "husky": "^9.1.7",
     "jsdoc": "^4.0.4",
     "jsdom": "^27.0.0",
