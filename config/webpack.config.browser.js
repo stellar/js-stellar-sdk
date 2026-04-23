@@ -35,7 +35,15 @@ const config = {
       stream: import.meta.resolve("stream-browserify"),
       buffer: import.meta.resolve("buffer"),
     },
-    extensions: ['.ts', '.js'],
+    extensions: [".ts", ".js"],
+    // Under TS module:nodenext, source imports are written with `.js`
+    // extensions that point at `.ts` files on disk. Tell webpack to try the
+    // .ts sibling when it can't find a .js file, and likewise for .mjs/.cjs.
+    extensionAlias: {
+      ".js": [".js", ".ts"],
+      ".mjs": [".mjs", ".mts"],
+      ".cjs": [".cjs", ".cts"],
+    },
   },
   output: {
     clean: process.env.no_clean ? false: true,
