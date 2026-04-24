@@ -8,7 +8,7 @@
 
 // Import the types from the lib directory to get proper TypeScript support
 import type { xdr } from "@stellar/stellar-base";
-import type * as StellarSdkTypes from "../../lib";
+import type * as StellarSdkTypes from "../../lib/esm";
 
 // Import ScSpecTypeDef from stellar-base xdr namespace
 
@@ -29,8 +29,8 @@ declare global {
 // bundles (where `process` is undefined) don't crash at module load.
 function getNodeLibPath(): string {
   return typeof process !== "undefined" && process.env?.TRANSPORT === "axios"
-    ? "../../lib/axios"
-    : "../../lib";
+    ? "../../lib/axios/esm"
+    : "../../lib/esm";
 }
 
 /**
@@ -63,15 +63,15 @@ export type {
   StellarToml,
   Friendbot,
   rpc,
-} from "../../lib";
+} from "../../lib/esm";
 
 // Export specific types that are commonly used in tests
 // Import Spec from the contract module
-export type { Spec } from "../../lib/contract/spec";
+export type { Spec } from "../../lib/esm/contract/spec";
 export type ScSpecTypeDef = xdr.ScSpecTypeDef;
 
 // Import commonly used Horizon types
-export type { HorizonServer as Server } from "../../lib/horizon/server";
+export type { HorizonServer as Server } from "../../lib/esm/horizon/server";
 
 // Import commonly used base types
 export type {

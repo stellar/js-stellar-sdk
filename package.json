@@ -17,8 +17,8 @@
   "license": "Apache-2.0",
   "author": "Stellar Development Foundation <hello@stellar.org>",
   "main": "./lib/cjs/index.js",
-  "module": "./lib/index.js",
-  "types": "./lib/index.d.ts",
+  "module": "./lib/esm/index.js",
+  "types": "./lib/esm/index.d.ts",
   "files": [
     "/types",
     "/lib",
@@ -30,46 +30,46 @@
   },
   "exports": {
     ".": {
-      "types": "./lib/index.d.ts",
-      "import": "./lib/index.js",
+      "types": "./lib/esm/index.d.ts",
+      "import": "./lib/esm/index.js",
       "require": "./lib/cjs/index.js",
-      "default": "./lib/index.js"
+      "default": "./lib/esm/index.js"
     },
     "./contract": {
-      "types": "./lib/contract/index.d.ts",
-      "import": "./lib/contract/index.js",
+      "types": "./lib/esm/contract/index.d.ts",
+      "import": "./lib/esm/contract/index.js",
       "require": "./lib/cjs/contract/index.js",
-      "default": "./lib/contract/index.js"
+      "default": "./lib/esm/contract/index.js"
     },
     "./rpc": {
-      "types": "./lib/rpc/index.d.ts",
-      "import": "./lib/rpc/index.js",
+      "types": "./lib/esm/rpc/index.d.ts",
+      "import": "./lib/esm/rpc/index.js",
       "require": "./lib/cjs/rpc/index.js",
-      "default": "./lib/rpc/index.js"
+      "default": "./lib/esm/rpc/index.js"
     },
     "./axios": {
-      "types": "./lib/axios/index.d.ts",
-      "import": "./lib/axios/index.js",
+      "types": "./lib/axios/esm/index.d.ts",
+      "import": "./lib/axios/esm/index.js",
       "require": "./lib/axios/cjs/index.js",
-      "default": "./lib/axios/index.js"
+      "default": "./lib/axios/esm/index.js"
     },
     "./axios/contract": {
-      "types": "./lib/axios/contract/index.d.ts",
-      "import": "./lib/axios/contract/index.js",
+      "types": "./lib/axios/esm/contract/index.d.ts",
+      "import": "./lib/axios/esm/contract/index.js",
       "require": "./lib/axios/cjs/contract/index.js",
-      "default": "./lib/axios/contract/index.js"
+      "default": "./lib/axios/esm/contract/index.js"
     },
     "./axios/rpc": {
-      "types": "./lib/axios/rpc/index.d.ts",
-      "import": "./lib/axios/rpc/index.js",
+      "types": "./lib/axios/esm/rpc/index.d.ts",
+      "import": "./lib/axios/esm/rpc/index.js",
       "require": "./lib/axios/cjs/rpc/index.js",
-      "default": "./lib/axios/rpc/index.js"
+      "default": "./lib/axios/esm/rpc/index.js"
     },
     "./http-client/axios": {
-      "types": "./lib/http-client/axios.d.ts",
-      "import": "./lib/http-client/axios.js",
+      "types": "./lib/esm/http-client/axios.d.ts",
+      "import": "./lib/esm/http-client/axios.js",
       "require": "./lib/cjs/http-client/axios.js",
-      "default": "./lib/http-client/axios.js"
+      "default": "./lib/esm/http-client/axios.js"
     }
   },
   "scripts": {

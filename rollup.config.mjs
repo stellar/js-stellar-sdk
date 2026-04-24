@@ -211,7 +211,7 @@ const libSharedPlugins = [
   replaceVersion,
 ];
 
-const libOutDir = useAxios ? "lib/axios" : "lib";
+const libBaseDir = useAxios ? "lib/axios" : "lib";
 
 // Additional entry points beyond src/index.ts. These ensure their output
 // files exist even when rollup's tree-shaking would otherwise inline their
@@ -230,8 +230,8 @@ const libConfig = {
   external: isExternalDependency,
   plugins: libSharedPlugins,
   output: [
-    createOutput(`${libOutDir}`, "esm"),
-    createOutput(`${libOutDir}/cjs`, "cjs"),
+    createOutput(`${libBaseDir}/esm`, "esm"),
+    createOutput(`${libBaseDir}/cjs`, "cjs"),
   ],
 };
 

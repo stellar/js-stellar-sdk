@@ -12,7 +12,7 @@ export default defineConfig({
     coverage: {
       provider: "istanbul",
       reporter: ["text", "html", "lcov"],
-      include: ["lib/**/*.js"],
+      include: ["lib/esm/**/*.js"],
       exclude: [
         "test/**",
         "dist/**",

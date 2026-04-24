@@ -2,7 +2,7 @@ import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
 import { StellarSdk } from "../../../test-utils/stellar-sdk-import";
 
 import { serverUrl } from "../../../constants";
-import { Api } from "../../../../lib/rpc";
+import { Api } from "../../../../lib/esm/rpc";
 
 const { Asset, Keypair, StrKey, xdr, hash } = StellarSdk;
 const { Server } = StellarSdk.rpc;

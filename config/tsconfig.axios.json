@@ -1,7 +1,7 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "outDir": "../lib/axios",
-    "declarationDir": "../lib/axios"
+    "outDir": "../lib/axios/esm",
+    "declarationDir": "../lib/axios/esm"
   }
 }

@@ -3,12 +3,12 @@
   "compilerOptions": {
     "declaration": true,
     "emitDeclarationOnly": true,
-    "declarationDir": "../lib",
+    "declarationDir": "../lib/esm",
     "removeComments": false,
     "lib": ["ES6", "DOM"],
     "moduleResolution": "node",
     "rootDir": "../src",
-    "outDir": "../lib",
+    "outDir": "../lib/esm",
     "target": "es6"
   },
   "include": ["../src"]
