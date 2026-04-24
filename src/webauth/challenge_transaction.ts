@@ -13,10 +13,10 @@ import {
   Networks,
 } from "@stellar/stellar-base";
 import randomBytes from "randombytes";
-import { InvalidChallengeError } from "./errors";
-import { gatherTxSigners, verifyTxSignedBy } from "./utils";
-import { Utils } from "../utils";
-import { ServerApi } from "../horizon/server_api";
+import { InvalidChallengeError } from "./errors.js";
+import { gatherTxSigners, verifyTxSignedBy } from "./utils.js";
+import { Utils } from "../utils.js";
+import { ServerApi } from "../horizon/server_api.js";
 
 /**
  * Returns a valid {@link https://stellar.org/protocol/sep-10 | SEP-10}

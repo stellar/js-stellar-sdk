@@ -11,35 +11,38 @@ import {
 import URI from "urijs";
 
 import type { TransactionBuilder } from "@stellar/stellar-base";
-import { CallBuilder } from "./call_builder";
-import { Config } from "../config";
+import { CallBuilder } from "./call_builder.js";
+import { Config } from "../config.js";
 import {
   AccountRequiresMemoError,
   BadResponseError,
   NotFoundError,
-} from "../errors";
+} from "../errors/index.js";
 
-import { AccountCallBuilder } from "./account_call_builder";
-import { AccountResponse } from "./account_response";
-import { AssetsCallBuilder } from "./assets_call_builder";
-import { ClaimableBalanceCallBuilder } from "./claimable_balances_call_builder";
-import { EffectCallBuilder } from "./effect_call_builder";
-import { FriendbotBuilder } from "./friendbot_builder";
-import { HorizonApi } from "./horizon_api";
-import { LedgerCallBuilder } from "./ledger_call_builder";
-import { LiquidityPoolCallBuilder } from "./liquidity_pool_call_builder";
-import { OfferCallBuilder } from "./offer_call_builder";
-import { OperationCallBuilder } from "./operation_call_builder";
-import { OrderbookCallBuilder } from "./orderbook_call_builder";
-import { PathCallBuilder } from "./path_call_builder";
-import { PaymentCallBuilder } from "./payment_call_builder";
-import { StrictReceivePathCallBuilder } from "./strict_receive_path_call_builder";
-import { StrictSendPathCallBuilder } from "./strict_send_path_call_builder";
-import { TradeAggregationCallBuilder } from "./trade_aggregation_call_builder";
-import { TradesCallBuilder } from "./trades_call_builder";
-import { TransactionCallBuilder } from "./transaction_call_builder";
-import { createHttpClient, getCurrentServerTime } from "./horizon_axios_client";
-import { HttpClient } from "../http-client";
+import { AccountCallBuilder } from "./account_call_builder.js";
+import { AccountResponse } from "./account_response.js";
+import { AssetsCallBuilder } from "./assets_call_builder.js";
+import { ClaimableBalanceCallBuilder } from "./claimable_balances_call_builder.js";
+import { EffectCallBuilder } from "./effect_call_builder.js";
+import { FriendbotBuilder } from "./friendbot_builder.js";
+import { HorizonApi } from "./horizon_api.js";
+import { LedgerCallBuilder } from "./ledger_call_builder.js";
+import { LiquidityPoolCallBuilder } from "./liquidity_pool_call_builder.js";
+import { OfferCallBuilder } from "./offer_call_builder.js";
+import { OperationCallBuilder } from "./operation_call_builder.js";
+import { OrderbookCallBuilder } from "./orderbook_call_builder.js";
+import { PathCallBuilder } from "./path_call_builder.js";
+import { PaymentCallBuilder } from "./payment_call_builder.js";
+import { StrictReceivePathCallBuilder } from "./strict_receive_path_call_builder.js";
+import { StrictSendPathCallBuilder } from "./strict_send_path_call_builder.js";
+import { TradeAggregationCallBuilder } from "./trade_aggregation_call_builder.js";
+import { TradesCallBuilder } from "./trades_call_builder.js";
+import { TransactionCallBuilder } from "./transaction_call_builder.js";
+import {
+  createHttpClient,
+  getCurrentServerTime,
+} from "./horizon_axios_client.js";
+import type { HttpClient } from "../http-client/index.js";
 
 /**
  * Default transaction submission timeout for Horizon requests, in milliseconds

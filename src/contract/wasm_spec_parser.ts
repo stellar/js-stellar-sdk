@@ -1,4 +1,4 @@
-import { parseWasmCustomSections } from "./utils";
+import { parseWasmCustomSections } from "./utils.js";
 /**
  * Obtains the contract spec XDR from a contract's wasm binary.
  * @param wasm The contract's wasm binary as a Buffer.

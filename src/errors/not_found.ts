@@ -1,4 +1,4 @@
-import { NetworkError } from "./network";
+import { NetworkError } from "./network.js";
 
 /**
  * NotFoundError is raised when the resource requested from Horizon is

@@ -1,3 +1,3 @@
-module.exports = {
-    useAxios: process.env.USE_AXIOS === 'true',
-  };
+export default {
+  useAxios: process.env.USE_AXIOS === "true",
+};

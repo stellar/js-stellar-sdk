@@ -1,12 +1,12 @@
 import { StrKey } from "@stellar/stellar-base";
 import URI from "urijs";
 
-import { Config } from "../config";
-import { BadResponseError } from "../errors";
-import { Resolver } from "../stellartoml";
+import { Config } from "../config.js";
+import { BadResponseError } from "../errors/index.js";
+import { Resolver } from "../stellartoml/index.js";
 
-import { Api } from "./api";
-import { httpClient } from "../http-client";
+import type { Api } from "./api.js";
+import { httpClient } from "../http-client/index.js";
 
 /** @module Federation */
 

@@ -1,12 +1,12 @@
 import { Asset } from "@stellar/stellar-base";
-import { HorizonApi } from "./horizon_api";
+import { HorizonApi } from "./horizon_api.js";
 
 // more types
-import { AccountRecordSigners as AccountRecordSignersType } from "./types/account";
-import { AssetRecord as AssetRecordType } from "./types/assets";
-import * as Effects from "./types/effects";
-import { OfferRecord as OfferRecordType } from "./types/offer";
-import { Trade } from "./types/trade";
+import type { AccountRecordSigners as AccountRecordSignersType } from "./types/account.js";
+import type { AssetRecord as AssetRecordType } from "./types/assets.js";
+import * as Effects from "./types/effects.js";
+import type { OfferRecord as OfferRecordType } from "./types/offer.js";
+import type { Trade } from "./types/trade.js";
 
 /* tslint:disable-next-line: no-namespace */
 export namespace ServerApi {

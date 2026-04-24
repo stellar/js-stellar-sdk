@@ -1,9 +1,9 @@
 import { Operation, xdr, Address } from "@stellar/stellar-base";
-import { Spec } from "./spec";
-import { Server } from "../rpc";
-import { AssembledTransaction } from "./assembled_transaction";
-import type { ClientOptions, MethodOptions } from "./types";
-import { sanitizeIdentifier } from "../bindings/utils";
+import { Spec } from "./spec.js";
+import { Server } from "../rpc/index.js";
+import { AssembledTransaction } from "./assembled_transaction.js";
+import type { ClientOptions, MethodOptions } from "./types.js";
+import { sanitizeIdentifier } from "../bindings/utils.js";
 
 const CONSTRUCTOR_FUNC = "__constructor";
 

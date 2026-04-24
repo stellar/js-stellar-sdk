@@ -1,6 +1,7 @@
 {
   "name": "@stellar/stellar-sdk",
   "version": "15.0.1",
+  "type": "module",
   "description": "A library for working with the Stellar network, including communication with the Horizon and Soroban RPC servers.",
   "keywords": [
     "stellar"
@@ -15,9 +16,9 @@
   },
   "license": "Apache-2.0",
   "author": "Stellar Development Foundation <hello@stellar.org>",
-  "main": "./lib/index.js",
+  "main": "./lib/cjs/index.js",
+  "module": "./lib/index.js",
   "types": "./lib/index.d.ts",
-  "browser": "./dist/stellar-sdk.min.js",
   "files": [
     "/types",
     "/lib",
@@ -29,33 +30,45 @@
   },
   "exports": {
     ".": {
-      "browser": "./dist/stellar-sdk.min.js",
       "types": "./lib/index.d.ts",
+      "import": "./lib/index.js",
+      "require": "./lib/cjs/index.js",
       "default": "./lib/index.js"
     },
     "./contract": {
       "types": "./lib/contract/index.d.ts",
+      "import": "./lib/contract/index.js",
+      "require": "./lib/cjs/contract/index.js",
       "default": "./lib/contract/index.js"
     },
     "./rpc": {
       "types": "./lib/rpc/index.d.ts",
+      "import": "./lib/rpc/index.js",
+      "require": "./lib/cjs/rpc/index.js",
       "default": "./lib/rpc/index.js"
     },
     "./axios": {
-      "browser": "./dist/stellar-sdk-axios.min.js",
       "types": "./lib/axios/index.d.ts",
+      "import": "./lib/axios/index.js",
+      "require": "./lib/axios/cjs/index.js",
       "default": "./lib/axios/index.js"
     },
     "./axios/contract": {
       "types": "./lib/axios/contract/index.d.ts",
+      "import": "./lib/axios/contract/index.js",
+      "require": "./lib/axios/cjs/contract/index.js",
       "default": "./lib/axios/contract/index.js"
     },
     "./axios/rpc": {
       "types": "./lib/axios/rpc/index.d.ts",
+      "import": "./lib/axios/rpc/index.js",
+      "require": "./lib/axios/cjs/rpc/index.js",
       "default": "./lib/axios/rpc/index.js"
     },
     "./http-client/axios": {
       "types": "./lib/http-client/axios.d.ts",
+      "import": "./lib/http-client/axios.js",
+      "require": "./lib/cjs/http-client/axios.js",
       "default": "./lib/http-client/axios.js"
     }
   },
@@ -63,8 +76,10 @@
     "setup": "git config blame.ignoreRevsFile .git-blame-ignore-revs",
     "build": "cross-env NODE_ENV=development yarn _build",
     "build:prod": "cross-env NODE_ENV=production yarn _build",
-    "build:node": "yarn _babel && yarn build:ts",
+    "build:node": "yarn _babel:esm && yarn _babel:cjs && yarn build:ts",
     "build:node:axios": "cross-env OUTPUT_DIR=lib/axios USE_AXIOS=true yarn build:node",
+    "_babel:esm": "cross-env BABEL_MODULES=false yarn _babel",
+    "_babel:cjs": "cross-env BABEL_MODULES=commonjs OUTPUT_DIR=${OUTPUT_DIR:-lib}/cjs yarn _babel && node config/write-module-type.js ${OUTPUT_DIR:-lib}/cjs commonjs",
     "build:node:all": "yarn build:node && yarn build:node:axios",
     "clean:temp": "rm -f ./config/tsconfig.tmp.json",
     "build:ts": "node config/set-output-dir.js && tsc -p ./config/tsconfig.tmp.json && yarn clean:temp",
@@ -150,7 +165,6 @@
     "eslint-plugin-jsdoc": "^61.1.12",
     "eslint-plugin-prettier": "^5.5.5",
     "eslint-webpack-plugin": "^5.0.3",
-    "ghooks": "^2.0.4",
     "husky": "^9.1.7",
     "jsdoc": "^4.0.4",
     "jsdom": "^27.0.0",

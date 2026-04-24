@@ -1,7 +1,7 @@
 import { Asset } from "@stellar/stellar-base";
-import { CallBuilder } from "./call_builder";
-import { ServerApi } from "./server_api";
-import { HttpClient } from "../http-client";
+import { CallBuilder } from "./call_builder.js";
+import { ServerApi } from "./server_api.js";
+import type { HttpClient } from "../http-client/index.js";
 /**
  * Creates a new {@link AccountCallBuilder} pointed to server defined by `serverUrl`.
  *

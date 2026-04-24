@@ -1,11 +1,11 @@
 /* disable max-classes rule, because extending error shouldn't count! */
 /* eslint max-classes-per-file: 0 */
-import type { MethodOptions } from "./types";
-import { Server } from "../rpc";
-import { Api } from "../rpc/api";
-import { withExponentialBackoff } from "./utils";
-import { DEFAULT_TIMEOUT } from "./types";
-import type { AssembledTransaction } from "./assembled_transaction";
+import type { MethodOptions } from "./types.js";
+import { Server } from "../rpc/index.js";
+import { Api } from "../rpc/api.js";
+import { withExponentialBackoff } from "./utils.js";
+import { DEFAULT_TIMEOUT } from "./types.js";
+import type { AssembledTransaction } from "./assembled_transaction.js";
 
 /**
  * A transaction that has been sent to the Soroban network. This happens in two steps:

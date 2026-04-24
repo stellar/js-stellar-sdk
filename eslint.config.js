@@ -1,14 +1,15 @@
-const path = require("node:path");
+import path from "node:path";
+import { includeIgnoreFile } from "@eslint/compat";
+import { configs } from "eslint-config-airbnb-extended/legacy";
+import prettierConfigRules from "eslint-config-prettier/flat";
+import prettierPlugin from "eslint-plugin-prettier";
+import importPlugin from "eslint-plugin-import";
+import jsdoc from "eslint-plugin-jsdoc";
+import js from "@eslint/js";
+import globals from "globals";
 
-const { includeIgnoreFile } = require("@eslint/compat");
-const { configs } = require("eslint-config-airbnb-extended/legacy");
-const prettierConfigRules = require("eslint-config-prettier/flat");
-const prettierPlugin = require("eslint-plugin-prettier");
-const importPlugin = require("eslint-plugin-import");
-const jsdoc = require("eslint-plugin-jsdoc");
 const gitignorePath = path.resolve(".", ".gitignore");
-const js = require("@eslint/js");
-const globals = require("globals");
+
 configs.base.typescript[0].languageOptions.parserOptions.projectService = false;
 configs.base.typescript[0].languageOptions.parserOptions.project = [
   "./config/tsconfig.json",
@@ -117,7 +118,7 @@ const importConfig = [
 ];
 const ignoreFiles = includeIgnoreFile(gitignorePath);
 ignoreFiles.ignores.push(...["eslint.config.js", "config/**/*"]);
-module.exports = [
+export default [
   // Ignore .gitignore files/folder in eslint
   ignoreFiles,
   // Import Plugin Config

@@ -5,8 +5,8 @@ import {
   TransactionBuilder,
 } from "@stellar/stellar-base";
 
-import { Api } from "./api";
-import { parseRawSimulation } from "./parsers";
+import { Api } from "./api.js";
+import { parseRawSimulation } from "./parsers.js";
 
 function isSorobanTransaction(tx: Transaction): boolean {
   if (tx.operations.length !== 1) {

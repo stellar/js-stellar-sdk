@@ -16,12 +16,12 @@ import {
 } from "@stellar/stellar-base";
 
 import type { TransactionBuilder } from "@stellar/stellar-base";
-import type { Config } from "../config";
-import { createHttpClient } from "./axios";
-import { Api as FriendbotApi } from "../friendbot";
-import * as jsonrpc from "./jsonrpc";
-import { Api } from "./api";
-import { assembleTransaction } from "./transaction";
+import type { Config } from "../config.js";
+import { createHttpClient } from "./axios.js";
+import type { Api as FriendbotApi } from "../friendbot/index.js";
+import * as jsonrpc from "./jsonrpc.js";
+import { Api } from "./api.js";
+import { assembleTransaction } from "./transaction.js";
 import {
   parseRawSendTransaction,
   parseRawSimulation,
@@ -31,9 +31,9 @@ import {
   parseTransactionInfo,
   parseRawLedger,
   parseRawLatestLedger,
-} from "./parsers";
-import { Utils } from "../utils";
-import { HttpClient } from "../http-client";
+} from "./parsers.js";
+import { Utils } from "../utils.js";
+import type { HttpClient } from "../http-client/index.js";
 
 /**
  * Default transaction submission timeout for RPC requests, in milliseconds

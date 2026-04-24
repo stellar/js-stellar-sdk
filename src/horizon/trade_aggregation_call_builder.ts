@@ -1,10 +1,10 @@
 /* tslint:disable: variable-name */
 import { Asset } from "@stellar/stellar-base";
-import { CallBuilder } from "./call_builder";
-import { BadRequestError } from "../errors";
-import { HorizonApi } from "./horizon_api";
-import { ServerApi } from "./server_api";
-import { HttpClient } from "../http-client";
+import { CallBuilder } from "./call_builder.js";
+import { BadRequestError } from "../errors/index.js";
+import { HorizonApi } from "./horizon_api.js";
+import { ServerApi } from "./server_api.js";
+import type { HttpClient } from "../http-client/index.js";
 
 const allowedResolutions = [
   60000, 300000, 900000, 3600000, 86400000, 604800000,
