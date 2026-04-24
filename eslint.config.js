@@ -117,7 +117,9 @@ const importConfig = [
   },
 ];
 const ignoreFiles = includeIgnoreFile(gitignorePath);
-ignoreFiles.ignores.push(...["eslint.config.js", "config/**/*"]);
+ignoreFiles.ignores.push(
+  ...["eslint.config.js", "rollup.config.mjs", "config/**/*"],
+);
 export default [
   // Ignore .gitignore files/folder in eslint
   ignoreFiles,
