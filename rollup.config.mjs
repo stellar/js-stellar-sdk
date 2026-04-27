@@ -222,6 +222,7 @@ const libEntries = {
   index: "src/index.ts",
   "http-client/index": "src/http-client/index.ts",
   "http-client/axios": "src/http-client/axios.ts",
+  "cli/index": "src/cli/index.ts",
 };
 
 /** Library build — preserves modules, externalizes dependencies. */
