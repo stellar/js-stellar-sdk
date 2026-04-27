@@ -1,5 +1,5 @@
-import { expect, beforeAll } from "vitest";
-import { clientFor } from "./util";
+import { expect, beforeAll, describe, it } from "vitest";
+import { clientFor } from "./util.js";
 
 let context: { tx: any; signingContractId: string };
 

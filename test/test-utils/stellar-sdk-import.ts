@@ -6,9 +6,8 @@
  * - Node.js: Uses the lib import with proper types
  */
 
-// Import the types from the lib directory to get proper TypeScript support
 import type { xdr } from "@stellar/stellar-base";
-import type * as StellarSdkTypes from "../../lib/esm";
+import type * as StellarSdkTypes from "../../lib/esm/index.js";
 
 // Import ScSpecTypeDef from stellar-base xdr namespace
 
@@ -63,15 +62,15 @@ export type {
   StellarToml,
   Friendbot,
   rpc,
-} from "../../lib/esm";
+} from "../../lib/esm/index.js";
 
 // Export specific types that are commonly used in tests
 // Import Spec from the contract module
-export type { Spec } from "../../lib/esm/contract/spec";
+export type { Spec } from "../../lib/esm/contract/spec.js";
 export type ScSpecTypeDef = xdr.ScSpecTypeDef;
 
 // Import commonly used Horizon types
-export type { HorizonServer as Server } from "../../lib/esm/horizon/server";
+export type { HorizonServer as Server } from "../../lib/esm/horizon/server.js";
 
 // Import commonly used base types
 export type {

@@ -8,8 +8,8 @@ import {
   networkPassphrase,
   generateFundedKeypair,
   installContract,
-} from "./util";
-import { Address, contract } from "../../../lib";
+} from "./util.js";
+import { Address, contract } from "../../../lib/esm/index.js";
 
 const CLI_PATH = path.resolve(__dirname, "../../../bin/stellar-js");
 
@@ -74,10 +74,10 @@ describe("Generated Bindings E2E Test", () => {
         rootDir: "./src",
         paths: {
           "@stellar/stellar-sdk": [
-            path.resolve(__dirname, "../../../lib/index.d.ts"),
+            path.resolve(__dirname, "../../../lib/esm/index.d.ts"),
           ],
           "@stellar/stellar-sdk/contract": [
-            path.resolve(__dirname, "../../../lib/contract/index.d.ts"),
+            path.resolve(__dirname, "../../../lib/esm/contract/index.d.ts"),
           ],
         },
         baseUrl: ".",
@@ -106,7 +106,6 @@ describe("Generated Bindings E2E Test", () => {
       );
     }
     expect(tscResult.status).toBe(0);
-
     // Verify compiled files exist
     expect(fs.existsSync(path.join(contractOutputDir, "dist/index.js"))).toBe(
       true,
@@ -122,11 +121,11 @@ describe("Generated Bindings E2E Test", () => {
     let clientJs = fs.readFileSync(clientJsPath, "utf8");
     clientJs = clientJs.replace(
       /from ["']@stellar\/stellar-sdk\/contract["']/g,
-      `from "${path.resolve(__dirname, "../../../lib/contract/index.js")}"`,
+      `from "${path.resolve(__dirname, "../../../lib/esm/contract/index.js")}"`,
     );
     clientJs = clientJs.replace(
       /from ["']@stellar\/stellar-sdk["']/g,
-      `from "${path.resolve(__dirname, "../../../lib/index.js")}"`,
+      `from "${path.resolve(__dirname, "../../../lib/esm/index.js")}"`,
     );
     fs.writeFileSync(clientJsPath, clientJs);
 
@@ -135,11 +134,11 @@ describe("Generated Bindings E2E Test", () => {
     let indexJs = fs.readFileSync(indexJsPath, "utf8");
     indexJs = indexJs.replace(
       /from ["']@stellar\/stellar-sdk\/contract["']/g,
-      `from "${path.resolve(__dirname, "../../../lib/contract/index.js")}"`,
+      `from "${path.resolve(__dirname, "../../../lib/esm/contract/index.js")}"`,
     );
     indexJs = indexJs.replace(
       /from ["']@stellar\/stellar-sdk["']/g,
-      `from "${path.resolve(__dirname, "../../../lib/index.js")}"`,
+      `from "${path.resolve(__dirname, "../../../lib/esm/index.js")}"`,
     );
     fs.writeFileSync(indexJsPath, indexJs);
 
@@ -149,11 +148,11 @@ describe("Generated Bindings E2E Test", () => {
       let typesJs = fs.readFileSync(typesJsPath, "utf8");
       typesJs = typesJs.replace(
         /from ["']@stellar\/stellar-sdk\/contract["']/g,
-        `from "${path.resolve(__dirname, "../../../lib/contract/index.js")}"`,
+        `from "${path.resolve(__dirname, "../../../lib/esm/contract/index.js")}"`,
       );
       typesJs = typesJs.replace(
         /from ["']@stellar\/stellar-sdk["']/g,
-        `from "${path.resolve(__dirname, "../../../lib/index.js")}"`,
+        `from "${path.resolve(__dirname, "../../../lib/esm/index.js")}"`,
       );
       fs.writeFileSync(typesJsPath, typesJs);
     }
