@@ -3,13 +3,13 @@
   "compilerOptions": {
     "declaration": true,
     "emitDeclarationOnly": true,
-    "declarationDir": "../lib/types",
+    "declarationDir": "../lib/esm",
     "removeComments": false,
     "lib": ["ES2022", "DOM"],
     "module": "Node16",
     "moduleResolution": "node16",
     "rootDir": "../src",
-    "outDir": "../lib/types",
+    "outDir": "../lib/esm",
     "target": "es2022"
   },
   "include": ["../src"]

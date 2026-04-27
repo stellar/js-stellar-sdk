@@ -18,7 +18,7 @@
   "author": "Stellar Development Foundation <hello@stellar.org>",
   "main": "./lib/cjs/index.js",
   "module": "./lib/esm/index.js",
-  "types": "./lib/types/index.d.ts",
+  "types": "./lib/esm/index.d.ts",
   "files": [
     "/types",
     "/lib",
@@ -30,43 +30,43 @@
   },
   "exports": {
     ".": {
-      "types": "./lib/types/index.d.ts",
+      "types": "./lib/esm/index.d.ts",
       "import": "./lib/esm/index.js",
       "require": "./lib/cjs/index.js",
       "default": "./lib/esm/index.js"
     },
     "./contract": {
-      "types": "./lib/types/contract/index.d.ts",
+      "types": "./lib/esm/contract/index.d.ts",
       "import": "./lib/esm/contract/index.js",
       "require": "./lib/cjs/contract/index.js",
       "default": "./lib/esm/contract/index.js"
     },
     "./rpc": {
-      "types": "./lib/types/rpc/index.d.ts",
+      "types": "./lib/esm/rpc/index.d.ts",
       "import": "./lib/esm/rpc/index.js",
       "require": "./lib/cjs/rpc/index.js",
       "default": "./lib/esm/rpc/index.js"
     },
     "./axios": {
-      "types": "./lib/types/index.d.ts",
+      "types": "./lib/axios/esm/index.d.ts",
       "import": "./lib/axios/esm/index.js",
       "require": "./lib/axios/cjs/index.js",
       "default": "./lib/axios/esm/index.js"
     },
     "./axios/contract": {
-      "types": "./lib/types/contract/index.d.ts",
+      "types": "./lib/axios/esm/contract/index.d.ts",
       "import": "./lib/axios/esm/contract/index.js",
       "require": "./lib/axios/cjs/contract/index.js",
       "default": "./lib/axios/esm/contract/index.js"
     },
     "./axios/rpc": {
-      "types": "./lib/types/rpc/index.d.ts",
+      "types": "./lib/axios/esm/rpc/index.d.ts",
       "import": "./lib/axios/esm/rpc/index.js",
       "require": "./lib/axios/cjs/rpc/index.js",
       "default": "./lib/axios/esm/rpc/index.js"
     },
     "./http-client/axios": {
-      "types": "./lib/types/http-client/axios.d.ts",
+      "types": "./lib/esm/http-client/axios.d.ts",
       "import": "./lib/esm/http-client/axios.js",
       "require": "./lib/cjs/http-client/axios.js",
       "default": "./lib/esm/http-client/axios.js"
@@ -80,6 +80,8 @@
     "build:lib:axios": "cross-env USE_AXIOS=true rollup -c",
     "build:lib:all": "yarn build:lib && yarn build:lib:axios",
     "build:types": "tsc -p config/tsconfig.json",
+    "build:types:axios": "tsc -p config/tsconfig.axios.json",
+    "build:types:all": "yarn build:types && yarn build:types:axios",
     "postbuild:lib": "node config/write-module-type.js lib/cjs commonjs",
     "postbuild:lib:axios": "node config/write-module-type.js lib/axios/cjs commonjs",
     "clean": "rm -rf lib/ dist/ coverage/ .nyc_output/ jsdoc/ test/e2e/.soroban",
@@ -97,7 +99,7 @@
     "preversion": "yarn clean && yarn _prettier && yarn build:prod && yarn test",
     "prepare": "yarn build:prod && yarn setup",
     "download-sac-spec": "node scripts/download-sac-spec.js",
-    "_build": "yarn clean && yarn build:lib:all && yarn build:types",
+    "_build": "yarn clean && yarn build:lib:all && yarn build:types:all",
     "_nyc": "node node_modules/.bin/nyc --nycrc-path config/.nycrc",
     "_prettier": "prettier --ignore-path config/.prettierignore --write './src/**/*.ts' './test/**/*.{js,ts}'"
   },

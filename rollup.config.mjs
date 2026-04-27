@@ -196,7 +196,15 @@ const libSharedPlugins = [
   // the original relative specifier (e.g. "../http-client/index.js").
   ...(useAxios ? [aliasHttpClientToAxios()] : []),
   resolveJsSourceSpecifier(),
-  esbuild({ tsconfig: "config/tsconfig.json" }),
+  esbuild({
+    sourceMap: true,
+    target: "es2022",
+    tsconfig: "config/tsconfig.json",
+    loaders: {
+      ".js": "js",
+      ".ts": "ts",
+    },
+  }),
   inject({
     Buffer: ["buffer", "Buffer"],
   }),
@@ -244,7 +252,15 @@ const distPlugins = [
   }),
   commonjs(),
   nodePolyfills(),
-  esbuild({ tsconfig: "config/tsconfig.json" }),
+  esbuild({
+    sourceMap: true,
+    target: "es2022",
+    tsconfig: "config/tsconfig.json",
+    loaders: {
+      ".js": "js",
+      ".ts": "ts",
+    },
+  }),
   inject({
     Buffer: ["buffer", "Buffer"],
   }),
