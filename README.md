@@ -438,10 +438,6 @@ For information on how to contribute or publish new versions of this software to
 
 If you add `stellar-sdk` to a project, **do not add `stellar-base`!** Mismatching versions could cause weird, hard-to-find bugs. `stellar-sdk` automatically installs `stellar-base` and exposes all of its exports in case you need them.
 
-> **Important!** The Node.js version of the `stellar-base` (`stellar-sdk` dependency) package uses the [`sodium-native`](https://www.npmjs.com/package/sodium-native) package as an [optional dependency](https://docs.npmjs.com/files/package.json#optionaldependencies). `sodium-native` is a low level binding to [libsodium](https://github.com/jedisct1/libsodium), (an implementation of [Ed25519](https://ed25519.cr.yp.to/) signatures).
-> If installation of `sodium-native` fails, or it is unavailable, `stellar-base` (and `stellar-sdk`) will fallback to using the [`tweetnacl`](https://www.npmjs.com/package/tweetnacl) package implementation. If you are using them in a browser, you can ignore this. However, for production backend deployments, you should be using `sodium-native`.
-> If `sodium-native` is successfully installed and working the `StellarSdk.FastSigning` variable will return `true`.
-
 ### License
 
 js-stellar-sdk is licensed under an Apache-2.0 license. See the

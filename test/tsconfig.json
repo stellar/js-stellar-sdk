@@ -2,8 +2,8 @@
   "extends": "@stellar/tsconfig",
   "compilerOptions": {
     "target": "ES2022",
-    "module": "ESNext",
-    "moduleResolution": "node",
+    "module": "node16",
+    "moduleResolution": "node16",
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "allowJs": true,
@@ -27,7 +27,7 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "rootDir": "./",
+    "rootDir": "../",
     "baseUrl": "./",
     "paths": {
       "@/*": ["../src/*"]

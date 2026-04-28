@@ -1,7 +1,7 @@
-import { expect, beforeAll } from "vitest";
-import { contract } from "../../../lib";
-import { installContract, rpcUrl, networkPassphrase } from "./util";
-import { basicNodeSigner } from "../../../lib/contract";
+import { expect, beforeAll, describe, it } from "vitest";
+import { contract } from "../../../lib/esm/index.js";
+import { installContract, rpcUrl, networkPassphrase } from "./util.js";
+import { basicNodeSigner } from "../../../lib/esm/contract/index.js";
 
 const INIT_VALUE = 42;
 

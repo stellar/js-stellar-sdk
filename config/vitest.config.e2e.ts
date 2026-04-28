@@ -8,7 +8,7 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html', 'lcov'],
-      include: ['lib/**/*.js'],
+      include: ['lib/esm/**/*.js'],
       exclude: ['test/**', 'dist/**', 'coverage/**', '**/*.d.ts', 'lib/**/*.d.ts', 'lib/axios', '**/*/browser.js'],
       all: true,
     },

@@ -8,11 +8,11 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       reporter: ["text", "html", "lcov"],
-      // This config runs tests against lib/axios (TRANSPORT=axios routes the
-      // test harness there). Scope coverage to that build so the report
+      // This config runs tests against lib/axios/esm (TRANSPORT=axios routes
+      // the test harness there). Scope coverage to that build so the report
       // reflects what's actually under test; the default fetch build is
       // covered by vitest.config.ts.
-      include: ["lib/axios/**/*.js"],
+      include: ["lib/axios/esm/**/*.js"],
       exclude: [
         "test/**",
         "dist/**",

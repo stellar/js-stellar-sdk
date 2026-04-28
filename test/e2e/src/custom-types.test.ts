@@ -1,6 +1,6 @@
-import { expect, beforeAll } from "vitest";
-import { Address, contract } from "../../../lib";
-import { clientFor } from "./util";
+import { expect, beforeAll, describe, it } from "vitest";
+import { Address, contract } from "../../../lib/esm/index.js";
+import { clientFor } from "./util.js";
 
 let context: {
   client: any;

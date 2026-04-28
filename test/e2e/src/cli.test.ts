@@ -1,8 +1,8 @@
-import { expect, beforeAll, afterAll } from "vitest";
+import { expect, beforeAll, describe, it, afterAll } from "vitest";
 import { spawnSync } from "node:child_process";
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { contracts, rpcUrl, clientFor, installContract } from "./util";
+import { contracts, rpcUrl, clientFor, installContract } from "./util.js";
 
 const CLI_PATH = path.resolve(__dirname, "../../../bin/stellar-js");
 

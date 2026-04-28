@@ -1,4 +1,4 @@
-import { expect, beforeAll } from "vitest";
+import { expect, beforeAll, describe, it } from "vitest";
 import {
   contracts,
   networkPassphrase,
@@ -7,8 +7,8 @@ import {
   generateFundedKeypair,
   run,
   stellar,
-} from "./util";
-import { Address, contract, Keypair } from "../../../lib";
+} from "./util.js";
+import { Address, contract, Keypair } from "../../../lib/esm/index.js";
 
 let context: {
   client: any;
