@@ -1,13 +1,9 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import {
-  StrKey,
-  decodeCheck,
-  encodeCheck
-} from "../../../src/base/strkey.js";
+import { StrKey, decodeCheck, encodeCheck } from "../../../src/base/strkey.js";
 import {
   decodeAddressToMuxedAccount,
   encodeMuxedAccountToAddress,
-  extractBaseAddress
+  extractBaseAddress,
 } from "../../../src/base/util/decode_encode_muxed_account.js";
 import xdr from "../../../src/base/xdr.js";
 
@@ -16,7 +12,7 @@ const MPUBKEY =
   "MA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJVAAAAAAAAAAAAAJLK";
 const RAW_MPUBKEY = Buffer.from(
   "3f0c34bf93ad0d9971d04ccc90f705511c838aad9734a4a2fb0d7a03fc7fe89a8000000000000000",
-  "hex"
+  "hex",
 );
 
 describe("StrKey", () => {
@@ -33,23 +29,23 @@ describe("StrKey", () => {
   describe("#decodeCheck", () => {
     it("decodes correctly", () => {
       expect(StrKey.decodeEd25519PublicKey(accountIdEncoded)).toEqual(
-        unencodedBuffer
+        unencodedBuffer,
       );
       expect(StrKey.decodeEd25519SecretSeed(seedEncoded)).toEqual(
-        unencodedBuffer
+        unencodedBuffer,
       );
     });
 
     it("throws an error when the version byte is wrong", () => {
       expect(() =>
         StrKey.decodeEd25519SecretSeed(
-          "GBPXXOA5N4JYPESHAADMQKBPWZWQDQ64ZV6ZL2S3LAGW4SY7NTCMWIVL"
-        )
+          "GBPXXOA5N4JYPESHAADMQKBPWZWQDQ64ZV6ZL2S3LAGW4SY7NTCMWIVL",
+        ),
       ).toThrow(/invalid version/);
       expect(() =>
         StrKey.decodeEd25519PublicKey(
-          "SBGWKM3CD4IL47QN6X54N6Y33T3JDNVI6AIJ6CD5IM47HG3IG4O36XCU"
-        )
+          "SBGWKM3CD4IL47QN6X54N6Y33T3JDNVI6AIJ6CD5IM47HG3IG4O36XCU",
+        ),
       ).toThrow(/invalid version/);
     });
 
@@ -57,67 +53,67 @@ describe("StrKey", () => {
       // accountId
       expect(() =>
         StrKey.decodeEd25519PublicKey(
-          "GBPXX0A5N4JYPESHAADMQKBPWZWQDQ64ZV6ZL2S3LAGW4SY7NTCMWIVL"
-        )
+          "GBPXX0A5N4JYPESHAADMQKBPWZWQDQ64ZV6ZL2S3LAGW4SY7NTCMWIVL",
+        ),
       ).toThrow(/invalid encoded string/);
       expect(() =>
         StrKey.decodeEd25519PublicKey(
-          "GCFZB6L25D26RQFDWSSBDEYQ32JHLRMTT44ZYE3DZQUTYOL7WY43PLBG++"
-        )
+          "GCFZB6L25D26RQFDWSSBDEYQ32JHLRMTT44ZYE3DZQUTYOL7WY43PLBG++",
+        ),
       ).toThrow(/invalid encoded string/);
       expect(() =>
         StrKey.decodeEd25519PublicKey(
-          "GADE5QJ2TY7S5ZB65Q43DFGWYWCPHIYDJ2326KZGAGBN7AE5UY6JVDRRA"
-        )
+          "GADE5QJ2TY7S5ZB65Q43DFGWYWCPHIYDJ2326KZGAGBN7AE5UY6JVDRRA",
+        ),
       ).toThrow(/invalid encoded string/);
       expect(() =>
         StrKey.decodeEd25519PublicKey(
-          "GB6OWYST45X57HCJY5XWOHDEBULB6XUROWPIKW77L5DSNANBEQGUPADT2"
-        )
+          "GB6OWYST45X57HCJY5XWOHDEBULB6XUROWPIKW77L5DSNANBEQGUPADT2",
+        ),
       ).toThrow(/invalid encoded string/);
       expect(() =>
         StrKey.decodeEd25519PublicKey(
-          "GB6OWYST45X57HCJY5XWOHDEBULB6XUROWPIKW77L5DSNANBEQGUPADT2T"
-        )
+          "GB6OWYST45X57HCJY5XWOHDEBULB6XUROWPIKW77L5DSNANBEQGUPADT2T",
+        ),
       ).toThrow(/invalid encoded string/);
       // seed
       expect(() =>
         StrKey.decodeEd25519SecretSeed(
-          "SB7OJNF5727F3RJUG5ASQJ3LUM44ELLNKW35ZZQDHMVUUQNGYW"
-        )
+          "SB7OJNF5727F3RJUG5ASQJ3LUM44ELLNKW35ZZQDHMVUUQNGYW",
+        ),
       ).toThrow(/invalid encoded string/);
       expect(() =>
         StrKey.decodeEd25519SecretSeed(
-          "SB7OJNF5727F3RJUG5ASQJ3LUM44ELLNKW35ZZQDHMVUUQNGYWMEGB2W2"
-        )
+          "SB7OJNF5727F3RJUG5ASQJ3LUM44ELLNKW35ZZQDHMVUUQNGYWMEGB2W2",
+        ),
       ).toThrow(/invalid encoded string/);
       expect(() =>
         StrKey.decodeEd25519SecretSeed(
-          "SB7OJNF5727F3RJUG5ASQJ3LUM44ELLNKW35ZZQDHMVUUQNGYWMEGB2W2T"
-        )
+          "SB7OJNF5727F3RJUG5ASQJ3LUM44ELLNKW35ZZQDHMVUUQNGYWMEGB2W2T",
+        ),
       ).toThrow(/invalid encoded string/);
       expect(() =>
         StrKey.decodeEd25519SecretSeed(
-          "SCMB30FQCIQAWZ4WQTS6SVK37LGMAFJGXOZIHTH2PY6EXLP37G46H6DT"
-        )
+          "SCMB30FQCIQAWZ4WQTS6SVK37LGMAFJGXOZIHTH2PY6EXLP37G46H6DT",
+        ),
       ).toThrow(/invalid encoded string/);
       expect(() =>
         StrKey.decodeEd25519SecretSeed(
-          "SAYC2LQ322EEHZYWNSKBEW6N66IRTDREEBUXXU5HPVZGMAXKLIZNM45H++"
-        )
+          "SAYC2LQ322EEHZYWNSKBEW6N66IRTDREEBUXXU5HPVZGMAXKLIZNM45H++",
+        ),
       ).toThrow(/invalid encoded string/);
     });
 
     it("throws an error when the checksum is wrong", () => {
       expect(() =>
         StrKey.decodeEd25519PublicKey(
-          "GBPXXOA5N4JYPESHAADMQKBPWZWQDQ64ZV6ZL2S3LAGW4SY7NTCMWIVT"
-        )
+          "GBPXXOA5N4JYPESHAADMQKBPWZWQDQ64ZV6ZL2S3LAGW4SY7NTCMWIVT",
+        ),
       ).toThrow(/invalid checksum/);
       expect(() =>
         StrKey.decodeEd25519SecretSeed(
-          "SBGWKM3CD4IL47QN6X54N6Y33T3JDNVI6AIJ6CD5IM47HG3IG4O36XCX"
-        )
+          "SBGWKM3CD4IL47QN6X54N6Y33T3JDNVI6AIJ6CD5IM47HG3IG4O36XCX",
+        ),
       ).toThrow(/invalid checksum/);
     });
   });
@@ -125,11 +121,11 @@ describe("StrKey", () => {
   describe("#encodeCheck", () => {
     it("encodes a buffer correctly", () => {
       expect(StrKey.encodeEd25519PublicKey(unencodedBuffer)).toEqual(
-        accountIdEncoded
+        accountIdEncoded,
       );
       expect(StrKey.encodeEd25519PublicKey(unencodedBuffer)).toMatch(/^G/);
       expect(StrKey.encodeEd25519SecretSeed(unencodedBuffer)).toEqual(
-        seedEncoded
+        seedEncoded,
       );
       expect(StrKey.encodeEd25519SecretSeed(unencodedBuffer)).toMatch(/^S/);
 
@@ -144,19 +140,19 @@ describe("StrKey", () => {
 
     it("roundtrips the helper fns", () => {
       expect(encodeCheck("ed25519PublicKey", unencodedBuffer)).toEqual(
-        accountIdEncoded
+        accountIdEncoded,
       );
       expect(decodeCheck("ed25519PublicKey", accountIdEncoded)).toEqual(
-        unencodedBuffer
+        unencodedBuffer,
       );
     });
 
     it("throws an error when the data is null", () => {
       expect(() =>
-        StrKey.encodeEd25519SecretSeed(null as unknown as Buffer)
+        StrKey.encodeEd25519SecretSeed(null as unknown as Buffer),
       ).toThrow(/null data/);
       expect(() =>
-        StrKey.encodeEd25519PublicKey(null as unknown as Buffer)
+        StrKey.encodeEd25519PublicKey(null as unknown as Buffer),
       ).toThrow(/null data/);
     });
   });
@@ -173,7 +169,7 @@ describe("StrKey", () => {
         "GAJHORKJKDDEPYCD6URDFODV7CVLJ5AAOJKR6PG2VQOLWFQOF3X7XLOG",
         "GACXQEAXYBEZLBMQ2XETOBRO4P66FZAJENDHOQRYPUIXZIIXLKMZEXBJ",
         "GDD3XRXU3G4DXHVRUDH7LJM4CD4PDZTVP4QHOO4Q6DELKXUATR657OZV",
-        "GDTYVCTAUQVPKEDZIBWEJGKBQHB4UGGXI2SXXUEW7LXMD4B7MK37CWLJ"
+        "GDTYVCTAUQVPKEDZIBWEJGKBQHB4UGGXI2SXXUEW7LXMD4B7MK37CWLJ",
       ];
 
       for (const key of keys) {
@@ -193,12 +189,12 @@ describe("StrKey", () => {
         "gWRYUerEKuz53tstxEuR3NCkiQDcV4wzFHmvLnZmj7PUqxW2wt",
         "test",
         null,
-        "g4VPBPrHZkfE8CsjuG2S4yBQNd455UWmk" // Old network key
+        "g4VPBPrHZkfE8CsjuG2S4yBQNd455UWmk", // Old network key
       ];
 
       for (const key of keys) {
         expect(StrKey.isValidEd25519PublicKey(key as unknown as string)).toBe(
-          false
+          false,
         );
       }
     });
@@ -212,7 +208,7 @@ describe("StrKey", () => {
         "SCGNLQKTZ4XCDUGVIADRVOD4DEVNYZ5A7PGLIIZQGH7QEHK6DYODTFEH",
         "SDH6R7PMU4WIUEXSM66LFE4JCUHGYRTLTOXVUV5GUEPITQEO3INRLHER",
         "SC2RDTRNSHXJNCWEUVO7VGUSPNRAWFCQDPP6BGN4JFMWDSEZBRAPANYW",
-        "SCEMFYOSFZ5MUXDKTLZ2GC5RTOJO6FGTAJCF3CCPZXSLXA2GX6QUYOA7"
+        "SCEMFYOSFZ5MUXDKTLZ2GC5RTOJO6FGTAJCF3CCPZXSLXA2GX6QUYOA7",
       ];
 
       for (const key of keys) {
@@ -227,12 +223,12 @@ describe("StrKey", () => {
         "SAFGAMN5Z6IHVI3IVEPIILS7ITZDYSCEPLN4FN5Z3IY63DRH4CIYEV", // Too short
         "SAFGAMN5Z6IHVI3IVEPIILS7ITZDYSCEPLN4FN5Z3IY63DRH4CIYEVIT", // Checksum
         "test",
-        null
+        null,
       ];
 
       for (const key of keys) {
         expect(StrKey.isValidEd25519SecretSeed(key as unknown as string)).toBe(
-          false
+          false,
         );
       }
     });
@@ -245,7 +241,7 @@ describe("StrKey", () => {
     it("encodes & decodes M... addresses correctly", () => {
       expect(StrKey.encodeMed25519PublicKey(RAW_MPUBKEY)).toBe(MPUBKEY);
       expect(StrKey.decodeMed25519PublicKey(MPUBKEY).equals(RAW_MPUBKEY)).toBe(
-        true
+        true,
       );
     });
 
@@ -254,9 +250,9 @@ describe("StrKey", () => {
 
       expect(xdr.MuxedAccount.isValid(decoded)).toBe(true);
       expect(decoded.switch()).toEqual(xdr.CryptoKeyType.keyTypeEd25519());
-      expect(decoded.ed25519().equals(StrKey.decodeEd25519PublicKey(PUBKEY))).toBe(
-        true
-      );
+      expect(
+        decoded.ed25519().equals(StrKey.decodeEd25519PublicKey(PUBKEY)),
+      ).toBe(true);
       expect(encodeMuxedAccountToAddress(decoded)).toBe(PUBKEY);
     });
 
@@ -278,23 +274,23 @@ describe("StrKey", () => {
       {
         strkey:
           "MA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJVAAAAAAAAAAAAAJLK",
-        id: "9223372036854775808" // 0x8000...
+        id: "9223372036854775808", // 0x8000...
       },
       {
         strkey:
           "MA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJUAAAAAAFB4CJJBRKA",
-        id: "1357924680"
+        id: "1357924680",
       },
       {
         strkey:
           "MA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJUAAAAAAAAAAE2JUG6",
-        id: "1234"
+        id: "1234",
       },
       {
         strkey:
           "MA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJUAAAAAAAAAAAACJUQ",
-        id: "0"
-      }
+        id: "0",
+      },
     ];
 
     for (const testCase of cases) {
@@ -322,15 +318,15 @@ describe("StrKey", () => {
           "PA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJUAAAAAQACAQDAQCQMBYIBEFAWDANBYHRAEISCMKBKFQXDAMRUGY4DUPB6IBZGM",
         ed25519: "GA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJVSGZ",
         payload:
-          "0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20"
+          "0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20",
       },
       {
         desc: "valid w/ 29-byte payload",
         strkey:
           "PA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJUAAAAAOQCAQDAQCQMBYIBEFAWDANBYHRAEISCMKBKFQXDAMRUGY4DUAAAAFGBU",
         ed25519: "GA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJVSGZ",
-        payload: "0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d"
-      }
+        payload: "0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d",
+      },
     ];
 
     for (const testCase of happyPaths) {
@@ -338,7 +334,7 @@ describe("StrKey", () => {
         const signedPayloadBuf = StrKey.decodeSignedPayload(testCase.strkey);
         const signedPayload = xdr.SignerKeyEd25519SignedPayload.fromXDR(
           signedPayloadBuf,
-          "raw"
+          "raw",
         );
 
         const signer = StrKey.encodeEd25519PublicKey(signedPayload.ed25519());
@@ -355,12 +351,12 @@ describe("StrKey", () => {
     describe("payload bounds", () => {
       const signedPayload = new xdr.SignerKeyEd25519SignedPayload({
         ed25519: StrKey.decodeEd25519PublicKey(PUBKEY),
-        payload: Buffer.alloc(0)
+        payload: Buffer.alloc(0),
       });
 
       const isValid = (value: xdr.SignerKeyEd25519SignedPayload): boolean => {
         return StrKey.isValidSignedPayload(
-          StrKey.encodeSignedPayload(value.toXDR("raw"))
+          StrKey.encodeSignedPayload(value.toXDR("raw")),
         );
       };
 
@@ -388,19 +384,17 @@ describe("StrKey", () => {
 
   describe("#contracts", () => {
     it("valid w/ 32-byte payload", () => {
-      const strkey =
-        "CA3D5KRYM6CB7OWQ6TWYRR3Z4T7GNZLKERYNZGGA5SOAOPIFY6YQGAXE";
+      const strkey = "CA3D5KRYM6CB7OWQ6TWYRR3Z4T7GNZLKERYNZGGA5SOAOPIFY6YQGAXE";
       const decoded = StrKey.decodeContract(strkey);
 
       expect(decoded.toString("hex")).toBe(
-        "363eaa3867841fbad0f4ed88c779e4fe66e56a2470dc98c0ec9c073d05c7b103"
+        "363eaa3867841fbad0f4ed88c779e4fe66e56a2470dc98c0ec9c073d05c7b103",
       );
       expect(StrKey.encodeContract(decoded)).toBe(strkey);
     });
 
     it("isValid", () => {
-      const valid =
-        "CA3D5KRYM6CB7OWQ6TWYRR3Z4T7GNZLKERYNZGGA5SOAOPIFY6YQGAXE";
+      const valid = "CA3D5KRYM6CB7OWQ6TWYRR3Z4T7GNZLKERYNZGGA5SOAOPIFY6YQGAXE";
       expect(StrKey.isValidContract(valid)).toBe(true);
 
       const invalid =
@@ -411,15 +405,14 @@ describe("StrKey", () => {
 
   describe("#liquidityPools", () => {
     it("valid w/ 32-byte hash", () => {
-      const strkey =
-        "LA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJUPJN";
+      const strkey = "LA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJUPJN";
       const asHex =
         "3f0c34bf93ad0d9971d04ccc90f705511c838aad9734a4a2fb0d7a03fc7fe89a";
 
       expect(StrKey.isValidLiquidityPool(strkey)).toBe(true);
       expect(StrKey.decodeLiquidityPool(strkey).toString("hex")).toBe(asHex);
       expect(StrKey.encodeLiquidityPool(Buffer.from(asHex, "hex"))).toBe(
-        strkey
+        strkey,
       );
     });
 
@@ -444,7 +437,7 @@ describe("StrKey", () => {
       expect(StrKey.isValidClaimableBalance(strkey)).toBe(true);
       expect(StrKey.decodeClaimableBalance(strkey).toString("hex")).toBe(asHex);
       expect(StrKey.encodeClaimableBalance(Buffer.from(asHex, "hex"))).toBe(
-        strkey
+        strkey,
       );
     });
 
@@ -518,7 +511,7 @@ describe("StrKey", () => {
       // Invalid checksum
       "MA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJUAAAAAAAAAAAACJUO",
       // Trailing bits should be zeroes
-      "BAAD6DBUX6J22DMZOHIEZTEQ64CVCHEDRKWZONFEUL5Q26QD7R76RGR4TV"
+      "BAAD6DBUX6J22DMZOHIEZTEQ64CVCHEDRKWZONFEUL5Q26QD7R76RGR4TV",
     ];
 
     for (const address of badStrkeys) {
@@ -537,7 +530,7 @@ describe("StrKey", () => {
       const invalidDiscriminant =
         "BAAT6DBUX6J22DMZOHIEZTEQ64CVCHEDRKWZONFEUL5Q26QD7R76RGXACA";
       expect(() =>
-        decodeCheck("claimableBalance", invalidDiscriminant)
+        decodeCheck("claimableBalance", invalidDiscriminant),
       ).not.toThrow();
       expect(StrKey.isValidClaimableBalance(invalidDiscriminant)).toBe(true);
     });

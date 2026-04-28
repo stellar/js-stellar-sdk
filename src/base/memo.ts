@@ -29,7 +29,6 @@ export type MemoTypeText = typeof MemoText;
 export type MemoTypeHash = typeof MemoHash;
 export type MemoTypeReturn = typeof MemoReturn;
 
-// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace MemoType {
   export type None = MemoTypeNone;
   export type ID = MemoTypeID;
@@ -155,7 +154,7 @@ export class Memo<T extends MemoType = MemoType> {
     let number: BigNumber;
     try {
       number = new BigNumber(value);
-    } catch (e) {
+    } catch {
       throw error;
     }
 
@@ -195,7 +194,6 @@ export class Memo<T extends MemoType = MemoType> {
         throw new Error("Expects string, array or buffer, max 28 bytes");
       }
     } else {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
       if (!(xdr.Memo as any).armTypeForArm("text").isValid(value)) {
         throw new Error("Expects string, array or buffer, max 28 bytes");
       }

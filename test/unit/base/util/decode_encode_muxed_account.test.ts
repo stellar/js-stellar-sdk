@@ -3,7 +3,7 @@ import {
   decodeAddressToMuxedAccount,
   encodeMuxedAccountToAddress,
   encodeMuxedAccount,
-  extractBaseAddress
+  extractBaseAddress,
 } from "../../../../src/base/util/decode_encode_muxed_account.js";
 import { StrKey } from "../../../../src/base/strkey.js";
 import xdr from "../../../../src/base/xdr.js";
@@ -16,23 +16,23 @@ const MUXED_CASES = [
   {
     strkey:
       "MA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJVAAAAAAAAAAAAAJLK",
-    id: "9223372036854775808"
+    id: "9223372036854775808",
   },
   {
     strkey:
       "MA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJUAAAAAAFB4CJJBRKA",
-    id: "1357924680"
+    id: "1357924680",
   },
   {
     strkey:
       "MA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJUAAAAAAAAAAE2JUG6",
-    id: "1234"
+    id: "1234",
   },
   {
     strkey:
       "MA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJUAAAAAAAAAAAACJUQ",
-    id: "0"
-  }
+    id: "0",
+  },
 ];
 
 describe("decodeAddressToMuxedAccount", () => {
@@ -42,7 +42,7 @@ describe("decodeAddressToMuxedAccount", () => {
     expect(xdr.MuxedAccount.isValid(muxed)).toBe(true);
     expect(muxed.switch()).toEqual(xdr.CryptoKeyType.keyTypeEd25519());
     expect(muxed.ed25519().equals(StrKey.decodeEd25519PublicKey(PUBKEY))).toBe(
-      true
+      true,
     );
   });
 
@@ -56,10 +56,10 @@ describe("decodeAddressToMuxedAccount", () => {
 
       const inner = muxed.med25519();
       expect(
-        inner.ed25519().equals(StrKey.decodeEd25519PublicKey(PUBKEY))
+        inner.ed25519().equals(StrKey.decodeEd25519PublicKey(PUBKEY)),
       ).toBe(true);
       expect(inner.id()).toEqual(xdr.Uint64.fromString(id));
-    }
+    },
   );
 
   it("throws for an invalid address", () => {
@@ -82,7 +82,7 @@ describe("encodeMuxedAccountToAddress", () => {
       const address = encodeMuxedAccountToAddress(muxed);
 
       expect(address).toBe(strkey);
-    }
+    },
   );
 });
 
@@ -95,7 +95,7 @@ describe("encodeMuxedAccount", () => {
 
     const inner = muxed.med25519();
     expect(inner.ed25519().equals(StrKey.decodeEd25519PublicKey(PUBKEY))).toBe(
-      true
+      true,
     );
     expect(inner.id()).toEqual(xdr.Uint64.fromString("420"));
   });
@@ -107,26 +107,29 @@ describe("encodeMuxedAccount", () => {
 
     expect(decoded.med25519().id()).toEqual(xdr.Uint64.fromString("1234"));
     expect(
-      decoded.med25519().ed25519().equals(StrKey.decodeEd25519PublicKey(PUBKEY))
+      decoded
+        .med25519()
+        .ed25519()
+        .equals(StrKey.decodeEd25519PublicKey(PUBKEY)),
     ).toBe(true);
   });
 
   it("throws if address is not a valid G... address", () => {
     expect(() => encodeMuxedAccount("INVALID", "1")).toThrow(
-      /address should be a Stellar account ID/
+      /address should be a Stellar account ID/,
     );
   });
 
   it("throws if address is an M... address", () => {
     expect(() => encodeMuxedAccount(MPUBKEY, "1")).toThrow(
-      /address should be a Stellar account ID/
+      /address should be a Stellar account ID/,
     );
   });
 
   it("throws if id is not a string", () => {
     // @ts-expect-error testing invalid input
     expect(() => encodeMuxedAccount(PUBKEY, 123)).toThrow(
-      /id should be a string/
+      /id should be a string/,
     );
   });
 });
@@ -144,12 +147,12 @@ describe("extractBaseAddress", () => {
     "extracts base address from M... with id=$id",
     ({ strkey }) => {
       expect(extractBaseAddress(strkey)).toBe(PUBKEY);
-    }
+    },
   );
 
   it("throws for an invalid address", () => {
     expect(() => extractBaseAddress("INVALIDADDRESS")).toThrow(
-      /expected muxed account/
+      /expected muxed account/,
     );
   });
 });

@@ -1,5 +1,8 @@
 import { describe, it, expect } from "vitest";
-import { ScIntType, XdrLargeInt } from "../../../../src/base/numbers/xdr_large_int.js";
+import {
+  ScIntType,
+  XdrLargeInt,
+} from "../../../../src/base/numbers/xdr_large_int.js";
 import { Int128 } from "../../../../src/base/numbers/int128.js";
 import { Uint128 } from "../../../../src/base/numbers/uint128.js";
 

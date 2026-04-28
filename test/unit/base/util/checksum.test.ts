@@ -26,7 +26,7 @@ describe("verifyChecksum", () => {
 
   it("returns true for single matching byte", () => {
     expect(verifyChecksum(new Uint8Array([0xff]), new Uint8Array([0xff]))).toBe(
-      true
+      true,
     );
   });
 

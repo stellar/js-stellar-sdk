@@ -5,10 +5,31 @@ import type { xdr } from "./index.js";
 interface SorobanEvent {
   type: "contract" | "diagnostic" | "system";
   contractId?: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   topics: any[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   data: any;
+}
+
+function extractEvent(event: xdr.ContractEvent): SorobanEvent {
+  const contractId =
+    typeof event.contractId === "function" ? event.contractId() : null;
+
+  return {
+    ...(contractId !== null &&
+      contractId !== undefined && {
+        contractId: StrKey.encodeContract(contractId as unknown as Buffer),
+      }),
+    type: event.type().name,
+    topics: event
+      .body()
+      .value()
+      .topics()
+
+      .map((t: xdr.ScVal) => scValToNative(t)),
+
+    data: scValToNative(event.body().value().data()),
+  };
 }
 
 /**
@@ -36,25 +57,4 @@ export function humanizeEvents(
 
     return extractEvent(e);
   });
-}
-
-function extractEvent(event: xdr.ContractEvent): SorobanEvent {
-  const contractId =
-    typeof event.contractId === "function" ? event.contractId() : null;
-
-  return {
-    ...(contractId !== null &&
-      contractId !== undefined && {
-        contractId: StrKey.encodeContract(contractId as unknown as Buffer),
-      }),
-    type: event.type().name,
-    topics: event
-      .body()
-      .value()
-      .topics()
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-      .map((t: xdr.ScVal) => scValToNative(t)),
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    data: scValToNative(event.body().value().data()),
-  };
 }

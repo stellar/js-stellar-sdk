@@ -3,7 +3,7 @@ import { Asset } from "./asset.js";
 import { hash } from "./hashing.js";
 
 // Using namespace to keep the current structure of the code, but it can be easily refactored to use a more modern approach with union types and interfaces if needed.
-/* eslint-disable @typescript-eslint/no-namespace */
+
 export namespace LiquidityPoolType {
   export type constantProduct = "constant_product";
 }
@@ -17,7 +17,6 @@ export namespace LiquidityPoolParameters {
   }
 }
 export type LiquidityPoolParameters = LiquidityPoolParameters.ConstantProduct;
-/* eslint-enable @typescript-eslint/no-namespace */
 
 // LiquidityPoolFeeV18 is the default liquidity pool fee in protocol v18. It defaults to 30 base points (0.3%).
 export const LiquidityPoolFeeV18 = 30;

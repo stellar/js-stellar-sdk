@@ -169,7 +169,7 @@ export class TransactionBase<
     try {
       keypair = Keypair.fromPublicKey(publicKey);
       hint = keypair.signatureHint();
-    } catch (e) {
+    } catch {
       throw new Error("Invalid publicKey");
     }
 

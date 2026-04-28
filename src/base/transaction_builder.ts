@@ -1085,7 +1085,7 @@ export class TransactionBuilder {
    *       changed to be less awkward: accept a MuxedAccount as the `feeSource`
    *       rather than a keypair or string.
    *
-   * @note Your fee-bump amount should be >= 10x the original fee.
+   * Your fee-bump amount should be >= 10x the original fee.
    * @see  https://developers.stellar.org/docs/glossary/fee-bumps/#replace-by-fee
    */
   static buildFeeBumpTransaction(

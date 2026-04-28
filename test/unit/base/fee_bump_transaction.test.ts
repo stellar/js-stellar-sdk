@@ -46,8 +46,7 @@ describe("FeeBumpTransaction", () => {
     networkPassphrase = "Standalone Network ; February 2017";
     innerSource = Keypair.master(networkPassphrase);
     innerAccount = new Account(innerSource.publicKey(), "7");
-    destination =
-      "GDQERENWDDSQZS7R7WKHZI3BSOYMV3FSWR7TFUYFTKQ447PIX6NREOJM";
+    destination = "GDQERENWDDSQZS7R7WKHZI3BSOYMV3FSWR7TFUYFTKQ447PIX6NREOJM";
     amount = "2000.0000000";
     asset = Asset.native();
 
@@ -92,9 +91,9 @@ describe("FeeBumpTransaction", () => {
     expect(innerTransaction.source).toBe(innerSource.publicKey());
     expect(innerTransaction.fee).toBe("100");
     expect(innerTransaction.memo.type).toBe(MemoText);
-    expect(
-      (innerTransaction.memo.value as Buffer).toString("ascii"),
-    ).toBe("Happy birthday!");
+    expect((innerTransaction.memo.value as Buffer).toString("ascii")).toBe(
+      "Happy birthday!",
+    );
     const operation = expectDefined(innerTransaction.operations[0]);
     expect(operation.type).toBe("payment");
     expect((operation as Operation.Payment).destination).toBe(destination);
@@ -131,9 +130,7 @@ describe("FeeBumpTransaction", () => {
     expect(transaction.innerTransaction.fee).toEqual(
       expectedTxEnvelope.tx().innerTx().value().tx().fee().toString(),
     );
-    expect(transaction.fee).toEqual(
-      expectedTxEnvelope.tx().fee().toString(),
-    );
+    expect(transaction.fee).toEqual(expectedTxEnvelope.tx().fee().toString());
 
     expect(innerTransaction.signatures.length).toEqual(1);
     const innerSignature = expectDefined(innerTransaction.signatures[0]);
@@ -177,10 +174,7 @@ describe("FeeBumpTransaction", () => {
   it("signs correctly", () => {
     transaction.sign(feeSource);
     const rawSig = expectDefined(
-      transaction
-      .toEnvelope()
-      .feeBump()
-      .signatures()[0],
+      transaction.toEnvelope().feeBump().signatures()[0],
     ).signature();
     expect(feeSource.verify(transaction.hash(), rawSig)).toBe(true);
   });
@@ -236,16 +230,13 @@ describe("FeeBumpTransaction", () => {
 
     addedSignatureTx.addSignature(feeSource.publicKey(), signature);
 
-    const envelopeAddedSignature = addedSignatureTx
-      .toEnvelope()
-      .feeBump();
-    const addedSignature = expectDefined(envelopeAddedSignature.signatures()[0]);
+    const envelopeAddedSignature = addedSignatureTx.toEnvelope().feeBump();
+    const addedSignature = expectDefined(
+      envelopeAddedSignature.signatures()[0],
+    );
 
     expect(
-      feeSource.verify(
-        addedSignatureTx.hash(),
-        addedSignature.signature(),
-      ),
+      feeSource.verify(addedSignatureTx.hash(), addedSignature.signature()),
     ).toBe(true);
 
     transaction.sign(feeSource);
@@ -257,10 +248,7 @@ describe("FeeBumpTransaction", () => {
       addedSignature.signature(),
     );
 
-    expectBuffersToBeEqual(
-      signedSignature.hint(),
-      addedSignature.hint(),
-    );
+    expectBuffersToBeEqual(signedSignature.hint(), addedSignature.hint());
 
     expectBuffersToBeEqual(addedSignatureTx.hash(), transaction.hash());
   });
@@ -273,9 +261,7 @@ describe("FeeBumpTransaction", () => {
       networkPassphrase,
     ).getKeypairSignature(feeSource);
 
-    expect(feeSource.sign(presignHash).toString("base64")).toEqual(
-      signature,
-    );
+    expect(feeSource.sign(presignHash).toString("base64")).toEqual(signature);
 
     const addedSignatureTx = new FeeBumpTransaction(
       transaction.toEnvelope(),
@@ -285,16 +271,13 @@ describe("FeeBumpTransaction", () => {
     expect(addedSignatureTx.signatures.length).toEqual(0);
     addedSignatureTx.addSignature(feeSource.publicKey(), signature);
 
-    const envelopeAddedSignature = addedSignatureTx
-      .toEnvelope()
-      .feeBump();
-    const addedSignature = expectDefined(envelopeAddedSignature.signatures()[0]);
+    const envelopeAddedSignature = addedSignatureTx.toEnvelope().feeBump();
+    const addedSignature = expectDefined(
+      envelopeAddedSignature.signatures()[0],
+    );
 
     expect(
-      feeSource.verify(
-        transaction.hash(),
-        addedSignature.signature(),
-      ),
+      feeSource.verify(transaction.hash(), addedSignature.signature()),
     ).toBe(true);
 
     expect(transaction.signatures.length).toEqual(0);
@@ -307,10 +290,7 @@ describe("FeeBumpTransaction", () => {
       addedSignature.signature(),
     );
 
-    expectBuffersToBeEqual(
-      signedSignature.hint(),
-      addedSignature.hint(),
-    );
+    expectBuffersToBeEqual(signedSignature.hint(), addedSignature.hint());
 
     expectBuffersToBeEqual(addedSignatureTx.hash(), transaction.hash());
   });

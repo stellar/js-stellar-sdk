@@ -22,7 +22,7 @@ export class Contract {
     try {
       // First, try it as a strkey
       this._id = StrKey.decodeContract(contractId);
-    } catch (_) {
+    } catch {
       throw new Error(`Invalid contract ID: ${contractId}`);
     }
   }

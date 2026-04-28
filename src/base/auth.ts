@@ -2,8 +2,9 @@ import xdr from "./xdr.js";
 
 import { Keypair } from "./keypair.js";
 import { StrKey } from "./strkey.js";
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { Networks } from "./network.js";
+import type { Networks } from "./network.js";
 import { hash } from "./hashing.js";
 
 import { Address } from "./address.js";
@@ -72,9 +73,9 @@ export type SigningCallback = (
  * @param networkPassphrase - the network passphrase is incorporated into the
  *    signature (see {@link Networks} for options)
  *
- * @note If using the `SigningCallback` variation, the signer is assumed to be
- *    the entry's credential address unless you use the variant that returns
- *    the object.
+ * If using the `SigningCallback` variation, the signer is assumed to be
+ * the entry's credential address unless you use the variant that returns
+ * the object.
  *
  * @see authorizeInvocation
  * @example

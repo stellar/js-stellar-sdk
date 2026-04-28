@@ -8,7 +8,7 @@ const MAX_INT_BN = new BigNumber(MAX_INT);
  * number as `[n, d]` where `n` is the numerator and `d` is the denominator.
  *
  * @param rawNumber - real number to approximate
- * @throws when the best rational approximation cannot be found
+ * @throws {Error} when the best rational approximation cannot be found
  */
 export function best_r(
   rawNumber: BigNumber | number | string,

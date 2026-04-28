@@ -79,7 +79,7 @@ export interface NativeToScValOpts {
  *    return an `scvSymbol`, whereas without the type it would have been an
  *    `scvString`.
  *
- * @throws if...
+ * @throws {TypeError} if...
  *  - there are arrays with more than one type in them
  *  - there are values that do not have a sensible conversion (e.g. random XDR
  *    types, custom classes)
@@ -366,7 +366,7 @@ export function nativeToScVal(
  *
  * @see nativeToScVal
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 export function scValToNative(scv: xdr.ScVal): any {
   // we use the verbose xdr.ScValType.<type>.value form here because it's faster
   // than string comparisons and the underlying constants never need to be
@@ -427,7 +427,7 @@ export function scValToNative(scv: xdr.ScVal): any {
       ) {
         try {
           return new TextDecoder().decode(v);
-        } catch (e) {
+        } catch {
           return new Uint8Array((v as ArrayBufferView).buffer); // copy of bytes
         }
       }
@@ -441,7 +441,7 @@ export function scValToNative(scv: xdr.ScVal): any {
       ) {
         try {
           return new TextDecoder().decode(v);
-        } catch (e) {
+        } catch {
           return new Uint8Array((v as ArrayBufferView).buffer); // copy of bytes
         }
       }

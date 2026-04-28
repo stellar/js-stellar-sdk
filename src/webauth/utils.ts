@@ -4,11 +4,7 @@
  * @see {@link https://stellar.org/protocol-10 | SEP-10 Specification}
  */
 
-import {
-  FeeBumpTransaction,
-  Keypair,
-  Transaction,
-} from "../base/index.js";
+import { FeeBumpTransaction, Keypair, Transaction } from "../base/index.js";
 import { InvalidChallengeError } from "./errors.js";
 /**
  * Checks if a transaction has been signed by one or more of the given signers,

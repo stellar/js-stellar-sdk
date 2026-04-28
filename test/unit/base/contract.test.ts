@@ -191,9 +191,7 @@ describe("Contract", () => {
       expect(firstArg.toXDR("hex")).toBe(
         xdr.ScVal.scvString("arg!").toXDR("hex"),
       );
-      expect(secondArg.toXDR("hex")).toBe(
-        xdr.ScVal.scvI32(2).toXDR("hex"),
-      );
+      expect(secondArg.toXDR("hex")).toBe(xdr.ScVal.scvI32(2).toXDR("hex"));
     });
 
     it("passes empty args when called with no params", () => {

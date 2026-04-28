@@ -14,7 +14,7 @@ export function setSourceAccount(
   if (opts.source) {
     try {
       opAttributes.sourceAccount = decodeAddressToMuxedAccount(opts.source);
-    } catch (e) {
+    } catch {
       throw new Error("Source address is invalid");
     }
   }
@@ -145,7 +145,7 @@ export function isValidAmount(value: unknown, allowZero = false): boolean {
 
   try {
     amount = new BigNumber(value);
-  } catch (e) {
+  } catch {
     return false;
   }
 

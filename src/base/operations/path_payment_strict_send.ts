@@ -57,7 +57,7 @@ export function pathPaymentStrictSend(
 
   try {
     destination = decodeAddressToMuxedAccount(opts.destination);
-  } catch (e) {
+  } catch {
     throw new Error("destination is invalid");
   }
 

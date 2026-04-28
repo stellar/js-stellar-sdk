@@ -13,7 +13,7 @@ export const AssetType = {
 export type AssetType = (typeof AssetType)[keyof typeof AssetType];
 // Namespace merge so `AssetType.native` etc. can be used in type positions,
 // matching the public API shape consumers depended on.
-// eslint-disable-next-line @typescript-eslint/no-namespace
+
 export namespace AssetType {
   export type native = "native";
   export type credit4 = "credit_alphanum4";
@@ -24,6 +24,16 @@ export namespace AssetType {
 interface XdrAssetConstructor<T> {
   assetTypeNative(): T;
   new (type: string, value: xdr.AlphaNum4 | xdr.AlphaNum12): T;
+}
+
+/**
+ * Compares two ASCII strings in lexographic order with uppercase precedence.
+ *
+ * @param a - the first string to compare
+ * @param b - the second string to compare
+ */
+function asciiCompare(a: string, b: string): -1 | 0 | 1 {
+  return Buffer.compare(Buffer.from(a, "ascii"), Buffer.from(b, "ascii"));
 }
 
 /**
@@ -309,14 +319,4 @@ export class Asset {
     }
     return asciiCompare(issuerA, issuerB);
   }
-}
-
-/**
- * Compares two ASCII strings in lexographic order with uppercase precedence.
- *
- * @param a - the first string to compare
- * @param b - the second string to compare
- */
-function asciiCompare(a: string, b: string): -1 | 0 | 1 {
-  return Buffer.compare(Buffer.from(a, "ascii"), Buffer.from(b, "ascii"));
 }

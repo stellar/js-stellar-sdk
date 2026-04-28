@@ -22,7 +22,7 @@ export function bumpSequence(
 
   try {
     new BigNumber(opts.bumpTo);
-  } catch (e) {
+  } catch {
     throw new Error("bumpTo must be a stringified number");
   }
 

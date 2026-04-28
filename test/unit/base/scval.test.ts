@@ -9,7 +9,11 @@ import {
 } from "../../../src/base/index.js";
 import { Contract } from "../../../src/base/contract.js";
 import xdr from "../../../src/base/xdr.js";
-import { nativeToScVal, scValToNative, scvSortedMap } from "../../../src/base/scval.js";
+import {
+  nativeToScVal,
+  scValToNative,
+  scvSortedMap,
+} from "../../../src/base/scval.js";
 import { expectDefined } from "./support/expect_defined.js";
 
 // Migrated existing tests

@@ -135,7 +135,7 @@ export class Operation {
    *
    * @param operation - An XDR Operation.
    */
-  /* eslint-disable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-assignment */
+
   static fromXDRObject<T extends OperationRecord = OperationRecord>(
     operation: xdr.Operation<T>,
   ): T {
@@ -146,7 +146,6 @@ export class Operation {
       result.source = encodeMuxedAccountToAddress(sourceAccount);
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const attrs: any = operation.body().value();
     const operationName: string = operation.body().switch().name;
 
@@ -432,7 +431,6 @@ export class Operation {
 
     return result as unknown as T;
   }
-  /* eslint-enable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-assignment */
 
   // Attach all imported operations as static methods on the Operation class
   static accountMerge = ops.accountMerge;
@@ -478,7 +476,6 @@ export class Operation {
   static uploadContractWasm = ops.uploadContractWasm;
 }
 
-/* eslint-disable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any */
 function extractRevokeSponshipDetails(
   attrs: any,
   result: Record<string, unknown>,
@@ -590,7 +587,6 @@ function convertXDRSignerKeyToObject(
 
   return attrs;
 }
-/* eslint-enable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any */
 
 function accountIdtoAddress(accountId: xdr.AccountId): string {
   return StrKey.encodeEd25519PublicKey(accountId.ed25519());
@@ -601,7 +597,6 @@ function accountIdtoAddress(accountId: xdr.AccountId): string {
 // declared in types/index.d.ts.
 // The static methods (e.g. Operation.createAccount) are defined on the class above.
 
-// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Operation {
   export type BaseOperation<T extends _OperationType = _OperationType> =
     _BaseOperation<T>;

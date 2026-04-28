@@ -108,6 +108,23 @@ const testConfig = [
   },
 ];
 
+// The base XDR/SDK module preserves a public API shape (namespace+const merging,
+// XDR-string-literal type aliases, snake_case helpers like `best_r`, leading-_
+// internals) and uses a "public API at top, helpers below" file layout. Loosen
+// rules that would otherwise force breaking renames or large reorders.
+const baseSdkConfig = [
+  {
+    name: "base/sdk-public-api",
+    files: ["src/base/**/*.ts"],
+    rules: {
+      "@typescript-eslint/no-redeclare": "off",
+      "@typescript-eslint/no-use-before-define": ["error", { functions: false }],
+      "@typescript-eslint/naming-convention": "off",
+      "jsdoc/no-undefined-types": "off",
+    },
+  },
+];
+
 const importConfig = [
   {
     name: "import/plugin/config",
@@ -118,7 +135,12 @@ const importConfig = [
 ];
 const ignoreFiles = includeIgnoreFile(gitignorePath);
 ignoreFiles.ignores.push(
-  ...["eslint.config.js", "rollup.config.mjs", "config/**/*"],
+  ...[
+    "eslint.config.js",
+    "rollup.config.mjs",
+    "config/**/*",
+    "src/base/generated/**",
+  ],
 );
 export default [
   // Ignore .gitignore files/folder in eslint
@@ -133,6 +155,8 @@ export default [
   ...jsDocConfig,
   // Test Config
   ...testConfig,
+  // Base SDK overrides (must come after typescriptConfig/jsDocConfig)
+  ...baseSdkConfig,
   // Prettier Config
   ...prettierConfig,
 ];

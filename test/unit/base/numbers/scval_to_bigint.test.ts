@@ -119,9 +119,7 @@ describe("scValToBigInt — scvTimepoint", () => {
   });
 
   it("converts max u64 timepoint", () => {
-    const scv = xdr.ScVal.scvTimepoint(
-      new xdr.Uint64("18446744073709551615"),
-    );
+    const scv = xdr.ScVal.scvTimepoint(new xdr.Uint64("18446744073709551615"));
     expect(scValToBigInt(scv)).toBe(18446744073709551615n);
   });
 });
@@ -348,8 +346,7 @@ describe("scValToBigInt — scvU256", () => {
         hiHi: new xdr.Uint64(4),
       }),
     );
-    const expected =
-      1n + (2n << 64n) + (3n << 128n) + (4n << 192n);
+    const expected = 1n + (2n << 64n) + (3n << 128n) + (4n << 192n);
     expect(scValToBigInt(scv)).toBe(expected);
   });
 

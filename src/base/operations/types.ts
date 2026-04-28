@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-namespace */
 import { Asset } from "../asset.js";
 import { Address } from "../address.js";
 import { Claimant } from "../claimant.js";

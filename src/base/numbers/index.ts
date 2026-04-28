@@ -24,7 +24,7 @@ export type { ScIntType };
  *
  * @param scv - the XDR smart contract value to convert
  *
- * @throws if the `scv` input value doesn't represent an integer
+ * @throws {TypeError} if the `scv` input value doesn't represent an integer
  */
 export function scValToBigInt(scv: xdr.ScVal): bigint {
   const switchName = scv.switch().name;

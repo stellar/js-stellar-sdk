@@ -13,9 +13,9 @@ describe("SorobanTransactionData can be built", () => {
       footprint: new xdr.LedgerFootprint({ readOnly: [], readWrite: [] }),
       instructions: 1,
       diskReadBytes: 2,
-      writeBytes: 3
+      writeBytes: 3,
     }),
-    resourceFee: new xdr.Int64(5)
+    resourceFee: new xdr.Int64(5),
   });
 
   const key = c.getFootprint(); // arbitrary key for testing
@@ -38,7 +38,7 @@ describe("SorobanTransactionData can be built", () => {
 
   it("sets properties as expected", () => {
     expect(
-      new SorobanDataBuilder().setResources(1, 2, 3).setResourceFee(5).build()
+      new SorobanDataBuilder().setResources(1, 2, 3).setResourceFee(5).build(),
     ).toEqual(sentinel);
 
     // this isn't a valid param but we're just checking that setters work

@@ -10,7 +10,7 @@ export class Soroban {
    * @param amount - the token amount you want to display
    * @param decimals - specify how many decimal places a token has
    *
-   * @throws if the given amount has a decimal point already
+   * @throws {TypeError} if the given amount has a decimal point already
    * @example
    * formatTokenAmount("123000", 4) === "12.3";
    * formatTokenAmount("123000", 3) === "123.0";
