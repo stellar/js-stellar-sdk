@@ -21,10 +21,19 @@ const packageJson = JSON.parse(
 
 const useAxios = process.env.USE_AXIOS === "true";
 
-const externalPackages = new Set([
-  ...Object.keys(packageJson.dependencies ?? {}),
-  ...Object.keys(packageJson.peerDependencies ?? {}),
-]);
+// Bundle these dependencies into the lib output instead of leaving bare
+// imports. `@stellar/js-xdr` ships a webpack UMD bundle as `main`, which
+// hides its named exports from Node ESM's cjs-module-lexer; inlining it
+// at build time sidesteps the interop entirely.
+// TODO: remove this once js-xdr ships an ESM build with proper named exports. Until then, it converts js-xdr's UMD export into a shape rollup can analyze and re-export from our ESM output.
+const inlinedDependencies = new Set(["@stellar/js-xdr"]);
+
+const externalPackages = new Set(
+  [
+    ...Object.keys(packageJson.dependencies ?? {}),
+    ...Object.keys(packageJson.peerDependencies ?? {}),
+  ].filter((name) => !inlinedDependencies.has(name)),
+);
 
 const builtinPackageIds = new Set([
   ...builtinModules,
@@ -177,6 +186,16 @@ const libSharedPlugins = [
   // the original relative specifier (e.g. "../http-client/index.js").
   ...(useAxios ? [aliasHttpClientToAxios()] : []),
   resolveJsSourceSpecifier(),
+
+  // TODO: remove this plugin once js-xdr ships an ESM build with proper named exports. Until then, it converts js-xdr's UMD export into a shape rollup can analyze and re-export from our ESM output.
+  // resolve + commonjs are needed to pull `@stellar/js-xdr` into the bundle.
+  // External deps short-circuit before reaching these plugins, so other
+  // dependencies remain bare imports.
+  resolve({
+    extensions: [".ts", ".mjs", ".js", ".json"],
+  }),
+  // TODO: remove this plugin once js-xdr ships an ESM build with proper named exports. Until then, it converts js-xdr's UMD export into a shape rollup can analyze and re-export from our ESM output.
+  commonjs(),
   esbuild({
     sourceMap: true,
     target: "es2022",
