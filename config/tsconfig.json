@@ -6,7 +6,7 @@
     "declarationDir": "../lib/esm",
     "removeComments": false,
     "lib": ["ES2022", "DOM"],
-    "module": "Node16",
+    "module": "Node20",
     "moduleResolution": "node16",
     "rootDir": "../src",
     "outDir": "../lib/esm",
