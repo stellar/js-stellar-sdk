@@ -6,48 +6,24 @@
  * - Node.js: Uses the lib import with proper types
  */
 
-import type { xdr } from "@stellar/stellar-base";
+import type { xdr } from "../../lib/esm/index.js";
 import type * as StellarSdkTypes from "../../lib/esm/index.js";
 
-// Import ScSpecTypeDef from stellar-base xdr namespace
-
-// Type definition for the StellarSdk module
 type StellarSdkModule = typeof StellarSdkTypes;
 
-// Declare the global StellarSdk type for browser environment
-declare global {
-  interface Window {
-    StellarSdk: StellarSdkModule;
-  }
-}
-
-// When TRANSPORT=axios is set, Node tests must load the axios build so they
-// exercise the axios adapter rather than the default fetch build under lib/.
-// Without this redirect the harness would always import pre-compiled JS from
-// lib/ (fetch-backed) regardless of the env flag. Evaluated lazily so browser
-// bundles (where `process` is undefined) don't crash at module load.
-function getNodeLibPath(): string {
+// Same lib in browser and Node. In Node we honour TRANSPORT=axios so tests can
+// exercise the axios adapter instead of the default fetch build. In browser
+// Vite resolves the same path from the source tree.
+function getLibPath(): string {
   return typeof process !== "undefined" && process.env?.TRANSPORT === "axios"
     ? "../../lib/axios/esm"
     : "../../lib/esm";
 }
 
-/**
- * Get the StellarSdk module with proper TypeScript types
- * Works in both browser and Node.js environments
- */
 export async function getStellarSdk(): Promise<StellarSdkModule> {
-  if (typeof window !== "undefined" && window.StellarSdk) {
-    // Browser environment - use the global StellarSdk
-    return window.StellarSdk;
-  }
-  // Node.js environment - dynamically import the lib module. Top-level await
-  // in this file's module body makes this usable as a synchronous const below,
-  // and vitest handles the propagated async boundary transparently.
-  return (await import(getNodeLibPath())) as unknown as StellarSdkModule;
+  return (await import(getLibPath())) as unknown as StellarSdkModule;
 }
 
-// Export the StellarSdk instance with proper typing
 export const StellarSdk = await getStellarSdk();
 
 // Re-export commonly used types for convenience
@@ -80,29 +56,17 @@ export type {
   Memo,
   Operation,
   Networks,
-} from "@stellar/stellar-base";
+} from "../../lib/esm/base/index.js";
 
-/**
- * Get the httpClient with proper TypeScript types
- * Works in both browser and Node.js environments
- */
+// The axios lib tree still has a fetch-backed `http-client/index.js` (the file
+// itself isn't aliased — only downstream imports of `../http-client` are). So
+// to get the axios client we reach for the explicit `http-client/axios` subpath.
 export async function getHttpClient() {
-  if (
-    typeof window !== "undefined" &&
-    (window as any).__STELLAR_SDK_BROWSER_TEST__
-  ) {
-    // In browser environment, get httpClient from global StellarSdk
-    return (window as any).StellarSdk.httpClient;
-  }
-  // In Node.js environment, import directly. The axios lib tree still has a
-  // fetch-backed `http-client/index.js` (the file itself isn't aliased — only
-  // downstream imports of `../http-client` are). So to get the axios client
-  // we must reach for the explicit `http-client/axios` subpath.
   const subpath =
     typeof process !== "undefined" && process.env?.TRANSPORT === "axios"
       ? "/http-client/axios"
       : "/http-client";
-  const httpClientModule = await import(`${getNodeLibPath()}${subpath}`);
+  const httpClientModule = await import(`${getLibPath()}${subpath}`);
   return httpClientModule.httpClient;
 }
 
