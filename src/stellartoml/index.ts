@@ -1,5 +1,5 @@
 import toml from "toml";
-import { Networks } from "@stellar/stellar-base";
+import { Networks } from "../base/index.js";
 import { httpClient } from "../http-client/index.js";
 
 import { Config } from "../config.js";

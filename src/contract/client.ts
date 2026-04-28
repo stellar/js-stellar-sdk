@@ -1,4 +1,4 @@
-import { Operation, xdr, Address } from "@stellar/stellar-base";
+import { Operation, xdr, Address } from "../base/index.js";
 import { Spec } from "./spec.js";
 import { Server } from "../rpc/index.js";
 import { AssembledTransaction } from "./assembled_transaction.js";

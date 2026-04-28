@@ -7,10 +7,10 @@ import {
   StrKey,
   Transaction,
   xdr,
-} from "@stellar/stellar-base";
+} from "../base/index.js";
 import URI from "urijs";
 
-import type { TransactionBuilder } from "@stellar/stellar-base";
+import type { TransactionBuilder } from "../base/index.js";
 import { CallBuilder } from "./call_builder.js";
 import { Config } from "../config.js";
 import {

@@ -8,7 +8,7 @@ import {
   FeeBumpTransaction,
   Keypair,
   Transaction,
-} from "@stellar/stellar-base";
+} from "../base/index.js";
 import { InvalidChallengeError } from "./errors.js";
 /**
  * Checks if a transaction has been signed by one or more of the given signers,

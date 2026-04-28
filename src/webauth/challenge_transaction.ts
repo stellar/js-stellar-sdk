@@ -11,8 +11,7 @@ import {
   TimeoutInfinite,
   Transaction,
   Networks,
-} from "@stellar/stellar-base";
-import randomBytes from "randombytes";
+} from "../base/index.js";
 import { InvalidChallengeError } from "./errors.js";
 import { gatherTxSigners, verifyTxSignedBy } from "./utils.js";
 import { Utils } from "../utils.js";

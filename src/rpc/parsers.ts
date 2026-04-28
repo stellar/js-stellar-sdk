@@ -1,4 +1,4 @@
-import { xdr, Contract, SorobanDataBuilder } from "@stellar/stellar-base";
+import { xdr, Contract, SorobanDataBuilder } from "../base/index.js";
 import { Api } from "./api.js";
 
 /**

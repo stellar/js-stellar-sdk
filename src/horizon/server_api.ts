@@ -1,4 +1,4 @@
-import { Asset } from "@stellar/stellar-base";
+import { Asset } from "../base/index.js";
 import { HorizonApi } from "./horizon_api.js";
 
 // more types

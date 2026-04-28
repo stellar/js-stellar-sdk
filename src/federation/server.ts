@@ -1,4 +1,4 @@
-import { StrKey } from "@stellar/stellar-base";
+import { StrKey } from "../base/index.js";
 import URI from "urijs";
 
 import { Config } from "../config.js";
