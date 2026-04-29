@@ -7,6 +7,10 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10 # Specify your pnpm version
       - name: Checkout SDK
         uses: actions/checkout@v4
         with:
