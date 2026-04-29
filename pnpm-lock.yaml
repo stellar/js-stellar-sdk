@@ -35,15 +35,15 @@ importers:
       feaxios:
         specifier: ^0.0.23
         version: 0.0.23
-      randombytes:
-        specifier: ^2.1.0
-        version: 2.1.0
       sha.js:
         specifier: ^2.4.12
         version: 2.4.12
       toml:
         specifier: ^3.0.0
         version: 3.0.0
+      uint8array-extras:
+        specifier: ^1.5.0
+        version: 1.5.0
       urijs:
         specifier: ^1.19.11
         version: 1.19.11
@@ -78,9 +78,6 @@ importers:
       '@types/node':
         specifier: ^20.14.11
         version: 20.19.37
-      '@types/randombytes':
-        specifier: ^2.0.1
-        version: 2.0.3
       '@types/sha.js':
         specifier: ^2.4.4
         version: 2.4.4
@@ -1047,9 +1044,6 @@ packages:
 
   '@types/node@25.5.0':
     resolution: {integrity: sha512-jp2P3tQMSxWugkCUKLRPVUpGaL5MVFwF8RDuSRztfwgN1wmqJeMSbKlnEtQqU8UrhTmzEmZdu2I6v2dpp7XIxw==}
-
-  '@types/randombytes@2.0.3':
-    resolution: {integrity: sha512-+NRgihTfuURllWCiIAhm1wsJqzsocnqXM77V/CalsdJIYSRGEHMnritxh+6EsBklshC+clo1KgnN14qgSGeQdw==}
 
   '@types/resolve@1.20.2':
     resolution: {integrity: sha512-60BCwRFOZCQhDncwQdxxeOEEkbc5dIMccYLwbxsS4TUNeVECQ/pBJ0j09mrHOl/JJvpRPGwO9SvE4nR2Nb/a4Q==}
@@ -3223,9 +3217,6 @@ packages:
   queue-microtask@1.2.3:
     resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}
 
-  randombytes@2.1.0:
-    resolution: {integrity: sha512-vYl3iOX+4CKUWuxGi9Ukhie6fsqXqS9FE2Zaic4tNFD2N2QQaXOMFbuKK4QmDHC0JO6B1Zp41J0LpT0oR68amQ==}
-
   react-ace@9.5.0:
     resolution: {integrity: sha512-4l5FgwGh6K7A0yWVMQlPIXDItM4Q9zzXRqOae8KkCl6MkOob7sC1CzHxZdOGvV+QioKWbX2p5HcdOVUv6cAdSg==}
     peerDependencies:
@@ -3777,6 +3768,10 @@ packages:
 
   uglify-to-browserify@1.0.2:
     resolution: {integrity: sha512-vb2s1lYx2xBtUgy+ta+b2J/GLVUR+wmpINwHePmPRhOsIVCG2wDzKJ0n14GslH1BifsqVzSOwQhRaCAsZ/nI4Q==}
+
+  uint8array-extras@1.5.0:
+    resolution: {integrity: sha512-rvKSBiC5zqCCiDZ9kAOszZcDvdAHwwIKJG33Ykj43OKcWsnmcBRL09YTU4nOeHZ8Y2a7l1MgTd08SBe9A8Qj6A==}
+    engines: {node: '>=18'}
 
   unbox-primitive@1.1.0:
     resolution: {integrity: sha512-nWJ91DjeOkej/TA8pXQ3myruKpKEYgqvpw9lz4OPHj/NWFNluYrjbz9j01CJ8yKQd2g4jFoOkINCTW2I5LEEyw==}
@@ -4793,10 +4788,6 @@ snapshots:
   '@types/node@25.5.0':
     dependencies:
       undici-types: 7.18.2
-
-  '@types/randombytes@2.0.3':
-    dependencies:
-      '@types/node': 25.5.0
 
   '@types/resolve@1.20.2': {}
 
@@ -7268,10 +7259,6 @@ snapshots:
 
   queue-microtask@1.2.3: {}
 
-  randombytes@2.1.0:
-    dependencies:
-      safe-buffer: 5.2.1
-
   react-ace@9.5.0(react-dom@17.0.2(react@17.0.2))(react@17.0.2):
     dependencies:
       ace-builds: 1.43.6
@@ -7928,6 +7915,8 @@ snapshots:
 
   uglify-to-browserify@1.0.2:
     optional: true
+
+  uint8array-extras@1.5.0: {}
 
   unbox-primitive@1.1.0:
     dependencies:

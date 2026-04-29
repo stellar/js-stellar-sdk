@@ -16,7 +16,7 @@ import { InvalidChallengeError } from "./errors.js";
 import { gatherTxSigners, verifyTxSignedBy } from "./utils.js";
 import { Utils } from "../utils.js";
 import { ServerApi } from "../horizon/server_api.js";
-import randomBytes from "randombytes";
+import { uint8ArrayToBase64 } from "uint8array-extras";
 
 /**
  * Returns a valid {@link https://stellar.org/protocol/sep-10 | SEP-10}
@@ -82,7 +82,7 @@ export function buildChallengeTx(
   //
   // Each Base64 digit is in ASCII and each ASCII characters when
   // turned into binary represents 8 bits = 1 bytes.
-  const value = randomBytes(48).toString("base64");
+  const value = uint8ArrayToBase64(crypto.getRandomValues(new Uint8Array(48)));
 
   const builder = new TransactionBuilder(account, {
     fee: BASE_FEE,
