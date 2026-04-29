@@ -179,7 +179,8 @@
     "vitest": "^4.1.2"
   },
   "dependencies": {
-    "@noble/curves": "^1.9.6",
+    "@noble/curves": "^2.2.0",
+    "@noble/hashes": "^2.2.0",
     "@stellar/js-xdr": "4.0.0",
     "axios": "1.15.0",
     "base32.js": "^0.1.0",
@@ -188,7 +189,6 @@
     "commander": "^14.0.3",
     "eventsource": "^4.1.0",
     "feaxios": "^0.0.23",
-    "sha.js": "^2.4.12",
     "toml": "^3.0.0",
     "uint8array-extras": "^1.5.0",
     "urijs": "^1.19.11"
