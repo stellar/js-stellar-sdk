@@ -12,8 +12,9 @@ import type * as StellarSdkTypes from "../../lib/esm/index.js";
 type StellarSdkModule = typeof StellarSdkTypes;
 
 function isAxiosTransport(): boolean {
+  const viteEnv = (import.meta as { env?: { VITE_TRANSPORT?: string } }).env;
   return (
-    import.meta.env?.VITE_TRANSPORT === "axios" ||
+    viteEnv?.VITE_TRANSPORT === "axios" ||
     (typeof process !== "undefined" && process.env?.TRANSPORT === "axios")
   );
 }
@@ -64,10 +65,7 @@ export type {
 // itself isn't aliased — only downstream imports of `../http-client` are). So
 // to get the axios client we reach for the explicit `http-client/axios` subpath.
 export async function getHttpClient() {
-  const subpath =
-    typeof process !== "undefined" && process.env?.TRANSPORT === "axios"
-      ? "/http-client/axios"
-      : "/http-client";
+  const subpath = isAxiosTransport() ? "/http-client/axios" : "/http-client";
   const httpClientModule = await import(`${getLibPath()}${subpath}`);
   return httpClientModule.httpClient;
 }

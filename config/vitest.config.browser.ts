@@ -88,6 +88,7 @@ export default defineConfig({
       "base32.js",
       "sha.js",
       "buffer",
+      "commander",
     ],
   },
 });
