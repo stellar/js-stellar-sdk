@@ -46,16 +46,16 @@ From the repository root:
 
 ```bash
 # Run all e2e tests
-yarn test:e2e
+pnpm run test:e2e
 
 # Run with coverage
-yarn test:e2e
+pnpm run test:e2e
 
 # Run without eval (stricter CSP mode)
-yarn test:e2e:noeval
+pnpm run test:e2e:noeval
 
 # Update snapshots (when binding changes are expected)
-yarn test:e2e -- --update
+pnpm run test:e2e -- --update
 ```
 
 The test runner will automatically:

@@ -34,6 +34,7 @@ XDR_FILES_LOCAL_NEXT=$(addprefix xdr/next/,$(XDR_FILES_NEXT))
 
 XDRGEN_COMMIT=master
 DTSXDR_COMMIT=master
+PNPM_VERSION=10.28.0
 
 all: generate
 
@@ -60,23 +61,27 @@ src/base/generated/next_generated.js: $(XDR_FILES_LOCAL_NEXT)
 types/curr.d.ts: src/base/generated/curr_generated.js
 	docker run -it --rm -v $$PWD:/wd -w / --entrypoint /bin/sh node:alpine -c '\
 		apk add --update git && \
+		corepack enable && \
+		corepack prepare pnpm@$(PNPM_VERSION) --activate && \
 		git clone --depth 1 https://github.com/stellar/dts-xdr -b $(DTSXDR_COMMIT) --single-branch && \
 		cd /dts-xdr && \
-		yarn install --network-concurrency 1 && \
-		OUT=/wd/$@ npx jscodeshift -t src/transform.js /wd/$< && \
+		pnpm install && \
+		OUT=/wd/$@ pnpm exec jscodeshift -t src/transform.js /wd/$< && \
 		cd /wd && \
-		yarn run prettier --write /wd/$@ \
+		pnpm exec prettier --write /wd/$@ \
 		'
 
 types/next.d.ts: src/base/generated/next_generated.js
 	docker run -it --rm -v $$PWD:/wd -w / --entrypoint /bin/sh node:alpine -c '\
 		apk add --update git && \
+		corepack enable && \
+		corepack prepare pnpm@$(PNPM_VERSION) --activate && \
 		git clone --depth 1 https://github.com/stellar/dts-xdr -b $(DTSXDR_COMMIT) --single-branch && \
 		cd /dts-xdr && \
-		yarn install --network-concurrency 1 && \
-		OUT=/wd/$@ npx jscodeshift -t src/transform.js /wd/$< && \
+		pnpm install && \
+		OUT=/wd/$@ pnpm exec jscodeshift -t src/transform.js /wd/$< && \
 		cd /wd && \
-		yarn run prettier --write /wd/$@ \
+		pnpm exec prettier --write /wd/$@ \
 		'
 
 clean:

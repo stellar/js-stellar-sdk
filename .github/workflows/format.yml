@@ -16,17 +16,20 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
 
-      # Workaround for some `yarn` nonsense, see:
-      # https://github.com/yarnpkg/yarn/issues/6312#issuecomment-429685210
+      - name: Enable Corepack
+        run: corepack enable
+
       - name: Install Dependencies
-        run: yarn install --network-concurrency 1
+        run: pnpm install --frozen-lockfile
 
       - name: Run Linter Checks
         run: |
-          yarn fmt
+          pnpm run fmt
           if ! git diff-index --quiet HEAD; then
-            echo "::error::Formatting issues detected. Please run 'yarn fmt' locally and commit the changes."
+            echo "::error::Formatting issues detected. Please run 'pnpm run fmt' locally and commit the changes."
             git diff --stat
             git diff
             exit 1

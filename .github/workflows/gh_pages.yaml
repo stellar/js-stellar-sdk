@@ -22,12 +22,17 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20.x'
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Enable Corepack
+        run: corepack enable
 
       - name: Install Dependencies
-        run: yarn install
+        run: pnpm install --frozen-lockfile
 
       - name: Build
-        run: yarn build:prod
+        run: pnpm run build:prod
 
       - name: Checkout GH pages
         uses: actions/checkout@v4
@@ -38,7 +43,7 @@ jobs:
 
       - name: Generate JS docs
         continue-on-error: true
-        run: yarn docs
+        run: pnpm run docs
 
       - name: Publish JS docs
         run: |
