@@ -11,13 +11,15 @@ import type * as StellarSdkTypes from "../../lib/esm/index.js";
 
 type StellarSdkModule = typeof StellarSdkTypes;
 
-// Same lib in browser and Node. In Node we honour TRANSPORT=axios so tests can
-// exercise the axios adapter instead of the default fetch build. In browser
-// Vite resolves the same path from the source tree.
+function isAxiosTransport(): boolean {
+  return (
+    import.meta.env?.VITE_TRANSPORT === "axios" ||
+    (typeof process !== "undefined" && process.env?.TRANSPORT === "axios")
+  );
+}
+
 function getLibPath(): string {
-  return typeof process !== "undefined" && process.env?.TRANSPORT === "axios"
-    ? "../../lib/axios/esm"
-    : "../../lib/esm";
+  return isAxiosTransport() ? "../../lib/axios/esm" : "../../lib/esm";
 }
 
 export async function getStellarSdk(): Promise<StellarSdkModule> {
