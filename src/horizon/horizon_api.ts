@@ -1,4 +1,4 @@
-import type { AssetType, MemoType } from "@stellar/stellar-base";
+import type { AssetType, MemoType } from "../base/index.js";
 
 /* tslint:disable-next-line:no-namespace */
 export namespace HorizonApi {

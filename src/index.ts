@@ -34,4 +34,4 @@ export * as rpc from "./rpc/index.js";
 export * as contract from "./contract/index.js";
 export { BindingGenerator } from "./bindings/index.js";
 // expose classes and functions from stellar-base
-export * from "@stellar/stellar-base";
+export * from "./base/index.js";

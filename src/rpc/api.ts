@@ -1,4 +1,4 @@
-import { Contract, SorobanDataBuilder, xdr } from "@stellar/stellar-base";
+import { Contract, SorobanDataBuilder, xdr } from "../base/index.js";
 
 /* tslint:disable-next-line:no-namespace */
 export namespace Api {

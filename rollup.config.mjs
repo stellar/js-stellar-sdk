@@ -21,10 +21,19 @@ const packageJson = JSON.parse(
 
 const useAxios = process.env.USE_AXIOS === "true";
 
-const externalPackages = new Set([
-  ...Object.keys(packageJson.dependencies ?? {}),
-  ...Object.keys(packageJson.peerDependencies ?? {}),
-]);
+// Bundle these dependencies into the lib output instead of leaving bare
+// imports. `@stellar/js-xdr` ships a webpack UMD bundle as `main`, which
+// hides its named exports from Node ESM's cjs-module-lexer; inlining it
+// at build time sidesteps the interop entirely.
+// TODO: remove this once js-xdr ships an ESM build with proper named exports. Until then, it converts js-xdr's UMD export into a shape rollup can analyze and re-export from our ESM output.
+const inlinedDependencies = new Set(["@stellar/js-xdr"]);
+
+const externalPackages = new Set(
+  [
+    ...Object.keys(packageJson.dependencies ?? {}),
+    ...Object.keys(packageJson.peerDependencies ?? {}),
+  ].filter((name) => !inlinedDependencies.has(name)),
+);
 
 const builtinPackageIds = new Set([
   ...builtinModules,
@@ -104,40 +113,21 @@ function aliasHttpClientToAxios() {
   };
 }
 
-// Browser bundle only: @stellar/stellar-base@15 ships a CJS `lib/index.js`
-// that uses babel's runtime `Object.keys(_mod).forEach(...)` pattern for
-// re-exports, which rollup's commonjs plugin cannot statically analyze.
-// Consequently `export * from "@stellar/stellar-base"` in src/index.ts drops
-// every named export (Keypair, Asset, xdr, ...). To fix this without touching
-// source, we load stellar-base at config time, enumerate its runtime exports,
-// and serve a virtual module with explicit `export { ... }` re-exports
-// whenever `@stellar/stellar-base` is imported.
-// This can be removed once stellar-base is merged into this repo
-async function explicitStellarBaseExports() {
-  const stellarBase = await import("@stellar/stellar-base");
-  const names = Object.keys(stellarBase).filter(
-    (key) => key !== "default" && key !== "__esModule",
-  );
-  const pkgDir = path.dirname(
-    fileURLToPath(import.meta.resolve("@stellar/stellar-base/package.json")),
-  );
-  const realId = path.join(pkgDir, "lib", "index.js");
-  const VIRTUAL_ID = "\0stellar-base-explicit-exports";
-
+// Browser bundle only: rollup-plugin-polyfill-node ships a legacy `buffer-es6`
+// polyfill that lacks BigInt accessors (readBigUInt64BE, writeBigInt64BE, ...).
+// SDK source uses bare `Buffer.from(...)` etc. which our `inject` plugin rewrites
+// into `import { Buffer } from "buffer"`. If polyfill-node resolves that
+// specifier first, `Buffer.from()` returns a legacy buffer instance; js-xdr's
+// `Buffer.isBuffer(t)` duck-types it as a Buffer (it sets `_isBuffer = true`),
+// stores it as `_buffer`, and later `_buffer.readBigUInt64BE(...)` throws
+// `is not a function`. Pin `buffer` (and `node:buffer`) to the real npm package
+// (`buffer@6.0.3+`) before polyfill-node has a chance to intercept.
+function aliasBufferToNpmBuffer() {
   return {
-    name: "explicit-stellar-base-exports",
-    resolveId(source) {
-      if (source === "@stellar/stellar-base") return VIRTUAL_ID;
-      return null;
-    },
-    load(id) {
-      if (id !== VIRTUAL_ID) return null;
-      const spec = JSON.stringify(realId);
-      return [
-        `export { ${names.join(", ")} } from ${spec};`,
-        `import * as __ns from ${spec};`,
-        `export default __ns;`,
-      ].join("\n");
+    name: "alias-buffer-to-npm-buffer",
+    resolveId(source, importer) {
+      if (source !== "buffer" && source !== "node:buffer") return null;
+      return this.resolve("buffer/index.js", importer, { skipSelf: true });
     },
   };
 }
@@ -196,6 +186,16 @@ const libSharedPlugins = [
   // the original relative specifier (e.g. "../http-client/index.js").
   ...(useAxios ? [aliasHttpClientToAxios()] : []),
   resolveJsSourceSpecifier(),
+
+  // TODO: remove this plugin once js-xdr ships an ESM build with proper named exports. Until then, it converts js-xdr's UMD export into a shape rollup can analyze and re-export from our ESM output.
+  // resolve + commonjs are needed to pull `@stellar/js-xdr` into the bundle.
+  // External deps short-circuit before reaching these plugins, so other
+  // dependencies remain bare imports.
+  resolve({
+    extensions: [".ts", ".mjs", ".js", ".json"],
+  }),
+  // TODO: remove this plugin once js-xdr ships an ESM build with proper named exports. Until then, it converts js-xdr's UMD export into a shape rollup can analyze and re-export from our ESM output.
+  commonjs(),
   esbuild({
     sourceMap: true,
     target: "es2022",
@@ -244,7 +244,7 @@ const distBaseName = useAxios ? "stellar-sdk-axios" : "stellar-sdk";
 const distPlugins = [
   ...(useAxios ? [aliasHttpClientToAxios()] : []),
   resolveJsSourceSpecifier(),
-  await explicitStellarBaseExports(),
+  aliasBufferToNpmBuffer(),
   aliasZlibToBrowserifyZlib(),
   resolve({
     browser: true,

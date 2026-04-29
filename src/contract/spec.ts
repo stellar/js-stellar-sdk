@@ -6,7 +6,7 @@ import {
   Address,
   Contract,
   scValToBigInt,
-} from "@stellar/stellar-base";
+} from "../base/index.js";
 import { Ok, Err } from "./rust_result.js";
 import { processSpecEntryStream } from "./utils.js";
 import { specFromWasm } from "./wasm_spec_parser.js";

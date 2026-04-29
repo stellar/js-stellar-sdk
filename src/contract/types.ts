@@ -1,12 +1,6 @@
 /* disable PascalCase naming convention, to avoid breaking change */
 /* eslint-disable @typescript-eslint/naming-convention */
-import {
-  Memo,
-  type MemoType,
-  Operation,
-  Transaction,
-  xdr,
-} from "@stellar/stellar-base";
+import { Transaction, xdr } from "../base/index.js";
 import type { SentTransaction } from "./sent_transaction.js";
 import type { Client } from "./client.js";
 import { Server } from "../rpc/index.js";
@@ -72,9 +66,8 @@ export type Duration = bigint;
 /**
  * A "regular" transaction, as opposed to a FeeBumpTransaction.
  * @memberof module:contract
- * @type {Transaction<Memo<MemoType>, Operation[]>}
  */
-export type Tx = Transaction<Memo<MemoType>, Operation[]>;
+export type Tx = Transaction;
 
 export interface WalletError {
   message: string; // general description message returned to the client app

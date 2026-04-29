@@ -9,11 +9,12 @@ import {
 } from "vitest";
 
 import { serverUrl } from "../../../constants";
-import { StellarSdk } from "../../../test-utils/stellar-sdk-import";
+import { StellarSdk } from "../../../test-utils/stellar-sdk-import.js";
 
 const {
   Account,
   Keypair,
+  Networks,
   rpc,
   SorobanDataBuilder,
   authorizeInvocation,
@@ -23,6 +24,7 @@ const {
 const { Server, parseRawSimulation } = StellarSdk.rpc;
 
 const randomSecret = Keypair.random().secret();
+const networkPassphrase = Networks.TESTNET;
 
 function cloneSimulation(sim: any) {
   return {
@@ -130,9 +132,14 @@ function buildAuthEntry(address: any) {
 
   // do some voodoo to make this return a deterministic auth entry
   const kp = Keypair.fromSecret(randomSecret);
-  return authorizeInvocation(kp, 1, root).then((entry: any) => {
+  return authorizeInvocation({
+    signer: kp,
+    validUntilLedgerSeq: 1,
+    invocation: root,
+    networkPassphrase,
+  }).then((entry: any) => {
     entry.credentials().address().nonce(new xdr.Int64(0xdeadbeef));
-    return authorizeEntry(entry, kp, 1); // overwrites signature w/ above nonce
+    return authorizeEntry(entry, kp, 1, networkPassphrase); // overwrites signature w/ above nonce
   });
 }
 

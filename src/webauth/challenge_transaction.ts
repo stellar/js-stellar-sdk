@@ -11,12 +11,12 @@ import {
   TimeoutInfinite,
   Transaction,
   Networks,
-} from "@stellar/stellar-base";
-import randomBytes from "randombytes";
+} from "../base/index.js";
 import { InvalidChallengeError } from "./errors.js";
 import { gatherTxSigners, verifyTxSignedBy } from "./utils.js";
 import { Utils } from "../utils.js";
 import { ServerApi } from "../horizon/server_api.js";
+import randomBytes from "randombytes";
 
 /**
  * Returns a valid {@link https://stellar.org/protocol/sep-10 | SEP-10}

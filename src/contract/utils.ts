@@ -1,4 +1,4 @@
-import { xdr, cereal, Account } from "@stellar/stellar-base";
+import { xdr, cereal, Account } from "../base/index.js";
 import { Server } from "../rpc/index.js";
 import { type AssembledTransaction } from "./assembled_transaction.js";
 import { NULL_ACCOUNT, type AssembledTransactionOptions } from "./types.js";

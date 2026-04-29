@@ -1,4 +1,4 @@
-import type { AssetType } from "@stellar/stellar-base";
+import type { AssetType } from "../../base/index.js";
 import { HorizonApi } from "../horizon_api.js";
 
 export interface AssetRecord extends HorizonApi.BaseResponse {

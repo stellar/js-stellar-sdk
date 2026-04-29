@@ -10,7 +10,7 @@ import {
   TransactionBuilder,
   authorizeEntry as stellarBaseAuthorizeEntry,
   xdr,
-} from "@stellar/stellar-base";
+} from "../base/index.js";
 import type {
   AssembledTransactionOptions,
   ClientOptions,

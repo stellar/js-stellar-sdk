@@ -1,2 +1,2 @@
 export * from "./index.js";
-export * as StellarBase from "@stellar/stellar-base";
+export * as StellarBase from "../base/index.js";

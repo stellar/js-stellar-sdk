@@ -1,4 +1,4 @@
-import { Asset } from "@stellar/stellar-base";
+import { Asset } from "../base/index.js";
 
 import { CallBuilder } from "./call_builder.js";
 import { ServerApi } from "./server_api.js";

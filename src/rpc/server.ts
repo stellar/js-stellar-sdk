@@ -13,9 +13,9 @@ import {
   nativeToScVal,
   scValToNative,
   xdr,
-} from "@stellar/stellar-base";
+} from "../base/index.js";
 
-import type { TransactionBuilder } from "@stellar/stellar-base";
+import type { TransactionBuilder } from "../base/index.js";
 import type { Config } from "../config.js";
 import { createHttpClient } from "./axios.js";
 import type { Api as FriendbotApi } from "../friendbot/index.js";
