@@ -27,6 +27,6 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           install-script: "yarn install --frozen-lockfile --network-concurrency 1"
           build-script: "build:lib:all"
-          clean-script: "clean"
+          clean-script: "clean:bundle-size"
           pattern: "dist/*.js"
           compression: "none"

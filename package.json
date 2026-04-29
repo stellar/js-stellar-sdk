@@ -89,6 +89,7 @@
     "postbuild:lib": "node config/write-module-type.js lib/cjs commonjs",
     "postbuild:lib:axios": "node config/write-module-type.js lib/axios/cjs commonjs",
     "clean": "rm -rf lib/ dist/ coverage/ .nyc_output/ jsdoc/ test/e2e/.soroban",
+    "clean:bundle-size": "rm -rf node_modules lib/ dist/ coverage/ .nyc_output/ jsdoc/ test/e2e/.soroban",
     "docs": "jsdoc -c ./config/.jsdoc.json",
     "test": "yarn test:node && yarn test:node:axios && yarn test:integration && yarn test:browser",
     "test:all": "yarn test:node && yarn test:node:axios && yarn test:integration && yarn test:browser && yarn test:e2e",
