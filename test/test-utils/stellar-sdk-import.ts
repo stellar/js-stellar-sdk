@@ -1,33 +1,21 @@
 /**
- * Utility for importing StellarSdk with proper TypeScript types in both browser and Node.js environments
- *
- * This file provides a typed import that works in both test environments:
- * - Browser: Uses the global StellarSdk loaded by setup-browser.ts
- * - Node.js: Uses the lib import with proper types
+ * Utility for importing StellarSdk with proper TypeScript types in both browser
+ * and Node.js environments. The actual build under test is selected by Vitest
+ * aliases so the browser does not need dynamic imports during test setup.
  */
 
+import * as sdkUnderTest from "@test/stellar-sdk";
+import { httpClient as httpClientUnderTest } from "@test/http-client";
 import type { xdr } from "../../lib/esm/index.js";
 import type * as StellarSdkTypes from "../../lib/esm/index.js";
 
 type StellarSdkModule = typeof StellarSdkTypes;
 
-function isAxiosTransport(): boolean {
-  const viteEnv = (import.meta as { env?: { VITE_TRANSPORT?: string } }).env;
-  return (
-    viteEnv?.VITE_TRANSPORT === "axios" ||
-    (typeof process !== "undefined" && process.env?.TRANSPORT === "axios")
-  );
-}
-
-function getLibPath(): string {
-  return isAxiosTransport() ? "../../lib/axios/esm" : "../../lib/esm";
-}
+export const StellarSdk = sdkUnderTest as unknown as StellarSdkModule;
 
 export async function getStellarSdk(): Promise<StellarSdkModule> {
-  return (await import(getLibPath())) as unknown as StellarSdkModule;
+  return StellarSdk;
 }
-
-export const StellarSdk = await getStellarSdk();
 
 // Re-export commonly used types for convenience
 export type {
@@ -65,10 +53,8 @@ export type {
 // itself isn't aliased — only downstream imports of `../http-client` are). So
 // to get the axios client we reach for the explicit `http-client/axios` subpath.
 export async function getHttpClient() {
-  const subpath = isAxiosTransport() ? "/http-client/axios" : "/http-client";
-  const httpClientModule = await import(`${getLibPath()}${subpath}`);
-  return httpClientModule.httpClient;
+  return httpClient;
 }
 
 // Export the httpClient instance
-export const httpClient = await getHttpClient();
+export const httpClient = httpClientUnderTest;

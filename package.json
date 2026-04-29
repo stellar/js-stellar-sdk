@@ -96,7 +96,7 @@
     "test:all": "pnpm run test:node && pnpm run test:node:axios && pnpm run test:integration && pnpm run test:browser && pnpm run test:e2e",
     "test:e2e": "./test/e2e/initialize.sh && vitest run --config config/vitest.config.e2e.ts --coverage",
     "test:node": "vitest run test/unit --config config/vitest.config.ts --coverage",
-    "test:node:axios": "cross-env TRANSPORT=axios vitest run test/unit --config config/vitest.config.axios.ts",
+    "test:node:axios": "cross-env TRANSPORT=axios vitest run test/unit --config config/vitest.config.ts",
     "test:e2e:noeval": "NODE_OPTIONS=--disallow-code-generation-from-strings pnpm run test:e2e",
     "test:integration": "vitest run test/integration --config config/vitest.config.ts --coverage",
     "test:browser": "pnpm run build:lib && vitest run --config config/vitest.config.browser.ts test/unit --coverage",

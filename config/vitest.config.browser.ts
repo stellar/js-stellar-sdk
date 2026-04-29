@@ -2,17 +2,27 @@ import { defineConfig } from "vitest/config";
 import { resolve } from "path";
 import { playwright } from "@vitest/browser-playwright";
 
+const libUnderTest =
+  process.env.TRANSPORT === "axios"
+    ? "../lib/axios/esm/index.js"
+    : "../lib/esm/index.js";
+const httpClientUnderTest =
+  process.env.TRANSPORT === "axios"
+    ? "../lib/axios/esm/http-client/axios.js"
+    : "../lib/esm/http-client/index.js";
+
 export default defineConfig({
   test: {
-    env: {
-      VITE_TRANSPORT: process.env.TRANSPORT || "fetch",
-    },
     globals: true,
     environment: "jsdom",
     coverage: {
       provider: "istanbul",
       reporter: ["text", "html", "lcov"],
-      include: ["lib/esm/**/*.js"],
+      include: [
+        process.env.TRANSPORT === "axios"
+          ? "lib/axios/esm/**/*.js"
+          : "lib/esm/**/*.js",
+      ],
       exclude: [
         "test/**",
         "dist/**",
@@ -40,6 +50,8 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": resolve(__dirname, "../src"),
+      "@test/stellar-sdk": resolve(__dirname, libUnderTest),
+      "@test/http-client": resolve(__dirname, httpClientUnderTest),
       // js-xdr ships a `browser` field pointing at a webpack UMD that embeds
       // its own copy of `buffer`. When Vite picks that up, every value js-xdr
       // produces (e.g. xdr struct `_value` fields) becomes an instance of the
