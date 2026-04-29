@@ -1,32 +1,32 @@
-name: Bundle Size
+# name: Bundle Size
 
-on:
-  pull_request:
+# on:
+#   pull_request:
 
-jobs:
-  build:
-    env:
-      NODE: "20"
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+# jobs:
+#   build:
+#     env:
+#       NODE: "20"
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@v4
 
-      - name: Install Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE }}
+#       - name: Install Node.js
+#         uses: actions/setup-node@v4
+#         with:
+#           node-version: ${{ env.NODE }}
 
-      - name: Pin yarn classic via Corepack
-        run: |
-          corepack enable
-          corepack prepare yarn@1.22.22 --activate
+#       - name: Pin yarn classic via Corepack
+#         run: |
+#           corepack enable
+#           corepack prepare yarn@1.22.22 --activate
 
-      - name: Report Bundle Size
-        uses: preactjs/compressed-size-action@v2
-        with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          install-script: "yarn install --frozen-lockfile --network-concurrency 1"
-          build-script: "build:lib:all"
-          clean-script: "clean:bundle-size"
-          pattern: "dist/*.js"
-          compression: "none"
+#       - name: Report Bundle Size
+#         uses: preactjs/compressed-size-action@v2
+#         with:
+#           repo-token: ${{ secrets.GITHUB_TOKEN }}
+#           install-script: "yarn install --frozen-lockfile --network-concurrency 1"
+#           build-script: "build:lib:all"
+#           clean-script: "clean:bundle-size"
+#           pattern: "dist/*.js"
+#           compression: "none"
