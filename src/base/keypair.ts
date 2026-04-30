@@ -1,11 +1,12 @@
-import { ed25519 } from "@noble/curves/ed25519.js";
-
+import * as ed from "@noble/ed25519";
+import { sha512 } from "@noble/hashes/sha2.js";
 import { sign, verify, generate } from "./signing.js";
 import { StrKey } from "./strkey.js";
 import { hash } from "./hashing.js";
 
 import xdr from "./xdr.js";
 
+ed.hashes.sha512 = sha512;
 /**
  * `Keypair` represents public (and secret) keys of the account.
  *
@@ -124,7 +125,7 @@ export class Keypair {
    * Create a random `Keypair` object.
    */
   static random(): Keypair {
-    const { secretKey } = ed25519.keygen();
+    const { secretKey } = ed.keygen();
     return this.fromRawEd25519Seed(Buffer.from(secretKey));
   }
 
