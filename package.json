@@ -189,7 +189,7 @@
     "commander": "^14.0.3",
     "eventsource": "^4.1.0",
     "feaxios": "^0.0.23",
-    "toml": "^3.0.0",
+    "smol-toml": "^1.6.1",
     "uint8array-extras": "^1.5.0",
     "urijs": "^1.19.11"
   },

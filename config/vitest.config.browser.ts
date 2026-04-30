@@ -94,7 +94,7 @@ export default defineConfig({
       "axios",
       "feaxios",
       "eventsource",
-      "toml",
+      "smol-toml",
       "bignumber.js",
       "@noble/curves/ed25519.js",
       "base32.js",
