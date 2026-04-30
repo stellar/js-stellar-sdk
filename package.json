@@ -84,7 +84,7 @@
     "build:lib": "rollup -c",
     "build:lib:axios": "cross-env USE_AXIOS=true rollup -c",
     "build:lib:all": "pnpm run build:lib && pnpm run build:lib:axios",
-    "build:types": "tsc -p config/tsconfig.json && mkdir -p lib/esm/generated && cp src/base/generated/*.d.ts lib/esm/base/generated/",
+    "build:types": "tsc -p tsconfig.json && mkdir -p lib/esm/generated && cp src/base/generated/*.d.ts lib/esm/base/generated/",
     "build:types:axios": "tsc -p config/tsconfig.axios.json",
     "build:types:all": "pnpm run build:types && pnpm run build:types:axios",
     "postbuild:lib": "node config/write-module-type.js lib/cjs commonjs",

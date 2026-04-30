@@ -12,7 +12,7 @@ const gitignorePath = path.resolve(".", ".gitignore");
 
 configs.base.typescript[0].languageOptions.parserOptions.projectService = false;
 configs.base.typescript[0].languageOptions.parserOptions.project = [
-  "./config/tsconfig.json",
+  "./tsconfig.json",
 ];
 
 const javascriptConfig = [
