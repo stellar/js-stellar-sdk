@@ -57,7 +57,7 @@ jobs:
 
     - run: corepack enable
     - run: rustup target add wasm32v1-none
-    - run: pnpm install --frozen-lockfile
+    - run: pnpm install --frozen-lockfile --network-concurrency 1
     - run: pnpm exec playwright install
     - run: pnpm exec playwright install-deps
     - run: pnpm run build:prod

@@ -26,7 +26,7 @@ jobs:
         run: corepack enable
 
       - name: Install Dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --network-concurrency 1
 
       - name: Run Linter Checks
         run: |
