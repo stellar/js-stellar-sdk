@@ -32,12 +32,11 @@ jobs:
           --health-timeout 5s
           --health-retries 50
     steps:
-    - name: Setup pnpm
-      uses: pnpm/action-setup@v4
-        
     - uses: actions/checkout@v4
       with:
         submodules: true
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v4
     - uses: actions/cache@v4
       with:
         path: |

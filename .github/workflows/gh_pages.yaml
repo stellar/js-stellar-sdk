@@ -7,13 +7,13 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        
       - name: Checkout SDK
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
 
       - name: Checkout Base
         uses: actions/checkout@v4
