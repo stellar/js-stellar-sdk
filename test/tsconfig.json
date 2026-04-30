@@ -30,7 +30,9 @@
     "rootDir": "../",
     "baseUrl": "./",
     "paths": {
-      "@/*": ["../src/*"]
+      "@/*": ["../src/*"],
+      "@test/stellar-sdk": ["../lib/esm/index.js"],
+      "@test/http-client": ["../lib/esm/http-client/index.js"]
     },
     "typeRoots": ["../types", "../node_modules/@types"]
   },

@@ -1,6 +1,22 @@
 import { defineConfig } from 'vitest/config'
 import { resolve } from 'path'
 
+const isAxios = process.env.TRANSPORT === 'axios'
+const libUnderTest = isAxios ? '../lib/axios/esm/index.js' : '../lib/esm/index.js'
+const httpClientUnderTest = isAxios
+  ? '../lib/axios/esm/http-client/axios.js'
+  : '../lib/esm/http-client/index.js'
+const coverageInclude = isAxios ? 'lib/axios/esm/**/*.js' : 'lib/esm/**/*.js'
+const coverageExclude = [
+  'test/**',
+  'dist/**',
+  'coverage/**',
+  '**/*.d.ts',
+  'lib/**/*.d.ts',
+  ...(isAxios ? [] : ['lib/axios']),
+  '**/*/browser.js',
+]
+
 export default defineConfig({
   test: {
     globals: true,
@@ -8,8 +24,8 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html', 'lcov'],
-      include: ['lib/esm/**/*.js'],
-      exclude: ['test/**', 'dist/**', 'coverage/**', '**/*.d.ts', 'lib/**/*.d.ts', 'lib/axios', '**/*/browser.js'],
+      include: [coverageInclude],
+      exclude: coverageExclude,
       all: true,
     },
     testTimeout: 20000,
@@ -20,6 +36,8 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(__dirname, '../src'),
+      '@test/stellar-sdk': resolve(__dirname, libUnderTest),
+      '@test/http-client': resolve(__dirname, httpClientUnderTest),
     },
     extensions: ['.ts', '.tsx', '.js', '.jsx', '.json'],
   },

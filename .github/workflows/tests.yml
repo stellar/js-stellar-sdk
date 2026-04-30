@@ -19,30 +19,36 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
 
-      # Workaround for some `yarn` nonsense, see:
-      # https://github.com/yarnpkg/yarn/issues/6312#issuecomment-429685210
+      - name: Enable Corepack
+        run: corepack enable
+
       - name: Install Dependencies
-        run: yarn install --network-concurrency 1
+        run: pnpm install --frozen-lockfile
 
       - name: Install Playwright
-        run: yarn playwright install --with-deps chromium firefox
+        run: pnpm exec playwright install --with-deps chromium firefox
 
       - name: Build
-        run: yarn build:prod
+        run: pnpm run build:prod
 
       - name: Unit Tests
-        run: yarn test:node
+        run: pnpm run test:node
 
       - name: Integration Tests
-        run: yarn test:integration
+        run: pnpm run test:integration
 
       - name: Browser Tests
-        run: yarn test:browser
+        run: pnpm run test:browser
 
       - name: Browser Tests (Axios)
-        run: yarn test:browser:axios
+        run: pnpm run test:browser:axios

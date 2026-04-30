@@ -34,10 +34,12 @@ The library provides:
 
 ## Installation
 
-Using npm or yarn to include `stellar-sdk` in your own project:
+Using npm, pnpm, or yarn to include `stellar-sdk` in your own project:
 
 ```shell
 npm install --save @stellar/stellar-sdk
+# or
+pnpm add @stellar/stellar-sdk
 # or
 yarn add @stellar/stellar-sdk
 ```
@@ -348,14 +350,7 @@ So you want to contribute to the library: welcome! Whether you're working on a f
 git clone https://github.com/stellar/js-stellar-sdk.git
 ```
 
-2. Install dependencies inside js-stellar-sdk folder:
-
-```shell
-cd js-stellar-sdk
-yarn
-```
-
-3. Install Node 20
+2. Install Node 20
 
 Because we support the oldest maintenance version of Node, please install and develop on Node 20 so you don't get surprised when your code works locally but breaks in CI.
 
@@ -363,29 +358,39 @@ Here's how to install `nvm` if you haven't: https://github.com/creationix/nvm
 
 ```shell
 nvm install 20
-
-# if you've never installed 18 before you'll want to re-install yarn
-npm install -g yarn
 ```
 
 If you work on several projects that use different Node versions, you might it helpful to install this automatic version manager: https://github.com/wbyoung/avn
 
-4. Observe the project's code style
+3. Enable Corepack
+
+```shell
+corepack enable
+```
+
+4. Install dependencies inside js-stellar-sdk folder:
+
+```shell
+cd js-stellar-sdk
+pnpm install
+```
+
+5. Observe the project's code style
 
 While you're making changes, make sure to run the linter to catch any linting
 errors (in addition to making sure your text editor supports ESLint) and conform to the project's code style.
 
 ```shell
-yarn fmt
+pnpm run fmt
 ```
 
 ### Building
 You can build the developer version (unoptimized, commented, with source maps, etc.) or the production bundles:
 
 ```shell
-yarn build
+pnpm run build
 # or
-yarn build:prod
+pnpm run build:prod
 ```
 
 ### Testing
@@ -393,18 +398,18 @@ yarn build:prod
 To run all tests:
 
 ```shell
-yarn test
+pnpm run test
 ```
 
 To run a specific set of tests:
 
 ```shell
-yarn test:node
-yarn test:browser
-yarn test:integration
+pnpm run test:node
+pnpm run test:browser
+pnpm run test:integration
 ```
 
-In order to have a faster test loop, these suite-specific commands **do not** build the bundles first (unlike `yarn test`). If you make code changes, you will need to run `yarn build` (or a subset like `yarn build:node` corresponding to the test suite) before running the tests again to see your changes.
+In order to have a faster test loop, these suite-specific commands **do not** build the bundles first (unlike `pnpm run test`). If you make code changes, you will need to run `pnpm run build` before running the tests again to see your changes.
 
 To generate and check the documentation site:
 
@@ -416,7 +421,7 @@ npm i -g serve
 git clone https://github.com/stellar/js-stellar-base
 
 # generate the docs files
-yarn docs
+pnpm run docs
 
 # get these files working in a browser
 cd jsdoc && serve .

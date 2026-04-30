@@ -2,6 +2,7 @@
   "name": "@stellar/stellar-sdk",
   "version": "15.0.1",
   "type": "module",
+  "packageManager": "pnpm@10.28.0",
   "description": "A library for working with the Stellar network, including communication with the Horizon and Soroban RPC servers.",
   "keywords": [
     "stellar"
@@ -78,33 +79,33 @@
   },
   "scripts": {
     "setup": "git config blame.ignoreRevsFile .git-blame-ignore-revs",
-    "build": "cross-env NODE_ENV=development yarn _build",
-    "build:prod": "cross-env NODE_ENV=production yarn _build",
+    "build": "cross-env NODE_ENV=development pnpm run _build",
+    "build:prod": "cross-env NODE_ENV=production pnpm run _build",
     "build:lib": "rollup -c",
     "build:lib:axios": "cross-env USE_AXIOS=true rollup -c",
-    "build:lib:all": "yarn build:lib && yarn build:lib:axios",
+    "build:lib:all": "pnpm run build:lib && pnpm run build:lib:axios",
     "build:types": "tsc -p config/tsconfig.json && mkdir -p lib/esm/generated && cp src/base/generated/*.d.ts lib/esm/base/generated/",
     "build:types:axios": "tsc -p config/tsconfig.axios.json",
-    "build:types:all": "yarn build:types && yarn build:types:axios ",
+    "build:types:all": "pnpm run build:types && pnpm run build:types:axios",
     "postbuild:lib": "node config/write-module-type.js lib/cjs commonjs",
     "postbuild:lib:axios": "node config/write-module-type.js lib/axios/cjs commonjs",
     "clean": "rm -rf lib/ dist/ coverage/ .nyc_output/ jsdoc/ test/e2e/.soroban",
     "clean:bundle-size": "rm -rf node_modules lib/ dist/ coverage/ .nyc_output/ jsdoc/ test/e2e/.soroban",
     "docs": "jsdoc -c ./config/.jsdoc.json",
-    "test": "yarn test:node && yarn test:node:axios && yarn test:integration && yarn test:browser",
-    "test:all": "yarn test:node && yarn test:node:axios && yarn test:integration && yarn test:browser && yarn test:e2e",
+    "test": "pnpm run test:node && pnpm run test:node:axios && pnpm run test:integration && pnpm run test:browser",
+    "test:all": "pnpm run test:node && pnpm run test:node:axios && pnpm run test:integration && pnpm run test:browser && pnpm run test:e2e",
     "test:e2e": "./test/e2e/initialize.sh && vitest run --config config/vitest.config.e2e.ts --coverage",
     "test:node": "vitest run test/unit --config config/vitest.config.ts --coverage",
-    "test:node:axios": "cross-env TRANSPORT=axios vitest run test/unit --config config/vitest.config.axios.ts",
-    "test:e2e:noeval": "NODE_OPTIONS=--disallow-code-generation-from-strings yarn test:e2e",
+    "test:node:axios": "cross-env TRANSPORT=axios vitest run test/unit --config config/vitest.config.ts",
+    "test:e2e:noeval": "NODE_OPTIONS=--disallow-code-generation-from-strings pnpm run test:e2e",
     "test:integration": "vitest run test/integration --config config/vitest.config.ts --coverage",
-    "test:browser": "yarn build:lib && vitest run --config config/vitest.config.browser.ts test/unit --coverage",
-    "test:browser:axios": "yarn build:lib:axios && cross-env TRANSPORT=axios vitest run --config config/vitest.config.browser.ts test/unit",
-    "fmt": "yarn _prettier && yarn eslint src/ --fix",
-    "preversion": "yarn clean && yarn _prettier && yarn build:prod && yarn test",
-    "prepare": "yarn build:prod && yarn setup",
+    "test:browser": "pnpm run build:lib && vitest run --config config/vitest.config.browser.ts test/unit --coverage",
+    "test:browser:axios": "pnpm run build:lib:axios && cross-env TRANSPORT=axios vitest run --config config/vitest.config.browser.ts test/unit",
+    "fmt": "pnpm run _prettier && eslint src/ --fix",
+    "preversion": "pnpm run clean && pnpm run _prettier && pnpm run build:prod && pnpm run test",
+    "prepare": "pnpm run build:prod && pnpm run setup",
     "download-sac-spec": "node scripts/download-sac-spec.js",
-    "_build": "yarn clean && yarn build:lib:all && yarn build:types:all",
+    "_build": "pnpm run clean && pnpm run build:lib:all && pnpm run build:types:all",
     "_nyc": "node node_modules/.bin/nyc --nycrc-path config/.nycrc",
     "_prettier": "prettier --ignore-path config/.prettierignore --write './src/**/*.ts' './test/**/*.{js,ts}'"
   },
@@ -115,7 +116,7 @@
   },
   "lint-staged": {
     "**/*.{js,json,ts}": [
-      "yarn fmt"
+      "pnpm run fmt"
     ]
   },
   "engines": {

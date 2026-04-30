@@ -12,6 +12,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -20,18 +23,23 @@ jobs:
         with:
           node-version: '20.x'
           registry-url: 'https://registry.npmjs.org'
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
 
       - name: Upgrade npm for OIDC trusted publishing
         run: npm install -g npm@^11.5.1
 
+      - name: Enable Corepack
+        run: corepack enable
+
       - name: Install Dependencies
-        run: yarn install
+        run: pnpm install --frozen-lockfile
 
       - name: Install Playwright
-        run: yarn playwright install --with-deps chromium firefox
+        run: pnpm exec playwright install --with-deps chromium firefox
 
       - name: Build, Test, and Package
-        run: yarn preversion
+        run: pnpm run preversion
 
       - name: Publish npm package
         run: npm publish --access public --provenance
