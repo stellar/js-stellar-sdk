@@ -184,7 +184,7 @@
     "@stellar/js-xdr": "4.0.0",
     "axios": "1.15.0",
     "base32.js": "^0.1.0",
-    "bignumber.js": "^9.3.1",
+    "bignumber.js": "^11.0.0",
     "buffer": "^6.0.3",
     "commander": "^14.0.3",
     "eventsource": "^4.1.0",

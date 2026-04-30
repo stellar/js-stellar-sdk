@@ -3,11 +3,23 @@ import BigNumber from "bignumber.js";
 import SDKBigNumber from "../../../../src/base/util/bignumber.js";
 
 describe("bignumber", () => {
-  it("Debug mode has been enabled in the cloned bignumber", () => {
-    expect(SDKBigNumber.DEBUG).toBe(true);
+  it("uses strict parsing in the cloned bignumber", () => {
+    expect(SDKBigNumber.config().STRICT).toBe(true);
+    expect(() => new SDKBigNumber("invalid")).toThrow(
+      "[BigNumber Error] Not a number: invalid",
+    );
   });
 
-  it("Debug mode has been disabled (default setting) in the original bignumber", () => {
-    expect(BigNumber.DEBUG).toBeUndefined();
+  it("is isolated from the original bignumber config", () => {
+    BigNumber.config({ STRICT: false });
+
+    try {
+      expect(new BigNumber("invalid").isNaN()).toBe(true);
+      expect(() => new SDKBigNumber("invalid")).toThrow(
+        "[BigNumber Error] Not a number: invalid",
+      );
+    } finally {
+      BigNumber.config({ STRICT: true });
+    }
   });
 });

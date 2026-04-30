@@ -1,4 +1,5 @@
-import BigNumber from "./util/bignumber.js";
+import CustomBigNumber from "./util/bignumber.js";
+import type { BigNumber } from "./util/bignumber.js";
 
 import { StrKey } from "./strkey.js";
 
@@ -36,7 +37,7 @@ export class Account {
 
     let parsed: BigNumber;
     try {
-      parsed = new BigNumber(sequence);
+      parsed = new CustomBigNumber(sequence);
     } catch {
       throw new Error("sequence is not a valid number");
     }

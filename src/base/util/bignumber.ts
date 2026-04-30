@@ -1,9 +1,7 @@
 import OriginBigNumber from "bignumber.js";
+import type { BigNumber as BigNumberInstance } from "bignumber.js";
 
-const BigNumber = OriginBigNumber.clone();
-
-BigNumber.DEBUG = true; // gives us exceptions on bad constructor values
+const BigNumber = OriginBigNumber.clone({ STRICT: true });
 
 export default BigNumber;
-// eslint-disable-next-line @typescript-eslint/no-use-before-define
-export type { BigNumber };
+export type BigNumber = BigNumberInstance;
