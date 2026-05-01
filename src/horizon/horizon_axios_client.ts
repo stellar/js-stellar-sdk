@@ -46,7 +46,12 @@ export function createHttpClient(headers?: Record<string, string>): HttpClient {
   });
 
   httpClient.interceptors.response.use((response) => {
-    const url = new URL(response.config.url!);
+    const responeUrl = response.config.url;
+    if (!responeUrl) {
+      return response;
+    }
+
+    const url = new URL(responeUrl);
     const port = url.port;
     const hostname = port ? `${url.hostname}:${port}` : url.hostname;
     let serverTime = 0;

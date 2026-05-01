@@ -64,11 +64,8 @@ export class StrictReceivePathCallBuilder extends CallBuilder<
     }
 
     this.url.searchParams.set("destination_amount", destinationAmount);
-
-    if (
-      !destinationAsset.isNative() &&
-      destinationAsset.getIssuer() !== undefined
-    ) {
+    const issuer = destinationAsset.getIssuer();
+    if (!destinationAsset.isNative() && issuer !== undefined) {
       this.url.searchParams.set(
         "destination_asset_type",
         destinationAsset.getAssetType(),
@@ -77,10 +74,7 @@ export class StrictReceivePathCallBuilder extends CallBuilder<
         "destination_asset_code",
         destinationAsset.getCode(),
       );
-      this.url.searchParams.set(
-        "destination_asset_issuer",
-        destinationAsset.getIssuer()!,
-      );
+      this.url.searchParams.set("destination_asset_issuer", issuer);
     } else {
       this.url.searchParams.set("destination_asset_type", "native");
     }

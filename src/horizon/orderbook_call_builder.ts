@@ -26,17 +26,19 @@ export class OrderbookCallBuilder extends CallBuilder<ServerApi.OrderbookRecord>
   ) {
     super(serverUrl, httpClient);
     this.setPath("order_book");
-    if (!selling.isNative()) {
+    const sellingIssuer = selling.getIssuer();
+    if (!selling.isNative() && sellingIssuer !== undefined) {
       this.url.searchParams.set("selling_asset_type", selling.getAssetType());
       this.url.searchParams.set("selling_asset_code", selling.getCode());
-      this.url.searchParams.set("selling_asset_issuer", selling.getIssuer()!);
+      this.url.searchParams.set("selling_asset_issuer", sellingIssuer);
     } else {
       this.url.searchParams.set("selling_asset_type", "native");
     }
-    if (!buying.isNative()) {
+    const buyingIssuer = buying.getIssuer();
+    if (!buying.isNative() && buyingIssuer !== undefined) {
       this.url.searchParams.set("buying_asset_type", buying.getAssetType());
       this.url.searchParams.set("buying_asset_code", buying.getCode());
-      this.url.searchParams.set("buying_asset_issuer", buying.getIssuer()!);
+      this.url.searchParams.set("buying_asset_issuer", buyingIssuer);
     } else {
       this.url.searchParams.set("buying_asset_type", "native");
     }

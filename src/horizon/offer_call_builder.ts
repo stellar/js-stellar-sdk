@@ -58,10 +58,11 @@ export class OfferCallBuilder extends CallBuilder<
    * @returns {OfferCallBuilder} current OfferCallBuilder instance
    */
   public buying(asset: Asset): this {
-    if (!asset.isNative() && asset.getIssuer() !== undefined) {
+    const issuer = asset.getIssuer();
+    if (!asset.isNative() && issuer !== undefined) {
       this.url.searchParams.set("buying_asset_type", asset.getAssetType());
       this.url.searchParams.set("buying_asset_code", asset.getCode());
-      this.url.searchParams.set("buying_asset_issuer", asset.getIssuer()!);
+      this.url.searchParams.set("buying_asset_issuer", issuer);
     } else {
       this.url.searchParams.set("buying_asset_type", "native");
     }
@@ -76,10 +77,11 @@ export class OfferCallBuilder extends CallBuilder<
    * @returns {OfferCallBuilder} current OfferCallBuilder instance
    */
   public selling(asset: Asset): this {
-    if (!asset.isNative() && asset.getIssuer() !== undefined) {
+    const issuer = asset.getIssuer();
+    if (!asset.isNative() && issuer !== undefined) {
       this.url.searchParams.set("selling_asset_type", asset.getAssetType());
       this.url.searchParams.set("selling_asset_code", asset.getCode());
-      this.url.searchParams.set("selling_asset_issuer", asset.getIssuer()!);
+      this.url.searchParams.set("selling_asset_issuer", issuer);
     } else {
       this.url.searchParams.set("selling_asset_type", "native");
     }

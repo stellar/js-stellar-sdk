@@ -42,17 +42,19 @@ export class TradeAggregationCallBuilder extends CallBuilder<
   ) {
     super(serverUrl, httpClient);
     this.setPath("trade_aggregations");
-    if (!base.isNative() && base.getIssuer() !== undefined) {
+    const baseIssuer = base.getIssuer();
+    if (!base.isNative() && baseIssuer !== undefined) {
       this.url.searchParams.set("base_asset_type", base.getAssetType());
       this.url.searchParams.set("base_asset_code", base.getCode());
-      this.url.searchParams.set("base_asset_issuer", base.getIssuer()!);
+      this.url.searchParams.set("base_asset_issuer", baseIssuer);
     } else {
       this.url.searchParams.set("base_asset_type", "native");
     }
-    if (!counter.isNative() && counter.getIssuer() !== undefined) {
+    const counterIssuer = counter.getIssuer();
+    if (!counter.isNative() && counterIssuer !== undefined) {
       this.url.searchParams.set("counter_asset_type", counter.getAssetType());
       this.url.searchParams.set("counter_asset_code", counter.getCode());
-      this.url.searchParams.set("counter_asset_issuer", counter.getIssuer()!);
+      this.url.searchParams.set("counter_asset_issuer", counterIssuer);
     } else {
       this.url.searchParams.set("counter_asset_type", "native");
     }

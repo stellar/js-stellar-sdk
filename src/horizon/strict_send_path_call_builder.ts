@@ -47,19 +47,16 @@ export class StrictSendPathCallBuilder extends CallBuilder<
   ) {
     super(serverUrl, httpClient);
     this.setPath("paths/strict-send");
-
+    const sourceIssuer = sourceAsset.getIssuer();
     if (sourceAsset.isNative()) {
       this.url.searchParams.set("source_asset_type", "native");
-    } else if (sourceAsset.getIssuer() !== undefined) {
+    } else if (sourceIssuer !== undefined) {
       this.url.searchParams.set(
         "source_asset_type",
         sourceAsset.getAssetType(),
       );
       this.url.searchParams.set("source_asset_code", sourceAsset.getCode());
-      this.url.searchParams.set(
-        "source_asset_issuer",
-        sourceAsset.getIssuer()!,
-      );
+      this.url.searchParams.set("source_asset_issuer", sourceIssuer);
     }
 
     this.url.searchParams.set("source_amount", sourceAmount);

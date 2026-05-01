@@ -48,11 +48,8 @@ export class PathCallBuilder extends CallBuilder<
     this.url.searchParams.set("destination_account", destination);
     this.url.searchParams.set("source_account", source);
     this.url.searchParams.set("destination_amount", destinationAmount);
-
-    if (
-      !destinationAsset.isNative() &&
-      destinationAsset.getIssuer() !== undefined
-    ) {
+    const issuer = destinationAsset.getIssuer();
+    if (!destinationAsset.isNative() && issuer !== undefined) {
       this.url.searchParams.set(
         "destination_asset_type",
         destinationAsset.getAssetType(),
@@ -61,10 +58,7 @@ export class PathCallBuilder extends CallBuilder<
         "destination_asset_code",
         destinationAsset.getCode(),
       );
-      this.url.searchParams.set(
-        "destination_asset_issuer",
-        destinationAsset.getIssuer()!,
-      );
+      this.url.searchParams.set("destination_asset_issuer", issuer);
     } else {
       this.url.searchParams.set("destination_asset_type", "native");
     }
