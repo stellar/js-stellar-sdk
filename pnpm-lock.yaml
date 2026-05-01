@@ -38,6 +38,12 @@ importers:
       feaxios:
         specifier: ^0.0.23
         version: 0.0.23
+      smol-toml:
+        specifier: ^1.6.1
+        version: 1.6.1
+      uint8array-extras:
+        specifier: ^1.5.0
+        version: 1.5.0
     devDependencies:
       '@eslint/compat':
         specifier: ^1.4.1
