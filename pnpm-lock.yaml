@@ -44,9 +44,6 @@ importers:
       uint8array-extras:
         specifier: ^1.5.0
         version: 1.5.0
-      urijs:
-        specifier: ^1.19.11
-        version: 1.19.11
     devDependencies:
       '@eslint/compat':
         specifier: ^1.4.1
@@ -84,9 +81,6 @@ importers:
       '@types/sha.js':
         specifier: ^2.4.4
         version: 2.4.4
-      '@types/urijs':
-        specifier: ^1.19.20
-        version: 1.19.26
       '@typescript-eslint/eslint-plugin':
         specifier: ^8.58.0
         version: 8.58.0(@typescript-eslint/parser@8.58.0(eslint@9.39.4)(typescript@5.9.3))(eslint@9.39.4)(typescript@5.9.3)
@@ -1061,9 +1055,6 @@ packages:
 
   '@types/statuses@2.0.6':
     resolution: {integrity: sha512-xMAgYwceFhRA2zY+XbEA7mxYbA093wdiW8Vu6gZPGWy9cmOyU9XesH1tNcEWsKFd5Vzrqx5T3D38PWx1FIIXkA==}
-
-  '@types/urijs@1.19.26':
-    resolution: {integrity: sha512-wkXrVzX5yoqLnndOwFsieJA7oKM8cNkOKJtf/3vVGSUFkWDKZvFHpIl9Pvqb/T9UsawBBFMTTD8xu7sK5MWuvg==}
 
   '@typescript-eslint/eslint-plugin@8.58.0':
     resolution: {integrity: sha512-RLkVSiNuUP1C2ROIWfqX+YcUfLaSnxGE/8M+Y57lopVwg9VTYYfhuz15Yf1IzCKgZj6/rIbYTmJCUSqr76r0Wg==}
@@ -3799,9 +3790,6 @@ packages:
   uri-js@4.4.1:
     resolution: {integrity: sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==}
 
-  urijs@1.19.11:
-    resolution: {integrity: sha512-HXgFDgDommxn5/bIv0cnQZsPhHDA90NPHD6+c/v21U5+Sx5hoP8+dP9IZXBU1gIfvdRfhG8cel9QNPeionfcCQ==}
-
   uuid@8.3.2:
     resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
     hasBin: true
@@ -4792,8 +4780,6 @@ snapshots:
       '@types/node': 25.5.0
 
   '@types/statuses@2.0.6': {}
-
-  '@types/urijs@1.19.26': {}
 
   '@typescript-eslint/eslint-plugin@8.58.0(@typescript-eslint/parser@8.58.0(eslint@9.39.4)(typescript@5.9.3))(eslint@9.39.4)(typescript@5.9.3)':
     dependencies:
@@ -7949,8 +7935,6 @@ snapshots:
   uri-js@4.4.1:
     dependencies:
       punycode: 2.3.1
-
-  urijs@1.19.11: {}
 
   uuid@8.3.2: {}
 

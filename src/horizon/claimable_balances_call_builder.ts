@@ -18,9 +18,9 @@ import type { HttpClient } from "../http-client/index.js";
 export class ClaimableBalanceCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.ClaimableBalanceRecord>
 > {
-  constructor(serverUrl: URI, httpClient: HttpClient) {
+  constructor(serverUrl: URL, httpClient: HttpClient) {
     super(serverUrl, httpClient);
-    this.url.segment("claimable_balances");
+    this.setPath("claimable_balances");
   }
 
   /**
@@ -34,7 +34,7 @@ export class ClaimableBalanceCallBuilder extends CallBuilder<
     claimableBalanceId: string,
   ): CallBuilder<ServerApi.ClaimableBalanceRecord> {
     const builder = new CallBuilder<ServerApi.ClaimableBalanceRecord>(
-      this.url.clone(),
+      new URL(this.url),
       this.httpClient,
     );
     builder.filter.push([claimableBalanceId]);
@@ -49,7 +49,7 @@ export class ClaimableBalanceCallBuilder extends CallBuilder<
    * @returns {ClaimableBalanceCallBuilder} current ClaimableBalanceCallBuilder instance
    */
   public sponsor(sponsor: string): this {
-    this.url.setQuery("sponsor", sponsor);
+    this.url.searchParams.set("sponsor", sponsor);
     return this;
   }
 
@@ -61,7 +61,7 @@ export class ClaimableBalanceCallBuilder extends CallBuilder<
    * @returns {ClaimableBalanceCallBuilder} current ClaimableBalanceCallBuilder instance
    */
   public claimant(claimant: string): this {
-    this.url.setQuery("claimant", claimant);
+    this.url.searchParams.set("claimant", claimant);
     return this;
   }
 
@@ -73,7 +73,7 @@ export class ClaimableBalanceCallBuilder extends CallBuilder<
    * @returns {ClaimableBalanceCallBuilder} current ClaimableBalanceCallBuilder instance
    */
   public asset(asset: Asset): this {
-    this.url.setQuery("asset", asset.toString());
+    this.url.searchParams.set("asset", asset.toString());
     return this;
   }
 }

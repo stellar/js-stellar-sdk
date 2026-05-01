@@ -25,9 +25,9 @@ export class PaymentCallBuilder extends CallBuilder<
     | ServerApi.InvokeHostFunctionOperationRecord
   >
 > {
-  constructor(serverUrl: URI, httpClient: HttpClient) {
+  constructor(serverUrl: URL, httpClient: HttpClient) {
     super(serverUrl, httpClient, "payments");
-    this.url.segment("payments");
+    this.setPath("payments");
   }
 
   /**
@@ -68,7 +68,7 @@ export class PaymentCallBuilder extends CallBuilder<
    * @returns {PaymentCallBuilder} this PaymentCallBuilder instance
    */
   public includeFailed(value: boolean): this {
-    this.url.setQuery("include_failed", value.toString());
+    this.url.searchParams.set("include_failed", value.toString());
     return this;
   }
 }

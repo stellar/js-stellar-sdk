@@ -18,9 +18,9 @@ import type { HttpClient } from "../http-client/index.js";
 export class TransactionCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.TransactionRecord>
 > {
-  constructor(serverUrl: URI, httpClient: HttpClient) {
+  constructor(serverUrl: URL, httpClient: HttpClient) {
     super(serverUrl, httpClient, "transactions");
-    this.url.segment("transactions");
+    this.setPath("transactions");
   }
 
   /**
@@ -33,7 +33,7 @@ export class TransactionCallBuilder extends CallBuilder<
     transactionId: string,
   ): CallBuilder<ServerApi.TransactionRecord> {
     const builder = new CallBuilder<ServerApi.TransactionRecord>(
-      this.url.clone(),
+      new URL(this.url),
       this.httpClient,
     );
     builder.filter.push([transactionId]);
@@ -87,7 +87,7 @@ export class TransactionCallBuilder extends CallBuilder<
    * @returns {TransactionCallBuilder} current TransactionCallBuilder instance
    */
   public includeFailed(value: boolean): this {
-    this.url.setQuery("include_failed", value.toString());
+    this.url.searchParams.set("include_failed", value.toString());
     return this;
   }
 }

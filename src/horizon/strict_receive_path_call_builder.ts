@@ -39,17 +39,17 @@ export class StrictReceivePathCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.PaymentPathRecord>
 > {
   constructor(
-    serverUrl: URI,
+    serverUrl: URL,
     httpClient: HttpClient,
     source: string | Asset[],
     destinationAsset: Asset,
     destinationAmount: string,
   ) {
     super(serverUrl, httpClient);
-    this.url.segment("paths/strict-receive");
+    this.setPath("paths/strict-receive");
 
     if (typeof source === "string") {
-      this.url.setQuery("source_account", source);
+      this.url.searchParams.set("source_account", source);
     } else {
       const assets = source
         .map((asset) => {
@@ -60,23 +60,23 @@ export class StrictReceivePathCallBuilder extends CallBuilder<
           return `${asset.getCode()}:${asset.getIssuer()}`;
         })
         .join(",");
-      this.url.setQuery("source_assets", assets);
+      this.url.searchParams.set("source_assets", assets);
     }
 
-    this.url.setQuery("destination_amount", destinationAmount);
-
-    if (!destinationAsset.isNative()) {
-      this.url.setQuery(
+    this.url.searchParams.set("destination_amount", destinationAmount);
+    const issuer = destinationAsset.getIssuer();
+    if (!destinationAsset.isNative() && issuer !== undefined) {
+      this.url.searchParams.set(
         "destination_asset_type",
         destinationAsset.getAssetType(),
       );
-      this.url.setQuery("destination_asset_code", destinationAsset.getCode());
-      this.url.setQuery(
-        "destination_asset_issuer",
-        destinationAsset.getIssuer(),
+      this.url.searchParams.set(
+        "destination_asset_code",
+        destinationAsset.getCode(),
       );
+      this.url.searchParams.set("destination_asset_issuer", issuer);
     } else {
-      this.url.setQuery("destination_asset_type", "native");
+      this.url.searchParams.set("destination_asset_type", "native");
     }
   }
 }

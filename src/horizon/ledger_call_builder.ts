@@ -17,9 +17,9 @@ import type { HttpClient } from "../http-client/index.js";
 export class LedgerCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.LedgerRecord>
 > {
-  constructor(serverUrl: URI, httpClient: HttpClient) {
+  constructor(serverUrl: URL, httpClient: HttpClient) {
     super(serverUrl, httpClient);
-    this.url.segment("ledgers");
+    this.setPath("ledgers");
   }
 
   /**

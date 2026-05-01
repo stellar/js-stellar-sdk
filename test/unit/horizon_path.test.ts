@@ -48,17 +48,25 @@ SERVER_URLS.forEach((serverUrl) => {
 
       if (method === "get") {
         mockGet.mockImplementation((url: string) => {
-          if (url.includes(serverUrl + endpoint)) {
+          if (url === serverUrl + endpoint) {
             return Promise.resolve(testResult);
           }
-          return Promise.reject(new Error(`Unexpected URL: ${url}`));
+          return Promise.reject(
+            new Error(
+              `Unexpected URL: ${url}, expected: ${serverUrl + endpoint}`,
+            ),
+          );
         });
       } else {
         mockPost.mockImplementation((url: string, data: string) => {
-          if (url.includes(`${serverUrl}/transactions`) && data === postData) {
+          if (url === `${serverUrl}/transactions` && data === postData) {
             return Promise.resolve(testResult);
           }
-          return Promise.reject(new Error(`Unexpected call: ${url}, ${data}`));
+          return Promise.reject(
+            new Error(
+              `Unexpected call: ${url}, ${data}, expected: ${serverUrl}/transactions, ${postData}`,
+            ),
+          );
         });
       }
 
@@ -108,6 +116,18 @@ SERVER_URLS.forEach((serverUrl) => {
         .transaction("fooTransactionId")
         .call();
       expect(result).toEqual(testResult.data);
+    });
+
+    it("server.operations().operation('fooOperationId')", async () => {
+      const testResult = prepareAxiosMock("/operations/fooOperationId");
+      const result = await server
+        .operations()
+        .operation("fooOperationId")
+        .call();
+      expect(result).toEqual(testResult.data);
+      expect(mockGet).toHaveBeenCalledWith(
+        `${serverUrl}/operations/fooOperationId`,
+      );
     });
 
     it("server.transactions().forAccount('fooAccountId')", async () => {

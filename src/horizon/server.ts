@@ -9,7 +9,6 @@ import {
   Transaction,
   xdr,
 } from "../base/index.js";
-import URI from "urijs";
 
 import type { TransactionBuilder } from "../base/index.js";
 import { CallBuilder } from "./call_builder.js";
@@ -79,7 +78,7 @@ export class HorizonServer {
    *
    * @todo Solve `this.serverURL`.
    */
-  public readonly serverURL: URI;
+  public readonly serverURL: URL;
 
   /**
    * HTTP client instance for making requests to Horizon.
@@ -97,7 +96,7 @@ export class HorizonServer {
    */
   public readonly httpClient: HttpClient;
   constructor(serverURL: string, opts: HorizonServer.Options = {}) {
-    this.serverURL = URI(serverURL);
+    this.serverURL = new URL(serverURL);
 
     const allowHttp =
       typeof opts.allowHttp === "undefined"
@@ -121,7 +120,7 @@ export class HorizonServer {
 
     this.httpClient = createHttpClient(customHeaders);
 
-    if (this.serverURL.protocol() !== "https" && !allowHttp) {
+    if (this.serverURL.protocol !== "https:" && !allowHttp) {
       throw new Error("Cannot connect to insecure horizon server");
     }
   }
@@ -159,9 +158,10 @@ export class HorizonServer {
     _isRetry: boolean = false,
   ): Promise<HorizonServer.Timebounds> {
     // httpClient instead of this.ledgers so we can get at them headers
-    const serverKey = this.serverURL.port()
-      ? `${this.serverURL.hostname()}:${this.serverURL.port()}`
-      : this.serverURL.hostname();
+    const serverPort = this.serverURL.port;
+    const serverKey = serverPort
+      ? `${this.serverURL.hostname}:${serverPort}`
+      : this.serverURL.hostname;
     const currentTime = getCurrentServerTime(serverKey);
 
     if (currentTime) {
@@ -338,16 +338,18 @@ export class HorizonServer {
     const tx = encodeURIComponent(
       transaction.toEnvelope().toXDR().toString("base64"),
     );
+    const url = new URL(this.serverURL);
+    url.pathname = url.pathname
+      .split("/")
+      .concat(["transactions"])
+      .filter((value) => value.length > 0)
+      .join("/");
 
     return this.httpClient
-      .post(
-        this.serverURL.clone().segment("transactions").toString(),
-        `tx=${tx}`,
-        {
-          timeout: SUBMIT_TRANSACTION_TIMEOUT,
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        },
-      )
+      .post(url.toString(), `tx=${tx}`, {
+        timeout: SUBMIT_TRANSACTION_TIMEOUT,
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      })
       .then((response) => {
         if (!response.data.result_xdr) {
           return response.data;
@@ -567,13 +569,17 @@ export class HorizonServer {
     const tx = encodeURIComponent(
       transaction.toEnvelope().toXDR().toString("base64"),
     );
+    const url = new URL(this.serverURL);
+    url.pathname = url.pathname
+      .split("/")
+      .concat(["transactions_async"])
+      .filter((value) => value.length > 0)
+      .join("/");
 
     return this.httpClient
-      .post(
-        this.serverURL.clone().segment("transactions_async").toString(),
-        `tx=${tx}`,
-        { headers: { "Content-Type": "application/x-www-form-urlencoded" } },
-      )
+      .post(url.toString(), `tx=${tx}`, {
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      })
       .then((response) => response.data)
       .catch((response) => {
         if (response instanceof Error) {

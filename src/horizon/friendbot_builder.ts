@@ -2,9 +2,9 @@ import { CallBuilder } from "./call_builder.js";
 import type { HttpClient } from "../http-client/index.js";
 
 export class FriendbotBuilder extends CallBuilder<any> {
-  constructor(serverUrl: URI, httpClient: HttpClient, address: string) {
+  constructor(serverUrl: URL, httpClient: HttpClient, address: string) {
     super(serverUrl, httpClient);
-    this.url.segment("friendbot");
-    this.url.setQuery("addr", address);
+    this.setPath("friendbot");
+    this.url.searchParams.set("addr", address);
   }
 }

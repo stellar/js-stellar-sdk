@@ -1,5 +1,3 @@
-import URI from "urijs";
-import URITemplate from "urijs/src/URITemplate.js";
 import { EventSource } from "eventsource";
 
 import {
@@ -12,6 +10,7 @@ import { version } from "./horizon_axios_client.js";
 import type { HttpClient } from "../http-client/index.js";
 import { ServerApi } from "./server_api.js";
 import type { Server } from "../federation/index.js";
+import { expandUriTemplate } from "../utils/url.js";
 
 // Resources which can be included in the Horizon response via the `join`
 // query-param.
@@ -39,7 +38,7 @@ export class CallBuilder<
     | HorizonApi.RootResponse
     | ServerApi.CollectionPage<HorizonApi.BaseResponse>,
 > {
-  protected url: URI;
+  protected url: URL;
 
   public filter: string[][];
 
@@ -50,15 +49,27 @@ export class CallBuilder<
   protected httpClient: HttpClient;
 
   constructor(
-    serverUrl: URI,
+    serverUrl: URL,
     httpClient: HttpClient,
     neighborRoot: string = "",
   ) {
-    this.url = serverUrl.clone();
+    this.url = new URL(serverUrl);
     this.filter = [];
-    this.originalSegments = this.url.segment() || [];
+
+    this.originalSegments = this.url.pathname
+      .split("/")
+      .filter((s) => s.length > 0);
     this.neighborRoot = neighborRoot;
     this.httpClient = httpClient;
+  }
+
+  protected setPath(...segments: string[]): void {
+    const endpointSegments = segments.flatMap((segment) =>
+      segment.split("/").filter((s) => s.length > 0),
+    );
+    this.url.pathname = this.originalSegments
+      .concat(endpointSegments)
+      .join("/");
   }
 
   /**
@@ -106,9 +117,9 @@ export class CallBuilder<
   ): () => void {
     this.checkFilter();
 
-    const streamUrl = this.url.clone();
-    streamUrl.setQuery("X-Client-Name", "js-stellar-sdk");
-    streamUrl.setQuery("X-Client-Version", version);
+    const streamUrl = new URL(this.url);
+    streamUrl.searchParams.set("X-Client-Name", "js-stellar-sdk");
+    streamUrl.searchParams.set("X-Client-Version", version);
 
     // Extract custom app headers from httpClient defaults and add as query params
     // (EventSource doesn't support custom headers, so we use query params)
@@ -126,7 +137,7 @@ export class CallBuilder<
           value = headers[name];
         }
         if (value) {
-          streamUrl.setQuery(name, value);
+          streamUrl.searchParams.set(name, value);
         }
       });
     }
@@ -189,7 +200,7 @@ export class CallBuilder<
           ? this._parseRecord(JSON.parse(message.data))
           : message;
         if (result.paging_token) {
-          streamUrl.setQuery("cursor", result.paging_token);
+          streamUrl.searchParams.set("cursor", result.paging_token);
         }
         clearTimeout(timeout);
         createTimeout();
@@ -230,7 +241,7 @@ export class CallBuilder<
    * @returns {object} current CallBuilder instance
    */
   public cursor(cursor: string): this {
-    this.url.setQuery("cursor", cursor);
+    this.url.searchParams.set("cursor", cursor);
     return this;
   }
 
@@ -241,7 +252,7 @@ export class CallBuilder<
    * @returns {object} current CallBuilder instance
    */
   public limit(recordsNumber: number): this {
-    this.url.setQuery("limit", recordsNumber.toString());
+    this.url.searchParams.set("limit", recordsNumber.toString());
     return this;
   }
 
@@ -251,7 +262,7 @@ export class CallBuilder<
    * @returns {object} current CallBuilder instance
    */
   public order(direction: "asc" | "desc"): this {
-    this.url.setQuery("order", direction);
+    this.url.searchParams.set("order", direction);
     return this;
   }
 
@@ -267,7 +278,7 @@ export class CallBuilder<
    * @returns {object} current CallBuilder instance.
    */
   public join(include: "transactions"): this {
-    this.url.setQuery("join", include);
+    this.url.searchParams.set("join", include);
     return this;
   }
 
@@ -306,7 +317,7 @@ export class CallBuilder<
     if (this.filter.length === 1) {
       // append filters to original segments
       const newSegment = this.originalSegments.concat(this.filter[0]);
-      this.url.segment(newSegment);
+      this.url.pathname = newSegment.join("/");
     }
   }
 
@@ -325,10 +336,9 @@ export class CallBuilder<
       let uri;
 
       if (link.templated) {
-        const template = URITemplate(link.href);
-        uri = URI(template.expand(opts) as any); // TODO: fix upstream types.
+        uri = new URL(expandUriTemplate(link.href, opts), this.url);
       } else {
-        uri = URI(link.href);
+        uri = new URL(link.href, this.url);
       }
 
       const r = await this._sendNormalRequest(uri);
@@ -376,12 +386,13 @@ export class CallBuilder<
     return json;
   }
 
-  private async _sendNormalRequest(initialUrl: URI) {
-    let url = initialUrl;
+  private async _sendNormalRequest(initialUrl: URL) {
+    const url = new URL(initialUrl);
 
     // Always use the configured server's authority and protocol.
     // Horizon returns absolute URLs in _links that would bypass reverse proxies.
-    url = url.authority(this.url.authority()).protocol(this.url.protocol());
+    url.protocol = this.url.protocol;
+    url.host = this.url.host;
 
     return this.httpClient
       .get(url.toString())
@@ -413,11 +424,15 @@ export class CallBuilder<
     return {
       records: json._embedded.records,
       next: async () => {
-        const r = await this._sendNormalRequest(URI(json._links.next.href));
+        const r = await this._sendNormalRequest(
+          new URL(json._links.next.href, this.url),
+        );
         return this._toCollectionPage(r);
       },
       prev: async () => {
-        const r = await this._sendNormalRequest(URI(json._links.prev.href));
+        const r = await this._sendNormalRequest(
+          new URL(json._links.prev.href, this.url),
+        );
         return this._toCollectionPage(r);
       },
     };
