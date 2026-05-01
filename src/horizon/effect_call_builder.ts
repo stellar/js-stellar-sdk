@@ -16,9 +16,9 @@ import type { HttpClient } from "../http-client/index.js";
 export class EffectCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.EffectRecord>
 > {
-  constructor(serverUrl: URI, httpClient: HttpClient) {
+  constructor(serverUrl: URL, httpClient: HttpClient) {
     super(serverUrl, httpClient, "effects");
-    this.url.segment("effects");
+    this.setPath("effects");
   }
 
   /**

@@ -4,7 +4,7 @@ import { StellarSdk } from "../../../test-utils/stellar-sdk-import";
 const { Server } = StellarSdk.rpc;
 const { xdr } = StellarSdk;
 
-const serverUrl = "https://soroban-testnet.stellar.org:443";
+const serverUrl = "https://soroban-testnet.stellar.org";
 
 describe("Server#getLedgers", () => {
   let server: any;

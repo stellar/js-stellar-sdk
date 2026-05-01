@@ -17,9 +17,9 @@ import type { HttpClient } from "../http-client/index.js";
 export class AccountCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.AccountRecord>
 > {
-  constructor(serverUrl: URI, httpClient: HttpClient) {
+  constructor(serverUrl: URL, httpClient: HttpClient) {
     super(serverUrl, httpClient);
-    this.url.segment("accounts");
+    this.setPath("accounts");
   }
 
   /**
@@ -32,7 +32,7 @@ export class AccountCallBuilder extends CallBuilder<
    */
   public accountId(id: string): CallBuilder<ServerApi.AccountRecord> {
     const builder = new CallBuilder<ServerApi.AccountRecord>(
-      this.url.clone(),
+      new URL(this.url),
       this.httpClient,
     );
     builder.filter.push([id]);
@@ -46,7 +46,7 @@ export class AccountCallBuilder extends CallBuilder<
    * @returns {AccountCallBuilder} current AccountCallBuilder instance
    */
   public forSigner(id: string): this {
-    this.url.setQuery("signer", id);
+    this.url.searchParams.set("signer", id);
     return this;
   }
 
@@ -58,7 +58,7 @@ export class AccountCallBuilder extends CallBuilder<
    * @returns {AccountCallBuilder} current AccountCallBuilder instance
    */
   public forAsset(asset: Asset): this {
-    this.url.setQuery("asset", `${asset}`);
+    this.url.searchParams.set("asset", `${asset}`);
     return this;
   }
 
@@ -69,7 +69,7 @@ export class AccountCallBuilder extends CallBuilder<
    * @returns {AccountCallBuilder} current AccountCallBuilder instance
    */
   public sponsor(id: string): this {
-    this.url.setQuery("sponsor", id);
+    this.url.searchParams.set("sponsor", id);
     return this;
   }
 
@@ -80,7 +80,7 @@ export class AccountCallBuilder extends CallBuilder<
    * @returns {AccountCallBuilder} current AccountCallBuilder instance
    */
   public forLiquidityPool(id: string): this {
-    this.url.setQuery("liquidity_pool", id);
+    this.url.searchParams.set("liquidity_pool", id);
     return this;
   }
 }

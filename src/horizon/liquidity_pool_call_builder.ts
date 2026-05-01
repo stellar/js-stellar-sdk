@@ -17,9 +17,9 @@ import type { HttpClient } from "../http-client/index.js";
 export class LiquidityPoolCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.LiquidityPoolRecord>
 > {
-  constructor(serverUrl: URI, httpClient: HttpClient) {
+  constructor(serverUrl: URL, httpClient: HttpClient) {
     super(serverUrl, httpClient);
-    this.url.segment("liquidity_pools");
+    this.setPath("liquidity_pools");
   }
 
   /**
@@ -32,7 +32,7 @@ export class LiquidityPoolCallBuilder extends CallBuilder<
     const assetList: string = assets
       .map((asset: Asset) => asset.toString())
       .join(",");
-    this.url.setQuery("reserves", assetList);
+    this.url.searchParams.set("reserves", assetList);
     return this;
   }
 
@@ -43,7 +43,7 @@ export class LiquidityPoolCallBuilder extends CallBuilder<
    * @returns {LiquidityPoolCallBuilder} current LiquidityPoolCallBuilder instance
    */
   public forAccount(id: string): this {
-    this.url.setQuery("account", id);
+    this.url.searchParams.set("account", id);
     return this;
   }
 
@@ -61,7 +61,7 @@ export class LiquidityPoolCallBuilder extends CallBuilder<
     }
 
     const builder = new CallBuilder<ServerApi.LiquidityPoolRecord>(
-      this.url.clone(),
+      new URL(this.url),
       this.httpClient,
     );
     builder.filter.push([id.toLowerCase()]);

@@ -17,9 +17,9 @@ import type { HttpClient } from "../http-client/index.js";
 export class OperationCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.OperationRecord>
 > {
-  constructor(serverUrl: URI, httpClient: HttpClient) {
+  constructor(serverUrl: URL, httpClient: HttpClient) {
     super(serverUrl, httpClient, "operations");
-    this.url.segment("operations");
+    this.setPath("operations");
   }
 
   /**
@@ -33,7 +33,7 @@ export class OperationCallBuilder extends CallBuilder<
     operationId: string,
   ): CallBuilder<ServerApi.OperationRecord> {
     const builder = new CallBuilder<ServerApi.OperationRecord>(
-      this.url.clone(),
+      new URL(this.url),
       this.httpClient,
     );
     builder.filter.push([operationId]);
@@ -99,7 +99,7 @@ export class OperationCallBuilder extends CallBuilder<
    * @returns {OperationCallBuilder} this OperationCallBuilder instance
    */
   public includeFailed(value: boolean): this {
-    this.url.setQuery("include_failed", value.toString());
+    this.url.searchParams.set("include_failed", value.toString());
     return this;
   }
 }

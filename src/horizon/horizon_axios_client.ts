@@ -1,4 +1,3 @@
-import URI from "urijs";
 import {
   create,
   type HttpClient,
@@ -47,10 +46,9 @@ export function createHttpClient(headers?: Record<string, string>): HttpClient {
   });
 
   httpClient.interceptors.response.use((response) => {
-    const uri = URI(response.config.url!);
-    const hostname = uri.port()
-      ? `${uri.hostname()}:${uri.port()}`
-      : uri.hostname();
+    const url = new URL(response.config.url!);
+    const port = url.port;
+    const hostname = port ? `${url.hostname}:${port}` : url.hostname;
     let serverTime = 0;
     if (response.headers instanceof Headers) {
       const dateHeader = response.headers.get("date");

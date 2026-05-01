@@ -839,7 +839,6 @@ describe("server.js non-transaction tests", () => {
       describe("with options", () => {
         it("requests the correct endpoint", async () => {
           mockGet.mockImplementation((url: string) => {
-            console.log("URL called:", url);
             if (
               url.includes(
                 "https://horizon-live.stellar.org:1337/ledgers/7952722/transactions?cursor=b&limit=1&order=asc",
@@ -3663,7 +3662,7 @@ describe("server.js non-transaction tests", () => {
     });
 
     describe("Regressions", () => {
-      it("offers callBuilder does not pollute Server instance URI #379", async () => {
+      it("offers callBuilder does not pollute Server instance URL #379", async () => {
         mockGet.mockImplementation((url: string) => {
           if (
             url.includes(

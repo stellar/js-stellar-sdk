@@ -39,28 +39,33 @@ export class StrictSendPathCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.PaymentPathRecord>
 > {
   constructor(
-    serverUrl: URI,
+    serverUrl: URL,
     httpClient: HttpClient,
     sourceAsset: Asset,
     sourceAmount: string,
     destination: string | Asset[],
   ) {
     super(serverUrl, httpClient);
-
-    this.url.segment("paths/strict-send");
+    this.setPath("paths/strict-send");
 
     if (sourceAsset.isNative()) {
-      this.url.setQuery("source_asset_type", "native");
-    } else {
-      this.url.setQuery("source_asset_type", sourceAsset.getAssetType());
-      this.url.setQuery("source_asset_code", sourceAsset.getCode());
-      this.url.setQuery("source_asset_issuer", sourceAsset.getIssuer());
+      this.url.searchParams.set("source_asset_type", "native");
+    } else if (sourceAsset.getIssuer() !== undefined) {
+      this.url.searchParams.set(
+        "source_asset_type",
+        sourceAsset.getAssetType(),
+      );
+      this.url.searchParams.set("source_asset_code", sourceAsset.getCode());
+      this.url.searchParams.set(
+        "source_asset_issuer",
+        sourceAsset.getIssuer()!,
+      );
     }
 
-    this.url.setQuery("source_amount", sourceAmount);
+    this.url.searchParams.set("source_amount", sourceAmount);
 
     if (typeof destination === "string") {
-      this.url.setQuery("destination_account", destination);
+      this.url.searchParams.set("destination_account", destination);
     } else {
       const assets = destination
         .map((asset) => {
@@ -72,7 +77,7 @@ export class StrictSendPathCallBuilder extends CallBuilder<
         })
         .join(",");
 
-      this.url.setQuery("destination_assets", assets);
+      this.url.searchParams.set("destination_assets", assets);
     }
   }
 }

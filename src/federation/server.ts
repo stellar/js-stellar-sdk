@@ -1,5 +1,4 @@
 import { StrKey } from "../base/index.js";
-import URI from "urijs";
 
 import { Config } from "../config.js";
 import { BadResponseError } from "../errors/index.js";
@@ -32,7 +31,7 @@ export class FederationServer {
   /**
    * The federation server URL (ex. `https://acme.com/federation`).
    */
-  private readonly serverURL: URI; // TODO: public or private? readonly?
+  private readonly serverURL: URL; // TODO: public or private? readonly?
 
   /**
    * Domain this server represents.
@@ -150,7 +149,7 @@ export class FederationServer {
     opts: Api.Options = {},
   ) {
     // TODO `domain` regexp
-    this.serverURL = URI(serverURL);
+    this.serverURL = new URL(serverURL);
     this.domain = domain;
 
     const allowHttp =
@@ -161,7 +160,7 @@ export class FederationServer {
     this.timeout =
       typeof opts.timeout === "undefined" ? Config.getTimeout() : opts.timeout;
 
-    if (this.serverURL.protocol() !== "https" && !allowHttp) {
+    if (this.serverURL.protocol !== "https:" && !allowHttp) {
       throw new Error("Cannot connect to insecure federation server");
     }
   }
@@ -185,9 +184,10 @@ export class FederationServer {
       }
       stellarAddress = `${address}*${this.domain}`;
     }
-    const url = this.serverURL
-      .clone()
-      .query({ type: "name", q: stellarAddress });
+    const url = new URL(this.serverURL);
+    url.search = "";
+    url.searchParams.set("type", "name");
+    url.searchParams.set("q", stellarAddress);
     return this._sendRequest(url);
   }
 
@@ -201,7 +201,10 @@ export class FederationServer {
    * @throws {BadResponseError} Will throw an error if the server query fails with an improper response.
    */
   public async resolveAccountId(accountId: string): Promise<Api.Record> {
-    const url = this.serverURL.clone().query({ type: "id", q: accountId });
+    const url = new URL(this.serverURL);
+    url.search = "";
+    url.searchParams.set("type", "id");
+    url.searchParams.set("q", accountId);
     return this._sendRequest(url);
   }
 
@@ -217,13 +220,14 @@ export class FederationServer {
   public async resolveTransactionId(
     transactionId: string,
   ): Promise<Api.Record> {
-    const url = this.serverURL
-      .clone()
-      .query({ type: "txid", q: transactionId });
+    const url = new URL(this.serverURL);
+    url.search = "";
+    url.searchParams.set("type", "txid");
+    url.searchParams.set("q", transactionId);
     return this._sendRequest(url);
   }
 
-  private async _sendRequest(url: URI) {
+  private async _sendRequest(url: URL) {
     const timeout = this.timeout;
 
     return httpClient

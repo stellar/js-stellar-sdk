@@ -15,9 +15,9 @@ import type { HttpClient } from "../http-client/index.js";
 export class AssetsCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.AssetRecord>
 > {
-  constructor(serverUrl: URI, httpClient: HttpClient) {
+  constructor(serverUrl: URL, httpClient: HttpClient) {
     super(serverUrl, httpClient);
-    this.url.segment("assets");
+    this.setPath("assets");
   }
 
   /**
@@ -26,7 +26,7 @@ export class AssetsCallBuilder extends CallBuilder<
    * @returns {AssetsCallBuilder} current AssetCallBuilder instance
    */
   public forCode(value: string): AssetsCallBuilder {
-    this.url.setQuery("asset_code", value);
+    this.url.searchParams.set("asset_code", value);
     return this;
   }
 
@@ -36,7 +36,7 @@ export class AssetsCallBuilder extends CallBuilder<
    * @returns {AssetsCallBuilder} current AssetCallBuilder instance
    */
   public forIssuer(value: string): AssetsCallBuilder {
-    this.url.setQuery("asset_issuer", value);
+    this.url.searchParams.set("asset_issuer", value);
     return this;
   }
 }

@@ -1,6 +1,4 @@
 /* tslint:disable:variable-name no-namespace */
-import URI from "urijs";
-
 import {
   Account,
   Address,
@@ -177,7 +175,7 @@ function findCreatedAccountSequenceInTransactionMeta(
  * @see {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods | API reference docs}
  */
 export class RpcServer {
-  public readonly serverURL: URI;
+  public readonly serverURL: URL;
   /**
    * HTTP client instance for making requests to Horizon.
    * Exposes interceptors, defaults, and other configuration options.
@@ -196,11 +194,11 @@ export class RpcServer {
   constructor(serverURL: string, opts: RpcServer.Options = {}) {
     /**
      * RPC Server URL (ex. `http://localhost:8000/soroban/rpc`).
-     * @member {URI}
+     * @member {URL}
      */
-    this.serverURL = URI(serverURL);
+    this.serverURL = new URL(serverURL);
     this.httpClient = createHttpClient(opts.headers);
-    if (this.serverURL.protocol() !== "https" && !opts.allowHttp) {
+    if (this.serverURL.protocol !== "https:" && !opts.allowHttp) {
       throw new Error(
         "Cannot connect to insecure Soroban RPC server if `allowHttp` isn't set",
       );

@@ -79,22 +79,15 @@ export default defineConfig({
   // Pre-bundle CJS deps the SDK pulls in. Without this, Vite lazily optimizes
   // them mid-run when a test first imports them, which triggers an
   // "unexpectedly reloaded" page reload that can leave already-loaded modules
-  // pointing at stale exports (e.g. `urijs.js does not provide an export named
-  // 't'`). Listing them here makes the optimizer pre-build them before tests
-  // start.
+  // pointing at stale exports. Listing them here makes the optimizer pre-build
+  // them before tests start.
   // Pre-bundle every dep the SDK pulls in, including subpaths the optimizer
-  // discovers lazily (e.g. `urijs/src/URITemplate.js`). Without this, Vite
-  // re-optimizes mid-run when a new transitive dep is found, swaps the cache
-  // hash, and ESM modules already loaded in the browser fail with "does not
-  // provide an export named 't'" against the pre-bundled CJS shim. Listing
+  // discovers lazily. Without this, Vite re-optimizes mid-run when a new
+  // transitive dep is found, swaps the cache hash, and ESM modules already
+  // loaded in the browser fail against the pre-bundled CJS shim. Listing
   // everything up front keeps the cache hash stable for the whole run.
   optimizeDeps: {
     include: [
-      "urijs",
-      "urijs/src/URITemplate.js",
-      "urijs/src/IPv6.js",
-      "urijs/src/SecondLevelDomains.js",
-      "urijs/src/punycode.js",
       "@stellar/js-xdr",
       "axios",
       "feaxios",

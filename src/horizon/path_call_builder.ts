@@ -36,7 +36,7 @@ export class PathCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.PaymentPathRecord>
 > {
   constructor(
-    serverUrl: URI,
+    serverUrl: URL,
     httpClient: HttpClient,
     source: string,
     destination: string,
@@ -44,23 +44,29 @@ export class PathCallBuilder extends CallBuilder<
     destinationAmount: string,
   ) {
     super(serverUrl, httpClient);
-    this.url.segment("paths");
-    this.url.setQuery("destination_account", destination);
-    this.url.setQuery("source_account", source);
-    this.url.setQuery("destination_amount", destinationAmount);
+    this.setPath("paths");
+    this.url.searchParams.set("destination_account", destination);
+    this.url.searchParams.set("source_account", source);
+    this.url.searchParams.set("destination_amount", destinationAmount);
 
-    if (!destinationAsset.isNative()) {
-      this.url.setQuery(
+    if (
+      !destinationAsset.isNative() &&
+      destinationAsset.getIssuer() !== undefined
+    ) {
+      this.url.searchParams.set(
         "destination_asset_type",
         destinationAsset.getAssetType(),
       );
-      this.url.setQuery("destination_asset_code", destinationAsset.getCode());
-      this.url.setQuery(
+      this.url.searchParams.set(
+        "destination_asset_code",
+        destinationAsset.getCode(),
+      );
+      this.url.searchParams.set(
         "destination_asset_issuer",
-        destinationAsset.getIssuer(),
+        destinationAsset.getIssuer()!,
       );
     } else {
-      this.url.setQuery("destination_asset_type", "native");
+      this.url.searchParams.set("destination_asset_type", "native");
     }
   }
 }
