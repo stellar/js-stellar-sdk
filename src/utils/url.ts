@@ -7,6 +7,7 @@ function stringifyTemplateValue(value: UrlTemplateValue): string {
 export function expandUriTemplate(
   template: string,
   variables: Record<string, UrlTemplateValue | undefined>,
+  baseUrl?: string | URL,
 ): string {
   const queryNames: string[] = [];
   const withoutQueryTemplate = template.replace(
@@ -27,7 +28,7 @@ export function expandUriTemplate(
     },
   );
 
-  const url = new URL(expanded);
+  const url = new URL(expanded, baseUrl);
   queryNames.forEach((name) => {
     const value = variables[name];
     if (typeof value !== "undefined") {

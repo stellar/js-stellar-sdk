@@ -76,6 +76,18 @@ describe("expandUriTemplate", () => {
     );
   });
 
+  it("expands relative query templates that do not have a base URL", () => {
+    const expanded = expandUriTemplate(
+      "/ledgers/1/effects{?cursor,limit,order}",
+      { limit: 1 },
+      "https://horizon.stellar.org",
+    );
+
+    expect(expanded).toBe(
+      "https://horizon.stellar.org/ledgers/1/effects?limit=1",
+    );
+  });
+
   it("expands Horizon path and query templates", () => {
     const expanded = expandUriTemplate(
       "https://horizon.stellar.org/accounts/{account_id}/transactions{?cursor,limit,order}",
