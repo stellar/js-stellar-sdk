@@ -458,7 +458,6 @@ function createFetchClient(
     ...fetchConfig,
     headers: fetchConfig.headers || {},
   };
-
   // feaxios doesn't declare "type":"module" or ship .d.mts, so TypeScript under
   // nodenext models it as CJS — `import axios from "feaxios"` types as the
   // module namespace with a `.default` hop. At ESM runtime, Node resolves the

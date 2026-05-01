@@ -31,8 +31,8 @@
     "baseUrl": "./",
     "paths": {
       "@/*": ["../src/*"],
-      "@test/stellar-sdk": ["../lib/esm/index.js"],
-      "@test/http-client": ["../lib/esm/http-client/index.js"]
+      "@test/stellar-sdk": ["../src/index.ts"],
+      "@test/http-client": ["../src/http-client/index.ts"]
     },
     "typeRoots": ["../types", "../node_modules/@types"]
   },

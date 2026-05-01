@@ -1,4 +1,4 @@
-import { StellarSdk } from "../test-utils/stellar-sdk-import";
+import * as StellarSdk from "../../src/index.js";
 import { describe, it, expect } from "vitest";
 
 const { BindingGenerator, xdr, contract } = StellarSdk;

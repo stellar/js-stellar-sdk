@@ -9,7 +9,7 @@ import {
 } from "vitest";
 
 import { serverUrl } from "../../../constants";
-import { StellarSdk } from "../../../test-utils/stellar-sdk-import.js";
+import * as StellarSdk from "../../../../src/index.js";
 
 const {
   Account,

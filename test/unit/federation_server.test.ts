@@ -2,7 +2,8 @@
 import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
 import http from "http";
 import { AddressInfo } from "net";
-import { StellarSdk, httpClient } from "../test-utils/stellar-sdk-import";
+import * as StellarSdk from "../../src/index.js";
+import { httpClient } from "@test/http-client";
 
 const { Server, FEDERATION_RESPONSE_MAX_SIZE } = StellarSdk.Federation;
 

@@ -10,7 +10,7 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import http, { IncomingMessage, ServerResponse } from "http";
 import { AddressInfo } from "net";
-import { httpClient } from "../test-utils/stellar-sdk-import";
+import { httpClient } from "@test/http-client";
 
 type RequestRecord = {
   method: string;

@@ -1,12 +1,11 @@
 import { describe, it, expect, beforeAll, assert } from "vitest";
 import spec from "../spec.json";
 import specStream from "../spec_stream.json";
+import * as StellarSdk from "../../../src/index.js";
+import type { Spec } from "../../../src/contract/spec.js";
+import type { xdr } from "../../../src/index.js";
 
-import {
-  StellarSdk,
-  type Spec,
-  type ScSpecTypeDef,
-} from "../../test-utils/stellar-sdk-import";
+type ScSpecTypeDef = xdr.ScSpecTypeDef;
 
 const { xdr, Address, contract } = StellarSdk;
 

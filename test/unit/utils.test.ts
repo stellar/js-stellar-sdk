@@ -1,9 +1,7 @@
 import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
 import { uint8ArrayToBase64 } from "uint8array-extras";
-import {
-  StellarSdk,
-  type TransactionBuilder,
-} from "../test-utils/stellar-sdk-import";
+import * as StellarSdk from "../../src/index.js";
+import type { TransactionBuilderOptions } from "../../src/base/transaction_builder.js";
 
 const { WebAuth } = StellarSdk;
 
@@ -12,7 +10,7 @@ function newClientSigner(key: string, weight: number) {
 }
 
 describe("Utils", () => {
-  let txBuilderOpts: TransactionBuilder.TransactionBuilderOptions;
+  let txBuilderOpts: TransactionBuilderOptions;
 
   beforeEach(() => {
     vi.useFakeTimers({ now: 0 });
