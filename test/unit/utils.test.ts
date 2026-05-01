@@ -1,9 +1,9 @@
 import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
+import { uint8ArrayToBase64 } from "uint8array-extras";
 import {
   StellarSdk,
   type TransactionBuilder,
 } from "../test-utils/stellar-sdk-import";
-import { uint8ArrayToBase64 } from "uint8array-extras";
 
 const { WebAuth } = StellarSdk;
 
