@@ -1,6 +1,7 @@
 /* tslint:disable:variable-name no-namespace */
 
-import BigNumber from "bignumber.js";
+import type { BigNumber } from "../base/util/bignumber.js";
+import CustomBigNumber from "../base/util/bignumber.js";
 import {
   Asset,
   FeeBumpTransaction,
@@ -59,7 +60,7 @@ const STROOPS_IN_LUMEN = 10000000;
 const ACCOUNT_REQUIRES_MEMO = "MQ==";
 
 function getAmountInLumens(amt: BigNumber) {
-  return new BigNumber(amt).div(STROOPS_IN_LUMEN).toString();
+  return new CustomBigNumber(amt).div(STROOPS_IN_LUMEN).toString();
 }
 
 /**
@@ -376,8 +377,8 @@ export class HorizonServer {
 
               hasManageOffer = true;
 
-              let amountBought = new BigNumber(0);
-              let amountSold = new BigNumber(0);
+              let amountBought = new CustomBigNumber(0);
+              let amountSold = new CustomBigNumber(0);
 
               const offerSuccess = result.value().value().success();
 
@@ -411,11 +412,11 @@ export class HorizonServer {
                       );
                   }
 
-                  const claimedOfferAmountBought = new BigNumber(
+                  const claimedOfferAmountBought = new CustomBigNumber(
                     // amountBought is a js-xdr hyper
                     offerClaimed.amountBought().toString(),
                   );
-                  const claimedOfferAmountSold = new BigNumber(
+                  const claimedOfferAmountSold = new CustomBigNumber(
                     // amountBought is a js-xdr hyper
                     offerClaimed.amountSold().toString(),
                   );

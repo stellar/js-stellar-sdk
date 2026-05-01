@@ -2,7 +2,8 @@ import { OperationAttributes } from "../operations/types.js";
 import xdr from "../xdr.js";
 import { best_r } from "./continued_fraction.js";
 import { decodeAddressToMuxedAccount } from "./decode_encode_muxed_account.js";
-import BigNumber from "./bignumber.js";
+import type { BigNumber } from "./bignumber.js";
+import CustomBigNumber from "./bignumber.js";
 export const ONE = 10000000;
 const MAX_INT64 = "9223372036854775807";
 
@@ -69,7 +70,7 @@ export function checkUnsignedIntValue(
  * @param value - the amount as a string
  */
 export function toXDRAmount(value: string): xdr.Int64 {
-  const amount = new BigNumber(value).times(ONE);
+  const amount = new CustomBigNumber(value).times(ONE);
   return xdr.Int64.fromString(amount.toString());
 }
 
@@ -79,7 +80,7 @@ export function toXDRAmount(value: string): xdr.Int64 {
  * @param value - the XDR amount
  */
 export function fromXDRAmount(value: xdr.Int64): string {
-  return new BigNumber(value.toString()).div(ONE).toFixed(7);
+  return new CustomBigNumber(value.toString()).div(ONE).toFixed(7);
 }
 
 /**
@@ -88,8 +89,8 @@ export function fromXDRAmount(value: xdr.Int64): string {
  * @param price - the XDR price object
  */
 export function fromXDRPrice(price: xdr.Price): string {
-  const n = new BigNumber(price.n());
-  return n.div(new BigNumber(price.d())).toString();
+  const n = new CustomBigNumber(price.n());
+  return n.div(new CustomBigNumber(price.d())).toString();
 }
 
 /**
@@ -105,7 +106,7 @@ export function toXDRPrice(
   if (typeof price === "object" && "n" in price && "d" in price) {
     xdrObject = new xdr.Price(price);
   } else {
-    const priceBN = new BigNumber(price);
+    const priceBN = new CustomBigNumber(price);
     if (!priceBN.gt(0) || !priceBN.isFinite()) {
       throw new Error("price must be positive");
     }
@@ -144,7 +145,7 @@ export function isValidAmount(value: unknown, allowZero = false): boolean {
   let amount;
 
   try {
-    amount = new BigNumber(value);
+    amount = new CustomBigNumber(value);
   } catch {
     return false;
   }
@@ -155,7 +156,7 @@ export function isValidAmount(value: unknown, allowZero = false): boolean {
     // < 0
     amount.isNegative() ||
     // > Max value
-    amount.times(ONE).gt(new BigNumber(MAX_INT64).toString()) ||
+    amount.times(ONE).gt(new CustomBigNumber(MAX_INT64).toString()) ||
     // Decimal places (max 7)
     (amount.decimalPlaces() ?? 0) > 7 ||
     // NaN or Infinity

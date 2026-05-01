@@ -1,4 +1,4 @@
-import toml from "toml";
+import { parse } from "smol-toml";
 import { Networks } from "../base/index.js";
 import { httpClient } from "../http-client/index.js";
 
@@ -70,7 +70,7 @@ export class Resolver {
       })
       .then((response) => {
         try {
-          const tomlObject = toml.parse(response.data);
+          const tomlObject = parse(response.data);
           return Promise.resolve(tomlObject);
         } catch (e: any) {
           return Promise.reject(

@@ -1,5 +1,6 @@
 import { UnsignedHyper } from "@stellar/js-xdr";
-import BigNumber from "./util/bignumber.js";
+import CustomBigNumber from "./util/bignumber.js";
+import type { BigNumber } from "./util/bignumber.js";
 import xdr from "./xdr.js";
 
 /**
@@ -153,7 +154,7 @@ export class Memo<T extends MemoType = MemoType> {
 
     let number: BigNumber;
     try {
-      number = new BigNumber(value);
+      number = new CustomBigNumber(value);
     } catch {
       throw error;
     }

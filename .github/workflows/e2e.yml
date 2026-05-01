@@ -32,12 +32,11 @@ jobs:
           --health-timeout 5s
           --health-retries 50
     steps:
-    - name: Setup pnpm
-      uses: pnpm/action-setup@v4
-        
     - uses: actions/checkout@v4
       with:
         submodules: true
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v4
     - uses: actions/cache@v4
       with:
         path: |
@@ -58,7 +57,7 @@ jobs:
 
     - run: corepack enable
     - run: rustup target add wasm32v1-none
-    - run: pnpm install --frozen-lockfile
+    - run: pnpm install --frozen-lockfile --network-concurrency 1
     - run: pnpm exec playwright install
     - run: pnpm exec playwright install-deps
     - run: pnpm run build:prod

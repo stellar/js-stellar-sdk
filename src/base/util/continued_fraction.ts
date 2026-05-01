@@ -1,7 +1,7 @@
-import BigNumber from "./bignumber.js";
-
+import type { BigNumber } from "./bignumber.js";
+import CustomBigNumber from "./bignumber.js";
 const MAX_INT = ((1 << 31) >>> 0) - 1;
-const MAX_INT_BN = new BigNumber(MAX_INT);
+const MAX_INT_BN = new CustomBigNumber(MAX_INT);
 
 /**
  * Calculates and returns the best rational approximation of the given real
@@ -13,12 +13,12 @@ const MAX_INT_BN = new BigNumber(MAX_INT);
 export function best_r(
   rawNumber: BigNumber | number | string,
 ): [number, number] {
-  let number = new BigNumber(rawNumber);
+  let number = new CustomBigNumber(rawNumber);
   let a;
   let f;
   const fractions: [BigNumber, BigNumber][] = [
-    [new BigNumber(0), new BigNumber(1)],
-    [new BigNumber(1), new BigNumber(0)],
+    [new CustomBigNumber(0), new CustomBigNumber(1)],
+    [new CustomBigNumber(1), new CustomBigNumber(0)],
   ];
   let i = 2;
 
@@ -26,7 +26,7 @@ export function best_r(
     if (number.gt(MAX_INT)) {
       break;
     }
-    a = number.integerValue(BigNumber.ROUND_FLOOR);
+    a = number.integerValue(CustomBigNumber.ROUND_FLOOR);
     f = number.minus(a);
     const prev1 = fractions[i - 1];
     const prev2 = fractions[i - 2];
@@ -44,7 +44,7 @@ export function best_r(
     if (f.eq(0)) {
       break;
     }
-    number = new BigNumber(1).div(f);
+    number = new CustomBigNumber(1).div(f);
     i += 1;
   }
   const lastFraction = fractions[fractions.length - 1];
@@ -60,7 +60,7 @@ export function best_r(
     // where 1/value > MAX_INT). Recover by computing a semi-convergent: find
     // the largest coefficient that keeps both n and d within int32 bounds.
     // Skip recovery for genuinely zero input — there is no valid approximation.
-    const input = new BigNumber(rawNumber);
+    const input = new CustomBigNumber(rawNumber);
 
     if (input.isZero()) {
       throw new Error("Couldn't find approximation");
@@ -73,20 +73,20 @@ export function best_r(
       let aMax = MAX_INT_BN;
 
       if (prev1[0].gt(0)) {
-        aMax = BigNumber.min(
+        aMax = CustomBigNumber.min(
           aMax,
           MAX_INT_BN.minus(prev2[0])
             .div(prev1[0])
-            .integerValue(BigNumber.ROUND_FLOOR),
+            .integerValue(CustomBigNumber.ROUND_FLOOR),
         );
       }
 
       if (prev1[1].gt(0)) {
-        aMax = BigNumber.min(
+        aMax = CustomBigNumber.min(
           aMax,
           MAX_INT_BN.minus(prev2[1])
             .div(prev1[1])
-            .integerValue(BigNumber.ROUND_FLOOR),
+            .integerValue(CustomBigNumber.ROUND_FLOOR),
         );
       }
 

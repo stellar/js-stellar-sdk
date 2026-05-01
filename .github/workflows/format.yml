@@ -9,11 +9,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-   
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
 
       - name: Use Node.js 20
         uses: actions/setup-node@v4
@@ -26,7 +26,7 @@ jobs:
         run: corepack enable
 
       - name: Install Dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --network-concurrency 1
 
       - name: Run Linter Checks
         run: |

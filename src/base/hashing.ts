@@ -1,4 +1,4 @@
-import { sha256 } from "sha.js";
+import { sha256 } from "@noble/hashes/sha2.js";
 
 /**
  * Computes the SHA-256 hash of the given data.
@@ -6,15 +6,7 @@ import { sha256 } from "sha.js";
  * @param data - the data to hash
  */
 export function hash(data: Buffer | string): Buffer {
-  // sha256 constructor returns a Hash instance (inferred by TypeScript)
-  const hasher = new sha256();
-
-  // Preserve the current behavior
-  if (typeof data === "string") {
-    hasher.update(data, "utf8");
-  } else {
-    hasher.update(data);
-  }
-
-  return hasher.digest();
+  // Preserve the current UTF-8 string handling while returning a Buffer.
+  const bytes = typeof data === "string" ? Buffer.from(data, "utf8") : data;
+  return Buffer.from(sha256(bytes));
 }

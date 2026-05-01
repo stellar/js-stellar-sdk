@@ -37,6 +37,11 @@ export default defineConfig({
       instances: [{ browser: "chromium" }, { browser: "firefox" }],
       headless: true,
       screenshotFailures: false,
+      // Each browser test file imports the built SDK entrypoint, which fans out
+      // into a large preserved-module graph under lib/esm. Loading many copies
+      // of that graph concurrently has been flaky in Firefox on CI, surfacing
+      // as a generic dynamic import failure for lib/esm/index.js.
+      fileParallelism: false,
     },
     // Run all unit tests in browser
     include: ["test/unit/**/*.test.ts"],
@@ -94,11 +99,11 @@ export default defineConfig({
       "axios",
       "feaxios",
       "eventsource",
-      "toml",
+      "smol-toml",
       "bignumber.js",
-      "@noble/curves/ed25519",
+      "@noble/ed25519",
       "base32.js",
-      "sha.js",
+      "@noble/hashes/sha2.js",
       "buffer",
       "commander",
     ],

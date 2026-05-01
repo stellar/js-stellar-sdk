@@ -1,12 +1,14 @@
-import { ed25519 } from "@noble/curves/ed25519";
+import * as ed from "@noble/ed25519";
+import { sha512 } from "@noble/hashes/sha2.js";
 
+ed.hashes.sha512 = sha512;
 /**
  * Derives an Ed25519 public key from a secret key.
  *
  * @param secretKey - the raw Ed25519 secret key
  */
 export function generate(secretKey: Buffer | Uint8Array): Buffer {
-  return Buffer.from(ed25519.getPublicKey(secretKey));
+  return Buffer.from(ed.getPublicKey(secretKey));
 }
 
 /**
@@ -16,7 +18,7 @@ export function generate(secretKey: Buffer | Uint8Array): Buffer {
  * @param rawSecret - the raw Ed25519 secret key
  */
 export function sign(data: Buffer, rawSecret: Buffer | Uint8Array): Buffer {
-  return Buffer.from(ed25519.sign(Buffer.from(data), rawSecret));
+  return Buffer.from(ed.sign(Buffer.from(data), rawSecret));
 }
 
 /**
@@ -31,7 +33,7 @@ export function verify(
   signature: Buffer,
   rawPublicKey: Buffer | Uint8Array,
 ): boolean {
-  return ed25519.verify(
+  return ed.verify(
     Buffer.from(signature),
     Buffer.from(data),
     Buffer.from(rawPublicKey),

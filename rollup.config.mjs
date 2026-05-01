@@ -199,7 +199,7 @@ const libSharedPlugins = [
   esbuild({
     sourceMap: true,
     target: "es2022",
-    tsconfig: "config/tsconfig.json",
+    tsconfig: "tsconfig.json",
     loaders: {
       ".js": "js",
       ".ts": "ts",
@@ -256,7 +256,7 @@ const distPlugins = [
   esbuild({
     sourceMap: true,
     target: "es2022",
-    tsconfig: "config/tsconfig.json",
+    tsconfig: "tsconfig.json",
     loaders: {
       ".js": "js",
       ".ts": "ts",

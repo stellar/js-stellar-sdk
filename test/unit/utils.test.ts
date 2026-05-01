@@ -1,5 +1,5 @@
 import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
-import randomBytes from "randombytes";
+import { uint8ArrayToBase64 } from "uint8array-extras";
 import {
   StellarSdk,
   type TransactionBuilder,
@@ -406,7 +406,9 @@ describe("Utils", () => {
           StellarSdk.Operation.manageData({
             source: clientMuxedAddress,
             name: "testanchor.stellar.org auth",
-            value: randomBytes(48).toString("base64"),
+            value: uint8ArrayToBase64(
+              crypto.getRandomValues(new Uint8Array(48)),
+            ),
           }),
         )
         .addMemo(StellarSdk.Memo.id("5842698851377328257"))
@@ -439,7 +441,9 @@ describe("Utils", () => {
           StellarSdk.Operation.manageData({
             source: clientKP.publicKey(),
             name: "SDF-test auth",
-            value: randomBytes(48).toString("base64"),
+            value: uint8ArrayToBase64(
+              crypto.getRandomValues(new Uint8Array(48)),
+            ),
           }),
         )
         .setTimeout(30)
@@ -557,7 +561,9 @@ describe("Utils", () => {
         .addOperation(
           StellarSdk.Operation.manageData({
             name: "SDF auth",
-            value: randomBytes(48).toString("base64"),
+            value: uint8ArrayToBase64(
+              crypto.getRandomValues(new Uint8Array(48)),
+            ),
           }),
         )
         .setTimeout(30)
@@ -625,7 +631,9 @@ describe("Utils", () => {
       const account = new StellarSdk.Account(serverKeypair.publicKey(), "-1");
       const now = Math.floor(Date.now() / 1000);
 
-      const value = randomBytes(48).toString("base64");
+      const value = uint8ArrayToBase64(
+        crypto.getRandomValues(new Uint8Array(48)),
+      );
 
       let transaction = new StellarSdk.TransactionBuilder(account, {
         fee: StellarSdk.BASE_FEE,
@@ -683,7 +691,7 @@ describe("Utils", () => {
         .addOperation(
           StellarSdk.Operation.manageData({
             name: "SDF auth",
-            value: randomBytes(64),
+            value: Buffer.from(crypto.getRandomValues(new Uint8Array(64))),
             source: "GBDIT5GUJ7R5BXO3GJHFXJ6AZ5UQK6MNOIDMPQUSMXLIHTUNR2Q5CFNF",
           }),
         )
@@ -781,7 +789,9 @@ describe("Utils", () => {
           StellarSdk.Operation.manageData({
             source: clientKP.publicKey(),
             name: "testanchor.stellar.org auth",
-            value: randomBytes(48).toString("base64"),
+            value: uint8ArrayToBase64(
+              crypto.getRandomValues(new Uint8Array(48)),
+            ),
           }),
         )
         .setTimeout(30)
@@ -823,7 +833,9 @@ describe("Utils", () => {
           StellarSdk.Operation.manageData({
             source: clientKP.publicKey(),
             name: "testanchor.stellar.org auth",
-            value: randomBytes(48).toString("base64"),
+            value: uint8ArrayToBase64(
+              crypto.getRandomValues(new Uint8Array(48)),
+            ),
           }),
         )
         .setTimeout(30)
@@ -865,7 +877,9 @@ describe("Utils", () => {
           StellarSdk.Operation.manageData({
             source: clientKP.publicKey(),
             name: "does.not.match auth",
-            value: randomBytes(48).toString("base64"),
+            value: uint8ArrayToBase64(
+              crypto.getRandomValues(new Uint8Array(48)),
+            ),
           }),
         )
         .setTimeout(30)
@@ -901,7 +915,9 @@ describe("Utils", () => {
           StellarSdk.Operation.manageData({
             source: clientKP.publicKey(),
             name: "does.not.match auth",
-            value: randomBytes(48).toString("base64"),
+            value: uint8ArrayToBase64(
+              crypto.getRandomValues(new Uint8Array(48)),
+            ),
           }),
         )
         .setTimeout(30)
@@ -937,7 +953,9 @@ describe("Utils", () => {
           StellarSdk.Operation.manageData({
             source: clientKP.publicKey(),
             name: "SDF auth",
-            value: randomBytes(48).toString("base64"),
+            value: uint8ArrayToBase64(
+              crypto.getRandomValues(new Uint8Array(48)),
+            ),
           }),
         )
         .addOperation(
@@ -986,7 +1004,9 @@ describe("Utils", () => {
           StellarSdk.Operation.manageData({
             source: clientKP.publicKey(),
             name: "SDF auth",
-            value: randomBytes(48).toString("base64"),
+            value: uint8ArrayToBase64(
+              crypto.getRandomValues(new Uint8Array(48)),
+            ),
           }),
         )
         .addOperation(
@@ -1029,7 +1049,9 @@ describe("Utils", () => {
           StellarSdk.Operation.manageData({
             source: clientKP.publicKey(),
             name: "SDF auth",
-            value: randomBytes(48).toString("base64"),
+            value: uint8ArrayToBase64(
+              crypto.getRandomValues(new Uint8Array(48)),
+            ),
           }),
         )
         .addOperation(
@@ -1071,7 +1093,9 @@ describe("Utils", () => {
           StellarSdk.Operation.manageData({
             source: clientKP.publicKey(),
             name: "testanchor.stellar.org auth",
-            value: randomBytes(48).toString("base64"),
+            value: uint8ArrayToBase64(
+              crypto.getRandomValues(new Uint8Array(48)),
+            ),
           }),
         )
         .addOperation(
@@ -1114,7 +1138,9 @@ describe("Utils", () => {
           StellarSdk.Operation.manageData({
             source: clientKP.publicKey(),
             name: "testanchor.stellar.org auth",
-            value: randomBytes(48).toString("base64"),
+            value: uint8ArrayToBase64(
+              crypto.getRandomValues(new Uint8Array(48)),
+            ),
           }),
         )
         .addOperation(
@@ -1157,7 +1183,9 @@ describe("Utils", () => {
           StellarSdk.Operation.manageData({
             source: clientKP.publicKey(),
             name: "testanchor.stellar.org auth",
-            value: randomBytes(48).toString("base64"),
+            value: uint8ArrayToBase64(
+              crypto.getRandomValues(new Uint8Array(48)),
+            ),
           }),
         )
         .setTimeout(30)
@@ -1199,7 +1227,9 @@ describe("Utils", () => {
           StellarSdk.Operation.manageData({
             source: clientKP.publicKey(),
             name: "testanchor.stellar.org auth",
-            value: randomBytes(48).toString("base64"),
+            value: uint8ArrayToBase64(
+              crypto.getRandomValues(new Uint8Array(48)),
+            ),
           }),
         )
         .addOperation(
@@ -1248,7 +1278,9 @@ describe("Utils", () => {
           StellarSdk.Operation.manageData({
             source: clientKP.publicKey(),
             name: "testanchor.stellar.org auth",
-            value: randomBytes(48).toString("base64"),
+            value: uint8ArrayToBase64(
+              crypto.getRandomValues(new Uint8Array(48)),
+            ),
           }),
         )
         .addOperation(
@@ -1299,7 +1331,9 @@ describe("Utils", () => {
           StellarSdk.Operation.manageData({
             source: clientKP.publicKey(),
             name: "testanchor.stellar.org auth",
-            value: randomBytes(48).toString("base64"),
+            value: uint8ArrayToBase64(
+              crypto.getRandomValues(new Uint8Array(48)),
+            ),
           }),
         )
         .addOperation(
@@ -1344,7 +1378,7 @@ describe("Utils", () => {
       operation = StellarSdk.Operation.manageData({
         source: clientKP1.publicKey(),
         name: "SDF-test auth",
-        value: randomBytes(48).toString("base64"),
+        value: uint8ArrayToBase64(crypto.getRandomValues(new Uint8Array(48))),
       });
 
       txBuilderOpts = {
@@ -1716,7 +1750,7 @@ describe("Utils", () => {
       operation = StellarSdk.Operation.manageData({
         source: clientKP1.publicKey(),
         name: "SDF-test auth",
-        value: randomBytes(48).toString("base64"),
+        value: uint8ArrayToBase64(crypto.getRandomValues(new Uint8Array(48))),
       });
 
       txBuilderOpts = {
@@ -2464,7 +2498,9 @@ describe("Utils", () => {
           StellarSdk.Operation.manageData({
             source: clientKP.publicKey(),
             name: "testanchor.stellar.org auth",
-            value: randomBytes(48).toString("base64"),
+            value: uint8ArrayToBase64(
+              crypto.getRandomValues(new Uint8Array(48)),
+            ),
           }),
         )
         .addOperation(
