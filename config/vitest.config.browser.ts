@@ -1,42 +1,12 @@
 import { defineConfig } from "vitest/config";
-import { resolve } from "path";
 import { playwright } from "@vitest/browser-playwright";
 import packageJson from "../package.json" with { type: "json" };
-
+import { aliasHttpClientToAxiosSource } from "./vitest-utils";
+import { resolve } from "path";
 const isAxios = process.env.TRANSPORT === "axios";
-const sdkUnderTest = "../src/index.ts";
-const httpClientUnderTest = isAxios
-  ? "../src/http-client/axios.ts"
-  : "../src/http-client/index.ts";
-
-function aliasHttpClientToAxiosSource() {
-  return {
-    name: "alias-http-client-to-axios-source",
-    enforce: "pre" as const,
-    resolveId(source: string, importer?: string) {
-      if (
-        !isAxios ||
-        !importer ||
-        !importer.includes("/src/") ||
-        !source.startsWith(".")
-      ) {
-        return null;
-      }
-
-      if (
-        /(^|\/)http-client\/index\.js$/.test(source) ||
-        /(^|\/)http-client$/.test(source)
-      ) {
-        return resolve(__dirname, "../src/http-client/axios.ts");
-      }
-
-      return null;
-    },
-  };
-}
 
 export default defineConfig({
-  plugins: [aliasHttpClientToAxiosSource()],
+  plugins: [aliasHttpClientToAxiosSource(isAxios)],
   test: {
     globals: true,
     environment: "jsdom",
@@ -76,8 +46,6 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": resolve(__dirname, "../src"),
-      "@test/stellar-sdk": resolve(__dirname, sdkUnderTest),
-      "@test/http-client": resolve(__dirname, httpClientUnderTest),
       // js-xdr ships a `browser` field pointing at a webpack UMD that embeds
       // its own copy of `buffer`. When Vite picks that up, every value js-xdr
       // produces (e.g. xdr struct `_value` fields) becomes an instance of the

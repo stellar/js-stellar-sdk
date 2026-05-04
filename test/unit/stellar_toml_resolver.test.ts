@@ -2,7 +2,7 @@ import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
 import http from "http";
 import { AddressInfo } from "net";
 import * as StellarSdk from "../../src/index.js";
-import { httpClient } from "@test/http-client";
+import { httpClient } from "../../src/http-client/index.js";
 
 const { Resolver, STELLAR_TOML_MAX_SIZE } = StellarSdk.StellarToml;
 

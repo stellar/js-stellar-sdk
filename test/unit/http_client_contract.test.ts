@@ -10,7 +10,7 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import http, { IncomingMessage, ServerResponse } from "http";
 import { AddressInfo } from "net";
-import { httpClient } from "@test/http-client";
+import { httpClient } from "../../src/http-client/index.js";
 
 type RequestRecord = {
   method: string;
