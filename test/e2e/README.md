@@ -4,7 +4,6 @@ End-to-end tests for the Stellar JavaScript SDK, testing contract interactions a
 
 ## Prerequisites
 
-- [Node.js](https://nodejs.org/) (see `.nvmrc` for version)
 - [Rust](https://www.rust-lang.org/tools/install) with the `wasm32v1-none` target
 - A running Stellar RPC node (local or remote)
 

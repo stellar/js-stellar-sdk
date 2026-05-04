@@ -2,6 +2,7 @@
   "name": "@stellar/stellar-sdk",
   "version": "15.0.1",
   "type": "module",
+  "packageManager": "pnpm@10.28.0",
   "description": "A library for working with the Stellar network, including communication with the Horizon and Soroban RPC servers.",
   "keywords": [
     "stellar"
@@ -178,7 +179,6 @@
     "smol-toml": "^1.6.1",
     "uint8array-extras": "^1.5.0"
   },
-  "packageManager": "pnpm@10.28.0",
   "pnpm": {
     "minimumReleaseAge": 10080
   },

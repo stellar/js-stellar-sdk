@@ -350,14 +350,14 @@ So you want to contribute to the library: welcome! Whether you're working on a f
 git clone https://github.com/stellar/js-stellar-sdk.git
 ```
 
-2. Install Node 20
+2. Install Node
 
-Because we support the oldest maintenance version of Node, please install and develop on Node 20 so you don't get surprised when your code works locally but breaks in CI.
+Because we support the oldest maintenance version of Node, please install and develop on the version pinned in [`.nvmrc`](.nvmrc) (currently Node 22) so you don't get surprised when your code works locally but breaks in CI.
 
 Here's how to install `nvm` if you haven't: https://github.com/creationix/nvm
 
 ```shell
-nvm install 20
+nvm install
 ```
 
 If you work on several projects that use different Node versions, you might it helpful to install this automatic version manager: https://github.com/wbyoung/avn
