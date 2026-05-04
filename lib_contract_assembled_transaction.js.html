@@ -351,6 +351,11 @@ class AssembledTransaction {
    */
 
   /**
+   * Stores the original operation from `buildWithOp` for reuse during
+   * automatic state restoration rebuilds.
+   */
+
+  /**
    * The Transaction as it was built with `raw.build()` right before
    * simulation. Once this is set, modifying `raw` will have no effect unless
    * you call `tx.simulate()` again.
@@ -595,6 +600,7 @@ class AssembledTransaction {
    */
   static async buildWithOp(operation, options) {
     const tx = new AssembledTransaction(options);
+    tx.originalOp = operation;
     const account = await (0, _utils.getAccount)(options, tx.server);
     tx.raw = new _stellarBase.TransactionBuilder(account, {
       fee: options.fee ?? _stellarBase.BASE_FEE,
@@ -634,11 +640,12 @@ class AssembledTransaction {
       const result = await this.restoreFootprint(this.simulation.restorePreamble, account);
       if (result.status === _api.Api.GetTransactionStatus.SUCCESS) {
         // need to rebuild the transaction with bumped account sequence number
-        const contract = new _stellarBase.Contract(this.options.contractId);
+        const op = this.originalOp ? this.originalOp : new _stellarBase.Contract(this.options.contractId).call(this.options.method, ...(this.options.args ?? []));
         this.raw = new _stellarBase.TransactionBuilder(account, {
           fee: this.options.fee ?? _stellarBase.BASE_FEE,
           networkPassphrase: this.options.networkPassphrase
-        }).addOperation(contract.call(this.options.method, ...(this.options.args ?? []))).setTimeout(this.options.timeoutInSeconds ?? _types.DEFAULT_TIMEOUT);
+        }).addOperation(op).setTimeout(this.options.timeoutInSeconds ?? _types.DEFAULT_TIMEOUT);
+        delete this.built;
         await this.simulate();
         return this;
       }
@@ -775,22 +782,17 @@ class AssembledTransaction {
     watcher
   } = {}) => {
     if (!this.signed) {
-      // Store the original submit option
-      const originalSubmit = this.options.submit;
-
-      // Temporarily disable submission in signTransaction to prevent double submission
-      if (this.options.submit) {
-        this.options.submit = false;
-      }
-      try {
-        await this.sign({
-          force,
-          signTransaction
-        });
-      } finally {
-        // Restore the original submit option
-        this.options.submit = originalSubmit;
-      }
+      // Wrap signTransaction to disable submit and prevent double submission,
+      // without mutating the shared this.options object
+      const signer = signTransaction || this.options.signTransaction;
+      const wrappedSignTransaction = this.options.submit &amp;&amp; signer ? (tx, opts) => signer(tx, {
+        ...opts,
+        submit: false
+      }) : signTransaction;
+      await this.sign({
+        force,
+        signTransaction: wrappedSignTransaction
+      });
     }
     return this.send(watcher);
   };

@@ -163,7 +163,7 @@ let Durability = exports.Durability = /*#__PURE__*/function (Durability) {
 const DEFAULT_GET_TRANSACTION_TIMEOUT = 30;
 
 /// A strategy that will sleep 1 second each time
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+
 const BasicSleepStrategy = _iter => 1000;
 
 /// A strategy that will sleep 1 second longer on each attempt
@@ -426,9 +426,13 @@ class RpcServer {
         balanceEntry: {
           amount: tl.balance().toString(),
           // Extract actual flags from the coalesced value.
-          authorized: Boolean(tl.flags() &amp; _stellarBase.AuthRequiredFlag),
-          clawback: Boolean(tl.flags() &amp; _stellarBase.AuthClawbackEnabledFlag),
-          revocable: Boolean(tl.flags() &amp; _stellarBase.AuthRevocableFlag)
+          authorized: Boolean(tl.flags() &amp; 0x1),
+          // AUTHORIZED_FLAG
+          clawback: Boolean(tl.flags() &amp; 0x4),
+          // TRUSTLINE_CLAWBACK_ENABLED_FLAG
+          authorizedToMaintainLiabilities: Boolean(tl.flags() &amp; 0x2),
+          // AUTHORIZED_TO_MAINTAIN_LIABILITIES_FLAG
+          revocable: Boolean(tl.flags() &amp; 0x2) // AUTHORIZED_TO_MAINTAIN_LIABILITIES_FLAG (deprecated, will be removed in a future major release)
         }
       };
     } else if (_stellarBase.StrKey.isValidContract(addr)) {
@@ -675,7 +679,7 @@ class RpcServer {
     const maxAttempts = (opts?.attempts ?? 0) &lt; 1 ? DEFAULT_GET_TRANSACTION_TIMEOUT : opts?.attempts ?? DEFAULT_GET_TRANSACTION_TIMEOUT; // "positive and defined user value or default"
 
     let foundInfo;
-    for (let attempt = 1; attempt &lt; maxAttempts; attempt++) {
+    for (let attempt = 1; attempt &lt;= maxAttempts; attempt++) {
       foundInfo = await this.getTransaction(hash);
       if (foundInfo.status !== _api.Api.GetTransactionStatus.NOT_FOUND) {
         return foundInfo;
@@ -869,8 +873,10 @@ class RpcServer {
    *   console.log("protocolVersion:", response.protocolVersion);
    * });
    */
-
   async getLatestLedger() {
+    return this._getLatestLedger().then(_parsers.parseRawLatestLedger);
+  }
+  async _getLatestLedger() {
     return jsonrpc.postObject(this.httpClient, this.serverURL.toString(), "getLatestLedger");
   }
 
@@ -1126,7 +1132,7 @@ class RpcServer {
       return new _stellarBase.Account(account, sequence);
     } catch (error) {
       if (error.response?.status === 400) {
-        if (error.response.detail?.includes("createAccountAlreadyExist")) {
+        if (error.response.data?.detail?.includes("createAccountAlreadyExist")) {
           // Account already exists, load the sequence number
           return this.getAccount(account);
         }

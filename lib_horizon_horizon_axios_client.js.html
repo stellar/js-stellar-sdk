@@ -123,7 +123,7 @@ var _httpClient = require("../http-client");
 function _interopRequireDefault(e) { return e &amp;&amp; e.__esModule ? e : { default: e }; }
 // eslint-disable-next-line @typescript-eslint/naming-convention
 
-const version = exports.version = "15.0.1";
+const version = exports.version = "15.1.0";
 /**
  * keep a local map of server times
  * (export this purely for testing purposes)
@@ -154,7 +154,8 @@ function createHttpClient(headers) {
     }
   });
   httpClient.interceptors.response.use(response => {
-    const hostname = (0, _urijs.default)(response.config.url).hostname();
+    const uri = (0, _urijs.default)(response.config.url);
+    const hostname = uri.port() ? `${uri.hostname()}:${uri.port()}` : uri.hostname();
     let serverTime = 0;
     if (response.headers instanceof Headers) {
       const dateHeader = response.headers.get("date");

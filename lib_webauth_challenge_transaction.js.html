@@ -521,6 +521,9 @@ function verifyChallengeTxSigners(challengeTx, serverAccountID, networkPassphras
     // Remove the client domain public key public key before returning
     signersFound.splice(signersFound.indexOf(clientSigningKey), 1);
   }
+  if (signersFound.length === 0) {
+    throw new _errors.InvalidChallengeError("None of the given signers match the transaction signatures");
+  }
   return signersFound;
 }
 

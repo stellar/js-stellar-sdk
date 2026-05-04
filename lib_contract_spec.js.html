@@ -404,8 +404,8 @@ function typeRef(typeDef) {
       }
     case _stellarBase.xdr.ScSpecType.scSpecTypeResult().value:
       {
-        // throw new Error('Result type not supported');
-        break;
+        const result = typeDef.result();
+        return typeRef(result.okType());
       }
     case _stellarBase.xdr.ScSpecType.scSpecTypeVec().value:
       {
@@ -503,11 +503,11 @@ function structToJsonSchema(udt) {
     properties,
     required
   } = argsAndRequired(fields);
-  properties.additionalProperties = false;
   return {
     description,
     properties,
     required,
+    additionalProperties: false,
     type: "object"
   };
 }
@@ -742,6 +742,11 @@ class Spec {
     }
     const output = outputs[0];
     if (output.switch().value === _stellarBase.xdr.ScSpecType.scSpecTypeResult().value) {
+      if (val.switch().value === _stellarBase.xdr.ScValType.scvError().value) {
+        return new _rust_result.Err({
+          message: val.error().toXDR("base64")
+        });
+      }
       return new _rust_result.Ok(this.scValToNative(val, output.result().okType()));
     }
     return this.scValToNative(val, output);
@@ -897,9 +902,17 @@ class Spec {
         {
           switch (value) {
             case _stellarBase.xdr.ScSpecType.scSpecTypeU32().value:
-              return _stellarBase.xdr.ScVal.scvU32(val);
+              if (BigInt(val) &lt; BigInt(_stellarBase.xdr.Uint32.MIN_VALUE) || BigInt(val) > BigInt(_stellarBase.xdr.Uint32.MAX_VALUE)) {
+                throw new RangeError(`Value ${val} is out of range for U32`);
+              }
+              return _stellarBase.xdr.ScVal.scvU32(Number(val));
             case _stellarBase.xdr.ScSpecType.scSpecTypeI32().value:
-              return _stellarBase.xdr.ScVal.scvI32(val);
+              if (
+              // TODO: remove the `-` cast on the min value once js-xdr fixes the issue where it treats the min value as unsigned
+              BigInt(val) &lt; -BigInt(_stellarBase.xdr.Int32.MIN_VALUE) || BigInt(val) > BigInt(_stellarBase.xdr.Int32.MAX_VALUE)) {
+                throw new RangeError(`Value ${val} is out of range for I32`);
+              }
+              return _stellarBase.xdr.ScVal.scvI32(Number(val));
             case _stellarBase.xdr.ScSpecType.scSpecTypeU64().value:
             case _stellarBase.xdr.ScSpecType.scSpecTypeI64().value:
             case _stellarBase.xdr.ScSpecType.scSpecTypeU128().value:
@@ -1144,11 +1157,11 @@ class Spec {
     }
     const name = vec[0].sym().toString();
     if (vec[0].switch().value !== _stellarBase.xdr.ScValType.scvSymbol().value) {
-      throw new Error(`{vec[0]} is not a symbol`);
+      throw new Error(`${vec[0]} is not a symbol`);
     }
     const entry = udt.cases().find(findCase(name));
     if (!entry) {
-      throw new Error(`failed to find entry ${name} in union {udt.name().toString()}`);
+      throw new Error(`failed to find entry ${name} in union ${udt.name().toString()}`);
     }
     const res = {
       tag: name

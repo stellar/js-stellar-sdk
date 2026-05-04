@@ -242,7 +242,8 @@ class HorizonServer {
    */
   async fetchTimebounds(seconds, _isRetry = false) {
     // httpClient instead of this.ledgers so we can get at them headers
-    const currentTime = (0, _horizon_axios_client.getCurrentServerTime)(this.serverURL.hostname());
+    const serverKey = this.serverURL.port() ? `${this.serverURL.hostname()}:${this.serverURL.port()}` : this.serverURL.hostname();
+    const currentTime = (0, _horizon_axios_client.getCurrentServerTime)(serverKey);
     if (currentTime) {
       return {
         minTime: 0,

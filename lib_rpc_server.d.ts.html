@@ -602,6 +602,7 @@ export declare class RpcServer {
      * });
      */
     getLatestLedger(): Promise&lt;Api.GetLatestLedgerResponse>;
+    _getLatestLedger(): Promise&lt;Api.RawGetLatestLedgerResponse>;
     /**
      * Submit a trial contract invocation to get back return values, expected
      * ledger footprint, expected authorizations, and expected costs.

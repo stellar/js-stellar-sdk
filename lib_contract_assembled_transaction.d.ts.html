@@ -339,6 +339,11 @@ export declare class AssembledTransaction&lt;T> {
      */
     raw?: TransactionBuilder;
     /**
+     * Stores the original operation from `buildWithOp` for reuse during
+     * automatic state restoration rebuilds.
+     */
+    private originalOp?;
+    /**
      * The Transaction as it was built with `raw.build()` right before
      * simulation. Once this is set, modifying `raw` will have no effect unless
      * you call `tx.simulate()` again.

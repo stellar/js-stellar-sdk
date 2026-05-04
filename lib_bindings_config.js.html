@@ -115,8 +115,13 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.ConfigGenerator = void 0;
-var _package = _interopRequireDefault(require("../../package.json"));
-function _interopRequireDefault(e) { return e &amp;&amp; e.__esModule ? e : { default: e }; }
+// The SDK version is baked in at build time via babel-plugin-transform-define.
+// Previously this was `import packageJson from "../../package.json"`, which
+// failed at runtime in deeper build outputs (lib/no-axios, lib/minimal) because
+// the relative path `../../package.json` resolved into the output tree rather
+// than the project root.
+// eslint-disable-next-line @typescript-eslint/naming-convention
+
 /**
  * Generates a complete TypeScript project structure with contract bindings
  */
@@ -153,7 +158,7 @@ class ConfigGenerator {
         build: "tsc"
       },
       dependencies: {
-        "@stellar/stellar-sdk": `^${_package.default.version}`,
+        "@stellar/stellar-sdk": `^${"15.1.0"}`,
         buffer: "6.0.3"
       },
       devDependencies: {

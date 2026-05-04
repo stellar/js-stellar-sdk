@@ -115,6 +115,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.parseRawEvents = parseRawEvents;
+exports.parseRawLatestLedger = parseRawLatestLedger;
 exports.parseRawLedger = parseRawLedger;
 exports.parseRawLedgerEntries = parseRawLedgerEntries;
 exports.parseRawSendTransaction = parseRawSendTransaction;
@@ -279,14 +280,14 @@ function parseSuccessful(sim, partial) {
     minResourceFee: sim.minResourceFee,
     // coalesce 0-or-1-element results[] list into a single result struct
     // with decoded fields if present
-    ...((sim.results?.length ?? 0 > 0) &amp;&amp; {
+    ...((sim.results?.length ?? 0) > 0 &amp;&amp; {
       result: sim.results.map(row => ({
         auth: (row.auth ?? []).map(entry => _stellarBase.xdr.SorobanAuthorizationEntry.fromXDR(entry, "base64")),
         // if return value is missing ("falsy") we coalesce to void
         retval: row.xdr ? _stellarBase.xdr.ScVal.fromXDR(row.xdr, "base64") : _stellarBase.xdr.ScVal.scvVoid()
       }))[0]
     }),
-    ...((sim.stateChanges?.length ?? 0 > 0) &amp;&amp; {
+    ...((sim.stateChanges?.length ?? 0) > 0 &amp;&amp; {
       stateChanges: sim.stateChanges?.map(entryChange => ({
         type: entryChange.type,
         key: _stellarBase.xdr.LedgerKey.fromXDR(entryChange.key, "base64"),
@@ -362,6 +363,29 @@ function parseRawLedger(raw) {
     ledgerCloseTime: raw.ledgerCloseTime,
     metadataXdr,
     headerXdr
+  };
+}
+function parseRawLatestLedger(raw) {
+  const headerXdr = _stellarBase.xdr.LedgerHeader.fromXDR(raw.headerXdr, "base64");
+  const metadataXdr = _stellarBase.xdr.LedgerCloseMeta.fromXDR(raw.metadataXdr, "base64");
+  let missingFields;
+  if (!raw.metadataXdr &amp;&amp; !raw.headerXdr) {
+    missingFields = "metadataXdr and headerXdr";
+  } else if (!raw.metadataXdr) {
+    missingFields = "metadataXdr";
+  } else if (!raw.headerXdr) {
+    missingFields = "headerXdr";
+  }
+  if (missingFields) {
+    throw new TypeError(`invalid getLatestLedger response missing fields: ${missingFields}`);
+  }
+  return {
+    id: raw.id,
+    sequence: raw.sequence,
+    protocolVersion: raw.protocolVersion,
+    closeTime: raw.closeTime,
+    headerXdr,
+    metadataXdr
   };
 }</code></pre>
         </article>

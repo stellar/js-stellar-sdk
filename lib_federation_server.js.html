@@ -121,6 +121,7 @@ var _config = require("../config");
 var _errors = require("../errors");
 var _stellartoml = require("../stellartoml");
 var _httpClient = require("../http-client");
+var _utils = require("./utils");
 function _interopRequireDefault(e) { return e &amp;&amp; e.__esModule ? e : { default: e }; }
 /** @module Federation */
 
@@ -229,6 +230,7 @@ class FederationServer {
    * @throws {Error} Will throw an error if the domain's stellar.toml file does not contain a federation server field.
    */
   static async createForDomain(domain, opts = {}) {
+    (0, _utils.validateDomain)(domain);
     const tomlObject = await _stellartoml.Resolver.resolve(domain, opts);
     if (!tomlObject.FEDERATION_SERVER) {
       return Promise.reject(new Error("stellar.toml does not contain FEDERATION_SERVER field"));
@@ -236,9 +238,9 @@ class FederationServer {
     return new FederationServer(tomlObject.FEDERATION_SERVER, domain, opts);
   }
   constructor(serverURL, domain, opts = {}) {
-    // TODO `domain` regexp
     this.serverURL = (0, _urijs.default)(serverURL);
     this.domain = domain;
+    (0, _utils.validateDomain)(domain);
     const allowHttp = typeof opts.allowHttp === "undefined" ? _config.Config.isAllowHttp() : opts.allowHttp;
     this.timeout = typeof opts.timeout === "undefined" ? _config.Config.getTimeout() : opts.timeout;
     if (this.serverURL.protocol() !== "https" &amp;&amp; !allowHttp) {
@@ -261,7 +263,7 @@ class FederationServer {
       }
       stellarAddress = `${address}*${this.domain}`;
     }
-    const url = this.serverURL.query({
+    const url = this.serverURL.clone().query({
       type: "name",
       q: stellarAddress
     });
@@ -278,7 +280,7 @@ class FederationServer {
    * @throws {BadResponseError} Will throw an error if the server query fails with an improper response.
    */
   async resolveAccountId(accountId) {
-    const url = this.serverURL.query({
+    const url = this.serverURL.clone().query({
       type: "id",
       q: accountId
     });
@@ -295,7 +297,7 @@ class FederationServer {
    * @throws {BadResponseError} Will throw an error if the server query fails with an improper response.
    */
   async resolveTransactionId(transactionId) {
-    const url = this.serverURL.query({
+    const url = this.serverURL.clone().query({
       type: "txid",
       q: transactionId
     });

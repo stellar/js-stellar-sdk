@@ -155,6 +155,7 @@ export declare class AccountResponse {
     readonly operations: ServerApi.CallCollectionFunction&lt;ServerApi.OperationRecord>;
     readonly payments: ServerApi.CallCollectionFunction&lt;ServerApi.PaymentOperationRecord>;
     readonly trades: ServerApi.CallCollectionFunction&lt;ServerApi.TradeRecord>;
+    readonly transactions: ServerApi.CallCollectionFunction&lt;ServerApi.TransactionRecord>;
     private readonly _baseAccount;
     constructor(response: ServerApi.AccountRecord);
     /**
