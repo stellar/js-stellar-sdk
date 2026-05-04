@@ -315,7 +315,7 @@ describe("Can round trip custom types", () => {
   ) {
     const funcSpec = contractSpec.jsonSchema(funcName);
 
-    let args: any[] = [];
+    const args: any[] = [];
     for (let i = 0; i < num; i += 1) {
       const generatedData = generateTestData(funcName, i);
       args.push(generatedData);
