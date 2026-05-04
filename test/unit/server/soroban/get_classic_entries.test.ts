@@ -1,8 +1,8 @@
 import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
-import { StellarSdk } from "../../../test-utils/stellar-sdk-import";
+import * as StellarSdk from "../../../../src/index.js";
 
 import { serverUrl } from "../../../constants";
-import { Api } from "../../../../lib/esm/rpc";
+import { Api } from "../../../../src/rpc/index.js";
 
 const { Asset, Keypair, StrKey, xdr, hash } = StellarSdk;
 const { Server } = StellarSdk.rpc;

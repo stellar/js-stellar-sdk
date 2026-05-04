@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/dot-notation */
 import { describe, it, expect, vi } from "vitest";
-import { CallBuilder } from "../../lib/esm/horizon/call_builder";
-import { httpClient } from "../test-utils/stellar-sdk-import";
+import { CallBuilder } from "../../src/horizon/call_builder.js";
+import { httpClient } from "../../src/http-client/index.js";
 
 describe("CallBuilder functions", () => {
   it("doesn't mutate the constructor passed url argument (it clones it instead)", () => {

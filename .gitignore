@@ -20,3 +20,4 @@ config/tsconfig.tmp.json
 
 .claude/
 .copilot/
+.codex/

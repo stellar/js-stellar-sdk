@@ -11,7 +11,7 @@ import {
 } from "vitest";
 import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
-import { StellarSdk } from "../../../test-utils/stellar-sdk-import";
+import * as StellarSdk from "../../../../src/index.js";
 
 const { Horizon } = StellarSdk;
 const { SERVER_TIME_MAP } = StellarSdk.Horizon;

@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import * as http from "http";
 import * as url from "url";
-import { StellarSdk } from "../test-utils/stellar-sdk-import";
+import * as StellarSdk from "../../src/index.js";
 
 const { Horizon } = StellarSdk;
 const versionPattern = /^[0-9]+\.[0-9]+\.[0-9]+(-[a-z]+(\.[0-9])?)?$/;

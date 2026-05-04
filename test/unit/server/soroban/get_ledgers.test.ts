@@ -1,5 +1,5 @@
 import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
-import { StellarSdk } from "../../../test-utils/stellar-sdk-import";
+import * as StellarSdk from "../../../../src/index.js";
 
 const { Server } = StellarSdk.rpc;
 const { xdr } = StellarSdk;

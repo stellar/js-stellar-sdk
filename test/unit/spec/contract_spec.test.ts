@@ -1,14 +1,8 @@
 import { describe, it, expect, beforeAll, assert } from "vitest";
 import spec from "../spec.json";
 import specStream from "../spec_stream.json";
-
-import {
-  StellarSdk,
-  type Spec,
-  type ScSpecTypeDef,
-} from "../../test-utils/stellar-sdk-import";
-
-const { xdr, Address, contract } = StellarSdk;
+import { xdr, Address, contract } from "../../../src/index.js";
+import type { Spec } from "../../../src/contract/spec.js";
 
 const publicKey = "GCBVOLOM32I7OD5TWZQCIXCXML3TK56MDY7ZMTAILIBQHHKPCVU42XYW";
 const muxedKey =
@@ -299,7 +293,7 @@ describe("Spec constructor", () => {
 });
 
 describe("Can round trip custom types", () => {
-  function getResultType(funcName: string): ScSpecTypeDef {
+  function getResultType(funcName: string): xdr.ScSpecTypeDef {
     const fn = SPEC.findEntry(funcName).value();
     if (!(fn instanceof xdr.ScSpecFunctionV0)) {
       throw new Error("Not a function");
@@ -321,7 +315,7 @@ describe("Can round trip custom types", () => {
   ) {
     const funcSpec = contractSpec.jsonSchema(funcName);
 
-    const args = [];
+    const args: any[] = [];
     for (let i = 0; i < num; i += 1) {
       const generatedData = generateTestData(funcName, i);
       args.push(generatedData);
