@@ -89,8 +89,8 @@
     "build:types:all": "pnpm run build:types && pnpm run build:types:axios",
     "postbuild:lib": "node config/write-module-type.js lib/cjs commonjs",
     "postbuild:lib:axios": "node config/write-module-type.js lib/axios/cjs commonjs",
-    "clean": "rm -rf lib/ dist/ coverage/ .nyc_output/ jsdoc/ test/e2e/.soroban",
-    "clean:bundle-size": "rm -rf node_modules lib/ dist/ coverage/ .nyc_output/ jsdoc/ test/e2e/.soroban",
+    "clean": "rm -rf lib/ dist/ coverage/ jsdoc/ test/e2e/.soroban",
+    "clean:bundle-size": "rm -rf node_modules lib/ dist/ coverage/ jsdoc/ test/e2e/.soroban",
     "docs": "jsdoc -c ./config/.jsdoc.json",
     "test": "pnpm run test:node && pnpm run test:node:axios && pnpm run test:integration && pnpm run test:browser",
     "test:all": "pnpm run test:node && pnpm run test:node:axios && pnpm run test:integration && pnpm run test:browser && pnpm run test:e2e",
@@ -103,16 +103,10 @@
     "test:browser:axios": "pnpm run build:lib:axios && cross-env TRANSPORT=axios vitest run --config config/vitest.config.browser.ts test/unit",
     "fmt": "pnpm run _prettier && eslint src/ --fix",
     "preversion": "pnpm run clean && pnpm run _prettier && pnpm run build:prod && pnpm run test",
-    "prepare": "pnpm run build:prod && pnpm run setup",
+    "prepare": "pnpm run build:prod && pnpm run setup && husky",
     "download-sac-spec": "node scripts/download-sac-spec.js",
     "_build": "pnpm run clean && pnpm run build:lib:all && pnpm run build:types:all",
-    "_nyc": "node node_modules/.bin/nyc --nycrc-path config/.nycrc",
     "_prettier": "prettier --ignore-path config/.prettierignore --write './src/**/*.ts' './test/**/*.{js,ts}'"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
   },
   "lint-staged": {
     "**/*.{js,json,ts}": [
@@ -121,13 +115,6 @@
   },
   "engines": {
     "node": ">=20.0.0"
-  },
-  "nyc": {
-    "instrument": false,
-    "sourceMap": false,
-    "reporter": [
-      "text-summary"
-    ]
   },
   "devDependencies": {
     "@eslint/compat": "^1.4.1",
@@ -168,7 +155,6 @@
     "lint-staged": "^15.5.1",
     "lodash": "^4.17.21",
     "msw": "^2.13.4",
-    "nyc": "^17.0.0",
     "playwright": "^1.58.0",
     "prettier": "^3.8.1",
     "rollup": "^4.44.1",
