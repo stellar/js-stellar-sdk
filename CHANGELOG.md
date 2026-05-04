@@ -6,7 +6,10 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+## [v15.1.0](https://github.com/stellar/js-stellar-sdk/compare/v15.0.1...v15.1.0)
+
 ### Fixed
+* Security: `FederationServer.createForDomain` and the `FederationServer` constructor now validate domains per RFC 1035, rejecting malformed domains before issuing federation or `stellar.toml` requests. Port numbers are also accepted ([#1393](https://github.com/stellar/js-stellar-sdk/pull/1393)).
 * `RpcServer.pollTransaction` off-by-one: the polling loop used `<` instead of `<=`, causing one fewer attempt than configured([#1373](https://github.com/stellar/js-stellar-sdk/pull/1373)).
 * `requestAirdrop` error path: fixed incorrect property access (`error.response.detail` instead of `error.response.data.detail`) when checking for `createAccountAlreadyExist` ([#1373](https://github.com/stellar/js-stellar-sdk/pull/1373)).
 * Operator precedence bug in `parseSuccessful`: `sim.results?.length ?? 0 > 0` was parsed as `?? (0 > 0)`, causing simulation results and state changes to never be included in the parsed response ([#1373](https://github.com/stellar/js-stellar-sdk/pull/1373)).
@@ -15,7 +18,6 @@ A breaking change will get clearly marked in this log.
 * Fixed bigint-to-U32/I32 conversion in `Spec` using `Number(val)` instead of `val as number` (a no-op for bigints) ([#1373](https://github.com/stellar/js-stellar-sdk/pull/1373)).
 * Fixed missing template literal `$` in two `Spec` error messages that were not interpolated ([#1373](https://github.com/stellar/js-stellar-sdk/pull/1373)).
 * WASM custom section parser: when a section was skipped (invalid name length), the offset was not advanced, causing an infinite loop or incorrect parsing of subsequent sections ([#1373](https://github.com/stellar/js-stellar-sdk/pull/1373)).
-* `FederationServer.createForDomain` and the `FederationServer` constructor now validate domains per RFC 1035, rejecting malformed domains; port numbers are also accepted. This may be breaking for callers that previously omitted `domain` or passed an invalid domain ([#1373](https://github.com/stellar/js-stellar-sdk/pull/1373)).
 * `FederationServer` URL mutation: `resolveAddress`, `resolveAccountId`, and `resolveTransactionId` mutated the shared `serverURL` by appending query params on each call. Fixed by cloning the URL before modifying ([#1373](https://github.com/stellar/js-stellar-sdk/pull/1373)).
 * `CallBuilder.stream()` URL mutation: `stream()` mutated the shared `this.url` by adding query params, corrupting the builder for subsequent calls. Fixed by cloning the URL ([#1373](https://github.com/stellar/js-stellar-sdk/pull/1373)).
 * `AssembledTransaction` restore path: when `buildWithOp` was used and automatic state restoration was needed, the rebuild incorrectly reconstructed the operation via `contract.call()` instead of reusing the original operation ([#1373](https://github.com/stellar/js-stellar-sdk/pull/1373)).
@@ -26,17 +28,18 @@ A breaking change will get clearly marked in this log.
 * `AssembledTransaction.simulate` did not clear `this.built` before re-simulating after a state restoration rebuild, causing it to assemble stale transaction data ([#1372](https://github.com/stellar/js-stellar-sdk/pull/1372)).
 * `AssembledTransaction.signAndSend` mutated the shared `this.options.submit` flag to prevent double submission. Replaced with a wrapper around `signTransaction` that injects `submit: false` without mutating shared state ([#1372](https://github.com/stellar/js-stellar-sdk/pull/1372)).
 * Fetch HTTP client: async request interceptors were not awaited — the synchronous `try/catch` loop passed unresolved promise objects as the config. Replaced with a proper `.then()` chain matching Axios interceptor semantics ([#1372](https://github.com/stellar/js-stellar-sdk/pull/1372)).
+* Fetch HTTP client: cancellation now preserves custom cancel reasons and `isCancel` no longer depends on exact error-message text ([#1390](https://github.com/stellar/js-stellar-sdk/pull/1390)).
+* Fetch HTTP client: instance default headers and params now merge correctly with per-request overrides on the no-axios / minimal builds, including requests that use bounded options ([#1390](https://github.com/stellar/js-stellar-sdk/pull/1390)).
 * Fetch HTTP client: `maxRedirects` and `maxContentLength` were silently ignored on the no-axios / minimal builds, turning SDK-set SSRF and DoS guards (`StellarToml.Resolver.resolve`, `FederationServer`) into no-ops. A new bounded adapter activates when either option is set, refusing redirects past `maxRedirects` and streaming the response body with a running-total check so oversized responses abort mid-stream ([#1390](https://github.com/stellar/js-stellar-sdk/pull/1390)).
+* Fetch HTTP client: the no-axios bounded path now more closely matches Axios behavior for object request bodies, `baseURL`, timeout errors, redirect method/body handling, and stripping credential-bearing headers on cross-origin redirects ([#1390](https://github.com/stellar/js-stellar-sdk/pull/1390)).
 * `src/bindings/config.ts` imported `../../package.json` with a relative path that resolved incorrectly for the `lib/no-axios/` and `lib/minimal/` build outputs, making those libs unloadable. Replaced with the `__PACKAGE_VERSION__` compile-time define ([#1390](https://github.com/stellar/js-stellar-sdk/pull/1390)).
+* Updated the production `axios` dependency from `1.14.0` to `1.15.0` ([#1381](https://github.com/stellar/js-stellar-sdk/pull/1381)).
 
 ### Added
 * `AccountResponse` constructor now uses explicit field-by-field assignment instead of `Object.entries` dynamic assignment for type safety ([#1373](https://github.com/stellar/js-stellar-sdk/pull/1373)).
 * Added `transactions` collection to `Api.AccountRecord` and `AccountResponse` ([#1373](https://github.com/stellar/js-stellar-sdk/pull/1373)).
 * Added range checks for U32/I32 values in `Spec`: bigint values are now validated against min/max bounds before conversion, throwing a `RangeError` instead of silently truncating ([#1373](https://github.com/stellar/js-stellar-sdk/pull/1373)).
-* `rpc.Server.getLatestLedger()` now includes `closeTime`, `headerXdr`, and `metadataXdr` in the typed response, with `headerXdr`/`metadataXdr` parsed into XDR objects instead of raw base64 strings ([#1389
-](https://github.com/stellar/js-stellar-sdk/pull/1389)).
-
-
+* `rpc.Server.getLatestLedger()` now includes `closeTime`, `headerXdr`, and `metadataXdr` in the typed response, with `headerXdr`/`metadataXdr` parsed into XDR objects instead of raw base64 strings ([#1389](https://github.com/stellar/js-stellar-sdk/pull/1389)).
 
 ### Deprecated
 * `BalanceResponse.revocable` is deprecated in favor of `authorizedToMaintainLiabilities`, which correctly reflects the trustline flag semantics ([#1372](https://github.com/stellar/js-stellar-sdk/pull/1372)).
