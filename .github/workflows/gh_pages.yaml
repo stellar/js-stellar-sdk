@@ -21,10 +21,10 @@ jobs:
           repository: stellar/js-stellar-base
           path: js-stellar-base
 
-      - name: Install Node (20.x)
+      - name: Install Node (22.x)
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: "22.x"
           cache: pnpm
           cache-dependency-path: pnpm-lock.yaml
 
