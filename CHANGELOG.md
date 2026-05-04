@@ -53,6 +53,8 @@ A breaking change will get clearly marked in this log.
 
 ## [v15.0.0](https://github.com/stellar/js-stellar-sdk/compare/v14.6.1...v15.0.0)
 
+**[Migration Guide](docs/migration-guide/v15.md)** — step-by-step upgrade instructions with code examples and severity ratings.
+
 ### Breaking Changes
 * XDR has been upgraded to support **Protocol 26**, please refer to the [`@stellar/stellar-base`](https://github.com/stellar/js-stellar-base/releases/tag/v15.0.0) release notes for details and other breaking changes.
 
