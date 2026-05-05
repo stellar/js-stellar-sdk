@@ -4,20 +4,19 @@
 /libdocs/
 /dist/
 /coverage/
-/.nyc_output/
 /jsdoc/
-.DS_Store
-.idea/
 js-stellar-base/
 
 test/unit/out/
-.vscode/launch.json
-.vscode
 target
 .soroban
-
 config/tsconfig.tmp.json
 
+.DS_Store
+
+.vscode/launch.json
+.vscode
+.idea/
 .claude/
 .copilot/
 .codex/
