@@ -3,7 +3,6 @@ import { NetworkError } from "./network.js";
 /**
  * BadRequestError is raised when a request made to Horizon is invalid in some
  * way (incorrect timebounds for trade call builders, for example.)
- * @augments NetworkError
  * @inheritdoc
  * @category Errors
  *

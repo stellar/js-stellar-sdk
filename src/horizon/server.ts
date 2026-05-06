@@ -46,9 +46,7 @@ import type { HttpClient } from "../http-client/index.js";
 
 /**
  * Default transaction submission timeout for Horizon requests, in milliseconds
- * @constant {number}
  * @default 60000
- * @memberof module:Horizon.Server
  */
 export const SUBMIT_TRANSACTION_TIMEOUT: number = 60 * 1000;
 
@@ -65,9 +63,6 @@ function getAmountInLumens(amt: BigNumber) {
 /**
  * Server handles the network connection to a [Horizon](https://developers.stellar.org/docs/data/horizon)
  * instance and exposes an interface for requests to that instance.
- * @class
- * @alias module:Horizon.Server
- * @memberof module:Horizon
  *
  * @param {string} serverURL Horizon Server URL (ex. `https://horizon-testnet.stellar.org`).
  * @param {module:Horizon.Server.Options} [opts] Options object
@@ -767,7 +762,7 @@ export class HorizonServer {
    * @param {string} address The Stellar ID that you want Friendbot to send lumens to
    * @returns {FriendbotBuilder} New {@link FriendbotBuilder} instance configured with the current
    * Horizon server configuration
-   * @private
+   * @internal
    */
   public friendbot(address: string): FriendbotBuilder {
     return new FriendbotBuilder(this.serverURL, this.httpClient, address);
@@ -911,7 +906,6 @@ export class HorizonServer {
 export namespace HorizonServer {
   /**
    * Options for configuring connections to Horizon servers.
-   * @memberof module:Horizon.Server
    * @property {boolean} [allowHttp] Allow connecting to http servers, default: `false`. This must be set to false in production deployments! You can also use {@link Config} class to set this globally.
    * @property {string} [appName] Allow set custom header `X-App-Name`, default: `undefined`.
    * @property {string} [appVersion] Allow set custom header `X-App-Version`, default: `undefined`.

@@ -43,7 +43,7 @@ function hasOwnProperty<X extends {}, Y extends PropertyKey>(
  * @param {string} method RPC method name that should be called
  * @param {(any | null)} [param=null] params that should be supplied to the method
  * @returns {Promise} Promise that resolves to the result of type T
- * @private
+ * @internal
  */
 export async function postObject<T>(
   client: HttpClient,

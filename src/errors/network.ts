@@ -26,7 +26,6 @@ export class NetworkError extends Error {
     super(message);
     /**
      * The response sent by the Horizon server.
-     * @type {object} Response details, received from the Horizon server
      * @property {object} response Response details, received from the Horizon server
      * @property {HorizonApi.ErrorResponseData} [response.data] The data returned by Horizon as part of the error: {@link https://developers.stellar.org/docs/data/horizon/api-reference/errors/response | Error Response}
      * @property {number} [response.status] HTTP status code describing the basic issue with a submitted transaction {@link https://developers.stellar.org/docs/data/horizon/api-reference/errors/http-status-codes/standard | Standard Status Codes}

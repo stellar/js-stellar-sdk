@@ -32,7 +32,6 @@
  * remove this and flatten all JS calls to `try...catch`. Easier to remove this
  * logic later than it would be to add it.
  *
- * @memberof module:contract
  */
 export interface Result<T, E extends ErrorMessage = ErrorMessage> {
   unwrap(): T;
@@ -48,7 +47,6 @@ export interface Result<T, E extends ErrorMessage = ErrorMessage> {
  * Results, to maintain their distinction from methods that simply either return
  * a value or throw.
  *
- * @memberof module:contract
  */
 export interface ErrorMessage {
   message: string;
@@ -59,7 +57,7 @@ export interface ErrorMessage {
  * implementation of Rust's `Result` type. Used for contract methods that return
  * Results, to maintain their distinction from methods that simply either return
  * a value or throw.
- * @private
+ * @internal
  */
 export class Ok<T> implements Result<T, never> {
   constructor(readonly value: T) {}
@@ -86,7 +84,7 @@ export class Ok<T> implements Result<T, never> {
  * implementation of Rust's `Result` type. Used for contract methods that return
  * Results, to maintain their distinction from methods that simply either return
  * a value or throw.
- * @private
+ * @internal
  */
 export class Err<E extends ErrorMessage> implements Result<never, E> {
   constructor(readonly error: E) {}

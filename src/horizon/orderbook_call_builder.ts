@@ -10,9 +10,7 @@ import type { HttpClient } from "../http-client/index.js";
  *
  * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/aggregations/order-books|Orderbook Details}
  *
- * @augments CallBuilder
- * @private
- * @class
+ * @internal
  * @param {string} serverUrl serverUrl Horizon server URL.
  * @param {Asset} selling Asset being sold
  * @param {Asset} buying Asset being bought

@@ -7,8 +7,6 @@ import { Resolver } from "../stellartoml/index.js";
 import type { Api } from "./api.js";
 import { httpClient } from "../http-client/index.js";
 
-/** @module Federation */
-
 /**
  * The maximum size of response from a federation server
  * @default 102400
@@ -20,8 +18,6 @@ export const FEDERATION_RESPONSE_MAX_SIZE: number = 100 * 1024;
  * [federation server](https://developers.stellar.org/docs/learn/encyclopedia/federation)
  * instance and exposes an interface for requests to that instance.
  *
- * @alias module:Federation.Server
- * @memberof module:Federation
  * @param {string} serverURL The federation server URL (ex. `https://acme.com/federation`).
  * @param {string} domain Domain this server represents
  * @param {Api.Options} [opts] Options object

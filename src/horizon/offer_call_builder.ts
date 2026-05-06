@@ -10,9 +10,7 @@ import type { HttpClient } from "../http-client/index.js";
  *
  * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/offers/|Offers}
  *
- * @augments CallBuilder
- * @private
- * @class
+ * @internal
  * @param {string} serverUrl Horizon server URL.
  */
 export class OfferCallBuilder extends CallBuilder<

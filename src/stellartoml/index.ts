@@ -4,18 +4,14 @@ import { httpClient } from "../http-client/index.js";
 
 import { Config } from "../config.js";
 
-/** @module StellarToml */
-
 /**
  * The maximum size of stellar.toml file, in bytes
- * @constant {number}
  * @default 102400
  */
 export const STELLAR_TOML_MAX_SIZE = 100 * 1024;
 
 /**
  * Resolver allows resolving `stellar.toml` files.
- * @memberof module:StellarToml
  * @hideconstructor
  */
 export class Resolver {

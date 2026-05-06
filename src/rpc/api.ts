@@ -600,7 +600,6 @@ export namespace Api {
    * - **Ledger-based pagination**: Use `startLedger` to begin fetching from a specific ledger sequence
    * - **Cursor-based pagination**: Use `cursor` to continue from a previous response's pagination token
    *
-   * @typedef {object} GetLedgersRequest
    * @property {number} [startLedger] - Ledger sequence number to start fetching from (inclusive).
    *   Must be omitted if cursor is provided. Cannot be less than the oldest ledger or greater
    *   than the latest ledger stored on the RPC node.

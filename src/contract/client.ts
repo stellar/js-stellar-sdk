@@ -30,9 +30,7 @@ async function specFromWasmHash(
  * be used to modify, simulate, decode results, and possibly sign, & submit the
  * transaction.
  *
- * @memberof module:contract
  *
- * @class
  * @param {module:contract.Spec} spec {@link Spec} to construct a Client for
  * @param {module:contract.ClientOptions} options see {@link ClientOptions}
  */

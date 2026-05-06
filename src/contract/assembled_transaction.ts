@@ -48,8 +48,6 @@ import {
   UserRejectedError,
 } from "./errors.js";
 
-/** @module contract */
-
 /**
  * The main workhorse of {@link Client}. This class is used to wrap a
  * transaction-under-construction and provide high-level interfaces to the most
@@ -253,7 +251,6 @@ import {
  * transaction is invoked by yet another party, check out
  * [test-swap.js](../../test/e2e/src/test-swap.js).
  *
- * @memberof module:contract
  */
 export class AssembledTransaction<T> {
   /**

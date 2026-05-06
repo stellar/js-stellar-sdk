@@ -38,7 +38,6 @@ function isSorobanTransaction(tx: Transaction): boolean {
  * @param {Api.SimulateTransactionResponse|Api.RawSimulateTransactionResponse} simulation the Soroban RPC simulation result (see {@link module:rpc.Server#simulateTransaction})
  * @returns {TransactionBuilder} a new, cloned transaction with the proper auth and resource (fee, footprint) simulation data applied
  *
- * @memberof module:rpc
  * @see {@link module:rpc.Server#simulateTransaction}
  * @see {@link module:rpc.Server#prepareTransaction}
  */

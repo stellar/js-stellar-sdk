@@ -38,7 +38,6 @@ class Config {
    * http protocol servers will be allowed. Must be set to `false` in
    * production.
    * @default false
-   * @static
    */
   public static setAllowHttp(value: boolean): void {
     config.allowHttp = value;
@@ -48,7 +47,6 @@ class Config {
    * Sets `timeout` flag globally. When set to anything besides 0, the request
    * will timeout after specified time (ms).
    * @default 0
-   * @static
    */
   public static setTimeout(value: number): void {
     config.timeout = value;
@@ -56,7 +54,6 @@ class Config {
 
   /**
    * Returns the configured `allowHttp` flag.
-   * @static
    * @returns {boolean} The allowHttp value.
    */
   public static isAllowHttp(): boolean {
@@ -73,7 +70,6 @@ class Config {
 
   /**
    * Sets all global config flags to default values.
-   * @static
    */
   public static setDefault(): void {
     config = { ...defaultConfig };

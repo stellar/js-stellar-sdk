@@ -9,7 +9,6 @@ import type { SignAuthEntry, SignTransaction } from "./types.js";
  * applications. Feel free to use this as a starting point for your own
  * Wallet/TransactionSigner implementation.
  *
- * @memberof module:contract
  *
  * @param {Keypair} keypair {@link Keypair} to use to sign the transaction or auth entry
  * @param {string} networkPassphrase passphrase of network to sign for

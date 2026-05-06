@@ -15,9 +15,7 @@ const allowedResolutions = [
  *
  * Do not create this object directly, use {@link Horizon.Server#tradeAggregation}.
  *
- * @augments CallBuilder
- * @private
- * @class
+ * @internal
  *
  * @param {string} serverUrl serverUrl Horizon server URL.
  * @param {Asset} base base asset
@@ -77,7 +75,7 @@ export class TradeAggregationCallBuilder extends CallBuilder<
   }
 
   /**
-   * @private
+   * @internal
    * @param {number} resolution Trade data resolution in milliseconds
    * @returns {boolean} true if the resolution is allowed
    */
@@ -86,7 +84,7 @@ export class TradeAggregationCallBuilder extends CallBuilder<
   }
 
   /**
-   * @private
+   * @internal
    * @param {number} offset Time offset in milliseconds
    * @param {number} resolution Trade data resolution in milliseconds
    * @returns {boolean} true if the offset is valid

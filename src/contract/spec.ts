@@ -191,7 +191,7 @@ const PRIMITIVE_DEFINITONS: { [key: string]: JSONSchema7Definition } = {
  * Converts an XDR type definition to a JSON schema reference.
  * @param typeDef type to convert to json schema reference
  * @returns {JSONSchema7} a schema describing the type
- * @private
+ * @internal
  */
 function typeRef(typeDef: xdr.ScSpecTypeDef): JSONSchema7 {
   const t = typeDef.switch();
@@ -464,7 +464,6 @@ function unionToJsonSchema(udt: xdr.ScSpecUdtUnionV0): any {
  *
  * Constructs a new ContractSpec from an array of XDR spec entries.
  *
- * @memberof module:contract
  * @param {xdr.ScSpecEntry[] | string[]} entries the XDR spec entries
  * @throws {Error} if entries is invalid
  *

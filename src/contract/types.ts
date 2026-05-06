@@ -8,64 +8,52 @@ import { Server } from "../rpc/index.js";
 export type XDR_BASE64 = string;
 /**
  * An unsigned 32-bit integer.
- * @memberof module:contract
  */
 export type u32 = number;
 /**
  * A signed 32-bit integer.
- * @memberof module:contract
  */
 export type i32 = number;
 /**
  * An unsigned 64-bit integer.
- * @memberof module:contract
  */
 export type u64 = bigint;
 /**
  * A signed 64-bit integer.
- * @memberof module:contract
  */
 export type i64 = bigint;
 /**
  * An unsigned 128-bit integer.
- * @memberof module:contract
  */
 export type u128 = bigint;
 /**
  * A signed 128-bit integer.
- * @memberof module:contract
  */
 export type i128 = bigint;
 /**
  * An unsigned 256-bit integer.
- * @memberof module:contract
  */
 export type u256 = bigint;
 /**
  * A signed 256-bit integer.
- * @memberof module:contract
  */
 export type i256 = bigint;
 export type Option<T> = T | undefined;
 /**
  * @deprecated Use {@link Timepoint} instead.
- * @memberof module:contract
  */
 export type Typepoint = bigint;
 /**
  * An unsigned 64-bit integer.
- * @memberof module:contract
  */
 export type Timepoint = bigint;
 /**
  * An unsigned 64-bit integer.
- * @memberof module:contract
  */
 export type Duration = bigint;
 
 /**
  * A "regular" transaction, as opposed to a FeeBumpTransaction.
- * @memberof module:contract
  */
 export type Tx = Transaction;
 
@@ -135,7 +123,6 @@ export type SignAuthEntry = (
 
 /**
  * Options for a smart contract client.
- * @memberof module:contract
  */
 export type ClientOptions = {
   /**
@@ -212,7 +199,6 @@ export type ClientOptions = {
 
 /**
  * Options for a smart contract method invocation.
- * @memberof module:contract
  */
 export type MethodOptions = {
   /**
@@ -301,17 +287,13 @@ export type AssembledTransactionOptions<T = string> = MethodOptions &
  * This is attached to the transaction _before_ transaction simulation (it is
  * needed for simulation to succeed). It is also re-calculated and re-added
  * _before_ transaction signing.
- * @constant {number}
  * @default 300
- * @memberof module:contract
  */
 export const DEFAULT_TIMEOUT = 5 * 60;
 
 /**
  * An impossible account on the Stellar network
- * @constant {string}
  * @default GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF
- * @memberof module:contract
  */
 export const NULL_ACCOUNT =
   "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF";

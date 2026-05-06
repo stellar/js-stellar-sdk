@@ -26,9 +26,7 @@ export interface ServerTime {
  *   localTimeRecorded: 1552513052
  * }
  *
- * @constant {Record.<string, ServerTime>}
  * @default {}
- * @memberof module:Horizon
  */
 export const SERVER_TIME_MAP: Record<string, ServerTime> = {};
 
@@ -87,7 +85,6 @@ export function createHttpClient(headers?: Record<string, string>): HttpClient {
  * Given a hostname, get the current time of that server (i.e., use the last-
  * recorded server time and offset it by the time since then.) If there IS no
  * recorded server time, or it's been 5 minutes since the last, return null.
- * @memberof module:Horizon
  *
  * @param {string} hostname Hostname of a Horizon server.
  * @returns {number} The UNIX timestamp (in seconds, not milliseconds)

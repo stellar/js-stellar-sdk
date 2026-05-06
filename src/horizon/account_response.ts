@@ -12,8 +12,7 @@ import { ServerApi } from "./server_api.js";
  * The balances section in the returned JSON will also list all the trust lines this account has set up.
  * It also contains {@link BaseAccount} object and exposes it's methods so can be used in {@link TransactionBuilder}.
  *
- * @memberof module:Horizon
- * @private
+ * @internal
  *
  * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/accounts/object|Account Details}
  * @param {string} response Response from horizon account endpoint.

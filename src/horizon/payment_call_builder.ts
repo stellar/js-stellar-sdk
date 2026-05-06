@@ -9,9 +9,7 @@ import type { HttpClient } from "../http-client/index.js";
  *
  * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/horizon/resources/list-all-payments/|All Payments}
  *
- * @augments CallBuilder
- * @private
- * @class
+ * @internal
  *
  * @param {string} serverUrl Horizon server URL.
  */

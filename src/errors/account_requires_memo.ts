@@ -25,12 +25,10 @@ export class AccountRequiresMemoError extends Error {
 
     /**
      * The account which requires a memo.
-     * @type {string}
      */
     this.accountId = accountId;
     /**
      * Operation where accountId is the destination.
-     * @type {number}
      */
     this.operationIndex = operationIndex;
   }

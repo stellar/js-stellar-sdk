@@ -1,5 +1,3 @@
-/** @module Horizon */
-
 // Expose all types
 export * from "./horizon_api.js";
 export * from "./server_api.js";

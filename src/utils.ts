@@ -14,7 +14,6 @@ export class Utils {
    *
    * @returns {boolean} Returns true if the current time is within the transaction's [minTime, maxTime] range.
    *
-   * @static
    */
   static validateTimebounds(
     transaction: Transaction,

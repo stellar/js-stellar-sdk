@@ -1,5 +1,3 @@
-/** @module rpc */
-
 // Expose all types
 export * from "./api.js";
 

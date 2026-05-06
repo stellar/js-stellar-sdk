@@ -1,6 +1,5 @@
 /**
  * Stellar Web Authentication
- * @module WebAuth
  * @see {@link https://stellar.org/protocol-10 | SEP-10 Specification}
  */
 

@@ -29,7 +29,6 @@ export interface EventSourceOptions<T> {
  *
  * This is an **abstract** class. Do not create this object directly, use {@link Server} class.
  * @param {string} serverUrl URL of Horizon server
- * @class CallBuilder
  */
 export class CallBuilder<
   T extends
@@ -306,7 +305,7 @@ export class CallBuilder<
   }
 
   /**
-   * @private
+   * @internal
    * @returns {void}
    */
   private checkFilter(): void {
@@ -323,7 +322,7 @@ export class CallBuilder<
 
   /**
    * Convert a link object to a function that fetches that link.
-   * @private
+   * @internal
    * @param {object} link A link object
    * @param {boolean} link.href the URI of the link
    * @param {boolean} [link.templated] Whether the link is templated
@@ -349,7 +348,7 @@ export class CallBuilder<
   /**
    * Given the json response, find and convert each link into a function that
    * calls that link.
-   * @private
+   * @internal
    * @param {object} json JSON response
    * @returns {object} JSON response with string links replaced with functions
    */
@@ -401,7 +400,7 @@ export class CallBuilder<
   }
 
   /**
-   * @private
+   * @internal
    * @param {object} json Response object
    * @returns {object} Extended response
    */
@@ -413,7 +412,7 @@ export class CallBuilder<
   }
 
   /**
-   * @private
+   * @internal
    * @param {object} json Response object
    * @returns {object} Extended response object
    */
@@ -439,7 +438,7 @@ export class CallBuilder<
   }
 
   /**
-   * @private
+   * @internal
    * @param {object} error Network error object
    * @returns {Promise<Error>} Promise that rejects with a human-readable error
    */

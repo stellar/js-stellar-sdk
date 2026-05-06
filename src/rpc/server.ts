@@ -35,16 +35,12 @@ import type { HttpClient } from "../http-client/index.js";
 
 /**
  * Default transaction submission timeout for RPC requests, in milliseconds
- * @constant {number}
  * @default 60000
- * @memberof module:rpc.Server
  */
 export const SUBMIT_TRANSACTION_TIMEOUT = 60 * 1000;
 
 /**
  * Specifies the durability namespace of contract-related ledger entries.
- * @enum {('temporary' | 'persistent')}
- * @memberof module:rpc
  *
  * @see {@link https://developers.stellar.org/docs/learn/smart-contract-internals/state-archival | State Archival docs}
  * @see {@link https://docs.rs/soroban-sdk/latest/soroban_sdk/storage/struct.Storage.html | Rust SDK Storage docs}
@@ -55,17 +51,13 @@ export enum Durability {
 }
 
 /**
- * @typedef {object} ResourceLeeway Describes additional resource leeways for transaction simulation.
  * @property {number} cpuInstructions Simulate the transaction with more CPU instructions available.
- * @memberof module:rpc.Server
  */
 
 /**
- * @typedef {object} Options Options for configuring connections to RPC servers.
  * @property {boolean} [allowHttp=false] Allow connecting to http servers, default: `false`. This must be set to false in production deployments!
  * @property {number} [timeout=0] Allow a timeout, default: 0. Allows user to avoid nasty lag. You can also use {@link Config} class to set this globally.
  * @property {Record<string, string>} [headers] Additional headers that should be added to any requests to the RPC server.
- * @memberof module:rpc.Server
  */
 
 export namespace RpcServer {
@@ -83,7 +75,6 @@ export namespace RpcServer {
   /**
    * Describes additional resource leeways for transaction simulation.
    * @property {number} cpuInstructions Simulate the transaction with more CPU instructions available.
-   * @memberof module:rpc.Server
    */
   export interface ResourceLeeway {
     cpuInstructions: number;
@@ -96,8 +87,6 @@ export namespace RpcServer {
    * @property {number} timeout - Allow a timeout, default: 0. Allows user to avoid nasty lag.
    * @property {Record<string, string>} headers - Additional headers that should be added to any requests to the RPC server.
    *
-   * @alias module:rpc.Server.Options
-   * @memberof module:rpc.Server
    */
   export interface Options {
     allowHttp?: boolean;
@@ -162,8 +151,6 @@ function findCreatedAccountSequenceInTransactionMeta(
  * Handles the network connection to a Soroban RPC instance, exposing an
  * interface for requests to that instance.
  *
- * @alias module:rpc.Server
- * @memberof module:rpc
  *
  * @param {string} serverURL Soroban-RPC Server URL (ex. `http://localhost:8000/soroban/rpc`).
  * @param {module:rpc.Server.Options} [opts] Options object
@@ -194,7 +181,6 @@ export class RpcServer {
   constructor(serverURL: string, opts: RpcServer.Options = {}) {
     /**
      * RPC Server URL (ex. `http://localhost:8000/soroban/rpc`).
-     * @member {URL}
      */
     this.serverURL = new URL(serverURL);
     this.httpClient = createHttpClient(opts.headers);
