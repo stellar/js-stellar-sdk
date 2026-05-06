@@ -5,6 +5,8 @@
     "emitDeclarationOnly": true,
     "declarationDir": "lib/esm",
     "removeComments": false,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
     "lib": ["ES2022", "DOM"],
     "module": "Node20",
     "moduleResolution": "node16",

@@ -4,7 +4,7 @@ import { configs } from "eslint-config-airbnb-extended/legacy";
 import prettierConfigRules from "eslint-config-prettier/flat";
 import prettierPlugin from "eslint-plugin-prettier";
 import importPlugin from "eslint-plugin-import";
-import jsdoc from "eslint-plugin-jsdoc";
+import tsdoc from "eslint-plugin-tsdoc";
 import js from "@eslint/js";
 import globals from "globals";
 
@@ -35,10 +35,11 @@ const typescriptConfig = [
     files: ["**/*.ts", "**/*.tsx"],
     rules: {
       "@typescript-eslint/require-await": "error",
-      "@typescript-eslint/no-unused-vars": [
-        "error",
-        { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
-      ],
+      // Delegated to TypeScript's `noUnusedLocals` / `noUnusedParameters`
+      // (set in tsconfig.json) — TS understands JSDoc `{@link}` references,
+      // typescript-eslint's no-unused-vars does not.
+      "@typescript-eslint/no-unused-vars": "off",
+      "no-unused-vars": "off",
       "no-fallthrough": "off",
     },
   },
@@ -57,37 +58,12 @@ const prettierConfig = [
   },
 ];
 
-const jsDocConfig = [
-  // configuration included in plugin
-  jsdoc.configs["flat/recommended-typescript"],
-  // other configuration objects...
+const tsdocConfig = [
   {
+    name: "tsdoc/syntax",
     files: ["**/*.ts"],
-    // `plugins` here is not necessary if including the above config
-    plugins: {
-      jsdoc,
-    },
-    rules: {
-      "jsdoc/check-tag-names": [
-        "error",
-        { definedTags: ["warning", "category"] },
-      ],
-      "jsdoc/require-description": "warn",
-      "jsdoc/no-undefined-types": "warn",
-      "jsdoc/require-returns": "off",
-      "jsdoc/require-param": "off",
-      "jsdoc/require-param-type": "off",
-      "jsdoc/require-returns-type": "off",
-      "jsdoc/no-blank-blocks": "off",
-      "jsdoc/no-multi-asterisks": "off",
-      "jsdoc/tag-lines": "off",
-      "jsdoc/require-jsdoc": "off",
-      "jsdoc/no-defaults": "off",
-      "jsdoc/no-types": "off",
-      "jsdoc/reject-function-type": "off",
-      "jsdoc/reject-any-type": "off",
-      "jsdoc/require-description": "off",
-    },
+    plugins: { tsdoc },
+    rules: { "tsdoc/syntax": "warn" },
   },
 ];
 
@@ -120,7 +96,6 @@ const baseSdkConfig = [
       "@typescript-eslint/no-redeclare": "off",
       "@typescript-eslint/no-use-before-define": ["error", { functions: false }],
       "@typescript-eslint/naming-convention": "off",
-      "jsdoc/no-undefined-types": "off",
     },
   },
 ];
@@ -151,11 +126,11 @@ export default [
   ...javascriptConfig,
   // TypeScript Config
   ...typescriptConfig,
-  // JSDoc Config
-  ...jsDocConfig,
+  // TSDoc Config
+  ...tsdocConfig,
   // Test Config
   ...testConfig,
-  // Base SDK overrides (must come after typescriptConfig/jsDocConfig)
+  // Base SDK overrides (must come after typescriptConfig/tsdocConfig)
   ...baseSdkConfig,
   // Prettier Config
   ...prettierConfig,

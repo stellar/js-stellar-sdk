@@ -3,7 +3,6 @@ import xdr from "./xdr.js";
 import { Keypair } from "./keypair.js";
 import { StrKey } from "./strkey.js";
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { Networks } from "./network.js";
 import { hash } from "./hashing.js";
 
