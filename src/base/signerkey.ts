@@ -15,6 +15,7 @@ type SignerStrKeyType =
  * {@link Transaction}.
  *
  * @see {@link TransactionBuilder.setExtraSigners}
+ * @category Core / Keys
  */
 export class SignerKey {
   /**

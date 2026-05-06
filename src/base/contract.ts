@@ -10,6 +10,7 @@ import { StrKey } from "./strkey.js";
  * interface of the contract. See
  * [Contracts](https://soroban.stellar.org/docs/learn/interacting-with-contracts)
  * for more information about how contracts work in Stellar.
+ * @category Core / Soroban Primitives
  */
 export class Contract {
   private _id: Buffer;

@@ -19,6 +19,7 @@ import {
  * @param opts.amount - amount to send
  * @param opts.source - The source account for the payment.
  *     Defaults to the transaction's source account.
+ * @category Core / Transactions
  */
 export function payment(opts: PaymentOpts): xdr.Operation<PaymentResult> {
   if (!opts.asset) {

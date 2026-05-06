@@ -4,6 +4,7 @@ import { sha256 } from "@noble/hashes/sha2.js";
  * Computes the SHA-256 hash of the given data.
  *
  * @param data - the data to hash
+ * @category Core / XDR
  */
 export function hash(data: Buffer | string): Buffer {
   // Preserve the current UTF-8 string handling while returning a Buffer.

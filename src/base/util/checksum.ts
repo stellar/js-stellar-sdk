@@ -3,6 +3,7 @@
  *
  * @param expected - the expected checksum bytes
  * @param actual - the actual checksum bytes
+ * @category Core / Keys
  */
 export function verifyChecksum(
   expected: Uint8Array,

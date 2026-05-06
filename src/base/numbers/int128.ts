@@ -1,5 +1,6 @@
 import { LargeInt } from "@stellar/js-xdr";
 
+/** @category Core / Transactions */
 export class Int128 extends LargeInt {
   /**
    * Construct a signed 128-bit integer that can be XDR-encoded.

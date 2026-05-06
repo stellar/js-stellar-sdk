@@ -16,6 +16,7 @@ import { expandUriTemplate } from "../utils/url.js";
 // query-param.
 const JOINABLE = ["transaction"];
 
+/** @category Network / Horizon */
 export interface EventSourceOptions<T> {
   onmessage?: (
     value: T extends ServerApi.CollectionPage<infer U> ? U : T,
@@ -29,6 +30,7 @@ export interface EventSourceOptions<T> {
  *
  * This is an **abstract** class. Do not create this object directly, use {@link Server} class.
  * @param serverUrl URL of Horizon server
+ * @category Network / Horizon
  */
 export class CallBuilder<
   T extends

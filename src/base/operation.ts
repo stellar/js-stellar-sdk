@@ -56,6 +56,7 @@ import { fromXDRAmount, fromXDRPrice } from "./util/operations.js";
  * account’s credit.
  *
  * @see [Account flags](https://developers.stellar.org/docs/glossary/accounts/#flags)
+ * @category Core / Transactions
  */
 export const AuthRequiredFlag = 1 << 0;
 /**
@@ -63,6 +64,7 @@ export const AuthRequiredFlag = 1 << 0;
  * account to revoke its credit held by other accounts.
  *
  * @see [Account flags](https://developers.stellar.org/docs/glossary/accounts/#flags)
+ * @category Core / Transactions
  */
 export const AuthRevocableFlag = 1 << 1;
 /**
@@ -70,6 +72,7 @@ export const AuthRevocableFlag = 1 << 1;
  * authorization flags can be set and the account can never be deleted.
  *
  * @see [Account flags](https://developers.stellar.org/docs/glossary/accounts/#flags)
+ * @category Core / Transactions
  */
 export const AuthImmutableFlag = 1 << 2;
 
@@ -79,6 +82,7 @@ export const AuthImmutableFlag = 1 << 2;
  * corresponding asset.
  *
  * @see [Account flags](https://developers.stellar.org/docs/glossary/accounts/#flags)
+ * @category Core / Transactions
  */
 export const AuthClawbackEnabledFlag = 1 << 3;
 
@@ -127,6 +131,7 @@ export const AuthClawbackEnabledFlag = 1 << 3;
  * * `{@link Operation.extendFootprintTtlOp}`
  * * `{@link Operation.restoreFootprint}`
  *
+ * @category Core / Transactions
  */
 export class Operation {
   /**

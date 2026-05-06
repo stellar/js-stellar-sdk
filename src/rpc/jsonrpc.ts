@@ -1,7 +1,9 @@
 import type { HttpClient } from "../http-client/index.js";
 
+/** @category Network / RPC */
 export type Id = string | number;
 
+/** @category Network / RPC */
 export interface Request<T> {
   jsonrpc: "2.0";
   id: Id;
@@ -9,17 +11,20 @@ export interface Request<T> {
   params: T;
 }
 
+/** @category Network / RPC */
 export interface Notification<T> {
   jsonrpc: "2.0";
   method: string;
   params?: T;
 }
 
+/** @category Network / RPC */
 export type Response<T, E = any> = {
   jsonrpc: "2.0";
   id: Id;
 } & ({ error: Error<E> } | { result: T });
 
+/** @category Network / RPC */
 export interface Error<E = any> {
   code: number;
   message?: string;
@@ -44,6 +49,7 @@ function hasOwnProperty<X extends {}, Y extends PropertyKey>(
  * @param [param=null] params that should be supplied to the method
  * @returns Promise that resolves to the result of type T
  * @internal
+ * @category Network / RPC
  */
 export async function postObject<T>(
   client: HttpClient,

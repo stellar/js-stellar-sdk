@@ -28,6 +28,7 @@ import {
  * @param opts.maxPrice.n - If `opts.maxPrice` is an object: the price numerator
  * @param opts.maxPrice.d - If `opts.maxPrice` is an object: the price denominator
  * @param opts.source - The source account for the operation. Defaults to the transaction's source account.
+ * @category Core / Transactions
  */
 export function liquidityPoolDeposit(
   opts: LiquidityPoolDepositOpts = {} as LiquidityPoolDepositOpts,

@@ -47,6 +47,7 @@ import type { HttpClient } from "../http-client/index.js";
 /**
  * Default transaction submission timeout for Horizon requests, in milliseconds
  * @default 60000
+ * @category Network / Horizon
  */
 export const SUBMIT_TRANSACTION_TIMEOUT: number = 60 * 1000;
 
@@ -66,6 +67,7 @@ function getAmountInLumens(amt: BigNumber) {
  *
  * @param serverURL Horizon Server URL (ex. `https://horizon-testnet.stellar.org`).
  * @param [opts] Options object
+ * @category Network / Horizon
  */
 export class HorizonServer {
   /**

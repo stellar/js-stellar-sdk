@@ -5,58 +5,73 @@ import type { SentTransaction } from "./sent_transaction.js";
 import type { Client } from "./client.js";
 import { Server } from "../rpc/index.js";
 
+/** @category Contracts / Client */
 export type XDR_BASE64 = string;
 /**
  * An unsigned 32-bit integer.
+ * @category Contracts / Client
  */
 export type u32 = number;
 /**
  * A signed 32-bit integer.
+ * @category Contracts / Client
  */
 export type i32 = number;
 /**
  * An unsigned 64-bit integer.
+ * @category Contracts / Client
  */
 export type u64 = bigint;
 /**
  * A signed 64-bit integer.
+ * @category Contracts / Client
  */
 export type i64 = bigint;
 /**
  * An unsigned 128-bit integer.
+ * @category Contracts / Client
  */
 export type u128 = bigint;
 /**
  * A signed 128-bit integer.
+ * @category Contracts / Client
  */
 export type i128 = bigint;
 /**
  * An unsigned 256-bit integer.
+ * @category Contracts / Client
  */
 export type u256 = bigint;
 /**
  * A signed 256-bit integer.
+ * @category Contracts / Client
  */
 export type i256 = bigint;
+/** @category Contracts / Client */
 export type Option<T> = T | undefined;
 /**
  * @deprecated Use {@link Timepoint} instead.
+ * @category Contracts / Client
  */
 export type Typepoint = bigint;
 /**
  * An unsigned 64-bit integer.
+ * @category Contracts / Client
  */
 export type Timepoint = bigint;
 /**
  * An unsigned 64-bit integer.
+ * @category Contracts / Client
  */
 export type Duration = bigint;
 
 /**
  * A "regular" transaction, as opposed to a FeeBumpTransaction.
+ * @category Contracts / Client
  */
 export type Tx = Transaction;
 
+/** @category Contracts / Client */
 export interface WalletError {
   message: string; // general description message returned to the client app
   code: number; // unique error code
@@ -78,6 +93,7 @@ export interface WalletError {
  *   @param opts.submitUrl - The URL of the network to which the transaction should be submitted, if applicable.
  *
  * @returns A promise resolving to an object with the signed transaction XDR and optional signer address and error.
+ * @category Contracts / Client
  */
 export type SignTransaction = (
   xdr: string,
@@ -107,6 +123,7 @@ export type SignTransaction = (
  *   @param opts.address - The public key of the account that should be used to sign.
  *
  * @returns A promise resolving to an object with the signed authorization entry and optional signer address and error.
+ * @category Contracts / Client
  */
 export type SignAuthEntry = (
   authEntry: string,
@@ -123,6 +140,7 @@ export type SignAuthEntry = (
 
 /**
  * Options for a smart contract client.
+ * @category Contracts / Client
  */
 export type ClientOptions = {
   /**
@@ -199,6 +217,7 @@ export type ClientOptions = {
 
 /**
  * Options for a smart contract method invocation.
+ * @category Contracts / Client
  */
 export type MethodOptions = {
   /**
@@ -257,6 +276,7 @@ export type MethodOptions = {
   signAuthEntry?: SignAuthEntry;
 };
 
+/** @category Contracts / Client */
 export type AssembledTransactionOptions<T = string> = MethodOptions &
   ClientOptions & {
     method: string;
@@ -288,12 +308,14 @@ export type AssembledTransactionOptions<T = string> = MethodOptions &
  * needed for simulation to succeed). It is also re-calculated and re-added
  * _before_ transaction signing.
  * @default 300
+ * @category Contracts / Client
  */
 export const DEFAULT_TIMEOUT = 5 * 60;
 
 /**
  * An impossible account on the Stellar network
  * @default GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF
+ * @category Contracts / Client
  */
 export const NULL_ACCOUNT =
   "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF";

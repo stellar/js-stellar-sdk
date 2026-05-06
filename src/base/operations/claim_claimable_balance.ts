@@ -16,6 +16,7 @@ import {
  * const op = Operation.claimClaimableBalance({
  *   balanceId: '00000000da0d57da7d4850e7fc10d2a9d0ebc731f7afb40574c03395b17d49149b91f5be',
  * });
+ * @category Core / Transactions
  */
 export function claimClaimableBalance(
   opts: ClaimClaimableBalanceOpts = {} as ClaimClaimableBalanceOpts,
@@ -44,6 +45,7 @@ export function claimClaimableBalance(
  * Validates that a claimable balance ID has the expected format.
  *
  * @param balanceId - The claimable balance ID to validate.
+ * @category Core / Transactions
  */
 export function validateClaimableBalanceId(balanceId: unknown): void {
   if (

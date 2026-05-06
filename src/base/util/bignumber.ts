@@ -4,4 +4,5 @@ import type { BigNumber as BigNumberInstance } from "bignumber.js";
 const BigNumber = OriginBigNumber.clone({ STRICT: true });
 
 export default BigNumber;
+/** @category Cross-cutting */
 export type BigNumber = BigNumberInstance;

@@ -4,6 +4,7 @@ import { Keypair } from "./keypair.js";
 import { StrKey } from "./strkey.js";
 import { hash } from "./hashing.js";
 
+/** @category Core / Assets */
 export const AssetType = {
   native: "native",
   credit4: "credit_alphanum4",
@@ -42,6 +43,7 @@ function asciiCompare(a: string, b: string): -1 | 0 | 1 {
  *
  * An asset describes an asset code and issuer pair. In the case of the native
  * asset XLM, the issuer will be undefined.
+ * @category Core / Assets
  */
 export class Asset {
   /** The asset code. */

@@ -2,6 +2,7 @@ import { HorizonApi } from "../horizon_api.js";
 import type { OfferAsset } from "./offer.js";
 
 // Reference: GO SDK https://github.com/stellar/go/blob/ec5600bd6b2b6900d26988ff670b9ca7992313b8/services/horizon/internal/resourceadapter/effects.go
+/** @category Network / Horizon */
 export enum EffectType {
   // account effects
   account_created = 0,
@@ -67,6 +68,7 @@ export enum EffectType {
   contract_credited = 96,
   contract_debited = 97,
 }
+/** @category Network / Horizon */
 export interface BaseEffectRecord<T extends string = string>
   extends HorizonApi.BaseResponse {
   id: string;
@@ -76,30 +78,36 @@ export interface BaseEffectRecord<T extends string = string>
   type: T;
   created_at: string;
 }
+/** @category Network / Horizon */
 export interface AccountCreated extends BaseEffectRecord<"account_created"> {
   type_i: EffectType.account_created;
   starting_balance: string;
 }
+/** @category Network / Horizon */
 export interface AccountCredited
   extends BaseEffectRecord<"account_credited">, OfferAsset {
   type_i: EffectType.account_credited;
   amount: string;
 }
+/** @category Network / Horizon */
 export interface AccountDebited
   extends BaseEffectRecord<"account_debited">, OfferAsset {
   type_i: EffectType.account_debited;
   amount: string;
 }
+/** @category Network / Horizon */
 export interface AccountThresholdsUpdated extends BaseEffectRecord<"account_thresholds_updated"> {
   type_i: EffectType.account_thresholds_updated;
   low_threshold: number;
   med_threshold: number;
   high_threshold: number;
 }
+/** @category Network / Horizon */
 export interface AccountHomeDomainUpdated extends BaseEffectRecord<"account_home_domain_updated"> {
   type_i: EffectType.account_home_domain_updated;
   home_domain: string;
 }
+/** @category Network / Horizon */
 export interface AccountFlagsUpdated extends BaseEffectRecord<"account_flags_updated"> {
   type_i: EffectType.account_flags_updated;
   auth_required_flag: boolean;
@@ -109,15 +117,19 @@ interface DataEvents<T extends string> extends BaseEffectRecord<T> {
   name: boolean;
   value: boolean;
 }
+/** @category Network / Horizon */
 export interface DataCreated extends DataEvents<"data_created"> {
   type_i: EffectType.data_created;
 }
+/** @category Network / Horizon */
 export interface DataUpdated extends DataEvents<"data_updated"> {
   type_i: EffectType.data_updated;
 }
+/** @category Network / Horizon */
 export interface DataRemoved extends DataEvents<"data_removed"> {
   type_i: EffectType.data_removed;
 }
+/** @category Network / Horizon */
 export interface SequenceBumped extends BaseEffectRecord<"sequence_bumped"> {
   type_i: EffectType.sequence_bumped;
   new_seq: number | string;
@@ -127,12 +139,15 @@ interface SignerEvents<T extends string> extends BaseEffectRecord<T> {
   key: string;
   public_key: string;
 }
+/** @category Network / Horizon */
 export interface SignerCreated extends SignerEvents<"signer_created"> {
   type_i: EffectType.signer_created;
 }
+/** @category Network / Horizon */
 export interface SignerRemoved extends SignerEvents<"signer_removed"> {
   type_i: EffectType.signer_removed;
 }
+/** @category Network / Horizon */
 export interface SignerUpdated extends SignerEvents<"signer_updated"> {
   type_i: EffectType.signer_updated;
 }
@@ -141,39 +156,47 @@ interface TrustlineEvents<T extends string>
   limit: string;
   liquidity_pool_id?: string;
 }
+/** @category Network / Horizon */
 export interface TrustlineCreated extends TrustlineEvents<"trustline_created"> {
   type_i: EffectType.trustline_created;
 }
+/** @category Network / Horizon */
 export interface TrustlineRemoved extends TrustlineEvents<"trustline_removed"> {
   type_i: EffectType.trustline_removed;
 }
+/** @category Network / Horizon */
 export interface TrustlineUpdated extends TrustlineEvents<"trustline_updated"> {
   type_i: EffectType.trustline_updated;
 }
+/** @category Network / Horizon */
 export interface TrustlineAuthorized extends BaseEffectRecord<"trustline_authorized"> {
   type_i: EffectType.trustline_authorized;
   asset_type: OfferAsset["asset_type"];
   asset_code: OfferAsset["asset_code"];
   trustor: string;
 }
+/** @category Network / Horizon */
 export interface TrustlineDeauthorized extends Omit<
   TrustlineAuthorized,
   "type_i"
 > {
   type_i: EffectType.trustline_deauthorized;
 }
+/** @category Network / Horizon */
 export interface TrustlineAuthorizedToMaintainLiabilities extends Omit<
   TrustlineAuthorized,
   "type_i"
 > {
   type_i: EffectType.trustline_authorized_to_maintain_liabilities;
 }
+/** @category Network / Horizon */
 export interface ClaimableBalanceCreated extends BaseEffectRecord<"claimable_balance_created"> {
   type_i: EffectType.claimable_balance_created;
   amount: string;
   balance_type_i: string;
   asset: string;
 }
+/** @category Network / Horizon */
 export interface ClaimableBalanceClaimed extends Omit<
   ClaimableBalanceCreated,
   "type_i"
@@ -181,6 +204,7 @@ export interface ClaimableBalanceClaimed extends Omit<
   type_i: EffectType.claimable_balance_claimed;
 }
 
+/** @category Network / Horizon */
 export interface ClaimableBalanceClaimantCreated extends Omit<
   ClaimableBalanceCreated,
   "type_i"
@@ -195,14 +219,17 @@ interface SponsorshipFields {
 interface AccountSponsorshipEvents<T extends string>
   extends BaseEffectRecord<T>, SponsorshipFields {}
 
+/** @category Network / Horizon */
 export type AccountSponsorshipCreated = Omit<
   AccountSponsorshipEvents<"account_sponsorship_created">,
   "new_sponsor" | "former_sponsor"
 > & { type_i: EffectType.account_sponsorship_created };
+/** @category Network / Horizon */
 export type AccountSponsorshipUpdated = Omit<
   AccountSponsorshipEvents<"account_sponsorship_updated">,
   "sponsor"
 > & { type_i: EffectType.account_sponsorship_updated };
+/** @category Network / Horizon */
 export type AccountSponsorshipRemoved = Omit<
   AccountSponsorshipEvents<"account_sponsorship_removed">,
   "new_sponsor" | "sponsor"
@@ -212,14 +239,17 @@ interface TrustlineSponsorshipEvents<T extends string>
   asset?: string;
   liquidity_pool_id?: string;
 }
+/** @category Network / Horizon */
 export type TrustlineSponsorshipCreated = Omit<
   TrustlineSponsorshipEvents<"trustline_sponsorship_created">,
   "new_sponsor" | "former_sponsor"
 > & { type_i: EffectType.trustline_sponsorship_created };
+/** @category Network / Horizon */
 export type TrustlineSponsorshipUpdated = Omit<
   TrustlineSponsorshipEvents<"trustline_sponsorship_updated">,
   "sponsor"
 > & { type_i: EffectType.trustline_sponsorship_updated };
+/** @category Network / Horizon */
 export type TrustlineSponsorshipRemoved = Omit<
   TrustlineSponsorshipEvents<"trustline_sponsorship_removed">,
   "new_sponsor" | "sponsor"
@@ -228,16 +258,19 @@ interface DataSponsorshipEvents<T extends string>
   extends BaseEffectRecord<T>, SponsorshipFields {
   data_name: string;
 }
+/** @category Network / Horizon */
 export type DateSponsorshipCreated = Omit<
   DataSponsorshipEvents<"data_sponsorship_created">,
   "new_sponsor" | "former_sponsor"
 > & { type_i: EffectType.data_sponsorship_created };
+/** @category Network / Horizon */
 export type DateSponsorshipUpdated = Omit<
   DataSponsorshipEvents<"data_sponsorship_updated">,
   "sponsor"
 > & {
   type_i: EffectType.data_sponsorship_updated;
 };
+/** @category Network / Horizon */
 export type DateSponsorshipRemoved = Omit<
   DataSponsorshipEvents<"data_sponsorship_removed">,
   "new_sponsor" | "sponsor"
@@ -247,14 +280,17 @@ interface ClaimableBalanceSponsorshipEvents<T extends string>
   balance_type_i: string;
 }
 
+/** @category Network / Horizon */
 export type ClaimableBalanceSponsorshipCreated = Omit<
   ClaimableBalanceSponsorshipEvents<"claimable_balance_sponsorship_created">,
   "new_sponsor" | "former_sponsor"
 > & { type_i: EffectType.claimable_balance_sponsorship_created };
+/** @category Network / Horizon */
 export type ClaimableBalanceSponsorshipUpdated = Omit<
   ClaimableBalanceSponsorshipEvents<"claimable_balance_sponsorship_updated">,
   "sponsor"
 > & { type_i: EffectType.claimable_balance_sponsorship_updated };
+/** @category Network / Horizon */
 export type ClaimableBalanceSponsorshipRemoved = Omit<
   ClaimableBalanceSponsorshipEvents<"claimable_balance_sponsorship_removed">,
   "new_sponsor" | "sponsor"
@@ -264,23 +300,28 @@ interface SignerSponsorshipEvents<T extends string>
   signer: string;
 }
 
+/** @category Network / Horizon */
 export type SignerSponsorshipCreated = Omit<
   SignerSponsorshipEvents<"signer_sponsorship_created">,
   "new_sponsor" | "former_sponsor"
 > & { type_i: EffectType.signer_sponsorship_created };
+/** @category Network / Horizon */
 export type SignerSponsorshipUpdated = Omit<
   SignerSponsorshipEvents<"signer_sponsorship_updated">,
   "sponsor"
 > & { type_i: EffectType.signer_sponsorship_updated };
+/** @category Network / Horizon */
 export type SignerSponsorshipRemoved = Omit<
   SignerSponsorshipEvents<"signer_sponsorship_removed">,
   "new_sponsor" | "sponsor"
 > & { type_i: EffectType.signer_sponsorship_removed };
 
+/** @category Network / Horizon */
 export interface ClaimableBalanceClawedBack extends HorizonApi.BaseResponse {
   balance_id: string;
 }
 
+/** @category Network / Horizon */
 export interface LiquidityPoolEffectRecord extends HorizonApi.BaseResponse {
   id: string;
   fee_bp: number;
@@ -289,32 +330,38 @@ export interface LiquidityPoolEffectRecord extends HorizonApi.BaseResponse {
   total_shares: string;
   reserves: HorizonApi.Reserve[];
 }
+/** @category Network / Horizon */
 export interface LiquidityPoolDeposited extends BaseEffectRecord<"liquidity_pool_deposited"> {
   type_i: EffectType.liquidity_pool_deposited;
   liquidity_pool: LiquidityPoolEffectRecord;
   reserves_deposited: HorizonApi.Reserve[];
   shares_received: string;
 }
+/** @category Network / Horizon */
 export interface LiquidityPoolWithdrew extends BaseEffectRecord<"liquidity_pool_withdrew"> {
   type_i: EffectType.liquidity_pool_withdrew;
   liquidity_pool: LiquidityPoolEffectRecord;
   reserves_received: HorizonApi.Reserve[];
   shares_redeemed: string;
 }
+/** @category Network / Horizon */
 export interface LiquidityPoolTrade extends BaseEffectRecord<"liquidity_pool_trade"> {
   type_i: EffectType.liquidity_pool_trade;
   liquidity_pool: LiquidityPoolEffectRecord;
   sold: HorizonApi.Reserve;
   bought: HorizonApi.Reserve;
 }
+/** @category Network / Horizon */
 export interface LiquidityPoolCreated extends BaseEffectRecord<"liquidity_pool_created"> {
   type_i: EffectType.liquidity_pool_created;
   liquidity_pool: LiquidityPoolEffectRecord;
 }
+/** @category Network / Horizon */
 export interface LiquidityPoolRemoved extends BaseEffectRecord<"liquidity_pool_removed"> {
   type_i: EffectType.liquidity_pool_removed;
   liquidity_pool_id: string;
 }
+/** @category Network / Horizon */
 export interface LiquidityPoolRevoked extends BaseEffectRecord<"liquidity_pool_revoked"> {
   type_i: EffectType.liquidity_pool_revoked;
   liquidity_pool: LiquidityPoolEffectRecord;
@@ -328,12 +375,14 @@ export interface LiquidityPoolRevoked extends BaseEffectRecord<"liquidity_pool_r
   shares_revoked: string;
 }
 
+/** @category Network / Horizon */
 export interface ContractCredited
   extends BaseEffectRecord<"contract_credited">, OfferAsset {
   type_i: EffectType.contract_credited;
   contract: string;
   amount: string;
 }
+/** @category Network / Horizon */
 export interface ContractDebited
   extends BaseEffectRecord<"contract_debited">, OfferAsset {
   type_i: EffectType.contract_debited;

@@ -57,6 +57,7 @@ import { XdrLargeInt, type ScIntType } from "./xdr_large_int.js";
  *    large (i.e. exceeds a 256-bit value), doesn't fit in the `opts.type`,
  *    the signedness of `opts.type` doesn't match the input `value`, or a
  *    string `value` can't be parsed as a big integer
+ * @category Core / Transactions
  */
 export class ScInt extends XdrLargeInt {
   /**

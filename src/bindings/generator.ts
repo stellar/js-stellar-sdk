@@ -9,6 +9,7 @@ import { Server } from "../rpc/index.js";
 
 /**
  * Options for generating TypeScript bindings.
+ * @category Contracts / Bindings
  */
 export type GenerateOptions = {
   /**
@@ -23,6 +24,7 @@ export type GenerateOptions = {
  *
  * Contains all generated TypeScript source files and configuration files
  * needed to create a standalone npm package for interacting with a Stellar contract.
+ * @category Contracts / Bindings
  */
 export type GeneratedBindings = {
   /** The index.ts barrel export file that re-exports Client and types */
@@ -68,6 +70,7 @@ export type GeneratedBindings = {
  * const spec = new Spec(specEntries);
  * const generator = BindingGenerator.fromSpec(spec);
  * const bindings = generator.generate({ contractName: "my-contract" });
+ * @category Contracts / Bindings
  */
 export class BindingGenerator {
   private spec: Spec;

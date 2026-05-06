@@ -46,6 +46,7 @@ function weightCheckFunction(value: number, name: string): boolean {
  * @param opts.homeDomain - sets the home domain used for reverse federation lookup.
  * @param opts.source - The source account (defaults to transaction source).
  * @see [Account flags](https://developers.stellar.org/docs/glossary/accounts/#flags)
+ * @category Core / Transactions
  */
 export function setOptions<T extends SignerOpts = never>(
   opts: SetOptionsOpts<T>,

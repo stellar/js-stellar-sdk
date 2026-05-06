@@ -23,6 +23,7 @@ import {
  *
  * @param opts - an optional set of parameters
  * @param opts.source - an optional source account
+ * @category Core / Transactions
  */
 export function restoreFootprint(
   opts: RestoreFootprintOpts = {},

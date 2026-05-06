@@ -44,6 +44,7 @@ function extractEvent(event: xdr.ContractEvent): SorobanEvent {
  *
  * @param events - either contract events or diagnostic events to parse into a
  *    friendly format
+ * @category Core / Soroban Primitives
  */
 export function humanizeEvents(
   events: xdr.ContractEvent[] | xdr.DiagnosticEvent[],

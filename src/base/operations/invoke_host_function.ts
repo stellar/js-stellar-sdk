@@ -29,6 +29,7 @@ import { setSourceAccount } from "../util/operations.js";
  * @see Operation.createStellarAssetContract
  * @see Operation.uploadContractWasm
  * @see Contract.call
+ * @category Core / Transactions
  */
 export function invokeHostFunction(
   opts: InvokeHostFunctionOpts,
@@ -96,6 +97,7 @@ export function invokeHostFunction(
  * @see Operation.invokeHostFunction
  * @see Contract.call
  * @see Address
+ * @category Core / Transactions
  */
 export function invokeContractFunction(
   opts: InvokeContractFunctionOpts,
@@ -135,6 +137,7 @@ export function invokeContractFunction(
  * @param opts.source - an optional source account
  *
  * @see https://soroban.stellar.org/docs/fundamentals-and-concepts/invoking-contracts-with-transactions#function
+ * @category Core / Transactions
  */
 export function createCustomContract(
   opts: CreateCustomContractOpts,
@@ -187,6 +190,7 @@ export function createCustomContract(
  * @see https://soroban.stellar.org/docs/fundamentals-and-concepts/invoking-contracts-with-transactions
  * @see https://soroban.stellar.org/docs/advanced-tutorials/stellar-asset-contract
  * @see Operation.invokeHostFunction
+ * @category Core / Transactions
  */
 export function createStellarAssetContract(
   opts: CreateStellarAssetContractOpts,
@@ -234,6 +238,7 @@ export function createStellarAssetContract(
  * @param opts.source - an optional source account
  *
  * @see https://soroban.stellar.org/docs/fundamentals-and-concepts/invoking-contracts-with-transactions#function
+ * @category Core / Transactions
  */
 export function uploadContractWasm(
   opts: UploadContractWasmOpts,

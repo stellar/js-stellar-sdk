@@ -6,39 +6,47 @@ import { LiquidityPoolId } from "../liquidity_pool_id.js";
 import xdr from "../xdr.js";
 import type { BigNumber } from "../util/bignumber.js";
 
+/** @category Core / Transactions */
 export interface OperationAttributes {
   body: xdr.OperationBody;
   sourceAccount: xdr.MuxedAccount | null;
 }
 
+/** @category Core / Transactions */
 export interface ChangeTrustOpts {
   asset: Asset | LiquidityPoolAsset;
   limit?: string;
   source?: string;
 }
 
+/** @category Core / Transactions */
 export interface RestoreFootprintOpts {
   source?: string;
 }
 
+/** @category Core / Transactions */
 export interface ManageDataOpts {
   name: string;
   value: Buffer | string | null;
   source?: string;
 }
 
+/** @category Core / Transactions */
 export interface InflationOpts {
   source?: string;
 }
 
+/** @category Core / Transactions */
 export interface ExtendFootprintTtlOpts {
   extendTo: number;
   source?: string;
 }
 
+/** @category Core / Transactions */
 export interface EndSponsoringFutureReservesOpts {
   source?: string;
 }
+/** @category Core / Transactions */
 export interface LiquidityPoolWithdrawOpts {
   liquidityPoolId: string;
   amount: string;
@@ -47,6 +55,7 @@ export interface LiquidityPoolWithdrawOpts {
   source?: string;
 }
 
+/** @category Core / Transactions */
 export interface AllowTrustOpts {
   trustor: string;
   assetCode: string;
@@ -54,27 +63,32 @@ export interface AllowTrustOpts {
   source?: string;
 }
 
+/** @category Core / Transactions */
 export interface BeginSponsoringFutureReservesOpts {
   sponsoredId: string;
   source?: string;
 }
 
+/** @category Core / Transactions */
 export interface TrustLineFlagMap {
   authorized?: boolean;
   authorizedToMaintainLiabilities?: boolean;
   clawbackEnabled?: boolean;
 }
 
+/** @category Core / Transactions */
 export interface SetTrustLineFlagsOpts {
   trustor: string;
   asset: Asset;
   flags: TrustLineFlagMap;
   source?: string;
 }
+/** @category Core / Transactions */
 export interface BaseSignerOpt {
   weight?: number | string;
 }
 
+/** @category Core / Transactions */
 export interface Ed25519PublicKeySignerOpt {
   ed25519PublicKey: string;
   sha256Hash?: never;
@@ -82,6 +96,7 @@ export interface Ed25519PublicKeySignerOpt {
   ed25519SignedPayload?: never;
 }
 
+/** @category Core / Transactions */
 export interface Sha256HashSignerOpt {
   ed25519PublicKey?: never;
   sha256Hash: Buffer | string;
@@ -89,6 +104,7 @@ export interface Sha256HashSignerOpt {
   ed25519SignedPayload?: never;
 }
 
+/** @category Core / Transactions */
 export interface PreAuthTxSignerOpt {
   ed25519PublicKey?: never;
   sha256Hash?: never;
@@ -96,12 +112,14 @@ export interface PreAuthTxSignerOpt {
   ed25519SignedPayload?: never;
 }
 
+/** @category Core / Transactions */
 export interface Ed25519SignedPayloadSignerOpt {
   ed25519PublicKey?: never;
   sha256Hash?: never;
   preAuthTx?: never;
   ed25519SignedPayload: string;
 }
+/** @category Core / Transactions */
 export type SignerOpts = BaseSignerOpt &
   (
     | Ed25519PublicKeySignerOpt
@@ -109,6 +127,7 @@ export type SignerOpts = BaseSignerOpt &
     | PreAuthTxSignerOpt
     | Sha256HashSignerOpt
   ); // weight is required for SetOptions, but not for RevokeSignerSponsorship
+/** @category Core / Transactions */
 export interface SetOptionsOpts<T extends SignerOpts = never> {
   inflationDest?: string;
   clearFlags?: AuthFlags;
@@ -124,6 +143,7 @@ export interface SetOptionsOpts<T extends SignerOpts = never> {
   source?: string;
 }
 
+/** @category Core / Transactions */
 export interface CreatePassiveSellOfferOpts {
   selling: Asset;
   buying: Asset;
@@ -132,10 +152,12 @@ export interface CreatePassiveSellOfferOpts {
   source?: string;
 }
 
+/** @category Core / Transactions */
 export interface ManageSellOfferOpts extends CreatePassiveSellOfferOpts {
   offerId?: number | string;
 }
 
+/** @category Core / Transactions */
 export interface ManageBuyOfferOpts {
   selling: Asset;
   buying: Asset;
@@ -145,6 +167,7 @@ export interface ManageBuyOfferOpts {
   source?: string;
 }
 
+/** @category Core / Transactions */
 export interface PathPaymentStrictSendOpts {
   sendAsset: Asset;
   sendAmount: string;
@@ -155,6 +178,7 @@ export interface PathPaymentStrictSendOpts {
   source?: string;
 }
 
+/** @category Core / Transactions */
 export interface CreateClaimableBalanceOpts {
   asset: Asset;
   amount: string;
@@ -162,21 +186,25 @@ export interface CreateClaimableBalanceOpts {
   source?: string;
 }
 
+/** @category Core / Transactions */
 export interface ClaimClaimableBalanceOpts {
   balanceId: string;
   source?: string;
 }
 
+/** @category Core / Transactions */
 export interface ClawbackClaimableBalanceOpts {
   balanceId: string;
   source?: string;
 }
 
+/** @category Core / Transactions */
 export interface BumpSequenceOpts {
   bumpTo: string;
   source?: string;
 }
 
+/** @category Core / Transactions */
 export interface SignerKeyOptions {
   ed25519PublicKey?: string;
   sha256Hash?: Buffer | string;
@@ -184,51 +212,60 @@ export interface SignerKeyOptions {
   ed25519SignedPayload?: string;
 }
 
+/** @category Core / Transactions */
 export interface RevokeAccountSponsorshipOpts {
   account: string;
   source?: string;
 }
 
+/** @category Core / Transactions */
 export interface RevokeTrustlineSponsorshipOpts {
   account: string;
   asset: Asset | LiquidityPoolId;
   source?: string;
 }
 
+/** @category Core / Transactions */
 export interface RevokeOfferSponsorshipOpts {
   seller: string;
   offerId: string;
   source?: string;
 }
 
+/** @category Core / Transactions */
 export interface RevokeDataSponsorshipOpts {
   account: string;
   name: string;
   source?: string;
 }
 
+/** @category Core / Transactions */
 export interface RevokeClaimableBalanceSponsorshipOpts {
   balanceId: string;
   source?: string;
 }
 
+/** @category Core / Transactions */
 export interface RevokeLiquidityPoolSponsorshipOpts {
   liquidityPoolId: string;
   source?: string;
 }
 
+/** @category Core / Transactions */
 export type RevokeSignerOpts =
   | Ed25519PublicKeySignerOpt
   | Ed25519SignedPayloadSignerOpt
   | PreAuthTxSignerOpt
   | Sha256HashSignerOpt;
 
+/** @category Core / Transactions */
 export interface RevokeSignerSponsorshipOpts {
   account: string;
   signer: RevokeSignerOpts; // weight is not needed to identify the signer to revoke sponsorship for
   source?: string;
 }
 
+/** @category Core / Transactions */
 export interface LiquidityPoolDepositOpts {
   liquidityPoolId: string;
   maxAmountA: string;
@@ -238,12 +275,14 @@ export interface LiquidityPoolDepositOpts {
   source?: string;
 }
 
+/** @category Core / Transactions */
 export interface InvokeHostFunctionOpts {
   func: xdr.HostFunction;
   auth?: xdr.SorobanAuthorizationEntry[];
   source?: string;
 }
 
+/** @category Core / Transactions */
 export interface InvokeContractFunctionOpts {
   contract: string;
   function: string;
@@ -252,6 +291,7 @@ export interface InvokeContractFunctionOpts {
   source?: string;
 }
 
+/** @category Core / Transactions */
 export interface CreateCustomContractOpts {
   address: Address;
   wasmHash: Buffer | Uint8Array;
@@ -261,29 +301,34 @@ export interface CreateCustomContractOpts {
   source?: string;
 }
 
+/** @category Core / Transactions */
 export interface CreateStellarAssetContractOpts {
   asset: Asset | string;
   auth?: xdr.SorobanAuthorizationEntry[];
   source?: string;
 }
 
+/** @category Core / Transactions */
 export interface UploadContractWasmOpts {
   wasm: Buffer | Uint8Array;
   auth?: xdr.SorobanAuthorizationEntry[];
   source?: string;
 }
 
+/** @category Core / Transactions */
 export interface CreateAccountOpts {
   destination: string;
   startingBalance: string;
   source?: string;
 }
 
+/** @category Core / Transactions */
 export interface AccountMergeOpts {
   destination: string;
   source?: string;
 }
 
+/** @category Core / Transactions */
 export interface PaymentOpts {
   destination: string;
   asset: Asset;
@@ -291,6 +336,7 @@ export interface PaymentOpts {
   source?: string;
 }
 
+/** @category Core / Transactions */
 export interface ClawbackOpts {
   asset: Asset;
   amount: string;
@@ -298,6 +344,7 @@ export interface ClawbackOpts {
   source?: string;
 }
 
+/** @category Core / Transactions */
 export interface PathPaymentStrictReceiveOpts {
   sendAsset: Asset;
   sendMax: string;
@@ -308,6 +355,7 @@ export interface PathPaymentStrictReceiveOpts {
   source?: string;
 }
 
+/** @category Core / Transactions */
 export type OperationOptions =
   | AccountMergeOpts
   | AllowTrustOpts
@@ -351,6 +399,7 @@ export type OperationOptions =
 // These are the shapes returned by Operation.fromXDRObject, mirroring the
 // namespace Operation interfaces in types/index.d.ts.
 
+/** @category Core / Transactions */
 export namespace OperationType {
   export type CreateAccount = "createAccount";
   export type Payment = "payment";
@@ -428,6 +477,7 @@ export type OperationType =
 // Literal types matching the AuthRequiredFlag/AuthRevocableFlag/AuthImmutableFlag/AuthClawbackEnabledFlag
 // constants exported from src/operation.ts.
 
+/** @category Core / Transactions */
 export const AuthFlag = {
   required: 1,
   revocable: 2,
@@ -437,8 +487,10 @@ export const AuthFlag = {
 export type AuthFlag = (typeof AuthFlag)[keyof typeof AuthFlag];
 /**
  * A single {@link AuthFlag} or multiple flags combined with `|` (e.g. `AuthRequiredFlag | AuthRevocableFlag`).
+ * @category Core / Transactions
  */
 export type AuthFlags = AuthFlag | (number & {});
+/** @category Core / Transactions */
 export namespace TrustLineFlag {
   export type deauthorize = 0;
   export type authorize = 1;
@@ -450,6 +502,7 @@ export type TrustLineFlag =
   | TrustLineFlag.deauthorize;
 
 // Signer result types used in the SetOptions result interface (weight included).
+/** @category Core / Transactions */
 export namespace Signer {
   export interface Ed25519PublicKey {
     ed25519PublicKey: string;
@@ -474,22 +527,26 @@ export type Signer =
   | Signer.PreAuthTx
   | Signer.Sha256Hash;
 
+/** @category Core / Transactions */
 export interface BaseOperation<T extends OperationType = OperationType> {
   type: T;
   source?: string;
 }
 
+/** @category Core / Transactions */
 export interface CreateAccountResult extends BaseOperation<OperationType.CreateAccount> {
   destination: string;
   startingBalance: string;
 }
 
+/** @category Core / Transactions */
 export interface PaymentResult extends BaseOperation<OperationType.Payment> {
   destination: string;
   asset: Asset;
   amount: string;
 }
 
+/** @category Core / Transactions */
 export interface PathPaymentStrictReceiveResult extends BaseOperation<OperationType.PathPaymentStrictReceive> {
   sendAsset: Asset;
   sendMax: string;
@@ -499,6 +556,7 @@ export interface PathPaymentStrictReceiveResult extends BaseOperation<OperationT
   path: Asset[];
 }
 
+/** @category Core / Transactions */
 export interface PathPaymentStrictSendResult extends BaseOperation<OperationType.PathPaymentStrictSend> {
   sendAsset: Asset;
   sendAmount: string;
@@ -508,6 +566,7 @@ export interface PathPaymentStrictSendResult extends BaseOperation<OperationType
   path: Asset[];
 }
 
+/** @category Core / Transactions */
 export interface CreatePassiveSellOfferResult extends BaseOperation<OperationType.CreatePassiveSellOffer> {
   selling: Asset;
   buying: Asset;
@@ -515,6 +574,7 @@ export interface CreatePassiveSellOfferResult extends BaseOperation<OperationTyp
   price: string;
 }
 
+/** @category Core / Transactions */
 export interface ManageSellOfferResult extends BaseOperation<OperationType.ManageSellOffer> {
   selling: Asset;
   buying: Asset;
@@ -523,6 +583,7 @@ export interface ManageSellOfferResult extends BaseOperation<OperationType.Manag
   offerId: string;
 }
 
+/** @category Core / Transactions */
 export interface ManageBuyOfferResult extends BaseOperation<OperationType.ManageBuyOffer> {
   selling: Asset;
   buying: Asset;
@@ -531,6 +592,7 @@ export interface ManageBuyOfferResult extends BaseOperation<OperationType.Manage
   offerId: string;
 }
 
+/** @category Core / Transactions */
 export interface SetOptionsResult<
   T extends SignerOpts = never,
 > extends BaseOperation<OperationType.SetOptions> {
@@ -549,91 +611,111 @@ export interface SetOptionsResult<
   signer?: T;
 }
 
+/** @category Core / Transactions */
 export interface ChangeTrustResult extends BaseOperation<OperationType.ChangeTrust> {
   line: Asset | LiquidityPoolAsset;
   limit: string;
 }
 
+/** @category Core / Transactions */
 export interface AllowTrustResult extends BaseOperation<OperationType.AllowTrust> {
   trustor: string;
   assetCode: string;
   authorize: TrustLineFlag | boolean | undefined;
 }
 
+/** @category Core / Transactions */
 export interface AccountMergeResult extends BaseOperation<OperationType.AccountMerge> {
   destination: string;
 }
 
+/** @category Core / Transactions */
 export type InflationResult = BaseOperation<OperationType.Inflation>;
 
+/** @category Core / Transactions */
 export interface ManageDataResult extends BaseOperation<OperationType.ManageData> {
   name: string;
   value?: Buffer;
 }
 
+/** @category Core / Transactions */
 export interface BumpSequenceResult extends BaseOperation<OperationType.BumpSequence> {
   bumpTo: string;
 }
 
+/** @category Core / Transactions */
 export interface CreateClaimableBalanceResult extends BaseOperation<OperationType.CreateClaimableBalance> {
   asset: Asset;
   amount: string;
   claimants: Claimant[];
 }
 
+/** @category Core / Transactions */
 export interface ClaimClaimableBalanceResult extends BaseOperation<OperationType.ClaimClaimableBalance> {
   balanceId: string;
 }
 
+/** @category Core / Transactions */
 export interface BeginSponsoringFutureReservesResult extends BaseOperation<OperationType.BeginSponsoringFutureReserves> {
   sponsoredId: string;
 }
 
+/** @category Core / Transactions */
 export type EndSponsoringFutureReservesResult =
   BaseOperation<OperationType.EndSponsoringFutureReserves>;
 
+/** @category Core / Transactions */
 export interface RevokeAccountSponsorshipResult extends BaseOperation<OperationType.RevokeAccountSponsorship> {
   account: string;
 }
 
+/** @category Core / Transactions */
 export interface RevokeTrustlineSponsorshipResult extends BaseOperation<OperationType.RevokeTrustlineSponsorship> {
   account: string;
   asset: Asset | LiquidityPoolId;
 }
 
+/** @category Core / Transactions */
 export interface RevokeOfferSponsorshipResult extends BaseOperation<OperationType.RevokeOfferSponsorship> {
   seller: string;
   offerId: string;
 }
 
+/** @category Core / Transactions */
 export interface RevokeDataSponsorshipResult extends BaseOperation<OperationType.RevokeDataSponsorship> {
   account: string;
   name: string;
 }
 
+/** @category Core / Transactions */
 export interface RevokeClaimableBalanceSponsorshipResult extends BaseOperation<OperationType.RevokeClaimableBalanceSponsorship> {
   balanceId: string;
 }
 
+/** @category Core / Transactions */
 export interface RevokeLiquidityPoolSponsorshipResult extends BaseOperation<OperationType.RevokeLiquidityPoolSponsorship> {
   liquidityPoolId: string;
 }
 
+/** @category Core / Transactions */
 export interface RevokeSignerSponsorshipResult extends BaseOperation<OperationType.RevokeSignerSponsorship> {
   account: string;
   signer: RevokeSignerOpts;
 }
 
+/** @category Core / Transactions */
 export interface ClawbackResult extends BaseOperation<OperationType.Clawback> {
   asset: Asset;
   amount: string;
   from: string;
 }
 
+/** @category Core / Transactions */
 export interface ClawbackClaimableBalanceResult extends BaseOperation<OperationType.ClawbackClaimableBalance> {
   balanceId: string;
 }
 
+/** @category Core / Transactions */
 export interface SetTrustLineFlagsResult extends BaseOperation<OperationType.SetTrustLineFlags> {
   trustor: string;
   asset: Asset;
@@ -644,6 +726,7 @@ export interface SetTrustLineFlagsResult extends BaseOperation<OperationType.Set
   };
 }
 
+/** @category Core / Transactions */
 export interface LiquidityPoolDepositResult extends BaseOperation<OperationType.LiquidityPoolDeposit> {
   liquidityPoolId: string;
   maxAmountA: string;
@@ -652,6 +735,7 @@ export interface LiquidityPoolDepositResult extends BaseOperation<OperationType.
   maxPrice: string;
 }
 
+/** @category Core / Transactions */
 export interface LiquidityPoolWithdrawResult extends BaseOperation<OperationType.LiquidityPoolWithdraw> {
   liquidityPoolId: string;
   amount: string;
@@ -659,20 +743,24 @@ export interface LiquidityPoolWithdrawResult extends BaseOperation<OperationType
   minAmountB: string;
 }
 
+/** @category Core / Transactions */
 export interface InvokeHostFunctionResult extends BaseOperation<OperationType.InvokeHostFunction> {
   func: xdr.HostFunction;
   auth?: xdr.SorobanAuthorizationEntry[];
 }
 
+/** @category Core / Transactions */
 export interface ExtendFootprintTTLResult extends BaseOperation<OperationType.ExtendFootprintTTL> {
   extendTo: number;
 }
 
+/** @category Core / Transactions */
 export type RestoreFootprintResult =
   BaseOperation<OperationType.RestoreFootprint>;
 
 /**
  * Union of all possible operation objects returned by Operation.fromXDRObject.
+ * @category Core / Transactions
  */
 export type OperationRecord =
   | AccountMergeResult

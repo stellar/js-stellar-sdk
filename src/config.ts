@@ -1,5 +1,6 @@
 /**
  * Global config parameters.
+ * @category Cross-cutting
  */
 export interface Configuration {
   /**

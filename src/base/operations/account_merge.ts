@@ -14,6 +14,7 @@ import { setSourceAccount } from "../util/operations.js";
  * @param opts.destination - destination to merge the source account into
  * @param opts.source - operation source account (defaults to
  *     transaction source)
+ * @category Core / Transactions
  */
 export function accountMerge(
   opts: AccountMergeOpts,

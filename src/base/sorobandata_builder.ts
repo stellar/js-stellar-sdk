@@ -1,5 +1,6 @@
 import xdr from "./xdr.js";
 
+/** @category Core / Soroban Primitives */
 export type IntLike = bigint | number | string;
 
 /**
@@ -23,6 +24,7 @@ export type IntLike = bigint | number | string;
  *   .setFootprint([someLedgerKey], [])
  *   .setResourceFee("1000")
  *   .build();
+ * @category Core / Soroban Primitives
  */
 export class SorobanDataBuilder {
   private _data: xdr.SorobanTransactionData;

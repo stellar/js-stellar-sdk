@@ -1,4 +1,5 @@
 import { xdr } from "../base/index.js";
+/** @category Contracts / Bindings */
 export function isNameReserved(name: string): boolean {
   const reservedNames = [
     // Keywords
@@ -61,6 +62,7 @@ export function isNameReserved(name: string): boolean {
  * Sanitize a name to avoid reserved keywords
  * @param identifier - The identifier to sanitize
  * @returns The sanitized identifier
+ * @category Contracts / Bindings
  */
 export function sanitizeIdentifier(identifier: string): string {
   // Strip any characters outside the ASCII identifier-safe set [a-zA-Z0-9_$]
@@ -84,6 +86,7 @@ export function sanitizeIdentifier(identifier: string): string {
 
 /**
  * Escape a string for safe interpolation inside a double-quoted JavaScript string literal.
+ * @category Contracts / Bindings
  */
 export function escapeStringLiteral(str: string): string {
   return str
@@ -97,6 +100,7 @@ export function escapeStringLiteral(str: string): string {
 
 /**
  * Generate TypeScript type from XDR type definition
+ * @category Contracts / Bindings
  */
 export function parseTypeFromTypeDef(
   typeDef: xdr.ScSpecTypeDef,
@@ -203,6 +207,7 @@ export function parseTypeFromTypeDef(
 
 /**
  * Imports needed for generating bindings
+ * @category Contracts / Bindings
  */
 export interface BindingImports {
   /** Imports needed from type definitions */
@@ -302,6 +307,7 @@ function visitTypeDef(
 
 /**
  * Generate imports needed for a list of type definitions
+ * @category Contracts / Bindings
  */
 export function generateTypeImports(
   typeDefs: xdr.ScSpecTypeDef[],
@@ -321,6 +327,7 @@ export function generateTypeImports(
 
 /**
  * Options for formatting imports
+ * @category Contracts / Bindings
  */
 export interface FormatImportsOptions {
   /** Whether to include imports from types.ts */
@@ -333,6 +340,7 @@ export interface FormatImportsOptions {
 
 /**
  * Format imports into import statement strings
+ * @category Contracts / Bindings
  */
 export function formatImports(
   imports: BindingImports,
@@ -399,6 +407,7 @@ function escapeJSDocContent(text: string): string {
 
 /**
  * Format a comment string as JSDoc with proper escaping
+ * @category Contracts / Bindings
  */
 export function formatJSDocComment(comment: string, indentLevel = 0): string {
   if (comment.trim() === "") {
@@ -415,6 +424,7 @@ export function formatJSDocComment(comment: string, indentLevel = 0): string {
   return `${indent}/**\n${lines.join("\n")}\n${indent} */\n`;
 }
 
+/** @category Contracts / Bindings */
 export function isTupleStruct(udtStruct: xdr.ScSpecUdtStructV0): boolean {
   const fields = udtStruct.fields();
   // A tuple struct has unnamed fields

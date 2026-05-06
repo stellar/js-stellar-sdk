@@ -8,6 +8,7 @@ import {
 
 /**
  * LiquidityPoolAsset class represents a liquidity pool trustline change.
+ * @category Core / Assets
  */
 export class LiquidityPoolAsset {
   assetA: Asset;

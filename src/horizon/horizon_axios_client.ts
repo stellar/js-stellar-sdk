@@ -6,8 +6,10 @@ import {
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 declare const __PACKAGE_VERSION__: string;
+/** @category Network / Horizon */
 export const version = __PACKAGE_VERSION__;
 
+/** @category Network / Horizon */
 export interface ServerTime {
   serverTime: number;
   localTimeRecorded: number;
@@ -27,6 +29,7 @@ export interface ServerTime {
  * }
  *
  * @default {}
+ * @category Network / Horizon
  */
 export const SERVER_TIME_MAP: Record<string, ServerTime> = {};
 
@@ -34,6 +37,7 @@ function toSeconds(ms: number): number {
   return Math.floor(ms / 1000);
 }
 
+/** @category Network / Horizon */
 export function createHttpClient(headers?: Record<string, string>): HttpClient {
   const httpClient = create({
     headers: {
@@ -90,6 +94,7 @@ export function createHttpClient(headers?: Record<string, string>): HttpClient {
  * @returns The UNIX timestamp (in seconds, not milliseconds)
  * representing the current time on that server, or `null` if we don't have
  * a record of that time.
+ * @category Network / Horizon
  */
 export function getCurrentServerTime(hostname: string): number | null {
   const entry = SERVER_TIME_MAP[hostname];

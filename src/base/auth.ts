@@ -32,6 +32,7 @@ function toBuffer(value: BufferLike): Buffer {
  *    signed by the key corresponding to the public key in the entry you pass to
  *    {@link authorizeEntry} (decipherable from its
  *    `credentials().address().address()`), or alongside an explicit `publicKey`.
+ * @category Core / Soroban Primitives
  */
 export type SigningCallback = (
   preimage: xdr.HashIdPreimage,
@@ -120,6 +121,7 @@ export type SigningCallback = (
  *      });
  * }
  * ```
+ * @category Core / Soroban Primitives
  */
 export async function authorizeEntry(
   entry: xdr.SorobanAuthorizationEntry,
@@ -228,6 +230,7 @@ export async function authorizeEntry(
  *    {@link Keypair.publicKey})
  *
  * @see authorizeEntry
+ * @category Core / Soroban Primitives
  */
 export interface AuthorizeInvocationParams {
   signer: Keypair | SigningCallback;
@@ -237,6 +240,7 @@ export interface AuthorizeInvocationParams {
   publicKey?: string;
 }
 
+/** @category Core / Soroban Primitives */
 export function authorizeInvocation(
   params: AuthorizeInvocationParams,
 ): Promise<xdr.SorobanAuthorizationEntry> {

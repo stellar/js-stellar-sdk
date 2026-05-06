@@ -7,6 +7,7 @@ import { Api } from "./api.js";
  *
  * @param raw the raw `submitTransaction` response from the RPC server to parse
  * @returns transaction response parsed from the RPC server's response
+ * @category Network / RPC
  */
 export function parseRawSendTransaction(
   raw: Api.RawSendTransactionResponse,
@@ -31,6 +32,7 @@ export function parseRawSendTransaction(
   return { ...raw } as Api.BaseSendTransactionResponse;
 }
 
+/** @category Network / RPC */
 export function parseTransactionInfo(
   raw: Api.RawTransactionInfo | Api.RawGetTransactionResponse,
 ): Omit<Api.TransactionInfo, "status" | "txHash"> {
@@ -74,6 +76,7 @@ export function parseTransactionInfo(
   return info;
 }
 
+/** @category Network / RPC */
 export function parseRawTransactions(
   r: Api.RawTransactionInfo,
 ): Api.TransactionInfo {
@@ -92,6 +95,7 @@ export function parseRawTransactions(
  *    RPC server to parse
  * @returns events parsed from the RPC server's
  *    response
+ * @category Network / RPC
  */
 export function parseRawEvents(
   raw: Api.RawGetEventsResponse,
@@ -131,6 +135,7 @@ export function parseRawEvents(
  *    response from the RPC server to parse
  * @returns ledger entries parsed from the
  *    RPC server's response
+ * @category Network / RPC
  */
 export function parseRawLedgerEntries(
   raw: Api.RawGetLedgerEntriesResponse,
@@ -231,6 +236,7 @@ function parseSuccessful(
  * @param sim the raw response schema (parsed ones are allowed, best-effort
  *    detected, and returned untouched)
  * @returns the original parameter (if already parsed), parsed otherwise
+ * @category Network / RPC
  */
 export function parseRawSimulation(
   sim: Api.SimulateTransactionResponse | Api.RawSimulateTransactionResponse,
@@ -262,6 +268,7 @@ export function parseRawSimulation(
   return parseSuccessful(sim, base);
 }
 
+/** @category Network / RPC */
 export function parseRawLedger(raw: Api.RawLedgerResponse): Api.LedgerResponse {
   if (!raw.metadataXdr || !raw.headerXdr) {
     let missingFields: string;
@@ -289,6 +296,7 @@ export function parseRawLedger(raw: Api.RawLedgerResponse): Api.LedgerResponse {
   };
 }
 
+/** @category Network / RPC */
 export function parseRawLatestLedger(
   raw: Api.RawGetLatestLedgerResponse,
 ): Api.GetLatestLedgerResponse {

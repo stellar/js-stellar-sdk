@@ -6,10 +6,12 @@
 // eslint-disable-next-line @typescript-eslint/naming-convention
 declare const __PACKAGE_VERSION__: string;
 
+/** @category Contracts / Bindings */
 export interface ConfigGenerateOptions {
   contractName: string;
 }
 
+/** @category Contracts / Bindings */
 export interface Configs {
   packageJson: string;
   tsConfig: string;
@@ -19,6 +21,7 @@ export interface Configs {
 
 /**
  * Generates a complete TypeScript project structure with contract bindings
+ * @category Contracts / Bindings
  */
 export class ConfigGenerator {
   /**

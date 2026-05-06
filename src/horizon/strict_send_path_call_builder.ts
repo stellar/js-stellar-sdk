@@ -32,6 +32,7 @@ import type { HttpClient } from "../http-client/index.js";
  * @param sourceAmount The amount, denominated in the source asset, that any returned path should be able to satisfy.
  * @param destination The destination account or the destination assets.
  *
+ * @category Network / Horizon
  */
 export class StrictSendPathCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.PaymentPathRecord>

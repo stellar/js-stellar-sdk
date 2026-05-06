@@ -13,6 +13,7 @@ import type { HttpClient } from "../http-client/index.js";
  * @internal
  *
  * @param serverUrl serverUrl Horizon server URL.
+ * @category Network / Horizon
  */
 export class TradesCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.TradeRecord>

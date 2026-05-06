@@ -9,6 +9,7 @@ import xdr from "./xdr.js";
  * account, muxed account, contract, claimable balance, or a liquidity pool
  * (the latter two can only be present as the *output* of Core in the form
  * of an event, never an input to a smart contract).
+ * @category Core / Soroban Primitives
  */
 export type AddressType =
   | "account"
@@ -17,6 +18,7 @@ export type AddressType =
   | "liquidityPool"
   | "muxedAccount";
 
+/** @category Core / Soroban Primitives */
 export class Address {
   private _type: AddressType;
   private _key: Buffer;

@@ -12,6 +12,7 @@ import type { SignAuthEntry, SignTransaction } from "./types.js";
  *
  * @param keypair {@link Keypair} to use to sign the transaction or auth entry
  * @param networkPassphrase passphrase of network to sign for
+ * @category Contracts / Client
  */
 export const basicNodeSigner = (
   keypair: Keypair,

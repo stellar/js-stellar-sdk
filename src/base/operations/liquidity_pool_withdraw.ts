@@ -22,6 +22,7 @@ import {
  * @param opts.minAmountA - Minimum amount of first asset to withdraw.
  * @param opts.minAmountB - Minimum amount of second asset to withdraw.
  * @param opts.source - The source account for the operation. Defaults to the transaction's source account.
+ * @category Core / Transactions
  */
 export function liquidityPoolWithdraw(
   opts: LiquidityPoolWithdrawOpts = {} as LiquidityPoolWithdrawOpts,

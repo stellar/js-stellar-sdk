@@ -17,6 +17,7 @@ import { ServerApi } from "./server_api.js";
  * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/accounts/object | Account Details}
  * @param response Response from horizon account endpoint.
  * @returns AccountResponse instance
+ * @category Network / Horizon
  */
 export class AccountResponse {
   public readonly id!: string;

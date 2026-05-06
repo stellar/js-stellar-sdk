@@ -17,6 +17,7 @@ ed.hashes.sha512 = sha512;
  * * `{@link Keypair.fromPublicKey}`
  * * `{@link Keypair.fromSecret}`
  * * `{@link Keypair.random}`
+ * @category Core / Keys
  */
 export class Keypair {
   readonly type: "ed25519";

@@ -33,6 +33,7 @@ async function specFromWasmHash(
  *
  * @param spec {@link Spec} to construct a Client for
  * @param options see {@link ClientOptions}
+ * @category Contracts / Client
  */
 export class Client {
   static async deploy<T = Client>(

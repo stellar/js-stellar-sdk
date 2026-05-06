@@ -13,6 +13,7 @@ import { encodeMuxedAccountToAddress } from "./util/decode_encode_muxed_account.
  * Once a {@link FeeBumpTransaction} has been created, its attributes and operations
  * should not be changed. You should only add signatures (using {@link FeeBumpTransaction.sign}) before
  * submitting to the network or forwarding on to additional signers.
+ * @category Core / Transactions
  */
 export class FeeBumpTransaction extends TransactionBase<xdr.FeeBumpTransaction> {
   private _feeSource: string;

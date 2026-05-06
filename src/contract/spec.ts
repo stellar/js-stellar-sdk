@@ -11,6 +11,7 @@ import { Ok, Err } from "./rust_result.js";
 import { processSpecEntryStream } from "./utils.js";
 import { specFromWasm } from "./wasm_spec_parser.js";
 
+/** @category Contracts / Client */
 export interface Union<T> {
   tag: string;
   values?: T;
@@ -485,6 +486,7 @@ function unionToJsonSchema(udt: xdr.ScSpecUdtUnionV0): any {
  * const result = contractSpec.funcResToNative('funcName', resultScv);
  *
  * console.log(result); // {success: true}
+ * @category Contracts / Client
  */
 export class Spec {
   /**

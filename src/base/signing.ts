@@ -6,6 +6,7 @@ ed.hashes.sha512 = sha512;
  * Derives an Ed25519 public key from a secret key.
  *
  * @param secretKey - the raw Ed25519 secret key
+ * @category Core / Keys
  */
 export function generate(secretKey: Buffer | Uint8Array): Buffer {
   return Buffer.from(ed.getPublicKey(secretKey));
@@ -16,6 +17,7 @@ export function generate(secretKey: Buffer | Uint8Array): Buffer {
  *
  * @param data - the data to sign
  * @param rawSecret - the raw Ed25519 secret key
+ * @category Core / Keys
  */
 export function sign(data: Buffer, rawSecret: Buffer | Uint8Array): Buffer {
   return Buffer.from(ed.sign(Buffer.from(data), rawSecret));
@@ -27,6 +29,7 @@ export function sign(data: Buffer, rawSecret: Buffer | Uint8Array): Buffer {
  * @param data - the original signed data
  * @param signature - the signature to verify
  * @param rawPublicKey - the raw Ed25519 public key
+ * @category Core / Keys
  */
 export function verify(
   data: Buffer,

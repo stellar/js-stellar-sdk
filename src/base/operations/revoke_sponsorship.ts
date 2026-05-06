@@ -33,6 +33,7 @@ import { setSourceAccount } from "../util/operations.js";
  * const op = Operation.revokeAccountSponsorship({
  *   account: 'GDGU5OAPHNPU5UCLE5RDJHG7PXZFQYWKCFOEXSXNMR6KRQRI5T6XXCD7'
  * });
+ * @category Core / Transactions
  */
 export function revokeAccountSponsorship(
   opts: RevokeAccountSponsorshipOpts = {} as RevokeAccountSponsorshipOpts,
@@ -73,6 +74,7 @@ export function revokeAccountSponsorship(
  *     'GDGU5OAPHNPU5UCLE5RDJHG7PXZFQYWKCFOEXSXNMR6KRQRI5T6XXCD7'
  *   )
  * });
+ * @category Core / Transactions
  */
 export function revokeTrustlineSponsorship(
   opts: RevokeTrustlineSponsorshipOpts = {} as RevokeTrustlineSponsorshipOpts,
@@ -121,6 +123,7 @@ export function revokeTrustlineSponsorship(
  *   seller: 'GDGU5OAPHNPU5UCLE5RDJHG7PXZFQYWKCFOEXSXNMR6KRQRI5T6XXCD7',
  *   offerId: '1234'
  * });
+ * @category Core / Transactions
  */
 export function revokeOfferSponsorship(
   opts: RevokeOfferSponsorshipOpts = {} as RevokeOfferSponsorshipOpts,
@@ -163,6 +166,7 @@ export function revokeOfferSponsorship(
  *   account: 'GDGU5OAPHNPU5UCLE5RDJHG7PXZFQYWKCFOEXSXNMR6KRQRI5T6XXCD7',
  *   name: 'foo'
  * });
+ * @category Core / Transactions
  */
 export function revokeDataSponsorship(
   opts: RevokeDataSponsorshipOpts = {} as RevokeDataSponsorshipOpts,
@@ -203,6 +207,7 @@ export function revokeDataSponsorship(
  * const op = Operation.revokeClaimableBalanceSponsorship({
  *   balanceId: '00000000da0d57da7d4850e7fc10d2a9d0ebc731f7afb40574c03395b17d49149b91f5be',
  * });
+ * @category Core / Transactions
  */
 export function revokeClaimableBalanceSponsorship(
   opts: RevokeClaimableBalanceSponsorshipOpts = {} as RevokeClaimableBalanceSponsorshipOpts,
@@ -238,6 +243,7 @@ export function revokeClaimableBalanceSponsorship(
  * const op = Operation.revokeLiquidityPoolSponsorship({
  *   liquidityPoolId: 'dd7b1ab831c273310ddbec6f97870aa83c2fbd78ce22aded37ecbf4f3380fac7',
  * });
+ * @category Core / Transactions
  */
 export function revokeLiquidityPoolSponsorship(
   opts: RevokeLiquidityPoolSponsorshipOpts = {} as RevokeLiquidityPoolSponsorshipOpts,
@@ -284,6 +290,7 @@ export function revokeLiquidityPoolSponsorship(
  *     ed25519PublicKey: 'GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ'
  *   }
  * })
+ * @category Core / Transactions
  */
 export function revokeSignerSponsorship(
   opts: RevokeSignerSponsorshipOpts = {} as RevokeSignerSponsorshipOpts,

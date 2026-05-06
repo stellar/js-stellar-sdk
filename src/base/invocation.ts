@@ -3,6 +3,7 @@ import { Asset } from "./asset.js";
 import { Address } from "./address.js";
 import { scValToNative } from "./scval.js";
 
+/** @category Core / Soroban Primitives */
 export interface WasmCreateDetails {
   hash: string;
   address: string;
@@ -19,6 +20,7 @@ export interface WasmCreateDetails {
  * - `asset` is set when `type=='sac'`, containing the canonical {@link Asset}
  *   being wrapped by this Stellar Asset Contract
  * - `wasm` is set when `type=='wasm'`, containing additional creation parameters
+ * @category Core / Soroban Primitives
  */
 export interface CreateInvocation {
   type: "sac" | "wasm";
@@ -33,6 +35,7 @@ export interface CreateInvocation {
  * - `function` is the name of the function being invoked
  * - `args` are the natively-represented parameters to the function invocation
  *   (see {@link scValToNative} for rules on how they're represented as JS types)
+ * @category Core / Soroban Primitives
  */
 export interface ExecuteInvocation {
   source: string;
@@ -49,6 +52,7 @@ export interface ExecuteInvocation {
  * - `args` are the parameters to the invocation, depending on the type
  * - `invocations` are any sub-invocations that may occur as a result of this
  *   invocation (i.e. a tree of call stacks)
+ * @category Core / Soroban Primitives
  */
 export interface InvocationTree {
   type: "create" | "execute";
@@ -67,6 +71,7 @@ export interface InvocationTree {
  *    root starts at a depth of 1)
  * @param parent - this node's parent node, if any (i.e. this doesn't
  *    exist at the root)
+ * @category Core / Soroban Primitives
  */
 export type InvocationWalker = (
   node: xdr.SorobanAuthorizedInvocation,
@@ -116,6 +121,7 @@ export type InvocationWalker = (
  *  }
  * );
  * ```
+ * @category Core / Soroban Primitives
  */
 export function buildInvocationTree(
   root: xdr.SorobanAuthorizedInvocation,
@@ -225,6 +231,7 @@ export function buildInvocationTree(
  *
  * @param root - the tree to explore
  * @param callback - the callback to execute for each node
+ * @category Core / Soroban Primitives
  */
 export function walkInvocationTree(
   root: xdr.SorobanAuthorizedInvocation,

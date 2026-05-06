@@ -24,6 +24,7 @@ import type { AssembledTransaction } from "./assembled_transaction.js";
  *
  * @param signTransaction More info in {@link MethodOptions}
  * @param assembled {@link AssembledTransaction} from which this SentTransaction was initialized
+ * @category Contracts / Client
  */
 export class SentTransaction<T> {
   public server: Server;
@@ -164,6 +165,7 @@ export class SentTransaction<T> {
   }
 }
 
+/** @category Contracts / Client */
 export abstract class Watcher {
   /**
    * Function to call after transaction has been submitted successfully to

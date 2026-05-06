@@ -11,6 +11,7 @@ import { StrKey } from "./strkey.js";
  * TransactionBuilder}. See
  * [Accounts](https://developers.stellar.org/docs/glossary/accounts/) for
  * more information about how accounts work in Stellar.
+ * @category Core / Transactions
  */
 export class Account {
   private _accountId: string;

@@ -14,10 +14,12 @@ import {
   type Interceptor,
 } from "./types.js";
 
+/** @category Network / HTTP */
 export interface HttpResponse<T = any> extends AxiosResponse<T> {
   // You can add any additional properties here if needed
 }
 
+/** @category Network / HTTP */
 export interface FetchClientConfig<T = any> extends AxiosRequestConfig {
   adapter?: (config: HttpClientRequestConfig) => Promise<HttpClientResponse<T>>;
   // You can add any additional configuration options here
@@ -753,6 +755,7 @@ function createFetchClient(
   return httpClient;
 }
 
+/** @category Network / HTTP */
 export const fetchClient = createFetchClient();
 
 export { createFetchClient as create };

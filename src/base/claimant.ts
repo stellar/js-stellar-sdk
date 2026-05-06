@@ -6,6 +6,7 @@ import { StrKey } from "./strkey.js";
  * Claimant class represents an xdr.Claimant
  *
  * The claim predicate is optional, it defaults to unconditional if none is specified.
+ * @category Core / Assets
  */
 export class Claimant {
   private _destination: string;

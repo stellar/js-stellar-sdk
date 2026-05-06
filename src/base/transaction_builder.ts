@@ -34,17 +34,20 @@ const UINT32_MAX = 4294967295; // 2^32 - 1
  * fee on the network.
  *
  * @see [Fees](https://developers.stellar.org/docs/glossary/fees/)
+ * @category Core / Transactions
  */
 export const BASE_FEE = "100"; // Stroops
 
 /**
  * @see {@link TransactionBuilder.setTimeout}
  * @see [Timeout](https://developers.stellar.org/api/resources/transactions/post/)
+ * @category Core / Transactions
  */
 export const TimeoutInfinite = 0;
 
 /**
  * Soroban fee parameters for resource-limited transactions.
+ * @category Core / Transactions
  */
 export interface SorobanFees {
   /** The number of instructions executed by the transaction. */
@@ -59,6 +62,7 @@ export interface SorobanFees {
 
 /**
  * Options for constructing a {@link TransactionBuilder}.
+ * @category Core / Transactions
  */
 export interface TransactionBuilderOptions {
   /** Max fee you're willing to pay per operation in this transaction (**in stroops**). */
@@ -148,6 +152,7 @@ export interface TransactionBuilderOptions {
  * transaction.sign(sourceKeypair);
  * ```
  *
+ * @category Core / Transactions
  */
 export class TransactionBuilder {
   source: Account | MuxedAccount;
@@ -1218,6 +1223,7 @@ export class TransactionBuilder {
 /**
  * Checks whether a provided object is a valid Date.
  * @param d - date object
+ * @category Core / Transactions
  */
 export function isValidDate(d: Date | number | string): d is Date {
   return d instanceof Date && !Number.isNaN(d.getTime());

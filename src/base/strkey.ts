@@ -50,6 +50,7 @@ function hasVersionByteName(
  * StrKey is a helper class that allows encoding and decoding Stellar keys
  * to/from strings, i.e. between their binary (Buffer, xdr.PublicKey, etc.) and
  * string (i.e. "GABCD...", etc.) representations.
+ * @category Core / Keys
  */
 export class StrKey {
   static types = strkeyTypes;
@@ -389,6 +390,7 @@ function isValid(versionByteName: string, encoded: unknown): boolean {
  *
  * @param versionByteName - the expected strkey type
  * @param encoded - the strkey-encoded string to decode
+ * @category Core / Keys
  */
 export function decodeCheck(versionByteName: string, encoded: string): Buffer {
   if (typeof encoded !== "string") {
@@ -434,6 +436,7 @@ export function decodeCheck(versionByteName: string, encoded: string): Buffer {
  *
  * @param versionByteName - the strkey type to encode as
  * @param data - the raw data to encode
+ * @category Core / Keys
  */
 export function encodeCheck(versionByteName: string, data: Buffer): string {
   if (data === null || data === undefined) {

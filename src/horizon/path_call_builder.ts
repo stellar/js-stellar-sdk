@@ -29,6 +29,7 @@ import type { HttpClient } from "../http-client/index.js";
  * @param destination The destination account ID that any returned path should use.
  * @param destinationAsset The destination asset.
  * @param destinationAmount The amount, denominated in the destination asset, that any returned path should be able to satisfy.
+ * @category Network / Horizon
  */
 export class PathCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.PaymentPathRecord>

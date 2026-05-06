@@ -251,6 +251,7 @@ import {
  * transaction is invoked by yet another party, check out
  * [test-swap.js](../../test/e2e/src/test-swap.js).
  *
+ * @category Contracts / Client
  */
 export class AssembledTransaction<T> {
   /**

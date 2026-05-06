@@ -5,6 +5,7 @@ import { RpcServer } from "../rpc/server.js";
 
 /**
  * Types of contract data that can be fetched
+ * @category Contracts / Bindings
  */
 export type ContractData =
   | { type: "wasm"; wasmBytes: Buffer }
@@ -12,6 +13,7 @@ export type ContractData =
 
 /**
  * Errors that can occur during WASM fetching
+ * @category Contracts / Bindings
  */
 export class WasmFetchError extends Error {
   constructor(
@@ -114,6 +116,7 @@ async function fetchWasmFromContract(
 
 /**
  * Fetch WASM from network using WASM hash
+ * @category Contracts / Bindings
  */
 export async function fetchFromWasmHash(
   wasmHash: string,
@@ -142,6 +145,7 @@ export async function fetchFromWasmHash(
 
 /**
  * Fetch WASM from network using contract ID
+ * @category Contracts / Bindings
  */
 export async function fetchFromContractId(
   contractId: string,

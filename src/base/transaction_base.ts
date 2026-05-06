@@ -4,6 +4,7 @@ import { Keypair } from "./keypair.js";
 
 /**
  * @ignore
+ * @category Core / Transactions
  */
 export class TransactionBase<
   TTx extends xdr.FeeBumpTransaction | xdr.Transaction | xdr.TransactionV0,

@@ -5,6 +5,7 @@
  * * `Networks.FUTURENET`: `Test SDF Future Network ; October 2022`
  * * `Networks.SANDBOX`: `Local Sandbox Stellar Network ; September 2022`
  * * `Networks.STANDALONE`: `Standalone Network ; February 2017`
+ * @category Core / Transactions
  */
 export enum Networks {
   PUBLIC = "Public Global Stellar Network ; September 2015",

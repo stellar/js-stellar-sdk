@@ -1,3 +1,4 @@
+/** @category Network / HTTP */
 export type HttpResponseHeaders = Record<
   string,
   string | boolean | undefined
@@ -5,6 +6,7 @@ export type HttpResponseHeaders = Record<
   "set-cookie"?: string[];
 };
 
+/** @category Network / HTTP */
 export interface HttpClientDefaults extends Omit<
   HttpClientRequestConfig,
   "headers"
@@ -12,6 +14,7 @@ export interface HttpClientDefaults extends Omit<
   headers?: [string, string][] | Record<string, string> | Headers | undefined;
 }
 
+/** @category Network / HTTP */
 export interface HttpClientResponse<T = any> {
   data: T;
   headers: HttpResponseHeaders;
@@ -20,6 +23,7 @@ export interface HttpClientResponse<T = any> {
   statusText: string;
 }
 
+/** @category Network / HTTP */
 export interface CancelToken {
   promise: Promise<void>;
   throwIfRequested(): void;
@@ -28,6 +32,7 @@ export interface CancelToken {
 
 type HeadersInit = [string, string][] | Record<string, string> | Headers;
 
+/** @category Network / HTTP */
 export interface HttpClientRequestConfig<D = any> {
   url?: string;
   method?: string;
@@ -43,6 +48,7 @@ export interface HttpClientRequestConfig<D = any> {
   adapter?: (config: HttpClientRequestConfig) => Promise<HttpClientResponse>;
 }
 
+/** @category Network / HTTP */
 export interface HttpClient {
   get: <T = any>(
     url: string,
@@ -103,11 +109,13 @@ export interface HttpClient {
   create: (config?: HttpClientRequestConfig) => HttpClient;
 }
 
+/** @category Network / HTTP */
 export interface Interceptor<V> {
   fulfilled: (value: V) => V | Promise<V>;
   rejected?: (error: any) => any;
 }
 
+/** @category Network / HTTP */
 export interface InterceptorManager<V> {
   use(
     fulfilled: (value: V) => V | Promise<V>,

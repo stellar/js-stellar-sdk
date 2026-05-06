@@ -7,6 +7,7 @@ import { NULL_ACCOUNT, type AssembledTransactionOptions } from "./types.js";
  * Keep calling a `fn` for `timeoutInSeconds` seconds, if `keepWaitingIf` is
  * true. Returns an array of all attempts to call the function.
  * @internal
+ * @category Contracts / Client
  */
 export async function withExponentialBackoff<T>(
   /** Function to call repeatedly */
@@ -81,12 +82,14 @@ export async function withExponentialBackoff<T>(
  * {@link AssembledTransaction} parse these errors.
  *
  * @default "/Error\(Contract, #(\d+)\)/"
+ * @category Contracts / Client
  */
 export const contractErrorPattern = /Error\(Contract, #(\d+)\)/;
 
 /**
  * A TypeScript type guard that checks if an object has a `toString` method.
  * @internal
+ * @category Contracts / Client
  */
 export function implementsToString(
   /** some object that may or may not have a `toString` method */
@@ -95,6 +98,7 @@ export function implementsToString(
   return typeof obj === "object" && obj !== null && "toString" in obj;
 }
 
+/** @category Contracts / Client */
 export function parseWasmCustomSections(
   buffer: Buffer,
 ): Map<string, Uint8Array[]> {
@@ -177,6 +181,7 @@ export function parseWasmCustomSections(
 /**
  * Reads a binary stream of ScSpecEntries into an array for processing by ContractSpec
  * @internal
+ * @category Contracts / Client
  */
 export function processSpecEntryStream(buffer: Buffer) {
   const reader = new cereal.XdrReader(buffer);
@@ -188,6 +193,7 @@ export function processSpecEntryStream(buffer: Buffer) {
   return res;
 }
 
+/** @category Contracts / Client */
 export async function getAccount<T>(
   options: AssembledTransactionOptions<T>,
   server: Server,

@@ -10,6 +10,7 @@ import {
 
 /**
  * Generates TypeScript client class for contract methods
+ * @category Contracts / Bindings
  */
 export class ClientGenerator {
   private spec: Spec;
