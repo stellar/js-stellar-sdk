@@ -1,0 +1,15 @@
+{
+  "entryPoints": ["src/index.ts"],
+  "entryPointStrategy": "expand",
+  "tsconfig": "tsconfig.json",
+  "exclude": ["src/base/generated/**"],
+  "plugin": ["typedoc-plugin-markdown"],
+  "blockTags": ["@warning"],
+  "validation": {
+    "invalidLink": true,
+    "notExported": true,
+    "notDocumented": false
+  },
+  "treatWarningsAsErrors": true,
+  "out": "tmp/typedoc-check"
+}

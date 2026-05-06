@@ -1,6 +1,12 @@
 {
   "tags": {
-    "allowUnknownTags": ["optional", "category", "warning", "note", "link"]
+    "allowUnknownTags": [
+      "optional",
+      "category",
+      "warning",
+      "note",
+      "link"
+    ]
   },
   "plugins": [
     "plugins/markdown",
@@ -8,10 +14,11 @@
     "node_modules/better-docs/category"
   ],
   "source": {
-    "include": ["lib/", "js-stellar-base/src"],
+    "include": [
+      "lib/"
+    ],
     "includePattern": "\\.(js|ts)$",
     "exclude": [
-      "js-stellar-base/src/generated",
       "lib/axios",
       "lib/contract/utils.d.ts"
     ]
