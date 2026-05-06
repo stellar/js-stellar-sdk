@@ -140,8 +140,8 @@ export function buildChallengeTx(
  * any signatures other than the server's on the transaction are valid. Use one
  * of the following functions to completely verify the transaction:
  *
- * - {@link module:WebAuth~verifyChallengeTxThreshold}
- * - {@link module:WebAuth~verifyChallengeTxSigners}
+ * - {@link WebAuth.verifyChallengeTxThreshold}
+ * - {@link WebAuth.verifyChallengeTxSigners}
  * @param challengeTx SEP0010 challenge transaction in base64.
  * @param serverAccountID The server's stellar account (public key).
  * @param networkPassphrase The network passphrase, e.g.: 'Test SDF
@@ -358,7 +358,7 @@ export function readChallengeTx(
  *
  * Errors will be raised if:
  * - The transaction is invalid according to
- * {@link module:WebAuth~readChallengeTx}.
+ * {@link WebAuth.readChallengeTx}.
  * - No client signatures are found on the transaction.
  * - One or more signatures in the transaction are not identifiable as the
  * server account or one of the signers provided in the arguments.
@@ -376,7 +376,7 @@ export function readChallengeTx(
  *    if present. Used in readChallengeTx().
  * @returns The list of signers public keys that have signed
  *    the transaction, excluding the server account ID.
- * @see {@link https://stellar.org/protocol/sep-10|SEP-10: Stellar Web Auth}
+ * @see {@link https://stellar.org/protocol/sep-10 | SEP-10: Stellar Web Auth}
  * @example
  * import { Networks, TransactionBuilder, WebAuth }  from 'stellar-sdk';
  *
@@ -561,7 +561,7 @@ export function verifyChallengeTxSigners(
  *
  * Errors will be raised if:
  * - The transaction is invalid according to
- * {@link module:WebAuth~readChallengeTx}.
+ * {@link WebAuth.readChallengeTx}.
  * - No client signatures are found on the transaction.
  * - One or more signatures in the transaction are not identifiable as the
  * server account or one of the signers provided in the arguments.

@@ -7,7 +7,7 @@ import type { HttpClient } from "../http-client/index.js";
 /**
  * Creates a new {@link LiquidityPoolCallBuilder} pointed to server defined by serverUrl.
  *
- * Do not create this object directly, use {@link Horizon.Server#liquidityPools}.
+ * Do not create this object directly, use {@link Horizon.Server.liquidityPools}.
  *
  * @internal
  * @param {string} serverUrl Horizon server URL.

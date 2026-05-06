@@ -21,9 +21,9 @@ import type { HttpClient } from "../http-client/index.js";
  * used to determine if there a given path can satisfy a payment of the desired
  * amount.
  *
- * Do not create this object directly, use {@link Horizon.Server#strictSendPaths}.
+ * Do not create this object directly, use {@link Horizon.Server.strictSendPaths}.
  *
- * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/aggregations/paths|Find Payment Paths}
+ * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/aggregations/paths | Find Payment Paths}
  *
  * @internal
  *

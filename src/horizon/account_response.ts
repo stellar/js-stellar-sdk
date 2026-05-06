@@ -6,7 +6,7 @@ import { HorizonApi } from "./horizon_api.js";
 import { ServerApi } from "./server_api.js";
 
 /**
- * Do not create this object directly, use {@link module:Horizon.Server#loadAccount | Horizon.Server#loadAccount}.
+ * Do not create this object directly, use {@link Horizon.Server.loadAccount | Horizon.Server#loadAccount}.
  *
  * Returns information and links relating to a single account.
  * The balances section in the returned JSON will also list all the trust lines this account has set up.
@@ -14,7 +14,7 @@ import { ServerApi } from "./server_api.js";
  *
  * @internal
  *
- * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/accounts/object|Account Details}
+ * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/accounts/object | Account Details}
  * @param {string} response Response from horizon account endpoint.
  * @returns {AccountResponse} AccountResponse instance
  */

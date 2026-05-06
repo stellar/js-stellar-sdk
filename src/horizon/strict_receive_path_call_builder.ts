@@ -22,9 +22,9 @@ import type { HttpClient } from "../http-client/index.js";
  * If a list of assets is passed as the source, horizon will find any payment
  * paths from those source assets to the desired destination asset.
  *
- * Do not create this object directly, use {@link Horizon.Server#strictReceivePaths}.
+ * Do not create this object directly, use {@link Horizon.Server.strictReceivePaths}.
  *
- * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/aggregations/paths|Find Payment Paths}
+ * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/aggregations/paths | Find Payment Paths}
  *
  * @internal
  *

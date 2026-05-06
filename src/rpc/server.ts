@@ -444,7 +444,7 @@ export class RpcServer {
    *
    * Allows you to directly inspect the current state of a contract. This is a
    * backup way to access your contract data which may not be available via
-   * events or {@link module:rpc.Server#simulateTransaction}.
+   * events or {@link rpc.Server.simulateTransaction}.
    *
    * @param {string|Address|Contract} contract The contract ID containing the
    *    data to load as a strkey (`C...` form), a {@link Contract}, or an
@@ -452,7 +452,7 @@ export class RpcServer {
    * @param {xdr.ScVal} key The key of the contract data to load
    * @param {module:rpc.Durability} [durability=Durability.Persistent] The "durability
    *    keyspace" that this ledger key belongs to, which is either 'temporary'
-   *    or 'persistent' (the default), see {@link module:rpc.Durability}.
+   *    or 'persistent' (the default), see {@link rpc.Durability}.
    * @returns {Promise<Api.LedgerEntryResult>} The current data value
    *
    * @warning If the data entry in question is a 'temporary' entry, it's
@@ -1049,10 +1049,10 @@ export class RpcServer {
    * and validate or take appropriate measures for interaction with user to
    * confirm it is acceptable.
    *
-   * You can call the {@link module:rpc.Server#simulateTransaction} method
+   * You can call the {@link rpc.Server.simulateTransaction} method
    * directly first if you want to inspect estimated fees for a given
    * transaction in detail first, then re-assemble it manually or via
-   * {@link module:rpc.assembleTransaction}.
+   * {@link rpc.assembleTransaction}.
    *
    * @param {Transaction | FeeBumpTransaction} tx  the transaction to
    *    prepare. It should include exactly one operation, which must be one of
@@ -1120,7 +1120,7 @@ export class RpcServer {
    *
    * Unlike Horizon, RPC does not wait for transaction completion. It
    * simply validates the transaction and enqueues it. Clients should call
-   * {@link module:rpc.Server#getTransaction} to learn about transaction
+   * {@link rpc.Server.getTransaction} to learn about transaction
    * success/failure.
    *
    * @param {Transaction | FeeBumpTransaction} transaction  to submit
@@ -1185,7 +1185,7 @@ export class RpcServer {
    *    want to create and fund with Friendbot
    * @param {string} [friendbotUrl] Optionally, an explicit address for
    *    friendbot (by default: this calls the Soroban RPC
-   *    {@link module:rpc.Server#getNetwork | getNetwork} method to try to
+   *    {@link rpc.Server.getNetwork | getNetwork} method to try to
    *    discover this network's Friendbot url).
    * @returns {Promise<Account>} An {@link Account} object for the created
    *    account, or the existing account if it's already funded with the
@@ -1194,7 +1194,7 @@ export class RpcServer {
    * @throws {Error} If Friendbot is not configured on this network or request failure
    *
    * @see {@link https://developers.stellar.org/docs/learn/fundamentals/networks#friendbot | Friendbot docs}
-   * @see {@link module:Friendbot.Api.Response}
+   * @see {@link Friendbot.Api.Response}
    *
    * @deprecated Use {@link Server.fundAddress} instead, which supports both
    *    account (G...) and contract (C...) addresses.
@@ -1261,7 +1261,7 @@ export class RpcServer {
    *    account (G...) or contract (C...) address.
    * @param {string} [friendbotUrl] Optionally, an explicit Friendbot URL
    *    (by default: this calls the Stellar RPC
-   *    {@link module:rpc.Server#getNetwork | getNetwork} method to try to
+   *    {@link rpc.Server.getNetwork | getNetwork} method to try to
    *    discover this network's Friendbot url).
    * @returns {Promise<Api.GetSuccessfulTransactionResponse>} The transaction
    *    response from the Friendbot funding transaction.

@@ -293,7 +293,7 @@ export class AssembledTransaction<T> {
 
   /**
    * Cached simulation result. This is set after the first call to
-   * {@link AssembledTransaction#simulationData}, and is used to facilitate
+   * {@link AssembledTransaction.simulationData}, and is used to facilitate
    * serialization and deserialization of the AssembledTransaction.
    *
    * Most of the time, if you need this data, you can call
@@ -306,7 +306,7 @@ export class AssembledTransaction<T> {
 
   /**
    * Cached simulation transaction data. This is set after the first call to
-   * {@link AssembledTransaction#simulationData}, and is used to facilitate
+   * {@link AssembledTransaction.simulationData}, and is used to facilitate
    * serialization and deserialization of the AssembledTransaction.
    *
    * Most of the time, if you need this data, you can call
@@ -912,7 +912,7 @@ export class AssembledTransaction<T> {
    * One at a time, for each public key in this array, you will need to
    * serialize this transaction with `toJSON`, send to the owner of that key,
    * deserialize the transaction with `txFromJson`, and call
-   * {@link AssembledTransaction#signAuthEntries}. Then re-serialize and send to
+   * {@link AssembledTransaction.signAuthEntries}. Then re-serialize and send to
    * the next account in this list.
    */
   needsNonInvokerSigningBy = ({
@@ -962,7 +962,7 @@ export class AssembledTransaction<T> {
   };
 
   /**
-   * If {@link AssembledTransaction#needsNonInvokerSigningBy} returns a
+   * If {@link AssembledTransaction.needsNonInvokerSigningBy} returns a
    * non-empty list, you can serialize the transaction with `toJSON`, send it to
    * the owner of one of the public keys in the map, deserialize with
    * `txFromJSON`, and call this method on their machine. Internally, this will
@@ -970,8 +970,8 @@ export class AssembledTransaction<T> {
    *
    * Then, re-serialize the transaction and either send to the next
    * `needsNonInvokerSigningBy` owner, or send it back to the original account
-   * who simulated the transaction so they can {@link AssembledTransaction#sign}
-   * the transaction envelope and {@link AssembledTransaction#send} it to the
+   * who simulated the transaction so they can {@link AssembledTransaction.sign}
+   * the transaction envelope and {@link AssembledTransaction.send} it to the
    * network.
    *
    * Sending to all `needsNonInvokerSigningBy` owners in parallel is not

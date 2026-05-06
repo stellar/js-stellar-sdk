@@ -26,7 +26,7 @@ async function specFromWasmHash(
  * Generate a class from the contract spec that where each contract method
  * gets included with an identical name.
  *
- * Each method returns an {@link module:contract.AssembledTransaction | AssembledTransaction} that can
+ * Each method returns an {@link contract.AssembledTransaction | AssembledTransaction} that can
  * be used to modify, simulate, decode results, and possibly sign, & submit the
  * transaction.
  *

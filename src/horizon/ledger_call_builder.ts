@@ -5,9 +5,9 @@ import type { HttpClient } from "../http-client/index.js";
 /**
  * Creates a new {@link LedgerCallBuilder} pointed to server defined by serverUrl.
  *
- * Do not create this object directly, use {@link Horizon.Server#ledgers}.
+ * Do not create this object directly, use {@link Horizon.Server.ledgers}.
  *
- * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/list-all-ledgers|All Ledgers}
+ * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/list-all-ledgers | All Ledgers}
  *
  * @internal
  * @param {string} serverUrl Horizon server URL.

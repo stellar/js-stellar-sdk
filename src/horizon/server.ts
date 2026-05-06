@@ -194,7 +194,7 @@ export class HorizonServer {
 
   /**
    * Fetch the fee stats endpoint.
-   * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/aggregations/fee-stats|Fee Stats}
+   * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/aggregations/fee-stats | Fee Stats}
    * @returns {Promise<HorizonApi.FeeStatsResponse>} Promise that resolves to the fee stats returned by Horizon.
    */
   public async feeStats(): Promise<HorizonApi.FeeStatsResponse> {
@@ -221,7 +221,7 @@ export class HorizonServer {
   /**
    * Submits a transaction to the network.
    *
-   * By default this function calls {@link Horizon.Server#checkMemoRequired}, you can
+   * By default this function calls {@link Horizon.Server.checkMemoRequired}, you can
    * skip this check by setting the option `skipMemoRequiredCheck` to `true`.
    *
    * If you submit any number of `manageOffer` operations, this will add an
@@ -310,7 +310,7 @@ export class HorizonServer {
    *   ]
    * }
    *
-   * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/submit-a-transaction|Submit a Transaction}
+   * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/submit-a-transaction | Submit a Transaction}
    * @param {Transaction|FeeBumpTransaction} transaction - The transaction to submit.
    * @param {object} [opts] Options object
    * @param {boolean} [opts.skipMemoRequiredCheck] - Allow skipping memo
@@ -538,7 +538,7 @@ export class HorizonServer {
    * and waits for the transaction to be ingested in Horizon, this endpoint relays the response from
    * core directly back to the user.
    *
-   * By default, this function calls {@link HorizonServer#checkMemoRequired}, you can
+   * By default, this function calls {@link HorizonServer.checkMemoRequired}, you can
    * skip this check by setting the option `skipMemoRequiredCheck` to `true`.
    *
    * @see [Submit-Async-Transaction](https://developers.stellar.org/docs/data/horizon/api-reference/resources/submit-async-transaction)
@@ -834,7 +834,7 @@ export class HorizonServer {
    * Each account is checked sequentially instead of loading multiple accounts
    * at the same time from Horizon.
    *
-   * @see {@link https://stellar.org/protocol/sep-29|SEP-29: Account Memo Requirements}
+   * @see {@link https://stellar.org/protocol/sep-29 | SEP-29: Account Memo Requirements}
    * @param {Transaction} transaction - The transaction to check.
    * @returns {Promise<void, Error>} - If any of the destination account
    * requires a memo, the promise will throw {@link AccountRequiresMemoError}.

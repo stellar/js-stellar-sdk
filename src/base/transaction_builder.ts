@@ -38,7 +38,7 @@ const UINT32_MAX = 4294967295; // 2^32 - 1
 export const BASE_FEE = "100"; // Stroops
 
 /**
- * @see {@link TransactionBuilder#setTimeout}
+ * @see {@link TransactionBuilder.setTimeout}
  * @see [Timeout](https://developers.stellar.org/api/resources/transactions/post/)
  */
 export const TimeoutInfinite = 0;

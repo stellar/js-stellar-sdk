@@ -5,7 +5,7 @@ import type { HttpClient } from "../http-client/index.js";
 /**
  * Creates a new {@link AssetsCallBuilder} pointed to server defined by serverUrl.
  *
- * Do not create this object directly, use {@link Horizon.Server#assets}.
+ * Do not create this object directly, use {@link Horizon.Server.assets}.
  *
  * @internal
  * @param {string} serverUrl Horizon server URL.

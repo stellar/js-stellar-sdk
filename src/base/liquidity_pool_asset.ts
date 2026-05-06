@@ -68,9 +68,9 @@ export class LiquidityPoolAsset {
   /**
    * Returns the `xdr.ChangeTrustAsset` object for this liquidity pool asset.
    *
-   * Note: To convert from an {@link Asset `Asset`} to `xdr.ChangeTrustAsset`
+   * Note: To convert from an {@link Asset | `Asset`} to `xdr.ChangeTrustAsset`
    * please refer to the
-   * {@link Asset.toChangeTrustXDRObject `Asset.toChangeTrustXDRObject`} method.
+   * {@link Asset.toChangeTrustXDRObject | `Asset.toChangeTrustXDRObject`} method.
    */
   toXDRObject(): xdr.ChangeTrustAsset {
     const lpConstantProductParamsXdr =

@@ -8,8 +8,8 @@
  *
  * #### Why is this needed?
  *
- * This is used by {@link module:contract.Spec | `ContractSpec`} and
- * {@link module:contract.AssembledTransaction | `AssembledTransaction`} when
+ * This is used by {@link contract.Spec | `ContractSpec`} and
+ * {@link contract.AssembledTransaction | `AssembledTransaction`} when
  * parsing values return by contracts.
  *
  * Contract methods can be implemented to return simple values, in which case
@@ -42,7 +42,7 @@ export interface Result<T, E extends ErrorMessage = ErrorMessage> {
 
 /**
  * Error interface containing the error message. Matches Rust's implementation.
- * Part of implementing {@link module:contract.Result | Result}, a minimal
+ * Part of implementing {@link contract.Result | Result}, a minimal
  * implementation of Rust's `Result` type. Used for contract methods that return
  * Results, to maintain their distinction from methods that simply either return
  * a value or throw.
@@ -53,7 +53,7 @@ export interface ErrorMessage {
 }
 
 /**
- * Part of implementing {@link module:contract.Result | Result}, a minimal
+ * Part of implementing {@link contract.Result | Result}, a minimal
  * implementation of Rust's `Result` type. Used for contract methods that return
  * Results, to maintain their distinction from methods that simply either return
  * a value or throw.
@@ -80,7 +80,7 @@ export class Ok<T> implements Result<T, never> {
 }
 
 /**
- * Part of implementing {@link module:contract.Result | Result}, a minimal
+ * Part of implementing {@link contract.Result | Result}, a minimal
  * implementation of Rust's `Result` type. Used for contract methods that return
  * Results, to maintain their distinction from methods that simply either return
  * a value or throw.

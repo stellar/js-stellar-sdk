@@ -13,7 +13,7 @@ const allowedResolutions = [
 /**
  * Trade Aggregations facilitate efficient gathering of historical trade data.
  *
- * Do not create this object directly, use {@link Horizon.Server#tradeAggregation}.
+ * Do not create this object directly, use {@link Horizon.Server.tradeAggregation}.
  *
  * @internal
  *
