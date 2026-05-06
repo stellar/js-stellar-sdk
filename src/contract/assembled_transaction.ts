@@ -249,7 +249,7 @@ import {
  *
  * To see an even more complicated example, where Alice swaps with Bob but the
  * transaction is invoked by yet another party, check out
- * [test-swap.js](../../test/e2e/src/test-swap.js).
+ * [test-swap.js](https://github.com/stellar/js-stellar-sdk/blob/master/test/e2e/src/test-swap.js).
  *
  * @category Contracts / Client
  */

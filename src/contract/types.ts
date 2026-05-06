@@ -202,8 +202,8 @@ export type ClientOptions = {
    * A Client makes method calls with an {@link contract.AssembledTransaction | AssembledTransaction}.
    * When one of these method calls encounters an error, `AssembledTransaction`
    * will first attempt to parse the error as an "official" `contracterror`
-   * error, by using this passed-in `errorTypes` object. See
-   * {@link contract.AssembledTransaction.parseError | parseError}. If `errorTypes` is blank or no
+   * error, by using this passed-in `errorTypes` object. See `parseError`
+   * on {@link contract.AssembledTransaction}. If `errorTypes` is blank or no
    * matching error is found, then it will throw the raw error.
    * @default {}
    */

@@ -30,7 +30,7 @@ export namespace Api {
     liveUntilLedgerSeq?: number;
   }
 
-  /** An XDR-parsed version of {@link this.RawLedgerEntryResult} */
+  /** An XDR-parsed version of {@link RawLedgerEntryResult} */
   export interface GetLedgerEntriesResponse {
     entries: LedgerEntryResult[];
     latestLedger: number;

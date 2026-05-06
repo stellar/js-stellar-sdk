@@ -29,9 +29,9 @@ const UINT32_MAX = 4294967295; // 2^32 - 1
 /**
  * Minimum base fee for transactions. If this fee is below the network
  * minimum, the transaction will fail. The more operations in the
- * transaction, the greater the required fee. Use {@link
- * Server#fetchBaseFee} to get an accurate value of minimum transaction
- * fee on the network.
+ * transaction, the greater the required fee. Use
+ * {@link Horizon.Server.fetchBaseFee} to get an accurate value of minimum
+ * transaction fee on the network.
  *
  * @see [Fees](https://developers.stellar.org/docs/glossary/fees/)
  * @category Core / Transactions
@@ -406,8 +406,8 @@ export class TransactionBuilder {
    *  Because of the distributed nature of the Stellar network it is possible
    *  that the status of your transaction will be determined after a long time
    *  if the network is highly congested. If you want to be sure to receive the
-   *  status of the transaction within a given period you should set the {@link
-   *  TimeBounds} with `maxTime` on the transaction (this is what `setTimeout`
+   *  status of the transaction within a given period you should set the
+   *  time bounds with `maxTime` on the transaction (this is what `setTimeout`
    *  does internally; if there's `minTime` set but no `maxTime` it will be
    *  added).
    *

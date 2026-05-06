@@ -3,7 +3,6 @@ import { NetworkError } from "./network.js";
 /**
  * NotFoundError is raised when the resource requested from Horizon is
  * unavailable.
- * @inheritdoc
  * @category Errors
  *
  * @param message Human-readable error message

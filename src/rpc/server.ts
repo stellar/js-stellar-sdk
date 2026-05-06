@@ -950,7 +950,7 @@ export class RpcServer {
    *
    * @param tx the transaction to simulate,
    *    which should include exactly one operation (one of
-   *    {@link xdr.InvokeHostFunctionOp}, {@link xdr.ExtendFootprintTTLOp}, or
+   *    {@link xdr.InvokeHostFunctionOp}, {@link xdr.ExtendFootprintTtlOp}, or
    *    {@link xdr.RestoreFootprintOp}). Any provided footprint or auth
    *    information will be ignored.
    * @param [addlResources] any additional resources
@@ -1049,7 +1049,7 @@ export class RpcServer {
    *
    * @param tx  the transaction to
    *    prepare. It should include exactly one operation, which must be one of
-   *    {@link xdr.InvokeHostFunctionOp}, {@link xdr.ExtendFootprintTTLOp},
+   *    {@link xdr.InvokeHostFunctionOp}, {@link xdr.ExtendFootprintTtlOp},
    *    or {@link xdr.RestoreFootprintOp}.
    *
    *    Any provided footprint will be overwritten. However, if your operation

@@ -6,7 +6,6 @@ import { NetworkError } from "./network.js";
  * server is invalid in some way. For example, a federation response may exceed
  * the maximum allowed size, or a transaction submission may have failed with
  * Horizon.
- * @inheritdoc
  * @category Errors
  *
  * @param message Human-readable error message.
