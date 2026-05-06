@@ -312,7 +312,7 @@ export class Transaction extends TransactionBase<
    *
    * @param opIndex - the index of the CreateClaimableBalance op
    *
-   * @throws {Error} for invalid `opIndex` value, if op at `opIndex` is not
+   * @throws for invalid `opIndex` value, if op at `opIndex` is not
    *    `CreateClaimableBalance`, or for general XDR un/marshalling failures
    *
    * @see https://github.com/stellar/go/blob/d712346e61e288d450b0c08038c158f8848cc3e4/txnbuild/transaction.go#L392-L435

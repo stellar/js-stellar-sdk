@@ -214,7 +214,7 @@ export class Asset {
    *  - `native`,
    *  - `credit_alphanum4`,
    *  - `credit_alphanum12`
-   * @throws {Error} Throws `Error` if asset type is unsupported.
+   * @throws Throws `Error` if asset type is unsupported.
    */
   getAssetType(): AssetType {
     switch (this.getRawAssetType().value) {

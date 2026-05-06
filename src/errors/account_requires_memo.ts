@@ -8,9 +8,9 @@
  * the memo and the operation where the account is the destination
  * @category Errors
  *
- * @param {string} message Human-readable error message
- * @param {string} accountId The account which requires a memo
- * @param {number} operationIndex The index of the operation where `accountId` is the destination
+ * @param message Human-readable error message
+ * @param accountId The account which requires a memo
+ * @param operationIndex The index of the operation where `accountId` is the destination
  *
  * @example
  * console.log('The following account requires a memo ', err.accountId)

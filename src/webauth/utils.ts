@@ -10,9 +10,9 @@ import { InvalidChallengeError } from "./errors.js";
  * returning a list of non-repeated signers that were found to have signed the
  * given transaction.
  *
- * @param {Transaction | FeeBumpTransaction} transaction The signed transaction.
- * @param {Array.<string>} signers The signer's public keys.
- * @returns {Array.<string>} A list of signers that were found to have signed
+ * @param transaction The signed transaction.
+ * @param signers The signer's public keys.
+ * @returns A list of signers that were found to have signed
  *    the transaction.
  *
  * @example
@@ -71,9 +71,9 @@ export function gatherTxSigners(
 /**
  * Verifies if a transaction was signed by the given account id.
  *
- * @param {Transaction | FeeBumpTransaction} transaction The signed transaction.
- * @param {string} accountID The signer's public key.
- * @returns {boolean} Whether or not `accountID` was found to have signed the
+ * @param transaction The signed transaction.
+ * @param accountID The signer's public key.
+ * @returns Whether or not `accountID` was found to have signed the
  *    transaction.
  *
  * @example

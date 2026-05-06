@@ -600,15 +600,6 @@ export namespace Api {
    * - **Ledger-based pagination**: Use `startLedger` to begin fetching from a specific ledger sequence
    * - **Cursor-based pagination**: Use `cursor` to continue from a previous response's pagination token
    *
-   * @property {number} [startLedger] - Ledger sequence number to start fetching from (inclusive).
-   *   Must be omitted if cursor is provided. Cannot be less than the oldest ledger or greater
-   *   than the latest ledger stored on the RPC node.
-   * @property {object} [pagination] - Pagination configuration for the request.
-   * @property {string} [pagination.cursor] - Page cursor for continuing pagination from a previous
-   *   response. Must be omitted if startLedger is provided.
-   * @property {number} [pagination.limit=100] - Maximum number of ledgers to return per page.
-   *   Valid range: 1-10000. Defaults to 100 if not specified.
-   *
    * @example
    * // Ledger-based pagination - start from specific ledger
    * const ledgerRequest: GetLedgersRequest = {
@@ -631,16 +622,35 @@ export namespace Api {
    */
   export type GetLedgersRequest =
     | {
+        /**
+         * Ledger sequence number to start fetching from (inclusive).
+         * Must be omitted if cursor is provided. Cannot be less than the oldest ledger or greater
+         * than the latest ledger stored on the RPC node.
+         */
         startLedger: number;
+        /** Pagination configuration for the request. */
         pagination?: {
           cursor?: never;
+          /**
+           * Maximum number of ledgers to return per page.
+           * Valid range: 1-10000. Defaults to 100 if not specified.
+           */
           limit?: number;
         };
       }
     | {
         startLedger?: never;
+        /** Pagination configuration for the request. */
         pagination: {
+          /**
+           * Page cursor for continuing pagination from a previous
+           * response. Must be omitted if startLedger is provided.
+           */
           cursor: string;
+          /**
+           * Maximum number of ledgers to return per page.
+           * Valid range: 1-10000. Defaults to 100 if not specified.
+           */
           limit?: number;
         };
       };

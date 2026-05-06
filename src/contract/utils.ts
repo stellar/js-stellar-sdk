@@ -123,7 +123,7 @@ export function parseWasmCustomSections(
    * - Values are stored with the least significant bytes first
    *
    * @returns The decoded 32-bit unsigned integer
-   * @throws {Error} If the encoding is invalid or exceeds 32 bits
+   * @throws If the encoding is invalid or exceeds 32 bits
    */
   function readVarUint32(): number {
     let value = 0;

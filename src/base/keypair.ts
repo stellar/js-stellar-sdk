@@ -194,7 +194,7 @@ export class Keypair {
    *
    * The secret key is encoded in Stellar format (e.g., `SDAK....`).
    *
-   * @throws {Error} if no secret key is available
+   * @throws if no secret key is available
    */
   secret(): string {
     if (!this._secretSeed) {
@@ -211,7 +211,7 @@ export class Keypair {
   /**
    * Returns raw secret key bytes.
    *
-   * @throws {Error} if no secret seed is available
+   * @throws if no secret seed is available
    */
   rawSecretKey(): Buffer {
     if (!this._secretSeed) {
@@ -231,7 +231,7 @@ export class Keypair {
    * Signs data.
    *
    * @param data - data to sign
-   * @throws {Error} if no secret key is available
+   * @throws if no secret key is available
    */
   sign(data: Buffer): Buffer {
     if (!this._secretKey) {

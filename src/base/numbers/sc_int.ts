@@ -53,7 +53,7 @@ import { XdrLargeInt, type ScIntType } from "./xdr_large_int.js";
  * // Or reinterpret it as a different type (size permitting):
  * const scv = i.toI64();
  *
- * @throws {TypeError} if the `value` is invalid (e.g. floating point), too
+ * @throws if the `value` is invalid (e.g. floating point), too
  *    large (i.e. exceeds a 256-bit value), doesn't fit in the `opts.type`,
  *    the signedness of `opts.type` doesn't match the input `value`, or a
  *    string `value` can't be parsed as a big integer

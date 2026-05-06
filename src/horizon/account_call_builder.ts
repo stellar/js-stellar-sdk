@@ -10,7 +10,7 @@ import type { HttpClient } from "../http-client/index.js";
  * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/list-all-accounts | All Accounts}
  *
  * @internal
- * @param {string} serverUrl Horizon server URL.
+ * @param serverUrl Horizon server URL.
  */
 export class AccountCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.AccountRecord>
@@ -25,8 +25,8 @@ export class AccountCallBuilder extends CallBuilder<
    * The balances section in the returned JSON will also list all the trust lines this account has set up.
    *
    * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/retrieve-an-account | Account Details}
-   * @param {string} id For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
-   * @returns {CallBuilder} a new CallBuilder instance for the /accounts/:id endpoint
+   * @param id For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
+   * @returns a new CallBuilder instance for the /accounts/:id endpoint
    */
   public accountId(id: string): CallBuilder<ServerApi.AccountRecord> {
     const builder = new CallBuilder<ServerApi.AccountRecord>(
@@ -40,8 +40,8 @@ export class AccountCallBuilder extends CallBuilder<
   /**
    * This endpoint filters accounts by signer account.
    * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/list-all-accounts | Accounts}
-   * @param {string} id For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
-   * @returns {AccountCallBuilder} current AccountCallBuilder instance
+   * @param id For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
+   * @returns current AccountCallBuilder instance
    */
   public forSigner(id: string): this {
     this.url.searchParams.set("signer", id);
@@ -52,8 +52,8 @@ export class AccountCallBuilder extends CallBuilder<
    * This endpoint filters all accounts who are trustees to an asset.
    * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/list-all-accounts | Accounts}
    * @see Asset
-   * @param {Asset} asset For example: `new Asset('USD','GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD')`
-   * @returns {AccountCallBuilder} current AccountCallBuilder instance
+   * @param asset For example: `new Asset('USD','GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD')`
+   * @returns current AccountCallBuilder instance
    */
   public forAsset(asset: Asset): this {
     this.url.searchParams.set("asset", `${asset}`);
@@ -63,8 +63,8 @@ export class AccountCallBuilder extends CallBuilder<
   /**
    * This endpoint filters accounts where the given account is sponsoring the account or any of its sub-entries..
    * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/list-all-accounts | Accounts}
-   * @param {string} id For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
-   * @returns {AccountCallBuilder} current AccountCallBuilder instance
+   * @param id For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
+   * @returns current AccountCallBuilder instance
    */
   public sponsor(id: string): this {
     this.url.searchParams.set("sponsor", id);
@@ -74,8 +74,8 @@ export class AccountCallBuilder extends CallBuilder<
   /**
    * This endpoint filters accounts holding a trustline to the given liquidity pool.
    *
-   * @param {string} id The ID of the liquidity pool. For example: `dd7b1ab831c273310ddbec6f97870aa83c2fbd78ce22aded37ecbf4f3380fac7`.
-   * @returns {AccountCallBuilder} current AccountCallBuilder instance
+   * @param id The ID of the liquidity pool. For example: `dd7b1ab831c273310ddbec6f97870aa83c2fbd78ce22aded37ecbf4f3380fac7`.
+   * @returns current AccountCallBuilder instance
    */
   public forLiquidityPool(id: string): this {
     this.url.searchParams.set("liquidity_pool", id);

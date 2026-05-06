@@ -10,8 +10,8 @@ import type { SignAuthEntry, SignTransaction } from "./types.js";
  * Wallet/TransactionSigner implementation.
  *
  *
- * @param {Keypair} keypair {@link Keypair} to use to sign the transaction or auth entry
- * @param {string} networkPassphrase passphrase of network to sign for
+ * @param keypair {@link Keypair} to use to sign the transaction or auth entry
+ * @param networkPassphrase passphrase of network to sign for
  */
 export const basicNodeSigner = (
   keypair: Keypair,

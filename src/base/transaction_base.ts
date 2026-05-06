@@ -46,7 +46,7 @@ export class TransactionBase<
    * Returns a defensive copy so that external mutations cannot alter the
    * transaction that will be signed or serialized.
    *
-   * @throws {Error} if the internal transaction is not a recognized XDR type
+   * @throws if the internal transaction is not a recognized XDR type
    */
   get tx(): TTx {
     const buf = this._tx.toXDR();

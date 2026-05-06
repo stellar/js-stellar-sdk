@@ -9,7 +9,7 @@ import { NetworkError } from "./network.js";
  * @inheritdoc
  * @category Errors
  *
- * @param {string} message Human-readable error message.
- * @param {any} response Response details, received from the server.
+ * @param message Human-readable error message.
+ * @param response Response details, received from the server.
  */
 export class BadResponseError extends NetworkError {}

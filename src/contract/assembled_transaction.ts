@@ -1107,9 +1107,9 @@ export class AssembledTransaction<T> {
    * - The provided `restorePreamble` should include a minimum resource fee and valid
    *   transaction data.
    *
-   * @throws {Error} - Throws an error if no `signTransaction` function is provided during
+   * @throws - Throws an error if no `signTransaction` function is provided during
    * Client initialization.
-   * @throws {RestoreFailureError} - Throws a custom error if the
+   * @throws - Throws a custom error if the
    * restore transaction fails, providing the details of the failure.
    */
   async restoreFootprint(

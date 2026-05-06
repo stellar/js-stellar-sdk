@@ -4,6 +4,6 @@
  * sequence number).
  * @category Errors
  *
- * @param {string} message Human-readable error message.
+ * @param message Human-readable error message.
  */
 export class InvalidChallengeError extends Error {}

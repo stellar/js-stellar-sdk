@@ -19,11 +19,11 @@ export class Resolver {
    * Returns a parsed `stellar.toml` file for a given domain.
    * @see {@link https://developers.stellar.org/docs/tokens/publishing-asset-info | Stellar.toml doc}
    *
-   * @param {string} domain Domain to get stellar.toml file for
-   * @param {object} [opts] Options object
-   * @param {boolean} [opts.allowHttp=false] - Allow connecting to http servers. This must be set to false in production deployments!
-   * @param {number} [opts.timeout=0] - Allow a timeout. Allows user to avoid nasty lag due to TOML resolve issue.
-   * @returns {Promise} A `Promise` that resolves to the parsed stellar.toml object
+   * @param domain Domain to get stellar.toml file for
+   * @param [opts] Options object
+   * @param [opts.allowHttp=false] - Allow connecting to http servers. This must be set to false in production deployments!
+   * @param [opts.timeout=0] - Allow a timeout. Allows user to avoid nasty lag due to TOML resolve issue.
+   * @returns A `Promise` that resolves to the parsed stellar.toml object
    *
    * @example
    * StellarSdk.StellarToml.Resolver.resolve('acme.com')

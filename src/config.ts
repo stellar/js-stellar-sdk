@@ -54,7 +54,7 @@ class Config {
 
   /**
    * Returns the configured `allowHttp` flag.
-   * @returns {boolean} The allowHttp value.
+   * @returns The allowHttp value.
    */
   public static isAllowHttp(): boolean {
     return config.allowHttp;
@@ -62,7 +62,7 @@ class Config {
 
   /**
    * Returns the configured `timeout` flag.
-   * @returns {number} The timeout value.
+   * @returns The timeout value.
    */
   public static getTimeout(): number {
     return config.timeout;

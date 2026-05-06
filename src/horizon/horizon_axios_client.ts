@@ -86,8 +86,8 @@ export function createHttpClient(headers?: Record<string, string>): HttpClient {
  * recorded server time and offset it by the time since then.) If there IS no
  * recorded server time, or it's been 5 minutes since the last, return null.
  *
- * @param {string} hostname Hostname of a Horizon server.
- * @returns {number} The UNIX timestamp (in seconds, not milliseconds)
+ * @param hostname Hostname of a Horizon server.
+ * @returns The UNIX timestamp (in seconds, not milliseconds)
  * representing the current time on that server, or `null` if we don't have
  * a record of that time.
  */

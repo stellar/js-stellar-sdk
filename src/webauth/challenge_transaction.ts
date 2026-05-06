@@ -42,9 +42,9 @@ import { uint8ArrayToBase64 } from "uint8array-extras";
  *    necessary when the 'client_domain' parameter is passed.
  * @returns A base64 encoded string of the raw TransactionEnvelope xdr
  *    struct for the transaction.
- * @throws {Error} Will throw if `clientAccountID is a muxed account, and `memo`
+ * @throws Will throw if `clientAccountID is a muxed account, and `memo`
  *    is present.
- * @throws {Error} Will throw if `clientDomain` is provided, but
+ * @throws Will throw if `clientDomain` is provided, but
  *    `clientSigningKey` is missing
  * @see {@link https://stellar.org/protocol/sep-10 | SEP-10: Stellar Web Auth}
  * @example
@@ -584,7 +584,7 @@ export function verifyChallengeTxSigners(
  * @returns The list of signers public keys that have signed
  *    the transaction, excluding the server account ID, given that the threshold
  *    was met.
- * @throws {module:WebAuth.InvalidChallengeError} Will throw if the collective
+ * @throws Will throw if the collective
  *    weight of the transaction's signers does not meet the necessary threshold
  *    to verify this transaction.
  * @see {@link https://stellar.org/protocol/sep-10 | SEP-10: Stellar Web Auth}

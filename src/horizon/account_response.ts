@@ -15,8 +15,8 @@ import { ServerApi } from "./server_api.js";
  * @internal
  *
  * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/accounts/object | Account Details}
- * @param {string} response Response from horizon account endpoint.
- * @returns {AccountResponse} AccountResponse instance
+ * @param response Response from horizon account endpoint.
+ * @returns AccountResponse instance
  */
 export class AccountResponse {
   public readonly id!: string;
@@ -82,7 +82,7 @@ export class AccountResponse {
 
   /**
    * Get Stellar account public key ex. `GB3KJPLFUYN5VL6R3GU3EGCGVCKFDSD7BEDX42HWG5BWFKB3KQGJJRMA`
-   * @returns {string} accountId
+   * @returns accountId
    */
   public accountId(): string {
     return this._baseAccount.accountId();
@@ -90,7 +90,7 @@ export class AccountResponse {
 
   /**
    * Get the current sequence number
-   * @returns {string} sequenceNumber
+   * @returns sequenceNumber
    */
   public sequenceNumber(): string {
     return this._baseAccount.sequenceNumber();
@@ -98,8 +98,7 @@ export class AccountResponse {
 
   /**
    * Increments sequence number in this object by one.
-   * @returns {void}
-   */
+   * @returns    */
   public incrementSequenceNumber(): void {
     this._baseAccount.incrementSequenceNumber();
     this.sequence = this._baseAccount.sequenceNumber();

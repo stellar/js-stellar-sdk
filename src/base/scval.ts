@@ -79,7 +79,7 @@ export interface NativeToScValOpts {
  *    return an `scvSymbol`, whereas without the type it would have been an
  *    `scvString`.
  *
- * @throws {TypeError} if...
+ * @throws if...
  *  - there are arrays with more than one type in them
  *  - there are values that do not have a sensible conversion (e.g. random XDR
  *    types, custom classes)

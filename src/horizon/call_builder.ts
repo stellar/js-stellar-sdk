@@ -28,7 +28,7 @@ export interface EventSourceOptions<T> {
  * Creates a new {@link CallBuilder} pointed to server defined by serverUrl.
  *
  * This is an **abstract** class. Do not create this object directly, use {@link Server} class.
- * @param {string} serverUrl URL of Horizon server
+ * @param serverUrl URL of Horizon server
  */
 export class CallBuilder<
   T extends
@@ -73,7 +73,7 @@ export class CallBuilder<
 
   /**
    * Triggers a HTTP request using this builder's current configuration.
-   * @returns {Promise} a Promise that resolves to the server's response.
+   * @returns a Promise that resolves to the server's response.
    */
   public call(): Promise<T> {
     this.checkFilter();
@@ -103,11 +103,11 @@ export class CallBuilder<
    * events call the function returned by this method.
    * @see [Horizon Response Format](https://developers.stellar.org/api/introduction/response-format/)
    * @see [MDN EventSource](https://developer.mozilla.org/en-US/docs/Web/API/EventSource)
-   * @param {object} [options] EventSource options.
-   * @param {Function} [options.onmessage] Callback function to handle incoming messages.
-   * @param {Function} [options.onerror] Callback function to handle errors.
-   * @param {number} [options.reconnectTimeout] Custom stream connection timeout in ms, default is 15 seconds.
-   * @returns {Function} Close function. Run to close the connection and stop listening for new events.
+   * @param [options] EventSource options.
+   * @param [options.onmessage] Callback function to handle incoming messages.
+   * @param [options.onerror] Callback function to handle errors.
+   * @param [options.reconnectTimeout] Custom stream connection timeout in ms, default is 15 seconds.
+   * @returns Close function. Run to close the connection and stop listening for new events.
    */
   public stream(
     options: EventSourceOptions<
@@ -236,8 +236,8 @@ export class CallBuilder<
   /**
    * Sets `cursor` parameter for the current call. Returns the CallBuilder object on which this method has been called.
    * @see [Paging](https://developers.stellar.org/api/introduction/pagination/)
-   * @param {string} cursor A cursor is a value that points to a specific location in a collection of resources.
-   * @returns {object} current CallBuilder instance
+   * @param cursor A cursor is a value that points to a specific location in a collection of resources.
+   * @returns current CallBuilder instance
    */
   public cursor(cursor: string): this {
     this.url.searchParams.set("cursor", cursor);
@@ -247,8 +247,8 @@ export class CallBuilder<
   /**
    * Sets `limit` parameter for the current call. Returns the CallBuilder object on which this method has been called.
    * @see [Paging](https://developers.stellar.org/api/introduction/pagination/)
-   * @param {number} recordsNumber Number of records the server should return.
-   * @returns {object} current CallBuilder instance
+   * @param recordsNumber Number of records the server should return.
+   * @returns current CallBuilder instance
    */
   public limit(recordsNumber: number): this {
     this.url.searchParams.set("limit", recordsNumber.toString());
@@ -257,8 +257,8 @@ export class CallBuilder<
 
   /**
    * Sets `order` parameter for the current call. Returns the CallBuilder object on which this method has been called.
-   * @param {"asc"|"desc"} direction Sort direction
-   * @returns {object} current CallBuilder instance
+   * @param direction Sort direction
+   * @returns current CallBuilder instance
    */
   public order(direction: "asc" | "desc"): this {
     this.url.searchParams.set("order", direction);
@@ -274,7 +274,7 @@ export class CallBuilder<
    * response.
    *
    * @param "include" join Records to be included in the response.
-   * @returns {object} current CallBuilder instance.
+   * @returns current CallBuilder instance.
    */
   public join(include: "transactions"): this {
     this.url.searchParams.set("join", include);
@@ -291,10 +291,10 @@ export class CallBuilder<
    *
    *    this.forEndpoint("accounts", accountId)`.
    *
-   * @param  {string} endpoint neighbor endpoint in question, like /operations
-   * @param  {string} param    filter parameter, like an operation ID
+   * @param endpoint neighbor endpoint in question, like /operations
+   * @param param    filter parameter, like an operation ID
    *
-   * @returns {CallBuilder} this CallBuilder instance
+   * @returns this CallBuilder instance
    */
   protected forEndpoint(endpoint: string, param: string): this {
     if (this.neighborRoot === "") {
@@ -306,8 +306,7 @@ export class CallBuilder<
 
   /**
    * @internal
-   * @returns {void}
-   */
+   * @returns    */
   private checkFilter(): void {
     if (this.filter.length >= 2) {
       throw new BadRequestError("Too many filters specified", this.filter);
@@ -323,10 +322,10 @@ export class CallBuilder<
   /**
    * Convert a link object to a function that fetches that link.
    * @internal
-   * @param {object} link A link object
-   * @param {boolean} link.href the URI of the link
-   * @param {boolean} [link.templated] Whether the link is templated
-   * @returns {Function} A function that requests the link
+   * @param link A link object
+   * @param link.href the URI of the link
+   * @param [link.templated] Whether the link is templated
+   * @returns A function that requests the link
    */
   private _requestFnForLink(
     link: HorizonApi.ResponseLink,
@@ -349,8 +348,8 @@ export class CallBuilder<
    * Given the json response, find and convert each link into a function that
    * calls that link.
    * @internal
-   * @param {object} json JSON response
-   * @returns {object} JSON response with string links replaced with functions
+   * @param json JSON response
+   * @returns JSON response with string links replaced with functions
    */
   private _parseRecord(json: any): any {
     if (!json._links) {
@@ -401,8 +400,8 @@ export class CallBuilder<
 
   /**
    * @internal
-   * @param {object} json Response object
-   * @returns {object} Extended response
+   * @param json Response object
+   * @returns Extended response
    */
   private _parseResponse(json: any) {
     if (json._embedded && json._embedded.records) {
@@ -413,8 +412,8 @@ export class CallBuilder<
 
   /**
    * @internal
-   * @param {object} json Response object
-   * @returns {object} Extended response object
+   * @param json Response object
+   * @returns Extended response object
    */
   private _toCollectionPage(json: any): any {
     for (let i = 0; i < json._embedded.records.length; i += 1) {
@@ -439,8 +438,8 @@ export class CallBuilder<
 
   /**
    * @internal
-   * @param {object} error Network error object
-   * @returns {Promise<Error>} Promise that rejects with a human-readable error
+   * @param error Network error object
+   * @returns Promise that rejects with a human-readable error
    */
   private async _handleNetworkError(error: NetworkError): Promise<void> {
     if (error.response && error.response.status) {

@@ -6,7 +6,7 @@ import { NetworkError } from "./network.js";
  * @inheritdoc
  * @category Errors
  *
- * @param {string} message Human-readable error message
- * @param {any} response Response details, received from the Horizon server
+ * @param message Human-readable error message
+ * @param response Response details, received from the Horizon server
  */
 export class BadRequestError extends NetworkError {}

@@ -9,11 +9,12 @@ import { Server } from "../rpc/index.js";
 
 /**
  * Options for generating TypeScript bindings.
- *
- * @property contractName - The name used for the generated package and client class.
- *   Should be in kebab-case (e.g., "my-contract").
  */
 export type GenerateOptions = {
+  /**
+   * The name used for the generated package and client class.
+   * Should be in kebab-case (e.g., "my-contract").
+   */
   contractName: string;
 };
 
@@ -22,22 +23,21 @@ export type GenerateOptions = {
  *
  * Contains all generated TypeScript source files and configuration files
  * needed to create a standalone npm package for interacting with a Stellar contract.
- *
- * @property index - The index.ts barrel export file that re-exports Client and types
- * @property types - The types.ts file containing TypeScript interfaces for contract structs, enums, and unions
- * @property client - The client.ts file containing the generated Client class with typed methods
- * @property packageJson - The package.json for the generated npm package
- * @property tsConfig - The tsconfig.json for TypeScript compilation
- * @property readme - The README.md with usage documentation
- * @property gitignore - The .gitignore file for the generated package
  */
 export type GeneratedBindings = {
+  /** The index.ts barrel export file that re-exports Client and types */
   index: string;
+  /** The types.ts file containing TypeScript interfaces for contract structs, enums, and unions */
   types: string;
+  /** The client.ts file containing the generated Client class with typed methods */
   client: string;
+  /** The package.json for the generated npm package */
   packageJson: string;
+  /** The tsconfig.json for TypeScript compilation */
   tsConfig: string;
+  /** The README.md with usage documentation */
   readme: string;
+  /** The .gitignore file for the generated package */
   gitignore: string;
 };
 
@@ -106,7 +106,7 @@ export class BindingGenerator {
    *
    * @param wasmBuffer - The raw WASM binary as a Buffer
    * @returns A Promise resolving to a new BindingGenerator instance
-   * @throws {Error} If the WASM file doesn't contain a valid contract spec
+   * @throws If the WASM file doesn't contain a valid contract spec
    *
    * @example
    * const wasmBuffer = fs.readFileSync("./target/wasm32-unknown-unknown/release/my_contract.wasm");
@@ -127,7 +127,7 @@ export class BindingGenerator {
    * @param wasmHash - The hex-encoded hash of the installed WASM blob
    * @param rpcServer - The Stellar RPC server instance
    * @returns A Promise resolving to a new BindingGenerator instance
-   * @throws {Error} If the WASM cannot be fetched or doesn't contain a valid spec
+   * @throws If the WASM cannot be fetched or doesn't contain a valid spec
    *
    * @example
    * const generator = await BindingGenerator.fromWasmHash(
@@ -157,7 +157,7 @@ export class BindingGenerator {
    * @param contractId - The contract ID (C... address) of the deployed contract
    * @param rpcServer - The Stellar RPC server instance
    * @returns A Promise resolving to a new BindingGenerator instance
-   * @throws {Error} If the contract cannot be found or fetched
+   * @throws If the contract cannot be found or fetched
    *
    * @example
    * const generator = await BindingGenerator.fromContractId(
@@ -193,7 +193,7 @@ export class BindingGenerator {
    * @param options - Configuration options for generation
    * @param options.contractName - Required. The name for the generated package (kebab-case recommended)
    * @returns An object containing all generated file contents as strings
-   * @throws {Error} If contractName is missing or empty
+   * @throws If contractName is missing or empty
    *
    * @example
    * const bindings = generator.generate({
@@ -241,7 +241,7 @@ export class BindingGenerator {
    * Validates that required generation options are provided.
    *
    * @param options - The options to validate
-   * @throws {Error} If contractName is missing or empty
+   * @throws If contractName is missing or empty
    */
   private validateOptions(options: GenerateOptions): void {
     if (!options.contractName || options.contractName.trim() === "") {
