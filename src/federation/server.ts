@@ -9,7 +9,7 @@ import { httpClient } from "../http-client/index.js";
 
 /**
  * The maximum size of response from a federation server
- * @default 102400
+ * @defaultValue 102400
  */
 export const FEDERATION_RESPONSE_MAX_SIZE: number = 100 * 1024;
 

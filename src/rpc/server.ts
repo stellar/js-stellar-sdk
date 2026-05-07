@@ -35,7 +35,7 @@ import type { HttpClient } from "../http-client/index.js";
 
 /**
  * Default transaction submission timeout for RPC requests, in milliseconds
- * @default 60000
+ * @defaultValue 60000
  */
 export const SUBMIT_TRANSACTION_TIMEOUT = 60 * 1000;
 
@@ -442,8 +442,8 @@ export class RpcServer {
    *    or 'persistent' (the default), see {@link rpc.Durability}.
    * @returns The current data value
    *
-   * @warning If the data entry in question is a 'temporary' entry, it's
-   *    entirely possible that it has expired out of existence.
+   * **Warning:** If the data entry in question is a 'temporary' entry, it's
+   * entirely possible that it has expired out of existence.
    *
    * @see {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods/getLedgerEntries | getLedgerEntries docs}
    *

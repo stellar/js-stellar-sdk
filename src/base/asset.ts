@@ -138,7 +138,7 @@ export class Asset {
    *    ID should refer to, since every network will have a unique ID for the
    *    same contract (see {@link Networks} for options)
    *
-   * @warning This makes no guarantee that this contract actually *exists*.
+   * **Warning:** This makes no guarantee that this contract actually *exists*.
    */
   contractId(networkPassphrase: string): string {
     const networkId = hash(Buffer.from(networkPassphrase));

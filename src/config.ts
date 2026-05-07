@@ -4,12 +4,12 @@
 export interface Configuration {
   /**
    * Allow connecting to http servers. This must be set to false in production deployments!
-   * @default false
+   * @defaultValue false
    */
   allowHttp: boolean;
   /**
    * Allow a timeout. Allows user to avoid nasty lag due network issues.
-   * @default 0
+   * @defaultValue 0
    */
   timeout: number;
 }
@@ -23,7 +23,6 @@ let config = { ...defaultConfig };
 
 /**
  * Global config class.
- * @hideconstructor
  * @example <caption>Usage in node</caption>
  * import { Config } from '@stellar/stellar-sdk';
  * Config.setAllowHttp(true);
@@ -37,7 +36,7 @@ class Config {
    * Sets `allowHttp` flag globally. When set to `true`, connections to insecure
    * http protocol servers will be allowed. Must be set to `false` in
    * production.
-   * @default false
+   * @defaultValue false
    */
   public static setAllowHttp(value: boolean): void {
     config.allowHttp = value;
@@ -46,7 +45,7 @@ class Config {
   /**
    * Sets `timeout` flag globally. When set to anything besides 0, the request
    * will timeout after specified time (ms).
-   * @default 0
+   * @defaultValue 0
    */
   public static setTimeout(value: number): void {
     config.timeout = value;

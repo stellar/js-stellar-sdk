@@ -26,7 +26,7 @@ export interface ServerTime {
  *   localTimeRecorded: 1552513052
  * }
  *
- * @default {}
+ * @defaultValue {}
  */
 export const SERVER_TIME_MAP: Record<string, ServerTime> = {};
 

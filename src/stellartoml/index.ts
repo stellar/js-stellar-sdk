@@ -6,13 +6,12 @@ import { Config } from "../config.js";
 
 /**
  * The maximum size of stellar.toml file, in bytes
- * @default 102400
+ * @defaultValue 102400
  */
 export const STELLAR_TOML_MAX_SIZE = 100 * 1024;
 
 /**
  * Resolver allows resolving `stellar.toml` files.
- * @hideconstructor
  */
 export class Resolver {
   /**

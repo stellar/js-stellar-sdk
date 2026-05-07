@@ -226,7 +226,8 @@ function parseSuccessful(
 
 /**
  * Converts a raw response schema into one with parsed XDR fields and a simplified interface.
- * @warning This API is only exported for testing purposes and should not be relied on or considered "stable".
+ *
+ * **Warning:** This API is only exported for testing purposes and should not be relied on or considered "stable".
  *
  * @param sim the raw response schema (parsed ones are allowed, best-effort
  *    detected, and returned untouched)

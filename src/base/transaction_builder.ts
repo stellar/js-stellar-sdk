@@ -270,12 +270,12 @@ export class TransactionBuilder {
    *    {fee: '1000'} will override the existing base fee derived from `tx` (see
    *    the {@link TransactionBuilder} constructor for detailed options)
    *
-   * @warning This does not clone the transaction's
-   *    {@link xdr.SorobanTransactionData} (if applicable), use
-   *    {@link SorobanDataBuilder} and {@link TransactionBuilder.setSorobanData}
-   *    as needed, instead..
+   * **Warning:** This does not clone the transaction's
+   * {@link xdr.SorobanTransactionData} (if applicable), use
+   * {@link SorobanDataBuilder} and {@link TransactionBuilder.setSorobanData}
+   * as needed, instead.
    *
-   * @todo This cannot clone {@link FeeBumpTransaction}s, yet.
+   * TODO: This cannot clone {@link FeeBumpTransaction}s, yet.
    */
   static cloneFrom(
     tx: Transaction,
@@ -1081,7 +1081,7 @@ export class TransactionBuilder {
    *     Stellar network (e.g. "Public Global Stellar Network ; September 2015",
    *     see {@link Networks})
    *
-   * @todo Alongside the next major version bump, this type signature can be
+   * TODO: Alongside the next major version bump, this type signature can be
    *       changed to be less awkward: accept a MuxedAccount as the `feeSource`
    *       rather than a keypair or string.
    *

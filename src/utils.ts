@@ -3,7 +3,6 @@ import { Transaction } from "./base/index.js";
 /**
  * Miscellaneous utilities.
  *
- * @hideconstructor
  */
 export class Utils {
   /**

@@ -12,8 +12,7 @@
     "@inheritDoc", "@license", "@module", "@mergeModuleWith", "@prop",
     "@property", "@return", "@satisfies", "@since", "@sortStrategy",
     "@template", "@this", "@type", "@typedef", "@summary",
-    "@preventInline", "@inlineType", "@preventExpand", "@expandType",
-    "@warning", "@todo"
+    "@preventInline", "@inlineType", "@preventExpand", "@expandType"
   ],
   "validation": {
     "invalidLink": true,
