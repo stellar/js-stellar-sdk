@@ -12,9 +12,11 @@ export class Soroban {
    *
    * @throws if the given amount has a decimal point already
    * @example
+   * ```ts
    * formatTokenAmount("123000", 4) === "12.3";
    * formatTokenAmount("123000", 3) === "123.0";
    * formatTokenAmount("123", 3) === "0.123";
+   * ```
    */
   static formatTokenAmount(amount: string, decimals: number): string {
     if (amount.includes(".")) {
@@ -61,9 +63,11 @@ export class Soroban {
    *    might not be present)
    *
    * @example
+   * ```ts
    * const displayValueAmount = "123.4560"
    * const parsedAmtForSmartContract = parseTokenAmount(displayValueAmount, 5);
    * parsedAmtForSmartContract === "12345600"
+   * ```
    */
   static parseTokenAmount(value: string, decimals: number): string {
     const [whole, fraction, ...rest] = value.split(".").slice();

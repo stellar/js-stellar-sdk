@@ -72,10 +72,10 @@ export interface WalletError {
  *
  * @param xdr - The XDR string representing the transaction to be signed.
  * @param opts - Options for signing the transaction.
- *   @param opts.networkPassphrase - The network's passphrase on which the transaction is intended to be signed.
- *   @param opts.address - The public key of the account that should be used to sign.
- *   @param opts.submit - If set to true, submits the transaction immediately after signing.
- *   @param opts.submitUrl - The URL of the network to which the transaction should be submitted, if applicable.
+ *   - `networkPassphrase`: The network's passphrase on which the transaction is intended to be signed.
+ *   - `address`: The public key of the account that should be used to sign.
+ *   - `submit`: If set to true, submits the transaction immediately after signing.
+ *   - `submitUrl`: The URL of the network to which the transaction should be submitted, if applicable.
  *
  * @returns A promise resolving to an object with the signed transaction XDR and optional signer address and error.
  */
@@ -103,8 +103,8 @@ export type SignTransaction = (
  *
  * @param authEntry - The authorization entry preimage to be signed.
  * @param opts - Options for signing the authorization entry.
- *   @param opts.networkPassphrase - The network's passphrase on which the authorization entry is intended to be signed.
- *   @param opts.address - The public key of the account that should be used to sign.
+ *   - `networkPassphrase`: The network's passphrase on which the authorization entry is intended to be signed.
+ *   - `address`: The public key of the account that should be used to sign.
  *
  * @returns A promise resolving to an object with the signed authorization entry and optional signer address and error.
  */
@@ -187,7 +187,7 @@ export type ClientOptions = {
    * error, by using this passed-in `errorTypes` object. See `parseError`
    * on {@link contract.AssembledTransaction}. If `errorTypes` is blank or no
    * matching error is found, then it will throw the raw error.
-   * @defaultValue {}
+   * @defaultValue `{}`
    */
   errorTypes?: Record<number, { message: string }>;
   /**

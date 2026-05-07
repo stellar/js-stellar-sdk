@@ -21,7 +21,7 @@ import {
  *
  *
  * @param opts - an optional set of parameters
- * @param opts.source - an optional source account
+ *   - `source`: an optional source account
  */
 export function restoreFootprint(
   opts: RestoreFootprintOpts = {},

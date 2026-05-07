@@ -111,8 +111,8 @@ export interface TransactionBuilderOptions {
  * <p>Operations can be added to the transaction via their corresponding builder
  * methods, and each returns the TransactionBuilder object so they can be
  * chained together. After adding the desired operations, call the `build()`
- * method on the `TransactionBuilder` to return a fully constructed `{@link
- * Transaction}` that can be signed. The returned transaction will contain the
+ * method on the `TransactionBuilder` to return a fully constructed
+ * {@link Transaction} that can be signed. The returned transaction will contain the
  * sequence number of the source account and include the signature from the
  * source account.</p>
  *
@@ -267,8 +267,8 @@ export class TransactionBuilder {
    *
    * @param tx - a "template" transaction to clone exactly
    * @param opts - additional options to override the clone, e.g.
-   *    {fee: '1000'} will override the existing base fee derived from `tx` (see
-   *    the {@link TransactionBuilder} constructor for detailed options)
+   *    `{fee: '1000'}` will override the existing base fee derived from `tx`
+   *    (see the {@link TransactionBuilder} constructor for detailed options)
    *
    * **Warning:** This does not clone the transaction's
    * {@link xdr.SorobanTransactionData} (if applicable), use
@@ -408,8 +408,8 @@ export class TransactionBuilder {
    *
    *  A call to `TransactionBuilder.setTimeout` is **required** if Transaction
    *  does not have `max_time` set. If you don't want to set timeout, use
-   *  `{@link TimeoutInfinite}`. In general you should set `{@link
-   *  TimeoutInfinite}` only in smart contracts.
+   *  {@link TimeoutInfinite}. In general you should set
+   *  {@link TimeoutInfinite} only in smart contracts.
    *
    *  Please note that Horizon may still return <code>504 Gateway Timeout</code>
    *  error, even for short timeouts. In such case you need to resubmit the same
@@ -546,7 +546,7 @@ export class TransactionBuilder {
    * If you want to prepare a transaction which will be valid only while the
    * account sequence number is
    *
-   *     minAccountSequence <= sourceAccountSequence < tx.seqNum
+   *     `minAccountSequence <= sourceAccountSequence < tx.seqNum`
    *
    * Note that after execution the account's sequence number is always raised to
    * `tx.seqNum`. Internally this will set the `minAccountSequence`
@@ -554,8 +554,8 @@ export class TransactionBuilder {
    *
    * @param minAccountSequence - The minimum source account sequence
    *     number this transaction is valid for. If the value is `0` (the
-   *     default), the transaction is valid when `sourceAccount's sequence
-   *     number == tx.seqNum- 1`.
+   *     default), the transaction is valid when `sourceAccount`'s sequence
+   *     number `== tx.seqNum - 1`.
    */
   setMinAccountSequence(minAccountSequence: string): TransactionBuilder {
     if (this.minAccountSequence !== null) {
@@ -678,7 +678,7 @@ export class TransactionBuilder {
    * @param sorobanData - the {@link xdr.SorobanTransactionData} as a raw xdr
    *    object or a base64 string to be decoded
    *
-   * @see {SorobanDataBuilder}
+   * @see {@link SorobanDataBuilder}
    */
   setSorobanData(
     sorobanData: xdr.SorobanTransactionData | string,
@@ -1085,7 +1085,7 @@ export class TransactionBuilder {
    *       changed to be less awkward: accept a MuxedAccount as the `feeSource`
    *       rather than a keypair or string.
    *
-   * Your fee-bump amount should be >= 10x the original fee.
+   * Your fee-bump amount should be `>= 10x` the original fee.
    * @see  https://developers.stellar.org/docs/glossary/fee-bumps/#replace-by-fee
    */
   static buildFeeBumpTransaction(

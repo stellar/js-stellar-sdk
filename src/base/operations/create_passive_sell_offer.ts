@@ -18,13 +18,13 @@ import {
  * just used as 1:1 exchanges for path payments. Use manage offer to manage
  * this offer after using this operation to create it.
  * @param opts - Options object
- * @param opts.selling - What you're selling.
- * @param opts.buying - What you're buying.
- * @param opts.amount - The total amount you're selling. If 0, deletes the offer.
- * @param opts.price - Price of 1 unit of `selling` in terms of `buying`.
- * @param opts.price.n - If `opts.price` is an object: the price numerator
- * @param opts.price.d - If `opts.price` is an object: the price denominator
- * @param opts.source - The source account (defaults to transaction source).
+ *   - `selling`: What you're selling.
+ *   - `buying`: What you're buying.
+ *   - `amount`: The total amount you're selling. If 0, deletes the offer.
+ *   - `price`: Price of 1 unit of `selling` in terms of `buying`.
+ *   - `price.n`: If `opts.price` is an object: the price numerator
+ *   - `price.d`: If `opts.price` is an object: the price denominator
+ *   - `source`: The source account (defaults to transaction source).
  * @throws when the best rational approximation of `price` cannot be found.
  */
 export function createPassiveSellOffer(

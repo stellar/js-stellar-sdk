@@ -19,9 +19,9 @@ import { setSourceAccount } from "../util/operations.js";
  *
  *
  * @param opts - options object
- * @param opts.func - host function to execute (with its wrapped parameters)
- * @param opts.auth - list outlining the tree of authorizations required for the call
- * @param opts.source - an optional source account
+ *   - `func`: host function to execute (with its wrapped parameters)
+ *   - `auth`: list outlining the tree of authorizations required for the call
+ *   - `source`: an optional source account
  *
  * @see https://soroban.stellar.org/docs/fundamentals-and-concepts/invoking-contracts-with-transactions#function
  * @see Operation.invokeContractFunction
@@ -87,11 +87,11 @@ export function invokeHostFunction(
  *
  *
  * @param opts - the set of parameters
- * @param opts.contract - a strkey-fied contract address (`C...`)
- * @param opts.function - the name of the contract fn to invoke
- * @param opts.args - parameters to pass to the function invocation
- * @param opts.auth - an optional list outlining the tree of authorizations required for the call
- * @param opts.source - an optional source account
+ *   - `contract`: a strkey-fied contract address (`C...`)
+ *   - `function`: the name of the contract fn to invoke
+ *   - `args`: parameters to pass to the function invocation
+ *   - `auth`: an optional list outlining the tree of authorizations required for the call
+ *   - `source`: an optional source account
  *
  * @see Operation.invokeHostFunction
  * @see Contract.call
@@ -127,12 +127,12 @@ export function invokeContractFunction(
  *
  *
  * @param opts - the set of parameters
- * @param opts.address - the contract uploader address
- * @param opts.wasmHash - the SHA-256 hash of the contract WASM you're uploading
- * @param opts.constructorArgs - the optional parameters to pass to the constructor
- * @param opts.salt - an optional, 32-byte salt to distinguish deployment instances
- * @param opts.auth - an optional list outlining the tree of authorizations required for the call
- * @param opts.source - an optional source account
+ *   - `address`: the contract uploader address
+ *   - `wasmHash`: the SHA-256 hash of the contract WASM you're uploading
+ *   - `constructorArgs`: the optional parameters to pass to the constructor
+ *   - `salt`: an optional, 32-byte salt to distinguish deployment instances
+ *   - `auth`: an optional list outlining the tree of authorizations required for the call
+ *   - `source`: an optional source account
  *
  * @see https://soroban.stellar.org/docs/fundamentals-and-concepts/invoking-contracts-with-transactions#function
  */
@@ -179,9 +179,9 @@ export function createCustomContract(
  *
  *
  * @param opts - the set of parameters
- * @param opts.asset - the Stellar asset to wrap, either as an {@link Asset} object or in canonical form (SEP-11, `code:issuer`)
- * @param opts.auth - an optional list outlining the tree of authorizations required for the upload
- * @param opts.source - an optional source account
+ *   - `asset`: the Stellar asset to wrap, either as an {@link Asset} object or in canonical form (SEP-11, `code:issuer`)
+ *   - `auth`: an optional list outlining the tree of authorizations required for the upload
+ *   - `source`: an optional source account
  *
  * @see https://stellar.org/protocol/sep-11#alphanum4-alphanum12
  * @see https://soroban.stellar.org/docs/fundamentals-and-concepts/invoking-contracts-with-transactions
@@ -229,9 +229,9 @@ export function createStellarAssetContract(
  *
  *
  * @param opts - the set of parameters
- * @param opts.wasm - a WASM blob to upload to the ledger
- * @param opts.auth - an optional list outlining the tree of authorizations required for the upload
- * @param opts.source - an optional source account
+ *   - `wasm`: a WASM blob to upload to the ledger
+ *   - `auth`: an optional list outlining the tree of authorizations required for the upload
+ *   - `source`: an optional source account
  *
  * @see https://soroban.stellar.org/docs/fundamentals-and-concepts/invoking-contracts-with-transactions#function
  */

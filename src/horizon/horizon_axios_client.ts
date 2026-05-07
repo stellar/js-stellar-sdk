@@ -21,12 +21,14 @@ export interface ServerTime {
  * time it was recorded, ex:
  *
  * @example
+ * ```ts
  * "horizon-testnet.stellar.org": {
  *   serverTime: 1552513039,
  *   localTimeRecorded: 1552513052
  * }
+ * ```
  *
- * @defaultValue {}
+ * @defaultValue `{}`
  */
 export const SERVER_TIME_MAP: Record<string, ServerTime> = {};
 
@@ -86,7 +88,7 @@ export function createHttpClient(headers?: Record<string, string>): HttpClient {
  * recorded server time and offset it by the time since then.) If there IS no
  * recorded server time, or it's been 5 minutes since the last, return null.
  *
- * @param hostname Hostname of a Horizon server.
+ * @param hostname - Hostname of a Horizon server.
  * @returns The UNIX timestamp (in seconds, not milliseconds)
  * representing the current time on that server, or `null` if we don't have
  * a record of that time.

@@ -16,11 +16,13 @@ export type { ScIntType };
  * you can pass it to the constructor of {@link XdrLargeInt}.
  *
  * @example
+ * ```ts
  * let scv = contract.call("add", x, y); // assume it returns an xdr.ScVal
  * let bigi = scValToBigInt(scv);
  *
  * new ScInt(bigi);               // if you don't care about types, and
  * new XdrLargeInt('i128', bigi); // if you do
+ * ```
  *
  * @param scv - the XDR smart contract value to convert
  *

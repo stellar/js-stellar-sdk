@@ -246,6 +246,7 @@ export namespace Api {
    * - **Cursor pagination mode**: Use `cursor` (startLedger and endLedger must be omitted)
    *
    * @example
+   * ```ts
    * // ✅ Correct: Ledger range mode
    * const rangeRequest: GetEventsRequest = {
    *   filters: [],
@@ -253,16 +254,20 @@ export namespace Api {
    *   endLedger: 2000,
    *   limit: 100
    * };
+   * ```
    *
    * @example
+   * ```ts
    * // ✅ Correct: Cursor pagination mode
    * const cursorRequest: GetEventsRequest = {
    *   filters: [],
    *   cursor: "some-cursor-value",
    *   limit: 100
    * };
+   * ```
    *
    * @example
+   * ```ts
    * // ❌ Invalid: Cannot mix cursor with ledger range
    * const invalidRequest = {
    *   filters: [],
@@ -271,6 +276,7 @@ export namespace Api {
    *   cursor: "cursor",   // ❌ Cannot use with ledger range
    *   limit: 100
    * };
+   * ```
    *
    * @see {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods/getEvents | getEvents API reference}
    */
@@ -456,7 +462,7 @@ export namespace Api {
 
   /**
    * Checks if a simulation response indicates an error.
-   * @param sim The simulation response to check.
+   * @param sim - The simulation response to check.
    * @returns True if the response indicates an error, false otherwise.
    */
   export function isSimulationError(
@@ -467,7 +473,7 @@ export namespace Api {
 
   /**
    * Checks if a simulation response indicates success.
-   * @param sim The simulation response to check.
+   * @param sim - The simulation response to check.
    * @returns True if the response indicates success, false otherwise.
    */
   export function isSimulationSuccess(
@@ -478,7 +484,7 @@ export namespace Api {
 
   /**
    * Checks if a simulation response indicates that a restoration is needed.
-   * @param sim The simulation response to check.
+   * @param sim - The simulation response to check.
    * @returns True if the response indicates a restoration is needed, false otherwise.
    */
   export function isSimulationRestore(
@@ -493,7 +499,7 @@ export namespace Api {
 
   /**
    * Checks if a simulation response is in raw (unparsed) form.
-   * @param sim The simulation response to check.
+   * @param sim - The simulation response to check.
    * @returns True if the response is raw, false otherwise.
    */
   export function isSimulationRaw(
@@ -601,6 +607,7 @@ export namespace Api {
    * - **Cursor-based pagination**: Use `cursor` to continue from a previous response's pagination token
    *
    * @example
+   * ```ts
    * // Ledger-based pagination - start from specific ledger
    * const ledgerRequest: GetLedgersRequest = {
    *   startLedger: 36233,
@@ -608,8 +615,10 @@ export namespace Api {
    *     limit: 10
    *   }
    * };
+   * ```
    *
    * @example
+   * ```ts
    * // Cursor-based pagination - continue from previous response
    * const cursorRequest: GetLedgersRequest = {
    *   pagination: {
@@ -617,6 +626,7 @@ export namespace Api {
    *     limit: 5
    *   }
    * };
+   * ```
    *
    * @see {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods/getLedgers | getLedgers API reference}
    */

@@ -17,13 +17,13 @@ const allowedResolutions = [
  *
  * @internal
  *
- * @param serverUrl serverUrl Horizon server URL.
- * @param base base asset
- * @param counter counter asset
- * @param start_time lower time boundary represented as millis since epoch
- * @param end_time upper time boundary represented as millis since epoch
- * @param resolution segment duration as millis since epoch. *Supported values are 1 minute (60000), 5 minutes (300000), 15 minutes (900000), 1 hour (3600000), 1 day (86400000) and 1 week (604800000).
- * @param offset segments can be offset using this parameter. Expressed in milliseconds. *Can only be used if the resolution is greater than 1 hour. Value must be in whole hours, less than the provided resolution, and less than 24 hours.
+ * @param serverUrl - serverUrl Horizon server URL.
+ * @param base - base asset
+ * @param counter - counter asset
+ * @param start_time - lower time boundary represented as millis since epoch
+ * @param end_time - upper time boundary represented as millis since epoch
+ * @param resolution - segment duration as millis since epoch. *Supported values are 1 minute (60000), 5 minutes (300000), 15 minutes (900000), 1 hour (3600000), 1 day (86400000) and 1 week (604800000).
+ * @param offset - segments can be offset using this parameter. Expressed in milliseconds. *Can only be used if the resolution is greater than 1 hour. Value must be in whole hours, less than the provided resolution, and less than 24 hours.
  */
 export class TradeAggregationCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<TradeAggregationRecord>
@@ -76,7 +76,7 @@ export class TradeAggregationCallBuilder extends CallBuilder<
 
   /**
    * @internal
-   * @param resolution Trade data resolution in milliseconds
+   * @param resolution - Trade data resolution in milliseconds
    * @returns true if the resolution is allowed
    */
   private isValidResolution(resolution: number): boolean {
@@ -85,8 +85,8 @@ export class TradeAggregationCallBuilder extends CallBuilder<
 
   /**
    * @internal
-   * @param offset Time offset in milliseconds
-   * @param resolution Trade data resolution in milliseconds
+   * @param offset - Time offset in milliseconds
+   * @param resolution - Trade data resolution in milliseconds
    * @returns true if the offset is valid
    */
   private isValidOffset(offset: number, resolution: number): boolean {

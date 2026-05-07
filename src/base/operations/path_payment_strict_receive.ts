@@ -24,13 +24,13 @@ import {
  * @see https://developers.stellar.org/docs/start/list-of-operations/#path-payment-strict-receive
  *
  * @param opts - Options object
- * @param opts.sendAsset - asset to pay with
- * @param opts.sendMax - maximum amount of sendAsset to send
- * @param opts.destination - destination account to send to
- * @param opts.destAsset - asset the destination will receive
- * @param opts.destAmount - amount the destination receives
- * @param opts.path - array of Asset objects to use as the path
- * @param opts.source - The source account for the payment.
+ *   - `sendAsset`: asset to pay with
+ *   - `sendMax`: maximum amount of sendAsset to send
+ *   - `destination`: destination account to send to
+ *   - `destAsset`: asset the destination will receive
+ *   - `destAmount`: amount the destination receives
+ *   - `path`: array of Asset objects to use as the path
+ *   - `source`: The source account for the payment.
  *     Defaults to the transaction's source account.
  */
 export function pathPaymentStrictReceive(

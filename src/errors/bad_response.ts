@@ -7,7 +7,7 @@ import { NetworkError } from "./network.js";
  * the maximum allowed size, or a transaction submission may have failed with
  * Horizon.
  *
- * @param message Human-readable error message.
- * @param response Response details, received from the server.
+ * @param message - Human-readable error message.
+ * @param response - Response details, received from the server.
  */
 export class BadResponseError extends NetworkError {}

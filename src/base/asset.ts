@@ -278,7 +278,7 @@ export class Asset {
   /**
    * Compares two assets according to the criteria:
    *
-   *  1. First compare the type (native < alphanum4 < alphanum12).
+   *  1. First compare the type (`native < alphanum4 < alphanum12`).
    *  2. If the types are equal, compare the assets codes.
    *  3. If the asset codes are equal, compare the issuers.
    *

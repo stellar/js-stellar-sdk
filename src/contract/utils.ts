@@ -80,7 +80,7 @@ export async function withExponentialBackoff<T>(
  * matches these "expected error types" that a contract may throw, and helps
  * {@link AssembledTransaction} parse these errors.
  *
- * @defaultValue "/Error\(Contract, #(\d+)\)/"
+ * @defaultValue `/Error\(Contract, #(\d+)\)/`
  */
 export const contractErrorPattern = /Error\(Contract, #(\d+)\)/;
 

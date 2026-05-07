@@ -23,13 +23,18 @@ let config = { ...defaultConfig };
 
 /**
  * Global config class.
- * @example <caption>Usage in node</caption>
+ * @example Usage in node
+ * ```ts
  * import { Config } from '@stellar/stellar-sdk';
  * Config.setAllowHttp(true);
  * Config.setTimeout(5000);
- * @example <caption>Usage in the browser</caption>
+ * ```
+ *
+ * @example Usage in the browser
+ * ```ts
  * StellarSdk.Config.setAllowHttp(true);
  * StellarSdk.Config.setTimeout(5000);
+ * ```
  */
 class Config {
   /**

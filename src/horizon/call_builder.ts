@@ -28,7 +28,7 @@ export interface EventSourceOptions<T> {
  * Creates a new {@link CallBuilder} pointed to server defined by serverUrl.
  *
  * This is an **abstract** class. Do not create this object directly, use {@link Server} class.
- * @param serverUrl URL of Horizon server
+ * @param serverUrl - URL of Horizon server
  */
 export class CallBuilder<
   T extends
@@ -103,10 +103,10 @@ export class CallBuilder<
    * events call the function returned by this method.
    * @see [Horizon Response Format](https://developers.stellar.org/api/introduction/response-format/)
    * @see [MDN EventSource](https://developer.mozilla.org/en-US/docs/Web/API/EventSource)
-   * @param [options] EventSource options.
-   * @param [options.onmessage] Callback function to handle incoming messages.
-   * @param [options.onerror] Callback function to handle errors.
-   * @param [options.reconnectTimeout] Custom stream connection timeout in ms, default is 15 seconds.
+   * @param options - (optional) EventSource options.
+   *   - `onmessage` (optional): Callback function to handle incoming messages.
+   *   - `onerror` (optional): Callback function to handle errors.
+   *   - `reconnectTimeout` (optional): Custom stream connection timeout in ms, default is 15 seconds.
    * @returns Close function. Run to close the connection and stop listening for new events.
    */
   public stream(
@@ -236,7 +236,7 @@ export class CallBuilder<
   /**
    * Sets `cursor` parameter for the current call. Returns the CallBuilder object on which this method has been called.
    * @see [Paging](https://developers.stellar.org/api/introduction/pagination/)
-   * @param cursor A cursor is a value that points to a specific location in a collection of resources.
+   * @param cursor - A cursor is a value that points to a specific location in a collection of resources.
    * @returns current CallBuilder instance
    */
   public cursor(cursor: string): this {
@@ -247,7 +247,7 @@ export class CallBuilder<
   /**
    * Sets `limit` parameter for the current call. Returns the CallBuilder object on which this method has been called.
    * @see [Paging](https://developers.stellar.org/api/introduction/pagination/)
-   * @param recordsNumber Number of records the server should return.
+   * @param recordsNumber - Number of records the server should return.
    * @returns current CallBuilder instance
    */
   public limit(recordsNumber: number): this {
@@ -257,7 +257,7 @@ export class CallBuilder<
 
   /**
    * Sets `order` parameter for the current call. Returns the CallBuilder object on which this method has been called.
-   * @param direction Sort direction
+   * @param direction - Sort direction
    * @returns current CallBuilder instance
    */
   public order(direction: "asc" | "desc"): this {
@@ -273,7 +273,7 @@ export class CallBuilder<
    * will include a `transaction` field for each operation in the
    * response.
    *
-   * @param "include" join Records to be included in the response.
+   * @param include - join Records to be included in the response.
    * @returns current CallBuilder instance.
    */
   public join(include: "transactions"): this {
@@ -289,10 +289,10 @@ export class CallBuilder<
    *  it's helpful to be able to conveniently create queries to the
    *  `/accounts/:id/effects` endpoint:
    *
-   *    this.forEndpoint("accounts", accountId)`.
+   *    `this.forEndpoint("accounts", accountId)`.
    *
-   * @param endpoint neighbor endpoint in question, like /operations
-   * @param param    filter parameter, like an operation ID
+   * @param endpoint - neighbor endpoint in question, like /operations
+   * @param param - filter parameter, like an operation ID
    *
    * @returns this CallBuilder instance
    */
@@ -322,9 +322,9 @@ export class CallBuilder<
   /**
    * Convert a link object to a function that fetches that link.
    * @internal
-   * @param link A link object
-   * @param link.href the URI of the link
-   * @param [link.templated] Whether the link is templated
+   * @param link - A link object
+   *   - `href`: the URI of the link
+   *   - `templated` (optional): Whether the link is templated
    * @returns A function that requests the link
    */
   private _requestFnForLink(
@@ -348,7 +348,7 @@ export class CallBuilder<
    * Given the json response, find and convert each link into a function that
    * calls that link.
    * @internal
-   * @param json JSON response
+   * @param json - JSON response
    * @returns JSON response with string links replaced with functions
    */
   private _parseRecord(json: any): any {
@@ -400,7 +400,7 @@ export class CallBuilder<
 
   /**
    * @internal
-   * @param json Response object
+   * @param json - Response object
    * @returns Extended response
    */
   private _parseResponse(json: any) {
@@ -412,7 +412,7 @@ export class CallBuilder<
 
   /**
    * @internal
-   * @param json Response object
+   * @param json - Response object
    * @returns Extended response object
    */
   private _toCollectionPage(json: any): any {
@@ -438,7 +438,7 @@ export class CallBuilder<
 
   /**
    * @internal
-   * @param error Network error object
+   * @param error - Network error object
    * @returns Promise that rejects with a human-readable error
    */
   private async _handleNetworkError(error: NetworkError): Promise<void> {

@@ -139,12 +139,12 @@ function findCreatedAccountSequenceInTransactionMeta(
  * interface for requests to that instance.
  *
  *
- * @param serverURL Soroban-RPC Server URL (ex. `http://localhost:8000/soroban/rpc`).
- * @param [opts] Options object
- * @param [opts.allowHttp] Allows connecting to insecure http servers
+ * @param serverURL - Soroban-RPC Server URL (ex. `http://localhost:8000/soroban/rpc`).
+ * @param opts - (optional) Options object
+ *   - `allowHttp` (optional): Allows connecting to insecure http servers
  *    (default: `false`). This must be set to false in production deployments!
  *    You can also use {@link Config} class to set this globally.
- * @param [opts.headers] Allows setting custom headers
+ *   - `headers` (optional): Allows setting custom headers
  *
  * @see {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods | API reference docs}
  */
@@ -155,6 +155,7 @@ export class RpcServer {
    * Exposes interceptors, defaults, and other configuration options.
    *
    * @example
+   * ```ts
    * // Add authentication header
    * server.httpClient.defaults.headers['Authorization'] = 'Bearer token';
    *
@@ -163,6 +164,7 @@ export class RpcServer {
    *   console.log('Request:', config.url);
    *   return config;
    * });
+   * ```
    */
   public readonly httpClient: HttpClient;
   constructor(serverURL: string, opts: RpcServer.Options = {}) {
@@ -184,17 +186,19 @@ export class RpcServer {
    * Needed to get the current sequence number for the account so you can build
    * a successful transaction with {@link TransactionBuilder}.
    *
-   * @param address The public address of the account to load.
+   * @param address - The public address of the account to load.
    * @returns A promise which resolves to the {@link Account}
    * object with a populated sequence number
    *
    * @see {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods/getLedgerEntries | getLedgerEntries docs}
    *
    * @example
+   * ```ts
    * const accountId = "GBZC6Y2Y7Q3ZQ2Y4QZJ2XZ3Z5YXZ6Z7Z2Y4QZJ2XZ3Z5YXZ6Z7Z2Y4";
    * server.getAccount(accountId).then((account) => {
    *   console.log("sequence:", account.sequence);
    * });
+   * ```
    */
   public async getAccount(address: string): Promise<Account> {
     const entry = await this.getAccountEntry(address);
@@ -204,7 +208,7 @@ export class RpcServer {
   /**
    * Fetch the full account entry for a Stellar account.
    *
-   * @param address The public address of the account to load.
+   * @param address - The public address of the account to load.
    * @returns Resolves to the full on-chain account
    *    entry
    *
@@ -212,10 +216,12 @@ export class RpcServer {
    * {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods/getLedgerEntries | getLedgerEntries docs}
    *
    * @example
+   * ```ts
    * const accountId = "GBZC6Y2Y7Q3ZQ2Y4QZJ2XZ3Z5YXZ6Z7Z2Y4QZJ2XZ3Z5YXZ6Z7Z2Y4";
    * server.getAccountEntry(accountId).then((account) => {
    *   console.log("sequence:", account.balance().toString());
    * });
+   * ```
    */
   public async getAccountEntry(address: string): Promise<xdr.AccountEntry> {
     const ledgerKey = xdr.LedgerKey.account(
@@ -235,8 +241,8 @@ export class RpcServer {
   /**
    * Fetch the full trustline entry for a Stellar account.
    *
-   * @param account  The public address of the account whose trustline it is
-   * @param asset    The trustline's asset
+   * @param account - The public address of the account whose trustline it is
+   * @param asset - The trustline's asset
    * @returns Resolves to the full on-chain trustline
    *    entry
    *
@@ -245,6 +251,7 @@ export class RpcServer {
    *
    * @deprecated Use {@link getAssetBalance}, instead
    * @example
+   * ```ts
    * const accountId = "GBZC6Y2Y7Q3ZQ2Y4QZJ2XZ3Z5YXZ6Z7Z2Y4QZJ2XZ3Z5YXZ6Z7Z2Y4";
    * const asset = new Asset(
    *  "USDC",
@@ -253,6 +260,7 @@ export class RpcServer {
    * server.getTrustline(accountId, asset).then((entry) => {
    *   console.log(`{asset.toString()} balance for ${accountId}:", entry.balance().toString());
    * });
+   * ```
    */
   public async getTrustline(
     account: string,
@@ -278,7 +286,7 @@ export class RpcServer {
   /**
    * Fetch the full claimable balance entry for a Stellar account.
    *
-   * @param id   The strkey (`B...`) or hex (`00000000abcde...`) (both
+   * @param id - The strkey (`B...`) or hex (`00000000abcde...`) (both
    *    IDs with and without the 000... version prefix are accepted) of the
    *    claimable balance to load
    * @returns Resolves to the full on-chain
@@ -288,12 +296,14 @@ export class RpcServer {
    * {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods/getLedgerEntries | getLedgerEntries docs}
    *
    * @example
+   * ```ts
    * const id = "00000000178826fbfe339e1f5c53417c6fedfe2c05e8bec14303143ec46b38981b09c3f9";
    * server.getClaimableBalance(id).then((entry) => {
    *   console.log(`Claimable balance {id.substr(0, 12)} has:`);
    *   console.log(`  asset:  ${Asset.fromXDRObject(entry.asset()).toString()}`;
    *   console.log(`  amount: ${entry.amount().toString()}`;
    * });
+   * ```
    */
   public async getClaimableBalance(
     id: string,
@@ -338,10 +348,10 @@ export class RpcServer {
    * The `address` argument may be provided as a string (as a {@link StrKey}),
    * {@link Address}, or {@link Contract}.
    *
-   * @param address The account or contract whose
+   * @param address - The account or contract whose
    *    balance should be fetched.
-   * @param asset The asset whose balance you want to inspect.
-   * @param [networkPassphrase] optionally, when requesting the
+   * @param asset - The asset whose balance you want to inspect.
+   * @param networkPassphrase - (optional) optionally, when requesting the
    *    balance of a contract, the network passphrase to which this token
    *    applies. If omitted and necessary, a request about network information
    *    will be made (see {@link getNetwork}), since contract IDs for assets are
@@ -354,12 +364,14 @@ export class RpcServer {
    *    contract strkey.
    *
    * @example
+   * ```ts
    * const usdc = new Asset(
    *   "USDC",
    *   "GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5"
    * );
    * const balance = await server.getAssetBalance("GD...", usdc);
    * console.log(balance.balanceEntry?.amount);
+   * ```
    */
   public async getAssetBalance(
     address: string | Address | Contract,
@@ -413,9 +425,11 @@ export class RpcServer {
    * @see {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods/getHealth | getLedgerEntries docs}
    *
    * @example
+   * ```ts
    * server.getHealth().then((health) => {
    *   console.log("status:", health.status);
    * });
+   * ```
    */
 
   public async getHealth(): Promise<Api.GetHealthResponse> {
@@ -433,11 +447,11 @@ export class RpcServer {
    * backup way to access your contract data which may not be available via
    * events or {@link rpc.Server.simulateTransaction}.
    *
-   * @param contract The contract ID containing the
+   * @param contract - The contract ID containing the
    *    data to load as a strkey (`C...` form), a {@link Contract}, or an
    *    {@link Address} instance
-   * @param key The key of the contract data to load
-   * @param [durability=Durability.Persistent] The "durability
+   * @param key - The key of the contract data to load
+   * @param durability - (optional) The "durability
    *    keyspace" that this ledger key belongs to, which is either 'temporary'
    *    or 'persistent' (the default), see {@link rpc.Durability}.
    * @returns The current data value
@@ -448,6 +462,7 @@ export class RpcServer {
    * @see {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods/getLedgerEntries | getLedgerEntries docs}
    *
    * @example
+   * ```ts
    * const contractId = "CCJZ5DGASBWQXR5MPFCJXMBI333XE5U3FSJTNQU7RIKE3P5GN2K2WYD5";
    * const key = xdr.ScVal.scvSymbol("counter");
    * server.getContractData(contractId, key, Durability.Temporary).then(data => {
@@ -456,6 +471,7 @@ export class RpcServer {
    *   console.log("lastModified:", data.lastModifiedLedgerSeq);
    *   console.log("latestLedger:", data.latestLedger);
    * });
+   * ```
    */
 
   public async getContractData(
@@ -516,12 +532,13 @@ export class RpcServer {
    * deployed on the Soroban network. The WASM bytecode represents the executable
    * code of the contract.
    *
-   * @param contractId The contract ID containing the WASM bytecode to retrieve
+   * @param contractId - The contract ID containing the WASM bytecode to retrieve
    * @returns A Buffer containing the WASM bytecode
    * @throws If the contract or its associated WASM bytecode cannot be
    * found on the network.
    *
    * @example
+   * ```ts
    * const contractId = "CCJZ5DGASBWQXR5MPFCJXMBI333XE5U3FSJTNQU7RIKE3P5GN2K2WYD5";
    * server.getContractWasmByContractId(contractId).then(wasmBuffer => {
    *   console.log("WASM bytecode length:", wasmBuffer.length);
@@ -529,6 +546,7 @@ export class RpcServer {
    * }).catch(err => {
    *   console.error("Error fetching WASM bytecode:", err);
    * });
+   * ```
    */
   public async getContractWasmByContractId(
     contractId: string,
@@ -559,12 +577,13 @@ export class RpcServer {
    * deployed on the Soroban network using the contract's WASM hash. The WASM bytecode
    * represents the executable code of the contract.
    *
-   * @param wasmHash The WASM hash of the contract
+   * @param wasmHash - The WASM hash of the contract
    * @returns A Buffer containing the WASM bytecode
    * @throws If the contract or its associated WASM bytecode cannot be
    * found on the network.
    *
    * @example
+   * ```ts
    * const wasmHash = Buffer.from("...");
    * server.getContractWasmByHash(wasmHash).then(wasmBuffer => {
    *   console.log("WASM bytecode length:", wasmBuffer.length);
@@ -572,6 +591,7 @@ export class RpcServer {
    * }).catch(err => {
    *   console.error("Error fetching WASM bytecode:", err);
    * });
+   * ```
    */
   public async getContractWasmByHash(
     wasmHash: Buffer | string,
@@ -610,13 +630,14 @@ export class RpcServer {
    * {@link xdr.LedgerKeyContractCode} ledger entry key (or see
    * {@link Contract.getFootprint}).
    *
-   * @param keys One or more ledger entry keys to load
+   * @param keys - One or more ledger entry keys to load
    * @returns The current on-chain
    * values for the given ledger keys
    *
    * @see {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods/getLedgerEntries | getLedgerEntries docs}
    * @see RpcServer._getLedgerEntries
    * @example
+   * ```ts
    * const contractId = "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM";
    * const key = xdr.LedgerKey.contractData(new xdr.LedgerKeyContractData({
    *   contractId: StrKey.decodeContract(contractId),
@@ -631,6 +652,7 @@ export class RpcServer {
    *   console.log("lastModified:", ledgerData.lastModifiedLedgerSeq);
    *   console.log("latestLedger:", response.latestLedger);
    * });
+   * ```
    */
   public getLedgerEntries(...keys: xdr.LedgerKey[]) {
     return this._getLedgerEntries(...keys).then(parseRawLedgerEntries);
@@ -663,12 +685,12 @@ export class RpcServer {
    * After submitting a transaction, clients can use this to poll for
    * transaction completion and return a definitive state of success or failure.
    *
-   * @param hash   the transaction you're polling for
-   * @param [opts] polling options
-   * @param [opts.attempts] (optional) the number of attempts to make
+   * @param hash - the transaction you're polling for
+   * @param opts - (optional) polling options
+   *   - `attempts` (optional): (optional) the number of attempts to make
    *    before returning the last-seen status. By default or on invalid inputs,
    *    try 5 times.
-   * @param [opts.sleepStrategy] (optional) the amount of time
+   *   - `sleepStrategy` (optional): (optional) the amount of time
    *    to wait for between each attempt. By default, sleep for 1 second between
    *    each attempt.
    *
@@ -677,11 +699,13 @@ export class RpcServer {
    *    after polling the maximum number of specified attempts.
    *
    * @example
+   * ```ts
    * const h = "c4515e3bdc0897f21cc5dbec8c82cf0a936d4741cb74a8e158eb51b9fb00411a";
    * const txStatus = await server.pollTransaction(h, {
    *    attempts: 100, // I'm a maniac
    *    sleepStrategy: rpc.LinearSleepStrategy
    * }); // this will take 5,050 seconds to complete
+   * ```
    */
   public async pollTransaction(
     hash: string,
@@ -711,7 +735,7 @@ export class RpcServer {
    * After submitting a transaction, clients should poll this to tell when the
    * transaction has completed.
    *
-   * @param hash Hex-encoded hash of the transaction to check
+   * @param hash - Hex-encoded hash of the transaction to check
    * @returns The status, result, and
    *    other details about the transaction
    *
@@ -719,6 +743,7 @@ export class RpcServer {
    * {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods/getTransaction | getTransaction docs}
    *
    * @example
+   * ```ts
    * const transactionHash = "c4515e3bdc0897f21cc5dbec8c82cf0a936d4741cb74a8e158eb51b9fb00411a";
    * server.getTransaction(transactionHash).then((tx) => {
    *   console.log("status:", tx.status);
@@ -726,6 +751,7 @@ export class RpcServer {
    *   console.log("resultMetaXdr:", tx.resultMetaXdr);
    *   console.log("resultXdr:", tx.resultXdr);
    * });
+   * ```
    */
 
   public async getTransaction(
@@ -777,6 +803,7 @@ export class RpcServer {
    *
    * @see https://developers.stellar.org/docs/data/rpc/api-reference/methods/getTransactions
    * @example
+   * ```ts
    * server.getTransactions({
    *   startLedger: 10000,
    *   limit: 10,
@@ -785,6 +812,7 @@ export class RpcServer {
    *   console.log("Latest Ledger:", response.latestLedger);
    *   console.log("Cursor:", response.cursor);
    * });
+   * ```
    */
   public async getTransactions(
     request: Api.GetTransactionsRequest,
@@ -825,13 +853,14 @@ export class RpcServer {
    * To page through events, use the `pagingToken` field on the relevant
    * {@link Api.EventResponse} object to set the `cursor` parameter.
    *
-   * @param request Event filters {@link Api.GetEventsRequest},
+   * @param request - Event filters {@link Api.GetEventsRequest},
    * @returns A paginatable set of the events
    * matching the given event filters
    *
    * @see {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods/getEvents | getEvents docs}
    *
    * @example
+   * ```ts
    *
    * server.getEvents({
    *    startLedger: 1000,
@@ -855,6 +884,7 @@ export class RpcServer {
    *    ],
    *    limit: 10,
    * });
+   * ```
    */
 
   public async getEvents(
@@ -895,11 +925,13 @@ export class RpcServer {
    * @see {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods/getNetwork | getNetwork docs}
    *
    * @example
+   * ```ts
    * server.getNetwork().then((network) => {
    *   console.log("friendbotUrl:", network.friendbotUrl);
    *   console.log("passphrase:", network.passphrase);
    *   console.log("protocolVersion:", network.protocolVersion);
    * });
+   * ```
    */
 
   public async getNetwork(): Promise<Api.GetNetworkResponse> {
@@ -920,11 +952,13 @@ export class RpcServer {
    * @see {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods/getLatestLedger | getLatestLedger docs}
    *
    * @example
+   * ```ts
    * server.getLatestLedger().then((response) => {
    *   console.log("hash:", response.id);
    *   console.log("sequence:", response.sequence);
    *   console.log("protocolVersion:", response.protocolVersion);
    * });
+   * ```
    */
   public async getLatestLedger(): Promise<Api.GetLatestLedgerResponse> {
     return this._getLatestLedger().then(parseRawLatestLedger);
@@ -942,15 +976,15 @@ export class RpcServer {
    * Submit a trial contract invocation to get back return values, expected
    * ledger footprint, expected authorizations, and expected costs.
    *
-   * @param tx the transaction to simulate,
+   * @param tx - the transaction to simulate,
    *    which should include exactly one operation (one of
    *    {@link xdr.InvokeHostFunctionOp}, {@link xdr.ExtendFootprintTtlOp}, or
    *    {@link xdr.RestoreFootprintOp}). Any provided footprint or auth
    *    information will be ignored.
-   * @param [addlResources] any additional resources
+   * @param addlResources - (optional) any additional resources
    *    to add to the simulation-provided ones, for example if you know you will
    *    need extra CPU instructions
-   * @param [authMode] optionally, specify the type of
+   * @param authMode - (optional) optionally, specify the type of
    *    auth mode to use for simulation: `enforce` for enforcement mode,
    *    `record` for recording mode, or `record_allow_nonroot` for recording
    *    mode that allows non-root authorization
@@ -969,6 +1003,7 @@ export class RpcServer {
    * @see module:rpc.assembleTransaction
    *
    * @example
+   * ```ts
    * const contractId = 'CA3D5KRYM6CB7OWQ6TWYRR3Z4T7GNZLKERYNZGGA5SOAOPIFY6YQGAXE';
    * const contract = new StellarSdk.Contract(contractId);
    *
@@ -990,6 +1025,7 @@ export class RpcServer {
    *   console.log("error:", sim.error);
    *   console.log("latestLedger:", sim.latestLedger);
    * });
+   * ```
    */
 
   public async simulateTransaction(
@@ -1041,7 +1077,7 @@ export class RpcServer {
    * transaction in detail first, then re-assemble it manually or via
    * {@link rpc.assembleTransaction}.
    *
-   * @param tx  the transaction to
+   * @param tx - the transaction to
    *    prepare. It should include exactly one operation, which must be one of
    *    {@link xdr.InvokeHostFunctionOp}, {@link xdr.ExtendFootprintTtlOp},
    *    or {@link xdr.RestoreFootprintOp}.
@@ -1062,6 +1098,7 @@ export class RpcServer {
    * @see {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods/simulateTransaction | simulateTransaction docs}
    *
    * @example
+   * ```ts
    * const contractId = 'CA3D5KRYM6CB7OWQ6TWYRR3Z4T7GNZLKERYNZGGA5SOAOPIFY6YQGAXE';
    * const contract = new StellarSdk.Contract(contractId);
    *
@@ -1091,6 +1128,7 @@ export class RpcServer {
    *   console.log("status:", result.status);
    *   console.log("errorResultXdr:", result.errorResultXdr);
    * });
+   * ```
    */
   public async prepareTransaction(tx: Transaction | FeeBumpTransaction) {
     const simResponse = await this.simulateTransaction(tx);
@@ -1109,7 +1147,7 @@ export class RpcServer {
    * {@link rpc.Server.getTransaction} to learn about transaction
    * success/failure.
    *
-   * @param transaction  to submit
+   * @param transaction - to submit
    * @returns the
    *    transaction id, status, and any error if available
    *
@@ -1117,6 +1155,7 @@ export class RpcServer {
    * @see {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods/sendTransaction | sendTransaction docs}
    *
    * @example
+   * ```ts
    * const contractId = 'CA3D5KRYM6CB7OWQ6TWYRR3Z4T7GNZLKERYNZGGA5SOAOPIFY6YQGAXE';
    * const contract = new StellarSdk.Contract(contractId);
    *
@@ -1144,6 +1183,7 @@ export class RpcServer {
    *   console.log("status:", result.status);
    *   console.log("errorResultXdr:", result.errorResultXdr);
    * });
+   * ```
    */
   public async sendTransaction(
     transaction: Transaction | FeeBumpTransaction,
@@ -1167,9 +1207,9 @@ export class RpcServer {
   /**
    * Fund a new account using the network's Friendbot faucet, if any.
    *
-   * @param address The address or account instance that we
+   * @param address - The address or account instance that we
    *    want to create and fund with Friendbot
-   * @param [friendbotUrl] Optionally, an explicit address for
+   * @param friendbotUrl - (optional) Optionally, an explicit address for
    *    friendbot (by default: this calls the Soroban RPC
    *    {@link rpc.Server.getNetwork | getNetwork} method to try to
    *    discover this network's Friendbot url).
@@ -1186,6 +1226,7 @@ export class RpcServer {
    *    account (G...) and contract (C...) addresses.
    *
    * @example
+   * ```ts
    * server
    *    .requestAirdrop("GBZC6Y2Y7Q3ZQ2Y4QZJ2XZ3Z5YXZ6Z7Z2Y4QZJ2XZ3Z5YXZ6Z7Z2Y4")
    *    .then((accountCreated) => {
@@ -1193,6 +1234,7 @@ export class RpcServer {
    *    }).catch((error) => {
    *      console.error("error:", error);
    *    });
+   * ```
    */
   public async requestAirdrop(
     address: string | Pick<Account, "accountId">,
@@ -1243,9 +1285,9 @@ export class RpcServer {
    *
    * This method supports both account (G...) and contract (C...) addresses.
    *
-   * @param address The address to fund. Can be either a Stellar
+   * @param address - The address to fund. Can be either a Stellar
    *    account (G...) or contract (C...) address.
-   * @param [friendbotUrl] Optionally, an explicit Friendbot URL
+   * @param friendbotUrl - (optional) Optionally, an explicit Friendbot URL
    *    (by default: this calls the Stellar RPC
    *    {@link rpc.Server.getNetwork | getNetwork} method to try to
    *    discover this network's Friendbot url).
@@ -1257,16 +1299,20 @@ export class RpcServer {
    * @see {@link https://developers.stellar.org/docs/learn/fundamentals/networks#friendbot | Friendbot docs}
    *
    * @example
+   * ```ts
    * // Funding an account (G... address)
    * const tx = await server.fundAddress("GBZC6Y2Y7...");
    * console.log("Funded! Hash:", tx.txHash);
    * // If you need the Account object:
    * const account = await server.getAccount("GBZC6Y2Y7...");
+   * ```
    *
    * @example
+   * ```ts
    * // Funding a contract (C... address)
    * const tx = await server.fundAddress("CBZC6Y2Y7...");
    * console.log("Contract funded! Hash:", tx.txHash);
+   * ```
    */
   public async fundAddress(
     address: string,
@@ -1341,11 +1387,11 @@ export class RpcServer {
    *
    * This is a convenience wrapper around {@link Server.getLedgerEntries}.
    *
-   * @param address the contract (string `C...`) whose balance of
+   * @param address - the contract (string `C...`) whose balance of
    *    `sac` you want to know
-   * @param sac     the built-in SAC token (e.g. `USDC:GABC...`) that
+   * @param sac - the built-in SAC token (e.g. `USDC:GABC...`) that
    *    you are querying from the given `contract`.
-   * @param [networkPassphrase] optionally, the network passphrase to
+   * @param networkPassphrase - (optional) optionally, the network passphrase to
    *    which this token applies. If omitted, a request about network
    *    information will be made (see {@link getNetwork}), since contract IDs
    *    for assets are specific to a network. You can refer to {@link Networks}
@@ -1362,6 +1408,7 @@ export class RpcServer {
    *
    * @deprecated Use {@link getAssetBalance}, instead
    * @example
+   * ```ts
    * // assume `address` is some contract or account with an XLM balance
    * // assume server is an instantiated `Server` instance.
    * const entry = (await server.getSACBalance(
@@ -1375,6 +1422,7 @@ export class RpcServer {
    *   entry.balanceEntry ?
    *   BigInt(entry.balanceEntry.amount) :
    *   "Address has no XLM");
+   * ```
    */
   public async getSACBalance(
     address: string | Address,
@@ -1458,6 +1506,7 @@ export class RpcServer {
    * @see {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods/getLedgers | getLedgers docs}
    *
    * @example
+   * ```ts
    * // Fetch ledgers starting from a specific sequence number
    * server.getLedgers({
    *   startLedger: 36233,
@@ -1469,8 +1518,10 @@ export class RpcServer {
    *   console.log("Latest Ledger:", response.latestLedger);
    *   console.log("Cursor:", response.cursor);
    * });
+   * ```
    *
    * @example
+   * ```ts
    * // Paginate through ledgers using cursor
    * const firstPage = await server.getLedgers({
    *   startLedger: 36233,
@@ -1485,6 +1536,7 @@ export class RpcServer {
    *     limit: 5
    *   }
    * });
+   * ```
    */
 
   public async getLedgers(

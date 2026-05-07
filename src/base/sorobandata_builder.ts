@@ -12,6 +12,7 @@ export type IntLike = bigint | number | string;
  * (re)building the entire data structure from scratch.
  *
  * @example
+ * ```ts
  * // You want to use an existing data blob but override specific parts.
  * const newData = new SorobanDataBuilder(existing)
  *   .setReadOnly(someLedgerKeys)
@@ -23,6 +24,7 @@ export type IntLike = bigint | number | string;
  *   .setFootprint([someLedgerKey], [])
  *   .setResourceFee("1000")
  *   .build();
+ * ```
  */
 export class SorobanDataBuilder {
   private _data: xdr.SorobanTransactionData;

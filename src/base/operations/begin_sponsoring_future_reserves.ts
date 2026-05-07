@@ -11,13 +11,15 @@ import { setSourceAccount } from "../util/operations.js";
 /**
  * Create a "begin sponsoring future reserves" operation.
  * @param opts - Options object
- * @param opts.sponsoredId - The sponsored account id.
- * @param opts.source - The source account for the operation. Defaults to the transaction's source account.
+ *   - `sponsoredId`: The sponsored account id.
+ *   - `source`: The source account for the operation. Defaults to the transaction's source account.
  *
  * @example
+ * ```ts
  * const op = Operation.beginSponsoringFutureReserves({
  *   sponsoredId: 'GDGU5OAPHNPU5UCLE5RDJHG7PXZFQYWKCFOEXSXNMR6KRQRI5T6XXCD7'
  * });
+ * ```
  *
  */
 export function beginSponsoringFutureReserves(

@@ -5,7 +5,7 @@ import { Api } from "./api.js";
  * Parse the response from invoking the `submitTransaction` method of a RPC server.
  * @internal
  *
- * @param raw the raw `submitTransaction` response from the RPC server to parse
+ * @param raw - the raw `submitTransaction` response from the RPC server to parse
  * @returns transaction response parsed from the RPC server's response
  */
 export function parseRawSendTransaction(
@@ -88,7 +88,7 @@ export function parseRawTransactions(
  * Parse and return the retrieved events, if any, from a raw response from a
  * RPC server.
  *
- * @param raw the raw `getEvents` response from the
+ * @param raw - the raw `getEvents` response from the
  *    RPC server to parse
  * @returns events parsed from the RPC server's
  *    response
@@ -127,7 +127,7 @@ export function parseRawEvents(
  * from a RPC server.
  * @internal
  *
- * @param raw the raw `getLedgerEntries`
+ * @param raw - the raw `getLedgerEntries`
  *    response from the RPC server to parse
  * @returns ledger entries parsed from the
  *    RPC server's response
@@ -161,9 +161,9 @@ export function parseRawLedgerEntries(
  * relevant response.
  * @internal
  *
- * @param sim a raw response from the
+ * @param sim - a raw response from the
  *    `simulateTransaction` method of the RPC server to parse
- * @param partial a partially built
+ * @param partial - a partially built
  *    simulate transaction response that will be used to build the return
  *    response
  * @returns Either a simulation response indicating what ledger entries
@@ -229,7 +229,7 @@ function parseSuccessful(
  *
  * **Warning:** This API is only exported for testing purposes and should not be relied on or considered "stable".
  *
- * @param sim the raw response schema (parsed ones are allowed, best-effort
+ * @param sim - the raw response schema (parsed ones are allowed, best-effort
  *    detected, and returned untouched)
  * @returns the original parameter (if already parsed), parsed otherwise
  */

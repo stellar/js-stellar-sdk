@@ -31,8 +31,8 @@ async function specFromWasmHash(
  * transaction.
  *
  *
- * @param spec {@link Spec} to construct a Client for
- * @param options see {@link ClientOptions}
+ * @param spec - {@link Spec} to construct a Client for
+ * @param options - see {@link ClientOptions}
  */
 export class Client {
   static async deploy<T = Client>(
@@ -139,9 +139,9 @@ export class Client {
    * Generates a Client instance from the provided ClientOptions and the contract's wasm hash.
    * The wasmHash can be provided in either hex or base64 format.
    *
-   * @param wasmHash The hash of the contract's wasm binary, in either hex or base64 format.
-   * @param options The ClientOptions object containing the necessary configuration, including the rpcUrl.
-   * @param [format='hex'] The format of the provided wasmHash, either "hex" or "base64". Defaults to "hex".
+   * @param wasmHash - The hash of the contract's wasm binary, in either hex or base64 format.
+   * @param options - The ClientOptions object containing the necessary configuration, including the rpcUrl.
+   * @param format - (optional) The format of the provided wasmHash, either "hex" or "base64". Defaults to "hex".
    * @returns A Promise that resolves to a Client instance.
    * @throws If the provided options object does not contain an rpcUrl.
    */
@@ -168,8 +168,8 @@ export class Client {
   /**
    * Generates a Client instance from the provided ClientOptions and the contract's wasm binary.
    *
-   * @param wasm The contract's wasm binary as a Buffer.
-   * @param options The ClientOptions object containing the necessary configuration.
+   * @param wasm - The contract's wasm binary as a Buffer.
+   * @param options - The ClientOptions object containing the necessary configuration.
    * @returns A Promise that resolves to a Client instance.
    * @throws If the contract spec cannot be obtained from the provided wasm binary.
    */
@@ -181,7 +181,7 @@ export class Client {
   /**
    * Generates a Client instance from the provided ClientOptions, which must include the contractId and rpcUrl.
    *
-   * @param options The ClientOptions object containing the necessary configuration, including the contractId and rpcUrl.
+   * @param options - The ClientOptions object containing the necessary configuration, including the contractId and rpcUrl.
    * @returns A Promise that resolves to a Client instance.
    * @throws If the provided options object does not contain both rpcUrl and contractId.
    */

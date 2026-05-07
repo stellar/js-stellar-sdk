@@ -15,7 +15,7 @@ import { ServerApi } from "./server_api.js";
  * @internal
  *
  * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/accounts/object | Account Details}
- * @param response Response from horizon account endpoint.
+ * @param response - Response from horizon account endpoint.
  * @returns AccountResponse instance
  */
 export class AccountResponse {

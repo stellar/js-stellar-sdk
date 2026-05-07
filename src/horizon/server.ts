@@ -64,8 +64,8 @@ function getAmountInLumens(amt: BigNumber) {
  * Server handles the network connection to a [Horizon](https://developers.stellar.org/docs/data/horizon)
  * instance and exposes an interface for requests to that instance.
  *
- * @param serverURL Horizon Server URL (ex. `https://horizon-testnet.stellar.org`).
- * @param [opts] Options object
+ * @param serverURL - Horizon Server URL (ex. `https://horizon-testnet.stellar.org`).
+ * @param opts - (optional) Options object
  */
 export class HorizonServer {
   /**
@@ -80,6 +80,7 @@ export class HorizonServer {
    * Exposes interceptors, defaults, and other configuration options.
    *
    * @example
+   * ```ts
    * // Add authentication header
    * server.httpClient.defaults.headers['Authorization'] = 'Bearer token';
    *
@@ -88,6 +89,7 @@ export class HorizonServer {
    *   console.log('Request:', config.url);
    *   return config;
    * });
+   * ```
    */
   public readonly httpClient: HttpClient;
   constructor(serverURL: string, opts: HorizonServer.Options = {}) {
@@ -133,6 +135,7 @@ export class HorizonServer {
    * the transaction built and signed before submitting.
    *
    * @example
+   * ```ts
    * const transaction = new StellarSdk.TransactionBuilder(accountId, {
    *   fee: await StellarSdk.Server.fetchBaseFee(),
    *   timebounds: await StellarSdk.Server.fetchTimebounds(100)
@@ -141,9 +144,10 @@ export class HorizonServer {
    *   // normally we would need to call setTimeout here, but setting timebounds
    *   // earlier does the trick!
    *   .build();
+   * ```
    *
-   * @param seconds Number of seconds past the current time to wait.
-   * @param [_isRetry] True if this is a retry. Only set this internally!
+   * @param seconds - Number of seconds past the current time to wait.
+   * @param _isRetry - (optional) True if this is a retry. Only set this internally!
    * This is to avoid a scenario where Horizon is horking up the wrong date.
    * @returns Promise that resolves a `Timebounds` object
    * (with the shape `{ minTime: 0, maxTime: N }`) that you can set the `timebounds` option to.
@@ -242,6 +246,7 @@ export class HorizonServer {
    *   `amountBought` or `amountSold` have already been transferred.
    *
    * @example
+   * ```ts
    * const res = {
    *   ...response,
    *   offerResults: [
@@ -309,11 +314,12 @@ export class HorizonServer {
    *     }
    *   ]
    * }
+   * ```
    *
    * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/submit-a-transaction | Submit a Transaction}
    * @param transaction - The transaction to submit.
-   * @param [opts] Options object
-   * @param [opts.skipMemoRequiredCheck] - Allow skipping memo
+   * @param opts - (optional) Options object
+   *   - `skipMemoRequiredCheck` (optional): Allow skipping memo
    * required check, default: `false`. See
    * [SEP0029](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0029.md).
    * @returns Promise that resolves or rejects with response from
@@ -543,8 +549,8 @@ export class HorizonServer {
    *
    * @see [Submit-Async-Transaction](https://developers.stellar.org/docs/data/horizon/api-reference/resources/submit-async-transaction)
    * @param transaction - The transaction to submit.
-   * @param [opts] Options object
-   * @param [opts.skipMemoRequiredCheck] - Allow skipping memo
+   * @param opts - (optional) Options object
+   *   - `skipMemoRequiredCheck` (optional): Allow skipping memo
    * required check, default: `false`. See
    * [SEP0029](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0029.md).
    * @returns Promise that resolves or rejects with response from
@@ -623,11 +629,13 @@ export class HorizonServer {
    * You can query all offers for account using the function `.accountId`.
    *
    * @example
+   * ```ts
    * server.offers()
    *   .forAccount(accountId).call()
    *   .then(function(offers) {
    *     console.log(offers);
    *   });
+   * ```
    *
    * @returns New {@link OfferCallBuilder} object
    */
@@ -636,8 +644,8 @@ export class HorizonServer {
   }
 
   /**
-   * @param selling Asset being sold
-   * @param buying Asset being bought
+   * @param selling - Asset being sold
+   * @param buying - Asset being bought
    * @returns New {@link OrderbookCallBuilder} object configured by a current Horizon server configuration.
    */
   public orderbook(selling: Asset, buying: Asset): OrderbookCallBuilder {
@@ -694,9 +702,9 @@ export class HorizonServer {
    * If a list of assets is passed as the source, horizon will find any payment
    * paths from those source assets to the desired destination asset.
    *
-   * @param source The sender's account ID or a list of assets. Any returned path will use a source that the sender can hold.
-   * @param destinationAsset The destination asset.
-   * @param destinationAmount The amount, denominated in the destination asset, that any returned path should be able to satisfy.
+   * @param source - The sender's account ID or a list of assets. Any returned path will use a source that the sender can hold.
+   * @param destinationAsset - The destination asset.
+   * @param destinationAmount - The amount, denominated in the destination asset, that any returned path should be able to satisfy.
    * @returns New {@link StrictReceivePathCallBuilder} object configured with the current Horizon server configuration.
    */
   public strictReceivePaths(
@@ -723,9 +731,9 @@ export class HorizonServer {
    * The asset and amount that is being sent.
    * The destination account or the destination assets.
    *
-   * @param sourceAsset The asset to be sent.
-   * @param sourceAmount The amount, denominated in the source asset, that any returned path should be able to satisfy.
-   * @param destination The destination account or the destination assets.
+   * @param sourceAsset - The asset to be sent.
+   * @param sourceAmount - The amount, denominated in the source asset, that any returned path should be able to satisfy.
+   * @param destination - The destination account or the destination assets.
    * @returns New {@link StrictSendPathCallBuilder} object configured with the current Horizon server configuration.
    */
   public strictSendPaths(
@@ -759,7 +767,7 @@ export class HorizonServer {
   }
 
   /**
-   * @param address The Stellar ID that you want Friendbot to send lumens to
+   * @param address - The Stellar ID that you want Friendbot to send lumens to
    * @returns New {@link FriendbotBuilder} instance configured with the current
    * Horizon server configuration
    * @internal
@@ -794,12 +802,12 @@ export class HorizonServer {
 
   /**
    *
-   * @param base base asset
-   * @param counter counter asset
-   * @param start_time lower time boundary represented as millis since epoch
-   * @param end_time upper time boundary represented as millis since epoch
-   * @param resolution segment duration as millis since epoch. *Supported values are 5 minutes (300000), 15 minutes (900000), 1 hour (3600000), 1 day (86400000) and 1 week (604800000).
-   * @param offset segments can be offset using this parameter. Expressed in milliseconds. *Can only be used if the resolution is greater than 1 hour. Value must be in whole hours, less than the provided resolution, and less than 24 hours.
+   * @param base - base asset
+   * @param counter - counter asset
+   * @param start_time - lower time boundary represented as millis since epoch
+   * @param end_time - upper time boundary represented as millis since epoch
+   * @param resolution - segment duration as millis since epoch. *Supported values are 5 minutes (300000), 15 minutes (900000), 1 hour (3600000), 1 day (86400000) and 1 week (604800000).
+   * @param offset - segments can be offset using this parameter. Expressed in milliseconds. *Can only be used if the resolution is greater than 1 hour. Value must be in whole hours, less than the provided resolution, and less than 24 hours.
    * Returns new {@link TradeAggregationCallBuilder} object configured with the current Horizon server configuration.
    * @returns New TradeAggregationCallBuilder instance
    */

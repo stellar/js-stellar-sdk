@@ -10,7 +10,7 @@ import type { HttpClient } from "../http-client/index.js";
  * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/list-all-ledgers | All Ledgers}
  *
  * @internal
- * @param serverUrl Horizon server URL.
+ * @param serverUrl - Horizon server URL.
  */
 export class LedgerCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.LedgerRecord>
@@ -22,7 +22,7 @@ export class LedgerCallBuilder extends CallBuilder<
 
   /**
    * Provides information on a single ledger.
-   * @param sequence Ledger sequence
+   * @param sequence - Ledger sequence
    * @returns current LedgerCallBuilder instance
    */
   public ledger(sequence: number | string): this {

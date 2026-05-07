@@ -189,7 +189,7 @@ const PRIMITIVE_DEFINITONS: { [key: string]: JSONSchema7Definition } = {
 
 /**
  * Converts an XDR type definition to a JSON schema reference.
- * @param typeDef type to convert to json schema reference
+ * @param typeDef - type to convert to json schema reference
  * @returns a schema describing the type
  * @internal
  */
@@ -464,10 +464,11 @@ function unionToJsonSchema(udt: xdr.ScSpecUdtUnionV0): any {
  *
  * Constructs a new ContractSpec from an array of XDR spec entries.
  *
- * @param entries the XDR spec entries
+ * @param entries - the XDR spec entries
  * @throws if entries is invalid
  *
  * @example
+ * ```ts
  * const specEntries = [...]; // XDR spec entries of a smart contract
  * const contractSpec = new ContractSpec(specEntries);
  *
@@ -485,6 +486,7 @@ function unionToJsonSchema(udt: xdr.ScSpecUdtUnionV0): any {
  * const result = contractSpec.funcResToNative('funcName', resultScv);
  *
  * console.log(result); // {success: true}
+ * ```
  */
 export class Spec {
   /**
@@ -495,7 +497,7 @@ export class Spec {
   /**
    * Generates a Spec instance from the contract's wasm binary.
    *
-   * @param wasm The contract's wasm binary as a Buffer.
+   * @param wasm - The contract's wasm binary as a Buffer.
    * @returns A Promise that resolves to a Spec instance.
    * @throws If the contract spec cannot be obtained from the provided wasm binary.
    */
@@ -552,7 +554,7 @@ export class Spec {
   /**
    * Gets the XDR function spec for the given function name.
    *
-   * @param name the name of the function
+   * @param name - the name of the function
    * @returns the function spec
    *
    * @throws if no function with the given name exists
@@ -570,18 +572,20 @@ export class Spec {
   /**
    * Converts native JS arguments to ScVals for calling a contract function.
    *
-   * @param name the name of the function
-   * @param args the arguments object
+   * @param name - the name of the function
+   * @param args - the arguments object
    * @returns the converted arguments
    *
    * @throws if argument is missing or incorrect type
    *
    * @example
+   * ```ts
    * const args = {
    *   arg1: 'value1',
    *   arg2: 1234
    * };
    * const scArgs = contractSpec.funcArgsToScVals('funcName', args);
+   * ```
    */
   funcArgsToScVals(name: string, args: object): xdr.ScVal[] {
     const fn = this.getFunc(name);
@@ -593,15 +597,17 @@ export class Spec {
   /**
    * Converts the result ScVal of a function call to a native JS value.
    *
-   * @param name the name of the function
-   * @param val_or_base64 the result ScVal or base64 encoded string
+   * @param name - the name of the function
+   * @param val_or_base64 - the result ScVal or base64 encoded string
    * @returns the converted native value
    *
    * @throws if return type mismatch or invalid input
    *
    * @example
+   * ```ts
    * const resultScv = 'AAA=='; // Base64 encoded ScVal
    * const result = contractSpec.funcResToNative('funcName', resultScv);
+   * ```
    */
   funcResToNative(name: string, val_or_base64: xdr.ScVal | string): any {
     const val =
@@ -633,7 +639,7 @@ export class Spec {
   /**
    * Finds the XDR spec entry for the given name.
    *
-   * @param name the name to find
+   * @param name - the name to find
    * @returns the entry
    *
    * @throws if no entry with the given name exists
@@ -651,8 +657,8 @@ export class Spec {
   /**
    * Converts a native JS value to an ScVal based on the given type.
    *
-   * @param val the native JS value
-   * @param [ty] the expected type
+   * @param val - the native JS value
+   * @param ty - (optional) the expected type
    * @returns the converted ScVal
    *
    * @throws if value cannot be converted to the given type
@@ -957,8 +963,8 @@ export class Spec {
   /**
    * Converts an base64 encoded ScVal back to a native JS value based on the given type.
    *
-   * @param scv the base64 encoded ScVal
-   * @param typeDef the expected type
+   * @param scv - the base64 encoded ScVal
+   * @param typeDef - the expected type
    * @returns the converted native JS value
    *
    * @throws if ScVal cannot be converted to the given type
@@ -970,8 +976,8 @@ export class Spec {
   /**
    * Converts an ScVal back to a native JS value based on the given type.
    *
-   * @param scv the ScVal
-   * @param typeDef the expected type
+   * @param scv - the ScVal
+   * @param typeDef - the expected type
    * @returns the converted native JS value
    *
    * @throws if ScVal cannot be converted to the given type
@@ -1186,7 +1192,7 @@ export class Spec {
    *
    * If `funcName` is provided, the schema will be a reference to the function schema.
    *
-   * @param [funcName] the name of the function to convert
+   * @param funcName - (optional) the name of the function to convert
    * @returns the converted JSON schema
    *
    * @throws if the contract spec is invalid

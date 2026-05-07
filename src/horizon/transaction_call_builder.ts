@@ -11,7 +11,7 @@ import type { HttpClient } from "../http-client/index.js";
  *
  * @internal
  *
- * @param serverUrl Horizon server URL.
+ * @param serverUrl - Horizon server URL.
  */
 export class TransactionCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.TransactionRecord>
@@ -24,7 +24,7 @@ export class TransactionCallBuilder extends CallBuilder<
   /**
    * The transaction details endpoint provides information on a single transaction. The transaction hash provided in the hash argument specifies which transaction to load.
    * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/retrieve-a-transaction | Transaction Details}
-   * @param transactionId Transaction ID
+   * @param transactionId - Transaction ID
    * @returns a CallBuilder instance
    */
   public transaction(
@@ -41,7 +41,7 @@ export class TransactionCallBuilder extends CallBuilder<
   /**
    * This endpoint represents all transactions that affected a given account.
    * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/get-transactions-by-account-id | Transactions for Account}
-   * @param accountId For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
+   * @param accountId - For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
    * @returns current TransactionCallBuilder instance
    */
   public forAccount(accountId: string): this {
@@ -51,7 +51,7 @@ export class TransactionCallBuilder extends CallBuilder<
   /**
    * This endpoint represents all transactions that reference a given claimable_balance.
    * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/cb-retrieve-related-transactions | Transactions for Claimable Balance}
-   * @param claimableBalanceId Claimable Balance ID
+   * @param claimableBalanceId - Claimable Balance ID
    * @returns this TransactionCallBuilder instance
    */
   public forClaimableBalance(claimableBalanceId: string): this {
@@ -61,7 +61,7 @@ export class TransactionCallBuilder extends CallBuilder<
   /**
    * This endpoint represents all transactions in a given ledger.
    * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/retrieve-a-ledgers-transactions | Transactions for Ledger}
-   * @param sequence Ledger sequence
+   * @param sequence - Ledger sequence
    * @returns current TransactionCallBuilder instance
    */
   public forLedger(sequence: number | string): this {
@@ -71,7 +71,7 @@ export class TransactionCallBuilder extends CallBuilder<
   /**
    * This endpoint represents all transactions involving a particular liquidity pool.
    *
-   * @param poolId   liquidity pool ID
+   * @param poolId - liquidity pool ID
    * @returns this TransactionCallBuilder instance
    */
   public forLiquidityPool(poolId: string): this {
@@ -81,7 +81,7 @@ export class TransactionCallBuilder extends CallBuilder<
   /**
    * Adds a parameter defining whether to include failed transactions. By default only successful transactions are
    * returned.
-   * @param value Set to `true` to include failed transactions.
+   * @param value - Set to `true` to include failed transactions.
    * @returns current TransactionCallBuilder instance
    */
   public includeFailed(value: boolean): this {

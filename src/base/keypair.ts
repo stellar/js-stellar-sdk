@@ -26,9 +26,9 @@ export class Keypair {
 
   /**
    * @param keys - at least one of keys must be provided.
-   * @param keys.type - public-key signature system name (currently only `ed25519` keys are supported)
-   * @param keys.publicKey - raw public key
-   * @param keys.secretKey - raw secret key (32-byte secret seed in ed25519)
+   *   - `type`: public-key signature system name (currently only `ed25519` keys are supported)
+   *   - `publicKey`: raw public key
+   *   - `secretKey`: raw secret key (32-byte secret seed in ed25519)
    */
   constructor(
     keys:
@@ -145,7 +145,7 @@ export class Keypair {
    * You will get a different type of muxed account depending on whether or not
    * you pass an ID.
    *
-   * @param [id] - stringified integer indicating the underlying muxed
+   * @param id - (optional) stringified integer indicating the underlying muxed
    *     ID of the new account object
    */
   xdrMuxedAccount(id?: string): xdr.MuxedAccount {

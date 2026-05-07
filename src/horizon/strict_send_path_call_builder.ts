@@ -27,10 +27,10 @@ import type { HttpClient } from "../http-client/index.js";
  *
  * @internal
  *
- * @param serverUrl Horizon server URL.
- * @param sourceAsset The asset to be sent.
- * @param sourceAmount The amount, denominated in the source asset, that any returned path should be able to satisfy.
- * @param destination The destination account or the destination assets.
+ * @param serverUrl - Horizon server URL.
+ * @param sourceAsset - The asset to be sent.
+ * @param sourceAmount - The amount, denominated in the source asset, that any returned path should be able to satisfy.
+ * @param destination - The destination account or the destination assets.
  *
  */
 export class StrictSendPathCallBuilder extends CallBuilder<

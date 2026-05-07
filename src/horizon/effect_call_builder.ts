@@ -9,7 +9,7 @@ import type { HttpClient } from "../http-client/index.js";
  * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/effects | All Effects}
  *
  * @internal
- * @param serverUrl Horizon server URL.
+ * @param serverUrl - Horizon server URL.
  */
 export class EffectCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.EffectRecord>
@@ -22,7 +22,7 @@ export class EffectCallBuilder extends CallBuilder<
   /**
    * This endpoint represents all effects that changed a given account. It will return relevant effects from the creation of the account to the current ledger.
    * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/get-effects-by-account-id | Effects for Account}
-   * @param accountId For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
+   * @param accountId - For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
    * @returns this EffectCallBuilder instance
    */
   public forAccount(accountId: string): this {
@@ -34,7 +34,7 @@ export class EffectCallBuilder extends CallBuilder<
    *
    * This endpoint represents all effects that occurred in the given ledger.
    * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/retrieve-a-ledgers-effects | Effects for Ledger}
-   * @param sequence Ledger sequence
+   * @param sequence - Ledger sequence
    * @returns this EffectCallBuilder instance
    */
   public forLedger(sequence: number | string): this {
@@ -44,7 +44,7 @@ export class EffectCallBuilder extends CallBuilder<
   /**
    * This endpoint represents all effects that occurred as a result of a given transaction.
    * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/retrieve-a-transactions-effects | Effects for Transaction}
-   * @param transactionId Transaction ID
+   * @param transactionId - Transaction ID
    * @returns this EffectCallBuilder instance
    */
   public forTransaction(transactionId: string): this {
@@ -54,7 +54,7 @@ export class EffectCallBuilder extends CallBuilder<
   /**
    * This endpoint represents all effects that occurred as a result of a given operation.
    * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/retrieve-an-operations-effects | Effects for Operation}
-   * @param operationId Operation ID
+   * @param operationId - Operation ID
    * @returns this EffectCallBuilder instance
    */
   public forOperation(operationId: string): this {
@@ -64,7 +64,7 @@ export class EffectCallBuilder extends CallBuilder<
   /**
    * This endpoint represents all effects involving a particular liquidity pool.
    *
-   * @param poolId   liquidity pool ID
+   * @param poolId - liquidity pool ID
    * @returns this EffectCallBuilder instance
    */
   public forLiquidityPool(poolId: string): this {

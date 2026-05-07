@@ -10,12 +10,13 @@ import { InvalidChallengeError } from "./errors.js";
  * returning a list of non-repeated signers that were found to have signed the
  * given transaction.
  *
- * @param transaction The signed transaction.
- * @param signers The signer's public keys.
+ * @param transaction - The signed transaction.
+ * @param signers - The signer's public keys.
  * @returns A list of signers that were found to have signed
  *    the transaction.
  *
  * @example
+ * ```ts
  * let keypair1 = Keypair.random();
  * let keypair2 = Keypair.random();
  * const account = new StellarSdk.Account(keypair1.publicKey(), "-1");
@@ -26,6 +27,7 @@ import { InvalidChallengeError } from "./errors.js";
  *
  * transaction.sign(keypair1, keypair2)
  * WebAuth.gatherTxSigners(transaction, [keypair1.publicKey(), keypair2.publicKey()])
+ * ```
  */
 export function gatherTxSigners(
   transaction: FeeBumpTransaction | Transaction,
@@ -71,12 +73,13 @@ export function gatherTxSigners(
 /**
  * Verifies if a transaction was signed by the given account id.
  *
- * @param transaction The signed transaction.
- * @param accountID The signer's public key.
+ * @param transaction - The signed transaction.
+ * @param accountID - The signer's public key.
  * @returns Whether or not `accountID` was found to have signed the
  *    transaction.
  *
  * @example
+ * ```ts
  * let keypair = Keypair.random();
  * const account = new StellarSdk.Account(keypair.publicKey(), "-1");
  *
@@ -86,6 +89,7 @@ export function gatherTxSigners(
  *
  * transaction.sign(keypair)
  * WebAuth.verifyTxSignedBy(transaction, keypair.publicKey())
+ * ```
  */
 export function verifyTxSignedBy(
   transaction: FeeBumpTransaction | Transaction,

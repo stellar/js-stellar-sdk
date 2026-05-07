@@ -12,7 +12,7 @@ import type { HttpClient } from "../http-client/index.js";
  *
  * @internal
  *
- * @param serverUrl serverUrl Horizon server URL.
+ * @param serverUrl - serverUrl Horizon server URL.
  */
 export class TradesCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.TradeRecord>
@@ -24,8 +24,8 @@ export class TradesCallBuilder extends CallBuilder<
 
   /**
    * Filter trades for a specific asset pair (orderbook)
-   * @param base asset
-   * @param counter asset
+   * @param base - asset
+   * @param counter - asset
    * @returns current TradesCallBuilder instance
    */
   public forAssetPair(base: Asset, counter: Asset): this {
@@ -50,7 +50,7 @@ export class TradesCallBuilder extends CallBuilder<
 
   /**
    * Filter trades for a specific offer
-   * @param offerId ID of the offer
+   * @param offerId - ID of the offer
    * @returns current TradesCallBuilder instance
    */
   public forOffer(offerId: string): this {
@@ -60,7 +60,7 @@ export class TradesCallBuilder extends CallBuilder<
 
   /**
    * Filter trades by a specific type.
-   * @param tradeType the trade type to filter by.
+   * @param tradeType - the trade type to filter by.
    * @returns current TradesCallBuilder instance.
    */
   public forType(tradeType: ServerApi.TradeType): this {
@@ -71,7 +71,7 @@ export class TradesCallBuilder extends CallBuilder<
   /**
    * Filter trades for a specific account
    * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/get-trades-by-account-id | Trades for Account}
-   * @param accountId For example: `GBYTR4MC5JAX4ALGUBJD7EIKZVM7CUGWKXIUJMRSMK573XH2O7VAK3SR`
+   * @param accountId - For example: `GBYTR4MC5JAX4ALGUBJD7EIKZVM7CUGWKXIUJMRSMK573XH2O7VAK3SR`
    * @returns current TradesCallBuilder instance
    */
   public forAccount(accountId: string): this {
@@ -81,7 +81,7 @@ export class TradesCallBuilder extends CallBuilder<
   /**
    * Filter trades for a specific liquidity pool
    * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/retrieve-related-trades | Trades for Liquidity Pool}
-   * @param liquidityPoolId For example: `3b476aff8a406a6ec3b61d5c038009cef85f2ddfaf616822dc4fec92845149b4`
+   * @param liquidityPoolId - For example: `3b476aff8a406a6ec3b61d5c038009cef85f2ddfaf616822dc4fec92845149b4`
    * @returns current TradesCallBuilder instance
    */
   public forLiquidityPool(liquidityPoolId: string): this {

@@ -34,8 +34,8 @@ function isSorobanTransaction(tx: Transaction): boolean {
  * invocation (see {@link Operation.invokeHostFunction}), **the simulation
  * entries are ignored**.
  *
- * @param raw the initial transaction, w/o simulation applied
- * @param simulation the Soroban RPC simulation result (see {@link rpc.Server.simulateTransaction})
+ * @param raw - the initial transaction, w/o simulation applied
+ * @param simulation - the Soroban RPC simulation result (see {@link rpc.Server.simulateTransaction})
  * @returns a new, cloned transaction with the proper auth and resource (fee, footprint) simulation data applied
  *
  * @see {@link rpc.Server.simulateTransaction}

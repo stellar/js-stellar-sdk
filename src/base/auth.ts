@@ -210,19 +210,19 @@ export async function authorizeEntry(
  * This is in contrast to {@link authorizeEntry}, which signs an existing entry.
  *
  * @param params - the parameters for building and signing the authorization
- * @param params.signer - either a {@link Keypair} instance (or anything with a
+ *   - `signer`: either a {@link Keypair} instance (or anything with a
  *    `.sign(buf): Buffer-like` method) or a function which takes a payload (a
  *    {@link xdr.HashIdPreimageSorobanAuthorization} instance) input and returns
  *    the signature of the hash of the raw payload bytes (where the signing key
  *    should correspond to the address in the `entry`)
- * @param params.validUntilLedgerSeq - the (exclusive) future ledger sequence
+ *   - `validUntilLedgerSeq`: the (exclusive) future ledger sequence
  *    number until which this authorization entry should be valid (if
  *    `currentLedgerSeq==validUntilLedgerSeq`, this is expired)
- * @param params.invocation - the invocation tree that we're authorizing
+ *   - `invocation`: the invocation tree that we're authorizing
  *    (likely, this comes from transaction simulation)
- * @param params.networkPassphrase - the network passphrase is incorporated into
+ *   - `networkPassphrase`: the network passphrase is incorporated into
  *    the signature (see {@link Networks} for options)
- * @param params.publicKey - the public identity of the signer (when providing a
+ *   - `publicKey`: the public identity of the signer (when providing a
  *    {@link Keypair} to `signer`, this can be omitted, as it just uses
  *    {@link Keypair.publicKey})
  *

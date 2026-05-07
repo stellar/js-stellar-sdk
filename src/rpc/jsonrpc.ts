@@ -38,10 +38,10 @@ function hasOwnProperty<X extends {}, Y extends PropertyKey>(
 /**
  * Sends the jsonrpc 'params' as a single 'param' object (no array support).
  *
- * @param client HttpClient instance to use for the request
- * @param url URL to the RPC instance
- * @param method RPC method name that should be called
- * @param [param=null] params that should be supplied to the method
+ * @param client - HttpClient instance to use for the request
+ * @param url - URL to the RPC instance
+ * @param method - RPC method name that should be called
+ * @param param - (optional) params that should be supplied to the method
  * @returns Promise that resolves to the result of type T
  * @internal
  */

@@ -18,9 +18,9 @@ export const FEDERATION_RESPONSE_MAX_SIZE: number = 100 * 1024;
  * [federation server](https://developers.stellar.org/docs/learn/encyclopedia/federation)
  * instance and exposes an interface for requests to that instance.
  *
- * @param serverURL The federation server URL (ex. `https://acme.com/federation`).
- * @param domain Domain this server represents
- * @param [opts] Options object
+ * @param serverURL - The federation server URL (ex. `https://acme.com/federation`).
+ * @param domain - Domain this server represents
+ * @param opts - (optional) Options object
  * @returns  */
 export class FederationServer {
   /**
@@ -50,6 +50,7 @@ export class FederationServer {
    * if the account actually exists in a ledger.
    *
    * @example
+   * ```ts
    * StellarSdk.FederationServer.resolve('bob*stellar.org')
    *  .then(federationRecord => {
    *    // {
@@ -58,11 +59,12 @@ export class FederationServer {
    *    //   memo: 100
    *    // }
    *  });
+   * ```
    *
    * @see <a href="https://developers.stellar.org/docs/learn/encyclopedia/federation" target="_blank">Federation doc</a>
    * @see <a href="https://developers.stellar.org/docs/issuing-assets/publishing-asset-info" target="_blank">Stellar.toml doc</a>
-   * @param value Stellar Address (ex. `bob*stellar.org`)
-   * @param [opts] Options object
+   * @param value - Stellar Address (ex. `bob*stellar.org`)
+   * @param opts - (optional) Options object
    * @returns A promise that resolves to the federation record
    * @throws Will throw an error if the provided account ID is not a valid Ed25519 public key.
    */
@@ -111,6 +113,7 @@ export class FederationServer {
    * contain information about a federation server Promise will reject.
    *
    * @example
+   * ```ts
    * StellarSdk.FederationServer.createForDomain('acme.com')
    *   .then(federationServer => {
    *     // federationServer.resolveAddress('bob').then(...)
@@ -118,10 +121,11 @@ export class FederationServer {
    *   .catch(error => {
    *     // stellar.toml does not exist or it does not contain information about federation server.
    *   });
+   * ```
    *
    * @see <a href="https://developers.stellar.org/docs/issuing-assets/publishing-asset-info" target="_blank">Stellar.toml doc</a>
-   * @param domain Domain to get federation server for
-   * @param [opts] Options object
+   * @param domain - Domain to get federation server for
+   * @param opts - (optional) Options object
    * @returns A promise that resolves to the federation record
    * @throws Will throw an error if the domain's stellar.toml file does not contain a federation server field.
    */
@@ -163,7 +167,7 @@ export class FederationServer {
   /**
    * Get the federation record if the user was found for a given Stellar address
    * @see <a href="https://developers.stellar.org/docs/encyclopedia/federation" target="_blank">Federation doc</a>
-   * @param address Stellar address (ex. `bob*stellar.org`). If `FederationServer` was instantiated with `domain` param only username (ex. `bob`) can be passed.
+   * @param address - Stellar address (ex. `bob*stellar.org`). If `FederationServer` was instantiated with `domain` param only username (ex. `bob`) can be passed.
    * @returns A promise that resolves to the federation record
    * @throws Will throw an error if the federated address does not contain a domain, or if the server object was not instantiated with a `domain` parameter
    */
@@ -189,7 +193,7 @@ export class FederationServer {
   /**
    * Given an account ID, get their federation record if the user was found
    * @see <a href="https://developers.stellar.org/docs/encyclopedia/federation" target="_blank">Federation doc</a>
-   * @param accountId Account ID (ex. `GBYNR2QJXLBCBTRN44MRORCMI4YO7FZPFBCNOKTOBCAAFC7KC3LNPRYS`)
+   * @param accountId - Account ID (ex. `GBYNR2QJXLBCBTRN44MRORCMI4YO7FZPFBCNOKTOBCAAFC7KC3LNPRYS`)
    * @returns A promise that resolves to the federation record
    * @throws Will throw an error if the federation server returns an invalid memo value.
    * @throws Will throw an error if the federation server's response exceeds the allowed maximum size.
@@ -206,7 +210,7 @@ export class FederationServer {
   /**
    * Given a transactionId, get the federation record if the sender of the transaction was found
    * @see <a href="https://developers.stellar.org/docs/glossary/federation/" target="_blank">Federation doc</a>
-   * @param transactionId Transaction ID (ex. `3389e9f0f1a65f19736cacf544c2e825313e8447f569233bb8db39aa607c8889`)
+   * @param transactionId - Transaction ID (ex. `3389e9f0f1a65f19736cacf544c2e825313e8447f569233bb8db39aa607c8889`)
    * @returns A promise that resolves to the federation record
    * @throws Will throw an error if the federation server returns an invalid memo value.
    * @throws Will throw an error if the federation server's response exceeds the allowed maximum size.

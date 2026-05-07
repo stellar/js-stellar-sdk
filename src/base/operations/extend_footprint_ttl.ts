@@ -27,9 +27,9 @@ import {
  *
  *
  * @param opts - object holding operation parameters
- * @param opts.extendTo - the minimum TTL that all the entries in
+ *   - `extendTo`: the minimum TTL that all the entries in
  *    the read-only footprint will have
- * @param opts.source - an optional source account
+ *   - `source`: an optional source account
  */
 export function extendFootprintTtl(
   opts: ExtendFootprintTtlOpts,

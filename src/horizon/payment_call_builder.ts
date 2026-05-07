@@ -11,7 +11,7 @@ import type { HttpClient } from "../http-client/index.js";
  *
  * @internal
  *
- * @param serverUrl Horizon server URL.
+ * @param serverUrl - Horizon server URL.
  */
 export class PaymentCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<
@@ -31,7 +31,7 @@ export class PaymentCallBuilder extends CallBuilder<
   /**
    * This endpoint responds with a collection of Payment operations where the given account was either the sender or receiver.
    * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/horizon/resources/get-payments-by-account-id | Payments for Account}
-   * @param accountId For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
+   * @param accountId - For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
    * @returns this PaymentCallBuilder instance
    */
   public forAccount(accountId: string): this {
@@ -41,7 +41,7 @@ export class PaymentCallBuilder extends CallBuilder<
   /**
    * This endpoint represents all payment operations that are part of a valid transactions in a given ledger.
    * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/horizon/resources/retrieve-a-ledgers-payments | Payments for Ledger}
-   * @param sequence Ledger sequence
+   * @param sequence - Ledger sequence
    * @returns this PaymentCallBuilder instance
    */
   public forLedger(sequence: number | string): this {
@@ -51,7 +51,7 @@ export class PaymentCallBuilder extends CallBuilder<
   /**
    * This endpoint represents all payment operations that are part of a given transaction.
    * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/transactions/payments/ | Payments for Transaction}
-   * @param transactionId Transaction ID
+   * @param transactionId - Transaction ID
    * @returns this PaymentCallBuilder instance
    */
   public forTransaction(transactionId: string): this {
@@ -62,7 +62,7 @@ export class PaymentCallBuilder extends CallBuilder<
    * Adds a parameter defining whether to include failed transactions.
    *   By default, only operations of successful transactions are returned.
    *
-   * @param value Set to `true` to include operations of failed transactions.
+   * @param value - Set to `true` to include operations of failed transactions.
    * @returns this PaymentCallBuilder instance
    */
   public includeFailed(value: boolean): this {

@@ -49,12 +49,15 @@ export type GeneratedBindings = {
  * and compile-time type checking.
  *
  * @example
+ * ```ts
  * // Create from a local WASM file
  * const wasmBuffer = fs.readFileSync("./my_contract.wasm");
  * const generator = await BindingGenerator.fromWasm(wasmBuffer);
  * const bindings = generator.generate({ contractName: "my-contract" });
+ * ```
  *
  * @example
+ * ```ts
  * // Create from a contract deployed on the network
  * const generator = await BindingGenerator.fromContractId(
  *   "CABC...XYZ",
@@ -62,12 +65,15 @@ export type GeneratedBindings = {
  *   Networks.TESTNET
  * );
  * const bindings = generator.generate({ contractName: "my-contract" });
+ * ```
  *
  * @example
+ * ```ts
  * // Create from a Spec object directly
  * const spec = new Spec(specEntries);
  * const generator = BindingGenerator.fromSpec(spec);
  * const bindings = generator.generate({ contractName: "my-contract" });
+ * ```
  */
 export class BindingGenerator {
   private spec: Spec;
@@ -91,8 +97,10 @@ export class BindingGenerator {
    * @returns A new BindingGenerator instance
    *
    * @example
+   * ```ts
    * const spec = new Spec(specEntries);
    * const generator = BindingGenerator.fromSpec(spec);
+   * ```
    */
   static fromSpec(spec: Spec): BindingGenerator {
     return new BindingGenerator(spec);
@@ -109,8 +117,10 @@ export class BindingGenerator {
    * @throws If the WASM file doesn't contain a valid contract spec
    *
    * @example
+   * ```ts
    * const wasmBuffer = fs.readFileSync("./target/wasm32-unknown-unknown/release/my_contract.wasm");
    * const generator = await BindingGenerator.fromWasm(wasmBuffer);
+   * ```
    */
   static fromWasm(wasmBuffer: Buffer): BindingGenerator {
     const spec = new Spec(specFromWasm(wasmBuffer));
@@ -130,11 +140,13 @@ export class BindingGenerator {
    * @throws If the WASM cannot be fetched or doesn't contain a valid spec
    *
    * @example
+   * ```ts
    * const generator = await BindingGenerator.fromWasmHash(
    *   "a1b2c3...xyz",
    *   "https://soroban-testnet.stellar.org",
    *   Networks.TESTNET
    * );
+   * ```
    */
   static async fromWasmHash(
     wasmHash: string,
@@ -160,10 +172,12 @@ export class BindingGenerator {
    * @throws If the contract cannot be found or fetched
    *
    * @example
+   * ```ts
    * const generator = await BindingGenerator.fromContractId(
    *   "CABC123...XYZ",
    *   rpcServer
    * );
+   * ```
    */
   static async fromContractId(
     contractId: string,
@@ -191,11 +205,12 @@ export class BindingGenerator {
    * to write files as needed.
    *
    * @param options - Configuration options for generation
-   * @param options.contractName - Required. The name for the generated package (kebab-case recommended)
+   *   - `contractName`: Required. The name for the generated package (kebab-case recommended)
    * @returns An object containing all generated file contents as strings
    * @throws If contractName is missing or empty
    *
    * @example
+   * ```ts
    * const bindings = generator.generate({
    *   contractName: "my-token",
    *   contractAddress: "CABC...XYZ",
@@ -206,6 +221,7 @@ export class BindingGenerator {
    * // Write files to disk
    * fs.writeFileSync("./src/client.ts", bindings.client);
    * fs.writeFileSync("./src/types.ts", bindings.types);
+   * ```
    */
   generate(options: GenerateOptions): GeneratedBindings {
     this.validateOptions(options);

@@ -10,7 +10,7 @@ import type { HttpClient } from "../http-client/index.js";
  * Do not create this object directly, use {@link Horizon.Server.liquidityPools}.
  *
  * @internal
- * @param serverUrl Horizon server URL.
+ * @param serverUrl - Horizon server URL.
  */
 export class LiquidityPoolCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.LiquidityPoolRecord>
@@ -37,7 +37,7 @@ export class LiquidityPoolCallBuilder extends CallBuilder<
   /**
    * Retrieves all pools an account is participating in.
    *
-   * @param id   the participant account to filter by
+   * @param id - the participant account to filter by
    * @returns current LiquidityPoolCallBuilder instance
    */
   public forAccount(id: string): this {
@@ -48,7 +48,7 @@ export class LiquidityPoolCallBuilder extends CallBuilder<
   /**
    * Retrieves a specific liquidity pool by ID.
    *
-   * @param id   the hash/ID of the liquidity pool
+   * @param id - the hash/ID of the liquidity pool
    * @returns a new CallBuilder instance for the /liquidity_pools/:id endpoint
    */
   public liquidityPoolId(

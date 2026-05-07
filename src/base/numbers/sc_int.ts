@@ -12,6 +12,7 @@ import { XdrLargeInt, type ScIntType } from "./xdr_large_int.js";
  * example, you could do `new XdrLargeInt('u128', bytes...).toBigInt()`.
  *
  * @example
+ * ```ts
  * import { xdr, ScInt, scValToBigInt } from "@stellar/stellar-base";
  *
  * // You have an ScVal from a contract and want to parse it into JS native.
@@ -52,6 +53,7 @@ import { XdrLargeInt, type ScIntType } from "./xdr_large_int.js";
  *
  * // Or reinterpret it as a different type (size permitting):
  * const scv = i.toI64();
+ * ```
  *
  * @throws if the `value` is invalid (e.g. floating point), too
  *    large (i.e. exceeds a 256-bit value), doesn't fit in the `opts.type`,
@@ -67,7 +69,7 @@ export class ScInt extends XdrLargeInt {
    *    you can construct them directly without needing this wrapper, e.g.
    *    `xdr.ScVal.scvU32(1234)`.
    * @param opts - an optional object controlling optional parameters
-   * @param opts.type - specify a type ('i64', 'u64', 'i128', 'u128', 'i256',
+   *   - `type`: specify a type ('i64', 'u64', 'i128', 'u128', 'i256',
    *    or 'u256') to override the default type selection. If not specified, the
    *    smallest type that fits the value is used.
    */
