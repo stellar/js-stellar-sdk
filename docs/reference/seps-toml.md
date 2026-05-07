@@ -11,7 +11,7 @@ category: SEPs / Toml
 type ContractId = string
 ```
 
-**Source:** [src/stellartoml/index.ts:101](https://github.com/stellar/js-stellar-sdk/blob/fbaf2a75a73b202bcc45a77c9e84a1a04beeb666/src/stellartoml/index.ts#L101)
+**Source:** [src/stellartoml/index.ts:101](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/stellartoml/index.ts#L101)
 
 ## StellarToml.Api.Currency
 
@@ -19,7 +19,7 @@ type ContractId = string
 interface Currency
 ```
 
-**Source:** [src/stellartoml/index.ts:134](https://github.com/stellar/js-stellar-sdk/blob/fbaf2a75a73b202bcc45a77c9e84a1a04beeb666/src/stellartoml/index.ts#L134)
+**Source:** [src/stellartoml/index.ts:134](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/stellartoml/index.ts#L134)
 
 ## StellarToml.Api.Documentation
 
@@ -27,7 +27,7 @@ interface Currency
 interface Documentation
 ```
 
-**Source:** [src/stellartoml/index.ts:103](https://github.com/stellar/js-stellar-sdk/blob/fbaf2a75a73b202bcc45a77c9e84a1a04beeb666/src/stellartoml/index.ts#L103)
+**Source:** [src/stellartoml/index.ts:103](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/stellartoml/index.ts#L103)
 
 ## StellarToml.Api.ISODateTime
 
@@ -35,7 +35,7 @@ interface Documentation
 type ISODateTime = string
 ```
 
-**Source:** [src/stellartoml/index.ts:102](https://github.com/stellar/js-stellar-sdk/blob/fbaf2a75a73b202bcc45a77c9e84a1a04beeb666/src/stellartoml/index.ts#L102)
+**Source:** [src/stellartoml/index.ts:102](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/stellartoml/index.ts#L102)
 
 ## StellarToml.Api.Principal
 
@@ -43,7 +43,7 @@ type ISODateTime = string
 interface Principal
 ```
 
-**Source:** [src/stellartoml/index.ts:123](https://github.com/stellar/js-stellar-sdk/blob/fbaf2a75a73b202bcc45a77c9e84a1a04beeb666/src/stellartoml/index.ts#L123)
+**Source:** [src/stellartoml/index.ts:123](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/stellartoml/index.ts#L123)
 
 ## StellarToml.Api.PublicKey
 
@@ -51,7 +51,7 @@ interface Principal
 type PublicKey = string
 ```
 
-**Source:** [src/stellartoml/index.ts:100](https://github.com/stellar/js-stellar-sdk/blob/fbaf2a75a73b202bcc45a77c9e84a1a04beeb666/src/stellartoml/index.ts#L100)
+**Source:** [src/stellartoml/index.ts:100](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/stellartoml/index.ts#L100)
 
 ## StellarToml.Api.StellarToml
 
@@ -59,7 +59,7 @@ type PublicKey = string
 interface StellarToml
 ```
 
-**Source:** [src/stellartoml/index.ts:182](https://github.com/stellar/js-stellar-sdk/blob/fbaf2a75a73b202bcc45a77c9e84a1a04beeb666/src/stellartoml/index.ts#L182)
+**Source:** [src/stellartoml/index.ts:182](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/stellartoml/index.ts#L182)
 
 ## StellarToml.Api.StellarTomlResolveOptions
 
@@ -67,7 +67,7 @@ interface StellarToml
 interface StellarTomlResolveOptions
 ```
 
-**Source:** [src/stellartoml/index.ts:94](https://github.com/stellar/js-stellar-sdk/blob/fbaf2a75a73b202bcc45a77c9e84a1a04beeb666/src/stellartoml/index.ts#L94)
+**Source:** [src/stellartoml/index.ts:94](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/stellartoml/index.ts#L94)
 
 ## StellarToml.Api.Url
 
@@ -75,7 +75,7 @@ interface StellarTomlResolveOptions
 type Url = string
 ```
 
-**Source:** [src/stellartoml/index.ts:99](https://github.com/stellar/js-stellar-sdk/blob/fbaf2a75a73b202bcc45a77c9e84a1a04beeb666/src/stellartoml/index.ts#L99)
+**Source:** [src/stellartoml/index.ts:99](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/stellartoml/index.ts#L99)
 
 ## StellarToml.Api.Validator
 
@@ -83,7 +83,7 @@ type Url = string
 interface Validator
 ```
 
-**Source:** [src/stellartoml/index.ts:171](https://github.com/stellar/js-stellar-sdk/blob/fbaf2a75a73b202bcc45a77c9e84a1a04beeb666/src/stellartoml/index.ts#L171)
+**Source:** [src/stellartoml/index.ts:171](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/stellartoml/index.ts#L171)
 
 ## StellarToml.Resolver
 
@@ -93,7 +93,7 @@ Resolver allows resolving `stellar.toml` files.
 class Resolver
 ```
 
-**Source:** [src/stellartoml/index.ts:16](https://github.com/stellar/js-stellar-sdk/blob/fbaf2a75a73b202bcc45a77c9e84a1a04beeb666/src/stellartoml/index.ts#L16)
+**Source:** [src/stellartoml/index.ts:16](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/stellartoml/index.ts#L16)
 
 ## StellarToml.STELLAR_TOML_MAX_SIZE
 
@@ -103,4 +103,4 @@ The maximum size of stellar.toml file, in bytes
 const STELLAR_TOML_MAX_SIZE: number
 ```
 
-**Source:** [src/stellartoml/index.ts:11](https://github.com/stellar/js-stellar-sdk/blob/fbaf2a75a73b202bcc45a77c9e84a1a04beeb666/src/stellartoml/index.ts#L11)
+**Source:** [src/stellartoml/index.ts:11](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/stellartoml/index.ts#L11)

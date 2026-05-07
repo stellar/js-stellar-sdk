@@ -584,20 +584,142 @@ function findComment(refl: Reflection): Comment | undefined {
   return refl.comment ?? refl.signatures?.[0]?.comment;
 }
 
+// === Block-tag extraction and section rendering ===
+
+interface ExtractedTags {
+  deprecated?: SummaryDisplayPart[];
+  returns?: SummaryDisplayPart[];
+  warning?: SummaryDisplayPart[];
+  throws: SummaryDisplayPart[][];
+  examples: SummaryDisplayPart[][];
+  see: SummaryDisplayPart[][];
+}
+
+function extractTags(comment: Comment | undefined): ExtractedTags {
+  const tags: ExtractedTags = { throws: [], examples: [], see: [] };
+  if (comment === undefined) return tags;
+  for (const bt of comment.blockTags ?? []) {
+    const content = bt.content ?? [];
+    if (bt.tag === "@deprecated") tags.deprecated = content;
+    else if (bt.tag === "@returns") tags.returns = content;
+    else if (bt.tag === "@warning") tags.warning = content;
+    else if (bt.tag === "@throws") tags.throws.push(content);
+    else if (bt.tag === "@example") tags.examples.push(content);
+    else if (bt.tag === "@see") tags.see.push(content);
+  }
+  return tags;
+}
+
+function renderDeprecatedParagraph(
+  content: SummaryDisplayPart[] | undefined,
+): string {
+  if (content === undefined) return "";
+  const desc = renderSummary(content);
+  return desc.length > 0 ? `**Deprecated.** ${desc}` : "**Deprecated.**";
+}
+
+function renderParametersSection(refl: Reflection): string {
+  const params = refl.signatures?.[0]?.parameters ?? [];
+  const bullets: string[] = [];
+  for (const p of params) {
+    const desc = renderSummary(p.comment?.summary);
+    if (desc.length === 0) continue;
+    bullets.push(`- \`${p.name}\` — ${desc}`);
+  }
+  if (bullets.length === 0) return "";
+  return `**Parameters**\n\n${bullets.join("\n")}`;
+}
+
+function renderReturnsSection(
+  content: SummaryDisplayPart[] | undefined,
+): string {
+  if (content === undefined) return "";
+  const desc = renderSummary(content);
+  if (desc.length === 0) return "";
+  return `**Returns**\n\n${desc}`;
+}
+
+function renderThrowsSection(contents: SummaryDisplayPart[][]): string {
+  const bullets: string[] = [];
+  for (const c of contents) {
+    const desc = renderSummary(c);
+    if (desc.length === 0) continue;
+    bullets.push(`- ${desc}`);
+  }
+  if (bullets.length === 0) return "";
+  return `**Throws**\n\n${bullets.join("\n")}`;
+}
+
+// TypeDoc emits the entire `@example` fence as a single `code`-kind
+// summary part. When the source omits the language tag, prepend `ts`
+// so the rendered markdown highlights as TypeScript.
+function ensureExampleLanguageHint(text: string): string {
+  return text.replace(/^```\n/, "```ts\n");
+}
+
+function renderExamplesSection(contents: SummaryDisplayPart[][]): string {
+  const blocks: string[] = [];
+  for (const c of contents) {
+    const text = renderSummary(c);
+    if (text.length === 0) continue;
+    blocks.push(`**Example**\n\n${ensureExampleLanguageHint(text)}`);
+  }
+  return blocks.join("\n\n");
+}
+
+function renderSeeSection(contents: SummaryDisplayPart[][]): string {
+  const bullets: string[] = [];
+  for (const c of contents) {
+    const desc = renderSummary(c);
+    if (desc.length === 0) continue;
+    bullets.push(`- ${desc}`);
+  }
+  if (bullets.length === 0) return "";
+  return `**See also**\n\n${bullets.join("\n")}`;
+}
+
+function renderWarningSection(
+  content: SummaryDisplayPart[] | undefined,
+): string {
+  if (content === undefined) return "";
+  const desc = renderSummary(content);
+  if (desc.length === 0) return "";
+  return `**Warning**\n\n${desc}`;
+}
+
 // === Per-symbol block ===
 
 function renderSymbolBlock(record: SymbolRecord, sha: string): string {
   try {
+    const comment = findComment(record.refl);
+    const tags = extractTags(comment);
+
     const heading = `## ${record.qname}`;
-    const summary = renderSummary(findComment(record.refl)?.summary);
-    const signature = renderSignature(record.refl);
+    const deprecated = renderDeprecatedParagraph(tags.deprecated);
+    const summary = renderSummary(comment?.summary);
+    const fence = `\`\`\`ts\n${renderSignature(record.refl)}\n\`\`\``;
+    const params = renderParametersSection(record.refl);
+    const returns = renderReturnsSection(tags.returns);
+    const throwsSection = renderThrowsSection(tags.throws);
+    const examples = renderExamplesSection(tags.examples);
+    const see = renderSeeSection(tags.see);
+    const warning = renderWarningSection(tags.warning);
     const sourceLink = `**Source:** [${record.sourceFilePath}:${record.sourceLine}](https://github.com/${REPO_SLUG}/blob/${sha}/${record.sourceFilePath}#L${record.sourceLine})`;
-    const fence = "```ts\n" + signature + "\n```";
-    const blocks =
-      summary.length > 0
-        ? [heading, summary, fence, sourceLink]
-        : [heading, fence, sourceLink];
-    return blocks.join("\n\n");
+
+    const sections = [
+      heading,
+      deprecated,
+      summary,
+      fence,
+      params,
+      returns,
+      throwsSection,
+      examples,
+      see,
+      warning,
+      sourceLink,
+    ];
+    return sections.filter((s) => s.length > 0).join("\n\n");
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     throw new Error(

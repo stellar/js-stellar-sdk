@@ -21,7 +21,7 @@ Use more convenient methods to create `Keypair` object:
 class Keypair
 ```
 
-**Source:** [src/base/keypair.ts:21](https://github.com/stellar/js-stellar-sdk/blob/fbaf2a75a73b202bcc45a77c9e84a1a04beeb666/src/base/keypair.ts#L21)
+**Source:** [src/base/keypair.ts:21](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/base/keypair.ts#L21)
 
 ## SignerKey
 
@@ -35,7 +35,11 @@ It's primarily used for manipulating the `extraSigners` precondition on a
 class SignerKey
 ```
 
-**Source:** [src/base/signerkey.ts:19](https://github.com/stellar/js-stellar-sdk/blob/fbaf2a75a73b202bcc45a77c9e84a1a04beeb666/src/base/signerkey.ts#L19)
+**See also**
+
+- {@link TransactionBuilder.setExtraSigners}
+
+**Source:** [src/base/signerkey.ts:19](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/base/signerkey.ts#L19)
 
 ## StrKey
 
@@ -47,7 +51,7 @@ string (i.e. "GABCD...", etc.) representations.
 class StrKey
 ```
 
-**Source:** [src/base/strkey.ts:54](https://github.com/stellar/js-stellar-sdk/blob/fbaf2a75a73b202bcc45a77c9e84a1a04beeb666/src/base/strkey.ts#L54)
+**Source:** [src/base/strkey.ts:54](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/base/strkey.ts#L54)
 
 ## sign
 
@@ -57,7 +61,12 @@ Signs data using an Ed25519 secret key.
 sign(data: Buffer, rawSecret: Uint8Array<ArrayBufferLike> | Buffer<ArrayBufferLike>): Buffer
 ```
 
-**Source:** [src/base/signing.ts:20](https://github.com/stellar/js-stellar-sdk/blob/fbaf2a75a73b202bcc45a77c9e84a1a04beeb666/src/base/signing.ts#L20)
+**Parameters**
+
+- `data` — the data to sign
+- `rawSecret` — the raw Ed25519 secret key
+
+**Source:** [src/base/signing.ts:20](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/base/signing.ts#L20)
 
 ## verify
 
@@ -67,4 +76,10 @@ Verifies an Ed25519 signature against the given data and public key.
 verify(data: Buffer, signature: Buffer, rawPublicKey: Uint8Array<ArrayBufferLike> | Buffer<ArrayBufferLike>): boolean
 ```
 
-**Source:** [src/base/signing.ts:31](https://github.com/stellar/js-stellar-sdk/blob/fbaf2a75a73b202bcc45a77c9e84a1a04beeb666/src/base/signing.ts#L31)
+**Parameters**
+
+- `data` — the original signed data
+- `signature` — the signature to verify
+- `rawPublicKey` — the raw Ed25519 public key
+
+**Source:** [src/base/signing.ts:31](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/base/signing.ts#L31)

@@ -17,4 +17,34 @@ and compile-time type checking.
 class BindingGenerator
 ```
 
-**Source:** [src/bindings/generator.ts:78](https://github.com/stellar/js-stellar-sdk/blob/fbaf2a75a73b202bcc45a77c9e84a1a04beeb666/src/bindings/generator.ts#L78)
+**Example**
+
+```ts
+// Create from a local WASM file
+const wasmBuffer = fs.readFileSync("./my_contract.wasm");
+const generator = await BindingGenerator.fromWasm(wasmBuffer);
+const bindings = generator.generate({ contractName: "my-contract" });
+```
+
+**Example**
+
+```ts
+// Create from a contract deployed on the network
+const generator = await BindingGenerator.fromContractId(
+  "CABC...XYZ",
+  "https://soroban-testnet.stellar.org",
+  Networks.TESTNET
+);
+const bindings = generator.generate({ contractName: "my-contract" });
+```
+
+**Example**
+
+```ts
+// Create from a Spec object directly
+const spec = new Spec(specEntries);
+const generator = BindingGenerator.fromSpec(spec);
+const bindings = generator.generate({ contractName: "my-contract" });
+```
+
+**Source:** [src/bindings/generator.ts:78](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/bindings/generator.ts#L78)

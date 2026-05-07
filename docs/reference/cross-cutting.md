@@ -13,7 +13,22 @@ Global config class.
 class Config
 ```
 
-**Source:** [src/config.ts:39](https://github.com/stellar/js-stellar-sdk/blob/fbaf2a75a73b202bcc45a77c9e84a1a04beeb666/src/config.ts#L39)
+**Example**
+
+```ts
+import { Config } from '@stellar/stellar-sdk';
+Config.setAllowHttp(true);
+Config.setTimeout(5000);
+```
+
+**Example**
+
+```ts
+StellarSdk.Config.setAllowHttp(true);
+StellarSdk.Config.setTimeout(5000);
+```
+
+**Source:** [src/config.ts:39](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/config.ts#L39)
 
 ## Utils
 
@@ -23,4 +38,4 @@ Miscellaneous utilities.
 class Utils
 ```
 
-**Source:** [src/utils.ts:7](https://github.com/stellar/js-stellar-sdk/blob/fbaf2a75a73b202bcc45a77c9e84a1a04beeb666/src/utils.ts#L7)
+**Source:** [src/utils.ts:7](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/utils.ts#L7)

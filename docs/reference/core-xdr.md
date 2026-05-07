@@ -13,4 +13,8 @@ Computes the SHA-256 hash of the given data.
 hash(data: string | Buffer<ArrayBufferLike>): Buffer
 ```
 
-**Source:** [src/base/hashing.ts:8](https://github.com/stellar/js-stellar-sdk/blob/fbaf2a75a73b202bcc45a77c9e84a1a04beeb666/src/base/hashing.ts#L8)
+**Parameters**
+
+- `data` — the data to hash
+
+**Source:** [src/base/hashing.ts:8](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/base/hashing.ts#L8)
