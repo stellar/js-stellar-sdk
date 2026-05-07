@@ -106,8 +106,27 @@ const baseSdkConfig = [
     files: ["src/base/**/*.ts"],
     rules: {
       "@typescript-eslint/no-redeclare": "off",
-      "@typescript-eslint/no-use-before-define": ["error", { functions: false }],
+      "@typescript-eslint/no-use-before-define": [
+        "error",
+        { functions: false },
+      ],
       "@typescript-eslint/naming-convention": "off",
+    },
+  },
+];
+
+// scripts/build-docs.ts dispatches a discriminated-union renderer through
+// mutually recursive helpers; function-declaration hoisting handles the
+// runtime ordering. Match baseSdkConfig's `functions: false` loosening.
+const scriptsRulesConfig = [
+  {
+    name: "scripts/mutual-recursion",
+    files: ["scripts/**/*.ts"],
+    rules: {
+      "@typescript-eslint/no-use-before-define": [
+        "error",
+        { functions: false },
+      ],
     },
   },
 ];
@@ -146,6 +165,8 @@ export default [
   ...scriptsConfig,
   // Base SDK overrides (must come after typescriptConfig/tsdocConfig)
   ...baseSdkConfig,
+  // Scripts overrides (must come after typescriptConfig/scriptsConfig)
+  ...scriptsRulesConfig,
   // Prettier Config
   ...prettierConfig,
 ];
