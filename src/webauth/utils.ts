@@ -26,7 +26,6 @@ import { InvalidChallengeError } from "./errors.js";
  *
  * transaction.sign(keypair1, keypair2)
  * WebAuth.gatherTxSigners(transaction, [keypair1.publicKey(), keypair2.publicKey()])
- * @category SEPs / WebAuth
  */
 export function gatherTxSigners(
   transaction: FeeBumpTransaction | Transaction,
@@ -87,7 +86,6 @@ export function gatherTxSigners(
  *
  * transaction.sign(keypair)
  * WebAuth.verifyTxSignedBy(transaction, keypair.publicKey())
- * @category SEPs / WebAuth
  */
 export function verifyTxSignedBy(
   transaction: FeeBumpTransaction | Transaction,
@@ -98,7 +96,6 @@ export function verifyTxSignedBy(
 
 /**
  * A parsed and validated challenge transaction, and some of its constituent details.
- * @category SEPs / WebAuth
  */
 export type ChallengeTxDetails = {
   /** The challenge transaction. */

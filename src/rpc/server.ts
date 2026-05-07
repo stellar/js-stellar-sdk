@@ -36,7 +36,6 @@ import type { HttpClient } from "../http-client/index.js";
 /**
  * Default transaction submission timeout for RPC requests, in milliseconds
  * @default 60000
- * @category Network / RPC
  */
 export const SUBMIT_TRANSACTION_TIMEOUT = 60 * 1000;
 
@@ -45,14 +44,12 @@ export const SUBMIT_TRANSACTION_TIMEOUT = 60 * 1000;
  *
  * @see {@link https://developers.stellar.org/docs/learn/smart-contract-internals/state-archival | State Archival docs}
  * @see {@link https://docs.rs/soroban-sdk/latest/soroban_sdk/storage/struct.Storage.html | Rust SDK Storage docs}
- * @category Network / RPC
  */
 export enum Durability {
   Temporary = "temporary",
   Persistent = "persistent",
 }
 
-/** @category Network / RPC */
 export namespace RpcServer {
   /**
    * @deprecated Use `Api.GetEventsRequest` instead.
@@ -90,17 +87,14 @@ const DEFAULT_GET_TRANSACTION_TIMEOUT: number = 30;
 
 /// A strategy that will sleep 1 second each time
 
-/** @category Network / RPC */
 export const BasicSleepStrategy: SleepStrategy = (_iter: number) => 1000;
 
 /// A strategy that will sleep 1 second longer on each attempt
-/** @category Network / RPC */
 export const LinearSleepStrategy: SleepStrategy = (iter: number) => 1000 * iter;
 
 /**
  * A function that returns the number of *milliseconds* to sleep
  * on a given `iter`ation.
- * @category Network / RPC
  */
 export type SleepStrategy = (iter: number) => number;
 

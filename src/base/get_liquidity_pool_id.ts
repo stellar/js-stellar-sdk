@@ -4,13 +4,11 @@ import { hash } from "./hashing.js";
 
 // Using namespace to keep the current structure of the code, but it can be easily refactored to use a more modern approach with union types and interfaces if needed.
 
-/** @category Core / Assets */
 export namespace LiquidityPoolType {
   export type constantProduct = "constant_product";
 }
 export type LiquidityPoolType = LiquidityPoolType.constantProduct;
 
-/** @category Core / Assets */
 export namespace LiquidityPoolParameters {
   export interface ConstantProduct {
     assetA: Asset;
@@ -21,7 +19,6 @@ export namespace LiquidityPoolParameters {
 export type LiquidityPoolParameters = LiquidityPoolParameters.ConstantProduct;
 
 // LiquidityPoolFeeV18 is the default liquidity pool fee in protocol v18. It defaults to 30 base points (0.3%).
-/** @category Core / Assets */
 export const LiquidityPoolFeeV18 = 30;
 
 /**
@@ -37,7 +34,6 @@ export const LiquidityPoolFeeV18 = 30;
  * @param liquidityPoolParameters.assetA - The first asset in the Pool, it must respect the rule assetA < assetB.
  * @param liquidityPoolParameters.assetB - The second asset in the Pool, it must respect the rule assetA < assetB.
  * @param liquidityPoolParameters.fee - The liquidity pool fee. For now the only fee supported is `30`.
- * @category Core / Assets
  */
 export function getLiquidityPoolId(
   liquidityPoolType: LiquidityPoolType,

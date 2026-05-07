@@ -93,6 +93,7 @@
     "clean:bundle-size": "rm -rf node_modules lib/ dist/ coverage/ jsdoc/ test/e2e/.soroban",
     "docs": "jsdoc -c ./config/.jsdoc.json",
     "docs:check": "typedoc",
+    "docs:reference": "tsx scripts/build-docs.ts",
     "test": "pnpm run test:node && pnpm run test:node:axios && pnpm run test:integration && pnpm run test:browser",
     "test:all": "pnpm run test:node && pnpm run test:node:axios && pnpm run test:integration && pnpm run test:browser && pnpm run test:e2e",
     "test:e2e": "./test/e2e/initialize.sh && vitest run --config config/vitest.config.e2e.ts --coverage",
@@ -118,6 +119,8 @@
     "node": ">=22.0.0"
   },
   "devDependencies": {
+    "@astrojs/sitemap": "^3.7.2",
+    "@astrojs/starlight": "^0.39.0",
     "@eslint/compat": "^1.4.1",
     "@eslint/js": "^9.39.4",
     "@rollup/plugin-commonjs": "^28.0.6",
@@ -137,6 +140,7 @@
     "@vitest/coverage-istanbul": "4.1.2",
     "@vitest/coverage-v8": "^4.1.2",
     "@vitest/ui": "^4.1.2",
+    "astro": "^6.3.0",
     "better-docs": "^2.7.3",
     "browserify-zlib": "^0.2.0",
     "cross-env": "^7.0.3",
@@ -162,7 +166,7 @@
     "rollup-plugin-esbuild": "^6.2.1",
     "rollup-plugin-polyfill-node": "^0.13.0",
     "taffydb": "^2.7.3",
-    "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
     "typedoc": "^0.28.19",
     "typedoc-plugin-markdown": "^4.11.0",
     "typescript": "5.9.3",

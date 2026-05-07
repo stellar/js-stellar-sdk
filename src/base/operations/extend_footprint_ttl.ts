@@ -30,7 +30,6 @@ import {
  * @param opts.extendTo - the minimum TTL that all the entries in
  *    the read-only footprint will have
  * @param opts.source - an optional source account
- * @category Core / Transactions
  */
 export function extendFootprintTtl(
   opts: ExtendFootprintTtlOpts,

@@ -4,7 +4,6 @@ import { Transaction } from "./base/index.js";
  * Miscellaneous utilities.
  *
  * @hideconstructor
- * @category Cross-cutting
  */
 export class Utils {
   /**

@@ -15,7 +15,6 @@ type XdrLargeIntValues =
   | number
   | string;
 
-/** @category Core / Transactions */
 export type ScIntType =
   | "duration"
   | "i64"
@@ -32,7 +31,6 @@ export type ScIntType =
  * This operates at a lower level than {@link ScInt} by forcing you to specify
  * the type / width / size in bits of the integer you're targeting, regardless
  * of the input value(s) you provide.
- * @category Core / Transactions
  */
 export class XdrLargeInt {
   int: LargeInt;

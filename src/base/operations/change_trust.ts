@@ -24,7 +24,6 @@ const MAX_INT64 = "9223372036854775807";
  * @param opts.limit - The limit for the asset, defaults to max int64.
  *                     If the limit is set to "0" it deletes the trustline.
  * @param opts.source - The source account (defaults to transaction source).
- * @category Core / Transactions
  */
 export function changeTrust(
   opts: ChangeTrustOpts,

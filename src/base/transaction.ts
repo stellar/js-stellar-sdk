@@ -21,7 +21,6 @@ import { OperationRecord } from "./operations/types.js";
  * to a Transaction object before submitting to the network or forwarding on to
  * additional signers.
  *
- * @category Core / Transactions
  */
 export class Transaction extends TransactionBase<
   xdr.Transaction | xdr.TransactionV0

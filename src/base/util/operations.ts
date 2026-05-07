@@ -4,11 +4,10 @@ import { best_r } from "./continued_fraction.js";
 import { decodeAddressToMuxedAccount } from "./decode_encode_muxed_account.js";
 import type { BigNumber } from "./bignumber.js";
 import CustomBigNumber from "./bignumber.js";
-/** @category Core / Transactions */
 export const ONE = 10000000;
 const MAX_INT64 = "9223372036854775807";
 
-/** Sets the source account on the operation attributes from the opts. @category Core / Transactions */
+/** Sets the source account on the operation attributes from the opts.*/
 export function setSourceAccount(
   opAttributes: OperationAttributes,
   opts: { source?: string },
@@ -30,7 +29,6 @@ export function setSourceAccount(
  * @param name - name of the property (used in error message only)
  * @param value - value to check
  * @param isValidFunction - function to check other constraints (the argument will be a `Number`)
- * @category Core / Transactions
  */
 export function checkUnsignedIntValue(
   name: string,
@@ -70,7 +68,6 @@ export function checkUnsignedIntValue(
  * Converts a string amount to an XDR Int64 value (scaled by 10^7).
  *
  * @param value - the amount as a string
- * @category Core / Transactions
  */
 export function toXDRAmount(value: string): xdr.Int64 {
   const amount = new CustomBigNumber(value).times(ONE);
@@ -81,7 +78,6 @@ export function toXDRAmount(value: string): xdr.Int64 {
  * Converts an XDR Int64 amount to a decimal string (divided by 10^7).
  *
  * @param value - the XDR amount
- * @category Core / Transactions
  */
 export function fromXDRAmount(value: xdr.Int64): string {
   return new CustomBigNumber(value.toString()).div(ONE).toFixed(7);
@@ -91,7 +87,6 @@ export function fromXDRAmount(value: xdr.Int64): string {
  * Converts an XDR Price (n/d) to a decimal string.
  *
  * @param price - the XDR price object
- * @category Core / Transactions
  */
 export function fromXDRPrice(price: xdr.Price): string {
   const n = new CustomBigNumber(price.n());
@@ -102,7 +97,6 @@ export function fromXDRPrice(price: xdr.Price): string {
  * Converts a number, string, or `{n, d}` object to an XDR Price.
  *
  * @param price - the price as a number, string, or `{n, d}` fraction
- * @category Core / Transactions
  */
 export function toXDRPrice(
   price: BigNumber | number | string | { n: number; d: number },
@@ -142,7 +136,6 @@ export function toXDRPrice(
  *
  * @param value - the amount to validate
  * @param allowZero - optionally, whether or not zero is valid (default: no)
- * @category Core / Transactions
  */
 export function isValidAmount(value: unknown, allowZero = false): boolean {
   if (typeof value !== "string") {
@@ -176,7 +169,7 @@ export function isValidAmount(value: unknown, allowZero = false): boolean {
   return true;
 }
 
-/** Returns a standard error message for invalid amount arguments. @category Core / Transactions */
+/** Returns a standard error message for invalid amount arguments.*/
 export function constructAmountRequirementsError(arg: string): string {
   return `${arg} argument must be of type String, represent a positive number and have at most 7 digits after the decimal`;
 }

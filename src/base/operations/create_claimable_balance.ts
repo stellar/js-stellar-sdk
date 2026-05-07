@@ -40,7 +40,6 @@ import {
  *   amount,
  *   claimants
  * });
- * @category Core / Transactions
  */
 export function createClaimableBalance(
   opts: CreateClaimableBalanceOpts,

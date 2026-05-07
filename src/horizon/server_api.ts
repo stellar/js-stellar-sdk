@@ -9,7 +9,6 @@ import type { OfferRecord as OfferRecordType } from "./types/offer.js";
 import type { Trade } from "./types/trade.js";
 
 /* tslint:disable-next-line: no-namespace */
-/** @category Network / Horizon */
 export namespace ServerApi {
   export type OfferRecord = OfferRecordType;
   export type AccountRecordSigners = AccountRecordSignersType;

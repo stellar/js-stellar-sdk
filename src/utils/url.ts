@@ -1,11 +1,9 @@
-/** @category Network / HTTP */
 export type UrlTemplateValue = string | number | boolean | string[];
 
 function stringifyTemplateValue(value: UrlTemplateValue): string {
   return Array.isArray(value) ? value.join(",") : value.toString();
 }
 
-/** @category Network / HTTP */
 export function expandUriTemplate(
   template: string,
   variables: Record<string, UrlTemplateValue | undefined>,

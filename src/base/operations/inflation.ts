@@ -10,7 +10,6 @@ import {
  * This operation generates the inflation.
  * @param opts - Options object
  * @param opts.source - The optional source account.
- * @category Core / Transactions
  */
 export function inflation(
   opts: InflationOpts = {},

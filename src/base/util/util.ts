@@ -3,7 +3,6 @@
  *
  * @param input - the value to trim
  * @param char - the character to remove from the end
- * @category Cross-cutting
  */
 export const trimEnd = (
   input: number | string,

@@ -4,7 +4,6 @@ import { parseWasmCustomSections } from "./utils.js";
  * @param wasm The contract's wasm binary as a Buffer.
  * @returns The XDR buffer representing the contract spec.
  * @throws If the contract spec cannot be obtained from the provided wasm binary.
- * @category Contracts / Client
  */
 export function specFromWasm(wasm: Buffer) {
   const customData = parseWasmCustomSections(wasm);

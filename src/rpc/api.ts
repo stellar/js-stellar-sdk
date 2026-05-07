@@ -1,7 +1,6 @@
 import { Contract, SorobanDataBuilder, xdr } from "../base/index.js";
 
 /* tslint:disable-next-line:no-namespace */
-/** @category Network / RPC */
 export namespace Api {
   export interface GetHealthResponse {
     latestLedger: number;

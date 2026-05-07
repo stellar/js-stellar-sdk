@@ -19,7 +19,6 @@ import { setSourceAccount } from "../util/operations.js";
  *   sponsoredId: 'GDGU5OAPHNPU5UCLE5RDJHG7PXZFQYWKCFOEXSXNMR6KRQRI5T6XXCD7'
  * });
  *
- * @category Core / Transactions
  */
 export function beginSponsoringFutureReserves(
   opts: BeginSponsoringFutureReservesOpts,

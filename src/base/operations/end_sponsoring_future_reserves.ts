@@ -14,7 +14,6 @@ import {
  * @example
  * const op = Operation.endSponsoringFutureReserves();
  *
- * @category Core / Transactions
  */
 export function endSponsoringFutureReserves(
   opts: EndSponsoringFutureReservesOpts = {},

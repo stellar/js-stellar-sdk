@@ -9,7 +9,6 @@ const MAX_INT_BN = new CustomBigNumber(MAX_INT);
  *
  * @param rawNumber - real number to approximate
  * @throws when the best rational approximation cannot be found
- * @category Core / Transactions
  */
 export function best_r(
   rawNumber: BigNumber | number | string,

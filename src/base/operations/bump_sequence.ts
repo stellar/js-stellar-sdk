@@ -12,7 +12,6 @@ import {
  * @param opts - Options object
  * @param opts.bumpTo - Sequence number to bump to.
  * @param opts.source - The optional source account.
- * @category Core / Transactions
  */
 export function bumpSequence(
   opts: BumpSequenceOpts,

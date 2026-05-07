@@ -5,42 +5,31 @@ import xdr from "./xdr.js";
 
 /**
  * Type of {@link Memo}.
- * @category Core / Transactions
  */
 export const MemoNone = "none";
 /**
  * Type of {@link Memo}.
- * @category Core / Transactions
  */
 export const MemoID = "id";
 /**
  * Type of {@link Memo}.
- * @category Core / Transactions
  */
 export const MemoText = "text";
 /**
  * Type of {@link Memo}.
- * @category Core / Transactions
  */
 export const MemoHash = "hash";
 /**
  * Type of {@link Memo}.
- * @category Core / Transactions
  */
 export const MemoReturn = "return";
 
-/** @category Core / Transactions */
 export type MemoTypeNone = typeof MemoNone;
-/** @category Core / Transactions */
 export type MemoTypeID = typeof MemoID;
-/** @category Core / Transactions */
 export type MemoTypeText = typeof MemoText;
-/** @category Core / Transactions */
 export type MemoTypeHash = typeof MemoHash;
-/** @category Core / Transactions */
 export type MemoTypeReturn = typeof MemoReturn;
 
-/** @category Core / Transactions */
 export namespace MemoType {
   export type None = MemoTypeNone;
   export type ID = MemoTypeID;
@@ -55,7 +44,6 @@ export type MemoType =
   | MemoTypeReturn
   | MemoTypeText;
 
-/** @category Core / Transactions */
 export type MemoValue = Buffer | string | null;
 
 type MemoValueMap = {
@@ -71,7 +59,6 @@ type MemoTypeToValue<T extends MemoType> = MemoValueMap[T];
  * `Memo` represents memos attached to transactions.
  *
  * @see [Transactions concept](https://developers.stellar.org/docs/glossary/transactions/)
- * @category Core / Transactions
  */
 export class Memo<T extends MemoType = MemoType> {
   private _type: T;

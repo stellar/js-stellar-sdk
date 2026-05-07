@@ -1,7 +1,6 @@
 import type { AssetType } from "../../base/index.js";
 import { HorizonApi } from "../horizon_api.js";
 
-/** @category Network / Horizon */
 export interface AssetRecord extends HorizonApi.BaseResponse {
   asset_type: AssetType.credit4 | AssetType.credit12;
   asset_code: string;

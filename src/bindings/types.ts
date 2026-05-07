@@ -12,7 +12,6 @@ import {
 
 /**
  * Interface for struct fields
- * @category Contracts / Bindings
  */
 export interface StructField {
   doc: string;
@@ -22,7 +21,6 @@ export interface StructField {
 
 /**
  * Interface for union cases
- * @category Contracts / Bindings
  */
 export interface UnionCase {
   doc: string;
@@ -32,7 +30,6 @@ export interface UnionCase {
 
 /**
  * Interface for enum cases
- * @category Contracts / Bindings
  */
 export interface EnumCase {
   doc: string;
@@ -42,7 +39,6 @@ export interface EnumCase {
 
 /**
  * Generates TypeScript type definitions from Stellar contract specs
- * @category Contracts / Bindings
  */
 export class TypeGenerator {
   private spec: Spec;

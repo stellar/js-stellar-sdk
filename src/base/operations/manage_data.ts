@@ -12,7 +12,6 @@ import {
  * @param opts.name - The name of the data entry.
  * @param opts.value - The value of the data entry.
  * @param opts.source - The optional source account.
- * @category Core / Transactions
  */
 export function manageData(
   opts: ManageDataOpts,

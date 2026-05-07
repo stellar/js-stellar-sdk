@@ -1,6 +1,5 @@
 import { type BaseEffectRecord, EffectType } from "./effects.js";
 
-/** @category Network / Horizon */
 export interface Trade extends BaseEffectRecord<"trade"> {
   type_i: EffectType.trade;
   seller: string;

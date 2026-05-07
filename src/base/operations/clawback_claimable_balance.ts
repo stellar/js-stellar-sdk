@@ -20,7 +20,6 @@ import {
  * });
  *
  * @see https://github.com/stellar/stellar-protocol/blob/master/core/cap-0035.md#clawback-claimable-balance-operation
- * @category Core / Transactions
  */
 export function clawbackClaimableBalance(
   opts: ClawbackClaimableBalanceOpts = {} as ClawbackClaimableBalanceOpts,

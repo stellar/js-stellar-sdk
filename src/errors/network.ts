@@ -5,7 +5,6 @@ import { HorizonApi } from "../horizon/horizon_api.js";
 /**
  * NetworkError is raised when an interaction with a Horizon server has caused
  * some kind of problem.
- * @category Errors
  *
  * @param message Human-readable error message
  * @param response Response details, received from the Horizon server.

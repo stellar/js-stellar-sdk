@@ -6,7 +6,6 @@
  *
  * This error contains two attributes to help you identify the account requiring
  * the memo and the operation where the account is the destination
- * @category Errors
  *
  * @param message Human-readable error message
  * @param accountId The account which requires a memo

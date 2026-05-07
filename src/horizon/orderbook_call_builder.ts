@@ -14,7 +14,6 @@ import type { HttpClient } from "../http-client/index.js";
  * @param serverUrl serverUrl Horizon server URL.
  * @param selling Asset being sold
  * @param buying Asset being bought
- * @category Network / Horizon
  */
 export class OrderbookCallBuilder extends CallBuilder<ServerApi.OrderbookRecord> {
   constructor(

@@ -8,7 +8,6 @@ import {
 import { WasmFetchError } from "../bindings/index.js";
 import { RpcServer } from "../rpc/server.js";
 
-/** @category Contracts / Bindings */
 export type GenerateAndWriteOptions = GenerateOptions & {
   outputDir: string;
   overwrite?: boolean;
@@ -16,7 +15,6 @@ export type GenerateAndWriteOptions = GenerateOptions & {
 
 /**
  * Source information about where the contract was fetched from
- * @category Contracts / Bindings
  */
 export type ContractSource =
   | { type: "file"; path: string }
@@ -28,7 +26,6 @@ export type ContractSource =
       network: string;
     };
 
-/** @category Contracts / Bindings */
 export type CreateGeneratorArgs = {
   wasm?: string;
   wasmHash?: string;
@@ -38,7 +35,6 @@ export type CreateGeneratorArgs = {
   serverOptions?: RpcServer.Options;
 };
 
-/** @category Contracts / Bindings */
 export type CreateGeneratorResult = {
   generator: BindingGenerator;
   source: ContractSource;
@@ -61,7 +57,6 @@ async function verifyNetwork(
 
 /**
  * Create a BindingGenerator from local file, network hash, or contract ID
- * @category Contracts / Bindings
  */
 export async function createGenerator(
   args: CreateGeneratorArgs,
@@ -137,7 +132,6 @@ export async function createGenerator(
 
 /**
  * Write generated bindings to disk
- * @category Contracts / Bindings
  */
 export async function writeBindings(
   outputDir: string,
@@ -179,7 +173,6 @@ export async function writeBindings(
 }
 /**
  * Generate and write bindings to disk
- * @category Contracts / Bindings
  */
 export async function generateAndWrite(
   generator: BindingGenerator,
@@ -192,7 +185,6 @@ export async function generateAndWrite(
 
 /**
  * Log source information
- * @category Contracts / Bindings
  */
 export function logSourceInfo(source: ContractSource): void {
   console.log("\nSource:");
@@ -218,7 +210,6 @@ export function logSourceInfo(source: ContractSource): void {
 
 /**
  * Derive contract name from source path
- * @category Contracts / Bindings
  */
 export function deriveContractName(source: ContractSource): string | null {
   if (source.type !== "file") return null;

@@ -19,7 +19,6 @@ import { setSourceAccount } from "../util/operations.js";
  * @param opts.assetCode - The asset code being authorized.
  * @param opts.authorize - `1` to authorize, `2` to authorize to maintain liabilities, and `0` to deauthorize.
  * @param opts.source - The source account (defaults to transaction source).
- * @category Core / Transactions
  */
 export function allowTrust(
   opts: AllowTrustOpts,

@@ -57,7 +57,6 @@ import { uint8ArrayToBase64 } from "uint8array-extras";
  *    "stellar.org",
  *    300,
  *    Networks.TESTNET);
- * @category SEPs / WebAuth
  */
 export function buildChallengeTx(
   serverKeypair: Keypair,
@@ -158,7 +157,6 @@ export function buildChallengeTx(
  *    the matched home domain, and the memo attached to the transaction, which
  *    will be null if not present.
  * @see {@link https://stellar.org/protocol/sep-10 | SEP-10: Stellar Web Auth}
- * @category SEPs / WebAuth
  */
 export function readChallengeTx(
   challengeTx: string,
@@ -413,7 +411,6 @@ export function readChallengeTx(
  *    threshold,
  *    [clientKP1.publicKey(), clientKP2.publicKey()]
  * );
- * @category SEPs / WebAuth
  */
 export function verifyChallengeTxSigners(
   challengeTx: string,
@@ -638,7 +635,6 @@ export function verifyChallengeTxSigners(
  *    threshold,
  *    signerSummary
  * );
- * @category SEPs / WebAuth
  */
 export function verifyChallengeTxThreshold(
   challengeTx: string,

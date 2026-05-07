@@ -21,7 +21,6 @@ import {
  *     Defaults to the transaction's source account.
  *
  * @see https://github.com/stellar/stellar-protocol/blob/master/core/cap-0035.md#clawback-operation
- * @category Core / Transactions
  */
 export function clawback(opts: ClawbackOpts): xdr.Operation<ClawbackResult> {
   if (!isValidAmount(opts.amount)) {

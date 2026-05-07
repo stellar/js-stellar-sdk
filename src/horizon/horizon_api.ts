@@ -1,7 +1,6 @@
 import type { AssetType, MemoType } from "../base/index.js";
 
 /* tslint:disable-next-line:no-namespace */
-/** @category Network / Horizon */
 export namespace HorizonApi {
   export interface ResponseLink {
     href: string;

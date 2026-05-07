@@ -11,7 +11,6 @@ import type { HttpClient } from "../http-client/index.js";
  *
  * @internal
  * @param serverUrl Horizon server URL.
- * @category Network / Horizon
  */
 export class LiquidityPoolCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.LiquidityPoolRecord>

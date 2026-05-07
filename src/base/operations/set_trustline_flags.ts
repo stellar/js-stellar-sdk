@@ -35,7 +35,6 @@ import { setSourceAccount } from "../util/operations.js";
  *
  * @see https://github.com/stellar/stellar-protocol/blob/master/core/cap-0035.md#set-trustline-flags-operation
  * @see https://developers.stellar.org/docs/start/list-of-operations/#set-options
- * @category Core / Transactions
  */
 export function setTrustLineFlags(
   opts: SetTrustLineFlagsOpts,

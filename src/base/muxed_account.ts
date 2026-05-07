@@ -55,7 +55,6 @@ function validateUint64Id(id: string): void {
  * TransactionBuilder}.
  *
  * @see https://developers.stellar.org/docs/glossary/muxed-accounts/
- * @category Core / Transactions
  */
 export class MuxedAccount {
   private account: Account;

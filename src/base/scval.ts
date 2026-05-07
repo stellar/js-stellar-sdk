@@ -15,7 +15,6 @@ type ScValMapTypeSpec = Record<
   [(ScValType | null)?, (ScValType | null)?]
 >;
 
-/** @category Core / Soroban Primitives */
 export interface NativeToScValOpts {
   type?: (ScValType | null)[] | ScValMapTypeSpec | ScValType | undefined;
 }
@@ -154,7 +153,6 @@ export interface NativeToScValOpts {
  *
  * // Similarly, the inverse should work:
  * scValToNative(scv) == gigaMap;       // true
- * @category Core / Soroban Primitives
  */
 export function nativeToScVal(
   val: unknown,
@@ -367,7 +365,6 @@ export function nativeToScVal(
  * @param scv - the input smart contract value
  *
  * @see nativeToScVal
- * @category Core / Soroban Primitives
  */
 
 export function scValToNative(scv: xdr.ScVal): any {
@@ -481,7 +478,6 @@ export function scValToNative(scv: xdr.ScVal): any {
  * Build a sorted ScVal map from unsorted entries, sorted by key.
  *
  * @param items - the unsorted map entries
- * @category Core / Soroban Primitives
  */
 export function scvSortedMap(items: xdr.ScMapEntry[]): xdr.ScVal {
   const sorted = Array.from(items).sort((a, b) => {

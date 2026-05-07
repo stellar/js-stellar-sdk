@@ -3,7 +3,6 @@ import xdr from "./xdr.js";
 /**
  * LiquidityPoolId class represents the asset referenced by a trustline to a
  * liquidity pool.
- * @category Core / Assets
  */
 export class LiquidityPoolId {
   liquidityPoolId: string;

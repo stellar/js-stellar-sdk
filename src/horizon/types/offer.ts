@@ -1,14 +1,12 @@
 import type { AssetType } from "../../base/index.js";
 import { HorizonApi } from "../horizon_api.js";
 
-/** @category Network / Horizon */
 export interface OfferAsset {
   asset_type: AssetType;
   asset_code?: string;
   asset_issuer?: string;
 }
 
-/** @category Network / Horizon */
 export interface OfferRecord extends HorizonApi.BaseResponse {
   id: number | string;
   paging_token: string;

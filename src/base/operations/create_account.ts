@@ -21,7 +21,6 @@ import {
  * @param opts.startingBalance - Amount in XLM the account should be funded for. Must be greater
  *     than the {@link https://developers.stellar.org/docs/glossary/fees/ | reserve balance amount}.
  * @param opts.source - The source account for the payment. Defaults to the transaction's source account.
- * @category Core / Transactions
  */
 export function createAccount(
   opts: CreateAccountOpts,

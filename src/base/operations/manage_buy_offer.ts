@@ -25,7 +25,6 @@ import {
  * @param opts.offerId - If `0`, will create a new offer (default). Otherwise, edits an existing offer.
  * @param opts.source - The source account (defaults to transaction source).
  * @throws when the best rational approximation of `price` cannot be found.
- * @category Core / Transactions
  */
 export function manageBuyOffer(
   opts: ManageBuyOfferOpts,

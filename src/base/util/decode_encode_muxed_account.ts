@@ -9,7 +9,6 @@ import { StrKey } from "../strkey.js";
  * both its underlying `G...` address and an integer ID.
  *
  * @param address - G... or M... address to encode into XDR
- * @category Core / Transactions
  */
 export function decodeAddressToMuxedAccount(address: string): xdr.MuxedAccount {
   if (StrKey.isValidMed25519PublicKey(address)) {
@@ -30,7 +29,6 @@ export function decodeAddressToMuxedAccount(address: string): xdr.MuxedAccount {
  * @param muxedAccount - raw account to stringify
  *
  * @see https://stellar.org/protocol/sep-23
- * @category Core / Transactions
  */
 export function encodeMuxedAccountToAddress(
   muxedAccount: xdr.MuxedAccount,
@@ -50,7 +48,6 @@ export function encodeMuxedAccountToAddress(
  *
  * @param address - a Stellar G... address
  * @param id - a Uint64 ID represented as a string
- * @category Core / Transactions
  */
 export function encodeMuxedAccount(
   address: string,
@@ -73,7 +70,6 @@ export function encodeMuxedAccount(
 /**
  * Extracts the underlying base (G...) address from an M-address.
  * @param address - an account address (either M... or G...)
- * @category Core / Transactions
  */
 export function extractBaseAddress(address: string): string {
   if (StrKey.isValidEd25519PublicKey(address)) {

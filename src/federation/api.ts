@@ -1,6 +1,5 @@
 import type { Config } from "../config.js";
 
-/** @category SEPs / Federation */
 export namespace Api {
   /**
    * Record returned from a federation server.

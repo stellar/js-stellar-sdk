@@ -3,7 +3,6 @@
   "entryPointStrategy": "expand",
   "tsconfig": "tsconfig.json",
   "exclude": ["src/base/generated/**"],
-  "plugin": ["typedoc-plugin-markdown"],
   "blockTags": [
     "@defaultValue", "@deprecated", "@example", "@jsx", "@param",
     "@privateRemarks", "@remarks", "@returns", "@see", "@throws",
@@ -61,5 +60,6 @@
     }
   },
   "treatWarningsAsErrors": true,
-  "out": "tmp/typedoc-check"
+  "out": "tmp/typedoc-json/",
+  "json": "tmp/typedoc-json/api.json"
 }

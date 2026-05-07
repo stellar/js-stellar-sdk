@@ -32,7 +32,6 @@ import {
  * @param opts.path - array of Asset objects to use as the path
  * @param opts.source - The source account for the payment.
  *     Defaults to the transaction's source account.
- * @category Core / Transactions
  */
 export function pathPaymentStrictReceive(
   opts: PathPaymentStrictReceiveOpts,

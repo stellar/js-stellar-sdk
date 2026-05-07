@@ -26,7 +26,6 @@ import {
  * @param opts.price.d - If `opts.price` is an object: the price denominator
  * @param opts.source - The source account (defaults to transaction source).
  * @throws when the best rational approximation of `price` cannot be found.
- * @category Core / Transactions
  */
 export function createPassiveSellOffer(
   opts: CreatePassiveSellOfferOpts,

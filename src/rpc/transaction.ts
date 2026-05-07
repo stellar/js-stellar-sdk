@@ -40,7 +40,6 @@ function isSorobanTransaction(tx: Transaction): boolean {
  *
  * @see {@link rpc.Server.simulateTransaction}
  * @see {@link rpc.Server.prepareTransaction}
- * @category Network / RPC
  */
 export function assembleTransaction(
   raw: Transaction | FeeBumpTransaction,
