@@ -146,6 +146,12 @@ ignoreFiles.ignores.push(
     "rollup.config.mjs",
     "config/**/*",
     "src/base/generated/**",
+    // Astro build-time configs — excluded from tsconfig.json (they
+    // import the virtual `astro:content` module), so the typescript-
+    // eslint parser can't resolve them via the SDK project. Lint
+    // coverage from prettier is sufficient for these small configs.
+    "src/content.config.ts",
+    "astro.config.mjs",
   ],
 );
 export default [

@@ -5,6 +5,7 @@
 /dist/
 /coverage/
 /jsdoc/
+/.astro/
 js-stellar-base/
 
 test/unit/out/
